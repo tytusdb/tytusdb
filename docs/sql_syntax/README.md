@@ -1,7 +1,34 @@
 # SQL SYNTAX
 Portion of PostgreSQL 13.1 Documentation [see LICENSE](LICENSE.md)
 
-## Queries
+## 1. General information
+
+### Escape sequence
+Backslash Escape Sequence | Interpretation
+--------------------------|---------------
+\b | backspace
+\f | form feed
+\n | newline
+\r | carriage return
+\t | tab
+\o, \oo, \ooo (o = 0–7) | octal byte value
+\xh, \xhh (h = 0–9, A–F) | hexadecimal byte value
+\uxxxx, \Uxxxxxxxx (x = 0–9, A–F) | 16 or 32-bit hexadecimal Unicode character value
+
+### Numeric constant
+
+```
+digits
+digits.[digits][e[+-]digits]
+[digits].digits[e[+-]digits]
+digitse[+-]digits
+```
+
+## 2. Definition
+
+
+
+## 3. Queries
 
 ### Query structure
 
@@ -77,7 +104,7 @@ query1 EXCEPT [ALL] query2
  Set operations can also be nested and chained. ()
  
  
-## Doubts or ambiguities?
+## 4. Doubts or ambiguities?
 Any doubt or ambiguity consult the most recent [PostgreSQL documentation](https://www.postgresql.org/docs/current/sql.html). 
 
 
