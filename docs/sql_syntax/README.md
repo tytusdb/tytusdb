@@ -22,10 +22,10 @@ Operator/Element | Associativity | Description
 . | left | table/column name separator
 :: | left | PostgreSQL-style typecast
 [ ] | left | array element selection
-+ - | right | unary plus, unary minus
+\+ \- | right | unary plus, unary minus
 ^ | left | exponentiation
-* / % | left | multiplication, division, modulo
-+ - | left | addition, subtraction
+\* / % | left | multiplication, division, modulo
+\+ \- | left | addition, subtraction
 (any other operator) | left | all other native and user-defined operators
 BETWEEN IN LIKE ILIKE SIMILAR | | range containment, set membership, string matching
 < > = <= >= <> | | comparison operators
