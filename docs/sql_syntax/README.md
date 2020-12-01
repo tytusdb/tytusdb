@@ -240,6 +240,132 @@ After passing the WHERE filter, the derived input table might be subject to grou
 SELECT select_list FROM ... [WHERE ...] GROUP BY ... HAVING boolean_expression
 ```
 
+### Logical Operators
+
+The usual logical operators are available:
+
+```
+boolean AND boolean → boolean
+boolean OR boolean → boolean
+NOT boolean → boolean
+```
+
+SQL uses a three-valued logic system with true, false, and null, which represents “unknown”.
+
+### Comparison Operators
+
+Operator|Description
+--------|-----------
+datatype < datatype → boolean|Less than
+datatype > datatype → boolean|Greater than
+datatype <= datatype → boolean|Less than or equal to
+datatype >= datatype → boolean|Greater than or equal to
+datatype = datatype → boolean|Equal
+datatype <> datatype → boolean|Not equal
+datatype != datatype → boolean|Not equal
+
+### Comparison Predicates
+
+Predicate
+Description
+Example(s)
+
+datatype BETWEEN datatype AND datatype → boolean
+Between (inclusive of the range endpoints).
+2 BETWEEN 1 AND 3 → t
+2 BETWEEN 3 AND 1 → f
+
+datatype NOT BETWEEN datatype AND datatype → boolean
+Not between (the negation of BETWEEN).
+2 NOT BETWEEN 1 AND 3 → f
+
+datatype BETWEEN SYMMETRIC datatype AND datatype → boolean
+Between, after sorting the two endpoint values.
+2 BETWEEN SYMMETRIC 3 AND 1 → t
+
+datatype NOT BETWEEN SYMMETRIC datatype AND datatype → boolean
+Not between, after sorting the two endpoint values.
+2 NOT BETWEEN SYMMETRIC 3 AND 1 → f
+
+datatype IS DISTINCT FROM datatype → boolean
+Not equal, treating null as a comparable value.
+1 IS DISTINCT FROM NULL → t (rather than NULL)
+NULL IS DISTINCT FROM NULL → f (rather than NULL)
+
+datatype IS NOT DISTINCT FROM datatype → boolean
+Equal, treating null as a comparable value.
+1 IS NOT DISTINCT FROM NULL → f (rather than NULL)
+NULL IS NOT DISTINCT FROM NULL → t (rather than NULL)
+
+datatype IS NULL → boolean
+Test whether value is null.
+1.5 IS NULL → f
+
+datatype IS NOT NULL → boolean
+Test whether value is not null.
+'null' IS NOT NULL → t
+
+datatype ISNULL → boolean
+Test whether value is null (nonstandard syntax).
+
+datatype NOTNULL → boolean
+Test whether value is not null (nonstandard syntax).
+
+boolean IS TRUE → boolean
+Test whether boolean expression yields true.
+true IS TRUE → t
+NULL::boolean IS TRUE → f (rather than NULL)
+
+boolean IS NOT TRUE → boolean
+Test whether boolean expression yields false or unknown.
+true IS NOT TRUE → f
+NULL::boolean IS NOT TRUE → t (rather than NULL)
+
+boolean IS FALSE → boolean
+Test whether boolean expression yields false.
+true IS FALSE → f
+NULL::boolean IS FALSE → f (rather than NULL)
+
+boolean IS NOT FALSE → boolean
+Test whether boolean expression yields true or unknown.
+true IS NOT FALSE → t
+NULL::boolean IS NOT FALSE → t (rather than NULL)
+
+boolean IS UNKNOWN → boolean
+Test whether boolean expression yields unknown.
+true IS UNKNOWN → f
+NULL::boolean IS UNKNOWN → t (rather than NULL)
+
+boolean IS NOT UNKNOWN → boolean
+Test whether boolean expression yields true or false.
+true IS NOT UNKNOWN → t
+NULL::boolean IS NOT UNKNOWN → f (rather than NULL)
+
+### Mathematical Functions
+
+abs, cbrt, ceil, ceiling, degrees, div, exp, factorial, floor, gcd, lcm, ln, log, log10, min_scale, mod, pi, power, radians, round, scale, sign, sqrt, trim_scale, truc, width_bucket, random, setseed
+
+### Trigonometric Functions
+
+acos, acosd, asin, asind, atan, atand, atan2, atan2d, cos, cosd, cot, cotd, sin, sind, tan, tand, sinh, cosh, tanh, asinh, acosh, atanh
+
+### Binary String Functions
+
+||, length, substring, trim, get_byte, md5, set_byte, sha256, substr, convert, encode, decode
+
+Operators:
+
+||, &,  |, #, ~, >>, <<
+
+### Pattern Matching
+
+LIKE, NOT LIKE, include regular expressions.
+
+### Date/Time Functions
+
+See [Date/Time Functions](https://www.postgresql.org/docs/current/functions-datetime.html)
+
+
 ### Subqueries
 
 ```sql
