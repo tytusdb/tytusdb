@@ -28,7 +28,7 @@ El proyecto está diseñado por el catedrático bajo una licencia Open Source, e
 
 ## 3. TytusDB
 
-Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres elementos interralicionados: el almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1; y el traductor de SQL, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
+Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres elementos interrelacionados: el almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1; y el traductor de SQL, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
 
 ## 4. Almacenamiento de la base de datos
 
@@ -45,13 +45,15 @@ TytusDB tendrá cinco modos de almacenamiento, cada uno corresponde a un motor d
 
 #### Registros de almacenamiento
 
-Cada nodo o cada elemento de una página de cada estructura del modo de almacenamiento guardará el registro correpondiente a una tupla de una tabla.
+Cada registro que corresponde a una tupla de una tabla será almacenado en cada nodo o cada elemento de una página de las estructuras anteriores, según el modo de almacenamiento.
 
 #### Bases de datos
 
 Una base de datos es un conjunto de tablas, para este diseño, es un conjunto de estructuras arbóreas. El servidor de la base de datos podrá contener n bases de datos. Se deja a discreción de los estudiantes cómo manejar el conjunto de tablas de una base de datos y el conjunto de bases de datos. Se sugiere manejar los archivos de manera binaria para no exponer la información. 
 
 #### Funciones
+
+A continuación se muestran las funciones que deben estar disponibles para que los diferentes módulos del administrador puedan hacer uso de estas: 
 
 loadCSV(mode, filecsv, database, table): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea.
 
@@ -81,22 +83,26 @@ insert(database, table, columns): inserta un registro en la estructura de datos 
 
 update(database, table, id, columnNumber, value): actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualizó correctamente y False si no se logró actualizar.
 
-
 ## 5. Administrador de la base de datos
 
 El administrador de la base de datos se compone de dos elementos:
-- server: es un servidor http, se debe seleccionar un puerto adecuado que no tenga conflictos. El servidor debe instalarse para algunos equipos en Windows y para otros equipos en Linux. La carpeta donde se almacena debe tener una carpeta llamada /data donde se almacenarán las bases de datos. Se debe crear un usuario admin y su contraseña. Además de crear n usuarios configurando el acceso a las bases de datos.
 
-- client: es un cliente de escritorio que se conectará al servidor y podrá hacer la mayoría de operaciones que hace pgadmin de PostgreSQL, considerando las funciones básicas.
+- Servidor: es un servidor http. Se debe seleccionar un puerto adecuado que no tenga conflictos con otros servidores. En la carpeta de instalación de la base de datos se debe crear una carpeta llamada /data donde se almacenarán las bases de datos. Se debe crear un usuario admin y su contraseña. Además de crear n usuarios configurando el acceso a las bases de datos.
+
+- Cliente: es un cliente que para algunos equipos será web y para otros será una aplicación de escritorio. Este cliente se conectará al servidor y podrá hacer la mayoría de operaciones que hace pgadmin de PostgreSQL, considerando las [Funciones](#funciones) básicas mencionadas anteriormente. Dentro del cliente, cuando se navegue dentro de las diferentes bases de datos que existen se puede invocar un editor de queries, el cual invocará la función parser() del intérprete de SQL para desplegar el resultado. Este editor debe tener la característica de resaltado de sintaxis.
+
+Debe crearse el mecanismo para instalar tanto el servidor como el cliente, para algunos equipos lo deben hacer para Windows y para otros en Linux.
 
 
-## 6. Traductor de SQL
+## 6. Interprete de SQL
 
-Construir un intérprete del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
+Este módulo forma parte del servidor, su finalidad es interpretar sentencias del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
 
 El intérprete debe ser capaz de:
 - invocar las [Funciones](#funciones) proporcionadas por el almacenamiento, para realizar operaciones sobre la base de datos.
 - proporcionar la función parser(database, queries): esta función ejecuta y devuelve el resultado de la(s) consulta(s) sobre una base de datos, debe retornar una lista de listas con el resultado de la consulta. Si hay más de una consulta considerar la ejecución de consultas en PostgreSQL.
+
+
 
 
 
