@@ -1,22 +1,22 @@
-# Enunciado del Proyecto
+# Enunciado del Proyecto (FASE I)
 
 Universidad de San Carlos de Guatemala  
 Facultad de Ingeniería  
 Cursos: 772 Estructuras de Datos | 774 Sistemas de Bases de Datos 1 | 781 Organización de Lenguajes y Compiladores 2  
 Diciembre 2020
 
-
 ## 1. Objetivo
 
 Poner en práctica los conocimientos teóricos adquiridos durante cada curso y aplicarlo a un proyecto real de código abierto fortaleciendo las competencias de administración de equipos de desarrollo.
+
 
 ## 2. Condiciones
 
 ### Equipos de desarrollo
 
-Se deben formar equipos de 3 a 5 personas por curso y por afinidad con la restricción de que en cada equipo no hayan estudiantes del mismo año (por ejemplo, en un equipo de tres estudiantes puede haber un carné 2014, un 2015 y un 2017).
+Se formarán equipos de estudiantes con carné continuos por curso.
 
-Cada curso tendrá una hoja de cálculo, en la carpeta compartida correspondiente, para especificar los integrantes de cada equipo y así asignarles el tema de implementación. Además deben decidir quién será el coordinador de cada equipo.
+Cada curso tendrá una hoja de cálculo, en la carpeta compartida correspondiente, para informar acerca de los integrantes de cada equipo y así asignarles el tema de implementación. Además deben decidir quién será el coordinador de cada equipo.
 
 ### Lenguaje de programación
 
@@ -31,8 +31,6 @@ El proyecto está diseñado por el catedrático bajo una licencia Open Source, e
 Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres elementos interralicionados: el almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1; y el traductor de SQL, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
 
 ## 4. Almacenamiento de la base de datos
-
-### Fase 1
 
 Construir el almacenamiento de un servidor de bases de datos proporcionando un conjunto de funciones para extraer la información.
 
@@ -57,6 +55,8 @@ Una base de datos es un conjunto de tablas, para este diseño, es un conjunto de
 
 loadCSV(mode, filecsv, database, table): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea.
 
+createDatabase(mode, database): crea una base de datos con cierto modo de almacenamiento.
+
 createTable(mode, database, tableName, numberColumns): crea una tabla según el modo de almacenamiento, la base de datos debe de existir, y solo se define el número de columnas.
 
 dropTable(mode, database, tableName): elimina por completo la tabla indicada.
@@ -69,37 +69,19 @@ alterAdd(mode, database, tableName): agrega una columna a cada registro de la ta
 
 alterDrop(mode, database, tableName, columnNumber): elimina una n-esima columna de cada registro de la tabla.
 
+alterDatabase(mode, databaseOld, databaseNew): cambia el nombre de una base de datos.
+
 truncate(mode, database, tableName): vacía la tabla de todos los registros.
-
-
-### Fase 2
 
 ## 5. Administrador de la base de datos
 
-### Fase 1
-
-### Fase 2
 
 ## 6. Traductor de SQL
 
-### Fase 1
+Construir un intérprete del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
 
-### Fase 2
-
-
+El intérprete debe ser capaz de invocar las [Funciones](#funciones) proporcionadas por el almacenamiento.
 
 
-
-
-
-
-
-llamado TytusDB relacionado con un administrador de base de datos licencia MIT fortaleciendo las competencias de administración de equipos de desarrollo.
-
-Universidad de San Carlos de Guatemala
-Facultad de Ingeniería
-Estructuras de Datos
-Sistemas de Bases de Datos 1
-Organización de Lenguajes y Compiladores 2
 
 
