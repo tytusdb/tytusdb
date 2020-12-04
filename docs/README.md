@@ -32,7 +32,7 @@ Es un proyecto Open Source para desarrollar un administrador de bases de datos. 
 
 ## 4. Almacenamiento de la base de datos
 
-Construir el almacenamiento de un servidor de bases de datos proporcionando un conjunto de funciones para extraer la información.
+Este módulo forma parte del sevidor, la finalidad es tener el almacenamiento de las bases de datos, proporcionando un conjunto de funciones para extraer la información.
 
 #### Modo de almacenamiento 
 
@@ -49,11 +49,15 @@ Cada nodo o cada elemento de una página de cada estructura del modo de almacena
 
 #### Bases de datos
 
-Una base de datos es un conjunto de tablas, para este diseño, es un conjunto de estructuras arbóreas. El servidor de la base de datos podrá contener n bases de datos. Se deja a discreción de los estudiantes cómo manejar el conjunto de tablas de una base de datos y el conjunto de bases de datos. Se sugiere manejar los archivos de manera binaria para no exponer la información.
+Una base de datos es un conjunto de tablas, para este diseño, es un conjunto de estructuras arbóreas. El servidor de la base de datos podrá contener n bases de datos. Se deja a discreción de los estudiantes cómo manejar el conjunto de tablas de una base de datos y el conjunto de bases de datos. Se sugiere manejar los archivos de manera binaria para no exponer la información. 
 
 #### Funciones
 
 loadCSV(mode, filecsv, database, table): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea.
+
+showDatabase(): devuelve una lista de los nombres de las bases de datos, el nombre es único.
+
+showTables(database): devuelve una lista de los nombre de las tablas de una base de datos, los nombre de tablas son únicos.
 
 createDatabase(mode, database): crea una base de datos con cierto modo de almacenamiento.
 
@@ -73,15 +77,26 @@ alterDatabase(mode, databaseOld, databaseNew): cambia el nombre de una base de d
 
 truncate(mode, database, tableName): vacía la tabla de todos los registros.
 
+insert(database, table, columns): inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla y columns es una lista de campos a insertar. Devuelve un True si no hubo problema, y un False si no se logró insertar.
+
+update(database, table, id, columnNumber, value): actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualizó correctamente y False si no se logró actualizar.
+
+
 ## 5. Administrador de la base de datos
+
+El administrador de la base de datos se compone de dos elementos:
+- server: es un servidor http, se debe seleccionar un puerto adecuado que no tenga conflictos. El servidor debe instalarse para algunos equipos en Windows y para otros equipos en Linux. La carpeta donde se almacena debe tener una carpeta llamada /data donde se almacenarán las bases de datos. Se debe crear un usuario admin y su contraseña. Además de crear n usuarios configurando el acceso a las bases de datos.
+
+- client: es un cliente de escritorio que se conectará al servidor y podrá hacer la mayoría de operaciones que hace pgadmin de PostgreSQL, considerando las funciones básicas.
 
 
 ## 6. Traductor de SQL
 
 Construir un intérprete del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
 
-El intérprete debe ser capaz de invocar las [Funciones](#funciones) proporcionadas por el almacenamiento.
-
+El intérprete debe ser capaz de:
+- invocar las [Funciones](#funciones) proporcionadas por el almacenamiento, para realizar operaciones sobre la base de datos.
+- proporcionar la función parser(database, queries): esta función ejecuta y devuelve el resultado de la(s) consulta(s) sobre una base de datos, debe retornar una lista de listas con el resultado de la consulta. Si hay más de una consulta considerar la ejecución de consultas en PostgreSQL.
 
 
 
