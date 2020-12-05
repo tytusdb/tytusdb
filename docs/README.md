@@ -71,26 +71,29 @@ Una base de datos es un conjunto de tablas, para este diseño, es un conjunto de
 
 #### Funciones
 
-A continuación se muestran las funciones que deben estar disponibles para que los diferentes módulos del administrador puedan hacer uso de estas: 
+A continuación se muestran las funciones que deben estar disponibles para que los diferentes componentes del administrador puedan hacer uso de estas, respecto a las funciones de las bases de datos están: 
 
 - createDatabase(mode, database): crea una base de datos con cierto modo de almacenamiento.
 - showDatabases(): devuelve una lista de los nombres de las bases de datos, el nombre es único.
 - alterDatabase(databaseOld, databaseNew): cambia el nombre de una base de datos.
 - dropDatabase(database): elimina por completo la base de datos indicada.
+
+Respecto de las funciones de las tablas están:
 - createTable(database, tableName, numberColumns): crea una tabla según el modo de almacenamiento, la base de datos debe de existir, y solo se define el número de columnas.
 - showTables(database): devuelve una lista de los nombre de las tablas de una base de datos, los nombre de tablas son únicos.
 - alterTable(database, tableOld, tableNew): cambia el nombre de una tabla de una base de datos.
 - dropTable(database, tableName): elimina por completo la tabla indicada.
 - alterAdd(database, tableName, columnName): agrega una columna a cada registro de la tabla.
 - alterDrop(database, tableName, columnNumber): elimina una n-esima columna de cada registro de la tabla.
-<br/>
+
+Respecto de las funciones de las tuplas están:
 - insert(database, table, columns): inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla y columns es una lista de campos a insertar. Devuelve un True si no hubo problema, y un False si no se logró insertar.
 - update(database, table, id, columnNumber, value): actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualizó correctamente y False si no se logró actualizar.
 - deleteTable(database, tableName, id): elimina un nodo o elemento de página indicado de una tabla y base de datos especificada.
 - truncate(database, tableName): vacía la tabla de todos los registros.
-<br/>
-- loadCSV(mode, filecsv, database, table): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea.
 
+Respecto de la función de carga desde un archivo CSV:
+- loadCSV(filecsv, database, table, [modo]): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea con el modo especificado.
 
 ## Administrador de la base de datos
 
@@ -114,6 +117,8 @@ Este componente proporciona al servidor una función encargada de interpretar se
 El intérprete debe ser capaz de:
 
 - Invocar las [Funciones](#funciones) proporcionadas por el almacenamiento, para realizar operaciones sobre la base de datos.
+
+- Manipular el resultado de las funciones anteriores para restringir y mostrar los resultados indicados por la(s) consulta(s).
 
 - Proporcionar la función parser(database, queries): esta función ejecuta y devuelve el resultado de la(s) consulta(s) sobre una base de datos, debe retornar una lista de listas con el resultado de la consulta. Si hay más de una consulta considerar la ejecución de consultas en PostgreSQL.
 
