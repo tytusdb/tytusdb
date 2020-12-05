@@ -110,7 +110,7 @@ Un ejemplo del cliente puede ser basado en el pgadmin de PostgreSQL:
   <img src="img/tytusdb_pgadmin.jpg" width="600" alt="pgadmin">
 </p>
 
-Además, si alguna opción no es cubierta por las funciones del administrador de almacenamiento el administrador puede invocar consultas mediantes el SQL Parser para obtener funciones adicionales y cubrir opciones extras del administrador de bases de datos.
+Además, si alguna opción no es cubierta por las funciones del administrador de almacenamiento el administrador puede invocar consultas mediantes el SQL Parser para obtener funciones adicionales y cubrir opciones extras del administrador de bases de datos. Considerar la documentación del parser para cumplir con requisitos de tipos de datos y sintaxis en general.
 
 ## SQL Parser
 
