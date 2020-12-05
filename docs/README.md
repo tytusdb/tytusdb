@@ -42,7 +42,7 @@ El proyecto está diseñado por el catedrático bajo una licencia Open Source, e
 
 ## TytusDB
 
-Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres elementos interrelacionados: el almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1; y el traductor de SQL, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
+Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres componentes interrelacionados: el administrador de almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1, este administrador se compone a su vez de un servidor y de un cliente; y el SQL Parser, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
 
 <p align="center">
   <img src="img/tytusdb_architecture.jpg" width="600" alt="TytusDB Architecture">
@@ -73,33 +73,24 @@ Una base de datos es un conjunto de tablas, para este diseño, es un conjunto de
 
 A continuación se muestran las funciones que deben estar disponibles para que los diferentes módulos del administrador puedan hacer uso de estas: 
 
+- createDatabase(mode, database): crea una base de datos con cierto modo de almacenamiento.
+- showDatabases(): devuelve una lista de los nombres de las bases de datos, el nombre es único.
+- alterDatabase(databaseOld, databaseNew): cambia el nombre de una base de datos.
+- dropDatabase(database): elimina por completo la base de datos indicada.
+- createTable(database, tableName, numberColumns): crea una tabla según el modo de almacenamiento, la base de datos debe de existir, y solo se define el número de columnas.
+- showTables(database): devuelve una lista de los nombre de las tablas de una base de datos, los nombre de tablas son únicos.
+- alterTable(database, tableOld, tableNew): cambia el nombre de una tabla de una base de datos.
+- dropTable(database, tableName): elimina por completo la tabla indicada.
+- alterAdd(database, tableName, columnName): agrega una columna a cada registro de la tabla.
+- alterDrop(database, tableName, columnNumber): elimina una n-esima columna de cada registro de la tabla.
+<br/>
+- insert(database, table, columns): inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla y columns es una lista de campos a insertar. Devuelve un True si no hubo problema, y un False si no se logró insertar.
+- update(database, table, id, columnNumber, value): actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualizó correctamente y False si no se logró actualizar.
+- deleteTable(database, tableName, id): elimina un nodo o elemento de página indicado de una tabla y base de datos especificada.
+- truncate(database, tableName): vacía la tabla de todos los registros.
+<br/>
 - loadCSV(mode, filecsv, database, table): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea.
 
-- showDatabase(): devuelve una lista de los nombres de las bases de datos, el nombre es único.
-
-- showTables(database): devuelve una lista de los nombre de las tablas de una base de datos, los nombre de tablas son únicos.
-
-- createDatabase(mode, database): crea una base de datos con cierto modo de almacenamiento.
-
-- createTable(mode, database, tableName, numberColumns): crea una tabla según el modo de almacenamiento, la base de datos debe de existir, y solo se define el número de columnas.
-
-- dropTable(mode, database, tableName): elimina por completo la tabla indicada.
-
-- dropDatabase(mode, database): elimina por completo la base de datos indicada.
-
-- deleteTable(mode, database, tableName, id): elimina un nodo o elemento de página indicado de una tabla y base de datos especificada.
-
-- alterAdd(mode, database, tableName): agrega una columna a cada registro de la tabla.
-
-- alterDrop(mode, database, tableName, columnNumber): elimina una n-esima columna de cada registro de la tabla.
-
-- alterDatabase(mode, databaseOld, databaseNew): cambia el nombre de una base de datos.
-
-- truncate(mode, database, tableName): vacía la tabla de todos los registros.
-
-- insert(database, table, columns): inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla y columns es una lista de campos a insertar. Devuelve un True si no hubo problema, y un False si no se logró insertar.
-
-- update(database, table, id, columnNumber, value): actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualizó correctamente y False si no se logró actualizar.
 
 ## Administrador de la base de datos
 
