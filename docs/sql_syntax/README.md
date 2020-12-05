@@ -136,6 +136,27 @@ digitse[+-]digits
 ## 2. Definition
 
 ```sql
+CREATE [OR REPLACE] DATABASE [IF NOT EXISTS] name
+    [ OWNER [=] user_name ]
+    [ MODE [=] mode_number ]
+```
+Mode default = 1
+
+```sql
+SHOW DATABASES [LIKE regex]
+```
+
+```sql
+ALTER DATABASE name RENAME TO new_name
+
+ALTER DATABASE name OWNER TO { new_owner | CURRENT_USER | SESSION_USER }
+```
+
+```sql
+DROP DATABASE [ IF EXISTS ] name
+```
+
+```sql
 CREATE TABLE my_first_table (
     column1 type [DEFAULT value] [[NOT] NULL] [[CONSTRAINT name] UNIQUE] [[CONSTRAINT name] CHECK (condition_column1)]
     [, column2...]
@@ -182,6 +203,13 @@ ALTER TABLE table ALTER COLUMN column SET NOT NULL;
 ALTER TABLE table DROP CONSTRAINT some_name;
 ALTER TABLE table RENAME COLUMN column1 TO column1_1;
 [... ;]
+```
+
+```sql
+DELETE FROM [ ONLY ] table_name [ * ] [ [ AS ] alias ]
+    [ USING from_item [, ...] ]
+    [ WHERE condition | WHERE CURRENT OF cursor_name ]
+    [ RETURNING * | output_expression [ [ AS ] output_name ] [, ...] ]
 ```
 
 ### Inheritance
@@ -361,6 +389,16 @@ Operators:
 
 LIKE, NOT LIKE, include regular expressions.
 
+```sql
+string LIKE pattern [ESCAPE escape-character]
+
+string NOT LIKE pattern [ESCAPE escape-character]
+
+substring(string, pattern, escape-character)
+```
+
+See Table 9.17. Regular Expression Atoms, Table 9.18. Regular Expression Quantifiers and Table 9.19. Regular Expression Constraints.
+
 ### Date/Time Functions
 
 See [Date/Time Functions](https://www.postgresql.org/docs/current/functions-datetime.html)
@@ -380,6 +418,20 @@ A scalar subquery is an ordinary SELECT query in parentheses that returns exactl
 
 A subquery can also be a VALUES list.
 
+```sql
+EXISTS (subquery)
+
+expression IN (subquery)
+
+expression NOT IN (subquery)
+
+row_constructor operator ANY (subquery)
+
+expression operator ALL (subquery)
+
+row_constructor operator SOME (subquery)
+```
+
 ### Joins
 
 ```sql
@@ -398,6 +450,23 @@ SELECT select_list
     ORDER BY sort_expression1 [ASC | DESC] [NULLS { FIRST | LAST }]
              [, sort_expression2 [ASC | DESC] [NULLS { FIRST | LAST }] ...]
 ```
+
+### Expressions
+
+```sql
+CASE WHEN condition THEN result
+     [WHEN ...]
+     [ELSE result]
+END
+```
+
+```sql
+GREATEST(value [, ...])
+
+LEAST(value [, ...])
+```
+
+
 
 ### Limit and offset
 
