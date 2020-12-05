@@ -30,6 +30,8 @@ El proyecto está diseñado por el catedrático bajo una licencia Open Source, e
 
 Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres elementos interrelacionados: el almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1; y el traductor de SQL, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
 
+![TytusDB Architecture](/img/tytusdb_architecture.jpg)
+
 ## 4. Almacenamiento de la base de datos
 
 Este módulo forma parte del sevidor, la finalidad es tener el almacenamiento de las bases de datos, proporcionando un conjunto de funciones para extraer la información.
