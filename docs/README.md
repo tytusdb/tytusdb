@@ -111,6 +111,11 @@ El administrador de la base de datos se compone de dos componentes:
 
 Debe crearse el mecanismo para instalar tanto el servidor como el cliente en los sitemas operativos de Windows y Linux, dependiendo de la asignación del equipo.
 
+Un ejemplo del cliente puede ser basado en el pgadmin de PostgreSQL:
+<p align="center">
+  <img src="img/tytusdb_pgadmin.jpg" width="600" alt="pgadmin">
+</p>
+
 ## SQL Parser
 
 Este componente proporciona al servidor una función encargada de interpretar sentencias del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
