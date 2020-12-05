@@ -153,7 +153,7 @@ En la carpeta del equipo se debe crear con Markdown un archivo de manual técnic
 
 ### Calificación
 - El 30% del total de esta fase será evaluado mediante una hoja de calificación, la nota será grupal.
-- El 30% del total de esta fase será evaluado mediante Stack Ranking de equipos con características similares, la nota será grupal.
+- El 30% del total de esta fase será evaluado mediante Stack Ranking de equipos con características similares, la nota será grupal. El proyecto del equipo ganador será utilizado como base de TytusDB y también para la segunda fase. 
 - El 30% del total de esta fase será evaluado mediante el contenido y el total de commits aceptados mediante Stack Ranking por equipo, la nota será individual.
 - El 10% del total de esta fase será evaluado mediante 1 pregunta y una modificación en el código, la nota será individual.
 
