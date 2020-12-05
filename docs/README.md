@@ -147,9 +147,11 @@ En la carpeta del equipo se debe crear con Markdown un archivo de manual técnic
 - La calificación se realizará de manera virtual (ya sea en meet o zoom) con las camaras activadas, cada calificación será almacenada.
 - No se recibe ningún proyecto después de finalizada la entrega.
 - Copias de proyectos obtendrán una nota 0, por lo que pierde automáticamente el laboratorio, se utilizará la herramienta JPlag https://jplag.ipd.kit.edu/
-- Durante la calificación se verificará la autoría mediante preguntas, si no las responde se considera copia.
+- Durante la calificación se verificará la autoría mediante preguntas, si no las responde también se va a considerar como copia.
 - Cualquier aclaración o modificación del proyecto se realizará mediante este documento, nadie excepto el catedrático puede modificar este archivo, si alguien lo modificará se tomarán acciones de anulación de proyecto.
 - Los estudiantes al hacer un commit aceptan las condiciones, licencias y convenios relacionados con el fin del proyecto.
+- Media vez los componentes sean funcionales, estos deben poder interactuar con cualquier otro componente de la arquitectura antes planteada. 
+- En cuanto al almacenamiento y extracción de datos, se debe considerar únicamente la codificación UTF8.
 
 ### Calificación
 - El 30% del total de esta fase será evaluado mediante una hoja de calificación, la nota será grupal.
