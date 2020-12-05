@@ -110,6 +110,8 @@ Un ejemplo del cliente puede ser basado en el pgadmin de PostgreSQL:
   <img src="img/tytusdb_pgadmin.jpg" width="600" alt="pgadmin">
 </p>
 
+Además, si alguna opción no es cubierta por las funciones del administrador de almacenamiento el administrador puede invocar consultas mediantes el SQL Parser para obtener funciones adicionales y cubrir opciones extras del administrador de bases de datos.
+
 ## SQL Parser
 
 Este componente proporciona al servidor una función encargada de interpretar sentencias del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
