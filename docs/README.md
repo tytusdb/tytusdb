@@ -45,7 +45,7 @@ El proyecto está diseñado por el catedrático bajo una licencia Open Source, e
 Es un proyecto Open Source para desarrollar un administrador de bases de datos. Está compuesto por tres componentes interrelacionados: el administrador de almacenamiento de la base de datos, que estará a cargo del curso de Estructuras de Datos; el administrador de la base de datos, que estará a cargo del curso de Sistemas de Bases de Datos 1, este administrador se compone a su vez de un servidor y de un cliente; y el SQL Parser, que estará a cargo del curso de Organización de Lenguajes y Compiladores 2.
 
 <p align="center">
-  <img src="img/tytusdb_architecture.jpg" width="600" alt="TytusDB Architecture">
+  <img src="img/tytusdb_architecture_v2.jpg" width="600" alt="TytusDB Architecture">
 </p>
 
 ## Administrador de almacenamiento
@@ -147,17 +147,18 @@ En la carpeta del equipo se debe crear con Markdown un archivo de manual técnic
 - La calificación se realizará de manera virtual (ya sea en meet o zoom) con las camaras activadas, cada calificación será almacenada.
 - No se recibe ningún proyecto después de finalizada la entrega.
 - Copias de proyectos obtendrán una nota 0, por lo que pierde automáticamente el laboratorio, se utilizará la herramienta JPlag https://jplag.ipd.kit.edu/
-- Durante la calificación se verificará la autoría mediante preguntas, si no las responde también se va a considerar como copia.
+- Durante la calificación se verificará la autoría mediante preguntas, si no la responde se procederá a anular su nota del proyecto.
 - Cualquier aclaración o modificación del proyecto se realizará mediante este documento, nadie excepto el catedrático puede modificar este archivo, si alguien lo modificará se tomarán acciones de anulación de proyecto.
 - Los estudiantes al hacer un commit aceptan las condiciones, licencias y convenios relacionados con el fin del proyecto.
 - Media vez los componentes sean funcionales, estos deben poder interactuar con cualquier otro componente de la arquitectura antes planteada. 
 - En cuanto al almacenamiento y extracción de datos, se debe considerar únicamente la codificación UTF8.
 
 ### Calificación
-- El 30% del total de esta fase será evaluado mediante una hoja de calificación, la nota será grupal.
-- El 30% del total de esta fase será evaluado mediante Stack Ranking de equipos con características similares, la nota será grupal. El proyecto del equipo ganador será utilizado como base de TytusDB y también para la segunda fase. 
-- El 30% del total de esta fase será evaluado mediante el contenido y el total de commits aceptados mediante Stack Ranking por equipo, la nota será individual.
-- El 10% del total de esta fase será evaluado mediante 1 pregunta y una modificación en el código, la nota será individual.
+- Un porcentaje será evaluado mediante una hoja de calificación (nota grupal).
+- Un porcentaje será evaluado mediante Stack Ranking de equipos con características similares (el mejor obtiene la mejor nota). El proyecto del equipo ganador será utilizado como base de TytusDB y también para la segunda fase (nota grupal). 
+- Un porcentaje será evaluado mediante el total de commits aceptados y la calidad de los mismos mediante Stack Ranking por equipo (nota individual).
+- Un porcentaje será por calificación interna del equipo también por Stack Ranking por equipo (nota individual).
+- Un porcentaje será evaluado mediante una pregunta o en su defecto modificación de código (nota individual).
 
 ### Fecha de entrega
 La fecha de entrega es el día sábado 19 de diciembre hasta las 11:59pm, se tomará el último commit válido.
