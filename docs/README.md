@@ -30,7 +30,7 @@ Diciembre 2020
 ### Equipos de desarrollo
 Se formarán equipos de 4 estudiantes con carné continuos por curso. 
 
-El catedrático compartirá con cada curso una hoja de cálculo con los integrantes de cada equipo y asignarles el tema de implementación. Además deben decidir quién será el coordinador de cada equipo a más tardar el día lunes antes de las 11:59 para agregar al coordinador como colaborador del repositorio para aceptar los commits.
+El catedrático compartirá con cada curso una hoja de cálculo con los integrantes de cada equipo y asignarles el tema de implementación. Además deben decidir quién será el coordinador de cada equipo a más tardar el día lunes antes de las 11:59 para agregar al coordinador como colaborador del repositorio para aceptar los commits. También cada estudiante debe agregar su Username de GitHub a la hoja de cálculo y modificar su Name para que aparezca su nombre completo para lograr identificar a cada estudiante.
 
 ### Lenguaje de programación
 
@@ -144,6 +144,8 @@ En general, el intérprete debe ser capaz de:
 
 - Devolver a detalle información de la consulta al servidor, por ejemplo, si la consultas fue ejecutada correctamente o no, si hubo un error de tipos, o cualquier error que normalmente devuelve cualquier parser de SQL.
 
+Cada equipo debe escribir dos gramáticas: una para un analizador ascendente; y otra, para un analizador descendente. Sin llegar a la definición dirigida por la sintaxis. Debe hacerse un análisis para saber qué gramática es más eficiente (tiempo de respuesta y otros factores) en cuanto a la lectura de los querys (sin interpretar nada). Luego concluir y seleccionar la gramática más adecuada para continuar con la definición dirigida por la sintaxis.
+
 ## Reportes y entrega
 
 ### Reportes para estructuras de datos
@@ -160,7 +162,7 @@ Los reportes a entregar son los siguientes (mostrar el resultado en una ventana 
 - Reportes de errores léxico, sintácticos y semánticos. Debe mostrar como mínimo el tipo, la descripción y el número de línea.
 - Reporte de tabla de símbolos. Debe mostrar las variables, funciones y procedimientos con mínimo los siguientes datos: identificador, tipo, dimensión, declarada en, y referencias.
 - Reporte de AST. Cuando se requiera, debe mostrar el árbol de sintaxis abstracta utilizando Graphviz en una nueva ventana que muestre solo la imagen o documento.
-- Reporte gramatical. Se debe crear en la carpeta del equipo un archivo con Markdown que muestre la gramática con sintaxis BNF. En otro documento se debe mostrar la definición dirigida por la sintaxis, indicando que expresiones se utilizaron, precedencia, símbolos terminales y no terminales, y las reglas semánticas. Tomar en cuenta que no es el código escrito, sino es un reporte de explicación generado automáticamente, diferente del producto entregable del proyecto que es más enfocado a la construcción del intérprete. Este reporte está enfocado más a la ejecución específica.
+- Reporte gramatical. Se debe crear en la carpeta del equipo un archivo con Markdown que muestre las dos gramáticas con sintaxis BNF. En otro documento se debe mostrar la definición dirigida por la sintaxis con la gramática seleccionada, indicando que expresiones se utilizaron, precedencia, símbolos terminales y no terminales, y las reglas semánticas. Tomar en cuenta que no es el código escrito, sino es un reporte de explicación generado automáticamente, diferente del producto entregable del proyecto que es más enfocado a la construcción del intérprete. Este reporte está enfocado más a la ejecución específica.
 
 ### Reportes para bases de datos
 Respecto del componente de este curso no se tendrán reportes, ya que mediante el cliente se podrán ejecutar las funciones solicitadas e incluso el resultado de consultas de SQL.
