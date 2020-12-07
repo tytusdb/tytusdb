@@ -64,6 +64,7 @@ TytusDB tendrá cinco modos de almacenamiento, cada uno corresponde a un motor d
 #### Registros de almacenamiento
 
 Cada registro que corresponde a una tupla de una tabla será almacenado en cada nodo o cada elemento de una página de las estructuras anteriores, según el modo de almacenamiento.
+Cada atributo será debilmente tipado, a efectos de no verificar tipo en este punto, ya que lo hará el parser de SQL.
 
 #### Bases de datos
 
@@ -110,7 +111,7 @@ El administrador de la base de datos se compone de dos componentes:
 
 - Servidor: es un servidor http. Se debe seleccionar un puerto adecuado que no tenga conflictos con otros servidores. En la carpeta de instalación de la base de datos se debe crear una carpeta llamada /data donde se almacenarán las bases de datos. Se debe crear un usuario admin y su contraseña. Además de crear n usuarios configurando el acceso a las bases de datos.
 
-- Cliente: es un cliente que para algunos equipos será web y para otros será una aplicación de escritorio. Este cliente se conectará al servidor y podrá hacer la mayoría de operaciones que hace pgadmin de PostgreSQL, considerando las [Funciones](#funciones) básicas mencionadas anteriormente. Dentro del cliente, cuando se navegue dentro de las diferentes bases de datos que existen se puede invocar un editor de queries, el cual invocará la función parser() del SQL Parser para desplegar el resultado. Este editor debe tener la característica de resaltado de sintaxis.
+- Cliente: es un cliente que para algunos equipos será web y para otros será una aplicación de escritorio. Este cliente se conectará al servidor y podrá hacer la mayoría de operaciones que hace pgadmin de PostgreSQL. Dentro del cliente, cuando se navegue dentro de las diferentes bases de datos que existen se puede invocar un editor de queries, el cual invocará la función parser() del SQL Parser para desplegar el resultado. Este editor debe tener la característica de resaltado de sintaxis.
 
 Debe crearse el mecanismo para instalar tanto el servidor como el cliente en los sitemas operativos de Windows y Linux, dependiendo de la asignación del equipo.
 
@@ -125,13 +126,23 @@ Además, si alguna opción no es cubierta por las funciones del administrador de
 
 Este componente proporciona al servidor una función encargada de interpretar sentencias del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
 
-El intérprete debe ser capaz de:
+Está compuesto por tres sub componentes:
+- SQL Parser: es el intérprete de sentencias de SQL, que tendra proporcionará una función para invocar al parser, al recibir una consulta el parser luego del proceso interno y de la planificación de la consulta debe invocar las diferentes funciones proporcionadas por el componente de administrador de almacenamiento.
+
+- Type Checker: es un sub componente que ayudará al parser a la comprobación de tipos. Al crear un objeto cualquiera se debe crear una estructura que almacenará los tipos de datos y cualquier información necesaria para este fin.
+
+- Query Tool: es un sub componente que consiste en una ventana gráfica similar al Query Tool de pgadmin de PostgreSQL, para ingresar consultas y mostrar los resultados.
+
+
+En general, el intérprete debe ser capaz de:
 
 - Invocar las [Funciones](#funciones) proporcionadas por el almacenamiento, para realizar operaciones sobre la base de datos.
 
 - Manipular el resultado de las funciones anteriores para restringir y mostrar los resultados indicados por la(s) consulta(s).
 
 - Proporcionar la función parser(database, queries): esta función ejecuta y devuelve el resultado de la(s) consulta(s) sobre una base de datos, debe retornar una lista de listas con el resultado de la consulta. Si hay más de una consulta considerar la ejecución de consultas en PostgreSQL.
+
+- Devolver a detalle información de la consulta al servidor, por ejemplo, si la consultas fue ejecutada correctamente o no, si hubo un error de tipos, o cualquier error que normalmente devuelve cualquier parser de SQL.
 
 ## Reportes y entrega
 
