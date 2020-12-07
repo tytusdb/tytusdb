@@ -147,7 +147,13 @@ En general, el intérprete debe ser capaz de:
 ## Reportes y entrega
 
 ### Reportes para estructuras de datos
-Los reportes a entregar son mediante GraphViz o cualquier herramienta gráfica de las estructuras de datos. Se puede limitar en segmentos para que sea visible la estructura, conforme un número de nodos y se ejecutarán mediante una función que el equipo determinará, al ejecutar dicha función debe abrirse una ventana para mostrar el resultado. Se sugiere que se muestre la estructura de las bases de datos, luego al hacer clic en alguna base de datos que muestre la estructura de las tablas, luego al hacer clic en una tabla que muestre la estructura de las tuplas y finalmente al hacer clic en un nodo que muestre la información de dicho nodo.
+Los reportes de las estructuras utilizadas se deben mostrar mediante una aplicación de interfaz gráfica utilizando cualquier herramienta gráfica (que cumpla compatabilidades de licencia). 
+
+La aplicación debe mostrar de manera gráfica y navegable las siguientes estructuras:
+- bases de datos
+- conjunto de tablas 
+- tabla
+- tupla
 
 ### Reportes para compiladores 2
 Los reportes a entregar son los siguientes (mostrar el resultado en una ventana cuando sea ejecutada la funciones que invoquen a los reportes):
