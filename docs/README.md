@@ -28,9 +28,9 @@ Diciembre 2020
 ## Condiciones del proyecto
 
 ### Equipos de desarrollo
-Se formarán equipos de estudiantes con carné continuos por curso.
+Se formarán equipos de 4 estudiantes con carné continuos por curso. 
 
-Cada curso tendrá una hoja de cálculo, en la carpeta compartida correspondiente, para informar acerca de los integrantes de cada equipo y así asignarles el tema de implementación. Además deben decidir quién será el coordinador de cada equipo.
+El catedrático compartirá con cada curso una hoja de cálculo con los integrantes de cada equipo y asignarles el tema de implementación. Además deben decidir quién será el coordinador de cada equipo a más tardar el día lunes antes de las 11:59 para agregar al coordinador como colaborador del repositorio para aceptar los commits.
 
 ### Lenguaje de programación
 
@@ -67,11 +67,18 @@ Cada registro que corresponde a una tupla de una tabla será almacenado en cada 
 
 #### Bases de datos
 
-Una base de datos es un conjunto de tablas, para este diseño, es un conjunto de estructuras arbóreas. El servidor de la base de datos podrá contener n bases de datos. Se deja a discreción de los estudiantes cómo manejar el conjunto de tablas de una base de datos y el conjunto de bases de datos. Se sugiere manejar los archivos de manera binaria para no exponer la información. 
+- Una base de datos es un conjunto de tablas, para este diseño, es un conjunto de estructuras arbóreas. 
+
+- El servidor de la base de datos podrá contener n bases de datos. 
+
+- Se deja a discreción de los estudiantes cómo manejar el conjunto de tablas de una base de datos y el conjunto de bases de datos. 
+
+- Se sugiere manejar los archivos de manera binaria para no exponer la información. 
+
 
 #### Funciones
 
-A continuación se muestran las funciones que deben estar disponibles para que los diferentes componentes del administrador puedan hacer uso de estas, respecto a las funciones de las bases de datos están: 
+A continuación se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas, respecto de las funciones de las bases de datos están: 
 
 - createDatabase(mode, database): crea una base de datos con cierto modo de almacenamiento.
 - showDatabases(): devuelve una lista de los nombres de las bases de datos, el nombre es único.
@@ -85,12 +92,14 @@ Respecto de las funciones de las tablas están:
 - dropTable(database, tableName): elimina por completo la tabla indicada.
 - alterAdd(database, tableName, columnName): agrega una columna a cada registro de la tabla.
 - alterDrop(database, tableName, columnNumber): elimina una n-esima columna de cada registro de la tabla.
+- extractTable(database, table): extrae y devuelve en una lista de listas el contenido de la tabla.
 
 Respecto de las funciones de las tuplas están:
 - insert(database, table, columns): inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla y columns es una lista de campos a insertar. Devuelve un True si no hubo problema, y un False si no se logró insertar.
 - update(database, table, id, columnNumber, value): actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualizó correctamente y False si no se logró actualizar.
 - deleteTable(database, tableName, id): elimina un nodo o elemento de página indicado de una tabla y base de datos especificada.
 - truncate(database, tableName): vacía la tabla de todos los registros.
+- extractRow(database, table, id): extrae y devuelve una tupla especificada 
 
 Respecto de la función de carga desde un archivo CSV:
 - loadCSV(filecsv, database, table, [modo]): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea con el modo especificado.
@@ -161,4 +170,4 @@ En la carpeta del equipo se debe crear con Markdown un archivo de manual técnic
 - Un porcentaje será evaluado mediante una pregunta o en su defecto modificación de código (nota individual).
 
 ### Fecha de entrega
-La fecha de entrega es el día sábado 19 de diciembre hasta las 11:59pm, se tomará el último commit válido.
+La fecha de entrega es el día domingo 20 de diciembre hasta las 11:59pm, se tomará hasta el último commit aceptado.
