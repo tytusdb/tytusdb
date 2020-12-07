@@ -81,7 +81,7 @@ Cada atributo será debilmente tipado, a efectos de no verificar tipo en este pu
 
 A continuación se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas, respecto de las funciones de las bases de datos están: 
 
-- createDatabase(mode, database): crea una base de datos con cierto modo de almacenamiento.
+- createDatabase(mode, database): crea una base de datos con cierto número de modo de almacenamiento (mode=1, 2, 3, 4, 5).
 - showDatabases(): devuelve una lista de los nombres de las bases de datos, el nombre es único.
 - alterDatabase(databaseOld, databaseNew): cambia el nombre de una base de datos.
 - dropDatabase(database): elimina por completo la base de datos indicada.
