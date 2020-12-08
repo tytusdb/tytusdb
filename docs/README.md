@@ -25,20 +25,26 @@ Diciembre 2020
 - El estudiante proporciona una solución de estructuras de datos para gestionar la información de un sistema de bases de datos.
 - El estudiante construye un servidor http y un cliente para que se conecten y accedan a las funciones definidas para el administrador de la base de datos.
 
-## Condiciones del proyecto
+## Términos del proyecto
 
 ### Equipos de desarrollo
-Se formarán equipos de 4 estudiantes con carné continuos por curso. 
 
-El catedrático compartirá con cada curso una hoja de cálculo con los integrantes de cada equipo y asignarles el tema de implementación. Además deben decidir quién será el coordinador de cada equipo a más tardar el día lunes antes de las 11:59 para agregar al coordinador como colaborador del repositorio para aceptar los commits. También cada estudiante debe agregar su Username de GitHub a la hoja de cálculo y modificar su Name para que aparezca su nombre completo para lograr identificar a cada estudiante.
+- Se formarán equipos de 4 estudiantes con carné continuos por curso. 
+- El catedrático compartirá con cada curso una hoja de cálculo con los integrantes de cada equipo y asignarles el tema de implementación. 
+- Además deben decidir quién será el coordinador de cada equipo a más tardar el día lunes antes de las 11:59 para agregar al coordinador como colaborador del repositorio para aceptar los commits. 
+- También cada estudiante debe agregar su Username de GitHub a la hoja de cálculo y modificar su Name para que aparezca su nombre completo para lograr identificar a cada estudiante.
 
 ### Lenguaje de programación
 
 El lenguaje seleccionado es Python, y no deben utilizarse biliotecas adicionales si no hacen falta, por ejemplo, para compiladores 2 si deben utilizar PLY. Cualquier otra biblioteca debe ser autorizada por el catedrático.
 
-### Licencias
+### Licencias y convenio
 
-El proyecto está diseñado por el catedrático bajo una licencia Open Source, específicamente MIT. Los estudiantes aparecerán como contribuidores junto con el copyright. Además cualquier biblioteca autorizada también se debe colocar la licencia y el copyright en el archivo LICENSE.md en su carpeta respectiva.
+El proyecto está diseñado por el catedrático bajo una licencia Open Source, específicamente MIT. Por convenio, los estudiantes aparecerán como contribuidores junto con el copyright. Además cualquier biblioteca autorizada también se debe colocar la licencia y el copyright en el archivo LICENSE.md en su carpeta respectiva.
+
+### Manejo de versiones
+
+Cada integrante de los equipos debe hacer sus propuestas de cambio mediante pull request directamente al master de este repositorio (no hacer pull request de la rama de cada uno para evitar conflictos), queda a discreción de cada equipo utilizar de manera independiente una rama u otro repositorio para pruebas.
 
 ## TytusDB
 
@@ -131,8 +137,7 @@ Está compuesto por tres sub componentes:
 
 - Type Checker: es un sub componente que ayudará al parser a la comprobación de tipos. Al crear un objeto cualquiera se debe crear una estructura que almacenará los tipos de datos y cualquier información necesaria para este fin.
 
-- Query Tool: es un sub componente que consiste en una ventana gráfica similar al Query Tool de pgadmin de PostgreSQL, para ingresar consultas y mostrar los resultados.
-
+- Query Tool: es un sub componente que consiste en una ventana gráfica similar al Query Tool de pgadmin de PostgreSQL, para ingresar consultas y mostrar los resultados, incluyendo el resalto de la sintaxis. La ejecución se realizará de todo el contenido del área de texto. 
 
 En general, el intérprete debe ser capaz de:
 
