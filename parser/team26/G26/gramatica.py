@@ -111,7 +111,72 @@ reservadas = {
     'all' : 'ALL',
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
-    'except' : 'EXCEPT'
+    'except' : 'EXCEPT',
+    'abs' : 'ABS',
+    'cbrt' : 'CBRT',
+    'ceiling' : 'CEILING',
+    'ceil' : 'CEIL',
+    'degrees' : 'DEGREES',
+    'div' : 'DIV',
+    'exp' : 'EXP',
+    'floor' : 'FLOOR',
+    'gcd' : 'GCD',
+    'lcm' : 'LCM',
+    'ln' : 'LN',
+    'log' : 'LOG',
+    'log10' : 'LOGDIEZ',
+    'min_scale' : 'MINSCALE',
+    'mod' : 'MOD',
+    'pi' : 'PI',
+    'power' : 'POWER',
+    'radians' : 'RADIANS',
+    'round' : 'ROUND',
+    'scale' : 'SCALE',
+    'sign' : 'SIGN',
+    'sqrt' : 'SQRT',
+    'trim_scale' : 'TRIM',
+    'truc' : 'TRUC',
+    'width_bucket' : 'BUCKET',
+    'random' : 'RANDOM',
+    'setseed' : 'SETSEED',
+    'acos' : 'ACOS',
+    'acosd' : 'ACOSD',
+    'asin' : 'ASIN',
+    'asind' : 'ASIND',
+    'atan' : 'ATAN',
+    'atand' : 'ATAND',
+    'atan2' : 'ATANDOS',
+    'atan2d' : 'ATANDOSD',
+    'cos' : 'COS',
+    'cosd' : 'COSD',
+    'cot' : 'COT',
+    'cotd' : 'COTD',
+    'sin' : 'SIN',
+    'sind' : 'SIND',
+    'tan' : 'TAN',
+    'tand' : 'TAND',
+    'sinh' : 'SINH',
+    'cosh' : 'COSH',
+    'tanh' : 'TANH',
+    'asinh' : 'ASINH',
+    'acosh' : 'ACOSH',
+    'atanh' : 'ATANH',
+    'length' : 'LENGHT',
+    'trim' : 'TRIM',
+    'get_byte' : 'GETBYTE',
+    'factorial' : 'FACTORIAL',
+    'md5' : 'MD5',
+    'set_byte' : 'SETBYTE',
+    'sha256' : 'SHA',
+    'substr' : 'SUBSTR',
+    'convert' : 'CONVERT',
+    'encode' : 'ENCODE',
+    'decode' : 'DECODE',
+    'date_part' : 'DATEPART',
+    'now' : 'NOW',
+    'extract' : 'EXTRACT',
+    'current_date' : 'CURRENTDATE',
+    'current_time' : 'CURRENTTIME'    
 }
 
 tokens = [
@@ -142,7 +207,10 @@ tokens = [
     'NEWLINE',
     'RETURN',
     'TAB',
-    'FECHA'
+    'FECHA',
+    'SFACTORIAL',
+    'PORCENTAJE'
+
 ] + list(reservadas.values())
 
 #tokens
@@ -169,6 +237,7 @@ t_FEED          = r'\\f'
 t_NEWLINE       = r'\\n'
 t_RETURN        = r'\\r'
 t_TAB           = r'\\r'
+t_PORCENTAJE    = r'%'
 
 def t_DECIMALVALOR(t):
     r'\d+\.\d+'
