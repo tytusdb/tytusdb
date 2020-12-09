@@ -271,6 +271,10 @@ def p_sentencia(t):
                  | UpdateBase
                  | DeleteBase
                  | TruncateBase
+                 | CREATE_TABLE
+                 | SHOW_TABLES
+                 | ALTER_TABLE
+                 | DROP_TABLE
     '''
     #t[0] = t[1]
     
@@ -403,6 +407,98 @@ def p_produccion10(t):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< ARIEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< FRANCISCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+def p_EXPR_CREATE_TABLE(t):
+    '''CREATE_TABLE : create table id parAbre COLUMN_CREATE parCierra ptComa
+                    | create table id parAbre COLUMN_CREATE parCierra tInherits parAbre id parCierra ptComa '''
+
+def p_EXPR_COLUMN_CREATE(t):
+    '''COLUMN_CREATE : COLUMN_CREATE COLUMNS
+                     | COLUMNS'''
+
+
+def p_EXPR_COLUMNS(t):
+    '''COLUMNS : COLUMNS coma ASSIGNS
+               | COLUMNS coma ASSIGNS OPCIONALES
+               | ASSIGNS
+               | ASSIGNS OPCIONALES'''
+
+def p_EXPR_ASSIGNS(t):
+    '''ASSIGNS : id TIPO
+               | tUnique
+               | tUnique parAbre COLS parCierra
+               | tConstraint id tUnique 
+               | tConstraint id tCheck parAbre COLS parCierra
+               | tCheck parAbre EXPRE parCierra
+               | tPrimary tKey parAbre COLS parCierra
+               | tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra'''
+
+def p_EXPR_OPCIONALES(t):
+    '''OPCIONALES : OPCIONALES OPCION
+                | OPCION '''
+
+def p_EXPR_OPCION(t):
+    '''OPCION : tDefault EXPRE
+              | tPrimary tKey
+              | not null
+              | null
+              | ASSIGNS'''
+
+
+def p_EXPR_COLS(t):
+    '''COLS : COLS coma EXPRE
+            | EXPRE '''             
+
+def p_EXPR_EXPRE(t):
+    '''EXPRE : id 
+             | entero
+             | cadena
+             | decimal
+             | tFalse
+             | tTrue'''
+
+def p_EXPR_TIPO(t):
+    '''TIPO : NUMERIC_TYPES
+            | CHAR_TYPES
+            | DATE_TYPES
+            | tBoolean
+            | EXPRE''' 
+
+def p_EXPR_NUMERIC_TYPES(t):
+    '''NUMERIC_TYPES : tSmallint
+                     | tInteger
+                     | tBigint
+                     | tDecimal
+                     | tNumeric
+                     | tReal
+                     | tDouble tPrecision
+                     | tMoney''' 
+
+def p_EXPR_CHAR_TYPES(t):
+    '''CHAR_TYPES : tVarchar parAbre entero parCierra
+                  | tCharacter tVarying parAbre entero parCierra
+                  | tCharacter parAbre entero parCierra
+                  | tChar parAbre entero parCierra
+                  | tText''' 
+
+def p_EXPR_DATE_TYPES(t):
+    '''DATE_TYPES : tDate
+                  | tTimestamp 
+                  | tTime 
+                  | tInterval''' 
+                                   
+def p_EXPR_SHOW_TABLE(t):
+    '''SHOW_TABLES : show tables ptComa'''
+
+def p_EXPR_DROP_TABLE(t):
+    '''DROP_TABLE : drop table id ptComa
+    '''
+
+def p_EXPR_ALTER_TABLE(t):
+    '''ALTER_TABLE : alter table id rename tColumn id tTo id ptComa
+                   | alter table id alter tColumn id tSet not null ptComa
+                   '''
+
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< FRANCISCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
