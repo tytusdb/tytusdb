@@ -13,7 +13,6 @@ reservadas = {
     'into': 'INTO',
     'values': 'VALUES',
     'sum' : 'SUM',
-    'where': 'WHERE',
     'set': 'SET',
     'inner': 'INNER',
     'join': 'JOIN',
@@ -29,17 +28,58 @@ reservadas = {
     'as': 'AS',
     'create': 'CREATE',
     'table': 'TABLE',
-    'text': 'TEXT',
-    'float': 'FLOAT',
-    'int': 'INT',
-    'char': 'CHAR',
     'inherits': 'INHERITS',
     'alter': 'ALTER',
     'database': 'DATABASE',
     'to': 'TO',
     'rename': 'RENAME',
     'owner': 'OWNER',
-    'drop': 'DROP'
+    'drop': 'DROP',
+    'currUser' : 'CURRENT_USER',
+    'sessUser' : 'SESSION_USER',
+    'foreign' : 'FOREIGN',
+    'key': 'KEY',
+    'add' : 'ADD',
+    'check' : 'CHECK',
+    'constraint': 'CONSTRAINT',
+    'column' : 'COLUMN',
+    'unique' : 'UNIQUE',
+    'references' : 'REFERENCES',
+    'type' : 'TYPE',
+    'set' : 'SET',
+    'not' : 'NOT',
+    'null' : 'NULL',
+    'text': 'TEXT',
+    'float': 'FLOAT',
+    'int': 'INT',
+    'char': 'CHAR',
+    'varchar' : 'VARCHAR',
+    'smallint':'SMALLINT',
+    'bigint' : 'BIGINT',
+    'decimal' : 'DECIMAL',
+    'numeric' : 'NUMERIC',
+    'real' : 'REAL',
+    'double' : 'DOUBLE',
+    'precision' : 'PRECISION',
+    'money' : 'MONEY',
+    'character' : 'CHARACTER',
+    'varying' : 'VARYING',
+    'timestamp' : 'TIMESTAMP',
+    'date' : 'DATE',
+    'time' : 'TIME',
+    'interval' : 'INTERVAL',
+    'year' : 'YEAR',
+    'month' : 'MONTH',
+    'day' : 'DAY',
+    'minute' : 'MINUTE',
+    'second' : 'SECOND',
+    'to' : 'TO',
+    'hour': 'HOUR',
+    'boolean' : 'BOOLEAN',
+    'true' : 'TRUE',
+    'false' : 'FALSE',
+    'enum' : 'ENUM'
+
 }
 
 tokens = [
@@ -51,14 +91,15 @@ tokens = [
     'ENTERO',
     'CADENA',
     'ID',
-    'IGUAL',
     'PUNTO',
     'MENIGQUE',
     'MAYIGQUE',
+    'MENQUE',
+    'MAYQUE',
     'DOBLEIG',
     'NOIG',
-    'MENQUE',
-    'MAYQUE'
+    'APOSTROFE',
+    'IGUAL'
 ] + list(reservadas.values())
 
 #tokens
@@ -67,16 +108,17 @@ t_ASTERISCO     = r'\*'
 t_COMA          = r','
 t_PAR_A         = r'\('
 t_PAR_C         = r'\)'
-t_IGUAL         = r'='
 t_PUNTO         = r'.'
 t_MENIGQUE      = r'<='
 t_MAYIGQUE      = r'>='
+t_MENQUE        = r'\<'
+t_MAYQUE        = r'\>'
 t_DOBLEIG       = r'=='
 t_NOIG          = r'!='
-t_MENQUE        = r'<'
-t_MAYQUE        = r'>'
+t_IGUAL         = r'\='
+t_APOSTROFE     = r'\''
 
-def t_DECIMAL(t):
+def t_FLOTANTE(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
@@ -125,6 +167,8 @@ def t_error(t):
     print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
 
+
+
 # Construyendo el analizador léxico
 import ply.lex as lex
 lexer = lex.lex()
@@ -153,6 +197,7 @@ def p_instruccion(t):
                   | insert_insrt 
                   | delete_insrt
                   | update_insrt
+                  | alterDB_insrt
                   | alterTable_insrt
                   | drop_insrt'''
 
@@ -169,15 +214,59 @@ def p_lista_tabla(t):
 def p_tablas_lista(t):
     ' lista_tabla : ID'
 
-'----------- GRAMATICA PARA LA INSTRUCCION ALTER TABLE ---------'
-def p_AlterTable(t):
-    ' alterTable_insrt : ALTER DATABASE ID opcion_alterTable TO ID PTCOMA'
+'----------- GRAMATICA PARA LA INSTRUCCION ALTER DATABASE ---------'
+def p_AlterDB(t):
+    ' alterDB_insrt : ALTER DATABASE ID opcion_alterDB'
 
-def p_opcion_AlterTable(t):
-    ''' opcion_alterTable : RENAME 
-                          | OWNER '''
+def p_opcion_AlterDB(t):
+    ''' opcion_alterDB : RENAME TO ID PTCOMA
+                          | OWNER TO usuarioDB PTCOMA'''
+
+def p_usuarioDB(t):
+    '''usuarioDB : ID
+                | CURRENT_USER
+                | SESSION_USER'''
+
+'----------- GRAMATICA PARA LA INSTRUCCION ALTER TABLE ---------'
+def p_alterTable(t):
+    'alterTable_insrt : ALTER TABLE ID alterTable_type PTCOMA'
+
+def p_alterTable_type(t):
+    '''alterTable_type : ADD alterTable_add
+                       | alterTable_alter
+                       | '''
+# ---------necesita modificaciones-------------------------
+
+def p_alterTable_add(t):
+    '''alterTable_add : COLUMN ID TIPO_DATO
+                      | CHECK PAR_A expresion_logica PAR_C 
+                      | CONSTRAINT ID constraint_esp 
+                      | FOREIGN KEY PAR_A campos_c PAR_C REFERENCES campos_c'''
+def p_constraint_esp(t):
+   '''constraint_esp : CHECK PAR_A expresion_logica PAR_C
+                     | UNIQUE PAR_A campos_c PAR_C
+                     | FOREIGN KEY PAR_A campos_c PAR_C REFERENCES campos_c'''
+
+def p_alerTable_alter(t):
+    '''alterTable_alter : alterTable_alter COMA Table_alter
+                       | Table_alter'''
+
+def p_Table_alter(t):
+    'Table_alter : ALTER COLUMN ID alter_type'
+
+def p_alter_type(t):
+   '''alter_type : TYPE TIPO_DATO
+                 | SET NOT NULL '''
+
+#def p_alterTable_add_col(t):
+ #   '''alterTable_add_col : TYPE TIPO_DATO '''     
+
+def p_cons_campos(t):
+    '''campos_c : campos_c COMA ID
+                  | ID '''
 
 ' ---------- GRAMATICA PARA LA INSTRUCCION CREATE TABLE ---------'
+
 def p_create_table(t):
     ''' create_Table_isnrt : CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
                            | CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA '''
@@ -198,8 +287,26 @@ def p_tipo_dato(t):
     ''' TIPO_DATO : TEXT 
                   | FLOAT
                   | INT
+                  | SMALLINT
+                  | DECIMAL PAR_A ENTERO COMA ENTERO PAR_C
+                  | NUMERIC PAR_A ENTERO COMA ENTERO PAR_C
+                  | BIGINT
+                  | REAL
+                  | DOUBLE PRECISION 
+                  | CHARACTER VARYING PAR_A ENTERO PAR_C
+                  | TIMESTAMP
+                  | TIME
+                  | DATE
+                  | INTERVAL APOSTROFE ID APOSTROFE
+                  | VARCHAR PAR_A ENTERO PAR_C
                   | CHAR PAR_A ENTERO PAR_C'''
 
+# Nota: Decimal y numeric requieren (p,s) presicion (numero de digitos en total) y scale (cantidad de digitos despues del punto decimal)
+# Nota2: como se usa real?, completar date/time types
+# interval (p) define la fraccion de digitos en segundos, valido de 0-6
+#def p_tiempo_i(t):
+ #   '''tiempo_i : tiempo_i tiempo
+  #              | tiempo '''
 
 ' ----------- GRAMATICA PARA LA INSTRUCCION UPDATE ------'
 def p_update_insrt(t):
@@ -310,6 +417,7 @@ def p_datos_insert_lista(t):
 def p_datos_insert(t):
     ''' datos_insert : CADENA
                      | ENTERO 
+                     | PAR_A expresion_logica PAR_C
                      | ID 
                      | ID PUNTO ID'''
 
@@ -321,16 +429,22 @@ def p_expresion_relacional(t):
                              | datos_insert MENIGQUE datos_insert
                              | datos_insert DOBLEIG datos_insert
                              | datos_insert IGUAL datos_insert
+                             | datos_insert NOIG datos_insert
                              | datos_insert '''
 
 def p_expresion_logica(t):
-    ''' expresion_logica : expresion_relacional AND expresion_relacional
-                            | expresion_relacional OR expresion_relacional
-                            | expresion_relacional''' 
+    ''' expresion_logica : expresion_relacional AND expresion_logica
+                        | expresion_relacional OR expresion_logica
+                        | expresion_relacional''' 
 
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value)
+    print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
+    
 
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    print((token.lexpos - line_start) + 1)
+    return (token.lexpos - line_start) + 1
 
 import ply.yacc as yacc
 parser = yacc.yacc()
