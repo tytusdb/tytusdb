@@ -270,6 +270,7 @@ def p_sentencia(t):
                  | DropBase
                  | UpdateBase
                  | DeleteBase
+                 | TruncateBase
     '''
     #t[0] = t[1]
     
@@ -303,6 +304,102 @@ def p_DropBase(t):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< ARIEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+#PRODUCCIÓN PARA HACER UN UPDATE
+def p_produccion0(t):
+    ''' UpdateBase   : tUpdate id tSet L_ASIGN where OR_EXP ptComa '''
+
+
+#PRODUCCIÓN PARA HACER UN DELETE
+def p_produccion0_1(t):
+    ''' DeleteBase  : tDelete from id CONDICION ptComa '''
+
+
+#CONDICIÓN QUE PUEDE O NO VENIR DENTRO DE UN DELETE
+def p_produccion0_2(t):
+    ''' CONDICION   : where OR_EXP
+                    |  '''
+
+
+#PRODUCCIÓN PARA HACER UN TRUNCATE
+def p_produccion1_0(t):
+    ''' TruncateBase    : tTruncate L_IDs ptComa'''
+
+
+#PRODUCCIÓN PARA UNA LISTA DE IDENTIFICADORES
+def p_produccion1_1(t):
+    ''' L_IDs   : L_IDs coma id 
+                | id '''
+
+
+#PRODUCCIÓN PARA UNA LISTA DE ASIGNACIONES: id1 = 2, id2 = 3, id3, = 'Hola', etc...
+def p_produccion1(t):
+    ''' L_ASIGN : L_ASIGN coma id igual OR_EXP
+                | id igual OR_EXP '''
+
+
+#PRODUCCIÓN PARA UNA CONDICIONAL "Or"
+def p_produccion2(t):
+    ''' OR_EXP  : OR_EXP or AND_EXP
+                | AND_EXP '''
+
+
+#PRODUCCIÓN PARA UNA CONDICIONAL "And"
+def p_produccion3(t):
+    ''' AND_EXP : AND_EXP tAnd REL_EXP
+                | REL_EXP '''
+
+
+#PRODUCCIÓN PARA LAS OPERACIONES RELACIONALES
+def p_produccion5(t):
+    ''' REL_EXP : REL_EXP menor ADD_EXP
+                | REL_EXP mayor ADD_EXP
+                | REL_EXP menorIgual ADD_EXP
+                | REL_EXP mayorIgual ADD_EXP
+                | REL_EXP diferente ADD_EXP
+                | REL_EXP igual ADD_EXP
+                | ADD_EXP '''
+
+
+#PRODUCCIÓN PARA UNA OPERACIÓN DE SUMA O RESTA
+def p_produccion6(t):
+    ''' ADD_EXP : ADD_EXP mas MULT_EXP
+                | ADD_EXP menos MULT_EXP
+                | MULT_EXP '''
+ 
+
+ #PRODUCCIÓN PARA UNA OPERACIÓN DE MULTIPLICACIÓN, DIVISIÓN O MÓDULO
+def p_produccion7(t):
+    ''' MULT_EXP    : MULT_EXP multi POT_EXP
+                    | MULT_EXP divi POT_EXP
+                    | MULT_EXP modulo POT_EXP
+                    | POT_EXP  '''
+
+
+#PRODUCCIÓN PARA UNA OPERACIÓN DE POTENCIA
+def p_produccion8(t):
+    ''' POT_EXP : POT_EXP elevado NEG_VAL
+	            | NEG_VAL '''
+
+
+#PRODUCCIÓN PARA LA NEGACIÓN DE VALORES
+def p_produccion9(t):
+    ''' NEG_VAL : menos EXPRESION
+                | not EXPRESION
+                | EXPRESION '''
+
+
+#PRODUCCIÓN PARA LAS EXPRESIONES
+def p_produccion10(t):
+    ''' EXPRESION   : id
+                    | decimal
+                    | entero
+                    | cadena
+                    | cadenaLike
+                    | tTrue
+                    | tFalse
+                    | parAbre OR_EXP parCierra '''
+
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< ARIEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< FRANCISCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<
