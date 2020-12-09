@@ -1,0 +1,3531 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    ADD
+    ALTER
+    AND
+    AS
+    BETWEEN
+    CHECK
+    CRDR
+    CRIZQ
+    DATABASE
+    DAY
+    DOSPUNTOS
+    DROP
+    ENUM
+    EXPONENCIAL
+    FALSE
+    HOUR
+    IF
+    ILIKE
+    IN
+    IS
+    LIKE
+    LLDR
+    LLIZQ
+    MINUTE
+    MONTH
+    OR
+    OWNER
+    PORCENTAJE
+    PRECISION
+    PUNTO
+    RENAME
+    REPLACE
+    SECOND
+    SELECT
+    SHOW
+    SIMILAR
+    TO
+    TRUE
+    TYPE
+    YEAR
+
+Grammar
+
+Rule 0     S' -> s
+Rule 1     s -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA
+Rule 5     campos -> campos COMA campo
+Rule 6     campos -> campo
+Rule 7     campo -> ID tipo
+Rule 8     campo -> ID tipo acompaniamiento
+Rule 9     campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
+Rule 10    campo -> PRIMARY KEY PARIZQ ID PARDR
+Rule 11    acompaniamiento -> acompaniamiento acom
+Rule 12    acompaniamiento -> acom
+Rule 13    acom -> NOT NULL
+Rule 14    acom -> NULL
+Rule 15    acom -> UNIQUE
+Rule 16    acom -> DEFAULT ENTERO
+Rule 17    acom -> DEFAULT CADENA
+Rule 18    acom -> DEFAULT NUMDECIMAL
+Rule 19    acom -> PRIMARY KEY
+Rule 20    tipo -> SMALLINT
+Rule 21    tipo -> INT
+Rule 22    tipo -> BIGINT
+Rule 23    tipo -> DECIMAL
+Rule 24    tipo -> NUMERIC
+Rule 25    tipo -> REAL
+Rule 26    tipo -> DOUBLE
+Rule 27    tipo -> MONEY
+Rule 28    tipo -> VARYING
+Rule 29    tipo -> TEXT
+Rule 30    tipo -> TIMESTAMP
+Rule 31    tipo -> DATE
+Rule 32    tipo -> TIME
+Rule 33    tipo -> INTERVAL
+Rule 34    tipo -> BOOLEAN
+Rule 35    tipo -> CHARACTER PARIZQ ENTERO PARDR
+Rule 36    tipo -> VARCHAR PARIZQ ENTERO PARDR
+Rule 37    tipo -> CHAR PARIZQ ENTERO PARDR
+Rule 38    instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA
+Rule 39    instruccion -> INSERT INTO ID VALUES values PTCOMA
+Rule 40    listaID -> listaID COMA ID
+Rule 41    listaID -> ID
+Rule 42    values -> values COMA value
+Rule 43    values -> value
+Rule 44    value -> PARIZQ listaValores PARDR
+Rule 45    listaValores -> listaValores COMA valores
+Rule 46    listaValores -> valores
+Rule 47    valores -> ENTERO
+Rule 48    valores -> NUMDECIMAL
+Rule 49    valores -> CADENA
+Rule 50    instruccion -> UPDATE ID SET asignaciones PTCOMA
+Rule 51    instruccion -> UPDATE ID SET asignaciones WHERE where PTCOMA
+Rule 52    asignaciones -> asignaciones COMA asignacion
+Rule 53    asignaciones -> asignacion
+Rule 54    where -> asignacion
+Rule 55    asignacion -> ID IGUAL E
+Rule 56    E -> PARIZQ E PARDR
+Rule 57    E -> operando
+Rule 58    E -> unario
+Rule 59    E -> valores
+Rule 60    E -> var
+Rule 61    operando -> E MAS E
+Rule 62    operando -> E MENOS E
+Rule 63    operando -> E MULT E
+Rule 64    operando -> E DIV E
+Rule 65    operando -> E IGUALIGUAL E
+Rule 66    operando -> E NOIGUAL E
+Rule 67    operando -> E MENOR E
+Rule 68    operando -> E MAYOR E
+Rule 69    operando -> E MENORIGUAL E
+Rule 70    operando -> E MAYORIGUAL E
+Rule 71    operando -> E MENMEN E
+Rule 72    operando -> E MAYMAY E
+Rule 73    operando -> E ANDO E
+Rule 74    operando -> E ORO E
+Rule 75    unario -> NOTO E
+Rule 76    unario -> MENOS E
+Rule 77    unario -> GNOT E
+Rule 78    var -> ID
+Rule 79    instruccion -> DELETE FROM ID WHERE where PTCOMA
+Rule 80    instruccion -> DELETE FROM ID PTCOMA
+
+Terminals, with rules where they appear
+
+ADD                  : 
+ALTER                : 
+AND                  : 
+ANDO                 : 73
+AS                   : 
+BETWEEN              : 
+BIGINT               : 22
+BOOLEAN              : 34
+CADENA               : 17 49
+CHAR                 : 37
+CHARACTER            : 35
+CHECK                : 
+COMA                 : 5 40 42 45 52
+CONSTRAINT           : 9
+CRDR                 : 
+CREATE               : 4
+CRIZQ                : 
+DATABASE             : 
+DATE                 : 31
+DAY                  : 
+DECIMAL              : 23
+DEFAULT              : 16 17 18
+DELETE               : 79 80
+DIV                  : 64
+DOSPUNTOS            : 
+DOUBLE               : 26
+DROP                 : 
+ENTERO               : 16 35 36 37 47
+ENUM                 : 
+EXPONENCIAL          : 
+FALSE                : 
+FOREIGN              : 9
+FROM                 : 79 80
+GNOT                 : 77
+HOUR                 : 
+ID                   : 4 7 8 9 9 9 9 10 38 39 40 41 50 51 55 78 79 80
+IF                   : 
+IGUAL                : 55
+IGUALIGUAL           : 65
+ILIKE                : 
+IN                   : 
+INSERT               : 38 39
+INT                  : 21
+INTERVAL             : 33
+INTO                 : 38 39
+IS                   : 
+KEY                  : 9 10 19
+LIKE                 : 
+LLDR                 : 
+LLIZQ                : 
+MAS                  : 61
+MAYMAY               : 72
+MAYOR                : 68
+MAYORIGUAL           : 70
+MENMEN               : 71
+MENOR                : 67
+MENORIGUAL           : 69
+MENOS                : 62 76
+MINUTE               : 
+MONEY                : 27
+MONTH                : 
+MULT                 : 63
+NOIGUAL              : 66
+NOT                  : 13
+NOTO                 : 75
+NULL                 : 13 14
+NUMDECIMAL           : 18 48
+NUMERIC              : 24
+OR                   : 
+ORO                  : 74
+OWNER                : 
+PARDR                : 4 9 9 10 35 36 37 38 44 56
+PARIZQ               : 4 9 9 10 35 36 37 38 44 56
+PORCENTAJE           : 
+PRECISION            : 
+PRIMARY              : 10 19
+PTCOMA               : 4 38 39 50 51 79 80
+PUNTO                : 
+REAL                 : 25
+REFERENCES           : 9
+RENAME               : 
+REPLACE              : 
+SECOND               : 
+SELECT               : 
+SET                  : 50 51
+SHOW                 : 
+SIMILAR              : 
+SMALLINT             : 20
+TABLE                : 4
+TEXT                 : 29
+TIME                 : 32
+TIMESTAMP            : 30
+TO                   : 
+TRUE                 : 
+TYPE                 : 
+UNIQUE               : 15
+UPDATE               : 50 51
+VALUES               : 38 39
+VARCHAR              : 36
+VARYING              : 28
+WHERE                : 51 79
+YEAR                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+E                    : 55 56 61 61 62 62 63 63 64 64 65 65 66 66 67 67 68 68 69 69 70 70 71 71 72 72 73 73 74 74 75 76 77
+acom                 : 11 12
+acompaniamiento      : 8 11
+asignacion           : 52 53 54
+asignaciones         : 50 51 52
+campo                : 5 6
+campos               : 4 5
+instruccion          : 2 3
+instrucciones        : 1 2
+listaID              : 38 40
+listaValores         : 44 45
+operando             : 57
+s                    : 0
+tipo                 : 7 8
+unario               : 58
+valores              : 45 46 59
+value                : 42 43
+values               : 38 39 42
+var                  : 60
+where                : 51 79
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . s
+    (1) s -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . CREATE TABLE ID PARIZQ campos PARDR PTCOMA
+    (38) instruccion -> . INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA
+    (39) instruccion -> . INSERT INTO ID VALUES values PTCOMA
+    (50) instruccion -> . UPDATE ID SET asignaciones PTCOMA
+    (51) instruccion -> . UPDATE ID SET asignaciones WHERE where PTCOMA
+    (79) instruccion -> . DELETE FROM ID WHERE where PTCOMA
+    (80) instruccion -> . DELETE FROM ID PTCOMA
+
+    CREATE          shift and go to state 4
+    INSERT          shift and go to state 5
+    UPDATE          shift and go to state 6
+    DELETE          shift and go to state 7
+
+    s                              shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+
+state 1
+
+    (0) S' -> s .
+
+
+
+state 2
+
+    (1) s -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . CREATE TABLE ID PARIZQ campos PARDR PTCOMA
+    (38) instruccion -> . INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA
+    (39) instruccion -> . INSERT INTO ID VALUES values PTCOMA
+    (50) instruccion -> . UPDATE ID SET asignaciones PTCOMA
+    (51) instruccion -> . UPDATE ID SET asignaciones WHERE where PTCOMA
+    (79) instruccion -> . DELETE FROM ID WHERE where PTCOMA
+    (80) instruccion -> . DELETE FROM ID PTCOMA
+
+    $end            reduce using rule 1 (s -> instrucciones .)
+    CREATE          shift and go to state 4
+    INSERT          shift and go to state 5
+    UPDATE          shift and go to state 6
+    DELETE          shift and go to state 7
+
+    instruccion                    shift and go to state 8
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    CREATE          reduce using rule 3 (instrucciones -> instruccion .)
+    INSERT          reduce using rule 3 (instrucciones -> instruccion .)
+    UPDATE          reduce using rule 3 (instrucciones -> instruccion .)
+    DELETE          reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> CREATE . TABLE ID PARIZQ campos PARDR PTCOMA
+
+    TABLE           shift and go to state 9
+
+
+state 5
+
+    (38) instruccion -> INSERT . INTO ID PARIZQ listaID PARDR VALUES values PTCOMA
+    (39) instruccion -> INSERT . INTO ID VALUES values PTCOMA
+
+    INTO            shift and go to state 10
+
+
+state 6
+
+    (50) instruccion -> UPDATE . ID SET asignaciones PTCOMA
+    (51) instruccion -> UPDATE . ID SET asignaciones WHERE where PTCOMA
+
+    ID              shift and go to state 11
+
+
+state 7
+
+    (79) instruccion -> DELETE . FROM ID WHERE where PTCOMA
+    (80) instruccion -> DELETE . FROM ID PTCOMA
+
+    FROM            shift and go to state 12
+
+
+state 8
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    CREATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    INSERT          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    UPDATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    DELETE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 9
+
+    (4) instruccion -> CREATE TABLE . ID PARIZQ campos PARDR PTCOMA
+
+    ID              shift and go to state 13
+
+
+state 10
+
+    (38) instruccion -> INSERT INTO . ID PARIZQ listaID PARDR VALUES values PTCOMA
+    (39) instruccion -> INSERT INTO . ID VALUES values PTCOMA
+
+    ID              shift and go to state 14
+
+
+state 11
+
+    (50) instruccion -> UPDATE ID . SET asignaciones PTCOMA
+    (51) instruccion -> UPDATE ID . SET asignaciones WHERE where PTCOMA
+
+    SET             shift and go to state 15
+
+
+state 12
+
+    (79) instruccion -> DELETE FROM . ID WHERE where PTCOMA
+    (80) instruccion -> DELETE FROM . ID PTCOMA
+
+    ID              shift and go to state 16
+
+
+state 13
+
+    (4) instruccion -> CREATE TABLE ID . PARIZQ campos PARDR PTCOMA
+
+    PARIZQ          shift and go to state 17
+
+
+state 14
+
+    (38) instruccion -> INSERT INTO ID . PARIZQ listaID PARDR VALUES values PTCOMA
+    (39) instruccion -> INSERT INTO ID . VALUES values PTCOMA
+
+    PARIZQ          shift and go to state 18
+    VALUES          shift and go to state 19
+
+
+state 15
+
+    (50) instruccion -> UPDATE ID SET . asignaciones PTCOMA
+    (51) instruccion -> UPDATE ID SET . asignaciones WHERE where PTCOMA
+    (52) asignaciones -> . asignaciones COMA asignacion
+    (53) asignaciones -> . asignacion
+    (55) asignacion -> . ID IGUAL E
+
+    ID              shift and go to state 20
+
+    asignaciones                   shift and go to state 21
+    asignacion                     shift and go to state 22
+
+state 16
+
+    (79) instruccion -> DELETE FROM ID . WHERE where PTCOMA
+    (80) instruccion -> DELETE FROM ID . PTCOMA
+
+    WHERE           shift and go to state 23
+    PTCOMA          shift and go to state 24
+
+
+state 17
+
+    (4) instruccion -> CREATE TABLE ID PARIZQ . campos PARDR PTCOMA
+    (5) campos -> . campos COMA campo
+    (6) campos -> . campo
+    (7) campo -> . ID tipo
+    (8) campo -> . ID tipo acompaniamiento
+    (9) campo -> . CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
+    (10) campo -> . PRIMARY KEY PARIZQ ID PARDR
+
+    ID              shift and go to state 25
+    CONSTRAINT      shift and go to state 28
+    PRIMARY         shift and go to state 29
+
+    campos                         shift and go to state 26
+    campo                          shift and go to state 27
+
+state 18
+
+    (38) instruccion -> INSERT INTO ID PARIZQ . listaID PARDR VALUES values PTCOMA
+    (40) listaID -> . listaID COMA ID
+    (41) listaID -> . ID
+
+    ID              shift and go to state 30
+
+    listaID                        shift and go to state 31
+
+state 19
+
+    (39) instruccion -> INSERT INTO ID VALUES . values PTCOMA
+    (42) values -> . values COMA value
+    (43) values -> . value
+    (44) value -> . PARIZQ listaValores PARDR
+
+    PARIZQ          shift and go to state 34
+
+    values                         shift and go to state 32
+    value                          shift and go to state 33
+
+state 20
+
+    (55) asignacion -> ID . IGUAL E
+
+    IGUAL           shift and go to state 35
+
+
+state 21
+
+    (50) instruccion -> UPDATE ID SET asignaciones . PTCOMA
+    (51) instruccion -> UPDATE ID SET asignaciones . WHERE where PTCOMA
+    (52) asignaciones -> asignaciones . COMA asignacion
+
+    PTCOMA          shift and go to state 36
+    WHERE           shift and go to state 37
+    COMA            shift and go to state 38
+
+
+state 22
+
+    (53) asignaciones -> asignacion .
+
+    PTCOMA          reduce using rule 53 (asignaciones -> asignacion .)
+    WHERE           reduce using rule 53 (asignaciones -> asignacion .)
+    COMA            reduce using rule 53 (asignaciones -> asignacion .)
+
+
+state 23
+
+    (79) instruccion -> DELETE FROM ID WHERE . where PTCOMA
+    (54) where -> . asignacion
+    (55) asignacion -> . ID IGUAL E
+
+    ID              shift and go to state 20
+
+    where                          shift and go to state 39
+    asignacion                     shift and go to state 40
+
+state 24
+
+    (80) instruccion -> DELETE FROM ID PTCOMA .
+
+    CREATE          reduce using rule 80 (instruccion -> DELETE FROM ID PTCOMA .)
+    INSERT          reduce using rule 80 (instruccion -> DELETE FROM ID PTCOMA .)
+    UPDATE          reduce using rule 80 (instruccion -> DELETE FROM ID PTCOMA .)
+    DELETE          reduce using rule 80 (instruccion -> DELETE FROM ID PTCOMA .)
+    $end            reduce using rule 80 (instruccion -> DELETE FROM ID PTCOMA .)
+
+
+state 25
+
+    (7) campo -> ID . tipo
+    (8) campo -> ID . tipo acompaniamiento
+    (20) tipo -> . SMALLINT
+    (21) tipo -> . INT
+    (22) tipo -> . BIGINT
+    (23) tipo -> . DECIMAL
+    (24) tipo -> . NUMERIC
+    (25) tipo -> . REAL
+    (26) tipo -> . DOUBLE
+    (27) tipo -> . MONEY
+    (28) tipo -> . VARYING
+    (29) tipo -> . TEXT
+    (30) tipo -> . TIMESTAMP
+    (31) tipo -> . DATE
+    (32) tipo -> . TIME
+    (33) tipo -> . INTERVAL
+    (34) tipo -> . BOOLEAN
+    (35) tipo -> . CHARACTER PARIZQ ENTERO PARDR
+    (36) tipo -> . VARCHAR PARIZQ ENTERO PARDR
+    (37) tipo -> . CHAR PARIZQ ENTERO PARDR
+
+    SMALLINT        shift and go to state 42
+    INT             shift and go to state 43
+    BIGINT          shift and go to state 44
+    DECIMAL         shift and go to state 45
+    NUMERIC         shift and go to state 46
+    REAL            shift and go to state 47
+    DOUBLE          shift and go to state 48
+    MONEY           shift and go to state 49
+    VARYING         shift and go to state 50
+    TEXT            shift and go to state 51
+    TIMESTAMP       shift and go to state 52
+    DATE            shift and go to state 53
+    TIME            shift and go to state 54
+    INTERVAL        shift and go to state 55
+    BOOLEAN         shift and go to state 56
+    CHARACTER       shift and go to state 57
+    VARCHAR         shift and go to state 58
+    CHAR            shift and go to state 59
+
+    tipo                           shift and go to state 41
+
+state 26
+
+    (4) instruccion -> CREATE TABLE ID PARIZQ campos . PARDR PTCOMA
+    (5) campos -> campos . COMA campo
+
+    PARDR           shift and go to state 60
+    COMA            shift and go to state 61
+
+
+state 27
+
+    (6) campos -> campo .
+
+    PARDR           reduce using rule 6 (campos -> campo .)
+    COMA            reduce using rule 6 (campos -> campo .)
+
+
+state 28
+
+    (9) campo -> CONSTRAINT . ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
+
+    ID              shift and go to state 62
+
+
+state 29
+
+    (10) campo -> PRIMARY . KEY PARIZQ ID PARDR
+
+    KEY             shift and go to state 63
+
+
+state 30
+
+    (41) listaID -> ID .
+
+    PARDR           reduce using rule 41 (listaID -> ID .)
+    COMA            reduce using rule 41 (listaID -> ID .)
+
+
+state 31
+
+    (38) instruccion -> INSERT INTO ID PARIZQ listaID . PARDR VALUES values PTCOMA
+    (40) listaID -> listaID . COMA ID
+
+    PARDR           shift and go to state 64
+    COMA            shift and go to state 65
+
+
+state 32
+
+    (39) instruccion -> INSERT INTO ID VALUES values . PTCOMA
+    (42) values -> values . COMA value
+
+    PTCOMA          shift and go to state 66
+    COMA            shift and go to state 67
+
+
+state 33
+
+    (43) values -> value .
+
+    PTCOMA          reduce using rule 43 (values -> value .)
+    COMA            reduce using rule 43 (values -> value .)
+
+
+state 34
+
+    (44) value -> PARIZQ . listaValores PARDR
+    (45) listaValores -> . listaValores COMA valores
+    (46) listaValores -> . valores
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+
+    listaValores                   shift and go to state 68
+    valores                        shift and go to state 69
+
+state 35
+
+    (55) asignacion -> ID IGUAL . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 74
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 36
+
+    (50) instruccion -> UPDATE ID SET asignaciones PTCOMA .
+
+    CREATE          reduce using rule 50 (instruccion -> UPDATE ID SET asignaciones PTCOMA .)
+    INSERT          reduce using rule 50 (instruccion -> UPDATE ID SET asignaciones PTCOMA .)
+    UPDATE          reduce using rule 50 (instruccion -> UPDATE ID SET asignaciones PTCOMA .)
+    DELETE          reduce using rule 50 (instruccion -> UPDATE ID SET asignaciones PTCOMA .)
+    $end            reduce using rule 50 (instruccion -> UPDATE ID SET asignaciones PTCOMA .)
+
+
+state 37
+
+    (51) instruccion -> UPDATE ID SET asignaciones WHERE . where PTCOMA
+    (54) where -> . asignacion
+    (55) asignacion -> . ID IGUAL E
+
+    ID              shift and go to state 20
+
+    where                          shift and go to state 83
+    asignacion                     shift and go to state 40
+
+state 38
+
+    (52) asignaciones -> asignaciones COMA . asignacion
+    (55) asignacion -> . ID IGUAL E
+
+    ID              shift and go to state 20
+
+    asignacion                     shift and go to state 84
+
+state 39
+
+    (79) instruccion -> DELETE FROM ID WHERE where . PTCOMA
+
+    PTCOMA          shift and go to state 85
+
+
+state 40
+
+    (54) where -> asignacion .
+
+    PTCOMA          reduce using rule 54 (where -> asignacion .)
+
+
+state 41
+
+    (7) campo -> ID tipo .
+    (8) campo -> ID tipo . acompaniamiento
+    (11) acompaniamiento -> . acompaniamiento acom
+    (12) acompaniamiento -> . acom
+    (13) acom -> . NOT NULL
+    (14) acom -> . NULL
+    (15) acom -> . UNIQUE
+    (16) acom -> . DEFAULT ENTERO
+    (17) acom -> . DEFAULT CADENA
+    (18) acom -> . DEFAULT NUMDECIMAL
+    (19) acom -> . PRIMARY KEY
+
+    PARDR           reduce using rule 7 (campo -> ID tipo .)
+    COMA            reduce using rule 7 (campo -> ID tipo .)
+    NOT             shift and go to state 88
+    NULL            shift and go to state 89
+    UNIQUE          shift and go to state 90
+    DEFAULT         shift and go to state 91
+    PRIMARY         shift and go to state 92
+
+    acompaniamiento                shift and go to state 86
+    acom                           shift and go to state 87
+
+state 42
+
+    (20) tipo -> SMALLINT .
+
+    NOT             reduce using rule 20 (tipo -> SMALLINT .)
+    NULL            reduce using rule 20 (tipo -> SMALLINT .)
+    UNIQUE          reduce using rule 20 (tipo -> SMALLINT .)
+    DEFAULT         reduce using rule 20 (tipo -> SMALLINT .)
+    PRIMARY         reduce using rule 20 (tipo -> SMALLINT .)
+    PARDR           reduce using rule 20 (tipo -> SMALLINT .)
+    COMA            reduce using rule 20 (tipo -> SMALLINT .)
+
+
+state 43
+
+    (21) tipo -> INT .
+
+    NOT             reduce using rule 21 (tipo -> INT .)
+    NULL            reduce using rule 21 (tipo -> INT .)
+    UNIQUE          reduce using rule 21 (tipo -> INT .)
+    DEFAULT         reduce using rule 21 (tipo -> INT .)
+    PRIMARY         reduce using rule 21 (tipo -> INT .)
+    PARDR           reduce using rule 21 (tipo -> INT .)
+    COMA            reduce using rule 21 (tipo -> INT .)
+
+
+state 44
+
+    (22) tipo -> BIGINT .
+
+    NOT             reduce using rule 22 (tipo -> BIGINT .)
+    NULL            reduce using rule 22 (tipo -> BIGINT .)
+    UNIQUE          reduce using rule 22 (tipo -> BIGINT .)
+    DEFAULT         reduce using rule 22 (tipo -> BIGINT .)
+    PRIMARY         reduce using rule 22 (tipo -> BIGINT .)
+    PARDR           reduce using rule 22 (tipo -> BIGINT .)
+    COMA            reduce using rule 22 (tipo -> BIGINT .)
+
+
+state 45
+
+    (23) tipo -> DECIMAL .
+
+    NOT             reduce using rule 23 (tipo -> DECIMAL .)
+    NULL            reduce using rule 23 (tipo -> DECIMAL .)
+    UNIQUE          reduce using rule 23 (tipo -> DECIMAL .)
+    DEFAULT         reduce using rule 23 (tipo -> DECIMAL .)
+    PRIMARY         reduce using rule 23 (tipo -> DECIMAL .)
+    PARDR           reduce using rule 23 (tipo -> DECIMAL .)
+    COMA            reduce using rule 23 (tipo -> DECIMAL .)
+
+
+state 46
+
+    (24) tipo -> NUMERIC .
+
+    NOT             reduce using rule 24 (tipo -> NUMERIC .)
+    NULL            reduce using rule 24 (tipo -> NUMERIC .)
+    UNIQUE          reduce using rule 24 (tipo -> NUMERIC .)
+    DEFAULT         reduce using rule 24 (tipo -> NUMERIC .)
+    PRIMARY         reduce using rule 24 (tipo -> NUMERIC .)
+    PARDR           reduce using rule 24 (tipo -> NUMERIC .)
+    COMA            reduce using rule 24 (tipo -> NUMERIC .)
+
+
+state 47
+
+    (25) tipo -> REAL .
+
+    NOT             reduce using rule 25 (tipo -> REAL .)
+    NULL            reduce using rule 25 (tipo -> REAL .)
+    UNIQUE          reduce using rule 25 (tipo -> REAL .)
+    DEFAULT         reduce using rule 25 (tipo -> REAL .)
+    PRIMARY         reduce using rule 25 (tipo -> REAL .)
+    PARDR           reduce using rule 25 (tipo -> REAL .)
+    COMA            reduce using rule 25 (tipo -> REAL .)
+
+
+state 48
+
+    (26) tipo -> DOUBLE .
+
+    NOT             reduce using rule 26 (tipo -> DOUBLE .)
+    NULL            reduce using rule 26 (tipo -> DOUBLE .)
+    UNIQUE          reduce using rule 26 (tipo -> DOUBLE .)
+    DEFAULT         reduce using rule 26 (tipo -> DOUBLE .)
+    PRIMARY         reduce using rule 26 (tipo -> DOUBLE .)
+    PARDR           reduce using rule 26 (tipo -> DOUBLE .)
+    COMA            reduce using rule 26 (tipo -> DOUBLE .)
+
+
+state 49
+
+    (27) tipo -> MONEY .
+
+    NOT             reduce using rule 27 (tipo -> MONEY .)
+    NULL            reduce using rule 27 (tipo -> MONEY .)
+    UNIQUE          reduce using rule 27 (tipo -> MONEY .)
+    DEFAULT         reduce using rule 27 (tipo -> MONEY .)
+    PRIMARY         reduce using rule 27 (tipo -> MONEY .)
+    PARDR           reduce using rule 27 (tipo -> MONEY .)
+    COMA            reduce using rule 27 (tipo -> MONEY .)
+
+
+state 50
+
+    (28) tipo -> VARYING .
+
+    NOT             reduce using rule 28 (tipo -> VARYING .)
+    NULL            reduce using rule 28 (tipo -> VARYING .)
+    UNIQUE          reduce using rule 28 (tipo -> VARYING .)
+    DEFAULT         reduce using rule 28 (tipo -> VARYING .)
+    PRIMARY         reduce using rule 28 (tipo -> VARYING .)
+    PARDR           reduce using rule 28 (tipo -> VARYING .)
+    COMA            reduce using rule 28 (tipo -> VARYING .)
+
+
+state 51
+
+    (29) tipo -> TEXT .
+
+    NOT             reduce using rule 29 (tipo -> TEXT .)
+    NULL            reduce using rule 29 (tipo -> TEXT .)
+    UNIQUE          reduce using rule 29 (tipo -> TEXT .)
+    DEFAULT         reduce using rule 29 (tipo -> TEXT .)
+    PRIMARY         reduce using rule 29 (tipo -> TEXT .)
+    PARDR           reduce using rule 29 (tipo -> TEXT .)
+    COMA            reduce using rule 29 (tipo -> TEXT .)
+
+
+state 52
+
+    (30) tipo -> TIMESTAMP .
+
+    NOT             reduce using rule 30 (tipo -> TIMESTAMP .)
+    NULL            reduce using rule 30 (tipo -> TIMESTAMP .)
+    UNIQUE          reduce using rule 30 (tipo -> TIMESTAMP .)
+    DEFAULT         reduce using rule 30 (tipo -> TIMESTAMP .)
+    PRIMARY         reduce using rule 30 (tipo -> TIMESTAMP .)
+    PARDR           reduce using rule 30 (tipo -> TIMESTAMP .)
+    COMA            reduce using rule 30 (tipo -> TIMESTAMP .)
+
+
+state 53
+
+    (31) tipo -> DATE .
+
+    NOT             reduce using rule 31 (tipo -> DATE .)
+    NULL            reduce using rule 31 (tipo -> DATE .)
+    UNIQUE          reduce using rule 31 (tipo -> DATE .)
+    DEFAULT         reduce using rule 31 (tipo -> DATE .)
+    PRIMARY         reduce using rule 31 (tipo -> DATE .)
+    PARDR           reduce using rule 31 (tipo -> DATE .)
+    COMA            reduce using rule 31 (tipo -> DATE .)
+
+
+state 54
+
+    (32) tipo -> TIME .
+
+    NOT             reduce using rule 32 (tipo -> TIME .)
+    NULL            reduce using rule 32 (tipo -> TIME .)
+    UNIQUE          reduce using rule 32 (tipo -> TIME .)
+    DEFAULT         reduce using rule 32 (tipo -> TIME .)
+    PRIMARY         reduce using rule 32 (tipo -> TIME .)
+    PARDR           reduce using rule 32 (tipo -> TIME .)
+    COMA            reduce using rule 32 (tipo -> TIME .)
+
+
+state 55
+
+    (33) tipo -> INTERVAL .
+
+    NOT             reduce using rule 33 (tipo -> INTERVAL .)
+    NULL            reduce using rule 33 (tipo -> INTERVAL .)
+    UNIQUE          reduce using rule 33 (tipo -> INTERVAL .)
+    DEFAULT         reduce using rule 33 (tipo -> INTERVAL .)
+    PRIMARY         reduce using rule 33 (tipo -> INTERVAL .)
+    PARDR           reduce using rule 33 (tipo -> INTERVAL .)
+    COMA            reduce using rule 33 (tipo -> INTERVAL .)
+
+
+state 56
+
+    (34) tipo -> BOOLEAN .
+
+    NOT             reduce using rule 34 (tipo -> BOOLEAN .)
+    NULL            reduce using rule 34 (tipo -> BOOLEAN .)
+    UNIQUE          reduce using rule 34 (tipo -> BOOLEAN .)
+    DEFAULT         reduce using rule 34 (tipo -> BOOLEAN .)
+    PRIMARY         reduce using rule 34 (tipo -> BOOLEAN .)
+    PARDR           reduce using rule 34 (tipo -> BOOLEAN .)
+    COMA            reduce using rule 34 (tipo -> BOOLEAN .)
+
+
+state 57
+
+    (35) tipo -> CHARACTER . PARIZQ ENTERO PARDR
+
+    PARIZQ          shift and go to state 93
+
+
+state 58
+
+    (36) tipo -> VARCHAR . PARIZQ ENTERO PARDR
+
+    PARIZQ          shift and go to state 94
+
+
+state 59
+
+    (37) tipo -> CHAR . PARIZQ ENTERO PARDR
+
+    PARIZQ          shift and go to state 95
+
+
+state 60
+
+    (4) instruccion -> CREATE TABLE ID PARIZQ campos PARDR . PTCOMA
+
+    PTCOMA          shift and go to state 96
+
+
+state 61
+
+    (5) campos -> campos COMA . campo
+    (7) campo -> . ID tipo
+    (8) campo -> . ID tipo acompaniamiento
+    (9) campo -> . CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
+    (10) campo -> . PRIMARY KEY PARIZQ ID PARDR
+
+    ID              shift and go to state 25
+    CONSTRAINT      shift and go to state 28
+    PRIMARY         shift and go to state 29
+
+    campo                          shift and go to state 97
+
+state 62
+
+    (9) campo -> CONSTRAINT ID . FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
+
+    FOREIGN         shift and go to state 98
+
+
+state 63
+
+    (10) campo -> PRIMARY KEY . PARIZQ ID PARDR
+
+    PARIZQ          shift and go to state 99
+
+
+state 64
+
+    (38) instruccion -> INSERT INTO ID PARIZQ listaID PARDR . VALUES values PTCOMA
+
+    VALUES          shift and go to state 100
+
+
+state 65
+
+    (40) listaID -> listaID COMA . ID
+
+    ID              shift and go to state 101
+
+
+state 66
+
+    (39) instruccion -> INSERT INTO ID VALUES values PTCOMA .
+
+    CREATE          reduce using rule 39 (instruccion -> INSERT INTO ID VALUES values PTCOMA .)
+    INSERT          reduce using rule 39 (instruccion -> INSERT INTO ID VALUES values PTCOMA .)
+    UPDATE          reduce using rule 39 (instruccion -> INSERT INTO ID VALUES values PTCOMA .)
+    DELETE          reduce using rule 39 (instruccion -> INSERT INTO ID VALUES values PTCOMA .)
+    $end            reduce using rule 39 (instruccion -> INSERT INTO ID VALUES values PTCOMA .)
+
+
+state 67
+
+    (42) values -> values COMA . value
+    (44) value -> . PARIZQ listaValores PARDR
+
+    PARIZQ          shift and go to state 34
+
+    value                          shift and go to state 102
+
+state 68
+
+    (44) value -> PARIZQ listaValores . PARDR
+    (45) listaValores -> listaValores . COMA valores
+
+    PARDR           shift and go to state 103
+    COMA            shift and go to state 104
+
+
+state 69
+
+    (46) listaValores -> valores .
+
+    PARDR           reduce using rule 46 (listaValores -> valores .)
+    COMA            reduce using rule 46 (listaValores -> valores .)
+
+
+state 70
+
+    (47) valores -> ENTERO .
+
+    PARDR           reduce using rule 47 (valores -> ENTERO .)
+    COMA            reduce using rule 47 (valores -> ENTERO .)
+    MAS             reduce using rule 47 (valores -> ENTERO .)
+    MENOS           reduce using rule 47 (valores -> ENTERO .)
+    MULT            reduce using rule 47 (valores -> ENTERO .)
+    DIV             reduce using rule 47 (valores -> ENTERO .)
+    IGUALIGUAL      reduce using rule 47 (valores -> ENTERO .)
+    NOIGUAL         reduce using rule 47 (valores -> ENTERO .)
+    MENOR           reduce using rule 47 (valores -> ENTERO .)
+    MAYOR           reduce using rule 47 (valores -> ENTERO .)
+    MENORIGUAL      reduce using rule 47 (valores -> ENTERO .)
+    MAYORIGUAL      reduce using rule 47 (valores -> ENTERO .)
+    MENMEN          reduce using rule 47 (valores -> ENTERO .)
+    MAYMAY          reduce using rule 47 (valores -> ENTERO .)
+    ANDO            reduce using rule 47 (valores -> ENTERO .)
+    ORO             reduce using rule 47 (valores -> ENTERO .)
+    PTCOMA          reduce using rule 47 (valores -> ENTERO .)
+    WHERE           reduce using rule 47 (valores -> ENTERO .)
+
+
+state 71
+
+    (48) valores -> NUMDECIMAL .
+
+    PARDR           reduce using rule 48 (valores -> NUMDECIMAL .)
+    COMA            reduce using rule 48 (valores -> NUMDECIMAL .)
+    MAS             reduce using rule 48 (valores -> NUMDECIMAL .)
+    MENOS           reduce using rule 48 (valores -> NUMDECIMAL .)
+    MULT            reduce using rule 48 (valores -> NUMDECIMAL .)
+    DIV             reduce using rule 48 (valores -> NUMDECIMAL .)
+    IGUALIGUAL      reduce using rule 48 (valores -> NUMDECIMAL .)
+    NOIGUAL         reduce using rule 48 (valores -> NUMDECIMAL .)
+    MENOR           reduce using rule 48 (valores -> NUMDECIMAL .)
+    MAYOR           reduce using rule 48 (valores -> NUMDECIMAL .)
+    MENORIGUAL      reduce using rule 48 (valores -> NUMDECIMAL .)
+    MAYORIGUAL      reduce using rule 48 (valores -> NUMDECIMAL .)
+    MENMEN          reduce using rule 48 (valores -> NUMDECIMAL .)
+    MAYMAY          reduce using rule 48 (valores -> NUMDECIMAL .)
+    ANDO            reduce using rule 48 (valores -> NUMDECIMAL .)
+    ORO             reduce using rule 48 (valores -> NUMDECIMAL .)
+    PTCOMA          reduce using rule 48 (valores -> NUMDECIMAL .)
+    WHERE           reduce using rule 48 (valores -> NUMDECIMAL .)
+
+
+state 72
+
+    (49) valores -> CADENA .
+
+    PARDR           reduce using rule 49 (valores -> CADENA .)
+    COMA            reduce using rule 49 (valores -> CADENA .)
+    MAS             reduce using rule 49 (valores -> CADENA .)
+    MENOS           reduce using rule 49 (valores -> CADENA .)
+    MULT            reduce using rule 49 (valores -> CADENA .)
+    DIV             reduce using rule 49 (valores -> CADENA .)
+    IGUALIGUAL      reduce using rule 49 (valores -> CADENA .)
+    NOIGUAL         reduce using rule 49 (valores -> CADENA .)
+    MENOR           reduce using rule 49 (valores -> CADENA .)
+    MAYOR           reduce using rule 49 (valores -> CADENA .)
+    MENORIGUAL      reduce using rule 49 (valores -> CADENA .)
+    MAYORIGUAL      reduce using rule 49 (valores -> CADENA .)
+    MENMEN          reduce using rule 49 (valores -> CADENA .)
+    MAYMAY          reduce using rule 49 (valores -> CADENA .)
+    ANDO            reduce using rule 49 (valores -> CADENA .)
+    ORO             reduce using rule 49 (valores -> CADENA .)
+    PTCOMA          reduce using rule 49 (valores -> CADENA .)
+    WHERE           reduce using rule 49 (valores -> CADENA .)
+
+
+state 73
+
+    (78) var -> ID .
+
+    MAS             reduce using rule 78 (var -> ID .)
+    MENOS           reduce using rule 78 (var -> ID .)
+    MULT            reduce using rule 78 (var -> ID .)
+    DIV             reduce using rule 78 (var -> ID .)
+    IGUALIGUAL      reduce using rule 78 (var -> ID .)
+    NOIGUAL         reduce using rule 78 (var -> ID .)
+    MENOR           reduce using rule 78 (var -> ID .)
+    MAYOR           reduce using rule 78 (var -> ID .)
+    MENORIGUAL      reduce using rule 78 (var -> ID .)
+    MAYORIGUAL      reduce using rule 78 (var -> ID .)
+    MENMEN          reduce using rule 78 (var -> ID .)
+    MAYMAY          reduce using rule 78 (var -> ID .)
+    ANDO            reduce using rule 78 (var -> ID .)
+    ORO             reduce using rule 78 (var -> ID .)
+    PTCOMA          reduce using rule 78 (var -> ID .)
+    WHERE           reduce using rule 78 (var -> ID .)
+    COMA            reduce using rule 78 (var -> ID .)
+    PARDR           reduce using rule 78 (var -> ID .)
+
+
+state 74
+
+    (55) asignacion -> ID IGUAL E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    PTCOMA          reduce using rule 55 (asignacion -> ID IGUAL E .)
+    WHERE           reduce using rule 55 (asignacion -> ID IGUAL E .)
+    COMA            reduce using rule 55 (asignacion -> ID IGUAL E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    IGUALIGUAL      shift and go to state 109
+    NOIGUAL         shift and go to state 110
+    MENOR           shift and go to state 111
+    MAYOR           shift and go to state 112
+    MENORIGUAL      shift and go to state 113
+    MAYORIGUAL      shift and go to state 114
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+    ANDO            shift and go to state 117
+    ORO             shift and go to state 118
+
+
+state 75
+
+    (56) E -> PARIZQ . E PARDR
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 119
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 76
+
+    (57) E -> operando .
+
+    MAS             reduce using rule 57 (E -> operando .)
+    MENOS           reduce using rule 57 (E -> operando .)
+    MULT            reduce using rule 57 (E -> operando .)
+    DIV             reduce using rule 57 (E -> operando .)
+    IGUALIGUAL      reduce using rule 57 (E -> operando .)
+    NOIGUAL         reduce using rule 57 (E -> operando .)
+    MENOR           reduce using rule 57 (E -> operando .)
+    MAYOR           reduce using rule 57 (E -> operando .)
+    MENORIGUAL      reduce using rule 57 (E -> operando .)
+    MAYORIGUAL      reduce using rule 57 (E -> operando .)
+    MENMEN          reduce using rule 57 (E -> operando .)
+    MAYMAY          reduce using rule 57 (E -> operando .)
+    ANDO            reduce using rule 57 (E -> operando .)
+    ORO             reduce using rule 57 (E -> operando .)
+    PTCOMA          reduce using rule 57 (E -> operando .)
+    WHERE           reduce using rule 57 (E -> operando .)
+    COMA            reduce using rule 57 (E -> operando .)
+    PARDR           reduce using rule 57 (E -> operando .)
+
+
+state 77
+
+    (58) E -> unario .
+
+    MAS             reduce using rule 58 (E -> unario .)
+    MENOS           reduce using rule 58 (E -> unario .)
+    MULT            reduce using rule 58 (E -> unario .)
+    DIV             reduce using rule 58 (E -> unario .)
+    IGUALIGUAL      reduce using rule 58 (E -> unario .)
+    NOIGUAL         reduce using rule 58 (E -> unario .)
+    MENOR           reduce using rule 58 (E -> unario .)
+    MAYOR           reduce using rule 58 (E -> unario .)
+    MENORIGUAL      reduce using rule 58 (E -> unario .)
+    MAYORIGUAL      reduce using rule 58 (E -> unario .)
+    MENMEN          reduce using rule 58 (E -> unario .)
+    MAYMAY          reduce using rule 58 (E -> unario .)
+    ANDO            reduce using rule 58 (E -> unario .)
+    ORO             reduce using rule 58 (E -> unario .)
+    PTCOMA          reduce using rule 58 (E -> unario .)
+    WHERE           reduce using rule 58 (E -> unario .)
+    COMA            reduce using rule 58 (E -> unario .)
+    PARDR           reduce using rule 58 (E -> unario .)
+
+
+state 78
+
+    (59) E -> valores .
+
+    MAS             reduce using rule 59 (E -> valores .)
+    MENOS           reduce using rule 59 (E -> valores .)
+    MULT            reduce using rule 59 (E -> valores .)
+    DIV             reduce using rule 59 (E -> valores .)
+    IGUALIGUAL      reduce using rule 59 (E -> valores .)
+    NOIGUAL         reduce using rule 59 (E -> valores .)
+    MENOR           reduce using rule 59 (E -> valores .)
+    MAYOR           reduce using rule 59 (E -> valores .)
+    MENORIGUAL      reduce using rule 59 (E -> valores .)
+    MAYORIGUAL      reduce using rule 59 (E -> valores .)
+    MENMEN          reduce using rule 59 (E -> valores .)
+    MAYMAY          reduce using rule 59 (E -> valores .)
+    ANDO            reduce using rule 59 (E -> valores .)
+    ORO             reduce using rule 59 (E -> valores .)
+    PTCOMA          reduce using rule 59 (E -> valores .)
+    WHERE           reduce using rule 59 (E -> valores .)
+    COMA            reduce using rule 59 (E -> valores .)
+    PARDR           reduce using rule 59 (E -> valores .)
+
+
+state 79
+
+    (60) E -> var .
+
+    MAS             reduce using rule 60 (E -> var .)
+    MENOS           reduce using rule 60 (E -> var .)
+    MULT            reduce using rule 60 (E -> var .)
+    DIV             reduce using rule 60 (E -> var .)
+    IGUALIGUAL      reduce using rule 60 (E -> var .)
+    NOIGUAL         reduce using rule 60 (E -> var .)
+    MENOR           reduce using rule 60 (E -> var .)
+    MAYOR           reduce using rule 60 (E -> var .)
+    MENORIGUAL      reduce using rule 60 (E -> var .)
+    MAYORIGUAL      reduce using rule 60 (E -> var .)
+    MENMEN          reduce using rule 60 (E -> var .)
+    MAYMAY          reduce using rule 60 (E -> var .)
+    ANDO            reduce using rule 60 (E -> var .)
+    ORO             reduce using rule 60 (E -> var .)
+    PTCOMA          reduce using rule 60 (E -> var .)
+    WHERE           reduce using rule 60 (E -> var .)
+    COMA            reduce using rule 60 (E -> var .)
+    PARDR           reduce using rule 60 (E -> var .)
+
+
+state 80
+
+    (76) unario -> MENOS . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 120
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 81
+
+    (75) unario -> NOTO . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 121
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 82
+
+    (77) unario -> GNOT . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 122
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 83
+
+    (51) instruccion -> UPDATE ID SET asignaciones WHERE where . PTCOMA
+
+    PTCOMA          shift and go to state 123
+
+
+state 84
+
+    (52) asignaciones -> asignaciones COMA asignacion .
+
+    PTCOMA          reduce using rule 52 (asignaciones -> asignaciones COMA asignacion .)
+    WHERE           reduce using rule 52 (asignaciones -> asignaciones COMA asignacion .)
+    COMA            reduce using rule 52 (asignaciones -> asignaciones COMA asignacion .)
+
+
+state 85
+
+    (79) instruccion -> DELETE FROM ID WHERE where PTCOMA .
+
+    CREATE          reduce using rule 79 (instruccion -> DELETE FROM ID WHERE where PTCOMA .)
+    INSERT          reduce using rule 79 (instruccion -> DELETE FROM ID WHERE where PTCOMA .)
+    UPDATE          reduce using rule 79 (instruccion -> DELETE FROM ID WHERE where PTCOMA .)
+    DELETE          reduce using rule 79 (instruccion -> DELETE FROM ID WHERE where PTCOMA .)
+    $end            reduce using rule 79 (instruccion -> DELETE FROM ID WHERE where PTCOMA .)
+
+
+state 86
+
+    (8) campo -> ID tipo acompaniamiento .
+    (11) acompaniamiento -> acompaniamiento . acom
+    (13) acom -> . NOT NULL
+    (14) acom -> . NULL
+    (15) acom -> . UNIQUE
+    (16) acom -> . DEFAULT ENTERO
+    (17) acom -> . DEFAULT CADENA
+    (18) acom -> . DEFAULT NUMDECIMAL
+    (19) acom -> . PRIMARY KEY
+
+    PARDR           reduce using rule 8 (campo -> ID tipo acompaniamiento .)
+    COMA            reduce using rule 8 (campo -> ID tipo acompaniamiento .)
+    NOT             shift and go to state 88
+    NULL            shift and go to state 89
+    UNIQUE          shift and go to state 90
+    DEFAULT         shift and go to state 91
+    PRIMARY         shift and go to state 92
+
+    acom                           shift and go to state 124
+
+state 87
+
+    (12) acompaniamiento -> acom .
+
+    NOT             reduce using rule 12 (acompaniamiento -> acom .)
+    NULL            reduce using rule 12 (acompaniamiento -> acom .)
+    UNIQUE          reduce using rule 12 (acompaniamiento -> acom .)
+    DEFAULT         reduce using rule 12 (acompaniamiento -> acom .)
+    PRIMARY         reduce using rule 12 (acompaniamiento -> acom .)
+    PARDR           reduce using rule 12 (acompaniamiento -> acom .)
+    COMA            reduce using rule 12 (acompaniamiento -> acom .)
+
+
+state 88
+
+    (13) acom -> NOT . NULL
+
+    NULL            shift and go to state 125
+
+
+state 89
+
+    (14) acom -> NULL .
+
+    NOT             reduce using rule 14 (acom -> NULL .)
+    NULL            reduce using rule 14 (acom -> NULL .)
+    UNIQUE          reduce using rule 14 (acom -> NULL .)
+    DEFAULT         reduce using rule 14 (acom -> NULL .)
+    PRIMARY         reduce using rule 14 (acom -> NULL .)
+    PARDR           reduce using rule 14 (acom -> NULL .)
+    COMA            reduce using rule 14 (acom -> NULL .)
+
+
+state 90
+
+    (15) acom -> UNIQUE .
+
+    NOT             reduce using rule 15 (acom -> UNIQUE .)
+    NULL            reduce using rule 15 (acom -> UNIQUE .)
+    UNIQUE          reduce using rule 15 (acom -> UNIQUE .)
+    DEFAULT         reduce using rule 15 (acom -> UNIQUE .)
+    PRIMARY         reduce using rule 15 (acom -> UNIQUE .)
+    PARDR           reduce using rule 15 (acom -> UNIQUE .)
+    COMA            reduce using rule 15 (acom -> UNIQUE .)
+
+
+state 91
+
+    (16) acom -> DEFAULT . ENTERO
+    (17) acom -> DEFAULT . CADENA
+    (18) acom -> DEFAULT . NUMDECIMAL
+
+    ENTERO          shift and go to state 126
+    CADENA          shift and go to state 127
+    NUMDECIMAL      shift and go to state 128
+
+
+state 92
+
+    (19) acom -> PRIMARY . KEY
+
+    KEY             shift and go to state 129
+
+
+state 93
+
+    (35) tipo -> CHARACTER PARIZQ . ENTERO PARDR
+
+    ENTERO          shift and go to state 130
+
+
+state 94
+
+    (36) tipo -> VARCHAR PARIZQ . ENTERO PARDR
+
+    ENTERO          shift and go to state 131
+
+
+state 95
+
+    (37) tipo -> CHAR PARIZQ . ENTERO PARDR
+
+    ENTERO          shift and go to state 132
+
+
+state 96
+
+    (4) instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA .
+
+    CREATE          reduce using rule 4 (instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA .)
+    INSERT          reduce using rule 4 (instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA .)
+    UPDATE          reduce using rule 4 (instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA .)
+    DELETE          reduce using rule 4 (instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA .)
+    $end            reduce using rule 4 (instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA .)
+
+
+state 97
+
+    (5) campos -> campos COMA campo .
+
+    PARDR           reduce using rule 5 (campos -> campos COMA campo .)
+    COMA            reduce using rule 5 (campos -> campos COMA campo .)
+
+
+state 98
+
+    (9) campo -> CONSTRAINT ID FOREIGN . KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
+
+    KEY             shift and go to state 133
+
+
+state 99
+
+    (10) campo -> PRIMARY KEY PARIZQ . ID PARDR
+
+    ID              shift and go to state 134
+
+
+state 100
+
+    (38) instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES . values PTCOMA
+    (42) values -> . values COMA value
+    (43) values -> . value
+    (44) value -> . PARIZQ listaValores PARDR
+
+    PARIZQ          shift and go to state 34
+
+    values                         shift and go to state 135
+    value                          shift and go to state 33
+
+state 101
+
+    (40) listaID -> listaID COMA ID .
+
+    PARDR           reduce using rule 40 (listaID -> listaID COMA ID .)
+    COMA            reduce using rule 40 (listaID -> listaID COMA ID .)
+
+
+state 102
+
+    (42) values -> values COMA value .
+
+    PTCOMA          reduce using rule 42 (values -> values COMA value .)
+    COMA            reduce using rule 42 (values -> values COMA value .)
+
+
+state 103
+
+    (44) value -> PARIZQ listaValores PARDR .
+
+    PTCOMA          reduce using rule 44 (value -> PARIZQ listaValores PARDR .)
+    COMA            reduce using rule 44 (value -> PARIZQ listaValores PARDR .)
+
+
+state 104
+
+    (45) listaValores -> listaValores COMA . valores
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+
+    valores                        shift and go to state 136
+
+state 105
+
+    (61) operando -> E MAS . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 137
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 106
+
+    (62) operando -> E MENOS . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 138
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 107
+
+    (63) operando -> E MULT . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 139
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 108
+
+    (64) operando -> E DIV . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 140
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 109
+
+    (65) operando -> E IGUALIGUAL . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 141
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 110
+
+    (66) operando -> E NOIGUAL . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 142
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 111
+
+    (67) operando -> E MENOR . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 143
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 112
+
+    (68) operando -> E MAYOR . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 144
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 113
+
+    (69) operando -> E MENORIGUAL . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 145
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 114
+
+    (70) operando -> E MAYORIGUAL . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 146
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 115
+
+    (71) operando -> E MENMEN . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 147
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 116
+
+    (72) operando -> E MAYMAY . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 148
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 117
+
+    (73) operando -> E ANDO . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 149
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 118
+
+    (74) operando -> E ORO . E
+    (56) E -> . PARIZQ E PARDR
+    (57) E -> . operando
+    (58) E -> . unario
+    (59) E -> . valores
+    (60) E -> . var
+    (61) operando -> . E MAS E
+    (62) operando -> . E MENOS E
+    (63) operando -> . E MULT E
+    (64) operando -> . E DIV E
+    (65) operando -> . E IGUALIGUAL E
+    (66) operando -> . E NOIGUAL E
+    (67) operando -> . E MENOR E
+    (68) operando -> . E MAYOR E
+    (69) operando -> . E MENORIGUAL E
+    (70) operando -> . E MAYORIGUAL E
+    (71) operando -> . E MENMEN E
+    (72) operando -> . E MAYMAY E
+    (73) operando -> . E ANDO E
+    (74) operando -> . E ORO E
+    (75) unario -> . NOTO E
+    (76) unario -> . MENOS E
+    (77) unario -> . GNOT E
+    (47) valores -> . ENTERO
+    (48) valores -> . NUMDECIMAL
+    (49) valores -> . CADENA
+    (78) var -> . ID
+
+    PARIZQ          shift and go to state 75
+    NOTO            shift and go to state 81
+    MENOS           shift and go to state 80
+    GNOT            shift and go to state 82
+    ENTERO          shift and go to state 70
+    NUMDECIMAL      shift and go to state 71
+    CADENA          shift and go to state 72
+    ID              shift and go to state 73
+
+    E                              shift and go to state 150
+    operando                       shift and go to state 76
+    unario                         shift and go to state 77
+    valores                        shift and go to state 78
+    var                            shift and go to state 79
+
+state 119
+
+    (56) E -> PARIZQ E . PARDR
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    PARDR           shift and go to state 151
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    IGUALIGUAL      shift and go to state 109
+    NOIGUAL         shift and go to state 110
+    MENOR           shift and go to state 111
+    MAYOR           shift and go to state 112
+    MENORIGUAL      shift and go to state 113
+    MAYORIGUAL      shift and go to state 114
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+    ANDO            shift and go to state 117
+    ORO             shift and go to state 118
+
+
+state 120
+
+    (76) unario -> MENOS E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    MAS             reduce using rule 76 (unario -> MENOS E .)
+    MENOS           reduce using rule 76 (unario -> MENOS E .)
+    IGUALIGUAL      reduce using rule 76 (unario -> MENOS E .)
+    NOIGUAL         reduce using rule 76 (unario -> MENOS E .)
+    MENOR           reduce using rule 76 (unario -> MENOS E .)
+    MAYOR           reduce using rule 76 (unario -> MENOS E .)
+    MENORIGUAL      reduce using rule 76 (unario -> MENOS E .)
+    MAYORIGUAL      reduce using rule 76 (unario -> MENOS E .)
+    MENMEN          reduce using rule 76 (unario -> MENOS E .)
+    MAYMAY          reduce using rule 76 (unario -> MENOS E .)
+    ANDO            reduce using rule 76 (unario -> MENOS E .)
+    ORO             reduce using rule 76 (unario -> MENOS E .)
+    PTCOMA          reduce using rule 76 (unario -> MENOS E .)
+    WHERE           reduce using rule 76 (unario -> MENOS E .)
+    COMA            reduce using rule 76 (unario -> MENOS E .)
+    PARDR           reduce using rule 76 (unario -> MENOS E .)
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+
+  ! MULT            [ reduce using rule 76 (unario -> MENOS E .) ]
+  ! DIV             [ reduce using rule 76 (unario -> MENOS E .) ]
+  ! MAS             [ shift and go to state 105 ]
+  ! MENOS           [ shift and go to state 106 ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 121
+
+    (75) unario -> NOTO E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    MAS             reduce using rule 75 (unario -> NOTO E .)
+    MENOS           reduce using rule 75 (unario -> NOTO E .)
+    MULT            reduce using rule 75 (unario -> NOTO E .)
+    DIV             reduce using rule 75 (unario -> NOTO E .)
+    IGUALIGUAL      reduce using rule 75 (unario -> NOTO E .)
+    NOIGUAL         reduce using rule 75 (unario -> NOTO E .)
+    MENOR           reduce using rule 75 (unario -> NOTO E .)
+    MAYOR           reduce using rule 75 (unario -> NOTO E .)
+    MENORIGUAL      reduce using rule 75 (unario -> NOTO E .)
+    MAYORIGUAL      reduce using rule 75 (unario -> NOTO E .)
+    MENMEN          reduce using rule 75 (unario -> NOTO E .)
+    MAYMAY          reduce using rule 75 (unario -> NOTO E .)
+    ANDO            reduce using rule 75 (unario -> NOTO E .)
+    ORO             reduce using rule 75 (unario -> NOTO E .)
+    PTCOMA          reduce using rule 75 (unario -> NOTO E .)
+    WHERE           reduce using rule 75 (unario -> NOTO E .)
+    COMA            reduce using rule 75 (unario -> NOTO E .)
+    PARDR           reduce using rule 75 (unario -> NOTO E .)
+
+  ! MAS             [ shift and go to state 105 ]
+  ! MENOS           [ shift and go to state 106 ]
+  ! MULT            [ shift and go to state 107 ]
+  ! DIV             [ shift and go to state 108 ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 122
+
+    (77) unario -> GNOT E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    MAS             reduce using rule 77 (unario -> GNOT E .)
+    MENOS           reduce using rule 77 (unario -> GNOT E .)
+    MULT            reduce using rule 77 (unario -> GNOT E .)
+    DIV             reduce using rule 77 (unario -> GNOT E .)
+    IGUALIGUAL      reduce using rule 77 (unario -> GNOT E .)
+    NOIGUAL         reduce using rule 77 (unario -> GNOT E .)
+    MENOR           reduce using rule 77 (unario -> GNOT E .)
+    MAYOR           reduce using rule 77 (unario -> GNOT E .)
+    MENORIGUAL      reduce using rule 77 (unario -> GNOT E .)
+    MAYORIGUAL      reduce using rule 77 (unario -> GNOT E .)
+    MENMEN          reduce using rule 77 (unario -> GNOT E .)
+    MAYMAY          reduce using rule 77 (unario -> GNOT E .)
+    ANDO            reduce using rule 77 (unario -> GNOT E .)
+    ORO             reduce using rule 77 (unario -> GNOT E .)
+    PTCOMA          reduce using rule 77 (unario -> GNOT E .)
+    WHERE           reduce using rule 77 (unario -> GNOT E .)
+    COMA            reduce using rule 77 (unario -> GNOT E .)
+    PARDR           reduce using rule 77 (unario -> GNOT E .)
+
+  ! MAS             [ shift and go to state 105 ]
+  ! MENOS           [ shift and go to state 106 ]
+  ! MULT            [ shift and go to state 107 ]
+  ! DIV             [ shift and go to state 108 ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 123
+
+    (51) instruccion -> UPDATE ID SET asignaciones WHERE where PTCOMA .
+
+    CREATE          reduce using rule 51 (instruccion -> UPDATE ID SET asignaciones WHERE where PTCOMA .)
+    INSERT          reduce using rule 51 (instruccion -> UPDATE ID SET asignaciones WHERE where PTCOMA .)
+    UPDATE          reduce using rule 51 (instruccion -> UPDATE ID SET asignaciones WHERE where PTCOMA .)
+    DELETE          reduce using rule 51 (instruccion -> UPDATE ID SET asignaciones WHERE where PTCOMA .)
+    $end            reduce using rule 51 (instruccion -> UPDATE ID SET asignaciones WHERE where PTCOMA .)
+
+
+state 124
+
+    (11) acompaniamiento -> acompaniamiento acom .
+
+    NOT             reduce using rule 11 (acompaniamiento -> acompaniamiento acom .)
+    NULL            reduce using rule 11 (acompaniamiento -> acompaniamiento acom .)
+    UNIQUE          reduce using rule 11 (acompaniamiento -> acompaniamiento acom .)
+    DEFAULT         reduce using rule 11 (acompaniamiento -> acompaniamiento acom .)
+    PRIMARY         reduce using rule 11 (acompaniamiento -> acompaniamiento acom .)
+    PARDR           reduce using rule 11 (acompaniamiento -> acompaniamiento acom .)
+    COMA            reduce using rule 11 (acompaniamiento -> acompaniamiento acom .)
+
+
+state 125
+
+    (13) acom -> NOT NULL .
+
+    NOT             reduce using rule 13 (acom -> NOT NULL .)
+    NULL            reduce using rule 13 (acom -> NOT NULL .)
+    UNIQUE          reduce using rule 13 (acom -> NOT NULL .)
+    DEFAULT         reduce using rule 13 (acom -> NOT NULL .)
+    PRIMARY         reduce using rule 13 (acom -> NOT NULL .)
+    PARDR           reduce using rule 13 (acom -> NOT NULL .)
+    COMA            reduce using rule 13 (acom -> NOT NULL .)
+
+
+state 126
+
+    (16) acom -> DEFAULT ENTERO .
+
+    NOT             reduce using rule 16 (acom -> DEFAULT ENTERO .)
+    NULL            reduce using rule 16 (acom -> DEFAULT ENTERO .)
+    UNIQUE          reduce using rule 16 (acom -> DEFAULT ENTERO .)
+    DEFAULT         reduce using rule 16 (acom -> DEFAULT ENTERO .)
+    PRIMARY         reduce using rule 16 (acom -> DEFAULT ENTERO .)
+    PARDR           reduce using rule 16 (acom -> DEFAULT ENTERO .)
+    COMA            reduce using rule 16 (acom -> DEFAULT ENTERO .)
+
+
+state 127
+
+    (17) acom -> DEFAULT CADENA .
+
+    NOT             reduce using rule 17 (acom -> DEFAULT CADENA .)
+    NULL            reduce using rule 17 (acom -> DEFAULT CADENA .)
+    UNIQUE          reduce using rule 17 (acom -> DEFAULT CADENA .)
+    DEFAULT         reduce using rule 17 (acom -> DEFAULT CADENA .)
+    PRIMARY         reduce using rule 17 (acom -> DEFAULT CADENA .)
+    PARDR           reduce using rule 17 (acom -> DEFAULT CADENA .)
+    COMA            reduce using rule 17 (acom -> DEFAULT CADENA .)
+
+
+state 128
+
+    (18) acom -> DEFAULT NUMDECIMAL .
+
+    NOT             reduce using rule 18 (acom -> DEFAULT NUMDECIMAL .)
+    NULL            reduce using rule 18 (acom -> DEFAULT NUMDECIMAL .)
+    UNIQUE          reduce using rule 18 (acom -> DEFAULT NUMDECIMAL .)
+    DEFAULT         reduce using rule 18 (acom -> DEFAULT NUMDECIMAL .)
+    PRIMARY         reduce using rule 18 (acom -> DEFAULT NUMDECIMAL .)
+    PARDR           reduce using rule 18 (acom -> DEFAULT NUMDECIMAL .)
+    COMA            reduce using rule 18 (acom -> DEFAULT NUMDECIMAL .)
+
+
+state 129
+
+    (19) acom -> PRIMARY KEY .
+
+    NOT             reduce using rule 19 (acom -> PRIMARY KEY .)
+    NULL            reduce using rule 19 (acom -> PRIMARY KEY .)
+    UNIQUE          reduce using rule 19 (acom -> PRIMARY KEY .)
+    DEFAULT         reduce using rule 19 (acom -> PRIMARY KEY .)
+    PRIMARY         reduce using rule 19 (acom -> PRIMARY KEY .)
+    PARDR           reduce using rule 19 (acom -> PRIMARY KEY .)
+    COMA            reduce using rule 19 (acom -> PRIMARY KEY .)
+
+
+state 130
+
+    (35) tipo -> CHARACTER PARIZQ ENTERO . PARDR
+
+    PARDR           shift and go to state 152
+
+
+state 131
+
+    (36) tipo -> VARCHAR PARIZQ ENTERO . PARDR
+
+    PARDR           shift and go to state 153
+
+
+state 132
+
+    (37) tipo -> CHAR PARIZQ ENTERO . PARDR
+
+    PARDR           shift and go to state 154
+
+
+state 133
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY . PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
+
+    PARIZQ          shift and go to state 155
+
+
+state 134
+
+    (10) campo -> PRIMARY KEY PARIZQ ID . PARDR
+
+    PARDR           shift and go to state 156
+
+
+state 135
+
+    (38) instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values . PTCOMA
+    (42) values -> values . COMA value
+
+    PTCOMA          shift and go to state 157
+    COMA            shift and go to state 67
+
+
+state 136
+
+    (45) listaValores -> listaValores COMA valores .
+
+    PARDR           reduce using rule 45 (listaValores -> listaValores COMA valores .)
+    COMA            reduce using rule 45 (listaValores -> listaValores COMA valores .)
+
+
+state 137
+
+    (61) operando -> E MAS E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    MAS             reduce using rule 61 (operando -> E MAS E .)
+    MENOS           reduce using rule 61 (operando -> E MAS E .)
+    IGUALIGUAL      reduce using rule 61 (operando -> E MAS E .)
+    NOIGUAL         reduce using rule 61 (operando -> E MAS E .)
+    MENOR           reduce using rule 61 (operando -> E MAS E .)
+    MAYOR           reduce using rule 61 (operando -> E MAS E .)
+    MENORIGUAL      reduce using rule 61 (operando -> E MAS E .)
+    MAYORIGUAL      reduce using rule 61 (operando -> E MAS E .)
+    MENMEN          reduce using rule 61 (operando -> E MAS E .)
+    MAYMAY          reduce using rule 61 (operando -> E MAS E .)
+    ANDO            reduce using rule 61 (operando -> E MAS E .)
+    ORO             reduce using rule 61 (operando -> E MAS E .)
+    PTCOMA          reduce using rule 61 (operando -> E MAS E .)
+    WHERE           reduce using rule 61 (operando -> E MAS E .)
+    COMA            reduce using rule 61 (operando -> E MAS E .)
+    PARDR           reduce using rule 61 (operando -> E MAS E .)
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+
+  ! MULT            [ reduce using rule 61 (operando -> E MAS E .) ]
+  ! DIV             [ reduce using rule 61 (operando -> E MAS E .) ]
+  ! MAS             [ shift and go to state 105 ]
+  ! MENOS           [ shift and go to state 106 ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 138
+
+    (62) operando -> E MENOS E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    MAS             reduce using rule 62 (operando -> E MENOS E .)
+    MENOS           reduce using rule 62 (operando -> E MENOS E .)
+    IGUALIGUAL      reduce using rule 62 (operando -> E MENOS E .)
+    NOIGUAL         reduce using rule 62 (operando -> E MENOS E .)
+    MENOR           reduce using rule 62 (operando -> E MENOS E .)
+    MAYOR           reduce using rule 62 (operando -> E MENOS E .)
+    MENORIGUAL      reduce using rule 62 (operando -> E MENOS E .)
+    MAYORIGUAL      reduce using rule 62 (operando -> E MENOS E .)
+    MENMEN          reduce using rule 62 (operando -> E MENOS E .)
+    MAYMAY          reduce using rule 62 (operando -> E MENOS E .)
+    ANDO            reduce using rule 62 (operando -> E MENOS E .)
+    ORO             reduce using rule 62 (operando -> E MENOS E .)
+    PTCOMA          reduce using rule 62 (operando -> E MENOS E .)
+    WHERE           reduce using rule 62 (operando -> E MENOS E .)
+    COMA            reduce using rule 62 (operando -> E MENOS E .)
+    PARDR           reduce using rule 62 (operando -> E MENOS E .)
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+
+  ! MULT            [ reduce using rule 62 (operando -> E MENOS E .) ]
+  ! DIV             [ reduce using rule 62 (operando -> E MENOS E .) ]
+  ! MAS             [ shift and go to state 105 ]
+  ! MENOS           [ shift and go to state 106 ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 139
+
+    (63) operando -> E MULT E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    MAS             reduce using rule 63 (operando -> E MULT E .)
+    MENOS           reduce using rule 63 (operando -> E MULT E .)
+    MULT            reduce using rule 63 (operando -> E MULT E .)
+    DIV             reduce using rule 63 (operando -> E MULT E .)
+    IGUALIGUAL      reduce using rule 63 (operando -> E MULT E .)
+    NOIGUAL         reduce using rule 63 (operando -> E MULT E .)
+    MENOR           reduce using rule 63 (operando -> E MULT E .)
+    MAYOR           reduce using rule 63 (operando -> E MULT E .)
+    MENORIGUAL      reduce using rule 63 (operando -> E MULT E .)
+    MAYORIGUAL      reduce using rule 63 (operando -> E MULT E .)
+    MENMEN          reduce using rule 63 (operando -> E MULT E .)
+    MAYMAY          reduce using rule 63 (operando -> E MULT E .)
+    ANDO            reduce using rule 63 (operando -> E MULT E .)
+    ORO             reduce using rule 63 (operando -> E MULT E .)
+    PTCOMA          reduce using rule 63 (operando -> E MULT E .)
+    WHERE           reduce using rule 63 (operando -> E MULT E .)
+    COMA            reduce using rule 63 (operando -> E MULT E .)
+    PARDR           reduce using rule 63 (operando -> E MULT E .)
+
+  ! MAS             [ shift and go to state 105 ]
+  ! MENOS           [ shift and go to state 106 ]
+  ! MULT            [ shift and go to state 107 ]
+  ! DIV             [ shift and go to state 108 ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 140
+
+    (64) operando -> E DIV E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    MAS             reduce using rule 64 (operando -> E DIV E .)
+    MENOS           reduce using rule 64 (operando -> E DIV E .)
+    MULT            reduce using rule 64 (operando -> E DIV E .)
+    DIV             reduce using rule 64 (operando -> E DIV E .)
+    IGUALIGUAL      reduce using rule 64 (operando -> E DIV E .)
+    NOIGUAL         reduce using rule 64 (operando -> E DIV E .)
+    MENOR           reduce using rule 64 (operando -> E DIV E .)
+    MAYOR           reduce using rule 64 (operando -> E DIV E .)
+    MENORIGUAL      reduce using rule 64 (operando -> E DIV E .)
+    MAYORIGUAL      reduce using rule 64 (operando -> E DIV E .)
+    MENMEN          reduce using rule 64 (operando -> E DIV E .)
+    MAYMAY          reduce using rule 64 (operando -> E DIV E .)
+    ANDO            reduce using rule 64 (operando -> E DIV E .)
+    ORO             reduce using rule 64 (operando -> E DIV E .)
+    PTCOMA          reduce using rule 64 (operando -> E DIV E .)
+    WHERE           reduce using rule 64 (operando -> E DIV E .)
+    COMA            reduce using rule 64 (operando -> E DIV E .)
+    PARDR           reduce using rule 64 (operando -> E DIV E .)
+
+  ! MAS             [ shift and go to state 105 ]
+  ! MENOS           [ shift and go to state 106 ]
+  ! MULT            [ shift and go to state 107 ]
+  ! DIV             [ shift and go to state 108 ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 141
+
+    (65) operando -> E IGUALIGUAL E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    IGUALIGUAL      reduce using rule 65 (operando -> E IGUALIGUAL E .)
+    NOIGUAL         reduce using rule 65 (operando -> E IGUALIGUAL E .)
+    ANDO            reduce using rule 65 (operando -> E IGUALIGUAL E .)
+    ORO             reduce using rule 65 (operando -> E IGUALIGUAL E .)
+    PTCOMA          reduce using rule 65 (operando -> E IGUALIGUAL E .)
+    WHERE           reduce using rule 65 (operando -> E IGUALIGUAL E .)
+    COMA            reduce using rule 65 (operando -> E IGUALIGUAL E .)
+    PARDR           reduce using rule 65 (operando -> E IGUALIGUAL E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    MENOR           shift and go to state 111
+    MAYOR           shift and go to state 112
+    MENORIGUAL      shift and go to state 113
+    MAYORIGUAL      shift and go to state 114
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+
+  ! MAS             [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! MENOS           [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! MULT            [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! DIV             [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! MENOR           [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! MAYOR           [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! MENORIGUAL      [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! MAYORIGUAL      [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! MENMEN          [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! MAYMAY          [ reduce using rule 65 (operando -> E IGUALIGUAL E .) ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 142
+
+    (66) operando -> E NOIGUAL E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    IGUALIGUAL      reduce using rule 66 (operando -> E NOIGUAL E .)
+    NOIGUAL         reduce using rule 66 (operando -> E NOIGUAL E .)
+    ANDO            reduce using rule 66 (operando -> E NOIGUAL E .)
+    ORO             reduce using rule 66 (operando -> E NOIGUAL E .)
+    PTCOMA          reduce using rule 66 (operando -> E NOIGUAL E .)
+    WHERE           reduce using rule 66 (operando -> E NOIGUAL E .)
+    COMA            reduce using rule 66 (operando -> E NOIGUAL E .)
+    PARDR           reduce using rule 66 (operando -> E NOIGUAL E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    MENOR           shift and go to state 111
+    MAYOR           shift and go to state 112
+    MENORIGUAL      shift and go to state 113
+    MAYORIGUAL      shift and go to state 114
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+
+  ! MAS             [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! MENOS           [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! MULT            [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! DIV             [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! MENOR           [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! MAYOR           [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! MENORIGUAL      [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! MAYORIGUAL      [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! MENMEN          [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! MAYMAY          [ reduce using rule 66 (operando -> E NOIGUAL E .) ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 143
+
+    (67) operando -> E MENOR E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    IGUALIGUAL      reduce using rule 67 (operando -> E MENOR E .)
+    NOIGUAL         reduce using rule 67 (operando -> E MENOR E .)
+    MENOR           reduce using rule 67 (operando -> E MENOR E .)
+    MAYOR           reduce using rule 67 (operando -> E MENOR E .)
+    MENORIGUAL      reduce using rule 67 (operando -> E MENOR E .)
+    MAYORIGUAL      reduce using rule 67 (operando -> E MENOR E .)
+    ANDO            reduce using rule 67 (operando -> E MENOR E .)
+    ORO             reduce using rule 67 (operando -> E MENOR E .)
+    PTCOMA          reduce using rule 67 (operando -> E MENOR E .)
+    WHERE           reduce using rule 67 (operando -> E MENOR E .)
+    COMA            reduce using rule 67 (operando -> E MENOR E .)
+    PARDR           reduce using rule 67 (operando -> E MENOR E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+
+  ! MAS             [ reduce using rule 67 (operando -> E MENOR E .) ]
+  ! MENOS           [ reduce using rule 67 (operando -> E MENOR E .) ]
+  ! MULT            [ reduce using rule 67 (operando -> E MENOR E .) ]
+  ! DIV             [ reduce using rule 67 (operando -> E MENOR E .) ]
+  ! MENMEN          [ reduce using rule 67 (operando -> E MENOR E .) ]
+  ! MAYMAY          [ reduce using rule 67 (operando -> E MENOR E .) ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 144
+
+    (68) operando -> E MAYOR E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    IGUALIGUAL      reduce using rule 68 (operando -> E MAYOR E .)
+    NOIGUAL         reduce using rule 68 (operando -> E MAYOR E .)
+    MENOR           reduce using rule 68 (operando -> E MAYOR E .)
+    MAYOR           reduce using rule 68 (operando -> E MAYOR E .)
+    MENORIGUAL      reduce using rule 68 (operando -> E MAYOR E .)
+    MAYORIGUAL      reduce using rule 68 (operando -> E MAYOR E .)
+    ANDO            reduce using rule 68 (operando -> E MAYOR E .)
+    ORO             reduce using rule 68 (operando -> E MAYOR E .)
+    PTCOMA          reduce using rule 68 (operando -> E MAYOR E .)
+    WHERE           reduce using rule 68 (operando -> E MAYOR E .)
+    COMA            reduce using rule 68 (operando -> E MAYOR E .)
+    PARDR           reduce using rule 68 (operando -> E MAYOR E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+
+  ! MAS             [ reduce using rule 68 (operando -> E MAYOR E .) ]
+  ! MENOS           [ reduce using rule 68 (operando -> E MAYOR E .) ]
+  ! MULT            [ reduce using rule 68 (operando -> E MAYOR E .) ]
+  ! DIV             [ reduce using rule 68 (operando -> E MAYOR E .) ]
+  ! MENMEN          [ reduce using rule 68 (operando -> E MAYOR E .) ]
+  ! MAYMAY          [ reduce using rule 68 (operando -> E MAYOR E .) ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 145
+
+    (69) operando -> E MENORIGUAL E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    IGUALIGUAL      reduce using rule 69 (operando -> E MENORIGUAL E .)
+    NOIGUAL         reduce using rule 69 (operando -> E MENORIGUAL E .)
+    MENOR           reduce using rule 69 (operando -> E MENORIGUAL E .)
+    MAYOR           reduce using rule 69 (operando -> E MENORIGUAL E .)
+    MENORIGUAL      reduce using rule 69 (operando -> E MENORIGUAL E .)
+    MAYORIGUAL      reduce using rule 69 (operando -> E MENORIGUAL E .)
+    ANDO            reduce using rule 69 (operando -> E MENORIGUAL E .)
+    ORO             reduce using rule 69 (operando -> E MENORIGUAL E .)
+    PTCOMA          reduce using rule 69 (operando -> E MENORIGUAL E .)
+    WHERE           reduce using rule 69 (operando -> E MENORIGUAL E .)
+    COMA            reduce using rule 69 (operando -> E MENORIGUAL E .)
+    PARDR           reduce using rule 69 (operando -> E MENORIGUAL E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+
+  ! MAS             [ reduce using rule 69 (operando -> E MENORIGUAL E .) ]
+  ! MENOS           [ reduce using rule 69 (operando -> E MENORIGUAL E .) ]
+  ! MULT            [ reduce using rule 69 (operando -> E MENORIGUAL E .) ]
+  ! DIV             [ reduce using rule 69 (operando -> E MENORIGUAL E .) ]
+  ! MENMEN          [ reduce using rule 69 (operando -> E MENORIGUAL E .) ]
+  ! MAYMAY          [ reduce using rule 69 (operando -> E MENORIGUAL E .) ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 146
+
+    (70) operando -> E MAYORIGUAL E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    IGUALIGUAL      reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    NOIGUAL         reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    MENOR           reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    MAYOR           reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    MENORIGUAL      reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    MAYORIGUAL      reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    ANDO            reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    ORO             reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    PTCOMA          reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    WHERE           reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    COMA            reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    PARDR           reduce using rule 70 (operando -> E MAYORIGUAL E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+
+  ! MAS             [ reduce using rule 70 (operando -> E MAYORIGUAL E .) ]
+  ! MENOS           [ reduce using rule 70 (operando -> E MAYORIGUAL E .) ]
+  ! MULT            [ reduce using rule 70 (operando -> E MAYORIGUAL E .) ]
+  ! DIV             [ reduce using rule 70 (operando -> E MAYORIGUAL E .) ]
+  ! MENMEN          [ reduce using rule 70 (operando -> E MAYORIGUAL E .) ]
+  ! MAYMAY          [ reduce using rule 70 (operando -> E MAYORIGUAL E .) ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 147
+
+    (71) operando -> E MENMEN E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    IGUALIGUAL      reduce using rule 71 (operando -> E MENMEN E .)
+    NOIGUAL         reduce using rule 71 (operando -> E MENMEN E .)
+    MENOR           reduce using rule 71 (operando -> E MENMEN E .)
+    MAYOR           reduce using rule 71 (operando -> E MENMEN E .)
+    MENORIGUAL      reduce using rule 71 (operando -> E MENMEN E .)
+    MAYORIGUAL      reduce using rule 71 (operando -> E MENMEN E .)
+    MENMEN          reduce using rule 71 (operando -> E MENMEN E .)
+    MAYMAY          reduce using rule 71 (operando -> E MENMEN E .)
+    ANDO            reduce using rule 71 (operando -> E MENMEN E .)
+    ORO             reduce using rule 71 (operando -> E MENMEN E .)
+    PTCOMA          reduce using rule 71 (operando -> E MENMEN E .)
+    WHERE           reduce using rule 71 (operando -> E MENMEN E .)
+    COMA            reduce using rule 71 (operando -> E MENMEN E .)
+    PARDR           reduce using rule 71 (operando -> E MENMEN E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+
+  ! MAS             [ reduce using rule 71 (operando -> E MENMEN E .) ]
+  ! MENOS           [ reduce using rule 71 (operando -> E MENMEN E .) ]
+  ! MULT            [ reduce using rule 71 (operando -> E MENMEN E .) ]
+  ! DIV             [ reduce using rule 71 (operando -> E MENMEN E .) ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 148
+
+    (72) operando -> E MAYMAY E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    IGUALIGUAL      reduce using rule 72 (operando -> E MAYMAY E .)
+    NOIGUAL         reduce using rule 72 (operando -> E MAYMAY E .)
+    MENOR           reduce using rule 72 (operando -> E MAYMAY E .)
+    MAYOR           reduce using rule 72 (operando -> E MAYMAY E .)
+    MENORIGUAL      reduce using rule 72 (operando -> E MAYMAY E .)
+    MAYORIGUAL      reduce using rule 72 (operando -> E MAYMAY E .)
+    MENMEN          reduce using rule 72 (operando -> E MAYMAY E .)
+    MAYMAY          reduce using rule 72 (operando -> E MAYMAY E .)
+    ANDO            reduce using rule 72 (operando -> E MAYMAY E .)
+    ORO             reduce using rule 72 (operando -> E MAYMAY E .)
+    PTCOMA          reduce using rule 72 (operando -> E MAYMAY E .)
+    WHERE           reduce using rule 72 (operando -> E MAYMAY E .)
+    COMA            reduce using rule 72 (operando -> E MAYMAY E .)
+    PARDR           reduce using rule 72 (operando -> E MAYMAY E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+
+  ! MAS             [ reduce using rule 72 (operando -> E MAYMAY E .) ]
+  ! MENOS           [ reduce using rule 72 (operando -> E MAYMAY E .) ]
+  ! MULT            [ reduce using rule 72 (operando -> E MAYMAY E .) ]
+  ! DIV             [ reduce using rule 72 (operando -> E MAYMAY E .) ]
+  ! IGUALIGUAL      [ shift and go to state 109 ]
+  ! NOIGUAL         [ shift and go to state 110 ]
+  ! MENOR           [ shift and go to state 111 ]
+  ! MAYOR           [ shift and go to state 112 ]
+  ! MENORIGUAL      [ shift and go to state 113 ]
+  ! MAYORIGUAL      [ shift and go to state 114 ]
+  ! MENMEN          [ shift and go to state 115 ]
+  ! MAYMAY          [ shift and go to state 116 ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 149
+
+    (73) operando -> E ANDO E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    ANDO            reduce using rule 73 (operando -> E ANDO E .)
+    ORO             reduce using rule 73 (operando -> E ANDO E .)
+    PTCOMA          reduce using rule 73 (operando -> E ANDO E .)
+    WHERE           reduce using rule 73 (operando -> E ANDO E .)
+    COMA            reduce using rule 73 (operando -> E ANDO E .)
+    PARDR           reduce using rule 73 (operando -> E ANDO E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    IGUALIGUAL      shift and go to state 109
+    NOIGUAL         shift and go to state 110
+    MENOR           shift and go to state 111
+    MAYOR           shift and go to state 112
+    MENORIGUAL      shift and go to state 113
+    MAYORIGUAL      shift and go to state 114
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+
+  ! MAS             [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! MENOS           [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! MULT            [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! DIV             [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! IGUALIGUAL      [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! NOIGUAL         [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! MENOR           [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! MAYOR           [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! MENORIGUAL      [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! MAYORIGUAL      [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! MENMEN          [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! MAYMAY          [ reduce using rule 73 (operando -> E ANDO E .) ]
+  ! ANDO            [ shift and go to state 117 ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 150
+
+    (74) operando -> E ORO E .
+    (61) operando -> E . MAS E
+    (62) operando -> E . MENOS E
+    (63) operando -> E . MULT E
+    (64) operando -> E . DIV E
+    (65) operando -> E . IGUALIGUAL E
+    (66) operando -> E . NOIGUAL E
+    (67) operando -> E . MENOR E
+    (68) operando -> E . MAYOR E
+    (69) operando -> E . MENORIGUAL E
+    (70) operando -> E . MAYORIGUAL E
+    (71) operando -> E . MENMEN E
+    (72) operando -> E . MAYMAY E
+    (73) operando -> E . ANDO E
+    (74) operando -> E . ORO E
+
+    ORO             reduce using rule 74 (operando -> E ORO E .)
+    PTCOMA          reduce using rule 74 (operando -> E ORO E .)
+    WHERE           reduce using rule 74 (operando -> E ORO E .)
+    COMA            reduce using rule 74 (operando -> E ORO E .)
+    PARDR           reduce using rule 74 (operando -> E ORO E .)
+    MAS             shift and go to state 105
+    MENOS           shift and go to state 106
+    MULT            shift and go to state 107
+    DIV             shift and go to state 108
+    IGUALIGUAL      shift and go to state 109
+    NOIGUAL         shift and go to state 110
+    MENOR           shift and go to state 111
+    MAYOR           shift and go to state 112
+    MENORIGUAL      shift and go to state 113
+    MAYORIGUAL      shift and go to state 114
+    MENMEN          shift and go to state 115
+    MAYMAY          shift and go to state 116
+    ANDO            shift and go to state 117
+
+  ! MAS             [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! MENOS           [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! MULT            [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! DIV             [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! IGUALIGUAL      [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! NOIGUAL         [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! MENOR           [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! MAYOR           [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! MENORIGUAL      [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! MAYORIGUAL      [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! MENMEN          [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! MAYMAY          [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! ANDO            [ reduce using rule 74 (operando -> E ORO E .) ]
+  ! ORO             [ shift and go to state 118 ]
+
+
+state 151
+
+    (56) E -> PARIZQ E PARDR .
+
+    MAS             reduce using rule 56 (E -> PARIZQ E PARDR .)
+    MENOS           reduce using rule 56 (E -> PARIZQ E PARDR .)
+    MULT            reduce using rule 56 (E -> PARIZQ E PARDR .)
+    DIV             reduce using rule 56 (E -> PARIZQ E PARDR .)
+    IGUALIGUAL      reduce using rule 56 (E -> PARIZQ E PARDR .)
+    NOIGUAL         reduce using rule 56 (E -> PARIZQ E PARDR .)
+    MENOR           reduce using rule 56 (E -> PARIZQ E PARDR .)
+    MAYOR           reduce using rule 56 (E -> PARIZQ E PARDR .)
+    MENORIGUAL      reduce using rule 56 (E -> PARIZQ E PARDR .)
+    MAYORIGUAL      reduce using rule 56 (E -> PARIZQ E PARDR .)
+    MENMEN          reduce using rule 56 (E -> PARIZQ E PARDR .)
+    MAYMAY          reduce using rule 56 (E -> PARIZQ E PARDR .)
+    ANDO            reduce using rule 56 (E -> PARIZQ E PARDR .)
+    ORO             reduce using rule 56 (E -> PARIZQ E PARDR .)
+    PTCOMA          reduce using rule 56 (E -> PARIZQ E PARDR .)
+    WHERE           reduce using rule 56 (E -> PARIZQ E PARDR .)
+    COMA            reduce using rule 56 (E -> PARIZQ E PARDR .)
+    PARDR           reduce using rule 56 (E -> PARIZQ E PARDR .)
+
+
+state 152
+
+    (35) tipo -> CHARACTER PARIZQ ENTERO PARDR .
+
+    NOT             reduce using rule 35 (tipo -> CHARACTER PARIZQ ENTERO PARDR .)
+    NULL            reduce using rule 35 (tipo -> CHARACTER PARIZQ ENTERO PARDR .)
+    UNIQUE          reduce using rule 35 (tipo -> CHARACTER PARIZQ ENTERO PARDR .)
+    DEFAULT         reduce using rule 35 (tipo -> CHARACTER PARIZQ ENTERO PARDR .)
+    PRIMARY         reduce using rule 35 (tipo -> CHARACTER PARIZQ ENTERO PARDR .)
+    PARDR           reduce using rule 35 (tipo -> CHARACTER PARIZQ ENTERO PARDR .)
+    COMA            reduce using rule 35 (tipo -> CHARACTER PARIZQ ENTERO PARDR .)
+
+
+state 153
+
+    (36) tipo -> VARCHAR PARIZQ ENTERO PARDR .
+
+    NOT             reduce using rule 36 (tipo -> VARCHAR PARIZQ ENTERO PARDR .)
+    NULL            reduce using rule 36 (tipo -> VARCHAR PARIZQ ENTERO PARDR .)
+    UNIQUE          reduce using rule 36 (tipo -> VARCHAR PARIZQ ENTERO PARDR .)
+    DEFAULT         reduce using rule 36 (tipo -> VARCHAR PARIZQ ENTERO PARDR .)
+    PRIMARY         reduce using rule 36 (tipo -> VARCHAR PARIZQ ENTERO PARDR .)
+    PARDR           reduce using rule 36 (tipo -> VARCHAR PARIZQ ENTERO PARDR .)
+    COMA            reduce using rule 36 (tipo -> VARCHAR PARIZQ ENTERO PARDR .)
+
+
+state 154
+
+    (37) tipo -> CHAR PARIZQ ENTERO PARDR .
+
+    NOT             reduce using rule 37 (tipo -> CHAR PARIZQ ENTERO PARDR .)
+    NULL            reduce using rule 37 (tipo -> CHAR PARIZQ ENTERO PARDR .)
+    UNIQUE          reduce using rule 37 (tipo -> CHAR PARIZQ ENTERO PARDR .)
+    DEFAULT         reduce using rule 37 (tipo -> CHAR PARIZQ ENTERO PARDR .)
+    PRIMARY         reduce using rule 37 (tipo -> CHAR PARIZQ ENTERO PARDR .)
+    PARDR           reduce using rule 37 (tipo -> CHAR PARIZQ ENTERO PARDR .)
+    COMA            reduce using rule 37 (tipo -> CHAR PARIZQ ENTERO PARDR .)
+
+
+state 155
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ . ID PARDR REFERENCES ID PARIZQ ID PARDR
+
+    ID              shift and go to state 158
+
+
+state 156
+
+    (10) campo -> PRIMARY KEY PARIZQ ID PARDR .
+
+    PARDR           reduce using rule 10 (campo -> PRIMARY KEY PARIZQ ID PARDR .)
+    COMA            reduce using rule 10 (campo -> PRIMARY KEY PARIZQ ID PARDR .)
+
+
+state 157
+
+    (38) instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA .
+
+    CREATE          reduce using rule 38 (instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA .)
+    INSERT          reduce using rule 38 (instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA .)
+    UPDATE          reduce using rule 38 (instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA .)
+    DELETE          reduce using rule 38 (instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA .)
+    $end            reduce using rule 38 (instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA .)
+
+
+state 158
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID . PARDR REFERENCES ID PARIZQ ID PARDR
+
+    PARDR           shift and go to state 159
+
+
+state 159
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR . REFERENCES ID PARIZQ ID PARDR
+
+    REFERENCES      shift and go to state 160
+
+
+state 160
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES . ID PARIZQ ID PARDR
+
+    ID              shift and go to state 161
+
+
+state 161
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID . PARIZQ ID PARDR
+
+    PARIZQ          shift and go to state 162
+
+
+state 162
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ . ID PARDR
+
+    ID              shift and go to state 163
+
+
+state 163
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID . PARDR
+
+    PARDR           shift and go to state 164
+
+
+state 164
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR .
+
+    PARDR           reduce using rule 9 (campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR .)
+    COMA            reduce using rule 9 (campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR .)
+
