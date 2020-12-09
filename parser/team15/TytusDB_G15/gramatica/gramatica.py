@@ -84,8 +84,11 @@ reservadas = {
     'only' : 'ONLY',
     'in' :  'IN',
     'returning' : 'RETURNING',
+    'using' : 'USING',
     # ---- USE DATABASE --------
-    'use' : 'USE'
+    'use' : 'USE',
+    #----- SELECT-----------
+    'distinct' : 'DISTINCT'
 }
 
 tokens = [
@@ -99,11 +102,12 @@ tokens = [
     'ID',
     'PUNTO',
     'MENIGQUE',
+    'NOIG',
     'MAYIGQUE',
     'MENQUE',
     'MAYQUE',
     'DOBLEIG',
-    'NOIG',
+    'NOIGUAL'
     'APOSTROFE',
     'IGUAL',
     'SUMA',
@@ -127,6 +131,7 @@ t_MENIGQUE      = r'<='
 t_MAYIGQUE      = r'>='
 t_MENQUE        = r'\<'
 t_MAYQUE        = r'\>'
+t_NOIGUAL       = r'!='
 t_DOBLEIG       = r'=='
 t_IGUAL         = r'\='
 t_APOSTROFE     = r'\''
@@ -215,7 +220,9 @@ def p_instruccion(t):
                   | drop_insrt
                   | USE ID DATABASE PTCOMA'''
 
+#--------------------------------------------------------------
 '----------- GRAMATICA PARA LA INSTRUCCION DROP TABLE----------'
+#--------------------------------------------------------------
 def p_dropTable(t):
     ' drop_insrt : DROP TABLE lista_tablas_lista PTCOMA'
 
@@ -227,8 +234,9 @@ def p_lista_tabla(t):
 
 def p_tablas_lista(t):
     ' lista_tabla : ID'
-
+#--------------------------------------------------------------
 '----------- GRAMATICA PARA LA INSTRUCCION ALTER DATABASE ---------'
+#--------------------------------------------------------------
 def p_AlterDB(t):
     ' alterDB_insrt : ALTER DATABASE ID opcion_alterDB'
 
@@ -241,7 +249,9 @@ def p_usuarioDB(t):
                 | CURRENT_USER
                 | SESSION_USER'''
 
+#--------------------------------------------------------------
 '----------- GRAMATICA PARA LA INSTRUCCION ALTER TABLE ---------'
+#--------------------------------------------------------------
 def p_alterTable(t):
     'alterTable_insrt : ALTER TABLE ID alterTable_type PTCOMA'
 
@@ -280,9 +290,9 @@ def p_alter_type(t):
 def p_cons_campos(t):
     '''campos_c : campos_c COMA ID
                   | ID '''
-
+#--------------------------------------------------------------
 ' ---------- GRAMATICA PARA LA INSTRUCCION CREATE TABLE ---------'
-
+#--------------------------------------------------------------
 def p_create_table(t):
     ''' create_Table_isnrt : CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
                            | CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA '''
@@ -325,7 +335,9 @@ def p_tipo_dato(t):
 #    '''tiempo_i : tiempo_i tiempo
 #                | tiempo '''
 
+#--------------------------------------------------------------
 ' ----------- GRAMATICA PARA LA INSTRUCCION UPDATE ------'
+#--------------------------------------------------------------
 def p_update_insrt(t):
     ' update_insrt : UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA'
 
@@ -337,17 +349,26 @@ def p_lista_update_lista(t):
 
 def p_parametro_update(t):
     ' parametro_update : ID IGUAL datos_insert'
-
+#--------------------------------------------------------------
 ' ---------- GRAMATICA PARA LA INSTRUCCION DELETE --------'
+#--------------------------------------------------------------
+# Ver si no olvidamos algo
+
 def p_delete_insrt(t):
     ' delete_insrt : DELETE FROM delete_esp delete_opcional'
 
 def p_delete_esp(t):
     ''' delete_esp :  ONLY ID
-                    | ID delete_parm '''
+                    | ID delete_parm'''
 
 def p_delete_par(t):
-    ''' delete_parm : WHERE delete_condt '''
+    ''' delete_parm : delete_cond_where 
+                    | RETURNING returning_exp
+                    | USING ID delete_cond_where
+                    | AS ID delete_cond_where'''
+
+def p_delete_cond_where(t):
+    'delete_cond_where : WHERE delete_condt'
 
 def p_delete_condt(t):
     ''' delete_condt :  expresion_logica 
@@ -355,19 +376,26 @@ def p_delete_condt(t):
 
 def p_delete_opcional(t):
     ''' delete_opcional : PTCOMA
-                        | RETURNING PTCOMA'''
+                        | RETURNING returning_exp PTCOMA'''
+
+def p_returning_exp(t):
+    ''' returning_exp : ASTERISCO 
+                      | campos_c'''
 
 #NOTA: TERMINAR ESTO 
 #AGREGAR EL RESTO DE SUB QUERIS
 #URGENTE
 def p_sub_queri(t):
     ' sub_queri : SELECT'
-
+#--------------------------------------------------------------
 ' ------------- GRAMATICA PARA LA INSTRUCCION SELECT --------------'
-
+#--------------------------------------------------------------
 def p_instruccion_select_insrt(t):
-    ''' select_insrt : SELECT opcion_select_lista FROM ID AS ID PTCOMA
-                     | SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA '''
+    ' select_insrt : SELECT opcion_select_lista FROM ID AS ID fin_select '
+
+def p_fin_select(t):
+    '''fin_select: PTCOMA
+                 |  LISTA_SELECT_LISTA PTCOMA'''
 
 def p_LISTA_SELECT_LISTA(t):
     ''' LISTA_SELECT_LISTA : LISTA_SELECT_LISTA  LISTA_SELECT  '''
@@ -382,8 +410,13 @@ def p_LISTA_SELECT(t):
 def p_WHERE_INSRT(t):
     ' WHERE_INSRT : WHERE expresion_logica'
 
+#----------terminar el distinct ------------
 def p_select_lista(t):
-    ' opcion_select_lista : opcion_select_lista COMA opcion_select'
+    ''' opcion_select_lista : DISTINCT 
+                            | opciones_select_lista'''
+            
+def p_opciones_select_lista(t):
+    'opciones_select_lista : opciones_select_lista COMA opcion_select'
 
 def p_opcion_select_lista(t):
     ' opcion_select_lista : opcion_select '
@@ -474,6 +507,7 @@ def p_expresion_relacional(t):
                              | datos_insert DOBLEIG datos_insert
                              | datos_insert IGUAL datos_insert
                              | datos_insert NOIG datos_insert
+                             | datos_insert NOIGUAL datos_insert
                              | datos_insert '''
 
 def p_expresion_logica(t):
