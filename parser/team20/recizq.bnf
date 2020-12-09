@@ -101,6 +101,11 @@
 
 
 <value>  ::= int | real | string | id
+
+<truncate> ::= truncate [table] <idlist>
+
+<show>::= show databases [like regex]
+
 ##################################################
 # List of the symbols returned by the scanner,
 # also known as "lexer". Linear white spaces
@@ -113,6 +118,8 @@ create="CREATE";
 or="OR";
 replace="REPLACE";
 database="DATABASE";
+truncate = "TRUNCATE";
+show = "SHOW";
 if="IF";
 not="NOT";
 exists="EXISTS";
@@ -190,3 +197,4 @@ digits = digit {digit};
 real_decimals = "." digits;
 real_scale = ("E"|"e") ["+"|"-"] digits;
 letter = "a".."z" | "A".."Z";
+regex = %(\w)+%;
