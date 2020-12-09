@@ -44,3 +44,4 @@ class Delete_condicional(Instruccion) :
     def __init__(self, expLogica, id) :
         self.expLogica = expLogica
         self.id = id
+

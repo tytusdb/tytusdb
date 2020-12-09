@@ -9,3 +9,4 @@ select A.id from usuarios;
 select A.id, A.nombre from usuarios;
 delete libros;
 select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
+delete libros;
