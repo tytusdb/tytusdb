@@ -361,3 +361,183 @@ lexer = lex.lex()
 
 
 # -----------------------------------------------------------------------------
+#                       INICIA ANALIZADOR SINTACTICO
+# -----------------------------------------------------------------------------
+
+# Asociación de operadores y precedencia
+precedence = (
+    ('left','TYPECAST'),
+    ('right','UMINUS'),
+    ('left','MAS','MENOS'),
+    ('left','POTENCIA'),
+    ('left','POR','DIV','RESIDUO'),
+    ('left','AND','OR','SIMBOLOOR2','SIMBOLOOR','SIMBOLOAND2'),
+    ('left','DESPLAZAMIENTOIZQUIERDA','DESPLAZAMIENTODERECHA'),
+    )
+
+
+
+# estructura de mi gramatica
+
+
+#-----------------------------------------------------INICIO--------------------------------------------------------------------
+def p_inicio_1(t) :
+    'inicio               : queries' 
+    t[0]=t[1]  
+    
+def p_queries_1(t) :
+    'queries               : queries query' 
+
+def p_queries_2(t) :
+    'queries               : query' 
+ 
+#-----------------------------------------------------LISTA DE FUNCIONES--------------------------------------------------------------------
+
+def p_query(t):
+    '''query        : mostrarBD
+                    | crearBD
+                    | alterBD
+                    | dropBD
+                    | operacion
+                    | insertinBD
+                    | updateinBD
+                    | deleteinBD
+                    | createTable
+    '''
+                    # derivando cada produccion a cosas como el create, insert, select; funciones como avg, sum, substring irian como otra produccion 
+                    #dentro del select (consulta)
+
+
+# empiezan las producciones de las operaciones finales
+#la englobacion de las operaciones
+
+#-----------------------------------------------------CREATE DB--------------------------------------------------------------------
+
+def p_crearBaseDatos_1(t):
+    'crearBD    : CREATE DATABASE ID PUNTOYCOMA'
+
+
+def p_crearBaseDatos_2(t):
+    'crearBD    : CREATE OR REPLACE DATABASE ID PUNTOYCOMA'
+
+def p_crearBaseDatos_3(t):
+    'crearBD    : CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA'
+
+def p_crearBaseDatos_4(t):
+    'crearBD    : CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA'
+
+
+
+def p_parametrosCrearBD_1(t):
+    'parametrosCrearBD : parametrosCrearBD parametroCrearBD'
+
+def p_parametrosCrearBD_2(t):
+    'parametrosCrearBD :  parametroCrearBD'
+
+def p_parametroCrearBD(t):
+    '''parametroCrearBD :  OWNER IGUAL final
+                        |  MODE IGUAL final
+    '''
+#-----------------------------------------------------SHOW DB--------------------------------------------------------------------
+def p_mostrarBD(t):
+    'mostrarBD  : SHOW DATABASES PUNTOYCOMA'
+
+#-----------------------------------------------------ALTER BD--------------------------------------------------------------------
+
+def p_alterBD_1(t):
+    'alterBD    : ALTER DATABASE ID RENAME TO ID PUNTOYCOMA'
+
+def p_alterBD_2(t):
+    'alterBD    : ALTER DATABASE ID OWNER TO parametroAlterUser PUNTOYCOMA'
+
+def p_parametroAlterUser(t):
+    '''parametroAlterUser : CURRENT_USER
+                        |   SESSION_USER
+                        |   final
+    '''
+
+#-----------------------------------------------------DROP BD--------------------------------------------------------------------
+
+def p_dropBD_1(t):
+    'dropBD    : DROP DATABASE ID PUNTOYCOMA'
+
+def p_dropBD_2(t):
+    'dropBD    : DROP DATABASE IF EXISTS ID PUNTOYCOMA'
+
+
+
+
+#-----------------------------------------------------OPERACIONES Y EXPRESIONES--------------------------------------------------------------------
+def p_operacion(t):
+    '''operacion          : operacion MAS operacion
+                          | operacion MENOS operacion
+                          | operacion POR operacion
+                          | operacion DIV operacion
+                          | operacion RESIDUO operacion
+                          | operacion POTENCIA operacion
+                          | operacion AND operacion
+                          | operacion OR operacion
+                          | operacion SIMBOLOOR2 operacion
+                          | operacion SIMBOLOOR operacion
+                          | operacion SIMBOLOAND2 operacion
+                          | operacion DESPLAZAMIENTOIZQUIERDA operacion
+                          | operacion DESPLAZAMIENTODERECHA operacion
+                          | operacion IGUAL operacion
+                          | operacion IGUALIGUAL operacion
+                          | operacion NOTEQUAL operacion
+                          | operacion MAYORIGUAL operacion
+                          | operacion MENORIGUAL operacion
+                          | operacion MAYOR operacion
+                          | operacion MENOR operacion
+                          | operacion DIFERENTE operacion
+                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                          
+                          '''
+
+def p_operacion_funcion(t):
+    'operacion  : funcionBasica'
+def p_operacion_final(t):
+    'operacion :     final'
+
+#-----------------------------------------------------FUNCIONES MATEMATICAS--------------------------------------------------------------------
+# MATEMATICAS
+# TRIGONOMETRICAS
+# ALGUNAS BINARIAS
+# poner PI?
+
+#FUNCOINES SIMPLES DE 1 PARAMETRO
+def p_funcion_basica(t):
+    '''funcionBasica    : ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | CBRT PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | CEIL PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | CEILING PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | DEGREES PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | DIV PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | EXP PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | FACTORIAL PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | FLOOR PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | GCD PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
+                        | LCM PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
+                        | LN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | LOG PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | LOG10 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | MIN_SCALE PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | MOD PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
+                        | POWER PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
+                        | RADIANS PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SCALE ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SIGN ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SQRT ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | TRIM_SCALE ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | TRUC ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | WIDTH_BUCKET PARENTESISIZQUIERDA operacion COMA operacion COMA operacion COMA operacion PARENTESISDERECHA
+                        | RANDOM PARENTESISIZQUIERDA PARENTESISDERECHA
+                        | SETSEED PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ACOS  PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ACOSD PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ASIN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ASIND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ATAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ATAN2 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | COS PARENTESISIZQUIERDA operacion PARENTESISDERECHA
