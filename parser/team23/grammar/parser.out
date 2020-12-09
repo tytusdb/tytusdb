@@ -1,0 +1,568 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    ALL
+    ALTER
+    AND
+    AS
+    ASC
+    ASTERISCO
+    BETWEEN
+    BOOLEAN
+    BY
+    CADENA
+    CASE
+    CASTEO
+    CHARACTER
+    CHECK
+    CONSTRAINT
+    CORCHE_ABRE
+    CORCHE_CIERRA
+    COUNT
+    DAY
+    DELETE
+    DESC
+    DIFERENTE
+    DIVISION
+    DROP
+    ELSE
+    END
+    ENTERO
+    ENUM
+    EXISTS
+    FALSE
+    FIELDS
+    FIRST
+    FOREIGN
+    FROM
+    FULL
+    GREATEST
+    GROUP
+    HAVING
+    HOUR
+    IF
+    IGUAL
+    ILIKE
+    IN
+    INHERITS
+    INNER
+    INSERT
+    INTERSECT
+    INTERVAL
+    IS
+    ISNULL
+    JOIN
+    KEY
+    LAST
+    LEAST
+    LEFT
+    LIKE
+    LIMIT
+    MAS
+    MAYOR
+    MAYOR_IGUAL
+    MENOR
+    MENOR_IGUAL
+    MENOS
+    MINUTE
+    MODE
+    MODULO
+    MONTH
+    NOT
+    NOTNULL
+    NO_IGUAL
+    NULL
+    OFFSET
+    OR
+    ORDER
+    OUTER
+    OWNER
+    POTENCIA
+    PRIMARY
+    PUNTO
+    REFERENCES
+    RENAME
+    REPLACE
+    RIGHT
+    SECOND
+    SELECT
+    SET
+    SIMILAR
+    SUM
+    THEN
+    TIME
+    TIMESTAMP
+    TO
+    TRUE
+    TYPE
+    UNION
+    UPDATE
+    VALUES
+    VARYING
+    WHEN
+    WHERE
+    WITH
+    WITHOUT
+    YEAR
+    ZONE
+
+Grammar
+
+Rule 0     S' -> init
+Rule 1     init -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> crear_statement PUNTOCOMA
+Rule 5     crear_statement -> CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA
+Rule 6     crear_statement -> CREATE DATABASE ID
+Rule 7     contenido_tabla -> contenido_tabla COMA manejo_tabla
+Rule 8     contenido_tabla -> manejo_tabla
+Rule 9     manejo_tabla -> declaracion_columna
+Rule 10    declaracion_columna -> ID type_column
+Rule 11    type_column -> SMALLINT
+Rule 12    type_column -> INTEGER
+Rule 13    type_column -> BIGINT
+Rule 14    type_column -> DECIMAL
+Rule 15    type_column -> NUMERIC
+Rule 16    type_column -> REAL
+Rule 17    type_column -> MONEY
+Rule 18    type_column -> VARCHAR
+Rule 19    type_column -> CHAR
+Rule 20    type_column -> TEXT
+Rule 21    type_column -> DATE
+
+Terminals, with rules where they appear
+
+ALL                  : 
+ALTER                : 
+AND                  : 
+AS                   : 
+ASC                  : 
+ASTERISCO            : 
+BETWEEN              : 
+BIGINT               : 13
+BOOLEAN              : 
+BY                   : 
+CADENA               : 
+CASE                 : 
+CASTEO               : 
+CHAR                 : 19
+CHARACTER            : 
+CHECK                : 
+COMA                 : 7
+CONSTRAINT           : 
+CORCHE_ABRE          : 
+CORCHE_CIERRA        : 
+COUNT                : 
+CREATE               : 5 6
+DATABASE             : 6
+DATE                 : 21
+DAY                  : 
+DECIMAL              : 14
+DELETE               : 
+DESC                 : 
+DIFERENTE            : 
+DIVISION             : 
+DROP                 : 
+ELSE                 : 
+END                  : 
+ENTERO               : 
+ENUM                 : 
+EXISTS               : 
+FALSE                : 
+FIELDS               : 
+FIRST                : 
+FOREIGN              : 
+FROM                 : 
+FULL                 : 
+GREATEST             : 
+GROUP                : 
+HAVING               : 
+HOUR                 : 
+ID                   : 5 6 10
+IF                   : 
+IGUAL                : 
+ILIKE                : 
+IN                   : 
+INHERITS             : 
+INNER                : 
+INSERT               : 
+INTEGER              : 12
+INTERSECT            : 
+INTERVAL             : 
+IS                   : 
+ISNULL               : 
+JOIN                 : 
+KEY                  : 
+LAST                 : 
+LEAST                : 
+LEFT                 : 
+LIKE                 : 
+LIMIT                : 
+MAS                  : 
+MAYOR                : 
+MAYOR_IGUAL          : 
+MENOR                : 
+MENOR_IGUAL          : 
+MENOS                : 
+MINUTE               : 
+MODE                 : 
+MODULO               : 
+MONEY                : 17
+MONTH                : 
+NOT                  : 
+NOTNULL              : 
+NO_IGUAL             : 
+NULL                 : 
+NUMERIC              : 15
+OFFSET               : 
+OR                   : 
+ORDER                : 
+OUTER                : 
+OWNER                : 
+PAR_ABRE             : 5
+PAR_CIERRA           : 5
+POTENCIA             : 
+PRIMARY              : 
+PUNTO                : 
+PUNTOCOMA            : 4
+REAL                 : 16
+REFERENCES           : 
+RENAME               : 
+REPLACE              : 
+RIGHT                : 
+SECOND               : 
+SELECT               : 
+SET                  : 
+SIMILAR              : 
+SMALLINT             : 11
+SUM                  : 
+TABLE                : 5
+TEXT                 : 20
+THEN                 : 
+TIME                 : 
+TIMESTAMP            : 
+TO                   : 
+TRUE                 : 
+TYPE                 : 
+UNION                : 
+UPDATE               : 
+VALUES               : 
+VARCHAR              : 18
+VARYING              : 
+WHEN                 : 
+WHERE                : 
+WITH                 : 
+WITHOUT              : 
+YEAR                 : 
+ZONE                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+contenido_tabla      : 5 7
+crear_statement      : 4
+declaracion_columna  : 9
+init                 : 0
+instruccion          : 2 3
+instrucciones        : 1 2
+manejo_tabla         : 7 8
+type_column          : 10
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . init
+    (1) init -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . crear_statement PUNTOCOMA
+    (5) crear_statement -> . CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA
+    (6) crear_statement -> . CREATE DATABASE ID
+
+    CREATE          shift and go to state 5
+
+    init                           shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    crear_statement                shift and go to state 4
+
+state 1
+
+    (0) S' -> init .
+
+
+
+state 2
+
+    (1) init -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . crear_statement PUNTOCOMA
+    (5) crear_statement -> . CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA
+    (6) crear_statement -> . CREATE DATABASE ID
+
+    $end            reduce using rule 1 (init -> instrucciones .)
+    CREATE          shift and go to state 5
+
+    instruccion                    shift and go to state 6
+    crear_statement                shift and go to state 4
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    CREATE          reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> crear_statement . PUNTOCOMA
+
+    PUNTOCOMA       shift and go to state 7
+
+
+state 5
+
+    (5) crear_statement -> CREATE . TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA
+    (6) crear_statement -> CREATE . DATABASE ID
+
+    TABLE           shift and go to state 8
+    DATABASE        shift and go to state 9
+
+
+state 6
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    CREATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 7
+
+    (4) instruccion -> crear_statement PUNTOCOMA .
+
+    CREATE          reduce using rule 4 (instruccion -> crear_statement PUNTOCOMA .)
+    $end            reduce using rule 4 (instruccion -> crear_statement PUNTOCOMA .)
+
+
+state 8
+
+    (5) crear_statement -> CREATE TABLE . ID PAR_ABRE contenido_tabla PAR_CIERRA
+
+    ID              shift and go to state 10
+
+
+state 9
+
+    (6) crear_statement -> CREATE DATABASE . ID
+
+    ID              shift and go to state 11
+
+
+state 10
+
+    (5) crear_statement -> CREATE TABLE ID . PAR_ABRE contenido_tabla PAR_CIERRA
+
+    PAR_ABRE        shift and go to state 12
+
+
+state 11
+
+    (6) crear_statement -> CREATE DATABASE ID .
+
+    PUNTOCOMA       reduce using rule 6 (crear_statement -> CREATE DATABASE ID .)
+
+
+state 12
+
+    (5) crear_statement -> CREATE TABLE ID PAR_ABRE . contenido_tabla PAR_CIERRA
+    (7) contenido_tabla -> . contenido_tabla COMA manejo_tabla
+    (8) contenido_tabla -> . manejo_tabla
+    (9) manejo_tabla -> . declaracion_columna
+    (10) declaracion_columna -> . ID type_column
+
+    ID              shift and go to state 13
+
+    contenido_tabla                shift and go to state 14
+    manejo_tabla                   shift and go to state 15
+    declaracion_columna            shift and go to state 16
+
+state 13
+
+    (10) declaracion_columna -> ID . type_column
+    (11) type_column -> . SMALLINT
+    (12) type_column -> . INTEGER
+    (13) type_column -> . BIGINT
+    (14) type_column -> . DECIMAL
+    (15) type_column -> . NUMERIC
+    (16) type_column -> . REAL
+    (17) type_column -> . MONEY
+    (18) type_column -> . VARCHAR
+    (19) type_column -> . CHAR
+    (20) type_column -> . TEXT
+    (21) type_column -> . DATE
+
+    SMALLINT        shift and go to state 18
+    INTEGER         shift and go to state 19
+    BIGINT          shift and go to state 20
+    DECIMAL         shift and go to state 21
+    NUMERIC         shift and go to state 22
+    REAL            shift and go to state 23
+    MONEY           shift and go to state 24
+    VARCHAR         shift and go to state 25
+    CHAR            shift and go to state 26
+    TEXT            shift and go to state 27
+    DATE            shift and go to state 28
+
+    type_column                    shift and go to state 17
+
+state 14
+
+    (5) crear_statement -> CREATE TABLE ID PAR_ABRE contenido_tabla . PAR_CIERRA
+    (7) contenido_tabla -> contenido_tabla . COMA manejo_tabla
+
+    PAR_CIERRA      shift and go to state 29
+    COMA            shift and go to state 30
+
+
+state 15
+
+    (8) contenido_tabla -> manejo_tabla .
+
+    PAR_CIERRA      reduce using rule 8 (contenido_tabla -> manejo_tabla .)
+    COMA            reduce using rule 8 (contenido_tabla -> manejo_tabla .)
+
+
+state 16
+
+    (9) manejo_tabla -> declaracion_columna .
+
+    PAR_CIERRA      reduce using rule 9 (manejo_tabla -> declaracion_columna .)
+    COMA            reduce using rule 9 (manejo_tabla -> declaracion_columna .)
+
+
+state 17
+
+    (10) declaracion_columna -> ID type_column .
+
+    PAR_CIERRA      reduce using rule 10 (declaracion_columna -> ID type_column .)
+    COMA            reduce using rule 10 (declaracion_columna -> ID type_column .)
+
+
+state 18
+
+    (11) type_column -> SMALLINT .
+
+    PAR_CIERRA      reduce using rule 11 (type_column -> SMALLINT .)
+    COMA            reduce using rule 11 (type_column -> SMALLINT .)
+
+
+state 19
+
+    (12) type_column -> INTEGER .
+
+    PAR_CIERRA      reduce using rule 12 (type_column -> INTEGER .)
+    COMA            reduce using rule 12 (type_column -> INTEGER .)
+
+
+state 20
+
+    (13) type_column -> BIGINT .
+
+    PAR_CIERRA      reduce using rule 13 (type_column -> BIGINT .)
+    COMA            reduce using rule 13 (type_column -> BIGINT .)
+
+
+state 21
+
+    (14) type_column -> DECIMAL .
+
+    PAR_CIERRA      reduce using rule 14 (type_column -> DECIMAL .)
+    COMA            reduce using rule 14 (type_column -> DECIMAL .)
+
+
+state 22
+
+    (15) type_column -> NUMERIC .
+
+    PAR_CIERRA      reduce using rule 15 (type_column -> NUMERIC .)
+    COMA            reduce using rule 15 (type_column -> NUMERIC .)
+
+
+state 23
+
+    (16) type_column -> REAL .
+
+    PAR_CIERRA      reduce using rule 16 (type_column -> REAL .)
+    COMA            reduce using rule 16 (type_column -> REAL .)
+
+
+state 24
+
+    (17) type_column -> MONEY .
+
+    PAR_CIERRA      reduce using rule 17 (type_column -> MONEY .)
+    COMA            reduce using rule 17 (type_column -> MONEY .)
+
+
+state 25
+
+    (18) type_column -> VARCHAR .
+
+    PAR_CIERRA      reduce using rule 18 (type_column -> VARCHAR .)
+    COMA            reduce using rule 18 (type_column -> VARCHAR .)
+
+
+state 26
+
+    (19) type_column -> CHAR .
+
+    PAR_CIERRA      reduce using rule 19 (type_column -> CHAR .)
+    COMA            reduce using rule 19 (type_column -> CHAR .)
+
+
+state 27
+
+    (20) type_column -> TEXT .
+
+    PAR_CIERRA      reduce using rule 20 (type_column -> TEXT .)
+    COMA            reduce using rule 20 (type_column -> TEXT .)
+
+
+state 28
+
+    (21) type_column -> DATE .
+
+    PAR_CIERRA      reduce using rule 21 (type_column -> DATE .)
+    COMA            reduce using rule 21 (type_column -> DATE .)
+
+
+state 29
+
+    (5) crear_statement -> CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA .
+
+    PUNTOCOMA       reduce using rule 5 (crear_statement -> CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA .)
+
+
+state 30
+
+    (7) contenido_tabla -> contenido_tabla COMA . manejo_tabla
+    (9) manejo_tabla -> . declaracion_columna
+    (10) declaracion_columna -> . ID type_column
+
+    ID              shift and go to state 13
+
+    manejo_tabla                   shift and go to state 31
+    declaracion_columna            shift and go to state 16
+
+state 31
+
+    (7) contenido_tabla -> contenido_tabla COMA manejo_tabla .
+
+    PAR_CIERRA      reduce using rule 7 (contenido_tabla -> contenido_tabla COMA manejo_tabla .)
+    COMA            reduce using rule 7 (contenido_tabla -> contenido_tabla COMA manejo_tabla .)
+
