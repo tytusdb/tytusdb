@@ -96,7 +96,8 @@ reservadas = {
     'check':'tCheck',
     'constraint':'tConstraint',
     'unique':'tUnique',
-    'column':'tColumn'
+    'column':'tColumn',
+    'add' : 'add'
     #>termina fl
 }
 
@@ -281,6 +282,7 @@ def p_sentencia(t):
                  | SHOW_TABLES
                  | ALTER_TABLE
                  | DROP_TABLE
+                 | INSERT
     '''
     #t[0] = t[1]
     
@@ -514,9 +516,8 @@ def p_EXPR_ALTER_TABLE(t):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< FRANCISCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
-     def p_INSERT( p ):
-    ''' INSERT :  insert into id values parAbre LISTA_EXP parCierra ptComa  
-    '''
+def p_INSERT( p ):
+    ''' INSERT :  insert into id values parAbre LISTA_EXP parCierra ptComa   '''
 
 def p_LISTA_EXP( p ): 
     ''' LISTA_EXP :    LISTA_EXP coma E    
