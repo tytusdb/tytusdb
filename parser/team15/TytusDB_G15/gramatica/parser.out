@@ -1,0 +1,2126 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    NOIG
+
+Grammar
+
+Rule 0     S' -> init
+Rule 1     init -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> create_Table_isnrt
+Rule 5     instruccion -> select_insrt
+Rule 6     instruccion -> insert_insrt
+Rule 7     instruccion -> delete_insrt
+Rule 8     instruccion -> update_insrt
+Rule 9     instruccion -> alterTable_insrt
+Rule 10    instruccion -> drop_insrt
+Rule 11    drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA
+Rule 12    lista_tablas_lista -> lista_tablas_lista COMA lista_tabla
+Rule 13    lista_tablas_lista -> lista_tabla
+Rule 14    lista_tabla -> ID
+Rule 15    alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA
+Rule 16    opcion_alterTable -> RENAME
+Rule 17    opcion_alterTable -> OWNER
+Rule 18    create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+Rule 19    create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA
+Rule 20    herencia -> INHERITS PAR_A ID PAR_C
+Rule 21    cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable
+Rule 22    cuerpo_createTable_lista -> cuerpo_createTable
+Rule 23    cuerpo_createTable -> ID TIPO_DATO
+Rule 24    TIPO_DATO -> TEXT
+Rule 25    TIPO_DATO -> FLOAT
+Rule 26    TIPO_DATO -> INT
+Rule 27    TIPO_DATO -> CHAR PAR_A ENTERO PAR_C
+Rule 28    update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA
+Rule 29    lista_update -> lista_update COMA parametro_update
+Rule 30    lista_update -> parametro_update
+Rule 31    parametro_update -> ID IGUAL datos_insert
+Rule 32    delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA
+Rule 33    select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA
+Rule 34    select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA
+Rule 35    LISTA_SELECT_LISTA -> LISTA_SELECT_LISTA LISTA_SELECT
+Rule 36    LISTA_SELECT_LISTA -> LISTA_SELECT
+Rule 37    LISTA_SELECT -> INNER_JOIN
+Rule 38    LISTA_SELECT -> WHERE_INSRT
+Rule 39    WHERE_INSRT -> WHERE expresion_logica
+Rule 40    opcion_select_lista -> opcion_select_lista COMA opcion_select
+Rule 41    opcion_select_lista -> opcion_select
+Rule 42    opcion_select -> ASTERISCO
+Rule 43    opcion_select -> sum_insrt
+Rule 44    opcion_select -> count_insrt
+Rule 45    opcion_select -> ID
+Rule 46    opcion_select -> ID PUNTO ID
+Rule 47    opcion_select -> case_insrt
+Rule 48    case_insrt -> CASE ID estructura_when_lista ELSE datos_insert END
+Rule 49    case_insrt -> CASE estructura_when_lista ELSE datos_insert END
+Rule 50    estructura_when_lista -> estructura_when_lista estructura_when
+Rule 51    estructura_when_lista -> estructura_when
+Rule 52    estructura_when -> WHEN expresion_logica THEN datos_insert
+Rule 53    INNER_JOIN -> INNER JOIN ID AS ID ON CONDICION_INNER_JOIN
+Rule 54    CONDICION_INNER_JOIN -> expresion_logica
+Rule 55    sum_insrt -> SUM PAR_A ID PAR_C
+Rule 56    count_insrt -> COUNT PAR_A ID PAR_C
+Rule 57    count_insrt -> COUNT PAR_A ASTERISCO PAR_C
+Rule 58    insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA
+Rule 59    lista_parametros_lista -> lista_parametros_lista COMA lista_parametros
+Rule 60    lista_parametros_lista -> lista_parametros
+Rule 61    lista_parametros -> ID
+Rule 62    lista_datos -> lista_datos COMA datos_insert
+Rule 63    lista_datos -> datos_insert
+Rule 64    datos_insert -> CADENA
+Rule 65    datos_insert -> ENTERO
+Rule 66    datos_insert -> ID
+Rule 67    datos_insert -> ID PUNTO ID
+Rule 68    expresion_relacional -> datos_insert MAYQUE datos_insert
+Rule 69    expresion_relacional -> datos_insert MENQUE datos_insert
+Rule 70    expresion_relacional -> datos_insert MAYIGQUE datos_insert
+Rule 71    expresion_relacional -> datos_insert MENIGQUE datos_insert
+Rule 72    expresion_relacional -> datos_insert DOBLEIG datos_insert
+Rule 73    expresion_relacional -> datos_insert IGUAL datos_insert
+Rule 74    expresion_relacional -> datos_insert
+Rule 75    expresion_logica -> expresion_relacional AND expresion_relacional
+Rule 76    expresion_logica -> expresion_relacional OR expresion_relacional
+Rule 77    expresion_logica -> expresion_relacional
+
+Terminals, with rules where they appear
+
+ALTER                : 15
+AND                  : 75
+AS                   : 33 34 53
+ASTERISCO            : 42 57
+CADENA               : 32 64
+CASE                 : 48 49
+CHAR                 : 27
+COMA                 : 12 21 29 40 59 62
+COUNT                : 56 57
+CREATE               : 18 19
+DATABASE             : 15
+DELETE               : 32
+DOBLEIG              : 72
+DROP                 : 11
+ELSE                 : 48 49
+END                  : 48 49
+ENTERO               : 27 65
+FLOAT                : 25
+FROM                 : 32 33 34
+ID                   : 14 15 15 18 19 20 23 28 28 31 32 32 33 33 34 34 45 46 46 48 53 53 55 56 58 61 66 67 67
+IGUAL                : 28 31 32 73
+INHERITS             : 20
+INNER                : 53
+INSERT               : 58
+INT                  : 26
+INTO                 : 58
+JOIN                 : 53
+MAYIGQUE             : 70
+MAYQUE               : 68
+MENIGQUE             : 71
+MENQUE               : 69
+NOIG                 : 
+ON                   : 53
+OR                   : 76
+OWNER                : 17
+PAR_A                : 18 19 20 27 55 56 57 58 58
+PAR_C                : 18 19 20 27 55 56 57 58 58
+PTCOMA               : 11 15 18 19 28 32 33 34 58
+PUNTO                : 46 67
+RENAME               : 16
+SELECT               : 33 34
+SET                  : 28
+SUM                  : 55
+TABLE                : 11 18 19
+TEXT                 : 24
+THEN                 : 52
+TO                   : 15
+UPDATE               : 28
+VALUES               : 58
+WHEN                 : 52
+WHERE                : 28 32 39
+error                : 
+
+Nonterminals, with rules where they appear
+
+CONDICION_INNER_JOIN : 53
+INNER_JOIN           : 37
+LISTA_SELECT         : 35 36
+LISTA_SELECT_LISTA   : 34 35
+TIPO_DATO            : 23
+WHERE_INSRT          : 38
+alterTable_insrt     : 9
+case_insrt           : 47
+count_insrt          : 44
+create_Table_isnrt   : 4
+cuerpo_createTable   : 21 22
+cuerpo_createTable_lista : 18 19 21
+datos_insert         : 28 31 48 49 52 62 63 68 68 69 69 70 70 71 71 72 72 73 73 74
+delete_insrt         : 7
+drop_insrt           : 10
+estructura_when      : 50 51
+estructura_when_lista : 48 49 50
+expresion_logica     : 39 52 54
+expresion_relacional : 75 75 76 76 77
+herencia             : 19
+init                 : 0
+insert_insrt         : 6
+instruccion          : 2 3
+instrucciones        : 1 2
+lista_datos          : 58 62
+lista_parametros     : 59 60
+lista_parametros_lista : 58 59
+lista_tabla          : 12 13
+lista_tablas_lista   : 11 12
+lista_update         : 28 29
+opcion_alterTable    : 15
+opcion_select        : 40 41
+opcion_select_lista  : 33 34 40
+parametro_update     : 29 30
+select_insrt         : 5
+sum_insrt            : 43
+update_insrt         : 8
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . init
+    (1) init -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . create_Table_isnrt
+    (5) instruccion -> . select_insrt
+    (6) instruccion -> . insert_insrt
+    (7) instruccion -> . delete_insrt
+    (8) instruccion -> . update_insrt
+    (9) instruccion -> . alterTable_insrt
+    (10) instruccion -> . drop_insrt
+    (18) create_Table_isnrt -> . CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (19) create_Table_isnrt -> . CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA
+    (33) select_insrt -> . SELECT opcion_select_lista FROM ID AS ID PTCOMA
+    (34) select_insrt -> . SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA
+    (58) insert_insrt -> . INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA
+    (32) delete_insrt -> . DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA
+    (28) update_insrt -> . UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA
+    (15) alterTable_insrt -> . ALTER DATABASE ID opcion_alterTable TO ID PTCOMA
+    (11) drop_insrt -> . DROP TABLE lista_tablas_lista PTCOMA
+
+    CREATE          shift and go to state 11
+    SELECT          shift and go to state 12
+    INSERT          shift and go to state 13
+    DELETE          shift and go to state 14
+    UPDATE          shift and go to state 15
+    ALTER           shift and go to state 16
+    DROP            shift and go to state 17
+
+    init                           shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    create_Table_isnrt             shift and go to state 4
+    select_insrt                   shift and go to state 5
+    insert_insrt                   shift and go to state 6
+    delete_insrt                   shift and go to state 7
+    update_insrt                   shift and go to state 8
+    alterTable_insrt               shift and go to state 9
+    drop_insrt                     shift and go to state 10
+
+state 1
+
+    (0) S' -> init .
+
+
+
+state 2
+
+    (1) init -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . create_Table_isnrt
+    (5) instruccion -> . select_insrt
+    (6) instruccion -> . insert_insrt
+    (7) instruccion -> . delete_insrt
+    (8) instruccion -> . update_insrt
+    (9) instruccion -> . alterTable_insrt
+    (10) instruccion -> . drop_insrt
+    (18) create_Table_isnrt -> . CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (19) create_Table_isnrt -> . CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA
+    (33) select_insrt -> . SELECT opcion_select_lista FROM ID AS ID PTCOMA
+    (34) select_insrt -> . SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA
+    (58) insert_insrt -> . INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA
+    (32) delete_insrt -> . DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA
+    (28) update_insrt -> . UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA
+    (15) alterTable_insrt -> . ALTER DATABASE ID opcion_alterTable TO ID PTCOMA
+    (11) drop_insrt -> . DROP TABLE lista_tablas_lista PTCOMA
+
+    $end            reduce using rule 1 (init -> instrucciones .)
+    CREATE          shift and go to state 11
+    SELECT          shift and go to state 12
+    INSERT          shift and go to state 13
+    DELETE          shift and go to state 14
+    UPDATE          shift and go to state 15
+    ALTER           shift and go to state 16
+    DROP            shift and go to state 17
+
+    instruccion                    shift and go to state 18
+    create_Table_isnrt             shift and go to state 4
+    select_insrt                   shift and go to state 5
+    insert_insrt                   shift and go to state 6
+    delete_insrt                   shift and go to state 7
+    update_insrt                   shift and go to state 8
+    alterTable_insrt               shift and go to state 9
+    drop_insrt                     shift and go to state 10
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    CREATE          reduce using rule 3 (instrucciones -> instruccion .)
+    SELECT          reduce using rule 3 (instrucciones -> instruccion .)
+    INSERT          reduce using rule 3 (instrucciones -> instruccion .)
+    DELETE          reduce using rule 3 (instrucciones -> instruccion .)
+    UPDATE          reduce using rule 3 (instrucciones -> instruccion .)
+    ALTER           reduce using rule 3 (instrucciones -> instruccion .)
+    DROP            reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> create_Table_isnrt .
+
+    CREATE          reduce using rule 4 (instruccion -> create_Table_isnrt .)
+    SELECT          reduce using rule 4 (instruccion -> create_Table_isnrt .)
+    INSERT          reduce using rule 4 (instruccion -> create_Table_isnrt .)
+    DELETE          reduce using rule 4 (instruccion -> create_Table_isnrt .)
+    UPDATE          reduce using rule 4 (instruccion -> create_Table_isnrt .)
+    ALTER           reduce using rule 4 (instruccion -> create_Table_isnrt .)
+    DROP            reduce using rule 4 (instruccion -> create_Table_isnrt .)
+    $end            reduce using rule 4 (instruccion -> create_Table_isnrt .)
+
+
+state 5
+
+    (5) instruccion -> select_insrt .
+
+    CREATE          reduce using rule 5 (instruccion -> select_insrt .)
+    SELECT          reduce using rule 5 (instruccion -> select_insrt .)
+    INSERT          reduce using rule 5 (instruccion -> select_insrt .)
+    DELETE          reduce using rule 5 (instruccion -> select_insrt .)
+    UPDATE          reduce using rule 5 (instruccion -> select_insrt .)
+    ALTER           reduce using rule 5 (instruccion -> select_insrt .)
+    DROP            reduce using rule 5 (instruccion -> select_insrt .)
+    $end            reduce using rule 5 (instruccion -> select_insrt .)
+
+
+state 6
+
+    (6) instruccion -> insert_insrt .
+
+    CREATE          reduce using rule 6 (instruccion -> insert_insrt .)
+    SELECT          reduce using rule 6 (instruccion -> insert_insrt .)
+    INSERT          reduce using rule 6 (instruccion -> insert_insrt .)
+    DELETE          reduce using rule 6 (instruccion -> insert_insrt .)
+    UPDATE          reduce using rule 6 (instruccion -> insert_insrt .)
+    ALTER           reduce using rule 6 (instruccion -> insert_insrt .)
+    DROP            reduce using rule 6 (instruccion -> insert_insrt .)
+    $end            reduce using rule 6 (instruccion -> insert_insrt .)
+
+
+state 7
+
+    (7) instruccion -> delete_insrt .
+
+    CREATE          reduce using rule 7 (instruccion -> delete_insrt .)
+    SELECT          reduce using rule 7 (instruccion -> delete_insrt .)
+    INSERT          reduce using rule 7 (instruccion -> delete_insrt .)
+    DELETE          reduce using rule 7 (instruccion -> delete_insrt .)
+    UPDATE          reduce using rule 7 (instruccion -> delete_insrt .)
+    ALTER           reduce using rule 7 (instruccion -> delete_insrt .)
+    DROP            reduce using rule 7 (instruccion -> delete_insrt .)
+    $end            reduce using rule 7 (instruccion -> delete_insrt .)
+
+
+state 8
+
+    (8) instruccion -> update_insrt .
+
+    CREATE          reduce using rule 8 (instruccion -> update_insrt .)
+    SELECT          reduce using rule 8 (instruccion -> update_insrt .)
+    INSERT          reduce using rule 8 (instruccion -> update_insrt .)
+    DELETE          reduce using rule 8 (instruccion -> update_insrt .)
+    UPDATE          reduce using rule 8 (instruccion -> update_insrt .)
+    ALTER           reduce using rule 8 (instruccion -> update_insrt .)
+    DROP            reduce using rule 8 (instruccion -> update_insrt .)
+    $end            reduce using rule 8 (instruccion -> update_insrt .)
+
+
+state 9
+
+    (9) instruccion -> alterTable_insrt .
+
+    CREATE          reduce using rule 9 (instruccion -> alterTable_insrt .)
+    SELECT          reduce using rule 9 (instruccion -> alterTable_insrt .)
+    INSERT          reduce using rule 9 (instruccion -> alterTable_insrt .)
+    DELETE          reduce using rule 9 (instruccion -> alterTable_insrt .)
+    UPDATE          reduce using rule 9 (instruccion -> alterTable_insrt .)
+    ALTER           reduce using rule 9 (instruccion -> alterTable_insrt .)
+    DROP            reduce using rule 9 (instruccion -> alterTable_insrt .)
+    $end            reduce using rule 9 (instruccion -> alterTable_insrt .)
+
+
+state 10
+
+    (10) instruccion -> drop_insrt .
+
+    CREATE          reduce using rule 10 (instruccion -> drop_insrt .)
+    SELECT          reduce using rule 10 (instruccion -> drop_insrt .)
+    INSERT          reduce using rule 10 (instruccion -> drop_insrt .)
+    DELETE          reduce using rule 10 (instruccion -> drop_insrt .)
+    UPDATE          reduce using rule 10 (instruccion -> drop_insrt .)
+    ALTER           reduce using rule 10 (instruccion -> drop_insrt .)
+    DROP            reduce using rule 10 (instruccion -> drop_insrt .)
+    $end            reduce using rule 10 (instruccion -> drop_insrt .)
+
+
+state 11
+
+    (18) create_Table_isnrt -> CREATE . TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (19) create_Table_isnrt -> CREATE . TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA
+
+    TABLE           shift and go to state 19
+
+
+state 12
+
+    (33) select_insrt -> SELECT . opcion_select_lista FROM ID AS ID PTCOMA
+    (34) select_insrt -> SELECT . opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA
+    (40) opcion_select_lista -> . opcion_select_lista COMA opcion_select
+    (41) opcion_select_lista -> . opcion_select
+    (42) opcion_select -> . ASTERISCO
+    (43) opcion_select -> . sum_insrt
+    (44) opcion_select -> . count_insrt
+    (45) opcion_select -> . ID
+    (46) opcion_select -> . ID PUNTO ID
+    (47) opcion_select -> . case_insrt
+    (55) sum_insrt -> . SUM PAR_A ID PAR_C
+    (56) count_insrt -> . COUNT PAR_A ID PAR_C
+    (57) count_insrt -> . COUNT PAR_A ASTERISCO PAR_C
+    (48) case_insrt -> . CASE ID estructura_when_lista ELSE datos_insert END
+    (49) case_insrt -> . CASE estructura_when_lista ELSE datos_insert END
+
+    ASTERISCO       shift and go to state 23
+    ID              shift and go to state 21
+    SUM             shift and go to state 27
+    COUNT           shift and go to state 28
+    CASE            shift and go to state 29
+
+    opcion_select_lista            shift and go to state 20
+    opcion_select                  shift and go to state 22
+    sum_insrt                      shift and go to state 24
+    count_insrt                    shift and go to state 25
+    case_insrt                     shift and go to state 26
+
+state 13
+
+    (58) insert_insrt -> INSERT . INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA
+
+    INTO            shift and go to state 30
+
+
+state 14
+
+    (32) delete_insrt -> DELETE . FROM ID WHERE ID IGUAL CADENA PTCOMA
+
+    FROM            shift and go to state 31
+
+
+state 15
+
+    (28) update_insrt -> UPDATE . ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA
+
+    ID              shift and go to state 32
+
+
+state 16
+
+    (15) alterTable_insrt -> ALTER . DATABASE ID opcion_alterTable TO ID PTCOMA
+
+    DATABASE        shift and go to state 33
+
+
+state 17
+
+    (11) drop_insrt -> DROP . TABLE lista_tablas_lista PTCOMA
+
+    TABLE           shift and go to state 34
+
+
+state 18
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    CREATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    SELECT          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    INSERT          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    DELETE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    UPDATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    ALTER           reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    DROP            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 19
+
+    (18) create_Table_isnrt -> CREATE TABLE . ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (19) create_Table_isnrt -> CREATE TABLE . ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA
+
+    ID              shift and go to state 35
+
+
+state 20
+
+    (33) select_insrt -> SELECT opcion_select_lista . FROM ID AS ID PTCOMA
+    (34) select_insrt -> SELECT opcion_select_lista . FROM ID AS ID LISTA_SELECT_LISTA PTCOMA
+    (40) opcion_select_lista -> opcion_select_lista . COMA opcion_select
+
+    FROM            shift and go to state 36
+    COMA            shift and go to state 37
+
+
+state 21
+
+    (45) opcion_select -> ID .
+    (46) opcion_select -> ID . PUNTO ID
+
+    FROM            reduce using rule 45 (opcion_select -> ID .)
+    COMA            reduce using rule 45 (opcion_select -> ID .)
+    PUNTO           shift and go to state 38
+
+
+state 22
+
+    (41) opcion_select_lista -> opcion_select .
+
+    FROM            reduce using rule 41 (opcion_select_lista -> opcion_select .)
+    COMA            reduce using rule 41 (opcion_select_lista -> opcion_select .)
+
+
+state 23
+
+    (42) opcion_select -> ASTERISCO .
+
+    FROM            reduce using rule 42 (opcion_select -> ASTERISCO .)
+    COMA            reduce using rule 42 (opcion_select -> ASTERISCO .)
+
+
+state 24
+
+    (43) opcion_select -> sum_insrt .
+
+    FROM            reduce using rule 43 (opcion_select -> sum_insrt .)
+    COMA            reduce using rule 43 (opcion_select -> sum_insrt .)
+
+
+state 25
+
+    (44) opcion_select -> count_insrt .
+
+    FROM            reduce using rule 44 (opcion_select -> count_insrt .)
+    COMA            reduce using rule 44 (opcion_select -> count_insrt .)
+
+
+state 26
+
+    (47) opcion_select -> case_insrt .
+
+    FROM            reduce using rule 47 (opcion_select -> case_insrt .)
+    COMA            reduce using rule 47 (opcion_select -> case_insrt .)
+
+
+state 27
+
+    (55) sum_insrt -> SUM . PAR_A ID PAR_C
+
+    PAR_A           shift and go to state 39
+
+
+state 28
+
+    (56) count_insrt -> COUNT . PAR_A ID PAR_C
+    (57) count_insrt -> COUNT . PAR_A ASTERISCO PAR_C
+
+    PAR_A           shift and go to state 40
+
+
+state 29
+
+    (48) case_insrt -> CASE . ID estructura_when_lista ELSE datos_insert END
+    (49) case_insrt -> CASE . estructura_when_lista ELSE datos_insert END
+    (50) estructura_when_lista -> . estructura_when_lista estructura_when
+    (51) estructura_when_lista -> . estructura_when
+    (52) estructura_when -> . WHEN expresion_logica THEN datos_insert
+
+    ID              shift and go to state 41
+    WHEN            shift and go to state 44
+
+    estructura_when_lista          shift and go to state 42
+    estructura_when                shift and go to state 43
+
+state 30
+
+    (58) insert_insrt -> INSERT INTO . ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA
+
+    ID              shift and go to state 45
+
+
+state 31
+
+    (32) delete_insrt -> DELETE FROM . ID WHERE ID IGUAL CADENA PTCOMA
+
+    ID              shift and go to state 46
+
+
+state 32
+
+    (28) update_insrt -> UPDATE ID . SET lista_update WHERE ID IGUAL datos_insert PTCOMA
+
+    SET             shift and go to state 47
+
+
+state 33
+
+    (15) alterTable_insrt -> ALTER DATABASE . ID opcion_alterTable TO ID PTCOMA
+
+    ID              shift and go to state 48
+
+
+state 34
+
+    (11) drop_insrt -> DROP TABLE . lista_tablas_lista PTCOMA
+    (12) lista_tablas_lista -> . lista_tablas_lista COMA lista_tabla
+    (13) lista_tablas_lista -> . lista_tabla
+    (14) lista_tabla -> . ID
+
+    ID              shift and go to state 51
+
+    lista_tablas_lista             shift and go to state 49
+    lista_tabla                    shift and go to state 50
+
+state 35
+
+    (18) create_Table_isnrt -> CREATE TABLE ID . PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (19) create_Table_isnrt -> CREATE TABLE ID . PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA
+
+    PAR_A           shift and go to state 52
+
+
+state 36
+
+    (33) select_insrt -> SELECT opcion_select_lista FROM . ID AS ID PTCOMA
+    (34) select_insrt -> SELECT opcion_select_lista FROM . ID AS ID LISTA_SELECT_LISTA PTCOMA
+
+    ID              shift and go to state 53
+
+
+state 37
+
+    (40) opcion_select_lista -> opcion_select_lista COMA . opcion_select
+    (42) opcion_select -> . ASTERISCO
+    (43) opcion_select -> . sum_insrt
+    (44) opcion_select -> . count_insrt
+    (45) opcion_select -> . ID
+    (46) opcion_select -> . ID PUNTO ID
+    (47) opcion_select -> . case_insrt
+    (55) sum_insrt -> . SUM PAR_A ID PAR_C
+    (56) count_insrt -> . COUNT PAR_A ID PAR_C
+    (57) count_insrt -> . COUNT PAR_A ASTERISCO PAR_C
+    (48) case_insrt -> . CASE ID estructura_when_lista ELSE datos_insert END
+    (49) case_insrt -> . CASE estructura_when_lista ELSE datos_insert END
+
+    ASTERISCO       shift and go to state 23
+    ID              shift and go to state 21
+    SUM             shift and go to state 27
+    COUNT           shift and go to state 28
+    CASE            shift and go to state 29
+
+    opcion_select                  shift and go to state 54
+    sum_insrt                      shift and go to state 24
+    count_insrt                    shift and go to state 25
+    case_insrt                     shift and go to state 26
+
+state 38
+
+    (46) opcion_select -> ID PUNTO . ID
+
+    ID              shift and go to state 55
+
+
+state 39
+
+    (55) sum_insrt -> SUM PAR_A . ID PAR_C
+
+    ID              shift and go to state 56
+
+
+state 40
+
+    (56) count_insrt -> COUNT PAR_A . ID PAR_C
+    (57) count_insrt -> COUNT PAR_A . ASTERISCO PAR_C
+
+    ID              shift and go to state 57
+    ASTERISCO       shift and go to state 58
+
+
+state 41
+
+    (48) case_insrt -> CASE ID . estructura_when_lista ELSE datos_insert END
+    (50) estructura_when_lista -> . estructura_when_lista estructura_when
+    (51) estructura_when_lista -> . estructura_when
+    (52) estructura_when -> . WHEN expresion_logica THEN datos_insert
+
+    WHEN            shift and go to state 44
+
+    estructura_when_lista          shift and go to state 59
+    estructura_when                shift and go to state 43
+
+state 42
+
+    (49) case_insrt -> CASE estructura_when_lista . ELSE datos_insert END
+    (50) estructura_when_lista -> estructura_when_lista . estructura_when
+    (52) estructura_when -> . WHEN expresion_logica THEN datos_insert
+
+    ELSE            shift and go to state 60
+    WHEN            shift and go to state 44
+
+    estructura_when                shift and go to state 61
+
+state 43
+
+    (51) estructura_when_lista -> estructura_when .
+
+    ELSE            reduce using rule 51 (estructura_when_lista -> estructura_when .)
+    WHEN            reduce using rule 51 (estructura_when_lista -> estructura_when .)
+
+
+state 44
+
+    (52) estructura_when -> WHEN . expresion_logica THEN datos_insert
+    (75) expresion_logica -> . expresion_relacional AND expresion_relacional
+    (76) expresion_logica -> . expresion_relacional OR expresion_relacional
+    (77) expresion_logica -> . expresion_relacional
+    (68) expresion_relacional -> . datos_insert MAYQUE datos_insert
+    (69) expresion_relacional -> . datos_insert MENQUE datos_insert
+    (70) expresion_relacional -> . datos_insert MAYIGQUE datos_insert
+    (71) expresion_relacional -> . datos_insert MENIGQUE datos_insert
+    (72) expresion_relacional -> . datos_insert DOBLEIG datos_insert
+    (73) expresion_relacional -> . datos_insert IGUAL datos_insert
+    (74) expresion_relacional -> . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    expresion_logica               shift and go to state 62
+    datos_insert                   shift and go to state 63
+    expresion_relacional           shift and go to state 64
+
+state 45
+
+    (58) insert_insrt -> INSERT INTO ID . PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA
+
+    PAR_A           shift and go to state 68
+
+
+state 46
+
+    (32) delete_insrt -> DELETE FROM ID . WHERE ID IGUAL CADENA PTCOMA
+
+    WHERE           shift and go to state 69
+
+
+state 47
+
+    (28) update_insrt -> UPDATE ID SET . lista_update WHERE ID IGUAL datos_insert PTCOMA
+    (29) lista_update -> . lista_update COMA parametro_update
+    (30) lista_update -> . parametro_update
+    (31) parametro_update -> . ID IGUAL datos_insert
+
+    ID              shift and go to state 70
+
+    lista_update                   shift and go to state 71
+    parametro_update               shift and go to state 72
+
+state 48
+
+    (15) alterTable_insrt -> ALTER DATABASE ID . opcion_alterTable TO ID PTCOMA
+    (16) opcion_alterTable -> . RENAME
+    (17) opcion_alterTable -> . OWNER
+
+    RENAME          shift and go to state 74
+    OWNER           shift and go to state 75
+
+    opcion_alterTable              shift and go to state 73
+
+state 49
+
+    (11) drop_insrt -> DROP TABLE lista_tablas_lista . PTCOMA
+    (12) lista_tablas_lista -> lista_tablas_lista . COMA lista_tabla
+
+    PTCOMA          shift and go to state 76
+    COMA            shift and go to state 77
+
+
+state 50
+
+    (13) lista_tablas_lista -> lista_tabla .
+
+    PTCOMA          reduce using rule 13 (lista_tablas_lista -> lista_tabla .)
+    COMA            reduce using rule 13 (lista_tablas_lista -> lista_tabla .)
+
+
+state 51
+
+    (14) lista_tabla -> ID .
+
+    PTCOMA          reduce using rule 14 (lista_tabla -> ID .)
+    COMA            reduce using rule 14 (lista_tabla -> ID .)
+
+
+state 52
+
+    (18) create_Table_isnrt -> CREATE TABLE ID PAR_A . cuerpo_createTable_lista PAR_C PTCOMA
+    (19) create_Table_isnrt -> CREATE TABLE ID PAR_A . cuerpo_createTable_lista PAR_C herencia PTCOMA
+    (21) cuerpo_createTable_lista -> . cuerpo_createTable_lista COMA cuerpo_createTable
+    (22) cuerpo_createTable_lista -> . cuerpo_createTable
+    (23) cuerpo_createTable -> . ID TIPO_DATO
+
+    ID              shift and go to state 78
+
+    cuerpo_createTable_lista       shift and go to state 79
+    cuerpo_createTable             shift and go to state 80
+
+state 53
+
+    (33) select_insrt -> SELECT opcion_select_lista FROM ID . AS ID PTCOMA
+    (34) select_insrt -> SELECT opcion_select_lista FROM ID . AS ID LISTA_SELECT_LISTA PTCOMA
+
+    AS              shift and go to state 81
+
+
+state 54
+
+    (40) opcion_select_lista -> opcion_select_lista COMA opcion_select .
+
+    FROM            reduce using rule 40 (opcion_select_lista -> opcion_select_lista COMA opcion_select .)
+    COMA            reduce using rule 40 (opcion_select_lista -> opcion_select_lista COMA opcion_select .)
+
+
+state 55
+
+    (46) opcion_select -> ID PUNTO ID .
+
+    FROM            reduce using rule 46 (opcion_select -> ID PUNTO ID .)
+    COMA            reduce using rule 46 (opcion_select -> ID PUNTO ID .)
+
+
+state 56
+
+    (55) sum_insrt -> SUM PAR_A ID . PAR_C
+
+    PAR_C           shift and go to state 82
+
+
+state 57
+
+    (56) count_insrt -> COUNT PAR_A ID . PAR_C
+
+    PAR_C           shift and go to state 83
+
+
+state 58
+
+    (57) count_insrt -> COUNT PAR_A ASTERISCO . PAR_C
+
+    PAR_C           shift and go to state 84
+
+
+state 59
+
+    (48) case_insrt -> CASE ID estructura_when_lista . ELSE datos_insert END
+    (50) estructura_when_lista -> estructura_when_lista . estructura_when
+    (52) estructura_when -> . WHEN expresion_logica THEN datos_insert
+
+    ELSE            shift and go to state 85
+    WHEN            shift and go to state 44
+
+    estructura_when                shift and go to state 61
+
+state 60
+
+    (49) case_insrt -> CASE estructura_when_lista ELSE . datos_insert END
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 86
+
+state 61
+
+    (50) estructura_when_lista -> estructura_when_lista estructura_when .
+
+    ELSE            reduce using rule 50 (estructura_when_lista -> estructura_when_lista estructura_when .)
+    WHEN            reduce using rule 50 (estructura_when_lista -> estructura_when_lista estructura_when .)
+
+
+state 62
+
+    (52) estructura_when -> WHEN expresion_logica . THEN datos_insert
+
+    THEN            shift and go to state 87
+
+
+state 63
+
+    (68) expresion_relacional -> datos_insert . MAYQUE datos_insert
+    (69) expresion_relacional -> datos_insert . MENQUE datos_insert
+    (70) expresion_relacional -> datos_insert . MAYIGQUE datos_insert
+    (71) expresion_relacional -> datos_insert . MENIGQUE datos_insert
+    (72) expresion_relacional -> datos_insert . DOBLEIG datos_insert
+    (73) expresion_relacional -> datos_insert . IGUAL datos_insert
+    (74) expresion_relacional -> datos_insert .
+
+    MAYQUE          shift and go to state 88
+    MENQUE          shift and go to state 89
+    MAYIGQUE        shift and go to state 90
+    MENIGQUE        shift and go to state 91
+    DOBLEIG         shift and go to state 92
+    IGUAL           shift and go to state 93
+    AND             reduce using rule 74 (expresion_relacional -> datos_insert .)
+    OR              reduce using rule 74 (expresion_relacional -> datos_insert .)
+    THEN            reduce using rule 74 (expresion_relacional -> datos_insert .)
+    PTCOMA          reduce using rule 74 (expresion_relacional -> datos_insert .)
+    INNER           reduce using rule 74 (expresion_relacional -> datos_insert .)
+    WHERE           reduce using rule 74 (expresion_relacional -> datos_insert .)
+
+
+state 64
+
+    (75) expresion_logica -> expresion_relacional . AND expresion_relacional
+    (76) expresion_logica -> expresion_relacional . OR expresion_relacional
+    (77) expresion_logica -> expresion_relacional .
+
+    AND             shift and go to state 94
+    OR              shift and go to state 95
+    THEN            reduce using rule 77 (expresion_logica -> expresion_relacional .)
+    PTCOMA          reduce using rule 77 (expresion_logica -> expresion_relacional .)
+    INNER           reduce using rule 77 (expresion_logica -> expresion_relacional .)
+    WHERE           reduce using rule 77 (expresion_logica -> expresion_relacional .)
+
+
+state 65
+
+    (64) datos_insert -> CADENA .
+
+    MAYQUE          reduce using rule 64 (datos_insert -> CADENA .)
+    MENQUE          reduce using rule 64 (datos_insert -> CADENA .)
+    MAYIGQUE        reduce using rule 64 (datos_insert -> CADENA .)
+    MENIGQUE        reduce using rule 64 (datos_insert -> CADENA .)
+    DOBLEIG         reduce using rule 64 (datos_insert -> CADENA .)
+    IGUAL           reduce using rule 64 (datos_insert -> CADENA .)
+    AND             reduce using rule 64 (datos_insert -> CADENA .)
+    OR              reduce using rule 64 (datos_insert -> CADENA .)
+    THEN            reduce using rule 64 (datos_insert -> CADENA .)
+    END             reduce using rule 64 (datos_insert -> CADENA .)
+    ELSE            reduce using rule 64 (datos_insert -> CADENA .)
+    WHEN            reduce using rule 64 (datos_insert -> CADENA .)
+    PTCOMA          reduce using rule 64 (datos_insert -> CADENA .)
+    INNER           reduce using rule 64 (datos_insert -> CADENA .)
+    WHERE           reduce using rule 64 (datos_insert -> CADENA .)
+    COMA            reduce using rule 64 (datos_insert -> CADENA .)
+    PAR_C           reduce using rule 64 (datos_insert -> CADENA .)
+
+
+state 66
+
+    (65) datos_insert -> ENTERO .
+
+    MAYQUE          reduce using rule 65 (datos_insert -> ENTERO .)
+    MENQUE          reduce using rule 65 (datos_insert -> ENTERO .)
+    MAYIGQUE        reduce using rule 65 (datos_insert -> ENTERO .)
+    MENIGQUE        reduce using rule 65 (datos_insert -> ENTERO .)
+    DOBLEIG         reduce using rule 65 (datos_insert -> ENTERO .)
+    IGUAL           reduce using rule 65 (datos_insert -> ENTERO .)
+    AND             reduce using rule 65 (datos_insert -> ENTERO .)
+    OR              reduce using rule 65 (datos_insert -> ENTERO .)
+    THEN            reduce using rule 65 (datos_insert -> ENTERO .)
+    END             reduce using rule 65 (datos_insert -> ENTERO .)
+    ELSE            reduce using rule 65 (datos_insert -> ENTERO .)
+    WHEN            reduce using rule 65 (datos_insert -> ENTERO .)
+    PTCOMA          reduce using rule 65 (datos_insert -> ENTERO .)
+    INNER           reduce using rule 65 (datos_insert -> ENTERO .)
+    WHERE           reduce using rule 65 (datos_insert -> ENTERO .)
+    COMA            reduce using rule 65 (datos_insert -> ENTERO .)
+    PAR_C           reduce using rule 65 (datos_insert -> ENTERO .)
+
+
+state 67
+
+    (66) datos_insert -> ID .
+    (67) datos_insert -> ID . PUNTO ID
+
+    MAYQUE          reduce using rule 66 (datos_insert -> ID .)
+    MENQUE          reduce using rule 66 (datos_insert -> ID .)
+    MAYIGQUE        reduce using rule 66 (datos_insert -> ID .)
+    MENIGQUE        reduce using rule 66 (datos_insert -> ID .)
+    DOBLEIG         reduce using rule 66 (datos_insert -> ID .)
+    IGUAL           reduce using rule 66 (datos_insert -> ID .)
+    AND             reduce using rule 66 (datos_insert -> ID .)
+    OR              reduce using rule 66 (datos_insert -> ID .)
+    THEN            reduce using rule 66 (datos_insert -> ID .)
+    END             reduce using rule 66 (datos_insert -> ID .)
+    ELSE            reduce using rule 66 (datos_insert -> ID .)
+    WHEN            reduce using rule 66 (datos_insert -> ID .)
+    PTCOMA          reduce using rule 66 (datos_insert -> ID .)
+    INNER           reduce using rule 66 (datos_insert -> ID .)
+    WHERE           reduce using rule 66 (datos_insert -> ID .)
+    COMA            reduce using rule 66 (datos_insert -> ID .)
+    PAR_C           reduce using rule 66 (datos_insert -> ID .)
+    PUNTO           shift and go to state 96
+
+
+state 68
+
+    (58) insert_insrt -> INSERT INTO ID PAR_A . lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA
+    (59) lista_parametros_lista -> . lista_parametros_lista COMA lista_parametros
+    (60) lista_parametros_lista -> . lista_parametros
+    (61) lista_parametros -> . ID
+
+    ID              shift and go to state 97
+
+    lista_parametros_lista         shift and go to state 98
+    lista_parametros               shift and go to state 99
+
+state 69
+
+    (32) delete_insrt -> DELETE FROM ID WHERE . ID IGUAL CADENA PTCOMA
+
+    ID              shift and go to state 100
+
+
+state 70
+
+    (31) parametro_update -> ID . IGUAL datos_insert
+
+    IGUAL           shift and go to state 101
+
+
+state 71
+
+    (28) update_insrt -> UPDATE ID SET lista_update . WHERE ID IGUAL datos_insert PTCOMA
+    (29) lista_update -> lista_update . COMA parametro_update
+
+    WHERE           shift and go to state 102
+    COMA            shift and go to state 103
+
+
+state 72
+
+    (30) lista_update -> parametro_update .
+
+    WHERE           reduce using rule 30 (lista_update -> parametro_update .)
+    COMA            reduce using rule 30 (lista_update -> parametro_update .)
+
+
+state 73
+
+    (15) alterTable_insrt -> ALTER DATABASE ID opcion_alterTable . TO ID PTCOMA
+
+    TO              shift and go to state 104
+
+
+state 74
+
+    (16) opcion_alterTable -> RENAME .
+
+    TO              reduce using rule 16 (opcion_alterTable -> RENAME .)
+
+
+state 75
+
+    (17) opcion_alterTable -> OWNER .
+
+    TO              reduce using rule 17 (opcion_alterTable -> OWNER .)
+
+
+state 76
+
+    (11) drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .
+
+    CREATE          reduce using rule 11 (drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .)
+    SELECT          reduce using rule 11 (drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .)
+    INSERT          reduce using rule 11 (drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .)
+    DELETE          reduce using rule 11 (drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .)
+    UPDATE          reduce using rule 11 (drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .)
+    ALTER           reduce using rule 11 (drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .)
+    DROP            reduce using rule 11 (drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .)
+    $end            reduce using rule 11 (drop_insrt -> DROP TABLE lista_tablas_lista PTCOMA .)
+
+
+state 77
+
+    (12) lista_tablas_lista -> lista_tablas_lista COMA . lista_tabla
+    (14) lista_tabla -> . ID
+
+    ID              shift and go to state 51
+
+    lista_tabla                    shift and go to state 105
+
+state 78
+
+    (23) cuerpo_createTable -> ID . TIPO_DATO
+    (24) TIPO_DATO -> . TEXT
+    (25) TIPO_DATO -> . FLOAT
+    (26) TIPO_DATO -> . INT
+    (27) TIPO_DATO -> . CHAR PAR_A ENTERO PAR_C
+
+    TEXT            shift and go to state 107
+    FLOAT           shift and go to state 108
+    INT             shift and go to state 109
+    CHAR            shift and go to state 110
+
+    TIPO_DATO                      shift and go to state 106
+
+state 79
+
+    (18) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista . PAR_C PTCOMA
+    (19) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista . PAR_C herencia PTCOMA
+    (21) cuerpo_createTable_lista -> cuerpo_createTable_lista . COMA cuerpo_createTable
+
+    PAR_C           shift and go to state 111
+    COMA            shift and go to state 112
+
+
+state 80
+
+    (22) cuerpo_createTable_lista -> cuerpo_createTable .
+
+    PAR_C           reduce using rule 22 (cuerpo_createTable_lista -> cuerpo_createTable .)
+    COMA            reduce using rule 22 (cuerpo_createTable_lista -> cuerpo_createTable .)
+
+
+state 81
+
+    (33) select_insrt -> SELECT opcion_select_lista FROM ID AS . ID PTCOMA
+    (34) select_insrt -> SELECT opcion_select_lista FROM ID AS . ID LISTA_SELECT_LISTA PTCOMA
+
+    ID              shift and go to state 113
+
+
+state 82
+
+    (55) sum_insrt -> SUM PAR_A ID PAR_C .
+
+    FROM            reduce using rule 55 (sum_insrt -> SUM PAR_A ID PAR_C .)
+    COMA            reduce using rule 55 (sum_insrt -> SUM PAR_A ID PAR_C .)
+
+
+state 83
+
+    (56) count_insrt -> COUNT PAR_A ID PAR_C .
+
+    FROM            reduce using rule 56 (count_insrt -> COUNT PAR_A ID PAR_C .)
+    COMA            reduce using rule 56 (count_insrt -> COUNT PAR_A ID PAR_C .)
+
+
+state 84
+
+    (57) count_insrt -> COUNT PAR_A ASTERISCO PAR_C .
+
+    FROM            reduce using rule 57 (count_insrt -> COUNT PAR_A ASTERISCO PAR_C .)
+    COMA            reduce using rule 57 (count_insrt -> COUNT PAR_A ASTERISCO PAR_C .)
+
+
+state 85
+
+    (48) case_insrt -> CASE ID estructura_when_lista ELSE . datos_insert END
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 114
+
+state 86
+
+    (49) case_insrt -> CASE estructura_when_lista ELSE datos_insert . END
+
+    END             shift and go to state 115
+
+
+state 87
+
+    (52) estructura_when -> WHEN expresion_logica THEN . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 116
+
+state 88
+
+    (68) expresion_relacional -> datos_insert MAYQUE . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 117
+
+state 89
+
+    (69) expresion_relacional -> datos_insert MENQUE . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 118
+
+state 90
+
+    (70) expresion_relacional -> datos_insert MAYIGQUE . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 119
+
+state 91
+
+    (71) expresion_relacional -> datos_insert MENIGQUE . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 120
+
+state 92
+
+    (72) expresion_relacional -> datos_insert DOBLEIG . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 121
+
+state 93
+
+    (73) expresion_relacional -> datos_insert IGUAL . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 122
+
+state 94
+
+    (75) expresion_logica -> expresion_relacional AND . expresion_relacional
+    (68) expresion_relacional -> . datos_insert MAYQUE datos_insert
+    (69) expresion_relacional -> . datos_insert MENQUE datos_insert
+    (70) expresion_relacional -> . datos_insert MAYIGQUE datos_insert
+    (71) expresion_relacional -> . datos_insert MENIGQUE datos_insert
+    (72) expresion_relacional -> . datos_insert DOBLEIG datos_insert
+    (73) expresion_relacional -> . datos_insert IGUAL datos_insert
+    (74) expresion_relacional -> . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    expresion_relacional           shift and go to state 123
+    datos_insert                   shift and go to state 63
+
+state 95
+
+    (76) expresion_logica -> expresion_relacional OR . expresion_relacional
+    (68) expresion_relacional -> . datos_insert MAYQUE datos_insert
+    (69) expresion_relacional -> . datos_insert MENQUE datos_insert
+    (70) expresion_relacional -> . datos_insert MAYIGQUE datos_insert
+    (71) expresion_relacional -> . datos_insert MENIGQUE datos_insert
+    (72) expresion_relacional -> . datos_insert DOBLEIG datos_insert
+    (73) expresion_relacional -> . datos_insert IGUAL datos_insert
+    (74) expresion_relacional -> . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    expresion_relacional           shift and go to state 124
+    datos_insert                   shift and go to state 63
+
+state 96
+
+    (67) datos_insert -> ID PUNTO . ID
+
+    ID              shift and go to state 125
+
+
+state 97
+
+    (61) lista_parametros -> ID .
+
+    PAR_C           reduce using rule 61 (lista_parametros -> ID .)
+    COMA            reduce using rule 61 (lista_parametros -> ID .)
+
+
+state 98
+
+    (58) insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista . PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA
+    (59) lista_parametros_lista -> lista_parametros_lista . COMA lista_parametros
+
+    PAR_C           shift and go to state 126
+    COMA            shift and go to state 127
+
+
+state 99
+
+    (60) lista_parametros_lista -> lista_parametros .
+
+    PAR_C           reduce using rule 60 (lista_parametros_lista -> lista_parametros .)
+    COMA            reduce using rule 60 (lista_parametros_lista -> lista_parametros .)
+
+
+state 100
+
+    (32) delete_insrt -> DELETE FROM ID WHERE ID . IGUAL CADENA PTCOMA
+
+    IGUAL           shift and go to state 128
+
+
+state 101
+
+    (31) parametro_update -> ID IGUAL . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 129
+
+state 102
+
+    (28) update_insrt -> UPDATE ID SET lista_update WHERE . ID IGUAL datos_insert PTCOMA
+
+    ID              shift and go to state 130
+
+
+state 103
+
+    (29) lista_update -> lista_update COMA . parametro_update
+    (31) parametro_update -> . ID IGUAL datos_insert
+
+    ID              shift and go to state 70
+
+    parametro_update               shift and go to state 131
+
+state 104
+
+    (15) alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO . ID PTCOMA
+
+    ID              shift and go to state 132
+
+
+state 105
+
+    (12) lista_tablas_lista -> lista_tablas_lista COMA lista_tabla .
+
+    PTCOMA          reduce using rule 12 (lista_tablas_lista -> lista_tablas_lista COMA lista_tabla .)
+    COMA            reduce using rule 12 (lista_tablas_lista -> lista_tablas_lista COMA lista_tabla .)
+
+
+state 106
+
+    (23) cuerpo_createTable -> ID TIPO_DATO .
+
+    PAR_C           reduce using rule 23 (cuerpo_createTable -> ID TIPO_DATO .)
+    COMA            reduce using rule 23 (cuerpo_createTable -> ID TIPO_DATO .)
+
+
+state 107
+
+    (24) TIPO_DATO -> TEXT .
+
+    PAR_C           reduce using rule 24 (TIPO_DATO -> TEXT .)
+    COMA            reduce using rule 24 (TIPO_DATO -> TEXT .)
+
+
+state 108
+
+    (25) TIPO_DATO -> FLOAT .
+
+    PAR_C           reduce using rule 25 (TIPO_DATO -> FLOAT .)
+    COMA            reduce using rule 25 (TIPO_DATO -> FLOAT .)
+
+
+state 109
+
+    (26) TIPO_DATO -> INT .
+
+    PAR_C           reduce using rule 26 (TIPO_DATO -> INT .)
+    COMA            reduce using rule 26 (TIPO_DATO -> INT .)
+
+
+state 110
+
+    (27) TIPO_DATO -> CHAR . PAR_A ENTERO PAR_C
+
+    PAR_A           shift and go to state 133
+
+
+state 111
+
+    (18) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C . PTCOMA
+    (19) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C . herencia PTCOMA
+    (20) herencia -> . INHERITS PAR_A ID PAR_C
+
+    PTCOMA          shift and go to state 134
+    INHERITS        shift and go to state 136
+
+    herencia                       shift and go to state 135
+
+state 112
+
+    (21) cuerpo_createTable_lista -> cuerpo_createTable_lista COMA . cuerpo_createTable
+    (23) cuerpo_createTable -> . ID TIPO_DATO
+
+    ID              shift and go to state 78
+
+    cuerpo_createTable             shift and go to state 137
+
+state 113
+
+    (33) select_insrt -> SELECT opcion_select_lista FROM ID AS ID . PTCOMA
+    (34) select_insrt -> SELECT opcion_select_lista FROM ID AS ID . LISTA_SELECT_LISTA PTCOMA
+    (35) LISTA_SELECT_LISTA -> . LISTA_SELECT_LISTA LISTA_SELECT
+    (36) LISTA_SELECT_LISTA -> . LISTA_SELECT
+    (37) LISTA_SELECT -> . INNER_JOIN
+    (38) LISTA_SELECT -> . WHERE_INSRT
+    (53) INNER_JOIN -> . INNER JOIN ID AS ID ON CONDICION_INNER_JOIN
+    (39) WHERE_INSRT -> . WHERE expresion_logica
+
+    PTCOMA          shift and go to state 138
+    INNER           shift and go to state 143
+    WHERE           shift and go to state 144
+
+    LISTA_SELECT_LISTA             shift and go to state 139
+    LISTA_SELECT                   shift and go to state 140
+    INNER_JOIN                     shift and go to state 141
+    WHERE_INSRT                    shift and go to state 142
+
+state 114
+
+    (48) case_insrt -> CASE ID estructura_when_lista ELSE datos_insert . END
+
+    END             shift and go to state 145
+
+
+state 115
+
+    (49) case_insrt -> CASE estructura_when_lista ELSE datos_insert END .
+
+    FROM            reduce using rule 49 (case_insrt -> CASE estructura_when_lista ELSE datos_insert END .)
+    COMA            reduce using rule 49 (case_insrt -> CASE estructura_when_lista ELSE datos_insert END .)
+
+
+state 116
+
+    (52) estructura_when -> WHEN expresion_logica THEN datos_insert .
+
+    ELSE            reduce using rule 52 (estructura_when -> WHEN expresion_logica THEN datos_insert .)
+    WHEN            reduce using rule 52 (estructura_when -> WHEN expresion_logica THEN datos_insert .)
+
+
+state 117
+
+    (68) expresion_relacional -> datos_insert MAYQUE datos_insert .
+
+    AND             reduce using rule 68 (expresion_relacional -> datos_insert MAYQUE datos_insert .)
+    OR              reduce using rule 68 (expresion_relacional -> datos_insert MAYQUE datos_insert .)
+    THEN            reduce using rule 68 (expresion_relacional -> datos_insert MAYQUE datos_insert .)
+    PTCOMA          reduce using rule 68 (expresion_relacional -> datos_insert MAYQUE datos_insert .)
+    INNER           reduce using rule 68 (expresion_relacional -> datos_insert MAYQUE datos_insert .)
+    WHERE           reduce using rule 68 (expresion_relacional -> datos_insert MAYQUE datos_insert .)
+
+
+state 118
+
+    (69) expresion_relacional -> datos_insert MENQUE datos_insert .
+
+    AND             reduce using rule 69 (expresion_relacional -> datos_insert MENQUE datos_insert .)
+    OR              reduce using rule 69 (expresion_relacional -> datos_insert MENQUE datos_insert .)
+    THEN            reduce using rule 69 (expresion_relacional -> datos_insert MENQUE datos_insert .)
+    PTCOMA          reduce using rule 69 (expresion_relacional -> datos_insert MENQUE datos_insert .)
+    INNER           reduce using rule 69 (expresion_relacional -> datos_insert MENQUE datos_insert .)
+    WHERE           reduce using rule 69 (expresion_relacional -> datos_insert MENQUE datos_insert .)
+
+
+state 119
+
+    (70) expresion_relacional -> datos_insert MAYIGQUE datos_insert .
+
+    AND             reduce using rule 70 (expresion_relacional -> datos_insert MAYIGQUE datos_insert .)
+    OR              reduce using rule 70 (expresion_relacional -> datos_insert MAYIGQUE datos_insert .)
+    THEN            reduce using rule 70 (expresion_relacional -> datos_insert MAYIGQUE datos_insert .)
+    PTCOMA          reduce using rule 70 (expresion_relacional -> datos_insert MAYIGQUE datos_insert .)
+    INNER           reduce using rule 70 (expresion_relacional -> datos_insert MAYIGQUE datos_insert .)
+    WHERE           reduce using rule 70 (expresion_relacional -> datos_insert MAYIGQUE datos_insert .)
+
+
+state 120
+
+    (71) expresion_relacional -> datos_insert MENIGQUE datos_insert .
+
+    AND             reduce using rule 71 (expresion_relacional -> datos_insert MENIGQUE datos_insert .)
+    OR              reduce using rule 71 (expresion_relacional -> datos_insert MENIGQUE datos_insert .)
+    THEN            reduce using rule 71 (expresion_relacional -> datos_insert MENIGQUE datos_insert .)
+    PTCOMA          reduce using rule 71 (expresion_relacional -> datos_insert MENIGQUE datos_insert .)
+    INNER           reduce using rule 71 (expresion_relacional -> datos_insert MENIGQUE datos_insert .)
+    WHERE           reduce using rule 71 (expresion_relacional -> datos_insert MENIGQUE datos_insert .)
+
+
+state 121
+
+    (72) expresion_relacional -> datos_insert DOBLEIG datos_insert .
+
+    AND             reduce using rule 72 (expresion_relacional -> datos_insert DOBLEIG datos_insert .)
+    OR              reduce using rule 72 (expresion_relacional -> datos_insert DOBLEIG datos_insert .)
+    THEN            reduce using rule 72 (expresion_relacional -> datos_insert DOBLEIG datos_insert .)
+    PTCOMA          reduce using rule 72 (expresion_relacional -> datos_insert DOBLEIG datos_insert .)
+    INNER           reduce using rule 72 (expresion_relacional -> datos_insert DOBLEIG datos_insert .)
+    WHERE           reduce using rule 72 (expresion_relacional -> datos_insert DOBLEIG datos_insert .)
+
+
+state 122
+
+    (73) expresion_relacional -> datos_insert IGUAL datos_insert .
+
+    AND             reduce using rule 73 (expresion_relacional -> datos_insert IGUAL datos_insert .)
+    OR              reduce using rule 73 (expresion_relacional -> datos_insert IGUAL datos_insert .)
+    THEN            reduce using rule 73 (expresion_relacional -> datos_insert IGUAL datos_insert .)
+    PTCOMA          reduce using rule 73 (expresion_relacional -> datos_insert IGUAL datos_insert .)
+    INNER           reduce using rule 73 (expresion_relacional -> datos_insert IGUAL datos_insert .)
+    WHERE           reduce using rule 73 (expresion_relacional -> datos_insert IGUAL datos_insert .)
+
+
+state 123
+
+    (75) expresion_logica -> expresion_relacional AND expresion_relacional .
+
+    THEN            reduce using rule 75 (expresion_logica -> expresion_relacional AND expresion_relacional .)
+    PTCOMA          reduce using rule 75 (expresion_logica -> expresion_relacional AND expresion_relacional .)
+    INNER           reduce using rule 75 (expresion_logica -> expresion_relacional AND expresion_relacional .)
+    WHERE           reduce using rule 75 (expresion_logica -> expresion_relacional AND expresion_relacional .)
+
+
+state 124
+
+    (76) expresion_logica -> expresion_relacional OR expresion_relacional .
+
+    THEN            reduce using rule 76 (expresion_logica -> expresion_relacional OR expresion_relacional .)
+    PTCOMA          reduce using rule 76 (expresion_logica -> expresion_relacional OR expresion_relacional .)
+    INNER           reduce using rule 76 (expresion_logica -> expresion_relacional OR expresion_relacional .)
+    WHERE           reduce using rule 76 (expresion_logica -> expresion_relacional OR expresion_relacional .)
+
+
+state 125
+
+    (67) datos_insert -> ID PUNTO ID .
+
+    MAYQUE          reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    MENQUE          reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    MAYIGQUE        reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    MENIGQUE        reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    DOBLEIG         reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    IGUAL           reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    AND             reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    OR              reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    THEN            reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    END             reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    ELSE            reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    WHEN            reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    PTCOMA          reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    INNER           reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    WHERE           reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    COMA            reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+    PAR_C           reduce using rule 67 (datos_insert -> ID PUNTO ID .)
+
+
+state 126
+
+    (58) insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C . VALUES PAR_A lista_datos PAR_C PTCOMA
+
+    VALUES          shift and go to state 146
+
+
+state 127
+
+    (59) lista_parametros_lista -> lista_parametros_lista COMA . lista_parametros
+    (61) lista_parametros -> . ID
+
+    ID              shift and go to state 97
+
+    lista_parametros               shift and go to state 147
+
+state 128
+
+    (32) delete_insrt -> DELETE FROM ID WHERE ID IGUAL . CADENA PTCOMA
+
+    CADENA          shift and go to state 148
+
+
+state 129
+
+    (31) parametro_update -> ID IGUAL datos_insert .
+
+    WHERE           reduce using rule 31 (parametro_update -> ID IGUAL datos_insert .)
+    COMA            reduce using rule 31 (parametro_update -> ID IGUAL datos_insert .)
+
+
+state 130
+
+    (28) update_insrt -> UPDATE ID SET lista_update WHERE ID . IGUAL datos_insert PTCOMA
+
+    IGUAL           shift and go to state 149
+
+
+state 131
+
+    (29) lista_update -> lista_update COMA parametro_update .
+
+    WHERE           reduce using rule 29 (lista_update -> lista_update COMA parametro_update .)
+    COMA            reduce using rule 29 (lista_update -> lista_update COMA parametro_update .)
+
+
+state 132
+
+    (15) alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID . PTCOMA
+
+    PTCOMA          shift and go to state 150
+
+
+state 133
+
+    (27) TIPO_DATO -> CHAR PAR_A . ENTERO PAR_C
+
+    ENTERO          shift and go to state 151
+
+
+state 134
+
+    (18) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .
+
+    CREATE          reduce using rule 18 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+    SELECT          reduce using rule 18 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+    INSERT          reduce using rule 18 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+    DELETE          reduce using rule 18 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+    UPDATE          reduce using rule 18 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+    ALTER           reduce using rule 18 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+    DROP            reduce using rule 18 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+    $end            reduce using rule 18 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+
+
+state 135
+
+    (19) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia . PTCOMA
+
+    PTCOMA          shift and go to state 152
+
+
+state 136
+
+    (20) herencia -> INHERITS . PAR_A ID PAR_C
+
+    PAR_A           shift and go to state 153
+
+
+state 137
+
+    (21) cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable .
+
+    PAR_C           reduce using rule 21 (cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable .)
+    COMA            reduce using rule 21 (cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable .)
+
+
+state 138
+
+    (33) select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .
+
+    CREATE          reduce using rule 33 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .)
+    SELECT          reduce using rule 33 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .)
+    INSERT          reduce using rule 33 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .)
+    DELETE          reduce using rule 33 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .)
+    UPDATE          reduce using rule 33 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .)
+    ALTER           reduce using rule 33 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .)
+    DROP            reduce using rule 33 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .)
+    $end            reduce using rule 33 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID PTCOMA .)
+
+
+state 139
+
+    (34) select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA . PTCOMA
+    (35) LISTA_SELECT_LISTA -> LISTA_SELECT_LISTA . LISTA_SELECT
+    (37) LISTA_SELECT -> . INNER_JOIN
+    (38) LISTA_SELECT -> . WHERE_INSRT
+    (53) INNER_JOIN -> . INNER JOIN ID AS ID ON CONDICION_INNER_JOIN
+    (39) WHERE_INSRT -> . WHERE expresion_logica
+
+    PTCOMA          shift and go to state 154
+    INNER           shift and go to state 143
+    WHERE           shift and go to state 144
+
+    LISTA_SELECT                   shift and go to state 155
+    INNER_JOIN                     shift and go to state 141
+    WHERE_INSRT                    shift and go to state 142
+
+state 140
+
+    (36) LISTA_SELECT_LISTA -> LISTA_SELECT .
+
+    PTCOMA          reduce using rule 36 (LISTA_SELECT_LISTA -> LISTA_SELECT .)
+    INNER           reduce using rule 36 (LISTA_SELECT_LISTA -> LISTA_SELECT .)
+    WHERE           reduce using rule 36 (LISTA_SELECT_LISTA -> LISTA_SELECT .)
+
+
+state 141
+
+    (37) LISTA_SELECT -> INNER_JOIN .
+
+    PTCOMA          reduce using rule 37 (LISTA_SELECT -> INNER_JOIN .)
+    INNER           reduce using rule 37 (LISTA_SELECT -> INNER_JOIN .)
+    WHERE           reduce using rule 37 (LISTA_SELECT -> INNER_JOIN .)
+
+
+state 142
+
+    (38) LISTA_SELECT -> WHERE_INSRT .
+
+    PTCOMA          reduce using rule 38 (LISTA_SELECT -> WHERE_INSRT .)
+    INNER           reduce using rule 38 (LISTA_SELECT -> WHERE_INSRT .)
+    WHERE           reduce using rule 38 (LISTA_SELECT -> WHERE_INSRT .)
+
+
+state 143
+
+    (53) INNER_JOIN -> INNER . JOIN ID AS ID ON CONDICION_INNER_JOIN
+
+    JOIN            shift and go to state 156
+
+
+state 144
+
+    (39) WHERE_INSRT -> WHERE . expresion_logica
+    (75) expresion_logica -> . expresion_relacional AND expresion_relacional
+    (76) expresion_logica -> . expresion_relacional OR expresion_relacional
+    (77) expresion_logica -> . expresion_relacional
+    (68) expresion_relacional -> . datos_insert MAYQUE datos_insert
+    (69) expresion_relacional -> . datos_insert MENQUE datos_insert
+    (70) expresion_relacional -> . datos_insert MAYIGQUE datos_insert
+    (71) expresion_relacional -> . datos_insert MENIGQUE datos_insert
+    (72) expresion_relacional -> . datos_insert DOBLEIG datos_insert
+    (73) expresion_relacional -> . datos_insert IGUAL datos_insert
+    (74) expresion_relacional -> . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    expresion_logica               shift and go to state 157
+    expresion_relacional           shift and go to state 64
+    datos_insert                   shift and go to state 63
+
+state 145
+
+    (48) case_insrt -> CASE ID estructura_when_lista ELSE datos_insert END .
+
+    FROM            reduce using rule 48 (case_insrt -> CASE ID estructura_when_lista ELSE datos_insert END .)
+    COMA            reduce using rule 48 (case_insrt -> CASE ID estructura_when_lista ELSE datos_insert END .)
+
+
+state 146
+
+    (58) insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES . PAR_A lista_datos PAR_C PTCOMA
+
+    PAR_A           shift and go to state 158
+
+
+state 147
+
+    (59) lista_parametros_lista -> lista_parametros_lista COMA lista_parametros .
+
+    PAR_C           reduce using rule 59 (lista_parametros_lista -> lista_parametros_lista COMA lista_parametros .)
+    COMA            reduce using rule 59 (lista_parametros_lista -> lista_parametros_lista COMA lista_parametros .)
+
+
+state 148
+
+    (32) delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA . PTCOMA
+
+    PTCOMA          shift and go to state 159
+
+
+state 149
+
+    (28) update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL . datos_insert PTCOMA
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 160
+
+state 150
+
+    (15) alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .
+
+    CREATE          reduce using rule 15 (alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .)
+    SELECT          reduce using rule 15 (alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .)
+    INSERT          reduce using rule 15 (alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .)
+    DELETE          reduce using rule 15 (alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .)
+    UPDATE          reduce using rule 15 (alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .)
+    ALTER           reduce using rule 15 (alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .)
+    DROP            reduce using rule 15 (alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .)
+    $end            reduce using rule 15 (alterTable_insrt -> ALTER DATABASE ID opcion_alterTable TO ID PTCOMA .)
+
+
+state 151
+
+    (27) TIPO_DATO -> CHAR PAR_A ENTERO . PAR_C
+
+    PAR_C           shift and go to state 161
+
+
+state 152
+
+    (19) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .
+
+    CREATE          reduce using rule 19 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .)
+    SELECT          reduce using rule 19 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .)
+    INSERT          reduce using rule 19 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .)
+    DELETE          reduce using rule 19 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .)
+    UPDATE          reduce using rule 19 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .)
+    ALTER           reduce using rule 19 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .)
+    DROP            reduce using rule 19 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .)
+    $end            reduce using rule 19 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA .)
+
+
+state 153
+
+    (20) herencia -> INHERITS PAR_A . ID PAR_C
+
+    ID              shift and go to state 162
+
+
+state 154
+
+    (34) select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .
+
+    CREATE          reduce using rule 34 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .)
+    SELECT          reduce using rule 34 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .)
+    INSERT          reduce using rule 34 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .)
+    DELETE          reduce using rule 34 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .)
+    UPDATE          reduce using rule 34 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .)
+    ALTER           reduce using rule 34 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .)
+    DROP            reduce using rule 34 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .)
+    $end            reduce using rule 34 (select_insrt -> SELECT opcion_select_lista FROM ID AS ID LISTA_SELECT_LISTA PTCOMA .)
+
+
+state 155
+
+    (35) LISTA_SELECT_LISTA -> LISTA_SELECT_LISTA LISTA_SELECT .
+
+    PTCOMA          reduce using rule 35 (LISTA_SELECT_LISTA -> LISTA_SELECT_LISTA LISTA_SELECT .)
+    INNER           reduce using rule 35 (LISTA_SELECT_LISTA -> LISTA_SELECT_LISTA LISTA_SELECT .)
+    WHERE           reduce using rule 35 (LISTA_SELECT_LISTA -> LISTA_SELECT_LISTA LISTA_SELECT .)
+
+
+state 156
+
+    (53) INNER_JOIN -> INNER JOIN . ID AS ID ON CONDICION_INNER_JOIN
+
+    ID              shift and go to state 163
+
+
+state 157
+
+    (39) WHERE_INSRT -> WHERE expresion_logica .
+
+    PTCOMA          reduce using rule 39 (WHERE_INSRT -> WHERE expresion_logica .)
+    INNER           reduce using rule 39 (WHERE_INSRT -> WHERE expresion_logica .)
+    WHERE           reduce using rule 39 (WHERE_INSRT -> WHERE expresion_logica .)
+
+
+state 158
+
+    (58) insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A . lista_datos PAR_C PTCOMA
+    (62) lista_datos -> . lista_datos COMA datos_insert
+    (63) lista_datos -> . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    lista_datos                    shift and go to state 164
+    datos_insert                   shift and go to state 165
+
+state 159
+
+    (32) delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .
+
+    CREATE          reduce using rule 32 (delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .)
+    SELECT          reduce using rule 32 (delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .)
+    INSERT          reduce using rule 32 (delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .)
+    DELETE          reduce using rule 32 (delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .)
+    UPDATE          reduce using rule 32 (delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .)
+    ALTER           reduce using rule 32 (delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .)
+    DROP            reduce using rule 32 (delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .)
+    $end            reduce using rule 32 (delete_insrt -> DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA .)
+
+
+state 160
+
+    (28) update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert . PTCOMA
+
+    PTCOMA          shift and go to state 166
+
+
+state 161
+
+    (27) TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .
+
+    PAR_C           reduce using rule 27 (TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .)
+    COMA            reduce using rule 27 (TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .)
+
+
+state 162
+
+    (20) herencia -> INHERITS PAR_A ID . PAR_C
+
+    PAR_C           shift and go to state 167
+
+
+state 163
+
+    (53) INNER_JOIN -> INNER JOIN ID . AS ID ON CONDICION_INNER_JOIN
+
+    AS              shift and go to state 168
+
+
+state 164
+
+    (58) insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos . PAR_C PTCOMA
+    (62) lista_datos -> lista_datos . COMA datos_insert
+
+    PAR_C           shift and go to state 169
+    COMA            shift and go to state 170
+
+
+state 165
+
+    (63) lista_datos -> datos_insert .
+
+    PAR_C           reduce using rule 63 (lista_datos -> datos_insert .)
+    COMA            reduce using rule 63 (lista_datos -> datos_insert .)
+
+
+state 166
+
+    (28) update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .
+
+    CREATE          reduce using rule 28 (update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .)
+    SELECT          reduce using rule 28 (update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .)
+    INSERT          reduce using rule 28 (update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .)
+    DELETE          reduce using rule 28 (update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .)
+    UPDATE          reduce using rule 28 (update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .)
+    ALTER           reduce using rule 28 (update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .)
+    DROP            reduce using rule 28 (update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .)
+    $end            reduce using rule 28 (update_insrt -> UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA .)
+
+
+state 167
+
+    (20) herencia -> INHERITS PAR_A ID PAR_C .
+
+    PTCOMA          reduce using rule 20 (herencia -> INHERITS PAR_A ID PAR_C .)
+
+
+state 168
+
+    (53) INNER_JOIN -> INNER JOIN ID AS . ID ON CONDICION_INNER_JOIN
+
+    ID              shift and go to state 171
+
+
+state 169
+
+    (58) insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C . PTCOMA
+
+    PTCOMA          shift and go to state 172
+
+
+state 170
+
+    (62) lista_datos -> lista_datos COMA . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    datos_insert                   shift and go to state 173
+
+state 171
+
+    (53) INNER_JOIN -> INNER JOIN ID AS ID . ON CONDICION_INNER_JOIN
+
+    ON              shift and go to state 174
+
+
+state 172
+
+    (58) insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .
+
+    CREATE          reduce using rule 58 (insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .)
+    SELECT          reduce using rule 58 (insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .)
+    INSERT          reduce using rule 58 (insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .)
+    DELETE          reduce using rule 58 (insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .)
+    UPDATE          reduce using rule 58 (insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .)
+    ALTER           reduce using rule 58 (insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .)
+    DROP            reduce using rule 58 (insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .)
+    $end            reduce using rule 58 (insert_insrt -> INSERT INTO ID PAR_A lista_parametros_lista PAR_C VALUES PAR_A lista_datos PAR_C PTCOMA .)
+
+
+state 173
+
+    (62) lista_datos -> lista_datos COMA datos_insert .
+
+    PAR_C           reduce using rule 62 (lista_datos -> lista_datos COMA datos_insert .)
+    COMA            reduce using rule 62 (lista_datos -> lista_datos COMA datos_insert .)
+
+
+state 174
+
+    (53) INNER_JOIN -> INNER JOIN ID AS ID ON . CONDICION_INNER_JOIN
+    (54) CONDICION_INNER_JOIN -> . expresion_logica
+    (75) expresion_logica -> . expresion_relacional AND expresion_relacional
+    (76) expresion_logica -> . expresion_relacional OR expresion_relacional
+    (77) expresion_logica -> . expresion_relacional
+    (68) expresion_relacional -> . datos_insert MAYQUE datos_insert
+    (69) expresion_relacional -> . datos_insert MENQUE datos_insert
+    (70) expresion_relacional -> . datos_insert MAYIGQUE datos_insert
+    (71) expresion_relacional -> . datos_insert MENIGQUE datos_insert
+    (72) expresion_relacional -> . datos_insert DOBLEIG datos_insert
+    (73) expresion_relacional -> . datos_insert IGUAL datos_insert
+    (74) expresion_relacional -> . datos_insert
+    (64) datos_insert -> . CADENA
+    (65) datos_insert -> . ENTERO
+    (66) datos_insert -> . ID
+    (67) datos_insert -> . ID PUNTO ID
+
+    CADENA          shift and go to state 65
+    ENTERO          shift and go to state 66
+    ID              shift and go to state 67
+
+    CONDICION_INNER_JOIN           shift and go to state 175
+    expresion_logica               shift and go to state 176
+    expresion_relacional           shift and go to state 64
+    datos_insert                   shift and go to state 63
+
+state 175
+
+    (53) INNER_JOIN -> INNER JOIN ID AS ID ON CONDICION_INNER_JOIN .
+
+    PTCOMA          reduce using rule 53 (INNER_JOIN -> INNER JOIN ID AS ID ON CONDICION_INNER_JOIN .)
+    INNER           reduce using rule 53 (INNER_JOIN -> INNER JOIN ID AS ID ON CONDICION_INNER_JOIN .)
+    WHERE           reduce using rule 53 (INNER_JOIN -> INNER JOIN ID AS ID ON CONDICION_INNER_JOIN .)
+
+
+state 176
+
+    (54) CONDICION_INNER_JOIN -> expresion_logica .
+
+    PTCOMA          reduce using rule 54 (CONDICION_INNER_JOIN -> expresion_logica .)
+    INNER           reduce using rule 54 (CONDICION_INNER_JOIN -> expresion_logica .)
+    WHERE           reduce using rule 54 (CONDICION_INNER_JOIN -> expresion_logica .)
+
