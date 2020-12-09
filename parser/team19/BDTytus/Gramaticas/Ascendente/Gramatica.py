@@ -324,6 +324,171 @@ def p_Opc_Where(p):
 
 # ---------------------------- Sentencias DDL y Enum Type --------------
 
+def p_Sentencias_DDL(p):
+    '''Sentencias_DDL : t_show t_databases pyc
+                    | t_drop Drop pyc
+                    | t_alter Alter pyc
+                    | t_create Create pyc
+                    | Enum_Type '''
+
+def p_Enum_Type(p):
+    'Enum_Type : t_create t_type id t_as t_enum par1 Lista_ID par2 pyc'
+    p[0] = p[3]
+
+def p_Drop(p):
+    '''Drop : t_database DropDB id
+            | t_table  id '''
+
+def p_DropDB(p):
+    '''DropDB : t_if t_exists
+            | empty'''
+
+def p_Alter(p):
+    '''Alter : t_database id AlterDB
+            | t_table id AlterTB '''
+
+def p_AlterDB(p):
+    ''' AlterDB : t_rename t_to id 
+                | t_owner t_to SesionDB '''
+
+def p_SesionDB(p):
+    ''' SesionDB : id 
+                | t_current_user
+                | t_session_user '''
+    
+def p_AlterTB(p): 
+    ''' AlterTB : t_add Add_Opc
+                | t_drop Drop_Opc
+                | t_alter t_column Alter_Column
+                | t_rename t_column id t_to id '''
+    
+def p_Add_Opc(p):
+    '''Add_Opc : t_column id Tipo
+               | t_foreign t_key par1 id par2 t_references id
+               | t_constraint id t_unique par1 id par2 
+               | t_check EXP'''
+
+def p_Drop_Opc(p):
+    ''' Drop_Opc :  t_column id 
+                 |  t_constraint id ''' 
+
+def p_Alter_Column(p):
+    ''' Alter_Column :   id t_set t_not t_null
+                     |   Alter_Columns'''
+
+def p_Alter_Columns(p):
+    ''' Alter_Columns : Alter_Columns coma Alter_Column1 
+                    | Alter_Column1'''
+
+def p_Alter_Colum1(p):
+    'Alter_Column1 :  id t_type t_varchar par1 entero par2 '
+
+def p_Create(p): 
+    ''' Create : CreateDB   
+               | CreateTB '''
+
+def p_CreateDB(p):
+    '''CreateDB : t_database Op1_DB
+                | t_or t_replace t_database Op1_DB'''
+    if len(p) == 3:
+         p[0] = p[1]
+    else: 
+         p[0] = p[1]
+
+def p_Op1_DB(p):
+    ''' Op1_DB : t_if t_not t_exists id Sesion
+               | id Sesion'''
+    if len(p) == 6:
+         p[0] = p[1]
+    else: 
+         p[0] = p[1]
+
+def p_Sesion(p):
+    ''' Sesion : t_owner Op_Sesion Sesion_mode
+                | t_mode Op_Sesion
+                | empty '''
+
+def p_Op_Sesion(p):
+    ''' Op_Sesion : igual id 
+            | id  '''
+    if len(p) == 3:
+        p[0] = p[2]
+    else:
+        p[0] = p[1]
+
+def p_Sesion_mode(p):
+    ''' Sesion_mode : t_mode Op_Sesion
+                  | empty '''
+
+def p_CreateTB(p):
+    'CreateTB : t_table id par1 Columnas par2 Inherits '
+
+def p_Inherits(p):
+    ''' Inherits : t_inherits par1 id par2
+               | empty '''
+
+def p_Columnas(p):
+    '''Columnas : Columnas coma Columna
+                | Columna'''
+    if len(p) == 3:
+        p[1].extend(p[2])
+        p[0] = p[1]   
+    else:
+        p[0] = p[1] 
+
+def p_Columna(p):
+    ''' Columna : id Tipo Constraints
+                | t_primary t_key par1 Lista_ID par2
+                | t_unique par1 Lista_ID par2
+                | t_constraint id t_check par1 EXP par2
+                | t_check par1 EXP par2
+                | t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2 '''
+    
+def p_Constraints(p):
+    ''' Constraints :  t_primary t_key
+                        | t_references id 
+                        | t_not t_null
+                        | t_null
+                        | t_constraint id 
+                        | t_unique Opc_Unique
+                        | t_check par1 EXP par2 
+                        | empty'''
+
+def p_Opc_Unique(p):
+  ''' Opc_Unique : t_not t_null 
+                | empty '''
+
+def p_Tipo(p):
+    ''' Tipo : t_smallint
+              | t_integer 
+              | t_bigint
+              | t_decimal 
+              | t_numeric 
+              | t_real
+              | t_double t_precision
+              | t_money
+              | t_character t_varying par1 Valor par2 
+              | t_varchar par1 Valor par2
+              | t_character par1 Valor par2
+              | t_charn par1 Valor par2
+              | t_text 
+              | t_boolean ''' 
+
+def p_Valor(p):
+    ''' Valor : decimal
+            | entero
+            | string
+            | char 
+            | t_true
+            | t_false
+            | id'''
+    p[0] = p[1]
+
+def p_empty(p):
+    'empty :'
+    p[0] = []
+
+
 # ----------------------------EXPRESIONES Y OPERACIONES---------------------------------------------------------------
 def p_aritmeticas(p):
     '''EXP : EXP mas EXP
