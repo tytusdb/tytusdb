@@ -497,11 +497,61 @@ def p_EXPR_DROP_TABLE(t):
 def p_EXPR_ALTER_TABLE(t):
     '''ALTER_TABLE : alter table id rename tColumn id tTo id ptComa
                    | alter table id alter tColumn id tSet not null ptComa
+                   | alter table id add tColumn id CHAR_TYPES ptComa
+                   | alter table id add tCheck E ptComa
+                   | alter table id add tConstraint id tUnique parAbre id parCierra ptComa      
+                   | alter table id add tForeign tKey parAbre id parCierra tReferences id ptComa    
+                   | alter table id drop tColumn id ptComa
+                   | alter table id drop tConstraint id ptComa 
                    '''
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< FRANCISCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+     def p_INSERT( p ):
+    ''' INSERT :  insert into id values parAbre LISTA_EXP parCierra ptComa  
+    '''
+
+def p_LISTA_EXP( p ): 
+    ''' LISTA_EXP :    LISTA_EXP coma E    
+                    |  E 
+    '''
+def p_E( p ):
+    ''' E :  E or         E  
+          |  E tAnd       E
+          |  not E
+          |  E diferente  E  
+          |  E igual      E 
+          |  E mayor      E   
+          |  E menor      E
+          |  E mayorIgual E
+          |  E menorIgual E
+          |  E mas        E
+          |  E menos      E
+          |  E multi      E 
+          |  E divi       E
+          |  E modulo     E
+          |  E elevado    E
+          |  E punto      E
+          |  menos E %prec umenos
+          |  parAbre E parCierra       
+    '''
+
+def p_entero( p ):
+    ''' E : entero    
+    '''
+   
+def p_decimal( p ):
+    ''' E : decimal    
+    '''
+
+def p_cadena( p ):
+    ''' E : cadena    
+    '''
+
+def p_id( p ):
+    ''' E : id    
+    '''
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
