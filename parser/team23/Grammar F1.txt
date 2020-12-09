@@ -1,0 +1,125 @@
+init  : instrucciones
+
+instrucciones    : instrucciones instruccion
+
+instrucciones    : instruccion 
+
+instruccion : crear t_PUNTOCOMA
+	      | SHOW DATABASE t_PUNTOCOMA
+          | alter_db t_PUNTOCOMA
+    	  | drop_db t_PUNTOCOMA
+          | DELET FROM ID where t_PUNTOCOMA 
+          | seleccionar t_PUNTOCOMA
+          | INSERT INTO ID VALUES t_PAR_ABRE list_val t_PAR_CIERRA t_PUNTOCOMA
+
+crear: CREATE TABLE  ID t_PAR_ABRE  contenido_tabla  t_PAR_CIERRA inherits 	
+        | CREATE or_replace DATABASE if_not_exists ID owner_mode
+ 
+inherits: INHERITS t_PAR_ABRE ID t_PAR_CIERRA
+         |epsilon
+
+owner_mode : OWNER = ID
+            | MODE = ENTERO
+            |epsilon
+
+list_val: list_val , op_val 
+         |op_val
+
+op_val: ID
+       |t_CADENA
+       |t_DECIMAL
+
+where: WHERE ID t_IGUAL op_val
+      |epsilon
+
+or_replace : OR REPLACE
+            |epsilon
+   
+ if_not_exists : IF NOT EXISTS 
+	         |epsilon
+
+rename_owner: RENAME TO ID
+	           | OWNER TO t_LLAVE_ABRE ow_op  t_LLAVE_CIERRA
+
+ow_op:  ID
+	|CURRENT_USER
+	|sESSION_USER
+
+drop_db : DROP DATABASE if_exists ID 
+         	  |DROP TABLE ID
+
+alter_db:ALTER DATABASE ID rename_owner
+ |ALTER TABLE ID alter_op
+
+alter_op:  ADD op_add
+	 | DROP op_drop
+	 | ALTER COLUMN ID SET NOT NULL 
+	 | RENAME COLUMN ID TO ID
+
+op_add: CHECK t_PAR_ABRE ID t_DIFERENTE t_CADENA t_PAR_CIERRA
+|CONSTRAINT ID UNIQUE t_PAR_ABRE t_PAR_CIERRA
+|key_table REFERENCES ID t_PAR_ABRE list_id t_PAR_CIERRA
+
+
+if_exists: IF EXISTS
+             | epsilon
+
+contenido_tabla: contenido_tabla t_COMA manejo_tabla
+	             | manejo_tabla
+
+manejo_tabla: declaracion_columna
+	          | condition_column
+
+
+declaracion_columna: ID type_column condition_column_row
+		        | ID type_column
+
+condition_column_row: condition_column_row condition_column
+	                       | condition_column
+
+condition_column: CONSTRAINT ID CHECK t_PAR_ABRE  condition_columns t_PAR_CIERRA
+                            | CHECK condition_columns
+	               | CONSTRAINT ID UNIQUE 
+                            | CONSTRAINT ID UNIQUE t_PAR_ABRE list_id t_PAR_CIERRA
+		  | UNIQUE t_PAR_ABRE list_id t_PAR_CIERRA
+		  | UNIQUE 
+	               | NULL
+		  | NOT NULL
+		  | REFERENCE ID
+		  | key_table 
+		  | CONSTRAINT ID key_table
+ 		  | epsilon
+
+condition_columns: condition_columns , condition_columna
+	                 | condition_columna
+
+condition_columna: 
+
+key_table: PRIMARY KEY list_key 
+	    | FOREIGN KEY t_PAR_ABRE list_id t_PAR_CIERRA REFERENCES ID t_PAR_ABRE list_id t_PAR_CIERRA
+
+
+list_key: t_PAR_ABRE list_id t_PAR_CIERRA
+	|epsilon
+
+
+list_id: list_id , ID alias
+         | ID alias
+         
+alias: AS ID 
+|epsilon
+
+type_column: SMALLINT
+	         | INTEGER
+	         | BIGINT
+	         | DECIMAL
+	         | NUMERIC
+	         | REAL
+	         | DOUBLE PRECISION
+	         | MONEY
+	         | VARCHAR t_PAR_ABRE ENTERO t_PAR_CIERRA
+	         | CHAR
+ 	         | TEXTE
+	         | DATE
+
+
