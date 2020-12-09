@@ -1,7 +1,7 @@
-import ply.lex as lex
-from ply.lex import TOKEN
+import libs.ply.lex as lex
+from libs.ply.lex import TOKEN
 
-# Hacen falta palabras reservadas hay que anadirlas 
+# Hacen falta palabras reservadas hay que anadirlas
 
 # Definitions of tokens reserved
 k_reserved = {
@@ -121,7 +121,7 @@ tokens = [
     'FLOAT_NUMBER',
     'STRINGCONT',
     'CHARCONT',
-    
+
     # COMMENTS
     'SINGLE_LINE_COMMENT',
     'MULTI_LINE_COMMENT'
@@ -164,6 +164,8 @@ t_RIGHT_BRACE = r'\]'
 t_MOD = r'\%'
 
 # Token recognition using patterns
+
+
 @TOKEN(decimal)
 def t_FLOAT_NUMBER(t):
     # r'\d+\.\d+'
@@ -223,22 +225,26 @@ def t_new_line(t):
     t.lexer.lineno += len(t.value)
 
 # Skip white spaces
+
+
 def t_white_space(t):
     r'\s+'
     t.lexer.lineno += t.value.count('\n')
 
 # Recognition of errors
+
+
 def t_error(t):
     print(
         f"The character {t.value[0]} ilegal, {t.lexer.lineno}")
     t.lexer.skip(1)
 
 # Find column
+
+
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
+
 lexer = lex.lex()
-
-
-
