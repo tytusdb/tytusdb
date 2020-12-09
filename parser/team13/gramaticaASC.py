@@ -249,6 +249,55 @@ precedence = (
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< INICIO DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+def p_init(t):
+    'inicio :   sentencias'
+    print("Lectura Finalizada")
+    #t[0] = t[1]
+
+def p_sentencias_lista(t):
+    'sentencias : sentencias sentencia'
+    #t[1].append(t[2])
+    #t[0] = t[1]
+
+def p_sentencias_sentencia(t):
+    'sentencias : sentencia'
+    #t[0] = [t[1]]
+
+def p_sentencia(t):
+    '''sentencia : CrearBase
+                 | ShowBase
+                 | AlterBase
+                 | DropBase
+                 | UpdateBase
+                 | DeleteBase
+    '''
+    #t[0] = t[1]
+
+def p_crearBase(t):
+    '''CrearBase : create database id ptComa
+                 | create database id owner igual id ptComa
+                 | create database id owner igual id mode igual entero ptComa
+                 | create or replace database id ptComa
+                 | create or replace database id owner igual id ptComa
+                 | create or replace database id owner igual id mode igual entero ptComa
+                 | create database if not exists id ptComa
+                 | create database if not exists id owner igual id ptComa
+                 | create database if not exists id owner igual id mode igual entero ptComa'''
+
+def p_showBase(t):
+    '''ShowBase : show databases ptComa
+                | show databases like cadenaLike ptComa'''
+
+def p_AlterBase(t):
+    '''AlterBase : alter database rename tTo id ptComa
+                 | alter database owner tTo id ptComa
+                 | alter database owner tTo currentuser ptComa
+                 | alter database owner tTo sessionuser ptComa
+    '''
+
+def p_DropBase(t):
+    '''DropBase : drop database id ptComa
+                | drop database if exists id ptComa'''
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
