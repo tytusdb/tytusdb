@@ -1,0 +1,141 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> instruccion
+Rule 1     instruccion -> select_insrt
+Rule 2     select_insrt -> SELECT opcion_select_lista FROM ID PTCOMA
+Rule 3     opcion_select_lista -> opcion_select_lista COMA opcion_select
+Rule 4     opcion_select_lista -> opcion_select
+Rule 5     opcion_select -> ASTERISCO
+Rule 6     opcion_select -> ID
+
+Terminals, with rules where they appear
+
+ASTERISCO            : 5
+COMA                 : 3
+FROM                 : 2
+ID                   : 2 6
+PTCOMA               : 2
+SELECT               : 2
+error                : 
+
+Nonterminals, with rules where they appear
+
+instruccion          : 0
+opcion_select        : 3 4
+opcion_select_lista  : 2 3
+select_insrt         : 1
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . instruccion
+    (1) instruccion -> . select_insrt
+    (2) select_insrt -> . SELECT opcion_select_lista FROM ID PTCOMA
+
+    SELECT          shift and go to state 3
+
+    instruccion                    shift and go to state 1
+    select_insrt                   shift and go to state 2
+
+state 1
+
+    (0) S' -> instruccion .
+
+
+
+state 2
+
+    (1) instruccion -> select_insrt .
+
+    $end            reduce using rule 1 (instruccion -> select_insrt .)
+
+
+state 3
+
+    (2) select_insrt -> SELECT . opcion_select_lista FROM ID PTCOMA
+    (3) opcion_select_lista -> . opcion_select_lista COMA opcion_select
+    (4) opcion_select_lista -> . opcion_select
+    (5) opcion_select -> . ASTERISCO
+    (6) opcion_select -> . ID
+
+    ASTERISCO       shift and go to state 7
+    ID              shift and go to state 5
+
+    opcion_select_lista            shift and go to state 4
+    opcion_select                  shift and go to state 6
+
+state 4
+
+    (2) select_insrt -> SELECT opcion_select_lista . FROM ID PTCOMA
+    (3) opcion_select_lista -> opcion_select_lista . COMA opcion_select
+
+    FROM            shift and go to state 8
+    COMA            shift and go to state 9
+
+
+state 5
+
+    (6) opcion_select -> ID .
+
+    FROM            reduce using rule 6 (opcion_select -> ID .)
+    COMA            reduce using rule 6 (opcion_select -> ID .)
+
+
+state 6
+
+    (4) opcion_select_lista -> opcion_select .
+
+    FROM            reduce using rule 4 (opcion_select_lista -> opcion_select .)
+    COMA            reduce using rule 4 (opcion_select_lista -> opcion_select .)
+
+
+state 7
+
+    (5) opcion_select -> ASTERISCO .
+
+    FROM            reduce using rule 5 (opcion_select -> ASTERISCO .)
+    COMA            reduce using rule 5 (opcion_select -> ASTERISCO .)
+
+
+state 8
+
+    (2) select_insrt -> SELECT opcion_select_lista FROM . ID PTCOMA
+
+    ID              shift and go to state 10
+
+
+state 9
+
+    (3) opcion_select_lista -> opcion_select_lista COMA . opcion_select
+    (5) opcion_select -> . ASTERISCO
+    (6) opcion_select -> . ID
+
+    ASTERISCO       shift and go to state 7
+    ID              shift and go to state 5
+
+    opcion_select                  shift and go to state 11
+
+state 10
+
+    (2) select_insrt -> SELECT opcion_select_lista FROM ID . PTCOMA
+
+    PTCOMA          shift and go to state 12
+
+
+state 11
+
+    (3) opcion_select_lista -> opcion_select_lista COMA opcion_select .
+
+    FROM            reduce using rule 3 (opcion_select_lista -> opcion_select_lista COMA opcion_select .)
+    COMA            reduce using rule 3 (opcion_select_lista -> opcion_select_lista COMA opcion_select .)
+
+
+state 12
+
+    (2) select_insrt -> SELECT opcion_select_lista FROM ID PTCOMA .
+
+    $end            reduce using rule 2 (select_insrt -> SELECT opcion_select_lista FROM ID PTCOMA .)
+
