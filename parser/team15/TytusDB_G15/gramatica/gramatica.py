@@ -49,6 +49,7 @@ reservadas = {
     'set' : 'SET',
     'not' : 'NOT',
     'null' : 'NULL',
+    # ---- DATA TYPES AND SPECIFICATIONS--------
     'text': 'TEXT',
     'float': 'FLOAT',
     'int': 'INT',
@@ -78,8 +79,13 @@ reservadas = {
     'boolean' : 'BOOLEAN',
     'true' : 'TRUE',
     'false' : 'FALSE',
-    'enum' : 'ENUM'
-
+    'enum' : 'ENUM',
+    # ---- DELETE --------
+    'only' : 'ONLY',
+    'in' :  'IN',
+    'returning' : 'RETURNING',
+    # ---- USE DATABASE --------
+    'use' : 'USE'
 }
 
 tokens = [
@@ -99,24 +105,32 @@ tokens = [
     'DOBLEIG',
     'NOIG',
     'APOSTROFE',
-    'IGUAL'
+    'IGUAL',
+    'SUMA',
+    'RESTA',
+    'MULTI',
+    'DIV'
 ] + list(reservadas.values())
 
 #tokens
+t_SUMA          = r'\+'
+t_RESTA         = r'\-'
+t_DIV           = r'\\'
 t_PTCOMA        = r';'
 t_ASTERISCO     = r'\*'
 t_COMA          = r','
 t_PAR_A         = r'\('
 t_PAR_C         = r'\)'
 t_PUNTO         = r'.'
+t_NOIG          = r'<>'
 t_MENIGQUE      = r'<='
 t_MAYIGQUE      = r'>='
 t_MENQUE        = r'\<'
 t_MAYQUE        = r'\>'
 t_DOBLEIG       = r'=='
-t_NOIG          = r'!='
 t_IGUAL         = r'\='
 t_APOSTROFE     = r'\''
+
 
 def t_FLOTANTE(t):
     r'\d+\.\d+'
@@ -182,7 +196,6 @@ lexer = lex.lex()
 def p_init(t) :
     'init            : instrucciones'
 
-
 def p_instrucciones_lista(t) :
     'instrucciones    : instrucciones instruccion'
 
@@ -199,7 +212,8 @@ def p_instruccion(t):
                   | update_insrt
                   | alterDB_insrt
                   | alterTable_insrt
-                  | drop_insrt'''
+                  | drop_insrt
+                  | USE ID DATABASE PTCOMA'''
 
 '----------- GRAMATICA PARA LA INSTRUCCION DROP TABLE----------'
 def p_dropTable(t):
@@ -234,14 +248,16 @@ def p_alterTable(t):
 def p_alterTable_type(t):
     '''alterTable_type : ADD alterTable_add
                        | alterTable_alter
-                       | '''
-# ---------necesita modificaciones-------------------------
+                       | DROP CONSTRAINT ID
+                       | RENAME COLUMN ID TO ID'''
 
+# ---------necesita modificaciones-------------------------
 def p_alterTable_add(t):
     '''alterTable_add : COLUMN ID TIPO_DATO
                       | CHECK PAR_A expresion_logica PAR_C 
                       | CONSTRAINT ID constraint_esp 
                       | FOREIGN KEY PAR_A campos_c PAR_C REFERENCES campos_c'''
+
 def p_constraint_esp(t):
    '''constraint_esp : CHECK PAR_A expresion_logica PAR_C
                      | UNIQUE PAR_A campos_c PAR_C
@@ -259,7 +275,7 @@ def p_alter_type(t):
                  | SET NOT NULL '''
 
 #def p_alterTable_add_col(t):
- #   '''alterTable_add_col : TYPE TIPO_DATO '''     
+#    '''alterTable_add_col : TYPE TIPO_DATO '''     
 
 def p_cons_campos(t):
     '''campos_c : campos_c COMA ID
@@ -304,9 +320,10 @@ def p_tipo_dato(t):
 # Nota: Decimal y numeric requieren (p,s) presicion (numero de digitos en total) y scale (cantidad de digitos despues del punto decimal)
 # Nota2: como se usa real?, completar date/time types
 # interval (p) define la fraccion de digitos en segundos, valido de 0-6
+
 #def p_tiempo_i(t):
- #   '''tiempo_i : tiempo_i tiempo
-  #              | tiempo '''
+#    '''tiempo_i : tiempo_i tiempo
+#                | tiempo '''
 
 ' ----------- GRAMATICA PARA LA INSTRUCCION UPDATE ------'
 def p_update_insrt(t):
@@ -323,7 +340,28 @@ def p_parametro_update(t):
 
 ' ---------- GRAMATICA PARA LA INSTRUCCION DELETE --------'
 def p_delete_insrt(t):
-    ' delete_insrt : DELETE FROM ID WHERE ID IGUAL CADENA PTCOMA'
+    ' delete_insrt : DELETE FROM delete_esp delete_opcional'
+
+def p_delete_esp(t):
+    ''' delete_esp :  ONLY ID
+                    | ID delete_parm '''
+
+def p_delete_par(t):
+    ''' delete_parm : WHERE delete_condt '''
+
+def p_delete_condt(t):
+    ''' delete_condt :  expresion_logica 
+                        | ID IN PAR_A sub_queri PAR_C'''
+
+def p_delete_opcional(t):
+    ''' delete_opcional : PTCOMA
+                        | RETURNING PTCOMA'''
+
+#NOTA: TERMINAR ESTO 
+#AGREGAR EL RESTO DE SUB QUERIS
+#URGENTE
+def p_sub_queri(t):
+    ' sub_queri : SELECT'
 
 ' ------------- GRAMATICA PARA LA INSTRUCCION SELECT --------------'
 
@@ -392,7 +430,8 @@ def p_count_insrt(t):
 ' --------- GRAMATICA PARA LA INSTRUCCION INSERT  -------'
 
 def p_insert_insrt(t):
-    ' insert_insrt : INSERT INTO ID PAR_A lista_parametros_lista PAR_C  VALUES PAR_A lista_datos PAR_C PTCOMA'
+    ''' insert_insrt : INSERT INTO ID PAR_A lista_parametros_lista PAR_C  VALUES PAR_A lista_datos PAR_C PTCOMA
+                    |  INSERT INTO ID VALUES PAR_A lista_datos PAR_C PTCOMA '''
 
 
 ' -------- GRAMATICA PARA LA LISTA DE PARAMETROS DEL INSERT ----------'
@@ -409,17 +448,22 @@ def p_parametros(t):
 '------- GRAMATICA PARA LA LISTA DE DATOS DEL INSERT -------' 
 
 def p_parametros_lista_datos(t):
-    ' lista_datos : lista_datos COMA datos_insert'
+    ' lista_datos : lista_datos COMA expresion_relacional'
 
 def p_datos_insert_lista(t):
-    ' lista_datos : datos_insert'
+    ' lista_datos : expresion_relacional'
 
 def p_datos_insert(t):
     ''' datos_insert : CADENA
+                     | RESTA ENTERO
                      | ENTERO 
                      | PAR_A expresion_logica PAR_C
                      | ID 
-                     | ID PUNTO ID'''
+                     | ID PUNTO ID
+                     | datos_insert SUMA datos_insert
+                     | datos_insert RESTA datos_insert
+                     | datos_insert ASTERISCO datos_insert
+                     | datos_insert DIV datos_insert'''
 
 ' --------------- EXPRESIONES -----------------------'
 def p_expresion_relacional(t):
