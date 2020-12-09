@@ -181,3 +181,183 @@ reservadas = {
     'bigint' : 'BIGINT',
     'decimal' : 'DECIMAL',
     'numeric' : 'NUMERIC',
+    'real' : 'REAL',
+    'double' : 'DOUBLE',
+    'money' : 'MONEY',
+    'varying' : 'VARYING',
+    'varchar' : 'VARCHAR',
+    'character' : 'CHARACTER',
+    'char' : 'CHAR',
+    'text' : 'TEXT',
+    'boolean' : 'BOOLEAN',
+    'timestamp':'TIMESTAMP',
+    'time':'TIME',
+    'date':'DATE',
+    'interval':'INTERVAL',
+    'year':'YEAR',
+    'month':'MONTH',
+    'day':'DAY',
+    'hour':'HOUR',
+    'minute':'MINUTE',
+    'second':'SECOND',
+    'to':'TO',
+    'true':'TRUE',
+    'false':'FALSE',
+    'declare' : 'DECLARE',
+    'function' : 'FUNCTION',
+    'returns' : 'RETURNS',
+    'returning':'RETURNING',
+
+    'between' : 'BETWEEN',
+    'ilike' : 'ILIKE',
+    'is':'IS',
+    'isnull':'ISNULL',
+    'notnull':'NOTNULL',
+    #enums
+    'type':'TYPE',
+    'ENUM':'ENUM',
+
+    #para trim
+    'leading':'LEADING',
+    'trailing':'TRAILING',
+    'both':'BOTH',
+    'for':'FOR'
+
+
+# revisar funciones de tiempo y fechas
+}
+# listado de tokens que manejara el lenguaje (solo la forma en la que los llamare  en las producciones)
+tokens  = [
+    'PUNTOYCOMA',
+    'MAS',
+    'MENOS',
+    'POR',
+    'DIV',
+    'DOSPUNTOS',
+    'PUNTO',
+    'TYPECAST',
+    'CORCHETEIZQ',
+    'CORCHETEDER',
+    'POTENCIA',
+    'RESIDUO',
+    'MAYOR',
+    'MENOR',
+    'IGUAL',
+    'MAYORIGUAL',
+    'MENORIGUAL',
+    'DIFERENTE',
+    'IGUALIGUAL',
+    'PARENTESISIZQUIERDA',
+    'PARENTESISDERECHA',
+
+    'COMA',
+    'NOTEQUAL',
+    'SIMBOLOOR',
+    'SIMBOLOAND',
+    'SIMBOLOAND2',
+    'SIMBOLOOR2',
+    'NUMERAL',
+    'COLOCHO',
+    'DESPLAZAMIENTODERECHA',
+    'DESPLAZAMIENTOIZQUIERDA',
+
+
+#tokens que si devuelven valor
+    'DECIMALTOKEN',
+    'ENTERO',
+    'CADENA',
+    'ETIQUETA',
+    'ID'
+] + list(reservadas.values())
+
+# Tokens y la forma en la que se usaran en el lenguaje
+t_PUNTOYCOMA                            = r';'
+t_MAS                                   = r'\+'
+t_MENOS                                 = r'-'
+t_POR                                   = r'\*'
+t_DIV                                   = r'/'
+t_DOSPUNTOS                             = r':'
+t_PUNTO                                 = r'\.'
+t_TYPECAST                              = r'::'
+t_CORCHETEDER                           = r']'
+t_CORCHETEIZQ                           = r'\['
+t_POTENCIA                              = r'\^'
+t_RESIDUO                               = r'%'
+t_MAYOR                                 = r'<'
+t_MENOR                                 = r'>'
+t_IGUAL                                 = r'='
+t_MAYORIGUAL                            = r'>='
+t_MENORIGUAL                            = r'<='
+t_DIFERENTE                             = r'<>'
+t_IGUALIGUAL                            = r'=='
+t_PARENTESISIZQUIERDA                   = r'\('
+t_PARENTESISDERECHA                     = r'\)'
+t_COMA                                  = r','
+t_NOTEQUAL                              = r'!='
+t_SIMBOLOOR                             = r'\|\|' #esto va a concatenar cadenas 
+t_SIMBOLOAND                            = r'&&'
+t_SIMBOLOAND2                           = r'\&'
+t_SIMBOLOOR2                            = r'\|'
+t_NUMERAL                               = r'\#' #REVISAR
+t_COLOCHO                               = r'~'  #REVISAR
+t_DESPLAZAMIENTODERECHA                 = r'>>'
+t_DESPLAZAMIENTOIZQUIERDA               = r'<<'
+
+
+
+#definife la estructura de los decimales
+def t_DECIMALTOKEN(t):
+    r'\d+\.\d+'
+    try:
+        t.value = float(t.value)
+    except ValueError:
+        print("El valor decimal es muy largo %d", t.value)
+        t.value = 0
+    return t
+#definife la estructura de los enteros
+def t_ENTERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("El valor del entero es muy grande %d", t.value)
+        t.value = 0
+    return t
+
+#definife la estructura de las cadenas
+def t_CADENA(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] # quito las comillas del inicio y final de la cadena
+    return t 
+#definife la estructura de las etiquetas, por el momento las tomo unicamente como letras y numeros
+def t_ETIQUETA(t):
+     r'[a-zA-_Z0-9]+'
+     t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
+     return t
+
+# Comentario simple # ...
+def t_COMENTARIO_SIMPLE(t):
+    r'--.*\n'
+    t.lexer.lineno += 1
+
+def t_COMENTARIO_MULTILINEA(t):
+    r'/\*(.|\n|)*?\*/'
+    t.lexer.lineno += t.value.count("\n")
+# ----------------------- Caracteres ignorados -----------------------
+# caracter equivalente a un tab
+t_ignore = " \t"
+#caracter equivalente a salto de linea
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += t.value.count("\n")
+
+def t_error(t):
+    print("Caracter lexico no permitido ==> '%s'" % t.value)
+    t.lexer.skip(1)
+
+# Construyendo el analizador léxico
+import ply.lex as lex
+lexer = lex.lex()
+
+
+# -----------------------------------------------------------------------------
