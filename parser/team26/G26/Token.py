@@ -30,7 +30,7 @@ reservadas = {
     'like' : 'LIKE',
     'ilike' : 'ILIKE',
     'similar' : 'SIMILAR',
-    'isnull', 'ISNULL',
+    'isnull' : 'ISNULL',
     'is' : 'IS',
     'notnull' : 'NOTNULL',
     'not' : 'NOT',
@@ -122,7 +122,129 @@ tokens = [
     'PARENDER',
     'IGUAL',
     'MAS',
-    'MENOS',
+    'GUION',
     'BARRA',
     'ASTERISCO',
-]
+    'MAYORQUE',
+    'MENORQUE',
+    'MENORIGUALQUE',
+    'MAYORIGUALQUE',
+    'DIFERENTE',
+    'DIFERENTELL'
+    'PUNTO',
+    'COMA',
+    'ENTERO',
+    'DECIMAL',
+    'CADENA',
+    'ID',
+    'BACKSPACE',
+    'FEED',
+    'NEWLINE',
+    'RETURN',
+    'TAB'
+] + list(reservadas.values())
+
+#tokens
+t_PTCOMA        = r';'
+t_LLAVEIZQ      = r'{'
+t_LLAVEDER      = r'}'
+t_PARENIZQ      = r'\('
+t_PARENDER      = r'\)'
+t_IGUAL         = r'='
+t_MAS           = r'\+'
+t_GUION         = r'-'
+t_ASTERISCO     = r'\*'
+t_BARRA         = r'/'
+t_MAYORIGUALQUE = r'>='
+t_MAYORQUE      = r'>'
+t_MENORIGUALQUE = r'<'
+t_MENORQUE      = r'<='
+t_DIFERENTELL   = r'<>'
+t_DIFERENTE     = r'!='
+t_PUNTO         = r'.'
+t_COMA          = r','
+t_BACKSPACE     = r'\\b'
+t_FEED          = r'\\f'
+t_NEWLINE       = r'\\n'
+t_RETURN        = r'\\r'
+t_TAB           = r'\\r'
+
+def t_DECIMAL(t):
+    r'\d+\.\d+'
+    try:
+        t.value = float(t.value)
+    except ValueError:
+        print("Float value too large %d", t.value)
+        t.value = 0
+    return t
+
+def t_ENTERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
+        t.value = 0
+    return t
+
+def t_ID(t):
+     r'[a-zA-Z_][a-zA-Z_0-9]*'
+     t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
+     return t
+
+def t_CADENA(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t
+
+def t_COMENTARIO_MULTILINEA(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
+
+# Comentario simple // ...
+def t_COMENTARIO_SIMPLE(t):
+    r'--.*\n'
+    t.lexer.lineno += 1
+
+# Caracteres ignorados
+t_ignore = " \t"
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += t.value.count("\n")
+
+def t_error(t):
+    print("Illegal character '%s'" % t.value[0])
+    t.lexer.skip(1)
+
+# Construyendo el analizador léxico
+import ply.lex as lex
+lexer = lex.lex()
+
+def p_init(t) :
+    'init            : instrucciones'
+    t[0] = t[1]
+
+def p_instrucciones_lista(t) :
+    'instrucciones    : instrucciones instruccion'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_instrucciones_instruccion(t) :
+    'instrucciones    : instruccion '
+    t[0] = [t[1]]
+
+def p_instruccion(t) :
+    '''instruccion      : CADENA
+                        | COMENTARIO_MULTILINEA'''
+    t[0] = t[1]
+
+def p_error(t):
+    print(t)
+    print("Error sintáctico en '%s'" % t.value)
+
+import ply.yacc as yacc
+parser = yacc.yacc()
+
+def parse(input) :
+    return parser.parse(input)
