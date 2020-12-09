@@ -241,13 +241,19 @@ lex.lex(reflags=re.IGNORECASE)
 
 
 #DEFINIENDO LA PRECEDENCIA DE LOS OPERADORES
+#---------Modificado Edi------ 
 precedence = (
-    ('left','mas','menos'),
-    ('left','multi','divi','modulo'),
-    ('left','elevado')
+    ( 'right', 'not' ),
+    ( 'left',   'tAnd' ),
+    ( 'left',   'or' ),
+    ( 'left', 'punto' ),
+    ( 'right', 'umenos' ),
+    ( 'left', 'mas', 'menos' ),
+    ( 'left', 'elevado' ),
+    ( 'left', 'multi', 'divi','modulo' ),
+    ( 'nonassoc', 'parAbre','parCierra','diferente','igual','mayor','menor','menorIgual','mayorIgual' )
 )
-
-
+#---------Modificado Edi---------
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< INICIO DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_init(t):
     'inicio :   sentencias'
