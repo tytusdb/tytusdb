@@ -272,7 +272,8 @@ def p_sentencia(t):
                  | DeleteBase
     '''
     #t[0] = t[1]
-
+    
+# <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_crearBase(t):
     '''CrearBase : create database id ptComa
                  | create database id owner igual id ptComa
@@ -299,7 +300,6 @@ def p_DropBase(t):
     '''DropBase : drop database id ptComa
                 | drop database if exists id ptComa'''
 
-# <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< ARIEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<
