@@ -541,3 +541,193 @@ def p_funcion_basica(t):
                         | ATAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | ATAN2 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | COS PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+			| COSD  PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | COT PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | COTD PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SIN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SIND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | TAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | TAND  PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | COSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | TANH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ASINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ACOSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ATANH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | LENGTH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | TRIM PARENTESISIZQUIERDA opcionTrim operacion FROM operacion PARENTESISDERECHA
+                        | GET_BYTE PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
+                        | MD5 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SET_BYTE PARENTESISIZQUIERDA operacion COMA operacion COMA operacion PARENTESISDERECHA
+                        | SHA256 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SUBSTR PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA
+                        | CONVERT PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA
+                        | ENCODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
+                        | DECODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
+    '''
+
+def p_funcion_basica_1(t):
+    'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion FOR operacion PARENTESISDERECHA'
+
+def p_funcion_basica_2(t):
+    'subcfuncionBasicaadea   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA'
+   
+def p_funcion_basica_3(t):
+    'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FOR operacion PARENTESISDERECHA'
+
+ 
+def p_opcionTrim(t):
+    ''' opcionTrim  : LEADING
+                    | TRAILING
+                    | BOTH
+    '''
+    
+    
+    
+    # falta mandar a las funciones de fechas y dates y todo eso
+
+#-----------------------------------------------------PRODUCCIONES TERMINALES--------------------------------------------------------------------
+def p_operacion_menos_unario(t):
+    'operacion : MENOS ENTERO  %prec UMINUS'
+    t[0] = -t[2]
+
+def p_final(t):
+    '''final              : DECIMAL
+                          | ENTERO'''
+
+def p_final_id(t):
+    'final              : ID'
+
+def p_final_invocacion(t):
+    'final              : ID PUNTO ID'
+
+def p_final_cadena(t):
+    'final  : CADENA'
+
+#-----------------------------------------------------INSERT BD--------------------------------------------------------------------
+def p_insertBD_1(t):
+    'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA PUNTOYCOMA'
+
+def p_insertBD_2(t):
+    'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA VALUES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA PUNTOYCOMA'
+
+def p_paramInsert_(t):
+    '''paramInsert        : paramInsert COMA final
+                        |   final
+    '''
+
+#-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
+def p_updateBD(t):
+    'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
+
+def p_asignaciones(t):
+    '''asignaciones       : asignaciones COMA asigna
+                          | asigna
+    '''
+def p_asigna(t):
+    'asigna             : operacion'
+
+
+#-----------------------------------------------------DELETE IN BD--------------------------------------------------------------------
+def p_deleteinBD_1(t):
+    'deleteinBD         : DELETE FROM ID PUNTOYCOMA'
+
+def p_deleteinBD_2(t):
+    'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
+
+
+#-----------------------------------------------------CREATE TABLE--------------------------------------------------------------------
+def p_createTable(t):
+    'createTable        : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA'
+
+def p_creaColumna(t):
+    '''creaColumnas        : creaColumnas COMA Columna
+                           | Columna 
+    '''
+def p_columna_1(t):
+    '''Columna          : ID tipo  
+                        | ID tipo paramColumn 
+                        | checkinColumn
+                        | uniqueinColumn
+                        | primaryKey'''
+    #                    | foreignKey
+    #'''
+
+def p_paramColumn(t):
+    '''paramColumn      : DEFAULT final
+                        | NOT
+                        | NOT NULL
+                        | CONSTRAINT ID
+                        | checkinColumn
+    '''
+def p_checkinColumn(t):
+    'checkinColumn      : CONSTRAINT ID CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
+
+
+def p_uniqueinColumn(t):
+    'uniqueinColumn     : UNIQUE PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA'
+
+
+def p_primaryKey(t):
+    'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA'
+
+
+def p_foreingkey(t):
+    'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA REFERENCES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA' 
+
+
+def p_tipo(t):
+    '''tipo            : SMALLINT
+                        | INTEGER
+                        | BIGINT
+                        | DECIMAL
+                        | NUMERIC
+                        | REAL
+                        | DOUBLE
+                        | MONEY
+                        | VARYING
+                        | VARCHAR
+                        | CHARACTER
+                        | CHAR
+                        | TEXT
+                        | BOOLEAN
+                        | TIMESTAMP
+                        | TIME
+                        | DATE
+    '''
+
+#para manejar los errores sintacticos
+#def p_error(t): #en modo panico :v
+  #  print("token error: ",t)
+   # print("Error sintáctico en '%s'" % t.value[0])
+   # print("Error sintáctico en '%s'" % t.value[1])
+    
+
+#def p_error(t): #en modo panico :v
+#   while True:
+#        tok=parser.token()
+#        if not tok or tok.type==';':break
+#    parser.errok()
+#    return tok
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    #print((token.lexpos - line_start) +1 )
+    return (token.lexpos - line_start) 
+
+
+def p_error(t):
+     print("token: '%s'" %t)
+     print("Error sintáctico en '%s' " % t.value)
+     #h.filapivote+=1
+     # Read ahead looking for a closing '}'
+     while True:
+         tok = parser.token()             # Get the next token
+         if not tok or tok.type == 'PUNTOYCOMA': 
+             break
+     parser.restart()
+     
+import ply.yacc as yacc
+parser = yacc.yacc()
+
+def parse(input) :
+    return parser.parse(input)
