@@ -1,0 +1,489 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    ADD
+    ALTER
+    AND
+    AS
+    BETWEEN
+    BIGINT
+    BOOLEAN
+    CADENA
+    CHAR
+    CHARACTER
+    CHECK
+    CONCAT
+    CONSTRAINT
+    CORCHETEA
+    CORCHETECER
+    DATE
+    DAY
+    DECIMAL
+    DIVIDIDO
+    DOSPUNTOS
+    DOUBLE
+    DROP
+    ENUM
+    EXPONENCIAL
+    FALSE
+    FOREIGN
+    HOUR
+    IF
+    IGUAL
+    IGUALQUE
+    ILIKE
+    IN
+    INTEGER
+    INTERVAL
+    IS
+    KEY
+    LIKE
+    LLAVDER
+    LLAVIZQ
+    MAYORIGUAL
+    MAYQUE
+    MENORIGUAL
+    MENQUE
+    MINUTE
+    MONEY
+    MONTH
+    NIGUALQUE
+    NOT
+    NULL
+    NUMDECIMAL
+    NUMERIC
+    OR
+    OWNER
+    PARDER
+    PARIZQ
+    PORCENTAJE
+    PRECISION
+    PRIMARY
+    PUNTO
+    REFERENCES
+    RENAME
+    REPLACE
+    SECOND
+    SET
+    SHOW
+    SIMILAR
+    SMALLINT
+    TABLE
+    TEXT
+    TIME
+    TIMESTAMP
+    TO
+    TRUE
+    TYPE
+    UNIQUE
+    VARCHAR
+    VARYING
+    WHERE
+    YEAR
+
+Grammar
+
+Rule 0     S' -> init
+Rule 1     init -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> inst_select
+Rule 5     instruccion -> createdb
+Rule 6     inst_select -> SELECT POR FROM ID PTCOMA
+Rule 7     inst_select -> SELECT listaid FROM listaid PTCOMA
+Rule 8     inst_select -> SELECT listaid FROM listaidA PTCOMA
+Rule 9     listaid -> listaid COMA ID
+Rule 10    listaid -> ID
+Rule 11    listaidA -> listaidA COMA ID ID
+Rule 12    listaidA -> ID ID
+Rule 13    createdb -> CREATE DATABASE ID PTCOMA
+Rule 14    expr -> MENOS ENTERO
+Rule 15    expr -> MAS ENTERO
+
+Terminals, with rules where they appear
+
+ADD                  : 
+ALTER                : 
+AND                  : 
+AS                   : 
+BETWEEN              : 
+BIGINT               : 
+BOOLEAN              : 
+CADENA               : 
+CHAR                 : 
+CHARACTER            : 
+CHECK                : 
+COMA                 : 9 11
+CONCAT               : 
+CONSTRAINT           : 
+CORCHETEA            : 
+CORCHETECER          : 
+CREATE               : 13
+DATABASE             : 13
+DATE                 : 
+DAY                  : 
+DECIMAL              : 
+DIVIDIDO             : 
+DOSPUNTOS            : 
+DOUBLE               : 
+DROP                 : 
+ENTERO               : 14 15
+ENUM                 : 
+EXPONENCIAL          : 
+FALSE                : 
+FOREIGN              : 
+FROM                 : 6 7 8
+HOUR                 : 
+ID                   : 6 9 10 11 11 12 12 13
+IF                   : 
+IGUAL                : 
+IGUALQUE             : 
+ILIKE                : 
+IN                   : 
+INTEGER              : 
+INTERVAL             : 
+IS                   : 
+KEY                  : 
+LIKE                 : 
+LLAVDER              : 
+LLAVIZQ              : 
+MAS                  : 15
+MAYORIGUAL           : 
+MAYQUE               : 
+MENORIGUAL           : 
+MENOS                : 14
+MENQUE               : 
+MINUTE               : 
+MONEY                : 
+MONTH                : 
+NIGUALQUE            : 
+NOT                  : 
+NULL                 : 
+NUMDECIMAL           : 
+NUMERIC              : 
+OR                   : 
+OWNER                : 
+PARDER               : 
+PARIZQ               : 
+POR                  : 6
+PORCENTAJE           : 
+PRECISION            : 
+PRIMARY              : 
+PTCOMA               : 6 7 8 13
+PUNTO                : 
+REFERENCES           : 
+RENAME               : 
+REPLACE              : 
+SECOND               : 
+SELECT               : 6 7 8
+SET                  : 
+SHOW                 : 
+SIMILAR              : 
+SMALLINT             : 
+TABLE                : 
+TEXT                 : 
+TIME                 : 
+TIMESTAMP            : 
+TO                   : 
+TRUE                 : 
+TYPE                 : 
+UNIQUE               : 
+VARCHAR              : 
+VARYING              : 
+WHERE                : 
+YEAR                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+createdb             : 5
+expr                 : 
+init                 : 0
+inst_select          : 4
+instruccion          : 2 3
+instrucciones        : 1 2
+listaid              : 7 7 8 9
+listaidA             : 8 11
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . init
+    (1) init -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . inst_select
+    (5) instruccion -> . createdb
+    (6) inst_select -> . SELECT POR FROM ID PTCOMA
+    (7) inst_select -> . SELECT listaid FROM listaid PTCOMA
+    (8) inst_select -> . SELECT listaid FROM listaidA PTCOMA
+    (13) createdb -> . CREATE DATABASE ID PTCOMA
+
+    SELECT          shift and go to state 6
+    CREATE          shift and go to state 7
+
+    init                           shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    inst_select                    shift and go to state 4
+    createdb                       shift and go to state 5
+
+state 1
+
+    (0) S' -> init .
+
+
+
+state 2
+
+    (1) init -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . inst_select
+    (5) instruccion -> . createdb
+    (6) inst_select -> . SELECT POR FROM ID PTCOMA
+    (7) inst_select -> . SELECT listaid FROM listaid PTCOMA
+    (8) inst_select -> . SELECT listaid FROM listaidA PTCOMA
+    (13) createdb -> . CREATE DATABASE ID PTCOMA
+
+    $end            reduce using rule 1 (init -> instrucciones .)
+    SELECT          shift and go to state 6
+    CREATE          shift and go to state 7
+
+    instruccion                    shift and go to state 8
+    inst_select                    shift and go to state 4
+    createdb                       shift and go to state 5
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    SELECT          reduce using rule 3 (instrucciones -> instruccion .)
+    CREATE          reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> inst_select .
+
+    SELECT          reduce using rule 4 (instruccion -> inst_select .)
+    CREATE          reduce using rule 4 (instruccion -> inst_select .)
+    $end            reduce using rule 4 (instruccion -> inst_select .)
+
+
+state 5
+
+    (5) instruccion -> createdb .
+
+    SELECT          reduce using rule 5 (instruccion -> createdb .)
+    CREATE          reduce using rule 5 (instruccion -> createdb .)
+    $end            reduce using rule 5 (instruccion -> createdb .)
+
+
+state 6
+
+    (6) inst_select -> SELECT . POR FROM ID PTCOMA
+    (7) inst_select -> SELECT . listaid FROM listaid PTCOMA
+    (8) inst_select -> SELECT . listaid FROM listaidA PTCOMA
+    (9) listaid -> . listaid COMA ID
+    (10) listaid -> . ID
+
+    POR             shift and go to state 9
+    ID              shift and go to state 10
+
+    listaid                        shift and go to state 11
+
+state 7
+
+    (13) createdb -> CREATE . DATABASE ID PTCOMA
+
+    DATABASE        shift and go to state 12
+
+
+state 8
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    SELECT          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    CREATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 9
+
+    (6) inst_select -> SELECT POR . FROM ID PTCOMA
+
+    FROM            shift and go to state 13
+
+
+state 10
+
+    (10) listaid -> ID .
+
+    FROM            reduce using rule 10 (listaid -> ID .)
+    COMA            reduce using rule 10 (listaid -> ID .)
+
+
+state 11
+
+    (7) inst_select -> SELECT listaid . FROM listaid PTCOMA
+    (8) inst_select -> SELECT listaid . FROM listaidA PTCOMA
+    (9) listaid -> listaid . COMA ID
+
+    FROM            shift and go to state 14
+    COMA            shift and go to state 15
+
+
+state 12
+
+    (13) createdb -> CREATE DATABASE . ID PTCOMA
+
+    ID              shift and go to state 16
+
+
+state 13
+
+    (6) inst_select -> SELECT POR FROM . ID PTCOMA
+
+    ID              shift and go to state 17
+
+
+state 14
+
+    (7) inst_select -> SELECT listaid FROM . listaid PTCOMA
+    (8) inst_select -> SELECT listaid FROM . listaidA PTCOMA
+    (9) listaid -> . listaid COMA ID
+    (10) listaid -> . ID
+    (11) listaidA -> . listaidA COMA ID ID
+    (12) listaidA -> . ID ID
+
+    ID              shift and go to state 20
+
+    listaid                        shift and go to state 18
+    listaidA                       shift and go to state 19
+
+state 15
+
+    (9) listaid -> listaid COMA . ID
+
+    ID              shift and go to state 21
+
+
+state 16
+
+    (13) createdb -> CREATE DATABASE ID . PTCOMA
+
+    PTCOMA          shift and go to state 22
+
+
+state 17
+
+    (6) inst_select -> SELECT POR FROM ID . PTCOMA
+
+    PTCOMA          shift and go to state 23
+
+
+state 18
+
+    (7) inst_select -> SELECT listaid FROM listaid . PTCOMA
+    (9) listaid -> listaid . COMA ID
+
+    PTCOMA          shift and go to state 24
+    COMA            shift and go to state 15
+
+
+state 19
+
+    (8) inst_select -> SELECT listaid FROM listaidA . PTCOMA
+    (11) listaidA -> listaidA . COMA ID ID
+
+    PTCOMA          shift and go to state 25
+    COMA            shift and go to state 26
+
+
+state 20
+
+    (10) listaid -> ID .
+    (12) listaidA -> ID . ID
+
+    PTCOMA          reduce using rule 10 (listaid -> ID .)
+    COMA            reduce using rule 10 (listaid -> ID .)
+    ID              shift and go to state 27
+
+
+state 21
+
+    (9) listaid -> listaid COMA ID .
+
+    FROM            reduce using rule 9 (listaid -> listaid COMA ID .)
+    COMA            reduce using rule 9 (listaid -> listaid COMA ID .)
+    PTCOMA          reduce using rule 9 (listaid -> listaid COMA ID .)
+
+
+state 22
+
+    (13) createdb -> CREATE DATABASE ID PTCOMA .
+
+    SELECT          reduce using rule 13 (createdb -> CREATE DATABASE ID PTCOMA .)
+    CREATE          reduce using rule 13 (createdb -> CREATE DATABASE ID PTCOMA .)
+    $end            reduce using rule 13 (createdb -> CREATE DATABASE ID PTCOMA .)
+
+
+state 23
+
+    (6) inst_select -> SELECT POR FROM ID PTCOMA .
+
+    SELECT          reduce using rule 6 (inst_select -> SELECT POR FROM ID PTCOMA .)
+    CREATE          reduce using rule 6 (inst_select -> SELECT POR FROM ID PTCOMA .)
+    $end            reduce using rule 6 (inst_select -> SELECT POR FROM ID PTCOMA .)
+
+
+state 24
+
+    (7) inst_select -> SELECT listaid FROM listaid PTCOMA .
+
+    SELECT          reduce using rule 7 (inst_select -> SELECT listaid FROM listaid PTCOMA .)
+    CREATE          reduce using rule 7 (inst_select -> SELECT listaid FROM listaid PTCOMA .)
+    $end            reduce using rule 7 (inst_select -> SELECT listaid FROM listaid PTCOMA .)
+
+
+state 25
+
+    (8) inst_select -> SELECT listaid FROM listaidA PTCOMA .
+
+    SELECT          reduce using rule 8 (inst_select -> SELECT listaid FROM listaidA PTCOMA .)
+    CREATE          reduce using rule 8 (inst_select -> SELECT listaid FROM listaidA PTCOMA .)
+    $end            reduce using rule 8 (inst_select -> SELECT listaid FROM listaidA PTCOMA .)
+
+
+state 26
+
+    (11) listaidA -> listaidA COMA . ID ID
+
+    ID              shift and go to state 28
+
+
+state 27
+
+    (12) listaidA -> ID ID .
+
+    PTCOMA          reduce using rule 12 (listaidA -> ID ID .)
+    COMA            reduce using rule 12 (listaidA -> ID ID .)
+
+
+state 28
+
+    (11) listaidA -> listaidA COMA ID . ID
+
+    ID              shift and go to state 29
+
+
+state 29
+
+    (11) listaidA -> listaidA COMA ID ID .
+
+    PTCOMA          reduce using rule 11 (listaidA -> listaidA COMA ID ID .)
+    COMA            reduce using rule 11 (listaidA -> listaidA COMA ID ID .)
+

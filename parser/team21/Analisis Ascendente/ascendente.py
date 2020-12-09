@@ -63,6 +63,7 @@ reservadas = {
     'set':'SET',
     'select':'SELECT',
     'from':'FROM',
+    'delete':'DELETE',
     'where': 'WHERE',
     'default':'DEFAULT',
     'insert':'INSERT',
@@ -86,6 +87,7 @@ tokens  = [
     'DIV',
     'ANDO',
     'ORO',
+    'NOTO',
     'MENOR',
     'MAYOR',
     'IGUALIGUAL',
@@ -126,6 +128,7 @@ t_MULT       = r'\*'
 t_DIV  = r'/'
 t_ANDO    = r'\&'
 t_ORO = r'\|'
+t_NOTO = r'!'
 t_MENOR    = r'<'
 t_MAYOR    = r'>'
 t_IGUALIGUAL  = r'=='
@@ -207,7 +210,7 @@ precedence = (
     ('left', 'MAYMAY', 'MENMEN'),
     ('left','MAS','MENOS'),
     ('left','MULT','DIV'),
-    ('left','NOT','GNOT'),
+    ('left','NOTO','GNOT'),
     ('left', 'PARIZQ', 'PARDR')
 )
 
@@ -347,41 +350,82 @@ def p_valores(t):
 
 #UPDATE
 def p_update(t):
-    'instruccion        : UPDATE ID SET operacionesU PTCOMA'
+    'instruccion        : UPDATE ID SET asignaciones PTCOMA'
     t[0] = t[1]
 
 def p_update2(t):
-    'instruccion        : UPDATE ID SET operacionesU WHERE where PTCOMA'
+    'instruccion        : UPDATE ID SET asignaciones WHERE where PTCOMA'
     t[0] = t[1]
 
-def p_operaciones(t):
-    'operacionesU        : operacionesU COMA operacion'
+def p_asignaciones(t):
+    'asignaciones       : asignaciones COMA asignacion'
     t[1].append(t[3])
     t[0] = t[1]
 
-def p_operaciones2(t):
-    'operacionesU        : operacion'
+def p_asignaciones2(t):
+    'asignaciones       : asignacion'
     t[0] = [t[1]]
 
 
 def p_where(t):
-    'where              : operacion'
+    'where              : asignacion'
     t[0] = t[1]
 
-def p_operacion(t):
-    '''operacion        : ID IGUAL ID
-                        | ID IGUAL valores
-                        | ID IGUAL operacion'''
+def p_asignacion(t):
+    '''asignacion       : ID IGUAL E'''
 
+def p_E(t):
+    '''E            : PARIZQ E PARDR
+                    | operando
+                    | unario
+                    | valores
+                    | var'''
+#    print("expresion")
+#    if t[1] == '('  : t[0] = t[2]
+#    else            : t[0] = t[1]
+
+
+def p_oper(t):
+    '''operando     : E MAS E
+	                | E MENOS E
+	                | E MULT E
+ 	                | E DIV E
+	                | E IGUALIGUAL E
+	                | E NOIGUAL E
+	                | E MENOR E
+	                | E MAYOR E
+	                | E MENORIGUAL E
+	                | E MAYORIGUAL E
+	                | E MENMEN E
+	                | E MAYMAY E
+	                | E ANDO E
+	                | E ORO E
+	                '''
+    #t[0] = Expresion(t[1], t[3], t[2])
+
+def p_unarios(t):
+    '''unario       : NOTO E 
+	                | MENOS E  
+	                | GNOT E '''
+                    #| MASMAS E                 #%prec NOT  %prec MENOSU  %prec GNOT
+	                #| MENOSMENOS E
+    #t[0] = Unario(t[1], t[2])
+
+def p_var(t):
+    'var            : ID'
+    #t[0] = Id(t[1])
 
 
 
 #################################################################
 #DELETE
-#def p_delete(t):
- #   'instruccion        : DELETE FROM ID WHERE where PTCOMA'
-  #  t[0] = t[1]
+def p_delete(t):
+    'instruccion        : DELETE FROM ID WHERE where PTCOMA'
+    t[0] = t[1]
 
+def p_delete2(t):
+    'instruccion        : DELETE FROM ID PTCOMA'
+    t[0] = t[1]
 
 
 
