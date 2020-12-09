@@ -265,6 +265,16 @@ def t_ENTERO(t):
         t.value = 0
     return t
 
+# funcion de comentarios --
+def t_COMMENT(t):
+    r'\-\-.*'
+    t.lexer.lineno += 1
+    
+# funcion de comentarios de múltiples líneas /* .. */
+def t_COMMENT_MULTILINEA(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')  
+
 #Defincion de los errores lexicos
 def t_error(t):
     print("Carácter no válido'%s'" % t.value[0])
@@ -296,4 +306,4 @@ def p_instruccion(t):
 
 import ply.yacc as yacc
 parser = yacc.yacc()
-parser.parse("COSD nombre1 12.5 'HOLA'")                        
+parser.parse(" COSD /* asda sd */ nombre -- COSD nombre1 12.5 'HOLA'  ")                        
