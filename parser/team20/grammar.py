@@ -11,6 +11,7 @@ from pathlib import Path
 # -----------------------------------------------------------------------------
 
 reservedwords = (
+    'CREATE',
     'DROP',
     'DATABASE',
     'DATABASES',
@@ -22,6 +23,7 @@ reservedwords = (
     'ALTER',
     'RENAME',
     'OWNER',
+    'MODE',
     'TO',
     'COLUMN',
     'CONSTRAINT',
@@ -29,28 +31,44 @@ reservedwords = (
     'FOREIGN',
     'KEY',
     'REFERENCES',
+    'REPLACE',
     'SET',
     'NOT',
     'ADD',
     'NULL',
     'USE',
+    'INTEGER',
+    'BIGINT',
+    'DECIMAL',
+    'NUMERIC',
+    'REAL',
+    'DOUBLE',
+    'PRECISION',
+    'MONEY',
+    'CHARACTER'
 )
 
 symbols = (
     'SEMICOLON',
     'BRACKET_OPEN',
     'BRACKET_CLOSE',
+    'COMA',
+    'EQUAL'
 )
 
 tokens = reservedwords + symbols + (
     'ID',
     'REGEX',
+    'MODN',
+    'INT'
 )
 
 # Tokens
 t_SEMICOLON       = r';'
 t_BRACKET_OPEN    = r'\('
 t_BRACKET_CLOSE   = r'\)'
+t_EQUAL = r'='
+t_COMA = r','
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9_]*'
@@ -60,6 +78,18 @@ def t_ID(t):
 
 def t_REGEX(t):
     r'\"%?.*?%?\"'
+    if t.value in reservedwords:
+        t.type = t.value
+    return t
+
+def t_MODN(t):
+    r'[1-5]'
+    if t.value in reservedwords:
+        t.type = t.value
+    return t
+
+def t_INT(t):
+    r'\d+'
     if t.value in reservedwords:
         t.type = t.value
     return t
@@ -74,13 +104,13 @@ def t_REGEX(t):
 #     return t
 
 # def t_INT(t):
-#     r'\d+'
-#     try:
-#         t.value = int(t.value)
-#     except ValueError:
-#         print("Integer value too large %d", t.value)
-#         t.value = 0
-#     return t
+     #r'\d+'
+     #try:
+     #   t.value = int(t.value)
+    # except ValueError:
+      #  print("Integer value too large %d", t.value)
+      #  t.value = 0
+     #return t
 
 # Ignored characters
 t_ignore = " \t"
@@ -119,12 +149,36 @@ def p_instructions_sql(t):
 def p_instructions_ddl(t):
     '''ddl : drop
            | alter
-           | use'''
+           | use
+           | create'''
+           
 
 def p_instructions_dml(t):
     '''dml : show'''
 
 # DDL sentences
+#CREATE
+def p_instruction_create(t):
+    '''create : createDatabase
+              | '''
+
+def p_instruction_create_database(t):
+    '''createDatabase : CREATE DATABASE ID ownermode
+              | REPLACE DATABASE ID ownermode
+              | CREATE DATABASE  IF NOT EXISTS ID ownermode'''
+
+def p_instruction_create_owner_mode(t):
+    '''ownermode : OWNER EQUAL ID
+            | OWNER ID
+            | MODE MODN
+            | MODE EQUAL MODN
+            | OWNER ID MODE MODN
+            | OWNER EQUAL ID MODE MODN
+            | OWNER ID MODE EQUAL MODN
+            | OWNER EQUAL ID MODE EQUAL MODN
+            |'''         
+
+
 #DROP
 def p_instruction_drop(t):
     '''drop : dropDatabase
@@ -162,8 +216,7 @@ def p_instruction_alteroptions(t):
 #DML sentences
 #SHOW
 def p_instruction_show(t):
-    '''show : SHOW DATABASES
-            | SHOW DATABASES LIKE REGEX'''
+    '''show : SHOW DATABASES'''
 
 #ERROR
 def p_error(t):
