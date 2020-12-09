@@ -1,0 +1,4 @@
+#primero actualizar pip
+#pip install ply
+#pip install PyQt5
+#pip install QScintilla
