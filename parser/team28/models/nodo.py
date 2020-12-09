@@ -1,6 +1,7 @@
-from linked_list import SingleLinkedList
+from controllers.linked_list import SingleLinkedList
 
-# Clase nodo para generar el ast temporal 
+# Clase nodo para generar el ast temporal
+
 
 class Node:
     def __init__(self, value):
