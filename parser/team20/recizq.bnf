@@ -35,7 +35,7 @@
 <sortexpressionlist> ::= <sortexpressionlist> "," <expression> [asc|desc]
                       |  <expression> [asc|desc]
 
-<createDatabase> ::= create [or replace] database [if not exists] name [owner ["="] id] [mode ["="] integer]
+<createDatabase> ::= create [or replace] database [if not exists] id [owner ["="] id] [mode ["="] integer]
 
 <createTable> ::= create table id "(" <columns> ")"
 
