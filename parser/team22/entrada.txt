@@ -1,0 +1,11 @@
+create database compi;
+use una_bd;
+
+-- comentario
+/* comentario
+multiple*/
+select * from usuarios;
+select A.id from usuarios;
+select A.id, A.nombre from usuarios;
+delete libros;
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
