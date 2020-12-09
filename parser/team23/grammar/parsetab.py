@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'leftIGUALDADDESIGUALDADleftMAYORMENORMAYORIGUALMENORIGUALleftSUMARESTAleftMULTIPLICACIONDIVISIONleftPAR_ABREPAR_CIERRALLAVE_ABRELLAVE_CIERRACADENA DECIMAL DESIGUALDAD DIVISION ELSE ENTERO ID IF IGUALDAD IMPRIMIR LLAVE_ABRE LLAVE_CIERRA MAYOR MAYORIGUAL MENOR MENORIGUAL MULTIPLICACION PAR_ABRE PAR_CIERRA PUNTOCOMA RESTA SUMA WHILEinit            : instruccionesinstrucciones    : instrucciones instruccioninstrucciones    : instruccion instruccion      : imprimir_\n                        | if_statement\n                        | while_statementexpresion_ : expresion_ SUMA expresion_\n                  | expresion_ RESTA expresion_\n                  | expresion_ MULTIPLICACION expresion_\n                  | expresion_ DIVISION expresion_\n                  | expresion_ IGUALDAD expresion_\n                  | expresion_ DESIGUALDAD expresion_\n                  | expresion_ MAYOR expresion_\n                  | expresion_ MENOR expresion_\n                  | expresion_ MAYORIGUAL expresion_\n                  | expresion_ MENORIGUAL expresion_\n                  | expif_statement : IF PAR_ABRE expresion_ PAR_CIERRA statement else_statementelse_statement : ELSE statement\n                      | ELSE if_statement\n                      | while_statement : WHILE PAR_ABRE expresion_ PAR_CIERRA statementstatement : LLAVE_ABRE instrucciones LLAVE_CIERRA\n                 | LLAVE_ABRE LLAVE_CIERRAimprimir_   : IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMAexp : primitivoprimitivo : ENTEROprimitivo : DECIMALprimitivo : CADENAprimitivo : varsvars : ID'
+_lr_signature = 'leftPAR_ABREPAR_CIERRAALL ALTER AND AS ASC ASTERISCO BETWEEN BIGINT BOOLEAN BY CADENA CASE CASTEO CHAR CHARACTER CHECK COMA CONSTRAINT CORCHE_ABRE CORCHE_CIERRA COUNT CREATE DATABASE DATE DAY DECIMAL DELETE DESC DIFERENTE DIVISION DROP ELSE END ENTERO ENUM EXISTS FALSE FIELDS FIRST FOREIGN FROM FULL GREATEST GROUP HAVING HOUR ID IF IGUAL ILIKE IN INHERITS INNER INSERT INTEGER INTERSECT INTERVAL IS ISNULL JOIN KEY LAST LEAST LEFT LIKE LIMIT MAS MAYOR MAYOR_IGUAL MENOR MENOR_IGUAL MENOS MINUTE MODE MODULO MONEY MONTH NOT NOTNULL NO_IGUAL NULL NUMERIC OFFSET OR ORDER OUTER OWNER PAR_ABRE PAR_CIERRA POTENCIA PRIMARY PUNTO PUNTOCOMA REAL REFERENCES RENAME REPLACE RIGHT SECOND SELECT SET SIMILAR SMALLINT SUM TABLE TEXT THEN TIME TIMESTAMP TO TRUE TYPE UNION UPDATE VALUES VARCHAR VARYING WHEN WHERE WITH WITHOUT YEAR ZONEinit            : instruccionesinstrucciones    : instrucciones instruccioninstrucciones    : instruccion instruccion      : crear_statement PUNTOCOMAcrear_statement  : CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRAcrear_statement  : CREATE DATABASE IDcontenido_tabla  : contenido_tabla COMA manejo_tablacontenido_tabla  : manejo_tablamanejo_tabla     : declaracion_columnadeclaracion_columna : ID type_columntype_column      : SMALLINT\n                        | INTEGER\n                        | BIGINT\n                        | DECIMAL\n                        | NUMERIC\n                        | REAL\n                        | MONEY\n                        | VARCHAR\n                        | CHAR \n                        | TEXT\n                        | DATE'
     
-_lr_action_items = {'IMPRIMIR':([0,2,3,4,5,6,10,37,48,49,50,51,53,54,55,56,57,],[7,7,-3,-4,-5,-6,-2,-25,-21,7,-22,-18,7,-24,-19,-20,-23,]),'IF':([0,2,3,4,5,6,10,37,48,49,50,51,52,53,54,55,56,57,],[8,8,-3,-4,-5,-6,-2,-25,-21,8,-22,-18,8,8,-24,-19,-20,-23,]),'WHILE':([0,2,3,4,5,6,10,37,48,49,50,51,53,54,55,56,57,],[9,9,-3,-4,-5,-6,-2,-25,-21,9,-22,-18,9,-24,-19,-20,-23,]),'$end':([1,2,3,4,5,6,10,37,48,50,51,54,55,56,57,],[0,-1,-3,-4,-5,-6,-2,-25,-21,-22,-18,-24,-19,-20,-23,]),'LLAVE_CIERRA':([3,4,5,6,10,37,48,49,50,51,53,54,55,56,57,],[-3,-4,-5,-6,-2,-25,-21,54,-22,-18,57,-24,-19,-20,-23,]),'PAR_ABRE':([7,8,9,],[11,12,13,]),'ENTERO':([11,12,13,25,26,27,28,29,30,31,32,33,34,],[17,17,17,17,17,17,17,17,17,17,17,17,17,]),'DECIMAL':([11,12,13,25,26,27,28,29,30,31,32,33,34,],[18,18,18,18,18,18,18,18,18,18,18,18,18,]),'CADENA':([11,12,13,25,26,27,28,29,30,31,32,33,34,],[19,19,19,19,19,19,19,19,19,19,19,19,19,]),'ID':([11,12,13,25,26,27,28,29,30,31,32,33,34,],[21,21,21,21,21,21,21,21,21,21,21,21,21,]),'PAR_CIERRA':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[24,-17,-26,-27,-28,-29,-30,-31,35,36,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,]),'SUMA':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[25,-17,-26,-27,-28,-29,-30,-31,25,25,-7,-8,-9,-10,25,25,25,25,25,25,]),'RESTA':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[26,-17,-26,-27,-28,-29,-30,-31,26,26,-7,-8,-9,-10,26,26,26,26,26,26,]),'MULTIPLICACION':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[27,-17,-26,-27,-28,-29,-30,-31,27,27,27,27,-9,-10,27,27,27,27,27,27,]),'DIVISION':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[28,-17,-26,-27,-28,-29,-30,-31,28,28,28,28,-9,-10,28,28,28,28,28,28,]),'IGUALDAD':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[29,-17,-26,-27,-28,-29,-30,-31,29,29,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,]),'DESIGUALDAD':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[30,-17,-26,-27,-28,-29,-30,-31,30,30,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,]),'MAYOR':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[31,-17,-26,-27,-28,-29,-30,-31,31,31,-7,-8,-9,-10,31,31,-13,-14,-15,-16,]),'MENOR':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[32,-17,-26,-27,-28,-29,-30,-31,32,32,-7,-8,-9,-10,32,32,-13,-14,-15,-16,]),'MAYORIGUAL':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[33,-17,-26,-27,-28,-29,-30,-31,33,33,-7,-8,-9,-10,33,33,-13,-14,-15,-16,]),'MENORIGUAL':([14,15,16,17,18,19,20,21,22,23,38,39,40,41,42,43,44,45,46,47,],[34,-17,-26,-27,-28,-29,-30,-31,34,34,-7,-8,-9,-10,34,34,-13,-14,-15,-16,]),'PUNTOCOMA':([24,],[37,]),'LLAVE_ABRE':([35,36,52,],[49,49,49,]),'ELSE':([48,54,57,],[52,-24,-23,]),}
+_lr_action_items = {'CREATE':([0,2,3,6,7,],[5,5,-3,-2,-4,]),'$end':([1,2,3,6,7,],[0,-1,-3,-2,-4,]),'PUNTOCOMA':([4,11,29,],[7,-6,-5,]),'TABLE':([5,],[8,]),'DATABASE':([5,],[9,]),'ID':([8,9,12,30,],[10,11,13,13,]),'PAR_ABRE':([10,],[12,]),'SMALLINT':([13,],[18,]),'INTEGER':([13,],[19,]),'BIGINT':([13,],[20,]),'DECIMAL':([13,],[21,]),'NUMERIC':([13,],[22,]),'REAL':([13,],[23,]),'MONEY':([13,],[24,]),'VARCHAR':([13,],[25,]),'CHAR':([13,],[26,]),'TEXT':([13,],[27,]),'DATE':([13,],[28,]),'PAR_CIERRA':([14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,31,],[29,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-7,]),'COMA':([14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,31,],[30,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-7,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'init':([0,],[1,]),'instrucciones':([0,49,],[2,53,]),'instruccion':([0,2,49,53,],[3,10,3,10,]),'imprimir_':([0,2,49,53,],[4,4,4,4,]),'if_statement':([0,2,49,52,53,],[5,5,5,56,5,]),'while_statement':([0,2,49,53,],[6,6,6,6,]),'expresion_':([11,12,13,25,26,27,28,29,30,31,32,33,34,],[14,22,23,38,39,40,41,42,43,44,45,46,47,]),'exp':([11,12,13,25,26,27,28,29,30,31,32,33,34,],[15,15,15,15,15,15,15,15,15,15,15,15,15,]),'primitivo':([11,12,13,25,26,27,28,29,30,31,32,33,34,],[16,16,16,16,16,16,16,16,16,16,16,16,16,]),'vars':([11,12,13,25,26,27,28,29,30,31,32,33,34,],[20,20,20,20,20,20,20,20,20,20,20,20,20,]),'statement':([35,36,52,],[48,50,55,]),'else_statement':([48,],[51,]),}
+_lr_goto_items = {'init':([0,],[1,]),'instrucciones':([0,],[2,]),'instruccion':([0,2,],[3,6,]),'crear_statement':([0,2,],[4,4,]),'contenido_tabla':([12,],[14,]),'manejo_tabla':([12,30,],[15,31,]),'declaracion_columna':([12,30,],[16,16,]),'type_column':([13,],[17,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,35 +27,25 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> init","S'",1,None,None,None),
-  ('init -> instrucciones','init',1,'p_init','execute.py',125),
-  ('instrucciones -> instrucciones instruccion','instrucciones',2,'p_instrucciones_lista','execute.py',129),
-  ('instrucciones -> instruccion','instrucciones',1,'p_instrucciones_instruccion','execute.py',134),
-  ('instruccion -> imprimir_','instruccion',1,'p_instruccion','execute.py',138),
-  ('instruccion -> if_statement','instruccion',1,'p_instruccion','execute.py',139),
-  ('instruccion -> while_statement','instruccion',1,'p_instruccion','execute.py',140),
-  ('expresion_ -> expresion_ SUMA expresion_','expresion_',3,'p_expresion_','execute.py',144),
-  ('expresion_ -> expresion_ RESTA expresion_','expresion_',3,'p_expresion_','execute.py',145),
-  ('expresion_ -> expresion_ MULTIPLICACION expresion_','expresion_',3,'p_expresion_','execute.py',146),
-  ('expresion_ -> expresion_ DIVISION expresion_','expresion_',3,'p_expresion_','execute.py',147),
-  ('expresion_ -> expresion_ IGUALDAD expresion_','expresion_',3,'p_expresion_','execute.py',148),
-  ('expresion_ -> expresion_ DESIGUALDAD expresion_','expresion_',3,'p_expresion_','execute.py',149),
-  ('expresion_ -> expresion_ MAYOR expresion_','expresion_',3,'p_expresion_','execute.py',150),
-  ('expresion_ -> expresion_ MENOR expresion_','expresion_',3,'p_expresion_','execute.py',151),
-  ('expresion_ -> expresion_ MAYORIGUAL expresion_','expresion_',3,'p_expresion_','execute.py',152),
-  ('expresion_ -> expresion_ MENORIGUAL expresion_','expresion_',3,'p_expresion_','execute.py',153),
-  ('expresion_ -> exp','expresion_',1,'p_expresion_','execute.py',154),
-  ('if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement','if_statement',6,'p_if_instr','execute.py',170),
-  ('else_statement -> ELSE statement','else_statement',2,'p_else_instr','execute.py',174),
-  ('else_statement -> ELSE if_statement','else_statement',2,'p_else_instr','execute.py',175),
-  ('else_statement -> <empty>','else_statement',0,'p_else_instr','execute.py',176),
-  ('while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA statement','while_statement',5,'p_while_instr','execute.py',184),
-  ('statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA','statement',3,'p_statement','execute.py',188),
-  ('statement -> LLAVE_ABRE LLAVE_CIERRA','statement',2,'p_statement','execute.py',189),
-  ('imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA','imprimir_',5,'p_imprimir_instr','execute.py',194),
-  ('exp -> primitivo','exp',1,'p_exp_primitivo','execute.py',198),
-  ('primitivo -> ENTERO','primitivo',1,'p_exp_entero','execute.py',202),
-  ('primitivo -> DECIMAL','primitivo',1,'p_exp_decimal','execute.py',207),
-  ('primitivo -> CADENA','primitivo',1,'p_exp_cadena','execute.py',211),
-  ('primitivo -> vars','primitivo',1,'p_exp_variables','execute.py',215),
-  ('vars -> ID','vars',1,'p_exp_id','execute.py',219),
+  ('init -> instrucciones','init',1,'p_init','sql_grammar.py',227),
+  ('instrucciones -> instrucciones instruccion','instrucciones',2,'p_instrucciones_lista','sql_grammar.py',231),
+  ('instrucciones -> instruccion','instrucciones',1,'p_instrucciones_instruccion','sql_grammar.py',236),
+  ('instruccion -> crear_statement PUNTOCOMA','instruccion',2,'p_instruccion','sql_grammar.py',240),
+  ('crear_statement -> CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA','crear_statement',6,'p_crear_statement_tbl','sql_grammar.py',244),
+  ('crear_statement -> CREATE DATABASE ID','crear_statement',3,'p_crear_statement_db','sql_grammar.py',250),
+  ('contenido_tabla -> contenido_tabla COMA manejo_tabla','contenido_tabla',3,'p_contenido_tabla','sql_grammar.py',257),
+  ('contenido_tabla -> manejo_tabla','contenido_tabla',1,'p_aux_contenido_table','sql_grammar.py',262),
+  ('manejo_tabla -> declaracion_columna','manejo_tabla',1,'p_manejo_tabla','sql_grammar.py',266),
+  ('declaracion_columna -> ID type_column','declaracion_columna',2,'p_declaracion_columna','sql_grammar.py',270),
+  ('type_column -> SMALLINT','type_column',1,'p_type_column','sql_grammar.py',276),
+  ('type_column -> INTEGER','type_column',1,'p_type_column','sql_grammar.py',277),
+  ('type_column -> BIGINT','type_column',1,'p_type_column','sql_grammar.py',278),
+  ('type_column -> DECIMAL','type_column',1,'p_type_column','sql_grammar.py',279),
+  ('type_column -> NUMERIC','type_column',1,'p_type_column','sql_grammar.py',280),
+  ('type_column -> REAL','type_column',1,'p_type_column','sql_grammar.py',281),
+  ('type_column -> MONEY','type_column',1,'p_type_column','sql_grammar.py',282),
+  ('type_column -> VARCHAR','type_column',1,'p_type_column','sql_grammar.py',283),
+  ('type_column -> CHAR','type_column',1,'p_type_column','sql_grammar.py',284),
+  ('type_column -> TEXT','type_column',1,'p_type_column','sql_grammar.py',285),
+  ('type_column -> DATE','type_column',1,'p_type_column','sql_grammar.py',286),
 ]
