@@ -1,0 +1,1371 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Grammar
+
+Rule 0     S' -> init
+Rule 1     init -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> imprimir_
+Rule 5     instruccion -> if_statement
+Rule 6     instruccion -> while_statement
+Rule 7     expresion_ -> expresion_ SUMA expresion_
+Rule 8     expresion_ -> expresion_ RESTA expresion_
+Rule 9     expresion_ -> expresion_ MULTIPLICACION expresion_
+Rule 10    expresion_ -> expresion_ DIVISION expresion_
+Rule 11    expresion_ -> expresion_ IGUALDAD expresion_
+Rule 12    expresion_ -> expresion_ DESIGUALDAD expresion_
+Rule 13    expresion_ -> expresion_ MAYOR expresion_
+Rule 14    expresion_ -> expresion_ MENOR expresion_
+Rule 15    expresion_ -> expresion_ MAYORIGUAL expresion_
+Rule 16    expresion_ -> expresion_ MENORIGUAL expresion_
+Rule 17    expresion_ -> exp
+Rule 18    if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement
+Rule 19    else_statement -> ELSE statement
+Rule 20    else_statement -> ELSE if_statement
+Rule 21    else_statement -> <empty>
+Rule 22    while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA statement
+Rule 23    statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA
+Rule 24    statement -> LLAVE_ABRE LLAVE_CIERRA
+Rule 25    imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA
+Rule 26    exp -> primitivo
+Rule 27    primitivo -> ENTERO
+Rule 28    primitivo -> DECIMAL
+Rule 29    primitivo -> CADENA
+Rule 30    primitivo -> vars
+Rule 31    vars -> ID
+
+Terminals, with rules where they appear
+
+CADENA               : 29
+DECIMAL              : 28
+DESIGUALDAD          : 12
+DIVISION             : 10
+ELSE                 : 19 20
+ENTERO               : 27
+ID                   : 31
+IF                   : 18
+IGUALDAD             : 11
+IMPRIMIR             : 25
+LLAVE_ABRE           : 23 24
+LLAVE_CIERRA         : 23 24
+MAYOR                : 13
+MAYORIGUAL           : 15
+MENOR                : 14
+MENORIGUAL           : 16
+MULTIPLICACION       : 9
+PAR_ABRE             : 18 22 25
+PAR_CIERRA           : 18 22 25
+PUNTOCOMA            : 25
+RESTA                : 8
+SUMA                 : 7
+WHILE                : 22
+error                : 
+
+Nonterminals, with rules where they appear
+
+else_statement       : 18
+exp                  : 17
+expresion_           : 7 7 8 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 18 22 25
+if_statement         : 5 20
+imprimir_            : 4
+init                 : 0
+instruccion          : 2 3
+instrucciones        : 1 2 23
+primitivo            : 26
+statement            : 18 19 22
+vars                 : 30
+while_statement      : 6
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . init
+    (1) init -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . imprimir_
+    (5) instruccion -> . if_statement
+    (6) instruccion -> . while_statement
+    (25) imprimir_ -> . IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA
+    (18) if_statement -> . IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement
+    (22) while_statement -> . WHILE PAR_ABRE expresion_ PAR_CIERRA statement
+
+    IMPRIMIR        shift and go to state 7
+    IF              shift and go to state 8
+    WHILE           shift and go to state 9
+
+    init                           shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    imprimir_                      shift and go to state 4
+    if_statement                   shift and go to state 5
+    while_statement                shift and go to state 6
+
+state 1
+
+    (0) S' -> init .
+
+
+
+state 2
+
+    (1) init -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . imprimir_
+    (5) instruccion -> . if_statement
+    (6) instruccion -> . while_statement
+    (25) imprimir_ -> . IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA
+    (18) if_statement -> . IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement
+    (22) while_statement -> . WHILE PAR_ABRE expresion_ PAR_CIERRA statement
+
+    $end            reduce using rule 1 (init -> instrucciones .)
+    IMPRIMIR        shift and go to state 7
+    IF              shift and go to state 8
+    WHILE           shift and go to state 9
+
+    instruccion                    shift and go to state 10
+    imprimir_                      shift and go to state 4
+    if_statement                   shift and go to state 5
+    while_statement                shift and go to state 6
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    IMPRIMIR        reduce using rule 3 (instrucciones -> instruccion .)
+    IF              reduce using rule 3 (instrucciones -> instruccion .)
+    WHILE           reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+    LLAVE_CIERRA    reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> imprimir_ .
+
+    IMPRIMIR        reduce using rule 4 (instruccion -> imprimir_ .)
+    IF              reduce using rule 4 (instruccion -> imprimir_ .)
+    WHILE           reduce using rule 4 (instruccion -> imprimir_ .)
+    $end            reduce using rule 4 (instruccion -> imprimir_ .)
+    LLAVE_CIERRA    reduce using rule 4 (instruccion -> imprimir_ .)
+
+
+state 5
+
+    (5) instruccion -> if_statement .
+
+    IMPRIMIR        reduce using rule 5 (instruccion -> if_statement .)
+    IF              reduce using rule 5 (instruccion -> if_statement .)
+    WHILE           reduce using rule 5 (instruccion -> if_statement .)
+    $end            reduce using rule 5 (instruccion -> if_statement .)
+    LLAVE_CIERRA    reduce using rule 5 (instruccion -> if_statement .)
+
+
+state 6
+
+    (6) instruccion -> while_statement .
+
+    IMPRIMIR        reduce using rule 6 (instruccion -> while_statement .)
+    IF              reduce using rule 6 (instruccion -> while_statement .)
+    WHILE           reduce using rule 6 (instruccion -> while_statement .)
+    $end            reduce using rule 6 (instruccion -> while_statement .)
+    LLAVE_CIERRA    reduce using rule 6 (instruccion -> while_statement .)
+
+
+state 7
+
+    (25) imprimir_ -> IMPRIMIR . PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA
+
+    PAR_ABRE        shift and go to state 11
+
+
+state 8
+
+    (18) if_statement -> IF . PAR_ABRE expresion_ PAR_CIERRA statement else_statement
+
+    PAR_ABRE        shift and go to state 12
+
+
+state 9
+
+    (22) while_statement -> WHILE . PAR_ABRE expresion_ PAR_CIERRA statement
+
+    PAR_ABRE        shift and go to state 13
+
+
+state 10
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    IMPRIMIR        reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    IF              reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    WHILE           reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    LLAVE_CIERRA    reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 11
+
+    (25) imprimir_ -> IMPRIMIR PAR_ABRE . expresion_ PAR_CIERRA PUNTOCOMA
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 14
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 12
+
+    (18) if_statement -> IF PAR_ABRE . expresion_ PAR_CIERRA statement else_statement
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 22
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 13
+
+    (22) while_statement -> WHILE PAR_ABRE . expresion_ PAR_CIERRA statement
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 23
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 14
+
+    (25) imprimir_ -> IMPRIMIR PAR_ABRE expresion_ . PAR_CIERRA PUNTOCOMA
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      shift and go to state 24
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+    IGUALDAD        shift and go to state 29
+    DESIGUALDAD     shift and go to state 30
+    MAYOR           shift and go to state 31
+    MENOR           shift and go to state 32
+    MAYORIGUAL      shift and go to state 33
+    MENORIGUAL      shift and go to state 34
+
+
+state 15
+
+    (17) expresion_ -> exp .
+
+    PAR_CIERRA      reduce using rule 17 (expresion_ -> exp .)
+    SUMA            reduce using rule 17 (expresion_ -> exp .)
+    RESTA           reduce using rule 17 (expresion_ -> exp .)
+    MULTIPLICACION  reduce using rule 17 (expresion_ -> exp .)
+    DIVISION        reduce using rule 17 (expresion_ -> exp .)
+    IGUALDAD        reduce using rule 17 (expresion_ -> exp .)
+    DESIGUALDAD     reduce using rule 17 (expresion_ -> exp .)
+    MAYOR           reduce using rule 17 (expresion_ -> exp .)
+    MENOR           reduce using rule 17 (expresion_ -> exp .)
+    MAYORIGUAL      reduce using rule 17 (expresion_ -> exp .)
+    MENORIGUAL      reduce using rule 17 (expresion_ -> exp .)
+
+
+state 16
+
+    (26) exp -> primitivo .
+
+    PAR_CIERRA      reduce using rule 26 (exp -> primitivo .)
+    SUMA            reduce using rule 26 (exp -> primitivo .)
+    RESTA           reduce using rule 26 (exp -> primitivo .)
+    MULTIPLICACION  reduce using rule 26 (exp -> primitivo .)
+    DIVISION        reduce using rule 26 (exp -> primitivo .)
+    IGUALDAD        reduce using rule 26 (exp -> primitivo .)
+    DESIGUALDAD     reduce using rule 26 (exp -> primitivo .)
+    MAYOR           reduce using rule 26 (exp -> primitivo .)
+    MENOR           reduce using rule 26 (exp -> primitivo .)
+    MAYORIGUAL      reduce using rule 26 (exp -> primitivo .)
+    MENORIGUAL      reduce using rule 26 (exp -> primitivo .)
+
+
+state 17
+
+    (27) primitivo -> ENTERO .
+
+    PAR_CIERRA      reduce using rule 27 (primitivo -> ENTERO .)
+    SUMA            reduce using rule 27 (primitivo -> ENTERO .)
+    RESTA           reduce using rule 27 (primitivo -> ENTERO .)
+    MULTIPLICACION  reduce using rule 27 (primitivo -> ENTERO .)
+    DIVISION        reduce using rule 27 (primitivo -> ENTERO .)
+    IGUALDAD        reduce using rule 27 (primitivo -> ENTERO .)
+    DESIGUALDAD     reduce using rule 27 (primitivo -> ENTERO .)
+    MAYOR           reduce using rule 27 (primitivo -> ENTERO .)
+    MENOR           reduce using rule 27 (primitivo -> ENTERO .)
+    MAYORIGUAL      reduce using rule 27 (primitivo -> ENTERO .)
+    MENORIGUAL      reduce using rule 27 (primitivo -> ENTERO .)
+
+
+state 18
+
+    (28) primitivo -> DECIMAL .
+
+    PAR_CIERRA      reduce using rule 28 (primitivo -> DECIMAL .)
+    SUMA            reduce using rule 28 (primitivo -> DECIMAL .)
+    RESTA           reduce using rule 28 (primitivo -> DECIMAL .)
+    MULTIPLICACION  reduce using rule 28 (primitivo -> DECIMAL .)
+    DIVISION        reduce using rule 28 (primitivo -> DECIMAL .)
+    IGUALDAD        reduce using rule 28 (primitivo -> DECIMAL .)
+    DESIGUALDAD     reduce using rule 28 (primitivo -> DECIMAL .)
+    MAYOR           reduce using rule 28 (primitivo -> DECIMAL .)
+    MENOR           reduce using rule 28 (primitivo -> DECIMAL .)
+    MAYORIGUAL      reduce using rule 28 (primitivo -> DECIMAL .)
+    MENORIGUAL      reduce using rule 28 (primitivo -> DECIMAL .)
+
+
+state 19
+
+    (29) primitivo -> CADENA .
+
+    PAR_CIERRA      reduce using rule 29 (primitivo -> CADENA .)
+    SUMA            reduce using rule 29 (primitivo -> CADENA .)
+    RESTA           reduce using rule 29 (primitivo -> CADENA .)
+    MULTIPLICACION  reduce using rule 29 (primitivo -> CADENA .)
+    DIVISION        reduce using rule 29 (primitivo -> CADENA .)
+    IGUALDAD        reduce using rule 29 (primitivo -> CADENA .)
+    DESIGUALDAD     reduce using rule 29 (primitivo -> CADENA .)
+    MAYOR           reduce using rule 29 (primitivo -> CADENA .)
+    MENOR           reduce using rule 29 (primitivo -> CADENA .)
+    MAYORIGUAL      reduce using rule 29 (primitivo -> CADENA .)
+    MENORIGUAL      reduce using rule 29 (primitivo -> CADENA .)
+
+
+state 20
+
+    (30) primitivo -> vars .
+
+    PAR_CIERRA      reduce using rule 30 (primitivo -> vars .)
+    SUMA            reduce using rule 30 (primitivo -> vars .)
+    RESTA           reduce using rule 30 (primitivo -> vars .)
+    MULTIPLICACION  reduce using rule 30 (primitivo -> vars .)
+    DIVISION        reduce using rule 30 (primitivo -> vars .)
+    IGUALDAD        reduce using rule 30 (primitivo -> vars .)
+    DESIGUALDAD     reduce using rule 30 (primitivo -> vars .)
+    MAYOR           reduce using rule 30 (primitivo -> vars .)
+    MENOR           reduce using rule 30 (primitivo -> vars .)
+    MAYORIGUAL      reduce using rule 30 (primitivo -> vars .)
+    MENORIGUAL      reduce using rule 30 (primitivo -> vars .)
+
+
+state 21
+
+    (31) vars -> ID .
+
+    PAR_CIERRA      reduce using rule 31 (vars -> ID .)
+    SUMA            reduce using rule 31 (vars -> ID .)
+    RESTA           reduce using rule 31 (vars -> ID .)
+    MULTIPLICACION  reduce using rule 31 (vars -> ID .)
+    DIVISION        reduce using rule 31 (vars -> ID .)
+    IGUALDAD        reduce using rule 31 (vars -> ID .)
+    DESIGUALDAD     reduce using rule 31 (vars -> ID .)
+    MAYOR           reduce using rule 31 (vars -> ID .)
+    MENOR           reduce using rule 31 (vars -> ID .)
+    MAYORIGUAL      reduce using rule 31 (vars -> ID .)
+    MENORIGUAL      reduce using rule 31 (vars -> ID .)
+
+
+state 22
+
+    (18) if_statement -> IF PAR_ABRE expresion_ . PAR_CIERRA statement else_statement
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      shift and go to state 35
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+    IGUALDAD        shift and go to state 29
+    DESIGUALDAD     shift and go to state 30
+    MAYOR           shift and go to state 31
+    MENOR           shift and go to state 32
+    MAYORIGUAL      shift and go to state 33
+    MENORIGUAL      shift and go to state 34
+
+
+state 23
+
+    (22) while_statement -> WHILE PAR_ABRE expresion_ . PAR_CIERRA statement
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      shift and go to state 36
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+    IGUALDAD        shift and go to state 29
+    DESIGUALDAD     shift and go to state 30
+    MAYOR           shift and go to state 31
+    MENOR           shift and go to state 32
+    MAYORIGUAL      shift and go to state 33
+    MENORIGUAL      shift and go to state 34
+
+
+state 24
+
+    (25) imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA . PUNTOCOMA
+
+    PUNTOCOMA       shift and go to state 37
+
+
+state 25
+
+    (7) expresion_ -> expresion_ SUMA . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 38
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 26
+
+    (8) expresion_ -> expresion_ RESTA . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 39
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 27
+
+    (9) expresion_ -> expresion_ MULTIPLICACION . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 40
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 28
+
+    (10) expresion_ -> expresion_ DIVISION . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 41
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 29
+
+    (11) expresion_ -> expresion_ IGUALDAD . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 42
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 30
+
+    (12) expresion_ -> expresion_ DESIGUALDAD . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 43
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 31
+
+    (13) expresion_ -> expresion_ MAYOR . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 44
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 32
+
+    (14) expresion_ -> expresion_ MENOR . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 45
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 33
+
+    (15) expresion_ -> expresion_ MAYORIGUAL . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 46
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 34
+
+    (16) expresion_ -> expresion_ MENORIGUAL . expresion_
+    (7) expresion_ -> . expresion_ SUMA expresion_
+    (8) expresion_ -> . expresion_ RESTA expresion_
+    (9) expresion_ -> . expresion_ MULTIPLICACION expresion_
+    (10) expresion_ -> . expresion_ DIVISION expresion_
+    (11) expresion_ -> . expresion_ IGUALDAD expresion_
+    (12) expresion_ -> . expresion_ DESIGUALDAD expresion_
+    (13) expresion_ -> . expresion_ MAYOR expresion_
+    (14) expresion_ -> . expresion_ MENOR expresion_
+    (15) expresion_ -> . expresion_ MAYORIGUAL expresion_
+    (16) expresion_ -> . expresion_ MENORIGUAL expresion_
+    (17) expresion_ -> . exp
+    (26) exp -> . primitivo
+    (27) primitivo -> . ENTERO
+    (28) primitivo -> . DECIMAL
+    (29) primitivo -> . CADENA
+    (30) primitivo -> . vars
+    (31) vars -> . ID
+
+    ENTERO          shift and go to state 17
+    DECIMAL         shift and go to state 18
+    CADENA          shift and go to state 19
+    ID              shift and go to state 21
+
+    expresion_                     shift and go to state 47
+    exp                            shift and go to state 15
+    primitivo                      shift and go to state 16
+    vars                           shift and go to state 20
+
+state 35
+
+    (18) if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA . statement else_statement
+    (23) statement -> . LLAVE_ABRE instrucciones LLAVE_CIERRA
+    (24) statement -> . LLAVE_ABRE LLAVE_CIERRA
+
+    LLAVE_ABRE      shift and go to state 49
+
+    statement                      shift and go to state 48
+
+state 36
+
+    (22) while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA . statement
+    (23) statement -> . LLAVE_ABRE instrucciones LLAVE_CIERRA
+    (24) statement -> . LLAVE_ABRE LLAVE_CIERRA
+
+    LLAVE_ABRE      shift and go to state 49
+
+    statement                      shift and go to state 50
+
+state 37
+
+    (25) imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA .
+
+    IMPRIMIR        reduce using rule 25 (imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA .)
+    IF              reduce using rule 25 (imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA .)
+    WHILE           reduce using rule 25 (imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA .)
+    $end            reduce using rule 25 (imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA .)
+    LLAVE_CIERRA    reduce using rule 25 (imprimir_ -> IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA .)
+
+
+state 38
+
+    (7) expresion_ -> expresion_ SUMA expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    SUMA            reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    RESTA           reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    IGUALDAD        reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    DESIGUALDAD     reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    MAYOR           reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    MENOR           reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    MAYORIGUAL      reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    MENORIGUAL      reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .)
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+
+  ! MULTIPLICACION  [ reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .) ]
+  ! DIVISION        [ reduce using rule 7 (expresion_ -> expresion_ SUMA expresion_ .) ]
+  ! SUMA            [ shift and go to state 25 ]
+  ! RESTA           [ shift and go to state 26 ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+  ! MAYOR           [ shift and go to state 31 ]
+  ! MENOR           [ shift and go to state 32 ]
+  ! MAYORIGUAL      [ shift and go to state 33 ]
+  ! MENORIGUAL      [ shift and go to state 34 ]
+
+
+state 39
+
+    (8) expresion_ -> expresion_ RESTA expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    SUMA            reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    RESTA           reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    IGUALDAD        reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    DESIGUALDAD     reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    MAYOR           reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    MENOR           reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    MAYORIGUAL      reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    MENORIGUAL      reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .)
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+
+  ! MULTIPLICACION  [ reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .) ]
+  ! DIVISION        [ reduce using rule 8 (expresion_ -> expresion_ RESTA expresion_ .) ]
+  ! SUMA            [ shift and go to state 25 ]
+  ! RESTA           [ shift and go to state 26 ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+  ! MAYOR           [ shift and go to state 31 ]
+  ! MENOR           [ shift and go to state 32 ]
+  ! MAYORIGUAL      [ shift and go to state 33 ]
+  ! MENORIGUAL      [ shift and go to state 34 ]
+
+
+state 40
+
+    (9) expresion_ -> expresion_ MULTIPLICACION expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    SUMA            reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    RESTA           reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    MULTIPLICACION  reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    DIVISION        reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    IGUALDAD        reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    DESIGUALDAD     reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    MAYOR           reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    MENOR           reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    MAYORIGUAL      reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+    MENORIGUAL      reduce using rule 9 (expresion_ -> expresion_ MULTIPLICACION expresion_ .)
+
+  ! SUMA            [ shift and go to state 25 ]
+  ! RESTA           [ shift and go to state 26 ]
+  ! MULTIPLICACION  [ shift and go to state 27 ]
+  ! DIVISION        [ shift and go to state 28 ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+  ! MAYOR           [ shift and go to state 31 ]
+  ! MENOR           [ shift and go to state 32 ]
+  ! MAYORIGUAL      [ shift and go to state 33 ]
+  ! MENORIGUAL      [ shift and go to state 34 ]
+
+
+state 41
+
+    (10) expresion_ -> expresion_ DIVISION expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    SUMA            reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    RESTA           reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    MULTIPLICACION  reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    DIVISION        reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    IGUALDAD        reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    DESIGUALDAD     reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    MAYOR           reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    MENOR           reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    MAYORIGUAL      reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+    MENORIGUAL      reduce using rule 10 (expresion_ -> expresion_ DIVISION expresion_ .)
+
+  ! SUMA            [ shift and go to state 25 ]
+  ! RESTA           [ shift and go to state 26 ]
+  ! MULTIPLICACION  [ shift and go to state 27 ]
+  ! DIVISION        [ shift and go to state 28 ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+  ! MAYOR           [ shift and go to state 31 ]
+  ! MENOR           [ shift and go to state 32 ]
+  ! MAYORIGUAL      [ shift and go to state 33 ]
+  ! MENORIGUAL      [ shift and go to state 34 ]
+
+
+state 42
+
+    (11) expresion_ -> expresion_ IGUALDAD expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .)
+    IGUALDAD        reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .)
+    DESIGUALDAD     reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .)
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+    MAYOR           shift and go to state 31
+    MENOR           shift and go to state 32
+    MAYORIGUAL      shift and go to state 33
+    MENORIGUAL      shift and go to state 34
+
+  ! SUMA            [ reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .) ]
+  ! RESTA           [ reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .) ]
+  ! MULTIPLICACION  [ reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .) ]
+  ! DIVISION        [ reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .) ]
+  ! MAYOR           [ reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .) ]
+  ! MENOR           [ reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .) ]
+  ! MAYORIGUAL      [ reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .) ]
+  ! MENORIGUAL      [ reduce using rule 11 (expresion_ -> expresion_ IGUALDAD expresion_ .) ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+
+
+state 43
+
+    (12) expresion_ -> expresion_ DESIGUALDAD expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .)
+    IGUALDAD        reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .)
+    DESIGUALDAD     reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .)
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+    MAYOR           shift and go to state 31
+    MENOR           shift and go to state 32
+    MAYORIGUAL      shift and go to state 33
+    MENORIGUAL      shift and go to state 34
+
+  ! SUMA            [ reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .) ]
+  ! RESTA           [ reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .) ]
+  ! MULTIPLICACION  [ reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .) ]
+  ! DIVISION        [ reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .) ]
+  ! MAYOR           [ reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .) ]
+  ! MENOR           [ reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .) ]
+  ! MAYORIGUAL      [ reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .) ]
+  ! MENORIGUAL      [ reduce using rule 12 (expresion_ -> expresion_ DESIGUALDAD expresion_ .) ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+
+
+state 44
+
+    (13) expresion_ -> expresion_ MAYOR expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .)
+    IGUALDAD        reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .)
+    DESIGUALDAD     reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .)
+    MAYOR           reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .)
+    MENOR           reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .)
+    MAYORIGUAL      reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .)
+    MENORIGUAL      reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .)
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+
+  ! SUMA            [ reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .) ]
+  ! RESTA           [ reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .) ]
+  ! MULTIPLICACION  [ reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .) ]
+  ! DIVISION        [ reduce using rule 13 (expresion_ -> expresion_ MAYOR expresion_ .) ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+  ! MAYOR           [ shift and go to state 31 ]
+  ! MENOR           [ shift and go to state 32 ]
+  ! MAYORIGUAL      [ shift and go to state 33 ]
+  ! MENORIGUAL      [ shift and go to state 34 ]
+
+
+state 45
+
+    (14) expresion_ -> expresion_ MENOR expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .)
+    IGUALDAD        reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .)
+    DESIGUALDAD     reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .)
+    MAYOR           reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .)
+    MENOR           reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .)
+    MAYORIGUAL      reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .)
+    MENORIGUAL      reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .)
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+
+  ! SUMA            [ reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .) ]
+  ! RESTA           [ reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .) ]
+  ! MULTIPLICACION  [ reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .) ]
+  ! DIVISION        [ reduce using rule 14 (expresion_ -> expresion_ MENOR expresion_ .) ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+  ! MAYOR           [ shift and go to state 31 ]
+  ! MENOR           [ shift and go to state 32 ]
+  ! MAYORIGUAL      [ shift and go to state 33 ]
+  ! MENORIGUAL      [ shift and go to state 34 ]
+
+
+state 46
+
+    (15) expresion_ -> expresion_ MAYORIGUAL expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .)
+    IGUALDAD        reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .)
+    DESIGUALDAD     reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .)
+    MAYOR           reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .)
+    MENOR           reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .)
+    MAYORIGUAL      reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .)
+    MENORIGUAL      reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .)
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+
+  ! SUMA            [ reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .) ]
+  ! RESTA           [ reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .) ]
+  ! MULTIPLICACION  [ reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .) ]
+  ! DIVISION        [ reduce using rule 15 (expresion_ -> expresion_ MAYORIGUAL expresion_ .) ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+  ! MAYOR           [ shift and go to state 31 ]
+  ! MENOR           [ shift and go to state 32 ]
+  ! MAYORIGUAL      [ shift and go to state 33 ]
+  ! MENORIGUAL      [ shift and go to state 34 ]
+
+
+state 47
+
+    (16) expresion_ -> expresion_ MENORIGUAL expresion_ .
+    (7) expresion_ -> expresion_ . SUMA expresion_
+    (8) expresion_ -> expresion_ . RESTA expresion_
+    (9) expresion_ -> expresion_ . MULTIPLICACION expresion_
+    (10) expresion_ -> expresion_ . DIVISION expresion_
+    (11) expresion_ -> expresion_ . IGUALDAD expresion_
+    (12) expresion_ -> expresion_ . DESIGUALDAD expresion_
+    (13) expresion_ -> expresion_ . MAYOR expresion_
+    (14) expresion_ -> expresion_ . MENOR expresion_
+    (15) expresion_ -> expresion_ . MAYORIGUAL expresion_
+    (16) expresion_ -> expresion_ . MENORIGUAL expresion_
+
+    PAR_CIERRA      reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .)
+    IGUALDAD        reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .)
+    DESIGUALDAD     reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .)
+    MAYOR           reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .)
+    MENOR           reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .)
+    MAYORIGUAL      reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .)
+    MENORIGUAL      reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .)
+    SUMA            shift and go to state 25
+    RESTA           shift and go to state 26
+    MULTIPLICACION  shift and go to state 27
+    DIVISION        shift and go to state 28
+
+  ! SUMA            [ reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .) ]
+  ! RESTA           [ reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .) ]
+  ! MULTIPLICACION  [ reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .) ]
+  ! DIVISION        [ reduce using rule 16 (expresion_ -> expresion_ MENORIGUAL expresion_ .) ]
+  ! IGUALDAD        [ shift and go to state 29 ]
+  ! DESIGUALDAD     [ shift and go to state 30 ]
+  ! MAYOR           [ shift and go to state 31 ]
+  ! MENOR           [ shift and go to state 32 ]
+  ! MAYORIGUAL      [ shift and go to state 33 ]
+  ! MENORIGUAL      [ shift and go to state 34 ]
+
+
+state 48
+
+    (18) if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement . else_statement
+    (19) else_statement -> . ELSE statement
+    (20) else_statement -> . ELSE if_statement
+    (21) else_statement -> .
+
+    ELSE            shift and go to state 52
+    IMPRIMIR        reduce using rule 21 (else_statement -> .)
+    IF              reduce using rule 21 (else_statement -> .)
+    WHILE           reduce using rule 21 (else_statement -> .)
+    $end            reduce using rule 21 (else_statement -> .)
+    LLAVE_CIERRA    reduce using rule 21 (else_statement -> .)
+
+    else_statement                 shift and go to state 51
+
+state 49
+
+    (23) statement -> LLAVE_ABRE . instrucciones LLAVE_CIERRA
+    (24) statement -> LLAVE_ABRE . LLAVE_CIERRA
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . imprimir_
+    (5) instruccion -> . if_statement
+    (6) instruccion -> . while_statement
+    (25) imprimir_ -> . IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA
+    (18) if_statement -> . IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement
+    (22) while_statement -> . WHILE PAR_ABRE expresion_ PAR_CIERRA statement
+
+    LLAVE_CIERRA    shift and go to state 54
+    IMPRIMIR        shift and go to state 7
+    IF              shift and go to state 8
+    WHILE           shift and go to state 9
+
+    instrucciones                  shift and go to state 53
+    instruccion                    shift and go to state 3
+    imprimir_                      shift and go to state 4
+    if_statement                   shift and go to state 5
+    while_statement                shift and go to state 6
+
+state 50
+
+    (22) while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA statement .
+
+    IMPRIMIR        reduce using rule 22 (while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA statement .)
+    IF              reduce using rule 22 (while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA statement .)
+    WHILE           reduce using rule 22 (while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA statement .)
+    $end            reduce using rule 22 (while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA statement .)
+    LLAVE_CIERRA    reduce using rule 22 (while_statement -> WHILE PAR_ABRE expresion_ PAR_CIERRA statement .)
+
+
+state 51
+
+    (18) if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement .
+
+    IMPRIMIR        reduce using rule 18 (if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement .)
+    IF              reduce using rule 18 (if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement .)
+    WHILE           reduce using rule 18 (if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement .)
+    $end            reduce using rule 18 (if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement .)
+    LLAVE_CIERRA    reduce using rule 18 (if_statement -> IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement .)
+
+
+state 52
+
+    (19) else_statement -> ELSE . statement
+    (20) else_statement -> ELSE . if_statement
+    (23) statement -> . LLAVE_ABRE instrucciones LLAVE_CIERRA
+    (24) statement -> . LLAVE_ABRE LLAVE_CIERRA
+    (18) if_statement -> . IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement
+
+    LLAVE_ABRE      shift and go to state 49
+    IF              shift and go to state 8
+
+    statement                      shift and go to state 55
+    if_statement                   shift and go to state 56
+
+state 53
+
+    (23) statement -> LLAVE_ABRE instrucciones . LLAVE_CIERRA
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . imprimir_
+    (5) instruccion -> . if_statement
+    (6) instruccion -> . while_statement
+    (25) imprimir_ -> . IMPRIMIR PAR_ABRE expresion_ PAR_CIERRA PUNTOCOMA
+    (18) if_statement -> . IF PAR_ABRE expresion_ PAR_CIERRA statement else_statement
+    (22) while_statement -> . WHILE PAR_ABRE expresion_ PAR_CIERRA statement
+
+    LLAVE_CIERRA    shift and go to state 57
+    IMPRIMIR        shift and go to state 7
+    IF              shift and go to state 8
+    WHILE           shift and go to state 9
+
+    instruccion                    shift and go to state 10
+    imprimir_                      shift and go to state 4
+    if_statement                   shift and go to state 5
+    while_statement                shift and go to state 6
+
+state 54
+
+    (24) statement -> LLAVE_ABRE LLAVE_CIERRA .
+
+    ELSE            reduce using rule 24 (statement -> LLAVE_ABRE LLAVE_CIERRA .)
+    IMPRIMIR        reduce using rule 24 (statement -> LLAVE_ABRE LLAVE_CIERRA .)
+    IF              reduce using rule 24 (statement -> LLAVE_ABRE LLAVE_CIERRA .)
+    WHILE           reduce using rule 24 (statement -> LLAVE_ABRE LLAVE_CIERRA .)
+    $end            reduce using rule 24 (statement -> LLAVE_ABRE LLAVE_CIERRA .)
+    LLAVE_CIERRA    reduce using rule 24 (statement -> LLAVE_ABRE LLAVE_CIERRA .)
+
+
+state 55
+
+    (19) else_statement -> ELSE statement .
+
+    IMPRIMIR        reduce using rule 19 (else_statement -> ELSE statement .)
+    IF              reduce using rule 19 (else_statement -> ELSE statement .)
+    WHILE           reduce using rule 19 (else_statement -> ELSE statement .)
+    $end            reduce using rule 19 (else_statement -> ELSE statement .)
+    LLAVE_CIERRA    reduce using rule 19 (else_statement -> ELSE statement .)
+
+
+state 56
+
+    (20) else_statement -> ELSE if_statement .
+
+    IMPRIMIR        reduce using rule 20 (else_statement -> ELSE if_statement .)
+    IF              reduce using rule 20 (else_statement -> ELSE if_statement .)
+    WHILE           reduce using rule 20 (else_statement -> ELSE if_statement .)
+    $end            reduce using rule 20 (else_statement -> ELSE if_statement .)
+    LLAVE_CIERRA    reduce using rule 20 (else_statement -> ELSE if_statement .)
+
+
+state 57
+
+    (23) statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA .
+
+    ELSE            reduce using rule 23 (statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA .)
+    IMPRIMIR        reduce using rule 23 (statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA .)
+    IF              reduce using rule 23 (statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA .)
+    WHILE           reduce using rule 23 (statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA .)
+    $end            reduce using rule 23 (statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA .)
+    LLAVE_CIERRA    reduce using rule 23 (statement -> LLAVE_ABRE instrucciones LLAVE_CIERRA .)
+
