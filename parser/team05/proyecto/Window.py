@@ -6,7 +6,7 @@
 # 201220165 - Oscar Rolando Bernard Peralta
 
 # IMPORT SECTION
-import proyecto.WidgetLineNumber as ln
+import WidgetLineNumber as ln
 import tkinter.scrolledtext as tkst
 from tkinter.ttk import *
 from tkinter import Menu, Frame, ttk, filedialog, messagebox, simpledialog
@@ -15,6 +15,8 @@ import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 
+import Lexico as g
+import TablaSimbolos as st
 import os
 import webbrowser
 
@@ -32,9 +34,6 @@ class Main(tk.Tk):
         self.array_name = []
         self.search_list = list()
         self.active_file = ""
-        self.counter_semantic_error = 1
-        self.counter_symbol_table = 1
-        self.txt_symbol_table = ""
         self.DATA_TYPES_BLUE = ["CREATE", "create", "SHOW", "show", "USE", "use", "ALTER", "alter", "DROP", "drop"]
         self.KEYWORDS_FUNCTIONS = ["print"]
         self.SPACES_REGEX = re.compile("^\s*")
@@ -81,7 +80,7 @@ class Main(tk.Tk):
         self.menu_bar.add_cascade(label="Edicion", menu=self.sm_edit)
         # Submenu [Analysis]
         self.sm_analyze = Menu(self.menu_bar, tearoff=False)
-        self.sm_analyze.add_command(label="Ejecutar")
+        self.sm_analyze.add_command(label="Ejecutar", command=lambda: self.tytus_ejecutar())
         self.menu_bar.add_cascade(label="Queries", menu=self.sm_analyze)
         # Submenu [Reports]
         self.sm_report = Menu(self.menu_bar, tearoff=False)
@@ -403,6 +402,46 @@ class Main(tk.Tk):
     def do_nothing(self, event=None):
         if not (event.keysym == "Home" or event.keysym == "Shift_L"):
             print(event.keysym)
+
+    # Ejecución de Parser
+    def tytus_ejecutar(self):
+        # Getting widget
+        index = self.ta_input.index(self.ta_input.select())
+        ta_input = self.array_tabs[index]
+
+        # Delete old lexical report
+        if os.path.exists("reports/error_lexical.txt"):
+            os.remove("reports/error_lexical.txt")
+
+        # Delete old syntactic report
+        if os.path.exists("reports/error_syntactic.txt"):
+            os.remove("reports/error_syntactic.txt")
+
+        # Delete old semantic report
+        if os.path.exists("reports/error_semantic.txt"):
+            os.remove("reports/error_semantic.txt")
+
+        # Delete old output
+        self.ta_output.delete('1.0', END)
+
+        if ta_input.compare("end-1c", "!=", "1.0"):
+            # Gets new input
+            tytus = ta_input.get(1.0, END)
+
+            # Start parser
+            ins = g.parse(tytus)
+            st_global = st.SymbolTable()
+
+            if not ins:
+                messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
+            else:
+                self.do_body(ins, st_global)
+        else:
+            messagebox.showerror("INFO", "El campo de entrada esta vacío.")
+
+    # EJECUCIÓN DE ANÁLISIS - PARSER --------------------------
+    def do_body(self, p_inst, p_st):
+        print(p_inst)
 
 
 if __name__ == "__main__":
