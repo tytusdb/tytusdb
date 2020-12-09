@@ -130,18 +130,19 @@ tokens = [
     'MENORIGUALQUE',
     'MAYORIGUALQUE',
     'DIFERENTE',
-    'DIFERENTELL'
+    'DIFERENTELL',
     'PUNTO',
     'COMA',
     'ENTERO',
-    'DECIMAL',
+    'DECIMALVALOR',
     'CADENA',
     'ID',
     'BACKSPACE',
     'FEED',
     'NEWLINE',
     'RETURN',
-    'TAB'
+    'TAB',
+    'FECHA'
 ] + list(reservadas.values())
 
 #tokens
@@ -169,7 +170,7 @@ t_NEWLINE       = r'\\n'
 t_RETURN        = r'\\r'
 t_TAB           = r'\\r'
 
-def t_DECIMAL(t):
+def t_DECIMALVALOR(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
@@ -191,6 +192,10 @@ def t_ID(t):
      r'[a-zA-Z_][a-zA-Z_0-9]*'
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
+
+def t_FECHA(t):
+    r'\'\d+-\d+-\d+ \d+:\d+:\d+\''
+    return t
 
 def t_CADENA(t):
     r'\'.*?\''
@@ -223,24 +228,13 @@ lexer = lex.lex()
 
 def p_init(t) :
     'init            : instrucciones'
-    t[0] = t[1]
 
 def p_instrucciones_lista(t) :
-    'instrucciones    : instrucciones instruccion'
-    t[1].append(t[2])
-    t[0] = t[1]
-
-def p_instrucciones_instruccion(t) :
-    'instrucciones    : instruccion '
-    t[0] = [t[1]]
-
-def p_instruccion(t) :
-    '''instruccion      : CADENA
-                        | COMENTARIO_MULTILINEA'''
-    t[0] = t[1]
+    'instrucciones    : FECHA'
+    # print(t[1])
 
 def p_error(t):
-    print(t)
+    # print(t)
     print("Error sintáctico en '%s'" % t.value)
 
 import ply.yacc as yacc
