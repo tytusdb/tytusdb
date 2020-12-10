@@ -132,3 +132,4 @@ queries
 \<limite\> := LIMIT ENTERO
 	| LIMIT ALL
 	| OFFSET ENTERO
+
