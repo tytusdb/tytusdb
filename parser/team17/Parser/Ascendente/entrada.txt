@@ -1,7 +1,5 @@
-select distinct ;
+select distinct ;kll
 select distinct ;
 select
 select;
 select distinct
-select 
-select distinct ;

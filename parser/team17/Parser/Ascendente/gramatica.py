@@ -1,9 +1,15 @@
+from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
+from Interprete.Condicionantes.Condicion import Condicion
+from Interprete.SELECT.select import select
+from Interprete.Arbol import Arbol
+
 reservadas = {
 
 	# Boolean Type
 	'boolean': 'BOOLEAN',
 	'true': 'TRUE',
 	'false': 'FALSE',
+    'order': 'ORDER',
 
     'into': 'INTO',
 
@@ -342,15 +348,14 @@ import ply.lex as lex
 lexer2 = lex.lex()
 #-----------------------
 
-#Todo: Definir acciones en la gramatica
 def p_init(t):
-    'root : setinstrucciones'
-    t[0] = t[1]
+    'init : sentences'
+    t[0] = Arbol(t[1])
 
-def p_setInstrucciones(t):
+def p_sentences(t):
     '''
-        setinstrucciones    : setinstrucciones setinstrucciones_paso
-                            | setinstrucciones_paso
+        sentences   : sentences setInstruccions
+                    | setInstruccions
     '''
     if len(t)==3:
         t[1].append(t[2])
@@ -358,138 +363,79 @@ def p_setInstrucciones(t):
     else:
         t[0] = [t[1]]
 
-def p_setInstrucciones_paso(t):
+def p_setInstruccions(t):
     '''
-        setinstrucciones_paso   : instruccion
-                                | instruccion PTCOMA
+        setInstruccions   : sentence
+                          | sentence PTCOMA
     '''
     t[0] = t[1]
 
-#TODO: falta print y update
-def p_instruccion(t):
+def p_sentence(t):
     '''
-        instruccion     : select
+        sentence     : ddl
     '''
-    #'''
-    #    instruccion     : select
-    #                    | pupdate
-    #                    | pinsert
-    #'''
+    t[0] = t[1]
+
+def p_ddl(t):
+    '''
+        ddl  : select
+    '''
     t[0] = t[1]
 
 def p_select(t):
     '''
-        select  : SELECT DISTINCT
-                | SELECT
+        select  : SELECT listavalores FROM exp listawhere
     '''
-    if len(t)==3:
-        t[0] = t[1]+' '+t[2]
+    t[0] = select(t[2], t[4], t[5], 1, 1)
+
+def p_listawhere(t):
+    '''
+        listawhere  : listawhere atributoselect
+                    | atributoselect
+    '''
+    if len(t) == 3:
+        t[0] = t[1].append(t[2])
+    else:
+        t[0] = [t[1]]
+
+def p_atributoselect(t):
+    '''
+        atributoselect  : WHERE exp
+                        | ORDER BY exp ordenamiento
+                        | ORDER BY exp
+                        | LIMIT BY exp
+    '''
+    if t[1] == "where":
+        t[0] = Condicion(t[2], "where", 1, 1)
+
+def p_ordenamiento(t):
+    '''
+        ordenamiento   : ASC
+                       | DESC
+    '''
+
+def p_listavalores(t):
+    '''
+        listavalores   : listavalores COMA exp
+                       | exp
+    '''
+
+def p_exp(t):
+    '''
+        exp   : exp IGUAL exp
+              | expSimple
+    '''
+    if len(t) == 4:
+        t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
     else:
         t[0] = t[1]
 
+def p_expSimples(t):
+    '''
+        expSimple   :   ID
+    '''
+    t[0] = t[1]
 
-#def p_cuerpo_select(t):
-#    '''
-#        cuerpo_select   : grouping_column_reference FROM table_expression condition
-#    '''
-#
-##TODO:falta definir subquery
-#def p_table_expression(t):
-#    '''
-#        table_expression   : ID COMA table_expression
-#                           | ID
-#                           | ID ID
-#    '''
-#
-#def p_condition(t):
-#    '''
-#        condition  : where_condition condition
-#                   | GROUP BY grouping_column_reference condition
-#                   | COMA grouping_column_reference condition
-#                   | GROUP BY grouping_column_reference
-#                   | COMA grouping_column_reference
-#                   | where_condition
-#    '''
-##
-##TODO: falta no terminal objeto y agregacion
-#def p_grouping_column_reference(t):
-#    '''
-#        grouping_column_reference  : MULTI COMA grouping_column_reference
-#                                   | iden COMA grouping_column_reference
-#                                   | MULTI
-#                                   | iden
-#    '''
-#
-##TODO: definir iden
-#def p_iden(t):
-#    '''
-#        iden   : ID
-#               | ID AS iden
-#               | CADENADOBLE
-#               | CADENA
-#    '''
-#
-#
-#
-#def p_where_condition(t):
-#    '''
-#        where_condition   : WHERE search_condition
-#    '''
-#
-#
-##TODO: definir search_condition
-#def p_search_condition(t):
-#    '''
-#        search_condition : search_condition IGUAL search_condition
-#                         | search_condition DISTINTO search_condition
-#                         | search_condition MAYORQUE search_condition
-#                         | search_condition MENORQUE search_condition
-#                         | search_condition MAYORIG search_condition
-#                         | search_condition MENORIG search_condition
-#                         | search_condition OR search_condition
-#                         | search_condition AND search_condition
-#                         | search_condition LIKE search_condition
-#                         | iden
-#                         | ENTERO
-#                         | TKDECIMAL
-#                         | TRUE
-#                         | FALSE
-#                         | PARIZQ search_condition PARDER
-#    '''
-#
-##TODO: definir update
-#def p_update(t):
-#    '''
-#        pupdate : UPDATE iden SET l_search_condition where_condition
-#    '''
-#
-##TODO: definir l search condition
-#def p_l_search_condition(t):
-#    '''
-#        l_search_condition : search_condition l_search_condition
-#                        | COMA search_condition l_search_condition
-#                        | search_condition
-#    '''
-#
-##TODO: definir insert
-#def p_insert(t):
-#    '''
-#    pinsert : INSERT INTO iden PARIZQ grouping_column_reference PARDER insert_cuerpo
-#           | INSERT INTO iden insert_cuerpo
-#    '''
-#
-##TODO: definir insert cuerpo
-#def p_insert_cuerpo(t):
-#    '''
-#        insert_cuerpo : VALUES PARIZQ grouping_column_reference PARDER
-#    '''
-#
-##TODO: definir delete
-#def p_delete(t):
-#    '''
-#        delete : DELETE FROM iden where_condition
-#    '''
-#
 
 
 def p_error(t):

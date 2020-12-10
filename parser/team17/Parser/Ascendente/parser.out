@@ -13,7 +13,6 @@ Unused terminals:
     ANDBB
     ANY
     AS
-    ASC
     ASIN
     ASIND
     ASINH
@@ -26,7 +25,6 @@ Unused terminals:
     BETWEEN
     BIGINT
     BOOLEAN
-    BY
     CADENA
     CADENADOBLE
     CASE
@@ -37,7 +35,6 @@ Unused terminals:
     CHARACTER
     CHECK
     COLUMN
-    COMA
     CONSTRAINT
     CONVERT
     CORDER
@@ -57,7 +54,7 @@ Unused terminals:
     DECODE
     DEGREES
     DELETE
-    DESC
+    DISTINCT
     DISTINTO
     DIV
     DIVISION
@@ -78,7 +75,6 @@ Unused terminals:
     FLOAT
     FLOOR
     FOREIGN
-    FROM
     FULL
     GCD
     GET_BYTE
@@ -86,8 +82,6 @@ Unused terminals:
     GROUP
     HAVING
     HOUR
-    ID
-    IGUAL
     IGUALQUE
     ILIKE
     IN
@@ -109,7 +103,6 @@ Unused terminals:
     LEFT
     LENGTH
     LIKE
-    LIMIT
     LN
     LOG
     LOG10
@@ -199,22 +192,34 @@ Unused terminals:
     VARCHAR
     VARYING
     WHEN
-    WHERE
     WIDTH_BUCKET
     YEAR
     text
 
 Grammar
 
-Rule 0     S' -> root
-Rule 1     root -> setinstrucciones
-Rule 2     setinstrucciones -> setinstrucciones setinstrucciones_paso
-Rule 3     setinstrucciones -> setinstrucciones_paso
-Rule 4     setinstrucciones_paso -> instruccion
-Rule 5     setinstrucciones_paso -> instruccion PTCOMA
-Rule 6     instruccion -> select
-Rule 7     select -> SELECT DISTINCT
-Rule 8     select -> SELECT
+Rule 0     S' -> init
+Rule 1     init -> sentences
+Rule 2     sentences -> sentences setInstruccions
+Rule 3     sentences -> setInstruccions
+Rule 4     setInstruccions -> sentence
+Rule 5     setInstruccions -> sentence PTCOMA
+Rule 6     sentence -> ddl
+Rule 7     ddl -> select
+Rule 8     select -> SELECT listavalores FROM exp listawhere
+Rule 9     listawhere -> listawhere atributoselect
+Rule 10    listawhere -> atributoselect
+Rule 11    atributoselect -> WHERE exp
+Rule 12    atributoselect -> ORDER BY exp ordenamiento
+Rule 13    atributoselect -> ORDER BY exp
+Rule 14    atributoselect -> LIMIT BY exp
+Rule 15    ordenamiento -> ASC
+Rule 16    ordenamiento -> DESC
+Rule 17    listavalores -> listavalores COMA exp
+Rule 18    listavalores -> exp
+Rule 19    exp -> exp IGUAL exp
+Rule 20    exp -> expSimple
+Rule 21    expSimple -> ID
 
 Terminals, with rules where they appear
 
@@ -229,7 +234,7 @@ AND                  :
 ANDBB                : 
 ANY                  : 
 AS                   : 
-ASC                  : 
+ASC                  : 15
 ASIN                 : 
 ASIND                : 
 ASINH                : 
@@ -242,7 +247,7 @@ AVG                  :
 BETWEEN              : 
 BIGINT               : 
 BOOLEAN              : 
-BY                   : 
+BY                   : 12 13 14
 CADENA               : 
 CADENADOBLE          : 
 CASE                 : 
@@ -253,7 +258,7 @@ CHAR                 :
 CHARACTER            : 
 CHECK                : 
 COLUMN               : 
-COMA                 : 
+COMA                 : 17
 CONSTRAINT           : 
 CONVERT              : 
 CORDER               : 
@@ -273,8 +278,8 @@ DECIMAL              :
 DECODE               : 
 DEGREES              : 
 DELETE               : 
-DESC                 : 
-DISTINCT             : 7
+DESC                 : 16
+DISTINCT             : 
 DISTINTO             : 
 DIV                  : 
 DIVISION             : 
@@ -295,7 +300,7 @@ FIRST                :
 FLOAT                : 
 FLOOR                : 
 FOREIGN              : 
-FROM                 : 
+FROM                 : 8
 FULL                 : 
 GCD                  : 
 GET_BYTE             : 
@@ -303,8 +308,8 @@ GREATEST             :
 GROUP                : 
 HAVING               : 
 HOUR                 : 
-ID                   : 
-IGUAL                : 
+ID                   : 21
+IGUAL                : 19
 IGUALQUE             : 
 ILIKE                : 
 IN                   : 
@@ -326,7 +331,7 @@ LEAST                :
 LEFT                 : 
 LENGTH               : 
 LIKE                 : 
-LIMIT                : 
+LIMIT                : 14
 LN                   : 
 LOG                  : 
 LOG10                : 
@@ -355,6 +360,7 @@ OFFSET               :
 ON                   : 
 OR                   : 
 ORBB                 : 
+ORDER                : 12 13
 OUTER                : 
 OWNER                : 
 PARDER               : 
@@ -375,7 +381,7 @@ RIGHT                :
 ROUND                : 
 SCALE                : 
 SECOND               : 
-SELECT               : 7 8
+SELECT               : 8
 SET                  : 
 SETSEED              : 
 SET_BYTE             : 
@@ -418,7 +424,7 @@ VALUES               :
 VARCHAR              : 
 VARYING              : 
 WHEN                 : 
-WHERE                : 
+WHERE                : 11
 WIDTH_BUCKET         : 
 YEAR                 : 
 error                : 
@@ -426,116 +432,450 @@ text                 :
 
 Nonterminals, with rules where they appear
 
-instruccion          : 4 5
-root                 : 0
-select               : 6
-setinstrucciones     : 1 2
-setinstrucciones_paso : 2 3
+atributoselect       : 9 10
+ddl                  : 6
+exp                  : 8 11 12 13 14 17 18 19 19
+expSimple            : 20
+init                 : 0
+listavalores         : 8 17
+listawhere           : 8 9
+ordenamiento         : 12
+select               : 7
+sentence             : 4 5
+sentences            : 1 2
+setInstruccions      : 2 3
 
 Parsing method: LALR
 
 state 0
 
-    (0) S' -> . root
-    (1) root -> . setinstrucciones
-    (2) setinstrucciones -> . setinstrucciones setinstrucciones_paso
-    (3) setinstrucciones -> . setinstrucciones_paso
-    (4) setinstrucciones_paso -> . instruccion
-    (5) setinstrucciones_paso -> . instruccion PTCOMA
-    (6) instruccion -> . select
-    (7) select -> . SELECT DISTINCT
-    (8) select -> . SELECT
+    (0) S' -> . init
+    (1) init -> . sentences
+    (2) sentences -> . sentences setInstruccions
+    (3) sentences -> . setInstruccions
+    (4) setInstruccions -> . sentence
+    (5) setInstruccions -> . sentence PTCOMA
+    (6) sentence -> . ddl
+    (7) ddl -> . select
+    (8) select -> . SELECT listavalores FROM exp listawhere
 
-    SELECT          shift and go to state 6
+    SELECT          shift and go to state 7
 
-    root                           shift and go to state 1
-    setinstrucciones               shift and go to state 2
-    setinstrucciones_paso          shift and go to state 3
-    instruccion                    shift and go to state 4
-    select                         shift and go to state 5
+    init                           shift and go to state 1
+    sentences                      shift and go to state 2
+    setInstruccions                shift and go to state 3
+    sentence                       shift and go to state 4
+    ddl                            shift and go to state 5
+    select                         shift and go to state 6
 
 state 1
 
-    (0) S' -> root .
+    (0) S' -> init .
 
 
 
 state 2
 
-    (1) root -> setinstrucciones .
-    (2) setinstrucciones -> setinstrucciones . setinstrucciones_paso
-    (4) setinstrucciones_paso -> . instruccion
-    (5) setinstrucciones_paso -> . instruccion PTCOMA
-    (6) instruccion -> . select
-    (7) select -> . SELECT DISTINCT
-    (8) select -> . SELECT
+    (1) init -> sentences .
+    (2) sentences -> sentences . setInstruccions
+    (4) setInstruccions -> . sentence
+    (5) setInstruccions -> . sentence PTCOMA
+    (6) sentence -> . ddl
+    (7) ddl -> . select
+    (8) select -> . SELECT listavalores FROM exp listawhere
 
-    $end            reduce using rule 1 (root -> setinstrucciones .)
-    SELECT          shift and go to state 6
+    $end            reduce using rule 1 (init -> sentences .)
+    SELECT          shift and go to state 7
 
-    setinstrucciones_paso          shift and go to state 7
-    instruccion                    shift and go to state 4
-    select                         shift and go to state 5
+    setInstruccions                shift and go to state 8
+    sentence                       shift and go to state 4
+    ddl                            shift and go to state 5
+    select                         shift and go to state 6
 
 state 3
 
-    (3) setinstrucciones -> setinstrucciones_paso .
+    (3) sentences -> setInstruccions .
 
-    SELECT          reduce using rule 3 (setinstrucciones -> setinstrucciones_paso .)
-    $end            reduce using rule 3 (setinstrucciones -> setinstrucciones_paso .)
+    SELECT          reduce using rule 3 (sentences -> setInstruccions .)
+    $end            reduce using rule 3 (sentences -> setInstruccions .)
 
 
 state 4
 
-    (4) setinstrucciones_paso -> instruccion .
-    (5) setinstrucciones_paso -> instruccion . PTCOMA
+    (4) setInstruccions -> sentence .
+    (5) setInstruccions -> sentence . PTCOMA
 
-    SELECT          reduce using rule 4 (setinstrucciones_paso -> instruccion .)
-    $end            reduce using rule 4 (setinstrucciones_paso -> instruccion .)
-    PTCOMA          shift and go to state 8
+    SELECT          reduce using rule 4 (setInstruccions -> sentence .)
+    $end            reduce using rule 4 (setInstruccions -> sentence .)
+    PTCOMA          shift and go to state 9
 
 
 state 5
 
-    (6) instruccion -> select .
+    (6) sentence -> ddl .
 
-    PTCOMA          reduce using rule 6 (instruccion -> select .)
-    SELECT          reduce using rule 6 (instruccion -> select .)
-    $end            reduce using rule 6 (instruccion -> select .)
+    PTCOMA          reduce using rule 6 (sentence -> ddl .)
+    SELECT          reduce using rule 6 (sentence -> ddl .)
+    $end            reduce using rule 6 (sentence -> ddl .)
 
 
 state 6
 
-    (7) select -> SELECT . DISTINCT
-    (8) select -> SELECT .
+    (7) ddl -> select .
 
-    DISTINCT        shift and go to state 9
-    PTCOMA          reduce using rule 8 (select -> SELECT .)
-    SELECT          reduce using rule 8 (select -> SELECT .)
-    $end            reduce using rule 8 (select -> SELECT .)
+    PTCOMA          reduce using rule 7 (ddl -> select .)
+    SELECT          reduce using rule 7 (ddl -> select .)
+    $end            reduce using rule 7 (ddl -> select .)
 
 
 state 7
 
-    (2) setinstrucciones -> setinstrucciones setinstrucciones_paso .
+    (8) select -> SELECT . listavalores FROM exp listawhere
+    (17) listavalores -> . listavalores COMA exp
+    (18) listavalores -> . exp
+    (19) exp -> . exp IGUAL exp
+    (20) exp -> . expSimple
+    (21) expSimple -> . ID
 
-    SELECT          reduce using rule 2 (setinstrucciones -> setinstrucciones setinstrucciones_paso .)
-    $end            reduce using rule 2 (setinstrucciones -> setinstrucciones setinstrucciones_paso .)
+    ID              shift and go to state 13
 
+    listavalores                   shift and go to state 10
+    exp                            shift and go to state 11
+    expSimple                      shift and go to state 12
 
 state 8
 
-    (5) setinstrucciones_paso -> instruccion PTCOMA .
+    (2) sentences -> sentences setInstruccions .
 
-    SELECT          reduce using rule 5 (setinstrucciones_paso -> instruccion PTCOMA .)
-    $end            reduce using rule 5 (setinstrucciones_paso -> instruccion PTCOMA .)
+    SELECT          reduce using rule 2 (sentences -> sentences setInstruccions .)
+    $end            reduce using rule 2 (sentences -> sentences setInstruccions .)
 
 
 state 9
 
-    (7) select -> SELECT DISTINCT .
+    (5) setInstruccions -> sentence PTCOMA .
 
-    PTCOMA          reduce using rule 7 (select -> SELECT DISTINCT .)
-    SELECT          reduce using rule 7 (select -> SELECT DISTINCT .)
-    $end            reduce using rule 7 (select -> SELECT DISTINCT .)
+    SELECT          reduce using rule 5 (setInstruccions -> sentence PTCOMA .)
+    $end            reduce using rule 5 (setInstruccions -> sentence PTCOMA .)
 
+
+state 10
+
+    (8) select -> SELECT listavalores . FROM exp listawhere
+    (17) listavalores -> listavalores . COMA exp
+
+    FROM            shift and go to state 14
+    COMA            shift and go to state 15
+
+
+state 11
+
+    (18) listavalores -> exp .
+    (19) exp -> exp . IGUAL exp
+
+    FROM            reduce using rule 18 (listavalores -> exp .)
+    COMA            reduce using rule 18 (listavalores -> exp .)
+    IGUAL           shift and go to state 16
+
+
+state 12
+
+    (20) exp -> expSimple .
+
+    IGUAL           reduce using rule 20 (exp -> expSimple .)
+    FROM            reduce using rule 20 (exp -> expSimple .)
+    COMA            reduce using rule 20 (exp -> expSimple .)
+    WHERE           reduce using rule 20 (exp -> expSimple .)
+    ORDER           reduce using rule 20 (exp -> expSimple .)
+    LIMIT           reduce using rule 20 (exp -> expSimple .)
+    PTCOMA          reduce using rule 20 (exp -> expSimple .)
+    SELECT          reduce using rule 20 (exp -> expSimple .)
+    $end            reduce using rule 20 (exp -> expSimple .)
+    ASC             reduce using rule 20 (exp -> expSimple .)
+    DESC            reduce using rule 20 (exp -> expSimple .)
+
+
+state 13
+
+    (21) expSimple -> ID .
+
+    IGUAL           reduce using rule 21 (expSimple -> ID .)
+    FROM            reduce using rule 21 (expSimple -> ID .)
+    COMA            reduce using rule 21 (expSimple -> ID .)
+    WHERE           reduce using rule 21 (expSimple -> ID .)
+    ORDER           reduce using rule 21 (expSimple -> ID .)
+    LIMIT           reduce using rule 21 (expSimple -> ID .)
+    PTCOMA          reduce using rule 21 (expSimple -> ID .)
+    SELECT          reduce using rule 21 (expSimple -> ID .)
+    $end            reduce using rule 21 (expSimple -> ID .)
+    ASC             reduce using rule 21 (expSimple -> ID .)
+    DESC            reduce using rule 21 (expSimple -> ID .)
+
+
+state 14
+
+    (8) select -> SELECT listavalores FROM . exp listawhere
+    (19) exp -> . exp IGUAL exp
+    (20) exp -> . expSimple
+    (21) expSimple -> . ID
+
+    ID              shift and go to state 13
+
+    exp                            shift and go to state 17
+    expSimple                      shift and go to state 12
+
+state 15
+
+    (17) listavalores -> listavalores COMA . exp
+    (19) exp -> . exp IGUAL exp
+    (20) exp -> . expSimple
+    (21) expSimple -> . ID
+
+    ID              shift and go to state 13
+
+    exp                            shift and go to state 18
+    expSimple                      shift and go to state 12
+
+state 16
+
+    (19) exp -> exp IGUAL . exp
+    (19) exp -> . exp IGUAL exp
+    (20) exp -> . expSimple
+    (21) expSimple -> . ID
+
+    ID              shift and go to state 13
+
+    exp                            shift and go to state 19
+    expSimple                      shift and go to state 12
+
+state 17
+
+    (8) select -> SELECT listavalores FROM exp . listawhere
+    (19) exp -> exp . IGUAL exp
+    (9) listawhere -> . listawhere atributoselect
+    (10) listawhere -> . atributoselect
+    (11) atributoselect -> . WHERE exp
+    (12) atributoselect -> . ORDER BY exp ordenamiento
+    (13) atributoselect -> . ORDER BY exp
+    (14) atributoselect -> . LIMIT BY exp
+
+    IGUAL           shift and go to state 16
+    WHERE           shift and go to state 22
+    ORDER           shift and go to state 23
+    LIMIT           shift and go to state 24
+
+    listawhere                     shift and go to state 20
+    atributoselect                 shift and go to state 21
+
+state 18
+
+    (17) listavalores -> listavalores COMA exp .
+    (19) exp -> exp . IGUAL exp
+
+    FROM            reduce using rule 17 (listavalores -> listavalores COMA exp .)
+    COMA            reduce using rule 17 (listavalores -> listavalores COMA exp .)
+    IGUAL           shift and go to state 16
+
+
+state 19
+
+    (19) exp -> exp IGUAL exp .
+    (19) exp -> exp . IGUAL exp
+
+  ! shift/reduce conflict for IGUAL resolved as shift
+    FROM            reduce using rule 19 (exp -> exp IGUAL exp .)
+    COMA            reduce using rule 19 (exp -> exp IGUAL exp .)
+    WHERE           reduce using rule 19 (exp -> exp IGUAL exp .)
+    ORDER           reduce using rule 19 (exp -> exp IGUAL exp .)
+    LIMIT           reduce using rule 19 (exp -> exp IGUAL exp .)
+    PTCOMA          reduce using rule 19 (exp -> exp IGUAL exp .)
+    SELECT          reduce using rule 19 (exp -> exp IGUAL exp .)
+    $end            reduce using rule 19 (exp -> exp IGUAL exp .)
+    ASC             reduce using rule 19 (exp -> exp IGUAL exp .)
+    DESC            reduce using rule 19 (exp -> exp IGUAL exp .)
+    IGUAL           shift and go to state 16
+
+  ! IGUAL           [ reduce using rule 19 (exp -> exp IGUAL exp .) ]
+
+
+state 20
+
+    (8) select -> SELECT listavalores FROM exp listawhere .
+    (9) listawhere -> listawhere . atributoselect
+    (11) atributoselect -> . WHERE exp
+    (12) atributoselect -> . ORDER BY exp ordenamiento
+    (13) atributoselect -> . ORDER BY exp
+    (14) atributoselect -> . LIMIT BY exp
+
+    PTCOMA          reduce using rule 8 (select -> SELECT listavalores FROM exp listawhere .)
+    SELECT          reduce using rule 8 (select -> SELECT listavalores FROM exp listawhere .)
+    $end            reduce using rule 8 (select -> SELECT listavalores FROM exp listawhere .)
+    WHERE           shift and go to state 22
+    ORDER           shift and go to state 23
+    LIMIT           shift and go to state 24
+
+    atributoselect                 shift and go to state 25
+
+state 21
+
+    (10) listawhere -> atributoselect .
+
+    WHERE           reduce using rule 10 (listawhere -> atributoselect .)
+    ORDER           reduce using rule 10 (listawhere -> atributoselect .)
+    LIMIT           reduce using rule 10 (listawhere -> atributoselect .)
+    PTCOMA          reduce using rule 10 (listawhere -> atributoselect .)
+    SELECT          reduce using rule 10 (listawhere -> atributoselect .)
+    $end            reduce using rule 10 (listawhere -> atributoselect .)
+
+
+state 22
+
+    (11) atributoselect -> WHERE . exp
+    (19) exp -> . exp IGUAL exp
+    (20) exp -> . expSimple
+    (21) expSimple -> . ID
+
+    ID              shift and go to state 13
+
+    exp                            shift and go to state 26
+    expSimple                      shift and go to state 12
+
+state 23
+
+    (12) atributoselect -> ORDER . BY exp ordenamiento
+    (13) atributoselect -> ORDER . BY exp
+
+    BY              shift and go to state 27
+
+
+state 24
+
+    (14) atributoselect -> LIMIT . BY exp
+
+    BY              shift and go to state 28
+
+
+state 25
+
+    (9) listawhere -> listawhere atributoselect .
+
+    WHERE           reduce using rule 9 (listawhere -> listawhere atributoselect .)
+    ORDER           reduce using rule 9 (listawhere -> listawhere atributoselect .)
+    LIMIT           reduce using rule 9 (listawhere -> listawhere atributoselect .)
+    PTCOMA          reduce using rule 9 (listawhere -> listawhere atributoselect .)
+    SELECT          reduce using rule 9 (listawhere -> listawhere atributoselect .)
+    $end            reduce using rule 9 (listawhere -> listawhere atributoselect .)
+
+
+state 26
+
+    (11) atributoselect -> WHERE exp .
+    (19) exp -> exp . IGUAL exp
+
+    WHERE           reduce using rule 11 (atributoselect -> WHERE exp .)
+    ORDER           reduce using rule 11 (atributoselect -> WHERE exp .)
+    LIMIT           reduce using rule 11 (atributoselect -> WHERE exp .)
+    PTCOMA          reduce using rule 11 (atributoselect -> WHERE exp .)
+    SELECT          reduce using rule 11 (atributoselect -> WHERE exp .)
+    $end            reduce using rule 11 (atributoselect -> WHERE exp .)
+    IGUAL           shift and go to state 16
+
+
+state 27
+
+    (12) atributoselect -> ORDER BY . exp ordenamiento
+    (13) atributoselect -> ORDER BY . exp
+    (19) exp -> . exp IGUAL exp
+    (20) exp -> . expSimple
+    (21) expSimple -> . ID
+
+    ID              shift and go to state 13
+
+    exp                            shift and go to state 29
+    expSimple                      shift and go to state 12
+
+state 28
+
+    (14) atributoselect -> LIMIT BY . exp
+    (19) exp -> . exp IGUAL exp
+    (20) exp -> . expSimple
+    (21) expSimple -> . ID
+
+    ID              shift and go to state 13
+
+    exp                            shift and go to state 30
+    expSimple                      shift and go to state 12
+
+state 29
+
+    (12) atributoselect -> ORDER BY exp . ordenamiento
+    (13) atributoselect -> ORDER BY exp .
+    (19) exp -> exp . IGUAL exp
+    (15) ordenamiento -> . ASC
+    (16) ordenamiento -> . DESC
+
+    WHERE           reduce using rule 13 (atributoselect -> ORDER BY exp .)
+    ORDER           reduce using rule 13 (atributoselect -> ORDER BY exp .)
+    LIMIT           reduce using rule 13 (atributoselect -> ORDER BY exp .)
+    PTCOMA          reduce using rule 13 (atributoselect -> ORDER BY exp .)
+    SELECT          reduce using rule 13 (atributoselect -> ORDER BY exp .)
+    $end            reduce using rule 13 (atributoselect -> ORDER BY exp .)
+    IGUAL           shift and go to state 16
+    ASC             shift and go to state 32
+    DESC            shift and go to state 33
+
+    ordenamiento                   shift and go to state 31
+
+state 30
+
+    (14) atributoselect -> LIMIT BY exp .
+    (19) exp -> exp . IGUAL exp
+
+    WHERE           reduce using rule 14 (atributoselect -> LIMIT BY exp .)
+    ORDER           reduce using rule 14 (atributoselect -> LIMIT BY exp .)
+    LIMIT           reduce using rule 14 (atributoselect -> LIMIT BY exp .)
+    PTCOMA          reduce using rule 14 (atributoselect -> LIMIT BY exp .)
+    SELECT          reduce using rule 14 (atributoselect -> LIMIT BY exp .)
+    $end            reduce using rule 14 (atributoselect -> LIMIT BY exp .)
+    IGUAL           shift and go to state 16
+
+
+state 31
+
+    (12) atributoselect -> ORDER BY exp ordenamiento .
+
+    WHERE           reduce using rule 12 (atributoselect -> ORDER BY exp ordenamiento .)
+    ORDER           reduce using rule 12 (atributoselect -> ORDER BY exp ordenamiento .)
+    LIMIT           reduce using rule 12 (atributoselect -> ORDER BY exp ordenamiento .)
+    PTCOMA          reduce using rule 12 (atributoselect -> ORDER BY exp ordenamiento .)
+    SELECT          reduce using rule 12 (atributoselect -> ORDER BY exp ordenamiento .)
+    $end            reduce using rule 12 (atributoselect -> ORDER BY exp ordenamiento .)
+
+
+state 32
+
+    (15) ordenamiento -> ASC .
+
+    WHERE           reduce using rule 15 (ordenamiento -> ASC .)
+    ORDER           reduce using rule 15 (ordenamiento -> ASC .)
+    LIMIT           reduce using rule 15 (ordenamiento -> ASC .)
+    PTCOMA          reduce using rule 15 (ordenamiento -> ASC .)
+    SELECT          reduce using rule 15 (ordenamiento -> ASC .)
+    $end            reduce using rule 15 (ordenamiento -> ASC .)
+
+
+state 33
+
+    (16) ordenamiento -> DESC .
+
+    WHERE           reduce using rule 16 (ordenamiento -> DESC .)
+    ORDER           reduce using rule 16 (ordenamiento -> DESC .)
+    LIMIT           reduce using rule 16 (ordenamiento -> DESC .)
+    PTCOMA          reduce using rule 16 (ordenamiento -> DESC .)
+    SELECT          reduce using rule 16 (ordenamiento -> DESC .)
+    $end            reduce using rule 16 (ordenamiento -> DESC .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for IGUAL in state 19 resolved as shift

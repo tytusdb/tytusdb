@@ -21,6 +21,7 @@ class Ast:
     """
 
     def __init__(self):
+        self.id = None
         self.i = 0
         self.dot = Graph('AST', format='png')
         self.dot.attr('node', shape='box')
