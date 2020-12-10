@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 import grammar.sql_grammar as gramatica
 from graphviz import Source
 from tools.console_text import *
+from error.errores import *
 
 import os
 
@@ -801,6 +802,29 @@ class window:
 
         return t
 
+    def graficar_Errores(self):        
+        if len(errores) != 0:
+            reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
+            reporte_errores += "arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>Tipo Error</TD>\n<TD>Descripcion</TD>\n<TD>Linea</TD>\n<TD>Columna</TD>\n</TR>\n"
+
+            for error_ in errores:
+                reporte_errores += '<TR>'
+                reporte_errores += '<TD>' + error_.valor + '</TD>'
+                reporte_errores += '<TD>' + error_.descripcion +'</TD>'
+                reporte_errores += '<TD>' + error_.line +'</TD>'
+                reporte_errores += '<TD>' + error_.column +'</TD>'
+                reporte_errores += '</TR>'
+
+            reporte_errores += '</TABLE>\n>, ];\n}'
+
+            with open('errores_reporte.dot', 'w') as f:
+                f.write(reporte_errores)
+
+    def compilar_Error_png(self):
+        img = Source.from_file("errores_reporte.dot", format="png")
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "errores_reporte.dot.png")
+
     def compilar_AST_png(self):
         img = Source.from_file("ast_reporte.dot", format="png")
         img.render()
@@ -814,6 +838,8 @@ class window:
         panel.pack(side = "bottom", fill = "both", expand = "yes")
 
     def ejecutar_codigo(self):
+        errores = []
+        
         tab_list = self.tabControl.winfo_children()
         current_tab = tab_list[self.tabControl.index(CURRENT)]
 
@@ -824,6 +850,8 @@ class window:
 
         contenido = txt_box.get(1.0, END)
 
+        instruccions = []
+
         try:
             instruccions = gramatica.parse(contenido)            
             self.ejecutar_resultado(instruccions)  
@@ -833,14 +861,16 @@ class window:
                     if isinstance(widget_item, Text):
                             widget_item.delete('1.0', END)                                                   
                             add_text("\nPS C:\\Users\\Grupo 23> ")
-                            widget_item.insert(INSERT, get_contenido())
+                            widget_item.insert(INSERT, get_contenido())                             
 
-            self.graficar_AST(instruccions)
         except:            
             if len(contenido) == 1:
                 self.pop_alert("No hay código para ejecutar")
             else:
                 self.pop_alert("Error al ejecutar el código")
+
+        self.graficar_AST(instruccions)  
+        self.graficar_Errores()
 
     def ejecutar_resultado(self,instrucciones_):
         for instruccion_ in instrucciones_:
