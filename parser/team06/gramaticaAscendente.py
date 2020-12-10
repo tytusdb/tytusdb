@@ -111,7 +111,6 @@ reservadas = {
     'inherits' : 'INHERITS',
     'group' : 'GROUP',
     'having' : 'HAVING',
-    'substring' : 'SUBSTRING',
     'inner' : 'INNER',
     'outer' : 'OUTER',
     'ingerits':'INGERITS',
@@ -183,6 +182,7 @@ reservadas = {
     'numeric' : 'NUMERIC',
     'real' : 'REAL',
     'double' : 'DOUBLE',
+    'precision' : 'PRECISION',
     'money' : 'MONEY',
     'varying' : 'VARYING',
     'varchar' : 'VARCHAR',
@@ -221,7 +221,8 @@ reservadas = {
     'leading':'LEADING',
     'trailing':'TRAILING',
     'both':'BOTH',
-    'for':'FOR'
+    'for':'FOR',
+    'symmetric':'SYMMETRIC'
 
 
 # revisar funciones de tiempo y fechas
@@ -306,7 +307,7 @@ t_DESPLAZAMIENTOIZQUIERDA               = r'<<'
 
 
 #definife la estructura de los decimales
-def t_DECIMALTOKEN(t):
+def t_DECIMAL(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
@@ -368,6 +369,7 @@ lexer = lex.lex()
 precedence = (
     ('left','TYPECAST'),
     ('right','UMINUS'),
+    ('right','UNOT'),
     ('left','MAS','MENOS'),
     ('left','POTENCIA'),
     ('left','POR','DIV','RESIDUO'),
@@ -403,6 +405,7 @@ def p_query(t):
                     | updateinBD
                     | deleteinBD
                     | createTable
+                    | inheritsBD
                     | dropTable
                     | alterTable
                     | variantesAt
@@ -412,6 +415,7 @@ def p_query(t):
                     | listaid
                     | tipoAlter
                     
+                    | selectData
     '''
                     # derivando cada produccion a cosas como el create, insert, select; funciones como avg, sum, substring irian como otra produccion 
                     #dentro del select (consulta)
@@ -521,10 +525,6 @@ def p_dropBD_1(t):
 
 def p_dropBD_2(t):
     'dropBD    : DROP DATABASE IF EXISTS ID PUNTOYCOMA'
-
-
-
-
 #-----------------------------------------------------OPERACIONES Y EXPRESIONES--------------------------------------------------------------------
 def p_operacion(t):
     '''operacion          : operacion MAS operacion
@@ -551,11 +551,21 @@ def p_operacion(t):
                           | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                           
                           '''
+def p_operacion_menos_unario(t):
+    'operacion : MENOS ENTERO  %prec UMINUS'
+    t[0] = -t[2]
+
+def p_operacion_not_unario(t):
+    'operacion : NOT operacion  %prec UNOT'
+    t[0] = not(t[2])
 
 def p_operacion_funcion(t):
     'operacion  : funcionBasica'
+
 def p_operacion_final(t):
     'operacion :     final'
+
+
 
 #-----------------------------------------------------FUNCIONES MATEMATICAS--------------------------------------------------------------------
 # MATEMATICAS
@@ -622,13 +632,15 @@ def p_funcion_basica(t):
                         | CONVERT PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA
                         | ENCODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
                         | DECODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
+                        | AVG PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
     '''
 
 def p_funcion_basica_1(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion FOR operacion PARENTESISDERECHA'
 
 def p_funcion_basica_2(t):
-    'subcfuncionBasicaadea   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA'
+    'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA'
    
 def p_funcion_basica_3(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FOR operacion PARENTESISDERECHA'
@@ -638,40 +650,33 @@ def p_opcionTrim(t):
     ''' opcionTrim  : LEADING
                     | TRAILING
                     | BOTH
-    '''
-    
-    
-    
+    '''    
     # falta mandar a las funciones de fechas y dates y todo eso
 
 #-----------------------------------------------------PRODUCCIONES TERMINALES--------------------------------------------------------------------
-def p_operacion_menos_unario(t):
-    'operacion : MENOS ENTERO  %prec UMINUS'
-    t[0] = -t[2]
-
 def p_final(t):
-    '''final              : DECIMAL
-                          | ENTERO'''
+    '''final        : DECIMAL
+                    | ENTERO'''
 
 def p_final_id(t):
-    'final              : ID'
+    'final          : ID'
 
 def p_final_invocacion(t):
-    'final              : ID PUNTO ID'
+    'final          : ID PUNTO ID'
 
 def p_final_cadena(t):
-    'final  : CADENA'
+    'final          : CADENA'
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
-    'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA PUNTOYCOMA'
+    'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
 
 def p_insertBD_2(t):
-    'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA VALUES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA PUNTOYCOMA'
+    'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
 
-def p_paramInsert_(t):
-    '''paramInsert        : paramInsert COMA final
-                        |   final
+def p_listaParam_(t):
+    '''listaParam         : listaParam COMA final
+                          | final
     '''
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
@@ -698,61 +703,182 @@ def p_deleteinBD_2(t):
 def p_createTable(t):
     'createTable        : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA'
 
+def p_inheritsBD(t):
+    'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
+
 def p_creaColumna(t):
     '''creaColumnas        : creaColumnas COMA Columna
                            | Columna 
     '''
 def p_columna_1(t):
     '''Columna          : ID tipo  
-                        | ID tipo paramColumn 
+                        | ID tipo paramOpcional
+                        | constraintinColumn 
                         | checkinColumn
                         | uniqueinColumn
-                        | primaryKey'''
-    #                    | foreignKey
-    #'''
-
-def p_paramColumn(t):
-    '''paramColumn      : DEFAULT final
-                        | NOT
-                        | NOT NULL
-                        | CONSTRAINT ID
-                        | checkinColumn
+                        | primaryKey
+                        | foreignKey
     '''
+
+def p_paramOpcional(t):
+    '''paramOpcional    : paramOpcional paramopc
+                        | paramopc
+    '''
+
+def p_paramopc(t):
+    '''paramopc         : DEFAULT final
+                        | NULL
+                        | NOT NULL
+                        | UNIQUE
+                        | constraintinColumn
+                        | checkinColumn
+                        | PRIMARY KEY
+    '''
+
+def p_constraintinColumn(t):
+    '''constraintinColumn   : CONSTRAINT ID checkinColumn
+                            | CONSTRAINT ID uniqueinColumn
+    '''
+
 def p_checkinColumn(t):
-    'checkinColumn      : CONSTRAINT ID CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
+    'checkinColumn      : CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
 
 
 def p_uniqueinColumn(t):
-    'uniqueinColumn     : UNIQUE PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA'
+    'uniqueinColumn     : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
 
 
 def p_primaryKey(t):
-    'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA'
+    'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
 
 
 def p_foreingkey(t):
-    'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA REFERENCES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA' 
+    'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA' 
 
+#-----------------------------------------------------TIPOS DE DATOS--------------------------------------------------------------------
 
 def p_tipo(t):
-    '''tipo            : SMALLINT
+    '''tipo            :  SMALLINT
                         | INTEGER
                         | BIGINT
                         | DECIMAL
                         | NUMERIC
                         | REAL
                         | DOUBLE
+                        | PRECISION
                         | MONEY
-                        | VARYING
-                        | VARCHAR
-                        | CHARACTER
-                        | CHAR
+                        | VARCHAR PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
+                        | CHARACTER VARYING PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
+                        | CHARACTER PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
+                        | CHAR PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
                         | TEXT
                         | BOOLEAN
                         | TIMESTAMP
                         | TIME
+                        | INTERVAL
                         | DATE
+                        | YEAR
+                        | MONTH 
+                        | DAY
+                        | HOUR 
+                        | MINUTE
+                        | SECOND
     '''
+#--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
+def p_select(t):
+    '''selectData       : SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
+                        | SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
+    '''
+def p_select_1(t):
+    '''selectData       : SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA
+                        | SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA
+    '''
+
+def p_select_2(t):
+    '''selectData       : SELECT select_list FROM select_list  PUNTOYCOMA
+                        | SELECT POR FROM select_list  PUNTOYCOMA
+    '''
+
+
+def p_opcionesSelect_1(t):
+    '''opcionesSelect   : opcionesSelect opcionSelect
+                        | opcionSelect
+    '''
+
+def p_opcionesSelect_2(t):
+    '''opcionSelect     : LIMIT operacion
+                        | LIMIT operacion OFFSET operacion
+                        | GROUP BY select_list
+                        | HAVING select_list
+                        | ORDER BY select_list ordenamiento
+                        | ORDER BY select_list 
+    '''
+
+def p_ordenamiento(t):
+    '''ordenamiento     : ASC
+                        | DESC '''
+
+def p_search_condition_1(t):
+    '''search_condition   : search_condition AND search_condition
+                          | search_condition OR search_condition                         
+    '''
+
+def p_search_condition_2(t):
+    'search_condition   : NOT search_condition'
+
+def p_search_condition_3(t):
+    'search_condition   : operacion'
+
+def p_search_condition_4(t):
+    'search_condition   : PARENTESISIZQUIERDA search_condition PARENTESISDERECHA'
+
+
+def p_select_list_1(t):
+    ' select_list   : select_list COMA operacion'
+    
+
+
+def p_select_list_2(t):
+    'select_list    : operacion'
+
+def p_select_list_3(t):
+    ' select_list   : select_list condicion_select operacion COMA operacion' 
+
+def p_select_list_4(t):
+    ' select_list   : condicion_select   operacion' 
+
+
+def p_condicion_select(t):
+    '''condicion_select : DISTINCT FROM
+                        | IS DISTINCT FROM 
+                        | IS NOT DISTINCT  FROM    
+                        | DISTINCT 
+                        | IS DISTINCT  
+                        | IS NOT DISTINCT                 
+    '''
+
+
+def p_funcion_basica_4(t):
+    'funcionBasica   : operacion BETWEEN operacion AND operacion'
+
+def p_funcion_basica_5(t):
+    'funcionBasica   :  operacion LIKE CADENA'
+
+def p_funcion_basica_6(t):
+    'funcionBasica   : operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA '
+
+def p_funcion_basica_7(t):
+    'funcionBasica   : operacion NOT BETWEEN operacion AND operacion '
+
+def p_funcion_basica_8(t):
+    'funcionBasica   : operacion  BETWEEN SYMMETRIC operacion AND operacion'
+
+def p_funcion_basica_9(t):
+    'funcionBasica   : operacion NOT BETWEEN SYMMETRIC operacion AND operacion'
+
+
+def p_funcion_basica_10(t):
+    'funcionBasica   : operacion condicion_select operacion'
 
 #para manejar los errores sintacticos
 #def p_error(t): #en modo panico :v
@@ -769,7 +895,7 @@ def p_tipo(t):
 #    return tok
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
-    #print((token.lexpos - line_start) +1 )
+    print((token.lexpos - line_start) +1 )
     return (token.lexpos - line_start) 
 
 
