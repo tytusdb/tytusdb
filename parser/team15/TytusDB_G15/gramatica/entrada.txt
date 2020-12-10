@@ -58,3 +58,6 @@ WHERE CustomerID = 1;
 
 
 select * from Prueba as Hola where prueba = 'prueba';
+
+DELETE FROM links
+WHERE id = 8;

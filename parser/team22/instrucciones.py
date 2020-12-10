@@ -44,3 +44,29 @@ class Delete_condicional(Instruccion) :
     def __init__(self, expLogica, id) :
         self.expLogica = expLogica
         self.id = id
+
+class Crear_TB_Herencia(Instruccion) :
+    '''
+        Esta clase representa la instrucción de Crear tabla con herencia.
+        La instrucción Crear_TB_Herencia tiene 3 parámetros:
+        id = identificador, nombre de la tabla.
+        columnas = columnas que contendrá la tabla.
+        idHerencia = identificador de la tabla que hereda parámetros y valores a esta.
+    '''
+    
+    def __init__(self, id, columnas, idHerencia):
+        self.id = id
+        self.columnas = columnas
+        self.idHerencia = idHerencia
+
+class Crear_TB():
+    '''
+        Esta clase representa la instrucción de Crear tabla sin herencia
+        La instrucción Crear_TB tiene 2 parámetros:
+        id = identificador, nombre de la tabla.
+        columnas = columnas que contendrá la tabla.
+    '''
+
+    def __init__(self, id, columnas):
+        self.id = id
+        self.columnas = columnas
