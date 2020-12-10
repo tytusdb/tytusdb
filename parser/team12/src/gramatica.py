@@ -275,9 +275,14 @@ def t_COMMENT_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')  
 
+# funcion para el salto de linea
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += t.value.count("\n")
+
 #Defincion de los errores lexicos
 def t_error(t):
-    print("Carácter no válido'%s'" % t.value[0])
+    print("Carácter no válido '%s'" % t.value[0])
     t.lexer.skip(1)
 
 #Caracteres a ser ignorados por el lenguaje
@@ -300,7 +305,10 @@ def p_instruccion(t):
                     | COSD
                     | ENTERO
                     | NUMDECIMAL
-                    | CADENA '''
+                    | CADENA 
+                    | sent_insertar
+                    | sent_update 
+                    | sent_delete'''
     t[0] = t[1]
 
 #------------------------------ Producciones útiles ----------------------------------------
@@ -369,6 +377,52 @@ def p_cuerpo_crear_tabla_p(t):
     '''cuerpo_crear_tabla_p : '''
 
 #---------------Termina las sentencias con la palabra reservada CREATE.---------------------
+# SENTENCIA DE INSERT
+def p_insert(t):
+    '''sent_insertar : INSERT INTO IDENTIFICADOR VALUES PARENTESISIZQ l_param_insert PARENTESISDER PUNTOYCOMA
+    '''
+
+def p_insert2(t):
+    '''sent_insertar : INSERT INTO IDENTIFICADOR PARENTESISIZQ l_param_column PARENTESISDER VALUES PARENTESISIZQ l_param_insert PARENTESISDER PUNTOYCOMA
+    '''
+
+def p_list_column(t):
+    '''l_param_column : l_param_column COMA IDENTIFICADOR
+                        |  IDENTIFICADOR'''                                       
+    
+def p_list_param_insert(t):
+    '''l_param_insert : l_param_insert COMA  param_insert 
+                        | param_insert  
+    '''
+
+def p_parametro_insert(t):
+    '''param_insert : CADENA
+                    | NUMDECIMAL
+                    | ENTERO'''
+# FIN SENTENCIA INSERT
+
+# SENTENCIA DE UPDATE //FALTA WHERE
+def p_update(t):
+    '''sent_update : UPDATE IDENTIFICADOR SET l_col_update PUNTOYCOMA ''' 
+
+def p_list_col_update(t):
+    '''l_col_update : l_col_update COMA col_update
+                    | col_update'''
+    
+def p_column_update(t):
+    '''col_update : IDENTIFICADOR IGUAL params_update'''
+    
+def p_params_update(t):
+    '''params_update : CADENA
+                    |   NUMDECIMAL
+                    |   ENTERO
+                    |   IDENTIFICADOR'''
+# FIN SENTENCIA UPDATE
+
+# SENTENCIAS DELETE //FALTA WH
+def p_delete(t):
+    '''sent_delete : DELETE FROM IDENTIFICADOR PUNTOYCOMA'''
+# FIN SENTENCIA DELETE
 
 
 import ply.yacc as yacc
