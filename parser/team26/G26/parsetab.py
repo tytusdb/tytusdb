@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'ADD ALL ALTER AND AS ASC ASTERISCO AVG BACKSPACE BARRA BETWEEN BIGINT BOLEANO CADENA CHAR CHARACTER CHECK COLUMN COMA CONSTRAINT COUNT CREATE CURRENT DATABASE DATABASES DAY DECIMAL DECIMALVALOR DEFAULT DELETE DESC DIFERENTE DIFERENTELL DISTINCT DOUBLE DROP ENTERO ENUM EXCEPT EXISTS FALSE FECHA FEED FIRST FOREIGN FROM FULL GREATEST GROUP GUION HAVING HOUR ID IF IGUAL ILIKE IN INHERITS INNER INSERT INTEGER INTERSECT INTERVAL INTO IS ISNULL JOIN LAST LEAST LEFT LIKE LIMIT LLAVEDER LLAVEIZQ MAS MAX MAYORIGUALQUE MAYORQUE MENORIGUALQUE MENORQUE MIN MINUTE MODE MONEY MONTH NATURAL NEWLINE NOT NOTNULL NULL NULLS NUMERIC OFFSET ON ONLY OR OUTER OWNER PARENDER PARENIZQ PRIMARY PTCOMA PUNTO REAL REFERENCES RENAME REPLACE RETURN RETURNING RIGHT SECOND SELECT SET SIMILAR SMALLINT SUBSTRING SUM TAB TABLE TEXT TIME TIMESTAMP TO TRUE TYPE UNION UNIQUE UNKNOWN UPDATE USING VALUES VARCHAR VARYING WHERE YEAR ZONEinit            : instruccionesinstrucciones    : FECHA'
+_lr_signature = 'ABS ACOS ACOSD ACOSH ADD ALL ALTER AND AS ASC ASIN ASIND ASINH ASTERISCO ATAN ATAND ATANDOS ATANDOSD ATANH AVG BACKSPACE BARRA BETWEEN BIGINT BOLEANO BUCKET CADENA CBRT CEIL CEILING CHAR CHARACTER CHECK COLUMN COMA CONSTRAINT CONVERT COS COSD COSH COT COTD COUNT CREATE CURRENT CURRENTDATE CURRENTTIME DATABASE DATABASES DATE DATEPART DAY DECIMAL DECIMALVALOR DECODE DEFAULT DEGREES DELETE DESC DIFERENTE DIFERENTELL DISTINCT DIV DOUBLE DROP ENCODE ENTERO ENUM EXCEPT EXISTS EXP EXTRACT FACTORIAL FALSE FECHA FEED FIRST FLOOR FOREIGN FROM FULL GCD GETBYTE GREATEST GROUP GUION HAVING HOUR ID IF IGUAL ILIKE IN INHERITS INNER INSERT INTEGER INTERSECT INTERVAL INTO IS ISNULL JOIN KEY LAST LCM LEAST LEFT LENGHT LIKE LIMIT LLAVEDER LLAVEIZQ LN LOG LOGDIEZ MAS MAX MAYORIGUALQUE MAYORQUE MD5 MENORIGUALQUE MENORQUE MIN MINSCALE MINUTE MOD MODE MONEY MONTH NATURAL NEWLINE NOT NOTNULL NOW NULL NULLS NUMERIC OFFSET ON ONLY OR OUTER OWNER PARENDER PARENIZQ PI PORCENTAJE POTENCIA POWER PRECISION PRIMARY PTCOMA PUNTO RADIANS RANDOM REAL REFERENCES RENAME REPLACE RETURN RETURNING RIGHT ROUND SCALE SECOND SELECT SET SETBYTE SETSEED SFACTORIAL SHA SIGN SIMILAR SIN SIND SINH SMALLINT SQRT SUBSTR SUBSTRING SUM TAB TABLE TAN TAND TANH TEXT TIME TIMESTAMP TO TRIM TRUC TRUE TYPE UNION UNIQUE UNKNOWN UPDATE USE USING VALUES VARCHAR VARYING WHERE YEAR ZONEinit            : instruccionesinstrucciones : instrucciones instruccion\n                     | instruccioninstruccion      : CREATE createcreate : TYPE createenum\n              | TABLE createtable\n              | OR REPLACE DATABASE\n              | DATABASEcreateenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMAlistacadenas : listacadenas COMA CADENA\n                    | CADENAcreatetable : ID PARENIZQ tabledescriptions PARENDER tableherenciatableherencia : INHERITS PARENIZQ ID PARENDER PTCOMA\n                     | PTCOMAtabledescriptions : tabledescriptions COMA tabledescription\n                         | tabledescriptiontabledescription : ID tipo tablekey\n                        | PRIMARY KEY PARENIZQ PARENDER\n                        | FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER\n                        | CONSTRAINT ID CHECK finalconstraintcheck\n                        | CHECK finalconstraintcheck\n                        | UNIQUE finaluniquetablekey : PRIMARY KEY tabledefault\n                | REFERENCES ID tabledefault\n                | tabledefault : DEFAULT tablenull\n                    | tablenulltablenull : NOT NULL tableconstraintunique\n                 | NULL tableconstraintuniquetableconstraintunique : CONSTRAINT ID UNIQUE tableconstraintcheck\n                             | UNIQUE tableconstraintchecktableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ PARENDER\n                            | CHECK PARENIZQ PARENDER\n                            | finalconstraintcheck : PARENIZQ PARENDERfinalunique : PARENIZQ PARENDERtipo : SMALLINT\n            | INTEGER\n            | BIGINT\n            | DECIMAL\n            | NUMERIC\n            | REAL\n            | DOUBLE PRECISION\n            | MONEY\n            | CHARACTER tipochar\n            | VARCHAR PARENIZQ ENTERO PARENDER\n            | CHAR PARENIZQ ENTERO PARENDER\n            | TEXT\n            | TIMESTAMP precision\n            | TIME precision\n            | DATE\n            | INTERVAL fields precision\n            | BOLEANO\n            | IDtipochar : VARYING PARENIZQ ENTERO PARENDER\n                | PARENIZQ ENTERO PARENDERprecision : PARENIZQ ENTERO PARENDER\n                 | fields : MONTH\n              | HOUR\n              | MINUTE\n              | SECOND\n              | YEAR\n              | '
     
-_lr_action_items = {'FECHA':([0,],[3,]),'$end':([1,2,3,],[0,-1,-2,]),}
+_lr_action_items = {'CREATE':([0,2,3,5,6,10,11,13,18,77,79,100,128,],[4,4,-3,-2,-4,-8,-5,-6,-7,-12,-14,-9,-13,]),'$end':([1,2,3,5,6,10,11,13,18,77,79,100,128,],[0,-1,-3,-2,-4,-8,-5,-6,-7,-12,-14,-9,-13,]),'TYPE':([4,],[7,]),'TABLE':([4,],[8,]),'OR':([4,],[9,]),'DATABASE':([4,15,],[10,18,]),'ID':([7,8,17,20,25,49,61,96,114,118,126,],[12,14,20,29,52,20,89,113,122,124,131,]),'REPLACE':([9,],[15,]),'AS':([12,],[16,]),'PARENIZQ':([14,19,26,27,39,40,41,43,44,46,50,51,64,71,72,73,74,75,76,78,83,122,127,135,],[17,28,54,56,65,66,67,69,69,-64,81,82,90,69,-59,-60,-61,-62,-63,96,54,129,132,137,]),'ENUM':([16,],[19,]),'PRIMARY':([17,29,30,31,32,33,34,35,36,38,42,43,44,45,46,47,49,62,63,68,70,71,72,73,74,75,76,95,109,110,111,112,120,],[23,-54,60,-37,-38,-39,-40,-41,-42,-44,-48,-58,-58,-51,-64,-53,23,-43,-45,-49,-50,-58,-59,-60,-61,-62,-63,-52,-56,-46,-47,-57,-55,]),'FOREIGN':([17,49,],[24,24,]),'CONSTRAINT':([17,49,106,116,119,130,],[25,25,118,118,126,126,]),'CHECK':([17,49,52,119,130,131,],[26,26,83,127,127,135,]),'UNIQUE':([17,49,106,116,124,],[27,27,119,119,130,]),'SMALLINT':([20,],[31,]),'INTEGER':([20,],[32,]),'BIGINT':([20,],[33,]),'DECIMAL':([20,],[34,]),'NUMERIC':([20,],[35,]),'REAL':([20,],[36,]),'DOUBLE':([20,],[37,]),'MONEY':([20,],[38,]),'CHARACTER':([20,],[39,]),'VARCHAR':([20,],[40,]),'CHAR':([20,],[41,]),'TEXT':([20,],[42,]),'TIMESTAMP':([20,],[43,]),'TIME':([20,],[44,]),'DATE':([20,],[45,]),'INTERVAL':([20,],[46,]),'BOLEANO':([20,],[47,]),'PARENDER':([21,22,29,30,31,32,33,34,35,36,38,42,43,44,45,46,47,53,54,55,56,57,58,59,62,63,68,70,71,72,73,74,75,76,80,81,82,84,85,91,92,93,94,95,97,99,101,102,104,107,108,109,110,111,112,113,115,117,119,120,123,125,129,130,132,133,134,136,137,138,],[48,-16,-54,-25,-37,-38,-39,-40,-41,-42,-44,-48,-58,-58,-51,-64,-53,-21,84,-22,85,86,-11,-17,-43,-45,-49,-50,-58,-59,-60,-61,-62,-63,-15,97,98,-35,-36,109,110,111,112,-52,-18,-20,-10,-23,-27,-24,120,-56,-46,-47,-57,121,-26,-29,-34,-55,-28,-31,133,-34,136,-19,-30,-33,138,-32,]),'COMA':([21,22,29,30,31,32,33,34,35,36,38,42,43,44,45,46,47,53,55,57,58,59,62,63,68,70,71,72,73,74,75,76,80,84,85,95,97,99,101,102,104,107,109,110,111,112,115,117,119,120,123,125,130,133,134,136,138,],[49,-16,-54,-25,-37,-38,-39,-40,-41,-42,-44,-48,-58,-58,-51,-64,-53,-21,-22,87,-11,-17,-43,-45,-49,-50,-58,-59,-60,-61,-62,-63,-15,-35,-36,-52,-18,-20,-10,-23,-27,-24,-56,-46,-47,-57,-26,-29,-34,-55,-28,-31,-34,-19,-30,-33,-32,]),'KEY':([23,24,60,],[50,51,88,]),'CADENA':([28,87,],[58,101,]),'REFERENCES':([29,30,31,32,33,34,35,36,38,42,43,44,45,46,47,62,63,68,70,71,72,73,74,75,76,95,98,109,110,111,112,120,],[-54,61,-37,-38,-39,-40,-41,-42,-44,-48,-58,-58,-51,-64,-53,-43,-45,-49,-50,-58,-59,-60,-61,-62,-63,-52,114,-56,-46,-47,-57,-55,]),'PRECISION':([37,],[62,]),'VARYING':([39,],[64,]),'MONTH':([46,],[72,]),'HOUR':([46,],[73,]),'MINUTE':([46,],[74,]),'SECOND':([46,],[75,]),'YEAR':([46,],[76,]),'INHERITS':([48,],[78,]),'PTCOMA':([48,86,121,],[79,100,128,]),'ENTERO':([65,66,67,69,90,],[91,92,93,94,108,]),'DEFAULT':([88,89,],[103,103,]),'NOT':([88,89,103,],[105,105,105,]),'NULL':([88,89,103,105,],[106,106,106,116,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'init':([0,],[1,]),'instrucciones':([0,],[2,]),}
+_lr_goto_items = {'init':([0,],[1,]),'instrucciones':([0,],[2,]),'instruccion':([0,2,],[3,5,]),'create':([4,],[6,]),'createenum':([7,],[11,]),'createtable':([8,],[13,]),'tabledescriptions':([17,],[21,]),'tabledescription':([17,49,],[22,80,]),'tipo':([20,],[30,]),'finalconstraintcheck':([26,83,],[53,99,]),'finalunique':([27,],[55,]),'listacadenas':([28,],[57,]),'tablekey':([30,],[59,]),'tipochar':([39,],[63,]),'precision':([43,44,71,],[68,70,95,]),'fields':([46,],[71,]),'tableherencia':([48,],[77,]),'tabledefault':([88,89,],[102,107,]),'tablenull':([88,89,103,],[104,104,115,]),'tableconstraintunique':([106,116,],[117,123,]),'tableconstraintcheck':([119,130,],[125,134,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,6 +27,68 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> init","S'",1,None,None,None),
-  ('init -> instrucciones','init',1,'p_init','gramatica.py',230),
-  ('instrucciones -> FECHA','instrucciones',1,'p_instrucciones_lista','gramatica.py',233),
+  ('init -> instrucciones','init',1,'p_init','gramatica.py',304),
+  ('instrucciones -> instrucciones instruccion','instrucciones',2,'p_instrucciones_lista','gramatica.py',307),
+  ('instrucciones -> instruccion','instrucciones',1,'p_instrucciones_lista','gramatica.py',308),
+  ('instruccion -> CREATE create','instruccion',2,'p_instruccion','gramatica.py',311),
+  ('create -> TYPE createenum','create',2,'p_create_instruccion','gramatica.py',314),
+  ('create -> TABLE createtable','create',2,'p_create_instruccion','gramatica.py',315),
+  ('create -> OR REPLACE DATABASE','create',3,'p_create_instruccion','gramatica.py',316),
+  ('create -> DATABASE','create',1,'p_create_instruccion','gramatica.py',317),
+  ('createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA','createenum',7,'p_createenum','gramatica.py',320),
+  ('listacadenas -> listacadenas COMA CADENA','listacadenas',3,'p_listacadenas','gramatica.py',323),
+  ('listacadenas -> CADENA','listacadenas',1,'p_listacadenas','gramatica.py',324),
+  ('createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia','createtable',5,'p_createtable','gramatica.py',327),
+  ('tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA','tableherencia',5,'p_tableherencia','gramatica.py',330),
+  ('tableherencia -> PTCOMA','tableherencia',1,'p_tableherencia','gramatica.py',331),
+  ('tabledescriptions -> tabledescriptions COMA tabledescription','tabledescriptions',3,'p_tabledescriptions','gramatica.py',334),
+  ('tabledescriptions -> tabledescription','tabledescriptions',1,'p_tabledescriptions','gramatica.py',335),
+  ('tabledescription -> ID tipo tablekey','tabledescription',3,'p_tabledescription','gramatica.py',344),
+  ('tabledescription -> PRIMARY KEY PARENIZQ PARENDER','tabledescription',4,'p_tabledescription','gramatica.py',345),
+  ('tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER','tabledescription',8,'p_tabledescription','gramatica.py',346),
+  ('tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck','tabledescription',4,'p_tabledescription','gramatica.py',347),
+  ('tabledescription -> CHECK finalconstraintcheck','tabledescription',2,'p_tabledescription','gramatica.py',348),
+  ('tabledescription -> UNIQUE finalunique','tabledescription',2,'p_tabledescription','gramatica.py',349),
+  ('tablekey -> PRIMARY KEY tabledefault','tablekey',3,'p_tablekey','gramatica.py',352),
+  ('tablekey -> REFERENCES ID tabledefault','tablekey',3,'p_tablekey','gramatica.py',353),
+  ('tablekey -> <empty>','tablekey',0,'p_tablekey','gramatica.py',354),
+  ('tabledefault -> DEFAULT tablenull','tabledefault',2,'p_tabledefault','gramatica.py',363),
+  ('tabledefault -> tablenull','tabledefault',1,'p_tabledefault','gramatica.py',364),
+  ('tablenull -> NOT NULL tableconstraintunique','tablenull',3,'p_tablenull','gramatica.py',367),
+  ('tablenull -> NULL tableconstraintunique','tablenull',2,'p_tablenull','gramatica.py',368),
+  ('tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck','tableconstraintunique',4,'p_tableconstraintunique','gramatica.py',371),
+  ('tableconstraintunique -> UNIQUE tableconstraintcheck','tableconstraintunique',2,'p_tableconstraintunique','gramatica.py',372),
+  ('tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER','tableconstraintcheck',5,'p_tableconstraintcheck','gramatica.py',381),
+  ('tableconstraintcheck -> CHECK PARENIZQ PARENDER','tableconstraintcheck',3,'p_tableconstraintcheck','gramatica.py',382),
+  ('tableconstraintcheck -> <empty>','tableconstraintcheck',0,'p_tableconstraintcheck','gramatica.py',383),
+  ('finalconstraintcheck -> PARENIZQ PARENDER','finalconstraintcheck',2,'p_finalconstraintcheck','gramatica.py',386),
+  ('finalunique -> PARENIZQ PARENDER','finalunique',2,'p_finalunique','gramatica.py',395),
+  ('tipo -> SMALLINT','tipo',1,'p_tipo','gramatica.py',399),
+  ('tipo -> INTEGER','tipo',1,'p_tipo','gramatica.py',400),
+  ('tipo -> BIGINT','tipo',1,'p_tipo','gramatica.py',401),
+  ('tipo -> DECIMAL','tipo',1,'p_tipo','gramatica.py',402),
+  ('tipo -> NUMERIC','tipo',1,'p_tipo','gramatica.py',403),
+  ('tipo -> REAL','tipo',1,'p_tipo','gramatica.py',404),
+  ('tipo -> DOUBLE PRECISION','tipo',2,'p_tipo','gramatica.py',405),
+  ('tipo -> MONEY','tipo',1,'p_tipo','gramatica.py',406),
+  ('tipo -> CHARACTER tipochar','tipo',2,'p_tipo','gramatica.py',407),
+  ('tipo -> VARCHAR PARENIZQ ENTERO PARENDER','tipo',4,'p_tipo','gramatica.py',408),
+  ('tipo -> CHAR PARENIZQ ENTERO PARENDER','tipo',4,'p_tipo','gramatica.py',409),
+  ('tipo -> TEXT','tipo',1,'p_tipo','gramatica.py',410),
+  ('tipo -> TIMESTAMP precision','tipo',2,'p_tipo','gramatica.py',411),
+  ('tipo -> TIME precision','tipo',2,'p_tipo','gramatica.py',412),
+  ('tipo -> DATE','tipo',1,'p_tipo','gramatica.py',413),
+  ('tipo -> INTERVAL fields precision','tipo',3,'p_tipo','gramatica.py',414),
+  ('tipo -> BOLEANO','tipo',1,'p_tipo','gramatica.py',415),
+  ('tipo -> ID','tipo',1,'p_tipo','gramatica.py',416),
+  ('tipochar -> VARYING PARENIZQ ENTERO PARENDER','tipochar',4,'p_tipochar','gramatica.py',419),
+  ('tipochar -> PARENIZQ ENTERO PARENDER','tipochar',3,'p_tipochar','gramatica.py',420),
+  ('precision -> PARENIZQ ENTERO PARENDER','precision',3,'p_precision','gramatica.py',423),
+  ('precision -> <empty>','precision',0,'p_precision','gramatica.py',424),
+  ('fields -> MONTH','fields',1,'p_fields','gramatica.py',427),
+  ('fields -> HOUR','fields',1,'p_fields','gramatica.py',428),
+  ('fields -> MINUTE','fields',1,'p_fields','gramatica.py',429),
+  ('fields -> SECOND','fields',1,'p_fields','gramatica.py',430),
+  ('fields -> YEAR','fields',1,'p_fields','gramatica.py',431),
+  ('fields -> <empty>','fields',0,'p_fields','gramatica.py',432),
 ]
