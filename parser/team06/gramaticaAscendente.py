@@ -403,6 +403,7 @@ def p_query(t):
                     | updateinBD
                     | deleteinBD
                     | createTable
+                    | inheritsBD
                     | dropTable
                     | alterTable
                     | variantesAt
@@ -664,14 +665,14 @@ def p_final_cadena(t):
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
-    'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA PUNTOYCOMA'
+    'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
 
 def p_insertBD_2(t):
-    'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA VALUES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA PUNTOYCOMA'
+    'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
 
-def p_paramInsert_(t):
-    '''paramInsert        : paramInsert COMA final
-                        |   final
+def p_listaParam_(t):
+    '''listaParam         : listaParam COMA final
+                          | final
     '''
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
@@ -698,40 +699,57 @@ def p_deleteinBD_2(t):
 def p_createTable(t):
     'createTable        : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA'
 
+def p_inheritsBD(t):
+    'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
+
 def p_creaColumna(t):
     '''creaColumnas        : creaColumnas COMA Columna
                            | Columna 
     '''
 def p_columna_1(t):
     '''Columna          : ID tipo  
-                        | ID tipo paramColumn 
+                        | ID tipo paramOpcional
+                        | constraintinColumn 
                         | checkinColumn
                         | uniqueinColumn
-                        | primaryKey'''
-    #                    | foreignKey
-    #'''
-
-def p_paramColumn(t):
-    '''paramColumn      : DEFAULT final
-                        | NOT
-                        | NOT NULL
-                        | CONSTRAINT ID
-                        | checkinColumn
+                        | primaryKey
+                        | foreignKey
     '''
+
+def p_paramOpcional(t):
+    '''paramOpcional    : paramOpcional paramopc
+                        | paramopc
+    '''
+
+def p_paramopc(t):
+    '''paramopc         : DEFAULT final
+                        | NULL
+                        | NOT NULL
+                        | UNIQUE
+                        | constraintinColumn
+                        | checkinColumn
+                        | PRIMARY KEY
+    '''
+
+def p_constraintinColumn(t):
+    '''constraintinColumn   : CONSTRAINT ID checkinColumn
+                            | CONSTRAINT ID uniqueinColumn
+    '''
+
 def p_checkinColumn(t):
-    'checkinColumn      : CONSTRAINT ID CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
+    'checkinColumn      : CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
 
 
 def p_uniqueinColumn(t):
-    'uniqueinColumn     : UNIQUE PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA'
+    'uniqueinColumn     : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
 
 
 def p_primaryKey(t):
-    'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA'
+    'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
 
 
 def p_foreingkey(t):
-    'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA REFERENCES PARENTESISIZQUIERDA paramInsert PARENTESISDERECHA' 
+    'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA' 
 
 
 def p_tipo(t):
@@ -743,10 +761,10 @@ def p_tipo(t):
                         | REAL
                         | DOUBLE
                         | MONEY
-                        | VARYING
-                        | VARCHAR
-                        | CHARACTER
-                        | CHAR
+                        | VARCHAR PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
+                        | CHARACTER VARYING PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
+                        | CHARACTER PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
+                        | CHAR PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
                         | TEXT
                         | BOOLEAN
                         | TIMESTAMP
