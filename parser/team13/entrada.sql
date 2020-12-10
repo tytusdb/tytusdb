@@ -31,11 +31,3 @@ CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');
 UPDATE weather SET temp_lo = temp_lo+1, temp_hi = temp_lo+15, prcp = cadenita
 WHERE city = 'San Francisco' AND date_ = '2003-07-03';
 
-
-
-
-
-
-
-
-

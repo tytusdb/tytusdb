@@ -429,6 +429,7 @@ def p_sentencia(t):
                  | ALTER_TABLE
                  | DROP_TABLE
                  | INSERT
+                 | QUERY ptComa
     '''
     t[0] = t[1]
 
@@ -818,6 +819,226 @@ def p_booleano(p):
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+######################################### QUERIES
+def p_QUERY( p ):
+    '''QUERY : EXPR_SELECT 
+             | EXPR_SELECT EXPR_FROM 
+             | EXPR_SELECT EXPR_FROM EXPR_ORDERBY 
+             | EXPR_SELECT EXPR_FROM EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_ORDERBY EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT 
+    '''
+
+def p_EXPR_SELECT( p ):
+    '''EXPR_SELECT : select EXPR_COLUMNAS
+                   | select distinct EXPR_COLUMNAS
+                   | select multi
+                   | select now parAbre parCierra
+                   | select current_time
+                   | select current_date 
+                   '''
+
+#todos los parametros de select - columnas 
+def p_EXPR_COLUMNAS( p ):
+    '''EXPR_COLUMNAS : EXPR_COLUMNAS coma EXPR_AGREGACION
+                     | EXPR_COLUMNAS coma EXPR_MATHS
+                     | EXPR_COLUMNAS coma EXPR_TRIG
+                     | EXPR_COLUMNAS coma EXPR_BINARIAS
+                     | EXPR_COLUMNAS coma EXPR_EXTRA
+                     | EXPR_COLUMNAS coma EXPR_FECHA
+                     | EXPR_COLUMNAS coma E
+                     | EXPR_COLUMNAS coma EXPR_CASE
+                     | EXPR_COLUMNAS coma substring parAbre E coma E coma E parCierra
+                     | EXPR_COLUMNAS coma greatest parAbre E_LIST parCierra
+                     | EXPR_COLUMNAS coma least parAbre E_LIST parCierra
+                     | E
+                     | EXPR_AGREGACION
+                     | EXPR_MATHS
+                     | EXPR_TRIG
+                     | EXPR_BINARIAS
+                     | EXPR_EXTRA
+                     | EXPR_FECHA
+                     | EXPR_CASE
+                     | substring parAbre E coma E coma E parCierra
+                     | greatest parAbre E_LIST parCierra
+                     | least parAbre E_LIST parCierra'''
+                    
+def p_EXPR_EXTRA( p ):
+    '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp E parCierra''' 
+    
+    
+def p_EXPR_AGREGACION( p ):
+    '''EXPR_AGREGACION : count parAbre E parCierra  
+                       | avg parAbre E parCierra
+                       | max parAbre E parCierra
+                       | min parAbre E parCierra
+                       | sum parAbre E parCierra
+                       | count parAbre multi parCierra  
+                       | avg parAbre multi parCierra
+                       | max parAbre multi parCierra
+                       | min parAbre multi parCierra
+                       | sum parAbre multi parCierra'''
+
+def p_EXPR_MATHS( p ):
+    '''EXPR_MATHS : abs parAbre E parCierra
+                     | cbrt parAbre E parCierra
+                     | ceil parAbre E parCierra
+                     | ceiling parAbre E parCierra
+                     | degrees parAbre E parCierra
+                     | div parAbre E parCierra
+                     | exp parAbre E parCierra
+                     | factorial parAbre E parCierra
+                     | floor parAbre E parCierra
+                     | gcd parAbre E parCierra
+                     | lcm parAbre E parCierra
+                     | ln parAbre E parCierra
+                     | log parAbre E parCierra
+                     | log10 parAbre E parCierra
+                     | min_scale parAbre E parCierra
+                     | mod parAbre E parCierra
+                     | pi parAbre E parCierra
+                     | power parAbre E parCierra
+                     | radians parAbre E parCierra
+                     | round parAbre E parCierra
+                     | scale parAbre E parCierra
+                     | sign parAbre E parCierra
+                     | sqrt parAbre E parCierra
+                     | trim_scale parAbre E parCierra
+                     | truc parAbre E parCierra
+                     | width_bucket parAbre E parCierra
+                     | random parAbre E parCierra
+                     | setseed parAbre E parCierra '''
+
+def p_EXPR_TRIG( p ):
+    '''EXPR_TRIG : acos parAbre E parCierra 
+                | acosd parAbre E parCierra 
+                | asin parAbre E parCierra 
+                | asind parAbre E parCierra 
+                | atan parAbre E parCierra 
+                | atand parAbre E parCierra 
+                | atan2 parAbre E parCierra 
+                | atan2d parAbre E parCierra 
+                | cos parAbre E parCierra 
+                | cosd parAbre E parCierra 
+                | cot parAbre E parCierra 
+                | cotd parAbre E parCierra 
+                | sin parAbre E parCierra 
+                | sind parAbre E parCierra 
+                | tan parAbre E parCierra 
+                | sinh parAbre E parCierra 
+                | cosh parAbre E parCierra 
+                | tanh parAbre E parCierra 
+                | asinh parAbre E parCierra 
+                | acosh parAbre E parCierra 
+                | atanh parAbre E parCierra'''
+
+def p_EXPR_BINARIAS( p ):
+    '''EXPR_BINARIAS : length parAbre E parCierra
+                     | trim parAbre E parCierra
+                     | get_byte parAbre E parCierra
+                     | md5 parAbre E parCierra
+                     | set_byte parAbre E parCierra
+                     | sha256 parAbre E parCierra
+                     | substr parAbre E parCierra
+                     | convert parAbre E parCierra
+                     | encode parAbre E parCierra
+                     | decode parAbre E parCierra'''
+
+def p_EXPR_FECHA( p ): 
+    '''EXPR_FECHA : date_part parAbre E coma DATE_TYPES E parCierra
+                  | current_date
+                  | current_time
+                  | now parAbre parCierra
+                  | DATE_TYPES E'''
+
+
+def p_EXPR_CASE( p ): 
+    '''EXPR_CASE : case CASE_LIST end
+                 | case CASE_LIST else E end'''
+
+
+def p_CASE_LIST( p ):
+    '''CASE_LIST : CASE_LIST when E then E
+                 | when E then E'''
+
+def p_E_LIST( p ): 
+    '''E_LIST : E_LIST coma E
+              | E_LIST coma now parAbre parCierra
+              | E
+              | now parAbre parCierra
+              '''
+
+def p_EXPR_FROM( p ):
+    '''EXPR_FROM : from L_IDsAlias
+                 | from parAbre QUERY parCierra 
+                 | from parAbre QUERY parCierra id
+                 | from parAbre QUERY parCierra as id'''
+
+def p_L_IDsAlias( p ):
+    '''L_IDsAlias : L_IDsAlias coma id as id
+                  | L_IDsAlias coma id id
+                  | L_IDsAlias coma id
+                  | id id 
+                  | id as id 
+                  | id '''
+
+def p_EXPR_WHERE( p ):
+    '''EXPR_WHERE : where LIST_CONDS '''
+
+def p_LIST_CONDS( p ):
+    '''LIST_CONDS : LIST_CONDS E
+                  | LIST_CONDS E tIs distinct from E
+                  | LIST_CONDS E tIs not distinct from E
+                  | LIST_CONDS substring parAbre E coma E coma E parCierra igual E
+                  | LIST_CONDS E exists parAbre QUERY parCierra
+                  | LIST_CONDS E in parAbre QUERY parCierra
+                  | LIST_CONDS E not in parAbre QUERY parCierra
+                  | LIST_CONDS E OPERATOR any parAbre QUERY parCierra
+                  | LIST_CONDS E OPERATOR some parAbre QUERY parCierra
+                  | LIST_CONDS E OPERATOR all parAbre QUERY parCierra
+                  | E
+                  | E tIs distinct from E
+                  | E tIs not distinct from E
+                  | substring parAbre E coma E coma E parCierra igual E
+                  | E exists parAbre QUERY parCierra
+                  | E in parAbre QUERY parCierra
+                  | E not in parAbre QUERY parCierra
+                  | E OPERATOR any parAbre QUERY parCierra
+                  | E OPERATOR some parAbre QUERY parCierra
+                  | E OPERATOR all parAbre QUERY parCierra'''
+
+def p_OPERATOR( p ):
+    '''OPERATOR : igual
+                | menor
+                | mayor
+                | menorIgual
+                | mayorIgual
+                | diferente'''
+
+def p_EXPR_GROUPBY( p ):
+    '''EXPR_GROUPBY : E'''
+
+def p_EXPR_HAVING( p ):
+    '''EXPR_HAVING : E'''
+
+def p_EXPR_ORDERBY( p ):
+    '''EXPR_ORDERBY : E'''
+
+def p_EXPR_LIMIT( p ):
+    '''EXPR_LIMIT : E'''  
+
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
