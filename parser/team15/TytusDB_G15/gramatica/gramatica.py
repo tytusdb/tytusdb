@@ -1,3 +1,6 @@
+reporte_sintactico=""
+reporte_lexico = ""
+
 # -----------------------------------------------------------------------------
 # Gramatica del Proyecto Fase 1 - Compiladores 2
 # -----------------------------------------------------------------------------
@@ -48,11 +51,12 @@ reservadas = {
     'type' : 'TYPE',
     'set' : 'SET',
     'not' : 'NOT',
+    'like' : 'LIKE',
     'null' : 'NULL',
     # ---- DATA TYPES AND SPECIFICATIONS--------
     'text': 'TEXT',
     'float': 'FLOAT',
-    'int': 'INT',
+    'integer': 'INTEGER',
     'char': 'CHAR',
     'varchar' : 'VARCHAR',
     'smallint':'SMALLINT',
@@ -62,33 +66,138 @@ reservadas = {
     'real' : 'REAL',
     'double' : 'DOUBLE',
     'precision' : 'PRECISION',
-    'money' : 'MONEY',
     'character' : 'CHARACTER',
     'varying' : 'VARYING',
     'timestamp' : 'TIMESTAMP',
     'date' : 'DATE',
     'time' : 'TIME',
     'interval' : 'INTERVAL',
+    'extract' : 'EXTRACT',
     'year' : 'YEAR',
     'month' : 'MONTH',
     'day' : 'DAY',
+    'hour' : 'HOUR',
     'minute' : 'MINUTE',
     'second' : 'SECOND',
+    'now' : 'NOW',
+    'date_part' : 'DATE_PART',
+    'current_date': 'CURRENT_DATE',
+    'current_time' : 'CURRENT_TIME',
     'to' : 'TO',
-    'hour': 'HOUR',
-    'boolean' : 'BOOLEAN',
-    'true' : 'TRUE',
-    'false' : 'FALSE',
     'enum' : 'ENUM',
+    'money' : 'MONEY',
     # ---- DELETE --------
     'only' : 'ONLY',
     'in' :  'IN',
     'returning' : 'RETURNING',
     'using' : 'USING',
+    'exists' : 'EXISTS',
     # ---- USE DATABASE --------
     'use' : 'USE',
     #----- SELECT-----------
-    'distinct' : 'DISTINCT'
+    'distinct' : 'DISTINCT',
+    'group' : 'GROUP',
+    'by' : 'BY',
+    'order' : 'ORDER',
+    'asc' : 'ASC',
+    'desc' : 'DESC',
+    'primary' : 'PRIMARY',
+    'key' : 'KEY',
+    'foreing' : 'FOREING',
+    'avg' : 'AVG',
+    'min' : 'MIN',
+    'max' : 'MAX',
+    'between' : 'BETWEEN',
+    'having' : 'HAVING',
+    #----- FUNCIONES TRIGONOMETRICAS -----------
+    'acos' : 'ACOS',
+    'acos' : 'ACOS',
+    'acosd' : 'ACOSD',
+    'asin' : 'ASIN',
+    'asind' : 'ASIND',
+    'atan' : 'ATAN',
+    'atand' : 'ATAND',
+    'atan2' : 'ATAN2',
+    'atan2d' : 'ATAN2D',
+    'cos' : 'COS',
+    'cosd' : 'COSD',
+    'cot' : 'COT',
+    'cotd' : 'COTD',
+    'sin' : 'SIN',
+    'sind' : 'SIND',
+    'tan' : 'TAN',
+    'tand' : 'TAND',
+    'sinh' : 'SINH',
+    'cosh' : 'COSH',
+    'tanh' : 'TANH',
+    'asinh' : 'ASINH',
+    'acosh' : 'ACOSH',
+    'atanh' : 'ATANH',
+    #----- FUNCIONES MATEMATICAS-----------
+    'abs' : 'ABS',
+    'cbrt' : 'CBRT',
+    'ceil' : 'CEIL',
+    'ceiling' : 'CEILING',
+    'degrees' : 'DEGREES',
+    'div' : 'DIV',
+    'exp' : 'EXP',
+    'factorial' : 'FACTORIAL',
+    'floor' : 'FLOOR',
+    'gcd' : 'GCD',
+    'lcm' : 'LCM',
+    'ln' : 'LN',
+    'log' : 'LOG',
+    'log10' : 'LOG10',
+    'min_scale' : 'MIN_SCALE',
+    'mod' : 'MOD',
+    'pi' : 'PI',
+    'power' : 'POWER',
+    'radians' : 'RADIANS',
+    'round' : 'ROUND',
+    'scale' : 'SCALE',
+    'sign' : 'SIGN',
+    'sqrt' : 'SQRT',
+    'trim_scale' : 'TRIM_SCALE',
+    'truc' : 'TRUC',
+    'width_bucket' : 'WIDTH_BUCKET',
+    'random' : 'RANDOM',
+    'setseed' : 'SETSEED',
+    #----- DATATYPES -----------
+    'symmetric' : 'SYMMETRIC',
+    'isnull' : 'ISNULL',
+    'true': 'TRUE',
+    'notnull' : 'NOTNULL',
+    'is' : 'IS',
+    'false' : 'FALSE',
+    'unknown' : 'UNKNOWN',
+    #----- BYNARY STRING FUNCTIONS -----------
+    'length' : 'LENGTH',
+    'substring' : 'SUBSTRING',
+    'trim' : 'TRIM',
+    'get_byte' : 'GET_BYTE',
+    'md5' : 'MD5',
+    'set_byte' : 'SET_BYTE',
+    'sha256' : 'SHA256',
+    'substr' : 'SUBSTR',
+    'convert' : 'CONVERT',
+    'encode' : 'ENCODE',
+    'decode' : 'DECODE',
+    #----- COMBINING QUERIES -----------
+    'union' : 'UNION',
+    'intersect' : 'INTERSECT',
+    'except' : 'EXCEPT',
+    'all' : 'ALL',
+    #----- LIMIT AND OFFSET -----------
+    'limit' : 'LIMIT',
+    'offset' : 'OFFSET',
+    'some' : 'SOME',
+    'any' : 'ANY',
+    ##----- COMBINING QUERIES -----------
+    'left' : 'LEFT',
+    'right' : 'RIGHT',
+    'full' : 'FULL',
+    'natural' : 'NATURAL',
+    'outer' : 'OUTER'
 }
 
 tokens = [
@@ -97,6 +206,7 @@ tokens = [
     'COMA',
     'PAR_A',
     'PAR_C',
+    'FLOTANTE',
     'ENTERO',
     'CADENA',
     'ID',
@@ -107,34 +217,38 @@ tokens = [
     'MENQUE',
     'MAYQUE',
     'DOBLEIG',
-    'NOIGUAL'
+    'NOIGUAL',
     'APOSTROFE',
     'IGUAL',
     'SUMA',
     'RESTA',
     'MULTI',
-    'DIV'
+    'DIVISION',
+    'MODULO'
+    
 ] + list(reservadas.values())
 
 #tokens
 t_SUMA          = r'\+'
+t_APOSTROFE     = r'\''
 t_RESTA         = r'\-'
-t_DIV           = r'\\'
+t_DIVISION      = r'\\'
 t_PTCOMA        = r';'
 t_ASTERISCO     = r'\*'
+t_MODULO        = r'\%'
 t_COMA          = r','
 t_PAR_A         = r'\('
 t_PAR_C         = r'\)'
-t_PUNTO         = r'.'
-t_NOIG          = r'<>'
+t_PUNTO         = r'\.'
 t_MENIGQUE      = r'<='
 t_MAYIGQUE      = r'>='
 t_MENQUE        = r'\<'
 t_MAYQUE        = r'\>'
+t_NOIG          = r'<>'
 t_NOIGUAL       = r'!='
 t_DOBLEIG       = r'=='
 t_IGUAL         = r'\='
-t_APOSTROFE     = r'\''
+
 
 
 def t_FLOTANTE(t):
@@ -160,10 +274,14 @@ def t_ID(t):
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
 
+
+
 def t_CADENA(t):
     r'\'.*?\''
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
+
+
 
 # Comentario de múltiples líneas /* .. */
 def t_COMENTARIO_MULTILINEA(t):
@@ -183,18 +301,29 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    print("Illegal character '%s'" % t.value[0], t.lineno, t.lexpos)
+    global reporte_lexico
+    reporte_lexico += "<tr> <td> Lexico </td> <td>" + t.value[0] + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(t.lexpos)+"</td></th>"
+ 
     t.lexer.skip(1)
+# TOKENIZAR
 
-
+   
 
 # Construyendo el analizador léxico
 import ply.lex as lex
 lexer = lex.lex()
+ 
 
 
 # Asociación de operadores y precedencia
-
+precedence = (
+    ('left','MAYQUE','MENQUE','MAYIGQUE','MENIGQUE'),
+    ('left','IGUAL','NOIG','NOIGUAL'),
+    ('left','AND','OR'),
+    ('left','SUMA','RESTA'),
+    ('left','MULTI','DIVISION'),
+    )
 
 # Definición de la gramática
 
@@ -218,7 +347,14 @@ def p_instruccion(t):
                   | alterDB_insrt
                   | alterTable_insrt
                   | drop_insrt
-                  | USE ID DATABASE PTCOMA'''
+                  | USE ID DATABASE PTCOMA
+                  | TIPO_ENUM_INSRT '''
+
+
+' ---------- GRAMATICA PARA LA INSTRUCCION TIPO ENUM -------'
+def p_Create_Type_Enum(t):
+    ' TIPO_ENUM_INSRT : CREATE TYPE ID AS ENUM PAR_A lista_datos PAR_C PTCOMA'
+
 
 #--------------------------------------------------------------
 '----------- GRAMATICA PARA LA INSTRUCCION DROP TABLE----------'
@@ -290,15 +426,16 @@ def p_alter_type(t):
 def p_cons_campos(t):
     '''campos_c : campos_c COMA ID
                   | ID '''
-#--------------------------------------------------------------
+
 ' ---------- GRAMATICA PARA LA INSTRUCCION CREATE TABLE ---------'
-#--------------------------------------------------------------
+
 def p_create_table(t):
-    ''' create_Table_isnrt : CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
-                           | CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C herencia PTCOMA '''
+    ' create_Table_isnrt : CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C opcion_herencia PTCOMA '
+
 
 def p_herencia(t):
-    ' herencia :  INHERITS PAR_A ID PAR_C'
+    ''' opcion_herencia :  INHERITS PAR_A ID PAR_C 
+                        | empty '''
 
 def p_cuerpo_createTable_lista(t):
     ' cuerpo_createTable_lista : cuerpo_createTable_lista COMA cuerpo_createTable'
@@ -307,25 +444,41 @@ def p_cuerpo_createTable(t):
     ' cuerpo_createTable_lista : cuerpo_createTable'
 
 def p_createTable(t):
-    ' cuerpo_createTable :  ID TIPO_DATO'
+    ''' cuerpo_createTable :  ID TIPO_DATO opcion_filas
+                            | PRIMARY KEY PAR_A campos_c PAR_C
+                            | FOREING KEY PAR_A campos_c PAR_C REFERENCES ID PAR_A campos_c PAR_C
+                            | UNIQUE PAR_A campos_c PAR_C 
+                            | CONSTRAINT ID constraint_esp '''
+
+def p_opcion_filas(t):
+    ''' opcion_filas : PRIMARY KEY
+                     | REFERENCES ID
+                     | NOT NULL
+                     | NULL
+                     | empty'''
 
 def p_tipo_dato(t):
     ''' TIPO_DATO : TEXT 
                   | FLOAT
-                  | INT
+                  | INTEGER
                   | SMALLINT
+                  | MONEY   
                   | DECIMAL PAR_A ENTERO COMA ENTERO PAR_C
                   | NUMERIC PAR_A ENTERO COMA ENTERO PAR_C
                   | BIGINT
                   | REAL
                   | DOUBLE PRECISION 
-                  | CHARACTER VARYING PAR_A ENTERO PAR_C
+                  | CHARACTER var_char
                   | TIMESTAMP
                   | TIME
                   | DATE
                   | INTERVAL APOSTROFE ID APOSTROFE
                   | VARCHAR PAR_A ENTERO PAR_C
                   | CHAR PAR_A ENTERO PAR_C'''
+
+def p_var_char(t):
+    ''' var_char :  VARYING PAR_A ENTERO PAR_C
+                   | PAR_A ENTERO PAR_C '''
 
 # Nota: Decimal y numeric requieren (p,s) presicion (numero de digitos en total) y scale (cantidad de digitos despues del punto decimal)
 # Nota2: como se usa real?, completar date/time types
@@ -339,7 +492,7 @@ def p_tipo_dato(t):
 ' ----------- GRAMATICA PARA LA INSTRUCCION UPDATE ------'
 #--------------------------------------------------------------
 def p_update_insrt(t):
-    ' update_insrt : UPDATE ID SET lista_update WHERE ID IGUAL datos_insert PTCOMA'
+    ' update_insrt : UPDATE ID SET lista_update WHERE ID IGUAL expresion PTCOMA'
 
 def p_lista_update(t):
     ' lista_update :  lista_update COMA parametro_update'
@@ -348,7 +501,7 @@ def p_lista_update_lista(t):
     ' lista_update : parametro_update'
 
 def p_parametro_update(t):
-    ' parametro_update : ID IGUAL datos_insert'
+    ' parametro_update : ID IGUAL expresion'
 #--------------------------------------------------------------
 ' ---------- GRAMATICA PARA LA INSTRUCCION DELETE --------'
 #--------------------------------------------------------------
@@ -368,11 +521,14 @@ def p_delete_par(t):
                     | AS ID delete_cond_where'''
 
 def p_delete_cond_where(t):
-    'delete_cond_where : WHERE delete_condt'
+    'delete_cond_where : WHERE opcional_where delete_condt'
+
+def p_opcional_where(t):
+    '''opcional_where :   EXISTS
+                        | empty'''
 
 def p_delete_condt(t):
-    ''' delete_condt :  expresion_logica 
-                        | ID IN PAR_A sub_queri PAR_C'''
+    ''' delete_condt :    expresion_logica'''
 
 def p_delete_opcional(t):
     ''' delete_opcional : PTCOMA
@@ -382,57 +538,135 @@ def p_returning_exp(t):
     ''' returning_exp : ASTERISCO 
                       | campos_c'''
 
-#NOTA: TERMINAR ESTO 
-#AGREGAR EL RESTO DE SUB QUERIS
-#URGENTE
-def p_sub_queri(t):
-    ' sub_queri : SELECT'
 #--------------------------------------------------------------
 ' ------------- GRAMATICA PARA LA INSTRUCCION SELECT --------------'
 #--------------------------------------------------------------
 def p_instruccion_select_insrt(t):
-    ' select_insrt : SELECT opcion_select_lista FROM ID AS ID fin_select '
+    ''' select_insrt : SELECT opcion_select_tm 
+                     | select_insrt UNION select_insrt
+                     | select_insrt INTERSECT select_insrt
+                     | select_insrt EXCEPT select_insrt'''
 
-def p_fin_select(t):
-    '''fin_select: PTCOMA
-                 |  LISTA_SELECT_LISTA PTCOMA'''
+def p_opcion_select_tm(t):
+    '''opcion_select_tm :  opcion_select_lista FROM opcion_from
+                          | EXTRACT PAR_A extract_time FROM TIMESTAMP CADENA  PAR_C PTCOMA
+                          | DATE_PART PAR_A CADENA COMA INTERVAL CADENA PAR_C PTCOMA 
+                          | NOW PAR_A PAR_C PTCOMA
+                          | CURRENT_DATE PTCOMA
+                          | CURRENT_TIME PTCOMA
+                          | TIMESTAMP CADENA PTCOMA'''
 
-def p_LISTA_SELECT_LISTA(t):
-    ''' LISTA_SELECT_LISTA : LISTA_SELECT_LISTA  LISTA_SELECT  '''
+def p_opcion_from(t):
+    '''opcion_from : ID opcion_sobrenombre INNER_JOIN WHERE_INSRT GROUP_BY HAVING_INSRT ORDER_BY LIMIT_OFFSET continue_select
+                    | PAR_A select_insrt PAR_C opcion_id PTCOMA'''
 
-def p_OPCIONES_SELECT_LISTA(t):
-    ' LISTA_SELECT_LISTA : LISTA_SELECT'
+def p_opcion_id(t):
+    '''opcion_id : ID
+                 | empty'''
 
-def p_LISTA_SELECT(t):
-    ''' LISTA_SELECT : INNER_JOIN
-                     | WHERE_INSRT '''
+def p_extract_time(t):
+    ''' extract_time : YEAR
+                    | DAY
+                    | MONTH
+                    | HOUR
+                    | MINUTE
+                    | SECOND '''
+
+def p_continue_select(t):
+    ''' continue_select : PTCOMA 
+                        | empty'''
+
+def p_having_insrt(t):
+    ''' HAVING_INSRT : HAVING expresion_logica
+                     | empty'''
+
+def p_sobre_Nombre(t):
+    ''' opcion_sobrenombre : AS ID
+                            | ID
+                            | empty '''
+
+def p_empty(p):
+    'empty :  '
+    pass  
+
+
+def p_ORDER_BY(t):
+    ''' ORDER_BY : ORDER BY campos_c orden 
+                | empty'''
+
+def p_exp_limitante(t):
+    '''LIMIT_OFFSET : LIMIT opc_lim off_set
+                    | empty '''
+
+def p_off_set(t):
+    '''off_set : OFFSET ENTERO
+                | empty '''
+
+def p_opc_lim(t):
+    '''opc_lim : ENTERO
+               | ASTERISCO '''
+
+
+def p_ORDER(t):
+    ''' orden : DESC
+              | ASC
+              | empty '''
+
+def p_GROUP_BY(t):
+    ''' GROUP_BY : GROUP BY campos_c 
+                 | empty'''
             
 def p_WHERE_INSRT(t):
-    ' WHERE_INSRT : WHERE expresion_logica'
+    ''' WHERE_INSRT : WHERE expresion_where
+                    | empty '''
+
+def p_expresion_where(t):
+    ''' expresion_where : expresion_logica
+                        | expresion_dato BETWEEN expresion_dato AND expresion_dato 
+                        | expresion_dato NOT BETWEEN expresion_dato AND expresion_dato
+                        | expresion_dato BETWEEN SYMMETRIC expresion_dato AND expresion_dato
+                        | expresion_dato NOT BETWEEN SYMMETRIC expresion_dato AND expresion_dato
+                        | expresion_dato IS DISTINCT FROM expresion_dato
+                        | expresion_dato IS NOT DISTINCT FROM expresion_dato disc_more
+                        | expresion_dato IS NULL
+                        | expresion_dato IS NOT NULL
+                        | expresion_dato ISNULL
+                        | expresion_dato NOTNULL
+                        | expresion_dato IS TRUE
+                        | expresion_dato IS FALSE
+                        | expresion_dato IS NOT TRUE
+                        | expresion_dato IS NOT FALSE
+                        | expresion_dato IS UNKNOWN
+                        | expresion_dato IS NOT UNKNOWN '''
+def p_disc_more(t):
+    '''disc_more : AND expresion_dato
+                 | empty'''
+
 
 #----------terminar el distinct ------------
 def p_select_lista(t):
-    ''' opcion_select_lista : DISTINCT 
+    ''' opcion_select_lista : DISTINCT campos_c
                             | opciones_select_lista'''
             
 def p_opciones_select_lista(t):
-    'opciones_select_lista : opciones_select_lista COMA opcion_select'
+    ''' opciones_select_lista : opciones_select_lista COMA opcion_select
+                              | opcion_select '''
 
-def p_opcion_select_lista(t):
-    ' opcion_select_lista : opcion_select '
+
+#def p_opcion_select_lista(t):
+ #   ' opcion_select_lista : opcion_select '
 
 def p_opcion_select(t):
-    ''' opcion_select : ASTERISCO
-                      | sum_insrt 
+    ''' opcion_select :  sum_insrt 
                       | count_insrt
-                      | ID 
-                      | ID PUNTO ID
-                      | case_insrt'''
+                      | case_insrt
+                      | PAR_A select_insrt PAR_C
+                      | expresion'''
 
 ' ---------- GRAMATICA PARA LA INSTRUCCION DE CASE --------------'
 def p_case_insrt(t):
-    ''' case_insrt : CASE ID estructura_when_lista ELSE datos_insert END
-                    | CASE estructura_when_lista ELSE datos_insert END'''
+    ' case_insrt : CASE estructura_when_lista ELSE expresion END '
+
 
 def p_estructura_when_lista(t):
     ' estructura_when_lista : estructura_when_lista estructura_when '
@@ -441,31 +675,46 @@ def p_opcion_estructura_when(t):
     ' estructura_when_lista : estructura_when'
 
 def p_estructura_when(t):
-    ' estructura_when : WHEN expresion_logica THEN datos_insert'
+    ' estructura_when : WHEN expresion_logica THEN expresion'
 
-' ---------- GRAMATICA PARA LA INSTRUCCION DE INNER JOIN ----------'
+' ---------- GRAMATICA PARA LA INSTRUCCION DE  JOIN ----------'
 def p_INNER_JOIN(t):
-    'INNER_JOIN : INNER JOIN ID AS ID ON CONDICION_INNER_JOIN'
+    ''' INNER_JOIN : join_lista JOIN ID opcional_join 
+                    | empty '''
+def p_join_lista(t):
+    '''join_lista : INNER
+                  | OUTER
+                  | LEFT  
+                  | RIGHT
+                  | FULL
+                  | NATURAL '''
+
+def p_opcional_join(t):
+    ''' opcional_join : AS ID ON CONDICION_INNER_JOIN
+                        | ON expresion_relacional
+                        | USING PAR_A campos_c PAR_C
+                        | JOIN ID'''
+
 
 def p_CONDICION_INNER_JOIN(t):
     'CONDICION_INNER_JOIN : expresion_logica'
 
-
 ' ---------- GRAMATICA PARA LA INSTRUCCION DE SUM ----------'
 def p_sum_insert(t):
-    ' sum_insrt : SUM PAR_A ID PAR_C'
+    ' sum_insrt : SUM agrupacion_expresion'
 
 ' ---------- GRAMATICA PAR LA INSTRUCCIONN DE COUNT ---------'
 def p_count_insrt(t):
-    ''' count_insrt : COUNT PAR_A ID PAR_C 
-                    | COUNT PAR_A ASTERISCO PAR_C'''
+    ' count_insrt : COUNT agrupacion_expresion '
 
 ' --------- GRAMATICA PARA LA INSTRUCCION INSERT  -------'
 
 def p_insert_insrt(t):
-    ''' insert_insrt : INSERT INTO ID PAR_A lista_parametros_lista PAR_C  VALUES PAR_A lista_datos PAR_C PTCOMA
-                    |  INSERT INTO ID VALUES PAR_A lista_datos PAR_C PTCOMA '''
+    ' insert_insrt : INSERT INTO ID PAR_A opcion_lista_parametros_lista PAR_C  VALUES PAR_A lista_datos PAR_C PTCOMA '
 
+def p_opcion_lista_parametros_lista(t):
+    ''' opcion_lista_parametros_lista : lista_parametros_lista
+                                     | empty '''
 
 ' -------- GRAMATICA PARA LA LISTA DE PARAMETROS DEL INSERT ----------'
 
@@ -483,40 +732,141 @@ def p_parametros(t):
 def p_parametros_lista_datos(t):
     ' lista_datos : lista_datos COMA expresion_relacional'
 
-def p_datos_insert_lista(t):
+def p_expresion_lista(t):
     ' lista_datos : expresion_relacional'
 
-def p_datos_insert(t):
-    ''' datos_insert : CADENA
-                     | RESTA ENTERO
-                     | ENTERO 
+def p_agrupacion_expresion(t):
+    ' agrupacion_expresion : PAR_A expresion PAR_C'
+
+def p_expresion_dato(t):
+    '''expresion_dato : CADENA
+                      | RESTA ENTERO
+                      | ENTERO
+                      | FLOTANTE
+                      | ID
+                      | ID PUNTO ID '''
+
+def p_expresion(t):
+    ''' expresion :    expresion_dato
+                     | select_insrt
+                     | TRUE
+                     | FALSE
                      | PAR_A expresion_logica PAR_C
-                     | ID 
-                     | ID PUNTO ID
-                     | datos_insert SUMA datos_insert
-                     | datos_insert RESTA datos_insert
-                     | datos_insert ASTERISCO datos_insert
-                     | datos_insert DIV datos_insert'''
+                     | expresion SUMA expresion
+                     | expresion RESTA expresion
+                     | expresion ASTERISCO expresion
+                     | expresion MULTI expresion
+                     | expresion DIVISION expresion
+                     | expresion MODULO expresion
+                     | expresion LIKE expresion
+                     | expresion NOT LIKE expresion
+                     | expresion BETWEEN expresion
+                     | expresion IN PAR_A select_insrt PAR_C
+                     | expresion NOT IN PAR_A select_insrt PAR_C
+                     | ACOS PAR_A expresion PAR_C
+                     | ACOSD PAR_A expresion PAR_C
+                     | AVG PAR_A expresion PAR_C 
+                     | MAX PAR_A expresion PAR_C
+                     | MIN PAR_A expresion PAR_C
+                     | ASIN PAR_A expresion PAR_C
+                     | ASIND PAR_A expresion PAR_C
+                     | ATAN PAR_A expresion PAR_C
+                     | ATAND PAR_A expresion PAR_C
+                     | ATAN2 PAR_A expresion PAR_C
+                     | ATAN2D PAR_A expresion PAR_C
+                     | COS PAR_A expresion PAR_C
+                     | COT PAR_A expresion PAR_C 
+                     | COTD PAR_A expresion PAR_C 
+                     | SIN PAR_A expresion PAR_C 
+                     | SIND PAR_A expresion PAR_C 
+                     | TAN PAR_A expresion PAR_C 
+                     | TAND PAR_A expresion PAR_C 
+                     | SINH PAR_A expresion PAR_C 
+                     | COSH PAR_A expresion PAR_C
+                     | TANH PAR_A expresion PAR_C 
+                     | ASINH PAR_A expresion PAR_C
+                     | ATANH PAR_A expresion PAR_C
+                     | COSD PAR_A expresion PAR_C
+                     | ACOSH PAR_A expresion PAR_C 
+                     | ABS PAR_A expresion PAR_C  
+                     | CBRT PAR_A expresion PAR_C 
+                     | CEIL PAR_A expresion PAR_C 
+                     | CEILING PAR_A expresion PAR_C 
+                     | DEGREES PAR_A expresion PAR_C 
+                     | DIV PAR_A expresion COMA expresion PAR_C 
+                     | EXP PAR_A expresion PAR_C 
+                     | FACTORIAL PAR_A expresion PAR_C 
+                     | FLOOR PAR_A expresion PAR_C 
+                     | GCD PAR_A expresion COMA expresion PAR_C 
+                     | LCM PAR_A expresion COMA expresion PAR_C 
+                     | LN PAR_A expresion PAR_C 
+                     | LOG PAR_A expresion PAR_C 
+                     | LOG10 PAR_A expresion PAR_C 
+                     | MIN_SCALE PAR_A expresion PAR_C 
+                     | MOD PAR_A expresion COMA expresion PAR_C 
+                     | PI PAR_A PAR_C 
+                     | POWER PAR_A expresion COMA expresion PAR_C 
+                     | RADIANS PAR_A expresion PAR_C 
+                     | ROUND PAR_A expresion COMA ENTERO PAR_C 
+                     | SCALE PAR_A expresion PAR_C 
+                     | SIGN PAR_A expresion PAR_C 
+                     | SQRT PAR_A expresion PAR_C 
+                     | TRIM_SCALE PAR_A expresion PAR_C 
+                     | TRUC PAR_A expresion COMA ENTERO PAR_C 
+                     | WIDTH_BUCKET PAR_A expresion PAR_C 
+                     | RANDOM PAR_A expresion PAR_C 
+                     | SETSEED PAR_A FLOTANTE PAR_C 
+                     | ASTERISCO 
+                     | LENGTH PAR_A string_type PAR_C
+                     | SUBSTRING PAR_A string_type COMA expresion COMA expresion PAR_C
+                     | TRIM PAR_A string_type PAR_C
+                     | GET_BYTE PAR_A string_type PAR_C
+                     | MD5 PAR_A string_type PAR_C
+                     | SET_BYTE PAR_A string_type PAR_C
+                     | SHA256 PAR_A string_type PAR_C
+                     | SUBSTR PAR_A string_type PAR_C
+                     | CONVERT PAR_A string_type PAR_C
+                     | ENCODE PAR_A string_type PAR_C
+                     | DECODE PAR_A string_type PAR_C 
+                     | sin_some_any PAR_A select_insrt PAR_C
+                     | ALL PAR_A select_insrt PAR_C
+                     | SOME PAR_A select_insrt PAR_C
+                     | sum_insrt 
+                     | count_insrt'''
+                     #NOTA: ESPERAR SOLUCION DEL AUX
+                     #BORRAR EXPRESIONES DESPUES DEL ASTERISCO Y CORREGIR
+
+
+def p_sin_some_any(t):
+    '''sin_some_any : SOME
+                    | ANY  '''
+
+def p_string_type(t):
+    ''' string_type : CADENA
+                     | ID '''
 
 ' --------------- EXPRESIONES -----------------------'
 def p_expresion_relacional(t):
-    ''' expresion_relacional : datos_insert MAYQUE datos_insert
-                             | datos_insert MENQUE datos_insert
-                             | datos_insert MAYIGQUE datos_insert
-                             | datos_insert MENIGQUE datos_insert
-                             | datos_insert DOBLEIG datos_insert
-                             | datos_insert IGUAL datos_insert
-                             | datos_insert NOIG datos_insert
-                             | datos_insert NOIGUAL datos_insert
-                             | datos_insert '''
+    ''' expresion_relacional : expresion MAYQUE expresion
+                             | expresion MENQUE expresion
+                             | expresion MAYIGQUE expresion
+                             | expresion MENIGQUE expresion
+                             | expresion DOBLEIG expresion
+                             | expresion IGUAL expresion
+                             | expresion NOIG expresion
+                             | expresion NOIGUAL expresion
+                             | expresion '''
 
 def p_expresion_logica(t):
     ''' expresion_logica : expresion_relacional AND expresion_logica
                         | expresion_relacional OR expresion_logica
+                        | NOT expresion_logica
                         | expresion_relacional''' 
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
+    global reporte_sintactico
+    reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
     
 
 def find_column(input, token):
@@ -530,6 +880,8 @@ parser = yacc.yacc()
 f = open("./entrada.txt", "r")
 input = f.read()
 print(input)
+
+
 parser.parse(input)
 
 
