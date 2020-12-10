@@ -85,6 +85,13 @@ reservadas = {
     'order': 'order',
     'asc' : 'asc',
     'desc' : 'desc',
+    'when': 'when',
+    'case': 'case',
+    'else': 'else',
+    'then': 'then',
+    'end': 'end',
+    'greatest':'greatest',
+    'least':'least'
 }
 
 tokens = [
@@ -258,8 +265,34 @@ def p_instruccion(t):
                     | DROP ptcoma
                     | INSERT ptcoma
                     | CREATETYPE ptcoma
+		    | CASE
+                    | GREATEST ptcoma
+                    | LEAST ptcoma
     '''
     t[0] = t[1]
+	
+def p_GREATEST(t):
+    '''GREATEST : select greatest para LEXP parc
+    '''
+
+def p_LEAST(t):
+    '''LEAST : select least para LEXP parc
+    '''
+
+def p_CASE(t):
+    ''' CASE : case  LISTAWHEN ELSE end
+               | case LISTAWHEN end
+    '''
+def p_LISTAWHEN(t):
+    ''' LISTAWHEN : LISTAWHEN WHEN
+                    | WHEN
+    '''
+def p_WHEN(t): 
+    ''' WHEN : when LEXP then LEXP
+    '''
+def p_ELSE(t):
+    '''ELSE : else LEXP
+    '''
 
 def p_INSERT(t):
     '''INSERT : insert into id values para LEXP parc
