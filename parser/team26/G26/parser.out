@@ -6,9 +6,7 @@ Unused terminals:
     ACOS
     ACOSD
     ACOSH
-    ADD
     ALL
-    ALTER
     AND
     ASC
     ASIN
@@ -28,7 +26,6 @@ Unused terminals:
     CBRT
     CEIL
     CEILING
-    COLUMN
     CONVERT
     COS
     COSD
@@ -39,7 +36,6 @@ Unused terminals:
     CURRENT
     CURRENTDATE
     CURRENTTIME
-    DATABASES
     DATEPART
     DAY
     DECIMALVALOR
@@ -51,10 +47,8 @@ Unused terminals:
     DIFERENTELL
     DISTINCT
     DIV
-    DROP
     ENCODE
     EXCEPT
-    EXISTS
     EXP
     EXTRACT
     FACTORIAL
@@ -71,7 +65,6 @@ Unused terminals:
     GROUP
     GUION
     HAVING
-    IF
     IGUAL
     ILIKE
     IN
@@ -87,7 +80,6 @@ Unused terminals:
     LEAST
     LEFT
     LENGHT
-    LIKE
     LIMIT
     LLAVEDER
     LLAVEIZQ
@@ -114,7 +106,6 @@ Unused terminals:
     ON
     ONLY
     OUTER
-    OWNER
     PI
     PORCENTAJE
     POTENCIA
@@ -122,14 +113,12 @@ Unused terminals:
     PUNTO
     RADIANS
     RANDOM
-    RENAME
     RETURN
     RETURNING
     RIGHT
     ROUND
     SCALE
     SELECT
-    SET
     SETBYTE
     SETSEED
     SFACTORIAL
@@ -147,14 +136,12 @@ Unused terminals:
     TAN
     TAND
     TANH
-    TO
     TRIM
     TRUC
     TRUE
     UNION
     UNKNOWN
     UPDATE
-    USE
     USING
     VALUES
     WHERE
@@ -167,66 +154,97 @@ Rule 1     init -> instrucciones
 Rule 2     instrucciones -> instrucciones instruccion
 Rule 3     instrucciones -> instruccion
 Rule 4     instruccion -> CREATE create
-Rule 5     create -> TYPE createenum
-Rule 6     create -> TABLE createtable
-Rule 7     create -> OR REPLACE DATABASE
-Rule 8     create -> DATABASE
-Rule 9     createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA
-Rule 10    listacadenas -> listacadenas COMA CADENA
-Rule 11    listacadenas -> CADENA
-Rule 12    createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia
-Rule 13    tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA
-Rule 14    tableherencia -> PTCOMA
-Rule 15    tabledescriptions -> tabledescriptions COMA tabledescription
-Rule 16    tabledescriptions -> tabledescription
-Rule 17    tabledescription -> ID tipo tablekey
-Rule 18    tabledescription -> PRIMARY KEY PARENIZQ PARENDER
-Rule 19    tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
-Rule 20    tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck
-Rule 21    tabledescription -> CHECK finalconstraintcheck
-Rule 22    tabledescription -> UNIQUE finalunique
-Rule 23    tablekey -> PRIMARY KEY tabledefault
-Rule 24    tablekey -> REFERENCES ID tabledefault
-Rule 25    tablekey -> <empty>
-Rule 26    tabledefault -> DEFAULT tablenull
-Rule 27    tabledefault -> tablenull
-Rule 28    tablenull -> NOT NULL tableconstraintunique
-Rule 29    tablenull -> NULL tableconstraintunique
-Rule 30    tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck
-Rule 31    tableconstraintunique -> UNIQUE tableconstraintcheck
-Rule 32    tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER
-Rule 33    tableconstraintcheck -> CHECK PARENIZQ PARENDER
-Rule 34    tableconstraintcheck -> <empty>
-Rule 35    finalconstraintcheck -> PARENIZQ PARENDER
-Rule 36    finalunique -> PARENIZQ PARENDER
-Rule 37    tipo -> SMALLINT
-Rule 38    tipo -> INTEGER
-Rule 39    tipo -> BIGINT
-Rule 40    tipo -> DECIMAL
-Rule 41    tipo -> NUMERIC
-Rule 42    tipo -> REAL
-Rule 43    tipo -> DOUBLE PRECISION
-Rule 44    tipo -> MONEY
-Rule 45    tipo -> CHARACTER tipochar
-Rule 46    tipo -> VARCHAR PARENIZQ ENTERO PARENDER
-Rule 47    tipo -> CHAR PARENIZQ ENTERO PARENDER
-Rule 48    tipo -> TEXT
-Rule 49    tipo -> TIMESTAMP precision
-Rule 50    tipo -> TIME precision
-Rule 51    tipo -> DATE
-Rule 52    tipo -> INTERVAL fields precision
-Rule 53    tipo -> BOLEANO
-Rule 54    tipo -> ID
-Rule 55    tipochar -> VARYING PARENIZQ ENTERO PARENDER
-Rule 56    tipochar -> PARENIZQ ENTERO PARENDER
-Rule 57    precision -> PARENIZQ ENTERO PARENDER
-Rule 58    precision -> <empty>
-Rule 59    fields -> MONTH
-Rule 60    fields -> HOUR
-Rule 61    fields -> MINUTE
-Rule 62    fields -> SECOND
-Rule 63    fields -> YEAR
-Rule 64    fields -> <empty>
+Rule 5     instruccion -> USE use
+Rule 6     instruccion -> SHOW show
+Rule 7     instruccion -> DROP drop
+Rule 8     instruccion -> ALTER alter
+Rule 9     create -> TYPE createenum
+Rule 10    create -> TABLE createtable
+Rule 11    create -> OR REPLACE DATABASE
+Rule 12    create -> DATABASE
+Rule 13    createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA
+Rule 14    listacadenas -> listacadenas COMA CADENA
+Rule 15    listacadenas -> CADENA
+Rule 16    createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia
+Rule 17    tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA
+Rule 18    tableherencia -> PTCOMA
+Rule 19    tabledescriptions -> tabledescriptions COMA tabledescription
+Rule 20    tabledescriptions -> tabledescription
+Rule 21    tabledescription -> ID tipo tablekey
+Rule 22    tabledescription -> PRIMARY KEY PARENIZQ PARENDER
+Rule 23    tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+Rule 24    tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck
+Rule 25    tabledescription -> CHECK finalconstraintcheck
+Rule 26    tabledescription -> UNIQUE finalunique
+Rule 27    tablekey -> PRIMARY KEY tabledefault
+Rule 28    tablekey -> REFERENCES ID tabledefault
+Rule 29    tablekey -> <empty>
+Rule 30    tabledefault -> DEFAULT tablenull
+Rule 31    tabledefault -> tablenull
+Rule 32    tablenull -> NOT NULL tableconstraintunique
+Rule 33    tablenull -> NULL tableconstraintunique
+Rule 34    tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck
+Rule 35    tableconstraintunique -> UNIQUE tableconstraintcheck
+Rule 36    tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER
+Rule 37    tableconstraintcheck -> CHECK PARENIZQ PARENDER
+Rule 38    tableconstraintcheck -> <empty>
+Rule 39    finalconstraintcheck -> PARENIZQ PARENDER
+Rule 40    finalunique -> PARENIZQ PARENDER
+Rule 41    tipo -> SMALLINT
+Rule 42    tipo -> INTEGER
+Rule 43    tipo -> BIGINT
+Rule 44    tipo -> DECIMAL
+Rule 45    tipo -> NUMERIC
+Rule 46    tipo -> REAL
+Rule 47    tipo -> DOUBLE PRECISION
+Rule 48    tipo -> MONEY
+Rule 49    tipo -> CHARACTER tipochar
+Rule 50    tipo -> VARCHAR PARENIZQ ENTERO PARENDER
+Rule 51    tipo -> CHAR PARENIZQ ENTERO PARENDER
+Rule 52    tipo -> TEXT
+Rule 53    tipo -> TIMESTAMP precision
+Rule 54    tipo -> TIME precision
+Rule 55    tipo -> DATE
+Rule 56    tipo -> INTERVAL fields precision
+Rule 57    tipo -> BOLEANO
+Rule 58    tipo -> ID
+Rule 59    tipochar -> VARYING PARENIZQ ENTERO PARENDER
+Rule 60    tipochar -> PARENIZQ ENTERO PARENDER
+Rule 61    precision -> PARENIZQ ENTERO PARENDER
+Rule 62    precision -> <empty>
+Rule 63    fields -> MONTH
+Rule 64    fields -> HOUR
+Rule 65    fields -> MINUTE
+Rule 66    fields -> SECOND
+Rule 67    fields -> YEAR
+Rule 68    fields -> <empty>
+Rule 69    use -> ID PTCOMA
+Rule 70    show -> DATABASES likeopcional
+Rule 71    likeopcional -> LIKE CADENA PTCOMA
+Rule 72    likeopcional -> PTCOMA
+Rule 73    drop -> DATABASE dropdb PTCOMA
+Rule 74    drop -> TABLE ID PTCOMA
+Rule 75    dropdb -> IF EXISTS ID
+Rule 76    dropdb -> ID
+Rule 77    alter -> DATABASE ID alterdb PTCOMA
+Rule 78    alter -> TABLE ID altertable
+Rule 79    alterdb -> RENAME TO ID
+Rule 80    alterdb -> OWNER TO tipodeowner
+Rule 81    tipodeowner -> ID
+Rule 82    tipodeowner -> CURRENT_USER
+Rule 83    tipodeowner -> SESSION_USER
+Rule 84    altertable -> ADD alteradd PTCOMA
+Rule 85    altertable -> ALTER COLUMN ID SET opcionesalterset PTCOMA
+Rule 86    altertable -> DROP tipodedrop PTCOMA
+Rule 87    altertable -> RENAME COLUMN ID TO ID PTCOMA
+Rule 88    alteradd -> COLUMN ID tipo
+Rule 89    alteradd -> CHECK PARENIZQ PARENDER
+Rule 90    alteradd -> CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER
+Rule 91    alteradd -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+Rule 92    opcionesalterset -> NOT NULL
+Rule 93    opcionesalterset -> NULL
+Rule 94    tipodedrop -> COLUMN ID
+Rule 95    tipodedrop -> CONSTRAINT ID
 
 Terminals, with rules where they appear
 
@@ -234,11 +252,11 @@ ABS                  :
 ACOS                 : 
 ACOSD                : 
 ACOSH                : 
-ADD                  : 
+ADD                  : 84
 ALL                  : 
-ALTER                : 
+ALTER                : 8 85
 AND                  : 
-AS                   : 9
+AS                   : 13
 ASC                  : 
 ASIN                 : 
 ASIND                : 
@@ -253,19 +271,19 @@ AVG                  :
 BACKSPACE            : 
 BARRA                : 
 BETWEEN              : 
-BIGINT               : 39
-BOLEANO              : 53
+BIGINT               : 43
+BOLEANO              : 57
 BUCKET               : 
-CADENA               : 10 11
+CADENA               : 14 15 71
 CBRT                 : 
 CEIL                 : 
 CEILING              : 
-CHAR                 : 47
-CHARACTER            : 45
-CHECK                : 20 21 32 33
-COLUMN               : 
-COMA                 : 10 15
-CONSTRAINT           : 20 30 32
+CHAR                 : 51
+CHARACTER            : 49
+CHECK                : 24 25 36 37 89
+COLUMN               : 85 87 88 94
+COMA                 : 14 19
+CONSTRAINT           : 24 34 36 90 95
 CONVERT              : 
 COS                  : 
 COSD                 : 
@@ -277,15 +295,16 @@ CREATE               : 4
 CURRENT              : 
 CURRENTDATE          : 
 CURRENTTIME          : 
-DATABASE             : 7 8
-DATABASES            : 
-DATE                 : 51
+CURRENT_USER         : 82
+DATABASE             : 11 12 73 77
+DATABASES            : 70
+DATE                 : 55
 DATEPART             : 
 DAY                  : 
-DECIMAL              : 40
+DECIMAL              : 44
 DECIMALVALOR         : 
 DECODE               : 
-DEFAULT              : 26
+DEFAULT              : 30
 DEGREES              : 
 DELETE               : 
 DESC                 : 
@@ -293,13 +312,13 @@ DIFERENTE            :
 DIFERENTELL          : 
 DISTINCT             : 
 DIV                  : 
-DOUBLE               : 43
-DROP                 : 
+DOUBLE               : 47
+DROP                 : 7 86
 ENCODE               : 
-ENTERO               : 46 47 55 56 57
-ENUM                 : 9
+ENTERO               : 50 51 59 60 61
+ENUM                 : 13
 EXCEPT               : 
-EXISTS               : 
+EXISTS               : 75
 EXP                  : 
 EXTRACT              : 
 FACTORIAL            : 
@@ -308,7 +327,7 @@ FECHA                :
 FEED                 : 
 FIRST                : 
 FLOOR                : 
-FOREIGN              : 19
+FOREIGN              : 23 91
 FROM                 : 
 FULL                 : 
 GCD                  : 
@@ -317,29 +336,29 @@ GREATEST             :
 GROUP                : 
 GUION                : 
 HAVING               : 
-HOUR                 : 60
-ID                   : 9 12 13 17 19 20 24 30 32 54
-IF                   : 
+HOUR                 : 64
+ID                   : 13 16 17 21 23 24 28 34 36 58 69 74 75 76 77 78 79 81 85 87 87 88 90 90 91 94 95
+IF                   : 75
 IGUAL                : 
 ILIKE                : 
 IN                   : 
-INHERITS             : 13
+INHERITS             : 17
 INNER                : 
 INSERT               : 
-INTEGER              : 38
+INTEGER              : 42
 INTERSECT            : 
-INTERVAL             : 52
+INTERVAL             : 56
 INTO                 : 
 IS                   : 
 ISNULL               : 
 JOIN                 : 
-KEY                  : 18 19 23
+KEY                  : 22 23 27 91
 LAST                 : 
 LCM                  : 
 LEAST                : 
 LEFT                 : 
 LENGHT               : 
-LIKE                 : 
+LIKE                 : 71
 LIMIT                : 
 LLAVEDER             : 
 LLAVEIZQ             : 
@@ -355,113 +374,127 @@ MENORIGUALQUE        :
 MENORQUE             : 
 MIN                  : 
 MINSCALE             : 
-MINUTE               : 61
+MINUTE               : 65
 MOD                  : 
 MODE                 : 
-MONEY                : 44
-MONTH                : 59
+MONEY                : 48
+MONTH                : 63
 NATURAL              : 
 NEWLINE              : 
-NOT                  : 28
+NOT                  : 32 92
 NOTNULL              : 
 NOW                  : 
-NULL                 : 28 29
+NULL                 : 32 33 92 93
 NULLS                : 
-NUMERIC              : 41
+NUMERIC              : 45
 OFFSET               : 
 ON                   : 
 ONLY                 : 
-OR                   : 7
+OR                   : 11
 OUTER                : 
-OWNER                : 
-PARENDER             : 9 12 13 18 19 19 32 33 35 36 46 47 55 56 57
-PARENIZQ             : 9 12 13 18 19 19 32 33 35 36 46 47 55 56 57
+OWNER                : 80
+PARENDER             : 13 16 17 22 23 23 36 37 39 40 50 51 59 60 61 89 90 91 91
+PARENIZQ             : 13 16 17 22 23 23 36 37 39 40 50 51 59 60 61 89 90 91 91
 PI                   : 
 PORCENTAJE           : 
 POTENCIA             : 
 POWER                : 
-PRECISION            : 43
-PRIMARY              : 18 23
-PTCOMA               : 9 13 14
+PRECISION            : 47
+PRIMARY              : 22 27
+PTCOMA               : 13 17 18 69 71 72 73 74 77 84 85 86 87
 PUNTO                : 
 RADIANS              : 
 RANDOM               : 
-REAL                 : 42
-REFERENCES           : 19 24
-RENAME               : 
-REPLACE              : 7
+REAL                 : 46
+REFERENCES           : 23 28 91
+RENAME               : 79 87
+REPLACE              : 11
 RETURN               : 
 RETURNING            : 
 RIGHT                : 
 ROUND                : 
 SCALE                : 
-SECOND               : 62
+SECOND               : 66
 SELECT               : 
-SET                  : 
+SESSION_USER         : 83
+SET                  : 85
 SETBYTE              : 
 SETSEED              : 
 SFACTORIAL           : 
 SHA                  : 
+SHOW                 : 6
 SIGN                 : 
 SIMILAR              : 
 SIN                  : 
 SIND                 : 
 SINH                 : 
-SMALLINT             : 37
+SMALLINT             : 41
 SQRT                 : 
 SUBSTR               : 
 SUBSTRING            : 
 SUM                  : 
 TAB                  : 
-TABLE                : 6
+TABLE                : 10 74 78
 TAN                  : 
 TAND                 : 
 TANH                 : 
-TEXT                 : 48
-TIME                 : 50
-TIMESTAMP            : 49
-TO                   : 
+TEXT                 : 52
+TIME                 : 54
+TIMESTAMP            : 53
+TO                   : 79 80 87
 TRIM                 : 
 TRUC                 : 
 TRUE                 : 
-TYPE                 : 5
+TYPE                 : 9
 UNION                : 
-UNIQUE               : 22 30 31
+UNIQUE               : 26 34 35 90
 UNKNOWN              : 
 UPDATE               : 
-USE                  : 
+USE                  : 5
 USING                : 
 VALUES               : 
-VARCHAR              : 46
-VARYING              : 55
+VARCHAR              : 50
+VARYING              : 59
 WHERE                : 
-YEAR                 : 63
+YEAR                 : 67
 ZONE                 : 
 error                : 
 
 Nonterminals, with rules where they appear
 
+alter                : 8
+alteradd             : 84
+alterdb              : 77
+altertable           : 78
 create               : 4
-createenum           : 5
-createtable          : 6
-fields               : 52
-finalconstraintcheck : 20 21
-finalunique          : 22
+createenum           : 9
+createtable          : 10
+drop                 : 7
+dropdb               : 73
+fields               : 56
+finalconstraintcheck : 24 25
+finalunique          : 26
 init                 : 0
 instruccion          : 2 3
 instrucciones        : 1 2
-listacadenas         : 9 10
-precision            : 49 50 52
-tableconstraintcheck : 30 31
-tableconstraintunique : 28 29
-tabledefault         : 23 24
-tabledescription     : 15 16
-tabledescriptions    : 12 15
-tableherencia        : 12
-tablekey             : 17
-tablenull            : 26 27
-tipo                 : 17
-tipochar             : 45
+likeopcional         : 70
+listacadenas         : 13 14
+opcionesalterset     : 85
+precision            : 53 54 56
+show                 : 6
+tableconstraintcheck : 34 35
+tableconstraintunique : 32 33
+tabledefault         : 27 28
+tabledescription     : 19 20
+tabledescriptions    : 16 19
+tableherencia        : 16
+tablekey             : 21
+tablenull            : 30 31
+tipo                 : 21 88
+tipochar             : 49
+tipodedrop           : 86
+tipodeowner          : 80
+use                  : 5
 
 Parsing method: LALR
 
@@ -472,8 +505,16 @@ state 0
     (2) instrucciones -> . instrucciones instruccion
     (3) instrucciones -> . instruccion
     (4) instruccion -> . CREATE create
+    (5) instruccion -> . USE use
+    (6) instruccion -> . SHOW show
+    (7) instruccion -> . DROP drop
+    (8) instruccion -> . ALTER alter
 
     CREATE          shift and go to state 4
+    USE             shift and go to state 5
+    SHOW            shift and go to state 6
+    DROP            shift and go to state 7
+    ALTER           shift and go to state 8
 
     init                           shift and go to state 1
     instrucciones                  shift and go to state 2
@@ -490,1258 +531,2119 @@ state 2
     (1) init -> instrucciones .
     (2) instrucciones -> instrucciones . instruccion
     (4) instruccion -> . CREATE create
+    (5) instruccion -> . USE use
+    (6) instruccion -> . SHOW show
+    (7) instruccion -> . DROP drop
+    (8) instruccion -> . ALTER alter
 
     $end            reduce using rule 1 (init -> instrucciones .)
     CREATE          shift and go to state 4
+    USE             shift and go to state 5
+    SHOW            shift and go to state 6
+    DROP            shift and go to state 7
+    ALTER           shift and go to state 8
 
-    instruccion                    shift and go to state 5
+    instruccion                    shift and go to state 9
 
 state 3
 
     (3) instrucciones -> instruccion .
 
     CREATE          reduce using rule 3 (instrucciones -> instruccion .)
+    USE             reduce using rule 3 (instrucciones -> instruccion .)
+    SHOW            reduce using rule 3 (instrucciones -> instruccion .)
+    DROP            reduce using rule 3 (instrucciones -> instruccion .)
+    ALTER           reduce using rule 3 (instrucciones -> instruccion .)
     $end            reduce using rule 3 (instrucciones -> instruccion .)
 
 
 state 4
 
     (4) instruccion -> CREATE . create
-    (5) create -> . TYPE createenum
-    (6) create -> . TABLE createtable
-    (7) create -> . OR REPLACE DATABASE
-    (8) create -> . DATABASE
+    (9) create -> . TYPE createenum
+    (10) create -> . TABLE createtable
+    (11) create -> . OR REPLACE DATABASE
+    (12) create -> . DATABASE
 
-    TYPE            shift and go to state 7
-    TABLE           shift and go to state 8
-    OR              shift and go to state 9
-    DATABASE        shift and go to state 10
+    TYPE            shift and go to state 11
+    TABLE           shift and go to state 12
+    OR              shift and go to state 13
+    DATABASE        shift and go to state 14
 
-    create                         shift and go to state 6
+    create                         shift and go to state 10
 
 state 5
+
+    (5) instruccion -> USE . use
+    (69) use -> . ID PTCOMA
+
+    ID              shift and go to state 16
+
+    use                            shift and go to state 15
+
+state 6
+
+    (6) instruccion -> SHOW . show
+    (70) show -> . DATABASES likeopcional
+
+    DATABASES       shift and go to state 18
+
+    show                           shift and go to state 17
+
+state 7
+
+    (7) instruccion -> DROP . drop
+    (73) drop -> . DATABASE dropdb PTCOMA
+    (74) drop -> . TABLE ID PTCOMA
+
+    DATABASE        shift and go to state 20
+    TABLE           shift and go to state 21
+
+    drop                           shift and go to state 19
+
+state 8
+
+    (8) instruccion -> ALTER . alter
+    (77) alter -> . DATABASE ID alterdb PTCOMA
+    (78) alter -> . TABLE ID altertable
+
+    DATABASE        shift and go to state 23
+    TABLE           shift and go to state 24
+
+    alter                          shift and go to state 22
+
+state 9
 
     (2) instrucciones -> instrucciones instruccion .
 
     CREATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    USE             reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    SHOW            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    DROP            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    ALTER           reduce using rule 2 (instrucciones -> instrucciones instruccion .)
     $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
-
-
-state 6
-
-    (4) instruccion -> CREATE create .
-
-    CREATE          reduce using rule 4 (instruccion -> CREATE create .)
-    $end            reduce using rule 4 (instruccion -> CREATE create .)
-
-
-state 7
-
-    (5) create -> TYPE . createenum
-    (9) createenum -> . ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA
-
-    ID              shift and go to state 12
-
-    createenum                     shift and go to state 11
-
-state 8
-
-    (6) create -> TABLE . createtable
-    (12) createtable -> . ID PARENIZQ tabledescriptions PARENDER tableherencia
-
-    ID              shift and go to state 14
-
-    createtable                    shift and go to state 13
-
-state 9
-
-    (7) create -> OR . REPLACE DATABASE
-
-    REPLACE         shift and go to state 15
 
 
 state 10
 
-    (8) create -> DATABASE .
+    (4) instruccion -> CREATE create .
 
-    CREATE          reduce using rule 8 (create -> DATABASE .)
-    $end            reduce using rule 8 (create -> DATABASE .)
+    CREATE          reduce using rule 4 (instruccion -> CREATE create .)
+    USE             reduce using rule 4 (instruccion -> CREATE create .)
+    SHOW            reduce using rule 4 (instruccion -> CREATE create .)
+    DROP            reduce using rule 4 (instruccion -> CREATE create .)
+    ALTER           reduce using rule 4 (instruccion -> CREATE create .)
+    $end            reduce using rule 4 (instruccion -> CREATE create .)
 
 
 state 11
 
-    (5) create -> TYPE createenum .
+    (9) create -> TYPE . createenum
+    (13) createenum -> . ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA
 
-    CREATE          reduce using rule 5 (create -> TYPE createenum .)
-    $end            reduce using rule 5 (create -> TYPE createenum .)
+    ID              shift and go to state 26
 
+    createenum                     shift and go to state 25
 
 state 12
 
-    (9) createenum -> ID . AS ENUM PARENIZQ listacadenas PARENDER PTCOMA
+    (10) create -> TABLE . createtable
+    (16) createtable -> . ID PARENIZQ tabledescriptions PARENDER tableherencia
 
-    AS              shift and go to state 16
+    ID              shift and go to state 28
 
+    createtable                    shift and go to state 27
 
 state 13
 
-    (6) create -> TABLE createtable .
+    (11) create -> OR . REPLACE DATABASE
 
-    CREATE          reduce using rule 6 (create -> TABLE createtable .)
-    $end            reduce using rule 6 (create -> TABLE createtable .)
+    REPLACE         shift and go to state 29
 
 
 state 14
 
-    (12) createtable -> ID . PARENIZQ tabledescriptions PARENDER tableherencia
+    (12) create -> DATABASE .
 
-    PARENIZQ        shift and go to state 17
+    CREATE          reduce using rule 12 (create -> DATABASE .)
+    USE             reduce using rule 12 (create -> DATABASE .)
+    SHOW            reduce using rule 12 (create -> DATABASE .)
+    DROP            reduce using rule 12 (create -> DATABASE .)
+    ALTER           reduce using rule 12 (create -> DATABASE .)
+    $end            reduce using rule 12 (create -> DATABASE .)
 
 
 state 15
 
-    (7) create -> OR REPLACE . DATABASE
+    (5) instruccion -> USE use .
 
-    DATABASE        shift and go to state 18
+    CREATE          reduce using rule 5 (instruccion -> USE use .)
+    USE             reduce using rule 5 (instruccion -> USE use .)
+    SHOW            reduce using rule 5 (instruccion -> USE use .)
+    DROP            reduce using rule 5 (instruccion -> USE use .)
+    ALTER           reduce using rule 5 (instruccion -> USE use .)
+    $end            reduce using rule 5 (instruccion -> USE use .)
 
 
 state 16
 
-    (9) createenum -> ID AS . ENUM PARENIZQ listacadenas PARENDER PTCOMA
+    (69) use -> ID . PTCOMA
 
-    ENUM            shift and go to state 19
+    PTCOMA          shift and go to state 30
 
 
 state 17
 
-    (12) createtable -> ID PARENIZQ . tabledescriptions PARENDER tableherencia
-    (15) tabledescriptions -> . tabledescriptions COMA tabledescription
-    (16) tabledescriptions -> . tabledescription
-    (17) tabledescription -> . ID tipo tablekey
-    (18) tabledescription -> . PRIMARY KEY PARENIZQ PARENDER
-    (19) tabledescription -> . FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
-    (20) tabledescription -> . CONSTRAINT ID CHECK finalconstraintcheck
-    (21) tabledescription -> . CHECK finalconstraintcheck
-    (22) tabledescription -> . UNIQUE finalunique
+    (6) instruccion -> SHOW show .
 
-    ID              shift and go to state 20
-    PRIMARY         shift and go to state 23
-    FOREIGN         shift and go to state 24
-    CONSTRAINT      shift and go to state 25
-    CHECK           shift and go to state 26
-    UNIQUE          shift and go to state 27
+    CREATE          reduce using rule 6 (instruccion -> SHOW show .)
+    USE             reduce using rule 6 (instruccion -> SHOW show .)
+    SHOW            reduce using rule 6 (instruccion -> SHOW show .)
+    DROP            reduce using rule 6 (instruccion -> SHOW show .)
+    ALTER           reduce using rule 6 (instruccion -> SHOW show .)
+    $end            reduce using rule 6 (instruccion -> SHOW show .)
 
-    tabledescriptions              shift and go to state 21
-    tabledescription               shift and go to state 22
 
 state 18
 
-    (7) create -> OR REPLACE DATABASE .
+    (70) show -> DATABASES . likeopcional
+    (71) likeopcional -> . LIKE CADENA PTCOMA
+    (72) likeopcional -> . PTCOMA
 
-    CREATE          reduce using rule 7 (create -> OR REPLACE DATABASE .)
-    $end            reduce using rule 7 (create -> OR REPLACE DATABASE .)
+    LIKE            shift and go to state 32
+    PTCOMA          shift and go to state 33
 
+    likeopcional                   shift and go to state 31
 
 state 19
 
-    (9) createenum -> ID AS ENUM . PARENIZQ listacadenas PARENDER PTCOMA
+    (7) instruccion -> DROP drop .
 
-    PARENIZQ        shift and go to state 28
+    CREATE          reduce using rule 7 (instruccion -> DROP drop .)
+    USE             reduce using rule 7 (instruccion -> DROP drop .)
+    SHOW            reduce using rule 7 (instruccion -> DROP drop .)
+    DROP            reduce using rule 7 (instruccion -> DROP drop .)
+    ALTER           reduce using rule 7 (instruccion -> DROP drop .)
+    $end            reduce using rule 7 (instruccion -> DROP drop .)
 
 
 state 20
 
-    (17) tabledescription -> ID . tipo tablekey
-    (37) tipo -> . SMALLINT
-    (38) tipo -> . INTEGER
-    (39) tipo -> . BIGINT
-    (40) tipo -> . DECIMAL
-    (41) tipo -> . NUMERIC
-    (42) tipo -> . REAL
-    (43) tipo -> . DOUBLE PRECISION
-    (44) tipo -> . MONEY
-    (45) tipo -> . CHARACTER tipochar
-    (46) tipo -> . VARCHAR PARENIZQ ENTERO PARENDER
-    (47) tipo -> . CHAR PARENIZQ ENTERO PARENDER
-    (48) tipo -> . TEXT
-    (49) tipo -> . TIMESTAMP precision
-    (50) tipo -> . TIME precision
-    (51) tipo -> . DATE
-    (52) tipo -> . INTERVAL fields precision
-    (53) tipo -> . BOLEANO
-    (54) tipo -> . ID
+    (73) drop -> DATABASE . dropdb PTCOMA
+    (75) dropdb -> . IF EXISTS ID
+    (76) dropdb -> . ID
 
-    SMALLINT        shift and go to state 31
-    INTEGER         shift and go to state 32
-    BIGINT          shift and go to state 33
-    DECIMAL         shift and go to state 34
-    NUMERIC         shift and go to state 35
-    REAL            shift and go to state 36
-    DOUBLE          shift and go to state 37
-    MONEY           shift and go to state 38
-    CHARACTER       shift and go to state 39
-    VARCHAR         shift and go to state 40
-    CHAR            shift and go to state 41
-    TEXT            shift and go to state 42
-    TIMESTAMP       shift and go to state 43
-    TIME            shift and go to state 44
-    DATE            shift and go to state 45
-    INTERVAL        shift and go to state 46
-    BOLEANO         shift and go to state 47
-    ID              shift and go to state 29
+    IF              shift and go to state 35
+    ID              shift and go to state 36
 
-    tipo                           shift and go to state 30
+    dropdb                         shift and go to state 34
 
 state 21
 
-    (12) createtable -> ID PARENIZQ tabledescriptions . PARENDER tableherencia
-    (15) tabledescriptions -> tabledescriptions . COMA tabledescription
+    (74) drop -> TABLE . ID PTCOMA
 
-    PARENDER        shift and go to state 48
-    COMA            shift and go to state 49
+    ID              shift and go to state 37
 
 
 state 22
 
-    (16) tabledescriptions -> tabledescription .
+    (8) instruccion -> ALTER alter .
 
-    PARENDER        reduce using rule 16 (tabledescriptions -> tabledescription .)
-    COMA            reduce using rule 16 (tabledescriptions -> tabledescription .)
+    CREATE          reduce using rule 8 (instruccion -> ALTER alter .)
+    USE             reduce using rule 8 (instruccion -> ALTER alter .)
+    SHOW            reduce using rule 8 (instruccion -> ALTER alter .)
+    DROP            reduce using rule 8 (instruccion -> ALTER alter .)
+    ALTER           reduce using rule 8 (instruccion -> ALTER alter .)
+    $end            reduce using rule 8 (instruccion -> ALTER alter .)
 
 
 state 23
 
-    (18) tabledescription -> PRIMARY . KEY PARENIZQ PARENDER
+    (77) alter -> DATABASE . ID alterdb PTCOMA
 
-    KEY             shift and go to state 50
+    ID              shift and go to state 38
 
 
 state 24
 
-    (19) tabledescription -> FOREIGN . KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+    (78) alter -> TABLE . ID altertable
 
-    KEY             shift and go to state 51
+    ID              shift and go to state 39
 
 
 state 25
 
-    (20) tabledescription -> CONSTRAINT . ID CHECK finalconstraintcheck
+    (9) create -> TYPE createenum .
 
-    ID              shift and go to state 52
+    CREATE          reduce using rule 9 (create -> TYPE createenum .)
+    USE             reduce using rule 9 (create -> TYPE createenum .)
+    SHOW            reduce using rule 9 (create -> TYPE createenum .)
+    DROP            reduce using rule 9 (create -> TYPE createenum .)
+    ALTER           reduce using rule 9 (create -> TYPE createenum .)
+    $end            reduce using rule 9 (create -> TYPE createenum .)
 
 
 state 26
 
-    (21) tabledescription -> CHECK . finalconstraintcheck
-    (35) finalconstraintcheck -> . PARENIZQ PARENDER
+    (13) createenum -> ID . AS ENUM PARENIZQ listacadenas PARENDER PTCOMA
 
-    PARENIZQ        shift and go to state 54
+    AS              shift and go to state 40
 
-    finalconstraintcheck           shift and go to state 53
 
 state 27
 
-    (22) tabledescription -> UNIQUE . finalunique
-    (36) finalunique -> . PARENIZQ PARENDER
+    (10) create -> TABLE createtable .
 
-    PARENIZQ        shift and go to state 56
+    CREATE          reduce using rule 10 (create -> TABLE createtable .)
+    USE             reduce using rule 10 (create -> TABLE createtable .)
+    SHOW            reduce using rule 10 (create -> TABLE createtable .)
+    DROP            reduce using rule 10 (create -> TABLE createtable .)
+    ALTER           reduce using rule 10 (create -> TABLE createtable .)
+    $end            reduce using rule 10 (create -> TABLE createtable .)
 
-    finalunique                    shift and go to state 55
 
 state 28
 
-    (9) createenum -> ID AS ENUM PARENIZQ . listacadenas PARENDER PTCOMA
-    (10) listacadenas -> . listacadenas COMA CADENA
-    (11) listacadenas -> . CADENA
+    (16) createtable -> ID . PARENIZQ tabledescriptions PARENDER tableherencia
 
-    CADENA          shift and go to state 58
+    PARENIZQ        shift and go to state 41
 
-    listacadenas                   shift and go to state 57
 
 state 29
 
-    (54) tipo -> ID .
+    (11) create -> OR REPLACE . DATABASE
 
-    PRIMARY         reduce using rule 54 (tipo -> ID .)
-    REFERENCES      reduce using rule 54 (tipo -> ID .)
-    PARENDER        reduce using rule 54 (tipo -> ID .)
-    COMA            reduce using rule 54 (tipo -> ID .)
+    DATABASE        shift and go to state 42
 
 
 state 30
 
-    (17) tabledescription -> ID tipo . tablekey
-    (23) tablekey -> . PRIMARY KEY tabledefault
-    (24) tablekey -> . REFERENCES ID tabledefault
-    (25) tablekey -> .
+    (69) use -> ID PTCOMA .
 
-    PRIMARY         shift and go to state 60
-    REFERENCES      shift and go to state 61
-    PARENDER        reduce using rule 25 (tablekey -> .)
-    COMA            reduce using rule 25 (tablekey -> .)
+    CREATE          reduce using rule 69 (use -> ID PTCOMA .)
+    USE             reduce using rule 69 (use -> ID PTCOMA .)
+    SHOW            reduce using rule 69 (use -> ID PTCOMA .)
+    DROP            reduce using rule 69 (use -> ID PTCOMA .)
+    ALTER           reduce using rule 69 (use -> ID PTCOMA .)
+    $end            reduce using rule 69 (use -> ID PTCOMA .)
 
-    tablekey                       shift and go to state 59
 
 state 31
 
-    (37) tipo -> SMALLINT .
+    (70) show -> DATABASES likeopcional .
 
-    PRIMARY         reduce using rule 37 (tipo -> SMALLINT .)
-    REFERENCES      reduce using rule 37 (tipo -> SMALLINT .)
-    PARENDER        reduce using rule 37 (tipo -> SMALLINT .)
-    COMA            reduce using rule 37 (tipo -> SMALLINT .)
+    CREATE          reduce using rule 70 (show -> DATABASES likeopcional .)
+    USE             reduce using rule 70 (show -> DATABASES likeopcional .)
+    SHOW            reduce using rule 70 (show -> DATABASES likeopcional .)
+    DROP            reduce using rule 70 (show -> DATABASES likeopcional .)
+    ALTER           reduce using rule 70 (show -> DATABASES likeopcional .)
+    $end            reduce using rule 70 (show -> DATABASES likeopcional .)
 
 
 state 32
 
-    (38) tipo -> INTEGER .
+    (71) likeopcional -> LIKE . CADENA PTCOMA
 
-    PRIMARY         reduce using rule 38 (tipo -> INTEGER .)
-    REFERENCES      reduce using rule 38 (tipo -> INTEGER .)
-    PARENDER        reduce using rule 38 (tipo -> INTEGER .)
-    COMA            reduce using rule 38 (tipo -> INTEGER .)
+    CADENA          shift and go to state 43
 
 
 state 33
 
-    (39) tipo -> BIGINT .
+    (72) likeopcional -> PTCOMA .
 
-    PRIMARY         reduce using rule 39 (tipo -> BIGINT .)
-    REFERENCES      reduce using rule 39 (tipo -> BIGINT .)
-    PARENDER        reduce using rule 39 (tipo -> BIGINT .)
-    COMA            reduce using rule 39 (tipo -> BIGINT .)
+    CREATE          reduce using rule 72 (likeopcional -> PTCOMA .)
+    USE             reduce using rule 72 (likeopcional -> PTCOMA .)
+    SHOW            reduce using rule 72 (likeopcional -> PTCOMA .)
+    DROP            reduce using rule 72 (likeopcional -> PTCOMA .)
+    ALTER           reduce using rule 72 (likeopcional -> PTCOMA .)
+    $end            reduce using rule 72 (likeopcional -> PTCOMA .)
 
 
 state 34
 
-    (40) tipo -> DECIMAL .
+    (73) drop -> DATABASE dropdb . PTCOMA
 
-    PRIMARY         reduce using rule 40 (tipo -> DECIMAL .)
-    REFERENCES      reduce using rule 40 (tipo -> DECIMAL .)
-    PARENDER        reduce using rule 40 (tipo -> DECIMAL .)
-    COMA            reduce using rule 40 (tipo -> DECIMAL .)
+    PTCOMA          shift and go to state 44
 
 
 state 35
 
-    (41) tipo -> NUMERIC .
+    (75) dropdb -> IF . EXISTS ID
 
-    PRIMARY         reduce using rule 41 (tipo -> NUMERIC .)
-    REFERENCES      reduce using rule 41 (tipo -> NUMERIC .)
-    PARENDER        reduce using rule 41 (tipo -> NUMERIC .)
-    COMA            reduce using rule 41 (tipo -> NUMERIC .)
+    EXISTS          shift and go to state 45
 
 
 state 36
 
-    (42) tipo -> REAL .
+    (76) dropdb -> ID .
 
-    PRIMARY         reduce using rule 42 (tipo -> REAL .)
-    REFERENCES      reduce using rule 42 (tipo -> REAL .)
-    PARENDER        reduce using rule 42 (tipo -> REAL .)
-    COMA            reduce using rule 42 (tipo -> REAL .)
+    PTCOMA          reduce using rule 76 (dropdb -> ID .)
 
 
 state 37
 
-    (43) tipo -> DOUBLE . PRECISION
+    (74) drop -> TABLE ID . PTCOMA
 
-    PRECISION       shift and go to state 62
+    PTCOMA          shift and go to state 46
 
 
 state 38
 
-    (44) tipo -> MONEY .
+    (77) alter -> DATABASE ID . alterdb PTCOMA
+    (79) alterdb -> . RENAME TO ID
+    (80) alterdb -> . OWNER TO tipodeowner
 
-    PRIMARY         reduce using rule 44 (tipo -> MONEY .)
-    REFERENCES      reduce using rule 44 (tipo -> MONEY .)
-    PARENDER        reduce using rule 44 (tipo -> MONEY .)
-    COMA            reduce using rule 44 (tipo -> MONEY .)
+    RENAME          shift and go to state 48
+    OWNER           shift and go to state 49
 
+    alterdb                        shift and go to state 47
 
 state 39
 
-    (45) tipo -> CHARACTER . tipochar
-    (55) tipochar -> . VARYING PARENIZQ ENTERO PARENDER
-    (56) tipochar -> . PARENIZQ ENTERO PARENDER
+    (78) alter -> TABLE ID . altertable
+    (84) altertable -> . ADD alteradd PTCOMA
+    (85) altertable -> . ALTER COLUMN ID SET opcionesalterset PTCOMA
+    (86) altertable -> . DROP tipodedrop PTCOMA
+    (87) altertable -> . RENAME COLUMN ID TO ID PTCOMA
 
-    VARYING         shift and go to state 64
-    PARENIZQ        shift and go to state 65
+    ADD             shift and go to state 51
+    ALTER           shift and go to state 52
+    DROP            shift and go to state 53
+    RENAME          shift and go to state 54
 
-    tipochar                       shift and go to state 63
+    altertable                     shift and go to state 50
 
 state 40
 
-    (46) tipo -> VARCHAR . PARENIZQ ENTERO PARENDER
+    (13) createenum -> ID AS . ENUM PARENIZQ listacadenas PARENDER PTCOMA
 
-    PARENIZQ        shift and go to state 66
+    ENUM            shift and go to state 55
 
 
 state 41
 
-    (47) tipo -> CHAR . PARENIZQ ENTERO PARENDER
+    (16) createtable -> ID PARENIZQ . tabledescriptions PARENDER tableherencia
+    (19) tabledescriptions -> . tabledescriptions COMA tabledescription
+    (20) tabledescriptions -> . tabledescription
+    (21) tabledescription -> . ID tipo tablekey
+    (22) tabledescription -> . PRIMARY KEY PARENIZQ PARENDER
+    (23) tabledescription -> . FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+    (24) tabledescription -> . CONSTRAINT ID CHECK finalconstraintcheck
+    (25) tabledescription -> . CHECK finalconstraintcheck
+    (26) tabledescription -> . UNIQUE finalunique
 
-    PARENIZQ        shift and go to state 67
+    ID              shift and go to state 56
+    PRIMARY         shift and go to state 59
+    FOREIGN         shift and go to state 60
+    CONSTRAINT      shift and go to state 61
+    CHECK           shift and go to state 62
+    UNIQUE          shift and go to state 63
 
+    tabledescriptions              shift and go to state 57
+    tabledescription               shift and go to state 58
 
 state 42
 
-    (48) tipo -> TEXT .
+    (11) create -> OR REPLACE DATABASE .
 
-    PRIMARY         reduce using rule 48 (tipo -> TEXT .)
-    REFERENCES      reduce using rule 48 (tipo -> TEXT .)
-    PARENDER        reduce using rule 48 (tipo -> TEXT .)
-    COMA            reduce using rule 48 (tipo -> TEXT .)
+    CREATE          reduce using rule 11 (create -> OR REPLACE DATABASE .)
+    USE             reduce using rule 11 (create -> OR REPLACE DATABASE .)
+    SHOW            reduce using rule 11 (create -> OR REPLACE DATABASE .)
+    DROP            reduce using rule 11 (create -> OR REPLACE DATABASE .)
+    ALTER           reduce using rule 11 (create -> OR REPLACE DATABASE .)
+    $end            reduce using rule 11 (create -> OR REPLACE DATABASE .)
 
 
 state 43
 
-    (49) tipo -> TIMESTAMP . precision
-    (57) precision -> . PARENIZQ ENTERO PARENDER
-    (58) precision -> .
+    (71) likeopcional -> LIKE CADENA . PTCOMA
 
-    PARENIZQ        shift and go to state 69
-    PRIMARY         reduce using rule 58 (precision -> .)
-    REFERENCES      reduce using rule 58 (precision -> .)
-    PARENDER        reduce using rule 58 (precision -> .)
-    COMA            reduce using rule 58 (precision -> .)
+    PTCOMA          shift and go to state 64
 
-    precision                      shift and go to state 68
 
 state 44
 
-    (50) tipo -> TIME . precision
-    (57) precision -> . PARENIZQ ENTERO PARENDER
-    (58) precision -> .
+    (73) drop -> DATABASE dropdb PTCOMA .
 
-    PARENIZQ        shift and go to state 69
-    PRIMARY         reduce using rule 58 (precision -> .)
-    REFERENCES      reduce using rule 58 (precision -> .)
-    PARENDER        reduce using rule 58 (precision -> .)
-    COMA            reduce using rule 58 (precision -> .)
+    CREATE          reduce using rule 73 (drop -> DATABASE dropdb PTCOMA .)
+    USE             reduce using rule 73 (drop -> DATABASE dropdb PTCOMA .)
+    SHOW            reduce using rule 73 (drop -> DATABASE dropdb PTCOMA .)
+    DROP            reduce using rule 73 (drop -> DATABASE dropdb PTCOMA .)
+    ALTER           reduce using rule 73 (drop -> DATABASE dropdb PTCOMA .)
+    $end            reduce using rule 73 (drop -> DATABASE dropdb PTCOMA .)
 
-    precision                      shift and go to state 70
 
 state 45
 
-    (51) tipo -> DATE .
+    (75) dropdb -> IF EXISTS . ID
 
-    PRIMARY         reduce using rule 51 (tipo -> DATE .)
-    REFERENCES      reduce using rule 51 (tipo -> DATE .)
-    PARENDER        reduce using rule 51 (tipo -> DATE .)
-    COMA            reduce using rule 51 (tipo -> DATE .)
+    ID              shift and go to state 65
 
 
 state 46
 
-    (52) tipo -> INTERVAL . fields precision
-    (59) fields -> . MONTH
-    (60) fields -> . HOUR
-    (61) fields -> . MINUTE
-    (62) fields -> . SECOND
-    (63) fields -> . YEAR
-    (64) fields -> .
+    (74) drop -> TABLE ID PTCOMA .
 
-    MONTH           shift and go to state 72
-    HOUR            shift and go to state 73
-    MINUTE          shift and go to state 74
-    SECOND          shift and go to state 75
-    YEAR            shift and go to state 76
-    PARENIZQ        reduce using rule 64 (fields -> .)
-    PRIMARY         reduce using rule 64 (fields -> .)
-    REFERENCES      reduce using rule 64 (fields -> .)
-    PARENDER        reduce using rule 64 (fields -> .)
-    COMA            reduce using rule 64 (fields -> .)
+    CREATE          reduce using rule 74 (drop -> TABLE ID PTCOMA .)
+    USE             reduce using rule 74 (drop -> TABLE ID PTCOMA .)
+    SHOW            reduce using rule 74 (drop -> TABLE ID PTCOMA .)
+    DROP            reduce using rule 74 (drop -> TABLE ID PTCOMA .)
+    ALTER           reduce using rule 74 (drop -> TABLE ID PTCOMA .)
+    $end            reduce using rule 74 (drop -> TABLE ID PTCOMA .)
 
-    fields                         shift and go to state 71
 
 state 47
 
-    (53) tipo -> BOLEANO .
+    (77) alter -> DATABASE ID alterdb . PTCOMA
 
-    PRIMARY         reduce using rule 53 (tipo -> BOLEANO .)
-    REFERENCES      reduce using rule 53 (tipo -> BOLEANO .)
-    PARENDER        reduce using rule 53 (tipo -> BOLEANO .)
-    COMA            reduce using rule 53 (tipo -> BOLEANO .)
+    PTCOMA          shift and go to state 66
 
 
 state 48
 
-    (12) createtable -> ID PARENIZQ tabledescriptions PARENDER . tableherencia
-    (13) tableherencia -> . INHERITS PARENIZQ ID PARENDER PTCOMA
-    (14) tableherencia -> . PTCOMA
+    (79) alterdb -> RENAME . TO ID
 
-    INHERITS        shift and go to state 78
-    PTCOMA          shift and go to state 79
+    TO              shift and go to state 67
 
-    tableherencia                  shift and go to state 77
 
 state 49
 
-    (15) tabledescriptions -> tabledescriptions COMA . tabledescription
-    (17) tabledescription -> . ID tipo tablekey
-    (18) tabledescription -> . PRIMARY KEY PARENIZQ PARENDER
-    (19) tabledescription -> . FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
-    (20) tabledescription -> . CONSTRAINT ID CHECK finalconstraintcheck
-    (21) tabledescription -> . CHECK finalconstraintcheck
-    (22) tabledescription -> . UNIQUE finalunique
+    (80) alterdb -> OWNER . TO tipodeowner
 
-    ID              shift and go to state 20
-    PRIMARY         shift and go to state 23
-    FOREIGN         shift and go to state 24
-    CONSTRAINT      shift and go to state 25
-    CHECK           shift and go to state 26
-    UNIQUE          shift and go to state 27
+    TO              shift and go to state 68
 
-    tabledescription               shift and go to state 80
 
 state 50
 
-    (18) tabledescription -> PRIMARY KEY . PARENIZQ PARENDER
+    (78) alter -> TABLE ID altertable .
 
-    PARENIZQ        shift and go to state 81
+    CREATE          reduce using rule 78 (alter -> TABLE ID altertable .)
+    USE             reduce using rule 78 (alter -> TABLE ID altertable .)
+    SHOW            reduce using rule 78 (alter -> TABLE ID altertable .)
+    DROP            reduce using rule 78 (alter -> TABLE ID altertable .)
+    ALTER           reduce using rule 78 (alter -> TABLE ID altertable .)
+    $end            reduce using rule 78 (alter -> TABLE ID altertable .)
 
 
 state 51
 
-    (19) tabledescription -> FOREIGN KEY . PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+    (84) altertable -> ADD . alteradd PTCOMA
+    (88) alteradd -> . COLUMN ID tipo
+    (89) alteradd -> . CHECK PARENIZQ PARENDER
+    (90) alteradd -> . CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER
+    (91) alteradd -> . FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
 
-    PARENIZQ        shift and go to state 82
+    COLUMN          shift and go to state 70
+    CHECK           shift and go to state 71
+    CONSTRAINT      shift and go to state 72
+    FOREIGN         shift and go to state 73
 
+    alteradd                       shift and go to state 69
 
 state 52
 
-    (20) tabledescription -> CONSTRAINT ID . CHECK finalconstraintcheck
+    (85) altertable -> ALTER . COLUMN ID SET opcionesalterset PTCOMA
 
-    CHECK           shift and go to state 83
+    COLUMN          shift and go to state 74
 
 
 state 53
 
-    (21) tabledescription -> CHECK finalconstraintcheck .
+    (86) altertable -> DROP . tipodedrop PTCOMA
+    (94) tipodedrop -> . COLUMN ID
+    (95) tipodedrop -> . CONSTRAINT ID
 
-    PARENDER        reduce using rule 21 (tabledescription -> CHECK finalconstraintcheck .)
-    COMA            reduce using rule 21 (tabledescription -> CHECK finalconstraintcheck .)
+    COLUMN          shift and go to state 76
+    CONSTRAINT      shift and go to state 77
 
+    tipodedrop                     shift and go to state 75
 
 state 54
 
-    (35) finalconstraintcheck -> PARENIZQ . PARENDER
+    (87) altertable -> RENAME . COLUMN ID TO ID PTCOMA
 
-    PARENDER        shift and go to state 84
+    COLUMN          shift and go to state 78
 
 
 state 55
 
-    (22) tabledescription -> UNIQUE finalunique .
+    (13) createenum -> ID AS ENUM . PARENIZQ listacadenas PARENDER PTCOMA
 
-    PARENDER        reduce using rule 22 (tabledescription -> UNIQUE finalunique .)
-    COMA            reduce using rule 22 (tabledescription -> UNIQUE finalunique .)
+    PARENIZQ        shift and go to state 79
 
 
 state 56
 
-    (36) finalunique -> PARENIZQ . PARENDER
+    (21) tabledescription -> ID . tipo tablekey
+    (41) tipo -> . SMALLINT
+    (42) tipo -> . INTEGER
+    (43) tipo -> . BIGINT
+    (44) tipo -> . DECIMAL
+    (45) tipo -> . NUMERIC
+    (46) tipo -> . REAL
+    (47) tipo -> . DOUBLE PRECISION
+    (48) tipo -> . MONEY
+    (49) tipo -> . CHARACTER tipochar
+    (50) tipo -> . VARCHAR PARENIZQ ENTERO PARENDER
+    (51) tipo -> . CHAR PARENIZQ ENTERO PARENDER
+    (52) tipo -> . TEXT
+    (53) tipo -> . TIMESTAMP precision
+    (54) tipo -> . TIME precision
+    (55) tipo -> . DATE
+    (56) tipo -> . INTERVAL fields precision
+    (57) tipo -> . BOLEANO
+    (58) tipo -> . ID
 
-    PARENDER        shift and go to state 85
+    SMALLINT        shift and go to state 82
+    INTEGER         shift and go to state 83
+    BIGINT          shift and go to state 84
+    DECIMAL         shift and go to state 85
+    NUMERIC         shift and go to state 86
+    REAL            shift and go to state 87
+    DOUBLE          shift and go to state 88
+    MONEY           shift and go to state 89
+    CHARACTER       shift and go to state 90
+    VARCHAR         shift and go to state 91
+    CHAR            shift and go to state 92
+    TEXT            shift and go to state 93
+    TIMESTAMP       shift and go to state 94
+    TIME            shift and go to state 95
+    DATE            shift and go to state 96
+    INTERVAL        shift and go to state 97
+    BOLEANO         shift and go to state 98
+    ID              shift and go to state 80
 
+    tipo                           shift and go to state 81
 
 state 57
 
-    (9) createenum -> ID AS ENUM PARENIZQ listacadenas . PARENDER PTCOMA
-    (10) listacadenas -> listacadenas . COMA CADENA
+    (16) createtable -> ID PARENIZQ tabledescriptions . PARENDER tableherencia
+    (19) tabledescriptions -> tabledescriptions . COMA tabledescription
 
-    PARENDER        shift and go to state 86
-    COMA            shift and go to state 87
+    PARENDER        shift and go to state 99
+    COMA            shift and go to state 100
 
 
 state 58
 
-    (11) listacadenas -> CADENA .
+    (20) tabledescriptions -> tabledescription .
 
-    PARENDER        reduce using rule 11 (listacadenas -> CADENA .)
-    COMA            reduce using rule 11 (listacadenas -> CADENA .)
+    PARENDER        reduce using rule 20 (tabledescriptions -> tabledescription .)
+    COMA            reduce using rule 20 (tabledescriptions -> tabledescription .)
 
 
 state 59
 
-    (17) tabledescription -> ID tipo tablekey .
+    (22) tabledescription -> PRIMARY . KEY PARENIZQ PARENDER
 
-    PARENDER        reduce using rule 17 (tabledescription -> ID tipo tablekey .)
-    COMA            reduce using rule 17 (tabledescription -> ID tipo tablekey .)
+    KEY             shift and go to state 101
 
 
 state 60
 
-    (23) tablekey -> PRIMARY . KEY tabledefault
+    (23) tabledescription -> FOREIGN . KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
 
-    KEY             shift and go to state 88
+    KEY             shift and go to state 102
 
 
 state 61
 
-    (24) tablekey -> REFERENCES . ID tabledefault
+    (24) tabledescription -> CONSTRAINT . ID CHECK finalconstraintcheck
 
-    ID              shift and go to state 89
+    ID              shift and go to state 103
 
 
 state 62
 
-    (43) tipo -> DOUBLE PRECISION .
+    (25) tabledescription -> CHECK . finalconstraintcheck
+    (39) finalconstraintcheck -> . PARENIZQ PARENDER
 
-    PRIMARY         reduce using rule 43 (tipo -> DOUBLE PRECISION .)
-    REFERENCES      reduce using rule 43 (tipo -> DOUBLE PRECISION .)
-    PARENDER        reduce using rule 43 (tipo -> DOUBLE PRECISION .)
-    COMA            reduce using rule 43 (tipo -> DOUBLE PRECISION .)
+    PARENIZQ        shift and go to state 105
 
+    finalconstraintcheck           shift and go to state 104
 
 state 63
 
-    (45) tipo -> CHARACTER tipochar .
+    (26) tabledescription -> UNIQUE . finalunique
+    (40) finalunique -> . PARENIZQ PARENDER
 
-    PRIMARY         reduce using rule 45 (tipo -> CHARACTER tipochar .)
-    REFERENCES      reduce using rule 45 (tipo -> CHARACTER tipochar .)
-    PARENDER        reduce using rule 45 (tipo -> CHARACTER tipochar .)
-    COMA            reduce using rule 45 (tipo -> CHARACTER tipochar .)
+    PARENIZQ        shift and go to state 107
 
+    finalunique                    shift and go to state 106
 
 state 64
 
-    (55) tipochar -> VARYING . PARENIZQ ENTERO PARENDER
+    (71) likeopcional -> LIKE CADENA PTCOMA .
 
-    PARENIZQ        shift and go to state 90
+    CREATE          reduce using rule 71 (likeopcional -> LIKE CADENA PTCOMA .)
+    USE             reduce using rule 71 (likeopcional -> LIKE CADENA PTCOMA .)
+    SHOW            reduce using rule 71 (likeopcional -> LIKE CADENA PTCOMA .)
+    DROP            reduce using rule 71 (likeopcional -> LIKE CADENA PTCOMA .)
+    ALTER           reduce using rule 71 (likeopcional -> LIKE CADENA PTCOMA .)
+    $end            reduce using rule 71 (likeopcional -> LIKE CADENA PTCOMA .)
 
 
 state 65
 
-    (56) tipochar -> PARENIZQ . ENTERO PARENDER
+    (75) dropdb -> IF EXISTS ID .
 
-    ENTERO          shift and go to state 91
+    PTCOMA          reduce using rule 75 (dropdb -> IF EXISTS ID .)
 
 
 state 66
 
-    (46) tipo -> VARCHAR PARENIZQ . ENTERO PARENDER
+    (77) alter -> DATABASE ID alterdb PTCOMA .
 
-    ENTERO          shift and go to state 92
+    CREATE          reduce using rule 77 (alter -> DATABASE ID alterdb PTCOMA .)
+    USE             reduce using rule 77 (alter -> DATABASE ID alterdb PTCOMA .)
+    SHOW            reduce using rule 77 (alter -> DATABASE ID alterdb PTCOMA .)
+    DROP            reduce using rule 77 (alter -> DATABASE ID alterdb PTCOMA .)
+    ALTER           reduce using rule 77 (alter -> DATABASE ID alterdb PTCOMA .)
+    $end            reduce using rule 77 (alter -> DATABASE ID alterdb PTCOMA .)
 
 
 state 67
 
-    (47) tipo -> CHAR PARENIZQ . ENTERO PARENDER
+    (79) alterdb -> RENAME TO . ID
 
-    ENTERO          shift and go to state 93
+    ID              shift and go to state 108
 
 
 state 68
 
-    (49) tipo -> TIMESTAMP precision .
+    (80) alterdb -> OWNER TO . tipodeowner
+    (81) tipodeowner -> . ID
+    (82) tipodeowner -> . CURRENT_USER
+    (83) tipodeowner -> . SESSION_USER
 
-    PRIMARY         reduce using rule 49 (tipo -> TIMESTAMP precision .)
-    REFERENCES      reduce using rule 49 (tipo -> TIMESTAMP precision .)
-    PARENDER        reduce using rule 49 (tipo -> TIMESTAMP precision .)
-    COMA            reduce using rule 49 (tipo -> TIMESTAMP precision .)
+    ID              shift and go to state 110
+    CURRENT_USER    shift and go to state 111
+    SESSION_USER    shift and go to state 112
 
+    tipodeowner                    shift and go to state 109
 
 state 69
 
-    (57) precision -> PARENIZQ . ENTERO PARENDER
+    (84) altertable -> ADD alteradd . PTCOMA
 
-    ENTERO          shift and go to state 94
+    PTCOMA          shift and go to state 113
 
 
 state 70
 
-    (50) tipo -> TIME precision .
+    (88) alteradd -> COLUMN . ID tipo
 
-    PRIMARY         reduce using rule 50 (tipo -> TIME precision .)
-    REFERENCES      reduce using rule 50 (tipo -> TIME precision .)
-    PARENDER        reduce using rule 50 (tipo -> TIME precision .)
-    COMA            reduce using rule 50 (tipo -> TIME precision .)
+    ID              shift and go to state 114
 
 
 state 71
 
-    (52) tipo -> INTERVAL fields . precision
-    (57) precision -> . PARENIZQ ENTERO PARENDER
-    (58) precision -> .
+    (89) alteradd -> CHECK . PARENIZQ PARENDER
 
-    PARENIZQ        shift and go to state 69
-    PRIMARY         reduce using rule 58 (precision -> .)
-    REFERENCES      reduce using rule 58 (precision -> .)
-    PARENDER        reduce using rule 58 (precision -> .)
-    COMA            reduce using rule 58 (precision -> .)
+    PARENIZQ        shift and go to state 115
 
-    precision                      shift and go to state 95
 
 state 72
 
-    (59) fields -> MONTH .
+    (90) alteradd -> CONSTRAINT . ID UNIQUE PARENIZQ ID PARENDER
 
-    PARENIZQ        reduce using rule 59 (fields -> MONTH .)
-    PRIMARY         reduce using rule 59 (fields -> MONTH .)
-    REFERENCES      reduce using rule 59 (fields -> MONTH .)
-    PARENDER        reduce using rule 59 (fields -> MONTH .)
-    COMA            reduce using rule 59 (fields -> MONTH .)
+    ID              shift and go to state 116
 
 
 state 73
 
-    (60) fields -> HOUR .
+    (91) alteradd -> FOREIGN . KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
 
-    PARENIZQ        reduce using rule 60 (fields -> HOUR .)
-    PRIMARY         reduce using rule 60 (fields -> HOUR .)
-    REFERENCES      reduce using rule 60 (fields -> HOUR .)
-    PARENDER        reduce using rule 60 (fields -> HOUR .)
-    COMA            reduce using rule 60 (fields -> HOUR .)
+    KEY             shift and go to state 117
 
 
 state 74
 
-    (61) fields -> MINUTE .
+    (85) altertable -> ALTER COLUMN . ID SET opcionesalterset PTCOMA
 
-    PARENIZQ        reduce using rule 61 (fields -> MINUTE .)
-    PRIMARY         reduce using rule 61 (fields -> MINUTE .)
-    REFERENCES      reduce using rule 61 (fields -> MINUTE .)
-    PARENDER        reduce using rule 61 (fields -> MINUTE .)
-    COMA            reduce using rule 61 (fields -> MINUTE .)
+    ID              shift and go to state 118
 
 
 state 75
 
-    (62) fields -> SECOND .
+    (86) altertable -> DROP tipodedrop . PTCOMA
 
-    PARENIZQ        reduce using rule 62 (fields -> SECOND .)
-    PRIMARY         reduce using rule 62 (fields -> SECOND .)
-    REFERENCES      reduce using rule 62 (fields -> SECOND .)
-    PARENDER        reduce using rule 62 (fields -> SECOND .)
-    COMA            reduce using rule 62 (fields -> SECOND .)
+    PTCOMA          shift and go to state 119
 
 
 state 76
 
-    (63) fields -> YEAR .
+    (94) tipodedrop -> COLUMN . ID
 
-    PARENIZQ        reduce using rule 63 (fields -> YEAR .)
-    PRIMARY         reduce using rule 63 (fields -> YEAR .)
-    REFERENCES      reduce using rule 63 (fields -> YEAR .)
-    PARENDER        reduce using rule 63 (fields -> YEAR .)
-    COMA            reduce using rule 63 (fields -> YEAR .)
+    ID              shift and go to state 120
 
 
 state 77
 
-    (12) createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .
+    (95) tipodedrop -> CONSTRAINT . ID
 
-    CREATE          reduce using rule 12 (createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .)
-    $end            reduce using rule 12 (createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .)
+    ID              shift and go to state 121
 
 
 state 78
 
-    (13) tableherencia -> INHERITS . PARENIZQ ID PARENDER PTCOMA
-
-    PARENIZQ        shift and go to state 96
-
-
-state 79
-
-    (14) tableherencia -> PTCOMA .
-
-    CREATE          reduce using rule 14 (tableherencia -> PTCOMA .)
-    $end            reduce using rule 14 (tableherencia -> PTCOMA .)
-
-
-state 80
-
-    (15) tabledescriptions -> tabledescriptions COMA tabledescription .
-
-    PARENDER        reduce using rule 15 (tabledescriptions -> tabledescriptions COMA tabledescription .)
-    COMA            reduce using rule 15 (tabledescriptions -> tabledescriptions COMA tabledescription .)
-
-
-state 81
-
-    (18) tabledescription -> PRIMARY KEY PARENIZQ . PARENDER
-
-    PARENDER        shift and go to state 97
-
-
-state 82
-
-    (19) tabledescription -> FOREIGN KEY PARENIZQ . PARENDER REFERENCES ID PARENIZQ PARENDER
-
-    PARENDER        shift and go to state 98
-
-
-state 83
-
-    (20) tabledescription -> CONSTRAINT ID CHECK . finalconstraintcheck
-    (35) finalconstraintcheck -> . PARENIZQ PARENDER
-
-    PARENIZQ        shift and go to state 54
-
-    finalconstraintcheck           shift and go to state 99
-
-state 84
-
-    (35) finalconstraintcheck -> PARENIZQ PARENDER .
-
-    PARENDER        reduce using rule 35 (finalconstraintcheck -> PARENIZQ PARENDER .)
-    COMA            reduce using rule 35 (finalconstraintcheck -> PARENIZQ PARENDER .)
-
-
-state 85
-
-    (36) finalunique -> PARENIZQ PARENDER .
-
-    PARENDER        reduce using rule 36 (finalunique -> PARENIZQ PARENDER .)
-    COMA            reduce using rule 36 (finalunique -> PARENIZQ PARENDER .)
-
-
-state 86
-
-    (9) createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER . PTCOMA
-
-    PTCOMA          shift and go to state 100
-
-
-state 87
-
-    (10) listacadenas -> listacadenas COMA . CADENA
-
-    CADENA          shift and go to state 101
-
-
-state 88
-
-    (23) tablekey -> PRIMARY KEY . tabledefault
-    (26) tabledefault -> . DEFAULT tablenull
-    (27) tabledefault -> . tablenull
-    (28) tablenull -> . NOT NULL tableconstraintunique
-    (29) tablenull -> . NULL tableconstraintunique
-
-    DEFAULT         shift and go to state 103
-    NOT             shift and go to state 105
-    NULL            shift and go to state 106
-
-    tabledefault                   shift and go to state 102
-    tablenull                      shift and go to state 104
-
-state 89
-
-    (24) tablekey -> REFERENCES ID . tabledefault
-    (26) tabledefault -> . DEFAULT tablenull
-    (27) tabledefault -> . tablenull
-    (28) tablenull -> . NOT NULL tableconstraintunique
-    (29) tablenull -> . NULL tableconstraintunique
-
-    DEFAULT         shift and go to state 103
-    NOT             shift and go to state 105
-    NULL            shift and go to state 106
-
-    tabledefault                   shift and go to state 107
-    tablenull                      shift and go to state 104
-
-state 90
-
-    (55) tipochar -> VARYING PARENIZQ . ENTERO PARENDER
-
-    ENTERO          shift and go to state 108
-
-
-state 91
-
-    (56) tipochar -> PARENIZQ ENTERO . PARENDER
-
-    PARENDER        shift and go to state 109
-
-
-state 92
-
-    (46) tipo -> VARCHAR PARENIZQ ENTERO . PARENDER
-
-    PARENDER        shift and go to state 110
-
-
-state 93
-
-    (47) tipo -> CHAR PARENIZQ ENTERO . PARENDER
-
-    PARENDER        shift and go to state 111
-
-
-state 94
-
-    (57) precision -> PARENIZQ ENTERO . PARENDER
-
-    PARENDER        shift and go to state 112
-
-
-state 95
-
-    (52) tipo -> INTERVAL fields precision .
-
-    PRIMARY         reduce using rule 52 (tipo -> INTERVAL fields precision .)
-    REFERENCES      reduce using rule 52 (tipo -> INTERVAL fields precision .)
-    PARENDER        reduce using rule 52 (tipo -> INTERVAL fields precision .)
-    COMA            reduce using rule 52 (tipo -> INTERVAL fields precision .)
-
-
-state 96
-
-    (13) tableherencia -> INHERITS PARENIZQ . ID PARENDER PTCOMA
-
-    ID              shift and go to state 113
-
-
-state 97
-
-    (18) tabledescription -> PRIMARY KEY PARENIZQ PARENDER .
-
-    PARENDER        reduce using rule 18 (tabledescription -> PRIMARY KEY PARENIZQ PARENDER .)
-    COMA            reduce using rule 18 (tabledescription -> PRIMARY KEY PARENIZQ PARENDER .)
-
-
-state 98
-
-    (19) tabledescription -> FOREIGN KEY PARENIZQ PARENDER . REFERENCES ID PARENIZQ PARENDER
-
-    REFERENCES      shift and go to state 114
-
-
-state 99
-
-    (20) tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck .
-
-    PARENDER        reduce using rule 20 (tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck .)
-    COMA            reduce using rule 20 (tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck .)
-
-
-state 100
-
-    (9) createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .
-
-    CREATE          reduce using rule 9 (createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .)
-    $end            reduce using rule 9 (createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .)
-
-
-state 101
-
-    (10) listacadenas -> listacadenas COMA CADENA .
-
-    PARENDER        reduce using rule 10 (listacadenas -> listacadenas COMA CADENA .)
-    COMA            reduce using rule 10 (listacadenas -> listacadenas COMA CADENA .)
-
-
-state 102
-
-    (23) tablekey -> PRIMARY KEY tabledefault .
-
-    PARENDER        reduce using rule 23 (tablekey -> PRIMARY KEY tabledefault .)
-    COMA            reduce using rule 23 (tablekey -> PRIMARY KEY tabledefault .)
-
-
-state 103
-
-    (26) tabledefault -> DEFAULT . tablenull
-    (28) tablenull -> . NOT NULL tableconstraintunique
-    (29) tablenull -> . NULL tableconstraintunique
-
-    NOT             shift and go to state 105
-    NULL            shift and go to state 106
-
-    tablenull                      shift and go to state 115
-
-state 104
-
-    (27) tabledefault -> tablenull .
-
-    PARENDER        reduce using rule 27 (tabledefault -> tablenull .)
-    COMA            reduce using rule 27 (tabledefault -> tablenull .)
-
-
-state 105
-
-    (28) tablenull -> NOT . NULL tableconstraintunique
-
-    NULL            shift and go to state 116
-
-
-state 106
-
-    (29) tablenull -> NULL . tableconstraintunique
-    (30) tableconstraintunique -> . CONSTRAINT ID UNIQUE tableconstraintcheck
-    (31) tableconstraintunique -> . UNIQUE tableconstraintcheck
-
-    CONSTRAINT      shift and go to state 118
-    UNIQUE          shift and go to state 119
-
-    tableconstraintunique          shift and go to state 117
-
-state 107
-
-    (24) tablekey -> REFERENCES ID tabledefault .
-
-    PARENDER        reduce using rule 24 (tablekey -> REFERENCES ID tabledefault .)
-    COMA            reduce using rule 24 (tablekey -> REFERENCES ID tabledefault .)
-
-
-state 108
-
-    (55) tipochar -> VARYING PARENIZQ ENTERO . PARENDER
-
-    PARENDER        shift and go to state 120
-
-
-state 109
-
-    (56) tipochar -> PARENIZQ ENTERO PARENDER .
-
-    PRIMARY         reduce using rule 56 (tipochar -> PARENIZQ ENTERO PARENDER .)
-    REFERENCES      reduce using rule 56 (tipochar -> PARENIZQ ENTERO PARENDER .)
-    PARENDER        reduce using rule 56 (tipochar -> PARENIZQ ENTERO PARENDER .)
-    COMA            reduce using rule 56 (tipochar -> PARENIZQ ENTERO PARENDER .)
-
-
-state 110
-
-    (46) tipo -> VARCHAR PARENIZQ ENTERO PARENDER .
-
-    PRIMARY         reduce using rule 46 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
-    REFERENCES      reduce using rule 46 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
-    PARENDER        reduce using rule 46 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
-    COMA            reduce using rule 46 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
-
-
-state 111
-
-    (47) tipo -> CHAR PARENIZQ ENTERO PARENDER .
-
-    PRIMARY         reduce using rule 47 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
-    REFERENCES      reduce using rule 47 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
-    PARENDER        reduce using rule 47 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
-    COMA            reduce using rule 47 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
-
-
-state 112
-
-    (57) precision -> PARENIZQ ENTERO PARENDER .
-
-    PRIMARY         reduce using rule 57 (precision -> PARENIZQ ENTERO PARENDER .)
-    REFERENCES      reduce using rule 57 (precision -> PARENIZQ ENTERO PARENDER .)
-    PARENDER        reduce using rule 57 (precision -> PARENIZQ ENTERO PARENDER .)
-    COMA            reduce using rule 57 (precision -> PARENIZQ ENTERO PARENDER .)
-
-
-state 113
-
-    (13) tableherencia -> INHERITS PARENIZQ ID . PARENDER PTCOMA
-
-    PARENDER        shift and go to state 121
-
-
-state 114
-
-    (19) tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES . ID PARENIZQ PARENDER
+    (87) altertable -> RENAME COLUMN . ID TO ID PTCOMA
 
     ID              shift and go to state 122
 
 
-state 115
+state 79
 
-    (26) tabledefault -> DEFAULT tablenull .
+    (13) createenum -> ID AS ENUM PARENIZQ . listacadenas PARENDER PTCOMA
+    (14) listacadenas -> . listacadenas COMA CADENA
+    (15) listacadenas -> . CADENA
 
-    PARENDER        reduce using rule 26 (tabledefault -> DEFAULT tablenull .)
-    COMA            reduce using rule 26 (tabledefault -> DEFAULT tablenull .)
+    CADENA          shift and go to state 124
 
+    listacadenas                   shift and go to state 123
 
-state 116
+state 80
 
-    (28) tablenull -> NOT NULL . tableconstraintunique
-    (30) tableconstraintunique -> . CONSTRAINT ID UNIQUE tableconstraintcheck
-    (31) tableconstraintunique -> . UNIQUE tableconstraintcheck
+    (58) tipo -> ID .
 
-    CONSTRAINT      shift and go to state 118
-    UNIQUE          shift and go to state 119
-
-    tableconstraintunique          shift and go to state 123
-
-state 117
-
-    (29) tablenull -> NULL tableconstraintunique .
-
-    PARENDER        reduce using rule 29 (tablenull -> NULL tableconstraintunique .)
-    COMA            reduce using rule 29 (tablenull -> NULL tableconstraintunique .)
+    PRIMARY         reduce using rule 58 (tipo -> ID .)
+    REFERENCES      reduce using rule 58 (tipo -> ID .)
+    PARENDER        reduce using rule 58 (tipo -> ID .)
+    COMA            reduce using rule 58 (tipo -> ID .)
+    PTCOMA          reduce using rule 58 (tipo -> ID .)
 
 
-state 118
+state 81
 
-    (30) tableconstraintunique -> CONSTRAINT . ID UNIQUE tableconstraintcheck
+    (21) tabledescription -> ID tipo . tablekey
+    (27) tablekey -> . PRIMARY KEY tabledefault
+    (28) tablekey -> . REFERENCES ID tabledefault
+    (29) tablekey -> .
 
-    ID              shift and go to state 124
+    PRIMARY         shift and go to state 126
+    REFERENCES      shift and go to state 127
+    PARENDER        reduce using rule 29 (tablekey -> .)
+    COMA            reduce using rule 29 (tablekey -> .)
 
+    tablekey                       shift and go to state 125
 
-state 119
+state 82
 
-    (31) tableconstraintunique -> UNIQUE . tableconstraintcheck
-    (32) tableconstraintcheck -> . CONSTRAINT ID CHECK PARENIZQ PARENDER
-    (33) tableconstraintcheck -> . CHECK PARENIZQ PARENDER
-    (34) tableconstraintcheck -> .
+    (41) tipo -> SMALLINT .
 
-    CONSTRAINT      shift and go to state 126
-    CHECK           shift and go to state 127
-    PARENDER        reduce using rule 34 (tableconstraintcheck -> .)
-    COMA            reduce using rule 34 (tableconstraintcheck -> .)
-
-    tableconstraintcheck           shift and go to state 125
-
-state 120
-
-    (55) tipochar -> VARYING PARENIZQ ENTERO PARENDER .
-
-    PRIMARY         reduce using rule 55 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
-    REFERENCES      reduce using rule 55 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
-    PARENDER        reduce using rule 55 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
-    COMA            reduce using rule 55 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
+    PRIMARY         reduce using rule 41 (tipo -> SMALLINT .)
+    REFERENCES      reduce using rule 41 (tipo -> SMALLINT .)
+    PARENDER        reduce using rule 41 (tipo -> SMALLINT .)
+    COMA            reduce using rule 41 (tipo -> SMALLINT .)
+    PTCOMA          reduce using rule 41 (tipo -> SMALLINT .)
 
 
-state 121
+state 83
 
-    (13) tableherencia -> INHERITS PARENIZQ ID PARENDER . PTCOMA
+    (42) tipo -> INTEGER .
 
-    PTCOMA          shift and go to state 128
-
-
-state 122
-
-    (19) tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID . PARENIZQ PARENDER
-
-    PARENIZQ        shift and go to state 129
+    PRIMARY         reduce using rule 42 (tipo -> INTEGER .)
+    REFERENCES      reduce using rule 42 (tipo -> INTEGER .)
+    PARENDER        reduce using rule 42 (tipo -> INTEGER .)
+    COMA            reduce using rule 42 (tipo -> INTEGER .)
+    PTCOMA          reduce using rule 42 (tipo -> INTEGER .)
 
 
-state 123
+state 84
 
-    (28) tablenull -> NOT NULL tableconstraintunique .
+    (43) tipo -> BIGINT .
 
-    PARENDER        reduce using rule 28 (tablenull -> NOT NULL tableconstraintunique .)
-    COMA            reduce using rule 28 (tablenull -> NOT NULL tableconstraintunique .)
-
-
-state 124
-
-    (30) tableconstraintunique -> CONSTRAINT ID . UNIQUE tableconstraintcheck
-
-    UNIQUE          shift and go to state 130
+    PRIMARY         reduce using rule 43 (tipo -> BIGINT .)
+    REFERENCES      reduce using rule 43 (tipo -> BIGINT .)
+    PARENDER        reduce using rule 43 (tipo -> BIGINT .)
+    COMA            reduce using rule 43 (tipo -> BIGINT .)
+    PTCOMA          reduce using rule 43 (tipo -> BIGINT .)
 
 
-state 125
+state 85
 
-    (31) tableconstraintunique -> UNIQUE tableconstraintcheck .
+    (44) tipo -> DECIMAL .
 
-    PARENDER        reduce using rule 31 (tableconstraintunique -> UNIQUE tableconstraintcheck .)
-    COMA            reduce using rule 31 (tableconstraintunique -> UNIQUE tableconstraintcheck .)
-
-
-state 126
-
-    (32) tableconstraintcheck -> CONSTRAINT . ID CHECK PARENIZQ PARENDER
-
-    ID              shift and go to state 131
+    PRIMARY         reduce using rule 44 (tipo -> DECIMAL .)
+    REFERENCES      reduce using rule 44 (tipo -> DECIMAL .)
+    PARENDER        reduce using rule 44 (tipo -> DECIMAL .)
+    COMA            reduce using rule 44 (tipo -> DECIMAL .)
+    PTCOMA          reduce using rule 44 (tipo -> DECIMAL .)
 
 
-state 127
+state 86
 
-    (33) tableconstraintcheck -> CHECK . PARENIZQ PARENDER
+    (45) tipo -> NUMERIC .
+
+    PRIMARY         reduce using rule 45 (tipo -> NUMERIC .)
+    REFERENCES      reduce using rule 45 (tipo -> NUMERIC .)
+    PARENDER        reduce using rule 45 (tipo -> NUMERIC .)
+    COMA            reduce using rule 45 (tipo -> NUMERIC .)
+    PTCOMA          reduce using rule 45 (tipo -> NUMERIC .)
+
+
+state 87
+
+    (46) tipo -> REAL .
+
+    PRIMARY         reduce using rule 46 (tipo -> REAL .)
+    REFERENCES      reduce using rule 46 (tipo -> REAL .)
+    PARENDER        reduce using rule 46 (tipo -> REAL .)
+    COMA            reduce using rule 46 (tipo -> REAL .)
+    PTCOMA          reduce using rule 46 (tipo -> REAL .)
+
+
+state 88
+
+    (47) tipo -> DOUBLE . PRECISION
+
+    PRECISION       shift and go to state 128
+
+
+state 89
+
+    (48) tipo -> MONEY .
+
+    PRIMARY         reduce using rule 48 (tipo -> MONEY .)
+    REFERENCES      reduce using rule 48 (tipo -> MONEY .)
+    PARENDER        reduce using rule 48 (tipo -> MONEY .)
+    COMA            reduce using rule 48 (tipo -> MONEY .)
+    PTCOMA          reduce using rule 48 (tipo -> MONEY .)
+
+
+state 90
+
+    (49) tipo -> CHARACTER . tipochar
+    (59) tipochar -> . VARYING PARENIZQ ENTERO PARENDER
+    (60) tipochar -> . PARENIZQ ENTERO PARENDER
+
+    VARYING         shift and go to state 130
+    PARENIZQ        shift and go to state 131
+
+    tipochar                       shift and go to state 129
+
+state 91
+
+    (50) tipo -> VARCHAR . PARENIZQ ENTERO PARENDER
 
     PARENIZQ        shift and go to state 132
 
 
+state 92
+
+    (51) tipo -> CHAR . PARENIZQ ENTERO PARENDER
+
+    PARENIZQ        shift and go to state 133
+
+
+state 93
+
+    (52) tipo -> TEXT .
+
+    PRIMARY         reduce using rule 52 (tipo -> TEXT .)
+    REFERENCES      reduce using rule 52 (tipo -> TEXT .)
+    PARENDER        reduce using rule 52 (tipo -> TEXT .)
+    COMA            reduce using rule 52 (tipo -> TEXT .)
+    PTCOMA          reduce using rule 52 (tipo -> TEXT .)
+
+
+state 94
+
+    (53) tipo -> TIMESTAMP . precision
+    (61) precision -> . PARENIZQ ENTERO PARENDER
+    (62) precision -> .
+
+    PARENIZQ        shift and go to state 135
+    PRIMARY         reduce using rule 62 (precision -> .)
+    REFERENCES      reduce using rule 62 (precision -> .)
+    PARENDER        reduce using rule 62 (precision -> .)
+    COMA            reduce using rule 62 (precision -> .)
+    PTCOMA          reduce using rule 62 (precision -> .)
+
+    precision                      shift and go to state 134
+
+state 95
+
+    (54) tipo -> TIME . precision
+    (61) precision -> . PARENIZQ ENTERO PARENDER
+    (62) precision -> .
+
+    PARENIZQ        shift and go to state 135
+    PRIMARY         reduce using rule 62 (precision -> .)
+    REFERENCES      reduce using rule 62 (precision -> .)
+    PARENDER        reduce using rule 62 (precision -> .)
+    COMA            reduce using rule 62 (precision -> .)
+    PTCOMA          reduce using rule 62 (precision -> .)
+
+    precision                      shift and go to state 136
+
+state 96
+
+    (55) tipo -> DATE .
+
+    PRIMARY         reduce using rule 55 (tipo -> DATE .)
+    REFERENCES      reduce using rule 55 (tipo -> DATE .)
+    PARENDER        reduce using rule 55 (tipo -> DATE .)
+    COMA            reduce using rule 55 (tipo -> DATE .)
+    PTCOMA          reduce using rule 55 (tipo -> DATE .)
+
+
+state 97
+
+    (56) tipo -> INTERVAL . fields precision
+    (63) fields -> . MONTH
+    (64) fields -> . HOUR
+    (65) fields -> . MINUTE
+    (66) fields -> . SECOND
+    (67) fields -> . YEAR
+    (68) fields -> .
+
+    MONTH           shift and go to state 138
+    HOUR            shift and go to state 139
+    MINUTE          shift and go to state 140
+    SECOND          shift and go to state 141
+    YEAR            shift and go to state 142
+    PARENIZQ        reduce using rule 68 (fields -> .)
+    PRIMARY         reduce using rule 68 (fields -> .)
+    REFERENCES      reduce using rule 68 (fields -> .)
+    PARENDER        reduce using rule 68 (fields -> .)
+    COMA            reduce using rule 68 (fields -> .)
+    PTCOMA          reduce using rule 68 (fields -> .)
+
+    fields                         shift and go to state 137
+
+state 98
+
+    (57) tipo -> BOLEANO .
+
+    PRIMARY         reduce using rule 57 (tipo -> BOLEANO .)
+    REFERENCES      reduce using rule 57 (tipo -> BOLEANO .)
+    PARENDER        reduce using rule 57 (tipo -> BOLEANO .)
+    COMA            reduce using rule 57 (tipo -> BOLEANO .)
+    PTCOMA          reduce using rule 57 (tipo -> BOLEANO .)
+
+
+state 99
+
+    (16) createtable -> ID PARENIZQ tabledescriptions PARENDER . tableherencia
+    (17) tableherencia -> . INHERITS PARENIZQ ID PARENDER PTCOMA
+    (18) tableherencia -> . PTCOMA
+
+    INHERITS        shift and go to state 144
+    PTCOMA          shift and go to state 145
+
+    tableherencia                  shift and go to state 143
+
+state 100
+
+    (19) tabledescriptions -> tabledescriptions COMA . tabledescription
+    (21) tabledescription -> . ID tipo tablekey
+    (22) tabledescription -> . PRIMARY KEY PARENIZQ PARENDER
+    (23) tabledescription -> . FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+    (24) tabledescription -> . CONSTRAINT ID CHECK finalconstraintcheck
+    (25) tabledescription -> . CHECK finalconstraintcheck
+    (26) tabledescription -> . UNIQUE finalunique
+
+    ID              shift and go to state 56
+    PRIMARY         shift and go to state 59
+    FOREIGN         shift and go to state 60
+    CONSTRAINT      shift and go to state 61
+    CHECK           shift and go to state 62
+    UNIQUE          shift and go to state 63
+
+    tabledescription               shift and go to state 146
+
+state 101
+
+    (22) tabledescription -> PRIMARY KEY . PARENIZQ PARENDER
+
+    PARENIZQ        shift and go to state 147
+
+
+state 102
+
+    (23) tabledescription -> FOREIGN KEY . PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+
+    PARENIZQ        shift and go to state 148
+
+
+state 103
+
+    (24) tabledescription -> CONSTRAINT ID . CHECK finalconstraintcheck
+
+    CHECK           shift and go to state 149
+
+
+state 104
+
+    (25) tabledescription -> CHECK finalconstraintcheck .
+
+    PARENDER        reduce using rule 25 (tabledescription -> CHECK finalconstraintcheck .)
+    COMA            reduce using rule 25 (tabledescription -> CHECK finalconstraintcheck .)
+
+
+state 105
+
+    (39) finalconstraintcheck -> PARENIZQ . PARENDER
+
+    PARENDER        shift and go to state 150
+
+
+state 106
+
+    (26) tabledescription -> UNIQUE finalunique .
+
+    PARENDER        reduce using rule 26 (tabledescription -> UNIQUE finalunique .)
+    COMA            reduce using rule 26 (tabledescription -> UNIQUE finalunique .)
+
+
+state 107
+
+    (40) finalunique -> PARENIZQ . PARENDER
+
+    PARENDER        shift and go to state 151
+
+
+state 108
+
+    (79) alterdb -> RENAME TO ID .
+
+    PTCOMA          reduce using rule 79 (alterdb -> RENAME TO ID .)
+
+
+state 109
+
+    (80) alterdb -> OWNER TO tipodeowner .
+
+    PTCOMA          reduce using rule 80 (alterdb -> OWNER TO tipodeowner .)
+
+
+state 110
+
+    (81) tipodeowner -> ID .
+
+    PTCOMA          reduce using rule 81 (tipodeowner -> ID .)
+
+
+state 111
+
+    (82) tipodeowner -> CURRENT_USER .
+
+    PTCOMA          reduce using rule 82 (tipodeowner -> CURRENT_USER .)
+
+
+state 112
+
+    (83) tipodeowner -> SESSION_USER .
+
+    PTCOMA          reduce using rule 83 (tipodeowner -> SESSION_USER .)
+
+
+state 113
+
+    (84) altertable -> ADD alteradd PTCOMA .
+
+    CREATE          reduce using rule 84 (altertable -> ADD alteradd PTCOMA .)
+    USE             reduce using rule 84 (altertable -> ADD alteradd PTCOMA .)
+    SHOW            reduce using rule 84 (altertable -> ADD alteradd PTCOMA .)
+    DROP            reduce using rule 84 (altertable -> ADD alteradd PTCOMA .)
+    ALTER           reduce using rule 84 (altertable -> ADD alteradd PTCOMA .)
+    $end            reduce using rule 84 (altertable -> ADD alteradd PTCOMA .)
+
+
+state 114
+
+    (88) alteradd -> COLUMN ID . tipo
+    (41) tipo -> . SMALLINT
+    (42) tipo -> . INTEGER
+    (43) tipo -> . BIGINT
+    (44) tipo -> . DECIMAL
+    (45) tipo -> . NUMERIC
+    (46) tipo -> . REAL
+    (47) tipo -> . DOUBLE PRECISION
+    (48) tipo -> . MONEY
+    (49) tipo -> . CHARACTER tipochar
+    (50) tipo -> . VARCHAR PARENIZQ ENTERO PARENDER
+    (51) tipo -> . CHAR PARENIZQ ENTERO PARENDER
+    (52) tipo -> . TEXT
+    (53) tipo -> . TIMESTAMP precision
+    (54) tipo -> . TIME precision
+    (55) tipo -> . DATE
+    (56) tipo -> . INTERVAL fields precision
+    (57) tipo -> . BOLEANO
+    (58) tipo -> . ID
+
+    SMALLINT        shift and go to state 82
+    INTEGER         shift and go to state 83
+    BIGINT          shift and go to state 84
+    DECIMAL         shift and go to state 85
+    NUMERIC         shift and go to state 86
+    REAL            shift and go to state 87
+    DOUBLE          shift and go to state 88
+    MONEY           shift and go to state 89
+    CHARACTER       shift and go to state 90
+    VARCHAR         shift and go to state 91
+    CHAR            shift and go to state 92
+    TEXT            shift and go to state 93
+    TIMESTAMP       shift and go to state 94
+    TIME            shift and go to state 95
+    DATE            shift and go to state 96
+    INTERVAL        shift and go to state 97
+    BOLEANO         shift and go to state 98
+    ID              shift and go to state 80
+
+    tipo                           shift and go to state 152
+
+state 115
+
+    (89) alteradd -> CHECK PARENIZQ . PARENDER
+
+    PARENDER        shift and go to state 153
+
+
+state 116
+
+    (90) alteradd -> CONSTRAINT ID . UNIQUE PARENIZQ ID PARENDER
+
+    UNIQUE          shift and go to state 154
+
+
+state 117
+
+    (91) alteradd -> FOREIGN KEY . PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+
+    PARENIZQ        shift and go to state 155
+
+
+state 118
+
+    (85) altertable -> ALTER COLUMN ID . SET opcionesalterset PTCOMA
+
+    SET             shift and go to state 156
+
+
+state 119
+
+    (86) altertable -> DROP tipodedrop PTCOMA .
+
+    CREATE          reduce using rule 86 (altertable -> DROP tipodedrop PTCOMA .)
+    USE             reduce using rule 86 (altertable -> DROP tipodedrop PTCOMA .)
+    SHOW            reduce using rule 86 (altertable -> DROP tipodedrop PTCOMA .)
+    DROP            reduce using rule 86 (altertable -> DROP tipodedrop PTCOMA .)
+    ALTER           reduce using rule 86 (altertable -> DROP tipodedrop PTCOMA .)
+    $end            reduce using rule 86 (altertable -> DROP tipodedrop PTCOMA .)
+
+
+state 120
+
+    (94) tipodedrop -> COLUMN ID .
+
+    PTCOMA          reduce using rule 94 (tipodedrop -> COLUMN ID .)
+
+
+state 121
+
+    (95) tipodedrop -> CONSTRAINT ID .
+
+    PTCOMA          reduce using rule 95 (tipodedrop -> CONSTRAINT ID .)
+
+
+state 122
+
+    (87) altertable -> RENAME COLUMN ID . TO ID PTCOMA
+
+    TO              shift and go to state 157
+
+
+state 123
+
+    (13) createenum -> ID AS ENUM PARENIZQ listacadenas . PARENDER PTCOMA
+    (14) listacadenas -> listacadenas . COMA CADENA
+
+    PARENDER        shift and go to state 158
+    COMA            shift and go to state 159
+
+
+state 124
+
+    (15) listacadenas -> CADENA .
+
+    PARENDER        reduce using rule 15 (listacadenas -> CADENA .)
+    COMA            reduce using rule 15 (listacadenas -> CADENA .)
+
+
+state 125
+
+    (21) tabledescription -> ID tipo tablekey .
+
+    PARENDER        reduce using rule 21 (tabledescription -> ID tipo tablekey .)
+    COMA            reduce using rule 21 (tabledescription -> ID tipo tablekey .)
+
+
+state 126
+
+    (27) tablekey -> PRIMARY . KEY tabledefault
+
+    KEY             shift and go to state 160
+
+
+state 127
+
+    (28) tablekey -> REFERENCES . ID tabledefault
+
+    ID              shift and go to state 161
+
+
 state 128
 
-    (13) tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .
+    (47) tipo -> DOUBLE PRECISION .
 
-    CREATE          reduce using rule 13 (tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .)
-    $end            reduce using rule 13 (tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .)
+    PRIMARY         reduce using rule 47 (tipo -> DOUBLE PRECISION .)
+    REFERENCES      reduce using rule 47 (tipo -> DOUBLE PRECISION .)
+    PARENDER        reduce using rule 47 (tipo -> DOUBLE PRECISION .)
+    COMA            reduce using rule 47 (tipo -> DOUBLE PRECISION .)
+    PTCOMA          reduce using rule 47 (tipo -> DOUBLE PRECISION .)
 
 
 state 129
 
-    (19) tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ . PARENDER
+    (49) tipo -> CHARACTER tipochar .
 
-    PARENDER        shift and go to state 133
+    PRIMARY         reduce using rule 49 (tipo -> CHARACTER tipochar .)
+    REFERENCES      reduce using rule 49 (tipo -> CHARACTER tipochar .)
+    PARENDER        reduce using rule 49 (tipo -> CHARACTER tipochar .)
+    COMA            reduce using rule 49 (tipo -> CHARACTER tipochar .)
+    PTCOMA          reduce using rule 49 (tipo -> CHARACTER tipochar .)
 
 
 state 130
 
-    (30) tableconstraintunique -> CONSTRAINT ID UNIQUE . tableconstraintcheck
-    (32) tableconstraintcheck -> . CONSTRAINT ID CHECK PARENIZQ PARENDER
-    (33) tableconstraintcheck -> . CHECK PARENIZQ PARENDER
-    (34) tableconstraintcheck -> .
+    (59) tipochar -> VARYING . PARENIZQ ENTERO PARENDER
 
-    CONSTRAINT      shift and go to state 126
-    CHECK           shift and go to state 127
-    PARENDER        reduce using rule 34 (tableconstraintcheck -> .)
-    COMA            reduce using rule 34 (tableconstraintcheck -> .)
+    PARENIZQ        shift and go to state 162
 
-    tableconstraintcheck           shift and go to state 134
 
 state 131
 
-    (32) tableconstraintcheck -> CONSTRAINT ID . CHECK PARENIZQ PARENDER
+    (60) tipochar -> PARENIZQ . ENTERO PARENDER
 
-    CHECK           shift and go to state 135
+    ENTERO          shift and go to state 163
 
 
 state 132
 
-    (33) tableconstraintcheck -> CHECK PARENIZQ . PARENDER
+    (50) tipo -> VARCHAR PARENIZQ . ENTERO PARENDER
 
-    PARENDER        shift and go to state 136
+    ENTERO          shift and go to state 164
 
 
 state 133
 
-    (19) tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER .
+    (51) tipo -> CHAR PARENIZQ . ENTERO PARENDER
 
-    PARENDER        reduce using rule 19 (tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER .)
-    COMA            reduce using rule 19 (tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER .)
+    ENTERO          shift and go to state 165
 
 
 state 134
 
-    (30) tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck .
+    (53) tipo -> TIMESTAMP precision .
 
-    PARENDER        reduce using rule 30 (tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck .)
-    COMA            reduce using rule 30 (tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck .)
+    PRIMARY         reduce using rule 53 (tipo -> TIMESTAMP precision .)
+    REFERENCES      reduce using rule 53 (tipo -> TIMESTAMP precision .)
+    PARENDER        reduce using rule 53 (tipo -> TIMESTAMP precision .)
+    COMA            reduce using rule 53 (tipo -> TIMESTAMP precision .)
+    PTCOMA          reduce using rule 53 (tipo -> TIMESTAMP precision .)
 
 
 state 135
 
-    (32) tableconstraintcheck -> CONSTRAINT ID CHECK . PARENIZQ PARENDER
+    (61) precision -> PARENIZQ . ENTERO PARENDER
 
-    PARENIZQ        shift and go to state 137
+    ENTERO          shift and go to state 166
 
 
 state 136
 
-    (33) tableconstraintcheck -> CHECK PARENIZQ PARENDER .
+    (54) tipo -> TIME precision .
 
-    PARENDER        reduce using rule 33 (tableconstraintcheck -> CHECK PARENIZQ PARENDER .)
-    COMA            reduce using rule 33 (tableconstraintcheck -> CHECK PARENIZQ PARENDER .)
+    PRIMARY         reduce using rule 54 (tipo -> TIME precision .)
+    REFERENCES      reduce using rule 54 (tipo -> TIME precision .)
+    PARENDER        reduce using rule 54 (tipo -> TIME precision .)
+    COMA            reduce using rule 54 (tipo -> TIME precision .)
+    PTCOMA          reduce using rule 54 (tipo -> TIME precision .)
 
 
 state 137
 
-    (32) tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ . PARENDER
+    (56) tipo -> INTERVAL fields . precision
+    (61) precision -> . PARENIZQ ENTERO PARENDER
+    (62) precision -> .
 
-    PARENDER        shift and go to state 138
+    PARENIZQ        shift and go to state 135
+    PRIMARY         reduce using rule 62 (precision -> .)
+    REFERENCES      reduce using rule 62 (precision -> .)
+    PARENDER        reduce using rule 62 (precision -> .)
+    COMA            reduce using rule 62 (precision -> .)
+    PTCOMA          reduce using rule 62 (precision -> .)
 
+    precision                      shift and go to state 167
 
 state 138
 
-    (32) tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER .
+    (63) fields -> MONTH .
 
-    PARENDER        reduce using rule 32 (tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER .)
-    COMA            reduce using rule 32 (tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER .)
+    PARENIZQ        reduce using rule 63 (fields -> MONTH .)
+    PRIMARY         reduce using rule 63 (fields -> MONTH .)
+    REFERENCES      reduce using rule 63 (fields -> MONTH .)
+    PARENDER        reduce using rule 63 (fields -> MONTH .)
+    COMA            reduce using rule 63 (fields -> MONTH .)
+    PTCOMA          reduce using rule 63 (fields -> MONTH .)
+
+
+state 139
+
+    (64) fields -> HOUR .
+
+    PARENIZQ        reduce using rule 64 (fields -> HOUR .)
+    PRIMARY         reduce using rule 64 (fields -> HOUR .)
+    REFERENCES      reduce using rule 64 (fields -> HOUR .)
+    PARENDER        reduce using rule 64 (fields -> HOUR .)
+    COMA            reduce using rule 64 (fields -> HOUR .)
+    PTCOMA          reduce using rule 64 (fields -> HOUR .)
+
+
+state 140
+
+    (65) fields -> MINUTE .
+
+    PARENIZQ        reduce using rule 65 (fields -> MINUTE .)
+    PRIMARY         reduce using rule 65 (fields -> MINUTE .)
+    REFERENCES      reduce using rule 65 (fields -> MINUTE .)
+    PARENDER        reduce using rule 65 (fields -> MINUTE .)
+    COMA            reduce using rule 65 (fields -> MINUTE .)
+    PTCOMA          reduce using rule 65 (fields -> MINUTE .)
+
+
+state 141
+
+    (66) fields -> SECOND .
+
+    PARENIZQ        reduce using rule 66 (fields -> SECOND .)
+    PRIMARY         reduce using rule 66 (fields -> SECOND .)
+    REFERENCES      reduce using rule 66 (fields -> SECOND .)
+    PARENDER        reduce using rule 66 (fields -> SECOND .)
+    COMA            reduce using rule 66 (fields -> SECOND .)
+    PTCOMA          reduce using rule 66 (fields -> SECOND .)
+
+
+state 142
+
+    (67) fields -> YEAR .
+
+    PARENIZQ        reduce using rule 67 (fields -> YEAR .)
+    PRIMARY         reduce using rule 67 (fields -> YEAR .)
+    REFERENCES      reduce using rule 67 (fields -> YEAR .)
+    PARENDER        reduce using rule 67 (fields -> YEAR .)
+    COMA            reduce using rule 67 (fields -> YEAR .)
+    PTCOMA          reduce using rule 67 (fields -> YEAR .)
+
+
+state 143
+
+    (16) createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .
+
+    CREATE          reduce using rule 16 (createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .)
+    USE             reduce using rule 16 (createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .)
+    SHOW            reduce using rule 16 (createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .)
+    DROP            reduce using rule 16 (createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .)
+    ALTER           reduce using rule 16 (createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .)
+    $end            reduce using rule 16 (createtable -> ID PARENIZQ tabledescriptions PARENDER tableherencia .)
+
+
+state 144
+
+    (17) tableherencia -> INHERITS . PARENIZQ ID PARENDER PTCOMA
+
+    PARENIZQ        shift and go to state 168
+
+
+state 145
+
+    (18) tableherencia -> PTCOMA .
+
+    CREATE          reduce using rule 18 (tableherencia -> PTCOMA .)
+    USE             reduce using rule 18 (tableherencia -> PTCOMA .)
+    SHOW            reduce using rule 18 (tableherencia -> PTCOMA .)
+    DROP            reduce using rule 18 (tableherencia -> PTCOMA .)
+    ALTER           reduce using rule 18 (tableherencia -> PTCOMA .)
+    $end            reduce using rule 18 (tableherencia -> PTCOMA .)
+
+
+state 146
+
+    (19) tabledescriptions -> tabledescriptions COMA tabledescription .
+
+    PARENDER        reduce using rule 19 (tabledescriptions -> tabledescriptions COMA tabledescription .)
+    COMA            reduce using rule 19 (tabledescriptions -> tabledescriptions COMA tabledescription .)
+
+
+state 147
+
+    (22) tabledescription -> PRIMARY KEY PARENIZQ . PARENDER
+
+    PARENDER        shift and go to state 169
+
+
+state 148
+
+    (23) tabledescription -> FOREIGN KEY PARENIZQ . PARENDER REFERENCES ID PARENIZQ PARENDER
+
+    PARENDER        shift and go to state 170
+
+
+state 149
+
+    (24) tabledescription -> CONSTRAINT ID CHECK . finalconstraintcheck
+    (39) finalconstraintcheck -> . PARENIZQ PARENDER
+
+    PARENIZQ        shift and go to state 105
+
+    finalconstraintcheck           shift and go to state 171
+
+state 150
+
+    (39) finalconstraintcheck -> PARENIZQ PARENDER .
+
+    PARENDER        reduce using rule 39 (finalconstraintcheck -> PARENIZQ PARENDER .)
+    COMA            reduce using rule 39 (finalconstraintcheck -> PARENIZQ PARENDER .)
+
+
+state 151
+
+    (40) finalunique -> PARENIZQ PARENDER .
+
+    PARENDER        reduce using rule 40 (finalunique -> PARENIZQ PARENDER .)
+    COMA            reduce using rule 40 (finalunique -> PARENIZQ PARENDER .)
+
+
+state 152
+
+    (88) alteradd -> COLUMN ID tipo .
+
+    PTCOMA          reduce using rule 88 (alteradd -> COLUMN ID tipo .)
+
+
+state 153
+
+    (89) alteradd -> CHECK PARENIZQ PARENDER .
+
+    PTCOMA          reduce using rule 89 (alteradd -> CHECK PARENIZQ PARENDER .)
+
+
+state 154
+
+    (90) alteradd -> CONSTRAINT ID UNIQUE . PARENIZQ ID PARENDER
+
+    PARENIZQ        shift and go to state 172
+
+
+state 155
+
+    (91) alteradd -> FOREIGN KEY PARENIZQ . PARENDER REFERENCES ID PARENIZQ PARENDER
+
+    PARENDER        shift and go to state 173
+
+
+state 156
+
+    (85) altertable -> ALTER COLUMN ID SET . opcionesalterset PTCOMA
+    (92) opcionesalterset -> . NOT NULL
+    (93) opcionesalterset -> . NULL
+
+    NOT             shift and go to state 175
+    NULL            shift and go to state 176
+
+    opcionesalterset               shift and go to state 174
+
+state 157
+
+    (87) altertable -> RENAME COLUMN ID TO . ID PTCOMA
+
+    ID              shift and go to state 177
+
+
+state 158
+
+    (13) createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER . PTCOMA
+
+    PTCOMA          shift and go to state 178
+
+
+state 159
+
+    (14) listacadenas -> listacadenas COMA . CADENA
+
+    CADENA          shift and go to state 179
+
+
+state 160
+
+    (27) tablekey -> PRIMARY KEY . tabledefault
+    (30) tabledefault -> . DEFAULT tablenull
+    (31) tabledefault -> . tablenull
+    (32) tablenull -> . NOT NULL tableconstraintunique
+    (33) tablenull -> . NULL tableconstraintunique
+
+    DEFAULT         shift and go to state 181
+    NOT             shift and go to state 183
+    NULL            shift and go to state 184
+
+    tabledefault                   shift and go to state 180
+    tablenull                      shift and go to state 182
+
+state 161
+
+    (28) tablekey -> REFERENCES ID . tabledefault
+    (30) tabledefault -> . DEFAULT tablenull
+    (31) tabledefault -> . tablenull
+    (32) tablenull -> . NOT NULL tableconstraintunique
+    (33) tablenull -> . NULL tableconstraintunique
+
+    DEFAULT         shift and go to state 181
+    NOT             shift and go to state 183
+    NULL            shift and go to state 184
+
+    tabledefault                   shift and go to state 185
+    tablenull                      shift and go to state 182
+
+state 162
+
+    (59) tipochar -> VARYING PARENIZQ . ENTERO PARENDER
+
+    ENTERO          shift and go to state 186
+
+
+state 163
+
+    (60) tipochar -> PARENIZQ ENTERO . PARENDER
+
+    PARENDER        shift and go to state 187
+
+
+state 164
+
+    (50) tipo -> VARCHAR PARENIZQ ENTERO . PARENDER
+
+    PARENDER        shift and go to state 188
+
+
+state 165
+
+    (51) tipo -> CHAR PARENIZQ ENTERO . PARENDER
+
+    PARENDER        shift and go to state 189
+
+
+state 166
+
+    (61) precision -> PARENIZQ ENTERO . PARENDER
+
+    PARENDER        shift and go to state 190
+
+
+state 167
+
+    (56) tipo -> INTERVAL fields precision .
+
+    PRIMARY         reduce using rule 56 (tipo -> INTERVAL fields precision .)
+    REFERENCES      reduce using rule 56 (tipo -> INTERVAL fields precision .)
+    PARENDER        reduce using rule 56 (tipo -> INTERVAL fields precision .)
+    COMA            reduce using rule 56 (tipo -> INTERVAL fields precision .)
+    PTCOMA          reduce using rule 56 (tipo -> INTERVAL fields precision .)
+
+
+state 168
+
+    (17) tableherencia -> INHERITS PARENIZQ . ID PARENDER PTCOMA
+
+    ID              shift and go to state 191
+
+
+state 169
+
+    (22) tabledescription -> PRIMARY KEY PARENIZQ PARENDER .
+
+    PARENDER        reduce using rule 22 (tabledescription -> PRIMARY KEY PARENIZQ PARENDER .)
+    COMA            reduce using rule 22 (tabledescription -> PRIMARY KEY PARENIZQ PARENDER .)
+
+
+state 170
+
+    (23) tabledescription -> FOREIGN KEY PARENIZQ PARENDER . REFERENCES ID PARENIZQ PARENDER
+
+    REFERENCES      shift and go to state 192
+
+
+state 171
+
+    (24) tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck .
+
+    PARENDER        reduce using rule 24 (tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck .)
+    COMA            reduce using rule 24 (tabledescription -> CONSTRAINT ID CHECK finalconstraintcheck .)
+
+
+state 172
+
+    (90) alteradd -> CONSTRAINT ID UNIQUE PARENIZQ . ID PARENDER
+
+    ID              shift and go to state 193
+
+
+state 173
+
+    (91) alteradd -> FOREIGN KEY PARENIZQ PARENDER . REFERENCES ID PARENIZQ PARENDER
+
+    REFERENCES      shift and go to state 194
+
+
+state 174
+
+    (85) altertable -> ALTER COLUMN ID SET opcionesalterset . PTCOMA
+
+    PTCOMA          shift and go to state 195
+
+
+state 175
+
+    (92) opcionesalterset -> NOT . NULL
+
+    NULL            shift and go to state 196
+
+
+state 176
+
+    (93) opcionesalterset -> NULL .
+
+    PTCOMA          reduce using rule 93 (opcionesalterset -> NULL .)
+
+
+state 177
+
+    (87) altertable -> RENAME COLUMN ID TO ID . PTCOMA
+
+    PTCOMA          shift and go to state 197
+
+
+state 178
+
+    (13) createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .
+
+    CREATE          reduce using rule 13 (createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .)
+    USE             reduce using rule 13 (createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .)
+    SHOW            reduce using rule 13 (createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .)
+    DROP            reduce using rule 13 (createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .)
+    ALTER           reduce using rule 13 (createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .)
+    $end            reduce using rule 13 (createenum -> ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA .)
+
+
+state 179
+
+    (14) listacadenas -> listacadenas COMA CADENA .
+
+    PARENDER        reduce using rule 14 (listacadenas -> listacadenas COMA CADENA .)
+    COMA            reduce using rule 14 (listacadenas -> listacadenas COMA CADENA .)
+
+
+state 180
+
+    (27) tablekey -> PRIMARY KEY tabledefault .
+
+    PARENDER        reduce using rule 27 (tablekey -> PRIMARY KEY tabledefault .)
+    COMA            reduce using rule 27 (tablekey -> PRIMARY KEY tabledefault .)
+
+
+state 181
+
+    (30) tabledefault -> DEFAULT . tablenull
+    (32) tablenull -> . NOT NULL tableconstraintunique
+    (33) tablenull -> . NULL tableconstraintunique
+
+    NOT             shift and go to state 183
+    NULL            shift and go to state 184
+
+    tablenull                      shift and go to state 198
+
+state 182
+
+    (31) tabledefault -> tablenull .
+
+    PARENDER        reduce using rule 31 (tabledefault -> tablenull .)
+    COMA            reduce using rule 31 (tabledefault -> tablenull .)
+
+
+state 183
+
+    (32) tablenull -> NOT . NULL tableconstraintunique
+
+    NULL            shift and go to state 199
+
+
+state 184
+
+    (33) tablenull -> NULL . tableconstraintunique
+    (34) tableconstraintunique -> . CONSTRAINT ID UNIQUE tableconstraintcheck
+    (35) tableconstraintunique -> . UNIQUE tableconstraintcheck
+
+    CONSTRAINT      shift and go to state 201
+    UNIQUE          shift and go to state 202
+
+    tableconstraintunique          shift and go to state 200
+
+state 185
+
+    (28) tablekey -> REFERENCES ID tabledefault .
+
+    PARENDER        reduce using rule 28 (tablekey -> REFERENCES ID tabledefault .)
+    COMA            reduce using rule 28 (tablekey -> REFERENCES ID tabledefault .)
+
+
+state 186
+
+    (59) tipochar -> VARYING PARENIZQ ENTERO . PARENDER
+
+    PARENDER        shift and go to state 203
+
+
+state 187
+
+    (60) tipochar -> PARENIZQ ENTERO PARENDER .
+
+    PRIMARY         reduce using rule 60 (tipochar -> PARENIZQ ENTERO PARENDER .)
+    REFERENCES      reduce using rule 60 (tipochar -> PARENIZQ ENTERO PARENDER .)
+    PARENDER        reduce using rule 60 (tipochar -> PARENIZQ ENTERO PARENDER .)
+    COMA            reduce using rule 60 (tipochar -> PARENIZQ ENTERO PARENDER .)
+    PTCOMA          reduce using rule 60 (tipochar -> PARENIZQ ENTERO PARENDER .)
+
+
+state 188
+
+    (50) tipo -> VARCHAR PARENIZQ ENTERO PARENDER .
+
+    PRIMARY         reduce using rule 50 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
+    REFERENCES      reduce using rule 50 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
+    PARENDER        reduce using rule 50 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
+    COMA            reduce using rule 50 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
+    PTCOMA          reduce using rule 50 (tipo -> VARCHAR PARENIZQ ENTERO PARENDER .)
+
+
+state 189
+
+    (51) tipo -> CHAR PARENIZQ ENTERO PARENDER .
+
+    PRIMARY         reduce using rule 51 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
+    REFERENCES      reduce using rule 51 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
+    PARENDER        reduce using rule 51 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
+    COMA            reduce using rule 51 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
+    PTCOMA          reduce using rule 51 (tipo -> CHAR PARENIZQ ENTERO PARENDER .)
+
+
+state 190
+
+    (61) precision -> PARENIZQ ENTERO PARENDER .
+
+    PRIMARY         reduce using rule 61 (precision -> PARENIZQ ENTERO PARENDER .)
+    REFERENCES      reduce using rule 61 (precision -> PARENIZQ ENTERO PARENDER .)
+    PARENDER        reduce using rule 61 (precision -> PARENIZQ ENTERO PARENDER .)
+    COMA            reduce using rule 61 (precision -> PARENIZQ ENTERO PARENDER .)
+    PTCOMA          reduce using rule 61 (precision -> PARENIZQ ENTERO PARENDER .)
+
+
+state 191
+
+    (17) tableherencia -> INHERITS PARENIZQ ID . PARENDER PTCOMA
+
+    PARENDER        shift and go to state 204
+
+
+state 192
+
+    (23) tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES . ID PARENIZQ PARENDER
+
+    ID              shift and go to state 205
+
+
+state 193
+
+    (90) alteradd -> CONSTRAINT ID UNIQUE PARENIZQ ID . PARENDER
+
+    PARENDER        shift and go to state 206
+
+
+state 194
+
+    (91) alteradd -> FOREIGN KEY PARENIZQ PARENDER REFERENCES . ID PARENIZQ PARENDER
+
+    ID              shift and go to state 207
+
+
+state 195
+
+    (85) altertable -> ALTER COLUMN ID SET opcionesalterset PTCOMA .
+
+    CREATE          reduce using rule 85 (altertable -> ALTER COLUMN ID SET opcionesalterset PTCOMA .)
+    USE             reduce using rule 85 (altertable -> ALTER COLUMN ID SET opcionesalterset PTCOMA .)
+    SHOW            reduce using rule 85 (altertable -> ALTER COLUMN ID SET opcionesalterset PTCOMA .)
+    DROP            reduce using rule 85 (altertable -> ALTER COLUMN ID SET opcionesalterset PTCOMA .)
+    ALTER           reduce using rule 85 (altertable -> ALTER COLUMN ID SET opcionesalterset PTCOMA .)
+    $end            reduce using rule 85 (altertable -> ALTER COLUMN ID SET opcionesalterset PTCOMA .)
+
+
+state 196
+
+    (92) opcionesalterset -> NOT NULL .
+
+    PTCOMA          reduce using rule 92 (opcionesalterset -> NOT NULL .)
+
+
+state 197
+
+    (87) altertable -> RENAME COLUMN ID TO ID PTCOMA .
+
+    CREATE          reduce using rule 87 (altertable -> RENAME COLUMN ID TO ID PTCOMA .)
+    USE             reduce using rule 87 (altertable -> RENAME COLUMN ID TO ID PTCOMA .)
+    SHOW            reduce using rule 87 (altertable -> RENAME COLUMN ID TO ID PTCOMA .)
+    DROP            reduce using rule 87 (altertable -> RENAME COLUMN ID TO ID PTCOMA .)
+    ALTER           reduce using rule 87 (altertable -> RENAME COLUMN ID TO ID PTCOMA .)
+    $end            reduce using rule 87 (altertable -> RENAME COLUMN ID TO ID PTCOMA .)
+
+
+state 198
+
+    (30) tabledefault -> DEFAULT tablenull .
+
+    PARENDER        reduce using rule 30 (tabledefault -> DEFAULT tablenull .)
+    COMA            reduce using rule 30 (tabledefault -> DEFAULT tablenull .)
+
+
+state 199
+
+    (32) tablenull -> NOT NULL . tableconstraintunique
+    (34) tableconstraintunique -> . CONSTRAINT ID UNIQUE tableconstraintcheck
+    (35) tableconstraintunique -> . UNIQUE tableconstraintcheck
+
+    CONSTRAINT      shift and go to state 201
+    UNIQUE          shift and go to state 202
+
+    tableconstraintunique          shift and go to state 208
+
+state 200
+
+    (33) tablenull -> NULL tableconstraintunique .
+
+    PARENDER        reduce using rule 33 (tablenull -> NULL tableconstraintunique .)
+    COMA            reduce using rule 33 (tablenull -> NULL tableconstraintunique .)
+
+
+state 201
+
+    (34) tableconstraintunique -> CONSTRAINT . ID UNIQUE tableconstraintcheck
+
+    ID              shift and go to state 209
+
+
+state 202
+
+    (35) tableconstraintunique -> UNIQUE . tableconstraintcheck
+    (36) tableconstraintcheck -> . CONSTRAINT ID CHECK PARENIZQ PARENDER
+    (37) tableconstraintcheck -> . CHECK PARENIZQ PARENDER
+    (38) tableconstraintcheck -> .
+
+    CONSTRAINT      shift and go to state 211
+    CHECK           shift and go to state 212
+    PARENDER        reduce using rule 38 (tableconstraintcheck -> .)
+    COMA            reduce using rule 38 (tableconstraintcheck -> .)
+
+    tableconstraintcheck           shift and go to state 210
+
+state 203
+
+    (59) tipochar -> VARYING PARENIZQ ENTERO PARENDER .
+
+    PRIMARY         reduce using rule 59 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
+    REFERENCES      reduce using rule 59 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
+    PARENDER        reduce using rule 59 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
+    COMA            reduce using rule 59 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
+    PTCOMA          reduce using rule 59 (tipochar -> VARYING PARENIZQ ENTERO PARENDER .)
+
+
+state 204
+
+    (17) tableherencia -> INHERITS PARENIZQ ID PARENDER . PTCOMA
+
+    PTCOMA          shift and go to state 213
+
+
+state 205
+
+    (23) tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID . PARENIZQ PARENDER
+
+    PARENIZQ        shift and go to state 214
+
+
+state 206
+
+    (90) alteradd -> CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER .
+
+    PTCOMA          reduce using rule 90 (alteradd -> CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER .)
+
+
+state 207
+
+    (91) alteradd -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID . PARENIZQ PARENDER
+
+    PARENIZQ        shift and go to state 215
+
+
+state 208
+
+    (32) tablenull -> NOT NULL tableconstraintunique .
+
+    PARENDER        reduce using rule 32 (tablenull -> NOT NULL tableconstraintunique .)
+    COMA            reduce using rule 32 (tablenull -> NOT NULL tableconstraintunique .)
+
+
+state 209
+
+    (34) tableconstraintunique -> CONSTRAINT ID . UNIQUE tableconstraintcheck
+
+    UNIQUE          shift and go to state 216
+
+
+state 210
+
+    (35) tableconstraintunique -> UNIQUE tableconstraintcheck .
+
+    PARENDER        reduce using rule 35 (tableconstraintunique -> UNIQUE tableconstraintcheck .)
+    COMA            reduce using rule 35 (tableconstraintunique -> UNIQUE tableconstraintcheck .)
+
+
+state 211
+
+    (36) tableconstraintcheck -> CONSTRAINT . ID CHECK PARENIZQ PARENDER
+
+    ID              shift and go to state 217
+
+
+state 212
+
+    (37) tableconstraintcheck -> CHECK . PARENIZQ PARENDER
+
+    PARENIZQ        shift and go to state 218
+
+
+state 213
+
+    (17) tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .
+
+    CREATE          reduce using rule 17 (tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .)
+    USE             reduce using rule 17 (tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .)
+    SHOW            reduce using rule 17 (tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .)
+    DROP            reduce using rule 17 (tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .)
+    ALTER           reduce using rule 17 (tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .)
+    $end            reduce using rule 17 (tableherencia -> INHERITS PARENIZQ ID PARENDER PTCOMA .)
+
+
+state 214
+
+    (23) tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ . PARENDER
+
+    PARENDER        shift and go to state 219
+
+
+state 215
+
+    (91) alteradd -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ . PARENDER
+
+    PARENDER        shift and go to state 220
+
+
+state 216
+
+    (34) tableconstraintunique -> CONSTRAINT ID UNIQUE . tableconstraintcheck
+    (36) tableconstraintcheck -> . CONSTRAINT ID CHECK PARENIZQ PARENDER
+    (37) tableconstraintcheck -> . CHECK PARENIZQ PARENDER
+    (38) tableconstraintcheck -> .
+
+    CONSTRAINT      shift and go to state 211
+    CHECK           shift and go to state 212
+    PARENDER        reduce using rule 38 (tableconstraintcheck -> .)
+    COMA            reduce using rule 38 (tableconstraintcheck -> .)
+
+    tableconstraintcheck           shift and go to state 221
+
+state 217
+
+    (36) tableconstraintcheck -> CONSTRAINT ID . CHECK PARENIZQ PARENDER
+
+    CHECK           shift and go to state 222
+
+
+state 218
+
+    (37) tableconstraintcheck -> CHECK PARENIZQ . PARENDER
+
+    PARENDER        shift and go to state 223
+
+
+state 219
+
+    (23) tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER .
+
+    PARENDER        reduce using rule 23 (tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER .)
+    COMA            reduce using rule 23 (tabledescription -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER .)
+
+
+state 220
+
+    (91) alteradd -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER .
+
+    PTCOMA          reduce using rule 91 (alteradd -> FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER .)
+
+
+state 221
+
+    (34) tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck .
+
+    PARENDER        reduce using rule 34 (tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck .)
+    COMA            reduce using rule 34 (tableconstraintunique -> CONSTRAINT ID UNIQUE tableconstraintcheck .)
+
+
+state 222
+
+    (36) tableconstraintcheck -> CONSTRAINT ID CHECK . PARENIZQ PARENDER
+
+    PARENIZQ        shift and go to state 224
+
+
+state 223
+
+    (37) tableconstraintcheck -> CHECK PARENIZQ PARENDER .
+
+    PARENDER        reduce using rule 37 (tableconstraintcheck -> CHECK PARENIZQ PARENDER .)
+    COMA            reduce using rule 37 (tableconstraintcheck -> CHECK PARENIZQ PARENDER .)
+
+
+state 224
+
+    (36) tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ . PARENDER
+
+    PARENDER        shift and go to state 225
+
+
+state 225
+
+    (36) tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER .
+
+    PARENDER        reduce using rule 36 (tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER .)
+    COMA            reduce using rule 36 (tableconstraintcheck -> CONSTRAINT ID CHECK PARENIZQ PARENDER .)
 

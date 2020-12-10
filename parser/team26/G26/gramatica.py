@@ -179,7 +179,10 @@ reservadas = {
     'extract' : 'EXTRACT',
     'current_date' : 'CURRENTDATE',
     'current_time' : 'CURRENTTIME',
-    'date' : 'DATE'
+    'date' : 'DATE',
+    'current_user' : 'CURRENT_USER',
+    'session_user' : 'SESSION_USER',
+    'show'  :   'SHOW'
 }
 
 tokens = [
@@ -308,7 +311,11 @@ def p_instrucciones_lista(t) :
                      | instruccion'''
 
 def p_instruccion(t) :
-    '''instruccion      : CREATE create'''
+    '''instruccion      : CREATE create
+                        | USE use
+                        | SHOW show
+                        | DROP drop
+                        | ALTER alter'''
 
 def p_create_instruccion(t) :
     '''create : TYPE createenum
@@ -430,6 +437,61 @@ def p_fields(t):
               | SECOND
               | YEAR
               | '''
+
+###########USE
+def p_use(t):
+    'use    :  ID PTCOMA'
+
+##########SHOW
+def p_show(t):
+    'show   :    DATABASES likeopcional'
+
+def p_likeopcional(t):
+    '''likeopcional   :   LIKE CADENA PTCOMA
+                    | PTCOMA '''
+
+##########DROP
+def p_drop(t):
+    '''drop :   DATABASE dropdb PTCOMA
+            |   TABLE ID PTCOMA '''
+
+def p_dropdb(t):
+    '''dropdb : IF EXISTS ID
+                |   ID'''
+
+###########ALTER
+def p_alter(t):
+    '''alter    :   DATABASE ID alterdb PTCOMA
+                |   TABLE ID altertable '''
+#alter database
+def p_alterdb(t):
+    '''alterdb  :   RENAME TO ID
+                |   OWNER TO tipodeowner'''
+
+def p_tipodeowner(t):
+    '''tipodeowner  :   ID
+                    |   CURRENT_USER
+                    |   SESSION_USER'''
+#alter table
+def p_altertable(t):
+    '''altertable    :   ADD alteradd PTCOMA
+                    |   ALTER COLUMN ID SET opcionesalterset PTCOMA
+                    |   DROP tipodedrop PTCOMA
+                    | RENAME COLUMN ID TO ID PTCOMA'''
+#agregar tipo, condiciones, listaids opcionsalter
+def p_alteradd(t):
+    ''' alteradd   :   COLUMN ID tipo 
+                    |  CHECK PARENIZQ PARENDER
+                    |  CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER
+                    |  FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER '''
+
+def p_opcionesalterset(t):
+    '''opcionesalterset :   NOT NULL
+                            | NULL '''
+                
+def p_tipodedrop(t):
+    '''tipodedrop   :   COLUMN ID
+                        | CONSTRAINT  ID'''
 
 def p_error(t):
     # print(t)
