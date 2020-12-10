@@ -47,7 +47,9 @@ keywords = {
 'CURRENT_DATE' : 'CURRENT_DATE',
 'CURRENT_TIME' : 'CURRENT_TIME',
 'CURRENT_USER' : 'CURRENT_USER',
+'DATE' : 'DATE',
 'DATABASE' : 'DATABASE',
+'DATABASES' : 'DATABASES',
 'DATE_PART' : 'DATE_PART',
 'DAY' : 'DAY',
 'DECIMAL' : 'DECIMAL',
@@ -126,6 +128,7 @@ keywords = {
 'OFFSET' : 'OFFSET',
 'ON' : 'ON',
 'ONLY' : 'ONLY',
+'OR' : 'OR',
 'ORDER' : 'ORDER',
 'OUTER' : 'OUTER',
 'OWNER' : 'OWNER',
@@ -138,6 +141,7 @@ keywords = {
 'REAL' : 'REAL',
 'REFERENCES' : 'REFERENCES',
 'RENAME' : 'RENAME',
+'REPLACE' : 'REPLACE',
 'RETURNING' : 'RETURNING',
 'RIGHT' : 'RIGHT',
 'ROUND' : 'ROUND',
@@ -149,6 +153,7 @@ keywords = {
 'SET_BYTE' : 'SET_BYTE',
 'SETSEED' : 'SETSEED',
 'SHA256' : 'SHA256',
+'SHOW' : 'SHOW',
 'SIGN' : 'SIGN',
 'SIMILAR' : 'SIMILAR',
 'SIN' : 'SIN',
@@ -182,7 +187,7 @@ keywords = {
 'USING' : 'USING',
 'VALUES' : 'VALUES',
 'VARCHAR' : 'VARCHAR',
-'VARYING' : 'VARYING',
+'VARYNG' : 'VARYNG',
 'WHEN' : 'WHEN',
 'WHERE' : 'WHERE',
 'WIDTH_BUCKET' : 'WIDTH_BUCKET',
@@ -197,42 +202,52 @@ keywords = {
 tokens = [
     'ASTERISCO',
     'COMA',
+    'CORCHETEDER',
+    'CORCHETEIZQ',
     'DIFERENTEQUE',
+    'DOBLEDOSPUNTOS',
     'IGUAL',
+    'MAS',
     'MAYORIGUAL',
+    'MAYORQUE',
+    'MENORIGUAL',
+    'MENORQUE',
+    'MENOS',
     'PARENTESISIZQ',
     'PARENTESISDER',
+    'PORCENTAJE',
+    'POTENCIA',
+    'PUNTO',
     'PUNTOYCOMA',
+    'SLASH',
     'IDENTIFICADOR',
     'CADENA',
     'ENTERO',
     'NUMDECIMAL',
-    'MENORQUE',
-    'MAYORQUE',
-    'MENORIGUAL',
 ] + list(keywords.values())
 
 #Definicion de patrones de los tokens
 
 t_ASTERISCO = r'\*'
 t_COMA = r','
-
-
+t_CORCHETEDER = r'\]'
+t_CORCHETEIZQ = r'\['
 t_DIFERENTEQUE = r'<>'
-
+t_DOBLEDOSPUNTOS = r'\:\:'
 t_IGUAL = r'='
-
+t_MAS = r'\+'
 t_MAYORIGUAL = r'>='
 t_MAYORQUE = r'>'
 t_MENORIGUAL = r'<='
 t_MENORQUE = r'<'
-
+t_MENOS = r'-'
 t_PARENTESISDER = r'\)'
 t_PARENTESISIZQ = r'\('
-
-
-
+t_PORCENTAJE = r'%'
+t_POTENCIA = r'\^'
+t_PUNTO = r'\.'
 t_PUNTOYCOMA = r';'
+t_SLASH = r'\\'
 
 
 def t_NUMDECIMAL(t):
@@ -332,12 +347,17 @@ def p_tipo_declaracion(t):
                 | INTERVAL
                 | BOOLEAN'''
 
+
+def p_if_exists(t):
+    ''' if_exists : IF EXISTS
+                    |  '''
+
 #---------------Inician las sentencias con la palabra reservada CREATE.---------------------
 
 def p_sentencia_crear(t):
-    '''sentencia_crear : CREATE TYPE IDENTIFICADOR AS ENUM PARENTESISIZQ lista_cadenas PARENTESISDER PUNTOYCOMA
-                        | CREATE sentencia_orreplace DATABASE sentencia_ifnotexists IDENTIFICADOR opcionales_crear_database PUNTOYCOMA 
-                        | CREATE TABLE IDENTIFICADOR PARENTESISIZQ cuerpo_crear_tabla PARENTESISDER PUNTOYCOMA'''
+    '''sentencia_crear : CREATE TYPE IDENTIFICADOR AS ENUM PARENTESISIZQ lista_cadenas PARENTESISDER 
+                        | CREATE sentencia_orreplace DATABASE sentencia_ifnotexists IDENTIFICADOR opcionales_crear_database  
+                    '''
     t[0] = t[1]
 
 def p_lista_cadenas(t):
@@ -368,22 +388,15 @@ def p_opcional_comparar(t):
                             | '''
     t[0] = t[1]
 
-def p_cuerpo_crear_tabla(t):
-    '''cuerpo_crear_tabla : cuerpo_crear_tabla_p COMA cuerpo_crear_tabla
-                            | cuerpo_crear_tabla '''
-    t[0] = t[1]
-
-def p_cuerpo_crear_tabla_p(t):
-    '''cuerpo_crear_tabla_p : '''
 
 #---------------Termina las sentencias con la palabra reservada CREATE.---------------------
 # SENTENCIA DE INSERT
 def p_insert(t):
-    '''sent_insertar : INSERT INTO IDENTIFICADOR VALUES PARENTESISIZQ l_param_insert PARENTESISDER PUNTOYCOMA
+    '''sent_insertar : INSERT INTO IDENTIFICADOR VALUES PARENTESISIZQ l_param_insert PARENTESISDER 
     '''
 
 def p_insert2(t):
-    '''sent_insertar : INSERT INTO IDENTIFICADOR PARENTESISIZQ l_param_column PARENTESISDER VALUES PARENTESISIZQ l_param_insert PARENTESISDER PUNTOYCOMA
+    '''sent_insertar : INSERT INTO IDENTIFICADOR PARENTESISIZQ l_param_column PARENTESISDER VALUES PARENTESISIZQ l_param_insert PARENTESISDER 
     '''
 
 def p_list_column(t):
@@ -403,7 +416,7 @@ def p_parametro_insert(t):
 
 # SENTENCIA DE UPDATE //FALTA WHERE
 def p_update(t):
-    '''sent_update : UPDATE IDENTIFICADOR SET l_col_update PUNTOYCOMA ''' 
+    '''sent_update : UPDATE IDENTIFICADOR SET l_col_update ''' 
 
 def p_list_col_update(t):
     '''l_col_update : l_col_update COMA col_update
@@ -421,8 +434,34 @@ def p_params_update(t):
 
 # SENTENCIAS DELETE //FALTA WH
 def p_delete(t):
-    '''sent_delete : DELETE FROM IDENTIFICADOR PUNTOYCOMA'''
+    '''sent_delete : DELETE FROM IDENTIFICADOR'''
 # FIN SENTENCIA DELETE
+
+
+
+#Produccion para inherits
+def p_herencia(t):
+    '''herencia : INHERITS PARENTESISIZQ IDENTIFICADOR PARENTESISDER'''
+
+
+
+#Produccion para sentencia SHOW
+def p_show(t):
+    ''' show : SHOW DATABASES like_option'''
+
+def p_like_option(t):
+    ''' like_option : LIKE CADENA 
+                    | '''
+
+
+#Produccion para Drops
+def p_drop(t):
+    ''' drop : DROP drop_options'''
+
+def p_drop_options(t):
+    ''' drop_options : TABLE IDENTIFICADOR
+                    |   DATABASE if_exists IDENTIFICADOR '''
+
 
 
 import ply.yacc as yacc
