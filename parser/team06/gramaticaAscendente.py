@@ -183,6 +183,7 @@ reservadas = {
     'numeric' : 'NUMERIC',
     'real' : 'REAL',
     'double' : 'DOUBLE',
+    'precision' : 'PRECISION',
     'money' : 'MONEY',
     'varying' : 'VARYING',
     'varchar' : 'VARCHAR',
@@ -306,7 +307,7 @@ t_DESPLAZAMIENTOIZQUIERDA               = r'<<'
 
 
 #definife la estructura de los decimales
-def t_DECIMALTOKEN(t):
+def t_DECIMAL(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
@@ -368,6 +369,7 @@ lexer = lex.lex()
 precedence = (
     ('left','TYPECAST'),
     ('right','UMINUS'),
+    ('right','UNOT'),
     ('left','MAS','MENOS'),
     ('left','POTENCIA'),
     ('left','POR','DIV','RESIDUO'),
@@ -522,10 +524,6 @@ def p_dropBD_1(t):
 
 def p_dropBD_2(t):
     'dropBD    : DROP DATABASE IF EXISTS ID PUNTOYCOMA'
-
-
-
-
 #-----------------------------------------------------OPERACIONES Y EXPRESIONES--------------------------------------------------------------------
 def p_operacion(t):
     '''operacion          : operacion MAS operacion
@@ -552,11 +550,21 @@ def p_operacion(t):
                           | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                           
                           '''
+def p_operacion_menos_unario(t):
+    'operacion : MENOS ENTERO  %prec UMINUS'
+    t[0] = -t[2]
+
+def p_operacion_not_unario(t):
+    'operacion : NOT operacion  %prec UNOT'
+    t[0] = not(t[2])
 
 def p_operacion_funcion(t):
     'operacion  : funcionBasica'
+
 def p_operacion_final(t):
     'operacion :     final'
+
+
 
 #-----------------------------------------------------FUNCIONES MATEMATICAS--------------------------------------------------------------------
 # MATEMATICAS
@@ -639,29 +647,22 @@ def p_opcionTrim(t):
     ''' opcionTrim  : LEADING
                     | TRAILING
                     | BOTH
-    '''
-    
-    
-    
+    '''    
     # falta mandar a las funciones de fechas y dates y todo eso
 
 #-----------------------------------------------------PRODUCCIONES TERMINALES--------------------------------------------------------------------
-def p_operacion_menos_unario(t):
-    'operacion : MENOS ENTERO  %prec UMINUS'
-    t[0] = -t[2]
-
 def p_final(t):
-    '''final              : DECIMAL
-                          | ENTERO'''
+    '''final        : DECIMAL
+                    | ENTERO'''
 
 def p_final_id(t):
-    'final              : ID'
+    'final          : ID'
 
 def p_final_invocacion(t):
-    'final              : ID PUNTO ID'
+    'final          : ID PUNTO ID'
 
 def p_final_cadena(t):
-    'final  : CADENA'
+    'final          : CADENA'
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
@@ -751,15 +752,17 @@ def p_primaryKey(t):
 def p_foreingkey(t):
     'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA' 
 
+#-----------------------------------------------------TIPOS DE DATOS--------------------------------------------------------------------
 
 def p_tipo(t):
-    '''tipo            : SMALLINT
+    '''tipo            :  SMALLINT
                         | INTEGER
                         | BIGINT
                         | DECIMAL
                         | NUMERIC
                         | REAL
                         | DOUBLE
+                        | PRECISION
                         | MONEY
                         | VARCHAR PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
                         | CHARACTER VARYING PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
@@ -769,7 +772,14 @@ def p_tipo(t):
                         | BOOLEAN
                         | TIMESTAMP
                         | TIME
+                        | INTERVAL
                         | DATE
+                        | YEAR
+                        | MONTH 
+                        | DAY
+                        | HOUR 
+                        | MINUTE
+                        | SECOND
     '''
 
 #para manejar los errores sintacticos
@@ -787,7 +797,7 @@ def p_tipo(t):
 #    return tok
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
-    #print((token.lexpos - line_start) +1 )
+    print((token.lexpos - line_start) +1 )
     return (token.lexpos - line_start) 
 
 
