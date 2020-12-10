@@ -2,7 +2,7 @@
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
-from storageManager import jsonmode as j
+from storageManager import jsonMode as j
 
 # create db1 and db2, return two 0's and show return list
 print(j.createDatabase("db1"))
