@@ -1,0 +1,2 @@
+
+SELECT DISTINCT continente.nombre AS Usuario,id AS Identificador, contrasenia contra, SUM(xx), MAX(hola),MIN(kk),AVG(tt),COUNT(pp) FROM continente c, personas p;
