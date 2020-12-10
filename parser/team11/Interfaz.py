@@ -95,3 +95,45 @@ def guardar_como():
         ruta = ""
 
     # END
+# _____________________________________________INTERFAZ----------------------------------------------------
+
+root = Tk()
+root.title("TytusDB")
+root.resizable(0, 0)
+# root.iconbitmap("monitor.ico")
+root.config(bg="gray75")
+# Menú superior
+menubar = Menu(root)
+
+filemenu = Menu(menubar, tearoff=0)
+filemenu.add_command(label="Nuevo", command=nuevo)
+filemenu.add_command(label="Abrir", command=abrir)
+filemenu.add_separator()
+filemenu.add_command(label="Guardar", command=guardar)
+filemenu.add_command(label="Guardar Como", command=guardar_como)
+filemenu.add_separator()
+filemenu.add_command(label="Salir", command=root.quit)
+editmenu = Menu(menubar, tearoff=0)
+editmenu.add_command(label="Run")
+editmenu.add_command(label="Borrar todo")
+#editmenu.add_command(label="Analizar HTML", command = analizarHTML)
+#editmenu.add_command(label="Analizar RMT", command = analizarRMT)
+helpmenu = Menu(menubar, tearoff=0)
+helpmenu.add_command(label="Acerca de...", command=test)
+menubar.add_cascade(label="Archivo", menu=filemenu)
+menubar.add_cascade(label="Analizar", menu=editmenu)
+menubar.add_cascade(label="Acerca de..", menu=helpmenu)
+
+# Frame 1
+frame1 = Frame(root, width=1485, height=820)
+frame1.pack()  # se agrega pa paquete
+frame1.config(bg="lightblue2")
+
+frame1.config(relief="groove")
+frame1.config(bd=18)
+frame1.config(cursor="spider")
+
+
+fname = "./img/logo.png"
+imagen = PhotoImage(file=fname)
+fondo = Label(frame1, image=imagen).place(x=0, y=0)
