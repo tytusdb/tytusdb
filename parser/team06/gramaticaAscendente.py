@@ -111,7 +111,6 @@ reservadas = {
     'inherits' : 'INHERITS',
     'group' : 'GROUP',
     'having' : 'HAVING',
-    'substring' : 'SUBSTRING',
     'inner' : 'INNER',
     'outer' : 'OUTER',
     'ingerits':'INGERITS',
@@ -222,7 +221,8 @@ reservadas = {
     'leading':'LEADING',
     'trailing':'TRAILING',
     'both':'BOTH',
-    'for':'FOR'
+    'for':'FOR',
+    'symmetric':'SYMMETRIC'
 
 
 # revisar funciones de tiempo y fechas
@@ -415,6 +415,7 @@ def p_query(t):
                     | listaid
                     | tipoAlter
                     
+                    | selectData
     '''
                     # derivando cada produccion a cosas como el create, insert, select; funciones como avg, sum, substring irian como otra produccion 
                     #dentro del select (consulta)
@@ -631,13 +632,15 @@ def p_funcion_basica(t):
                         | CONVERT PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA
                         | ENCODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
                         | DECODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
+                        | AVG PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
     '''
 
 def p_funcion_basica_1(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion FOR operacion PARENTESISDERECHA'
 
 def p_funcion_basica_2(t):
-    'subcfuncionBasicaadea   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA'
+    'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA'
    
 def p_funcion_basica_3(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FOR operacion PARENTESISDERECHA'
@@ -781,6 +784,101 @@ def p_tipo(t):
                         | MINUTE
                         | SECOND
     '''
+#--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
+def p_select(t):
+    '''selectData       : SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
+                        | SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
+    '''
+def p_select_1(t):
+    '''selectData       : SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA
+                        | SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA
+    '''
+
+def p_select_2(t):
+    '''selectData       : SELECT select_list FROM select_list  PUNTOYCOMA
+                        | SELECT POR FROM select_list  PUNTOYCOMA
+    '''
+
+
+def p_opcionesSelect_1(t):
+    '''opcionesSelect   : opcionesSelect opcionSelect
+                        | opcionSelect
+    '''
+
+def p_opcionesSelect_2(t):
+    '''opcionSelect     : LIMIT operacion
+                        | LIMIT operacion OFFSET operacion
+                        | GROUP BY select_list
+                        | HAVING select_list
+                        | ORDER BY select_list ordenamiento
+                        | ORDER BY select_list 
+    '''
+
+def p_ordenamiento(t):
+    '''ordenamiento     : ASC
+                        | DESC '''
+
+def p_search_condition_1(t):
+    '''search_condition   : search_condition AND search_condition
+                          | search_condition OR search_condition                         
+    '''
+
+def p_search_condition_2(t):
+    'search_condition   : NOT search_condition'
+
+def p_search_condition_3(t):
+    'search_condition   : operacion'
+
+def p_search_condition_4(t):
+    'search_condition   : PARENTESISIZQUIERDA search_condition PARENTESISDERECHA'
+
+
+def p_select_list_1(t):
+    ' select_list   : select_list COMA operacion'
+    
+
+
+def p_select_list_2(t):
+    'select_list    : operacion'
+
+def p_select_list_3(t):
+    ' select_list   : select_list condicion_select operacion COMA operacion' 
+
+def p_select_list_4(t):
+    ' select_list   : condicion_select   operacion' 
+
+
+def p_condicion_select(t):
+    '''condicion_select : DISTINCT FROM
+                        | IS DISTINCT FROM 
+                        | IS NOT DISTINCT  FROM    
+                        | DISTINCT 
+                        | IS DISTINCT  
+                        | IS NOT DISTINCT                 
+    '''
+
+
+def p_funcion_basica_4(t):
+    'funcionBasica   : operacion BETWEEN operacion AND operacion'
+
+def p_funcion_basica_5(t):
+    'funcionBasica   :  operacion LIKE CADENA'
+
+def p_funcion_basica_6(t):
+    'funcionBasica   : operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA '
+
+def p_funcion_basica_7(t):
+    'funcionBasica   : operacion NOT BETWEEN operacion AND operacion '
+
+def p_funcion_basica_8(t):
+    'funcionBasica   : operacion  BETWEEN SYMMETRIC operacion AND operacion'
+
+def p_funcion_basica_9(t):
+    'funcionBasica   : operacion NOT BETWEEN SYMMETRIC operacion AND operacion'
+
+
+def p_funcion_basica_10(t):
+    'funcionBasica   : operacion condicion_select operacion'
 
 #para manejar los errores sintacticos
 #def p_error(t): #en modo panico :v

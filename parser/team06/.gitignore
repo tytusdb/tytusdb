@@ -1,0 +1,6 @@
+/venv/
+/.idea/
+/__pycache__/
+/ply/__pycache__/
+/parser.out
+/parser.py
