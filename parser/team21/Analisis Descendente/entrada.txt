@@ -1,4 +1,4 @@
-create or replace database if not exists marisela OWNER = marcos MODE=1;
+/*create or replace database if not exists marisela OWNER = marcos MODE=1;
 show databases like 'm';
 
 create database marisela OWNER = marcos MODE=1;
@@ -36,7 +36,30 @@ CREATE TABLE Persons (
 
 DROP TABLE MARCOS;
 
- DROP DATABASE IF EXISTs marcos;
+DROP DATABASE IF EXISTs marcos;
+
+
+CREATE TABLE my_first_table (
+ coluumn1 INTEGER,
+ PRIMARY KEY (JKKK,LKL),
+ FOREIGN KEY (colHumn1) REFERENCES tabla (lala)
+);
+
 
 ALTER TABLE tabla ADD CHECK (name <> '');
+
+*/
+
+--ALTER TABLE tabla ADD CONSTRAINT some_name UNIQUE (columna1);
+--ALTER TABLE tabla ADD FOREIGN KEY (columna) REFERENCES column2;
+
+
+ALTER TABLE distributors
+ ALTER COLUMN address TYPE varchar(80),
+ ALTER COLUMN name TYPE varchar(100),
+ ALTER COLUMN id SET NOT NULL;
+
+
+ALTER TABLE tabla DROP CONSTRAINT dasdasd;
+
 

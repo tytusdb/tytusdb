@@ -134,9 +134,6 @@ tokens  = [
     'NUMDECIMAL',
     'ENTERO',
     'CADENA',
-
-
-
     'ID',
     'MOD',
     'PUNTO',
@@ -179,11 +176,7 @@ t_MENMEN = r'<<'
 t_MAYMAY = r'>>'
 t_NOIGUAL = r'!='
 t_MENMAY = r'<>'
-<<<<<<< HEAD
-t_PORCENTAJE  = r'\%'
-=======
-t_MOD  = r'%'
->>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
+t_MOD  = r'\%'
 t_PUNTO  = r'\.'
 t_DOSPUNTOS = r'\::'
 t_EXP = r'\^'
@@ -309,11 +302,6 @@ def p_campo(t):
 
 def p_foreign(t):
     'campo              : CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR'
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 
 def p_primary(t):
     'campo              : PRIMARY KEY PARIZQ ID PARDR'
@@ -452,19 +440,12 @@ def p_where(t):
     '''where            : asignacion
                         | boolean
                         | NOT boolean
-<<<<<<< HEAD
                         | ID IN PARIZQ listaValores PARDR
-=======
-                        | ID IN PARIZQ listaValores PARDR 
->>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
                         | ID BETWEEN valores AND valores
                         '''
     t[0] = t[1]
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 def p_andOr(t):
     '''andOr            : andOr AND andOr
                         | andOr OR andOr
@@ -482,11 +463,7 @@ def p_E(t):
                         | unario
                         | valores
                         | var'''
-<<<<<<< HEAD
 
-
-=======
->>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 #    print("expresion")
 #    if t[1] == '('  : t[0] = t[2]
 #    else            : t[0] = t[1]
@@ -495,10 +472,7 @@ def p_E2(t):
     '''boolean          : FALSE
                         | TRUE'''
     t[0] = t[1]
-<<<<<<< HEAD
 
-=======
->>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 
 def p_oper(t):
     '''operando         : E MAS E
@@ -536,7 +510,7 @@ def p_booleanos(t):
 	                    | E MAYORIGUAL E'''
 
 def p_unarios(t):
-<<<<<<< HEAD
+
     '''unario           : NOTO E
 	                    | MENOS E
 	                    | GNOT E
@@ -552,21 +526,21 @@ def p_var(t):
 
 
 # DELETE
-=======
+
     '''unario           : NOTO E 
 	                    | MENOS E  
 	                    | GNOT E
                         | MAS E '''
                     #| MASMAS E                 #%prec NOT  %prec MENOSU  %prec GNOT
 	                #| MENOSMENOS E
-    #t[0] = Unario(t[1], t[2])
+                    #t[0] = Unario(t[1], t[2])
 
 def p_var(t):
     'var                : ID'
     #t[0] = Id(t[1])
 
 #DELETE
->>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
+
 def p_delete(t):
     'instruccion        : DELETE FROM ID WHERE andOr PTCOMA'
     t[0] = t[1]

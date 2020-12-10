@@ -35,7 +35,7 @@ palabras_reservadas = (
     'TABLE','CONSTRAINT','CHECK','DEFAULT','PRIMARY','REFERENCES','KEY',
     'FOREIGN','UNIQUE',
     # alter table
-    'ADD','SET'
+    'ADD','SET','COLUMN'
 
 
 
@@ -235,7 +235,9 @@ def p_instruccion_showdatabase(t):
 def p_alterfacotizar(t):
     ''' factorizar_alter : DATABASE alterp
                         | TABLE l_campo
+
     '''
+
 
 
 
@@ -287,7 +289,6 @@ def p_createtriprima(t):
     createtp :  AS ENUM PARIZQ l_cadenas PARDER
                 | opcional
                 | PARIZQ l_campos PARDER
-
     '''
 
 
@@ -320,9 +321,21 @@ def p_tipo_datos(t):
             | UNIQUE
             | IDENTIFICADOR
             | REFERENCES
+            | ALTER COLUMN l_altercolumn
+            | DROP
             | PARIZQ l_cadenas PARDER
     '''
     t[0]=t[1]
+
+def p_alterlistacolumn(t):
+    '''l_altercolumn : IDENTIFICADOR TYPE l_campo l_altercolumn
+                     | IDENTIFICADOR SET NOT NULL
+                     | COMA ALTER COLUMN IDENTIFICADOR TYPE l_campo l_altercolumn
+                     | COMA ALTER COLUMN IDENTIFICADOR SET NOT NULL
+
+    '''
+
+
 
 
 def p_tipo_datos1(t):
@@ -348,8 +361,6 @@ def p_tipo_datos2(t):
              | NOENTERO
              | TEXT
              | BOOLEAN
-
-
     '''
     t[0]=t[1]
 
@@ -366,8 +377,6 @@ def p_listaCadenas2(t):
                      | COMA IDENTIFICADOR l_cadenasp
                      |
     '''
-
-
 
 
 #Pueden o no pueden venir
@@ -425,6 +434,7 @@ def p_expresion6(t):
     '''z :  a zp
     '''
 
+
 def p_expresion7(t):
     '''zp : DIFERENTEQ  a zp
           | MAYORQ a zp
@@ -449,21 +459,24 @@ def p_expresion3(t):
     '''b : c bp
     '''
 
-def p_expresion4(t):
-    '''bp : POR c bp
-          | DIVISION c bp
-          |
-    '''
 
 def p_expresion4(t):
     '''bp : POR c bp
           | DIVISION c bp
           |
     '''
+def p_expresion12(t):
+    '''c : d dp
+    '''
 
+
+def p_expresion13(t):
+    '''dp : COMA d dp
+          |
+    '''
 
 def p_expresion5(t):
-    '''c : PARIZQ a PARDER
+    '''d : PARIZQ a PARDER
           | IDENTIFICADOR
           | CADENA
           | CARACTER_O_CADENA
