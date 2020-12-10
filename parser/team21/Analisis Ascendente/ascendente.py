@@ -3,6 +3,7 @@ import re
 reservadas = {
     'smallint' : 'SMALLINT',
     'int' : 'INT',
+    'integer':'INTEGER',
     'bigint' : 'BIGINT',
     'decimal' : 'DECIMAL',
     'numeric' : 'NUMERIC',
@@ -46,11 +47,14 @@ reservadas = {
     'table': 'TABLE',
     'replace':'REPLACE',
     'database':'DATABASE',
+    'databases':'DATABASES',
     'show':'SHOW',
     'if':'IF',
+    'exists':'EXISTS',
     'alter':'ALTER',
     'rename':'RENAME',
     'owner':'OWNER',
+    'mode':'MODE',
     'drop':'DROP',
     'constraint':'CONSTRAINT',
     'unique':'UNIQUE',
@@ -60,6 +64,7 @@ reservadas = {
     'key':'KEY',
     'foreign':'FOREIGN',
     'add':'ADD',
+    'column':'COLUMN',
     'set':'SET',
     'select':'SELECT',
     'from':'FROM',
@@ -99,14 +104,15 @@ tokens  = [
 
 
     'ID',
-    'PORCENTAJE',
+    'MOD',
     'PUNTO',
     'DOSPUNTOS',
-    'EXPONENCIAL',
+    'EXP',
     'MAYORIGUAL',
     'MENORIGUAL',
     'MENMEN',
     'MAYMAY',
+    'MENMAY',
     'CRIZQ',
     'CRDR',
 
@@ -137,11 +143,11 @@ t_MENORIGUAL = r'<='
 t_MENMEN = r'<<'
 t_MAYMAY = r'>>'
 t_NOIGUAL = r'!='
-#t_NIGUALQUE = r'NOT'
-t_PORCENTAJE  = r'\%'
+t_MENMAY = r'<>'
+t_MOD  = r'%'
 t_PUNTO  = r'\.'
 t_DOSPUNTOS = r'\::'
-t_EXPONENCIAL = r'\^'
+t_EXP = r'\^'
 t_LLIZQ = r'\{'
 t_LLDR = r'\}'
 t_CRIZQ = r'\['
@@ -203,13 +209,16 @@ lex.lex(reflags=re.IGNORECASE)
 
 
 precedence = (
+    ('left', 'OR'),
+    ('left', 'AND', 'BETWEEN', 'NOT', 'LIKE', 'ILIKE', 'IN'),
     ('left', 'ORO'),
     ('left', 'ANDO'),
-    ('left', 'NOIGUAL', 'IGUALIGUAL'),
+    ('left', 'NOIGUAL', 'MENMAY', 'IGUALIGUAL'),
     ('left', 'MAYOR', 'MENOR', 'MAYORIGUAL', 'MENORIGUAL'),
     ('left', 'MAYMAY', 'MENMEN'),
     ('left','MAS','MENOS'),
-    ('left','MULT','DIV'),
+    ('left','MULT','DIV','MOD'),
+    ('left', 'EXP'),
     ('left','NOTO','GNOT'),
     ('left', 'PARIZQ', 'PARDR')
 )
@@ -252,7 +261,7 @@ def p_campo(t):
 
 def p_foreign(t):
     'campo              : CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR'
-    print("foranea")
+    
 
 def p_primary(t):
     'campo              : PRIMARY KEY PARIZQ ID PARDR'
@@ -280,6 +289,7 @@ def p_acompaniamiento(t):
 def p_tipos(t):
     '''tipo             : SMALLINT
                         | INT
+                        | INTEGER
                         | BIGINT
                         | DECIMAL
                         | NUMERIC
@@ -354,7 +364,7 @@ def p_update(t):
     t[0] = t[1]
 
 def p_update2(t):
-    'instruccion        : UPDATE ID SET asignaciones WHERE where PTCOMA'
+    'instruccion        : UPDATE ID SET asignaciones WHERE andOr PTCOMA'
     t[0] = t[1]
 
 def p_asignaciones(t):
@@ -368,65 +378,137 @@ def p_asignaciones2(t):
 
 
 def p_where(t):
-    'where              : asignacion'
+    '''where            : asignacion
+                        | boolean
+                        | NOT boolean
+                        | ID IN PARIZQ listaValores PARDR 
+                        | ID BETWEEN valores AND valores
+                        '''
+    t[0] = t[1]
+
+def p_andOr(t):
+    '''andOr            : andOr AND andOr
+                        | andOr OR andOr
+                        | where'''
     t[0] = t[1]
 
 def p_asignacion(t):
     '''asignacion       : ID IGUAL E'''
 
 def p_E(t):
-    '''E            : PARIZQ E PARDR
-                    | operando
-                    | unario
-                    | valores
-                    | var'''
+    '''E                : PARIZQ E PARDR
+                        | operando
+                        | unario
+                        | valores
+                        | var'''
 #    print("expresion")
 #    if t[1] == '('  : t[0] = t[2]
 #    else            : t[0] = t[1]
 
+def p_E2(t):
+    '''boolean          : FALSE
+                        | TRUE'''
+    t[0] = t[1]
 
 def p_oper(t):
-    '''operando     : E MAS E
-	                | E MENOS E
-	                | E MULT E
- 	                | E DIV E
-	                | E IGUALIGUAL E
-	                | E NOIGUAL E
-	                | E MENOR E
-	                | E MAYOR E
-	                | E MENORIGUAL E
-	                | E MAYORIGUAL E
-	                | E MENMEN E
-	                | E MAYMAY E
-	                | E ANDO E
-	                | E ORO E
+    '''operando         : E MAS E
+	                    | E MENOS E
+	                    | E MULT E
+ 	                    | E DIV E
+                        | E MOD E
+                        | E EXP E
+	                    | boolean
+	                    | E MENMEN E
+	                    | E MAYMAY E
+	                    | E ANDO E
+	                    | E ORO E
 	                '''
     #t[0] = Expresion(t[1], t[3], t[2])
 
+def p_booleanos(t):
+    '''boolean          : E IGUALIGUAL E
+	                    | E NOIGUAL E
+                        | E MENMAY E
+	                    | E MENOR E
+	                    | E MAYOR E
+	                    | E MENORIGUAL E
+	                    | E MAYORIGUAL E'''
+
 def p_unarios(t):
-    '''unario       : NOTO E 
-	                | MENOS E  
-	                | GNOT E '''
+    '''unario           : NOTO E 
+	                    | MENOS E  
+	                    | GNOT E
+                        | MAS E '''
                     #| MASMAS E                 #%prec NOT  %prec MENOSU  %prec GNOT
 	                #| MENOSMENOS E
     #t[0] = Unario(t[1], t[2])
 
 def p_var(t):
-    'var            : ID'
+    'var                : ID'
     #t[0] = Id(t[1])
 
-
-
-#################################################################
 #DELETE
 def p_delete(t):
-    'instruccion        : DELETE FROM ID WHERE where PTCOMA'
+    'instruccion        : DELETE FROM ID WHERE andOr PTCOMA'
     t[0] = t[1]
 
 def p_delete2(t):
     'instruccion        : DELETE FROM ID PTCOMA'
     t[0] = t[1]
 
+#DROP
+def p_drop(t):
+    '''instruccion      : DROP DATABASE ID PTCOMA
+                        | DROP DATABASE IF EXISTS ID PTCOMA
+                        | DROP TABLE ID PTCOMA'''
+    t[0] = t[1]
+
+#CREATE or REPLACE DATABASE
+def p_createDB(t):
+    '''instruccion      : opcionCR ID PTCOMA
+                        | opcionCR IF NOT EXISTS ID PTCOMA'''
+    t[0] = t[1]
+
+def p_createDB2(t):
+    '''instruccion      : opcionCR ID complemento PTCOMA
+                        | opcionCR IF NOT EXISTS ID complemento PTCOMA'''
+
+def p_opcionCR(t):
+    '''opcionCR         : CREATE DATABASE
+                        | CREATE OR REPLACE DATABASE'''
+
+def p_complementoCR(t):
+    '''complemento      : OWNER IGUAL ID
+                        | OWNER ID
+                        | OWNER IGUAL ID MODE IGUAL ENTERO
+                        | OWNER ID MODE IGUAL ENTERO
+                        | OWNER IGUAL ID MODE ENTERO
+                        | OWNER ID MODE ENTERO
+                        '''
+
+#SHOW
+def p_showDB(t):
+    'instruccion        : SHOW DATABASES PTCOMA'
+    t[0] = t[1]
+
+#ALTER
+def p_alterDB(t):
+    '''instruccion      : ALTER DATABASE ID RENAME TO ID PTCOMA
+                        | ALTER DATABASE ID OWNER TO LLIZQ ID LLDR''' #falta
+    t[0] = t[1]
+
+def p_alterT(t):
+    '''instruccion      : ALTER TABLE ID ADD COLUMN ID tipo PTCOMA
+                        | ALTER TABLE ID DROP COLUMN PTCOMA''' #falta descripcion
+    t[0] = t[1]
+
+def p_alterT2(t):
+    '''instruccion      : ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY   PARDR PTCOMA
+                        | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR PTCOMA
+                        | ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID PTCOMA
+                        | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA
+                        | ALTER TABLE ID DROP CONSTRAINT ID PTCOMA
+                        | ALTER TABLE ID RENAME COLUMN ID TO ID PTCOMA'''
 
 
 
@@ -440,7 +522,7 @@ parser = yacc.yacc()
 
 f = open("./entrada.txt", "r")
 input = f.read()
-print(input)
+#print(input)
 parser.parse(input)
 
 

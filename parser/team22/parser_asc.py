@@ -1,7 +1,9 @@
 # Construyendo el analizador léxico
 import ply.lex as lex
 from lex import *
+from type_checker import *
 lexer = lex.lex()
+type_checker = TypeChecker()
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -36,25 +38,55 @@ def p_instrucciones_instruccion(t) :
 
 def p_instruccion(t) :
     '''instruccion      : CREATE creacion
+                        | SHOW show_db PTCOMA
+                        | SHOW show_db
+                        | ALTER DATABASE alter_database PTCOMA
+                        | ALTER DATABASE alter_database 
                         | USE cambio_bd
                         | SELECT selects
-                        | SELECT select_distinct
                         | DELETE deletes
-                        | ALTER alter_table PTCOMA
-                        | UPDATE update_table PTCOMA'''
+                        | ALTER TABLE alter_table PTCOMA
+                        | ALTER TABLE alter_table 
+                        | UPDATE update_table
+                        | UPDATE update_table PTCOMA
+                        | INSERT insercion
+                        | DROP dropear'''
     t[0] = t[2]
-    print("******")
 
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
     '''creacion     : DATABASE crear_bd
-                    | TABLE crear_tb'''
+                    | TABLE crear_tb
+                    | TYPE crear_type'''
     print("Creacion")
 
 def p_instruccion_crear_BD(t) :
     'crear_bd     : ID PTCOMA'
     t[0] = Crear_BD(t[1])
     print("Creacion de BD")
+    print(type_checker.createDatabase(database = t[1]))
+
+def p_instruccion_crear_BD_Parametros(t) :
+    'crear_bd     : ID lista_parametros_bd PTCOMA'
+    #t[0] = Crear_BD_Parametros(t[1])
+    print('Creacion de BD parametros')
+    if 'mode' in t[2]:
+        print(type_checker.createDatabase(database = t[1], mode = t[2]['mode']))
+    else:
+        print(type_checker.createDatabase(database = t[1]))
+
+def p_instruccion_crear_BD_if_exists(t) :
+    'crear_bd       : IF NOT EXISTS ID PTCOMA'
+    print('Creacion de BD if not exists')
+    print(type_checker.createDatabase(database = t[4]))
+
+def p_instruccion_crear_BD_if_exists_Parametros(t) :
+    'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
+    print('Creacion de BD parametros if not exist')
+    if 'mode' in t[5]:
+        print(type_checker.createDatabase(database = t[4], mode = t[5]['mode']))
+    else:
+        print(type_checker.createDatabase(database = t[4]))
 
 def p_instruccion_crear_TB_herencia(t):
     '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA
@@ -68,9 +100,40 @@ def p_instruccion_crear_TB(t):
     print("Creación de tabla sin herencia")
     #t[0] = Crear_TB(t[1], t[3])
 
+def p_isntruccion_crear_TYPE(t) :
+    '''crear_type   : ID AS ENUM PARIZQ lista_objetos PARDER PTCOMA
+                    | ID AS ENUM PARIZQ lista_objetos PARDER'''
+    print("Creacion de un type enumerado")
+    #t[0] = Crear_Type(t[1], t[5])
+
 def p_instruccion_TB_herencia(t) :
     'tb_herencia    : INHERITS PARIZQ ID PARDER'
     #t[0] = Heredero(t[4])
+
+
+# INSTRUCCION SHOW DATABASE
+def p_instruccion_show(t) :
+    '''show_db      : DATABASES
+                    | DATABASES LIKE CADENA'''
+    print("Show Databases")
+    if len(t) == 2:
+        print(type_checker.showDatabase())
+    else:
+        print(type_checker.showDatabase(t[3]))
+
+
+# INSTRUCCION ALTER DATABASE
+def p_instruccion_alter_database(t) :
+    '''alter_database   : ID RENAME TO ID
+                        | ID OWNER TO def_alter_db'''
+    print("Alter Database")
+    print(type_checker.alterDatabase(databaseOld = t[1], databaseNew = t[4]))
+
+def p_def_alter_db(t) :
+    '''def_alter_db     : ID
+                        | CURRENT_USER
+                        | SESSION_USER'''
+
 
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
@@ -83,15 +146,20 @@ def p_instruccion_Use_BD(t) :
 def p_instruccion_selects(t) :
     '''selects      : POR FROM select_all 
                     | lista_parametros FROM lista_parametros inicio_condicional '''
-    print("selects")
+    # print("selects")
+
+def p_instruccion_selects_distinct(t) :
+    '''selects      : DISTINCT POR FROM select_all 
+                    | DISTINCT lista_parametros FROM lista_parametros inicio_condicional '''
+    # print("selects")
 
 def p_instruccion_selects_where(t) :
     'inicio_condicional      : WHERE lista_condiciones inicio_group_by'
-    print("Condiciones (Where)")
+    # print("Condiciones (Where)")
 
 def p_instruccion_selects_sin_where(t) :
     'inicio_condicional      : inicio_group_by'
-    print("Condiciones (Where)")
+    # print("Condiciones (Where)")
 
 # def p_instruccion_selects_where2(t) :
 #     'inicio_condicional      : WHERE lista_condiciones inicio_group_by PTCOMA'
@@ -99,38 +167,115 @@ def p_instruccion_selects_sin_where(t) :
 
 def p_instruccion_selects_group_by(t) :
     'inicio_group_by      : GROUP BY lista_parametros inicio_having'
-    print("GROUP BY")
+    # print("GROUP BY")
 
 def p_instruccion_selects_group_by2(t) :
     'inicio_group_by      : inicio_having '
-    print("NO HAY GROUP BY")
+    # print("NO HAY GROUP BY")
 
 def p_instruccion_selects_having(t) :
     'inicio_having     : HAVING lista_condiciones inicio_order_by'
-    print("HAVING")
+    # print("HAVING")
 
 def p_instruccion_selects_having2(t) :
     'inicio_having      : inicio_order_by '
-    print("NO HAY HAVING")
+    # print("NO HAY HAVING")
 
 def p_instruccion_selects_order_by(t) :
-    'inicio_order_by     : ORDER BY lista_parametros PTCOMA'
-    print("ORDER BY")
+    '''inicio_order_by      : ORDER BY lista_parametros state_union
+                            | ORDER BY lista_parametros state_intersect
+                            | ORDER BY lista_parametros state_except'''
+    # print("ORDER BY")
 
 def p_instruccion_selects_order_by2(t) :
-    'inicio_order_by      : PTCOMA '
-    print("NO HAY ORDER BY")
+    '''inicio_order_by      : state_union 
+                            | state_intersect
+                            | state_except'''
+    # print("NO HAY ORDER BY")
     
+def p_instruccion_selects_union(t) :
+    '''state_union      : UNION SELECT selects
+                        | UNION ALL SELECT selects'''
+    
+def p_instruccion_selects_union2(t) :
+    'state_union      : PTCOMA'
+    
+def p_instruccion_selects_intersect(t) :
+    '''state_intersect      : INTERSECT SELECT selects
+                            | INTERSECT ALL SELECT selects'''
+    
+def p_instruccion_selects_intersect2(t) :
+    'state_intersect      : PTCOMA'
+    
+def p_instruccion_selects_except(t) :
+    '''state_except     : EXCEPT SELECT selects
+                        | EXCEPT ALL SELECT selects'''
+    
+def p_instruccion_selects_except2(t) :
+    'state_except      : PTCOMA'
+
 
 def p_instruccion_Select_All(t) :
     'select_all     : ID inicio_condicional'
     t[0] = Select_All(t[1])
-    print("Consulta ALL para tabla: " + t[1])
+    # print("Consulta ALL para tabla: " + t[1])
     
-def p_instruccion_Select_Distinct(t) :
-    'select_distinct     : DISTINCT selects'
-    # t[0] = Select_All(t[1])
-    print("Consulta con DISITNCT: " + t[1])
+#========================================================
+# INSERT INTO TABLAS
+def p_instruccion_Insert_columnas(t) :
+    '''insercion    : INTO ID PARIZQ lista_id PARDER VALUES PARIZQ lista_insercion PARDER PTCOMA
+                    | INTO ID PARIZQ lista_id PARDER VALUES PARIZQ lista_insercion PARDER'''
+    print('Insert con columnas')
+    #t[0] = Insert(t[2], t[4], t[8])
+    #if len(t[4]) != len(t[8]):
+        #print('Error, no está insertando la misma cantidad de datos que de columnas')
+    #else:
+        #print('Insertó')
+
+def p_instruccion_insert(t) :
+    '''insercion    : INTO ID VALUES PARIZQ lista_insercion PARDER PTCOMA
+                    | INTO ID VALUES PARIZQ lista_insercion PARDER'''
+    print('Insert sin columnas')
+
+#========================================================
+
+#========================================================
+# DROP BASES DE DATOS Y TABLAS
+def p_instruccion_Drop_BD_exists(t) :
+    '''dropear      : DATABASE IF EXISTS ID PTCOMA
+                    | DATABASE IF EXISTS ID'''
+    print(type_checker.dropDatabase(database = t[4]))
+
+def p_instruccion_Drop_BD(t) :
+    '''dropear      : DATABASE ID PTCOMA
+                    | DATABASE ID'''
+    print(type_checker.dropDatabase(database = t[2]))
+
+def p_instruccion_Drop_TB(t) :
+    '''dropear      : TABLE ID PTCOMA
+                    | TABLE ID'''
+    #T[0] = DropTabla(t[2])
+
+#========================================================
+
+#========================================================
+# PARAMETROS PARA CREATE BASE DE DATOS
+def p_instrucciones_parametros_BD_owner(t) :
+    'lista_parametros_bd    : OWNER IGUAL ID'
+
+def p_instrucciones_parametros_BD_Mode(t) :
+    'lista_parametros_bd    : MODE IGUAL ENTERO'
+    t[0] = {'mode': t[3]}
+
+def p_instrucciones_parametros_BD_Mode_owner(t) :
+    'lista_parametros_bd    : OWNER IGUAL ID MODE IGUAL ENTERO'
+    t[0] = {'mode': t[6]}
+
+def p_instrucciones_parametros_BD_owner_Mode(t) :
+    'lista_parametros_bd    : MODE IGUAL ENTERO OWNER IGUAL ID'
+    t[0] = {'mode': t[3]}
+
+#========================================================
 
 #========================================================
 # LISTA DE PARAMETROS
@@ -138,27 +283,27 @@ def p_instrucciones_lista_parametros(t) :
     'lista_parametros    : lista_parametros COMA parametro'
     t[1].append(t[3])
     t[0] = t[1]
-    print("Varios parametros")
+    # print("Varios parametros")
 
 def p_instrucciones_parametro(t) :
     'lista_parametros    : parametro '
     t[0] = [t[1]]
-    print("Un parametro")
+    # print("Un parametro")
 
 def p_parametro_con_tabla(t) :
     'parametro        : ID PUNTO name_column'
     t[0] = t[1]
-    print("Parametro con indice de tabla")
+    # print("Parametro con indice de tabla")
 
 def p_parametro_con_tabla_columna(t) :
     'name_column        : ID'
     t[0] = t[1]
-    print("Nombre de la columna")
+    # print("Nombre de la columna")
 
 def p_parametro_sin_tabla(t) :
     'parametro        : ID'
     t[0] = t[1]
-    print("Parametro SIN indice de tabla")
+    # print("Parametro SIN indice de tabla")
 #========================================================
 
 #========================================================
@@ -234,6 +379,37 @@ def p_instrucciones_lista_id(t) :
     'lista_id   : ID'
     t[0] = [t[1]]
 
+def p_instrucciones_lista_objetos(t) :
+    'lista_objetos  : lista_objetos COMA objeto'
+    #t[1].append(t[3])
+    #t[0] = t[1]
+
+def p_instrucciones_lista_objeto(t) :
+    'lista_objetos  : objeto'
+    #t[0] = [t[1]]
+
+def p_instrucciones_objeto(t) :
+    '''objeto       : DECIMAL
+                    | ENTERO
+                    | CADENA'''
+    #t[0] = t[1]
+
+def p_instrucciones_lista_insercion_objeto(t) :
+    '''lista_insercion  : lista_insercion COMA objeto'''
+    #para objetos simples
+
+def p_instrucciones_lista_insercion_select(t) :
+    'lista_insercion  : lista_insercion COMA PARIZQ SELECT selects PARDER'
+    #para cuando haya querys select
+
+def p_instrucciones_insercion_objeto(t) :
+    '''lista_insercion  : objeto'''
+    #para un objeto simple
+
+def p_instrucciones_insercion_select(t) :
+    'lista_insercion  : PARIZQ SELECT selects PARDER'
+    #Para un query select
+
 #========================================================
 
 #========================================================
@@ -242,29 +418,29 @@ def p_instrucciones_lista_condiciones_AND(t) :
     'lista_condiciones    : lista_condiciones AND condicion'
     t[1].append(t[3])
     t[0] = t[1]
-    print("condicion con  AND")
+    # print("condicion con  AND")
     
 def p_instrucciones_lista_condiciones_OR(t) :
     'lista_condiciones    : lista_condiciones OR condicion'
     t[1].append(t[3])
     t[0] = t[1]
-    print("condicion con OR")
+    # print("condicion con OR")
     
 def p_instrucciones_lista_condiciones_NOT(t) :
     'lista_condiciones    : NOT lista_condiciones'
     t[1].append(t[3])
     t[0] = t[1]
-    print("condicion con NOT")
+    # print("condicion con NOT")
 
 def p_instrucciones_condiciones(t) :
     'lista_condiciones    : condicion '
     t[0] = [t[1]]
-    print("Una condicion")
+    # print("Una condicion")
 
 def p_parametro_con_tabl_2(t) :
     'condicion        : def_condicion signo_relacional ID PUNTO name_column '
     t[0] = t[1]
-    print("Condicion con indice de tabla")
+    # print("Condicion con indice de tabla")
 
 def p_def_condicion(t) :
     '''def_condicion    : ID PUNTO ID
@@ -295,7 +471,7 @@ def p_parametro_signo_relacional(t) :
 def p_parametro_sin_tabla_2(t) :
     'condicion        : ID signo_relacional ID'
     t[0] = t[1]
-    print("Condicion SIN indice de tabla")
+    # print("Condicion SIN indice de tabla")
 
 #========================================================
 
@@ -317,7 +493,7 @@ def p_instruccion_delete_condicional(t) :
 
 # INSTRUCCION ALTER TABLE
 def p_instruccion_alter(t) :
-    '''alter_table  : TABLE ID def_alter'''
+    '''alter_table  : ID def_alter'''
     print("ALTER TABLE")
 
 def p_def_alter(t) :
