@@ -16,7 +16,6 @@ reservadas = {
     'use' : 'USE',
     'timestamp' : 'TIMESTAMP',
     'time' : 'TIME',
-    'with time zone' : 'ZONE',
     'interval' : 'INTERVAL',
     'year' : 'YEAR',
     'month' : 'MONTH',
@@ -80,7 +79,8 @@ reservadas = {
     'only' : 'ONLY',
     'using' : 'USING',
     'where' : 'WHERE',
-    'current of' : 'CURRENT',
+    'current' : 'CURRENT',
+    'of' : 'OF',
     'returning' : 'RETURNING',
     'inherits' : 'INHERITS',
     'insert' : 'INSERT',
@@ -90,7 +90,8 @@ reservadas = {
     'set' : 'SET',
     'select' : 'SELECT',
     'distinct' : 'DISTINCT',
-    'group by' : 'GROUP',
+    'group' : 'GROUP',
+    'by' : 'BY',
     'having' : 'HAVING',
     'substring' : 'SUBSTRING',
     'exists' : 'EXISTS',
@@ -182,7 +183,8 @@ reservadas = {
     'date' : 'DATE',
     'current_user' : 'CURRENT_USER',
     'session_user' : 'SESSION_USER',
-    'show'  :   'SHOW'
+    'show'  :   'SHOW',
+    'symmetric' : 'SYMMETRIC'
 }
 
 tokens = [
@@ -303,6 +305,13 @@ def t_error(t):
 import ply.lex as lex
 lexer = lex.lex()
 
+precedence = (
+    ('left','MAS','GUION'),
+    ('left','ASTERISCO','BARRA', 'PORCENTAJE'),
+    ('left','POTENCIA'),
+    ('right','UMENOS', 'UMAS'),
+    )
+
 def p_init(t) :
     'init            : instrucciones'
 
@@ -315,7 +324,10 @@ def p_instruccion(t) :
                         | USE use
                         | SHOW show
                         | DROP drop
-                        | ALTER alter'''
+                        | ALTER alter
+                        | DELETE delete
+                        | INSERT insert
+                        | UPDATE update'''
 
 def p_create_instruccion(t) :
     '''create : TYPE createenum
@@ -492,6 +504,114 @@ def p_opcionesalterset(t):
 def p_tipodedrop(t):
     '''tipodedrop   :   COLUMN ID
                         | CONSTRAINT  ID'''
+
+
+#------------------------------------------------------------DELETE----------------------------------------------------
+def p_instrucciones_delete(t) :
+    '''delete    : FROM ID WHERE condiciones PTCOMA'''
+
+#-------------------------------------------------------INSERT-------------------------------------------
+def p_instrucciones_insert(t):
+    '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
+
+def p_values(t):
+    '''values   : values COMA value
+                | value'''
+
+def p_value(t):
+    '''value   : ENTERO
+                | DECIMAL
+                | CADENA
+                | boleano'''
+
+#-------------------------------------------------------UPDATE-------------------------------------------
+def p_instrucciones_update(t):
+    '''update    : ID SET asignaciones WHERE condiciones PTCOMA'''
+
+def p_asignaciones(t):
+    '''asignaciones     : asignaciones COMA ID IGUAL argument PTCOMA
+                        | ID IGUAL argument'''
+
+#------------------------------------------------------CONDICIONES-----------------------------------------
+def p_condiciones(t):
+    '''condiciones    : condiciones comparacionlogica condicion
+                        | condicion'''
+
+def p_comparacionlogica(t):
+    '''comparacionlogica    : AND
+                            | OR'''
+
+def p_condicion(t):
+    '''condicion    : NOT condicions
+                    | condicions'''
+
+def p_condicions(t):
+    '''condicions    : argument comparacionoperators'''
+
+def p_comparacionoperators(t):
+    '''comparacionoperators    : MENORQUE argument
+                                | MAYORQUE argument
+                                | IGUAL argument
+                                | MENORIGUALQUE argument
+                                | MAYORIGUALQUE argument
+                                | DIFERENTELL argument
+                                | BETWEEN betweenopcion
+                                | NOT BETWEEN argument AND argument
+                                | ISNULL
+                                | NOTNULL
+                                | IS isopcion'''
+
+def p_betweenopcion(t):
+    '''betweenopcion    : SYMMETRIC argument AND argument
+                        | argument AND argument'''
+
+def p_isopcion(t):
+    '''isopcion : DISTINCT FROM argument
+                | NULL
+                | TRUE
+                | FALSE
+                | UNKNOWN
+                | NOT isnotoptions'''
+
+def p_isnotoptions(t):
+    '''isnotoptions : FALSE
+                    | UNKNOWN
+                    | TRUE
+                    | NULL
+                    | DISTINCT FROM argument'''
+
+def p_argument_binary(t):
+    '''argument : argument MAS argument
+                | argument GUION argument
+                | argument BARRA argument
+                | argument ASTERISCO argument
+                | argument PORCENTAJE argument
+                | argument POTENCIA argument
+                | boleano'''
+
+def p_argument_unary(t):
+    '''argument : MAS argument %prec UMAS
+                | GUION argument %prec UMENOS'''
+
+def p_argument_agrupacion(t):
+    '''argument : PARENIZQ argument PARENDER'''
+
+def p_argument_number(t):
+    '''argument : ENTERO
+                | DECIMAL'''
+
+def p_argument_cadena(t):
+    '''argument : CADENA'''
+
+def p_argument_id(t):
+    '''argument : ID'''
+
+def p_argument_idpid(t):
+    '''argument : ID PUNTO ID'''
+
+def p_boleano(t):
+    '''boleano  : TRUE
+                | FALSE'''
 
 def p_error(t):
     # print(t)
