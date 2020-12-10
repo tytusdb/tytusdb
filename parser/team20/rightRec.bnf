@@ -50,17 +50,24 @@
                 |  drop constraint id
                 |  alter column id type <type>
 
-<select> ::= <select> union [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>]
-          |  <select> intersect [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>]
-          |  <select> except [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>]
-          |  select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>]
+<select> ::= select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>] <select_p>
+
+<select_p> ::= union [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>] <select_p>
+          |  intersect [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>] <select_p>
+          |  except [all] select [distinct] <expression_list> from <expression> [where <expression>] [order by <sortexpressionlist>] [limit (<expression> | all)] [offset <expression>] [group by <expression_list> having <expression>] <select_p>
+          | 
+        
 <insert> ::= insert into id ["(" <idlist> ")"] values "(" <expression_list> ")"
 
-<expression_list> ::= <expression_list> "," <expression>
-                   |  <expression>
+<expression_list> ::= <expression> <expression_list_p>
 
-<sortexpressionlist> ::= <sortexpressionlist> "," <expression> [asc|desc]
-                      |  <expression> [asc|desc]
+<expression_list_p> ::= "," <expression> <expression_list_p>
+                     | 
+
+<sortexpressionlist> ::= <expression> [asc|desc] <sortexpressionlist_p>
+
+<sortexpressionlist_p> ::= "," <2> [asc|desc] <sortexpressionlist_p>
+                        | 
 
 <createDatabase> ::= create [or replace] database [if not exists] id [owner ["="] id] [mode ["="] integer]
 
@@ -69,8 +76,10 @@
 
 <createType> ::= create type id as enum "(" <expression_list> ")"
 
-<columns> ::= <columns> "," <column>
-           |  <column>
+<columns> ::= <column> <columns_p>
+
+<columns_p> ::= "," <column> <columns_p>
+             | 
 
 <column> ::= id <type> [default <expression>] [[not] null] [primary key] [references id] [[constraint id] unique] [[constraint id] check (<expression>)]
           |  [constraint id] check (<expression>)
@@ -78,13 +87,20 @@
           |  primary key "(" <idlist> ")"
           |  foreign key "(" <idlist> ")" references id "(" <idlist> ")"
 
-<idlist> ::= <idlist> "," id
-          |  id
+<idlist> ::= id <idlist_p>
 
-<case> ::= case <case_list> [else <expression>] end
+<idlist_p> ::= "," id <idlist_p>
+            |
 
-<case_list> ::= <case_list> when <expression> then <expression>
-             |   when <expression> then <expression>
+<case> ::= <case_p> 
+
+<case_p> ::= <case_list> [else <expression>] end <case_p>
+          | 
+
+<case_list> ::= when <expression> then <expression> <case_list_p>
+
+<case_list_p> ::= <case_list> when <expression> then <case_list_p>
+               | 
 
 <type> ::= smallint
         |  integer
@@ -209,21 +225,134 @@
               |  "(" <expression> ")"
               |  <value>
 
+<expression> ::= plus <expression> <expresion_p> #right
+              |  minus <expression> <expresion_p>#right
+              |  not <expression> <expresion_p>#right
+              |  distinct from <expression> <expresion_p>
+              #aggregate functions
+              |  count "(" <expression> ")" <expresion_p>
+              |  sum "(" <expression> ")" <expresion_p>
+              |  avg "(" <expression> ")" <expresion_p>
+              |  max "(" <expression> ")" <expresion_p>
+              |  min "(" <expression> ")" <expresion_p>
+              #mathematical functions
+              |  abs "(" <expression> ")" <expresion_p>
+              |  cbrt "(" <expression> ")" <expresion_p>
+              |  ceil "(" <expression> ")" <expresion_p>
+              |  ceiling "(" <expression> ")" <expresion_p>
+              |  degrees "(" <expression> ")" <expresion_p>
+              |  div "(" <expression> ")" <expresion_p>
+              |  exp "(" <expression> ")" <expresion_p>
+              |  factorial "(" <expression> ")" <expresion_p>
+              |  floor "(" <expression> ")" <expresion_p>
+              |  gcd "(" <expression> ")" <expresion_p>
+              |  lcm "(" <expression> ")" <expresion_p>
+              |  ln "(" <expression> ")" <expresion_p>
+              |  log "(" <expression> ")" <expresion_p>
+              |  log10 "(" <expression> ")" <expresion_p>
+              |  min_scale "(" <expression> ")" <expresion_p>
+              |  mod "(" <expression> ")" <expresion_p>
+              |  pi "(" <expression> ")" <expresion_p>
+              |  power "(" <expression> ")" <expresion_p>
+              |  radians "(" <expression> ")" <expresion_p>
+              |  round "(" <expression> ")" <expresion_p>
+              |  scale "(" <expression> ")" <expresion_p>
+              |  sign "(" <expression> ")" <expresion_p>
+              |  sqrt "(" <expression> ")" <expresion_p>
+              |  trim_scale "(" <expression> ")" <expresion_p>
+              |  truc "(" <expression> ")" <expresion_p>
+              |  width_bucket "(" <expression> ")" <expresion_p>
+              |  random "(" <expression> ")" <expresion_p>
+              |  setseed "(" <expression> ")" <expresion_p>
+              # trigonometric functions
+              |  acos "(" <expression> ")" <expresion_p>
+              |  acosd "(" <expression> ")" <expresion_p>
+              |  asin "(" <expression> ")" <expresion_p>
+              |  asind "(" <expression> ")" <expresion_p>
+              |  atan "(" <expression> ")" <expresion_p>
+              |  atand "(" <expression> ")" <expresion_p>
+              |  atan2 "(" <expression> ")" <expresion_p>
+              |  atan2d "(" <expression> ")" <expresion_p>
+              |  cos "(" <expression> ")" <expresion_p>
+              |  cosd "(" <expression> ")" <expresion_p>
+              |  cot "(" <expression> ")" <expresion_p>
+              |  cotd "(" <expression> ")" <expresion_p>
+              |  sin "(" <expression> ")" <expresion_p>
+              |  sind "(" <expression> ")" <expresion_p>
+              |  tan "(" <expression> ")" <expresion_p>
+              |  tand "(" <expression> ")" <expresion_p>
+              |  sinh "(" <expression> ")" <expresion_p>
+              |  cosh "(" <expression> ")" <expresion_p>
+              |  tanh "(" <expression> ")" <expresion_p>
+              |  asinh "(" <expression> ")" <expresion_p>
+              |  acosh "(" <expression> ")" <expresion_p>
+              |  atanh "(" <expression> ")" <expresion_p>
+              # binary string functions
+              |  length "(" <expression> ")" <expresion_p>
+              |  substring "(" <expression> "," <expression> "," <expression> ")" <expresion_p>
+              |  trim "(" <expression> ")" <expresion_p>
+              |  get_byte "(" <expression> ")" <expresion_p>
+              |  md5 "(" <expression> ")" <expresion_p>
+              |  set_byte "(" <expression> ")" <expresion_p>
+              |  sha256 "(" <expression> ")" <expresion_p>
+              |  substr "(" <expression> "," <expression> "," <expression> ")" <expresion_p>
+              |  convert "(" <expression> ")" <expresion_p>
+              |  encode "(" <expression> ")" <expresion_p>
+              |  decode "(" <expression> ")" <expresion_p>
+              |  greatest "(" <expression_list> ")" <expresion_p>
+              |  least "(" <expression_list> ")" <expresion_p>
+              |  "(" <select> ")" <expresion_p>
+              |  <case> <expresion_p>
+              |  "(" <expression> ")" <expresion_p>
+              |  <value> <expresion_p>
+
+<expresion_p> ::= nseparator <expression> <expresion_p>#left
+              |  exponentiation <expression> <expresion_p>#left
+              |  multiplication <expression> <expresion_p>#left
+              |  divition <expression> <expresion_p>#left
+              |  modulo <expression> <expresion_p>#left
+              |  plus <expression> <expresion_p>#left
+              |  minus <expression> <expresion_p>#left
+              |  anyoperator <expression> <expresion_p># mentions all other native and user-defined operators ¿?
+              |  between <expression> <expresion_p>
+              |  in <expression> <expresion_p>
+              |  like <expression> <expresion_p>
+              |  ilike <expression> <expresion_p>
+              |  similar <expression> <expresion_p>
+              |  lessthan <expression> <expresion_p>
+              |  greaterthan <expression> <expresion_p>
+              |  equal <expression> <expresion_p>
+              |  lessthanequal <expression> <expresion_p>
+              |  greaterthanequal <expression> <expresion_p>
+              |  notequal <expression> <expresion_p>
+              |  is <expression> <expresion_p>
+              |  isnull <expresion_p>
+              |  notnull <expresion_p>
+              |  and <expression> <expresion_p>#left
+              |  or <expression> <expresion_p>#left
+              | 
 
 <value>  ::= int | real | string | id | asterisk
 
 
 <delete_instruction> ::= delete from id where <expression>
 
-<truncate> ::= truncate [table] <idlist>
+<truncate> ::= <truncate_p>
 
-<show>::= show databases [like regex]
+<truncate_p> ::=  [table] <idlist> <truncate_p>
+              |
+
+<show> ::= <show_p>
+
+<show_p> ::= databases [like regex] <show_p>
+          | 
 
 <update_instruction> ::= update id set <reallocation_of_values> where <expression>
 
-<reallocation_of_values> ::= <reallocation_of_values> "," id equal <expression> 
-                            | id equal <expression>
+<reallocation_of_values> ::= id equal <expression> <reallocation_of_values_p>
 
+<reallocation_of_values_p> ::= "," id equal <expression> <reallocation_of_values_p>
+                            | 
 
 ##################################################
 # List of the symbols returned by the scanner,
