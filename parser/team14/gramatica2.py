@@ -1,4 +1,3 @@
-
 reservadas = {
     'show': 'show',
     'databases': 'databases',
@@ -77,10 +76,12 @@ reservadas = {
     'group': 'group',
     'by': 'by',
     'having': 'having',
-    'as':'as',
-    'create':'create',
-    'varchar':'varchar',
-    'text':'text'
+    'as': 'as',
+    'create': 'create',
+    'varchar': 'varchar',
+    'text': 'text',
+    'is': 'is',
+    'delete': 'delete'
 }
 
 tokens = [
@@ -164,10 +165,12 @@ def t_ID(t):
     t.type = reservadas.get(t.value.lower(), 'id')
     return t
 
+
 def t_char_er(t):
     r'\'.?\''
     t.value = t.value[1:-1]  # remuevo las comillas
     return t
+
 
 def t_cadena(t):
     r'\'.+\''
@@ -213,7 +216,9 @@ precedence = (
     ('left', 'elevado'),
     ('left', 'multiplicacion', 'division', 'modulo'),
     ('left', 'mas', 'menos'),
+    ('nonassoc', 'between', 'in', 'like', 'ilike'),
     ('left', 'mayor', 'menor', 'mayor_igual', 'menor_igual', 'igual', 'diferente1', 'diferente2'),
+    ('nonassoc', 'is', 'isnull', 'notnull'),
     ('right', 'not'),
     ('left', 'and'),
     ('left', 'or'),
@@ -222,7 +227,6 @@ precedence = (
 
 # ----------------------------------------------DEFINIMOS LA GRAMATICA------------------------------------------
 # Definición de la gramática
-
 
 
 def p_init(t):
@@ -243,40 +247,48 @@ def p_instrucciones_instruccion(t):
 
 
 def p_instruccion(t):
-    '''instruccion      :  SELECT
+    '''instruccion      :  SELECT ptcoma
                     | CREATETABLE
-                    | id igual EXP ptcoma '''
+                    | UPDATE ptcoma
+                    | DELETE  ptcoma '''
     t[0] = t[1]
+
 
 def p_CREATETABLE(t):
     '''CREATETABLE : create table id para LDEF parc ptcoma
                     | create table id para LDEF parc HERENCIA ptcoma'''
 
+
 def p_LDEF(t):
     '''LDEF : LDEF coma COLDEF
             | COLDEF'''
 
+
 def p_COLDEF(t):
     '''COLDEF : OPCONST
             | constraint id OPCONST
-            | id TIPO 
+            | id TIPO
             | id TIPO LOPCOLUMN'''
+
 
 def p_LOPCOLUMN(t):
     '''LOPCOLUMN : LOPCOLUMN OPCOLUMN
             | OPCOLUMN'''
 
+
 def p_OPCOLUMN(t):
     '''OPCOLUMN : constraint id unique
-            | constraint id check para EXP parc 
+            | constraint id check para EXP parc
             | default EXP
             | PNULL
             | primary key
             | references id'''
 
+
 def p_PNULL(t):
     '''PNULL : not null
         | null'''
+
 
 def p_OPCONST(t):
     '''OPCONST : primary key para LEXP parc
@@ -284,31 +296,34 @@ def p_OPCONST(t):
             | unique para LEXP parc
             | check para EXP parc'''
 
+
 def p_HERENCIA(t):
     'HERENCIA : inherits para LEXP parc'
+
 
 def p_SELECT(t):
     ''' SELECT : select distinct  LSELECT r_from LFROM WHERE GROUP HAVING
 	| select  LSELECT r_from LFROM WHERE  GROUP HAVING
     '''
 
+
 def p_LSELECT(t):
-    '''
-    LSELECT : LEXP
+    ''' LSELECT : LEXP
 		| multiplicacion
     '''
+
+
 def p_LFROM(t):
     ''' LFROM : LFROM coma FROM
         | FROM
     '''
 
+
 def p_FROM(t):
-    '''
-    FROM : EXP
+    '''FROM : EXP
 	| EXP as id
-    | para SELECT parc
-    | para SELECT parc as id
-    '''
+	| EXP  id    '''
+
 
 def p_WHERE(t):
     ''' WHERE : where EXP
@@ -322,11 +337,30 @@ def p_GROUP(t):
 
 def p_HAVING(t):
     ''' HAVING : having EXP
-	| ptcoma '''
+	| '''
+
+
+def p_UPDATE(t):
+    ' UPDATE : update id set LCAMPOS where EXP'
+
+
+def p_LCAMPOS(t):
+    '''LCAMPOS :  LCAMPOS id igual EXP
+		| id igual EXP
+		| id igual default'''
+
+
+def p_DELETE(t):
+    '''
+    DELETE : delete   r_from id where EXP
+            | delete  r_from id
+    '''
+
 
 def p_LEXP(t):
     '''LEXP : LEXP coma EXP
 	| EXP'''
+
 
 def p_TIPO(t):
     '''TIPO : smallint
@@ -335,7 +369,7 @@ def p_TIPO(t):
             | decimal para LEXP parc
             | numeric para LEXP parc
             | real
-            | double precision 
+            | double precision
             | money
             | character varying para int parc
             | varchar para int parc
@@ -347,11 +381,12 @@ def p_TIPO(t):
             | date
             | time
             | time para int parc
-            | interval 
+            | interval
             | interval para int parc
             | interval FIELDS
             | interval para int parc FIELDS
             | boolean'''
+
 
 def p_FIELDS(t):
     '''FIELDS : year
@@ -361,8 +396,8 @@ def p_FIELDS(t):
         | minute
         | second'''
 
+
 def p_EXP(t):
-    
     '''EXP : EXP mas EXP
             | EXP menos EXP
             | EXP multiplicacion  EXP
@@ -381,16 +416,38 @@ def p_EXP(t):
             | EXP punto EXP
             | mas EXP %prec umas
             | menos EXP %prec umenos
-            | not EXP 
-            | para EXP parc 
+            | not EXP
+            | para EXP parc
             | int
             | decimales
             | cadena
             | char_er
             | true
             | false
-            | id'''
+            | id
+            | SELECT
+            | PREDICADOS'''
+def p_PREDICADOS(t):
+    '''
+    PREDICADOS : EXP between EXP
+            | EXP in EXP
+            | EXP not in EXP
+			| EXP not between EXP
+			| EXP  between symetric EXP
+			| EXP not between symetric EXP
+			| EXP is distinct r_from EXP
+			| EXP is not distinct r_from EXP
+			| EXP is PNULL
+			| EXP isnull
+			| EXP notnull
+			| EXP  is true
+			| EXP is not true
+			| EXP is false
+			| EXP is not false
+			| EXP is unknown
+			| EXP is not unknown
 
+    '''
 
 def p_error(t):
     print(t)
@@ -404,4 +461,3 @@ parser = yacc.yacc()
 
 def parse(input):
     return parser.parse(input)
-
