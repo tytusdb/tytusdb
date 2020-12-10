@@ -1,3 +1,4 @@
+/*
 create database compi MODE = 4;
 create database modela MODE = 4;
 create database base2 MODE = 4;
@@ -8,7 +9,7 @@ DROP DATABASE IF EXISTS  new_name;
 DROP DATABASE new_name;
 SHOW DATABASES;
 use una_bd;
-
+*/
 -- comentario
 /* comentario
 multiple*/
@@ -57,7 +58,7 @@ CREATE DATABASE base2 MODE = 1 OWNER = tu;
 
 */
 
-
+/*
 select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios
 UNION ALL
 select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
@@ -66,7 +67,13 @@ select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios
 INTERSECT
 select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
 
-select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios where a == a12
 except all
-select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios limit 4 offset 3;
 */
+
+
+select A.id, A.nombre, A.fecha, A.hora, A.codigo,
+case when a==ac then 'asadsa'
+end
+ from usuarios where a == DS12;

@@ -81,6 +81,8 @@ reservadas = {
     'exists' : 'EXISTS',
     'intersect' : 'INTERSECT',
     'except' : 'EXCEPT',
+    'offset' : 'OFFSET',
+    'limit' : 'LIMIT',
     'all' : 'ALL',
     'into' : 'INTO',
     'some' : 'SOME',
@@ -110,7 +112,14 @@ reservadas = {
     'truncate' : 'TRUNCATE',
     'update' : 'UPDATE',
     'asc' : 'ASC',
-    'show': 'SHOW'
+    'show': 'SHOW',
+    'when' : 'WHEN',
+    'then' : 'THEN',
+    'greatest' : 'GREATEST',
+    'least' : 'LEAST',
+    'end' : 'END',
+    'else' : 'ELSE',
+    'leatest': 'LEATEST'
 }
 
 tokens  = [
@@ -143,7 +152,8 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
-    'ID'
+    'ID',
+    'COMILLA_SIMPLE'
 ] + list(reservadas.values())
 
 # Tokens
@@ -172,6 +182,7 @@ t_ASIGNACION_DIVID  = r'\/='
 t_ASIGNACION_MODULO = r'\%='
 t_DOS_PUNTOS        = r'\:'
 t_DIAG_INVERSA      = r'\\'
+t_COMILLA_SIMPLE    = r'\''
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
