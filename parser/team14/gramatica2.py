@@ -81,7 +81,10 @@ reservadas = {
     'varchar': 'varchar',
     'text': 'text',
     'is': 'is',
-    'delete': 'delete'
+    'delete': 'delete',
+    'order': 'order',
+    'asc' : 'asc',
+    'desc' : 'desc',
 }
 
 tokens = [
@@ -250,16 +253,17 @@ def p_instruccion(t):
     '''instruccion      :  SELECT ptcoma
                     | CREATETABLE
                     | UPDATE ptcoma
-                    | DELETE  ptcoma  
-		    |ALTER  ptcoma
+                    | DELETE  ptcoma
+                    | ALTER  ptcoma
                     | DROP ptcoma
                     | INSERT ptcoma
+                    | CREATETYPE ptcoma
     '''
     t[0] = t[1]
 
 def p_INSERT(t):
     '''INSERT : insert into id values para LEXP parc
-    ''' 
+    '''
 
 def p_DROP(t):
     '''DROP : drop table id
@@ -271,7 +275,7 @@ def p_ALTER(t):
               | altertable'''
 
 def p_r_o(t):
-    '''RO : rename to id 
+    '''RO : rename to id
            | owner to id
     '''
 
@@ -297,9 +301,9 @@ def p_alc(t):
     '''
 
 def p_ALTERDROP(t):
-    '''ALTERDROP : constraint id 
+    '''ALTERDROP : constraint id
                    | column LISTACOLUMN
-                   | check id 
+                   | check id
     '''
 def p_ADD(t):
     '''ADD : column id TIPO
@@ -308,11 +312,11 @@ def p_ADD(t):
             | foreign key para id parc references id para id parc
     '''
 def p_LISTACOLUMN(t):
-        '''LISTACOLUMN : LISTACOLUMN coma id 
+        '''LISTACOLUMN : LISTACOLUMN coma id
                         | id
         '''
-	
-	
+
+
 def p_CREATETABLE(t):
     '''CREATETABLE : create table id para LDEF parc ptcoma
                     | create table id para LDEF parc HERENCIA ptcoma'''
@@ -359,10 +363,13 @@ def p_OPCONST(t):
 def p_HERENCIA(t):
     'HERENCIA : inherits para LEXP parc'
 
+def p_CREATETYPE(t):
+    'CREATETYPE : create type id as enum para LEXP parc'
 
 def p_SELECT(t):
-    ''' SELECT : select distinct  LSELECT r_from LFROM WHERE GROUP HAVING
-	| select  LSELECT r_from LFROM WHERE  GROUP HAVING
+    ''' SELECT : select distinct  LSELECT r_from LFROM WHERE GROUP HAVING ORDER
+	| select  LSELECT r_from LFROM WHERE  GROUP HAVING ORDER
+	| select  LSELECT
     '''
 
 
@@ -370,6 +377,7 @@ def p_LSELECT(t):
     ''' LSELECT : LEXP
 		| multiplicacion
     '''
+
 
 
 def p_LFROM(t):
@@ -398,6 +406,14 @@ def p_HAVING(t):
     ''' HAVING : having EXP
 	| '''
 
+def p_ORDER(t):
+    ''' ORDER : order by EXP ORD
+    | order by EXP
+	|  '''
+
+def p_ORD(t):
+    ''' ORD : asc
+	| desc '''
 
 def p_UPDATE(t):
     ' UPDATE : update id set LCAMPOS where EXP'
@@ -442,8 +458,8 @@ def p_TIPO(t):
             | time para int parc
             | interval
             | interval para int parc
-            | interval FIELDS
-            | interval para int parc FIELDS
+            | interval cadena
+            | interval para int parc cadena
             | boolean'''
 
 
@@ -485,7 +501,9 @@ def p_EXP(t):
             | false
             | id
             | SELECT
-            | PREDICADOS'''
+            | PREDICADOS
+            | id para parc
+            | id para LEXP parc '''
 def p_PREDICADOS(t):
     '''
     PREDICADOS : EXP between EXP
