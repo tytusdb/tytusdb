@@ -1,3 +1,5 @@
+#Parte lexica en ply
+
 reservadas = {
     'smallint' : 'SMARLLINT',
     'integer' : 'INTEGER',
