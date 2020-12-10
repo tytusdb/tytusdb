@@ -1,7 +1,9 @@
 # Construyendo el analizador léxico
 import ply.lex as lex
 from lex import *
+from type_checker import *
 lexer = lex.lex()
+type_checker = TypeChecker()
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -36,10 +38,16 @@ def p_instrucciones_instruccion(t) :
 
 def p_instruccion(t) :
     '''instruccion      : CREATE creacion
+                        | SHOW show_db PTCOMA
+                        | SHOW show_db
+                        | ALTER DATABASE alter_database PTCOMA
+                        | ALTER DATABASE alter_database 
                         | USE cambio_bd
                         | SELECT selects
                         | DELETE deletes
-                        | ALTER alter_table PTCOMA
+                        | ALTER TABLE alter_table PTCOMA
+                        | ALTER TABLE alter_table 
+                        | UPDATE update_table
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
                         | DROP dropear'''
@@ -56,19 +64,29 @@ def p_instruccion_crear_BD(t) :
     'crear_bd     : ID PTCOMA'
     t[0] = Crear_BD(t[1])
     print("Creacion de BD")
+    print(type_checker.createDatabase(database = t[1]))
 
 def p_instruccion_crear_BD_Parametros(t) :
     'crear_bd     : ID lista_parametros_bd PTCOMA'
     #t[0] = Crear_BD_Parametros(t[1])
     print('Creacion de BD parametros')
+    if 'mode' in t[2]:
+        print(type_checker.createDatabase(database = t[1], mode = t[2]['mode']))
+    else:
+        print(type_checker.createDatabase(database = t[1]))
 
 def p_instruccion_crear_BD_if_exists(t) :
     'crear_bd       : IF NOT EXISTS ID PTCOMA'
     print('Creacion de BD if not exists')
+    print(type_checker.createDatabase(database = t[4]))
 
 def p_instruccion_crear_BD_if_exists_Parametros(t) :
     'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
     print('Creacion de BD parametros if not exist')
+    if 'mode' in t[5]:
+        print(type_checker.createDatabase(database = t[4], mode = t[5]['mode']))
+    else:
+        print(type_checker.createDatabase(database = t[4]))
 
 def p_instruccion_crear_TB_herencia(t):
     '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA
@@ -91,6 +109,31 @@ def p_isntruccion_crear_TYPE(t) :
 def p_instruccion_TB_herencia(t) :
     'tb_herencia    : INHERITS PARIZQ ID PARDER'
     #t[0] = Heredero(t[4])
+
+
+# INSTRUCCION SHOW DATABASE
+def p_instruccion_show(t) :
+    '''show_db      : DATABASES
+                    | DATABASES LIKE CADENA'''
+    print("Show Databases")
+    if len(t) == 2:
+        print(type_checker.showDatabase())
+    else:
+        print(type_checker.showDatabase(t[3]))
+
+
+# INSTRUCCION ALTER DATABASE
+def p_instruccion_alter_database(t) :
+    '''alter_database   : ID RENAME TO ID
+                        | ID OWNER TO def_alter_db'''
+    print("Alter Database")
+    print(type_checker.alterDatabase(databaseOld = t[1], databaseNew = t[4]))
+
+def p_def_alter_db(t) :
+    '''def_alter_db     : ID
+                        | CURRENT_USER
+                        | SESSION_USER'''
+
 
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
@@ -201,12 +244,12 @@ def p_instruccion_insert(t) :
 def p_instruccion_Drop_BD_exists(t) :
     '''dropear      : DATABASE IF EXISTS ID PTCOMA
                     | DATABASE IF EXISTS ID'''
-    #t[0] = DropBaseExiste(t[4])
+    print(type_checker.dropDatabase(database = t[4]))
 
 def p_instruccion_Drop_BD(t) :
     '''dropear      : DATABASE ID PTCOMA
                     | DATABASE ID'''
-    #t[0] = DropBase(t[2])
+    print(type_checker.dropDatabase(database = t[2]))
 
 def p_instruccion_Drop_TB(t) :
     '''dropear      : TABLE ID PTCOMA
@@ -222,12 +265,15 @@ def p_instrucciones_parametros_BD_owner(t) :
 
 def p_instrucciones_parametros_BD_Mode(t) :
     'lista_parametros_bd    : MODE IGUAL ENTERO'
+    t[0] = {'mode': t[3]}
 
 def p_instrucciones_parametros_BD_Mode_owner(t) :
     'lista_parametros_bd    : OWNER IGUAL ID MODE IGUAL ENTERO'
+    t[0] = {'mode': t[6]}
 
 def p_instrucciones_parametros_BD_owner_Mode(t) :
     'lista_parametros_bd    : MODE IGUAL ENTERO OWNER IGUAL ID'
+    t[0] = {'mode': t[3]}
 
 #========================================================
 
@@ -447,7 +493,7 @@ def p_instruccion_delete_condicional(t) :
 
 # INSTRUCCION ALTER TABLE
 def p_instruccion_alter(t) :
-    '''alter_table  : TABLE ID def_alter'''
+    '''alter_table  : ID def_alter'''
     print("ALTER TABLE")
 
 def p_def_alter(t) :

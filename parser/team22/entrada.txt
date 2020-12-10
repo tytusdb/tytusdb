@@ -1,6 +1,13 @@
-
-/*create database compi;
-use una_bd;*/
+create database compi MODE = 4;
+create database modela MODE = 4;
+create database base2 MODE = 4;
+SHOW DATABASES;
+SHOW DATABASES like 'b%';
+ALTER DATABASE compi RENAME TO new_name;
+DROP DATABASE IF EXISTS  new_name;
+DROP DATABASE new_name;
+SHOW DATABASES;
+use una_bd;
 
 -- comentario
 /* comentario
@@ -62,3 +69,4 @@ select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
 select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios
 except all
 select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
+*/
