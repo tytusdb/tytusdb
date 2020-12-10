@@ -40,7 +40,14 @@ palabras_reservadas = {
     'or'            : 'OR',
     'true'          : 'TRUE',
     'false'         : 'FALSE',
-    'not'           : 'NOT'
+    'not'           : 'NOT',
+    'distinct'      : 'DISTINCT',
+    'count'         : 'COUNT',
+    'avg'           : 'AVG',
+    'sum'           : 'SUM',
+    'max'           : 'MAX',
+    'min'           : 'MIN'
+
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -192,6 +199,13 @@ def p_ISelect(t):
 def p_ISelect1(t):
     'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO PCOMA    '
 
+def p_ISelect2(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO PCOMA   '
+
+def p_ISelect3(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO PCOMA    '
+
+
 def p_ComplementoH(t):
     'COMPLEMENTO  :   PGROUPBY PHAVING  '
 
@@ -305,6 +319,53 @@ def p_Valor3(t):
 def p_Valor4(t):
     'VALOR  :   ID PUNTO ID'
 
+def p_ValorSub(t):
+    'VALOR  :   PABRE SUBCONSULTA PCIERRA ALIAS'
+
+def p_ValorSub1(t):
+    'VALOR  :   PABRE SUBCONSULTA PCIERRA '
+
+def p_ValorCountAa(t):
+    'VALOR  :   COUNT PABRE POR PCIERRA ALIAS'
+
+def p_ValorCounta(t):
+    'VALOR  :   COUNT PABRE ID PCIERRA ALIAS'
+
+def p_ValorCountA(t):
+    'VALOR  :   COUNT PABRE POR PCIERRA '
+
+def p_ValorCount(t):
+    'VALOR  :   COUNT PABRE ID PCIERRA '
+
+def p_ValorCountAliasId(t):
+    'VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA ALIAS'
+
+def p_ValorCountIdP(t):
+    'VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA'
+
+def p_ValorFunciones(t):
+    'VALOR  :   FUNCION PABRE ID PUNTO ID PCIERRA'
+
+def p_ValorFunciones1(t):
+    'VALOR  :   FUNCION PABRE ID  PCIERRA'
+
+def p_ValorFuncionesA(t):
+    'VALOR  :   FUNCION PABRE ID PUNTO ID PCIERRA ALIAS'
+
+def p_ValorFunciones1A(t):
+    'VALOR  :   FUNCION PABRE ID  PCIERRA ALIAS'
+
+def p_funcionAvg(t):
+    'FUNCION    :   AVG'
+
+def p_funcionSum(t):
+    'FUNCION    :   SUM'
+
+def p_funcionMin(t):
+    'FUNCION    :   MIN'
+
+def p_funcionMax(t):
+    'FUNCION    :   MAX'
 
 def p_Alias(t):
     'ALIAS  :   AS ID '
@@ -317,6 +378,16 @@ def p_FromIdA(t):
 
 def p_FromId(t):
     'PFROM  :   FROM ID '
+
+def p_FromSub(t):
+    'PFROM  :   FROM PABRE SUBCONSULTA PCIERRA ALIAS    '
+
+def p_SubconsultaFrom(t):
+    'SUBCONSULTA    :   SELECT VALORES PFROM COMPLEMENTO '
+
+def p_SubconsultaFromW(t):
+    'SUBCONSULTA    :   SELECT VALORES PFROM PWHERE COMPLEMENTO '
+
 
 def p_Where(t):
     'PWHERE  :   WHERE CONDICION '
