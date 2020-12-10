@@ -404,6 +404,15 @@ def p_query(t):
                     | deleteinBD
                     | createTable
                     | inheritsBD
+                    | dropTable
+                    | alterTable
+                    | variantesAt
+                    | contAdd
+                    | contDrop
+                    | contAlter
+                    | listaid
+                    | tipoAlter
+                    
     '''
                     # derivando cada produccion a cosas como el create, insert, select; funciones como avg, sum, substring irian como otra produccion 
                     #dentro del select (consulta)
@@ -444,7 +453,6 @@ def p_mostrarBD(t):
     'mostrarBD  : SHOW DATABASES PUNTOYCOMA'
 
 #-----------------------------------------------------ALTER BD--------------------------------------------------------------------
-
 def p_alterBD_1(t):
     'alterBD    : ALTER DATABASE ID RENAME TO ID PUNTOYCOMA'
 
@@ -456,8 +464,58 @@ def p_parametroAlterUser(t):
                         |   SESSION_USER
                         |   final
     '''
+#-----------------------------------------------------DROP TABLE-----------------------------------------------------------------
+def p_dropTable(t) :
+    'dropTable  : DROP TABLE ID PUNTOYCOMA'
+#-----------------------------------------------------ALTER TABLE-----------------------------------------------------------------
+def p_alterTable(t):
+    '''
+    alterTable  : ALTER TABLE ID variantesAt PUNTOYCOMA
 
+    '''
+
+#---------------------------------------------------TIPOS------------------------------------------------------------------------
+def p_variantesAt(t):
+    '''
+    variantesAt :   ADD contAdd
+                |   ALTER listaContAlter
+                |   DROP contDrop
+    '''
+def p_listaContAlter(t):
+    '''
+    listaContAlter  : listaContAlter COMA contAlter 
+                    | contAlter
+    '''
+def p_contAlter(t):
+    '''
+    contAlter   : COLUMN ID SET NOT NULL 
+                | COLUMN ID TYPE tipo
+    '''
+def p_contAdd(t):
+    '''
+    contAdd     :   COLUMN ID tipo 
+                |   CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                |   FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID
+                |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA
+    '''
+def p_contDrop(t):
+    '''
+    contDrop    : COLUMN ID 
+                | CONSTRAINT ID
+    '''
+
+def p_listaID(t):
+    '''
+    listaid     :   listaid COMA ID
+                |   ID
+    '''
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
+def p_tipoAlter(t):
+    '''
+    tipoAlter   :   ADD 
+                |   DROP
+    '''
+#-----------------------------------------------------Tipo Alter--------------------------------------------------------------------
 
 def p_dropBD_1(t):
     'dropBD    : DROP DATABASE ID PUNTOYCOMA'
@@ -542,7 +600,7 @@ def p_funcion_basica(t):
                         | ATAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | ATAN2 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | COS PARENTESISIZQUIERDA operacion PARENTESISDERECHA
-			| COSD  PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+			            | COSD  PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | COT PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | COTD PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | SIN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
