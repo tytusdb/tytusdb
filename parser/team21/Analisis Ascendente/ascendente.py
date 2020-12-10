@@ -108,7 +108,8 @@ reservadas = {
     'random' : 'RANDOM',
     'setseed': 'SETSEED',
     'max' : 'MAX',
-    'min' : 'MIN'
+    'min' : 'MIN',
+    'having' : 'HAVING'
 }
 
 tokens  = [
@@ -605,8 +606,9 @@ def p_instruccionSELECT(t):
 
 
 def p_instselect(t):
-    '''inst_select : SELECT DISTINCT select_list FROM table_expr PTCOMA
-                    | SELECT select_list FROM table_expr PTCOMA '''
+    '''inst_select : SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA
+                    | SELECT select_list FROM table_expr WHERE PTCOMA
+                    '''
     #t[0] = t[1]+' '+t[2]+' '+t[3]+' '+t[4]+ ' '+t[5]
 
 
@@ -680,6 +682,10 @@ def p_tableexpr2(t):
 def p_tablaR2(t):
     '''tablaR : ID ID
                 | ID'''
+
+#def p_condicion2(t):
+ #   '''condicion : andOr HAVING
+  #              | andOr'''
 
 #####################################################################
 def p_error(t):

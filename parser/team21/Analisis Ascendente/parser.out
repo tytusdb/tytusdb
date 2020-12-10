@@ -9,6 +9,7 @@ Unused terminals:
     DOSPUNTOS
     ENUM
     EXPONENCIAL
+    HAVING
     HOUR
     ILIKE
     IS
@@ -148,8 +149,8 @@ Rule 120   instruccion -> ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA
 Rule 121   instruccion -> ALTER TABLE ID DROP CONSTRAINT ID PTCOMA
 Rule 122   instruccion -> ALTER TABLE ID RENAME COLUMN ID TO ID PTCOMA
 Rule 123   instruccion -> inst_select
-Rule 124   inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA
-Rule 125   inst_select -> SELECT select_list FROM table_expr PTCOMA
+Rule 124   inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA
+Rule 125   inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA
 Rule 126   select_list -> MULT
 Rule 127   select_list -> list
 Rule 128   list -> list COMA columna
@@ -252,6 +253,7 @@ FOREIGN              : 9 119
 FROM                 : 95 96 124 125
 GCD                  : 147
 GNOT                 : 92
+HAVING               : 
 HOUR                 : 
 ID                   : 4 7 8 9 9 9 9 10 39 40 41 42 51 52 53 59 60 64 94 95 96 97 98 99 100 101 102 103 106 107 108 109 110 111 113 113 114 114 115 115 116 117 117 118 118 118 119 120 120 121 121 122 122 122 130 131 131 132 135 136 136 137 173 173 174
 IF                   : 98 101 103
@@ -341,7 +343,7 @@ UPDATE               : 52 53
 VALUES               : 39 40
 VARCHAR              : 37
 VARYING              : 29
-WHERE                : 53 95
+WHERE                : 53 95 124 125
 WIDTH_BUCKET         : 163
 YEAR                 : 
 error                : 
@@ -418,8 +420,8 @@ state 0
     (123) instruccion -> . inst_select
     (104) opcionCR -> . CREATE DATABASE
     (105) opcionCR -> . CREATE OR REPLACE DATABASE
-    (124) inst_select -> . SELECT DISTINCT select_list FROM table_expr PTCOMA
-    (125) inst_select -> . SELECT select_list FROM table_expr PTCOMA
+    (124) inst_select -> . SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA
+    (125) inst_select -> . SELECT select_list FROM table_expr WHERE PTCOMA
 
     CREATE          shift and go to state 4
     INSERT          shift and go to state 5
@@ -474,8 +476,8 @@ state 2
     (123) instruccion -> . inst_select
     (104) opcionCR -> . CREATE DATABASE
     (105) opcionCR -> . CREATE OR REPLACE DATABASE
-    (124) inst_select -> . SELECT DISTINCT select_list FROM table_expr PTCOMA
-    (125) inst_select -> . SELECT select_list FROM table_expr PTCOMA
+    (124) inst_select -> . SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA
+    (125) inst_select -> . SELECT select_list FROM table_expr WHERE PTCOMA
 
     $end            reduce using rule 1 (s -> instrucciones .)
     CREATE          shift and go to state 4
@@ -603,8 +605,8 @@ state 12
 
 state 13
 
-    (124) inst_select -> SELECT . DISTINCT select_list FROM table_expr PTCOMA
-    (125) inst_select -> SELECT . select_list FROM table_expr PTCOMA
+    (124) inst_select -> SELECT . DISTINCT select_list FROM table_expr WHERE PTCOMA
+    (125) inst_select -> SELECT . select_list FROM table_expr WHERE PTCOMA
     (126) select_list -> . MULT
     (127) select_list -> . list
     (128) list -> . list COMA columna
@@ -821,7 +823,7 @@ state 27
 
 state 28
 
-    (124) inst_select -> SELECT DISTINCT . select_list FROM table_expr PTCOMA
+    (124) inst_select -> SELECT DISTINCT . select_list FROM table_expr WHERE PTCOMA
     (126) select_list -> . MULT
     (127) select_list -> . list
     (128) list -> . list COMA columna
@@ -907,7 +909,7 @@ state 28
 
 state 29
 
-    (125) inst_select -> SELECT select_list . FROM table_expr PTCOMA
+    (125) inst_select -> SELECT select_list . FROM table_expr WHERE PTCOMA
 
     FROM            shift and go to state 84
 
@@ -1406,14 +1408,14 @@ state 82
 
 state 83
 
-    (124) inst_select -> SELECT DISTINCT select_list . FROM table_expr PTCOMA
+    (124) inst_select -> SELECT DISTINCT select_list . FROM table_expr WHERE PTCOMA
 
     FROM            shift and go to state 143
 
 
 state 84
 
-    (125) inst_select -> SELECT select_list FROM . table_expr PTCOMA
+    (125) inst_select -> SELECT select_list FROM . table_expr WHERE PTCOMA
     (171) table_expr -> . table_expr COMA tablaR
     (172) table_expr -> . tablaR
     (173) tablaR -> . ID ID
@@ -2084,7 +2086,7 @@ state 142
 
 state 143
 
-    (124) inst_select -> SELECT DISTINCT select_list FROM . table_expr PTCOMA
+    (124) inst_select -> SELECT DISTINCT select_list FROM . table_expr WHERE PTCOMA
     (171) table_expr -> . table_expr COMA tablaR
     (172) table_expr -> . tablaR
     (173) tablaR -> . ID ID
@@ -2097,10 +2099,10 @@ state 143
 
 state 144
 
-    (125) inst_select -> SELECT select_list FROM table_expr . PTCOMA
+    (125) inst_select -> SELECT select_list FROM table_expr . WHERE PTCOMA
     (171) table_expr -> table_expr . COMA tablaR
 
-    PTCOMA          shift and go to state 203
+    WHERE           shift and go to state 203
     COMA            shift and go to state 204
 
 
@@ -2108,7 +2110,7 @@ state 145
 
     (172) table_expr -> tablaR .
 
-    PTCOMA          reduce using rule 172 (table_expr -> tablaR .)
+    WHERE           reduce using rule 172 (table_expr -> tablaR .)
     COMA            reduce using rule 172 (table_expr -> tablaR .)
 
 
@@ -2118,7 +2120,7 @@ state 146
     (174) tablaR -> ID .
 
     ID              shift and go to state 205
-    PTCOMA          reduce using rule 174 (tablaR -> ID .)
+    WHERE           reduce using rule 174 (tablaR -> ID .)
     COMA            reduce using rule 174 (tablaR -> ID .)
 
 
@@ -3324,26 +3326,18 @@ state 201
 
 state 202
 
-    (124) inst_select -> SELECT DISTINCT select_list FROM table_expr . PTCOMA
+    (124) inst_select -> SELECT DISTINCT select_list FROM table_expr . WHERE PTCOMA
     (171) table_expr -> table_expr . COMA tablaR
 
-    PTCOMA          shift and go to state 286
+    WHERE           shift and go to state 286
     COMA            shift and go to state 204
 
 
 state 203
 
-    (125) inst_select -> SELECT select_list FROM table_expr PTCOMA .
+    (125) inst_select -> SELECT select_list FROM table_expr WHERE . PTCOMA
 
-    CREATE          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
-    INSERT          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
-    UPDATE          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
-    DELETE          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
-    DROP            reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
-    SHOW            reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
-    ALTER           reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
-    SELECT          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
-    $end            reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr PTCOMA .)
+    PTCOMA          shift and go to state 287
 
 
 state 204
@@ -3354,13 +3348,13 @@ state 204
 
     ID              shift and go to state 146
 
-    tablaR                         shift and go to state 287
+    tablaR                         shift and go to state 288
 
 state 205
 
     (173) tablaR -> ID ID .
 
-    PTCOMA          reduce using rule 173 (tablaR -> ID ID .)
+    WHERE           reduce using rule 173 (tablaR -> ID ID .)
     COMA            reduce using rule 173 (tablaR -> ID ID .)
 
 
@@ -3368,7 +3362,7 @@ state 206
 
     (136) ascolumnaux -> ID AS . ID
 
-    ID              shift and go to state 288
+    ID              shift and go to state 289
 
 
 state 207
@@ -3393,7 +3387,7 @@ state 208
     CADENA          shift and go to state 155
     ID              shift and go to state 156
 
-    valores                        shift and go to state 289
+    valores                        shift and go to state 290
 
 state 209
 
@@ -3411,14 +3405,14 @@ state 209
 
     PARDR           reduce using rule 7 (campo -> ID tipo .)
     COMA            reduce using rule 7 (campo -> ID tipo .)
-    NOT             shift and go to state 292
-    NULL            shift and go to state 293
-    UNIQUE          shift and go to state 294
-    DEFAULT         shift and go to state 295
-    PRIMARY         shift and go to state 296
+    NOT             shift and go to state 293
+    NULL            shift and go to state 294
+    UNIQUE          shift and go to state 295
+    DEFAULT         shift and go to state 296
+    PRIMARY         shift and go to state 297
 
-    acompaniamiento                shift and go to state 290
-    acom                           shift and go to state 291
+    acompaniamiento                shift and go to state 291
+    acom                           shift and go to state 292
 
 state 210
 
@@ -3648,28 +3642,28 @@ state 226
 
     (36) tipo -> CHARACTER . PARIZQ ENTERO PARDR
 
-    PARIZQ          shift and go to state 297
+    PARIZQ          shift and go to state 298
 
 
 state 227
 
     (37) tipo -> VARCHAR . PARIZQ ENTERO PARDR
 
-    PARIZQ          shift and go to state 298
+    PARIZQ          shift and go to state 299
 
 
 state 228
 
     (38) tipo -> CHAR . PARIZQ ENTERO PARDR
 
-    PARIZQ          shift and go to state 299
+    PARIZQ          shift and go to state 300
 
 
 state 229
 
     (4) instruccion -> CREATE TABLE ID PARIZQ campos PARDR . PTCOMA
 
-    PTCOMA          shift and go to state 300
+    PTCOMA          shift and go to state 301
 
 
 state 230
@@ -3684,34 +3678,34 @@ state 230
     CONSTRAINT      shift and go to state 160
     PRIMARY         shift and go to state 161
 
-    campo                          shift and go to state 301
+    campo                          shift and go to state 302
 
 state 231
 
     (9) campo -> CONSTRAINT ID . FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
 
-    FOREIGN         shift and go to state 302
+    FOREIGN         shift and go to state 303
 
 
 state 232
 
     (10) campo -> PRIMARY KEY . PARIZQ ID PARDR
 
-    PARIZQ          shift and go to state 303
+    PARIZQ          shift and go to state 304
 
 
 state 233
 
     (39) instruccion -> INSERT INTO ID PARIZQ listaID PARDR . VALUES values PTCOMA
 
-    VALUES          shift and go to state 304
+    VALUES          shift and go to state 305
 
 
 state 234
 
     (41) listaID -> listaID COMA . ID
 
-    ID              shift and go to state 305
+    ID              shift and go to state 306
 
 
 state 235
@@ -3736,7 +3730,7 @@ state 236
 
     PARIZQ          shift and go to state 91
 
-    value                          shift and go to state 306
+    value                          shift and go to state 307
 
 state 237
 
@@ -3895,7 +3889,7 @@ state 240
     (61) andOr -> andOr . AND andOr
     (62) andOr -> andOr . OR andOr
 
-    PTCOMA          shift and go to state 307
+    PTCOMA          shift and go to state 308
     AND             shift and go to state 245
     OR              shift and go to state 246
 
@@ -3913,7 +3907,7 @@ state 242
 
     (59) where -> ID IN . PARIZQ listaValores PARDR
 
-    PARIZQ          shift and go to state 308
+    PARIZQ          shift and go to state 309
 
 
 state 243
@@ -3929,7 +3923,7 @@ state 243
     CADENA          shift and go to state 155
     ID              shift and go to state 156
 
-    valores                        shift and go to state 309
+    valores                        shift and go to state 310
 
 state 244
 
@@ -4006,7 +4000,7 @@ state 245
     NUMDECIMAL      shift and go to state 154
     CADENA          shift and go to state 155
 
-    andOr                          shift and go to state 310
+    andOr                          shift and go to state 311
     where                          shift and go to state 172
     asignacion                     shift and go to state 173
     boolean                        shift and go to state 174
@@ -4076,7 +4070,7 @@ state 246
     NUMDECIMAL      shift and go to state 154
     CADENA          shift and go to state 155
 
-    andOr                          shift and go to state 311
+    andOr                          shift and go to state 312
     where                          shift and go to state 172
     asignacion                     shift and go to state 173
     boolean                        shift and go to state 174
@@ -4134,7 +4128,7 @@ state 248
     (88) boolean -> E . MENORIGUAL E
     (89) boolean -> E . MAYORIGUAL E
 
-    PARDR           shift and go to state 312
+    PARDR           shift and go to state 313
     MAS             shift and go to state 256
     MENOS           shift and go to state 257
     MULT            shift and go to state 258
@@ -4204,7 +4198,7 @@ state 249
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 313
+    E                              shift and go to state 314
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4261,7 +4255,7 @@ state 250
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 314
+    E                              shift and go to state 315
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4318,7 +4312,7 @@ state 251
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 315
+    E                              shift and go to state 316
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4375,7 +4369,7 @@ state 252
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 316
+    E                              shift and go to state 317
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4432,7 +4426,7 @@ state 253
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 317
+    E                              shift and go to state 318
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4489,7 +4483,7 @@ state 254
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 318
+    E                              shift and go to state 319
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4546,7 +4540,7 @@ state 255
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 319
+    E                              shift and go to state 320
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4603,7 +4597,7 @@ state 256
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 320
+    E                              shift and go to state 321
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4660,7 +4654,7 @@ state 257
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 321
+    E                              shift and go to state 322
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4717,7 +4711,7 @@ state 258
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 322
+    E                              shift and go to state 323
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4774,7 +4768,7 @@ state 259
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 323
+    E                              shift and go to state 324
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4831,7 +4825,7 @@ state 260
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 324
+    E                              shift and go to state 325
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4888,7 +4882,7 @@ state 261
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 325
+    E                              shift and go to state 326
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -4945,7 +4939,7 @@ state 262
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 326
+    E                              shift and go to state 327
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -5002,7 +4996,7 @@ state 263
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 327
+    E                              shift and go to state 328
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -5059,7 +5053,7 @@ state 264
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 328
+    E                              shift and go to state 329
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -5116,7 +5110,7 @@ state 265
     FALSE           shift and go to state 179
     TRUE            shift and go to state 180
 
-    E                              shift and go to state 329
+    E                              shift and go to state 330
     operando                       shift and go to state 181
     unario                         shift and go to state 182
     valores                        shift and go to state 177
@@ -5399,15 +5393,15 @@ state 271
     (108) complemento -> OWNER IGUAL ID MODE . IGUAL ENTERO
     (110) complemento -> OWNER IGUAL ID MODE . ENTERO
 
-    IGUAL           shift and go to state 330
-    ENTERO          shift and go to state 331
+    IGUAL           shift and go to state 331
+    ENTERO          shift and go to state 332
 
 
 state 272
 
     (109) complemento -> OWNER ID MODE IGUAL . ENTERO
 
-    ENTERO          shift and go to state 332
+    ENTERO          shift and go to state 333
 
 
 state 273
@@ -5436,28 +5430,28 @@ state 275
 
     (103) instruccion -> opcionCR IF NOT EXISTS ID complemento . PTCOMA
 
-    PTCOMA          shift and go to state 333
+    PTCOMA          shift and go to state 334
 
 
 state 276
 
     (113) instruccion -> ALTER DATABASE ID RENAME TO ID . PTCOMA
 
-    PTCOMA          shift and go to state 334
+    PTCOMA          shift and go to state 335
 
 
 state 277
 
     (114) instruccion -> ALTER DATABASE ID OWNER TO LLIZQ . ID LLDR
 
-    ID              shift and go to state 335
+    ID              shift and go to state 336
 
 
 state 278
 
     (120) instruccion -> ALTER TABLE ID ALTER COLUMN ID . SET NOT NULL PTCOMA
 
-    SET             shift and go to state 336
+    SET             shift and go to state 337
 
 
 state 279
@@ -5503,27 +5497,27 @@ state 279
     VARCHAR         shift and go to state 227
     CHAR            shift and go to state 228
 
-    tipo                           shift and go to state 337
+    tipo                           shift and go to state 338
 
 state 280
 
     (117) instruccion -> ALTER TABLE ID ADD CHECK PARIZQ . ID MENMAY PARDR PTCOMA
 
-    ID              shift and go to state 338
+    ID              shift and go to state 339
 
 
 state 281
 
     (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID . UNIQUE PARIZQ ID PARDR PTCOMA
 
-    UNIQUE          shift and go to state 339
+    UNIQUE          shift and go to state 340
 
 
 state 282
 
     (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY . PARIZQ listaID PARDR REFERENCES listaID PTCOMA
 
-    PARIZQ          shift and go to state 340
+    PARIZQ          shift and go to state 341
 
 
 state 283
@@ -5545,40 +5539,47 @@ state 284
 
     (121) instruccion -> ALTER TABLE ID DROP CONSTRAINT ID . PTCOMA
 
-    PTCOMA          shift and go to state 341
+    PTCOMA          shift and go to state 342
 
 
 state 285
 
     (122) instruccion -> ALTER TABLE ID RENAME COLUMN ID . TO ID PTCOMA
 
-    TO              shift and go to state 342
+    TO              shift and go to state 343
 
 
 state 286
 
-    (124) inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .
+    (124) inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE . PTCOMA
 
-    CREATE          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
-    INSERT          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
-    UPDATE          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
-    DELETE          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
-    DROP            reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
-    SHOW            reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
-    ALTER           reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
-    SELECT          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
-    $end            reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr PTCOMA .)
+    PTCOMA          shift and go to state 344
 
 
 state 287
 
-    (171) table_expr -> table_expr COMA tablaR .
+    (125) inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .
 
-    PTCOMA          reduce using rule 171 (table_expr -> table_expr COMA tablaR .)
-    COMA            reduce using rule 171 (table_expr -> table_expr COMA tablaR .)
+    CREATE          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
+    INSERT          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
+    UPDATE          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
+    DELETE          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
+    DROP            reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
+    SHOW            reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
+    ALTER           reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
+    SELECT          reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
+    $end            reduce using rule 125 (inst_select -> SELECT select_list FROM table_expr WHERE PTCOMA .)
 
 
 state 288
+
+    (171) table_expr -> table_expr COMA tablaR .
+
+    WHERE           reduce using rule 171 (table_expr -> table_expr COMA tablaR .)
+    COMA            reduce using rule 171 (table_expr -> table_expr COMA tablaR .)
+
+
+state 289
 
     (136) ascolumnaux -> ID AS ID .
 
@@ -5586,7 +5587,7 @@ state 288
     FROM            reduce using rule 136 (ascolumnaux -> ID AS ID .)
 
 
-state 289
+state 290
 
     (46) listaValores -> listaValores COMA valores .
 
@@ -5594,7 +5595,7 @@ state 289
     COMA            reduce using rule 46 (listaValores -> listaValores COMA valores .)
 
 
-state 290
+state 291
 
     (8) campo -> ID tipo acompaniamiento .
     (11) acompaniamiento -> acompaniamiento . acom
@@ -5608,15 +5609,15 @@ state 290
 
     PARDR           reduce using rule 8 (campo -> ID tipo acompaniamiento .)
     COMA            reduce using rule 8 (campo -> ID tipo acompaniamiento .)
-    NOT             shift and go to state 292
-    NULL            shift and go to state 293
-    UNIQUE          shift and go to state 294
-    DEFAULT         shift and go to state 295
-    PRIMARY         shift and go to state 296
+    NOT             shift and go to state 293
+    NULL            shift and go to state 294
+    UNIQUE          shift and go to state 295
+    DEFAULT         shift and go to state 296
+    PRIMARY         shift and go to state 297
 
-    acom                           shift and go to state 343
+    acom                           shift and go to state 345
 
-state 291
+state 292
 
     (12) acompaniamiento -> acom .
 
@@ -5629,14 +5630,14 @@ state 291
     COMA            reduce using rule 12 (acompaniamiento -> acom .)
 
 
-state 292
+state 293
 
     (13) acom -> NOT . NULL
 
-    NULL            shift and go to state 344
+    NULL            shift and go to state 346
 
 
-state 293
+state 294
 
     (14) acom -> NULL .
 
@@ -5649,7 +5650,7 @@ state 293
     COMA            reduce using rule 14 (acom -> NULL .)
 
 
-state 294
+state 295
 
     (15) acom -> UNIQUE .
 
@@ -5662,46 +5663,46 @@ state 294
     COMA            reduce using rule 15 (acom -> UNIQUE .)
 
 
-state 295
+state 296
 
     (16) acom -> DEFAULT . ENTERO
     (17) acom -> DEFAULT . CADENA
     (18) acom -> DEFAULT . NUMDECIMAL
 
-    ENTERO          shift and go to state 345
-    CADENA          shift and go to state 346
-    NUMDECIMAL      shift and go to state 347
-
-
-state 296
-
-    (19) acom -> PRIMARY . KEY
-
-    KEY             shift and go to state 348
+    ENTERO          shift and go to state 347
+    CADENA          shift and go to state 348
+    NUMDECIMAL      shift and go to state 349
 
 
 state 297
 
-    (36) tipo -> CHARACTER PARIZQ . ENTERO PARDR
+    (19) acom -> PRIMARY . KEY
 
-    ENTERO          shift and go to state 349
+    KEY             shift and go to state 350
 
 
 state 298
 
-    (37) tipo -> VARCHAR PARIZQ . ENTERO PARDR
-
-    ENTERO          shift and go to state 350
-
-
-state 299
-
-    (38) tipo -> CHAR PARIZQ . ENTERO PARDR
+    (36) tipo -> CHARACTER PARIZQ . ENTERO PARDR
 
     ENTERO          shift and go to state 351
 
 
+state 299
+
+    (37) tipo -> VARCHAR PARIZQ . ENTERO PARDR
+
+    ENTERO          shift and go to state 352
+
+
 state 300
+
+    (38) tipo -> CHAR PARIZQ . ENTERO PARDR
+
+    ENTERO          shift and go to state 353
+
+
+state 301
 
     (4) instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA .
 
@@ -5716,7 +5717,7 @@ state 300
     $end            reduce using rule 4 (instruccion -> CREATE TABLE ID PARIZQ campos PARDR PTCOMA .)
 
 
-state 301
+state 302
 
     (5) campos -> campos COMA campo .
 
@@ -5724,21 +5725,21 @@ state 301
     COMA            reduce using rule 5 (campos -> campos COMA campo .)
 
 
-state 302
+state 303
 
     (9) campo -> CONSTRAINT ID FOREIGN . KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
 
-    KEY             shift and go to state 352
-
-
-state 303
-
-    (10) campo -> PRIMARY KEY PARIZQ . ID PARDR
-
-    ID              shift and go to state 353
+    KEY             shift and go to state 354
 
 
 state 304
+
+    (10) campo -> PRIMARY KEY PARIZQ . ID PARDR
+
+    ID              shift and go to state 355
+
+
+state 305
 
     (39) instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES . values PTCOMA
     (43) values -> . values COMA value
@@ -5747,10 +5748,10 @@ state 304
 
     PARIZQ          shift and go to state 91
 
-    values                         shift and go to state 354
+    values                         shift and go to state 356
     value                          shift and go to state 165
 
-state 305
+state 306
 
     (41) listaID -> listaID COMA ID .
 
@@ -5759,7 +5760,7 @@ state 305
     PTCOMA          reduce using rule 41 (listaID -> listaID COMA ID .)
 
 
-state 306
+state 307
 
     (43) values -> values COMA value .
 
@@ -5767,7 +5768,7 @@ state 306
     COMA            reduce using rule 43 (values -> values COMA value .)
 
 
-state 307
+state 308
 
     (53) instruccion -> UPDATE ID SET asignaciones WHERE andOr PTCOMA .
 
@@ -5782,7 +5783,7 @@ state 307
     $end            reduce using rule 53 (instruccion -> UPDATE ID SET asignaciones WHERE andOr PTCOMA .)
 
 
-state 308
+state 309
 
     (59) where -> ID IN PARIZQ . listaValores PARDR
     (46) listaValores -> . listaValores COMA valores
@@ -5797,17 +5798,17 @@ state 308
     CADENA          shift and go to state 155
     ID              shift and go to state 156
 
-    listaValores                   shift and go to state 355
+    listaValores                   shift and go to state 357
     valores                        shift and go to state 152
 
-state 309
+state 310
 
     (60) where -> ID BETWEEN valores . AND valores
 
-    AND             shift and go to state 356
+    AND             shift and go to state 358
 
 
-state 310
+state 311
 
     (61) andOr -> andOr AND andOr .
     (61) andOr -> andOr . AND andOr
@@ -5821,7 +5822,7 @@ state 310
   ! OR              [ shift and go to state 246 ]
 
 
-state 311
+state 312
 
     (62) andOr -> andOr OR andOr .
     (61) andOr -> andOr . AND andOr
@@ -5835,7 +5836,7 @@ state 311
   ! OR              [ shift and go to state 246 ]
 
 
-state 312
+state 313
 
     (65) E -> PARIZQ E PARDR .
 
@@ -5864,7 +5865,7 @@ state 312
     PARDR           reduce using rule 65 (E -> PARIZQ E PARDR .)
 
 
-state 313
+state 314
 
     (83) boolean -> E IGUALIGUAL E .
     (72) operando -> E . MAS E
@@ -5928,7 +5929,7 @@ state 313
   ! MENMAY          [ shift and go to state 251 ]
 
 
-state 314
+state 315
 
     (84) boolean -> E NOIGUAL E .
     (72) operando -> E . MAS E
@@ -5992,7 +5993,7 @@ state 314
   ! MENMAY          [ shift and go to state 251 ]
 
 
-state 315
+state 316
 
     (85) boolean -> E MENMAY E .
     (72) operando -> E . MAS E
@@ -6056,7 +6057,7 @@ state 315
   ! MENMAY          [ shift and go to state 251 ]
 
 
-state 316
+state 317
 
     (86) boolean -> E MENOR E .
     (72) operando -> E . MAS E
@@ -6120,7 +6121,7 @@ state 316
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 317
+state 318
 
     (87) boolean -> E MAYOR E .
     (72) operando -> E . MAS E
@@ -6184,7 +6185,7 @@ state 317
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 318
+state 319
 
     (88) boolean -> E MENORIGUAL E .
     (72) operando -> E . MAS E
@@ -6248,7 +6249,7 @@ state 318
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 319
+state 320
 
     (89) boolean -> E MAYORIGUAL E .
     (72) operando -> E . MAS E
@@ -6312,7 +6313,7 @@ state 319
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 320
+state 321
 
     (72) operando -> E MAS E .
     (72) operando -> E . MAS E
@@ -6376,7 +6377,7 @@ state 320
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 321
+state 322
 
     (73) operando -> E MENOS E .
     (72) operando -> E . MAS E
@@ -6440,7 +6441,7 @@ state 321
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 322
+state 323
 
     (74) operando -> E MULT E .
     (72) operando -> E . MAS E
@@ -6504,7 +6505,7 @@ state 322
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 323
+state 324
 
     (75) operando -> E DIV E .
     (72) operando -> E . MAS E
@@ -6568,7 +6569,7 @@ state 323
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 324
+state 325
 
     (76) operando -> E MOD E .
     (72) operando -> E . MAS E
@@ -6632,7 +6633,7 @@ state 324
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 325
+state 326
 
     (77) operando -> E EXP E .
     (72) operando -> E . MAS E
@@ -6696,7 +6697,7 @@ state 325
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 326
+state 327
 
     (79) operando -> E MENMEN E .
     (72) operando -> E . MAS E
@@ -6760,7 +6761,7 @@ state 326
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 327
+state 328
 
     (80) operando -> E MAYMAY E .
     (72) operando -> E . MAS E
@@ -6824,7 +6825,7 @@ state 327
   ! MAYORIGUAL      [ shift and go to state 255 ]
 
 
-state 328
+state 329
 
     (81) operando -> E ANDO E .
     (72) operando -> E . MAS E
@@ -6888,7 +6889,7 @@ state 328
   ! ORO             [ shift and go to state 265 ]
 
 
-state 329
+state 330
 
     (82) operando -> E ORO E .
     (72) operando -> E . MAS E
@@ -6952,28 +6953,28 @@ state 329
   ! ORO             [ shift and go to state 265 ]
 
 
-state 330
+state 331
 
     (108) complemento -> OWNER IGUAL ID MODE IGUAL . ENTERO
 
-    ENTERO          shift and go to state 357
+    ENTERO          shift and go to state 359
 
 
-state 331
+state 332
 
     (110) complemento -> OWNER IGUAL ID MODE ENTERO .
 
     PTCOMA          reduce using rule 110 (complemento -> OWNER IGUAL ID MODE ENTERO .)
 
 
-state 332
+state 333
 
     (109) complemento -> OWNER ID MODE IGUAL ENTERO .
 
     PTCOMA          reduce using rule 109 (complemento -> OWNER ID MODE IGUAL ENTERO .)
 
 
-state 333
+state 334
 
     (103) instruccion -> opcionCR IF NOT EXISTS ID complemento PTCOMA .
 
@@ -6988,7 +6989,7 @@ state 333
     $end            reduce using rule 103 (instruccion -> opcionCR IF NOT EXISTS ID complemento PTCOMA .)
 
 
-state 334
+state 335
 
     (113) instruccion -> ALTER DATABASE ID RENAME TO ID PTCOMA .
 
@@ -7003,42 +7004,42 @@ state 334
     $end            reduce using rule 113 (instruccion -> ALTER DATABASE ID RENAME TO ID PTCOMA .)
 
 
-state 335
+state 336
 
     (114) instruccion -> ALTER DATABASE ID OWNER TO LLIZQ ID . LLDR
 
-    LLDR            shift and go to state 358
-
-
-state 336
-
-    (120) instruccion -> ALTER TABLE ID ALTER COLUMN ID SET . NOT NULL PTCOMA
-
-    NOT             shift and go to state 359
+    LLDR            shift and go to state 360
 
 
 state 337
 
-    (115) instruccion -> ALTER TABLE ID ADD COLUMN ID tipo . PTCOMA
+    (120) instruccion -> ALTER TABLE ID ALTER COLUMN ID SET . NOT NULL PTCOMA
 
-    PTCOMA          shift and go to state 360
+    NOT             shift and go to state 361
 
 
 state 338
 
-    (117) instruccion -> ALTER TABLE ID ADD CHECK PARIZQ ID . MENMAY PARDR PTCOMA
+    (115) instruccion -> ALTER TABLE ID ADD COLUMN ID tipo . PTCOMA
 
-    MENMAY          shift and go to state 361
+    PTCOMA          shift and go to state 362
 
 
 state 339
 
-    (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE . PARIZQ ID PARDR PTCOMA
+    (117) instruccion -> ALTER TABLE ID ADD CHECK PARIZQ ID . MENMAY PARDR PTCOMA
 
-    PARIZQ          shift and go to state 362
+    MENMAY          shift and go to state 363
 
 
 state 340
+
+    (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE . PARIZQ ID PARDR PTCOMA
+
+    PARIZQ          shift and go to state 364
+
+
+state 341
 
     (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ . listaID PARDR REFERENCES listaID PTCOMA
     (41) listaID -> . listaID COMA ID
@@ -7046,9 +7047,9 @@ state 340
 
     ID              shift and go to state 162
 
-    listaID                        shift and go to state 363
+    listaID                        shift and go to state 365
 
-state 341
+state 342
 
     (121) instruccion -> ALTER TABLE ID DROP CONSTRAINT ID PTCOMA .
 
@@ -7063,14 +7064,29 @@ state 341
     $end            reduce using rule 121 (instruccion -> ALTER TABLE ID DROP CONSTRAINT ID PTCOMA .)
 
 
-state 342
+state 343
 
     (122) instruccion -> ALTER TABLE ID RENAME COLUMN ID TO . ID PTCOMA
 
-    ID              shift and go to state 364
+    ID              shift and go to state 366
 
 
-state 343
+state 344
+
+    (124) inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .
+
+    CREATE          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+    INSERT          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+    UPDATE          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+    DELETE          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+    DROP            reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+    SHOW            reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+    ALTER           reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+    SELECT          reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+    $end            reduce using rule 124 (inst_select -> SELECT DISTINCT select_list FROM table_expr WHERE PTCOMA .)
+
+
+state 345
 
     (11) acompaniamiento -> acompaniamiento acom .
 
@@ -7083,7 +7099,7 @@ state 343
     COMA            reduce using rule 11 (acompaniamiento -> acompaniamiento acom .)
 
 
-state 344
+state 346
 
     (13) acom -> NOT NULL .
 
@@ -7096,7 +7112,7 @@ state 344
     COMA            reduce using rule 13 (acom -> NOT NULL .)
 
 
-state 345
+state 347
 
     (16) acom -> DEFAULT ENTERO .
 
@@ -7109,7 +7125,7 @@ state 345
     COMA            reduce using rule 16 (acom -> DEFAULT ENTERO .)
 
 
-state 346
+state 348
 
     (17) acom -> DEFAULT CADENA .
 
@@ -7122,7 +7138,7 @@ state 346
     COMA            reduce using rule 17 (acom -> DEFAULT CADENA .)
 
 
-state 347
+state 349
 
     (18) acom -> DEFAULT NUMDECIMAL .
 
@@ -7135,7 +7151,7 @@ state 347
     COMA            reduce using rule 18 (acom -> DEFAULT NUMDECIMAL .)
 
 
-state 348
+state 350
 
     (19) acom -> PRIMARY KEY .
 
@@ -7148,60 +7164,60 @@ state 348
     COMA            reduce using rule 19 (acom -> PRIMARY KEY .)
 
 
-state 349
-
-    (36) tipo -> CHARACTER PARIZQ ENTERO . PARDR
-
-    PARDR           shift and go to state 365
-
-
-state 350
-
-    (37) tipo -> VARCHAR PARIZQ ENTERO . PARDR
-
-    PARDR           shift and go to state 366
-
-
 state 351
 
-    (38) tipo -> CHAR PARIZQ ENTERO . PARDR
+    (36) tipo -> CHARACTER PARIZQ ENTERO . PARDR
 
     PARDR           shift and go to state 367
 
 
 state 352
 
-    (9) campo -> CONSTRAINT ID FOREIGN KEY . PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
+    (37) tipo -> VARCHAR PARIZQ ENTERO . PARDR
 
-    PARIZQ          shift and go to state 368
+    PARDR           shift and go to state 368
 
 
 state 353
 
-    (10) campo -> PRIMARY KEY PARIZQ ID . PARDR
+    (38) tipo -> CHAR PARIZQ ENTERO . PARDR
 
     PARDR           shift and go to state 369
 
 
 state 354
 
-    (39) instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values . PTCOMA
-    (43) values -> values . COMA value
+    (9) campo -> CONSTRAINT ID FOREIGN KEY . PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR
 
-    PTCOMA          shift and go to state 370
-    COMA            shift and go to state 236
+    PARIZQ          shift and go to state 370
 
 
 state 355
 
-    (59) where -> ID IN PARIZQ listaValores . PARDR
-    (46) listaValores -> listaValores . COMA valores
+    (10) campo -> PRIMARY KEY PARIZQ ID . PARDR
 
     PARDR           shift and go to state 371
-    COMA            shift and go to state 208
 
 
 state 356
+
+    (39) instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values . PTCOMA
+    (43) values -> values . COMA value
+
+    PTCOMA          shift and go to state 372
+    COMA            shift and go to state 236
+
+
+state 357
+
+    (59) where -> ID IN PARIZQ listaValores . PARDR
+    (46) listaValores -> listaValores . COMA valores
+
+    PARDR           shift and go to state 373
+    COMA            shift and go to state 208
+
+
+state 358
 
     (60) where -> ID BETWEEN valores AND . valores
     (48) valores -> . ENTERO
@@ -7214,16 +7230,16 @@ state 356
     CADENA          shift and go to state 155
     ID              shift and go to state 156
 
-    valores                        shift and go to state 372
+    valores                        shift and go to state 374
 
-state 357
+state 359
 
     (108) complemento -> OWNER IGUAL ID MODE IGUAL ENTERO .
 
     PTCOMA          reduce using rule 108 (complemento -> OWNER IGUAL ID MODE IGUAL ENTERO .)
 
 
-state 358
+state 360
 
     (114) instruccion -> ALTER DATABASE ID OWNER TO LLIZQ ID LLDR .
 
@@ -7238,14 +7254,14 @@ state 358
     $end            reduce using rule 114 (instruccion -> ALTER DATABASE ID OWNER TO LLIZQ ID LLDR .)
 
 
-state 359
+state 361
 
     (120) instruccion -> ALTER TABLE ID ALTER COLUMN ID SET NOT . NULL PTCOMA
 
-    NULL            shift and go to state 373
+    NULL            shift and go to state 375
 
 
-state 360
+state 362
 
     (115) instruccion -> ALTER TABLE ID ADD COLUMN ID tipo PTCOMA .
 
@@ -7260,37 +7276,37 @@ state 360
     $end            reduce using rule 115 (instruccion -> ALTER TABLE ID ADD COLUMN ID tipo PTCOMA .)
 
 
-state 361
+state 363
 
     (117) instruccion -> ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY . PARDR PTCOMA
 
-    PARDR           shift and go to state 374
-
-
-state 362
-
-    (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ . ID PARDR PTCOMA
-
-    ID              shift and go to state 375
-
-
-state 363
-
-    (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID . PARDR REFERENCES listaID PTCOMA
-    (41) listaID -> listaID . COMA ID
-
     PARDR           shift and go to state 376
-    COMA            shift and go to state 234
 
 
 state 364
 
-    (122) instruccion -> ALTER TABLE ID RENAME COLUMN ID TO ID . PTCOMA
+    (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ . ID PARDR PTCOMA
 
-    PTCOMA          shift and go to state 377
+    ID              shift and go to state 377
 
 
 state 365
+
+    (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID . PARDR REFERENCES listaID PTCOMA
+    (41) listaID -> listaID . COMA ID
+
+    PARDR           shift and go to state 378
+    COMA            shift and go to state 234
+
+
+state 366
+
+    (122) instruccion -> ALTER TABLE ID RENAME COLUMN ID TO ID . PTCOMA
+
+    PTCOMA          shift and go to state 379
+
+
+state 367
 
     (36) tipo -> CHARACTER PARIZQ ENTERO PARDR .
 
@@ -7304,7 +7320,7 @@ state 365
     PTCOMA          reduce using rule 36 (tipo -> CHARACTER PARIZQ ENTERO PARDR .)
 
 
-state 366
+state 368
 
     (37) tipo -> VARCHAR PARIZQ ENTERO PARDR .
 
@@ -7318,7 +7334,7 @@ state 366
     PTCOMA          reduce using rule 37 (tipo -> VARCHAR PARIZQ ENTERO PARDR .)
 
 
-state 367
+state 369
 
     (38) tipo -> CHAR PARIZQ ENTERO PARDR .
 
@@ -7332,14 +7348,14 @@ state 367
     PTCOMA          reduce using rule 38 (tipo -> CHAR PARIZQ ENTERO PARDR .)
 
 
-state 368
+state 370
 
     (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ . ID PARDR REFERENCES ID PARIZQ ID PARDR
 
-    ID              shift and go to state 378
+    ID              shift and go to state 380
 
 
-state 369
+state 371
 
     (10) campo -> PRIMARY KEY PARIZQ ID PARDR .
 
@@ -7347,7 +7363,7 @@ state 369
     COMA            reduce using rule 10 (campo -> PRIMARY KEY PARIZQ ID PARDR .)
 
 
-state 370
+state 372
 
     (39) instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA .
 
@@ -7362,7 +7378,7 @@ state 370
     $end            reduce using rule 39 (instruccion -> INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA .)
 
 
-state 371
+state 373
 
     (59) where -> ID IN PARIZQ listaValores PARDR .
 
@@ -7371,7 +7387,7 @@ state 371
     OR              reduce using rule 59 (where -> ID IN PARIZQ listaValores PARDR .)
 
 
-state 372
+state 374
 
     (60) where -> ID BETWEEN valores AND valores .
 
@@ -7380,35 +7396,35 @@ state 372
     OR              reduce using rule 60 (where -> ID BETWEEN valores AND valores .)
 
 
-state 373
+state 375
 
     (120) instruccion -> ALTER TABLE ID ALTER COLUMN ID SET NOT NULL . PTCOMA
 
-    PTCOMA          shift and go to state 379
-
-
-state 374
-
-    (117) instruccion -> ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY PARDR . PTCOMA
-
-    PTCOMA          shift and go to state 380
-
-
-state 375
-
-    (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID . PARDR PTCOMA
-
-    PARDR           shift and go to state 381
+    PTCOMA          shift and go to state 381
 
 
 state 376
 
-    (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR . REFERENCES listaID PTCOMA
+    (117) instruccion -> ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY PARDR . PTCOMA
 
-    REFERENCES      shift and go to state 382
+    PTCOMA          shift and go to state 382
 
 
 state 377
+
+    (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID . PARDR PTCOMA
+
+    PARDR           shift and go to state 383
+
+
+state 378
+
+    (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR . REFERENCES listaID PTCOMA
+
+    REFERENCES      shift and go to state 384
+
+
+state 379
 
     (122) instruccion -> ALTER TABLE ID RENAME COLUMN ID TO ID PTCOMA .
 
@@ -7423,14 +7439,14 @@ state 377
     $end            reduce using rule 122 (instruccion -> ALTER TABLE ID RENAME COLUMN ID TO ID PTCOMA .)
 
 
-state 378
+state 380
 
     (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID . PARDR REFERENCES ID PARIZQ ID PARDR
 
-    PARDR           shift and go to state 383
+    PARDR           shift and go to state 385
 
 
-state 379
+state 381
 
     (120) instruccion -> ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA .
 
@@ -7445,7 +7461,7 @@ state 379
     $end            reduce using rule 120 (instruccion -> ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA .)
 
 
-state 380
+state 382
 
     (117) instruccion -> ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY PARDR PTCOMA .
 
@@ -7460,14 +7476,14 @@ state 380
     $end            reduce using rule 117 (instruccion -> ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY PARDR PTCOMA .)
 
 
-state 381
+state 383
 
     (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR . PTCOMA
 
-    PTCOMA          shift and go to state 384
+    PTCOMA          shift and go to state 386
 
 
-state 382
+state 384
 
     (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES . listaID PTCOMA
     (41) listaID -> . listaID COMA ID
@@ -7475,16 +7491,16 @@ state 382
 
     ID              shift and go to state 162
 
-    listaID                        shift and go to state 385
+    listaID                        shift and go to state 387
 
-state 383
+state 385
 
     (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR . REFERENCES ID PARIZQ ID PARDR
 
-    REFERENCES      shift and go to state 386
+    REFERENCES      shift and go to state 388
 
 
-state 384
+state 386
 
     (118) instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR PTCOMA .
 
@@ -7499,23 +7515,23 @@ state 384
     $end            reduce using rule 118 (instruccion -> ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR PTCOMA .)
 
 
-state 385
+state 387
 
     (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID . PTCOMA
     (41) listaID -> listaID . COMA ID
 
-    PTCOMA          shift and go to state 387
+    PTCOMA          shift and go to state 389
     COMA            shift and go to state 234
 
 
-state 386
+state 388
 
     (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES . ID PARIZQ ID PARDR
 
-    ID              shift and go to state 388
+    ID              shift and go to state 390
 
 
-state 387
+state 389
 
     (119) instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID PTCOMA .
 
@@ -7530,28 +7546,28 @@ state 387
     $end            reduce using rule 119 (instruccion -> ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID PTCOMA .)
 
 
-state 388
+state 390
 
     (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID . PARIZQ ID PARDR
 
-    PARIZQ          shift and go to state 389
-
-
-state 389
-
-    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ . ID PARDR
-
-    ID              shift and go to state 390
-
-
-state 390
-
-    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID . PARDR
-
-    PARDR           shift and go to state 391
+    PARIZQ          shift and go to state 391
 
 
 state 391
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ . ID PARDR
+
+    ID              shift and go to state 392
+
+
+state 392
+
+    (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID . PARDR
+
+    PARDR           shift and go to state 393
+
+
+state 393
 
     (9) campo -> CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR .
 
