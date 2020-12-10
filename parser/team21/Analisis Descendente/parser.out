@@ -3,19 +3,11 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 Unused terminals:
 
     AND
-    AS
     BETWEEN
-    BIGINT
-    BOOLEAN
-    CHARACTER
     CORDER
     CORIZQ
-    CUATROPTOS
     DAY
     DEFAULT
-    DIFERENTEQ
-    DIVISION
-    ENUM
     HOUR
     ILIKE
     IN
@@ -23,30 +15,16 @@ Unused terminals:
     IS
     LLAVEA
     LLAVEC
-    MAS
-    MAYORIGUALQ
-    MAYORQ
-    MENORIGUALQ
-    MENORQ
     MINUTE
-    MONEY
     MONTH
-    NUMERIC
     OUT
-    POR
     PORCENTAJE
-    PRECISION
     PUNTO
-    REAL
     SECOND
     SIMILAR
-    SMALLINT
-    TEXT
     TIME
     TIMESTAMP
-    UMAS
-    UMENOSCADENA
-    VARYING
+    UMENOS
     WITH
     WITHOUT
     YEAR
@@ -60,149 +38,200 @@ Rule 2     instrucciones -> instruccion instruccionesp
 Rule 3     instrucciones -> <empty>
 Rule 4     instruccionesp -> instruccion instrucciones
 Rule 5     instruccionesp -> <empty>
-Rule 6     instruccion -> CREATE createp
-Rule 7     instruccion -> ALTER DATABASE alterp
-Rule 8     instruccion -> DROP DATABASE dropp IDENTIFICADOR
+Rule 6     instruccion -> CREATE createp PTCOMA
+Rule 7     instruccion -> ALTER factorizar_alter PTCOMA
+Rule 8     instruccion -> DROP droptp PTCOMA
 Rule 9     instruccion -> SHOW DATABASES opcional3 PTCOMA
-Rule 10    dropp -> IF EXISTS
-Rule 11    dropp -> <empty>
-Rule 12    alterp -> IDENTIFICADOR alterpp
-Rule 13    alterpp -> RENAME TO alterppp
-Rule 14    alterpp -> OWNER TO alterppp
-Rule 15    alterppp -> IDENTIFICADOR
-Rule 16    alterppp -> CURRENT_USER
-Rule 17    alterppp -> SESSION_USER
-Rule 18    createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA
-Rule 19    createp -> TYPE createpp
-Rule 20    createp -> DATABASE createpp
-Rule 21    createp -> TABLE createpp
-Rule 22    createpp -> IDENTIFICADOR createtp
-Rule 23    createtp -> SHOW
-Rule 24    l_campos -> IDENTIFICADOR l_campo l_campos
-Rule 25    l_campos -> COMA IDENTIFICADOR l_campo l_campos
-Rule 26    l_campos -> <empty>
-Rule 27    l_campo -> tipo l_campo
-Rule 28    l_campo -> <empty>
-Rule 29    tipo -> INTEGER
-Rule 30    tipo -> DATE
-Rule 31    tipo -> NOT
-Rule 32    tipo -> NULL
-Rule 33    tipo -> PRIMARY KEY
-Rule 34    tipo -> FOREIGN KEY REFERENCES
-Rule 35    tipo -> CONSTRAINT
-Rule 36    tipo -> UNIQUE
-Rule 37    tipo -> IDENTIFICADOR
-Rule 38    tipo -> VARCHAR PARIZQ NOENTERO PARDER
-Rule 39    tipo -> CHAR PARIZQ NOENTERO PARDER
-Rule 40    tipo -> CHECK PARIZQ expresion PARDER
-Rule 41    tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER
-Rule 42    tipo -> DOUBLE
-Rule 43    tipo -> DECIMAL
-Rule 44    tipo -> NOENTERO
-Rule 45    l_cadenas -> PARIZQ CARACTER_O_CADENA l_cadenasp PARDER
-Rule 46    l_cadenasp -> COMA CARACTER_O_CADENA l_cadenasp
-Rule 47    l_cadenasp -> <empty>
-Rule 48    opcional -> IF NOT EXISTS
-Rule 49    opcional -> OWNER opcional1 IDENTIFICADOR opcional2
-Rule 50    opcional -> <empty>
-Rule 51    opcional1 -> IGUAL
-Rule 52    opcional1 -> <empty>
-Rule 53    opcional2 -> MODE opcional1 NOENTERO
-Rule 54    opcional2 -> <empty>
-Rule 55    opcional3 -> LIKE CARACTER_O_CADENA
-Rule 56    opcional3 -> <empty>
-Rule 57    expresion -> MENOS NOENTERO
+Rule 10    factorizar_alter -> DATABASE alterp
+Rule 11    factorizar_alter -> TABLE l_campo
+Rule 12    droptp -> DATABASE dropp IDENTIFICADOR
+Rule 13    droptp -> TABLE IDENTIFICADOR
+Rule 14    dropp -> IF EXISTS
+Rule 15    dropp -> <empty>
+Rule 16    alterp -> IDENTIFICADOR alterpp
+Rule 17    alterpp -> RENAME TO alterppp
+Rule 18    alterpp -> OWNER TO alterppp
+Rule 19    alterppp -> IDENTIFICADOR
+Rule 20    alterppp -> CURRENT_USER
+Rule 21    alterppp -> SESSION_USER
+Rule 22    createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional
+Rule 23    createp -> TYPE createpp
+Rule 24    createp -> DATABASE createpp
+Rule 25    createp -> TABLE createpp
+Rule 26    createpp -> IDENTIFICADOR createtp
+Rule 27    createtp -> AS ENUM PARIZQ l_cadenas PARDER
+Rule 28    createtp -> opcional
+Rule 29    createtp -> PARIZQ l_campos PARDER
+Rule 30    l_campos -> IDENTIFICADOR l_campo l_campos
+Rule 31    l_campos -> COMA IDENTIFICADOR l_campo l_campos
+Rule 32    l_campos -> COMA l_campo l_campos
+Rule 33    l_campos -> <empty>
+Rule 34    l_campo -> tipo l_campo
+Rule 35    l_campo -> <empty>
+Rule 36    tipo -> INTEGER
+Rule 37    tipo -> ADD
+Rule 38    tipo -> RENAME
+Rule 39    tipo -> DATE
+Rule 40    tipo -> SET
+Rule 41    tipo -> NOT
+Rule 42    tipo -> NULL
+Rule 43    tipo -> PRIMARY KEY
+Rule 44    tipo -> FOREIGN KEY
+Rule 45    tipo -> CONSTRAINT
+Rule 46    tipo -> UNIQUE
+Rule 47    tipo -> IDENTIFICADOR
+Rule 48    tipo -> REFERENCES
+Rule 49    tipo -> PARIZQ l_cadenas PARDER
+Rule 50    tipo -> VARCHAR PARIZQ NOENTERO PARDER
+Rule 51    tipo -> CHAR PARIZQ NOENTERO PARDER
+Rule 52    tipo -> CHECK PARIZQ expresion PARDER
+Rule 53    tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER
+Rule 54    tipo -> CHARACTER PARIZQ NOENTERO PARDER
+Rule 55    tipo -> MONEY
+Rule 56    tipo -> SMALLINT
+Rule 57    tipo -> BIGINT
+Rule 58    tipo -> DECIMAL
+Rule 59    tipo -> NUMERIC
+Rule 60    tipo -> REAL
+Rule 61    tipo -> DOUBLE PRECISION
+Rule 62    tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER
+Rule 63    tipo -> DOUBLE
+Rule 64    tipo -> NOENTERO
+Rule 65    tipo -> TEXT
+Rule 66    tipo -> BOOLEAN
+Rule 67    l_cadenas -> CARACTER_O_CADENA l_cadenasp
+Rule 68    l_cadenas -> IDENTIFICADOR l_cadenasp
+Rule 69    l_cadenasp -> COMA CARACTER_O_CADENA l_cadenasp
+Rule 70    l_cadenasp -> COMA IDENTIFICADOR l_cadenasp
+Rule 71    l_cadenasp -> <empty>
+Rule 72    opcional -> IF NOT EXISTS
+Rule 73    opcional -> OWNER opcional1 IDENTIFICADOR opcional2
+Rule 74    opcional -> <empty>
+Rule 75    opcional1 -> IGUAL
+Rule 76    opcional1 -> <empty>
+Rule 77    opcional2 -> MODE opcional1 NOENTERO
+Rule 78    opcional2 -> <empty>
+Rule 79    opcional3 -> LIKE CARACTER_O_CADENA
+Rule 80    opcional3 -> <empty>
+Rule 81    expresion -> y
+Rule 82    y -> z yp
+Rule 83    yp -> OR z yp
+Rule 84    yp -> <empty>
+Rule 85    z -> a zp
+Rule 86    zp -> DIFERENTEQ a zp
+Rule 87    zp -> MAYORQ a zp
+Rule 88    zp -> MAYORIGUALQ a zp
+Rule 89    zp -> MENORQ a zp
+Rule 90    zp -> MENORIGUALQ a zp
+Rule 91    zp -> <empty>
+Rule 92    a -> b ap
+Rule 93    ap -> MAS b ap
+Rule 94    ap -> MENOS b ap
+Rule 95    ap -> <empty>
+Rule 96    b -> c bp
+Rule 97    bp -> POR c bp
+Rule 98    bp -> DIVISION c bp
+Rule 99    bp -> <empty>
+Rule 100   c -> PARIZQ a PARDER
+Rule 101   c -> IDENTIFICADOR
+Rule 102   c -> CADENA
+Rule 103   c -> CARACTER_O_CADENA
+Rule 104   c -> NOENTERO
+Rule 105   c -> NODECIMAL
+Rule 106   c -> BOOLEAN
 
 Terminals, with rules where they appear
 
+ADD                  : 37
 ALTER                : 7
 AND                  : 
-AS                   : 
+AS                   : 27
 BETWEEN              : 
-BIGINT               : 
-BOOLEAN              : 
-CARACTER_O_CADENA    : 45 46 55
-CHAR                 : 39
-CHARACTER            : 
-CHECK                : 40
-COMA                 : 25 41 46
-CONSTRAINT           : 35
+BIGINT               : 57
+BOOLEAN              : 66 106
+CADENA               : 102
+CARACTER_O_CADENA    : 67 69 79 103
+CHAR                 : 51
+CHARACTER            : 53 54
+CHECK                : 52
+COMA                 : 31 32 62 69 70
+CONSTRAINT           : 45
 CORDER               : 
 CORIZQ               : 
 CREATE               : 6
-CUATROPTOS           : 
-CURRENT_USER         : 16
-DATABASE             : 7 8 18 20
+CURRENT_USER         : 20
+DATABASE             : 10 12 22 24
 DATABASES            : 9
-DATE                 : 30
+DATE                 : 39
 DAY                  : 
-DECIMAL              : 41 43
+DECIMAL              : 58 62
 DEFAULT              : 
-DIFERENTEQ           : 
-DIVISION             : 
-DOUBLE               : 42
+DIFERENTEQ           : 86
+DIVISION             : 98
+DOUBLE               : 61 63
 DROP                 : 8
-ENUM                 : 
-EXISTS               : 10 48
-FOREIGN              : 34
+ENUM                 : 27
+EXISTS               : 14 72
+FOREIGN              : 44
 HOUR                 : 
-IDENTIFICADOR        : 8 12 15 18 22 24 25 37 49
-IF                   : 10 48
-IGUAL                : 51
+IDENTIFICADOR        : 12 13 16 19 22 26 30 31 47 68 70 73 101
+IF                   : 14 72
+IGUAL                : 75
 ILIKE                : 
 IN                   : 
-INTEGER              : 29
+INTEGER              : 36
 INTERVAL             : 
 IS                   : 
-KEY                  : 33 34
-LIKE                 : 55
+KEY                  : 43 44
+LIKE                 : 79
 LLAVEA               : 
 LLAVEC               : 
-MAS                  : 
-MAYORIGUALQ          : 
-MAYORQ               : 
-MENORIGUALQ          : 
-MENORQ               : 
-MENOS                : 57
+MAS                  : 93
+MAYORIGUALQ          : 88
+MAYORQ               : 87
+MENORIGUALQ          : 90
+MENORQ               : 89
+MENOS                : 94
 MINUTE               : 
-MODE                 : 53
-MONEY                : 
+MODE                 : 77
+MONEY                : 55
 MONTH                : 
-NOENTERO             : 38 39 41 41 44 53 57
-NOT                  : 31 48
-NULL                 : 32
-NUMERIC              : 
-OR                   : 18
+NODECIMAL            : 105
+NOENTERO             : 50 51 53 54 62 62 64 77 104
+NOT                  : 41 72
+NULL                 : 42
+NUMERIC              : 59
+OR                   : 22 83
 OUT                  : 
-OWNER                : 14 49
-PARDER               : 38 39 40 41 45
-PARIZQ               : 38 39 40 41 45
-POR                  : 
+OWNER                : 18 73
+PARDER               : 27 29 49 50 51 52 53 54 62 100
+PARIZQ               : 27 29 49 50 51 52 53 54 62 100
+POR                  : 97
 PORCENTAJE           : 
-PRECISION            : 
-PRIMARY              : 33
-PTCOMA               : 9 18
+PRECISION            : 61
+PRIMARY              : 43
+PTCOMA               : 6 7 8 9
 PUNTO                : 
-REAL                 : 
-REFERENCES           : 34
-RENAME               : 13
-REPLACE              : 18
+REAL                 : 60
+REFERENCES           : 48
+RENAME               : 17 38
+REPLACE              : 22
 SECOND               : 
-SESSION_USER         : 17
-SHOW                 : 9 23
+SESSION_USER         : 21
+SET                  : 40
+SHOW                 : 9
 SIMILAR              : 
-SMALLINT             : 
-TABLE                : 21
-TEXT                 : 
+SMALLINT             : 56
+TABLE                : 11 13 25
+TEXT                 : 65
 TIME                 : 
 TIMESTAMP            : 
-TO                   : 13 14
-TYPE                 : 19
-UMAS                 : 
-UMENOSCADENA         : 
-UNIQUE               : 36
-VARCHAR              : 38
-VARYING              : 
+TO                   : 17 18
+TYPE                 : 23
+UMENOS               : 
+UNIQUE               : 46
+VARCHAR              : 50
+VARYING              : 53
 WITH                 : 
 WITHOUT              : 
 YEAR                 : 
@@ -211,27 +240,38 @@ error                :
 
 Nonterminals, with rules where they appear
 
-alterp               : 7
-alterpp              : 12
-alterppp             : 13 14
+a                    : 85 86 87 88 89 90 100
+alterp               : 10
+alterpp              : 16
+alterppp             : 17 18
+ap                   : 92 93 94
+b                    : 92 93 94
+bp                   : 96 97 98
+c                    : 96 97 98
 createp              : 6
-createpp             : 19 20 21
-createtp             : 22
-dropp                : 8
-expresion            : 40
+createpp             : 23 24 25
+createtp             : 26
+dropp                : 12
+droptp               : 8
+expresion            : 52
+factorizar_alter     : 7
 instruccion          : 2 4
 instrucciones        : 1 4
 instruccionesp       : 2
-l_cadenas            : 
-l_cadenasp           : 45 46
-l_campo              : 24 25 27
-l_campos             : 24 25
-opcional             : 18 18
-opcional1            : 49 53
-opcional2            : 49
+l_cadenas            : 27 49
+l_cadenasp           : 67 68 69 70
+l_campo              : 11 30 31 32 34
+l_campos             : 29 30 31 32
+opcional             : 22 22 28
+opcional1            : 73 77
+opcional2            : 73
 opcional3            : 9
 s                    : 0
-tipo                 : 27
+tipo                 : 34
+y                    : 81
+yp                   : 82 83
+z                    : 82 83
+zp                   : 85 86 87 88 89 90
 
 Parsing method: LALR
 
@@ -241,9 +281,9 @@ state 0
     (1) s -> . instrucciones
     (2) instrucciones -> . instruccion instruccionesp
     (3) instrucciones -> .
-    (6) instruccion -> . CREATE createp
-    (7) instruccion -> . ALTER DATABASE alterp
-    (8) instruccion -> . DROP DATABASE dropp IDENTIFICADOR
+    (6) instruccion -> . CREATE createp PTCOMA
+    (7) instruccion -> . ALTER factorizar_alter PTCOMA
+    (8) instruccion -> . DROP droptp PTCOMA
     (9) instruccion -> . SHOW DATABASES opcional3 PTCOMA
 
     $end            reduce using rule 3 (instrucciones -> .)
@@ -274,9 +314,9 @@ state 3
     (2) instrucciones -> instruccion . instruccionesp
     (4) instruccionesp -> . instruccion instrucciones
     (5) instruccionesp -> .
-    (6) instruccion -> . CREATE createp
-    (7) instruccion -> . ALTER DATABASE alterp
-    (8) instruccion -> . DROP DATABASE dropp IDENTIFICADOR
+    (6) instruccion -> . CREATE createp PTCOMA
+    (7) instruccion -> . ALTER factorizar_alter PTCOMA
+    (8) instruccion -> . DROP droptp PTCOMA
     (9) instruccion -> . SHOW DATABASES opcional3 PTCOMA
 
     $end            reduce using rule 5 (instruccionesp -> .)
@@ -290,11 +330,11 @@ state 3
 
 state 4
 
-    (6) instruccion -> CREATE . createp
-    (18) createp -> . OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA
-    (19) createp -> . TYPE createpp
-    (20) createp -> . DATABASE createpp
-    (21) createp -> . TABLE createpp
+    (6) instruccion -> CREATE . createp PTCOMA
+    (22) createp -> . OR REPLACE DATABASE opcional IDENTIFICADOR opcional
+    (23) createp -> . TYPE createpp
+    (24) createp -> . DATABASE createpp
+    (25) createp -> . TABLE createpp
 
     OR              shift and go to state 11
     TYPE            shift and go to state 13
@@ -305,23 +345,31 @@ state 4
 
 state 5
 
-    (7) instruccion -> ALTER . DATABASE alterp
+    (7) instruccion -> ALTER . factorizar_alter PTCOMA
+    (10) factorizar_alter -> . DATABASE alterp
+    (11) factorizar_alter -> . TABLE l_campo
 
-    DATABASE        shift and go to state 15
+    DATABASE        shift and go to state 16
+    TABLE           shift and go to state 17
 
+    factorizar_alter               shift and go to state 15
 
 state 6
 
-    (8) instruccion -> DROP . DATABASE dropp IDENTIFICADOR
+    (8) instruccion -> DROP . droptp PTCOMA
+    (12) droptp -> . DATABASE dropp IDENTIFICADOR
+    (13) droptp -> . TABLE IDENTIFICADOR
 
-    DATABASE        shift and go to state 16
+    DATABASE        shift and go to state 19
+    TABLE           shift and go to state 20
 
+    droptp                         shift and go to state 18
 
 state 7
 
     (9) instruccion -> SHOW . DATABASES opcional3 PTCOMA
 
-    DATABASES       shift and go to state 17
+    DATABASES       shift and go to state 21
 
 
 state 8
@@ -329,9 +377,9 @@ state 8
     (4) instruccionesp -> instruccion . instrucciones
     (2) instrucciones -> . instruccion instruccionesp
     (3) instrucciones -> .
-    (6) instruccion -> . CREATE createp
-    (7) instruccion -> . ALTER DATABASE alterp
-    (8) instruccion -> . DROP DATABASE dropp IDENTIFICADOR
+    (6) instruccion -> . CREATE createp PTCOMA
+    (7) instruccion -> . ALTER factorizar_alter PTCOMA
+    (8) instruccion -> . DROP droptp PTCOMA
     (9) instruccion -> . SHOW DATABASES opcional3 PTCOMA
 
     $end            reduce using rule 3 (instrucciones -> .)
@@ -341,7 +389,7 @@ state 8
     SHOW            shift and go to state 7
 
     instruccion                    shift and go to state 3
-    instrucciones                  shift and go to state 18
+    instrucciones                  shift and go to state 22
 
 state 9
 
@@ -352,265 +400,1547 @@ state 9
 
 state 10
 
-    (6) instruccion -> CREATE createp .
+    (6) instruccion -> CREATE createp . PTCOMA
 
-    CREATE          reduce using rule 6 (instruccion -> CREATE createp .)
-    ALTER           reduce using rule 6 (instruccion -> CREATE createp .)
-    DROP            reduce using rule 6 (instruccion -> CREATE createp .)
-    SHOW            reduce using rule 6 (instruccion -> CREATE createp .)
-    $end            reduce using rule 6 (instruccion -> CREATE createp .)
+    PTCOMA          shift and go to state 23
 
 
 state 11
 
-    (18) createp -> OR . REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA
+    (22) createp -> OR . REPLACE DATABASE opcional IDENTIFICADOR opcional
 
-    REPLACE         shift and go to state 19
+    REPLACE         shift and go to state 24
 
 
 state 12
 
-    (20) createp -> DATABASE . createpp
-    (22) createpp -> . IDENTIFICADOR createtp
+    (24) createp -> DATABASE . createpp
+    (26) createpp -> . IDENTIFICADOR createtp
 
-    IDENTIFICADOR   shift and go to state 21
+    IDENTIFICADOR   shift and go to state 26
 
-    createpp                       shift and go to state 20
+    createpp                       shift and go to state 25
 
 state 13
 
-    (19) createp -> TYPE . createpp
-    (22) createpp -> . IDENTIFICADOR createtp
+    (23) createp -> TYPE . createpp
+    (26) createpp -> . IDENTIFICADOR createtp
 
-    IDENTIFICADOR   shift and go to state 21
+    IDENTIFICADOR   shift and go to state 26
 
-    createpp                       shift and go to state 22
+    createpp                       shift and go to state 27
 
 state 14
 
-    (21) createp -> TABLE . createpp
-    (22) createpp -> . IDENTIFICADOR createtp
+    (25) createp -> TABLE . createpp
+    (26) createpp -> . IDENTIFICADOR createtp
 
-    IDENTIFICADOR   shift and go to state 21
+    IDENTIFICADOR   shift and go to state 26
 
-    createpp                       shift and go to state 23
+    createpp                       shift and go to state 28
 
 state 15
 
-    (7) instruccion -> ALTER DATABASE . alterp
-    (12) alterp -> . IDENTIFICADOR alterpp
+    (7) instruccion -> ALTER factorizar_alter . PTCOMA
 
-    IDENTIFICADOR   shift and go to state 25
+    PTCOMA          shift and go to state 29
 
-    alterp                         shift and go to state 24
 
 state 16
 
-    (8) instruccion -> DROP DATABASE . dropp IDENTIFICADOR
-    (10) dropp -> . IF EXISTS
-    (11) dropp -> .
+    (10) factorizar_alter -> DATABASE . alterp
+    (16) alterp -> . IDENTIFICADOR alterpp
 
-    IF              shift and go to state 27
-    IDENTIFICADOR   reduce using rule 11 (dropp -> .)
+    IDENTIFICADOR   shift and go to state 31
 
-    dropp                          shift and go to state 26
+    alterp                         shift and go to state 30
 
 state 17
 
-    (9) instruccion -> SHOW DATABASES . opcional3 PTCOMA
-    (55) opcional3 -> . LIKE CARACTER_O_CADENA
-    (56) opcional3 -> .
+    (11) factorizar_alter -> TABLE . l_campo
+    (34) l_campo -> . tipo l_campo
+    (35) l_campo -> .
+    (36) tipo -> . INTEGER
+    (37) tipo -> . ADD
+    (38) tipo -> . RENAME
+    (39) tipo -> . DATE
+    (40) tipo -> . SET
+    (41) tipo -> . NOT
+    (42) tipo -> . NULL
+    (43) tipo -> . PRIMARY KEY
+    (44) tipo -> . FOREIGN KEY
+    (45) tipo -> . CONSTRAINT
+    (46) tipo -> . UNIQUE
+    (47) tipo -> . IDENTIFICADOR
+    (48) tipo -> . REFERENCES
+    (49) tipo -> . PARIZQ l_cadenas PARDER
+    (50) tipo -> . VARCHAR PARIZQ NOENTERO PARDER
+    (51) tipo -> . CHAR PARIZQ NOENTERO PARDER
+    (52) tipo -> . CHECK PARIZQ expresion PARDER
+    (53) tipo -> . CHARACTER VARYING PARIZQ NOENTERO PARDER
+    (54) tipo -> . CHARACTER PARIZQ NOENTERO PARDER
+    (55) tipo -> . MONEY
+    (56) tipo -> . SMALLINT
+    (57) tipo -> . BIGINT
+    (58) tipo -> . DECIMAL
+    (59) tipo -> . NUMERIC
+    (60) tipo -> . REAL
+    (61) tipo -> . DOUBLE PRECISION
+    (62) tipo -> . DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER
+    (63) tipo -> . DOUBLE
+    (64) tipo -> . NOENTERO
+    (65) tipo -> . TEXT
+    (66) tipo -> . BOOLEAN
 
-    LIKE            shift and go to state 29
-    PTCOMA          reduce using rule 56 (opcional3 -> .)
+    PTCOMA          reduce using rule 35 (l_campo -> .)
+    INTEGER         shift and go to state 34
+    ADD             shift and go to state 35
+    RENAME          shift and go to state 36
+    DATE            shift and go to state 37
+    SET             shift and go to state 38
+    NOT             shift and go to state 39
+    NULL            shift and go to state 40
+    PRIMARY         shift and go to state 41
+    FOREIGN         shift and go to state 42
+    CONSTRAINT      shift and go to state 43
+    UNIQUE          shift and go to state 44
+    IDENTIFICADOR   shift and go to state 45
+    REFERENCES      shift and go to state 46
+    PARIZQ          shift and go to state 47
+    VARCHAR         shift and go to state 48
+    CHAR            shift and go to state 50
+    CHECK           shift and go to state 51
+    CHARACTER       shift and go to state 52
+    MONEY           shift and go to state 53
+    SMALLINT        shift and go to state 54
+    BIGINT          shift and go to state 55
+    DECIMAL         shift and go to state 56
+    NUMERIC         shift and go to state 57
+    REAL            shift and go to state 58
+    DOUBLE          shift and go to state 59
+    NOENTERO        shift and go to state 49
+    TEXT            shift and go to state 60
+    BOOLEAN         shift and go to state 61
 
-    opcional3                      shift and go to state 28
+    l_campo                        shift and go to state 32
+    tipo                           shift and go to state 33
 
 state 18
+
+    (8) instruccion -> DROP droptp . PTCOMA
+
+    PTCOMA          shift and go to state 62
+
+
+state 19
+
+    (12) droptp -> DATABASE . dropp IDENTIFICADOR
+    (14) dropp -> . IF EXISTS
+    (15) dropp -> .
+
+    IF              shift and go to state 64
+    IDENTIFICADOR   reduce using rule 15 (dropp -> .)
+
+    dropp                          shift and go to state 63
+
+state 20
+
+    (13) droptp -> TABLE . IDENTIFICADOR
+
+    IDENTIFICADOR   shift and go to state 65
+
+
+state 21
+
+    (9) instruccion -> SHOW DATABASES . opcional3 PTCOMA
+    (79) opcional3 -> . LIKE CARACTER_O_CADENA
+    (80) opcional3 -> .
+
+    LIKE            shift and go to state 67
+    PTCOMA          reduce using rule 80 (opcional3 -> .)
+
+    opcional3                      shift and go to state 66
+
+state 22
 
     (4) instruccionesp -> instruccion instrucciones .
 
     $end            reduce using rule 4 (instruccionesp -> instruccion instrucciones .)
 
 
-state 19
-
-    (18) createp -> OR REPLACE . DATABASE opcional IDENTIFICADOR opcional PTCOMA
-
-    DATABASE        shift and go to state 30
-
-
-state 20
-
-    (20) createp -> DATABASE createpp .
-
-    CREATE          reduce using rule 20 (createp -> DATABASE createpp .)
-    ALTER           reduce using rule 20 (createp -> DATABASE createpp .)
-    DROP            reduce using rule 20 (createp -> DATABASE createpp .)
-    SHOW            reduce using rule 20 (createp -> DATABASE createpp .)
-    $end            reduce using rule 20 (createp -> DATABASE createpp .)
-
-
-state 21
-
-    (22) createpp -> IDENTIFICADOR . createtp
-    (23) createtp -> . SHOW
-
-    SHOW            shift and go to state 32
-
-    createtp                       shift and go to state 31
-
-state 22
-
-    (19) createp -> TYPE createpp .
-
-    CREATE          reduce using rule 19 (createp -> TYPE createpp .)
-    ALTER           reduce using rule 19 (createp -> TYPE createpp .)
-    DROP            reduce using rule 19 (createp -> TYPE createpp .)
-    SHOW            reduce using rule 19 (createp -> TYPE createpp .)
-    $end            reduce using rule 19 (createp -> TYPE createpp .)
-
-
 state 23
 
-    (21) createp -> TABLE createpp .
+    (6) instruccion -> CREATE createp PTCOMA .
 
-    CREATE          reduce using rule 21 (createp -> TABLE createpp .)
-    ALTER           reduce using rule 21 (createp -> TABLE createpp .)
-    DROP            reduce using rule 21 (createp -> TABLE createpp .)
-    SHOW            reduce using rule 21 (createp -> TABLE createpp .)
-    $end            reduce using rule 21 (createp -> TABLE createpp .)
+    CREATE          reduce using rule 6 (instruccion -> CREATE createp PTCOMA .)
+    ALTER           reduce using rule 6 (instruccion -> CREATE createp PTCOMA .)
+    DROP            reduce using rule 6 (instruccion -> CREATE createp PTCOMA .)
+    SHOW            reduce using rule 6 (instruccion -> CREATE createp PTCOMA .)
+    $end            reduce using rule 6 (instruccion -> CREATE createp PTCOMA .)
 
 
 state 24
 
-    (7) instruccion -> ALTER DATABASE alterp .
+    (22) createp -> OR REPLACE . DATABASE opcional IDENTIFICADOR opcional
 
-    CREATE          reduce using rule 7 (instruccion -> ALTER DATABASE alterp .)
-    ALTER           reduce using rule 7 (instruccion -> ALTER DATABASE alterp .)
-    DROP            reduce using rule 7 (instruccion -> ALTER DATABASE alterp .)
-    SHOW            reduce using rule 7 (instruccion -> ALTER DATABASE alterp .)
-    $end            reduce using rule 7 (instruccion -> ALTER DATABASE alterp .)
+    DATABASE        shift and go to state 68
 
 
 state 25
 
-    (12) alterp -> IDENTIFICADOR . alterpp
-    (13) alterpp -> . RENAME TO alterppp
-    (14) alterpp -> . OWNER TO alterppp
+    (24) createp -> DATABASE createpp .
 
-    RENAME          shift and go to state 34
-    OWNER           shift and go to state 35
+    PTCOMA          reduce using rule 24 (createp -> DATABASE createpp .)
 
-    alterpp                        shift and go to state 33
 
 state 26
 
-    (8) instruccion -> DROP DATABASE dropp . IDENTIFICADOR
+    (26) createpp -> IDENTIFICADOR . createtp
+    (27) createtp -> . AS ENUM PARIZQ l_cadenas PARDER
+    (28) createtp -> . opcional
+    (29) createtp -> . PARIZQ l_campos PARDER
+    (72) opcional -> . IF NOT EXISTS
+    (73) opcional -> . OWNER opcional1 IDENTIFICADOR opcional2
+    (74) opcional -> .
 
-    IDENTIFICADOR   shift and go to state 36
+    AS              shift and go to state 70
+    PARIZQ          shift and go to state 71
+    IF              shift and go to state 73
+    OWNER           shift and go to state 74
+    PTCOMA          reduce using rule 74 (opcional -> .)
 
+    createtp                       shift and go to state 69
+    opcional                       shift and go to state 72
 
 state 27
 
-    (10) dropp -> IF . EXISTS
+    (23) createp -> TYPE createpp .
 
-    EXISTS          shift and go to state 37
+    PTCOMA          reduce using rule 23 (createp -> TYPE createpp .)
 
 
 state 28
 
-    (9) instruccion -> SHOW DATABASES opcional3 . PTCOMA
+    (25) createp -> TABLE createpp .
 
-    PTCOMA          shift and go to state 38
+    PTCOMA          reduce using rule 25 (createp -> TABLE createpp .)
 
 
 state 29
 
-    (55) opcional3 -> LIKE . CARACTER_O_CADENA
+    (7) instruccion -> ALTER factorizar_alter PTCOMA .
 
-    CARACTER_O_CADENA shift and go to state 39
+    CREATE          reduce using rule 7 (instruccion -> ALTER factorizar_alter PTCOMA .)
+    ALTER           reduce using rule 7 (instruccion -> ALTER factorizar_alter PTCOMA .)
+    DROP            reduce using rule 7 (instruccion -> ALTER factorizar_alter PTCOMA .)
+    SHOW            reduce using rule 7 (instruccion -> ALTER factorizar_alter PTCOMA .)
+    $end            reduce using rule 7 (instruccion -> ALTER factorizar_alter PTCOMA .)
 
 
 state 30
 
-    (18) createp -> OR REPLACE DATABASE . opcional IDENTIFICADOR opcional PTCOMA
-    (48) opcional -> . IF NOT EXISTS
-    (49) opcional -> . OWNER opcional1 IDENTIFICADOR opcional2
-    (50) opcional -> .
+    (10) factorizar_alter -> DATABASE alterp .
 
-    IF              shift and go to state 41
-    OWNER           shift and go to state 42
-    IDENTIFICADOR   reduce using rule 50 (opcional -> .)
+    PTCOMA          reduce using rule 10 (factorizar_alter -> DATABASE alterp .)
 
-    opcional                       shift and go to state 40
 
 state 31
 
-    (22) createpp -> IDENTIFICADOR createtp .
+    (16) alterp -> IDENTIFICADOR . alterpp
+    (17) alterpp -> . RENAME TO alterppp
+    (18) alterpp -> . OWNER TO alterppp
 
-    CREATE          reduce using rule 22 (createpp -> IDENTIFICADOR createtp .)
-    ALTER           reduce using rule 22 (createpp -> IDENTIFICADOR createtp .)
-    DROP            reduce using rule 22 (createpp -> IDENTIFICADOR createtp .)
-    SHOW            reduce using rule 22 (createpp -> IDENTIFICADOR createtp .)
-    $end            reduce using rule 22 (createpp -> IDENTIFICADOR createtp .)
+    RENAME          shift and go to state 76
+    OWNER           shift and go to state 77
 
+    alterpp                        shift and go to state 75
 
 state 32
 
-    (23) createtp -> SHOW .
+    (11) factorizar_alter -> TABLE l_campo .
 
-    CREATE          reduce using rule 23 (createtp -> SHOW .)
-    ALTER           reduce using rule 23 (createtp -> SHOW .)
-    DROP            reduce using rule 23 (createtp -> SHOW .)
-    SHOW            reduce using rule 23 (createtp -> SHOW .)
-    $end            reduce using rule 23 (createtp -> SHOW .)
+    PTCOMA          reduce using rule 11 (factorizar_alter -> TABLE l_campo .)
 
 
 state 33
 
-    (12) alterp -> IDENTIFICADOR alterpp .
+    (34) l_campo -> tipo . l_campo
+    (34) l_campo -> . tipo l_campo
+    (35) l_campo -> .
+    (36) tipo -> . INTEGER
+    (37) tipo -> . ADD
+    (38) tipo -> . RENAME
+    (39) tipo -> . DATE
+    (40) tipo -> . SET
+    (41) tipo -> . NOT
+    (42) tipo -> . NULL
+    (43) tipo -> . PRIMARY KEY
+    (44) tipo -> . FOREIGN KEY
+    (45) tipo -> . CONSTRAINT
+    (46) tipo -> . UNIQUE
+    (47) tipo -> . IDENTIFICADOR
+    (48) tipo -> . REFERENCES
+    (49) tipo -> . PARIZQ l_cadenas PARDER
+    (50) tipo -> . VARCHAR PARIZQ NOENTERO PARDER
+    (51) tipo -> . CHAR PARIZQ NOENTERO PARDER
+    (52) tipo -> . CHECK PARIZQ expresion PARDER
+    (53) tipo -> . CHARACTER VARYING PARIZQ NOENTERO PARDER
+    (54) tipo -> . CHARACTER PARIZQ NOENTERO PARDER
+    (55) tipo -> . MONEY
+    (56) tipo -> . SMALLINT
+    (57) tipo -> . BIGINT
+    (58) tipo -> . DECIMAL
+    (59) tipo -> . NUMERIC
+    (60) tipo -> . REAL
+    (61) tipo -> . DOUBLE PRECISION
+    (62) tipo -> . DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER
+    (63) tipo -> . DOUBLE
+    (64) tipo -> . NOENTERO
+    (65) tipo -> . TEXT
+    (66) tipo -> . BOOLEAN
 
-    CREATE          reduce using rule 12 (alterp -> IDENTIFICADOR alterpp .)
-    ALTER           reduce using rule 12 (alterp -> IDENTIFICADOR alterpp .)
-    DROP            reduce using rule 12 (alterp -> IDENTIFICADOR alterpp .)
-    SHOW            reduce using rule 12 (alterp -> IDENTIFICADOR alterpp .)
-    $end            reduce using rule 12 (alterp -> IDENTIFICADOR alterpp .)
+  ! shift/reduce conflict for IDENTIFICADOR resolved as shift
+    PTCOMA          reduce using rule 35 (l_campo -> .)
+    COMA            reduce using rule 35 (l_campo -> .)
+    PARDER          reduce using rule 35 (l_campo -> .)
+    INTEGER         shift and go to state 34
+    ADD             shift and go to state 35
+    RENAME          shift and go to state 36
+    DATE            shift and go to state 37
+    SET             shift and go to state 38
+    NOT             shift and go to state 39
+    NULL            shift and go to state 40
+    PRIMARY         shift and go to state 41
+    FOREIGN         shift and go to state 42
+    CONSTRAINT      shift and go to state 43
+    UNIQUE          shift and go to state 44
+    IDENTIFICADOR   shift and go to state 45
+    REFERENCES      shift and go to state 46
+    PARIZQ          shift and go to state 47
+    VARCHAR         shift and go to state 48
+    CHAR            shift and go to state 50
+    CHECK           shift and go to state 51
+    CHARACTER       shift and go to state 52
+    MONEY           shift and go to state 53
+    SMALLINT        shift and go to state 54
+    BIGINT          shift and go to state 55
+    DECIMAL         shift and go to state 56
+    NUMERIC         shift and go to state 57
+    REAL            shift and go to state 58
+    DOUBLE          shift and go to state 59
+    NOENTERO        shift and go to state 49
+    TEXT            shift and go to state 60
+    BOOLEAN         shift and go to state 61
 
+  ! IDENTIFICADOR   [ reduce using rule 35 (l_campo -> .) ]
+
+    tipo                           shift and go to state 33
+    l_campo                        shift and go to state 78
 
 state 34
 
-    (13) alterpp -> RENAME . TO alterppp
+    (36) tipo -> INTEGER .
 
-    TO              shift and go to state 43
+    INTEGER         reduce using rule 36 (tipo -> INTEGER .)
+    ADD             reduce using rule 36 (tipo -> INTEGER .)
+    RENAME          reduce using rule 36 (tipo -> INTEGER .)
+    DATE            reduce using rule 36 (tipo -> INTEGER .)
+    SET             reduce using rule 36 (tipo -> INTEGER .)
+    NOT             reduce using rule 36 (tipo -> INTEGER .)
+    NULL            reduce using rule 36 (tipo -> INTEGER .)
+    PRIMARY         reduce using rule 36 (tipo -> INTEGER .)
+    FOREIGN         reduce using rule 36 (tipo -> INTEGER .)
+    CONSTRAINT      reduce using rule 36 (tipo -> INTEGER .)
+    UNIQUE          reduce using rule 36 (tipo -> INTEGER .)
+    IDENTIFICADOR   reduce using rule 36 (tipo -> INTEGER .)
+    REFERENCES      reduce using rule 36 (tipo -> INTEGER .)
+    PARIZQ          reduce using rule 36 (tipo -> INTEGER .)
+    VARCHAR         reduce using rule 36 (tipo -> INTEGER .)
+    CHAR            reduce using rule 36 (tipo -> INTEGER .)
+    CHECK           reduce using rule 36 (tipo -> INTEGER .)
+    CHARACTER       reduce using rule 36 (tipo -> INTEGER .)
+    MONEY           reduce using rule 36 (tipo -> INTEGER .)
+    SMALLINT        reduce using rule 36 (tipo -> INTEGER .)
+    BIGINT          reduce using rule 36 (tipo -> INTEGER .)
+    DECIMAL         reduce using rule 36 (tipo -> INTEGER .)
+    NUMERIC         reduce using rule 36 (tipo -> INTEGER .)
+    REAL            reduce using rule 36 (tipo -> INTEGER .)
+    DOUBLE          reduce using rule 36 (tipo -> INTEGER .)
+    NOENTERO        reduce using rule 36 (tipo -> INTEGER .)
+    TEXT            reduce using rule 36 (tipo -> INTEGER .)
+    BOOLEAN         reduce using rule 36 (tipo -> INTEGER .)
+    PTCOMA          reduce using rule 36 (tipo -> INTEGER .)
+    COMA            reduce using rule 36 (tipo -> INTEGER .)
+    PARDER          reduce using rule 36 (tipo -> INTEGER .)
 
 
 state 35
 
-    (14) alterpp -> OWNER . TO alterppp
+    (37) tipo -> ADD .
 
-    TO              shift and go to state 44
+    INTEGER         reduce using rule 37 (tipo -> ADD .)
+    ADD             reduce using rule 37 (tipo -> ADD .)
+    RENAME          reduce using rule 37 (tipo -> ADD .)
+    DATE            reduce using rule 37 (tipo -> ADD .)
+    SET             reduce using rule 37 (tipo -> ADD .)
+    NOT             reduce using rule 37 (tipo -> ADD .)
+    NULL            reduce using rule 37 (tipo -> ADD .)
+    PRIMARY         reduce using rule 37 (tipo -> ADD .)
+    FOREIGN         reduce using rule 37 (tipo -> ADD .)
+    CONSTRAINT      reduce using rule 37 (tipo -> ADD .)
+    UNIQUE          reduce using rule 37 (tipo -> ADD .)
+    IDENTIFICADOR   reduce using rule 37 (tipo -> ADD .)
+    REFERENCES      reduce using rule 37 (tipo -> ADD .)
+    PARIZQ          reduce using rule 37 (tipo -> ADD .)
+    VARCHAR         reduce using rule 37 (tipo -> ADD .)
+    CHAR            reduce using rule 37 (tipo -> ADD .)
+    CHECK           reduce using rule 37 (tipo -> ADD .)
+    CHARACTER       reduce using rule 37 (tipo -> ADD .)
+    MONEY           reduce using rule 37 (tipo -> ADD .)
+    SMALLINT        reduce using rule 37 (tipo -> ADD .)
+    BIGINT          reduce using rule 37 (tipo -> ADD .)
+    DECIMAL         reduce using rule 37 (tipo -> ADD .)
+    NUMERIC         reduce using rule 37 (tipo -> ADD .)
+    REAL            reduce using rule 37 (tipo -> ADD .)
+    DOUBLE          reduce using rule 37 (tipo -> ADD .)
+    NOENTERO        reduce using rule 37 (tipo -> ADD .)
+    TEXT            reduce using rule 37 (tipo -> ADD .)
+    BOOLEAN         reduce using rule 37 (tipo -> ADD .)
+    PTCOMA          reduce using rule 37 (tipo -> ADD .)
+    COMA            reduce using rule 37 (tipo -> ADD .)
+    PARDER          reduce using rule 37 (tipo -> ADD .)
 
 
 state 36
 
-    (8) instruccion -> DROP DATABASE dropp IDENTIFICADOR .
+    (38) tipo -> RENAME .
 
-    CREATE          reduce using rule 8 (instruccion -> DROP DATABASE dropp IDENTIFICADOR .)
-    ALTER           reduce using rule 8 (instruccion -> DROP DATABASE dropp IDENTIFICADOR .)
-    DROP            reduce using rule 8 (instruccion -> DROP DATABASE dropp IDENTIFICADOR .)
-    SHOW            reduce using rule 8 (instruccion -> DROP DATABASE dropp IDENTIFICADOR .)
-    $end            reduce using rule 8 (instruccion -> DROP DATABASE dropp IDENTIFICADOR .)
+    INTEGER         reduce using rule 38 (tipo -> RENAME .)
+    ADD             reduce using rule 38 (tipo -> RENAME .)
+    RENAME          reduce using rule 38 (tipo -> RENAME .)
+    DATE            reduce using rule 38 (tipo -> RENAME .)
+    SET             reduce using rule 38 (tipo -> RENAME .)
+    NOT             reduce using rule 38 (tipo -> RENAME .)
+    NULL            reduce using rule 38 (tipo -> RENAME .)
+    PRIMARY         reduce using rule 38 (tipo -> RENAME .)
+    FOREIGN         reduce using rule 38 (tipo -> RENAME .)
+    CONSTRAINT      reduce using rule 38 (tipo -> RENAME .)
+    UNIQUE          reduce using rule 38 (tipo -> RENAME .)
+    IDENTIFICADOR   reduce using rule 38 (tipo -> RENAME .)
+    REFERENCES      reduce using rule 38 (tipo -> RENAME .)
+    PARIZQ          reduce using rule 38 (tipo -> RENAME .)
+    VARCHAR         reduce using rule 38 (tipo -> RENAME .)
+    CHAR            reduce using rule 38 (tipo -> RENAME .)
+    CHECK           reduce using rule 38 (tipo -> RENAME .)
+    CHARACTER       reduce using rule 38 (tipo -> RENAME .)
+    MONEY           reduce using rule 38 (tipo -> RENAME .)
+    SMALLINT        reduce using rule 38 (tipo -> RENAME .)
+    BIGINT          reduce using rule 38 (tipo -> RENAME .)
+    DECIMAL         reduce using rule 38 (tipo -> RENAME .)
+    NUMERIC         reduce using rule 38 (tipo -> RENAME .)
+    REAL            reduce using rule 38 (tipo -> RENAME .)
+    DOUBLE          reduce using rule 38 (tipo -> RENAME .)
+    NOENTERO        reduce using rule 38 (tipo -> RENAME .)
+    TEXT            reduce using rule 38 (tipo -> RENAME .)
+    BOOLEAN         reduce using rule 38 (tipo -> RENAME .)
+    PTCOMA          reduce using rule 38 (tipo -> RENAME .)
+    COMA            reduce using rule 38 (tipo -> RENAME .)
+    PARDER          reduce using rule 38 (tipo -> RENAME .)
 
 
 state 37
 
-    (10) dropp -> IF EXISTS .
+    (39) tipo -> DATE .
 
-    IDENTIFICADOR   reduce using rule 10 (dropp -> IF EXISTS .)
+    INTEGER         reduce using rule 39 (tipo -> DATE .)
+    ADD             reduce using rule 39 (tipo -> DATE .)
+    RENAME          reduce using rule 39 (tipo -> DATE .)
+    DATE            reduce using rule 39 (tipo -> DATE .)
+    SET             reduce using rule 39 (tipo -> DATE .)
+    NOT             reduce using rule 39 (tipo -> DATE .)
+    NULL            reduce using rule 39 (tipo -> DATE .)
+    PRIMARY         reduce using rule 39 (tipo -> DATE .)
+    FOREIGN         reduce using rule 39 (tipo -> DATE .)
+    CONSTRAINT      reduce using rule 39 (tipo -> DATE .)
+    UNIQUE          reduce using rule 39 (tipo -> DATE .)
+    IDENTIFICADOR   reduce using rule 39 (tipo -> DATE .)
+    REFERENCES      reduce using rule 39 (tipo -> DATE .)
+    PARIZQ          reduce using rule 39 (tipo -> DATE .)
+    VARCHAR         reduce using rule 39 (tipo -> DATE .)
+    CHAR            reduce using rule 39 (tipo -> DATE .)
+    CHECK           reduce using rule 39 (tipo -> DATE .)
+    CHARACTER       reduce using rule 39 (tipo -> DATE .)
+    MONEY           reduce using rule 39 (tipo -> DATE .)
+    SMALLINT        reduce using rule 39 (tipo -> DATE .)
+    BIGINT          reduce using rule 39 (tipo -> DATE .)
+    DECIMAL         reduce using rule 39 (tipo -> DATE .)
+    NUMERIC         reduce using rule 39 (tipo -> DATE .)
+    REAL            reduce using rule 39 (tipo -> DATE .)
+    DOUBLE          reduce using rule 39 (tipo -> DATE .)
+    NOENTERO        reduce using rule 39 (tipo -> DATE .)
+    TEXT            reduce using rule 39 (tipo -> DATE .)
+    BOOLEAN         reduce using rule 39 (tipo -> DATE .)
+    PTCOMA          reduce using rule 39 (tipo -> DATE .)
+    COMA            reduce using rule 39 (tipo -> DATE .)
+    PARDER          reduce using rule 39 (tipo -> DATE .)
 
 
 state 38
+
+    (40) tipo -> SET .
+
+    INTEGER         reduce using rule 40 (tipo -> SET .)
+    ADD             reduce using rule 40 (tipo -> SET .)
+    RENAME          reduce using rule 40 (tipo -> SET .)
+    DATE            reduce using rule 40 (tipo -> SET .)
+    SET             reduce using rule 40 (tipo -> SET .)
+    NOT             reduce using rule 40 (tipo -> SET .)
+    NULL            reduce using rule 40 (tipo -> SET .)
+    PRIMARY         reduce using rule 40 (tipo -> SET .)
+    FOREIGN         reduce using rule 40 (tipo -> SET .)
+    CONSTRAINT      reduce using rule 40 (tipo -> SET .)
+    UNIQUE          reduce using rule 40 (tipo -> SET .)
+    IDENTIFICADOR   reduce using rule 40 (tipo -> SET .)
+    REFERENCES      reduce using rule 40 (tipo -> SET .)
+    PARIZQ          reduce using rule 40 (tipo -> SET .)
+    VARCHAR         reduce using rule 40 (tipo -> SET .)
+    CHAR            reduce using rule 40 (tipo -> SET .)
+    CHECK           reduce using rule 40 (tipo -> SET .)
+    CHARACTER       reduce using rule 40 (tipo -> SET .)
+    MONEY           reduce using rule 40 (tipo -> SET .)
+    SMALLINT        reduce using rule 40 (tipo -> SET .)
+    BIGINT          reduce using rule 40 (tipo -> SET .)
+    DECIMAL         reduce using rule 40 (tipo -> SET .)
+    NUMERIC         reduce using rule 40 (tipo -> SET .)
+    REAL            reduce using rule 40 (tipo -> SET .)
+    DOUBLE          reduce using rule 40 (tipo -> SET .)
+    NOENTERO        reduce using rule 40 (tipo -> SET .)
+    TEXT            reduce using rule 40 (tipo -> SET .)
+    BOOLEAN         reduce using rule 40 (tipo -> SET .)
+    PTCOMA          reduce using rule 40 (tipo -> SET .)
+    COMA            reduce using rule 40 (tipo -> SET .)
+    PARDER          reduce using rule 40 (tipo -> SET .)
+
+
+state 39
+
+    (41) tipo -> NOT .
+
+    INTEGER         reduce using rule 41 (tipo -> NOT .)
+    ADD             reduce using rule 41 (tipo -> NOT .)
+    RENAME          reduce using rule 41 (tipo -> NOT .)
+    DATE            reduce using rule 41 (tipo -> NOT .)
+    SET             reduce using rule 41 (tipo -> NOT .)
+    NOT             reduce using rule 41 (tipo -> NOT .)
+    NULL            reduce using rule 41 (tipo -> NOT .)
+    PRIMARY         reduce using rule 41 (tipo -> NOT .)
+    FOREIGN         reduce using rule 41 (tipo -> NOT .)
+    CONSTRAINT      reduce using rule 41 (tipo -> NOT .)
+    UNIQUE          reduce using rule 41 (tipo -> NOT .)
+    IDENTIFICADOR   reduce using rule 41 (tipo -> NOT .)
+    REFERENCES      reduce using rule 41 (tipo -> NOT .)
+    PARIZQ          reduce using rule 41 (tipo -> NOT .)
+    VARCHAR         reduce using rule 41 (tipo -> NOT .)
+    CHAR            reduce using rule 41 (tipo -> NOT .)
+    CHECK           reduce using rule 41 (tipo -> NOT .)
+    CHARACTER       reduce using rule 41 (tipo -> NOT .)
+    MONEY           reduce using rule 41 (tipo -> NOT .)
+    SMALLINT        reduce using rule 41 (tipo -> NOT .)
+    BIGINT          reduce using rule 41 (tipo -> NOT .)
+    DECIMAL         reduce using rule 41 (tipo -> NOT .)
+    NUMERIC         reduce using rule 41 (tipo -> NOT .)
+    REAL            reduce using rule 41 (tipo -> NOT .)
+    DOUBLE          reduce using rule 41 (tipo -> NOT .)
+    NOENTERO        reduce using rule 41 (tipo -> NOT .)
+    TEXT            reduce using rule 41 (tipo -> NOT .)
+    BOOLEAN         reduce using rule 41 (tipo -> NOT .)
+    PTCOMA          reduce using rule 41 (tipo -> NOT .)
+    COMA            reduce using rule 41 (tipo -> NOT .)
+    PARDER          reduce using rule 41 (tipo -> NOT .)
+
+
+state 40
+
+    (42) tipo -> NULL .
+
+    INTEGER         reduce using rule 42 (tipo -> NULL .)
+    ADD             reduce using rule 42 (tipo -> NULL .)
+    RENAME          reduce using rule 42 (tipo -> NULL .)
+    DATE            reduce using rule 42 (tipo -> NULL .)
+    SET             reduce using rule 42 (tipo -> NULL .)
+    NOT             reduce using rule 42 (tipo -> NULL .)
+    NULL            reduce using rule 42 (tipo -> NULL .)
+    PRIMARY         reduce using rule 42 (tipo -> NULL .)
+    FOREIGN         reduce using rule 42 (tipo -> NULL .)
+    CONSTRAINT      reduce using rule 42 (tipo -> NULL .)
+    UNIQUE          reduce using rule 42 (tipo -> NULL .)
+    IDENTIFICADOR   reduce using rule 42 (tipo -> NULL .)
+    REFERENCES      reduce using rule 42 (tipo -> NULL .)
+    PARIZQ          reduce using rule 42 (tipo -> NULL .)
+    VARCHAR         reduce using rule 42 (tipo -> NULL .)
+    CHAR            reduce using rule 42 (tipo -> NULL .)
+    CHECK           reduce using rule 42 (tipo -> NULL .)
+    CHARACTER       reduce using rule 42 (tipo -> NULL .)
+    MONEY           reduce using rule 42 (tipo -> NULL .)
+    SMALLINT        reduce using rule 42 (tipo -> NULL .)
+    BIGINT          reduce using rule 42 (tipo -> NULL .)
+    DECIMAL         reduce using rule 42 (tipo -> NULL .)
+    NUMERIC         reduce using rule 42 (tipo -> NULL .)
+    REAL            reduce using rule 42 (tipo -> NULL .)
+    DOUBLE          reduce using rule 42 (tipo -> NULL .)
+    NOENTERO        reduce using rule 42 (tipo -> NULL .)
+    TEXT            reduce using rule 42 (tipo -> NULL .)
+    BOOLEAN         reduce using rule 42 (tipo -> NULL .)
+    PTCOMA          reduce using rule 42 (tipo -> NULL .)
+    COMA            reduce using rule 42 (tipo -> NULL .)
+    PARDER          reduce using rule 42 (tipo -> NULL .)
+
+
+state 41
+
+    (43) tipo -> PRIMARY . KEY
+
+    KEY             shift and go to state 79
+
+
+state 42
+
+    (44) tipo -> FOREIGN . KEY
+
+    KEY             shift and go to state 80
+
+
+state 43
+
+    (45) tipo -> CONSTRAINT .
+
+    INTEGER         reduce using rule 45 (tipo -> CONSTRAINT .)
+    ADD             reduce using rule 45 (tipo -> CONSTRAINT .)
+    RENAME          reduce using rule 45 (tipo -> CONSTRAINT .)
+    DATE            reduce using rule 45 (tipo -> CONSTRAINT .)
+    SET             reduce using rule 45 (tipo -> CONSTRAINT .)
+    NOT             reduce using rule 45 (tipo -> CONSTRAINT .)
+    NULL            reduce using rule 45 (tipo -> CONSTRAINT .)
+    PRIMARY         reduce using rule 45 (tipo -> CONSTRAINT .)
+    FOREIGN         reduce using rule 45 (tipo -> CONSTRAINT .)
+    CONSTRAINT      reduce using rule 45 (tipo -> CONSTRAINT .)
+    UNIQUE          reduce using rule 45 (tipo -> CONSTRAINT .)
+    IDENTIFICADOR   reduce using rule 45 (tipo -> CONSTRAINT .)
+    REFERENCES      reduce using rule 45 (tipo -> CONSTRAINT .)
+    PARIZQ          reduce using rule 45 (tipo -> CONSTRAINT .)
+    VARCHAR         reduce using rule 45 (tipo -> CONSTRAINT .)
+    CHAR            reduce using rule 45 (tipo -> CONSTRAINT .)
+    CHECK           reduce using rule 45 (tipo -> CONSTRAINT .)
+    CHARACTER       reduce using rule 45 (tipo -> CONSTRAINT .)
+    MONEY           reduce using rule 45 (tipo -> CONSTRAINT .)
+    SMALLINT        reduce using rule 45 (tipo -> CONSTRAINT .)
+    BIGINT          reduce using rule 45 (tipo -> CONSTRAINT .)
+    DECIMAL         reduce using rule 45 (tipo -> CONSTRAINT .)
+    NUMERIC         reduce using rule 45 (tipo -> CONSTRAINT .)
+    REAL            reduce using rule 45 (tipo -> CONSTRAINT .)
+    DOUBLE          reduce using rule 45 (tipo -> CONSTRAINT .)
+    NOENTERO        reduce using rule 45 (tipo -> CONSTRAINT .)
+    TEXT            reduce using rule 45 (tipo -> CONSTRAINT .)
+    BOOLEAN         reduce using rule 45 (tipo -> CONSTRAINT .)
+    PTCOMA          reduce using rule 45 (tipo -> CONSTRAINT .)
+    COMA            reduce using rule 45 (tipo -> CONSTRAINT .)
+    PARDER          reduce using rule 45 (tipo -> CONSTRAINT .)
+
+
+state 44
+
+    (46) tipo -> UNIQUE .
+
+    INTEGER         reduce using rule 46 (tipo -> UNIQUE .)
+    ADD             reduce using rule 46 (tipo -> UNIQUE .)
+    RENAME          reduce using rule 46 (tipo -> UNIQUE .)
+    DATE            reduce using rule 46 (tipo -> UNIQUE .)
+    SET             reduce using rule 46 (tipo -> UNIQUE .)
+    NOT             reduce using rule 46 (tipo -> UNIQUE .)
+    NULL            reduce using rule 46 (tipo -> UNIQUE .)
+    PRIMARY         reduce using rule 46 (tipo -> UNIQUE .)
+    FOREIGN         reduce using rule 46 (tipo -> UNIQUE .)
+    CONSTRAINT      reduce using rule 46 (tipo -> UNIQUE .)
+    UNIQUE          reduce using rule 46 (tipo -> UNIQUE .)
+    IDENTIFICADOR   reduce using rule 46 (tipo -> UNIQUE .)
+    REFERENCES      reduce using rule 46 (tipo -> UNIQUE .)
+    PARIZQ          reduce using rule 46 (tipo -> UNIQUE .)
+    VARCHAR         reduce using rule 46 (tipo -> UNIQUE .)
+    CHAR            reduce using rule 46 (tipo -> UNIQUE .)
+    CHECK           reduce using rule 46 (tipo -> UNIQUE .)
+    CHARACTER       reduce using rule 46 (tipo -> UNIQUE .)
+    MONEY           reduce using rule 46 (tipo -> UNIQUE .)
+    SMALLINT        reduce using rule 46 (tipo -> UNIQUE .)
+    BIGINT          reduce using rule 46 (tipo -> UNIQUE .)
+    DECIMAL         reduce using rule 46 (tipo -> UNIQUE .)
+    NUMERIC         reduce using rule 46 (tipo -> UNIQUE .)
+    REAL            reduce using rule 46 (tipo -> UNIQUE .)
+    DOUBLE          reduce using rule 46 (tipo -> UNIQUE .)
+    NOENTERO        reduce using rule 46 (tipo -> UNIQUE .)
+    TEXT            reduce using rule 46 (tipo -> UNIQUE .)
+    BOOLEAN         reduce using rule 46 (tipo -> UNIQUE .)
+    PTCOMA          reduce using rule 46 (tipo -> UNIQUE .)
+    COMA            reduce using rule 46 (tipo -> UNIQUE .)
+    PARDER          reduce using rule 46 (tipo -> UNIQUE .)
+
+
+state 45
+
+    (47) tipo -> IDENTIFICADOR .
+
+    INTEGER         reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    ADD             reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    RENAME          reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    DATE            reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    SET             reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    NOT             reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    NULL            reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    PRIMARY         reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    FOREIGN         reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    CONSTRAINT      reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    UNIQUE          reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    IDENTIFICADOR   reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    REFERENCES      reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    PARIZQ          reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    VARCHAR         reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    CHAR            reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    CHECK           reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    CHARACTER       reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    MONEY           reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    SMALLINT        reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    BIGINT          reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    DECIMAL         reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    NUMERIC         reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    REAL            reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    DOUBLE          reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    NOENTERO        reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    TEXT            reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    BOOLEAN         reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    PTCOMA          reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    COMA            reduce using rule 47 (tipo -> IDENTIFICADOR .)
+    PARDER          reduce using rule 47 (tipo -> IDENTIFICADOR .)
+
+
+state 46
+
+    (48) tipo -> REFERENCES .
+
+    INTEGER         reduce using rule 48 (tipo -> REFERENCES .)
+    ADD             reduce using rule 48 (tipo -> REFERENCES .)
+    RENAME          reduce using rule 48 (tipo -> REFERENCES .)
+    DATE            reduce using rule 48 (tipo -> REFERENCES .)
+    SET             reduce using rule 48 (tipo -> REFERENCES .)
+    NOT             reduce using rule 48 (tipo -> REFERENCES .)
+    NULL            reduce using rule 48 (tipo -> REFERENCES .)
+    PRIMARY         reduce using rule 48 (tipo -> REFERENCES .)
+    FOREIGN         reduce using rule 48 (tipo -> REFERENCES .)
+    CONSTRAINT      reduce using rule 48 (tipo -> REFERENCES .)
+    UNIQUE          reduce using rule 48 (tipo -> REFERENCES .)
+    IDENTIFICADOR   reduce using rule 48 (tipo -> REFERENCES .)
+    REFERENCES      reduce using rule 48 (tipo -> REFERENCES .)
+    PARIZQ          reduce using rule 48 (tipo -> REFERENCES .)
+    VARCHAR         reduce using rule 48 (tipo -> REFERENCES .)
+    CHAR            reduce using rule 48 (tipo -> REFERENCES .)
+    CHECK           reduce using rule 48 (tipo -> REFERENCES .)
+    CHARACTER       reduce using rule 48 (tipo -> REFERENCES .)
+    MONEY           reduce using rule 48 (tipo -> REFERENCES .)
+    SMALLINT        reduce using rule 48 (tipo -> REFERENCES .)
+    BIGINT          reduce using rule 48 (tipo -> REFERENCES .)
+    DECIMAL         reduce using rule 48 (tipo -> REFERENCES .)
+    NUMERIC         reduce using rule 48 (tipo -> REFERENCES .)
+    REAL            reduce using rule 48 (tipo -> REFERENCES .)
+    DOUBLE          reduce using rule 48 (tipo -> REFERENCES .)
+    NOENTERO        reduce using rule 48 (tipo -> REFERENCES .)
+    TEXT            reduce using rule 48 (tipo -> REFERENCES .)
+    BOOLEAN         reduce using rule 48 (tipo -> REFERENCES .)
+    PTCOMA          reduce using rule 48 (tipo -> REFERENCES .)
+    COMA            reduce using rule 48 (tipo -> REFERENCES .)
+    PARDER          reduce using rule 48 (tipo -> REFERENCES .)
+
+
+state 47
+
+    (49) tipo -> PARIZQ . l_cadenas PARDER
+    (67) l_cadenas -> . CARACTER_O_CADENA l_cadenasp
+    (68) l_cadenas -> . IDENTIFICADOR l_cadenasp
+
+    CARACTER_O_CADENA shift and go to state 82
+    IDENTIFICADOR   shift and go to state 83
+
+    l_cadenas                      shift and go to state 81
+
+state 48
+
+    (50) tipo -> VARCHAR . PARIZQ NOENTERO PARDER
+
+    PARIZQ          shift and go to state 84
+
+
+state 49
+
+    (64) tipo -> NOENTERO .
+
+    INTEGER         reduce using rule 64 (tipo -> NOENTERO .)
+    ADD             reduce using rule 64 (tipo -> NOENTERO .)
+    RENAME          reduce using rule 64 (tipo -> NOENTERO .)
+    DATE            reduce using rule 64 (tipo -> NOENTERO .)
+    SET             reduce using rule 64 (tipo -> NOENTERO .)
+    NOT             reduce using rule 64 (tipo -> NOENTERO .)
+    NULL            reduce using rule 64 (tipo -> NOENTERO .)
+    PRIMARY         reduce using rule 64 (tipo -> NOENTERO .)
+    FOREIGN         reduce using rule 64 (tipo -> NOENTERO .)
+    CONSTRAINT      reduce using rule 64 (tipo -> NOENTERO .)
+    UNIQUE          reduce using rule 64 (tipo -> NOENTERO .)
+    IDENTIFICADOR   reduce using rule 64 (tipo -> NOENTERO .)
+    REFERENCES      reduce using rule 64 (tipo -> NOENTERO .)
+    PARIZQ          reduce using rule 64 (tipo -> NOENTERO .)
+    VARCHAR         reduce using rule 64 (tipo -> NOENTERO .)
+    CHAR            reduce using rule 64 (tipo -> NOENTERO .)
+    CHECK           reduce using rule 64 (tipo -> NOENTERO .)
+    CHARACTER       reduce using rule 64 (tipo -> NOENTERO .)
+    MONEY           reduce using rule 64 (tipo -> NOENTERO .)
+    SMALLINT        reduce using rule 64 (tipo -> NOENTERO .)
+    BIGINT          reduce using rule 64 (tipo -> NOENTERO .)
+    DECIMAL         reduce using rule 64 (tipo -> NOENTERO .)
+    NUMERIC         reduce using rule 64 (tipo -> NOENTERO .)
+    REAL            reduce using rule 64 (tipo -> NOENTERO .)
+    DOUBLE          reduce using rule 64 (tipo -> NOENTERO .)
+    NOENTERO        reduce using rule 64 (tipo -> NOENTERO .)
+    TEXT            reduce using rule 64 (tipo -> NOENTERO .)
+    BOOLEAN         reduce using rule 64 (tipo -> NOENTERO .)
+    PTCOMA          reduce using rule 64 (tipo -> NOENTERO .)
+    COMA            reduce using rule 64 (tipo -> NOENTERO .)
+    PARDER          reduce using rule 64 (tipo -> NOENTERO .)
+
+
+state 50
+
+    (51) tipo -> CHAR . PARIZQ NOENTERO PARDER
+
+    PARIZQ          shift and go to state 85
+
+
+state 51
+
+    (52) tipo -> CHECK . PARIZQ expresion PARDER
+
+    PARIZQ          shift and go to state 86
+
+
+state 52
+
+    (53) tipo -> CHARACTER . VARYING PARIZQ NOENTERO PARDER
+    (54) tipo -> CHARACTER . PARIZQ NOENTERO PARDER
+
+    VARYING         shift and go to state 87
+    PARIZQ          shift and go to state 88
+
+
+state 53
+
+    (55) tipo -> MONEY .
+
+    INTEGER         reduce using rule 55 (tipo -> MONEY .)
+    ADD             reduce using rule 55 (tipo -> MONEY .)
+    RENAME          reduce using rule 55 (tipo -> MONEY .)
+    DATE            reduce using rule 55 (tipo -> MONEY .)
+    SET             reduce using rule 55 (tipo -> MONEY .)
+    NOT             reduce using rule 55 (tipo -> MONEY .)
+    NULL            reduce using rule 55 (tipo -> MONEY .)
+    PRIMARY         reduce using rule 55 (tipo -> MONEY .)
+    FOREIGN         reduce using rule 55 (tipo -> MONEY .)
+    CONSTRAINT      reduce using rule 55 (tipo -> MONEY .)
+    UNIQUE          reduce using rule 55 (tipo -> MONEY .)
+    IDENTIFICADOR   reduce using rule 55 (tipo -> MONEY .)
+    REFERENCES      reduce using rule 55 (tipo -> MONEY .)
+    PARIZQ          reduce using rule 55 (tipo -> MONEY .)
+    VARCHAR         reduce using rule 55 (tipo -> MONEY .)
+    CHAR            reduce using rule 55 (tipo -> MONEY .)
+    CHECK           reduce using rule 55 (tipo -> MONEY .)
+    CHARACTER       reduce using rule 55 (tipo -> MONEY .)
+    MONEY           reduce using rule 55 (tipo -> MONEY .)
+    SMALLINT        reduce using rule 55 (tipo -> MONEY .)
+    BIGINT          reduce using rule 55 (tipo -> MONEY .)
+    DECIMAL         reduce using rule 55 (tipo -> MONEY .)
+    NUMERIC         reduce using rule 55 (tipo -> MONEY .)
+    REAL            reduce using rule 55 (tipo -> MONEY .)
+    DOUBLE          reduce using rule 55 (tipo -> MONEY .)
+    NOENTERO        reduce using rule 55 (tipo -> MONEY .)
+    TEXT            reduce using rule 55 (tipo -> MONEY .)
+    BOOLEAN         reduce using rule 55 (tipo -> MONEY .)
+    PTCOMA          reduce using rule 55 (tipo -> MONEY .)
+    COMA            reduce using rule 55 (tipo -> MONEY .)
+    PARDER          reduce using rule 55 (tipo -> MONEY .)
+
+
+state 54
+
+    (56) tipo -> SMALLINT .
+
+    INTEGER         reduce using rule 56 (tipo -> SMALLINT .)
+    ADD             reduce using rule 56 (tipo -> SMALLINT .)
+    RENAME          reduce using rule 56 (tipo -> SMALLINT .)
+    DATE            reduce using rule 56 (tipo -> SMALLINT .)
+    SET             reduce using rule 56 (tipo -> SMALLINT .)
+    NOT             reduce using rule 56 (tipo -> SMALLINT .)
+    NULL            reduce using rule 56 (tipo -> SMALLINT .)
+    PRIMARY         reduce using rule 56 (tipo -> SMALLINT .)
+    FOREIGN         reduce using rule 56 (tipo -> SMALLINT .)
+    CONSTRAINT      reduce using rule 56 (tipo -> SMALLINT .)
+    UNIQUE          reduce using rule 56 (tipo -> SMALLINT .)
+    IDENTIFICADOR   reduce using rule 56 (tipo -> SMALLINT .)
+    REFERENCES      reduce using rule 56 (tipo -> SMALLINT .)
+    PARIZQ          reduce using rule 56 (tipo -> SMALLINT .)
+    VARCHAR         reduce using rule 56 (tipo -> SMALLINT .)
+    CHAR            reduce using rule 56 (tipo -> SMALLINT .)
+    CHECK           reduce using rule 56 (tipo -> SMALLINT .)
+    CHARACTER       reduce using rule 56 (tipo -> SMALLINT .)
+    MONEY           reduce using rule 56 (tipo -> SMALLINT .)
+    SMALLINT        reduce using rule 56 (tipo -> SMALLINT .)
+    BIGINT          reduce using rule 56 (tipo -> SMALLINT .)
+    DECIMAL         reduce using rule 56 (tipo -> SMALLINT .)
+    NUMERIC         reduce using rule 56 (tipo -> SMALLINT .)
+    REAL            reduce using rule 56 (tipo -> SMALLINT .)
+    DOUBLE          reduce using rule 56 (tipo -> SMALLINT .)
+    NOENTERO        reduce using rule 56 (tipo -> SMALLINT .)
+    TEXT            reduce using rule 56 (tipo -> SMALLINT .)
+    BOOLEAN         reduce using rule 56 (tipo -> SMALLINT .)
+    PTCOMA          reduce using rule 56 (tipo -> SMALLINT .)
+    COMA            reduce using rule 56 (tipo -> SMALLINT .)
+    PARDER          reduce using rule 56 (tipo -> SMALLINT .)
+
+
+state 55
+
+    (57) tipo -> BIGINT .
+
+    INTEGER         reduce using rule 57 (tipo -> BIGINT .)
+    ADD             reduce using rule 57 (tipo -> BIGINT .)
+    RENAME          reduce using rule 57 (tipo -> BIGINT .)
+    DATE            reduce using rule 57 (tipo -> BIGINT .)
+    SET             reduce using rule 57 (tipo -> BIGINT .)
+    NOT             reduce using rule 57 (tipo -> BIGINT .)
+    NULL            reduce using rule 57 (tipo -> BIGINT .)
+    PRIMARY         reduce using rule 57 (tipo -> BIGINT .)
+    FOREIGN         reduce using rule 57 (tipo -> BIGINT .)
+    CONSTRAINT      reduce using rule 57 (tipo -> BIGINT .)
+    UNIQUE          reduce using rule 57 (tipo -> BIGINT .)
+    IDENTIFICADOR   reduce using rule 57 (tipo -> BIGINT .)
+    REFERENCES      reduce using rule 57 (tipo -> BIGINT .)
+    PARIZQ          reduce using rule 57 (tipo -> BIGINT .)
+    VARCHAR         reduce using rule 57 (tipo -> BIGINT .)
+    CHAR            reduce using rule 57 (tipo -> BIGINT .)
+    CHECK           reduce using rule 57 (tipo -> BIGINT .)
+    CHARACTER       reduce using rule 57 (tipo -> BIGINT .)
+    MONEY           reduce using rule 57 (tipo -> BIGINT .)
+    SMALLINT        reduce using rule 57 (tipo -> BIGINT .)
+    BIGINT          reduce using rule 57 (tipo -> BIGINT .)
+    DECIMAL         reduce using rule 57 (tipo -> BIGINT .)
+    NUMERIC         reduce using rule 57 (tipo -> BIGINT .)
+    REAL            reduce using rule 57 (tipo -> BIGINT .)
+    DOUBLE          reduce using rule 57 (tipo -> BIGINT .)
+    NOENTERO        reduce using rule 57 (tipo -> BIGINT .)
+    TEXT            reduce using rule 57 (tipo -> BIGINT .)
+    BOOLEAN         reduce using rule 57 (tipo -> BIGINT .)
+    PTCOMA          reduce using rule 57 (tipo -> BIGINT .)
+    COMA            reduce using rule 57 (tipo -> BIGINT .)
+    PARDER          reduce using rule 57 (tipo -> BIGINT .)
+
+
+state 56
+
+    (58) tipo -> DECIMAL .
+    (62) tipo -> DECIMAL . PARIZQ NOENTERO COMA NOENTERO PARDER
+
+  ! shift/reduce conflict for PARIZQ resolved as shift
+    INTEGER         reduce using rule 58 (tipo -> DECIMAL .)
+    ADD             reduce using rule 58 (tipo -> DECIMAL .)
+    RENAME          reduce using rule 58 (tipo -> DECIMAL .)
+    DATE            reduce using rule 58 (tipo -> DECIMAL .)
+    SET             reduce using rule 58 (tipo -> DECIMAL .)
+    NOT             reduce using rule 58 (tipo -> DECIMAL .)
+    NULL            reduce using rule 58 (tipo -> DECIMAL .)
+    PRIMARY         reduce using rule 58 (tipo -> DECIMAL .)
+    FOREIGN         reduce using rule 58 (tipo -> DECIMAL .)
+    CONSTRAINT      reduce using rule 58 (tipo -> DECIMAL .)
+    UNIQUE          reduce using rule 58 (tipo -> DECIMAL .)
+    IDENTIFICADOR   reduce using rule 58 (tipo -> DECIMAL .)
+    REFERENCES      reduce using rule 58 (tipo -> DECIMAL .)
+    VARCHAR         reduce using rule 58 (tipo -> DECIMAL .)
+    CHAR            reduce using rule 58 (tipo -> DECIMAL .)
+    CHECK           reduce using rule 58 (tipo -> DECIMAL .)
+    CHARACTER       reduce using rule 58 (tipo -> DECIMAL .)
+    MONEY           reduce using rule 58 (tipo -> DECIMAL .)
+    SMALLINT        reduce using rule 58 (tipo -> DECIMAL .)
+    BIGINT          reduce using rule 58 (tipo -> DECIMAL .)
+    DECIMAL         reduce using rule 58 (tipo -> DECIMAL .)
+    NUMERIC         reduce using rule 58 (tipo -> DECIMAL .)
+    REAL            reduce using rule 58 (tipo -> DECIMAL .)
+    DOUBLE          reduce using rule 58 (tipo -> DECIMAL .)
+    NOENTERO        reduce using rule 58 (tipo -> DECIMAL .)
+    TEXT            reduce using rule 58 (tipo -> DECIMAL .)
+    BOOLEAN         reduce using rule 58 (tipo -> DECIMAL .)
+    PTCOMA          reduce using rule 58 (tipo -> DECIMAL .)
+    COMA            reduce using rule 58 (tipo -> DECIMAL .)
+    PARDER          reduce using rule 58 (tipo -> DECIMAL .)
+    PARIZQ          shift and go to state 89
+
+  ! PARIZQ          [ reduce using rule 58 (tipo -> DECIMAL .) ]
+
+
+state 57
+
+    (59) tipo -> NUMERIC .
+
+    INTEGER         reduce using rule 59 (tipo -> NUMERIC .)
+    ADD             reduce using rule 59 (tipo -> NUMERIC .)
+    RENAME          reduce using rule 59 (tipo -> NUMERIC .)
+    DATE            reduce using rule 59 (tipo -> NUMERIC .)
+    SET             reduce using rule 59 (tipo -> NUMERIC .)
+    NOT             reduce using rule 59 (tipo -> NUMERIC .)
+    NULL            reduce using rule 59 (tipo -> NUMERIC .)
+    PRIMARY         reduce using rule 59 (tipo -> NUMERIC .)
+    FOREIGN         reduce using rule 59 (tipo -> NUMERIC .)
+    CONSTRAINT      reduce using rule 59 (tipo -> NUMERIC .)
+    UNIQUE          reduce using rule 59 (tipo -> NUMERIC .)
+    IDENTIFICADOR   reduce using rule 59 (tipo -> NUMERIC .)
+    REFERENCES      reduce using rule 59 (tipo -> NUMERIC .)
+    PARIZQ          reduce using rule 59 (tipo -> NUMERIC .)
+    VARCHAR         reduce using rule 59 (tipo -> NUMERIC .)
+    CHAR            reduce using rule 59 (tipo -> NUMERIC .)
+    CHECK           reduce using rule 59 (tipo -> NUMERIC .)
+    CHARACTER       reduce using rule 59 (tipo -> NUMERIC .)
+    MONEY           reduce using rule 59 (tipo -> NUMERIC .)
+    SMALLINT        reduce using rule 59 (tipo -> NUMERIC .)
+    BIGINT          reduce using rule 59 (tipo -> NUMERIC .)
+    DECIMAL         reduce using rule 59 (tipo -> NUMERIC .)
+    NUMERIC         reduce using rule 59 (tipo -> NUMERIC .)
+    REAL            reduce using rule 59 (tipo -> NUMERIC .)
+    DOUBLE          reduce using rule 59 (tipo -> NUMERIC .)
+    NOENTERO        reduce using rule 59 (tipo -> NUMERIC .)
+    TEXT            reduce using rule 59 (tipo -> NUMERIC .)
+    BOOLEAN         reduce using rule 59 (tipo -> NUMERIC .)
+    PTCOMA          reduce using rule 59 (tipo -> NUMERIC .)
+    COMA            reduce using rule 59 (tipo -> NUMERIC .)
+    PARDER          reduce using rule 59 (tipo -> NUMERIC .)
+
+
+state 58
+
+    (60) tipo -> REAL .
+
+    INTEGER         reduce using rule 60 (tipo -> REAL .)
+    ADD             reduce using rule 60 (tipo -> REAL .)
+    RENAME          reduce using rule 60 (tipo -> REAL .)
+    DATE            reduce using rule 60 (tipo -> REAL .)
+    SET             reduce using rule 60 (tipo -> REAL .)
+    NOT             reduce using rule 60 (tipo -> REAL .)
+    NULL            reduce using rule 60 (tipo -> REAL .)
+    PRIMARY         reduce using rule 60 (tipo -> REAL .)
+    FOREIGN         reduce using rule 60 (tipo -> REAL .)
+    CONSTRAINT      reduce using rule 60 (tipo -> REAL .)
+    UNIQUE          reduce using rule 60 (tipo -> REAL .)
+    IDENTIFICADOR   reduce using rule 60 (tipo -> REAL .)
+    REFERENCES      reduce using rule 60 (tipo -> REAL .)
+    PARIZQ          reduce using rule 60 (tipo -> REAL .)
+    VARCHAR         reduce using rule 60 (tipo -> REAL .)
+    CHAR            reduce using rule 60 (tipo -> REAL .)
+    CHECK           reduce using rule 60 (tipo -> REAL .)
+    CHARACTER       reduce using rule 60 (tipo -> REAL .)
+    MONEY           reduce using rule 60 (tipo -> REAL .)
+    SMALLINT        reduce using rule 60 (tipo -> REAL .)
+    BIGINT          reduce using rule 60 (tipo -> REAL .)
+    DECIMAL         reduce using rule 60 (tipo -> REAL .)
+    NUMERIC         reduce using rule 60 (tipo -> REAL .)
+    REAL            reduce using rule 60 (tipo -> REAL .)
+    DOUBLE          reduce using rule 60 (tipo -> REAL .)
+    NOENTERO        reduce using rule 60 (tipo -> REAL .)
+    TEXT            reduce using rule 60 (tipo -> REAL .)
+    BOOLEAN         reduce using rule 60 (tipo -> REAL .)
+    PTCOMA          reduce using rule 60 (tipo -> REAL .)
+    COMA            reduce using rule 60 (tipo -> REAL .)
+    PARDER          reduce using rule 60 (tipo -> REAL .)
+
+
+state 59
+
+    (61) tipo -> DOUBLE . PRECISION
+    (63) tipo -> DOUBLE .
+
+    PRECISION       shift and go to state 90
+    INTEGER         reduce using rule 63 (tipo -> DOUBLE .)
+    ADD             reduce using rule 63 (tipo -> DOUBLE .)
+    RENAME          reduce using rule 63 (tipo -> DOUBLE .)
+    DATE            reduce using rule 63 (tipo -> DOUBLE .)
+    SET             reduce using rule 63 (tipo -> DOUBLE .)
+    NOT             reduce using rule 63 (tipo -> DOUBLE .)
+    NULL            reduce using rule 63 (tipo -> DOUBLE .)
+    PRIMARY         reduce using rule 63 (tipo -> DOUBLE .)
+    FOREIGN         reduce using rule 63 (tipo -> DOUBLE .)
+    CONSTRAINT      reduce using rule 63 (tipo -> DOUBLE .)
+    UNIQUE          reduce using rule 63 (tipo -> DOUBLE .)
+    IDENTIFICADOR   reduce using rule 63 (tipo -> DOUBLE .)
+    REFERENCES      reduce using rule 63 (tipo -> DOUBLE .)
+    PARIZQ          reduce using rule 63 (tipo -> DOUBLE .)
+    VARCHAR         reduce using rule 63 (tipo -> DOUBLE .)
+    CHAR            reduce using rule 63 (tipo -> DOUBLE .)
+    CHECK           reduce using rule 63 (tipo -> DOUBLE .)
+    CHARACTER       reduce using rule 63 (tipo -> DOUBLE .)
+    MONEY           reduce using rule 63 (tipo -> DOUBLE .)
+    SMALLINT        reduce using rule 63 (tipo -> DOUBLE .)
+    BIGINT          reduce using rule 63 (tipo -> DOUBLE .)
+    DECIMAL         reduce using rule 63 (tipo -> DOUBLE .)
+    NUMERIC         reduce using rule 63 (tipo -> DOUBLE .)
+    REAL            reduce using rule 63 (tipo -> DOUBLE .)
+    DOUBLE          reduce using rule 63 (tipo -> DOUBLE .)
+    NOENTERO        reduce using rule 63 (tipo -> DOUBLE .)
+    TEXT            reduce using rule 63 (tipo -> DOUBLE .)
+    BOOLEAN         reduce using rule 63 (tipo -> DOUBLE .)
+    PTCOMA          reduce using rule 63 (tipo -> DOUBLE .)
+    COMA            reduce using rule 63 (tipo -> DOUBLE .)
+    PARDER          reduce using rule 63 (tipo -> DOUBLE .)
+
+
+state 60
+
+    (65) tipo -> TEXT .
+
+    INTEGER         reduce using rule 65 (tipo -> TEXT .)
+    ADD             reduce using rule 65 (tipo -> TEXT .)
+    RENAME          reduce using rule 65 (tipo -> TEXT .)
+    DATE            reduce using rule 65 (tipo -> TEXT .)
+    SET             reduce using rule 65 (tipo -> TEXT .)
+    NOT             reduce using rule 65 (tipo -> TEXT .)
+    NULL            reduce using rule 65 (tipo -> TEXT .)
+    PRIMARY         reduce using rule 65 (tipo -> TEXT .)
+    FOREIGN         reduce using rule 65 (tipo -> TEXT .)
+    CONSTRAINT      reduce using rule 65 (tipo -> TEXT .)
+    UNIQUE          reduce using rule 65 (tipo -> TEXT .)
+    IDENTIFICADOR   reduce using rule 65 (tipo -> TEXT .)
+    REFERENCES      reduce using rule 65 (tipo -> TEXT .)
+    PARIZQ          reduce using rule 65 (tipo -> TEXT .)
+    VARCHAR         reduce using rule 65 (tipo -> TEXT .)
+    CHAR            reduce using rule 65 (tipo -> TEXT .)
+    CHECK           reduce using rule 65 (tipo -> TEXT .)
+    CHARACTER       reduce using rule 65 (tipo -> TEXT .)
+    MONEY           reduce using rule 65 (tipo -> TEXT .)
+    SMALLINT        reduce using rule 65 (tipo -> TEXT .)
+    BIGINT          reduce using rule 65 (tipo -> TEXT .)
+    DECIMAL         reduce using rule 65 (tipo -> TEXT .)
+    NUMERIC         reduce using rule 65 (tipo -> TEXT .)
+    REAL            reduce using rule 65 (tipo -> TEXT .)
+    DOUBLE          reduce using rule 65 (tipo -> TEXT .)
+    NOENTERO        reduce using rule 65 (tipo -> TEXT .)
+    TEXT            reduce using rule 65 (tipo -> TEXT .)
+    BOOLEAN         reduce using rule 65 (tipo -> TEXT .)
+    PTCOMA          reduce using rule 65 (tipo -> TEXT .)
+    COMA            reduce using rule 65 (tipo -> TEXT .)
+    PARDER          reduce using rule 65 (tipo -> TEXT .)
+
+
+state 61
+
+    (66) tipo -> BOOLEAN .
+
+    INTEGER         reduce using rule 66 (tipo -> BOOLEAN .)
+    ADD             reduce using rule 66 (tipo -> BOOLEAN .)
+    RENAME          reduce using rule 66 (tipo -> BOOLEAN .)
+    DATE            reduce using rule 66 (tipo -> BOOLEAN .)
+    SET             reduce using rule 66 (tipo -> BOOLEAN .)
+    NOT             reduce using rule 66 (tipo -> BOOLEAN .)
+    NULL            reduce using rule 66 (tipo -> BOOLEAN .)
+    PRIMARY         reduce using rule 66 (tipo -> BOOLEAN .)
+    FOREIGN         reduce using rule 66 (tipo -> BOOLEAN .)
+    CONSTRAINT      reduce using rule 66 (tipo -> BOOLEAN .)
+    UNIQUE          reduce using rule 66 (tipo -> BOOLEAN .)
+    IDENTIFICADOR   reduce using rule 66 (tipo -> BOOLEAN .)
+    REFERENCES      reduce using rule 66 (tipo -> BOOLEAN .)
+    PARIZQ          reduce using rule 66 (tipo -> BOOLEAN .)
+    VARCHAR         reduce using rule 66 (tipo -> BOOLEAN .)
+    CHAR            reduce using rule 66 (tipo -> BOOLEAN .)
+    CHECK           reduce using rule 66 (tipo -> BOOLEAN .)
+    CHARACTER       reduce using rule 66 (tipo -> BOOLEAN .)
+    MONEY           reduce using rule 66 (tipo -> BOOLEAN .)
+    SMALLINT        reduce using rule 66 (tipo -> BOOLEAN .)
+    BIGINT          reduce using rule 66 (tipo -> BOOLEAN .)
+    DECIMAL         reduce using rule 66 (tipo -> BOOLEAN .)
+    NUMERIC         reduce using rule 66 (tipo -> BOOLEAN .)
+    REAL            reduce using rule 66 (tipo -> BOOLEAN .)
+    DOUBLE          reduce using rule 66 (tipo -> BOOLEAN .)
+    NOENTERO        reduce using rule 66 (tipo -> BOOLEAN .)
+    TEXT            reduce using rule 66 (tipo -> BOOLEAN .)
+    BOOLEAN         reduce using rule 66 (tipo -> BOOLEAN .)
+    PTCOMA          reduce using rule 66 (tipo -> BOOLEAN .)
+    COMA            reduce using rule 66 (tipo -> BOOLEAN .)
+    PARDER          reduce using rule 66 (tipo -> BOOLEAN .)
+
+
+state 62
+
+    (8) instruccion -> DROP droptp PTCOMA .
+
+    CREATE          reduce using rule 8 (instruccion -> DROP droptp PTCOMA .)
+    ALTER           reduce using rule 8 (instruccion -> DROP droptp PTCOMA .)
+    DROP            reduce using rule 8 (instruccion -> DROP droptp PTCOMA .)
+    SHOW            reduce using rule 8 (instruccion -> DROP droptp PTCOMA .)
+    $end            reduce using rule 8 (instruccion -> DROP droptp PTCOMA .)
+
+
+state 63
+
+    (12) droptp -> DATABASE dropp . IDENTIFICADOR
+
+    IDENTIFICADOR   shift and go to state 91
+
+
+state 64
+
+    (14) dropp -> IF . EXISTS
+
+    EXISTS          shift and go to state 92
+
+
+state 65
+
+    (13) droptp -> TABLE IDENTIFICADOR .
+
+    PTCOMA          reduce using rule 13 (droptp -> TABLE IDENTIFICADOR .)
+
+
+state 66
+
+    (9) instruccion -> SHOW DATABASES opcional3 . PTCOMA
+
+    PTCOMA          shift and go to state 93
+
+
+state 67
+
+    (79) opcional3 -> LIKE . CARACTER_O_CADENA
+
+    CARACTER_O_CADENA shift and go to state 94
+
+
+state 68
+
+    (22) createp -> OR REPLACE DATABASE . opcional IDENTIFICADOR opcional
+    (72) opcional -> . IF NOT EXISTS
+    (73) opcional -> . OWNER opcional1 IDENTIFICADOR opcional2
+    (74) opcional -> .
+
+    IF              shift and go to state 73
+    OWNER           shift and go to state 74
+    IDENTIFICADOR   reduce using rule 74 (opcional -> .)
+
+    opcional                       shift and go to state 95
+
+state 69
+
+    (26) createpp -> IDENTIFICADOR createtp .
+
+    PTCOMA          reduce using rule 26 (createpp -> IDENTIFICADOR createtp .)
+
+
+state 70
+
+    (27) createtp -> AS . ENUM PARIZQ l_cadenas PARDER
+
+    ENUM            shift and go to state 96
+
+
+state 71
+
+    (29) createtp -> PARIZQ . l_campos PARDER
+    (30) l_campos -> . IDENTIFICADOR l_campo l_campos
+    (31) l_campos -> . COMA IDENTIFICADOR l_campo l_campos
+    (32) l_campos -> . COMA l_campo l_campos
+    (33) l_campos -> .
+
+    IDENTIFICADOR   shift and go to state 98
+    COMA            shift and go to state 99
+    PARDER          reduce using rule 33 (l_campos -> .)
+
+    l_campos                       shift and go to state 97
+
+state 72
+
+    (28) createtp -> opcional .
+
+    PTCOMA          reduce using rule 28 (createtp -> opcional .)
+
+
+state 73
+
+    (72) opcional -> IF . NOT EXISTS
+
+    NOT             shift and go to state 100
+
+
+state 74
+
+    (73) opcional -> OWNER . opcional1 IDENTIFICADOR opcional2
+    (75) opcional1 -> . IGUAL
+    (76) opcional1 -> .
+
+    IGUAL           shift and go to state 102
+    IDENTIFICADOR   reduce using rule 76 (opcional1 -> .)
+
+    opcional1                      shift and go to state 101
+
+state 75
+
+    (16) alterp -> IDENTIFICADOR alterpp .
+
+    PTCOMA          reduce using rule 16 (alterp -> IDENTIFICADOR alterpp .)
+
+
+state 76
+
+    (17) alterpp -> RENAME . TO alterppp
+
+    TO              shift and go to state 103
+
+
+state 77
+
+    (18) alterpp -> OWNER . TO alterppp
+
+    TO              shift and go to state 104
+
+
+state 78
+
+    (34) l_campo -> tipo l_campo .
+
+    PTCOMA          reduce using rule 34 (l_campo -> tipo l_campo .)
+    IDENTIFICADOR   reduce using rule 34 (l_campo -> tipo l_campo .)
+    COMA            reduce using rule 34 (l_campo -> tipo l_campo .)
+    PARDER          reduce using rule 34 (l_campo -> tipo l_campo .)
+
+
+state 79
+
+    (43) tipo -> PRIMARY KEY .
+
+    INTEGER         reduce using rule 43 (tipo -> PRIMARY KEY .)
+    ADD             reduce using rule 43 (tipo -> PRIMARY KEY .)
+    RENAME          reduce using rule 43 (tipo -> PRIMARY KEY .)
+    DATE            reduce using rule 43 (tipo -> PRIMARY KEY .)
+    SET             reduce using rule 43 (tipo -> PRIMARY KEY .)
+    NOT             reduce using rule 43 (tipo -> PRIMARY KEY .)
+    NULL            reduce using rule 43 (tipo -> PRIMARY KEY .)
+    PRIMARY         reduce using rule 43 (tipo -> PRIMARY KEY .)
+    FOREIGN         reduce using rule 43 (tipo -> PRIMARY KEY .)
+    CONSTRAINT      reduce using rule 43 (tipo -> PRIMARY KEY .)
+    UNIQUE          reduce using rule 43 (tipo -> PRIMARY KEY .)
+    IDENTIFICADOR   reduce using rule 43 (tipo -> PRIMARY KEY .)
+    REFERENCES      reduce using rule 43 (tipo -> PRIMARY KEY .)
+    PARIZQ          reduce using rule 43 (tipo -> PRIMARY KEY .)
+    VARCHAR         reduce using rule 43 (tipo -> PRIMARY KEY .)
+    CHAR            reduce using rule 43 (tipo -> PRIMARY KEY .)
+    CHECK           reduce using rule 43 (tipo -> PRIMARY KEY .)
+    CHARACTER       reduce using rule 43 (tipo -> PRIMARY KEY .)
+    MONEY           reduce using rule 43 (tipo -> PRIMARY KEY .)
+    SMALLINT        reduce using rule 43 (tipo -> PRIMARY KEY .)
+    BIGINT          reduce using rule 43 (tipo -> PRIMARY KEY .)
+    DECIMAL         reduce using rule 43 (tipo -> PRIMARY KEY .)
+    NUMERIC         reduce using rule 43 (tipo -> PRIMARY KEY .)
+    REAL            reduce using rule 43 (tipo -> PRIMARY KEY .)
+    DOUBLE          reduce using rule 43 (tipo -> PRIMARY KEY .)
+    NOENTERO        reduce using rule 43 (tipo -> PRIMARY KEY .)
+    TEXT            reduce using rule 43 (tipo -> PRIMARY KEY .)
+    BOOLEAN         reduce using rule 43 (tipo -> PRIMARY KEY .)
+    PTCOMA          reduce using rule 43 (tipo -> PRIMARY KEY .)
+    COMA            reduce using rule 43 (tipo -> PRIMARY KEY .)
+    PARDER          reduce using rule 43 (tipo -> PRIMARY KEY .)
+
+
+state 80
+
+    (44) tipo -> FOREIGN KEY .
+
+    INTEGER         reduce using rule 44 (tipo -> FOREIGN KEY .)
+    ADD             reduce using rule 44 (tipo -> FOREIGN KEY .)
+    RENAME          reduce using rule 44 (tipo -> FOREIGN KEY .)
+    DATE            reduce using rule 44 (tipo -> FOREIGN KEY .)
+    SET             reduce using rule 44 (tipo -> FOREIGN KEY .)
+    NOT             reduce using rule 44 (tipo -> FOREIGN KEY .)
+    NULL            reduce using rule 44 (tipo -> FOREIGN KEY .)
+    PRIMARY         reduce using rule 44 (tipo -> FOREIGN KEY .)
+    FOREIGN         reduce using rule 44 (tipo -> FOREIGN KEY .)
+    CONSTRAINT      reduce using rule 44 (tipo -> FOREIGN KEY .)
+    UNIQUE          reduce using rule 44 (tipo -> FOREIGN KEY .)
+    IDENTIFICADOR   reduce using rule 44 (tipo -> FOREIGN KEY .)
+    REFERENCES      reduce using rule 44 (tipo -> FOREIGN KEY .)
+    PARIZQ          reduce using rule 44 (tipo -> FOREIGN KEY .)
+    VARCHAR         reduce using rule 44 (tipo -> FOREIGN KEY .)
+    CHAR            reduce using rule 44 (tipo -> FOREIGN KEY .)
+    CHECK           reduce using rule 44 (tipo -> FOREIGN KEY .)
+    CHARACTER       reduce using rule 44 (tipo -> FOREIGN KEY .)
+    MONEY           reduce using rule 44 (tipo -> FOREIGN KEY .)
+    SMALLINT        reduce using rule 44 (tipo -> FOREIGN KEY .)
+    BIGINT          reduce using rule 44 (tipo -> FOREIGN KEY .)
+    DECIMAL         reduce using rule 44 (tipo -> FOREIGN KEY .)
+    NUMERIC         reduce using rule 44 (tipo -> FOREIGN KEY .)
+    REAL            reduce using rule 44 (tipo -> FOREIGN KEY .)
+    DOUBLE          reduce using rule 44 (tipo -> FOREIGN KEY .)
+    NOENTERO        reduce using rule 44 (tipo -> FOREIGN KEY .)
+    TEXT            reduce using rule 44 (tipo -> FOREIGN KEY .)
+    BOOLEAN         reduce using rule 44 (tipo -> FOREIGN KEY .)
+    PTCOMA          reduce using rule 44 (tipo -> FOREIGN KEY .)
+    COMA            reduce using rule 44 (tipo -> FOREIGN KEY .)
+    PARDER          reduce using rule 44 (tipo -> FOREIGN KEY .)
+
+
+state 81
+
+    (49) tipo -> PARIZQ l_cadenas . PARDER
+
+    PARDER          shift and go to state 105
+
+
+state 82
+
+    (67) l_cadenas -> CARACTER_O_CADENA . l_cadenasp
+    (69) l_cadenasp -> . COMA CARACTER_O_CADENA l_cadenasp
+    (70) l_cadenasp -> . COMA IDENTIFICADOR l_cadenasp
+    (71) l_cadenasp -> .
+
+    COMA            shift and go to state 107
+    PARDER          reduce using rule 71 (l_cadenasp -> .)
+
+    l_cadenasp                     shift and go to state 106
+
+state 83
+
+    (68) l_cadenas -> IDENTIFICADOR . l_cadenasp
+    (69) l_cadenasp -> . COMA CARACTER_O_CADENA l_cadenasp
+    (70) l_cadenasp -> . COMA IDENTIFICADOR l_cadenasp
+    (71) l_cadenasp -> .
+
+    COMA            shift and go to state 107
+    PARDER          reduce using rule 71 (l_cadenasp -> .)
+
+    l_cadenasp                     shift and go to state 108
+
+state 84
+
+    (50) tipo -> VARCHAR PARIZQ . NOENTERO PARDER
+
+    NOENTERO        shift and go to state 109
+
+
+state 85
+
+    (51) tipo -> CHAR PARIZQ . NOENTERO PARDER
+
+    NOENTERO        shift and go to state 110
+
+
+state 86
+
+    (52) tipo -> CHECK PARIZQ . expresion PARDER
+    (81) expresion -> . y
+    (82) y -> . z yp
+    (85) z -> . a zp
+    (92) a -> . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    expresion                      shift and go to state 112
+    y                              shift and go to state 113
+    z                              shift and go to state 114
+    a                              shift and go to state 115
+    b                              shift and go to state 116
+    c                              shift and go to state 117
+
+state 87
+
+    (53) tipo -> CHARACTER VARYING . PARIZQ NOENTERO PARDER
+
+    PARIZQ          shift and go to state 124
+
+
+state 88
+
+    (54) tipo -> CHARACTER PARIZQ . NOENTERO PARDER
+
+    NOENTERO        shift and go to state 125
+
+
+state 89
+
+    (62) tipo -> DECIMAL PARIZQ . NOENTERO COMA NOENTERO PARDER
+
+    NOENTERO        shift and go to state 126
+
+
+state 90
+
+    (61) tipo -> DOUBLE PRECISION .
+
+    INTEGER         reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    ADD             reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    RENAME          reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    DATE            reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    SET             reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    NOT             reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    NULL            reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    PRIMARY         reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    FOREIGN         reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    CONSTRAINT      reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    UNIQUE          reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    IDENTIFICADOR   reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    REFERENCES      reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    PARIZQ          reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    VARCHAR         reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    CHAR            reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    CHECK           reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    CHARACTER       reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    MONEY           reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    SMALLINT        reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    BIGINT          reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    DECIMAL         reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    NUMERIC         reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    REAL            reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    DOUBLE          reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    NOENTERO        reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    TEXT            reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    BOOLEAN         reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    PTCOMA          reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    COMA            reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+    PARDER          reduce using rule 61 (tipo -> DOUBLE PRECISION .)
+
+
+state 91
+
+    (12) droptp -> DATABASE dropp IDENTIFICADOR .
+
+    PTCOMA          reduce using rule 12 (droptp -> DATABASE dropp IDENTIFICADOR .)
+
+
+state 92
+
+    (14) dropp -> IF EXISTS .
+
+    IDENTIFICADOR   reduce using rule 14 (dropp -> IF EXISTS .)
+
+
+state 93
 
     (9) instruccion -> SHOW DATABASES opcional3 PTCOMA .
 
@@ -621,222 +1951,1792 @@ state 38
     $end            reduce using rule 9 (instruccion -> SHOW DATABASES opcional3 PTCOMA .)
 
 
-state 39
+state 94
 
-    (55) opcional3 -> LIKE CARACTER_O_CADENA .
+    (79) opcional3 -> LIKE CARACTER_O_CADENA .
 
-    PTCOMA          reduce using rule 55 (opcional3 -> LIKE CARACTER_O_CADENA .)
+    PTCOMA          reduce using rule 79 (opcional3 -> LIKE CARACTER_O_CADENA .)
 
 
-state 40
+state 95
 
-    (18) createp -> OR REPLACE DATABASE opcional . IDENTIFICADOR opcional PTCOMA
+    (22) createp -> OR REPLACE DATABASE opcional . IDENTIFICADOR opcional
 
+    IDENTIFICADOR   shift and go to state 127
+
+
+state 96
+
+    (27) createtp -> AS ENUM . PARIZQ l_cadenas PARDER
+
+    PARIZQ          shift and go to state 128
+
+
+state 97
+
+    (29) createtp -> PARIZQ l_campos . PARDER
+
+    PARDER          shift and go to state 129
+
+
+state 98
+
+    (30) l_campos -> IDENTIFICADOR . l_campo l_campos
+    (34) l_campo -> . tipo l_campo
+    (35) l_campo -> .
+    (36) tipo -> . INTEGER
+    (37) tipo -> . ADD
+    (38) tipo -> . RENAME
+    (39) tipo -> . DATE
+    (40) tipo -> . SET
+    (41) tipo -> . NOT
+    (42) tipo -> . NULL
+    (43) tipo -> . PRIMARY KEY
+    (44) tipo -> . FOREIGN KEY
+    (45) tipo -> . CONSTRAINT
+    (46) tipo -> . UNIQUE
+    (47) tipo -> . IDENTIFICADOR
+    (48) tipo -> . REFERENCES
+    (49) tipo -> . PARIZQ l_cadenas PARDER
+    (50) tipo -> . VARCHAR PARIZQ NOENTERO PARDER
+    (51) tipo -> . CHAR PARIZQ NOENTERO PARDER
+    (52) tipo -> . CHECK PARIZQ expresion PARDER
+    (53) tipo -> . CHARACTER VARYING PARIZQ NOENTERO PARDER
+    (54) tipo -> . CHARACTER PARIZQ NOENTERO PARDER
+    (55) tipo -> . MONEY
+    (56) tipo -> . SMALLINT
+    (57) tipo -> . BIGINT
+    (58) tipo -> . DECIMAL
+    (59) tipo -> . NUMERIC
+    (60) tipo -> . REAL
+    (61) tipo -> . DOUBLE PRECISION
+    (62) tipo -> . DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER
+    (63) tipo -> . DOUBLE
+    (64) tipo -> . NOENTERO
+    (65) tipo -> . TEXT
+    (66) tipo -> . BOOLEAN
+
+  ! shift/reduce conflict for IDENTIFICADOR resolved as shift
+    COMA            reduce using rule 35 (l_campo -> .)
+    PARDER          reduce using rule 35 (l_campo -> .)
+    INTEGER         shift and go to state 34
+    ADD             shift and go to state 35
+    RENAME          shift and go to state 36
+    DATE            shift and go to state 37
+    SET             shift and go to state 38
+    NOT             shift and go to state 39
+    NULL            shift and go to state 40
+    PRIMARY         shift and go to state 41
+    FOREIGN         shift and go to state 42
+    CONSTRAINT      shift and go to state 43
+    UNIQUE          shift and go to state 44
     IDENTIFICADOR   shift and go to state 45
+    REFERENCES      shift and go to state 46
+    PARIZQ          shift and go to state 47
+    VARCHAR         shift and go to state 48
+    CHAR            shift and go to state 50
+    CHECK           shift and go to state 51
+    CHARACTER       shift and go to state 52
+    MONEY           shift and go to state 53
+    SMALLINT        shift and go to state 54
+    BIGINT          shift and go to state 55
+    DECIMAL         shift and go to state 56
+    NUMERIC         shift and go to state 57
+    REAL            shift and go to state 58
+    DOUBLE          shift and go to state 59
+    NOENTERO        shift and go to state 49
+    TEXT            shift and go to state 60
+    BOOLEAN         shift and go to state 61
+
+  ! IDENTIFICADOR   [ reduce using rule 35 (l_campo -> .) ]
+
+    l_campo                        shift and go to state 130
+    tipo                           shift and go to state 33
+
+state 99
+
+    (31) l_campos -> COMA . IDENTIFICADOR l_campo l_campos
+    (32) l_campos -> COMA . l_campo l_campos
+    (34) l_campo -> . tipo l_campo
+    (35) l_campo -> .
+    (36) tipo -> . INTEGER
+    (37) tipo -> . ADD
+    (38) tipo -> . RENAME
+    (39) tipo -> . DATE
+    (40) tipo -> . SET
+    (41) tipo -> . NOT
+    (42) tipo -> . NULL
+    (43) tipo -> . PRIMARY KEY
+    (44) tipo -> . FOREIGN KEY
+    (45) tipo -> . CONSTRAINT
+    (46) tipo -> . UNIQUE
+    (47) tipo -> . IDENTIFICADOR
+    (48) tipo -> . REFERENCES
+    (49) tipo -> . PARIZQ l_cadenas PARDER
+    (50) tipo -> . VARCHAR PARIZQ NOENTERO PARDER
+    (51) tipo -> . CHAR PARIZQ NOENTERO PARDER
+    (52) tipo -> . CHECK PARIZQ expresion PARDER
+    (53) tipo -> . CHARACTER VARYING PARIZQ NOENTERO PARDER
+    (54) tipo -> . CHARACTER PARIZQ NOENTERO PARDER
+    (55) tipo -> . MONEY
+    (56) tipo -> . SMALLINT
+    (57) tipo -> . BIGINT
+    (58) tipo -> . DECIMAL
+    (59) tipo -> . NUMERIC
+    (60) tipo -> . REAL
+    (61) tipo -> . DOUBLE PRECISION
+    (62) tipo -> . DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER
+    (63) tipo -> . DOUBLE
+    (64) tipo -> . NOENTERO
+    (65) tipo -> . TEXT
+    (66) tipo -> . BOOLEAN
+
+  ! shift/reduce conflict for IDENTIFICADOR resolved as shift
+    IDENTIFICADOR   shift and go to state 131
+    COMA            reduce using rule 35 (l_campo -> .)
+    PARDER          reduce using rule 35 (l_campo -> .)
+    INTEGER         shift and go to state 34
+    ADD             shift and go to state 35
+    RENAME          shift and go to state 36
+    DATE            shift and go to state 37
+    SET             shift and go to state 38
+    NOT             shift and go to state 39
+    NULL            shift and go to state 40
+    PRIMARY         shift and go to state 41
+    FOREIGN         shift and go to state 42
+    CONSTRAINT      shift and go to state 43
+    UNIQUE          shift and go to state 44
+    REFERENCES      shift and go to state 46
+    PARIZQ          shift and go to state 47
+    VARCHAR         shift and go to state 48
+    CHAR            shift and go to state 50
+    CHECK           shift and go to state 51
+    CHARACTER       shift and go to state 52
+    MONEY           shift and go to state 53
+    SMALLINT        shift and go to state 54
+    BIGINT          shift and go to state 55
+    DECIMAL         shift and go to state 56
+    NUMERIC         shift and go to state 57
+    REAL            shift and go to state 58
+    DOUBLE          shift and go to state 59
+    NOENTERO        shift and go to state 49
+    TEXT            shift and go to state 60
+    BOOLEAN         shift and go to state 61
+
+  ! IDENTIFICADOR   [ reduce using rule 35 (l_campo -> .) ]
+
+    l_campo                        shift and go to state 132
+    tipo                           shift and go to state 33
+
+state 100
+
+    (72) opcional -> IF NOT . EXISTS
+
+    EXISTS          shift and go to state 133
 
 
-state 41
+state 101
 
-    (48) opcional -> IF . NOT EXISTS
+    (73) opcional -> OWNER opcional1 . IDENTIFICADOR opcional2
 
-    NOT             shift and go to state 46
+    IDENTIFICADOR   shift and go to state 134
 
 
-state 42
+state 102
 
-    (49) opcional -> OWNER . opcional1 IDENTIFICADOR opcional2
-    (51) opcional1 -> . IGUAL
-    (52) opcional1 -> .
+    (75) opcional1 -> IGUAL .
 
-    IGUAL           shift and go to state 48
-    IDENTIFICADOR   reduce using rule 52 (opcional1 -> .)
+    IDENTIFICADOR   reduce using rule 75 (opcional1 -> IGUAL .)
+    NOENTERO        reduce using rule 75 (opcional1 -> IGUAL .)
 
-    opcional1                      shift and go to state 47
 
-state 43
+state 103
 
-    (13) alterpp -> RENAME TO . alterppp
-    (15) alterppp -> . IDENTIFICADOR
-    (16) alterppp -> . CURRENT_USER
-    (17) alterppp -> . SESSION_USER
+    (17) alterpp -> RENAME TO . alterppp
+    (19) alterppp -> . IDENTIFICADOR
+    (20) alterppp -> . CURRENT_USER
+    (21) alterppp -> . SESSION_USER
 
-    IDENTIFICADOR   shift and go to state 50
-    CURRENT_USER    shift and go to state 51
-    SESSION_USER    shift and go to state 52
+    IDENTIFICADOR   shift and go to state 136
+    CURRENT_USER    shift and go to state 137
+    SESSION_USER    shift and go to state 138
 
-    alterppp                       shift and go to state 49
+    alterppp                       shift and go to state 135
 
-state 44
+state 104
 
-    (14) alterpp -> OWNER TO . alterppp
-    (15) alterppp -> . IDENTIFICADOR
-    (16) alterppp -> . CURRENT_USER
-    (17) alterppp -> . SESSION_USER
+    (18) alterpp -> OWNER TO . alterppp
+    (19) alterppp -> . IDENTIFICADOR
+    (20) alterppp -> . CURRENT_USER
+    (21) alterppp -> . SESSION_USER
 
-    IDENTIFICADOR   shift and go to state 50
-    CURRENT_USER    shift and go to state 51
-    SESSION_USER    shift and go to state 52
+    IDENTIFICADOR   shift and go to state 136
+    CURRENT_USER    shift and go to state 137
+    SESSION_USER    shift and go to state 138
 
-    alterppp                       shift and go to state 53
+    alterppp                       shift and go to state 139
 
-state 45
+state 105
 
-    (18) createp -> OR REPLACE DATABASE opcional IDENTIFICADOR . opcional PTCOMA
-    (48) opcional -> . IF NOT EXISTS
-    (49) opcional -> . OWNER opcional1 IDENTIFICADOR opcional2
-    (50) opcional -> .
+    (49) tipo -> PARIZQ l_cadenas PARDER .
 
-    IF              shift and go to state 41
-    OWNER           shift and go to state 42
-    PTCOMA          reduce using rule 50 (opcional -> .)
+    INTEGER         reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    ADD             reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    RENAME          reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    DATE            reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    SET             reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    NOT             reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    NULL            reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    PRIMARY         reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    FOREIGN         reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    CONSTRAINT      reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    UNIQUE          reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    IDENTIFICADOR   reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    REFERENCES      reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    PARIZQ          reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    VARCHAR         reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    CHAR            reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    CHECK           reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    CHARACTER       reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    MONEY           reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    SMALLINT        reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    BIGINT          reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    DECIMAL         reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    NUMERIC         reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    REAL            reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    DOUBLE          reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    NOENTERO        reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    TEXT            reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    BOOLEAN         reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    PTCOMA          reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    COMA            reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
+    PARDER          reduce using rule 49 (tipo -> PARIZQ l_cadenas PARDER .)
 
-    opcional                       shift and go to state 54
 
-state 46
+state 106
 
-    (48) opcional -> IF NOT . EXISTS
+    (67) l_cadenas -> CARACTER_O_CADENA l_cadenasp .
 
-    EXISTS          shift and go to state 55
+    PARDER          reduce using rule 67 (l_cadenas -> CARACTER_O_CADENA l_cadenasp .)
 
 
-state 47
+state 107
 
-    (49) opcional -> OWNER opcional1 . IDENTIFICADOR opcional2
+    (69) l_cadenasp -> COMA . CARACTER_O_CADENA l_cadenasp
+    (70) l_cadenasp -> COMA . IDENTIFICADOR l_cadenasp
 
-    IDENTIFICADOR   shift and go to state 56
+    CARACTER_O_CADENA shift and go to state 140
+    IDENTIFICADOR   shift and go to state 141
 
 
-state 48
+state 108
 
-    (51) opcional1 -> IGUAL .
+    (68) l_cadenas -> IDENTIFICADOR l_cadenasp .
 
-    IDENTIFICADOR   reduce using rule 51 (opcional1 -> IGUAL .)
-    NOENTERO        reduce using rule 51 (opcional1 -> IGUAL .)
+    PARDER          reduce using rule 68 (l_cadenas -> IDENTIFICADOR l_cadenasp .)
 
 
-state 49
+state 109
 
-    (13) alterpp -> RENAME TO alterppp .
+    (50) tipo -> VARCHAR PARIZQ NOENTERO . PARDER
 
-    CREATE          reduce using rule 13 (alterpp -> RENAME TO alterppp .)
-    ALTER           reduce using rule 13 (alterpp -> RENAME TO alterppp .)
-    DROP            reduce using rule 13 (alterpp -> RENAME TO alterppp .)
-    SHOW            reduce using rule 13 (alterpp -> RENAME TO alterppp .)
-    $end            reduce using rule 13 (alterpp -> RENAME TO alterppp .)
+    PARDER          shift and go to state 142
 
 
-state 50
+state 110
 
-    (15) alterppp -> IDENTIFICADOR .
+    (51) tipo -> CHAR PARIZQ NOENTERO . PARDER
 
-    CREATE          reduce using rule 15 (alterppp -> IDENTIFICADOR .)
-    ALTER           reduce using rule 15 (alterppp -> IDENTIFICADOR .)
-    DROP            reduce using rule 15 (alterppp -> IDENTIFICADOR .)
-    SHOW            reduce using rule 15 (alterppp -> IDENTIFICADOR .)
-    $end            reduce using rule 15 (alterppp -> IDENTIFICADOR .)
+    PARDER          shift and go to state 143
 
 
-state 51
+state 111
 
-    (16) alterppp -> CURRENT_USER .
+    (100) c -> PARIZQ . a PARDER
+    (92) a -> . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
 
-    CREATE          reduce using rule 16 (alterppp -> CURRENT_USER .)
-    ALTER           reduce using rule 16 (alterppp -> CURRENT_USER .)
-    DROP            reduce using rule 16 (alterppp -> CURRENT_USER .)
-    SHOW            reduce using rule 16 (alterppp -> CURRENT_USER .)
-    $end            reduce using rule 16 (alterppp -> CURRENT_USER .)
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
 
+    a                              shift and go to state 144
+    b                              shift and go to state 116
+    c                              shift and go to state 117
 
-state 52
+state 112
 
-    (17) alterppp -> SESSION_USER .
+    (52) tipo -> CHECK PARIZQ expresion . PARDER
 
-    CREATE          reduce using rule 17 (alterppp -> SESSION_USER .)
-    ALTER           reduce using rule 17 (alterppp -> SESSION_USER .)
-    DROP            reduce using rule 17 (alterppp -> SESSION_USER .)
-    SHOW            reduce using rule 17 (alterppp -> SESSION_USER .)
-    $end            reduce using rule 17 (alterppp -> SESSION_USER .)
+    PARDER          shift and go to state 145
 
 
-state 53
+state 113
 
-    (14) alterpp -> OWNER TO alterppp .
+    (81) expresion -> y .
 
-    CREATE          reduce using rule 14 (alterpp -> OWNER TO alterppp .)
-    ALTER           reduce using rule 14 (alterpp -> OWNER TO alterppp .)
-    DROP            reduce using rule 14 (alterpp -> OWNER TO alterppp .)
-    SHOW            reduce using rule 14 (alterpp -> OWNER TO alterppp .)
-    $end            reduce using rule 14 (alterpp -> OWNER TO alterppp .)
+    PARDER          reduce using rule 81 (expresion -> y .)
 
 
-state 54
+state 114
 
-    (18) createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional . PTCOMA
+    (82) y -> z . yp
+    (83) yp -> . OR z yp
+    (84) yp -> .
 
-    PTCOMA          shift and go to state 57
+    OR              shift and go to state 147
+    PARDER          reduce using rule 84 (yp -> .)
 
+    yp                             shift and go to state 146
 
-state 55
+state 115
 
-    (48) opcional -> IF NOT EXISTS .
+    (85) z -> a . zp
+    (86) zp -> . DIFERENTEQ a zp
+    (87) zp -> . MAYORQ a zp
+    (88) zp -> . MAYORIGUALQ a zp
+    (89) zp -> . MENORQ a zp
+    (90) zp -> . MENORIGUALQ a zp
+    (91) zp -> .
 
-    IDENTIFICADOR   reduce using rule 48 (opcional -> IF NOT EXISTS .)
-    PTCOMA          reduce using rule 48 (opcional -> IF NOT EXISTS .)
+    DIFERENTEQ      shift and go to state 149
+    MAYORQ          shift and go to state 150
+    MAYORIGUALQ     shift and go to state 151
+    MENORQ          shift and go to state 152
+    MENORIGUALQ     shift and go to state 153
+    OR              reduce using rule 91 (zp -> .)
+    PARDER          reduce using rule 91 (zp -> .)
 
+    zp                             shift and go to state 148
 
-state 56
+state 116
 
-    (49) opcional -> OWNER opcional1 IDENTIFICADOR . opcional2
-    (53) opcional2 -> . MODE opcional1 NOENTERO
-    (54) opcional2 -> .
+    (92) a -> b . ap
+    (93) ap -> . MAS b ap
+    (94) ap -> . MENOS b ap
+    (95) ap -> .
 
-    MODE            shift and go to state 59
-    IDENTIFICADOR   reduce using rule 54 (opcional2 -> .)
-    PTCOMA          reduce using rule 54 (opcional2 -> .)
+    MAS             shift and go to state 155
+    MENOS           shift and go to state 156
+    DIFERENTEQ      reduce using rule 95 (ap -> .)
+    MAYORQ          reduce using rule 95 (ap -> .)
+    MAYORIGUALQ     reduce using rule 95 (ap -> .)
+    MENORQ          reduce using rule 95 (ap -> .)
+    MENORIGUALQ     reduce using rule 95 (ap -> .)
+    OR              reduce using rule 95 (ap -> .)
+    PARDER          reduce using rule 95 (ap -> .)
 
-    opcional2                      shift and go to state 58
+    ap                             shift and go to state 154
 
-state 57
+state 117
 
-    (18) createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA .
+    (96) b -> c . bp
+    (97) bp -> . POR c bp
+    (98) bp -> . DIVISION c bp
+    (99) bp -> .
 
-    CREATE          reduce using rule 18 (createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA .)
-    ALTER           reduce using rule 18 (createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA .)
-    DROP            reduce using rule 18 (createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA .)
-    SHOW            reduce using rule 18 (createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA .)
-    $end            reduce using rule 18 (createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA .)
+    POR             shift and go to state 158
+    DIVISION        shift and go to state 159
+    MAS             reduce using rule 99 (bp -> .)
+    MENOS           reduce using rule 99 (bp -> .)
+    DIFERENTEQ      reduce using rule 99 (bp -> .)
+    MAYORQ          reduce using rule 99 (bp -> .)
+    MAYORIGUALQ     reduce using rule 99 (bp -> .)
+    MENORQ          reduce using rule 99 (bp -> .)
+    MENORIGUALQ     reduce using rule 99 (bp -> .)
+    OR              reduce using rule 99 (bp -> .)
+    PARDER          reduce using rule 99 (bp -> .)
 
+    bp                             shift and go to state 157
 
-state 58
+state 118
 
-    (49) opcional -> OWNER opcional1 IDENTIFICADOR opcional2 .
+    (101) c -> IDENTIFICADOR .
 
-    IDENTIFICADOR   reduce using rule 49 (opcional -> OWNER opcional1 IDENTIFICADOR opcional2 .)
-    PTCOMA          reduce using rule 49 (opcional -> OWNER opcional1 IDENTIFICADOR opcional2 .)
+    POR             reduce using rule 101 (c -> IDENTIFICADOR .)
+    DIVISION        reduce using rule 101 (c -> IDENTIFICADOR .)
+    MAS             reduce using rule 101 (c -> IDENTIFICADOR .)
+    MENOS           reduce using rule 101 (c -> IDENTIFICADOR .)
+    DIFERENTEQ      reduce using rule 101 (c -> IDENTIFICADOR .)
+    MAYORQ          reduce using rule 101 (c -> IDENTIFICADOR .)
+    MAYORIGUALQ     reduce using rule 101 (c -> IDENTIFICADOR .)
+    MENORQ          reduce using rule 101 (c -> IDENTIFICADOR .)
+    MENORIGUALQ     reduce using rule 101 (c -> IDENTIFICADOR .)
+    OR              reduce using rule 101 (c -> IDENTIFICADOR .)
+    PARDER          reduce using rule 101 (c -> IDENTIFICADOR .)
 
 
-state 59
+state 119
 
-    (53) opcional2 -> MODE . opcional1 NOENTERO
-    (51) opcional1 -> . IGUAL
-    (52) opcional1 -> .
+    (102) c -> CADENA .
 
-    IGUAL           shift and go to state 48
-    NOENTERO        reduce using rule 52 (opcional1 -> .)
+    POR             reduce using rule 102 (c -> CADENA .)
+    DIVISION        reduce using rule 102 (c -> CADENA .)
+    MAS             reduce using rule 102 (c -> CADENA .)
+    MENOS           reduce using rule 102 (c -> CADENA .)
+    DIFERENTEQ      reduce using rule 102 (c -> CADENA .)
+    MAYORQ          reduce using rule 102 (c -> CADENA .)
+    MAYORIGUALQ     reduce using rule 102 (c -> CADENA .)
+    MENORQ          reduce using rule 102 (c -> CADENA .)
+    MENORIGUALQ     reduce using rule 102 (c -> CADENA .)
+    OR              reduce using rule 102 (c -> CADENA .)
+    PARDER          reduce using rule 102 (c -> CADENA .)
 
-    opcional1                      shift and go to state 60
 
-state 60
+state 120
 
-    (53) opcional2 -> MODE opcional1 . NOENTERO
+    (103) c -> CARACTER_O_CADENA .
 
-    NOENTERO        shift and go to state 61
+    POR             reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    DIVISION        reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    MAS             reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    MENOS           reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    DIFERENTEQ      reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    MAYORQ          reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    MAYORIGUALQ     reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    MENORQ          reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    MENORIGUALQ     reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    OR              reduce using rule 103 (c -> CARACTER_O_CADENA .)
+    PARDER          reduce using rule 103 (c -> CARACTER_O_CADENA .)
 
 
-state 61
+state 121
 
-    (53) opcional2 -> MODE opcional1 NOENTERO .
+    (104) c -> NOENTERO .
 
-    IDENTIFICADOR   reduce using rule 53 (opcional2 -> MODE opcional1 NOENTERO .)
-    PTCOMA          reduce using rule 53 (opcional2 -> MODE opcional1 NOENTERO .)
+    POR             reduce using rule 104 (c -> NOENTERO .)
+    DIVISION        reduce using rule 104 (c -> NOENTERO .)
+    MAS             reduce using rule 104 (c -> NOENTERO .)
+    MENOS           reduce using rule 104 (c -> NOENTERO .)
+    DIFERENTEQ      reduce using rule 104 (c -> NOENTERO .)
+    MAYORQ          reduce using rule 104 (c -> NOENTERO .)
+    MAYORIGUALQ     reduce using rule 104 (c -> NOENTERO .)
+    MENORQ          reduce using rule 104 (c -> NOENTERO .)
+    MENORIGUALQ     reduce using rule 104 (c -> NOENTERO .)
+    OR              reduce using rule 104 (c -> NOENTERO .)
+    PARDER          reduce using rule 104 (c -> NOENTERO .)
 
+
+state 122
+
+    (105) c -> NODECIMAL .
+
+    POR             reduce using rule 105 (c -> NODECIMAL .)
+    DIVISION        reduce using rule 105 (c -> NODECIMAL .)
+    MAS             reduce using rule 105 (c -> NODECIMAL .)
+    MENOS           reduce using rule 105 (c -> NODECIMAL .)
+    DIFERENTEQ      reduce using rule 105 (c -> NODECIMAL .)
+    MAYORQ          reduce using rule 105 (c -> NODECIMAL .)
+    MAYORIGUALQ     reduce using rule 105 (c -> NODECIMAL .)
+    MENORQ          reduce using rule 105 (c -> NODECIMAL .)
+    MENORIGUALQ     reduce using rule 105 (c -> NODECIMAL .)
+    OR              reduce using rule 105 (c -> NODECIMAL .)
+    PARDER          reduce using rule 105 (c -> NODECIMAL .)
+
+
+state 123
+
+    (106) c -> BOOLEAN .
+
+    POR             reduce using rule 106 (c -> BOOLEAN .)
+    DIVISION        reduce using rule 106 (c -> BOOLEAN .)
+    MAS             reduce using rule 106 (c -> BOOLEAN .)
+    MENOS           reduce using rule 106 (c -> BOOLEAN .)
+    DIFERENTEQ      reduce using rule 106 (c -> BOOLEAN .)
+    MAYORQ          reduce using rule 106 (c -> BOOLEAN .)
+    MAYORIGUALQ     reduce using rule 106 (c -> BOOLEAN .)
+    MENORQ          reduce using rule 106 (c -> BOOLEAN .)
+    MENORIGUALQ     reduce using rule 106 (c -> BOOLEAN .)
+    OR              reduce using rule 106 (c -> BOOLEAN .)
+    PARDER          reduce using rule 106 (c -> BOOLEAN .)
+
+
+state 124
+
+    (53) tipo -> CHARACTER VARYING PARIZQ . NOENTERO PARDER
+
+    NOENTERO        shift and go to state 160
+
+
+state 125
+
+    (54) tipo -> CHARACTER PARIZQ NOENTERO . PARDER
+
+    PARDER          shift and go to state 161
+
+
+state 126
+
+    (62) tipo -> DECIMAL PARIZQ NOENTERO . COMA NOENTERO PARDER
+
+    COMA            shift and go to state 162
+
+
+state 127
+
+    (22) createp -> OR REPLACE DATABASE opcional IDENTIFICADOR . opcional
+    (72) opcional -> . IF NOT EXISTS
+    (73) opcional -> . OWNER opcional1 IDENTIFICADOR opcional2
+    (74) opcional -> .
+
+    IF              shift and go to state 73
+    OWNER           shift and go to state 74
+    PTCOMA          reduce using rule 74 (opcional -> .)
+
+    opcional                       shift and go to state 163
+
+state 128
+
+    (27) createtp -> AS ENUM PARIZQ . l_cadenas PARDER
+    (67) l_cadenas -> . CARACTER_O_CADENA l_cadenasp
+    (68) l_cadenas -> . IDENTIFICADOR l_cadenasp
+
+    CARACTER_O_CADENA shift and go to state 82
+    IDENTIFICADOR   shift and go to state 83
+
+    l_cadenas                      shift and go to state 164
+
+state 129
+
+    (29) createtp -> PARIZQ l_campos PARDER .
+
+    PTCOMA          reduce using rule 29 (createtp -> PARIZQ l_campos PARDER .)
+
+
+state 130
+
+    (30) l_campos -> IDENTIFICADOR l_campo . l_campos
+    (30) l_campos -> . IDENTIFICADOR l_campo l_campos
+    (31) l_campos -> . COMA IDENTIFICADOR l_campo l_campos
+    (32) l_campos -> . COMA l_campo l_campos
+    (33) l_campos -> .
+
+    IDENTIFICADOR   shift and go to state 98
+    COMA            shift and go to state 99
+    PARDER          reduce using rule 33 (l_campos -> .)
+
+    l_campos                       shift and go to state 165
+
+state 131
+
+    (31) l_campos -> COMA IDENTIFICADOR . l_campo l_campos
+    (47) tipo -> IDENTIFICADOR .
+    (34) l_campo -> . tipo l_campo
+    (35) l_campo -> .
+    (36) tipo -> . INTEGER
+    (37) tipo -> . ADD
+    (38) tipo -> . RENAME
+    (39) tipo -> . DATE
+    (40) tipo -> . SET
+    (41) tipo -> . NOT
+    (42) tipo -> . NULL
+    (43) tipo -> . PRIMARY KEY
+    (44) tipo -> . FOREIGN KEY
+    (45) tipo -> . CONSTRAINT
+    (46) tipo -> . UNIQUE
+    (47) tipo -> . IDENTIFICADOR
+    (48) tipo -> . REFERENCES
+    (49) tipo -> . PARIZQ l_cadenas PARDER
+    (50) tipo -> . VARCHAR PARIZQ NOENTERO PARDER
+    (51) tipo -> . CHAR PARIZQ NOENTERO PARDER
+    (52) tipo -> . CHECK PARIZQ expresion PARDER
+    (53) tipo -> . CHARACTER VARYING PARIZQ NOENTERO PARDER
+    (54) tipo -> . CHARACTER PARIZQ NOENTERO PARDER
+    (55) tipo -> . MONEY
+    (56) tipo -> . SMALLINT
+    (57) tipo -> . BIGINT
+    (58) tipo -> . DECIMAL
+    (59) tipo -> . NUMERIC
+    (60) tipo -> . REAL
+    (61) tipo -> . DOUBLE PRECISION
+    (62) tipo -> . DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER
+    (63) tipo -> . DOUBLE
+    (64) tipo -> . NOENTERO
+    (65) tipo -> . TEXT
+    (66) tipo -> . BOOLEAN
+
+  ! reduce/reduce conflict for IDENTIFICADOR resolved using rule 35 (l_campo -> .)
+  ! reduce/reduce conflict for COMA resolved using rule 35 (l_campo -> .)
+  ! reduce/reduce conflict for PARDER resolved using rule 35 (l_campo -> .)
+  ! shift/reduce conflict for INTEGER resolved as shift
+  ! shift/reduce conflict for ADD resolved as shift
+  ! shift/reduce conflict for RENAME resolved as shift
+  ! shift/reduce conflict for DATE resolved as shift
+  ! shift/reduce conflict for SET resolved as shift
+  ! shift/reduce conflict for NOT resolved as shift
+  ! shift/reduce conflict for NULL resolved as shift
+  ! shift/reduce conflict for PRIMARY resolved as shift
+  ! shift/reduce conflict for FOREIGN resolved as shift
+  ! shift/reduce conflict for CONSTRAINT resolved as shift
+  ! shift/reduce conflict for UNIQUE resolved as shift
+  ! shift/reduce conflict for IDENTIFICADOR resolved as shift
+  ! shift/reduce conflict for REFERENCES resolved as shift
+  ! shift/reduce conflict for PARIZQ resolved as shift
+  ! shift/reduce conflict for VARCHAR resolved as shift
+  ! shift/reduce conflict for CHAR resolved as shift
+  ! shift/reduce conflict for CHECK resolved as shift
+  ! shift/reduce conflict for CHARACTER resolved as shift
+  ! shift/reduce conflict for MONEY resolved as shift
+  ! shift/reduce conflict for SMALLINT resolved as shift
+  ! shift/reduce conflict for BIGINT resolved as shift
+  ! shift/reduce conflict for DECIMAL resolved as shift
+  ! shift/reduce conflict for NUMERIC resolved as shift
+  ! shift/reduce conflict for REAL resolved as shift
+  ! shift/reduce conflict for DOUBLE resolved as shift
+  ! shift/reduce conflict for NOENTERO resolved as shift
+  ! shift/reduce conflict for TEXT resolved as shift
+  ! shift/reduce conflict for BOOLEAN resolved as shift
+    COMA            reduce using rule 35 (l_campo -> .)
+    PARDER          reduce using rule 35 (l_campo -> .)
+    INTEGER         shift and go to state 34
+    ADD             shift and go to state 35
+    RENAME          shift and go to state 36
+    DATE            shift and go to state 37
+    SET             shift and go to state 38
+    NOT             shift and go to state 39
+    NULL            shift and go to state 40
+    PRIMARY         shift and go to state 41
+    FOREIGN         shift and go to state 42
+    CONSTRAINT      shift and go to state 43
+    UNIQUE          shift and go to state 44
+    IDENTIFICADOR   shift and go to state 45
+    REFERENCES      shift and go to state 46
+    PARIZQ          shift and go to state 47
+    VARCHAR         shift and go to state 48
+    CHAR            shift and go to state 50
+    CHECK           shift and go to state 51
+    CHARACTER       shift and go to state 52
+    MONEY           shift and go to state 53
+    SMALLINT        shift and go to state 54
+    BIGINT          shift and go to state 55
+    DECIMAL         shift and go to state 56
+    NUMERIC         shift and go to state 57
+    REAL            shift and go to state 58
+    DOUBLE          shift and go to state 59
+    NOENTERO        shift and go to state 49
+    TEXT            shift and go to state 60
+    BOOLEAN         shift and go to state 61
+
+  ! INTEGER         [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! ADD             [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! RENAME          [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! DATE            [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! SET             [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! NOT             [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! NULL            [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! PRIMARY         [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! FOREIGN         [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! CONSTRAINT      [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! UNIQUE          [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! IDENTIFICADOR   [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! REFERENCES      [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! PARIZQ          [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! VARCHAR         [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! CHAR            [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! CHECK           [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! CHARACTER       [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! MONEY           [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! SMALLINT        [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! BIGINT          [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! DECIMAL         [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! NUMERIC         [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! REAL            [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! DOUBLE          [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! NOENTERO        [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! TEXT            [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! BOOLEAN         [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! COMA            [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! PARDER          [ reduce using rule 47 (tipo -> IDENTIFICADOR .) ]
+  ! IDENTIFICADOR   [ reduce using rule 35 (l_campo -> .) ]
+
+    l_campo                        shift and go to state 166
+    tipo                           shift and go to state 33
+
+state 132
+
+    (32) l_campos -> COMA l_campo . l_campos
+    (30) l_campos -> . IDENTIFICADOR l_campo l_campos
+    (31) l_campos -> . COMA IDENTIFICADOR l_campo l_campos
+    (32) l_campos -> . COMA l_campo l_campos
+    (33) l_campos -> .
+
+    IDENTIFICADOR   shift and go to state 98
+    COMA            shift and go to state 99
+    PARDER          reduce using rule 33 (l_campos -> .)
+
+    l_campos                       shift and go to state 167
+
+state 133
+
+    (72) opcional -> IF NOT EXISTS .
+
+    PTCOMA          reduce using rule 72 (opcional -> IF NOT EXISTS .)
+    IDENTIFICADOR   reduce using rule 72 (opcional -> IF NOT EXISTS .)
+
+
+state 134
+
+    (73) opcional -> OWNER opcional1 IDENTIFICADOR . opcional2
+    (77) opcional2 -> . MODE opcional1 NOENTERO
+    (78) opcional2 -> .
+
+    MODE            shift and go to state 169
+    PTCOMA          reduce using rule 78 (opcional2 -> .)
+    IDENTIFICADOR   reduce using rule 78 (opcional2 -> .)
+
+    opcional2                      shift and go to state 168
+
+state 135
+
+    (17) alterpp -> RENAME TO alterppp .
+
+    PTCOMA          reduce using rule 17 (alterpp -> RENAME TO alterppp .)
+
+
+state 136
+
+    (19) alterppp -> IDENTIFICADOR .
+
+    PTCOMA          reduce using rule 19 (alterppp -> IDENTIFICADOR .)
+
+
+state 137
+
+    (20) alterppp -> CURRENT_USER .
+
+    PTCOMA          reduce using rule 20 (alterppp -> CURRENT_USER .)
+
+
+state 138
+
+    (21) alterppp -> SESSION_USER .
+
+    PTCOMA          reduce using rule 21 (alterppp -> SESSION_USER .)
+
+
+state 139
+
+    (18) alterpp -> OWNER TO alterppp .
+
+    PTCOMA          reduce using rule 18 (alterpp -> OWNER TO alterppp .)
+
+
+state 140
+
+    (69) l_cadenasp -> COMA CARACTER_O_CADENA . l_cadenasp
+    (69) l_cadenasp -> . COMA CARACTER_O_CADENA l_cadenasp
+    (70) l_cadenasp -> . COMA IDENTIFICADOR l_cadenasp
+    (71) l_cadenasp -> .
+
+    COMA            shift and go to state 107
+    PARDER          reduce using rule 71 (l_cadenasp -> .)
+
+    l_cadenasp                     shift and go to state 170
+
+state 141
+
+    (70) l_cadenasp -> COMA IDENTIFICADOR . l_cadenasp
+    (69) l_cadenasp -> . COMA CARACTER_O_CADENA l_cadenasp
+    (70) l_cadenasp -> . COMA IDENTIFICADOR l_cadenasp
+    (71) l_cadenasp -> .
+
+    COMA            shift and go to state 107
+    PARDER          reduce using rule 71 (l_cadenasp -> .)
+
+    l_cadenasp                     shift and go to state 171
+
+state 142
+
+    (50) tipo -> VARCHAR PARIZQ NOENTERO PARDER .
+
+    INTEGER         reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    ADD             reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    RENAME          reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    DATE            reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    SET             reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    NOT             reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    NULL            reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    PRIMARY         reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    FOREIGN         reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    CONSTRAINT      reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    UNIQUE          reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    IDENTIFICADOR   reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    REFERENCES      reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    PARIZQ          reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    VARCHAR         reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    CHAR            reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    CHECK           reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    CHARACTER       reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    MONEY           reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    SMALLINT        reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    BIGINT          reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    DECIMAL         reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    NUMERIC         reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    REAL            reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    DOUBLE          reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    NOENTERO        reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    TEXT            reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    BOOLEAN         reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    PTCOMA          reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    COMA            reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+    PARDER          reduce using rule 50 (tipo -> VARCHAR PARIZQ NOENTERO PARDER .)
+
+
+state 143
+
+    (51) tipo -> CHAR PARIZQ NOENTERO PARDER .
+
+    INTEGER         reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    ADD             reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    RENAME          reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    DATE            reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    SET             reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    NOT             reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    NULL            reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    PRIMARY         reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    FOREIGN         reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    CONSTRAINT      reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    UNIQUE          reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    IDENTIFICADOR   reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    REFERENCES      reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    PARIZQ          reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    VARCHAR         reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    CHAR            reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    CHECK           reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    CHARACTER       reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    MONEY           reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    SMALLINT        reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    BIGINT          reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    DECIMAL         reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    NUMERIC         reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    REAL            reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    DOUBLE          reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    NOENTERO        reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    TEXT            reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    BOOLEAN         reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    PTCOMA          reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    COMA            reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+    PARDER          reduce using rule 51 (tipo -> CHAR PARIZQ NOENTERO PARDER .)
+
+
+state 144
+
+    (100) c -> PARIZQ a . PARDER
+
+    PARDER          shift and go to state 172
+
+
+state 145
+
+    (52) tipo -> CHECK PARIZQ expresion PARDER .
+
+    INTEGER         reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    ADD             reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    RENAME          reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    DATE            reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    SET             reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    NOT             reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    NULL            reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    PRIMARY         reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    FOREIGN         reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    CONSTRAINT      reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    UNIQUE          reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    IDENTIFICADOR   reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    REFERENCES      reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    PARIZQ          reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    VARCHAR         reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    CHAR            reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    CHECK           reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    CHARACTER       reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    MONEY           reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    SMALLINT        reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    BIGINT          reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    DECIMAL         reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    NUMERIC         reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    REAL            reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    DOUBLE          reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    NOENTERO        reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    TEXT            reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    BOOLEAN         reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    PTCOMA          reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    COMA            reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+    PARDER          reduce using rule 52 (tipo -> CHECK PARIZQ expresion PARDER .)
+
+
+state 146
+
+    (82) y -> z yp .
+
+    PARDER          reduce using rule 82 (y -> z yp .)
+
+
+state 147
+
+    (83) yp -> OR . z yp
+    (85) z -> . a zp
+    (92) a -> . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    z                              shift and go to state 173
+    a                              shift and go to state 115
+    b                              shift and go to state 116
+    c                              shift and go to state 117
+
+state 148
+
+    (85) z -> a zp .
+
+    OR              reduce using rule 85 (z -> a zp .)
+    PARDER          reduce using rule 85 (z -> a zp .)
+
+
+state 149
+
+    (86) zp -> DIFERENTEQ . a zp
+    (92) a -> . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    a                              shift and go to state 174
+    b                              shift and go to state 116
+    c                              shift and go to state 117
+
+state 150
+
+    (87) zp -> MAYORQ . a zp
+    (92) a -> . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    a                              shift and go to state 175
+    b                              shift and go to state 116
+    c                              shift and go to state 117
+
+state 151
+
+    (88) zp -> MAYORIGUALQ . a zp
+    (92) a -> . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    a                              shift and go to state 176
+    b                              shift and go to state 116
+    c                              shift and go to state 117
+
+state 152
+
+    (89) zp -> MENORQ . a zp
+    (92) a -> . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    a                              shift and go to state 177
+    b                              shift and go to state 116
+    c                              shift and go to state 117
+
+state 153
+
+    (90) zp -> MENORIGUALQ . a zp
+    (92) a -> . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    a                              shift and go to state 178
+    b                              shift and go to state 116
+    c                              shift and go to state 117
+
+state 154
+
+    (92) a -> b ap .
+
+    DIFERENTEQ      reduce using rule 92 (a -> b ap .)
+    MAYORQ          reduce using rule 92 (a -> b ap .)
+    MAYORIGUALQ     reduce using rule 92 (a -> b ap .)
+    MENORQ          reduce using rule 92 (a -> b ap .)
+    MENORIGUALQ     reduce using rule 92 (a -> b ap .)
+    OR              reduce using rule 92 (a -> b ap .)
+    PARDER          reduce using rule 92 (a -> b ap .)
+
+
+state 155
+
+    (93) ap -> MAS . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    b                              shift and go to state 179
+    c                              shift and go to state 117
+
+state 156
+
+    (94) ap -> MENOS . b ap
+    (96) b -> . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    b                              shift and go to state 180
+    c                              shift and go to state 117
+
+state 157
+
+    (96) b -> c bp .
+
+    MAS             reduce using rule 96 (b -> c bp .)
+    MENOS           reduce using rule 96 (b -> c bp .)
+    DIFERENTEQ      reduce using rule 96 (b -> c bp .)
+    MAYORQ          reduce using rule 96 (b -> c bp .)
+    MAYORIGUALQ     reduce using rule 96 (b -> c bp .)
+    MENORQ          reduce using rule 96 (b -> c bp .)
+    MENORIGUALQ     reduce using rule 96 (b -> c bp .)
+    OR              reduce using rule 96 (b -> c bp .)
+    PARDER          reduce using rule 96 (b -> c bp .)
+
+
+state 158
+
+    (97) bp -> POR . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    c                              shift and go to state 181
+
+state 159
+
+    (98) bp -> DIVISION . c bp
+    (100) c -> . PARIZQ a PARDER
+    (101) c -> . IDENTIFICADOR
+    (102) c -> . CADENA
+    (103) c -> . CARACTER_O_CADENA
+    (104) c -> . NOENTERO
+    (105) c -> . NODECIMAL
+    (106) c -> . BOOLEAN
+
+    PARIZQ          shift and go to state 111
+    IDENTIFICADOR   shift and go to state 118
+    CADENA          shift and go to state 119
+    CARACTER_O_CADENA shift and go to state 120
+    NOENTERO        shift and go to state 121
+    NODECIMAL       shift and go to state 122
+    BOOLEAN         shift and go to state 123
+
+    c                              shift and go to state 182
+
+state 160
+
+    (53) tipo -> CHARACTER VARYING PARIZQ NOENTERO . PARDER
+
+    PARDER          shift and go to state 183
+
+
+state 161
+
+    (54) tipo -> CHARACTER PARIZQ NOENTERO PARDER .
+
+    INTEGER         reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    ADD             reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    RENAME          reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    DATE            reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    SET             reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    NOT             reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    NULL            reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    PRIMARY         reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    FOREIGN         reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    CONSTRAINT      reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    UNIQUE          reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    IDENTIFICADOR   reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    REFERENCES      reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    PARIZQ          reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    VARCHAR         reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    CHAR            reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    CHECK           reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    CHARACTER       reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    MONEY           reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    SMALLINT        reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    BIGINT          reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    DECIMAL         reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    NUMERIC         reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    REAL            reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    DOUBLE          reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    NOENTERO        reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    TEXT            reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    BOOLEAN         reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    PTCOMA          reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    COMA            reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+    PARDER          reduce using rule 54 (tipo -> CHARACTER PARIZQ NOENTERO PARDER .)
+
+
+state 162
+
+    (62) tipo -> DECIMAL PARIZQ NOENTERO COMA . NOENTERO PARDER
+
+    NOENTERO        shift and go to state 184
+
+
+state 163
+
+    (22) createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional .
+
+    PTCOMA          reduce using rule 22 (createp -> OR REPLACE DATABASE opcional IDENTIFICADOR opcional .)
+
+
+state 164
+
+    (27) createtp -> AS ENUM PARIZQ l_cadenas . PARDER
+
+    PARDER          shift and go to state 185
+
+
+state 165
+
+    (30) l_campos -> IDENTIFICADOR l_campo l_campos .
+
+    PARDER          reduce using rule 30 (l_campos -> IDENTIFICADOR l_campo l_campos .)
+
+
+state 166
+
+    (31) l_campos -> COMA IDENTIFICADOR l_campo . l_campos
+    (30) l_campos -> . IDENTIFICADOR l_campo l_campos
+    (31) l_campos -> . COMA IDENTIFICADOR l_campo l_campos
+    (32) l_campos -> . COMA l_campo l_campos
+    (33) l_campos -> .
+
+    IDENTIFICADOR   shift and go to state 98
+    COMA            shift and go to state 99
+    PARDER          reduce using rule 33 (l_campos -> .)
+
+    l_campos                       shift and go to state 186
+
+state 167
+
+    (32) l_campos -> COMA l_campo l_campos .
+
+    PARDER          reduce using rule 32 (l_campos -> COMA l_campo l_campos .)
+
+
+state 168
+
+    (73) opcional -> OWNER opcional1 IDENTIFICADOR opcional2 .
+
+    PTCOMA          reduce using rule 73 (opcional -> OWNER opcional1 IDENTIFICADOR opcional2 .)
+    IDENTIFICADOR   reduce using rule 73 (opcional -> OWNER opcional1 IDENTIFICADOR opcional2 .)
+
+
+state 169
+
+    (77) opcional2 -> MODE . opcional1 NOENTERO
+    (75) opcional1 -> . IGUAL
+    (76) opcional1 -> .
+
+    IGUAL           shift and go to state 102
+    NOENTERO        reduce using rule 76 (opcional1 -> .)
+
+    opcional1                      shift and go to state 187
+
+state 170
+
+    (69) l_cadenasp -> COMA CARACTER_O_CADENA l_cadenasp .
+
+    PARDER          reduce using rule 69 (l_cadenasp -> COMA CARACTER_O_CADENA l_cadenasp .)
+
+
+state 171
+
+    (70) l_cadenasp -> COMA IDENTIFICADOR l_cadenasp .
+
+    PARDER          reduce using rule 70 (l_cadenasp -> COMA IDENTIFICADOR l_cadenasp .)
+
+
+state 172
+
+    (100) c -> PARIZQ a PARDER .
+
+    POR             reduce using rule 100 (c -> PARIZQ a PARDER .)
+    DIVISION        reduce using rule 100 (c -> PARIZQ a PARDER .)
+    MAS             reduce using rule 100 (c -> PARIZQ a PARDER .)
+    MENOS           reduce using rule 100 (c -> PARIZQ a PARDER .)
+    DIFERENTEQ      reduce using rule 100 (c -> PARIZQ a PARDER .)
+    MAYORQ          reduce using rule 100 (c -> PARIZQ a PARDER .)
+    MAYORIGUALQ     reduce using rule 100 (c -> PARIZQ a PARDER .)
+    MENORQ          reduce using rule 100 (c -> PARIZQ a PARDER .)
+    MENORIGUALQ     reduce using rule 100 (c -> PARIZQ a PARDER .)
+    OR              reduce using rule 100 (c -> PARIZQ a PARDER .)
+    PARDER          reduce using rule 100 (c -> PARIZQ a PARDER .)
+
+
+state 173
+
+    (83) yp -> OR z . yp
+    (83) yp -> . OR z yp
+    (84) yp -> .
+
+    OR              shift and go to state 147
+    PARDER          reduce using rule 84 (yp -> .)
+
+    yp                             shift and go to state 188
+
+state 174
+
+    (86) zp -> DIFERENTEQ a . zp
+    (86) zp -> . DIFERENTEQ a zp
+    (87) zp -> . MAYORQ a zp
+    (88) zp -> . MAYORIGUALQ a zp
+    (89) zp -> . MENORQ a zp
+    (90) zp -> . MENORIGUALQ a zp
+    (91) zp -> .
+
+    DIFERENTEQ      shift and go to state 149
+    MAYORQ          shift and go to state 150
+    MAYORIGUALQ     shift and go to state 151
+    MENORQ          shift and go to state 152
+    MENORIGUALQ     shift and go to state 153
+    OR              reduce using rule 91 (zp -> .)
+    PARDER          reduce using rule 91 (zp -> .)
+
+    zp                             shift and go to state 189
+
+state 175
+
+    (87) zp -> MAYORQ a . zp
+    (86) zp -> . DIFERENTEQ a zp
+    (87) zp -> . MAYORQ a zp
+    (88) zp -> . MAYORIGUALQ a zp
+    (89) zp -> . MENORQ a zp
+    (90) zp -> . MENORIGUALQ a zp
+    (91) zp -> .
+
+    DIFERENTEQ      shift and go to state 149
+    MAYORQ          shift and go to state 150
+    MAYORIGUALQ     shift and go to state 151
+    MENORQ          shift and go to state 152
+    MENORIGUALQ     shift and go to state 153
+    OR              reduce using rule 91 (zp -> .)
+    PARDER          reduce using rule 91 (zp -> .)
+
+    zp                             shift and go to state 190
+
+state 176
+
+    (88) zp -> MAYORIGUALQ a . zp
+    (86) zp -> . DIFERENTEQ a zp
+    (87) zp -> . MAYORQ a zp
+    (88) zp -> . MAYORIGUALQ a zp
+    (89) zp -> . MENORQ a zp
+    (90) zp -> . MENORIGUALQ a zp
+    (91) zp -> .
+
+    DIFERENTEQ      shift and go to state 149
+    MAYORQ          shift and go to state 150
+    MAYORIGUALQ     shift and go to state 151
+    MENORQ          shift and go to state 152
+    MENORIGUALQ     shift and go to state 153
+    OR              reduce using rule 91 (zp -> .)
+    PARDER          reduce using rule 91 (zp -> .)
+
+    zp                             shift and go to state 191
+
+state 177
+
+    (89) zp -> MENORQ a . zp
+    (86) zp -> . DIFERENTEQ a zp
+    (87) zp -> . MAYORQ a zp
+    (88) zp -> . MAYORIGUALQ a zp
+    (89) zp -> . MENORQ a zp
+    (90) zp -> . MENORIGUALQ a zp
+    (91) zp -> .
+
+    DIFERENTEQ      shift and go to state 149
+    MAYORQ          shift and go to state 150
+    MAYORIGUALQ     shift and go to state 151
+    MENORQ          shift and go to state 152
+    MENORIGUALQ     shift and go to state 153
+    OR              reduce using rule 91 (zp -> .)
+    PARDER          reduce using rule 91 (zp -> .)
+
+    zp                             shift and go to state 192
+
+state 178
+
+    (90) zp -> MENORIGUALQ a . zp
+    (86) zp -> . DIFERENTEQ a zp
+    (87) zp -> . MAYORQ a zp
+    (88) zp -> . MAYORIGUALQ a zp
+    (89) zp -> . MENORQ a zp
+    (90) zp -> . MENORIGUALQ a zp
+    (91) zp -> .
+
+    DIFERENTEQ      shift and go to state 149
+    MAYORQ          shift and go to state 150
+    MAYORIGUALQ     shift and go to state 151
+    MENORQ          shift and go to state 152
+    MENORIGUALQ     shift and go to state 153
+    OR              reduce using rule 91 (zp -> .)
+    PARDER          reduce using rule 91 (zp -> .)
+
+    zp                             shift and go to state 193
+
+state 179
+
+    (93) ap -> MAS b . ap
+    (93) ap -> . MAS b ap
+    (94) ap -> . MENOS b ap
+    (95) ap -> .
+
+    MAS             shift and go to state 155
+    MENOS           shift and go to state 156
+    DIFERENTEQ      reduce using rule 95 (ap -> .)
+    MAYORQ          reduce using rule 95 (ap -> .)
+    MAYORIGUALQ     reduce using rule 95 (ap -> .)
+    MENORQ          reduce using rule 95 (ap -> .)
+    MENORIGUALQ     reduce using rule 95 (ap -> .)
+    OR              reduce using rule 95 (ap -> .)
+    PARDER          reduce using rule 95 (ap -> .)
+
+    ap                             shift and go to state 194
+
+state 180
+
+    (94) ap -> MENOS b . ap
+    (93) ap -> . MAS b ap
+    (94) ap -> . MENOS b ap
+    (95) ap -> .
+
+    MAS             shift and go to state 155
+    MENOS           shift and go to state 156
+    DIFERENTEQ      reduce using rule 95 (ap -> .)
+    MAYORQ          reduce using rule 95 (ap -> .)
+    MAYORIGUALQ     reduce using rule 95 (ap -> .)
+    MENORQ          reduce using rule 95 (ap -> .)
+    MENORIGUALQ     reduce using rule 95 (ap -> .)
+    OR              reduce using rule 95 (ap -> .)
+    PARDER          reduce using rule 95 (ap -> .)
+
+    ap                             shift and go to state 195
+
+state 181
+
+    (97) bp -> POR c . bp
+    (97) bp -> . POR c bp
+    (98) bp -> . DIVISION c bp
+    (99) bp -> .
+
+    POR             shift and go to state 158
+    DIVISION        shift and go to state 159
+    MAS             reduce using rule 99 (bp -> .)
+    MENOS           reduce using rule 99 (bp -> .)
+    DIFERENTEQ      reduce using rule 99 (bp -> .)
+    MAYORQ          reduce using rule 99 (bp -> .)
+    MAYORIGUALQ     reduce using rule 99 (bp -> .)
+    MENORQ          reduce using rule 99 (bp -> .)
+    MENORIGUALQ     reduce using rule 99 (bp -> .)
+    OR              reduce using rule 99 (bp -> .)
+    PARDER          reduce using rule 99 (bp -> .)
+
+    bp                             shift and go to state 196
+
+state 182
+
+    (98) bp -> DIVISION c . bp
+    (97) bp -> . POR c bp
+    (98) bp -> . DIVISION c bp
+    (99) bp -> .
+
+    POR             shift and go to state 158
+    DIVISION        shift and go to state 159
+    MAS             reduce using rule 99 (bp -> .)
+    MENOS           reduce using rule 99 (bp -> .)
+    DIFERENTEQ      reduce using rule 99 (bp -> .)
+    MAYORQ          reduce using rule 99 (bp -> .)
+    MAYORIGUALQ     reduce using rule 99 (bp -> .)
+    MENORQ          reduce using rule 99 (bp -> .)
+    MENORIGUALQ     reduce using rule 99 (bp -> .)
+    OR              reduce using rule 99 (bp -> .)
+    PARDER          reduce using rule 99 (bp -> .)
+
+    bp                             shift and go to state 197
+
+state 183
+
+    (53) tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .
+
+    INTEGER         reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    ADD             reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    RENAME          reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    DATE            reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    SET             reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    NOT             reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    NULL            reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    PRIMARY         reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    FOREIGN         reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    CONSTRAINT      reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    UNIQUE          reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    IDENTIFICADOR   reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    REFERENCES      reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    PARIZQ          reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    VARCHAR         reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    CHAR            reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    CHECK           reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    CHARACTER       reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    MONEY           reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    SMALLINT        reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    BIGINT          reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    DECIMAL         reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    NUMERIC         reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    REAL            reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    DOUBLE          reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    NOENTERO        reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    TEXT            reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    BOOLEAN         reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    PTCOMA          reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    COMA            reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+    PARDER          reduce using rule 53 (tipo -> CHARACTER VARYING PARIZQ NOENTERO PARDER .)
+
+
+state 184
+
+    (62) tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO . PARDER
+
+    PARDER          shift and go to state 198
+
+
+state 185
+
+    (27) createtp -> AS ENUM PARIZQ l_cadenas PARDER .
+
+    PTCOMA          reduce using rule 27 (createtp -> AS ENUM PARIZQ l_cadenas PARDER .)
+
+
+state 186
+
+    (31) l_campos -> COMA IDENTIFICADOR l_campo l_campos .
+
+    PARDER          reduce using rule 31 (l_campos -> COMA IDENTIFICADOR l_campo l_campos .)
+
+
+state 187
+
+    (77) opcional2 -> MODE opcional1 . NOENTERO
+
+    NOENTERO        shift and go to state 199
+
+
+state 188
+
+    (83) yp -> OR z yp .
+
+    PARDER          reduce using rule 83 (yp -> OR z yp .)
+
+
+state 189
+
+    (86) zp -> DIFERENTEQ a zp .
+
+    OR              reduce using rule 86 (zp -> DIFERENTEQ a zp .)
+    PARDER          reduce using rule 86 (zp -> DIFERENTEQ a zp .)
+
+
+state 190
+
+    (87) zp -> MAYORQ a zp .
+
+    OR              reduce using rule 87 (zp -> MAYORQ a zp .)
+    PARDER          reduce using rule 87 (zp -> MAYORQ a zp .)
+
+
+state 191
+
+    (88) zp -> MAYORIGUALQ a zp .
+
+    OR              reduce using rule 88 (zp -> MAYORIGUALQ a zp .)
+    PARDER          reduce using rule 88 (zp -> MAYORIGUALQ a zp .)
+
+
+state 192
+
+    (89) zp -> MENORQ a zp .
+
+    OR              reduce using rule 89 (zp -> MENORQ a zp .)
+    PARDER          reduce using rule 89 (zp -> MENORQ a zp .)
+
+
+state 193
+
+    (90) zp -> MENORIGUALQ a zp .
+
+    OR              reduce using rule 90 (zp -> MENORIGUALQ a zp .)
+    PARDER          reduce using rule 90 (zp -> MENORIGUALQ a zp .)
+
+
+state 194
+
+    (93) ap -> MAS b ap .
+
+    DIFERENTEQ      reduce using rule 93 (ap -> MAS b ap .)
+    MAYORQ          reduce using rule 93 (ap -> MAS b ap .)
+    MAYORIGUALQ     reduce using rule 93 (ap -> MAS b ap .)
+    MENORQ          reduce using rule 93 (ap -> MAS b ap .)
+    MENORIGUALQ     reduce using rule 93 (ap -> MAS b ap .)
+    OR              reduce using rule 93 (ap -> MAS b ap .)
+    PARDER          reduce using rule 93 (ap -> MAS b ap .)
+
+
+state 195
+
+    (94) ap -> MENOS b ap .
+
+    DIFERENTEQ      reduce using rule 94 (ap -> MENOS b ap .)
+    MAYORQ          reduce using rule 94 (ap -> MENOS b ap .)
+    MAYORIGUALQ     reduce using rule 94 (ap -> MENOS b ap .)
+    MENORQ          reduce using rule 94 (ap -> MENOS b ap .)
+    MENORIGUALQ     reduce using rule 94 (ap -> MENOS b ap .)
+    OR              reduce using rule 94 (ap -> MENOS b ap .)
+    PARDER          reduce using rule 94 (ap -> MENOS b ap .)
+
+
+state 196
+
+    (97) bp -> POR c bp .
+
+    MAS             reduce using rule 97 (bp -> POR c bp .)
+    MENOS           reduce using rule 97 (bp -> POR c bp .)
+    DIFERENTEQ      reduce using rule 97 (bp -> POR c bp .)
+    MAYORQ          reduce using rule 97 (bp -> POR c bp .)
+    MAYORIGUALQ     reduce using rule 97 (bp -> POR c bp .)
+    MENORQ          reduce using rule 97 (bp -> POR c bp .)
+    MENORIGUALQ     reduce using rule 97 (bp -> POR c bp .)
+    OR              reduce using rule 97 (bp -> POR c bp .)
+    PARDER          reduce using rule 97 (bp -> POR c bp .)
+
+
+state 197
+
+    (98) bp -> DIVISION c bp .
+
+    MAS             reduce using rule 98 (bp -> DIVISION c bp .)
+    MENOS           reduce using rule 98 (bp -> DIVISION c bp .)
+    DIFERENTEQ      reduce using rule 98 (bp -> DIVISION c bp .)
+    MAYORQ          reduce using rule 98 (bp -> DIVISION c bp .)
+    MAYORIGUALQ     reduce using rule 98 (bp -> DIVISION c bp .)
+    MENORQ          reduce using rule 98 (bp -> DIVISION c bp .)
+    MENORIGUALQ     reduce using rule 98 (bp -> DIVISION c bp .)
+    OR              reduce using rule 98 (bp -> DIVISION c bp .)
+    PARDER          reduce using rule 98 (bp -> DIVISION c bp .)
+
+
+state 198
+
+    (62) tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .
+
+    INTEGER         reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    ADD             reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    RENAME          reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    DATE            reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    SET             reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    NOT             reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    NULL            reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    PRIMARY         reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    FOREIGN         reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    CONSTRAINT      reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    UNIQUE          reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    IDENTIFICADOR   reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    REFERENCES      reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    PARIZQ          reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    VARCHAR         reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    CHAR            reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    CHECK           reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    CHARACTER       reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    MONEY           reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    SMALLINT        reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    BIGINT          reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    DECIMAL         reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    NUMERIC         reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    REAL            reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    DOUBLE          reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    NOENTERO        reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    TEXT            reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    BOOLEAN         reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    PTCOMA          reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    COMA            reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+    PARDER          reduce using rule 62 (tipo -> DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER .)
+
+
+state 199
+
+    (77) opcional2 -> MODE opcional1 NOENTERO .
+
+    PTCOMA          reduce using rule 77 (opcional2 -> MODE opcional1 NOENTERO .)
+    IDENTIFICADOR   reduce using rule 77 (opcional2 -> MODE opcional1 NOENTERO .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for IDENTIFICADOR in state 33 resolved as shift
+WARNING: shift/reduce conflict for PARIZQ in state 56 resolved as shift
+WARNING: shift/reduce conflict for IDENTIFICADOR in state 98 resolved as shift
+WARNING: shift/reduce conflict for IDENTIFICADOR in state 99 resolved as shift
+WARNING: shift/reduce conflict for INTEGER in state 131 resolved as shift
+WARNING: shift/reduce conflict for ADD in state 131 resolved as shift
+WARNING: shift/reduce conflict for RENAME in state 131 resolved as shift
+WARNING: shift/reduce conflict for DATE in state 131 resolved as shift
+WARNING: shift/reduce conflict for SET in state 131 resolved as shift
+WARNING: shift/reduce conflict for NOT in state 131 resolved as shift
+WARNING: shift/reduce conflict for NULL in state 131 resolved as shift
+WARNING: shift/reduce conflict for PRIMARY in state 131 resolved as shift
+WARNING: shift/reduce conflict for FOREIGN in state 131 resolved as shift
+WARNING: shift/reduce conflict for CONSTRAINT in state 131 resolved as shift
+WARNING: shift/reduce conflict for UNIQUE in state 131 resolved as shift
+WARNING: shift/reduce conflict for IDENTIFICADOR in state 131 resolved as shift
+WARNING: shift/reduce conflict for REFERENCES in state 131 resolved as shift
+WARNING: shift/reduce conflict for PARIZQ in state 131 resolved as shift
+WARNING: shift/reduce conflict for VARCHAR in state 131 resolved as shift
+WARNING: shift/reduce conflict for CHAR in state 131 resolved as shift
+WARNING: shift/reduce conflict for CHECK in state 131 resolved as shift
+WARNING: shift/reduce conflict for CHARACTER in state 131 resolved as shift
+WARNING: shift/reduce conflict for MONEY in state 131 resolved as shift
+WARNING: shift/reduce conflict for SMALLINT in state 131 resolved as shift
+WARNING: shift/reduce conflict for BIGINT in state 131 resolved as shift
+WARNING: shift/reduce conflict for DECIMAL in state 131 resolved as shift
+WARNING: shift/reduce conflict for NUMERIC in state 131 resolved as shift
+WARNING: shift/reduce conflict for REAL in state 131 resolved as shift
+WARNING: shift/reduce conflict for DOUBLE in state 131 resolved as shift
+WARNING: shift/reduce conflict for NOENTERO in state 131 resolved as shift
+WARNING: shift/reduce conflict for TEXT in state 131 resolved as shift
+WARNING: shift/reduce conflict for BOOLEAN in state 131 resolved as shift
+WARNING: reduce/reduce conflict in state 131 resolved using rule (l_campo -> <empty>)
+WARNING: rejected rule (tipo -> IDENTIFICADOR) in state 131

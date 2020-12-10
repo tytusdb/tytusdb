@@ -33,7 +33,10 @@ palabras_reservadas = (
     'DROP',
     # CREATE TABLE
     'TABLE','CONSTRAINT','CHECK','DEFAULT','PRIMARY','REFERENCES','KEY',
-    'FOREIGN','UNIQUE'
+    'FOREIGN','UNIQUE',
+    # alter table
+    'ADD','SET'
+
 
 
 
@@ -45,8 +48,7 @@ tokens = palabras_reservadas +\
     (
     # OPERADORES COMPARADORES
     'PUNTO',
-    'CUATROPTOS',
-    'PORCENTAJE',
+   'PORCENTAJE',
     'PARIZQ',
     'PARDER',
     'CORIZQ',
@@ -64,11 +66,11 @@ tokens = palabras_reservadas +\
     'POR',
     'DIVISION',
     'NOENTERO',
+    'NODECIMAL',
     'PTCOMA',
     'COMA',
     'IDENTIFICADOR',
-    'UMAS',
-    'UMENOS'
+    'UMENOS',
     'CADENA',
     'CARACTER_O_CADENA',
     #'OCTAL',
@@ -99,9 +101,9 @@ t_PORCENTAJE = r'%'
 t_IGUAL = r'\='
 t_MAYORQ = r'\>'
 t_MENORQ = r'\<'
-t_MAYORIGUALQ = r'>='
-t_MENORIGUALQ = r'<='
-t_DIFERENTEQ = r'<>'
+t_MAYORIGUALQ = r'\>='
+t_MENORIGUALQ = r'\<='
+t_DIFERENTEQ = r'\<>'
 
 
 # EXPRESIONES REGULARES COMPUESTAS
@@ -219,9 +221,9 @@ def p_instrucciones_lista1(t):
 
 #inicia instrucciones
 def p_instruccion_create(t):
-    '''instruccion : CREATE createp
-                    | ALTER DATABASE alterp
-                    | DROP DATABASE dropp IDENTIFICADOR
+    '''instruccion : CREATE createp PTCOMA
+                    | ALTER factorizar_alter PTCOMA
+                    | DROP droptp PTCOMA
     '''
 
 
@@ -230,6 +232,17 @@ def p_instruccion_showdatabase(t):
 
     '''
 
+def p_alterfacotizar(t):
+    ''' factorizar_alter : DATABASE alterp
+                        | TABLE l_campo
+    '''
+
+
+
+def p_drop_triprima(t):
+    '''droptp : DATABASE dropp IDENTIFICADOR
+               | TABLE IDENTIFICADOR
+    '''
 
 
 def p_dropprima(t):
@@ -258,7 +271,7 @@ def p_alterprima2(t):
 
 def p_createprima(t):
     '''
-    createp :  OR REPLACE DATABASE opcional IDENTIFICADOR opcional PTCOMA
+    createp :  OR REPLACE DATABASE opcional IDENTIFICADOR opcional
             |  TYPE createpp
             |  DATABASE createpp
             |  TABLE createpp
@@ -271,7 +284,9 @@ def p_createbiprima(t):
 
 def p_createtriprima(t):
     '''
-    createtp : SHOW
+    createtp :  AS ENUM PARIZQ l_cadenas PARDER
+                | opcional
+                | PARIZQ l_campos PARDER
 
     '''
 
@@ -280,6 +295,7 @@ def p_createtriprima(t):
 def p_create_campos_tablas(t):
     '''l_campos : IDENTIFICADOR l_campo l_campos
                 | COMA IDENTIFICADOR l_campo l_campos
+                | COMA l_campo l_campos
                 |
     '''
 def p_create_campo_tabla(t):
@@ -292,14 +308,19 @@ def p_create_campo_tabla(t):
 
 def p_tipo_datos(t):
     '''tipo : INTEGER
+            | ADD
+            | RENAME
             | DATE
+            | SET
             | NOT
             | NULL
             | PRIMARY KEY
-            | FOREIGN KEY REFERENCES
+            | FOREIGN KEY
             | CONSTRAINT
             | UNIQUE
             | IDENTIFICADOR
+            | REFERENCES
+            | PARIZQ l_cadenas PARDER
     '''
     t[0]=t[1]
 
@@ -308,6 +329,15 @@ def p_tipo_datos1(t):
     '''tipo : VARCHAR PARIZQ NOENTERO PARDER
             | CHAR PARIZQ NOENTERO PARDER
             | CHECK PARIZQ expresion PARDER
+            | CHARACTER VARYING PARIZQ NOENTERO PARDER
+            | CHARACTER PARIZQ NOENTERO PARDER
+            | MONEY
+            | SMALLINT
+            | BIGINT
+            | DECIMAL
+            | NUMERIC
+            | REAL
+            | DOUBLE PRECISION
     '''
     print("varchar print")
     t[0]=t[1]
@@ -315,8 +345,10 @@ def p_tipo_datos1(t):
 def p_tipo_datos2(t):
     '''tipo : DECIMAL PARIZQ NOENTERO COMA NOENTERO PARDER
              | DOUBLE
-             | DECIMAL
              | NOENTERO
+             | TEXT
+             | BOOLEAN
+
 
     '''
     t[0]=t[1]
@@ -325,13 +357,16 @@ def p_tipo_datos2(t):
 
 
 def p_listaCadenas(t):
-    ''' l_cadenas : PARIZQ CARACTER_O_CADENA l_cadenasp PARDER
+    ''' l_cadenas : CARACTER_O_CADENA l_cadenasp
+                  | IDENTIFICADOR l_cadenasp
     '''
 
 def p_listaCadenas2(t):
     ''' l_cadenasp : COMA CARACTER_O_CADENA l_cadenasp
+                     | COMA IDENTIFICADOR l_cadenasp
                      |
     '''
+
 
 
 
@@ -362,11 +397,82 @@ def p_opcional3(t):
 
 
 
+def p_expresion(t):
+    '''expresion :  x
+    '''
+
+def p_expresion10(t):
+    '''x :  y xp
+    '''
+
+def p_expresion11(t):
+    '''xp : OR  y xp
+          |
+    '''
 
 
-def p_expresion_unaria(t):
-    'expresion :  MENOS NOENTERO '
-    print("llegue aqui")
+def p_expresion8(t):
+    '''y :  z yp
+    '''
+
+def p_expresion9(t):
+    '''yp : AND  z yp
+          |
+    '''
+
+
+def p_expresion6(t):
+    '''z :  a zp
+    '''
+
+def p_expresion7(t):
+    '''zp : DIFERENTEQ  a zp
+          | MAYORQ a zp
+          | MAYORIGUALQ a zp
+          | MENORQ a zp
+          | MENORIGUALQ a zp
+          |
+    '''
+
+
+def p_expresion1(t):
+    '''a :  b ap
+    '''
+
+def p_expresion2(t):
+    '''ap : MAS  b ap
+          | MENOS b ap
+          |
+    '''
+
+def p_expresion3(t):
+    '''b : c bp
+    '''
+
+def p_expresion4(t):
+    '''bp : POR c bp
+          | DIVISION c bp
+          |
+    '''
+
+def p_expresion4(t):
+    '''bp : POR c bp
+          | DIVISION c bp
+          |
+    '''
+
+
+def p_expresion5(t):
+    '''c : PARIZQ a PARDER
+          | IDENTIFICADOR
+          | CADENA
+          | CARACTER_O_CADENA
+          | NOENTERO
+          | NODECIMAL
+          | BOOLEAN
+    '''
+
+
 
 
 def p_error(t):

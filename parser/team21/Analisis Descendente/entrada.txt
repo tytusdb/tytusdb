@@ -1,4 +1,4 @@
-/*create or replace database if not exists marisela OWNER = marcos MODE=1;
+create or replace database if not exists marisela OWNER = marcos MODE=1;
 show databases like 'm';
 
 create database marisela OWNER = marcos MODE=1;
@@ -8,23 +8,35 @@ create or replace database marisela OWNER = marcos MODE=1;
 show databases like 'm';
 
 create or replace database marisela;
-show databases like 'm';*
+show databases like 'm';
 
 
 
-CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');*/
+CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');
 
--- ALTER DATABASE name RENAME TO new_name
--- ALTER DATABASE name OWNER TO new_name
+ ALTER DATABASE name RENAME TO new_name;
+ ALTER DATABASE name OWNER TO new_name;
 
--- DROP DATABASE IF EXISTs marcos
+ DROP DATABASE IF EXISTs marcos;
 
 
 CREATE TABLE Persons (
-    ID intEGER NOT NULL,
-    LastName varchar(255) NOT NULL,
+    ID intEGER NOT NULL costraint MARCOS UNIQUE CHECK ('1','2','3'),
+    LastName varchar(255) NOT NULL PRIMARY KEY,
     FirstName varchar(255),
-    Age integer CHECK ('datos','bool','hooney')
+    direccion character(33),
+    hola character varying(45),
+    Age integer CHECK ('datos','bool','hooney'),
+    campo integer references TABLA,
+    FOREIGN KEY (columna,DATOS) REFERENCES tabla (id,DATOS),
+    PRIMARY KEY (dato1,dato2)
+
 );
 
+
+DROP TABLE MARCOS;
+
+ DROP DATABASE IF EXISTs marcos;
+
+ALTER TABLE tabla ADD CHECK (name <> '');
 
