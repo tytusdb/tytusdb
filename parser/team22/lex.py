@@ -1,19 +1,41 @@
 ##-------------------------GRAMATICA ASCENDENTE-------------------------------
 reservadas = {
     'create' : 'CREATE',
-    'database' : 'DATABASE',    
+    'databases' : 'DATABASES',  
+    'database' : 'DATABASE', 
+    'current_user': 'CURRENT_USER',
+    'session_user': 'SESSION_USER',   
     'table' : 'TABLE',
-    'char' : 'CHAR',
+    'insert': 'INSERT',
+    'inherits' : 'INHERITS',
+    'smallint': 'SMALLINT',
+    'integer': 'INTEGER',
+    'bigint': 'BIGINT',
+    'decimal': 'R_DECIMAL',
+    'numeric': 'NUMERIC',
+    'real': 'REAL',
+    'double': 'DOUBLE',
+    'precision': 'PRECISION',
+    'money': 'MONEY',
+    'character': 'CHARACTER',
+    'varying': 'VARYING',
     'varchar' : 'VARCHAR',
-    'boolean' : 'BOOLEAN',
-    'int' : 'INT',
-    'integer' : 'INTEGER',
-    'float' : 'FLOAT',
-    'double' : 'DOUBLE',
+    'char' : 'CHAR',
+    'text' : 'TEXT',
+    'timestamp' : 'TIMESTAMP',
+    'without' : 'WITHOUT',
+    'time' : 'TIME',
+    'zone' : 'ZONE',
     'date' : 'DATE',
+    'interval' : 'INTERVAL',
+    'month' : 'MONTH',
+    'day' : 'DAY',
+    'hour' : 'HOUR',
+    'minute' : 'MINUTE',
+    'second' : 'SECOND',
+    'boolean' : 'BOOLEAN',
     'year' : 'YEAR',
     'datetime' : 'DATETIME',
-    'time' : 'TIME',
     'drop' : 'DROP',
     'alter' : 'ALTER',
     'delete' : 'DELETE',
@@ -27,6 +49,8 @@ reservadas = {
     'select' : 'SELECT',
     'distinct' : 'DISTINCT',
     'as' : 'AS',
+    'enum' : 'ENUM',
+    'type' : 'TYPE',
     'from' : 'FROM',
     'left' : 'LEFT',
     'join' : 'JOIN',
@@ -40,6 +64,9 @@ reservadas = {
     'min' : 'MIN',
     'order' : 'ORDER',
     'where' : 'WHERE',
+    'if' : 'IF',
+    'owner' : 'OWNER',
+    'mode' : 'MODE',
     'and' : 'AND',
     'or' : 'OR',
     'between' : 'BETWEEN',
@@ -52,6 +79,8 @@ reservadas = {
     'group' : 'GROUP',
     'having' : 'HAVING',
     'exists' : 'EXISTS',
+    'intersect' : 'INTERSECT',
+    'except' : 'EXCEPT',
     'all' : 'ALL',
     'into' : 'INTO',
     'some' : 'SOME',
@@ -59,6 +88,7 @@ reservadas = {
     'to' : 'TO',
     'disk' : 'DISK',
     'constraint' : 'CONSTRAINT',
+    'rename' : 'RENAME',
     'add' : 'ADD',
     'check' : 'CHECK',
     'default' : 'DEFAULT',
@@ -80,6 +110,7 @@ reservadas = {
     'truncate' : 'TRUNCATE',
     'update' : 'UPDATE',
     'asc' : 'ASC',
+    'show': 'SHOW'
 }
 
 tokens  = [
@@ -97,11 +128,11 @@ tokens  = [
     'PIPE',
     'EXP',
     'IGUAL',
-    'MAYOR',
-    'MENOR',
-    'MENORIGUAL',
     'MAYORIGUAL',
+    'MAYOR',
     'DIFERENTE',
+    'MENORIGUAL',
+    'MENOR',
     'ASIGNACION_SUMA',
     'ASIGNACION_RESTA',
     'ASIGNACION_MULT',
@@ -161,12 +192,12 @@ def t_ENTERO(t):
     return t
 
 def t_ID(t):
-     r'[a-zA-Z_][a-zA-Z_0-9]*'
+     r'[a-zA-Z_@#][a-zA-Z_0-9@$#]*'
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
 
 def t_CADENA(t):
-    r'\".*?\"'
+    r'\'.*?\''
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
 
