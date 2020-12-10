@@ -303,6 +303,73 @@ def p_instruccion(t):
                     | CADENA '''
     t[0] = t[1]
 
+#------------------------------ Producciones útiles ----------------------------------------
+def p_tipo_declaracion(t):
+    '''p_tipo_declaracion : SMALLINT
+                | INTEGER
+                | BIGINT
+                | DECIMAL
+                | NUMERIC
+                | REAL
+                | DOUBLE PRECISION
+                | MONEY
+                | CHARACTER VARYNG
+                | VARCHAR
+                | CHARACTER
+                | CHAR
+                | TEXT
+                | TIMESTAMP 
+                | DATE
+                | TIME
+                | INTERVAL
+                | BOOLEAN'''
+
+#---------------Inician las sentencias con la palabra reservada CREATE.---------------------
+
+def p_sentencia_crear(t):
+    '''sentencia_crear : CREATE TYPE IDENTIFICADOR AS ENUM PARENTESISIZQ lista_cadenas PARENTESISDER PUNTOYCOMA
+                        | CREATE sentencia_orreplace DATABASE sentencia_ifnotexists IDENTIFICADOR opcionales_crear_database PUNTOYCOMA 
+                        | CREATE TABLE IDENTIFICADOR PARENTESISIZQ cuerpo_crear_tabla PARENTESISDER PUNTOYCOMA'''
+    t[0] = t[1]
+
+def p_lista_cadenas(t):
+    '''lista_cadenas : CADENA COMA lista_cadenas
+                        | CADENA '''
+    t[0] = t[1]
+
+def p_sentencia_orreplace(t):
+    '''sentencia_orreplace : OR REPLACE
+                            | '''
+    t[0] = t[1]
+
+def p_sentencia_ifnotexists(t):
+    '''sentencia_ifnotexists : IF NOT EXISTS
+                            | '''
+    t[0] = t[1]
+
+def p_opcionales_crear_database(t):
+    '''opcionales_crear_database    : OWNER opcional_comparar IDENTIFICADOR opcionales_crear_database
+                                    | MODE opcional_comparar ENTERO opcionales_crear_database
+                                    | OWNER opcional_comparar IDENTIFICADOR
+                                    | MODE opcional_comparar ENTERO
+                                    | '''
+    t[0] = t[1]
+
+def p_opcional_comparar(t):
+    '''opcional_comparar : IGUAL
+                            | '''
+    t[0] = t[1]
+
+def p_cuerpo_crear_tabla(t):
+    '''cuerpo_crear_tabla : cuerpo_crear_tabla_p COMA cuerpo_crear_tabla
+                            | cuerpo_crear_tabla '''
+    t[0] = t[1]
+
+def p_cuerpo_crear_tabla_p(t):
+    '''cuerpo_crear_tabla_p : '''
+
+#---------------Termina las sentencias con la palabra reservada CREATE.---------------------
+
 
 import ply.yacc as yacc
 parser = yacc.yacc()
