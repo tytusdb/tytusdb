@@ -138,10 +138,10 @@ tokens  = [
 
 
     'ID',
-    'PORCENTAJE',
+    'MOD',
     'PUNTO',
     'DOSPUNTOS',
-    'EXPONENCIAL',
+    'EXP',
     'MAYORIGUAL',
     'MENORIGUAL',
     'MENMEN',
@@ -179,10 +179,14 @@ t_MENMEN = r'<<'
 t_MAYMAY = r'>>'
 t_NOIGUAL = r'!='
 t_MENMAY = r'<>'
+<<<<<<< HEAD
 t_PORCENTAJE  = r'\%'
+=======
+t_MOD  = r'%'
+>>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 t_PUNTO  = r'\.'
 t_DOSPUNTOS = r'\::'
-t_EXPONENCIAL = r'\^'
+t_EXP = r'\^'
 t_LLIZQ = r'\{'
 t_LLDR = r'\}'
 t_CRIZQ = r'\['
@@ -305,7 +309,11 @@ def p_campo(t):
 
 def p_foreign(t):
     'campo              : CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR'
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 
 def p_primary(t):
     'campo              : PRIMARY KEY PARIZQ ID PARDR'
@@ -444,12 +452,19 @@ def p_where(t):
     '''where            : asignacion
                         | boolean
                         | NOT boolean
+<<<<<<< HEAD
                         | ID IN PARIZQ listaValores PARDR
+=======
+                        | ID IN PARIZQ listaValores PARDR 
+>>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
                         | ID BETWEEN valores AND valores
                         '''
     t[0] = t[1]
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 def p_andOr(t):
     '''andOr            : andOr AND andOr
                         | andOr OR andOr
@@ -467,8 +482,11 @@ def p_E(t):
                         | unario
                         | valores
                         | var'''
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 #    print("expresion")
 #    if t[1] == '('  : t[0] = t[2]
 #    else            : t[0] = t[1]
@@ -477,7 +495,10 @@ def p_E2(t):
     '''boolean          : FALSE
                         | TRUE'''
     t[0] = t[1]
+<<<<<<< HEAD
 
+=======
+>>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 
 def p_oper(t):
     '''operando         : E MAS E
@@ -505,7 +526,17 @@ def p_booleanos(t):
 	                    | E MAYORIGUAL E'''
 
 
+def p_booleanos(t):
+    '''boolean          : E IGUALIGUAL E
+	                    | E NOIGUAL E
+                        | E MENMAY E
+	                    | E MENOR E
+	                    | E MAYOR E
+	                    | E MENORIGUAL E
+	                    | E MAYORIGUAL E'''
+
 def p_unarios(t):
+<<<<<<< HEAD
     '''unario           : NOTO E
 	                    | MENOS E
 	                    | GNOT E
@@ -521,6 +552,21 @@ def p_var(t):
 
 
 # DELETE
+=======
+    '''unario           : NOTO E 
+	                    | MENOS E  
+	                    | GNOT E
+                        | MAS E '''
+                    #| MASMAS E                 #%prec NOT  %prec MENOSU  %prec GNOT
+	                #| MENOSMENOS E
+    #t[0] = Unario(t[1], t[2])
+
+def p_var(t):
+    'var                : ID'
+    #t[0] = Id(t[1])
+
+#DELETE
+>>>>>>> 01b24516d58f03fe17629c67fa7952aa269b07c6
 def p_delete(t):
     'instruccion        : DELETE FROM ID WHERE andOr PTCOMA'
     t[0] = t[1]
@@ -530,6 +576,59 @@ def p_delete2(t):
     'instruccion        : DELETE FROM ID PTCOMA'
     t[0] = t[1]
 
+#DROP
+def p_drop(t):
+    '''instruccion      : DROP DATABASE ID PTCOMA
+                        | DROP DATABASE IF EXISTS ID PTCOMA
+                        | DROP TABLE ID PTCOMA'''
+    t[0] = t[1]
+
+#CREATE or REPLACE DATABASE
+def p_createDB(t):
+    '''instruccion      : opcionCR ID PTCOMA
+                        | opcionCR IF NOT EXISTS ID PTCOMA'''
+    t[0] = t[1]
+
+def p_createDB2(t):
+    '''instruccion      : opcionCR ID complemento PTCOMA
+                        | opcionCR IF NOT EXISTS ID complemento PTCOMA'''
+
+def p_opcionCR(t):
+    '''opcionCR         : CREATE DATABASE
+                        | CREATE OR REPLACE DATABASE'''
+
+def p_complementoCR(t):
+    '''complemento      : OWNER IGUAL ID
+                        | OWNER ID
+                        | OWNER IGUAL ID MODE IGUAL ENTERO
+                        | OWNER ID MODE IGUAL ENTERO
+                        | OWNER IGUAL ID MODE ENTERO
+                        | OWNER ID MODE ENTERO
+                        '''
+
+#SHOW
+def p_showDB(t):
+    'instruccion        : SHOW DATABASES PTCOMA'
+    t[0] = t[1]
+
+#ALTER
+def p_alterDB(t):
+    '''instruccion      : ALTER DATABASE ID RENAME TO ID PTCOMA
+                        | ALTER DATABASE ID OWNER TO LLIZQ ID LLDR''' #falta
+    t[0] = t[1]
+
+def p_alterT(t):
+    '''instruccion      : ALTER TABLE ID ADD COLUMN ID tipo PTCOMA
+                        | ALTER TABLE ID DROP COLUMN PTCOMA''' #falta descripcion
+    t[0] = t[1]
+
+def p_alterT2(t):
+    '''instruccion      : ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY   PARDR PTCOMA
+                        | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR PTCOMA
+                        | ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID PTCOMA
+                        | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA
+                        | ALTER TABLE ID DROP CONSTRAINT ID PTCOMA
+                        | ALTER TABLE ID RENAME COLUMN ID TO ID PTCOMA'''
 
 # DROP
 def p_drop(t):
@@ -696,7 +795,7 @@ parser = yacc.yacc()
 
 f = open("./entrada2.txt", "r")
 input = f.read()
-print(input)
+#print(input)
 parser.parse(input)
 
 
