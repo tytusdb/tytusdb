@@ -335,10 +335,7 @@
 <value>  ::= int | real | string | id | asterisk
 
 
-<delete_instruction> ::= delete from [ only ] id [ asterisk ] [ [ as ] id ]
-    [ using from_item <idlist> ]
-    [ where <expression> | where current of id ]
-    [ returning asterisk | <expression> [ [ as ] <idlist> ]  ]
+<delete_instruction> ::= delete from id where <expression>
 
 <truncate> ::= <truncate_p>
 
