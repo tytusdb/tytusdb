@@ -1,12 +1,12 @@
 reservadas = {
     'show': 'show',
-    'databases': 'databases',
+    'database': 'databases',
     'like': 'like',
     'select': 'select',
     'distinct': 'distinct',
     'from': 'r_from',
     'alter': 'alter',
-    ' rename': 'rename',
+    'rename': 'rename',
     'to': 'to',
     'owner': 'owner',
     'table': 'table',
@@ -250,10 +250,69 @@ def p_instruccion(t):
     '''instruccion      :  SELECT ptcoma
                     | CREATETABLE
                     | UPDATE ptcoma
-                    | DELETE  ptcoma '''
+                    | DELETE  ptcoma  
+		    |ALTER  ptcoma
+                    | DROP ptcoma
+                    | INSERT ptcoma
+    '''
     t[0] = t[1]
 
+def p_INSERT(t):
+    '''INSERT : insert into id values para LEXP parc
+    ''' 
 
+def p_DROP(t):
+    '''DROP : drop table id
+             | drop databases if exist id
+             | drop databases id '''
+
+def p_ALTER(t):
+    '''ALTER : alter databases id RO
+              | altertable'''
+
+def p_r_o(t):
+    '''RO : rename to id 
+           | owner to id
+    '''
+
+def p_altertable(t):
+    '''altertable : alter table id OP
+    '''
+def p_op(t):
+    '''OP : add ADD
+            | drop column ALTERDROP
+            | alter column id set not null
+            | alter column id set null
+            | listaalc
+            | drop ALTERDROP
+            | rename column id to id '''
+
+def p_listaalc(t):
+    '''listaalc : listaalc coma alc
+            | alc
+    '''
+
+def p_alc(t):
+    '''alc : alter column id type TIPO
+    '''
+
+def p_ALTERDROP(t):
+    '''ALTERDROP : constraint id 
+                   | column LISTACOLUMN
+                   | check id 
+    '''
+def p_ADD(t):
+    '''ADD : column id TIPO
+            | check para LEXP parc
+            | constraint id unique para id parc
+            | foreign key para id parc references id para id parc
+    '''
+def p_LISTACOLUMN(t):
+        '''LISTACOLUMN : LISTACOLUMN coma id 
+                        | id
+        '''
+	
+	
 def p_CREATETABLE(t):
     '''CREATETABLE : create table id para LDEF parc ptcoma
                     | create table id para LDEF parc HERENCIA ptcoma'''
