@@ -256,7 +256,9 @@ def p_instruccion(t):
                     | DROP ptcoma
                     | INSERT ptcoma
                     | CREATETYPE ptcoma
-		            | CASE ptcoma
+		    | CASE ptcoma
+		    | CREATEDB ptcoma
+                    | SHOWDB ptcoma
     '''
     t[0] = t[1]
 	
@@ -331,6 +333,36 @@ def p_LISTACOLUMN(t):
                         | id
         '''
 
+def p_SHOWDB(t) : 
+   ''' SHOWDB : show databases
+    '''
+
+def p_CREATEDB(t) : 
+    '''CREATEDB : create RD IFEXIST id
+        | create RD IFEXIST id PROPIETARIO MODO
+        | create RD IFEXIST id MODO
+        | create RD IFEXIST id PROPIETARIO
+    '''
+
+def p_RD(t) : 
+    '''RD : or replace databases
+        | databases
+    '''
+
+def p_EXIST(t):
+    '''IFEXIST : if not exist
+	    | 
+    ''' 
+ 
+def p_PROPIETARIO(t):
+    '''PROPIETARIO : owner igual id
+		| owner id
+    '''
+
+def p_MODO(t): 
+    '''MODO : mode  igual int
+	    | mode int
+    '''	
 
 def p_CREATETABLE(t):
     '''CREATETABLE : create table id para LDEF parc ptcoma
