@@ -17,7 +17,6 @@ reservedwords = (
     'DATABASES',
     'TABLE',
     'SHOW',
-    'LIKE',
     'IF',
     'EXISTS',
     'ALTER',
@@ -37,38 +36,39 @@ reservedwords = (
     'ADD',
     'NULL',
     'USE',
-    'INTEGER',
-    'BIGINT',
-    'DECIMAL',
-    'NUMERIC',
-    'REAL',
-    'DOUBLE',
-    'PRECISION',
-    'MONEY',
-    'CHARACTER'
+    'INSERT',
+    'INTO',
+    'VALUES',
 )
 
 symbols = (
     'SEMICOLON',
     'BRACKET_OPEN',
     'BRACKET_CLOSE',
-    'COMA',
-    'EQUAL'
+    'COMMA',
+    'EQUAL',
+    'PLUS',
+    'MINUS',
+    'TIMES',
+    'DIVIDED',
 )
 
 tokens = reservedwords + symbols + (
     'ID',
-    'REGEX',
-    'MODN',
-    'INT'
+    'INT',
+    'DECIMAL'
 )
 
 # Tokens
 t_SEMICOLON       = r';'
 t_BRACKET_OPEN    = r'\('
 t_BRACKET_CLOSE   = r'\)'
-t_EQUAL = r'='
-t_COMA = r','
+t_EQUAL           = r'='
+t_COMMA           = r','
+t_PLUS            = r'\+'
+t_MINUS           = r'-'
+t_TIMES           = r'\*'
+t_DIVIDED         = r'/'
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9_]*'
@@ -76,41 +76,23 @@ def t_ID(t):
         t.type = t.value
     return t
 
-def t_REGEX(t):
-    r'\"%?.*?%?\"'
-    if t.value in reservedwords:
-        t.type = t.value
-    return t
-
-def t_MODN(t):
-    r'[1-5]'
-    if t.value in reservedwords:
-        t.type = t.value
+def t_DECIMAL(t):
+    r'\d+\.\d+'
+    try:
+        t.value = float(t.value)
+    except ValueError:
+        print("Floaat value too large %d", t.value)
+        t.value = 0
     return t
 
 def t_INT(t):
     r'\d+'
-    if t.value in reservedwords:
-        t.type = t.value
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
+        t.value = 0
     return t
-
-# def t_DECIMAL(t):
-#     r'\d+\.\d+'
-#     try:
-#         t.value = float(t.value)
-#     except ValueError:
-#         print("Floaat value too large %d", t.value)
-#         t.value = 0
-#     return t
-
-# def t_INT(t):
-     #r'\d+'
-     #try:
-     #   t.value = int(t.value)
-    # except ValueError:
-      #  print("Integer value too large %d", t.value)
-      #  t.value = 0
-     #return t
 
 # Ignored characters
 t_ignore = " \t"
@@ -130,11 +112,11 @@ lexer = lex.lex()
 
 
 # Operators precedence and association
-# precedence = (
-#     ('left','MAS','MENOS'),
-#     ('left','POR','DIVIDIDO'),
-#     ('right','UMENOS'),
-#     )
+precedence = (
+    ('left','PLUS','MINUS'),
+    ('left','TIMES','DIVIDED'),
+    ('right','UMINUS','UPLUS'),
+    )
 
 # Grammar definition
 def p_instructions_list(t):
@@ -152,9 +134,9 @@ def p_instructions_ddl(t):
            | use
            | create'''
            
-
 def p_instructions_dml(t):
-    '''dml : show'''
+    '''dml : show
+           | insert'''
 
 # DDL sentences
 #CREATE
@@ -165,18 +147,19 @@ def p_instruction_create(t):
 def p_instruction_create_database(t):
     '''createDatabase : CREATE DATABASE ID ownermode
               | REPLACE DATABASE ID ownermode
-              | CREATE DATABASE  IF NOT EXISTS ID ownermode'''
+              | CREATE DATABASE  IF NOT EXISTS ID ownermode
+              | CREATE DATABASE ID
+              | CREATE DATABASE IF NOT EXISTS ID'''
 
 def p_instruction_create_owner_mode(t):
     '''ownermode : OWNER EQUAL ID
             | OWNER ID
-            | MODE MODN
-            | MODE EQUAL MODN
-            | OWNER ID MODE MODN
-            | OWNER EQUAL ID MODE MODN
-            | OWNER ID MODE EQUAL MODN
-            | OWNER EQUAL ID MODE EQUAL MODN
-            |'''         
+            | MODE expression
+            | MODE EQUAL expression
+            | OWNER ID MODE expression
+            | OWNER EQUAL ID MODE expression
+            | OWNER ID MODE EQUAL expression
+            | OWNER EQUAL ID MODE EQUAL expression'''         
 
 
 #DROP
@@ -217,6 +200,44 @@ def p_instruction_alteroptions(t):
 #SHOW
 def p_instruction_show(t):
     '''show : SHOW DATABASES'''
+#INSERT
+def p_instruction_insert(t):
+    '''insert : INSERT INTO ID VALUES BRACKET_OPEN expressionList BRACKET_CLOSE
+              | INSERT INTO ID BRACKET_OPEN idList BRACKET_CLOSE VALUES BRACKET_OPEN expressionList BRACKET_CLOSE'''
+
+#EXPRESSIONS
+def p_instruction_idlist(t):
+    '''idList : idList COMMA ID
+              | ID'''
+
+def p_instruction_expressionlist(t):
+    '''expressionList : expressionList COMMA expression
+                      | expression'''
+#UNARY
+def p_expression_unaryminus(t):
+    'expression : MINUS expression %prec UMINUS'
+    t[0] = -t[2]
+
+def p_expression_unaryplus(t):
+    'expression : PLUS expression %prec UPLUS'
+    t[0] = t[2]
+
+#BINARY
+def p_expression_binary(t):
+    '''expression : expression PLUS expression
+                  | expression MINUS expression
+                  | expression TIMES expression
+                  | expression DIVIDED expression'''
+    if t[2] == '+'  : t[0] = t[1] + t[3]
+    elif t[2] == '-': t[0] = t[1] - t[3]
+    elif t[2] == '*': t[0] = t[1] * t[3]
+    elif t[2] == '/': t[0] = t[1] / t[3]
+
+#VALUES
+def p_expression_number(t):
+    '''expression : INT
+                  | DECIMAL'''
+    t[0] = t[1]
 
 #ERROR
 def p_error(t):
