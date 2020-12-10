@@ -47,7 +47,8 @@ def p_instruccion(t) :
 
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
-    'creacion     : DATABASE crear_bd'
+    '''creacion     : DATABASE crear_bd
+                    | TABLE crear_tb'''
     print("Creacion")
 
 def p_instruccion_crear_BD(t) :
@@ -55,6 +56,21 @@ def p_instruccion_crear_BD(t) :
     t[0] = Crear_BD(t[1])
     print("Creacion de BD")
 
+def p_instruccion_crear_TB_herencia(t):
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA
+                    | ID PARIZQ crear_tb_columnas PARDER tb_herencia'''
+    print("Creación de Tabla con herencia")
+    #t[0] = Crear_TB_Herencia(t[1], t[3], t[5])|||
+
+def p_instruccion_crear_TB(t):
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA
+                    | ID PARIZQ crear_tb_columnas PARDER'''
+    print("Creación de tabla sin herencia")
+    #t[0] = Crear_TB(t[1], t[3])
+
+def p_instruccion_TB_herencia(t) :
+    'tb_herencia    : INHERITS PARIZQ ID PARDER'
+    #t[0] = Heredero(t[4])
 
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
@@ -143,6 +159,81 @@ def p_parametro_sin_tabla(t) :
     'parametro        : ID'
     t[0] = t[1]
     print("Parametro SIN indice de tabla")
+#========================================================
+
+#========================================================
+# CONTENIDO DE TABLAS EN CREATE TABLE
+def p_instrucciones_lista_columnas(t) :
+    'crear_tb_columnas      : crear_tb_columnas COMA crear_tb_columna'
+    #t[1].append(t[3])
+    #t[0] = t[1]
+
+def p_instrucciones_columnas(t) :
+    'crear_tb_columnas      : crear_tb_columna'
+    #t[0] = [t[1]]
+
+def p_instrucciones_columna_parametros(t) :
+    'crear_tb_columna       : ID tipos parametros_columna'
+    #t[0] = Nueva_Columna_Param(t[1], t[2], t[3])
+
+def p_instrucciones_columna_noparam(t) :
+    'crear_tb_columna       : ID tipos'
+    #t[0] = Nueva_Columna(t[1], t[2])
+
+def p_instrucciones_columna_pk(t) :
+    'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
+    #t[0] = LlavesPrimarias(t[4])
+
+def p_instrucciones_columna_fk(t) :
+    'crear_tb_columna       : FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'
+    #t[0] = Llaves Foraneas(t[4], t[7], t[9])
+    if len(t[4]) != len(t[9]):
+        print('Error el número de columnas referencias es distinto al número de columnas foraneas')
+    else:
+        print('Se creó referencia de llave foranea')
+
+def p_instrucciones_lista_params_columnas(t) :
+    'parametros_columna     : parametros_columna parametro_columna'
+    #t[1].append(t[2])
+    #t[0] = t[1]
+
+def p_instrucciones_params_columnas(t) :
+    'parametros_columna     : parametro_columna'
+    #t[0] = [t[1]]
+
+def p_instrucciones_parametro_columna_nul(t) :
+    'parametro_columna      : unul'
+    #t[0] = t[1]
+
+def p_instrucciones_parametro_columna_pkey(t) :
+    'parametro_columna      : PRIMARY KEY'
+    #t[0] = Parametro('PRIMARY KEY')
+
+def p_instrucciones_parametro_columna_auto_increment(t) :
+    'parametro_columna      : AUTO_INCREMENT'
+    #t[0] = Parametro('AUTO_INCREMENT')
+
+def p_instrucciones_nnul(t) :
+    'unul   : NOT NULL'
+    #t[0] = Parametro('NOT NULL')
+
+def p_instrucciones_unul(t) :
+    'unul   : NULL'
+    #t[0] = Parametros('NULL')
+
+#========================================================
+
+#========================================================
+# LISTA DE ELEMENTOS REUTILIZABLES
+def p_instrucciones_lista_ids(t) :
+    'lista_id   : lista_id COMA ID'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_instrucciones_lista_id(t) :
+    'lista_id   : ID'
+    t[0] = [t[1]]
+
 #========================================================
 
 #========================================================
