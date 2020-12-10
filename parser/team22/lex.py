@@ -3,6 +3,7 @@ reservadas = {
     'create' : 'CREATE',
     'database' : 'DATABASE',    
     'table' : 'TABLE',
+    'inherits' : 'INHERITS',
     'smallint': 'SMALLINT',
     'integer': 'INTEGER',
     'bigint': 'BIGINT',
