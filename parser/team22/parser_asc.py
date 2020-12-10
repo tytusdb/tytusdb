@@ -38,14 +38,12 @@ def p_instruccion(t) :
     '''instruccion      : CREATE creacion
                         | USE cambio_bd
                         | SELECT selects
-                        | SELECT select_distinct
                         | DELETE deletes
                         | ALTER alter_table PTCOMA
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
                         | DROP dropear'''
     t[0] = t[2]
-    print("******")
 
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
@@ -105,15 +103,20 @@ def p_instruccion_Use_BD(t) :
 def p_instruccion_selects(t) :
     '''selects      : POR FROM select_all 
                     | lista_parametros FROM lista_parametros inicio_condicional '''
-    print("selects")
+    # print("selects")
+
+def p_instruccion_selects_distinct(t) :
+    '''selects      : DISTINCT POR FROM select_all 
+                    | DISTINCT lista_parametros FROM lista_parametros inicio_condicional '''
+    # print("selects")
 
 def p_instruccion_selects_where(t) :
     'inicio_condicional      : WHERE lista_condiciones inicio_group_by'
-    print("Condiciones (Where)")
+    # print("Condiciones (Where)")
 
 def p_instruccion_selects_sin_where(t) :
     'inicio_condicional      : inicio_group_by'
-    print("Condiciones (Where)")
+    # print("Condiciones (Where)")
 
 # def p_instruccion_selects_where2(t) :
 #     'inicio_condicional      : WHERE lista_condiciones inicio_group_by PTCOMA'
@@ -121,39 +124,59 @@ def p_instruccion_selects_sin_where(t) :
 
 def p_instruccion_selects_group_by(t) :
     'inicio_group_by      : GROUP BY lista_parametros inicio_having'
-    print("GROUP BY")
+    # print("GROUP BY")
 
 def p_instruccion_selects_group_by2(t) :
     'inicio_group_by      : inicio_having '
-    print("NO HAY GROUP BY")
+    # print("NO HAY GROUP BY")
 
 def p_instruccion_selects_having(t) :
     'inicio_having     : HAVING lista_condiciones inicio_order_by'
-    print("HAVING")
+    # print("HAVING")
 
 def p_instruccion_selects_having2(t) :
     'inicio_having      : inicio_order_by '
-    print("NO HAY HAVING")
+    # print("NO HAY HAVING")
 
 def p_instruccion_selects_order_by(t) :
-    'inicio_order_by     : ORDER BY lista_parametros PTCOMA'
-    print("ORDER BY")
+    '''inicio_order_by      : ORDER BY lista_parametros state_union
+                            | ORDER BY lista_parametros state_intersect
+                            | ORDER BY lista_parametros state_except'''
+    # print("ORDER BY")
 
 def p_instruccion_selects_order_by2(t) :
-    'inicio_order_by      : PTCOMA '
-    print("NO HAY ORDER BY")
+    '''inicio_order_by      : state_union 
+                            | state_intersect
+                            | state_except'''
+    # print("NO HAY ORDER BY")
     
+def p_instruccion_selects_union(t) :
+    '''state_union      : UNION SELECT selects
+                        | UNION ALL SELECT selects'''
+    
+def p_instruccion_selects_union2(t) :
+    'state_union      : PTCOMA'
+    
+def p_instruccion_selects_intersect(t) :
+    '''state_intersect      : INTERSECT SELECT selects
+                            | INTERSECT ALL SELECT selects'''
+    
+def p_instruccion_selects_intersect2(t) :
+    'state_intersect      : PTCOMA'
+    
+def p_instruccion_selects_except(t) :
+    '''state_except     : EXCEPT SELECT selects
+                        | EXCEPT ALL SELECT selects'''
+    
+def p_instruccion_selects_except2(t) :
+    'state_except      : PTCOMA'
+
 
 def p_instruccion_Select_All(t) :
     'select_all     : ID inicio_condicional'
     t[0] = Select_All(t[1])
-    print("Consulta ALL para tabla: " + t[1])
+    # print("Consulta ALL para tabla: " + t[1])
     
-def p_instruccion_Select_Distinct(t) :
-    'select_distinct     : DISTINCT selects'
-    # t[0] = Select_All(t[1])
-    print("Consulta con DISITNCT: " + t[1])
-
 #========================================================
 # INSERT INTO TABLAS
 def p_instruccion_Insert_columnas(t) :
@@ -214,27 +237,27 @@ def p_instrucciones_lista_parametros(t) :
     'lista_parametros    : lista_parametros COMA parametro'
     t[1].append(t[3])
     t[0] = t[1]
-    print("Varios parametros")
+    # print("Varios parametros")
 
 def p_instrucciones_parametro(t) :
     'lista_parametros    : parametro '
     t[0] = [t[1]]
-    print("Un parametro")
+    # print("Un parametro")
 
 def p_parametro_con_tabla(t) :
     'parametro        : ID PUNTO name_column'
     t[0] = t[1]
-    print("Parametro con indice de tabla")
+    # print("Parametro con indice de tabla")
 
 def p_parametro_con_tabla_columna(t) :
     'name_column        : ID'
     t[0] = t[1]
-    print("Nombre de la columna")
+    # print("Nombre de la columna")
 
 def p_parametro_sin_tabla(t) :
     'parametro        : ID'
     t[0] = t[1]
-    print("Parametro SIN indice de tabla")
+    # print("Parametro SIN indice de tabla")
 #========================================================
 
 #========================================================
@@ -330,8 +353,7 @@ def p_instrucciones_lista_insercion_objeto(t) :
     #para objetos simples
 
 def p_instrucciones_lista_insercion_select(t) :
-    '''lista_insercion  : lista_insercion COMA PARIZQ SELECT selects PARDER
-                        | lista_insercion COMA PARIZQ SELECT select_distinct PARDER'''
+    'lista_insercion  : lista_insercion COMA PARIZQ SELECT selects PARDER'
     #para cuando haya querys select
 
 def p_instrucciones_insercion_objeto(t) :
@@ -339,8 +361,7 @@ def p_instrucciones_insercion_objeto(t) :
     #para un objeto simple
 
 def p_instrucciones_insercion_select(t) :
-    '''lista_insercion  : PARIZQ SELECT selects PARDER
-                        | PARIZQ SELECT select_distinct PARDER'''
+    'lista_insercion  : PARIZQ SELECT selects PARDER'
     #Para un query select
 
 #========================================================
@@ -351,29 +372,29 @@ def p_instrucciones_lista_condiciones_AND(t) :
     'lista_condiciones    : lista_condiciones AND condicion'
     t[1].append(t[3])
     t[0] = t[1]
-    print("condicion con  AND")
+    # print("condicion con  AND")
     
 def p_instrucciones_lista_condiciones_OR(t) :
     'lista_condiciones    : lista_condiciones OR condicion'
     t[1].append(t[3])
     t[0] = t[1]
-    print("condicion con OR")
+    # print("condicion con OR")
     
 def p_instrucciones_lista_condiciones_NOT(t) :
     'lista_condiciones    : NOT lista_condiciones'
     t[1].append(t[3])
     t[0] = t[1]
-    print("condicion con NOT")
+    # print("condicion con NOT")
 
 def p_instrucciones_condiciones(t) :
     'lista_condiciones    : condicion '
     t[0] = [t[1]]
-    print("Una condicion")
+    # print("Una condicion")
 
 def p_parametro_con_tabl_2(t) :
     'condicion        : def_condicion signo_relacional ID PUNTO name_column '
     t[0] = t[1]
-    print("Condicion con indice de tabla")
+    # print("Condicion con indice de tabla")
 
 def p_def_condicion(t) :
     '''def_condicion    : ID PUNTO ID
@@ -404,7 +425,7 @@ def p_parametro_signo_relacional(t) :
 def p_parametro_sin_tabla_2(t) :
     'condicion        : ID signo_relacional ID'
     t[0] = t[1]
-    print("Condicion SIN indice de tabla")
+    # print("Condicion SIN indice de tabla")
 
 #========================================================
 

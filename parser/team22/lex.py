@@ -76,6 +76,8 @@ reservadas = {
     'group' : 'GROUP',
     'having' : 'HAVING',
     'exists' : 'EXISTS',
+    'intersect' : 'INTERSECT',
+    'except' : 'EXCEPT',
     'all' : 'ALL',
     'into' : 'INTO',
     'some' : 'SOME',
