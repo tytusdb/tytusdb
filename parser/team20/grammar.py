@@ -63,6 +63,31 @@ reservedwords = (
     'LIKE',
     'ILIKE',
     'SIMILAR',
+    'SMALLINT',
+    'INTEGER',
+    'BIGINT',
+    'DECIMAL',
+    'NUMERIC',
+    'REAL',
+    'DOUBLE',
+    'PRECISION',
+    'MONEY',
+    'CHARACTER',
+    'VARYING',
+    'VARCHAR',
+    'TIMESTAMP',
+    'TEXT',
+    'CHAR',
+    'WITH',
+    'TIME', 
+    'ZONE',
+    'WITHOUT',
+    'INTERVAL',
+    'BOOLEAN',
+    'DEFAULT',
+    'CHECK',
+    'PRIMARY',
+    'DATE'
 )
 
 symbols = (
@@ -82,7 +107,7 @@ symbols = (
     'GREATERTHAN',
     'LESSTHANEQUAL',
     'GREATERTHANEQUAL',
-    'NOTEQUAL',
+    'NOTEQUAL'
 )
 
 tokens = reservedwords + symbols + (
@@ -194,6 +219,111 @@ def p_instruction_create_database(t):
               | CREATE DATABASE  IF NOT EXISTS ID ownermode
               | CREATE DATABASE ID
               | CREATE DATABASE IF NOT EXISTS ID'''
+
+def p_instruction_create_table(t):
+    '''createTable : CREATE TABLE ID BRACKET_OPEN columns
+              | REPLACE DATABASE ID ownermode
+              | CREATE DATABASE  IF NOT EXISTS ID ownermode'''
+
+def p_instruction_create_table_columns(t):
+    '''columns : columns COMMA column
+              | column'''
+
+def p_instruction_create_table_column(t):
+    '''column : ID type
+              | ID type default 
+              | ID type null
+              | ID type primarys
+              | ID type reference
+              | ID type uniques
+              | checks
+              | UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
+              | PRIMARY KEY  BRACKET_OPEN idList BRACKET_CLOSE '''
+
+def p_instruction_create_default (t):
+    '''default : DEFAULT expression 
+               | DEFAULT expression null
+               | DEFAULT expression primarys
+               | DEFAULT expression reference
+               | DEFAULT expression uniques
+               | DEFAULT expression checks
+               | primarys
+               | reference
+               | uniques
+               | checks
+               '''
+def p_instruction_create_null (t):
+    '''null : NULL 
+            | NULL primarys
+            | NULL reference
+            | NULL uniques
+            | NULL checks
+            | NOT NULL primarys
+            | NOT NULL reference
+            | NOT NULL uniques
+            | NOT NULL checks
+            | NOT NULL
+            | primarys
+            | reference
+            | uniques
+            | checks'''
+def p_instruction_create_primary (t):
+    '''primarys : PRIMARY KEY
+                | PRIMARY KEY reference
+                | PRIMARY KEY uniques
+                | PRIMARY KEY checks
+                | reference
+                | uniques
+                | checks'''
+def p_instruction_create_references (t):
+    '''reference : REFERENCES ID
+                 | REFERENCES ID uniques
+                 | REFERENCES ID checks'''
+def p_instruction_create_unique (t):
+    '''uniques : UNIQUE
+               | UNIQUE checks
+               | CONSTRAINT ID UNIQUE
+               | CONSTRAINT ID UNIQUE checks
+               | checks '''
+
+def p_instruction_create_check (t):
+    '''checks : CHECK expression
+              | CONSTRAINT ID CHECK expression'''
+
+
+
+def p_instruction_type(t):
+    '''type : SMALLINT
+            | INTEGER
+            | BIGINT
+            | DECIMAL
+            | NUMERIC
+            | REAL
+            | DOUBLE
+            | PRECISION
+            | MONEY
+            | CHARACTER
+            | VARYING BRACKET_OPEN INT BRACKET_CLOSE
+            | VARCHAR BRACKET_OPEN INT BRACKET_CLOSE
+            | CHARACTER BRACKET_OPEN INT BRACKET_CLOSE
+            | CHAR BRACKET_OPEN INT BRACKET_CLOSE
+            | TEXT
+            | TIMESTAMP
+            | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE
+            | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE
+            | TIMESTAMP WITH TIME ZONE
+            | DATE
+            | TIME 
+            | TIME BRACKET_OPEN INT BRACKET_CLOSE
+            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITHOUT TIME ZONE
+            | TIME WITHOUT TIME ZONE
+            | TIME WITH TIME ZONE
+            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE
+            | INTERVAL
+            | INTERVAL INT 
+            | INTERVAL BRACKET_OPEN INT BRACKET_CLOSE
+            | INTERVAL INT BRACKET_OPEN INT BRACKET_CLOSE
+            | BOOLEAN'''
 
 def p_instruction_create_type(t):
     '''createType : CREATE TYPE ID AS ENUM BRACKET_OPEN expressionList BRACKET_CLOSE'''
