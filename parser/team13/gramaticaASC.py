@@ -103,8 +103,117 @@ reservadas = {
     'constraint': 'tConstraint',
     'unique': 'tUnique',
     'column': 'tColumn',
-    'add': 'add'
+    'add': 'add',
+
     # >termina fl
+    'no':'no',
+    'yes':'yes',
+    'on':'on',
+    'off':'off',
+
+    #TOKENS QUERIES
+    'distinct':'distinct',
+    'group':'group',
+    'by':'by',
+    'having':'having',
+    #agregacion
+    'count':'count',
+    'avg':'avg',
+    'max':'max',
+    'min':'min',
+    'sum':'sum',
+    #matematicas
+    'abs':'abs',
+    'cbrt':'cbrt',
+    'ceil':'ceil',
+    'ceiling':'ceiling',
+    'degrees':'degrees',
+    'div':'div',
+    'exp':'exp',
+    'factorial':'factorial',
+    'floor':'floor',
+    'gcd':'gcd',
+    'lcm':'lcm',
+    'ln':'ln',
+    'log':'log',
+    'log10':'log10',
+    'min_scale':'min_scale',
+    'mod':'mod',
+    'pi':'pi',
+    'power':'power',
+    'radians':'radians',
+    'round':'round',
+    'scale':'scale',
+    'sign':'sign',
+    'sqrt':'sqrt',
+    'trim_scale':'trim_scale',
+    'truc':'truc',
+    'width_bucket':'width_bucket',
+    'random':'random',
+    'setseed':'setseed',
+    #trigonometricas
+    'acos':'acos',
+	'acosd':'acosd',
+	'asin':'asin',
+	'asind':'asind',
+	'atan':'atan',
+	'atand':'atand',
+	'atan2':'atan2',
+	'atan2d':'atan2d',
+	'cos':'cos',
+	'cosd':'cosd',
+	'cot':'cot',
+	'cotd':'cotd',
+	'sin':'sin',
+	'sind':'sind',
+	'tan':'tan',
+	#'tand':'ttand',
+	'sinh':'sinh',
+	'cosh':'cosh',
+	'tanh':'tanh',
+	'asinh':'asinh',
+	'acosh':'acosh',
+	'atanh':'atanh',
+    #binary
+    'length':'length',
+	'substring':'substring',
+	'trim':'trim',
+	'get_byte':'get_byte',
+	'md5':'md5',
+	'set_byte':'set_byte',
+	'sha256':'sha256',
+	'substr':'substr',
+	'convert':'convert',
+	'encode':'encode',
+	'decode':'decode',
+
+    #otros
+    'all':'all',
+    'any':'any',
+    'some':'some',
+
+    #EXPRESSIONS
+    'case':'case',
+    'when':'when',
+    'then':'then',
+    'else':'else',
+    'end':'end',
+    'greatest':'greatest',
+    'leaste':'least',
+    'limit':'limit',
+    'offset':'offset',
+    'union':'union',
+    'except':'except',
+    'intersect':'intersect',
+
+    #otros
+    'date_part':'date_part',
+    'now':'now',
+    'current_date':'current_date',
+    'current_time':'current_time',
+    'extract':'tExtract',
+    'in':'in'
+
 }
 
 # LISTA DE TOKENS
@@ -137,7 +246,15 @@ tokens = [
              'parAbre',
              'parCierra',
              'coma',
-             'ptComa'
+             'ptComa',
+             #tks
+             'barra',
+             'barraDoble',
+             'amp',
+             'numeral',
+             'virgulilla',
+             'mayormayor',
+             'menormenor'
 
          ] + list(reservadas.values())
 
@@ -166,6 +283,15 @@ t_parAbre = r'\('
 t_parCierra = r'\)'
 t_coma = r','
 t_ptComa = r';'
+
+#tk_queries
+t_barra         = r'\|'
+t_barraDoble    = r'\|\|'
+t_amp           = r'&'
+t_numeral       = r'\#'
+t_virgulilla    = r'~'
+t_mayormayor    = r'>>'
+t_menormenor    = r'<<'
 
 
 # DEFINICIÓN DE UN NÚMERO DECIMAL
