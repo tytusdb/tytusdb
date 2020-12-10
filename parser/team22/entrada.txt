@@ -10,7 +10,7 @@ multiple*/
 select A.id, A.nombre from usuarios;
 delete libros;
 select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
-delete libros;*/
+delete libros;
 
 ALTER TABLE tabla ADD COLUMN columna smallint;
 ALTER TABLE products DROP COLUMN description;
@@ -21,4 +21,6 @@ ALTER TABLE tabla ALTER COLUMN columna SET NOT NULL;
 ALTER TABLE tabla DROP CONSTRAINT some_name;
 ALTER TABLE tabla RENAME COLUMN column1 TO column1_1;
 
-SELECT distinct select_list, das from table_expression where a==q AND p==p ;
+SELECT distinct select_list, das from table_expression where a=q AND p=p ;*/
+
+UPDATE products SET price = 10 ;

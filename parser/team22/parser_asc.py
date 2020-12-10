@@ -40,7 +40,8 @@ def p_instruccion(t) :
                         | SELECT selects
                         | SELECT select_distinct
                         | DELETE deletes
-                        | ALTER alter_table PTCOMA'''
+                        | ALTER alter_table PTCOMA
+                        | UPDATE update_table PTCOMA'''
     t[0] = t[2]
     print("******")
 
@@ -170,9 +171,13 @@ def p_instrucciones_condiciones(t) :
     print("Una condicion")
 
 def p_parametro_con_tabl_2(t) :
-    'condicion        : ID PUNTO name_column signo_relacional ID PUNTO name_column '
+    'condicion        : def_condicion signo_relacional ID PUNTO name_column '
     t[0] = t[1]
     print("Condicion con indice de tabla")
+
+def p_def_condicion(t) :
+    '''def_condicion    : ID PUNTO ID
+                        | ID'''
 
 def p_parametro_signo_relacional(t) :
     '''signo_relacional         : IGUAL IGUAL
@@ -301,6 +306,20 @@ def p_valor(t) :
                     | ENTERO
                     | DECIMAL
                     | CADENA'''
+
+def p_instruccion_update_where(t) :
+    '''update_table : ID SET def_update WHERE lista_condiciones'''
+    print("UPDATE TABLE")
+
+def p_instruccion_update(t) :
+    '''update_table : ID SET def_update'''
+    print("UPDATE TABLE")
+
+def p_def_update_rec(t) :
+    '''def_update   : def_update COMA ID IGUAL valor'''
+
+def p_def_update(t) :
+    '''def_update   : ID IGUAL valor'''
 
 def p_error(t):
     print(t)
