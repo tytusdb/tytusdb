@@ -3,9 +3,8 @@ from tkinter import ttk
 from tkinter import filedialog
 from PIL import Image, ImageTk
 
-import grammar.execute as gramatica
+import grammar.sql_grammar as gramatica
 from graphviz import Source
-from tools.environment import *
 from tools.console_text import *
 
 import os
@@ -32,9 +31,6 @@ class window:
         self.add_tab("Untitled-"+str(self.count_tabs))
         self.create_consola()
         self.create_status_bar()
-
-        #ambiente para ejecución
-        self.ambiente_ = environment()
 
         #Search and Replace vars
         self.search_text = ""
@@ -553,7 +549,7 @@ class window:
 
         txt_number.config(state=DISABLED)
         
-    def highlight_pattern(self, pattern, tag, txt_area, start="1.0", end="end", regexp=False):
+    def highlight_pattern(self, pattern, tag, txt_area, start="1.0", end="end", regexp=False, case_sensitive = 0):
         start = txt_area.index(start)
         end = txt_area.index(end)
         txt_area.mark_set("matchStart", start)
@@ -562,7 +558,7 @@ class window:
 
         count = IntVar()
         while True:
-            index = txt_area.search(pattern, "matchEnd","searchLimit", count=count, regexp=regexp)
+            index = txt_area.search(pattern, "matchEnd","searchLimit", count=count, regexp=regexp, nocase=case_sensitive)
             if index == "": break
             if count.get() == 0: break # degenerate pattern which matches zero-length strings
             txt_area.mark_set("matchStart", index)
@@ -661,9 +657,103 @@ class window:
         txt_area.tag_config("boolean", foreground="#FA8C31")
 
         #Palabras
-        self.highlight_pattern("def", "reservada", txt_area)
-        self.highlight_pattern("if", "reservada", txt_area)
-        self.highlight_pattern("else", "reservada", txt_area)
+        self.highlight_pattern("SELECT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("UPDATE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("WHERE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("JOIN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CREATE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DELETE", "reservada", txt_area, case_sensitive=1)        
+        self.highlight_pattern("COUNT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SUM", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FROM", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CASE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("THEN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ELSE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SMALLINT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INTEGER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("BIGINT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DECIMAL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("NUMERIC", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("REAL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("MONEY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CHAR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CHARACTER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("VARYING", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TIMESTAMP", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("WITHOUT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("WITH", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TIME", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ZONE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DATE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INTERVAL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FIELDS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("YEAR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("MONTH", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DAY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("HOUR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("MINUTE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SECOND", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TO", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("BOOLEAN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("AS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ENUM", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TYPE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("IS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ISNULL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("NOTNULL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("NOT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("AND", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("OR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("BETWEEN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LIKE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("IN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INLIKE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SIMILAR", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("REPLACE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("MODE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("OWNER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("IF", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("EXISTS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ALTER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DATABASE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("RENAME", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DROP", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TABLE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("PRIMARY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FOREIGN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("KEY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("REFERENCES", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CONSTRAINT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("CHECK", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("SET", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INSERT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("BY", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("GROUP", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("HAVING", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ORDER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("WHEN", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("UNION", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("END", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("VALUES", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INTERSECT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LIMIT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INNER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LEFT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("RIGHT", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("OUTER", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ASC", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("DESC", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("GREATEST", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LEAST", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("OFFSET", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FIRST", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("LAST", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FULL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("ALL", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("TRUE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("FALSE", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("INHERITS", "reservada", txt_area, case_sensitive=1)
+        self.highlight_pattern("NULL", "reservada", txt_area, case_sensitive=1)
 
         self.highlight_pattern("==", "item", txt_area)
         self.highlight_pattern("!=", "item", txt_area)
@@ -735,14 +825,14 @@ class window:
         contenido = txt_box.get(1.0, END)
 
         try:
-            instruccions = gramatica.parse(contenido)
+            instruccions = gramatica.parse(contenido)            
             self.ejecutar_resultado(instruccions)  
 
             for tab_item in self.tab_salida.winfo_children():
                 for widget_item in tab_item.winfo_children():                
                     if isinstance(widget_item, Text):
                             widget_item.delete('1.0', END)                                                   
-                            add_text("\nPS C:\\Users\\Luis Fer> ")
+                            add_text("\nPS C:\\Users\\Grupo 23> ")
                             widget_item.insert(INSERT, get_contenido())
 
             self.graficar_AST(instruccions)
@@ -754,7 +844,7 @@ class window:
 
     def ejecutar_resultado(self,instrucciones_):
         for instruccion_ in instrucciones_:
-            instruccion_.ejecutar(self.ambiente_)
+            instruccion_.ejecutar()
 
 if __name__ == "__main__":
     index = window()
