@@ -1,8 +1,13 @@
 ##-------------------------GRAMATICA ASCENDENTE-------------------------------
 reservadas = {
     'create' : 'CREATE',
-    'database' : 'DATABASE',    
+    'databases' : 'DATABASES',  
+    'database' : 'DATABASE', 
+    'current_user': 'CURRENT_USER',
+    'session_user': 'SESSION_USER',   
     'table' : 'TABLE',
+    'insert': 'INSERT',
+    'inherits' : 'INHERITS',
     'smallint': 'SMALLINT',
     'integer': 'INTEGER',
     'bigint': 'BIGINT',
@@ -44,6 +49,8 @@ reservadas = {
     'select' : 'SELECT',
     'distinct' : 'DISTINCT',
     'as' : 'AS',
+    'enum' : 'ENUM',
+    'type' : 'TYPE',
     'from' : 'FROM',
     'left' : 'LEFT',
     'join' : 'JOIN',
@@ -57,6 +64,9 @@ reservadas = {
     'min' : 'MIN',
     'order' : 'ORDER',
     'where' : 'WHERE',
+    'if' : 'IF',
+    'owner' : 'OWNER',
+    'mode' : 'MODE',
     'and' : 'AND',
     'or' : 'OR',
     'between' : 'BETWEEN',
@@ -69,6 +79,8 @@ reservadas = {
     'group' : 'GROUP',
     'having' : 'HAVING',
     'exists' : 'EXISTS',
+    'intersect' : 'INTERSECT',
+    'except' : 'EXCEPT',
     'all' : 'ALL',
     'into' : 'INTO',
     'some' : 'SOME',
@@ -98,6 +110,7 @@ reservadas = {
     'truncate' : 'TRUNCATE',
     'update' : 'UPDATE',
     'asc' : 'ASC',
+    'show': 'SHOW'
 }
 
 tokens  = [
@@ -179,7 +192,7 @@ def t_ENTERO(t):
     return t
 
 def t_ID(t):
-     r'[a-zA-Z_][a-zA-Z_0-9]*'
+     r'[a-zA-Z_@#][a-zA-Z_0-9@$#]*'
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
 

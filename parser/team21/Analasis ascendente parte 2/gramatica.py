@@ -251,7 +251,7 @@ def p_selectAlias(t):
     '''inst_select : SELECT listaidA FROM listaidA PTCOMA'''
     t[0] = t[1] + ' ' + t[2][0] + ', ' + t[2][1] + ', ' + t[2][2] + ' ' + t[3] + ' ' + t[4][0] + t[5]
 
-def p_selectAlias(t):
+def p_selectAlias2(t):
     '''inst_select : SELECT listaid FROM listaidA PTCOMA'''
     t[0] = t[1] + ' ' + t[2][0] + ', ' + t[2][1] + ', ' + t[2][2] + ' ' + t[3] + ' ' + t[4][0] + t[5]
 
