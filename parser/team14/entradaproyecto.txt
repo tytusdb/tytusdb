@@ -1,0 +1,4 @@
+SELECT inventory_id
+     FROM inventory
+     WHERE film_id = 1
+     AND store_id = 2;
