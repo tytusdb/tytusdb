@@ -41,7 +41,7 @@ archivoMenu.add_command(label="Guardar", command=guardar)
 barra.add_cascade(label="Archivo", menu=archivoMenu)
 
 herramientaMenu=Menu(barra, tearoff=0)
-herramientaMenu.add     _command(label="Ejecutar Analisis", command=analisis)
+herramientaMenu.add_command(label="Ejecutar Analisis", command=analisis)
 barra.add_cascade(label="Analisis", menu=herramientaMenu)
 
 reporteMenu = Menu(barra, tearoff=0)
