@@ -94,28 +94,28 @@ def createDatabase(database: str) -> int:
 ```
 Crea una base de datos.  
 Parámetro database: es el nombre de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos existente
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos existente  
 
 ```
 def showDatabases() -> list:
 ```
-Devuelve una lista de los nombres de las bases de datos
-Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].
+Devuelve una lista de los nombres de las bases de datos  
+Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].  
 
 ```
-def alterDatabase(databaseOld, databaseNew) -> bool:
+def alterDatabase(databaseOld, databaseNew) -> int:
 ```
-Renombra la base de datos databaseOld por databaseNew.
+Renombra la base de datos databaseOld por databaseNew.  
 Parámetro databaseOld: es el nombre actual de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro databaseNew: es el nuevo nombre que tendrá de la base de datos databaseOld, debe cumplir con las reglas de identificadores de SQL.  
-Valor de retorno: True operación exitosa, False error en la operación.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 databaseOld no existente, 3 databaseNew existente.  
 
 ```
 def dropDatabase(database: str) -> int:
 ```
 Elimina por completo la base de datos indicada en database.  
 Parámetro database: es el nombre de la base de datos que se desea eliminar, debe cumplir con las reglas de identificadores de SQL.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente  
 
 ##### Respecto de las funciones de las tablas están:
 - createTable(database, tableName, numberColumns): crea una tabla según el modo de almacenamiento, la base de datos debe de existir, y solo se define el número de columnas.
