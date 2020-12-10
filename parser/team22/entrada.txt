@@ -28,7 +28,7 @@ UPDATE products SET price = 10 ;
 CREATE TABLE Tobleta(
     columna1 VARCHAR(2),
     columna2 INTEGER NOT NULL
-) INHERITS (papa)
+) INHERITS (papa);
 
 CREATE TABLE Tabla2(
     columna1 INTEGER NOT NULL PRIMARY KEY,
@@ -37,4 +37,14 @@ CREATE TABLE Tabla2(
     PRIMARY KEY (columna1, columna2),
     FOREIGN KEY (columna1, columna2) REFERENCES Tobleta (columna1, columna2, columnanoexistente),
     columna4 DATE
+
 )
+
+INSERT INTO Tabla2 (columna1, columna4) VALUES (123, '18/12/2020');
+
+INSERT INTO Tobleta VALUES ('hi', 2);
+
+CREATE DATABASE IF NOT EXISTS base1 OWNER = yo MODE = 2;
+
+CREATE DATABASE base2 MODE = 1 OWNER = tu;
+
