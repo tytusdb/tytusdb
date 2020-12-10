@@ -41,20 +41,36 @@ def p_instruccion(t) :
                         | SELECT select_distinct
                         | DELETE deletes
                         | ALTER alter_table PTCOMA
-                        | UPDATE update_table PTCOMA'''
+                        | UPDATE update_table PTCOMA
+                        | INSERT insercion
+                        | DROP dropear'''
     t[0] = t[2]
     print("******")
 
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
     '''creacion     : DATABASE crear_bd
-                    | TABLE crear_tb'''
+                    | TABLE crear_tb
+                    | TYPE crear_type'''
     print("Creacion")
 
 def p_instruccion_crear_BD(t) :
     'crear_bd     : ID PTCOMA'
     t[0] = Crear_BD(t[1])
     print("Creacion de BD")
+
+def p_instruccion_crear_BD_Parametros(t) :
+    'crear_bd     : ID lista_parametros_bd PTCOMA'
+    #t[0] = Crear_BD_Parametros(t[1])
+    print('Creacion de BD parametros')
+
+def p_instruccion_crear_BD_if_exists(t) :
+    'crear_bd       : IF NOT EXISTS ID PTCOMA'
+    print('Creacion de BD if not exists')
+
+def p_instruccion_crear_BD_if_exists_Parametros(t) :
+    'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
+    print('Creacion de BD parametros if not exist')
 
 def p_instruccion_crear_TB_herencia(t):
     '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA
@@ -67,6 +83,12 @@ def p_instruccion_crear_TB(t):
                     | ID PARIZQ crear_tb_columnas PARDER'''
     print("Creación de tabla sin herencia")
     #t[0] = Crear_TB(t[1], t[3])
+
+def p_isntruccion_crear_TYPE(t) :
+    '''crear_type   : ID AS ENUM PARIZQ lista_objetos PARDER PTCOMA
+                    | ID AS ENUM PARIZQ lista_objetos PARDER'''
+    print("Creacion de un type enumerado")
+    #t[0] = Crear_Type(t[1], t[5])
 
 def p_instruccion_TB_herencia(t) :
     'tb_herencia    : INHERITS PARIZQ ID PARDER'
@@ -131,6 +153,60 @@ def p_instruccion_Select_Distinct(t) :
     'select_distinct     : DISTINCT selects'
     # t[0] = Select_All(t[1])
     print("Consulta con DISITNCT: " + t[1])
+
+#========================================================
+# INSERT INTO TABLAS
+def p_instruccion_Insert_columnas(t) :
+    '''insercion    : INTO ID PARIZQ lista_id PARDER VALUES PARIZQ lista_insercion PARDER PTCOMA
+                    | INTO ID PARIZQ lista_id PARDER VALUES PARIZQ lista_insercion PARDER'''
+    print('Insert con columnas')
+    #t[0] = Insert(t[2], t[4], t[8])
+    #if len(t[4]) != len(t[8]):
+        #print('Error, no está insertando la misma cantidad de datos que de columnas')
+    #else:
+        #print('Insertó')
+
+def p_instruccion_insert(t) :
+    '''insercion    : INTO ID VALUES PARIZQ lista_insercion PARDER PTCOMA
+                    | INTO ID VALUES PARIZQ lista_insercion PARDER'''
+    print('Insert sin columnas')
+
+#========================================================
+
+#========================================================
+# DROP BASES DE DATOS Y TABLAS
+def p_instruccion_Drop_BD_exists(t) :
+    '''dropear      : DATABASE IF EXISTS ID PTCOMA
+                    | DATABASE IF EXISTS ID'''
+    #t[0] = DropBaseExiste(t[4])
+
+def p_instruccion_Drop_BD(t) :
+    '''dropear      : DATABASE ID PTCOMA
+                    | DATABASE ID'''
+    #t[0] = DropBase(t[2])
+
+def p_instruccion_Drop_TB(t) :
+    '''dropear      : TABLE ID PTCOMA
+                    | TABLE ID'''
+    #T[0] = DropTabla(t[2])
+
+#========================================================
+
+#========================================================
+# PARAMETROS PARA CREATE BASE DE DATOS
+def p_instrucciones_parametros_BD_owner(t) :
+    'lista_parametros_bd    : OWNER IGUAL ID'
+
+def p_instrucciones_parametros_BD_Mode(t) :
+    'lista_parametros_bd    : MODE IGUAL ENTERO'
+
+def p_instrucciones_parametros_BD_Mode_owner(t) :
+    'lista_parametros_bd    : OWNER IGUAL ID MODE IGUAL ENTERO'
+
+def p_instrucciones_parametros_BD_owner_Mode(t) :
+    'lista_parametros_bd    : MODE IGUAL ENTERO OWNER IGUAL ID'
+
+#========================================================
 
 #========================================================
 # LISTA DE PARAMETROS
@@ -233,6 +309,39 @@ def p_instrucciones_lista_ids(t) :
 def p_instrucciones_lista_id(t) :
     'lista_id   : ID'
     t[0] = [t[1]]
+
+def p_instrucciones_lista_objetos(t) :
+    'lista_objetos  : lista_objetos COMA objeto'
+    #t[1].append(t[3])
+    #t[0] = t[1]
+
+def p_instrucciones_lista_objeto(t) :
+    'lista_objetos  : objeto'
+    #t[0] = [t[1]]
+
+def p_instrucciones_objeto(t) :
+    '''objeto       : DECIMAL
+                    | ENTERO
+                    | CADENA'''
+    #t[0] = t[1]
+
+def p_instrucciones_lista_insercion_objeto(t) :
+    '''lista_insercion  : lista_insercion COMA objeto'''
+    #para objetos simples
+
+def p_instrucciones_lista_insercion_select(t) :
+    '''lista_insercion  : lista_insercion COMA PARIZQ SELECT selects PARDER
+                        | lista_insercion COMA PARIZQ SELECT select_distinct PARDER'''
+    #para cuando haya querys select
+
+def p_instrucciones_insercion_objeto(t) :
+    '''lista_insercion  : objeto'''
+    #para un objeto simple
+
+def p_instrucciones_insercion_select(t) :
+    '''lista_insercion  : PARIZQ SELECT selects PARDER
+                        | PARIZQ SELECT select_distinct PARDER'''
+    #Para un query select
 
 #========================================================
 
