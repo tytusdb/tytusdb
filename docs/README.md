@@ -86,19 +86,18 @@ Cada atributo será debilmente tipado, a efectos de no verificar tipo en este pu
 #### Funciones
 
 A continuación se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas, respecto de las funciones de las bases de datos están: 
-
-##### createDatabase: crea una base de datos
-
+```
 def createDatabase(mode: int, database: str) -> int:
-> Parámetro mode: es el modo de almacenamiento, puede tener valores 1, 2, 3, 4 o 5.  
-> Parámetro database: es el nombre de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
-> Valor de retorno: 0 creación exitosa, 1 nombre existente, 2 nombre inválido, 3 modo inválido  
-
-##### showDatabase: devuelve una lista de los nombres de las bases de datos
-
+```
+Crea una base de datos.  
+Parámetro mode: es el modo de almacenamiento, puede tener valores 1, 2, 3, 4 o 5.  
+Parámetro database: es el nombre de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
+Valor de retorno: 0 creación exitosa, 1 nombre existente, 2 nombre inválido, 3 modo inválido  
+```
 def showDatabase() -> list:
-> Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].
-
+```
+Devuelve una lista de los nombres de las bases de datos
+Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].
 
 - showDatabases(): devuelve una lista de los nombres de las bases de datos, el nombre es único.
 - alterDatabase(databaseOld, databaseNew): cambia el nombre de una base de datos.
