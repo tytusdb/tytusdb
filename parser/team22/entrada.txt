@@ -56,3 +56,17 @@ CREATE DATABASE IF NOT EXISTS base1 OWNER = yo MODE = 2;
 CREATE DATABASE base2 MODE = 1 OWNER = tu;
 
 */
+
+
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios
+UNION ALL
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
+
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios
+INTERSECT
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
+
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios
+except all
+select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios;
+*/
