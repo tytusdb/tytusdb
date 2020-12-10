@@ -186,7 +186,7 @@ def p_instruccion_selects_having2(t) :
     # print("NO HAY HAVING")
 
 def p_instruccion_selects_order_by(t) :
-    'inicio_order_by      : ORDER BY lista_parametros state_limit'
+    'inicio_order_by      : ORDER BY sorting_rows state_limit'
 
 def p_instruccion_selects_order_by2(t) :
     'inicio_order_by      : state_limit '
@@ -293,6 +293,26 @@ def p_instrucciones_parametros_BD_owner_Mode(t) :
     'lista_parametros_bd    : MODE IGUAL ENTERO OWNER IGUAL ID'
     t[0] = {'mode': t[3]}
 
+#========================================================
+
+# LISTA DE SORTING ROWS
+#========================================================
+def p_instrucciones_lista_sorting_rows(t) :
+    'sorting_rows    : sorting_rows COMA sort'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_instrucciones_sort_DESC(t) :   
+    'sorting_rows         : sort'
+    t[0] = [t[1]]
+    print("sort")
+
+def p_temporalmente_nombres(t) :
+    '''sort         : ID ASC
+                    | ID DESC
+                    | ID'''
+    t[0] = t[1]
 #========================================================
 
 #========================================================

@@ -72,8 +72,12 @@ except all
 select A.id, A.nombre, A.fecha, A.hora, A.codigo from usuarios limit 4 offset 3;
 */
 
-
+/*
 select A.id, A.nombre, A.fecha, A.hora, A.codigo,
 case when a==ac then 'asadsa'
 end
- from usuarios where a == DS12;
+ from usuarios where a == DS12 order by adsa;
+ */
+
+ 
+SELECT distinct select_list, das from table_expression order by adsada asc, da asc, dasd desc, das;
