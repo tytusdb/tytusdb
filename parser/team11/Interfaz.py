@@ -137,3 +137,93 @@ frame1.config(cursor="spider")
 fname = "./img/logo.png"
 imagen = PhotoImage(file=fname)
 fondo = Label(frame1, image=imagen).place(x=0, y=0)
+# Labels
+# VIEW TREE
+my_tree = ttk.Treeview(frame1)
+
+# Definiendo las columnas
+my_tree['columns'] = ("Hola")
+
+#tv = Treeview(frame1, width = 20, height = 20)
+# Seperator object
+separator = ttk.Separator(frame1, orient='vertical')
+separator.place(relx=0.27, rely=0, relwidth=0.001, relheight=1)
+
+# Caja de texto
+texto = Text(frame1, width=90, height=15)
+texto.pack(expand=1)
+texto.place(x=420, y=100)
+texto.config(bd=0, font=("Consolas", 15))
+label_cod = Label(frame1, text="Codigo fuente", bg="gray93",
+                  font=("Berlin Sans FB", 14)).place(x=420, y=70)
+
+# Notebook
+texto4 = ttk.Notebook(frame1, width=990, height=200)
+texto4.pack(fill='none', expand='yes', side='bottom')
+texto4.pack(expand=1)
+texto4.place(x=420, y=500)
+
+
+consola_text = Text(texto4, width=90, height=10,
+                    bg="gray40", fg="spring green")
+consola_text.config(bd=0, font=("Consolas", 14))
+consola_text.configure(state='disabled')
+
+output_text = Text(texto4, width=90, height=10,
+                    bg="gray40", fg="white")
+output_text.config(bd=0, font=("Consolas", 14))
+# output_text.configure(state='disabled')
+
+errores_text = Text(texto4, width=90,  height=10,
+                    bg="gray40", fg="OrangeRed2")
+errores_text.config(bd=0, font=("Consolas", 14))
+errores_text.configure(state='disabled')
+
+texto4.add(consola_text, text="Consola", padding=5)
+texto4.add(output_text, text="Output", padding=5)
+texto4.add(errores_text, text="Errores", padding=5)
+
+label_cod = Label(frame1, text="Consola, Output y Errores", bg="gray93",
+                  font=("Berlin Sans FB", 14)).place(x=420, y=470)
+
+
+# Botones
+fname2 = "./img/run.png"
+img = PhotoImage(file=fname2)
+btn = Button(frame1, image=img, bg="gray93", command=run).place(x=835, y=20)
+
+
+fname3 = "./img/borrar.png"
+img2 = PhotoImage(file=fname3)
+btn2 = Button(frame1, image=img2, bg="gray93").place(x=1330, y=20)
+
+fname4 = "./img/error.png"
+img3 = PhotoImage(file=fname4)
+btn3 = Button(frame1, bg="gray93", image=img3, text="Errores", height=70,
+              width=100, font=("Berlin Sans FB", 15)).place(x=138, y=200)
+
+fname5 = "./img/tabla.png"
+img4 = PhotoImage(file=fname5)
+btn4 = Button(frame1, bg="gray93", image=img4, text="Tabla", height=70,
+              width=100, font=("Berlin Sans FB", 15)).place(x=138, y=290)
+
+fname6 = "./img/AST.png"
+img5 = PhotoImage(file=fname6)
+btn5 = Button(frame1, bg="gray93", image=img5, text="AST", height=70,
+              width=100, font=("Berlin Sans FB", 15)).place(x=138, y=380)
+
+fname7 = "./img/gramatica.png"
+img6 = PhotoImage(file=fname7)
+btn6 = Button(frame1, bg="gray93", image=img6, text="Gramatical",
+              height=70, width=100, font=("Berlin Sans FB", 15)).place(x=138, y=470)
+
+
+# Monitor inferior
+mensaje = StringVar()
+mensaje.set("TytusDB")
+monitor = Label(root, textvar=mensaje, font=("Berlin Sans FB", 15))
+monitor.pack(side="left")
+
+root.config(menu=menubar)
+
+root.mainloop()
