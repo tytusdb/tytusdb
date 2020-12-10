@@ -39,6 +39,30 @@ reservedwords = (
     'INSERT',
     'INTO',
     'VALUES',
+    'TYPE',
+    'AS',
+    'ENUM',
+    'ASC',
+    'DESC',
+    'HAVING',
+    'GROUP',
+    'BY',
+    'OFFSET',
+    'LIMIT',
+    'ALL',
+    'ORDER',
+    'WHERE',
+    'SELECT',
+    'DISTINCT',
+    'FROM',
+    'UNION',
+    'EXCEPT',
+    'INTERSECT',
+    'BETWEEN',
+    'IN',
+    'LIKE',
+    'ILIKE',
+    'SIMILAR',
 )
 
 symbols = (
@@ -51,6 +75,14 @@ symbols = (
     'MINUS',
     'TIMES',
     'DIVIDED',
+    'NSEPARATOR',
+    'EXPONENTIATION',
+    'MODULO',
+    'LESSTHAN',
+    'GREATERTHAN',
+    'LESSTHANEQUAL',
+    'GREATERTHANEQUAL',
+    'NOTEQUAL',
 )
 
 tokens = reservedwords + symbols + (
@@ -60,15 +92,23 @@ tokens = reservedwords + symbols + (
 )
 
 # Tokens
-t_SEMICOLON       = r';'
-t_BRACKET_OPEN    = r'\('
-t_BRACKET_CLOSE   = r'\)'
-t_EQUAL           = r'='
-t_COMMA           = r','
-t_PLUS            = r'\+'
-t_MINUS           = r'-'
-t_TIMES           = r'\*'
-t_DIVIDED         = r'/'
+t_SEMICOLON        = r';'
+t_BRACKET_OPEN     = r'\('
+t_BRACKET_CLOSE    = r'\)'
+t_EQUAL            = r'='
+t_COMMA            = r','
+t_PLUS             = r'\+'
+t_MINUS            = r'-'
+t_TIMES            = r'\*'
+t_DIVIDED          = r'/'
+t_NSEPARATOR       = r'.'
+t_EXPONENTIATION   = r'\^'
+t_MODULO           = r'%'
+t_LESSTHAN         = r'<'
+t_GREATERTHAN      = r'>'
+t_LESSTHANEQUAL    = r'<='
+t_GREATERTHANEQUAL = r'>='
+t_NOTEQUAL         = r'<>|!='
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9_]*'
@@ -113,9 +153,12 @@ lexer = lex.lex()
 
 # Operators precedence and association
 precedence = (
+    ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
     ('left','PLUS','MINUS'),
-    ('left','TIMES','DIVIDED'),
+    ('left','TIMES','DIVIDED','MODULO'),
+    ('left','EXPONENTIATION'),
     ('right','UMINUS','UPLUS'),
+    ('left','NSEPARATOR'),
     )
 
 # Grammar definition
@@ -136,13 +179,14 @@ def p_instructions_ddl(t):
            
 def p_instructions_dml(t):
     '''dml : show
-           | insert'''
+           | insert
+           | select'''
 
 # DDL sentences
 #CREATE
 def p_instruction_create(t):
     '''create : createDatabase
-              | '''
+              | createType'''
 
 def p_instruction_create_database(t):
     '''createDatabase : CREATE DATABASE ID ownermode
@@ -150,6 +194,9 @@ def p_instruction_create_database(t):
               | CREATE DATABASE  IF NOT EXISTS ID ownermode
               | CREATE DATABASE ID
               | CREATE DATABASE IF NOT EXISTS ID'''
+
+def p_instruction_create_type(t):
+    '''createType : CREATE TYPE ID AS ENUM BRACKET_OPEN expressionList BRACKET_CLOSE'''
 
 def p_instruction_create_owner_mode(t):
     '''ownermode : OWNER EQUAL ID
@@ -200,15 +247,53 @@ def p_instruction_alteroptions(t):
 #SHOW
 def p_instruction_show(t):
     '''show : SHOW DATABASES'''
+
 #INSERT
 def p_instruction_insert(t):
     '''insert : INSERT INTO ID VALUES BRACKET_OPEN expressionList BRACKET_CLOSE
               | INSERT INTO ID BRACKET_OPEN idList BRACKET_CLOSE VALUES BRACKET_OPEN expressionList BRACKET_CLOSE'''
 
+#SELECT 
+def p_instruction_select(t):
+    '''select : select UNION selectInstruction
+              | select UNION ALL selectInstruction
+              | select INTERSECT selectInstruction
+              | select INTERSECT ALL selectInstruction
+              | select EXCEPT selectInstruction
+              | select EXCEPT ALL selectInstruction
+              | selectInstruction'''
+
+def p_instruction_selectinstruction(t):
+    '''selectInstruction : SELECT expressionList FROM expressionList
+                         | SELECT expressionList FROM expressionList selectOptions
+                         | SELECT DISTINCT expressionList FROM expressionList
+                         | SELECT DISTINCT expressionList FROM expressionList selectOptions'''
+
+def p_instruction_selectoptions(t):
+    '''selectOptions : selectOptions selectOption
+                     | selectOption'''
+
+def p_instruction_selectoption(t):
+    '''selectOption : WHERE expression
+                     | ORDER BY sortExpressionList
+                     | LIMIT expression
+                     | LIMIT ALL
+                     | OFFSET expression
+                     | GROUP BY expressionList
+                     | HAVING expression'''
+
 #EXPRESSIONS
 def p_instruction_idlist(t):
     '''idList : idList COMMA ID
               | ID'''
+
+def p_instruction_sortexpressionlist(t):
+    '''sortExpressionList : sortExpressionList COMMA expression
+                          | sortExpressionList COMMA expression ASC
+                          | sortExpressionList COMMA expression DESC
+                          | expression
+                          | expression ASC
+                          | expression DESC'''
 
 def p_instruction_expressionlist(t):
     '''expressionList : expressionList COMMA expression
@@ -223,20 +308,38 @@ def p_expression_unaryplus(t):
     t[0] = t[2]
 
 #BINARY
-def p_expression_binary(t):
+def p_expression_binaryarithmetic(t):
     '''expression : expression PLUS expression
                   | expression MINUS expression
                   | expression TIMES expression
-                  | expression DIVIDED expression'''
+                  | expression DIVIDED expression
+                  | expression EXPONENTIATION expression
+                  | expression MODULO expression
+                  | expression BETWEEN expression
+                  | expression IN expression
+                  | expression LIKE expression
+                  | expression ILIKE expression
+                  | expression SIMILAR expression
+                  | expression LESSTHAN expression
+                  | expression GREATERTHAN expression
+                  | expression EQUAL expression
+                  | expression LESSTHANEQUAL expression
+                  | expression GREATERTHANEQUAL expression
+                  | expression NOTEQUAL expression
+                  '''
     if t[2] == '+'  : t[0] = t[1] + t[3]
     elif t[2] == '-': t[0] = t[1] - t[3]
     elif t[2] == '*': t[0] = t[1] * t[3]
     elif t[2] == '/': t[0] = t[1] / t[3]
 
+def p_expression_binaryseparator(t):
+    '''expression : expression NSEPARATOR expression'''
+
 #VALUES
 def p_expression_number(t):
     '''expression : INT
-                  | DECIMAL'''
+                  | DECIMAL
+                  | ID'''
     t[0] = t[1]
 
 #ERROR

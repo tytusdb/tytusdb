@@ -59,7 +59,7 @@
 <expression_list> ::= <expression_list> "," <expression>
                    |  <expression>
 
-<sortexpressionlist> ::= <sortexpressionlist> "," <2> [asc|desc]
+<sortexpressionlist> ::= <sortexpressionlist> "," <expression> [asc|desc]
                       |  <expression> [asc|desc]
 
 <createDatabase> ::= create [or replace] database [if not exists] id [owner ["="] id] [mode ["="] integer]
