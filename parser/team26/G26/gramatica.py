@@ -5,13 +5,15 @@ reservadas = {
     'decimal' : 'DECIMAL',
     'numeric' : 'NUMERIC',
     'real' : 'REAL',
-    'double precision' : 'DOUBLE',
+    'double' : 'DOUBLE',
+    'precision' : "PRECISION",
     'money' : 'MONEY',
     'character' : 'CHARACTER',
     'varying' : 'VARYING',
     'varchar' : 'VARCHAR',
     'char' : 'CHAR',
     'text' : 'TEXT',
+    'use' : 'USE',
     'timestamp' : 'TIMESTAMP',
     'time' : 'TIME',
     'with time zone' : 'ZONE',
@@ -65,8 +67,9 @@ reservadas = {
     'constraint' : 'CONSTRAINT',
     'unique' : 'UNIQUE',
     'check' : 'CHECK',
-    'primary key' : 'PRIMARY',
-    'foreign key' : 'FOREIGN',
+    'primary' : 'PRIMARY',
+    'foreign' : 'FOREIGN',
+    'key' : 'KEY',
     'references' : 'REFERENCES',
     'drop' : 'DROP',
     'alter' : 'ALTER',
@@ -111,7 +114,75 @@ reservadas = {
     'all' : 'ALL',
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
-    'except' : 'EXCEPT'
+    'except' : 'EXCEPT',
+    'abs' : 'ABS',
+    'cbrt' : 'CBRT',
+    'ceiling' : 'CEILING',
+    'ceil' : 'CEIL',
+    'degrees' : 'DEGREES',
+    'div' : 'DIV',
+    'exp' : 'EXP',
+    'floor' : 'FLOOR',
+    'gcd' : 'GCD',
+    'lcm' : 'LCM',
+    'ln' : 'LN',
+    'log' : 'LOG',
+    'log10' : 'LOGDIEZ',
+    'min_scale' : 'MINSCALE',
+    'mod' : 'MOD',
+    'pi' : 'PI',
+    'power' : 'POWER',
+    'radians' : 'RADIANS',
+    'round' : 'ROUND',
+    'scale' : 'SCALE',
+    'sign' : 'SIGN',
+    'sqrt' : 'SQRT',
+    'trim_scale' : 'TRIM',
+    'truc' : 'TRUC',
+    'width_bucket' : 'BUCKET',
+    'random' : 'RANDOM',
+    'setseed' : 'SETSEED',
+    'acos' : 'ACOS',
+    'acosd' : 'ACOSD',
+    'asin' : 'ASIN',
+    'asind' : 'ASIND',
+    'atan' : 'ATAN',
+    'atand' : 'ATAND',
+    'atan2' : 'ATANDOS',
+    'atan2d' : 'ATANDOSD',
+    'cos' : 'COS',
+    'cosd' : 'COSD',
+    'cot' : 'COT',
+    'cotd' : 'COTD',
+    'sin' : 'SIN',
+    'sind' : 'SIND',
+    'tan' : 'TAN',
+    'tand' : 'TAND',
+    'sinh' : 'SINH',
+    'cosh' : 'COSH',
+    'tanh' : 'TANH',
+    'asinh' : 'ASINH',
+    'acosh' : 'ACOSH',
+    'atanh' : 'ATANH',
+    'length' : 'LENGHT',
+    'get_byte' : 'GETBYTE',
+    'factorial' : 'FACTORIAL',
+    'md5' : 'MD5',
+    'set_byte' : 'SETBYTE',
+    'sha256' : 'SHA',
+    'substr' : 'SUBSTR',
+    'convert' : 'CONVERT',
+    'encode' : 'ENCODE',
+    'decode' : 'DECODE',
+    'date_part' : 'DATEPART',
+    'now' : 'NOW',
+    'extract' : 'EXTRACT',
+    'current_date' : 'CURRENTDATE',
+    'current_time' : 'CURRENTTIME',
+    'date' : 'DATE',
+    'current_user' : 'CURRENT_USER',
+    'session_user' : 'SESSION_USER',
+    'show'  :   'SHOW'
 }
 
 tokens = [
@@ -142,7 +213,10 @@ tokens = [
     'NEWLINE',
     'RETURN',
     'TAB',
-    'FECHA'
+    'FECHA',
+    'SFACTORIAL',
+    'PORCENTAJE',
+    'POTENCIA'
 ] + list(reservadas.values())
 
 #tokens
@@ -163,12 +237,15 @@ t_MENORQUE      = r'<='
 t_DIFERENTELL   = r'<>'
 t_DIFERENTE     = r'!='
 t_PUNTO         = r'.'
-t_COMA          = r','
+t_COMA          = r'\,'
 t_BACKSPACE     = r'\\b'
 t_FEED          = r'\\f'
 t_NEWLINE       = r'\\n'
 t_RETURN        = r'\\r'
 t_TAB           = r'\\r'
+t_PORCENTAJE    = r'%'
+t_SFACTORIAL    = r'!'
+t_POTENCIA      = r'\^'
 
 def t_DECIMALVALOR(t):
     r'\d+\.\d+'
@@ -230,8 +307,191 @@ def p_init(t) :
     'init            : instrucciones'
 
 def p_instrucciones_lista(t) :
-    'instrucciones    : FECHA'
-    # print(t[1])
+    '''instrucciones : instrucciones instruccion
+                     | instruccion'''
+
+def p_instruccion(t) :
+    '''instruccion      : CREATE create
+                        | USE use
+                        | SHOW show
+                        | DROP drop
+                        | ALTER alter'''
+
+def p_create_instruccion(t) :
+    '''create : TYPE createenum
+              | TABLE createtable
+              | OR REPLACE DATABASE
+              | DATABASE'''
+
+def p_createenum(t):
+    'createenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA'
+
+def p_listacadenas(t):
+    '''listacadenas : listacadenas COMA CADENA
+                    | CADENA'''
+
+def p_createtable(t):
+    'createtable : ID PARENIZQ tabledescriptions PARENDER tableherencia'
+
+def p_tableherencia(t):
+    '''tableherencia : INHERITS PARENIZQ ID PARENDER PTCOMA
+                     | PTCOMA'''
+
+def p_tabledescriptions(t):
+    '''tabledescriptions : tabledescriptions COMA tabledescription
+                         | tabledescription'''
+
+'''
+################################################################################
+################################################################################
+AGREGAR TIPO, LISTAIDS
+'''
+
+def p_tabledescription(t):
+    '''tabledescription : ID tipo tablekey
+                        | PRIMARY KEY PARENIZQ PARENDER
+                        | FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER
+                        | CONSTRAINT ID CHECK finalconstraintcheck
+                        | CHECK finalconstraintcheck
+                        | UNIQUE finalunique'''
+
+def p_tablekey(t):
+    '''tablekey : PRIMARY KEY tabledefault
+                | REFERENCES ID tabledefault
+                | '''
+
+'''
+################################################################################
+################################################################################
+AGREGAR VALUE
+'''
+
+def p_tabledefault(t):
+    '''tabledefault : DEFAULT tablenull
+                    | tablenull'''
+
+def p_tablenull(t):
+    '''tablenull : NOT NULL tableconstraintunique
+                 | NULL tableconstraintunique'''
+
+def p_tableconstraintunique(t):
+    '''tableconstraintunique : CONSTRAINT ID UNIQUE tableconstraintcheck
+                             | UNIQUE tableconstraintcheck'''
+
+'''
+################################################################################
+################################################################################
+AGREGAR CONDICIONES
+'''
+
+def p_tableconstraintcheck(t):
+    '''tableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ PARENDER
+                            | CHECK PARENIZQ PARENDER
+                            | '''
+
+def p_finalconstraintcheck(t):
+    'finalconstraintcheck : PARENIZQ PARENDER'
+
+'''
+################################################################################
+################################################################################
+AGREGAR LISTAIDS
+'''
+
+def p_finalunique(t):
+    'finalunique : PARENIZQ PARENDER'
+
+
+def p_tipo(t):
+    '''tipo : SMALLINT
+            | INTEGER
+            | BIGINT
+            | DECIMAL
+            | NUMERIC
+            | REAL
+            | DOUBLE PRECISION
+            | MONEY
+            | CHARACTER tipochar
+            | VARCHAR PARENIZQ ENTERO PARENDER
+            | CHAR PARENIZQ ENTERO PARENDER
+            | TEXT
+            | TIMESTAMP precision
+            | TIME precision
+            | DATE
+            | INTERVAL fields precision
+            | BOLEANO
+            | ID'''
+
+def p_tipochar(t):
+    '''tipochar : VARYING PARENIZQ ENTERO PARENDER
+                | PARENIZQ ENTERO PARENDER'''
+
+def p_precision(t):
+    '''precision : PARENIZQ ENTERO PARENDER
+                 | '''
+
+def p_fields(t):
+    '''fields : MONTH
+              | HOUR
+              | MINUTE
+              | SECOND
+              | YEAR
+              | '''
+
+###########USE
+def p_use(t):
+    'use    :  ID PTCOMA'
+
+##########SHOW
+def p_show(t):
+    'show   :    DATABASES likeopcional'
+
+def p_likeopcional(t):
+    '''likeopcional   :   LIKE CADENA PTCOMA
+                    | PTCOMA '''
+
+##########DROP
+def p_drop(t):
+    '''drop :   DATABASE dropdb PTCOMA
+            |   TABLE ID PTCOMA '''
+
+def p_dropdb(t):
+    '''dropdb : IF EXISTS ID
+                |   ID'''
+
+###########ALTER
+def p_alter(t):
+    '''alter    :   DATABASE ID alterdb PTCOMA
+                |   TABLE ID altertable '''
+#alter database
+def p_alterdb(t):
+    '''alterdb  :   RENAME TO ID
+                |   OWNER TO tipodeowner'''
+
+def p_tipodeowner(t):
+    '''tipodeowner  :   ID
+                    |   CURRENT_USER
+                    |   SESSION_USER'''
+#alter table
+def p_altertable(t):
+    '''altertable    :   ADD alteradd PTCOMA
+                    |   ALTER COLUMN ID SET opcionesalterset PTCOMA
+                    |   DROP tipodedrop PTCOMA
+                    | RENAME COLUMN ID TO ID PTCOMA'''
+#agregar tipo, condiciones, listaids opcionsalter
+def p_alteradd(t):
+    ''' alteradd   :   COLUMN ID tipo 
+                    |  CHECK PARENIZQ PARENDER
+                    |  CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER
+                    |  FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER '''
+
+def p_opcionesalterset(t):
+    '''opcionesalterset :   NOT NULL
+                            | NULL '''
+                
+def p_tipodedrop(t):
+    '''tipodedrop   :   COLUMN ID
+                        | CONSTRAINT  ID'''
 
 def p_error(t):
     # print(t)

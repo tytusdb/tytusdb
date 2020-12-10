@@ -43,13 +43,13 @@ barra.add_cascade(label="Archivo", menu=archivoMenu)
 herramientaMenu=Menu(barra, tearoff=0)
 herramientaMenu.add_command(label="Ejecutar Analisis", command=analisis)
 barra.add_cascade(label="Analisis", menu=herramientaMenu)
-
+ 
 reporteMenu = Menu(barra, tearoff=0)
 reporteMenu.add_command(label="Reporte errores", command=errores)
 reporteMenu.add_command(label="Tabla de simbolos", command=tabla)
 reporteMenu.add_command(label="Reporte AST", command=ast)
 reporteMenu.add_command(label="Reporte Gramatical", command=gramatica)
-barra.add_cascade(label="Reportes", menu=reporteMenu)
+barra.add_cascade(label="Reportes", menu=reporteMenu) 
 
 ayudaMenu=Menu(barra, tearoff=0)
 ayudaMenu.add_command(label="Ayuda", command=ayuda)

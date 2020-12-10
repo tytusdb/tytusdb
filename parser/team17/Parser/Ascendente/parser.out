@@ -1,0 +1,541 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    ABS
+    ACOS
+    ACOSD
+    ACOSH
+    ADD
+    ALL
+    ALTER
+    AND
+    ANDBB
+    ANY
+    AS
+    ASC
+    ASIN
+    ASIND
+    ASINH
+    ATAN
+    ATAN2
+    ATAN2D
+    ATAND
+    ATANH
+    AVG
+    BETWEEN
+    BIGINT
+    BOOLEAN
+    BY
+    CADENA
+    CADENADOBLE
+    CASE
+    CBRT
+    CEIL
+    CEILING
+    CHAR
+    CHARACTER
+    CHECK
+    COLUMN
+    COMA
+    CONSTRAINT
+    CONVERT
+    CORDER
+    CORIZQ
+    COS
+    COSD
+    COSH
+    COT
+    COTD
+    COUNT
+    CREATE
+    DATABASE
+    DATABASES
+    DATE
+    DAY
+    DECIMAL
+    DECODE
+    DEGREES
+    DELETE
+    DESC
+    DISTINTO
+    DIV
+    DIVISION
+    DOBPTS
+    DOSPTS
+    DOUBLE
+    DROP
+    ENCODE
+    END
+    ENTERO
+    ENUM
+    EXCEPT
+    EXISTS
+    EXP
+    FACTORIAL
+    FALSE
+    FIRST
+    FLOAT
+    FLOOR
+    FOREIGN
+    FROM
+    FULL
+    GCD
+    GET_BYTE
+    GREATEST
+    GROUP
+    HAVING
+    HOUR
+    ID
+    IGUAL
+    IGUALQUE
+    ILIKE
+    IN
+    INHERITS
+    INNER
+    INSERT
+    INT
+    INTEGER
+    INTERSECT
+    INTERVAL
+    INTO
+    IS
+    ISNULL
+    JOIN
+    KEY
+    LAST
+    LCM
+    LEAST
+    LEFT
+    LENGTH
+    LIKE
+    LIMIT
+    LN
+    LOG
+    LOG10
+    MAS
+    MAX
+    MAYORIG
+    MAYORQUE
+    MD5
+    MENORIG
+    MENORQUE
+    MENOS
+    MIN
+    MINUTE
+    MIN_SCALE
+    MOD
+    MODULO
+    MONEY
+    MULTI
+    NOT
+    NOTBB
+    NOTNULL
+    NULLS
+    NUMERAL
+    NUMERIC
+    OFFSET
+    ON
+    OR
+    ORBB
+    OUTER
+    OWNER
+    PARDER
+    PARIZQ
+    PI
+    POWER
+    PRECISION
+    PRIMARY
+    PT
+    RADIANS
+    RANDOM
+    REAL
+    REFERENCES
+    RENAME
+    REPLACE
+    RIGHT
+    ROUND
+    SCALE
+    SECOND
+    SET
+    SETSEED
+    SET_BYTE
+    SHA256
+    SHIFTDER
+    SHIFTIZQ
+    SHOW
+    SIGN
+    SIMILAR
+    SIN
+    SIND
+    SINH
+    SMALLINT
+    SOME
+    SQRT
+    SUBSTR
+    SUBSTRING
+    SUM
+    TABLE
+    TAN
+    TAND
+    TANH
+    THEN
+    TIME
+    TIMESTAMP
+    TKDECIMAL
+    TKEXP
+    TKNOT
+    TO
+    TRIM
+    TRIM_SCALE
+    TRUC
+    TRUE
+    TYPE
+    UNION
+    UNIQUE
+    UNKNOWN
+    UPDATE
+    VALUES
+    VARCHAR
+    VARYING
+    WHEN
+    WHERE
+    WIDTH_BUCKET
+    YEAR
+    text
+
+Grammar
+
+Rule 0     S' -> root
+Rule 1     root -> setinstrucciones
+Rule 2     setinstrucciones -> setinstrucciones setinstrucciones_paso
+Rule 3     setinstrucciones -> setinstrucciones_paso
+Rule 4     setinstrucciones_paso -> instruccion
+Rule 5     setinstrucciones_paso -> instruccion PTCOMA
+Rule 6     instruccion -> select
+Rule 7     select -> SELECT DISTINCT
+Rule 8     select -> SELECT
+
+Terminals, with rules where they appear
+
+ABS                  : 
+ACOS                 : 
+ACOSD                : 
+ACOSH                : 
+ADD                  : 
+ALL                  : 
+ALTER                : 
+AND                  : 
+ANDBB                : 
+ANY                  : 
+AS                   : 
+ASC                  : 
+ASIN                 : 
+ASIND                : 
+ASINH                : 
+ATAN                 : 
+ATAN2                : 
+ATAN2D               : 
+ATAND                : 
+ATANH                : 
+AVG                  : 
+BETWEEN              : 
+BIGINT               : 
+BOOLEAN              : 
+BY                   : 
+CADENA               : 
+CADENADOBLE          : 
+CASE                 : 
+CBRT                 : 
+CEIL                 : 
+CEILING              : 
+CHAR                 : 
+CHARACTER            : 
+CHECK                : 
+COLUMN               : 
+COMA                 : 
+CONSTRAINT           : 
+CONVERT              : 
+CORDER               : 
+CORIZQ               : 
+COS                  : 
+COSD                 : 
+COSH                 : 
+COT                  : 
+COTD                 : 
+COUNT                : 
+CREATE               : 
+DATABASE             : 
+DATABASES            : 
+DATE                 : 
+DAY                  : 
+DECIMAL              : 
+DECODE               : 
+DEGREES              : 
+DELETE               : 
+DESC                 : 
+DISTINCT             : 7
+DISTINTO             : 
+DIV                  : 
+DIVISION             : 
+DOBPTS               : 
+DOSPTS               : 
+DOUBLE               : 
+DROP                 : 
+ENCODE               : 
+END                  : 
+ENTERO               : 
+ENUM                 : 
+EXCEPT               : 
+EXISTS               : 
+EXP                  : 
+FACTORIAL            : 
+FALSE                : 
+FIRST                : 
+FLOAT                : 
+FLOOR                : 
+FOREIGN              : 
+FROM                 : 
+FULL                 : 
+GCD                  : 
+GET_BYTE             : 
+GREATEST             : 
+GROUP                : 
+HAVING               : 
+HOUR                 : 
+ID                   : 
+IGUAL                : 
+IGUALQUE             : 
+ILIKE                : 
+IN                   : 
+INHERITS             : 
+INNER                : 
+INSERT               : 
+INT                  : 
+INTEGER              : 
+INTERSECT            : 
+INTERVAL             : 
+INTO                 : 
+IS                   : 
+ISNULL               : 
+JOIN                 : 
+KEY                  : 
+LAST                 : 
+LCM                  : 
+LEAST                : 
+LEFT                 : 
+LENGTH               : 
+LIKE                 : 
+LIMIT                : 
+LN                   : 
+LOG                  : 
+LOG10                : 
+MAS                  : 
+MAX                  : 
+MAYORIG              : 
+MAYORQUE             : 
+MD5                  : 
+MENORIG              : 
+MENORQUE             : 
+MENOS                : 
+MIN                  : 
+MINUTE               : 
+MIN_SCALE            : 
+MOD                  : 
+MODULO               : 
+MONEY                : 
+MULTI                : 
+NOT                  : 
+NOTBB                : 
+NOTNULL              : 
+NULLS                : 
+NUMERAL              : 
+NUMERIC              : 
+OFFSET               : 
+ON                   : 
+OR                   : 
+ORBB                 : 
+OUTER                : 
+OWNER                : 
+PARDER               : 
+PARIZQ               : 
+PI                   : 
+POWER                : 
+PRECISION            : 
+PRIMARY              : 
+PT                   : 
+PTCOMA               : 5
+RADIANS              : 
+RANDOM               : 
+REAL                 : 
+REFERENCES           : 
+RENAME               : 
+REPLACE              : 
+RIGHT                : 
+ROUND                : 
+SCALE                : 
+SECOND               : 
+SELECT               : 7 8
+SET                  : 
+SETSEED              : 
+SET_BYTE             : 
+SHA256               : 
+SHIFTDER             : 
+SHIFTIZQ             : 
+SHOW                 : 
+SIGN                 : 
+SIMILAR              : 
+SIN                  : 
+SIND                 : 
+SINH                 : 
+SMALLINT             : 
+SOME                 : 
+SQRT                 : 
+SUBSTR               : 
+SUBSTRING            : 
+SUM                  : 
+TABLE                : 
+TAN                  : 
+TAND                 : 
+TANH                 : 
+THEN                 : 
+TIME                 : 
+TIMESTAMP            : 
+TKDECIMAL            : 
+TKEXP                : 
+TKNOT                : 
+TO                   : 
+TRIM                 : 
+TRIM_SCALE           : 
+TRUC                 : 
+TRUE                 : 
+TYPE                 : 
+UNION                : 
+UNIQUE               : 
+UNKNOWN              : 
+UPDATE               : 
+VALUES               : 
+VARCHAR              : 
+VARYING              : 
+WHEN                 : 
+WHERE                : 
+WIDTH_BUCKET         : 
+YEAR                 : 
+error                : 
+text                 : 
+
+Nonterminals, with rules where they appear
+
+instruccion          : 4 5
+root                 : 0
+select               : 6
+setinstrucciones     : 1 2
+setinstrucciones_paso : 2 3
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . root
+    (1) root -> . setinstrucciones
+    (2) setinstrucciones -> . setinstrucciones setinstrucciones_paso
+    (3) setinstrucciones -> . setinstrucciones_paso
+    (4) setinstrucciones_paso -> . instruccion
+    (5) setinstrucciones_paso -> . instruccion PTCOMA
+    (6) instruccion -> . select
+    (7) select -> . SELECT DISTINCT
+    (8) select -> . SELECT
+
+    SELECT          shift and go to state 6
+
+    root                           shift and go to state 1
+    setinstrucciones               shift and go to state 2
+    setinstrucciones_paso          shift and go to state 3
+    instruccion                    shift and go to state 4
+    select                         shift and go to state 5
+
+state 1
+
+    (0) S' -> root .
+
+
+
+state 2
+
+    (1) root -> setinstrucciones .
+    (2) setinstrucciones -> setinstrucciones . setinstrucciones_paso
+    (4) setinstrucciones_paso -> . instruccion
+    (5) setinstrucciones_paso -> . instruccion PTCOMA
+    (6) instruccion -> . select
+    (7) select -> . SELECT DISTINCT
+    (8) select -> . SELECT
+
+    $end            reduce using rule 1 (root -> setinstrucciones .)
+    SELECT          shift and go to state 6
+
+    setinstrucciones_paso          shift and go to state 7
+    instruccion                    shift and go to state 4
+    select                         shift and go to state 5
+
+state 3
+
+    (3) setinstrucciones -> setinstrucciones_paso .
+
+    SELECT          reduce using rule 3 (setinstrucciones -> setinstrucciones_paso .)
+    $end            reduce using rule 3 (setinstrucciones -> setinstrucciones_paso .)
+
+
+state 4
+
+    (4) setinstrucciones_paso -> instruccion .
+    (5) setinstrucciones_paso -> instruccion . PTCOMA
+
+    SELECT          reduce using rule 4 (setinstrucciones_paso -> instruccion .)
+    $end            reduce using rule 4 (setinstrucciones_paso -> instruccion .)
+    PTCOMA          shift and go to state 8
+
+
+state 5
+
+    (6) instruccion -> select .
+
+    PTCOMA          reduce using rule 6 (instruccion -> select .)
+    SELECT          reduce using rule 6 (instruccion -> select .)
+    $end            reduce using rule 6 (instruccion -> select .)
+
+
+state 6
+
+    (7) select -> SELECT . DISTINCT
+    (8) select -> SELECT .
+
+    DISTINCT        shift and go to state 9
+    PTCOMA          reduce using rule 8 (select -> SELECT .)
+    SELECT          reduce using rule 8 (select -> SELECT .)
+    $end            reduce using rule 8 (select -> SELECT .)
+
+
+state 7
+
+    (2) setinstrucciones -> setinstrucciones setinstrucciones_paso .
+
+    SELECT          reduce using rule 2 (setinstrucciones -> setinstrucciones setinstrucciones_paso .)
+    $end            reduce using rule 2 (setinstrucciones -> setinstrucciones setinstrucciones_paso .)
+
+
+state 8
+
+    (5) setinstrucciones_paso -> instruccion PTCOMA .
+
+    SELECT          reduce using rule 5 (setinstrucciones_paso -> instruccion PTCOMA .)
+    $end            reduce using rule 5 (setinstrucciones_paso -> instruccion PTCOMA .)
+
+
+state 9
+
+    (7) select -> SELECT DISTINCT .
+
+    PTCOMA          reduce using rule 7 (select -> SELECT DISTINCT .)
+    SELECT          reduce using rule 7 (select -> SELECT DISTINCT .)
+    $end            reduce using rule 7 (select -> SELECT DISTINCT .)
+
