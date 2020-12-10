@@ -1,4 +1,7 @@
-# import BaseDatos
+import BaseDatos as DB
+import os
+
+main_path= os.getcwd()+"\\tmp"
 
 class ListaBaseDatos:
 
@@ -7,32 +10,33 @@ class ListaBaseDatos:
         self.lista_bases_datos=[]
 
 
-    def Buscar(self, database):
+    def Buscar(self, databaseName):
 
         for base_datos in self.lista_bases_datos:
 
-            if base_datos.Name==database:
-
+            if base_datos.Name==databaseName:
                 return base_datos
 
-        else: return False
+        else: 
+            return False
             
 
-    def createDatabase(self, database):
+    def createDatabase(self, mode, databaseName):
 
-        if database:
+        for base_datos in self.lista_bases_datos:
 
-            for base_datos in self.lista_bases_datos:
-
-                if base_datos.Nombre==database:
-                    print("Base de datos '"+database+"' ya existente, no se pudo crear")
-
-            else:
-                #self.lista_bases_datos.append(BaseDatos(database))
-                print("Base de datos '"+database+"' creada con éxito")
+            if base_datos.Name==databaseName:
+                return 1
 
         else:
-            print("Se necesita un nombre para la base de datos")
+            self.lista_bases_datos.append(DB.BaseDatos(databaseName))
+
+            temp_path=main_path+"\\"+databaseName
+
+            if not os.path.isdir(temp_path):
+                os.mkdir(temp_path)
+
+            return 0
 
 
     def showDatabases(self):
@@ -41,187 +45,49 @@ class ListaBaseDatos:
         print(" - -   BD EN ALMACENAMIENTO   - -")
 
         for base_datos in self.lista_bases_datos:
-            #print(base_datos.Name)
-            pass
+            print(base_datos.Name)
         
         print("//==============================//")
 
 
-    def alterDatabase(self, databaseNew, databaseOld):
+    def alterDatabase(self, databaseOld, databaseNew):
 
-        temp=self.Buscar(databaseNew)
+        temp_old=self.Buscar(databaseOld)
+        temp_new=self.Buscar(databaseNew)
 
-        if temp:
-            #temp.Name=databaseOld
-            pass
+        if temp_old:
+
+            if not temp_new:
+
+                temp_old.Name=databaseNew
+
+                temp_path_old=main_path+"\\"+databaseOld
+                temp_path_new=main_path+"\\"+databaseNew
+
+                os.rename(temp_path_old, temp_path_new)
+
+                print("Base de datos '"+databaseOld+"' renombrada a '"+databaseNew+"'")
+
+            else:
+                print("Base de datos '"+databaseNew+"' ya existente")
 
         else:            
-            print("Base de datos '"+databaseNew+"' no encontrada")
+            print("Base de datos '"+databaseOld+"' no encontrada")
 
 
-    def dropDatabase(self, database):
+    def dropDatabase(self, databaseName):
 
-        temp=self.Buscar(database)
+        temp=self.Buscar(databaseName)
 
         if temp:
             self.lista_bases_datos.remove(temp)
-            print("Base de datos '"+databaseNew+"' eliminada con éxito")
+            
+            temp_path=main_path+"\\"+databaseName
+
+            if os.path.isdir(temp_path):
+                os.rmdir(temp_path)
+
+            print("Base de datos '"+databaseName+"' eliminada con éxito")
 
         else:
-            print("Base de datos '"+database+"' no encontrada")
-
-
-
-#======= LLAMADA A FUNCIONES IMPORTADAS ========
-
-
-#   ~~>  ESTAS FUNCIONES DEBERÍAN SER MOVIDAS A UN ARCHIVO MAIN  <~~
-
-storage=ListaBaseDatos()
-
-#==//== funciones con respecto a BaseDatos ==//==
-
-def createTable(database, tableName, numberColumns):
-
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.createTable(tableName, numberColumns)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-
-
-def showTables(database):
-
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.showTables()
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-
-        
-def alterTable(database, tableOld, tableNew):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.alterTable(tableOld, tableNew)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no contiene tablas")
-
-
-def dropTable(database, tableName):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.dropTable(tableName)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-
-
-def alterAdd(database, tableName, columnName):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.alterAdd(tableName, columnName)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-
-
-def alterDrop(database, tableName, columnName):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.alterDrop(tableName, columnName)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-
-
-def extractTable(database, tableName):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.extractTable(tableName)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-
-
-#==//== funciones con respecto a Tabla ==//==
-
-def insert(database, table, columns):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.insert(table, columns)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-
-
-def update(database, table, id, columnNumber, value):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.update(table, id, columnNumber, value)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-        
-
-def deleteTable(database, tableName, id):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.deleteTable(table, columns)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-        
-
-def truncate(database, tableName):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.truncate(tableName)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
-
-
-def extractRow(database, table, id):
-    
-    temp=storage.Buscar(database)
-
-    if temp:
-        #temp.extractRow(table, id)
-        pass
-
-    else:
-        print("Base de datos '"+database+"' no encontrada")
+            print("Base de datos '"+databaseName+"' no encontrada")
