@@ -8,17 +8,20 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'insert':'INSERT','into':'INTO', 'values':'VALUES', 'update':'UPDATE','set':'SET','where':'WHERE','delete':'DELETE','from':'FROM',
                'and':'AND','not':'NOT','or':'OR', 'character':'character', 'varying':'varying', 'varchar':'varchar', 'char':'char', 'text':'text',
                'timestamp':'timestamp', 'with':'with', 'time':'time', 'zone':'zone', 'date':'date', 'interval':'interval', 'boolean':'boolean',
-               'year':'YEAR', 'month':'MONTH', 'day':'DAY', 'hours':'HOURS', 'minute':'MINUTE', 'second':'SECOND'
+               'year':'YEAR', 'month':'MONTH', 'day':'DAY', 'hours':'HOURS', 'minute':'MINUTE', 'second':'SECOND', 'select':'SELECT', 'distinct':'DISTINCT', 
+               'group':'GROUP', 'by':'BY', 'having':'HAVING', 'order':'ORDER', 'as':'AS','asc':'ASC', 'desc':'DESC', 'nulls':'NULLS', 'first':'FIRST',
+               'last':'LAST'
              }
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
-           'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR' ] + list(Reservadas.values())
+           'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO' ] + list(Reservadas.values())
 
 t_PTCOMA = r';'
 t_PAR_A = r'\('
 t_PAR_C = r'\)'
 t_COMA = r'\,'
 t_PUNTO = r'\.'
+t_ASTERISCO = r'\*'
 
 #Comparision operators
 t_IGUAL = r'\='
@@ -101,8 +104,8 @@ def p_lista_instrucciones(t):
                    | PTCOMA'''
 
 def p_instruccion(t):
-    '''sentencia : sentencia_ddl 
-                 | sentencia_dml'''   
+     '''sentencia : sentencia_ddl 
+                  | sentencia_dml'''   
 
 def p_sentencia_ddl(t):
      '''sentencia_ddl : crear'''
@@ -110,7 +113,8 @@ def p_sentencia_ddl(t):
 def p_sentencia_dml(t):
      '''sentencia_dml : insertar
                       | actualizar
-                      | eliminar'''                            
+                      | eliminar
+                      | seleccionar'''                            
 
 def p_insertar(t):
      '''insertar : INSERT INTO ID VALUES PAR_A lista_exp PAR_C'''
@@ -120,6 +124,92 @@ def p_actualizar(t):
 
 def p_eliminar(t):
      '''eliminar : DELETE FROM ID WHERE exp'''
+#------------------------------------------------select-----------------------------------------------
+def p_seleccionar(t):
+     '''seleccionar : SELECT cantidad_select parametros_select cuerpo_select 
+                    | SELECT funcion_math alias_name
+                    | SELECT funcion_date'''
+
+def p_cantidad_select(t):
+     '''cantidad_select : DISTINCT
+                        | empty'''
+def p_parametros_select(t):
+     '''parametros_select : ASTERISCO 
+                          | lista_select'''
+
+def p_lista_select(t):
+     ''' lista_select : lista_select COMA value_select
+                      | value_select'''
+
+def p_value_select(t):
+     '''value_select : ID PUNTO ID alias_name
+                     | ID PUNTO ASTERISCO alias_name
+                     | ID  alias_name
+                     | funcion_math alias_name
+                     | PAR_A seleccionar PAR_C alias_name'''
+
+def p_cuerpo_select(t):
+     '''cuerpo_select : bloque_from bloque_where bloque_group bloque_having bloque_order'''
+
+def p_bloque_from(t):
+     '''bloque_from : FROM lista_tablas'''
+
+def p_lista_tablas(t):
+     '''lista_tablas : lista_tablas COMA value_from
+                     | value_from'''
+
+def p_value_from(t):
+     '''value_from : ID
+                   | ID ID
+                   | PAR_A seleccionar PAR_C ID 
+                   | PAR_A seleccionar PAR_C AS ID'''
+
+def p_bloque_where(t):
+     '''bloque_where : WHERE condicion_boleana
+                     | empty'''
+
+def p_bloque_group(t):
+     '''bloque_group : GROUP BY lista_select
+                     | empty'''
+
+def p_bloque_having(t):
+     '''bloque_having : HAVING condicion_boleana
+                      | empty'''
+
+def p_bloque_order(t):
+     '''bloque_order : ORDER BY lista_order 
+                     | empty'''
+
+def p_lista_order(t):
+     '''lista_order : lista_order COMA value_order
+                    | value_order'''
+
+def p_value_order(t): #ACA NO SOLO ES ID
+     '''value_order : ID value_direction value_rang'''
+
+def p_value_direction(t):
+     '''value_direction : ASC
+                        | DESC
+                        | empty'''
+def p_value_rang(t):
+     '''value_rang : NULLS FIRST
+                   | NULLS LAST
+                   | NULLS FIRST NULLS LAST
+                   | NULLS LAST NULLS FIRST'''
+
+def p_alias_name(t):
+     '''alias_name : AS ID
+                   | empty'''
+
+def p_condicion_boleana(t):
+     '''condicion_boleana : DAY DAY''' #completar puse day para probar
+
+def p_funcion_math(t):
+     '''funcion_math : empty''' #completar
+
+def p_funcion_date(t):
+     '''funcion_date : empty''' #completar                                            
+#------------------------------------------------------------------------------------------------------
 
 def p_listaexp(t):
      '''lista_exp : lista_exp COMA exp  
