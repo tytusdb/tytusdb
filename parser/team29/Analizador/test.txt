@@ -1,0 +1,1 @@
+LexToken(ES_T,'\\t',2,1)
