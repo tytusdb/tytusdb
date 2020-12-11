@@ -88,7 +88,9 @@ reservedwords = (
     'CHECK',
     'PRIMARY',
     'DATE',
-    'INHERITS'
+    'INHERITS',
+    'UPDATE',
+    'DELETE',
 )
 
 symbols = (
@@ -114,7 +116,9 @@ symbols = (
 tokens = reservedwords + symbols + (
     'ID',
     'INT',
-    'NDECIM'
+    'NDECIMAL',
+    'STRING',
+    'REGEX',
 )
 
 # Tokens
@@ -135,6 +139,8 @@ t_GREATERTHAN      = r'>'
 t_LESSTHANEQUAL    = r'<='
 t_GREATERTHANEQUAL = r'>='
 t_NOTEQUAL         = r'<>|!='
+t_STRING           = r'\'.*?\''
+t_REGEX            = r'\'%?.*?%?\''
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9_]*'
@@ -142,12 +148,12 @@ def t_ID(t):
         t.type = t.value
     return t
 
-def t_NDECIM(t):
+def t_NDECIMAL(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
     except ValueError:
-        print("Floaat value too large %d", t.value)
+        print("Float value too large %d", t.value)
         t.value = 0
     return t
 
@@ -167,6 +173,14 @@ t_ignore = " \t"
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
+
+def t_single_line_comment(t):
+    r'--.*'
+    t.lexer.lineno += t.value.count("\n")
+
+def t_multi_line_comment(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
     print("Carácter ilegal en '%s'" % t.value[0])
@@ -179,6 +193,8 @@ lexer = lex.lex()
 
 # Operators precedence and association
 precedence = (
+    ('left','UNION','INTERSECT','EXCEPT'),
+    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
     ('left','PLUS','MINUS'),
     ('left','TIMES','DIVIDED','MODULO'),
@@ -206,7 +222,9 @@ def p_instructions_ddl(t):
 def p_instructions_dml(t):
     '''dml : show
            | insert
-           | select'''
+           | select
+           | update
+           | delete'''
 
 # DDL sentences
 #CREATE
@@ -245,14 +263,14 @@ def p_instruction_create_table_opt1(t):
            | primarys
            | reference
            | uniques
-           | checks '''
+           | checks'''
 def p_instruction_create_default (t):
     '''default : DEFAULT expression 
                | DEFAULT expression null
                | DEFAULT expression primarys
                | DEFAULT expression reference
                | DEFAULT expression uniques
-               | DEFAULT expression checks '''
+               | DEFAULT expression checks'''
 def p_instruction_create_null (t):
     '''null : NULL 
             | NULL default
@@ -265,7 +283,7 @@ def p_instruction_create_null (t):
             | NOT NULL reference
             | NOT NULL uniques
             | NOT NULL checks
-            | NOT NULL  '''
+            | NOT NULL'''
 def p_instruction_create_primary (t):
     '''primarys : PRIMARY KEY
                 | PRIMARY KEY default
@@ -356,7 +374,6 @@ def p_instruction_create_owner_mode(t):
             | OWNER ID MODE EQUAL expression
             | OWNER EQUAL ID MODE EQUAL expression'''         
 
-
 #DROP
 def p_instruction_drop(t):
     '''drop : dropDatabase
@@ -391,6 +408,7 @@ def p_instruction_alteroptions(t):
                     | ADD FOREIGN KEY BRACKET_OPEN ID BRACKET_CLOSE REFERENCES ID BRACKET_OPEN ID BRACKET_CLOSE
                     | ALTER COLUMN ID SET NOT NULL
                     | DROP CONSTRAINT ID'''
+
 #DML sentences
 #SHOW
 def p_instruction_show(t):
@@ -403,12 +421,12 @@ def p_instruction_insert(t):
 
 #SELECT 
 def p_instruction_select(t):
-    '''select : select UNION selectInstruction
+    '''select : select UNION select
               | select UNION ALL selectInstruction
-              | select INTERSECT selectInstruction
-              | select INTERSECT ALL selectInstruction
-              | select EXCEPT selectInstruction
+              | select INTERSECT select
               | select EXCEPT ALL selectInstruction
+              | select EXCEPT select
+              | select INTERSECT ALL selectInstruction
               | selectInstruction'''
 
 def p_instruction_selectinstruction(t):
@@ -429,7 +447,17 @@ def p_instruction_selectoption(t):
                      | OFFSET expression
                      | GROUP BY expressionList
                      | HAVING expression'''
+#UPDATE
+def p_instruction_update(t):
+    '''update : UPDATE ID SET reallocationOfValues WHERE expression'''
 
+def p_instruction_reallocationofvalues(t):
+    '''reallocationOfValues : reallocationOfValues COMMA ID EQUAL expression
+                            | ID EQUAL expression'''
+
+#DELETE
+def p_instruction_delete(t):
+    '''delete : DELETE FROM ID WHERE expression'''
 #EXPRESSIONS
 def p_instruction_idlist(t):
     '''idList : idList COMMA ID
@@ -486,7 +514,9 @@ def p_expression_binaryseparator(t):
 #VALUES
 def p_expression_number(t):
     '''expression : INT
-                  | NDECIM
+                  | NDECIMAL
+                  | STRING
+                  | REGEX
                   | ID'''
     t[0] = t[1]
 
