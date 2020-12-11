@@ -53,6 +53,9 @@ def p_instruccion(t) :
                         | DROP dropear'''
     t[0] = t[2]
 
+#========================================================
+
+#========================================================
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
     '''creacion     : DATABASE crear_bd
@@ -110,7 +113,9 @@ def p_instruccion_TB_herencia(t) :
     'tb_herencia    : INHERITS PARIZQ ID PARDER'
     #t[0] = Heredero(t[4])
 
+#========================================================
 
+#========================================================
 # INSTRUCCION SHOW DATABASE
 def p_instruccion_show(t) :
     '''show_db      : DATABASES
@@ -121,7 +126,9 @@ def p_instruccion_show(t) :
     else:
         print(type_checker.showDatabase(t[3]))
 
+#========================================================
 
+#========================================================
 # INSTRUCCION ALTER DATABASE
 def p_instruccion_alter_database(t) :
     '''alter_database   : ID RENAME TO ID
@@ -134,6 +141,9 @@ def p_def_alter_db(t) :
                         | CURRENT_USER
                         | SESSION_USER'''
 
+#========================================================
+
+#========================================================
 
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
@@ -141,21 +151,28 @@ def p_instruccion_Use_BD(t) :
     t[0] = Cambio_BD(t[1])
     print("CAMBIO de BD")
 
+#========================================================
 
+#========================================================
 # INSTRUCCIONES CON "SELECT"
 def p_instruccion_selects(t) :
     '''selects      : POR FROM select_all 
-                    | lista_parametros FROM lista_parametros inicio_condicional '''
-    # print("selects")
+                    | lista_parametros FROM lista_parametros inicio_condicional 
+                    | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
+                    | GREATEST PARIZQ lista_parametros PARDER PTCOMA
+                    | LEAST PARIZQ lista_parametros PARDER PTCOMA
+                    | date_functions'''
+    print("selects")
 
 def p_instruccion_selects_distinct(t) :
     '''selects      : DISTINCT POR FROM select_all 
-                    | DISTINCT lista_parametros FROM lista_parametros inicio_condicional '''
+                    | DISTINCT lista_parametros FROM lista_parametros inicio_condicional 
+                    | DISTINCT lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional'''
     # print("selects")
 
 def p_instruccion_selects_where(t) :
-    'inicio_condicional      : WHERE lista_condiciones inicio_group_by'
-    # print("Condiciones (Where)")
+    'inicio_condicional      : WHERE relacional inicio_group_by'
+    print("Condiciones (Where)")
 
 def p_instruccion_selects_sin_where(t) :
     'inicio_condicional      : inicio_group_by'
@@ -170,11 +187,11 @@ def p_instruccion_selects_group_by(t) :
     # print("GROUP BY")
 
 def p_instruccion_selects_group_by2(t) :
-    'inicio_group_by      : inicio_having '
+    'inicio_group_by      : inicio_order_by '
     # print("NO HAY GROUP BY")
 
 def p_instruccion_selects_having(t) :
-    'inicio_having     : HAVING lista_condiciones inicio_order_by'
+    'inicio_having     : HAVING relacional inicio_order_by'
     # print("HAVING")
 
 def p_instruccion_selects_having2(t) :
@@ -182,16 +199,29 @@ def p_instruccion_selects_having2(t) :
     # print("NO HAY HAVING")
 
 def p_instruccion_selects_order_by(t) :
-    '''inicio_order_by      : ORDER BY lista_parametros state_union
-                            | ORDER BY lista_parametros state_intersect
-                            | ORDER BY lista_parametros state_except'''
-    # print("ORDER BY")
+    'inicio_order_by      : ORDER BY sorting_rows state_limit'
 
 def p_instruccion_selects_order_by2(t) :
-    '''inicio_order_by      : state_union 
+    'inicio_order_by      : state_limit '
+
+def p_instruccion_selects_limit(t) :
+    '''state_limit      : LIMIT ENTERO state_offset
+                        | LIMIT ALL state_offset'''
+    print("000")
+
+def p_instruccion_selects_limit2(t) :
+    'state_limit      : state_offset'
+    print("123")
+
+def p_instruccion_selects_offset(t) :
+    '''state_offset         : OFFSET ENTERO state_union 
+                            | OFFSET ENTERO state_intersect
+                            | OFFSET ENTERO state_except'''
+
+def p_instruccion_selects_offset2(t) :
+    '''state_offset         : state_union 
                             | state_intersect
                             | state_except'''
-    # print("NO HAY ORDER BY")
     
 def p_instruccion_selects_union(t) :
     '''state_union      : UNION SELECT selects
@@ -219,6 +249,22 @@ def p_instruccion_Select_All(t) :
     'select_all     : ID inicio_condicional'
     t[0] = Select_All(t[1])
     # print("Consulta ALL para tabla: " + t[1])
+
+def p_date_functions(t):
+    '''date_functions   : EXTRACT PARIZQ lista_date_functions 
+                        | date_part PARIZQ lista_date_functions
+                        | now PARIZQ lista_date_functions
+                        | lista_date_functions'''
+
+def p_lista_date_functions(t):
+    '''lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA
+                            | CADENA COMA INTERVAL CADENA PARDER PTCOMA
+                            | TIMESTAMP CADENA PTCOMA
+                            | CURRENT_DATE PTCOMA
+                            | CURRENT_TIME PTCOMA
+                            | PARDER PTCOMA'''
+
+#========================================================
     
 #========================================================
 # INSERT INTO TABLAS
@@ -277,6 +323,26 @@ def p_instrucciones_parametros_BD_owner_Mode(t) :
 
 #========================================================
 
+# LISTA DE SORTING ROWS
+#========================================================
+def p_instrucciones_lista_sorting_rows(t) :
+    'sorting_rows    : sorting_rows COMA sort'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_instrucciones_sort_DESC(t) :   
+    'sorting_rows         : sort'
+    t[0] = [t[1]]
+    print("sort")
+
+def p_temporalmente_nombres(t) :
+    '''sort         : ID ASC
+                    | ID DESC
+                    | ID'''
+    t[0] = t[1]
+#========================================================
+
 #========================================================
 # LISTA DE PARAMETROS
 def p_instrucciones_lista_parametros(t) :
@@ -291,19 +357,43 @@ def p_instrucciones_parametro(t) :
     # print("Un parametro")
 
 def p_parametro_con_tabla(t) :
-    'parametro        : ID PUNTO name_column'
+    'parametro        : ID PUNTO ID'
     t[0] = t[1]
-    # print("Parametro con indice de tabla")
 
+def p_parametros_funciones(t) :
+    'parametro         : lista_funciones'
+    t[0] = t[1]
+
+def p_parametros_cadena(t) :
+    'parametro         : CADENA'
+    t[0] = t[1]
+
+def p_parametros_numeros(t) :
+    '''parametro            : DECIMAL  
+                            | ENTERO'''
+    t[0] = t[1]
+
+
+#ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
+#=====================================================
 def p_parametro_con_tabla_columna(t) :
     'name_column        : ID'
     t[0] = t[1]
     # print("Nombre de la columna")
+#=====================================================
+
 
 def p_parametro_sin_tabla(t) :
     'parametro        : ID'
     t[0] = t[1]
     # print("Parametro SIN indice de tabla")
+
+def p_parametro_con_tabla_alias(t) :
+    '''parametro        : ID AS ID
+                        | ID ID'''
+    t[0] = t[1]
+    # print("Parametro SIN indice de tabla")
+
 #========================================================
 
 #========================================================
@@ -412,8 +502,8 @@ def p_instrucciones_insercion_select(t) :
 
 #========================================================
 
+# LISTA DE CONDICIONES --- ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
 #========================================================
-# LISTA DE CONDICIONES
 def p_instrucciones_lista_condiciones_AND(t) :
     'lista_condiciones    : lista_condiciones AND condicion'
     t[1].append(t[3])
@@ -472,8 +562,8 @@ def p_parametro_sin_tabla_2(t) :
     'condicion        : ID signo_relacional ID'
     t[0] = t[1]
     # print("Condicion SIN indice de tabla")
-
 #========================================================
+
 
 # INSTRUCCION CON "DELETE"
 def p_instruccion_delete(t) :
@@ -487,7 +577,7 @@ def p_instruccion_delete_incondicional(t) :
     print("Eliminar tabla: " + t[1])
 
 def p_instruccion_delete_condicional(t) :
-    'delete_condicional     : ID WHERE lista_condiciones PTCOMA'
+    'delete_condicional     : ID WHERE relacional PTCOMA'
     # t[0] = Delete_incondicional(t[1])
     print("Eliminar tabla: " + t[1])
 
@@ -553,11 +643,18 @@ def p_def_fields(t) :
 def p_relacional(t) :
     '''relacional   : aritmetica MENOR aritmetica
                     | aritmetica MAYOR aritmetica
-                    | aritmetica IGUAL aritmetica
+                    | aritmetica IGUAL IGUAL aritmetica
                     | aritmetica MENORIGUAL aritmetica
                     | aritmetica MAYORIGUAL aritmetica
                     | aritmetica DIFERENTE aritmetica
-                    | aritmetica'''
+                    | aritmetica NO_IGUAL aritmetica
+                    | aritmetica
+                    | relacional AND relacional
+                    | relacional OR relacional
+                    | NOT relacional
+                    | state_between
+                    | state_predicate_nulls
+                    | state_is_distinct'''
 
 def p_aritmetica(t) :
     '''aritmetica   : valor MAS valor
@@ -566,16 +663,19 @@ def p_aritmetica(t) :
                     | valor DIVISION valor
                     | valor MODULO valor
                     | valor EXP valor
-                    | valor'''
+                    | valor
+                    | PARIZQ aritmetica PARDER'''
 
 def p_valor(t) :
     '''valor        : ID
                     | ENTERO
                     | DECIMAL
-                    | CADENA'''
+                    | CADENA
+                    | ID PUNTO ID
+                    | lista_funciones_where'''
 
 def p_instruccion_update_where(t) :
-    '''update_table : ID SET def_update WHERE lista_condiciones'''
+    '''update_table : ID SET def_update WHERE relacional'''
     print("UPDATE TABLE")
 
 def p_instruccion_update(t) :
@@ -587,6 +687,132 @@ def p_def_update_rec(t) :
 
 def p_def_update(t) :
     '''def_update   : ID IGUAL valor'''
+
+
+# BETWEEN
+#=======================================================
+def p_between(t) :
+    '''state_between    : valor BETWEEN valor AND valor
+                        | valor NOT BETWEEN valor AND valor'''
+#=======================================================
+
+# IS [NOT] DISTINCT
+#=======================================================
+def p_is_distinct(t) :
+    '''state_is_distinct    : valor IS DISTINCT FROM valor
+                            | valor IS NOT DISTINCT FROM valor'''
+#=======================================================
+
+
+# ESTADO PREDICATES
+#=======================================================
+def p_predicate_nulls(t) :
+    '''state_predicate_nulls      : valor IS NULL
+                              | valor IS NOT NULL
+                              | valor ISNULL
+                              | valor NOTNULL'''
+#=======================================================
+
+
+# # Pattern Matching
+# #=======================================================
+# def p_matchs(t) :
+#     '''state_pattern_match      : ID LIKE 
+#                                 | valor IS NOT NULL
+#                                 | valor ISNULL
+#                                 | valor NOTNULL'''
+# #=======================================================
+
+# CASE
+#========================================================
+def p_case_state(t):
+    ''' case_state    : case_state auxcase_state END
+                      | auxcase_state END'''
+                      
+def p_auxcase_state(t):
+    'auxcase_state  : WHEN relacional THEN CADENA'
+
+def p_auxcase_state2(t):
+    'auxcase_state  : ELSE COMILLA_SIMPLE ID COMILLA_SIMPLE'
+#========================================================
+
+# FUNCIONES MATEMÁTICAS
+#SOLO ESTOS SE PUEDEN USAR EN EL WHERE
+def p_instrucciones_funcion_abs_where(t) :
+    'lista_funciones_where    : ABS PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_cbrt_where(t) :
+    'lista_funciones_where    : CBRT PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_ceil_where(t) :
+    'lista_funciones_where    : CEIL PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_cieling_where(t) :
+    'lista_funciones_where    : CEILING PARIZQ funcion_math_parametro PARDER'
+
+#ESTOS SE USAN EN EL SELECT
+def p_instrucciones_funcion_abs_select(t) :
+    'lista_funciones    : ABS PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_cbrt_select(t) :
+    'lista_funciones    : CBRT PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_ceil_select(t) :
+    'lista_funciones    : CEIL PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_cieling_select(t) :
+    'lista_funciones    : CEILING PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_degrees(t) :
+    'lista_funciones    : DEGREES PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_div(t) :
+    'lista_funciones    : DIV PARIZQ funcion_math_parametro COMA ENTERO PARDER'
+
+def p_instrucciones_funcion_exp(t) :
+    'lista_funciones    : EXP PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_factorial(t) :
+    'lista_funciones    : FACTORIAL PARIZQ ENTERO PARDER'
+
+def p_instrucciones_funcion_floor(t) :
+    'lista_funciones    : FLOOR PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_gcd(t) :
+    'lista_funciones    : GCD PARIZQ ENTERO COMA ENTERO PARDER'
+
+def p_instrucciones_funcion_ln(t) :
+    'lista_funciones    : LN PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_log(t) :
+    'lista_funciones    : LOG PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_mod(t) :
+    'lista_funciones    : MOD PARIZQ funcion_math_parametro COMA ENTERO PARDER'
+
+def p_instrucciones_funcion_pi(t) :
+    'lista_funciones    : PI PARIZQ PARDER'
+
+def p_instrucciones_funcion_power(t) :
+    'lista_funciones    : POWER PARIZQ funcion_math_parametro COMA ENTERO PARDER'
+
+def p_instrucciones_funcion_radians(t) :
+    'lista_funciones    : RADIANS PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_round(t) :
+    'lista_funciones    : ROUND PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_math_parametro(t) :
+    '''funcion_math_parametro   : ENTERO
+                                | ID
+                                | DECIMAL
+                                | funcion_math_parametro_negativo'''
+
+def p_instrucciones_funcion_math_parametro_negativo(t) :
+    '''funcion_math_parametro_negativo  : MENOS DECIMAL
+                                        | MENOS ENTERO'''
+
+#========================================================
 
 def p_error(t):
     print(t)
