@@ -1215,20 +1215,48 @@ def p_OPERATOR(p):
                 | diferente'''
 
 
-def p_EXPR_GROUPBY(p):
-    '''EXPR_GROUPBY : E'''
+def p_EXPR_GROUPBY( p ):
+    '''EXPR_GROUPBY : group by LISTA_EXP'''
 
 
 def p_EXPR_HAVING(p):
-    '''EXPR_HAVING : E'''
+    '''EXPR_HAVING : having E_FUNC OPERATOR E_FUNC'''
 
+def p_EXPR_E_FUNC( p ):
+    '''E_FUNC : EXPR_AGREGACION
+              | EXPR_MATHS
+              | EXPR_TRIG
+              | EXPR_BINARIAS
+              | EXPR_FECHA
+              | E '''
 
-def p_EXPR_ORDERBY(p):
-    '''EXPR_ORDERBY : E'''
+def p_EXPR_ORDERBY( p ):
+    '''EXPR_ORDERBY : order by LIST_ORDERBY'''
+
+def p_LIST_ORDERBY(p):
+    '''LIST_ORDERBY : LIST_ORDERBY coma E asc
+                    | LIST_ORDERBY coma E asc nulls first
+                    | LIST_ORDERBY coma E asc nulls last
+                    | LIST_ORDERBY coma E desc
+                    | LIST_ORDERBY coma E desc nulls first
+                    | LIST_ORDERBY coma E desc nulls last
+                    | LIST_ORDERBY coma E
+                    | E asc
+                    | E asc nulls first
+                    | E asc nulls last
+                    | E desc 
+                    | E desc nulls first
+                    | E desc nulls last
+                    | E 
+                    | E nulls first
+                    | E nulls last'''
 
 
 def p_EXPR_LIMIT(p):
-    '''EXPR_LIMIT : E'''
+    '''EXPR_LIMIT : limit E
+                  | limit all
+                  | limit all offset E
+                  | limit E offset E'''
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
