@@ -145,12 +145,16 @@ def p_instruccion_Use_BD(t) :
 # INSTRUCCIONES CON "SELECT"
 def p_instruccion_selects(t) :
     '''selects      : POR FROM select_all 
-                    | lista_parametros FROM lista_parametros inicio_condicional '''
-    # print("selects")
+                    | lista_parametros FROM lista_parametros inicio_condicional 
+                    | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
+                    | GREATEST PARIZQ lista_parametros PARDER
+                    | LEATEST PARIZQ lista_parametros PARDER'''
+    print("selects")
 
 def p_instruccion_selects_distinct(t) :
     '''selects      : DISTINCT POR FROM select_all 
-                    | DISTINCT lista_parametros FROM lista_parametros inicio_condicional '''
+                    | DISTINCT lista_parametros FROM lista_parametros inicio_condicional 
+                    | DISTINCT lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional'''
     # print("selects")
 
 def p_instruccion_selects_where(t) :
@@ -182,16 +186,29 @@ def p_instruccion_selects_having2(t) :
     # print("NO HAY HAVING")
 
 def p_instruccion_selects_order_by(t) :
-    '''inicio_order_by      : ORDER BY lista_parametros state_union
-                            | ORDER BY lista_parametros state_intersect
-                            | ORDER BY lista_parametros state_except'''
-    # print("ORDER BY")
+    'inicio_order_by      : ORDER BY sorting_rows state_limit'
 
 def p_instruccion_selects_order_by2(t) :
-    '''inicio_order_by      : state_union 
+    'inicio_order_by      : state_limit '
+
+def p_instruccion_selects_limit(t) :
+    '''state_limit      : LIMIT ENTERO state_offset
+                        | LIMIT ALL state_offset'''
+    print("000")
+
+def p_instruccion_selects_limit2(t) :
+    'state_limit      : state_offset'
+    print("123")
+
+def p_instruccion_selects_offset(t) :
+    '''state_offset         : OFFSET ENTERO state_union 
+                            | OFFSET ENTERO state_intersect
+                            | OFFSET ENTERO state_except'''
+
+def p_instruccion_selects_offset2(t) :
+    '''state_offset         : state_union 
                             | state_intersect
                             | state_except'''
-    # print("NO HAY ORDER BY")
     
 def p_instruccion_selects_union(t) :
     '''state_union      : UNION SELECT selects
@@ -219,6 +236,7 @@ def p_instruccion_Select_All(t) :
     'select_all     : ID inicio_condicional'
     t[0] = Select_All(t[1])
     # print("Consulta ALL para tabla: " + t[1])
+    
     
 #========================================================
 # INSERT INTO TABLAS
@@ -275,6 +293,26 @@ def p_instrucciones_parametros_BD_owner_Mode(t) :
     'lista_parametros_bd    : MODE IGUAL ENTERO OWNER IGUAL ID'
     t[0] = {'mode': t[3]}
 
+#========================================================
+
+# LISTA DE SORTING ROWS
+#========================================================
+def p_instrucciones_lista_sorting_rows(t) :
+    'sorting_rows    : sorting_rows COMA sort'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_instrucciones_sort_DESC(t) :   
+    'sorting_rows         : sort'
+    t[0] = [t[1]]
+    print("sort")
+
+def p_temporalmente_nombres(t) :
+    '''sort         : ID ASC
+                    | ID DESC
+                    | ID'''
+    t[0] = t[1]
 #========================================================
 
 #========================================================
@@ -553,7 +591,7 @@ def p_def_fields(t) :
 def p_relacional(t) :
     '''relacional   : aritmetica MENOR aritmetica
                     | aritmetica MAYOR aritmetica
-                    | aritmetica IGUAL aritmetica
+                    | aritmetica IGUAL IGUAL aritmetica
                     | aritmetica MENORIGUAL aritmetica
                     | aritmetica MAYORIGUAL aritmetica
                     | aritmetica DIFERENTE aritmetica
@@ -587,6 +625,20 @@ def p_def_update_rec(t) :
 
 def p_def_update(t) :
     '''def_update   : ID IGUAL valor'''
+
+
+
+## CASE---------------------------------------------------------------------------
+def p_case_state(t):
+    ''' case_state    : case_state auxcase_state END
+                      | auxcase_state END'''
+                      
+def p_auxcase_state(t):
+    'auxcase_state  : WHEN lista_condiciones THEN CADENA'
+
+def p_auxcase_state2(t):
+    'auxcase_state  : ELSE COMILLA_SIMPLE ID COMILLA_SIMPLE'
+
 
 def p_error(t):
     print(t)

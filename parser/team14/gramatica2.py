@@ -23,7 +23,7 @@ reservadas = {
     'or': 'or',
     'replace': 'replace',
     'if': 'if',
-    'exist': 'exist',
+    'exists': 'exist',
     'mode': 'mode',
     'inherits': 'inherits',
     'primary': 'primary',
@@ -90,8 +90,18 @@ reservadas = {
     'else': 'else',
     'then': 'then',
     'end': 'end',
-    'greatest':'greatest',
-    'least':'least'
+    'extract':'extract',
+    'current_time':'current_time',
+    'current_date':'current_date',
+    'any':'any',
+    'all':'all',
+    'some':'some',
+    'limit': 'limit',
+    'offset': 'offset',
+    'union': 'union',
+    'except': 'except',
+    'intersect': 'intersect'
+
 }
 
 tokens = [
@@ -112,13 +122,11 @@ tokens = [
              'llavea',
              'llavec',
              'para',
-             'parac',
              'dospuntos',
              'coma',
              'punto',
              'int',
              'decimales',
-             'char_er',
              'cadena',
              'parc',
              'simboloor',
@@ -175,15 +183,8 @@ def t_ID(t):
     t.type = reservadas.get(t.value.lower(), 'id')
     return t
 
-
-def t_char_er(t):
-    r'\'.?\''
-    t.value = t.value[1:-1]  # remuevo las comillas
-    return t
-
-
 def t_cadena(t):
-    r'\'.+\''
+    r'\'.*?\''
     t.value = t.value[1:-1]  # remuevo las comillas
     return t
 
@@ -226,9 +227,8 @@ precedence = (
     ('left', 'elevado'),
     ('left', 'multiplicacion', 'division', 'modulo'),
     ('left', 'mas', 'menos'),
-    ('nonassoc', 'between', 'in', 'like', 'ilike'),
     ('left', 'mayor', 'menor', 'mayor_igual', 'menor_igual', 'igual', 'diferente1', 'diferente2'),
-    ('nonassoc', 'is', 'isnull', 'notnull'),
+    ('left', 'predicates'),
     ('right', 'not'),
     ('left', 'and'),
     ('left', 'or'),
@@ -265,19 +265,12 @@ def p_instruccion(t):
                     | DROP ptcoma
                     | INSERT ptcoma
                     | CREATETYPE ptcoma
-		    | CASE
-                    | GREATEST ptcoma
-                    | LEAST ptcoma
+                    | CASE 
+                    | CREATEDB ptcoma
+                    | SHOWDB ptcoma
     '''
     t[0] = t[1]
-	
-def p_GREATEST(t):
-    '''GREATEST : select greatest para LEXP parc
-    '''
 
-def p_LEAST(t):
-    '''LEAST : select least para LEXP parc
-    '''
 
 def p_CASE(t):
     ''' CASE : case  LISTAWHEN ELSE end
@@ -349,6 +342,36 @@ def p_LISTACOLUMN(t):
                         | id
         '''
 
+def p_SHOWDB(t) : 
+   ''' SHOWDB : show databases
+    '''
+
+def p_CREATEDB(t) : 
+    '''CREATEDB : create RD IFEXIST id
+        | create RD IFEXIST id PROPIETARIO MODO
+        | create RD IFEXIST id MODO
+        | create RD IFEXIST id PROPIETARIO
+    '''
+
+def p_RD(t) : 
+    '''RD : or replace databases
+        | databases
+    '''
+
+def p_IFEXIST(t):
+    '''IFEXIST : if not exist
+	    | 
+    ''' 
+ 
+def p_PROPIETARIO(t):
+    '''PROPIETARIO : owner igual id
+		| owner id
+    '''
+
+def p_MODO(t): 
+    '''MODO : mode  igual int
+	    | mode int
+    '''	
 
 def p_CREATETABLE(t):
     '''CREATETABLE : create table id para LDEF parc ptcoma
@@ -400,14 +423,25 @@ def p_CREATETYPE(t):
     'CREATETYPE : create type id as enum para LEXP parc'
 
 def p_SELECT(t):
-    ''' SELECT : select distinct  LSELECT r_from LFROM WHERE GROUP HAVING ORDER
-	| select  LSELECT r_from LFROM WHERE  GROUP HAVING ORDER
-	| select  LSELECT
+    ''' SELECT : select distinct  LSELECT r_from LFROM  WHERE GROUP HAVING ORDER LIMIT  COMBINING
+	| select  LSELECT r_from LFROM WHERE  GROUP HAVING ORDER LIMIT COMBINING
+	| select  LSELECT LIMIT COMBINING 
     '''
 
+def p_LIMIT(t):
+    '''LIMIT : limit int
+               | limit all
+               | offset int
+               | limit int offset int
+               | offset int limit int
+               | limit all offset int
+               | offset int limit all
+               | '''
 
 def p_LSELECT(t):
     ''' LSELECT : LEXP
+        | LEXP id
+        | LEXP as id
 		| multiplicacion
     '''
 
@@ -420,28 +454,40 @@ def p_LFROM(t):
 
 
 def p_FROM(t):
-    '''FROM : EXP
-	| EXP as id
-	| EXP  id    '''
+    '''FROM : LEXP
+	| LEXP as id
+	| LEXP  id    '''
 
 
 def p_WHERE(t):
-    ''' WHERE : where EXP
+    ''' WHERE : where LEXP
+                | where EXIST
+                | union LEXP
+                | union all LEXP
+	            | '''
+
+def p_COMBINING(t):
+    '''COMBINING :  union LEXP
+                | union all LEXP
+                | intersect LEXP
+                | intersect all LEXP
+                | except LEXP
+                | except all LEXP
 	            | '''
 
 
 def p_GROUP(t):
-    ''' GROUP :  group by EXP
+    ''' GROUP :  group by LEXP
 	            | '''
 
 
 def p_HAVING(t):
-    ''' HAVING : having EXP
+    ''' HAVING : having LEXP
 	| '''
 
 def p_ORDER(t):
-    ''' ORDER : order by EXP ORD
-    | order by EXP
+    ''' ORDER : order by LEXP ORD
+    | order by LEXP
 	|  '''
 
 def p_ORD(t):
@@ -449,7 +495,7 @@ def p_ORD(t):
 	| desc '''
 
 def p_UPDATE(t):
-    ' UPDATE : update id set LCAMPOS where EXP'
+    ' UPDATE : update id set LCAMPOS where LEXP'
 
 
 def p_LCAMPOS(t):
@@ -460,10 +506,13 @@ def p_LCAMPOS(t):
 
 def p_DELETE(t):
     '''
-    DELETE : delete   r_from id where EXP
+    DELETE : delete   r_from id where LEXP
             | delete  r_from id
     '''
 
+def p_EXIST(t):
+    '''EXIST : exist para SELECT parc
+    '''
 
 def p_LEXP(t):
     '''LEXP : LEXP coma EXP
@@ -529,33 +578,45 @@ def p_EXP(t):
             | int
             | decimales
             | cadena
-            | char_er
             | true
             | false
             | id
+            | PNULL
             | SELECT
             | PREDICADOS
             | id para parc
-            | id para LEXP parc '''
+            | id para LEXP parc
+            | extract para FIELDS r_from timestamp cadena parc
+            | current_time
+            | current_date
+            | timestamp cadena 
+            | interval cadena
+            | CASE
+            | cadena like cadena
+            | cadena not like cadena
+            | any para LEXP parc
+            | all para LEXP parc
+            | some para LEXP parc'''
+
 def p_PREDICADOS(t):
     '''
-    PREDICADOS : EXP between EXP
-            | EXP in EXP
-            | EXP not in EXP
-			| EXP not between EXP
-			| EXP  between symetric EXP
-			| EXP not between symetric EXP
-			| EXP is distinct r_from EXP
-			| EXP is not distinct r_from EXP
-			| EXP is PNULL
-			| EXP isnull
-			| EXP notnull
-			| EXP  is true
-			| EXP is not true
-			| EXP is false
-			| EXP is not false
-			| EXP is unknown
-			| EXP is not unknown
+    PREDICADOS : EXP between EXP %prec predicates
+            | EXP in para LEXP parc %prec predicates
+            | EXP not in para LEXP parc %prec predicates
+            | EXP not between EXP %prec predicates
+	    | EXP  between symetric EXP %prec predicates
+	    | EXP not between symetric EXP %prec predicates
+	    | EXP is distinct r_from EXP %prec predicates
+	    | EXP is not distinct r_from EXP %prec predicates
+	    | EXP is PNULL %prec predicates
+	    | EXP isnull %prec predicates
+	    | EXP notnull %prec predicates
+	    | EXP  is true %prec predicates
+	    | EXP is not true %prec predicates
+	    | EXP is false %prec predicates
+	    | EXP is not false %prec predicates
+	    | EXP is unknown %prec predicates
+	    | EXP is not unknown %prec predicates
 
     '''
 
