@@ -106,113 +106,113 @@ reservadas = {
     'add': 'add',
 
     # >termina fl
-    'no':'no',
-    'yes':'yes',
-    'on':'on',
-    'off':'off',
+    'no': 'no',
+    'yes': 'yes',
+    'on': 'on',
+    'off': 'off',
 
-    #TOKENS QUERIES
-    'distinct':'distinct',
-    'group':'group',
-    'by':'by',
-    'having':'having',
-    #agregacion
-    'count':'count',
-    'avg':'avg',
-    'max':'max',
-    'min':'min',
-    'sum':'sum',
-    #matematicas
-    'abs':'abs',
-    'cbrt':'cbrt',
-    'ceil':'ceil',
-    'ceiling':'ceiling',
-    'degrees':'degrees',
-    'div':'div',
-    'exp':'exp',
-    'factorial':'factorial',
-    'floor':'floor',
-    'gcd':'gcd',
-    'lcm':'lcm',
-    'ln':'ln',
-    'log':'log',
-    'log10':'log10',
-    'min_scale':'min_scale',
-    'mod':'mod',
-    'pi':'pi',
-    'power':'power',
-    'radians':'radians',
-    'round':'round',
-    'scale':'scale',
-    'sign':'sign',
-    'sqrt':'sqrt',
-    'trim_scale':'trim_scale',
-    'truc':'truc',
-    'width_bucket':'width_bucket',
-    'random':'random',
-    'setseed':'setseed',
-    #trigonometricas
-    'acos':'acos',
-	'acosd':'acosd',
-	'asin':'asin',
-	'asind':'asind',
-	'atan':'atan',
-	'atand':'atand',
-	'atan2':'atan2',
-	'atan2d':'atan2d',
-	'cos':'cos',
-	'cosd':'cosd',
-	'cot':'cot',
-	'cotd':'cotd',
-	'sin':'sin',
-	'sind':'sind',
-	'tan':'tan',
-	#'tand':'ttand',
-	'sinh':'sinh',
-	'cosh':'cosh',
-	'tanh':'tanh',
-	'asinh':'asinh',
-	'acosh':'acosh',
-	'atanh':'atanh',
-    #binary
-    'length':'length',
-	'substring':'substring',
-	'trim':'trim',
-	'get_byte':'get_byte',
-	'md5':'md5',
-	'set_byte':'set_byte',
-	'sha256':'sha256',
-	'substr':'substr',
-	'convert':'convert',
-	'encode':'encode',
-	'decode':'decode',
+    # TOKENS QUERIES
+    'distinct': 'distinct',
+    'group': 'group',
+    'by': 'by',
+    'having': 'having',
+    # agregacion
+    'count': 'count',
+    'avg': 'avg',
+    'max': 'max',
+    'min': 'min',
+    'sum': 'sum',
+    # matematicas
+    'abs': 'abs',
+    'cbrt': 'cbrt',
+    'ceil': 'ceil',
+    'ceiling': 'ceiling',
+    'degrees': 'degrees',
+    'div': 'div',
+    'exp': 'exp',
+    'factorial': 'factorial',
+    'floor': 'floor',
+    'gcd': 'gcd',
+    'lcm': 'lcm',
+    'ln': 'ln',
+    'log': 'log',
+    'log10': 'log10',
+    'min_scale': 'min_scale',
+    'mod': 'mod',
+    'pi': 'pi',
+    'power': 'power',
+    'radians': 'radians',
+    'round': 'round',
+    'scale': 'scale',
+    'sign': 'sign',
+    'sqrt': 'sqrt',
+    'trim_scale': 'trim_scale',
+    'truc': 'truc',
+    'width_bucket': 'width_bucket',
+    'random': 'random',
+    'setseed': 'setseed',
+    # trigonometricas
+    'acos': 'acos',
+    'acosd': 'acosd',
+    'asin': 'asin',
+    'asind': 'asind',
+    'atan': 'atan',
+    'atand': 'atand',
+    'atan2': 'atan2',
+    'atan2d': 'atan2d',
+    'cos': 'cos',
+    'cosd': 'cosd',
+    'cot': 'cot',
+    'cotd': 'cotd',
+    'sin': 'sin',
+    'sind': 'sind',
+    'tan': 'tan',
+    # 'tand':'ttand',
+    'sinh': 'sinh',
+    'cosh': 'cosh',
+    'tanh': 'tanh',
+    'asinh': 'asinh',
+    'acosh': 'acosh',
+    'atanh': 'atanh',
+    # binary
+    'length': 'length',
+    'substring': 'substring',
+    'trim': 'trim',
+    'get_byte': 'get_byte',
+    'md5': 'md5',
+    'set_byte': 'set_byte',
+    'sha256': 'sha256',
+    'substr': 'substr',
+    'convert': 'convert',
+    'encode': 'encode',
+    'decode': 'decode',
 
-    #otros
-    'all':'all',
-    'any':'any',
-    'some':'some',
+    # otros
+    'all': 'all',
+    'any': 'any',
+    'some': 'some',
 
-    #EXPRESSIONS
-    'case':'case',
-    'when':'when',
-    'then':'then',
-    'else':'else',
-    'end':'end',
-    'greatest':'greatest',
-    'leaste':'least',
-    'limit':'limit',
-    'offset':'offset',
-    'union':'union',
-    'except':'except',
-    'intersect':'intersect',
+    # EXPRESSIONS
+    'case': 'case',
+    'when': 'when',
+    'then': 'then',
+    'else': 'else',
+    'end': 'end',
+    'greatest': 'greatest',
+    'leaste': 'least',
+    'limit': 'limit',
+    'offset': 'offset',
+    'union': 'union',
+    'except': 'except',
+    'intersect': 'intersect',
 
-    #otros
-    'date_part':'date_part',
-    'now':'now',
-    'current_date':'current_date',
-    'current_time':'current_time',
-    'extract':'tExtract',
-    'in':'in'
+    # otros
+    'date_part': 'date_part',
+    'now': 'now',
+    'current_date': 'current_date',
+    'current_time': 'current_time',
+    'extract': 'tExtract',
+    'in': 'in'
 
 }
 
@@ -247,7 +247,7 @@ tokens = [
              'parCierra',
              'coma',
              'ptComa',
-             #tks
+             # tks
              'barra',
              'barraDoble',
              'amp',
@@ -284,14 +284,14 @@ t_parCierra = r'\)'
 t_coma = r','
 t_ptComa = r';'
 
-#tk_queries
-t_barra         = r'\|'
-t_barraDoble    = r'\|\|'
-t_amp           = r'&'
-t_numeral       = r'\#'
-t_virgulilla    = r'~'
-t_mayormayor    = r'>>'
-t_menormenor    = r'<<'
+# tk_queries
+t_barra = r'\|'
+t_barraDoble = r'\|\|'
+t_amp = r'&'
+t_numeral = r'\#'
+t_virgulilla = r'~'
+t_mayormayor = r'>>'
+t_menormenor = r'<<'
 
 
 # DEFINICIÓN DE UN NÚMERO DECIMAL
@@ -544,23 +544,34 @@ def p_produccion0(t):
 # PRODUCCIÓN PARA HACER UN DELETE
 def p_produccion0_1(t):
     ''' DeleteBase  : tDelete from id CONDICION ptComa '''
+    t[0] = SDeleteBase(t[3], t[4])
 
 
 # CONDICIÓN QUE PUEDE O NO VENIR DENTRO DE UN DELETE
 def p_produccion0_2(t):
     ''' CONDICION   : where E
                     |  '''
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = False
 
 
 # PRODUCCIÓN PARA HACER UN TRUNCATE
 def p_produccion1_0(t):
     ''' TruncateBase    : tTruncate L_IDs ptComa'''
+    t[0] = STruncateBase(t[2])
 
 
 # PRODUCCIÓN PARA UNA LISTA DE IDENTIFICADORES
 def p_produccion1_1(t):
     ''' L_IDs   : L_IDs coma id 
                 | id '''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 
 # PRODUCCIÓN PARA UNA LISTA DE ASIGNACIONES: id1 = 2, id2 = 3, id3, = 'Hola', etc...
@@ -570,10 +581,10 @@ def p_produccion1(t):
     if len(t) == 6:
         val = SValSet(t[3], t[5])
         t[1].append(val)
-        t[0]=t[1]
+        t[0] = t[1]
     else:
-        val=SValSet(t[1],t[3])
-        t[0]=[val]
+        val = SValSet(t[1], t[3])
+        t[0] = [val]
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< ARIEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -581,59 +592,120 @@ def p_produccion1(t):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< FRANCISCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def p_EXPR_CREATE_TABLE(t):
-    '''CREATE_TABLE : create table id parAbre COLUMN_CREATE parCierra ptComa
-                    | create table id parAbre COLUMN_CREATE parCierra tInherits parAbre id parCierra ptComa '''
-
-
-def p_EXPR_COLUMN_CREATE(t):
-    '''COLUMN_CREATE : COLUMN_CREATE COLUMNS
-                     | COLUMNS'''
+    '''CREATE_TABLE : create table id parAbre COLUMNS parCierra ptComa
+                    | create table id parAbre COLUMNS parCierra tInherits parAbre id parCierra ptComa '''
+    if len(t) == 8:
+        t[0] = SCrearTabla(t[3], False, None, t[5])
+    else:
+        t[0] = SCrearTabla(t[3], True, t[9], t[5])
 
 
 def p_EXPR_COLUMNS(t):
     '''COLUMNS : COLUMNS coma ASSIGNS
-               | COLUMNS coma ASSIGNS OPCIONALES
                | ASSIGNS
-               | ASSIGNS OPCIONALES'''
+    '''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    elif len(t) == 2:
+        t[0] = [t[1]]
 
 
 def p_EXPR_ASSIGNS(t):
     '''ASSIGNS : id TIPO
-               | tUnique
-               | tUnique parAbre COLS parCierra
-               | tConstraint id tUnique 
-               | tConstraint id tCheck E
+               | id TIPO OPCIONALES
                | tCheck E
+               | tConstraint id tCheck E
+               | tUnique parAbre COLS parCierra
                | tPrimary tKey parAbre COLS parCierra
                | tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra'''
+    if len(t) == 3:
+        if t[1].lower == "check":
+            t[0] = SColumnaCheck(None, t[2])
+        else:
+            print("entrooaqui")
+            t[0] = SColumna(t[1], t[2], None)
+    elif len(t) == 4:
+        t[0] = SColumna(t[1], t[2], t[3])
+    elif len(t)==5:
+        if t[1].lower()=="constraint":
+            t[0]=SColumnaCheck(t[2],t[4])
+        else:
+            t[0]=SColumnaUnique(t[3])
+    elif len(t)==6:
+        t[0]=SColumnaPk(t[4])
+    elif len(t)==11:
+        t[0]=SColumnaFk(t[7],t[4],t[9])
 
 
 def p_EXPR_OPCIONALES(t):
     '''OPCIONALES : OPCIONALES OPCION
                 | OPCION '''
+    if len(t) == 3:
+        t[1].append(t[2])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
 
 
 def p_EXPR_OPCION(t):
-    '''OPCION : tDefault E
-              | tPrimary tKey
-              | not null
-              | null
-              | ASSIGNS'''
+    '''OPCION : tDefault E'''
+    t[0] = SOpcionales(TipoOpcionales.DEFAULT, t[2],None)
+
+
+def p_EXPR_OPCION1(t):
+    '''OPCION : tPrimary tKey'''
+    t[0] = SOpcionales(TipoOpcionales.PRIMARYKEY, None,None)
+
+
+def p_EXPR_OPCION2(t):
+    '''OPCION : not null'''
+    t[0] = SOpcionales(TipoOpcionales.NOTNULL, None,None)
+
+
+def p_EXPR_OPCION3(t):
+    '''OPCION : null'''
+    t[0] = SOpcionales(TipoOpcionales.NULL, None,None)
+
+
+def p_EXPR_OPCION4(t):
+    '''OPCION : tUnique'''
+    t[0] = SOpcionales(TipoOpcionales.UNIQUE, None,None)
+
+
+def p_EXPR_OPCION5(t):
+    '''OPCION : tCheck E'''
+    t[0] = SOpcionales(TipoOpcionales.CHECK, t[2],None)
+
+
+def p_EXPR_OPCION6(t):
+    ''' OPCION : tConstraint id tUnique '''
+    t[0] = SOpcionales(TipoOpcionales.UNIQUE, None, t[2])
+
+
+def p_EXPR_OPCION7(t):
+    '''OPCION : tConstraint id tCheck E'''
+    t[0] = SOpcionales(TipoOpcionales.CHECK, t[4], t[2])
 
 
 def p_EXPR_COLS(t):
     '''COLS : COLS coma E
             | E '''
 
-    t[0] = t[1]
+    if len(t)==4:
+        t[1].append(t[3])
+        t[0]=t[1]
+    else:
+        t[0]=[t[1]]
 
 
 def p_EXPR_TIPO(t):
     '''TIPO : NUMERIC_TYPES
             | CHAR_TYPES
             | DATE_TYPES
-            | tBoolean
+            | BOOL_TYPES
             | E'''
+    t[0] = t[1]
 
 
 def p_EXPR_NUMERIC_TYPES(t):
@@ -645,6 +717,7 @@ def p_EXPR_NUMERIC_TYPES(t):
                      | tReal
                      | tDouble tPrecision
                      | tMoney'''
+    t[0] = STipoDato(t[1], TipoDato.NUMERICO, None)
 
 
 def p_EXPR_CHAR_TYPES(t):
@@ -653,6 +726,12 @@ def p_EXPR_CHAR_TYPES(t):
                   | tCharacter parAbre entero parCierra
                   | tChar parAbre entero parCierra
                   | tText'''
+    if len(t) == 2:
+        t[0] = STipoDato(t[1], TipoDato.CHAR, None)
+    elif len(t) == 5:
+        t[0] = STipoDato(t[1], TipoDato.CHAR, t[3])
+    else:
+        t[0] = STipoDato(t[2], TipoDato.CHAR, t[4])
 
 
 def p_EXPR_DATE_TYPES(t):
@@ -661,7 +740,11 @@ def p_EXPR_DATE_TYPES(t):
                   | tTime 
                   | tInterval
                   | tInterval FIELDS'''
+    t[0] = STipoDato(t[1], TipoDato.FECHA, None)
 
+def p_EXPR_BOOL_TYPES(t):
+    '''BOOL_TYPES : tBoolean'''
+    t[0]=STipoDato(t[1],TipoDato.BOOLEAN,None)
 
 def p_EXPR_FIELDS(t):
     '''FIELDS : tYear
@@ -670,15 +753,18 @@ def p_EXPR_FIELDS(t):
               | tHour
               | tMinute
               | tSecond'''
+    t[0] = STipoDato(t[1], TipoDato.FIELDS, None)
 
 
 def p_EXPR_SHOW_TABLE(t):
     '''SHOW_TABLES : show tables ptComa'''
+    t[0] = SShowTable()
 
 
 def p_EXPR_DROP_TABLE(t):
     '''DROP_TABLE : drop table id ptComa
     '''
+    t[0] = SDropTable(t[3])
 
 
 def p_EXPR_ALTER_TABLE(t):
@@ -691,6 +777,32 @@ def p_EXPR_ALTER_TABLE(t):
                    | alter table id drop tColumn id ptComa
                    | alter table id drop tConstraint id ptComa 
                    '''
+    if len(t) == 10:
+        # primera produccion
+        t[0] = SAlterTableRename(t[3], t[6], t[8])
+    elif len(t) == 8:
+        if t[4].lower() == "add":
+            # cuarta produccion
+            t[0] = SAlterTableCheck(t[3], t[6])
+        elif t[4].lower() == "drop":
+            if t[5].lower() == "column":
+                print("entroaqui")
+                t[0] = SAlterTableDrop(t[3], False, TipoAlterDrop.COLUMN)
+            else:
+                t[0] = SAlterTableDrop(t[3], t[6], TipoAlterDrop.CONSTRAINT)
+
+    elif len(t) == 5:
+        # segunda produccion
+        t[0] = SAlterTable_AlterColumn(t[3], t[4])
+    elif len(t) == 9:
+        # tercera produccion
+        t[0] = SAlterTableAddColumn(t[3], t[6], t[7])
+    elif len(t) == 12:
+        # quinta produccion
+        t[0] = SAlterTableAddUnique(t[3], t[6], t[9]);
+    elif len(t) == 13:
+        # sexta produccion
+        t[0] = SAlterTableAddFK(t[3], t[8], t[11])
 
 
 def p_EXPR_ALTER(t):
@@ -699,6 +811,18 @@ def p_EXPR_ALTER(t):
                   | alter tColumn id ttype CHAR_TYPES ptComa
                   | alter tColumn id tSet not null ptComa
                    '''
+    if len(t) == 8:
+        t[0] = [SAlterColumn(t[3], TipoAlterColumn.NOTNULL, None)]
+    elif len(t) == 7:
+        t[0] = [SAlterColumn(t[3], TipoAlterColumn.CAMBIOTIPO, t[5])]
+    elif len(t) == 10:
+        val = SAlterColumn(t[5], TipoAlterColumn.NOTNULL, None)
+        t[1].append(val)
+        t[0] = t[1]
+    elif len(t) == 9:
+        val = SAlterColumn(t[5], TipoAlterColumn.CAMBIOTIPO, t[7])
+        t[1].append(val)
+        t[0] = t[1]
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< FRANCISCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -706,6 +830,7 @@ def p_EXPR_ALTER(t):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_INSERT(p):
     ''' INSERT :  insert into id values parAbre LISTA_EXP parCierra ptComa   '''
+    p[0] = SInsertBase(p[3], p[6])
 
 
 def p_LISTA_EXP(p):
@@ -821,7 +946,7 @@ def p_booleano(p):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################################### QUERIES
-def p_QUERY( p ):
+def p_QUERY(p):
     '''QUERY : EXPR_SELECT 
              | EXPR_SELECT EXPR_FROM 
              | EXPR_SELECT EXPR_FROM EXPR_ORDERBY 
@@ -841,7 +966,8 @@ def p_QUERY( p ):
              | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT 
     '''
 
-def p_EXPR_SELECT( p ):
+
+def p_EXPR_SELECT(p):
     '''EXPR_SELECT : select EXPR_COLUMNAS
                    | select distinct EXPR_COLUMNAS
                    | select multi
@@ -850,8 +976,9 @@ def p_EXPR_SELECT( p ):
                    | select current_date 
                    '''
 
-#todos los parametros de select - columnas 
-def p_EXPR_COLUMNAS( p ):
+
+# todos los parametros de select - columnas
+def p_EXPR_COLUMNAS(p):
     '''EXPR_COLUMNAS : EXPR_COLUMNAS coma EXPR_AGREGACION
                      | EXPR_COLUMNAS coma EXPR_MATHS
                      | EXPR_COLUMNAS coma EXPR_TRIG
@@ -874,12 +1001,13 @@ def p_EXPR_COLUMNAS( p ):
                      | substring parAbre E coma E coma E parCierra
                      | greatest parAbre E_LIST parCierra
                      | least parAbre E_LIST parCierra'''
-                    
-def p_EXPR_EXTRA( p ):
-    '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp E parCierra''' 
-    
-    
-def p_EXPR_AGREGACION( p ):
+
+
+def p_EXPR_EXTRA(p):
+    '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp E parCierra'''
+
+
+def p_EXPR_AGREGACION(p):
     '''EXPR_AGREGACION : count parAbre E parCierra  
                        | avg parAbre E parCierra
                        | max parAbre E parCierra
@@ -891,7 +1019,8 @@ def p_EXPR_AGREGACION( p ):
                        | min parAbre multi parCierra
                        | sum parAbre multi parCierra'''
 
-def p_EXPR_MATHS( p ):
+
+def p_EXPR_MATHS(p):
     '''EXPR_MATHS : abs parAbre E parCierra
                      | cbrt parAbre E parCierra
                      | ceil parAbre E parCierra
@@ -921,8 +1050,9 @@ def p_EXPR_MATHS( p ):
                      | random parAbre E parCierra
                      | setseed parAbre E parCierra '''
 
-def p_EXPR_TRIG( p ):
-    '''EXPR_TRIG : acos parAbre E parCierra 
+
+def p_EXPR_TRIG(p):
+    '''EXPR_TRIG : acos parAbre E parCierra
                 | acosd parAbre E parCierra 
                 | asin parAbre E parCierra 
                 | asind parAbre E parCierra 
@@ -944,7 +1074,8 @@ def p_EXPR_TRIG( p ):
                 | acosh parAbre E parCierra 
                 | atanh parAbre E parCierra'''
 
-def p_EXPR_BINARIAS( p ):
+
+def p_EXPR_BINARIAS(p):
     '''EXPR_BINARIAS : length parAbre E parCierra
                      | trim parAbre E parCierra
                      | get_byte parAbre E parCierra
@@ -956,7 +1087,8 @@ def p_EXPR_BINARIAS( p ):
                      | encode parAbre E parCierra
                      | decode parAbre E parCierra'''
 
-def p_EXPR_FECHA( p ): 
+
+def p_EXPR_FECHA(p):
     '''EXPR_FECHA : date_part parAbre E coma DATE_TYPES E parCierra
                   | current_date
                   | current_time
@@ -964,29 +1096,32 @@ def p_EXPR_FECHA( p ):
                   | DATE_TYPES E'''
 
 
-def p_EXPR_CASE( p ): 
+def p_EXPR_CASE(p):
     '''EXPR_CASE : case CASE_LIST end
                  | case CASE_LIST else E end'''
 
 
-def p_CASE_LIST( p ):
+def p_CASE_LIST(p):
     '''CASE_LIST : CASE_LIST when E then E
                  | when E then E'''
 
-def p_E_LIST( p ): 
+
+def p_E_LIST(p):
     '''E_LIST : E_LIST coma E
               | E_LIST coma now parAbre parCierra
               | E
               | now parAbre parCierra
               '''
 
-def p_EXPR_FROM( p ):
+
+def p_EXPR_FROM(p):
     '''EXPR_FROM : from L_IDsAlias
                  | from parAbre QUERY parCierra 
                  | from parAbre QUERY parCierra id
                  | from parAbre QUERY parCierra as id'''
 
-def p_L_IDsAlias( p ):
+
+def p_L_IDsAlias(p):
     '''L_IDsAlias : L_IDsAlias coma id as id
                   | L_IDsAlias coma id id
                   | L_IDsAlias coma id
@@ -994,10 +1129,12 @@ def p_L_IDsAlias( p ):
                   | id as id 
                   | id '''
 
-def p_EXPR_WHERE( p ):
+
+def p_EXPR_WHERE(p):
     '''EXPR_WHERE : where LIST_CONDS '''
 
-def p_LIST_CONDS( p ):
+
+def p_LIST_CONDS(p):
     '''LIST_CONDS : LIST_CONDS E
                   | LIST_CONDS E tIs distinct from E
                   | LIST_CONDS E tIs not distinct from E
@@ -1019,7 +1156,8 @@ def p_LIST_CONDS( p ):
                   | E OPERATOR some parAbre QUERY parCierra
                   | E OPERATOR all parAbre QUERY parCierra'''
 
-def p_OPERATOR( p ):
+
+def p_OPERATOR(p):
     '''OPERATOR : igual
                 | menor
                 | mayor
@@ -1027,17 +1165,21 @@ def p_OPERATOR( p ):
                 | mayorIgual
                 | diferente'''
 
-def p_EXPR_GROUPBY( p ):
+
+def p_EXPR_GROUPBY(p):
     '''EXPR_GROUPBY : E'''
 
-def p_EXPR_HAVING( p ):
+
+def p_EXPR_HAVING(p):
     '''EXPR_HAVING : E'''
 
-def p_EXPR_ORDERBY( p ):
+
+def p_EXPR_ORDERBY(p):
     '''EXPR_ORDERBY : E'''
 
-def p_EXPR_LIMIT( p ):
-    '''EXPR_LIMIT : E'''  
+
+def p_EXPR_LIMIT(p):
+    '''EXPR_LIMIT : E'''
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<

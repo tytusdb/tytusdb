@@ -15,8 +15,8 @@ class Relacionales(Enum):
     MENOR_QUE = 2
     IGUAL = 3
     DIFERENTE = 4
-    MAYORIGUAL_QUE=5
-    MENORIGUAL_QUE=6
+    MAYORIGUAL_QUE = 5
+    MENORIGUAL_QUE = 6
 
 
 class Logicas(Enum):
@@ -33,6 +33,33 @@ class Expresion(Enum):
     CADENA = 5
     TABATT = 6
     NEGATIVO = 7
+
+
+class TipoDato(Enum):
+    NUMERICO = 1
+    CHAR = 2
+    FECHA = 3
+    FIELDS = 4
+    BOOLEAN=5
+
+
+class TipoAlterColumn(Enum):
+    NOTNULL = 1
+    CAMBIOTIPO = 2
+
+
+class TipoAlterDrop(Enum):
+    CONSTRAINT = 1
+    COLUMN = 2
+
+
+class TipoOpcionales(Enum):
+    PRIMARYKEY = 1
+    DEFAULT = 2
+    NOTNULL = 3
+    NULL = 4
+    UNIQUE = 5
+    CHECK = 6
 
 
 class Sentencia:
@@ -105,3 +132,133 @@ class SValWhere(Sentencia):
         self.columna = columna
         self.columna = valor
 
+
+class SDeleteBase(Sentencia):
+    def __init__(self, id, listaWhere=[]):
+        self.id = id
+        self.listaWhere = listaWhere
+
+
+class STruncateBase(Sentencia):
+    def __init__(self, listaIds=[]):
+        self.listaIds = listaIds
+
+
+class SInsertBase(Sentencia):
+    def __init__(self, id, listValores=[]):
+        self.id = id
+        self.listValores = listValores
+
+
+class SCrearTabla(Sentencia):
+    def __init__(self, id, herencia, nodopadre, columnas=[]):
+        self.id = id
+        self.columnas = columnas
+        self.herencia = herencia
+        self.nodopadre = nodopadre
+
+
+class STipoDato(Sentencia):
+    def __init__(self, dato, tipo, cantidad):
+        self.dato = dato
+        self.tipo = tipo
+        self.cantidad = cantidad
+
+
+class SShowTable(Sentencia):
+    ''' Show table'''
+
+
+class SDropTable(Sentencia):
+    def __init__(self, id):
+        self.id = id
+
+
+class SAlterTableRename(Sentencia):
+    def __init__(self, idtabla, idcolumna, idnuevo):
+        self.idtabla = idtabla
+        self.idcolumna = idcolumna
+        self.idnuevo = idnuevo
+
+
+class SAlterTableCheck(Sentencia):
+    def __init__(self, idtabla, expresion):
+        self.idtabla = idtabla
+        self.expresion = expresion
+
+
+class SAlterTable_AlterColumn(Sentencia):
+    def __init__(self, idtabla, columnas=[]):
+        self.idtabla = idtabla
+        self.columnas = columnas
+
+
+class SAlterColumn(Sentencia):
+    def __init__(self, idcolumna, tipo, valcambio):
+        self.idcolumna = idcolumna
+        self.tipo = tipo
+        self.valcambio = valcambio
+
+
+class SAlterTableAddColumn(Sentencia):
+    def __init__(self, idtabla, idcolumna, tipo):
+        self.idtabla = idtabla
+        self.idcolumna = idcolumna
+        self.tipo = tipo
+
+
+class SAlterTableAddUnique(Sentencia):
+    def __init__(self, idtabla, idconstraint, idcolumna):
+        self.idtabla = idtabla
+        self.idconstraint = idconstraint
+        self.idcolumna = idcolumna
+
+
+class SAlterTableAddFK(Sentencia):
+    def __init__(self, idtabla, idcolumna, idtpadre):
+        self.idtabla = idtabla
+        self.idcolumna = idcolumna
+        self.idtpadre = idtpadre
+
+
+class SAlterTableDrop(Sentencia):
+    def __init__(self, idtabla, idco, tipo):
+        self.idtabla = idtabla
+        self.idco = idco
+        self.tipo = tipo
+
+
+class SColumna(Sentencia):
+    def __init__(self, id, tipo, opcionales=[]):
+        self.id = id
+        self.tipo = tipo
+        self.opcionales = opcionales
+
+
+class SColumnaCheck(Sentencia):
+    def __init__(self, id=[]):
+        self.id = id
+
+
+class SColumnaUnique(Sentencia):
+    def __init__(self, id=[]):
+        self.id = id
+
+
+class SColumnaPk(Sentencia):
+    def __init__(self, id=[]):
+        self.id = id
+
+
+class SColumnaFk(Sentencia):
+    def __init__(self, id, idlocal=[], idfk=[]):
+        self.id = id
+        self.idlocal = idlocal
+        self.idfk = idfk
+
+
+class SOpcionales(Sentencia):
+    def __init__(self, tipo, valor, id):
+        self.tipo = tipo
+        self.valor = valor
+        self.id = id
