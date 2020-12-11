@@ -12,7 +12,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'timestamp':'timestamp', 'with':'with', 'time':'time', 'zone':'zone', 'date':'date', 'interval':'interval', 'boolean':'boolean',
                'year':'YEAR', 'month':'MONTH', 'day':'DAY', 'hours':'HOURS', 'minute':'MINUTE', 'second':'SECOND', 'select':'SELECT', 'distinct':'DISTINCT', 
                'group':'GROUP', 'by':'BY', 'having':'HAVING', 'order':'ORDER', 'as':'AS','asc':'ASC', 'desc':'DESC', 'nulls':'NULLS', 'first':'FIRST',
-               'last':'LAST'
+               'last':'LAST', 'type':'TYPE', 'enum':'ENUM', 'check':'CHECK', 'show':'SHOW', 'databases':'DATABASES', 'drop':'DROP'
              }
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
@@ -117,13 +117,15 @@ def p_instruccion(t):
                   | sentencia_dml'''   
 
 def p_sentencia_ddl(t):
-     '''sentencia_ddl : crear'''
+     '''sentencia_ddl : crear
+                      | liberar'''
 
 def p_sentencia_dml(t):
      '''sentencia_dml : insertar
                       | actualizar
                       | eliminar
-                      | seleccionar'''                            
+                      | seleccionar
+                      | mostrar'''                            
 
 def p_insertar(t):
      '''insertar : INSERT INTO ID VALUES PAR_A lista_exp PAR_C'''
@@ -220,6 +222,9 @@ def p_funcion_date(t):
      '''funcion_date : empty''' #completar                                            
 #------------------------------------------------------------------------------------------------------
 
+def p_mostrar_databases(t):
+     '''mostrar : SHOW DATABASES'''
+
 def p_listaexp(t):
      '''lista_exp : lista_exp COMA exp  
                   | exp'''   
@@ -259,52 +264,36 @@ def p_expresion(t):
 
 def p_crear(t):
      '''crear : CREATE reemplazar DATABASE verificacion ID propietario modo
-              | CREATE TABLE ID PAR_A columnas PAR_C herencia'''
-     if t[3] == 'DATABASE':
-          print('Database ', t[5], 'creada')
-          print (t[2]+' '+t[4]+' '+t[6]+' '+t[7])
-     elif t[2] == 'TABLE': print('Table ', t[3], 'creada')
+              | CREATE TABLE ID PAR_A columnas PAR_C herencia
+              | CREATE TYPE ID AS ENUM PAR_A lista_exp PAR_C'''
 
 def p_reemplazar(t):
      '''reemplazar : OR REPLACE
                    | empty'''
-     if len(t) == 3: t[0] = str(t[1])+' '+str(t[2])
-     else: t[0] = ' '
 
 def p_verificacion(t):
      '''verificacion : IF NOT EXISTS
                      | empty'''
-     if len(t) == 4: t[0] = str(t[1])+' '+str(t[2])+' '+str(t[3])
-     else: t[0] = ' '
 
 def p_propietario(t):
      '''propietario : OWNER valorowner
                     | empty'''
-     if len(t) == 3: t[0] = str(t[1])+' '+str(t[2])
-     else: t[0] = ' '
 
 def p_valorownero(t):
      '''valorowner : ID
                    | IGUAL ID'''
-     if t[1] != '=': t[0] = t[1]
-     else: t[0] = t[2]
 
 def p_modo(t):
      '''modo : MODE valormodo
              | empty'''
-     if len(t) == 3: t[0] = str(t[1])+' '+str(t[2])
-     else: t[0] = ' '
 
 def p_valormodoo(t):
      '''valormodo : ENTERO
                   | IGUAL ENTERO'''
-     if t[1] != '=': t[0] = t[1]
-     else: t[0] = t[2]
 
 def p_herencia(t):
      '''herencia : INHERITS PAR_A ID PAR_C
                  | empty'''
-     if len(t) == 5: print('Hereda de ',t[3])
 
 def p_columnas(t):
      '''columnas : columnas COMA columna
@@ -333,8 +322,6 @@ def p_tipo(t):
              | timestamp
              | time
              | interval'''
-     if len(t) == 2: t[0] = t[1]
-     else: t[0] = t[1]+' '+t[2]
 
 def p_valortipo(t):
      '''valortipo : PAR_A lvaloresdefault PAR_C
@@ -356,10 +343,8 @@ def p_atributo(t):
                  | NULL
                  | UNIQUE
                  | PRIMARY KEY
-                 | empty''' # CHECK pendiente por expresion
-     if len(t) == 3: print(t[1]+' '+t[2])
-     elif len(t) == 2: print(t[1])
-     else: t[0] = ' '
+                 | CHECK PAR_A lista_exp PAR_C
+                 | empty'''
 
 def p_lvalores_default(t):
      '''lvaloresdefault : lvaloresdefault valoresdefault
@@ -377,13 +362,19 @@ def p_valores_default(t):
                        | SECOND
                        | MINUTE
                        | HOURS'''
-     t[0] = str(t[1])
 
 def p_lnombres(t):
      '''lnombres : lnombres COMA ID
                  | ID'''
-     if len(t) == 4: print(t[3])
-     else: t[0] = print(t[1])
+
+def p_liberar(t):
+     '''liberar : DROP TABLE existencia ID
+                | DROP DATABASE existencia ID'''
+
+
+def p_existencia(t):
+     '''existencia : IF EXISTS
+                  | empty'''
 
 def p_empty(t):
      'empty : '
