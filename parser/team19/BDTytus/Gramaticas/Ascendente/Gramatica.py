@@ -4,6 +4,7 @@ import ply.yacc as yacc
 
 reservadas = {
     'select': 't_select',
+    'distinct': 't_distinct',
     'from': 't_from',
     'where': 't_where',
     'having': 't_having',
@@ -84,7 +85,25 @@ reservadas = {
     'outer' : 't_outer',
     'join' : 't_join',
     'natural' : 't_natural',
-    'on' : 't_on'
+    'on' : 't_on',
+    'abs' : 't_abs',
+    'cbrt' : 't_cbrt',
+    'ceil' : 't_ceil',
+    'ceiling' : 't_ceiling',
+    'degrees' : 't_degrees',
+    'div' : 't_div',
+    'exp' : 't_exp',
+    'factorial' : 't_factorial',
+    'floor' : 't_floor',
+    'gcd' : 't_gcd',
+    'ln' : 't_ln',
+    'log' : 't_log',
+    'mod' : 't_mod',
+    'pi' : 't_pi',
+    'power' : 't_power',
+    'radians' : 't_radians',
+    'round' : 't_round',
+    'use': 't_use'
 }
 
 tokens = [
@@ -122,9 +141,9 @@ t_par2 = r'\)'
 t_cor1 = r'\['
 t_cor2 = r'\]'
 t_pyc = r';'
-t_punto = r'.'
-t_coma = r','
-t_igual = r'='
+t_punto = r'\.'
+t_coma = r'\,'
+t_igual = r'\='
 t_mas = r'\+'
 t_menos = r'-'
 t_asterisco = r'\*'
@@ -161,7 +180,7 @@ def t_entero(t):
 
 
 def t_char(t):
-    r'\'.\''
+    r'\'.*?\''
     t.value = t.value[1:-1]  # se remueven comillas
     return t
 
@@ -174,7 +193,7 @@ def t_string(t):
 
 def t_id(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = reservadas.get(t.value.lower(), 'iden')  # Check for reserved words
+    t.type = reservadas.get(t.value.lower(), 'id')  # Check for reserved words
     return t
 
 
@@ -213,17 +232,21 @@ def t_error(t):
 lexer = lex.lex()
 
 precedence = (
-    ('left', 'coma'),
     ('left', 'punto', 'bipunto'),
+    ('left', 'coma'),
+    ('right', 'igual'),
+    ('left', 'cor1', 'cor2'),
+    ('right', 'umenos', 'umas'),
+    ('left', 'pot'),
+    ('left', 'asterisco', 'div', 'porcentaje'),
+    ('left', 'mas', 'menos'),
+    ('left', 'par1', 'par2'),
+    # Between , in , like, ilike, simiar, is isnull notnull
     ('left', 't_or'),
     ('left', 't_and'),
-    ('left', 'igual', 'diferente'),
+    ('left',  'diferente'),
     ('left', 'mayor', 'menor', 'mayori', 'menori'),
-    ('left', 'mas', 'menos'),
-    ('left', 'asterisco', 'div', 'porcentaje', 'pot'),
-    ('right', 't_not'),
-    ('left', 'par1', 'par2', 'cor1', 'cor2',),
-    ('right', 'umenos', 'umas')
+    ('right', 't_not')
 )
 
 from AST.Expresiones import *
@@ -237,7 +260,7 @@ def p_sql(p):
 
 
 def p_sql2(p):
-    'SQL : '
+    'SQL : empty'
     p[0] = []
 
 
@@ -262,23 +285,31 @@ def p_Sentencia_SQL(p):
 def p_Sentencias_DML(p):
     '''Sentencias_DML : Select_SQL pyc
                    | t_insert t_into id Insert_SQL pyc
-                   | t_update Update_SQL pyc
-                   | t_delete t_from DeleteTB Condiciones_Del Condiciones_Del2 pyc'''
+                   | t_update id t_set Lista_EXP t_where EXP pyc
+                   | t_delete t_from id Condiciones pyc
+                   | t_use t_database id'''
     p[0] = p[1]
 
 
 def p_Select_SQL(p):
-    'Select_SQL : t_select Lista_ID t_from Lista_ID Condiciones_Sel'
-    p[1] += ' ' + p[2] + ' ' + p[3] + ' ' + p[4] + ' ' + p[5]
+    'Select_SQL : t_select Lista_EXP t_from Table_Expression Condiciones'
     p[0] = p[1]
 
 
-def p_Selec_SQL_Condiciones(p):
-    '''Condiciones_Sel : t_where
-                | t_having'''
+def p_Table_Expression(p):
+    '''Table_Expression : Alias_Tabla
+                        | Subqueries'''
     p[0] = p[1]
 
 
+def p_Alias_Tabla(p):
+    '''Alias_Tabla :  Lista_ID
+                | Lista_Alias'''
+
+
+def p_Subqueries(p):
+    '''Subqueries : par1 t_select  par2'''
+#>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> INSERT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_Insert_SQL(p):
     'Insert_SQL : par1 Lista_ID par2 t_values par1 EXP par2'
     p[0] = p[1]
@@ -289,37 +320,14 @@ def p_Insert_SQL2(p):
     p[0] = p[1]
 
 
-def p_Update_SQL(p):
-    'Update_SQL : t_update Lista_ID '
-    p[0] = p[1]
-
-
-def p_DeleteTB(p):
-    '''DeleteTB : id 
-            | t_only id'''
+def p_Condiciones(p):
+    '''Condiciones : t_where EXP
+            | empty'''
     if len(p) == 3:
-         p[0] = p[1]
-    else: 
-         p[0] = p[1]
-
-
-def p_Condiciones_Del(p):
-    ''' Condiciones_Del : asterisco 
-                | t_as id 
-                | empty'''
-
-
-def p_Condiciones_Del2(p):
-    ''' Condiciones_Del2 : t_using Lista_ID
-                           | t_where Opc_Where
-                           | t_returning asterisco
-                           | EXP 
-                           | empty'''
-
-
-def p_Opc_Where(p):
-    '''Opc_Where : EXP 
-                | t_current t_of id '''
+        #p[1].extend(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = []
 
 
 # ---------------------------- Sentencias DDL y Enum Type --------------
@@ -331,61 +339,75 @@ def p_Sentencias_DDL(p):
                     | t_create Create pyc
                     | Enum_Type '''
 
+
 def p_Enum_Type(p):
     'Enum_Type : t_create t_type id t_as t_enum par1 Lista_ID par2 pyc'
     p[0] = p[3]
+
 
 def p_Drop(p):
     '''Drop : t_database DropDB id
             | t_table  id '''
 
+
 def p_DropDB(p):
     '''DropDB : t_if t_exists
             | empty'''
+
 
 def p_Alter(p):
     '''Alter : t_database id AlterDB
             | t_table id AlterTB '''
 
+
 def p_AlterDB(p):
-    ''' AlterDB : t_rename t_to id 
+    ''' AlterDB : t_rename t_to id
                 | t_owner t_to SesionDB '''
 
+
 def p_SesionDB(p):
-    ''' SesionDB : id 
+    ''' SesionDB : id
                 | t_current_user
                 | t_session_user '''
-    
+
+
 def p_AlterTB(p): 
     ''' AlterTB : t_add Add_Opc
                 | t_drop Drop_Opc
                 | t_alter t_column Alter_Column
                 | t_rename t_column id t_to id '''
-    
+
+
 def p_Add_Opc(p):
     '''Add_Opc : t_column id Tipo
                | t_foreign t_key par1 id par2 t_references id
-               | t_constraint id t_unique par1 id par2 
+               | t_constraint id t_unique par1 id par2
                | t_check EXP'''
 
+
 def p_Drop_Opc(p):
-    ''' Drop_Opc :  t_column id 
-                 |  t_constraint id ''' 
+    ''' Drop_Opc :  t_column id
+                 |  t_constraint id '''
+
 
 def p_Alter_Column(p):
     ''' Alter_Column :   id t_set t_not t_null
                      |   Alter_Columns'''
 
+
 def p_Alter_Columns(p):
     ''' Alter_Columns : Alter_Columns coma Alter_Column1 
                     | Alter_Column1'''
 
+
 def p_Alter_Colum1(p):
     'Alter_Column1 :  id t_type t_varchar par1 entero par2 '
+
 
 def p_Create(p): 
     ''' Create : CreateDB   
                | CreateTB '''
+
 
 def p_CreateDB(p):
     '''CreateDB : t_database Op1_DB
@@ -395,6 +417,7 @@ def p_CreateDB(p):
     else: 
          p[0] = p[1]
 
+
 def p_Op1_DB(p):
     ''' Op1_DB : t_if t_not t_exists id Sesion
                | id Sesion'''
@@ -403,29 +426,35 @@ def p_Op1_DB(p):
     else: 
          p[0] = p[1]
 
+
 def p_Sesion(p):
     ''' Sesion : t_owner Op_Sesion Sesion_mode
                 | t_mode Op_Sesion
                 | empty '''
 
+
 def p_Op_Sesion(p):
-    ''' Op_Sesion : igual id 
+    ''' Op_Sesion : igual id
             | id  '''
     if len(p) == 3:
         p[0] = p[2]
     else:
         p[0] = p[1]
 
+
 def p_Sesion_mode(p):
     ''' Sesion_mode : t_mode Op_Sesion
                   | empty '''
 
+
 def p_CreateTB(p):
     'CreateTB : t_table id par1 Columnas par2 Inherits '
+
 
 def p_Inherits(p):
     ''' Inherits : t_inherits par1 id par2
                | empty '''
+
 
 def p_Columnas(p):
     '''Columnas : Columnas coma Columna
@@ -436,6 +465,7 @@ def p_Columnas(p):
     else:
         p[0] = p[1] 
 
+
 def p_Columna(p):
     ''' Columna : id Tipo Constraints
                 | t_primary t_key par1 Lista_ID par2
@@ -443,7 +473,8 @@ def p_Columna(p):
                 | t_constraint id t_check par1 EXP par2
                 | t_check par1 EXP par2
                 | t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2 '''
-    
+
+
 def p_Constraints(p):
     ''' Constraints :  t_primary t_key
                         | t_references id 
@@ -454,9 +485,11 @@ def p_Constraints(p):
                         | t_check par1 EXP par2 
                         | empty'''
 
+
 def p_Opc_Unique(p):
   ''' Opc_Unique : t_not t_null 
                 | empty '''
+
 
 def p_Tipo(p):
     ''' Tipo : t_smallint
@@ -488,8 +521,8 @@ def p_empty(p):
     'empty :'
     p[0] = []
 
-
 # ----------------------------EXPRESIONES Y OPERACIONES---------------------------------------------------------------
+
 def p_aritmeticas(p):
     '''EXP : EXP mas EXP
            | EXP menos EXP
@@ -497,7 +530,7 @@ def p_aritmeticas(p):
            | EXP div EXP
            | EXP pot EXP
            | EXP porcentaje EXP'''
-    p[0] = Aritmetica(p[1], p[3], p.slice[2].value, p.slice[2].lineno, find_column(input, p.slice[2]))
+    p[0] = p[1]#Aritmetica(p[1], p[3], p.slice[2].value, p.slice[2].lineno, find_column(input, p.slice[2]))
 
 
 def p_relacionales(p):
@@ -508,21 +541,21 @@ def p_relacionales(p):
            | EXP igual EXP
            | EXP diferente EXP
            | EXP diferentede EXP'''
-    p[0] = Relacional(p[1], p[3], p.slice[2].value, p.slice[2].lineno, find_column(input, p.slice[2]))
+    p[0] = p[1] #Relacional(p[1], p[3], p.slice[2].value, p.slice[2].lineno, find_column(input, p.slice[2]))
 
 
 def p_logicos(p):
     '''EXP : EXP t_and EXP
        | EXP t_or EXP
        '''
-    p[0] = logica(p[1], p[3], p.slice[2].value, p.slice[2].lineno, find_column(input, p.slice[2]))
+    p[0] = p[1]#logica(p[1], p[3], p.slice[2].value, p.slice[2].lineno, find_column(input, p.slice[2]))
 
 
 def p_unario(p):
     '''EXP : mas EXP  %prec umas
            | menos EXP  %prec umenos
            | t_not EXP'''
-    p[0]= unario(p[2], p[1], p.slice[1].lineno, find_column(input, p.slice[1]))
+    p[0] = p[1] #unario(p[2], p[1], p.slice[1].lineno, find_column(input, p.slice[1]))
 
 
 def p_EXP_Valor(p):
@@ -538,6 +571,27 @@ def p_exp_agregacion(p):
             | t_min par1 EXP par2'''
 
 
+def p_funciones_matematicas(p):
+    ''' EXP : t_abs par1 EXP par2
+            | t_cbrt par1 EXP par2
+            | t_ceil par1 EXP par2
+            | t_ceiling par1 EXP par2
+            | t_degrees par1 EXP par2
+            | t_div par1 EXP coma EXP par2
+            | t_exp par1 EXP par2
+            | t_factorial par1 EXP par2
+            | t_floor par1 EXP par2
+            | t_gcd par1 EXP par2
+            | t_ln par1 EXP par2
+            | t_log par1 EXP par2
+            | t_mod par1 EXP coma EXP par2
+            | t_pi par1 EXP par2
+            | t_power par1 EXP coma EXP par2
+            | t_radians par1 EXP par2 
+            | t_round par1 EXP par2 '''
+
+
+#--------------------------------------Listas Fundamentales
 def p_Lista_ID(p):
     '''Lista_ID : Lista_ID coma id
                | id '''
@@ -548,14 +602,58 @@ def p_Lista_ID(p):
         p[0] = p[1]
 
 
+def p_Lista_EXP(p):
+    '''Lista_EXP : Lista_EXP coma EXP
+               | EXP '''
+    if len(p) == 3:
+        p[1].extend(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = p[1]
+
+
+def p_Lista_Alias(p):
+    '''Lista_Alias : Lista_Alias coma Nombre_Alias
+               | Nombre_Alias '''
+    if len(p) == 3:
+       # p[1].extend(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = p[1]
+
+
+def p_Nombre_Alias(p):
+    '''Nombre_Alias : id id'''
+    p[0] = p[1]
+
+
 def p_error(p):
-    print("Error Sintactico en " + p.value)
-    return False
+    if not p:
+        print('end of file')
+        return
+
+    ListaErrores.insertar(err.N_Error("Sintactico", str(p.value),
+                                 p.lineno, find_column(input, p)))
+    while True:
+        tok = parser.token()
+        if not tok or tok.type == 'pyc':
+            break
 
 
-parser = yacc.yacc()
+def concat_report(cad):
+    global reporteg
+    reporteg.insert(0, cad)
 
-res = parser.parse("")
-while True :
-    print(res)
-    break
+
+def parse(input1, errores1):
+    #global input
+    global ListaErrores
+    global reporteg
+    ListaErrores=errores1
+    reporteg=[]
+    input = input1
+    global parser
+    parser = yacc.yacc()
+    parser.errok()
+    par = parser.parse(input, tracking=True, lexer=lexer)
+    return par
