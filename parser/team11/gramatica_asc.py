@@ -33,7 +33,7 @@ reservadas = {
     'month'     : 'MONTH',              'day'       : 'DAY',
     'minute'    : 'MINUTE',             'second'    : 'SECOND',
     'enum'      : 'ENUM',               'type'      : 'TYPE',
-    'interval'  : 'INTERVAL',           'zone' : 'ZONE',
+    'interval'  : 'INTERVAL',
     'databases'  : 'DATABASES',         'without'  : 'WITHOUT',  
     'with'      : 'WITH',               'hour'     : 'HOUR',
     'select'    : 'SELECT',
@@ -165,7 +165,8 @@ def p_instruccion(t) :
                       | replaceDB_instr
                       | alterDB_instr
                       | dropDB_instr
-                      | showDB_instr'''
+                      | showDB_instr
+                      | alter_instr PTCOMA'''
 
 ##CREATE DATABASE
 def p_create_db(t):
@@ -267,3 +268,55 @@ def p_showDB_regexp(t):
 
 
 ##########################################################################################
+
+# ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
+
+def p_inst_alter(t) :
+    '''alter_instr    : ALTER TABLE ID ADD COLUMN ID type_column
+                      | ALTER TABLE ID ADD CHECK PARIZQ condicion PARDER
+                      | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
+                      | ALTER TABLE ID ADD FOREIGN KEY PARIZQ ID PARDER REFERENCES ID
+                      | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
+                      | ALTER TABLE ID DROP CONSTRAINT ID
+                      | ALTER TABLE ID DROP COLUMN ID
+                      | ALTER TABLE ID RENAME COLUMN ID TO ID
+                      | ALTER TABLE ID list_alter_column'''
+    
+def p_list_alter_column(t) :
+    '''list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column
+                         | ALTER COLUMN ID TYPE type_column'''
+
+# Tipos de datos para columnas/campos
+def p_type_column(t) :
+    '''type_column    : SMALLINT
+                      | INTEGER
+                      | BIGINT
+                      | DECIMAL
+                      | NUMERIC
+                      | REAL
+                      | FLOAT
+                      | INT
+                      | DOUBLE
+                      | MONEY
+                      | VARCHAR PARIZQ ENTERO PARDER
+                      | CHARACTER VARYING PARIZQ ENTERO PARDER
+                      | CHARACTER PARIZQ ENTERO PARDER
+                      | CHAR PARIZQ ENTERO PARDER
+                      | TEXT
+                      | TIMESTAMP 
+                      | TIMESTAMP PARIZQ ENTERO PARDER
+                      | DATE
+                      | TIME
+                      | TIME PARIZQ ENTERO PARDER
+                      | INTERVAL field'''
+ 
+# Campos para intervalos de tiempo   
+ def p_field(t) :
+    '''field          : YEAR
+                      | MONTH
+                      | DAY
+                      | HOUR
+                      | MINUTE
+                      | SECOND'''
+
+# ----------------------------------------------------------------------------------------

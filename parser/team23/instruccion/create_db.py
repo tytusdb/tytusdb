@@ -23,6 +23,25 @@ class create_db(instruccion):
             self.nodo.hijos.append(owner.nodo)
         if mode != None:
             self.nodo.hijos.append(mode.nodo)
-    
+
+        #Gramatica
+        self.grammar_ = '<TR><TD>INSTRUCCION ::= CREATE'
+        if replace_ != None:
+            self.grammar_ += ' OR REPLACE'
+        self.grammar_ += ' DATABASE '
+        if if_exists != None:
+            self.grammar_ += ' IF NOT EXISTS ' 
+        self.grammar_ += id_db
+        if owner != None:
+            self.grammar_ += ' OWNER '
+        if mode != None:
+            self.grammar_ += ' MODE '
+        self.grammar_ += '</TD><TD>INSTRUCCION = new create_db(ID,  REPLACE, IF_EXISTS, OWNER, MODE);</TD></TR>'
+
+        if owner != None:
+            self.grammar_ += owner.grammar_
+        if mode != None:
+            self.grammar_ += mode.grammar_
+
     def ejecutar(self):
         pass

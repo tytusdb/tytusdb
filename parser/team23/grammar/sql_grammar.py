@@ -223,7 +223,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    errores.append(nodo_error(t.lexer.lineno, t.lexer.lexpos, "Caracter incorrecto '%s'" % t.value[0], 'Lexico'))
+    errores.append(nodo_error(t.lexer.lineno, t.lexer.lexpos, "Caracter incorrecto '%s'" % t.value[0], 'Léxico'))
     t.lexer.skip(1)
 
 import re
@@ -568,7 +568,14 @@ def p_expression(p):
             | seleccionar'''
 
 def p_error(t):
-    print("Error sintactico: '%s'" % t.value)
+    errores.append(nodo_error(t.lexer.lineno, t.lexer.lexpos, "Error sintáctico: '%s'" % t.value, 'Sintáctico'))
+    while True:
+        tok = parser.token()
+        if not tok or tok.type == 'PTCOMA': 
+            break
+    tok = parser.token()
+    parser.errok()
+    return tok 
     
 import ply.yacc as yacc
 parser = yacc.yacc()
