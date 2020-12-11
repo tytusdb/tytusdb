@@ -80,4 +80,4 @@ end
  */
 
  
-SELECT distinct select_list, das from table_expression order by adsada asc, da asc, dasd desc, das;
+SELECT distinct select_list, das from table_expression where 12 <= 12 AND tabla.d==12 or e>(3+5) order by adsada asc, da asc, dasd desc, das;

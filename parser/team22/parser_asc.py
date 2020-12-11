@@ -158,8 +158,8 @@ def p_instruccion_selects_distinct(t) :
     # print("selects")
 
 def p_instruccion_selects_where(t) :
-    'inicio_condicional      : WHERE lista_condiciones inicio_group_by'
-    # print("Condiciones (Where)")
+    'inicio_condicional      : WHERE relacional inicio_group_by'
+    print("Condiciones (Where)")
 
 def p_instruccion_selects_sin_where(t) :
     'inicio_condicional      : inicio_group_by'
@@ -178,7 +178,7 @@ def p_instruccion_selects_group_by2(t) :
     # print("NO HAY GROUP BY")
 
 def p_instruccion_selects_having(t) :
-    'inicio_having     : HAVING lista_condiciones inicio_order_by'
+    'inicio_having     : HAVING relacional inicio_order_by'
     # print("HAVING")
 
 def p_instruccion_selects_having2(t) :
@@ -525,7 +525,7 @@ def p_instruccion_delete_incondicional(t) :
     print("Eliminar tabla: " + t[1])
 
 def p_instruccion_delete_condicional(t) :
-    'delete_condicional     : ID WHERE lista_condiciones PTCOMA'
+    'delete_condicional     : ID WHERE relacional PTCOMA'
     # t[0] = Delete_incondicional(t[1])
     print("Eliminar tabla: " + t[1])
 
@@ -595,7 +595,10 @@ def p_relacional(t) :
                     | aritmetica MENORIGUAL aritmetica
                     | aritmetica MAYORIGUAL aritmetica
                     | aritmetica DIFERENTE aritmetica
-                    | aritmetica'''
+                    | aritmetica
+                    | relacional AND relacional
+                    | relacional OR relacional
+                    | NOT relacional'''
 
 def p_aritmetica(t) :
     '''aritmetica   : valor MAS valor
@@ -604,16 +607,18 @@ def p_aritmetica(t) :
                     | valor DIVISION valor
                     | valor MODULO valor
                     | valor EXP valor
-                    | valor'''
+                    | valor
+                    | PARIZQ aritmetica PARDER'''
 
 def p_valor(t) :
     '''valor        : ID
                     | ENTERO
                     | DECIMAL
-                    | CADENA'''
+                    | CADENA
+                    | ID PUNTO ID'''
 
 def p_instruccion_update_where(t) :
-    '''update_table : ID SET def_update WHERE lista_condiciones'''
+    '''update_table : ID SET def_update WHERE relacional'''
     print("UPDATE TABLE")
 
 def p_instruccion_update(t) :
@@ -634,7 +639,7 @@ def p_case_state(t):
                       | auxcase_state END'''
                       
 def p_auxcase_state(t):
-    'auxcase_state  : WHEN lista_condiciones THEN CADENA'
+    'auxcase_state  : WHEN relacional THEN CADENA'
 
 def p_auxcase_state2(t):
     'auxcase_state  : ELSE COMILLA_SIMPLE ID COMILLA_SIMPLE'
