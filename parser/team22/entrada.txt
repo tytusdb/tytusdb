@@ -80,4 +80,8 @@ end
  */
 
  
-SELECT distinct select_list, das from table_expression where 12 <= 12 AND tabla.d==12 or e>(3+5) order by adsada asc, da asc, dasd desc, das;
+SELECT distinct codigo, ABS(-5) from usuarios 
+where CBRT(32) == 10 AND 12 <= 12 AND usuarios.codigo !=12 or id > (3+5) 
+group by usuarios.codigo
+having abs(id) > 10
+order by codigo asc, nombre asc, id desc, tipo;
