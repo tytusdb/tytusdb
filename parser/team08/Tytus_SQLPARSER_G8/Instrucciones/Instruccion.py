@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import sys
+sys.path.append("..")
 
 class Instruccion(ABC):
         
@@ -11,6 +13,8 @@ class Instruccion(ABC):
         self.tipo = tipo
         self.linea = linea
         self.columna = columna
+
+
 '''   
 class Prueba(Instruccion):
 
