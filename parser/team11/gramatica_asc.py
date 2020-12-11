@@ -166,6 +166,7 @@ def p_instruccion(t) :
                       | alterDB_instr
                       | dropDB_instr
                       | showDB_instr
+                      | create_instr
                       | alter_instr PTCOMA'''
 
 ##CREATE DATABASE
@@ -320,3 +321,56 @@ def p_type_column(t) :
                       | SECOND'''
 
 # ----------------------------------------------------------------------------------------
+def p_create(t):
+    '''
+        create_instr    : CREATE lista_crear create_final
+    '''
+def p_create_final(t):
+    '''
+        create_final    : PTCOMA
+                        | INHERITS PARIZQ ID PARDER PTCOMA
+    '''
+
+def p_lista_crear(t):
+    '''
+        lista_crear     : DATABASE lista_owner
+                        | OR REPLACE DATABASE lista_owner
+                        | TABLE ID PARIZQ lista_campos PARDER 
+                        | TYPE ID AS ENUM PARIZQ lista_type  PARDER
+    '''
+
+def p_lista_type(t):
+    '''
+        lista_type      : lista_type COMA CADENASIMPLE
+                        | CADENASIMPLE
+    '''
+
+def p_lista_campos(t):
+    '''
+        lista_campos    : lista_campos COMA campo
+                        | campo
+    '''
+
+def p_campo(t):
+    '''
+        campo           : ID type_column
+                        | ID type_column PRIMARY KEY
+                        | PRIMARY KEY PARIZQ columnas PARDER 
+                        | FOREIGN KEY PARIZQ columnas PARDER REFERENCES ID PARIZQ columnas PARDER
+    '''
+
+def p_lista_owner(t):
+    '''
+        lista_owner     : IF NOT EXISTS ID
+                        | ID
+    '''
+
+##Epsilon 
+def p_empty(t) :
+    'empty            : '
+    pass
+
+def p_error(t):
+    print(t)
+    print("Error sintáctico en '%s'" % t.value)
+#------------------------------------------------------------------------------
