@@ -1,0 +1,2064 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    PUNTO
+
+Grammar
+
+Rule 0     S' -> inicio
+Rule 1     inicio -> sentencias
+Rule 2     sentencias -> sentencias PTCOMA sentencia
+Rule 3     sentencias -> sentencia
+Rule 4     sentencias -> PTCOMA
+Rule 5     sentencia -> sentencia_ddl
+Rule 6     sentencia -> sentencia_dml
+Rule 7     sentencia_ddl -> crear
+Rule 8     sentencia_dml -> insertar
+Rule 9     sentencia_dml -> actualizar
+Rule 10    sentencia_dml -> eliminar
+Rule 11    insertar -> INSERT INTO ID VALUES PAR_A lista_exp PAR_C
+Rule 12    actualizar -> UPDATE ID SET exp WHERE exp
+Rule 13    eliminar -> DELETE FROM ID WHERE exp
+Rule 14    lista_exp -> lista_exp COMA exp
+Rule 15    lista_exp -> exp
+Rule 16    exp -> exp_log
+Rule 17    exp -> exp_rel
+Rule 18    exp -> exp_ar
+Rule 19    exp -> E
+Rule 20    exp_log -> NOT E
+Rule 21    exp_log -> E AND E
+Rule 22    exp_log -> E OR E
+Rule 23    exp_rel -> E IGUAL E
+Rule 24    exp_rel -> E DESIGUAL E
+Rule 25    exp_rel -> E DESIGUAL2 E
+Rule 26    exp_rel -> E MAYORIGUAL E
+Rule 27    exp_rel -> E MENORIGUAL E
+Rule 28    exp_rel -> E MAYOR E
+Rule 29    exp_rel -> E MENOR E
+Rule 30    exp_ar -> <empty>
+Rule 31    E -> ENTERO
+Rule 32    E -> DECIMAL
+Rule 33    E -> CADENA1
+Rule 34    E -> CADENA2
+Rule 35    E -> ID
+Rule 36    crear -> CREATE reemplazar DATABASE verificacion ID propietario modo
+Rule 37    crear -> CREATE TABLE ID PAR_A columnas PAR_C herencia
+Rule 38    reemplazar -> OR REPLACE
+Rule 39    reemplazar -> empty
+Rule 40    verificacion -> IF NOT EXISTS
+Rule 41    verificacion -> empty
+Rule 42    propietario -> OWNER valorowner
+Rule 43    propietario -> empty
+Rule 44    valorowner -> ID
+Rule 45    valorowner -> IGUAL ID
+Rule 46    modo -> MODE valormodo
+Rule 47    modo -> empty
+Rule 48    valormodo -> ENTERO
+Rule 49    valormodo -> IGUAL ENTERO
+Rule 50    herencia -> INHERITS PAR_A ID PAR_C
+Rule 51    herencia -> empty
+Rule 52    columnas -> columnas COMA columna
+Rule 53    columnas -> columna
+Rule 54    columna -> ID tipo atributocolumn
+Rule 55    columna -> PRIMARY KEY PAR_A lnombres PAR_C
+Rule 56    columna -> FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C
+Rule 57    tipo -> smallint
+Rule 58    tipo -> integer
+Rule 59    tipo -> bigint
+Rule 60    tipo -> decimal
+Rule 61    tipo -> numeric
+Rule 62    tipo -> real
+Rule 63    tipo -> double precision
+Rule 64    tipo -> money
+Rule 65    atributocolumn -> atributocolumn atributo
+Rule 66    atributocolumn -> atributo
+Rule 67    atributo -> DEFAULT valoresdefault
+Rule 68    atributo -> CONSTRAINT ID
+Rule 69    atributo -> NOT
+Rule 70    atributo -> NULL
+Rule 71    atributo -> UNIQUE
+Rule 72    atributo -> PRIMARY KEY
+Rule 73    atributo -> empty
+Rule 74    valoresdefault -> CADENA1
+Rule 75    valoresdefault -> CADENA2
+Rule 76    valoresdefault -> DECIMAL
+Rule 77    valoresdefault -> ENTERO
+Rule 78    valoresdefault -> BOOLEAN
+Rule 79    lnombres -> lnombres COMA ID
+Rule 80    lnombres -> ID
+Rule 81    empty -> <empty>
+
+Terminals, with rules where they appear
+
+AND                  : 21
+BOOLEAN              : 78
+CADENA1              : 33 74
+CADENA2              : 34 75
+COMA                 : 14 52 79
+CONSTRAINT           : 68
+CREATE               : 36 37
+DATABASE             : 36
+DECIMAL              : 32 76
+DEFAULT              : 67
+DELETE               : 13
+DESIGUAL             : 24
+DESIGUAL2            : 25
+ENTERO               : 31 48 49 77
+EXISTS               : 40
+FOREIGN              : 56
+FROM                 : 13
+ID                   : 11 12 13 35 36 37 44 45 50 54 56 68 79 80
+IF                   : 40
+IGUAL                : 23 45 49
+INHERITS             : 50
+INSERT               : 11
+INTO                 : 11
+KEY                  : 55 56 72
+MAYOR                : 28
+MAYORIGUAL           : 26
+MENOR                : 29
+MENORIGUAL           : 27
+MODE                 : 46
+NOT                  : 20 40 69
+NULL                 : 70
+OR                   : 22 38
+OWNER                : 42
+PAR_A                : 11 37 50 55 56 56
+PAR_C                : 11 37 50 55 56 56
+PRIMARY              : 55 72
+PTCOMA               : 2 4
+PUNTO                : 
+REFERENCES           : 56
+REPLACE              : 38
+SET                  : 12
+TABLE                : 37
+UNIQUE               : 71
+UPDATE               : 12
+VALUES               : 11
+WHERE                : 12 13
+bigint               : 59
+decimal              : 60
+double               : 63
+error                : 
+integer              : 58
+money                : 64
+numeric              : 61
+precision            : 63
+real                 : 62
+smallint             : 57
+
+Nonterminals, with rules where they appear
+
+E                    : 19 20 21 21 22 22 23 23 24 24 25 25 26 26 27 27 28 28 29 29
+actualizar           : 9
+atributo             : 65 66
+atributocolumn       : 54 65
+columna              : 52 53
+columnas             : 37 52
+crear                : 7
+eliminar             : 10
+empty                : 39 41 43 47 51 73
+exp                  : 12 12 13 14 15
+exp_ar               : 18
+exp_log              : 16
+exp_rel              : 17
+herencia             : 37
+inicio               : 0
+insertar             : 8
+lista_exp            : 11 14
+lnombres             : 55 56 56 79
+modo                 : 36
+propietario          : 36
+reemplazar           : 36
+sentencia            : 2 3
+sentencia_ddl        : 5
+sentencia_dml        : 6
+sentencias           : 1 2
+tipo                 : 54
+valoresdefault       : 67
+valormodo            : 46
+valorowner           : 42
+verificacion         : 36
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . inicio
+    (1) inicio -> . sentencias
+    (2) sentencias -> . sentencias PTCOMA sentencia
+    (3) sentencias -> . sentencia
+    (4) sentencias -> . PTCOMA
+    (5) sentencia -> . sentencia_ddl
+    (6) sentencia -> . sentencia_dml
+    (7) sentencia_ddl -> . crear
+    (8) sentencia_dml -> . insertar
+    (9) sentencia_dml -> . actualizar
+    (10) sentencia_dml -> . eliminar
+    (36) crear -> . CREATE reemplazar DATABASE verificacion ID propietario modo
+    (37) crear -> . CREATE TABLE ID PAR_A columnas PAR_C herencia
+    (11) insertar -> . INSERT INTO ID VALUES PAR_A lista_exp PAR_C
+    (12) actualizar -> . UPDATE ID SET exp WHERE exp
+    (13) eliminar -> . DELETE FROM ID WHERE exp
+
+    PTCOMA          shift and go to state 3
+    CREATE          shift and go to state 11
+    INSERT          shift and go to state 12
+    UPDATE          shift and go to state 13
+    DELETE          shift and go to state 14
+
+    inicio                         shift and go to state 1
+    sentencias                     shift and go to state 2
+    sentencia                      shift and go to state 4
+    sentencia_ddl                  shift and go to state 5
+    sentencia_dml                  shift and go to state 6
+    crear                          shift and go to state 7
+    insertar                       shift and go to state 8
+    actualizar                     shift and go to state 9
+    eliminar                       shift and go to state 10
+
+state 1
+
+    (0) S' -> inicio .
+
+
+
+state 2
+
+    (1) inicio -> sentencias .
+    (2) sentencias -> sentencias . PTCOMA sentencia
+
+    $end            reduce using rule 1 (inicio -> sentencias .)
+    PTCOMA          shift and go to state 15
+
+
+state 3
+
+    (4) sentencias -> PTCOMA .
+
+    PTCOMA          reduce using rule 4 (sentencias -> PTCOMA .)
+    $end            reduce using rule 4 (sentencias -> PTCOMA .)
+
+
+state 4
+
+    (3) sentencias -> sentencia .
+
+    PTCOMA          reduce using rule 3 (sentencias -> sentencia .)
+    $end            reduce using rule 3 (sentencias -> sentencia .)
+
+
+state 5
+
+    (5) sentencia -> sentencia_ddl .
+
+    PTCOMA          reduce using rule 5 (sentencia -> sentencia_ddl .)
+    $end            reduce using rule 5 (sentencia -> sentencia_ddl .)
+
+
+state 6
+
+    (6) sentencia -> sentencia_dml .
+
+    PTCOMA          reduce using rule 6 (sentencia -> sentencia_dml .)
+    $end            reduce using rule 6 (sentencia -> sentencia_dml .)
+
+
+state 7
+
+    (7) sentencia_ddl -> crear .
+
+    PTCOMA          reduce using rule 7 (sentencia_ddl -> crear .)
+    $end            reduce using rule 7 (sentencia_ddl -> crear .)
+
+
+state 8
+
+    (8) sentencia_dml -> insertar .
+
+    PTCOMA          reduce using rule 8 (sentencia_dml -> insertar .)
+    $end            reduce using rule 8 (sentencia_dml -> insertar .)
+
+
+state 9
+
+    (9) sentencia_dml -> actualizar .
+
+    PTCOMA          reduce using rule 9 (sentencia_dml -> actualizar .)
+    $end            reduce using rule 9 (sentencia_dml -> actualizar .)
+
+
+state 10
+
+    (10) sentencia_dml -> eliminar .
+
+    PTCOMA          reduce using rule 10 (sentencia_dml -> eliminar .)
+    $end            reduce using rule 10 (sentencia_dml -> eliminar .)
+
+
+state 11
+
+    (36) crear -> CREATE . reemplazar DATABASE verificacion ID propietario modo
+    (37) crear -> CREATE . TABLE ID PAR_A columnas PAR_C herencia
+    (38) reemplazar -> . OR REPLACE
+    (39) reemplazar -> . empty
+    (81) empty -> .
+
+    TABLE           shift and go to state 17
+    OR              shift and go to state 18
+    DATABASE        reduce using rule 81 (empty -> .)
+
+    reemplazar                     shift and go to state 16
+    empty                          shift and go to state 19
+
+state 12
+
+    (11) insertar -> INSERT . INTO ID VALUES PAR_A lista_exp PAR_C
+
+    INTO            shift and go to state 20
+
+
+state 13
+
+    (12) actualizar -> UPDATE . ID SET exp WHERE exp
+
+    ID              shift and go to state 21
+
+
+state 14
+
+    (13) eliminar -> DELETE . FROM ID WHERE exp
+
+    FROM            shift and go to state 22
+
+
+state 15
+
+    (2) sentencias -> sentencias PTCOMA . sentencia
+    (5) sentencia -> . sentencia_ddl
+    (6) sentencia -> . sentencia_dml
+    (7) sentencia_ddl -> . crear
+    (8) sentencia_dml -> . insertar
+    (9) sentencia_dml -> . actualizar
+    (10) sentencia_dml -> . eliminar
+    (36) crear -> . CREATE reemplazar DATABASE verificacion ID propietario modo
+    (37) crear -> . CREATE TABLE ID PAR_A columnas PAR_C herencia
+    (11) insertar -> . INSERT INTO ID VALUES PAR_A lista_exp PAR_C
+    (12) actualizar -> . UPDATE ID SET exp WHERE exp
+    (13) eliminar -> . DELETE FROM ID WHERE exp
+
+    CREATE          shift and go to state 11
+    INSERT          shift and go to state 12
+    UPDATE          shift and go to state 13
+    DELETE          shift and go to state 14
+
+    sentencia                      shift and go to state 23
+    sentencia_ddl                  shift and go to state 5
+    sentencia_dml                  shift and go to state 6
+    crear                          shift and go to state 7
+    insertar                       shift and go to state 8
+    actualizar                     shift and go to state 9
+    eliminar                       shift and go to state 10
+
+state 16
+
+    (36) crear -> CREATE reemplazar . DATABASE verificacion ID propietario modo
+
+    DATABASE        shift and go to state 24
+
+
+state 17
+
+    (37) crear -> CREATE TABLE . ID PAR_A columnas PAR_C herencia
+
+    ID              shift and go to state 25
+
+
+state 18
+
+    (38) reemplazar -> OR . REPLACE
+
+    REPLACE         shift and go to state 26
+
+
+state 19
+
+    (39) reemplazar -> empty .
+
+    DATABASE        reduce using rule 39 (reemplazar -> empty .)
+
+
+state 20
+
+    (11) insertar -> INSERT INTO . ID VALUES PAR_A lista_exp PAR_C
+
+    ID              shift and go to state 27
+
+
+state 21
+
+    (12) actualizar -> UPDATE ID . SET exp WHERE exp
+
+    SET             shift and go to state 28
+
+
+state 22
+
+    (13) eliminar -> DELETE FROM . ID WHERE exp
+
+    ID              shift and go to state 29
+
+
+state 23
+
+    (2) sentencias -> sentencias PTCOMA sentencia .
+
+    PTCOMA          reduce using rule 2 (sentencias -> sentencias PTCOMA sentencia .)
+    $end            reduce using rule 2 (sentencias -> sentencias PTCOMA sentencia .)
+
+
+state 24
+
+    (36) crear -> CREATE reemplazar DATABASE . verificacion ID propietario modo
+    (40) verificacion -> . IF NOT EXISTS
+    (41) verificacion -> . empty
+    (81) empty -> .
+
+    IF              shift and go to state 31
+    ID              reduce using rule 81 (empty -> .)
+
+    verificacion                   shift and go to state 30
+    empty                          shift and go to state 32
+
+state 25
+
+    (37) crear -> CREATE TABLE ID . PAR_A columnas PAR_C herencia
+
+    PAR_A           shift and go to state 33
+
+
+state 26
+
+    (38) reemplazar -> OR REPLACE .
+
+    DATABASE        reduce using rule 38 (reemplazar -> OR REPLACE .)
+
+
+state 27
+
+    (11) insertar -> INSERT INTO ID . VALUES PAR_A lista_exp PAR_C
+
+    VALUES          shift and go to state 34
+
+
+state 28
+
+    (12) actualizar -> UPDATE ID SET . exp WHERE exp
+    (16) exp -> . exp_log
+    (17) exp -> . exp_rel
+    (18) exp -> . exp_ar
+    (19) exp -> . E
+    (20) exp_log -> . NOT E
+    (21) exp_log -> . E AND E
+    (22) exp_log -> . E OR E
+    (23) exp_rel -> . E IGUAL E
+    (24) exp_rel -> . E DESIGUAL E
+    (25) exp_rel -> . E DESIGUAL2 E
+    (26) exp_rel -> . E MAYORIGUAL E
+    (27) exp_rel -> . E MENORIGUAL E
+    (28) exp_rel -> . E MAYOR E
+    (29) exp_rel -> . E MENOR E
+    (30) exp_ar -> .
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    NOT             shift and go to state 41
+    WHERE           reduce using rule 30 (exp_ar -> .)
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    exp                            shift and go to state 36
+    exp_log                        shift and go to state 37
+    exp_rel                        shift and go to state 38
+    exp_ar                         shift and go to state 39
+    E                              shift and go to state 40
+
+state 29
+
+    (13) eliminar -> DELETE FROM ID . WHERE exp
+
+    WHERE           shift and go to state 46
+
+
+state 30
+
+    (36) crear -> CREATE reemplazar DATABASE verificacion . ID propietario modo
+
+    ID              shift and go to state 47
+
+
+state 31
+
+    (40) verificacion -> IF . NOT EXISTS
+
+    NOT             shift and go to state 48
+
+
+state 32
+
+    (41) verificacion -> empty .
+
+    ID              reduce using rule 41 (verificacion -> empty .)
+
+
+state 33
+
+    (37) crear -> CREATE TABLE ID PAR_A . columnas PAR_C herencia
+    (52) columnas -> . columnas COMA columna
+    (53) columnas -> . columna
+    (54) columna -> . ID tipo atributocolumn
+    (55) columna -> . PRIMARY KEY PAR_A lnombres PAR_C
+    (56) columna -> . FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C
+
+    ID              shift and go to state 49
+    PRIMARY         shift and go to state 52
+    FOREIGN         shift and go to state 53
+
+    columnas                       shift and go to state 50
+    columna                        shift and go to state 51
+
+state 34
+
+    (11) insertar -> INSERT INTO ID VALUES . PAR_A lista_exp PAR_C
+
+    PAR_A           shift and go to state 54
+
+
+state 35
+
+    (35) E -> ID .
+
+    AND             reduce using rule 35 (E -> ID .)
+    OR              reduce using rule 35 (E -> ID .)
+    IGUAL           reduce using rule 35 (E -> ID .)
+    DESIGUAL        reduce using rule 35 (E -> ID .)
+    DESIGUAL2       reduce using rule 35 (E -> ID .)
+    MAYORIGUAL      reduce using rule 35 (E -> ID .)
+    MENORIGUAL      reduce using rule 35 (E -> ID .)
+    MAYOR           reduce using rule 35 (E -> ID .)
+    MENOR           reduce using rule 35 (E -> ID .)
+    WHERE           reduce using rule 35 (E -> ID .)
+    PTCOMA          reduce using rule 35 (E -> ID .)
+    $end            reduce using rule 35 (E -> ID .)
+    PAR_C           reduce using rule 35 (E -> ID .)
+    COMA            reduce using rule 35 (E -> ID .)
+
+
+state 36
+
+    (12) actualizar -> UPDATE ID SET exp . WHERE exp
+
+    WHERE           shift and go to state 55
+
+
+state 37
+
+    (16) exp -> exp_log .
+
+    WHERE           reduce using rule 16 (exp -> exp_log .)
+    PTCOMA          reduce using rule 16 (exp -> exp_log .)
+    $end            reduce using rule 16 (exp -> exp_log .)
+    PAR_C           reduce using rule 16 (exp -> exp_log .)
+    COMA            reduce using rule 16 (exp -> exp_log .)
+
+
+state 38
+
+    (17) exp -> exp_rel .
+
+    WHERE           reduce using rule 17 (exp -> exp_rel .)
+    PTCOMA          reduce using rule 17 (exp -> exp_rel .)
+    $end            reduce using rule 17 (exp -> exp_rel .)
+    PAR_C           reduce using rule 17 (exp -> exp_rel .)
+    COMA            reduce using rule 17 (exp -> exp_rel .)
+
+
+state 39
+
+    (18) exp -> exp_ar .
+
+    WHERE           reduce using rule 18 (exp -> exp_ar .)
+    PTCOMA          reduce using rule 18 (exp -> exp_ar .)
+    $end            reduce using rule 18 (exp -> exp_ar .)
+    PAR_C           reduce using rule 18 (exp -> exp_ar .)
+    COMA            reduce using rule 18 (exp -> exp_ar .)
+
+
+state 40
+
+    (19) exp -> E .
+    (21) exp_log -> E . AND E
+    (22) exp_log -> E . OR E
+    (23) exp_rel -> E . IGUAL E
+    (24) exp_rel -> E . DESIGUAL E
+    (25) exp_rel -> E . DESIGUAL2 E
+    (26) exp_rel -> E . MAYORIGUAL E
+    (27) exp_rel -> E . MENORIGUAL E
+    (28) exp_rel -> E . MAYOR E
+    (29) exp_rel -> E . MENOR E
+
+    WHERE           reduce using rule 19 (exp -> E .)
+    PTCOMA          reduce using rule 19 (exp -> E .)
+    $end            reduce using rule 19 (exp -> E .)
+    PAR_C           reduce using rule 19 (exp -> E .)
+    COMA            reduce using rule 19 (exp -> E .)
+    AND             shift and go to state 56
+    OR              shift and go to state 57
+    IGUAL           shift and go to state 58
+    DESIGUAL        shift and go to state 59
+    DESIGUAL2       shift and go to state 60
+    MAYORIGUAL      shift and go to state 61
+    MENORIGUAL      shift and go to state 62
+    MAYOR           shift and go to state 63
+    MENOR           shift and go to state 64
+
+
+state 41
+
+    (20) exp_log -> NOT . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 65
+
+state 42
+
+    (31) E -> ENTERO .
+
+    AND             reduce using rule 31 (E -> ENTERO .)
+    OR              reduce using rule 31 (E -> ENTERO .)
+    IGUAL           reduce using rule 31 (E -> ENTERO .)
+    DESIGUAL        reduce using rule 31 (E -> ENTERO .)
+    DESIGUAL2       reduce using rule 31 (E -> ENTERO .)
+    MAYORIGUAL      reduce using rule 31 (E -> ENTERO .)
+    MENORIGUAL      reduce using rule 31 (E -> ENTERO .)
+    MAYOR           reduce using rule 31 (E -> ENTERO .)
+    MENOR           reduce using rule 31 (E -> ENTERO .)
+    WHERE           reduce using rule 31 (E -> ENTERO .)
+    PTCOMA          reduce using rule 31 (E -> ENTERO .)
+    $end            reduce using rule 31 (E -> ENTERO .)
+    PAR_C           reduce using rule 31 (E -> ENTERO .)
+    COMA            reduce using rule 31 (E -> ENTERO .)
+
+
+state 43
+
+    (32) E -> DECIMAL .
+
+    AND             reduce using rule 32 (E -> DECIMAL .)
+    OR              reduce using rule 32 (E -> DECIMAL .)
+    IGUAL           reduce using rule 32 (E -> DECIMAL .)
+    DESIGUAL        reduce using rule 32 (E -> DECIMAL .)
+    DESIGUAL2       reduce using rule 32 (E -> DECIMAL .)
+    MAYORIGUAL      reduce using rule 32 (E -> DECIMAL .)
+    MENORIGUAL      reduce using rule 32 (E -> DECIMAL .)
+    MAYOR           reduce using rule 32 (E -> DECIMAL .)
+    MENOR           reduce using rule 32 (E -> DECIMAL .)
+    WHERE           reduce using rule 32 (E -> DECIMAL .)
+    PTCOMA          reduce using rule 32 (E -> DECIMAL .)
+    $end            reduce using rule 32 (E -> DECIMAL .)
+    PAR_C           reduce using rule 32 (E -> DECIMAL .)
+    COMA            reduce using rule 32 (E -> DECIMAL .)
+
+
+state 44
+
+    (33) E -> CADENA1 .
+
+    AND             reduce using rule 33 (E -> CADENA1 .)
+    OR              reduce using rule 33 (E -> CADENA1 .)
+    IGUAL           reduce using rule 33 (E -> CADENA1 .)
+    DESIGUAL        reduce using rule 33 (E -> CADENA1 .)
+    DESIGUAL2       reduce using rule 33 (E -> CADENA1 .)
+    MAYORIGUAL      reduce using rule 33 (E -> CADENA1 .)
+    MENORIGUAL      reduce using rule 33 (E -> CADENA1 .)
+    MAYOR           reduce using rule 33 (E -> CADENA1 .)
+    MENOR           reduce using rule 33 (E -> CADENA1 .)
+    WHERE           reduce using rule 33 (E -> CADENA1 .)
+    PTCOMA          reduce using rule 33 (E -> CADENA1 .)
+    $end            reduce using rule 33 (E -> CADENA1 .)
+    PAR_C           reduce using rule 33 (E -> CADENA1 .)
+    COMA            reduce using rule 33 (E -> CADENA1 .)
+
+
+state 45
+
+    (34) E -> CADENA2 .
+
+    AND             reduce using rule 34 (E -> CADENA2 .)
+    OR              reduce using rule 34 (E -> CADENA2 .)
+    IGUAL           reduce using rule 34 (E -> CADENA2 .)
+    DESIGUAL        reduce using rule 34 (E -> CADENA2 .)
+    DESIGUAL2       reduce using rule 34 (E -> CADENA2 .)
+    MAYORIGUAL      reduce using rule 34 (E -> CADENA2 .)
+    MENORIGUAL      reduce using rule 34 (E -> CADENA2 .)
+    MAYOR           reduce using rule 34 (E -> CADENA2 .)
+    MENOR           reduce using rule 34 (E -> CADENA2 .)
+    WHERE           reduce using rule 34 (E -> CADENA2 .)
+    PTCOMA          reduce using rule 34 (E -> CADENA2 .)
+    $end            reduce using rule 34 (E -> CADENA2 .)
+    PAR_C           reduce using rule 34 (E -> CADENA2 .)
+    COMA            reduce using rule 34 (E -> CADENA2 .)
+
+
+state 46
+
+    (13) eliminar -> DELETE FROM ID WHERE . exp
+    (16) exp -> . exp_log
+    (17) exp -> . exp_rel
+    (18) exp -> . exp_ar
+    (19) exp -> . E
+    (20) exp_log -> . NOT E
+    (21) exp_log -> . E AND E
+    (22) exp_log -> . E OR E
+    (23) exp_rel -> . E IGUAL E
+    (24) exp_rel -> . E DESIGUAL E
+    (25) exp_rel -> . E DESIGUAL2 E
+    (26) exp_rel -> . E MAYORIGUAL E
+    (27) exp_rel -> . E MENORIGUAL E
+    (28) exp_rel -> . E MAYOR E
+    (29) exp_rel -> . E MENOR E
+    (30) exp_ar -> .
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    NOT             shift and go to state 41
+    PTCOMA          reduce using rule 30 (exp_ar -> .)
+    $end            reduce using rule 30 (exp_ar -> .)
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    exp                            shift and go to state 66
+    exp_log                        shift and go to state 37
+    exp_rel                        shift and go to state 38
+    exp_ar                         shift and go to state 39
+    E                              shift and go to state 40
+
+state 47
+
+    (36) crear -> CREATE reemplazar DATABASE verificacion ID . propietario modo
+    (42) propietario -> . OWNER valorowner
+    (43) propietario -> . empty
+    (81) empty -> .
+
+    OWNER           shift and go to state 68
+    MODE            reduce using rule 81 (empty -> .)
+    PTCOMA          reduce using rule 81 (empty -> .)
+    $end            reduce using rule 81 (empty -> .)
+
+    propietario                    shift and go to state 67
+    empty                          shift and go to state 69
+
+state 48
+
+    (40) verificacion -> IF NOT . EXISTS
+
+    EXISTS          shift and go to state 70
+
+
+state 49
+
+    (54) columna -> ID . tipo atributocolumn
+    (57) tipo -> . smallint
+    (58) tipo -> . integer
+    (59) tipo -> . bigint
+    (60) tipo -> . decimal
+    (61) tipo -> . numeric
+    (62) tipo -> . real
+    (63) tipo -> . double precision
+    (64) tipo -> . money
+
+    smallint        shift and go to state 72
+    integer         shift and go to state 73
+    bigint          shift and go to state 74
+    decimal         shift and go to state 75
+    numeric         shift and go to state 76
+    real            shift and go to state 77
+    double          shift and go to state 78
+    money           shift and go to state 79
+
+    tipo                           shift and go to state 71
+
+state 50
+
+    (37) crear -> CREATE TABLE ID PAR_A columnas . PAR_C herencia
+    (52) columnas -> columnas . COMA columna
+
+    PAR_C           shift and go to state 80
+    COMA            shift and go to state 81
+
+
+state 51
+
+    (53) columnas -> columna .
+
+    PAR_C           reduce using rule 53 (columnas -> columna .)
+    COMA            reduce using rule 53 (columnas -> columna .)
+
+
+state 52
+
+    (55) columna -> PRIMARY . KEY PAR_A lnombres PAR_C
+
+    KEY             shift and go to state 82
+
+
+state 53
+
+    (56) columna -> FOREIGN . KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C
+
+    KEY             shift and go to state 83
+
+
+state 54
+
+    (11) insertar -> INSERT INTO ID VALUES PAR_A . lista_exp PAR_C
+    (14) lista_exp -> . lista_exp COMA exp
+    (15) lista_exp -> . exp
+    (16) exp -> . exp_log
+    (17) exp -> . exp_rel
+    (18) exp -> . exp_ar
+    (19) exp -> . E
+    (20) exp_log -> . NOT E
+    (21) exp_log -> . E AND E
+    (22) exp_log -> . E OR E
+    (23) exp_rel -> . E IGUAL E
+    (24) exp_rel -> . E DESIGUAL E
+    (25) exp_rel -> . E DESIGUAL2 E
+    (26) exp_rel -> . E MAYORIGUAL E
+    (27) exp_rel -> . E MENORIGUAL E
+    (28) exp_rel -> . E MAYOR E
+    (29) exp_rel -> . E MENOR E
+    (30) exp_ar -> .
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    NOT             shift and go to state 41
+    PAR_C           reduce using rule 30 (exp_ar -> .)
+    COMA            reduce using rule 30 (exp_ar -> .)
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    lista_exp                      shift and go to state 84
+    exp                            shift and go to state 85
+    exp_log                        shift and go to state 37
+    exp_rel                        shift and go to state 38
+    exp_ar                         shift and go to state 39
+    E                              shift and go to state 40
+
+state 55
+
+    (12) actualizar -> UPDATE ID SET exp WHERE . exp
+    (16) exp -> . exp_log
+    (17) exp -> . exp_rel
+    (18) exp -> . exp_ar
+    (19) exp -> . E
+    (20) exp_log -> . NOT E
+    (21) exp_log -> . E AND E
+    (22) exp_log -> . E OR E
+    (23) exp_rel -> . E IGUAL E
+    (24) exp_rel -> . E DESIGUAL E
+    (25) exp_rel -> . E DESIGUAL2 E
+    (26) exp_rel -> . E MAYORIGUAL E
+    (27) exp_rel -> . E MENORIGUAL E
+    (28) exp_rel -> . E MAYOR E
+    (29) exp_rel -> . E MENOR E
+    (30) exp_ar -> .
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    NOT             shift and go to state 41
+    PTCOMA          reduce using rule 30 (exp_ar -> .)
+    $end            reduce using rule 30 (exp_ar -> .)
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    exp                            shift and go to state 86
+    exp_log                        shift and go to state 37
+    exp_rel                        shift and go to state 38
+    exp_ar                         shift and go to state 39
+    E                              shift and go to state 40
+
+state 56
+
+    (21) exp_log -> E AND . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 87
+
+state 57
+
+    (22) exp_log -> E OR . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 88
+
+state 58
+
+    (23) exp_rel -> E IGUAL . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 89
+
+state 59
+
+    (24) exp_rel -> E DESIGUAL . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 90
+
+state 60
+
+    (25) exp_rel -> E DESIGUAL2 . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 91
+
+state 61
+
+    (26) exp_rel -> E MAYORIGUAL . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 92
+
+state 62
+
+    (27) exp_rel -> E MENORIGUAL . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 93
+
+state 63
+
+    (28) exp_rel -> E MAYOR . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 94
+
+state 64
+
+    (29) exp_rel -> E MENOR . E
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    E                              shift and go to state 95
+
+state 65
+
+    (20) exp_log -> NOT E .
+
+    WHERE           reduce using rule 20 (exp_log -> NOT E .)
+    PTCOMA          reduce using rule 20 (exp_log -> NOT E .)
+    $end            reduce using rule 20 (exp_log -> NOT E .)
+    PAR_C           reduce using rule 20 (exp_log -> NOT E .)
+    COMA            reduce using rule 20 (exp_log -> NOT E .)
+
+
+state 66
+
+    (13) eliminar -> DELETE FROM ID WHERE exp .
+
+    PTCOMA          reduce using rule 13 (eliminar -> DELETE FROM ID WHERE exp .)
+    $end            reduce using rule 13 (eliminar -> DELETE FROM ID WHERE exp .)
+
+
+state 67
+
+    (36) crear -> CREATE reemplazar DATABASE verificacion ID propietario . modo
+    (46) modo -> . MODE valormodo
+    (47) modo -> . empty
+    (81) empty -> .
+
+    MODE            shift and go to state 97
+    PTCOMA          reduce using rule 81 (empty -> .)
+    $end            reduce using rule 81 (empty -> .)
+
+    modo                           shift and go to state 96
+    empty                          shift and go to state 98
+
+state 68
+
+    (42) propietario -> OWNER . valorowner
+    (44) valorowner -> . ID
+    (45) valorowner -> . IGUAL ID
+
+    ID              shift and go to state 100
+    IGUAL           shift and go to state 101
+
+    valorowner                     shift and go to state 99
+
+state 69
+
+    (43) propietario -> empty .
+
+    MODE            reduce using rule 43 (propietario -> empty .)
+    PTCOMA          reduce using rule 43 (propietario -> empty .)
+    $end            reduce using rule 43 (propietario -> empty .)
+
+
+state 70
+
+    (40) verificacion -> IF NOT EXISTS .
+
+    ID              reduce using rule 40 (verificacion -> IF NOT EXISTS .)
+
+
+state 71
+
+    (54) columna -> ID tipo . atributocolumn
+    (65) atributocolumn -> . atributocolumn atributo
+    (66) atributocolumn -> . atributo
+    (67) atributo -> . DEFAULT valoresdefault
+    (68) atributo -> . CONSTRAINT ID
+    (69) atributo -> . NOT
+    (70) atributo -> . NULL
+    (71) atributo -> . UNIQUE
+    (72) atributo -> . PRIMARY KEY
+    (73) atributo -> . empty
+    (81) empty -> .
+
+  ! shift/reduce conflict for DEFAULT resolved as shift
+  ! shift/reduce conflict for CONSTRAINT resolved as shift
+  ! shift/reduce conflict for NOT resolved as shift
+  ! shift/reduce conflict for NULL resolved as shift
+  ! shift/reduce conflict for UNIQUE resolved as shift
+  ! shift/reduce conflict for PRIMARY resolved as shift
+    DEFAULT         shift and go to state 104
+    CONSTRAINT      shift and go to state 105
+    NOT             shift and go to state 106
+    NULL            shift and go to state 107
+    UNIQUE          shift and go to state 108
+    PRIMARY         shift and go to state 109
+    PAR_C           reduce using rule 81 (empty -> .)
+    COMA            reduce using rule 81 (empty -> .)
+
+  ! DEFAULT         [ reduce using rule 81 (empty -> .) ]
+  ! CONSTRAINT      [ reduce using rule 81 (empty -> .) ]
+  ! NOT             [ reduce using rule 81 (empty -> .) ]
+  ! NULL            [ reduce using rule 81 (empty -> .) ]
+  ! UNIQUE          [ reduce using rule 81 (empty -> .) ]
+  ! PRIMARY         [ reduce using rule 81 (empty -> .) ]
+
+    atributocolumn                 shift and go to state 102
+    atributo                       shift and go to state 103
+    empty                          shift and go to state 110
+
+state 72
+
+    (57) tipo -> smallint .
+
+    DEFAULT         reduce using rule 57 (tipo -> smallint .)
+    CONSTRAINT      reduce using rule 57 (tipo -> smallint .)
+    NOT             reduce using rule 57 (tipo -> smallint .)
+    NULL            reduce using rule 57 (tipo -> smallint .)
+    UNIQUE          reduce using rule 57 (tipo -> smallint .)
+    PRIMARY         reduce using rule 57 (tipo -> smallint .)
+    PAR_C           reduce using rule 57 (tipo -> smallint .)
+    COMA            reduce using rule 57 (tipo -> smallint .)
+
+
+state 73
+
+    (58) tipo -> integer .
+
+    DEFAULT         reduce using rule 58 (tipo -> integer .)
+    CONSTRAINT      reduce using rule 58 (tipo -> integer .)
+    NOT             reduce using rule 58 (tipo -> integer .)
+    NULL            reduce using rule 58 (tipo -> integer .)
+    UNIQUE          reduce using rule 58 (tipo -> integer .)
+    PRIMARY         reduce using rule 58 (tipo -> integer .)
+    PAR_C           reduce using rule 58 (tipo -> integer .)
+    COMA            reduce using rule 58 (tipo -> integer .)
+
+
+state 74
+
+    (59) tipo -> bigint .
+
+    DEFAULT         reduce using rule 59 (tipo -> bigint .)
+    CONSTRAINT      reduce using rule 59 (tipo -> bigint .)
+    NOT             reduce using rule 59 (tipo -> bigint .)
+    NULL            reduce using rule 59 (tipo -> bigint .)
+    UNIQUE          reduce using rule 59 (tipo -> bigint .)
+    PRIMARY         reduce using rule 59 (tipo -> bigint .)
+    PAR_C           reduce using rule 59 (tipo -> bigint .)
+    COMA            reduce using rule 59 (tipo -> bigint .)
+
+
+state 75
+
+    (60) tipo -> decimal .
+
+    DEFAULT         reduce using rule 60 (tipo -> decimal .)
+    CONSTRAINT      reduce using rule 60 (tipo -> decimal .)
+    NOT             reduce using rule 60 (tipo -> decimal .)
+    NULL            reduce using rule 60 (tipo -> decimal .)
+    UNIQUE          reduce using rule 60 (tipo -> decimal .)
+    PRIMARY         reduce using rule 60 (tipo -> decimal .)
+    PAR_C           reduce using rule 60 (tipo -> decimal .)
+    COMA            reduce using rule 60 (tipo -> decimal .)
+
+
+state 76
+
+    (61) tipo -> numeric .
+
+    DEFAULT         reduce using rule 61 (tipo -> numeric .)
+    CONSTRAINT      reduce using rule 61 (tipo -> numeric .)
+    NOT             reduce using rule 61 (tipo -> numeric .)
+    NULL            reduce using rule 61 (tipo -> numeric .)
+    UNIQUE          reduce using rule 61 (tipo -> numeric .)
+    PRIMARY         reduce using rule 61 (tipo -> numeric .)
+    PAR_C           reduce using rule 61 (tipo -> numeric .)
+    COMA            reduce using rule 61 (tipo -> numeric .)
+
+
+state 77
+
+    (62) tipo -> real .
+
+    DEFAULT         reduce using rule 62 (tipo -> real .)
+    CONSTRAINT      reduce using rule 62 (tipo -> real .)
+    NOT             reduce using rule 62 (tipo -> real .)
+    NULL            reduce using rule 62 (tipo -> real .)
+    UNIQUE          reduce using rule 62 (tipo -> real .)
+    PRIMARY         reduce using rule 62 (tipo -> real .)
+    PAR_C           reduce using rule 62 (tipo -> real .)
+    COMA            reduce using rule 62 (tipo -> real .)
+
+
+state 78
+
+    (63) tipo -> double . precision
+
+    precision       shift and go to state 111
+
+
+state 79
+
+    (64) tipo -> money .
+
+    DEFAULT         reduce using rule 64 (tipo -> money .)
+    CONSTRAINT      reduce using rule 64 (tipo -> money .)
+    NOT             reduce using rule 64 (tipo -> money .)
+    NULL            reduce using rule 64 (tipo -> money .)
+    UNIQUE          reduce using rule 64 (tipo -> money .)
+    PRIMARY         reduce using rule 64 (tipo -> money .)
+    PAR_C           reduce using rule 64 (tipo -> money .)
+    COMA            reduce using rule 64 (tipo -> money .)
+
+
+state 80
+
+    (37) crear -> CREATE TABLE ID PAR_A columnas PAR_C . herencia
+    (50) herencia -> . INHERITS PAR_A ID PAR_C
+    (51) herencia -> . empty
+    (81) empty -> .
+
+    INHERITS        shift and go to state 113
+    PTCOMA          reduce using rule 81 (empty -> .)
+    $end            reduce using rule 81 (empty -> .)
+
+    herencia                       shift and go to state 112
+    empty                          shift and go to state 114
+
+state 81
+
+    (52) columnas -> columnas COMA . columna
+    (54) columna -> . ID tipo atributocolumn
+    (55) columna -> . PRIMARY KEY PAR_A lnombres PAR_C
+    (56) columna -> . FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C
+
+    ID              shift and go to state 49
+    PRIMARY         shift and go to state 52
+    FOREIGN         shift and go to state 53
+
+    columna                        shift and go to state 115
+
+state 82
+
+    (55) columna -> PRIMARY KEY . PAR_A lnombres PAR_C
+
+    PAR_A           shift and go to state 116
+
+
+state 83
+
+    (56) columna -> FOREIGN KEY . PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C
+
+    PAR_A           shift and go to state 117
+
+
+state 84
+
+    (11) insertar -> INSERT INTO ID VALUES PAR_A lista_exp . PAR_C
+    (14) lista_exp -> lista_exp . COMA exp
+
+    PAR_C           shift and go to state 118
+    COMA            shift and go to state 119
+
+
+state 85
+
+    (15) lista_exp -> exp .
+
+    PAR_C           reduce using rule 15 (lista_exp -> exp .)
+    COMA            reduce using rule 15 (lista_exp -> exp .)
+
+
+state 86
+
+    (12) actualizar -> UPDATE ID SET exp WHERE exp .
+
+    PTCOMA          reduce using rule 12 (actualizar -> UPDATE ID SET exp WHERE exp .)
+    $end            reduce using rule 12 (actualizar -> UPDATE ID SET exp WHERE exp .)
+
+
+state 87
+
+    (21) exp_log -> E AND E .
+
+    WHERE           reduce using rule 21 (exp_log -> E AND E .)
+    PTCOMA          reduce using rule 21 (exp_log -> E AND E .)
+    $end            reduce using rule 21 (exp_log -> E AND E .)
+    PAR_C           reduce using rule 21 (exp_log -> E AND E .)
+    COMA            reduce using rule 21 (exp_log -> E AND E .)
+
+
+state 88
+
+    (22) exp_log -> E OR E .
+
+    WHERE           reduce using rule 22 (exp_log -> E OR E .)
+    PTCOMA          reduce using rule 22 (exp_log -> E OR E .)
+    $end            reduce using rule 22 (exp_log -> E OR E .)
+    PAR_C           reduce using rule 22 (exp_log -> E OR E .)
+    COMA            reduce using rule 22 (exp_log -> E OR E .)
+
+
+state 89
+
+    (23) exp_rel -> E IGUAL E .
+
+    WHERE           reduce using rule 23 (exp_rel -> E IGUAL E .)
+    PTCOMA          reduce using rule 23 (exp_rel -> E IGUAL E .)
+    $end            reduce using rule 23 (exp_rel -> E IGUAL E .)
+    PAR_C           reduce using rule 23 (exp_rel -> E IGUAL E .)
+    COMA            reduce using rule 23 (exp_rel -> E IGUAL E .)
+
+
+state 90
+
+    (24) exp_rel -> E DESIGUAL E .
+
+    WHERE           reduce using rule 24 (exp_rel -> E DESIGUAL E .)
+    PTCOMA          reduce using rule 24 (exp_rel -> E DESIGUAL E .)
+    $end            reduce using rule 24 (exp_rel -> E DESIGUAL E .)
+    PAR_C           reduce using rule 24 (exp_rel -> E DESIGUAL E .)
+    COMA            reduce using rule 24 (exp_rel -> E DESIGUAL E .)
+
+
+state 91
+
+    (25) exp_rel -> E DESIGUAL2 E .
+
+    WHERE           reduce using rule 25 (exp_rel -> E DESIGUAL2 E .)
+    PTCOMA          reduce using rule 25 (exp_rel -> E DESIGUAL2 E .)
+    $end            reduce using rule 25 (exp_rel -> E DESIGUAL2 E .)
+    PAR_C           reduce using rule 25 (exp_rel -> E DESIGUAL2 E .)
+    COMA            reduce using rule 25 (exp_rel -> E DESIGUAL2 E .)
+
+
+state 92
+
+    (26) exp_rel -> E MAYORIGUAL E .
+
+    WHERE           reduce using rule 26 (exp_rel -> E MAYORIGUAL E .)
+    PTCOMA          reduce using rule 26 (exp_rel -> E MAYORIGUAL E .)
+    $end            reduce using rule 26 (exp_rel -> E MAYORIGUAL E .)
+    PAR_C           reduce using rule 26 (exp_rel -> E MAYORIGUAL E .)
+    COMA            reduce using rule 26 (exp_rel -> E MAYORIGUAL E .)
+
+
+state 93
+
+    (27) exp_rel -> E MENORIGUAL E .
+
+    WHERE           reduce using rule 27 (exp_rel -> E MENORIGUAL E .)
+    PTCOMA          reduce using rule 27 (exp_rel -> E MENORIGUAL E .)
+    $end            reduce using rule 27 (exp_rel -> E MENORIGUAL E .)
+    PAR_C           reduce using rule 27 (exp_rel -> E MENORIGUAL E .)
+    COMA            reduce using rule 27 (exp_rel -> E MENORIGUAL E .)
+
+
+state 94
+
+    (28) exp_rel -> E MAYOR E .
+
+    WHERE           reduce using rule 28 (exp_rel -> E MAYOR E .)
+    PTCOMA          reduce using rule 28 (exp_rel -> E MAYOR E .)
+    $end            reduce using rule 28 (exp_rel -> E MAYOR E .)
+    PAR_C           reduce using rule 28 (exp_rel -> E MAYOR E .)
+    COMA            reduce using rule 28 (exp_rel -> E MAYOR E .)
+
+
+state 95
+
+    (29) exp_rel -> E MENOR E .
+
+    WHERE           reduce using rule 29 (exp_rel -> E MENOR E .)
+    PTCOMA          reduce using rule 29 (exp_rel -> E MENOR E .)
+    $end            reduce using rule 29 (exp_rel -> E MENOR E .)
+    PAR_C           reduce using rule 29 (exp_rel -> E MENOR E .)
+    COMA            reduce using rule 29 (exp_rel -> E MENOR E .)
+
+
+state 96
+
+    (36) crear -> CREATE reemplazar DATABASE verificacion ID propietario modo .
+
+    PTCOMA          reduce using rule 36 (crear -> CREATE reemplazar DATABASE verificacion ID propietario modo .)
+    $end            reduce using rule 36 (crear -> CREATE reemplazar DATABASE verificacion ID propietario modo .)
+
+
+state 97
+
+    (46) modo -> MODE . valormodo
+    (48) valormodo -> . ENTERO
+    (49) valormodo -> . IGUAL ENTERO
+
+    ENTERO          shift and go to state 121
+    IGUAL           shift and go to state 122
+
+    valormodo                      shift and go to state 120
+
+state 98
+
+    (47) modo -> empty .
+
+    PTCOMA          reduce using rule 47 (modo -> empty .)
+    $end            reduce using rule 47 (modo -> empty .)
+
+
+state 99
+
+    (42) propietario -> OWNER valorowner .
+
+    MODE            reduce using rule 42 (propietario -> OWNER valorowner .)
+    PTCOMA          reduce using rule 42 (propietario -> OWNER valorowner .)
+    $end            reduce using rule 42 (propietario -> OWNER valorowner .)
+
+
+state 100
+
+    (44) valorowner -> ID .
+
+    MODE            reduce using rule 44 (valorowner -> ID .)
+    PTCOMA          reduce using rule 44 (valorowner -> ID .)
+    $end            reduce using rule 44 (valorowner -> ID .)
+
+
+state 101
+
+    (45) valorowner -> IGUAL . ID
+
+    ID              shift and go to state 123
+
+
+state 102
+
+    (54) columna -> ID tipo atributocolumn .
+    (65) atributocolumn -> atributocolumn . atributo
+    (67) atributo -> . DEFAULT valoresdefault
+    (68) atributo -> . CONSTRAINT ID
+    (69) atributo -> . NOT
+    (70) atributo -> . NULL
+    (71) atributo -> . UNIQUE
+    (72) atributo -> . PRIMARY KEY
+    (73) atributo -> . empty
+    (81) empty -> .
+
+  ! shift/reduce conflict for DEFAULT resolved as shift
+  ! shift/reduce conflict for CONSTRAINT resolved as shift
+  ! shift/reduce conflict for NOT resolved as shift
+  ! shift/reduce conflict for NULL resolved as shift
+  ! shift/reduce conflict for UNIQUE resolved as shift
+  ! shift/reduce conflict for PRIMARY resolved as shift
+  ! reduce/reduce conflict for PAR_C resolved using rule 54 (columna -> ID tipo atributocolumn .)
+  ! reduce/reduce conflict for COMA resolved using rule 54 (columna -> ID tipo atributocolumn .)
+    PAR_C           reduce using rule 54 (columna -> ID tipo atributocolumn .)
+    COMA            reduce using rule 54 (columna -> ID tipo atributocolumn .)
+    DEFAULT         shift and go to state 104
+    CONSTRAINT      shift and go to state 105
+    NOT             shift and go to state 106
+    NULL            shift and go to state 107
+    UNIQUE          shift and go to state 108
+    PRIMARY         shift and go to state 109
+
+  ! DEFAULT         [ reduce using rule 81 (empty -> .) ]
+  ! CONSTRAINT      [ reduce using rule 81 (empty -> .) ]
+  ! NOT             [ reduce using rule 81 (empty -> .) ]
+  ! NULL            [ reduce using rule 81 (empty -> .) ]
+  ! UNIQUE          [ reduce using rule 81 (empty -> .) ]
+  ! PRIMARY         [ reduce using rule 81 (empty -> .) ]
+  ! PAR_C           [ reduce using rule 81 (empty -> .) ]
+  ! COMA            [ reduce using rule 81 (empty -> .) ]
+
+    atributo                       shift and go to state 124
+    empty                          shift and go to state 110
+
+state 103
+
+    (66) atributocolumn -> atributo .
+
+    DEFAULT         reduce using rule 66 (atributocolumn -> atributo .)
+    CONSTRAINT      reduce using rule 66 (atributocolumn -> atributo .)
+    NOT             reduce using rule 66 (atributocolumn -> atributo .)
+    NULL            reduce using rule 66 (atributocolumn -> atributo .)
+    UNIQUE          reduce using rule 66 (atributocolumn -> atributo .)
+    PRIMARY         reduce using rule 66 (atributocolumn -> atributo .)
+    PAR_C           reduce using rule 66 (atributocolumn -> atributo .)
+    COMA            reduce using rule 66 (atributocolumn -> atributo .)
+
+
+state 104
+
+    (67) atributo -> DEFAULT . valoresdefault
+    (74) valoresdefault -> . CADENA1
+    (75) valoresdefault -> . CADENA2
+    (76) valoresdefault -> . DECIMAL
+    (77) valoresdefault -> . ENTERO
+    (78) valoresdefault -> . BOOLEAN
+
+    CADENA1         shift and go to state 126
+    CADENA2         shift and go to state 127
+    DECIMAL         shift and go to state 128
+    ENTERO          shift and go to state 129
+    BOOLEAN         shift and go to state 130
+
+    valoresdefault                 shift and go to state 125
+
+state 105
+
+    (68) atributo -> CONSTRAINT . ID
+
+    ID              shift and go to state 131
+
+
+state 106
+
+    (69) atributo -> NOT .
+
+    DEFAULT         reduce using rule 69 (atributo -> NOT .)
+    CONSTRAINT      reduce using rule 69 (atributo -> NOT .)
+    NOT             reduce using rule 69 (atributo -> NOT .)
+    NULL            reduce using rule 69 (atributo -> NOT .)
+    UNIQUE          reduce using rule 69 (atributo -> NOT .)
+    PRIMARY         reduce using rule 69 (atributo -> NOT .)
+    PAR_C           reduce using rule 69 (atributo -> NOT .)
+    COMA            reduce using rule 69 (atributo -> NOT .)
+
+
+state 107
+
+    (70) atributo -> NULL .
+
+    DEFAULT         reduce using rule 70 (atributo -> NULL .)
+    CONSTRAINT      reduce using rule 70 (atributo -> NULL .)
+    NOT             reduce using rule 70 (atributo -> NULL .)
+    NULL            reduce using rule 70 (atributo -> NULL .)
+    UNIQUE          reduce using rule 70 (atributo -> NULL .)
+    PRIMARY         reduce using rule 70 (atributo -> NULL .)
+    PAR_C           reduce using rule 70 (atributo -> NULL .)
+    COMA            reduce using rule 70 (atributo -> NULL .)
+
+
+state 108
+
+    (71) atributo -> UNIQUE .
+
+    DEFAULT         reduce using rule 71 (atributo -> UNIQUE .)
+    CONSTRAINT      reduce using rule 71 (atributo -> UNIQUE .)
+    NOT             reduce using rule 71 (atributo -> UNIQUE .)
+    NULL            reduce using rule 71 (atributo -> UNIQUE .)
+    UNIQUE          reduce using rule 71 (atributo -> UNIQUE .)
+    PRIMARY         reduce using rule 71 (atributo -> UNIQUE .)
+    PAR_C           reduce using rule 71 (atributo -> UNIQUE .)
+    COMA            reduce using rule 71 (atributo -> UNIQUE .)
+
+
+state 109
+
+    (72) atributo -> PRIMARY . KEY
+
+    KEY             shift and go to state 132
+
+
+state 110
+
+    (73) atributo -> empty .
+
+    DEFAULT         reduce using rule 73 (atributo -> empty .)
+    CONSTRAINT      reduce using rule 73 (atributo -> empty .)
+    NOT             reduce using rule 73 (atributo -> empty .)
+    NULL            reduce using rule 73 (atributo -> empty .)
+    UNIQUE          reduce using rule 73 (atributo -> empty .)
+    PRIMARY         reduce using rule 73 (atributo -> empty .)
+    PAR_C           reduce using rule 73 (atributo -> empty .)
+    COMA            reduce using rule 73 (atributo -> empty .)
+
+
+state 111
+
+    (63) tipo -> double precision .
+
+    DEFAULT         reduce using rule 63 (tipo -> double precision .)
+    CONSTRAINT      reduce using rule 63 (tipo -> double precision .)
+    NOT             reduce using rule 63 (tipo -> double precision .)
+    NULL            reduce using rule 63 (tipo -> double precision .)
+    UNIQUE          reduce using rule 63 (tipo -> double precision .)
+    PRIMARY         reduce using rule 63 (tipo -> double precision .)
+    PAR_C           reduce using rule 63 (tipo -> double precision .)
+    COMA            reduce using rule 63 (tipo -> double precision .)
+
+
+state 112
+
+    (37) crear -> CREATE TABLE ID PAR_A columnas PAR_C herencia .
+
+    PTCOMA          reduce using rule 37 (crear -> CREATE TABLE ID PAR_A columnas PAR_C herencia .)
+    $end            reduce using rule 37 (crear -> CREATE TABLE ID PAR_A columnas PAR_C herencia .)
+
+
+state 113
+
+    (50) herencia -> INHERITS . PAR_A ID PAR_C
+
+    PAR_A           shift and go to state 133
+
+
+state 114
+
+    (51) herencia -> empty .
+
+    PTCOMA          reduce using rule 51 (herencia -> empty .)
+    $end            reduce using rule 51 (herencia -> empty .)
+
+
+state 115
+
+    (52) columnas -> columnas COMA columna .
+
+    PAR_C           reduce using rule 52 (columnas -> columnas COMA columna .)
+    COMA            reduce using rule 52 (columnas -> columnas COMA columna .)
+
+
+state 116
+
+    (55) columna -> PRIMARY KEY PAR_A . lnombres PAR_C
+    (79) lnombres -> . lnombres COMA ID
+    (80) lnombres -> . ID
+
+    ID              shift and go to state 135
+
+    lnombres                       shift and go to state 134
+
+state 117
+
+    (56) columna -> FOREIGN KEY PAR_A . lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C
+    (79) lnombres -> . lnombres COMA ID
+    (80) lnombres -> . ID
+
+    ID              shift and go to state 135
+
+    lnombres                       shift and go to state 136
+
+state 118
+
+    (11) insertar -> INSERT INTO ID VALUES PAR_A lista_exp PAR_C .
+
+    PTCOMA          reduce using rule 11 (insertar -> INSERT INTO ID VALUES PAR_A lista_exp PAR_C .)
+    $end            reduce using rule 11 (insertar -> INSERT INTO ID VALUES PAR_A lista_exp PAR_C .)
+
+
+state 119
+
+    (14) lista_exp -> lista_exp COMA . exp
+    (16) exp -> . exp_log
+    (17) exp -> . exp_rel
+    (18) exp -> . exp_ar
+    (19) exp -> . E
+    (20) exp_log -> . NOT E
+    (21) exp_log -> . E AND E
+    (22) exp_log -> . E OR E
+    (23) exp_rel -> . E IGUAL E
+    (24) exp_rel -> . E DESIGUAL E
+    (25) exp_rel -> . E DESIGUAL2 E
+    (26) exp_rel -> . E MAYORIGUAL E
+    (27) exp_rel -> . E MENORIGUAL E
+    (28) exp_rel -> . E MAYOR E
+    (29) exp_rel -> . E MENOR E
+    (30) exp_ar -> .
+    (31) E -> . ENTERO
+    (32) E -> . DECIMAL
+    (33) E -> . CADENA1
+    (34) E -> . CADENA2
+    (35) E -> . ID
+
+    NOT             shift and go to state 41
+    PAR_C           reduce using rule 30 (exp_ar -> .)
+    COMA            reduce using rule 30 (exp_ar -> .)
+    ENTERO          shift and go to state 42
+    DECIMAL         shift and go to state 43
+    CADENA1         shift and go to state 44
+    CADENA2         shift and go to state 45
+    ID              shift and go to state 35
+
+    exp                            shift and go to state 137
+    exp_log                        shift and go to state 37
+    exp_rel                        shift and go to state 38
+    exp_ar                         shift and go to state 39
+    E                              shift and go to state 40
+
+state 120
+
+    (46) modo -> MODE valormodo .
+
+    PTCOMA          reduce using rule 46 (modo -> MODE valormodo .)
+    $end            reduce using rule 46 (modo -> MODE valormodo .)
+
+
+state 121
+
+    (48) valormodo -> ENTERO .
+
+    PTCOMA          reduce using rule 48 (valormodo -> ENTERO .)
+    $end            reduce using rule 48 (valormodo -> ENTERO .)
+
+
+state 122
+
+    (49) valormodo -> IGUAL . ENTERO
+
+    ENTERO          shift and go to state 138
+
+
+state 123
+
+    (45) valorowner -> IGUAL ID .
+
+    MODE            reduce using rule 45 (valorowner -> IGUAL ID .)
+    PTCOMA          reduce using rule 45 (valorowner -> IGUAL ID .)
+    $end            reduce using rule 45 (valorowner -> IGUAL ID .)
+
+
+state 124
+
+    (65) atributocolumn -> atributocolumn atributo .
+
+    DEFAULT         reduce using rule 65 (atributocolumn -> atributocolumn atributo .)
+    CONSTRAINT      reduce using rule 65 (atributocolumn -> atributocolumn atributo .)
+    NOT             reduce using rule 65 (atributocolumn -> atributocolumn atributo .)
+    NULL            reduce using rule 65 (atributocolumn -> atributocolumn atributo .)
+    UNIQUE          reduce using rule 65 (atributocolumn -> atributocolumn atributo .)
+    PRIMARY         reduce using rule 65 (atributocolumn -> atributocolumn atributo .)
+    PAR_C           reduce using rule 65 (atributocolumn -> atributocolumn atributo .)
+    COMA            reduce using rule 65 (atributocolumn -> atributocolumn atributo .)
+
+
+state 125
+
+    (67) atributo -> DEFAULT valoresdefault .
+
+    DEFAULT         reduce using rule 67 (atributo -> DEFAULT valoresdefault .)
+    CONSTRAINT      reduce using rule 67 (atributo -> DEFAULT valoresdefault .)
+    NOT             reduce using rule 67 (atributo -> DEFAULT valoresdefault .)
+    NULL            reduce using rule 67 (atributo -> DEFAULT valoresdefault .)
+    UNIQUE          reduce using rule 67 (atributo -> DEFAULT valoresdefault .)
+    PRIMARY         reduce using rule 67 (atributo -> DEFAULT valoresdefault .)
+    PAR_C           reduce using rule 67 (atributo -> DEFAULT valoresdefault .)
+    COMA            reduce using rule 67 (atributo -> DEFAULT valoresdefault .)
+
+
+state 126
+
+    (74) valoresdefault -> CADENA1 .
+
+    DEFAULT         reduce using rule 74 (valoresdefault -> CADENA1 .)
+    CONSTRAINT      reduce using rule 74 (valoresdefault -> CADENA1 .)
+    NOT             reduce using rule 74 (valoresdefault -> CADENA1 .)
+    NULL            reduce using rule 74 (valoresdefault -> CADENA1 .)
+    UNIQUE          reduce using rule 74 (valoresdefault -> CADENA1 .)
+    PRIMARY         reduce using rule 74 (valoresdefault -> CADENA1 .)
+    PAR_C           reduce using rule 74 (valoresdefault -> CADENA1 .)
+    COMA            reduce using rule 74 (valoresdefault -> CADENA1 .)
+
+
+state 127
+
+    (75) valoresdefault -> CADENA2 .
+
+    DEFAULT         reduce using rule 75 (valoresdefault -> CADENA2 .)
+    CONSTRAINT      reduce using rule 75 (valoresdefault -> CADENA2 .)
+    NOT             reduce using rule 75 (valoresdefault -> CADENA2 .)
+    NULL            reduce using rule 75 (valoresdefault -> CADENA2 .)
+    UNIQUE          reduce using rule 75 (valoresdefault -> CADENA2 .)
+    PRIMARY         reduce using rule 75 (valoresdefault -> CADENA2 .)
+    PAR_C           reduce using rule 75 (valoresdefault -> CADENA2 .)
+    COMA            reduce using rule 75 (valoresdefault -> CADENA2 .)
+
+
+state 128
+
+    (76) valoresdefault -> DECIMAL .
+
+    DEFAULT         reduce using rule 76 (valoresdefault -> DECIMAL .)
+    CONSTRAINT      reduce using rule 76 (valoresdefault -> DECIMAL .)
+    NOT             reduce using rule 76 (valoresdefault -> DECIMAL .)
+    NULL            reduce using rule 76 (valoresdefault -> DECIMAL .)
+    UNIQUE          reduce using rule 76 (valoresdefault -> DECIMAL .)
+    PRIMARY         reduce using rule 76 (valoresdefault -> DECIMAL .)
+    PAR_C           reduce using rule 76 (valoresdefault -> DECIMAL .)
+    COMA            reduce using rule 76 (valoresdefault -> DECIMAL .)
+
+
+state 129
+
+    (77) valoresdefault -> ENTERO .
+
+    DEFAULT         reduce using rule 77 (valoresdefault -> ENTERO .)
+    CONSTRAINT      reduce using rule 77 (valoresdefault -> ENTERO .)
+    NOT             reduce using rule 77 (valoresdefault -> ENTERO .)
+    NULL            reduce using rule 77 (valoresdefault -> ENTERO .)
+    UNIQUE          reduce using rule 77 (valoresdefault -> ENTERO .)
+    PRIMARY         reduce using rule 77 (valoresdefault -> ENTERO .)
+    PAR_C           reduce using rule 77 (valoresdefault -> ENTERO .)
+    COMA            reduce using rule 77 (valoresdefault -> ENTERO .)
+
+
+state 130
+
+    (78) valoresdefault -> BOOLEAN .
+
+    DEFAULT         reduce using rule 78 (valoresdefault -> BOOLEAN .)
+    CONSTRAINT      reduce using rule 78 (valoresdefault -> BOOLEAN .)
+    NOT             reduce using rule 78 (valoresdefault -> BOOLEAN .)
+    NULL            reduce using rule 78 (valoresdefault -> BOOLEAN .)
+    UNIQUE          reduce using rule 78 (valoresdefault -> BOOLEAN .)
+    PRIMARY         reduce using rule 78 (valoresdefault -> BOOLEAN .)
+    PAR_C           reduce using rule 78 (valoresdefault -> BOOLEAN .)
+    COMA            reduce using rule 78 (valoresdefault -> BOOLEAN .)
+
+
+state 131
+
+    (68) atributo -> CONSTRAINT ID .
+
+    DEFAULT         reduce using rule 68 (atributo -> CONSTRAINT ID .)
+    CONSTRAINT      reduce using rule 68 (atributo -> CONSTRAINT ID .)
+    NOT             reduce using rule 68 (atributo -> CONSTRAINT ID .)
+    NULL            reduce using rule 68 (atributo -> CONSTRAINT ID .)
+    UNIQUE          reduce using rule 68 (atributo -> CONSTRAINT ID .)
+    PRIMARY         reduce using rule 68 (atributo -> CONSTRAINT ID .)
+    PAR_C           reduce using rule 68 (atributo -> CONSTRAINT ID .)
+    COMA            reduce using rule 68 (atributo -> CONSTRAINT ID .)
+
+
+state 132
+
+    (72) atributo -> PRIMARY KEY .
+
+    DEFAULT         reduce using rule 72 (atributo -> PRIMARY KEY .)
+    CONSTRAINT      reduce using rule 72 (atributo -> PRIMARY KEY .)
+    NOT             reduce using rule 72 (atributo -> PRIMARY KEY .)
+    NULL            reduce using rule 72 (atributo -> PRIMARY KEY .)
+    UNIQUE          reduce using rule 72 (atributo -> PRIMARY KEY .)
+    PRIMARY         reduce using rule 72 (atributo -> PRIMARY KEY .)
+    PAR_C           reduce using rule 72 (atributo -> PRIMARY KEY .)
+    COMA            reduce using rule 72 (atributo -> PRIMARY KEY .)
+
+
+state 133
+
+    (50) herencia -> INHERITS PAR_A . ID PAR_C
+
+    ID              shift and go to state 139
+
+
+state 134
+
+    (55) columna -> PRIMARY KEY PAR_A lnombres . PAR_C
+    (79) lnombres -> lnombres . COMA ID
+
+    PAR_C           shift and go to state 140
+    COMA            shift and go to state 141
+
+
+state 135
+
+    (80) lnombres -> ID .
+
+    PAR_C           reduce using rule 80 (lnombres -> ID .)
+    COMA            reduce using rule 80 (lnombres -> ID .)
+
+
+state 136
+
+    (56) columna -> FOREIGN KEY PAR_A lnombres . PAR_C REFERENCES ID PAR_A lnombres PAR_C
+    (79) lnombres -> lnombres . COMA ID
+
+    PAR_C           shift and go to state 142
+    COMA            shift and go to state 141
+
+
+state 137
+
+    (14) lista_exp -> lista_exp COMA exp .
+
+    PAR_C           reduce using rule 14 (lista_exp -> lista_exp COMA exp .)
+    COMA            reduce using rule 14 (lista_exp -> lista_exp COMA exp .)
+
+
+state 138
+
+    (49) valormodo -> IGUAL ENTERO .
+
+    PTCOMA          reduce using rule 49 (valormodo -> IGUAL ENTERO .)
+    $end            reduce using rule 49 (valormodo -> IGUAL ENTERO .)
+
+
+state 139
+
+    (50) herencia -> INHERITS PAR_A ID . PAR_C
+
+    PAR_C           shift and go to state 143
+
+
+state 140
+
+    (55) columna -> PRIMARY KEY PAR_A lnombres PAR_C .
+
+    PAR_C           reduce using rule 55 (columna -> PRIMARY KEY PAR_A lnombres PAR_C .)
+    COMA            reduce using rule 55 (columna -> PRIMARY KEY PAR_A lnombres PAR_C .)
+
+
+state 141
+
+    (79) lnombres -> lnombres COMA . ID
+
+    ID              shift and go to state 144
+
+
+state 142
+
+    (56) columna -> FOREIGN KEY PAR_A lnombres PAR_C . REFERENCES ID PAR_A lnombres PAR_C
+
+    REFERENCES      shift and go to state 145
+
+
+state 143
+
+    (50) herencia -> INHERITS PAR_A ID PAR_C .
+
+    PTCOMA          reduce using rule 50 (herencia -> INHERITS PAR_A ID PAR_C .)
+    $end            reduce using rule 50 (herencia -> INHERITS PAR_A ID PAR_C .)
+
+
+state 144
+
+    (79) lnombres -> lnombres COMA ID .
+
+    PAR_C           reduce using rule 79 (lnombres -> lnombres COMA ID .)
+    COMA            reduce using rule 79 (lnombres -> lnombres COMA ID .)
+
+
+state 145
+
+    (56) columna -> FOREIGN KEY PAR_A lnombres PAR_C REFERENCES . ID PAR_A lnombres PAR_C
+
+    ID              shift and go to state 146
+
+
+state 146
+
+    (56) columna -> FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID . PAR_A lnombres PAR_C
+
+    PAR_A           shift and go to state 147
+
+
+state 147
+
+    (56) columna -> FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A . lnombres PAR_C
+    (79) lnombres -> . lnombres COMA ID
+    (80) lnombres -> . ID
+
+    ID              shift and go to state 135
+
+    lnombres                       shift and go to state 148
+
+state 148
+
+    (56) columna -> FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres . PAR_C
+    (79) lnombres -> lnombres . COMA ID
+
+    PAR_C           shift and go to state 149
+    COMA            shift and go to state 141
+
+
+state 149
+
+    (56) columna -> FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C .
+
+    PAR_C           reduce using rule 56 (columna -> FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C .)
+    COMA            reduce using rule 56 (columna -> FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C .)
+
+WARNING: 
+WARNING: Conflicts:
+WARNING: 
+WARNING: shift/reduce conflict for DEFAULT in state 71 resolved as shift
+WARNING: shift/reduce conflict for CONSTRAINT in state 71 resolved as shift
+WARNING: shift/reduce conflict for NOT in state 71 resolved as shift
+WARNING: shift/reduce conflict for NULL in state 71 resolved as shift
+WARNING: shift/reduce conflict for UNIQUE in state 71 resolved as shift
+WARNING: shift/reduce conflict for PRIMARY in state 71 resolved as shift
+WARNING: shift/reduce conflict for DEFAULT in state 102 resolved as shift
+WARNING: shift/reduce conflict for CONSTRAINT in state 102 resolved as shift
+WARNING: shift/reduce conflict for NOT in state 102 resolved as shift
+WARNING: shift/reduce conflict for NULL in state 102 resolved as shift
+WARNING: shift/reduce conflict for UNIQUE in state 102 resolved as shift
+WARNING: shift/reduce conflict for PRIMARY in state 102 resolved as shift
+WARNING: reduce/reduce conflict in state 102 resolved using rule (columna -> ID tipo atributocolumn)
+WARNING: rejected rule (empty -> <empty>) in state 102

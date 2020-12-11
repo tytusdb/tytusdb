@@ -4,17 +4,29 @@
 Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'or':'OR', 'replace':'REPLACE', 'if':'IF', 'not':'NOT', 'exists':'EXISTS',
                'owner':'OWNER', 'mode':'MODE', 'smallint':'smallint', 'integer':'integer', 'bigint':'bigint', 'decimal':'decimal', 'numeric':'numeric',
                'real':'real', 'double':'double', 'precision':'precision', 'money':'money', 'default':'DEFAULT', 'not':'NOT', 'null':'NULL', 'unique':'UNIQUE',
-               'constraint':'CONSTRAINT', 'primary':'PRIMARY', 'key':'KEY', 'foreign':'FOREIGN', 'references':'REFERENCES', 'inherits':'INHERITS'
+               'constraint':'CONSTRAINT', 'primary':'PRIMARY', 'key':'KEY', 'foreign':'FOREIGN', 'references':'REFERENCES', 'inherits':'INHERITS',
+               'insert':'INSERT','into':'INTO', 'values':'VALUES', 'update':'UPDATE','set':'SET','where':'WHERE','delete':'DELETE','from':'FROM',
+               'and':'AND','not':'NOT','or':'OR'
              }
 
-tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN' ] + list(Reservadas.values())
+tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
+           'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR' ] + list(Reservadas.values())
 
 t_PTCOMA = r';'
-t_IGUAL = r'='
 t_PAR_A = r'\('
 t_PAR_C = r'\)'
 t_COMA = r'\,'
 t_PUNTO = r'\.'
+
+#Comparision operators
+t_IGUAL = r'\='
+t_DESIGUAL = r'\!\='
+t_DESIGUAL2 = r'\<\>'
+t_MAYORIGUAL = r'\>\='
+t_MENORIGUAL = r'\<\='
+t_MAYOR = r'\>'
+t_MENOR = r'\<'
+
 
 def t_DECIMAL(t):
     r'-?\d+\.\d+'
@@ -56,6 +68,14 @@ def t_CADENA2(t):
     t.value = t.value[1:-1] 
     return t 
 
+def t_COMENT_MULTI(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
+
+def t_COMENT_SIMPLE(t):
+    r'--.*\n'
+    t.lexer.lineno += 1
+
 t_ignore = " \t"
 
 def t_newline(t):
@@ -79,10 +99,59 @@ def p_lista_instrucciones(t):
                    | PTCOMA'''
 
 def p_instruccion(t):
-    '''sentencia : sentencia_ddl''' # pendinte dml 
+    '''sentencia : sentencia_ddl 
+                 | sentencia_dml'''   
 
 def p_sentencia_ddl(t):
      '''sentencia_ddl : crear'''
+
+def p_sentencia_dml(t):
+     '''sentencia_dml : insertar
+                      | actualizar
+                      | eliminar'''                            
+
+def p_insertar(t):
+     '''insertar : INSERT INTO ID VALUES PAR_A lista_exp PAR_C'''
+
+def p_actualizar(t):
+     '''actualizar : UPDATE ID SET exp WHERE exp''' 
+
+def p_eliminar(t):
+     '''eliminar : DELETE FROM ID WHERE exp'''
+
+def p_listaexp(t):
+     '''lista_exp : lista_exp COMA exp  
+                  | exp'''   
+
+def p_expresiones(t):
+     '''exp : exp_log
+            | exp_rel
+            | exp_ar
+            | E'''
+
+def p_expresion_logica(t):
+     '''exp_log : NOT E
+                | E AND E  
+                | E OR E'''
+
+def p_expresion_relacional(t):
+     '''exp_rel : E IGUAL E
+                | E DESIGUAL E
+                | E DESIGUAL2 E 
+                | E MAYORIGUAL E
+                | E MENORIGUAL E
+                | E MAYOR E
+                | E MENOR E'''
+
+def p_expresion_aritmetica(t):
+     '''exp_ar : '''
+
+def p_expresion(t):
+     '''E : ENTERO
+          | DECIMAL
+          | CADENA1
+          | CADENA2
+          | ID'''
 
 def p_crear(t):
      '''crear : CREATE reemplazar DATABASE verificacion ID propietario modo
