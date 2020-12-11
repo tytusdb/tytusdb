@@ -87,7 +87,8 @@ reservedwords = (
     'DEFAULT',
     'CHECK',
     'PRIMARY',
-    'DATE'
+    'DATE',
+    'INHERITS'
 )
 
 symbols = (
@@ -113,7 +114,7 @@ symbols = (
 tokens = reservedwords + symbols + (
     'ID',
     'INT',
-    'DECIMAL'
+    'NDECIM'
 )
 
 # Tokens
@@ -141,7 +142,7 @@ def t_ID(t):
         t.type = t.value
     return t
 
-def t_DECIMAL(t):
+def t_NDECIM(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
@@ -211,86 +212,102 @@ def p_instructions_dml(t):
 #CREATE
 def p_instruction_create(t):
     '''create : createDatabase
+              | createTable
               | createType'''
 
 def p_instruction_create_database(t):
-    '''createDatabase : CREATE DATABASE ID ownermode
-              | REPLACE DATABASE ID ownermode
-              | CREATE DATABASE  IF NOT EXISTS ID ownermode
+    '''createDatabase : CREATE DATABASE ID ownerMode
+              | REPLACE DATABASE ID ownerMode
+              | CREATE DATABASE  IF NOT EXISTS ID ownerMode
               | CREATE DATABASE ID
               | CREATE DATABASE IF NOT EXISTS ID'''
 
 def p_instruction_create_table(t):
-    '''createTable : CREATE TABLE ID BRACKET_OPEN columns
-              | REPLACE DATABASE ID ownermode
-              | CREATE DATABASE  IF NOT EXISTS ID ownermode'''
+    '''createTable : CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
+                   | CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE INHERITS BRACKET_OPEN ID BRACKET_CLOSE'''
 
 def p_instruction_create_table_columns(t):
     '''columns : columns COMMA column
-              | column'''
+               | column'''
 
 def p_instruction_create_table_column(t):
     '''column : ID type
-              | ID type default 
-              | ID type null
-              | ID type primarys
-              | ID type reference
-              | ID type uniques
-              | checks
+              | ID type opt1
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
               | UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
-              | PRIMARY KEY  BRACKET_OPEN idList BRACKET_CLOSE '''
+              | PRIMARY KEY  BRACKET_OPEN idList BRACKET_CLOSE 
+              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE  REFERENCES  BRACKET_OPEN idList BRACKET_CLOSE '''
 
+def p_instruction_create_table_opt1(t):
+    '''opt1 :  default 
+           | null
+           | primarys
+           | reference
+           | uniques
+           | checks '''
 def p_instruction_create_default (t):
     '''default : DEFAULT expression 
                | DEFAULT expression null
                | DEFAULT expression primarys
                | DEFAULT expression reference
                | DEFAULT expression uniques
-               | DEFAULT expression checks
-               | primarys
-               | reference
-               | uniques
-               | checks
-               '''
+               | DEFAULT expression checks '''
 def p_instruction_create_null (t):
     '''null : NULL 
+            | NULL default
             | NULL primarys
             | NULL reference
             | NULL uniques
             | NULL checks
+            | NOT NULL default
             | NOT NULL primarys
             | NOT NULL reference
             | NOT NULL uniques
             | NOT NULL checks
-            | NOT NULL
-            | primarys
-            | reference
-            | uniques
-            | checks'''
+            | NOT NULL  '''
 def p_instruction_create_primary (t):
     '''primarys : PRIMARY KEY
+                | PRIMARY KEY default
+                | PRIMARY KEY null
                 | PRIMARY KEY reference
                 | PRIMARY KEY uniques
-                | PRIMARY KEY checks
-                | reference
-                | uniques
-                | checks'''
+                | PRIMARY KEY checks   '''
 def p_instruction_create_references (t):
     '''reference : REFERENCES ID
+                 | REFERENCES ID default
+                 | REFERENCES ID null
+                 | REFERENCES ID primarys
                  | REFERENCES ID uniques
-                 | REFERENCES ID checks'''
+                 | REFERENCES ID checks    '''
 def p_instruction_create_unique (t):
     '''uniques : UNIQUE
+               | UNIQUE default
+               | UNIQUE null
+               | UNIQUE primarys
+               | UNIQUE reference
                | UNIQUE checks
                | CONSTRAINT ID UNIQUE
-               | CONSTRAINT ID UNIQUE checks
-               | checks '''
+               | CONSTRAINT ID UNIQUE default
+               | CONSTRAINT ID UNIQUE null
+               | CONSTRAINT ID UNIQUE primarys
+               | CONSTRAINT ID UNIQUE reference
+               | CONSTRAINT ID UNIQUE checks   '''
 
 def p_instruction_create_check (t):
-    '''checks : CHECK expression
-              | CONSTRAINT ID CHECK expression'''
-
-
+    '''checks : CHECK BRACKET_OPEN expression BRACKET_CLOSE
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE default
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE null
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE primarys
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE reference
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE uniques
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE default
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE null
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE primarys
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE reference
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE uniques
+              '''
 
 def p_instruction_type(t):
     '''type : SMALLINT
@@ -307,6 +324,7 @@ def p_instruction_type(t):
             | VARCHAR BRACKET_OPEN INT BRACKET_CLOSE
             | CHARACTER BRACKET_OPEN INT BRACKET_CLOSE
             | CHAR BRACKET_OPEN INT BRACKET_CLOSE
+            | CHAR
             | TEXT
             | TIMESTAMP
             | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE
@@ -329,7 +347,7 @@ def p_instruction_create_type(t):
     '''createType : CREATE TYPE ID AS ENUM BRACKET_OPEN expressionList BRACKET_CLOSE'''
 
 def p_instruction_create_owner_mode(t):
-    '''ownermode : OWNER EQUAL ID
+    '''ownerMode : OWNER EQUAL ID
             | OWNER ID
             | MODE expression
             | MODE EQUAL expression
@@ -468,7 +486,7 @@ def p_expression_binaryseparator(t):
 #VALUES
 def p_expression_number(t):
     '''expression : INT
-                  | DECIMAL
+                  | NDECIM
                   | ID'''
     t[0] = t[1]
 
