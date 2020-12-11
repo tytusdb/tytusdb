@@ -82,7 +82,7 @@ reservadas = {
 
     'is': 'tIs',
     'notNull': 'notNull',
-    'and': 'tAnd',
+    'and': 'And',
     'current_user': 'currentuser',
     'session_user': 'sessionuser',
     'type': 'ttype',
@@ -167,7 +167,7 @@ reservadas = {
     'sin': 'sin',
     'sind': 'sind',
     'tan': 'tan',
-    # 'tand':'ttand',
+    'tand':'tand',
     'sinh': 'sinh',
     'cosh': 'cosh',
     'tanh': 'tanh',
@@ -213,6 +213,14 @@ reservadas = {
     'current_time': 'current_time',
     'extract': 'tExtract',
     'in': 'in'
+
+    #nuevos -10
+    ,'asc':'asc',
+    'desc':'desc',
+    'nulls':'nulls',
+    'first':'first',
+    'last':'last',
+    'order':'order'
 
 }
 
@@ -383,7 +391,7 @@ lex.lex(reflags=re.IGNORECASE)
 # ---------Modificado Edi------
 precedence = (
     ('right', 'not'),
-    ('left', 'tAnd'),
+    ('left', 'And'),
     ('left', 'or'),
     ('left', 'diferente', 'igual', 'mayor', 'menor', 'menorIgual', 'mayorIgual'),
     ('left', 'punto'),
@@ -846,7 +854,7 @@ def p_LISTA_EXP(p):
 
 def p_E(p):
     ''' E : E or E
-          |  E tAnd       E
+          |  E And       E
           |  E diferente  E
           |  E igual      E
           |  E mayor      E
@@ -964,6 +972,23 @@ def p_QUERY(p):
              | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT 
              | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY 
              | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT 
+
+             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY 
+             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_LIMIT
+             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY 
+             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING 
+             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT 
+             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY 
+             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT
+             | EXPR_SELECT EXPR_FROM EXPR_HAVING 
+             | EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_LIMIT
+             | EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY
+             | EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING 
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_LIMIT
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY
+             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT
     '''
 
 
@@ -1000,7 +1025,30 @@ def p_EXPR_COLUMNAS(p):
                      | EXPR_CASE
                      | substring parAbre E coma E coma E parCierra
                      | greatest parAbre E_LIST parCierra
-                     | least parAbre E_LIST parCierra'''
+                     | least parAbre E_LIST parCierra
+                     
+                     | EXPR_COLUMNAS coma EXPR_AGREGACION as E
+                     | EXPR_COLUMNAS coma EXPR_MATHS as E 
+                     | EXPR_COLUMNAS coma EXPR_TRIG as E
+                     | EXPR_COLUMNAS coma EXPR_BINARIAS as E
+                     | EXPR_COLUMNAS coma EXPR_EXTRA as E
+                     | EXPR_COLUMNAS coma EXPR_FECHA as E
+                     | EXPR_COLUMNAS coma E as E
+                     | EXPR_COLUMNAS coma EXPR_CASE as E
+                     | EXPR_COLUMNAS coma substring parAbre E coma E coma E parCierra as E
+                     | EXPR_COLUMNAS coma greatest parAbre E_LIST parCierra as E
+                     | EXPR_COLUMNAS coma least parAbre E_LIST parCierra as E
+                     | E as E
+                     | EXPR_AGREGACION as E
+                     | EXPR_MATHS as E
+                     | EXPR_TRIG as E
+                     | EXPR_BINARIAS as E
+                     | EXPR_EXTRA as E
+                     | EXPR_FECHA as E
+                     | EXPR_CASE as E
+                     | substring parAbre E coma E coma E parCierra as E
+                     | greatest parAbre E_LIST parCierra as E
+                     | least parAbre E_LIST parCierra as E '''
 
 
 def p_EXPR_EXTRA(p):
@@ -1008,11 +1056,11 @@ def p_EXPR_EXTRA(p):
 
 
 def p_EXPR_AGREGACION(p):
-    '''EXPR_AGREGACION : count parAbre E parCierra  
-                       | avg parAbre E parCierra
-                       | max parAbre E parCierra
-                       | min parAbre E parCierra
-                       | sum parAbre E parCierra
+    '''EXPR_AGREGACION : count E
+                       | avg E
+                       | max E
+                       | min E
+                       | sum E
                        | count parAbre multi parCierra  
                        | avg parAbre multi parCierra
                        | max parAbre multi parCierra
@@ -1021,71 +1069,72 @@ def p_EXPR_AGREGACION(p):
 
 
 def p_EXPR_MATHS(p):
-    '''EXPR_MATHS : abs parAbre E parCierra
-                     | cbrt parAbre E parCierra
-                     | ceil parAbre E parCierra
-                     | ceiling parAbre E parCierra
-                     | degrees parAbre E parCierra
-                     | div parAbre E parCierra
-                     | exp parAbre E parCierra
-                     | factorial parAbre E parCierra
-                     | floor parAbre E parCierra
-                     | gcd parAbre E parCierra
-                     | lcm parAbre E parCierra
-                     | ln parAbre E parCierra
-                     | log parAbre E parCierra
-                     | log10 parAbre E parCierra
-                     | min_scale parAbre E parCierra
-                     | mod parAbre E parCierra
-                     | pi parAbre E parCierra
-                     | power parAbre E parCierra
-                     | radians parAbre E parCierra
-                     | round parAbre E parCierra
-                     | scale parAbre E parCierra
-                     | sign parAbre E parCierra
-                     | sqrt parAbre E parCierra
-                     | trim_scale parAbre E parCierra
-                     | truc parAbre E parCierra
-                     | width_bucket parAbre E parCierra
-                     | random parAbre E parCierra
-                     | setseed parAbre E parCierra '''
+    '''EXPR_MATHS : abs E
+                     | cbrt E
+                     | ceil E
+                     | ceiling E
+                     | degrees E
+                     | div parAbre E coma E parCierra
+                     | exp E
+                     | factorial E
+                     | floor E
+                     | gcd parAbre E coma E parCierra
+                     | lcm E
+                     | ln E
+                     | log E
+                     | log10 E
+                     | min_scale E
+                     | mod parAbre E coma E parCierra
+                     | pi parAbre parCierra
+                     | power parAbre E coma E parCierra
+                     | radians E
+                     | round E
+                     | scale E
+                     | sign E
+                     | sqrt E
+                     | trim_scale E
+                     | truc E
+                     | width_bucket parAbre LISTA_EXP parCierra
+                     | random parAbre parCierra
+                     | setseed E  '''
 
 
 def p_EXPR_TRIG(p):
-    '''EXPR_TRIG : acos parAbre E parCierra
-                | acosd parAbre E parCierra 
-                | asin parAbre E parCierra 
-                | asind parAbre E parCierra 
-                | atan parAbre E parCierra 
-                | atand parAbre E parCierra 
-                | atan2 parAbre E parCierra 
-                | atan2d parAbre E parCierra 
-                | cos parAbre E parCierra 
-                | cosd parAbre E parCierra 
-                | cot parAbre E parCierra 
-                | cotd parAbre E parCierra 
-                | sin parAbre E parCierra 
-                | sind parAbre E parCierra 
-                | tan parAbre E parCierra 
-                | sinh parAbre E parCierra 
-                | cosh parAbre E parCierra 
-                | tanh parAbre E parCierra 
-                | asinh parAbre E parCierra 
-                | acosh parAbre E parCierra 
-                | atanh parAbre E parCierra'''
+    '''EXPR_TRIG :  acos E 
+                | acosd E 
+                | asin E 
+                | asind E 
+                | atan E 
+                | atand E 
+                | atan2 LISTA_EXP
+                | atan2d LISTA_EXP
+                | cos E 
+                | cosd E 
+                | cot E 
+                | cotd E 
+                | sin E 
+                | sind E 
+                | tan E 
+                | sinh E 
+                | cosh E 
+                | tanh E 
+                | tand E 
+                | asinh E 
+                | acosh E 
+                | atanh E'''
 
 
 def p_EXPR_BINARIAS(p):
-    '''EXPR_BINARIAS : length parAbre E parCierra
-                     | trim parAbre E parCierra
-                     | get_byte parAbre E parCierra
-                     | md5 parAbre E parCierra
-                     | set_byte parAbre E parCierra
-                     | sha256 parAbre E parCierra
-                     | substr parAbre E parCierra
-                     | convert parAbre E parCierra
-                     | encode parAbre E parCierra
-                     | decode parAbre E parCierra'''
+    '''EXPR_BINARIAS : length E
+                     | trim E
+                     | get_byte E
+                     | md5 E
+                     | set_byte E
+                     | sha256 E
+                     | substr E
+                     | convert E
+                     | encode E
+                     | decode E'''
 
 
 def p_EXPR_FECHA(p):
