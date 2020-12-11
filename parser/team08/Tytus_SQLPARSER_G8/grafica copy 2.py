@@ -11,12 +11,13 @@ def inc():
     i += 1
     return i
 
-tokens = ('DIGIT','PLUS', 'TIMES', 'LPAREN', 'RPAREN')
+tokens = ('DIGIT','PLUS', 'TIMES', 'LPAREN', 'RPAREN', 'COMA')
 
 t_PLUS = r'\+'
 t_TIMES = r'\*'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
+t_COMA = r'\,'
 
 def t_DIGIT(t):
     r'\d+'
@@ -41,28 +42,31 @@ import ply.lex as lex
 lexer = lex.lex()
 
 def p_line(t):
-	'line : expr'
+	'line : lista'
 	print(t[1])
 
-def p_expr_plus(t):
-	'expr : expr PLUS term'
-	id = inc()
-	t[0] = id
-	dot.node(str(id),str(t[2]))
-	dot.edge(str(id),str(t[1]))
-	dot.edge(str(id),str(t[3]))
+def p_lista(t):
+    '''lista : lista COMA expr
+            | expr '''
+    if(t[1] == 'lista'):
+        t[0].append(t[1])
+    else:
+        t[0] = t[1]
 
 def p_expr_term(t):
 	'expr : term'
 	t[0] = t[1]
 
-def p_expr_times(t):
-	'term : term TIMES factor'
-	id = inc()
-	t[0] = id
-	dot.node(str(id),str(t[2]))
-	dot.edge(str(id),str(t[1]))
-	dot.edge(str(id),str(t[3]))
+
+def p_expr_term2(t):
+	'''expr : expr PLUS expr
+        | expr TIMES expr
+    '''
+    id = inc()
+    t[0] = id
+    dot.node(str(id),str(t[2]))
+    dot.edge(str(id),str(t[1]))
+    dot.edge(str(id),str(t[3]))
 
 def p_expression_times(t):
 	'term : factor'
@@ -91,7 +95,7 @@ while True:
     dot.node_attr.update(shape = 'square')
     dot.edge_attr.update(color='blue4')
     try:
-        parser.parse("5+4*3")
+        parser.parse("5+4*3, 2+2*5")
         dot.view()
         break
     except EOFError:
