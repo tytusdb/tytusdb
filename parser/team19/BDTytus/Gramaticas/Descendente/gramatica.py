@@ -4,7 +4,7 @@ reservadas = {
     'add' : 'ADD',
     'all' : 'ALL',
     'alter' :'ALTER',
-    'rand' : 'AND',
+    'and' : 'AND',
     'as' : 'AS',
     'asc':'ASC',
     'between' : 'BETWEEN',
@@ -14,9 +14,11 @@ reservadas = {
     'column' : 'COLUMN',
     'constraint' : 'CONSTRAINT',
     'create' : 'CREATE',
-    'current' : 'CURRENT_SESSION',
+    'current' : 'CURRENT',
+    'current_user' : 'CURRENT_USER',
     'database' : 'DATABASE',
     'databases' : 'DATABASES',
+    'default' : 'DEFAULT',
     'delete' : 'DELETE',
     'desc' : 'DESC',
     'distinct' : 'DISTINCT',
@@ -39,6 +41,7 @@ reservadas = {
     'inherits' : 'INHERITS',
     'inner' : 'INNER',
     'intersect' : 'INTERSECT',
+    'insert' : 'INSERT',
     'into' : 'INTO',
     'is' : 'IS',
     'isnull' : 'ISNULL',
@@ -76,16 +79,20 @@ reservadas = {
     'then': 'THEN',
     'true': 'TRUE',
     'type': 'TYPE',
+    'to' : 'TO',
     'union': 'UNION',
     'unique': 'UNIQUE',
     'unknow': 'UNKNOW',
     'update': 'UPDATE',
+    'using' : 'USING',
     'values': 'VALUES',
     'when': 'WHEN',
     'where': 'WHERE',
     'yes': 'YES', #EXTRAS
     'no': 'NO',
-    'off': 'OFF'
+    'of' : 'OF',
+    'off': 'OFF',
+    'only' : 'ONLY'
 }
 
 tokens  = [
@@ -98,15 +105,15 @@ tokens  = [
     'PUNTO',
     'MAS',
     'MENOS',
-    'AND',
+    'AND_SIGNO',
     'CONCATENACION',
     'XOR',
     'NOT_SIMBOLO',
     'POTENCIA',
     'POR',
     'DIVISION',
-    'ENTERO',
     'DECIMAL',
+    'ENTERO',
     'CARACTER',
     'CADENA',
     'TYPECAST',
@@ -128,8 +135,8 @@ tokens  = [
 ] + list(reservadas.values())
 
 # Tokens
-t_PARENT_D       = r'\('
-t_PARENT_I       = r'\)'
+t_PARENT_I       = r'\('
+t_PARENT_D       = r'\)'
 t_LLAVE_ABRE     = r'\{'
 t_LLAVE_CIERRE   = r'\}'
 t_COMA          = r','
@@ -137,7 +144,7 @@ t_P_COMA         = r';'
 t_PUNTO         = r'\.'
 t_MAS           = r'\+'
 t_MENOS         = r'-'
-t_AND           = r'&'
+t_AND_SIGNO      = r'&'
 t_CONCATENACION = r'\|\|'
 t_XOR           = r'\#'
 t_NOT_SIMBOLO    = r'~'
@@ -159,14 +166,6 @@ t_DIFERENTE = r'!='
 t_CORABRE = r'\['
 t_CORCIERRE = r']'
 
-def t_ENTERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
-    return t
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -177,13 +176,22 @@ def t_DECIMAL(t):
         t.value = 0
     return t
 
+def t_ENTERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
+        t.value = 0
+    return t
+
 def t_CARACTER(t):
     r'\'.?\''
     t.value = t.value[1:-1] # remuevo las comillas simples
     return t 
 
 def t_CADENA(t):
-    r'\".*?\"'
+    r'\'.*?\''
     t.value = t.value[1:-1] # remuevo las comillas dobles
     return t
 
@@ -195,12 +203,12 @@ def t_ID(t):
 def t_COMMENTLINE(t):
     r'-{2}[^\n]*(\n|\Z)'
     t.lexer.lineno += 1
-    print("Comentario de una linea leido: "+ t.value[2:])
+    print(t.value[2:-1])
 
 def t_COMMENTMULTI(t):
     r'[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]'
     t.lexer.lineno += t.value.count('\n')
-    print("Comentario multilinea leido: "+ t.value[2:-2])
+    print(t.value[2:-2])
 
 def t_BINARIO(t):
     r'B\'[0-1]+\''
@@ -225,18 +233,280 @@ lexer = lex.lex()
 
 #ANALIZADOR SINTACTICO
 #----------------------------------------------------------------------------------------
-def p_expresiones_evaluar(t):
-    '''expresiones  : expresion expresiones_prima '''
+def p_init(t):
+    's : instrucciones'
 
-def p_expresiones_prima(t):
-    '''expresiones_prima    : expresion expresiones_prima 
+def p_instrucciones_evaluar(t):
+    '''instrucciones  : instruccion P_COMA instruccion_prima '''
+
+def p_instrucciones_prima(t):
+    '''instruccion_prima    : instruccion P_COMA instruccion_prima 
                             | '''
 
-def p_expresion_evaluar(t):
-    '''expresion    : select_expresion '''
+def p_instruccion_evaluar(t):
+    '''instruccion  : CREATE c
+                    | SHOW DATABASE lk
+                    | ALTER dt
+                    | DROP do
+                    | DELETE FROM ol
+                    | INSERT INTO ID VALUES PARENT_I l_val PARENT_D
+                    | UPDATE ID SET act'''
 
-def p_enumerated_type(t):
-    'select_expresion    : SELECT POR FROM ID '
+def p_create(t):
+    '''c : TYPE ID AS ENUM PARENT_I l_val PARENT_D 
+         | re DATABASE ifex ID ow mo
+         | TABLE ID PARENT_I ct PARENT_D inh'''
+
+def p_l_val(t):
+    'l_val : val l_valp'
+
+def p_l_valp(t):
+    '''l_valp : COMA val l_valp
+              | '''
+def p_val(t):
+    ''' val : DECIMAL
+            | ENTERO
+            | CARACTER
+            | CADENA
+            | TRUE
+            | FALSE'''
+
+def p_re(t):
+    '''re : OR REPLACE
+          | '''
+
+def p_ifex(t):
+    ''' ifex : IF NOT EXISTS
+             | '''
+def p_ow(t):
+    ''' ow : OWNER hi ID
+           | '''
+
+def p_hi(t):
+    ''' hi : IGUAL
+           | '''
+
+def p_mo(t):
+    '''mo : MODE hi ENTERO 
+          | '''
+
+
+def p_inh(t):
+    '''inh : INHERITS PARENT_I ID PARENT_D
+           | '''
+
+def p_ct(t):
+    'ct : col ctp'
+
+def p_ctp(t):
+    '''ctp : COMA col ctp
+           |  '''
+
+def p_col(t):
+    ''' col : ID ID at
+            | ck
+            | UNIQUE PARENT_I l_id PARENT_D
+            | PRIMARY KEY PARENT_I l_id PARENT_D
+            | FOREIGN KEY PARENT_I l_id PARENT_D REFERENCES ID PARENT_I l_id PARENT_D '''
+
+def p_l_id(t):
+    'l_id : ID l_idp'
+
+def p_l_idp(t):
+    '''l_idp : COMA ID l_idp
+             | '''
+
+def p_at(t): 
+    '''at : PRIMARY KEY
+          | REFERENCES ID 
+          | defu'''
+        
+def p_defu(t):
+    '''defu : DEFAULT val nn
+            | nn '''
+
+def p_nn(t):
+    '''nn : NOT NULL cc
+          | NULL cc
+          | cc '''
+
+def p_cc(t):
+    '''cc : CONSTRAINT ID uc
+          | uc '''
+
+def p_uc(t):
+    '''uc : UNIQUE ck
+          | CHECK PARENT_I log PARENT_D
+          | '''
+
+def p_ck(t):
+    '''ck : CONSTRAINT ID CHECK PARENT_I log PARENT_D
+          | '''
+
+def p_log(t):
+    'log : w logp'
+
+def p_logp(t):
+    '''logp : w logp
+            | '''
+
+def p_w(t):
+    'w : y wp'
+
+def p_wp(t):
+    '''wp : MAS y wp
+          | MENOS y wp 
+          | '''
+
+def p_y(t):
+    'y : z yp'
+
+def p_yp(t):
+    '''yp : POR z yp
+          | DIVISION z yp
+          | MODULO z yp
+          | '''
+        
+def p_z(t):
+    'z : x zp'
+
+def p_zp(t):
+    '''zp : POTENCIA x zp
+          | '''
+        
+def p_x(t):
+    'x : u xp'
+
+def p_xp(t):
+    '''xp : MAYORQUE u
+          | MENORQUE u
+          | MAYORIGUAL u
+          | MENORIGUAL u
+          | IGUAL u
+          | DISTINTO u
+          | '''
+
+def p_u(t):
+    'u : v up'
+
+def p_up(t):
+    '''up : OR v up
+          | '''
+
+def p_v(t):
+    'v : r vp'
+
+def p_vp(t):
+    '''vp : AND r vp
+          | '''
+
+def p_r(t):
+    '''r : PARENT_I w PARENT_D
+         | ID pu
+         | val '''
+
+def p_lk(t):
+    '''lk : LIKE val
+          | '''
+
+def p_dt(t):
+    '''dt : DATABASE ID al
+          | TABLE ID fm'''
+
+def p_al(t):
+    '''al : RENAME TO ID
+          | OWNER TO LLAVE_ABRE ID ORSIGNO CURRENT_USER ORSIGNO SESSION_USER LLAVE_CIERRE'''
+
+def p_fm(t):
+    '''fm : ADD cl
+          | DROP dp
+          | ALTER COLUMN ID SET ar
+          | RENAME COLUMN ID TO ID'''
+
+def p_cl(t):
+    '''cl : COLUMN ID ID
+          | CHECK PARENT_I log PARENT_D
+          | CONSTRAINT ID UNIQUE PARENT_I ID PARENT_D
+          | FOREIGN KEY PARENT_I ID PARENT_D REFERENCES ID '''
+
+def p_dp(t):
+    '''dp : COLUMN ID
+          | CONSTRAINT ID'''
+
+def p_ar(t):
+    ''' ar : NOT NULL
+           | NULL '''
+
+def p_do(t):
+    '''do : DATABASE ife ID
+          | TABLE ID '''
+
+def p_ife(t):
+    '''ife : IF EXISTS
+           |  '''
+
+def p_ol(t):
+    ''' ol : ONLY ID ico ali us wh ret
+           | ID ico ali us wh ret '''
+
+def p_ico(t):
+    '''ico : POR
+           | '''
+
+def p_ali(t):
+    '''ali : AS ID 
+           | '''
+
+def p_us(t):
+    '''us : USING l_id
+          | '''
+
+def p_wh(t):
+    '''wh : WHERE cd
+          | '''
+
+def p_cd(t):
+    '''cd : log
+          | CURRENT OF ID '''
+
+def p_ret(t):
+    '''ret : RETURNING rs
+           | '''
+
+def p_rs(t):
+    '''rs : POR
+          | log ali '''
+
+def p_act(t):
+    'act : l_asig WHERE log'
+
+def p_l_asig(t):
+    'l_asig : asig l_asigp'
+
+def p_l_asigp(t):
+    '''l_asigp : COMA asig l_asigp
+               | '''
+
+def p_asig(t):
+    'asig : ID IGUAL val'
+
+def p_pu(t):
+    '''pu : PARENT_I se PARENT_D
+          | '''
+
+def p_se(t):
+    '''se : l_arg
+          | '''
+
+def p_l_arg(t):
+    'l_arg : arg l_argp'
+
+def p_l_argp(t):
+    '''l_argp : COMA arg l_argp
+              | '''
+
+def p_arg(t):
+    'arg : log'
 
 def p_error(t):
     print("Error sintáctico en " + str(t.value) + ", Fila: " + str(t.lexer.lineno))
