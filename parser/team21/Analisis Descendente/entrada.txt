@@ -52,7 +52,7 @@ ALTER TABLE tabla ADD CHECK (name <> '');
 
 --ALTER TABLE tabla ADD CONSTRAINT some_name UNIQUE (columna1);
 --ALTER TABLE tabla ADD FOREIGN KEY (columna) REFERENCES column2;
-
+/*
 
 ALTER TABLE distributors
  ALTER COLUMN address TYPE varchar(80),
@@ -62,4 +62,40 @@ ALTER TABLE distributors
 
 ALTER TABLE tabla DROP CONSTRAINT dasdasd;
 
+CREATE TABLE my_first_table (
+ coluumn1 INTEGER,
+ PRIMARY KEY (JKKK,LKL),
+ FOREIGN KEY (colHumn1) REFERENCES tabla (lala)
+);
 
+
+
+CREATE TABLE my_first_table (
+ coluumn1 INTEGER,
+
+) INHERITS (TABLAPRINCIPAL);*/
+
+/*
+insert into mitabla values (1,'CHEESE',9.99,0.54);
+
+UPDATE products SET price = 10 WHERE price = 5;
+
+DELETE FROM products WHERE price = 10;
+
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
+
+select greatest(1,2,3,4,5);
+select greatest('1970-12-10','2000-11-11','2019-01-01');
+select GREATEST('2030-02-20',now());
+select least(1,2,3,3,5);
+select least('a','b','c','aa');*/
