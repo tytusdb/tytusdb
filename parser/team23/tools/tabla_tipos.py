@@ -19,10 +19,9 @@ class tipo_primitivo(Enum):
     ERROR = 15
     TEXT = 16
     CHAR = 17
-    VARCHAR = 18
+    VARCHAR = 18 
     CHAR_STR = 19
     VARCHAR_STR = 20
-
 
 class nodo_AST:
     def __init__(self, valor, num):
