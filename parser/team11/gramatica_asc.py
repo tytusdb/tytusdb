@@ -145,3 +145,125 @@ def t_error(t):
 # Analizador léxico
 import ply.lex as lex
 lexer = lex.lex()
+
+# Asociación de operadores y precedencia
+
+
+
+###################################### Definición de la gramática #######################################
+def p_init(t) :
+    'init             : instrucciones'
+
+def p_lista_instrucciones(t) :
+    'instrucciones    : instrucciones instruccion'
+
+def p_salida_instrucciones(t) :
+    'instrucciones    : instruccion'
+
+def p_instruccion(t) :
+    '''instruccion    : createDB_instr
+                      | replaceDB_instr
+                      | alterDB_instr
+                      | dropDB_instr
+                      | showDB_instr'''
+
+##CREATE DATABASE
+def p_create_db(t):
+    'createDB_instr   : CREATE DATABASE existencia'
+    #print("ESTA ES UNA SIMPLE CREACION DATABASE con existencia")
+
+def p_create_db2(t):
+    'createDB_instr   : CREATE DATABASE ID state_owner'
+    #print("ESTA ES UNA SIMPLE CREACION sin existencia alguna DATABASE")
+
+##REPLACE DATABASE
+def p_replace_db(t):
+    'replaceDB_instr   : REPLACE DATABASE existencia'
+    #print("ESTA ES UNA SIMPLE CREACION con existencia DATABASE")
+
+def p_replace_db2(t):
+    'replaceDB_instr   : REPLACE DATABASE ID state_owner'
+    #print("ESTA ES UNA SIMPLE CREACION sin existencia DATABASE")
+
+
+##ESTADOS A LOS REPLACE Y CREATE CONTIENEN LO MISMO
+def p_create_replace_existencia(t):
+    'existencia   : IF NOT EXISTS ID state_owner'
+    #print("Existencia 1")
+
+def p_create_replace_state_owner(t):
+    'state_owner   : OWNER IGUAL ID state_mode'
+    #print("Estado owner con igual")
+
+def p_create_replace_state_owner2(t):
+    'state_owner   : OWNER ID state_mode'
+    #print("Estado owner sin igual")
+
+def p_create_replace_state_owner3(t):
+    'state_owner   : state_mode'
+    #print("Estado owner sentencia de escape a mode")
+
+def p_create_replace_state_mode(t):
+    'state_mode   : MODE IGUAL ENTERO PTCOMA'
+    #print("Estado mode con igual")
+
+def p_create_replace_state_mode2(t):
+    'state_mode   : MODE ENTERO PTCOMA'
+    #print("Estado mode sin igual")
+
+def p_create_replace_state_mode3(t):
+    'state_mode   : PTCOMA'
+    #print("Estado mode sentencia de escape ptcoma")
+
+
+##ALTER DATABASE
+def p_alter_state(t):
+    'alterDB_instr    : ALTER DATABASE ID RENAME TO ID PTCOMA'
+    #print("ALTERAR NOMBRE DE DATABASE A: " + t[6])
+
+def p_alter_state2(t):
+    'alterDB_instr    : ALTER DATABASE ID OWNER TO owner_users PTCOMA'
+    #print("ALTERAR DUEÑO DE BASE DE DATOS")
+
+def p_owner_users(t):
+    '''owner_users  : ID
+                    | CURRENT_USER
+                    | SESSION_USER'''   
+
+    #if t[1] == 'CURRENT_USER':
+        #print("-----CURRENT_USER-----")
+    #elif t[1] == 'SESSION_USER':
+        #print("-----SESSION_USER-----")
+    #else:
+        #print("-----USUARIO NUEVO----- " + t[1] + "-----------------")
+
+###DROP DATABASE
+
+def p_dropDB_instr(t):
+    'dropDB_instr : DROP DATABASE ID PTCOMA'
+    #print("DROP DATABASE SIN CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[3])
+
+def p_dropDB_instr2(t):
+    'dropDB_instr : DROP DATABASE IF EXISTS ID PTCOMA'
+    #print("DROP DATABASE CON CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[5])
+
+
+##SHOW DATABASES
+def p_showDB_instr(t):
+    'showDB_instr   : SHOW DATABASES PTCOMA'
+    #print("Show DATABASE sencillo")
+
+def p_showDB_instr2(t):
+    'showDB_instr   : SHOW DATABASES LIKE regexpr PTCOMA'
+    #print("Show DATABASE con LIKE")
+
+def p_showDB_regexp(t):
+    '''regexpr      : MODULO ID
+                    | MODULO ID MODULO
+                    | ID MODULO
+                    | MODULO ENTERO
+                    | MODULO ENTERO MODULO
+                    | ENTERO MODULO'''
+
+
+##########################################################################################

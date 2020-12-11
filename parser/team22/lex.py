@@ -22,6 +22,11 @@ reservadas = {
     'varchar' : 'VARCHAR',
     'char' : 'CHAR',
     'text' : 'TEXT',
+    'now' : 'now',
+    'date_part' : 'date_part',
+    'current_date' : 'CURRENT_DATE',
+    'current_time' : 'CURRENT_TIME',
+    'extract' : 'EXTRACT',
     'timestamp' : 'TIMESTAMP',
     'without' : 'WITHOUT',
     'time' : 'TIME',
@@ -60,6 +65,23 @@ reservadas = {
     'sum' : 'SUM',
     'like' : 'LIKE',
     'avg' : 'AVG',
+    'abs' : 'ABS',
+    'cbrt' : 'CBRT',
+    'ceil' : 'CEIL',
+    'ceiling' : 'CEILING',
+    'degrees' : 'DEGREES',
+    'div' : 'DIV',
+    'exp' : 'REXP',
+    'factorial' : 'FACTORIAL',
+    'floor' : 'FLOOR',
+    'gcd' : 'GCD',
+    'ln' : 'LN',
+    'log' : 'LOG',
+    'mod' : 'MOD',
+    'pi' : 'PI',
+    'power' : 'POWER',
+    'radians' : 'RADIANS',
+    'round' : 'ROUND',
     'max' : 'MAX',
     'min' : 'MIN',
     'order' : 'ORDER',
@@ -81,6 +103,8 @@ reservadas = {
     'exists' : 'EXISTS',
     'intersect' : 'INTERSECT',
     'except' : 'EXCEPT',
+    'offset' : 'OFFSET',
+    'limit' : 'LIMIT',
     'all' : 'ALL',
     'into' : 'INTO',
     'some' : 'SOME',
@@ -110,7 +134,14 @@ reservadas = {
     'truncate' : 'TRUNCATE',
     'update' : 'UPDATE',
     'asc' : 'ASC',
-    'show': 'SHOW'
+    'show': 'SHOW',
+    'when' : 'WHEN',
+    'then' : 'THEN',
+    'greatest' : 'GREATEST',
+    'least' : 'LEAST',
+    'end' : 'END',
+    'else' : 'ELSE',
+    'leatest': 'LEATEST'
 }
 
 tokens  = [
@@ -143,7 +174,8 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
-    'ID'
+    'ID',
+    'COMILLA_SIMPLE'
 ] + list(reservadas.values())
 
 # Tokens
@@ -172,6 +204,7 @@ t_ASIGNACION_DIVID  = r'\/='
 t_ASIGNACION_MODULO = r'\%='
 t_DOS_PUNTOS        = r'\:'
 t_DIAG_INVERSA      = r'\\'
+t_COMILLA_SIMPLE    = r'\''
 
 def t_DECIMAL(t):
     r'\d+\.\d+'

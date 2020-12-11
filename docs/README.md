@@ -66,6 +66,7 @@ TytusDB tendrá cinco modos de almacenamiento, cada uno corresponde a un motor d
 3. Mediante un árbol B+
 4. Mediante ISAM
 5. Mediante tablas Hash.
+6. Mediante archivos JSON
 
 #### Registros de almacenamiento
 
@@ -94,28 +95,28 @@ def createDatabase(database: str) -> int:
 ```
 Crea una base de datos.  
 Parámetro database: es el nombre de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos existente
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos existente  
 
 ```
 def showDatabases() -> list:
 ```
-Devuelve una lista de los nombres de las bases de datos
-Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].
+Devuelve una lista de los nombres de las bases de datos  
+Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].  
 
 ```
-def alterDatabase(databaseOld, databaseNew) -> bool:
+def alterDatabase(databaseOld, databaseNew) -> int:
 ```
-Renombra la base de datos databaseOld por databaseNew.
+Renombra la base de datos databaseOld por databaseNew.  
 Parámetro databaseOld: es el nombre actual de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro databaseNew: es el nuevo nombre que tendrá de la base de datos databaseOld, debe cumplir con las reglas de identificadores de SQL.  
-Valor de retorno: True operación exitosa, False error en la operación.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 databaseOld no existente, 3 databaseNew existente.  
 
 ```
 def dropDatabase(database: str) -> int:
 ```
 Elimina por completo la base de datos indicada en database.  
 Parámetro database: es el nombre de la base de datos que se desea eliminar, debe cumplir con las reglas de identificadores de SQL.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente  
 
 ##### Respecto de las funciones de las tablas están:
 - createTable(database, tableName, numberColumns): crea una tabla según el modo de almacenamiento, la base de datos debe de existir, y solo se define el número de columnas.
@@ -166,7 +167,7 @@ Está compuesto por tres sub componentes:
 
 En general, el intérprete debe ser capaz de:
 
-- Invocar las [Funciones](#funciones) proporcionadas por el almacenamiento, para realizar operaciones sobre la base de datos.
+- Invocar las [Funciones](#funciones) proporcionadas por el administrador de almacenamiento, para realizar operaciones sobre la base de datos. Para hacer pruebas se puede utilizar el packete storageManager que está dentro de la carpeta storage de este repositorio. Para ver el uso indicado ver el archivo [test.py](https://github.com/tytusdb/tytus/blob/main/storage/test.py). Por el momento, solamente está implementándose el mode JSON. En la calificación se podrá utilizar cualquier modo.
 
 - Manipular el resultado de las funciones anteriores para restringir y mostrar los resultados indicados por la(s) consulta(s).
 

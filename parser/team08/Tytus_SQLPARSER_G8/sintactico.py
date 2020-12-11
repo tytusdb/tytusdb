@@ -5,7 +5,6 @@ tokens= lexico.tokens
 
 
 lista_lexicos=lexico.lista_errores_lexico
-lexico.lexer.lineno = 0
 recolecion_analisis = []
 # INICIA EN ANALISIS SINTACTICO
 
@@ -16,6 +15,7 @@ precedence = (
     ('left', 'CHECK'),
     ('left', 'OR'),
     ('left', 'AND'),
+    ('left', 'IS', 'FROM','DISTINCT'),
     ('left', 'LIKE', 'BETWEEN', 'IN'),
     ('left', 'NOT'),
     ('left', 'IGUAL', 'MAYORQ', 'MENORQ', 'MAYOR_IGUALQ', 'MENOR_IGUALQ', 'DISTINTO'),
@@ -39,49 +39,63 @@ def p_instrucciones_lista(t):
     
 # CREATE DATABASE
 def p_instruccion_create_database1(t):
-    '''instruccion : CREATE DATABASE ID PUNTO_COMA
+    '''instruccion : CREATE DATABASE if_not_exists ID PUNTO_COMA
     '''
     #print(t[1]," - ", t[2], " - ", t[4])
 
 def p_instruccion_create_database2(t):
-    '''instruccion : CREATE DATABASE ID OWNER IGUAL ID PUNTO_COMA
+    '''instruccion : CREATE DATABASE if_not_exists ID OWNER IGUAL ID PUNTO_COMA
     '''
     #print(t[1]," - ", t[2], " - ", t[4])
 
 def p_instruccion_create_database3(t):
-    '''instruccion : CREATE DATABASE ID OWNER IGUAL ID MODE IGUAL ENTERO PUNTO_COMA
+    '''instruccion : CREATE DATABASE if_not_exists ID OWNER IGUAL ID MODE IGUAL ENTERO PUNTO_COMA
     '''
     #print(t[1]," - ", t[2], " - ", t[4])
 
 def p_instruccion_create_database4(t):
-    '''instruccion : CREATE DATABASE ID MODE IGUAL ENTERO PUNTO_COMA
+    '''instruccion : CREATE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
     '''
     #print(t[1]," - ", t[2], " - ", t[4])
 
 # CREATE OR REPLACE DATABASE
 def p_instruccion_create_or_database1(t):
-    '''instruccion : CREATE OR REPLACE DATABASE ID PUNTO_COMA
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID PUNTO_COMA
     '''
     #print(t[1]," - ", t[2], " - ", t[4])
 
 def p_instruccion_create_or_database2(t):
-    '''instruccion : CREATE OR REPLACE DATABASE ID OWNER IGUAL ID PUNTO_COMA
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL ID PUNTO_COMA
     '''
     #print(t[1]," - ", t[2], " - ", t[4])
 
 def p_instruccion_create_or_database3(t):
-    '''instruccion : CREATE OR REPLACE DATABASE ID OWNER IGUAL ID MODE IGUAL ENTERO PUNTO_COMA
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID OWNER IGUAL ID MODE IGUAL ENTERO PUNTO_COMA
     '''
     #print(t[1]," - ", t[2], " - ", t[4])
 
 def p_instruccion_create_or_database4(t):
-    '''instruccion : CREATE OR REPLACE DATABASE ID MODE IGUAL ENTERO PUNTO_COMA
+    '''instruccion : CREATE OR REPLACE DATABASE if_not_exists ID MODE IGUAL ENTERO PUNTO_COMA
     '''
     #print(t[1]," - ", t[2], " - ", t[4])
 
+def p_if_not_exists(t):
+    '''if_not_exists : IF NOT EXISTS
+            | 
+    '''
+    try:
+        t[0] = t[1]
+    except:
+        #error
+        pass
 
-def p_instruccion_create(t):
+def p_instruccion_create1(t):
     '''instruccion : CREATE TABLE ID PARIZQ campos PARDER PUNTO_COMA
+    '''
+    print(t[1]," - ", t[2], " - ", t[3])
+
+def p_instruccion_create2(t):
+    '''instruccion : CREATE TABLE ID PARIZQ campos PARDER INHERITS PARIZQ ID PARDER PUNTO_COMA
     '''
     print(t[1]," - ", t[2], " - ", t[3])
 
@@ -173,6 +187,7 @@ def p_funciones3(t):
     '''
      instruccion : CREATE FUNCTION ID PARIZQ lcol PARDER AS expresion BEGIN instrucciones END PUNTO_COMA
     '''
+
 def p_declaracion(t):
     '''
      instruccion : DECLARE expresion AS expresion PUNTO_COMA
@@ -181,6 +196,7 @@ def p_declaracion1(t):
     '''
      instruccion : DECLARE expresion tipo PUNTO_COMA
     '''
+    
 def p_set(t):
     '''
      instruccion : SET expresion IGUAL expre PUNTO_COMA
@@ -294,49 +310,66 @@ def p_instruccion_insert2(t):
 # SELECT * from id;
 def p_instruccion_query(t):
     '''
-    instruccion : query2 PUNTO_COMA
+    instruccion : lquery PUNTO_COMA
     '''
     t[0]=t[1]
 
-def p_instruccion_lquery(t):
-    '''
-        query2 :  query UNION query  
-                | query UNION ALL query 
-                | query INTERSECT query
-                | query INTERSECT ALL query 
-                | query EXCEPT ALL query 
-                | query EXCEPT query
+def p_lista_querys(t):
+    '''lquery : lquery relaciones query
                 | query
     '''
-    t[0]=t[1]
+
+def p_tipo_relaciones(t):
+    '''
+        relaciones : UNION  
+                | UNION ALL 
+                | INTERSECT
+                | INTERSECT ALL 
+                | EXCEPT ALL 
+                | EXCEPT
+    '''
 
 def p_instruccion_select(t):
     '''
-    query : SELECT lcol FROM lcol inners 
+    query : SELECT dist lcol FROM lcol 
     '''
     print("Ejecuto select 0 ", t[1], " - ", t[2])
 
+
 def p_instruccion_select1(t):
     '''
-    query : SELECT POR FROM lcol inners 
+    query : SELECT dist lcol FROM lcol instructionWhere lrows
     '''
-    print(t[1], " - ", t[2])
+    print("Ejecuto el select 2 ", t[1], " - ", t[2])
 
 def p_instruccion_select2(t):
     '''
-    query : SELECT lcol FROM lcol inners instructionWhere
+    query : SELECT dist lcol FROM lcol instructionWhere 
     '''
     print("Ejecuto el select 2 ", t[1], " - ", t[2])
 
 def p_instruccion_select3(t):
     '''
-    query : SELECT POR FROM lcol inners instructionWhere
+    query : SELECT dist lcol FROM lcol linners 
     '''
-    print(t[1], " - ", t[2])
+    print("Ejecuto select 0 ", t[1], " - ", t[2])
+
 
 def p_instruccion_select4(t):
     '''
-    query : SELECT lcol 
+    query : SELECT dist lcol FROM lcol linners instructionWhere lrows
+    '''
+    print("Ejecuto el select 2 ", t[1], " - ", t[2])
+
+def p_instruccion_select5(t):
+    '''
+    query : SELECT dist lcol FROM lcol linners instructionWhere 
+    '''
+    print("Ejecuto el select 2 ", t[1], " - ", t[2])
+
+def p_instruccion_select6(t):
+    '''
+    query : SELECT dist lcol 
     '''
     print(t[1], " - ", t[2])
 
@@ -353,29 +386,57 @@ def p_instruccion_case(t):
     print(t[1], " - ", t[2])
 
 
+
 def p_instruccion_select7(t):
     '''
-    query   : SELECT lcol FROM lcol lrows
+    query   : SELECT dist lcol FROM lcol lrows
     '''
     print(t[1], " - ", t[2])
+
+
 
 def p_instruccion_lrows(t):
     '''lrows : lrows rows
              | rows
     '''
 
+def p_dist(t):
+    '''dist : DISTINCT
+        | 
+    '''
+    try:
+        t[0] = t[1]
+    except:
+        #error
+        pass
+
 def p_instruccion_rows(t):
     '''
-    rows    : ORDER BY l_expresiones ASC
-            | ORDER BY l_expresiones 
-            | ORDER BY l_expresiones DESC
+    rows    : ORDER BY lista_order
             | GROUP BY l_expresiones
             | HAVING lcol
             | LIMIT l_expresiones OFFSET expre
-            | LIMIT l_expresiones 
+            | LIMIT l_expresiones
     '''
     print(t[1], " - ", t[2])
 
+def p_lista_order(t):
+    '''lista_order : lista_order COMA order_op
+        | order_op
+    '''
+
+def p_order_op(t):
+    '''order_op : expre
+            | expre DESC
+            | expre ASC
+            | expre NULLS FIRST
+            | expre NULLS LAST
+    '''
+
+def p_linner_join(t):
+    '''linners : linners inners
+                | inners
+    '''
 def p_inner_join(t):
     '''
     inners : INNER JOIN expre ON expre
@@ -383,7 +444,6 @@ def p_inner_join(t):
             | FULL OUTER JOIN expre ON expre
             | JOIN expre ON expre
             | RIGHT JOIN expre ON expre
-            |
     '''
 
 def p_operadores_logicos(t):
@@ -406,8 +466,10 @@ def p_operadores_logicos(t):
             | expre BETWEEN expresion AND expresion
             | expre NOT BETWEEN expresion AND expresion
             | expre IN PARIZQ lcol PARDER
-            | expre IS ISNULL
-            | expre IS NOTNULL
+            | expre IS NULL
+            | expre IS NOT NULL
+            | expre IS DISTINCT FROM expre
+            | expre IS NOT DISTINCT FROM expre
             | MIN PARIZQ expre PARDER
             | MAX PARIZQ expre PARDER
             | SUM PARIZQ expre PARDER
@@ -476,16 +538,33 @@ def p_operadores_logicos(t):
             | ATANH PARIZQ expre PARDER
             | LEAST PARIZQ lcol PARDER
             | GREATEST PARIZQ lcol PARDER
+            | EXTRACT PARIZQ tiempo FROM TIMESTAMP CARACTER PARDER
+            | NOW PARIZQ PARDER
+            | DATE_PART PARIZQ CARACTER COMA INTERVAL CARACTER PARDER
+            | CURRENT_DATE
+            | CURRENT_TIME
+            | TIMESTAMP CARACTER
             | POR
-            | expre AS ID
             | CASE lcase END 
             | PARIZQ expre PARDER
+            | PARIZQ query PARDER
+    '''
+
+
+def p_tiempo(t):
+    ''' tiempo :  YEAR
+                | MONTH
+                | DAY
+                | HOUR
+                | MINUTE
+                | SECOND
     '''
 
 
 def p_operadores_logicos5(t):
     ''' expre :  expresion
     '''
+
 
 def p_campos_tablas(t):
     '''campos : campos COMA ID tipo lista_op
@@ -543,9 +622,12 @@ def p_expresion(t):
 
 def p_lista_columas(t):
     '''lcol : lcol COMA expre
+        | lcol COMA expre ID
+        | lcol COMA expre AS ID
         | expre
+        | expre ID
+        | expre AS ID
     '''
-
 
 #----------------------TIPO DE DATOS---------------------------------
 def p_tipo_datos(t):
@@ -583,10 +665,7 @@ def p_tipo_datos3(t):
              | REAL
              | DOUBLE PRECISION
              | MONEY
-             | INT2
-             | INT8
-             | FLOAT4
-             | FLOAT8
+             | BOOLEAN
     '''
     t[0]=t[1]
 
@@ -603,36 +682,40 @@ def p_tipo_datos_date(t):
 #    print("Error sintáctico en '%s'" % t.value)
 
 # MODO PANICO ***************************************
-def p_error(t):
-    print("Error sintáctico en ", t.value, " linea: ", str(t.lexer.lineno))
-    if not t:
+def p_error(p):
+    print("Error sintáctico en ", p.value, " linea: ", str(p.lexer.lineno))
+    print(lexico.columas(lexico.columna))
+    if not p:
         print("Fin del Archivo!")
         return
-
     # Read ahead looking for a closing '}'
     while True:
         tok = parser.token()             # Get the next token
         if not tok or tok.type == 'PUNTO_COMA':
-            print("Se recupero con ;")
+            if not tok:
+                print("FIN DEL ARCHIVO")
+            else:
+                print("Se recupero con ;")
             break
+
     parser.restart()
 
 
 parser = yacc.yacc()
 
 def ejecutar_analisis(texto):
-    #se obtiene la acción de analisis sintactico
-
-    parser.parse(texto)
-    print("inicio")
-
+    #LIMPIAR VARIABLES
+    lexico.columna=0
+    lista_lexicos.clear()
     #se limpia analisis lexico
     lexico.lexer.input("")
     lexico.lexer.lineno = 0
+    #se obtiene la acción de analisis sintactico
+    parser.parse(texto)
+    print("inicio")
 
-    recolecion_analisis=[]
-    recolecion_analisis.append(lista_lexicos)
-    lexico.lista_errores_lexico=[]
+
+
 
 
     return recolecion_analisis
