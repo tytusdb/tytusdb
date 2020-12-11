@@ -3,3 +3,5 @@ select distinct ;
 select
 select;
 select distinct
+select 
+select distinct ;

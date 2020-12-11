@@ -1,7 +1,10 @@
 ##-------------------------GRAMATICA ASCENDENTE-------------------------------
 reservadas = {
     'create' : 'CREATE',
-    'database' : 'DATABASE',    
+    'databases' : 'DATABASES',  
+    'database' : 'DATABASE', 
+    'current_user': 'CURRENT_USER',
+    'session_user': 'SESSION_USER',   
     'table' : 'TABLE',
     'insert': 'INSERT',
     'inherits' : 'INHERITS',
@@ -76,6 +79,10 @@ reservadas = {
     'group' : 'GROUP',
     'having' : 'HAVING',
     'exists' : 'EXISTS',
+    'intersect' : 'INTERSECT',
+    'except' : 'EXCEPT',
+    'offset' : 'OFFSET',
+    'limit' : 'LIMIT',
     'all' : 'ALL',
     'into' : 'INTO',
     'some' : 'SOME',
@@ -105,6 +112,14 @@ reservadas = {
     'truncate' : 'TRUNCATE',
     'update' : 'UPDATE',
     'asc' : 'ASC',
+    'show': 'SHOW',
+    'when' : 'WHEN',
+    'then' : 'THEN',
+    'greatest' : 'GREATEST',
+    'least' : 'LEAST',
+    'end' : 'END',
+    'else' : 'ELSE',
+    'leatest': 'LEATEST'
 }
 
 tokens  = [
@@ -137,7 +152,8 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
-    'ID'
+    'ID',
+    'COMILLA_SIMPLE'
 ] + list(reservadas.values())
 
 # Tokens
@@ -166,6 +182,7 @@ t_ASIGNACION_DIVID  = r'\/='
 t_ASIGNACION_MODULO = r'\%='
 t_DOS_PUNTOS        = r'\:'
 t_DIAG_INVERSA      = r'\\'
+t_COMILLA_SIMPLE    = r'\''
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -186,7 +203,7 @@ def t_ENTERO(t):
     return t
 
 def t_ID(t):
-     r'[a-zA-Z_][a-zA-Z_0-9]*'
+     r'[a-zA-Z_@#][a-zA-Z_0-9@$#]*'
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
 
