@@ -79,9 +79,38 @@ end
  from usuarios where a == DS12 order by adsa;
  */
 
- 
-/*SELECT distinct codigo, ABS(-5) from usuarios 
+ /*
+SELECT distinct codigo, ABS(-5) from usuarios 
 where CBRT(32) == 10 AND 12 <= 12 AND usuarios.codigo !=12 or id > (3+5) 
 group by usuarios.codigo
 having abs(id) > 10
-order by codigo asc, nombre asc, id desc, tipo;*/
+order by codigo asc, nombre asc, id desc, tipo;
+ 
+SELECT distinct codigo, ABS(-5) from usuarios 
+where codigo NOT BETWEEN 5 AND 10 or codigo NOT BETWEEN 5 AND 10
+ AND CBRT(32) == 10 AND 12 <= 12 AND usuarios.codigo !=12 or id > (3+5) 
+group by usuarios.codigo
+having abs(id) > 10
+order by codigo asc, nombre asc, id desc, tipo;
+
+SELECT distinct codigo, ABS(-5) from usuarios 
+where codigo is distinct from usuarios OR codigo is NOT distinct from usuarios
+ and codigo NOT BETWEEN 5 AND 10 or codigo NOT BETWEEN 5 AND 10
+ AND CBRT(32) == 10 AND 12 <= 12 AND usuarios.codigo !=12 or id > (3+5) 
+group by usuarios.codigo
+having abs(id) > 10
+order by codigo asc, nombre asc, id desc, tipo;
+
+
+SELECT distinct codigo, ABS(-5) from usuarios 
+where nombre is null OR apellido is not null OR direccion isnull OR telefono notnull
+AND codigo is distinct from usuarios OR codigo is NOT distinct from usuarios
+ and codigo NOT BETWEEN 5 AND 10 or codigo NOT BETWEEN 5 AND 10
+ AND CBRT(32) == 10 AND 12 <= 12 AND usuarios.codigo !=12 or id > (3+5) 
+group by usuarios.codigo
+having abs(id) > 10
+order by codigo asc, nombre asc, id desc, tipo;
+*/
+
+select greatest(1,2,3,4,5);
+select least('a','b','c','aa');

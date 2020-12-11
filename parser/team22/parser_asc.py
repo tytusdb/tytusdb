@@ -154,8 +154,8 @@ def p_instruccion_selects(t) :
     '''selects      : POR FROM select_all 
                     | lista_parametros FROM lista_parametros inicio_condicional 
                     | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
-                    | GREATEST PARIZQ lista_parametros PARDER
-                    | LEATEST PARIZQ lista_parametros PARDER
+                    | GREATEST PARIZQ lista_parametros PARDER PTCOMA
+                    | LEAST PARIZQ lista_parametros PARDER PTCOMA
                     | date_functions'''
     print("selects")
 
@@ -182,7 +182,7 @@ def p_instruccion_selects_group_by(t) :
     # print("GROUP BY")
 
 def p_instruccion_selects_group_by2(t) :
-    'inicio_group_by      : inicio_having '
+    'inicio_group_by      : inicio_order_by '
     # print("NO HAY GROUP BY")
 
 def p_instruccion_selects_having(t) :
@@ -363,6 +363,15 @@ def p_parametro_con_tabla(t) :
 
 def p_parametros_funciones(t) :
     'parametro         : lista_funciones'
+    t[0] = t[1]
+
+def p_parametros_cadena(t) :
+    'parametro         : CADENA'
+    t[0] = t[1]
+
+def p_parametros_numeros(t) :
+    '''parametro            : DECIMAL  
+                            | ENTERO'''
     t[0] = t[1]
 
 
@@ -647,7 +656,10 @@ def p_relacional(t) :
                     | aritmetica
                     | relacional AND relacional
                     | relacional OR relacional
-                    | NOT relacional'''
+                    | NOT relacional
+                    | state_between
+                    | state_predicate_nulls
+                    | state_is_distinct'''
 
 def p_aritmetica(t) :
     '''aritmetica   : valor MAS valor
@@ -682,6 +694,39 @@ def p_def_update(t) :
     '''def_update   : ID IGUAL valor'''
 
 
+# BETWEEN
+#=======================================================
+def p_between(t) :
+    '''state_between    : valor BETWEEN valor AND valor
+                        | valor NOT BETWEEN valor AND valor'''
+#=======================================================
+
+# IS [NOT] DISTINCT
+#=======================================================
+def p_is_distinct(t) :
+    '''state_is_distinct    : valor IS DISTINCT FROM valor
+                            | valor IS NOT DISTINCT FROM valor'''
+#=======================================================
+
+
+# ESTADO PREDICATES
+#=======================================================
+def p_predicate_nulls(t) :
+    '''state_predicate_nulls      : valor IS NULL
+                              | valor IS NOT NULL
+                              | valor ISNULL
+                              | valor NOTNULL'''
+#=======================================================
+
+
+# # Pattern Matching
+# #=======================================================
+# def p_matchs(t) :
+#     '''state_pattern_match      : ID LIKE 
+#                                 | valor IS NOT NULL
+#                                 | valor ISNULL
+#                                 | valor NOTNULL'''
+# #=======================================================
 
 # CASE
 #========================================================
