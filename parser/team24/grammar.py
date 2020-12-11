@@ -37,7 +37,8 @@ reservadas = {
     'table': 'TABLE',
     'create': 'CREATE',
     'or': 'OR',
-    'replace': 'REPLACE'
+    'replace': 'REPLACE',
+    'except':'EXCEPT'
 
 }
 
