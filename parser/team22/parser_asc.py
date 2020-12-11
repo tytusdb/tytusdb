@@ -53,6 +53,9 @@ def p_instruccion(t) :
                         | DROP dropear'''
     t[0] = t[2]
 
+#========================================================
+
+#========================================================
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
     '''creacion     : DATABASE crear_bd
@@ -110,7 +113,9 @@ def p_instruccion_TB_herencia(t) :
     'tb_herencia    : INHERITS PARIZQ ID PARDER'
     #t[0] = Heredero(t[4])
 
+#========================================================
 
+#========================================================
 # INSTRUCCION SHOW DATABASE
 def p_instruccion_show(t) :
     '''show_db      : DATABASES
@@ -121,7 +126,9 @@ def p_instruccion_show(t) :
     else:
         print(type_checker.showDatabase(t[3]))
 
+#========================================================
 
+#========================================================
 # INSTRUCCION ALTER DATABASE
 def p_instruccion_alter_database(t) :
     '''alter_database   : ID RENAME TO ID
@@ -134,6 +141,9 @@ def p_def_alter_db(t) :
                         | CURRENT_USER
                         | SESSION_USER'''
 
+#========================================================
+
+#========================================================
 
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
@@ -141,14 +151,17 @@ def p_instruccion_Use_BD(t) :
     t[0] = Cambio_BD(t[1])
     print("CAMBIO de BD")
 
+#========================================================
 
+#========================================================
 # INSTRUCCIONES CON "SELECT"
 def p_instruccion_selects(t) :
     '''selects      : POR FROM select_all 
                     | lista_parametros FROM lista_parametros inicio_condicional 
                     | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
                     | GREATEST PARIZQ lista_parametros PARDER
-                    | LEATEST PARIZQ lista_parametros PARDER'''
+                    | LEATEST PARIZQ lista_parametros PARDER
+                    | date_functions'''
     print("selects")
 
 def p_instruccion_selects_distinct(t) :
@@ -236,7 +249,22 @@ def p_instruccion_Select_All(t) :
     'select_all     : ID inicio_condicional'
     t[0] = Select_All(t[1])
     # print("Consulta ALL para tabla: " + t[1])
-    
+
+def p_date_functions(t):
+    '''date_functions   : EXTRACT PARIZQ lista_date_functions 
+                        | date_part PARIZQ lista_date_functions
+                        | now PARIZQ lista_date_functions
+                        | lista_date_functions'''
+
+def p_lista_date_functions(t):
+    '''lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA
+                            | CADENA COMA INTERVAL CADENA PARDER PTCOMA
+                            | TIMESTAMP CADENA PTCOMA
+                            | CURRENT_DATE PTCOMA
+                            | CURRENT_TIME PTCOMA
+                            | PARDER PTCOMA'''
+
+#========================================================
     
 #========================================================
 # INSERT INTO TABLAS
@@ -342,6 +370,13 @@ def p_parametro_sin_tabla(t) :
     'parametro        : ID'
     t[0] = t[1]
     # print("Parametro SIN indice de tabla")
+
+def p_parametro_con_tabla_alias(t) :
+    '''parametro        : ID AS name_column
+                        | ID name_column'''
+    t[0] = t[1]
+    # print("Parametro SIN indice de tabla")
+
 #========================================================
 
 #========================================================
