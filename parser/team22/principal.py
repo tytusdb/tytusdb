@@ -19,5 +19,9 @@ input = f.read()
     
 instrucciones = parser_asc.parse(input)
 ts_global = TS.TablaDeSimbolos()
+len(1, 2)
 
 # procesar_instrucciones(instrucciones, ts_global)
+
+def len(x, y):
+    print('holi')
