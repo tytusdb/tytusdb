@@ -73,7 +73,78 @@ reservadas = {
     'insert':'INSERT',
     'into':'INTO',
     'values':'VALUES',
-    'update':'UPDATE'
+    'update':'UPDATE',
+    'count' : 'COUNT',
+    'avg' : 'AVG',
+    'sum' : 'SUM',
+    'distinct' : 'DISTINCT',
+    'abs' : 'ABS',
+    'cbrt' : 'CBRT',
+    'ceil' : 'CEIL',
+    'ceiling' : 'CEILING',
+    'degrees' : 'DEGREES',
+    'div' : 'DIV',
+    'exp' : 'EXP',
+    'factorial' : 'FACTORIAL',
+    'floor' : 'FLOOR',
+    'gcd' : 'GCD',
+    'lcm' : 'LCM',
+    'ln' : 'LN',
+    'log' : 'LOG',
+    'log10' : 'LOG10',
+    'min_scale' : 'MIN_SCALE',
+    'mod' : 'MOD',
+    'pi' : 'PI',
+    'power' : 'POWER',
+    'radians' : 'RADIANS',
+    'round' : 'ROUND',
+    'scale' : 'SCALE',
+    'sign' : 'SIGN',
+    'sqrt' : 'SQRT',
+    'trim_scale':'TRIM_SCALE',
+    'truc' : 'TRUC',
+    'width_bucket' : 'WIDTH_BUCKET',
+    'random' : 'RANDOM',
+    'setseed': 'SETSEED',
+    'max' : 'MAX',
+    'min' : 'MIN',
+    'having' : 'HAVING',
+    'union': 'UNION',
+    'intersect': 'INTERSECT',
+    'except' : 'EXCEPT',
+    'all':'ALL',
+    'acos':'ACOS',
+    'acosd':'ACOSD',
+    'asin': 'ASIN',
+    'asind':'ASIND',
+    'atan':'ATAN',
+    'atand':'ATAND',
+    'atan2':'ATAN2',
+    'atan2d':'ATAN2D',
+    'cos':'COS',
+    'cosd':'COSD',
+    'cot':'COT',
+    'cotd':'COTD',
+    'sin':'SIN',
+    'sind':'SIND',
+    'tan':'TAN',
+    'tand':'TAND',
+    'sinh':'SINH',
+    'cosh':'COSH',
+    'tanh':'TANH',
+    'asinh':'ASINH',
+    'acosh':'ACOSH',
+    'atanh':'ATANH',
+    'group': 'GROUP',
+    'by': 'BY',
+    'now': 'now',
+    'current_date': 'CURRENT_DATE',
+    'current_time': 'CURRENT_TIME',
+    'date_part': 'date_part',
+    'isnull': 'ISNULL',
+    'notnull': 'NOTNULL',
+    'unknown': 'UNKNOWN',
+    'extract': 'EXTRACT'
 }
 
 tokens  = [
@@ -88,7 +159,7 @@ tokens  = [
     'MENOS',
     'GNOT',
     'MULT',
-    'DIV',
+    'DIVI',
     'ANDO',
     'ORO',
     'NOTO',
@@ -129,7 +200,7 @@ t_MAS       = r'\+'
 t_MENOS     = r'-'
 t_GNOT = r'~'
 t_MULT       = r'\*'
-t_DIV  = r'/'
+t_DIVI  = r'/'
 t_ANDO    = r'\&'
 t_ORO = r'\|'
 t_NOTO = r'!'
@@ -204,6 +275,7 @@ import ply.lex as lex
 lexer = lex.lex()
 lex.lex(reflags=re.IGNORECASE)
 
+#from expresion import *
 from expresion import *
 from instruccion import *
 
@@ -216,7 +288,7 @@ precedence = (
     ('left', 'MAYOR', 'MENOR', 'MAYORIGUAL', 'MENORIGUAL'),
     ('left', 'MAYMAY', 'MENMEN'),
     ('left','MAS','MENOS'),
-    ('left','MULT','DIV','MODU'),
+    ('left','MULT','DIVI','MODU'),
     ('left', 'EXPO'),
     ('left','NOTO','GNOT'),
     ('left', 'PARIZQ', 'PARDR')
@@ -365,8 +437,14 @@ def p_listaValores2(t):
 def p_valores(t):
     '''valores          : ENTERO
                         | NUMDECIMAL
-                        | CADENA    '''
+                        | CADENA  '''
     t[0] = Primitivo(t[1])
+
+def p_valores2(t):
+    '''valores2         : valores
+                        | var'''
+    t[0] = Primitivo(t[1])
+
 
 #UPDATE
 def p_update(t):
@@ -390,11 +468,53 @@ def p_asignaciones2(t):
 def p_where(t):
     '''where            : asignacion
                         | boolean
-                        | NOT boolean
-                        | ID IN PARIZQ listaValores PARDR 
-                        | ID BETWEEN valores AND valores
                         '''
     t[0] = t[1]
+
+def p_where1(t):
+    '''where            : NOT boolean
+                        | valores2  comparisonP2
+                        | boolean  comparisonP
+                        '''
+    t[0] = t[1]
+
+
+def p_where2(t):
+    '''where            : ID IS NOT DISTINCT FROM valores '''
+    t[0] = t[1]
+
+def p_where3(t):
+    '''where            : ID IN PARIZQ listaValores PARDR 
+                        | ID BETWEEN valores AND valores
+                        | ID IS DISTINCT FROM valores
+                        '''
+    t[0] = t[1]
+
+
+def p_ComparisonP(t):
+    ''' comparisonP     : IS TRUE
+                        | IS FALSE
+                        | IS UNKNOWN
+    '''
+
+def p_ComparisonP1(t):
+    ''' comparisonP     : IS NOT TRUE
+                        | IS NOT FALSE
+                        | IS NOT UNKNOWN
+    '''
+
+def p_ComparisonP2(t):
+    ''' comparisonP2    : IS NULL
+    '''
+def p_ComparisonP3(t):
+    ''' comparisonP2    : IS NOT NULL
+    '''
+
+def p_ComparisonP4(t):
+    ''' comparisonP2    : NOTNULL
+                        | ISNULL
+    '''
+
 
 def p_andOr(t):
     '''andOr            : andOr AND andOr
@@ -403,15 +523,20 @@ def p_andOr(t):
     t[0] = t[1]
 
 def p_asignacion(t):
-    '''asignacion       : ID IGUAL E'''
+    '''asignacion       : var IGUAL E
+    '''
 
 def p_E(t):
-    '''E                : PARIZQ E PARDR
-                        | operando
+    '''E                : operando
 	                    | boolean
                         | unario
                         | valores
-                        | var'''
+                        | var
+                        | pnum
+                        | math'''
+
+def p_E1(t):
+    '''E                : PARIZQ E PARDR '''
 #    print("expresion")
 #    if t[1] == '('  : t[0] = t[2]
 #    else            : t[0] = t[1]
@@ -425,7 +550,7 @@ def p_oper(t):
     '''operando         : E MAS E
 	                    | E MENOS E
 	                    | E MULT E
- 	                    | E DIV E
+ 	                    | E DIVI E
                         | E MODU E
                         | E EXPO E
 	                    | E MENMEN E
@@ -453,8 +578,13 @@ def p_unarios(t):
     t[0] = Unario(t[1], t[2])
 
 def p_var(t):
-    'var                : ID'
+    '''var                : ID
+                          | ID PUNTO ID'''
     t[0] = Id(t[1])
+
+def p_pnum2(t):
+    '''pnum                : PUNTO E'''
+    #t[0] = Id(t[1])
 
 #DELETE
 def p_delete(t):
@@ -522,8 +652,328 @@ def p_alterT2(t):
 
 
 ##################################################################
+#SELECT
+def p_selectTime(t):
+    ''' instruccion     : SELECT Time PTCOMA'''
+
+def p_selectTime2(t):
+    ''' Time            : EXTRACT PARIZQ momento FROM TIMESTAMP  CADENA PARDR 
+                        | date_part PARIZQ CADENA COMA INTERVAL CADENA PARDR
+
+    '''
+    t[0] = t[1]
+
+def p_selectTime3(t):
+    ''' Time            : now PARIZQ PARDR  
+                        | TIMESTAMP CADENA
+
+    '''
+    t[0] = t[1]
+
+def p_selectTime4(t):
+    ''' Time            : CURRENT_TIME
+                        | CURRENT_DATE                    
+    '''
+    t[0] = t[1]
+
+def p_momento(t):
+    ''' momento         : YEAR
+                        | MONTH
+                        | DAY
+                        | HOUR
+                        | MINUTE
+                        | SECOND
+
+    '''
+    t[0] = t[1]
+
+def p_instruccionSELECT(t):
+    '''instruccion : select2 inst_union
+                    '''
+    #t[0]=t[1]
+
+def p_instruccionSELECT2(t):
+    '''instruccion : select2 PTCOMA
+                     '''
+
+def p_union2(t):
+    '''inst_union : UNION ALL select2 PTCOMA
+              '''
+
+def p_union3(t):
+    '''inst_union : INTERSECT ALL select2 PTCOMA
+             '''
+
+def p_union4(t):
+    '''inst_union : EXCEPT ALL select2 PTCOMA
+          '''
+
+def p_union5(t):
+    '''inst_union : UNION select2 PTCOMA
+              '''
 
 
+def p_union6(t):
+    '''inst_union : INTERSECT select2 PTCOMA
+              '''
+
+
+def p_union7(t):
+    '''inst_union : EXCEPT select2 PTCOMA
+              '''
+
+def p_groupBy(t):
+    '''compSelect           : table_expr
+    '''
+    #t[0] = t[3]
+
+def p_groupBy1(t):
+    '''compSelect           : table_expr GROUP BY  compGroup
+    '''
+
+
+
+def p_having(t):
+    '''compGroup        : list
+    '''
+
+
+def p_having1(t):
+    '''compGroup        :  list HAVING andOr 
+    '''
+
+def p_instselect(t):
+    '''select2 : SELECT DISTINCT select_list FROM compSelect
+                    '''
+    #t[0] = t[1]+' '+t[2]+' '+t[3]+' '+t[4]+ ' '+t[5]
+
+
+
+def p_instselect2(t):
+    '''select2 : SELECT select_list FROM compSelect
+    '''
+
+
+
+def p_instselect3(t):
+    '''select2 : SELECT select_list
+
+
+                    '''
+
+
+def p_instselect4(t):
+    '''select2 : SELECT select_list FROM table_expr WHERE complemSelect
+                    '''
+
+def p_instselect5(t):
+    '''complemSelect : andOr
+    '''
+
+def p_instselect6(t):
+    '''complemSelect : andOr GROUP BY  compGroup
+                    '''
+
+def p_instselect7(t):
+    '''select2 : SELECT DISTINCT select_list FROM table_expr WHERE complemSelect
+                    '''
+
+
+def p_selectList(t):
+    '''select_list : MULT
+                    | list'''
+
+
+def p_list2(t):
+    '''list : list COMA columna '''
+
+
+def p_list3(t):
+    '''list : columna '''
+
+def p_columna2(t):
+    '''columna : ID opcionID
+
+                '''
+
+def p_columna3(t):
+    '''columna : ID AS ID
+
+
+                '''
+
+def p_columna4(t):
+    '''columna : ID
+
+
+                '''
+
+def p_columna5(t):
+    '''columna : ID AS CADENA
+                '''
+
+
+def p_columna6(t):
+    '''columna : math AS ID
+
+
+                '''
+
+
+def p_columna7(t):
+    '''columna : math AS CADENA
+
+
+                '''
+
+
+def p_columna8(t):
+    '''columna : math
+
+                '''
+
+
+def p_columna9(t):
+    '''columna : trig AS CADENA
+
+                '''
+
+
+def p_columna10(t):
+    '''columna : trig
+
+                '''
+
+def p_columna11(t):
+    '''columna : trig AS ID
+
+
+                '''
+
+def p_opcionID2(t):
+    '''opcionID : PUNTO ascolumnaux
+                | ID'''
+
+
+def p_opcionID3(t):
+    '''ascolumnaux : ID AS ID
+                    '''
+
+
+
+def p_opcionID4(t):
+    '''ascolumnaux : ID
+                    '''
+
+
+
+def p_opcionID5(t):
+    '''ascolumnaux : ID AS CADENA
+                '''
+
+def p_math2(t):
+    ''' math  : ABS PARIZQ E PARDR
+                | CBRT PARIZQ E PARDR
+                | CEIL PARIZQ E PARDR
+                | CEILING PARIZQ E PARDR
+                | DEGREES PARIZQ E PARDR
+                | EXP PARIZQ E PARDR
+                | FACTORIAL PARIZQ E PARDR
+                | FLOOR PARIZQ E PARDR
+                | LCM PARIZQ E PARDR
+                | LN PARIZQ E PARDR
+                | LOG PARIZQ E PARDR
+                | LOG10 PARIZQ E PARDR
+                | RADIANS PARIZQ E PARDR
+                | ROUND PARIZQ E PARDR
+                | SIGN PARIZQ E PARDR
+                | SQRT PARIZQ E PARDR
+                | TRUC PARIZQ E PARDR
+                | WIDTH_BUCKET PARIZQ E PARDR
+                | SETSEED PARIZQ E PARDR
+                | SUM PARIZQ E PARDR
+                | AVG PARIZQ E PARDR
+                | COUNT PARIZQ E PARDR
+                | MIN PARIZQ E PARDR
+                | MAX PARIZQ E PARDR '''
+
+
+def p_math3(t):
+    ''' math  :  DIV PARIZQ E COMA E PARDR
+                | GCD PARIZQ E COMA E PARDR
+                | MOD PARIZQ E COMA E PARDR
+                | POWER PARIZQ E COMA E PARDR
+                '''
+
+
+
+def p_math4(t):
+    ''' math  :  PI PARIZQ PARDR
+                | RANDOM PARIZQ PARDR
+                '''
+
+def p_math6(t):
+    ''' math  : MIN_SCALE
+                | SCALE
+                | TRIM_SCALE
+                '''
+
+
+def p_trig2(t):
+    ''' trig : ACOS PARIZQ E PARDR
+              | ACOSD PARIZQ E PARDR
+              | ASIN PARIZQ E PARDR
+              | ASIND PARIZQ E PARDR
+              | ATAN PARIZQ E PARDR
+              | ATAND PARIZQ E PARDR
+              | ATAN2 PARIZQ E PARDR
+              | ATAN2D PARIZQ E PARDR
+              | COS PARIZQ E PARDR
+              | COSD PARIZQ E PARDR
+              | COT PARIZQ E PARDR
+              | COTD PARIZQ E PARDR
+              | SIN PARIZQ E PARDR
+              | SIND PARIZQ E PARDR
+              | TAN PARIZQ E PARDR
+              | TAND PARIZQ E PARDR
+              | SINH PARIZQ E PARDR
+              | COSH PARIZQ E PARDR
+              | TANH PARIZQ E PARDR
+              | ASINH PARIZQ E PARDR
+              | ACOSH PARIZQ E PARDR
+              | ATANH PARIZQ E PARDR '''
+
+
+def p_tableexpr2(t):
+    '''table_expr : table_expr COMA tablaR
+                    '''
+
+
+def p_tableexpr3(t):
+    '''table_expr : tablaR
+                    '''
+
+
+
+
+def p_tablaR2(t):
+    '''tablaR : ID ID
+                '''
+
+
+def p_tablaR3(t):
+    '''tablaR : ID AS ID
+                '''
+
+
+def p_tablaR4(t):
+    '''tablaR : ID
+                '''
+
+#def p_condicion2(t):
+ #   '''condicion : andOr HAVING
+  #              | andOr'''
+####################################################################
 # MODO PANICO ***************************************
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
@@ -542,9 +992,7 @@ def p_error(t):
 import ply.yacc as yacc
 parser = yacc.yacc()
 
-f = open("./entrada.txt", "r")
+f = open("./entrada2.txt", "r")
 input = f.read()
-#print(input)
+print(input)
 parser.parse(input)
-
-
