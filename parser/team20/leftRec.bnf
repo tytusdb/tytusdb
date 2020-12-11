@@ -59,7 +59,7 @@
 <expression_list> ::= <expression_list> "," <expression>
                    |  <expression>
 
-<sortexpressionlist> ::= <sortexpressionlist> "," <2> [asc|desc]
+<sortexpressionlist> ::= <sortexpressionlist> "," <expression> [asc|desc]
                       |  <expression> [asc|desc]
 
 <createDatabase> ::= create [or replace] database [if not exists] id [owner ["="] id] [mode ["="] integer]
@@ -213,10 +213,7 @@
 <value>  ::= int | real | string | id | asterisk
 
 
-<delete_instruction> ::= delete from [ only ] id [ asterisk ] [ [ as ] id ]
-    [ using from_item <idlist> ]
-    [ where <expression> | where current of id ]
-    [ returning asterisk | <expression> [ [ as ] <idlist> ]  ]
+<delete_instruction> ::= delete from id where <expression>
 
 <truncate> ::= truncate [table] <idlist>
 
