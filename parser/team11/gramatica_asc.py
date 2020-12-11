@@ -91,7 +91,7 @@ def t_DECIMAL(t):
     try:
         t.value = float(t.value)
     except ValueError:
-        #print("Float value too large %d", t.value)
+        print("Float value too large %d", t.value)
         t.value = 0
     return t
 
@@ -100,7 +100,7 @@ def t_ENTERO(t):
     try:
         t.value = int(t.value)
     except ValueError:
-        #print("Integer value too large %d", t.value)
+        print("Integer value too large %d", t.value)
         t.value = 0
     return t
 
@@ -138,7 +138,7 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    #print("Illegal character '%s'" % t.value[0])
+    print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
 
 
@@ -162,7 +162,10 @@ def p_salida_instrucciones(t) :
 
 def p_instruccion(t) :
     '''instruccion    : createDB_instr
-                      | replaceDB_instr'''
+                      | replaceDB_instr
+                      | alterDB_instr
+                      | dropDB_instr
+                      | showDB_instr'''
 
 ##CREATE DATABASE
 def p_create_db(t):
@@ -211,3 +214,56 @@ def p_create_replace_state_mode2(t):
 def p_create_replace_state_mode3(t):
     'state_mode   : PTCOMA'
     #print("Estado mode sentencia de escape ptcoma")
+
+
+##ALTER DATABASE
+def p_alter_state(t):
+    'alterDB_instr    : ALTER DATABASE ID RENAME TO ID PTCOMA'
+    #print("ALTERAR NOMBRE DE DATABASE A: " + t[6])
+
+def p_alter_state2(t):
+    'alterDB_instr    : ALTER DATABASE ID OWNER TO owner_users PTCOMA'
+    #print("ALTERAR DUEÑO DE BASE DE DATOS")
+
+def p_owner_users(t):
+    '''owner_users  : ID
+                    | CURRENT_USER
+                    | SESSION_USER'''   
+
+    #if t[1] == 'CURRENT_USER':
+        #print("-----CURRENT_USER-----")
+    #elif t[1] == 'SESSION_USER':
+        #print("-----SESSION_USER-----")
+    #else:
+        #print("-----USUARIO NUEVO----- " + t[1] + "-----------------")
+
+###DROP DATABASE
+
+def p_dropDB_instr(t):
+    'dropDB_instr : DROP DATABASE ID PTCOMA'
+    #print("DROP DATABASE SIN CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[3])
+
+def p_dropDB_instr2(t):
+    'dropDB_instr : DROP DATABASE IF EXISTS ID PTCOMA'
+    #print("DROP DATABASE CON CONDICIÓN DE EXISTENCIA CON NOMBRE: " + t[5])
+
+
+##SHOW DATABASES
+def p_showDB_instr(t):
+    'showDB_instr   : SHOW DATABASES PTCOMA'
+    #print("Show DATABASE sencillo")
+
+def p_showDB_instr2(t):
+    'showDB_instr   : SHOW DATABASES LIKE regexpr PTCOMA'
+    #print("Show DATABASE con LIKE")
+
+def p_showDB_regexp(t):
+    '''regexpr      : MODULO ID
+                    | MODULO ID MODULO
+                    | ID MODULO
+                    | MODULO ENTERO
+                    | MODULO ENTERO MODULO
+                    | ENTERO MODULO'''
+
+
+##########################################################################################
