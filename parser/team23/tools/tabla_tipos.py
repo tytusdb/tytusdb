@@ -1,31 +1,31 @@
 from enum import Enum
 
 class tipo_primitivo(Enum):
-    ENTERO = 1
-    DECIMAL = 2
-    STRING = 3
-    BOOLEAN = 4
-    ARREGLO = 5
-    ERROR = 6
+    SMALLINT = 0
+    INTEGER = 1
+    BIGINT = 2
+    DECIMAL = 3
+    NUMERIC = 4
+    REAL = 5
+    DOUBLE_PRECISION = 6
+    MONEY = 7
+    TIMESTAMP_TZ = 8    #WITH TIME ZONE
+    TIMESTAMP = 9       #WITHOUT TIME ZONE
+    DATE = 10
+    TIME_TZ = 11        #WITH TIME ZONE
+    TIME = 12           #WITHOUT TIME ZONE
+    INTERVAL = 13
+    BOOLEAN = 14
+    ERROR = 15
+    TEXT = 16
+    CHAR = 17
+    VARCHAR = 18
+    CHAR_STR = 19
+    VARCHAR_STR = 20
+
 
 class nodo_AST:
     def __init__(self, valor, num):
         self.valor = str(valor)
         self.num = str(num)
         self.hijos = []
-
-tipos_tabla = [
-    [tipo_primitivo.ENTERO, tipo_primitivo.DECIMAL, tipo_primitivo.STRING, tipo_primitivo.ENTERO, tipo_primitivo.ERROR, tipo_primitivo.ERROR],
-    [tipo_primitivo.DECIMAL, tipo_primitivo.DECIMAL, tipo_primitivo.STRING, tipo_primitivo.DECIMAL, tipo_primitivo.ERROR, tipo_primitivo.ERROR],
-    [tipo_primitivo.STRING, tipo_primitivo.STRING, tipo_primitivo.STRING, tipo_primitivo.STRING, tipo_primitivo.ERROR, tipo_primitivo.ERROR],
-    [tipo_primitivo.ENTERO, tipo_primitivo.DECIMAL, tipo_primitivo.STRING, tipo_primitivo.BOOLEAN, tipo_primitivo.ERROR, tipo_primitivo.ERROR],
-    [tipo_primitivo.ERROR, tipo_primitivo.ERROR, tipo_primitivo.ERROR, tipo_primitivo.ERROR, tipo_primitivo.ARREGLO, tipo_primitivo.ERROR],
-    [tipo_primitivo.ERROR, tipo_primitivo.ERROR, tipo_primitivo.ERROR, tipo_primitivo.ERROR, tipo_primitivo.ERROR, tipo_primitivo.ERROR]
-]
-
-# ENTERO    DECIMAL     STRING      ENTERO      ERROR       ERROR
-# DECIMAL   DECIMAL     STRING      DECIMAL     ERROR       ERROR
-# STRING    STRING      STRING      STRING      ERROR       ERROR
-# ENTERO    DECIMAL     STRING      BOOLEAN     ERROR       ERROR
-# ERROR     ERROR       ERROR       ERROR       ARREGLO     ERROR
-# ERROR     ERROR       ERROR       ERROR       ERROR       ERROR
