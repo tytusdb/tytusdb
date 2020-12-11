@@ -1,0 +1,6 @@
+
+/venv/
+/.idea/
+/proyecto/.idea/
+/proyecto/__pycache__/
+/proyecto/ply/__pycache__/
