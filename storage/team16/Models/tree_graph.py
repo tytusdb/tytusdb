@@ -49,5 +49,6 @@ class TreeGraph:
 
         # exportamos
         os.system('dot treeGraph.dot -Tpng -o treeGraph.png')
+        os.remove('treeGraph.dot')
         os.system('treeGraph.png')
         print('Generado con exito')

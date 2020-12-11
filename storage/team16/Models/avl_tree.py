@@ -7,17 +7,17 @@ class AVLTree:
         self.root = None
 
     # region basic methods
-    def add(self, index, tuple):
-        self.root = self.__add(index, tuple, self.root)
+    def add(self, index, content):
+        self.root = self.__add(index, content, self.root)
 
-    def __add(self, index, tuple, node):
+    def __add(self, index, content, node):
         if node is None:
-            return Node(index, tuple)
+            return Node(index, content)
         elif index < node.index:
-            node.left = self.__add(index, tuple, node.left)
+            node.left = self.__add(index, content, node.left)
             node = self.__balance(node)
         elif index > node.index:
-            node.right = self.__add(index, tuple, node.right)
+            node.right = self.__add(index, content, node.right)
             node = self.__balance(node)
         return node  # depends of the event returns different node to be the root
 
@@ -32,12 +32,12 @@ class AVLTree:
                     tmp, up = self.__rightmost(node.left, node)
                     first = True if tmp == node.left else False
                     node.index = tmp.index
-                    node.tuple = tmp.tuple
+                    node.content = tmp.content
 
                     if tmp.left:
                         tmp2 = tmp.left
                         tmp.index = tmp2.index
-                        tmp.tuple = tmp2.tuple
+                        tmp.content = tmp2.content
                         tmp.left = tmp2.left
                         tmp.right = tmp2.right
                     else:
@@ -55,7 +55,7 @@ class AVLTree:
 
     # endregion
 
-    #region other methods
+    # region other methods
     def __rightmost(self, node, up):
         if node.right:
             return self.__rightmost(node.right, node)
@@ -78,7 +78,8 @@ class AVLTree:
                     node = self.__DR(node, 'r') if self.height(node.right.left) > \
                                                    self.height(node.right.right) else self.__SR(node, 'r')
             return node
-    #endregion
+
+    # endregion
 
     # region calculation methods
 
