@@ -66,6 +66,7 @@ TytusDB tendrá cinco modos de almacenamiento, cada uno corresponde a un motor d
 3. Mediante un árbol B+
 4. Mediante ISAM
 5. Mediante tablas Hash.
+6. Mediante archivos JSON
 
 #### Registros de almacenamiento
 
@@ -166,7 +167,7 @@ Está compuesto por tres sub componentes:
 
 En general, el intérprete debe ser capaz de:
 
-- Invocar las [Funciones](#funciones) proporcionadas por el almacenamiento, para realizar operaciones sobre la base de datos.
+- Invocar las [Funciones](#funciones) proporcionadas por el administrador de almacenamiento, para realizar operaciones sobre la base de datos. Para hacer pruebas se puede utilizar el packete storageManager que está dentro de la carpeta storage de este repositorio. Para ver el uso indicado ver el archivo [test.py](https://github.com/tytusdb/tytus/blob/main/storage/test.py). Por el momento, solamente está implementándose el mode JSON. En la calificación se podrá utilizar cualquier modo.
 
 - Manipular el resultado de las funciones anteriores para restringir y mostrar los resultados indicados por la(s) consulta(s).
 
