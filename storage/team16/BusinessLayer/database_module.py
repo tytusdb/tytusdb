@@ -1,6 +1,5 @@
 class Database:
-    def __init__(self, mode, name):
-        self.mode = mode
+    def __init__(self, name):
         self.name = name
 
 
@@ -8,11 +7,16 @@ class DatabaseModule:
     def __init__(self):
         self.databases = []
 
-    def createDatabase(self, mode, database):
-        for i in self.databases:
-            if database == i.name:
-                return
-        self.databases.append(Database(mode, database))
+    def createDatabase(self, database):
+        try:
+            for i in self.databases:
+                if database == i.name:
+                    return  2
+            self.databases.append(Database(database))
+            return 0
+        except:
+            return 1
+        
 
     def showDatabases(self):
         temporal = []
@@ -21,16 +25,28 @@ class DatabaseModule:
         return temporal
 
     def alterDatabase(self, old, new):
-        for i in self.databases:
-            if str(old) == str(i.name):
-                i.name = new
+        try:
+            for i in self.databases:
+                if str(new) == str(i.name):
+                    return 3
+                if str(old) == str(i.name):
+                    i.name = new
+                    return 0
+            return 2
+        except:
+            return 1
 
     def dropDatabase(self, db):
-        for i in range(len(self.databases)):
-            if str(db) == str(self.databases[i].name):
-                self.databases.pop(i)
-                return
+        try:
+            for i in range(len(self.databases)):
+                if str(db) == str(self.databases[i].name):
+                    self.databases.pop(i)
+                    return 0
+            return 2
+        except:
+            return 1
+            
 
     def im(self):
         for i in self.databases:
-            print("Nombre: " + str(i.name) + ", Modo: " + str(i.mode))
+            print("Nombre: " + str(i.name))
