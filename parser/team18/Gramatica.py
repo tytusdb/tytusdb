@@ -1,12 +1,14 @@
 # Imports Librerias
 
 # Analisis Lexico
-Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'or':'OR', 'replace':'REPLACE', 'if':'IF', 'not':'NOT', 'exists':'EXISTS',
+Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'replace':'REPLACE', 'if':'IF', 'exists':'EXISTS',
                'owner':'OWNER', 'mode':'MODE', 'smallint':'smallint', 'integer':'integer', 'bigint':'bigint', 'decimal':'decimal', 'numeric':'numeric',
-               'real':'real', 'double':'double', 'precision':'precision', 'money':'money', 'default':'DEFAULT', 'not':'NOT', 'null':'NULL', 'unique':'UNIQUE',
+               'real':'real', 'double':'double', 'precision':'precision', 'money':'money', 'default':'DEFAULT', 'null':'NULL', 'unique':'UNIQUE',
                'constraint':'CONSTRAINT', 'primary':'PRIMARY', 'key':'KEY', 'foreign':'FOREIGN', 'references':'REFERENCES', 'inherits':'INHERITS',
                'insert':'INSERT','into':'INTO', 'values':'VALUES', 'update':'UPDATE','set':'SET','where':'WHERE','delete':'DELETE','from':'FROM',
-               'and':'AND','not':'NOT','or':'OR'
+               'and':'AND','not':'NOT','or':'OR', 'character':'character', 'varying':'varying', 'varchar':'varchar', 'char':'char', 'text':'text',
+               'timestamp':'timestamp', 'with':'with', 'time':'time', 'zone':'zone', 'date':'date', 'interval':'interval', 'boolean':'boolean',
+               'year':'YEAR', 'month':'MONTH', 'day':'DAY', 'hours':'HOURS', 'minute':'MINUTE', 'second':'SECOND'
              }
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
@@ -207,7 +209,7 @@ def p_columnas(t):
                  | columna'''
 
 def p_columna(t):
-     '''columna : ID tipo atributocolumn
+     '''columna : ID tipo valortipo zonahoraria atributocolumn
                 | PRIMARY KEY PAR_A lnombres PAR_C
                 | FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C'''
 
@@ -219,9 +221,27 @@ def p_tipo(t):
              | numeric
              | real
              | double precision
-             | money'''
+             | money
+             | character varying
+             | character
+             | char
+             | varchar
+             | text
+             | date
+             | timestamp
+             | time
+             | interval'''
      if len(t) == 2: t[0] = t[1]
      else: t[0] = t[1]+' '+t[2]
+
+def p_valortipo(t):
+     '''valortipo : PAR_A lvaloresdefault PAR_C
+                  | lvaloresdefault
+                  | empty'''
+
+def p_zona_horaria(t):
+     '''zonahoraria : with time zone
+                    | empty'''
 
 def p_atributo_columna(t):
      '''atributocolumn : atributocolumn atributo
@@ -239,14 +259,23 @@ def p_atributo(t):
      elif len(t) == 2: print(t[1])
      else: t[0] = ' '
 
+def p_lvalores_default(t):
+     '''lvaloresdefault : lvaloresdefault valoresdefault
+                        | valoresdefault'''
+
 def p_valores_default(t):
      '''valoresdefault : CADENA1
                        | CADENA2
                        | DECIMAL
                        | ENTERO
-                       | BOOLEAN'''
+                       | BOOLEAN
+                       | YEAR
+                       | MONTH
+                       | DAY
+                       | SECOND
+                       | MINUTE
+                       | HOURS'''
      t[0] = str(t[1])
-
 
 def p_lnombres(t):
      '''lnombres : lnombres COMA ID
