@@ -141,7 +141,12 @@ reservadas = {
     'least' : 'LEAST',
     'end' : 'END',
     'else' : 'ELSE',
-    'leatest': 'LEATEST'
+    'least': 'LEAST',
+    'true' : 'TRUE',
+    'false' : 'FALSE',
+    'unknown' : 'UNKNOWN',
+    'isnull' : 'ISNULL',
+    'notnull' : 'NOTNULL'
 }
 
 tokens  = [
