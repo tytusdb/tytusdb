@@ -1,25 +1,15 @@
 import os.path
 from os import path
+import webbrowser
 
-class Simbolo():
-    'Esta clase se utiliza para crear un símbolo de base para una declaración de variable'
-
-    def __init__(self, id, tipo, valor, linea, columna):
-        self.id = id
-        self.tipo = tipo
-        self.valor = valor
-        self.linea = linea
-        self.columna = columna
-
-def crear_tabla(lista):
-    if(path.exists('C:/Reportes/TablaSimbolos.html')):
-        os.remove('C:/Reportes/TablaSimbolos.html')
-
-    file = open("C:/Reportes/TablaSimbolos.html","w",encoding='utf-8')
-    file.write(reporte_tabla(lista))
+def crear_tabla(tabla):
+    filename = "TablaSimbolos.html"
+    file = open(filename,"w",encoding='utf-8')
+    file.write(reporte_tabla(tabla))
     file.close()
+    webbrowser.open_new_tab(filename)
 
-def reporte_tabla(lista):
+def reporte_tabla(tabla):
     cadena = ''
     cadena += "<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/><title>Reporte</title><style> \n"
     cadena += "table{ \n"
@@ -57,33 +47,20 @@ def reporte_tabla(lista):
 
     # Recorrido
     contador = 0
-    for s in lista:
-        cadena += "<tr>\n"
-        cadena += "<td><center>" + str(contador) + "</center></td>\n"
-        cadena += "<td><center>" + s.id + "</center></td>\n"
-        cadena += "<td><center>" + s.tipo + "</center></td>\n"
-        cadena += "<td><center>" + s.valor + "</center></td>\n"
-        cadena += "<td><center>" + str(s.linea) + "</center></td>\n"
-        cadena += "<td><center>" + str(s.columna) + "</center></td>\n"
-        cadena += "</tr>\n"
-        contador += 1
+    while tabla != None:
+        for s in tabla.variables:
+            cadena += "<tr>\n"
+            cadena += "<td><center>" + str(contador) + "</center></td>\n"
+            cadena += "<td><center>" + s.id + "</center></td>\n"
+            cadena += "<td><center>" + s.tipo + "</center></td>\n"
+            cadena += "<td><center>" + s.valor + "</center></td>\n"
+            cadena += "<td><center>" + str(s.linea) + "</center></td>\n"
+            cadena += "<td><center>" + str(s.columna) + "</center></td>\n"
+            cadena += "</tr>\n"
+            contador += 1
+        tabla = tabla.anterior
 
     cadena += "</table>\n"
     cadena += "</body>\n"
     cadena += "</html>"
     return cadena
-
-
-s1 = Simbolo('a','int','1',0,0)
-s2 = Simbolo('b','string','string',1,0)
-s3 = Simbolo('c','boolean','true',2,0)
-
-listaS = []
-listaS.append(s1)
-listaS.append(s2)
-listaS.append(s3)
-
-
-
-
-print(crear_tabla(listaS))
