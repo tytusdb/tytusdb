@@ -1,4 +1,6 @@
 # Imports Librerias
+from reportes import *
+from tkinter import *
 
 # Analisis Lexico
 Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'replace':'REPLACE', 'if':'IF', 'exists':'EXISTS',
@@ -14,7 +16,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
              }
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
-           'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO' ] + list(Reservadas.values())
+           'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO', 'RESTA','SUMA', 'MULTI','DIV' ] + list(Reservadas.values())
 
 t_PTCOMA = r';'
 t_PAR_A = r'\('
@@ -32,6 +34,12 @@ t_MENORIGUAL = r'\<\='
 t_MAYOR = r'\>'
 t_MENOR = r'\<'
 
+
+#arithmetic operators
+t_RESTA = r'-'
+t_SUMA = r'\+'
+t_MULTI = r'\*'
+t_DIV = r'\/'
 
 def t_DECIMAL(t):
     r'-?\d+\.\d+'
@@ -89,6 +97,7 @@ def t_newline(t):
     
 def t_error(t):
     print("Caracter Invalido '%s'" % t.value[0])
+    Error_Lex.append("Error Lexico: "+t.value[0]+" en la Fila: "+str(int(t.lexer.lineno)))
     t.lexer.skip(1)
 
 import ply.lex as lex
@@ -236,7 +245,10 @@ def p_expresion_relacional(t):
                 | E MENOR E'''
 
 def p_expresion_aritmetica(t):
-     '''exp_ar : '''
+     '''exp_ar : E SUMA E
+               | E RESTA E
+               | E MULTI E
+               | E DIV E'''
 
 def p_expresion(t):
      '''E : ENTERO
@@ -377,13 +389,27 @@ def p_empty(t):
      'empty : '
 
 def p_error(t):
-    try:
-         print("Error sintáctico en '%s'" % t.value)
-    except AttributeError:
-         pass
+     if(t!=None):
+          print("Error sintactico en: '%s'" % t.value)
+          Error_Sin.append("Error sintactico: Lexema: "+t.value+ " Fila: "+str(t.lineno))
+          
+          while(True):
+               tk = parser.token()
+               if(tk==None):
+                    break
+               elif(tk.type=="PTCOMA"):
+                    break
+          parser.errok()
+          return tk
+
+
+Error_Lex = []
+Error_Sin = []
 
 import ply.yacc as yacc
 parser = yacc.yacc()
+
+
 
 
 #f = open("./entrada.txt", "r")
@@ -392,3 +418,6 @@ parser = yacc.yacc()
 
 def AnalizarInput(texto):
      parser.parse(texto)
+     global Error_Lex
+     global Error_Sin
+     Reporte_Errores(Error_Lex,Error_Sin)
