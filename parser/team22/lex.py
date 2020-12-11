@@ -162,6 +162,7 @@ tokens  = [
     'MAYORIGUAL',
     'MAYOR',
     'DIFERENTE',
+    'NO_IGUAL',
     'MENORIGUAL',
     'MENOR',
     'ASIGNACION_SUMA',
@@ -197,6 +198,7 @@ t_MENOR             = r'<'
 t_MENORIGUAL        = r'<='
 t_MAYORIGUAL        = r'>='
 t_DIFERENTE         = r'<>'
+t_NO_IGUAL          = r'!='
 t_ASIGNACION_SUMA   = r'\+='
 t_ASIGNACION_RESTA  = r'\-='
 t_ASIGNACION_MULT   = r'\*='

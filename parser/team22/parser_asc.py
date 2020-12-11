@@ -357,14 +357,22 @@ def p_instrucciones_parametro(t) :
     # print("Un parametro")
 
 def p_parametro_con_tabla(t) :
-    'parametro        : ID PUNTO name_column'
+    'parametro        : ID PUNTO ID'
     t[0] = t[1]
-    # print("Parametro con indice de tabla")
 
+def p_parametros_funciones(t) :
+    'parametro         : lista_funciones'
+    t[0] = t[1]
+
+
+#ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
+#=====================================================
 def p_parametro_con_tabla_columna(t) :
     'name_column        : ID'
     t[0] = t[1]
     # print("Nombre de la columna")
+#=====================================================
+
 
 def p_parametro_sin_tabla(t) :
     'parametro        : ID'
@@ -372,8 +380,8 @@ def p_parametro_sin_tabla(t) :
     # print("Parametro SIN indice de tabla")
 
 def p_parametro_con_tabla_alias(t) :
-    '''parametro        : ID AS name_column
-                        | ID name_column'''
+    '''parametro        : ID AS ID
+                        | ID ID'''
     t[0] = t[1]
     # print("Parametro SIN indice de tabla")
 
@@ -485,8 +493,8 @@ def p_instrucciones_insercion_select(t) :
 
 #========================================================
 
+# LISTA DE CONDICIONES --- ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
 #========================================================
-# LISTA DE CONDICIONES
 def p_instrucciones_lista_condiciones_AND(t) :
     'lista_condiciones    : lista_condiciones AND condicion'
     t[1].append(t[3])
@@ -545,8 +553,8 @@ def p_parametro_sin_tabla_2(t) :
     'condicion        : ID signo_relacional ID'
     t[0] = t[1]
     # print("Condicion SIN indice de tabla")
-
 #========================================================
+
 
 # INSTRUCCION CON "DELETE"
 def p_instruccion_delete(t) :
@@ -630,6 +638,7 @@ def p_relacional(t) :
                     | aritmetica MENORIGUAL aritmetica
                     | aritmetica MAYORIGUAL aritmetica
                     | aritmetica DIFERENTE aritmetica
+                    | aritmetica NO_IGUAL aritmetica
                     | aritmetica
                     | relacional AND relacional
                     | relacional OR relacional
@@ -650,7 +659,8 @@ def p_valor(t) :
                     | ENTERO
                     | DECIMAL
                     | CADENA
-                    | ID PUNTO ID'''
+                    | ID PUNTO ID
+                    | lista_funciones_where'''
 
 def p_instruccion_update_where(t) :
     '''update_table : ID SET def_update WHERE relacional'''
@@ -668,7 +678,8 @@ def p_def_update(t) :
 
 
 
-## CASE---------------------------------------------------------------------------
+# CASE
+#========================================================
 def p_case_state(t):
     ''' case_state    : case_state auxcase_state END
                       | auxcase_state END'''
@@ -678,10 +689,8 @@ def p_auxcase_state(t):
 
 def p_auxcase_state2(t):
     'auxcase_state  : ELSE COMILLA_SIMPLE ID COMILLA_SIMPLE'
-
 #========================================================
 
-#========================================================
 # FUNCIONES MATEMÁTICAS
 #SOLO ESTOS SE PUEDEN USAR EN EL WHERE
 def p_instrucciones_funcion_abs_where(t) :
@@ -725,7 +734,7 @@ def p_instrucciones_funcion_floor(t) :
     'lista_funciones    : FLOOR PARIZQ funcion_math_parametro PARDER'
 
 def p_instrucciones_funcion_gcd(t) :
-    'lista_funciones    : GCD PARIZQ ENTERO, ENTERO PARDER'
+    'lista_funciones    : GCD PARIZQ ENTERO COMA ENTERO PARDER'
 
 def p_instrucciones_funcion_ln(t) :
     'lista_funciones    : LN PARIZQ funcion_math_parametro PARDER'
@@ -734,7 +743,7 @@ def p_instrucciones_funcion_log(t) :
     'lista_funciones    : LOG PARIZQ funcion_math_parametro PARDER'
 
 def p_instrucciones_funcion_mod(t) :
-    'lista_funciones    : MOD PARIZQ funcion_math_parametro, ENTERO PARDER'
+    'lista_funciones    : MOD PARIZQ funcion_math_parametro COMA ENTERO PARDER'
 
 def p_instrucciones_funcion_pi(t) :
     'lista_funciones    : PI PARIZQ PARDER'
@@ -751,11 +760,11 @@ def p_instrucciones_funcion_round(t) :
 def p_instrucciones_funcion_math_parametro(t) :
     '''funcion_math_parametro   : ENTERO
                                 | ID
-                                | FLOAT
+                                | DECIMAL
                                 | funcion_math_parametro_negativo'''
 
 def p_instrucciones_funcion_math_parametro_negativo(t) :
-    '''funcion_math_parametro_negativo  : MENOS FLOAT
+    '''funcion_math_parametro_negativo  : MENOS DECIMAL
                                         | MENOS ENTERO'''
 
 #========================================================
