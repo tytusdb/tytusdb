@@ -639,6 +639,86 @@ def p_auxcase_state(t):
 def p_auxcase_state2(t):
     'auxcase_state  : ELSE COMILLA_SIMPLE ID COMILLA_SIMPLE'
 
+#========================================================
+
+#========================================================
+# FUNCIONES MATEMÁTICAS
+#SOLO ESTOS SE PUEDEN USAR EN EL WHERE
+def p_instrucciones_funcion_abs_where(t) :
+    'lista_funciones_where    : ABS PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_cbrt_where(t) :
+    'lista_funciones_where    : CBRT PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_ceil_where(t) :
+    'lista_funciones_where    : CEIL PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_cieling_where(t) :
+    'lista_funciones_where    : CEILING PARIZQ funcion_math_parametro PARDER'
+
+#ESTOS SE USAN EN EL SELECT
+def p_instrucciones_funcion_abs_select(t) :
+    'lista_funciones    : ABS PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_cbrt_select(t) :
+    'lista_funciones    : CBRT PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_ceil_select(t) :
+    'lista_funciones    : CEIL PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_cieling_select(t) :
+    'lista_funciones    : CEILING PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_degrees(t) :
+    'lista_funciones    : DEGREES PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_div(t) :
+    'lista_funciones    : DIV PARIZQ funcion_math_parametro COMA ENTERO PARDER'
+
+def p_instrucciones_funcion_exp(t) :
+    'lista_funciones    : EXP PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_factorial(t) :
+    'lista_funciones    : FACTORIAL PARIZQ ENTERO PARDER'
+
+def p_instrucciones_funcion_floor(t) :
+    'lista_funciones    : FLOOR PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_gcd(t) :
+    'lista_funciones    : GCD PARIZQ ENTERO, ENTERO PARDER'
+
+def p_instrucciones_funcion_ln(t) :
+    'lista_funciones    : LN PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_log(t) :
+    'lista_funciones    : LOG PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_mod(t) :
+    'lista_funciones    : MOD PARIZQ funcion_math_parametro, ENTERO PARDER'
+
+def p_instrucciones_funcion_pi(t) :
+    'lista_funciones    : PI PARIZQ PARDER'
+
+def p_instrucciones_funcion_power(t) :
+    'lista_funciones    : POWER PARIZQ funcion_math_parametro COMA ENTERO PARDER'
+
+def p_instrucciones_funcion_radians(t) :
+    'lista_funciones    : RADIANS PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_round(t) :
+    'lista_funciones    : ROUND PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_math_parametro(t) :
+    '''funcion_math_parametro   : ENTERO
+                                | ID
+                                | FLOAT
+                                | funcion_math_parametro_negativo'''
+
+def p_instrucciones_funcion_math_parametro_negativo(t) :
+    '''funcion_math_parametro_negativo  : MENOS FLOAT
+                                        | MENOS ENTERO'''
+
+#========================================================
 
 def p_error(t):
     print(t)
