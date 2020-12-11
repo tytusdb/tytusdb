@@ -1,7 +1,11 @@
 import libs.ply.lex as lex
 from libs.ply.lex import TOKEN
+from models.error import Error
+from controllers.linked_list import SingleLinkedList
 
 # Hacen falta palabras reservadas hay que anadirlas
+list_errors = SingleLinkedList()
+id_error = 1
 
 # Definitions of tokens reserved
 k_reserved = {
@@ -28,6 +32,7 @@ k_reserved = {
     'DISTINCT': 'DISTINCT',
     'DOUBLE': 'DOUBLE',
     'EXISTS': 'EXISTS',
+    'EXCEPT': 'EXCEPT',
     'EXTRACT': 'EXTRACT',
     'FROM': 'FROM',
     'FULL': 'FULL',
@@ -41,9 +46,11 @@ k_reserved = {
     'INTERVAL': 'INTERVAL',
     'INTO': 'INTO',
     'INNER': 'INNER',
+    'INTERSECT': 'INTERSECT',
     'JOIN': 'JOIN',
     'LEFT': 'LEFT',
     'LIKE': 'LIKE',
+    'LIMIT': 'LIMIT',
     'MAX': 'MAX',
     'MIN': "MIN",
     'MINUTE': 'MINUTE',
@@ -56,6 +63,7 @@ k_reserved = {
     'OUTER': 'OUTER',
     'OR': 'OR',
     'ORDER': 'ORDER',
+    'OFFSET': 'OFFSET',
     'PRECISION': 'PRECISION',
     'REAL': 'REAL',
     'RETURNING': 'RETURNING',
@@ -166,6 +174,7 @@ t_MOD = r'\%'
 # Token recognition using patterns
 
 
+input = ""
 @TOKEN(decimal)
 def t_FLOAT_NUMBER(t):
     # r'\d+\.\d+'
@@ -235,16 +244,34 @@ def t_white_space(t):
 
 
 def t_error(t):
-    print(
-        f"The character {t.value[0]} ilegal, {t.lexer.lineno}")
+    global list_errors
+    global input
+    global id_error
+    
+    id_error = list_errors.count + 1  if list_errors.count > 0 else 1
+
+    description = f'Caracter Desconocido {t.value[0]}'
+    column = find_column(t)
+    
+    print(f"The character {t.value[0]} ilegal, {t.lexer.lineno}  {find_column(t)}")
+    
+    list_errors.insert_end(Error(id_error, 'Lexical', description, t.lexer.lineno, column))
+    id_error += 1
+    
     t.lexer.skip(1)
 
 # Find column
 
 
-def find_column(input, token):
+def find_column(token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
+def get_text(entra):
+    global input
+    global id_error
+    id_error = 1
+    input = entra
+    return input
 
-lexer = lex.lex()
+

@@ -1,0 +1,1636 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    ALL
+    AND
+    ANY
+    AS
+    ASC
+    BETWEEN
+    BOOLEAN
+    BY
+    CADENA
+    CASE
+    CHARACTER
+    CHECK
+    CORCHETEABRE
+    CORCHETECIERRE
+    DATE
+    DAY
+    DESC
+    DISTINCT
+    DOBLE
+    DOBLE_DOSPUNTOS
+    ELSE
+    END
+    ENUM
+    EXCEPT
+    EXISTS
+    FALSE
+    FIRST
+    FROM
+    FULL
+    GREATEST
+    GROUP
+    HAVING
+    HOUR
+    ILIKE
+    IN
+    INNER
+    INSERT
+    INTERSECT
+    INTERVAL
+    INTO
+    IS
+    ISNULL
+    JOIN
+    LAST
+    LEAST
+    LEFT
+    LIKE
+    LIMIT
+    LLAVEABRE
+    LLAVECIERRE
+    MAYORIGUALQUE
+    MAYORQUE
+    MENORIGUALQUE
+    MENORQUE
+    MINUTE
+    MONEY
+    MONTH
+    NATURAL
+    NOTNULL
+    NULLS
+    NUM_DECIMAL
+    OFFSET
+    ORDER
+    OUTER
+    PRECISION
+    PUNTO
+    REFERENCES
+    RETURNING
+    RIGTH
+    SECOND
+    SELECT
+    SIGNO_DIVISION
+    SIGNO_MAS
+    SIGNO_MENOS
+    SIGNO_MODULO
+    SIGNO_POR
+    SIGNO_POTENCIA
+    SIMILAR
+    SMALLINT
+    SOME
+    SUBSTRING
+    SYMMETRIC
+    THEN
+    TIME
+    TIMESTAMP
+    TRUE
+    TYPE
+    UNION
+    UNKNOWN
+    USING
+    VALUES
+    VARYING
+    WHEN
+    WHERE
+    YEAR
+
+Grammar
+
+Rule 0     S' -> inicio
+Rule 1     inicio -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> ins_use
+Rule 5     instruccion -> ins_show
+Rule 6     instruccion -> ins_alter
+Rule 7     instruccion -> ins_drop
+Rule 8     instruccion -> ins_create
+Rule 9     ins_use -> USE ID
+Rule 10    ins_show -> SHOW DATABASES
+Rule 11    ins_create -> CREATE tipo_create
+Rule 12    tipo_create -> ins_replace DATABASE if_exist ID create_opciones puntocoma
+Rule 13    tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA
+Rule 14    definicion_columna -> definicion_columna COMA columna
+Rule 15    definicion_columna -> columna
+Rule 16    columna -> ID tipo_dato definicion_valor_defecto ins_constraint
+Rule 17    tipo_dato -> VARCHAR
+Rule 18    tipo_dato -> INTEGER
+Rule 19    tipo_dato -> CHAR
+Rule 20    tipo_dato -> TEXT
+Rule 21    tipo_dato -> BIGINT
+Rule 22    tipo_dato -> DECIMAL
+Rule 23    tipo_dato -> NUMERIC
+Rule 24    tipo_dato -> REAL
+Rule 25    definicion_valor_defecto -> DEFAULT tipo_default
+Rule 26    definicion_valor_defecto -> <empty>
+Rule 27    ins_constraint -> CONSTRAINT ID restriccion_columna
+Rule 28    ins_constraint -> <empty>
+Rule 29    restriccion_columna -> NOT NULL
+Rule 30    restriccion_columna -> NULL
+Rule 31    restriccion_columna -> PRIMARY KEY
+Rule 32    restriccion_columna -> UNIQUE
+Rule 33    restriccion_columna -> FOREIGN KEY ID PARABRE ID PARCIERRE ins_references
+Rule 34    ins_references -> ON DELETE accion
+Rule 35    ins_references -> ON UPDATE accion
+Rule 36    accion -> CASCADE
+Rule 37    accion -> SET NULL
+Rule 38    accion -> SET DEFAULT
+Rule 39    accion -> NO ACTION
+Rule 40    tipo_default -> NUMERIC
+Rule 41    tipo_default -> DECIMAL
+Rule 42    tipo_default -> NULL
+Rule 43    ins_replace -> OR REPLACE puntocoma
+Rule 44    ins_replace -> <empty>
+Rule 45    if_exist -> IF NOT EXIST puntocoma
+Rule 46    if_exist -> IF EXIST
+Rule 47    if_exist -> <empty>
+Rule 48    create_opciones -> OWNER SIGNO_IGUAL ID
+Rule 49    create_opciones -> MODE SIGNO_IGUAL NUMERO
+Rule 50    puntocoma -> PUNTO_COMA
+Rule 51    puntocoma -> <empty>
+Rule 52    ins_alter -> ALTER tipo_alter
+Rule 53    tipo_alter -> DATABASE ID alter_database PUNTO_COMA
+Rule 54    tipo_alter -> TABLE ID alteracion_tabla PUNTO_COMA
+Rule 55    alteracion_tabla -> alteracion_tabla COMA alterar_tabla
+Rule 56    alteracion_tabla -> alterar_tabla
+Rule 57    alterar_tabla -> ADD COLUMN columna
+Rule 58    alterar_tabla -> ALTER COLUMN columna
+Rule 59    alterar_tabla -> DROP COLUMN ID
+Rule 60    alterar_tabla -> DROP CONSTRAINT ID
+Rule 61    alter_database -> RENAME TO ID
+Rule 62    alter_database -> OWNER TO ID
+Rule 63    ins_drop -> DROP tipo_drop
+Rule 64    tipo_drop -> DATABASE if_exist ID PUNTO_COMA
+Rule 65    tipo_drop -> TABLE ID PUNTO_COMA
+
+Terminals, with rules where they appear
+
+ACTION               : 39
+ADD                  : 57
+ALL                  : 
+ALTER                : 52 58
+AND                  : 
+ANY                  : 
+AS                   : 
+ASC                  : 
+BETWEEN              : 
+BIGINT               : 21
+BOOLEAN              : 
+BY                   : 
+CADENA               : 
+CASCADE              : 36
+CASE                 : 
+CHAR                 : 19
+CHARACTER            : 
+CHECK                : 
+COLUMN               : 57 58 59
+COMA                 : 14 55
+CONSTRAINT           : 27 60
+CORCHETEABRE         : 
+CORCHETECIERRE       : 
+CREATE               : 11
+DATABASE             : 12 53 64
+DATABASES            : 10
+DATE                 : 
+DAY                  : 
+DECIMAL              : 22 41
+DEFAULT              : 25 38
+DELETE               : 34
+DESC                 : 
+DISTINCT             : 
+DOBLE                : 
+DOBLE_DOSPUNTOS      : 
+DROP                 : 59 60 63
+ELSE                 : 
+END                  : 
+ENUM                 : 
+EXCEPT               : 
+EXIST                : 45 46
+EXISTS               : 
+FALSE                : 
+FIRST                : 
+FOREIGN              : 33
+FROM                 : 
+FULL                 : 
+GREATEST             : 
+GROUP                : 
+HAVING               : 
+HOUR                 : 
+ID                   : 9 12 13 16 27 33 33 48 53 54 59 60 61 62 64 65
+IF                   : 45 46
+ILIKE                : 
+IN                   : 
+INNER                : 
+INSERT               : 
+INTEGER              : 18
+INTERSECT            : 
+INTERVAL             : 
+INTO                 : 
+IS                   : 
+ISNULL               : 
+JOIN                 : 
+KEY                  : 31 33
+LAST                 : 
+LEAST                : 
+LEFT                 : 
+LIKE                 : 
+LIMIT                : 
+LLAVEABRE            : 
+LLAVECIERRE          : 
+MAYORIGUALQUE        : 
+MAYORQUE             : 
+MENORIGUALQUE        : 
+MENORQUE             : 
+MINUTE               : 
+MODE                 : 49
+MONEY                : 
+MONTH                : 
+NATURAL              : 
+NO                   : 39
+NOT                  : 29 45
+NOTNULL              : 
+NULL                 : 29 30 37 42
+NULLS                : 
+NUMERIC              : 23 40
+NUMERO               : 49
+NUM_DECIMAL          : 
+OFFSET               : 
+ON                   : 34 35
+OR                   : 43
+ORDER                : 
+OUTER                : 
+OWNER                : 48 62
+PARABRE              : 13 33
+PARCIERRE            : 13 33
+PRECISION            : 
+PRIMARY              : 31
+PUNTO                : 
+PUNTO_COMA           : 13 50 53 54 64 65
+REAL                 : 24
+REFERENCES           : 
+RENAME               : 61
+REPLACE              : 43
+RETURNING            : 
+RIGTH                : 
+SECOND               : 
+SELECT               : 
+SET                  : 37 38
+SHOW                 : 10
+SIGNO_DIVISION       : 
+SIGNO_IGUAL          : 48 49
+SIGNO_MAS            : 
+SIGNO_MENOS          : 
+SIGNO_MODULO         : 
+SIGNO_POR            : 
+SIGNO_POTENCIA       : 
+SIMILAR              : 
+SMALLINT             : 
+SOME                 : 
+SUBSTRING            : 
+SYMMETRIC            : 
+TABLE                : 13 54 65
+TEXT                 : 20
+THEN                 : 
+TIME                 : 
+TIMESTAMP            : 
+TO                   : 61 62
+TRUE                 : 
+TYPE                 : 
+UNION                : 
+UNIQUE               : 32
+UNKNOWN              : 
+UPDATE               : 35
+USE                  : 9
+USING                : 
+VALUES               : 
+VARCHAR              : 17
+VARYING              : 
+WHEN                 : 
+WHERE                : 
+YEAR                 : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+accion               : 34 35
+alter_database       : 53
+alteracion_tabla     : 54 55
+alterar_tabla        : 55 56
+columna              : 14 15 57 58
+create_opciones      : 12
+definicion_columna   : 13 14
+definicion_valor_defecto : 16
+if_exist             : 12 64
+inicio               : 0
+ins_alter            : 6
+ins_constraint       : 16
+ins_create           : 8
+ins_drop             : 7
+ins_references       : 33
+ins_replace          : 12
+ins_show             : 5
+ins_use              : 4
+instruccion          : 2 3
+instrucciones        : 1 2
+puntocoma            : 12 43 45
+restriccion_columna  : 27
+tipo_alter           : 52
+tipo_create          : 11
+tipo_dato            : 16
+tipo_default         : 25
+tipo_drop            : 63
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . inicio
+    (1) inicio -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . ins_use
+    (5) instruccion -> . ins_show
+    (6) instruccion -> . ins_alter
+    (7) instruccion -> . ins_drop
+    (8) instruccion -> . ins_create
+    (9) ins_use -> . USE ID
+    (10) ins_show -> . SHOW DATABASES
+    (52) ins_alter -> . ALTER tipo_alter
+    (63) ins_drop -> . DROP tipo_drop
+    (11) ins_create -> . CREATE tipo_create
+
+    USE             shift and go to state 9
+    SHOW            shift and go to state 10
+    ALTER           shift and go to state 11
+    DROP            shift and go to state 12
+    CREATE          shift and go to state 13
+
+    inicio                         shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    ins_use                        shift and go to state 4
+    ins_show                       shift and go to state 5
+    ins_alter                      shift and go to state 6
+    ins_drop                       shift and go to state 7
+    ins_create                     shift and go to state 8
+
+state 1
+
+    (0) S' -> inicio .
+
+
+
+state 2
+
+    (1) inicio -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . ins_use
+    (5) instruccion -> . ins_show
+    (6) instruccion -> . ins_alter
+    (7) instruccion -> . ins_drop
+    (8) instruccion -> . ins_create
+    (9) ins_use -> . USE ID
+    (10) ins_show -> . SHOW DATABASES
+    (52) ins_alter -> . ALTER tipo_alter
+    (63) ins_drop -> . DROP tipo_drop
+    (11) ins_create -> . CREATE tipo_create
+
+    $end            reduce using rule 1 (inicio -> instrucciones .)
+    USE             shift and go to state 9
+    SHOW            shift and go to state 10
+    ALTER           shift and go to state 11
+    DROP            shift and go to state 12
+    CREATE          shift and go to state 13
+
+    instruccion                    shift and go to state 14
+    ins_use                        shift and go to state 4
+    ins_show                       shift and go to state 5
+    ins_alter                      shift and go to state 6
+    ins_drop                       shift and go to state 7
+    ins_create                     shift and go to state 8
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    USE             reduce using rule 3 (instrucciones -> instruccion .)
+    SHOW            reduce using rule 3 (instrucciones -> instruccion .)
+    ALTER           reduce using rule 3 (instrucciones -> instruccion .)
+    DROP            reduce using rule 3 (instrucciones -> instruccion .)
+    CREATE          reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> ins_use .
+
+    USE             reduce using rule 4 (instruccion -> ins_use .)
+    SHOW            reduce using rule 4 (instruccion -> ins_use .)
+    ALTER           reduce using rule 4 (instruccion -> ins_use .)
+    DROP            reduce using rule 4 (instruccion -> ins_use .)
+    CREATE          reduce using rule 4 (instruccion -> ins_use .)
+    $end            reduce using rule 4 (instruccion -> ins_use .)
+
+
+state 5
+
+    (5) instruccion -> ins_show .
+
+    USE             reduce using rule 5 (instruccion -> ins_show .)
+    SHOW            reduce using rule 5 (instruccion -> ins_show .)
+    ALTER           reduce using rule 5 (instruccion -> ins_show .)
+    DROP            reduce using rule 5 (instruccion -> ins_show .)
+    CREATE          reduce using rule 5 (instruccion -> ins_show .)
+    $end            reduce using rule 5 (instruccion -> ins_show .)
+
+
+state 6
+
+    (6) instruccion -> ins_alter .
+
+    USE             reduce using rule 6 (instruccion -> ins_alter .)
+    SHOW            reduce using rule 6 (instruccion -> ins_alter .)
+    ALTER           reduce using rule 6 (instruccion -> ins_alter .)
+    DROP            reduce using rule 6 (instruccion -> ins_alter .)
+    CREATE          reduce using rule 6 (instruccion -> ins_alter .)
+    $end            reduce using rule 6 (instruccion -> ins_alter .)
+
+
+state 7
+
+    (7) instruccion -> ins_drop .
+
+    USE             reduce using rule 7 (instruccion -> ins_drop .)
+    SHOW            reduce using rule 7 (instruccion -> ins_drop .)
+    ALTER           reduce using rule 7 (instruccion -> ins_drop .)
+    DROP            reduce using rule 7 (instruccion -> ins_drop .)
+    CREATE          reduce using rule 7 (instruccion -> ins_drop .)
+    $end            reduce using rule 7 (instruccion -> ins_drop .)
+
+
+state 8
+
+    (8) instruccion -> ins_create .
+
+    USE             reduce using rule 8 (instruccion -> ins_create .)
+    SHOW            reduce using rule 8 (instruccion -> ins_create .)
+    ALTER           reduce using rule 8 (instruccion -> ins_create .)
+    DROP            reduce using rule 8 (instruccion -> ins_create .)
+    CREATE          reduce using rule 8 (instruccion -> ins_create .)
+    $end            reduce using rule 8 (instruccion -> ins_create .)
+
+
+state 9
+
+    (9) ins_use -> USE . ID
+
+    ID              shift and go to state 15
+
+
+state 10
+
+    (10) ins_show -> SHOW . DATABASES
+
+    DATABASES       shift and go to state 16
+
+
+state 11
+
+    (52) ins_alter -> ALTER . tipo_alter
+    (53) tipo_alter -> . DATABASE ID alter_database PUNTO_COMA
+    (54) tipo_alter -> . TABLE ID alteracion_tabla PUNTO_COMA
+
+    DATABASE        shift and go to state 18
+    TABLE           shift and go to state 19
+
+    tipo_alter                     shift and go to state 17
+
+state 12
+
+    (63) ins_drop -> DROP . tipo_drop
+    (64) tipo_drop -> . DATABASE if_exist ID PUNTO_COMA
+    (65) tipo_drop -> . TABLE ID PUNTO_COMA
+
+    DATABASE        shift and go to state 21
+    TABLE           shift and go to state 22
+
+    tipo_drop                      shift and go to state 20
+
+state 13
+
+    (11) ins_create -> CREATE . tipo_create
+    (12) tipo_create -> . ins_replace DATABASE if_exist ID create_opciones puntocoma
+    (13) tipo_create -> . TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA
+    (43) ins_replace -> . OR REPLACE puntocoma
+    (44) ins_replace -> .
+
+    TABLE           shift and go to state 25
+    OR              shift and go to state 26
+    DATABASE        reduce using rule 44 (ins_replace -> .)
+
+    tipo_create                    shift and go to state 23
+    ins_replace                    shift and go to state 24
+
+state 14
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    USE             reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    SHOW            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    ALTER           reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    DROP            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    CREATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 15
+
+    (9) ins_use -> USE ID .
+
+    USE             reduce using rule 9 (ins_use -> USE ID .)
+    SHOW            reduce using rule 9 (ins_use -> USE ID .)
+    ALTER           reduce using rule 9 (ins_use -> USE ID .)
+    DROP            reduce using rule 9 (ins_use -> USE ID .)
+    CREATE          reduce using rule 9 (ins_use -> USE ID .)
+    $end            reduce using rule 9 (ins_use -> USE ID .)
+
+
+state 16
+
+    (10) ins_show -> SHOW DATABASES .
+
+    USE             reduce using rule 10 (ins_show -> SHOW DATABASES .)
+    SHOW            reduce using rule 10 (ins_show -> SHOW DATABASES .)
+    ALTER           reduce using rule 10 (ins_show -> SHOW DATABASES .)
+    DROP            reduce using rule 10 (ins_show -> SHOW DATABASES .)
+    CREATE          reduce using rule 10 (ins_show -> SHOW DATABASES .)
+    $end            reduce using rule 10 (ins_show -> SHOW DATABASES .)
+
+
+state 17
+
+    (52) ins_alter -> ALTER tipo_alter .
+
+    USE             reduce using rule 52 (ins_alter -> ALTER tipo_alter .)
+    SHOW            reduce using rule 52 (ins_alter -> ALTER tipo_alter .)
+    ALTER           reduce using rule 52 (ins_alter -> ALTER tipo_alter .)
+    DROP            reduce using rule 52 (ins_alter -> ALTER tipo_alter .)
+    CREATE          reduce using rule 52 (ins_alter -> ALTER tipo_alter .)
+    $end            reduce using rule 52 (ins_alter -> ALTER tipo_alter .)
+
+
+state 18
+
+    (53) tipo_alter -> DATABASE . ID alter_database PUNTO_COMA
+
+    ID              shift and go to state 27
+
+
+state 19
+
+    (54) tipo_alter -> TABLE . ID alteracion_tabla PUNTO_COMA
+
+    ID              shift and go to state 28
+
+
+state 20
+
+    (63) ins_drop -> DROP tipo_drop .
+
+    USE             reduce using rule 63 (ins_drop -> DROP tipo_drop .)
+    SHOW            reduce using rule 63 (ins_drop -> DROP tipo_drop .)
+    ALTER           reduce using rule 63 (ins_drop -> DROP tipo_drop .)
+    DROP            reduce using rule 63 (ins_drop -> DROP tipo_drop .)
+    CREATE          reduce using rule 63 (ins_drop -> DROP tipo_drop .)
+    $end            reduce using rule 63 (ins_drop -> DROP tipo_drop .)
+
+
+state 21
+
+    (64) tipo_drop -> DATABASE . if_exist ID PUNTO_COMA
+    (45) if_exist -> . IF NOT EXIST puntocoma
+    (46) if_exist -> . IF EXIST
+    (47) if_exist -> .
+
+    IF              shift and go to state 30
+    ID              reduce using rule 47 (if_exist -> .)
+
+    if_exist                       shift and go to state 29
+
+state 22
+
+    (65) tipo_drop -> TABLE . ID PUNTO_COMA
+
+    ID              shift and go to state 31
+
+
+state 23
+
+    (11) ins_create -> CREATE tipo_create .
+
+    USE             reduce using rule 11 (ins_create -> CREATE tipo_create .)
+    SHOW            reduce using rule 11 (ins_create -> CREATE tipo_create .)
+    ALTER           reduce using rule 11 (ins_create -> CREATE tipo_create .)
+    DROP            reduce using rule 11 (ins_create -> CREATE tipo_create .)
+    CREATE          reduce using rule 11 (ins_create -> CREATE tipo_create .)
+    $end            reduce using rule 11 (ins_create -> CREATE tipo_create .)
+
+
+state 24
+
+    (12) tipo_create -> ins_replace . DATABASE if_exist ID create_opciones puntocoma
+
+    DATABASE        shift and go to state 32
+
+
+state 25
+
+    (13) tipo_create -> TABLE . ID PARABRE definicion_columna PARCIERRE PUNTO_COMA
+
+    ID              shift and go to state 33
+
+
+state 26
+
+    (43) ins_replace -> OR . REPLACE puntocoma
+
+    REPLACE         shift and go to state 34
+
+
+state 27
+
+    (53) tipo_alter -> DATABASE ID . alter_database PUNTO_COMA
+    (61) alter_database -> . RENAME TO ID
+    (62) alter_database -> . OWNER TO ID
+
+    RENAME          shift and go to state 36
+    OWNER           shift and go to state 37
+
+    alter_database                 shift and go to state 35
+
+state 28
+
+    (54) tipo_alter -> TABLE ID . alteracion_tabla PUNTO_COMA
+    (55) alteracion_tabla -> . alteracion_tabla COMA alterar_tabla
+    (56) alteracion_tabla -> . alterar_tabla
+    (57) alterar_tabla -> . ADD COLUMN columna
+    (58) alterar_tabla -> . ALTER COLUMN columna
+    (59) alterar_tabla -> . DROP COLUMN ID
+    (60) alterar_tabla -> . DROP CONSTRAINT ID
+
+    ADD             shift and go to state 40
+    ALTER           shift and go to state 41
+    DROP            shift and go to state 42
+
+    alteracion_tabla               shift and go to state 38
+    alterar_tabla                  shift and go to state 39
+
+state 29
+
+    (64) tipo_drop -> DATABASE if_exist . ID PUNTO_COMA
+
+    ID              shift and go to state 43
+
+
+state 30
+
+    (45) if_exist -> IF . NOT EXIST puntocoma
+    (46) if_exist -> IF . EXIST
+
+    NOT             shift and go to state 44
+    EXIST           shift and go to state 45
+
+
+state 31
+
+    (65) tipo_drop -> TABLE ID . PUNTO_COMA
+
+    PUNTO_COMA      shift and go to state 46
+
+
+state 32
+
+    (12) tipo_create -> ins_replace DATABASE . if_exist ID create_opciones puntocoma
+    (45) if_exist -> . IF NOT EXIST puntocoma
+    (46) if_exist -> . IF EXIST
+    (47) if_exist -> .
+
+    IF              shift and go to state 30
+    ID              reduce using rule 47 (if_exist -> .)
+
+    if_exist                       shift and go to state 47
+
+state 33
+
+    (13) tipo_create -> TABLE ID . PARABRE definicion_columna PARCIERRE PUNTO_COMA
+
+    PARABRE         shift and go to state 48
+
+
+state 34
+
+    (43) ins_replace -> OR REPLACE . puntocoma
+    (50) puntocoma -> . PUNTO_COMA
+    (51) puntocoma -> .
+
+    PUNTO_COMA      shift and go to state 50
+    DATABASE        reduce using rule 51 (puntocoma -> .)
+
+    puntocoma                      shift and go to state 49
+
+state 35
+
+    (53) tipo_alter -> DATABASE ID alter_database . PUNTO_COMA
+
+    PUNTO_COMA      shift and go to state 51
+
+
+state 36
+
+    (61) alter_database -> RENAME . TO ID
+
+    TO              shift and go to state 52
+
+
+state 37
+
+    (62) alter_database -> OWNER . TO ID
+
+    TO              shift and go to state 53
+
+
+state 38
+
+    (54) tipo_alter -> TABLE ID alteracion_tabla . PUNTO_COMA
+    (55) alteracion_tabla -> alteracion_tabla . COMA alterar_tabla
+
+    PUNTO_COMA      shift and go to state 54
+    COMA            shift and go to state 55
+
+
+state 39
+
+    (56) alteracion_tabla -> alterar_tabla .
+
+    PUNTO_COMA      reduce using rule 56 (alteracion_tabla -> alterar_tabla .)
+    COMA            reduce using rule 56 (alteracion_tabla -> alterar_tabla .)
+
+
+state 40
+
+    (57) alterar_tabla -> ADD . COLUMN columna
+
+    COLUMN          shift and go to state 56
+
+
+state 41
+
+    (58) alterar_tabla -> ALTER . COLUMN columna
+
+    COLUMN          shift and go to state 57
+
+
+state 42
+
+    (59) alterar_tabla -> DROP . COLUMN ID
+    (60) alterar_tabla -> DROP . CONSTRAINT ID
+
+    COLUMN          shift and go to state 58
+    CONSTRAINT      shift and go to state 59
+
+
+state 43
+
+    (64) tipo_drop -> DATABASE if_exist ID . PUNTO_COMA
+
+    PUNTO_COMA      shift and go to state 60
+
+
+state 44
+
+    (45) if_exist -> IF NOT . EXIST puntocoma
+
+    EXIST           shift and go to state 61
+
+
+state 45
+
+    (46) if_exist -> IF EXIST .
+
+    ID              reduce using rule 46 (if_exist -> IF EXIST .)
+
+
+state 46
+
+    (65) tipo_drop -> TABLE ID PUNTO_COMA .
+
+    USE             reduce using rule 65 (tipo_drop -> TABLE ID PUNTO_COMA .)
+    SHOW            reduce using rule 65 (tipo_drop -> TABLE ID PUNTO_COMA .)
+    ALTER           reduce using rule 65 (tipo_drop -> TABLE ID PUNTO_COMA .)
+    DROP            reduce using rule 65 (tipo_drop -> TABLE ID PUNTO_COMA .)
+    CREATE          reduce using rule 65 (tipo_drop -> TABLE ID PUNTO_COMA .)
+    $end            reduce using rule 65 (tipo_drop -> TABLE ID PUNTO_COMA .)
+
+
+state 47
+
+    (12) tipo_create -> ins_replace DATABASE if_exist . ID create_opciones puntocoma
+
+    ID              shift and go to state 62
+
+
+state 48
+
+    (13) tipo_create -> TABLE ID PARABRE . definicion_columna PARCIERRE PUNTO_COMA
+    (14) definicion_columna -> . definicion_columna COMA columna
+    (15) definicion_columna -> . columna
+    (16) columna -> . ID tipo_dato definicion_valor_defecto ins_constraint
+
+    ID              shift and go to state 63
+
+    definicion_columna             shift and go to state 64
+    columna                        shift and go to state 65
+
+state 49
+
+    (43) ins_replace -> OR REPLACE puntocoma .
+
+    DATABASE        reduce using rule 43 (ins_replace -> OR REPLACE puntocoma .)
+
+
+state 50
+
+    (50) puntocoma -> PUNTO_COMA .
+
+    DATABASE        reduce using rule 50 (puntocoma -> PUNTO_COMA .)
+    ID              reduce using rule 50 (puntocoma -> PUNTO_COMA .)
+    USE             reduce using rule 50 (puntocoma -> PUNTO_COMA .)
+    SHOW            reduce using rule 50 (puntocoma -> PUNTO_COMA .)
+    ALTER           reduce using rule 50 (puntocoma -> PUNTO_COMA .)
+    DROP            reduce using rule 50 (puntocoma -> PUNTO_COMA .)
+    CREATE          reduce using rule 50 (puntocoma -> PUNTO_COMA .)
+    $end            reduce using rule 50 (puntocoma -> PUNTO_COMA .)
+
+
+state 51
+
+    (53) tipo_alter -> DATABASE ID alter_database PUNTO_COMA .
+
+    USE             reduce using rule 53 (tipo_alter -> DATABASE ID alter_database PUNTO_COMA .)
+    SHOW            reduce using rule 53 (tipo_alter -> DATABASE ID alter_database PUNTO_COMA .)
+    ALTER           reduce using rule 53 (tipo_alter -> DATABASE ID alter_database PUNTO_COMA .)
+    DROP            reduce using rule 53 (tipo_alter -> DATABASE ID alter_database PUNTO_COMA .)
+    CREATE          reduce using rule 53 (tipo_alter -> DATABASE ID alter_database PUNTO_COMA .)
+    $end            reduce using rule 53 (tipo_alter -> DATABASE ID alter_database PUNTO_COMA .)
+
+
+state 52
+
+    (61) alter_database -> RENAME TO . ID
+
+    ID              shift and go to state 66
+
+
+state 53
+
+    (62) alter_database -> OWNER TO . ID
+
+    ID              shift and go to state 67
+
+
+state 54
+
+    (54) tipo_alter -> TABLE ID alteracion_tabla PUNTO_COMA .
+
+    USE             reduce using rule 54 (tipo_alter -> TABLE ID alteracion_tabla PUNTO_COMA .)
+    SHOW            reduce using rule 54 (tipo_alter -> TABLE ID alteracion_tabla PUNTO_COMA .)
+    ALTER           reduce using rule 54 (tipo_alter -> TABLE ID alteracion_tabla PUNTO_COMA .)
+    DROP            reduce using rule 54 (tipo_alter -> TABLE ID alteracion_tabla PUNTO_COMA .)
+    CREATE          reduce using rule 54 (tipo_alter -> TABLE ID alteracion_tabla PUNTO_COMA .)
+    $end            reduce using rule 54 (tipo_alter -> TABLE ID alteracion_tabla PUNTO_COMA .)
+
+
+state 55
+
+    (55) alteracion_tabla -> alteracion_tabla COMA . alterar_tabla
+    (57) alterar_tabla -> . ADD COLUMN columna
+    (58) alterar_tabla -> . ALTER COLUMN columna
+    (59) alterar_tabla -> . DROP COLUMN ID
+    (60) alterar_tabla -> . DROP CONSTRAINT ID
+
+    ADD             shift and go to state 40
+    ALTER           shift and go to state 41
+    DROP            shift and go to state 42
+
+    alterar_tabla                  shift and go to state 68
+
+state 56
+
+    (57) alterar_tabla -> ADD COLUMN . columna
+    (16) columna -> . ID tipo_dato definicion_valor_defecto ins_constraint
+
+    ID              shift and go to state 63
+
+    columna                        shift and go to state 69
+
+state 57
+
+    (58) alterar_tabla -> ALTER COLUMN . columna
+    (16) columna -> . ID tipo_dato definicion_valor_defecto ins_constraint
+
+    ID              shift and go to state 63
+
+    columna                        shift and go to state 70
+
+state 58
+
+    (59) alterar_tabla -> DROP COLUMN . ID
+
+    ID              shift and go to state 71
+
+
+state 59
+
+    (60) alterar_tabla -> DROP CONSTRAINT . ID
+
+    ID              shift and go to state 72
+
+
+state 60
+
+    (64) tipo_drop -> DATABASE if_exist ID PUNTO_COMA .
+
+    USE             reduce using rule 64 (tipo_drop -> DATABASE if_exist ID PUNTO_COMA .)
+    SHOW            reduce using rule 64 (tipo_drop -> DATABASE if_exist ID PUNTO_COMA .)
+    ALTER           reduce using rule 64 (tipo_drop -> DATABASE if_exist ID PUNTO_COMA .)
+    DROP            reduce using rule 64 (tipo_drop -> DATABASE if_exist ID PUNTO_COMA .)
+    CREATE          reduce using rule 64 (tipo_drop -> DATABASE if_exist ID PUNTO_COMA .)
+    $end            reduce using rule 64 (tipo_drop -> DATABASE if_exist ID PUNTO_COMA .)
+
+
+state 61
+
+    (45) if_exist -> IF NOT EXIST . puntocoma
+    (50) puntocoma -> . PUNTO_COMA
+    (51) puntocoma -> .
+
+    PUNTO_COMA      shift and go to state 50
+    ID              reduce using rule 51 (puntocoma -> .)
+
+    puntocoma                      shift and go to state 73
+
+state 62
+
+    (12) tipo_create -> ins_replace DATABASE if_exist ID . create_opciones puntocoma
+    (48) create_opciones -> . OWNER SIGNO_IGUAL ID
+    (49) create_opciones -> . MODE SIGNO_IGUAL NUMERO
+
+    OWNER           shift and go to state 75
+    MODE            shift and go to state 76
+
+    create_opciones                shift and go to state 74
+
+state 63
+
+    (16) columna -> ID . tipo_dato definicion_valor_defecto ins_constraint
+    (17) tipo_dato -> . VARCHAR
+    (18) tipo_dato -> . INTEGER
+    (19) tipo_dato -> . CHAR
+    (20) tipo_dato -> . TEXT
+    (21) tipo_dato -> . BIGINT
+    (22) tipo_dato -> . DECIMAL
+    (23) tipo_dato -> . NUMERIC
+    (24) tipo_dato -> . REAL
+
+    VARCHAR         shift and go to state 78
+    INTEGER         shift and go to state 79
+    CHAR            shift and go to state 80
+    TEXT            shift and go to state 81
+    BIGINT          shift and go to state 82
+    DECIMAL         shift and go to state 83
+    NUMERIC         shift and go to state 84
+    REAL            shift and go to state 85
+
+    tipo_dato                      shift and go to state 77
+
+state 64
+
+    (13) tipo_create -> TABLE ID PARABRE definicion_columna . PARCIERRE PUNTO_COMA
+    (14) definicion_columna -> definicion_columna . COMA columna
+
+    PARCIERRE       shift and go to state 86
+    COMA            shift and go to state 87
+
+
+state 65
+
+    (15) definicion_columna -> columna .
+
+    PARCIERRE       reduce using rule 15 (definicion_columna -> columna .)
+    COMA            reduce using rule 15 (definicion_columna -> columna .)
+
+
+state 66
+
+    (61) alter_database -> RENAME TO ID .
+
+    PUNTO_COMA      reduce using rule 61 (alter_database -> RENAME TO ID .)
+
+
+state 67
+
+    (62) alter_database -> OWNER TO ID .
+
+    PUNTO_COMA      reduce using rule 62 (alter_database -> OWNER TO ID .)
+
+
+state 68
+
+    (55) alteracion_tabla -> alteracion_tabla COMA alterar_tabla .
+
+    PUNTO_COMA      reduce using rule 55 (alteracion_tabla -> alteracion_tabla COMA alterar_tabla .)
+    COMA            reduce using rule 55 (alteracion_tabla -> alteracion_tabla COMA alterar_tabla .)
+
+
+state 69
+
+    (57) alterar_tabla -> ADD COLUMN columna .
+
+    PUNTO_COMA      reduce using rule 57 (alterar_tabla -> ADD COLUMN columna .)
+    COMA            reduce using rule 57 (alterar_tabla -> ADD COLUMN columna .)
+
+
+state 70
+
+    (58) alterar_tabla -> ALTER COLUMN columna .
+
+    PUNTO_COMA      reduce using rule 58 (alterar_tabla -> ALTER COLUMN columna .)
+    COMA            reduce using rule 58 (alterar_tabla -> ALTER COLUMN columna .)
+
+
+state 71
+
+    (59) alterar_tabla -> DROP COLUMN ID .
+
+    PUNTO_COMA      reduce using rule 59 (alterar_tabla -> DROP COLUMN ID .)
+    COMA            reduce using rule 59 (alterar_tabla -> DROP COLUMN ID .)
+
+
+state 72
+
+    (60) alterar_tabla -> DROP CONSTRAINT ID .
+
+    PUNTO_COMA      reduce using rule 60 (alterar_tabla -> DROP CONSTRAINT ID .)
+    COMA            reduce using rule 60 (alterar_tabla -> DROP CONSTRAINT ID .)
+
+
+state 73
+
+    (45) if_exist -> IF NOT EXIST puntocoma .
+
+    ID              reduce using rule 45 (if_exist -> IF NOT EXIST puntocoma .)
+
+
+state 74
+
+    (12) tipo_create -> ins_replace DATABASE if_exist ID create_opciones . puntocoma
+    (50) puntocoma -> . PUNTO_COMA
+    (51) puntocoma -> .
+
+    PUNTO_COMA      shift and go to state 50
+    USE             reduce using rule 51 (puntocoma -> .)
+    SHOW            reduce using rule 51 (puntocoma -> .)
+    ALTER           reduce using rule 51 (puntocoma -> .)
+    DROP            reduce using rule 51 (puntocoma -> .)
+    CREATE          reduce using rule 51 (puntocoma -> .)
+    $end            reduce using rule 51 (puntocoma -> .)
+
+    puntocoma                      shift and go to state 88
+
+state 75
+
+    (48) create_opciones -> OWNER . SIGNO_IGUAL ID
+
+    SIGNO_IGUAL     shift and go to state 89
+
+
+state 76
+
+    (49) create_opciones -> MODE . SIGNO_IGUAL NUMERO
+
+    SIGNO_IGUAL     shift and go to state 90
+
+
+state 77
+
+    (16) columna -> ID tipo_dato . definicion_valor_defecto ins_constraint
+    (25) definicion_valor_defecto -> . DEFAULT tipo_default
+    (26) definicion_valor_defecto -> .
+
+    DEFAULT         shift and go to state 92
+    CONSTRAINT      reduce using rule 26 (definicion_valor_defecto -> .)
+    PARCIERRE       reduce using rule 26 (definicion_valor_defecto -> .)
+    COMA            reduce using rule 26 (definicion_valor_defecto -> .)
+    PUNTO_COMA      reduce using rule 26 (definicion_valor_defecto -> .)
+
+    definicion_valor_defecto       shift and go to state 91
+
+state 78
+
+    (17) tipo_dato -> VARCHAR .
+
+    DEFAULT         reduce using rule 17 (tipo_dato -> VARCHAR .)
+    CONSTRAINT      reduce using rule 17 (tipo_dato -> VARCHAR .)
+    PARCIERRE       reduce using rule 17 (tipo_dato -> VARCHAR .)
+    COMA            reduce using rule 17 (tipo_dato -> VARCHAR .)
+    PUNTO_COMA      reduce using rule 17 (tipo_dato -> VARCHAR .)
+
+
+state 79
+
+    (18) tipo_dato -> INTEGER .
+
+    DEFAULT         reduce using rule 18 (tipo_dato -> INTEGER .)
+    CONSTRAINT      reduce using rule 18 (tipo_dato -> INTEGER .)
+    PARCIERRE       reduce using rule 18 (tipo_dato -> INTEGER .)
+    COMA            reduce using rule 18 (tipo_dato -> INTEGER .)
+    PUNTO_COMA      reduce using rule 18 (tipo_dato -> INTEGER .)
+
+
+state 80
+
+    (19) tipo_dato -> CHAR .
+
+    DEFAULT         reduce using rule 19 (tipo_dato -> CHAR .)
+    CONSTRAINT      reduce using rule 19 (tipo_dato -> CHAR .)
+    PARCIERRE       reduce using rule 19 (tipo_dato -> CHAR .)
+    COMA            reduce using rule 19 (tipo_dato -> CHAR .)
+    PUNTO_COMA      reduce using rule 19 (tipo_dato -> CHAR .)
+
+
+state 81
+
+    (20) tipo_dato -> TEXT .
+
+    DEFAULT         reduce using rule 20 (tipo_dato -> TEXT .)
+    CONSTRAINT      reduce using rule 20 (tipo_dato -> TEXT .)
+    PARCIERRE       reduce using rule 20 (tipo_dato -> TEXT .)
+    COMA            reduce using rule 20 (tipo_dato -> TEXT .)
+    PUNTO_COMA      reduce using rule 20 (tipo_dato -> TEXT .)
+
+
+state 82
+
+    (21) tipo_dato -> BIGINT .
+
+    DEFAULT         reduce using rule 21 (tipo_dato -> BIGINT .)
+    CONSTRAINT      reduce using rule 21 (tipo_dato -> BIGINT .)
+    PARCIERRE       reduce using rule 21 (tipo_dato -> BIGINT .)
+    COMA            reduce using rule 21 (tipo_dato -> BIGINT .)
+    PUNTO_COMA      reduce using rule 21 (tipo_dato -> BIGINT .)
+
+
+state 83
+
+    (22) tipo_dato -> DECIMAL .
+
+    DEFAULT         reduce using rule 22 (tipo_dato -> DECIMAL .)
+    CONSTRAINT      reduce using rule 22 (tipo_dato -> DECIMAL .)
+    PARCIERRE       reduce using rule 22 (tipo_dato -> DECIMAL .)
+    COMA            reduce using rule 22 (tipo_dato -> DECIMAL .)
+    PUNTO_COMA      reduce using rule 22 (tipo_dato -> DECIMAL .)
+
+
+state 84
+
+    (23) tipo_dato -> NUMERIC .
+
+    DEFAULT         reduce using rule 23 (tipo_dato -> NUMERIC .)
+    CONSTRAINT      reduce using rule 23 (tipo_dato -> NUMERIC .)
+    PARCIERRE       reduce using rule 23 (tipo_dato -> NUMERIC .)
+    COMA            reduce using rule 23 (tipo_dato -> NUMERIC .)
+    PUNTO_COMA      reduce using rule 23 (tipo_dato -> NUMERIC .)
+
+
+state 85
+
+    (24) tipo_dato -> REAL .
+
+    DEFAULT         reduce using rule 24 (tipo_dato -> REAL .)
+    CONSTRAINT      reduce using rule 24 (tipo_dato -> REAL .)
+    PARCIERRE       reduce using rule 24 (tipo_dato -> REAL .)
+    COMA            reduce using rule 24 (tipo_dato -> REAL .)
+    PUNTO_COMA      reduce using rule 24 (tipo_dato -> REAL .)
+
+
+state 86
+
+    (13) tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE . PUNTO_COMA
+
+    PUNTO_COMA      shift and go to state 93
+
+
+state 87
+
+    (14) definicion_columna -> definicion_columna COMA . columna
+    (16) columna -> . ID tipo_dato definicion_valor_defecto ins_constraint
+
+    ID              shift and go to state 63
+
+    columna                        shift and go to state 94
+
+state 88
+
+    (12) tipo_create -> ins_replace DATABASE if_exist ID create_opciones puntocoma .
+
+    USE             reduce using rule 12 (tipo_create -> ins_replace DATABASE if_exist ID create_opciones puntocoma .)
+    SHOW            reduce using rule 12 (tipo_create -> ins_replace DATABASE if_exist ID create_opciones puntocoma .)
+    ALTER           reduce using rule 12 (tipo_create -> ins_replace DATABASE if_exist ID create_opciones puntocoma .)
+    DROP            reduce using rule 12 (tipo_create -> ins_replace DATABASE if_exist ID create_opciones puntocoma .)
+    CREATE          reduce using rule 12 (tipo_create -> ins_replace DATABASE if_exist ID create_opciones puntocoma .)
+    $end            reduce using rule 12 (tipo_create -> ins_replace DATABASE if_exist ID create_opciones puntocoma .)
+
+
+state 89
+
+    (48) create_opciones -> OWNER SIGNO_IGUAL . ID
+
+    ID              shift and go to state 95
+
+
+state 90
+
+    (49) create_opciones -> MODE SIGNO_IGUAL . NUMERO
+
+    NUMERO          shift and go to state 96
+
+
+state 91
+
+    (16) columna -> ID tipo_dato definicion_valor_defecto . ins_constraint
+    (27) ins_constraint -> . CONSTRAINT ID restriccion_columna
+    (28) ins_constraint -> .
+
+    CONSTRAINT      shift and go to state 98
+    PARCIERRE       reduce using rule 28 (ins_constraint -> .)
+    COMA            reduce using rule 28 (ins_constraint -> .)
+    PUNTO_COMA      reduce using rule 28 (ins_constraint -> .)
+
+    ins_constraint                 shift and go to state 97
+
+state 92
+
+    (25) definicion_valor_defecto -> DEFAULT . tipo_default
+    (40) tipo_default -> . NUMERIC
+    (41) tipo_default -> . DECIMAL
+    (42) tipo_default -> . NULL
+
+    NUMERIC         shift and go to state 100
+    DECIMAL         shift and go to state 101
+    NULL            shift and go to state 102
+
+    tipo_default                   shift and go to state 99
+
+state 93
+
+    (13) tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA .
+
+    USE             reduce using rule 13 (tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA .)
+    SHOW            reduce using rule 13 (tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA .)
+    ALTER           reduce using rule 13 (tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA .)
+    DROP            reduce using rule 13 (tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA .)
+    CREATE          reduce using rule 13 (tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA .)
+    $end            reduce using rule 13 (tipo_create -> TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA .)
+
+
+state 94
+
+    (14) definicion_columna -> definicion_columna COMA columna .
+
+    PARCIERRE       reduce using rule 14 (definicion_columna -> definicion_columna COMA columna .)
+    COMA            reduce using rule 14 (definicion_columna -> definicion_columna COMA columna .)
+
+
+state 95
+
+    (48) create_opciones -> OWNER SIGNO_IGUAL ID .
+
+    PUNTO_COMA      reduce using rule 48 (create_opciones -> OWNER SIGNO_IGUAL ID .)
+    USE             reduce using rule 48 (create_opciones -> OWNER SIGNO_IGUAL ID .)
+    SHOW            reduce using rule 48 (create_opciones -> OWNER SIGNO_IGUAL ID .)
+    ALTER           reduce using rule 48 (create_opciones -> OWNER SIGNO_IGUAL ID .)
+    DROP            reduce using rule 48 (create_opciones -> OWNER SIGNO_IGUAL ID .)
+    CREATE          reduce using rule 48 (create_opciones -> OWNER SIGNO_IGUAL ID .)
+    $end            reduce using rule 48 (create_opciones -> OWNER SIGNO_IGUAL ID .)
+
+
+state 96
+
+    (49) create_opciones -> MODE SIGNO_IGUAL NUMERO .
+
+    PUNTO_COMA      reduce using rule 49 (create_opciones -> MODE SIGNO_IGUAL NUMERO .)
+    USE             reduce using rule 49 (create_opciones -> MODE SIGNO_IGUAL NUMERO .)
+    SHOW            reduce using rule 49 (create_opciones -> MODE SIGNO_IGUAL NUMERO .)
+    ALTER           reduce using rule 49 (create_opciones -> MODE SIGNO_IGUAL NUMERO .)
+    DROP            reduce using rule 49 (create_opciones -> MODE SIGNO_IGUAL NUMERO .)
+    CREATE          reduce using rule 49 (create_opciones -> MODE SIGNO_IGUAL NUMERO .)
+    $end            reduce using rule 49 (create_opciones -> MODE SIGNO_IGUAL NUMERO .)
+
+
+state 97
+
+    (16) columna -> ID tipo_dato definicion_valor_defecto ins_constraint .
+
+    PARCIERRE       reduce using rule 16 (columna -> ID tipo_dato definicion_valor_defecto ins_constraint .)
+    COMA            reduce using rule 16 (columna -> ID tipo_dato definicion_valor_defecto ins_constraint .)
+    PUNTO_COMA      reduce using rule 16 (columna -> ID tipo_dato definicion_valor_defecto ins_constraint .)
+
+
+state 98
+
+    (27) ins_constraint -> CONSTRAINT . ID restriccion_columna
+
+    ID              shift and go to state 103
+
+
+state 99
+
+    (25) definicion_valor_defecto -> DEFAULT tipo_default .
+
+    CONSTRAINT      reduce using rule 25 (definicion_valor_defecto -> DEFAULT tipo_default .)
+    PARCIERRE       reduce using rule 25 (definicion_valor_defecto -> DEFAULT tipo_default .)
+    COMA            reduce using rule 25 (definicion_valor_defecto -> DEFAULT tipo_default .)
+    PUNTO_COMA      reduce using rule 25 (definicion_valor_defecto -> DEFAULT tipo_default .)
+
+
+state 100
+
+    (40) tipo_default -> NUMERIC .
+
+    CONSTRAINT      reduce using rule 40 (tipo_default -> NUMERIC .)
+    PARCIERRE       reduce using rule 40 (tipo_default -> NUMERIC .)
+    COMA            reduce using rule 40 (tipo_default -> NUMERIC .)
+    PUNTO_COMA      reduce using rule 40 (tipo_default -> NUMERIC .)
+
+
+state 101
+
+    (41) tipo_default -> DECIMAL .
+
+    CONSTRAINT      reduce using rule 41 (tipo_default -> DECIMAL .)
+    PARCIERRE       reduce using rule 41 (tipo_default -> DECIMAL .)
+    COMA            reduce using rule 41 (tipo_default -> DECIMAL .)
+    PUNTO_COMA      reduce using rule 41 (tipo_default -> DECIMAL .)
+
+
+state 102
+
+    (42) tipo_default -> NULL .
+
+    CONSTRAINT      reduce using rule 42 (tipo_default -> NULL .)
+    PARCIERRE       reduce using rule 42 (tipo_default -> NULL .)
+    COMA            reduce using rule 42 (tipo_default -> NULL .)
+    PUNTO_COMA      reduce using rule 42 (tipo_default -> NULL .)
+
+
+state 103
+
+    (27) ins_constraint -> CONSTRAINT ID . restriccion_columna
+    (29) restriccion_columna -> . NOT NULL
+    (30) restriccion_columna -> . NULL
+    (31) restriccion_columna -> . PRIMARY KEY
+    (32) restriccion_columna -> . UNIQUE
+    (33) restriccion_columna -> . FOREIGN KEY ID PARABRE ID PARCIERRE ins_references
+
+    NOT             shift and go to state 105
+    NULL            shift and go to state 106
+    PRIMARY         shift and go to state 107
+    UNIQUE          shift and go to state 108
+    FOREIGN         shift and go to state 109
+
+    restriccion_columna            shift and go to state 104
+
+state 104
+
+    (27) ins_constraint -> CONSTRAINT ID restriccion_columna .
+
+    PARCIERRE       reduce using rule 27 (ins_constraint -> CONSTRAINT ID restriccion_columna .)
+    COMA            reduce using rule 27 (ins_constraint -> CONSTRAINT ID restriccion_columna .)
+    PUNTO_COMA      reduce using rule 27 (ins_constraint -> CONSTRAINT ID restriccion_columna .)
+
+
+state 105
+
+    (29) restriccion_columna -> NOT . NULL
+
+    NULL            shift and go to state 110
+
+
+state 106
+
+    (30) restriccion_columna -> NULL .
+
+    PARCIERRE       reduce using rule 30 (restriccion_columna -> NULL .)
+    COMA            reduce using rule 30 (restriccion_columna -> NULL .)
+    PUNTO_COMA      reduce using rule 30 (restriccion_columna -> NULL .)
+
+
+state 107
+
+    (31) restriccion_columna -> PRIMARY . KEY
+
+    KEY             shift and go to state 111
+
+
+state 108
+
+    (32) restriccion_columna -> UNIQUE .
+
+    PARCIERRE       reduce using rule 32 (restriccion_columna -> UNIQUE .)
+    COMA            reduce using rule 32 (restriccion_columna -> UNIQUE .)
+    PUNTO_COMA      reduce using rule 32 (restriccion_columna -> UNIQUE .)
+
+
+state 109
+
+    (33) restriccion_columna -> FOREIGN . KEY ID PARABRE ID PARCIERRE ins_references
+
+    KEY             shift and go to state 112
+
+
+state 110
+
+    (29) restriccion_columna -> NOT NULL .
+
+    PARCIERRE       reduce using rule 29 (restriccion_columna -> NOT NULL .)
+    COMA            reduce using rule 29 (restriccion_columna -> NOT NULL .)
+    PUNTO_COMA      reduce using rule 29 (restriccion_columna -> NOT NULL .)
+
+
+state 111
+
+    (31) restriccion_columna -> PRIMARY KEY .
+
+    PARCIERRE       reduce using rule 31 (restriccion_columna -> PRIMARY KEY .)
+    COMA            reduce using rule 31 (restriccion_columna -> PRIMARY KEY .)
+    PUNTO_COMA      reduce using rule 31 (restriccion_columna -> PRIMARY KEY .)
+
+
+state 112
+
+    (33) restriccion_columna -> FOREIGN KEY . ID PARABRE ID PARCIERRE ins_references
+
+    ID              shift and go to state 113
+
+
+state 113
+
+    (33) restriccion_columna -> FOREIGN KEY ID . PARABRE ID PARCIERRE ins_references
+
+    PARABRE         shift and go to state 114
+
+
+state 114
+
+    (33) restriccion_columna -> FOREIGN KEY ID PARABRE . ID PARCIERRE ins_references
+
+    ID              shift and go to state 115
+
+
+state 115
+
+    (33) restriccion_columna -> FOREIGN KEY ID PARABRE ID . PARCIERRE ins_references
+
+    PARCIERRE       shift and go to state 116
+
+
+state 116
+
+    (33) restriccion_columna -> FOREIGN KEY ID PARABRE ID PARCIERRE . ins_references
+    (34) ins_references -> . ON DELETE accion
+    (35) ins_references -> . ON UPDATE accion
+
+    ON              shift and go to state 118
+
+    ins_references                 shift and go to state 117
+
+state 117
+
+    (33) restriccion_columna -> FOREIGN KEY ID PARABRE ID PARCIERRE ins_references .
+
+    PARCIERRE       reduce using rule 33 (restriccion_columna -> FOREIGN KEY ID PARABRE ID PARCIERRE ins_references .)
+    COMA            reduce using rule 33 (restriccion_columna -> FOREIGN KEY ID PARABRE ID PARCIERRE ins_references .)
+    PUNTO_COMA      reduce using rule 33 (restriccion_columna -> FOREIGN KEY ID PARABRE ID PARCIERRE ins_references .)
+
+
+state 118
+
+    (34) ins_references -> ON . DELETE accion
+    (35) ins_references -> ON . UPDATE accion
+
+    DELETE          shift and go to state 119
+    UPDATE          shift and go to state 120
+
+
+state 119
+
+    (34) ins_references -> ON DELETE . accion
+    (36) accion -> . CASCADE
+    (37) accion -> . SET NULL
+    (38) accion -> . SET DEFAULT
+    (39) accion -> . NO ACTION
+
+    CASCADE         shift and go to state 122
+    SET             shift and go to state 123
+    NO              shift and go to state 124
+
+    accion                         shift and go to state 121
+
+state 120
+
+    (35) ins_references -> ON UPDATE . accion
+    (36) accion -> . CASCADE
+    (37) accion -> . SET NULL
+    (38) accion -> . SET DEFAULT
+    (39) accion -> . NO ACTION
+
+    CASCADE         shift and go to state 122
+    SET             shift and go to state 123
+    NO              shift and go to state 124
+
+    accion                         shift and go to state 125
+
+state 121
+
+    (34) ins_references -> ON DELETE accion .
+
+    PARCIERRE       reduce using rule 34 (ins_references -> ON DELETE accion .)
+    COMA            reduce using rule 34 (ins_references -> ON DELETE accion .)
+    PUNTO_COMA      reduce using rule 34 (ins_references -> ON DELETE accion .)
+
+
+state 122
+
+    (36) accion -> CASCADE .
+
+    PARCIERRE       reduce using rule 36 (accion -> CASCADE .)
+    COMA            reduce using rule 36 (accion -> CASCADE .)
+    PUNTO_COMA      reduce using rule 36 (accion -> CASCADE .)
+
+
+state 123
+
+    (37) accion -> SET . NULL
+    (38) accion -> SET . DEFAULT
+
+    NULL            shift and go to state 126
+    DEFAULT         shift and go to state 127
+
+
+state 124
+
+    (39) accion -> NO . ACTION
+
+    ACTION          shift and go to state 128
+
+
+state 125
+
+    (35) ins_references -> ON UPDATE accion .
+
+    PARCIERRE       reduce using rule 35 (ins_references -> ON UPDATE accion .)
+    COMA            reduce using rule 35 (ins_references -> ON UPDATE accion .)
+    PUNTO_COMA      reduce using rule 35 (ins_references -> ON UPDATE accion .)
+
+
+state 126
+
+    (37) accion -> SET NULL .
+
+    PARCIERRE       reduce using rule 37 (accion -> SET NULL .)
+    COMA            reduce using rule 37 (accion -> SET NULL .)
+    PUNTO_COMA      reduce using rule 37 (accion -> SET NULL .)
+
+
+state 127
+
+    (38) accion -> SET DEFAULT .
+
+    PARCIERRE       reduce using rule 38 (accion -> SET DEFAULT .)
+    COMA            reduce using rule 38 (accion -> SET DEFAULT .)
+    PUNTO_COMA      reduce using rule 38 (accion -> SET DEFAULT .)
+
+
+state 128
+
+    (39) accion -> NO ACTION .
+
+    PARCIERRE       reduce using rule 39 (accion -> NO ACTION .)
+    COMA            reduce using rule 39 (accion -> NO ACTION .)
+    PUNTO_COMA      reduce using rule 39 (accion -> NO ACTION .)
+

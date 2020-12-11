@@ -1,11 +1,11 @@
 # from generate_ast import GraficarAST
 from re import L
 from models.nodo import Node
-from utils.analyzers.lex import tokens
+from utils.analyzers.lex import *
 import libs.ply.yacc as yacc
 import os
-
 # Precedencia, entre mayor sea el nivel mayor sera su inportancia para su uso
+
 precedence = (
     ('left', 'OR'),  # Level 1
     ('left', 'AND'),  # Level 2
@@ -51,7 +51,8 @@ def p_dml(p):
     '''DML : QUERYSTATEMENT
            | INSERTSTATEMENT
            | DELETESTATEMENT
-           | UPDATESTATEMENT'''
+           | UPDATESTATEMENT
+           | error SEMICOLON'''
     nodo = Node('DML')
     nodo.add_childrens(p[1])
     p[0] = nodo
@@ -66,7 +67,9 @@ def p_query_statement(p):
     if (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
-    p[0] = nodo
+        p[0] = nodo
+    else:
+        p[0] = 'error'
 
 # Asi se sigue trabajando en lo restante de la gramatica
 
@@ -74,7 +77,7 @@ def p_query_statement(p):
 def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
-                       | UPDATE ID SET SETLIST  SEMICOLON '''
+                       | UPDATE ID SET SETLIST  SEMICOLON'''
     nodo = Node('UPDATESTATEMENT')
     if (len(p) == 8):
         nodo.add_childrens(Node(p[1]))
@@ -91,12 +94,13 @@ def p_update_statement(p):
         nodo.add_childrens(p[4])
         nodo.add_childrens(p[5])
         nodo.add_childrens(Node(p[6]))
-    else:
+    elif (len(p) == 6):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(Node(p[2]))
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
         nodo.add_childrens(Node(p[5]))
+    
     p[0] = nodo
 
 
@@ -340,7 +344,7 @@ def p_list_params_insert(p):
 
 
 def p_select_statement(p):
-    '''SELECTSTATEMENT : SELECTWITHOUTORDER ORDERBYCLAUSE
+    '''SELECTSTATEMENT : SELECTWITHOUTORDER OPTIONSSELECT
                        | SELECTWITHOUTORDER'''
     nodo = Node('SELECTSTATEMENT')
     if (len(p) == 2):
@@ -350,27 +354,38 @@ def p_select_statement(p):
         nodo.add_childrens(p[2])
     p[0] = nodo
 
+def p_options_select(p):
+    '''OPTIONSSELECT : ORDERBYCLAUSE LIMITCLAUSE
+                        | LIMITCLAUSE
+                        | ORDERBYCLAUSE'''
+    nodo = Node('OPTIONSSELECT')
+    if (len(p) == 3):
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(p[2])
+    else:
+        nodo.add_childrens(p[1])
+    p[0] = nodo
 
 def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
-                          | SELECTWITHOUTORDER UNION ALL SELECTSET
-                          | SELECTWITHOUTORDER UNION SELECTSET'''
+                          | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
+                          | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
 
     nodo = Node('SELECTWITHOUTORDER')
     if (len(p) == 2):
         nodo.add_childrens(p[1])
-        p[0] = nodo
+        
     elif (len(p) == 5):
         nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[2])
         nodo.add_childrens(Node(p[3]))
         nodo.add_childrens(p[4])
-        p[0] = nodo
+        
     else:
         nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
-        p[0] = nodo
+    p[0] = nodo
 
 
 def p_select_set(p):
@@ -380,7 +395,11 @@ def p_select_set(p):
 
     if (len(p) == 2):
         nodo.add_childrens(p[1])
-        p[0] = nodo
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(p[2])
+        nodo.add_childrens(Node(p[3]))
+    p[0] = nodo
 
 
 def p_selectq(p):
@@ -595,6 +614,52 @@ def p_order_by_expression(p):
         nodo.add_childrens(p[1])
     p[0] = nodo
 
+def p_limit_clause(p):
+    '''LIMITCLAUSE : LIMIT LIMITOPTIONS'''
+    nodo = Node('LIMITCLAUSE')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(p[2])
+    p[0] = nodo
+def p_limit_options(p):
+    '''LIMITOPTIONS : LIMITTYPES OFFSETOPTION
+                    | LIMITTYPES'''
+    nodo = Node('LIMITOPTIONS')
+    if (len(p) == 3):
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(p[2])
+    else:
+        nodo.add_childrens(p[1])
+    p[0] = nodo
+
+def p_limit_types(p):
+    '''LIMITTYPES : LISTLIMITNUMBER
+                  | ALL'''
+    nodo = Node('LIMITTYPES')
+    if (p[1] == "ALL"):
+        nodo.add_childrens(Node(p[1]))
+    else:
+        nodo.add_childrens(p[1])
+    p[0] = nodo 
+
+def p_list_limit_number(p):
+    '''LISTLIMITNUMBER : LISTLIMITNUMBER COMMA INT_NUMBER
+                       | INT_NUMBER'''
+    nodo = Node('LISTLIMITNUMBER')
+    if (len(p) == 2):
+        nodo.add_childrens(Node(p[1]))
+    else:
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+    p[0] = nodo
+
+
+def p_offset_option(p):
+    '''OFFSETOPTION : OFFSET INT_NUMBER'''
+    nodo = Node('OFFSETOPTION')
+    nodo.add_childrens(Node(p[1]))
+    nodo.add_childrens(Node(p[2]))
+    p[0] = nodo
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
@@ -699,19 +764,23 @@ def p_sql_unary_logical_expression_list(p):
 
 
 def p_sql_unary_logical_expression(p):
-    '''SQLUNARYLOGICALEXPRESSION : NOT EXISTSCLAUSE
-                                 | NOT SQLRELATIONALEXPRESSION
-                                 | EXISTSCLAUSE
-                                 | SQLRELATIONALEXPRESSION'''
+    '''SQLUNARYLOGICALEXPRESSION : NOT EXISTSORSQLRELATIONALCLAUSE
+                                 | EXISTSORSQLRELATIONALCLAUSE'''
     nodo = Node('SQLUNARYLOGICALEXPRESSION')
     if (p[1] == 'NOT'):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
-    elif (p[1] != 'NOT'):
+    else:
         nodo.add_childrens(p[1])
     p[0] = nodo
 
-
+def p_exits_or_relational_clause(p):
+    '''EXISTSORSQLRELATIONALCLAUSE : EXISTSCLAUSE
+                                   | SQLRELATIONALEXPRESSION'''
+    nodo = Node('EXISTSORSQLRELATIONALCLAUSE')
+    nodo.add_childrens(p[1])
+    p[0] = nodo
+    
 def p_exists_clause(p):
     '''EXISTSCLAUSE : EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     nodo = Node('EXISTSCLAUSE')
@@ -724,18 +793,16 @@ def p_exists_clause(p):
 
 def p_sql_relational_expression(p):
     '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION SQLRELATIONALOPERATOREXPRESSION
+                               | SQLSIMPLEEXPRESSION SQLINCLAUSE
+                               | SQLSIMPLEEXPRESSION SQLBETWEENCLAUSE
+                               | SQLSIMPLEEXPRESSION SQLLIKECLAUSE
                                | SQLSIMPLEEXPRESSION'''
     nodo = Node('SQLRELATIONALEXPRESSION')
-    if (len(p) == 4):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(Node(p[3]))
-    elif (len(p) == 3):
+    if (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
-    elif (len(p) == 2):
+    else:
         nodo.add_childrens(p[1])
-
     p[0] = nodo
 
 
@@ -746,6 +813,52 @@ def p_sql_relational_operator_expression(p):
     nodo.add_childrens(p[2])
     p[0] = nodo
 
+def p_sql_in_clause(p):
+    '''SQLINCLAUSE  : NOT IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                    | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
+    nodo = Node('SQLINCLAUSE')
+    if (len(p) == 6):
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(p[4])
+        nodo.add_childrens(Node(p[5]))
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+    p[0] = nodo
+
+def p_sql_between_clause(p):
+    '''SQLBETWEENCLAUSE : NOT BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION
+                        | BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION '''
+    nodo = Node('SQLBETWEENCLAUSE')
+    if (len(p) == 6):
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+        nodo.add_childrens(Node(p[4]))
+        nodo.add_childrens(p[5])
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(p[2])
+        nodo.add_childrens(Node(p[3]))
+        nodo.add_childrens(p[4])
+    p[0] = nodo
+
+def p_sql_like_clause(p):
+    '''SQLLIKECLAUSE  : NOT LIKE SQLSIMPLEEXPRESSION
+                      | LIKE SQLSIMPLEEXPRESSION'''
+    nodo = Node('SQLLIKECLAUSE')
+    if (len(p) == 4):
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+    else:
+        nodo.add_childrens(Node(p[1]))
+        nodo.add_childrens(p[2])
+    p[0] = nodo
 
 def p_sql_simple_expression(p):
     '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION PLUS SQLSIMPLEEXPRESSION
@@ -826,6 +939,14 @@ def p_sql_object_reference(p):
     p[0] = nodo
 
 
+def p_type_combine_query(p):
+    '''TYPECOMBINEQUERY : UNION
+                        | INTERSECT
+                        | EXCEPT'''
+    nodo = Node('TYPECOMBINEQUERY')
+    nodo.add_childrens(Node(p[1]))
+    p[0] = nodo
+
 def p_relop(p):
     '''RELOP : EQUALS 
              | NOT_EQUAL
@@ -897,8 +1018,31 @@ def p_sub_query(p):
 
 
 def p_error(p):
-    print('Syntax error in input!')
+    global list_errors
+    global id_error
+    
+    id_error = list_errors.count + 1  if list_errors.count > 0 else 1
 
+    try:
+        print(p)
+        description = f'It was not expected -> {p.value} <-'
+        column = find_column(p)
+        list_errors.insert_end(Error(id_error, 'Syntactic', description, p.lineno, column))
+    except AttributeError:
+        print('end of file')
+        list_errors.insert_end(Error(id_error, 'Syntactic', 'No character found for panic mode recovery', 'EOF', 'EOF'))
+    id_error += 1
+
+parser = yacc.yacc()
+def parse(inpu):
+    global input
+    global list_errors
+    list_errors.remove_all()
+    lexer = lex.lex()
+    lexer.lineno = 1
+    input = inpu
+    get_text(input)
+    return parser.parse(inpu, lexer=lexer)
 
 # parser = yacc.yacc()
 # graficadora = GraficarAST()
