@@ -145,3 +145,68 @@ def t_error(t):
 # Analizador léxico
 import ply.lex as lex
 lexer = lex.lex()
+
+###################################### Definición de la gramática #######################################
+
+def p_init(t) :
+    'init             : instrucciones'
+
+def p_lista_instrucciones(t) :
+    'instrucciones    : instrucciones instruccion'
+
+def p_salida_instrucciones(t) :
+    'instrucciones    : instruccion'
+
+def p_instruccion(t) :
+    '''instruccion    : createDB_instr
+                      | replaceDB_instr'''
+
+##CREATE DATABASE
+def p_create_db(t):
+    'createDB_instr   : CREATE DATABASE existencia'
+    #print("ESTA ES UNA SIMPLE CREACION DATABASE con existencia")
+
+def p_create_db2(t):
+    'createDB_instr   : CREATE DATABASE ID state_owner'
+    #print("ESTA ES UNA SIMPLE CREACION sin existencia alguna DATABASE")
+
+##REPLACE DATABASE
+def p_replace_db(t):
+    'replaceDB_instr   : REPLACE DATABASE existencia'
+    #print("ESTA ES UNA SIMPLE CREACION con existencia DATABASE")
+
+def p_replace_db2(t):
+    'replaceDB_instr   : REPLACE DATABASE ID state_owner'
+    #print("ESTA ES UNA SIMPLE CREACION sin existencia DATABASE")
+
+
+##ESTADOS A LOS REPLACE Y CREATE CONTIENEN LO MISMO
+def p_create_replace_existencia(t):
+    'existencia   : IF NOT EXISTS ID state_owner'
+   #print("Existencia 1")
+
+def p_create_replace_state_owner(t):
+    'state_owner   : OWNER IGUAL ID state_mode'
+    #print("Estado owner con igual")
+
+def p_create_replace_state_owner2(t):
+    'state_owner   : OWNER ID state_mode'
+    #print("Estado owner sin igual")
+
+def p_create_replace_state_owner3(t):
+    'state_owner   : state_mode'
+    #print("Estado owner sentencia de escape a mode")
+
+def p_create_replace_state_mode(t):
+    'state_mode   : MODE IGUAL ENTERO PTCOMA'
+    #print("Estado mode con igual")
+
+def p_create_replace_state_mode2(t):
+    'state_mode   : MODE ENTERO PTCOMA'
+    #print("Estado mode sin igual")
+
+def p_create_replace_state_mode3(t):
+    'state_mode   : PTCOMA'
+    #print("Estado mode sentencia de escape ptcoma")
+
+
