@@ -913,6 +913,414 @@ def p_TablaRef_IdSinAs(t):
 
     #t[0] = str(t[1]) + str(t[2])
 
+# -----------------------------------------------------------------------------------------------------------------
+# Groups
+
+def p_Groups_ListaG(t):
+    'GROUPS : GROUPS GROUPP'
+
+    #t[1].append(t[2])
+    #t[0] = t[1]
+
+
+def p_Groups_ListaG2(t):
+    'GROUPS    : GROUPP'
+
+    #t[0] = [t[1]]
+
+
+def p_Group_GroupBy(t):
+    'GROUPP    : GROUP BY EXPRE_LIST MORE_ORDER'
+
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_Group_GroupBySin(t):
+    'GROUPP    : GROUP BY EXPRE_LIST'
+
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_ExpreList_Lista(t):
+    'EXPRE_LIST : EXPRE_LIST  EXPRES'
+
+   # t[1].append(t[2])
+   # t[0] = t[1]
+
+
+def p_ExpreList_Expresion(t):
+    'EXPRE_LIST    : EXPRES'
+
+    #t[0] = [t[1]]
+
+
+def p_Expre_Campo1(t):
+    'EXPRES    :  NOMBRE_T PUNTO CAMPOS S2'
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_Expre_Campo2(t):
+    'EXPRES    :  NOMBRE_T PUNTO CAMPOS '
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_Expre_Campo3(t):
+    'EXPRES    :  CAMPOS S2 '
+   # t[0] = str(t[1]) + str(t[2])
+
+
+def p_Expre_Campo4(t):
+    'EXPRES    :  CAMPOS '
+   # t[0] = str(t[1])
+
+
+def p_Expre_Campo5(t):
+    'EXPRES    :  NOMBRE_T PUNTO CAMPOS S2 STATE '
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5])
+
+
+def p_Expre_Campo6(t):
+    'EXPRES    :  NOMBRE_T PUNTO CAMPOS STATE'
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_Expre_Campo7(t):
+    'EXPRES    :  CAMPOS S2 STATE'
+  #  t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_Expre_Campo8(t):
+    'EXPRES    :  CAMPOS STATE '
+   # t[0] = str(t[1]) + str(t[2])
+
+
+def p_S2_Coma(t):
+    'S2 : COMA EXPRES'
+  #  t[0] = str(t[1]) + str(t[2])
+
+
+def p_S2_2(t):
+    'S2 : AS ALIAS'
+  #  t[0] = str(t[1]) + str(t[2])
+
+
+def p_Ss_AsAliasComa_(t):
+    'S2 :  AS ALIAS COMA EXPRES'
+
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_S2_3(t):
+    'S2 :  ALIAS'
+   # t[0] = str(t[1])
+
+
+def p_Ss_AsAlias3(t):
+    'S2 :   ALIAS COMA EXPRES'
+
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_MoreOrder_Having(t):
+    'MORE_ORDER  :  HAVING CONDICIONES'
+    #t[0] = str(t[1]) + str(t[2])
+
+
+def p_State_orden1(t):
+    'STATE : ASC'
+   # t[0] = str(t[1])
+
+
+def p_State_orden2(t):
+    'STATE : ASC NULLS FIRST'
+   #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_State_orden3(t):
+    'STATE : ASC NULLS LAST'
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_State_orden4(t):
+    'STATE : DESC '
+  #  t[0] = str(t[1])
+
+
+def p_State_orden5(t):
+    'STATE : DESC NULLS FIRST'
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_State_orden6(t):
+    'STATE : DESC NULLS LAST'
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+#-----------------------------------------------------------------------------------------------------------------
+#Limits
+
+def p_Limits_ListaLimits(t):
+    'LIMITS  :  LIMITS LIMITT'
+   # t[1].append(t[2])
+   # t[0] = t[1]
+
+
+def p_Limits_Limit(t):
+    'LIMITS  :  LIMITT'
+  #  t[0] = [t[1]]
+
+
+def p_Limit_Reservada(t):
+    'LIMITT  :  LIMIT EXPRE_NUM'
+
+   # t[0] = str(t[1]) + str(t[2])
+
+
+def p_Limit_Offset(t):
+    'LIMITT  : OFFSET EXPRE_NUM '
+    #t[0] = str(t[1]) + str(t[2])
+
+
+def p_Expresion_Atributos(t):
+    '''EXPRE_NUM : ENTERO
+                 | ALL '''
+   # t[0] = str(t[1])
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# SUBCONSULTAS
+
+def p_SubQuerys_Lista(t):
+    'SUBQUERYS :  SUBQUERYS QUERY'
+   # t[0] = str(t[1]) + str(t[2])
+
+
+def p_SubQuerys_Query(t):
+    'SUBQUERYS :  QUERY'
+    #t[0] = str(t[1])
+
+
+def p_Query_Ate(t):
+    'QUERY : ATE_QUE  PARIZQ QUE PARDER'
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_Query_AteAs(t):
+    'QUERY : ATE_QUE PARIZQ QUE  PARDER AS_NO'
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5])
+
+
+def p_Query_Query(t):
+    'QUERY :   PARIZQ QUE PARDER'
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_Query_QueryAs(t):
+    'QUERY :  PARIZQ QUE PARDER AS_NO'
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_AsNo_Coma(t):
+    'AS_NO : COMA QUERY'
+   # t[0] = str(t[1]) + str(t[2])
+
+
+def p_AsNo_As(t):
+    'AS_NO : AS NO_N'
+  #  t[0] = str(t[1]) + str(t[2])
+
+
+def p_AsNo_AsComa(t):
+    'AS_NO : AS NO_N COMA QUERY'
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_AsNo_SinAs(t):
+    'AS_NO :  NO_N'
+   # t[0] = str(t[1])
+
+
+def p_AsNo_SinAsComa(t):
+    'AS_NO :  NO_N COMA QUERY'
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_NoN_Id(t):
+    'NO_N  :  ID'
+  #  t[0] = str(t[1])
+
+
+def p_AteQue_Exist(t):
+    'ATE_QUE  :  EXISTS'
+  #  t[0] = str(t[1])
+
+
+def p_AteQue_Expre(t):
+    'ATE_QUE  :  EXPRESIONNE OPCIONALESS'
+   # t[0] = str(t[1]) + str(t[2])
+
+
+def p_AteQue_ExpreOps(t):
+    'ATE_QUE  :  EXPRESIONNE OPERADOR OPCIONALESS2'
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_AteQue_ID(t):
+    'ATE_QUE  :  ID'
+   # t[0] = str(t[1])
+
+
+def p_Opcionales_In(t):
+    'OPCIONALESS : IN'
+  #  t[0] = str(t[1])
+
+
+def p_Opcionales_NotIn(t):
+    'OPCIONALESS : NOT IN'
+  #  t[0] = str(t[1]) + str(t[2])
+
+
+def p_Opcionales2_Any(t):
+    'OPCIONALESS2 : ANY'
+   # t[0] = str(t[1])
+
+
+def p_Opcionales2_All(t):
+    'OPCIONALESS2 : ALL'
+    #t[0] = str(t[1])
+
+
+def p_Opcionales2_Some(t):
+    'OPCIONALESS2 : SOME'
+    #t[0] = str(t[1])
+
+
+def p_Que_InstruccionQuery(t):
+    'QUE : QUE_SUBS'
+    #t[0] = str(t[1])
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# SUBCONSULTAS Llamadas sin Punto Coma
+
+def p_SubConsultas_comandos(t):
+    'QUE_SUBS       : SELECT LISTA_CAMPOS FROM NOMBRES_TABLAS CUERPO '
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5])
+
+
+def p_SubConsultas_comandosS(t):
+    'QUE_SUBS       : SELECT LISTA_CAMPOS FROM NOMBRES_TABLAS  '
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_SubConsultas_comandosS1(t):
+    'QUE_SUBS       : SELECT  DISTINCTNT  LISTA_CAMPOS FROM NOMBRES_TABLAS CUERPO '
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5]) + str(t[6])
+
+
+def p_SubConsultas_comandosS2(t):
+    'QUE_SUBS       : SELECT DISTINCTNT LISTA_CAMPOS FROM NOMBRES_TABLAS  '
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5])
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# COMBINACION DE  CONSULTAS
+
+def p_Unions_Lista(t):
+    'UNIONS  : UNIONS UNIONN'
+    #t[1].append(t[2])
+    #t[0] = t[1]
+
+
+def p_Unions_Comando(t):
+    'UNIONS  : UNIONN'
+    #t[0] = [t[1]]
+
+
+def p_Unions_DQLComandos(t):
+    'UNIONN  :    COMPORTAMIENTO  ALL DQL_COMANDOS '
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_Unions_DQLComandos2(t):
+    'UNIONN  :    COMPORTAMIENTO  DQL_COMANDOS '
+    #t[0] = str(t[1]) + str(t[2])
+
+
+def p_Unions_DQLComandos3(t):
+    'UNIONN  :    PUNTOCOMA '
+   # t[0] = str(t[1])
+
+
+def p_Comportamiento_Comandos(t):
+    '''COMPORTAMIENTO : UNION
+                      | INTERSECT
+                      | EXCEPT'''
+    #t[0] = str(t[1])
+
+
+# -----------------------------------------------------------------------------------------------------------------
+# CASES, GREATEST, LEAST
+
+
+def p_ExpresionesC_Case(t):
+    'EXPRESIONES_C  :  CASE WHEN_LIST  CUERPOO'
+
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3])
+
+
+def p_ExpresionesC_Greatest(t):
+    'EXPRESIONES_C  :  GREATEST PARIZQ EXPRESIONNE PARDER '
+  #  t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_ExpresionesC_Least(t):
+    'EXPRESIONES_C  :  LEAST PARIZQ EXPRESIONNE PARDER '
+  #  t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_Cuerpos_When(t):
+    'CUERPOO  :  WHEN CONDICIONES EXPRESIONNE END'
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_Cuerpo_WhenElse(t):
+    'CUERPOO  :  WHEN CONDICIONES  EXPRESIONNE ELSE EXPRESIONNE END'
+  #  t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5]) + str(t[6])
+
+
+def p_Cuerpo_End(t):
+    'CUERPOO  :  END'
+  #  t[0] = str(t[1])
+
+
+def p_Cuerpo_EndID(t):
+    'CUERPOO  :  END ID'
+    #t[0] = str(t[1]) + str(t[2])
+
+
+def p_whenList_Lista(t):
+    'WHEN_LIST  :  WHEN_LIST WHEN_UNI'
+   # t[0] = str(t[1]) + str(t[2])
+
+
+def p_whenList_Uni(t):
+    'WHEN_LIST  :  WHEN_UNI'
+   # t[0] = str(t[1])
+
+
+def p_WhenUni_Then(t):
+    'WHEN_UNI  :   WHEN CONDICIONES THEN EXPRESIONNE'
+   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
+
+
+def p_WhenUni_ExpreThen(t):
+    'WHEN_UNI  :   WHEN CONDICIONES EXPRESIONNE THEN EXPRESIONNE'
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5])
+
+
+def p_WhenUni_ExpreElseThen(t):
+    'WHEN_UNI  :   WHEN CONDICIONES EXPRESIONNE ELSE EXPRESIONNE THEN EXPRESIONNE'
+    #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]) + str(t[5]) + str(t[6]) + str(t[7])
+
 
 
 
