@@ -236,7 +236,9 @@ def p_instruccion_create(t):
                     | DELETE FROM IDENTIFICADOR WHERE expresion PTCOMA
                     | SELECT selectp PTCOMA
     '''
-
+   #posiblemente me de tiempo agregar lo que falta de los select , pero
+   #de ser asi los voy a poner hasta abajo , asi que solo los vas agregando esas nuevas producciones
+   #gracias mindi
 
 def p_instruccion_showdatabase(t):
     '''instruccion : SHOW DATABASES opcional3 PTCOMA
@@ -456,10 +458,6 @@ def p_expresion15(t):
     '''wp : IGUAL  x wp
           |
     '''
-
-
-
-
 
 def p_expresion10(t):
     '''x :  y xp

@@ -204,8 +204,8 @@ import ply.lex as lex
 lexer = lex.lex()
 lex.lex(reflags=re.IGNORECASE)
 
-from expresion import *
-from instruccion import *
+from tytus.parser.team21.Analisis_Ascendente.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.instruccion import *
 
 precedence = (
     ('left', 'OR'),
