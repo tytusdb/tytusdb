@@ -3,12 +3,13 @@ from tools.console_text import *
 from tools.tabla_tipos import *
 
 class create_db(instruccion):
-    def __init__(self, id_db, replace_, if_exists, owner_mode, line, column, num_nodo):
+    def __init__(self, id_db, replace_, if_exists, owner, mode, line, column, num_nodo):
         super().__init__(line, column)
         self.id_db = id_db
         self.replace_ = replace_
         self.if_exists = if_exists
-        self.owner_mode = owner_mode
+        self.owner = owner
+        self.mode = mode
 
         #Nodo AST Create DB
         self.nodo = nodo_AST('CREATE DATABASE', num_nodo)
@@ -18,8 +19,29 @@ class create_db(instruccion):
         if if_exists != None:
             self.nodo.hijos.append(nodo_AST('IF NOT EXISTS', num_nodo+4))
         self.nodo.hijos.append(nodo_AST(id_db, num_nodo+2))
-        if owner_mode != None:
-            self.nodo.hijos.append(owner_mode.nodo)
-    
+        if owner != None:
+            self.nodo.hijos.append(owner.nodo)
+        if mode != None:
+            self.nodo.hijos.append(mode.nodo)
+
+        #Gramatica
+        self.grammar_ = '<TR><TD>INSTRUCCION ::= CREATE'
+        if replace_ != None:
+            self.grammar_ += ' OR REPLACE'
+        self.grammar_ += ' DATABASE '
+        if if_exists != None:
+            self.grammar_ += ' IF NOT EXISTS ' 
+        self.grammar_ += id_db
+        if owner != None:
+            self.grammar_ += ' OWNER '
+        if mode != None:
+            self.grammar_ += ' MODE '
+        self.grammar_ += '</TD><TD>INSTRUCCION = new create_db(ID,  REPLACE, IF_EXISTS, OWNER, MODE);</TD></TR>'
+
+        if owner != None:
+            self.grammar_ += owner.grammar_
+        if mode != None:
+            self.grammar_ += mode.grammar_
+
     def ejecutar(self):
         pass
