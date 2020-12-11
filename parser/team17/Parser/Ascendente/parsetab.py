@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'ABS ACOS ACOSD ACOSH ADD ALL ALTER AND ANDBB ANY AS ASC ASIN ASIND ASINH ATAN ATAN2 ATAN2D ATAND ATANH AVG BETWEEN BIGINT BOOLEAN BY CADENA CADENADOBLE CASE CBRT CEIL CEILING CHAR CHARACTER CHECK COLUMN COMA CONSTRAINT CONVERT CORDER CORIZQ COS COSD COSH COT COTD COUNT CREATE DATABASE DATABASES DATE DAY DECIMAL DECODE DEGREES DELETE DESC DISTINCT DISTINTO DIV DIVISION DOBPTS DOSPTS DOUBLE DROP ENCODE END ENTERO ENUM EXCEPT EXISTS EXP FACTORIAL FALSE FIRST FLOAT FLOOR FOREIGN FROM FULL GCD GET_BYTE GREATEST GROUP HAVING HOUR ID IGUAL IGUALQUE ILIKE IN INHERITS INNER INSERT INT INTEGER INTERSECT INTERVAL INTO IS ISNULL JOIN KEY LAST LCM LEAST LEFT LENGTH LIKE LIMIT LN LOG LOG10 MAS MAX MAYORIG MAYORQUE MD5 MENORIG MENORQUE MENOS MIN MINUTE MIN_SCALE MOD MODULO MONEY MULTI NOT NOTBB NOTNULL NULLS NUMERAL NUMERIC OFFSET ON OR ORBB OUTER OWNER PARDER PARIZQ PI POWER PRECISION PRIMARY PT PTCOMA RADIANS RANDOM REAL REFERENCES RENAME REPLACE RIGHT ROUND SCALE SECOND SELECT SET SETSEED SET_BYTE SHA256 SHIFTDER SHIFTIZQ SHOW SIGN SIMILAR SIN SIND SINH SMALLINT SOME SQRT SUBSTR SUBSTRING SUM TABLE TAN TAND TANH THEN TIME TIMESTAMP TKDECIMAL TKEXP TKNOT TO TRIM TRIM_SCALE TRUC TRUE TYPE UNION UNIQUE UNKNOWN UPDATE VALUES VARCHAR VARYING WHEN WHERE WIDTH_BUCKET YEAR textroot : setinstrucciones\n        setinstrucciones    : setinstrucciones setinstrucciones_paso\n                            | setinstrucciones_paso\n    \n        setinstrucciones_paso   : instruccion\n                                | instruccion PTCOMA\n    \n        instruccion     : select\n    \n        select  : SELECT DISTINCT\n                | SELECT\n    '
+_lr_signature = 'ABS ACOS ACOSD ACOSH ADD ALL ALTER AND ANDBB ANY AS ASC ASIN ASIND ASINH ATAN ATAN2 ATAN2D ATAND ATANH AVG BETWEEN BIGINT BOOLEAN BY CADENA CADENADOBLE CASE CBRT CEIL CEILING CHAR CHARACTER CHECK COLUMN COMA CONSTRAINT CONVERT CORDER CORIZQ COS COSD COSH COT COTD COUNT CREATE DATABASE DATABASES DATE DAY DECIMAL DECODE DEGREES DELETE DESC DISTINCT DISTINTO DIV DIVISION DOBPTS DOSPTS DOUBLE DROP ENCODE END ENTERO ENUM EXCEPT EXISTS EXP FACTORIAL FALSE FIRST FLOAT FLOOR FOREIGN FROM FULL GCD GET_BYTE GREATEST GROUP HAVING HOUR ID IGUAL IGUALQUE ILIKE IN INHERITS INNER INSERT INT INTEGER INTERSECT INTERVAL INTO IS ISNULL JOIN KEY LAST LCM LEAST LEFT LENGTH LIKE LIMIT LN LOG LOG10 MAS MAX MAYORIG MAYORQUE MD5 MENORIG MENORQUE MENOS MIN MINUTE MIN_SCALE MOD MODULO MONEY MULTI NOT NOTBB NOTNULL NULLS NUMERAL NUMERIC OFFSET ON OR ORBB ORDER OUTER OWNER PARDER PARIZQ PI POWER PRECISION PRIMARY PT PTCOMA RADIANS RANDOM REAL REFERENCES RENAME REPLACE RIGHT ROUND SCALE SECOND SELECT SET SETSEED SET_BYTE SHA256 SHIFTDER SHIFTIZQ SHOW SIGN SIMILAR SIN SIND SINH SMALLINT SOME SQRT SUBSTR SUBSTRING SUM TABLE TAN TAND TANH THEN TIME TIMESTAMP TKDECIMAL TKEXP TKNOT TO TRIM TRIM_SCALE TRUC TRUE TYPE UNION UNIQUE UNKNOWN UPDATE VALUES VARCHAR VARYING WHEN WHERE WIDTH_BUCKET YEAR textinit : sentences\n        sentences   : sentences setInstruccions\n                    | setInstruccions\n    \n        setInstruccions   : sentence\n                          | sentence PTCOMA\n    \n        sentence     : ddl\n    \n        ddl  : select\n    \n        select  : SELECT listavalores FROM exp listawhere\n    \n        listawhere  : listawhere atributoselect\n                    | atributoselect\n    \n        atributoselect  : WHERE exp\n                        | ORDER BY exp ordenamiento\n                        | ORDER BY exp\n                        | LIMIT BY exp\n    \n        ordenamiento   : ASC\n                       | DESC\n    \n        listavalores   : listavalores COMA exp\n                       | exp\n    \n        exp   : exp IGUAL exp\n              | expSimple\n    \n        expSimple   :   ID\n    '
     
-_lr_action_items = {'SELECT':([0,2,3,4,5,6,7,8,9,],[6,6,-3,-4,-6,-8,-2,-5,-7,]),'$end':([1,2,3,4,5,6,7,8,9,],[0,-1,-3,-4,-6,-8,-2,-5,-7,]),'PTCOMA':([4,5,6,9,],[8,-6,-8,-7,]),'DISTINCT':([6,],[9,]),}
+_lr_action_items = {'SELECT':([0,2,3,4,5,6,8,9,12,13,19,20,21,25,26,29,30,31,32,33,],[7,7,-3,-4,-6,-7,-2,-5,-20,-21,-19,-8,-10,-9,-11,-13,-14,-12,-15,-16,]),'$end':([1,2,3,4,5,6,8,9,12,13,19,20,21,25,26,29,30,31,32,33,],[0,-1,-3,-4,-6,-7,-2,-5,-20,-21,-19,-8,-10,-9,-11,-13,-14,-12,-15,-16,]),'PTCOMA':([4,5,6,12,13,19,20,21,25,26,29,30,31,32,33,],[9,-6,-7,-20,-21,-19,-8,-10,-9,-11,-13,-14,-12,-15,-16,]),'ID':([7,14,15,16,22,27,28,],[13,13,13,13,13,13,13,]),'FROM':([10,11,12,13,18,19,],[14,-18,-20,-21,-17,-19,]),'COMA':([10,11,12,13,18,19,],[15,-18,-20,-21,-17,-19,]),'IGUAL':([11,12,13,17,18,19,26,29,30,],[16,-20,-21,16,16,16,16,16,16,]),'WHERE':([12,13,17,19,20,21,25,26,29,30,31,32,33,],[-20,-21,22,-19,22,-10,-9,-11,-13,-14,-12,-15,-16,]),'ORDER':([12,13,17,19,20,21,25,26,29,30,31,32,33,],[-20,-21,23,-19,23,-10,-9,-11,-13,-14,-12,-15,-16,]),'LIMIT':([12,13,17,19,20,21,25,26,29,30,31,32,33,],[-20,-21,24,-19,24,-10,-9,-11,-13,-14,-12,-15,-16,]),'ASC':([12,13,19,29,],[-20,-21,-19,32,]),'DESC':([12,13,19,29,],[-20,-21,-19,33,]),'BY':([23,24,],[27,28,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'root':([0,],[1,]),'setinstrucciones':([0,],[2,]),'setinstrucciones_paso':([0,2,],[3,7,]),'instruccion':([0,2,],[4,4,]),'select':([0,2,],[5,5,]),}
+_lr_goto_items = {'init':([0,],[1,]),'sentences':([0,],[2,]),'setInstruccions':([0,2,],[3,8,]),'sentence':([0,2,],[4,4,]),'ddl':([0,2,],[5,5,]),'select':([0,2,],[6,6,]),'listavalores':([7,],[10,]),'exp':([7,14,15,16,22,27,28,],[11,17,18,19,26,29,30,]),'expSimple':([7,14,15,16,22,27,28,],[12,12,12,12,12,12,12,]),'listawhere':([17,],[20,]),'atributoselect':([17,20,],[21,25,]),'ordenamiento':([29,],[31,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,13 +26,26 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> root","S'",1,None,None,None),
-  ('root -> setinstrucciones','root',1,'p_init','gramatica.py',348),
-  ('setinstrucciones -> setinstrucciones setinstrucciones_paso','setinstrucciones',2,'p_setInstrucciones','gramatica.py',353),
-  ('setinstrucciones -> setinstrucciones_paso','setinstrucciones',1,'p_setInstrucciones','gramatica.py',354),
-  ('setinstrucciones_paso -> instruccion','setinstrucciones_paso',1,'p_setInstrucciones_paso','gramatica.py',364),
-  ('setinstrucciones_paso -> instruccion PTCOMA','setinstrucciones_paso',2,'p_setInstrucciones_paso','gramatica.py',365),
-  ('instruccion -> select','instruccion',1,'p_instruccion','gramatica.py',372),
-  ('select -> SELECT DISTINCT','select',2,'p_select','gramatica.py',383),
-  ('select -> SELECT','select',1,'p_select','gramatica.py',384),
+  ("S' -> init","S'",1,None,None,None),
+  ('init -> sentences','init',1,'p_init','gramatica.py',352),
+  ('sentences -> sentences setInstruccions','sentences',2,'p_sentences','gramatica.py',357),
+  ('sentences -> setInstruccions','sentences',1,'p_sentences','gramatica.py',358),
+  ('setInstruccions -> sentence','setInstruccions',1,'p_setInstruccions','gramatica.py',368),
+  ('setInstruccions -> sentence PTCOMA','setInstruccions',2,'p_setInstruccions','gramatica.py',369),
+  ('sentence -> ddl','sentence',1,'p_sentence','gramatica.py',375),
+  ('ddl -> select','ddl',1,'p_ddl','gramatica.py',381),
+  ('select -> SELECT listavalores FROM exp listawhere','select',5,'p_select','gramatica.py',387),
+  ('listawhere -> listawhere atributoselect','listawhere',2,'p_listawhere','gramatica.py',393),
+  ('listawhere -> atributoselect','listawhere',1,'p_listawhere','gramatica.py',394),
+  ('atributoselect -> WHERE exp','atributoselect',2,'p_atributoselect','gramatica.py',403),
+  ('atributoselect -> ORDER BY exp ordenamiento','atributoselect',4,'p_atributoselect','gramatica.py',404),
+  ('atributoselect -> ORDER BY exp','atributoselect',3,'p_atributoselect','gramatica.py',405),
+  ('atributoselect -> LIMIT BY exp','atributoselect',3,'p_atributoselect','gramatica.py',406),
+  ('ordenamiento -> ASC','ordenamiento',1,'p_ordenamiento','gramatica.py',413),
+  ('ordenamiento -> DESC','ordenamiento',1,'p_ordenamiento','gramatica.py',414),
+  ('listavalores -> listavalores COMA exp','listavalores',3,'p_listavalores','gramatica.py',419),
+  ('listavalores -> exp','listavalores',1,'p_listavalores','gramatica.py',420),
+  ('exp -> exp IGUAL exp','exp',3,'p_exp','gramatica.py',425),
+  ('exp -> expSimple','exp',1,'p_exp','gramatica.py',426),
+  ('expSimple -> ID','expSimple',1,'p_expSimples','gramatica.py',435),
 ]

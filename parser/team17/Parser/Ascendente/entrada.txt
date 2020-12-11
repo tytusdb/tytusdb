@@ -1,4 +1,4 @@
-select distinct ;
+select distinct ;kll
 select distinct ;
 select
 select;
