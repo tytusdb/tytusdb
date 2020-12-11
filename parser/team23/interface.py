@@ -73,15 +73,25 @@ class window:
         file_menu.add_command(label="Close Tab", command=self.delete_tab, accelerator="Ctrl+W")
         file_menu.add_command(label="Exit", command=self.ventana.quit)
 
-        edit_menu.add_command(label="Copy", command=lambda:self.ventana.focus_get().event_generate('<<Copy>>'), accelerator="Ctrl+C")
-        edit_menu.add_command(label="Paste", command=lambda:self.ventana.focus_get().event_generate('<<Paste>>'), accelerator="Ctrl+P")
-        edit_menu.add_command(label="Cut", command=lambda:self.ventana.focus_get().event_generate('<<Cut>>'), accelerator="Ctrl+X")
+        edit_menu.add_command(label="Copy", command=lambda:self.ventana.focus_get().event_generate('<<Copy>>'))
+        edit_menu.add_command(label="Paste", command=lambda:self.ventana.focus_get().event_generate('<<Paste>>'))
+        edit_menu.add_command(label="Cut", command=lambda:self.ventana.focus_get().event_generate('<<Cut>>'))
         edit_menu.add_separator()
         edit_menu.add_command(label="Search", command=self.find_popup, accelerator="Ctrl+F")
         edit_menu.add_command(label="Replace", command=self.replace_popup, accelerator="Ctrl+H")
 
         tools_menu.add_command(label="Ejecutar", command=self.ejecutar_codigo, accelerator="F5")
-        tools_menu.add_command(label="AST")
+        tools_menu.add_separator()
+        tools_menu.add_command(label="AST", command = self.compilar_AST_png)
+        tools_menu.add_separator()
+        tools_menu.add_command(label = "Errores Lexicos", command = self.compilar_lexico_png)
+        tools_menu.add_command(label = "Errores Sintacticos", command = self.compilar_sintactico_png)
+        tools_menu.add_command(label = "Errores Semanticos", command = self.compilar_semantico_png)
+        tools_menu.add_command(label = "Todos los errores", command = self.compilar_Error_png)
+        tools_menu.add_separator()
+        tools_menu.add_command(label = "Reporte Gramatical")
+        tools_menu.add_separator()
+        tools_menu.add_command(label = "Tabla de Simbolos")
         #tools_menu.add_command(label="Debug", command=self.open_file, accelerator="F5")
 
         theme_menu = Menu(options_menu, tearoff=0)
@@ -100,20 +110,20 @@ class window:
     def popup_about(self):        
         popup = Tk()
         popup.wm_title("About")
-        popup.geometry("330x180")
+        popup.geometry("330x190")
         popup.resizable(False, False)
 
         label = ttk.Label(popup, text="------------------ EDITOR COMPILADORES 2 ------------------", relief="sunken")
         label.pack(side="top", fill="x", pady=3)
         label = ttk.Label(popup, text="Versión: 1.51.1 (system setup)")
         label.pack(side="top", fill="x", pady=3)
-        label = ttk.Label(popup, text="Confirmación: e5a624b788d92b8d34d1392e4c4d9789406efe8f")
+        label = ttk.Label(popup, text="Confirmación: -----------------------------------")
         label.pack(side="top", fill="x", pady=3)
-        label = ttk.Label(popup, text="Fecha: 2020-11-10T23:34:32.027Z")
+        label = ttk.Label(popup, text="Fecha: 2020-12-10T08:44:32")
         label.pack(side="top", fill="x", pady=3)
         label = ttk.Label(popup, text="Sistema Operativo: Windows_NT x64 10.0.18363")
         label.pack(side="top", fill="x", pady=3)
-        label = ttk.Label(popup, text="Developer: Luis Fernando Arana Arias - 201700988")
+        label = ttk.Label(popup, text="Developer: Luis Fernando Arana Arias - 201700988\nPedro Rolando Ordoñez Carrillo - 201701187\nSteven Aaron Sis Hernandez - 201706357\nDavis Francisco Edward Enriquez - 201700972")
         label.pack(side="top", fill="x", pady=3)
 
         B1 = ttk.Button(popup, text="Close", command = popup.destroy)
@@ -304,6 +314,27 @@ class window:
         AstBtn = Button(myTool, image=imgAst, command=self.compilar_AST_png)
         AstBtn.image = imgAst
         AstBtn.pack(side=LEFT, padx=2, pady=2)
+
+        imgErrores = Image.open(self.dir_os +'/assets/error.png')
+        imgErrores = imgErrores.resize((20, 20), Image.ANTIALIAS)
+        imgErrores = ImageTk.PhotoImage(imgErrores)
+        ErroresBtn = Button(myTool, image=imgErrores, command=self.compilar_Error_png)
+        ErroresBtn.image = imgErrores
+        ErroresBtn.pack(side=LEFT, padx=2, pady=2)
+
+        imgGrammar = Image.open(self.dir_os +'/assets/grammar.png')
+        imgGrammar = imgGrammar.resize((20, 20), Image.ANTIALIAS)
+        imgGrammar = ImageTk.PhotoImage(imgGrammar)
+        GrammarBtn = Button(myTool, image=imgGrammar, command=self.compilar_grammar_png)
+        GrammarBtn.image = imgGrammar
+        GrammarBtn.pack(side=LEFT, padx=2, pady=2)
+
+        imgSimbolo = Image.open(self.dir_os +'/assets/simbolos.png')
+        imgSimbolo = imgSimbolo.resize((20, 20), Image.ANTIALIAS)
+        imgSimbolo = ImageTk.PhotoImage(imgSimbolo)
+        SimboloBtn = Button(myTool, image=imgSimbolo, command=self.compilar_Error_png)
+        SimboloBtn.image = imgSimbolo
+        SimboloBtn.pack(side=LEFT, padx=2, pady=2)
 
         myTool.pack(side=TOP, fill=X)
 
@@ -789,7 +820,7 @@ class window:
                 
             ast_str += '\n}'
 
-            with open('ast_reporte.dot', 'w') as f:
+            with open('ast_reporte.dot', 'w', encoding='utf8') as f:
                 f.write(ast_str)
 
     def graficar_AST_hijos(self, instr_):
@@ -802,6 +833,22 @@ class window:
 
         return t
 
+    def graficar_Gramatical(self, ast_):
+        if len(ast_) != 0:
+            grammar_str = 'digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n'
+            grammar_str += 'arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>PRODUCCIÓN</TD><TD>ACCIONES</TD></TR>\n'
+
+            grammar_str += '<TR><TD>INSTRUCCIONES ::= INSTRUCCION INSTRUCCIONES1</TD><TD>INSTRUCCIONES = INSTRUCCIONES1; INSTRUCCIONES.append(INSTRUCCION); </TD></TR>\n'
+            grammar_str += '<TR><TD>INSTRUCCIONES ::= </TD><TD>INSTRUCCIONES = [];</TD></TR>\n'
+
+            for instr in ast_:
+                grammar_str += instr.grammar_ + '\n'
+
+            grammar_str += '</TABLE>\n>, ];\n}'
+
+            with open('grammar_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(grammar_str)
+
     def graficar_Errores(self):        
         if len(errores) != 0:
             reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
@@ -809,24 +856,101 @@ class window:
 
             for error_ in errores:
                 reporte_errores += '<TR>'
-                reporte_errores += '<TD>' + error_.valor + '</TD>'
-                reporte_errores += '<TD>' + error_.descripcion +'</TD>'
+                reporte_errores += '<TD>' + error_.descripcion + '</TD>'
+                reporte_errores += '<TD>' + error_.valor +'</TD>'
                 reporte_errores += '<TD>' + error_.line +'</TD>'
                 reporte_errores += '<TD>' + error_.column +'</TD>'
                 reporte_errores += '</TR>'
 
             reporte_errores += '</TABLE>\n>, ];\n}'
 
-            with open('errores_reporte.dot', 'w') as f:
+            with open('errores_reporte.dot', 'w', encoding='utf8') as f:
                 f.write(reporte_errores)
 
+    def graficar_errores_lexicos(self):
+        if len(errores) != 0:
+            reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
+            reporte_errores += "arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>Tipo Error</TD>\n<TD>Descripcion</TD>\n<TD>Linea</TD>\n<TD>Columna</TD>\n</TR>\n"
+
+            for error_ in errores:
+                if error_.descripcion.lower() == "léxico":
+                    reporte_errores += '<TR>'
+                    reporte_errores += '<TD>' + error_.descripcion + '</TD>'
+                    reporte_errores += '<TD>' + error_.valor +'</TD>'
+                    reporte_errores += '<TD>' + error_.line +'</TD>'
+                    reporte_errores += '<TD>' + error_.column +'</TD>'
+                    reporte_errores += '</TR>'
+
+            reporte_errores += '</TABLE>\n>, ];\n}'
+
+            with open('lexico_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(reporte_errores)
+
+    def graficar_errores_sintacticos(self):
+        if len(errores) != 0:
+            reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
+            reporte_errores += "arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>Tipo Error</TD>\n<TD>Descripcion</TD>\n<TD>Linea</TD>\n<TD>Columna</TD>\n</TR>\n"
+
+            for error_ in errores:
+                if error_.descripcion.lower() == "sintáctico":
+                    reporte_errores += '<TR>'
+                    reporte_errores += '<TD>' + error_.descripcion + '</TD>'
+                    reporte_errores += '<TD>' + error_.valor +'</TD>'
+                    reporte_errores += '<TD>' + error_.line +'</TD>'
+                    reporte_errores += '<TD>' + error_.column +'</TD>'
+                    reporte_errores += '</TR>'
+
+            reporte_errores += '</TABLE>\n>, ];\n}'
+
+            with open('sintactico_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(reporte_errores)
+
+    def graficar_errores_semanticos(self):
+        if len(errores) != 0:
+            reporte_errores = "digraph test {\ngraph [ratio=fill];\nnode [label=\"\\N\", fontsize=15, shape=plaintext];\ngraph [bb=\"0,0,352,154\"];\n"
+            reporte_errores += "arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>Tipo Error</TD>\n<TD>Descripcion</TD>\n<TD>Linea</TD>\n<TD>Columna</TD>\n</TR>\n"
+
+            for error_ in errores:
+                if error_.descripcion.lower() == "semántico":
+                    reporte_errores += '<TR>'
+                    reporte_errores += '<TD>' + error_.descripcion + '</TD>'
+                    reporte_errores += '<TD>' + error_.valor +'</TD>'
+                    reporte_errores += '<TD>' + error_.line +'</TD>'
+                    reporte_errores += '<TD>' + error_.column +'</TD>'
+                    reporte_errores += '</TR>'
+
+            reporte_errores += '</TABLE>\n>, ];\n}'
+
+            with open('semantico_reporte.dot', 'w', encoding='utf8') as f:
+                f.write(reporte_errores)
+
+    def compilar_grammar_png(self):
+        img = Source.from_file("grammar_reporte.dot", format = "png", encoding="utf8")
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "grammar_reporte.dot.png")
+
+    def compilar_semantico_png(self):
+        img = Source.from_file("semantico_reporte.dot", format = "png", encoding='utf8')
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "semantico_reporte.dot.png")
+
+    def compilar_sintactico_png(self):
+        img = Source.from_file("sintactico_reporte.dot", format = "png", encoding='utf8')
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "sintactico_reporte.dot.png")
+
+    def compilar_lexico_png(self):
+        img = Source.from_file("lexico_reporte.dot", format = "png", encoding='utf8')
+        img.render()
+        entrada = self.popup_reporte_png(self.ventana, "lexico_reporte.dot.png")
+
     def compilar_Error_png(self):
-        img = Source.from_file("errores_reporte.dot", format="png")
+        img = Source.from_file("errores_reporte.dot", format="png", encoding='utf8')
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "errores_reporte.dot.png")
 
     def compilar_AST_png(self):
-        img = Source.from_file("ast_reporte.dot", format="png")
+        img = Source.from_file("ast_reporte.dot", format="png", encoding='utf8')
         img.render()
         entrada = self.popup_reporte_png(self.ventana, "ast_reporte.dot.png")
 
@@ -871,6 +995,10 @@ class window:
 
         self.graficar_AST(instruccions)  
         self.graficar_Errores()
+        self.graficar_errores_lexicos()
+        self.graficar_errores_sintacticos()
+        self.graficar_errores_semanticos()
+        self.graficar_Gramatical(instruccions)
 
     def ejecutar_resultado(self,instrucciones_):
         for instruccion_ in instrucciones_:
