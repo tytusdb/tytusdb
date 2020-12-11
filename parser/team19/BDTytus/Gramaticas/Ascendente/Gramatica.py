@@ -103,7 +103,8 @@ reservadas = {
     'power' : 't_power',
     'radians' : 't_radians',
     'round' : 't_round',
-    'use': 't_use'
+    'use': 't_use',
+    'default' : 't_default'
 }
 
 tokens = [
@@ -339,11 +340,9 @@ def p_Sentencias_DDL(p):
                     | t_create Create pyc
                     | Enum_Type '''
 
-
 def p_Enum_Type(p):
-    'Enum_Type : t_create t_type id t_as t_enum par1 Lista_ID par2 pyc'
+    'Enum_Type : t_create t_type id t_as t_enum par1 Lista_Enum par2 pyc'
     p[0] = p[3]
-
 
 def p_Drop(p):
     '''Drop : t_database DropDB id
@@ -353,7 +352,6 @@ def p_Drop(p):
 def p_DropDB(p):
     '''DropDB : t_if t_exists
             | empty'''
-
 
 def p_Alter(p):
     '''Alter : t_database id AlterDB
@@ -377,18 +375,15 @@ def p_AlterTB(p):
                 | t_alter t_column Alter_Column
                 | t_rename t_column id t_to id '''
 
-
 def p_Add_Opc(p):
     '''Add_Opc : t_column id Tipo
                | t_foreign t_key par1 id par2 t_references id
                | t_constraint id t_unique par1 id par2
-               | t_check EXP'''
-
+               | t_check EXP '''
 
 def p_Drop_Opc(p):
     ''' Drop_Opc :  t_column id
                  |  t_constraint id '''
-
 
 def p_Alter_Column(p):
     ''' Alter_Column :   id t_set t_not t_null
@@ -401,8 +396,8 @@ def p_Alter_Columns(p):
 
 
 def p_Alter_Colum1(p):
-    'Alter_Column1 :  id t_type t_varchar par1 entero par2 '
-
+    '''Alter_Column1 :  id t_type t_varchar par1 entero par2
+                    | t_alter t_column id t_type t_varchar par1 entero par2'''
 
 def p_Create(p): 
     ''' Create : CreateDB   
@@ -455,41 +450,34 @@ def p_Inherits(p):
     ''' Inherits : t_inherits par1 id par2
                | empty '''
 
+def p_Columnas(p): 
+    ''' Columnas : Columnas coma Columna
+                | Columna '''
 
-def p_Columnas(p):
-    '''Columnas : Columnas coma Columna
-                | Columna'''
-    if len(p) == 3:
-        p[1].extend(p[2])
-        p[0] = p[1]   
-    else:
-        p[0] = p[1] 
+def p_Columna(p): 
+    ''' Columna : id Tipo Cond_CreateTB 
+                | Constraint'''
 
-
-def p_Columna(p):
-    ''' Columna : id Tipo Constraints
-                | t_primary t_key par1 Lista_ID par2
-                | t_unique par1 Lista_ID par2
-                | t_constraint id t_check par1 EXP par2
-                | t_check par1 EXP par2
-                | t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2 '''
-
-
-def p_Constraints(p):
-    ''' Constraints :  t_primary t_key
-                        | t_references id 
-                        | t_not t_null
-                        | t_null
-                        | t_constraint id 
-                        | t_unique Opc_Unique
-                        | t_check par1 EXP par2 
+def p_Cond_CreateTB(p):
+    ''' Cond_CreateTB : t_default id Cond_CreateTB
+                        | t_not t_null Cond_CreateTB
+                        | t_null Cond_CreateTB
+                        | t_constraint id Opc_Constraint Cond_CreateTB
+                        | t_primary t_key Cond_CreateTB
+                        | t_references id Cond_CreateTB
                         | empty'''
 
+def p_Opc_Constraint(p):
+    ''' Opc_Constraint : t_unique
+                       | t_check par1 EXP par2 '''
 
-def p_Opc_Unique(p):
-  ''' Opc_Unique : t_not t_null 
-                | empty '''
-
+def p_Constraint(p):
+    ''' Constraint : t_unique par1 Lista_ID par2
+                    | t_constraint id t_check par1 EXP par2
+                    | t_check par1 EXP par2
+                    | t_primary t_key par1 Lista_ID par2
+                    | t_foreign t_key par1 Lista_ID par2 t_references id par1 Lista_ID par2
+                    | empty '''
 
 def p_Tipo(p):
     ''' Tipo : t_smallint
@@ -521,6 +509,8 @@ def p_empty(p):
     'empty :'
     p[0] = []
 
+
+
 # ----------------------------EXPRESIONES Y OPERACIONES---------------------------------------------------------------
 
 def p_aritmeticas(p):
@@ -529,7 +519,8 @@ def p_aritmeticas(p):
            | EXP asterisco EXP
            | EXP div EXP
            | EXP pot EXP
-           | EXP porcentaje EXP'''
+           | EXP porcentaje EXP
+           | par1 EXP par2'''
     p[0] = p[1]#Aritmetica(p[1], p[3], p.slice[2].value, p.slice[2].lineno, find_column(input, p.slice[2]))
 
 
@@ -601,7 +592,15 @@ def p_Lista_ID(p):
     else:
         p[0] = p[1]
 
-
+def p_Lista_Enum(p):
+    '''Lista_Enum : Lista_Enum coma char
+               | char '''
+    if len(p) == 3:
+        p[1].extend(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = p[1]
+        
 def p_Lista_EXP(p):
     '''Lista_EXP : Lista_EXP coma EXP
                | EXP '''
