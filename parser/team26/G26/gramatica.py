@@ -305,6 +305,8 @@ def t_error(t):
 import ply.lex as lex
 lexer = lex.lex()
 
+from imports import *
+
 precedence = (
     ('left','MAS','GUION'),
     ('left','ASTERISCO','BARRA', 'PORCENTAJE'),
@@ -314,10 +316,17 @@ precedence = (
 
 def p_init(t) :
     'init            : instrucciones'
+    t[0] = t[1]
 
 def p_instrucciones_lista(t) :
-    '''instrucciones : instrucciones instruccion
-                     | instruccion'''
+    'instrucciones : instrucciones instruccion'
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_instruciones(t):
+    'instrucciones : instruccion'''
+    t[0] = [t[1]]
+
 
 def p_instruccion(t) :
     '''instruccion      : CREATE create
@@ -327,13 +336,19 @@ def p_instruccion(t) :
                         | ALTER alter
                         | DELETE delete
                         | INSERT insert
-                        | UPDATE update'''
+                        | UPDATE update
+                        | AS condicions'''
+    t[0] = t[2]
 
 def p_create_instruccion(t) :
     '''create : TYPE createenum
               | TABLE createtable
-              | OR REPLACE DATABASE
-              | DATABASE'''
+              | OR REPLACE DATABASE createdatabase
+              | DATABASE createdatabase'''
+    if t[1].lower() == 'type' : t[0] = create.Create('type', t[2])
+    elif t[1].lower() == 'table' : t[0] = create.Create('table', [])
+    elif t[1].lower() == 'or' : t[0] = create.Create('replace', [])
+    elif t[1].lower() == 'database' : t[0] = create.Create('database', [])
 
 def p_createenum(t):
     'createenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA'
@@ -341,6 +356,20 @@ def p_createenum(t):
 def p_listacadenas(t):
     '''listacadenas : listacadenas COMA CADENA
                     | CADENA'''
+
+def p_createdatabase(t):
+    '''createdatabase : IF NOT EXISTS ID databaseowner
+                      | ID databaseowner'''
+
+def p_databaseowner(t):
+    '''databaseowner : OWNER IGUAL ID databasemode
+                     | OWNER ID databasemode
+                     | databasemode'''
+
+def p_databasemode(t):
+    '''databasemode : MODE IGUAL ENTERO PTCOMA
+                    | MODE ENTERO PTCOMA
+                    | PTCOMA'''
 
 def p_createtable(t):
     'createtable : ID PARENIZQ tabledescriptions PARENDER tableherencia'
@@ -492,7 +521,7 @@ def p_altertable(t):
                     | RENAME COLUMN ID TO ID PTCOMA'''
 #agregar tipo, condiciones, listaids opcionsalter
 def p_alteradd(t):
-    ''' alteradd   :   COLUMN ID tipo 
+    ''' alteradd   :   COLUMN ID tipo
                     |  CHECK PARENIZQ PARENDER
                     |  CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER
                     |  FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER '''
@@ -500,7 +529,7 @@ def p_alteradd(t):
 def p_opcionesalterset(t):
     '''opcionesalterset :   NOT NULL
                             | NULL '''
-                
+
 def p_tipodedrop(t):
     '''tipodedrop   :   COLUMN ID
                         | CONSTRAINT  ID'''
@@ -546,24 +575,34 @@ def p_condicion(t):
                     | condicions'''
 
 def p_condicions(t):
-    '''condicions    : argument comparacionoperators'''
-
-def p_comparacionoperators(t):
-    '''comparacionoperators    : MENORQUE argument
-                                | MAYORQUE argument
-                                | IGUAL argument
-                                | MENORIGUALQUE argument
-                                | MAYORIGUALQUE argument
-                                | DIFERENTELL argument
-                                | BETWEEN betweenopcion
-                                | NOT BETWEEN argument AND argument
-                                | ISNULL
-                                | NOTNULL
-                                | IS isopcion'''
+    '''condicions : argument MENORQUE argument
+                  | argument MAYORQUE argument
+                  | argument IGUAL argument
+                  | argument MENORIGUALQUE argument
+                  | argument MAYORIGUALQUE argument
+                  | argument DIFERENTELL argument
+                  | argument BETWEEN betweenopcion
+                  | argument NOT BETWEEN argument AND argument
+                  | argument ISNULL
+                  | argument NOTNULL
+                  | argument IS isopcion'''
+    if t[2] == '<'    : t[0] = condicion.Condicionales(t[1], t[3], '<', None)
+    elif t[2] == '>'  : t[0] = condicion.Condicionales(t[1], t[3], '>', None)
+    elif t[2] == '='  : t[0] = condicion.Condicionales(t[1], t[3], '=', None)
+    elif t[2] == '<=' : t[0] = condicion.Condicionales(t[1], t[3], '<=', None)
+    elif t[2] == '>=' : t[0] = condicion.Condicionales(t[1], t[3], '>=', None)
+    elif t[2] == '<>' : t[0] = condicion.Condicionales(t[1], t[3], '<>', None)
+    elif t[2].lower() == 'between' : t[0] = condicion.Condicionales(t[1], t[3], 'between', None)
+    elif t[2].lower() == 'not' : t[0] = condicion.Condicionales(t[1], t[3], 'not', t[6])
+    elif t[2].lower() == 'isnull' : t[0] = condicion.Condicionales(t[1], None, 'isnull', None)
+    elif t[2].lower() == 'notnull' : t[0] = condicion.Condicionales(t[1], None, 'notnull', None)
+    elif t[2].lower() == 'is' : t[0] = condicion.Condicionales(t[1], t[3], 'is', None)
 
 def p_betweenopcion(t):
     '''betweenopcion    : SYMMETRIC argument AND argument
                         | argument AND argument'''
+    if t[1].lower() == 'symmetric' : t[0] = condicion.Between(True, t[2], t[4])
+    else : t[0] = condicion.Between(False, t[2], t[4])
 
 def p_isopcion(t):
     '''isopcion : DISTINCT FROM argument
@@ -572,6 +611,12 @@ def p_isopcion(t):
                 | FALSE
                 | UNKNOWN
                 | NOT isnotoptions'''
+    if t[1].lower() == 'distinct' : t[0] = condicion.IsNotOptions(False, t[3], True)
+    elif t[1].lower() == 'null' : t[0] = condicion.IsNotOptions(False, 'null', False)
+    elif t[1].lower() == 'true' : t[0] = condicion.IsNotOptions(False, 'true', False)
+    elif t[1].lower() == 'false' : t[0] = condicion.IsNotOptions(False, 'false', False)
+    elif t[1].lower() == 'unknown' : t[0] = condicion.IsNotOptions(False, 'unknown', False)
+    elif t[1].lower() == 'not' : t[0] = condicions.IsNotOptions(True, t[2], False)
 
 def p_isnotoptions(t):
     '''isnotoptions : FALSE
@@ -579,6 +624,11 @@ def p_isnotoptions(t):
                     | TRUE
                     | NULL
                     | DISTINCT FROM argument'''
+    if t[1].lower() == 'null' : t[0] = 'null'
+    elif t[1].lower() == 'true' : t[0] = 'true'
+    elif t[1].lower() == 'false' : t[0] = 'false'
+    elif t[1].lower() == 'unknown' : t[0] = 'unknown'
+    elif t[1].lower() == 'distinct' :t[0] = condicion.IsNotOptions(False, t[3], True)
 
 def p_argument_binary(t):
     '''argument : argument MAS argument
@@ -588,30 +638,46 @@ def p_argument_binary(t):
                 | argument PORCENTAJE argument
                 | argument POTENCIA argument
                 | boleano'''
+    if t[2] == '+'   : t[0] = arit.Arithmetic(t[1], t[3], '+')
+    elif t[2] == '-' : t[0] = arit.Arithmetic(t[1], t[3], '+')
+    elif t[2] == '/' : t[0] = arit.Arithmetic(t[1], t[3], '+')
+    elif t[2] == '*' : t[0] = arit.Arithmetic(t[1], t[3], '+')
+    elif t[2] == '%' : t[0] = arit.Arithmetic(t[1], t[3], '+')
+    elif t[2] == '\^' : t[0] = arit.Arithmetic(t[1], t[3], '+')
+    else : t[0] = t[1]
 
 def p_argument_unary(t):
     '''argument : MAS argument %prec UMAS
                 | GUION argument %prec UMENOS'''
+    if t[1] == '+' : t[0] = Primitive(t[2])
+    else : t[0] =  t[0] = Primitive(t[2])
 
 def p_argument_agrupacion(t):
     '''argument : PARENIZQ argument PARENDER'''
+    t[0] = t[2]
 
 def p_argument_number(t):
     '''argument : ENTERO
                 | DECIMAL'''
+    t[0] = t[1]
 
 def p_argument_cadena(t):
     '''argument : CADENA'''
+    t[0] = t[1]
 
 def p_argument_id(t):
     '''argument : ID'''
+    t[0] = t[1]
 
 def p_argument_idpid(t):
     '''argument : ID PUNTO ID'''
+    t[0] = t[1] + '\.' + t[3]
 
 def p_boleano(t):
     '''boleano  : TRUE
                 | FALSE'''
+    if t[1].lower() == 'true' : t[0] = 'true'
+    else : t[0] = 'false'
 
 def p_error(t):
     # print(t)
