@@ -8,6 +8,7 @@ from tkinter import scrolledtext
 from tkinter.font import Font
 from utils.analyzers.syntactic import *
 from utils.reports.generate_ast import GraficarAST
+from utils.reports.report_error import ReportError
 import os
 
 
@@ -54,7 +55,8 @@ class GUI:
         archivoMenu.add_command(label="Salir", command=self.terminar)
         #############################################MENU REPORTES#############################################
         archivoReportes = Menu(barraMenu, tearoff=0)
-        archivoReportes.add_command(label="AST", command=self.report_ast)
+        archivoReportes.add_command(label="AST  Windows", command=self.report_ast_windows)
+        archivoReportes.add_command(label="AST  Linux", command=self.report_ast_ubuntu)
         #############################################MENU PRINCIPAL#############################################
         barraMenu.add_cascade(
             label="Archivo", menu=archivoMenu)  # anade submenu
@@ -69,7 +71,7 @@ class GUI:
             frame, height=30, width=80, bg='linen')
         self.entrada.grid(row=4, column=0, padx=30)
 
-        Label(frame, text='   =>   ').grid(row=4, column=1)
+        Button(frame, text='   ANALIZAR   ', command=self.analizar_entrada, fg="blue").grid(row=4, column=1)
 
         # Para este editor aun hay que ver si lo usamos como consola para errores, si no lo quitamos
         Label(frame, text='Errores:', background='salmon').grid(row=3, column=2)
@@ -114,20 +116,32 @@ class GUI:
     # Opcion para ejecutar el texto de entrada del editor
     def analizar_entrada(self):
         texto = self.entrada.get("1.0", END)
-        parser = yacc.yacc()
         graficadora = GraficarAST()
-        result = parser.parse(texto)
-        report = open('test.txt', 'w')
-        report.write(graficadora.generate_string(result))
-        report.close()
-        messagebox.showinfo("EXITO", "SE FINALIZO EL ANALISIS SINTACTICO")
+        result = parse(texto)
+        values = list_errors.head_value
+        if values is not None:
+            report_error = ReportError(list_errors)
+            report = open('error.html', 'w')
+            report.write(report_error.get_report())
+            report.close()
+            messagebox.showerror('ERRORES', 'Se encontraron errores')  
+        else:
+            report = open('dot.txt', 'w')
+            report.write(graficadora.generate_string(result))
+            report.close()
+            messagebox.showinfo("EXITO", "SE FINALIZO EL ANALISIS SINTACTICO")
 
     # Para mostrar el editor
-    def report_ast(self):
+    def report_ast_ubuntu(self):
         os.system('dot -Tpdf test.txt -o ast.pdf')
         # Si estan en ubuntu dejan esta linea si no la comentan y descomentan la otra para windows
         os.system('xdg-open ast.pdf')
         # os.open('ast.pdf')
+        # os.startfile('ast.pdf')
+
+    def report_ast_windows(self):
+        os.system('dot -Tpdf test.txt -o ast.pdf')
+        os.startfile('ast.pdf')
 
     # Para salir de la aplicacion
     def terminar(self):
