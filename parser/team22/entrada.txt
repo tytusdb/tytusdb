@@ -1,4 +1,4 @@
-/*
+
 create database compi MODE = 4;
 create database modela MODE = 4;
 create database base2 MODE = 4;
@@ -9,7 +9,7 @@ DROP DATABASE IF EXISTS  new_name;
 DROP DATABASE new_name;
 SHOW DATABASES;
 use una_bd;
-*/
+
 -- comentario
 /* comentario
 multiple*/
@@ -80,8 +80,8 @@ end
  */
 
  
-SELECT distinct codigo, ABS(-5) from usuarios 
+/*SELECT distinct codigo, ABS(-5) from usuarios 
 where CBRT(32) == 10 AND 12 <= 12 AND usuarios.codigo !=12 or id > (3+5) 
 group by usuarios.codigo
 having abs(id) > 10
-order by codigo asc, nombre asc, id desc, tipo;
+order by codigo asc, nombre asc, id desc, tipo;*/

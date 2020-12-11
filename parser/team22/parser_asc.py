@@ -2,6 +2,7 @@
 import ply.lex as lex
 from lex import *
 from type_checker import *
+from columna import *
 lexer = lex.lex()
 type_checker = TypeChecker()
 
@@ -39,15 +40,11 @@ def p_instrucciones_instruccion(t) :
 def p_instruccion(t) :
     '''instruccion      : CREATE creacion
                         | SHOW show_db PTCOMA
-                        | SHOW show_db
                         | ALTER DATABASE alter_database PTCOMA
-                        | ALTER DATABASE alter_database 
                         | USE cambio_bd
                         | SELECT selects
                         | DELETE deletes
                         | ALTER TABLE alter_table PTCOMA
-                        | ALTER TABLE alter_table 
-                        | UPDATE update_table
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
                         | DROP dropear'''
@@ -59,6 +56,7 @@ def p_instruccion(t) :
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
     '''creacion     : DATABASE crear_bd
+                    | OR REPLACE DATABASE crear_bd
                     | TABLE crear_tb
                     | TYPE crear_type'''
     print("Creacion")
@@ -71,7 +69,6 @@ def p_instruccion_crear_BD(t) :
 
 def p_instruccion_crear_BD_Parametros(t) :
     'crear_bd     : ID lista_parametros_bd PTCOMA'
-    #t[0] = Crear_BD_Parametros(t[1])
     print('Creacion de BD parametros')
     if 'mode' in t[2]:
         print(type_checker.createDatabase(database = t[1], mode = t[2]['mode']))
@@ -92,14 +89,12 @@ def p_instruccion_crear_BD_if_exists_Parametros(t) :
         print(type_checker.createDatabase(database = t[4]))
 
 def p_instruccion_crear_TB_herencia(t):
-    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA
-                    | ID PARIZQ crear_tb_columnas PARDER tb_herencia'''
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA'''
     print("Creación de Tabla con herencia")
     #t[0] = Crear_TB_Herencia(t[1], t[3], t[5])|||
 
 def p_instruccion_crear_TB(t):
-    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA
-                    | ID PARIZQ crear_tb_columnas PARDER'''
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA'''
     print("Creación de tabla sin herencia")
     #t[0] = Crear_TB(t[1], t[3])
 
@@ -148,8 +143,8 @@ def p_def_alter_db(t) :
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
     'cambio_bd     : ID PTCOMA'
-    t[0] = Cambio_BD(t[1])
     print("CAMBIO de BD")
+    print(type_checker.useDatabase(t[1]))
 
 #========================================================
 
@@ -306,20 +301,26 @@ def p_instruccion_Drop_TB(t) :
 
 #========================================================
 # PARAMETROS PARA CREATE BASE DE DATOS
-def p_instrucciones_parametros_BD_owner(t) :
-    'lista_parametros_bd    : OWNER IGUAL ID'
+def p_instrucciones_parametros_BD(t) :
+    '''lista_parametros_bd  : parametros_bd
+                            | parametros_bd parametros_bd'''
+    if len(t) == 3:
+        t[1].update(t[2])
+    t[0] = t[1]
 
-def p_instrucciones_parametros_BD_Mode(t) :
-    'lista_parametros_bd    : MODE IGUAL ENTERO'
-    t[0] = {'mode': t[3]}
+def p_parametros_BD_owner(t) :
+    '''parametros_bd    : OWNER IGUAL ID
+                        | OWNER ID'''
+    t[0] = {'owner': ''}
 
-def p_instrucciones_parametros_BD_Mode_owner(t) :
-    'lista_parametros_bd    : OWNER IGUAL ID MODE IGUAL ENTERO'
-    t[0] = {'mode': t[6]}
+def p_parametros_BD_Mode(t) :
+    '''parametros_bd    : MODE IGUAL ENTERO
+                        | MODE ENTERO'''
+    if len(t) == 4:
+        t[0] = {'mode': t[3]}
+    else:
+        t[0] = {'mode': t[2]}
 
-def p_instrucciones_parametros_BD_owner_Mode(t) :
-    'lista_parametros_bd    : MODE IGUAL ENTERO OWNER IGUAL ID'
-    t[0] = {'mode': t[3]}
 
 #========================================================
 
@@ -404,6 +405,7 @@ def p_instrucciones_columna_parametros(t) :
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
+    col = Columna()
     #t[0] = Nueva_Columna(t[1], t[2])
 
 def p_instrucciones_columna_pk(t) :
@@ -602,22 +604,25 @@ def p_tipos(t) :
                     | CHAR PARIZQ ENTERO PARDER
                     | TEXT
                     | TIMESTAMP def_dt_types
+                    | TIMESTAMP
                     | DATE
                     | TIME def_dt_types
+                    | TIME
                     | INTERVAL def_interval
                     | BOOLEAN'''
+    
 
 def p_def_dt_types(t) :
-    '''def_dt_types : def_dt_types WITHOUT TIME ZONE
-                    | def_dt_types WITH TIME ZONE
+    '''def_dt_types : CADENA WITHOUT TIME ZONE
+                    | CADENA WITH TIME ZONE
                     | WITHOUT TIME ZONE
                     | WITH TIME ZONE
-                    | PARIZQ ENTERO PARDER'''
+                    | CADENA'''
 
 def p_def_interval(t) :
-    '''def_interval : def_interval PARIZQ ENTERO PARDER
+    '''def_interval : def_fld_to CADENA
                     | def_fld_to
-                    | PARIZQ ENTERO PARDER'''
+                    | CADENA'''
 
 def p_def_fld_to(t) :
     '''def_fld_to   : def_fields TO def_fields
