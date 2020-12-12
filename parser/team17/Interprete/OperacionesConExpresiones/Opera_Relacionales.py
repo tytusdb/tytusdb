@@ -12,9 +12,9 @@ class Opera_Relacionales(NodoArbol):
         self.tipoOperaRelacional = tipoOperaRelacional
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):
-        izquierdo = self.izq.execute(entorno, arbol)
-        derecho = self.der.execute(entorno, arbol)
+        izquierdo = self.izq#.execute(entorno, arbol)
+        derecho = self.der#.execute(entorno, arbol)
 
-        if self.tipoOperaRelacional == "==":
+        if self.tipoOperaRelacional == "=":
             retorno:Valor = Valor(3, True);
             return  retorno;

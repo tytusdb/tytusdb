@@ -138,6 +138,16 @@ dmypy.json
 cython_debug/
 
 
-# Analizadores
+# Custom
 parser.out
 parsetab.py
+
+*.dot
+ast.pdf
+dot.txt
+error.html
+typeChecker.png
+
+storageManager/
+test/
+data/

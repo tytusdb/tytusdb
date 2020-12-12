@@ -66,6 +66,7 @@ TytusDB tendrá cinco modos de almacenamiento, cada uno corresponde a un motor d
 3. Mediante un árbol B+
 4. Mediante ISAM
 5. Mediante tablas Hash.
+6. Mediante archivos JSON
 
 #### Registros de almacenamiento
 
@@ -115,16 +116,92 @@ def dropDatabase(database: str) -> int:
 ```
 Elimina por completo la base de datos indicada en database.  
 Parámetro database: es el nombre de la base de datos que se desea eliminar, debe cumplir con las reglas de identificadores de SQL.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente.  
 
 ##### Respecto de las funciones de las tablas están:
-- createTable(database, tableName, numberColumns): crea una tabla según el modo de almacenamiento, la base de datos debe de existir, y solo se define el número de columnas.
-- showTables(database): devuelve una lista de los nombre de las tablas de una base de datos, los nombre de tablas son únicos.
-- alterTable(database, tableOld, tableNew): cambia el nombre de una tabla de una base de datos.
-- dropTable(database, tableName): elimina por completo la tabla indicada.
-- alterAdd(database, tableName, columnName): agrega una columna a cada registro de la tabla.
-- alterDrop(database, tableName, columnNumber): elimina una n-esima columna de cada registro de la tabla.
-- extractTable(database, table): extrae y devuelve en una lista de listas el contenido de la tabla.
+
+```
+def createTable(database: str, table: str, numberColumns) -> int:
+```
+Crea una tabla en una base de datos especificada recibiendo una lista de índices referentes a la llave primaria y llave foránea.  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla que se desea crear.  
+Parámetro numberColumns: es el número de columnas que tendrá cada registro de la tabla.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos inexistente, 3 tabla existente.  
+
+```
+def definePK(database: str, table str, columns: list) -> int:
+```
+Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas, esto para anticipar el índice de la estructura de la tabla cuando se inserten registros.
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro columns: es el listado de números de columnas que formarán parte de la llave primaria. Si ya existía una definición previa entonces la define de nuevo. Si ya existían registros se calcula de nuevo la estructura de índices.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columnas fuera de limites.  
+Si no se define al menos una llave primaria, cuando ocurre el primer insert se debe utilizar una llave primaria escondida (numérica).
+
+```
+def defineFK(database: str, table str, references: dict) -> int:
+```
+Asocia la integridad referencial entre llaves foráneas y llaves primarias, para efectos de la fase 1 se ignora esta petición. Debido a que será parte de la fase 2 en la construcción de índices secundarios.  
+
+```
+def showTables(database: str) -> list:
+```
+Devuelve una lista de los nombres de las tablas de una bases de datos.  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Valor de retorno: si existen la base de datos y las tablas devuelve una lista de nombres de tablas, si existe la base de datos pero no existen tablas devuelve una lista vacía, y si no existe la base de datos devuelve None.  
+
+```
+def alterTable(database: str, tableOld: str, tableNew: str) -> int:
+```
+Renombra el nombre de la tabla de una base de datos especificada.  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro tableOld: es el nombre de la tabla a renombrar.  
+Parámetro tableNew: es el nuevo nombre con que renombrará la tableOld.
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 tableOld no existente, 4 tableNew existente.  
+
+```
+def dropTable(database: str, table str) -> int:
+```
+Elimina por completo una tabla de una base de datos especificada.  
+Parámetro database: es el nombre de la base de datos a utilizar.
+Parámetro table: es el nombre de la tabla a eliminar
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
+
+```
+def alterAddColumn(database: str, table str) -> int:
+```
+Agrega una columna al final de cada registro de la tabla y base de datos especificada.  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a modificar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
+
+```
+def alterDropColumn(database: str, table str, columnNumber: int) -> int:
+```
+Eliminar una n-ésima columna de cada registro de la tabla.
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a modificar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columna fuera de limites.  
+
+```
+def extractTable(database: str, table str) -> list:
+```
+Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla.
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
+
+```
+def extractRangeTable(database: str, table str, lower: Any, upper: Any) -> list:
+```
+Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabala.  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.
+Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la tabla.  
+Parámetro upper: es el limite superior (inclusive) del rango a extraer de la tabla.  
+Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
+Ver el submódulo Any del paquete typing.  
 
 Respecto de las funciones de las tuplas están:
 - insert(database, table, columns): inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla y columns es una lista de campos a insertar. Devuelve un True si no hubo problema, y un False si no se logró insertar.
@@ -166,7 +243,7 @@ Está compuesto por tres sub componentes:
 
 En general, el intérprete debe ser capaz de:
 
-- Invocar las [Funciones](#funciones) proporcionadas por el almacenamiento, para realizar operaciones sobre la base de datos.
+- Invocar las [Funciones](#funciones) proporcionadas por el administrador de almacenamiento, para realizar operaciones sobre la base de datos. Para hacer pruebas se puede utilizar el paquete storageManager que está en la carpeta storage de este repositorio. Para ver el uso indicado ver el archivo [test.py](https://github.com/tytusdb/tytus/blob/main/storage/test.py). Por el momento, solamente está implementado el mode JSON. En la calificación se podrá utilizar cualquier modo.
 
 - Manipular el resultado de las funciones anteriores para restringir y mostrar los resultados indicados por la(s) consulta(s).
 
