@@ -1,9 +1,0 @@
-1[label=CrearBases]
-	1->create
-	1->database
-	1->hola
-	2[label=CrearBases]
-	2->create
-	2->database
-	2->s
-	

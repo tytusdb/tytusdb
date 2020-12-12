@@ -989,43 +989,144 @@ def p_booleano(p):
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
-######################################### QUERIES
+######################################### QUERIES 
 def p_QUERY(p):
     '''QUERY : EXPR_SELECT 
              | EXPR_SELECT EXPR_FROM 
-             | EXPR_SELECT EXPR_FROM EXPR_ORDERBY 
-             | EXPR_SELECT EXPR_FROM EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_ORDERBY EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY 
              | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT 
-
-             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY 
-             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_LIMIT
-             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY 
-             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING 
-             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT 
-             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY 
-             | EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT
-             | EXPR_SELECT EXPR_FROM EXPR_HAVING 
-             | EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_LIMIT
-             | EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY
-             | EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING 
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_LIMIT
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY
-             | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT
     '''
+    #LEN 2 Y 3 y 7    #select, ffrom, where, groupby, having, orderby, limit
+    if len(p) == 2:
+        p[0] = SQuery(p[1],False,False,False,False,False,False)
+    elif len(p) == 3:
+        p[0] = SQuery(p[1],p[2],False,False,False,False,False)
+    else: 
+        p[0] = SQuery(p[1],p[2],p[3],p[4],p[5],p[6],p[7])
+
+    #LEN 4     #select, ffrom, where, groupby, having, orderby, limit
+def p_QUERY_p4_1(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_ORDERBY''' 
+    p[0] = SQuery(p[1],p[2],False,False,False,p[3],False)
+
+def p_QUERY_p4_2(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_LIMIT''' 
+    p[0] = SQuery(p[1],p[2],False,False,False,False,p[3])
+
+def p_QUERY_p4_3(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE''' 
+    p[0] = SQuery(p[1],p[2],p[3],False,False,False,False)
+
+def p_QUERY_p4_4(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING''' 
+    p[0] = SQuery(p[1],p[2],False,False,p[3],False,False)
+
+def p_QUERY_p4_5(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY''' 
+    p[0] = SQuery(p[1],p[2],False,p[3],False,False,False)
+
+    #LEN 5     #select, ffrom, where, groupby, having, orderby, limit
+def p_QUERY_p5_1(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_ORDERBY EXPR_LIMIT''' 
+    p[0] = SQuery(p[1],p[2],False,False,False,p[3],p[4])
+
+def p_QUERY_p5_2(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY ''' 
+    p[0] = SQuery(p[1],p[2],p[3],False,False,p[4],False)
+
+def p_QUERY_p5_3(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_LIMIT''' 
+    p[0] = SQuery(p[1],p[2],p[3],False,False,False,p[4])
+
+def p_QUERY_p5_4(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY''' 
+    p[0] = SQuery(p[1],p[2],p[3],p[4],False,False,False)
+
+def p_QUERY_p5_5(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_LIMIT''' 
+    p[0] = SQuery(p[1],p[2],False,p[3],False,False,p[4])
+
+def p_QUERY_p5_6(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY ''' 
+    p[0] = SQuery(p[1],p[2],False,p[3],False,p[4],False)
+
+def p_QUERY_p5_7(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING''' 
+    p[0] = SQuery(p[1],p[2],False,p[3],p[4],False,False)
+
+def p_QUERY_p5_8(p):
+    '''QUERY :  EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_LIMIT''' 
+    p[0] = SQuery(p[1],p[2],False,False,p[3],False,p[4])
+
+def p_QUERY_p5_9(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY''' 
+    p[0] = SQuery(p[1],p[2],False,False,p[3],p[4],False)
+
+def p_QUERY_p5_10(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING''' 
+    p[0] = SQuery(p[1],p[2],p[3],False,p[4],False,False)
+
+
+ #LEN 6     #select, ffrom, where, groupby, having, orderby, limit
+def p_QUERY_p6_1(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY EXPR_LIMIT '''
+    p[0] = SQuery(p[1],p[2],p[3],False,False,p[4],p[5])
+
+def p_QUERY_p6_2(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY '''
+    p[0] = SQuery(p[1],p[2],p[3],p[4],False,p[5],False)
+
+def p_QUERY_p6_3(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_LIMIT '''
+    p[0] = SQuery(p[1],p[2],p[3],p[4],False,False,p[5])
+
+def p_QUERY_p6_4(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING '''
+    p[0] = SQuery(p[1],p[2],p[3],p[4],p[5],False,False)
+
+def p_QUERY_p6_5(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT '''
+    p[0] = SQuery(p[1],p[2],False,p[3],False,p[4],p[5])
+
+def p_QUERY_p6_6(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT '''
+    p[0] = SQuery(p[1],p[2],False,p[3],p[4],False,p[5])
+
+def p_QUERY_p6_7(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY '''
+    p[0] = SQuery(p[1],p[2],False,p[3],p[4],p[5],False)
+
+def p_QUERY_p6_8(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
+    p[0] = SQuery(p[1],p[2],False,False,p[5],p[4],p[5])
+
+def p_QUERY_p6_9(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_LIMIT'''
+    p[0] = SQuery(p[1],p[2],p[3],False,p[4],False,p[5])
+
+def p_QUERY_p6_10(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY'''
+    p[0] = SQuery(p[1],p[2],p[3],False,p[4],p[5],False)
+
+ #LEN 7     #select, ffrom, where, groupby, having, orderby, limit
+def p_QUERY_p7_1(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT'''
+    p[0] = SQuery(p[1],p[2],p[3],p[4],False,p[5],p[6])
+
+def p_QUERY_p7_2(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT'''
+    p[0] = SQuery(p[1],p[2],p[3],p[4],p[5],False,p[6])
+
+def p_QUERY_p7_3(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY'''
+    p[0] = SQuery(p[1],p[2],p[3],p[4],p[5],p[6],False)
+
+def p_QUERY_p7_4(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
+    p[0] = SQuery(p[1],p[2],False,p[3],p[4],p[5],p[6])
+
+def p_QUERY_p7_5(p):
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
+    p[0] = SQuery(p[1],p[2],p[3],False,p[4],p[5],p[6])
 
 
 def p_EXPR_SELECT(p):
@@ -1035,25 +1136,30 @@ def p_EXPR_SELECT(p):
                    | select now parAbre parCierra
                    | select current_time
                    | select current_date 
-                   '''
-
+                   ''' 
+    if len(p) == 3:
+        if p[2] == "*":
+            p[0] = SSelectCols(False,p[2])
+        elif p[2].lower() == "current_time" :
+            p[0] = SSelectFunc(p[2])
+        elif p[2].lower() == "current_date" :
+            p[0] = SSelectFunc(p[2])
+        else:
+            p[0] = SSelectCols(False,p[2])
+    elif p[2].lower() == "now":
+            p[0] = SSelectFunc(p[2])
+    else:
+        p[0] = SSelectCols(True,p[3])
 
 
 
 # todos los parametros de select - columnas
 def p_EXPR_COLUMNAS(p):
-    '''EXPR_COLUMNAS : EXPR_COLUMNAS coma EXPR_AGREGACION
-                     | EXPR_COLUMNAS coma EXPR_MATHS
-                     | EXPR_COLUMNAS coma EXPR_TRIG
-                     | EXPR_COLUMNAS coma EXPR_BINARIAS
-                     | EXPR_COLUMNAS coma EXPR_EXTRA
-                     | EXPR_COLUMNAS coma EXPR_FECHA
-                     | EXPR_COLUMNAS coma E
-                     | EXPR_COLUMNAS coma EXPR_CASE
-                     | EXPR_COLUMNAS coma substring parAbre E coma E coma E parCierra
-                     | EXPR_COLUMNAS coma greatest parAbre E_LIST parCierra
-                     | EXPR_COLUMNAS coma least parAbre E_LIST parCierra
-                     | E
+    '''EXPR_COLUMNAS : EXPR_COLUMNAS coma EXPR_COLUMNAS1
+                     | EXPR_COLUMNAS1'''
+
+def p_EXPR_COLUMNAS1(p):
+    '''EXPR_COLUMNAS1 : E
                      | EXPR_AGREGACION
                      | EXPR_MATHS
                      | EXPR_TRIG
@@ -1064,18 +1170,6 @@ def p_EXPR_COLUMNAS(p):
                      | substring parAbre E coma E coma E parCierra
                      | greatest parAbre E_LIST parCierra
                      | least parAbre E_LIST parCierra
-                     
-                     | EXPR_COLUMNAS coma EXPR_AGREGACION as E
-                     | EXPR_COLUMNAS coma EXPR_MATHS as E 
-                     | EXPR_COLUMNAS coma EXPR_TRIG as E
-                     | EXPR_COLUMNAS coma EXPR_BINARIAS as E
-                     | EXPR_COLUMNAS coma EXPR_EXTRA as E
-                     | EXPR_COLUMNAS coma EXPR_FECHA as E
-                     | EXPR_COLUMNAS coma E as E
-                     | EXPR_COLUMNAS coma EXPR_CASE as E
-                     | EXPR_COLUMNAS coma substring parAbre E coma E coma E parCierra as E
-                     | EXPR_COLUMNAS coma greatest parAbre E_LIST parCierra as E
-                     | EXPR_COLUMNAS coma least parAbre E_LIST parCierra as E
                      | E as E
                      | EXPR_AGREGACION as E
                      | EXPR_MATHS as E
@@ -1194,12 +1288,13 @@ def p_CASE_LIST(p):
 
 
 def p_E_LIST(p):
-    '''E_LIST : E_LIST coma E
-              | E_LIST coma now parAbre parCierra
-              | E
-              | now parAbre parCierra
+    '''E_LIST : E_LIST coma E_LIST1
+              | E_LIST1
               '''
 
+def p_E_LIST(p):
+    '''E_LIST : E
+              | now parAbre parCierra'''
 
 def p_EXPR_FROM(p):
     '''EXPR_FROM : from L_IDsAlias
@@ -1209,40 +1304,33 @@ def p_EXPR_FROM(p):
 
 
 def p_L_IDsAlias(p):
-    '''L_IDsAlias : L_IDsAlias coma id as id
-                  | L_IDsAlias coma id id
-                  | L_IDsAlias coma id
-                  | id id 
-                  | id as id 
-                  | id '''
+    '''L_IDsAlias : L_IDsAlias coma L_IDsAlias1
+                  | L_IDsAlias1 '''
 
+def p_L_IDsAlias_p1(p):
+    '''L_IDsAlias1 : id id 
+                    | id as id 
+                    | id'''
 
 def p_EXPR_WHERE(p):
     '''EXPR_WHERE : where LIST_CONDS '''
 
 
 def p_LIST_CONDS(p):
-    '''LIST_CONDS : LIST_CONDS E
-                  | LIST_CONDS E tIs distinct from E
-                  | LIST_CONDS E tIs not distinct from E
-                  | LIST_CONDS substring parAbre E coma E coma E parCierra igual E
-                  | LIST_CONDS E exists parAbre QUERY parCierra
-                  | LIST_CONDS E in parAbre QUERY parCierra
-                  | LIST_CONDS E not in parAbre QUERY parCierra
-                  | LIST_CONDS E OPERATOR any parAbre QUERY parCierra
-                  | LIST_CONDS E OPERATOR some parAbre QUERY parCierra
-                  | LIST_CONDS E OPERATOR all parAbre QUERY parCierra
-                  | E
-                  | E tIs distinct from E
-                  | E tIs not distinct from E
-                  | substring parAbre E coma E coma E parCierra igual E
-                  | E exists parAbre QUERY parCierra
-                  | E in parAbre QUERY parCierra
-                  | E not in parAbre QUERY parCierra
-                  | E OPERATOR any parAbre QUERY parCierra
-                  | E OPERATOR some parAbre QUERY parCierra
-                  | E OPERATOR all parAbre QUERY parCierra'''
+    '''LIST_CONDS : LIST_CONDS COND1
+                  | COND1  '''
 
+def p_COND1(p):
+    '''COND1 :  E 
+                | E tIs distinct from E
+                | E tIs not distinct from E
+                | substring parAbre E coma E coma E parCierra igual E
+                | E exists parAbre QUERY parCierra
+                | E in parAbre QUERY parCierra 
+                | E not in parAbre QUERY parCierra
+                | E OPERATOR any parAbre QUERY parCierra
+                | E OPERATOR some parAbre QUERY parCierra
+                | E OPERATOR all parAbre QUERY parCierra'''
 
 def p_OPERATOR(p):
     '''OPERATOR : igual
@@ -1272,14 +1360,11 @@ def p_EXPR_ORDERBY( p ):
     '''EXPR_ORDERBY : order by LIST_ORDERBY'''
 
 def p_LIST_ORDERBY(p):
-    '''LIST_ORDERBY : LIST_ORDERBY coma E asc
-                    | LIST_ORDERBY coma E asc nulls first
-                    | LIST_ORDERBY coma E asc nulls last
-                    | LIST_ORDERBY coma E desc
-                    | LIST_ORDERBY coma E desc nulls first
-                    | LIST_ORDERBY coma E desc nulls last
-                    | LIST_ORDERBY coma E
-                    | E asc
+    '''LIST_ORDERBY : LIST_ORDERBY coma LIST_ORDERBY_1
+                    | LIST_ORDERBY_1'''
+
+def p_LIST_ORDERBY_p1(p):
+    '''LIST_ORDERBY_1 : E asc
                     | E asc nulls first
                     | E asc nulls last
                     | E desc 
@@ -1295,6 +1380,7 @@ def p_EXPR_LIMIT(p):
                   | limit all
                   | limit all offset E
                   | limit E offset E'''
+
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
