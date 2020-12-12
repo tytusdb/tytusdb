@@ -1,3 +1,5 @@
+import os
+
 class Nodo:
 
     def __init__(self,valor):
@@ -109,7 +111,24 @@ class Avl:
             #Nodo con un hijo
             elif raiz.der != None or raiz.izq != None:
                 raiz = self.__caso3(raiz)
-                return raiz 
+                return raiz
+
+        #Determinar el Factor
+        raiz.factor = 1 + max(self.__obtenerFactor(raiz.der),self.__obtenerFactor(raiz.izq))
+
+        factorBalance = self.__obtenerBalance(raiz)
+
+        #Rotaciones
+        if factorBalance > 1 and self.__obtenerBalance(raiz.izq) >= 0: 
+            return self.__rotacionDerecha(raiz) 
+        if factorBalance < -1 and self.__obtenerBalance(raiz.der) <= 0: 
+            return self.__rotacionIzquierda(raiz) 
+        if factorBalance > 1 and self.__obtenerBalance(raiz.izq) < 0: 
+            raiz.izq = self.__rotacionIzquierda(raiz.izq) 
+            return self.__rotacionDerecha(raiz) 
+        if factorBalance < -1 and self.__obtenerBalance(raiz.der) > 0: 
+            raiz.der = self.__rotacionDerecha(raiz.der) 
+            return self.__rotacionIzquierda(raiz)  
 
         return raiz
 
@@ -141,3 +160,39 @@ class Avl:
     def __caso3(self,nodo):
         nodo = nodo.der
         return nodo
+
+    #Metodo para Graficar
+    def graficar(self):
+        if self.raiz != None:
+            graph = 'digraph G{\n'
+            graph += "node[shape = \"record\"]\n"
+            graph += self.__graficar(self.raiz)
+            graph += '}'
+            file = open("AVL_DB.dot","a")
+            file.write(graph)
+            file.close()
+            os.system('dot -Tpng AVL_DB.dot -o AVL_DB.png')
+        else:
+            print('No ha Bases de datos')
+
+    def __graficar(self,raiz):
+        if raiz == None:
+            return ''
+
+        graph = ''
+        
+        graph += self.__graficar(raiz.der)
+        graph += self.__graficar(raiz.izq)
+
+        nodo = 'node' + str(raiz.valor)
+
+        if raiz.factor == 1:
+            graph += nodo + '[label=' + str(raiz.valor) + ']\n'
+        else:
+            graph += nodo + '[label=\"<f0>|{' + str(raiz.valor) + '}|<f2>\"]\n'
+            if raiz.izq != None:
+                graph += nodo + ':f0 -> ' + 'node' + str(raiz.izq.valor) + '\n'
+            if raiz.der != None:
+                graph += nodo + ':f2 -> ' + 'node' + str(raiz.der.valor) + '\n'
+        
+        return graph
