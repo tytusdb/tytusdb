@@ -13,36 +13,36 @@
 
     <DEFINICION> ::= 'create' 'type' 'as' 'enum' '(' <LISTA_ENUM> ')'
                   | <CREATE_OR_REPLACE> 'database' <COMBINACIONES1>
-                  | 'show' 'databases' 'like' regex
+                  | 'show' 'databases' 'like' 'regex'
                   | 'show' 'databases'
-                  | 'alter' 'database' id <ALTER>
-                  | 'drop' 'database' 'if' 'exists' id
-                  | 'drop' 'database' id
-                  | 'drop' 'table' id
-                  | 'create' 'table' id (<COLUMNAS>)<INHERITS>
-                  | 'create' 'table' id (<COLUMNAS>)
+                  | 'alter' 'database' 'id' <ALTER>
+                  | 'drop' 'database' 'if' 'exists' 'id'
+                  | 'drop' 'database' 'id'
+                  | 'drop' 'table' 'id'
+                  | 'create' 'table' 'id' '('<COLUMNAS>')' <INHERITS>
+                  | 'create' 'table' 'id' '('<COLUMNAS>')'
 
     <COLUMNAS> ::= <COLUMNA> 
-                | <COLUMNAS>, <COLUMNA> 
+                | <COLUMNAS> ',' <COLUMNA> 
 
-    <COLUMNA> ::= id <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS> <CHECKS> 
-                | id <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS>
-                | id <TIPO> <DEFAULT> <NULLABLE> <CHECKS>
-                | id <TIPO> <DEFAULT> <NULLABLE>
-                | id <TIPO> <DEFAULT> <CONSTRAINTS> <CHECKS>
-                | id <TIPO> <DEFAULT> <CONSTRAINTS>
-                | id <TIPO> <DEFAULT> <CHECKS>
-                | id <TIPO> <DEFAULT>
-                | id <TIPO> <NULLABLE> <CONSTRAINTS> <CHECKS>
-                | id <TIPO> <NULLABLE> <CONSTRAINTS>
-                | id <TIPO> <NULLABLE> <CHECKS>
-                | id <TIPO> <NULLABLE>
-                | id <TIPO> <CONSTRAINTS> <CHECKS>
-                | id <TIPO> <CONSTRAINTS>
-                | id <TIPO> <CHECKS>
-                | id <TIPO>
-                | id <TIPO> 'primary' 'key'
-                | id <TIPO> 'references' id
+    <COLUMNA> ::= 'id' <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS> <CHECKS> 
+                | 'id' <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS>
+                | 'id' <TIPO> <DEFAULT> <NULLABLE> <CHECKS>
+                | 'id' <TIPO> <DEFAULT> <NULLABLE>
+                | 'id' <TIPO> <DEFAULT> <CONSTRAINTS> <CHECKS>
+                | 'id' <TIPO> <DEFAULT> <CONSTRAINTS>
+                | 'id' <TIPO> <DEFAULT> <CHECKS>
+                | 'id' <TIPO> <DEFAULT>
+                | 'id' <TIPO> <NULLABLE> <CONSTRAINTS> <CHECKS>
+                | 'id' <TIPO> <NULLABLE> <CONSTRAINTS>
+                | 'id' <TIPO> <NULLABLE> <CHECKS>
+                | 'id' <TIPO> <NULLABLE>
+                | 'id' <TIPO> <CONSTRAINTS> <CHECKS>
+                | 'id' <TIPO> <CONSTRAINTS>
+                | 'id' <TIPO> <CHECKS>
+                | 'id' <TIPO>
+                | 'id' <TIPO> 'primary' 'key'
+                | 'id' <TIPO> 'references' id
                 | 'constraint' id 'check' (<LISTA_CONDICIONES>)
                 | 'unique' (<LISTA_IDS>)
                 | 'primary' 'key' (<LISTA_IDS>)
@@ -198,7 +198,7 @@
               | 'select' <FUNCIONES_MATEMATICAS> <JOIN>
               | 'select' <FUNCIONES_MATEMATICAS>
 
-    <JOIN> ::= 'id' <JOIN_TYPE> 'join' 'id' 'on' <EXPRESION>
+    <JOIN> ::= 'id' <JOIN_TYPE> 'join' 'id' 'on' <PREDICADO>
              | 'id' <JOIN_TYPE> 'join' 'id' 'using' '(' 'join' <LISTA_IDS> ')'
              | 'id' 'natural'<JOIN_TYPE> 'join' 'id'
 
@@ -213,6 +213,29 @@
               | 'full' 
 
     <FUNCIONES_MATEMATICAS>::= 'as' '('<EXPRESION>')'
+                 | 'acos' '('<EXPRESION>')'
+                 | 'acosd' '('<EXPRESION>')'
+                 | 'asin' '('<EXPRESION>')'
+                 | 'asind' '('<EXPRESION>')'
+                 | 'atan' '('<EXPRESION>')'
+                 | 'atand' '('<EXPRESION>')'
+                 | 'atan2' '('<EXPRESION>','<EXPRESION>')'
+                 | 'atan2d' '('<EXPRESION>','<EXPRESION>')'
+                 | 'cos' '('<EXPRESION>')'
+                 | 'cosd' '('<EXPRESION>')'
+                 | 'cot' '('<EXPRESION>')'
+                 | 'cotd' '('<EXPRESION>')'
+                 | 'sin' '('<EXPRESION>')'
+                 | 'sind' '('<EXPRESION>')'
+                 | 'tan' '('<EXPRESION>')'
+                 | 'tand' '('<EXPRESION>')'
+                 | 'cosh' '('<EXPRESION>')'
+                 | 'sinh' '('<EXPRESION>')'
+                 | 'tanh' '('<EXPRESION>')'
+                 | 'acosh' '('<EXPRESION>')'
+                 | 'asinh' '('<EXPRESION>')'
+                 | 'atanh' '('<EXPRESION>')'
+                 | 'abs' '('<EXPRESION>')'
                  | 'cbrt' '('<EXPRESION>')'
                  | 'ceil' '('<EXPRESION>')'
                  | 'ceiling' '('<EXPRESION>')'
@@ -224,11 +247,31 @@
                  | 'gcd' '('<EXPRESION>')'
                  | 'ln' '('<EXPRESION>')'
                  | 'log' '('<EXPRESION>')'
-                 | 'mod' '('<EXPRESION> ',' <EXPRESION>')'
+                 | 'mod' '('<EXPRESION>',' <EXPRESION>')'
                  | 'pi' '('')'
-                 | 'power' '('<EXPRESION> ',' <EXPRESION>')'
+                 | 'power' '('<EXPRESION>',' <EXPRESION>')'
                  | 'radians' '('<EXPRESION>')'
                  | 'round' '('<EXPRESION>')'
+                 | 'sign' '(' <TIPO_NUMERO> ')'
+                 | 'sqrt' '(' <TIPO_NUMERO> ')'
+                 | 'width_bucket' '(' <LISTA_NUMEROS> ')'
+                 | 'trunc' '(' <TIPO_NUMERO> ',' 'numero' ')'
+                 | 'trunc' '(' <TIPO_NUMERO> ')'
+                 | 'random' '(' ')'
+                 | 'square_root' <TIPO_NUMERO> /* VALOR DEL TOKEN square_root: | */
+                 | 'cube_root' <TIPO_NUMERO> /* VALOR DEL TOKEN cube_root: || */
+                 | <TIPO_NUMERO> 'bitwise_and' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_and: & */
+                 | <TIPO_NUMERO> 'bitwise_or' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_or: | */
+                 | <TIPO_NUMERO> 'bitwise_xor' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_xor: # */
+                 | 'bitwise_not' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_not: ~ */
+                 | <TIPO_NUMERO> 'bitwise_shift_left' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_shift_left: << */
+                 | <TIPO_NUMERO> 'bitwise_shift_right' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_shift_right: >> */
+
+    <LISTA_NUMEROS> ::= <TIPO_NUMERO>
+                     |  <LISTA_NUMEROS> ',' <TIPO_NUMERO>
+    
+    <TIPO_NUMERO> ::= 'numero'
+                  |   'decimal'
 
     <LISTA_TABLAS> ::= <TABLA><ALIAS>
                     | <TABLA>
@@ -295,10 +338,10 @@
                  | <PREDICADO> 'is' 'not' 'false'
                  | <PREDICADO> 'is' 'unknown'
                  | <PREDICADO> 'is' 'not' 'unknown'
+                 | <STR_FUNCTIONS>
                  | 'cadena'
                  | 'numero'
                  | 'decimal'
-                 | 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
                  | 'abs' '('<EXPRESION>')'
                  | 'cbrt' '('<EXPRESION>')'
                  | 'ceil' '('<EXPRESION>')'
@@ -316,6 +359,12 @@
                  | 'power' '('<EXPRESION>',' <EXPRESION>')'
                  | 'radians' '('<EXPRESION>')'
                  | 'round' '('<EXPRESION>')'
+                 | 'sign' '(' <TIPO_NUMERO> ')'
+                 | 'sqrt' '(' <TIPO_NUMERO> ')'
+                 | 'width_bucket' '(' <LISTA_NUMEROS> ')'
+                 | 'trunc' '(' <TIPO_NUMERO> ',' 'numero' ')'
+                 | 'trunc' '(' <TIPO_NUMERO> ')'
+                 | 'random' '(' ')'
                  | <TIMESTAMP>
 
 
@@ -360,7 +409,7 @@
     <INSERT> ::= 'insert' 'into'  'id' 'values' '('<LISTA_EXP>')'
 
     <LISTA_EXP> ::= <EXPRESION>
-               | <LISTA_EXP>, <EXPRESION>
+               | <LISTA_EXP> ',' <EXPRESION>
 
 
     <PARAMETROS> ::= '(' <LISTA_IDS> ')'
@@ -390,8 +439,23 @@
                 | 'id'
                 | '(' <EXPRESION> ')'
                 | 'sum' '(' 'id' ')'
+                | <STR_FUNCTIONS>
                 | <TIMESTAMP>
-                | 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
+
+    <STR_FUNCTIONS> ::= 'length' '(' 'id' ')'
+                    |   'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
+                    |   'trim' '(' 'id' ')'
+                    |   'md5' '(' 'cadena' ')'
+                    |   'sha256' '(' 'cadena' ')'
+                    |   'substr''(' 'id' ',' 'entero' ',' 'entero' ')'
+                    |   'get_byte' '(' 'cadena' ':' ':' 'bytea' ',' 'numero' ')'
+                    |   'set_byte' '(' 'cadena' ':' ':' 'bytea' ',' 'numero' ',' 'numero' ')'
+                    |   'convert' '(' 'cadena' 'as' 'date' ')'
+                    |   'convert' '(' 'cadena' 'as' 'integer' ')'
+                    |   'encode' '(' 'cadena' ':' ':' 'bytea' ',' 'cadena' ')'
+                    |   'decode' '(' 'cadena' ',' 'cadena' ')'
+
+     
 
 
     <DELETE> ::= 'delete' 'from' 'id' 'where' <EXPRESION>
