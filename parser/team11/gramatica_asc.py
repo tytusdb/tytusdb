@@ -167,7 +167,8 @@ def p_instruccion(t) :
                       | dropDB_instr
                       | showDB_instr
                       | create_instr
-                      | alter_instr PTCOMA'''
+                      | alter_instr PTCOMA
+                      | insert_instr'''
 
 ##CREATE DATABASE
 def p_create_db(t):
@@ -267,7 +268,6 @@ def p_showDB_regexp(t):
                     | MODULO ENTERO MODULO
                     | ENTERO MODULO'''
 
-
 ##########################################################################################
 
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
@@ -365,6 +365,38 @@ def p_lista_owner(t):
                         | ID
     '''
 
+#############################################################################################
+
+## INSERT 
+def p_insert_sinorden(t) :
+    'insert_instr     : INSERT INTO ID VALUES PARIZQ parametros PARDER PTCOMA'
+
+def p_insert_conorden(t) :
+    'insert_instr     : INSERT INTO ID PARIZQ columnas PARDER VALUES PARIZQ parametros PARDER PTCOMA'
+
+def p_lista_columnas(t) :
+    'columnas       : columnas COMA ID'
+
+def p_lista_columnas_salida(t) :
+    'columnas       : ID'
+    
+def p_lista_parametros(t) :
+    'parametros     : parametros COMA expresion'
+
+def p_lista_parametros_salida(t) :
+    'parametros     : expresion'
+
+def p_expresion(t) : 
+'''expresion      : CADENADOBLE
+                  | CADENASIMPLE
+                  | DEFAULT
+                  | expresionaritmetica'''
+
+def p_expresion_aritmetica_3(t) : 
+    '''expresionaritmetica  : ENTERO
+                            | DECIMAL
+                            | ID'''
+    
 ##Epsilon 
 def p_empty(t) :
     'empty            : '

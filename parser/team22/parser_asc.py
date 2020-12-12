@@ -2,8 +2,10 @@
 import ply.lex as lex
 from lex import *
 from type_checker import *
+from columna import *
 lexer = lex.lex()
 type_checker = TypeChecker()
+
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -39,15 +41,11 @@ def p_instrucciones_instruccion(t) :
 def p_instruccion(t) :
     '''instruccion      : CREATE creacion
                         | SHOW show_db PTCOMA
-                        | SHOW show_db
                         | ALTER DATABASE alter_database PTCOMA
-                        | ALTER DATABASE alter_database 
                         | USE cambio_bd
                         | SELECT selects
                         | DELETE deletes
                         | ALTER TABLE alter_table PTCOMA
-                        | ALTER TABLE alter_table 
-                        | UPDATE update_table
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
                         | DROP dropear'''
@@ -59,6 +57,7 @@ def p_instruccion(t) :
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
     '''creacion     : DATABASE crear_bd
+                    | OR REPLACE DATABASE crear_bd
                     | TABLE crear_tb
                     | TYPE crear_type'''
     print("Creacion")
@@ -71,10 +70,9 @@ def p_instruccion_crear_BD(t) :
 
 def p_instruccion_crear_BD_Parametros(t) :
     'crear_bd     : ID lista_parametros_bd PTCOMA'
-    #t[0] = Crear_BD_Parametros(t[1])
     print('Creacion de BD parametros')
     if 'mode' in t[2]:
-        print(type_checker.createDatabase(database = t[1], mode = t[2]['mode']))
+        print(type_checker.createDatabase(database = t[1], mode = t[2]['params']['mode']))
     else:
         print(type_checker.createDatabase(database = t[1]))
 
@@ -87,19 +85,17 @@ def p_instruccion_crear_BD_if_exists_Parametros(t) :
     'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
     print('Creacion de BD parametros if not exist')
     if 'mode' in t[5]:
-        print(type_checker.createDatabase(database = t[4], mode = t[5]['mode']))
+        print(type_checker.createDatabase(database = t[4], mode = t[5]['params']['mode']))
     else:
         print(type_checker.createDatabase(database = t[4]))
 
 def p_instruccion_crear_TB_herencia(t):
-    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA
-                    | ID PARIZQ crear_tb_columnas PARDER tb_herencia'''
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA'''
     print("Creación de Tabla con herencia")
     #t[0] = Crear_TB_Herencia(t[1], t[3], t[5])|||
 
 def p_instruccion_crear_TB(t):
-    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA
-                    | ID PARIZQ crear_tb_columnas PARDER'''
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA'''
     print("Creación de tabla sin herencia")
     #t[0] = Crear_TB(t[1], t[3])
 
@@ -148,8 +144,8 @@ def p_def_alter_db(t) :
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
     'cambio_bd     : ID PTCOMA'
-    t[0] = Cambio_BD(t[1])
     print("CAMBIO de BD")
+    print(type_checker.useDatabase(t[1]))
 
 #========================================================
 
@@ -159,8 +155,8 @@ def p_instruccion_selects(t) :
     '''selects      : POR FROM select_all 
                     | lista_parametros FROM lista_parametros inicio_condicional 
                     | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
-                    | GREATEST PARIZQ lista_parametros PARDER
-                    | LEATEST PARIZQ lista_parametros PARDER
+                    | GREATEST PARIZQ lista_parametros PARDER PTCOMA
+                    | LEAST PARIZQ lista_parametros PARDER PTCOMA
                     | date_functions'''
     print("selects")
 
@@ -187,7 +183,7 @@ def p_instruccion_selects_group_by(t) :
     # print("GROUP BY")
 
 def p_instruccion_selects_group_by2(t) :
-    'inicio_group_by      : inicio_having '
+    'inicio_group_by      : inicio_order_by '
     # print("NO HAY GROUP BY")
 
 def p_instruccion_selects_having(t) :
@@ -250,15 +246,28 @@ def p_instruccion_Select_All(t) :
     t[0] = Select_All(t[1])
     # print("Consulta ALL para tabla: " + t[1])
 
+#Gramatica para fechas
 def p_date_functions(t):
     '''date_functions   : EXTRACT PARIZQ lista_date_functions 
                         | date_part PARIZQ lista_date_functions
                         | now PARIZQ lista_date_functions
                         | lista_date_functions'''
 
+def p_validate_date(t):
+    'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA'
+    try:
+        fecha = re.split('[-: ]',t[4].replace("'",""))
+        if (5 < len(fecha)):
+            if (int(fecha[0]) and len(fecha[0]) <= 4) and (int(fecha[1]) and int(fecha[1]) <= 12) and (int(fecha[2]) and int(fecha[2]) <= 31) and (int(fecha[3]) and int(fecha[3]) <= 24) and (int(fecha[4]) and int(fecha[4]) <= 60) and (int(fecha[5]) and int(fecha[5]) <= 60):
+                print("Formato fecha aceptado")
+        elif (2 < len(fecha)):
+            if (int(fecha[0]) and len(fecha[0]) <= 4) and (int(fecha[1]) and int(fecha[1]) <= 12) and (int(fecha[2]) and int(fecha[2])):
+                print("Formato fecha aceptado")
+    except Exception:
+        pass
+
 def p_lista_date_functions(t):
-    '''lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA
-                            | CADENA COMA INTERVAL CADENA PARDER PTCOMA
+    '''lista_date_functions : CADENA COMA INTERVAL CADENA PARDER PTCOMA
                             | TIMESTAMP CADENA PTCOMA
                             | CURRENT_DATE PTCOMA
                             | CURRENT_TIME PTCOMA
@@ -306,20 +315,26 @@ def p_instruccion_Drop_TB(t) :
 
 #========================================================
 # PARAMETROS PARA CREATE BASE DE DATOS
-def p_instrucciones_parametros_BD_owner(t) :
-    'lista_parametros_bd    : OWNER IGUAL ID'
+def p_instrucciones_parametros_BD(t) :
+    '''lista_parametros_bd  : parametros_bd
+                            | parametros_bd parametros_bd'''
+    if len(t) == 3:
+        t[1].update(t[2])
+    t[0] = {'params': t[1]}
 
-def p_instrucciones_parametros_BD_Mode(t) :
-    'lista_parametros_bd    : MODE IGUAL ENTERO'
-    t[0] = {'mode': t[3]}
+def p_parametros_BD_owner(t) :
+    '''parametros_bd    : OWNER IGUAL ID
+                        | OWNER ID'''
+    t[0] = {'owner': ''}
 
-def p_instrucciones_parametros_BD_Mode_owner(t) :
-    'lista_parametros_bd    : OWNER IGUAL ID MODE IGUAL ENTERO'
-    t[0] = {'mode': t[6]}
+def p_parametros_BD_Mode(t) :
+    '''parametros_bd    : MODE IGUAL ENTERO
+                        | MODE ENTERO'''
+    if len(t) == 4:
+        t[0] = {'mode': t[3]}
+    else:
+        t[0] = {'mode': t[2]}
 
-def p_instrucciones_parametros_BD_owner_Mode(t) :
-    'lista_parametros_bd    : MODE IGUAL ENTERO OWNER IGUAL ID'
-    t[0] = {'mode': t[3]}
 
 #========================================================
 
@@ -364,6 +379,15 @@ def p_parametros_funciones(t) :
     'parametro         : lista_funciones'
     t[0] = t[1]
 
+def p_parametros_cadena(t) :
+    'parametro         : CADENA'
+    t[0] = t[1]
+
+def p_parametros_numeros(t) :
+    '''parametro            : DECIMAL  
+                            | ENTERO'''
+    t[0] = t[1]
+
 
 #ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
 #=====================================================
@@ -404,7 +428,7 @@ def p_instrucciones_columna_parametros(t) :
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
-    #t[0] = Nueva_Columna(t[1], t[2])
+    t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
 
 def p_instrucciones_columna_pk(t) :
     'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
@@ -587,7 +611,7 @@ def p_def_alter(t) :
                     | DROP CONSTRAINT ID
                     | RENAME COLUMN ID TO ID'''
 
-def p_tipos(t) :
+def p_tipos_1(t) :
     '''tipos        : SMALLINT
                     | INTEGER
                     | BIGINT
@@ -596,32 +620,77 @@ def p_tipos(t) :
                     | REAL
                     | DOUBLE PRECISION
                     | MONEY
-                    | CHARACTER VARYING PARIZQ ENTERO PARDER
-                    | VARCHAR PARIZQ ENTERO PARDER
-                    | CHARACTER PARIZQ ENTERO PARDER
-                    | CHAR PARIZQ ENTERO PARDER
                     | TEXT
-                    | TIMESTAMP def_dt_types
+                    | TIMESTAMP
                     | DATE
-                    | TIME def_dt_types
-                    | INTERVAL def_interval
-                    | BOOLEAN'''
+                    | TIME
+                    | BOOLEAN
+                    | INTERVAL'''
+    if len(t) == 2:
+        t[0] = {'tipo': TipoColumna[t[1].upper()]}
+    else:
+        t[0] = {'tipo': TipoColumna['DOUBLE_PRECISION']}
 
-def p_def_dt_types(t) :
-    '''def_dt_types : def_dt_types WITHOUT TIME ZONE
-                    | def_dt_types WITH TIME ZONE
-                    | WITHOUT TIME ZONE
-                    | WITH TIME ZONE
-                    | PARIZQ ENTERO PARDER'''
+def p_tipos_2(t) :
+    '''tipos        : CHARACTER VARYING PARIZQ ENTERO PARDER'''
+    t[0] = {'tipo': TipoColumna['CHARACTER_VARYING'], 'n': t[4]}
 
-def p_def_interval(t) :
-    '''def_interval : def_interval PARIZQ ENTERO PARDER
-                    | def_fld_to
+def p_tipos_3(t) :
+    '''tipos        : VARCHAR PARIZQ ENTERO PARDER
+                    | CHARACTER PARIZQ ENTERO PARDER
+                    | CHAR PARIZQ ENTERO PARDER'''
+    t[0] = {'tipo': TipoColumna[t[1].upper()], 'n': t[3]}
+
+def p_tipos_4(t) :
+    '''tipos        : TIMESTAMP def_dt_types
+                    | TIME def_dt_types'''
+    sufix = t[2]['w'] if 'w' in t[2] else ''
+    t[0] = {'tipo': TipoColumna[t[1].upper() + sufix]}
+    if 'p' in t[2]:
+        t[0]['p'] = t[2]['p'] 
+
+def p_tipos_5(t) :
+    '''tipos        : INTERVAL def_interval'''
+    t[0] = {'tipo': TipoColumna[t[1].upper()]}
+    t[0].update(t[2])
+
+def p_def_dt_types_1(t) :
+    '''def_dt_types : PARIZQ ENTERO PARDER WITHOUT TIME ZONE
+                    | PARIZQ ENTERO PARDER WITH TIME ZONE
                     | PARIZQ ENTERO PARDER'''
+    t[0] = {'p': t[2]}  
+    if len(t) > 4:
+        if t[4].lower() == 'without':
+            t[0]['w'] = '_WO' 
+        else:
+            t[0]['w'] = '_W' 
+                    
+def p_def_dt_types_2(t) :
+    '''def_dt_types : WITHOUT TIME ZONE
+                    | WITH TIME ZONE'''
+    if t[1].lower() == 'without':
+        t[0] = {'w': '_WO'} 
+    else:
+        t[0] = {'w': '_W'} 
+
+def p_def_interval_1(t) :
+    '''def_interval : def_fld_to PARIZQ ENTERO PARDER
+                    | def_fld_to'''
+    t[0] = {'field': t[1]}
+    if len(t) == 5:
+        t[0]['p'] = t[3]
+
+def p_def_interval_2(t) :
+    '''def_interval : PARIZQ ENTERO PARDER'''
+    t[0] = {'p': t[2]}
 
 def p_def_fld_to(t) :
     '''def_fld_to   : def_fields TO def_fields
                     | def_fields'''
+    t[0] = t[1]
+    if len(t) > 2:
+        t[0]['destino'] = t[3]['origen']
+
 
 def p_def_fields(t) :
     '''def_fields   : YEAR
@@ -630,6 +699,7 @@ def p_def_fields(t) :
                     | HOUR
                     | MINUTE
                     | SECOND'''
+    t[0] = {'origen': TipoFields[t[1].upper()]}
 
 def p_relacional(t) :
     '''relacional   : aritmetica MENOR aritmetica
@@ -642,15 +712,18 @@ def p_relacional(t) :
                     | aritmetica
                     | relacional AND relacional
                     | relacional OR relacional
-                    | NOT relacional'''
+                    | NOT relacional
+                    | state_between
+                    | state_predicate_nulls
+                    | state_is_distinct'''
 
 def p_aritmetica(t) :
-    '''aritmetica   : valor MAS valor
-                    | valor MENOS valor
-                    | valor POR valor
-                    | valor DIVISION valor
-                    | valor MODULO valor
-                    | valor EXP valor
+    '''aritmetica   : aritmetica MAS aritmetica
+                    | aritmetica MENOS aritmetica
+                    | aritmetica POR aritmetica
+                    | aritmetica DIVISION aritmetica
+                    | aritmetica MODULO aritmetica
+                    | aritmetica EXP aritmetica
                     | valor
                     | PARIZQ aritmetica PARDER'''
 
@@ -677,6 +750,39 @@ def p_def_update(t) :
     '''def_update   : ID IGUAL valor'''
 
 
+# BETWEEN
+#=======================================================
+def p_between(t) :
+    '''state_between    : valor BETWEEN valor AND valor
+                        | valor NOT BETWEEN valor AND valor'''
+#=======================================================
+
+# IS [NOT] DISTINCT
+#=======================================================
+def p_is_distinct(t) :
+    '''state_is_distinct    : valor IS DISTINCT FROM valor
+                            | valor IS NOT DISTINCT FROM valor'''
+#=======================================================
+
+
+# ESTADO PREDICATES
+#=======================================================
+def p_predicate_nulls(t) :
+    '''state_predicate_nulls      : valor IS NULL
+                              | valor IS NOT NULL
+                              | valor ISNULL
+                              | valor NOTNULL'''
+#=======================================================
+
+
+# # Pattern Matching
+# #=======================================================
+# def p_matchs(t) :
+#     '''state_pattern_match      : ID LIKE 
+#                                 | valor IS NOT NULL
+#                                 | valor ISNULL
+#                                 | valor NOTNULL'''
+# #=======================================================
 
 # CASE
 #========================================================
@@ -692,6 +798,23 @@ def p_auxcase_state2(t):
 #========================================================
 
 # FUNCIONES MATEMÁTICAS
+def p_instrucciones_funcion_count(t):
+    '''funciones_math_esenciales    : COUNT PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | COUNT PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_instrucciones_funcion_sum(t):
+    '''funciones_math_esenciales    : SUM PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | SUM PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_instrucciones_funcion_avg(t):
+    '''funciones_math_esenciales    : AVG PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | AVG PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_lista_instrucciones_funcion_math(t):
+    '''lista_funciones_math_esenciales  : aritmetica
+                                        | lista_id
+                                        | POR'''
+
 #SOLO ESTOS SE PUEDEN USAR EN EL WHERE
 def p_instrucciones_funcion_abs_where(t) :
     'lista_funciones_where    : ABS PARIZQ funcion_math_parametro PARDER'
@@ -757,6 +880,21 @@ def p_instrucciones_funcion_radians(t) :
 def p_instrucciones_funcion_round(t) :
     'lista_funciones    : ROUND PARIZQ funcion_math_parametro PARDER'
 
+def p_instrucciones_funcion_sign(t) :
+    'lista_funciones    : SIGN PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_sqrt(t) :
+    'lista_funciones    : SQRT PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_width_bucket(t) :
+    'lista_funciones    : WIDTH_BUCKET PARIZQ funcion_math_parametro COMA funcion_math_parametro COMA funcion_math_parametro COMA funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_trunc(t) :
+    'lista_funciones    : TRUNC PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_random(t) :
+    'lista_funciones    : RANDOM PARIZQ PARDER'
+
 def p_instrucciones_funcion_math_parametro(t) :
     '''funcion_math_parametro   : ENTERO
                                 | ID
@@ -766,6 +904,203 @@ def p_instrucciones_funcion_math_parametro(t) :
 def p_instrucciones_funcion_math_parametro_negativo(t) :
     '''funcion_math_parametro_negativo  : MENOS DECIMAL
                                         | MENOS ENTERO'''
+
+#========================================================
+
+#========================================================
+# FUNCIONES TRIGONOMÉTRICAS
+
+#El unico valor que aceptan es double y devuelven un double
+def p_instrucciones_funcion_trigonometrica_acos(t) :
+    'fun_trigonometrica : ACOS PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ACOS')
+
+def p_instrucciones_funcion_trigonometrica_asin(t) :
+    'fun_trigonometrica : ASIN PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ASIN')
+
+def p_instrucciones_funcion_trigonometrica_atan(t) :
+    'fun_trigonometrica : ATAN PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ATAN')
+
+def p_instrucciones_funcion_trigonometrica_atan2(t) :
+    'fun_trigonometrica : ATAN2 PARIZQ aritmetica COMA aritmetica PARDER'
+    print('Ejecuta Funcion ATAN2')
+
+def p_instrucciones_funcion_trigonometrica_cos(t) :
+    'fun_trigonometrica : COS PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COS')
+
+def p_instrucciones_funcion_trigonometrica_cot(t) :
+    'fun_trigonometrica : COT PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COT')
+
+def p_instrucciones_funcion_trigonometrica_sin(t) :
+    'fun_trigonometrica : SIN PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion SIN')
+
+def p_instrucciones_funcion_trigonometrica_tan(t) :
+    'fun_trigonometrica : TAN PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion TAN')
+
+def p_instrucciones_funcion_trigonometrica_acosd(t) :
+    'fun_trigonometrica : ACOSD PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ACOSD')
+
+def p_instrucciones_funcion_trigonometrica_asind(t) :
+    'fun_trigonometrica : ASIND PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ASIND')
+
+def p_instrucciones_funcion_trigonometrica_atand(t) :
+    'fun_trigonometrica : ATAND PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ATAND')
+
+def p_instrucciones_funcion_trigonometrica_atan2d(t) :
+    'fun_trigonometrica : ATAN2D PARIZQ aritmetica COMA aritmetica PARDER'
+    print('Ejecuta Funcion ATAN2D')
+
+def p_instrucciones_funcion_trigonometrica_cosd(t) :
+    'fun_trigonometrica : COSD PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COSD')
+
+def p_instrucciones_funcion_trigonometrica_cotd(t) :
+    'fun_trigonometrica : COTD PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COTD')
+
+def p_instrucciones_funcion_trigonometrica_sind(t) : 
+    'fun_trigonometrica : SIND PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion SIND')
+
+def p_instrucciones_funcion_trigonometrica_tand(t) :
+    'fun_trigonometrica : TAND PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion TAND')
+
+def p_instrucciones_funcion_trigonometrica_sinh(t) :
+    'fun_trigonometrica : SINH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion SINH')
+
+def p_instrucciones_funcion_trigonometrica_cosh(t) :
+    'fun_trigonometrica : COSH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COSH')
+
+def p_instrucciones_funcion_trigonometrica_tanh(t) :
+    'fun_trigonometrica : TANH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion TANH')
+
+def p_instrucciones_funcion_trigonometrica_asinh(t) :
+    'fun_trigonometrica : ASINH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ASINH')
+
+def p_instrucciones_funcion_trigonometrica_acosh(t) :
+    'fun_trigonometrica : ACOSH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ACOSH')
+
+def p_instrucciones_funcion_trigonometrica_atanh(t) :
+    'fun_trigonometrica : ATANH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ATANH')
+#========================================================
+
+#========================================================
+# BINARY STRING FUNCTIONS
+def p_instrucciones_funcion_binary_string_length_select(t) :
+    'fun_binario_select    : LENGTH PARIZQ valor PARDER'
+    print('Ejecuta Funcion length')
+
+def p_instrucciones_funcion_binary_string_length_where(t) :
+    'fun_binario_where    : LENGTH PARIZQ valor PARDER'
+    print('Ejecuta Funcion length')
+
+def p_instrucciones_funcion_binary_string_substring_select(t) :
+    'fun_binario_select    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substring')
+
+def p_instrucciones_funcion_binary_string_substring_insert(t) :
+    'fun_binario_insert    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substring')
+
+def p_instrucciones_funcion_binary_string_substring_update(t) :
+    'fun_binario_update    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substring')
+
+def p_instrucciones_funcion_binary_string_substring_where(t) :
+    'fun_binario_where    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substring')
+
+def p_instrucciones_funcion_binary_string_trim_select(t) :
+    'fun_binario_select    : TRIM PARIZQ CADENA FROM valor PARDER'
+    print('Ejecuta Funcion trim')
+
+def p_instrucciones_funcion_binary_string_trim_insert(t) :
+    'fun_binario_insert    : TRIM PARIZQ CADENA FROM valor PARDER'
+    print('Ejecuta Funcion trim')
+
+def p_instrucciones_funcion_binary_string_trim_update(t) :
+    'fun_binario_update    : TRIM PARIZQ CADENA FROM valor PARDER'
+    print('Ejecuta Funcion trim')
+
+def p_instrucciones_funcion_binary_string_trim_where(t) :
+    'fun_binario_where    : TRIM PARIZQ CADENA FROM valor PARDER'
+    print('Ejecuta Funcion trim')
+
+def p_instrucciones_funcion_binary_string_md5_insert(t) :
+    'fun_binario_insert : MD5 PARIZQ valor PARDER'
+    print('Ejecuta Funcion md5')
+
+def p_instrucciones_funcion_binary_string_md5_update(t) :
+    'fun_binario_update : MD5 PARIZQ valor PARDER'
+    print('Ejecuta Funcion md5')
+
+def p_instrucciones_funcion_binary_string_sha256_select(t) :
+    'fun_binario_select : SHA256 PARIZQ valor PARDER'
+    print('Ejecuta Funcion sha256')
+
+def p_instrucciones_funcion_binary_string_substr_select(t) :
+    'fun_binario_select : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substr')
+
+def p_instrucciones_funcion_binary_string_substr_insert(t) :
+    'fun_binario_insert : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substr')
+
+def p_instrucciones_funcion_binary_string_substr_update(t) :
+    'fun_binario_update : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substr')
+
+def p_instrucciones_funcion_binary_string_substr_where(t) :
+    'fun_binario_where : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substr')
+
+def p_instrucciones_funcion_binary_string_get_byte(t) :
+    'fun_binario_select : GET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO PARDER'
+    print('Ejecuta funcion getbyte')
+
+def p_instrucciones_funcion_binary_string_get_byte2(t) :
+    'fun_binario_select : GET_BYTE PARIZQ valor COMA ENTERO PARDER'
+    print('Ejecuta funcion getbyte')
+
+def p_instrucciones_funcion_binary_string_set_byte(t) :
+    'fun_binario_select : SET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta funcion setbyte')
+
+def p_instrucciones_funcion_binary_string_set_byte2(t) :
+    'fun_binario_select : SET_BYTE PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta funcion setbyte')
+
+def p_instrucciones_funcion_binary_string_Convert(t) :
+    'fun_binario_select : CONVERT PARIZQ valor AS tipos PARDER'
+    print('Ejecuta funcion convert')
+
+def p_instrucciones_funcion_binary_string_encode(t) :
+    'fun_binario_select : ENCODE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA CADENA PARDER'
+    print('Ejectua funcion encode')
+
+def p_instrucciones_funcion_binary_string_encode2(t) :
+    'fun_binario_select : ENCODE PARIZQ valor COMA CADENA PARDER'
+    print('Ejecuta funcion encode')
+
+def p_instrucciones_funcion_binary_string_decode(t) :
+    'fun_binario_select : DECODE PARIZQ valor COMA CADENA PARDER'
+    print('Ejecuta funcion decode')
 
 #========================================================
 
