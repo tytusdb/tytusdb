@@ -35,6 +35,221 @@ precedence = (
 # y estos no pueden ser usados para los nombres de los no terminales, si no lanzara error
 
 
+#=====================================================================================
+#=====================================================================================
+#====================================================================================
+
+def p_instruction_list(p):
+    '''instructionlist : instructionlist sqlinstruction
+                       | sqlinstruction
+    '''
+
+
+def p_sql_instruction(p):
+    '''sqlinstruction : ddl
+                    | DML
+    '''
+
+def p_ddl(p):
+    '''ddl : createstatement 
+           | showstatement
+           | alterstatement
+           | dropstatement
+    '''
+
+def p_create_statement(p):
+    '''createstatement : CREATE optioncreate SEMICOLON''' 
+
+def p_option_create(p):
+    '''optioncreate : TYPE SQLNAME AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS
+                    | DATABASE createdb
+                    | OR REPLACE DATABASE createdb
+                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable  RIGHT_PARENTHESIS
+                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable  RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+    '''
+
+def p_type_list(p):
+    '''typelist : typelist COMMA SQLNAME
+                | SQLNAME'''
+
+def p_create_db(p):
+    '''createdb : IF NOT EXISTS ID listpermits
+                | IF NOT EXISTS ID
+                | ID listpermits
+                | ID 
+    '''
+
+def p_list_permits(p):
+    '''listpermits : listpermits permits
+                   | permits
+    '''
+
+def p_permits(p):
+    '''permits : OWNER EQUALS ID
+               | OWNER ID
+               | MODE EQUALS INT_NUMBER
+               | MODE INT_NUMBER 
+    '''
+
+def p_columns_table(p):
+    '''columnstable : columnstable COMMA column
+                    | column
+    '''
+
+def p_column(p):
+    '''column : ID typecol optionscollist
+              | ID typecol
+    '''
+
+def p_type_col(p):
+    '''typecol : SMALLINT
+               | INTEGER
+               | BIGINT
+               | DECIMAL LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+               | DECIMAL LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | NUMERIC LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+               | NUMERIC LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | REAL
+               | DOUBLE PRECISION
+               | MONEY
+               | CHARACTER VARYING LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHARACTER VARYING
+               | VARCHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | VARCHAR
+               | CHARACTER LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHARACTER
+               | CHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHAR
+               | TEXT
+               | TIMESTAMP LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | TIMESTAMP
+               | DATE
+               | TIME LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | TIME
+               | INTERVAL SQLNAME
+               | BOOLEAN
+    '''
+
+def p_options_col_list(p):
+    '''optionscollist : optionscollist optioncol
+                      | optioncol
+    '''
+
+
+def p_option_col(p):
+    '''optioncol : DEFAULT SQLEXPRESSION2                
+                 | NOT NULL
+                 | NULL
+                 | CONSTRAINT ID UNIQUE
+                 | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                 | UNIQUE
+                 | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                 | PRIMARY KEY 
+                 | REFERENCES ID
+                 | UNIQUE LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+                 | PRIMARY KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+                 | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+    '''
+
+def p_condition_column(p):
+    '''conditionColumn : conditioncheck'''
+
+def p_condition_check(p):
+    '''conditioncheck : SQLRELATIONALEXPRESSION
+    '''
+
+def p_column_list(p):
+    '''columnlist : columnlist COMMA ID
+                  | ID
+    '''
+
+def p_show_statement(p):
+    '''showstatement : SHOW DATABASES SEMICOLON
+                     | SHOW DATABASES LIKE ID SEMICOLON
+    ''' 
+
+def p_alter_statement(p):
+    '''alterstatement : ALTER optionsalter SEMICOLON
+    '''
+
+def p_options_alter(p):
+    '''optionsalter : DATABASE alterdatabase
+                    | TABLE altertable
+    '''
+
+def p_alter_database(p):
+    '''alterdatabase : ID RENAME TO ID
+                     | ID OWNER TO typeowner
+    '''
+
+def p_type_owner(p):
+    '''typeowner : ID
+                 | CURRENT_USER
+                 | SESSION_USER 
+    '''
+
+def p_alter_table(p): 
+    '''altertable : ID alterlist
+    '''
+
+def p_alter_list(p):
+    '''alterlist : alterlist COMMA typealter
+                 | typealter
+    '''
+
+def p_type_alter(p):
+    '''typealter : ADD addalter
+                 | ALTER alteralter
+                 | DROP dropalter
+                 | RENAME  renamealter
+    '''
+
+def p_add_alter(p):
+    '''addalter : COLUMN ID typecol
+                | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+    '''
+
+def p_alter_alter(p):
+    '''alteralter : COLUMN ID SET NOT NULL
+                  | COLUMN ID TYPE typecol
+    '''
+
+def p_drop_alter(p):
+    '''dropalter : COLUMN ID
+                 | CONSTRAINT ID
+    '''
+
+def p_rename_alter(p):
+    '''renamealter : COLUMN ID TO ID
+    '''
+
+def p_drop_statement(p):
+    '''dropstatement : DROP optionsdrop SEMICOLON''' 
+
+def p_options_drop(p):
+    '''optionsdrop : DATABASE dropdatabase
+                    | TABLE droptable
+    '''
+
+def p_drop_database(p):
+    '''dropdatabase : IF EXISTS ID
+                    | ID
+    '''
+
+def p_drop_table(p):
+    '''droptable : ID
+    '''
+
+
+
+#=====================================================================================
+#=====================================================================================
+#=====================================================================================
+
+
+
 def p_dml_list(p):
     '''DMLLIST : DMLLIST DML
                | DML'''
