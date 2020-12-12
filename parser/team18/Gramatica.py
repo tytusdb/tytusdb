@@ -32,7 +32,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
            'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO', 'RESTA','SUMA','DIVISION', 
-           'POTENCIA', 'MODULO', 'DOSPUNTOS' ] + list(Reservadas.values())
+           'POTENCIA', 'MODULO', 'DOSPUNTOS', 'SQRT2', 'CBRT2', 'AND2', 'NOT2', 'XOR', 'SH_LEFT', 'SH_RIGHT' ] + list(Reservadas.values())
 
 t_PTCOMA = r';'
 t_PAR_A = r'\('
@@ -41,6 +41,13 @@ t_COMA = r'\,'
 t_PUNTO = r'\.'
 t_ASTERISCO = r'\*'
 t_DOSPUNTOS =r'::'
+t_SQRT2 = r'\|'
+t_CBRT2 = r'\|\|'
+t_AND2 = r'\&'
+t_NOT2 = r'\~'
+t_XOR = r'\#'
+t_SH_LEFT = r'\<\<'
+t_SH_RIGHT = r'\>\>'
 
 #Comparision operators
 t_IGUAL = r'\='
@@ -518,6 +525,7 @@ def p_expresiones(t):
      '''exp : exp_log
             | exp_rel
             | exp_ar
+            | exp_select
             | E'''
 
 def p_expresion_logica(t):
@@ -544,6 +552,16 @@ def p_expresion_aritmetica(t):
                | exp DIVISION exp
                | exp POTENCIA exp
                | exp MODULO exp'''
+
+def p_exp_select(t):
+     '''exp_select : SQRT2 exp
+                   | CBRT2 exp
+                   | exp AND2 exp
+                   | exp SQRT2 exp
+                   | NOT2 exp
+                   | exp XOR exp
+                   | exp SH_LEFT exp
+                   | exp SH_RIGHT exp'''
 
 def p_expresion(t):
      '''E : ENTERO
