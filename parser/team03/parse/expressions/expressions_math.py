@@ -34,7 +34,7 @@ class BinaryExpression(ASTNode):
 
 
 # From here on, classes describing various mathematical operations
-# PENDING: div, minScale, scale, trimScale, widthBucket
+# PENDING: minScale, scale, trimScale, widthBucket
 class Abs(ASTNode):
     def __init__(self, exp, line, column):
         super().__init__(self, line, column)
@@ -74,7 +74,28 @@ class Degrees(ASTNode):
         super().execute(table, tree)
         return math.degrees(self.exp)
 
-    
+
+class Div(ASTNode):
+    def __init__(self, exp1, exp2, line, column):
+        super().__init__(self, line, column)
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return self.exp1 // self.exp2
+
+
+class Exp(ASTNode):
+    def __init__(self, exp, line, column):
+        super().__init__(self, line, column)
+        self.exp = exp
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return math.exp(self.exp)
+
+
 class Factorial(ASTNode):
     def __init__(self, exp, line, column):
         super().__init__(self, line, column)
@@ -147,6 +168,16 @@ class Log10(ASTNode):
         return math.log10(self.exp)
 
 
+class MinScale(ASTNode):
+    def __init__(self, exp, line, column):
+        super().__init__(self, line, column)
+        self.exp = exp
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return True
+
+
 class Mod(ASTNode):
     def __init__(self, exp1, exp2, line, column):
         super().__init__(self, line, column)
@@ -207,6 +238,16 @@ class Round(ASTNode):
         return round(self.exp)
 
 
+class Scale(ASTNode):
+    def __init__(self, exp, line, column):
+        super().__init__(self, line, column)
+        self.exp = exp
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return True
+
+
 class SetSeed(ASTNode):
     def __init__(self, exp, line, column):
         super().__init__(self, line, column)
@@ -237,6 +278,16 @@ class Sqrt(ASTNode):
         return math.sqrt(self.exp)
 
 
+class TrimScale(ASTNode):
+    def __init__(self, exp, line, column):
+        super().__init__(self, line, column)
+        self.exp = exp
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return True
+
+
 class Trunc(ASTNode):
     def __init__(self, exp, line, column):
         super().__init__(self, line, column)
@@ -245,3 +296,14 @@ class Trunc(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return math.trunc(self.exp)
+
+
+class WithBucket(ASTNode):
+    def __init__(self, exp1, exp2, line, column):
+        super().__init__(self, line, column)
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return True
