@@ -13,6 +13,8 @@ class Ceil(Instruccion):
         return math.ceil(self.valor)
 
 #el ceil solo permite que sean tipo float :D
+'''
 instruccion = Ceil(0.50,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

@@ -15,6 +15,8 @@ class Gcd(Instruccion):
         return math.gcd(self.op1,self.op2)
 
 #find the  the greatest common divisor of the two integers
+'''
 instruccion = Gcd(10,5,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

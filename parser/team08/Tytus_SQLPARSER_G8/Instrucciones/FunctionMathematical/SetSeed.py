@@ -14,6 +14,8 @@ class SetSeed(Instruccion):
         print(random.seed(self.valor))
         return random.seed(self.valor)
 
+'''
 instruccion = SetSeed(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

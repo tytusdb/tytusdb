@@ -10,7 +10,8 @@ class Trim(Instruccion):
         print("STRIP")
         print(self.strip())
         return self.strip()
-
+'''
 instruccion = Trim("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

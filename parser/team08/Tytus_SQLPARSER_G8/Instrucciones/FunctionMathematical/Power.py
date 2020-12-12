@@ -14,6 +14,8 @@ class Power(Instruccion):
         print(math.pow(self.valor,self.exp))
         resultado = math.pow(self.valor,self.exp)
         return resultado
-        
+
+'''        
 instruccion = Power(1,2,None, 1,2)
 instruccion.ejecutar(None,None)
+'''

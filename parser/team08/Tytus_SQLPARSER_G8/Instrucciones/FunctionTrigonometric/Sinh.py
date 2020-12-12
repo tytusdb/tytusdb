@@ -12,7 +12,10 @@ class Sinh(Instruccion):
         print("SINH")
         print(math.sinh(self.valor))
         return math.sinh(self.valor)
+    
+'''
 
 instruccion = Sinh(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

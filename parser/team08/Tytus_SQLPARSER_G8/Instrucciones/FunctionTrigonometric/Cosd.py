@@ -13,7 +13,8 @@ class Cosd(Instruccion):
         print(math.cos(self.valor))
         return math.acos(self.valor)
         '''
-
+'''
 instruccion = Cosd(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
