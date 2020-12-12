@@ -250,15 +250,28 @@ def p_instruccion_Select_All(t) :
     t[0] = Select_All(t[1])
     # print("Consulta ALL para tabla: " + t[1])
 
+#Gramatica para fechas
 def p_date_functions(t):
     '''date_functions   : EXTRACT PARIZQ lista_date_functions 
                         | date_part PARIZQ lista_date_functions
                         | now PARIZQ lista_date_functions
                         | lista_date_functions'''
 
+def p_validate_date(t):
+    'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA'
+    try:
+        fecha = re.split('[-: ]',t[4].replace("'",""))
+        if (5 < len(fecha)):
+            if (int(fecha[0]) and len(fecha[0]) <= 4) and (int(fecha[1]) and int(fecha[1]) <= 12) and (int(fecha[2]) and int(fecha[2]) <= 31) and (int(fecha[3]) and int(fecha[3]) <= 24) and (int(fecha[4]) and int(fecha[4]) <= 60) and (int(fecha[5]) and int(fecha[5]) <= 60):
+                print("Formato fecha aceptado")
+        elif (2 < len(fecha)):
+            if (int(fecha[0]) and len(fecha[0]) <= 4) and (int(fecha[1]) and int(fecha[1]) <= 12) and (int(fecha[2]) and int(fecha[2])):
+                print("Formato fecha aceptado")
+    except Exception:
+        pass
+
 def p_lista_date_functions(t):
-    '''lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA
-                            | CADENA COMA INTERVAL CADENA PARDER PTCOMA
+    '''lista_date_functions : CADENA COMA INTERVAL CADENA PARDER PTCOMA
                             | TIMESTAMP CADENA PTCOMA
                             | CURRENT_DATE PTCOMA
                             | CURRENT_TIME PTCOMA
@@ -737,6 +750,23 @@ def p_auxcase_state2(t):
 #========================================================
 
 # FUNCIONES MATEMÁTICAS
+def p_instrucciones_funcion_count(t):
+    '''funciones_math_esenciales    : COUNT PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | COUNT PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_instrucciones_funcion_sum(t):
+    '''funciones_math_esenciales    : SUM PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | SUM PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_instrucciones_funcion_avg(t):
+    '''funciones_math_esenciales    : AVG PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | AVG PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_lista_instrucciones_funcion_math(t):
+    '''lista_funciones_math_esenciales  : aritmetica
+                                        | lista_id
+                                        | POR'''
+
 #SOLO ESTOS SE PUEDEN USAR EN EL WHERE
 def p_instrucciones_funcion_abs_where(t) :
     'lista_funciones_where    : ABS PARIZQ funcion_math_parametro PARDER'

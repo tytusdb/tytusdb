@@ -62,6 +62,7 @@ reservadas = {
     'right' : 'RIGHT',
     'on' : 'ON',
     'any' : 'ANY',
+    'count' : 'COUNT',
     'sum' : 'SUM',
     'like' : 'LIKE',
     'avg' : 'AVG',
