@@ -14,6 +14,8 @@ class Sign(Instruccion):
         print(geek.sign(self.valor))
         return geek.sign(self.valor)
 
+'''
 instruccion = Sign(10,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

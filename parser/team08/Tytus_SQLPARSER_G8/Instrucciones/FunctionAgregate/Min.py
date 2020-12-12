@@ -8,7 +8,8 @@ class Min(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-
+'''
 instruccion = Min("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

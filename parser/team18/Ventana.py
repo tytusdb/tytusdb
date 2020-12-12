@@ -11,7 +11,7 @@ archivo = None
 
 # Configuración de Ventana
 ventana = Tk()
-ventana.geometry('1000x720')
+ventana.geometry('1000x710')
 ventana.title(IDE)
 
 
@@ -28,7 +28,7 @@ def abrirGramaticalASC():
     webbrowser.open_new_tab('reporte_Asc.html')
 
 def abrirErrores():
-    webbrowser.open_new_tab('reporte_Errores.html')
+    webbrowser.open_new_tab('Reporte_Errores.html')
 
 def abrirSimbolos():
     webbrowser.open_new_tab('reporte_TS.html')
@@ -292,12 +292,12 @@ content_text.focus_set()
 
 
 #Consola de salida
-consola_text = Text(ventana, wrap='word', undo=1)
+'''consola_text = Text(ventana, wrap='word', undo=1)
 consola_text.pack(expand='yes', fill='both')
 scroll_bar2 = Scrollbar(consola_text)
 consola_text.configure(yscrollcommand=scroll_bar2.set)
 scroll_bar2.config(command=consola_text.yview)
-scroll_bar2.pack(side='right', fill='y')
+scroll_bar2.pack(side='right', fill='y')'''
 
 ventana.protocol('WM_DELETE_WINDOW', exit_editor)
 ventana.mainloop()

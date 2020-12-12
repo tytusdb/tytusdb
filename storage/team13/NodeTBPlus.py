@@ -60,7 +60,50 @@ class PageTBPlus:
                     return self.SplitPage()
                 return self
             else:
-                pass    #buscar la pagina a donde se va a ingresar la llave
+                i = 0
+                if key.value < self.__keys[i].value:
+                    aux = self.__childs[i].add_key(key)
+                    if aux is list:
+                        for x in range(len(aux) - 1):
+                            self.__childs.insert((i + x), aux[x])
+                        self.add_key(aux[len(aux) - 1])
+                    else:
+                        self.__childs[i] = aux
+                    return self
+
+                elif self.__keys[i].value < key.value:
+                    aux = self.__childs[i].add_key(key)
+                    if aux is list:
+                        for x in range(len(aux) - 1):
+                            self.__childs.insert((i + x), aux[x])
+                        self.add_key(aux[len(aux) - 1])
+                    else:
+                        self.__childs[i] = aux
+                    return self
+
+                while i < (len(self.__keys) - 1):
+                    if (self.__keys[i].value < key.value) and (key.value < self.__keys[i + 1].value):
+                        aux = self.__childs[i].add_key(key)
+                    if aux is list:
+                        for x in range(len(aux) - 1):
+                            self.__childs.insert((i + x), aux[x])
+                        self.add_key(aux[len(aux) - 1])
+                        return self
+                    else:
+                        self.__childs[i] = aux
+                        return self
+                    i += 1
+                    
+                i += 1
+                if self.__keys[i].value < key.value:
+                    aux = self.__childs[i].add_key(key)
+                    if aux is list:
+                        for x in range(len(aux) - 1):
+                            self.__childs.insert((i + x), aux[x])
+                        self.add_key(aux[len(aux) - 1])
+                    else:
+                        self.__childs[i] = aux
+                    return self
     
     def SplitPage(self):
         if (self.__grade % 2) > 0:
@@ -86,9 +129,20 @@ class PageTBPlus:
             chld2.set_father(temp)
             chld1.set_next(chld2)
             return temp
-        else:
-            # separacion de paginas en general
-            return self
+        elif len(self.__childs) == 0:
+            chld1 = PageTBPlus(self.__grade)
+            chld2 = PageTBPlus(self.__grade)
+
+            for i in range(len(self.__keys)):
+                if i < index:
+                    chld1.add_key(self.__keys[i])
+                else:
+                    chld2.add_key(self.__keys[i])
+            chld1.set_father(self.get_father())
+            chld2.set_father(self.get_father())
+            temp = []
+            temp.extend([chld1, chld2, self.__keys[index]])
+            return temp
 
 
 class NodeTBPlus:
