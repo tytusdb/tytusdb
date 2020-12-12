@@ -156,12 +156,13 @@ class GUI:
         os.system('dot -Tpdf ./team28/dot.txt -o ./team28/error.pdf')
         os.system('xdg-open ./team28/error.pdf')
         
-    def report_errors_windows(self, errors):
+    def report_errors_windows(self):
         global report_error
-        report = open('error.html', 'w')
+        report = open('dot.txt', 'w')
         report.write(report_error.get_report())
         report.close()
-        os.startfile('error.html')
+        os.system('dot -Tpdf dot.txt -o  error.pdf')
+        os.startfile('error.pdf')
         
     def report_ast_windows(self):
         global report_ast
