@@ -71,3 +71,8 @@ clave=1234,
 fecha='2019/09/07'
 WHERE id=1;
 DELETE FROM Casas WHERE id=1+1;
+
+TRUNCATE TABLE table1,table2;
+TRUNCATE table1,table2;
+
+SELECT ABS(10) AS "abs1";

@@ -91,6 +91,24 @@ reservedwords = (
     'INHERITS',
     'UPDATE',
     'DELETE',
+    'TRUNCATE',
+    'ABS',
+    'CBRT',
+    'CEIL',
+    'CEILING',
+    'DEGREES',
+    'DIV',
+    'EXP',
+    'FACTORIAL',
+    'FLOOR',
+    'GCD',
+    'LN',
+    'LOG',
+    'MOD',
+    'PI',
+    'POWER',
+    'RADIANS',
+    'ROUND',
 )
 
 symbols = (
@@ -131,7 +149,7 @@ t_PLUS             = r'\+'
 t_MINUS            = r'-'
 t_TIMES            = r'\*'
 t_DIVIDED          = r'/'
-t_NSEPARATOR       = r'.'
+t_NSEPARATOR       = r'\.'
 t_EXPONENTIATION   = r'\^'
 t_MODULO           = r'%'
 t_LESSTHAN         = r'<'
@@ -139,7 +157,6 @@ t_GREATERTHAN      = r'>'
 t_LESSTHANEQUAL    = r'<='
 t_GREATERTHANEQUAL = r'>='
 t_NOTEQUAL         = r'<>|!='
-t_STRING           = r'\'.*?\''
 t_REGEX            = r'\'%?.*?%?\''
 
 def t_ID(t):
@@ -164,6 +181,11 @@ def t_INT(t):
     except ValueError:
         print("Integer value too large %d", t.value)
         t.value = 0
+    return t
+
+def t_STRING(t):
+    r'\".*?\"'
+    t.value = t.value[1:-1]
     return t
 
 # Ignored characters
@@ -224,7 +246,8 @@ def p_instructions_dml(t):
            | insert
            | select
            | update
-           | delete'''
+           | delete
+           | truncate'''
 
 # DDL sentences
 #CREATE
@@ -430,7 +453,8 @@ def p_instruction_select(t):
               | selectInstruction'''
 
 def p_instruction_selectinstruction(t):
-    '''selectInstruction : SELECT expressionList FROM expressionList
+    '''selectInstruction : SELECT expressionList
+                         | SELECT expressionList FROM expressionList
                          | SELECT expressionList FROM expressionList selectOptions
                          | SELECT DISTINCT expressionList FROM expressionList
                          | SELECT DISTINCT expressionList FROM expressionList selectOptions'''
@@ -458,6 +482,12 @@ def p_instruction_reallocationofvalues(t):
 #DELETE
 def p_instruction_delete(t):
     '''delete : DELETE FROM ID WHERE expression'''
+
+#TRUNCATE
+def p_instruction_truncate(t):
+    '''truncate : TRUNCATE TABLE idList
+                | TRUNCATE idList'''
+
 #EXPRESSIONS
 def p_instruction_idlist(t):
     '''idList : idList COMMA ID
@@ -510,6 +540,30 @@ def p_expression_binaryarithmetic(t):
 
 def p_expression_binaryseparator(t):
     '''expression : expression NSEPARATOR expression'''
+
+#MATH FUNCTIONS
+def p_expression_as(t):
+    '''expression : expression AS STRING'''
+
+def p_expression_mathfunctions(t):
+    '''expression : ABS BRACKET_OPEN expression BRACKET_CLOSE 
+                  | CBRT BRACKET_OPEN expression BRACKET_CLOSE 
+                  | CEIL BRACKET_OPEN expression BRACKET_CLOSE 
+                  | CEILING BRACKET_OPEN expression BRACKET_CLOSE 
+                  | DEGREES BRACKET_OPEN expression BRACKET_CLOSE 
+                  | DIV BRACKET_OPEN expression BRACKET_CLOSE 
+                  | EXP BRACKET_OPEN expression BRACKET_CLOSE 
+                  | FACTORIAL BRACKET_OPEN expression BRACKET_CLOSE 
+                  | FLOOR BRACKET_OPEN expression BRACKET_CLOSE 
+                  | GCD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | LN BRACKET_OPEN expression BRACKET_CLOSE 
+                  | LOG BRACKET_OPEN expression BRACKET_CLOSE 
+                  | MOD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | PI BRACKET_OPEN BRACKET_CLOSE 
+                  | POWER BRACKET_OPEN expression BRACKET_CLOSE 
+                  | RADIANS BRACKET_OPEN expression BRACKET_CLOSE
+                  | ROUND BRACKET_OPEN expression BRACKET_CLOSE  
+                  '''
 
 #VALUES
 def p_expression_number(t):
