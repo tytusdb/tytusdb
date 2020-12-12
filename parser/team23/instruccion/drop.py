@@ -3,6 +3,7 @@ from tools.console_text import *
 from tools.tabla_tipos import *
 from storage import jsonMode as funciones
 from error.errores import *
+from storage.jsonMode import *
 
 class drop(instruccion):
 
@@ -26,4 +27,15 @@ class drop(instruccion):
             self.grammar_ = if_exists.grammar_
 
     def ejecutar(self):
+        try:
+            drop_aux = funciones.dropDatabase(self.id)
+
+            if (drop_aux == 2):
+                add_text("Base de datos no existe, con nombre "+ self.id)
+            elif (drop_aux == 0):
+                add_text("Base de datos eliminada, con nombre "+ self.id)
+            else:
+                add_text("Base de datos no se pudo eliminar, con nombre "+ self.id)
+        except:
+            errores.append(nodo_error(self.line,self.column,'Error en drop DataBase','Semantico'))
         pass
