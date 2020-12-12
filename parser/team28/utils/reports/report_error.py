@@ -57,7 +57,7 @@ class ReportError:
             file_content += "<TH>" + values.data.get_description() + "</TH>"
             file_content += "<TH>" + str(values.data.get_row()) + "</TH>"
             file_content += "<TH>" + str(values.data.get_column()) + "</TH>"
-            file_content += "<TR>"
+            file_content += "</TR>"
             values = values.next
         return file_content
 
