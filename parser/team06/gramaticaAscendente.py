@@ -657,15 +657,18 @@ def p_opcionTrim(t):
 def p_final(t):
     '''final        : DECIMAL
                     | ENTERO'''
+    t[0] = t[1]
 
 def p_final_id(t):
     'final          : ID'
+    t[0] = t[1]
 
 def p_final_invocacion(t):
     'final          : ID PUNTO ID'
 
 def p_final_cadena(t):
     'final          : CADENA'
+    t[0] = t[1]
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
@@ -683,10 +686,12 @@ def p_listaParam_(t):
 def p_updateBD(t):
     'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
 
-def p_asignaciones(t):
-    '''asignaciones       : asignaciones COMA asigna
-                          | asigna
-    '''
+def p_asignaciones_1(t):
+    'asignaciones       : asignaciones COMA asigna'
+
+def p_asignaciones_2(t):
+    'asignaciones       : asigna'
+
 def p_asigna(t):
     'asigna             : operacion'
 
@@ -706,10 +711,12 @@ def p_createTable(t):
 def p_inheritsBD(t):
     'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
 
-def p_creaColumna(t):
-    '''creaColumnas        : creaColumnas COMA Columna
-                           | Columna 
-    '''
+def p_creaColumna_1(t):
+    'creaColumnas       : creaColumnas COMA Columna'
+
+def p_creaColumna_2(t):
+    'creaColumnas       : Columna'
+
 def p_columna_1(t):
     '''Columna          : ID tipo  
                         | ID tipo paramOpcional
@@ -764,8 +771,7 @@ def p_tipo(t):
                         | DECIMAL
                         | NUMERIC
                         | REAL
-                        | DOUBLE
-                        | PRECISION
+                        | DOUBLE PRECISION
                         | MONEY
                         | VARCHAR PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
                         | CHARACTER VARYING PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
