@@ -1,0 +1,1098 @@
+digraph lista{ rankdir=TB;node[shape = box, style = filled, color = white]; 
+nodo2639317176224[ label="inicio"];
+nodo2639317183360[ label="instrucciones"];
+nodo2639317175264[ label="instrucciones"];
+nodo2639317161008[ label="instrucciones"];
+nodo2639317161056[ label="instrucciones"];
+nodo2639317151024[ label="instrucciones"];
+nodo2639317138976[ label="instrucciones"];
+nodo2639317135520[ label="instrucciones"];
+nodo2639317128576[ label="instrucciones"];
+nodo2639317120624[ label="instrucciones"];
+nodo2639317121920[ label="instrucciones"];
+nodo2639317106640[ label="instrucciones"];
+nodo2639317105008[ label="instrucciones"];
+nodo2639317073872[ label="instrucciones"];
+nodo2639317073152[ label="instruccion"];
+nodo2639317072480[ label="dml"];
+nodo2639317073584[ label="sentencia_select"];
+nodo2639317102848[ label="select"];
+
+"nodo2639317073584"->"nodo2639317102848"
+nodo2639317072912[ label="select_cont"];
+nodo2639317073008[ label="*"];
+
+"nodo2639317072912"->"nodo2639317073008"
+
+"nodo2639317073584"->"nodo2639317072912"
+nodo2639317102944[ label="from"];
+
+"nodo2639317073584"->"nodo2639317102944"
+nodo2639317072576[ label="lista_from"];
+nodo2639317073488[ label="tabla1"];
+
+"nodo2639317072576"->"nodo2639317073488"
+
+"nodo2639317073584"->"nodo2639317072576"
+nodo2639317073344[ label="condicion_cont"];
+nodo2639317073248[ label="fin_select"];
+nodo2639317073776[ label=";"];
+
+"nodo2639317073248"->"nodo2639317073776"
+
+"nodo2639317073344"->"nodo2639317073248"
+
+"nodo2639317073584"->"nodo2639317073344"
+
+"nodo2639317072480"->"nodo2639317073584"
+
+"nodo2639317073152"->"nodo2639317072480"
+
+"nodo2639317073872"->"nodo2639317073152"
+
+"nodo2639317105008"->"nodo2639317073872"
+nodo2639317105392[ label="instruccion"];
+nodo2639317105488[ label="dml"];
+nodo2639317105152[ label="sentencia_select"];
+nodo2639317105584[ label="select"];
+
+"nodo2639317105152"->"nodo2639317105584"
+nodo2639317104048[ label="select_cont"];
+nodo2639317104240[ label="lista_id"];
+nodo2639317103568[ label="lista_id"];
+nodo2639317103088[ label="lista_id"];
+nodo2639317102800[ label="operacion_aritmetica"];
+nodo2639317072528[ label="valor"];
+nodo2639317103280[ label="id1"];
+
+"nodo2639317072528"->"nodo2639317103280"
+
+"nodo2639317102800"->"nodo2639317072528"
+
+"nodo2639317103088"->"nodo2639317102800"
+
+"nodo2639317103568"->"nodo2639317103088"
+nodo2639317104144[ label=","];
+
+"nodo2639317103568"->"nodo2639317104144"
+nodo2639317103616[ label="operacion_aritmetica"];
+nodo2639317103376[ label="valor"];
+nodo2639317103856[ label="id2"];
+
+"nodo2639317103376"->"nodo2639317103856"
+
+"nodo2639317103616"->"nodo2639317103376"
+
+"nodo2639317103568"->"nodo2639317103616"
+
+"nodo2639317104240"->"nodo2639317103568"
+nodo2639317104624[ label=","];
+
+"nodo2639317104240"->"nodo2639317104624"
+nodo2639317104288[ label="operacion_aritmetica"];
+nodo2639317103472[ label="valor"];
+nodo2639317103136[ label="id3"];
+
+"nodo2639317103472"->"nodo2639317103136"
+
+"nodo2639317104288"->"nodo2639317103472"
+
+"nodo2639317104240"->"nodo2639317104288"
+
+"nodo2639317104048"->"nodo2639317104240"
+
+"nodo2639317105152"->"nodo2639317104048"
+nodo2639317105680[ label="from"];
+
+"nodo2639317105152"->"nodo2639317105680"
+nodo2639317104528[ label="lista_from"];
+nodo2639317104912[ label="tabla2"];
+
+"nodo2639317104528"->"nodo2639317104912"
+
+"nodo2639317105152"->"nodo2639317104528"
+nodo2639317104000[ label="condicion_cont"];
+nodo2639317103760[ label="fin_select"];
+nodo2639317105200[ label=";"];
+
+"nodo2639317103760"->"nodo2639317105200"
+
+"nodo2639317104000"->"nodo2639317103760"
+
+"nodo2639317105152"->"nodo2639317104000"
+
+"nodo2639317105488"->"nodo2639317105152"
+
+"nodo2639317105392"->"nodo2639317105488"
+
+"nodo2639317105008"->"nodo2639317105392"
+
+"nodo2639317106640"->"nodo2639317105008"
+nodo2639317105296[ label="instruccion"];
+nodo2639317105872[ label="dml"];
+nodo2639317119520[ label="sentencia_select"];
+nodo2639317119760[ label="select"];
+
+"nodo2639317119520"->"nodo2639317119760"
+nodo2639317102752[ label="select_cont"];
+nodo2639317105776[ label="lista_id"];
+nodo2639317103712[ label="operacion_aritmetica"];
+nodo2639317073104[ label="valor"];
+nodo2639317073632[ label="id1"];
+
+"nodo2639317073104"->"nodo2639317073632"
+
+"nodo2639317103712"->"nodo2639317073104"
+
+"nodo2639317105776"->"nodo2639317103712"
+
+"nodo2639317102752"->"nodo2639317105776"
+
+"nodo2639317119520"->"nodo2639317102752"
+nodo2639317119856[ label="from"];
+
+"nodo2639317119520"->"nodo2639317119856"
+nodo2639317106208[ label="lista_from"];
+nodo2639317105968[ label="lista_from"];
+nodo2639317106448[ label="tabla1"];
+
+"nodo2639317105968"->"nodo2639317106448"
+
+"nodo2639317106208"->"nodo2639317105968"
+nodo2639317119184[ label=","];
+
+"nodo2639317106208"->"nodo2639317119184"
+nodo2639317119280[ label="tabla2"];
+
+"nodo2639317106208"->"nodo2639317119280"
+
+"nodo2639317119520"->"nodo2639317106208"
+nodo2639317119040[ label="condicion_cont"];
+nodo2639317106160[ label="fin_select"];
+nodo2639317106304[ label=";"];
+
+"nodo2639317106160"->"nodo2639317106304"
+
+"nodo2639317119040"->"nodo2639317106160"
+
+"nodo2639317119520"->"nodo2639317119040"
+
+"nodo2639317105872"->"nodo2639317119520"
+
+"nodo2639317105296"->"nodo2639317105872"
+
+"nodo2639317106640"->"nodo2639317105296"
+
+"nodo2639317121920"->"nodo2639317106640"
+nodo2639317120528[ label="instruccion"];
+nodo2639317106112[ label="dml"];
+nodo2639317121968[ label="sentencia_select"];
+nodo2639317120864[ label="select"];
+
+"nodo2639317121968"->"nodo2639317120864"
+nodo2639317104768[ label="select_cont"];
+nodo2639317105056[ label="*"];
+
+"nodo2639317104768"->"nodo2639317105056"
+
+"nodo2639317121968"->"nodo2639317104768"
+nodo2639317121440[ label="from"];
+
+"nodo2639317121968"->"nodo2639317121440"
+nodo2639317119568[ label="lista_from"];
+nodo2639317120336[ label="tabla1"];
+
+"nodo2639317119568"->"nodo2639317120336"
+
+"nodo2639317121968"->"nodo2639317119568"
+nodo2639317121488[ label="condicion_cont"];
+nodo2639317121584[ label="fin_select"];
+nodo2639317121296[ label="order_by"];
+nodo2639317121632[ label="order"];
+
+"nodo2639317121296"->"nodo2639317121632"
+nodo2639317121728[ label="by"];
+
+"nodo2639317121296"->"nodo2639317121728"
+nodo2639317121824[ label="id1"];
+
+"nodo2639317121296"->"nodo2639317121824"
+nodo2639317120096[ label="opcion_order"];
+nodo2639317120912[ label="asc"];
+
+"nodo2639317120096"->"nodo2639317120912"
+
+"nodo2639317121296"->"nodo2639317120096"
+nodo2639317121008[ label="order_by"];
+nodo2639317120768[ label="condicion_cont"];
+nodo2639317120672[ label="fin_select"];
+nodo2639317121200[ label=";"];
+
+"nodo2639317120672"->"nodo2639317121200"
+
+"nodo2639317120768"->"nodo2639317120672"
+
+"nodo2639317121008"->"nodo2639317120768"
+
+"nodo2639317121296"->"nodo2639317121008"
+
+"nodo2639317121584"->"nodo2639317121296"
+
+"nodo2639317121488"->"nodo2639317121584"
+
+"nodo2639317121968"->"nodo2639317121488"
+
+"nodo2639317106112"->"nodo2639317121968"
+
+"nodo2639317120528"->"nodo2639317106112"
+
+"nodo2639317121920"->"nodo2639317120528"
+
+"nodo2639317120624"->"nodo2639317121920"
+nodo2639317122544[ label="instruccion"];
+nodo2639317122160[ label="dml"];
+nodo2639317128240[ label="sentencia_select"];
+nodo2639317127856[ label="select"];
+
+"nodo2639317128240"->"nodo2639317127856"
+nodo2639317106544[ label="select_cont"];
+nodo2639317119424[ label="*"];
+
+"nodo2639317106544"->"nodo2639317119424"
+
+"nodo2639317128240"->"nodo2639317106544"
+nodo2639317127712[ label="from"];
+
+"nodo2639317128240"->"nodo2639317127712"
+nodo2639317119136[ label="lista_from"];
+nodo2639317122448[ label="tabla2"];
+
+"nodo2639317119136"->"nodo2639317122448"
+
+"nodo2639317128240"->"nodo2639317119136"
+nodo2639317122688[ label="condicion_cont"];
+nodo2639317122304[ label="fin_select"];
+nodo2639317127568[ label="order_by"];
+nodo2639317127904[ label="order"];
+
+"nodo2639317127568"->"nodo2639317127904"
+nodo2639317128000[ label="by"];
+
+"nodo2639317127568"->"nodo2639317128000"
+nodo2639317128096[ label="id2"];
+
+"nodo2639317127568"->"nodo2639317128096"
+nodo2639317122208[ label="opcion_order"];
+nodo2639317123024[ label="desc"];
+
+"nodo2639317122208"->"nodo2639317123024"
+
+"nodo2639317127568"->"nodo2639317122208"
+nodo2639317127280[ label="order_by"];
+nodo2639317122880[ label="condicion_cont"];
+nodo2639317122784[ label="fin_select"];
+nodo2639317127472[ label=";"];
+
+"nodo2639317122784"->"nodo2639317127472"
+
+"nodo2639317122880"->"nodo2639317122784"
+
+"nodo2639317127280"->"nodo2639317122880"
+
+"nodo2639317127568"->"nodo2639317127280"
+
+"nodo2639317122304"->"nodo2639317127568"
+
+"nodo2639317122688"->"nodo2639317122304"
+
+"nodo2639317128240"->"nodo2639317122688"
+
+"nodo2639317122160"->"nodo2639317128240"
+
+"nodo2639317122544"->"nodo2639317122160"
+
+"nodo2639317120624"->"nodo2639317122544"
+
+"nodo2639317128576"->"nodo2639317120624"
+nodo2639317130448[ label="instruccion"];
+nodo2639317122640[ label="dml"];
+nodo2639317128624[ label="sentencia_select"];
+nodo2639317130016[ label="select"];
+
+"nodo2639317128624"->"nodo2639317130016"
+nodo2639317120048[ label="select_cont"];
+nodo2639317121056[ label="*"];
+
+"nodo2639317120048"->"nodo2639317121056"
+
+"nodo2639317128624"->"nodo2639317120048"
+nodo2639317130304[ label="from"];
+
+"nodo2639317128624"->"nodo2639317130304"
+nodo2639317128192[ label="lista_from"];
+nodo2639317128720[ label="tabla1"];
+
+"nodo2639317128192"->"nodo2639317128720"
+
+"nodo2639317128624"->"nodo2639317128192"
+nodo2639317129536[ label="condicion_cont"];
+nodo2639317130352[ label="where"];
+
+"nodo2639317129536"->"nodo2639317130352"
+nodo2639317129776[ label="operacion_relacional"];
+nodo2639317128816[ label="operacion_relacional"];
+nodo2639317128864[ label="operacion_aritmetica"];
+nodo2639317128480[ label="valor"];
+nodo2639317129104[ label="id1"];
+
+"nodo2639317128480"->"nodo2639317129104"
+
+"nodo2639317128864"->"nodo2639317128480"
+
+"nodo2639317128816"->"nodo2639317128864"
+
+"nodo2639317129776"->"nodo2639317128816"
+nodo2639317130064[ label="="];
+
+"nodo2639317129776"->"nodo2639317130064"
+nodo2639317129392[ label="operacion_relacional"];
+nodo2639317129440[ label="operacion_aritmetica"];
+nodo2639317129200[ label="valor"];
+nodo2639317129680[ label="1"];
+
+"nodo2639317129200"->"nodo2639317129680"
+
+"nodo2639317129440"->"nodo2639317129200"
+
+"nodo2639317129392"->"nodo2639317129440"
+
+"nodo2639317129776"->"nodo2639317129392"
+
+"nodo2639317129536"->"nodo2639317129776"
+nodo2639317129296[ label="fin_select"];
+nodo2639317128960[ label=";"];
+
+"nodo2639317129296"->"nodo2639317128960"
+
+"nodo2639317129536"->"nodo2639317129296"
+
+"nodo2639317128624"->"nodo2639317129536"
+
+"nodo2639317122640"->"nodo2639317128624"
+
+"nodo2639317130448"->"nodo2639317122640"
+
+"nodo2639317128576"->"nodo2639317130448"
+
+"nodo2639317135520"->"nodo2639317128576"
+nodo2639317129872[ label="instruccion"];
+nodo2639317130736[ label="dml"];
+nodo2639317135856[ label="sentencia_select"];
+nodo2639317137248[ label="select"];
+
+"nodo2639317135856"->"nodo2639317137248"
+nodo2639317130832[ label="select_cont"];
+nodo2639317130928[ label="lista_id"];
+nodo2639317130640[ label="lista_id"];
+nodo2639317127760[ label="operacion_aritmetica"];
+nodo2639317120000[ label="valor"];
+nodo2639317120240[ label="id1"];
+
+"nodo2639317120000"->"nodo2639317120240"
+
+"nodo2639317127760"->"nodo2639317120000"
+
+"nodo2639317130640"->"nodo2639317127760"
+
+"nodo2639317130928"->"nodo2639317130640"
+nodo2639317135664[ label=","];
+
+"nodo2639317130928"->"nodo2639317135664"
+nodo2639317130976[ label="operacion_aritmetica"];
+nodo2639317127328[ label="valor"];
+nodo2639317131216[ label="id2"];
+
+"nodo2639317127328"->"nodo2639317131216"
+
+"nodo2639317130976"->"nodo2639317127328"
+
+"nodo2639317130928"->"nodo2639317130976"
+
+"nodo2639317130832"->"nodo2639317130928"
+
+"nodo2639317135856"->"nodo2639317130832"
+nodo2639317138736[ label="from"];
+
+"nodo2639317135856"->"nodo2639317138736"
+nodo2639317135568[ label="lista_from"];
+nodo2639317135952[ label="tabla1"];
+
+"nodo2639317135568"->"nodo2639317135952"
+
+"nodo2639317135856"->"nodo2639317135568"
+nodo2639317138256[ label="condicion_cont"];
+nodo2639317137488[ label="where"];
+
+"nodo2639317138256"->"nodo2639317137488"
+nodo2639317137008[ label="operacion_relacional"];
+nodo2639317136048[ label="operacion_relacional"];
+nodo2639317136096[ label="operacion_aritmetica"];
+nodo2639317129920[ label="valor"];
+nodo2639317136336[ label="id1"];
+
+"nodo2639317129920"->"nodo2639317136336"
+
+"nodo2639317136096"->"nodo2639317129920"
+
+"nodo2639317136048"->"nodo2639317136096"
+
+"nodo2639317137008"->"nodo2639317136048"
+nodo2639317137296[ label="="];
+
+"nodo2639317137008"->"nodo2639317137296"
+nodo2639317136624[ label="operacion_relacional"];
+nodo2639317136672[ label="operacion_aritmetica"];
+nodo2639317136432[ label="valor"];
+nodo2639317136912[ label="1"];
+
+"nodo2639317136432"->"nodo2639317136912"
+
+"nodo2639317136672"->"nodo2639317136432"
+
+"nodo2639317136624"->"nodo2639317136672"
+
+"nodo2639317137008"->"nodo2639317136624"
+
+"nodo2639317138256"->"nodo2639317137008"
+nodo2639317138352[ label="fin_select"];
+nodo2639317138064[ label="order_by"];
+nodo2639317138400[ label="order"];
+
+"nodo2639317138064"->"nodo2639317138400"
+nodo2639317138496[ label="by"];
+
+"nodo2639317138064"->"nodo2639317138496"
+nodo2639317138592[ label="id2"];
+
+"nodo2639317138064"->"nodo2639317138592"
+nodo2639317136528[ label="opcion_order"];
+nodo2639317136192[ label="asc"];
+
+"nodo2639317136528"->"nodo2639317136192"
+
+"nodo2639317138064"->"nodo2639317136528"
+nodo2639317137104[ label="order_by"];
+nodo2639317137728[ label="condicion_cont"];
+nodo2639317137632[ label="fin_select"];
+nodo2639317137968[ label=";"];
+
+"nodo2639317137632"->"nodo2639317137968"
+
+"nodo2639317137728"->"nodo2639317137632"
+
+"nodo2639317137104"->"nodo2639317137728"
+
+"nodo2639317138064"->"nodo2639317137104"
+
+"nodo2639317138352"->"nodo2639317138064"
+
+"nodo2639317138256"->"nodo2639317138352"
+
+"nodo2639317135856"->"nodo2639317138256"
+
+"nodo2639317130736"->"nodo2639317135856"
+
+"nodo2639317129872"->"nodo2639317130736"
+
+"nodo2639317135520"->"nodo2639317129872"
+
+"nodo2639317138976"->"nodo2639317135520"
+nodo2639317138208[ label="instruccion"];
+nodo2639317131120[ label="dml"];
+nodo2639317139024[ label="sentencia_select"];
+nodo2639317148912[ label="select"];
+
+"nodo2639317139024"->"nodo2639317148912"
+nodo2639317130544[ label="select_cont"];
+nodo2639317130208[ label="*"];
+
+"nodo2639317130544"->"nodo2639317130208"
+
+"nodo2639317139024"->"nodo2639317130544"
+nodo2639317150304[ label="from"];
+
+"nodo2639317139024"->"nodo2639317150304"
+nodo2639317135808[ label="lista_from"];
+nodo2639317139120[ label="t1"];
+
+"nodo2639317135808"->"nodo2639317139120"
+
+"nodo2639317139024"->"nodo2639317135808"
+nodo2639317149440[ label="condicion_cont"];
+nodo2639317150352[ label="where"];
+
+"nodo2639317149440"->"nodo2639317150352"
+nodo2639317149872[ label="operacion_logica"];
+nodo2639317139360[ label="operacion_logica"];
+nodo2639317148432[ label="operacion_relacional"];
+nodo2639317139216[ label="operacion_relacional"];
+nodo2639317139264[ label="operacion_aritmetica"];
+nodo2639317138880[ label="valor"];
+nodo2639317147760[ label="d1"];
+
+"nodo2639317138880"->"nodo2639317147760"
+
+"nodo2639317139264"->"nodo2639317138880"
+
+"nodo2639317139216"->"nodo2639317139264"
+
+"nodo2639317148432"->"nodo2639317139216"
+nodo2639317148720[ label="="];
+
+"nodo2639317148432"->"nodo2639317148720"
+nodo2639317148048[ label="operacion_relacional"];
+nodo2639317148096[ label="operacion_aritmetica"];
+nodo2639317147856[ label="valor"];
+nodo2639317148336[ label="d2"];
+
+"nodo2639317147856"->"nodo2639317148336"
+
+"nodo2639317148096"->"nodo2639317147856"
+
+"nodo2639317148048"->"nodo2639317148096"
+
+"nodo2639317148432"->"nodo2639317148048"
+
+"nodo2639317139360"->"nodo2639317148432"
+
+"nodo2639317149872"->"nodo2639317139360"
+nodo2639317149776[ label="and"];
+
+"nodo2639317149872"->"nodo2639317149776"
+nodo2639317149200[ label="operacion_logica"];
+nodo2639317149680[ label="operacion_relacional"];
+nodo2639317147952[ label="operacion_relacional"];
+nodo2639317148000[ label="operacion_aritmetica"];
+nodo2639317148624[ label="valor"];
+nodo2639317149008[ label="d3"];
+
+"nodo2639317148624"->"nodo2639317149008"
+
+"nodo2639317148000"->"nodo2639317148624"
+
+"nodo2639317147952"->"nodo2639317148000"
+
+"nodo2639317149680"->"nodo2639317147952"
+nodo2639317149968[ label="="];
+
+"nodo2639317149680"->"nodo2639317149968"
+nodo2639317149296[ label="operacion_relacional"];
+nodo2639317149344[ label="operacion_aritmetica"];
+nodo2639317149104[ label="valor"];
+nodo2639317149584[ label="1"];
+
+"nodo2639317149104"->"nodo2639317149584"
+
+"nodo2639317149344"->"nodo2639317149104"
+
+"nodo2639317149296"->"nodo2639317149344"
+
+"nodo2639317149680"->"nodo2639317149296"
+
+"nodo2639317149200"->"nodo2639317149680"
+
+"nodo2639317149872"->"nodo2639317149200"
+
+"nodo2639317149440"->"nodo2639317149872"
+nodo2639317148816[ label="fin_select"];
+nodo2639317148192[ label=";"];
+
+"nodo2639317148816"->"nodo2639317148192"
+
+"nodo2639317149440"->"nodo2639317148816"
+
+"nodo2639317139024"->"nodo2639317149440"
+
+"nodo2639317131120"->"nodo2639317139024"
+
+"nodo2639317138208"->"nodo2639317131120"
+
+"nodo2639317138976"->"nodo2639317138208"
+
+"nodo2639317151024"->"nodo2639317138976"
+nodo2639317150064[ label="instruccion"];
+nodo2639317150736[ label="dml"];
+nodo2639317151696[ label="sentencia_select"];
+nodo2639317160720[ label="select"];
+
+"nodo2639317151696"->"nodo2639317160720"
+nodo2639317138832[ label="select_cont"];
+nodo2639317150640[ label="lista_id"];
+nodo2639317150496[ label="operacion_aritmetica"];
+nodo2639317137392[ label="valor"];
+nodo2639317137152[ label="d1"];
+
+"nodo2639317137392"->"nodo2639317137152"
+
+"nodo2639317150496"->"nodo2639317137392"
+
+"nodo2639317150640"->"nodo2639317150496"
+
+"nodo2639317138832"->"nodo2639317150640"
+
+"nodo2639317151696"->"nodo2639317138832"
+nodo2639317160816[ label="from"];
+
+"nodo2639317151696"->"nodo2639317160816"
+nodo2639317151072[ label="lista_from"];
+nodo2639317151168[ label="hacer_join"];
+nodo2639317151264[ label="tabla"];
+
+"nodo2639317151168"->"nodo2639317151264"
+nodo2639317150832[ label="tipo_join"];
+nodo2639317151408[ label="left"];
+
+"nodo2639317150832"->"nodo2639317151408"
+nodo2639317151504[ label="join"];
+
+"nodo2639317150832"->"nodo2639317151504"
+
+"nodo2639317151168"->"nodo2639317150832"
+nodo2639317160144[ label="tabla2"];
+
+"nodo2639317151168"->"nodo2639317160144"
+
+"nodo2639317151072"->"nodo2639317151168"
+
+"nodo2639317151696"->"nodo2639317151072"
+nodo2639317160000[ label="condicion_cont"];
+nodo2639317151600[ label="fin_select"];
+nodo2639317160336[ label=";"];
+
+"nodo2639317151600"->"nodo2639317160336"
+
+"nodo2639317160000"->"nodo2639317151600"
+
+"nodo2639317151696"->"nodo2639317160000"
+
+"nodo2639317150736"->"nodo2639317151696"
+
+"nodo2639317150064"->"nodo2639317150736"
+
+"nodo2639317151024"->"nodo2639317150064"
+
+"nodo2639317161056"->"nodo2639317151024"
+nodo2639317163072[ label="instruccion"];
+nodo2639317150976[ label="dml"];
+nodo2639317161632[ label="sentencia_select"];
+nodo2639317163600[ label="select"];
+
+"nodo2639317161632"->"nodo2639317163600"
+nodo2639317137440[ label="select_cont"];
+nodo2639317150208[ label="*"];
+
+"nodo2639317137440"->"nodo2639317150208"
+
+"nodo2639317161632"->"nodo2639317137440"
+nodo2639317163696[ label="from"];
+
+"nodo2639317161632"->"nodo2639317163696"
+nodo2639317150928[ label="lista_from"];
+nodo2639317162832[ label="hacer_join"];
+nodo2639317162784[ label="tabla"];
+
+"nodo2639317162832"->"nodo2639317162784"
+nodo2639317160240[ label="tipo_join"];
+nodo2639317161392[ label="left"];
+
+"nodo2639317160240"->"nodo2639317161392"
+nodo2639317161488[ label="join"];
+
+"nodo2639317160240"->"nodo2639317161488"
+
+"nodo2639317162832"->"nodo2639317160240"
+nodo2639317163168[ label="tabla2"];
+
+"nodo2639317162832"->"nodo2639317163168"
+nodo2639317163264[ label="on"];
+
+"nodo2639317162832"->"nodo2639317163264"
+nodo2639317162160[ label="operacion_logica"];
+nodo2639317162640[ label="operacion_relacional"];
+nodo2639317161584[ label="operacion_relacional"];
+nodo2639317161824[ label="operacion_aritmetica"];
+nodo2639317161152[ label="valor"];
+nodo2639317161248[ label="td1"];
+
+"nodo2639317161152"->"nodo2639317161248"
+
+"nodo2639317161824"->"nodo2639317161152"
+
+"nodo2639317161584"->"nodo2639317161824"
+
+"nodo2639317162640"->"nodo2639317161584"
+nodo2639317162928[ label="="];
+
+"nodo2639317162640"->"nodo2639317162928"
+nodo2639317162256[ label="operacion_relacional"];
+nodo2639317162304[ label="operacion_aritmetica"];
+nodo2639317162064[ label="valor"];
+nodo2639317162544[ label="td2"];
+
+"nodo2639317162064"->"nodo2639317162544"
+
+"nodo2639317162304"->"nodo2639317162064"
+
+"nodo2639317162256"->"nodo2639317162304"
+
+"nodo2639317162640"->"nodo2639317162256"
+
+"nodo2639317162160"->"nodo2639317162640"
+
+"nodo2639317162832"->"nodo2639317162160"
+
+"nodo2639317150928"->"nodo2639317162832"
+
+"nodo2639317161632"->"nodo2639317150928"
+nodo2639317162400[ label="condicion_cont"];
+nodo2639317161920[ label="fin_select"];
+nodo2639317161680[ label=";"];
+
+"nodo2639317161920"->"nodo2639317161680"
+
+"nodo2639317162400"->"nodo2639317161920"
+
+"nodo2639317161632"->"nodo2639317162400"
+
+"nodo2639317150976"->"nodo2639317161632"
+
+"nodo2639317163072"->"nodo2639317150976"
+
+"nodo2639317161056"->"nodo2639317163072"
+
+"nodo2639317161008"->"nodo2639317161056"
+nodo2639317160624[ label="instruccion"];
+nodo2639317163888[ label="dml"];
+nodo2639317172816[ label="sentencia_select"];
+nodo2639317173584[ label="select"];
+
+"nodo2639317172816"->"nodo2639317173584"
+nodo2639317151360[ label="select_cont"];
+nodo2639317160528[ label="*"];
+
+"nodo2639317151360"->"nodo2639317160528"
+
+"nodo2639317172816"->"nodo2639317151360"
+nodo2639317173680[ label="from"];
+
+"nodo2639317172816"->"nodo2639317173680"
+nodo2639317163936[ label="lista_from"];
+nodo2639317172288[ label="hacer_join"];
+nodo2639317172384[ label="tabla"];
+
+"nodo2639317172288"->"nodo2639317172384"
+nodo2639317163360[ label="tipo_join"];
+nodo2639317172528[ label="left"];
+
+"nodo2639317163360"->"nodo2639317172528"
+nodo2639317172624[ label="join"];
+
+"nodo2639317163360"->"nodo2639317172624"
+
+"nodo2639317172288"->"nodo2639317163360"
+nodo2639317173008[ label="tabla2"];
+
+"nodo2639317172288"->"nodo2639317173008"
+
+"nodo2639317163936"->"nodo2639317172288"
+
+"nodo2639317172816"->"nodo2639317163936"
+nodo2639317172864[ label="condicion_cont"];
+nodo2639317172720[ label="fin_select"];
+nodo2639317173200[ label=";"];
+
+"nodo2639317172720"->"nodo2639317173200"
+
+"nodo2639317172864"->"nodo2639317172720"
+
+"nodo2639317172816"->"nodo2639317172864"
+
+"nodo2639317163888"->"nodo2639317172816"
+
+"nodo2639317160624"->"nodo2639317163888"
+
+"nodo2639317161008"->"nodo2639317160624"
+
+"nodo2639317175264"->"nodo2639317161008"
+nodo2639317173296[ label="instruccion"];
+nodo2639317161776[ label="dml"];
+nodo2639317175312[ label="sentencia_select"];
+nodo2639317181248[ label="select"];
+
+"nodo2639317175312"->"nodo2639317181248"
+nodo2639317160912[ label="select_cont"];
+nodo2639317161104[ label="*"];
+
+"nodo2639317160912"->"nodo2639317161104"
+
+"nodo2639317175312"->"nodo2639317160912"
+nodo2639317181536[ label="from"];
+
+"nodo2639317175312"->"nodo2639317181536"
+nodo2639317163792[ label="lista_from"];
+nodo2639317175696[ label="hacer_join"];
+nodo2639317175648[ label="tabla"];
+
+"nodo2639317175696"->"nodo2639317175648"
+nodo2639317173104[ label="tipo_join"];
+nodo2639317174256[ label="left"];
+
+"nodo2639317173104"->"nodo2639317174256"
+nodo2639317174352[ label="join"];
+
+"nodo2639317173104"->"nodo2639317174352"
+
+"nodo2639317175696"->"nodo2639317173104"
+nodo2639317176032[ label="tabla2"];
+
+"nodo2639317175696"->"nodo2639317176032"
+nodo2639317176128[ label="on"];
+
+"nodo2639317175696"->"nodo2639317176128"
+nodo2639317175024[ label="operacion_logica"];
+nodo2639317175504[ label="operacion_relacional"];
+nodo2639317174448[ label="operacion_relacional"];
+nodo2639317174688[ label="operacion_aritmetica"];
+nodo2639317174016[ label="valor"];
+nodo2639317174112[ label="td1"];
+
+"nodo2639317174016"->"nodo2639317174112"
+
+"nodo2639317174688"->"nodo2639317174016"
+
+"nodo2639317174448"->"nodo2639317174688"
+
+"nodo2639317175504"->"nodo2639317174448"
+nodo2639317175792[ label="="];
+
+"nodo2639317175504"->"nodo2639317175792"
+nodo2639317175120[ label="operacion_relacional"];
+nodo2639317175168[ label="operacion_aritmetica"];
+nodo2639317174928[ label="valor"];
+nodo2639317175408[ label="td2"];
+
+"nodo2639317174928"->"nodo2639317175408"
+
+"nodo2639317175168"->"nodo2639317174928"
+
+"nodo2639317175120"->"nodo2639317175168"
+
+"nodo2639317175504"->"nodo2639317175120"
+
+"nodo2639317175024"->"nodo2639317175504"
+
+"nodo2639317175696"->"nodo2639317175024"
+
+"nodo2639317163792"->"nodo2639317175696"
+
+"nodo2639317175312"->"nodo2639317163792"
+nodo2639317180768[ label="condicion_cont"];
+nodo2639317181584[ label="where"];
+
+"nodo2639317180768"->"nodo2639317181584"
+nodo2639317181008[ label="operacion_relacional"];
+nodo2639317173920[ label="operacion_relacional"];
+nodo2639317173968[ label="operacion_aritmetica"];
+nodo2639317174784[ label="valor"];
+nodo2639317174640[ label="d1"];
+
+"nodo2639317174784"->"nodo2639317174640"
+
+"nodo2639317173968"->"nodo2639317174784"
+
+"nodo2639317173920"->"nodo2639317173968"
+
+"nodo2639317181008"->"nodo2639317173920"
+nodo2639317181296[ label="="];
+
+"nodo2639317181008"->"nodo2639317181296"
+nodo2639317180624[ label="operacion_relacional"];
+nodo2639317180672[ label="operacion_aritmetica"];
+nodo2639317175936[ label="valor"];
+nodo2639317180912[ label="2"];
+
+"nodo2639317175936"->"nodo2639317180912"
+
+"nodo2639317180672"->"nodo2639317175936"
+
+"nodo2639317180624"->"nodo2639317180672"
+
+"nodo2639317181008"->"nodo2639317180624"
+
+"nodo2639317180768"->"nodo2639317181008"
+nodo2639317174496[ label="fin_select"];
+nodo2639317180528[ label=";"];
+
+"nodo2639317174496"->"nodo2639317180528"
+
+"nodo2639317180768"->"nodo2639317174496"
+
+"nodo2639317175312"->"nodo2639317180768"
+
+"nodo2639317161776"->"nodo2639317175312"
+
+"nodo2639317173296"->"nodo2639317161776"
+
+"nodo2639317175264"->"nodo2639317173296"
+
+"nodo2639317183360"->"nodo2639317175264"
+nodo2639317181104[ label="instruccion"];
+nodo2639317173776[ label="dml"];
+nodo2639317183408[ label="sentencia_select"];
+nodo2639317193440[ label="select"];
+
+"nodo2639317183408"->"nodo2639317193440"
+nodo2639317173392[ label="select_cont"];
+nodo2639317172480[ label="*"];
+
+"nodo2639317173392"->"nodo2639317172480"
+
+"nodo2639317183408"->"nodo2639317173392"
+nodo2639317194928[ label="from"];
+
+"nodo2639317183408"->"nodo2639317194928"
+nodo2639317173488[ label="lista_from"];
+nodo2639317183792[ label="hacer_join"];
+nodo2639317183744[ label="tabla"];
+
+"nodo2639317183792"->"nodo2639317183744"
+nodo2639317181728[ label="tipo_join"];
+nodo2639317182352[ label="left"];
+
+"nodo2639317181728"->"nodo2639317182352"
+nodo2639317182448[ label="join"];
+
+"nodo2639317181728"->"nodo2639317182448"
+
+"nodo2639317183792"->"nodo2639317181728"
+nodo2639317184128[ label="tabla2"];
+
+"nodo2639317183792"->"nodo2639317184128"
+nodo2639317184224[ label="on"];
+
+"nodo2639317183792"->"nodo2639317184224"
+nodo2639317183120[ label="operacion_logica"];
+nodo2639317183600[ label="operacion_relacional"];
+nodo2639317182544[ label="operacion_relacional"];
+nodo2639317182784[ label="operacion_aritmetica"];
+nodo2639317182112[ label="valor"];
+nodo2639317182208[ label="td1"];
+
+"nodo2639317182112"->"nodo2639317182208"
+
+"nodo2639317182784"->"nodo2639317182112"
+
+"nodo2639317182544"->"nodo2639317182784"
+
+"nodo2639317183600"->"nodo2639317182544"
+nodo2639317183888[ label="="];
+
+"nodo2639317183600"->"nodo2639317183888"
+nodo2639317183216[ label="operacion_relacional"];
+nodo2639317183264[ label="operacion_aritmetica"];
+nodo2639317183024[ label="valor"];
+nodo2639317183504[ label="td2"];
+
+"nodo2639317183024"->"nodo2639317183504"
+
+"nodo2639317183264"->"nodo2639317183024"
+
+"nodo2639317183216"->"nodo2639317183264"
+
+"nodo2639317183600"->"nodo2639317183216"
+
+"nodo2639317183120"->"nodo2639317183600"
+
+"nodo2639317183792"->"nodo2639317183120"
+
+"nodo2639317173488"->"nodo2639317183792"
+
+"nodo2639317183408"->"nodo2639317173488"
+nodo2639317194448[ label="condicion_cont"];
+nodo2639317193680[ label="where"];
+
+"nodo2639317194448"->"nodo2639317193680"
+nodo2639317193200[ label="operacion_relacional"];
+nodo2639317182016[ label="operacion_relacional"];
+nodo2639317182064[ label="operacion_aritmetica"];
+nodo2639317182880[ label="valor"];
+nodo2639317182736[ label="d1"];
+
+"nodo2639317182880"->"nodo2639317182736"
+
+"nodo2639317182064"->"nodo2639317182880"
+
+"nodo2639317182016"->"nodo2639317182064"
+
+"nodo2639317193200"->"nodo2639317182016"
+nodo2639317193488[ label="="];
+
+"nodo2639317193200"->"nodo2639317193488"
+nodo2639317192816[ label="operacion_relacional"];
+nodo2639317192864[ label="operacion_aritmetica"];
+nodo2639317184032[ label="valor"];
+nodo2639317193104[ label="2"];
+
+"nodo2639317184032"->"nodo2639317193104"
+
+"nodo2639317192864"->"nodo2639317184032"
+
+"nodo2639317192816"->"nodo2639317192864"
+
+"nodo2639317193200"->"nodo2639317192816"
+
+"nodo2639317194448"->"nodo2639317193200"
+nodo2639317194544[ label="fin_select"];
+nodo2639317194256[ label="order_by"];
+nodo2639317194592[ label="order"];
+
+"nodo2639317194256"->"nodo2639317194592"
+nodo2639317194688[ label="by"];
+
+"nodo2639317194256"->"nodo2639317194688"
+nodo2639317194784[ label="d3"];
+
+"nodo2639317194256"->"nodo2639317194784"
+nodo2639317184464[ label="opcion_order"];
+nodo2639317182640[ label="asc"];
+
+"nodo2639317184464"->"nodo2639317182640"
+
+"nodo2639317194256"->"nodo2639317184464"
+nodo2639317194064[ label="order_by"];
+nodo2639317193920[ label="condicion_cont"];
+nodo2639317193824[ label="fin_select"];
+nodo2639317194160[ label=";"];
+
+"nodo2639317193824"->"nodo2639317194160"
+
+"nodo2639317193920"->"nodo2639317193824"
+
+"nodo2639317194064"->"nodo2639317193920"
+
+"nodo2639317194256"->"nodo2639317194064"
+
+"nodo2639317194544"->"nodo2639317194256"
+
+"nodo2639317194448"->"nodo2639317194544"
+
+"nodo2639317183408"->"nodo2639317194448"
+
+"nodo2639317173776"->"nodo2639317183408"
+
+"nodo2639317181104"->"nodo2639317173776"
+
+"nodo2639317183360"->"nodo2639317181104"
+
+"nodo2639317176224"->"nodo2639317183360"
+}
