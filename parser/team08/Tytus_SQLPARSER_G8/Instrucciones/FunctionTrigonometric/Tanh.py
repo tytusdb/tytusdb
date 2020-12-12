@@ -13,6 +13,8 @@ class Tanh(Instruccion):
         print(math.tanh(self.valor))
         return math.tanh(self.valor)
 
+'''
 instruccion = Tanh(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

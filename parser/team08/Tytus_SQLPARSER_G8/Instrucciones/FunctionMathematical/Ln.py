@@ -13,6 +13,9 @@ class Ln(Instruccion):
         print(math.log2(self.valor))
         return math.log2(self.valor)
 
+
+'''
 instruccion = Ln(0.25,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

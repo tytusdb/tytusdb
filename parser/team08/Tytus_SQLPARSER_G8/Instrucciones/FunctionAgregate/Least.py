@@ -1,4 +1,4 @@
-from InstrInstrucciones.TablaSimbolos.Instruccionuccion import Instruccion
+from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 
 class Least(Instruccion):
     def __init__(self, valor, tipo, linea, columna):
@@ -8,7 +8,8 @@ class Least(Instruccion):
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
         print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-
+'''
 instruccion = Least("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
