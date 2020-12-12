@@ -6,6 +6,7 @@ from columna import *
 lexer = lex.lex()
 type_checker = TypeChecker()
 
+
 # Asociación de operadores y precedencia
 precedence = (
     ('left','CONCAT'),
@@ -71,7 +72,7 @@ def p_instruccion_crear_BD_Parametros(t) :
     'crear_bd     : ID lista_parametros_bd PTCOMA'
     print('Creacion de BD parametros')
     if 'mode' in t[2]:
-        print(type_checker.createDatabase(database = t[1], mode = t[2]['mode']))
+        print(type_checker.createDatabase(database = t[1], mode = t[2]['params']['mode']))
     else:
         print(type_checker.createDatabase(database = t[1]))
 
@@ -84,7 +85,7 @@ def p_instruccion_crear_BD_if_exists_Parametros(t) :
     'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
     print('Creacion de BD parametros if not exist')
     if 'mode' in t[5]:
-        print(type_checker.createDatabase(database = t[4], mode = t[5]['mode']))
+        print(type_checker.createDatabase(database = t[4], mode = t[5]['params']['mode']))
     else:
         print(type_checker.createDatabase(database = t[4]))
 
@@ -306,7 +307,7 @@ def p_instrucciones_parametros_BD(t) :
                             | parametros_bd parametros_bd'''
     if len(t) == 3:
         t[1].update(t[2])
-    t[0] = t[1]
+    t[0] = {'params': t[1]}
 
 def p_parametros_BD_owner(t) :
     '''parametros_bd    : OWNER IGUAL ID
@@ -414,8 +415,7 @@ def p_instrucciones_columna_parametros(t) :
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
-    col = Columna()
-    #t[0] = Nueva_Columna(t[1], t[2])
+    t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
 
 def p_instrucciones_columna_pk(t) :
     'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
@@ -598,7 +598,7 @@ def p_def_alter(t) :
                     | DROP CONSTRAINT ID
                     | RENAME COLUMN ID TO ID'''
 
-def p_tipos(t) :
+def p_tipos_1(t) :
     '''tipos        : SMALLINT
                     | INTEGER
                     | BIGINT
@@ -607,35 +607,77 @@ def p_tipos(t) :
                     | REAL
                     | DOUBLE PRECISION
                     | MONEY
-                    | CHARACTER VARYING PARIZQ ENTERO PARDER
-                    | VARCHAR PARIZQ ENTERO PARDER
-                    | CHARACTER PARIZQ ENTERO PARDER
-                    | CHAR PARIZQ ENTERO PARDER
                     | TEXT
-                    | TIMESTAMP def_dt_types
                     | TIMESTAMP
                     | DATE
-                    | TIME def_dt_types
                     | TIME
-                    | INTERVAL def_interval
-                    | BOOLEAN'''
-    
+                    | BOOLEAN
+                    | INTERVAL'''
+    if len(t) == 2:
+        t[0] = {'tipo': TipoColumna[t[1].upper()]}
+    else:
+        t[0] = {'tipo': TipoColumna['DOUBLE_PRECISION']}
 
-def p_def_dt_types(t) :
-    '''def_dt_types : CADENA WITHOUT TIME ZONE
-                    | CADENA WITH TIME ZONE
-                    | WITHOUT TIME ZONE
-                    | WITH TIME ZONE
-                    | CADENA'''
+def p_tipos_2(t) :
+    '''tipos        : CHARACTER VARYING PARIZQ ENTERO PARDER'''
+    t[0] = {'tipo': TipoColumna['CHARACTER_VARYING'], 'n': t[4]}
 
-def p_def_interval(t) :
-    '''def_interval : def_fld_to CADENA
-                    | def_fld_to
-                    | CADENA'''
+def p_tipos_3(t) :
+    '''tipos        : VARCHAR PARIZQ ENTERO PARDER
+                    | CHARACTER PARIZQ ENTERO PARDER
+                    | CHAR PARIZQ ENTERO PARDER'''
+    t[0] = {'tipo': TipoColumna[t[1].upper()], 'n': t[3]}
+
+def p_tipos_4(t) :
+    '''tipos        : TIMESTAMP def_dt_types
+                    | TIME def_dt_types'''
+    sufix = t[2]['w'] if 'w' in t[2] else ''
+    t[0] = {'tipo': TipoColumna[t[1].upper() + sufix]}
+    if 'p' in t[2]:
+        t[0]['p'] = t[2]['p'] 
+
+def p_tipos_5(t) :
+    '''tipos        : INTERVAL def_interval'''
+    t[0] = {'tipo': TipoColumna[t[1].upper()]}
+    t[0].update(t[2])
+
+def p_def_dt_types_1(t) :
+    '''def_dt_types : PARIZQ ENTERO PARDER WITHOUT TIME ZONE
+                    | PARIZQ ENTERO PARDER WITH TIME ZONE
+                    | PARIZQ ENTERO PARDER'''
+    t[0] = {'p': t[2]}  
+    if len(t) > 4:
+        if t[4].lower() == 'without':
+            t[0]['w'] = '_WO' 
+        else:
+            t[0]['w'] = '_W' 
+                    
+def p_def_dt_types_2(t) :
+    '''def_dt_types : WITHOUT TIME ZONE
+                    | WITH TIME ZONE'''
+    if t[1].lower() == 'without':
+        t[0] = {'w': '_WO'} 
+    else:
+        t[0] = {'w': '_W'} 
+
+def p_def_interval_1(t) :
+    '''def_interval : def_fld_to PARIZQ ENTERO PARDER
+                    | def_fld_to'''
+    t[0] = {'field': t[1]}
+    if len(t) == 5:
+        t[0]['p'] = t[3]
+
+def p_def_interval_2(t) :
+    '''def_interval : PARIZQ ENTERO PARDER'''
+    t[0] = {'p': t[2]}
 
 def p_def_fld_to(t) :
     '''def_fld_to   : def_fields TO def_fields
                     | def_fields'''
+    t[0] = t[1]
+    if len(t) > 2:
+        t[0]['destino'] = t[3]['origen']
+
 
 def p_def_fields(t) :
     '''def_fields   : YEAR
@@ -644,6 +686,7 @@ def p_def_fields(t) :
                     | HOUR
                     | MINUTE
                     | SECOND'''
+    t[0] = {'origen': TipoFields[t[1].upper()]}
 
 def p_relacional(t) :
     '''relacional   : aritmetica MENOR aritmetica

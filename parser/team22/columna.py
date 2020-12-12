@@ -15,12 +15,14 @@ class TipoColumna(Enum):
     CHAR = 12
     TEXT = 13
     TIMESTAMP_WO = 14
-    TIMESTAMP = 15
-    DATE = 16
-    TIME_WO = 17
-    TIME = 18
-    INTERVAL = 17
-    BOOLEAN = 18
+    TIMESTAMP_W = 15
+    TIMESTAMP = 16
+    DATE = 17
+    TIME_WO = 18
+    TIME_W = 19
+    TIME = 20
+    INTERVAL = 21
+    BOOLEAN = 22
 
 class TipoFields(Enum):
     YEAR = 1
@@ -42,8 +44,8 @@ class TipoNull(Enum):
 
 class Columna():
     'Esta clase representa las columnas de las tablas'
-    def __init__(self, tipo: {}, default, references: str, constraints: [str], is_null = TipoNull.NULL, is_primary = 0, is_unique = 0):
-        # tipo = {'tipo': TipoColumna, 'n': int, 'p': string, 'field': TipoFields}
+    def __init__(self, tipo: {}, default = '', references: str = '', constraints: [str] = [], is_null = TipoNull.NULL, is_primary = 0, is_unique = 0):
+        # tipo = {'tipo': TipoColumna, 'n': int, 'p': int, 'field': {'origen': TipoFields, 'destino': TipoFields}}
         self.tipo = tipo
         self.default = default
         self.is_null = is_null
@@ -54,6 +56,15 @@ class Columna():
         self.is_unique = is_unique
         # constraints = ['nombre_constraint',...]
         self.constraints = constraints
+    
+    def printCol(self):
+        print('Tipo: ', self.tipo)
+        print('Default: ', self.default)
+        print('Null: ', self.is_null)
+        print('Primary: ', self.is_primary)
+        print('References: ', self.references)
+        print('Unique: ', self.is_unique)
+        print('Constraints: ', self.constraints, '\n')
 
 class Constraint():
     'Esta clase representa los constraint de las columnas'

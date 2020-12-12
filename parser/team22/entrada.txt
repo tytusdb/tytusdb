@@ -1,4 +1,38 @@
+CREATE TABLE Tobleta(
+    columna1 smallint,
+    columna2 INTEGER,
+    columna3 bigint,
+    columna4 decimal,
+    columna5 numeric,
+    columna6 real,
+    columna7 double precision,
+    columna8 money,
+    columna9 character varying(10),
+    columna10 varchar(15),
+    columna11 character(55),
+    columna12 char(10),
+    columna13 text,
+    columna14 timestamp  (5) ,
+    columna22 timestamp  (5)  without time zone,
+    columna14 timestamp,
+    columna22 timestamp  without time zone,
+    columna15 timestamp (10)  with time zone,
+    columna15 timestamp with time zone,
+    columna16 date,
+    columna14 time  (5) ,
+    columna22 time  (5)  without time zone,
+    columna14 time,
+    columna22 time  without time zone,
+    columna15 time (10)  with time zone,
+    columna15 time with time zone,
+    columna17 interval,
+    columna18 interval YEAR,
+    columna18 interval MONTH TO DAY,
+    columna19 interval HOUR (52),
+    columna20 interval MINUTE TO SECOND (10)
+);
 
+/*
 create database compi MODE = 4;
 create database modela MODE = 4;
 create database base2 MODE = 4;
@@ -8,7 +42,7 @@ ALTER DATABASE compi RENAME TO new_name;
 DROP DATABASE IF EXISTS  new_name;
 DROP DATABASE new_name;
 SHOW DATABASES;
-use una_bd;
+use una_bd;*/
 
 -- comentario
 /* comentario
@@ -36,7 +70,7 @@ UPDATE products SET price = 10 ;
 CREATE TABLE Tobleta(
     columna1 VARCHAR(2),
     columna2 INTEGER NOT NULL
-) INHERITS (papa);
+) 
 
 CREATE TABLE Tabla2(
     columna1 INTEGER NOT NULL PRIMARY KEY,
@@ -112,5 +146,6 @@ having abs(id) > 10
 order by codigo asc, nombre asc, id desc, tipo;
 */
 
-select greatest(1,2,3,4,5);
+/*select greatest(1,2,3,4,5);
 select least('a','b','c','aa');
+*/
