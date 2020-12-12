@@ -35,7 +35,8 @@ MANIFEST
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
-
+dot.txt
+error.html
 # Unit test / coverage reports
 htmlcov/
 .tox/
@@ -138,16 +139,8 @@ dmypy.json
 cython_debug/
 
 
-# Custom
+# Analizadores
 parser.out
 parsetab.py
-
-*.dot
 ast.pdf
-dot.txt
-error.html
-typeChecker.png
-
-storageManager/
-test/
-data/
+error.pdf
