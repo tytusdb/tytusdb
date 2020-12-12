@@ -321,14 +321,6 @@ def t_TKDECIMAL(t):
         t.value = 0
     return t
 
-def t_ENTERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
-    return t
 
 def t_CADENA(t):
     r'\'.*?\''
@@ -419,6 +411,9 @@ def p_ddl(t):
              | insert
              | update
              | deletetable
+             | create_db
+             | drop_table
+             | alter_table
     '''
     t[0] = t[1]
 
@@ -574,9 +569,13 @@ def p_especificaciones(t):
                          | NOT NULL
                          | NULL
                          | PRIMARY KEY
+                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES listaids
                          | REFERENCES ID
                          | CONSTRAINT ID
+                         | SET
                          | CHECK PARIZQ exp PARDER
+                         | TYPE tipo
+                         | UNIQUE PARIZQ listaids PARDER
     '''
     t[0] = t[1]
 
@@ -700,7 +699,51 @@ def p_listaatributos(t):
     else:
         t[0] = [t[1]]
 
-# ---------------ERROR SINTACTICO---------------
+# ---------------CREATE DATABASE---------------
+def p_create_db(t):
+    '''
+        create_db : CREATE DATABASE IF NOT EXISTS ID
+                  | CREATE DATABASE ID
+    '''
+    # t[0] = interprete
+
+# ---------------DROP TABLE---------------
+def p_drop_table(t):
+    '''
+        drop_table : DROP TABLE IF EXISTS ID
+                   | DROP TABLE ID
+    '''
+    # t[0] = interprete
+
+# ---------------ALTER TABLE---------------
+def p_alter_table(t):
+    '''
+        alter_table : ALTER TABLE ID ADD listaespecificaciones
+                    | ALTER TABLE ID ADD COLUMN ID tipo
+                    | ALTER TABLE ID DROP COLUMN ID
+                    | ALTER TABLE ID DROP listaespecificaciones
+                    | ALTER TABLE ID listacolumn
+    '''
+    # t[0] = interprete
+
+def p_listacolumn(t):
+    '''
+        listacolumn : listacolumn COMA column
+                    | column
+    '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
+def p_column(t):
+    '''
+        column : ALTER COLUMN ID listaespecificaciones
+    '''
+    # t[0] = interprete
+
+#---------------ERROR SINTACTICO---------------
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
