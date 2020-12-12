@@ -22,7 +22,8 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'acosh':'ACOSH', 'atanh':'ATANH', 'length':'length', 'substring':'substring', 'trim':'trim', 'leading':'leading','trailing':'trailing','both':'both',
                'sha256':'sha256', 'decode':'decode', 'get_byte':'get_byte', 'bytea':'bytea', 'set_byte':'set_byte', 'substr':'substr', 'convert':'CONVERT',
                'encode':'encode', 'width_bucket':'width_bucket', 'current_user':'CURRENT_USER', 'session_user':'SESSION_USER',
-               'natural':'NATURAL', 'join':'JOIN', 'inner':'INNER', 'left':'LEFT', 'right':'RIGHT', 'full':'FULL', 'outer':'OUTER', 'using':'USING', 'on':'ON'
+               'natural':'NATURAL', 'join':'JOIN', 'inner':'INNER', 'left':'LEFT', 'right':'RIGHT', 'full':'FULL', 'outer':'OUTER', 'using':'USING', 'on':'ON',
+               'in':'IN','any':'ANY', 'all':'ALL','some':'SOME'
              }
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
@@ -247,6 +248,7 @@ def p_seleccionar(t):
      '''seleccionar : SELECT cantidad_select parametros_select cuerpo_select 
                     | SELECT funcion_math alias_name
                     | SELECT funcion_date'''
+                    
 
 def p_cantidad_select(t):
      '''cantidad_select : DISTINCT
@@ -260,11 +262,25 @@ def p_lista_select(t):
                       | value_select'''
 
 def p_value_select(t):
-     '''value_select : ID PUNTO ID alias_name
+     '''value_select : columna_name alias_name
                      | ID PUNTO ASTERISCO alias_name
-                     | ID  alias_name
                      | funcion_math alias_name
                      | PAR_A seleccionar PAR_C alias_name'''
+
+def p_columna_name(t):
+     '''columna_name : ID
+                    | ID PUNTO ID'''
+
+def p_list_colum(t):
+     '''list_colum : list_colum COMA columna_name
+                    | columna_name'''
+
+
+def p_sub_query(t):
+     '''sub_query : EXISTS
+                  | exp
+                  | exp NOT IN
+                  | exp IN'''
 
 def p_cuerpo_select(t):
      '''cuerpo_select : bloque_from bloque_join bloque_where bloque_group bloque_having bloque_order'''
@@ -293,7 +309,7 @@ def p_bloque_join(t):
 def p_lista_joins(t):
      '''lista_joins : NATURAL tipo_joins tabla_name ID
                     | tipo_joins JOIN tabla_name ON condicion_boleana
-                    | tipo_joins JOIN tabla_name USING PAR_A lista_select PAR_C'''
+                    | tipo_joins JOIN tabla_name USING PAR_A list_colum PAR_C'''
 
 def p_tipo_joins(t):
      '''tipo_joins : INNER 
@@ -306,11 +322,15 @@ def p_value_join(t):
                    | FULL'''
 
 def p_bloque_where(t):
-     '''bloque_where : WHERE condicion_boleana
-                     | empty'''
+     '''bloque_where : WHERE cuerpo_where 
+                    | empty'''
+
+def p_cuerpo_where(t):
+     '''cuerpo_where : condicion_boleana 
+                     | sub_query PAR_A seleccionar PAR_C alias_name'''            
 
 def p_bloque_group(t):
-     '''bloque_group : GROUP BY lista_select
+     '''bloque_group : GROUP BY list_colum
                      | empty'''
 
 def p_bloque_having(t):
@@ -446,13 +466,16 @@ def p_expresion_logica(t):
                 | exp OR exp'''
 
 def p_expresion_relacional(t):
-     '''exp_rel : exp IGUAL exp
-                | exp DESIGUAL exp
-                | exp DESIGUAL2 exp 
-                | exp MAYORIGUAL exp
-                | exp MENORIGUAL exp
-                | exp MAYOR exp
-                | exp MENOR exp'''
+     '''exp_rel : exp toperador exp'''
+
+def p_toperador(t):
+     '''toperador : IGUAL
+                  | DESIGUAL
+                  | DESIGUAL2
+                  | MAYORIGUAL
+                  | MENORIGUAL
+                  | MAYOR
+                  | MENOR'''
 
 def p_expresion_aritmetica(t):
      '''exp_ar : exp SUMA exp
@@ -469,7 +492,13 @@ def p_expresion(t):
           | CADENA2
           | ID
           | ID PUNTO ID
-          | PAR_A exp PAR_C'''
+          | PAR_A exp PAR_C
+          | ANY
+          | ALL
+          | SOME
+          | IN
+          | funcion_math
+          | NOT IN'''
 
 def p_crear(t):
      '''crear : CREATE reemplazar DATABASE verificacion ID propietario modo
@@ -622,3 +651,7 @@ def AnalizarInput(texto):
      global Error_Lex
      global Error_Sin
      Reporte_Errores(Error_Lex,Error_Sin)
+''' AGREGAR AL SELECT EL LIMIT
+AGREGAR LOS TIPOS DE SELECT (UNION.....)
+AGREGAR EL CASE PARA EL SELECT
+AGREGAR LOS SELECT GREATEST,LEAST'''
