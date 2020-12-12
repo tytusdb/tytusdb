@@ -3,14 +3,13 @@ sys.path.append('../G26/Instrucciones')
 
 from instruccion import *
 
-class Primitive(Instruccion):
+class Identificador(Instruccion):
 
-    def __init__(self, type, val):
-        self.type = type
-        self.val = val
+    def __init__(self, table, column):
+        self.column = column
 
     def execute(self):
-        return self
+        return self.val
 
     def __repr__(self):
         return str(self.__dict__)
