@@ -14,6 +14,8 @@ class Sind(Instruccion):
         return math.sind(self.valor)
         '''
 
+'''
 instruccion = Sind(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

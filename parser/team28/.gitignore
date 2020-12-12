@@ -143,3 +143,4 @@ cython_debug/
 parser.out
 parsetab.py
 ast.pdf
+error.pdf

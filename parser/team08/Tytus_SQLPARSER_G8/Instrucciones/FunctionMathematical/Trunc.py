@@ -14,6 +14,8 @@ class Trunc(Instruccion):
         resultado = math.trunc(self.valor)
         return resultado
 
+'''
 instruccion = Trunc(2.77,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

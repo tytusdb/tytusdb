@@ -14,6 +14,8 @@ class Sqrt(Instruccion):
         resultado = math.sqrt(self.valor)
         return resultado
 
+'''
 instruccion = Sqrt(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
