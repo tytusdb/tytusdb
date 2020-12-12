@@ -13,6 +13,8 @@ class Atan(Instruccion):
         print(math.atan(self.valor))
         return math.atan(self.valor)
 
+'''
 instruccion = Atan(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

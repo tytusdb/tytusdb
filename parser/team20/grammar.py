@@ -63,6 +63,52 @@ reservedwords = (
     'LIKE',
     'ILIKE',
     'SIMILAR',
+    'SMALLINT',
+    'INTEGER',
+    'BIGINT',
+    'DECIMAL',
+    'NUMERIC',
+    'REAL',
+    'DOUBLE',
+    'PRECISION',
+    'MONEY',
+    'CHARACTER',
+    'VARYING',
+    'VARCHAR',
+    'TIMESTAMP',
+    'TEXT',
+    'CHAR',
+    'WITH',
+    'TIME', 
+    'ZONE',
+    'WITHOUT',
+    'INTERVAL',
+    'BOOLEAN',
+    'DEFAULT',
+    'CHECK',
+    'PRIMARY',
+    'DATE',
+    'INHERITS',
+    'UPDATE',
+    'DELETE',
+    'TRUNCATE',
+    'ABS',
+    'CBRT',
+    'CEIL',
+    'CEILING',
+    'DEGREES',
+    'DIV',
+    'EXP',
+    'FACTORIAL',
+    'FLOOR',
+    'GCD',
+    'LN',
+    'LOG',
+    'MOD',
+    'PI',
+    'POWER',
+    'RADIANS',
+    'ROUND',
 )
 
 symbols = (
@@ -82,13 +128,15 @@ symbols = (
     'GREATERTHAN',
     'LESSTHANEQUAL',
     'GREATERTHANEQUAL',
-    'NOTEQUAL',
+    'NOTEQUAL'
 )
 
 tokens = reservedwords + symbols + (
     'ID',
     'INT',
-    'DECIMAL'
+    'NDECIMAL',
+    'STRING',
+    'REGEX',
 )
 
 # Tokens
@@ -101,7 +149,7 @@ t_PLUS             = r'\+'
 t_MINUS            = r'-'
 t_TIMES            = r'\*'
 t_DIVIDED          = r'/'
-t_NSEPARATOR       = r'.'
+t_NSEPARATOR       = r'\.'
 t_EXPONENTIATION   = r'\^'
 t_MODULO           = r'%'
 t_LESSTHAN         = r'<'
@@ -109,6 +157,7 @@ t_GREATERTHAN      = r'>'
 t_LESSTHANEQUAL    = r'<='
 t_GREATERTHANEQUAL = r'>='
 t_NOTEQUAL         = r'<>|!='
+t_REGEX            = r'\'%?.*?%?\''
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9_]*'
@@ -116,12 +165,12 @@ def t_ID(t):
         t.type = t.value
     return t
 
-def t_DECIMAL(t):
+def t_NDECIMAL(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
     except ValueError:
-        print("Floaat value too large %d", t.value)
+        print("Float value too large %d", t.value)
         t.value = 0
     return t
 
@@ -134,12 +183,25 @@ def t_INT(t):
         t.value = 0
     return t
 
+def t_STRING(t):
+    r'\".*?\"'
+    t.value = t.value[1:-1]
+    return t
+
 # Ignored characters
 t_ignore = " \t"
 
 
 def t_newline(t):
     r'\n+'
+    t.lexer.lineno += t.value.count("\n")
+
+def t_single_line_comment(t):
+    r'--.*'
+    t.lexer.lineno += t.value.count("\n")
+
+def t_multi_line_comment(t):
+    r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
@@ -153,6 +215,8 @@ lexer = lex.lex()
 
 # Operators precedence and association
 precedence = (
+    ('left','UNION','INTERSECT','EXCEPT'),
+    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
     ('left','PLUS','MINUS'),
     ('left','TIMES','DIVIDED','MODULO'),
@@ -180,26 +244,151 @@ def p_instructions_ddl(t):
 def p_instructions_dml(t):
     '''dml : show
            | insert
-           | select'''
+           | select
+           | update
+           | delete
+           | truncate'''
 
 # DDL sentences
 #CREATE
 def p_instruction_create(t):
     '''create : createDatabase
+              | createTable
               | createType'''
 
 def p_instruction_create_database(t):
-    '''createDatabase : CREATE DATABASE ID ownermode
-              | REPLACE DATABASE ID ownermode
-              | CREATE DATABASE  IF NOT EXISTS ID ownermode
+    '''createDatabase : CREATE DATABASE ID ownerMode
+              | REPLACE DATABASE ID ownerMode
+              | CREATE DATABASE  IF NOT EXISTS ID ownerMode
               | CREATE DATABASE ID
               | CREATE DATABASE IF NOT EXISTS ID'''
+
+def p_instruction_create_table(t):
+    '''createTable : CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
+                   | CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE INHERITS BRACKET_OPEN ID BRACKET_CLOSE'''
+
+def p_instruction_create_table_columns(t):
+    '''columns : columns COMMA column
+               | column'''
+
+def p_instruction_create_table_column(t):
+    '''column : ID type
+              | ID type opt1
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
+              | UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
+              | PRIMARY KEY  BRACKET_OPEN idList BRACKET_CLOSE 
+              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE  REFERENCES  BRACKET_OPEN idList BRACKET_CLOSE '''
+
+def p_instruction_create_table_opt1(t):
+    '''opt1 :  default 
+           | null
+           | primarys
+           | reference
+           | uniques
+           | checks'''
+def p_instruction_create_default (t):
+    '''default : DEFAULT expression 
+               | DEFAULT expression null
+               | DEFAULT expression primarys
+               | DEFAULT expression reference
+               | DEFAULT expression uniques
+               | DEFAULT expression checks'''
+def p_instruction_create_null (t):
+    '''null : NULL 
+            | NULL default
+            | NULL primarys
+            | NULL reference
+            | NULL uniques
+            | NULL checks
+            | NOT NULL default
+            | NOT NULL primarys
+            | NOT NULL reference
+            | NOT NULL uniques
+            | NOT NULL checks
+            | NOT NULL'''
+def p_instruction_create_primary (t):
+    '''primarys : PRIMARY KEY
+                | PRIMARY KEY default
+                | PRIMARY KEY null
+                | PRIMARY KEY reference
+                | PRIMARY KEY uniques
+                | PRIMARY KEY checks   '''
+def p_instruction_create_references (t):
+    '''reference : REFERENCES ID
+                 | REFERENCES ID default
+                 | REFERENCES ID null
+                 | REFERENCES ID primarys
+                 | REFERENCES ID uniques
+                 | REFERENCES ID checks    '''
+def p_instruction_create_unique (t):
+    '''uniques : UNIQUE
+               | UNIQUE default
+               | UNIQUE null
+               | UNIQUE primarys
+               | UNIQUE reference
+               | UNIQUE checks
+               | CONSTRAINT ID UNIQUE
+               | CONSTRAINT ID UNIQUE default
+               | CONSTRAINT ID UNIQUE null
+               | CONSTRAINT ID UNIQUE primarys
+               | CONSTRAINT ID UNIQUE reference
+               | CONSTRAINT ID UNIQUE checks   '''
+
+def p_instruction_create_check (t):
+    '''checks : CHECK BRACKET_OPEN expression BRACKET_CLOSE
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE default
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE null
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE primarys
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE reference
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE uniques
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE default
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE null
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE primarys
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE reference
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE uniques
+              '''
+
+def p_instruction_type(t):
+    '''type : SMALLINT
+            | INTEGER
+            | BIGINT
+            | DECIMAL
+            | NUMERIC
+            | REAL
+            | DOUBLE
+            | PRECISION
+            | MONEY
+            | CHARACTER
+            | VARYING BRACKET_OPEN INT BRACKET_CLOSE
+            | VARCHAR BRACKET_OPEN INT BRACKET_CLOSE
+            | CHARACTER BRACKET_OPEN INT BRACKET_CLOSE
+            | CHAR BRACKET_OPEN INT BRACKET_CLOSE
+            | CHAR
+            | TEXT
+            | TIMESTAMP
+            | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE
+            | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE
+            | TIMESTAMP WITH TIME ZONE
+            | DATE
+            | TIME 
+            | TIME BRACKET_OPEN INT BRACKET_CLOSE
+            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITHOUT TIME ZONE
+            | TIME WITHOUT TIME ZONE
+            | TIME WITH TIME ZONE
+            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE
+            | INTERVAL
+            | INTERVAL INT 
+            | INTERVAL BRACKET_OPEN INT BRACKET_CLOSE
+            | INTERVAL INT BRACKET_OPEN INT BRACKET_CLOSE
+            | BOOLEAN'''
 
 def p_instruction_create_type(t):
     '''createType : CREATE TYPE ID AS ENUM BRACKET_OPEN expressionList BRACKET_CLOSE'''
 
 def p_instruction_create_owner_mode(t):
-    '''ownermode : OWNER EQUAL ID
+    '''ownerMode : OWNER EQUAL ID
             | OWNER ID
             | MODE expression
             | MODE EQUAL expression
@@ -207,7 +396,6 @@ def p_instruction_create_owner_mode(t):
             | OWNER EQUAL ID MODE expression
             | OWNER ID MODE EQUAL expression
             | OWNER EQUAL ID MODE EQUAL expression'''         
-
 
 #DROP
 def p_instruction_drop(t):
@@ -243,6 +431,7 @@ def p_instruction_alteroptions(t):
                     | ADD FOREIGN KEY BRACKET_OPEN ID BRACKET_CLOSE REFERENCES ID BRACKET_OPEN ID BRACKET_CLOSE
                     | ALTER COLUMN ID SET NOT NULL
                     | DROP CONSTRAINT ID'''
+
 #DML sentences
 #SHOW
 def p_instruction_show(t):
@@ -255,16 +444,17 @@ def p_instruction_insert(t):
 
 #SELECT 
 def p_instruction_select(t):
-    '''select : select UNION selectInstruction
+    '''select : select UNION select
               | select UNION ALL selectInstruction
-              | select INTERSECT selectInstruction
-              | select INTERSECT ALL selectInstruction
-              | select EXCEPT selectInstruction
+              | select INTERSECT select
               | select EXCEPT ALL selectInstruction
+              | select EXCEPT select
+              | select INTERSECT ALL selectInstruction
               | selectInstruction'''
 
 def p_instruction_selectinstruction(t):
-    '''selectInstruction : SELECT expressionList FROM expressionList
+    '''selectInstruction : SELECT expressionList
+                         | SELECT expressionList FROM expressionList
                          | SELECT expressionList FROM expressionList selectOptions
                          | SELECT DISTINCT expressionList FROM expressionList
                          | SELECT DISTINCT expressionList FROM expressionList selectOptions'''
@@ -281,6 +471,22 @@ def p_instruction_selectoption(t):
                      | OFFSET expression
                      | GROUP BY expressionList
                      | HAVING expression'''
+#UPDATE
+def p_instruction_update(t):
+    '''update : UPDATE ID SET reallocationOfValues WHERE expression'''
+
+def p_instruction_reallocationofvalues(t):
+    '''reallocationOfValues : reallocationOfValues COMMA ID EQUAL expression
+                            | ID EQUAL expression'''
+
+#DELETE
+def p_instruction_delete(t):
+    '''delete : DELETE FROM ID WHERE expression'''
+
+#TRUNCATE
+def p_instruction_truncate(t):
+    '''truncate : TRUNCATE TABLE idList
+                | TRUNCATE idList'''
 
 #EXPRESSIONS
 def p_instruction_idlist(t):
@@ -335,10 +541,36 @@ def p_expression_binaryarithmetic(t):
 def p_expression_binaryseparator(t):
     '''expression : expression NSEPARATOR expression'''
 
+#MATH FUNCTIONS
+def p_expression_as(t):
+    '''expression : expression AS STRING'''
+
+def p_expression_mathfunctions(t):
+    '''expression : ABS BRACKET_OPEN expression BRACKET_CLOSE 
+                  | CBRT BRACKET_OPEN expression BRACKET_CLOSE 
+                  | CEIL BRACKET_OPEN expression BRACKET_CLOSE 
+                  | CEILING BRACKET_OPEN expression BRACKET_CLOSE 
+                  | DEGREES BRACKET_OPEN expression BRACKET_CLOSE 
+                  | DIV BRACKET_OPEN expression BRACKET_CLOSE 
+                  | EXP BRACKET_OPEN expression BRACKET_CLOSE 
+                  | FACTORIAL BRACKET_OPEN expression BRACKET_CLOSE 
+                  | FLOOR BRACKET_OPEN expression BRACKET_CLOSE 
+                  | GCD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | LN BRACKET_OPEN expression BRACKET_CLOSE 
+                  | LOG BRACKET_OPEN expression BRACKET_CLOSE 
+                  | MOD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | PI BRACKET_OPEN BRACKET_CLOSE 
+                  | POWER BRACKET_OPEN expression BRACKET_CLOSE 
+                  | RADIANS BRACKET_OPEN expression BRACKET_CLOSE
+                  | ROUND BRACKET_OPEN expression BRACKET_CLOSE  
+                  '''
+
 #VALUES
 def p_expression_number(t):
     '''expression : INT
-                  | DECIMAL
+                  | NDECIMAL
+                  | STRING
+                  | REGEX
                   | ID'''
     t[0] = t[1]
 
