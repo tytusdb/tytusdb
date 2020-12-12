@@ -7,13 +7,14 @@ lexer = lex.lex()
 
 # Asociación de operadores y precedencia
 precedence = (
+    ("left", "OC_CONCATENAR"),
     ("left", "O_SUMA", "O_RESTA"),
     ("left", "O_PRODUCTO", "O_DIVISION", "O_MODULAR"),
     ("left", "O_EXPONENTE"),
     # ("right", "UO_SUMA", "UO_RESTA"),
     (
         "left",
-        "OL_ESIGUAL",
+        "S_IGUAL",
         "OL_DISTINTODE",
         "OL_MAYORQUE",
         "OL_MENORQUE",
@@ -261,7 +262,62 @@ def p_referencesOpt(t):
 
 # endregion CREATE
 
-# Statement para expresiones
+# Gramatica para expresiones
+# region Expresiones
+def p_expresion(t) :
+  '''
+  expresion : datatype
+            | expComp
+            | expBool
+  '''
+
+#TODO: cambiar ID por nombres de funciones
+def p_funcCall(t) :
+  '''
+  funcCall : ID S_PARIZQ paramsList S_PARDER
+  '''
+
+def p_extract(t) :
+  '''
+  extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
+  '''
+
+def p_timeStamp(t) :
+  '''
+  timeStamp : R_TIMESTAMP STRING
+        | R_INTERVAL STRING
+  '''
+
+def p_optsExtract(t) :
+  '''
+  optsExtract : R_YEAR
+                | R_MONTH
+                | R_DAY
+                | R_HOUR 
+                | R_MINUTE
+                | R_SECOND
+  '''
+
+def p_datePart(t) :
+  '''
+  datePart : R_DATE_PART S_PARIZQ STRING S_COMA dateSource S_PARDER
+  '''
+
+def p_dateSource(t) :
+  '''
+  dateSource : R_TIMESTAMP STRING
+        | T_DATE STRING
+        | T_TIME STRING
+        | R_INTERVAL intervalFields STRING
+        | R_NOW S_PARIZQ S_PARDER
+  '''
+
+def p_current(t) :
+  '''
+  current : R_CURRENT_DATE
+        | R_CURRENT_TIME
+        | timeStamp
+  '''
 
 
 def p_literal_list(t):
@@ -301,12 +357,17 @@ def p_datatype(t):
     """
     datatype :  columnName
     | literal
+    | funcCall
+    | extract
+    | datePart
+    | current
     | datatype O_SUMA datatype
     | datatype O_RESTA datatype
     | datatype O_PRODUCTO datatype
     | datatype O_DIVISION datatype
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
+    | datatype OC_CONCATENAR datatype
     | S_PARIZQ datatype S_PARDER
     """
 
@@ -317,7 +378,7 @@ def p_expComp(t):
     | datatype OL_MAYORQUE datatype
     | datatype OL_MAYORIGUALQUE datatype
     | datatype OL_MENORIGUALQUE datatype
-    | datatype OL_ESIGUAL datatype
+    | datatype S_IGUAL datatype
     | datatype OL_DISTINTODE datatype
     | datatype R_BETWEEN datatype R_AND datatype
     | datatype R_NOT R_BETWEEN datatype R_AND datatype
@@ -337,6 +398,36 @@ def p_expComp(t):
     """
 
 
+def p_stringExp(t) :
+  '''
+  stringExp : STRING
+        | columnName
+  '''
+
+
+def p_subqValues(t) :
+  '''
+  subqValues : R_ALL
+                | R_ANY
+                | R_SOME
+  '''
+
+# TODO: agregar subqueries (selectStmt)
+def p_boolean(t) :
+  '''
+  boolean : expComp
+  '''
+
+
+def p_expBool(t) :
+  '''
+  expBool : expBool R_AND expBool
+            | expBool R_OR expBool
+            | R_NOT expBool
+            | boolean
+  '''
+
+
 def p_columnName(t):
     """
     columnName :  ID
@@ -350,15 +441,15 @@ def p_expBoolCheck(t):
     | expBoolCheck R_OR expBoolCheck
     | R_NOT expBoolCheck
     | booleanCheck
+    | S_PARIZQ booleanCheck S_PARDER
     """
 
 
 def p_boolCheck(t):
     """
     booleanCheck :  expComp
-    | literalBoolean
     """
-
+#endregion
 
 def p_error(t):
     try:
@@ -382,7 +473,7 @@ CREATE TABLE IF NOT EXISTS User (
   location_ CHARACTER VARYING(100),
   createdAt DATE,
   CONSTRAINT k_phone CHECK (username != "curioso"),
-  CHECK (username != "montherbasir"),
+  CHECK (id BETWEEN 3-3 AND 4*5+(3%5) AND (EXTRACT(YEAR FROM TIMESTAMP '2020-08-12') <= 2000 ) OR 3 = sen(3)),
   UNIQUE (username, email),
   FOREIGN KEY (phone, location_) REFERENCES User
 );
