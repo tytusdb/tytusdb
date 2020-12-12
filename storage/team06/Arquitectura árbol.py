@@ -252,6 +252,28 @@ class ArbolAVL:
         der = self.altura(tmp.der)
         return tmp.izq if izq >= der else tmp.der
 
+    def graficar(self):
+        contenido = "digraph grafica{\n    rankdir=TB;\n    node [shape = record, style=filled, fillcolor=lightcyan2];\n    "
+        contenido += self._graficar(self.raiz)
+        contenido += "}"
+        return contenido
+
+    def _graficar(self, tmp):
+        contenido = ""
+        if tmp.izq == None and tmp.der == None:
+            contenido = "nodo" + str(tmp.valor) + " [ label =\"" + str(tmp.valor) + "\"];\n    ";
+        else:
+            contenido = "nodo" + str(tmp.valor) + " [ label =\"<AI>|" + str(tmp.valor) + "|<AD>\"];\n    ";
+        if tmp.izq != None:
+            contenido += self._graficar(tmp.izq) + "nodo" + str(tmp.valor) + ":AI->nodo" + str(
+                tmp.izq.valor) + "\n    ";
+
+        if tmp.der != None:
+            contenido += self._graficar(tmp.der) + "nodo" + str(tmp.valor) + ":AD->nodo" + str(
+                tmp.der.valor) + "\n    ";
+
+        return contenido
+
     def agregaralista(self, db, tabla, dic):
         raiz = self.buscar(db)
         temp = None
