@@ -1,23 +1,9 @@
-import enum
+from Tipo import *
 
-# *********************************************** Clase Enum ***********************************************
-#Enum para los tipos de datos
-class Data_Type(enum.Enum):
-    numeric = 1
-    character = 2
-    data_time = 3
-    boolean = 4
-    enumerated = 5
-    non = 6
-# **********************************************************************************************************
-# *********************************************** Clase Tipo ***********************************************
-class Type():
-
-    # Constructor
-    def __init__(self, specific_type, data_type, size):
-        self.specific_type = specific_type
+class Type_Expresion():
+    
+    def __init__(self,data_type):
         self.data_type = data_type
-        self.size = size
     
     # Metodos para verificar el tipo de dato
     def is_numeric(self):
@@ -35,6 +21,9 @@ class Type():
     def is_enumerated(self):
         return self.data_type == Data_Type.enumerated
 
+    def is_non(self):
+        return self.data_type == Data_Type.non
+        
     # Verificar que sea del mismo tipo
     def mismoTipo(self, tipo):
 
@@ -50,5 +39,3 @@ class Type():
             return True
         else:
             return False
-
-# **********************************************************************************************************

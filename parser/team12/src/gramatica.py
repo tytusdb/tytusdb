@@ -1,4 +1,7 @@
 from Start.Start import * 
+from EXPRESION.EXPRESION.Expresion import *
+from EXPRESION.EXPRESIONES_TERMINALES.NUMERIC.NODE_NUMERIC.Node_Numeric import *
+from EXPRESION.OPERADOR.Node_Operator import *
 # N de nodo porque es una clase genérica.
 #Definicion de tokens
 
@@ -249,8 +252,7 @@ t_PORCENTAJE = r'%'
 t_POTENCIA = r'\^'
 t_PUNTO = r'\.'
 t_PUNTOYCOMA = r';'
-t_SLASH = r'\\'
-
+t_SLASH = r'/'
 
 def t_NUMDECIMAL(t):
     r'\d+\.\d+'
@@ -305,6 +307,12 @@ def t_error(t):
 #Caracteres a ser ignorados por el lenguaje
 t_ignore = " \t"
 
+# Asociación de operadores y precedencia
+precedence = (    
+    ('left','MAS','MENOS'),
+    ('left','ASTERISCO','SLASH'),
+    )
+
 #Generación del lexer
 import ply.lex as lex
 lexer = lex.lex()
@@ -313,9 +321,14 @@ lexer = lex.lex()
 
 #Análisis sintáctico
 def p_instrucciones_lista_l(t):
-    '''instrucciones    : instrucciones instruccion PUNTOYCOMA
-                        | instruccion PUNTOYCOMA'''
-    
+    '''instrucciones    : instrucciones instruccion PUNTOYCOMA'''
+    t[1].hijos.append(t[2])
+    t[0] = t[1]
+
+def p_instrucciones_lista_2(t):
+    'instrucciones : instruccion PUNTOYCOMA '
+    t[0] = Start("S",-1,-1,None)
+    t[0].hijos.append(t[1])
 
 def p_instruccion(t):
     '''instruccion : IDENTIFICADOR
@@ -328,6 +341,7 @@ def p_instruccion(t):
                     | sent_insertar
                     | sent_update 
                     | sent_delete'''
+    t[0] = t[1]
 
 #------------------------------ Producciones útiles ----------------------------------------
 def p_tipo_declaracion_1(t):
@@ -344,6 +358,7 @@ def p_tipo_declaracion_1(t):
     nuevo = Start("TIPO_DECLARACION",-1,-1,None)
     nuevo.createChild(t[1],-1,-1,None)
     t[0] = nuevo
+
 def p_tipo_declaracion_2(t):
     '''tipo_declaracion : DOUBLE PRECISION'''
     nuevo = Start("TIPO_DECLARACION",-1,-1,None)
@@ -511,7 +526,7 @@ def p_opcional_creartabla_columna_3(t):
     nuevo.createChild(t[3],-1,-1,None)
     t[0] = nuevo
 def p_opcional_creartabla_columna_4(t):
-    '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint CHECK PARENTESISIZQ PARENTESISDER'''
+    '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint CHECK PARENTESISIZQ Exp PARENTESISDER'''
     nuevo = Start("OPCIONALES_ATRIBUTO_TABLA",-1,-1,None)
     if t[1] != None:
         nuevo.addChild(t[1])
@@ -702,9 +717,45 @@ def p_drop_options(t):
                     |   DATABASE if_exists IDENTIFICADOR '''
 
 
+# ******************************* EXPRESION ***************************************
+
+def p_exp_suma(t):
+    'Exp : Exp MAS Exp'
+    op = Operator("+",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_resta(t):
+    'Exp : Exp MENOS Exp'
+    op = Operator("-",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+
+def p_exp_exp(t):
+    'Exp : PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = t[2]
+
+
+def p_exp_entero(t):
+    'Exp : ENTERO'
+    t[0] = Expresion("E",-1,-1,None)
+    numExp = Numeric_Expresion("Entero",t.lineno(1),t.lexpos(1)+1,t[1])
+    t[0].hijos.append(numExp)
+
+def p_exp_decimal(t):
+    'Exp : NUMDECIMAL'
+    t[0] = Expresion("E",-1,-1,None)
+    numExp = Numeric_Expresion("Decimal",t.lineno(1),t.lexpos(1)+1,t[1])
+    t[0].hijos.append(numExp)
+
+# *********************************************************************************
 
 import ply.yacc as yacc
 def run_method(entrada):
-    parser = yacc.yacc()
-    parser.parse(entrada)
-    return "Se analizó"
+    parser = yacc.yacc()    
+    return parser.parse(entrada)

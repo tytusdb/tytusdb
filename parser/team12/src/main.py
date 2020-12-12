@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk, filedialog
 from gramatica import run_method
+from ARBOL_AST.Arbol import *
 import pathlib
 
 # Se crea una clase para la interfaz gráfica
@@ -63,11 +64,13 @@ class mainWindow:
 
 
 # Entrada por el archivo SQL Test File
-pathEntrada = str(pathlib.Path().absolute())+ r"\parser\team12\src\SQL Test File.sql"
+pathEntrada = str(pathlib.Path().absolute())+ r"\src\SQL Test File.sql"
 openFile = open(pathEntrada, "r", encoding="utf-8")
 entrada = openFile.read()
 openFile.close()
 resp = run_method(entrada)
+arbol = Arbol()
+print(arbol.generar_dot(resp))
 
 
 

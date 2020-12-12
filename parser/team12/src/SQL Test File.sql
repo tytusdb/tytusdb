@@ -1,5 +1,1 @@
-SELECT * FROM usuario;
-SELECT * FROM usuario;
-SELECT * FROM usuario;
-SELECT * FROM usuario;
-SELECT * FROM usuario;
+CREATE DATABASE nombre1;
