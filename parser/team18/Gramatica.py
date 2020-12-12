@@ -13,6 +13,8 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'year':'YEAR', 'month':'MONTH', 'day':'DAY', 'hours':'HOURS', 'minute':'MINUTE', 'second':'SECOND', 'select':'SELECT', 'distinct':'DISTINCT', 
                'group':'GROUP', 'by':'BY', 'having':'HAVING', 'order':'ORDER', 'as':'AS','asc':'ASC', 'desc':'DESC', 'nulls':'NULLS', 'first':'FIRST',
                'last':'LAST', 'type':'TYPE', 'enum':'ENUM', 'check':'CHECK', 'show':'SHOW', 'databases':'DATABASES', 'drop':'DROP'
+               ,'column':'COLUMN','rename':'RENAME','alter':'ALTER'  ,'data':'DATA'  ,
+               'to':'TO','add':'ADD'
              }
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
@@ -125,7 +127,117 @@ def p_sentencia_dml(t):
                       | actualizar
                       | eliminar
                       | seleccionar
-                      | mostrar'''                            
+                      | mostrar
+                      | altert'''                            
+
+
+#alter codigo -----------------------------------------------------------------
+
+def p_altert(t):
+     '''altert : alterdb
+               | altertb'''
+
+
+def p_alterdb(t):
+    '''alterdb : ALTER DATABASE ID alterdb1'''
+
+def p_alterdb1(t):
+    '''alterdb1 : RENAME TO ID 
+               | OWNER TO alterdb2'''
+
+def p_alterdb2(t):
+    '''alterdb2 : ID 
+               | current_user
+               | session_user'''
+
+def p_current_user(t):
+    '''current_user : ID'''
+
+def p_session_user(t):
+    '''session_user : ID'''
+
+def p_altertb(t):
+    '''altertb : ALTER TABLE ID altertb1'''
+
+def p_altertb1(t):
+    '''altertb1 : alttbadd 
+               | alttbdrop
+               | alttbalterv
+               | alttbname  '''
+
+def p_alttbname(t):
+    '''alttbname : RENAME alttbrename1  '''
+
+def p_alttbrename1(t):
+    '''alttbrename1 : COLUMN ID TO ID 
+                    | ID TO ID 
+                    | CONSTRAINT ID TO ID
+                    | TO ID '''
+
+
+
+
+def p_alttbalterv(t):
+    '''alttbalterv : alttbalterv COMA alttbalter
+                  | alttbalter '''
+
+
+def p_alttbalter(t):
+    '''alttbalter : ALTER COLUMN ID alttbalter1
+                  | CONSTRAINT ID '''
+
+
+
+
+def p_alttbalter1(t):
+    '''alttbalter1 : SET NOT NULL
+                  | DROP NOT NULL
+                  | SET DATA TYPE tipo valortipo
+                  | TYPE tipo valortipo
+                  | SET DEFAULT CADENA1
+                  | DROP DEFAULT  '''
+
+
+def p_alttbdrop(t):
+    '''alttbdrop : DROP alttbdrop1  '''
+
+def p_alttbdrop1(t):
+    '''alttbdrop1 : COLUMN ID 
+                  |  ID 
+                  | CONSTRAINT ID  '''
+
+
+
+def p_alttbadd(t):
+    '''alttbadd : ADD ID tipo valortipo
+                  | ADD COLUMN ID tipo valortipo
+                  | ADD CONSTRAINT ID alttbadd2
+                  | ADD alttbadd2  '''
+
+def p_alttbadd2(t):
+    '''alttbadd2 : alttbadd2 alttbadd3
+                  | alttbadd3  '''
+
+
+def p_alttbadd3(t):
+    '''alttbadd3 : CHECK PAR_A CADENA1 PAR_C
+                  |  UNIQUE PAR_A CADENA1 PAR_C
+                  | PRIMARY KEY PAR_A CADENA1 PAR_C
+                  | FOREIGN KEY PAR_A CADENA1 PAR_C REFERENCES  ID PAR_A CADENA1 PAR_C'''
+
+
+
+
+
+
+
+#fin alter codigo-----------------------------------------------------------------
+
+
+
+
+
+
 
 def p_insertar(t):
      '''insertar : INSERT INTO ID VALUES PAR_A lista_exp PAR_C'''
