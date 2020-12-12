@@ -84,7 +84,7 @@ reservadas = {
     "NOTNULL": "R_NOTNULL",
     "TRUE": "R_TRUE",
     "FALSE": "R_FALSE",
-    "UNKOWN": "R_UNKOWN",
+    "UNKNOWN": "R_UNKNOWN",
     "LIKE": "R_LIKE",
     "ALL": "R_ALL",
     "ANY": "R_ANY",
@@ -149,7 +149,6 @@ tokens = [
     "OL_MENORQUE",
     "OL_MAYORIGUALQUE",
     "OL_MENORIGUALQUE",
-    "OL_NOT",
     # Operadores de cadena
     "OC_CONCATENAR",
     "OC_AND",
@@ -196,7 +195,6 @@ t_OL_MAYORQUE = r">"
 t_OL_MENORQUE = r"<"
 t_OL_MAYORIGUALQUE = r">="
 t_OL_MENORIGUALQUE = r"<="
-t_OL_NOT = r"!"
 
 t_OC_CONCATENAR = r"\|\|"
 t_OC_AND = r"&"
