@@ -66,7 +66,7 @@
 
 <sortexpressionlist> ::= <expression> [asc|desc] <sortexpressionlist_p>
 
-<sortexpressionlist_p> ::= "," <2> [asc|desc] <sortexpressionlist_p>
+<sortexpressionlist_p> ::= "," [asc|desc] <sortexpressionlist_p>
                         | 
 
 <createDatabase> ::= create [or replace] database [if not exists] id [owner ["="] id] [mode ["="] integer]
@@ -337,15 +337,9 @@
 
 <delete_instruction> ::= delete from id where <expression>
 
-<truncate> ::= <truncate_p>
-
-<truncate_p> ::=  [table] <idlist> <truncate_p>
-              |
-
-<show> ::= <show_p>
-
-<show_p> ::= databases [like regex] <show_p>
-          | 
+<truncate> ::=  truncate [table] <idlist>
+              
+<show> ::= show databases [like regex]
 
 <update_instruction> ::= update id set <reallocation_of_values> where <expression>
 
