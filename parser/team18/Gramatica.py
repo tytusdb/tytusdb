@@ -12,13 +12,21 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'timestamp':'timestamp', 'with':'with', 'time':'time', 'zone':'zone', 'date':'date', 'interval':'interval', 'boolean':'boolean',
                'year':'YEAR', 'month':'MONTH', 'day':'DAY', 'hours':'HOURS', 'minute':'MINUTE', 'second':'SECOND', 'select':'SELECT', 'distinct':'DISTINCT', 
                'group':'GROUP', 'by':'BY', 'having':'HAVING', 'order':'ORDER', 'as':'AS','asc':'ASC', 'desc':'DESC', 'nulls':'NULLS', 'first':'FIRST',
-               'last':'LAST', 'type':'TYPE', 'enum':'ENUM', 'check':'CHECK', 'show':'SHOW', 'databases':'DATABASES', 'drop':'DROP'
-               ,'column':'COLUMN','rename':'RENAME','alter':'ALTER'  ,'data':'DATA'  ,
-               'to':'TO','add':'ADD'
+               'last':'LAST', 'type':'TYPE', 'enum':'ENUM', 'check':'CHECK', 'show':'SHOW', 'databases':'DATABASES', 'drop':'DROP',
+               'column':'COLUMN','rename':'RENAME','alter':'ALTER','data':'DATA','to':'TO','add':'ADD', 'abs':'ABS', 'cbrt':'CBRT',
+               'ceil':'CEIL', 'ceiling':'CEILING', 'degrees':'DEGREES', 'div':'DIV', 'exp':'EXP', 'factorial':'factorial', 'floor':'FLOOR', 'gcd':'GCD',
+               'ln':'LN', 'log':'LOG', 'mod':'MOD', 'pi':'PI', 'power':'POWER', 'radians':'RADIANS', 'round':'ROUND', 'min_scale':'min_scale', 'scale':'scale',
+               'sign':'sign', 'sqrt':'sqrt', 'trim_scale':'trim_scale', 'trunc':'TRUNC', 'random':'random', 'setseed':'setseed', 'acos':'ACOS', 'acosd':'ACOSD',
+               'asin':'ASIN', 'asind':'ASIND', 'atan':'ATAN', 'atand':'ATAND', 'atan2':'ATAN2', 'atan2d':'ATAN2D', 'cos':'COS', 'cosd':'COSD', 'cot':'COT',
+               'cotd':'COTD', 'sin':'SIN', 'sind':'SIND', 'tan':'TAN', 'tand':'TAND', 'sinh':'SINH', 'cosh':'COSH', 'tanh':'TANH', 'asinh':'ASINH', 
+               'acosh':'ACOSH', 'atanh':'ATANH', 'length':'length', 'substring':'substring', 'trim':'trim', 'leading':'leading','trailing':'trailing','both':'both',
+               'sha256':'sha256', 'decode':'decode', 'get_byte':'get_byte', 'bytea':'bytea', 'set_byte':'set_byte', 'substr':'substr', 'convert':'CONVERT',
+               'encode':'encode', 'width_bucket':'width_bucket', 'current_user':'CURRENT_USER', 'session_user':'SESSION_USER'
              }
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
-           'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO', 'RESTA','SUMA', 'MULTI','DIV' ] + list(Reservadas.values())
+           'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO', 'RESTA','SUMA','DIVISION', 
+           'POTENCIA', 'MODULO', 'DOSPUNTOS' ] + list(Reservadas.values())
 
 t_PTCOMA = r';'
 t_PAR_A = r'\('
@@ -26,6 +34,7 @@ t_PAR_C = r'\)'
 t_COMA = r'\,'
 t_PUNTO = r'\.'
 t_ASTERISCO = r'\*'
+t_DOSPUNTOS =r'::'
 
 #Comparision operators
 t_IGUAL = r'\='
@@ -40,8 +49,9 @@ t_MENOR = r'\<'
 #arithmetic operators
 t_RESTA = r'-'
 t_SUMA = r'\+'
-t_MULTI = r'\*'
-t_DIV = r'\/'
+t_DIVISION = r'\/'
+t_POTENCIA = r'\^'
+t_MODULO = r'\%'
 
 def t_DECIMAL(t):
     r'-?\d+\.\d+'
@@ -147,14 +157,8 @@ def p_alterdb1(t):
 
 def p_alterdb2(t):
     '''alterdb2 : ID 
-               | current_user
-               | session_user'''
-
-def p_current_user(t):
-    '''current_user : ID'''
-
-def p_session_user(t):
-    '''session_user : ID'''
+               | CURRENT_USER
+               | SESSION_USER'''
 
 def p_altertb(t):
     '''altertb : ALTER TABLE ID altertb1'''
@@ -226,17 +230,7 @@ def p_alttbadd3(t):
                   | FOREIGN KEY PAR_A CADENA1 PAR_C REFERENCES  ID PAR_A CADENA1 PAR_C'''
 
 
-
-
-
-
-
 #fin alter codigo-----------------------------------------------------------------
-
-
-
-
-
 
 
 def p_insertar(t):
@@ -321,14 +315,78 @@ def p_value_rang(t):
                    | NULLS LAST NULLS FIRST'''
 
 def p_alias_name(t):
-     '''alias_name : AS ID
+     '''alias_name : AS valoralias
                    | empty'''
 
+def p_valor_alias(t):
+     '''valoralias : ID
+                   | CADENA1
+                   | CADENA2'''
+
 def p_condicion_boleana(t):
-     '''condicion_boleana : DAY DAY''' #completar puse day para probar
+     '''condicion_boleana : exp'''
 
 def p_funcion_math(t):
-     '''funcion_math : empty''' #completar
+     '''funcion_math : ABS PAR_A exp PAR_C
+                     | CBRT PAR_A exp PAR_C
+                     | CEIL PAR_A exp PAR_C
+                     | CEILING PAR_A exp PAR_C
+                     | DEGREES PAR_A exp PAR_C
+                     | DIV PAR_A lista_exp PAR_C
+                     | EXP PAR_A exp PAR_C
+                     | factorial PAR_A exp PAR_C
+                     | FLOOR PAR_A exp PAR_C
+                     | GCD PAR_A lista_exp PAR_C
+                     | LN PAR_A exp PAR_C
+                     | LOG PAR_A exp PAR_C
+                     | MOD PAR_A lista_exp PAR_C
+                     | PI PAR_A PAR_C
+                     | POWER PAR_A lista_exp PAR_C
+                     | RADIANS PAR_A exp PAR_C
+                     | ROUND PAR_A exp PAR_C
+                     | min_scale PAR_A exp PAR_C
+                     | scale PAR_A exp PAR_C
+                     | sign PAR_A exp PAR_C
+                     | sqrt PAR_A exp PAR_C
+                     | trim_scale PAR_A exp PAR_C
+                     | TRUNC PAR_A lista_exp PAR_C 
+                     | random PAR_A PAR_C
+                     | setseed PAR_A exp PAR_C
+                     | ACOS PAR_A exp PAR_C
+                     | ACOSD PAR_A exp PAR_C
+                     | ASIN PAR_A exp PAR_C
+                     | ASIND PAR_A exp PAR_C
+                     | ATAN PAR_A exp PAR_C
+                     | ATAND PAR_A exp PAR_C
+                     | ATAN2 PAR_A lista_exp PAR_C
+                     | ATAN2D PAR_A lista_exp PAR_C
+                     | COS PAR_A exp PAR_C
+                     | COSD PAR_A exp PAR_C
+                     | COT PAR_A exp PAR_C
+                     | COTD PAR_A exp PAR_C
+                     | SIN PAR_A exp PAR_C
+                     | SIND PAR_A exp PAR_C
+                     | TAN PAR_A exp PAR_C
+                     | TAND PAR_A exp PAR_C
+                     | SINH PAR_A exp PAR_C
+                     | COSH PAR_A exp PAR_C
+                     | TANH PAR_A exp PAR_C
+                     | ASINH PAR_A exp PAR_C
+                     | ACOSH PAR_A exp PAR_C
+                     | ATANH PAR_A exp PAR_C
+                     | length PAR_A exp PAR_C
+                     | substring PAR_A lista_exp PAR_C
+                     | trim PAR_A valorestrim exp FROM exp PAR_C
+                     | sha256 PAR_A exp PAR_C
+                     | decode PAR_A exp byteaop COMA lista_exp PAR_C
+                     | encode PAR_A exp byteaop COMA lista_exp PAR_C
+                     | get_byte PAR_A exp DOSPUNTOS bytea COMA lista_exp PAR_C
+                     | set_byte PAR_A exp DOSPUNTOS bytea COMA lista_exp PAR_C
+                     | substr PAR_A lista_exp PAR_C
+                     | CONVERT PAR_A exp AS tipo PAR_C 
+                     | width_bucket PAR_A lista_exp PAR_C
+                     | empty'''
+
 
 def p_funcion_date(t):
      '''funcion_date : empty''' #completar                                            
@@ -336,6 +394,15 @@ def p_funcion_date(t):
 
 def p_mostrar_databases(t):
      '''mostrar : SHOW DATABASES'''
+
+def p_valores_trim(t):
+     '''valorestrim : leading
+                    | trailing
+                    | both'''
+
+def p_byteaop(t):
+     '''byteaop : DOSPUNTOS bytea
+                | empty'''
 
 def p_listaexp(t):
      '''lista_exp : lista_exp COMA exp  
@@ -348,31 +415,34 @@ def p_expresiones(t):
             | E'''
 
 def p_expresion_logica(t):
-     '''exp_log : NOT E
-                | E AND E  
-                | E OR E'''
+     '''exp_log : NOT exp
+                | exp AND exp  
+                | exp OR exp'''
 
 def p_expresion_relacional(t):
-     '''exp_rel : E IGUAL E
-                | E DESIGUAL E
-                | E DESIGUAL2 E 
-                | E MAYORIGUAL E
-                | E MENORIGUAL E
-                | E MAYOR E
-                | E MENOR E'''
+     '''exp_rel : exp IGUAL exp
+                | exp DESIGUAL exp
+                | exp DESIGUAL2 exp 
+                | exp MAYORIGUAL exp
+                | exp MENORIGUAL exp
+                | exp MAYOR exp
+                | exp MENOR exp'''
 
 def p_expresion_aritmetica(t):
-     '''exp_ar : E SUMA E
-               | E RESTA E
-               | E MULTI E
-               | E DIV E'''
+     '''exp_ar : exp SUMA exp
+               | exp RESTA exp
+               | exp ASTERISCO exp
+               | exp DIVISION exp
+               | exp POTENCIA exp
+               | exp MODULO exp'''
 
 def p_expresion(t):
      '''E : ENTERO
           | DECIMAL
           | CADENA1
           | CADENA2
-          | ID'''
+          | ID
+          | PAR_A exp PAR_C'''
 
 def p_crear(t):
      '''crear : CREATE reemplazar DATABASE verificacion ID propietario modo
@@ -433,7 +503,8 @@ def p_tipo(t):
              | date
              | timestamp
              | time
-             | interval'''
+             | interval
+             | boolean'''
 
 def p_valortipo(t):
      '''valortipo : PAR_A lvaloresdefault PAR_C
@@ -494,7 +565,7 @@ def p_empty(t):
 def p_error(t):
      if(t!=None):
           print("Error sintactico en: '%s'" % t.value)
-          Error_Sin.append("Error sintactico: Lexema: "+t.value+ " Fila: "+str(t.lineno))
+          Error_Sin.append("Error sintactico: Lexema: "+str(t.value)+ " Fila: "+str(t.lineno))
           
           while(True):
                tk = parser.token()
