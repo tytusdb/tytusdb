@@ -1,11 +1,11 @@
 
 CREATE TABLE prueba(
-    id int,
+    id integer,
     name varchar(10),
      PRIMARY KEY(contact_id)
 );
 CREATE TABLE usuario(
-    id int not NULL primary key,
+    id integer not NULL primary key,
     email varchar(23) unique not null default 1234,
     foto VARCHAR(200) DEFAULT '/assets/fotoperfil.png',
     CONSTRAINT categoriaProductoFK FOREIGN KEY (idCategoria) REFERENCES CATEGORIA (id),

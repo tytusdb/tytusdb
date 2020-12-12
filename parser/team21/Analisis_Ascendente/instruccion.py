@@ -126,3 +126,10 @@ class AlterTable(Instruccion):
         self.listaReferences = listaReferences 
         self.idDrop = idDrop
         self.columnAlter = columnAlter
+
+#UPDATE
+class Update(Instruccion):
+    def __init__(self, id, asignaciones, where):
+        self.id = id
+        self.asignaciones = asignaciones
+        self.where = where 
