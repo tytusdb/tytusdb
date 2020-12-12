@@ -140,14 +140,15 @@ reservadas = {
     'atanh': 'ATANH',
     'group': 'GROUP',
     'by': 'BY',
-    'now': 'now',
+    'now': 'NOW',
     'current_date': 'CURRENT_DATE',
     'current_time': 'CURRENT_TIME',
     'date_part': 'date_part',
     'isnull': 'ISNULL',
     'notnull': 'NOTNULL',
     'unknown': 'UNKNOWN',
-    'extract': 'EXTRACT'
+    'extract': 'EXTRACT',
+    'inherits':'INHERITS'
 }
 
 
@@ -331,9 +332,17 @@ def p_instruccion(t):
 # CREATE
 def p_create(t):
     'instruccion        : CREATE TABLE ID PARIZQ campos PARDR PTCOMA'
-    t[0] = CreateTable(t[3], t[5])
+
+    t[0] = CreateTable(t[3], t[5], None)
     varGramatical.append('instruccion :: = CREATE TABLE ID PARIZQ campos PARDR PTCOMA')
     varSemantico.append('t ')
+
+
+
+def p_create2(t):
+    'instruccion        : CREATE TABLE ID PARIZQ campos PARDR INHERITS PARIZQ ID PARDR PTCOMA'
+    t[0] = CreateTable(t[3], t[5], t[9])
+
 
 def p_campos(t):
     '''campos           : campos COMA campo'''
@@ -395,30 +404,39 @@ def p_listacampo2(t):
 def p_acompaniamiento(t):
     '''acom             : NOT NULL
                         | NULL
-                        | UNIQUE
+                        | UNIQUE PARIZQ listaID PARDR
                         | DEFAULT valores
                         | PRIMARY KEY'''
-    if t[1].lower() == 'not':
+    if t[1].lower() == 'not'         :
         t[0] = Acompaniamiento('NOT', None)
         varGramatical.append('acom :: = NOT NULL')
         varSemantico.append(' n')
-    elif t[1].lower() == 'null':
+    elif t[1].lower() == 'null'      :
         t[0] = Acompaniamiento('NULL', None)
         varGramatical.append('acom :: = NULL')
         varSemantico.append('re ')
-    elif t[1].lower() == 'unique':
-        t[0] = Acompaniamiento('UNIQUE', None)
+    elif t[1].lower() == 'unique'    :
+        t[0] = Acompaniamiento('UNIQUE', t[3])
         varGramatical.append('acom :: = UNIQUE')
         varSemantico.append(' we')
-    elif t[1].lower() == 'default':
+    elif t[1].lower() == 'default'   :
         t[0] = Acompaniamiento('DEFAULT', t[2])
         varGramatical.append('acom :: = DEFAULT')
         varSemantico.append(' qw')
-    elif t[1].lower() == 'primary':
+    elif t[1].lower() == 'primary'   :
         t[0] = Acompaniamiento('PRIMARY', None)
         varGramatical.append('acom :: = PRIMARY')
         varSemantico.append('yt ')
 
+
+def p_acompaniamiento2(t):
+    'acom               : UNIQUE'
+    t[0] = Acompaniamiento('UNIQUE', None)
+
+
+def p_acompaniamiento3(t):
+    'acom               : UNIQUE ID'
+    t[0] = Acompaniamiento('UNIQUE', t[2])
 
 def p_tipos(t):
     '''tipo             : SMALLINT
@@ -463,15 +481,17 @@ def p_insertInto(t):
     varGramatical.append('instruccion :: = INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA')
     varSemantico.append('ot ')
 
+
 def p_insertInto2(t):
     'instruccion        : INSERT INTO ID VALUES values PTCOMA'
-    t[0] = t[1]
+    t[0] = InsertInto(t[3], None, t[5])
     varGramatical.append('instruccion :: = INSERT INTO ID VALUES values PTCOMA')
     varSemantico.append('yg ')
 
+
 # lista de id
 def p_listaID(t):
-    'listaID            : listaID COMA ID'
+    'listaID            : listaID COMA var'
     t[1].append(t[3])
     t[0] = t[1]
     varGramatical.append('listaID :: = listaID COMA ID')
@@ -480,7 +500,7 @@ def p_listaID(t):
 
 
 def p_listaID2(t):
-    'listaID            : ID'
+    'listaID            : var'
     t[0] = [t[1]]
     varGramatical.append('listaID :: = ID')
     varSemantico.append('iq ')
@@ -528,32 +548,34 @@ def p_listaValores2(t):
 
 # VALORES
 def p_valores(t):
-    '''valores          : ENTERO
-                        | NUMDECIMAL
-                        | CADENA  '''
+    '''valores          : ENTERO '''
     t[0] = Primitivo(t[1])
     #varGramatical.append('valores ::= '+)
     #varSemantico.append('iu ')
 
-
-def p_valores2(t):
-    '''valores2         : valores
-                         '''
+def p_valoresDec(t):
+    '''valores          : NUMDECIMAL  '''
     t[0] = Primitivo(t[1])
-    varGramatical.append('valores2 ::= valores')
+
+
+def p_valoresCad(t):
+    '''valores          : CADENA  '''
+    t[0] = Primitivo(t[1])
+    varGramatical.append('valores ::= CADENA')
     varSemantico.append('ii ')
 
-def p_valores3(t):
-    '''valores2         : var
-                        '''
-    t[0] = Primitivo(t[1])
-    varGramatical.append('valores2 ::= var')
-    varSemantico.append('im ')
+
+#def p_valores2(t):
+ #   '''valores2         : valores
+  #                      | var'''
+   # t[0] = Primitivo(t[1])
+
+
 
 # UPDATE
 def p_update(t):
     'instruccion        : UPDATE ID SET asignaciones PTCOMA'
-    t[0] = t[1]
+    t[0] = Update(t[2], t[4], None)
     varGramatical.append('instruccion ::= UPDATE ID SET asignaciones PTCOMA')
     varSemantico.append('ip ')
 
@@ -561,10 +583,9 @@ def p_update(t):
 
 def p_update2(t):
     'instruccion        : UPDATE ID SET asignaciones WHERE andOr PTCOMA'
-    t[0] = t[1]
+    t[0] = Update(t[2], t[4], t[6])
     varGramatical.append('instruccion ::= UPDATE ID SET asignaciones WHERE andOr PTCOMA')
     varSemantico.append('is ')
-
 
 
 
@@ -601,9 +622,24 @@ def p_where7(t):
     varSemantico.append('in ')
 
 
+def p_where0(t):
+    '''where            : boolean
+                        '''
+    t[0] = t[1]
+
+def p_whereN(t):
+    '''where            : NOT boolean
+                        | ID IN PARIZQ listaValores PARDR 
+                        | ID BETWEEN valores AND valores'''
+    if t[1].upper() == 'NOT'     : t[0] = Where(1, t[2], None, None, None)
+    elif t[2].upper() == 'IN'    : t[0] = Where(2, None, t[4], None, None)
+    else                         : t[0] = Where(3, None, None, t[3], t[5])
+
 
 def p_where1(t):
-    '''where            : NOT boolean
+    '''where            : valores  comparisonP2
+                        | var comparisonP2
+                        | boolean  comparisonP
                         '''
     t[0] = t[1]
     varGramatical.append('where ::= NOT boolean')
@@ -618,34 +654,9 @@ def p_where2(t):
 
 
 def p_where3(t):
-    '''where            : boolean  comparisonP
+    '''where            : ID IS DISTINCT FROM valores
                         '''
     t[0] = t[1]
-    varGramatical.append('where ::= boolean  comparisonP')
-    varSemantico.append('ih ')
-
-def p_where4(t):
-    '''where            : ID IS NOT DISTINCT FROM valores '''
-    t[0] = t[1]
-    varGramatical.append('where ::= ID IS NOT DISTINCT FROM valores')
-    varSemantico.append('ij ')
-
-def p_where5(t):
-    '''where            : ID IN PARIZQ listaValores PARDR
-                        | ID BETWEEN valores AND valores
-                        | ID IS DISTINCT FROM valores
-                        '''
-    t[0] = t[1]
-    if t[2]=='IN':
-        varGramatical.append('where ::= ID IN PARIZQ listaValores PARDR')
-        varSemantico.append('ik ')
-    elif t[2]=='BETWEEN':
-        varGramatical.append('where ::= ID BETWEEN valores AND valores')
-        varSemantico.append('il ')
-    elif t[2]=='IS':
-        varGramatical.append('where ::= ID IS DISTINCT FROM valores')
-        varSemantico.append('iz ')
-
 
 
 def p_ComparisonP(t):
@@ -686,17 +697,21 @@ def p_ComparisonP4(t):
     varGramatical.append('comparisonP2 ::= ' + str(t[1]))
     varSemantico.append('iv ')
 
+
 def p_andOr(t):
     '''andOr            : andOr AND andOr
                         | andOr OR andOr
-                        | where'''
-    t[0] = t[1]
+                        '''
+    t[0] = Expresion(t[1], t[3], t[2])
 
+def p_andOr2(t):
+    'andOr              : where'
+    t[0] = t[1]
 
 def p_asignacion(t):
     '''asignacion       : var IGUAL E
     '''
-
+    t[0] = Asignacion(t[1], t[3])
 
 def p_E(t):
     '''E                : operando
@@ -757,25 +772,29 @@ def p_unarios(t):
 
 
 def p_var(t):
-    '''var                : ID
-                          | ID PUNTO ID'''
+    'var                : ID'
     t[0] = Id(t[1])
+
+def p_alias(t):
+    'var                : ID PUNTO ID'
+    print(t[1] +t[2]+t[3])
+    t[0] = IdId(Id(t[1]), Id(t[2]))
 
 
 def p_pnum2(t):
     '''pnum                : PUNTO E'''
+    print('punto')
     # t[0] = Id(t[1])
 
 
 # DELETE
 def p_delete(t):
     'instruccion        : DELETE FROM ID WHERE andOr PTCOMA'
-    t[0] = t[1]
-
+    t[0] = Delete(t[3], t[5])
 
 def p_delete2(t):
     'instruccion        : DELETE FROM ID PTCOMA'
-    t[0] = t[1]
+    t[0] = Delete(t[3], None)
 
 
 # DROP
@@ -783,62 +802,94 @@ def p_drop(t):
     '''instruccion      : DROP DATABASE ID PTCOMA
                         | DROP DATABASE IF EXISTS ID PTCOMA
                         | DROP TABLE ID PTCOMA'''
-    t[0] = t[1]
+    if t[2].upper() == 'TABLE'  : t[0] = Drop(2, False, t[3])
+    elif t[3].upper() == 'IF'   : t[0] = Drop(1, True, t[5])
+    else                        : t[0] = Drop(1, False, t[3])           
+
 
 
 # CREATE or REPLACE DATABASE
 def p_createDB(t):
     '''instruccion      : opcionCR ID PTCOMA
                         | opcionCR IF NOT EXISTS ID PTCOMA'''
-    t[0] = t[1]
+    if t[2] == 'IF'     : t[0] = CreateTable(t[1], True, t[5], None)
+    else                : t[0] = CreateTable(t[1], False, t[2], None)
 
 
 def p_createDB2(t):
     '''instruccion      : opcionCR ID complemento PTCOMA
                         | opcionCR IF NOT EXISTS ID complemento PTCOMA'''
-
+    if t[2] == 'IF'     : t[0] = CreateTable(t[1], True, t[5], t[6])
+    else                : t[0] = CreateTable(t[1], False, t[2], t[3])
 
 def p_opcionCR(t):
     '''opcionCR         : CREATE DATABASE
                         | CREATE OR REPLACE DATABASE'''
-
+    if t[2].upper() == 'OR'     : t[0] = 2
+    else                        : t[0] = 1 
 
 def p_complementoCR(t):
     '''complemento      : OWNER IGUAL ID
-                        | OWNER ID
-                        | OWNER IGUAL ID MODE IGUAL ENTERO
+                        | OWNER ID'''
+    if t[2] == '='      : t[0] = ComplementoCR(t[3], None)
+    else                : t[0] = ComplementoCR(t[2], None)
+
+def p_complementoCR2(t):
+    '''complemento      : OWNER IGUAL ID MODE IGUAL ENTERO
                         | OWNER ID MODE IGUAL ENTERO
                         | OWNER IGUAL ID MODE ENTERO
                         | OWNER ID MODE ENTERO
                         '''
+    if t[2] == '='      : 
+        if t[5] == '='  : t[0] = ComplementoCR(t[3], t[6])
+        else            : t[0] = ComplementoCR(t[3], t[5])
+    else                : 
+        if t[4] == '='  : t[0] = ComplementoCR(t[2], t[5])
+        else            : t[0] = ComplementoCR(t[2], t[4])
 
 
 # SHOW
 def p_showDB(t):
     'instruccion        : SHOW DATABASES PTCOMA'
-    t[0] = t[1]
+    t[0] = Show(True)
 
 
 # ALTER
 def p_alterDB(t):
     '''instruccion      : ALTER DATABASE ID RENAME TO ID PTCOMA
-                        | ALTER DATABASE ID OWNER TO LLIZQ ID LLDR'''  # falta
-    t[0] = t[1]
+                        | ALTER DATABASE ID OWNER TO LLIZQ ID LLDR''' #
+    if t[4].upper() == 'RENAME'     : t[0] = AlterDatabase(1, t[3], t[6])
+    else                            : t[0] = AlterDatabase(2, t[3], t[7].upper())
 
 
 def p_alterT(t):
     '''instruccion      : ALTER TABLE ID ADD COLUMN ID tipo PTCOMA
-                        | ALTER TABLE ID DROP COLUMN PTCOMA'''  # falta descripcion
-    t[0] = t[1]
-
+                        ''' 
+    t[0] = AlterTable(1, t[3], None, t[6], t[7], None, None, None, None, None, None, None)
 
 def p_alterT2(t):
-    '''instruccion      : ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY   PARDR PTCOMA
-                        | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR PTCOMA
-                        | ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID PTCOMA
-                        | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA
-                        | ALTER TABLE ID DROP CONSTRAINT ID PTCOMA
-                        | ALTER TABLE ID RENAME COLUMN ID TO ID PTCOMA'''
+    'instruccion        : ALTER TABLE ID DROP COLUMN ID PTCOMA'
+    t[0] = AlterTable(2, t[3], 'COLUMN', None, None, None, None, None, None, None, t[6], None)
+
+def p_alterT3(t):
+    'instruccion        : ALTER TABLE ID ADD CHECK ID PTCOMA'
+    t[0] = AlterTable(1, t[3], None, None, None, t[6], None, None, None, None, None, None)
+
+def p_alterT4(t):
+    'instruccion        : ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR PTCOMA'
+    t[0] = AlterTable(1, t[3], None, None, None, None, t[6], t[9], None, None, None, None)#
+
+def p_alterT5(t):
+    'instruccion        : ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID PTCOMA'
+    t[0] = AlterTable(1, t[3], None, None, None, None, None, None, t[8], t[11], None, None)
+
+def p_alterT6(t):
+    'instruccion        : ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA'
+    t[0] = AlterTable(3, t[3], None, None, None, None, None, None, None, None, None, t[6])
+
+def p_alterT7(t):
+    'instruccion        : ALTER TABLE ID DROP CONSTRAINT ID PTCOMA'
+    t[0] = AlterTable(2, t[3], 'CONSTRAINT', None, None, None, None, None, None, None, t[6], None)
 
 
 ##################################################################
@@ -855,7 +906,7 @@ def p_selectTime2(t):
 
 
 def p_selectTime3(t):
-    ''' Time            : now PARIZQ PARDR
+    ''' Time            : NOW PARIZQ PARDR
                         | TIMESTAMP CADENA
     '''
     t[0] = t[1]
@@ -1182,7 +1233,7 @@ import ply.yacc as yacc
 
 parser = yacc.yacc()
 
-f = open("./entrada2.txt", "r")
+f = open("./entrada.txt", "r")
 input = f.read()
 print(input)
 parser.parse(input)
