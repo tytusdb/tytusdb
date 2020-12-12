@@ -137,7 +137,7 @@ class GUI:
             messagebox.showinfo("EXITO", "SE FINALIZO EL ANALISIS CON EXITO")
 
     # Para mostrar el editor
-    def report_ast_ubuntu(self):
+    def report_ast_ubuntu(self):    
         global report_ast
         graficadora = GraficarAST()
         report = open('./team28/dot.txt', 'w')
@@ -150,10 +150,11 @@ class GUI:
         # os.startfile('ast.pdf')
     def report_errors_ubuntu(self):
         global report_error
-        report = open('./team28/error.html', 'w')
+        report = open('./team28/dot.txt', 'w')
         report.write(report_error.get_report())
         report.close()
-        os.system('xdg-open ./team28/error.html')
+        os.system('dot -Tpdf ./team28/dot.txt -o ./team28/error.pdf')
+        os.system('xdg-open ./team28/error.pdf')
         
     def report_errors_windows(self, errors):
         global report_error
