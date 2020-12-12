@@ -1,0 +1,176 @@
+<init>                  ::= <instrucciones>
+
+<instrucciones>         ::= <instrucciones> <instruccion>
+                        |   <instruccion> 
+
+<instruccion>           ::= CREATE <creacion>
+                        |   USE <cambio_bd>
+                        |   SELECT <selects>
+                        |   SELECT <select_distinct>
+                        |   DELETE <deletes>
+                        |   ALTER <alter_table> PTCOMA
+                        |   UPDATE <update_table> PTCOMA
+
+<creacion>              ::= DATABASE <crear_bd>
+                        |   TABLE <crear_tb>
+
+<crear_bd>              ::= ID PTCOMA
+
+<crear_tb>              ::= ID PARIZQ <crear_tb_columnas> PARDER <tb_herencia> PTCOMA
+                        |   ID PARIZQ <crear_tb_columnas> PARDER <tb_herencia>
+                        |   ID PARIZQ <crear_tb_columnas> PARDER PTCOMA
+                        |   ID PARIZQ <crear_tb_columnas> PARDER
+
+<tb_herencia>           ::= INHERITS PARIZQ ID PARDER
+
+<cambio_bd>             ::= ID PTCOMA
+
+<selects>               ::= POR FROM <select_all> 
+                        |   <lista_parametros> FROM <lista_parametros> <inicio_condicional> 
+
+<inicio_condicional>    ::= WHERE <lista_condiciones> <inicio_group_by>
+                        |   <inicio_group_by>
+
+<inicio_group_by>       ::= GROUP BY <lista_parametros> <inicio_having>
+                        |   <inicio_having> 
+
+<inicio_having>         ::= HAVING <lista_condiciones> <inicio_order_by>
+                        |   <inicio_order_by> 
+
+<inicio_order_by>       ::= ORDER BY <lista_parametros> PTCOMA
+                        |   PTCOMA 
+
+<select_all>            ::= ID <inicio_condicional>
+
+<select_distinct>       ::= DISTINCT <selects>
+
+<lista_parametros>      ::= <lista_parametros> COMA <parametro>
+                        |   <parametro> 
+
+<parametro>             ::= ID PUNTO <name_column>
+                        |   ID
+
+<name_column>           ::= ID
+
+<crear_tb_columnas>     ::= <crear_tb_columnas> COMA <crear_tb_columna>
+                        |   <crear_tb_columna>
+
+<crear_tb_columna>      ::= ID <tipos> <parametros_columna>
+                        |   ID <tipos>
+                        |   PRIMARY KEY PARIZQ <lista_id> PARDER
+                        |   FOREIGN KEY PARIZQ <lista_id> PARDER REFERENCES ID PARIZQ <lista_id> PARDER
+
+<parametros_columna>    ::= <parametros_columna> <parametro_columna>
+                        |   <parametro_columna>
+
+<parametro_columna>     ::= <unul>
+                        |   PRIMARY KEY
+                        |   AUTO_INCREMENT
+
+<unul>                  ::= NOT NULL
+                        |   NULL
+
+<lista_id>              ::= <lista_id> COMA ID
+                        |   ID
+
+<lista_condiciones>     ::= <lista_condiciones> AND <condicion>
+                        |   <lista_condiciones> OR <condicion>
+                        |   NOT <lista_condiciones>
+                        |   <condicion> 
+
+<condicion>             ::= <def_condicion> <signo_relacional> ID PUNTO <name_column> 
+
+<def_condicion>         ::= ID PUNTO ID
+                        |   ID
+
+<signo_relacional>      ::= IGUAL IGUAL
+                        |   MAYOR
+                        |   MENOR
+                        |   MENORIGUAL
+                        |   MAYORIGUAL
+                        |   DIFERENTE
+
+<condicion>             ::= ID <signo_relacional> ID
+
+<deletes>               ::= <delete_condicional>
+                        | <delete_incondicional>
+
+<delete_incondicional>  ::= ID PTCOMA
+                        |   ID WHERE <lista_condiciones> PTCOMA
+
+<alter_table>           ::= TABLE ID <def_alter>
+
+<def_alter>             ::= ADD COLUMN ID <tipos>
+                        |   DROP COLUMN ID
+                        |   ADD CHECK PARIZQ <relacional> PARDER
+                        |   ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
+                        |   ADD FOREIGN KEY PARIZQ <lista_parametros> PARDER REFERENCES PARIZQ <lista_parametros> PARDER
+                        |   ALTER COLUMN ID SET NOT NULL
+                        |   DROP CONSTRAINT ID
+                        |   RENAME COLUMN ID TO ID
+
+<tipos>                 ::= SMALLINT
+                        |   INTEGER
+                        |   BIGINT
+                        |   R_DECIMAL
+                        |   NUMERIC
+                        |   REAL
+                        |   DOUBLE PRECISION
+                        |   MONEY
+                        |   CHARACTER VARYING PARIZQ ENTERO PARDER
+                        |   VARCHAR PARIZQ ENTERO PARDER
+                        |   CHARACTER PARIZQ ENTERO PARDER
+                        |   CHAR PARIZQ ENTERO PARDER
+                        |   TEXT
+                        |   TIMESTAMP <def_dt_types>
+                        |   DATE
+                        |   TIME <def_dt_types>
+                        |   INTERVAL <def_interval>
+                        |   BOOLEAN
+
+<def_dt_types>          ::= <def_dt_types> WITHOUT TIME ZONE
+                        |   <def_dt_types> WITH TIME ZONE
+                        |   WITHOUT TIME ZONE
+                        |   WITH TIME ZONE
+                        |   PARIZQ ENTERO PARDER
+
+<def_interval>          ::= <def_interval> PARIZQ ENTERO PARDER
+                        |   <def_fld_to>
+                        |   PARIZQ ENTERO PARDER
+
+<def_fld_to>            ::= <def_fields> TO def_fields
+                        |   <def_fields>
+
+<def_fields>            ::= YEAR
+                        |   MONTH
+                        |   DAY
+                        |   HOUR
+                        |   MINUTE
+                        |   SECOND
+
+<relacional>            ::= <aritmetica> MENOR <aritmetica>
+                        |   <aritmetica> MAYOR <aritmetica>
+                        |   <aritmetica> IGUAL <aritmetica>
+                        |   <aritmetica> MENORIGUAL <aritmetica>
+                        |   <aritmetica> MAYORIGUAL <aritmetica>
+                        |   <aritmetica> DIFERENTE <aritmetica>
+                        |   <aritmetica>
+
+<aritmetica>            ::= <valor> MAS <valor>
+                        |   <valor> MENOS <valor>
+                        |   <valor> POR <valor>
+                        |   <valor> DIVISION <valor>
+                        |   <valor> MODULO <valor>
+                        |   <valor> EXP <valor>
+                        |   <valor>
+
+<valor>                 ::= ID
+                        |   ENTERO
+                        |   DECIMAL
+                        |   CADENA
+
+<update_table>          ::= ID SET <def_update> WHERE <lista_condiciones>
+                        |   ID SET <def_update>
+
+<def_update>            ::= <def_update> COMA ID IGUAL <valor>
+                        |   ID IGUAL <valor>

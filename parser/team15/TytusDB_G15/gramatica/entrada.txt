@@ -1,0 +1,63 @@
+CREATE TABLE cities (
+    name            text,
+    population      float,
+    elevation       int     
+);
+
+CREATE TABLE capitals (
+    state char(2)
+) INHERITS (cities);
+
+ALTER DATABASE name RENAME TO new_name;
+
+ALTER DATABASE name OWNER TO PRUEBA;
+
+drop table hola, prueba;
+
+
+select sum(hola), COUNT(*), FDF from Prueba as hola;
+
+SELECT P.HolaMen from prueba2 AS Hola
+INNER JOIN Prueba as P
+ON P.hola = prueba2.hola;
+
+select Hola from prueba as prueba;
+
+select 
+case 
+WHEN salary >= 8000 AND salary <= 10000 Then 'Director'
+WHEN salary >= 8000 AND salary <= 10000 Then 'Director'
+when 'November' then 'Noviembre'
+when 'December' then 'Diciembre'
+Else 'Director'
+End
+from Empleado as hola;
+
+Select A.campo1,A.campo2,A.campo3,B.campo4,B.campo5
+from tabla1 as A
+inner join tabla2 as B on A.campo1 = B.campo1 and A.campo2 = B.campo2;
+
+
+insert into PRUEBA(prueba) values ('manuel',5);
+
+delete from Prueba where Prueba1 = 'CARRO';
+
+Select A.campo1,A.campo2,A.campo3,B.campo4,B.campo5
+from tabla1 as A
+inner join tabla2 as B  on A.campo1 = B.campo1 and A.campo2 = B.campo2
+where Hola = 'perro';
+
+insert into tabla (campo1,campo2,campo3,campo4) values ('manuel',5);
+
+update tabla
+set campo1=5,campo2='df' WHERE CustomerID = 1;
+
+UPDATE Customers
+SET ContactName = 'Alfred Schmidt', City= 'Frankfurt'
+WHERE CustomerID = 1;
+
+
+select * from Prueba as Hola where prueba = 'prueba';
+
+DELETE FROM links
+WHERE id = 8;
