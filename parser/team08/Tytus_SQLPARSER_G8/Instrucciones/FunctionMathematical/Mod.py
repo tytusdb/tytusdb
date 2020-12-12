@@ -14,5 +14,7 @@ class Mod(Instruccion):
         print(math.fmod(self.valor,self.valor2))
         return math.fmod(self.valor,self.valor2)
 
+'''
 instruccion = Mod(12.5, 5.5, None, 1,2)
 instruccion.ejecutar(None,None)
+'''

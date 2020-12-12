@@ -13,6 +13,8 @@ class Log(Instruccion):
         print(math.log(self.valor))
         return math.log(self.valor)
 
+'''
 instruccion = Log(10,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
