@@ -126,11 +126,3 @@ def interpretar_sentencias(arbol):
                     print(col.id)
                 elif isinstance(col,SColumnaFk):
                     print(col.id)
-
-
-f = open("./entrada.sql", "r")
-input = f.read()
-
-arbol = g.parse(input)
-
-interpretar_sentencias(arbol)

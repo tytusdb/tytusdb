@@ -25,12 +25,12 @@ reservadas = {
     'interval': 'tInterval',
 
     # Interval Type
-    'YEAR': 'tYear',
-    'MONTH': 'tMonth',
-    'DAY': 'tDay',
-    'HOUR': 'tHour',
-    'MINUTE': 'tMinute',
-    'SECOND': 'tSecond',
+    'year': 'tYear',
+    'month': 'tMonth',
+    'day': 'tDay',
+    'hour': 'tHour',
+    'minute': 'tMinute',
+    'second': 'tSecond',
     'to': 'tTo',
 
     # Boolean Type
@@ -262,7 +262,12 @@ tokens = [
              'numeral',
              'virgulilla',
              'mayormayor',
-             'menormenor'
+             'menormenor',
+
+             #TOKENS PARA EL RECONOCIMIENTO DE FECHA Y HORA
+             'fecha',
+             'hora',
+             'fecha_hora'
 
          ] + list(reservadas.values())
 
@@ -324,6 +329,24 @@ def t_entero(t):
     return t
 
 
+#DEFINICIÓN PARA LA HORA
+def t_hora(t):
+    r'\'[0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9]\''
+    return t
+
+
+#DEFINICIÓN PARA LA FECHA
+def t_fecha(t):
+    r'\'[0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9]\''
+    return t
+
+
+#DEFINICIÓN PARA TIMESTAMP
+def t_fecha_hora(t):
+    r'\'([0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9])(\s)([0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])\''
+    return t
+
+
 # DEFINICIÓN DE UNA CADENA PARA LIKE
 def t_cadenaLike(t):
     r'\'%.*?%\'|\"%.*?%\"'
@@ -354,7 +377,7 @@ def t_COMENTARIO_MULTILINEA(t):
 # DEFINICIÓN DE UN COMENTARIO SIMPLE
 def t_COMENTARIO_SIMPLE(t):
     r'--.*'
-    t.lexer.lineno += 1  # Descartamos la linea desde aca
+    #t.lexer.lineno += 1  # Descartamos la linea desde aca
 
 
 # IGNORAR COMENTARIOS SIMPLES
@@ -375,8 +398,9 @@ def t_error(t):
     print("Caracter inválido '%s'" % t.value[0], " Línea: '%s'" % str(t.lineno))
 
 
-def find_column(input, token):  # Columna relativa a la fila
-    line_start = input.rfind('\n', 0, token.lexpos) + 1
+def find_column(token):  # Columna relativa a la fila
+    global con
+    line_start = con.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
 
@@ -631,7 +655,6 @@ def p_EXPR_ASSIGNS(t):
         if t[1].lower == "check":
             t[0] = SColumnaCheck(None, t[2])
         else:
-            print("entrooaqui")
             t[0] = SColumna(t[1], t[2], None)
     elif len(t) == 4:
         t[0] = SColumna(t[1], t[2], t[3])
@@ -794,7 +817,6 @@ def p_EXPR_ALTER_TABLE(t):
             t[0] = SAlterTableCheck(t[3], t[6])
         elif t[4].lower() == "drop":
             if t[5].lower() == "column":
-                print("entroaqui")
                 t[0] = SAlterTableDrop(t[3], False, TipoAlterDrop.COLUMN)
             else:
                 t[0] = SAlterTableDrop(t[3], t[6], TipoAlterDrop.CONSTRAINT)
@@ -936,6 +958,24 @@ def p_cadena(p):
 
 def p_id(p):
     ''' E : id    
+    '''
+    p[0] = SExpresion(p[1], Expresion.ID)
+
+
+def p_fecha(p):
+    ''' E : fecha    
+    '''
+    p[0] = SExpresion(p[1], Expresion.ID)
+
+
+def p_hora(p):
+    ''' E : hora    
+    '''
+    p[0] = SExpresion(p[1], Expresion.ID)
+
+
+def p_fecha_hora(p):
+    ''' E : fecha_hora    
     '''
     p[0] = SExpresion(p[1], Expresion.ID)
 
@@ -1106,8 +1146,8 @@ def p_EXPR_TRIG(p):
                 | asind E 
                 | atan E 
                 | atand E 
-                | atan2 LISTA_EXP
-                | atan2d LISTA_EXP
+                | atan2 parAbre E coma E parCierra
+                | atan2d parAbre E coma E parCierra
                 | cos E 
                 | cosd E 
                 | cot E 
@@ -1262,7 +1302,8 @@ def p_EXPR_LIMIT(p):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno))
+    col = find_column(t)
+    print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col) )
 
 
 import ply.yacc as yacc
@@ -1271,4 +1312,6 @@ parser = yacc.yacc()
 
 
 def parse(input):
+    global con
+    con = input
     return parser.parse(input)
