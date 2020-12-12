@@ -45,7 +45,6 @@ reservadas = {
     "NULL": "R_NULL",
     "OWNER": "R_OWNER",
     "MODE": "R_MODE",
-    "INHERITS": "R_INHERITS",
     "ALTER": "R_ALTER",
     "RENAME": "R_RENAME",
     "TO": "R_TO",
@@ -56,7 +55,6 @@ reservadas = {
     "COLUMN": "R_COLUMN",
     "SELECT": "R_SELECT",
     "DISTINCT": "R_DISTINCT",
-    "FROM": "R_FROM",
     "UNION": "R_UNION",
     "INTERSECT": "R_INTERSECT",
     "EXCEPT": "R_EXCEPT",
@@ -189,7 +187,6 @@ t_O_DIVISION = r"/"
 t_O_EXPONENTE = r"\^"
 t_O_MODULAR = r"%"
 
-t_OL_ESIGUAL = r"=="
 t_OL_DISTINTODE = r"!=|<>"
 t_OL_MAYORQUE = r">"
 t_OL_MENORQUE = r"<"
