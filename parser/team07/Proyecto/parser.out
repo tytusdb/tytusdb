@@ -1,0 +1,2513 @@
+Created by PLY version 3.11 (http://www.dabeaz.com/ply)
+
+Unused terminals:
+
+    ABS
+    ACOS
+    ACOSD
+    ACOSH
+    ADD
+    ALL
+    ALTER
+    ANY
+    ASC
+    ASIN
+    ASIND
+    ASINH
+    AT
+    ATAN
+    ATAN2
+    ATAN2d
+    ATAND
+    ATANH
+    AVG
+    BETWEEN
+    BIGINIT
+    BOOLEAN
+    BY
+    CASE
+    CBRT
+    CEIL
+    CEILING
+    CENTURY
+    CHARACTER
+    CHECK
+    CONSTRAINT
+    CONVERT
+    COS
+    COSD
+    COSH
+    COT
+    COTD
+    COUNT
+    CURRENT_DATE
+    CURRENT_TIME
+    CURRENT_TIMESTAMP
+    DATABASE
+    DATABASES
+    DATE
+    DECADE
+    DECIMAL_
+    DECODE
+    DEGREES
+    DESC
+    DISTINCT
+    DIV
+    DOUBLE
+    DOW
+    DOY
+    DROP
+    ELSE
+    ENCODE
+    END
+    EPOCH
+    ESPACIO
+    EXCEPT
+    EXISTS
+    EXP
+    EXTRACT
+    FACTORIAL
+    FLOOR
+    FOREIGN
+    FULL
+    GCD
+    GET_BYTE
+    GREATEST
+    GROUP
+    HAVING
+    HOUR
+    IF
+    ILIKE
+    IN
+    INHERITS
+    INNER
+    INTEGER
+    INTERSECT
+    INTERVAL
+    IS
+    ISNULL
+    ISODOWN
+    ISOYEAR
+    JOIN
+    KEY
+    LCM
+    LEAST
+    LEFT
+    LENGTH
+    LIKE
+    LIMIT
+    LLAVEDER
+    LLAVEIZQ
+    LN
+    LOCALTIME
+    LOCALTIMESTAMP
+    LOG
+    LOG10
+    MAX
+    MD5
+    MICROSECONDS
+    MILENNIUM
+    MILLISECONDS
+    MIN
+    MINUTE
+    MIN_SCALE
+    MOD
+    MODE
+    MONEY
+    MONTH
+    NOTNULL
+    NULL
+    NUMERIC
+    ORDER
+    OUTER
+    OWNER
+    PG_SLEEP
+    PG_SLEEP_FOR
+    PG_SLEEP_UNTIL
+    PI
+    POWER
+    PRECISION
+    PRIMARY
+    PUNTO
+    QUARTER
+    RADIANS
+    RANDOM
+    REAL
+    REFERENCES
+    RENAME
+    REPLACE
+    RIGHT
+    ROUND
+    SCALE
+    SECOND
+    SELECT
+    SETSEED
+    SET_BYTE
+    SHA256
+    SHOW
+    SIGN
+    SIMILAR
+    SIN
+    SIND
+    SINH
+    SMALLINT
+    SOME
+    SQRT
+    SUBSTR
+    SUBSTRING
+    SUM
+    TABLE
+    TAN
+    TAND
+    TANH
+    TEXT
+    THEN
+    TIME
+    TIMESTAMP
+    TIMEZONE
+    TIMEZONE_HOUR
+    TIMEZONE_MINUTE
+    TO
+    TRIM
+    TRIM_SCALE
+    TRUC
+    TYPECAST
+    UNION
+    UNIQUE
+    VARCHAR
+    WEEK
+    WHEN
+    WIDTH_BUCKET
+    WITH
+    WITHOUT
+    YEAR
+    ZONE
+    day
+
+Grammar
+
+Rule 0     S' -> init
+Rule 1     init -> instrucciones
+Rule 2     instrucciones -> instrucciones instruccion
+Rule 3     instrucciones -> instruccion
+Rule 4     instruccion -> crear_enum
+Rule 5     instruccion -> insert_table
+Rule 6     instruccion -> delete_table
+Rule 7     instruccion -> update_table
+Rule 8     crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+Rule 9     insert_table -> INSERT INTO ID VALUES lista_valores PTCOMA
+Rule 10    insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA
+Rule 11    insert_table -> INSERT INTO ID DEFAULT VALUES PTCOMA
+Rule 12    insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA
+Rule 13    lista_columnas -> lista_columnas COMA ID
+Rule 14    lista_columnas -> ID
+Rule 15    lista_valores -> lista_valores COMA tupla
+Rule 16    lista_valores -> tupla
+Rule 17    tupla -> PARIZQUIERDO lista_expresiones PARDERECHO
+Rule 18    lista_expresiones -> lista_expresiones COMA expresion
+Rule 19    lista_expresiones -> expresion
+Rule 20    expresion -> CADENA
+Rule 21    expresion -> ENTERO
+Rule 22    expresion -> DECIMAL
+Rule 23    delete_table -> DELETE FROM ID PTCOMA
+Rule 24    delete_table -> DELETE FROM ID WHERE exp_operacion PTCOMA
+Rule 25    exp_operacion -> exp_logica
+Rule 26    exp_logica -> exp_logica OR exp_logica
+Rule 27    exp_logica -> exp_logica AND exp_logica
+Rule 28    exp_logica -> NOT exp_logica
+Rule 29    exp_logica -> exp_relacional
+Rule 30    exp_relacional -> exp_relacional MENOR_QUE exp_relacional
+Rule 31    exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional
+Rule 32    exp_relacional -> exp_relacional MAYOR_QUE exp_relacional
+Rule 33    exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional
+Rule 34    exp_relacional -> exp_relacional DISTINTO exp_relacional
+Rule 35    exp_relacional -> exp_relacional IGUAL exp_relacional
+Rule 36    exp_relacional -> exp_aritmetica
+Rule 37    exp_aritmetica -> exp_aritmetica MAS exp_aritmetica
+Rule 38    exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica
+Rule 39    exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica
+Rule 40    exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica
+Rule 41    exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica
+Rule 42    exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica
+Rule 43    exp_aritmetica -> primitivo
+Rule 44    primitivo -> ENTERO
+Rule 45    primitivo -> MENOS ENTERO
+Rule 46    primitivo -> DECIMAL
+Rule 47    primitivo -> MENOS DECIMAL
+Rule 48    primitivo -> CADENA
+Rule 49    primitivo -> TRUE
+Rule 50    primitivo -> FALSE
+Rule 51    update_table -> UPDATE ID SET lista_seteos PTCOMA
+Rule 52    update_table -> UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA
+Rule 53    lista_seteos -> lista_seteos COMA set_columna
+Rule 54    lista_seteos -> set_columna
+Rule 55    set_columna -> ID IGUAL exp_operacion
+
+Terminals, with rules where they appear
+
+ABS                  : 
+ACOS                 : 
+ACOSD                : 
+ACOSH                : 
+ADD                  : 
+ALL                  : 
+ALTER                : 
+AND                  : 27
+ANY                  : 
+AS                   : 8
+ASC                  : 
+ASIN                 : 
+ASIND                : 
+ASINH                : 
+AT                   : 
+ATAN                 : 
+ATAN2                : 
+ATAN2d               : 
+ATAND                : 
+ATANH                : 
+AVG                  : 
+BETWEEN              : 
+BIGINIT              : 
+BOOLEAN              : 
+BY                   : 
+CADENA               : 20 48
+CASE                 : 
+CBRT                 : 
+CEIL                 : 
+CEILING              : 
+CENTURY              : 
+CHARACTER            : 
+CHECK                : 
+COMA                 : 13 15 18 53
+CONSTRAINT           : 
+CONVERT              : 
+COS                  : 
+COSD                 : 
+COSH                 : 
+COT                  : 
+COTD                 : 
+COUNT                : 
+CREATE               : 8
+CURRENT_DATE         : 
+CURRENT_TIME         : 
+CURRENT_TIMESTAMP    : 
+DATABASE             : 
+DATABASES            : 
+DATE                 : 
+DECADE               : 
+DECIMAL              : 22 46 47
+DECIMAL_             : 
+DECODE               : 
+DEFAULT              : 11 12
+DEGREES              : 
+DELETE               : 23 24
+DESC                 : 
+DISTINCT             : 
+DISTINTO             : 34
+DIV                  : 
+DIVISION             : 40
+DOUBLE               : 
+DOW                  : 
+DOY                  : 
+DROP                 : 
+ELSE                 : 
+ENCODE               : 
+END                  : 
+ENTERO               : 21 44 45
+ENUM                 : 8
+EPOCH                : 
+ESPACIO              : 
+EXCEPT               : 
+EXISTS               : 
+EXP                  : 
+EXTRACT              : 
+FACTORIAL            : 
+FALSE                : 50
+FLOOR                : 
+FOREIGN              : 
+FROM                 : 23 24
+FULL                 : 
+GCD                  : 
+GET_BYTE             : 
+GREATEST             : 
+GROUP                : 
+HAVING               : 
+HOUR                 : 
+ID                   : 8 8 9 10 11 12 13 14 23 24 51 52 55
+IF                   : 
+IGUAL                : 35 55
+ILIKE                : 
+IN                   : 
+INHERITS             : 
+INNER                : 
+INSERT               : 9 10 11 12
+INTEGER              : 
+INTERSECT            : 
+INTERVAL             : 
+INTO                 : 9 10 11 12
+IS                   : 
+ISNULL               : 
+ISODOWN              : 
+ISOYEAR              : 
+JOIN                 : 
+KEY                  : 
+LCM                  : 
+LEAST                : 
+LEFT                 : 
+LENGTH               : 
+LIKE                 : 
+LIMIT                : 
+LLAVEDER             : 
+LLAVEIZQ             : 
+LN                   : 
+LOCALTIME            : 
+LOCALTIMESTAMP       : 
+LOG                  : 
+LOG10                : 
+MAS                  : 37
+MAX                  : 
+MAYOR_IGUAL          : 33
+MAYOR_QUE            : 32
+MD5                  : 
+MENOR_IGUAL          : 31
+MENOR_QUE            : 30
+MENOS                : 38 45 47
+MICROSECONDS         : 
+MILENNIUM            : 
+MILLISECONDS         : 
+MIN                  : 
+MINUTE               : 
+MIN_SCALE            : 
+MOD                  : 
+MODE                 : 
+MODULO               : 41
+MONEY                : 
+MONTH                : 
+MULTIPLICACION       : 39
+NOT                  : 28
+NOTNULL              : 
+NULL                 : 
+NUMERIC              : 
+OR                   : 26
+ORDER                : 
+OUTER                : 
+OWNER                : 
+PARDERECHO           : 8 10 12 17
+PARIZQUIERDO         : 8 10 12 17
+PG_SLEEP             : 
+PG_SLEEP_FOR         : 
+PG_SLEEP_UNTIL       : 
+PI                   : 
+POTENCIA             : 42
+POWER                : 
+PRECISION            : 
+PRIMARY              : 
+PTCOMA               : 8 9 10 11 12 23 24 51 52
+PUNTO                : 
+QUARTER              : 
+RADIANS              : 
+RANDOM               : 
+REAL                 : 
+REFERENCES           : 
+RENAME               : 
+REPLACE              : 
+RIGHT                : 
+ROUND                : 
+SCALE                : 
+SECOND               : 
+SELECT               : 
+SET                  : 51 52
+SETSEED              : 
+SET_BYTE             : 
+SHA256               : 
+SHOW                 : 
+SIGN                 : 
+SIMILAR              : 
+SIN                  : 
+SIND                 : 
+SINH                 : 
+SMALLINT             : 
+SOME                 : 
+SQRT                 : 
+SUBSTR               : 
+SUBSTRING            : 
+SUM                  : 
+TABLE                : 
+TAN                  : 
+TAND                 : 
+TANH                 : 
+TEXT                 : 
+THEN                 : 
+TIME                 : 
+TIMESTAMP            : 
+TIMEZONE             : 
+TIMEZONE_HOUR        : 
+TIMEZONE_MINUTE      : 
+TO                   : 
+TRIM                 : 
+TRIM_SCALE           : 
+TRUC                 : 
+TRUE                 : 49
+TYPE                 : 8
+TYPECAST             : 
+UNION                : 
+UNIQUE               : 
+UPDATE               : 51 52
+VALUES               : 9 10 11 12
+VARCHAR              : 
+WEEK                 : 
+WHEN                 : 
+WHERE                : 24 52
+WIDTH_BUCKET         : 
+WITH                 : 
+WITHOUT              : 
+YEAR                 : 
+ZONE                 : 
+day                  : 
+error                : 
+
+Nonterminals, with rules where they appear
+
+crear_enum           : 4
+delete_table         : 6
+exp_aritmetica       : 36 37 37 38 38 39 39 40 40 41 41 42 42
+exp_logica           : 25 26 26 27 27 28
+exp_operacion        : 24 52 55
+exp_relacional       : 29 30 30 31 31 32 32 33 33 34 34 35 35
+expresion            : 18 19
+init                 : 0
+insert_table         : 5
+instruccion          : 2 3
+instrucciones        : 1 2
+lista_columnas       : 10 12 13
+lista_expresiones    : 17 18
+lista_seteos         : 51 52 53
+lista_valores        : 9 10 15
+primitivo            : 43
+set_columna          : 53 54
+tupla                : 15 16
+update_table         : 7
+
+Parsing method: LALR
+
+state 0
+
+    (0) S' -> . init
+    (1) init -> . instrucciones
+    (2) instrucciones -> . instrucciones instruccion
+    (3) instrucciones -> . instruccion
+    (4) instruccion -> . crear_enum
+    (5) instruccion -> . insert_table
+    (6) instruccion -> . delete_table
+    (7) instruccion -> . update_table
+    (8) crear_enum -> . CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+    (9) insert_table -> . INSERT INTO ID VALUES lista_valores PTCOMA
+    (10) insert_table -> . INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA
+    (11) insert_table -> . INSERT INTO ID DEFAULT VALUES PTCOMA
+    (12) insert_table -> . INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA
+    (23) delete_table -> . DELETE FROM ID PTCOMA
+    (24) delete_table -> . DELETE FROM ID WHERE exp_operacion PTCOMA
+    (51) update_table -> . UPDATE ID SET lista_seteos PTCOMA
+    (52) update_table -> . UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA
+
+    CREATE          shift and go to state 8
+    INSERT          shift and go to state 9
+    DELETE          shift and go to state 10
+    UPDATE          shift and go to state 11
+
+    init                           shift and go to state 1
+    instrucciones                  shift and go to state 2
+    instruccion                    shift and go to state 3
+    crear_enum                     shift and go to state 4
+    insert_table                   shift and go to state 5
+    delete_table                   shift and go to state 6
+    update_table                   shift and go to state 7
+
+state 1
+
+    (0) S' -> init .
+
+
+
+state 2
+
+    (1) init -> instrucciones .
+    (2) instrucciones -> instrucciones . instruccion
+    (4) instruccion -> . crear_enum
+    (5) instruccion -> . insert_table
+    (6) instruccion -> . delete_table
+    (7) instruccion -> . update_table
+    (8) crear_enum -> . CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+    (9) insert_table -> . INSERT INTO ID VALUES lista_valores PTCOMA
+    (10) insert_table -> . INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA
+    (11) insert_table -> . INSERT INTO ID DEFAULT VALUES PTCOMA
+    (12) insert_table -> . INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA
+    (23) delete_table -> . DELETE FROM ID PTCOMA
+    (24) delete_table -> . DELETE FROM ID WHERE exp_operacion PTCOMA
+    (51) update_table -> . UPDATE ID SET lista_seteos PTCOMA
+    (52) update_table -> . UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA
+
+    $end            reduce using rule 1 (init -> instrucciones .)
+    CREATE          shift and go to state 8
+    INSERT          shift and go to state 9
+    DELETE          shift and go to state 10
+    UPDATE          shift and go to state 11
+
+    instruccion                    shift and go to state 12
+    crear_enum                     shift and go to state 4
+    insert_table                   shift and go to state 5
+    delete_table                   shift and go to state 6
+    update_table                   shift and go to state 7
+
+state 3
+
+    (3) instrucciones -> instruccion .
+
+    CREATE          reduce using rule 3 (instrucciones -> instruccion .)
+    INSERT          reduce using rule 3 (instrucciones -> instruccion .)
+    DELETE          reduce using rule 3 (instrucciones -> instruccion .)
+    UPDATE          reduce using rule 3 (instrucciones -> instruccion .)
+    $end            reduce using rule 3 (instrucciones -> instruccion .)
+
+
+state 4
+
+    (4) instruccion -> crear_enum .
+
+    CREATE          reduce using rule 4 (instruccion -> crear_enum .)
+    INSERT          reduce using rule 4 (instruccion -> crear_enum .)
+    DELETE          reduce using rule 4 (instruccion -> crear_enum .)
+    UPDATE          reduce using rule 4 (instruccion -> crear_enum .)
+    $end            reduce using rule 4 (instruccion -> crear_enum .)
+
+
+state 5
+
+    (5) instruccion -> insert_table .
+
+    CREATE          reduce using rule 5 (instruccion -> insert_table .)
+    INSERT          reduce using rule 5 (instruccion -> insert_table .)
+    DELETE          reduce using rule 5 (instruccion -> insert_table .)
+    UPDATE          reduce using rule 5 (instruccion -> insert_table .)
+    $end            reduce using rule 5 (instruccion -> insert_table .)
+
+
+state 6
+
+    (6) instruccion -> delete_table .
+
+    CREATE          reduce using rule 6 (instruccion -> delete_table .)
+    INSERT          reduce using rule 6 (instruccion -> delete_table .)
+    DELETE          reduce using rule 6 (instruccion -> delete_table .)
+    UPDATE          reduce using rule 6 (instruccion -> delete_table .)
+    $end            reduce using rule 6 (instruccion -> delete_table .)
+
+
+state 7
+
+    (7) instruccion -> update_table .
+
+    CREATE          reduce using rule 7 (instruccion -> update_table .)
+    INSERT          reduce using rule 7 (instruccion -> update_table .)
+    DELETE          reduce using rule 7 (instruccion -> update_table .)
+    UPDATE          reduce using rule 7 (instruccion -> update_table .)
+    $end            reduce using rule 7 (instruccion -> update_table .)
+
+
+state 8
+
+    (8) crear_enum -> CREATE . TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+
+    TYPE            shift and go to state 13
+
+
+state 9
+
+    (9) insert_table -> INSERT . INTO ID VALUES lista_valores PTCOMA
+    (10) insert_table -> INSERT . INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA
+    (11) insert_table -> INSERT . INTO ID DEFAULT VALUES PTCOMA
+    (12) insert_table -> INSERT . INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA
+
+    INTO            shift and go to state 14
+
+
+state 10
+
+    (23) delete_table -> DELETE . FROM ID PTCOMA
+    (24) delete_table -> DELETE . FROM ID WHERE exp_operacion PTCOMA
+
+    FROM            shift and go to state 15
+
+
+state 11
+
+    (51) update_table -> UPDATE . ID SET lista_seteos PTCOMA
+    (52) update_table -> UPDATE . ID SET lista_seteos WHERE exp_operacion PTCOMA
+
+    ID              shift and go to state 16
+
+
+state 12
+
+    (2) instrucciones -> instrucciones instruccion .
+
+    CREATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    INSERT          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    DELETE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    UPDATE          reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+    $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
+
+
+state 13
+
+    (8) crear_enum -> CREATE TYPE . ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+
+    ID              shift and go to state 17
+
+
+state 14
+
+    (9) insert_table -> INSERT INTO . ID VALUES lista_valores PTCOMA
+    (10) insert_table -> INSERT INTO . ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA
+    (11) insert_table -> INSERT INTO . ID DEFAULT VALUES PTCOMA
+    (12) insert_table -> INSERT INTO . ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA
+
+    ID              shift and go to state 18
+
+
+state 15
+
+    (23) delete_table -> DELETE FROM . ID PTCOMA
+    (24) delete_table -> DELETE FROM . ID WHERE exp_operacion PTCOMA
+
+    ID              shift and go to state 19
+
+
+state 16
+
+    (51) update_table -> UPDATE ID . SET lista_seteos PTCOMA
+    (52) update_table -> UPDATE ID . SET lista_seteos WHERE exp_operacion PTCOMA
+
+    SET             shift and go to state 20
+
+
+state 17
+
+    (8) crear_enum -> CREATE TYPE ID . AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+
+    AS              shift and go to state 21
+
+
+state 18
+
+    (9) insert_table -> INSERT INTO ID . VALUES lista_valores PTCOMA
+    (10) insert_table -> INSERT INTO ID . PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA
+    (11) insert_table -> INSERT INTO ID . DEFAULT VALUES PTCOMA
+    (12) insert_table -> INSERT INTO ID . PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA
+
+    VALUES          shift and go to state 22
+    PARIZQUIERDO    shift and go to state 23
+    DEFAULT         shift and go to state 24
+
+
+state 19
+
+    (23) delete_table -> DELETE FROM ID . PTCOMA
+    (24) delete_table -> DELETE FROM ID . WHERE exp_operacion PTCOMA
+
+    PTCOMA          shift and go to state 25
+    WHERE           shift and go to state 26
+
+
+state 20
+
+    (51) update_table -> UPDATE ID SET . lista_seteos PTCOMA
+    (52) update_table -> UPDATE ID SET . lista_seteos WHERE exp_operacion PTCOMA
+    (53) lista_seteos -> . lista_seteos COMA set_columna
+    (54) lista_seteos -> . set_columna
+    (55) set_columna -> . ID IGUAL exp_operacion
+
+    ID              shift and go to state 27
+
+    lista_seteos                   shift and go to state 28
+    set_columna                    shift and go to state 29
+
+state 21
+
+    (8) crear_enum -> CREATE TYPE ID AS . ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+
+    ENUM            shift and go to state 30
+
+
+state 22
+
+    (9) insert_table -> INSERT INTO ID VALUES . lista_valores PTCOMA
+    (15) lista_valores -> . lista_valores COMA tupla
+    (16) lista_valores -> . tupla
+    (17) tupla -> . PARIZQUIERDO lista_expresiones PARDERECHO
+
+    PARIZQUIERDO    shift and go to state 33
+
+    lista_valores                  shift and go to state 31
+    tupla                          shift and go to state 32
+
+state 23
+
+    (10) insert_table -> INSERT INTO ID PARIZQUIERDO . lista_columnas PARDERECHO VALUES lista_valores PTCOMA
+    (12) insert_table -> INSERT INTO ID PARIZQUIERDO . lista_columnas PARDERECHO DEFAULT VALUES PTCOMA
+    (13) lista_columnas -> . lista_columnas COMA ID
+    (14) lista_columnas -> . ID
+
+    ID              shift and go to state 34
+
+    lista_columnas                 shift and go to state 35
+
+state 24
+
+    (11) insert_table -> INSERT INTO ID DEFAULT . VALUES PTCOMA
+
+    VALUES          shift and go to state 36
+
+
+state 25
+
+    (23) delete_table -> DELETE FROM ID PTCOMA .
+
+    CREATE          reduce using rule 23 (delete_table -> DELETE FROM ID PTCOMA .)
+    INSERT          reduce using rule 23 (delete_table -> DELETE FROM ID PTCOMA .)
+    DELETE          reduce using rule 23 (delete_table -> DELETE FROM ID PTCOMA .)
+    UPDATE          reduce using rule 23 (delete_table -> DELETE FROM ID PTCOMA .)
+    $end            reduce using rule 23 (delete_table -> DELETE FROM ID PTCOMA .)
+
+
+state 26
+
+    (24) delete_table -> DELETE FROM ID WHERE . exp_operacion PTCOMA
+    (25) exp_operacion -> . exp_logica
+    (26) exp_logica -> . exp_logica OR exp_logica
+    (27) exp_logica -> . exp_logica AND exp_logica
+    (28) exp_logica -> . NOT exp_logica
+    (29) exp_logica -> . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    NOT             shift and go to state 39
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_operacion                  shift and go to state 37
+    exp_logica                     shift and go to state 38
+    exp_relacional                 shift and go to state 40
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 27
+
+    (55) set_columna -> ID . IGUAL exp_operacion
+
+    IGUAL           shift and go to state 49
+
+
+state 28
+
+    (51) update_table -> UPDATE ID SET lista_seteos . PTCOMA
+    (52) update_table -> UPDATE ID SET lista_seteos . WHERE exp_operacion PTCOMA
+    (53) lista_seteos -> lista_seteos . COMA set_columna
+
+    PTCOMA          shift and go to state 50
+    WHERE           shift and go to state 51
+    COMA            shift and go to state 52
+
+
+state 29
+
+    (54) lista_seteos -> set_columna .
+
+    PTCOMA          reduce using rule 54 (lista_seteos -> set_columna .)
+    WHERE           reduce using rule 54 (lista_seteos -> set_columna .)
+    COMA            reduce using rule 54 (lista_seteos -> set_columna .)
+
+
+state 30
+
+    (8) crear_enum -> CREATE TYPE ID AS ENUM . PARIZQUIERDO ID PARDERECHO PTCOMA
+
+    PARIZQUIERDO    shift and go to state 53
+
+
+state 31
+
+    (9) insert_table -> INSERT INTO ID VALUES lista_valores . PTCOMA
+    (15) lista_valores -> lista_valores . COMA tupla
+
+    PTCOMA          shift and go to state 54
+    COMA            shift and go to state 55
+
+
+state 32
+
+    (16) lista_valores -> tupla .
+
+    PTCOMA          reduce using rule 16 (lista_valores -> tupla .)
+    COMA            reduce using rule 16 (lista_valores -> tupla .)
+
+
+state 33
+
+    (17) tupla -> PARIZQUIERDO . lista_expresiones PARDERECHO
+    (18) lista_expresiones -> . lista_expresiones COMA expresion
+    (19) lista_expresiones -> . expresion
+    (20) expresion -> . CADENA
+    (21) expresion -> . ENTERO
+    (22) expresion -> . DECIMAL
+
+    CADENA          shift and go to state 58
+    ENTERO          shift and go to state 59
+    DECIMAL         shift and go to state 60
+
+    lista_expresiones              shift and go to state 56
+    expresion                      shift and go to state 57
+
+state 34
+
+    (14) lista_columnas -> ID .
+
+    PARDERECHO      reduce using rule 14 (lista_columnas -> ID .)
+    COMA            reduce using rule 14 (lista_columnas -> ID .)
+
+
+state 35
+
+    (10) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas . PARDERECHO VALUES lista_valores PTCOMA
+    (12) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas . PARDERECHO DEFAULT VALUES PTCOMA
+    (13) lista_columnas -> lista_columnas . COMA ID
+
+    PARDERECHO      shift and go to state 61
+    COMA            shift and go to state 62
+
+
+state 36
+
+    (11) insert_table -> INSERT INTO ID DEFAULT VALUES . PTCOMA
+
+    PTCOMA          shift and go to state 63
+
+
+state 37
+
+    (24) delete_table -> DELETE FROM ID WHERE exp_operacion . PTCOMA
+
+    PTCOMA          shift and go to state 64
+
+
+state 38
+
+    (25) exp_operacion -> exp_logica .
+    (26) exp_logica -> exp_logica . OR exp_logica
+    (27) exp_logica -> exp_logica . AND exp_logica
+
+    PTCOMA          reduce using rule 25 (exp_operacion -> exp_logica .)
+    WHERE           reduce using rule 25 (exp_operacion -> exp_logica .)
+    COMA            reduce using rule 25 (exp_operacion -> exp_logica .)
+    OR              shift and go to state 65
+    AND             shift and go to state 66
+
+
+state 39
+
+    (28) exp_logica -> NOT . exp_logica
+    (26) exp_logica -> . exp_logica OR exp_logica
+    (27) exp_logica -> . exp_logica AND exp_logica
+    (28) exp_logica -> . NOT exp_logica
+    (29) exp_logica -> . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    NOT             shift and go to state 39
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_logica                     shift and go to state 67
+    exp_relacional                 shift and go to state 40
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 40
+
+    (29) exp_logica -> exp_relacional .
+    (30) exp_relacional -> exp_relacional . MENOR_QUE exp_relacional
+    (31) exp_relacional -> exp_relacional . MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> exp_relacional . MAYOR_QUE exp_relacional
+    (33) exp_relacional -> exp_relacional . MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> exp_relacional . DISTINTO exp_relacional
+    (35) exp_relacional -> exp_relacional . IGUAL exp_relacional
+
+    OR              reduce using rule 29 (exp_logica -> exp_relacional .)
+    AND             reduce using rule 29 (exp_logica -> exp_relacional .)
+    PTCOMA          reduce using rule 29 (exp_logica -> exp_relacional .)
+    WHERE           reduce using rule 29 (exp_logica -> exp_relacional .)
+    COMA            reduce using rule 29 (exp_logica -> exp_relacional .)
+    MENOR_QUE       shift and go to state 68
+    MENOR_IGUAL     shift and go to state 69
+    MAYOR_QUE       shift and go to state 70
+    MAYOR_IGUAL     shift and go to state 71
+    DISTINTO        shift and go to state 72
+    IGUAL           shift and go to state 73
+
+
+state 41
+
+    (36) exp_relacional -> exp_aritmetica .
+    (37) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
+    (38) exp_aritmetica -> exp_aritmetica . MENOS exp_aritmetica
+    (39) exp_aritmetica -> exp_aritmetica . MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> exp_aritmetica . DIVISION exp_aritmetica
+    (41) exp_aritmetica -> exp_aritmetica . MODULO exp_aritmetica
+    (42) exp_aritmetica -> exp_aritmetica . POTENCIA exp_aritmetica
+
+    MENOR_QUE       reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    MENOR_IGUAL     reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    MAYOR_QUE       reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    MAYOR_IGUAL     reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    DISTINTO        reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    IGUAL           reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    OR              reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    AND             reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    PTCOMA          reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    WHERE           reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    COMA            reduce using rule 36 (exp_relacional -> exp_aritmetica .)
+    MAS             shift and go to state 74
+    MENOS           shift and go to state 75
+    MULTIPLICACION  shift and go to state 76
+    DIVISION        shift and go to state 77
+    MODULO          shift and go to state 78
+    POTENCIA        shift and go to state 79
+
+
+state 42
+
+    (45) primitivo -> MENOS . ENTERO
+    (47) primitivo -> MENOS . DECIMAL
+
+    ENTERO          shift and go to state 80
+    DECIMAL         shift and go to state 81
+
+
+state 43
+
+    (43) exp_aritmetica -> primitivo .
+
+    MAS             reduce using rule 43 (exp_aritmetica -> primitivo .)
+    MENOS           reduce using rule 43 (exp_aritmetica -> primitivo .)
+    MULTIPLICACION  reduce using rule 43 (exp_aritmetica -> primitivo .)
+    DIVISION        reduce using rule 43 (exp_aritmetica -> primitivo .)
+    MODULO          reduce using rule 43 (exp_aritmetica -> primitivo .)
+    POTENCIA        reduce using rule 43 (exp_aritmetica -> primitivo .)
+    MENOR_QUE       reduce using rule 43 (exp_aritmetica -> primitivo .)
+    MENOR_IGUAL     reduce using rule 43 (exp_aritmetica -> primitivo .)
+    MAYOR_QUE       reduce using rule 43 (exp_aritmetica -> primitivo .)
+    MAYOR_IGUAL     reduce using rule 43 (exp_aritmetica -> primitivo .)
+    DISTINTO        reduce using rule 43 (exp_aritmetica -> primitivo .)
+    IGUAL           reduce using rule 43 (exp_aritmetica -> primitivo .)
+    OR              reduce using rule 43 (exp_aritmetica -> primitivo .)
+    AND             reduce using rule 43 (exp_aritmetica -> primitivo .)
+    PTCOMA          reduce using rule 43 (exp_aritmetica -> primitivo .)
+    WHERE           reduce using rule 43 (exp_aritmetica -> primitivo .)
+    COMA            reduce using rule 43 (exp_aritmetica -> primitivo .)
+
+
+state 44
+
+    (44) primitivo -> ENTERO .
+
+    MAS             reduce using rule 44 (primitivo -> ENTERO .)
+    MENOS           reduce using rule 44 (primitivo -> ENTERO .)
+    MULTIPLICACION  reduce using rule 44 (primitivo -> ENTERO .)
+    DIVISION        reduce using rule 44 (primitivo -> ENTERO .)
+    MODULO          reduce using rule 44 (primitivo -> ENTERO .)
+    POTENCIA        reduce using rule 44 (primitivo -> ENTERO .)
+    MENOR_QUE       reduce using rule 44 (primitivo -> ENTERO .)
+    MENOR_IGUAL     reduce using rule 44 (primitivo -> ENTERO .)
+    MAYOR_QUE       reduce using rule 44 (primitivo -> ENTERO .)
+    MAYOR_IGUAL     reduce using rule 44 (primitivo -> ENTERO .)
+    DISTINTO        reduce using rule 44 (primitivo -> ENTERO .)
+    IGUAL           reduce using rule 44 (primitivo -> ENTERO .)
+    OR              reduce using rule 44 (primitivo -> ENTERO .)
+    AND             reduce using rule 44 (primitivo -> ENTERO .)
+    PTCOMA          reduce using rule 44 (primitivo -> ENTERO .)
+    WHERE           reduce using rule 44 (primitivo -> ENTERO .)
+    COMA            reduce using rule 44 (primitivo -> ENTERO .)
+
+
+state 45
+
+    (46) primitivo -> DECIMAL .
+
+    MAS             reduce using rule 46 (primitivo -> DECIMAL .)
+    MENOS           reduce using rule 46 (primitivo -> DECIMAL .)
+    MULTIPLICACION  reduce using rule 46 (primitivo -> DECIMAL .)
+    DIVISION        reduce using rule 46 (primitivo -> DECIMAL .)
+    MODULO          reduce using rule 46 (primitivo -> DECIMAL .)
+    POTENCIA        reduce using rule 46 (primitivo -> DECIMAL .)
+    MENOR_QUE       reduce using rule 46 (primitivo -> DECIMAL .)
+    MENOR_IGUAL     reduce using rule 46 (primitivo -> DECIMAL .)
+    MAYOR_QUE       reduce using rule 46 (primitivo -> DECIMAL .)
+    MAYOR_IGUAL     reduce using rule 46 (primitivo -> DECIMAL .)
+    DISTINTO        reduce using rule 46 (primitivo -> DECIMAL .)
+    IGUAL           reduce using rule 46 (primitivo -> DECIMAL .)
+    OR              reduce using rule 46 (primitivo -> DECIMAL .)
+    AND             reduce using rule 46 (primitivo -> DECIMAL .)
+    PTCOMA          reduce using rule 46 (primitivo -> DECIMAL .)
+    WHERE           reduce using rule 46 (primitivo -> DECIMAL .)
+    COMA            reduce using rule 46 (primitivo -> DECIMAL .)
+
+
+state 46
+
+    (48) primitivo -> CADENA .
+
+    MAS             reduce using rule 48 (primitivo -> CADENA .)
+    MENOS           reduce using rule 48 (primitivo -> CADENA .)
+    MULTIPLICACION  reduce using rule 48 (primitivo -> CADENA .)
+    DIVISION        reduce using rule 48 (primitivo -> CADENA .)
+    MODULO          reduce using rule 48 (primitivo -> CADENA .)
+    POTENCIA        reduce using rule 48 (primitivo -> CADENA .)
+    MENOR_QUE       reduce using rule 48 (primitivo -> CADENA .)
+    MENOR_IGUAL     reduce using rule 48 (primitivo -> CADENA .)
+    MAYOR_QUE       reduce using rule 48 (primitivo -> CADENA .)
+    MAYOR_IGUAL     reduce using rule 48 (primitivo -> CADENA .)
+    DISTINTO        reduce using rule 48 (primitivo -> CADENA .)
+    IGUAL           reduce using rule 48 (primitivo -> CADENA .)
+    OR              reduce using rule 48 (primitivo -> CADENA .)
+    AND             reduce using rule 48 (primitivo -> CADENA .)
+    PTCOMA          reduce using rule 48 (primitivo -> CADENA .)
+    WHERE           reduce using rule 48 (primitivo -> CADENA .)
+    COMA            reduce using rule 48 (primitivo -> CADENA .)
+
+
+state 47
+
+    (49) primitivo -> TRUE .
+
+    MAS             reduce using rule 49 (primitivo -> TRUE .)
+    MENOS           reduce using rule 49 (primitivo -> TRUE .)
+    MULTIPLICACION  reduce using rule 49 (primitivo -> TRUE .)
+    DIVISION        reduce using rule 49 (primitivo -> TRUE .)
+    MODULO          reduce using rule 49 (primitivo -> TRUE .)
+    POTENCIA        reduce using rule 49 (primitivo -> TRUE .)
+    MENOR_QUE       reduce using rule 49 (primitivo -> TRUE .)
+    MENOR_IGUAL     reduce using rule 49 (primitivo -> TRUE .)
+    MAYOR_QUE       reduce using rule 49 (primitivo -> TRUE .)
+    MAYOR_IGUAL     reduce using rule 49 (primitivo -> TRUE .)
+    DISTINTO        reduce using rule 49 (primitivo -> TRUE .)
+    IGUAL           reduce using rule 49 (primitivo -> TRUE .)
+    OR              reduce using rule 49 (primitivo -> TRUE .)
+    AND             reduce using rule 49 (primitivo -> TRUE .)
+    PTCOMA          reduce using rule 49 (primitivo -> TRUE .)
+    WHERE           reduce using rule 49 (primitivo -> TRUE .)
+    COMA            reduce using rule 49 (primitivo -> TRUE .)
+
+
+state 48
+
+    (50) primitivo -> FALSE .
+
+    MAS             reduce using rule 50 (primitivo -> FALSE .)
+    MENOS           reduce using rule 50 (primitivo -> FALSE .)
+    MULTIPLICACION  reduce using rule 50 (primitivo -> FALSE .)
+    DIVISION        reduce using rule 50 (primitivo -> FALSE .)
+    MODULO          reduce using rule 50 (primitivo -> FALSE .)
+    POTENCIA        reduce using rule 50 (primitivo -> FALSE .)
+    MENOR_QUE       reduce using rule 50 (primitivo -> FALSE .)
+    MENOR_IGUAL     reduce using rule 50 (primitivo -> FALSE .)
+    MAYOR_QUE       reduce using rule 50 (primitivo -> FALSE .)
+    MAYOR_IGUAL     reduce using rule 50 (primitivo -> FALSE .)
+    DISTINTO        reduce using rule 50 (primitivo -> FALSE .)
+    IGUAL           reduce using rule 50 (primitivo -> FALSE .)
+    OR              reduce using rule 50 (primitivo -> FALSE .)
+    AND             reduce using rule 50 (primitivo -> FALSE .)
+    PTCOMA          reduce using rule 50 (primitivo -> FALSE .)
+    WHERE           reduce using rule 50 (primitivo -> FALSE .)
+    COMA            reduce using rule 50 (primitivo -> FALSE .)
+
+
+state 49
+
+    (55) set_columna -> ID IGUAL . exp_operacion
+    (25) exp_operacion -> . exp_logica
+    (26) exp_logica -> . exp_logica OR exp_logica
+    (27) exp_logica -> . exp_logica AND exp_logica
+    (28) exp_logica -> . NOT exp_logica
+    (29) exp_logica -> . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    NOT             shift and go to state 39
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_operacion                  shift and go to state 82
+    exp_logica                     shift and go to state 38
+    exp_relacional                 shift and go to state 40
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 50
+
+    (51) update_table -> UPDATE ID SET lista_seteos PTCOMA .
+
+    CREATE          reduce using rule 51 (update_table -> UPDATE ID SET lista_seteos PTCOMA .)
+    INSERT          reduce using rule 51 (update_table -> UPDATE ID SET lista_seteos PTCOMA .)
+    DELETE          reduce using rule 51 (update_table -> UPDATE ID SET lista_seteos PTCOMA .)
+    UPDATE          reduce using rule 51 (update_table -> UPDATE ID SET lista_seteos PTCOMA .)
+    $end            reduce using rule 51 (update_table -> UPDATE ID SET lista_seteos PTCOMA .)
+
+
+state 51
+
+    (52) update_table -> UPDATE ID SET lista_seteos WHERE . exp_operacion PTCOMA
+    (25) exp_operacion -> . exp_logica
+    (26) exp_logica -> . exp_logica OR exp_logica
+    (27) exp_logica -> . exp_logica AND exp_logica
+    (28) exp_logica -> . NOT exp_logica
+    (29) exp_logica -> . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    NOT             shift and go to state 39
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_operacion                  shift and go to state 83
+    exp_logica                     shift and go to state 38
+    exp_relacional                 shift and go to state 40
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 52
+
+    (53) lista_seteos -> lista_seteos COMA . set_columna
+    (55) set_columna -> . ID IGUAL exp_operacion
+
+    ID              shift and go to state 27
+
+    set_columna                    shift and go to state 84
+
+state 53
+
+    (8) crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO . ID PARDERECHO PTCOMA
+
+    ID              shift and go to state 85
+
+
+state 54
+
+    (9) insert_table -> INSERT INTO ID VALUES lista_valores PTCOMA .
+
+    CREATE          reduce using rule 9 (insert_table -> INSERT INTO ID VALUES lista_valores PTCOMA .)
+    INSERT          reduce using rule 9 (insert_table -> INSERT INTO ID VALUES lista_valores PTCOMA .)
+    DELETE          reduce using rule 9 (insert_table -> INSERT INTO ID VALUES lista_valores PTCOMA .)
+    UPDATE          reduce using rule 9 (insert_table -> INSERT INTO ID VALUES lista_valores PTCOMA .)
+    $end            reduce using rule 9 (insert_table -> INSERT INTO ID VALUES lista_valores PTCOMA .)
+
+
+state 55
+
+    (15) lista_valores -> lista_valores COMA . tupla
+    (17) tupla -> . PARIZQUIERDO lista_expresiones PARDERECHO
+
+    PARIZQUIERDO    shift and go to state 33
+
+    tupla                          shift and go to state 86
+
+state 56
+
+    (17) tupla -> PARIZQUIERDO lista_expresiones . PARDERECHO
+    (18) lista_expresiones -> lista_expresiones . COMA expresion
+
+    PARDERECHO      shift and go to state 87
+    COMA            shift and go to state 88
+
+
+state 57
+
+    (19) lista_expresiones -> expresion .
+
+    PARDERECHO      reduce using rule 19 (lista_expresiones -> expresion .)
+    COMA            reduce using rule 19 (lista_expresiones -> expresion .)
+
+
+state 58
+
+    (20) expresion -> CADENA .
+
+    PARDERECHO      reduce using rule 20 (expresion -> CADENA .)
+    COMA            reduce using rule 20 (expresion -> CADENA .)
+
+
+state 59
+
+    (21) expresion -> ENTERO .
+
+    PARDERECHO      reduce using rule 21 (expresion -> ENTERO .)
+    COMA            reduce using rule 21 (expresion -> ENTERO .)
+
+
+state 60
+
+    (22) expresion -> DECIMAL .
+
+    PARDERECHO      reduce using rule 22 (expresion -> DECIMAL .)
+    COMA            reduce using rule 22 (expresion -> DECIMAL .)
+
+
+state 61
+
+    (10) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO . VALUES lista_valores PTCOMA
+    (12) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO . DEFAULT VALUES PTCOMA
+
+    VALUES          shift and go to state 89
+    DEFAULT         shift and go to state 90
+
+
+state 62
+
+    (13) lista_columnas -> lista_columnas COMA . ID
+
+    ID              shift and go to state 91
+
+
+state 63
+
+    (11) insert_table -> INSERT INTO ID DEFAULT VALUES PTCOMA .
+
+    CREATE          reduce using rule 11 (insert_table -> INSERT INTO ID DEFAULT VALUES PTCOMA .)
+    INSERT          reduce using rule 11 (insert_table -> INSERT INTO ID DEFAULT VALUES PTCOMA .)
+    DELETE          reduce using rule 11 (insert_table -> INSERT INTO ID DEFAULT VALUES PTCOMA .)
+    UPDATE          reduce using rule 11 (insert_table -> INSERT INTO ID DEFAULT VALUES PTCOMA .)
+    $end            reduce using rule 11 (insert_table -> INSERT INTO ID DEFAULT VALUES PTCOMA .)
+
+
+state 64
+
+    (24) delete_table -> DELETE FROM ID WHERE exp_operacion PTCOMA .
+
+    CREATE          reduce using rule 24 (delete_table -> DELETE FROM ID WHERE exp_operacion PTCOMA .)
+    INSERT          reduce using rule 24 (delete_table -> DELETE FROM ID WHERE exp_operacion PTCOMA .)
+    DELETE          reduce using rule 24 (delete_table -> DELETE FROM ID WHERE exp_operacion PTCOMA .)
+    UPDATE          reduce using rule 24 (delete_table -> DELETE FROM ID WHERE exp_operacion PTCOMA .)
+    $end            reduce using rule 24 (delete_table -> DELETE FROM ID WHERE exp_operacion PTCOMA .)
+
+
+state 65
+
+    (26) exp_logica -> exp_logica OR . exp_logica
+    (26) exp_logica -> . exp_logica OR exp_logica
+    (27) exp_logica -> . exp_logica AND exp_logica
+    (28) exp_logica -> . NOT exp_logica
+    (29) exp_logica -> . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    NOT             shift and go to state 39
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_logica                     shift and go to state 92
+    exp_relacional                 shift and go to state 40
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 66
+
+    (27) exp_logica -> exp_logica AND . exp_logica
+    (26) exp_logica -> . exp_logica OR exp_logica
+    (27) exp_logica -> . exp_logica AND exp_logica
+    (28) exp_logica -> . NOT exp_logica
+    (29) exp_logica -> . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    NOT             shift and go to state 39
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_logica                     shift and go to state 93
+    exp_relacional                 shift and go to state 40
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 67
+
+    (28) exp_logica -> NOT exp_logica .
+    (26) exp_logica -> exp_logica . OR exp_logica
+    (27) exp_logica -> exp_logica . AND exp_logica
+
+    OR              reduce using rule 28 (exp_logica -> NOT exp_logica .)
+    AND             reduce using rule 28 (exp_logica -> NOT exp_logica .)
+    PTCOMA          reduce using rule 28 (exp_logica -> NOT exp_logica .)
+    WHERE           reduce using rule 28 (exp_logica -> NOT exp_logica .)
+    COMA            reduce using rule 28 (exp_logica -> NOT exp_logica .)
+
+  ! OR              [ shift and go to state 65 ]
+  ! AND             [ shift and go to state 66 ]
+
+
+state 68
+
+    (30) exp_relacional -> exp_relacional MENOR_QUE . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_relacional                 shift and go to state 94
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 69
+
+    (31) exp_relacional -> exp_relacional MENOR_IGUAL . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_relacional                 shift and go to state 95
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 70
+
+    (32) exp_relacional -> exp_relacional MAYOR_QUE . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_relacional                 shift and go to state 96
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 71
+
+    (33) exp_relacional -> exp_relacional MAYOR_IGUAL . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_relacional                 shift and go to state 97
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 72
+
+    (34) exp_relacional -> exp_relacional DISTINTO . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_relacional                 shift and go to state 98
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 73
+
+    (35) exp_relacional -> exp_relacional IGUAL . exp_relacional
+    (30) exp_relacional -> . exp_relacional MENOR_QUE exp_relacional
+    (31) exp_relacional -> . exp_relacional MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> . exp_relacional MAYOR_QUE exp_relacional
+    (33) exp_relacional -> . exp_relacional MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> . exp_relacional DISTINTO exp_relacional
+    (35) exp_relacional -> . exp_relacional IGUAL exp_relacional
+    (36) exp_relacional -> . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_relacional                 shift and go to state 99
+    exp_aritmetica                 shift and go to state 41
+    primitivo                      shift and go to state 43
+
+state 74
+
+    (37) exp_aritmetica -> exp_aritmetica MAS . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_aritmetica                 shift and go to state 100
+    primitivo                      shift and go to state 43
+
+state 75
+
+    (38) exp_aritmetica -> exp_aritmetica MENOS . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_aritmetica                 shift and go to state 101
+    primitivo                      shift and go to state 43
+
+state 76
+
+    (39) exp_aritmetica -> exp_aritmetica MULTIPLICACION . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_aritmetica                 shift and go to state 102
+    primitivo                      shift and go to state 43
+
+state 77
+
+    (40) exp_aritmetica -> exp_aritmetica DIVISION . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_aritmetica                 shift and go to state 103
+    primitivo                      shift and go to state 43
+
+state 78
+
+    (41) exp_aritmetica -> exp_aritmetica MODULO . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_aritmetica                 shift and go to state 104
+    primitivo                      shift and go to state 43
+
+state 79
+
+    (42) exp_aritmetica -> exp_aritmetica POTENCIA . exp_aritmetica
+    (37) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
+    (38) exp_aritmetica -> . exp_aritmetica MENOS exp_aritmetica
+    (39) exp_aritmetica -> . exp_aritmetica MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> . exp_aritmetica DIVISION exp_aritmetica
+    (41) exp_aritmetica -> . exp_aritmetica MODULO exp_aritmetica
+    (42) exp_aritmetica -> . exp_aritmetica POTENCIA exp_aritmetica
+    (43) exp_aritmetica -> . primitivo
+    (44) primitivo -> . ENTERO
+    (45) primitivo -> . MENOS ENTERO
+    (46) primitivo -> . DECIMAL
+    (47) primitivo -> . MENOS DECIMAL
+    (48) primitivo -> . CADENA
+    (49) primitivo -> . TRUE
+    (50) primitivo -> . FALSE
+
+    ENTERO          shift and go to state 44
+    MENOS           shift and go to state 42
+    DECIMAL         shift and go to state 45
+    CADENA          shift and go to state 46
+    TRUE            shift and go to state 47
+    FALSE           shift and go to state 48
+
+    exp_aritmetica                 shift and go to state 105
+    primitivo                      shift and go to state 43
+
+state 80
+
+    (45) primitivo -> MENOS ENTERO .
+
+    MAS             reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    MENOS           reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    MULTIPLICACION  reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    DIVISION        reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    MODULO          reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    POTENCIA        reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    MENOR_QUE       reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    MENOR_IGUAL     reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    MAYOR_QUE       reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    MAYOR_IGUAL     reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    DISTINTO        reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    IGUAL           reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    OR              reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    AND             reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    PTCOMA          reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    WHERE           reduce using rule 45 (primitivo -> MENOS ENTERO .)
+    COMA            reduce using rule 45 (primitivo -> MENOS ENTERO .)
+
+
+state 81
+
+    (47) primitivo -> MENOS DECIMAL .
+
+    MAS             reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    MENOS           reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    MULTIPLICACION  reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    DIVISION        reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    MODULO          reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    POTENCIA        reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    MENOR_QUE       reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    MENOR_IGUAL     reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    MAYOR_QUE       reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    MAYOR_IGUAL     reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    DISTINTO        reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    IGUAL           reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    OR              reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    AND             reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    PTCOMA          reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    WHERE           reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+    COMA            reduce using rule 47 (primitivo -> MENOS DECIMAL .)
+
+
+state 82
+
+    (55) set_columna -> ID IGUAL exp_operacion .
+
+    PTCOMA          reduce using rule 55 (set_columna -> ID IGUAL exp_operacion .)
+    WHERE           reduce using rule 55 (set_columna -> ID IGUAL exp_operacion .)
+    COMA            reduce using rule 55 (set_columna -> ID IGUAL exp_operacion .)
+
+
+state 83
+
+    (52) update_table -> UPDATE ID SET lista_seteos WHERE exp_operacion . PTCOMA
+
+    PTCOMA          shift and go to state 106
+
+
+state 84
+
+    (53) lista_seteos -> lista_seteos COMA set_columna .
+
+    PTCOMA          reduce using rule 53 (lista_seteos -> lista_seteos COMA set_columna .)
+    WHERE           reduce using rule 53 (lista_seteos -> lista_seteos COMA set_columna .)
+    COMA            reduce using rule 53 (lista_seteos -> lista_seteos COMA set_columna .)
+
+
+state 85
+
+    (8) crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID . PARDERECHO PTCOMA
+
+    PARDERECHO      shift and go to state 107
+
+
+state 86
+
+    (15) lista_valores -> lista_valores COMA tupla .
+
+    PTCOMA          reduce using rule 15 (lista_valores -> lista_valores COMA tupla .)
+    COMA            reduce using rule 15 (lista_valores -> lista_valores COMA tupla .)
+
+
+state 87
+
+    (17) tupla -> PARIZQUIERDO lista_expresiones PARDERECHO .
+
+    PTCOMA          reduce using rule 17 (tupla -> PARIZQUIERDO lista_expresiones PARDERECHO .)
+    COMA            reduce using rule 17 (tupla -> PARIZQUIERDO lista_expresiones PARDERECHO .)
+
+
+state 88
+
+    (18) lista_expresiones -> lista_expresiones COMA . expresion
+    (20) expresion -> . CADENA
+    (21) expresion -> . ENTERO
+    (22) expresion -> . DECIMAL
+
+    CADENA          shift and go to state 58
+    ENTERO          shift and go to state 59
+    DECIMAL         shift and go to state 60
+
+    expresion                      shift and go to state 108
+
+state 89
+
+    (10) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES . lista_valores PTCOMA
+    (15) lista_valores -> . lista_valores COMA tupla
+    (16) lista_valores -> . tupla
+    (17) tupla -> . PARIZQUIERDO lista_expresiones PARDERECHO
+
+    PARIZQUIERDO    shift and go to state 33
+
+    lista_valores                  shift and go to state 109
+    tupla                          shift and go to state 32
+
+state 90
+
+    (12) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT . VALUES PTCOMA
+
+    VALUES          shift and go to state 110
+
+
+state 91
+
+    (13) lista_columnas -> lista_columnas COMA ID .
+
+    PARDERECHO      reduce using rule 13 (lista_columnas -> lista_columnas COMA ID .)
+    COMA            reduce using rule 13 (lista_columnas -> lista_columnas COMA ID .)
+
+
+state 92
+
+    (26) exp_logica -> exp_logica OR exp_logica .
+    (26) exp_logica -> exp_logica . OR exp_logica
+    (27) exp_logica -> exp_logica . AND exp_logica
+
+    OR              reduce using rule 26 (exp_logica -> exp_logica OR exp_logica .)
+    PTCOMA          reduce using rule 26 (exp_logica -> exp_logica OR exp_logica .)
+    WHERE           reduce using rule 26 (exp_logica -> exp_logica OR exp_logica .)
+    COMA            reduce using rule 26 (exp_logica -> exp_logica OR exp_logica .)
+    AND             shift and go to state 66
+
+  ! AND             [ reduce using rule 26 (exp_logica -> exp_logica OR exp_logica .) ]
+  ! OR              [ shift and go to state 65 ]
+
+
+state 93
+
+    (27) exp_logica -> exp_logica AND exp_logica .
+    (26) exp_logica -> exp_logica . OR exp_logica
+    (27) exp_logica -> exp_logica . AND exp_logica
+
+    OR              reduce using rule 27 (exp_logica -> exp_logica AND exp_logica .)
+    AND             reduce using rule 27 (exp_logica -> exp_logica AND exp_logica .)
+    PTCOMA          reduce using rule 27 (exp_logica -> exp_logica AND exp_logica .)
+    WHERE           reduce using rule 27 (exp_logica -> exp_logica AND exp_logica .)
+    COMA            reduce using rule 27 (exp_logica -> exp_logica AND exp_logica .)
+
+  ! OR              [ shift and go to state 65 ]
+  ! AND             [ shift and go to state 66 ]
+
+
+state 94
+
+    (30) exp_relacional -> exp_relacional MENOR_QUE exp_relacional .
+    (30) exp_relacional -> exp_relacional . MENOR_QUE exp_relacional
+    (31) exp_relacional -> exp_relacional . MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> exp_relacional . MAYOR_QUE exp_relacional
+    (33) exp_relacional -> exp_relacional . MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> exp_relacional . DISTINTO exp_relacional
+    (35) exp_relacional -> exp_relacional . IGUAL exp_relacional
+
+    MENOR_QUE       reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    MENOR_IGUAL     reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    MAYOR_QUE       reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    MAYOR_IGUAL     reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    DISTINTO        reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    IGUAL           reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    OR              reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    AND             reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    PTCOMA          reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    WHERE           reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+    COMA            reduce using rule 30 (exp_relacional -> exp_relacional MENOR_QUE exp_relacional .)
+
+  ! MENOR_QUE       [ shift and go to state 68 ]
+  ! MENOR_IGUAL     [ shift and go to state 69 ]
+  ! MAYOR_QUE       [ shift and go to state 70 ]
+  ! MAYOR_IGUAL     [ shift and go to state 71 ]
+  ! DISTINTO        [ shift and go to state 72 ]
+  ! IGUAL           [ shift and go to state 73 ]
+
+
+state 95
+
+    (31) exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .
+    (30) exp_relacional -> exp_relacional . MENOR_QUE exp_relacional
+    (31) exp_relacional -> exp_relacional . MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> exp_relacional . MAYOR_QUE exp_relacional
+    (33) exp_relacional -> exp_relacional . MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> exp_relacional . DISTINTO exp_relacional
+    (35) exp_relacional -> exp_relacional . IGUAL exp_relacional
+
+    MENOR_QUE       reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    MENOR_IGUAL     reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    MAYOR_QUE       reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    MAYOR_IGUAL     reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    DISTINTO        reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    IGUAL           reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    OR              reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    AND             reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    PTCOMA          reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    WHERE           reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+    COMA            reduce using rule 31 (exp_relacional -> exp_relacional MENOR_IGUAL exp_relacional .)
+
+  ! MENOR_QUE       [ shift and go to state 68 ]
+  ! MENOR_IGUAL     [ shift and go to state 69 ]
+  ! MAYOR_QUE       [ shift and go to state 70 ]
+  ! MAYOR_IGUAL     [ shift and go to state 71 ]
+  ! DISTINTO        [ shift and go to state 72 ]
+  ! IGUAL           [ shift and go to state 73 ]
+
+
+state 96
+
+    (32) exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .
+    (30) exp_relacional -> exp_relacional . MENOR_QUE exp_relacional
+    (31) exp_relacional -> exp_relacional . MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> exp_relacional . MAYOR_QUE exp_relacional
+    (33) exp_relacional -> exp_relacional . MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> exp_relacional . DISTINTO exp_relacional
+    (35) exp_relacional -> exp_relacional . IGUAL exp_relacional
+
+    MENOR_QUE       reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    MENOR_IGUAL     reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    MAYOR_QUE       reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    MAYOR_IGUAL     reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    DISTINTO        reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    IGUAL           reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    OR              reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    AND             reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    PTCOMA          reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    WHERE           reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+    COMA            reduce using rule 32 (exp_relacional -> exp_relacional MAYOR_QUE exp_relacional .)
+
+  ! MENOR_QUE       [ shift and go to state 68 ]
+  ! MENOR_IGUAL     [ shift and go to state 69 ]
+  ! MAYOR_QUE       [ shift and go to state 70 ]
+  ! MAYOR_IGUAL     [ shift and go to state 71 ]
+  ! DISTINTO        [ shift and go to state 72 ]
+  ! IGUAL           [ shift and go to state 73 ]
+
+
+state 97
+
+    (33) exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .
+    (30) exp_relacional -> exp_relacional . MENOR_QUE exp_relacional
+    (31) exp_relacional -> exp_relacional . MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> exp_relacional . MAYOR_QUE exp_relacional
+    (33) exp_relacional -> exp_relacional . MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> exp_relacional . DISTINTO exp_relacional
+    (35) exp_relacional -> exp_relacional . IGUAL exp_relacional
+
+    MENOR_QUE       reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    MENOR_IGUAL     reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    MAYOR_QUE       reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    MAYOR_IGUAL     reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    DISTINTO        reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    IGUAL           reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    OR              reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    AND             reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    PTCOMA          reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    WHERE           reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+    COMA            reduce using rule 33 (exp_relacional -> exp_relacional MAYOR_IGUAL exp_relacional .)
+
+  ! MENOR_QUE       [ shift and go to state 68 ]
+  ! MENOR_IGUAL     [ shift and go to state 69 ]
+  ! MAYOR_QUE       [ shift and go to state 70 ]
+  ! MAYOR_IGUAL     [ shift and go to state 71 ]
+  ! DISTINTO        [ shift and go to state 72 ]
+  ! IGUAL           [ shift and go to state 73 ]
+
+
+state 98
+
+    (34) exp_relacional -> exp_relacional DISTINTO exp_relacional .
+    (30) exp_relacional -> exp_relacional . MENOR_QUE exp_relacional
+    (31) exp_relacional -> exp_relacional . MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> exp_relacional . MAYOR_QUE exp_relacional
+    (33) exp_relacional -> exp_relacional . MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> exp_relacional . DISTINTO exp_relacional
+    (35) exp_relacional -> exp_relacional . IGUAL exp_relacional
+
+    MENOR_QUE       reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    MENOR_IGUAL     reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    MAYOR_QUE       reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    MAYOR_IGUAL     reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    DISTINTO        reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    IGUAL           reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    OR              reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    AND             reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    PTCOMA          reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    WHERE           reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+    COMA            reduce using rule 34 (exp_relacional -> exp_relacional DISTINTO exp_relacional .)
+
+  ! MENOR_QUE       [ shift and go to state 68 ]
+  ! MENOR_IGUAL     [ shift and go to state 69 ]
+  ! MAYOR_QUE       [ shift and go to state 70 ]
+  ! MAYOR_IGUAL     [ shift and go to state 71 ]
+  ! DISTINTO        [ shift and go to state 72 ]
+  ! IGUAL           [ shift and go to state 73 ]
+
+
+state 99
+
+    (35) exp_relacional -> exp_relacional IGUAL exp_relacional .
+    (30) exp_relacional -> exp_relacional . MENOR_QUE exp_relacional
+    (31) exp_relacional -> exp_relacional . MENOR_IGUAL exp_relacional
+    (32) exp_relacional -> exp_relacional . MAYOR_QUE exp_relacional
+    (33) exp_relacional -> exp_relacional . MAYOR_IGUAL exp_relacional
+    (34) exp_relacional -> exp_relacional . DISTINTO exp_relacional
+    (35) exp_relacional -> exp_relacional . IGUAL exp_relacional
+
+    MENOR_QUE       reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    MENOR_IGUAL     reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    MAYOR_QUE       reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    MAYOR_IGUAL     reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    DISTINTO        reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    IGUAL           reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    OR              reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    AND             reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    PTCOMA          reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    WHERE           reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+    COMA            reduce using rule 35 (exp_relacional -> exp_relacional IGUAL exp_relacional .)
+
+  ! MENOR_QUE       [ shift and go to state 68 ]
+  ! MENOR_IGUAL     [ shift and go to state 69 ]
+  ! MAYOR_QUE       [ shift and go to state 70 ]
+  ! MAYOR_IGUAL     [ shift and go to state 71 ]
+  ! DISTINTO        [ shift and go to state 72 ]
+  ! IGUAL           [ shift and go to state 73 ]
+
+
+state 100
+
+    (37) exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .
+    (37) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
+    (38) exp_aritmetica -> exp_aritmetica . MENOS exp_aritmetica
+    (39) exp_aritmetica -> exp_aritmetica . MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> exp_aritmetica . DIVISION exp_aritmetica
+    (41) exp_aritmetica -> exp_aritmetica . MODULO exp_aritmetica
+    (42) exp_aritmetica -> exp_aritmetica . POTENCIA exp_aritmetica
+
+    MAS             reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    MENOS           reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    MENOR_QUE       reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    MENOR_IGUAL     reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    MAYOR_QUE       reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    MAYOR_IGUAL     reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    DISTINTO        reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    IGUAL           reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    OR              reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    AND             reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    PTCOMA          reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    WHERE           reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    COMA            reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .)
+    MULTIPLICACION  shift and go to state 76
+    DIVISION        shift and go to state 77
+    MODULO          shift and go to state 78
+    POTENCIA        shift and go to state 79
+
+  ! MULTIPLICACION  [ reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .) ]
+  ! DIVISION        [ reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .) ]
+  ! MODULO          [ reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .) ]
+  ! POTENCIA        [ reduce using rule 37 (exp_aritmetica -> exp_aritmetica MAS exp_aritmetica .) ]
+  ! MAS             [ shift and go to state 74 ]
+  ! MENOS           [ shift and go to state 75 ]
+
+
+state 101
+
+    (38) exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .
+    (37) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
+    (38) exp_aritmetica -> exp_aritmetica . MENOS exp_aritmetica
+    (39) exp_aritmetica -> exp_aritmetica . MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> exp_aritmetica . DIVISION exp_aritmetica
+    (41) exp_aritmetica -> exp_aritmetica . MODULO exp_aritmetica
+    (42) exp_aritmetica -> exp_aritmetica . POTENCIA exp_aritmetica
+
+    MAS             reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    MENOS           reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    MENOR_QUE       reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    MENOR_IGUAL     reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    MAYOR_QUE       reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    MAYOR_IGUAL     reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    DISTINTO        reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    IGUAL           reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    OR              reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    AND             reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    PTCOMA          reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    WHERE           reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    COMA            reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .)
+    MULTIPLICACION  shift and go to state 76
+    DIVISION        shift and go to state 77
+    MODULO          shift and go to state 78
+    POTENCIA        shift and go to state 79
+
+  ! MULTIPLICACION  [ reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .) ]
+  ! DIVISION        [ reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .) ]
+  ! MODULO          [ reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .) ]
+  ! POTENCIA        [ reduce using rule 38 (exp_aritmetica -> exp_aritmetica MENOS exp_aritmetica .) ]
+  ! MAS             [ shift and go to state 74 ]
+  ! MENOS           [ shift and go to state 75 ]
+
+
+state 102
+
+    (39) exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .
+    (37) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
+    (38) exp_aritmetica -> exp_aritmetica . MENOS exp_aritmetica
+    (39) exp_aritmetica -> exp_aritmetica . MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> exp_aritmetica . DIVISION exp_aritmetica
+    (41) exp_aritmetica -> exp_aritmetica . MODULO exp_aritmetica
+    (42) exp_aritmetica -> exp_aritmetica . POTENCIA exp_aritmetica
+
+    MAS             reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    MENOS           reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    MULTIPLICACION  reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    DIVISION        reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    MODULO          reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    MENOR_QUE       reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    MENOR_IGUAL     reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    MAYOR_QUE       reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    MAYOR_IGUAL     reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    DISTINTO        reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    IGUAL           reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    OR              reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    AND             reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    PTCOMA          reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    WHERE           reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    COMA            reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .)
+    POTENCIA        shift and go to state 79
+
+  ! POTENCIA        [ reduce using rule 39 (exp_aritmetica -> exp_aritmetica MULTIPLICACION exp_aritmetica .) ]
+  ! MAS             [ shift and go to state 74 ]
+  ! MENOS           [ shift and go to state 75 ]
+  ! MULTIPLICACION  [ shift and go to state 76 ]
+  ! DIVISION        [ shift and go to state 77 ]
+  ! MODULO          [ shift and go to state 78 ]
+
+
+state 103
+
+    (40) exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .
+    (37) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
+    (38) exp_aritmetica -> exp_aritmetica . MENOS exp_aritmetica
+    (39) exp_aritmetica -> exp_aritmetica . MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> exp_aritmetica . DIVISION exp_aritmetica
+    (41) exp_aritmetica -> exp_aritmetica . MODULO exp_aritmetica
+    (42) exp_aritmetica -> exp_aritmetica . POTENCIA exp_aritmetica
+
+    MAS             reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    MENOS           reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    MULTIPLICACION  reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    DIVISION        reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    MODULO          reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    MENOR_QUE       reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    MENOR_IGUAL     reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    MAYOR_QUE       reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    MAYOR_IGUAL     reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    DISTINTO        reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    IGUAL           reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    OR              reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    AND             reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    PTCOMA          reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    WHERE           reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    COMA            reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .)
+    POTENCIA        shift and go to state 79
+
+  ! POTENCIA        [ reduce using rule 40 (exp_aritmetica -> exp_aritmetica DIVISION exp_aritmetica .) ]
+  ! MAS             [ shift and go to state 74 ]
+  ! MENOS           [ shift and go to state 75 ]
+  ! MULTIPLICACION  [ shift and go to state 76 ]
+  ! DIVISION        [ shift and go to state 77 ]
+  ! MODULO          [ shift and go to state 78 ]
+
+
+state 104
+
+    (41) exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .
+    (37) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
+    (38) exp_aritmetica -> exp_aritmetica . MENOS exp_aritmetica
+    (39) exp_aritmetica -> exp_aritmetica . MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> exp_aritmetica . DIVISION exp_aritmetica
+    (41) exp_aritmetica -> exp_aritmetica . MODULO exp_aritmetica
+    (42) exp_aritmetica -> exp_aritmetica . POTENCIA exp_aritmetica
+
+    MAS             reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    MENOS           reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    MULTIPLICACION  reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    DIVISION        reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    MODULO          reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    MENOR_QUE       reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    MENOR_IGUAL     reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    MAYOR_QUE       reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    MAYOR_IGUAL     reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    DISTINTO        reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    IGUAL           reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    OR              reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    AND             reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    PTCOMA          reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    WHERE           reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    COMA            reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .)
+    POTENCIA        shift and go to state 79
+
+  ! POTENCIA        [ reduce using rule 41 (exp_aritmetica -> exp_aritmetica MODULO exp_aritmetica .) ]
+  ! MAS             [ shift and go to state 74 ]
+  ! MENOS           [ shift and go to state 75 ]
+  ! MULTIPLICACION  [ shift and go to state 76 ]
+  ! DIVISION        [ shift and go to state 77 ]
+  ! MODULO          [ shift and go to state 78 ]
+
+
+state 105
+
+    (42) exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .
+    (37) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
+    (38) exp_aritmetica -> exp_aritmetica . MENOS exp_aritmetica
+    (39) exp_aritmetica -> exp_aritmetica . MULTIPLICACION exp_aritmetica
+    (40) exp_aritmetica -> exp_aritmetica . DIVISION exp_aritmetica
+    (41) exp_aritmetica -> exp_aritmetica . MODULO exp_aritmetica
+    (42) exp_aritmetica -> exp_aritmetica . POTENCIA exp_aritmetica
+
+    MAS             reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    MENOS           reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    MULTIPLICACION  reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    DIVISION        reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    MODULO          reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    POTENCIA        reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    MENOR_QUE       reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    MENOR_IGUAL     reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    MAYOR_QUE       reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    MAYOR_IGUAL     reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    DISTINTO        reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    IGUAL           reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    OR              reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    AND             reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    PTCOMA          reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    WHERE           reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+    COMA            reduce using rule 42 (exp_aritmetica -> exp_aritmetica POTENCIA exp_aritmetica .)
+
+  ! MAS             [ shift and go to state 74 ]
+  ! MENOS           [ shift and go to state 75 ]
+  ! MULTIPLICACION  [ shift and go to state 76 ]
+  ! DIVISION        [ shift and go to state 77 ]
+  ! MODULO          [ shift and go to state 78 ]
+  ! POTENCIA        [ shift and go to state 79 ]
+
+
+state 106
+
+    (52) update_table -> UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA .
+
+    CREATE          reduce using rule 52 (update_table -> UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA .)
+    INSERT          reduce using rule 52 (update_table -> UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA .)
+    DELETE          reduce using rule 52 (update_table -> UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA .)
+    UPDATE          reduce using rule 52 (update_table -> UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA .)
+    $end            reduce using rule 52 (update_table -> UPDATE ID SET lista_seteos WHERE exp_operacion PTCOMA .)
+
+
+state 107
+
+    (8) crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO . PTCOMA
+
+    PTCOMA          shift and go to state 111
+
+
+state 108
+
+    (18) lista_expresiones -> lista_expresiones COMA expresion .
+
+    PARDERECHO      reduce using rule 18 (lista_expresiones -> lista_expresiones COMA expresion .)
+    COMA            reduce using rule 18 (lista_expresiones -> lista_expresiones COMA expresion .)
+
+
+state 109
+
+    (10) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores . PTCOMA
+    (15) lista_valores -> lista_valores . COMA tupla
+
+    PTCOMA          shift and go to state 112
+    COMA            shift and go to state 55
+
+
+state 110
+
+    (12) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES . PTCOMA
+
+    PTCOMA          shift and go to state 113
+
+
+state 111
+
+    (8) crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .
+
+    CREATE          reduce using rule 8 (crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
+    INSERT          reduce using rule 8 (crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
+    DELETE          reduce using rule 8 (crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
+    UPDATE          reduce using rule 8 (crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
+    $end            reduce using rule 8 (crear_enum -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
+
+
+state 112
+
+    (10) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA .
+
+    CREATE          reduce using rule 10 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA .)
+    INSERT          reduce using rule 10 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA .)
+    DELETE          reduce using rule 10 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA .)
+    UPDATE          reduce using rule 10 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA .)
+    $end            reduce using rule 10 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA .)
+
+
+state 113
+
+    (12) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA .
+
+    CREATE          reduce using rule 12 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA .)
+    INSERT          reduce using rule 12 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA .)
+    DELETE          reduce using rule 12 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA .)
+    UPDATE          reduce using rule 12 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA .)
+    $end            reduce using rule 12 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA .)
+
