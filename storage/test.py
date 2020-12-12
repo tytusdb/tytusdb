@@ -28,3 +28,21 @@ print(j.dropDatabase("db1"))
 
 # show empty-list of databases
 print(j.showDatabases())
+
+# again create db1 and db2, return two 0's and show return list of databases
+print(j.createDatabase("db1"))
+print(j.createDatabase("db2"))
+print(j.showDatabases())
+
+# create two table in db1 and show return tables list of db1 database
+print(j.createTable("db1", "table1", 5))
+print(j.createTable("db1", "table2", 8))
+print(j.showTables("db1"))
+
+# rename table1 to table 3 and show return tables list of db1 database
+print(j.alterTable("db1", "table1","table3"))
+print(j.showTables("db1"))
+
+# drop table3 of db1 and show return tables list of db1 database
+print(j.dropTable("db1", "table3"))
+print(j.showTables("db1"))
