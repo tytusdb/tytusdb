@@ -35,8 +35,13 @@ palabras_reservadas = (
     'TABLE','CONSTRAINT','CHECK','DEFAULT','PRIMARY','REFERENCES','KEY',
     'FOREIGN','UNIQUE',
     # alter table
-    'ADD','SET','COLUMN'
-
+    'ADD','SET','COLUMN','INHERITS',
+    #DML
+    'INSERT','INTO','VALUES',
+    'UPDATE','WHERE','DELETE','FROM',
+    #SELECT
+    'SELECT','EXTRACT','DATE_PART','NOW','GREATEST','LEAST',
+    'GROUP','BY'
 
 
 
@@ -73,8 +78,6 @@ tokens = palabras_reservadas +\
     'UMENOS',
     'CADENA',
     'CARACTER_O_CADENA',
-    #'OCTAL',
-    #'HEXA',
 
 
 )
@@ -121,6 +124,20 @@ def t_ID(t):
 
 
 
+# numero decimal
+def t_NODECIMAL(t):
+    r'(\d+\.\d+)|(\.\d+)'
+    try:
+        print("numero decimal : ", t.value," - ",float(t.value))
+        print("tipo: ",t.type)
+        t.value = float(t.value)
+    except ValueError:
+        print("Floaat value too large %d", t.value)
+        t.value = 0
+    return t
+
+
+
 # numero entero
 def t_NOENTERO(t):
     r'\d+'
@@ -142,16 +159,6 @@ def t_CADENA(t):
 def t_CARACTER_O_CADENA(t):
     r'\'.*?\''
     t.value = t.value[1:-1]
-    return t
-
-# numero decimal
-def t_NODECIMAL(t):
-    r'(\d+\.\d+)|(\.\d+)'
-    try:
-        t.value = float(t.value)
-    except ValueError:
-        print("Floaat value too large %d", t.value)
-        t.value = 0
     return t
 
 # Caracteres ignorados
@@ -224,8 +231,14 @@ def p_instruccion_create(t):
     '''instruccion : CREATE createp PTCOMA
                     | ALTER factorizar_alter PTCOMA
                     | DROP droptp PTCOMA
+                    | INSERT INTO IDENTIFICADOR VALUES PARIZQ expresion PARDER PTCOMA
+                    | UPDATE IDENTIFICADOR SET expresion WHERE expresion PTCOMA
+                    | DELETE FROM IDENTIFICADOR WHERE expresion PTCOMA
+                    | SELECT selectp PTCOMA
     '''
-
+   #posiblemente me de tiempo agregar lo que falta de los select , pero
+   #de ser asi los voy a poner hasta abajo , asi que solo los vas agregando esas nuevas producciones
+   #gracias mindi
 
 def p_instruccion_showdatabase(t):
     '''instruccion : SHOW DATABASES opcional3 PTCOMA
@@ -238,7 +251,15 @@ def p_alterfacotizar(t):
 
     '''
 
+def p_selectprima(t):
+    ''' selectp : EXTRACT PARIZQ l_campo PARDER
+                 | DATE_PART PARIZQ expresion l_campo PARDER
+                 | NOW PARIZQ PARDER
+                 | GREATEST PARIZQ expresion PARDER
+                 | LEAST PARIZQ expresion PARDER
+                 | expresion FROM
 
+    '''
 
 
 def p_drop_triprima(t):
@@ -288,9 +309,14 @@ def p_createtriprima(t):
     '''
     createtp :  AS ENUM PARIZQ l_cadenas PARDER
                 | opcional
-                | PARIZQ l_campos PARDER
+                | PARIZQ l_campos PARDER createqp
+
     '''
 
+def p_createquitoprima(t):
+    ''' createqp : INHERITS PARIZQ IDENTIFICADOR PARDER
+                   |
+    '''
 
 
 def p_create_campos_tablas(t):
@@ -302,6 +328,16 @@ def p_create_campos_tablas(t):
 def p_create_campo_tabla(t):
     '''l_campo : tipo l_campo
                  |
+    '''
+
+
+
+def p_alterlistacolumn(t):
+    '''l_altercolumn : IDENTIFICADOR TYPE l_campo l_altercolumn
+                     | IDENTIFICADOR SET NOT NULL
+                     | COMA ALTER COLUMN IDENTIFICADOR TYPE l_campo l_altercolumn
+                     | COMA ALTER COLUMN IDENTIFICADOR SET NOT NULL
+
     '''
 
 #-----------------------------------------------------------------
@@ -324,18 +360,16 @@ def p_tipo_datos(t):
             | ALTER COLUMN l_altercolumn
             | DROP
             | PARIZQ l_cadenas PARDER
+            | YEAR
+            | FROM
+            | TIMESTAMP
+            | HOUR
+            | SECOND
+            | MINUTE
+            | DAY
+            | MONTH
     '''
     t[0]=t[1]
-
-def p_alterlistacolumn(t):
-    '''l_altercolumn : IDENTIFICADOR TYPE l_campo l_altercolumn
-                     | IDENTIFICADOR SET NOT NULL
-                     | COMA ALTER COLUMN IDENTIFICADOR TYPE l_campo l_altercolumn
-                     | COMA ALTER COLUMN IDENTIFICADOR SET NOT NULL
-
-    '''
-
-
 
 
 def p_tipo_datos1(t):
@@ -351,6 +385,7 @@ def p_tipo_datos1(t):
             | NUMERIC
             | REAL
             | DOUBLE PRECISION
+            | CARACTER_O_CADENA
     '''
     print("varchar print")
     t[0]=t[1]
@@ -363,6 +398,11 @@ def p_tipo_datos2(t):
              | BOOLEAN
     '''
     t[0]=t[1]
+
+
+
+
+
 
 
 
@@ -407,7 +447,16 @@ def p_opcional3(t):
 
 
 def p_expresion(t):
-    '''expresion :  x
+    '''expresion :  w
+    '''
+
+def p_expresion16(t):
+    '''w :  x wp
+    '''
+
+def p_expresion15(t):
+    '''wp : IGUAL  x wp
+          |
     '''
 
 def p_expresion10(t):
@@ -483,6 +532,9 @@ def p_expresion5(t):
           | NOENTERO
           | NODECIMAL
           | BOOLEAN
+          | INTERVAL
+          | NOW PARIZQ PARDER
+          | SUM PARIZQ
     '''
 
 
