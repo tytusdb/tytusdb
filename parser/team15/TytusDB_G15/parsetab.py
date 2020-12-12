@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'leftPLUSMINUSleftTIMESDIVIDErightUMINUSDIVIDE EQUALS LPAREN MINUS NAME NUMBER PLUS RPAREN TIMESstatement : NAME EQUALS expressionstatement : expressionexpression : expression PLUS expression\n                  | expression MINUS expression\n                  | expression TIMES expression\n                  | expression DIVIDE expressionexpression : MINUS expression %prec UMINUSexpression : LPAREN expression RPARENexpression : NUMBERexpression : NAME'
+_lr_signature = 'COMA CREATE DATABASE ENTERO EXISTS ID IF IGUAL INHERITS INTEGER MODE NOT OR OWNER PAR_A PAR_C PTCOMA REPLACE TABLEinit            : instruccionesinstrucciones    : instrucciones instruccioninstrucciones    : instruccion instruccion      : createDB_insrtcreateDB_insrt : CREATE DATABASE ID PTCOMAcreateDB_insrt : CREATE OR REPLACE DATABASE ID PTCOMAcreateDB_insrt : CREATE DATABASE IF NOT EXISTS ID PTCOMAcreateDB_insrt : CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMAcreateDB_insrt : CREATE DATABASE ID createDB_unParam PTCOMAcreateDB_insrt : CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMAcreateDB_insrt : CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMAcreateDB_insrt : CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMAcreateDB_unParam : OWNER ID\n                        | OWNER IGUAL ID\n                        | MODE ENTERO\n                        | MODE IGUAL ENTEROcreateDB_insrt : CREATE DATABASE ID createDB_dosParam PTCOMAcreateDB_insrt : CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMAcreateDB_insrt : CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMAcreateDB_insrt : CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMAcreateDB_dosParam : OWNER ID MODE ENTERO\n                         | OWNER ID MODE IGUAL ENTERO\n                         | OWNER IGUAL ID MODE ENTERO\n                         | OWNER IGUAL ID MODE IGUAL ENTERO\n                         | MODE ENTERO OWNER ID\n                         | MODE ENTERO OWNER IGUAL ID\n                         | MODE IGUAL ENTERO OWNER ID\n                         | MODE IGUAL ENTERO OWNER IGUAL ID'
     
-_lr_action_items = {'NAME':([0,4,5,7,8,9,10,11,],[2,13,13,13,13,13,13,13,]),'MINUS':([0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,],[4,-10,9,4,4,-9,4,4,4,4,4,-7,-10,9,9,-3,-4,-5,-6,-8,]),'LPAREN':([0,4,5,7,8,9,10,11,],[5,5,5,5,5,5,5,5,]),'NUMBER':([0,4,5,7,8,9,10,11,],[6,6,6,6,6,6,6,6,]),'$end':([1,2,3,6,12,13,15,16,17,18,19,20,],[0,-10,-2,-9,-7,-10,-1,-3,-4,-5,-6,-8,]),'EQUALS':([2,],[7,]),'PLUS':([2,3,6,12,13,14,15,16,17,18,19,20,],[-10,8,-9,-7,-10,8,8,-3,-4,-5,-6,-8,]),'TIMES':([2,3,6,12,13,14,15,16,17,18,19,20,],[-10,10,-9,-7,-10,10,10,10,10,-5,-6,-8,]),'DIVIDE':([2,3,6,12,13,14,15,16,17,18,19,20,],[-10,11,-9,-7,-10,11,11,11,11,-5,-6,-8,]),'RPAREN':([6,12,13,14,16,17,18,19,20,],[-9,-7,-10,20,-3,-4,-5,-6,-8,]),}
+_lr_action_items = {'CREATE':([0,2,3,4,6,12,19,20,33,43,46,47,55,56,60,63,64,],[5,5,-3,-4,-2,-5,-9,-17,-6,-7,-10,-18,-11,-19,-8,-12,-20,]),'$end':([1,2,3,4,6,12,19,20,33,43,46,47,55,56,60,63,64,],[0,-1,-3,-4,-2,-5,-9,-17,-6,-7,-10,-18,-11,-19,-8,-12,-20,]),'DATABASE':([5,11,],[7,18,]),'OR':([5,],[8,]),'ID':([7,15,18,22,25,30,41,42,48,53,],[9,21,26,29,32,40,52,54,57,59,]),'IF':([7,18,],[10,27,]),'REPLACE':([8,],[11,]),'PTCOMA':([9,13,14,21,23,26,29,31,32,34,35,37,40,44,45,49,51,52,54,57,58,59,61,62,],[12,19,20,-13,-15,33,-14,-16,43,46,47,-21,-25,55,56,-22,-23,-26,-27,60,-24,-28,63,64,]),'OWNER':([9,23,26,31,32,57,],[15,30,15,42,15,15,]),'MODE':([9,21,26,29,32,57,],[16,28,16,39,16,16,]),'NOT':([10,27,],[17,36,]),'IGUAL':([15,16,28,30,39,42,],[22,24,38,41,50,53,]),'ENTERO':([16,24,28,38,39,50,],[23,31,37,49,51,58,]),'EXISTS':([17,36,],[25,48,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'statement':([0,],[1,]),'expression':([0,4,5,7,8,9,10,11,],[3,12,14,15,16,17,18,19,]),}
+_lr_goto_items = {'init':([0,],[1,]),'instrucciones':([0,],[2,]),'instruccion':([0,2,],[3,6,]),'createDB_insrt':([0,2,],[4,4,]),'createDB_unParam':([9,26,32,57,],[13,34,44,61,]),'createDB_dosParam':([9,26,32,57,],[14,35,45,62,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -26,15 +26,33 @@ for _k, _v in _lr_goto_items.items():
        _lr_goto[_x][_k] = _y
 del _lr_goto_items
 _lr_productions = [
-  ("S' -> statement","S'",1,None,None,None),
-  ('statement -> NAME EQUALS expression','statement',3,'p_statement_assign','grammar.py',73),
-  ('statement -> expression','statement',1,'p_statement_expr','grammar.py',78),
-  ('expression -> expression PLUS expression','expression',3,'p_expression_binop','grammar.py',83),
-  ('expression -> expression MINUS expression','expression',3,'p_expression_binop','grammar.py',84),
-  ('expression -> expression TIMES expression','expression',3,'p_expression_binop','grammar.py',85),
-  ('expression -> expression DIVIDE expression','expression',3,'p_expression_binop','grammar.py',86),
-  ('expression -> MINUS expression','expression',2,'p_expression_uminus','grammar.py',98),
-  ('expression -> LPAREN expression RPAREN','expression',3,'p_expression_group','grammar.py',103),
-  ('expression -> NUMBER','expression',1,'p_expression_number','grammar.py',108),
-  ('expression -> NAME','expression',1,'p_expression_name','grammar.py',113),
+  ("S' -> init","S'",1,None,None,None),
+  ('init -> instrucciones','init',1,'p_init','gramatica.py',103),
+  ('instrucciones -> instrucciones instruccion','instrucciones',2,'p_instrucciones_lista','gramatica.py',107),
+  ('instrucciones -> instruccion','instrucciones',1,'p_instrucciones_instruccion','gramatica.py',112),
+  ('instruccion -> createDB_insrt','instruccion',1,'p_instruccion','gramatica.py',116),
+  ('createDB_insrt -> CREATE DATABASE ID PTCOMA','createDB_insrt',4,'p_createDB','gramatica.py',128),
+  ('createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA','createDB_insrt',6,'p_createDB_wRP','gramatica.py',132),
+  ('createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA','createDB_insrt',7,'p_createDB_wIfNot','gramatica.py',136),
+  ('createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA','createDB_insrt',9,'p_createDB_wRP_wIN','gramatica.py',140),
+  ('createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA','createDB_insrt',5,'p_createDB_up','gramatica.py',148),
+  ('createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA','createDB_insrt',7,'p_createDB_wRP_up','gramatica.py',156),
+  ('createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA','createDB_insrt',8,'p_createDB_wIfNot_up','gramatica.py',163),
+  ('createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA','createDB_insrt',10,'p_createDB_wRP_wIN_up','gramatica.py',170),
+  ('createDB_unParam -> OWNER ID','createDB_unParam',2,'p_createDB_unParam_Owner','gramatica.py',177),
+  ('createDB_unParam -> OWNER IGUAL ID','createDB_unParam',3,'p_createDB_unParam_Owner','gramatica.py',178),
+  ('createDB_unParam -> MODE ENTERO','createDB_unParam',2,'p_createDB_unParam_Owner','gramatica.py',179),
+  ('createDB_unParam -> MODE IGUAL ENTERO','createDB_unParam',3,'p_createDB_unParam_Owner','gramatica.py',180),
+  ('createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA','createDB_insrt',5,'p_createDB_dp','gramatica.py',196),
+  ('createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA','createDB_insrt',7,'p_createDB_wRP_dp','gramatica.py',200),
+  ('createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA','createDB_insrt',8,'p_createDB_wIfNot_dp','gramatica.py',204),
+  ('createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA','createDB_insrt',10,'p_createDB_wRP_wIN_dp','gramatica.py',208),
+  ('createDB_dosParam -> OWNER ID MODE ENTERO','createDB_dosParam',4,'p_createDB_dosParam_Owner','gramatica.py',212),
+  ('createDB_dosParam -> OWNER ID MODE IGUAL ENTERO','createDB_dosParam',5,'p_createDB_dosParam_Owner','gramatica.py',213),
+  ('createDB_dosParam -> OWNER IGUAL ID MODE ENTERO','createDB_dosParam',5,'p_createDB_dosParam_Owner','gramatica.py',214),
+  ('createDB_dosParam -> OWNER IGUAL ID MODE IGUAL ENTERO','createDB_dosParam',6,'p_createDB_dosParam_Owner','gramatica.py',215),
+  ('createDB_dosParam -> MODE ENTERO OWNER ID','createDB_dosParam',4,'p_createDB_dosParam_Owner','gramatica.py',216),
+  ('createDB_dosParam -> MODE ENTERO OWNER IGUAL ID','createDB_dosParam',5,'p_createDB_dosParam_Owner','gramatica.py',217),
+  ('createDB_dosParam -> MODE IGUAL ENTERO OWNER ID','createDB_dosParam',5,'p_createDB_dosParam_Owner','gramatica.py',218),
+  ('createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL ID','createDB_dosParam',6,'p_createDB_dosParam_Owner','gramatica.py',219),
 ]

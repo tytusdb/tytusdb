@@ -10,6 +10,7 @@ class Substring(Instruccion):
         print("SUBSTRING")
         print(self.valor[self.inicio:self.fin])
         return self.valor[self.inicio:self.fin]
-
+'''
 instruccion = Substring("hola mundo",None, 1,2)
 instruccion.ejecutar(None,None)
+'''

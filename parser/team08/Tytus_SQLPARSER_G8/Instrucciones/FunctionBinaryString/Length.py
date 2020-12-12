@@ -7,8 +7,11 @@ class Length(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-
+        print("LENGTH")
+        print(len(self.valor))
+        return len(self.valor)
+'''
 instruccion = Length("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

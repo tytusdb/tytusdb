@@ -14,6 +14,8 @@ class Cot(Instruccion):
         print(1/math.tan(self.valor))
         return 1/math.tan(self.valor)
 
+'''
 instruccion = Cot(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

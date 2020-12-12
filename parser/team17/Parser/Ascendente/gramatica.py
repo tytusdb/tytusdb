@@ -1,9 +1,15 @@
+from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
+from Interprete.Condicionantes.Condicion import Condicion
+from Interprete.SELECT.select import select
+from Interprete.Arbol import Arbol
+
 reservadas = {
 
 	# Boolean Type
 	'boolean': 'BOOLEAN',
 	'true': 'TRUE',
 	'false': 'FALSE',
+    'order': 'ORDER',
 
     'into': 'INTO',
 
@@ -16,6 +22,8 @@ reservadas = {
 	'owner': 'OWNER',
 	'show': 'SHOW',
 	'databases': 'DATABASES',
+    'MAP' : 'MAP',
+    'LIST' : 'LIST',
 
 	# Inheritance
 	'inherits': 'INHERITS',
@@ -41,16 +49,19 @@ reservadas = {
     'rename' : 'RENAME',
     'set' : 'SET',
     'key' : 'KEY',
+    'if' : 'IF',
     'unique' : 'UNIQUE',
     'references' : 'REFERENCES',
     'check' : 'CHECK',
     'column' : 'COLUMN',
     'database' : 'DATABASE',
     'table' : 'TABLE',
-    'text' : 'text',
+    'text' : 'TEXT',
     'float' : 'FLOAT',
     'values' : 'VALUES',
     'int' : 'INT',
+    'default' : 'DEFAULT',
+    'null' : 'NULL',
 
     # TIPOS NUMERICOS
     'smallint' : 'SMALLINT',
@@ -66,6 +77,7 @@ reservadas = {
     'varchar' : 'VARCHAR',
     'character' : 'CHARACTER',
     'char' : 'CHAR',
+    'clear' : 'CLEAR',
 
     # TIPOS EN FECHAS
     'timestamp' : 'TIMESTAMP',
@@ -123,6 +135,8 @@ reservadas = {
     'width_bucker' : 'WIDTH_BUCKET',
     'random' : 'RANDOM',
     'setseed' : 'SETSEED',
+    'contains' : 'CONTAINS',
+    'remove': 'REMOVE',
 
     # FUNCIONES DE AGREGACION
     'count' : 'COUNT',
@@ -154,6 +168,7 @@ reservadas = {
     'asinh' : 'ASINH',
     'acosh   ' : 'ACOSH',
     'atanh' : 'ATANH',
+    'SIZE' : 'SIZE',
 
     # FUNCIONES DE CADENA BINARIAS
     'length' : 'LENGTH',
@@ -173,6 +188,7 @@ reservadas = {
     'ilike' : 'ILIKE',
     'similar' : 'SIMILAR',
     'as' : 'AS',
+    'couter' : 'COUTER',
 
     # SUBQUERYS
     'in' : 'IN',
@@ -287,7 +303,14 @@ t_MAYORQUE  = r'>'
 t_MENORQUE  = r'<'
 t_DOSPTS    = r':'
 
-
+def t_ENTERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
+        t.value = 0
+    return t
 
 def t_TKDECIMAL(t):
     r'\d+\.\d+'
@@ -297,6 +320,7 @@ def t_TKDECIMAL(t):
         print("Float value too large %d", t.value)
         t.value = 0
     return t
+
 
 def t_CADENA(t):
     r'\'.*?\''
@@ -337,161 +361,389 @@ def t_error(t):
 # ---------------------- SINTACTICO -------------------------------------------------
 # -----------------------------------------------------------------------------------
 
+
 #-----------------------
 import ply.lex as lex
 lexer2 = lex.lex()
 #-----------------------
+precedence = (
+    #('left','CONCAT'),
+    #('left','MENOR','MAYOR','IGUAL','MENORIGUAL','MAYORIGUAL','DIFERENTE'),
+    ('left','MENORQUE','MAYORQUE','IGUAL','MENORIG','MAYORIG','DISTINTO'),
+    ('left','MAS','MENOS'),
+    ('left','MULTI','DIVISION','MODULO'),
+    ('left','TKEXP'),
+    #('right','UMENOS'),
+)
 
-#Todo: Definir acciones en la gramatica
+
 def p_init(t):
-    'root : setinstrucciones'
-    t[0] = t[1]
+    'init : sentences'
+    t[0] = Arbol(t[1])
 
-def p_setInstrucciones(t):
+def p_sentences(t):
     '''
-        setinstrucciones    : setinstrucciones setinstrucciones_paso
-                            | setinstrucciones_paso
+        sentences   : sentences setInstruccions
+                    | setInstruccions
     '''
-    if len(t)==3:
-        t[1].append(t[2])
+    if len(t) == 3:
         t[0] = t[1]
+        t[0].append(t[2])
     else:
         t[0] = [t[1]]
 
-def p_setInstrucciones_paso(t):
+def p_setInstruccions(t):
     '''
-        setinstrucciones_paso   : instruccion
-                                | instruccion PTCOMA
+        setInstruccions   : sentence PTCOMA
     '''
     t[0] = t[1]
 
-#TODO: falta print y update
-def p_instruccion(t):
+def p_sentence(t):
     '''
-        instruccion     : select
+        sentence     : ddl
     '''
-    #'''
-    #    instruccion     : select
-    #                    | pupdate
-    #                    | pinsert
-    #'''
+    t[0] = t[1]
+
+def p_ddl(t):
+    '''
+        ddl  : select
+             | table_create
+             | insert
+             | update
+             | deletetable
+             | create_db
+             | drop_table
+             | alter_table
+    '''
     t[0] = t[1]
 
 def p_select(t):
     '''
-        select  : SELECT DISTINCT
-                | SELECT
+        select  : SELECT listavalores FROM exp listawhere
     '''
-    if len(t)==3:
-        t[0] = t[1]+' '+t[2]
+    t[0] = select(t[2], t[4], t[5], 1, 1)
+
+def p_listawhere(t):
+    '''
+        listawhere  : listawhere atributoselect
+                    | atributoselect
+    '''
+    if len(t) == 3:
+        t[0] = t[1]
+        t[0].append(t[2])
+    else:
+        t[0] = [t[1]]
+
+def p_atributoselect(t):
+    '''
+        atributoselect  : WHERE exp
+                        | ORDER BY exp ordenamiento
+                        | GROUP BY exp
+                        | LIMIT exp
+    '''
+    if t[1] == "where":
+        t[0] = Condicion(t[2], "where", 1, 1)
+
+def p_ordenamiento(t):
+    '''
+        ordenamiento   : ASC
+                       | DESC
+    '''
+
+def p_listavalores(t):
+    '''
+        listavalores   : listavalores COMA exp
+                       | exp
+    '''
+
+def p_exp(t):
+    '''
+        exp   : MAS exp
+              | MENOS exp
+              | exp TKEXP exp
+              | exp MULTI exp
+              | exp DIVISION exp
+              | exp MODULO exp
+              | exp MAS exp
+              | exp MENOS exp
+              | exp BETWEEN exp
+              | exp IN exp
+              | exp LIKE exp
+              | exp ILIKE exp
+              | exp SIMILAR exp
+              | exp IGUAL exp
+              | exp MAYORQUE exp
+              | exp MENORQUE exp
+              | exp MAYORIG exp
+              | exp MENORIG exp
+              | exp IS exp
+              | exp ISNULL exp
+              | exp NOTNULL exp
+              | NOT exp
+              | exp AND exp
+              | exp OR exp
+              | expSimple
+    '''
+    if len(t) == 4:
+        t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
     else:
         t[0] = t[1]
 
+def p_expSimples(t):
+    '''
+        expSimple   :   ID
+                    | ENTERO
+                    | TKDECIMAL
+                    | TRUE
+                    | FALSE
+                    | CADENADOBLE
+                    | CADENA
+    '''
+    t[0] = t[1]
 
-#def p_cuerpo_select(t):
-#    '''
-#        cuerpo_select   : grouping_column_reference FROM table_expression condition
-#    '''
-#
-##TODO:falta definir subquery
-#def p_table_expression(t):
-#    '''
-#        table_expression   : ID COMA table_expression
-#                           | ID
-#                           | ID ID
-#    '''
-#
-#def p_condition(t):
-#    '''
-#        condition  : where_condition condition
-#                   | GROUP BY grouping_column_reference condition
-#                   | COMA grouping_column_reference condition
-#                   | GROUP BY grouping_column_reference
-#                   | COMA grouping_column_reference
-#                   | where_condition
-#    '''
-##
-##TODO: falta no terminal objeto y agregacion
-#def p_grouping_column_reference(t):
-#    '''
-#        grouping_column_reference  : MULTI COMA grouping_column_reference
-#                                   | iden COMA grouping_column_reference
-#                                   | MULTI
-#                                   | iden
-#    '''
-#
-##TODO: definir iden
-#def p_iden(t):
-#    '''
-#        iden   : ID
-#               | ID AS iden
-#               | CADENADOBLE
-#               | CADENA
-#    '''
-#
-#
-#
-#def p_where_condition(t):
-#    '''
-#        where_condition   : WHERE search_condition
-#    '''
-#
-#
-##TODO: definir search_condition
-#def p_search_condition(t):
-#    '''
-#        search_condition : search_condition IGUAL search_condition
-#                         | search_condition DISTINTO search_condition
-#                         | search_condition MAYORQUE search_condition
-#                         | search_condition MENORQUE search_condition
-#                         | search_condition MAYORIG search_condition
-#                         | search_condition MENORIG search_condition
-#                         | search_condition OR search_condition
-#                         | search_condition AND search_condition
-#                         | search_condition LIKE search_condition
-#                         | iden
-#                         | ENTERO
-#                         | TKDECIMAL
-#                         | TRUE
-#                         | FALSE
-#                         | PARIZQ search_condition PARDER
-#    '''
-#
-##TODO: definir update
-#def p_update(t):
-#    '''
-#        pupdate : UPDATE iden SET l_search_condition where_condition
-#    '''
-#
-##TODO: definir l search condition
-#def p_l_search_condition(t):
-#    '''
-#        l_search_condition : search_condition l_search_condition
-#                        | COMA search_condition l_search_condition
-#                        | search_condition
-#    '''
-#
-##TODO: definir insert
-#def p_insert(t):
-#    '''
-#    pinsert : INSERT INTO iden PARIZQ grouping_column_reference PARDER insert_cuerpo
-#           | INSERT INTO iden insert_cuerpo
-#    '''
-#
-##TODO: definir insert cuerpo
-#def p_insert_cuerpo(t):
-#    '''
-#        insert_cuerpo : VALUES PARIZQ grouping_column_reference PARDER
-#    '''
-#
-##TODO: definir delete
-#def p_delete(t):
-#    '''
-#        delete : DELETE FROM iden where_condition
-#    '''
-#
+# ---------------CREATE TABLE---------------
+
+def p_table_create(t):
+    '''
+        table_create : CREATE TABLE ID PARIZQ lista_table COMA listadolprimary PARDER
+                     | CREATE TABLE ID PARIZQ lista_table PARDER
+                     | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary PARDER
+                     | CREATE TABLE IF NOT EXISTS ID PARDER lista_table PARDER
+    '''
+    # t[0] = interprete
+
+def p_lista_table(t):
+    '''
+        lista_table  : lista_table COMA atributo_table
+                     | atributo_table
+    '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
+def p_listadolprimary(t):
+    '''
+        listadolprimary  : listadolprimary COMA lista_primary
+                         | lista_primary
+    '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
+def p_lista_primary(t):
+    '''
+        lista_primary : PRIMARY KEY PARIZQ listaids PARDER
+                      | FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
+                      | CONSTRAINT ID CHECK PARIZQ exp PARDER
+                      | UNIQUE PARIZQ listaids PARDER
+    '''
+    # t[0] = interprete
+
+def p_atributo_table(t):
+    '''
+        atributo_table : ID  tipocql listaespecificaciones
+                       | ID tipocql
+    '''
+    # t[0] = interprete
+    #print(t[3])
+
+def p_listaespecificaciones(t):
+    '''
+        listaespecificaciones  : listaespecificaciones especificaciones
+                               | especificaciones
+    '''
+    if len(t) == 3:
+        t[0] = t[1]
+        t[0].append(t[2])
+    else:
+        t[0] = [t[1]]
+
+def p_especificaciones(t):
+    '''
+        especificaciones : UNIQUE
+                         | DEFAULT exp
+                         | NOT NULL
+                         | NULL
+                         | PRIMARY KEY
+                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES listaids
+                         | REFERENCES ID
+                         | CONSTRAINT ID
+                         | SET
+                         | CHECK PARIZQ exp PARDER
+                         | TYPE tipo
+                         | UNIQUE PARIZQ listaids PARDER
+    '''
+    t[0] = t[1]
+
+def p_tipocql(t):
+    '''
+        tipocql : ID
+                | tipo
+    '''
+    # t[0] = interprete
+
+def p_tipo(t):
+    '''
+         tipo : SMALLINT
+              | INTEGER
+              | BIGINT
+              | DECIMAL
+              | NUMERIC
+              | REAL
+              | DOUBLE PRECISION
+              | MONEY
+              | CHARACTER VARYING PARIZQ exp PARDER
+              | VARCHAR PARIZQ exp PARDER
+              | TEXT
+              | CHARACTER PARIZQ exp PARDER
+              | CHAR PARIZQ exp PARDER
+              | TIME
+              | DATE
+              | TIMESTAMP
+              | INTERVAL
+              | BOOLEAN
+    '''
+    # t[0] = interprete
+
+# ---------------INSERT---------------
+def p_insert(t):
+    '''
+        insert : INSERT INTO ID VALUES PARIZQ listavalores PARDER
+               | INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
+    '''
+    # t[0] = interprete
 
 
+def p_listaids(t):
+    '''
+        listaids : listaids COMA ID
+                 | ID
+    '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
+# ---------------UPDATE---------------
+def p_update(t):
+    '''
+        update : UPDATE ID SET listaupdate WHERE exp
+              | UPDATE ID SET listaupdate
+    '''
+    # t[0] = interprete
+
+def p_listaupdate(t):
+    '''
+        listaupdate : listaupdate COMA asignacionupdate
+                   | asignacionupdate
+    '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
+def p_asignacionupdate(t):
+    '''
+        asignacionupdate : acceso IGUAL exp
+    '''
+    # t[0] = interprete
+
+# TODO: Segun la gramatica, hace falta la produccion 'Variable' cuya exp. reg. es: "@[A-Za-z][_A-Za-z0-9]*"
+def p_acceso(t):
+    '''
+        acceso : acceso PT ID
+               | acceso PT funcioncollection
+               | acceso  CORIZQ exp CORDER
+               | ID
+    '''
+    # t[0] = interprete
+
+def p_funcioncollection(t):
+    '''
+        funcioncollection : INSERT PARIZQ exp COMA exp PARDER
+                            | INSERT PARIZQ exp PARDER
+                            | SET PARIZQ exp COMA exp PARDER
+                            | REMOVE PARIZQ exp PARDER
+                            | SIZE PARIZQ PARDER
+                            | CLEAR PARIZQ PARDER
+                            | CONTAINS PARIZQ exp PARDER
+                            | LENGTH PARIZQ PARDER
+                            | SUBSTRING PARIZQ exp COMA exp PARDER
+    '''
+    # t[0] = interprete
+
+# ---------------DELETE---------------
+def p_deletetable(t):
+    '''
+        deletetable : DELETE FROM ID WHERE exp
+                    | DELETE FROM ID
+                    | DELETE listaatributos FROM ID WHERE exp
+                    | DELETE listaatributos FROM ID
+    '''
+    # t[0] = interprete
+
+def p_listaatributos(t):
+    '''
+        listaatributos : listaatributos COMA acceso
+                       | acceso
+    '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
+# ---------------CREATE DATABASE---------------
+def p_create_db(t):
+    '''
+        create_db : CREATE DATABASE IF NOT EXISTS ID
+                  | CREATE DATABASE ID
+    '''
+    # t[0] = interprete
+
+# ---------------DROP TABLE---------------
+def p_drop_table(t):
+    '''
+        drop_table : DROP TABLE IF EXISTS ID
+                   | DROP TABLE ID
+    '''
+    # t[0] = interprete
+
+# ---------------ALTER TABLE---------------
+def p_alter_table(t):
+    '''
+        alter_table : ALTER TABLE ID ADD listaespecificaciones
+                    | ALTER TABLE ID ADD COLUMN ID tipo
+                    | ALTER TABLE ID DROP COLUMN ID
+                    | ALTER TABLE ID DROP listaespecificaciones
+                    | ALTER TABLE ID listacolumn
+    '''
+    # t[0] = interprete
+
+def p_listacolumn(t):
+    '''
+        listacolumn : listacolumn COMA column
+                    | column
+    '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+    else:
+        t[0] = [t[1]]
+
+def p_column(t):
+    '''
+        column : ALTER COLUMN ID listaespecificaciones
+    '''
+    # t[0] = interprete
+
+#---------------ERROR SINTACTICO---------------
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)

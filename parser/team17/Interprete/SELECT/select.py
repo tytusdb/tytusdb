@@ -12,6 +12,11 @@ class select(NodoArbol):
         self.listawhere = listawhere
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        for item in self.listavalores:
+            item_:Valor = item.execute(entorno, arbol)
+            print(item_.data)
+        pass
+        print(self.ID)
         for item in self.listawhere:
             item_:Valor = item.execute(entorno, arbol)
             print(item_.data)

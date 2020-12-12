@@ -1,0 +1,108 @@
+
+CREATE TABLE prueba(
+    id integer,
+    name varchar(10),
+     PRIMARY KEY(contact_id)
+);
+CREATE TABLE usuario
+    id integer not NULL primary key,
+    email varchar(23) unique not null default 1234,
+    foto VARCHAR(200) DEFAULT '/assets/fotoperfil.png',
+    CONSTRAINT categoriaProductoFK FOREIGN KEY (idCategoria) REFERENCES CATEGORIA (id),
+    CONSTRAINT usuarioProductoFK FOREIGN KEY (idVendedor) REFERENCES USUARIO (id)
+);
+
+INSERT INTO customers(customer_name)
+VALUES('BlueBird Inc'),
+      ('Dolphin LLC');
+
+INSERT INTO contacts(customer_id, contact_name, phone, email)
+VALUES(1,'John Doe','(408)-111-1234','john.doe@bluebird.dev'),
+      (1,'Jane Doe','(408)-111-1235','jane.doe@bluebird.dev'),
+      (2,'David Wright','(408)-222-1234','david.wright@dolphin.dev');
+
+INSERT INTO products VALUES (1, 'Cheese', 9.99);
+
+UPDATE products SET price = -10 ^ 6, price = price + !!!10, id = 2 <> 3 WHERE price = 5;
+
+DELETE FROM products WHERE price >= 10 and pr == 'pr' or not false or not d < 9 and id in ('a','b','c') and fechanacimiento between '2004-01-01' and '2005-01-01';
+
+DELETE FROM products WHERE edad BETWEEN 5 and 25;
+
+
+
+SELECT DISTINCT continente.nombre AS Usuario,id AS Identificador, contrasenia contra, SUM(.15), MAX(tabla.id),MIN(id),AVG(prueba),COUNT(prueba2) FROM continente c, personas p;
+
+
+SELECT CBRT(343) AS "Cube Root";
+
+SELECT CEIL(53.7) AS "Ceil";
+
+SELECT CEIL(-53.7) AS "Ceil";
+
+SELECT CEILING(69.1) AS "Ceiling";
+
+SELECT DEGREES(.45) AS "Degrees";
+
+SELECT DIV(19,3) AS "Quotient";
+
+Select EXP(2.0) AS "Exponential";
+
+Select factorial(4) as "Factorial";
+
+SELECT FLOOR(53.6) AS "Floor";
+
+SELECT FLOOR(-53.6) AS "Floor";
+
+Select gcd(5,12);
+
+SELECT LN(3.0) AS "Natural Logarithm";
+
+SELECT LOG(200.0) AS "Base 10 Logarithm";
+
+SELECT MOD(-38,5) AS "Remainder";
+
+SELECT PI() AS "Value of PI";
+
+SELECT POWER(7.0,3) AS "7 raised to the power of 3";
+
+SELECT RADIANS(15.0) AS "Degrees to Radians";
+
+SELECT ROUND(67.456) AS "Round";
+
+select * from tbcolaborador where nombre is distinct from 'sujeto1';
+
+select * from tbcolaborador where nombre is not distinct from 'sujeto1';
+
+select distinct puesto from tbempleado;
+
+select distinct puesto,salario from tbempleado;
+
+select * from tbcolaborador where nombre is distinct from 'sujeto1';
+
+select * from tbcolaborador where nombre is not distinct from 'sujeto1';
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now(); SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
+SELECT CURRENT_DATE; SELECT CURRENT_TIME; SELECT TIMESTAMP 'now';
+
+SELECT DISTINCT continente.nombre AS Usuario,id AS Identificador, contrasenia contra, SUM(xx), MAX(hola),MIN(kk),AVG(tt),COUNT(pp)
+FROM continente c, personas p
+WHERE c.nombre= d.nombre
+GROUP BY a.continente,b.Usuario,Identificador
+HAVING c.nombre IS NOT NULL OR a.continente > 5  IS TRUE;
+
+
+SELECT DISTINCT continente.nombre AS Usuario,id AS Identificador, contrasenia contra, SUM(xx), MAX(hola),MIN(kk),AVG(tt),COUNT(pp)
+FROM continente c, personas p
+WHERE c.nombre= d.nombre
+GROUP BY a.continente,b.Usuario,Identificador
+HAVING COUNT(Identificador) > 0;

@@ -13,6 +13,7 @@ class Tan(Instruccion):
         print(math.tan(self.valor))
         return math.tan(self.valor)
 
-instruccion = Tan(1,None, 1,2)
 
-instruccion.ejecutar(None,None)
+'''instruccion = Tan(1,None, 1,2)
+
+instruccion.ejecutar(None,None)'''

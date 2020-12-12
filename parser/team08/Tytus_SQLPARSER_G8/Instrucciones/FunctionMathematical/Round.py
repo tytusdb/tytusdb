@@ -14,6 +14,8 @@ class Round(Instruccion):
         resultado = round(self.valor)
         return resultado
 
+'''
 instruccion = Round(5.4,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

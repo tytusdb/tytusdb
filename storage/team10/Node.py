@@ -2,56 +2,95 @@ class Node:
     
     def __init__(self):
         self.array = []
-        post_in_hash = -1
-
+        
+    #ya no se usa el de buscar porque ya esta implementado en la tabla hash
     def insert(self, dato):
-        if not self.buscarDato_binary(dato):
-            self.array.append(dato)
-        else:
-            print("dato existente")
+        self.array.append(dato)
+        lista = self.array.copy()
+        lista_ordenada= self.quick_sorted(lista)
+        self.array.clear()
+        for i in lista_ordenada:
+            self.array.append(i)
 
     def buscarDato_binary(self, dato):
-        ub = len(self.array) -1
+        ub = len(self.array) 
         lb = 0 
-        while (lb < ub-1):
+        while (lb <= ub-1):
             med = (ub + lb ) // 2
-            if self.array[med] == dato:
+            arreglo = self.array[med]
+            if int(arreglo[0]) == int(dato[0]):
                 return True
-            elif self.array[med] < dato:
+            elif int(arreglo[0]) < int(dato[0]):
                 lb = med +1
-            elif self.array[med] > dato:
+            elif int(arreglo[0]) > int(dato[0]):
                 ub = med -1
     
         return False
-
-    def buscarDato(self, dato):
-        ub = len(self.array) -1
-        lb = 0 
-        while (lb< ub-1):
-            med = (ub + lb ) //2
-            if self.array[med] == dato:
-                return self.array[med]
-            elif self.array[med] < dato:
-                lb = med +1
-            elif self.array[med] > dato:
-                ub = med -1
-        if(ub == 0):
-            return self.array[0]
-        return "No se encontro el valor"
-
-    def quick_sorted(self, sequencia):
-        if(len(sequencia)) <= 1:
-            return sequencia
+    """def buscarDato_binary(self,lista, dato):
+        if len(lista) == 0:
+            return False
         else:
-            pivote = sequencia.pop()
+            medio = len(lista)//2
+            arreglo = lista[medio]
+            if int(arreglo[0]) == int(dato[0]):
+                return True
+            else:
+                if int(dato[0]) < int(arreglo[0]):
+                    return self.buscarDato_binary(lista[:medio], dato)
+                else: 
+                    return self.buscarDato_binary(lista[medio+1:],dato)"""
+
+    """def buscarDato_binary(self, dato):
+        mid = 0 
+        start = 0
+        end = len(self.array)
+        step = 0
+        if(end != 0 ):
+            while(start <=end):
+                step = step +1 
+                mid = (start + end) //2
+                arreglo = self.array[mid]
+                if int(arreglo[0]) == int(dato[0]):
+                    return True
+                if int(dato[0]) < int(arreglo[0]):
+                    end = mid -1
+                else:
+                    start = mid +1
+        return False"""
+
+    def busquedaB(self, dato):
+        mid = 0 
+        start = 0
+        end = len(self.array)
+        step = 0
+        while(start <=end):
+            step = step +1 
+            mid = (start + end) //2
+            arreglo = self.array[mid]
+            if int(arreglo[0]) == dato:
+                return arreglo
+            if int(dato) < int(arreglo[0]):
+                end = mid -1
+            else:
+                start = mid +1
+        return "no se encontro el dato"
+    #ordenamiento 
+    def quick_sorted(self, sequencia):
+        lista = sequencia
+        if(len(lista)) <= 1:
+            return lista
+        else:
+            pivote = lista.pop()
         elementos_mayores = []
         elementos_menores = []
-        for elemento in sequencia:
-            if elemento > pivote:
+        elemento_medio= []
+        elemento_medio.append(pivote)
+        for elemento in lista:
+            if int(elemento[0]) > int(pivote[0]):
                 elementos_mayores.append(elemento)
             else:
                 elementos_menores.append(elemento)
-        return self.quick_sorted(elementos_menores) + [pivote] + self.quick_sorted(elementos_mayores)
+        return self.quick_sorted(elementos_menores) + elemento_medio + self.quick_sorted(elementos_mayores)
 
     def eliminar(self, dato):
         if not self.buscarDato(dato):
