@@ -21,7 +21,8 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'cotd':'COTD', 'sin':'SIN', 'sind':'SIND', 'tan':'TAN', 'tand':'TAND', 'sinh':'SINH', 'cosh':'COSH', 'tanh':'TANH', 'asinh':'ASINH', 
                'acosh':'ACOSH', 'atanh':'ATANH', 'length':'length', 'substring':'substring', 'trim':'trim', 'leading':'leading','trailing':'trailing','both':'both',
                'sha256':'sha256', 'decode':'decode', 'get_byte':'get_byte', 'bytea':'bytea', 'set_byte':'set_byte', 'substr':'substr', 'convert':'CONVERT',
-               'encode':'encode', 'width_bucket':'width_bucket', 'current_user':'CURRENT_USER', 'session_user':'SESSION_USER'
+               'encode':'encode', 'width_bucket':'width_bucket', 'current_user':'CURRENT_USER', 'session_user':'SESSION_USER',
+               'natural':'NATURAL', 'join':'JOIN', 'inner':'INNER', 'left':'LEFT', 'right':'RIGHT', 'full':'FULL', 'outer':'OUTER', 'using':'USING', 'on':'ON'
              }
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
@@ -225,7 +226,7 @@ def p_alttbadd2(t):
 
 def p_alttbadd3(t):
     '''alttbadd3 : CHECK PAR_A CADENA1 PAR_C
-                  |  UNIQUE PAR_A CADENA1 PAR_C
+                  | UNIQUE PAR_A CADENA1 PAR_C
                   | PRIMARY KEY PAR_A CADENA1 PAR_C
                   | FOREIGN KEY PAR_A CADENA1 PAR_C REFERENCES  ID PAR_A CADENA1 PAR_C'''
 
@@ -266,7 +267,7 @@ def p_value_select(t):
                      | PAR_A seleccionar PAR_C alias_name'''
 
 def p_cuerpo_select(t):
-     '''cuerpo_select : bloque_from bloque_where bloque_group bloque_having bloque_order'''
+     '''cuerpo_select : bloque_from bloque_join bloque_where bloque_group bloque_having bloque_order'''
 
 def p_bloque_from(t):
      '''bloque_from : FROM lista_tablas'''
@@ -276,10 +277,33 @@ def p_lista_tablas(t):
                      | value_from'''
 
 def p_value_from(t):
-     '''value_from : ID
-                   | ID ID
+     '''value_from : tabla_name
                    | PAR_A seleccionar PAR_C ID 
                    | PAR_A seleccionar PAR_C AS ID'''
+
+def p_tabla_name(t):
+     '''tabla_name : ID
+                   | ID ID'''
+
+def p_bloque_join(t):
+     '''bloque_join : bloque_join lista_joins
+                    | lista_joins
+                    | empty'''
+
+def p_lista_joins(t):
+     '''lista_joins : NATURAL tipo_joins tabla_name ID
+                    | tipo_joins JOIN tabla_name ON condicion_boleana
+                    | tipo_joins JOIN tabla_name USING PAR_A lista_select PAR_C'''
+
+def p_tipo_joins(t):
+     '''tipo_joins : INNER 
+                   | value_join
+                   | value_join OUTER'''
+
+def p_value_join(t):
+     '''value_join : LEFT
+                   | RIGHT
+                   | FULL'''
 
 def p_bloque_where(t):
      '''bloque_where : WHERE condicion_boleana
@@ -312,10 +336,12 @@ def p_value_rang(t):
      '''value_rang : NULLS FIRST
                    | NULLS LAST
                    | NULLS FIRST NULLS LAST
-                   | NULLS LAST NULLS FIRST'''
+                   | NULLS LAST NULLS FIRST
+                   | empty'''
 
 def p_alias_name(t):
-     '''alias_name : AS valoralias
+     '''alias_name : valoralias
+                   | AS valoralias
                    | empty'''
 
 def p_valor_alias(t):
@@ -442,6 +468,7 @@ def p_expresion(t):
           | CADENA1
           | CADENA2
           | ID
+          | ID PUNTO ID
           | PAR_A exp PAR_C'''
 
 def p_crear(t):
