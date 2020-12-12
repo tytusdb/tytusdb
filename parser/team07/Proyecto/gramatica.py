@@ -355,7 +355,7 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('nonassoc', 'MENOR_QUE', 'MENOR_IGUAL', 'MAYOR_QUE', 'MAYOR_IGUAL', 'IGUAL', 'DISTINTO'),
-    ('nonassoc', 'BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
+    ('nonassoc', 'BETWEEN','IN','LIKE','ILIKE','SIMILAR','TO'),
     ('left', 'MAS', 'MENOS'),
     ('left', 'MULTIPLICACION', 'DIVISION', 'MODULO'),
     ('left', 'POTENCIA'),
@@ -584,7 +584,65 @@ def p_exp_aritmetica(t):
                         |   exp_aritmetica DIVISION exp_aritmetica
                         |   exp_aritmetica MODULO exp_aritmetica
                         |   exp_aritmetica POTENCIA exp_aritmetica
+                        |   exp_aritmetica BETWEEN exp_aritmetica AND exp_aritmetica
+                        |   exp_aritmetica NOT BETWEEN exp_aritmetica AND exp_aritmetica
+                        |   exp_aritmetica IN PARIZQUIERDO lista_expresiones PARDERECHO
+                        |   exp_aritmetica NOT IN PARIZQUIERDO lista_expresiones PARDERECHO
+                        |   exp_aritmetica LIKE exp_aritmetica
+                        |   exp_aritmetica NOT LIKE exp_aritmetica
+                        |   exp_aritmetica ILIKE exp_aritmetica
+                        |   exp_aritmetica NOT ILIKE exp_aritmetica
+                        |   exp_aritmetica SIMILAR TO exp_aritmetica
+                        |   exp_aritmetica IS NULL
+                        |   exp_aritmetica IS NOT NULL
                         |   primitivo'''
+
+def p_primitivo_columna(t):
+    'primitivo  :   ID'
+    
+    linea = str(t.lexer.lineno)
+    nodoId = crear_nodo_general("NombreColumna",t[1],linea,columna)
+    hijos = []
+    nNodo = incNodo(numNodo)    
+    nodoPri = expresion.Expresion()
+    nodoPri.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.NOMBRE_COLUMNA)
+    hijos.append(nodoId) 
+    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1],hijos)    
+    t[0] = nodoPri
+
+
+
+def p_primitivo_primitivo(t):
+    '''primitivo    :   MAS primitivo
+                    |   MENOS primitivo
+                    |   PARIZQUIERDO exp_operacion PARDERECHO'''
+    
+
+    if len(t) == 4:
+        t[0] = t[2]
+    else:       
+        linea = str(t.lexer.lineno)
+        nodoPri = expresion.Expresion()
+        hijos = []
+
+        if t[1] == '+':
+            nodoOp = crear_nodo_general("MAS","+",linea,columna)
+            nNodo = incNodo(numNodo)            
+            nodoPri.operacionUnaria(t[2],tipoSimbolo.TipoSimbolo.POSITIVO_UNARIO)
+            hijos.append(nodoOp)
+            hijos.append(t[2])
+            nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,"",hijos)
+            t[0] = nodoPri
+        else:
+            nodoOp = crear_nodo_general("MENOS","-",linea,columna)
+            nNodo = incNodo(numNodo)
+            nodoPri.operacionUnaria(t[2],tipoSimbolo.TipoSimbolo.NEGATIVO_UNARIO)
+            hijos.append(nodoOp)
+            hijos.append(t[2])
+            nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,"",hijos)
+            t[0] = nodoPri
+            
+
 
 def p_primitivo_entero(t):
     'primitivo  :   ENTERO'

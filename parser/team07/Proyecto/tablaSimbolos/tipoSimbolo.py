@@ -24,3 +24,4 @@ class TipoSimbolo(Enum):
     AND = 20
     OR = 21
     NOT = 22
+    NOMBRE_COLUMNA = 23
