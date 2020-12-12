@@ -3,6 +3,7 @@ from sentencias import *
 
 
 def interpretar_sentencias(arbol):
+   
     for nodo in arbol:
         if isinstance(nodo, SCrearBase):
             print("Creando Base-----")
@@ -125,4 +126,14 @@ def interpretar_sentencias(arbol):
                 elif isinstance(col,SColumnaCheck):
                     print(col.id)
                 elif isinstance(col,SColumnaFk):
+<<<<<<< Updated upstream
                     print(col.id)
+=======
+                    print(col.id)
+
+
+f = open("./entrada.sql", "r")
+input = f.read()
+arbol = g.parse(input)
+interpretar_sentencias(arbol)
+>>>>>>> Stashed changes

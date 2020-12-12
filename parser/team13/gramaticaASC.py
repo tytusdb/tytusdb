@@ -435,18 +435,14 @@ def p_init(t):
     print("Lectura Finalizada")
     t[0] = t[1]
 
-
 def p_sentencias_lista(t):
     'sentencias : sentencias sentencia'
     t[1].append(t[2])
-    t[0] = t[1]
-
-
+    t[0]=t[1] 
+     
 def p_sentencias_sentencia(t):
     'sentencias : sentencia'
-    t[0] = [t[1]]
-
-
+    t[0] = [t[1]] 
 def p_sentencia(t):
     '''sentencia : CrearBase
                  | ShowBase
@@ -1040,6 +1036,8 @@ def p_EXPR_SELECT(p):
                    | select current_time
                    | select current_date 
                    '''
+
+
 
 
 # todos los parametros de select - columnas

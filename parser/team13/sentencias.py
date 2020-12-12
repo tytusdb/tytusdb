@@ -1,5 +1,15 @@
 from enum import Enum
 
+cont=0
+txt=""
+def incrementarContador():
+     global cont
+     cont= cont+1
+     return "%d" %cont 
+
+class Node():
+      pass
+
 
 class Aritmetica(Enum):
     MAS = 1
@@ -65,6 +75,52 @@ class TipoOpcionales(Enum):
 class Sentencia:
     '''clase abstracta'''
 
+class S(Sentencia):
+      
+      def __init__(self, Etiqueta,hijo1):
+           self.Etiqueta=Etiqueta
+           self.hijo1=hijo1    
+      def traducir(self):
+           global txt
+           id = incrementarContador()
+           if type(self.hijo1.son1)== type(tuple()):
+               hijo1 = self.hijo1.son1[0].traducir() 
+           else:             
+               hijo1 = self.hijo1.son1py.traducir() 
+           txt+= id+"[label="+self.Etiqueta+"]"+"\n\t"
+           txt+= id+"->"+hijo1+"\n\t"
+           return "digraph G {\n\t"+txt+"}"
+
+ 
+class statementList2(Sentencia):
+     
+     def __init__(self,son1,son2,name):
+         self.son1=son1
+         self.son2=son2
+         self.name=name
+     
+     def traducir(self):
+         global txt
+         id = incremetarContador()
+         son1 = self.son1.traducir()
+         son2 = self.son2.traducir()
+         txt += id + "[label= "+self.name+"]"+"\n\t"     
+         txt += id + " -> " + son1 + "\n\t"
+         txt += id + " -> " + son2 + "\n\t"
+         return id 
+
+class statementList1(Sentencia):
+        def __init__(self,son1,name):
+            self.name = name
+            self.son1 = son1
+
+        def traducir(self):
+            global txt
+            id = incremetarContador()
+            son1 = self.son1.traducir()
+            txt += id + "[label= "+self.name+"]"+"\n\t"
+            txt += id + " -> " + son1 + "\n\t"
+            return id
 
 class SCrearBase(Sentencia):
     def __init__(self, owner, mode, replace, exists, id):
@@ -73,6 +129,26 @@ class SCrearBase(Sentencia):
         self.mode = mode
         self.replace = replace
         self.exists = exists
+    
+    
+    def traducir(self):
+           global txt
+           txt=""
+           id = incrementarContador()
+           
+           hijo1 = self.owner 
+           hijo2 = self.mode 
+           hijo3 = self.replace 
+           hijo4 = self.exists 
+           
+           txt+= id+"[label="+"CrearBases"+"]"+"\n\t"
+           txt+= id+"->"+str("create")+"\n\t"
+           txt+= id+"->"+str("database")+"\n\t"
+           txt+= id+"->"+str(self.id)+"\n\t"
+           return txt 
+           
+           
+
 
 
 class SShowBase(Sentencia):
