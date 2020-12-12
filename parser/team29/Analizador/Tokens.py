@@ -45,7 +45,6 @@ reservadas = {
     "NULL": "R_NULL",
     "OWNER": "R_OWNER",
     "MODE": "R_MODE",
-    "INHERITS": "R_INHERITS",
     "ALTER": "R_ALTER",
     "RENAME": "R_RENAME",
     "TO": "R_TO",
@@ -56,7 +55,6 @@ reservadas = {
     "COLUMN": "R_COLUMN",
     "SELECT": "R_SELECT",
     "DISTINCT": "R_DISTINCT",
-    "FROM": "R_FROM",
     "UNION": "R_UNION",
     "INTERSECT": "R_INTERSECT",
     "EXCEPT": "R_EXCEPT",
@@ -84,7 +82,7 @@ reservadas = {
     "NOTNULL": "R_NOTNULL",
     "TRUE": "R_TRUE",
     "FALSE": "R_FALSE",
-    "UNKOWN": "R_UNKOWN",
+    "UNKNOWN": "R_UNKNOWN",
     "LIKE": "R_LIKE",
     "ALL": "R_ALL",
     "ANY": "R_ANY",
@@ -149,7 +147,6 @@ tokens = [
     "OL_MENORQUE",
     "OL_MAYORIGUALQUE",
     "OL_MENORIGUALQUE",
-    "OL_NOT",
     # Operadores de cadena
     "OC_CONCATENAR",
     "OC_AND",
@@ -190,13 +187,11 @@ t_O_DIVISION = r"/"
 t_O_EXPONENTE = r"\^"
 t_O_MODULAR = r"%"
 
-t_OL_ESIGUAL = r"=="
 t_OL_DISTINTODE = r"!=|<>"
 t_OL_MAYORQUE = r">"
 t_OL_MENORQUE = r"<"
 t_OL_MAYORIGUALQUE = r">="
 t_OL_MENORIGUALQUE = r"<="
-t_OL_NOT = r"!"
 
 t_OC_CONCATENAR = r"\|\|"
 t_OC_AND = r"&"

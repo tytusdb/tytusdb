@@ -15,5 +15,7 @@ class Random(Instruccion):
         resultado = random.choice(self.valor)
         return resultado
 
+'''
 instruccion = Random("hola mundo",None, 1,2)
 instruccion.ejecutar(None,None)
+'''

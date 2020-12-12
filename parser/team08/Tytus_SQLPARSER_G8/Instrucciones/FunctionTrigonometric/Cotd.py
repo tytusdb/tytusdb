@@ -13,7 +13,8 @@ class Cotd(Instruccion):
         print(math.acos(self.valor))
         return math.acos(self.valor)
         '''
-
+'''
 instruccion = Cotd(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

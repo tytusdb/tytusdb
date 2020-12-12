@@ -13,7 +13,8 @@ class Cos(Instruccion):
         print(math.cos(self.valor))
         return math.cos(self.valor)
 
-
+'''
 instruccion = Cos(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
