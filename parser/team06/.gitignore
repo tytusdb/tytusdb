@@ -6,3 +6,5 @@
 /parser.py
 /storageManager/jsonMode.py
 /storageManager/
+/data/
+/data/databases
