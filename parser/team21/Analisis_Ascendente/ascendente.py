@@ -1,4 +1,11 @@
 import re
+from tytus.parser.team21.Analisis_Ascendente.reportes.Reporte_lexico import RealizarReportes,Error
+
+
+
+L_errores_lexicos = []
+L_errores_sintacticos = []
+columna = 0
 
 reservadas = {
     'smallint': 'SMALLINT',
@@ -170,7 +177,6 @@ tokens = [
              'NUMDECIMAL',
              'ENTERO',
              'CADENA',
-
              'ID',
              'MODU',
              'PUNTO',
@@ -221,6 +227,8 @@ def t_NUMDECIMAL(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
+        global columna
+        columna = contador_columas(len(str(t.value)))
     except ValueError:
         print("Valor no es parseable a decimal %d", t.value)
         t.value = 0
@@ -231,6 +239,8 @@ def t_ENTERO(t):
     r'\d+'
     try:
         t.value = int(t.value)
+        global columna
+        columna = contador_columas(len(str(t.value)))
     except ValueError:
         print("Valor no es parseable a integer %d", t.value)
         t.value = 0
@@ -238,40 +248,61 @@ def t_ENTERO(t):
 
 
 def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    r'[a-zA-Z_][a-zA-Z_0-9_]*'
     t.type = reservadas.get(t.value.lower(), 'ID')
+    global columna
+    columna = contador_columas(len(str(t.value)))
     return t
 
 
 def t_CADENA(t):
     r'(\".*?\")|(\'.*?\')'
     t.value = t.value[1:-1]  # remuevo las comillas
+    global columna
+    columna = contador_columas(len(str(t.value)))
     return t
 
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
+    global columna
+    columna = 0
 
 
 # Comentario simple // ...
 def t_COMENTARIO_SIMPLE(t):
     r'--.*\n'
     t.lexer.lineno += 1
+    global columna
+    columna = 0
 
 
-t_ignore = " \t"
+#t_ignore = " \t"
+def t_IGNORAR(t):
+    r'\ |\t'
+    global columna
+    if t.value == '\t':
+        columna = contador_columas(columna+7)
+    else:
+        columna = contador_columas(columna)
 
 
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
+    global columna
+    columna = 0
 
 
 def t_error(t):
-    print("Caracter irreconocible! '%s'" % t.value[0])
-    # meter a tabla de errores!
+    global L_errores_lexicos;
+    global columna
 
+    colum = contador_columas(columna)
+    data = Error(str("Error Lexico"),str(t.value[0]), str(t.lexer.lineno),str(colum))
+    L_errores_lexicos.append(data)
+    print("Caracter irreconocible! '%s'" % t.value[0])
     t.lexer.skip(1)
 
 
@@ -281,8 +312,8 @@ lexer = lex.lex()
 lex.lex(reflags=re.IGNORECASE)
 
 # from expresion import *
-from expresion import *
-from instruccion import *
+from tytus.parser.team21.Analisis_Ascendente.expresion import *
+from tytus.parser.team21.Analisis_Ascendente.instruccion import *
 
 precedence = (
     ('left', 'OR'),
@@ -353,6 +384,9 @@ def p_foreign2(t):
     'campo              : FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR'
     t[0] = Campo(3, None, None, None, t[4], t[7], t[9])
 
+def p_campoCadenas(t):
+    'campo              : CADENA'
+
 
 def p_primary(t):
     'campo              : PRIMARY KEY PARIZQ ID PARDR'
@@ -376,7 +410,10 @@ def p_acompaniamiento(t):
                         | NULL
                         | UNIQUE
                         | DEFAULT valores
-                        | PRIMARY KEY'''
+                        | PRIMARY KEY
+                        | CONSTRAINT ID
+                        | CHECK PARIZQ E PARDR
+                        '''
     if t[1].lower() == 'not':
         t[0] = Acompaniamiento('NOT', None)
     elif t[1].lower() == 'null':
@@ -387,6 +424,11 @@ def p_acompaniamiento(t):
         t[0] = Acompaniamiento('DEFAULT', t[2])
     elif t[1].lower() == 'primary':
         t[0] = Acompaniamiento('PRIMARY', None)
+    elif t[1].lower() == 'constraint':
+        t[0] = Acompaniamiento('CONSTRAINT', t[2])
+    elif t[1].lower() == 'check':
+        t[0] = Acompaniamiento('CHECK', None)  #Jennifer aqui te molesto con subir los datos desde values
+
 
 
 def p_tipos(t):
@@ -473,7 +515,8 @@ def p_listaValores2(t):
 def p_valores(t):
     '''valores          : ENTERO
                         | NUMDECIMAL
-                        | CADENA  '''
+                        | CADENA
+                        '''
     t[0] = Primitivo(t[1])
 
 
@@ -695,11 +738,15 @@ def p_showDB(t):
     'instruccion        : SHOW DATABASES PTCOMA'
     t[0] = t[1]
 
+def p_showDB1(t):
+    'instruccion        : SHOW DATABASES LIKE CADENA PTCOMA'
+    t[0] = t[1]
+
 
 # ALTER
 def p_alterDB(t):
     '''instruccion      : ALTER DATABASE ID RENAME TO ID PTCOMA
-                        | ALTER DATABASE ID OWNER TO LLIZQ ID LLDR'''  # falta
+                        | ALTER DATABASE ID OWNER TO ID PTCOMA'''
     t[0] = t[1]
 
 
@@ -710,7 +757,7 @@ def p_alterT(t):
 
 
 def p_alterT2(t):
-    '''instruccion      : ALTER TABLE ID ADD CHECK PARIZQ ID MENMAY   PARDR PTCOMA
+    '''instruccion      : ALTER TABLE ID ADD CHECK PARIZQ asignacion PARDR PTCOMA
                         | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR PTCOMA
                         | ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID PTCOMA
                         | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA
@@ -1035,16 +1082,38 @@ def p_tablaR4(t):
                 '''
 
 
+
+def p_instruccion_createEnum(t):
+    ''' instruccion : CREATE TYPE ID AS ENUM PARIZQ campos PARDR PTCOMA
+    '''
+
+
+def p_checkopcional(t):
+    ''' checkprima = asignacion
+                    |
+    '''
+
 # def p_condicion2(t):
-#   '''condicion : andOr HAVING
+#   '''condi
+#   cion : andOr HAVING
 #              | andOr'''
 ####################################################################
 # MODO PANICO ***************************************
 def p_error(t):
+    global L_errores_sintacticos
     print("Error sintáctico en '%s'" % t.value)
+
+    colum = contador_columas(columna)
+    print("Columna ",colum)
+    print("columna lexer pos ",lexer.lexpos)
+    data = Error(str("Error Sintactico"), str(t.value), str(t.lexer.lineno), str(colum))
+    L_errores_sintacticos.append(data)
+
     if not t:
         print("Fin del Archivo!")
         return
+
+
 
     # Read ahead looking for a closing '}'
     while True:
@@ -1055,11 +1124,30 @@ def p_error(t):
     parser.restart()
 
 
+def contador_columas(args):
+    columna = args + 2
+    return columna
+
+
+
 import ply.yacc as yacc
-
 parser = yacc.yacc()
+def ejecutarAnalisis(entrada):
+    global L_errores_lexicos
+    global L_errores_sintacticos
+    f = open("./entrada2.txt", "r")
+    input = f.read()
+    print(input)
+    parser.parse(input)
+    #limpiar
+    lexer.input("")
+    lexer.lineno=0
+    print("Lista Lexico\n", L_errores_lexicos)
+    print("Lista Sintactico\n", L_errores_sintacticos)
+    reportes = RealizarReportes()
+    reportes.generar_reporte_lexicos(L_errores_lexicos)
+    reportes.generar_reporte_sintactico(L_errores_sintacticos)
+    print("Fin de analisis")
 
-f = open("./entrada2.txt", "r")
-input = f.read()
-print(input)
-parser.parse(input)
+
+ejecutarAnalisis("prueba")

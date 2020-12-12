@@ -1,11 +1,12 @@
 
 CREATE TABLE prueba(
-    id int,
+    id integer,
     name varchar(10),
      PRIMARY KEY(contact_id)
 );
+
 CREATE TABLE usuario(
-    id int not NULL primary key,
+    id integer not NULL primary key,
     email varchar(23) unique not null default 1234,
     foto VARCHAR(200) DEFAULT '/assets/fotoperfil.png',
     CONSTRAINT categoriaProductoFK FOREIGN KEY (idCategoria) REFERENCES CATEGORIA (id),
@@ -23,7 +24,9 @@ VALUES(1,'John Doe','(408)-111-1234','john.doe@bluebird.dev'),
 
 INSERT INTO products VALUES (1, 'Cheese', 9.99);
 
+
 UPDATE products SET price = -10 ^ 6, price = price + !!!10, id = 2 <> 3 WHERE price = 5;
+
 
 DELETE FROM products WHERE price >= 10 and pr == 'pr' or not false or not d < 9 and id in ('a','b','c') and fechanacimiento between '2004-01-01' and '2005-01-01';
 
@@ -106,3 +109,107 @@ FROM continente c, personas p
 WHERE c.nombre= d.nombre
 GROUP BY a.continente,b.Usuario,Identificador
 HAVING COUNT(Identificador) > 0;
+
+
+CREATE TYPE mood as Enum ('sad','ok','happy');
+
+create or replace database if not exists marisela OWNER = marcos MODE=1;
+show databases like 'm';
+
+create database marisela OWNER = marcos MODE=1;
+show databases like 'm';
+
+create or replace database marisela OWNER = marcos MODE=1;
+show databases like 'm';
+
+create or replace database marisela;
+show databases like 'm';
+
+
+
+CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');
+
+ ALTER DATABASE name RENAME TO new_name;
+ ALTER DATABASE name OWNER TO new_name;
+
+ DROP DATABASE IF EXISTs marcos;
+
+
+CREATE TABLE Persons (
+    ID intEGER NOT NULL constraint MARCOS UNIQUE CHECK ('1','2','3'),
+    LastName varchar(255) NOT NULL PRIMARY KEY,
+    FirstName varchar(255),
+    direccion character(33),
+    hola character varying(45),
+    Age integer CHECK ('datos','bool','hooney'),
+    campo integer references TABLA,
+    FOREIGN KEY (columna,DATOS) REFERENCES tabla (id,DATOS),
+    PRIMARY KEY (dato1,dato2)
+
+);
+
+
+DROP TABLE MARCOS;
+
+DROP DATABASE IF EXISTs marcos;
+
+
+CREATE TABLE my_first_table (
+ coluumn1 INTEGER,
+ PRIMARY KEY (JKKK,LKL),
+ FOREIGN KEY (colHumn1) REFERENCES tabla (lala)
+);
+
+
+ALTER TABLE tabla ADD CHECK (name <> '');
+
+
+ALTER TABLE tabla ADD CONSTRAINT some_name UNIQUE (columna1);
+ALTER TABLE tabla ADD FOREIGN KEY (columna) REFERENCES column2;
+
+
+ALTER TABLE distributors
+ ALTER COLUMN address TYPE varchar(80),
+ ALTER COLUMN name TYPE varchar(100),
+ ALTER COLUMN id SET NOT NULL;
+
+
+ALTER TABLE tabla DROP CONSTRAINT dasdasd;
+
+CREATE TABLE my_first_table (
+ coluumn1 INTEGER,
+ PRIMARY KEY (JKKK,LKL),
+ FOREIGN KEY (colHumn1) REFERENCES tabla (lala)
+);
+
+
+
+CREATE TABLE my_first_table (
+ coluumn1 INTEGER,
+
+) INHERITS (TABLAPRINCIPAL);
+
+
+insert into mitabla values (1,'CHEESE',9.99,0.54);
+
+UPDATE products SET price = 10 WHERE price = 5;
+
+DELETE FROM products WHERE price = 10;
+
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
+
+select greatest(1,2,3,4,5);
+select greatest('1970-12-10','2000-11-11','2019-01-01');
+select GREATEST('2030-02-20',now());
+select least(1,2,3,3,5);
+select least('a','b','c','aa');

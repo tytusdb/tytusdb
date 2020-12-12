@@ -41,7 +41,7 @@ palabras_reservadas = (
     'UPDATE','WHERE','DELETE','FROM',
     #SELECT
     'SELECT','EXTRACT','DATE_PART','NOW','GREATEST','LEAST',
-    'GROUP','BY'
+    'GROUP','BY','SUM'
 
 
 
