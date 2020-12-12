@@ -46,3 +46,7 @@ print(j.showTables("db1"))
 # drop table3 of db1 and show return tables list of db1 database
 print(j.dropTable("db1", "table3"))
 print(j.showTables("db1"))
+
+# drop db1 with tables, first return 0 and second return None
+print(j.dropDatabase("db1"))
+print(j.showTables("db1"))
