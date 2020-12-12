@@ -3,7 +3,7 @@ from Node import Node
 class TablaHash:
     def __init__(self, size, db, name, nCols):
         self.Size = size-1
-        self.values = list()
+        self.values = []
         self.db = db
         self.name = name
         self.nCols = nCols
@@ -62,7 +62,7 @@ class TablaHash:
         posicion_hash = self.funcionHash(dato)
         posicion_hash = int(posicion_hash)
         if self.values[posicion_hash] is not None:
-            if self.values[posicion_hash].buscarDato(dato):
+            if not self.values[posicion_hash].buscarDato_binary(dato):
                 aux_bol = True
                 return aux_bol
         return aux_bol
@@ -82,10 +82,10 @@ class TablaHash:
         contador = 0
         for i in range(0,self.Size+1):
             if self.values[i] != None:
-                print(str(self.values[i].post_in_hash) + " | " + str(self.values[i].array))
+                print(str(self.values[i].post_in_hash) + " | " + str(self.values[i].array) + " |" + str(len(self.values[i].array)))
             contador +=1
 
     def buscar(self, dato):
         posicion_hash = self.funcionHash(dato)
         nodo = self.values[posicion_hash]
-        return nodo.buscarDato(dato)
+        return nodo.busquedaB(dato)

@@ -16,8 +16,8 @@ precedence = (
     ('left', 'SEMICOLON', 'LEFT_PARENTHESIS',
      'RIGHT_PARENTHESIS', 'COMMA', 'COLON', 'NOT_EQUAL'),  # Level 6
     ('left', 'PLUS', 'REST'),  # Level 7
-    ('left', 'ASTERISK', 'DIVISION', 'MOD'),  # Level 8
-    ('left', 'EXPONENT'),  # Level 9
+    ('left', 'ASTERISK', 'DIVISION', 'MODULAR', 'BITWISE_SHIFT_RIGHT', 'BITWISE_SHIFT_LEFT', 'BITWISE_AND', 'BITWISE_OR'),  # Level 8
+    ('left', 'EXPONENT',  'BITWISE_XOR', 'SQUARE_ROOT', 'CUBE_ROOT'),  # Level 9
     ('right', 'UPLUS', 'UREST'),  # Level 10
     ('left', 'LEFT_BRACE', 'RIGHT_BRACE'),  # Level 11
     ('left', 'TYPE_CAST'),  # Level 12
@@ -33,6 +33,221 @@ precedence = (
 # se usa ''' ''' para que no marque error
 # Nota: p siempre es un array y para llamar los tokens, solo se escriben tal y como fueron definidos en la clase lex.py
 # y estos no pueden ser usados para los nombres de los no terminales, si no lanzara error
+
+
+#=====================================================================================
+#=====================================================================================
+#====================================================================================
+
+def p_instruction_list(p):
+    '''instructionlist : instructionlist sqlinstruction
+                       | sqlinstruction
+    '''
+
+
+def p_sql_instruction(p):
+    '''sqlinstruction : ddl
+                    | DML
+    '''
+
+def p_ddl(p):
+    '''ddl : createstatement 
+           | showstatement
+           | alterstatement
+           | dropstatement
+    '''
+
+def p_create_statement(p):
+    '''createstatement : CREATE optioncreate SEMICOLON''' 
+
+def p_option_create(p):
+    '''optioncreate : TYPE SQLNAME AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS
+                    | DATABASE createdb
+                    | OR REPLACE DATABASE createdb
+                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable  RIGHT_PARENTHESIS
+                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable  RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+    '''
+
+def p_type_list(p):
+    '''typelist : typelist COMMA SQLNAME
+                | SQLNAME'''
+
+def p_create_db(p):
+    '''createdb : IF NOT EXISTS ID listpermits
+                | IF NOT EXISTS ID
+                | ID listpermits
+                | ID 
+    '''
+
+def p_list_permits(p):
+    '''listpermits : listpermits permits
+                   | permits
+    '''
+
+def p_permits(p):
+    '''permits : OWNER EQUALS ID
+               | OWNER ID
+               | MODE EQUALS INT_NUMBER
+               | MODE INT_NUMBER 
+    '''
+
+def p_columns_table(p):
+    '''columnstable : columnstable COMMA column
+                    | column
+    '''
+
+def p_column(p):
+    '''column : ID typecol optionscollist
+              | ID typecol
+    '''
+
+def p_type_col(p):
+    '''typecol : SMALLINT
+               | INTEGER
+               | BIGINT
+               | DECIMAL LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+               | DECIMAL LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | NUMERIC LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+               | NUMERIC LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | REAL
+               | DOUBLE PRECISION
+               | MONEY
+               | CHARACTER VARYING LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHARACTER VARYING
+               | VARCHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | VARCHAR
+               | CHARACTER LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHARACTER
+               | CHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHAR
+               | TEXT
+               | TIMESTAMP LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | TIMESTAMP
+               | DATE
+               | TIME LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | TIME
+               | INTERVAL SQLNAME
+               | BOOLEAN
+    '''
+
+def p_options_col_list(p):
+    '''optionscollist : optionscollist optioncol
+                      | optioncol
+    '''
+
+
+def p_option_col(p):
+    '''optioncol : DEFAULT SQLEXPRESSION2                
+                 | NOT NULL
+                 | NULL
+                 | CONSTRAINT ID UNIQUE
+                 | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                 | UNIQUE
+                 | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                 | PRIMARY KEY 
+                 | REFERENCES ID
+                 | UNIQUE LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+                 | PRIMARY KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+                 | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+    '''
+
+def p_condition_column(p):
+    '''conditionColumn : conditioncheck'''
+
+def p_condition_check(p):
+    '''conditioncheck : SQLRELATIONALEXPRESSION
+    '''
+
+def p_column_list(p):
+    '''columnlist : columnlist COMMA ID
+                  | ID
+    '''
+
+def p_show_statement(p):
+    '''showstatement : SHOW DATABASES SEMICOLON
+                     | SHOW DATABASES LIKE ID SEMICOLON
+    ''' 
+
+def p_alter_statement(p):
+    '''alterstatement : ALTER optionsalter SEMICOLON
+    '''
+
+def p_options_alter(p):
+    '''optionsalter : DATABASE alterdatabase
+                    | TABLE altertable
+    '''
+
+def p_alter_database(p):
+    '''alterdatabase : ID RENAME TO ID
+                     | ID OWNER TO typeowner
+    '''
+
+def p_type_owner(p):
+    '''typeowner : ID
+                 | CURRENT_USER
+                 | SESSION_USER 
+    '''
+
+def p_alter_table(p): 
+    '''altertable : ID alterlist
+    '''
+
+def p_alter_list(p):
+    '''alterlist : alterlist COMMA typealter
+                 | typealter
+    '''
+
+def p_type_alter(p):
+    '''typealter : ADD addalter
+                 | ALTER alteralter
+                 | DROP dropalter
+                 | RENAME  renamealter
+    '''
+
+def p_add_alter(p):
+    '''addalter : COLUMN ID typecol
+                | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+    '''
+
+def p_alter_alter(p):
+    '''alteralter : COLUMN ID SET NOT NULL
+                  | COLUMN ID TYPE typecol
+    '''
+
+def p_drop_alter(p):
+    '''dropalter : COLUMN ID
+                 | CONSTRAINT ID
+    '''
+
+def p_rename_alter(p):
+    '''renamealter : COLUMN ID TO ID
+    '''
+
+def p_drop_statement(p):
+    '''dropstatement : DROP optionsdrop SEMICOLON''' 
+
+def p_options_drop(p):
+    '''optionsdrop : DATABASE dropdatabase
+                    | TABLE droptable
+    '''
+
+def p_drop_database(p):
+    '''dropdatabase : IF EXISTS ID
+                    | ID
+    '''
+
+def p_drop_table(p):
+    '''droptable : ID
+    '''
+
+
+
+#=====================================================================================
+#=====================================================================================
+#=====================================================================================
+
 
 
 def p_dml_list(p):
@@ -52,10 +267,15 @@ def p_dml(p):
            | INSERTSTATEMENT
            | DELETESTATEMENT
            | UPDATESTATEMENT
+           | MULTI_LINE_COMMENT
+           | SINGLE_LINE_COMMENT
            | error SEMICOLON'''
-    nodo = Node('DML')
-    nodo.add_childrens(p[1])
-    p[0] = nodo
+    if (len(p) == 2):
+        nodo = Node('DML')
+        nodo.add_childrens(p[1])
+        p[0] = nodo
+    else:
+        p[0] = 'error'
 
 
 def p_query_statement(p):
@@ -68,8 +288,6 @@ def p_query_statement(p):
         nodo.add_childrens(p[1])
         nodo.add_childrens(Node(p[2]))
         p[0] = nodo
-    else:
-        p[0] = 'error'
 
 # Asi se sigue trabajando en lo restante de la gramatica
 
@@ -77,7 +295,7 @@ def p_query_statement(p):
 def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
-                       | UPDATE ID SET SETLIST  SEMICOLON'''
+                       | UPDATE ID SET SETLIST  SEMICOLON '''
     nodo = Node('UPDATESTATEMENT')
     if (len(p) == 8):
         nodo.add_childrens(Node(p[1]))
@@ -131,7 +349,7 @@ def p_sql_expression2(p):
                       | SQLEXPRESSION2 REST SQLEXPRESSION2 
                       | SQLEXPRESSION2 DIVISION SQLEXPRESSION2 
                       | SQLEXPRESSION2 ASTERISK SQLEXPRESSION2 
-                      | SQLEXPRESSION2 MOD SQLEXPRESSION2
+                      | SQLEXPRESSION2 MODULAR SQLEXPRESSION2
                       | SQLEXPRESSION2 EXPONENT SQLEXPRESSION2 
                       | REST SQLEXPRESSION2 %prec UREST
                       | PLUS SQLEXPRESSION2 %prec UPLUS
@@ -407,6 +625,7 @@ def p_selectq(p):
                | SELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
+               | SELECT SELECTLIST
                | SELECT EXPRESSIONSTIME'''
     nodo = Node('SELECTQ')
     if (len(p) == 4):
@@ -514,8 +733,10 @@ def p_cont_of_aggregate(p):
 
 def p_from_clause_list(p):
     '''FROMCLAUSELIST : FROMCLAUSELIST COMMA TABLEREFERENCE
+                      | FROMCLAUSELIST LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
                       | FROMCLAUSELIST LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                      | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
                       | TABLEREFERENCE'''
     nodo = Node('FROMCLAUSELIST')
     if (len(p) == 4):
@@ -749,7 +970,6 @@ def p_sql_and_expression(p):
     nodo.add_childrens(p[1])
     p[0] = nodo
 
-
 def p_sql_unary_logical_expression_list(p):
     '''SQLUNARYLOGICALEXPRESSIONLIST : SQLUNARYLOGICALEXPRESSIONLIST  AND SQLUNARYLOGICALEXPRESSION
                                      | SQLUNARYLOGICALEXPRESSION'''
@@ -796,6 +1016,7 @@ def p_sql_relational_expression(p):
                                | SQLSIMPLEEXPRESSION SQLINCLAUSE
                                | SQLSIMPLEEXPRESSION SQLBETWEENCLAUSE
                                | SQLSIMPLEEXPRESSION SQLLIKECLAUSE
+                               | SQLSIMPLEEXPRESSION SQLISCLAUSE
                                | SQLSIMPLEEXPRESSION'''
     nodo = Node('SQLRELATIONALEXPRESSION')
     if (len(p) == 3):
@@ -860,16 +1081,41 @@ def p_sql_like_clause(p):
         nodo.add_childrens(p[2])
     p[0] = nodo
 
+def p_sql_is_clause(p):
+    '''SQLISCLAUSE : IS NULL
+                   | IS NOT NULL
+                   | ISNULL
+                   | NOTNULL
+                   | IS TRUE
+                   | IS NOT TRUE
+                   | IS FALSE
+                   | IS NOT FALSE
+                   | IS UNKNOWN
+                   | IS NOT UNKNOWN
+                   | IS NOT DISTINCT FROM SQLNAME
+                   | IS DISTINCT FROM SQLNAME'''
+
 def p_sql_simple_expression(p):
     '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION PLUS SQLSIMPLEEXPRESSION
                            | SQLSIMPLEEXPRESSION REST SQLSIMPLEEXPRESSION
                            | SQLSIMPLEEXPRESSION ASTERISK SQLSIMPLEEXPRESSION
                            | SQLSIMPLEEXPRESSION DIVISION SQLSIMPLEEXPRESSION
                            | SQLSIMPLEEXPRESSION EXPONENT SQLSIMPLEEXPRESSION
-                           | SQLSIMPLEEXPRESSION MOD SQLSIMPLEEXPRESSION
+                           | SQLSIMPLEEXPRESSION MODULAR SQLSIMPLEEXPRESSION
                            | REST SQLSIMPLEEXPRESSION %prec UREST
                            | PLUS SQLSIMPLEEXPRESSION %prec UPLUS
+                           | SQLSIMPLEEXPRESSION BITWISE_SHIFT_RIGHT SQLSIMPLEEXPRESSION
+                           | SQLSIMPLEEXPRESSION BITWISE_SHIFT_LEFT SQLSIMPLEEXPRESSION
+                           | SQLSIMPLEEXPRESSION BITWISE_AND SQLSIMPLEEXPRESSION
+                           | SQLSIMPLEEXPRESSION BITWISE_OR SQLSIMPLEEXPRESSION
+                           | SQLSIMPLEEXPRESSION BITWISE_XOR SQLSIMPLEEXPRESSION
+                           | BITWISE_NOT SQLSIMPLEEXPRESSION %prec UREST
                            | LEFT_PARENTHESIS SQLEXPRESSION RIGHT_PARENTHESIS
+                           | SQUARE_ROOT SQLSIMPLEEXPRESSION
+                           | CUBE_ROOT SQLSIMPLEEXPRESSION
+                           | MATHEMATICALFUNCTIONS
+                           | BINARY_STRING_FUNCTIONS
+                           | TRIGONOMETRIC_FUNCTIONS
                            | SQLINTEGER
                            | OBJECTREFERENCE
                            | NULL'''
@@ -906,7 +1152,86 @@ def p_sql_expression_list(p):
         nodo.add_childrens(p[1])
     p[0] = nodo
 
+def p_mathematical_functions(p):
+    '''MATHEMATICALFUNCTIONS : ABS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | ABS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | CBRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | CBRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | CEIL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | CEIL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | CEILING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | CEILING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | DEGREES LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | DEGREES LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | DIV LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | DIV LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | EXP LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | EXP LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | FACTORIAL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | FACTORIAL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | FLOOR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | FLOOR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | GCD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | GCD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | LN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | LN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | LOG LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | LOG LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | MOD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | MOD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | PI LEFT_PARENTHESIS RIGHT_PARENTHESIS SQLALIAS
+                             | PI LEFT_PARENTHESIS RIGHT_PARENTHESIS
+                             | POWER LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | POWER LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | RADIANS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | RADIANS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | ROUND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | ROUND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | SIGN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | SIGN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | SQRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | SQRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | WIDTH_BUCKET LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | WIDTH_BUCKET LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | TRUNC LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | TRUNC LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                             | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS SQLALIAS
+                             | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS '''
 
+def p_binary_string_functions(p):
+    '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS  SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+                               | TRIM LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                               | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
+                               | SHA256 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
+                               | SUBSTR LEFT_PARENTHESIS ID COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS STRINGCONT AS DATE RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS STRINGCONT AS INTEGER RIGHT_PARENTHESIS
+                               | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
+                               
+def p_trigonometric_functions(p):
+    '''TRIGONOMETRIC_FUNCTIONS : ACOS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ACOSD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ASIN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ASIND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ATAN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ATAND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ATAN2 LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ATAN2D LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | COS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | COSD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | COT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | COTD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SIN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SIND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | TAN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | TAND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | COSH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | SINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | TANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ACOSH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ASINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
+                               | ATANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
 def p_sql_alias(p):
     '''SQLALIAS : AS SQLNAME
                 | SQLNAME'''
@@ -1016,7 +1341,6 @@ def p_sub_query(p):
     nodo.add_childrens(p[1])
     p[0] = nodo
 
-
 def p_error(p):
     global list_errors
     global id_error
@@ -1024,13 +1348,17 @@ def p_error(p):
     id_error = list_errors.count + 1  if list_errors.count > 0 else 1
 
     try:
-        print(p)
-        description = f'It was not expected -> {p.value} <-'
+        SQLERROR = FindTypeError('Syntactic')
+        number_error, description = SQLERROR.find_type_error()
+        print(str(p.value))
+        description += ' or near ' + str(p.value) 
         column = find_column(p)
-        list_errors.insert_end(Error(id_error, 'Syntactic', description, p.lineno, column))
+        list_errors.insert_end(Error(id_error, 'Syntactic',number_error ,description, p.lineno, column))
     except AttributeError:
-        print('end of file')
-        list_errors.insert_end(Error(id_error, 'Syntactic', 'No character found for panic mode recovery', 'EOF', 'EOF'))
+        SQLERROR = FindTypeError('EOF')
+        number_error, description = SQLERROR.find_type_error()
+        print(number_error, description)
+        list_errors.insert_end(Error(id_error, 'Syntactic', number_error, description, 'EOF', 'EOF'))
     id_error += 1
 
 parser = yacc.yacc()
@@ -1054,7 +1382,7 @@ def parse(inpu):
 #        UPDATE products SET price = 10 WHERE price = 5 RETURNING *;'''
 
 # result = parser.parse(s)
-# # s = '''SELECT * FROM USER;'''
+# s = '''SELECT * FROM USER;'''
 
 # result = parser.parse(s)
 # report = open('test.txt', 'w')
