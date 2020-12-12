@@ -1,128 +1,120 @@
 import sys
-import math
+from hashlib import md5, sha256
 
 sys.path.insert(0, '..')
 from ast_node import ASTNode
 
 
-# From here on, classes describing various trigonometric operations
-# TODO: acosd, asind, atand, atand2, cosd, sind, tand
-class Acos(ASTNode):
+# From here on, classes describing aggregate functions
+# TODO: Convert, SetByte, Substr
+class Convert(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.acos(self.exp)
+        return True
 
 
-class Acosh(ASTNode):
+class Decode(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.acosh(self.exp)
+        return self.exp.decode('base64', 'strict')
 
 
-class Atan(ASTNode):
+class Encode(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.atan(self.exp)
+        return self.exp.encode('base64', 'strict')
 
 
-class Atan2(ASTNode):
-    def __init__(self, exp1, exp2, line, column):
-        ASTNode.__init__(self, line, column)
-        self.exp1 = exp1
-        self.exp2 = exp2
-
-    def execute(self, table, tree):
-        super().execute(table, tree)
-        return math.atan2(self.exp1, self.exp2)
-
-
-class Atanh(ASTNode):
+class GetByte(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.atanh(self.exp)
+        return bytes(self.exp, 'utf-8')
 
 
-class Cos(ASTNode):
+class Length(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.cos(self.exp)
+        return len(self.exp)
 
 
-class Cosh(ASTNode):
+
+class Md5(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.cosh(self.exp)
+        return md5(self.exp.encode())
 
 
-class Cot(ASTNode):
+class SetByte(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return 1 / math.tan(self.exp)
+        return True
 
 
-class Sin(ASTNode):
+class Sha256(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.sin(self.exp)
+        return sha256(self.exp)
 
 
-class Sinh(ASTNode):
+class Substr(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.sinh(self.exp)
+        return len(self.exp)
 
 
-class Tan(ASTNode):
+class Substring(ASTNode):
+    def __init__(self, exp, start, end, line, column):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.start = start
+        self.end = end
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return self.exp[self.start: self.end]
+
+
+class Trim(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.tan(self.exp)
-
-
-class Tanh(ASTNode):
-    def __init__(self, exp, line, column):
-        ASTNode.__init__(self, line, column)
-        self.exp = exp
-
-    def execute(self, table, tree):
-        super().execute(table, tree)
-        return math.tanh(self.exp)
+        return self.exp.strip()

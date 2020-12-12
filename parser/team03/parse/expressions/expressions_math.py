@@ -12,7 +12,7 @@ class BinaryExpression(ASTNode):
     # Class that handles every expression with two components, like add, times, module and so on
 
     def __init__(self, exp1, exp2, operator, line, column):
-        super().__init__(line, column)
+        ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
         self.operator = operator
@@ -34,10 +34,10 @@ class BinaryExpression(ASTNode):
 
 
 # From here on, classes describing various mathematical operations
-# PENDING: minScale, scale, trimScale, widthBucket
+# TODO: minScale, scale, trimScale, widthBucket
 class Abs(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -47,7 +47,7 @@ class Abs(ASTNode):
 
 class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar probably doesn't support it
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -57,7 +57,7 @@ class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar pro
 
 class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in grammar or semantic error? 
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -67,7 +67,7 @@ class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in gr
 
 class Degrees(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -77,7 +77,7 @@ class Degrees(ASTNode):
 
 class Div(ASTNode):
     def __init__(self, exp1, exp2, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
 
@@ -88,7 +88,7 @@ class Div(ASTNode):
 
 class Exp(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -98,7 +98,7 @@ class Exp(ASTNode):
 
 class Factorial(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -108,7 +108,7 @@ class Factorial(ASTNode):
 
 class Floor(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -118,7 +118,7 @@ class Floor(ASTNode):
 
 class Gcd(ASTNode):
     def __init__(self, exp1, exp2, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
 
@@ -129,7 +129,7 @@ class Gcd(ASTNode):
 
 class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python version
     def __init__(self, exp1, exp2, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
 
@@ -140,7 +140,7 @@ class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python 
 
 class Ln(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -150,7 +150,7 @@ class Ln(ASTNode):
 
 class Log(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -160,7 +160,7 @@ class Log(ASTNode):
     
 class Log10(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -170,7 +170,7 @@ class Log10(ASTNode):
 
 class MinScale(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -180,7 +180,7 @@ class MinScale(ASTNode):
 
 class Mod(ASTNode):
     def __init__(self, exp1, exp2, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
 
@@ -191,7 +191,7 @@ class Mod(ASTNode):
 
 class PI(ASTNode):
     def __init__(self, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -200,7 +200,7 @@ class PI(ASTNode):
 
 class Power(ASTNode):
     def __init__(self, exp1, exp2, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
 
@@ -211,7 +211,7 @@ class Power(ASTNode):
 
 class Radians(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -221,7 +221,7 @@ class Radians(ASTNode):
 
 class Random(ASTNode): # TODO check SQL docs, it has a range or something?
     def __init__(self, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -230,7 +230,7 @@ class Random(ASTNode): # TODO check SQL docs, it has a range or something?
 
 class Round(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -240,7 +240,7 @@ class Round(ASTNode):
 
 class Scale(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -250,7 +250,7 @@ class Scale(ASTNode):
 
 class SetSeed(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -260,7 +260,7 @@ class SetSeed(ASTNode):
 
 class Sign(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -270,7 +270,7 @@ class Sign(ASTNode):
 
 class Sqrt(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -280,7 +280,7 @@ class Sqrt(ASTNode):
 
 class TrimScale(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -290,7 +290,7 @@ class TrimScale(ASTNode):
 
 class Trunc(ASTNode):
     def __init__(self, exp, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
@@ -300,7 +300,7 @@ class Trunc(ASTNode):
 
 class WithBucket(ASTNode):
     def __init__(self, exp1, exp2, line, column):
-        super().__init__(self, line, column)
+        ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
 
