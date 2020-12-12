@@ -19,8 +19,6 @@ precedence = (
     ('left', 'ASTERISK', 'DIVISION', 'MODULAR', 'BITWISE_SHIFT_RIGHT', 'BITWISE_SHIFT_LEFT', 'BITWISE_AND', 'BITWISE_OR'),  # Level 8
     ('left', 'EXPONENT',  'BITWISE_XOR', 'SQUARE_ROOT', 'CUBE_ROOT'),  # Level 9
     ('right', 'UPLUS', 'UREST'),  # Level 10
-    ('left', 'LEFT_BRACE', 'RIGHT_BRACE'),  # Level 11
-    ('left', 'TYPE_CAST'),  # Level 12
     ('left', 'DOT')  # Level 13
 )
 
@@ -48,6 +46,9 @@ def p_instruction_list(p):
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
                     | DML
+                    | MULTI_LINE_COMMENT
+                    | SINGLE_LINE_COMMENT
+                    | error SEMICOLON
     '''
 
 def p_ddl(p):
@@ -250,26 +251,11 @@ def p_drop_table(p):
 
 
 
-def p_dml_list(p):
-    '''DMLLIST : DMLLIST DML
-               | DML'''
-    nodo = Node('DMLLIST')
-    if (len(p) == 2):
-        nodo.add_childrens(p[1])
-    elif (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    p[0] = nodo
-
-
 def p_dml(p):
     '''DML : QUERYSTATEMENT
            | INSERTSTATEMENT
            | DELETESTATEMENT
-           | UPDATESTATEMENT
-           | MULTI_LINE_COMMENT
-           | SINGLE_LINE_COMMENT
-           | error SEMICOLON'''
+           | UPDATESTATEMENT'''
     if (len(p) == 2):
         nodo = Node('DML')
         nodo.add_childrens(p[1])
@@ -535,17 +521,7 @@ def p_insert_statement(p):
     p[0] = nodo
 
 
-def p_list_values_insert(p):
-    '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
-                        | SQLSIMPLEEXPRESSION'''
-    nodo = Node('LISTVALUESINSERT')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-    elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+
 
 
 def p_list_params_insert(p):
@@ -625,8 +601,7 @@ def p_selectq(p):
                | SELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
-               | SELECT SELECTLIST
-               | SELECT EXPRESSIONSTIME'''
+               | SELECT SELECTLIST'''
     nodo = Node('SELECTQ')
     if (len(p) == 4):
         nodo.add_childrens(Node(p[1]))
@@ -661,17 +636,7 @@ def p_select_list(p):
     p[0] = nodo
 
 
-def p_expressions_time(p):
-    '''EXPRESSIONSTIME : EXTRACT LEFT_PARENTHESIS DATETYPES FROM TIMESTAMP SQLNAME RIGHT_PARENTHESIS'''
-    nodo = Node('EXPRESSIONSTIME')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    nodo.add_childrens(Node(p[4]))
-    nodo.add_childrens(Node(p[5]))
-    nodo.add_childrens(p[6])
-    nodo.add_childrens(Node(p[7]))
-    p[0] = nodo
+
 
 
 def p_list_item(p):
@@ -689,9 +654,7 @@ def p_list_item(p):
 
 def p_select_item(p):
     '''SELECTITEM : SQLSIMPLEEXPRESSION SQLALIAS
-                  | AGGREGATEFUNCTIONS SQLALIAS
-                  | SQLSIMPLEEXPRESSION
-                  | AGGREGATEFUNCTIONS'''
+                  | SQLSIMPLEEXPRESSION'''
     nodo = Node('SELECTITEM')
     if (len(p) == 3):
         nodo.add_childrens(p[1])
@@ -701,15 +664,7 @@ def p_select_item(p):
     p[0] = nodo
 
 
-def p_aggregate_functions(p):
-    '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS'''
-    nodo = Node('AGGREGATEFUNCTIONS')
 
-    nodo.add_childrens(p[1])
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    nodo.add_childrens(Node(p[4]))
-    p[0] = nodo
 
 
 def p_from_clause(p):
@@ -719,16 +674,6 @@ def p_from_clause(p):
     nodo.add_childrens(p[2])
     p[0] = nodo
 
-
-def p_cont_of_aggregate(p):
-    '''CONTOFAGGREGATE : ASTERISK
-                       | SQLSIMPLEEXPRESSION'''
-    nodo = Node('CONTOFAGGREGATE')
-    if (p[1] == '*'):
-        nodo.add_childrens(Node(p[1]))
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
 
 
 def p_from_clause_list(p):
@@ -1053,7 +998,9 @@ def p_sql_in_clause(p):
 
 def p_sql_between_clause(p):
     '''SQLBETWEENCLAUSE : NOT BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION
-                        | BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION '''
+                        | NOT BETWEEN SYMMETRIC SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION
+                        | BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION 
+                        | BETWEEN SYMMETRIC SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION '''
     nodo = Node('SQLBETWEENCLAUSE')
     if (len(p) == 6):
         nodo.add_childrens(Node(p[1]))
@@ -1111,9 +1058,13 @@ def p_sql_simple_expression(p):
                            | SQLSIMPLEEXPRESSION BITWISE_XOR SQLSIMPLEEXPRESSION
                            | BITWISE_NOT SQLSIMPLEEXPRESSION %prec UREST
                            | LEFT_PARENTHESIS SQLEXPRESSION RIGHT_PARENTHESIS
+                           | AGGREGATEFUNCTIONS
+                           | GREATESTORLEAST
+                           | EXPRESSIONSTIME
                            | SQUARE_ROOT SQLSIMPLEEXPRESSION
                            | CUBE_ROOT SQLSIMPLEEXPRESSION
                            | MATHEMATICALFUNCTIONS
+                           | CASECLAUSE
                            | BINARY_STRING_FUNCTIONS
                            | TRIGONOMETRIC_FUNCTIONS
                            | SQLINTEGER
@@ -1208,7 +1159,22 @@ def p_binary_string_functions(p):
                                | CONVERT LEFT_PARENTHESIS STRINGCONT AS DATE RIGHT_PARENTHESIS
                                | CONVERT LEFT_PARENTHESIS STRINGCONT AS INTEGER RIGHT_PARENTHESIS
                                | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
-                               
+def p_greatest_or_least(p):
+    '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
+                       | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
+def p_case_clause(p):
+    '''CASECLAUSE : CASE CASECLAUSELIST END ID'''
+
+def p_case_cluase_list(p):
+    '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
+                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
+                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION'''
+
 def p_trigonometric_functions(p):
     '''TRIGONOMETRIC_FUNCTIONS : ACOS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                                | ACOSD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
@@ -1243,10 +1209,49 @@ def p_sql_alias(p):
         nodo.add_childrens(p[1])
     p[0] = nodo
 
+def p_expressions_time(p):
+    '''EXPRESSIONSTIME : EXTRACT LEFT_PARENTHESIS DATETYPES FROM TIMESTAMP SQLNAME RIGHT_PARENTHESIS
+                       | NOW LEFT_PARENTHESIS RIGHT_PARENTHESIS
+                       | DATE_PART LEFT_PARENTHESIS SQLNAME COMMA INTERVAL SQLNAME RIGHT_PARENTHESIS
+                       | CURRENT_DATE
+                       | CURRENT_TIME
+                       | TIMESTAMP SQLNAME'''
+
+    # nodo = Node('EXPRESSIONSTIME')
+    # nodo.add_childrens(Node(p[1]))
+    # nodo.add_childrens(Node(p[2]))
+    # nodo.add_childrens(p[3])
+    # nodo.add_childrens(Node(p[4]))
+    # nodo.add_childrens(Node(p[5]))
+    # nodo.add_childrens(p[6])
+    # nodo.add_childrens(Node(p[7]))
+    # p[0] = nodo
+
+def p_aggregate_functions(p):
+    '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS
+                          | AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS SQLALIAS'''
+    nodo = Node('AGGREGATEFUNCTIONS')
+
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
+    p[0] = nodo
+
+def p_cont_of_aggregate(p):
+    '''CONTOFAGGREGATE : ASTERISK
+                       | SQLSIMPLEEXPRESSION'''
+    nodo = Node('CONTOFAGGREGATE')
+    if (p[1] == '*'):
+        nodo.add_childrens(Node(p[1]))
+    else:
+        nodo.add_childrens(p[1])
+    p[0] = nodo
 
 def p_sql_object_reference(p):
     '''OBJECTREFERENCE : SQLNAME DOT SQLNAME DOT SQLNAME
                        | SQLNAME DOT SQLNAME
+                       | SQLNAME DOT ASTERISK
                        | SQLNAME'''
     nodo = Node('OBJECTREFERENCE')
     if (len(p) == 6):
@@ -1263,6 +1268,17 @@ def p_sql_object_reference(p):
         nodo.add_childrens(p[1])
     p[0] = nodo
 
+def p_list_values_insert(p):
+    '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
+                        | SQLSIMPLEEXPRESSION'''
+    nodo = Node('LISTVALUESINSERT')
+    if (len(p) == 4):
+        nodo.add_childrens(p[1])
+        nodo.add_childrens(Node(p[2]))
+        nodo.add_childrens(p[3])
+    elif (len(p) == 2):
+        nodo.add_childrens(p[1])
+    p[0] = nodo
 
 def p_type_combine_query(p):
     '''TYPECOMBINEQUERY : UNION
