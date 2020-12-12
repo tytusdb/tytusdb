@@ -7,4 +7,5 @@
 /storageManager/jsonMode.py
 /storageManager/
 /data/
-/data/databases
+/data/json/
+/data/json/databases
