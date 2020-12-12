@@ -126,18 +126,27 @@ def createTable(database: str, table: str, numberColumns) -> int:
 Crea una tabla en una base de datos especificada recibiendo una lista de índices referentes a la llave primaria y llave foránea.  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla que se desea crear.  
-Parámetro numberColumns: es el número de columnas que tendrá cada registro de la tabla.
+Parámetro numberColumns: es el número de columnas que tendrá cada registro de la tabla.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos inexistente, 3 tabla existente.  
 
 ```
-def definePK(database: str, table str, columns: list) -> int:
+def alterAddPK(database: str, table str, columns: list) -> int:
 ```
-Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas, esto para anticipar el índice de la estructura de la tabla cuando se inserten registros.
+Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas, esto para anticipar el índice de la estructura de la tabla cuando se inserten registros. 
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
-Parámetro columns: es el listado de números de columnas que formarán parte de la llave primaria. Si ya existía una definición previa entonces la define de nuevo. Si ya existían registros se calcula de nuevo la estructura de índices.
+Parámetro columns: es el listado de números de columnas que formarán parte de la llave primaria. Si ya existía una definición previa entonces la define de nuevo. Si ya existían registros se calcula de nuevo la estructura de índices.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columnas fuera de limites.  
-Si no se define al menos una llave primaria, cuando ocurre el primer insert se debe utilizar una llave primaria escondida (numérica).
+Si no se define al menos una llave primaria, cuando ocurre el primer insert se debe utilizar una llave primaria escondida (numérica).  
+
+Considerar:
+- El error 42P16 de PostgreSQL invalid_table_definition, entre algunas causas no permite definir múltiples llaves primarias (nótese de la diferencia de una llave primaria compuesta). Si ya existe una llave primaria y se desea agregar otro campo, entonces se debe eliminar la llave actual recalculado el índice cuando sea modificado, si no hay modificación se queda con el llave anterior.
+- El error 23505 de PostgreSQL unique_violation, cuando se ejecuta esta función se debe recalcular el índice, si hay un valor duplicado en una parte de la llave primaria debe dar error y dejar el índice como estaba.
+
+```
+def alterDropPK(database: str, table str, columns: list) -> int:
+```
+Elimina la llave primaria actual, dejando el índice igual en espera de una modificación de la llave.
 
 ```
 def defineFK(database: str, table str, references: dict) -> int:
@@ -157,15 +166,15 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
 Renombra el nombre de la tabla de una base de datos especificada.  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro tableOld: es el nombre de la tabla a renombrar.  
-Parámetro tableNew: es el nuevo nombre con que renombrará la tableOld.
+Parámetro tableNew: es el nuevo nombre con que renombrará la tableOld.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 tableOld no existente, 4 tableNew existente.  
 
 ```
 def dropTable(database: str, table str) -> int:
 ```
 Elimina por completo una tabla de una base de datos especificada.  
-Parámetro database: es el nombre de la base de datos a utilizar.
-Parámetro table: es el nombre de la tabla a eliminar
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a eliminar.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
 
 ```
@@ -179,7 +188,7 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 ```
 def alterDropColumn(database: str, table str, columnNumber: int) -> int:
 ```
-Eliminar una n-ésima columna de cada registro de la tabla.
+Eliminar una n-ésima columna de cada registro de la tabla.  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a modificar.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columna fuera de limites.  
@@ -187,7 +196,7 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no 
 ```
 def extractTable(database: str, table str) -> list:
 ```
-Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla.
+Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla.  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
 Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
@@ -197,7 +206,7 @@ def extractRangeTable(database: str, table str, lower: Any, upper: Any) -> list:
 ```
 Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabala.  
 Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro table: es el nombre de la tabla a utilizar.
+Parámetro table: es el nombre de la tabla a utilizar.  
 Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la tabla.  
 Parámetro upper: es el limite superior (inclusive) del rango a extraer de la tabla.  
 Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
