@@ -7,7 +7,7 @@ class OpArithmetic(Enum):
     TIMES = 3
     DIVIDE = 4
     MODULE = 5
-    EXP = 6
+    POWER = 6
 
 
 class OpLogical(Enum):
