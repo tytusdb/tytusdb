@@ -8,8 +8,15 @@ from tkinter import ttk
 from tkinter import scrolledtext
 from tkinter import messagebox
 import os
-from sintactico import ejecutar_analisis
-from reportes.RealizarReportes import RealizarReportes
+#from sintactico import ejecutar_analisis
+import reportes.RealizarReportes
+import reportes.reportesimbolos as rs
+
+from Instrucciones.TablaSimbolos.Tabla import Tabla
+from Instrucciones.TablaSimbolos.Arbol import Arbol
+from Instrucciones.Excepcion import Excepcion
+
+import sintactico
 
 
 class interfaz():
@@ -106,7 +113,6 @@ class interfaz():
         except:
             messagebox.showerror("Error","Contacte al Administrador del sistema.")
         
-
     def guardar_como_click(self):
         self.file = filedialog.askdirectory(initialdir= path.dirname(__file__))
         archivo=open(self.file+"/"+self.tab.tab(self.tab.select(),"text"),"w")
@@ -115,9 +121,14 @@ class interfaz():
         print("guardar_como")
 
     def tblerrores_click(self):
-        print("tblerrores")
+        if len(sintactico.lista_lexicos)==0:
+            messagebox.showinfo('Tabla de Errores','La Entrada no Contiene Errores!')
+        else:
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
 
     def tblsimbolos_click(self):
+        # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
+        #rs.crear_tabla(local1)
         print("tblsimbolos")            
 
     def ast_click(self):
@@ -125,7 +136,7 @@ class interfaz():
 
     ##############################################EVENTOS DE LOS BOTONES DEL FRAME####################################
     def btnanalizar_click(self):
-        os.system ("cls") 
+        os.system ("cls")
         #Elimina el Contenido de txtsalida
         self.txtsalida[self.tab.index("current")].delete(1.0,END)
         #Inserta "Archivo Analizado" en txtsalida
@@ -133,14 +144,20 @@ class interfaz():
         #Selecciona el contenido de txt entrada
         #print(self.txtentrada[self.tab.index("current")].get(1.0,END))
         input=self.txtentrada[self.tab.index("current")].get(1.0,END)
-        l_recolectora = ejecutar_analisis(input)
+        tablaGlobal = Tabla(None)
+        inst = sintactico.ejecutar_analisis(input)
+        arbol = Arbol(inst)
+        # Ciclo que recorrerá todas las instrucciones almacenadas por la gramática.
+        for i in arbol.instrucciones:
+            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
+            resultado = i.ejecutar(tablaGlobal,arbol)
+        # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
+        if len(arbol.excepciones) != 0:
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
+        # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
+        for m in arbol.consola:
+            print(m)
         self.txtsalida[self.tab.index("current")].insert(INSERT,"Archivo Analizado")
-        
-        
-        
-        #print("Lista errores lexico: ", l_recolectora[0])
-        #reporLexico= RealizarReportes()
-        #reporLexico.generar_reporte_lexicos(l_recolectora[0])
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")

@@ -18,6 +18,7 @@ from tkinter import filedialog
 import Lexico as g
 import TablaSimbolos as st
 import os
+import re
 import webbrowser
 
 
@@ -432,16 +433,17 @@ class Main(tk.Tk):
             ins = g.parse(tytus)
             st_global = st.SymbolTable()
 
-            if not ins:
-                messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
-            else:
-                self.do_body(ins, st_global)
+#            if not ins:
+ #               messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
+  #          else:
+            self.do_body(ins, st_global)
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
     # EJECUCIÓN DE ANÁLISIS - PARSER --------------------------
     def do_body(self, p_inst, p_st):
-        print(p_inst)
+        #print(p_inst)
+        print("Analisis terminado")
 
 
 if __name__ == "__main__":

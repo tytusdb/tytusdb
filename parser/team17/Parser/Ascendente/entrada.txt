@@ -1,5 +1,2 @@
-select distinct ;
-select distinct ;
-select
-select;
-select distinct
+insert into tabla (nombre, carnet) values ("juan", 2015);
+

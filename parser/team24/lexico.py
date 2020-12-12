@@ -124,6 +124,7 @@ reservadas = {
     'then' : 'THEN',
     'decode' : 'DECODE',
     'decode' : 'DECODE',
+    'except' : 'EXCEPT'
 }
 
 tokens = [
@@ -244,7 +245,18 @@ import ply.lex as lex
 
 lexer = lex.lex()
 
-
+precedence = (
+    ('left','PUNTO'),
+    ('right','UMAS','UMENOS'),
+    ('left','ELEVADO'),
+    ('left','MULTIPLICACION','DIVISION','MODULO'),
+    ('left','MAS','MENOS'),
+    ('left','BETWEEN','IN','LIKE'),
+    ('left','MENOR','MAYOR','MENOR_IGUAL','MAYOR_IGUAL','IGUAL','DIFERENTE')
+    ('right','NOT'),
+    ('left','AND'),
+    ('left','OR')
+)
    
 
 '''import ply.yacc as yacc
