@@ -1,5 +1,7 @@
 from tkinter import *
 from tkinter import ttk, filedialog
+from gramatica import run_method
+import pathlib
 
 # Se crea una clase para la interfaz gráfica
 class mainWindow:
@@ -50,11 +52,40 @@ class mainWindow:
             self.textArea.insert("end-1c", content)
 
     def analyzeMethod(self):
+        entrada = self.textArea.get("1.0",END)
+        resp = run_method(entrada)
+        print(resp)
 
-        # Acá se implementa la función para analizar.
-        print("Se analizará")
 
 
+#Descomentar lo que sea necesario
+
+
+
+# Entrada por el archivo SQL Test File
+pathEntrada = str(pathlib.Path().absolute())+ r"\parser\team12\src\SQL Test File.sql"
+openFile = open(pathEntrada, "r", encoding="utf-8")
+entrada = openFile.read()
+openFile.close()
+resp = run_method(entrada)
+
+
+
+
+"""
+
+# Entrada por interfaz gráfica
 root = Tk()
 mainWin = mainWindow(root)
 root.mainloop() 
+
+"""
+
+
+"""
+
+# Entrada por línea
+entrada = "CREATE DATABASE prueba"
+resp = run_method(entrada)
+
+"""

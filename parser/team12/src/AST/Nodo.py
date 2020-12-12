@@ -1,9 +1,8 @@
 from abc import ABCMeta, abstractmethod
-
-class MyABC(metaclass=ABCMeta):
+class Nodo(metaclass=ABCMeta):
 
     # Constructor
-    def __init__(self, nombreNodo, fila, columna, valor):
+    def __init__(self, nombreNodo, fila = -1, columna = -1, valor = None):
         self.nombreNodo = nombreNodo
         self.fila = fila
         self.columna = columna

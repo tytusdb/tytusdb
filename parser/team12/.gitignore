@@ -1,0 +1,5 @@
+src/ply/
+src/parser.out
+src/parsetab.py
+**__pycache__
+src/*.sql
