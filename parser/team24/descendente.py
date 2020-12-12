@@ -73,7 +73,6 @@ reservadas = {
     'ceiling' : 'CEILING',
     'degrees' : 'DEGREES',
     'div' : 'DIV',
-    'exp' : 'EXP',
     'factorial' : 'FACTORIAL',
     'floor' : 'FLOOR',
     'gcd' : 'GCD',
@@ -113,7 +112,7 @@ reservadas = {
     'limit' : 'LIMIT',
     'asc' : 'ASC',
     'desc' : 'DESC',
-    'first' : 'FISRT',
+    'first' : 'FIRST',
     'last' : 'LAST',
     'nulls' : 'NULLS',
     'offset' : 'OFFSET',
@@ -124,7 +123,40 @@ reservadas = {
     'decode' : 'DECODE',
     'except' : 'EXCEPT',
     'distinct':'DISTINCT',
-    'group':'GROUP'  
+    'group':'GROUP',
+    'some' : 'SOME',
+    'any' : 'ANY',
+    'join' : 'JOIN',
+    'natural' : 'NATURAL',
+    'inner' : 'INNER',
+    'outer' : 'OUTER',
+    'left' : 'LEFT',
+    'right' : 'RIGHT',
+    'full' : 'FULL',
+    'on' : 'ON',
+    'using' : 'USING',
+    'radians' : 'RADIANS',
+    'acos' : 'ACOS',
+    'acosd' : 'ACOSD',
+    'asin' : 'ASIN',
+    'asind' : 'ASIND',
+    'atan' : 'ATAN',
+    'atand' : 'ATAND',
+    'atan2' : 'ATAN2',
+    'atan2d' : 'ATAN2D',
+    'cos' : 'COS',
+    'cosd' : 'COSD',
+    'cot' : 'COT',
+    'cotd' : 'COTD',
+    'sin' : 'SIN',
+    'sind' : 'SIND',
+    'tan' : 'TAN',
+    'tand' : 'TAND',
+    'tanh' : 'TANH',
+    'sinh' : 'SINH',
+    'cosh' : 'COSH',
+    'exp' : 'EXP'
+    
 
 }
 
@@ -249,7 +281,6 @@ lexer = lex.lex()
 
 precedence = (
     ('left','PUNTO'),
-    ('right','UMAS','UMENOS'),
     ('left','ELEVADO'),
     ('left','MULTIPLICACION','DIVISION','MODULO'),
     ('left','MAS','MENOS'),
@@ -259,8 +290,8 @@ precedence = (
 )
 
 #Importar lo que nos ayude a ejecutar
-#from expresiones import *
-#from instrucciones import *
+#from expreresiones import *
+from clases import *
 
 
 def p_init(t) :
@@ -270,16 +301,21 @@ def p_init(t) :
 
 def p_query(t):
     'query      : queryp com'
-    t[0] = Nodo(t[1],t[2]) 
+    t[0] = Node(t[1],t[2]) 
 
 def p_complementos(t):
     '''com      : UNION d queryp
                 | INTERSECT d queryp
                 | EXCEPT d queryp'''
     
-    if t[2] == 'UNION'  : t[0] = Nodo(t[2], t[3])
-    elif t[2] == 'INTERSECT': t[0] = Nodo(t[2], t[3])
-    elif t[2] == 'EXCEPT': t[0] = Nodo(t[2], t[3])
+    if t[2] == 'UNION'  : t[0] = Node(t[2], t[3])
+    elif t[2] == 'INTERSECT': t[0] = Node(t[2], t[3])
+    elif t[2] == 'EXCEPT': t[0] = Node(t[2], t[3])
+
+def p_complementos_ep(t):
+    'com    : '
+    t[0]= None
+
 
 def p_all(t):
     'd        : ALL'
@@ -290,7 +326,7 @@ def p_depsilone(t):
     t[0] = None
 
 def p_select(t):
-    'queryp     : SELECT dist select_list FROM table_expresion condition grupo orden lim of'
+    'queryp     : SELECT dist select_list FROM table_expreresion condition grupo orden lim of'
     t[0] = Node(t[2],t[3],t[5],t[6],t[7],t[8],t[9],t[10])
 
 def p_dist(t):
@@ -343,41 +379,56 @@ def p_bb_pt(t):
     t[0] = t[2]
 
 def p_condition(t):
-    'condition  : WHERE bool_exp'
+    'condition  : WHERE bool_expre'
     t[0]=t[2]
 
+
+def p_condition_eps(t):
+    'condition : '
+    t[0] = None
+
+def p_cep_eps(t):
+    ' cep : '
+    t[0] = None
+
 def p_valor_condicion_binario(t):
-    '''bool_exp : exp MENOR exp
-                | exp MAYOR exp
-                | exp IGUAL exp
-                | exp MENOR_IGUAL exp
-                | exp MENOR_MENOR exp
-                | exp MAYOR_IGUAL exp
-                | exp MAYOR_MAYOR exp
-                | exp DIFERENTE exp
-                | bool_exp AND bool_exp
-                | bool_exp OR bool_exp'''
+    '''bool_expre : expre MENOR expre
+                | expre MAYOR expre
+                | expre IGUAL expre
+                | expre MENOR_IGUAL expre
+                | expre MENOR_MENOR expre
+                | expre MAYOR_IGUAL expre
+                | expre MAYOR_MAYOR expre
+                | expre DIFERENTE expre
+                | bool_expre AND bool_expre
+                | bool_expre OR bool_expre'''
     t[0] = Node(t[1],t[2])
 
+
+def p_init_eps(t):
+    'init : '
+    t[0] = None
+
+
 def p_valor_condicion_is(t):
-    'bool_exp : exp IS DISTINCT  queryp'
+    'bool_expre : expre IS DISTINCT  queryp'
     t[0] = Node(t[1],t[4])
 
 def p_valor_condicion_isn(t):
-    'bool_exp : exp IS NOT DISTINCT  queryp'
+    'bool_expre : expre IS NOT DISTINCT  queryp'
     t[0] = Node(t[1],t[5])
 
 def p_valor_condicion_ne(t):
-    'bool_exp : NOT EXISTS PARA queryp PARC'
+    'bool_expre : NOT EXISTS PARA queryp PARC'
     t[0] = Node(t[4])
 
 def p_valor_condicion_e(t):
-    'bool_exp : EXISTS PARA queryp PARC'
+    'bool_expre : EXISTS PARA queryp PARC'
     t[0] = Node(t[3])
 
 
-def p_exp_ce(t):
-    'exp    : ce cep'
+def p_expre_ce(t):
+    'expre    : ce cep'
     t[0]=Node(t[1],t[2])
 
 def p_ce_col(t):
@@ -399,7 +450,7 @@ def p_cep_in(t):
     t[0] = Node(t[3])
 
 def p_opera(t):
-    '''opera:   : SIMBOLOOR
+    '''opera   : SIMBOLOOR
 		        | SIMBOLOAND
                 | VIR
 		        | MAYOR_MAYOR
@@ -413,8 +464,17 @@ def p_sa(t):
     t[0] = t[1]
 
 def p_grupo(t):
-    'grupo  : GROUP BY list TENER'
+    'grupo  : GROUP BY list tener'
     t[0] = Node(t[3],t[4])
+
+def p_tener(t):
+    'tener  : HAVING bool_expre' 
+    t[0] = Node(t[2])
+
+
+def p_tener_ep(t):
+    'tener : '
+    t[0] = None
 
 def p_grupo_ep(t):
     'grupo  : '
@@ -425,7 +485,7 @@ def p_lim(t):
     t[0] = Node(t[1],t[2])
 
 def p_limpn(t):
-    'limp   : exp'
+    'limp   : expre'
     t[0] = t[1]
 
 def p_limpa(t):
@@ -433,7 +493,7 @@ def p_limpa(t):
     t[0] = t[1]
 
 def p_ofn(t):
-    'of     : OFSET exp'
+    'of     : OFFSET expre'
     t[0] = Node(t[2])
 
 def p_orden(t):
@@ -446,7 +506,7 @@ def p_orden_ep(t):
 
 def p_ad(t):
     '''ad   : ASC
-            | DES'''
+            | DESC'''
     t[0]=t[1]
 
 def p_nn(t):
@@ -455,7 +515,7 @@ def p_nn(t):
 
 
 def p_fl(t):
-    '''fl     :FIRST
+    '''fl   : FIRST
             | LAST'''
     t[0] = t[1]
 
@@ -471,18 +531,30 @@ def p_jop_inn(t):
     'jop    : inn'
     t[0] = t[1]
 
-def p_inn_lrf():
-    'jpo    : lrf'
+def p_inn_in(t):
+    'inn    : INNER'
     t[0] = t[1]
 
+def p_inn_lrf(t):
+    'inn    : lrf ou'
+    t[0] = t[1]
+
+def p_ou_outer(t):
+    'ou     : OUTER'
+    t[0]=t[1]
+
+def p_ou_ep(t):
+    'ou     : '
+    t[0]=None
+
 def p_lrf(t):
-    '''lrf    :LEFT
+    '''lrf  : LEFT
             | RIGHT
             | FULL '''
     t[0] = t[1]
 
 def p_jopp(t):
-    'jopp       : ON exp'
+    'jopp       : ON expre'
     t[0] = t[2]
 
 def p_jopp_u(t):
@@ -490,61 +562,61 @@ def p_jopp_u(t):
     t[0] = Node(t[4])
 
 def p_math_uno(t):
-    '''math     : abs PARA exp PARC
-		        | cbrt PARA exp PARC
-		        | ceil PARA exp PARC
-		        | ceiling PARA exp PARC
-		        | degrees PARA exp PARC
-		        | div PARA exp PARC	
-		        | exp PARA exp PARC	
-		        | factorial PARA exp PARC
-		        | floor PARA exp PARC
-		        | gcd PARA exp PARC
-		        | lcm PARA exp PARC
-		        | ln PARA exp PARC
-		        | log PARA exp PARC
-		        | log10 PARA exp PARC
-		        | min_scale PARAexpPARC
-		        | mod PARAexpPARC
-		        | pi PARA exp PARC
-		        | power PARA exp PARC
-		        | radians PARA exp PARC
-		        | round PARA exp PARC
-		        | scale PARA exp PARC
-		        | sign PARA exp PARC
-		        | sqrt PARA exp PARC
-		        | trim_scale PARA expPARC
-		        | truc PARA exp PARC
-		        | width_bucket PARA exp PARC
-		        | random PARAexpPARC
-		        | setseed PARA expPARC
-		        | count PARA expPARC'''
+    '''math     : ABS PARA expre PARC
+		        | CBRT PARA expre PARC
+		        | CEIL PARA expre PARC
+		        | CEILING PARA expre PARC
+		        | DEGREES PARA expre PARC
+		        | DIV PARA expre PARC	
+		        | expre PARA expre PARC	
+		        | FACTORIAL PARA expre PARC
+		        | FLOOR PARA expre PARC
+		        | GCD PARA expre PARC
+		        | LCM PARA expre PARC
+		        | LN PARA expre PARC
+		        | LOG PARA expre PARC
+		        | LOG10 PARA expre PARC
+		        | MIN_SCALE PARA expre PARC
+		        | MOD PARA expre PARC
+		        | PI PARA expre PARC
+		        | POWER PARA expre PARC
+		        | RADIANS PARA expre PARC
+		        | ROUND PARA expre PARC
+		        | SCALE PARA expre PARC
+		        | SIGN PARA expre PARC
+		        | SQRT PARA expre PARC
+		        | TRIM_SCALE PARA expre PARC
+		        | TRUC PARA expre PARC
+		        | WIDTH_BUCKET PARA expre PARC
+		        | RANDOM PARA expre PARC
+		        | SETSEED PARA expre PARC
+		        | COUNT PARA expre PARC'''
     t[0] = Node(t[3])
 
 def p_trig(t):
-    ''' trig 	:  ACOS PARA    exp  PARC
-		            | ACOSD PARA    exp  PARC
-		            | ASIN PARA    exp  PARC
-		            | ASIND PARA    exp  PARC
-		            | ATAN PARA    exp  PARC
-		            | ATAND PARA    exp  PARC
-		            | ATAN2 PARA    exp  PARC
-		            | ATAN2D PARA    exp  PARC
-		            | COS PARA    exp  PARC
-		            | COSD PARA    exp  PARC
-		            | COT PARA    exp  PARC
-		            | COTD PARA    exp  PARC
-		            | SIN PARA    exp  PARC
-		            | SIND PARA    exp  PARC
-		            | TAN PARA    exp  PARC
-		            | TAND PARA    exp  PARC
-		            | SINH PARA    exp  PARC
-		            | COSH PARA    exp  PARC 
-		            | TANH PARA    exp  PARC'''
+    ''' trig 	:  ACOS PARA    expre  PARC
+		            | ACOSD PARA    expre  PARC
+		            | ASIN PARA    expre  PARC
+		            | ASIND PARA    expre  PARC
+		            | ATAN PARA    expre  PARC
+		            | ATAND PARA    expre  PARC
+		            | ATAN2 PARA    expre  PARC
+		            | ATAN2D PARA    expre  PARC
+		            | COS PARA    expre  PARC
+		            | COSD PARA    expre  PARC
+		            | COT PARA    expre  PARC
+		            | COTD PARA    expre  PARC
+		            | SIN PARA    expre  PARC
+		            | SIND PARA    expre  PARC
+		            | TAN PARA    expre  PARC
+		            | TAND PARA    expre  PARC
+		            | SINH PARA    expre  PARC
+		            | COSH PARA    expre  PARC 
+		            | TANH PARA    expre  PARC'''
     t[0] = Node(t[3])
 
-def p_table_exp(t):
-    'table_expresion    : te tep'
+def p_table_expre(t):
+    'table_expreresion    : te tep'
     t[0] = Node(t[1],t[2])
 
 def p_te_coma(t):
@@ -573,4 +645,16 @@ def p_ali(t):
     'ali    : ID'
     t[0] = t[1]
 
+
+
+def p_error(t):
+    print(t)
+    print("Error sintáctico en '%s'" % t.value)
+
+import ply.yacc as yacc
+parser = yacc.yacc()
+
+
+def parse(input) :
+    return parser.parse(input)
 

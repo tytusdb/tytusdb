@@ -159,8 +159,8 @@ def p_instruccion_selects(t) :
     '''selects      : POR FROM select_all 
                     | lista_parametros FROM lista_parametros inicio_condicional 
                     | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
-                    | GREATEST PARIZQ lista_parametros PARDER
-                    | LEATEST PARIZQ lista_parametros PARDER
+                    | GREATEST PARIZQ lista_parametros PARDER PTCOMA
+                    | LEAST PARIZQ lista_parametros PARDER PTCOMA
                     | date_functions'''
     print("selects")
 
@@ -187,7 +187,7 @@ def p_instruccion_selects_group_by(t) :
     # print("GROUP BY")
 
 def p_instruccion_selects_group_by2(t) :
-    'inicio_group_by      : inicio_having '
+    'inicio_group_by      : inicio_order_by '
     # print("NO HAY GROUP BY")
 
 def p_instruccion_selects_having(t) :
@@ -250,15 +250,28 @@ def p_instruccion_Select_All(t) :
     t[0] = Select_All(t[1])
     # print("Consulta ALL para tabla: " + t[1])
 
+#Gramatica para fechas
 def p_date_functions(t):
     '''date_functions   : EXTRACT PARIZQ lista_date_functions 
                         | date_part PARIZQ lista_date_functions
                         | now PARIZQ lista_date_functions
                         | lista_date_functions'''
 
+def p_validate_date(t):
+    'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA'
+    try:
+        fecha = re.split('[-: ]',t[4].replace("'",""))
+        if (5 < len(fecha)):
+            if (int(fecha[0]) and len(fecha[0]) <= 4) and (int(fecha[1]) and int(fecha[1]) <= 12) and (int(fecha[2]) and int(fecha[2]) <= 31) and (int(fecha[3]) and int(fecha[3]) <= 24) and (int(fecha[4]) and int(fecha[4]) <= 60) and (int(fecha[5]) and int(fecha[5]) <= 60):
+                print("Formato fecha aceptado")
+        elif (2 < len(fecha)):
+            if (int(fecha[0]) and len(fecha[0]) <= 4) and (int(fecha[1]) and int(fecha[1]) <= 12) and (int(fecha[2]) and int(fecha[2])):
+                print("Formato fecha aceptado")
+    except Exception:
+        pass
+
 def p_lista_date_functions(t):
-    '''lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA
-                            | CADENA COMA INTERVAL CADENA PARDER PTCOMA
+    '''lista_date_functions : CADENA COMA INTERVAL CADENA PARDER PTCOMA
                             | TIMESTAMP CADENA PTCOMA
                             | CURRENT_DATE PTCOMA
                             | CURRENT_TIME PTCOMA
@@ -362,6 +375,15 @@ def p_parametro_con_tabla(t) :
 
 def p_parametros_funciones(t) :
     'parametro         : lista_funciones'
+    t[0] = t[1]
+
+def p_parametros_cadena(t) :
+    'parametro         : CADENA'
+    t[0] = t[1]
+
+def p_parametros_numeros(t) :
+    '''parametro            : DECIMAL  
+                            | ENTERO'''
     t[0] = t[1]
 
 
@@ -642,7 +664,10 @@ def p_relacional(t) :
                     | aritmetica
                     | relacional AND relacional
                     | relacional OR relacional
-                    | NOT relacional'''
+                    | NOT relacional
+                    | state_between
+                    | state_predicate_nulls
+                    | state_is_distinct'''
 
 def p_aritmetica(t) :
     '''aritmetica   : valor MAS valor
@@ -677,6 +702,39 @@ def p_def_update(t) :
     '''def_update   : ID IGUAL valor'''
 
 
+# BETWEEN
+#=======================================================
+def p_between(t) :
+    '''state_between    : valor BETWEEN valor AND valor
+                        | valor NOT BETWEEN valor AND valor'''
+#=======================================================
+
+# IS [NOT] DISTINCT
+#=======================================================
+def p_is_distinct(t) :
+    '''state_is_distinct    : valor IS DISTINCT FROM valor
+                            | valor IS NOT DISTINCT FROM valor'''
+#=======================================================
+
+
+# ESTADO PREDICATES
+#=======================================================
+def p_predicate_nulls(t) :
+    '''state_predicate_nulls      : valor IS NULL
+                              | valor IS NOT NULL
+                              | valor ISNULL
+                              | valor NOTNULL'''
+#=======================================================
+
+
+# # Pattern Matching
+# #=======================================================
+# def p_matchs(t) :
+#     '''state_pattern_match      : ID LIKE 
+#                                 | valor IS NOT NULL
+#                                 | valor ISNULL
+#                                 | valor NOTNULL'''
+# #=======================================================
 
 # CASE
 #========================================================
@@ -692,6 +750,23 @@ def p_auxcase_state2(t):
 #========================================================
 
 # FUNCIONES MATEMÁTICAS
+def p_instrucciones_funcion_count(t):
+    '''funciones_math_esenciales    : COUNT PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | COUNT PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_instrucciones_funcion_sum(t):
+    '''funciones_math_esenciales    : SUM PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | SUM PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_instrucciones_funcion_avg(t):
+    '''funciones_math_esenciales    : AVG PARIZQ lista_funciones_math_esenciales PARDER parametro
+                                    | AVG PARIZQ lista_funciones_math_esenciales PARDER'''
+
+def p_lista_instrucciones_funcion_math(t):
+    '''lista_funciones_math_esenciales  : aritmetica
+                                        | lista_id
+                                        | POR'''
+
 #SOLO ESTOS SE PUEDEN USAR EN EL WHERE
 def p_instrucciones_funcion_abs_where(t) :
     'lista_funciones_where    : ABS PARIZQ funcion_math_parametro PARDER'
