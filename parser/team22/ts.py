@@ -2,6 +2,9 @@ from enum import Enum
 
 class TIPO_DATO(Enum) :
     NUMERO = 1
+    DATABASE = 2
+    TABLE = 3
+    CONSTRAINT = 4
 
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'

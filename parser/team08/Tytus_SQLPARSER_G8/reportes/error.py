@@ -1,6 +1,6 @@
 
 class Error:
-     def __init__(self, TIPO, LEXEMA, COL,FIL):
+     def __init__(self, TIPO, LEXEMA, FIL, COL):
          self.TIPO = TIPO
          self.LEXEMA = LEXEMA
          self.COL = COL

@@ -15,3 +15,6 @@ class Condicion(NodoArbol):
         if self.tipocondicionante == "where":
             value:Valor = self.condicionante.execute(entorno,arbol)
             return value
+
+        val: Valor = Valor(3, False)
+        return val

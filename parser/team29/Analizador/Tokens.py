@@ -162,12 +162,6 @@ tokens = [
     "S_PUNTOCOMA",
     "S_PUNTO",
     "S_IGUAL",
-    # Secuencias de escape
-    "ES_B",
-    "ES_F",
-    "ES_N",
-    "ES_R",
-    "ES_T",
     # Tokens
     "ID",
     "INTEGER",
@@ -200,12 +194,6 @@ t_OC_XOR = r"\#"
 t_OC_NOT = r"~"
 t_OC_SHIFTL = r"<<"
 t_OC_SHIFTR = r">>"
-
-t_ES_B = r"\\b"
-t_ES_F = r"\\f"
-t_ES_N = r"\\n"
-t_ES_R = r"\\r"
-t_ES_T = r"\\t"
 
 t_S_PARIZQ = r"\("
 t_S_PARDER = r"\)"
@@ -265,9 +253,9 @@ def t_STRING(t):
 
 # Funcion para evaluer si el token reconocido es un comentario
 def t_COMMENT(t):
-    r"\--(.*)\n|/\*(.|\n)*?\*/"
+    r"\-\-(.*)\n|/\*(.|\n)*?\*/"
     t.lexer.lineno += t.value.count("\n")
-    t.lexer.skip(1)
+    t.lexer.skip(0)
 
 
 # Funcion para obsorver los enters
