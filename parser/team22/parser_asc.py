@@ -670,12 +670,12 @@ def p_relacional(t) :
                     | state_is_distinct'''
 
 def p_aritmetica(t) :
-    '''aritmetica   : valor MAS valor
-                    | valor MENOS valor
-                    | valor POR valor
-                    | valor DIVISION valor
-                    | valor MODULO valor
-                    | valor EXP valor
+    '''aritmetica   : aritmetica MAS aritmetica
+                    | aritmetica MENOS aritmetica
+                    | aritmetica POR aritmetica
+                    | aritmetica DIVISION aritmetica
+                    | aritmetica MODULO aritmetica
+                    | aritmetica EXP aritmetica
                     | valor
                     | PARIZQ aritmetica PARDER'''
 
@@ -832,6 +832,21 @@ def p_instrucciones_funcion_radians(t) :
 def p_instrucciones_funcion_round(t) :
     'lista_funciones    : ROUND PARIZQ funcion_math_parametro PARDER'
 
+def p_instrucciones_funcion_sign(t) :
+    'lista_funciones    : SIGN PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_sqrt(t) :
+    'lista_funciones    : SQRT PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_width_bucket(t) :
+    'lista_funciones    : WIDTH_BUCKET PARIZQ funcion_math_parametro COMA funcion_math_parametro COMA funcion_math_parametro COMA funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_trunc(t) :
+    'lista_funciones    : TRUNC PARIZQ funcion_math_parametro PARDER'
+
+def p_instrucciones_funcion_random(t) :
+    'lista_funciones    : RANDOM PARIZQ PARDER'
+
 def p_instrucciones_funcion_math_parametro(t) :
     '''funcion_math_parametro   : ENTERO
                                 | ID
@@ -841,6 +856,203 @@ def p_instrucciones_funcion_math_parametro(t) :
 def p_instrucciones_funcion_math_parametro_negativo(t) :
     '''funcion_math_parametro_negativo  : MENOS DECIMAL
                                         | MENOS ENTERO'''
+
+#========================================================
+
+#========================================================
+# FUNCIONES TRIGONOMÉTRICAS
+
+#El unico valor que aceptan es double y devuelven un double
+def p_instrucciones_funcion_trigonometrica_acos(t) :
+    'fun_trigonometrica : ACOS PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ACOS')
+
+def p_instrucciones_funcion_trigonometrica_asin(t) :
+    'fun_trigonometrica : ASIN PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ASIN')
+
+def p_instrucciones_funcion_trigonometrica_atan(t) :
+    'fun_trigonometrica : ATAN PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ATAN')
+
+def p_instrucciones_funcion_trigonometrica_atan2(t) :
+    'fun_trigonometrica : ATAN2 PARIZQ aritmetica COMA aritmetica PARDER'
+    print('Ejecuta Funcion ATAN2')
+
+def p_instrucciones_funcion_trigonometrica_cos(t) :
+    'fun_trigonometrica : COS PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COS')
+
+def p_instrucciones_funcion_trigonometrica_cot(t) :
+    'fun_trigonometrica : COT PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COT')
+
+def p_instrucciones_funcion_trigonometrica_sin(t) :
+    'fun_trigonometrica : SIN PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion SIN')
+
+def p_instrucciones_funcion_trigonometrica_tan(t) :
+    'fun_trigonometrica : TAN PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion TAN')
+
+def p_instrucciones_funcion_trigonometrica_acosd(t) :
+    'fun_trigonometrica : ACOSD PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ACOSD')
+
+def p_instrucciones_funcion_trigonometrica_asind(t) :
+    'fun_trigonometrica : ASIND PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ASIND')
+
+def p_instrucciones_funcion_trigonometrica_atand(t) :
+    'fun_trigonometrica : ATAND PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ATAND')
+
+def p_instrucciones_funcion_trigonometrica_atan2d(t) :
+    'fun_trigonometrica : ATAN2D PARIZQ aritmetica COMA aritmetica PARDER'
+    print('Ejecuta Funcion ATAN2D')
+
+def p_instrucciones_funcion_trigonometrica_cosd(t) :
+    'fun_trigonometrica : COSD PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COSD')
+
+def p_instrucciones_funcion_trigonometrica_cotd(t) :
+    'fun_trigonometrica : COTD PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COTD')
+
+def p_instrucciones_funcion_trigonometrica_sind(t) : 
+    'fun_trigonometrica : SIND PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion SIND')
+
+def p_instrucciones_funcion_trigonometrica_tand(t) :
+    'fun_trigonometrica : TAND PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion TAND')
+
+def p_instrucciones_funcion_trigonometrica_sinh(t) :
+    'fun_trigonometrica : SINH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion SINH')
+
+def p_instrucciones_funcion_trigonometrica_cosh(t) :
+    'fun_trigonometrica : COSH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion COSH')
+
+def p_instrucciones_funcion_trigonometrica_tanh(t) :
+    'fun_trigonometrica : TANH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion TANH')
+
+def p_instrucciones_funcion_trigonometrica_asinh(t) :
+    'fun_trigonometrica : ASINH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ASINH')
+
+def p_instrucciones_funcion_trigonometrica_acosh(t) :
+    'fun_trigonometrica : ACOSH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ACOSH')
+
+def p_instrucciones_funcion_trigonometrica_atanh(t) :
+    'fun_trigonometrica : ATANH PARIZQ aritmetica PARDER'
+    print('Ejecuta Funcion ATANH')
+#========================================================
+
+#========================================================
+# BINARY STRING FUNCTIONS
+def p_instrucciones_funcion_binary_string_length_select(t) :
+    'fun_binario_select    : LENGTH PARIZQ valor PARDER'
+    print('Ejecuta Funcion length')
+
+def p_instrucciones_funcion_binary_string_length_where(t) :
+    'fun_binario_where    : LENGTH PARIZQ valor PARDER'
+    print('Ejecuta Funcion length')
+
+def p_instrucciones_funcion_binary_string_substring_select(t) :
+    'fun_binario_select    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substring')
+
+def p_instrucciones_funcion_binary_string_substring_insert(t) :
+    'fun_binario_insert    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substring')
+
+def p_instrucciones_funcion_binary_string_substring_update(t) :
+    'fun_binario_update    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substring')
+
+def p_instrucciones_funcion_binary_string_substring_where(t) :
+    'fun_binario_where    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substring')
+
+def p_instrucciones_funcion_binary_string_trim_select(t) :
+    'fun_binario_select    : TRIM PARIZQ CADENA FROM valor PARDER'
+    print('Ejecuta Funcion trim')
+
+def p_instrucciones_funcion_binary_string_trim_insert(t) :
+    'fun_binario_insert    : TRIM PARIZQ CADENA FROM valor PARDER'
+    print('Ejecuta Funcion trim')
+
+def p_instrucciones_funcion_binary_string_trim_update(t) :
+    'fun_binario_update    : TRIM PARIZQ CADENA FROM valor PARDER'
+    print('Ejecuta Funcion trim')
+
+def p_instrucciones_funcion_binary_string_trim_where(t) :
+    'fun_binario_where    : TRIM PARIZQ CADENA FROM valor PARDER'
+    print('Ejecuta Funcion trim')
+
+def p_instrucciones_funcion_binary_string_md5_insert(t) :
+    'fun_binario_insert : MD5 PARIZQ valor PARDER'
+    print('Ejecuta Funcion md5')
+
+def p_instrucciones_funcion_binary_string_md5_update(t) :
+    'fun_binario_update : MD5 PARIZQ valor PARDER'
+    print('Ejecuta Funcion md5')
+
+def p_instrucciones_funcion_binary_string_sha256_select(t) :
+    'fun_binario_select : SHA256 PARIZQ valor PARDER'
+    print('Ejecuta Funcion sha256')
+
+def p_instrucciones_funcion_binary_string_substr_select(t) :
+    'fun_binario_select : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substr')
+
+def p_instrucciones_funcion_binary_string_substr_insert(t) :
+    'fun_binario_insert : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substr')
+
+def p_instrucciones_funcion_binary_string_substr_update(t) :
+    'fun_binario_update : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substr')
+
+def p_instrucciones_funcion_binary_string_substr_where(t) :
+    'fun_binario_where : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta Funcion substr')
+
+def p_instrucciones_funcion_binary_string_get_byte(t) :
+    'fun_binario_select : GET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO PARDER'
+    print('Ejecuta funcion getbyte')
+
+def p_instrucciones_funcion_binary_string_get_byte2(t) :
+    'fun_binario_select : GET_BYTE PARIZQ valor COMA ENTERO PARDER'
+    print('Ejecuta funcion getbyte')
+
+def p_instrucciones_funcion_binary_string_set_byte(t) :
+    'fun_binario_select : SET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta funcion setbyte')
+
+def p_instrucciones_funcion_binary_string_set_byte2(t) :
+    'fun_binario_select : SET_BYTE PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
+    print('Ejecuta funcion setbyte')
+
+def p_instrucciones_funcion_binary_string_Convert(t) :
+    'fun_binario_select : CONVERT PARIZQ valor AS tipos PARDER'
+    print('Ejecuta funcion convert')
+
+def p_instrucciones_funcion_binary_string_encode(t) :
+    'fun_binario_select : ENCODE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA CADENA PARDER'
+    print('Ejectua funcion encode')
+
+def p_instrucciones_funcion_binary_string_encode2(t) :
+    'fun_binario_select : ENCODE PARIZQ valor COMA CADENA PARDER'
+    print('Ejecuta funcion encode')
+
+def p_instrucciones_funcion_binary_string_decode(t) :
+    'fun_binario_select : DECODE PARIZQ valor COMA CADENA PARDER'
+    print('Ejecuta funcion decode')
 
 #========================================================
 
