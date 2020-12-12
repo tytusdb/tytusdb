@@ -413,8 +413,7 @@ def p_query(t):
                     | contDrop
                     | contAlter
                     | listaid
-                    | tipoAlter
-                    
+                    | tipoAlter                    
                     | selectData
     '''
                     # derivando cada produccion a cosas como el create, insert, select; funciones como avg, sum, substring irian como otra produccion 
@@ -551,6 +550,8 @@ def p_operacion(t):
                           | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                           
                           '''
+    if(t[2]=='+'):
+        print(t[1]+t[3])
 def p_operacion_menos_unario(t):
     'operacion : MENOS ENTERO  %prec UMINUS'
     t[0] = -t[2]
@@ -561,9 +562,11 @@ def p_operacion_not_unario(t):
 
 def p_operacion_funcion(t):
     'operacion  : funcionBasica'
+    t[0] = t[1]
 
 def p_operacion_final(t):
     'operacion :     final'
+    t[0] = t[1]
 
 
 
@@ -657,15 +660,19 @@ def p_opcionTrim(t):
 def p_final(t):
     '''final        : DECIMAL
                     | ENTERO'''
+    t[0] = t[1]
 
 def p_final_id(t):
     'final          : ID'
+    t[0] = t[1]
 
 def p_final_invocacion(t):
     'final          : ID PUNTO ID'
+    t[0] = t[1]
 
 def p_final_cadena(t):
     'final          : CADENA'
+    t[0] = t[1]
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
