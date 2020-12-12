@@ -23,8 +23,12 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'sha256':'sha256', 'decode':'decode', 'get_byte':'get_byte', 'bytea':'bytea', 'set_byte':'set_byte', 'substr':'substr', 'convert':'CONVERT',
                'encode':'encode', 'width_bucket':'width_bucket', 'current_user':'CURRENT_USER', 'session_user':'SESSION_USER',
                'natural':'NATURAL', 'join':'JOIN', 'inner':'INNER', 'left':'LEFT', 'right':'RIGHT', 'full':'FULL', 'outer':'OUTER', 'using':'USING', 'on':'ON',
-               'in':'IN','any':'ANY', 'all':'ALL','some':'SOME'
+               'in':'IN','any':'ANY', 'all':'ALL','some':'SOME','union':'UNION','intersect':'INTERSECT','except':'EXCEPT'  ,'case':'CASE','when':'WHEN','else':'ELSE','end':'END',
+               'then':'THEN' , 'limit':'LIMIT'
              }
+
+
+             
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
            'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO', 'RESTA','SUMA','DIVISION', 
@@ -138,9 +142,25 @@ def p_sentencia_dml(t):
      '''sentencia_dml : insertar
                       | actualizar
                       | eliminar
-                      | seleccionar
+                      | seleccionH
                       | mostrar
                       | altert'''                            
+#NUEVO YO---------------------------------------------
+
+
+
+def p_seleccionH1(t):
+     '''seleccionH  : seleccionH UNION seleccionar
+                    | seleccionH INTERSECT seleccionar
+                    | seleccionH EXCEPT  seleccionar
+                    | seleccionH UNION ALL  seleccionar
+                    | seleccionH INTERSECT ALL seleccionar
+                    | seleccionH EXCEPT ALL seleccionar
+                    | PAR_A seleccionH PAR_C
+                    | seleccionar'''
+#FIN NUEVO YO-----------------------------------
+
+
 
 
 #alter codigo -----------------------------------------------------------------
@@ -226,7 +246,7 @@ def p_alttbadd2(t):
 
 
 def p_alttbadd3(t):
-    '''alttbadd3 : CHECK PAR_A CADENA1 PAR_C
+    '''alttbadd3 : CHECK PAR_A exp PAR_C
                   | UNIQUE PAR_A CADENA1 PAR_C
                   | PRIMARY KEY PAR_A CADENA1 PAR_C
                   | FOREIGN KEY PAR_A CADENA1 PAR_C REFERENCES  ID PAR_A CADENA1 PAR_C'''
@@ -245,9 +265,15 @@ def p_eliminar(t):
      '''eliminar : DELETE FROM ID WHERE exp'''
 #------------------------------------------------select-----------------------------------------------
 def p_seleccionar(t):
-     '''seleccionar : SELECT cantidad_select parametros_select cuerpo_select 
-                    | SELECT funcion_math alias_name
-                    | SELECT funcion_date'''
+     '''seleccionar : seleccionar1 LIMIT ENTERO
+                    | seleccionar1 LIMIT ALL
+                    | seleccionar1 '''
+
+
+def p_seleccionar1(t):
+     '''seleccionar1 : SELECT cantidad_select parametros_select cuerpo_select 
+                     | SELECT funcion_math alias_name
+                     | SELECT funcion_date'''
                     
 
 def p_cantidad_select(t):
@@ -265,7 +291,40 @@ def p_value_select(t):
      '''value_select : columna_name alias_name
                      | ID PUNTO ASTERISCO alias_name
                      | funcion_math alias_name
-                     | PAR_A seleccionar PAR_C alias_name'''
+                     | PAR_A seleccionar PAR_C alias_name
+                     | case'''
+
+def p_case(t) : 
+      '''case : CASE loop_condition  END 
+              | CASE loop_condition  END AS ID
+              | CASE loop_condition  else  END 
+              | CASE loop_condition  else  END AS ID
+              | PAR_A case PAR_C'''
+
+
+
+def p_loop_condition(t):
+     '''loop_condition : loop_condition   WHEN exp THEN resultV
+                       | WHEN exp THEN resultV'''
+
+
+def p_else(t):
+     '''else : ELSE resultV '''
+
+#no se si puede hacer operaciones aqui
+def p_resultV(t):
+     '''resultV : ENTERO
+                | DECIMAL
+                | CADENA1
+                | CADENA2
+                | ID
+                | PAR_A resultV PAR_C'''
+
+
+
+
+
+
 
 def p_columna_name(t):
      '''columna_name : ID
@@ -343,7 +402,8 @@ def p_bloque_order(t):
 
 def p_lista_order(t):
      '''lista_order : lista_order COMA value_order
-                    | value_order'''
+                    | value_order
+                    | case'''
 
 def p_value_order(t): #ACA NO SOLO ES ID
      '''value_order : ID value_direction value_rang'''
@@ -498,6 +558,7 @@ def p_expresion(t):
           | SOME
           | IN
           | funcion_math
+          | NULL
           | NOT IN'''
 
 def p_crear(t):
