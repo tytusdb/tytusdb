@@ -2,7 +2,7 @@ from pathlib import Path
 # -----------------------------------------------------------------------------
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
-# 
+# 201612154 André Mendoza Torres
 # 
 # 
 # DIC 2020
@@ -257,28 +257,62 @@ def p_instruction_create(t):
               | createType'''
 
 def p_instruction_create_database(t):
-    '''createDatabase : CREATE DATABASE ID ownerMode
+    '''createDatabase : CREATE DATABASE ID
+              | CREATE DATABASE ID ownerMode
               | REPLACE DATABASE ID ownerMode
-              | CREATE DATABASE  IF NOT EXISTS ID ownerMode
-              | CREATE DATABASE ID
-              | CREATE DATABASE IF NOT EXISTS ID'''
+              | CREATE DATABASE IF NOT EXISTS ID
+              | CREATE DATABASE IF NOT EXISTS ID ownerMode'''
+    if (len(t)==4):#CREATE DATABASE ID
+        i=4
+    elif (len(t)==5):
+        if(t[1]=="CREATE"):#CREATE DATABASE ID ownerMode
+            i=5
+        elif (t[1]=="REPLACE"):#REPLACE DATABASE ID ownerMode
+            i=5
+    elif (len(t)==7):#CREATE DATABASE IF NOT EXISTS ID
+        i=7
+    elif (len(t)==8):#CREATE DATABASE IF NOT EXISTS ID ownerMode
+        i=8
 
 def p_instruction_create_table(t):
     '''createTable : CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
                    | CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE INHERITS BRACKET_OPEN ID BRACKET_CLOSE'''
+    if (len(t)==7):#CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
+        i=7
+    elif (len(t)==11):#CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE INHERITS BRACKET_OPEN ID BRACKET_CLOSE
+        i=11
 
 def p_instruction_create_table_columns(t):
     '''columns : columns COMMA column
                | column'''
+    if (len(t)==4):#columns COMMA column
+        i=4
+    elif (len(t)==2):#column
+        i=2
 
 def p_instruction_create_table_column(t):
     '''column : ID type
               | ID type opt1
-              | CHECK BRACKET_OPEN expression BRACKET_CLOSE
-              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
               | UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
-              | PRIMARY KEY  BRACKET_OPEN idList BRACKET_CLOSE 
-              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE  REFERENCES  BRACKET_OPEN idList BRACKET_CLOSE '''
+              | CHECK BRACKET_OPEN expression BRACKET_CLOSE
+              | PRIMARY KEY BRACKET_OPEN idList BRACKET_CLOSE
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE 
+              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES BRACKET_OPEN idList BRACKET_CLOSE '''
+    if (len(t)==3):#ID type
+        i=3
+    elif (len(t)==4):#ID type opt1
+        i=4
+    elif (len(t)==5):
+        if(t[1]=="UNIQUE"):#UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
+            i=5
+        elif (t[1]=="CHECK"):#CHECK BRACKET_OPEN expression BRACKET_CLOSE
+            i=5
+    elif (len(t)==6):#PRIMARY KEY BRACKET_OPEN idList BRACKET_CLOSE
+        i=6
+    elif (len(t)==7):#CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
+        i=7
+    elif (len(t)==10):#FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES BRACKET_OPEN idList BRACKET_CLOSE
+        i=10
 
 def p_instruction_create_table_opt1(t):
     '''opt1 :  default 
@@ -361,41 +395,70 @@ def p_instruction_type(t):
             | PRECISION
             | MONEY
             | CHARACTER
+            | CHAR
+            | TEXT
+            | TIMESTAMP
+            | DATE
+            | TIME
+            | INTERVAL
+            | BOOLEAN
+            | INTERVAL INT
             | VARYING BRACKET_OPEN INT BRACKET_CLOSE
             | VARCHAR BRACKET_OPEN INT BRACKET_CLOSE
             | CHARACTER BRACKET_OPEN INT BRACKET_CLOSE
             | CHAR BRACKET_OPEN INT BRACKET_CLOSE
-            | CHAR
-            | TEXT
-            | TIMESTAMP
             | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE
-            | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE
             | TIMESTAMP WITH TIME ZONE
-            | DATE
-            | TIME 
             | TIME BRACKET_OPEN INT BRACKET_CLOSE
-            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITHOUT TIME ZONE
             | TIME WITHOUT TIME ZONE
             | TIME WITH TIME ZONE
-            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE
-            | INTERVAL
-            | INTERVAL INT 
             | INTERVAL BRACKET_OPEN INT BRACKET_CLOSE
             | INTERVAL INT BRACKET_OPEN INT BRACKET_CLOSE
-            | BOOLEAN'''
+            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITHOUT TIME ZONE
+            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE
+            | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE'''
+    if (len(t)==2):
+        i=2
+    elif (len(t)==3):
+        i=3
+    elif (len(t)==5):
+        i=5
+    elif (len(t)==6):
+        i=6
+    elif (len(t)==8):
+        i=8
 
 def p_instruction_create_type(t):
     '''createType : CREATE TYPE ID AS ENUM BRACKET_OPEN expressionList BRACKET_CLOSE'''
 
 def p_instruction_create_owner_mode(t):
-    '''ownerMode : OWNER EQUAL ID
-            | OWNER ID
+    '''ownerMode : OWNER ID
             | MODE expression
+            | OWNER EQUAL ID
             | MODE EQUAL expression
             | OWNER ID MODE expression
             | OWNER EQUAL ID MODE expression
             | OWNER ID MODE EQUAL expression
-            | OWNER EQUAL ID MODE EQUAL expression'''         
+            | OWNER EQUAL ID MODE EQUAL expression'''
+    if (len(t)==3):
+        if(t[1]=="OWNER"):#OWNER ID
+            i=3
+        elif (t[1]=="MODE"):#MODE expression
+            i=3
+    elif (len(t)==4):
+        if(t[1]=="OWNER"):#OWNER EQUAL ID
+            i=4
+        elif (t[1]=="MODE"):#MODE EQUAL expression
+            i=4
+    elif (len(t)==5):#OWNER ID MODE expression
+        i=5
+    elif (len(t)==6):
+        if(t[2]=="EQUAL"):#OWNER EQUAL ID MODE expression
+            i=6
+        else:#OWNER ID MODE EQUAL expression
+            i=6
+    elif (len(t)==7):#OWNER EQUAL ID MODE EQUAL expression
+        i=7
 
 #DROP
 def p_instruction_drop(t):
@@ -405,6 +468,10 @@ def p_instruction_drop(t):
 def p_instruction_dropdatabase(t):
     '''dropDatabase : DROP DATABASE ID
                     | DROP DATABASE IF EXISTS ID'''
+    if (len(t)==4):#DROP DATABASE ID
+        i=4
+    elif (len(t)==6):#DROP DATABASE IF EXISTS ID
+        i=6
 
 def p_instruction_droptable(t):
     '''dropTable : DROP TABLE ID'''
@@ -421,16 +488,31 @@ def p_instruction_alter(t):
 def p_instruction_alterdatabase(t):
     '''alterDatabase : ALTER DATABASE ID RENAME TO ID
                     | ALTER DATABASE ID OWNER TO ID'''
+    if(t[4]=="RENAME"):#ALTER DATABASE ID RENAME TO ID
+        i=4
+    elif (t[4]=="OWNER"):#ALTER DATABASE ID OWNER TO ID
+        i=4
 
 def p_instruction_altertable(t):
     '''alterTable : ALTER TABLE ID alterOptions'''
 
 def p_instruction_alteroptions(t):
     '''alterOptions : DROP COLUMN ID
-                    | ADD CONSTRAINT ID UNIQUE BRACKET_OPEN ID BRACKET_CLOSE
-                    | ADD FOREIGN KEY BRACKET_OPEN ID BRACKET_CLOSE REFERENCES ID BRACKET_OPEN ID BRACKET_CLOSE
+                    | DROP CONSTRAINT ID
                     | ALTER COLUMN ID SET NOT NULL
-                    | DROP CONSTRAINT ID'''
+                    | ADD CONSTRAINT ID UNIQUE BRACKET_OPEN ID BRACKET_CLOSE
+                    | ADD FOREIGN KEY BRACKET_OPEN ID BRACKET_CLOSE REFERENCES ID BRACKET_OPEN ID BRACKET_CLOSE'''
+    if (len(t)==4):
+        if(t[2]=="COLUMN"):#DROP COLUMN ID
+            i=4
+        elif (t[2]=="CONSTRAINT"):#DROP CONSTRAINT ID
+            i=4
+    elif (len(t)==7):#ALTER COLUMN ID SET NOT NULL
+        i=7
+    elif (len(t)==8):#ADD CONSTRAINT ID UNIQUE BRACKET_OPEN ID BRACKET_CLOSE
+        i=8
+    elif (len(t)==12):#ADD FOREIGN KEY BRACKET_OPEN ID BRACKET_CLOSE REFERENCES ID BRACKET_OPEN ID BRACKET_CLOSE
+        i=12
 
 #DML sentences
 #SHOW
@@ -441,43 +523,99 @@ def p_instruction_show(t):
 def p_instruction_insert(t):
     '''insert : INSERT INTO ID VALUES BRACKET_OPEN expressionList BRACKET_CLOSE
               | INSERT INTO ID BRACKET_OPEN idList BRACKET_CLOSE VALUES BRACKET_OPEN expressionList BRACKET_CLOSE'''
+    if (len(t)==8):#INSERT INTO ID VALUES BRACKET_OPEN expressionList BRACKET_CLOSE
+        i=8
+    elif (len(t)==11):#INSERT INTO ID BRACKET_OPEN idList BRACKET_CLOSE VALUES BRACKET_OPEN expressionList BRACKET_CLOSE
+        i=11
 
 #SELECT 
 def p_instruction_select(t):
-    '''select : select UNION select
-              | select UNION ALL selectInstruction
+    '''select : selectInstruction
+              | select UNION select
               | select INTERSECT select
-              | select EXCEPT ALL selectInstruction
               | select EXCEPT select
-              | select INTERSECT ALL selectInstruction
-              | selectInstruction'''
+              | select UNION ALL selectInstruction
+              | select EXCEPT ALL selectInstruction
+              | select INTERSECT ALL selectInstruction'''
+    if (len(t)==2):#selectInstruction
+        i=2
+    elif (len(t)==4):
+        if(t[2]=="UNION"):#select UNION select
+            i=4
+        elif (t[2]=="INTERSECT"):#select INTERSECT select
+            i=4
+        elif (t[2]=="EXCEPT"):#select EXCEPT select
+            i=4
+    elif (len(t)==5):
+        if(t[2]=="UNION"):#select UNION ALL selectInstruction
+            i=4
+        elif (t[2]=="INTERSECT"):#select EXCEPT ALL selectInstruction
+            i=4
+        elif (t[2]=="EXCEPT"):#select INTERSECT ALL selectInstruction
+            i=4
 
 def p_instruction_selectinstruction(t):
     '''selectInstruction : SELECT expressionList
                          | SELECT expressionList FROM expressionList
+                         | SELECT DISTINCT expressionList FROM expressionList                     
                          | SELECT expressionList FROM expressionList selectOptions
-                         | SELECT DISTINCT expressionList FROM expressionList
                          | SELECT DISTINCT expressionList FROM expressionList selectOptions'''
+    if (len(t)==3):#SELECT expressionList
+        i=3
+    elif (len(t)==5):#SELECT expressionList FROM expressionList
+        i=5
+    elif (len(t)==6):
+        if(t[2]=="DISTINCT"):#SELECT DISTINCT expressionList FROM expressionList
+            i=6
+        else:#SELECT expressionList FROM expressionList selectOptions
+            i=6
+    elif (len(t)==7):#SELECT DISTINCT expressionList FROM expressionList selectOptions
+        i=7
 
 def p_instruction_selectoptions(t):
     '''selectOptions : selectOptions selectOption
                      | selectOption'''
+    if (len(t)==3):#selectOptions selectOption
+        i=3
+    elif (len(t)==2):#selectOption
+        i=2
 
 def p_instruction_selectoption(t):
     '''selectOption : WHERE expression
-                     | ORDER BY sortExpressionList
-                     | LIMIT expression
                      | LIMIT ALL
+                     | LIMIT expression
                      | OFFSET expression
-                     | GROUP BY expressionList
-                     | HAVING expression'''
+                     | HAVING expression
+                     | ORDER BY sortExpressionList
+                     | GROUP BY expressionList'''
+    if (len(t)==3):
+        if(t[1]=="WHERE"):#WHERE expression
+            i=3
+        elif (t[1]=="LIMIT"):
+            if (t[2]=="ALL"):#LIMIT ALL
+                i=3
+            else:#LIMIT expression
+                i=3
+        elif (t[1]=="OFFSET"):#OFFSET expression
+            i=3
+        elif (t[1]=="HAVING"):#HAVING expression
+            i=3
+    elif (len(t)==4):
+        if(t[1]=="ORDER"):#ORDER BY sortExpressionList
+            i=4
+        elif (t[2]=="GROUP"):#GROUP BY expressionList
+            i=4
 #UPDATE
 def p_instruction_update(t):
     '''update : UPDATE ID SET reallocationOfValues WHERE expression'''
 
 def p_instruction_reallocationofvalues(t):
-    '''reallocationOfValues : reallocationOfValues COMMA ID EQUAL expression
-                            | ID EQUAL expression'''
+    '''reallocationOfValues : ID EQUAL expression
+                            | reallocationOfValues COMMA ID EQUAL expression'''
+    if (len(t)==4):#ID EQUAL expression
+        i=4
+    elif (len(t)==6):#reallocationOfValues COMMA ID EQUAL expression
+        i=6
 
 #DELETE
 def p_instruction_delete(t):
@@ -485,25 +623,50 @@ def p_instruction_delete(t):
 
 #TRUNCATE
 def p_instruction_truncate(t):
-    '''truncate : TRUNCATE TABLE idList
-                | TRUNCATE idList'''
+    '''truncate : TRUNCATE idList
+                | TRUNCATE TABLE idList'''
+    if (len(t)==3):#TRUNCATE idList
+        i=3
+    elif (len(t)==4):#TRUNCATE TABLE idList
+        i=4
 
 #EXPRESSIONS
 def p_instruction_idlist(t):
     '''idList : idList COMMA ID
               | ID'''
+    if (len(t)==4):#idList COMMA ID
+        i=4
+    elif (len(t)==2):#ID
+        i=2
 
 def p_instruction_sortexpressionlist(t):
-    '''sortExpressionList : sortExpressionList COMMA expression
-                          | sortExpressionList COMMA expression ASC
-                          | sortExpressionList COMMA expression DESC
-                          | expression
+    '''sortExpressionList : expression
                           | expression ASC
-                          | expression DESC'''
-
+                          | expression DESC
+                          | sortExpressionList COMMA expression
+                          | sortExpressionList COMMA expression ASC
+                          | sortExpressionList COMMA expression DESC'''
+    if (len(t)==2):
+        i=2#expression
+    elif (len(t)==3):
+        if(t[2]=="ASC"):#expression ASC
+            i=3
+        elif (t[2]=="DESC"):#expression DESC
+            i=3
+    elif (len(t)==4):#sortExpressionList COMMA expression
+        i=4
+    elif (len(t)==5):
+        if(t[4]=="ASC"):#sortExpressionList COMMA expression ASC
+            i=5
+        elif (t[4]=="DESC"):#sortExpressionList COMMA expression DESC
+            i=5
 def p_instruction_expressionlist(t):
     '''expressionList : expressionList COMMA expression
                       | expression'''
+    if (len(t)==4):#expressionList COMMA expression
+        i=4
+    elif (len(t)==2):#expression
+        i=2
 #UNARY
 def p_expression_unaryminus(t):
     'expression : MINUS expression %prec UMINUS'
@@ -537,6 +700,7 @@ def p_expression_binaryarithmetic(t):
     elif t[2] == '-': t[0] = t[1] - t[3]
     elif t[2] == '*': t[0] = t[1] * t[3]
     elif t[2] == '/': t[0] = t[1] / t[3]
+
 
 def p_expression_binaryseparator(t):
     '''expression : expression NSEPARATOR expression'''
