@@ -2,6 +2,10 @@ from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relaci
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
 from Interprete.Arbol import Arbol
+from Interprete.Primitivos.ENTERO import ENTERO
+from Interprete.Primitivos.DECIMAL import DECIMAL
+from Interprete.Primitivos.CADENAS import CADENAS
+from Interprete.Primitivos.BOOLEANO import BOOLEANO
 
 reservadas = {
 
@@ -22,8 +26,9 @@ reservadas = {
 	'owner': 'OWNER',
 	'show': 'SHOW',
 	'databases': 'DATABASES',
-    'MAP' : 'MAP',
-    'LIST' : 'LIST',
+    'map' : 'MAP',
+    'list' : 'LIST',
+    'mode' : 'MODE',
 
 	# Inheritance
 	'inherits': 'INHERITS',
@@ -50,6 +55,7 @@ reservadas = {
     'set' : 'SET',
     'key' : 'KEY',
     'if' : 'IF',
+    'else' : 'ELSE',
     'unique' : 'UNIQUE',
     'references' : 'REFERENCES',
     'check' : 'CHECK',
@@ -62,6 +68,7 @@ reservadas = {
     'int' : 'INT',
     'default' : 'DEFAULT',
     'null' : 'NULL',
+    'now' : 'NOW',
 
     # TIPOS NUMERICOS
     'smallint' : 'SMALLINT',
@@ -90,6 +97,10 @@ reservadas = {
     'minute' : 'MINUTE',
     'second' : 'SECOND',
     'to' : 'TO',
+    'current_date' : 'CURRENT_DATE',
+    'current_time' : 'CURRENT_TIME',
+    'date_part' : 'DATE_PART',
+    'month' : 'MONTH',
 
 
     # ENUM
@@ -111,9 +122,11 @@ reservadas = {
     'cbrt' : 'CBRT',
     'ceil' : 'CEIL',
     'ceiling' : 'CEILING',
-    'degrees' : 'DEGREES',  
+    'degrees' : 'DEGREES',
+    'extract' : 'EXTRACT',
     'div' : 'DIV',  
     'exp' : 'EXP',
+    'trunc' : 'TRUNC',
     'factorial' : 'FACTORIAL',
     'floor' : 'FLOOR',
     'gcd' : 'GCD',
@@ -228,7 +241,9 @@ reservadas = {
     # CONSULTAS DE COMBINACION
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
-    'except' : 'EXCEPT'
+    'except' : 'EXCEPT',
+
+    'prueba' : 'PRUEBA'
 
 }
 
@@ -249,6 +264,7 @@ tokens  = [
     'NOTBB',
     'ANDBB',
     'ORBB',
+    'ORBBDOBLE',
     'NUMERAL',
     'TKEXP',
     'SHIFTIZQ',
@@ -290,7 +306,7 @@ t_TKNOT       = r'!'
 t_NOTBB     = r'~'
 t_ANDBB     = r'&'
 t_ORBB      = r'\|'
-
+t_ORBBDOBLE      = r'\|\|'
 t_NUMERAL   = r'\#'
 
 t_SHIFTIZQ  = r'<<'
@@ -369,7 +385,8 @@ lexer2 = lex.lex()
 precedence = (
     #('left','CONCAT'),
     #('left','MENOR','MAYOR','IGUAL','MENORIGUAL','MAYORIGUAL','DIFERENTE'),
-    ('left','MENORQUE','MAYORQUE','IGUAL','MENORIG','MAYORIG','DISTINTO'),
+    ('left','IGUAL','DISTINTO'),
+    ('left','MENORQUE','MAYORQUE','MENORIG','MAYORIG'),
     ('left','MAS','MENOS'),
     ('left','MULTI','DIVISION','MODULO'),
     ('left','TKEXP'),
@@ -414,14 +431,37 @@ def p_ddl(t):
              | create_db
              | drop_table
              | alter_table
+             | create_type
+             | alter_database
+             | drop_database
     '''
     t[0] = t[1]
 
 def p_select(t):
     '''
-        select  : SELECT listavalores FROM exp listawhere
+        select  : SELECT listavalores FROM listavalores listawhere
+                | SELECT listavalores FROM listavalores
+                | SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
+                | SELECT DATE_PART PARIZQ CADENA COMA INTERVAL CADENA PARDER
+                | SELECT NOW PARIZQ PARDER
+                | SELECT CURRENT_DATE
+                | SELECT CURRENT_TIME
+                | SELECT TIMESTAMP CADENA
     '''
-    t[0] = select(t[2], t[4], t[5], 1, 1)
+    if len(t) == 6:
+        t[0] = select(t[2], t[4], t[5], 1, 1)
+
+
+def p_time(t):
+    '''
+        time : YEAR
+             | HOUR
+             | SECOND
+             | MINUTE
+             | MONTH
+             | DAY
+    '''
+    t[0] = t[1]
 
 def p_listawhere(t):
     '''
@@ -434,12 +474,14 @@ def p_listawhere(t):
     else:
         t[0] = [t[1]]
 
-def p_atributoselect(t):
+def p_atributoselecit(t):
     '''
         atributoselect  : WHERE exp
-                        | ORDER BY exp ordenamiento
-                        | GROUP BY exp
+                        | ORDER BY listavalores ordenamiento
+                        | GROUP BY listavalores
                         | LIMIT exp
+                        | HAVING exp
+                        | subquery
     '''
     if t[1] == "where":
         t[0] = Condicion(t[2], "where", 1, 1)
@@ -455,10 +497,89 @@ def p_listavalores(t):
         listavalores   : listavalores COMA exp
                        | exp
     '''
+    if len(t) == 4:
+        t[0] = t[1]
+        t[0].append(t[3])
+
+    else:
+        t[0] = [t[1]]
 
 def p_exp(t):
     '''
-        exp   : MAS exp
+        exp   : case
+              | COUNT PARIZQ exp PARDER
+              | COUNT PARIZQ MULTI PARDER
+              | SUM PARIZQ exp PARDER
+              | AVG PARIZQ exp PARDER
+              | GREATEST PARIZQ listavalores PARDER
+              | LEAST PARIZQ listavalores PARDER
+              | MAX PARIZQ exp PARDER
+              | MIN PARIZQ exp PARDER
+              | ABS PARIZQ exp PARDER
+              | CBRT PARIZQ exp PARDER
+              | CEIL PARIZQ exp PARDER
+              | CEILING PARIZQ exp PARDER
+              | DEGREES PARIZQ exp PARDER
+              | DIV PARIZQ exp COMA exp PARDER
+              | TKEXP PARIZQ exp PARDER
+              | FACTORIAL PARIZQ exp PARDER
+              | FLOOR PARIZQ exp PARDER
+              | GCD PARIZQ exp COMA exp PARDER
+              | LN PARIZQ exp PARDER
+              | LOG PARIZQ exp PARDER
+              | MOD PARIZQ exp COMA exp PARDER
+              | PI PARIZQ PARDER
+              | NOW PARIZQ PARDER
+              | POWER PARIZQ exp COMA exp PARDER
+              | RADIANS PARIZQ exp PARDER
+              | ROUND PARIZQ exp PARDER
+              | SIGN PARIZQ exp PARDER
+              | SQRT PARIZQ exp PARDER
+              | WIDTH_BUCKET PARIZQ exp COMA exp COMA exp COMA exp PARDER
+              | TRUNC PARIZQ exp PARDER
+              | RANDOM PARIZQ PARDER
+              | ACOS PARIZQ exp PARDER
+              | ACOSD PARIZQ exp PARDER
+              | ASIN PARIZQ exp PARDER
+              | ASIND PARIZQ exp PARDER
+              | ATAN PARIZQ exp PARDER
+              | ATAND PARIZQ exp PARDER
+              | ATAN2 PARIZQ exp COMA exp PARDER
+              | ATAN2D PARIZQ exp COMA exp PARDER
+              | COS PARIZQ exp PARDER
+              | COSD PARIZQ exp PARDER
+              | COT PARIZQ exp PARDER
+              | COTD PARIZQ exp PARDER
+              | SIN PARIZQ exp PARDER
+              | SIND PARIZQ exp PARDER
+              | TAN PARIZQ exp PARDER
+              | TAND PARIZQ exp PARDER
+              | SINH PARIZQ exp PARDER
+              | COSH PARIZQ exp PARDER
+              | TANH PARIZQ exp PARDER
+              | ASINH PARIZQ exp PARDER
+              | ACOSH PARIZQ exp PARDER
+              | ATANH PARIZQ exp PARDER
+              | LENGTH PARIZQ exp PARDER
+              | SUBSTRING PARIZQ exp COMA exp COMA exp PARDER
+              | TRIM PARIZQ exp PARDER
+              | MD5 PARIZQ exp PARDER
+              | SHA256 PARIZQ exp PARDER
+              | SUBSTR PARIZQ exp COMA exp COMA exp PARDER
+              | GET_BYTE PARIZQ exp COMA exp PARDER
+              | SET_BYTE PARIZQ exp COMA exp COMA exp PARDER
+              | CONVERT PARIZQ exp AS tipo PARDER
+              | ENCODE PARIZQ exp COMA exp PARDER
+              | DECODE PARIZQ exp COMA exp PARDER
+              | ORBB exp
+              | ORBBDOBLE exp
+              | exp ANDBB exp
+              | exp ORBB exp
+              | exp NUMERAL exp
+              | NOTBB exp
+              | exp SHIFTIZQ exp
+              | exp SHIFTDER exp
+              | MAS exp
               | MENOS exp
               | exp TKEXP exp
               | exp MULTI exp
@@ -467,10 +588,12 @@ def p_exp(t):
               | exp MAS exp
               | exp MENOS exp
               | exp BETWEEN exp
-              | exp IN exp
               | exp LIKE exp
               | exp ILIKE exp
               | exp SIMILAR exp
+              | exp NOT exp
+              | exp IN exp
+              | exp NOT IN exp
               | exp IGUAL exp
               | exp MAYORQUE exp
               | exp MENORQUE exp
@@ -480,37 +603,116 @@ def p_exp(t):
               | exp ISNULL exp
               | exp NOTNULL exp
               | NOT exp
+              | IS exp
               | exp AND exp
               | exp OR exp
               | expSimple
     '''
     if len(t) == 4:
         t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
-    else:
+    elif len(t) == 3:
+        pass
+    elif len(t) == 2:
         t[0] = t[1]
+    else:
+        pass
 
 def p_expSimples(t):
     '''
         expSimple   :   ID
-                    | ENTERO
-                    | TKDECIMAL
-                    | TRUE
-                    | FALSE
-                    | CADENADOBLE
-                    | CADENA
+                    | NULL
+                    | ID PT ID
+                    | ID ID
+                    | subquery ID
+                    | exp AS ID
+                    | MULTI
+                    | subquery
     '''
     t[0] = t[1]
 
-# ---------------CREATE TABLE---------------
-
-def p_table_create(t):
+def p_subquery(t):
     '''
-        table_create : CREATE TABLE ID PARIZQ lista_table COMA listadolprimary PARDER
-                     | CREATE TABLE ID PARIZQ lista_table PARDER
-                     | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary PARDER
-                     | CREATE TABLE IF NOT EXISTS ID PARDER lista_table PARDER
+        subquery : PARIZQ select PARDER
+    '''
+
+# ---------------CASE---------------
+# TODO: HACER EL CASE, ARREGLAR EL SELECT Y PROBAR EXP NUEVAS
+def p_case(t):
+    '''
+     case : CASE WHEN exp THEN exp lista_when ELSE exp END
+          | CASE WHEN exp THEN exp lista_when END
+          | CASE WHEN exp THEN exp ELSE exp END
+          | CASE WHEN exp THEN exp END
     '''
     # t[0] = interprete
+
+def p_lista_when(t):
+    '''
+        lista_when : lista_when when_else
+                   | when_else
+    '''
+    if len(t) == 3:
+        t[0] = t[1]
+        t[0].append(t[2])
+    else:
+        t[0] = [t[1]]
+
+def p_when_else(t):
+    '''
+        when_else : WHEN exp THEN exp
+    '''
+
+def p_expSimples_entero(t):
+    '''
+        expSimple   :   ENTERO
+    '''
+    t[0] = ENTERO(t[1],1,1)
+
+def p_expSimples_decimal(t):
+    '''
+        expSimple   :   TKDECIMAL
+    '''
+    t[0] = DECIMAL(t[1],1,1)
+
+def p_expSimples_cadenas(t):
+    '''
+        expSimple   :   CADENA
+    '''
+    t[0] = CADENAS(t[1],1,1)
+
+def p_expSimples_cadenadoble(t):
+    '''
+        expSimple   :   CADENADOBLE
+    '''
+    t[0] = CADENAS(t[1],1,1)
+
+def p_expSimples_true(t):
+    '''
+        expSimple   :   TRUE
+    '''
+    t[0] = BOOLEANO(True,1,1)
+
+def p_expSimples_false(t):
+    '''
+        expSimple  :   FALSE
+    '''
+    t[0] = BOOLEANO(False,1,1)
+
+# ---------------CREATE TABLE---------------
+def p_table_create(t):
+    '''
+        table_create : CREATE TABLE ID PARIZQ lista_table COMA listadolprimary inherits
+                     | CREATE TABLE ID PARIZQ lista_table inherits
+                     | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
+                     | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
+    '''
+    # t[0] = interprete
+
+def p_inherits(t):
+    '''
+        inherits : PARDER INHERITS PARIZQ ID PARDER
+                 | PARDER
+    '''
 
 def p_lista_table(t):
     '''
@@ -565,9 +767,8 @@ def p_listaespecificaciones(t):
 def p_especificaciones(t):
     '''
         especificaciones : UNIQUE
-                         | DEFAULT exp
-                         | NOT NULL
-                         | NULL
+                         | exp
+                         | DEFAULT
                          | PRIMARY KEY
                          | FOREIGN KEY PARIZQ listaids PARDER REFERENCES listaids
                          | REFERENCES ID
@@ -702,10 +903,20 @@ def p_listaatributos(t):
 # ---------------CREATE DATABASE---------------
 def p_create_db(t):
     '''
-        create_db : CREATE DATABASE IF NOT EXISTS ID
-                  | CREATE DATABASE ID
+        create_db : CREATE OR REPLACE DATABASE IF NOT EXISTS createdb_extra
+                  | CREATE OR REPLACE DATABASE createdb_extra
+                  | CREATE DATABASE IF NOT EXISTS createdb_extra
+                  | CREATE DATABASE createdb_extra
     '''
     # t[0] = interprete
+
+def p_createdb_extra(t):
+    '''
+        createdb_extra : ID OWNER IGUAL ID MODE IGUAL exp
+                       | ID OWNER IGUAL ID
+                       | ID
+    '''
+    t[0] = t[1]
 
 # ---------------DROP TABLE---------------
 def p_drop_table(t):
@@ -719,8 +930,6 @@ def p_drop_table(t):
 def p_alter_table(t):
     '''
         alter_table : ALTER TABLE ID ADD listaespecificaciones
-                    | ALTER TABLE ID ADD COLUMN ID tipo
-                    | ALTER TABLE ID DROP COLUMN ID
                     | ALTER TABLE ID DROP listaespecificaciones
                     | ALTER TABLE ID listacolumn
     '''
@@ -740,6 +949,32 @@ def p_listacolumn(t):
 def p_column(t):
     '''
         column : ALTER COLUMN ID listaespecificaciones
+               | ADD COLUMN ID tipo
+               | DROP COLUMN ID
+    '''
+    # t[0] = interprete
+
+# ---------------CREATE TYPE---------------
+def p_create_type(t):
+    '''
+        create_type : CREATE TYPE ID AS ID PARIZQ listavalores PARDER
+    '''
+    # t[0] = interprete
+
+# ---------------ALTER DATABASE---------------
+# EN EL CASO DE LA PRODUCCION QUE TIENE EL TERMINAL OWNER UNICAMENTE SE VA A RECONOCER EN LA GRAMATICA
+def p_alter_database(t):
+    '''
+        alter_database : ALTER DATABASE ID RENAME TO ID
+                       | ALTER DATABASE ID OWNER TO ID
+    '''
+    # t[0] = interprete
+
+# ---------------DROP DATABASE---------------
+def p_drop_database(t):
+    '''
+        drop_database : DROP DATABASE IF EXISTS ID
+                      | DROP DATABASE ID
     '''
     # t[0] = interprete
 
@@ -747,6 +982,7 @@ def p_column(t):
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
+
 
 
 import ply.yacc as yacc
