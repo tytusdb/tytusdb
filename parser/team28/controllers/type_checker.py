@@ -1,3 +1,5 @@
+import json
+
 from utils.decorators import singleton
 from models.database import Database
 from models.table import Table
@@ -11,10 +13,62 @@ class TypeChecker(object):  # TODO messages
     def __init__(self):
         self._typeCheckerList = []
 
+        self._dataFile = ''
+        self.loadData()
+
     def getList(self):
         return self._typeCheckerList
 
-    # --- Databases
+    def loadData(self):
+        self._typeCheckerList = []
+        self.openFile()
+
+        for db in self._dataFile:
+            self._typeCheckerList.append(Database(db['_name']))
+            database = self.searchDatabase(db['_name'])
+
+            for tb in db['_tables']:
+                table = Table(tb['_name'])
+                database.tables.append(table)
+
+                for col in tb['_colums']:
+                    column = Column(col['_name'], col['_dataType'])
+                    column.number = col['_number']
+                    column.length = col['_length']
+                    column.notNull = col['_notNull']
+                    column.unique = col['_unique']
+                    column.primaryKey = col['_primaryKey']
+                    # TODO FOREIGN KEY implementation
+                    table.columns.append(column)
+
+    def obj_dict(self, obj):
+        return obj.__dict__
+
+    def openFile(self):
+        try:
+            with open('data/json/typeChecker.json', 'r') as f:
+                self._dataFile = json.load(f)
+        except IOError:
+            print('Error: File does not appear to exist.')
+
+    def writeFile(self):
+        try:
+            with open('data/json/typeChecker.json', 'w') as f:
+                dataFile = json.dumps(
+                    self.getList(),
+                    default=self.obj_dict
+                )
+                parsedJson = (json.loads(dataFile))
+                dataFile = json.dumps(
+                    parsedJson,
+                    indent=4,
+                    sort_keys=True
+                )
+                f.write(dataFile)
+        except IOError:
+            print('Error: File does not appear to exist.')
+
+    # ------------------------- Databases -------------------------
     # Method to search a database in type checker
     def searchDatabase(self, databaseName: str) -> Database:
         for db in self._typeCheckerList:
@@ -28,6 +82,7 @@ class TypeChecker(object):  # TODO messages
 
         if dbStatement == 0:
             self._typeCheckerList.append(Database(databaseName))
+            self.writeFile()
             print('Database created successfully')
         elif dbStatement == 1:
             print(f"Can't create database '{databaseName}'")
@@ -41,6 +96,7 @@ class TypeChecker(object):  # TODO messages
         if dbStatement == 0:
             database = self.searchDatabase(databaseOld)
             database.name = databaseNew
+            self.writeFile()
             print('Database updated successfully')
         elif dbStatement == 1:
             print(f"Can't update database '{databaseOld}'")
@@ -56,6 +112,7 @@ class TypeChecker(object):  # TODO messages
         if dbStatement == 0:
             database = self.searchDatabase(databaseName)
             self._typeCheckerList.remove(database)
+            self.writeFile()
             print('Database deleted successfully')
         elif dbStatement == 1:
             print(f"Can't drop database '{databaseName}'")
@@ -64,7 +121,7 @@ class TypeChecker(object):  # TODO messages
 
     # TODO def showDatabases
 
-    # --- Tables
+    # ------------------------- Tables -------------------------
     # Method to search a table in database
     def searchTable(self, database: Database, tableName: str) -> Table:
         if database:
@@ -87,6 +144,7 @@ class TypeChecker(object):  # TODO messages
         if dbStatement == 0:
             table = Table(tableName)
             database.tables.append(table)
+            self.writeFile()
             print('Table created successfully')
             return table
         elif dbStatement == 1:
@@ -108,6 +166,7 @@ class TypeChecker(object):  # TODO messages
         if dbStatement == 0:
             table = self.searchTable(database, tableOld)
             table.name = tableNew
+            self.writeFile()
             print('Table updated successfully')
         elif dbStatement == 1:
             print(f"Can't update Table '{tableOld}'")
@@ -129,6 +188,7 @@ class TypeChecker(object):  # TODO messages
         if dbStatement == 0:
             table = self.searchTable(database, tableName)
             database.tables.remove(table)
+            self.writeFile()
             print('Table deleted successfully')
         elif dbStatement == 1:
             print(f"Can't drop table '{tableName}'")
@@ -141,7 +201,7 @@ class TypeChecker(object):  # TODO messages
     # TODO def defineFK
     # TODO def showTables
 
-    # --- Columns
+    # ------------------------- Columns -------------------------
     # Method to search a column in table
     def searchColumn(self, table: Table, columnName: str) -> Column:
         if table:
@@ -170,6 +230,7 @@ class TypeChecker(object):  # TODO messages
             column = self.searchColumn(table, columnName)
             if column:
                 table.remove(column)
+                self.writeFile()
                 print('Column deleted successfully')
                 return
             print(f"Can't DROP COLUMN `{columnName}` Check that it exists")
@@ -193,6 +254,7 @@ class TypeChecker(object):  # TODO messages
         if dbStatement == 0:
             if not self.searchColumn(table, column.name):
                 table.columns.append(column)
+                self.writeFile()
                 print('Table updated successfully')
                 return
             print(f"Duplicate column name '{column.name}'")
