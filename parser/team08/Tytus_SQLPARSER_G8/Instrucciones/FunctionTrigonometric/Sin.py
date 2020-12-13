@@ -13,6 +13,8 @@ class Sin(Instruccion):
         print(math.sin(self.valor))
         return math.sin(self.valor)
 
+'''
 instruccion = Sin(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

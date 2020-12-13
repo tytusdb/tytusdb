@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
@@ -6,12 +5,18 @@ from tkinter.filedialog import asksaveasfilename
 from tkinter import messagebox
 from tkinter import scrolledtext
 from tkinter.font import Font
+
+import os
+
 from utils.analyzers.syntactic import *
 from utils.reports.generate_ast import GraficarAST
 from utils.reports.report_error import ReportError
-import os
+from test.tp_test import runTestTP
+
 report_error = None
 report_ast = None
+
+
 class GUI:
     archivo = ""
 
@@ -55,12 +60,16 @@ class GUI:
         archivoMenu.add_command(label="Salir", command=self.terminar)
         #############################################MENU WINDOWS##############################################
         windows_menu = Menu(barraMenu, tearoff=0)
-        windows_menu.add_command(label='Report AST', command=self.report_ast_windows)
-        windows_menu.add_command(label='Report Errors', command=self.report_errors_windows)
+        windows_menu.add_command(
+            label='Report AST', command=self.report_ast_windows)
+        windows_menu.add_command(
+            label='Report Errors', command=self.report_errors_windows)
         #############################################MENU LINUX################################################
         ubuntu_menu = Menu(barraMenu, tearoff=0)
-        ubuntu_menu.add_command(label='Report AST', command=self.report_ast_ubuntu)
-        ubuntu_menu.add_command(label='Report Errors', command=self.report_errors_ubuntu)
+        ubuntu_menu.add_command(
+            label='Report AST', command=self.report_ast_ubuntu)
+        ubuntu_menu.add_command(label='Report Errors',
+                                command=self.report_errors_ubuntu)
         #############################################MENU REPORTES#############################################
         archivoReportes = Menu(barraMenu, tearoff=0)
         archivoReportes.add_cascade(label="Windows", menu=windows_menu)
@@ -80,7 +89,8 @@ class GUI:
             frame, height=30, width=80, bg='linen')
         self.entrada.grid(row=4, column=0, padx=30)
 
-        Button(frame, text='   ANALIZAR   ', command=self.analizar_entrada, fg="blue").grid(row=4, column=1)
+        Button(frame, text='   ANALIZAR   ',
+               command=self.analizar_entrada, fg="blue").grid(row=4, column=1)
 
         # Para este editor aun hay que ver si lo usamos como consola para errores, si no lo quitamos
         Label(frame, text='Errores:', background='salmon').grid(row=3, column=2)
@@ -132,7 +142,7 @@ class GUI:
         values = list_errors.head_value
         if values is not None:
             report_error = ReportError(list_errors)
-            messagebox.showerror('ERRORES', 'Se encontraron errores')  
+            messagebox.showerror('ERRORES', 'Se encontraron errores')
         else:
             messagebox.showinfo("EXITO", "SE FINALIZO EL ANALISIS CON EXITO")
 
@@ -148,20 +158,23 @@ class GUI:
         os.system('xdg-open ./team28/ast.pdf')
         # os.open('ast.pdf')
         # os.startfile('ast.pdf')
+
     def report_errors_ubuntu(self):
         global report_error
-        report = open('./team28/error.html', 'w')
+        report = open('./team28/dot.txt', 'w')
         report.write(report_error.get_report())
         report.close()
-        os.system('xdg-open ./team28/error.html')
-        
-    def report_errors_windows(self, errors):
+        os.system('dot -Tpdf ./team28/dot.txt -o ./team28/error.pdf')
+        os.system('xdg-open ./team28/error.pdf')
+
+    def report_errors_windows(self):
         global report_error
-        report = open('error.html', 'w')
+        report = open('dot.txt', 'w')
         report.write(report_error.get_report())
         report.close()
-        os.startfile('error.html')
-        
+        os.system('dot -Tpdf dot.txt -o  error.pdf')
+        os.startfile('error.pdf')
+
     def report_ast_windows(self):
         global report_ast
         graficadora = GraficarAST()
