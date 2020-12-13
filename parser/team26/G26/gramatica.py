@@ -165,7 +165,7 @@ reservadas = {
     'asinh' : 'ASINH',
     'acosh' : 'ACOSH',
     'atanh' : 'ATANH',
-    'length' : 'LENGHT',
+    'length' : 'LENGTH',
     'get_byte' : 'GETBYTE',
     'factorial' : 'FACTORIAL',
     'md5' : 'MD5',
@@ -184,7 +184,8 @@ reservadas = {
     'current_user' : 'CURRENT_USER',
     'session_user' : 'SESSION_USER',
     'show'  :   'SHOW',
-    'symmetric' : 'SYMMETRIC'
+    'symmetric' : 'SYMMETRIC',
+    'bytea' : 'BYTEA'
 }
 
 tokens = [
@@ -333,12 +334,13 @@ def p_instruccion(t) :
                         | USE use
                         | SHOW show
                         | DROP drop
-                        | ALTER alter
                         | DELETE delete
                         | INSERT insert
                         | UPDATE update
-                        | AS condiciones'''
-    t[0] = t[2]
+                        | AS condiciones
+                        | alter'''
+    if [isinstance(t[1], alter.Alter)] : t[0] = alter.FatherAlter(t[1])
+    else : t[0] = t[2]   
 
 def p_create_instruccion(t) :
     '''create : TYPE createenum
@@ -356,12 +358,12 @@ def p_createenum(t):
 
 def p_listacadenas_recursiva(t):
     'listacadenas : listacadenas COMA CADENA'
-    t[1].append(primi.Primitive(t[3]))
+    t[1].append(primi.Primitive(None, t[3]))
     t[0] = t[1]
 
 def p_listacadenas(t):
      'listacadenas : CADENA'
-     t[0] = [primi.Primitive(t[1])]
+     t[0] = [primi.Primitive(None, t[1])]
 
 def p_createdatabase(t):
     '''createdatabase : IF NOT EXISTS ID databaseowner
@@ -382,10 +384,10 @@ def p_databasemode(t):
     '''databasemode : MODE IGUAL ENTERO PTCOMA
                     | MODE ENTERO PTCOMA
                     | PTCOMA'''
-    if t[1] == ';' : t[0] = primi.Primitive('1')
+    if t[1] == ';' : t[0] = primi.Primitive(None, '1')
     else :
-        if t[2] == '=' : t[0] = primi.Primitive(t[3])
-        else : t[0] = primi.Primitive(t[2])
+        if t[2] == '=' : t[0] = primi.Primitive(None, t[3])
+        else : t[0] = primi.Primitive(None, t[2])
 
 def p_createtable(t):
     'createtable : ID PARENIZQ tabledescriptions PARENDER tableherencia'
@@ -394,7 +396,7 @@ def p_createtable(t):
 def p_tableherencia(t):
     '''tableherencia : INHERITS PARENIZQ ID PARENDER PTCOMA
                      | PTCOMA'''
-    if t[1].lower() == 'inherits' : t[0] = ident.Identificador(t[3])
+    if t[1].lower() == 'inherits' : t[0] = ident.Identificador(None, t[3])
     else : t[0] = None
 
 def p_tabledescriptions_recursivo(t):
@@ -434,12 +436,12 @@ def p_tablekey(t):
 
 def p_columnreferences_r(t):
     'columnreferences : columnreferences COMA ID'
-    t[1].append(ident.Identificador(t[3]))
+    t[1].append(ident.Identificador(None, t[3]))
     t[0] = t[1]
 
-def p_columnreferences_r(t):
+def p_columnreferences_r2(t):
     'columnreferences : ID'
-    t[0] = [ident.Identificador(t[1])]
+    t[0] = [ident.Identificador(None, t[1])]
 
 def p_tabledefault(t):
     '''tabledefault : DEFAULT value tablenull
@@ -489,6 +491,24 @@ def p_listaids_r(t):
 
 def p_listaids(t):
     'listaids : ID'
+    t[0] = [ident.Identificador(None, t[1])]
+
+def p_listaidcts_r(t):
+    'listaidcts : listaidcts COMA ID PUNTO ID'
+    t[1].append(ident.Identificador(t[3], t[5]))
+    t[0] = t[1]
+
+def p_listaidcts_re(t):
+    'listaidcts : listaidcts COMA ID'
+    t[1].append(ident.Identificador(None, t[3]))
+    t[0] = t[1]
+
+def p_listaidcts(t):
+    'listaidcts : ID PUNTO ID'
+    t[0] = [ident.Identificador(t[1], t[3])]
+
+def p_listaidctse(t):
+    'listaidcts : ID'
     t[0] = [ident.Identificador(None, t[1])]
 
 def p_tipo(t):
@@ -560,84 +580,144 @@ def p_fields(t):
 ###########USE
 def p_use(t):
     'use    :  ID PTCOMA'
+    t[0] = use.Use(ident.Identificador(None, t[1]))
 
 ##########SHOW
 def p_show(t):
     'show   :    DATABASES likeopcional'
+    t[0] = t[2]
 
 def p_likeopcional(t):
     '''likeopcional   :   LIKE CADENA PTCOMA
                     | PTCOMA '''
+    if t[1].lower() == 'like' : t[0] = show.Show(t[2], False)
+    else : t[0] = show.Show('', True)
 
 ##########DROP
 def p_drop(t):
     '''drop :   DATABASE dropdb PTCOMA
             |   TABLE ID PTCOMA '''
+    if t[1].lower() == 'database' : t[0] = t[2]
+    else : t[0] = drop.Drop(ident.Identificador(None, t[2]), False)
 
 def p_dropdb(t):
-    '''dropdb : IF EXISTS ID
+    '''dropdb   : IF EXISTS ID
                 |   ID'''
+    if t[1].lower() == 'if' : t[0] = drop.Drop(ident.Identificador(None, t[3]), True)
+    else : t[0] = drop.Drop(ident.Identificador(None, t[1]), True)
 
 ###########ALTER
+def p_alter_rec(t):
+    '''alter    :  alter COMA ALTER alterp'''
+    t[1].append(t[4])
+    t[0] = t[1]
+
 def p_alter(t):
-    '''alter    :   DATABASE ID alterdb PTCOMA
-                |   TABLE ID altertable '''
+    '''alter    : ALTER alterp'''
+    t[0] = [t[2]]
+
+def p_alterp(t):
+    '''alterp    :   DATABASE ID alterdb PTCOMA
+                |   TABLE ID altertable'''
+    if t[1].lower() == 'database' : t[0] = alter.Alter(t[2], t[3], False)
+    else : t[0] = alter.Alter(t[2], t[3], True)
+    
 #alter database
 def p_alterdb(t):
     '''alterdb  :   RENAME TO ID
                 |   OWNER TO tipodeowner'''
+    if t[1].lower() == 'rename' : t[0] = alter.AlterDB(t[3], True)
+    else : t[0] = alter.AlterDB(t[3], False)
 
 def p_tipodeowner(t):
     '''tipodeowner  :   ID
                     |   CURRENT_USER
                     |   SESSION_USER'''
+    if t[1].lower() == 'current_user' or t[1].lower() == 'session_user' : t[0] = t[1].lower()
+    else : t[0] = ident.Identificadordb(t[1])
 #alter table
 def p_altertable(t):
     '''altertable   : ADD alteradd PTCOMA
                     | ALTER COLUMN ID SET opcionesalterset PTCOMA
                     | DROP tipodedrop PTCOMA
                     | RENAME COLUMN ID TO ID PTCOMA'''
+    if t[1].lower() == 'add' : t[0] = t[2]
+    elif t[1].lower() == 'alter' : t[0] = alter.AlterTableAlter(t[3], t[5])
+    elif t[1].lower() == 'drop' : t[0] = t[2]
+    elif t[1].lower() == 'rename' : t[0] = alter.AlterTableRename(t[3], t[5])
+
 #agregar tipo, condiciones, listaids opcionsalter
 def p_alteradd(t):
-    ''' alteradd   :   COLUMN ID tipo
-                    |  CHECK PARENIZQ PARENDER
+    '''alteradd     :   COLUMN ID tipo
+                    |  CHECK PARENIZQ condiciones PARENDER
                     |  CONSTRAINT ID UNIQUE PARENIZQ ID PARENDER
-                    |  FOREIGN KEY PARENIZQ PARENDER REFERENCES ID PARENIZQ PARENDER '''
+                    |  FOREIGN KEY PARENIZQ listaids PARENDER REFERENCES listaidcts'''
+    if t[1].lower() == 'column' : t[0] = alter.AlterTableAddCol(ident.Identificador(None, t[2]), t[3])
+    elif t[1].lower() == 'check' : t[0] = alter.AlterTableAddChe(t[3])
+    elif t[1].lower() == 'constrain' : t[0] = alter.AlterTableAddCon(ident.Identificador(None, t[2]), ident.Identificador(None, t[5]))
+    elif t[1].lower() == 'foreign' : t[0] = alter.AlterTableAddFor(t[4], t[7])
 
 def p_opcionesalterset(t):
     '''opcionesalterset :   NOT NULL
                             | NULL '''
+    if t[1].lower() == 'not' : t[0] = False
+    else : t[0] = True
 
 def p_tipodedrop(t):
     '''tipodedrop   :   COLUMN ID
                         | CONSTRAINT  ID'''
+    if t[1].lower() == 'column' : t[0] = alter.AlterTableDrop(ident.Identificador(None, t[2]), False)
+    else : t[0] = alter.AlterTableDrop(ident.Identificador(None, t[2]), True)
 
 
 #------------------------------------------------------------DELETE----------------------------------------------------
 def p_instrucciones_delete(t) :
     '''delete    : FROM ID WHERE condiciones PTCOMA'''
+    t[0] = delete.Delete(ident.Identificador(None, t[2]), t[4])
 
 #-------------------------------------------------------INSERT-------------------------------------------
 def p_instrucciones_insert(t):
     '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
+    t[0] = insert.Insert(ident.Identificador(None, t[2]), t[5])
+
+def p_values_rec(t):
+    '''values   : values COMA value'''
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_values(t):
-    '''values   : values COMA value
-                | value'''
+    '''values   : value'''
+    t[0] = [t[1]]
 
 def p_value(t):
-    '''value   : ENTERO
-                | DECIMAL
-                | CADENA
-                | boleano'''
+    '''value   : ENTERO'''
+    t[0] = primi.Primitive('integer', t[1])
+
+def p_valuef(t):
+    '''value   : DECIMAL'''
+    t[0] = primi.Primitive('float', t[1])
+
+def p_valuec(t):
+    '''value   : CADENA'''
+    t[0] = primi.Primitive('string', t[1])
+
+def p_valueb(t):
+    '''value   : boleano'''
+    t[0] = t[1]
 
 #-------------------------------------------------------UPDATE-------------------------------------------
 def p_instrucciones_update(t):
     '''update    : ID SET asignaciones WHERE condiciones PTCOMA'''
+    t[0] = update.Update(t[1], t[3], t[5])
+
+def p_asignaciones_rec(t):
+    '''asignaciones     : asignaciones COMA ID IGUAL argument'''
+    t[1].append(update.AsignacionUpdate(t[3], t[5]))
+    t[0] = t[1]
 
 def p_asignaciones(t):
-    '''asignaciones     : asignaciones COMA ID IGUAL argument
-                        | ID IGUAL argument'''
+    '''asignaciones : ID IGUAL argument'''
+    t[0] = [update.AsignacionUpdate(t[1], t[3])]
 
 #------------------------------------------------------CONDICIONES-----------------------------------------
 def p_condiciones_recursivo(t):
@@ -701,7 +781,7 @@ def p_isopcion(t):
     elif t[1].lower() == 'true' : t[0] = condicion.IsNotOptions(False, True, False)
     elif t[1].lower() == 'false' : t[0] = condicion.IsNotOptions(False, False, False)
     elif t[1].lower() == 'unknown' : t[0] = condicion.IsNotOptions(False, 'unknown', False)
-    elif t[1].lower() == 'not' : t[0] = condicions.IsNotOptions(True, t[2], False)
+    elif t[1].lower() == 'not' : t[0] = condicion.IsNotOptions(True, t[2], False)
 
 def p_isnotoptions(t):
     '''isnotoptions : FALSE
