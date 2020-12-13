@@ -78,8 +78,10 @@ def dropTable (dbName, tableName):
 def createCol(name,category,type_,pk,fk,nn,inc,size):
     col={}
     col['name']=name
+    #TODO: agregar enum para category y type
     col['category']=category
     col['type']=type_
+    #TODO : validar precicion y escala no sobrepasen los limites de los tipos decimal y numerico
     col['size']=size
     col['PK']=pk
     col['FK']=fk
@@ -120,4 +122,4 @@ def extractColmn(dbName, tableName, colName):
                     for col in  table['colmns']:
                         if col['name']==colName:
                             return col
-                    return {}
+                    return None
