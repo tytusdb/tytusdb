@@ -42,11 +42,11 @@
                 | 'id' <TIPO> <CHECKS>
                 | 'id' <TIPO>
                 | 'id' <TIPO> 'primary' 'key'
-                | 'id' <TIPO> 'references' id
-                | 'constraint' id 'check' (<LISTA_CONDICIONES>)
+                | 'id' <TIPO> 'references' 'id'
+                | 'constraint' 'id' 'check' (<LISTA_CONDICIONES>)
                 | 'unique' (<LISTA_IDS>)
                 | 'primary' 'key' (<LISTA_IDS>)
-                | 'foreign' 'key' (<LISTA_IDS>) 'references' id (<LISTA_IDS>)
+                | 'foreign' 'key' (<LISTA_IDS>) 'references' 'id' (<LISTA_IDS>)
 
 
     <DEFAULT> ::= 'default' <VALOR>
@@ -54,17 +54,17 @@
     <NULLABLE> ::= 'not' 'null'
                 | 'null'
 
-    <CONSTRAINTS> ::= 'constraint' id 'unique'
+    <CONSTRAINTS> ::= 'constraint' 'id' 'unique'
                     | 'unique'
 
-    <CHECKS> ::= 'constraint' id 'check' (<CONDICION>)
+    <CHECKS> ::= 'constraint' 'id' 'check' (<CONDICION>)
                 |'check' (<CONDICION>) 
 
-    <CONDICION> ::= <EXPRESION>
-                 |  <CONDICION>, <EXPRESION>             
+    <CONDICION> ::= <PREDICADO>
+                 |  <CONDICION> ',' <PREDICADO>             
 
-    <LISTA_CONDICIONES> ::= <CONDICIONES>
-                        |   <LISTA_CONDICIONES>, <CONDICIONES>            
+    <LISTA_CONDICIONES> ::= <CONDICION>
+                        |   <LISTA_CONDICIONES> ',' <CONDICION>            
 
     <TIPO> ::= 'smallint'
             |  'integer'
@@ -108,25 +108,25 @@
               |  'minute'
               |  'second'
 
-    <ALTER> ::= 'rename to' id
+    <ALTER> ::= 'rename to' 'id'
              | 'owner to' <NEW_OWNER>
 
-    <NEW_OWNER> ::= id
+    <NEW_OWNER> ::= 'id'
                  | 'current_user'
                  | 'session_user'
 
-    <COMBINACIONES1> ::= 'if' 'not' 'exists' id <COMBINACIONES2>
-                      | id <COMBINACIONES2>
-                      | id
+    <COMBINACIONES1> ::= 'if' 'not' 'exists' 'id' <COMBINACIONES2>
+                      | 'id' <COMBINACIONES2>
+                      | 'id'
 
     <COMBINACIONES2> ::= <OWNER>
                       |<MODE>
                       |<OWNER><MODE>
-    <OWNER> ::= 'owner' id
-             | 'owner' '=' id
+    <OWNER> ::= 'owner' 'id'
+             | 'owner' '=' 'id'
 
-    <MODE> ::= 'mode' entero
-            | 'mode' '=' entero
+    <MODE> ::= 'mode' 'entero'
+            | 'mode' '=' 'entero'
 
     <CREATE_OR_REPLACE> ::= 'create'
                          | 'create or replace'
@@ -134,25 +134,25 @@
 
     <LISTA_ENUM> ::= <ITEM>
                   | <LISTA_ENUM> ',' <ITEM>
-    <ITEM> ::= cadena
+    <ITEM> ::= 'cadena'
 
-    <ALTER_TABLE> ::=  'alter' 'table' id <ALTER_OPTIONS>
-                   | 'alter' 'table' id <ALTER_VARCHAR_LISTA>
+    <ALTER_TABLE> ::=  'alter' 'table' 'id' <ALTER_OPTIONS>
+                   | 'alter' 'table' 'id' <ALTER_VARCHAR_LISTA>
 
-    <ALTER_OPTION> ::= 'add' 'column' id <TIPO>
-                    | 'drop' 'column' id
-                    | 'add' 'check' '(' id '<''>' '\'' '\'' ')'
-                    | 'add' 'constraint' id 'unique' '('id')'
+    <ALTER_OPTION> ::= 'add' 'column' 'id' <TIPO>
+                    | 'drop' 'column' 'id'
+                    | 'add' 'check' '(' 'id' '<''>' '\'' '\'' ')'
+                    | 'add' 'constraint' 'id' 'unique' '(' 'id' ')'
                     | 'add' 'foreign' 'key' '('<LISTA_IDS>')' 'references' <LISTA_IDS>
-                    | 'alter' 'column' id 'set' 'not' 'null' 
-                    | 'drop' 'constraint' id
+                    | 'alter' 'column' 'id' 'set' 'not' 'null' 
+                    | 'drop' 'constraint' 'id'
                     
     <ALTER_VARCHAR_LISTA>::= <ALTER_VARCHAR>
                            | <ALTER_VARCHAR_LISTA> ',' <ALTER_VARCHAR>
     
-    <ALTER_VARCHAR> ::= 'alter' 'column' id 'type' 'varchar('entero')'
+    <ALTER_VARCHAR> ::= 'alter' 'column' 'id' 'type' 'varchar(''entero'')'
 
-    <INHERITS> ::= 'INHERITS' '('ID')'
+    <INHERITS> ::= 'INHERITS' '(' 'ID' ')'
     
     <COMBINE_QUERYS> ::= <SELECT> <CMB> <SELECT>
 
