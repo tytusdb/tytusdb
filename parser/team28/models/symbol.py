@@ -1,0 +1,2 @@
+class Symbol(object):
+    pass
