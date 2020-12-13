@@ -1,4 +1,5 @@
 from graphviz import Graph
+from Interprete.SELECT.select import select
 
 
 class Ast:
@@ -13,6 +14,8 @@ class Ast:
     variable que servirá como índice para el ordenamiento de los nodos
     dot : any
     variable que generará la imagen png del dot creado
+    ins: list
+    variable que simulará el funcionamiento de una pila para almacenar los tokens
 
     Métodos
     -------
@@ -20,10 +23,13 @@ class Ast:
     Incrementa el índice del nodo usando la variable i
     """
 
-    def __init__(self):
+    def __init__(self, ins_):
+        self.id = None
         self.i = 0
         self.dot = Graph('AST', format='png')
         self.dot.attr('node', shape='box')
+        self.ins = [";", "usuario", "from", "nombre", "select"]
+
 
     def inc(self):
         self.i += 1
@@ -53,6 +59,23 @@ class Ast:
         self.inc()
         self.dot.node(str(self.id), str(expresion.id))
         self.dot.edge(str(self.id - 1), str(self.id))
+
+    def graficar_select(self, ins_):
+        self.inc()
+        self.dot.node(str(self.id), 'CONSULTA: SELECT')
+        self.inc()
+
+    def graficar_ast(self):
+        padre = self.id
+        self.dot.node(str(self.id), 'INICIO')
+        for i in range(0, len(self.ins)):
+            self.inc()
+            self.dot.edge(str(padre), str(self.id + 1))
+            if isinstance(self.ins[i], select):
+                self.graficar_select(self.ins[i])
+        self.dot.view()
+
+
 
 
 

@@ -13,6 +13,8 @@ class Degrees(Instruccion):
         print(math.degrees(self.valor))
         return math.degrees(self.valor)
 
+'''
 instruccion = Degrees(80,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

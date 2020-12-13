@@ -52,13 +52,13 @@ Rule 1     init -> instrucciones
 Rule 2     instrucciones -> instrucciones instruccion
 Rule 3     instrucciones -> instruccion
 Rule 4     instruccion -> crear_statement PUNTOCOMA
-Rule 5     instruccion -> SHOW DATABASE PUNTOCOMA
-Rule 6     instruccion -> alter_statement PUNTOCOMA
-Rule 7     instruccion -> drop_statement PUNTOCOMA
-Rule 8     instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
-Rule 9     instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
-Rule 10    instruccion -> DELETE FROM ID where PUNTOCOMA
-Rule 11    instruccion -> seleccionar PUNTOCOMA
+Rule 5     instruccion -> alter_statement PUNTOCOMA
+Rule 6     instruccion -> drop_statement PUNTOCOMA
+Rule 7     instruccion -> seleccionar PUNTOCOMA
+Rule 8     instruccion -> SHOW DATABASES PUNTOCOMA
+Rule 9     instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+Rule 10    instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
+Rule 11    instruccion -> DELETE FROM ID where PUNTOCOMA
 Rule 12    crear_statement -> CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA inherits_statement
 Rule 13    crear_statement -> CREATE or_replace DATABASE if_not_exists ID owner_ mode_
 Rule 14    or_replace -> OR REPLACE
@@ -244,13 +244,14 @@ CORCHE_CIERRA        :
 COUNT                : 160
 CREATE               : 12 13
 CURRENT_USER         : 27
-DATABASE             : 5 13 22 29
+DATABASE             : 13 22 29
+DATABASES            : 8
 DATE                 : 53
 DAY                  : 
 DECIMAL              : 42 95
 DECIMAL_NUM          : 164
 DEFAULT              : 56
-DELETE               : 10
+DELETE               : 11
 DESC                 : 121
 DIFERENTE            : 84 139
 DISTINCT             : 111 145 146
@@ -266,24 +267,24 @@ FALSE                : 154 155
 FIELDS               : 
 FIRST                : 123
 FOREIGN              : 78
-FROM                 : 10 98 145 146
+FROM                 : 11 98 145 146
 FULL                 : 
 GREATEST             : 99
 GROUP                : 117
 HAVING               : 119
 HOUR                 : 
-ID                   : 8 9 9 10 12 13 18 22 23 24 26 29 30 37 38 63 64 66 70 71 72 78 82 83 84 85 85 89 93 96 162
+ID                   : 9 10 10 11 12 13 18 22 23 24 26 29 30 37 38 63 64 66 70 71 72 78 82 83 84 85 85 89 93 96 162
 IF                   : 16 31
-IGUAL                : 9 18 20 96 137
+IGUAL                : 10 18 20 96 137
 ILIKE                : 
 IN                   : 
 INHERITS             : 89
 INNER                : 
-INSERT               : 8
+INSERT               : 9
 INTEGER              : 40
 INTERSECT            : 
 INTERVAL             : 
-INTO                 : 8
+INTO                 : 9
 IS                   : 145 146 148 149 152 153 154 155 156 157
 ISNULL               : 150
 JOIN                 : 
@@ -318,8 +319,8 @@ OR                   : 14 135
 ORDER                : 118
 OUTER                : 
 OWNER                : 18 25
-PAR_ABRE             : 8 12 47 48 60 61 68 78 78 79 84 85 86 89 110 140 158 159 160 161
-PAR_CIERRA           : 8 12 47 48 60 61 68 78 78 79 84 85 86 89 110 140 158 159 160 161
+PAR_ABRE             : 9 12 47 48 60 61 68 78 78 79 84 85 86 89 110 140 158 159 160 161
+PAR_CIERRA           : 9 12 47 48 60 61 68 78 78 79 84 85 86 89 110 140 158 159 160 161
 POTENCIA             : 
 PRECISION            : 45
 PRIMARY              : 77
@@ -334,8 +335,8 @@ RIGHT                :
 SECOND               : 
 SELECT               : 98 99 100
 SESSION_USER         : 28
-SET                  : 9 87
-SHOW                 : 5
+SET                  : 10 87
+SHOW                 : 8
 SIMILAR              : 
 SMALLINT             : 39
 SUBSTRING            : 158
@@ -352,8 +353,8 @@ TYPE                 : 88
 UNION                : 
 UNIQUE               : 59 61 85
 UNKNOWN              : 156 157
-UPDATE               : 9
-VALUES               : 8
+UPDATE               : 10
+VALUES               : 9
 VARCHAR              : 47 49
 VARYING              : 
 WHEN                 : 
@@ -369,7 +370,7 @@ Nonterminals, with rules where they appear
 alias                : 70 71
 alter_col_op         : 82
 alter_op             : 23
-alter_statement      : 6
+alter_statement      : 5
 asc_desc             : 118
 condition_column     : 36 54 55
 condition_column_row : 37 54
@@ -380,7 +381,7 @@ crear_statement      : 4
 declaracion_columna  : 35
 distinto             : 98
 donde                : 104
-drop_statement       : 7
+drop_statement       : 6
 expresion            : 74 75
 expression           : 128 129 130 130 131 131 132 132 133 133 134 134 135 135 136 137 137 138 138 139 139 140 141 141 141 142 142 142 143 143 143 144 144 144 145 145 146 146 147 147 148 149 150 151 152 153 154 155 156 157 158 158 158 159 160 161
 expressiones         : 99 100 114 115 116 117 118 119
@@ -399,23 +400,23 @@ list_expression      : 109 110 128
 list_fin_select      : 98 101
 list_id              : 68 70 78 78 79 86
 list_key             : 77
-list_val             : 8 91
+list_val             : 9 91
 manejo_tabla         : 33 34
 mode_                : 13
 nulls_f_l            : 118
 op_add               : 81
 op_unique            : 59
-op_val               : 9 56 91 92 96
+op_val               : 10 56 91 92 96
 or_replace           : 13
 order_by             : 105
 ow_op                : 25
 owner_               : 13
 rename_owner         : 22
-seleccionar          : 11 167
+seleccionar          : 7 167
 select_list          : 98
 table_expression     : 98
 type_column          : 37 38 88
-where                : 9 10
+where                : 10 11
 
 Parsing method: LALR
 
@@ -426,13 +427,13 @@ state 0
     (2) instrucciones -> . instrucciones instruccion
     (3) instrucciones -> . instruccion
     (4) instruccion -> . crear_statement PUNTOCOMA
-    (5) instruccion -> . SHOW DATABASE PUNTOCOMA
-    (6) instruccion -> . alter_statement PUNTOCOMA
-    (7) instruccion -> . drop_statement PUNTOCOMA
-    (8) instruccion -> . INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
-    (9) instruccion -> . UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
-    (10) instruccion -> . DELETE FROM ID where PUNTOCOMA
-    (11) instruccion -> . seleccionar PUNTOCOMA
+    (5) instruccion -> . alter_statement PUNTOCOMA
+    (6) instruccion -> . drop_statement PUNTOCOMA
+    (7) instruccion -> . seleccionar PUNTOCOMA
+    (8) instruccion -> . SHOW DATABASES PUNTOCOMA
+    (9) instruccion -> . INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+    (10) instruccion -> . UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
+    (11) instruccion -> . DELETE FROM ID where PUNTOCOMA
     (12) crear_statement -> . CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA inherits_statement
     (13) crear_statement -> . CREATE or_replace DATABASE if_not_exists ID owner_ mode_
     (22) alter_statement -> . ALTER DATABASE ID rename_owner
@@ -443,10 +444,10 @@ state 0
     (99) seleccionar -> . SELECT GREATEST expressiones
     (100) seleccionar -> . SELECT LEAST expressiones
 
-    SHOW            shift and go to state 5
-    INSERT          shift and go to state 8
-    UPDATE          shift and go to state 9
-    DELETE          shift and go to state 10
+    SHOW            shift and go to state 8
+    INSERT          shift and go to state 9
+    UPDATE          shift and go to state 10
+    DELETE          shift and go to state 11
     CREATE          shift and go to state 12
     ALTER           shift and go to state 13
     DROP            shift and go to state 14
@@ -456,9 +457,9 @@ state 0
     instrucciones                  shift and go to state 2
     instruccion                    shift and go to state 3
     crear_statement                shift and go to state 4
-    alter_statement                shift and go to state 6
-    drop_statement                 shift and go to state 7
-    seleccionar                    shift and go to state 11
+    alter_statement                shift and go to state 5
+    drop_statement                 shift and go to state 6
+    seleccionar                    shift and go to state 7
 
 state 1
 
@@ -471,13 +472,13 @@ state 2
     (1) init -> instrucciones .
     (2) instrucciones -> instrucciones . instruccion
     (4) instruccion -> . crear_statement PUNTOCOMA
-    (5) instruccion -> . SHOW DATABASE PUNTOCOMA
-    (6) instruccion -> . alter_statement PUNTOCOMA
-    (7) instruccion -> . drop_statement PUNTOCOMA
-    (8) instruccion -> . INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
-    (9) instruccion -> . UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
-    (10) instruccion -> . DELETE FROM ID where PUNTOCOMA
-    (11) instruccion -> . seleccionar PUNTOCOMA
+    (5) instruccion -> . alter_statement PUNTOCOMA
+    (6) instruccion -> . drop_statement PUNTOCOMA
+    (7) instruccion -> . seleccionar PUNTOCOMA
+    (8) instruccion -> . SHOW DATABASES PUNTOCOMA
+    (9) instruccion -> . INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+    (10) instruccion -> . UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
+    (11) instruccion -> . DELETE FROM ID where PUNTOCOMA
     (12) crear_statement -> . CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA inherits_statement
     (13) crear_statement -> . CREATE or_replace DATABASE if_not_exists ID owner_ mode_
     (22) alter_statement -> . ALTER DATABASE ID rename_owner
@@ -489,10 +490,10 @@ state 2
     (100) seleccionar -> . SELECT LEAST expressiones
 
     $end            reduce using rule 1 (init -> instrucciones .)
-    SHOW            shift and go to state 5
-    INSERT          shift and go to state 8
-    UPDATE          shift and go to state 9
-    DELETE          shift and go to state 10
+    SHOW            shift and go to state 8
+    INSERT          shift and go to state 9
+    UPDATE          shift and go to state 10
+    DELETE          shift and go to state 11
     CREATE          shift and go to state 12
     ALTER           shift and go to state 13
     DROP            shift and go to state 14
@@ -500,9 +501,9 @@ state 2
 
     instruccion                    shift and go to state 16
     crear_statement                shift and go to state 4
-    alter_statement                shift and go to state 6
-    drop_statement                 shift and go to state 7
-    seleccionar                    shift and go to state 11
+    alter_statement                shift and go to state 5
+    drop_statement                 shift and go to state 6
+    seleccionar                    shift and go to state 7
 
 state 3
 
@@ -528,51 +529,51 @@ state 4
 
 state 5
 
-    (5) instruccion -> SHOW . DATABASE PUNTOCOMA
+    (5) instruccion -> alter_statement . PUNTOCOMA
 
-    DATABASE        shift and go to state 18
+    PUNTOCOMA       shift and go to state 18
 
 
 state 6
 
-    (6) instruccion -> alter_statement . PUNTOCOMA
+    (6) instruccion -> drop_statement . PUNTOCOMA
 
     PUNTOCOMA       shift and go to state 19
 
 
 state 7
 
-    (7) instruccion -> drop_statement . PUNTOCOMA
+    (7) instruccion -> seleccionar . PUNTOCOMA
 
     PUNTOCOMA       shift and go to state 20
 
 
 state 8
 
-    (8) instruccion -> INSERT . INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+    (8) instruccion -> SHOW . DATABASES PUNTOCOMA
 
-    INTO            shift and go to state 21
+    DATABASES       shift and go to state 21
 
 
 state 9
 
-    (9) instruccion -> UPDATE . ID SET ID IGUAL op_val where PUNTOCOMA
+    (9) instruccion -> INSERT . INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
 
-    ID              shift and go to state 22
+    INTO            shift and go to state 22
 
 
 state 10
 
-    (10) instruccion -> DELETE . FROM ID where PUNTOCOMA
+    (10) instruccion -> UPDATE . ID SET ID IGUAL op_val where PUNTOCOMA
 
-    FROM            shift and go to state 23
+    ID              shift and go to state 23
 
 
 state 11
 
-    (11) instruccion -> seleccionar . PUNTOCOMA
+    (11) instruccion -> DELETE . FROM ID where PUNTOCOMA
 
-    PUNTOCOMA       shift and go to state 24
+    FROM            shift and go to state 24
 
 
 state 12
@@ -664,75 +665,75 @@ state 17
 
 state 18
 
-    (5) instruccion -> SHOW DATABASE . PUNTOCOMA
+    (5) instruccion -> alter_statement PUNTOCOMA .
 
-    PUNTOCOMA       shift and go to state 36
+    SHOW            reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
+    INSERT          reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
+    UPDATE          reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
+    DELETE          reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
+    CREATE          reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
+    ALTER           reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
+    DROP            reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
+    SELECT          reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
+    $end            reduce using rule 5 (instruccion -> alter_statement PUNTOCOMA .)
 
 
 state 19
 
-    (6) instruccion -> alter_statement PUNTOCOMA .
+    (6) instruccion -> drop_statement PUNTOCOMA .
 
-    SHOW            reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
-    INSERT          reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
-    UPDATE          reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
-    DELETE          reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
-    CREATE          reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
-    ALTER           reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
-    DROP            reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
-    SELECT          reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
-    $end            reduce using rule 6 (instruccion -> alter_statement PUNTOCOMA .)
+    SHOW            reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
+    INSERT          reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
+    UPDATE          reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
+    DELETE          reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
+    CREATE          reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
+    ALTER           reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
+    DROP            reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
+    SELECT          reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
+    $end            reduce using rule 6 (instruccion -> drop_statement PUNTOCOMA .)
 
 
 state 20
 
-    (7) instruccion -> drop_statement PUNTOCOMA .
+    (7) instruccion -> seleccionar PUNTOCOMA .
 
-    SHOW            reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
-    INSERT          reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
-    UPDATE          reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
-    DELETE          reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
-    CREATE          reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
-    ALTER           reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
-    DROP            reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
-    SELECT          reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
-    $end            reduce using rule 7 (instruccion -> drop_statement PUNTOCOMA .)
+    SHOW            reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
+    INSERT          reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
+    UPDATE          reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
+    DELETE          reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
+    CREATE          reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
+    ALTER           reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
+    DROP            reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
+    SELECT          reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
+    $end            reduce using rule 7 (instruccion -> seleccionar PUNTOCOMA .)
 
 
 state 21
 
-    (8) instruccion -> INSERT INTO . ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+    (8) instruccion -> SHOW DATABASES . PUNTOCOMA
 
-    ID              shift and go to state 37
+    PUNTOCOMA       shift and go to state 36
 
 
 state 22
 
-    (9) instruccion -> UPDATE ID . SET ID IGUAL op_val where PUNTOCOMA
+    (9) instruccion -> INSERT INTO . ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
 
-    SET             shift and go to state 38
+    ID              shift and go to state 37
 
 
 state 23
 
-    (10) instruccion -> DELETE FROM . ID where PUNTOCOMA
+    (10) instruccion -> UPDATE ID . SET ID IGUAL op_val where PUNTOCOMA
 
-    ID              shift and go to state 39
+    SET             shift and go to state 38
 
 
 state 24
 
-    (11) instruccion -> seleccionar PUNTOCOMA .
+    (11) instruccion -> DELETE FROM . ID where PUNTOCOMA
 
-    SHOW            reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
-    INSERT          reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
-    UPDATE          reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
-    DELETE          reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
-    CREATE          reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
-    ALTER           reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
-    DROP            reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
-    SELECT          reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
-    $end            reduce using rule 11 (instruccion -> seleccionar PUNTOCOMA .)
+    ID              shift and go to state 39
 
 
 state 25
@@ -1012,36 +1013,36 @@ state 35
 
 state 36
 
-    (5) instruccion -> SHOW DATABASE PUNTOCOMA .
+    (8) instruccion -> SHOW DATABASES PUNTOCOMA .
 
-    SHOW            reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
-    INSERT          reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
-    UPDATE          reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
-    DELETE          reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
-    CREATE          reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
-    ALTER           reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
-    DROP            reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
-    SELECT          reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
-    $end            reduce using rule 5 (instruccion -> SHOW DATABASE PUNTOCOMA .)
+    SHOW            reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
+    INSERT          reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
+    UPDATE          reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
+    DELETE          reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
+    CREATE          reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
+    ALTER           reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
+    DROP            reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
+    SELECT          reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
+    $end            reduce using rule 8 (instruccion -> SHOW DATABASES PUNTOCOMA .)
 
 
 state 37
 
-    (8) instruccion -> INSERT INTO ID . VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+    (9) instruccion -> INSERT INTO ID . VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
 
     VALUES          shift and go to state 67
 
 
 state 38
 
-    (9) instruccion -> UPDATE ID SET . ID IGUAL op_val where PUNTOCOMA
+    (10) instruccion -> UPDATE ID SET . ID IGUAL op_val where PUNTOCOMA
 
     ID              shift and go to state 68
 
 
 state 39
 
-    (10) instruccion -> DELETE FROM ID . where PUNTOCOMA
+    (11) instruccion -> DELETE FROM ID . where PUNTOCOMA
     (96) where -> . WHERE ID IGUAL op_val
     (97) where -> .
 
@@ -1708,21 +1709,21 @@ state 66
 
 state 67
 
-    (8) instruccion -> INSERT INTO ID VALUES . PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+    (9) instruccion -> INSERT INTO ID VALUES . PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
 
     PAR_ABRE        shift and go to state 108
 
 
 state 68
 
-    (9) instruccion -> UPDATE ID SET ID . IGUAL op_val where PUNTOCOMA
+    (10) instruccion -> UPDATE ID SET ID . IGUAL op_val where PUNTOCOMA
 
     IGUAL           shift and go to state 109
 
 
 state 69
 
-    (10) instruccion -> DELETE FROM ID where . PUNTOCOMA
+    (11) instruccion -> DELETE FROM ID where . PUNTOCOMA
 
     PUNTOCOMA       shift and go to state 110
 
@@ -3222,7 +3223,7 @@ state 107
 
 state 108
 
-    (8) instruccion -> INSERT INTO ID VALUES PAR_ABRE . list_val PAR_CIERRA PUNTOCOMA
+    (9) instruccion -> INSERT INTO ID VALUES PAR_ABRE . list_val PAR_CIERRA PUNTOCOMA
     (91) list_val -> . list_val COMA op_val
     (92) list_val -> . op_val
     (93) op_val -> . ID
@@ -3238,7 +3239,7 @@ state 108
 
 state 109
 
-    (9) instruccion -> UPDATE ID SET ID IGUAL . op_val where PUNTOCOMA
+    (10) instruccion -> UPDATE ID SET ID IGUAL . op_val where PUNTOCOMA
     (93) op_val -> . ID
     (94) op_val -> . CADENA
     (95) op_val -> . DECIMAL
@@ -3251,17 +3252,17 @@ state 109
 
 state 110
 
-    (10) instruccion -> DELETE FROM ID where PUNTOCOMA .
+    (11) instruccion -> DELETE FROM ID where PUNTOCOMA .
 
-    SHOW            reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
-    INSERT          reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
-    UPDATE          reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
-    DELETE          reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
-    CREATE          reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
-    ALTER           reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
-    DROP            reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
-    SELECT          reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
-    $end            reduce using rule 10 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    SHOW            reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    INSERT          reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    UPDATE          reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    DELETE          reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    CREATE          reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    ALTER           reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    DROP            reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    SELECT          reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
+    $end            reduce using rule 11 (instruccion -> DELETE FROM ID where PUNTOCOMA .)
 
 
 state 111
@@ -5251,7 +5252,7 @@ state 165
 
 state 166
 
-    (8) instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val . PAR_CIERRA PUNTOCOMA
+    (9) instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val . PAR_CIERRA PUNTOCOMA
     (91) list_val -> list_val . COMA op_val
 
     PAR_CIERRA      shift and go to state 233
@@ -5306,7 +5307,7 @@ state 169
 
 state 170
 
-    (9) instruccion -> UPDATE ID SET ID IGUAL op_val . where PUNTOCOMA
+    (10) instruccion -> UPDATE ID SET ID IGUAL op_val . where PUNTOCOMA
     (96) where -> . WHERE ID IGUAL op_val
     (97) where -> .
 
@@ -6944,7 +6945,7 @@ state 232
 
 state 233
 
-    (8) instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA . PUNTOCOMA
+    (9) instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA . PUNTOCOMA
 
     PUNTOCOMA       shift and go to state 282
 
@@ -6964,7 +6965,7 @@ state 234
 
 state 235
 
-    (9) instruccion -> UPDATE ID SET ID IGUAL op_val where . PUNTOCOMA
+    (10) instruccion -> UPDATE ID SET ID IGUAL op_val where . PUNTOCOMA
 
     PUNTOCOMA       shift and go to state 284
 
@@ -8161,17 +8162,17 @@ state 281
 
 state 282
 
-    (8) instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .
+    (9) instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .
 
-    SHOW            reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
-    INSERT          reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
-    UPDATE          reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
-    DELETE          reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
-    CREATE          reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
-    ALTER           reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
-    DROP            reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
-    SELECT          reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
-    $end            reduce using rule 8 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    SHOW            reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    INSERT          reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    UPDATE          reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    DELETE          reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    CREATE          reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    ALTER           reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    DROP            reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    SELECT          reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
+    $end            reduce using rule 9 (instruccion -> INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA .)
 
 
 state 283
@@ -8184,17 +8185,17 @@ state 283
 
 state 284
 
-    (9) instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .
+    (10) instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .
 
-    SHOW            reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
-    INSERT          reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
-    UPDATE          reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
-    DELETE          reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
-    CREATE          reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
-    ALTER           reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
-    DROP            reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
-    SELECT          reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
-    $end            reduce using rule 9 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    SHOW            reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    INSERT          reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    UPDATE          reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    DELETE          reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    CREATE          reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    ALTER           reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    DROP            reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    SELECT          reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
+    $end            reduce using rule 10 (instruccion -> UPDATE ID SET ID IGUAL op_val where PUNTOCOMA .)
 
 
 state 285
