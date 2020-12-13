@@ -47,6 +47,74 @@ palabras_reservadas = {
     'sum'           : 'SUM',
     'max'           : 'MAX',
     'min'           : 'MIN',
+    'greatest'      : 'GREATEST',
+    'least'         : 'LEAST',
+    'unknown'       : 'UNKNOWN',
+    'between'       : 'BETWEEN',
+    'simmetric'     : 'SIMMETRIC',
+    'null'          : 'NULL',
+    'union'         : 'UNION',
+    'all'           : 'ALL',
+    'intersect'     : 'INTERSECT',
+    'except'        : 'EXCEPT',
+    'case'          : 'CASE',
+    'when'          : 'WHEN',
+    'end'           : 'END',
+    'then'          : 'THEN',
+    'else'          : 'ELSE',
+    'pi'            : 'PI',
+    'exists'         : 'EXISTS',
+    'in'            : 'IN',
+    'any'           : 'ANY',
+    'some'          : 'SOME',
+    'like'          : 'LIKE',
+    'substring'     : 'SUBSTRING',
+    'substr'        : 'SUBSTR',
+    'trim'          : 'TRIM',
+    'leading'       : 'LEADING',
+    'trailing'      : 'TRAILING',
+    'both'          : 'BOTH',
+    'encode'        : 'ENCODE',
+    'decode'        : 'DECODE',
+    'abs'           : 'ABS',
+    'cbrt'          : 'CBRT',
+    'ceil'          : 'CEIL',
+    'ceiling'       : 'CEILING',
+    'degrees'       : 'DEGREES',
+    'div'           : 'DIV',
+    'factorial'     : 'FACTORIAL',
+    'floor'         : 'FLOOR',
+    'gcd'           : 'GCD',
+    'ln'            : 'LN',
+    'log'           : 'LOG',
+    'mod'           : 'MOD',
+    'power'         : 'POWER',
+    'radians'       : 'RADIANS',
+    'round'         : 'ROUND',
+    'sign'          : 'SIGN',
+    'sqrt'          : 'SQRT',
+    'width_bucket'  : 'WIDTH_BUCKET',
+    'trunc'         : 'TRUNC',
+    'random'        : 'RANDOM',
+    'exp'           : 'FEXP',
+    'extract'       : 'EXTRACT',
+    'now'           : 'NOW',
+    'hour'          : 'HOUR',
+    'minute'        : 'MINUTE',
+    'second'        : 'SECOND',
+    'year'          : 'YEAR',
+    'month'         : 'MONTH',
+    'day'           : 'DAY',
+    'timestamp'     : 'TIMESTAMP',
+    'interval'      : 'INTERVAL',
+    'date_part'     : 'DATE_PART',
+    'current_date'  : 'CURRENT_DATE',
+    'current_time'  : 'CURRENT_TIME',
+    'length'        : 'LENGTH',
+    'sha256'        : 'SHA256',
+    'date'          : 'DATE',
+    'integer'       : 'INTEGER',
+    'convert'       : 'CONVERT',
     'create'        : 'CREATE',
     'replace'       : 'REPLACE',
     'database'      : 'DATABASE',
@@ -68,6 +136,7 @@ palabras_reservadas = {
     'table'         : 'TABLE',
     'from'          : 'FROM',
     'delete'        : 'DELETE'
+    
 
 }
 
@@ -95,6 +164,15 @@ tokens = [
     'DECIMAL',
     'CADENA',
     'PCOMA',
+    'IDALIAS',
+    'raizCuadrada',
+    'raizCubica',
+    'BAnd',
+    'BOr',
+    'BXor',
+    'BNot',
+    'DesplazaI',
+    'DesplazaD',
     'CADENASI'
 ] + list(palabras_reservadas.values())
 
@@ -117,18 +195,18 @@ t_MENORIGUAL      = r'<='
 t_MAYOR           = r'>'
 t_MAYORIGUAL      = r'>='
 t_PCOMA           = r';'
+t_raizCuadrada    = r'\|\/'
+t_raizCubica      = r'\|\|\/'
+t_BAnd            = r'&'
+t_BOr             = r'\|'
+t_BXor            = r'#'
+t_BNot            = r'~'
+t_DesplazaI       = r'<<'
+t_DesplazaD       = r'>>'
 
 # TOKENS IGNORADOS
 t_ignore = " \t"
 
-def t_NUMERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
-    return t
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -139,20 +217,38 @@ def t_DECIMAL(t):
         t.value = 0
     return t
 
-def t_CADENASI(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
+def t_NUMERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
+        t.value = 0
+    return t
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = palabras_reservadas.get(t.value.lower(),'ID')    
     return t
 
+def t_IDALIAS(t):
+    r'\".*?\"'
+    t.value = t.value[1:-1]
+    return t
+
 def t_CADENA(t):
     r'\".*?\"'
     t.value = t.value[1:-1] 
     return t 
+
+def t_CADENASI(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] 
+    return t 
+
+
+
+
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -201,6 +297,7 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('left','MENORIGUAL','MAYORIGUAL','IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
+    ('nonassoc','BETWEEN'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
@@ -363,17 +460,19 @@ def p_valTab1(t):
     'I_VALTAB      : CADENASI'
 
 def p_ISelect(t):
-    'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO PCOMA   '
-
+    'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO   '
+    
 def p_ISelect1(t):
-    'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO PCOMA    '
+    'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO    '
 
 def p_ISelect2(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO PCOMA   '
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO   '
 
 def p_ISelect3(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO PCOMA    '
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO    '
 
+def p_ISelect4(t):
+    'I_SELECT   :   SELECT VALORES '
 
 def p_ComplementoH(t):
     'COMPLEMENTO  :   PGROUPBY PHAVING  '
@@ -476,17 +575,6 @@ def p_ListaValores(t):
 def p_ListaValoresS(t):
     'LISTAVALORES  :   VALOR '
 
-def p_Valor(t):
-    'VALOR  :   ID ALIAS '
-
-def p_Valor2(t):
-    'VALOR  :   ID PUNTO ID ALIAS '
-
-def p_Valor3(t):
-    'VALOR  :   ID '
-
-def p_Valor4(t):
-    'VALOR  :   ID PUNTO ID'
 
 def p_ValorSub(t):
     'VALOR  :   PABRE SUBCONSULTA PCIERRA ALIAS'
@@ -541,6 +629,12 @@ def p_Alias(t):
 
 def p_AliasS(t):
     'ALIAS  :   ID '
+
+def p_AliasC(t):
+    'ALIAS  :   AS IDALIAS'
+
+def p_AliasCS(t):
+    'ALIAS  :   IDALIAS'
 
 def p_FromIdA(t):
     'PFROM  :   FROM ID ALIAS '
