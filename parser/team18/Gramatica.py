@@ -135,6 +135,12 @@ import ply.lex as lex
 lexer = lex.lex()
 
 # Analisis Sintactico
+# Definición de la gramática
+
+from expresiones import *
+from instrucciones import *
+
+
 def p_ini(t):
     'inicio : sentencias'
 
@@ -649,6 +655,17 @@ def p_crear(t):
      '''crear : CREATE reemplazar DATABASE verificacion ID propietario modo
               | CREATE TABLE ID PAR_A columnas PAR_C herencia
               | CREATE TYPE ID AS ENUM PAR_A lista_exp PAR_C'''
+     if(t[3].lower()=='database'):
+          t[0]=CrearBD(t[2],t[4],t[5],t[6],t[7])
+          print('llamar funcion Database')
+     else:
+          if(t[2].lower()=='table'):
+               t[0]=CrearTabla(t[3],t[7],t[5])
+               print('llamar funcion Table')
+          else:
+               t[0]=CrearType(t[3],t[7])
+               print('llamar funcion Type')
+
 
 def p_reemplazar(t):
      '''reemplazar : OR REPLACE
@@ -677,7 +694,7 @@ def p_valormodoo(t):
 def p_herencia(t):
      '''herencia : INHERITS PAR_A ID PAR_C
                  | empty'''
-
+     
 def p_columnas(t):
      '''columnas : columnas COMA columna
                  | columna'''
@@ -755,6 +772,13 @@ def p_liberar(t):
      '''liberar : DROP TABLE existencia ID
                 | DROP DATABASE existencia ID'''
 
+     if(t[2].lower()=='table'):
+          t[0]=EliminarTabla(t[3],t[4])
+          print('llamar funcion drope table')
+     else:
+          print('llamar funcion drope database')
+          t[0]=EliminarDB(t[3],t[4])
+
 
 def p_existencia(t):
      '''existencia : IF EXISTS
@@ -768,14 +792,16 @@ def p_error(t):
           print("Error sintactico en: '%s'" % t.value)
           Error_Sin.append("Error sintactico: Lexema: "+str(t.value)+ " Fila: "+str(t.lineno))
           
+
           while(True):
                tk = parser.token()
                if(tk==None):
                     break
                elif(tk.type=="PTCOMA"):
                     break
-          parser.errok()
-          return tk
+          #parser.errok()
+          parser.restart()
+          #return tk
 
 
 Error_Lex = []

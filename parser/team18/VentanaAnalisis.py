@@ -11,6 +11,7 @@ def enviarTexto():
     #print(input)
     print(".........Analizando....")
     Gramatica.AnalizarInput(input)
+    print(".........Fin Analisis....")
 
 
 #cuadro de texto
