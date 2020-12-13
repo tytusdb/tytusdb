@@ -48,7 +48,8 @@ def p_instruccion(t) :
                         | ALTER TABLE alter_table PTCOMA
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
-                        | DROP dropear'''
+                        | DROP dropear
+                        '''
     t[0] = t[2]
 
 #========================================================
@@ -157,12 +158,17 @@ def p_instruccion_selects(t) :
                     | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
                     | GREATEST PARIZQ lista_parametros PARDER PTCOMA
                     | LEAST PARIZQ lista_parametros PARDER PTCOMA
-                    | date_functions'''
+                    | date_functions
+                    | lista_parametros PTCOMA
+                    | fun_trigonometrica state_aliases_field PTCOMA
+                    | fun_trigonometrica state_aliases_field FROM ID state_aliases_table PTCOMA'''
+
     print("selects")
 
 def p_instruccion_selects_distinct(t) :
     '''selects      : DISTINCT POR FROM select_all 
                     | DISTINCT lista_parametros FROM lista_parametros inicio_condicional 
+                    | DISTINCT lista_parametros PTCOMA
                     | DISTINCT lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional'''
     # print("selects")
 
@@ -242,7 +248,7 @@ def p_instruccion_selects_except2(t) :
 
 
 def p_instruccion_Select_All(t) :
-    'select_all     : ID inicio_condicional'
+    'select_all     : ID state_aliases_table inicio_condicional'
     t[0] = Select_All(t[1])
     # print("Consulta ALL para tabla: " + t[1])
 
@@ -361,22 +367,23 @@ def p_temporalmente_nombres(t) :
 #========================================================
 # LISTA DE PARAMETROS
 def p_instrucciones_lista_parametros(t) :
-    'lista_parametros    : lista_parametros COMA parametro'
+    'lista_parametros    : lista_parametros COMA parametro state_aliases_field'
     t[1].append(t[3])
     t[0] = t[1]
     # print("Varios parametros")
 
 def p_instrucciones_parametro(t) :
-    'lista_parametros    : parametro '
+    'lista_parametros    : parametro state_aliases_field '
     t[0] = [t[1]]
-    # print("Un parametro")
+    print("Un parametro")
 
 def p_parametro_con_tabla(t) :
     'parametro        : ID PUNTO ID'
     t[0] = t[1]
 
 def p_parametros_funciones(t) :
-    'parametro         : lista_funciones'
+    '''parametro         : lista_funciones
+                         | funciones_math_esenciales'''
     t[0] = t[1]
 
 def p_parametros_cadena(t) :
@@ -384,7 +391,7 @@ def p_parametros_cadena(t) :
     t[0] = t[1]
 
 def p_parametros_numeros(t) :
-    '''parametro            : DECIMAL  
+    '''parametro            : DECIMAL
                             | ENTERO'''
     t[0] = t[1]
 
@@ -401,13 +408,13 @@ def p_parametro_con_tabla_columna(t) :
 def p_parametro_sin_tabla(t) :
     'parametro        : ID'
     t[0] = t[1]
-    # print("Parametro SIN indice de tabla")
+    print("Parametro SIN indice de tabla")
 
-def p_parametro_con_tabla_alias(t) :
-    '''parametro        : ID AS ID
-                        | ID ID'''
-    t[0] = t[1]
-    # print("Parametro SIN indice de tabla")
+# def p_parametro_con_tabla_alias(t) :
+#     '''parametro        : ID AS ID
+#                         | ID ID'''
+#     t[0] = t[1]
+#     # print("Parametro SIN indice de tabla")
 
 #========================================================
 
@@ -733,7 +740,7 @@ def p_valor(t) :
                     | DECIMAL
                     | CADENA
                     | ID PUNTO ID
-                    | lista_funciones_where'''
+                    | lista_funciones_where  '''
 
 def p_instruccion_update_where(t) :
     '''update_table : ID SET def_update WHERE relacional'''
@@ -760,8 +767,8 @@ def p_between(t) :
 # IS [NOT] DISTINCT
 #=======================================================
 def p_is_distinct(t) :
-    '''state_is_distinct    : valor IS DISTINCT FROM valor
-                            | valor IS NOT DISTINCT FROM valor'''
+    '''state_is_distinct    : valor IS DISTINCT FROM valor state_aliases_table
+                            | valor IS NOT DISTINCT FROM valor state_aliases_table'''
 #=======================================================
 
 
@@ -783,6 +790,30 @@ def p_predicate_nulls(t) :
 #                                 | valor ISNULL
 #                                 | valor NOTNULL'''
 # #=======================================================
+
+
+# ESTADOS PARA LOS ALIAS
+# #=======================================================
+# PARA LAS TABLAS
+# -------------------------------------------------------
+def p_aliases_table(t):
+    ''' state_aliases_table     : AS ID
+                                | ID
+                                |'''
+    print("alias de tablas")
+# -------------------------------------------------------
+
+# PARA LOS CAMPOS
+# -------------------------------------------------------
+def p_aliases_field(t):
+    ''' state_aliases_field     : AS CADENA
+                                | AS CADENA_DOBLE
+                                | AS ID
+                                |'''
+    print("alias de campos")
+# -------------------------------------------------------
+# #=======================================================
+
 
 # CASE
 #========================================================

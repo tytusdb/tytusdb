@@ -220,6 +220,7 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
+    'CADENA_DOBLE',
     'ID',
     'COMILLA_SIMPLE'
 ] + list(reservadas.values())
@@ -281,6 +282,11 @@ def t_CADENA(t):
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
 
+def t_CADENA_DOBLE(t):
+    r'\".*?\"'
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t 
+
 # Comentario de múltiples líneas /* .. */
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -299,5 +305,6 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    print("Caracter desconocido '%s'" % t.value[0])
+    # print("Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+"\n" )
     t.lexer.skip(1)

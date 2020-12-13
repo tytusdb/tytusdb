@@ -148,4 +148,16 @@ order by codigo asc, nombre asc, id desc, tipo;
 
 /*select greatest(1,2,3,4,5);
 select least('a','b','c','aa');
+
+
+SELECT acosd(0.5); 
 */
+
+
+SELECT nombre,indentificacion AS "adsads"
+FROM tbsujeto
+GROUP BY nombre,indentificacion
+;
+
+SELECT distinct sum(12) AS
+'"Cube Root"';
