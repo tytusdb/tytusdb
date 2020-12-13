@@ -190,98 +190,72 @@ def p_columnas_1(p):
 def p_columnas_2(p):
     'columnas : columnas COMA columna'
     
+   
 #_________________________________________ columna
-# <COLUMNA> ::= 'id' <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS> <CHECKS> 
-#             | 'id' <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS>
-#             | 'id' <TIPO> <DEFAULT> <NULLABLE> <CHECKS>
-#             | 'id' <TIPO> <DEFAULT> <NULLABLE>
-#             | 'id' <TIPO> <DEFAULT> <CONSTRAINTS> <CHECKS>
-#             | 'id' <TIPO> <DEFAULT> <CONSTRAINTS>
-#             | 'id' <TIPO> <DEFAULT> <CHECKS>
-#             | 'id' <TIPO> <DEFAULT>
-#             | 'id' <TIPO> <NULLABLE> <CONSTRAINTS> <CHECKS>
-#             | 'id' <TIPO> <NULLABLE> <CONSTRAINTS>
-#             | 'id' <TIPO> <NULLABLE> <CHECKS>
-#             | 'id' <TIPO> <NULLABLE>
-#             | 'id' <TIPO> <CONSTRAINTS> <CHECKS>
-#             | 'id' <TIPO> <CONSTRAINTS>
-#             | 'id' <TIPO> <CHECKS> 
-#             | 'id' <TIPO>
-#             | 'id' <TIPO> 'primary' 'key'
-#             | 'id' <TIPO> 'references' 'id'
-#             | 'constraint' 'id' 'check' (<LISTA_CONDICIONES>) // aca 
+#  <COLUMNA> ::= 
+#             | id' <TIPO>
+#             | id' <TIPO> <listaOpciones> 
+#             | 'constraint' 'id' 'check' (<LISTA_CONDICIONES>) 
+#             | 'id' 'check' (<LISTA_CONDICIONES>)
 #             | 'unique' (<LISTA_IDS>)
 #             | 'primary' 'key' (<LISTA_IDS>)
 #             | 'foreign' 'key' (<LISTA_IDS>) 'references' 'id' (<LISTA_IDS>)
 
+# listaOpciones> ::= <listaOpciones> <opCol> 
+#                  | <opCol> 
 
+# <opCol>   ::=  <DEFAULT> 
+#             |  <CONSTRAINTS>
+#             |  <CHECKS> 
+#             |  <nulleable>
+#             |  'primary' 'key'
+#             |  'references' 'id'
+    
+#___________________________________________ declaracion de columna
 def p_columna_1(p):
-    'columna :  ID tipo default nullable constraints checks'
-
+    'columna : ID tipo'
+    
 def p_columna_2(p):
-    'columna :  ID tipo  default nullable constraints'
-
+    'columna : ID tipo listaOpciones'
 def p_columna_3(p):
-    'columna :  ID tipo  default nullable checks'
-
-def p_columna_4(p):
-    'columna :  ID tipo  default nullable'
-
-def p_columna_5(p):
-    'columna :  ID tipo default  constraints checks'
-    
-def p_columna_6(p):
-    'columna :  ID tipo default  constraints '
-
-def p_columna_7(p):
-    'columna :  ID tipo default  checks'
-    
-def p_columna_8(p):
-    'columna :  ID tipo default '
-    
-def p_columna_9(p):
-    'columna :  ID tipo nullable constraints checks'
-    
-def p_columna_10(p):
-    'columna :  ID tipo nullable constraints '
-    
-def p_columna_11(p):
-    'columna :   ID tipo nullable checks'
-    
-def p_columna_12(p):
-    'columna :  ID tipo nullable'
-
-def p_columna_13(p):
-    'columna :   ID tipo constraints checks'
-    
-def p_columna_14(p):
-    'columna :   ID tipo constraints'
-    
-def p_columna_15(p):
-    'columna :   ID tipo checks'
-    
-def p_columna_16(p):
-    'columna :   ID tipo'
-
-def p_columna_17(p):
-    'columna :  ID tipo  PRIMARY KEY'
-    
-def p_columna_18(p):
-    'columna :  ID tipo REFERENCES ID'
-    
-
-def p_columna_19(p):
     'columna : CONSTRAINT  ID CHECK PABRE lista_condiciones PCIERRA '
     
-def p_columna_20(p):
+def p_columna_4(p):
     'columna : UNIQUE PABRE lista_ids PCIERRA'
     
-def p_columna_22(p):
+def p_columna_5(p):
     'columna :  PRIMARY KEY PABRE lista_ids PCIERRA'
-
-
-def p_columna_22(p):
+    
+def p_columna_6(p):
     'columna : FOREIGN KEY PABRE lista_ids PCIERRA REFERENCES ID PABRE lista_ids PCIERRA'
+
+def p_columna_7(p):
+    'columna : CHECK PABRE lista_condiciones PCIERRA'
+    
+def p_listaOpciones_List(p):
+    'listaOpciones : listaOpciones opCol'
+    
+def p_listaOpciones_una(p):
+    'listaOpciones : opCol'
+    
+def p_opCol_1(p):
+    'opCol : default'
+
+def p_opCol_2(p):
+    'opCol : constraints'
+
+def p_opCol_3(p):
+    'opCol :  checks'
+
+def p_opCol_4(p):
+    'opCol :  PRIMARY KEY'
+
+def p_opCol_5(p):
+    'opCol : REFERENCES ID'
+    
+def p_opCol_6(p):
+    'opCol : nullable'
+
 
 
 #__________________________________________ <TIPO>
