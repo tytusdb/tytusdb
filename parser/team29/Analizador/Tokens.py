@@ -239,7 +239,7 @@ def t_DECIMAL(t):
 
 # Funcion para evaluar si el token reconocido es un CHARACTER
 def t_CHARACTER(t):
-    r"(\".\"|\'.\')"
+    r"(\"\\?.\"|\'\\?.\')"
     t.value = t.value[1:-1]
     return t
 
