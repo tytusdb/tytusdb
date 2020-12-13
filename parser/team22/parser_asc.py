@@ -451,6 +451,12 @@ def p_instrucciones_columna_fk(t) :
     else:
         print('Se creó referencia de llave foranea')
 
+def p_instrucciones_columna_check(t) :
+    'crear_tb_columna   : chequeo'
+
+def p_instrucciones_columna_unique(t) :
+    'crear_tb_columna   : UNIQUE PARIZQ lista_id PARDER'
+
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
     #t[1].append(t[2])
@@ -463,6 +469,12 @@ def p_instrucciones_params_columnas(t) :
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
     #t[0] = t[1]
+
+def p_instrucciones_parametro_columna_unique(t) :
+    'parametro_columna      : unic'
+
+def p_instrucciones_parametro_columna_checkeo(t) :
+    'parametro_columna      : chequeo'
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
@@ -479,6 +491,18 @@ def p_instrucciones_nnul(t) :
 def p_instrucciones_unul(t) :
     'unul   : NULL'
     #t[0] = Parametros('NULL')
+
+def p_instrucciones_unic_constraint(t) :
+    'unic   : CONSTRAINT ID UNIQUE'
+
+def p_instrucciones_unic(t) :
+    'unic   : UNIQUE'
+
+def p_instrucciones_chequeo_constraint(t) :
+    'chequeo    : CONSTRAINT ID CHECK PARIZQ relacional PARDER'
+
+def p_instrucciones_chequeo(t) :
+    'chequeo    : CHECK PARIZQ relacional PARDER'
 
 #========================================================
 
