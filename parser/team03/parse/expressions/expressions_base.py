@@ -1,5 +1,6 @@
 import sys
-from expression_enum import OpArithmetic, OpRelational
+from expression_enum import OpArithmetic, OpRelational, OpLogic, OpPredicate
+from datetime import date
 
 sys.path.insert(0, '..')
 from ast_node import ASTNode
@@ -33,6 +34,15 @@ class Text(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return self.val
+
+
+class Now(ASTNode):
+    def __init__(self, line, column):
+        ASTNode.__init__(self, line, column)
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        return date.today()
 
 
 class BinaryExpression(ASTNode):
@@ -83,7 +93,40 @@ class RelationalExpression(ASTNode):
             return self.exp1 >= self.exp2
         if self.operador == OpRelational.LESS_EQUALS:
             return self.exp1 <= self.exp2
-        if self.operador == OpRelational.LIKE: # TODO add execution to [NOT] LIKE, Regex maybe?
+        if self.operador == OpRelational.LIKE:  # TODO add execution to [NOT] LIKE, Regex maybe?
             return self.exp1 == self.exp2
         if self.operador == OpRelational.NOT_LIKE:
             return self.exp1 >= self.exp2
+
+
+class PredicateExpression(ASTNode):
+    # Class that handles every logic expression
+
+    def __init__(self, exp1, exp2, operator, line, column):
+        ASTNode.__init__(self, line, column)
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operator = operator
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        if self.operador == OpPredicate.NULL:
+            return self.exp1 is None
+        if self.operador == OpPredicate.NOT_NULL:
+            return self.exp1 is not None
+        if self.operador == OpPredicate.DISTINCT:  # Improve logic in order to allow null and 0 to be the same
+            return self.exp1 != self.exp2
+        if self.operador == OpPredicate.NOT_DISTINCT:  # Improve logic in order to allow null and 0 to be the same
+            return self.exp1 != self.exp2
+        if self.operador == OpPredicate.TRUE:
+            return self.exp1 is True
+        if self.operador == OpPredicate.NOT_TRUE:
+            return self.exp1 is False
+        if self.operador == OpPredicate.FALSE:
+            return self.exp1 is False
+        if self.operador == OpPredicate.NOT_FALSE:
+            return self.exp1 is True
+        if self.operador == OpPredicate.UNKNOWN:  # TODO do actual comparison to Unknown... No ideas right now
+            return False
+        if self.operador == OpPredicate.NOT_UNKNOWN:  # Same as previous comment about Unknown
+            return False
