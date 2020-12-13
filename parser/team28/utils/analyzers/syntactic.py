@@ -1,6 +1,7 @@
 # from generate_ast import GraficarAST
 from re import L
 from models.nodo import Node
+from models.instructions import *
 from utils.analyzers.lex import *
 import libs.ply.yacc as yacc
 import os
@@ -41,7 +42,10 @@ def p_instruction_list(p):
     '''instructionlist : instructionlist sqlinstruction
                        | sqlinstruction
     '''
-
+    if (len(p) == 3):
+        p[0] = p[1].append(p[2])
+    else:
+        p[0] = p[1]
 
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
@@ -50,6 +54,8 @@ def p_sql_instruction(p):
                     | SINGLE_LINE_COMMENT
                     | error SEMICOLON
     '''
+    p[0] = p[1]
+    
 
 def p_ddl(p):
     '''ddl : createstatement 
@@ -258,12 +264,7 @@ def p_dml(p):
            | INSERTSTATEMENT
            | DELETESTATEMENT
            | UPDATESTATEMENT'''
-    if (len(p) == 2):
-        nodo = Node('DML')
-        nodo.add_childrens(p[1])
-        p[0] = nodo
-    else:
-        p[0] = 'error'
+    p[0] = p[1]
 
 
 def p_query_statement(p):
@@ -509,36 +510,19 @@ def p_returning_expression(p):
 def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
-    
-    # nodo = Node('INSERTSTATEMENT')
-    # nodo.add_childrens(Node(p[1]))
-    # nodo.add_childrens(Node(p[2]))
-    # nodo.add_childrens(p[3])
-    # nodo.add_childrens(Node(p[4]))
-    # nodo.add_childrens(p[5])
-    # nodo.add_childrens(Node(p[6]))
-    # nodo.add_childrens(Node(p[7]))
-    # nodo.add_childrens(Node(p[8]))
-    # nodo.add_childrens(p[9])
-    # nodo.add_childrens(Node(p[10]))
-    # nodo.add_childrens(Node(p[11]))
-    # p[0] = nodo
-
-
-
-
+    if(len(p) == 12):
+        p[0] = Insert(p[3],p[5],p[9])
+    else:
+        p[0] = Insert(p[3],None,p[6])
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA ID
                         | ID'''
-    nodo = Node('LISTPARAMSINSERT')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-    elif (len(p) == 2):
-        nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 
 
 def p_select_statement(p):
@@ -1084,24 +1068,24 @@ def p_sql_simple_expression(p):
                            | TRUE
                            | FALSE'''
 
-    nodo = Node('SQLSIMPLEEXPRESSION')
+    #nodo = Node('SQLSIMPLEEXPRESSION')
     if (len(p) == 4):
         if (p[1] == "("):
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(p[2])
-            nodo.add_childrens(Node(p[3]))
+            pass
+            #nodo.add_childrens(Node(p[1]))
+            #nodo.add_childrens(p[2])
+            #nodo.add_childrens(Node(p[3]))
         else:
-            nodo.add_childrens(p[1])
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-    elif (len(p) == 3):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-    elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    elif (len(p) == 2 and p[1] == 'NULL'):
-        nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+            p[0] = BinaryOperation(p[1],p[3],p[2])
+    else:
+        p[0] = p[1]
+    # elif (len(p) == 3):
+    #     nodo.add_childrens(Node(p[1]))
+    #     nodo.add_childrens(p[2])
+    # elif (len(p) == 2):
+    #     nodo.add_childrens(p[1])
+    # elif (len(p) == 2 and p[1] == 'NULL'):
+    #     nodo.add_childrens(Node(p[1]))
 
 
 def p_sql_expression_list(p):
@@ -1266,32 +1250,40 @@ def p_sql_object_reference(p):
                        | SQLNAME DOT SQLNAME
                        | SQLNAME DOT ASTERISK
                        | SQLNAME'''
-    nodo = Node('OBJECTREFERENCE')
-    if (len(p) == 6):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
-    elif (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-    elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+    if (len(p) == 2):
+        p[0] = p[1]
+    # if (len(p) == 6):
+    #     nodo.add_childrens(p[1])
+    #     nodo.add_childrens(Node(p[2]))
+    #     nodo.add_childrens(p[3])
+    #     nodo.add_childrens(Node(p[4]))
+    #     nodo.add_childrens(p[5])
+    # elif (len(p) == 4):
+    #     nodo.add_childrens(p[1])
+    #     nodo.add_childrens(Node(p[2]))
+    #     nodo.add_childrens(p[3])
+    # elif (len(p) == 2):
+    #     nodo.add_childrens(p[1])
+    # p[0] = nodo
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
                         | SQLSIMPLEEXPRESSION'''
-    nodo = Node('LISTVALUESINSERT')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-    elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
+        
+
+    #nodo = Node('LISTVALUESINSERT')
+    #if (len(p) == 4):
+    #    nodo.add_childrens(p[1])
+    #    nodo.add_childrens(Node(p[2]))
+    #    nodo.add_childrens(p[3])
+    #elif (len(p) == 2):
+    #    nodo.add_childrens(p[1])
+    #p[0] = nodo
 
 def p_type_combine_query(p):
     '''TYPECOMBINEQUERY : UNION
@@ -1349,9 +1341,9 @@ def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-    nodo = Node('SQLNAME')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    # nodo = Node('SQLNAME')
+    # nodo.add_childrens(Node(p[1]))
+    p[0] = p[1]
 
 
 def p_type_select(p):
