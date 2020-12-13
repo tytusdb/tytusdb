@@ -151,7 +151,6 @@ select least('a','b','c','aa');
 
 
 SELECT acosd(0.5); 
-*/
 
 
 SELECT nombre,indentificacion AS "adsads"
@@ -160,4 +159,26 @@ GROUP BY nombre,indentificacion
 ;
 
 SELECT distinct sum(12) AS
-'"Cube Root"';
+'"Cube Root"' from tabla
+where sum(campo) == 12;
+
+SELECT ACOS(0)
+AS "Acos (0)";
+
+Select sha256('abc');
+
+
+select *
+from tbcolaborador
+where substring(nombre,1,4) LIKE "%sa" and codigo >= 20;
+
+
+
+UPDATE products SET price = 10,costo = 9 WHERE price between 5 and 8;
+
+UPDATE products SET price = 10,costo = 9 WHERE  acosd(0.5) > 1;
+
+Select * from empleado where length(nombre) > 15;
+*/
+
+insert into tabla values(now());

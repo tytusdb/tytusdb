@@ -23,7 +23,7 @@ reservadas = {
     'bytea' : 'BYTEA',
     'char' : 'CHAR',
     'text' : 'TEXT',
-    'now' : 'now',
+    'now' : 'NOW',
     'date_part' : 'date_part',
     'current_date' : 'CURRENT_DATE',
     'current_time' : 'CURRENT_TIME',

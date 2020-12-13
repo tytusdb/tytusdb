@@ -158,7 +158,6 @@ def p_instruccion_selects(t) :
                     | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
                     | GREATEST PARIZQ lista_parametros PARDER PTCOMA
                     | LEAST PARIZQ lista_parametros PARDER PTCOMA
-                    | date_functions
                     | lista_parametros PTCOMA
                     | fun_trigonometrica state_aliases_field PTCOMA
                     | fun_trigonometrica state_aliases_field FROM ID state_aliases_table PTCOMA'''
@@ -253,11 +252,13 @@ def p_instruccion_Select_All(t) :
     # print("Consulta ALL para tabla: " + t[1])
 
 #Gramatica para fechas
+#========================================================
 def p_date_functions(t):
     '''date_functions   : EXTRACT PARIZQ lista_date_functions 
                         | date_part PARIZQ lista_date_functions
-                        | now PARIZQ lista_date_functions
+                        | NOW PARIZQ lista_date_functions
                         | lista_date_functions'''
+    print("fecha")
 
 def p_validate_date(t):
     'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA'
@@ -273,13 +274,13 @@ def p_validate_date(t):
         pass
 
 def p_lista_date_functions(t):
-    '''lista_date_functions : CADENA COMA INTERVAL CADENA PARDER PTCOMA
-                            | TIMESTAMP CADENA PTCOMA
-                            | CURRENT_DATE PTCOMA
-                            | CURRENT_TIME PTCOMA
-                            | PARDER PTCOMA'''
-
+    '''lista_date_functions : CADENA COMA INTERVAL CADENA PARDER 
+                            | TIMESTAMP CADENA 
+                            | CURRENT_DATE 
+                            | CURRENT_TIME 
+                            | PARDER '''
 #========================================================
+
     
 #========================================================
 # INSERT INTO TABLAS
@@ -383,7 +384,8 @@ def p_parametro_con_tabla(t) :
 
 def p_parametros_funciones(t) :
     '''parametro         : lista_funciones
-                         | funciones_math_esenciales'''
+                         | funciones_math_esenciales
+                         | fun_binario_select'''
     t[0] = t[1]
 
 def p_parametros_cadena(t) :
@@ -503,7 +505,8 @@ def p_instrucciones_lista_objeto(t) :
 def p_instrucciones_objeto(t) :
     '''objeto       : DECIMAL
                     | ENTERO
-                    | CADENA'''
+                    | CADENA
+                    | valor'''
     #t[0] = t[1]
 
 def p_instrucciones_lista_insercion_objeto(t) :
@@ -722,7 +725,9 @@ def p_relacional(t) :
                     | NOT relacional
                     | state_between
                     | state_predicate_nulls
-                    | state_is_distinct'''
+                    | state_is_distinct
+                    | state_pattern_match
+                    '''
 
 def p_aritmetica(t) :
     '''aritmetica   : aritmetica MAS aritmetica
@@ -732,15 +737,20 @@ def p_aritmetica(t) :
                     | aritmetica MODULO aritmetica
                     | aritmetica EXP aritmetica
                     | valor
-                    | PARIZQ aritmetica PARDER'''
+                    | PARIZQ aritmetica PARDER
+                    | funciones_math_esenciales
+                    | lista_funciones
+                    | fun_binario_select
+                    | fun_trigonometrica'''
 
 def p_valor(t) :
     '''valor        : ID
                     | ENTERO
-                    | DECIMAL
+                    | DECIMAL  
+                    | date_functions
                     | CADENA
                     | ID PUNTO ID
-                    | lista_funciones_where  '''
+                    | lista_funciones_where'''
 
 def p_instruccion_update_where(t) :
     '''update_table : ID SET def_update WHERE relacional'''
@@ -784,11 +794,10 @@ def p_predicate_nulls(t) :
 
 # # Pattern Matching
 # #=======================================================
-# def p_matchs(t) :
-#     '''state_pattern_match      : ID LIKE 
-#                                 | valor IS NOT NULL
-#                                 | valor ISNULL
-#                                 | valor NOTNULL'''
+def p_matchs(t) :
+    '''state_pattern_match      : aritmetica LIKE CADENA
+                                | aritmetica LIKE CADENA_DOBLE'''
+    print("LIKE")
 # #=======================================================
 
 
