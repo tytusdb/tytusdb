@@ -15,7 +15,7 @@ class query_tool:
         self.extension = ""
         self.texto =""
         self.txtConsola = ""
-        self. TextoActual=""
+        self.inputText=""
         
 
         ###################################################### INTERFAZ GRÁFICA ######################################################
@@ -27,9 +27,7 @@ class query_tool:
         #Labels
         tk.Label(self.vp, fg = "white",  bg ="#154360", text="TYTUS - Query Tool", font=("Arial Bold", 15)).grid(row=0, column = 1 , sticky=E+W)
         tk.Label(self.vp, fg = "white",  bg ="#154360", text="Linea : 1 Columna : 1", font=("Arial Bold", 10)).grid(row=2, column = 1 , sticky=E+W)
-        actualizarPuntero = tk.Button(self.vp, text="Posicion actual", command = self.cursor).grid(row=3, column = 1 )
-        
-        
+       
         #Canvas
         self.canvas1 = tk.Canvas(self.vp, width=1300, height=300)
         self.canvas1.grid(row=4, column = 1, sticky=E+W)
@@ -45,7 +43,7 @@ class query_tool:
         self.frame2.place(relx=0, rely=0, relwidth=1, relheight=1)
 
         #TextArea
-        self.entrada = tk.Text(self.frame1, font=9)
+        self.entrada = tk.Text(self.frame1, font=("Courier New", 12), foreground ="#154360")
         self.entrada.place(relx=0.02, rely=0.05, relwidth=0.96, relheight=0.9)
         
         self.scrollbarEntradaX = tk.Scrollbar(self.entrada, orient=tk.HORIZONTAL)
@@ -59,7 +57,7 @@ class query_tool:
         self.scrollbarEntradaX.config(command = self.entrada.xview)
 
         #Consola
-        self.consola = tk.Text(self.frame2, font=9, background="black", foreground = "green")
+        self.consola = tk.Text(self.frame2, font=("Courier New", 12), background="black", foreground = "yellow")
         self.consola.place(relx=0.02, rely=0.05, relwidth=0.96, relheight=0.9)
 
         self.scrollbarConsolaX = tk.Scrollbar(self.consola, orient=tk.HORIZONTAL)
@@ -74,50 +72,61 @@ class query_tool:
 
         # Menu Archivo
         self.archivoMenu = Menu(self.barraMenu, tearoff=0)
-        self.archivoMenu.add_command(label = "Nuevo", command = self.nuevo)
+        self.archivoMenu.add_command(label = "New", command = self.NewFile)
         self.archivoMenu.add_separator()
-        self.archivoMenu.add_command(label = "Abrir", command = self.abrir)
+        self.archivoMenu.add_command(label = "Open file", command = self.OpenFile)
         self.archivoMenu.add_separator()
-        self.archivoMenu.add_command(label = "Guardar", command = self.guardar )
-        self.archivoMenu.add_command(label = "Guardar como...", command = self.guardarComo)
+        self.archivoMenu.add_command(label = "Save", command = self.Save)
+        self.archivoMenu.add_command(label = "Save As...", command = self.SaveAs)
         self.archivoMenu.add_separator()
-        self.archivoMenu.add_command(label = "Salir", command = self.vp.quit)
+        self.archivoMenu.add_command(label = "Exit", command = self.vp.quit)
         # Menu Run
         self.runMenu = Menu(self.barraMenu, tearoff=0)
-        self.runMenu.add_command(label = "Ejecutar", command = self.ejecutar)
+        self.runMenu.add_command(label = "Run", command = self.Run)
         #Menu Help
         self.helpMenu = Menu(self.barraMenu, tearoff=0)
         self.helpMenu.add_command(label = "About",command = self.seeAbout)
         # Barra de Menú
-        self.barraMenu.add_cascade(label = "Archivo",  menu = self.archivoMenu)
+        self.barraMenu.add_cascade(label = "File",  menu = self.archivoMenu)
         self.barraMenu.add_cascade(label = "Run",      menu = self.runMenu)
         self.barraMenu.add_cascade(label = "Help",     menu = self.helpMenu)
 
         self.vp.columnconfigure(0, weight=0)
         self.vp.columnconfigure(1, weight=1)
 
+        def callback(event):
+            '''
+            Permite actualizar la posicion actual del puntero en el text de entrada
+            '''
+            puntero=self.entrada.index(tk.INSERT)
+            p = puntero.split(".")
+            col=p[1]
+            t = "Linea: " + p[0] + " Columna: " + str(int(col)+1)
+            tk.Label(self.vp, fg = "white",  bg ="#154360", text=t, font=("Arial Bold", 10)).grid(row=2, column = 1 , sticky=E+W)
+
+        self.entrada.bind("<Button-1>", callback)
+        self.entrada.bind("<Return>", callback)
+        self.entrada.bind("<Any-KeyPress>", callback)
+        self.entrada.bind("<Motion>", callback) 
+        self.entrada.bind("<FocusIn>", callback)
+
         self.entrada.focus()
 
 
-    ###################################################### METODOS ######################################################
-
-    #Permite actualizar la posicion actual del puntero en el text de entrada
-    def cursor(self):
-        puntero=self.entrada.index(tk.INSERT)
-        p = puntero.split(".")
-        col=p[1]
-        t = "Linea: " + p[0] + " Columna: " + str(int(col)+1)
-        tk.Label(self.vp, fg = "white",  bg ="#154360", text=t, font=("Arial Bold", 10)).grid(row=2, column = 1 , sticky=E+W)
-    
-    #Archivo - Nuevo
-    def nuevo(self):
+    ###################################################### METODOS ######################################################        
+    def NewFile(self):
+        '''
+        Creación de un nuevo archivo en blanco
+        '''
         self.rutaArchivo = ""
         self.texto =""
         self.extension = ""
         self.entrada.delete(1.0, END)
 
-    #Archivo - Abrir
-    def abrir(self):
+    def OpenFile(self):
+        '''
+        Abrir un archivo local de texto plano y colocar su contenido en el area de entrada
+        '''
         self.txtConsola = ""
         self.consola.delete(1.0,END)
         self.rutaArchivo = filedialog.askopenfilename(title = "Open File")
@@ -130,9 +139,10 @@ class query_tool:
         self.entrada.insert(INSERT,self.texto)
         fileAbierto.close();
     
-
-    # Archivo - Guardar como
-    def guardarComo(self):
+    def SaveAs(self):
+        '''
+        Permite guardar un nuevo archivo con el contenido del área de entrada en la ruta que el usuario elija
+        '''
         ruta = filedialog.asksaveasfilename(title = "Save As...")
         fguardar = open(ruta, "w+", encoding="utf-8")
         fguardar.write(self.entrada.get(1.0, END))
@@ -140,8 +150,10 @@ class query_tool:
         self.rutaArchivo = ruta
         getNameAndExtensionFile(self)
 
-    # Archivo - Guardar
-    def guardar(self):
+    def Save(self):
+        '''
+        Guarda el texto actual en el archivo abierto
+        '''
         if self.rutaArchivo == "":
             self.guardarComo()
         else:
@@ -149,15 +161,15 @@ class query_tool:
             archivoA.write(self.entrada.get(1.0, END))
             archivoA.close()
 
-    # Archivo - Guardar
-    
-    def ejecutar(self):
-        self.TextoActual = self.entrada.get("1.0","end")
-        main1 = main(self.TextoActual)
+    def Run(self):
+        '''
+        Llamada a la clase main del proyecto, envía el texto que está en el área de entrada
+        '''
+        self.inputText = self.entrada.get("1.0","end")
+        #TODO LLamada al método de la clase main para ejecutar el codigo
 
     def seeAbout(self):
         mb.showinfo("About", "TYTUS\n Universidad de San Carlos de Guatemala \nOLC 2\nCuso de vacaciones \nDiciembre \nAño 2020\nCoautores: \n\t201020126 - Sandy Fabiola Merida Hernandez  \n\t201020252 - Sergio Ariel Ramirez Castro \n\t201020260 - Victor Augusto Lopez Hernandez \n\t201020697 - Esteban Palacios Kestler ")
-
 
 def getNameAndExtensionFile(self):
         rutaSpliteada = self.rutaArchivo.split("/")
@@ -167,14 +179,9 @@ def getNameAndExtensionFile(self):
         ext = self.nombreArchivo.split(".")
         self.extension = ext[1]
 
-def updateConsola(self):
+def CleanConsole(self):
         self.consola.delete(1.0,END)
         self.consola.insert(INSERT,self.txtConsola)
-
-
-
-
-
 
 
 if __name__ == '__main__':
