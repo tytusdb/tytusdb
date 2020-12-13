@@ -1,11 +1,14 @@
 class Column(object):
     def __init__(self, name, dataType):
+        self._number = 0
         self._name = name
         self._dataType = dataType
         self._length = None
         self._notNull = False
+        self._unique = False
         self._primaryKey = False
         # TODO FOREIGN KEY implementation
+        self._foreignKey = {'refTable': None, 'refColumn': None}
 
     @property
     def name(self):
@@ -46,3 +49,27 @@ class Column(object):
     @primaryKey.setter
     def primaryKey(self, primaryKey):
         self._primaryKey = primaryKey
+
+    @property
+    def number(self):
+        return self._number
+
+    @number.setter
+    def number(self, number):
+        self._number = number
+
+    @property
+    def foreignKey(self):
+        return self._foreignKey
+
+    @foreignKey.setter
+    def foreignKey(self, foreignKey):
+        self._foreignKey = foreignKey
+
+    @property
+    def unique(self):
+        return self._unique
+
+    @unique.setter
+    def unique(self, unique):
+        self._unique = unique
