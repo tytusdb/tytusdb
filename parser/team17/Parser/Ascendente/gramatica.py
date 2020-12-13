@@ -2,6 +2,10 @@ from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relaci
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
 from Interprete.Arbol import Arbol
+from Interprete.Primitivos.ENTERO import ENTERO
+from Interprete.Primitivos.DECIMAL import DECIMAL
+from Interprete.Primitivos.CADENAS import CADENAS
+from Interprete.Primitivos.BOOLEANO import BOOLEANO
 
 reservadas = {
 
@@ -93,6 +97,10 @@ reservadas = {
     'minute' : 'MINUTE',
     'second' : 'SECOND',
     'to' : 'TO',
+    'current_date' : 'CURRENT_DATE',
+    'current_time' : 'CURRENT_TIME',
+    'date_part' : 'DATE_PART',
+    'month' : 'MONTH',
 
 
     # ENUM
@@ -114,7 +122,8 @@ reservadas = {
     'cbrt' : 'CBRT',
     'ceil' : 'CEIL',
     'ceiling' : 'CEILING',
-    'degrees' : 'DEGREES',  
+    'degrees' : 'DEGREES',
+    'extract' : 'EXTRACT',
     'div' : 'DIV',  
     'exp' : 'EXP',
     'trunc' : 'TRUNC',
@@ -232,7 +241,9 @@ reservadas = {
     # CONSULTAS DE COMBINACION
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
-    'except' : 'EXCEPT'
+    'except' : 'EXCEPT',
+
+    'prueba' : 'PRUEBA'
 
 }
 
@@ -374,7 +385,8 @@ lexer2 = lex.lex()
 precedence = (
     #('left','CONCAT'),
     #('left','MENOR','MAYOR','IGUAL','MENORIGUAL','MAYORIGUAL','DIFERENTE'),
-    ('left','MENORQUE','MAYORQUE','IGUAL','MENORIG','MAYORIG','DISTINTO'),
+    ('left','IGUAL','DISTINTO'),
+    ('left','MENORQUE','MAYORQUE','MENORIG','MAYORIG'),
     ('left','MAS','MENOS'),
     ('left','MULTI','DIVISION','MODULO'),
     ('left','TKEXP'),
@@ -429,11 +441,27 @@ def p_select(t):
     '''
         select  : SELECT listavalores FROM listavalores listawhere
                 | SELECT listavalores FROM listavalores
+                | SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
+                | SELECT DATE_PART PARIZQ CADENA COMA INTERVAL CADENA PARDER
+                | SELECT NOW PARIZQ PARDER
+                | SELECT CURRENT_DATE
+                | SELECT CURRENT_TIME
+                | SELECT TIMESTAMP CADENA
     '''
     if len(t) == 6:
         t[0] = select(t[2], t[4], t[5], 1, 1)
-    else:
-        t[0] = select(t[2], t[4], None, 1, 1)
+
+
+def p_time(t):
+    '''
+        time : YEAR
+             | HOUR
+             | SECOND
+             | MINUTE
+             | MONTH
+             | DAY
+    '''
+    t[0] = t[1]
 
 def p_listawhere(t):
     '''
@@ -446,7 +474,7 @@ def p_listawhere(t):
     else:
         t[0] = [t[1]]
 
-def p_atributoselect(t):
+def p_atributoselecit(t):
     '''
         atributoselect  : WHERE exp
                         | ORDER BY listavalores ordenamiento
@@ -471,7 +499,8 @@ def p_listavalores(t):
     '''
     if len(t) == 4:
         t[0] = t[1]
-        t[0].append(t[3]) ##
+        t[0].append(t[3])
+
     else:
         t[0] = [t[1]]
 
@@ -581,19 +610,17 @@ def p_exp(t):
     '''
     if len(t) == 4:
         t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
-    else:
+    elif len(t) == 3:
+        pass
+    elif len(t) == 2:
         t[0] = t[1]
+    else:
+        pass
 
 def p_expSimples(t):
     '''
         expSimple   :   ID
-                    | ENTERO
-                    | TKDECIMAL
-                    | TRUE
-                    | FALSE
                     | NULL
-                    | CADENADOBLE
-                    | CADENA
                     | ID PT ID
                     | ID ID
                     | subquery ID
@@ -634,6 +661,42 @@ def p_when_else(t):
     '''
         when_else : WHEN exp THEN exp
     '''
+
+def p_expSimples_entero(t):
+    '''
+        expSimple   :   ENTERO
+    '''
+    t[0] = ENTERO(t[1],1,1)
+
+def p_expSimples_decimal(t):
+    '''
+        expSimple   :   TKDECIMAL
+    '''
+    t[0] = DECIMAL(t[1],1,1)
+
+def p_expSimples_cadenas(t):
+    '''
+        expSimple   :   CADENA
+    '''
+    t[0] = CADENAS(t[1],1,1)
+
+def p_expSimples_cadenadoble(t):
+    '''
+        expSimple   :   CADENADOBLE
+    '''
+    t[0] = CADENAS(t[1],1,1)
+
+def p_expSimples_true(t):
+    '''
+        expSimple   :   TRUE
+    '''
+    t[0] = BOOLEANO(True,1,1)
+
+def p_expSimples_false(t):
+    '''
+        expSimple  :   FALSE
+    '''
+    t[0] = BOOLEANO(False,1,1)
 
 # ---------------CREATE TABLE---------------
 def p_table_create(t):
