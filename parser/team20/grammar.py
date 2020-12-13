@@ -1,3 +1,6 @@
+from AST_Tree import *
+from Token import *
+from parse_result import *
 from pathlib import Path
 # -----------------------------------------------------------------------------
 # TytusDB Parser Grupo 20
@@ -9,6 +12,9 @@ from pathlib import Path
 #
 # 
 # -----------------------------------------------------------------------------
+
+AST_Tree_ = AST_Tree(None)
+Error_Table = []
 
 reservedwords = (
     'CREATE',
@@ -205,9 +211,11 @@ def t_multi_line_comment(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print("Carácter ilegal en '%s'" % t.value[0])
+    Error = Token("Syntactic", t.value, t.lineno, t.lexpos)
+    global Error_Table
+    Error_Table.append(Error)
     t.lexer.skip(1)
-    
+
 # Building lexer
 import ply.lex as lex
 lexer = lex.lex()
@@ -740,11 +748,23 @@ def p_expression_number(t):
 
 #ERROR
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value)
+    Error = Token("Syntactic", t.value, t.lineno, t.lexpos)
+    global Error_Table
+    Error_Table.append(Error)
 
+#PARSE
 import ply.yacc as yacc
 parser = yacc.yacc()
 
+def parse(input_text):
+    global AST_Tree_
+    AST_Tree_ = AST_Tree(None)
+    global Error_Table
+    Error_Table = []
+    parser = yacc.yacc()
+    parser.parse(input_text)
+    parse_result_ = parse_result(AST_Tree, Error_Table)
+    return parse_result_
 
 f = open(Path(__file__).parent / "./test.txt", "r")
 input = f.read()
