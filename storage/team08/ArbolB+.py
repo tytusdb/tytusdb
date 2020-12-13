@@ -1,3 +1,7 @@
+#Graphviz - Christian Lück (Maintainer)
+
+from graphviz import Digraph
+
 
 class Nodo:
 
@@ -10,22 +14,36 @@ class Nodo:
         self.claves = []
         self.hijos = []
         self.padre = None
-    
+    #*************** ADD ****************************************************************
     def addHijo(self, hijo):
         self.hijos.append(hijo)
         self.hijos = sorted(self.hijos ,key=lambda x: x.claves)
 
+    def addClave(self, clave):
+        self.claves.append(clave)
+        self.cuenta += 1
+        self.claves.sort()
+
+    #*************** FUNCIONES NODO *****************************************************
     def nodoLLeno(self):
         return self.cuenta >= self.orden
 
     def nodoSemiVacio(self):
         return self.cuenta <= self.orden/2
     
-    def addClave(self, clave):
-        self.claves.append(clave)
-        self.cuenta += 1
-        self.claves.sort()
+    def acutalizarPadre(self):
+        for i in self.hijos:
+            i.padre = self
 
+    def obtenerClaves(self):
+        for n in range(len(self.claves)):
+            if n == 0:
+                string = str(self.claves[n])
+            else:
+                string += '  |  '+str(self.claves[n])
+        return string
+
+    #*************** BUSCAR *************************************************************
     def buscar(self, clave):
         if len(self.hijos)==0:
             return self
@@ -50,10 +68,7 @@ class Nodo:
             return valor
         return valor
 
-    def acutalizarPadre(self):
-        for i in self.hijos:
-            i.padre = self
-
+        
 class Arbol:
 
     def __init__(self, orden):
@@ -151,3 +166,39 @@ class Arbol:
             
         return raiz
 
+    #*************** GRAFICAR **********************************************************
+
+    def graficar(self):
+        #Crear Diagrama
+        self.gr = Digraph(
+            format='png', filename = 'b+tree', 
+            node_attr={'shape': 'record', 'height': '.1'})
+        #Agregar nodo raiz
+        self.gr.node(self.raiz.obtenerClaves())
+        self.gr.attr(rank='same')
+        #Graficar Hojas
+        self.__graficarHoja(self.raiz)
+        #Graficar Arbol
+        self.__graficar(self.raiz)
+        #Mostrar Dibujo
+        self.gr.view()
+    
+    def __graficar(self, raiz):
+        if raiz != None:
+            if not raiz.hoja:
+                for hijo in raiz.hijos:
+                    self.gr.node(hijo.obtenerClaves())
+                    self.gr.edge(raiz.obtenerClaves(),hijo.obtenerClaves())
+                    self.__graficar(hijo)
+
+    def __graficarHoja(self, raiz):
+        if raiz!=None:
+            if raiz.hoja:
+                if raiz.siguiente != None:
+                    with self.gr.subgraph(name='hojas') as h:
+                        h.node(raiz.obtenerClaves())
+                        h.node(raiz.siguiente.obtenerClaves())
+                        h.edge(raiz.obtenerClaves(), raiz.siguiente.obtenerClaves())
+                    self.__graficarHoja(raiz.siguiente)
+            else:
+                self.__graficarHoja(raiz.hijos[0])
