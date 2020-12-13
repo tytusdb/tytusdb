@@ -1367,15 +1367,13 @@ def p_error(p):
     id_error = list_errors.count + 1  if list_errors.count > 0 else 1
 
     try:
-        SQLERROR = FindTypeError('Syntactic')
-        number_error, description = SQLERROR.find_type_error()
+        number_error, description = get_type_error(33)
         print(str(p.value))
         description += ' or near ' + str(p.value) 
         column = find_column(p)
         list_errors.insert_end(Error(id_error, 'Syntactic',number_error ,description, p.lineno, column))
     except AttributeError:
-        SQLERROR = FindTypeError('EOF')
-        number_error, description = SQLERROR.find_type_error()
+        number_error, description = get_type_error(1)
         print(number_error, description)
         list_errors.insert_end(Error(id_error, 'Syntactic', number_error, description, 'EOF', 'EOF'))
     id_error += 1
