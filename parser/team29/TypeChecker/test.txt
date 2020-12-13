@@ -2,26 +2,12 @@ import json
 import File
 import Struct
 
-Struct.createDatabase("db1",1)
-Struct.createDatabase("db2",1)
-Struct.createDatabase("db3",2)
-Struct.createDatabase("db4",2)
-
-Struct.alterDatabase("db2","db2.1")
-
-
-Struct.dropDatabase("db4")
-Struct.createTable("db2.1","table1")
+Struct.createDatabase("db3",1)
 Struct.createTable("db3","Producto")
 Struct.createTable("db3","Factura")
 Struct.createTable("db3","Cliente")
 Struct.createTable("db3","Detalle")
 File.exportFile(Struct.Databases,"Bases1")
-
-Struct.alterTable("db1","table3","table3.1")
-Struct.dropTable("db1","table2")
-File.exportFile(Struct.Databases,"Bases2")
-
 Struct.createTable("db1","table6")
 
 Struct.addCol("db3","Cliente","id","numerico","int",1,None,1,1,4)
@@ -48,5 +34,3 @@ Struct.addCol("db3","Detalle","cantidad","numerico","int",0,None,1,0,4)
 
 Struct.addCol("db1","Factura","numero","numerico","int",1,None,1,1,4)
 
-
-File.exportFile(Struct.Databases,"Bases3")
