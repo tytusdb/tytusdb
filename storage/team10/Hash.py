@@ -2,7 +2,7 @@ from Node import Node
 
 class TablaHash:
     def __init__(self, size, db, name, nCols):
-        self.Size = size-1
+        self.Size = size
         self.values = list()
         self.headers = list()
         self.db = db
@@ -95,17 +95,40 @@ class TablaHash:
             if not self.values[position].buscarDato_binary(dato):
                 aux_bol = True
         return aux_bol
+    
+    def ElementosEn_tbl(self):
+        auxiliar = 0 
+        for nodo in self.values:
+            if nodo is not None:
+                auxiliar +=1
+        return auxiliar
 
+    def rehashing(self):
+        actualSize = self.ElementosEn_tbl()
+        factorAgregado = int(self.Size * 0.75)
+        if actualSize >= factorAgregado:
+            #estoy_en_rehashing = True
+            self.setSize( int(self.Size*3.75))
+            arrayAuxiliar = []
+            self.values.clear()
+            for j in lista:
+                self.insertarDato(j)
+            arrayAuxiliar.clear()
+            print("El rehashing fue realizado con exito")
+    
     def eliminarDato(self, dato):
         posicion_hash = self.funcionHash(dato)
         nodo_hash = self.values[posicion_hash]
-        if nodo_hash.eliminar(dato):
-            print("dato eliminado")
-        elif nodo_hash.eliminar(dato) == 0: 
-            print("dato eliminado")
-            self.values[posicion_hash] = -1
+        if nodo_hash is not None:
+            if nodo_hash.eliminar(dato):
+                print("dato eliminado")
+            elif nodo_hash.eliminar(dato) == 0: 
+                print("dato eliminado")
+                self.values[posicion_hash] = None
+            else:
+                print("dato no eliminado")
         else:
-            print("dato no eliminado")
+            print("el dato no existe")
 
     def printTbl(self):
         contador = 0
