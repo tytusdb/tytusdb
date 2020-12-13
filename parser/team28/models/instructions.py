@@ -1,13 +1,73 @@
 class Instruction:
     '''Clase abstracta'''
+'''
+    Lenguaje de Definición de Datos (DDL) =======================================================================================================================
+'''
+class CreateDB(Instruction):
+    '''
+        CREATE DATABASE recibe el id de la base
+    '''
+    def __init__(self, id) :
+        self.id = id
 
+class CreateTable(Instruction):
+    '''
+        CREATE TABLE recibe el nombre de la tabla y un array con sus columnas
+    '''
+    def __init__(self, table, arr_columns) :
+        self.table = table
+        self.arr_columns = arr_columns
+
+class Drop(Instruction):
+    '''
+        DROP recibe el id y si es tabla(0), o database(1)
+    '''
+    def __init__(self, id, dtype) :
+        self.id = id
+        self.dtype = dtype
+
+'''
+    Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
+'''
 class Select(Instruction):
     '''
-        Select recibe un array con todas los parametros
+        SELECT recibe un array con todas los parametros
     '''
     def __init__(self,  instrs) :
         self.instrs = instrs
-            
+
+class Insert(Instruction):
+    '''
+        INSERT recibe tres parametros: 
+            1. tabla a insertar
+            2. columnas donde insertar (puede estar vacio (se inserta en todas))
+            3. valores a insertar
+    '''
+    def __init__(self,  table, arr_columns, arr_values) :
+        self.table = table
+        self.arr_columns = arr_columns
+        self.arr_values = arr_values
+
+class Update(Instruction):
+    '''
+        UPDATE recibe tres parametros: 
+            1. tabla a insertar
+            2. columnas donde insertar (puede estar vacio (se inserta en todas))
+            3. valores a insertar
+        TODO: VER COMO MANEJAR BIEN LOS DOS ARRAYS QUE RECIBE
+    '''
+    def __init__(self,  table, arr_columns, arr_values) :
+        self.table = table
+        self.arr_columns = arr_columns
+        self.arr_values = arr_values
+
+class Delete(Instruction):
+    '''
+        DELETE recibe la tabla donde tiene que borrar
+    '''
+    def __init__(self,  table) :
+        self.table = table
+
 class From(Instruction):
     '''
         FROM recibe una tabla en la cual buscar los datos
@@ -47,7 +107,7 @@ class Between(Instruction):
         self.value1 = value1
         self.value2 = value2
 '''
-    FUNCIONES MATEMATICAS 
+    FUNCIONES MATEMATICAS =======================================================================================================================
 '''
 class Abs(Instruction):
     '''
