@@ -20,6 +20,7 @@ Unused terminals:
     BACKSPACE
     BUCKET
     BY
+    BYTEA
     CBRT
     CEIL
     CEILING
@@ -65,7 +66,7 @@ Unused terminals:
     LCM
     LEAST
     LEFT
-    LENGHT
+    LENGTH
     LIMIT
     LLAVEDER
     LLAVEIZQ
@@ -329,6 +330,7 @@ BIGINT               : 66
 BOLEANO              : 80
 BUCKET               : 
 BY                   : 
+BYTEA                : 
 CADENA               : 18 19 94 127 174
 CBRT                 : 
 CEIL                 : 
@@ -412,7 +414,7 @@ LAST                 :
 LCM                  : 
 LEAST                : 
 LEFT                 : 
-LENGHT               : 
+LENGTH               : 
 LIKE                 : 94
 LIMIT                : 
 LLAVEDER             : 
