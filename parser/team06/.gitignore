@@ -1,0 +1,11 @@
+/venv/
+/.idea/
+/__pycache__/
+/ply/__pycache__/
+/parser.out
+/parser.py
+/storageManager/jsonMode.py
+/storageManager/
+/data/
+/data/json/
+/data/json/databases

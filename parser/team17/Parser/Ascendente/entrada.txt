@@ -1,0 +1,2 @@
+insert into tabla (nombre, carnet) values ("juan", 2015);
+
