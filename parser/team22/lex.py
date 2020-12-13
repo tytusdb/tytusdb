@@ -20,6 +20,7 @@ reservadas = {
     'character': 'CHARACTER',
     'varying': 'VARYING',
     'varchar' : 'VARCHAR',
+    'bytea' : 'BYTEA',
     'char' : 'CHAR',
     'text' : 'TEXT',
     'now' : 'now',
@@ -62,6 +63,7 @@ reservadas = {
     'right' : 'RIGHT',
     'on' : 'ON',
     'any' : 'ANY',
+    'count' : 'COUNT',
     'sum' : 'SUM',
     'like' : 'LIKE',
     'avg' : 'AVG',
@@ -82,6 +84,28 @@ reservadas = {
     'power' : 'POWER',
     'radians' : 'RADIANS',
     'round' : 'ROUND',
+    'acos' : 'ACOS',
+    'asin' : 'ASIN',
+    'atan' : 'ATAN',
+    'atan2' : 'ATAN2',
+    'cos' : 'COS',
+    'cot' : 'COT',
+    'sin' : 'SIN',
+    'tan' : 'TAN',
+    'acosd' : 'ACOSD',
+    'asind' : 'ASIND',
+    'atand' : 'ATAND',
+    'atan2d' : 'ATAN2D',
+    'cosd' : 'COSD',
+    'cotd' : 'COTD',
+    'sind' : 'SIND',
+    'tand' : 'TAND',
+    'sinh' : 'SINH',
+    'cosh' : 'COSH',
+    'tanh' : 'TANH',
+    'asinh' : 'ASINH',
+    'acosh' : 'ACOSH',
+    'atanh' : 'ATANH',
     'max' : 'MAX',
     'min' : 'MIN',
     'order' : 'ORDER',
@@ -141,7 +165,28 @@ reservadas = {
     'least' : 'LEAST',
     'end' : 'END',
     'else' : 'ELSE',
-    'leatest': 'LEATEST'
+    'least': 'LEAST',
+    'true' : 'TRUE',
+    'false' : 'FALSE',
+    'unknown' : 'UNKNOWN',
+    'isnull' : 'ISNULL',
+    'notnull' : 'NOTNULL',
+    'length' : 'LENGTH',
+    'substring' : 'SUBSTRING',
+    'trim' : 'TRIM',
+    'md5' : 'MD5',
+    'sha256' : 'SHA256',
+    'substr' : 'SUBSTR',
+    'get_byte' : 'GET_BYTE',
+    'set_byte' : 'SET_BYTE',
+    'convert' : 'CONVERT',
+    'encode' : 'ENCODE',
+    'decode' : 'DECODE',
+    'sign' : 'SIGN',
+    'sqrt' : 'SQRT',
+    'width_bucket' : 'WIDTH_BUCKET',
+    'trunc' : 'TRUNC',
+    'random' : 'RANDOM'
 }
 
 tokens  = [
@@ -162,6 +207,7 @@ tokens  = [
     'MAYORIGUAL',
     'MAYOR',
     'DIFERENTE',
+    'NO_IGUAL',
     'MENORIGUAL',
     'MENOR',
     'ASIGNACION_SUMA',
@@ -197,6 +243,7 @@ t_MENOR             = r'<'
 t_MENORIGUAL        = r'<='
 t_MAYORIGUAL        = r'>='
 t_DIFERENTE         = r'<>'
+t_NO_IGUAL          = r'!='
 t_ASIGNACION_SUMA   = r'\+='
 t_ASIGNACION_RESTA  = r'\-='
 t_ASIGNACION_MULT   = r'\*='

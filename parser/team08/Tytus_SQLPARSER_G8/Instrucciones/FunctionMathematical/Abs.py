@@ -12,6 +12,7 @@ class Abs(Instruccion):
         print(abs(self.valor))
         return abs(self.valor)
 
+'''
 instruccion = Abs(25,None, 1,2)
-
 instruccion.ejecutar(None,None)
+'''

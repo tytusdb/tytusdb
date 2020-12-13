@@ -13,6 +13,8 @@ class Cbrt(Instruccion):
         print(np.cbrt(self.valor))
         return np.cbrt(self.valor)
 
+'''
 arr1 = [1, 27000, 64, -1000] 
 instruccion = Cbrt(arr1,None, 1,2)
 instruccion.ejecutar(None,None)
+'''

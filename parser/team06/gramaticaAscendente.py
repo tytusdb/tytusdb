@@ -1,4 +1,5 @@
 
+from queries import *
 # -----------------------------------------------------------------------------
 # Grupo 6
 #
@@ -113,7 +114,6 @@ reservadas = {
     'having' : 'HAVING',
     'inner' : 'INNER',
     'outer' : 'OUTER',
-    'ingerits':'INGERITS',
     'trim_scale':'TRIM_SCALE',
     'truc':'TRUC',
     'width_bucket':'WIDTH_BUCKET',
@@ -327,9 +327,11 @@ def t_ENTERO(t):
 
 #definife la estructura de las cadenas
 def t_CADENA(t):
-    r'\'.*?\''
+    r'[\'|\"].*?[\'|\"]'
     t.value = t.value[1:-1] # quito las comillas del inicio y final de la cadena
     return t 
+
+
 #definife la estructura de las etiquetas, por el momento las tomo unicamente como letras y numeros
 def t_ETIQUETA(t):
      r'[a-zA-_Z0-9]+'
@@ -353,7 +355,16 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
+    x=caden.splitlines()
+    filas=len(x)-1
+    print("filas que no cambian: ",filas) 
+    if h.filapivote>0:
+        fila=(t.lineno-1)-h.filapivote*filas
+    else:
+        fila=(t.lineno-1)
+    h.filapivote+=1
     print("Caracter lexico no permitido ==> '%s'" % t.value)
+    h.errores+=  "<tr><td>"+str(t.value[0])+"</td><td>"+str(fila)+"</td><td>"+str(find_column(caden,t))+"</td><td>LEXICO</td><td>token no pertenece al lenguaje</td></tr>\n"
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
@@ -377,21 +388,30 @@ precedence = (
     ('left','DESPLAZAMIENTOIZQUIERDA','DESPLAZAMIENTODERECHA'),
     )
 
+#IMPORTACION DE CLASES ALTERNAS
+import reportes as h
+
 
 
 # estructura de mi gramatica
-
-
 #-----------------------------------------------------INICIO--------------------------------------------------------------------
 def p_inicio_1(t) :
     'inicio               : queries' 
-    t[0]=t[1]  
+    h.reporteGramatical1 +="inicio     ::=      queries \n"
+    t[0]=t[1]
+    p=t[0]
+    h.insertarSimbolos(p)
     
 def p_queries_1(t) :
-    'queries               : queries query' 
+    'queries               : queries query'
+    h.reporteGramatical1 +="queries     ::=      queries query\n"
+    t[1].append(t[2])
+    t[0]=t[1]
 
 def p_queries_2(t) :
-    'queries               : query' 
+    'queries               : query'    
+    h.reporteGramatical1 +="queries     ::=      query\n"
+    t[0]=[t[1]]
  
 #-----------------------------------------------------LISTA DE FUNCIONES--------------------------------------------------------------------
 
@@ -417,6 +437,9 @@ def p_query(t):
                     
                     | selectData
     '''
+    h.reporteGramatical1 +="opcionTrim     ::=      opcion\n"
+    t[0]=t[1]
+ 
                     # derivando cada produccion a cosas como el create, insert, select; funciones como avg, sum, substring irian como otra produccion 
                     #dentro del select (consulta)
 
@@ -428,54 +451,71 @@ def p_query(t):
 
 def p_crearBaseDatos_1(t):
     'crearBD    : CREATE DATABASE ID PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE DATABASE ID PUNTOYCOMA\n"
 
 
 def p_crearBaseDatos_2(t):
     'crearBD    : CREATE OR REPLACE DATABASE ID PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID PUNTOYCOMA\n"
 
 def p_crearBaseDatos_3(t):
     'crearBD    : CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
 
 def p_crearBaseDatos_4(t):
     'crearBD    : CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
 
 
 
 def p_parametrosCrearBD_1(t):
     'parametrosCrearBD : parametrosCrearBD parametroCrearBD'
+    h.reporteGramatical1 +="parametrosCrearBD    ::=        parametrosCrearBD parametroCrearBD\n"
 
 def p_parametrosCrearBD_2(t):
     'parametrosCrearBD :  parametroCrearBD'
+    h.reporteGramatical1 +="parametrosCrearBD    ::=        parametroCrearBD\n"
 
 def p_parametroCrearBD(t):
     '''parametroCrearBD :  OWNER IGUAL final
                         |  MODE IGUAL final
     '''
+    h.reporteGramatical1 +="parametroCrearBD    ::=        "+str(t[1])+"   IGUAL final\n"
+
 #-----------------------------------------------------SHOW DB--------------------------------------------------------------------
 def p_mostrarBD(t):
     'mostrarBD  : SHOW DATABASES PUNTOYCOMA'
+    h.reporteGramatical1 +="mostrarBD    ::=        SHOW DATABASES PUNTOYCOMA\n"
+    t[0]=ShowDatabases(1)
+
 
 #-----------------------------------------------------ALTER BD--------------------------------------------------------------------
 def p_alterBD_1(t):
     'alterBD    : ALTER DATABASE ID RENAME TO ID PUNTOYCOMA'
+    h.reporteGramatical1 +="alterBD    ::=       ALTER DATABASE ID RENAME TO ID PUNTOYCOMA\n"
 
 def p_alterBD_2(t):
     'alterBD    : ALTER DATABASE ID OWNER TO parametroAlterUser PUNTOYCOMA'
+    h.reporteGramatical1 +="alterBD    ::=       ALTER DATABASE ID OWNER TO parametroAlterUser PUNTOYCOMA\n"
 
 def p_parametroAlterUser(t):
     '''parametroAlterUser : CURRENT_USER
                         |   SESSION_USER
                         |   final
     '''
+    h.reporteGramatical1 +="parametroAlterUser    ::=        "+str(t[1])+" \n"
+
 #-----------------------------------------------------DROP TABLE-----------------------------------------------------------------
 def p_dropTable(t) :
     'dropTable  : DROP TABLE ID PUNTOYCOMA'
+    h.reporteGramatical1 +="dropTable    ::=        DROP TABLE ID PUNTOYCOMA\n"
 #-----------------------------------------------------ALTER TABLE-----------------------------------------------------------------
 def p_alterTable(t):
     '''
     alterTable  : ALTER TABLE ID variantesAt PUNTOYCOMA
 
     '''
+    h.reporteGramatical1 +="alterTable    ::=        ALTER TABLE ID variantesAt PUNTOYCOMA\n"
 
 #---------------------------------------------------TIPOS------------------------------------------------------------------------
 def p_variantesAt(t):
@@ -484,16 +524,38 @@ def p_variantesAt(t):
                 |   ALTER listaContAlter
                 |   DROP contDrop
     '''
+    if t[1]=="ADD": 
+        h.reporteGramatical1 +="variantesAt    ::=        ADD contAdd\n"  
+    elif t[1]=="ALTER":
+        h.reporteGramatical1 +="variantesAt    ::=        ALTER listaContAlter\n"
+    elif t[1]=="DROP":
+        h.reporteGramatical1 +="variantesAt    ::=         DROP contDrop\n"
+    
+# SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaContAlter(t):
     '''
     listaContAlter  : listaContAlter COMA contAlter 
-                    | contAlter
     '''
+    h.reporteGramatical1 +="listaContAlter    ::=         listaContAlter COMA contAlter\n"
+
+def p_listaContAlter_2(t):
+    '''
+    listaContAlter  : contAlter
+    '''
+    h.reporteGramatical1 +="listaContAlter    ::=         contAlter\n"
+
+
 def p_contAlter(t):
     '''
     contAlter   : COLUMN ID SET NOT NULL 
                 | COLUMN ID TYPE tipo
     '''
+    if t[3]=="SET":
+        h.reporteGramatical1 +="contAlter    ::=         COLUMN ID   SET  NOT NULL\n"
+    elif t[3]=="TYPE":
+        h.reporteGramatical1 +="contAlter    ::=         COLUMN ID  TYPE  tipo\n"
+
+
 def p_contAdd(t):
     '''
     contAdd     :   COLUMN ID tipo 
@@ -501,30 +563,57 @@ def p_contAdd(t):
                 |   FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID
                 |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA
     '''
+    if t[1]=="COLUMN":
+        h.reporteGramatical1 +="contAdd    ::=         COLUMN ID tipo\n"
+    elif t[1]=="CHECK":
+        h.reporteGramatical1 +="contAdd    ::=         CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="FOREIGN":
+        h.reporteGramatical1 +="contAdd    ::=        FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID\n"
+    elif t[1]=="CONSTRAINT":
+        h.reporteGramatical1 +="contAdd    ::=         CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA\n"
+
+
+
 def p_contDrop(t):
     '''
     contDrop    : COLUMN ID 
                 | CONSTRAINT ID
     '''
+    if t[1]=="COLUMN":
+        h.reporteGramatical1 +="contDrop    ::=         COLUMN ID \n"
+    elif t[1]=="CONSTRAINT":
+        h.reporteGramatical1 +="contDrop    ::=         CONSTRAINT ID\n"
 
+# SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
     '''
     listaid     :   listaid COMA ID
-                |   ID
     '''
+    h.reporteGramatical1 +="listaid    ::=         listaid COMA ID\n"
+
+def p_listaID_2(t):
+    '''
+    listaid     :   ID
+    '''
+    h.reporteGramatical1 +="listaid    ::=          ID\n"
+
+
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
 def p_tipoAlter(t):
     '''
     tipoAlter   :   ADD 
                 |   DROP
     '''
+    h.reporteGramatical1 +="operacion    ::=       final\n"
 #-----------------------------------------------------Tipo Alter--------------------------------------------------------------------
 
 def p_dropBD_1(t):
     'dropBD    : DROP DATABASE ID PUNTOYCOMA'
+    h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE ID PUNTOYCOMA\n"
 
 def p_dropBD_2(t):
     'dropBD    : DROP DATABASE IF EXISTS ID PUNTOYCOMA'
+    h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE IF EXISTS ID PUNTOYCOMA\n"
 #-----------------------------------------------------OPERACIONES Y EXPRESIONES--------------------------------------------------------------------
 def p_operacion(t):
     '''operacion          : operacion MAS operacion
@@ -532,16 +621,22 @@ def p_operacion(t):
                           | operacion POR operacion
                           | operacion DIV operacion
                           | operacion RESIDUO operacion
+
+
                           | operacion POTENCIA operacion
                           | operacion AND operacion
                           | operacion OR operacion
                           | operacion SIMBOLOOR2 operacion
                           | operacion SIMBOLOOR operacion
+
+
                           | operacion SIMBOLOAND2 operacion
                           | operacion DESPLAZAMIENTOIZQUIERDA operacion
                           | operacion DESPLAZAMIENTODERECHA operacion
                           | operacion IGUAL operacion
                           | operacion IGUALIGUAL operacion
+
+
                           | operacion NOTEQUAL operacion
                           | operacion MAYORIGUAL operacion
                           | operacion MENORIGUAL operacion
@@ -551,20 +646,68 @@ def p_operacion(t):
                           | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                           
                           '''
+    if t[2]=='+':
+        h.reporteGramatical1 +="operacion    ::=       operacion MAS operacion\n"
+    elif t[2]=='-':
+        h.reporteGramatical1 +="operacion    ::=       operacion MENOS operacion\n"
+    elif t[2]=='*':
+        h.reporteGramatical1 +="operacion    ::=       operacion POR operacion\n"
+    elif t[2]=='/':
+        h.reporteGramatical1 +="operacion    ::=      operacion DIV operacion\n"
+        t[0]=t[1]/t[3]
+    elif t[2]=='%':
+        h.reporteGramatical1 +="operacion    ::=      operacion RESIDUO operacion\n"
+    elif t[2]=='^':
+        h.reporteGramatical1 +="operacion    ::=      operacion POTENCIA operacion\n"
+    elif t[2]=="AND":
+        h.reporteGramatical1 +="operacion    ::=      operacion AND operacion\n"
+    elif t[2]=="OR":
+        h.reporteGramatical1 +="operacion    ::=      operacion OR operacion\n"
+    elif t[2]=='#':
+        h.reporteGramatical1 +="operacion    ::=      operacion SIMBOLOOR2 operacion\n"
+    elif t[2]=='&&':
+        h.reporteGramatical1 +="operacion    ::=      operacion SIMBOLOOR operacion\n"
+    elif t[2]=='>>':
+        h.reporteGramatical1 +="operacion    ::=      operacion DESPLAZAMIENTOIZQUIERDA operacion\n"
+    elif t[2]=='<<':
+        h.reporteGramatical1 +="operacion    ::=      operacion DESPLAZAMIENTODERECHA operacion\n"
+    elif t[2]=='=':
+        h.reporteGramatical1 +="operacion    ::=      operacion IGUAL operacion\n"
+    elif t[2]=='==':
+        h.reporteGramatical1 +="operacion    ::=      operacion IGUALIGUAL operacion\n"
+    elif t[2]=='!=':
+        h.reporteGramatical1 +="operacion    ::=      operacion NOTEQUAL operacion\n"
+    elif t[2]=='>=':
+        h.reporteGramatical1 +="operacion    ::=      operacion MAYORIGUAL operacion\n"
+    elif t[2]=='<=':
+        h.reporteGramatical1 +="operacion    ::=      operacion MENORIGUAL operacion\n"
+    elif t[2]=='>':
+        h.reporteGramatical1 +="operacion    ::=      operacion MAYOR operacion\n"
+    elif t[2]=='<':
+        h.reporteGramatical1 +="operacion    ::=      operacion MENOR operacion\n"
+    elif t[2]=='<>':
+        h.reporteGramatical1 +="operacion    ::=      operacion DIFERENTE operacion\n"
+    else:
+        h.reporteGramatical1 +="operacion    ::=      PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+
+    
 def p_operacion_menos_unario(t):
     'operacion : MENOS ENTERO  %prec UMINUS'
-    t[0] = -t[2]
+    h.reporteGramatical1 +="operacion    ::=      MENOS ENTERO  %prec UMINUS\n"
+ 
 
 def p_operacion_not_unario(t):
     'operacion : NOT operacion  %prec UNOT'
-    t[0] = not(t[2])
+    h.reporteGramatical1 +="operacion    ::=      NOT operacion  %prec UNOT\n"
 
 def p_operacion_funcion(t):
     'operacion  : funcionBasica'
+    h.reporteGramatical1 +="operacion    ::=      funcionBasica\n"
+
 
 def p_operacion_final(t):
     'operacion :     final'
-
+    h.reporteGramatical1 +="operacion    ::=      final\n"
 
 
 #-----------------------------------------------------FUNCIONES MATEMATICAS--------------------------------------------------------------------
@@ -589,6 +732,9 @@ def p_funcion_basica(t):
                         | LN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | LOG PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | LOG10 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                    
+
+
                         | MIN_SCALE PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | MOD PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
                         | POWER PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
@@ -603,9 +749,12 @@ def p_funcion_basica(t):
                         | RANDOM PARENTESISIZQUIERDA PARENTESISDERECHA
                         | SETSEED PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | ACOS  PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+
+
+
                         | ACOSD PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | ASIN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
-                        | ASIND PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | ASIND PARENTESISIZQUIERDA operacion PARENTESISDERECHA                
                         | ATAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | ATAN2 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | COS PARENTESISIZQUIERDA operacion PARENTESISDERECHA
@@ -617,6 +766,9 @@ def p_funcion_basica(t):
                         | TAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | TAND  PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | SINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+
+
+
                         | COSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | TANH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | ASINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
@@ -627,7 +779,7 @@ def p_funcion_basica(t):
                         | GET_BYTE PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA
                         | MD5 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | SET_BYTE PARENTESISIZQUIERDA operacion COMA operacion COMA operacion PARENTESISDERECHA
-                        | SHA256 PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+                        | SHA256 PARENTESISIZQUIERDA operacion PARENTESISDERECHA                       
                         | SUBSTR PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA
                         | CONVERT PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA
                         | ENCODE PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA
@@ -635,15 +787,141 @@ def p_funcion_basica(t):
                         | AVG PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA
     '''
+    if t[1]=="ABS":
+        h.reporteGramatical1 +="funcionBasica    ::=      ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="CBRT":
+        h.reporteGramatical1 +="funcionBasica    ::=      CBRT PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="CEIL":
+        h.reporteGramatical1 +="funcionBasica    ::=      CEIL PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="CEILING":
+        h.reporteGramatical1 +="funcionBasica    ::=      CEILING PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="DEGREES":
+        h.reporteGramatical1 +="funcionBasica    ::=      DEGREES PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="DIV":
+        h.reporteGramatical1 +="funcionBasica    ::=      DIV PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="EXP":
+        h.reporteGramatical1 +="funcionBasica    ::=      EXP PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="FACTORIAL":
+        h.reporteGramatical1 +="funcionBasica    ::=      FACTORIAL PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="FLOOR":
+        h.reporteGramatical1 +="funcionBasica    ::=      FLOOR PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="GCD":
+        h.reporteGramatical1 +="funcionBasica    ::=      GCD PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="LCM":
+        h.reporteGramatical1 +="funcionBasica    ::=      LCM PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="LN":
+        h.reporteGramatical1 +="funcionBasica    ::=      LN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="LOG":
+        h.reporteGramatical1 +="funcionBasica    ::=      LOG PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="LOG10":
+        h.reporteGramatical1 +="funcionBasica    ::=      LOG10 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"    
+    elif t[1]=="MIN_SCALE":
+        h.reporteGramatical1 +="funcionBasica    ::=      MIN_SCALE PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"   
+    elif t[1]=="MOD":
+        h.reporteGramatical1 +="funcionBasica    ::=      MOD PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"   
+    elif t[1]=="POWER":
+        h.reporteGramatical1 +="funcionBasica    ::=      POWER PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"
+    elif t[1]=="RADIANS":
+        h.reporteGramatical1 +="funcionBasica    ::=      RADIANS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"    
+    elif t[1]=="ROUND":
+        h.reporteGramatical1 +="funcionBasica    ::=      ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SCALE":
+        h.reporteGramatical1 +="funcionBasica    ::=      SCALE ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SIGN":
+        h.reporteGramatical1 +="funcionBasica    ::=      SIGN ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"    
+    elif t[1]=="SQRT":
+        h.reporteGramatical1 +="funcionBasica    ::=      SQRT ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="TRIM_SCALE":
+        h.reporteGramatical1 +="funcionBasica    ::=      TRIM_SCALE ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="TRUC":
+        h.reporteGramatical1 +="funcionBasica    ::=      TRUC ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="WIDTH_BUCKET":
+        h.reporteGramatical1 +="funcionBasica    ::=      WIDTH_BUCKET PARENTESISIZQUIERDA operacion COMA operacion COMA operacion COMA operacion PARENTESISDERECHA\n"
+    elif t[1]=="RANDOM":
+        h.reporteGramatical1 +="funcionBasica    ::=      RANDOM PARENTESISIZQUIERDA  PARENTESISDERECHA\n"
+    elif t[1]=="SETSEED":
+        h.reporteGramatical1 +="funcionBasica    ::=      SETSEED PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ACOS":
+        h.reporteGramatical1 +="funcionBasica    ::=      ACOS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ACOSD":
+        h.reporteGramatical1 +="funcionBasica    ::=      ACOSD PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ASIN":
+        h.reporteGramatical1 +="funcionBasica    ::=      ASIN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ASIND":
+        h.reporteGramatical1 +="funcionBasica    ::=      ASIND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ATAN":
+        h.reporteGramatical1 +="funcionBasica    ::=      ATAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ATAN2":
+        h.reporteGramatical1 +="funcionBasica    ::=      ATAN2 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="COS":
+        h.reporteGramatical1 +="funcionBasica    ::=      COS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="COSD":
+        h.reporteGramatical1 +="funcionBasica    ::=      COSD PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="COT":
+        h.reporteGramatical1 +="funcionBasica    ::=      COT PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="COTD":
+        h.reporteGramatical1 +="funcionBasica    ::=      COTD PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SIN":
+        h.reporteGramatical1 +="funcionBasica    ::=      SIN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SIND":
+        h.reporteGramatical1 +="funcionBasica    ::=      SIND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="TAN":
+        h.reporteGramatical1 +="funcionBasica    ::=      TAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="TAND":
+        h.reporteGramatical1 +="funcionBasica    ::=      TAND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SINH":
+        h.reporteGramatical1 +="funcionBasica    ::=      SINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="COSH":
+        h.reporteGramatical1 +="funcionBasica    ::=      COSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="TANH":
+        h.reporteGramatical1 +="funcionBasica    ::=      TANH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ASINH":
+        h.reporteGramatical1 +="funcionBasica    ::=      ASINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ACOSH":
+        h.reporteGramatical1 +="funcionBasica    ::=      ACOSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ATANH":
+        h.reporteGramatical1 +="funcionBasica    ::=      ATANH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="LENGTH":
+        h.reporteGramatical1 +="funcionBasica    ::=      LENGTH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        
+    elif t[1]=="TRIM":
+        h.reporteGramatical1 +="funcionBasica    ::=      TRIM PARENTESISIZQUIERDA opcionTrim operacion FROM operacion PARENTESISDERECHA\n"
+    elif t[1]=="GET_BYTE":
+        h.reporteGramatical1 +="funcionBasica    ::=      GET_BYTE PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"
+    elif t[1]=="MD5":
+        h.reporteGramatical1 +="funcionBasica    ::=      MD5 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SET_BYTE":
+        h.reporteGramatical1 +="funcionBasica    ::=      SET_BYTE PARENTESISIZQUIERDA operacion COMA operacion COMA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SHA256":
+        h.reporteGramatical1 +="funcionBasica    ::=      SHA256 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SUBSTR":
+        h.reporteGramatical1 +="funcionBasica    ::=      SUBSTR PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA\n"
+    elif t[1]=="CONVERT":
+        h.reporteGramatical1 +="funcionBasica    ::=      CONVERT PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA\n"
+    elif t[1]=="ENCODE":
+        h.reporteGramatical1 +="funcionBasica    ::=      ENCODE  PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA\n"
+    elif t[1]=="DECODE":
+        h.reporteGramatical1 +="funcionBasica    ::=      DECODE  PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA\n"
+    elif t[1]=="AVG":
+        h.reporteGramatical1 +="funcionBasica    ::=      AVG PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    elif t[1]=="SUM":
+        h.reporteGramatical1 +="funcionBasica    ::=      SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    
+
+
+
 
 def p_funcion_basica_1(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion FOR operacion PARENTESISDERECHA'
+    h.reporteGramatical1 +="funcionBasica    ::=      SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion FOR operacion PARENTESISDERECHA\n"
 
 def p_funcion_basica_2(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA'
+    h.reporteGramatical1 +="funcionBasica    ::=      SUBSTRING PARENTESISIZQUIERDA operacion FROM operacion PARENTESISDERECHA\n"
    
 def p_funcion_basica_3(t):
     'funcionBasica   : SUBSTRING PARENTESISIZQUIERDA operacion FOR operacion PARENTESISDERECHA'
+    h.reporteGramatical1 +="funcionBasica    ::=      SUBSTRING PARENTESISIZQUIERDA operacion FOR operacion PARENTESISDERECHA\n"
 
  
 def p_opcionTrim(t):
@@ -651,65 +929,102 @@ def p_opcionTrim(t):
                     | TRAILING
                     | BOTH
     '''    
+    h.reporteGramatical1 +="opcionTrim     ::=     "+str(t[1])+"\n"
     # falta mandar a las funciones de fechas y dates y todo eso
 
 #-----------------------------------------------------PRODUCCIONES TERMINALES--------------------------------------------------------------------
 def p_final(t):
     '''final        : DECIMAL
                     | ENTERO'''
+    h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+")\n"
+
 
 def p_final_id(t):
     'final          : ID'
+    h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+")\n"
 
 def p_final_invocacion(t):
     'final          : ID PUNTO ID'
+    h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+") . ID("+str(t[1])+")\n"
 
 def p_final_cadena(t):
     'final          : CADENA'
+    h.reporteGramatical1 +="final     ::=     CADENA ("+t[1]+")\n"
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
     'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="insertinBD    ::=      INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
 
 def p_insertBD_2(t):
     'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="insertinBD    ::=     INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
 
-def p_listaParam_(t):
+# SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
+def p_listaParam(t):
     '''listaParam         : listaParam COMA final
-                          | final
     '''
+    h.reporteGramatical1 +="insertinBD    ::=      listaParam COMA final\n"
+
+def p_listaParam_2(t):
+    '''listaParam         : final
+    '''
+    h.reporteGramatical1 +="insertinBD    ::=      final\n"
+
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):
     'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
+    h.reporteGramatical1 +="updateinBD    ::=      UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA\n"
 
+
+# SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_asignaciones(t):
     '''asignaciones       : asignaciones COMA asigna
-                          | asigna
     '''
+    h.reporteGramatical1 +="asignaciones    ::=      asignaciones COMA asigna\n"
+
+def p_asignaciones_2(t):
+    '''asignaciones       : asigna
+    '''
+    h.reporteGramatical1 +="asignaciones    ::=      asigna\n"
+
 def p_asigna(t):
     'asigna             : operacion'
+    h.reporteGramatical1 +="asigna    ::=      operacion\n"
 
 
 #-----------------------------------------------------DELETE IN BD--------------------------------------------------------------------
 def p_deleteinBD_1(t):
     'deleteinBD         : DELETE FROM ID PUNTOYCOMA'
+    h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID PUNTOYCOMA\n"
 
 def p_deleteinBD_2(t):
     'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
+    h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE operacion PUNTOYCOMA\n"
 
 
 #-----------------------------------------------------CREATE TABLE--------------------------------------------------------------------
 def p_createTable(t):
     'createTable        : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="createTable    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA\n"
 
 def p_inheritsBD(t):
     'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="inheritsBD    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA\n"
 
+# SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_creaColumna(t):
-    '''creaColumnas        : creaColumnas COMA Columna
-                           | Columna 
+    '''creaColumnas        : creaColumnas COMA Columna 
     '''
+    h.reporteGramatical1 +="creaColumnas    ::=      creaColumnas COMA Columna\n"
+
+def p_creaColumna_2(t):
+    '''creaColumnas        : Columna 
+    '''
+    h.reporteGramatical1 +="createTable    ::=      Columna\n"
+
+
 def p_columna_1(t):
     '''Columna          : ID tipo  
                         | ID tipo paramOpcional
@@ -719,11 +1034,20 @@ def p_columna_1(t):
                         | primaryKey
                         | foreignKey
     '''
+    h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+
+
 
 def p_paramOpcional(t):
     '''paramOpcional    : paramOpcional paramopc
-                        | paramopc
     '''
+    h.reporteGramatical1 +="paramOpcional    ::=      paramOpcional paramopc\n"
+    
+
+def p_paramOpcional_1(t):
+    '''paramOpcional    : paramopc
+    '''
+    h.reporteGramatical1 +="paramOpcional    ::=      paramopc\n"
 
 def p_paramopc(t):
     '''paramopc         : DEFAULT final
@@ -734,26 +1058,34 @@ def p_paramopc(t):
                         | checkinColumn
                         | PRIMARY KEY
     '''
+    h.reporteGramatical1 +="paramopc    ::=      paramopc\n"
+    
+
 
 def p_constraintinColumn(t):
     '''constraintinColumn   : CONSTRAINT ID checkinColumn
                             | CONSTRAINT ID uniqueinColumn
     '''
+    h.reporteGramatical1 +="constraintinColumn    ::=      CONSTRAINT   ID   "+str(t[3])+"\n"
 
 def p_checkinColumn(t):
     'checkinColumn      : CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
+    h.reporteGramatical1 +="checkinColumn    ::=      CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
 
 
 def p_uniqueinColumn(t):
     'uniqueinColumn     : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
+    h.reporteGramatical1 +="uniqueinColumn    ::=      UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
 
 
 def p_primaryKey(t):
     'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
+    h.reporteGramatical1 +="primaryKey    ::=      PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
 
 
 def p_foreingkey(t):
     'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA' 
+    h.reporteGramatical1 +="foreignKey    ::=      FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
 
 #-----------------------------------------------------TIPOS DE DATOS--------------------------------------------------------------------
 
@@ -784,101 +1116,181 @@ def p_tipo(t):
                         | MINUTE
                         | SECOND
     '''
+    h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
 def p_select(t):
     '''selectData       : SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
                         | SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
     '''
+    if t[2]=='*':
+        h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
+    else:
+        h.reporteGramatical1 +="selectData    ::=      SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
+
+
 def p_select_1(t):
     '''selectData       : SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA
                         | SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA
     '''
+    if t[2]=='*':
+        h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA\n"
+    else:
+        h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA\n"
 
 def p_select_2(t):
     '''selectData       : SELECT select_list FROM select_list  PUNTOYCOMA
                         | SELECT POR FROM select_list  PUNTOYCOMA
     '''
+    if t[2]=='*':
+        h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list  PUNTOYCOMA\n"
+    else:
+        h.reporteGramatical1 +="selectData    ::=      SELECT POR FROM select_list  PUNTOYCOMA\n"
 
+def p_select_3(t):
+    '''selectData       : SELECT select_list   PUNTOYCOMA
+    '''
+    h.reporteGramatical1 +="selectData    ::=      SELECT select_list   PUNTOYCOMA\n"
 
 def p_opcionesSelect_1(t):
     '''opcionesSelect   : opcionesSelect opcionSelect
-                        | opcionSelect
     '''
+    h.reporteGramatical1 +="opcionesSelect    ::=      opcionesSelect opcionSelect\n"
 
 def p_opcionesSelect_2(t):
+    '''opcionesSelect   : opcionSelect
+    '''
+    h.reporteGramatical1 +="opcionesSelect    ::=      opcionSelect\n"
+
+
+def p_opcionesSelect_3(t):
     '''opcionSelect     : LIMIT operacion
-                        | LIMIT operacion OFFSET operacion
                         | GROUP BY select_list
                         | HAVING select_list
-                        | ORDER BY select_list ordenamiento
                         | ORDER BY select_list 
     '''
+    if t[1]=="LIMIT":
+        h.reporteGramatical1 +="opcionSelect    ::=      LIMIT operacion\n"
+    elif t[1]=="GROUP":
+        h.reporteGramatical1 +="opcionSelect    ::=      GROUP BY select_list\n"
+    elif t[1]=="HAVING":
+        h.reporteGramatical1 +="opcionSelect    ::=      HAVING select_list\n"
+    elif t[1]=="ORDER":
+        h.reporteGramatical1 +="opcionSelect    ::=      ORDER BY select_list\n"
+
+def p_opcionesSelect_4(t):
+    '''opcionSelect     : LIMIT operacion OFFSET operacion
+                        | ORDER BY select_list ordenamiento                     
+    '''
+    if t[1]=="LIMIT":
+        h.reporteGramatical1 +="opcionSelect    ::=      LIMIT operacion OFFSET operacion\n"
+    elif t[1]=="ORDER":
+        h.reporteGramatical1 +="opcionSelect    ::=      ORDER BY select_list ordenamiento\n"
+
+
 
 def p_ordenamiento(t):
     '''ordenamiento     : ASC
                         | DESC '''
+    h.reporteGramatical1 +="ordenamiento    ::=      "+str(t[1])+"\n"
 
 def p_search_condition_1(t):
     '''search_condition   : search_condition AND search_condition
                           | search_condition OR search_condition                         
     '''
+    h.reporteGramatical1 +="search_condition    ::=     search_condition     "+str(t[2])+"    search_condition\n"
 
 def p_search_condition_2(t):
     'search_condition   : NOT search_condition'
+    h.reporteGramatical1 +="search_condition    ::=      condicion_select   operacion\n"
 
 def p_search_condition_3(t):
     'search_condition   : operacion'
+    h.reporteGramatical1 +="search_condition    ::=       operacion\n"
 
 def p_search_condition_4(t):
     'search_condition   : PARENTESISIZQUIERDA search_condition PARENTESISDERECHA'
+    h.reporteGramatical1 +="search_condition    ::=     PARENTESISIZQUIERDA search_condition PARENTESISDERECHA\n"
 
 
 def p_select_list_1(t):
     ' select_list   : select_list COMA operacion'
+    h.reporteGramatical1 +="select_list    ::=      select_list COMA operacion\n"
     
 
 
 def p_select_list_2(t):
     'select_list    : operacion'
+    h.reporteGramatical1 +="select_list    ::=      operacion\n"
 
 def p_select_list_3(t):
     ' select_list   : select_list condicion_select operacion COMA operacion' 
+    h.reporteGramatical1 +="select_list    ::=      select_list condicion_select operacion COMA operacion\n"
 
 def p_select_list_4(t):
     ' select_list   : condicion_select   operacion' 
+    h.reporteGramatical1 +="select_list    ::=      condicion_select   operacion\n"
 
+def p_select_list_5(t):
+    ' select_list   : select_list AS  operacion' 
+    h.reporteGramatical1 +="select_list    ::=      select_list AS  operacion\n"
 
 def p_condicion_select(t):
-    '''condicion_select : DISTINCT FROM
-                        | IS DISTINCT FROM 
-                        | IS NOT DISTINCT  FROM    
-                        | DISTINCT 
-                        | IS DISTINCT  
-                        | IS NOT DISTINCT                 
+    '''condicion_select : DISTINCT FROM                 
     '''
+    h.reporteGramatical1 +="condicion_select    ::=      DISTINCT FROM\n"
 
+def p_condicion_select_2(t):
+    '''condicion_select : IS DISTINCT FROM                             
+    '''
+    h.reporteGramatical1 +="condicion_select    ::=      IS DISTINCT FROM\n"
+
+
+def p_condicion_select_3(t):
+    '''condicion_select : IS NOT DISTINCT  FROM'''
+    h.reporteGramatical1 +="condicion_select    ::=     IS NOT DISTINCT  FROM\n"
+
+def p_condicion_select_4(t):
+    '''condicion_select : DISTINCT '''
+    h.reporteGramatical1 +="condicion_select    ::=      DISTINCT \n"
+
+def p_condicion_select_5(t):
+    '''condicion_select :  IS DISTINCT                 
+    '''
+    h.reporteGramatical1 +="condicion_select    ::=      IS DISTINCT\n"
+
+def p_condicion_select_6(t):
+    '''condicion_select : IS NOT DISTINCT                 
+    '''
+    h.reporteGramatical1 +="condicion_select    ::=     IS NOT DISTINCT\n"
 
 def p_funcion_basica_4(t):
     'funcionBasica   : operacion BETWEEN operacion AND operacion'
+    h.reporteGramatical1 +="funcionBasica    ::=      operacion BETWEEN operacion AND operacion\n"
 
 def p_funcion_basica_5(t):
     'funcionBasica   :  operacion LIKE CADENA'
+    h.reporteGramatical1 +="funcionBasica    ::=      operacion LIKE CADENA\n"
 
 def p_funcion_basica_6(t):
     'funcionBasica   : operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA '
+    h.reporteGramatical1 +="funcionBasica    ::=      operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA\n"
 
 def p_funcion_basica_7(t):
     'funcionBasica   : operacion NOT BETWEEN operacion AND operacion '
+    h.reporteGramatical1 +="funcionBasica    ::=      operacion NOT BETWEEN operacion AND operacion\n"
 
 def p_funcion_basica_8(t):
     'funcionBasica   : operacion  BETWEEN SYMMETRIC operacion AND operacion'
+    h.reporteGramatical1 +="funcionBasica    ::=      operacion  BETWEEN SYMMETRIC operacion AND operacion\n"
 
 def p_funcion_basica_9(t):
     'funcionBasica   : operacion NOT BETWEEN SYMMETRIC operacion AND operacion'
+    h.reporteGramatical1 +="funcionBasica    ::=      operacion NOT BETWEEN SYMMETRIC operacion AND operacion\n"
 
 
 def p_funcion_basica_10(t):
     'funcionBasica   : operacion condicion_select operacion'
+    h.reporteGramatical1 +="funcionBasica    ::=      operacion condicion_select operacion\n"
 
 #para manejar los errores sintacticos
 #def p_error(t): #en modo panico :v
@@ -903,6 +1315,21 @@ def p_error(t):
      print("token: '%s'" %t)
      print("Error sintáctico en '%s' " % t.value)
      #h.filapivote+=1
+     x=caden.splitlines()
+     filas=len(x)-1
+     print("filas que no cambian: ",filas)
+     
+     if h.filapivote>0:
+         fila=(t.lineno-1)-h.filapivote*filas
+     else:
+         fila=(t.lineno-1)
+     h.filapivote+=1
+     h.errores+=  "<tr><td>"+str(t.value)+"</td><td>"+str(fila)+"</td><td>"+str(find_column(caden,t))+"</td><td>SINTACTICO</td><td>el token no va aqui</td></tr>\n"
+     print("Error sintáctico fila '%s'" % fila)
+     print("Error sintáctico col '%s'" % find_column(caden,t))
+     if not t:
+         print("End of File!")
+         return
      # Read ahead looking for a closing '}'
      while True:
          tok = parser.token()             # Get the next token
@@ -914,4 +1341,7 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 def parse(input) :
+    global caden
+    caden=""
+    caden=input
     return parser.parse(input)

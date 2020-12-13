@@ -12,7 +12,21 @@ class select(NodoArbol):
         self.listawhere = listawhere
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+        #for item in self.listavalores:
+            #item_:Valor = item.execute(entorno, arbol)
+            #print(item_.data)
+        #pass
+        print(self.ID)
         for item in self.listawhere:
             item_:Valor = item.execute(entorno, arbol)
             print(item_.data)
         pass
+        valor_:Valor = Valor(0, 7)
+        value:Valor = Valor(666, "Matrix")
+        value.inicializarMatrix_boring(5,5)
+        value.consola_imprimirMatriz_NERY()
+        encabezados:list = ['1ra', '2da', '3ra', '4ta', '5ta']
+        value.establecer_encabezados(encabezados)
+        value.ingresar_aMatriz_boring(valor_, 1, 1)
+        value.ingresar_aMatriz_boring(valor_, 3, 1)
+        value.consola_imprimirMatriz_NERY()

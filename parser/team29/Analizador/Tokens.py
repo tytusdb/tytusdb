@@ -45,7 +45,6 @@ reservadas = {
     "NULL": "R_NULL",
     "OWNER": "R_OWNER",
     "MODE": "R_MODE",
-    "INHERITS": "R_INHERITS",
     "ALTER": "R_ALTER",
     "RENAME": "R_RENAME",
     "TO": "R_TO",
@@ -56,7 +55,6 @@ reservadas = {
     "COLUMN": "R_COLUMN",
     "SELECT": "R_SELECT",
     "DISTINCT": "R_DISTINCT",
-    "FROM": "R_FROM",
     "UNION": "R_UNION",
     "INTERSECT": "R_INTERSECT",
     "EXCEPT": "R_EXCEPT",
@@ -84,7 +82,7 @@ reservadas = {
     "NOTNULL": "R_NOTNULL",
     "TRUE": "R_TRUE",
     "FALSE": "R_FALSE",
-    "UNKOWN": "R_UNKOWN",
+    "UNKNOWN": "R_UNKNOWN",
     "LIKE": "R_LIKE",
     "ALL": "R_ALL",
     "ANY": "R_ANY",
@@ -149,7 +147,6 @@ tokens = [
     "OL_MENORQUE",
     "OL_MAYORIGUALQUE",
     "OL_MENORIGUALQUE",
-    "OL_NOT",
     # Operadores de cadena
     "OC_CONCATENAR",
     "OC_AND",
@@ -165,12 +162,6 @@ tokens = [
     "S_PUNTOCOMA",
     "S_PUNTO",
     "S_IGUAL",
-    # Secuencias de escape
-    "ES_B",
-    "ES_F",
-    "ES_N",
-    "ES_R",
-    "ES_T",
     # Tokens
     "ID",
     "INTEGER",
@@ -190,13 +181,11 @@ t_O_DIVISION = r"/"
 t_O_EXPONENTE = r"\^"
 t_O_MODULAR = r"%"
 
-t_OL_ESIGUAL = r"=="
 t_OL_DISTINTODE = r"!=|<>"
 t_OL_MAYORQUE = r">"
 t_OL_MENORQUE = r"<"
 t_OL_MAYORIGUALQUE = r">="
 t_OL_MENORIGUALQUE = r"<="
-t_OL_NOT = r"!"
 
 t_OC_CONCATENAR = r"\|\|"
 t_OC_AND = r"&"
@@ -205,12 +194,6 @@ t_OC_XOR = r"\#"
 t_OC_NOT = r"~"
 t_OC_SHIFTL = r"<<"
 t_OC_SHIFTR = r">>"
-
-t_ES_B = r"\\b"
-t_ES_F = r"\\f"
-t_ES_N = r"\\n"
-t_ES_R = r"\\r"
-t_ES_T = r"\\t"
 
 t_S_PARIZQ = r"\("
 t_S_PARDER = r"\)"
@@ -270,9 +253,9 @@ def t_STRING(t):
 
 # Funcion para evaluer si el token reconocido es un comentario
 def t_COMMENT(t):
-    r"\--(.*)\n|/\*(.|\n)*?\*/"
+    r"\-\-(.*)\n|/\*(.|\n)*?\*/"
     t.lexer.lineno += t.value.count("\n")
-    t.lexer.skip(1)
+    t.lexer.skip(0)
 
 
 # Funcion para obsorver los enters
