@@ -15,7 +15,9 @@ class Lcm(Instruccion):
         return math.lcm(self.valor)
         '''
 
+'''
 #esta funcion solo se  encuentra en la version 3.9 y nosotros no la tenemos :'(
 instruccion = Lcm("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

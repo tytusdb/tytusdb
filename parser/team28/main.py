@@ -1,4 +1,3 @@
-
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
@@ -6,10 +5,16 @@ from tkinter.filedialog import asksaveasfilename
 from tkinter import messagebox
 from tkinter import scrolledtext
 from tkinter.font import Font
+
+import os
+
 from utils.analyzers.syntactic import *
 from utils.reports.generate_ast import GraficarAST
 from utils.reports.report_error import ReportError
-import os
+from test.tp_test import runTestTP
+
+report_error = None
+report_ast = None
 
 
 class GUI:
@@ -53,10 +58,23 @@ class GUI:
         archivoMenu.add_cascade(label="Ejecutar", menu=archivoEjecutar)
         archivoMenu.add_separator()
         archivoMenu.add_command(label="Salir", command=self.terminar)
+        #############################################MENU WINDOWS##############################################
+        windows_menu = Menu(barraMenu, tearoff=0)
+        windows_menu.add_command(
+            label='Report AST', command=self.report_ast_windows)
+        windows_menu.add_command(
+            label='Report Errors', command=self.report_errors_windows)
+        #############################################MENU LINUX################################################
+        ubuntu_menu = Menu(barraMenu, tearoff=0)
+        ubuntu_menu.add_command(
+            label='Report AST', command=self.report_ast_ubuntu)
+        ubuntu_menu.add_command(label='Report Errors',
+                                command=self.report_errors_ubuntu)
         #############################################MENU REPORTES#############################################
         archivoReportes = Menu(barraMenu, tearoff=0)
-        archivoReportes.add_command(label="AST  Windows", command=self.report_ast_windows)
-        archivoReportes.add_command(label="AST  Linux", command=self.report_ast_ubuntu)
+        archivoReportes.add_cascade(label="Windows", menu=windows_menu)
+        archivoReportes.add_separator()
+        archivoReportes.add_cascade(label="Linux", menu=ubuntu_menu)
         #############################################MENU PRINCIPAL#############################################
         barraMenu.add_cascade(
             label="Archivo", menu=archivoMenu)  # anade submenu
@@ -71,7 +89,8 @@ class GUI:
             frame, height=30, width=80, bg='linen')
         self.entrada.grid(row=4, column=0, padx=30)
 
-        Button(frame, text='   ANALIZAR   ', command=self.analizar_entrada, fg="blue").grid(row=4, column=1)
+        Button(frame, text='   ANALIZAR   ',
+               command=self.analizar_entrada, fg="blue").grid(row=4, column=1)
 
         # Para este editor aun hay que ver si lo usamos como consola para errores, si no lo quitamos
         Label(frame, text='Errores:', background='salmon').grid(row=3, column=2)
@@ -115,32 +134,54 @@ class GUI:
 
     # Opcion para ejecutar el texto de entrada del editor
     def analizar_entrada(self):
+        global report_error
+        global report_ast
         texto = self.entrada.get("1.0", END)
-        graficadora = GraficarAST()
         result = parse(texto)
+        report_ast = result
         values = list_errors.head_value
         if values is not None:
             report_error = ReportError(list_errors)
-            report = open('error.html', 'w')
-            report.write(report_error.get_report())
-            report.close()
-            messagebox.showerror('ERRORES', 'Se encontraron errores')  
+            messagebox.showerror('ERRORES', 'Se encontraron errores')
         else:
-            report = open('dot.txt', 'w')
-            report.write(graficadora.generate_string(result))
-            report.close()
-            messagebox.showinfo("EXITO", "SE FINALIZO EL ANALISIS SINTACTICO")
+            messagebox.showinfo("EXITO", "SE FINALIZO EL ANALISIS CON EXITO")
 
     # Para mostrar el editor
     def report_ast_ubuntu(self):
-        os.system('dot -Tpdf test.txt -o ast.pdf')
+        global report_ast
+        graficadora = GraficarAST()
+        report = open('./team28/dot.txt', 'w')
+        report.write(graficadora.generate_string(report_ast))
+        report.close()
+        os.system('dot -Tpdf ./team28/dot.txt -o ./team28/ast.pdf')
         # Si estan en ubuntu dejan esta linea si no la comentan y descomentan la otra para windows
-        os.system('xdg-open ast.pdf')
+        os.system('xdg-open ./team28/ast.pdf')
         # os.open('ast.pdf')
         # os.startfile('ast.pdf')
 
+    def report_errors_ubuntu(self):
+        global report_error
+        report = open('./team28/dot.txt', 'w')
+        report.write(report_error.get_report())
+        report.close()
+        os.system('dot -Tpdf ./team28/dot.txt -o ./team28/error.pdf')
+        os.system('xdg-open ./team28/error.pdf')
+
+    def report_errors_windows(self):
+        global report_error
+        report = open('dot.txt', 'w')
+        report.write(report_error.get_report())
+        report.close()
+        os.system('dot -Tpdf dot.txt -o  error.pdf')
+        os.startfile('error.pdf')
+
     def report_ast_windows(self):
-        os.system('dot -Tpdf test.txt -o ast.pdf')
+        global report_ast
+        graficadora = GraficarAST()
+        report = open('dot.txt', 'w')
+        report.write(graficadora.generate_string(report_ast))
+        report.close()
+        os.system('dot -Tpdf dot.txt -o ast.pdf')
         os.startfile('ast.pdf')
 
     # Para salir de la aplicacion

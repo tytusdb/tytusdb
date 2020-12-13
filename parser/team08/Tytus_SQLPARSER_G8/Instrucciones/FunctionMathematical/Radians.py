@@ -14,5 +14,7 @@ class Radians(Instruccion):
         resultado = math.radians(self.valor)
         return resultado
 
+'''
 instruccion = Radians(1,None, 1,2)
 instruccion.ejecutar(None,None)
+'''

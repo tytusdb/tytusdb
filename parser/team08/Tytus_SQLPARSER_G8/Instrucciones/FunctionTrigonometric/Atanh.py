@@ -14,6 +14,9 @@ class Atanh(Instruccion):
         return math.atanh(self.valor)
 
 #se necesitan floats :D
+'''
 instruccion = Atanh(0.59,None, 1,2)
 
 instruccion.ejecutar(None,None)
+
+'''

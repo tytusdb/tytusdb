@@ -13,6 +13,8 @@ class Acosh(Instruccion):
         print(math.acosh(self.valor))
         return math.acosh(self.valor)
 
+'''
 instruccion = Acosh(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

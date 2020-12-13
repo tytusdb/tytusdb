@@ -13,7 +13,8 @@ class Cosh(Instruccion):
         print(math.cosh(self.valor))
         return math.cosh(self.valor)
 
-
+'''
 instruccion = Cosh(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
