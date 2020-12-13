@@ -143,7 +143,8 @@ parser.out
 parsetab.py
 
 *.dot
-ast.pdf
+*.pdf
+
 dot.txt
 error.html
 typeChecker.png
@@ -151,3 +152,4 @@ typeChecker.png
 storageManager/
 test/
 data/
+view/

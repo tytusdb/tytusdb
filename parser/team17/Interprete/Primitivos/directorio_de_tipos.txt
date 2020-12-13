@@ -1,0 +1,4 @@
+0 -> entero
+1 -> decimal
+2 -> String
+3 -> boolean

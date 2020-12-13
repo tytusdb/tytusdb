@@ -1,7 +1,8 @@
 #PARSER
 import ply.yacc as yacc
 import lexico
-import nodos as grammer
+import nodo as grammer
+import graficas as generar
 
 tokens = lexico.tokens
 
@@ -16,199 +17,210 @@ precedence = (
 )
 
 
-def p_inicio(p):
-		'''inicio : instrucciones'''
-        node = grammer.nodoDireccion('inicio')
-        node.agregar(t[1])
-        t[0] = node
+def p_inicio(t):
+                '''inicio : instrucciones'''
+                node = grammer.nodoDireccion('inicio')
+                node.agregar(t[1])
+                t[0] = node
 
-def p_instrucciones(p):
-		'''instrucciones : instrucciones NEWLINE instruccion'''
-        #se genera el nodo del arbol
+def p_instrucciones(t):
+        '''instrucciones : instrucciones NEWLINE instruccion'''
+
         node = grammer.nodoDireccion('instrucciones')
         node.agregar(t[1])
-        node.agregar(t[3])
-    
+        node.agregar(t[3])    
         t[0] =node
 
 
-def p_instrucciones2(p):
-        '''instrucciones : instruccion'''
+def p_instrucciones2(t):
+        'instrucciones : instruccion'
         node = grammer.nodoDireccion('instrucciones')
         node.agregar(t[1])
         t[0]= node
 
-def p_instruccion(p):
-		'''instruccion : ddl
-		            | dml'''
+def p_instruccion(t):
+        '''instruccion : ddl
+			        | dml'''
         node = grammer.nodoDireccion('instruccion')
         node.agregar(t[1])
         t[0]= node
 
 
-def p_ddl(p):
-		'''ddl : sentencia_create
-		    | sentencia_alter
-		    | sentencia_drop
-		    | sentencia_truncate'''
+def p_ddl(t):
+        '''ddl : sentencia_create
+			| sentencia_alter
+			| sentencia_drop
+			| sentencia_truncate'''
 
         node = grammer.nodoDireccion('ddl')
         node.agregar(t[1])
         t[0] = node
 
-def p_dml(p):
-		'''dml : sentencia_insert
-		    | sentencia_update
-		    | sentencia_delete
-		    | sentencia_select
-		    | sentencia_show'''
+def p_dml(t):
+        '''dml : sentencia_insert
+			| sentencia_update
+			| sentencia_delete
+			| sentencia_select
+			| sentencia_show'''
         node = grammer.nodoDireccion('dml')
         node.agregar(t[1])
         t[0]= node
 
 #----------DDL----------
 #CREAR
-def p_crear(p):
-		'''sentencia_create : create create_cont
-							| replace create_cont'''
+def p_crear(t):
+        '''sentencia_create : create create_cont
+				        | replace create_cont'''
 
         node = grammer.nodoDireccion('sentencia_Create')
-        node1 = grammer.nodoDireccion(''+t[1])
+        node1 = grammer.nodoDireccion(t[1])
         node.agregar(node1)
         node.agregar(t[2])
         t[0]= node
 
 
-def p_create_cont(p):
-		'''create_cont : database if_not pyc'''
-        node = grammer.nodoDireccion('create_cont')
-        node1 = grammer.nodoDireccion(''+t[1])
-        node.agregar(node1)
-        node.agregar(t[2])
-        t[0]= node
+def p_create_cont(t):
+                'create_cont : database if_not pyc'
+                node = grammer.nodoDireccion('create_cont')
+                node1 = grammer.nodoDireccion(t[1])
+                node.agregar(node1)
+                node.agregar(t[2])
+                t[0]= node
 
-def p_create_cont2(p):
-        '''create_cont : table if_not par1 col_tabla par2 fin_tabla '''
-        node = grammer.nodoDireccion('create_cont')
-        node1 = grammer.nodoDireccion(''+t[1])
-        node.agregar(node1)
-        node.agregar(t[2])
-        node.agregar(t[4])
-        node.agregar(t[6])
-        t[0] = node
+def p_create_cont2(t):
+    'create_cont : table if_not par1 col_tabla par2 fin_tabla '
+    node = grammer.nodoDireccion('create_cont')
+    node1 = grammer.nodoDireccion(t[1])
+    node.agregar(node1)
+    node.agregar(t[2])
+    node.agregar(t[4])
+    node.agregar(t[6])
+    t[0] = node
 
-def p_create_cont3(p):
-        '''create_cont : type valor as enum par1 lista_insertar par2 pyc'''
-        node = grammer.nodoDireccion('create_cont')
-        node1 = grammer.nodoDireccion(''+t[1])
-        node.agregar(node1)
-        node.agregar(t[2])
-        node2 = grammer.nodoDireccion(' '+t[3])
-        node3 = grammer.nodoDireccion(' '+t[4])
-        node.agregar(node2)
-        node.agregar(node3)
-        node.agregar(t[6])
-        t[0]=node
+def p_create_cont3(t):
+    '''create_cont : type valor as enum par1 lista_insertar par2 pyc'''
+    node = grammer.nodoDireccion('create_cont')
+    node1 = grammer.nodoDireccion(t[1])
+    node.agregar(node1)
+    node.agregar(t[2])
+    node2 = grammer.nodoDireccion(t[3])
+    node3 = grammer.nodoDireccion(t[4])
+    node.agregar(node2)
+    node.agregar(node3)
+    node.agregar(t[6])
+    t[0]=node
 
-def p_inherits(p):
-		'''fin_tabla : inherits par1 identificador par2 pyc'''
-        node = grammer.nodoDireccion('fin_tabla')
-        node1 = grammer.nodoDireccion(''+t[1])
-        node.agregar(node1)
-        node.agregar(t[3])
-        t[0] = node
+def p_inherits(t):
+    '''fin_tabla : inherits par1 identificador par2 pyc'''
+    node = grammer.nodoDireccion('fin_tabla')
+    node1 = grammer.nodoDireccion(''+t[1])
+    node2 = grammer.nodoDireccion(t[2])
+    node3 = grammer.nodoDireccion(t[3])
+    node4 = grammer.nodoDireccion(t[4])
+    node5 = grammer.nodoDireccion(t[5])
+    node.agregar(node1)
+    node.agregar(node2)
+    node.agregar(node3)
+    node.agregar(node4)
+    node.agregar(node5)
+    t[0] = node
 
-def p_inherits2(p):
-        '''fin_tabla : pyc'''
-        node = grammer.nodoDireccion('fin_tabla')
-        node1 = grammer.nodoDireccion(''+t[1])
-        node.agregar(node1)
-        t[0] = node
+def p_inherits2(t):
+    '''fin_tabla : pyc'''
+    node = grammer.nodoDireccion('fin_tabla')
+    node1 = grammer.nodoDireccion(''+t[1])
+    node.agregar(node1)
+    t[0] = node
 
-def p_if_not(p):
-		'''if_not : if not exists identificadorr'''
-        node = grammer.nodoDireccion('if_not')
-        node1 = grammer.nodoDireccion(''+t[1])
-        node.agregar(node1)
-        node.agregar(t[2])
-        node.agregar
-def p_if_not2(p):
-        '''if_not : identificador'''
-        node =grammer.nodoDireccion('if_not')
-        node1 =grammer.nodoDireccion('(ID)'+ t[1])
-        node.agregar(node1)
-        t[0]= node
+def p_if_not(t):
+    '''if_not : if not exists identificador'''
+    node = grammer.nodoDireccion('if_not')
+    node1 = grammer.nodoDireccion(''+t[1])
+    node2 = grammer.nodoDireccion(t[2])
+    node3 = grammer.nodoDireccion(t[3])
+    node4 = grammer.nodoDireccion(t[4])
+    node.agregar(node1)
+    node.agregar(node2)
+    node.agregar(node3)
+    node.agregar(node4)
+    t[0]= node
+def p_if_not2(t):
+    '''if_not : identificador'''
+    node =grammer.nodoDireccion('if_not')
+    node1 =grammer.nodoDireccion('(ID)'+ t[1])
+    node.agregar(node1)
+    t[0]= node
 
-def p_if_not3(p):
-        '''if_not : if not exists identificador owner igual valor'''
-        node =grammer.nodoDireccion('if_not')
-        node1= grammer.nodoDireccion(t[1])
-        node2 = grammer.nodoDireccion(t[2])
-        node3 = grammer.nodoDireccion(t[3])
-        node4= grammer.nodoDireccion('(ID) '+t[4])
-        node5 = grammer.nodoDireccion(t[5])
-        node6 = grammer.nodoDireccion(t[6])
-        node.agregar(node1)
-        node.agregar(node2)
-        node.agregar(node3)
-        node.agregar(node4)
-        node.agregar(node5)
-        node.agregar(node6)
-        node.agregar(t[7])
-        t[0]= node
+def p_if_not3(t):
+	        '''if_not : if not exists identificador owner igual valor'''
+	        node =grammer.nodoDireccion('if_not')
+	        node1= grammer.nodoDireccion(t[1])
+	        node2 = grammer.nodoDireccion(t[2])
+	        node3 = grammer.nodoDireccion(t[3])
+	        node4= grammer.nodoDireccion('(ID) '+t[4])
+	        node5 = grammer.nodoDireccion(t[5])
+	        node6 = grammer.nodoDireccion(t[6])
+	        node.agregar(node1)
+	        node.agregar(node2)
+	        node.agregar(node3)
+	        node.agregar(node4)
+	        node.agregar(node5)
+	        node.agregar(node6)
+	        node.agregar(t[7])
+	        t[0]= node
 
-def p_if_not4(p):
-        '''if_not : identificador owner valor'''
-        node =grammer.nodoDireccion('if_not')
-        node1= grammer.nodoDireccion('(ID)'+t[1])
-        node2 = grammer.nodoDireccion(t[2])
-        node.agregar(node1)
-        node.agregar(node2)
-        node.agregar(t[3])
-        t[0]= node
-def p_if_not5(p):
-        '''if_not : if not exists identificador mode igual valor'''
-        node =grammer.nodoDireccion('if_not')
-        node1= grammer.nodoDireccion(t[1])
-        node2 = grammer.nodoDireccion(t[2])
-        node3 = grammer.nodoDireccion(t[3])
-        node4= grammer.nodoDireccion('(ID) '+t[4])
-        node5 = grammer.nodoDireccion(t[5])
-        node6 = grammer.nodoDireccion(t[6])
-        node.agregar(node1)
-        node.agregar(node2)
-        node.agregar(node3)
-        node.agregar(node4)
-        node.agregar(node5)
-        node.agregar(node6)
-        node.agregar(t[7])
-        t[0]= node
+def p_if_not4(t):
+	        '''if_not : identificador owner valor'''
+	        node =grammer.nodoDireccion('if_not')
+	        node1= grammer.nodoDireccion('(ID)'+t[1])
+	        node2 = grammer.nodoDireccion(t[2])
+	        node.agregar(node1)
+	        node.agregar(node2)
+	        node.agregar(t[3])
+	        t[0]= node
+def p_if_not5(t):
+	        '''if_not : if not exists identificador mode igual valor'''
+	        node =grammer.nodoDireccion('if_not')
+	        node1= grammer.nodoDireccion(t[1])
+	        node2 = grammer.nodoDireccion(t[2])
+	        node3 = grammer.nodoDireccion(t[3])
+	        node4= grammer.nodoDireccion('(ID) '+t[4])
+	        node5 = grammer.nodoDireccion(t[5])
+	        node6 = grammer.nodoDireccion(t[6])
+	        node.agregar(node1)
+	        node.agregar(node2)
+	        node.agregar(node3)
+	        node.agregar(node4)
+	        node.agregar(node5)
+	        node.agregar(node6)
+	        node.agregar(t[7])
+	        t[0]= node
 
-def p_if_not6(p):
-        '''if_not : identificador mode igual valor'''
-        node =grammer.nodoDireccion('if_not')
-        node1= grammer.nodoDireccion('(ID) 't[1])
-        node2 = grammer.nodoDireccion(t[2])
-        node3 = grammer.nodoDireccion(t[3])
-        node.agregar(node1)
-        node.agregar(node2)
-        node.agregar(node3)
-        node.agregar(t[4])
-        t[0]= node
+def p_if_not6(t):
+	'if_not : identificador mode igual valor'
+	node =grammer.nodoDireccion('if_not')
+	node1= grammer.nodoDireccion('(ID) '+t[1])
+	node2 = grammer.nodoDireccion(t[2])
+	node3 = grammer.nodoDireccion(t[3])
+	node.agregar(node1)
+	node.agregar(node2)
+	node.agregar(node3)
+	node.agregar(t[4])
+	t[0]= node
 
-def p_col_tabla(p):
-		'''col_tabla : col_tabla coma identificador tipo propiedades'''
-        node =grammer.nodoDireccion('col_tabla')
-        node.agregar(t[1])
-        node2 = grammer.nodoDireccion(t[2])
-        node4= grammer.nodoDireccion('(ID) '+t[3])
-        node.agregar(node2)
-        node.agregar(node4)
-        node.agregar(t[4])
-        node.agregar(t[5])
-        t[0]= node
+def p_col_tabla(t):
+	'col_tabla : col_tabla coma identificador tipo propiedades'
+	node =grammer.nodoDireccion('col_tabla')
+	node.agregar(t[1])
+	node2 = grammer.nodoDireccion(t[2])
+	node4= grammer.nodoDireccion('(ID) '+t[3])
+	node.agregar(node2)
+	node.agregar(node4)
+	node.agregar(t[4])
+	node.agregar(t[5])
+	t[0]= node
 
-def p_col_tabla2(p):
+def p_col_tabla2(t):
         '''col_tabla : col_tabla coma identificador tipo'''
         node =grammer.nodoDireccion('col_tabla')
         node.agregar(t[1])
@@ -219,16 +231,15 @@ def p_col_tabla2(p):
         node.agregar(t[4])
         t[0]= node
 
-def p_col_tabla3(p):
+def p_col_tabla3(t):
         '''col_tabla : identificador tipo propiedades'''
         node =grammer.nodoDireccion('col_tabla')       
         node2 = grammer.nodoDireccion(t[1]) 
         node.agregar(node2)
         node.agregar(t[2])
-        node5 = grammer.nodoDireccion(t[3])
-        node.agregar(node5)        
+        node.agregar(t[3])        
         t[0]= node
-def p_col_tabla4(p):
+def p_col_tabla4(t):
         '''col_tabla : identificador tipo'''
         node =grammer.nodoDireccion('col_tabla')
         
@@ -237,7 +248,7 @@ def p_col_tabla4(p):
         node.agregar(t[2])
         t[0]= node
 
-def p_col_tabla5(p):
+def p_col_tabla5(t):
         '''col_tabla : foreing key lista_id references identificador'''
         node =grammer.nodoDireccion('col_tabla')
         node1= grammer.nodoDireccion(t[1])
@@ -252,7 +263,7 @@ def p_col_tabla5(p):
         t[0]= node
         
 
-def p_col_tabla6(p):
+def p_col_tabla6(t):
         '''col_tabla : col_tabla coma primary key lista_id'''
         node =grammer.nodoDireccion('col_tabla')
         node2 = grammer.nodoDireccion(t[2])
@@ -265,15 +276,15 @@ def p_col_tabla6(p):
         node.agregar(t[5])
         t[0]= node
 
-def p_propiedades(p):
-		'''propiedades : null propiedades'''
+def p_propiedades(t):
+        'propiedades : null propiedades'
         node = grammer.nodoDireccion('propiedades')
         node1 = grammer.nodoDireccion(t[1])
         node.agregar(node1)
         node.agregar(t[2])
         t[0] = node
 
-def p_propiedades2(p):
+def p_propiedades2(t):
         '''propiedades : not null propiedades'''
         node = grammer.nodoDireccion('propiedades')
         node1 = grammer.nodoDireccion(t[1])
@@ -282,14 +293,14 @@ def p_propiedades2(p):
         node.agregar(node2)
         node.agregar(t[3])
         t[0] = node
-def p_propiedades3(p):
+def p_propiedades3(t):
         '''propiedades : identity propiedades'''
         node = grammer.nodoDireccion('propiedades')
         node1 = grammer.nodoDireccion(t[1])
         node.agregar(node1)
         node.agregar(t[2])
         t[0] = node
-def p_propiedades4(p):
+def p_propiedades4(t):
         '''propiedades : primary key propiedades '''
         node = grammer.nodoDireccion('propiedades')
         node1 = grammer.nodoDireccion(t[1])
@@ -298,14 +309,14 @@ def p_propiedades4(p):
         node.agregar(node2)
         node.agregar(t[3])
         t[0] = node
-def p_propiedades5(p):
+def p_propiedades5(t):
         '''propiedades : null'''
         node = grammer.nodoDireccion('propiedades')
         node1 = grammer.nodoDireccion(t[1])
         
         node.agregar(node1)
         t[0] = node
-def p_propiedades6(p):
+def p_propiedades6(t):
         '''propiedades : not null'''
         node = grammer.nodoDireccion('propiedades')
         node1 = grammer.nodoDireccion(t[1])
@@ -313,13 +324,13 @@ def p_propiedades6(p):
         node.agregar(node1)
         node.agregar(node2)
         t[0] = node
-def p_propiedades7(p):
+def p_propiedades7(t):
         '''propiedades : identity'''
         node = grammer.nodoDireccion('propiedades')
         node1 = grammer.nodoDireccion(t[1])
         node.agregar(node1)
         t[0] = node
-def p_propiedades8(p):
+def p_propiedades8(t):
         '''propiedades : primary key'''
         node = grammer.nodoDireccion('propiedades')
         node1 = grammer.nodoDireccion(t[1])
@@ -327,27 +338,27 @@ def p_propiedades8(p):
         node.agregar(node1)
         node.agregar(node2)
         t[0] = node
-def p_tipo(p):
-		'''tipo : smallint
-			 | integer
-			 | bigint
-			 | decimal
-			 | numeric
-			 | real
-			 | double
-			 | money
-			 | character
-			 | text
-			 | date
-			 | boolean
-			 | int
-			 | identificador'''
+def p_tipo(t):
+        '''tipo    : smallint
+	        | integer
+	        | bigint
+	        | decimal
+	        | numeric
+	        | real
+	        | double
+	        | money
+	        | character
+	        | text
+	        | date
+	        | boolean
+	        | int
+	        | identificador'''
         node = grammer.nodoDireccion('tipo')
         node1 = grammer.nodoDireccion(t[1])
         node.agregar(node1)
         t[0] = node
 
-def p_tipo2(p):
+def p_tipo2(t):
         '''tipo : varying par1 num par2'''
         node = grammer.nodoDireccion('tipo')
         node1= grammer.nodoDireccion(t[1])
@@ -359,7 +370,7 @@ def p_tipo2(p):
         node.agregar(node3)
         node.agregar(node4)
         t[0]= node
-def p_tipo3(p):
+def p_tipo3(t):
         '''tipo : varchar par1 num par2'''
         node = grammer.nodoDireccion('tipo')
         node1= grammer.nodoDireccion(t[1])
@@ -371,7 +382,7 @@ def p_tipo3(p):
         node.agregar(node3)
         node.agregar(node4)
         t[0]= node
-def p_tipo4(p):
+def p_tipo4(t):
         '''tipo : character par1 num par2'''
         node = grammer.nodoDireccion('tipo')
         node1= grammer.nodoDireccion(t[1])
@@ -383,8 +394,8 @@ def p_tipo4(p):
         node.agregar(node3)
         node.agregar(node4)
         t[0]= node
-def p_tipo5(p):
-        '''tipo :char par1 num par2'''
+def p_tipo5(t):
+        '''tipo : char par1 num par2'''
         node = grammer.nodoDireccion('tipo')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -397,16 +408,16 @@ def p_tipo5(p):
         t[0]= node
 
 #ALTER
-def p_alter(p):
-		'''sentencia_alter : alter alter_objeto'''
+def p_alter(t):
+        '''sentencia_alter : alter alter_objeto'''
         node = grammer.nodoDireccion('sentencia_alter')
         node1= grammer.nodoDireccion(t[1])
         node.agregar(node1)
         node.agregar(t[2])
-        t[0]= t[1]
+        t[0]= node
 
-def p_alter_objeto(p):
-		'''alter_objeto : table identificador alter_cont pyc'''
+def p_alter_objeto(t):
+        '''alter_objeto : table identificador alter_cont pyc'''
         node = grammer.nodoDireccion('alter_objeto')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -417,9 +428,9 @@ def p_alter_objeto(p):
         node.agregar(node4)
         t[0]= node
 
-def p_alter_objeto2(p):
+def p_alter_objeto2(t):
         '''alter_objeto : database identificador rename to identificador pyc
-						| database identificador owner to identificador pyc'''
+        | database identificador owner to identificador pyc'''
         node = grammer.nodoDireccion('alter_objeto')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -435,19 +446,19 @@ def p_alter_objeto2(p):
         node.agregar(node6)
         t[0]= node
 
-def p_alter_cont(p):
-		'''alter_cont : add con_add
-				   | drop con_drop
-				   | rename con_rename
-				   | alter con_alter'''
+def p_alter_cont(t):
+        '''alter_cont : add con_add
+        		| drop con_drop
+        		| rename con_rename
+        		| alter con_alter'''
         node = grammer.nodoDireccion('alter_cont')
         node1= grammer.nodoDireccion(t[1])
         node.agregar(node1)
         node.agregar(t[2])
         t[0]= node
 
-def p_con_add(p):
-		'''con_add : column identificador tipo'''
+def p_con_add(t):
+        '''con_add : column identificador tipo'''
         node = grammer.nodoDireccion('con_add')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -456,15 +467,14 @@ def p_con_add(p):
         node.agregar(t[3])
         t[0]= node
 
-def p_con_add2(p):
-		'''con_add : check  par1 valor diferente vacio par2'''
+def p_con_add2(t):
+        '''con_add : check  par1 valor diferente vacio par2'''
         node = grammer.nodoDireccion('con_add')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
         node4 = grammer.nodoDireccion(t[4])
         node5 = grammer.nodoDireccion(t[5])
-        node6 = grammer.nodoDireccion(t[6])
-
+        node6 = grammer.nodoDireccion(t[6])     
         node.agregar(node1)
         node.agregar(node2)
         node.agregar(t[3])
@@ -472,268 +482,887 @@ def p_con_add2(p):
         node.agregar(node5)
         node.agregar(node6)
         t[0]= node
-def p_con_add3(p):
-		'''con_add : foreing key par1 identificador par2 references identificador'''
+def p_con_add3(t):
+        '''con_add : foreing key par1 identificador par2 references identificador'''
+        node= grammer.nodoDireccion('con_add')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node6 = grammer.nodoDireccion(t[6])
+        node7 = grammer.nodoDireccion(t[7])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        node.agregar(node6)
+        node.agregar(node7)
+        t[0]=node
 
-def p_con_drop(p):
-		'''con_drop : column identificador
-				 | constraint identificador '''
+def p_con_drop(t):
+        '''con_drop : column identificador
+        		 | constraint identificador '''
+        node= grammer.nodoDireccion('con_drop')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node.agregar(node1)
+        node.agregar(node2)
+        t[0]=node
 
-def p_con_rename(p):
-		'''con_rename : column identificador to identificador'''
+def p_con_rename(t):
+        '''con_rename : column identificador to identificador'''
+        node= grammer.nodoDireccion('con_raname')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(node4)
+        t[0]=node
 
-def p_con_alter(p):
-		'''con_alter : column identificador set not null'''
+def p_con_alter(t):
+        '''con_alter : column identificador set not null'''
+        node= grammer.nodoDireccion('con_alter')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        t[0]=node
 
 #DROP
-def p_drop(p):
-		'''sentencia_drop : drop objeto if_exist pyc'''
+def p_drop(t):
+        '''sentencia_drop : drop objeto if_exist pyc'''
+        node= grammer.nodoDireccion('sentencia_drop')
+        node1 = grammer.nodoDireccion(t[1])
+        #node2 = grammer.nodoDireccion(t[2])
+        node4 = grammer.nodoDireccion(t[4])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(t[3])
+        node.agregar(node4)
+        t[0]=node
 
-def p_if_exist(p) : 
-		'''if_exist : identificador'''
+def p_if_exist(t): 
+        'if_exist :  if exists identificador'
+        node= grammer.nodoDireccion('if_exist')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        t[0]=node
 
-def p_if_exist2(p) : 
-		'''if_exist :  identificador'''
+def p_if_exist2(t): 
+        'if_exist :  identificador'
+        node= grammer.nodoDireccion('if_exist')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        t[0]=node
 
-def p_objeto(p):
-		'''objeto : table
-			   | database'''
+def p_objeto(t):
+        '''objeto : table
+        	   | database'''
+        node= grammer.nodoDireccion('objeto')
+        node1 = grammer.nodoDireccion(t[1])     
+        node.agregar(node1)
+        t[0]=node
 
 #TRUNCATE
-def p_truncate(p):
-		'''sentencia_truncate : truncate table identificador pyc'''
+def p_truncate(t):
+        'sentencia_truncate : truncate table identificador pyc'
+        node= grammer.nodoDireccion('sentencia_truncate')
+        node1 = grammer.nodoDireccion(t[1]) 
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(node4)
+        t[0]=node
 
 #----------DML----------
 #INSERT
-def p_insert(p):
-		'''sentencia_insert : insert into identificador insert_cont pyc'''
+def p_insert(t):
+        'sentencia_insert : insert into identificador insert_cont pyc'
+        node= grammer.nodoDireccion('sentencia_insert')
+        node1 = grammer.nodoDireccion(t[1]) 
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node5 = grammer.nodoDireccion(t[5])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(t[4])
+        node.agregar(node5)
+        t[0]=node
 
-def p_insert_cont(p):
-		'''insert_cont : values par1 lista_insertar par2'''
+def p_insert_cont(t):
+        'insert_cont : values par1 lista_insertar par2'
+        node= grammer.nodoDireccion('insert_cont')
+        node1 = grammer.nodoDireccion(t[1]) 
+        node2 = grammer.nodoDireccion(t[2])
+        node4 = grammer.nodoDireccion(t[4])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(node4)
+        t[0]=node
                 
 
-def p_insert_cont2(p):
-		'''insert_cont : par1 lista_campos par2 values par1 lista_insertar par2'''
+def p_insert_cont2(t):
+        'insert_cont : par1 lista_campos par2 values par1 lista_insertar par2'
+        node= grammer.nodoDireccion('insert_cont')
+        node1 = grammer.nodoDireccion(t[1]) 
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node7 = grammer.nodoDireccion(t[7])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        node.agregar(t[6])
+        node.agregar(node7)
+        t[0]=node
 
-def p_lista_campos(p):
-		'''lista_campos : lista_campos coma identificador
-		 	  	 	 | identificador'''
+def p_lista_campos(t):
+        'lista_campos : lista_campos coma identificador'
+        node= grammer.nodoDireccion('lista_campos')
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])   
+        node.agregar(t[1])
+        node.agregar(node2)
+        node.agregar(node3)
+        t[0]=node
 
-def p_lista_campos(p):
-		'''lista_campos : identificador'''
+def p_lista_campos(t):
+        'lista_campos : identificador'
+        node= grammer.nodoDireccion('lista_campos')
+        node1 = grammer.nodoDireccion(t[1])   
+        node.agregar(node1)
+        t[0]=node
 
-def p_valor(p):
-		'''valor : num'''
+def p_valor(t):
+        'valor : num'
+        node= grammer.nodoDireccion('valor')
+        node1 = grammer.nodoDireccion(t[1])   
+        node.agregar(node1)
+        t[0]=node
 
-def p_valor2(p):
-		'''valor : cadena'''
+def p_valor2(t):
+        'valor : cadena'
+        node= grammer.nodoDireccion('valor')
+        node1 = grammer.nodoDireccion(t[1])   
+        node.agregar(node1)
+        t[0]=node
+                
+def p_valor3(t):
+        'valor : pdecimal'
+        node= grammer.nodoDireccion('valor')
+        node1 = grammer.nodoDireccion(t[1])   
+        node.agregar(node1)
+        t[0]=node
 
-def p_valor3(p):
-		'''valor : pdecimal'''
+def p_valor4(t):
+        'valor : identificador'
+        node= grammer.nodoDireccion('valor')
+        node1 = grammer.nodoDireccion(t[1])   
+        node.agregar(node1)
+        t[0]=node
 
-def p_valor4(p):
-		'''valor : identificador'''
+def p_valor5(t):
+        'valor : cadenacaracter'
+        node= grammer.nodoDireccion('valor')
+        node1 = grammer.nodoDireccion(t[1])   
+        node.agregar(node1)
+        t[0]=node
 
-def p_valor5(p):
-		'''valor : cadenacaracter'''
+def p_valor6(t):
+        'valor : substring par1 valor coma valor coma valor par2'
+        node= grammer.nodoDireccion('valor')
+        node1 = grammer.nodoDireccion(t[1])   
+        node2 = grammer.nodoDireccion(t[2])    
+        node4 = grammer.nodoDireccion(t[4]) 
+        node6 =grammer.nodoDireccion(t[6])
+        node8 = grammer.nodoDireccion(t[8])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(node4)
+        node.agregar(t[5])
+        node.agregar(node6)
+        node.agregar(t[7])
+        node.agregar(node8)
+        t[0]=node
 
-def p_valor6(p):
-		'''valor : substring par1 valor coma valor coma valor par2'''
+def p_lista_insertar(t):
+        'lista_insertar : lista_insertar coma operacion_aritmetica'
+        node= grammer.nodoDireccion('lista_insertar') 
+        node2 = grammer.nodoDireccion(t[2])   
+        node.agregar(t[1])
+        node.agregar(node2)
+        node.agregar(t[3])
+        t[0]=node
 
-def p_lista_insertar(p):
-		'''lista_insertar : lista_insertar coma operacion_aritmetica
-					   | operacion_aritmetica'''
+def p_lista_insertar2(t):
+        'lista_insertar : operacion_aritmetica'
+        node= grammer.nodoDireccion('lista_insertar')
+        node.agregar(t[1])
+        t[0]=node
+                
 
 #UPDATE
-def p_update(p):
-		'''sentencia_update : update  identificador set identificador igual operacion_aritmetica condicion'''
+def p_update(t):
+        'sentencia_update : update  identificador set identificador igual operacion_aritmetica condicion'
+        node= grammer.nodoDireccion('sentencia_update')
+        node1 = grammer.nodoDireccion(t[1])   
+        node2 = grammer.nodoDireccion(t[2])   
+        node3 = grammer.nodoDireccion(t[3])   
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])    
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        node.agregar(t[6])
+        node.agregar(t[7])
+        t[0]=node
 
 #DELETE
-def p_delete(p):
-		'''sentencia_delete : delete from delete_cont condicion'''
+def p_delete(t):
+        'sentencia_delete : delete from delete_cont condicion'
+        node= grammer.nodoDireccion('sentencia_delete')
+        node1 = grammer.nodoDireccion(t[1])   
+        node2 = grammer.nodoDireccion(t[2])        
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(t[4])
+        t[0]=node        
+def p_delete_cont(t):
+        'delete_cont : only identificador'
+        node= grammer.nodoDireccion('delete_cont')
+        node1 = grammer.nodoDireccion(t[1])   
+        node2 = grammer.nodoDireccion(t[2])        
+        node.agregar(node1)
+        node.agregar(node2)
+        t[0]=node
 
-def p_delete_cont(p):
-		'''delete_cont : only identificador'''
+def p_delete_cont2(t):
+        'delete_cont : only identificador por'
+        node= grammer.nodoDireccion('delete_cont')
+        node1 = grammer.nodoDireccion(t[1])   
+        node2 = grammer.nodoDireccion(t[2])   
+        node3 = grammer.nodoDireccion(t[3])       
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        t[0]=node
 
-def p_delete_cont2(p):
-		'''delete_cont : only identificador por'''
 
-def p_delete_cont3(p):
-		'''delete_cont : identificador por'''
+def p_delete_cont3(t):
+        'delete_cont : identificador por'
+        node= grammer.nodoDireccion('delete_cont')
+        node1 = grammer.nodoDireccion(t[1])   
+        node2 = grammer.nodoDireccion(t[2])          
+        node.agregar(node1)
+        node.agregar(node2)
+        t[0]=node
 
-def p_delete_cont4(p):
-		'''delete_cont : identificador'''
+def p_delete_cont4(t):
+        'delete_cont : identificador'
+        node= grammer.nodoDireccion('delete_cont')
+        node1 = grammer.nodoDireccion(t[1])             
+        node.agregar(node1)
+        t[0]=node
 
 #SELECT
-def p_select(p):
-		'''sentencia_select : select opciones_fecha'''
+def p_select(t):
+        'sentencia_select : select opciones_fecha'
+        node= grammer.nodoDireccion('sentencia_select')
+        node1 = grammer.nodoDireccion(t[1])               
+        node.agregar(node1)
+        node.agregar(t[2])
+        t[0]=node
 
-def p_select2(p):
-		'''sentencia_select : select select_cont from lista_from order_by'''
+def p_select2(t):
+        'sentencia_select : select select_cont from lista_from condicion_cont'
+        node= grammer.nodoDireccion('sentencia_select')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])               
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        node.agregar(t[4])
+        node.agregar(t[5])
+        t[0]=node
 
-def p_order(p):
-		'''order_by : order by identificador opcion_order order_by'''
+def p_order(t):
+        'order_by : order by identificador opcion_order order_by'
+        node= grammer.nodoDireccion('order_by')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])               
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(t[4])
+        node.agregar(t[5])
+        t[0]=node
 
-def p_order2(p):
-		'''order_by : condicion_cont'''
+def p_order2(t):
+        'order_by : condicion_cont'
+        node= grammer.nodoDireccion('order_by')
+        node.agregar(t[1])
+        t[0]=node
 
-def p_order3(p):
-		'''order_by : limit operacion_aritmetica order_by'''
+def p_order3(t):
+        'order_by : limit operacion_aritmetica order_by'
+        node= grammer.nodoDireccion('order_by')
+        node1 = grammer.nodoDireccion(t[1])        
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(t[3])
+        t[0]=node
 
-def p_order4(p):
-		'''order_by : offset operacion_aritmetica order_by'''
+def p_order4(t):
+        '''order_by : offset operacion_aritmetica order_by'''
+        node= grammer.nodoDireccion('order_by')
+        node1 = grammer.nodoDireccion(t[1])          
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(t[3])
+        t[0]=node
 
-def p_opcion_order(p):
-		'''opcion_order : asc
-					 | desc'''
+def p_opcion_order(t):
+        '''opcion_order : asc
+        			 | desc'''
+        node= grammer.nodoDireccion('opcion_order')
+        node1 = grammer.nodoDireccion(t[1])
 
-def p_condicion_cont(p):
-		'''condicion_cont : where operacion_logica fin_select'''
+        node.agregar(node1)
+        t[0]=node
 
-def p_condicion_cont2(p):
-		'''condicion_cont : where operacion_logica group by identificador fin_select'''
+def p_condicion_cont(t):
+        '''condicion_cont : where operacion_logica fin_select'''
+        node= grammer.nodoDireccion('condicion_cont')
+        node1 = grammer.nodoDireccion(t[1])
 
-def p_condicion_cont3(p):
-		'''condicion_cont : group by lista_id fin_select'''
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(t[3])
+        t[0]=node
+def p_condicion_cont1(t):
+        'condicion_cont : where operacion_relacional fin_select'
+        node= grammer.nodoDireccion('condicion_cont')
+        node1 = grammer.nodoDireccion(t[1])              
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(t[3])
+        t[0]=node
+def p_condicion_cont2(t):
+        'condicion_cont : where operacion_logica group by identificador fin_select'
+        node= grammer.nodoDireccion('condicion_cont')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node5= grammer.nodoDireccion(t[5])                
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        node.agregar(t[6])
+        t[0]=node
 
-def p_condicion_cont4(p):
-		'''condicion_cont : group by lista_id having operacion_logica fin_select'''
-
-def p_condicion_cont5(p):
-		'''condicion_cont : where exists par1 sentencia_select par2 fin_select'''
-
-def p_condicion_cont6(p):
-		'''condicion_cont : where operacion_aritmetica in par1 sentencia_select par2 fin_select'''
-
-def p_condicion_cont7(p):
-		'''condicion_cont : where operacion_aritmetica not in par1 sentencia_select par2 fin_select'''
-
-def p_condicion_cont(p):
-		'''condicion_cont8 : fin_select'''
 
 
-def p_fin_select(p):
-		'''fin_select : order_by identificador opcion_order pyc'''
+def p_condicion_cont3(t):
+        'condicion_cont : group by lista_id fin_select'
+        node= grammer.nodoDireccion('condicion_cont')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])               
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(t[4])
+        t[0]=node
 
-def p_fin_select2(p):
-		'''fin_select : pyc'''
+def p_condicion_cont4(t):
+        'condicion_cont : group by lista_id having operacion_logica fin_select'
+        node= grammer.nodoDireccion('condicion_cont')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node4 = grammer.nodoDireccion(t[4])
 
-def p_fin_select3(p):
-		'''fin_select : union sentencia_select'''
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(node4)
+        node.agregar(t[5])
+        node.agregar(t[6])
+        t[0]=node
 
-def p_fin_select4(p):
-		'''fin_select : intersect sentencia_select'''
+def p_condicion_cont5(t):
+        'condicion_cont : where exists par1 sentencia_select par2 fin_select'
+        node= grammer.nodoDireccion('condicion_cont')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node5= grammer.nodoDireccion(t[5])               
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(t[4])
+        node.agregar(node5)
+        node.agregar(t[6])
+        t[0]=node
 
-def p_fin_select5(p):
-		'''fin_select : except sentencia_select'''
+def p_condicion_cont6(t):
+        'condicion_cont : where operacion_aritmetica in par1 sentencia_select par2 fin_select'
+        node= grammer.nodoDireccion('condicion_cont')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node6= grammer.nodoDireccion(t[6])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(t[5])
+        node.agregar(node6)
+        node.agregar(t[7])
+        t[0]=node
 
-def p_lista_from(p):
-		'''lista_from : lista_from coma identificador as identificador'''
+def p_condicion_cont7(t):
+        'condicion_cont : where operacion_aritmetica not in par1 sentencia_select par2 fin_select'
+        node= grammer.nodoDireccion('condicion_cont')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node7 = grammer.nodoDireccion(t[7])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        node.agregar(t[6])
+        node.agregar(node7)
+        node.agregar(t[8])
+        t[0]=node
 
-def p_lista_from2(p):
-		'''lista_from : lista_from coma identificador'''
+def p_condicion_cont8(t):
+        'condicion_cont : fin_select'
+        node= grammer.nodoDireccion('condicion_cont')
+        node.agregar(t[1])
+        t[0]=node
 
-def p_lista_from3(p):
-		'''lista_from :identificador as identificador'''
 
-def p_lista_from4(p):
-		'''lista_from : identificador'''
+def p_fin_select(t):
+        'fin_select : order_by '
+        node= grammer.nodoDireccion('fin_select')
+        node.agregar(t[1])
+        t[0]=node
 
-def p_lista_from5(p):
-		'''lista_from : hacer_join'''
+def p_fin_select2(t):
+        'fin_select : pyc'
+        node= grammer.nodoDireccion('fin_select')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        t[0]=node
 
-def p_lista_from6(p):
-		'''lista_from : par1 sentencia_select par2 as identificador'''
+def p_fin_select3(t):
+        'fin_select : union sentencia_select'
+        node= grammer.nodoDireccion('fin_select')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        node.agregar(t[2])
+        t[0]=node
 
-def p_lista_from7(p):
-		'''lista_from : par1 sentencia_select par2'''
+def p_fin_select4(t):
+        'fin_select : intersect sentencia_select'
+        node= grammer.nodoDireccion('fin_select')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        node.agregar(t[2])
+        t[0]=node
 
-def p_tipo_join(p):
-		'''tipo_join : inner
-					 | left
-					 | right
-					 | full
-					 | outer'''
+def p_fin_select5(t):
+        'fin_select : except sentencia_select'
+        node= grammer.nodoDireccion('fin_select')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        node.agregar(t[2])
+        t[0]=node
 
-def p_hacer_join(p):
-		'''hacer_join : identificador tipo_join join identificador on operacion_logica'''
+def p_lista_from(t):
+        'lista_from : lista_from coma identificador as identificador'
+        node= grammer.nodoDireccion('lista_from')
+        node1 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node.agregar(t[1])
+        node.agregar(node1)
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        t[0]=node
 
-def p_hacer_join2(p):
-		'''hacer_join : identificador tipo_join join identificador'''
+def p_lista_from2(t):
+        'lista_from : lista_from coma identificador'
+        node= grammer.nodoDireccion('lista_from')
+        node1 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node.agregar(t[1])
+        node.agregar(node1)
+        node.agregar(node3)
+        t[0]=node
 
-def p_select_cont(p):
-		'''select_cont : por'''
+def p_lista_from3(t):
+        'lista_from : identificador as identificador'
+        node= grammer.nodoDireccion('lista_from')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        t[0]=node
 
-def p_select_cont2(p):
-		'''select_cont : distinct lista_id'''
+def p_lista_from4(t):
+        'lista_from : identificador'
+        node= grammer.nodoDireccion('lista_from')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        t[0]=node
 
-def p_select_cont3(p):
-		'''select_cont : lista_id'''
+def p_lista_from5(t):
+        'lista_from : hacer_join'
+        node= grammer.nodoDireccion('lista_from')
+        node.agregar(t[1])
+        t[0]=node
 
-def p_select_cont4(p):
-		'''select_cont : sen_case'''
+def p_lista_from6(t):
+        'lista_from : par1 sentencia_select par2 as identificador'
+        node= grammer.nodoDireccion('lista_from')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        t[0]=node
 
-def p_sen_case(p):
-		'''sen_case : case case_when'''
+def p_lista_from7(t):
+        'lista_from : par1 sentencia_select par2'
+        node= grammer.nodoDireccion('lista_from')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        t[0]=node
 
-def p_case_when(p):
-		'''case_when : when operacion_logica then operacion_aritmetica case_when'''		
+def p_tipo_join(t):
+        '''tipo_join : inner join
+        			 | left join
+        			 | right join
+        			 | full join
+        			 | outer join'''
+        node= grammer.nodoDireccion('tipo_join')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        node2 = grammer.nodoDireccion(t[2])
+        node.agregar(node2)
+        t[0]=node
 
-def p_case_when2(p):
-		'''case_when : end valor'''
+def p_tipo_join2(t):
+        'tipo_join : join'
+        node = grammer.nodoDireccion('tipo_join')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        t[0] = node
 
-def p_lista_id(p):
-		'''lista_id : lista_id coma operacion_aritmetica'''
 
-def p_lista_id2(p):
-		'''lista_id : lista_id coma identificador punto identificador'''
+def p_hacer_join(t):
+        'hacer_join : identificador tipo_join identificador on operacion_logica'
+        node= grammer.nodoDireccion('hacer_join')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 =grammer.nodoDireccion(t[4])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(t[5])
+        t[0]=node
 
-def p_lista_id3(p):
-		'''lista_id : operacion_aritmetica'''
+def p_hacer_join2(t):
+        'hacer_join : identificador tipo_join  identificador'
+        node= grammer.nodoDireccion('hacer_join')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        t[0]=node
 
-def p_lista_id4(p):
-		'''lista_id : identificador punto identificador'''
+def p_select_cont(t):
+        'select_cont : por'
+        node= grammer.nodoDireccion('select_cont')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        t[0]=node
 
-def p_lista_id5(p):
-		'''lista_id : substring par1 valor coma valor coma valor par2'''
+def p_select_cont2(t):
+        'select_cont : distinct lista_id'
+        node= grammer.nodoDireccion('select_cont')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        node.agregar(t[2])
+        t[0]=node
 
-def p_opciones_fecha(p):
-		'''opciones_fecha : extract par1 tipo_date from timestamp valor par2 pyc'''
+def p_select_cont3(t):
+        'select_cont : lista_id'
+        node= grammer.nodoDireccion('select_cont')
+        node.agregar(t[1])
+        t[0]=node
 
-def p_opciones_fecha2(p):
-		'''opciones_fecha : now par1 par2 pyc'''
+def p_select_cont4(t):
+        'select_cont : sen_case'
+        node= grammer.nodoDireccion('select_cont')
+        node.agregar(t[1])
+        t[0]=node
 
-def p_opciones_fecha3(p):
-		'''opciones_fecha :date_part par1 valor coma interval valor par2 pyc'''
+def p_sen_case(t):
+        'sen_case : case case_when'
+        node= grammer.nodoDireccion('sen_case')
+        node2 = grammer.nodoDireccion(t[1])
+        node.agregar(node2)
+        node.agregar(t[2])
+        t[0]=node
 
-def p_opciones_fecha4(p):
-		'''opciones_fecha : current_date pyc'''
+def p_case_when(t):
+        'case_when : when operacion_logica then operacion_aritmetica case_when'
+        node= grammer.nodoDireccion('case_when')
+        node1 = grammer.nodoDireccion(t[1])
+        node3 = grammer.nodoDireccion(t[3])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        node.agregar(t[4])
+        node.agregar(t[5])
+        t[0]=node		
 
-def p_opciones_fecha5(p):
-		'''opciones_fecha : current_time pyc'''
+def p_case_when2(t):
+        'case_when : end valor'
+        node= grammer.nodoDireccion('case_when')
+        node2 = grammer.nodoDireccion(t[1])
+        node.agregar(node2)
+        node.agregar(t[2])
+        t[0]=node
 
-def p_opciones_fecha6(p):
-		'''opciones_fecha : timestamp valor pyc'''
+def p_lista_id(t):
+        'lista_id : lista_id coma operacion_aritmetica'
+        node= grammer.nodoDireccion('lista_id')
+        node2 = grammer.nodoDireccion(t[2])
+        node.agregar(t[1])
+        node.agregar(node2)
+        node.agregar(t[3])
+        t[0]=node
 
-def p_tipo_date(p):
-		'''tipo_date : year
-					  | month
-					  | day
-					  | hour
-					  | minute
-					  | second'''
+def p_lista_id2(t):
+        'lista_id : lista_id coma identificador punto identificador'
+        node= grammer.nodoDireccion('lista_id')
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node.agregar(t[1])
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(node4)
+        node.agregar(node5)
+        t[0]=node
 
-def p_condicion(p):
-		'''condicion : pyc'''
+def p_lista_id3(t):
+        'lista_id : operacion_aritmetica'
+        node= grammer.nodoDireccion('lista_id')
+        node.agregar(t[1])
+        t[0]=node
 
-def p_condicion2(p):
-		'''condicion : where operacion_logica pyc'''
+def p_lista_id4(t):
+        'lista_id : identificador punto identificador'
+        node= grammer.nodoDireccion('lista_id')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node3 = grammer.nodoDireccion(t[3])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        t[0]=node
 
-def p_condicion3(p):
-		'''condicion : where identificador igual operacion_aritmetica pyc'''
+def p_lista_id5(t):
+        'lista_id : substring par1 valor coma valor coma valor par2'
+        node= grammer.nodoDireccion('lista_id')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node4 = grammer.nodoDireccion(t[4])
+        node6 = grammer.nodoDireccion(t[6])
+        node8 = grammer.nodoDireccion(t[8])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(node4)
+        node.agregar(t[5])
+        node.agregar(node6)
+        node.agregar(t[7])
+        node.agregar(node8)
+        t[0]=node
 
-def p_condicion4(p):
-		'''condicion : where exists par1 sentencia_select par2 pyc'''
+def p_opciones_fecha(t):
+        'opciones_fecha : extract par1 tipo_date from timestamp valor par2 pyc'
+        node= grammer.nodoDireccion('opciones_fecha')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node7 = grammer.nodoDireccion(t[7])
+        node8 = grammer.nodoDireccion(t[8])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(node4)
+        node.agregar(node5)
+        node.agregar(t[6])
+        node.agregar(node7)
+        node.agregar(node8)
+        t[0]=node
+
+def p_opciones_fecha2(t):
+        'opciones_fecha : now par1 par2 pyc'
+        node= grammer.nodoDireccion('opciones_fecha')
+        node2 = grammer.nodoDireccion(t[1])
+        node4 = grammer.nodoDireccion(t[2])
+        node5 = grammer.nodoDireccion(t[3])
+        node7 = grammer.nodoDireccion(t[4])
+        node.agregar(node2)
+        node.agregar(node4)
+        node.agregar(node5)
+        node.agregar(node7)
+        t[0]=node
+
+def p_opciones_fecha3(t):
+        'opciones_fecha : date_part par1 valor coma interval valor par2 pyc'
+        node= grammer.nodoDireccion('opciones_fecha')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 = grammer.nodoDireccion(t[2])
+        node4 = grammer.nodoDireccion(t[4])
+        node5 = grammer.nodoDireccion(t[5])
+        node7 = grammer.nodoDireccion(t[7])
+        node8 = grammer.nodoDireccion(t[8])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(node4)
+        node.agregar(node5)
+        node.agregar(t[6])
+        node.agregar(node7)
+        node.agregar(node8)
+        t[0]=node
+
+def p_opciones_fecha4(t):
+        'opciones_fecha : current_date pyc'
+        node= grammer.nodoDireccion('opciones_fecha')
+        node1 = grammer.nodoDireccion(t[2])
+        node2 = grammer.nodoDireccion(t[1])
+        node.agregar(node2)
+        node.agregar(node1)
+        t[0]=node
+
+def p_opciones_fecha5(t):
+        'opciones_fecha : current_time pyc'
+        node= grammer.nodoDireccion('opciones_fecha')
+        node1 = grammer.nodoDireccion(t[2])
+        node2 = grammer.nodoDireccion(t[1])
+        node.agregar(node2)
+        node.agregar(node1)
+        t[0]=node
+
+def p_opciones_fecha6(t):
+        'opciones_fecha : timestamp valor pyc'
+        node= grammer.nodoDireccion('opciones_fecha')
+        node1 = grammer.nodoDireccion(t[1])
+        node2 =  grammer.nodoDireccion(t[3])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node2)
+        t[0]=node
+
+def p_tipo_date(t):
+        '''tipo_date : year
+        			  | month
+        			  | day
+        			  | hour
+        			  | minute
+        			  | second'''
+        node= grammer.nodoDireccion('tipo_date')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        t[0]=node
+
+def p_condicion(t):
+        'condicion : pyc'
+        node= grammer.nodoDireccion('condicion')
+        node1 = grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        t[0]=node
+
+def p_condicion2(t):
+        'condicion : where operacion_logica pyc'
+        node= grammer.nodoDireccion('condicion')
+        node1 = grammer.nodoDireccion(t[1])
+        node3= grammer.nodoDireccion(t[3])
+        node.agregar(node1)
+        node.agregar(t[2])
+        node.agregar(node3)
+        t[0]=node
+
+def p_condicion3(t):
+        'condicion : where identificador igual operacion_aritmetica pyc'
+        node= grammer.nodoDireccion('condicion')
+        node1 = grammer.nodoDireccion(t[1])
+        node2= grammer.nodoDireccion(t[2])
+        node3= grammer.nodoDireccion(t[3])
+        node5 = grammer.nodoDireccion(t[5])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(node3)
+        node.agregar(t[4])
+        node.agregar(node5)
+        t[0]=node
+
+def p_condicion4(t):
+        'condicion : where exists par1 sentencia_select par2 pyc'
         node= grammer.nodoDireccion('condicion')
         node1 = grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -748,8 +1377,8 @@ def p_condicion4(p):
         node.agregar(node6)
         t[0]=node
 
-def p_condicion5(p):
-		'''condicion : where operacion_aritmetica in par1 sentencia_select par2 pyc'''
+def p_condicion5(t):
+        'condicion : where operacion_aritmetica in par1 sentencia_select par2 pyc'
         node= grammer.nodoDireccion('condicion')
         node1 = grammer.nodoDireccion(t[1])
         node3= grammer.nodoDireccion(t[3])
@@ -765,8 +1394,8 @@ def p_condicion5(p):
         node.agregar(node7)
         t[0]=node
 
-def p_condicion6(p):
-		'''condicion :where operacion_aritmetica not in par1 sentencia_select par2 pyc'''
+def p_condicion6(t):
+        'condicion : where operacion_aritmetica not in par1 sentencia_select par2 pyc'
         node= grammer.nodoDireccion('condicion')
         node1 = grammer.nodoDireccion(t[1])
         node3= grammer.nodoDireccion(t[3])
@@ -784,8 +1413,8 @@ def p_condicion6(p):
         node.agregar(node8)
         t[0]=node
 
-def p_op_aritmetica(p):
-		'''operacion_aritmetica : operacion_aritmetica mas operacion_aritmetica'''
+def p_op_aritmetica(t):
+        'operacion_aritmetica : operacion_aritmetica mas operacion_aritmetica'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -793,8 +1422,8 @@ def p_op_aritmetica(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_aritmetica2(p):
-		'''operacion_aritmetica : operacion_aritmetica menos operacion_aritmetica'''
+def p_op_aritmetica2(t):
+        'operacion_aritmetica : operacion_aritmetica menos operacion_aritmetica'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -802,8 +1431,8 @@ def p_op_aritmetica2(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_aritmetica3(p):
-		'''operacion_aritmetica : operacion_aritmetica por operacion_aritmetica'''
+def p_op_aritmetica3(t):
+        'operacion_aritmetica : operacion_aritmetica por operacion_aritmetica'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -811,8 +1440,8 @@ def p_op_aritmetica3(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_aritmetica4(p):
-		'''operacion_aritmetica : operacion_aritmetica div operacion_aritmetica'''
+def p_op_aritmetica4(t):
+        'operacion_aritmetica : operacion_aritmetica div operacion_aritmetica'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -820,8 +1449,8 @@ def p_op_aritmetica4(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_aritmetica5(p):
-		'''operacion_aritmetica : par1 operacion_aritmetica par2'''
+def p_op_aritmetica5(t):
+        'operacion_aritmetica : par1 operacion_aritmetica par2'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node1= grammer.nodoDireccion(t[1])
         node4= grammer.nodoDireccion(t[3])
@@ -830,26 +1459,14 @@ def p_op_aritmetica5(p):
         node.agregar(node4)
         t[0]=node
 
-def p_op_aritmetica6(p):
-		'''operacion_aritmetica : valor'''
+def p_op_aritmetica6(t):
+        'operacion_aritmetica : valor'
         node= grammer.nodoDireccion('operacion_aritmetica')
-        node.agregar(t[0])
+        node.agregar(t[1])
         t[0]=node
 
-def p_op_aritmetica7(p):
-		'''operacion_aritmetica : sum par1 operacion_aritmetica par2'''
-        node= grammer.nodoDireccion('operacion_aritmetica')
-        node1= grammer.nodoDireccion(t[1])
-        node2= grammer.nodoDireccion(t[2])
-        node4= grammer.nodoDireccion(t[4])
-        node.agregar(node1)
-        node.agregar(node2)
-        node.agregar(t[3])
-        node.agregar(node4)
-        t[0]=node
-
-def p_op_aritmetica8(p):
-		'''operacion_aritmetica : avg par1 operacion_aritmetica par2'''
+def p_op_aritmetica7(t):
+        'operacion_aritmetica : sum par1 operacion_aritmetica par2'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -860,8 +1477,8 @@ def p_op_aritmetica8(p):
         node.agregar(node4)
         t[0]=node
 
-def p_op_aritmetica9(p):
-		'''operacion_aritmetica : max par1 operacion_aritmetica par2'''
+def p_op_aritmetica8(t):
+        'operacion_aritmetica : avg par1 operacion_aritmetica par2'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -872,15 +1489,8 @@ def p_op_aritmetica9(p):
         node.agregar(node4)
         t[0]=node
 
-def p_op_aritmetica10(p):
-		'''operacion_aritmetica :  pi'''
-        node= grammer.nodoDireccion('operacion_aritmetica')
-        node1= grammer.nodoDireccion(t[1])
-        node.agregar(node1)
-        t[0]=node
-
-def p_op_aritmetica11(p):
-		'''operacion_aritmetica : power par1 operacion_aritmetica par2'''
+def p_op_aritmetica9(t):
+        'operacion_aritmetica : max par1 operacion_aritmetica par2'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -891,8 +1501,15 @@ def p_op_aritmetica11(p):
         node.agregar(node4)
         t[0]=node
 
-def p_op_aritmetica12(p):
-		'''operacion_aritmetica : sqrt par1 operacion_aritmetica par2'''
+def p_op_aritmetica10(t):
+        'operacion_aritmetica :  pi'
+        node= grammer.nodoDireccion('operacion_aritmetica')
+        node1= grammer.nodoDireccion(t[1])
+        node.agregar(node1)
+        t[0]=node
+
+def p_op_aritmetica11(t):
+        'operacion_aritmetica : power par1 operacion_aritmetica par2'
         node= grammer.nodoDireccion('operacion_aritmetica')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -903,8 +1520,20 @@ def p_op_aritmetica12(p):
         node.agregar(node4)
         t[0]=node
 
-def p_op_aritmetica13(p):
-		'''operacion_aritmetica : valor between valor'''
+def p_op_aritmetica12(t):
+        'operacion_aritmetica : sqrt par1 operacion_aritmetica par2'
+        node= grammer.nodoDireccion('operacion_aritmetica')
+        node1= grammer.nodoDireccion(t[1])
+        node2= grammer.nodoDireccion(t[2])
+        node4= grammer.nodoDireccion(t[4])
+        node.agregar(node1)
+        node.agregar(node2)
+        node.agregar(t[3])
+        node.agregar(node4)
+        t[0]=node
+
+def p_op_aritmetica13(t):
+        'operacion_aritmetica : valor between valor'
         node= grammer.nodoDireccion('operacion_aritmetica')        
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -912,10 +1541,9 @@ def p_op_aritmetica13(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_aritmetica14(p):
-		'''operacion_aritmetica : valor is distinct from valor'''
-        node= grammer.nodoDireccion('operacion_aritmetica')
-        
+def p_op_aritmetica14(t):
+        'operacion_aritmetica : valor is distinct from valor'
+        node= grammer.nodoDireccion('operacion_aritmetica') 
         node2= grammer.nodoDireccion(t[2])
         node3= grammer.nodoDireccion(t[3])
         node4= grammer.nodoDireccion(t[4])
@@ -926,10 +1554,9 @@ def p_op_aritmetica14(p):
         node.agregar(t[5])
         t[0]=node
 
-def p_op_aritmetica15(p):
-		'''operacion_aritmetica : valor is not distinct from valor'''
+def p_op_aritmetica15(t):
+        'operacion_aritmetica : valor is not distinct from valor'
         node= grammer.nodoDireccion('operacion_aritmetica')
-        
         node2= grammer.nodoDireccion(t[2])
         node3= grammer.nodoDireccion(t[3])
         node4= grammer.nodoDireccion(t[4])
@@ -942,10 +1569,9 @@ def p_op_aritmetica15(p):
         node.agregar(t[6])
         t[0]=node
 
-def p_op_aritmetica16(p):
-		'''operacion_aritmetica : valor is null'''
-        node= grammer.nodoDireccion('operacion_aritmetica')
-        
+def p_op_aritmetica16(t):
+        'operacion_aritmetica : valor is null'
+        node= grammer.nodoDireccion('operacion_aritmetica')    
         node2= grammer.nodoDireccion(t[2])
         node3= grammer.nodoDireccion(t[3])
         node.agregar(t[1])
@@ -953,10 +1579,9 @@ def p_op_aritmetica16(p):
         node.agregar(node3)
         t[0]=node
 
-def p_op_aritmetica17(p):
-		'''operacion_aritmetica : valor is not null'''
+def p_op_aritmetica17(t):
+        'operacion_aritmetica : valor is not null'
         node= grammer.nodoDireccion('operacion_aritmetica')
-        
         node2= grammer.nodoDireccion(t[2])
         node3= grammer.nodoDireccion(t[3])
         node4= grammer.nodoDireccion(t[4])
@@ -966,10 +1591,9 @@ def p_op_aritmetica17(p):
         node.agregar(node4)
         t[0]=node
 
-def p_op_aritmetica18(p):
-		'''operacion_aritmetica :valor is true'''
-        node= grammer.nodoDireccion('operacion_aritmetica')
-        
+def p_op_aritmetica18(t):
+        'operacion_aritmetica : valor is true'
+        node= grammer.nodoDireccion('operacion_aritmetica') 
         node2= grammer.nodoDireccion(t[2])
         node3= grammer.nodoDireccion(t[3])
         node.agregar(t[1])
@@ -977,8 +1601,8 @@ def p_op_aritmetica18(p):
         node.agregar(node3)
         t[0]=node
 
-def p_op_aritmetica19(p):
-		'''operacion_aritmetica : valor is not true'''
+def p_op_aritmetica19(t):
+        'operacion_aritmetica : valor is not true'
         node= grammer.nodoDireccion('operacion_aritmetica')        
         node2= grammer.nodoDireccion(t[2])
         node3= grammer.nodoDireccion(t[3])
@@ -989,8 +1613,8 @@ def p_op_aritmetica19(p):
         node.agregar(node4)
         t[0]=node
 
-def p_op_aritmetica20(p):
-		'''operacion_aritmetica : valor is false'''
+def p_op_aritmetica20(t):
+        'operacion_aritmetica : valor is false'
         node= grammer.nodoDireccion('operacion_aritmetica')        
         node2= grammer.nodoDireccion(t[2])
         node3= grammer.nodoDireccion(t[3])
@@ -999,10 +1623,9 @@ def p_op_aritmetica20(p):
         node.agregar(node3)
         t[0]=node
 
-def p_op_aritmetica21(p):
-		'''operacion_aritmetica : valor is not false'''
+def p_op_aritmetica21(t):
+        'operacion_aritmetica : valor is not false'
         node= grammer.nodoDireccion('operacion_aritmetica')
-        
         node2= grammer.nodoDireccion(t[2])
         node3= grammer.nodoDireccion(t[3])
         node4= grammer.nodoDireccion(t[4])
@@ -1012,8 +1635,8 @@ def p_op_aritmetica21(p):
         node.agregar(node4)
         t[0]=node
 
-def p_op_relacional(p):
-		'''operacion_relacional : operacion_relacional mayor operacion_relacional'''
+def p_op_relacional(t):
+        'operacion_relacional : operacion_relacional mayor operacion_relacional'
         node= grammer.nodoDireccion('operacion_relacional')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1021,8 +1644,8 @@ def p_op_relacional(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_relacional2(p):
-		'''operacion_relacional : operacion_relacional menor operacion_relacional'''
+def p_op_relacional2(t):
+        'operacion_relacional : operacion_relacional menor operacion_relacional'
         node= grammer.nodoDireccion('operacion_relacional')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1030,8 +1653,8 @@ def p_op_relacional2(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_relacional3(p):
-		'''operacion_relacional : operacion_relacional mayorigual operacion_relacional'''
+def p_op_relacional3(t):
+        'operacion_relacional : operacion_relacional mayorigual operacion_relacional'
         node= grammer.nodoDireccion('operacion_relacional')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1039,8 +1662,8 @@ def p_op_relacional3(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_relacional4(p):
-		'''operacion_relacional : operacion_relacional menorigual operacion_relacional'''
+def p_op_relacional4(t):
+        'operacion_relacional : operacion_relacional menorigual operacion_relacional'
         node= grammer.nodoDireccion('operacion_relacional')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1049,8 +1672,8 @@ def p_op_relacional4(p):
         t[0]=node
         
 
-def p_op_relacional5(p):
-		'''operacion_relacional : operacion_relacional diferente operacion_relacional'''
+def p_op_relacional5(t):
+        'operacion_relacional : operacion_relacional diferente operacion_relacional'
         node= grammer.nodoDireccion('operacion_relacional')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1058,8 +1681,8 @@ def p_op_relacional5(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_relacional6(p):
-		'''operacion_relacional :operacion_relacional igual operacion_relacional'''
+def p_op_relacional6(t):
+        'operacion_relacional : operacion_relacional igual operacion_relacional'
         node= grammer.nodoDireccion('operacion_relacional')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1067,14 +1690,14 @@ def p_op_relacional6(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_relacional7(p):
-		'''operacion_relacional : operacion_aritmetica'''
+def p_op_relacional7(t):
+        'operacion_relacional : operacion_aritmetica'
         node= grammer.nodoDireccion('operacion_relacional')
         node.agregar(t[1])
         t[0]=node
 
-def p_op_logica(p):
-		'''operacion_logica : operacion_logica and operacion_logica'''
+def p_op_logica(t):
+        'operacion_logica : operacion_logica and operacion_logica'
         node= grammer.nodoDireccion('operacion_logica')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1082,8 +1705,8 @@ def p_op_logica(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_logica2(p):
-		'''operacion_logica : operacion_logica or operacion_logica'''
+def p_op_logica2(t):
+        'operacion_logica : operacion_logica or operacion_logica'
         node= grammer.nodoDireccion('operacion_logica')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1091,8 +1714,8 @@ def p_op_logica2(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_logica3(p):
-		'''operacion_logica : operacion_logica not operacion_logica'''
+def p_op_logica3(t):
+        'operacion_logica : operacion_logica not operacion_logica'
         node= grammer.nodoDireccion('operacion_logica')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
@@ -1100,13 +1723,13 @@ def p_op_logica3(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_op_logica4(p):
-		'''operacion_logica :operacion_relacional'''
+def p_op_logica4(t):
+        'operacion_logica : operacion_relacional'
         node= grammer.nodoDireccion('operacion_logica')
         node.agregar(t[1])
         t[0]=node
-def p_show(p):
-		'''sentencia_show : show databases show_cont'''
+def p_show(t):
+        'sentencia_show : show databases show_cont'
         node= grammer.nodoDireccion('sentencia_show')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -1115,22 +1738,22 @@ def p_show(p):
         node.agregar(t[3])
         t[0]=node
 
-def p_show_cont(p):
-		'''show_cont : pyc'''
+def p_show_cont(t):
+        'show_cont : pyc'
         node= grammer.nodoDireccion('show_cont')
         node1= grammer.nodoDireccion(t[1])
         node.agregar(node1)
         t[0]=node
-def p_show_cont2(p):
-		'''show_cont : ins_like pyc'''
+def p_show_cont2(t):
+        'show_cont : ins_like pyc'
         node= grammer.nodoDireccion('show_cont')
         node2= grammer.nodoDireccion(t[2])
         node.agregar(t[1])
         node.agregar(node2)
         t[0]=node
 
-def p_ins_like(p):
-		'''ins_like : like porcentaje identificador porcentaje'''
+def p_ins_like(t):
+        'ins_like : like porcentaje identificador porcentaje'
         node= grammer.nodoDireccion('ins_like')
         node1= grammer.nodoDireccion(t[1])
         node2= grammer.nodoDireccion(t[2])
@@ -1142,11 +1765,13 @@ def p_ins_like(p):
         node.agregar(node4)
         t[0]=node
 
-def p_empty(p):
+def p_empty(t):
      'empty :'
      pass
 
-#def p_error(p):
+
+
+#def p_error(t):
 #    print("Error sintáctico en '%s'" % p.value)
 
 
@@ -1160,7 +1785,13 @@ def p_empty(p):
 parser = yacc.yacc()
 
 
-f = open("./entrada.txt", "r")
+#generar.graficaArbol(arbol)
+#borrar lo que esta dentro de los parentesis y colocar parser
+
+
+f = open("C:/Users/ocsael/Documents/compi2/COMPI2_DIC2020/Gramaticas/prueba.txt", "r")
 input = f.read()
 print(input)
-parser.parse(input)
+resultado = parser.parse(input)
+arbolimas = generar.graficaArbol(resultado)
+arbolimas.ejecutarGrafica()
