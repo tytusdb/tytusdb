@@ -250,6 +250,9 @@ from instruccion.insert_into import *
 from instruccion.where_up_de import *
 from instruccion.update_st import *
 from instruccion.drop import *
+from instruccion.delete_from import *
+from instruccion.condicion_simple import *
+from instruccion.Query_Select import *
 
 #Tabla tipos
 from tools.tabla_tipos import *
@@ -278,7 +281,7 @@ def p_aux_instruccion(t):
     '''instruccion      : SHOW DATABASES PUNTOCOMA
                         | INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
                         | UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
-                        | DELETE FROM ID where PUNTOCOMA'''
+                        | DELETE FROM ID WHERE ID IGUAL op_val PUNTOCOMA'''
     global num_nodo
 
     if t[1].lower() == 'show':
@@ -292,7 +295,13 @@ def p_aux_instruccion(t):
         num_nodo += 7
 
     elif t[1].lower() == 'update':
+
         t[0]= update_st(t[2],t[4],t[6],t[7],t.lineno(1),t.lexpos(1),num_nodo)
+        num_nodo += 8
+
+    elif t[1].lower() == 'delete':
+
+        t[0] = delete_from(t[3], t[5], t[7], t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 8
 
 
@@ -320,6 +329,11 @@ def p_or_replace_db(t):
 def p_if_not_exists_db(t):
     '''if_not_exists : IF NOT EXISTS
                   |   '''
+    try:
+        if t[1] != None:
+            t[0] = True
+    except:
+        t[0] = False
 
 def p_owner_db(t):
     '''owner_ : OWNER IGUAL ID
@@ -395,11 +409,16 @@ def p_manejo_tabla(t):
 
 def p_aux_declaracion_columna(t):
     '''declaracion_columna : ID type_column condition_column_row'''
+    global num_nodo
+    t[0] = create_column(t[1], t[2], t[3],t.lineno(1), t.lexpos(1), num_nodo)
+    num_nodo += 4
+
+
 
 def p_declaracion_columna(t):
     '''declaracion_columna : ID type_column'''
     global num_nodo #Llamar al contador de nodos
-    t[0] = create_column(t[1], t[2], t.lineno(1), t.lexpos(1), num_nodo)
+    t[0] = create_column(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
     num_nodo += 3 #Sumar la cantidad de nodos posibles a crear
 
 def p_type_column(t):
@@ -422,21 +441,29 @@ def p_type_column(t):
 
 def p_condition_column_row(t):
     'condition_column_row : condition_column_row condition_column'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_aux_condition_column_row(t):
     'condition_column_row : condition_column'
+    t[0] = [t[1]]
 
 def p_condition_column(t):
+    '''condition_column :  constraint UNIQUE op_unique
+                         | constraint CHECK PAR_ABRE  condition_columns PAR_CIERRA
+                         | constraint UNIQUE constraint CHECK PAR_ABRE  condition_columns PAR_CIERRA
+ 		                 | key_table'''
+
+def p_aux_condition_column(t):
     '''condition_column : DEFAULT op_val
                          | NULL
                          | NOT NULL
-	                     | constraint UNIQUE op_unique
-                         | constraint CHECK PAR_ABRE  condition_columns PAR_CIERRA
-                         | constraint UNIQUE  constraint CHECK PAR_ABRE  condition_columns PAR_CIERRA
- 		                 | key_table
-                         | REFERENCE ID
+	                     | REFERENCE ID
 		                 | CONSTRAINT ID key_table
  		                 | '''
+    global num_nodo
+    t[0] = condicion_simple(t[1],t[2],t[3], t.lineno(1), t.lexpos(1), num_nodo)
+    num_nodo += 3
 
 def p_constraint(t):
     '''constraint : CONSTRAINT ID
@@ -498,7 +525,8 @@ def p_list_val(t):
 def p_op_val(t):
     '''op_val : ID
              | CADENA
-             | DECIMAL'''
+             | DECIMAL
+             | ENTERO'''
     t[0] = t[1]
 
 def p_where(t):
@@ -518,9 +546,19 @@ def p_where(t):
         t[0] = None
 
 def p_seleccionar(t):
-    '''seleccionar  : SELECT distinto  select_list FROM table_expression list_fin_select
-                      | SELECT GREATEST expressiones
-                      | SELECT LEAST expressiones'''
+    '''seleccionar  : SELECT distinto  select_list FROM table_expression list_fin_select'''
+
+def p_aux_seleccionar(t):
+    '''seleccionar  : SELECT GREATEST expressiones
+                    | SELECT LEAST expressiones'''
+    global num_nodo
+    
+    try:
+        t[0] = Query_Select(t[2], t.lineno,t.lexpos, num_nodo)
+        num_nodo+=4
+        print('todo bien')
+    except:
+        print('nada bien')
 
 def p_list_fin_select(t):
     '''list_fin_select : list_fin_select fin_select

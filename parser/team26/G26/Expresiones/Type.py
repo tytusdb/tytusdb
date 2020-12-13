@@ -10,7 +10,7 @@ class Types(Instruccion):
         self.length = length
 
     def execute(self):
-        return self.type
+        return self
 
     def __repr__(self):
         return str(self.__dict__)
@@ -22,7 +22,7 @@ class Char(Instruccion):
         self.length = length
 
     def execute(self):
-        return self.varying
+        return self
 
     def __repr__(self):
         return str(self.__dict__)

@@ -2,7 +2,7 @@ import libs.ply.lex as lex
 from libs.ply.lex import TOKEN
 from models.error import Error
 from controllers.linked_list import SingleLinkedList
-from models.find_type_error import FindTypeError
+from models.type_error import get_type_error
 
 # Hacen falta palabras reservadas hay que anadirlas
 list_errors = SingleLinkedList()
@@ -357,9 +357,9 @@ def t_error(t):
     global id_error
     
     id_error = list_errors.count + 1  if list_errors.count > 0 else 1
-    SQLERROR = FindTypeError('Lexical')
-    number_error, description = SQLERROR.find_type_error()
     
+    number_error, description = get_type_error(33)
+
     description += ' or near ' + str(t.value[0])
     column = find_column(t)
     
