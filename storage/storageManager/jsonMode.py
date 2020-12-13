@@ -80,7 +80,7 @@ def showDatabases() -> list:
 
 
 ##########
-# TABLES #
+# Tables #
 ##########
 
 # Create a table checking their existence
@@ -95,12 +95,15 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
             if table in data[database]:
                 return 3
             else:
-                new = {table:{"numberColumns":numberColumns}}
+                new = {table:{"NCOL":numberColumns}}
                 data[database].update(new)
                 dump = True
     if dump:
         with open('data/json/databases', 'w') as file:
             json.dump(data, file)
+        dataTable = {}
+        with open('data/json/'+database+'-'+table, 'w') as file:
+            json.dump(dataTable, file)
         return 0
     else:
         return 1
@@ -162,9 +165,214 @@ def dropTable(database: str, table: str) -> int:
     else:
         return 1  
 
+# Add a PK list to specific table and database
+def alterAddPK(database: str, table: str, columns: list) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            if "PKEY" in data[database][table]:
+                return 4
+            else:
+                maxi = max(columns)
+                mini = min(columns)
+                if mini>=0 and maxi<=data[database][table]["NCOL"]:
+                    new = {"PKEY":columns}
+                    data[database][table].update(new)                    
+                    dump = True
+                else:
+                    return 5
+    if dump:
+        with open('data/json/databases', 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1  
+
+# Add a PK list to specific table and database
+def alterDropPK(database: str, table: str) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            if "PKEY" not in data[database][table]:
+                return 4            
+            else:
+                data[database][table].pop("PKEY")
+                dump = True
+    if dump:
+        with open('data/json/databases', 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1  
+
 
 #############
-# UTILITIES #
+# Registers #
+#############
+
+# insert a register 
+def insert(database: str, table: str, register: list) -> int:    
+    initCheck()
+    dump = False
+    hide = False
+    ncol = None
+    pkey = None
+    pk = ""
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else: 
+            if table not in data[database]:
+                return 3
+            if len(register)!=data[database][table]["NCOL"]:
+                return 5
+            if "PKEY" not in data[database][table]:
+                # hidden pk
+                hide = True
+            else:
+                # defined pk
+                pkey = data[database][table]["PKEY"]
+            ncol = data[database][table]["NCOL"]
+    with open('data/json/'+database+'-'+table) as file:
+        data = json.load(file)
+        if hide:
+            pk = len(data)
+        else:
+            for i in pkey:
+                pk += str(register[i])
+            if pk in data:
+                return 4
+        new = {pk:register}
+        data.update(new)
+        dump = True
+    if dump:
+        with open('data/json/'+database+'-'+table, 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1
+
+# update a register
+def update(database: str, table: str, register: dict, columns: list) -> int:
+    initCheck()
+    dump = False
+    hide = False
+    ncol = None
+    pkey = None
+    pk = ""
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else: 
+            if table not in data[database]:
+                return 3
+            if "PKEY" not in data[database][table]:
+                # hidden pk
+                hide = True
+            else:
+                # defined pk
+                pkey = data[database][table]["PKEY"]            
+    with open('data/json/'+database+'-'+table) as file:
+        data = json.load(file)
+        if hide:
+            pk = columns[0]
+        else:
+            for i in pkey:
+                pk += str(columns[i])
+        if not pk in data:
+            return 4
+        else:            
+            for key in register:
+                data[pk][key] = register[key]
+        dump = True
+    if dump:
+        with open('data/json/'+database+'-'+table, 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1
+
+# delete a register
+def delete(database: str, table: str, columns: list) -> int:
+    initCheck()
+    dump = False
+    hide = False
+    ncol = None
+    pkey = None
+    pk = ""
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else: 
+            if table not in data[database]:
+                return 3
+            if "PKEY" not in data[database][table]:
+                # hidden pk
+                hide = True
+            else:
+                # defined pk
+                pkey = data[database][table]["PKEY"]            
+    with open('data/json/'+database+'-'+table) as file:
+        data = json.load(file)
+        if hide:
+            pk = columns[0]
+        else:
+            for i in pkey:
+                pk += str(columns[i])
+        if not pk in data:
+            return 4
+        else:
+            data.pop(pk)
+        dump = True
+    if dump:
+        with open('data/json/'+database+'-'+table, 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1
+
+# truncate a table
+def truncate(database: str, table: str) -> int:
+    initCheck()
+    dump = False
+    hide = False
+    ncol = None
+    pkey = None
+    pk = ""
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else: 
+            if table not in data[database]:
+                return 3
+        dump = True
+    if dump:
+        data = {}
+        with open('data/json/'+database+'-'+table, 'w') as file:
+            json.dump(data, file)
+            return 0
+    else:
+        return 1
+
+
+#############
+# Utilities #
 #############
 
 # Check the existence of data and json folder and databases file
@@ -179,16 +387,40 @@ def initCheck():
         with open('data/json/databases', 'w') as file:
             json.dump(data, file)    
 
+
 # Show the complete file of databases and tables
-def showDatabasesJSON():
+def showJSON(fileName: str):
     initCheck()
-    with open('data/json/databases') as file:
+    with open('data/json/'+fileName) as file:
         data = json.load(file)
         print(data)
-        #print(data["db1"])
 
 # Delete all databases and tables by creating a new file
-def dropAllDatabases():
+def dropAll():
+    initCheck()
     data = {}
     with open('data/json/databases', 'w') as file:
         json.dump(data, file)
+
+# show all collection of relational data
+def showCollection():
+    initCheck()
+    databases = []
+    tables = []
+    datatables = []
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        for d in data:
+            databases.append(d);
+            for t in data[d]:
+                tables.append(t)
+                datatables.append(d+'-'+t)
+    print('Databases: '+str(databases))
+    print('Tables: '+str(tables))
+    for d in datatables:
+        registers = []
+        with open('data/json/'+d) as file:
+            data = json.load(file)
+            for r in data:
+                registers.append(r)
+            print(d+' pkeys: '+str(registers))

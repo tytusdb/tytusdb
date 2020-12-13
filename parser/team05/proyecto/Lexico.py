@@ -46,7 +46,28 @@ palabras_reservadas = {
     'avg'           : 'AVG',
     'sum'           : 'SUM',
     'max'           : 'MAX',
-    'min'           : 'MIN'
+    'min'           : 'MIN',
+    'create'        : 'CREATE',
+    'replace'       : 'REPLACE',
+    'database'      : 'DATABASE',
+    'if'            : 'IF',
+    'exists'        : 'EXISTS',
+    'owner'         : 'OWNER',
+    'mode'          : 'MODE',
+    'alter'         : 'ALTER',
+    'drop'          : 'DROP',
+    'show'          : 'SHOW',
+    'rename'        : 'RENAME',
+    'owner'         : 'OWNER',
+    'to'            : 'TO',
+    'insert'        : 'INSERT',
+    'update'        : 'UPDATE',
+    'set'           : 'SET',
+    'into'          : 'INTO',
+    'values'        : 'VALUES',
+    'table'         : 'TABLE',
+    'from'          : 'FROM',
+    'delete'        : 'DELETE'
 
 }
 
@@ -73,7 +94,8 @@ tokens = [
     'NUMERO',
     'DECIMAL',
     'CADENA',
-    'PCOMA'
+    'PCOMA',
+    'CADENASI'
 ] + list(palabras_reservadas.values())
 
 # EXPRESIONES REGULARES PARA TOKENS
@@ -116,6 +138,11 @@ def t_DECIMAL(t):
         print("Float value too large %d", t.value)
         t.value = 0
     return t
+
+def t_CADENASI(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] 
+    return t 
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -192,6 +219,148 @@ def p_Inicio1(t):
 
 def p_Instruccion(t):
     'INSTRUCCION  :   I_SELECT  '
+
+def p_Instruccion1(t):
+    'INSTRUCCION  :   I_CREATE  '
+
+def p_Instruccion2(t):
+    'INSTRUCCION  :   I_DROP '
+
+def p_Instruccion3(t):
+    'INSTRUCCION  :   I_INSERT '
+
+def p_Instruccion4(t):
+    'INSTRUCCION  :   I_ALTER '
+
+def p_Instruccion5(t):
+    'INSTRUCCION  :   I_UPDATE '
+
+def p_Instruccion6(t):
+    'INSTRUCCION  :   I_SHOW '
+
+def p_Instruccion7(t):
+    'INSTRUCCION  :   I_DELETE '
+
+def p_Create(t):
+    'I_CREATE      : CREATE I_REPLACE'
+    t[0] = t[2]
+    print('Se creo la base de datos ' + t[0])
+
+def p_Replace(t):
+    'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
+    t[0] = t[4]
+def p_Replace1(t):
+    'I_REPLACE     : DATABASE I_EXIST'
+    t[0] = t[2]
+
+def p_drop(t):
+    'I_DROP      : DROP I_TDROP ' 
+
+def p_alter(t):
+    'I_ALTER     : ALTER I_TALTER'
+
+def p_tAlter(t):
+    'I_TALTER    : I_ALTERDB'
+
+def p_tDrop(t):
+    'I_TDROP     : I_DROPDB'
+
+def p_tDrop2(t):
+    'I_TDROP     : I_DROPTB'
+
+def p_dropDB(t):
+    'I_DROPDB    : DATABASE I_IFEXIST'
+
+def p_ifExist(t):
+    'I_IFEXIST     : IF EXISTS ID PCOMA'
+
+def p_ifExist2(t):
+    'I_IFEXIST     : ID PCOMA'
+
+def p_Exist(t):
+    'I_EXIST       : IF NOT EXISTS ID I_OWMOD '
+    t[0] = t[4]
+def p_Exist1(t):
+    'I_EXIST       : ID PCOMA'
+    t[0] = t[1]
+
+def p_Owmod(t):
+    'I_OWMOD       : OWNER IGUAL ID I_MODE'
+
+def p_Owmod1(t):
+    'I_OWMOD       : MODE IGUAL ID I_OWNER'
+
+def p_Owmod2(t):
+    'I_OWMOD       : PCOMA'
+
+def p_Mode(t):
+    'I_MODE        : MODE IGUAL ID PCOMA'
+
+def p_Mode1(t):
+    'I_MODE        : PCOMA'
+
+def p_Owner(t):
+    'I_OWNER       : OWNER IGUAL ID PCOMA'
+
+def p_Owner1(t):
+    'I_OWNER       : PCOMA'
+
+def p_AlterDB(t):
+    'I_ALTERDB     : ALTER DATABASE ID I_OPALTERDB I_VALALTDB'
+
+def p_opAlterDB(t):
+    'I_OPALTERDB   : RENAME TO'
+
+def p_opAlterDB2(t):
+    'I_OPALTERDB   : OWNER TO'
+
+def p_valAlterDb(t):
+    'I_VALALTDB    : ID'
+
+def p_valAlterDb1(t):
+    'I_VALALTDB    : CADENASI'
+
+def p_dropTB(t):
+    'I_DROPTB      : TABLE ID PCOMA'
+
+def p_insertTB(t):
+    'I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA'
+
+def p_lValt(t):
+    'I_LVALT       : I_LVALT COMA I_VALTAB'
+
+def p_update(t):
+    'I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE '
+
+def p_lUpdate(t):
+    'I_LUPDATE     : I_LUPDATE COMA I_VALUPDATE'
+
+def p_lUpdate1(t):
+    'I_LUPDATE     : I_VALUPDATE'
+
+def p_valUpdate(t):
+    'I_VALUPDATE   : ID IGUAL I_VALOR'
+
+def p_valor(t):
+    'I_VALOR       : CADENASI'
+
+def p_valor1(t):
+    'I_VALOR      : NUMERO'
+
+def p_show(t):
+    'I_SHOW       : SHOW DATABASE PCOMA'
+
+def p_delete(t):
+    'I_DELETE     : DELETE FROM ID PWHERE'
+
+def p_lValt1(t):
+    'I_LVALT       : I_VALTAB'
+
+def p_valTab(t):
+    'I_VALTAB      : NUMERO'
+
+def p_valTab1(t):
+    'I_VALTAB      : CADENASI'
 
 def p_ISelect(t):
     'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO PCOMA   '
