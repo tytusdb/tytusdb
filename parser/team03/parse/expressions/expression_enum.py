@@ -10,7 +10,7 @@ class OpArithmetic(Enum):
     POWER = 6
 
 
-class OpLogical(Enum):
+class OpRelational(Enum):
     GREATER = 1
     LESS = 2
     EQUALS = 3
@@ -21,7 +21,7 @@ class OpLogical(Enum):
     NOT_LIKE = 8
 
 
-class OpRelational(Enum):
+class OpLogic(Enum):
     AND = 1
     OR = 2
     NOT = 3
