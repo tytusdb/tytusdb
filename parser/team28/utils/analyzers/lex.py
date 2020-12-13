@@ -22,6 +22,7 @@ k_reserved = {
     'BIGINT': 'BIGINT',
     'BOOLEAN': 'BOOLEAN',
     'BY': 'BY',
+    'CASE': 'CASE',
     'CBRT': 'CBRT',
     'CONVERT': 'CONVERT',
     'CEIL': 'CEIL',
@@ -33,11 +34,14 @@ k_reserved = {
     'COLUMN' : 'COLUMN',
     'CONSTRAINT' : 'CONSTRAINT',
     'COUNT': 'COUNT',
+    'CURRENT_DATE': 'CURRENT_DATE',
+    'CURRENT_TIME': 'CURRENT_TIME',
     'CURRENT_USER' : 'CURRENT_USER',
     'DAY': 'DAY',
     'DATABASE' : 'DATABASE',
     'DATABASES' : 'DATABASES',
     'DATE': 'DATE',
+    'DATE_PART': 'DATE_PART',
     'DECIMAL': 'DECIMAL',
     'DEGREES': 'DEGREES',
     'DECODE': 'DECODE',
@@ -53,6 +57,8 @@ k_reserved = {
     'EXISTS': 'EXISTS',
     'EXCEPT': 'EXCEPT',
     'EXP': 'EXP',
+    'ELSE': 'ELSE',
+    'END': 'END',
     'EXTRACT': 'EXTRACT',
     'FACTORIAL': 'FACTORIAL',
     'FALSE': 'FALSE',
@@ -61,6 +67,7 @@ k_reserved = {
     'FLOOR': 'FLOOR',
     'FULL': 'FULL',
     'GROUP': 'GROUP',
+    'GREATEST': 'GREATEST',
     'GCD': 'GCD',
     'HAVING': 'HAVING',
     'HOUR': 'HOUR',
@@ -79,6 +86,7 @@ k_reserved = {
     'JOIN': 'JOIN',
     'KEY' : 'KEY', 
     'LEFT': 'LEFT',
+    'LEAST': 'LEAST',
     'LENGTH': 'LENGTH',
     'LIKE': 'LIKE',
     'LIMIT': 'LIMIT',
@@ -94,6 +102,7 @@ k_reserved = {
     'MD5': 'MD5',
     'NOT': 'NOT',
     'NOTNULL': 'NOTNULL',
+    'NOW': 'NOW',
     'NULL': 'NULL',
     'NUMERIC': 'NUMERIC',
     'ON': 'ON',
@@ -133,6 +142,7 @@ k_reserved = {
     'TEXT': 'TEXT',
     'TIME': 'TIME',
     'TIMESTAMP': 'TIMESTAMP',
+    'THEN': 'THEN',
     'TO' : 'TO', 
     'TYPE': 'TYPE',
     'TRIM': 'TRIM',
@@ -147,9 +157,11 @@ k_reserved = {
     'VARCHAR': 'VARCHAR',
     'VARYING': 'VARYING',
     'WHERE': 'WHERE',
+    'WHEN': 'WHEN',
     'WIDTH_BUCKET': 'WIDTH_BUCKET',
     'YEAR': 'YEAR',
     
+
     #Trigonometricas
     'ACOS': 'ACOS',
     'ACOSD': 'ACOSD',
@@ -186,11 +198,8 @@ tokens = [
     'ASTERISK',
     'LEFT_PARENTHESIS',
     'RIGHT_PARENTHESIS',
-    'LEFT_BRACE',
-    'RIGHT_BRACE',
     'SEMICOLON',
     'COLON',
-    'TYPE_CAST',
     
     'SQUARE_ROOT',
     'CUBE_ROOT',
@@ -212,7 +221,6 @@ tokens = [
     # Basic Operators
     'PLUS',
     'REST',
-    'PRODUCT',
     'DIVISION',
     'EXPONENT',
     'MODULAR',
@@ -261,9 +269,6 @@ t_PLUS = r'\+'
 t_REST = r'\-'
 t_DIVISION = r'\/'
 t_EXPONENT = r'\^'
-t_TYPE_CAST = r'\:\:'
-t_LEFT_BRACE = r'\['
-t_RIGHT_BRACE = r'\]'
 t_MODULAR = r'\%'
 t_SQUARE_ROOT = r'\|\/'
 t_CUBE_ROOT = r'\|\|\/'
