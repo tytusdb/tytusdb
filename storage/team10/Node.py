@@ -60,9 +60,12 @@ class Node:
         return self.quick_sorted(elementos_menores) + elemento_medio + self.quick_sorted(elementos_mayores)
 
     def eliminar(self, dato):
-        if not self.buscarDato(dato):
-            self.array.remove(dato)
-            self.quick_sorted(self.array)
+        if self.busquedaB_Bol(dato):
+            self.array.remove(self.busquedaB(dato))
+            lista = self.array[:]
+            lista_ordenada= self.quick_sorted(lista)
+            self.array.clear()
+            self.array = lista_ordenada[:]
             if len(self.array) == 0:
                 return 0
             else:
