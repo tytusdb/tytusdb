@@ -13,6 +13,9 @@ class Factorial(Instruccion):
         print(math.factorial(self.valor))
         return math.factorial(self.valor)
 
+
+'''
 instruccion = Factorial(2,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

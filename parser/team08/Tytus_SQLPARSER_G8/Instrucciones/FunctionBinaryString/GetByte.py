@@ -7,9 +7,11 @@ class GetByte(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        bytes(self.valor, 'utf-8')
+        print("GETBYTE")
+        print(bytes(self.valor, 'utf-8'))
         return bytes(self.valor,'utf-8')
-
+'''
 instruccion = GetByte("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

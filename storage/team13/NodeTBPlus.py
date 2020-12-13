@@ -10,6 +10,7 @@ class PageTBPlus:
         self.__childs = []
         self.__father = None
         self.__next = None
+        self.__leaf = True
     
     def get_keys(self):
         return self.__keys
@@ -26,6 +27,9 @@ class PageTBPlus:
     def get_next(self):
         return self.__next
     
+    def get_leaf(self):
+        return self.__leaf
+    
     def set_keys(self, keys):
         self.__keys = keys
     
@@ -40,25 +44,39 @@ class PageTBPlus:
     
     def set_next(self, next):
         self.__next = next
+        
+    def set_leaf(self, leaf):
+        self.__leaf = leaf
 
     def add_chld(self, chld):
         self.__childs.append(chld)
+
+    def showKeys(self):
+        if not (len(self.__keys) == 0):
+            print("[", end=" ")
+            for i in range(len(self.__keys)):
+                print(self.__keys[i].value, ",", end=" ")
+            print("]")
+                
+    def sortKeys(self, key):
+        for i in range(len(self.__keys)):  
+            if key.value < self.__keys[i].value:  
+                self.__keys.insert(i, key)  
+                break
+            elif i == (len(self.__keys) - 1):  
+                self.__keys.append(key)
     
     def add_key(self, key):
         if len(self.__keys) == 0:
             self.__keys.append(key)
             return self
         else:
-            if self.__childs is None:
-                for i in range(len(self.__keys)):
-                    if key.value < self.__keys[i].value:
-                        self.__keys.insert(i,key)
-                        break
-                    elif i == (len(self.__keys) - 1):
-                        self.__keys.append(key)
-                if len(self.__keys) == (self.__grade):
+            if len(self.__childs) == 0: 
+                self.sortKeys(key)
+                if len(self.__keys) == self.__grade:  
                     return self.SplitPage()
                 return self
+            
             else:
                 i = 0
                 if key.value < self.__keys[i].value:
@@ -149,4 +167,16 @@ class NodeTBPlus:
 
     def __init__(self, value):
         self.value = value
+        
+    # class TreeBPlus:
+    #   def showTree(self):
+    #       self._showTree(self.__root, 0)
+    # 
+    #   def _showTree(self, tmp, level):
+    #       print("Level", level, ": ", end="")
+    #       tmp.showKeys()
+    #       if not (len(tmp.get_chlds()) == 0):
+    #           for i in range(len(tmp.get_chlds())):
+    #               self._showTree(tmp.get_chlds()[i], level + 1)
+
     

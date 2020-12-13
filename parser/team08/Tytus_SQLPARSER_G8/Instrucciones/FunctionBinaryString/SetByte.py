@@ -7,8 +7,11 @@ class SetByte(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
+        '''
         print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-
+        '''
+'''
 instruccion = SetByte("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
