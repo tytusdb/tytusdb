@@ -46,7 +46,97 @@ palabras_reservadas = {
     'avg'           : 'AVG',
     'sum'           : 'SUM',
     'max'           : 'MAX',
-    'min'           : 'MIN'
+    'min'           : 'MIN',
+    'greatest'      : 'GREATEST',
+    'least'         : 'LEAST',
+    'unknown'       : 'UNKNOWN',
+    'between'       : 'BETWEEN',
+    'simmetric'     : 'SIMMETRIC',
+    'null'          : 'NULL',
+    'union'         : 'UNION',
+    'all'           : 'ALL',
+    'intersect'     : 'INTERSECT',
+    'except'        : 'EXCEPT',
+    'case'          : 'CASE',
+    'when'          : 'WHEN',
+    'end'           : 'END',
+    'then'          : 'THEN',
+    'else'          : 'ELSE',
+    'pi'            : 'PI',
+    'exists'         : 'EXISTS',
+    'in'            : 'IN',
+    'any'           : 'ANY',
+    'some'          : 'SOME',
+    'like'          : 'LIKE',
+    'substring'     : 'SUBSTRING',
+    'substr'        : 'SUBSTR',
+    'trim'          : 'TRIM',
+    'leading'       : 'LEADING',
+    'trailing'      : 'TRAILING',
+    'both'          : 'BOTH',
+    'encode'        : 'ENCODE',
+    'decode'        : 'DECODE',
+    'abs'           : 'ABS',
+    'cbrt'          : 'CBRT',
+    'ceil'          : 'CEIL',
+    'ceiling'       : 'CEILING',
+    'degrees'       : 'DEGREES',
+    'div'           : 'DIV',
+    'factorial'     : 'FACTORIAL',
+    'floor'         : 'FLOOR',
+    'gcd'           : 'GCD',
+    'ln'            : 'LN',
+    'log'           : 'LOG',
+    'mod'           : 'MOD',
+    'power'         : 'POWER',
+    'radians'       : 'RADIANS',
+    'round'         : 'ROUND',
+    'sign'          : 'SIGN',
+    'sqrt'          : 'SQRT',
+    'width_bucket'  : 'WIDTH_BUCKET',
+    'trunc'         : 'TRUNC',
+    'random'        : 'RANDOM',
+    'exp'           : 'FEXP',
+    'extract'       : 'EXTRACT',
+    'now'           : 'NOW',
+    'hour'          : 'HOUR',
+    'minute'        : 'MINUTE',
+    'second'        : 'SECOND',
+    'year'          : 'YEAR',
+    'month'         : 'MONTH',
+    'day'           : 'DAY',
+    'timestamp'     : 'TIMESTAMP',
+    'interval'      : 'INTERVAL',
+    'date_part'     : 'DATE_PART',
+    'current_date'  : 'CURRENT_DATE',
+    'current_time'  : 'CURRENT_TIME',
+    'length'        : 'LENGTH',
+    'sha256'        : 'SHA256',
+    'date'          : 'DATE',
+    'integer'       : 'INTEGER',
+    'convert'       : 'CONVERT',
+    'create'        : 'CREATE',
+    'replace'       : 'REPLACE',
+    'database'      : 'DATABASE',
+    'if'            : 'IF',
+    'exists'        : 'EXISTS',
+    'owner'         : 'OWNER',
+    'mode'          : 'MODE',
+    'alter'         : 'ALTER',
+    'drop'          : 'DROP',
+    'show'          : 'SHOW',
+    'rename'        : 'RENAME',
+    'owner'         : 'OWNER',
+    'to'            : 'TO',
+    'insert'        : 'INSERT',
+    'update'        : 'UPDATE',
+    'set'           : 'SET',
+    'into'          : 'INTO',
+    'values'        : 'VALUES',
+    'table'         : 'TABLE',
+    'from'          : 'FROM',
+    'delete'        : 'DELETE'
+    
 
 }
 
@@ -73,7 +163,17 @@ tokens = [
     'NUMERO',
     'DECIMAL',
     'CADENA',
-    'PCOMA'
+    'PCOMA',
+    'IDALIAS',
+    'raizCuadrada',
+    'raizCubica',
+    'BAnd',
+    'BOr',
+    'BXor',
+    'BNot',
+    'DesplazaI',
+    'DesplazaD',
+    'CADENASI'
 ] + list(palabras_reservadas.values())
 
 # EXPRESIONES REGULARES PARA TOKENS
@@ -95,18 +195,18 @@ t_MENORIGUAL      = r'<='
 t_MAYOR           = r'>'
 t_MAYORIGUAL      = r'>='
 t_PCOMA           = r';'
+t_raizCuadrada    = r'\|\/'
+t_raizCubica      = r'\|\|\/'
+t_BAnd            = r'&'
+t_BOr             = r'\|'
+t_BXor            = r'#'
+t_BNot            = r'~'
+t_DesplazaI       = r'<<'
+t_DesplazaD       = r'>>'
 
 # TOKENS IGNORADOS
 t_ignore = " \t"
 
-def t_NUMERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
-    return t
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -117,15 +217,38 @@ def t_DECIMAL(t):
         t.value = 0
     return t
 
+def t_NUMERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
+        t.value = 0
+    return t
+
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = palabras_reservadas.get(t.value.lower(),'ID')    
+    return t
+
+def t_IDALIAS(t):
+    r'\".*?\"'
+    t.value = t.value[1:-1]
     return t
 
 def t_CADENA(t):
     r'\".*?\"'
     t.value = t.value[1:-1] 
     return t 
+
+def t_CADENASI(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] 
+    return t 
+
+
+
+
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -174,6 +297,7 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('left','MENORIGUAL','MAYORIGUAL','IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
+    ('nonassoc','BETWEEN'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
@@ -193,18 +317,162 @@ def p_Inicio1(t):
 def p_Instruccion(t):
     'INSTRUCCION  :   I_SELECT  '
 
-def p_ISelect(t):
-    'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO PCOMA   '
+def p_Instruccion1(t):
+    'INSTRUCCION  :   I_CREATE  '
 
+def p_Instruccion2(t):
+    'INSTRUCCION  :   I_DROP '
+
+def p_Instruccion3(t):
+    'INSTRUCCION  :   I_INSERT '
+
+def p_Instruccion4(t):
+    'INSTRUCCION  :   I_ALTER '
+
+def p_Instruccion5(t):
+    'INSTRUCCION  :   I_UPDATE '
+
+def p_Instruccion6(t):
+    'INSTRUCCION  :   I_SHOW '
+
+def p_Instruccion7(t):
+    'INSTRUCCION  :   I_DELETE '
+
+def p_Create(t):
+    'I_CREATE      : CREATE I_REPLACE'
+    t[0] = t[2]
+    print('Se creo la base de datos ' + t[0])
+
+def p_Replace(t):
+    'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
+    t[0] = t[4]
+def p_Replace1(t):
+    'I_REPLACE     : DATABASE I_EXIST'
+    t[0] = t[2]
+
+def p_drop(t):
+    'I_DROP      : DROP I_TDROP ' 
+
+def p_alter(t):
+    'I_ALTER     : ALTER I_TALTER'
+
+def p_tAlter(t):
+    'I_TALTER    : I_ALTERDB'
+
+def p_tDrop(t):
+    'I_TDROP     : I_DROPDB'
+
+def p_tDrop2(t):
+    'I_TDROP     : I_DROPTB'
+
+def p_dropDB(t):
+    'I_DROPDB    : DATABASE I_IFEXIST'
+
+def p_ifExist(t):
+    'I_IFEXIST     : IF EXISTS ID PCOMA'
+
+def p_ifExist2(t):
+    'I_IFEXIST     : ID PCOMA'
+
+def p_Exist(t):
+    'I_EXIST       : IF NOT EXISTS ID I_OWMOD '
+    t[0] = t[4]
+def p_Exist1(t):
+    'I_EXIST       : ID PCOMA'
+    t[0] = t[1]
+
+def p_Owmod(t):
+    'I_OWMOD       : OWNER IGUAL ID I_MODE'
+
+def p_Owmod1(t):
+    'I_OWMOD       : MODE IGUAL ID I_OWNER'
+
+def p_Owmod2(t):
+    'I_OWMOD       : PCOMA'
+
+def p_Mode(t):
+    'I_MODE        : MODE IGUAL ID PCOMA'
+
+def p_Mode1(t):
+    'I_MODE        : PCOMA'
+
+def p_Owner(t):
+    'I_OWNER       : OWNER IGUAL ID PCOMA'
+
+def p_Owner1(t):
+    'I_OWNER       : PCOMA'
+
+def p_AlterDB(t):
+    'I_ALTERDB     : ALTER DATABASE ID I_OPALTERDB I_VALALTDB'
+
+def p_opAlterDB(t):
+    'I_OPALTERDB   : RENAME TO'
+
+def p_opAlterDB2(t):
+    'I_OPALTERDB   : OWNER TO'
+
+def p_valAlterDb(t):
+    'I_VALALTDB    : ID'
+
+def p_valAlterDb1(t):
+    'I_VALALTDB    : CADENASI'
+
+def p_dropTB(t):
+    'I_DROPTB      : TABLE ID PCOMA'
+
+def p_insertTB(t):
+    'I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA'
+
+def p_lValt(t):
+    'I_LVALT       : I_LVALT COMA I_VALTAB'
+
+def p_update(t):
+    'I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE '
+
+def p_lUpdate(t):
+    'I_LUPDATE     : I_LUPDATE COMA I_VALUPDATE'
+
+def p_lUpdate1(t):
+    'I_LUPDATE     : I_VALUPDATE'
+
+def p_valUpdate(t):
+    'I_VALUPDATE   : ID IGUAL I_VALOR'
+
+def p_valor(t):
+    'I_VALOR       : CADENASI'
+
+def p_valor1(t):
+    'I_VALOR      : NUMERO'
+
+def p_show(t):
+    'I_SHOW       : SHOW DATABASE PCOMA'
+
+def p_delete(t):
+    'I_DELETE     : DELETE FROM ID PWHERE'
+
+def p_lValt1(t):
+    'I_LVALT       : I_VALTAB'
+
+def p_valTab(t):
+    'I_VALTAB      : NUMERO'
+
+def p_valTab1(t):
+    'I_VALTAB      : CADENASI'
+
+def p_ISelect(t):
+    'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO   '
+    
 def p_ISelect1(t):
-    'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO PCOMA    '
+    'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO    '
 
 def p_ISelect2(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO PCOMA   '
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO   '
 
 def p_ISelect3(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO PCOMA    '
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO    '
 
+def p_ISelect4(t):
+    'I_SELECT   :   SELECT VALORES '
 
 def p_ComplementoH(t):
     'COMPLEMENTO  :   PGROUPBY PHAVING  '
@@ -307,17 +575,6 @@ def p_ListaValores(t):
 def p_ListaValoresS(t):
     'LISTAVALORES  :   VALOR '
 
-def p_Valor(t):
-    'VALOR  :   ID ALIAS '
-
-def p_Valor2(t):
-    'VALOR  :   ID PUNTO ID ALIAS '
-
-def p_Valor3(t):
-    'VALOR  :   ID '
-
-def p_Valor4(t):
-    'VALOR  :   ID PUNTO ID'
 
 def p_ValorSub(t):
     'VALOR  :   PABRE SUBCONSULTA PCIERRA ALIAS'
@@ -372,6 +629,12 @@ def p_Alias(t):
 
 def p_AliasS(t):
     'ALIAS  :   ID '
+
+def p_AliasC(t):
+    'ALIAS  :   AS IDALIAS'
+
+def p_AliasCS(t):
+    'ALIAS  :   IDALIAS'
 
 def p_FromIdA(t):
     'PFROM  :   FROM ID ALIAS '

@@ -23,7 +23,7 @@ class Avl:
             return Nodo(valor)
         elif valor < nodo.valor:
             nodo.izq = self.__insertar(nodo.izq,valor)
-        else:
+        elif valor > nodo.valor:
             nodo.der = self.__insertar(nodo.der,valor)
         
         #Determinar el Factor
@@ -158,8 +158,12 @@ class Avl:
     
     #Funcion caso 3
     def __caso3(self,nodo):
-        nodo = nodo.der
-        return nodo
+        if nodo.der != None:
+            nodo = nodo.der
+            return nodo
+        else:
+            nodo = nodo.izq
+            return nodo
 
     #Metodo para Graficar
     def graficar(self):
@@ -168,7 +172,7 @@ class Avl:
             graph += "node[shape = \"record\"]\n"
             graph += self.__graficar(self.raiz)
             graph += '}'
-            file = open("AVL_DB.dot","a")
+            file = open("AVL_DB.dot","w")
             file.write(graph)
             file.close()
             os.system('dot -Tpng AVL_DB.dot -o AVL_DB.png')

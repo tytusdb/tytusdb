@@ -1,6 +1,8 @@
 #PARSER
 import ply.yacc as yacc
 import lexico
+from Gramaticas import ReporteErrores
+
 
 tokens = lexico.tokens
 
@@ -231,14 +233,15 @@ def p_lista_from(p):
 				   | par1 sentencia_select par2'''
 
 def p_tipo_join(p):
-		'''tipo_join : inner
-					 | left
-					 | right
-					 | full
-					 | outer'''
+		'''tipo_join : join
+					 | inner join
+					 | left join
+					 | right join
+					 | full join
+					 | outer join'''
 
 def p_hacer_join(p):
-		'''hacer_join : identificador tipo_join join identificador on operacion_logica
+		'''hacer_join : identificador tipo_join identificador on operacion_logica
 		 		   | identificador tipo_join join identificador'''
 
 def p_select_cont(p):
@@ -337,9 +340,12 @@ def p_empty(p):
      'empty :'
      pass
 
-#def p_error(p):
-#    print("Error sintáctico en '%s'" % p.value)
-
+def p_error(p):
+    if p:
+        ReporteErrores.esin.append("Syntax error. Msg 42601, line: " + str(p.lexer.lineno) + ", col: " + str(p.lexer.lexpos) + ", keyword: " + str(p.value))
+        parser.errok()
+    else:
+        ReporteErrores.esin.append("SQL statement not yet complete")
 
 #def parse(data, debug=0):
 #    parser.error = 0

@@ -8,7 +8,7 @@ class Pantalla_Error():
         self.top = Toplevel(parent)
         self.top.transient(parent)
         self.top.grab_set()
-        self.top.geometry('700x600')
+        self.top.geometry('700x660')
         self.top.resizable(0,0)
         self.top.title('Reporte de Errores')
         label = Label(self.top,text="Reporte de Errores")
@@ -89,7 +89,7 @@ class Pantalla_Error():
         frame3.grid_columnconfigure(0,weight=1)
         frame3.pack()
         btn = Button(self.top, text="Regresar",command=self.close)
-        btn.pack(side =TOP, ancho=E)
+        btn.pack(side=TOP, anchor="center", padx=25, pady=10)
         self.top.mainloop()
     
      def close(self):
