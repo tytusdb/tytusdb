@@ -200,3 +200,15 @@ class Avl:
                 graph += nodo + ':f2 -> ' + 'node' + str(raiz.der.valor) + '\n'
         
         return graph
+
+
+arbol = Avl()
+arbol.insertar(45)
+arbol.insertar(35)
+arbol.insertar(12)
+arbol.insertar(5)
+arbol.insertar(48)
+arbol.insertar(54)
+arbol.insertar(23)
+arbol.insertar(78)
+arbol.graficar()
