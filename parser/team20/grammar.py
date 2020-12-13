@@ -1,3 +1,5 @@
+from graphviz import Digraph
+from AST_Tree import *
 from AST_Tree import *
 from Token import *
 from parse_result import *
@@ -6,7 +8,7 @@ from pathlib import Path
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
 # 201612154 André Mendoza Torres
-# 
+# 201612276 Carlos García 
 # 
 # DIC 2020
 #
@@ -15,6 +17,12 @@ from pathlib import Path
 
 AST_Tree_ = AST_Tree(None)
 Error_Table = []
+d=0
+Tree=None
+def inc():
+    global d
+    d += 1
+    return d
 
 reservedwords = (
     'CREATE',
@@ -209,13 +217,14 @@ def t_single_line_comment(t):
 def t_multi_line_comment(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count("\n")
-    
+
 def t_error(t):
+    print("Carácter ilegal en '%s'" % t.value[0])
     Error = Token("Syntactic", t.value, t.lineno, t.lexpos)
     global Error_Table
     Error_Table.append(Error)
     t.lexer.skip(1)
-
+    
 # Building lexer
 import ply.lex as lex
 lexer = lex.lex()
@@ -234,20 +243,38 @@ precedence = (
     )
 
 # Grammar definition
+def p_instruction_init(t):
+    '''init : sentences '''
+    Tree=AST_Tree(AST_Tree_Node('tipo','init','1','1','niida',[t[1]],id))
+    #Tree.preorder()
+    Tree.preorderG()
+       
 def p_instructions_list(t):
     '''sentences : sentences sentence
                  | sentence '''
+    if(len(t)==3):
+        t[2].children.insert(0,t[1])
+        t[0]=t[2]
+    elif(len(t)==2):
+        t[0]=t[1]
+    
 
 def p_instructions_sql(t):
     '''sentence : ddl SEMICOLON
                 | dml SEMICOLON'''
-
+    id=inc()
+    t[0]= t[1]
+    
 # Sentences
 def p_instructions_ddl(t):
     '''ddl : drop
            | alter
            | use
-           | create'''
+           | create
+           | replace'''
+    id=inc()
+    t[0]= t[1]
+    
            
 def p_instructions_dml(t):
     '''dml : show
@@ -256,6 +283,8 @@ def p_instructions_dml(t):
            | update
            | delete
            | truncate'''
+    id=inc()
+    t[0]= t[1]
 
 # DDL sentences
 #CREATE
@@ -263,72 +292,184 @@ def p_instruction_create(t):
     '''create : createDatabase
               | createTable
               | createType'''
+    id=inc()
+    t[0]= AST_Tree_Node('tipo','Create','create','1','niida',[t[1]],id)
+
+#REPLACE
+def p_instruction_replace(t):
+    '''replace : replaceDatabase'''
+    id=inc()
+    t[0]= AST_Tree_Node('tipo','Replace','1','2','niida',[t[1]],id)
+
+def p_instruction_replace_database(t):
+    '''replaceDatabase : REPLACE DATABASE ID
+              | REPLACE DATABASE ID owner
+              | REPLACE DATABASE ID mode 
+              | REPLACE DATABASE ID owner mode
+              | REPLACE DATABASE ID mode owner
+              | REPLACE DATABASE IF NOT EXISTS ID
+              | REPLACE DATABASE IF NOT EXISTS ID owner
+              | REPLACE DATABASE IF NOT EXISTS ID mode 
+              | REPLACE DATABASE IF NOT EXISTS ID owner mode
+              | REPLACE DATABASE IF NOT EXISTS ID mode owner'''
+             
+    if (len(t)==4):#CREATE DATABASE ID
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1],id)
+    elif (len(t)==5):
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[4],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2],id)
+    elif (len(t)==7):#CREATE DATABASE IF NOT EXISTS ID
+        id=inc()
+        nd1= AST_Tree_Node('tipo','IFNOTEXISTS','1','2','niida',[],id)
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[6],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2],id)
+    elif (len(t)==8):#CREATE DATABASE IF NOT EXISTS ID owner
+        id=inc()
+        nd1= AST_Tree_Node('tipo','IFNOTEXISTS','1','2','niida',[],id)
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[6],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2,t[7]],id)
+    elif (len(t)==9):#CREATE DATABASE IF NOT EXISTS ID mode
+        id=inc()
+        nd1= AST_Tree_Node('tipo','IFNOTEXISTS','1','2','niida',[],id)
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[6],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2,t[7],t[8]],id)
 
 def p_instruction_create_database(t):
     '''createDatabase : CREATE DATABASE ID
-              | CREATE DATABASE ID ownerMode
-              | REPLACE DATABASE ID ownerMode
+              | CREATE DATABASE ID owner
+              | CREATE DATABASE ID mode 
+              | CREATE DATABASE ID owner mode
+              | CREATE DATABASE ID mode owner
               | CREATE DATABASE IF NOT EXISTS ID
-              | CREATE DATABASE IF NOT EXISTS ID ownerMode'''
+              | CREATE DATABASE IF NOT EXISTS ID owner
+              | CREATE DATABASE IF NOT EXISTS ID mode 
+              | CREATE DATABASE IF NOT EXISTS ID owner mode
+              | CREATE DATABASE IF NOT EXISTS ID mode owner'''
+             
     if (len(t)==4):#CREATE DATABASE ID
-        i=4
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1],id)
     elif (len(t)==5):
-        if(t[1]=="CREATE"):#CREATE DATABASE ID ownerMode
-            i=5
-        elif (t[1]=="REPLACE"):#REPLACE DATABASE ID ownerMode
-            i=5
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[4],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2],id)
     elif (len(t)==7):#CREATE DATABASE IF NOT EXISTS ID
-        i=7
-    elif (len(t)==8):#CREATE DATABASE IF NOT EXISTS ID ownerMode
-        i=8
+        id=inc()
+        nd1= AST_Tree_Node('tipo','IFNOTEXISTS','1','2','niida',[],id)
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[6],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2],id)
+    elif (len(t)==8):#CREATE DATABASE IF NOT EXISTS ID owner
+        id=inc()
+        nd1= AST_Tree_Node('tipo','IFNOTEXISTS','1','2','niida',[],id)
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[6],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2,t[7]],id)
+    elif (len(t)==9):#CREATE DATABASE IF NOT EXISTS ID mode
+        id=inc()
+        nd1= AST_Tree_Node('tipo','IFNOTEXISTS','1','2','niida',[],id)
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[6],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2,t[7],t[8]],id)
+        
 
 def p_instruction_create_table(t):
     '''createTable : CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
                    | CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE INHERITS BRACKET_OPEN ID BRACKET_CLOSE'''
     if (len(t)==7):#CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
-        i=7
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Table','1','2','niida',[nd1,t[5]],id)
     elif (len(t)==11):#CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE INHERITS BRACKET_OPEN ID BRACKET_CLOSE
-        i=11
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[7],'1','2','niida',[],id)
+        id=inc()
+        nd3=AST_Tree_Node('tipo',t[9],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Table','1','2','niida',[nd1,t[5],nd2,nd3],id)
 
 def p_instruction_create_table_columns(t):
     '''columns : columns COMMA column
                | column'''
     if (len(t)==4):#columns COMMA column
-        i=4
+        t[3].children.insert(0,t[1])
+        t[0]=t[3]
     elif (len(t)==2):#column
-        i=2
+        t[0]=t[1]
 
 def p_instruction_create_table_column(t):
     '''column : ID type
-              | ID type opt1
+              | ID type constrains
               | UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
               | CHECK BRACKET_OPEN expression BRACKET_CLOSE
               | PRIMARY KEY BRACKET_OPEN idList BRACKET_CLOSE
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE 
-              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES BRACKET_OPEN idList BRACKET_CLOSE '''
+              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES ID BRACKET_OPEN idList BRACKET_CLOSE '''
     if (len(t)==3):#ID type
-        i=3
-    elif (len(t)==4):#ID type opt1
-        i=4
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Attribute','1','2','niida',[nd1,t[2]],id)
+    elif (len(t)==4):#ID type constrains
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Attribute','1','2','niida',[nd1,t[2],t[3]],id)
     elif (len(t)==5):
-        if(t[1]=="UNIQUE"):#UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
-            i=5
-        elif (t[1]=="CHECK"):#CHECK BRACKET_OPEN expression BRACKET_CLOSE
-            i=5
+        id=inc()
+        t[0]= AST_Tree_Node('tipo',t[1],'1','2','niida',[t[3]],id)
     elif (len(t)==6):#PRIMARY KEY BRACKET_OPEN idList BRACKET_CLOSE
-        i=6
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','PrimaryKey','1','2','niida',[t[4]],id)
     elif (len(t)==7):#CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
-        i=7
-    elif (len(t)==10):#FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES BRACKET_OPEN idList BRACKET_CLOSE
-        i=10
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo',t[1],'1','2','niida',[nd1,nd2,t[5]],id)
+    elif (len(t)==11):#FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES ID BRACKET_OPEN idList BRACKET_CLOSE
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[6],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[7],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','ForeignKey','1','2','niida',[t[4],nd1,t[9]],id)
 
-def p_instruction_create_table_opt1(t):
-    '''opt1 :  default 
+def p_instruction_create_table_constrains(t):
+    '''constrains :  default 
            | null
            | primarys
            | reference
            | uniques
            | checks'''
+    id=inc()
+    t[0]=AST_Tree_Node('tipo','Constrains','1','2','niida',[t[1]],id)
+    
 def p_instruction_create_default (t):
     '''default : DEFAULT expression 
                | DEFAULT expression null
@@ -336,6 +477,14 @@ def p_instruction_create_default (t):
                | DEFAULT expression reference
                | DEFAULT expression uniques
                | DEFAULT expression checks'''
+    if(len(t)==3):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo',t[1],'1','2','niida',[t[2]],id)
+    elif(len(t)==4):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo',t[1],'1','2','niida',[t[3],t[2]],id)
+
+    
 def p_instruction_create_null (t):
     '''null : NULL 
             | NULL default
@@ -349,6 +498,20 @@ def p_instruction_create_null (t):
             | NOT NULL uniques
             | NOT NULL checks
             | NOT NULL'''
+    if(len(t)==2):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+    elif(len(t)==3):
+        if(t[1]=='NULL'):
+            id=inc()
+            t[0]= AST_Tree_Node('tipo',t[1],'1','2','niida',[t[2]],id)
+        elif(t[1]=='NOT'):
+            id=inc()
+            t[0]= AST_Tree_Node('tipo','NotNull','1','2','niida',[],id)
+    elif(len(t)==4):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','NotNull','1','2','niida',[t[3]],id)
+
 def p_instruction_create_primary (t):
     '''primarys : PRIMARY KEY
                 | PRIMARY KEY default
@@ -356,6 +519,13 @@ def p_instruction_create_primary (t):
                 | PRIMARY KEY reference
                 | PRIMARY KEY uniques
                 | PRIMARY KEY checks   '''
+    if(len(t)==3):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','PrimaryKey','1','2','niida',[],id)
+    elif(len(t)==4):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','PrimaryKey','1','2','niida',[t[3]],id)
+
 def p_instruction_create_references (t):
     '''reference : REFERENCES ID
                  | REFERENCES ID default
@@ -363,6 +533,17 @@ def p_instruction_create_references (t):
                  | REFERENCES ID primarys
                  | REFERENCES ID uniques
                  | REFERENCES ID checks    '''
+    if(len(t)==3):
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','References','1','2','niida',[nd1],id)
+    elif(len(t)==4):
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','References','1','2','niida',[nd1,t[3]],id)
+
 def p_instruction_create_unique (t):
     '''uniques : UNIQUE
                | UNIQUE default
@@ -376,6 +557,26 @@ def p_instruction_create_unique (t):
                | CONSTRAINT ID UNIQUE primarys
                | CONSTRAINT ID UNIQUE reference
                | CONSTRAINT ID UNIQUE checks   '''
+    if(len(t)==2):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Unique','1','2','niida',[nd1],id)
+    elif(len(t)==3):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Unique','1','2','niida',[t[2]],id)
+    elif(len(t)==4):
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Constraint','1','2','niida',[nd1,nd2],id)
+    elif(len(t)==5):
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Constraint','1','2','niida',[nd1,nd2,t[4]],id)
 
 def p_instruction_create_check (t):
     '''checks : CHECK BRACKET_OPEN expression BRACKET_CLOSE
@@ -391,6 +592,26 @@ def p_instruction_create_check (t):
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE reference
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE uniques
               '''
+    if(len(t)==5):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Check','1','2','niida',[t[3]],id)
+    elif(len(t)==6):
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Check','1','2','niida',[t[5],t[3]],id)
+    elif(len(t)==7):
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Constraint','1','2','niida',[nd1,nd2,t[5]],id)
+    elif(len(t)==8):
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Constraint','1','2','niida',[t[7],nd1,nd2,t[5]],id)
 
 def p_instruction_type(t):
     '''type : SMALLINT
@@ -411,78 +632,135 @@ def p_instruction_type(t):
             | INTERVAL
             | BOOLEAN
             | INTERVAL INT
-            | VARYING BRACKET_OPEN INT BRACKET_CLOSE
-            | VARCHAR BRACKET_OPEN INT BRACKET_CLOSE
+            | VARYING   BRACKET_OPEN INT BRACKET_CLOSE
+            | VARCHAR   BRACKET_OPEN INT BRACKET_CLOSE
             | CHARACTER BRACKET_OPEN INT BRACKET_CLOSE
-            | CHAR BRACKET_OPEN INT BRACKET_CLOSE
+            | CHAR      BRACKET_OPEN INT BRACKET_CLOSE
             | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE
-            | TIMESTAMP WITH TIME ZONE
-            | TIME BRACKET_OPEN INT BRACKET_CLOSE
-            | TIME WITHOUT TIME ZONE
-            | TIME WITH TIME ZONE
-            | INTERVAL BRACKET_OPEN INT BRACKET_CLOSE
-            | INTERVAL INT BRACKET_OPEN INT BRACKET_CLOSE
-            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITHOUT TIME ZONE
-            | TIME BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE
-            | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE WITH TIME ZONE'''
+            | INTERVAL  BRACKET_OPEN INT BRACKET_CLOSE
+            | TIME      BRACKET_OPEN INT BRACKET_CLOSE
+            | TIMESTAMP    WITH     TIME    ZONE
+            | TIME      WITHOUT     TIME ZONE
+            | TIME       WITH       TIME ZONE
+            | INTERVAL    INT      BRACKET_OPEN     INT     BRACKET_CLOSE
+            | TIME      BRACKET_OPEN INT BRACKET_CLOSE WITHOUT TIME ZONE
+            | TIME      BRACKET_OPEN INT BRACKET_CLOSE WITH    TIME ZONE
+            | TIMESTAMP BRACKET_OPEN INT BRACKET_CLOSE WITH    TIME ZONE'''
     if (len(t)==2):
-        i=2
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+        id=inc()
+        t[0]=AST_Tree_Node('tipo','Type','1','2','niida',[nd1],id)
     elif (len(t)==3):
-        i=3
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        t[0]=AST_Tree_Node('tipo','Type','1','2','niida',[nd1,nd2],id)
     elif (len(t)==5):
-        i=5
+        if(t[2]=='('):
+            id=inc()
+            nd1=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+            id=inc()
+            nd2=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+            id=inc()
+            t[0]=AST_Tree_Node('tipo','Type','1','2','niida',[nd1,nd2],id)
+        elif(t[2].low()=='with' or t[2].low()=='without' ):
+            id=inc()
+            nd1=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+            id=inc()
+            nd2=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+            id=inc()
+            nd3=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+            id=inc()
+            nd4=AST_Tree_Node('tipo',t[4],'1','2','niida',[],id)
+            id=inc()
+            t[0]=AST_Tree_Node('tipo','Type','1','2','niida',[nd1,nd2,nd3,nd4],id)   
     elif (len(t)==6):
-        i=6
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        nd3=AST_Tree_Node('tipo',t[4],'1','2','niida',[],id)
+        id=inc()
+        t[0]=AST_Tree_Node('tipo','Type','1','2','niida',[nd1,nd2,nd3],id)
     elif (len(t)==8):
-        i=8
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        nd3=AST_Tree_Node('tipo',t[5],'1','2','niida',[],id)
+        id=inc()
+        nd4=AST_Tree_Node('tipo',t[6],'1','2','niida',[],id)
+        id=inc()
+        nd5=AST_Tree_Node('tipo',t[7],'1','2','niida',[],id)
+        id=inc()
+        t[0]=AST_Tree_Node('tipo','Type','1','2','niida',[nd1,nd2,nd3,nd4,nd5],id)
 
 def p_instruction_create_type(t):
     '''createType : CREATE TYPE ID AS ENUM BRACKET_OPEN expressionList BRACKET_CLOSE'''
 
-def p_instruction_create_owner_mode(t):
-    '''ownerMode : OWNER ID
-            | MODE expression
-            | OWNER EQUAL ID
-            | MODE EQUAL expression
-            | OWNER ID MODE expression
-            | OWNER EQUAL ID MODE expression
-            | OWNER ID MODE EQUAL expression
-            | OWNER EQUAL ID MODE EQUAL expression'''
+def p_instruction_mode (t):
+    '''mode : MODE INT
+            | MODE EQUAL INT '''
     if (len(t)==3):
-        if(t[1]=="OWNER"):#OWNER ID
-            i=3
-        elif (t[1]=="MODE"):#MODE expression
-            i=3
-    elif (len(t)==4):
-        if(t[1]=="OWNER"):#OWNER EQUAL ID
-            i=4
-        elif (t[1]=="MODE"):#MODE EQUAL expression
-            i=4
-    elif (len(t)==5):#OWNER ID MODE expression
-        i=5
-    elif (len(t)==6):
-        if(t[2]=="EQUAL"):#OWNER EQUAL ID MODE expression
-            i=6
-        else:#OWNER ID MODE EQUAL expression
-            i=6
-    elif (len(t)==7):#OWNER EQUAL ID MODE EQUAL expression
-        i=7
+        id=inc()
+        nd1= AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Mode','1','2','niida',[nd1],id)
+    else:
+        id=inc()
+        nd1= AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Mode','1','2','niida',[nd1],id)
+
+def p_instruction_owner (t):
+    '''owner : OWNER ID
+            | OWNER EQUAL ID '''
+    if (len(t)==3):
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Owner','1','2','niida',[nd2],id)
+    else:
+        id=inc()
+        nd2= AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Owner','1','2','niida',[nd2],id)
+
 
 #DROP
 def p_instruction_drop(t):
     '''drop : dropDatabase
             | dropTable'''
+    id=inc()
+    t[0]= AST_Tree_Node('tipo','Drop','1','2','niida',[t[1]],id)
 
 def p_instruction_dropdatabase(t):
     '''dropDatabase : DROP DATABASE ID
                     | DROP DATABASE IF EXISTS ID'''
     if (len(t)==4):#DROP DATABASE ID
-        i=4
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1],id)
     elif (len(t)==6):#DROP DATABASE IF EXISTS ID
-        i=6
+        id=inc()
+        nd1=AST_Tree_Node('tipo','IfExists','1','2','niida',[],id)
+        id=inc()
+        nd2=AST_Tree_Node('tipo',t[5],'1','2','niida',[],id)
+        id=inc()
+        t[0]= AST_Tree_Node('tipo','Database','1','2','niida',[nd1,nd2],id)
 
 def p_instruction_droptable(t):
     '''dropTable : DROP TABLE ID'''
+    id=inc()
+    nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+    id=inc()
+    t[0]= AST_Tree_Node('tipo','Table','1','2','niida',[nd1],id)
 
 # USE
 def p_instruction_use(t):
@@ -526,6 +804,10 @@ def p_instruction_alteroptions(t):
 #SHOW
 def p_instruction_show(t):
     '''show : SHOW DATABASES'''
+    id=inc()
+    nd1=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+    id=inc()
+    t[0]= AST_Tree_Node('tipo','Table','1','2','niida',[nd1],id)
 
 #INSERT
 def p_instruction_insert(t):
@@ -628,24 +910,38 @@ def p_instruction_reallocationofvalues(t):
 #DELETE
 def p_instruction_delete(t):
     '''delete : DELETE FROM ID WHERE expression'''
+    id=inc()
+    nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+    id=inc()
+    nd2=AST_Tree_Node('tipo',t[3],'1','2','niida',[],id)
+    id=inc()
+    nd3=AST_Tree_Node('tipo',t[4],'1','2','niida',[],id)
+    id=inc()
+    t[0]=AST_Tree_Node('tipo','Delete','1','2','niida',[nd1,nd2,nd3,t[5]],id)
 
 #TRUNCATE
 def p_instruction_truncate(t):
     '''truncate : TRUNCATE idList
                 | TRUNCATE TABLE idList'''
     if (len(t)==3):#TRUNCATE idList
-        i=3
+        id=inc()
+        t[0]=AST_Tree_Node('tipo','Truncate','1','2','niida',[t[2]],id)
     elif (len(t)==4):#TRUNCATE TABLE idList
-        i=4
+        id=inc()
+        nd1=AST_Tree_Node('tipo',t[2],'1','2','niida',[],id)
+        id=inc()
+        t[0]=AST_Tree_Node('tipo','Truncate','1','2','niida',[nd1,t[3]],id)
 
 #EXPRESSIONS
 def p_instruction_idlist(t):
     '''idList : idList COMMA ID
               | ID'''
     if (len(t)==4):#idList COMMA ID
-        i=4
+        id=inc()
+        t[0]=AST_Tree_Node('tipo',t[3],'1','2','niida',[t[1]],id)
     elif (len(t)==2):#ID
-        i=2
+        id=inc()
+        t[0]=AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
 
 def p_instruction_sortexpressionlist(t):
     '''sortExpressionList : expression
@@ -704,10 +1000,9 @@ def p_expression_binaryarithmetic(t):
                   | expression GREATERTHANEQUAL expression
                   | expression NOTEQUAL expression
                   '''
-    if t[2] == '+'  : t[0] = t[1] + t[3]
-    elif t[2] == '-': t[0] = t[1] - t[3]
-    elif t[2] == '*': t[0] = t[1] * t[3]
-    elif t[2] == '/': t[0] = t[1] / t[3]
+    id=inc()
+    t[0]= AST_Tree_Node('tipo',t[2],'1','2','niida',[t[3],t[1]],id)
+    
 
 
 def p_expression_binaryseparator(t):
@@ -744,10 +1039,14 @@ def p_expression_number(t):
                   | STRING
                   | REGEX
                   | ID'''
-    t[0] = t[1]
+    id=inc()
+    t[0]= AST_Tree_Node('tipo',t[1],'1','2','niida',[],id)
 
+
+    
 #ERROR
 def p_error(t):
+    print("Error sintáctico en '%s'" % t.value)
     Error = Token("Syntactic", t.value, t.lineno, t.lexpos)
     global Error_Table
     Error_Table.append(Error)
@@ -755,6 +1054,7 @@ def p_error(t):
 #PARSE
 import ply.yacc as yacc
 parser = yacc.yacc()
+
 
 def parse(input_text):
     global AST_Tree_
@@ -766,7 +1066,7 @@ def parse(input_text):
     parse_result_ = parse_result(AST_Tree, Error_Table)
     return parse_result_
 
-f = open(Path(__file__).parent / "./test.txt", "r")
+f = open(Path(__file__).parent / "./test3.txt", "r")
 input = f.read()
 print(input)
 parser.parse(input)
