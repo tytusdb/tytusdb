@@ -2,5 +2,6 @@
 /venv/
 /.idea/
 /proyecto/.idea/
-/proyecto/__pycache__/
-/proyecto/ply/__pycache__/
+/proyecto/parser.out
+/proyecto/parsetab.py
+**/__pycache__/**

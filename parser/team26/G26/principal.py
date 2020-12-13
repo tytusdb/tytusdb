@@ -1,15 +1,16 @@
 import gramatica as g
+import Utils.TablaSimbolos as table
+import Utils.Lista as l
+
+datos = l.Lista([], '')
 
 ruta = '../G26/entrada.txt'
 f = open(ruta, "r")
 input = f.read()
-# print(input)
 
 instrucciones = g.parse(input)
-#print(instrucciones)
 
-# print(instrucciones)
 for instr in instrucciones :
-    print(instr.execute())
+    instr.execute(datos)
 
-#print(instrucciones)
+print (datos)
