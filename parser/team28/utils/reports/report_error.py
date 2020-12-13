@@ -6,8 +6,8 @@ class ReportError:
         file_content = ''
         values = self.list_errors.head_value
         file_content += "digraph D{\n\t"
-        file_content += 'graph [pad="0.5", nodesep="0.5", ranksep="2", bgcolor = grey77, label=\"Report Of Errors\"];\n'
-        file_content += 'node [shape=plain]\n'
+        file_content += 'graph [pad="0.8", nodesep="0.8", ranksep="1", bgcolor = grey77, label=\"Report Of Errors\"];\n'
+        file_content += 'node [shape=note]\n'
         file_content += 'rankdir=LR;\n'
         file_content += 'arset [label=<\n'
         file_content += '<table border="0" cellborder="1" color="green1" cellspacing="0">\n'
