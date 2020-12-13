@@ -1,5 +1,15 @@
 import re
+
+from tytus.parser.team21.Analisis_Ascendente.reportes.Reportes import RealizarReportes,Error
+
+
+
+L_errores_lexicos = []
+L_errores_sintacticos = []
+columna = 0
+
 from graphviz import Digraph
+
 
 varGramatical = []
 varSemantico =[]
@@ -43,8 +53,8 @@ reservadas = {
     'null': 'NULL',
     'between': 'BETWEEN',
     'in': 'IN',
-    'like': 'LIKE',
     'ilike': 'ILIKE',
+    'like': 'LIKE',
     'similar': 'SIMILAR',
     'table': 'TABLE',
     'replace': 'REPLACE',
@@ -148,7 +158,41 @@ reservadas = {
     'notnull': 'NOTNULL',
     'unknown': 'UNKNOWN',
     'extract': 'EXTRACT',
-    'inherits':'INHERITS'
+    'inherits':'INHERITS',
+    'serial':'SERIAL',
+    'on':'ON',
+    'inner':'INNER',
+    'join':'JOIN',
+    'left':"LEFT",
+    'right':"RIGHT",
+    'full':'FULL',
+    'outer':'OUTER',
+    'md5':'MD5',
+    'sing':'SING',
+    'width_bucket':'WIDTH_BUCKET',
+    'trunc':'TRUNC',
+    'length':'LENGTH',
+    'substring':'SUBSTRING',
+    'trim':'TRIM',
+    'sha256':'SHA256',
+    'substr':'SUBSTR',
+    'get_byte':'GET_BYTE',
+    'set_byte':'SET_BYTE',
+    'convert':'CONVERT',
+    'encode':'ENCODE',
+    'decode':'DECODE',
+    'greatest':'GREATEST',
+    'least':'LEAST',
+    'order':'ORDER',
+    'by':'BY',
+    'limit':'LIMIT',
+    'offset':'OFFSET',
+    'when':'WHEN',
+    'case':'CASE',
+    'then':'THEN',
+    'end':'END'
+
+
 }
 
 
@@ -177,7 +221,6 @@ tokens = [
              'NUMDECIMAL',
              'ENTERO',
              'CADENA',
-
              'ID',
              'MODU',
              'PUNTO',
@@ -228,6 +271,8 @@ def t_NUMDECIMAL(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
+        global columna
+        columna = contador_columas(len(str(t.value)))
     except ValueError:
         print("Valor no es parseable a decimal %d", t.value)
         t.value = 0
@@ -238,6 +283,8 @@ def t_ENTERO(t):
     r'\d+'
     try:
         t.value = int(t.value)
+        global columna
+        columna = contador_columas(len(str(t.value)))
     except ValueError:
         print("Valor no es parseable a integer %d", t.value)
         t.value = 0
@@ -245,40 +292,61 @@ def t_ENTERO(t):
 
 
 def t_ID(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    r'[a-zA-Z_][a-zA-Z_0-9_]*'
     t.type = reservadas.get(t.value.lower(), 'ID')
+    global columna
+    columna = contador_columas(len(str(t.value)))
     return t
 
 
 def t_CADENA(t):
     r'(\".*?\")|(\'.*?\')'
     t.value = t.value[1:-1]  # remuevo las comillas
+    global columna
+    columna = contador_columas(len(str(t.value)))
     return t
 
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
+    global columna
+    columna = 0
 
 
 # Comentario simple // ...
 def t_COMENTARIO_SIMPLE(t):
     r'--.*\n'
     t.lexer.lineno += 1
+    global columna
+    columna = 0
 
 
-t_ignore = " \t"
+#t_ignore = " \t"
+def t_IGNORAR(t):
+    r'\ |\t'
+    global columna
+    if t.value == '\t':
+        columna = contador_columas(columna+7)
+    else:
+        columna = contador_columas(columna)
 
 
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
+    global columna
+    columna = 0
 
 
 def t_error(t):
-    print("Caracter irreconocible! '%s'" % t.value[0])
-    # meter a tabla de errores!
+    global L_errores_lexicos;
+    global columna
 
+    colum = contador_columas(columna)
+    data = Error(str("Error Lexico"),str(t.value[0]), str(t.lexer.lineno),str(colum))
+    L_errores_lexicos.append(data)
+    print("Caracter irreconocible! '%s'" % t.value[0])
     t.lexer.skip(1)
 
 
@@ -293,7 +361,7 @@ from tytus.parser.team21.Analisis_Ascendente.instruccion import *
 
 precedence = (
     ('left', 'OR'),
-    ('left', 'AND', 'BETWEEN', 'NOT', 'LIKE', 'ILIKE', 'IN'),
+    ('left', 'AND', 'BETWEEN', 'NOT', 'LIKE', 'ILIKE', 'IN','ON'),
     ('left', 'ORO'),
     ('left', 'ANDO'),
     ('left', 'NOIGUAL', 'MENMAY', 'IGUALIGUAL'),
@@ -370,19 +438,23 @@ def p_campo(t):
     varSemantico.append('m ')
 
 def p_foreign(t):
-    'campo              : CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR'
+    'campo              : CONSTRAINT ID FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
     t[0] = Campo(2, t[2], None, None, t[6], t[9], t[11])
     varGramatical.append('campo :: = CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR')
     varSemantico.append('z ')
 
 def p_foreign2(t):
-    'campo              : FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR'
+    'campo              : FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
     t[0] = Campo(3, None, None, None, t[4], t[7], t[9])
     varGramatical.append('campo :: = FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR')
     varSemantico.append(' x')
 
+def p_campoCadenas(t):
+    'campo              : CADENA'
+
+
 def p_primary(t):
-    'campo              : PRIMARY KEY PARIZQ ID PARDR'
+    'campo              : PRIMARY KEY PARIZQ listaID PARDR'
     t[0] = Campo(4, t[4], None, None, None, None, None)
     varGramatical.append('campo :: = PRIMARY KEY PARIZQ ID PARDR')
     varSemantico.append('c ')
@@ -406,7 +478,13 @@ def p_acompaniamiento(t):
                         | NULL
                         | UNIQUE PARIZQ listaID PARDR
                         | DEFAULT valores
-                        | PRIMARY KEY'''
+                        | PRIMARY KEY
+                        | CONSTRAINT ID
+                        | REFERENCES ID
+                        | CHECK PARIZQ checkprima PARDR
+                        '''
+
+
     if t[1].lower() == 'not'         :
         t[0] = Acompaniamiento('NOT', None)
         varGramatical.append('acom :: = NOT NULL')
@@ -427,6 +505,12 @@ def p_acompaniamiento(t):
         t[0] = Acompaniamiento('PRIMARY', None)
         varGramatical.append('acom :: = PRIMARY')
         varSemantico.append('yt ')
+    elif t[1].lower() == 'constraint': t[0] = Acompaniamiento('CONSTRAINT',t[2])
+    elif t[1].lower() == 'references': t[0] = Acompaniamiento('REFERENCES',t[2])
+    elif t[1].lower() == 'check'   : t[0] = Acompaniamiento('CHECK', None)
+
+
+
 
 
 def p_acompaniamiento2(t):
@@ -452,7 +536,8 @@ def p_tipos(t):
                         | DATE
                         | TIME
                         | INTERVAL
-                        | BOOLEAN'''
+                        | BOOLEAN
+                        | SERIAL'''
     t[0] = Tipo(t[1].upper(), None)
     varGramatical.append('tipo :: ='+str(t[1]))
     varSemantico.append('fr ')
@@ -548,7 +633,9 @@ def p_listaValores2(t):
 
 # VALORES
 def p_valores(t):
+
     '''valores          : ENTERO '''
+
     t[0] = Primitivo(t[1])
     #varGramatical.append('valores ::= '+)
     #varSemantico.append('iu ')
@@ -564,6 +651,17 @@ def p_valoresCad(t):
     varGramatical.append('valores ::= CADENA')
     varSemantico.append('ii ')
 
+
+
+#este es un conjunto de valores o llamada a metodos
+# ejemplo (1,2,3,4,5,6)  now()  sqrt()
+def p_valoresCad1(t):
+    '''valores          : columna  '''
+    t[0] = Primitivo(t[1])
+
+def p_valoresCad2(t):
+    '''valores          : NOW PARIZQ PARDR  '''
+    t[0] = Primitivo(t[1])
 
 #def p_valores2(t):
  #   '''valores2         : valores
@@ -622,18 +720,19 @@ def p_where7(t):
     varSemantico.append('in ')
 
 
-def p_where0(t):
-    '''where            : boolean
-                        '''
-    t[0] = t[1]
-
 def p_whereN(t):
     '''where            : NOT boolean
-                        | ID IN PARIZQ listaValores PARDR 
-                        | ID BETWEEN valores AND valores'''
-    if t[1].upper() == 'NOT'     : t[0] = Where(1, t[2], None, None, None)
-    elif t[2].upper() == 'IN'    : t[0] = Where(2, None, t[4], None, None)
-    else                         : t[0] = Where(3, None, None, t[3], t[5])
+                        | columna IN PARIZQ listaValores PARDR
+                        | columna BETWEEN valores AND valores '''
+#    if t[1].upper() == 'NOT'     : t[0] = Where(1, t[2], None, None, None)
+#    elif t[2].upper() == 'IN'    : t[0] = Where(2, None, t[4], None, None)
+#    else                         : t[0] = Where(3, None, None, t[3], t[5])
+# revisar aqui
+
+def p_whereN_1(t):
+    '''where             : var ILIKE valores
+                         | var LIKE valores
+                         | '''
 
 
 def p_where1(t):
@@ -646,15 +745,20 @@ def p_where1(t):
     varSemantico.append('ih ')
 
 def p_where2(t):
-    '''where            : valores2  comparisonP2
-                        '''
+
+    '''where            : var IS NOT DISTINCT FROM valores '''
     t[0] = t[1]
     varGramatical.append('where ::= valores2  comparisonP2')
     varSemantico.append('ih ')
-
+#corregir aqui freddy
 
 def p_where3(t):
-    '''where            : ID IS DISTINCT FROM valores
+    '''where            : var IS DISTINCT FROM valores
+                        '''
+    t[0] = t[1]
+
+def p_where4(t):
+    '''where            : var NOT IN PARIZQ select2 PARDR
                         '''
     t[0] = t[1]
 
@@ -701,15 +805,18 @@ def p_ComparisonP4(t):
 def p_andOr(t):
     '''andOr            : andOr AND andOr
                         | andOr OR andOr
-                        '''
+                         '''
     t[0] = Expresion(t[1], t[3], t[2])
 
 def p_andOr2(t):
     'andOr              : where'
     t[0] = t[1]
 
+#LA ASGINACION SE DEJA DE ESTA FORMA PUESTO QUE LA EXPRESION
+#ABSORVE ESTO
 def p_asignacion(t):
-    '''asignacion       : var IGUAL E
+    '''asignacion       : E IGUAL E
+
     '''
     t[0] = Asignacion(t[1], t[3])
 
@@ -853,43 +960,91 @@ def p_showDB(t):
     'instruccion        : SHOW DATABASES PTCOMA'
     t[0] = Show(True)
 
+def p_showDB1(t):
+    'instruccion        : SHOW DATABASES LIKE CADENA PTCOMA'
+    t[0] = t[1]
+
 
 # ALTER
 def p_alterDB(t):
     '''instruccion      : ALTER DATABASE ID RENAME TO ID PTCOMA
-                        | ALTER DATABASE ID OWNER TO LLIZQ ID LLDR''' #
-    if t[4].upper() == 'RENAME'     : t[0] = AlterDatabase(1, t[3], t[6])
-    else                            : t[0] = AlterDatabase(2, t[3], t[7].upper())
+
+                        | ALTER DATABASE ID OWNER TO ID PTCOMA'''
+
+    if t[4].upper() == 'RENAME'     : t[0] = AlterDatabase(1, t[3], t[6].upper())
+    else                            : t[0] = AlterDatabase(2, t[3], t[6].upper())
+
 
 
 def p_alterT(t):
-    '''instruccion      : ALTER TABLE ID ADD COLUMN ID tipo PTCOMA
-                        ''' 
-    t[0] = AlterTable(1, t[3], None, t[6], t[7], None, None, None, None, None, None, None)
+    '''instruccion      : ALTER TABLE ID lalterprima PTCOMA
+                        '''
+                         #t[3]         #t[6] #t[7]
+    t[0] = AlterTable(1, t[3], None, None, None, None, None, None, None, None, None, None)
 
-def p_alterT2(t):
-    'instruccion        : ALTER TABLE ID DROP COLUMN ID PTCOMA'
-    t[0] = AlterTable(2, t[3], 'COLUMN', None, None, None, None, None, None, None, t[6], None)
+#def p_alterT2(t):
+#    'instruccion        : ALTER TABLE ID  PTCOMA'
+#    t[0] = AlterTable(2, t[3], 'COLUMN', None, None, None, None, None, None, None, t[6], None)
 
-def p_alterT3(t):
-    'instruccion        : ALTER TABLE ID ADD CHECK ID PTCOMA'
-    t[0] = AlterTable(1, t[3], None, None, None, t[6], None, None, None, None, None, None)
+#def p_alterT3(t):
+#    'instruccion        : ALTER TABLE ID  PTCOMA'
+#    t[0] = AlterTable(1, t[3], None, None, None, t[6], None, None, None, None, None, None)
 
-def p_alterT4(t):
-    'instruccion        : ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR PTCOMA'
-    t[0] = AlterTable(1, t[3], None, None, None, None, t[6], t[9], None, None, None, None)#
+#def p_alterT4(t):
+#    'instruccion        : ALTER TABLE ID PTCOMA'
+#    t[0] = AlterTable(1, t[3], None, None, None, None, t[6], t[9], None, None, None, None)
 
-def p_alterT5(t):
-    'instruccion        : ALTER TABLE ID ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID PTCOMA'
-    t[0] = AlterTable(1, t[3], None, None, None, None, None, None, t[8], t[11], None, None)
+#def p_alterT5(t):
+#    'instruccion        : ALTER TABLE ID PTCOMA'
+#    t[0] = AlterTable(1, t[3], None, None, None, None, None, None, t[8], t[11], None, None)
 
-def p_alterT6(t):
-    'instruccion        : ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PTCOMA'
-    t[0] = AlterTable(3, t[3], None, None, None, None, None, None, None, None, None, t[6])
+#def p_alterT6(t):
+#    'instruccion        : ALTER TABLE ID  PTCOMA'
+#    t[0] = AlterTable(3, t[3], None, None, None, None, None, None, None, None, None, t[6])
 
-def p_alterT7(t):
-    'instruccion        : ALTER TABLE ID DROP CONSTRAINT ID PTCOMA'
-    t[0] = AlterTable(2, t[3], 'CONSTRAINT', None, None, None, None, None, None, None, t[6], None)
+#def p_alterT7(t):
+#    'instruccion        : ALTER TABLE ID  PTCOMA'
+#    t[0] = AlterTable(2, t[3], 'CONSTRAINT', None, None, None, None, None, None, None, t[6], None)
+
+def p_alterT8(t):
+    'lalterprima         : lalterprima COMA alterprima'
+
+
+
+def p_alterT9(t):
+    'lalterprima         : alterprima'
+
+
+def p_alterT10(t):
+    'alterprima         : ADD COLUMN ID tipo '
+
+
+def p_alterT11(t):
+    'alterprima         : DROP COLUMN ID'
+
+
+def p_alterT12(t):
+    'alterprima         : ADD CHECK checkprima'
+
+
+def p_alterT13(t):
+    'alterprima         : DROP CONSTRAINT ID'
+
+def p_alterT14(t):
+    'alterprima         : ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR'
+
+
+def p_alterT15(t):
+    'alterprima         : ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID'
+
+
+def p_alterT16(t):
+    'alterprima         : ALTER COLUMN ID alterbiprima'
+
+def p_alterT17(t):
+    '''alterbiprima     : TYPE tipo
+                        | SET NOT NULL'''
+
 
 
 ##################################################################
@@ -929,45 +1084,46 @@ def p_momento(t):
     '''
     t[0] = t[1]
 
-
+#ESTE SELECT SIRVE PARA HACER UNA LLAMADA A UNA CONSULTA QUE POSIBLEMENTE USE LA UNION
+# INTERSECT U OTRO
 def p_instruccionSELECT(t):
-    '''instruccion : select2 inst_union
+    '''instruccion : PARIZQ select2 PARDR inst_union
                     '''
     # t[0]=t[1]
 
-
+#SELECT SENCILLO QUE LLAMA FUNCIONES
 def p_instruccionSELECT2(t):
     '''instruccion : select2 PTCOMA
                      '''
 
-
+#SELECT AUXILIAR QUE PROCEDE HACER EL UNION
 def p_union2(t):
-    '''inst_union : UNION ALL select2 PTCOMA
+    '''inst_union : UNION ALL  PARIZQ select2 PARDR PTCOMA
               '''
 
-
+#SELECT AUXILIAR QUE PROCEDE HACER EL INTERSECT CON OTRO QUERY
 def p_union3(t):
-    '''inst_union : INTERSECT ALL select2 PTCOMA
+    '''inst_union : INTERSECT ALL  PARIZQ select2 PARDR PTCOMA
              '''
 
-
+#SELECT AUXILIAR QUE PROCEDE HACER EL EXCEP CON OTRO QUERY
 def p_union4(t):
-    '''inst_union : EXCEPT ALL select2 PTCOMA
+    '''inst_union : EXCEPT ALL  PARIZQ select2 PARDR PTCOMA
           '''
 
-
+#ESTOS HACEN LO MISMO SIN LA PALABRA RESERVADA ALL
 def p_union5(t):
-    '''inst_union : UNION select2 PTCOMA
+    '''inst_union : UNION  PARIZQ select2 PARDR PTCOMA
               '''
 
 
 def p_union6(t):
-    '''inst_union : INTERSECT select2 PTCOMA
+    '''inst_union : INTERSECT  PARIZQ select2 PARDR PTCOMA
               '''
 
 
 def p_union7(t):
-    '''inst_union : EXCEPT select2 PTCOMA
+    '''inst_union : EXCEPT  PARIZQ select2 PARDR PTCOMA
               '''
 
 
@@ -990,16 +1146,17 @@ def p_having(t):
 def p_having1(t):
     '''compGroup        :  list HAVING andOr
     '''
-
-
+#--------------------------------------------------------------
+#aqui imician los select que vienen sin union intersect o excep
+#select 's
 def p_instselect(t):
-    '''select2 : SELECT DISTINCT select_list FROM compSelect
+    '''select2 : SELECT DISTINCT select_list FROM inner orderby
                     '''
     # t[0] = t[1]+' '+t[2]+' '+t[3]+' '+t[4]+ ' '+t[5]
 
 
 def p_instselect2(t):
-    '''select2 : SELECT select_list FROM compSelect
+    '''select2 : SELECT select_list FROM subquery inner orderby limit
     '''
 
 
@@ -1009,8 +1166,46 @@ def p_instselect3(t):
 
 
 def p_instselect4(t):
-    '''select2 : SELECT select_list FROM table_expr WHERE complemSelect
+    '''select2 : SELECT select_list FROM subquery inner WHERE complemSelect orderby limit
                     '''
+
+def p_instselect7(t):
+    '''select2 : SELECT DISTINCT select_list FROM subquery inner WHERE complemSelect orderby limit
+                    '''
+
+
+#------------------------------------------------------------------------
+def p_order_by(t):
+    '''orderby : ORDER BY listaID
+                |'''
+def p_order_limit(t):
+    '''limit : LIMIT ENTERO
+               | LIMIT ALL
+               | LIMIT ENTERO OFFSET ENTERO
+               |'''
+
+def p_subquery(t):
+    '''subquery : PARIZQ select2 PARDR
+                | '''
+
+
+def p_innerjoin(t):
+    '''inner    :  table_expr '''
+
+
+def p_innerjoin1(t):
+    '''inner    :  compSelect '''
+
+# hasta aqui no viene inner
+
+def p_innerjoin2(t):
+    '''inner    :  table_expr INNER JOIN columna ON asignacion '''
+
+def p_innerjoin3(t):
+    '''inner    :  table_expr INNER JOIN columna ON asignacion complemSelect '''
+# aqui si viene inner join pero sin where
+
+
 
 
 def p_instselect5(t):
@@ -1018,14 +1213,12 @@ def p_instselect5(t):
     '''
 
 
+
+
 def p_instselect6(t):
     '''complemSelect : andOr GROUP BY  compGroup
                     '''
 
-
-def p_instselect7(t):
-    '''select2 : SELECT DISTINCT select_list FROM table_expr WHERE complemSelect
-                    '''
 
 
 def p_selectList(t):
@@ -1039,6 +1232,30 @@ def p_list2(t):
 
 def p_list3(t):
     '''list : columna '''
+
+
+def p_cases(t):
+    '''columna : CASE cases END ID
+    '''
+
+def p_cases1(t):
+    '''cases : cases case
+    '''
+def p_cases2(t):
+    '''cases : case
+    '''
+def p_cases3(t):
+    '''case : WHEN asignacion THEN valores '''
+
+
+
+
+
+def p_columna0(t):
+    '''columna : PARIZQ select2 PARDR
+                '''
+#aqui no se puede hacer el llamdo a subquery pero no obstante pueden venir consultas entre columnas
+
 
 
 def p_columna2(t):
@@ -1055,6 +1272,13 @@ def p_columna4(t):
     '''columna : ID
                 '''
 
+def p_columna4_1(t):
+    '''columna : ID ID
+                '''
+
+def p_columna4_2(t):
+    '''columna : ID CADENA
+                '''
 
 def p_columna5(t):
     '''columna : ID AS CADENA
@@ -1068,6 +1292,14 @@ def p_columna6(t):
 
 def p_columna7(t):
     '''columna : math AS CADENA
+                '''
+
+def p_columna7_1(t):
+    '''columna : math CADENA
+                '''
+
+def p_columna7_2(t):
+    '''columna : math ID
                 '''
 
 
@@ -1090,6 +1322,20 @@ def p_columna11(t):
     '''columna : trig AS ID
                 '''
 
+def p_columna13(t):
+    '''columna : bina AS CADENA
+                '''
+
+
+def p_columna14(t):
+    '''columna : bina
+                '''
+
+
+def p_columna15(t):
+    '''columna : bina AS ID
+                '''
+
 
 def p_opcionID2(t):
     '''opcionID : PUNTO ascolumnaux
@@ -1102,9 +1348,16 @@ def p_opcionID3(t):
 
 
 def p_opcionID4(t):
-    '''ascolumnaux : ID
+    '''ascolumnaux : ID CADENA
                     '''
 
+def p_opcionID4_1(t):
+    '''ascolumnaux : ID ID
+                    '''
+
+def p_opcionID4_2(t):
+    '''ascolumnaux : ID
+                    '''
 
 def p_opcionID5(t):
     '''ascolumnaux : ID AS CADENA
@@ -1132,10 +1385,16 @@ def p_math2(t):
                 | WIDTH_BUCKET PARIZQ E PARDR
                 | SETSEED PARIZQ E PARDR
                 | SUM PARIZQ E PARDR
+                | MD5 PARIZQ E PARDR
+                | SING PARIZQ E PARDR
+                | WIDTH_BUCKET PARIZQ listaValores PARDR
                 | AVG PARIZQ E PARDR
                 | COUNT PARIZQ E PARDR
+                | COUNT PARIZQ MULT PARDR
                 | MIN PARIZQ E PARDR
-                | MAX PARIZQ E PARDR '''
+                | MAX PARIZQ E PARDR
+                | TRUNC PARIZQ E PARDR
+                '''
 
 
 def p_math3(t):
@@ -1158,6 +1417,36 @@ def p_math6(t):
                 | TRIM_SCALE
                 '''
 
+def p_binarios(t):
+    '''bina : LENGTH PARIZQ E PARDR
+            | SHA256 PARIZQ E PARDR
+            | ENCODE PARIZQ E PARDR
+            | DECODE PARIZQ E PARDR
+            '''
+
+def p_binarios2(t):
+    '''bina : SUBSTRING PARIZQ var COMA ENTERO COMA ENTERO PARDR
+            | SUBSTR PARIZQ var COMA ENTERO COMA ENTERO PARDR'''
+
+def p_binarios3(t):
+    '''bina : TRIM PARIZQ CADENA FROM columna PARDR'''
+
+def p_binarios4(t):
+    '''bina : GET_BYTE PARIZQ CADENA COMA ENTERO PARDR'''
+
+
+def p_binarios5(t):
+    '''bina : SET_BYTE PARIZQ CADENA COMA ENTERO COMA ENTERO PARDR'''
+
+def p_binarios6(t):
+    '''bina : CONVERT PARIZQ CADENA AS tipo PARDR'''
+
+def p_funcionesAgregadas(t):
+    '''bina : GREATEST PARIZQ listaValores PARDR'''
+
+def p_funcionesAgregadas1(t):
+    '''
+    bina : LEAST PARIZQ listaValores PARDR'''
 
 def p_trig2(t):
     ''' trig : ACOS PARIZQ E PARDR
@@ -1209,16 +1498,39 @@ def p_tablaR4(t):
                 '''
 
 
+
+def p_instruccion_createEnum(t):
+    ''' instruccion : CREATE TYPE ID AS ENUM PARIZQ campos PARDR PTCOMA
+    '''
+
+
+def p_checkopcional(t):
+    ''' checkprima : listaValores
+                    | E               '''
+
+
+
 # def p_condicion2(t):
-#   '''condicion : andOr HAVING
+#   '''condi
+#   cion : andOr HAVING
 #              | andOr'''
 ####################################################################
 # MODO PANICO ***************************************
 def p_error(t):
+    global L_errores_sintacticos
     print("Error sintáctico en '%s'" % t.value)
+
+    colum = contador_columas(columna)
+    print("Columna ",colum)
+    print("columna lexer pos ",lexer.lexpos)
+    data = Error(str("Error Sintactico"), str(t.value), str(t.lexer.lineno), str(colum))
+    L_errores_sintacticos.append(data)
+
     if not t:
         print("Fin del Archivo!")
         return
+
+
 
     # Read ahead looking for a closing '}'
     while True:
@@ -1229,14 +1541,37 @@ def p_error(t):
     parser.restart()
 
 
+def contador_columas(args):
+    columna = args + 2
+    return columna
+
+
+
+
 import ply.yacc as yacc
-
 parser = yacc.yacc()
+def ejecutarAnalisis(entrada):
+    global L_errores_lexicos
+    global L_errores_sintacticos
+    f = open("./entrada2.txt", "r")
+    input = f.read()
+    print(input)
+    parser.parse(input)
+    #limpiar
+    lexer.input("")
+    lexer.lineno=0
+    print("Lista Lexico\n", L_errores_lexicos)
+    print("Lista Sintactico\n", L_errores_sintacticos)
+    reportes = RealizarReportes()
+    reportes.generar_reporte_lexicos(L_errores_lexicos)
+    reportes.generar_reporte_sintactico(L_errores_sintacticos)
+    print("Fin de analisis")
+    print("Realizando reporte gramatical")
+    graphstack(varGramatical, varSemantico)
 
-f = open("./entrada.txt", "r")
-input = f.read()
-print(input)
-parser.parse(input)
+
+ejecutarAnalisis("prueba")
+
 
 
 def graphstack(stack,stack2):
@@ -1257,5 +1592,6 @@ def graphstack(stack,stack2):
     s.view()
 
 
-graphstack(varGramatical,varSemantico)
+
+
 

@@ -45,7 +45,6 @@ palabras_reservadas = (
     'SELECT', 'EXTRACT', 'DATE_PART', 'NOW', 'GREATEST', 'LEAST',
     'GROUP', 'BY', 'SUM', 'CURRENT_TIME', 'CURRENT_DATE', 'DISTINCT',
     'HAVING'
-
 )
 
 tokens = palabras_reservadas +\
