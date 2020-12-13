@@ -339,8 +339,8 @@ def p_instruccion(t) :
                         | UPDATE update
                         | AS condiciones
                         | alter'''
-    if [isinstance(t[1], alter.Alter)] : t[0] = alter.FatherAlter(t[1])
-    else : t[0] = t[2]   
+    if isinstance(t[1], alter.Alter) : t[0] = alter.FatherAlter(t[1])
+    else : t[0] = t[2]
 
 def p_create_instruccion(t) :
     '''create : TYPE createenum
@@ -368,8 +368,8 @@ def p_listacadenas(t):
 def p_createdatabase(t):
     '''createdatabase : IF NOT EXISTS ID databaseowner
                       | ID databaseowner'''
-    if t[1].lower() == 'id' : t[0] = create.Exists(False, t[1], t[2])
-    else : t[0] = create.Exists(False, t[4], t[5])
+    if t[1].lower() == 'if' : t[0] = create.Exists(False, t[4], t[5])
+    else : t[0] = create.Exists(False, t[1], t[2])
 
 def p_databaseowner(t):
     '''databaseowner : OWNER IGUAL ID databasemode
@@ -453,7 +453,7 @@ def p_tablenull(t):
     '''tablenull : NOT NULL tableconstraintunique
                  | NULL tableconstraintunique
                  | tableconstraintunique'''
-    if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = t[1]
+    if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = create.TableDescription('null', False, t[1], None)
     elif t[1].lower() == 'not' : t[0] = create.TableDescription('null', True, t[3], None)
     else : t[0] = create.TableDescription('null', False, t[3], None)
 
@@ -461,9 +461,9 @@ def p_tableconstraintunique(t):
     '''tableconstraintunique : CONSTRAINT ID UNIQUE tableconstraintcheck
                              | UNIQUE tableconstraintcheck
                              | tableconstraintcheck'''
-    if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = t[1]
-    elif t[0].lower() == 'constraint' : t[0] = create.TableDescription('constraint', t[2], t[4], None)
-    else : t[0] = create.TableDescription('unique', None, t[3], None)
+    if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = create.TableDescription('unique', None, t[1], False)
+    elif t[0].lower() == 'constraint' : t[0] = create.TableDescription('unique', t[2], t[4], True)
+    else : t[0] = create.TableDescription('unique', None, t[3], True)
 
 def p_tableconstraintcheck(t):
     '''tableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ condiciones PARENDER
@@ -472,7 +472,7 @@ def p_tableconstraintcheck(t):
     if t[0] == None : t[0] = None
     else :
         if t[1].lower() == 'constraint' :
-            t[0] = create.TableDescription('constraint', t[2], t[5], None)
+            t[0] = create.TableDescription('check', t[2], t[5], None)
         else : t[0] = create.TableDescription('check', None, t[3], None)
 
 def p_finalconstraintcheck(t):
@@ -621,7 +621,7 @@ def p_alterp(t):
                 |   TABLE ID altertable'''
     if t[1].lower() == 'database' : t[0] = alter.Alter(t[2], t[3], False)
     else : t[0] = alter.Alter(t[2], t[3], True)
-    
+
 #alter database
 def p_alterdb(t):
     '''alterdb  :   RENAME TO ID
