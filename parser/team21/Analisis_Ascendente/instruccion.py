@@ -133,3 +133,46 @@ class Update(Instruccion):
         self.id = id
         self.asignaciones = asignaciones
         self.where = where 
+
+#SELECT
+#-----------------------
+#TIME
+class Time(Instruccion):
+    '''#1 EXTRACT
+       #2 NOW
+       #3 date_part
+       #4 current_date
+       #5 current_time
+       #6 TIMESTAMP'''
+    def __init__(self, caso, momento, cadena, cadena2):
+        self.caso = caso
+        self.momento = momento
+        self.cadena = cadena
+        self.cadena2 = cadena2
+
+
+
+
+#COMBINACION QUERIES
+class Combinacion(Instruccion):
+    '''#1 union
+       #2 intersect
+       #3 except'''
+    def __init__(self, caso, all, querie1, querie2):
+        self.caso = caso
+        self.all = all
+        self.querie1 = querie1
+        self.querie2 = querie2
+
+
+ #MATH
+class Math_(Instruccion):
+    def __init__(self, nombre, E1, E2):
+        self.nombre = nombre
+        self.E1 = E1
+        self.E2 = E2
+
+class Trigonometrica(Instruccion):
+    def __init__(self, trig, E):
+        self.trig = trig
+        self.E = E

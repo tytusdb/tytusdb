@@ -349,12 +349,12 @@ def p_campo(t):
 
 
 def p_foreign(t):
-    'campo              : CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR'
+    'campo              : CONSTRAINT ID FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
     t[0] = Campo(2, t[2], None, None, t[6], t[9], t[11])
 
 
 def p_foreign2(t):
-    'campo              : FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR'
+    'campo              : FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
     t[0] = Campo(3, None, None, None, t[4], t[7], t[9])
 
 
@@ -381,11 +381,11 @@ def p_acompaniamiento(t):
                         | UNIQUE PARIZQ listaID PARDR
                         | DEFAULT valores
                         | PRIMARY KEY'''
-    if t[1].lower() == 'not'         : t[0] = Acompaniamiento('NOT', None)
+    if t[1].lower() == 'not'         : t[0] = Acompaniamiento('NOT NULL', None)
     elif t[1].lower() == 'null'      : t[0] = Acompaniamiento('NULL', None)
     elif t[1].lower() == 'unique'    : t[0] = Acompaniamiento('UNIQUE', t[3])
     elif t[1].lower() == 'default'   : t[0] = Acompaniamiento('DEFAULT', t[2])
-    elif t[1].lower() == 'primary'   : t[0] = Acompaniamiento('PRIMARY', None)
+    elif t[1].lower() == 'primary'   : t[0] = Acompaniamiento('PRIMARY KEY', None)
 
 def p_acompaniamiento2(t):
     'acom               : UNIQUE'
@@ -394,7 +394,7 @@ def p_acompaniamiento2(t):
 
 def p_acompaniamiento3(t):
     'acom               : UNIQUE ID'
-    t[0] = Acompaniamiento('UNIQUE', t[2])
+    t[0] = Acompaniamiento('UNIQUE', Id(t[2]))
 
 def p_tipos(t):
     '''tipo             : SMALLINT
@@ -607,11 +607,11 @@ def p_E(t):
                         | var
                         | pnum
                         | math'''
-
+    t[0] = t[1]
 
 def p_E1(t):
     '''E                : PARIZQ E PARDR '''
-
+    t[0] = t[2]
 
 #    print("expresion")
 #    if t[1] == '('  : t[0] = t[2]
@@ -620,7 +620,7 @@ def p_E1(t):
 def p_E2(t):
     '''boolean          : FALSE
                         | TRUE'''
-    t[0] = t[1]
+    t[0] = Primitivo(t[1])
 
 
 def p_oper(t):
@@ -655,6 +655,7 @@ def p_unarios(t):
 	                    | GNOT E
                         | MAS E '''
     t[0] = Unario(t[1], t[2])
+    print(t[1])
 
 
 def p_var(t):
@@ -664,7 +665,7 @@ def p_var(t):
 def p_alias(t):
     'var                : ID PUNTO ID'
     print(t[1] +t[2]+t[3])
-    t[0] = IdId(Id(t[1]), Id(t[2]))
+    t[0] = IdId(Id(t[1]), Id(t[3]))
 
 
 def p_pnum2(t):
@@ -698,15 +699,15 @@ def p_drop(t):
 def p_createDB(t):
     '''instruccion      : opcionCR ID PTCOMA
                         | opcionCR IF NOT EXISTS ID PTCOMA'''
-    if t[2] == 'IF'     : t[0] = CreateTable(t[1], True, t[5], None)
-    else                : t[0] = CreateTable(t[1], False, t[2], None)
+    if t[2] == 'IF'     : t[0] = CreateReplace(t[1], True, t[5], None)
+    else                : t[0] = CreateReplace(t[1], False, t[2], None)
 
 
 def p_createDB2(t):
     '''instruccion      : opcionCR ID complemento PTCOMA
                         | opcionCR IF NOT EXISTS ID complemento PTCOMA'''
-    if t[2] == 'IF'     : t[0] = CreateTable(t[1], True, t[5], t[6])
-    else                : t[0] = CreateTable(t[1], False, t[2], t[3])
+    if t[2] == 'IF'     : t[0] = CreateReplace(t[1], True, t[5], t[6])
+    else                : t[0] = CreateReplace(t[1], False, t[2], t[3])
 
 def p_opcionCR(t):
     '''opcionCR         : CREATE DATABASE
@@ -743,9 +744,9 @@ def p_showDB(t):
 # ALTER
 def p_alterDB(t):
     '''instruccion      : ALTER DATABASE ID RENAME TO ID PTCOMA
-                        | ALTER DATABASE ID OWNER TO LLIZQ ID LLDR''' #
+                        | ALTER DATABASE ID OWNER TO ID PTCOMA''' #
     if t[4].upper() == 'RENAME'     : t[0] = AlterDatabase(1, t[3], t[6])
-    else                            : t[0] = AlterDatabase(2, t[3], t[7].upper())
+    else                            : t[0] = AlterDatabase(2, t[3], t[6].upper())
 
 
 def p_alterT(t):
@@ -1121,5 +1122,9 @@ parser = yacc.yacc()
 
 f = open("./entrada.txt", "r")
 input = f.read()
-print(input)
-parser.parse(input)
+#print(input)
+
+import AST as AST
+reporte = AST.AST(parser.parse(input))
+reporte.ReportarAST()
+#parser.parse(input)
