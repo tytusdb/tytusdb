@@ -100,6 +100,11 @@ def p_columns_table(p):
 def p_column(p):
     '''column : ID typecol optionscollist
               | ID typecol
+              | UNIQUE LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+              | PRIMARY KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+              | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+              | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+              | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
     '''
 
 def p_type_col(p):
@@ -138,18 +143,15 @@ def p_options_col_list(p):
 
 
 def p_option_col(p):
-    '''optioncol : DEFAULT SQLEXPRESSION2                
+    '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
                  | NOT NULL
                  | NULL
                  | CONSTRAINT ID UNIQUE
-                 | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
                  | UNIQUE
+                 | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
                  | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
                  | PRIMARY KEY 
-                 | REFERENCES ID
-                 | UNIQUE LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
-                 | PRIMARY KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
-                 | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+                 | REFERENCES ID 
     '''
 
 def p_condition_column(p):
@@ -984,7 +986,8 @@ def p_sql_relational_operator_expression(p):
 
 def p_sql_in_clause(p):
     '''SQLINCLAUSE  : NOT IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
-                    | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
+                    | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                    | IN LEFT_PARENTHESIS listain RIGHT_PARENTHESIS'''
     nodo = Node('SQLINCLAUSE')
     if (len(p) == 6):
         nodo.add_childrens(Node(p[1]))
@@ -998,6 +1001,11 @@ def p_sql_in_clause(p):
         nodo.add_childrens(p[3])
         nodo.add_childrens(Node(p[4]))
     p[0] = nodo
+
+def p_lista_in(p):
+    '''listain : listain COMMA SQLSIMPLEEXPRESSION
+               | SQLSIMPLEEXPRESSION 
+    '''
 
 def p_sql_between_clause(p):
     '''SQLBETWEENCLAUSE : NOT BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION
@@ -1072,7 +1080,9 @@ def p_sql_simple_expression(p):
                            | TRIGONOMETRIC_FUNCTIONS
                            | SQLINTEGER
                            | OBJECTREFERENCE
-                           | NULL'''
+                           | NULL
+                           | TRUE
+                           | FALSE'''
 
     nodo = Node('SQLSIMPLEEXPRESSION')
     if (len(p) == 4):
@@ -1367,15 +1377,13 @@ def p_error(p):
     id_error = list_errors.count + 1  if list_errors.count > 0 else 1
 
     try:
-        SQLERROR = FindTypeError('Syntactic')
-        number_error, description = SQLERROR.find_type_error()
+        number_error, description = get_type_error(33)
         print(str(p.value))
         description += ' or near ' + str(p.value) 
         column = find_column(p)
         list_errors.insert_end(Error(id_error, 'Syntactic',number_error ,description, p.lineno, column))
     except AttributeError:
-        SQLERROR = FindTypeError('EOF')
-        number_error, description = SQLERROR.find_type_error()
+        number_error, description = get_type_error(1)
         print(number_error, description)
         list_errors.insert_end(Error(id_error, 'Syntactic', number_error, description, 'EOF', 'EOF'))
     id_error += 1

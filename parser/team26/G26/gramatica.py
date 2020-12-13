@@ -185,7 +185,12 @@ reservadas = {
     'session_user' : 'SESSION_USER',
     'show'  :   'SHOW',
     'symmetric' : 'SYMMETRIC',
-    'bytea' : 'BYTEA'
+    'bytea' : 'BYTEA',
+    'case' : 'CASE',
+    'end' : 'END',
+    'else' : 'ELSE',
+    'then' : 'THEN',
+    'when':'WHEN'
 }
 
 tokens = [
@@ -219,10 +224,20 @@ tokens = [
     'FECHA',
     'SFACTORIAL',
     'PORCENTAJE',
-    'POTENCIA'
+    'POTENCIA',
+    'DOSPUNTOS',
+    'PLECA',
+    'AMPERSON',
+    'NUMERAL',
+    'VIRGULILLA'
 ] + list(reservadas.values())
 
 #tokens
+t_PLECA         = r'\|'
+t_AMPERSON      = r'&'
+t_VIRGULILLA    = r'~'
+t_NUMERAL       = r'\#'
+t_DOSPUNTOS     = r':'
 t_PTCOMA        = r';'
 t_LLAVEIZQ      = r'{'
 t_LLAVEDER      = r'}'
@@ -338,9 +353,184 @@ def p_instruccion(t) :
                         | INSERT insert
                         | UPDATE update
                         | AS condiciones
-                        | alter'''
-    if [isinstance(t[1], alter.Alter)] : t[0] = alter.FatherAlter(t[1])
-    else : t[0] = t[2]   
+                        | alter
+                        | select'''
+    if isinstance(t[1], alter.Alter) : t[0] = alter.FatherAlter(t[1])
+    else : t[0] = t[2]
+
+def p_select(t):
+    'select : SELECT parametrosselect fromopcional'
+
+
+def p_from_opcional(t):
+    '''fromopcional     :  FROM parametrosfrom whereopcional
+                        | '''
+def p_parametros_from(t):
+    '''parametrosfrom   : ID
+                        | ID  PUNTO ID
+                        | PARENIZQ select PARENDER'''
+
+
+def p_where_opcional(t):
+    '''whereopcional :  WHERE condiciones groupbyopcional
+                     |  '''
+
+def p_group_by_opcional(t):
+    '''groupbyopcional  : GROUP BY listaids having
+                        | '''
+
+def p_having(t):
+    'having : condiciones'
+
+def p_parametros_select(t):
+    '''parametrosselect : DISTINCT listadeseleccion
+                        | listadeseleccion'''
+
+def p_lista_de_seleccion(t):
+    '''listadeseleccion : listadeseleccion COMA  listadeseleccionados asopcional
+                        | listadeseleccionados asopcional'''
+
+def p_asopcional(t):
+    '''asopcional  : AS ID
+                    | ID
+                    | '''
+
+def p_lista_de_seleccionados(t):
+    '''listadeseleccionados : ID
+                            | ID PUNTO ID
+                            | COUNT PARENIZQ argument  PARENDER
+                            | MAX PARENIZQ argument  PARENDER
+                            | SUM PARENIZQ argument  PARENDER
+                            | AVG PARENIZQ argument  PARENDER
+                            | MIN PARENIZQ argument  PARENDER
+                            | PARENIZQ select PARENDER
+                            | ASTERISCO
+                            | funcionestrigonometricas
+                            | funcionesmatematicas
+                            | funcionesdefechas
+                            | funcionesbinarias
+                            | operadoresselect
+                            | CASE cases  END ID '''
+
+def p_casos(t):
+    '''cases    : cases case elsecase
+                | case elsecase '''
+            
+def p_case(t):
+    'case : WHEN argument  IGUAL  argument  THEN  argument'
+
+def p_else_case(t):
+    '''elsecase  : ELSE argument
+                 |  '''
+
+def p_operadores_select(t): 
+    '''operadoresselect : PLECA argumentodeoperadores
+                        | PLECA PLECA argumentodeoperadores
+                        | argumentodeoperadores AMPERSON argumentodeoperadores
+                        | argumentodeoperadores PLECA argumentodeoperadores
+                        | argumentodeoperadores NUMERAL 
+                        | VIRGULILLA argumentodeoperadores
+                        | argumentodeoperadores MENORQUE MENORQUE argumentodeoperadores
+                        | argumentodeoperadores MAYORQUE MAYORQUE argumentodeoperadores'''
+
+def p_argumento_de_operadores(t):
+    '''argumentodeoperadores    : argumentodeoperadores MAS argumentodeoperadores
+                                | argumentodeoperadores GUION argumentodeoperadores
+                                | argumentodeoperadores BARRA argumentodeoperadores 
+                                | argumentodeoperadores ASTERISCO argumentodeoperadores
+                                | argumentodeoperadores PORCENTAJE argumentodeoperadores
+                                | argumentodeoperadores POTENCIA argumentodeoperadores
+                                | DECIMAL 
+                                | ENTERO '''
+
+
+
+
+def p_funciones_binarias(t):
+    '''funcionesbinarias    : LENGTH PARENIZQ  argument   PARENDER
+                            | SUBSTRING PARENIZQ  argument  COMA  ENTERO  COMA  ENTERO  PARENDER 
+                            | TRIM PARENIZQ  argument   PARENDER
+                            | MD5 PARENIZQ  argument   PARENDER
+                            | SHA PARENIZQ  argument   PARENDER
+                            | SUBSTR PARENIZQ  argument  COMA  ENTERO  COMA  ENTERO  PARENDER
+                            | GETBYTE PARENIZQ CADENA DOSPUNTOS DOSPUNTOS BYTEA COMA ENTERO COMA ENTERO PARENDER
+                            | SETBYTE PARENIZQ CADENA DOSPUNTOS DOSPUNTOS BYTEA COMA ENTERO COMA ENTERO PARENDER
+                            | CONVERT PARENIZQ CADENA AS tipo 
+                            | ENCODE PARENIZQ CADENA DOSPUNTOS DOSPUNTOS BYTEA COMA CADENA
+                            | DECODE PARENIZQ CADENA COMA CADENA PARENDER '''
+
+def p_funciones_de_fechas(t):
+    '''funcionesdefechas    : EXTRACT PARENIZQ  partedelafecha  FROM TIMESTAMP ID PARENDER
+                            | DATEPART PARENIZQ CADENA COMA INTERVAL CADENA PARENDER
+                            | NOW PARENIZQ PARENDER
+                            | CURRENTDATE
+                            | CURRENTTIME
+                            | TIMESTAMP CADENA  '''
+
+
+def p_parte_de_la_decha(t):
+    '''partedelafecha   : YEAR
+                        | MONTH
+                        | DAY
+                        | HOUR
+                        | MINUTE
+                        | SECOND'''
+
+
+def p_funciones_matematicas (t):
+    '''funcionesmatematicas : ABS PARENIZQ  argument  PARENDER
+                            | CBRT PARENIZQ  argument   PARENDER
+                            | CEIL PARENIZQ  argument   PARENDER
+                            | CEILING PARENIZQ  argument   PARENDER 
+                            | DEGREES PARENIZQ  argument   PARENDER
+                            | DIV PARENIZQ  argument  COMA  argument  PARENDER 
+                            | EXP PARENIZQ  argument   PARENDER
+                            | FACTORIAL PARENIZQ  argument   PARENDER
+                            | FLOOR PARENIZQ  argument   PARENDER
+                            | GCD PARENIZQ  argument  COMA  argument  PARENDER
+                            | LN PARENIZQ  argument   PARENDER
+                            | LOG PARENIZQ  argument   PARENDER
+                            | MOD PARENIZQ  argument  COMA  argument   PARENDER
+                            | PI PARENIZQ PARENDER
+                            | POWER PARENIZQ  argument  COMA  argument   PARENDER
+                            | RADIANS PARENIZQ  argument   PARENDER
+                            | ROUND PARENIZQ  argument   tipoderound  PARENDER
+                            | SCALE PARENIZQ  argument   PARENDER
+                            | SIGN PARENIZQ  argument   PARENDER
+                            | SQRT PARENIZQ  argument   PARENDER
+                            | RANDOM PARENIZQ PARENDER
+                            | SETSEED PARENIZQ PARENDER '''
+
+def p_tipo_de_round(t):
+    '''tipoderound  : COMA  argument 
+                    | '''
+
+
+def p_funciones_trigonometricas(t):
+    '''funcionestrigonometricas :  ACOS PARENIZQ argument  PARENDER
+                                | ASIN PARENIZQ argument  PARENDER
+                                | ACOSD PARENIZQ argument  PARENDER
+                                | ASIND PARENIZQ argument  PARENDER
+                                | ATAN PARENIZQ argument  PARENDER
+                                | ATAND PARENIZQ argument  PARENDER
+                                | ATANDOS PARENIZQ argument  PARENDER
+                                | ATANDOSD PARENIZQ argument  PARENDER
+                                | COS PARENIZQ argument  PARENDER
+                                | COSD PARENIZQ argument  PARENDER
+                                | COT PARENIZQ argument  PARENDER
+                                | COTD PARENIZQ argument  PARENDER
+                                | SIN PARENIZQ argument  PARENDER
+                                | SIND PARENIZQ argument  PARENDER
+                                | TAN PARENIZQ argument  PARENDER
+                                | TAND PARENIZQ argument  PARENDER
+                                | SINH PARENIZQ argument  PARENDER
+                                | COSH PARENIZQ argument  PARENDER
+                                | TANH PARENIZQ argument  PARENDER
+                                | ASINH PARENIZQ argument  PARENDER
+                                | ACOSH PARENIZQ argument  PARENDER
+                                | ATANH PARENIZQ argument  PARENDER '''
+
+
 
 def p_create_instruccion(t) :
     '''create : TYPE createenum
@@ -368,8 +558,8 @@ def p_listacadenas(t):
 def p_createdatabase(t):
     '''createdatabase : IF NOT EXISTS ID databaseowner
                       | ID databaseowner'''
-    if t[1].lower() == 'id' : t[0] = create.Exists(False, t[1], t[2])
-    else : t[0] = create.Exists(False, t[4], t[5])
+    if t[1].lower() == 'if' : t[0] = create.Exists(False, t[4], t[5])
+    else : t[0] = create.Exists(False, t[1], t[2])
 
 def p_databaseowner(t):
     '''databaseowner : OWNER IGUAL ID databasemode
@@ -453,7 +643,7 @@ def p_tablenull(t):
     '''tablenull : NOT NULL tableconstraintunique
                  | NULL tableconstraintunique
                  | tableconstraintunique'''
-    if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = t[1]
+    if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = create.TableDescription('null', False, t[1], None)
     elif t[1].lower() == 'not' : t[0] = create.TableDescription('null', True, t[3], None)
     else : t[0] = create.TableDescription('null', False, t[3], None)
 
@@ -461,9 +651,9 @@ def p_tableconstraintunique(t):
     '''tableconstraintunique : CONSTRAINT ID UNIQUE tableconstraintcheck
                              | UNIQUE tableconstraintcheck
                              | tableconstraintcheck'''
-    if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = t[1]
-    elif t[0].lower() == 'constraint' : t[0] = create.TableDescription('constraint', t[2], t[4], None)
-    else : t[0] = create.TableDescription('unique', None, t[3], None)
+    if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = create.TableDescription('unique', None, t[1], False)
+    elif t[0].lower() == 'constraint' : t[0] = create.TableDescription('unique', t[2], t[4], True)
+    else : t[0] = create.TableDescription('unique', None, t[3], True)
 
 def p_tableconstraintcheck(t):
     '''tableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ condiciones PARENDER
@@ -472,7 +662,7 @@ def p_tableconstraintcheck(t):
     if t[0] == None : t[0] = None
     else :
         if t[1].lower() == 'constraint' :
-            t[0] = create.TableDescription('constraint', t[2], t[5], None)
+            t[0] = create.TableDescription('check', t[2], t[5], None)
         else : t[0] = create.TableDescription('check', None, t[3], None)
 
 def p_finalconstraintcheck(t):
@@ -621,7 +811,7 @@ def p_alterp(t):
                 |   TABLE ID altertable'''
     if t[1].lower() == 'database' : t[0] = alter.Alter(t[2], t[3], False)
     else : t[0] = alter.Alter(t[2], t[3], True)
-    
+
 #alter database
 def p_alterdb(t):
     '''alterdb  :   RENAME TO ID
