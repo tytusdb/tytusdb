@@ -24,9 +24,15 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'encode':'encode', 'width_bucket':'width_bucket', 'current_user':'CURRENT_USER', 'session_user':'SESSION_USER',
                'natural':'NATURAL', 'join':'JOIN', 'inner':'INNER', 'left':'LEFT', 'right':'RIGHT', 'full':'FULL', 'outer':'OUTER', 'using':'USING', 'on':'ON',
                'in':'IN','any':'ANY', 'all':'ALL','some':'SOME','union':'UNION','intersect':'INTERSECT','except':'EXCEPT'  ,'case':'CASE','when':'WHEN','else':'ELSE','end':'END',
-               'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'in':'IN' , 'between':'BETWEEN' ,'offset':'OFFSET'
+               'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'in':'IN' , 'between':'BETWEEN' ,'offset':'OFFSET',
+               'greatest':'GREATEST' , 'least':'LEAST','md5':'MD5','extract':'EXTRACT' ,'year':'YEAR' ,
+               'hour':'HOUR' ,'minute':'MINUTE' ,'second':'SECOND' ,'month':'MONTH' ,'now':'NOW' ,'date_part':'DATE_PART' ,
+               'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME' ,
              }
-
+ 
+ 
+ 
+ 
 
              
 
@@ -280,14 +286,47 @@ def p_seleccionar(t):
                     | seleccionar1 '''
 
 
+
+
+
+
+
+def p_extract(t):
+     '''extract : EXTRACT PAR_A extract1  FROM timestamp  valoresdefault  PAR_C
+                | DATE_PART PAR_A valoresdefault COMA interval valoresdefault  PAR_C
+                | nowf
+                | CURRENT_DATE
+                | CURRENT_TIME
+                | timestamp valoresdefault'''
+
+def p_nowf(t):
+     '''nowf : NOW PAR_A PAR_C'''
+
+def p_extract1(t):
+     '''extract1 : YEAR
+                 | MONTH
+                 | DAY
+                 | HOUR
+                 | MINUTE
+                 | SECOND
+                 | CADENA1
+                 | CADENA2'''
+
 def p_offset_opcional(t):
      '''offsetop : OFFSET ENTERO'''
 
 def p_seleccionar1(t):
      '''seleccionar1 : SELECT cantidad_select parametros_select cuerpo_select 
                      | SELECT funcion_math alias_name
-                     | SELECT funcion_date'''
+                     | SELECT funcion_date
+                     | SELECT funcionGREALEAST
+                     | SELECT extract'''
                     
+def p_funcionGREALEAST(t):
+     '''funcionGREALEAST : GREATEST PAR_A exp PAR_C
+                         | LEAST PAR_A exp PAR_C '''
+
+
 
 def p_cantidad_select(t):
      '''cantidad_select : DISTINCT
@@ -496,6 +535,7 @@ def p_funcion_math(t):
                      | length PAR_A exp PAR_C
                      | substring PAR_A lista_exp PAR_C
                      | trim PAR_A valorestrim exp FROM exp PAR_C
+                     | MD5 PAR_A exp PAR_C
                      | sha256 PAR_A exp PAR_C
                      | decode PAR_A exp byteaop COMA lista_exp PAR_C
                      | encode PAR_A exp byteaop COMA lista_exp PAR_C
@@ -602,6 +642,7 @@ def p_expresion(t):
           | seleccionar
           | funcion_math
           | NULL
+          | lvaloresdefault
           | NOT IN'''
 
 def p_crear(t):
