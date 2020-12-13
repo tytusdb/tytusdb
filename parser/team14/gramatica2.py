@@ -205,7 +205,8 @@ def t_newline(t):
 
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    print("Caracter invalido '%s'" % t.value[0])
+    reporteerrores.append(Lerrores("Error Lexico","Caracter incorrecto '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos)) 
     t.lexer.skip(1)
 
 
@@ -214,25 +215,29 @@ import ply.lex as lex
 
 lexer = lex.lex()
 
+from graphviz import Digraph
+#arbol = Digraph(comment='Árbol Sintáctico Abstracto (AST)')
+
+
 # Asociación de operadores y precedencia
 precedence = (
-    ('left', 'lsel'),
-    ('left', 'punto'),
-    ('right', 'umenos', 'umas'),
-    ('left', 'elevado'),
-    ('left', 'multiplicacion', 'division', 'modulo'),
-    ('left', 'mas', 'menos'),
-    ('left', 'mayor', 'menor', 'mayor_igual', 'menor_igual', 'igual', 'diferente1', 'diferente2'),
-    ('left', 'predicates'),
-    ('right', 'not'),
-    ('left', 'and'),
     ('left', 'or'),
+    ('left', 'and'),
+    ('right', 'not'),
+    ('left', 'predicates'),
+    ('left', 'mayor', 'menor', 'mayor_igual', 'menor_igual', 'igual', 'diferente1', 'diferente2'),
+    ('left', 'mas', 'menos'),
+    ('left', 'multiplicacion', 'division', 'modulo'),
+    ('left', 'elevado'),
+    ('right', 'umenos', 'umas'),
+    ('left', 'punto'),
+    ('left', 'lsel'),
 )
 
 
 # ----------------------------------------------DEFINIMOS LA GRAMATICA------------------------------------------
 # Definición de la gramática
-
+from reportes import *
 
 def p_init(t):
     'init            : instrucciones'
@@ -330,7 +335,7 @@ def p_ADD(t):
     '''ADD : column id TIPO
             | check para LEXP parc
             | constraint id unique para id parc
-            | foreign key para id parc references id para id parc
+            | foreign key para LEXP parc references id para LEXP parc
     '''
 
 def p_SHOWDB(t) : 
@@ -389,19 +394,15 @@ def p_OPCOLUMN(t):
     '''OPCOLUMN : constraint id unique
             | constraint id check para EXP parc
             | default EXP
-            | PNULL
+            | not null
+            | null
             | primary key
             | references id'''
 
 
-def p_PNULL(t):
-    '''PNULL : not null
-        | null'''
-
-
 def p_OPCONST(t):
     '''OPCONST : primary key para LEXP parc
-            | foreign key para LEXP parc references table para LEXP parc
+            | foreign key para LEXP parc references id para LEXP parc
             | unique para LEXP parc
             | check para LEXP parc'''
 
@@ -469,8 +470,7 @@ def p_UPDATE(t):
 
 def p_LCAMPOS(t):
     '''LCAMPOS :  LCAMPOS id igual EXP
-		| id igual EXP
-		| id igual default'''
+		| id igual EXP'''
 
 
 def p_DELETE(t):
@@ -487,40 +487,42 @@ def p_LEXP(t):
     '''LEXP : LEXP coma EXP
 	| EXP'''
 
+def p_TIPOE(t):
+    '''TIPO : interval cadena
+            | decimal para LEXP parc
+            | numeric para LEXP parc
+            | varchar para int parc
+            | timestamp para int parc
+            | character para int parc
+            | interval para int parc
+            | char para int parc
+            | time para int parc
+            | character varying para int parc'''
+
+def p_TIPOL(t):
+    ''' TIPO : timestamp para int parc without time zone
+            | timestamp para int parc with time zone
+            | time para int parc without time zone
+            | time para int parc with time zone
+            | interval para int parc cadena '''
 
 def p_TIPO(t):
     '''TIPO : smallint
             | integer
             | bigint
-            | decimal para LEXP parc
-            | numeric para LEXP parc
             | real
             | double precision
             | money
-            | character varying para int parc
-            | varchar para int parc
-            | character para int parc
-            | char para int parc
             | text
             | timestamp 
-            | timestamp without time zone
-            | timestamp para int parc without time zone
-            | timestamp with time zone
-            | timestamp para int parc with time zone
-            | timestamp para int parc
             | date
             | time 
-            | time without time zone
-            | time para int parc without time zone
-            | time with time zone
-            | time para int parc with time zone
-            | time para int parc
             | interval
-            | interval para int parc
-            | interval cadena
-            | interval para int parc cadena
-            | boolean'''
-
+            | boolean
+            | timestamp without time zone
+            | timestamp with time zone
+            | time without time zone
+            | time with time zone'''
 
 def p_FIELDS(t):
     '''FIELDS : year
@@ -531,7 +533,7 @@ def p_FIELDS(t):
         | second'''
 
 
-def p_EXP(t):
+def p_EXP3(t):
     '''EXP : EXP mas EXP
             | EXP menos EXP
             | EXP multiplicacion  EXP
@@ -548,66 +550,75 @@ def p_EXP(t):
             | EXP diferente1 EXP
             | EXP diferente2 EXP
             | EXP punto EXP
-            | mas EXP %prec umas
+            | EXP between EXP %prec predicates'''
+
+def p_EXP2(t):
+    '''EXP : EXP is not null %prec predicates
+            | EXP is null %prec predicates
+            | EXP isnull %prec predicates
+            | EXP notnull %prec predicates
+            | EXP  is true %prec predicates
+            | EXP is not true %prec predicates
+            | EXP is false %prec predicates
+            | EXP is not false %prec predicates
+            | EXP is unknown %prec predicates
+            | EXP is not unknown %prec predicates
+            | EXP as cadenaString %prec lsel
+            | EXP cadenaString %prec lsel
+            | EXP as id %prec lsel
+            | EXP id  %prec lsel
+            | EXP as cadena %prec lsel
+            | EXP cadena %prec lsel'''
+    
+def p_EXP1(t):
+    '''EXP : mas EXP %prec umas
             | menos EXP %prec umenos
-            | not EXP
-            | para EXP parc
-            | int
+            | not EXP'''
+
+def p_EXPV(t):
+    '''EXP : EXP in para LEXP parc %prec predicates
+            | EXP not in para LEXP parc %prec predicates
+            | EXP not between EXP %prec predicates
+            | EXP  between symetric EXP %prec predicates
+            | EXP not between symetric EXP %prec predicates
+            | EXP is distinct r_from EXP %prec predicates
+            | EXP is not distinct r_from EXP %prec predicates'''
+
+def p_EXPJ(t):
+    '''EXP : SELECT
+            | CASE
+            | para EXP parc'''
+
+def p_EXP(t):
+    '''EXP : id para parc
+            | id para LEXP parc
+            | any para LEXP parc
+            | all para LEXP parc
+            | some para LEXP parc
+            | extract para FIELDS r_from timestamp cadena parc'''
+
+def p_EXPT(t):
+    '''EXP : int
             | decimales
             | cadena
             | cadenaString
             | true
             | false
             | id
-            | PNULL
-            | SELECT
-            | PREDICADOS
-            | id para parc
-            | id para LEXP parc
-            | extract para FIELDS r_from timestamp cadena parc
+            | multiplicacion %prec lsel
+            | null
             | current_time
             | current_date
             | timestamp cadena 
             | interval cadena
-            | CASE
             | cadena like cadena
             | cadena not like cadena
-            | any para LEXP parc
-            | all para LEXP parc
-            | some para LEXP parc
-            | EXP as cadenaString %prec lsel
-            | EXP cadenaString %prec lsel
-            | EXP as id %prec lsel
-            | EXP id  %prec lsel
-            | EXP as cadena %prec lsel
-            | EXP cadena %prec lsel
-            | multiplicacion %prec lsel'''
-
-def p_PREDICADOS(t):
-    '''
-    PREDICADOS : EXP between EXP %prec predicates
-            | EXP in para LEXP parc %prec predicates
-            | EXP not in para LEXP parc %prec predicates
-            | EXP not between EXP %prec predicates
-	    | EXP  between symetric EXP %prec predicates
-	    | EXP not between symetric EXP %prec predicates
-	    | EXP is distinct r_from EXP %prec predicates
-	    | EXP is not distinct r_from EXP %prec predicates
-	    | EXP is PNULL %prec predicates
-	    | EXP isnull %prec predicates
-	    | EXP notnull %prec predicates
-	    | EXP  is true %prec predicates
-	    | EXP is not true %prec predicates
-	    | EXP is false %prec predicates
-	    | EXP is not false %prec predicates
-	    | EXP is unknown %prec predicates
-	    | EXP is not unknown %prec predicates
-
-    '''
+            | default'''
 
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
+    reporteerrores.append(Lerrores("Error Sintactico","Error en  '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos))
 
 
 import ply.yacc as yacc
@@ -616,4 +627,6 @@ parser = yacc.yacc()
 
 
 def parse(input):
+    #arbol.render('ast', view=False)  # doctest: +SKIP
+    #'ast.pdf'
     return parser.parse(input)
