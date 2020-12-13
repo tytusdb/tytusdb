@@ -491,7 +491,7 @@ def p_returning_list(p):
 
 def p_returning_expression(p):
     '''EXPRESSIONRETURNING : EXPRESSIONRETURNING COMMA SQLEXPRESSION SQLALIAS
-                                       | SQLEXPRESSION SQLALIAS'''
+                           | SQLEXPRESSION SQLALIAS'''
     nodo = Node('EXPRESSIONRETURNING')
     if (len(p) == 5):
         nodo.add_childrens(p[1])
@@ -505,20 +505,22 @@ def p_returning_expression(p):
 
 
 def p_insert_statement(p):
-    '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
-    nodo = Node('INSERTSTATEMENT')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    nodo.add_childrens(Node(p[4]))
-    nodo.add_childrens(p[5])
-    nodo.add_childrens(Node(p[6]))
-    nodo.add_childrens(Node(p[7]))
-    nodo.add_childrens(Node(p[8]))
-    nodo.add_childrens(p[9])
-    nodo.add_childrens(Node(p[10]))
-    nodo.add_childrens(Node(p[11]))
-    p[0] = nodo
+    '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
+                       | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
+    
+    # nodo = Node('INSERTSTATEMENT')
+    # nodo.add_childrens(Node(p[1]))
+    # nodo.add_childrens(Node(p[2]))
+    # nodo.add_childrens(p[3])
+    # nodo.add_childrens(Node(p[4]))
+    # nodo.add_childrens(p[5])
+    # nodo.add_childrens(Node(p[6]))
+    # nodo.add_childrens(Node(p[7]))
+    # nodo.add_childrens(Node(p[8]))
+    # nodo.add_childrens(p[9])
+    # nodo.add_childrens(Node(p[10]))
+    # nodo.add_childrens(Node(p[11]))
+    # p[0] = nodo
 
 
 
@@ -654,7 +656,8 @@ def p_list_item(p):
 
 def p_select_item(p):
     '''SELECTITEM : SQLSIMPLEEXPRESSION SQLALIAS
-                  | SQLSIMPLEEXPRESSION'''
+                  | SQLSIMPLEEXPRESSION
+                  | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     nodo = Node('SELECTITEM')
     if (len(p) == 3):
         nodo.add_childrens(p[1])
@@ -1156,8 +1159,8 @@ def p_binary_string_functions(p):
                                | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
                                | SHA256 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
                                | SUBSTR LEFT_PARENTHESIS ID COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS STRINGCONT AS DATE RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS STRINGCONT AS INTEGER RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
                                | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
 def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS

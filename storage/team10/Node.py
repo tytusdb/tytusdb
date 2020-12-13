@@ -2,6 +2,7 @@ class Node:
     
     def __init__(self):
         self.array = []
+        self.key = 0
         
     #ya no se usa el de buscar porque ya esta implementado en la tabla hash
     def insert(self, dato):
@@ -26,55 +27,21 @@ class Node:
                 ub = med -1
     
         return False
-    """def buscarDato_binary(self,lista, dato):
-        if len(lista) == 0:
-            return False
-        else:
-            medio = len(lista)//2
-            arreglo = lista[medio]
-            if int(arreglo[0]) == int(dato[0]):
-                return True
-            else:
-                if int(dato[0]) < int(arreglo[0]):
-                    return self.buscarDato_binary(lista[:medio], dato)
-                else: 
-                    return self.buscarDato_binary(lista[medio+1:],dato)"""
-
-    """def buscarDato_binary(self, dato):
-        mid = 0 
-        start = 0
-        end = len(self.array)
-        step = 0
-        if(end != 0 ):
-            while(start <=end):
-                step = step +1 
-                mid = (start + end) //2
-                arreglo = self.array[mid]
-                if int(arreglo[0]) == int(dato[0]):
-                    return True
-                if int(dato[0]) < int(arreglo[0]):
-                    end = mid -1
-                else:
-                    start = mid +1
-        return False"""
 
     def busquedaB(self, dato):
-        mid = 0 
-        start = 0
-        end = len(self.array)
-        step = 0
-        while(start <=end):
-            step = step +1 
-            mid = (start + end) //2
+        inicio = 0
+        final = len(self.array) -1 
+        while inicio <= final:
+            mid = inicio + (final - inicio) //2
             arreglo = self.array[mid]
-            if int(arreglo[0]) == dato:
+            if int(arreglo[0]) == int(dato):
                 return arreglo
-            if int(dato) < int(arreglo[0]):
-                end = mid -1
+            elif int(dato) < int(arreglo[0]):
+                final = mid -1 
             else:
-                start = mid +1
-        return "no se encontro el dato"
-    #ordenamiento 
+                inicio = mid +1
+        return None
+
     def quick_sorted(self, sequencia):
         lista = sequencia
         if(len(lista)) <= 1:
@@ -93,9 +60,12 @@ class Node:
         return self.quick_sorted(elementos_menores) + elemento_medio + self.quick_sorted(elementos_mayores)
 
     def eliminar(self, dato):
-        if not self.buscarDato(dato):
-            self.array.remove(dato)
-            self.quick_sorted(self.array)
+        if self.busquedaB_Bol(dato):
+            self.array.remove(self.busquedaB(dato))
+            lista = self.array[:]
+            lista_ordenada= self.quick_sorted(lista)
+            self.array.clear()
+            self.array = lista_ordenada[:]
             if len(self.array) == 0:
                 return 0
             else:
