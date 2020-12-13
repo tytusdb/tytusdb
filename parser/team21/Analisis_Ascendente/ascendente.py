@@ -1,4 +1,5 @@
 import re
+
 from tytus.parser.team21.Analisis_Ascendente.reportes.Reportes import RealizarReportes,Error
 
 
@@ -7,6 +8,11 @@ L_errores_lexicos = []
 L_errores_sintacticos = []
 columna = 0
 
+from graphviz import Digraph
+
+
+varGramatical = []
+varSemantico =[]
 reservadas = {
     'smallint': 'SMALLINT',
     'integer': 'INTEGER',
@@ -189,6 +195,9 @@ reservadas = {
 
 }
 
+
+
+
 tokens = [
              'PTCOMA',
              'COMA',
@@ -366,27 +375,37 @@ precedence = (
 )
 
 
+
+#varSemantico.append('SEMANTICO')
 def p_s(t):
     's               : instrucciones'
     t[0] = t[1]
     print(t[0])
-
+    varGramatical.append('s ::= intrucciones')
+    varSemantico.append('g ')
 
 def p_instrucciones(t):
     '''instrucciones    : instrucciones instruccion'''
     t[1].append(t[2])
     t[0] = t[1]
-
+    varGramatical.append('instrucciones ::= instrucciones instruccion')
+    varSemantico.append('f ')
 
 def p_instruccion(t):
     'instrucciones      : instruccion'
     t[0] = [t[1]]
-
+    varGramatical.append('instrucciones ::= instruccion')
+    varSemantico.append('e ')
 
 # CREATE
 def p_create(t):
     'instruccion        : CREATE TABLE ID PARIZQ campos PARDR PTCOMA'
+
     t[0] = CreateTable(t[3], t[5], None)
+    varGramatical.append('instruccion :: = CREATE TABLE ID PARIZQ campos PARDR PTCOMA')
+    varSemantico.append('t ')
+
+
 
 def p_create2(t):
     'instruccion        : CREATE TABLE ID PARIZQ campos PARDR INHERITS PARIZQ ID PARDR PTCOMA'
@@ -397,32 +416,38 @@ def p_campos(t):
     '''campos           : campos COMA campo'''
     t[1].append(t[3])
     t[0] = t[1]
-
+    varGramatical.append('campos :: = campos COMA campo')
+    varSemantico.append('y ')
 
 def p_campos2(t):
     'campos             : campo'
     t[0] = [t[1]]
-
+    varGramatical.append('campos :: = campo')
+    varSemantico.append(' p')
 
 def p_campoSimple(t):
     'campo              : ID tipo'
     t[0] = Campo(1, t[1], t[2], None, None, None, None)
-
+    varGramatical.append('campo :: = ID tipo')
+    varSemantico.append(' q')
 
 def p_campo(t):
     '''campo            : ID tipo acompaniamiento'''
     t[0] = Campo(1, t[1], t[2], t[3], None, None, None)
-
+    varGramatical.append('campo :: = ID tipo acompaniamiento')
+    varSemantico.append('m ')
 
 def p_foreign(t):
     'campo              : CONSTRAINT ID FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
     t[0] = Campo(2, t[2], None, None, t[6], t[9], t[11])
-
+    varGramatical.append('campo :: = CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR')
+    varSemantico.append('z ')
 
 def p_foreign2(t):
     'campo              : FOREIGN KEY PARIZQ listaID PARDR REFERENCES ID PARIZQ listaID PARDR'
     t[0] = Campo(3, None, None, None, t[4], t[7], t[9])
-    print("aqui aqui")
+    varGramatical.append('campo :: = FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR')
+    varSemantico.append(' x')
 
 def p_campoCadenas(t):
     'campo              : CADENA'
@@ -431,19 +456,22 @@ def p_campoCadenas(t):
 def p_primary(t):
     'campo              : PRIMARY KEY PARIZQ listaID PARDR'
     t[0] = Campo(4, t[4], None, None, None, None, None)
-
+    varGramatical.append('campo :: = PRIMARY KEY PARIZQ ID PARDR')
+    varSemantico.append('c ')
 
 def p_listacampo(t):
     '''acompaniamiento  : acompaniamiento acom'''
     t[1].append(t[2])
     t[0] = t[1]
     # print(t[0])
-
+    varGramatical.append('acompaniamiento :: = acompaniamiento acom')
+    varSemantico.append(' v')
 
 def p_listacampo2(t):
     'acompaniamiento    : acom'
     t[0] = [t[1]]
-
+    varGramatical.append('acompaniamiento :: = acom')
+    varSemantico.append('b ')
 
 def p_acompaniamiento(t):
     '''acom             : NOT NULL
@@ -456,16 +484,32 @@ def p_acompaniamiento(t):
                         | CHECK PARIZQ checkprima PARDR
                         '''
 
+
     if t[1].lower() == 'not'         :
         t[0] = Acompaniamiento('NOT', None)
-        print("")
-    elif t[1].lower() == 'null'      : t[0] = Acompaniamiento('NULL', None)
-    elif t[1].lower() == 'unique'    : t[0] = Acompaniamiento('UNIQUE', t[3])
-    elif t[1].lower() == 'default'   : t[0] = Acompaniamiento('DEFAULT', t[2])
-    elif t[1].lower() == 'primary'   : t[0] = Acompaniamiento('PRIMARY', None)
+        varGramatical.append('acom :: = NOT NULL')
+        varSemantico.append(' n')
+    elif t[1].lower() == 'null'      :
+        t[0] = Acompaniamiento('NULL', None)
+        varGramatical.append('acom :: = NULL')
+        varSemantico.append('re ')
+    elif t[1].lower() == 'unique'    :
+        t[0] = Acompaniamiento('UNIQUE', t[3])
+        varGramatical.append('acom :: = UNIQUE')
+        varSemantico.append(' we')
+    elif t[1].lower() == 'default'   :
+        t[0] = Acompaniamiento('DEFAULT', t[2])
+        varGramatical.append('acom :: = DEFAULT')
+        varSemantico.append(' qw')
+    elif t[1].lower() == 'primary'   :
+        t[0] = Acompaniamiento('PRIMARY', None)
+        varGramatical.append('acom :: = PRIMARY')
+        varSemantico.append('yt ')
     elif t[1].lower() == 'constraint': t[0] = Acompaniamiento('CONSTRAINT',t[2])
     elif t[1].lower() == 'references': t[0] = Acompaniamiento('REFERENCES',t[2])
     elif t[1].lower() == 'check'   : t[0] = Acompaniamiento('CHECK', None)
+
+
 
 
 
@@ -495,6 +539,8 @@ def p_tipos(t):
                         | BOOLEAN
                         | SERIAL'''
     t[0] = Tipo(t[1].upper(), None)
+    varGramatical.append('tipo :: ='+str(t[1]))
+    varSemantico.append('fr ')
 
 
 def p_tiposTexto(t):
@@ -502,21 +548,30 @@ def p_tiposTexto(t):
                         | VARCHAR PARIZQ ENTERO PARDR
                         | CHAR PARIZQ ENTERO PARDR
                         | CHARACTER VARYING PARIZQ ENTERO PARDR'''
+    varGramatical.append('tipo :: =' + str(t[1]) + str(t[2]) + str(t[3]) + str(t[4]))
+    varSemantico.append('yt ')
     if t[2] == '(':
         t[0] = Tipo(t[1].upper(), Primitivo(t[3]))
     else:
         t[0] = Tipo(t[1].upper() + ' ' + t[2].upper(), Primitivo(t[4]))
 
+    if t[3]=='(':
+        varGramatical.append('tipo :: =' + str(t[1]) + str(t[2]) + str(t[3])+ str(t[4]) + str(t[5]))
+        varSemantico.append('gt ')
 
 # INSERT INTO
 def p_insertInto(t):
     'instruccion        : INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA'
-    t[0] = InsertInto(t[3], t[5], t[8])
+    t[0] = t[1]
+    varGramatical.append('instruccion :: = INSERT INTO ID PARIZQ listaID PARDR VALUES values PTCOMA')
+    varSemantico.append('ot ')
 
 
 def p_insertInto2(t):
     'instruccion        : INSERT INTO ID VALUES values PTCOMA'
     t[0] = InsertInto(t[3], None, t[5])
+    varGramatical.append('instruccion :: = INSERT INTO ID VALUES values PTCOMA')
+    varSemantico.append('yg ')
 
 
 # lista de id
@@ -524,39 +579,56 @@ def p_listaID(t):
     'listaID            : listaID COMA var'
     t[1].append(t[3])
     t[0] = t[1]
+    varGramatical.append('listaID :: = listaID COMA ID')
+    varSemantico.append('io ')
+
 
 
 def p_listaID2(t):
     'listaID            : var'
     t[0] = [t[1]]
+    varGramatical.append('listaID :: = ID')
+    varSemantico.append('iq ')
+
 
 
 def p_values(t):
     'values             : values COMA value'
     t[1].append(t[3])
     t[0] = t[1]
+    varGramatical.append('values :: = values COMA value')
+    varSemantico.append('iw ')
+
 
 
 def p_values2(t):
     'values             : value'
     t[0] = [t[1]]
-
+    varGramatical.append('values :: = value')
+    varSemantico.append('ie ')
 
 def p_value(t):
     'value              : PARIZQ listaValores PARDR'
     t[0] = t[2]
-
+    varGramatical.append('value :: = PARIZQ listaValores PARDR')
+    varSemantico.append('ir ')
 
 # lista de valores
 def p_listaValores(t):
     'listaValores       : listaValores COMA valores'
     t[1].append(t[3])
     t[0] = t[1]
+    varGramatical.append('listaValores :: = listaValores COMA valores')
+    varSemantico.append('it ')
+
 
 
 def p_listaValores2(t):
     'listaValores       : valores'
     t[0] = [t[1]]
+    varGramatical.append('listaValores :: = valores')
+    varSemantico.append('iy ')
+
 
 
 # VALORES
@@ -565,14 +637,20 @@ def p_valores(t):
     '''valores          : ENTERO '''
 
     t[0] = Primitivo(t[1])
+    #varGramatical.append('valores ::= '+)
+    #varSemantico.append('iu ')
 
 def p_valoresDec(t):
     '''valores          : NUMDECIMAL  '''
     t[0] = Primitivo(t[1])
 
+
 def p_valoresCad(t):
     '''valores          : CADENA  '''
     t[0] = Primitivo(t[1])
+    varGramatical.append('valores ::= CADENA')
+    varSemantico.append('ii ')
+
 
 
 #este es un conjunto de valores o llamada a metodos
@@ -591,37 +669,56 @@ def p_valoresCad2(t):
    # t[0] = Primitivo(t[1])
 
 
+
 # UPDATE
 def p_update(t):
     'instruccion        : UPDATE ID SET asignaciones PTCOMA'
     t[0] = Update(t[2], t[4], None)
+    varGramatical.append('instruccion ::= UPDATE ID SET asignaciones PTCOMA')
+    varSemantico.append('ip ')
+
 
 
 def p_update2(t):
     'instruccion        : UPDATE ID SET asignaciones WHERE andOr PTCOMA'
     t[0] = Update(t[2], t[4], t[6])
+    varGramatical.append('instruccion ::= UPDATE ID SET asignaciones WHERE andOr PTCOMA')
+    varSemantico.append('is ')
+
 
 
 def p_asignaciones(t):
     'asignaciones       : asignaciones COMA asignacion'
     t[1].append(t[3])
     t[0] = t[1]
+    varGramatical.append('asignaciones ::= asignaciones COMA asignacion')
+    varSemantico.append('id ')
+
 
 
 def p_asignaciones2(t):
     'asignaciones       : asignacion'
     t[0] = [t[1]]
+    varGramatical.append('asignaciones ::= asignacion')
+    varSemantico.append('if ')
 
 
 def p_where(t):
     '''where            : asignacion
                         '''
     t[0] = t[1]
+    varGramatical.append('where ::= asignacion')
+    varSemantico.append('ig ')
 
-def p_where0(t):
+
+
+def p_where7(t):
     '''where            : boolean
                         '''
     t[0] = t[1]
+    varGramatical.append('where ::= boolean')
+    varSemantico.append('in ')
+
 
 def p_whereN(t):
     '''where            : NOT boolean
@@ -644,13 +741,16 @@ def p_where1(t):
                         | boolean  comparisonP
                         '''
     t[0] = t[1]
-
+    varGramatical.append('where ::= NOT boolean')
+    varSemantico.append('ih ')
 
 def p_where2(t):
-    '''where            : var IS NOT DISTINCT FROM valores '''
-    print("estamos aqui")
-    t[0] = t[1]
 
+    '''where            : var IS NOT DISTINCT FROM valores '''
+    t[0] = t[1]
+    varGramatical.append('where ::= valores2  comparisonP2')
+    varSemantico.append('ih ')
+#corregir aqui freddy
 
 def p_where3(t):
     '''where            : var IS DISTINCT FROM valores
@@ -668,29 +768,39 @@ def p_ComparisonP(t):
                         | IS FALSE
                         | IS UNKNOWN
     '''
-
+    varGramatical.append('comparisonP ::= '+str(t[1])+str(t[2]))
+    varSemantico.append('ix ')
 
 def p_ComparisonP1(t):
     ''' comparisonP     : IS NOT TRUE
                         | IS NOT FALSE
                         | IS NOT UNKNOWN
     '''
+    varGramatical.append('comparisonP ::= ' + str(t[1])+str(t[2])+str(t[3]))
+    varSemantico.append('ix ')
 
 
 def p_ComparisonP2(t):
     ''' comparisonP2    : IS NULL
     '''
+    varGramatical.append('comparisonP2 ::= IS NULL')
+    varSemantico.append('zx ')
 
 
 def p_ComparisonP3(t):
     ''' comparisonP2    : IS NOT NULL
     '''
+    varGramatical.append('comparisonP2 ::=  IS NOT NULL')
+    varSemantico.append('cx ')
 
 
 def p_ComparisonP4(t):
     ''' comparisonP2    : NOTNULL
                         | ISNULL
     '''
+    varGramatical.append('comparisonP2 ::= ' + str(t[1]))
+    varSemantico.append('iv ')
+
 
 def p_andOr(t):
     '''andOr            : andOr AND andOr
@@ -1456,7 +1566,32 @@ def ejecutarAnalisis(entrada):
     reportes.generar_reporte_lexicos(L_errores_lexicos)
     reportes.generar_reporte_sintactico(L_errores_sintacticos)
     print("Fin de analisis")
+    print("Realizando reporte gramatical")
+    graphstack(varGramatical, varSemantico)
 
 
 ejecutarAnalisis("prueba")
+
+
+
+def graphstack(stack,stack2):
+    varGramatical.append('PRODUCCIONES')
+
+    varSemantico.append('SEMANTICO')
+
+    s = Digraph('structs', filename='reporteGramatica.gv', node_attr={'shape': 'plaintext'})
+    u = len(stack)
+    g = 'stack [label =  <<TABLE>'
+    for x in range(0, u):
+        g += '<TR>'+'\n'+'<TD>'+str(stack.pop())+'</TD>'+'\n'+'<TD>'+str(stack2.pop())+'</TD>'+'\n'+'</TR>'
+
+    g += '</TABLE>>, ];'
+
+    #s.node(   g + "}")
+    s.body.append(g)
+    s.view()
+
+
+
+
 
