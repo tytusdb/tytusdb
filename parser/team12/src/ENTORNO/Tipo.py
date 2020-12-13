@@ -9,6 +9,7 @@ class Data_Type(enum.Enum):
     boolean = 4
     enumerated = 5
     non = 6
+    error = 7
 # **********************************************************************************************************
 # *********************************************** Clase Tipo ***********************************************
 class Type():
@@ -34,6 +35,12 @@ class Type():
     
     def is_enumerated(self):
         return self.data_type == Data_Type.enumerated
+    
+    def is_non(self):
+        return self.data_type == Data_Type.non
+
+    def is_error(self):
+        return self.data_type == Data_Type.error
 
     # Verificar que sea del mismo tipo
     def mismoTipo(self, tipo):

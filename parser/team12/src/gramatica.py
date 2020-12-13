@@ -2,6 +2,9 @@ from Start.Start import *
 from EXPRESION.EXPRESION.Expresion import *
 from EXPRESION.EXPRESIONES_TERMINALES.NUMERIC.NODE_NUMERIC.Node_Numeric import *
 from EXPRESION.OPERADOR.Node_Operator import *
+from EXPRESION.EXPRESIONES_TERMINALES.BOOLEAN.NODO_BOOLEAN.Node_Boolean import *
+from EXPRESION.EXPRESIONES_TERMINALES.CHAR.NODE_CHAR.Node_Char import *
+from EXPRESION.EXPRESIONES_TERMINALES.IDENTIFICADOR.NODE_IDENTIFICADOR.Node_Identificador import *
 # N de nodo porque es una clase genérica.
 #Definicion de tokens
 
@@ -273,6 +276,7 @@ def t_CADENA(t):
     r'\'.*?\''
     #Supresion de comillas
     t.value = t.value[1:-1]
+    #print(t.value)
     return t 
 
 def t_ENTERO(t):
@@ -308,16 +312,17 @@ def t_error(t):
 t_ignore = " \t"
 
 # Asociación de operadores y precedencia
-precedence = (    
+precedence = (   
+    ('left','DIFERENTEQUE','IGUAL'), 
+    ('nonassoc','MAYORQUE','MENORQUE','MAYORIGUAL','MENORIGUAL'),
     ('left','MAS','MENOS'),
-    ('left','ASTERISCO','SLASH'),
+    ('left','ASTERISCO','SLASH','PORCENTAJE'),
+    ('left','POTENCIA')
     )
 
 #Generación del lexer
 import ply.lex as lex
 lexer = lex.lex()
-
-
 
 #Análisis sintáctico
 def p_instrucciones_lista_l(t):
@@ -331,16 +336,12 @@ def p_instrucciones_lista_2(t):
     t[0].hijos.append(t[1])
 
 def p_instruccion(t):
-    '''instruccion : IDENTIFICADOR
-                    | COSD
-                    | ENTERO
-                    | NUMDECIMAL
-                    | CADENA 
-                    | sentencia_crear
+    '''instruccion : sentencia_crear
                     | sentencia_case
                     | sent_insertar
                     | sent_update 
-                    | sent_delete'''
+                    | sent_delete
+                    | Exp'''
     t[0] = t[1]
 
 #------------------------------ Producciones útiles ----------------------------------------
@@ -365,6 +366,7 @@ def p_tipo_declaracion_2(t):
     nuevo.createChild(t[1],-1,-1,None)
     nuevo.createChild(t[2],-1,-1,None)
     t[0] = nuevo
+    
 def p_tipo_declaracion_3(t):
     '''tipo_declaracion : CHARACTER VARYNG PARENTESISIZQ ENTERO PARENTESISDER'''
     nuevo = Start("TIPO_DECLARACION",-1,-1,None)
@@ -372,6 +374,7 @@ def p_tipo_declaracion_3(t):
     nuevo.createChild(t[2],-1,-1,None)
     nuevo.createChild(t[4],-1,-1,None)
     t[0] = nuevo
+
 def p_tipo_declaracion_4(t):
     '''tipo_declaracion : VARCHAR PARENTESISIZQ ENTERO PARENTESISDER
                 | CHARACTER PARENTESISIZQ ENTERO PARENTESISDER
@@ -719,6 +722,59 @@ def p_drop_options(t):
 
 # ******************************* EXPRESION ***************************************
 
+# ***** L O G I C A S
+
+# ***** R E L A C I O N A L E S
+def p_exp_igualdad(t):
+    'Exp : Exp IGUAL Exp'
+    op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_desigualdad(t):
+    'Exp : Exp DIFERENTEQUE Exp'
+    op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_mayor(t):
+    'Exp : Exp MAYORQUE Exp'
+    op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_mayorigual(t):
+    'Exp :  Exp MAYORIGUAL Exp'
+    op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_menor(t):
+    'Exp : Exp MENORQUE Exp'
+    op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_menorigual(t):
+    'Exp : Exp MENORIGUAL Exp'
+    op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+# ***** A R I T M E T I C A S
+
 def p_exp_suma(t):
     'Exp : Exp MAS Exp'
     op = Operator("+",t.lineno(2),t.lexpos(2)+1,None)
@@ -735,11 +791,43 @@ def p_exp_resta(t):
     t[0].hijos.append(op)
     t[0].hijos.append(t[3])
 
+def p_exp_mult(t):
+    'Exp : Exp ASTERISCO Exp'
+    op = Operator("*",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_div(t):
+    'Exp : Exp SLASH Exp'
+    op = Operator("/",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_potencia(t):
+    'Exp : Exp POTENCIA Exp'
+    op = Operator("^",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_mod(t):
+    'Exp : Exp PORCENTAJE Exp'
+    op = Operator("%",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+# ***** T E R M I N A L E S
 
 def p_exp_exp(t):
     'Exp : PARENTESISIZQ Exp PARENTESISDER'
     t[0] = t[2]
-
 
 def p_exp_entero(t):
     'Exp : ENTERO'
@@ -752,6 +840,25 @@ def p_exp_decimal(t):
     t[0] = Expresion("E",-1,-1,None)
     numExp = Numeric_Expresion("Decimal",t.lineno(1),t.lexpos(1)+1,t[1])
     t[0].hijos.append(numExp)
+
+def p_exp_cadena(t):
+    'Exp : CADENA'    
+    t[0] = Expresion("E",-1,-1,None)
+    charExp = Char_Expresion("Cadena",t.lineno(1),t.lexpos(1)+1,t[1])
+    t[0].hijos.append(charExp)
+
+def p_exp_boolean(t):
+    '''Exp  : FALSE
+            | TRUE'''
+    t[0] = Expresion("E",-1,-1,None)
+    boolExp = Boolean_Expresion("Boolean",t.lineno(1),t.lexpos(1)+1,t[1])
+    t[0].hijos.append(boolExp)
+
+def p_exp_identificado(t):
+    'Exp : IDENTIFICADOR'
+    t[0] = Expresion("E",-1,-1,None)
+    idExp = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
+    t[0].hijos.append(idExp)
 
 # *********************************************************************************
 

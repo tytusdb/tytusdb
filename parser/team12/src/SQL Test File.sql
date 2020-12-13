@@ -1,1 +1,1 @@
-CREATE DATABASE nombre1;
+nombre1 > nombre2 = 3;

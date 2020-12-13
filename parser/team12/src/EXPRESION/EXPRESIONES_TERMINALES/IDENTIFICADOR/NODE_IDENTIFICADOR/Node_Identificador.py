@@ -1,4 +1,4 @@
-import sys, os.path
+import sys, os
 
 nodo_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..','..')) + '\\EXPRESION\\')
 sys.path.append(nodo_dir)
@@ -9,8 +9,8 @@ sys.path.append(nodo_ast)
 from Expresion import Expresion
 from Tipo import Data_Type
 
-class Boolean_Expresion(Expresion):
+class Identificator_Expresion(Expresion):
     
     def __init__(self, nombreNodo, fila, columna, valor):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)
-        self.tipo = Data_Type.boolean
+        self.tipo = Data_Type.non

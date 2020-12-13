@@ -9,8 +9,8 @@ sys.path.append(nodo_ast)
 from Expresion import Expresion
 from Tipo import Data_Type
 
-class Boolean_Expresion(Expresion):
+class Char_Expresion(Expresion):
     
     def __init__(self, nombreNodo, fila, columna, valor):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)
-        self.tipo = Data_Type.boolean
+        self.tipo = Data_Type.character
