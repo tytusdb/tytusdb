@@ -24,7 +24,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'encode':'encode', 'width_bucket':'width_bucket', 'current_user':'CURRENT_USER', 'session_user':'SESSION_USER',
                'natural':'NATURAL', 'join':'JOIN', 'inner':'INNER', 'left':'LEFT', 'right':'RIGHT', 'full':'FULL', 'outer':'OUTER', 'using':'USING', 'on':'ON',
                'in':'IN','any':'ANY', 'all':'ALL','some':'SOME','union':'UNION','intersect':'INTERSECT','except':'EXCEPT'  ,'case':'CASE','when':'WHEN','else':'ELSE','end':'END',
-               'then':'THEN' , 'limit':'LIMIT'
+               'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'in':'IN' , 'between':'BETWEEN' ,'offset':'OFFSET'
              }
 
 
@@ -272,10 +272,16 @@ def p_eliminar(t):
      '''eliminar : DELETE FROM ID WHERE exp'''
 #------------------------------------------------select-----------------------------------------------
 def p_seleccionar(t):
-     '''seleccionar : seleccionar1 LIMIT ENTERO
+     '''seleccionar : seleccionar1 LIMIT ENTERO offsetop
+                    | seleccionar1 LIMIT ALL offsetop
+                    | seleccionar1 offsetop
+                    | seleccionar1 LIMIT ENTERO
                     | seleccionar1 LIMIT ALL
                     | seleccionar1 '''
 
+
+def p_offset_opcional(t):
+     '''offsetop : OFFSET ENTERO'''
 
 def p_seleccionar1(t):
      '''seleccionar1 : SELECT cantidad_select parametros_select cuerpo_select 
@@ -526,12 +532,28 @@ def p_expresiones(t):
             | exp_rel
             | exp_ar
             | exp_select
+            | expresion_patron
             | E'''
 
 def p_expresion_logica(t):
      '''exp_log : NOT exp
                 | exp AND exp  
                 | exp OR exp'''
+
+
+
+def p_expresion_patron(t):
+     '''expresion_patron : exp BETWEEN exp
+                         | exp IN exp
+                         | exp NOT IN exp
+                         | exp LIKE exp
+                         | exp NOT LIKE  exp  
+                         | exp ILIKE exp
+                         | exp NOT ILIKE  exp  
+                         | exp SIMILAR TO exp
+                         | exp NOT SIMILAR TO exp
+                         | exp COMA exp'''
+
 
 def p_expresion_relacional(t):
      '''exp_rel : exp toperador exp'''
@@ -563,6 +585,8 @@ def p_exp_select(t):
                    | exp SH_LEFT exp
                    | exp SH_RIGHT exp'''
 
+
+
 def p_expresion(t):
      '''E : ENTERO
           | DECIMAL
@@ -575,6 +599,7 @@ def p_expresion(t):
           | ALL
           | SOME
           | IN
+          | seleccionar
           | funcion_math
           | NULL
           | NOT IN'''
