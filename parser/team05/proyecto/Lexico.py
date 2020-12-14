@@ -135,9 +135,29 @@ palabras_reservadas = {
     'values'        : 'VALUES',
     'table'         : 'TABLE',
     'from'          : 'FROM',
-    'delete'        : 'DELETE'
-    
-
+    'delete'        : 'DELETE',
+    'acos'          : 'ACOS',
+    'acosd'         : 'ACOSD',
+    'asin'          : 'ASIN',
+    'asind'         : 'ASIND',
+    'atan'          : 'ATAN',
+    'atand'         : 'ATAND',
+    'atan2'         : 'ATAN2',
+    'atan2d'        : 'ATAN2D',
+    'cos'           : 'COS',
+    'cosd'          : 'COSD',
+    'cot'           : 'COT',
+    'cotd'          : 'COTD',
+    'sin'           : 'SIN',
+    'sind'          : 'SIND',
+    'tan'           : 'TAN',
+    'tand'          : 'TAND',
+    'sinh'          : 'SINH',
+    'cosh'          : 'COSH',
+    'tanh'          : 'TANH',
+    'asinh'         : 'ASINH',
+    'acosh'         : 'ACOSH',
+    'atanh'         : 'ATANH'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -237,7 +257,7 @@ def t_IDALIAS(t):
     return t
 
 def t_CADENA(t):
-    r'\".*?\"'
+    r'\'.*?\''
     t.value = t.value[1:-1] 
     return t 
 
@@ -638,6 +658,78 @@ def p_ValorCondicion(t):
     
 def p_ValorCondicionAlias(t):
     'VALOR  :   CONDICION ALIAS '
+
+def p_ValorFTrigonometricas(t):
+    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA '
+
+def p_ValorFTrigonometricasAlias(t):
+    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA ALIAS '
+
+def p_FTrigonometricasAcos(t):
+    'FTRIGONOMETRICAS  :   ACOS '
+
+def p_FTrigonometricasAcosd(t):
+    'FTRIGONOMETRICAS  :   ACOSD '
+
+def p_FTrigonometricasAsin(t):
+    'FTRIGONOMETRICAS  :   ASIN '
+
+def p_FTrigonometricasAsind(t):
+    'FTRIGONOMETRICAS  :   ASIND '
+
+def p_FTrigonometricasAtan(t):
+    'FTRIGONOMETRICAS  :   ATAN '
+
+def p_FTrigonometricasAtand(t):
+    'FTRIGONOMETRICAS  :   ATAND '
+
+def p_FTrigonometricasAtan2(t):
+    'FTRIGONOMETRICAS  :   ATAN2 '
+
+def p_FTrigonometricasAtan2d(t):
+    'FTRIGONOMETRICAS  :   ATAN2D '
+
+def p_FTrigonometricasCos(t):
+    'FTRIGONOMETRICAS  :   COS '
+
+def p_FTrigonometricasCosd(t):
+    'FTRIGONOMETRICAS  :   COSD '
+
+def p_FTrigonometricasCot(t):
+    'FTRIGONOMETRICAS  :   COT '
+
+def p_FTrigonometricasCotd(t):
+    'FTRIGONOMETRICAS  :   COTD '
+
+def p_FTrigonometricasSin(t):
+    'FTRIGONOMETRICAS  :   SIN '
+
+def p_FTrigonometricasSind(t):
+    'FTRIGONOMETRICAS  :   SIND '
+
+def p_FTrigonometricasTan(t):
+    'FTRIGONOMETRICAS  :   TAN '
+
+def p_FTrigonometricasTand(t):
+    'FTRIGONOMETRICAS  :   TAND '
+
+def p_FTrigonometricasSinh(t):
+    'FTRIGONOMETRICAS  :   SINH '
+
+def p_FTrigonometricasCosh(t):
+    'FTRIGONOMETRICAS  :   COSH '
+
+def p_FTrigonometricasTanh(t):
+    'FTRIGONOMETRICAS  :   TANH '
+
+def p_FTrigonometricasAsinh(t):
+    'FTRIGONOMETRICAS  :   ASINH '
+
+def p_FTrigonometricasAcosh(t):
+    'FTRIGONOMETRICAS  :   ACOSH '
+
+def p_FTrigonometricasAtanh(t):
+    'FTRIGONOMETRICAS  :   ATANH '
 
 def p_funcionAvg(t):
     'FUNCION    :   AVG'
