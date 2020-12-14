@@ -21,7 +21,7 @@ class Pantalla():
         navMenu.add_command(label='              Reporte de errores              ',command=self.open_Reporte)
         self.window.config(menu=navMenu)
         btn = Button(self.window, text="Consultar", command=self.analize)
-        btn.pack(side =TOP, ancho=E)
+        btn.pack(side=TOP, anchor=E, padx=25, pady=20)
         self.window.mainloop()
 
     def analize(self): 

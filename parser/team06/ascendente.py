@@ -62,8 +62,35 @@ def procesar_createTale(query,ts):
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
                     print("Columna con restricion check definido con constraint")
     h.textosalida+="TYTUS>>Creando tabla"
+def drop_table(query,ts):
+    print("voy a imprimir los valores del drop :v")
+    print("aqui viene el id de la tabla a dropear:",query.id)
+    h.textosalida+="TYTUS>> Eliminaré la tabla"+query.id
+
+def alter_table(query,ts):
+    print("voy a imprimir los valores del alter :v")
+    print("aqui viene el id de la tabla a cambiar:",query.id)
+    h.textosalida+="TYTUS>> Alteraré la tabla"+query.id
+    temp = query.querys.tipo
+    if(temp.upper()=="ADD"):
+        print("VIENE UN ADD, POR TANTO SE AGREGA ALGO A LA TABLA")
+        print("SE AGREGARÁ UNA: ", query.querys.contenido.tipo)
+        print("DE NOMBRE: ",query.querys.contenido.id1)
+        print("DE TIPO: ", query.querys.contenido.tipo2)
+    elif(temp.upper()=="DROP"):
+        print("VIENE UN DROP, ALGO DE LA TABLA VA A EXPLOTAR, F")
+        print("LO QUE EXPLOTARA SERA: ", query.querys.contenido.tipo)
+        print("CON EL ID: ", query.querys.contenido.id)
+    elif(temp.upper()=="ALTER"):
+        print("VIENE UN ALTER DENTRO DE OTRO ALTER")
+        print("DE TIPO: ", query.querys.contenido.tipo)
+        print("CON EL ID: ", query.querys.contenido.id)
+        print("PARA ASIGNAR: ", query.querys.contenido.tipoAsignar)
 
 
+        
+
+    
 
 # ---------------------------------------------------------------------------------------------------------------------
 #                                 EJECUCION DE LOS QUERIES PRINCIPALES
@@ -77,6 +104,9 @@ def procesar_queries(queries, ts) :
         elif isinstance(query, DeleteinDataBases) : procesar_deleteinBD(query, ts)
         elif isinstance(query, CreateTable) : procesar_createTale(query,ts)
         #elif
+        #elif isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
+        elif isinstance(query,DropTable): drop_table(query,ts)
+        elif isinstance(query,AlterTable): alter_table(query,ts)
         else : 
             print('Error: instrucción no válida')
             h.errores+=  "<tr><td>"+str(query)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La consulta no es valida.</td></tr>\n"  
