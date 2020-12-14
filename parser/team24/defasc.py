@@ -1,3 +1,5 @@
+from instruccionesdefasc import *
+
 reservadas = {
     'smallint' : 'SMARLLINT',
     'integer' : 'INTEGER',
@@ -256,16 +258,14 @@ def p_inicio(p):
     """
     inicio  :   inicio inst
     """
-    p[0] = str(p[1]) + "\n" +  str(p[2])
-    global textoretorno
-    textoretorno = p[0] + "\n"
-    print(textoretorno)
+    p[1].append(p[2])
+    p[0] = p[1]
 
 def p_inicio2(p):
     """
     inicio  :   inst
     """
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 def p_inst(p):
     """
@@ -288,8 +288,8 @@ def p_id(p):
 
 def p_tipo(p):
     """
-    tipo : INT
-        |   ID
+    tipo    :   INT
+            |   ID
     """
     p[0] = str(p[1])
 
@@ -301,25 +301,25 @@ def p_cond(p):
             |   id MENOR_IGUAL tipo
             |   id MAYOR_IGUAL tipo
     """
-    p[0] = p[1] + p[2] + str(p[3])
+    p[0] = cond(p[1],p[2],p[3])
 
 def p_wherecond(p):
     "wherecond  :  id BETWEEN tipo AND tipo"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5]
+    p[0] = wherecond(p[1],p[3],p[5])
 
 def p_wherecond1(p):
     "wherecond  :  id IGUAL tipo"
-    p[0] = p[1] + p[2] + p[3]
+    p[0] = wherecond1(p[1],p[3])
 
 #MANIPULACION DE BASES DE DATOS
 #CREATEDB----------------------
 def p_createdb(p):
     "createdb   :   CREATE replacedb DATABASE ifnotexists id owner mode PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7] + p[8]
+    p[0] = createdb(p[2],p[4],p[5],p[6],p[7])
 
 def p_replacedb(p):
     "replacedb  :   OR REPLACE"
-    p[0] = p[1] + " " + p[2]
+    p[0] = p[1]
 
 def p_replacedb1(p):
     "replacedb  :   "
@@ -327,7 +327,7 @@ def p_replacedb1(p):
 
 def p_ifnotexists(p):
     "ifnotexists    :   IF NOT EXISTS"
-    p[0] = p[1] + " " + p[2] + " " + p[3]
+    p[0] = p[1]
 
 def p_ifnotexists1(p):
     "ifnotexists    :   "
@@ -335,7 +335,7 @@ def p_ifnotexists1(p):
 
 def p_owner(p):
     "owner :   OWNER id"
-    p[0] = p[1] + " " + p[2]
+    p[0] = owner(p[2])
 
 def p_owner1(p):
     "owner  :   "
@@ -343,7 +343,7 @@ def p_owner1(p):
 
 def p_mode(p):
     "mode   :   MODE IGUAL id"
-    p[0] = p[1] + p[2] + p[3]
+    p[0] = mode(p[3])
 
 def p_mode1(p):
     "mode   :   "
@@ -352,37 +352,37 @@ def p_mode1(p):
 #SHOW DATABASES------------------
 def p_showdb(p):
     "showdb :   SHOW DATABASES PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + p[3]
+    p[0] = showdb(p[1])
 
 #ALTER DATABASE------------------
 def p_alterdb(p):
     "alterdb    :   ALTER DATABASE alterdb2 PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + p[4]
+    p[0] = alterdb(p[3])
 
 def p_alterdb2(p):
     "alterdb2   :   id alterdb3"
-    p[0] = p[1] + " " + p[2]
+    p[0] = alterdb2(p[1],p[2])
 
 def p_alterdb21(p):
     "alterdb2    :   NAME OWNER TO id"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4]
+    p[0] = alterdb21(p[4])
 
 def p_alterdb3(p):
     "alterdb3   :   RENAME TO id"
-    p[0] = p[1] + " " + p[2] + " " +p[3]
+    p[0] = alterdb3(p[3])
 
 def p_alterdb31(p):
     "alterdb3   :   OWNER TO LLAVEA id SIMBOLOOR id SIMBOLOOR id LLAVEC"
-    p[0] = p[1] + " " + p[2] + p[3] + p[4] + p[5] + p[6] + p[7] + p[8] + p[9]
+    p[0] = alterdb31(p[4],p[6],p[8])
 
 #DROP DATABASE--------------------
 def p_dropdb(p):
     "dropdb :   DROP DATABASE ifexists id PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + p[5]
+    p[0] = dropdb(p[3],p[4])
 
 def p_ifexists(p):
     "ifexists   :   IF EXISTS"
-    p[0] = p[1] + " " + p[2]
+    p[0] = p[1]
 
 def p_ifexists1(p):
     "ifexists   :   "
@@ -392,11 +392,11 @@ def p_ifexists1(p):
 # CREATE TABLE-------------------
 def p_createtb(p):
     "createtb   :   CREATE TABLE id PARA coltb PARC PUNTOCOMA inherits"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + p[5] + p[6] + p[7] + " " + p[8]
+    p[0] = createtb(p[3],p[5],p[8])
 
 def p_inherits(p):
     "inherits   :   INHERITS PARA id PARC PUNTOCOMA"
-    p[0] = p[1] + p[2] + p[3] + p[4] + p[5]
+    p[0] = inherits(p[3])
 
 def p_inhrits1(p):
     "inherits   :   "
@@ -404,19 +404,20 @@ def p_inhrits1(p):
 
 def p_coltb(p):
     "coltb  :   coltb COMA columna"
-    p[0] = p[1] + p[2] + " " + p[3]
+    p[1].append(p[3])
+    p[0] = p[1]
 
 def p_coltb1(p):
     "coltb  :   columna"
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 def p_columna(p):
     "columna    :   id tipo key references default notnull constraint"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + " " + p[7]
+    p[0] = columna(p[1],p[2],p[3],p[4],p[5],p[6],p[7])
 
 def p_references(p):
     "references :   REFERENCES id"
-    p[0] = p[1] + " " + p[2]
+    p[0] = references(p[2])
 
 def p_references1(p):
     "references :   "
@@ -428,7 +429,7 @@ def p_key(p):
         |   PRIMARY KEY colkey
         |   FOREIGN KEY colkey
     """
-    p[0] = p[1] + " " + p[2] + " " + p[3]
+    p[0] = key(p[3])
 
 def p_key1(p):
     "key    :   "
@@ -436,7 +437,7 @@ def p_key1(p):
 
 def p_colkey(p):
     "colkey :   PARA colkey2 PARC PUNTOCOMA"
-    p[0] = p[1] + p[2] + p[3] + p[4]
+    p[0] = colkey(p[2])
 
 def p_colkey1(p):
     "colkey :   "
@@ -444,7 +445,7 @@ def p_colkey1(p):
 
 def p_colkey2(p):
     "colkey2    :   colkey2 COMA id"
-    p[0] = p[1] + p[2] + p[3]
+    p[0] = colkey2(p[1],p[3])
 
 def p_colkey21(p):
     "colkey2    :   id"
@@ -452,7 +453,7 @@ def p_colkey21(p):
 
 def p_default(p):
     "default    :   DEFAULT id"
-    p[0] = p[1] + " " + p[2]
+    p[0] = p[2]
 
 def p_default1(p):
     "default    :   "
@@ -460,7 +461,7 @@ def p_default1(p):
 
 def p_notnull(p):
     "notnull    :   not NULL"
-    p[0] = p[1] + p[2]
+    p[0] = p[1]
 
 def p_notnull1(p):
     "notnull    :   "
@@ -468,7 +469,7 @@ def p_notnull1(p):
 
 def p_not(p):
     "not : NOT"
-    p[0] = p[1] + " "
+    p[0] = p[1]
 
 def p_not1(p):
     "not : "
@@ -476,11 +477,11 @@ def p_not1(p):
 
 def p_constraint(p):
     "constraint :   const UNIQUE"
-    p[0] = p[1] + " " + p[2]
+    p[0] = p[1]
 
 def p_constraint1(p):
     "constraint :   const CHECK PARA cond PARC"
-    p[0] = p[1] + " " + p[2] + p[3] + p[4] + p[5]
+    p[0] = constraint1(p[0],p[4])
 
 def p_constraint11(p):
     "constraint :   "
@@ -488,7 +489,7 @@ def p_constraint11(p):
 
 def p_const(p):
     "const  :   CONSTRAINT id"
-    p[0] = p[1] + " " + p[2]
+    p[0] = p[2]
 
 def p_const1(p):
     "const  :   "
@@ -497,47 +498,47 @@ def p_const1(p):
 #DROP TABLE----------
 def p_droptb(p):
     "droptb :   DROP TABLE id PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + p[4]
+    p[0] = p[3]
 
 #ALTER TABLE---------
 def p_altertb(p):
     "altertb    :   ALTER TABLE id altertb2 PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5]
+    p[0] = altertb(p[3],p[4])
 
 def p_altertb2(p):
     "altertb2   :   ADD COLUMN id tipo"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4]
+    p[0] = altertb2(p[3],p[4])
 
 def p_altertb21(p):
     """
     altertb2    :   DROP COLUMN id
                 |   DROP CONSTRAINT id
     """
-    p[0] = p[1] + " " + p[2] + " " + p[3]
+    p[0] = altertb21(p[3])
 
 def p_alttertb211(p):
     "altertb2   :   ADD addprop"
-    p[0] = p[1] + " " + p[2]
+    p[0] = altertb211(p[2])
 
 def p_altertb2111(p):
     "altertb2   :   altcol"
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 def p_addprop(p):
     "addprop    :   CHECK PARA cond PARC"
-    p[0] = p[1] + p[2] + p[3] + p[4]
+    p[0] = addprop(p[3])
 
 def p_addprop1(p):
     "addprop    :   CONSTRAINT id UNIQUE PARA id PARC"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + p[4] + p[5] + p[6]
+    p[0] = addprop1(p[2],p[5])
 
 def p_addprop11(p):
     "addprop    :   FOREIGN KEY PARA colkey PARC REFERENCES PARA colkey PARC"
-    p[0] = p[1] + " " + p[2] + p[3] + p[4] + p[5] + " " + p[6] + p[7] + p[8] + p[9]
+    p[0] = addprop11(p[4],p[8])
 
 def p_altcol(p):
     "altcol :   altcol COMA alter"
-    p[0] = p[1] + p[2] + p[3]
+    p[0] = altcol(p[1],p[3])
 
 def p_altcol1(p):
     "altcol :   alter"
@@ -545,27 +546,27 @@ def p_altcol1(p):
 
 def p_alter(p):
     "alter  :   ALTER COLUMN id propaltcol"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4]
+    p[0] = alter(p[3],p[4])
 
 def p_propaltcol(p):
     "propaltcol :   TYPE tipo"
-    p[0] = p[1] + " " + p[2]
+    p[0] = p[2]
 
 def p_propaltcol1(p):
     "propaltcol :   SET NOT NULL"
-    p[0] = p[1] + " " + p[2] + " " + p[3]
+    p[0] = p[1]
  
 #MANIPULACION DE DATOS
 #INSERT---------------
 def p_insert(p):
     "insert :   INSERT INTO id VALUES PARA valores PARC PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + p[5] + p[6] + p[7] + p[8]   
+    p[0] = insert(p[3],p[6]) 
 
 def p_valores(p):
     "valores    :   valores COMA tipo"
-    p[0] = p[1] + p[2] + p[3]
+    p[0] = valores(p[1],p[3])
 
-def p_valroes1(p):
+def p_valores1(p):
     """
     valores    :   tipo
     """
@@ -574,16 +575,25 @@ def p_valroes1(p):
 #UPDATE----------------
 def p_update(p):
     "update :   UPDATE id SET cond WHERE wherecond PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + " " + p[6] + p[7]
+    p[0] = update(p[1],p[3],p[5])
 
 #DELETE----------------
 def p_delete(p):
     "delete :   DELETE FROM id WHERE wherecond PUNTOCOMA"
-    p[0] = p[1] + " " + p[2] + " " + p[3] + " " + p[4] + " " + p[5] + p[6]
+    p[0] = delete(p[3],p[5])
 
 import ply.yacc as yacc
 parser = yacc.yacc()
 import time
+
+
+while True:
+    try:
+        s = input("")
+    except EOFError:
+        break
+    parser.parse(s)
+
 
 def Analizar(texto):
     global textoretorno
