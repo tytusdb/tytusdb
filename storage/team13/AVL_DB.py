@@ -216,3 +216,20 @@ class Avl:
                 graph += nodo + ':f2 -> ' + 'node' + str(raiz.der.name) + '\n'
         
         return graph
+
+
+    def recorrido(self):
+        lista_BD = self.__recorrido(self.raiz)
+        return lista_BD
+
+    def __recorrido(self,nodo):
+        bases = ''
+
+        if nodo == None:
+            return ''
+
+        bases += str(self.__recorrido(nodo.izq))
+        bases += nodo.name + ' '
+        bases += str(self.__recorrido(nodo.der))
+
+        return bases
