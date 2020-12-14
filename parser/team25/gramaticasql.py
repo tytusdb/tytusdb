@@ -755,6 +755,153 @@ def p_expresion_ternaria(p):
                  | expresion BETWEEN SYMMETRIC expresion AND expresion
                  | expresion NOT BETWEEN SYMMETRIC expresion AND expresion
     '''
+
+#    <ALIAS> ::= 'as' 'id'
+def p_alias(p):
+        'alias : AS ID'
+#             | 'id'
+def p_alias2(p):
+        'alias : ID'
+
+#<SUBQUERY> ::= '('<SELECT>')'
+def p_subquery(p):
+        'subquery :  PABRE select PCIERRA'
+
+#<WHERE> ::= 'where' <EXPRESION>
+def p_where(p):
+        'where : WHERE expresion'
+
+#<GROUP_BY> ::= <LISTA_IDS>
+def p_groupby(p):
+        'group_by : lista_ids'
+
+#<HAVING> ::= 'having' <EXPRESION>
+def p_having(p):
+        'having : HAVING expresion'
+
+#    <ORDERS> ::= <ORDERBY>
+def p_orders(p):
+        'orders : orderby'
+#                |<ORDERS> ',' <ORDERBY>
+def p_orders1(p):
+        'orders : orders COMA orderby'
+
+#    <ORDERBY> ::= 'order' 'by' <EXPRESION> <ASC_DEC> <NULLS>
+def p_orderby(p):
+        'orderby : ORDER BY expresion asc_dec nulls'
+#               | 'order' 'by' <EXPRESION> <ASC_DEC>
+def p_orderby1(p):
+        'orderby : ORDER BY expresion asc_dec'
+#                | 'order' 'by' <EXPRESION> <NULLS>
+def p_orderby2(p):
+        'orderby : ORDER BY expresion nulls'
+#                | 'order' 'by' <EXPRESION>        
+def p_orderby3(p):
+        'orderby : ORDER BY expresion'
+
+#    <ASC_DEC> ::= 'asc'
+def p_asc_dec(p):
+        'asc_dec : ASC'
+#               | 'desc'
+def p_asc_dec1(p):
+        'asc_dec : DESC'
+
+#<NULLS> ::= 'nulls' <FIRST_LAST>
+def p_nulls(p):
+        'nulls : NULLS first_last'
+
+#   <FIRST_LAST> ::= 'first'
+def p_first_last(p):
+        'first_last : FIRST'
+#                |    'last'
+def p_first_last1(p):
+        'first_last : LAST'
+
+#    <SELECT_ITEM>::=  'id'
+def p_select_item(p):
+        'select_item : ID'
+#                  | 'id' '.' 'id'
+def p_select_item1(p):
+        'select_item : ID COMA ID'
+#                  | <COUNT>
+def p_select_item2(p):
+        'select_item : count'
+#                  | <AGGREGATE_F>
+def p_select_item3(p):
+        'select_item : aggregate_f'
+#                  | <SUBQUERY>
+def p_select_item4(p):
+        'select_item : subquery'
+#                  | <CASE>
+def p_select_item5(p):
+        'select_item : case'
+#                  | <GREATEST>
+def p_select_item6(p):
+        'select_item : greatest'
+#                  | <LEAST>
+def p_select_item7(p):
+        'select_item : least'
+
+#    <COUNT> ::= 'count' '(' '*' ')'  
+def p_count(p):
+        'count : COUNT PABRE ASTERISCO PCIERRA'
+#             |  'count' '(' 'id' ')'
+def p_count1(p):
+        'count : COUNT PABRE ID PCIERRA'
+#             |  'count' '(' 'distinct' 'id' ')' 
+def p_count2(p):
+        'count : COUNT PABRE DISTINCT ID PCIERRA'
+
+#    <AGGREGATE_F> ::= 'sum' '(' 'id' ')'
+def p_aggregate_f(p):
+        'aggregate_f : SUM PABRE ID PCIERRA'
+#                |     'avg' '(' 'id' ')'
+def p_aggregate_f1(p):
+        'aggregate_f : AVG PABRE ID PCIERRA'
+#                |     'max' '(' 'id' ')'
+def p_aggregate_f2(p):
+        'aggregate_f : MAX PABRE ID PCIERRA'
+#                |     'min' '(' 'id' ')'
+def p_aggregate_f3(p):
+        'aggregate_f : MIN PABRE ID PCIERRA'
+
+#    <CASE> ::= 'case' <SUBCASE> <ELSE_CASE> 'end'
+def p_case(p):
+        'case : CASE subcase else_case END'
+#             | 'case' <SUBCASE> 'end'   
+def p_case1(p):
+        'case : CASE subcase END'    
+#    <SUBCASE> ::= <WHEN_CASE>
+def p_subcase(p):
+        'subcase : when_case'
+#                | <SUBCASE> <WHEN_CASE>
+def p_subcase1(p):
+        'subcase : subcase when_case'
+
+#<ELSE_CASE> ::= 'else' <EXPRESION>
+def p_else_case(p):
+        'else_case : ELSE expresion'
+
+#<GREATEST> ::= 'greatest' '(' <LISTA_EXP>')'
+def p_greatiest(p):
+        'greatiest : GREATIEST PABRE lista_exp PCIERRA'
+
+#<LEAST> ::= 'least' '(' <LISTA_EXP> ')'
+def p_least(p):
+        'least : LEAST PABRE lista_exp PCIERRA'
+
+#<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
+def p_when_case(p):
+        'when_case : WHEN expresion THEN expresion'
+        
+#    <TIPO_NUMERO> ::= 'numero'
+def p_tipo_numero(p):
+        'tipo_numero : NUMERO'
+#                  |   'decimal'
+def p_tipo_numero1(p):
+        'tipo_numero : DECIMAL'
+
+
 def p_error(p):
     print(p)
     print("Error sintáctico en '%s'" % p.value)
