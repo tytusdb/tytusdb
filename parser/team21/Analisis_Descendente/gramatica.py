@@ -1,4 +1,5 @@
 # import
+from graphviz import Digraph
 import ply.lex as lex
 import ply.yacc as yacc
 import re
@@ -36,28 +37,14 @@ palabras_reservadas = (
     'TABLE', 'CONSTRAINT', 'CHECK', 'DEFAULT', 'PRIMARY', 'REFERENCES', 'KEY',
     'FOREIGN', 'UNIQUE',
     # alter table
-<<<<<<< HEAD
-    'ADD','SET','COLUMN','INHERITS',
-    #DML
-    'INSERT','INTO','VALUES',
-    'UPDATE','WHERE','DELETE','FROM',
-    #SELECT
-    'SELECT','EXTRACT','DATE_PART','NOW','GREATEST','LEAST',
-    'GROUP','BY','SUM'
-=======
     'ADD', 'SET', 'COLUMN', 'INHERITS',
     # DML
     'INSERT', 'INTO', 'VALUES',
     'UPDATE', 'WHERE', 'DELETE', 'FROM',
     # SELECT
     'SELECT', 'EXTRACT', 'DATE_PART', 'NOW', 'GREATEST', 'LEAST',
-    'GROUP', 'BY', 'SUM'
->>>>>>> 05cf7d26a1cc93ee7d045deebafbe5e3fdf70533
-
-
-
-
-
+    'GROUP', 'BY', 'SUM', 'CURRENT_TIME', 'CURRENT_DATE', 'DISTINCT',
+    'HAVING'
 )
 
 tokens = palabras_reservadas +\
@@ -337,7 +324,12 @@ def p_selectprima(t):
                  | NOW PARIZQ PARDER
                  | GREATEST PARIZQ expresion PARDER
                  | LEAST PARIZQ expresion PARDER
-                 | expresion FROM
+                 | expresion FROM expresion where
+                 | CURRENT_TIME
+                 | CURRENT_DATE
+                 | TIMESTAMP CARACTER_O_CADENA
+                 | DISTINCT expresion FROM expresion where
+                
     '''
     if str(t[1]).lower() == 'extract':
         gramatica = 'selectp ::= \'EXTRACT\' \'(\' l_campo \')\''
@@ -358,6 +350,18 @@ def p_selectprima(t):
         gramatica = 'selectp ::= expresion \'FROM\''
         lista.append(gramatica)
 
+def p_wherprod(t):
+    '''where : WHERE expresion group
+              | group
+              | '''
+
+
+def p_groupBy(t):
+    '''group : GROUP BY expresion hav'''
+
+def p_havingprod(t):
+    '''hav   : HAVING expresion
+              | '''
 
 def p_drop_triprima(t):
     '''droptp : DATABASE dropp IDENTIFICADOR
@@ -571,6 +575,7 @@ def p_tipo_datos(t):
             | MINUTE
             | DAY
             | MONTH
+            | IDENTIFICADOR PUNTO IDENTIFICADOR
     '''
     if str(t[1]).lower() == 'primary' or str(t[1]).lower() == 'foreign':
         gramatica = 'tipo ::= \''+t[1]+'\' \'KEY\''
@@ -895,7 +900,8 @@ def p_expresion5(t):
           | BOOLEAN
           | INTERVAL
           | NOW PARIZQ PARDER
-          | SUM PARIZQ
+          | SUM PARIZQ tipo PARDER
+          | IDENTIFICADOR PUNTO IDENTIFICADOR
     '''
     if str(t[1]).lower() == 'now' :
         gramatica = 'd ::= \''+t[1]+'\' \'(\' \')\''
