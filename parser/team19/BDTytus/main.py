@@ -16,16 +16,16 @@ root = Tk()
 root.title('TytusDB - Team 19')
 root.geometry("1000x750")
 errores = None
+raizAST = None
 
 def ejecutar():
     reporteg=[]
-    global errores
+    global errores, raizAST
     errores=lista_err.ListaErrores()
     entrada = my_text.get("1.0",END)
-    SQLparser = g.parse(entrada, errores)
-    print(SQLparser)
+    raizAST = g.parse(entrada, errores)
     Output.delete(1.0,"end")
-    respuestaConsola = str(SQLparser) if errores.principio is None else "Hubieron errores ve a Reporte->Errores"
+    respuestaConsola = str(raizAST.ejecutar([],errores)) if errores.principio is None else "Hubieron errores ve a Reporte->Errores"
     Output.insert("1.0", respuestaConsola)
 
 
@@ -38,6 +38,8 @@ def open_File():
         my_text.insert(END, stuff)
         update_line_numbers()
         text_file.close()
+        global raizAST, errores
+        raizAST = errores = None
     except FileNotFoundError:
         messagebox.showinfo("Informacion","No se seleccionó un archivo")
 
@@ -45,6 +47,13 @@ def mostrar_reporte_errores():
     global errores #El global indica que no creo una nueva var sino que uso la variable global
     reporte_error = ReporteError(errores)
     reporte_error.open_file_on_my_computer()
+
+def mostrar_reporte_AST():
+    global raizAST
+    if raizAST is not None:
+        raizAST.graficarasc()
+    else:
+        messagebox.showinfo("Informacion","No hay arbol para mostrar presione ejecutar primero...")
 
 def get_line_numbers():
     output = ''
@@ -74,7 +83,7 @@ reportes_menu.add_command(label='Errores', compound='left',  underline=0, comman
 reportes_menu.add_separator()
 reportes_menu.add_command(label='Gramaticas',compound='left',  underline=0)
 reportes_menu.add_separator()
-reportes_menu.add_command(label='AST', compound='left',  underline=0) 
+reportes_menu.add_command(label='AST', compound='left',  underline=0, command=mostrar_reporte_AST) 
 reportes_menu.add_separator()
 reportes_menu.add_command(label='TS',compound='left',  underline=0)
 menu_bar.add_cascade(label='Reportes', menu=reportes_menu)
