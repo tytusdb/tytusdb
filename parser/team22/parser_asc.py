@@ -3,8 +3,21 @@ import ply.lex as lex
 from lex import *
 from type_checker import *
 from columna import *
+from graphviz import Graph
+
+dot = Graph()
+dot.attr(splines = 'false')
+dot.node_attr.update(fontname = 'Eras Medium ITC', style='filled', fillcolor="tan",
+                     fontcolor = 'black')
+dot.edge_attr.update(color = 'black')
+
 lexer = lex.lex()
 type_checker = TypeChecker()
+i = 0
+def inc():
+    global i 
+    i += 1
+    return i
 
 
 # Asociación de operadores y precedencia
@@ -25,18 +38,24 @@ from instrucciones import *
 
 def p_init(t) :
     'init            : instrucciones'
-    t[0] = t[1]
+    id = inc()
+    t[0] = {'id': id}
+    dot.node(str(id), 'INICIO')
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
     
-
 def p_instrucciones_lista(t) :
     'instrucciones    : instrucciones instruccion'
+    #                   [{'id': id}]  {'id': id}
     t[1].append(t[2])
+    #[{'id': id}, {'id': id}]
     t[0] = t[1]
 
 
 def p_instrucciones_instruccion(t) :
     'instrucciones    : instruccion '
     t[0] = [t[1]]
+    # [{'id': id}]
 
 def p_instruccion(t) :
     '''instruccion      : CREATE creacion
@@ -50,7 +69,14 @@ def p_instruccion(t) :
                         | INSERT insercion
                         | DROP dropear
                         '''
-    t[0] = t[2]
+    id = inc()
+    t[0] = {'id': id}
+
+    if t[1].upper() == 'CREATE':
+        dot.node(str(id), 'CREATE')
+    elif t[1].upper() == 'SHOW':
+        dot.node(str(id), 'SHOW')
+    
 
 #========================================================
 
@@ -514,6 +540,7 @@ def p_instrucciones_chequeo_constraint(t) :
 
 def p_instrucciones_chequeo(t) :
     'chequeo    : CHECK PARIZQ relacional PARDER'
+    
 
 #========================================================
 
@@ -1137,4 +1164,6 @@ parser = yacc.yacc()
 
 
 def parse(input) :
-    return parser.parse(input)
+    retorno = parser.parse(input)
+    dot.view()
+    return retorno
