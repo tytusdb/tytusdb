@@ -25,3 +25,14 @@ class TipoSimbolo(Enum):
     OR = 21
     NOT = 22
     NOMBRE_COLUMNA = 23
+    BETWEEN = 24
+    NOT_BETWEEN = 25
+    INN = 26
+    NOT_INN = 27
+    LIKE = 28
+    NOT_LIKE = 29
+    ILIKE = 30
+    NOT_ILIKE = 31
+    SIMILAR = 32
+    IS_NULL = 33
+    IS_NOT_NULL = 34

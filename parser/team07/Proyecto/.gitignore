@@ -3,6 +3,8 @@ __pycache__/
 ply/
 *.py[cod]
 *$py.class
+parser.out/
+parsertab.py/
 
 # C extensions
 *.so

@@ -241,11 +241,11 @@ t_POTENCIA = r'\^'
 t_MULTIPLICACION = r'\*'
 t_DIVISION = r'/'
 t_MODULO = r'%'
-t_MENOR_QUE = r'\<'
-t_MENOR_IGUAL = r'<='
-t_MAYOR_QUE = r'\>'
-t_MAYOR_IGUAL = r'>='
 t_IGUAL = r'\='
+t_MENOR_QUE = r'\<'
+t_MAYOR_QUE = r'\>'
+t_MENOR_IGUAL = r'\<='
+t_MAYOR_IGUAL = r'\>='
 t_DISTINTO = r'<>'
 
 
@@ -374,6 +374,7 @@ from clasesAbstractas import deleteTable
 from clasesAbstractas import updateColumna
 from clasesAbstractas import updateTable
 from clasesAbstractas import expresion
+from clasesAbstractas import betweenIN
 
 
 def p_init(t):
@@ -526,12 +527,12 @@ def p_expresion_entero(t):
 
 
 def p_expresion_decimal(t):
-    'expresion  :   DECIMAL'
+    'expresion  :   DECIMAL_'
 
     nNodo = incNodo(numNodo)
     nodoExp = expresion.Expresion()
     nodoExp.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.DECIMAL)
-    nodoExp.setearValores(str(t.lexer.lineno),columna,"DECIMAL",nNodo,t[1])
+    nodoExp.setearValores(str(t.lexer.lineno),columna,"DECIMAL_",nNodo,t[1])
     t[0] = nodoExp
 
 def p_instr_delete(t):
@@ -567,6 +568,42 @@ def p_exp_logica(t):
                       |   exp_logica AND exp_logica
                       |   NOT exp_logica
                       |   exp_relacional'''
+    
+    if len(t) == 2:
+        t[0] = t[1]
+    elif len(t) == 3:        
+        linea = str(t.lexer.lineno)
+        nNodo = incNodo(numNodo)
+        nodoExp = expresion.Expresion()
+        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"")
+        nodoExp.operacionUnaria(t[2],tipoSimbolo.TipoSimbolo.NOT)
+        nodoMas = crear_nodo_general("NOT","not",linea,columna)
+        nodoExp.hijos.append(nodoMas)
+        nodoExp.hijos.append(t[2])                
+        t[0] = nodoExp
+    else:
+        tipOp = t[2]
+        linea = str(t.lexer.lineno)
+        nNodo = incNodo(numNodo)
+        nodoExp = expresion.Expresion()
+        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"")
+
+        if tipOp.lower() == "or":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.OR)
+            nodoMas = crear_nodo_general("OR","or",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp.lower() == "and":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.AND)
+            nodoMas = crear_nodo_general("AND","and",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+
+
 
 def p_exp_relacional(t):
     '''exp_relacional   :   exp_relacional MENOR_QUE exp_relacional
@@ -576,6 +613,61 @@ def p_exp_relacional(t):
                         |   exp_relacional DISTINTO exp_relacional
                         |   exp_relacional IGUAL exp_relacional
                         |   exp_aritmetica'''
+    
+    if len(t) == 2:
+        t[0] = t[1]
+    else :
+        tipOp = t[2]
+        linea = str(t.lexer.lineno)
+        nNodo = incNodo(numNodo)
+        nodoExp = expresion.Expresion()
+        nodoExp.setearValores(linea,columna,"EXPRESION_RELACIONAL",nNodo,"")
+
+        if tipOp == "<":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.MENOR_QUE)
+            nodoMas = crear_nodo_general("MENOR_QUE","<",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == "<=":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.MENOR_IGUAL)
+            nodoMas = crear_nodo_general("MENOR_IGUAL","<=",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == ">":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.MAYOR_QUE)
+            nodoMas = crear_nodo_general("MAYOR_QUE",">",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == ">=":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.MAYOR_IGUAL)
+            nodoMas = crear_nodo_general("MAYOR_IGUAL",">=",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == "<>":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.DISTINTO)
+            nodoMas = crear_nodo_general("DISTINTO","<>",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == "=":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.IGUALACION)
+            nodoMas = crear_nodo_general("IGUALACION","=",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+
+
+
 
 def p_exp_aritmetica(t):
     '''exp_aritmetica   :   exp_aritmetica MAS exp_aritmetica
@@ -596,6 +688,163 @@ def p_exp_aritmetica(t):
                         |   exp_aritmetica IS NULL
                         |   exp_aritmetica IS NOT NULL
                         |   primitivo'''
+
+    
+    
+    
+    if len(t) == 2:
+        t[0] = t[1]
+    else:
+        tipOp = t[2]
+        linea = str(t.lexer.lineno)
+        nNodo = incNodo(numNodo)
+        nodoExp = expresion.Expresion()
+        nodoExp.setearValores(linea,columna,"EXPRESION_ARITMETICA",nNodo,"")
+
+        if tipOp == "+":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.SUMA)
+            nodoMas = crear_nodo_general("MAS","+",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == "-":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.RESTA)
+            nodoMas = crear_nodo_general("MENOS","-",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == "*":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.MULTIPLICACION)
+            nodoMas = crear_nodo_general("MULTIPLICACION","*",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == "/":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.DIVISION)
+            nodoMas = crear_nodo_general("DIVISION","/",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == "%":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.MODULO)
+            nodoMas = crear_nodo_general("MODULO","%",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp == "^":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.POTENCIA)
+            nodoMas = crear_nodo_general("POTENCIA","^",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp.lower() == "between":
+            nNodo = incNodo(numNodo)
+            nodoBetween = betweenIN.BetweenIn()
+            nodoBetween.between(t[1],t[3],t[5],tipoSimbolo.TipoSimbolo.BETWEEN)
+            hijosBetween = []
+            hijosBetween.append(t[1])
+            hijosBetween.append(t[3])
+            hijosBetween.append(t[5])
+            nodoBetween.setearValores(linea,columna,"BETWEEN",nNodo,"",hijosBetween)
+            nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.BETWEEN)
+            nodoExp.hijos.append(nodoBetween)
+            t[0] = nodoExp
+        elif tipOp.lower() == "in":
+            nNodo = incNodo(numNodo)
+            nodoBetween = betweenIN.BetweenIn()
+            nodoBetween.inn(t[1],t[4],tipoSimbolo.TipoSimbolo.INN)    
+            hijosBetween = []
+            hijosBetween.append(t[1])
+            hijosBetween.append(t[4])        
+            nodoBetween.setearValores(linea,columna,"IN",nNodo,"",hijosBetween)
+            nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.INN)
+            nodoExp.hijos.append(nodoBetween)
+            t[0] = nodoExp    
+        elif tipOp.lower() == "like":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.LIKE)
+            nodoMas = crear_nodo_general("LIKE","like",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp.lower() == "ilike":
+            nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.ILIKE)
+            nodoMas = crear_nodo_general("ILIKE","ilike",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[3])
+            t[0] = nodoExp
+        elif tipOp.lower() == "similar":
+            nodoExp.operacionBinaria(t[1],t[4],tipoSimbolo.TipoSimbolo.SIMILAR)
+            nodoMas = crear_nodo_general("SIMILAR","similar to",linea,columna)
+            nodoExp.hijos.append(t[1])
+            nodoExp.hijos.append(nodoMas)
+            nodoExp.hijos.append(t[4])
+            t[0] = nodoExp
+        elif tipOp.lower() == "is":
+            if len(t) == 4:
+                nodoExp.operacionUnaria(t[1],tipoSimbolo.TipoSimbolo.IS_NULL)
+                nodoMas = crear_nodo_general("IS_NULL","is null",linea,columna)
+                nodoExp.hijos.append(t[1])
+                nodoExp.hijos.append(nodoMas)            
+                t[0] = nodoExp
+            else:
+                nodoExp.operacionUnaria(t[1],tipoSimbolo.TipoSimbolo.IS_NOT_NULL)
+                nodoMas = crear_nodo_general("IS_NOT_NULL","is not null",linea,columna)
+                nodoExp.hijos.append(t[1])
+                nodoExp.hijos.append(nodoMas)            
+                t[0] = nodoExp
+        elif tipOp.lower() == "not":
+            tip2 = t[3]
+            if tip2.lower() == "between":
+                nNodo = incNodo(numNodo)
+                nodoBetween = betweenIN.BetweenIn()
+                nodoBetween.between(t[1],t[4],t[6],tipoSimbolo.TipoSimbolo.NOT_BETWEEN)
+                hijosBetween = []
+                hijosBetween.append(t[1])
+                hijosBetween.append(t[4])
+                hijosBetween.append(t[6])
+                nodoBetween.setearValores(linea,columna,"NOT_BETWEEN",nNodo,"",hijosBetween)
+                nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.NOT_BETWEEN)
+                nodoExp.hijos.append(nodoBetween)
+                t[0] = nodoExp
+            elif tip2.lower() == "in":
+                nNodo = incNodo(numNodo)
+                nodoBetween = betweenIN.BetweenIn()
+                nodoBetween.inn(t[1],t[5],tipoSimbolo.TipoSimbolo.NOT_INN)    
+                hijosBetween = []
+                hijosBetween.append(t[1])
+                hijosBetween.append(t[5])        
+                nodoBetween.setearValores(linea,columna,"NOT_IN",nNodo,"",hijosBetween)
+                nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.NOT_INN)
+                nodoExp.hijos.append(nodoBetween)
+                t[0] = nodoExp    
+            elif tip2.lower() == "like":
+                nodoExp.operacionBinaria(t[1],t[4],tipoSimbolo.TipoSimbolo.NOT_LIKE)
+                nodoMas = crear_nodo_general("NOT_LIKE","not like",linea,columna)
+                nodoExp.hijos.append(t[1])
+                nodoExp.hijos.append(nodoMas)
+                nodoExp.hijos.append(t[4])
+                t[0] = nodoExp
+            elif tip2.lower() == "ilike":
+                nodoExp.operacionBinaria(t[1],t[4],tipoSimbolo.TipoSimbolo.NOT_ILIKE)
+                nodoMas = crear_nodo_general("NOT_ILIKE","not ilike",linea,columna)
+                nodoExp.hijos.append(t[1])
+                nodoExp.hijos.append(nodoMas)
+                nodoExp.hijos.append(t[4])
+                t[0] = nodoExp
+
+
+
+
+
+
 
 def p_primitivo_columna(t):
     'primitivo  :   ID'
@@ -654,7 +903,7 @@ def p_primitivo_entero(t):
     t[0] = nodoPri
 
 def p_primitivo_decimal(t):
-    'primitivo    :   DECIMAL'                 
+    'primitivo    :   DECIMAL_'                 
 
     nNodo = incNodo(numNodo)
     linea = str(t.lexer.lineno)

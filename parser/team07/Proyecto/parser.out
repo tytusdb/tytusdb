@@ -46,7 +46,7 @@ Unused terminals:
     DATABASES
     DATE
     DECADE
-    DECIMAL_
+    DECIMAL
     DECODE
     DEGREES
     DESC
@@ -200,7 +200,7 @@ Rule 18    lista_expresiones -> lista_expresiones COMA expresion
 Rule 19    lista_expresiones -> expresion
 Rule 20    expresion -> CADENA
 Rule 21    expresion -> ENTERO
-Rule 22    expresion -> DECIMAL
+Rule 22    expresion -> DECIMAL_
 Rule 23    delete_table -> DELETE FROM ID PTCOMA
 Rule 24    delete_table -> DELETE FROM ID WHERE exp_operacion PTCOMA
 Rule 25    exp_operacion -> exp_logica
@@ -238,7 +238,7 @@ Rule 56    primitivo -> MAS primitivo
 Rule 57    primitivo -> MENOS primitivo
 Rule 58    primitivo -> PARIZQUIERDO exp_operacion PARDERECHO
 Rule 59    primitivo -> ENTERO
-Rule 60    primitivo -> DECIMAL
+Rule 60    primitivo -> DECIMAL_
 Rule 61    primitivo -> CADENA
 Rule 62    primitivo -> TRUE
 Rule 63    primitivo -> FALSE
@@ -300,8 +300,8 @@ DATABASE             :
 DATABASES            : 
 DATE                 : 
 DECADE               : 
-DECIMAL              : 22 60
-DECIMAL_             : 
+DECIMAL              : 
+DECIMAL_             : 22 60
 DECODE               : 
 DEFAULT              : 11 12
 DEGREES              : 
@@ -823,7 +823,7 @@ state 26
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -834,7 +834,7 @@ state 26
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -903,11 +903,11 @@ state 33
     (19) lista_expresiones -> . expresion
     (20) expresion -> . CADENA
     (21) expresion -> . ENTERO
-    (22) expresion -> . DECIMAL
+    (22) expresion -> . DECIMAL_
 
     CADENA          shift and go to state 61
     ENTERO          shift and go to state 62
-    DECIMAL         shift and go to state 63
+    DECIMAL_        shift and go to state 63
 
     lista_expresiones              shift and go to state 59
     expresion                      shift and go to state 60
@@ -1026,7 +1026,7 @@ state 40
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1037,7 +1037,7 @@ state 40
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1127,7 +1127,7 @@ state 43
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1137,7 +1137,7 @@ state 43
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1152,7 +1152,7 @@ state 44
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1162,7 +1162,7 @@ state 44
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1207,7 +1207,7 @@ state 45
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1218,7 +1218,7 @@ state 45
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1293,33 +1293,33 @@ state 47
 
 state 48
 
-    (60) primitivo -> DECIMAL .
+    (60) primitivo -> DECIMAL_ .
 
-    MAS             reduce using rule 60 (primitivo -> DECIMAL .)
-    MENOS           reduce using rule 60 (primitivo -> DECIMAL .)
-    MULTIPLICACION  reduce using rule 60 (primitivo -> DECIMAL .)
-    DIVISION        reduce using rule 60 (primitivo -> DECIMAL .)
-    MODULO          reduce using rule 60 (primitivo -> DECIMAL .)
-    POTENCIA        reduce using rule 60 (primitivo -> DECIMAL .)
-    BETWEEN         reduce using rule 60 (primitivo -> DECIMAL .)
-    NOT             reduce using rule 60 (primitivo -> DECIMAL .)
-    IN              reduce using rule 60 (primitivo -> DECIMAL .)
-    LIKE            reduce using rule 60 (primitivo -> DECIMAL .)
-    ILIKE           reduce using rule 60 (primitivo -> DECIMAL .)
-    SIMILAR         reduce using rule 60 (primitivo -> DECIMAL .)
-    IS              reduce using rule 60 (primitivo -> DECIMAL .)
-    MENOR_QUE       reduce using rule 60 (primitivo -> DECIMAL .)
-    MENOR_IGUAL     reduce using rule 60 (primitivo -> DECIMAL .)
-    MAYOR_QUE       reduce using rule 60 (primitivo -> DECIMAL .)
-    MAYOR_IGUAL     reduce using rule 60 (primitivo -> DECIMAL .)
-    DISTINTO        reduce using rule 60 (primitivo -> DECIMAL .)
-    IGUAL           reduce using rule 60 (primitivo -> DECIMAL .)
-    OR              reduce using rule 60 (primitivo -> DECIMAL .)
-    AND             reduce using rule 60 (primitivo -> DECIMAL .)
-    PTCOMA          reduce using rule 60 (primitivo -> DECIMAL .)
-    PARDERECHO      reduce using rule 60 (primitivo -> DECIMAL .)
-    WHERE           reduce using rule 60 (primitivo -> DECIMAL .)
-    COMA            reduce using rule 60 (primitivo -> DECIMAL .)
+    MAS             reduce using rule 60 (primitivo -> DECIMAL_ .)
+    MENOS           reduce using rule 60 (primitivo -> DECIMAL_ .)
+    MULTIPLICACION  reduce using rule 60 (primitivo -> DECIMAL_ .)
+    DIVISION        reduce using rule 60 (primitivo -> DECIMAL_ .)
+    MODULO          reduce using rule 60 (primitivo -> DECIMAL_ .)
+    POTENCIA        reduce using rule 60 (primitivo -> DECIMAL_ .)
+    BETWEEN         reduce using rule 60 (primitivo -> DECIMAL_ .)
+    NOT             reduce using rule 60 (primitivo -> DECIMAL_ .)
+    IN              reduce using rule 60 (primitivo -> DECIMAL_ .)
+    LIKE            reduce using rule 60 (primitivo -> DECIMAL_ .)
+    ILIKE           reduce using rule 60 (primitivo -> DECIMAL_ .)
+    SIMILAR         reduce using rule 60 (primitivo -> DECIMAL_ .)
+    IS              reduce using rule 60 (primitivo -> DECIMAL_ .)
+    MENOR_QUE       reduce using rule 60 (primitivo -> DECIMAL_ .)
+    MENOR_IGUAL     reduce using rule 60 (primitivo -> DECIMAL_ .)
+    MAYOR_QUE       reduce using rule 60 (primitivo -> DECIMAL_ .)
+    MAYOR_IGUAL     reduce using rule 60 (primitivo -> DECIMAL_ .)
+    DISTINTO        reduce using rule 60 (primitivo -> DECIMAL_ .)
+    IGUAL           reduce using rule 60 (primitivo -> DECIMAL_ .)
+    OR              reduce using rule 60 (primitivo -> DECIMAL_ .)
+    AND             reduce using rule 60 (primitivo -> DECIMAL_ .)
+    PTCOMA          reduce using rule 60 (primitivo -> DECIMAL_ .)
+    PARDERECHO      reduce using rule 60 (primitivo -> DECIMAL_ .)
+    WHERE           reduce using rule 60 (primitivo -> DECIMAL_ .)
+    COMA            reduce using rule 60 (primitivo -> DECIMAL_ .)
 
 
 state 49
@@ -1453,7 +1453,7 @@ state 52
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1464,7 +1464,7 @@ state 52
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1524,7 +1524,7 @@ state 54
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1535,7 +1535,7 @@ state 54
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1617,10 +1617,10 @@ state 62
 
 state 63
 
-    (22) expresion -> DECIMAL .
+    (22) expresion -> DECIMAL_ .
 
-    PARDERECHO      reduce using rule 22 (expresion -> DECIMAL .)
-    COMA            reduce using rule 22 (expresion -> DECIMAL .)
+    PARDERECHO      reduce using rule 22 (expresion -> DECIMAL_ .)
+    COMA            reduce using rule 22 (expresion -> DECIMAL_ .)
 
 
 state 64
@@ -1698,7 +1698,7 @@ state 68
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1709,7 +1709,7 @@ state 68
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1756,7 +1756,7 @@ state 69
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1767,7 +1767,7 @@ state 69
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1827,7 +1827,7 @@ state 71
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1837,7 +1837,7 @@ state 71
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1879,7 +1879,7 @@ state 72
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1889,7 +1889,7 @@ state 72
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1931,7 +1931,7 @@ state 73
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1941,7 +1941,7 @@ state 73
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -1983,7 +1983,7 @@ state 74
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -1993,7 +1993,7 @@ state 74
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2035,7 +2035,7 @@ state 75
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2045,7 +2045,7 @@ state 75
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2087,7 +2087,7 @@ state 76
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2097,7 +2097,7 @@ state 76
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2132,7 +2132,7 @@ state 77
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2142,7 +2142,7 @@ state 77
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2176,7 +2176,7 @@ state 78
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2186,7 +2186,7 @@ state 78
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2220,7 +2220,7 @@ state 79
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2230,7 +2230,7 @@ state 79
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2264,7 +2264,7 @@ state 80
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2274,7 +2274,7 @@ state 80
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2308,7 +2308,7 @@ state 81
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2318,7 +2318,7 @@ state 81
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2352,7 +2352,7 @@ state 82
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2362,7 +2362,7 @@ state 82
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2396,7 +2396,7 @@ state 83
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2406,7 +2406,7 @@ state 83
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2460,7 +2460,7 @@ state 86
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2470,7 +2470,7 @@ state 86
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2504,7 +2504,7 @@ state 87
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -2514,7 +2514,7 @@ state 87
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -2660,11 +2660,11 @@ state 99
     (18) lista_expresiones -> lista_expresiones COMA . expresion
     (20) expresion -> . CADENA
     (21) expresion -> . ENTERO
-    (22) expresion -> . DECIMAL
+    (22) expresion -> . DECIMAL_
 
     CADENA          shift and go to state 61
     ENTERO          shift and go to state 62
-    DECIMAL         shift and go to state 63
+    DECIMAL_        shift and go to state 63
 
     expresion                      shift and go to state 131
 
@@ -3350,7 +3350,7 @@ state 118
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -3360,7 +3360,7 @@ state 118
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -3401,7 +3401,7 @@ state 120
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -3411,7 +3411,7 @@ state 120
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -3445,7 +3445,7 @@ state 121
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -3455,7 +3455,7 @@ state 121
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -3470,11 +3470,11 @@ state 122
     (19) lista_expresiones -> . expresion
     (20) expresion -> . CADENA
     (21) expresion -> . ENTERO
-    (22) expresion -> . DECIMAL
+    (22) expresion -> . DECIMAL_
 
     CADENA          shift and go to state 61
     ENTERO          shift and go to state 62
-    DECIMAL         shift and go to state 63
+    DECIMAL_        shift and go to state 63
 
     lista_expresiones              shift and go to state 139
     expresion                      shift and go to state 60
@@ -3629,7 +3629,7 @@ state 125
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -3639,7 +3639,7 @@ state 125
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -3784,7 +3784,7 @@ state 134
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -3794,7 +3794,7 @@ state 134
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51
@@ -3846,11 +3846,11 @@ state 136
     (19) lista_expresiones -> . expresion
     (20) expresion -> . CADENA
     (21) expresion -> . ENTERO
-    (22) expresion -> . DECIMAL
+    (22) expresion -> . DECIMAL_
 
     CADENA          shift and go to state 61
     ENTERO          shift and go to state 62
-    DECIMAL         shift and go to state 63
+    DECIMAL_        shift and go to state 63
 
     lista_expresiones              shift and go to state 147
     expresion                      shift and go to state 60
@@ -4202,7 +4202,7 @@ state 146
     (57) primitivo -> . MENOS primitivo
     (58) primitivo -> . PARIZQUIERDO exp_operacion PARDERECHO
     (59) primitivo -> . ENTERO
-    (60) primitivo -> . DECIMAL
+    (60) primitivo -> . DECIMAL_
     (61) primitivo -> . CADENA
     (62) primitivo -> . TRUE
     (63) primitivo -> . FALSE
@@ -4212,7 +4212,7 @@ state 146
     MENOS           shift and go to state 44
     PARIZQUIERDO    shift and go to state 45
     ENTERO          shift and go to state 47
-    DECIMAL         shift and go to state 48
+    DECIMAL_        shift and go to state 48
     CADENA          shift and go to state 49
     TRUE            shift and go to state 50
     FALSE           shift and go to state 51

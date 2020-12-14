@@ -6,3 +6,5 @@ insert into hola values (1,'2',2),
 insert into hola(col1,col2,col3) values 
 (1,'si',2),
 (1,'no',3);
+
+delete from tabla1 where 12 >= 12 AND 12 < 12;
