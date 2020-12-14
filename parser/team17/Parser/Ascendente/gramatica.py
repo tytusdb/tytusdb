@@ -1,6 +1,7 @@
 from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
+from Interprete.SELECT.indexador_auxiliar import indexador_auxiliar
 from Interprete.Arbol import Arbol
 from Interprete.Primitivos.ENTERO import ENTERO
 from Interprete.Primitivos.DECIMAL import DECIMAL
@@ -587,7 +588,7 @@ def p_exp(t):
               | exp MODULO exp
               | exp MAS exp
               | exp MENOS exp
-              | exp BETWEEN exp
+              | exp BETWEEN exp AND exp
               | exp LIKE exp
               | exp ILIKE exp
               | exp SIMILAR exp
@@ -595,6 +596,8 @@ def p_exp(t):
               | exp IN exp
               | exp NOT IN exp
               | exp IGUAL exp
+              | exp IS DISTINCT FROM exp
+              | exp IS NOT DISTINCT FROM exp
               | exp MAYORQUE exp
               | exp MENORQUE exp
               | exp MAYORIG exp
@@ -619,24 +622,56 @@ def p_exp(t):
 
 def p_expSimples(t):
     '''
-        expSimple   :   ID
-                    | NULL
-                    | ID PT ID
-                    | ID ID
-                    | subquery ID
-                    | exp AS ID
-                    | MULTI
+        expSimple   : NULL
                     | subquery
     '''
     t[0] = t[1]
 
+def p_expSimples_ID(t):
+    '''
+        expSimples : MULTI
+    '''
+    t[0] = indexador_auxiliar(t[1], t[1], 5)
+
+def p_expSimples_ID(t):
+    '''
+        expSimples : ID
+    '''
+    t[0] = indexador_auxiliar(None, t[1], 4)
+
+def p_expSimples_ID_PT_ID(t):
+    '''
+        expSimples : ID PT ID
+    '''
+    t[0] = indexador_auxiliar(t[1], t[3], 3)
+
+def p_expSimples_ID_ID(t):
+    '''
+        expSimple : ID ID
+    '''
+    t[0] = indexador_auxiliar(t[1], t[2], 1)
+
+def p_expSimples_exp_AS_ID(t):
+    '''
+        expSimple : ID AS ID
+                  | exp AS CADENA
+    '''
+    t[0] = indexador_auxiliar(t[1], t[3], 1)
+
+# ---------------SUBQUERY---------------
 def p_subquery(t):
     '''
         subquery : PARIZQ select PARDER
+                 | PARIZQ select PARDER ID
+                 | PARIZQ select PARDER AS ID
     '''
+    if len(t) == 5:
+        t[0] = indexador_auxiliar(t[2], t[4], 2)
+    else:
+        t[0] = indexador_auxiliar(t[2], t[2], 2)
+
 
 # ---------------CASE---------------
-# TODO: HACER EL CASE, ARREGLAR EL SELECT Y PROBAR EXP NUEVAS
 def p_case(t):
     '''
      case : CASE WHEN exp THEN exp lista_when ELSE exp END
