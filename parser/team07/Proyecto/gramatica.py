@@ -22,7 +22,7 @@ reservadas = {
     'interval' : 'INTERVAL',
     'year' : 'YEAR',
     'month' : 'MONTH',
-    'day' : 'day',
+    'day' : 'DAY',
     'hour' : 'HOUR', 
     'minute' : 'MINUTE',
     'second' : 'SECOND',
@@ -106,7 +106,6 @@ reservadas = {
     'sign' : 'SIGN',
     'sqrt' : 'SQRT',
     'trim_scale' : 'TRIM_SCALE',
-    'truc' : 'TRUC',
     'width_bucket' : 'WIDTH_BUCKET',
     'random' : 'RANDOM',
     'setseed' : 'SETSEED',
@@ -117,7 +116,7 @@ reservadas = {
     'atan' : 'ATAN',
     'atand' : 'ATAND',
     'atan2' : 'ATAN2',
-    'atan2d' : 'ATAN2d',
+    'atan2d' : 'ATAN2D',
     'cos' : 'COS',
     'cosd' : 'COSD',
     'cot' : 'COT',
@@ -197,7 +196,15 @@ reservadas = {
     'false'     :   'FALSE',
     'column' : 'COLUMN',
     'current_user' : 'CURRENT_USER',
-    'session_user' : 'SESSION_USER'
+    'session_user' : 'SESSION_USER',
+    'date_part' :   'DATE_PART',
+    'now'       :   'NOW',
+    'trunc' :   'TRUNC',
+    'offset'    :   'OFFSET',
+    'nulls' :   'NULLS',
+    'first' :   'FIRST',
+    'last'  :   'LAST',
+    'char'  :   'CHAR'
 }
 
 tokens  = [
@@ -417,6 +424,11 @@ def p_instruccion_drop(t):
     'instruccion : drop_instr'
     t[0] = t[1]
     
+def p_instruccion_select(t):
+    'instruccion  :   inst_select PTCOMA'
+
+
+
 #--------------------------------------------Instrucciones crear------------------------------------------------------------
 def p_instruccion_crear_table(t):
     'crear_instr : CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA'
@@ -729,6 +741,8 @@ def p_exp_aritmetica(t):
                         |   exp_aritmetica NOT BETWEEN exp_aritmetica AND exp_aritmetica
                         |   exp_aritmetica IN PARIZQUIERDO lista_expresiones PARDERECHO
                         |   exp_aritmetica NOT IN PARIZQUIERDO lista_expresiones PARDERECHO
+                        |   exp_aritmetica IN subquery 
+                        |   exp_aritmetica NOT IN subquery
                         |   exp_aritmetica LIKE exp_aritmetica
                         |   exp_aritmetica NOT LIKE exp_aritmetica
                         |   exp_aritmetica ILIKE exp_aritmetica
@@ -738,7 +752,9 @@ def p_exp_aritmetica(t):
                         |   exp_aritmetica IS NOT NULL
                         |   primitivo'''
 
-    
+    ##----------SE AGREGO
+    ##          |   exp_aritmetica IN subquery 
+    ##          |   exp_aritmetica NOT IN subquery
     
     
     if len(t) == 2:
@@ -1595,6 +1611,220 @@ def p_si_existe(t):
 def p_si_existe_empty(t):
     'si_existe : empty'
     t[0] = None 
+#----------------------------------------------------------INSTRUCCIONES SELECT----------------------------------------------------------------
+
+def p_inst_query(t):
+    '''inst_select  :   select_query
+                    |   select_query UNION select_query
+                    |   select_query UNION ALL select_query
+                    |   select_query INTERSECT select_query
+                    |   select_query INTERSECT ALL select_query
+                    |   select_query EXCEPT select_query
+                    |   select_query EXCEPT ALL select_query'''
+
+def p_select_query(t):
+    '''select_query     :   SELECT DISTINCT select_list FROM from_query_list lista_condiciones_query
+                        |   SELECT select_list FROM from_query_list lista_condiciones_query
+                        |   SELECT DISTINCT select_list FROM from_query_list 
+                        |   SELECT select_list FROM from_query_list
+                        |   SELECT select_list'''
+
+def p_select_list(t):
+    '''select_list  :   MULTIPLICACION
+                    |   elementos_select_list'''
+
+def p_elementos_select_list(t):
+    '''elementos_select_list    :   elementos_select_list COMA elemento_select
+                                |   elemento_select'''
+
+def p_elemento_select(t):
+    '''elemento_select  :   dec_select_columna
+                        |   subquery AS ID
+                        |   subquery ID
+                        |   subquery
+                        |   funcion AS ID
+                        |   funcion ID
+                        |   funcion'''
+
+def p_dec_select_columna(t):
+    '''dec_select_columna   :   ID PUNTO ID AS ID
+                            |   ID PUNTO ID ID
+                            |   ID PUNTO ID
+                            |   ID'''
+
+def p_funcion(t):
+    '''funcion  :   funcion_time
+                |   funcion_mate
+                |   funcion_trig
+                |   funcion_binstr
+                |   funcion_exprecion'''
+
+def p_funcion_time(t):
+    '''funcion_time :   EXTRACT PARIZQUIERDO var_time FROM var_timeextract CADENA PARDERECHO
+                    |   DATE_PART PARIZQUIERDO CADENA COMA var_timeextract CADENA PARDERECHO
+                    |   NOW PARIZQUIERDO PARDERECHO
+                    |   var_timeextract CADENA
+                    |   CURRENT_DATE
+                    |   CURRENT_TIME'''
+
+def p_var_time(t):
+    '''var_time :   YEAR
+                |   MONTH
+                |   DAY
+                |   HOUR
+                |   MINUTE
+                |   SECOND'''
+
+def p_var_timeextract(t):
+    '''var_timeextract  :   TIMESTAMP
+                        |   TIME
+                        |   DATE
+                        |   INTERVAL'''
+
+def p_funcion_mate(t):
+    '''funcion_mate :   ABS PARIZQUIERDO exp_operacion PARDERECHO
+                    |   CBRT PARIZQUIERDO exp_operacion PARDERECHO
+                    |   CEIL PARIZQUIERDO exp_operacion PARDERECHO
+                    |   CEILING PARIZQUIERDO exp_operacion PARDERECHO
+                    |   DEGREES PARIZQUIERDO exp_operacion PARDERECHO
+                    |   DIV PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                    |   EXP PARIZQUIERDO exp_operacion PARDERECHO
+                    |   FACTORIAL PARIZQUIERDO exp_operacion PARDERECHO
+                    |   FLOOR PARIZQUIERDO exp_operacion PARDERECHO
+                    |   GCD PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                    |   LN PARIZQUIERDO exp_operacion PARDERECHO
+                    |   LOG PARIZQUIERDO exp_operacion PARDERECHO
+                    |   MOD PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                    |   PI PARIZQUIERDO PARDERECHO
+                    |   POWER PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                    |   RADIANS PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ROUND PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                    |   SIGN PARIZQUIERDO exp_operacion PARDERECHO
+                    |   SQRT PARIZQUIERDO exp_operacion PARDERECHO
+                    |   WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO
+                    |   TRUNC PARIZQUIERDO exp_operacion PARDERECHO
+                    |   RANDOM PARIZQUIERDO exp_operacion PARDERECHO
+                    |   SUM PARIZQUIERDO exp_operacion PARDERECHO
+                    |   COUNT PARIZQUIERDO exp_operacion PARDERECHO
+                    |   COUNT PARIZQUIERDO MULTIPLICACION PARDERECHO
+                    |   AVG PARIZQUIERDO exp_operacion PARDERECHO
+                    |   MAX PARIZQUIERDO exp_operacion PARDERECHO
+                    |   MIN PARIZQUIERDO exp_operacion PARDERECHO'''
+                    
+def p_funcion_trig(t):
+    '''funcion_trig :   ACOS PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ACOSD PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ASIN PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ASIND PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ATAN PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ATAND PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ATAN2 PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                    |   ATAN2D PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                    |   COS PARIZQUIERDO exp_operacion PARDERECHO
+                    |   COSD PARIZQUIERDO exp_operacion PARDERECHO
+                    |   SIN PARIZQUIERDO exp_operacion PARDERECHO
+                    |   SIND PARIZQUIERDO exp_operacion PARDERECHO
+                    |   TAN PARIZQUIERDO exp_operacion PARDERECHO
+                    |   TAND PARIZQUIERDO exp_operacion PARDERECHO
+                    |   SINH PARIZQUIERDO exp_operacion PARDERECHO
+                    |   COSH PARIZQUIERDO exp_operacion PARDERECHO
+                    |   TANH PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ASINH PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ACOSH PARIZQUIERDO exp_operacion PARDERECHO
+                    |   ATANH PARIZQUIERDO exp_operacion PARDERECHO'''
+
+def p_funcion_binstr(t):
+    '''funcion_binstr   :   LENGTH PARIZQUIERDO exp_operacion PARDERECHO
+                        |   SUBSTRING PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO
+                        |   TRIM PARIZQUIERDO exp_operacion PARDERECHO
+                        |   MD5 PARIZQUIERDO exp_operacion PARDERECHO
+                        |   SHA256 PARIZQUIERDO exp_operacion PARDERECHO
+                        |   SUBSTR PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO
+                        |   GET_BYTE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                        |   SET_BYTE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                        |   CONVERT PARIZQUIERDO exp_operacion AS tipos PARDERECHO
+                        |   ENCODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                        |   DECODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO'''
+
+def p_funcion_exprecion(t):
+    '''funcion_exprecion    :   GREATEST PARIZQUIERDO lista_exp PARDERECHO
+                            |   LEAST PARIZQUIERDO lista_exp PARDERECHO
+                            |   dec_case'''
+
+def p_dec_case(t):
+    '''dec_case :   CASE lista_when_case ELSE exp_operacion END
+                |   CASE lista_when_case END'''
+
+def p_lista_when_case(t):
+    '''lista_when_case  :   lista_when_case WHEN exp_operacion THEN exp_operacion
+                        |   WHEN exp_operacion THEN exp_operacion'''
+
+def p_from_query_list(t):
+    '''from_query_list  :   from_query_list COMA from_query_element
+                        |   from_query_element'''
+
+
+def p_from_query_element(t):
+    '''from_query_element   :   dec_id_from
+                            |   subquery AS ID
+                            |   subquery ID
+                            |   subquery'''
+
+def p_dec_id_from(t):
+    '''dec_id_from  :   ID AS ID
+                    |   ID ID
+                    |   ID'''
+
+
+def p_lista_condiciones_query(t):
+    '''lista_condiciones_query      :   lista_condiciones_query condicion_query
+                                    |   condicion_query'''
+
+def p_condicion_query(t):
+    '''condicion_query  :   WHERE exp_operacion
+                        |   GROUP BY lista_ids
+                        |   HAVING exp_operacion
+                        |   ORDER BY lista_order_by
+                        |   LIMIT condicion_limit OFFSET exp_operacion
+                        |   LIMIT condicion_limit'''
+
+def p_condicion_limit(t):
+    '''condicion_limit  :   exp_operacion
+                        |   ALL'''
+
+def p_lista_ids(t):
+    '''lista_ids    :   lista_ids COMA dec_select_columna
+                    |   dec_select_columna'''
+
+def p_lista_order_by(t):
+    '''lista_order_by   :   lista_order_by COMA elemento_order_by
+                        |   elemento_order_by'''
+
+def p_elemento_order_by(t):
+    '''elemento_order_by    :   exp_operacion asc_desc condicion_null
+                            |   exp_operacion asc_desc'''
+
+def p_asc_desc(t):
+    '''asc_desc :   ASC
+                |   DESC'''
+
+
+def p_condicion_null(t):
+    '''condicion_null   :   NULLS FIRST
+                        |   NULLS LAST'''
+
+def p_pimitivo_id_punto(t):
+    'primitivo    :   ID PUNTO ID'
+
+def p_primitivo_funcion(t):
+    'primitivo  :   funcion'
+
+def p_subquery(t):
+    '''subquery :   PARIZQUIERDO select_query PARDERECHO'''
+
+def p_lista_exp(t):
+    '''lista_exp    :   lista_exp COMA exp_operacion
+                    |   exp_operacion'''
 
 #--------------------------------------------------------------Tipos de datos------------------------------------------------------------------
 def p_tipos(t):
