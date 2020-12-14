@@ -1,7 +1,11 @@
 # from generate_ast import GraficarAST
 from re import L
 from models.nodo import Node
-from models.instructions import *
+from models.instructions.shared import *
+from models.instructions.DDL.ddl_instr import *
+from models.instructions.DML.dml_instr import *
+
+
 from utils.analyzers.lex import *
 import libs.ply.yacc as yacc
 import os
