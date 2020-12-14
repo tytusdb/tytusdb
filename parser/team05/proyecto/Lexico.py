@@ -47,6 +47,74 @@ palabras_reservadas = {
     'sum'           : 'SUM',
     'max'           : 'MAX',
     'min'           : 'MIN',
+    'greatest'      : 'GREATEST',
+    'least'         : 'LEAST',
+    'unknown'       : 'UNKNOWN',
+    'between'       : 'BETWEEN',
+    'simmetric'     : 'SIMMETRIC',
+    'null'          : 'NULL',
+    'union'         : 'UNION',
+    'all'           : 'ALL',
+    'intersect'     : 'INTERSECT',
+    'except'        : 'EXCEPT',
+    'case'          : 'CASE',
+    'when'          : 'WHEN',
+    'end'           : 'END',
+    'then'          : 'THEN',
+    'else'          : 'ELSE',
+    'pi'            : 'PI',
+    'exists'         : 'EXISTS',
+    'in'            : 'IN',
+    'any'           : 'ANY',
+    'some'          : 'SOME',
+    'like'          : 'LIKE',
+    'substring'     : 'SUBSTRING',
+    'substr'        : 'SUBSTR',
+    'trim'          : 'TRIM',
+    'leading'       : 'LEADING',
+    'trailing'      : 'TRAILING',
+    'both'          : 'BOTH',
+    'encode'        : 'ENCODE',
+    'decode'        : 'DECODE',
+    'abs'           : 'ABS',
+    'cbrt'          : 'CBRT',
+    'ceil'          : 'CEIL',
+    'ceiling'       : 'CEILING',
+    'degrees'       : 'DEGREES',
+    'div'           : 'DIV',
+    'factorial'     : 'FACTORIAL',
+    'floor'         : 'FLOOR',
+    'gcd'           : 'GCD',
+    'ln'            : 'LN',
+    'log'           : 'LOG',
+    'mod'           : 'MOD',
+    'power'         : 'POWER',
+    'radians'       : 'RADIANS',
+    'round'         : 'ROUND',
+    'sign'          : 'SIGN',
+    'sqrt'          : 'SQRT',
+    'width_bucket'  : 'WIDTH_BUCKET',
+    'trunc'         : 'TRUNC',
+    'random'        : 'RANDOM',
+    'exp'           : 'FEXP',
+    'extract'       : 'EXTRACT',
+    'now'           : 'NOW',
+    'hour'          : 'HOUR',
+    'minute'        : 'MINUTE',
+    'second'        : 'SECOND',
+    'year'          : 'YEAR',
+    'month'         : 'MONTH',
+    'day'           : 'DAY',
+    'timestamp'     : 'TIMESTAMP',
+    'interval'      : 'INTERVAL',
+    'date_part'     : 'DATE_PART',
+    'current_date'  : 'CURRENT_DATE',
+    'current_time'  : 'CURRENT_TIME',
+    'length'        : 'LENGTH',
+    'sha256'        : 'SHA256',
+    'date'          : 'DATE',
+    'integer'       : 'INTEGER',
+    'convert'       : 'CONVERT',
     'create'        : 'CREATE',
     'replace'       : 'REPLACE',
     'database'      : 'DATABASE',
@@ -67,8 +135,29 @@ palabras_reservadas = {
     'values'        : 'VALUES',
     'table'         : 'TABLE',
     'from'          : 'FROM',
-    'delete'        : 'DELETE'
-
+    'delete'        : 'DELETE',
+    'acos'          : 'ACOS',
+    'acosd'         : 'ACOSD',
+    'asin'          : 'ASIN',
+    'asind'         : 'ASIND',
+    'atan'          : 'ATAN',
+    'atand'         : 'ATAND',
+    'atan2'         : 'ATAN2',
+    'atan2d'        : 'ATAN2D',
+    'cos'           : 'COS',
+    'cosd'          : 'COSD',
+    'cot'           : 'COT',
+    'cotd'          : 'COTD',
+    'sin'           : 'SIN',
+    'sind'          : 'SIND',
+    'tan'           : 'TAN',
+    'tand'          : 'TAND',
+    'sinh'          : 'SINH',
+    'cosh'          : 'COSH',
+    'tanh'          : 'TANH',
+    'asinh'         : 'ASINH',
+    'acosh'         : 'ACOSH',
+    'atanh'         : 'ATANH'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -95,6 +184,15 @@ tokens = [
     'DECIMAL',
     'CADENA',
     'PCOMA',
+    'IDALIAS',
+    'raizCuadrada',
+    'raizCubica',
+    'BAnd',
+    'BOr',
+    'BXor',
+    'BNot',
+    'DesplazaI',
+    'DesplazaD',
     'CADENASI'
 ] + list(palabras_reservadas.values())
 
@@ -117,18 +215,18 @@ t_MENORIGUAL      = r'<='
 t_MAYOR           = r'>'
 t_MAYORIGUAL      = r'>='
 t_PCOMA           = r';'
+t_raizCuadrada    = r'\|\/'
+t_raizCubica      = r'\|\|\/'
+t_BAnd            = r'&'
+t_BOr             = r'\|'
+t_BXor            = r'#'
+t_BNot            = r'~'
+t_DesplazaI       = r'<<'
+t_DesplazaD       = r'>>'
 
 # TOKENS IGNORADOS
 t_ignore = " \t"
 
-def t_NUMERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
-    return t
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -139,20 +237,38 @@ def t_DECIMAL(t):
         t.value = 0
     return t
 
-def t_CADENASI(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
+def t_NUMERO(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
+        t.value = 0
+    return t
 
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = palabras_reservadas.get(t.value.lower(),'ID')    
     return t
 
-def t_CADENA(t):
+def t_IDALIAS(t):
     r'\".*?\"'
+    t.value = t.value[1:-1]
+    return t
+
+def t_CADENA(t):
+    r'\'.*?\''
     t.value = t.value[1:-1] 
     return t 
+
+def t_CADENASI(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] 
+    return t 
+
+
+
+
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -201,6 +317,7 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('left','MENORIGUAL','MAYORIGUAL','IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
+    ('nonassoc','BETWEEN'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
@@ -218,7 +335,7 @@ def p_Inicio1(t):
     'INSTRUCCIONES  :   INSTRUCCION '
 
 def p_Instruccion(t):
-    'INSTRUCCION  :   I_SELECT  '
+    'INSTRUCCION  :   I_SELECT COMPLEMENTOSELECT  '
 
 def p_Instruccion1(t):
     'INSTRUCCION  :   I_CREATE  '
@@ -363,17 +480,19 @@ def p_valTab1(t):
     'I_VALTAB      : CADENASI'
 
 def p_ISelect(t):
-    'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO PCOMA   '
-
+    'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO   '
+    
 def p_ISelect1(t):
-    'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO PCOMA    '
+    'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO    '
 
 def p_ISelect2(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO PCOMA   '
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO   '
 
 def p_ISelect3(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO PCOMA    '
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO    '
 
+def p_ISelect4(t):
+    'I_SELECT   :   SELECT VALORES '
 
 def p_ComplementoH(t):
     'COMPLEMENTO  :   PGROUPBY PHAVING  '
@@ -398,6 +517,27 @@ def p_ComplementoL(t):
 
 def p_ComplementoE(t):
     'COMPLEMENTO  :   EMPTY '
+
+def p_ComplementoSelectUnion(t):
+    'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
+
+def p_ComplementoSelectUnionAll(t):
+    'COMPLEMENTOSELECT  : UNION ALL I_SELECT PCOMA '
+
+def p_ComplementoSelectIntersect(t):
+    'COMPLEMENTOSELECT  : INTERSECT I_SELECT PCOMA '
+
+def p_ComplementoSelectIntersectALL(t):
+    'COMPLEMENTOSELECT  : INTERSECT ALL I_SELECT PCOMA '
+
+def p_ComplementoSelectExcept(t):
+    'COMPLEMENTOSELECT  : EXCEPT I_SELECT PCOMA '
+
+def p_ComplementoSelectExceptAll(t):
+    'COMPLEMENTOSELECT  : EXCEPT ALL I_SELECT PCOMA '
+
+def p_ComplementoSelectExceptPcoma(t):
+    'COMPLEMENTOSELECT  : PCOMA '
 
 def p_Limit(t):
     'PLIMIT  :   LIMIT CONDICION    '
@@ -476,17 +616,6 @@ def p_ListaValores(t):
 def p_ListaValoresS(t):
     'LISTAVALORES  :   VALOR '
 
-def p_Valor(t):
-    'VALOR  :   ID ALIAS '
-
-def p_Valor2(t):
-    'VALOR  :   ID PUNTO ID ALIAS '
-
-def p_Valor3(t):
-    'VALOR  :   ID '
-
-def p_Valor4(t):
-    'VALOR  :   ID PUNTO ID'
 
 def p_ValorSub(t):
     'VALOR  :   PABRE SUBCONSULTA PCIERRA ALIAS'
@@ -524,6 +653,84 @@ def p_ValorFuncionesA(t):
 def p_ValorFunciones1A(t):
     'VALOR  :   FUNCION PABRE ID  PCIERRA ALIAS'
 
+def p_ValorCondicion(t):
+    'VALOR  :   CONDICION'
+    
+def p_ValorCondicionAlias(t):
+    'VALOR  :   CONDICION ALIAS '
+
+def p_ValorFTrigonometricas(t):
+    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA '
+
+def p_ValorFTrigonometricasAlias(t):
+    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA ALIAS '
+
+def p_FTrigonometricasAcos(t):
+    'FTRIGONOMETRICAS  :   ACOS '
+
+def p_FTrigonometricasAcosd(t):
+    'FTRIGONOMETRICAS  :   ACOSD '
+
+def p_FTrigonometricasAsin(t):
+    'FTRIGONOMETRICAS  :   ASIN '
+
+def p_FTrigonometricasAsind(t):
+    'FTRIGONOMETRICAS  :   ASIND '
+
+def p_FTrigonometricasAtan(t):
+    'FTRIGONOMETRICAS  :   ATAN '
+
+def p_FTrigonometricasAtand(t):
+    'FTRIGONOMETRICAS  :   ATAND '
+
+def p_FTrigonometricasAtan2(t):
+    'FTRIGONOMETRICAS  :   ATAN2 '
+
+def p_FTrigonometricasAtan2d(t):
+    'FTRIGONOMETRICAS  :   ATAN2D '
+
+def p_FTrigonometricasCos(t):
+    'FTRIGONOMETRICAS  :   COS '
+
+def p_FTrigonometricasCosd(t):
+    'FTRIGONOMETRICAS  :   COSD '
+
+def p_FTrigonometricasCot(t):
+    'FTRIGONOMETRICAS  :   COT '
+
+def p_FTrigonometricasCotd(t):
+    'FTRIGONOMETRICAS  :   COTD '
+
+def p_FTrigonometricasSin(t):
+    'FTRIGONOMETRICAS  :   SIN '
+
+def p_FTrigonometricasSind(t):
+    'FTRIGONOMETRICAS  :   SIND '
+
+def p_FTrigonometricasTan(t):
+    'FTRIGONOMETRICAS  :   TAN '
+
+def p_FTrigonometricasTand(t):
+    'FTRIGONOMETRICAS  :   TAND '
+
+def p_FTrigonometricasSinh(t):
+    'FTRIGONOMETRICAS  :   SINH '
+
+def p_FTrigonometricasCosh(t):
+    'FTRIGONOMETRICAS  :   COSH '
+
+def p_FTrigonometricasTanh(t):
+    'FTRIGONOMETRICAS  :   TANH '
+
+def p_FTrigonometricasAsinh(t):
+    'FTRIGONOMETRICAS  :   ASINH '
+
+def p_FTrigonometricasAcosh(t):
+    'FTRIGONOMETRICAS  :   ACOSH '
+
+def p_FTrigonometricasAtanh(t):
+    'FTRIGONOMETRICAS  :   ATANH '
+
 def p_funcionAvg(t):
     'FUNCION    :   AVG'
 
@@ -541,6 +748,12 @@ def p_Alias(t):
 
 def p_AliasS(t):
     'ALIAS  :   ID '
+
+def p_AliasC(t):
+    'ALIAS  :   AS IDALIAS'
+
+def p_AliasCS(t):
+    'ALIAS  :   IDALIAS'
 
 def p_FromIdA(t):
     'PFROM  :   FROM ID ALIAS '
@@ -627,6 +840,12 @@ def p_CondicionM(t):
 def p_CondicionP(t):
     'CONDICION  :   MAS CONDICION %prec UMAS'
 
+def p_CondicionExtract(t):
+    'CONDICION  :   EXTRACT PABRE DATETIME FROM TIMESTAMP CADENA PCIERRA '
+
+def p_CondicionFuncionWhere(t):
+    'CONDICION  :   FUNCIONES_WHERE '
+
 def p_CondicionNum(t):
     'CONDICION  :   NUMERO '
 
@@ -647,6 +866,33 @@ def p_CondicionId(t):
 
 def p_CondicionIdP(t):
     'CONDICION  :   ID PUNTO ID '
+
+def p_DateTimeYear(t):
+    'DATETIME  :   YEAR '
+
+def p_DateTimeHour(t):
+    'DATETIME  :   HOUR '
+
+def p_DateTimeMinute(t):
+    'DATETIME  :   MINUTE '
+
+def p_DateTimeSecond(t):
+    'DATETIME  :   SECOND '
+
+def p_DateTimeMonth(t):
+    'DATETIME  :   MONTH '
+    
+def p_DateTimeDay(t):
+    'DATETIME  :   DAY '
+
+def p_FuncionesWhereExist(t):
+    'FUNCIONES_WHERE  :   EXISTS PABRE SUBCONSULTA PCIERRA   '
+
+def p_FuncionesWhereIn(t):
+    'FUNCIONES_WHERE  :   CONDICION IN PABRE SUBCONSULTA PCIERRA   '
+
+def p_FuncionesWhereNotIn(t):
+    'FUNCIONES_WHERE  :   CONDICION NOT IN PABRE SUBCONSULTA PCIERRA   '
 
 def p_empty(t):
     'EMPTY :'

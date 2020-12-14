@@ -29,17 +29,35 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'ALL','SOME','ANY','INNER','JOIN','LEFT','RIGTH','FULL','OUTER','NATURAL',
               'ASC','DESC','FIRST','LAST','NULLS',
               'CASE','WHEN','THEN','ELSE','END','LIMIT',
-              'UNION','INTERSECT','EXCEPT','OFFSET','GREATEST','LEAST','WHERE','DEFAULT','CASCADE','NO','ACTION'
+              'UNION','INTERSECT','EXCEPT','OFFSET','GREATEST','LEAST','WHERE','DEFAULT','CASCADE','NO','ACTION',
+              'COUNT','SUM','AVG','MAX','MIN',
+              'CBRT','CEIL','CEILING','DEGREES','DIV','EXP','FACTORIAL','FLOOR','GCD','IN','LOG','MOD','PI','POWER','ROUND',
+              'ACOS','ACOSD','ASIN','ASIND','ATAN','ATAND','ATAN2','ATAN2D','COS','COSD','COT','COTD','SIN','SIND','TAN','TAND',
+              'SINH','COSH','TANH','ASINH','ACOSH','ATANH',
+              'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
+              'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE'
               ]
 
 tokens = reservadas + ['PUNTO','PUNTO_COMA','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
                        'SIGNO_DIVISION','SIGNO_POR','NUMERO','NUM_DECIMAL','CADENA','ID','LLAVEABRE','LLAVECIERRE','CORCHETEABRE',
                        'CORCHETECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','MAYORQUE','MENORQUE',
-                       'MAYORIGUALQUE','MENORIGUALQUE']
+                       'MAYORIGUALQUE','MENORIGUALQUE',
+                       'SIGNO_PIPE','SIGNO_DOBLE_PIPE','SIGNO_AND','SIGNO_VIRGULILLA','SIGNO_NUMERAL','SIGNO_DOBLE_MENORQUE','SIGNO_DOBLE_MAYORQUE',
+                       'FECHA_HORA','F_HORA','COMILLA'
+                       ]
 
 
 # lista para definir las expresiones regulares que conforman los tokens.
 t_ignore = '\t\r '
+
+t_SIGNO_DOBLE_PIPE = r'\|\|'
+t_SIGNO_PIPE = r'\|'
+t_SIGNO_AND = r'\&'
+t_SIGNO_VIRGULILLA = r'\~'
+t_SIGNO_NUMERAL = r'\#'
+t_SIGNO_DOBLE_MENORQUE = r'\<\<'
+t_SIGNO_DOBLE_MAYORQUE = r'\>\>'
+
 t_PUNTO= r'\.'
 t_PUNTO_COMA = r'\;'
 t_COMA = r'\,'
@@ -61,6 +79,7 @@ t_MAYORQUE = r'\>'
 t_MENORQUE = r'\<'
 t_MAYORIGUALQUE = r'\>\='
 t_MENORIGUALQUE = r'\<\='
+t_COMILLA = r'\''
 
 
 # expresion regular para los id´s
@@ -75,12 +94,13 @@ def t_ID (t):
 # expresion regular para comentario de linea
 def t_COMMENT(t):
     r'--.*'
-    pass
+    t.lexer.lineno += 1
 
 # expresion regular para comentario de linea
-def t_COMMENT_MULTI(t):
-    r'[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]'
-    pass
+def t_COMMENT_MULT(t):
+    r'/\*(.|\n)?\*/'
+    t.lexer.lineno += t.value.count('\n')
+
 
 
 def t_NUM_DECIMAL(t):
@@ -94,7 +114,24 @@ def t_NUMERO(t):
     t.value = int(t.value)
     return t
 
+# expresion regular para reconocer formato hora
+def t_F_HORA(t):
+    r'\'\s*(\d+\s+(hours|HOURS))?(\s*\d+\s+(minutes|MINUTES))?(\s*\d+\s+(seconds|SECONDS))?\s*\''
+    t.value = t.value[1:-1]
+    return t
 
+# expresion regular para reconocer fecha_hora
+def t_FECHA_HORA(t):
+    r'\'\d+-\d+-\d+ \d+:\d+:\d+\''
+    t.value = t.value[1:-1]
+    return t
+    
+# expresion regular para reconocer cadenas
+def t_CADENA(t):
+    r'\".*?\"'
+    t.value = str(t.value)
+    t.value = t.value[1:-1]
+    return t
 
 # expresion regular para saltos de linea
 def t_newline(t):
@@ -120,7 +157,6 @@ def analizarLex(texto):
         if not tok : break
         #print(tok)
         textoreturn += str(tok) + "\n"
-
     return textoreturn 
 
 
@@ -135,7 +171,7 @@ precedence = (
     ('left','MAYORIGUALQUE','MENORIGUALQUE','MAYORQUE','MENORQUE'),
     ('left','SIGNO_MAS','SIGNO_MENOS'),
     ('left','SIGNO_POR','SIGNO_DIVISION'),
-    ('left','SIGNO_POTENCIA','SIGNO_MODULO')
+    ('left','SIGNO_POTENCIA','SIGNO_MODULO'),    
     )          
 
 
@@ -152,7 +188,9 @@ def p_instrucciones_evaluar(t):
                    | ins_show
                    | ins_alter
                    | ins_drop
-                   | ins_create '''
+                   | ins_create
+                   | ins_insert
+                   | ins_select'''
 
 def p_instruccion_use(t):
     '''ins_use : USE ID'''
@@ -265,7 +303,180 @@ def p_tipo_drop(t):
     '''tipo_drop : DATABASE if_exist ID PUNTO_COMA
                  | TABLE ID PUNTO_COMA'''
 
-    
+
+
+
+def p_ins_insert(t):
+    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA '''
+    print('INSERT INTO ID VALUES ( *values* )')
+
+
+def p_list_vls(t):
+    '''list_vls : list_vls COMA val_value
+                | val_value '''
+
+def p_val_value(t):
+    '''val_value : CADENA
+                |   NUMERO
+                |   NUM_DECIMAL
+                |   FECHA_HORA
+                |   TRUE
+                |   FALSE '''
+
+def p_ins_select(t):
+    '''ins_select : ins_select UNION option_all ins_select
+                    |    ins_select INTERSECT option_all ins_select
+                    |    ins_select EXCEPT option_all ins_select
+                    |   SELECT arg_distict colum_list FROM table_list arg_where '''
+
+def p_option_all(t):
+    '''option_all   :   ALL
+                    |    '''
+
+def p_arg_distict(t):
+    '''arg_distict :    DISTINCT
+                    |    '''
+
+def p_colum_list(t):
+    '''colum_list   : colum_list COMA columns as_id
+                        |   columns as_id
+                        |   SIGNO_POR '''
+
+
+def p_columns(t):
+    '''columns   : ID dot_table
+                    |   aggregates
+                    |   functions '''
+
+def p_dot_table(t):
+    '''dot_table    :   PUNTO ID
+                    |    '''
+
+def p_as_id(t): #  REVISRA CADENA Y AS CADENA
+    '''as_id    :   AS ID
+                    |   AS CADENA
+                    |   CADENA
+                    |   '''
+
+
+def p_aggregates(t):
+    '''aggregates   :   COUNT PARABRE param PARCIERRE
+                    |   SUM PARABRE param PARCIERRE
+                    |   AVG PARABRE param PARCIERRE
+                    |   MAX PARABRE param PARCIERRE
+                    |   MIN PARABRE param PARCIERRE ''' 
+
+def p_functions(t):
+    '''functions    :   math
+                    |   trig
+                    |   string_func
+                    |   time_func
+                     '''
+                    # CORREGIR GRAMATICA <STRING_FUNC>
+
+def p_math(t):
+    '''math :   AVG PARABRE NUMERO PARCIERRE
+                |   CBRT PARABRE NUMERO PARCIERRE
+                |   CEIL PARABRE NUMERO PARCIERRE
+                |   CEILING PARABRE NUMERO PARCIERRE
+                |   DEGREES PARABRE NUMERO PARCIERRE
+                |   DIV PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   EXP PARABRE NUMERO PARCIERRE
+                |   FACTORIAL PARABRE NUMERO PARCIERRE
+                |   FLOOR PARABRE NUMERO PARCIERRE
+                |   GCD PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   IN PARABRE NUMERO PARCIERRE
+                |   LOG PARABRE NUMERO PARCIERRE
+                |   MOD PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   PI PARABRE  PARCIERRE
+                |   POWER PARABRE NUMERO COMA NUMERO PARCIERRE 
+                |   ROUND PARABRE NUMERO PARCIERRE '''
+
+def p_trig(t):
+    '''trig :   ACOS PARABRE NUMERO PARCIERRE
+                |   ACOSD PARABRE NUMERO PARCIERRE
+                |   ASIN PARABRE NUMERO PARCIERRE
+                |   ASIND PARABRE NUMERO PARCIERRE
+                |   ATAN PARABRE NUMERO PARCIERRE
+                |   ATAND PARABRE NUMERO PARCIERRE
+                |   ATAN2 PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   ATAN2D PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   COS PARABRE NUMERO PARCIERRE
+                |   COSD PARABRE NUMERO PARCIERRE
+                |   COT PARABRE NUMERO PARCIERRE
+                |   COTD PARABRE NUMERO PARCIERRE
+                |   SIN PARABRE NUMERO PARCIERRE
+                |   SIND PARABRE NUMERO PARCIERRE
+                |   TAN PARABRE NUMERO PARCIERRE
+                |   TAND PARABRE NUMERO PARCIERRE
+                |   SINH PARABRE NUMERO PARCIERRE
+                |   COSH PARABRE NUMERO PARCIERRE
+                |   TANH PARABRE NUMERO PARCIERRE
+                |   ASINH PARABRE NUMERO PARCIERRE
+                |   ACOSH PARABRE NUMERO PARCIERRE
+                |   ATANH PARABRE NUMERO PARCIERRE  '''
+
+def p_string_func(t):   # CORREGIR GRAMÁTICA
+    '''string_func  :   LENGTH PARABRE s_param PARCIERRE
+                    |   SUBSTRING PARABRE s_param COMA NUMERO COMA NUMERO PARCIERRE
+                    |   SUBSTRING PARABRE s_param COMA s_param COMA CADENA PARCIERRE
+                    |   TRIM PARABRE s_param PARCIERRE
+                    |   GET_BYTE PARABRE s_param COMA NUMERO PARCIERRE
+                    |   MOD5 PARABRE s_param PARCIERRE
+                    |   SET_BYTE PARABRE COMA NUMERO COMA NUMERO s_param PARCIERRE
+                    |   SHA256 PARABRE s_param PARCIERRE
+                    |   SUBSTR PARABRE s_param COMA NUMERO COMA NUMERO PARCIERRE
+                    |   CONVERT PARABRE tipo_dato COMA ID dot_table PARCIERRE
+                    |   ENCODE PARABRE s_param COMA s_param PARCIERRE
+                    |   DECODE PARABRE s_param COMA s_param PARCIERRE '''
+
+def p_s_param(t):
+    '''s_param  :   s_param string_op CADENA
+                |   CADENA '''
+
+def p_string_op(t):
+    '''string_op    :   SIGNO_PIPE
+                    |   SIGNO_DOBLE_PIPE
+                    |   SIGNO_AND
+                    |   SIGNO_VIRGULILLA
+                    |   SIGNO_NUMERAL
+                    |   SIGNO_DOBLE_MENORQUE
+                    |   SIGNO_DOBLE_MAYORQUE'''
+
+
+def p_time_func(t):
+    '''time_func    :   DATE_PART PARABRE COMILLA h_m_s COMILLA COMA INTERVAL F_HORA PARCIERRE 
+                    |   NOW PARABRE PARCIERRE
+                    |   EXTRACT PARABRE reserv_time  FROM TIMESTAMP  PARCIERRE
+                    |   CURRENT_TIME
+                    |   CURRENT_DATE'''
+
+def p_reserv_time(t):
+    '''reserv_time  :   h_m_s 
+                    |   YEAR
+                    |   MONTH
+                    |   DAY'''
+
+def p_h_m_s(t):
+    '''h_m_s    :   HOUR
+                    |   MINUTE
+                    |   SECOND '''
+
+def p_param(t):
+    '''param    :   ID dot_table
+                |   SIGNO_POR '''
+
+def p_table_list(t):
+    '''table_list   :   table_list COMA ID
+                    |   ID '''
+
+def p_arg_where(t):
+    '''arg_where    :   WHERE list_exp
+                    |    '''
+
+def p_list_expressions(t):
+    '''list_exp    :    ID
+                    |    '''
 
 
 
@@ -287,3 +498,4 @@ def p_error(t):
 def analizarSin(texto):    
     parser = yacc.yacc()
     parser.parse(texto)# el parametro cadena, es la cadena de texto que va a analizar.
+
