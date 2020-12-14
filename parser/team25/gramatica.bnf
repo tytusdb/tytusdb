@@ -320,10 +320,12 @@
                 | <EXPRESION>  '-'  <EXPRESION>
                 | <EXPRESION>  '*'  <EXPRESION>
                 | <EXPRESION>  '/'  <EXPRESION>
-                | <EXPRESION> 'between' <EXPRESION> 'and' <EXPRESION>
-                | <EXPRESION> 'not' 'between' <EXPRESION> 'and' <EXPRESION>
-                | <EXPRESION> 'between' 'symmetric' <EXPRESION> 'and' <EXPRESION>
-                | <EXPRESION> 'not' 'between' 'symmetric' <EXPRESION> 'and' <EXPRESION>
+                | <EXPRESION>  '%'  <EXPRESION>
+                | <EXPRESION>  '^'  <EXPRESION>
+                | <EXP_AUX> 'between' <EXP_AUX> 'and' <EXP_AUX>
+                | <EXP_AUX> 'not' 'between' <EXP_AUX> 'and' <EXP_AUX>
+                | <EXP_AUX> 'between' 'symmetric' <EXP_AUX> 'and' <EXP_AUX>
+                | <EXP_AUX> 'not' 'between' 'symmetric' <EXP_AUX> 'and' <EXP_AUX>
                 | <EXPRESION> 'is' 'distinct' 'from' <EXPRESION>
                 | <EXPRESION> 'is' 'not' 'distinct' 'from' <EXPRESION>
                 | <EXPRESION> 'is' 'null'
@@ -344,6 +346,23 @@
                 | '(' <EXPRESION> ')'
                 | <FUNCIONES>
                 | <TIMESTAMP>
+
+<EXP_AUX>::= '-'  <EXP_AUX>
+          |    '+'  <EXP_AUX>
+          | <EXP_AUX>  '+'  <EXP_AUX>
+          | <EXP_AUX>  '-'  <EXP_AUX>
+          | <EXP_AUX>  '*'  <EXP_AUX>
+          | <EXP_AUX>  '/'  <EXP_AUX>
+          | <EXP_AUX>  '%'  <EXP_AUX>
+          | <EXP_AUX>  '^'  <EXP_AUX>
+          | 'cadena'
+          | 'numero'
+          | 'decimal'
+          | 'id' '.' 'id'
+          | 'id'
+          | '(' <EXP_AUX> ')'
+          | <FUNCIONES>
+          | <TIMESTAMP>
 
     <FUNCIONES> ::= 'length' '(' 'id' ')'
                     |   'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
