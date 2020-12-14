@@ -36,7 +36,7 @@ import Instrucciones
 
 def p_init(t):
     """init : stmtList"""
-    t[0] = t[1].execute()
+    t[0] = t[1]
 
 def p_stmt_list(t):
     """stmtList : stmtList stmt"""
@@ -60,7 +60,7 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
-    t[0] = t[1]
+    t[0] = t[1].execute()
 
 # Statement para el CREATE
 # region CREATE
@@ -546,7 +546,6 @@ def p_ifExists(t):
 # region SELECT
 def p_selectStmt(t):
     """selectStmt : R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
-    | R_SELECT selectParams
     | R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl
     | selectStmt R_UNION allOpt selectStmt
     | selectStmt R_INTERSECT allOpt selectStmt
@@ -554,26 +553,55 @@ def p_selectStmt(t):
     | S_PARIZQ selectStmt S_PARDER
     """
 
+def p_selectstmt_only_params(t):
+    """selectStmt : R_SELECT selectParams
+    """
+    t[0] = Instrucciones.SelectOnlyParams(t[2].params)
+
 def p_allOpt(t):
     """allOpt : R_ALL
         |
     """
 
-def p_selectParams(t):
-    """selectParams : O_PRODUCTO
-     | selectList
-    """
+def p_selectparams_all(t):
+    """selectParams : O_PRODUCTO"""
+    t[0] = Instrucciones.SelectParams(Instrucciones.SELECT_MODE.ALL)
 
-def p_selectList(t):
-    """selectList : selectList S_COMA expresion optAlias
-                  | expresion optAlias
-    """
+def p_selectparams_params(t):
+    """selectParams : selectList"""
+    t[0] = Instrucciones.SelectParams(Instrucciones.SELECT_MODE.PARAMS, t[1])
 
-def p_optAlias(t):
-    """optAlias : R_AS ID
-    | ID
-    |
+#cambiar datatype - expresion optAlias
+def p_selectList_list(t):
+    """selectList : selectList S_COMA datatype optAlias"""
+    if t[4] != None: t[3].temp = t[4]
+    t[1].append(t[3])
+    t[0] = t[1]
+
+#cambiar datatype - expresion optAlias
+def p_selectList_u(t):
+    """selectList : datatype optAlias"""
+    if t[2] != None: t[1].temp = t[2]
+    t[0] = [t[1]]
+
+
+def p_optalias_as(t):
     """
+    optAlias : R_AS ID
+    | R_AS STRING
+    """
+    t[0] = t[2]
+
+def p_optalias_id(t):
+    """
+    optAlias : ID
+    | STRING
+    """
+    t[0] = t[1]
+
+def p_optalias_none(t):
+    """optAlias : """
+    t[0] = None
 
 def p_tableExp(t):
     """tableExp : tableExp S_COMA fromBody optAlias
@@ -752,7 +780,8 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 s = """
-    True +  True
+    SELECT 3+6*9-1 AS "test 1", 2-2 test, 4*4/4, 5+9-1+2*5;
+    SELECT "prueba" || "1";
 """
 result = parser.parse(s)
-print(result.value)
+print(result)

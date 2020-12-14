@@ -124,6 +124,7 @@ def p_function(t):
                 | AVG PARA exp PARC
                 | MAX PARA exp PARC
                 | MIN PARA exp PARC
+                | COUNT PARA exp PARC
                 | LENGTH PARA exp PARC
                 | SUBSTRING PARA exp COMA INT COMA INT PARC
                 | TRIM PARA exp PARC
@@ -190,6 +191,9 @@ def p_expcaseIn(t):
 
 def p_expcaseNotIn(t):
     'exp_case : exp NOT IN PARA query PARC'
+
+def p_expcaseBetween(t):
+    'exp_case: exp between exp AND exp'
 
 def p_expSingle(t):
     '''exp : INT
