@@ -1,4 +1,4 @@
-from shared import Instruction
+from models.instructions.shared import Instruction
 '''
     Lenguaje de Definición de Datos (DDL) =======================================================================================================================
 '''
