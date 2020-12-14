@@ -665,6 +665,61 @@ def p_ValorFTrigonometricas(t):
 def p_ValorFTrigonometricasAlias(t):
     'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA ALIAS '
 
+def p_ValorGreatest(t):
+    'VALOR  :   GREATEST PABRE LNUM PCIERRA '
+
+def p_ValorLeast(t):
+    'VALOR  :   LEAST PABRE LNUM PCIERRA '
+
+def p_ValorGreatestAlias(t):
+    'VALOR  :   GREATEST PABRE LNUM PCIERRA ALIAS'
+
+def p_ValorLeastAlias(t):
+    'VALOR  :   LEAST PABRE LNUM PCIERRA ALIAS'
+
+def p_ValorRandomA(t):
+    'VALOR  :   RANDOM PABRE PCIERRA ALIAS'
+
+def p_ValorRandom(t):
+    'VALOR  :   RANDOM PABRE PCIERRA '
+
+def p_ValorPiAlias(t):
+    'VALOR  :   PI PABRE PCIERRA   ALIAS '
+    
+def p_ValorPi(t):
+    'VALOR  :   PI PABRE PCIERRA '
+
+def p_ValorFuncionesDecodeA(t):
+    'VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA ALIAS   '
+
+def p_ValorFuncionesDecode(t):
+    'VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA   '
+
+def p_ValorFuncionesEncodeA(t):
+    'VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA ALIAS   '
+
+def p_ValorFuncionesEncode(t):
+    'VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA   '
+
+def p_ValorFuncionesConvertDate(t):
+    'VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA   '
+
+def p_ValorFuncionesConvertInt(t):
+    'VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA   '
+
+def p_ValorFuncionesConvertDateA(t):
+    'VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA ALIAS   '
+
+def p_ValorFuncionesConvertIntA(t):
+    'VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA ALIAS   '
+
+def p_ValorFuncionesSha(t):
+    'VALOR  :   SHA256 PABRE CADENA PCIERRA   '
+
+def p_ValorFuncionesShaA(t):
+    'VALOR  :   SHA256 PABRE CADENA PCIERRA ALIAS   '
+
+
 def p_FTrigonometricasAcos(t):
     'FTRIGONOMETRICAS  :   ACOS '
 
@@ -893,6 +948,42 @@ def p_FuncionesWhereIn(t):
 
 def p_FuncionesWhereNotIn(t):
     'FUNCIONES_WHERE  :   CONDICION NOT IN PABRE SUBCONSULTA PCIERRA   '
+
+def p_FuncionesWhereAny(t):
+    'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW ANY PABRE SUBCONSULTA PCIERRA   '
+
+def p_FuncionesWhereAll(t):
+    'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW ALL PABRE SUBCONSULTA PCIERRA   '
+
+def p_FuncionesWhereSome(t):
+    'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW SOME PABRE SUBCONSULTA PCIERRA   '
+
+def p_FuncionesWhereLike(t):
+    'FUNCIONES_WHERE  :   CONDICION LIKE CADENA   '
+
+def p_FuncionesWhereNotLike(t):
+    'FUNCIONES_WHERE  :   CONDICION NOT LIKE CADENA   '
+
+def p_OperatorFwMenor(t):
+    'OPERATOR_FW  :   MENOR   '
+
+def p_OperatorFwMayor(t):
+    'OPERATOR_FW  :   MAYOR   '
+
+def p_OperatorFwMenorIgual(t):
+    'OPERATOR_FW  :   MENORIGUAL   '
+
+def p_OperatorFwMayorIgual(t):
+    'OPERATOR_FW  :   MAYORIGUAL   '
+
+def p_OperatorFwIgual(t):
+    'OPERATOR_FW  :   IGUAL   '
+
+def p_OperatorFwDif(t):
+    'OPERATOR_FW  :   DIF   '
+
+def p_OperatorFwDif1(t):
+    'OPERATOR_FW  :   DIF1   '
 
 def p_empty(t):
     'EMPTY :'
