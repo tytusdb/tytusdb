@@ -8,6 +8,10 @@ class CreateTable(Instruccion):
         self.campos = campos
         self.idInherits = idInherits
 
+
+
+
+
 class Campo(Instruccion):
     '''#1 ID tipo
        #2 CONSTRAINT
