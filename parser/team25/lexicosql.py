@@ -2,7 +2,12 @@
 palabrasReservadas = {
     'insert':'INSERT',
     'varchar':'VARCHAR',
-    'columns':'COLUMNS',                 
+    'columns':'COLUMNS', 
+    'column':'COLUMN',
+    'natural':'NATURAL',
+    'outer':'OUTER',
+    'bytea':'BYTEA',
+    'sign':'SIGN',               
     'rename':'RENAME',
     'asc':'ASC',
     'desc':'DESC',
@@ -156,7 +161,8 @@ palabrasReservadas = {
     'atand':'ATAND',
     'atan2':'ATAN2',
     'atan2d':'ATAN2D',
-    'cos':'COSD',
+    'cos':'COS',
+    'cosd':'COSD',
     'cot':'COT',
     'cotd':'COTD',
     'sin':'SIN',
@@ -186,8 +192,6 @@ palabrasReservadas = {
     'end':'END',
     'greatest':'GREATEST',
     'least':'LEAST'
-    
-    
 }
 tokens = [
     # corchetes no porque dijo el aux que no venia
@@ -222,7 +226,8 @@ tokens = [
     'NUMERAL',
     'BITWISE_NOT',
     'CORRIMIENTO_DER',
-    'CORRIMIENTO_IZQ'
+    'CORRIMIENTO_IZQ',
+    'NOTBETWEEN'
 ] + list(palabrasReservadas.values())
 
 
@@ -254,6 +259,11 @@ t_PABRE = r'\('
 t_PCIERRA = r'\)'
 t_COMA = r','
 
+
+def t_NOTBETWEEN(t):
+    r'[Nn][Oo][tT][ ]+[Bb][eE][tT][wW][eE][eE][nN]'
+    t.type = 'NOTBETWEEN'
+    return t
 # funcion para id, aca tambien se reconocen las palabras reservadas
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -327,10 +337,9 @@ import ply.lex as lex
 lexer = lex.lex()
 
 # para debugger los nuevos tokens
-
 # lexer.input('''
-# ''
-# 'cadena'
+#     NOT BETWEEN 
+#     BETWEEN NOT 
 # ''')
 # while not False:
 #     token = lexer.token()
