@@ -8,8 +8,11 @@ import ts as TS
 from expresiones import *
 from instrucciones import *
 from ast import *
+from report_tc import *
 
 instrucciones_Global = []
+
+tc_global1 = []
 
 root = Tk() 
 w, h = root.winfo_screenwidth(), root.winfo_screenheight()
@@ -21,12 +24,13 @@ selected = False
 
 # ACTIONS
 def analizar(txt):
-    global instrucciones_Global
+    global instrucciones_Global,tc_global1
     instrucciones = g.parse(txt)
     instrucciones_Global = instrucciones
     ts_global = TS.TablaDeSimbolos()
-    
-    salida = procesar_instrucciones(instrucciones, ts_global)
+    tc_global = TC.TablaDeTipos()
+    tc_global1 = tc_global
+    salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
 
     print("analizando...")
     print(txt)
@@ -42,7 +46,9 @@ def analizar_select(e):
         instrucciones = g.parse(selected)
         instrucciones_Global = instrucciones
         ts_global = TS.TablaDeSimbolos()
-        salida = procesar_instrucciones(instrucciones, ts_global)
+        tc_global = TC.TablaDeTipos()
+        tc_global1 = tc_global
+        salida = procesar_instrucciones(instrucciones, ts_global,tc_global)
         salida_table(2,salida)
 
 def generarReporteAST():
@@ -50,6 +56,10 @@ def generarReporteAST():
     astGraph = AST()
     astGraph.generarAST(instrucciones_Global)
 
+def generarReporteTC():
+    global tc_global1
+    typeC = TipeChecker()
+    typeC.crearReporte(tc_global1)
 
 def graficar_TS():
     ''' '''
@@ -94,6 +104,7 @@ file_menu.add_command(label = "Exit", command = root.quit)
 reportes_menu = Menu(my_menu, tearoff = False)
 my_menu.add_cascade(label = "Reportes", menu = reportes_menu)
 reportes_menu.add_command(label = "Tabla de Simbolos", command = lambda: graficar_TS())
+reportes_menu.add_command(label = "Tabla de Tipos", command = lambda: generarReporteTC())
 reportes_menu.add_command(label = "AST", command = lambda: generarReporteAST())
 reportes_menu.add_command(label = "Errores")
 
