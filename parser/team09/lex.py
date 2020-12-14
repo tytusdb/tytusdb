@@ -39,24 +39,24 @@ reservadas = {
     'check'     : 'CHECK',
     'references': 'REFERENCES',
     'smallint'  : 'SMALLINT',
-    'begint'    : 'BEGINT',
+    'bigint'    : 'BIGINT',
     'decimal'   : 'DECIMAL',
     'real'      : 'REAL',
-    'double '   : 'DOUBLE',
+    'double'    : 'DOUBLE',
     'precision' : 'PRECISION',
     'money'     : 'MONEY',
-    'character ': 'CHARACTER',
+    'character' : 'CHARACTER',
     'varying'   : 'VARYING',
     'varchar'   : 'VARCHAR',
     'char'      : 'CHAR',
-    'timestamp ': 'TIMESTAMP',
+    'timestamp' : 'TIMESTAMP',
     'data'      : 'DATA',
     'time'      : 'TIME',
     'interval'  : 'INTERVAL',
     'with'      : 'WITH',
     'without'   : 'WITHOUT',
     'zone'      : 'ZONE',
-    'column '   : 'COLUMN',
+    'column'    : 'COLUMN',
     'add'       : 'ADD',
     'delete'    : 'DELETE',
     'from'      : 'FROM',
@@ -84,7 +84,9 @@ reservadas = {
     'order'     : 'ORDER',
     'by'        : 'BY', 
     'asc'       : 'ASC',
-    'desc'      : 'DESC'
+    'desc'      : 'DESC',
+    'inherits'  : 'INHERITS',
+    'distinct'  : 'DISTINCT'
 }
 
 # Lista de tokens
@@ -95,7 +97,6 @@ tokens = [
     'PTCOMA',
     'MAYIG',
     'MENIG',
-    'IGUAQ',
     'DIFEQ',
     'MAYOR',
     'MENOR',
@@ -108,7 +109,8 @@ tokens = [
     'CADENA',
     'ID',
     'DECIMA',
-    'ENTERO'
+    'ENTERO',
+    'PUNTO'
 ] + list(reservadas.values())
 
 # Expresiones regulares par los tokens
@@ -118,7 +120,6 @@ t_PARDER = r'\)'
 t_PTCOMA = r';'
 t_MAYIG = r'>='
 t_MENIG = r'<='
-t_IGUAQ = r'=='
 t_DIFEQ = r'<>'
 t_MAYOR = r'>'
 t_MENOR = r'<'
@@ -128,8 +129,17 @@ t_MENOS = r'-'
 t_SUMAS = r'\+'
 t_DIVIS = r'/'
 t_POTEN = r'\^'
+t_PUNTO = r'.'
 
 t_ignore = " \t"
+
+def t_COMENTARIO_S(t):
+    r'--.*\n'
+    t.lexer.lineno += 1
+
+def t_COMENTARIO_M(t):
+    r'/\*(.|\n)*?\*/'
+    t.lexer.lineno += t.value.count('\n')
 
 def t_ID(t):
      r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -174,7 +184,7 @@ precedence = (
     ('left','MULTI','DIVIS'),
     ('left','POTEN'),
     ('right','UMENOS', 'USUMAS'),
-    ('left','MAYIG','MENIG','IGUAQ','DIFEQ','MAYOR','MENOR'),
+    ('left','MAYIG','MENIG','IGUAL','DIFEQ','MAYOR','MENOR'),
     ('right','NOT'),
     ('left','AND'),
     ('left','OR'),
@@ -212,69 +222,58 @@ def p_entrada(t):
 #region 'Select Analisis'
 
 def p_s_select(p):
-    '''s_select : SELECT list_cols FROM list_from list_joins list_conditions list_order PTCOMA'''
+    '''s_select : SELECT DISTINCT list_cols FROM list_from list_joins list_conditions list_order PTCOMA
+                | SELECT DISTINCT list_cols FROM list_from list_conditions list_order PTCOMA
+                | SELECT list_cols FROM list_from list_joins list_conditions list_order PTCOMA
+                | SELECT list_cols FROM list_from list_conditions list_order PTCOMA'''
     print('Select statement')
 
 def p_list_cols(p):
-    '''list_cols : list_cols COMA ID
-                  | ID 
+    '''list_cols :  list_alias
                   | MULTI'''
     print('columna: ' + str(p[1]))
 
+def p_list_alias(p):
+    '''list_alias : list_alias COMA ID PUNTO ID AS ID
+                  | list_alias COMA ID PUNTO ID
+                  | list_alias list_from
+                  | ID PUNTO ID AS ID
+                  | ID PUNTO ID
+                  | list_from'''
+
 def p_list_from(p):
-    '''list_from : list_from COMA ID
+    '''list_from :  list_from COMA ID AS ID
+                  | list_from COMA ID
+                  | ID AS ID
                   | ID '''
-    print('tabla: ' + str(p[1]))
 
 def p_list_joins(p):
     '''list_joins : list_joins join_type JOIN ID join_conditions 
+                  | list_joins JOIN ID join_conditions 
                   | join_type JOIN ID join_conditions
-                  | empty'''
-    
+                  | JOIN ID join_conditions'''
 
 def p_join_type(p):
-    '''join_type : INNER 
+    '''join_type : LEFT OUTER
+                 | RIGHT OUTER
+                 | FULL OUTER
                  | LEFT
                  | RIGHT
                  | FULL
-                 | OUTER 
-                 | empty '''
-    print('Join Type: ' + str(p[1]))
+                 | INNER'''
 
 def p_join_conditions(p):
-    '''join_conditions : ON ID sel_comp ID
-                       | ON ID sel_comp data_type
-                       | empty'''
+    '''join_conditions : ON expresion
+                       | '''
 
 def p_list_conditions(p):
-    '''list_conditions : WHERE sel_cond
-                       | empty '''
-
-def p_sel_cond(p):
-    '''sel_cond : sel_cond AND sel_cond
-                | ID sel_comp ID
-                | ID sel_comp data_type'''
-    print('where condition: ' + str(p[1]))
+    '''list_conditions : WHERE expresion
+                       | '''
 
 def p_list_order(p):
     '''list_order : ORDER BY ID ASC
                   | ORDER BY ID DESC  
-                  | empty'''
-    print('Order by')
-
-def p_selcomp(p):
-    '''sel_comp : IGUAL
-                | MAYIG
-                | MENIG
-                | DIFEQ
-                | MAYOR
-                | MENOR '''
-    
-
-def p_empty(p):
-    '''empty : '''
-    
-    pass
+                  | '''
 
 #end region 
 
@@ -282,28 +281,18 @@ def p_create_type(t):
     'create_type : CREATE TYPE ID AS c_type PTCOMA'
 	
 def p_c_type(t):
-    '''c_type : ENUM  PARIZQ lista
-            | PARIZQ lista'''
-
-def p_lista(t):
-    'lista : id_cadena lista1'
+    '''c_type : ENUM  PARIZQ lista1 PARDER'''
 
 def p_lista1(t):
-    '''lista1 : lista1 COMA id_cadena
-            | lista1 PARDER
-            | COMA id_cadena
-            | PARDER'''
-
-def p_id_cadena(t):
-    '''id_cadena : ID data_type
-                | CADENA'''
-    print(t[1])
+    '''lista1 : lista1 COMA CADENA
+            | CADENA'''
 
 def p_data_type(t):
-    '''data_type : ENTERO
+    '''data_type : NUMERIC
+            | INTEGER
             | TEXT
             | SMALLINT 
-            | BEGINT
+            | BIGINT
             | DECIMAL
             | REAL
             | DOUBLE PRECISION
@@ -317,40 +306,44 @@ def p_data_type(t):
             | DATA
             | TIME
             | TIME time_zone
-            | INTERVAL'''
+            | INTERVAL
+            | ID'''
 
 def p_time_zone(t):
     '''time_zone    : WITH TIME ZONE
                     | WITHOUT TIME ZONE'''
 
 def p_create_db(t):
-    'create_db : CREATE c_db'
+    '''create_db : CREATE DATABASE c_db PTCOMA
+                 | CREATE OR REPLACE DATABASE c_db PTCOMA'''
 
 def p_c_db(t):
-    '''c_db : OR REPLACE DATABASE c_db1
-            | DATABASE c_db1'''
+    '''c_db : IF NOT EXISTS c_db1
+            | c_db1'''
 
 def p_c_db1(t):
-    '''c_db1 : IF NOT EXISTS ID owner_mode
-            | ID owner_mode'''
+    '''c_db1 : ID owner_mode
+             | ID'''
 
 def p_owner_mode(t):
-    '''owner_mode : owner_mode OWNER igual_id
-                | owner_mode MODE igual_id
-                | owner_mode PTCOMA
-                | OWNER igual_id
-                | MODE igual_id
-                | PTCOMA'''
+    '''owner_mode : owner_mode OWNER igual_id 
+                  | owner_mode MODE igual_int
+                  | OWNER igual_id 
+                  | MODE igual_int'''
 
 def p_igual_id(t):
     '''igual_id : IGUAL ID
                 | ID'''
 
+def p_igual_int(t):
+    '''igual_int : IGUAL ENTERO
+                | ENTERO'''
+
 def p_show_db(t):
     'show_db : SHOW DATABASES like_id'
 
 def p_like_db(t):
-    '''like_id : LIKE ID PTCOMA
+    '''like_id : LIKE CADENA PTCOMA
                 | PTCOMA'''
 
 def p_alter_db(t):
@@ -364,12 +357,14 @@ def p_owner_db(t):
     '''owner_db : ID
                 | CURRENT_USER
                 | SESSION_USER'''
+
 def p_drop_db(t):
-    '''drop_db  : DROP DATABASE PTCOMA
-                | DROP DATABASE IF EXISTS PTCOMA'''
+    '''drop_db  : DROP DATABASE ID PTCOMA
+                | DROP DATABASE IF EXISTS ID PTCOMA'''
 
 def p_create_table(t): 
-    'create_table   : CREATE TABLE ID PARIZQ values PARDER PTCOMA'
+    '''create_table   : CREATE TABLE ID PARIZQ values PARDER PTCOMA
+                      | CREATE TABLE ID PARIZQ values PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
 
 def p_values(t):
     '''values   : colum_list
@@ -383,27 +378,27 @@ def p_colum_list(t):
 
 def p_const_keys(t):
     '''const_keys   : const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
-                    | const_keys COMA FOREIGN KEY PARIZQ PARDER REFERENCES PARIZQ lista_id PARDER
+                    | const_keys COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
                     | PRIMARY KEY PARIZQ lista_id PARDER
-                    | FOREIGN KEY PARIZQ PARDER REFERENCES PARIZQ lista_id PARDER'''
+                    | FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
 
 def p_const(t):
-    '''const    : const DEFAULT val
+    '''const    : const DEFAULT valores
                 | const NOT NULL
                 | const NULL
                 | const CONSTRAINT ID  UNIQUE
                 | const UNIQUE
-                | const CONSTRAINT ID CHECK PARIZQ PARDER
-                | const CHECK PARIZQ PARDER
+                | const CONSTRAINT ID CHECK PARIZQ expresion PARDER
+                | const CHECK PARIZQ expresion PARDER
                 | const PRIMARY KEY
                 | const REFERENCES ID
-                | DEFAULT val
+                | DEFAULT valores
                 | NOT NULL
                 | NULL
-                | CONSTRAINT ID  UNIQUE
+                | CONSTRAINT ID UNIQUE
                 | UNIQUE
-                | CONSTRAINT ID CHECK PARIZQ PARDER
-                | CHECK PARIZQ PARDER
+                | CONSTRAINT ID CHECK PARIZQ expresion PARDER
+                | CHECK PARIZQ expresion PARDER
                 | PRIMARY KEY
                 | REFERENCES ID'''
 
@@ -411,19 +406,19 @@ def p_lista_id(t):
     '''lista_id : lista_id COMA ID
                 | ID'''
 
-def p_val(t):
-    '''val  : ENTERO'''
-
 def p_drop_table(t):
     'drop_table : DROP TABLE ID PTCOMA'
 
 def p_alter_table(t):
-    'alter_table    : ALTER TABLE ID acciones'
+    'alter_table    : ALTER TABLE ID acciones PTCOMA'
 
 def p_acciones(t):
     '''acciones : ADD acc
+                | ADD COLUMN ID data_type
                 | ALTER COLUMN ID TYPE data_type
+                | ALTER COLUMN ID SET const
                 | DROP CONSTRAINT ID
+                | DROP COLUMN ID
                 | RENAME COLUMN ID TO ID'''
 
 def p_acc(t):
@@ -432,11 +427,13 @@ def p_acc(t):
 
 def p_delete(t):
     '''s_delete : DELETE FROM ID PTCOMA
-                | DELETE FROM ID WHERE ID IGUAL expresion PTCOMA '''
+                | DELETE FROM ID WHERE expresion PTCOMA '''
 
 def p_insert(t):
-    '''s_insert : INSERT INTO ID PARIZQ lista_id PARDER VALUES lista_values PTCOMA '''
-                #| INSERT INTO ID PARIZQ lista_id PARDER s_select''' 
+    '''s_insert : INSERT INTO ID PARIZQ lista_id PARDER VALUES lista_values PTCOMA
+                | INSERT INTO ID VALUES lista_values PTCOMA '''
+                #| INSERT INTO ID PARIZQ lista_id PARDER s_select
+                #| INSERT INTO ID s_select''' 
 
 def p_lista_values(t):
     '''lista_values : lista_values COMA PARIZQ lista_valores PARDER
@@ -453,7 +450,7 @@ def p_valores(t):
 
 def p_s_update(t):
     '''s_update : UPDATE ID SET lista_asig PTCOMA
-                | UPDATE ID SET lista_asig WHERE ID IGUAL expresion PTCOMA'''
+                | UPDATE ID SET lista_asig WHERE expresion PTCOMA'''
 
 def p_lista_asig(t):
     '''lista_asig : lista_asig COMA ID IGUAL valores
@@ -467,7 +464,7 @@ def p_expresion(t):
                  | expresion MENOR expresion
                  | expresion MAYIG expresion
                  | expresion MENIG expresion
-                 | expresion IGUAQ expresion
+                 | expresion IGUAL expresion
                  | expresion DIFEQ expresion
                  | MENOS expresion %prec UMENOS
                  | SUMAS expresion %prec USUMAS
@@ -483,6 +480,7 @@ def p_expresion(t):
                  | PI
                  | POWER PARIZQ expresion PARDER
                  | SQRT PARIZQ expresion PARDER
+                 | ID
                  | valores'''
 
 def p_error(t):
