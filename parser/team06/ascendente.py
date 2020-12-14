@@ -4,6 +4,7 @@ import re
 import reportes as h
 import TablaDeSimbolos as TS
 from queries import *
+from expresiones import *
 from math import *
 import storageManager.jsonMode as store
 import reportes as h
@@ -16,6 +17,51 @@ def procesar_showdb(query,ts):
     print(store.showDatabases())
     #llamo al metodo de EDD
 
+def procesar_insertBD(query,ts):
+    print("entra a insert")
+    print("entra al print con: ",query.idTable, query.listRegistros)
+    h.textosalida+="TYTUS>> Insertando registro de una tabla"
+
+def procesar_updateinBD(query,ts):
+    print("entro a update")
+    print("entro al print con: ",query.idTable,query.asignaciones,query.listcond)
+    h.textosalida+="TYTUS>> Actualizando datos en la tabla"
+
+def procesar_deleteinBD(query,ts):
+    print("entra a delete from")
+    print("entra al print con: ",query.idTable)
+    h.textosalida+="TYTUS>> Eliminando registro de una tabla"
+    #llamada de funcion
+
+def procesar_createTale(query,ts):
+    print("entra a Create table")
+    print("entra al print con: ",query.idTable)
+    print(query.listColumn)
+    #print("cantidad de columnas: ",len(query.listColumn))
+    for i in query.listColumn:
+        print(i.idColumna,i.TipoColumna)
+        if i.RestriccionesCol != None:
+            for res in i.RestriccionesCol:
+                print(res.typeR)
+                print(res.objrestriccion.valor)
+                if res.typeR == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
+                    print("columna con restriccion llave primaria")
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.DEFAULT:
+                    print("columna con un valor por default")
+                    print("valor: ",res.objrestriccion.valor) #<---- correccion
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NULL:
+                    print("columna que puede ser nulo")
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NOT_NULL:
+                    print("columna que no debe ser nulo")
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT:
+                    print("columna que debe ser unico definicon con constraint")
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA:
+                    print("columna que debe ser unico")
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
+                    print("Columna con restriccion check")
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
+                    print("Columna con restricion check definido con constraint")
+    h.textosalida+="TYTUS>>Creando tabla"
 def drop_table(query,ts):
     print("voy a imprimir los valores del drop :v")
     print("aqui viene el id de la tabla a dropear:",query.id)
@@ -53,6 +99,11 @@ def procesar_queries(queries, ts) :
     ## lista de instrucciones recolectadas
     for query in queries :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
+        elif isinstance(query, InsertinDataBases) : procesar_insertBD(query,ts)
+        elif isinstance(query, UpdateinDataBase) : procesar_updateinBD(query,ts)
+        elif isinstance(query, DeleteinDataBases) : procesar_deleteinBD(query, ts)
+        elif isinstance(query, CreateTable) : procesar_createTale(query,ts)
+        #elif
         #elif isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query,DropTable): drop_table(query,ts)
         elif isinstance(query,AlterTable): alter_table(query,ts)
