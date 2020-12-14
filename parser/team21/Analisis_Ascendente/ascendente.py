@@ -980,9 +980,10 @@ def p_alterDB(t):
 def p_alterT(t):
     '''instruccion      : ALTER TABLE ID lalterprima PTCOMA
                         '''
+    t[0] = AlterTable(t[3], t[4])
                          #t[3]         #t[6] #t[7]
-    t[0] = AlterTable(1, t[3], None, None, None, None, None, None, None, None, None, None)
-
+   # t[0] = AlterTable(1, t[3], None, None, None, None, None, None, None, None, None, None)
+#caso, id, columnConstraint, idAdd, tipoAdd, checkAdd, constraintId, columnId, listaFK, listaReferences, idDrop, columnAlter)
 #def p_alterT2(t):
 #    'instruccion        : ALTER TABLE ID  PTCOMA'
 #    t[0] = AlterTable(2, t[3], 'COLUMN', None, None, None, None, None, None, None, t[6], None)
@@ -1009,42 +1010,54 @@ def p_alterT(t):
 
 def p_alterT8(t):
     'lalterprima         : lalterprima COMA alterprima'
-
+    t[1].append(t[3])
+    t[0] = t[1]
 
 
 def p_alterT9(t):
     'lalterprima         : alterprima'
-
+    t[0] = [t[1]]
 
 def p_alterT10(t):
     'alterprima         : ADD COLUMN ID tipo '
-
+    t[0] = Alter('ADD', 'COLUMN', t[3], t[4], None, None, None)
 
 def p_alterT11(t):
     'alterprima         : DROP COLUMN ID'
-
+    t[0] = Alter('DROP', 'COLUMN', t[3], None, None, None, None)
 
 def p_alterT12(t):
     'alterprima         : ADD CHECK checkprima'
+    t[0] = Alter('ADD', 'CHECK', None, None, t[3], None, None)
 
 
 def p_alterT13(t):
     'alterprima         : DROP CONSTRAINT ID'
+    t[0] = Alter('DROP', 'CONSTRAINT', t[3], None, None, None, None)
 
 def p_alterT14(t):
     'alterprima         : ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDR'
+    t[0] = Alter('ADD', 'CONSTRAINT', t[3], None, None, t[6], None)
 
 
 def p_alterT15(t):
     'alterprima         : ADD FOREIGN KEY PARIZQ listaID PARDR REFERENCES listaID'
+    t[0] = Alter('ADD', 'FOREIGN', t[5], None, None, t[8], None)
 
 
 def p_alterT16(t):
-    'alterprima         : ALTER COLUMN ID alterbiprima'
+    'alterprima         : ALTER COLUMN ID TYPE tipo'
+    t[0] = Alter('ALTER', 'COLUMN', t[3], t[5], None, None, 'TYPE')
 
 def p_alterT17(t):
-    '''alterbiprima     : TYPE tipo
-                        | SET NOT NULL'''
+    'alterprima         : ALTER COLUMN ID SET NOT NULL'
+    t[0] = Alter('ALTER', 'COLUMN', t[3], None, None, None, 'SET')
+
+    # alterbiprima'
+
+#def p_alterT17(t):
+#    '''alterbiprima     : TYPE tipo
+ #                       | SET NOT NULL'''
 
 
 
@@ -1508,7 +1521,7 @@ def p_instruccion_createEnum(t):
 def p_checkopcional(t):
     ''' checkprima : listaValores
                     | E               '''
-
+    t[0] = t[1]
 
 
 # def p_condicion2(t):

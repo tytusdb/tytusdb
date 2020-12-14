@@ -110,22 +110,19 @@ class AlterDatabase(Instruccion):
         self.newName = newName
 
 class AlterTable(Instruccion):
-    '''#1 ADD
-       #2 DROP
-       #3 ALTER'''
-    def __init__(self, caso, id, columnConstraint, idAdd, tipoAdd, checkAdd, constraintId, columnId, listaFK, listaReferences, idDrop, columnAlter):
-        self.caso = caso
+    def __init__(self, id, alter):
         self.id = id
-        self.columnConstraint = columnConstraint
-        self.idAdd = idAdd
-        self.tipoAdd = tipoAdd
-        self.checkAdd = checkAdd
-        self.constraintId = constraintId
-        self.columnId = columnId
-        self.listaFK = listaFK
-        self.listaReferences = listaReferences 
-        self.idDrop = idDrop
-        self.columnAlter = columnAlter
+        self.alter = alter
+
+class Alter(Instruccion):
+    def __init__(self, accion, ccc, id, tipo, check, id2, typeSet):
+        self.accion = accion
+        self.ccc = ccc
+        self.id = id 
+        self.tipo = tipo
+        self.check = check
+        self.id2 = id2
+        self.typeSet = typeSet
 
 #UPDATE
 class Update(Instruccion):
