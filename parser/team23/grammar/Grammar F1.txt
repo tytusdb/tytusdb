@@ -1,0 +1,248 @@
+init  : instrucciones
+
+instrucciones    : instrucciones instruccion
+
+instrucciones    : instruccion 
+
+instruccion : crear t_PUNTOCOMA
+	      | SHOW DATABASE t_PUNTOCOMA
+            | alter_db t_PUNTOCOMA
+    	      | drop_db t_PUNTOCOMA
+            | INSERT INTO ID VALUES t_PAR_ABRE list_val t_PAR_CIERRA t_PUNTOCOMA
+            | UPDATE ID SET ID t_IGUAL op_val where t_PUNTOCOMA 
+            | DELET FROM ID where t_PUNTOCOMA 
+            | seleccionar t_PUNTOCOMA
+
+crear: CREATE TABLE  ID t_PAR_ABRE  contenido_tabla  t_PAR_CIERRA inherits 	
+      |CREATE or_replace DATABASE if_not_exists ID owner_ mode_
+
+or_replace : OR REPLACE
+            |epsilon 
+  
+if_not_exists : IF NOT EXISTS 
+               |epsilon
+
+owner_ : OWNER = ID
+      |epsilon
+
+mode_ : MODE = ENTERO
+      |epsilon
+
+alter_db: ALTER DATABASE ID rename_owner
+         |ALTER TABLE ID alter_op
+
+rename_owner: RENAME TO ID
+	       |OWNER TO t_LLAVE_ABRE ow_op t_LLAVE_CIERRA
+
+ow_op: ID
+	 |CURRENT_USER
+	 |SESSION_USER
+
+drop_db : DROP DATABASE if_exists ID 
+    	   |DROP TABLE ID
+
+if_exists: IF EXISTS
+         |epsilon
+
+contenido_tabla: contenido_tabla t_COMA manejo_tabla
+	         |manejo_tabla
+
+manejo_tabla: declaracion_columna
+	      |condition_column
+
+declaracion_columna: ID type_column condition_column_row
+		        |ID type_column
+
+type_column: SMALLINT
+	      |INTEGER
+	      |BIGINT
+	      |DECIMAL
+	      |NUMERIC
+	      |REAL
+	      |DOUBLE PRECISION
+	      |MONEY
+	      |VARCHAR t_PAR_ABRE ENTERO t_PAR_CIERRA
+            |NVARCHAR t_PAR_ABRE ENRETO t_PAR_CIERRA
+            |VARCHAR
+            |NVARCHAR
+	      |CHAR
+ 	      |TEXTE
+	      |DATE
+
+
+condition_column_row: condition_column_row condition_column
+	               |condition_column
+
+
+condition_column: DEFAULT op_val
+                  |NULL
+		      |NOT NULL
+	            |constraint UNIQUE op_unique
+                  |constraint CHECK t_PAR_ABRE  condition_columns t_PAR_CIERRA
+                  |constraint UNIQUE  constraint CHECK t_PAR_ABRE  condition_columns t_PAR_CIERRA
+ 		      |key_table                  
+                  |REFERENCE ID
+
+		      |CONSTRAINT ID key_table
+ 		      |epsilon
+
+constraint: CONSTRAINT ID
+           |epsilon
+
+op_unique: t_PAR_ABRE list_id t_PAR_CIERRA
+          |epsilon
+
+list_id: list_id , ID alias
+        |ID alias
+
+alias: AS ID 
+      |epsilon
+
+condition_columns: condition_columns , expresion
+	              |expresion
+
+expresion: epsilon
+
+key_table: PRIMARY KEY list_key 
+	    |FOREIGN KEY t_PAR_ABRE list_id t_PAR_CIERRA REFERENCES ID t_PAR_ABRE list_id t_PAR_CIERRA
+
+list_key: t_PAR_ABRE list_id t_PAR_CIERRA
+	   |epsilon
+
+alter_op: ADD op_add
+	   |ALTER COLUMN ID alter_col_op
+	   |DROP CONSTRAINT ID
+	   
+op_add: CHECK t_PAR_ABRE ID t_DIFERENTE t_CADENA t_PAR_CIERRA
+       |CONSTRAINT ID UNIQUE t_PAR_ABRE ID t_PAR_CIERRA
+       |key_table REFERENCES t_PAR_ABRE list_id t_PAR_CIERRA
+
+alter_col_op: SET NOT NULL
+             |TYPE type_column
+
+inherits: INHERITS t_PAR_ABRE ID t_PAR_CIERRA
+         |epsilon
+
+list_val: list_val , op_val 
+         |op_val
+
+op_val: ID
+       |t_CADENA
+       |t_DECIMAL
+
+where: WHERE ID t_IGUAL op_val
+      |epsilon
+
+#### queries ####
+
+seleccionar: SELECT distinto  select_list FROM table_expression list_fin_select
+            | SELECT GREATEST expressiones
+            | SELECT LEAST expressiones
+
+list_fin_select: list_fin_select fin_select 
+                | fin_select 
+
+fin_select: group_by  
+	| donde
+	| order_by
+	| group_by
+	| group_having
+	| limite
+	|epsilon
+
+expressiones: list_expression
+            | ( list_expression )
+
+distinto : DISTINCT
+	|epsilon
+
+select_list: ASTERISCO
+	| expressiones
+
+table_expression: expressiones
+	
+
+donde: WHERE expressiones
+
+group_by : GROUP BY expressiones
+
+
+order_by : ORDER BY expressiones asc_desc nulls_f_l
+
+
+group_having: HAVING expressiones
+
+
+asc_desc: ASC
+	| DESC
+
+nulls_f_l: NULLS LAST
+	| NULLS FIRST
+	| epsilon 
+
+limite: LIMIT ENTERO
+	| LIMIT ALL
+	| OFFSET ENTERO
+
+list_expression: list_expression , expression
+                | expression 
+
+expression: expression > expression
+            | expression < expression
+            | expression >= expression
+            | expression <= expression
+            | expression AND expression
+            | expression OR expression
+            | NOT expression
+            | expression = expression
+            | expression != expression
+            | expression <> expression
+            | ( expression )
+            | expression BETWEEN expression AND expression
+            | expression NOT BETWEEN expression AND expression 
+            | expression BETWEEN SYMMETRIC expression AND expression
+            | expression NOT BETWEEN SYMMETRIC expression AND expression
+            | expression IS DISTINCT FROM expression
+            | expression IS NOT DISTINCT FROM expression
+            | expression PUNTO expression
+            | expression IS NULL
+            | expression IS NOT NULL
+            | expression ISNULL
+            | expression NOTNULL
+            | expression IS TRUE
+            | expression IS NOT TRUE
+            | expression IS FALSE
+            | expression IS NOT FALSE
+            | expression IS UNKNOWN
+            | expression IS NOT UNKNOWN
+            | SUBSTRING ( expression COMA expression COMA expression)
+            | funciones_math
+            | ID
+            | CADENA
+            | DECIMAL
+            | ENTERO
+            | *
+            | seleccionar
+	
+funciones_math : SUM ( expression )
+            | COUNT ( expression )
+            | AVG ( expression )
+            | MAX ( expression )
+            | MIN ( expression )
+            | ABS ( expression )
+            | CBRT ( expression )
+            | CEIL ( expression )
+            | CEILING ( expression ) 
+            | DEGREES ( expression )
+            | DIV ( expression )
+            | EXP ( expression )
+            | FACTORIAL ( expression ) 
+            | FLOOR ( expression )
+            | GCD ( expression )
+            | LN ( expression )
+            | LOG ( expression )
+            | MOD ( expression )
+            | PI ( expression )
+            | POWER ( expression )
+            | RADIANS ( expression )
+            | ROUND ( expression )

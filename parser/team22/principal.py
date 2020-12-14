@@ -16,7 +16,7 @@ from instrucciones import *
 
 f = open("./entrada.txt", "r")
 input = f.read()
-
+    
 instrucciones = parser_asc.parse(input)
 ts_global = TS.TablaDeSimbolos()
 

@@ -157,6 +157,11 @@ DROP DATABASE [ IF EXISTS ] name
 ```
 
 ```sql
+USE databasename
+```
+In theory, PostgreSQL cannot switch between databases, it must be disconnected and connected from the client. But for this phase the DBMS client is not yet available, so the use of the USE statement will be accepted.  
+
+```sql
 CREATE TABLE my_first_table (
     column1 type [DEFAULT value] [[NOT] NULL] [[CONSTRAINT name] UNIQUE] [[CONSTRAINT name] CHECK (condition_column1)]
     [, column2...]
