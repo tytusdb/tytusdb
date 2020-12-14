@@ -509,6 +509,7 @@ def p_parametroAlterUser(t):
 def p_dropTable(t) :
     'dropTable  : DROP TABLE ID PUNTOYCOMA'
     h.reporteGramatical1 +="dropTable    ::=        DROP TABLE ID PUNTOYCOMA\n"
+    t[0]=DropTable(t[3])
 #-----------------------------------------------------ALTER TABLE-----------------------------------------------------------------
 def p_alterTable(t):
     '''
@@ -516,20 +517,24 @@ def p_alterTable(t):
 
     '''
     h.reporteGramatical1 +="alterTable    ::=        ALTER TABLE ID variantesAt PUNTOYCOMA\n"
+    t[0] = AlterTable(t[3],t[4])
 
 #---------------------------------------------------TIPOS------------------------------------------------------------------------
 def p_variantesAt(t):
     '''
     variantesAt :   ADD contAdd
-                |   ALTER listaContAlter
+                |   ALTER contAlter
                 |   DROP contDrop
     '''
-    if t[1]=="ADD": 
+    if t[1].upper()=="ADD": 
         h.reporteGramatical1 +="variantesAt    ::=        ADD contAdd\n"  
-    elif t[1]=="ALTER":
+        t[0]=VariantesAt(t[1],t[2])
+    elif t[1].upper()=="ALTER":
         h.reporteGramatical1 +="variantesAt    ::=        ALTER listaContAlter\n"
-    elif t[1]=="DROP":
+        t[0]=VariantesAt(t[1],t[2])
+    elif t[1].upper()=="DROP":
         h.reporteGramatical1 +="variantesAt    ::=         DROP contDrop\n"
+        t[0]=VariantesAt(t[1],t[2])
     
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaContAlter(t):
@@ -550,10 +555,12 @@ def p_contAlter(t):
     contAlter   : COLUMN ID SET NOT NULL 
                 | COLUMN ID TYPE tipo
     '''
-    if t[3]=="SET":
+    if t[3].upper()=="SET":
         h.reporteGramatical1 +="contAlter    ::=         COLUMN ID   SET  NOT NULL\n"
-    elif t[3]=="TYPE":
+        t[0]=contAlter(t[2],t[3],t[4])
+    elif t[3].upper()=="TYPE":
         h.reporteGramatical1 +="contAlter    ::=         COLUMN ID  TYPE  tipo\n"
+        t[0]=contAlter(t[2],t[3],t[4])
 
 
 def p_contAdd(t):
@@ -563,15 +570,18 @@ def p_contAdd(t):
                 |   FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID
                 |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA
     '''
-    if t[1]=="COLUMN":
+    if t[1].upper()=="COLUMN":
         h.reporteGramatical1 +="contAdd    ::=         COLUMN ID tipo\n"
-    elif t[1]=="CHECK":
+        t[0]=contAdd(t[1],t[3],t[2],None,None)
+    elif t[1].upper()=="CHECK":
         h.reporteGramatical1 +="contAdd    ::=         CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1]=="FOREIGN":
+        t[0]=contAdd(t[1],None,None,None,t[3])
+    elif t[1].upper()=="FOREIGN":
         h.reporteGramatical1 +="contAdd    ::=        FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID\n"
-    elif t[1]=="CONSTRAINT":
+        t[0]=contAdd(t[1],None,t[4],t[7],None)
+    elif t[1].upper()=="CONSTRAINT":
         h.reporteGramatical1 +="contAdd    ::=         CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA\n"
-
+        t[0]=contAdd(t[1],None,t[2],None,t[5])
 
 
 def p_contDrop(t):
@@ -579,10 +589,12 @@ def p_contDrop(t):
     contDrop    : COLUMN ID 
                 | CONSTRAINT ID
     '''
-    if t[1]=="COLUMN":
+    if t[1].upper()=="COLUMN":
         h.reporteGramatical1 +="contDrop    ::=         COLUMN ID \n"
-    elif t[1]=="CONSTRAINT":
+        t[0]=contDrop(t[1],t[2])
+    elif t[1].upper()=="CONSTRAINT":
         h.reporteGramatical1 +="contDrop    ::=         CONSTRAINT ID\n"
+        t[0]=contDrop(t[1],t[2])
 
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
@@ -590,12 +602,16 @@ def p_listaID(t):
     listaid     :   listaid COMA ID
     '''
     h.reporteGramatical1 +="listaid    ::=         listaid COMA ID\n"
+    t[1].append(t[3])
+    t[0]=t[1]
+    
 
 def p_listaID_2(t):
     '''
     listaid     :   ID
     '''
     h.reporteGramatical1 +="listaid    ::=          ID\n"
+    t[0]=t[1]
 
 
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
@@ -1117,6 +1133,7 @@ def p_tipo(t):
                         | SECOND
     '''
     h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+    t[0] = t[1]
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
 def p_select(t):
     '''selectData       : SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
