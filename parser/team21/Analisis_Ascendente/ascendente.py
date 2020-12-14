@@ -1,4 +1,6 @@
 import re
+from graphviz import Digraph
+
 
 from tytus.parser.team21.Analisis_Ascendente.reportes.Reportes import RealizarReportes,Error
 
@@ -9,6 +11,7 @@ L_errores_sintacticos = []
 columna = 0
 
 from graphviz import Digraph
+
 
 
 varGramatical = []
@@ -340,7 +343,7 @@ def t_newline(t):
 
 
 def t_error(t):
-    global L_errores_lexicos;
+    global L_errores_lexicos
     global columna
 
     colum = contador_columas(columna)
@@ -449,6 +452,7 @@ def p_foreign2(t):
     varGramatical.append('campo :: = FOREIGN KEY PARIZQ ID PARDR REFERENCES ID PARIZQ ID PARDR')
     varSemantico.append(' x')
 
+
 def p_campoCadenas(t):
     'campo              : CADENA'
 
@@ -483,7 +487,6 @@ def p_acompaniamiento(t):
                         | REFERENCES ID
                         | CHECK PARIZQ checkprima PARDR
                         '''
-
 
     if t[1].lower() == 'not'         :
         t[0] = Acompaniamiento('NOT', None)
@@ -1622,9 +1625,6 @@ def ejecutarAnalisis(entrada):
 
 
 ejecutarAnalisis("prueba")
-
-
-
 
 
 
