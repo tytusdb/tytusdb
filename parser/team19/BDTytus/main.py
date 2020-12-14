@@ -4,8 +4,10 @@ import sys
 import threading
 import Errores.Nodo_Error as error
 import Errores.ListaErrores as lista_err
+from Reportes.ReporteError import ReporteError
 from tkinter import *
 from tkinter import filedialog
+from tkinter import messagebox
 from tkinter import font
 from tkinter import ttk
 
@@ -13,26 +15,36 @@ from tkinter import ttk
 root = Tk()
 root.title('TytusDB - Team 19')
 root.geometry("1000x750")
-
+errores = None
 
 def ejecutar():
     reporteg=[]
+    global errores
     errores=lista_err.ListaErrores()
     entrada = my_text.get("1.0",END)
-    SQLparser = g.parse(entrada, errores);
-    print(SQLparser);
+    SQLparser = g.parse(entrada, errores)
+    print(SQLparser)
     Output.delete(1.0,"end")
-    Output.insert("1.0","Salida"); 
+    respuestaConsola = str(SQLparser) if errores.principio is None else "Hubieron errores ve a Reporte->Errores"
+    Output.insert("1.0", respuestaConsola)
 
 
 def open_File():
-	text_file = filedialog.askopenfilename(initialdir="C:/gui/", title="Text File", filetypes=(("Text Files", "*.txt"), ))
-	text_file = open(text_file, 'r')
-	stuff = text_file.read()
+    try:
+        text_file = filedialog.askopenfilename(initialdir="C:/gui/", title="Text File", filetypes=(("Text Files", "*.txt"), ))
+        text_file = open(text_file, 'r')
+        stuff = text_file.read()
 
-	my_text.insert(END, stuff)
-	text_file.close()
+        my_text.insert(END, stuff)
+        update_line_numbers()
+        text_file.close()
+    except FileNotFoundError:
+        messagebox.showinfo("Informacion","No se seleccionó un archivo")
 
+def mostrar_reporte_errores():
+    global errores #El global indica que no creo una nueva var sino que uso la variable global
+    reporte_error = ReporteError(errores)
+    reporte_error.open_file_on_my_computer()
 
 def get_line_numbers():
     output = ''
@@ -58,7 +70,7 @@ file_menu.add_command(label='Open', compound='left', underline=0, command=open_F
 file_menu.add_command(label='Ejecutar', compound='left', underline=0, command=ejecutar)
 menu_bar.add_cascade(label='File', menu=file_menu)
 reportes_menu = Menu(menu_bar, tearoff=0)
-reportes_menu.add_command(label='Errores', compound='left',  underline=0)
+reportes_menu.add_command(label='Errores', compound='left',  underline=0, command=mostrar_reporte_errores)
 reportes_menu.add_separator()
 reportes_menu.add_command(label='Gramaticas',compound='left',  underline=0)
 reportes_menu.add_separator()
@@ -95,3 +107,6 @@ separator.pack()
 Output.pack() 
 
 root.mainloop()
+
+
+
