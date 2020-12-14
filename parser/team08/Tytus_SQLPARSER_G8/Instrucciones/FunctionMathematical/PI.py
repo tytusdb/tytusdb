@@ -15,6 +15,7 @@ class PI(Instruccion):
         resultado = self.valor*math.pi
         return resultado
 
-
+'''
 Instruccion = PI(1,None, 1,2)
 Instruccion.ejecutar(None,None)
+'''

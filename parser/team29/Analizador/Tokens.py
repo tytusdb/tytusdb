@@ -45,7 +45,6 @@ reservadas = {
     "NULL": "R_NULL",
     "OWNER": "R_OWNER",
     "MODE": "R_MODE",
-    "INHERITS": "R_INHERITS",
     "ALTER": "R_ALTER",
     "RENAME": "R_RENAME",
     "TO": "R_TO",
@@ -56,7 +55,6 @@ reservadas = {
     "COLUMN": "R_COLUMN",
     "SELECT": "R_SELECT",
     "DISTINCT": "R_DISTINCT",
-    "FROM": "R_FROM",
     "UNION": "R_UNION",
     "INTERSECT": "R_INTERSECT",
     "EXCEPT": "R_EXCEPT",
@@ -164,12 +162,6 @@ tokens = [
     "S_PUNTOCOMA",
     "S_PUNTO",
     "S_IGUAL",
-    # Secuencias de escape
-    "ES_B",
-    "ES_F",
-    "ES_N",
-    "ES_R",
-    "ES_T",
     # Tokens
     "ID",
     "INTEGER",
@@ -189,7 +181,6 @@ t_O_DIVISION = r"/"
 t_O_EXPONENTE = r"\^"
 t_O_MODULAR = r"%"
 
-t_OL_ESIGUAL = r"=="
 t_OL_DISTINTODE = r"!=|<>"
 t_OL_MAYORQUE = r">"
 t_OL_MENORQUE = r"<"
@@ -203,12 +194,6 @@ t_OC_XOR = r"\#"
 t_OC_NOT = r"~"
 t_OC_SHIFTL = r"<<"
 t_OC_SHIFTR = r">>"
-
-t_ES_B = r"\\b"
-t_ES_F = r"\\f"
-t_ES_N = r"\\n"
-t_ES_R = r"\\r"
-t_ES_T = r"\\t"
 
 t_S_PARIZQ = r"\("
 t_S_PARDER = r"\)"
@@ -227,6 +212,7 @@ def t_ID(t):
     r"[a-zA-Z_][a-zA-Z_0-9]*"
     # Verificamos si no es una palabra reservada
     t.type = reservadas.get(t.value.upper(), "ID")
+    if t.type != "ID": t.value = t.value.upper()
     return t
 
 
@@ -254,7 +240,7 @@ def t_DECIMAL(t):
 
 # Funcion para evaluar si el token reconocido es un CHARACTER
 def t_CHARACTER(t):
-    r"(\".\"|\'.\')"
+    r"(\"\\?.\"|\'\\?.\')"
     t.value = t.value[1:-1]
     return t
 
@@ -268,9 +254,9 @@ def t_STRING(t):
 
 # Funcion para evaluer si el token reconocido es un comentario
 def t_COMMENT(t):
-    r"\--(.*)\n|/\*(.|\n)*?\*/"
+    r"\-\-(.*)\n|/\*(.|\n)*?\*/"
     t.lexer.lineno += t.value.count("\n")
-    t.lexer.skip(1)
+    t.lexer.skip(0)
 
 
 # Funcion para obsorver los enters

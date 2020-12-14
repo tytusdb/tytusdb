@@ -2,8 +2,23 @@
 import ply.lex as lex
 from lex import *
 from type_checker import *
+from columna import *
+from graphviz import Graph
+
+dot = Graph()
+dot.attr(splines = 'false')
+dot.node_attr.update(fontname = 'Eras Medium ITC', style='filled', fillcolor="tan",
+                     fontcolor = 'black')
+dot.edge_attr.update(color = 'black')
+
 lexer = lex.lex()
 type_checker = TypeChecker()
+i = 0
+def inc():
+    global i 
+    i += 1
+    return i
+
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -23,35 +38,45 @@ from instrucciones import *
 
 def p_init(t) :
     'init            : instrucciones'
-    t[0] = t[1]
+    id = inc()
+    t[0] = {'id': id}
+    dot.node(str(id), 'INICIO')
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
     
-
 def p_instrucciones_lista(t) :
     'instrucciones    : instrucciones instruccion'
+    #                   [{'id': id}]  {'id': id}
     t[1].append(t[2])
+    #[{'id': id}, {'id': id}]
     t[0] = t[1]
 
 
 def p_instrucciones_instruccion(t) :
     'instrucciones    : instruccion '
     t[0] = [t[1]]
+    # [{'id': id}]
 
 def p_instruccion(t) :
     '''instruccion      : CREATE creacion
                         | SHOW show_db PTCOMA
-                        | SHOW show_db
                         | ALTER DATABASE alter_database PTCOMA
-                        | ALTER DATABASE alter_database 
                         | USE cambio_bd
                         | SELECT selects
                         | DELETE deletes
                         | ALTER TABLE alter_table PTCOMA
-                        | ALTER TABLE alter_table 
-                        | UPDATE update_table
                         | UPDATE update_table PTCOMA
                         | INSERT insercion
-                        | DROP dropear'''
-    t[0] = t[2]
+                        | DROP dropear
+                        '''
+    id = inc()
+    t[0] = {'id': id}
+
+    if t[1].upper() == 'CREATE':
+        dot.node(str(id), 'CREATE')
+    elif t[1].upper() == 'SHOW':
+        dot.node(str(id), 'SHOW')
+    
 
 #========================================================
 
@@ -59,6 +84,7 @@ def p_instruccion(t) :
 # INSTRUCCION CON "CREATE"
 def p_instruccion_creacion(t) :
     '''creacion     : DATABASE crear_bd
+                    | OR REPLACE DATABASE crear_bd
                     | TABLE crear_tb
                     | TYPE crear_type'''
     print("Creacion")
@@ -71,10 +97,9 @@ def p_instruccion_crear_BD(t) :
 
 def p_instruccion_crear_BD_Parametros(t) :
     'crear_bd     : ID lista_parametros_bd PTCOMA'
-    #t[0] = Crear_BD_Parametros(t[1])
     print('Creacion de BD parametros')
     if 'mode' in t[2]:
-        print(type_checker.createDatabase(database = t[1], mode = t[2]['mode']))
+        print(type_checker.createDatabase(database = t[1], mode = t[2]['params']['mode']))
     else:
         print(type_checker.createDatabase(database = t[1]))
 
@@ -87,19 +112,17 @@ def p_instruccion_crear_BD_if_exists_Parametros(t) :
     'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
     print('Creacion de BD parametros if not exist')
     if 'mode' in t[5]:
-        print(type_checker.createDatabase(database = t[4], mode = t[5]['mode']))
+        print(type_checker.createDatabase(database = t[4], mode = t[5]['params']['mode']))
     else:
         print(type_checker.createDatabase(database = t[4]))
 
 def p_instruccion_crear_TB_herencia(t):
-    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA
-                    | ID PARIZQ crear_tb_columnas PARDER tb_herencia'''
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA'''
     print("Creación de Tabla con herencia")
     #t[0] = Crear_TB_Herencia(t[1], t[3], t[5])|||
 
 def p_instruccion_crear_TB(t):
-    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA
-                    | ID PARIZQ crear_tb_columnas PARDER'''
+    '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA'''
     print("Creación de tabla sin herencia")
     #t[0] = Crear_TB(t[1], t[3])
 
@@ -148,25 +171,30 @@ def p_def_alter_db(t) :
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
     'cambio_bd     : ID PTCOMA'
-    t[0] = Cambio_BD(t[1])
     print("CAMBIO de BD")
+    print(type_checker.useDatabase(t[1]))
 
 #========================================================
 
 #========================================================
 # INSTRUCCIONES CON "SELECT"
 def p_instruccion_selects(t) :
-    '''selects      : POR FROM select_all 
+    '''selects      : POR FROM select_all
+                    | POR FROM state_subquery inicio_condicional
                     | lista_parametros FROM lista_parametros inicio_condicional 
                     | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
                     | GREATEST PARIZQ lista_parametros PARDER PTCOMA
                     | LEAST PARIZQ lista_parametros PARDER PTCOMA
-                    | date_functions'''
+                    | lista_parametros PTCOMA
+                    | fun_trigonometrica state_aliases_field PTCOMA
+                    | fun_trigonometrica state_aliases_field FROM ID state_aliases_table PTCOMA'''
+
     print("selects")
 
 def p_instruccion_selects_distinct(t) :
     '''selects      : DISTINCT POR FROM select_all 
                     | DISTINCT lista_parametros FROM lista_parametros inicio_condicional 
+                    | DISTINCT lista_parametros PTCOMA
                     | DISTINCT lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional'''
     # print("selects")
 
@@ -221,7 +249,8 @@ def p_instruccion_selects_offset(t) :
 def p_instruccion_selects_offset2(t) :
     '''state_offset         : state_union 
                             | state_intersect
-                            | state_except'''
+                            | state_except
+                            | state_subquery'''
     
 def p_instruccion_selects_union(t) :
     '''state_union      : UNION SELECT selects
@@ -246,19 +275,21 @@ def p_instruccion_selects_except2(t) :
 
 
 def p_instruccion_Select_All(t) :
-    'select_all     : ID inicio_condicional'
+    'select_all     : ID state_aliases_table inicio_condicional'
     t[0] = Select_All(t[1])
     # print("Consulta ALL para tabla: " + t[1])
 
 #Gramatica para fechas
+#========================================================
 def p_date_functions(t):
-    '''date_functions   : EXTRACT PARIZQ lista_date_functions 
-                        | date_part PARIZQ lista_date_functions
-                        | now PARIZQ lista_date_functions
-                        | lista_date_functions'''
+    '''date_functions   : EXTRACT PARIZQ opcion_date_functions 
+                        | date_part PARIZQ opcion_date_functions
+                        | NOW PARIZQ opcion_date_functions
+                        | opcion_date_functions'''
+    print("fecha")
 
 def p_validate_date(t):
-    'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA'
+    'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER'
     try:
         fecha = re.split('[-: ]',t[4].replace("'",""))
         if (5 < len(fecha)):
@@ -270,14 +301,23 @@ def p_validate_date(t):
     except Exception:
         pass
 
+def p_opcion_lista_date_fuctions(t):
+    '''opcion_date_functions    : opcion_date_functions lista_date_functions
+                                | lista_date_functions'''
+
 def p_lista_date_functions(t):
-    '''lista_date_functions : CADENA COMA INTERVAL CADENA PARDER PTCOMA
-                            | TIMESTAMP CADENA PTCOMA
-                            | CURRENT_DATE PTCOMA
-                            | CURRENT_TIME PTCOMA
-                            | PARDER PTCOMA'''
+    '''lista_date_functions : CADENA COMA INTERVAL CADENA
+                            | TIMESTAMP CADENA
+                            | CURRENT_DATE
+                            | CURRENT_TIME
+                            | PARDER'''
+
+# Subqueries
+def p_state_subquery(t):
+    '''state_subquery   : PARIZQ SELECT selects PARDER'''
 
 #========================================================
+
     
 #========================================================
 # INSERT INTO TABLAS
@@ -319,20 +359,26 @@ def p_instruccion_Drop_TB(t) :
 
 #========================================================
 # PARAMETROS PARA CREATE BASE DE DATOS
-def p_instrucciones_parametros_BD_owner(t) :
-    'lista_parametros_bd    : OWNER IGUAL ID'
+def p_instrucciones_parametros_BD(t) :
+    '''lista_parametros_bd  : parametros_bd
+                            | parametros_bd parametros_bd'''
+    if len(t) == 3:
+        t[1].update(t[2])
+    t[0] = {'params': t[1]}
 
-def p_instrucciones_parametros_BD_Mode(t) :
-    'lista_parametros_bd    : MODE IGUAL ENTERO'
-    t[0] = {'mode': t[3]}
+def p_parametros_BD_owner(t) :
+    '''parametros_bd    : OWNER IGUAL ID
+                        | OWNER ID'''
+    t[0] = {'owner': ''}
 
-def p_instrucciones_parametros_BD_Mode_owner(t) :
-    'lista_parametros_bd    : OWNER IGUAL ID MODE IGUAL ENTERO'
-    t[0] = {'mode': t[6]}
+def p_parametros_BD_Mode(t) :
+    '''parametros_bd    : MODE IGUAL ENTERO
+                        | MODE ENTERO'''
+    if len(t) == 4:
+        t[0] = {'mode': t[3]}
+    else:
+        t[0] = {'mode': t[2]}
 
-def p_instrucciones_parametros_BD_owner_Mode(t) :
-    'lista_parametros_bd    : MODE IGUAL ENTERO OWNER IGUAL ID'
-    t[0] = {'mode': t[3]}
 
 #========================================================
 
@@ -359,22 +405,26 @@ def p_temporalmente_nombres(t) :
 #========================================================
 # LISTA DE PARAMETROS
 def p_instrucciones_lista_parametros(t) :
-    'lista_parametros    : lista_parametros COMA parametro'
+    'lista_parametros    : lista_parametros COMA parametro state_aliases_field'
     t[1].append(t[3])
     t[0] = t[1]
     # print("Varios parametros")
 
 def p_instrucciones_parametro(t) :
-    'lista_parametros    : parametro '
+    'lista_parametros    : parametro state_aliases_field '
     t[0] = [t[1]]
-    # print("Un parametro")
+    print("Un parametro")
 
 def p_parametro_con_tabla(t) :
     'parametro        : ID PUNTO ID'
     t[0] = t[1]
 
 def p_parametros_funciones(t) :
-    'parametro         : lista_funciones'
+    '''parametro         : lista_funciones
+                         | funciones_math_esenciales
+                         | fun_binario_select
+                         | date_functions
+                         | state_subquery'''
     t[0] = t[1]
 
 def p_parametros_cadena(t) :
@@ -382,30 +432,20 @@ def p_parametros_cadena(t) :
     t[0] = t[1]
 
 def p_parametros_numeros(t) :
-    '''parametro            : DECIMAL  
+    '''parametro            : DECIMAL
                             | ENTERO'''
     t[0] = t[1]
-
-
-#ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
-#=====================================================
-def p_parametro_con_tabla_columna(t) :
-    'name_column        : ID'
-    t[0] = t[1]
-    # print("Nombre de la columna")
-#=====================================================
-
 
 def p_parametro_sin_tabla(t) :
     'parametro        : ID'
     t[0] = t[1]
-    # print("Parametro SIN indice de tabla")
+    print("Parametro SIN indice de tabla")
 
-def p_parametro_con_tabla_alias(t) :
-    '''parametro        : ID AS ID
-                        | ID ID'''
-    t[0] = t[1]
-    # print("Parametro SIN indice de tabla")
+# def p_parametro_con_tabla_alias(t) :
+#     '''parametro        : ID AS ID
+#                         | ID ID'''
+#     t[0] = t[1]
+#     # print("Parametro SIN indice de tabla")
 
 #========================================================
 
@@ -422,11 +462,11 @@ def p_instrucciones_columnas(t) :
 
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
-    #t[0] = Nueva_Columna_Param(t[1], t[2], t[3])
+    t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
-    #t[0] = Nueva_Columna(t[1], t[2])
+    t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
 
 def p_instrucciones_columna_pk(t) :
     'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
@@ -440,34 +480,67 @@ def p_instrucciones_columna_fk(t) :
     else:
         print('Se creó referencia de llave foranea')
 
+def p_instrucciones_columna_check(t) :
+    'crear_tb_columna   : chequeo'
+
+def p_instrucciones_columna_unique(t) :
+    'crear_tb_columna   : UNIQUE PARIZQ lista_id PARDER'
+
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
-    #t[1].append(t[2])
-    #t[0] = t[1]
+    t[1].update(t[2])
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
-    #t[0] = [t[1]]
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
+
+def p_instrucciones_parametro_columna_default(t) :
+    'parametro_columna      : DEFAULT valor'
+    #t[1] = {} -> t[0] = {}
+    t[0] = {'default': t[2]}
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
-    #t[0] = t[1]
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
+
+def p_instrucciones_parametro_columna_unique(t) :
+    'parametro_columna      : unic'
+
+def p_instrucciones_parametro_columna_checkeo(t) :
+    'parametro_columna      : chequeo'
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
-    #t[0] = Parametro('PRIMARY KEY')
+    t[0] = {'is_primary': 1}
 
-def p_instrucciones_parametro_columna_auto_increment(t) :
-    'parametro_columna      : AUTO_INCREMENT'
-    #t[0] = Parametro('AUTO_INCREMENT')
+def p_instrucciones_parametro_columna_fkey(t) :
+    'parametro_columna      : REFERENCES ID'
+    t[0] = {'references': t[2]}
 
 def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
-    #t[0] = Parametro('NOT NULL')
+    t[0] = {'is_null': TipoNull.NOT_NULL}
 
 def p_instrucciones_unul(t) :
     'unul   : NULL'
-    #t[0] = Parametros('NULL')
+    t[0] = {'is_null': TipoNull.NULL}
+
+def p_instrucciones_unic_constraint(t) :
+    'unic   : CONSTRAINT ID UNIQUE'
+
+def p_instrucciones_unic(t) :
+    'unic   : UNIQUE'
+
+def p_instrucciones_chequeo_constraint(t) :
+    'chequeo    : CONSTRAINT ID CHECK PARIZQ relacional PARDER'
+
+def p_instrucciones_chequeo(t) :
+    'chequeo    : CHECK PARIZQ relacional PARDER'
+    
 
 #========================================================
 
@@ -494,7 +567,8 @@ def p_instrucciones_lista_objeto(t) :
 def p_instrucciones_objeto(t) :
     '''objeto       : DECIMAL
                     | ENTERO
-                    | CADENA'''
+                    | CADENA
+                    | valor'''
     #t[0] = t[1]
 
 def p_instrucciones_lista_insercion_objeto(t) :
@@ -515,68 +589,7 @@ def p_instrucciones_insercion_select(t) :
 
 #========================================================
 
-# LISTA DE CONDICIONES --- ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
 #========================================================
-def p_instrucciones_lista_condiciones_AND(t) :
-    'lista_condiciones    : lista_condiciones AND condicion'
-    t[1].append(t[3])
-    t[0] = t[1]
-    # print("condicion con  AND")
-    
-def p_instrucciones_lista_condiciones_OR(t) :
-    'lista_condiciones    : lista_condiciones OR condicion'
-    t[1].append(t[3])
-    t[0] = t[1]
-    # print("condicion con OR")
-    
-def p_instrucciones_lista_condiciones_NOT(t) :
-    'lista_condiciones    : NOT lista_condiciones'
-    t[1].append(t[3])
-    t[0] = t[1]
-    # print("condicion con NOT")
-
-def p_instrucciones_condiciones(t) :
-    'lista_condiciones    : condicion '
-    t[0] = [t[1]]
-    # print("Una condicion")
-
-def p_parametro_con_tabl_2(t) :
-    'condicion        : def_condicion signo_relacional ID PUNTO name_column '
-    t[0] = t[1]
-    # print("Condicion con indice de tabla")
-
-def p_def_condicion(t) :
-    '''def_condicion    : ID PUNTO ID
-                        | ID'''
-
-def p_parametro_signo_relacional(t) :
-    '''signo_relacional         : IGUAL IGUAL
-                                | MAYOR
-                                | MENOR
-                                | MENORIGUAL
-                                | MAYORIGUAL
-                                | DIFERENTE'''
-    t[0] = t[1]
-
-    if t[1] == '>':
-        print("Condicion de tipo MAYOR")
-    elif t[1] == '<':
-        print("Condicion de tipo MENOR")
-    elif t[1] == '<=':
-        print("Condicion de tipo MENOR IGUAL")
-    elif t[1] == '>=':
-        print("Condicion de tipo MAYOR IGUAL")
-    elif t[1] == '<>':
-        print("Condicion de tipo DIFERENTE")
-    else:
-        print("Condicion de tipo IGUALACION")
-
-def p_parametro_sin_tabla_2(t) :
-    'condicion        : ID signo_relacional ID'
-    t[0] = t[1]
-    # print("Condicion SIN indice de tabla")
-#========================================================
-
 
 # INSTRUCCION CON "DELETE"
 def p_instruccion_delete(t) :
@@ -609,7 +622,7 @@ def p_def_alter(t) :
                     | DROP CONSTRAINT ID
                     | RENAME COLUMN ID TO ID'''
 
-def p_tipos(t) :
+def p_tipos_1(t) :
     '''tipos        : SMALLINT
                     | INTEGER
                     | BIGINT
@@ -618,32 +631,77 @@ def p_tipos(t) :
                     | REAL
                     | DOUBLE PRECISION
                     | MONEY
-                    | CHARACTER VARYING PARIZQ ENTERO PARDER
-                    | VARCHAR PARIZQ ENTERO PARDER
-                    | CHARACTER PARIZQ ENTERO PARDER
-                    | CHAR PARIZQ ENTERO PARDER
                     | TEXT
-                    | TIMESTAMP def_dt_types
+                    | TIMESTAMP
                     | DATE
-                    | TIME def_dt_types
-                    | INTERVAL def_interval
-                    | BOOLEAN'''
+                    | TIME
+                    | BOOLEAN
+                    | INTERVAL'''
+    if len(t) == 2:
+        t[0] = {'tipo': TipoColumna[t[1].upper()]}
+    else:
+        t[0] = {'tipo': TipoColumna['DOUBLE_PRECISION']}
 
-def p_def_dt_types(t) :
-    '''def_dt_types : def_dt_types WITHOUT TIME ZONE
-                    | def_dt_types WITH TIME ZONE
-                    | WITHOUT TIME ZONE
-                    | WITH TIME ZONE
-                    | PARIZQ ENTERO PARDER'''
+def p_tipos_2(t) :
+    '''tipos        : CHARACTER VARYING PARIZQ ENTERO PARDER'''
+    t[0] = {'tipo': TipoColumna['CHARACTER_VARYING'], 'n': t[4]}
 
-def p_def_interval(t) :
-    '''def_interval : def_interval PARIZQ ENTERO PARDER
-                    | def_fld_to
+def p_tipos_3(t) :
+    '''tipos        : VARCHAR PARIZQ ENTERO PARDER
+                    | CHARACTER PARIZQ ENTERO PARDER
+                    | CHAR PARIZQ ENTERO PARDER'''
+    t[0] = {'tipo': TipoColumna[t[1].upper()], 'n': t[3]}
+
+def p_tipos_4(t) :
+    '''tipos        : TIMESTAMP def_dt_types
+                    | TIME def_dt_types'''
+    sufix = t[2]['w'] if 'w' in t[2] else ''
+    t[0] = {'tipo': TipoColumna[t[1].upper() + sufix]}
+    if 'p' in t[2]:
+        t[0]['p'] = t[2]['p'] 
+
+def p_tipos_5(t) :
+    '''tipos        : INTERVAL def_interval'''
+    t[0] = {'tipo': TipoColumna[t[1].upper()]}
+    t[0].update(t[2])
+
+def p_def_dt_types_1(t) :
+    '''def_dt_types : PARIZQ ENTERO PARDER WITHOUT TIME ZONE
+                    | PARIZQ ENTERO PARDER WITH TIME ZONE
                     | PARIZQ ENTERO PARDER'''
+    t[0] = {'p': t[2]}  
+    if len(t) > 4:
+        if t[4].lower() == 'without':
+            t[0]['w'] = '_WO' 
+        else:
+            t[0]['w'] = '_W' 
+                    
+def p_def_dt_types_2(t) :
+    '''def_dt_types : WITHOUT TIME ZONE
+                    | WITH TIME ZONE'''
+    if t[1].lower() == 'without':
+        t[0] = {'w': '_WO'} 
+    else:
+        t[0] = {'w': '_W'} 
+
+def p_def_interval_1(t) :
+    '''def_interval : def_fld_to PARIZQ ENTERO PARDER
+                    | def_fld_to'''
+    t[0] = {'field': t[1]}
+    if len(t) == 5:
+        t[0]['p'] = t[3]
+
+def p_def_interval_2(t) :
+    '''def_interval : PARIZQ ENTERO PARDER'''
+    t[0] = {'p': t[2]}
 
 def p_def_fld_to(t) :
     '''def_fld_to   : def_fields TO def_fields
                     | def_fields'''
+    t[0] = t[1]
+    if len(t) > 2:
+        t[0]['destino'] = t[3]['origen']
+
 
 def p_def_fields(t) :
     '''def_fields   : YEAR
@@ -652,6 +710,7 @@ def p_def_fields(t) :
                     | HOUR
                     | MINUTE
                     | SECOND'''
+    t[0] = {'origen': TipoFields[t[1].upper()]}
 
 def p_relacional(t) :
     '''relacional   : aritmetica MENOR aritmetica
@@ -661,13 +720,22 @@ def p_relacional(t) :
                     | aritmetica MAYORIGUAL aritmetica
                     | aritmetica DIFERENTE aritmetica
                     | aritmetica NO_IGUAL aritmetica
+                    | aritmetica IGUAL aritmetica
                     | aritmetica
                     | relacional AND relacional
                     | relacional OR relacional
                     | NOT relacional
+                    | EXISTS state_subquery
+                    | IN state_subquery
+                    | NOT IN state_subquery
+                    | ANY state_subquery
+                    | ALL state_subquery
+                    | SOME state_subquery
                     | state_between
                     | state_predicate_nulls
-                    | state_is_distinct'''
+                    | state_is_distinct
+                    | state_pattern_match
+                    '''
 
 def p_aritmetica(t) :
     '''aritmetica   : aritmetica MAS aritmetica
@@ -677,15 +745,22 @@ def p_aritmetica(t) :
                     | aritmetica MODULO aritmetica
                     | aritmetica EXP aritmetica
                     | valor
-                    | PARIZQ aritmetica PARDER'''
+                    | PARIZQ aritmetica PARDER
+                    | funciones_math_esenciales
+                    | lista_funciones
+                    | fun_binario_select
+                    | fun_trigonometrica'''
 
 def p_valor(t) :
     '''valor        : ID
                     | ENTERO
-                    | DECIMAL
+                    | DECIMAL  
+                    | date_functions
                     | CADENA
                     | ID PUNTO ID
-                    | lista_funciones_where'''
+                    | lista_funciones_where
+                    | fun_binario_where
+                    | state_subquery'''
 
 def p_instruccion_update_where(t) :
     '''update_table : ID SET def_update WHERE relacional'''
@@ -706,14 +781,15 @@ def p_def_update(t) :
 #=======================================================
 def p_between(t) :
     '''state_between    : valor BETWEEN valor AND valor
-                        | valor NOT BETWEEN valor AND valor'''
+                        | valor NOT BETWEEN valor AND valor
+                        | valor NOT IN state_subquery'''
 #=======================================================
 
 # IS [NOT] DISTINCT
 #=======================================================
 def p_is_distinct(t) :
-    '''state_is_distinct    : valor IS DISTINCT FROM valor
-                            | valor IS NOT DISTINCT FROM valor'''
+    '''state_is_distinct    : valor IS DISTINCT FROM valor state_aliases_table
+                            | valor IS NOT DISTINCT FROM valor state_aliases_table'''
 #=======================================================
 
 
@@ -729,12 +805,35 @@ def p_predicate_nulls(t) :
 
 # # Pattern Matching
 # #=======================================================
-# def p_matchs(t) :
-#     '''state_pattern_match      : ID LIKE 
-#                                 | valor IS NOT NULL
-#                                 | valor ISNULL
-#                                 | valor NOTNULL'''
+def p_matchs(t) :
+    '''state_pattern_match      : aritmetica LIKE CADENA
+                                | aritmetica LIKE CADENA_DOBLE'''
+    print("LIKE")
 # #=======================================================
+
+
+# ESTADOS PARA LOS ALIAS
+# #=======================================================
+# PARA LAS TABLAS
+# -------------------------------------------------------
+def p_aliases_table(t):
+    ''' state_aliases_table     : AS ID
+                                | ID
+                                |'''
+    print("alias de tablas")
+# -------------------------------------------------------
+
+# PARA LOS CAMPOS
+# -------------------------------------------------------
+def p_aliases_field(t):
+    ''' state_aliases_field     : AS CADENA
+                                | AS CADENA_DOBLE
+                                | AS ID
+                                |'''
+    print("alias de campos")
+# -------------------------------------------------------
+# #=======================================================
+
 
 # CASE
 #========================================================
@@ -1065,4 +1164,6 @@ parser = yacc.yacc()
 
 
 def parse(input) :
-    return parser.parse(input)
+    retorno = parser.parse(input)
+    dot.view()
+    return retorno

@@ -1,3 +1,14 @@
+import ply.yacc as yacc
+import ply.lex as lex
+import re
+
+errores_lexicos = ""        #Variable para concatenar los errores lexicos y luego agregarlos al archivo de errores
+errores_sintacticos = ""    #Variable para concatenar los errores sintacticos y luego agregarlos al archivo de errores
+cont_error_lexico = 0
+cont_error_sintactico = 0
+linea = 1
+columna = 1
+
 # Lista de palabras reservadas
 reservadas = {
     'create' : 'CREATE',
@@ -35,24 +46,24 @@ reservadas = {
     'check'     : 'CHECK',
     'references': 'REFERENCES',
     'smallint'  : 'SMALLINT',
-    'begint'    : 'BEGINT',
+    'bigint'    : 'BIGINT',
     'decimal'   : 'DECIMAL',
     'real'      : 'REAL',
-    'double '   : 'DOUBLE',
+    'double'    : 'DOUBLE',
     'precision' : 'PRECISION',
     'money'     : 'MONEY',
-    'character ': 'CHARACTER',
+    'character' : 'CHARACTER',
     'varying'   : 'VARYING',
     'varchar'   : 'VARCHAR',
     'char'      : 'CHAR',
-    'timestamp ': 'TIMESTAMP',
+    'timestamp' : 'TIMESTAMP',
     'data'      : 'DATA',
     'time'      : 'TIME',
     'interval'  : 'INTERVAL',
     'with'      : 'WITH',
     'without'   : 'WITHOUT',
     'zone'      : 'ZONE',
-    'column '   : 'COLUMN',
+    'column'    : 'COLUMN',
     'add'       : 'ADD',
     'delete'    : 'DELETE',
     'from'      : 'FROM',
@@ -68,7 +79,21 @@ reservadas = {
     'max'       : 'MAX',
     'pi'        : 'PI',
     'power'     : 'POWER',
-    'sqrt'      : 'SQRT'
+    'sqrt'      : 'SQRT',
+    'select'    : 'SELECT',
+    'inner'     : 'INNER',
+    'left'      : 'LEFT',
+    'right'     : 'RIGHT',
+    'full'      : 'FULL',
+    'outer'     : 'OUTER',
+    'on'        : 'ON',
+    'join'      : 'JOIN',
+    'order'     : 'ORDER',
+    'by'        : 'BY', 
+    'asc'       : 'ASC',
+    'desc'      : 'DESC',
+    'inherits'  : 'INHERITS',
+    'distinct'  : 'DISTINCT'
 }
 
 # Lista de tokens
@@ -79,7 +104,6 @@ tokens = [
     'PTCOMA',
     'MAYIG',
     'MENIG',
-    'IGUAQ',
     'DIFEQ',
     'MAYOR',
     'MENOR',
@@ -92,7 +116,8 @@ tokens = [
     'CADENA',
     'ID',
     'DECIMA',
-    'ENTERO'
+    'ENTERO',
+    'PUNTO'
 ] + list(reservadas.values())
 
 # Expresiones regulares par los tokens
@@ -102,7 +127,6 @@ t_PARDER = r'\)'
 t_PTCOMA = r';'
 t_MAYIG = r'>='
 t_MENIG = r'<='
-t_IGUAQ = r'=='
 t_DIFEQ = r'<>'
 t_MAYOR = r'>'
 t_MENOR = r'<'
@@ -112,8 +136,23 @@ t_MENOS = r'-'
 t_SUMAS = r'\+'
 t_DIVIS = r'/'
 t_POTEN = r'\^'
+t_PUNTO = r'.'
 
 t_ignore = " \t"
+
+def t_COMENTARIO_S(t):
+    r'--.*\n'
+    global linea, columna
+    linea = linea + 1
+    columna = 1
+    t.lexer.lineno += 1
+
+def t_COMENTARIO_M(t):
+    r'/\*(.|\n)*?\*/'
+    global linea, columna
+    linea = linea + t.value.count('\n')
+    columna = 1
+    t.lexer.lineno += t.value.count('\n')
 
 def t_ID(t):
      r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -145,18 +184,19 @@ def t_ENTERO(t):
 
 def t_nuevalinea(t):
     r'\n+'
+    global linea, columna
+    linea = linea + t.value.count('\n')
+    columna = 1
     t.lexer.lineno += t.value.count("\n")
 
 # Errores léxicos
 def t_error(t):
-    print("Caracter erroneo '%s'" % t.value[0])
+    global linea, columna
+    lex_error(t.value[0], linea, t.lexpos)
     t.lexer.skip(1)
 
-# Construyendo el analizador léxico
-import ply.lex as lex
-import re
-lexer = lex.lex(reflags=re.IGNORECASE)
 
+lexer = lex.lex(reflags=re.IGNORECASE)
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -164,7 +204,7 @@ precedence = (
     ('left','MULTI','DIVIS'),
     ('left','POTEN'),
     ('right','UMENOS', 'USUMAS'),
-    ('left','MAYIG','MENIG','IGUAQ','DIFEQ','MAYOR','MENOR'),
+    ('left','MAYIG','MENIG','IGUAL','DIFEQ','MAYOR','MENOR'),
     ('right','NOT'),
     ('left','AND'),
     ('left','OR'),
@@ -184,6 +224,7 @@ def p_entrada(t):
                 | entrada s_delete
                 | entrada s_insert
                 | entrada s_update
+                | entrada s_select
                 | create_type
                 | create_db
                 | show_db
@@ -194,36 +235,80 @@ def p_entrada(t):
                 | alter_table
                 | s_delete
                 | s_insert
-                | s_update'''
-    print("Cadena correcta")
+                | s_update
+                | s_select '''
+
+#region 'Select Analisis'
+
+def p_s_select(p):
+    '''s_select : SELECT DISTINCT list_cols FROM list_from list_joins list_conditions list_order PTCOMA
+                | SELECT DISTINCT list_cols FROM list_from list_conditions list_order PTCOMA
+                | SELECT list_cols FROM list_from list_joins list_conditions list_order PTCOMA
+                | SELECT list_cols FROM list_from list_conditions list_order PTCOMA'''
+    print('Select statement')
+
+def p_list_cols(p):
+    '''list_cols :  list_alias
+                  | MULTI'''
+    print('columna: ' + str(p[1]))
+
+def p_list_alias(p):
+    '''list_alias : list_alias COMA ID PUNTO ID AS ID
+                  | list_alias COMA ID PUNTO ID
+                  | list_alias list_from
+                  | ID PUNTO ID AS ID
+                  | ID PUNTO ID
+                  | list_from'''
+
+def p_list_from(p):
+    '''list_from :  list_from COMA ID AS ID
+                  | list_from COMA ID
+                  | ID AS ID
+                  | ID '''
+
+def p_list_joins(p):
+    '''list_joins : list_joins join_type JOIN ID join_conditions 
+                  | list_joins JOIN ID join_conditions 
+                  | join_type JOIN ID join_conditions
+                  | JOIN ID join_conditions'''
+
+def p_join_type(p):
+    '''join_type : LEFT OUTER
+                 | RIGHT OUTER
+                 | FULL OUTER
+                 | LEFT
+                 | RIGHT
+                 | FULL
+                 | INNER'''
+
+def p_join_conditions(p):
+    '''join_conditions : ON expresion
+                       | '''
+
+def p_list_conditions(p):
+    '''list_conditions : WHERE expresion
+                       | '''
+
+def p_list_order(p):
+    '''list_order : ORDER BY ID ASC
+                  | ORDER BY ID DESC  
+                  | '''
+
+#end region 
 
 def p_create_type(t):
-    'create_type : CREATE TYPE ID AS c_type PTCOMA'
-	
-def p_c_type(t):
-    '''c_type : ENUM  PARIZQ lista
-            | PARIZQ lista'''
-
-def p_lista(t):
-    'lista : id_cadena lista1'
+    'create_type : CREATE TYPE ID AS ENUM PARIZQ lista1 PARDER PTCOMA'
 
 def p_lista1(t):
-    '''lista1 : lista1 COMA id_cadena
-            | lista1 PARDER
-            | COMA id_cadena
-            | PARDER'''
-
-def p_id_cadena(t):
-    '''id_cadena : ID data_type
-                | CADENA'''
-    print(t[1])
+    '''lista1 : lista1 COMA CADENA
+            | CADENA'''
 
 def p_data_type(t):
     '''data_type : NUMERIC
             | INTEGER
             | TEXT
             | SMALLINT 
-            | BEGINT
+            | BIGINT
             | DECIMAL
             | REAL
             | DOUBLE PRECISION
@@ -237,41 +322,41 @@ def p_data_type(t):
             | DATA
             | TIME
             | TIME time_zone
-            | INTERVAL'''
+            | INTERVAL
+            | ID'''
 
 def p_time_zone(t):
     '''time_zone    : WITH TIME ZONE
                     | WITHOUT TIME ZONE'''
 
 def p_create_db(t):
-    'create_db : CREATE c_db'
+    '''create_db : CREATE DATABASE c_db PTCOMA
+                 | CREATE OR REPLACE DATABASE c_db PTCOMA'''
 
 def p_c_db(t):
-    '''c_db : OR REPLACE DATABASE c_db1
-            | DATABASE c_db1'''
+    '''c_db : IF NOT EXISTS c_db1
+            | c_db1'''
 
 def p_c_db1(t):
-    '''c_db1 : IF NOT EXISTS ID owner_mode
-            | ID owner_mode'''
+    '''c_db1 : ID owner_mode
+             | ID'''
 
 def p_owner_mode(t):
-    '''owner_mode : owner_mode OWNER igual_id
-                | owner_mode MODE igual_id
-                | owner_mode PTCOMA
-                | OWNER igual_id
-                | MODE igual_id
-                | PTCOMA'''
+    '''owner_mode : owner_mode OWNER igual_id 
+                  | owner_mode MODE igual_int
+                  | OWNER igual_id 
+                  | MODE igual_int'''
 
 def p_igual_id(t):
     '''igual_id : IGUAL ID
                 | ID'''
 
-def p_show_db(t):
-    'show_db : SHOW DATABASES like_id'
+def p_igual_int(t):
+    '''igual_int : IGUAL ENTERO
+                | ENTERO'''
 
-def p_like_db(t):
-    '''like_id : LIKE ID PTCOMA
-                | PTCOMA'''
+def p_show_db(t):
+    'show_db : SHOW DATABASES PTCOMA'
 
 def p_alter_db(t):
     'alter_db : ALTER DATABASE ID al_db PTCOMA' 
@@ -284,12 +369,14 @@ def p_owner_db(t):
     '''owner_db : ID
                 | CURRENT_USER
                 | SESSION_USER'''
+
 def p_drop_db(t):
-    '''drop_db  : DROP DATABASE PTCOMA
-                | DROP DATABASE IF EXISTS PTCOMA'''
+    '''drop_db  : DROP DATABASE ID PTCOMA
+                | DROP DATABASE IF EXISTS ID PTCOMA'''
 
 def p_create_table(t): 
-    'create_table   : CREATE TABLE ID PARIZQ values PARDER PTCOMA'
+    '''create_table   : CREATE TABLE ID PARIZQ values PARDER PTCOMA
+                      | CREATE TABLE ID PARIZQ values PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
 
 def p_values(t):
     '''values   : colum_list
@@ -303,47 +390,49 @@ def p_colum_list(t):
 
 def p_const_keys(t):
     '''const_keys   : const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
-                    | const_keys COMA FOREIGN KEY PARIZQ PARDER REFERENCES PARIZQ lista_id PARDER
+                    | const_keys COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
                     | PRIMARY KEY PARIZQ lista_id PARDER
-                    | FOREIGN KEY PARIZQ PARDER REFERENCES PARIZQ lista_id PARDER'''
+                    | FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
 
 def p_const(t):
-    '''const    : const DEFAULT val
+    '''const    : const DEFAULT valores
                 | const NOT NULL
                 | const NULL
                 | const CONSTRAINT ID  UNIQUE
+                | const CONSTRAINT ID  UNIQUE PARIZQ lista_id PARDER
                 | const UNIQUE
-                | const CONSTRAINT ID CHECK PARIZQ PARDER
-                | const CHECK PARIZQ PARDER
+                | const CONSTRAINT ID CHECK PARIZQ expresion PARDER
+                | const CHECK PARIZQ expresion PARDER
                 | const PRIMARY KEY
-                | const REFERENCES ID
-                | DEFAULT val
+                | const REFERENCES ID PARIZQ lista_id PARDER
+                | DEFAULT valores
                 | NOT NULL
                 | NULL
-                | CONSTRAINT ID  UNIQUE
+                | CONSTRAINT ID UNIQUE
+                | CONSTRAINT ID  UNIQUE PARIZQ lista_id PARDER
                 | UNIQUE
-                | CONSTRAINT ID CHECK PARIZQ PARDER
-                | CHECK PARIZQ PARDER
+                | CONSTRAINT ID CHECK PARIZQ expresion PARDER
+                | CHECK PARIZQ expresion PARDER
                 | PRIMARY KEY
-                | REFERENCES ID'''
+                | REFERENCES ID PARIZQ lista_id PARDER'''
 
 def p_lista_id(t):
     '''lista_id : lista_id COMA ID
                 | ID'''
 
-def p_val(t):
-    '''val  : ENTERO'''
-
 def p_drop_table(t):
     'drop_table : DROP TABLE ID PTCOMA'
 
 def p_alter_table(t):
-    'alter_table    : ALTER TABLE ID acciones'
+    'alter_table    : ALTER TABLE ID acciones PTCOMA'
 
 def p_acciones(t):
     '''acciones : ADD acc
+                | ADD COLUMN ID data_type
                 | ALTER COLUMN ID TYPE data_type
+                | ALTER COLUMN ID SET const
                 | DROP CONSTRAINT ID
+                | DROP COLUMN ID
                 | RENAME COLUMN ID TO ID'''
 
 def p_acc(t):
@@ -352,11 +441,13 @@ def p_acc(t):
 
 def p_delete(t):
     '''s_delete : DELETE FROM ID PTCOMA
-                | DELETE FROM ID WHERE ID IGUAL expresion PTCOMA '''
+                | DELETE FROM ID WHERE expresion PTCOMA '''
 
 def p_insert(t):
-    '''s_insert : INSERT INTO ID PARIZQ lista_id PARDER VALUES lista_values PTCOMA '''
-                #| INSERT INTO ID PARIZQ lista_id PARDER s_select''' 
+    '''s_insert : INSERT INTO ID PARIZQ lista_id PARDER VALUES lista_values PTCOMA
+                | INSERT INTO ID VALUES lista_values PTCOMA '''
+                #| INSERT INTO ID PARIZQ lista_id PARDER s_select
+                #| INSERT INTO ID s_select''' 
 
 def p_lista_values(t):
     '''lista_values : lista_values COMA PARIZQ lista_valores PARDER
@@ -373,7 +464,7 @@ def p_valores(t):
 
 def p_s_update(t):
     '''s_update : UPDATE ID SET lista_asig PTCOMA
-                | UPDATE ID SET lista_asig WHERE ID IGUAL expresion PTCOMA'''
+                | UPDATE ID SET lista_asig WHERE expresion PTCOMA'''
 
 def p_lista_asig(t):
     '''lista_asig : lista_asig COMA ID IGUAL valores
@@ -387,7 +478,7 @@ def p_expresion(t):
                  | expresion MENOR expresion
                  | expresion MAYIG expresion
                  | expresion MENIG expresion
-                 | expresion IGUAQ expresion
+                 | expresion IGUAL expresion
                  | expresion DIFEQ expresion
                  | MENOS expresion %prec UMENOS
                  | SUMAS expresion %prec USUMAS
@@ -403,14 +494,91 @@ def p_expresion(t):
                  | PI
                  | POWER PARIZQ expresion PARDER
                  | SQRT PARIZQ expresion PARDER
+                 | ID
+                 | ID PUNTO ID
                  | valores'''
 
 def p_error(t):
-    print(t)
-    print("Error sintáctico en '%s'" % t.value)
+    global linea, columna
+    sin_error(t.type, t.value, linea, t.lexpos)
+    columna = columna + len(t.value)
+
 
 # Construyendo el analizador sintáctico
-import ply.yacc as yacc
 parser = yacc.yacc()
 
-parser.parse("CREATE TYPE inventory_item AS ( 'name text', supplier_id integer, price numeric ) ; CREATE DATABASE name; SHOW DATABASES; SHOW DATAbASES like gg; ALTER DATABASE name RENAME TO new_name; ALTER DATABASE name OWNER TO SESSION_USER; CREATE TABLE my_first_table ( column1 integer PRIMARY KEY, column2 numeric REFERENCES table2,column3 text,column4 varchar(10));CREATE TABLE my_first_table (column1 integer PRIMARY KEY, column2 numeric REFERENCES table3, column3 text, column4 varchar(10) NOT NULL, column5 integer NULL, column4 varchar(10) NOT NULL CONSTRAINT gg UNIQUE); INSERT INTO tabla1 (campo1, campo2) VALUES('valor1', 1), ('valor2', 2); UPDATE tabla1 SET campo2 = 3 WHERE campo2 = 2; DELETE FROM tabla1 WHERE campo2 = 3;")
+#Funcion para concatenar los errores léxicos en una variable
+def lex_error(lex, linea, columna):
+    global cont_error_lexico, errores_lexicos
+    cont_error_lexico = cont_error_lexico + 1
+    errores_lexicos = errores_lexicos + "<tr><td align=""center""><font color=""black"">" + str(cont_error_lexico) + "<td align=""center""><font color=""black"">" + str(lex) + "</td><td align=""center""><font color=""black"">" + str(linea) + "</td><td align=""center""><font color=""black"">" + str(columna) + "</td></tr>" + '\n'
+
+#Construccion reporte de errores léxicos
+def reporte_lex_error():
+    f = open('Errores_lexicos.html', 'w')
+    f.write("<html>")
+    f.write("<body>")
+    f.write("<table border=""1"" style=""width:100%""><tr><th>No.</th><th>Error</th><th>Linea</th><th>Columna</th></tr>")
+    f.write(errores_lexicos)
+    f.write("</table>")
+    f.write("</body>")
+    f.write("</html>")
+    f.close()
+
+#Construccion de la lista de tokens con lex.lex()
+def reporte_tokens(data):
+    cont = 0
+    lexer.input(data)
+    global errores_lexicos, cont_error_lexico, linea, columna
+    linea = 1
+    errores_lexicos = ""
+    cont_error_lexico = 0
+    f = open('Tokens.html', 'w')
+    f.write("<html>")
+    f.write("<body>")
+    f.write("<table border=""1"" style=""width:100%""><tr><th>No.</th><th>Token</th><th>Lexema</th><th>Linea</th><th>Columna</th></tr>")
+    while True:
+        cont = cont + 1
+        tok = lexer.token()
+        x = str(tok).replace('LexToken(','')[:-len(')')].split(",")
+        if(len(x) >= 4):
+            f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + x[0] + "</td><td align=""center""><font color=""black"">" + x[1] + "</td><td align=""center""><font color=""black"">" + str(linea) + "</td><td align=""center""><font color=""black"">" + str(columna) + "</td></tr>" + '\n')
+            columna = columna + len(x[1])
+        if not tok:
+            break
+    f.write("</table>")
+    f.write("</body>")
+    f.write("</html>")
+    f.close()
+
+#Funcion para concatenar los errores léxicos en una variable
+def sin_error(token, lex, linea, columna):
+    global cont_error_sintactico, errores_sintacticos
+    cont_error_sintactico = cont_error_sintactico + 1
+    errores_sintacticos = errores_sintacticos + "<tr><td align=""center""><font color=""black"">" + str(cont_error_sintactico) + "<td align=""center""><font color=""black"">" + str(token) + "<td align=""center""><font color=""black"">" + str(lex) + "</td><td align=""center""><font color=""black"">" + str(linea) + "</td><td align=""center""><font color=""black"">" + str(columna) + "</td></tr>" + '\n'
+
+#Construccion reporte de errores sintacticos
+def reporte_sin_error():
+    global cont_error_sintactico, errores_sintacticos
+    f = open('Errores_sintacticos.html', 'w')
+    f.write("<html>")
+    f.write("<body>")
+    f.write("<table border=""1"" style=""width:100%""><tr><th>No.</th><th>Token</th><th>Error</th><th>Linea</th><th>Columna</th></tr>")
+    f.write(errores_sintacticos)
+    f.write("</table>")
+    f.write("</body>")
+    f.write("</html>")
+    f.close()
+    cont_error_sintactico = 0
+    errores_sintacticos = ""
+
+def parse(entrada):
+    global parser, linea, columna
+    linea = 1
+    columna = 1
+    parse_result = parser.parse(entrada)
+    print(parse_result)
+    reporte_tokens(entrada)
+    reporte_lex_error()
+    reporte_sin_error()
+    return parse_result

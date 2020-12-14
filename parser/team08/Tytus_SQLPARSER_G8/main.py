@@ -12,6 +12,10 @@ import os
 import reportes.RealizarReportes
 import reportes.reportesimbolos as rs
 
+from Instrucciones.TablaSimbolos.Tabla import Tabla
+from Instrucciones.TablaSimbolos.Arbol import Arbol
+from Instrucciones.Excepcion import Excepcion
+
 import sintactico
 
 
@@ -140,8 +144,19 @@ class interfaz():
         #Selecciona el contenido de txt entrada
         #print(self.txtentrada[self.tab.index("current")].get(1.0,END))
         input=self.txtentrada[self.tab.index("current")].get(1.0,END)
-        #l_recolectora = ejecutar_analisis(input)
-        Tbl_Erroresr=sintactico.ejecutar_analisis(input)
+        tablaGlobal = Tabla(None)
+        inst = sintactico.ejecutar_analisis(input)
+        arbol = Arbol(inst)
+        # Ciclo que recorrerá todas las instrucciones almacenadas por la gramática.
+        for i in arbol.instrucciones:
+            # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
+            resultado = i.ejecutar(tablaGlobal,arbol)
+        # Después de haber ejecutado todas las instrucciones se verifica que no hayan errores semánticos.
+        if len(arbol.excepciones) != 0:
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
+        # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
+        for m in arbol.consola:
+            print(m)
         self.txtsalida[self.tab.index("current")].insert(INSERT,"Archivo Analizado")
 
     def btnejecutar_click(self):
