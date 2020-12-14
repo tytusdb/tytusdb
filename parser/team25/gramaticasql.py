@@ -1058,10 +1058,10 @@ def p_expresiones_is_complemento(p):
   
 
 def p_expresion_ternaria(p): 
-    '''expresion : expresion BETWEEN  expresion
-                 | expresion BETWEEN SYMMETRIC expresion 
-                 | expresion NOTBETWEEN expresion 
-                 | expresion NOTBETWEEN SYMMETRIC expresion ''' 
+    '''expresion : exp_aux BETWEEN  exp_aux AND exp_aux
+                 | exp_aux BETWEEN SYMMETRIC exp_aux AND exp_aux
+                 | exp_aux NOTBETWEEN exp_aux AND exp_aux
+                 | exp_aux NOTBETWEEN SYMMETRIC exp_aux AND exp_aux''' 
                  
 def p_expreion_funciones(p):
     'expresion : funciones'
@@ -1104,7 +1104,46 @@ def p_expresion_con_dos_nodos(p):
                  | expresion AND expresion
     '''
 #----------------------------------------------------------------------------------------------------- FIN EXPRESION
-
+#<EXP_AUX>::= '-'  <EXP_AUX>
+#          |    '+'  <EXP_AUX>
+#         | <EXP_AUX>  '+'  <EXP_AUX>
+#          | <EXP_AUX>  '-'  <EXP_AUX>
+#          | <EXP_AUX>  '*'  <EXP_AUX>
+#          | <EXP_AUX>  '/'  <EXP_AUX>
+#          | <EXP_AUX>  '%'  <EXP_AUX>
+#          | <EXP_AUX>  '^'  <EXP_AUX>
+def exp_aux(p):
+        '''exp_aux : exp_aux MAS exp_aux 
+                 | exp_aux MENOS exp_aux
+                 | exp_aux ASTERISCO exp_aux
+                 | exp_aux DIVISION exp_aux 
+                 | exp_aux EXPONENT exp_aux
+                 | exp_aux MODULO exp_aux
+    '''
+#          | '(' <EXP_AUX> ')'
+def p_exp_aux_entre_parentesis(p):
+    'exp_aux : PABRE exp_aux  PCIERRA'
+#          | 'cadena'
+def p_exp_aux_cadena(p):
+    'exp_aux :  CADENA'
+#          | 'numero'          
+def p_exp_aux_numero(p):
+    'exp_aux :  NUMERO'
+#          | 'decimal'
+def p_exp_aux_decimal(p):
+    'exp_aux :  DECIMAL_LITERAL'
+#          | 'id' '.' 'id'
+def p_exp_aux_tabla(p):
+    'exp_aux :  ID PUNTO ID'
+#          | 'id'
+def p_exp_aux_id(p):
+    'exp_aux :  ID'
+#          | <FUNCIONES>
+def p_exp_aux_funciones(p):
+    'exp_aux :  funciones'
+#          | <TIMESTAMP>
+def p_exp_aux_timestamp(p):
+    'exp_aux :  timestamp'
 
 #<SUBQUERY> ::= '('<SELECT>')'
 def p_subquery(p):
