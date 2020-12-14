@@ -35,6 +35,8 @@ class ArbolAVLT:
         self.root = None
         self.cadena = ""
         self.scape = False
+        self.scape_update = False
+        self.__list_tables = list()
 
     def add(self, element):
         # b = False
@@ -44,7 +46,7 @@ class ArbolAVLT:
         if raiz is None:
             raiz = NodoAVL(elemeneto)
             self.scape = True
-        elif elemeneto < raiz.get_element():
+        elif elemeneto.get_table_name() < raiz.get_element().get_table_name():
             izq = self.__add(raiz.get_left(), elemeneto)
             raiz.set_left(izq)
             if self.scape is True:
@@ -60,7 +62,7 @@ class ArbolAVLT:
                     else:
                         raiz = self.__rotacion_id(raiz, n1)
                     self.scape = False
-        elif elemeneto > raiz.get_element():
+        elif elemeneto.get_table_name() > raiz.get_element().get_table_name():
             der = self.__add(raiz.get_right(), elemeneto)
             raiz.set_right(der)
             if self.scape:
@@ -144,3 +146,75 @@ class ArbolAVLT:
 
         n2.set_factor(0)
         return n2
+
+    def grafica(self):
+        self.cadena = "digraph G{\n"
+        self.cadena += "node[shape=\"record\"]\n"
+        if self.root is not None:
+            self.cadena += f"node{self.root.get_element().get_table_name()}[color=\"#000000\",label=\"<f0>|<f1> Valor:{self.root.get_element().get_table_name()} |<f2>\" ] \n"
+            self.__graficar(self.root, self.get_root().get_left(), True)
+            self.__graficar(self.root, self.get_root().get_right(), False)
+
+        self.cadena += "}\n"
+        print(self.cadena)
+
+    def get_root(self):
+        return self.root
+
+    def __graficar(self, padre, actual, left):
+        if actual is not None:
+            self.cadena += f"node{actual.get_element().get_table_name()}[color=\"#000000\",label=\"<f0>|<f1> Valor:{actual.get_element().get_table_name()} |<f2>\"] \n"
+            if left is True:
+                self.cadena += f"node{padre.get_element().get_table_name()}:f0->node{actual.get_element().get_table_name()}:f1 [arrowhead=\"crow\",color=\"#E30101 \"] \n"
+            else:
+                self.cadena += f"node{padre.get_element().get_table_name()}:f2->node{actual.get_element().get_table_name()}:f1 [arrowhead=\"crow\",color=\"#E30101 \"]  \n"
+
+            self.__graficar(actual, actual.get_left(), True)
+            self.__graficar(actual, actual.get_right(), False)
+
+    def __delete_nodo(self, raiz, value):
+        if raiz is None: return None
+        if value == raiz.get_element().get_table_name():
+            # No tiene ningun Hijo
+            if raiz.get_left() is None and raiz.get_right() is None:
+                return None
+            # Tiene un Hijo
+            if raiz.get_right() is None:
+                raiz.set_factor(-1)
+                return raiz.get_left()
+            if raiz.get_left() is None:
+                raiz.set_factor(1)
+                return raiz.get_right()
+
+            # Have 2 Son
+            small_value = self.__find_nodo(raiz.get_right())
+            raiz.set_element(small_value)
+            raiz.set_right(self.__delete_nodo(raiz.get_right(), small_value))
+            raiz.set_factor(-1)
+            return raiz
+        if value < raiz.get_element().get_table_name():
+            raiz.set_left(self.__delete_nodo(raiz.get_left(), value))
+            return raiz
+        raiz.set_right(self.__delete_nodo(raiz.get_right(), value))
+        return raiz
+
+    def delete_nodo(self, value):
+        self.root = self.__delete_nodo(self.root, value)
+
+    def __find_nodo(self, raiz=NodoAVL):
+        if raiz.get_left() is None:
+            return raiz.get_element()
+        else:
+            return self.__find_nodo(raiz.get_left())
+
+    def __search_value(self, root, name):
+        if root is None: return None
+        if root.get_element().get_table_name() == name:
+            return root
+        if root.get_element().get_table_name() > name:
+            return self.__search_value(root.get_left(), name)
+
+        return self.__search_value(root.get_right(), name)
+
+    def search_value(self, table_name):
+        return self.__search_value(self.root, table_name)

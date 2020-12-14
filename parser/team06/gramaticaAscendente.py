@@ -512,6 +512,7 @@ def p_parametroAlterUser(t):
 def p_dropTable(t) :
     'dropTable  : DROP TABLE ID PUNTOYCOMA'
     h.reporteGramatical1 +="dropTable    ::=        DROP TABLE ID PUNTOYCOMA\n"
+    t[0]=DropTable(t[3])
 #-----------------------------------------------------ALTER TABLE-----------------------------------------------------------------
 def p_alterTable(t):
     '''
@@ -519,20 +520,24 @@ def p_alterTable(t):
 
     '''
     h.reporteGramatical1 +="alterTable    ::=        ALTER TABLE ID variantesAt PUNTOYCOMA\n"
+    t[0] = AlterTable(t[3],t[4])
 
 #---------------------------------------------------TIPOS------------------------------------------------------------------------
 def p_variantesAt(t):
     '''
     variantesAt :   ADD contAdd
-                |   ALTER listaContAlter
+                |   ALTER contAlter
                 |   DROP contDrop
     '''
-    if t[1]=="ADD": 
+    if t[1].upper()=="ADD": 
         h.reporteGramatical1 +="variantesAt    ::=        ADD contAdd\n"  
-    elif t[1]=="ALTER":
+        t[0]=VariantesAt(t[1],t[2])
+    elif t[1].upper()=="ALTER":
         h.reporteGramatical1 +="variantesAt    ::=        ALTER listaContAlter\n"
-    elif t[1]=="DROP":
+        t[0]=VariantesAt(t[1],t[2])
+    elif t[1].upper()=="DROP":
         h.reporteGramatical1 +="variantesAt    ::=         DROP contDrop\n"
+        t[0]=VariantesAt(t[1],t[2])
     
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaContAlter(t):
@@ -553,10 +558,12 @@ def p_contAlter(t):
     contAlter   : COLUMN ID SET NOT NULL 
                 | COLUMN ID TYPE tipo
     '''
-    if t[3]=="SET":
+    if t[3].upper()=="SET":
         h.reporteGramatical1 +="contAlter    ::=         COLUMN ID   SET  NOT NULL\n"
-    elif t[3]=="TYPE":
+        t[0]=contAlter(t[2],t[3],t[4])
+    elif t[3].upper()=="TYPE":
         h.reporteGramatical1 +="contAlter    ::=         COLUMN ID  TYPE  tipo\n"
+        t[0]=contAlter(t[2],t[3],t[4])
 
 
 def p_contAdd(t):
@@ -566,15 +573,18 @@ def p_contAdd(t):
                 |   FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID
                 |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA
     '''
-    if t[1]=="COLUMN":
+    if t[1].upper()=="COLUMN":
         h.reporteGramatical1 +="contAdd    ::=         COLUMN ID tipo\n"
-    elif t[1]=="CHECK":
+        t[0]=contAdd(t[1],t[3],t[2],None,None)
+    elif t[1].upper()=="CHECK":
         h.reporteGramatical1 +="contAdd    ::=         CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-    elif t[1]=="FOREIGN":
+        t[0]=contAdd(t[1],None,None,None,t[3])
+    elif t[1].upper()=="FOREIGN":
         h.reporteGramatical1 +="contAdd    ::=        FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID\n"
-    elif t[1]=="CONSTRAINT":
+        t[0]=contAdd(t[1],None,t[4],t[7],None)
+    elif t[1].upper()=="CONSTRAINT":
         h.reporteGramatical1 +="contAdd    ::=         CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA\n"
-
+        t[0]=contAdd(t[1],None,t[2],None,t[5])
 
 
 def p_contDrop(t):
@@ -582,10 +592,12 @@ def p_contDrop(t):
     contDrop    : COLUMN ID 
                 | CONSTRAINT ID
     '''
-    if t[1]=="COLUMN":
+    if t[1].upper()=="COLUMN":
         h.reporteGramatical1 +="contDrop    ::=         COLUMN ID \n"
-    elif t[1]=="CONSTRAINT":
+        t[0]=contDrop(t[1],t[2])
+    elif t[1].upper()=="CONSTRAINT":
         h.reporteGramatical1 +="contDrop    ::=         CONSTRAINT ID\n"
+        t[0]=contDrop(t[1],t[2])
 
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
@@ -593,12 +605,16 @@ def p_listaID(t):
     listaid     :   listaid COMA ID
     '''
     h.reporteGramatical1 +="listaid    ::=         listaid COMA ID\n"
+    t[1].append(t[3])
+    t[0]=t[1]
+    
 
 def p_listaID_2(t):
     '''
     listaid     :   ID
     '''
     h.reporteGramatical1 +="listaid    ::=          ID\n"
+    t[0]=t[1]
 
 
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
@@ -716,6 +732,7 @@ def p_operacion_funcion(t):
 
 def p_operacion_final(t):
     'operacion :     final'
+    t[0] = t[1]
     h.reporteGramatical1 +="operacion    ::=      final\n"
     t[0]=t[1]
 
@@ -996,6 +1013,7 @@ def p_final(t):
 
 def p_final_id(t):
     'final          : ID'
+    t[0] = t[1]
     h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+")\n"
     t[0]=ExpresionIdentificador(t[1])
 
@@ -1005,12 +1023,15 @@ def p_final_invocacion(t):
 
 def p_final_cadena(t):
     'final          : CADENA'
+    t[0] = t[1]
     h.reporteGramatical1 +="final     ::=     CADENA ("+t[1]+")\n"
     t[0]=ExpresionCadenas(t[1])
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
     'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
+    #print(t[3],t[6])
+    t[0] = InsertinDataBases(t[3],t[6])
     h.reporteGramatical1 +="insertinBD    ::=      INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
 
 def p_insertBD_2(t):
@@ -1021,17 +1042,21 @@ def p_insertBD_2(t):
 def p_listaParam(t):
     '''listaParam         : listaParam COMA final
     '''
+    t[1].append(t[3])
+    t[0] = t[1]
     h.reporteGramatical1 +="insertinBD    ::=      listaParam COMA final\n"
 
 def p_listaParam_2(t):
     '''listaParam         : final
     '''
+    t[0] = [t[1]]
     h.reporteGramatical1 +="insertinBD    ::=      final\n"
 
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):
     'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
+    t[0]= UpdateinDataBase(t[2],t[4],t[6])
     h.reporteGramatical1 +="updateinBD    ::=      UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA\n"
 
 
@@ -1039,17 +1064,20 @@ def p_updateBD(t):
 def p_asignaciones(t):
     '''asignaciones       : asignaciones COMA asigna
     '''
+    t[1].append(t[3])
+    t[0] = t[1]
     h.reporteGramatical1 +="asignaciones    ::=      asignaciones COMA asigna\n"
 
 def p_asignaciones_2(t):
     '''asignaciones       : asigna
     '''
+    t[0] = [t[1]]
     h.reporteGramatical1 +="asignaciones    ::=      asigna\n"
 
 def p_asigna(t):
-    'asigna             : operacion'
-    h.reporteGramatical1 +="asigna    ::=      operacion\n"
-    t[0]=t[1]
+    'asigna             : ID IGUAL operacion'
+    t[0] = AsignacioninTable(t[1],t[3])
+    h.reporteGramatical1 +="asigna    ::=      ID IGUAL operacion\n"
 
 
 #-----------------------------------------------------DELETE IN BD--------------------------------------------------------------------
@@ -1059,13 +1087,18 @@ def p_deleteinBD_1(t):
 
 def p_deleteinBD_2(t):
     'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
+    t[0] = DeleteinDataBases(t[3],t[5])
     h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE operacion PUNTOYCOMA\n"
+
 
 
 #-----------------------------------------------------CREATE TABLE--------------------------------------------------------------------
 def p_createTable(t):
     'createTable        : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA'
+    t[0]= CreateTable(t[3],t[5])
     h.reporteGramatical1 +="createTable    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA\n"
+
+
 
 def p_inheritsBD(t):
     'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
@@ -1075,74 +1108,133 @@ def p_inheritsBD(t):
 def p_creaColumna(t):
     '''creaColumnas        : creaColumnas COMA Columna 
     '''
+    t[1].append(t[3])
+    t[0] = t[1]
     h.reporteGramatical1 +="creaColumnas    ::=      creaColumnas COMA Columna\n"
 
 def p_creaColumna_2(t):
     '''creaColumnas        : Columna 
     '''
+    t[0]=[t[1]]
     h.reporteGramatical1 +="createTable    ::=      Columna\n"
 
 
 def p_columna_1(t):
-    '''Columna          : ID tipo  
-                        | ID tipo paramOpcional
-                        | constraintinColumn 
+    'Columna            : ID tipo'
+    t[0]=ColumnasTable(t[1],t[2],None)
+    h.reporteGramatical1 +="Columna    ::=      ID tipo\n"
+
+def p_columna_2(t):
+    'Columna            : ID tipo paramOpcional'
+    #print(t[3])
+    t[0]=ColumnasTable(t[1],t[2],t[3])
+    h.reporteGramatical1+="Columna      ::=     ID tipo paramOpcional"
+
+def p_columna_3(t):
+    'Columna            : uniqueinColumn'
+    h.reporteGramatical+="Columna       ::=     uniqueinColumn"
+
+def p_columna_4(t):
+    '''Columna          : constraintinColumn 
                         | checkinColumn
-                        | uniqueinColumn
                         | primaryKey
                         | foreignKey
     '''
+    t[0] = t[1]
     h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
-
 
 
 def p_paramOpcional(t):
     '''paramOpcional    : paramOpcional paramopc
     '''
+    t[1].append(t[2])
+    t[0] = t[1]
     h.reporteGramatical1 +="paramOpcional    ::=      paramOpcional paramopc\n"
+    print("parametro-----")
     
 
 def p_paramOpcional_1(t):
     '''paramOpcional    : paramopc
     '''
+    t[0] = [t[1]]
+    print("parametro++++")
+    print(t[0])
     h.reporteGramatical1 +="paramOpcional    ::=      paramopc\n"
 
-def p_paramopc(t):
+def p_paramopc_1(t):
     '''paramopc         : DEFAULT final
                         | NULL
                         | NOT NULL
                         | UNIQUE
-                        | constraintinColumn
-                        | checkinColumn
                         | PRIMARY KEY
     '''
+    if t[1].upper() == "DEFAULT":
+        
+        t[0] = TipoRestriccion(RestriccionDefaul(t[2]),OPERACION_RESTRICCION_COLUMNA.DEFAULT)
+        print("entro default " ,t[0])
+    #elif t[1].upper() == "NULL":
+    #    t[0] = TipoRestriccion(RestriccionNull(1),OPERACION_RESTRICCION_COLUMNA.NULL)
+    #elif t[1] == "NOT":
+    #    t[0] = TipoRestriccion(RestriccionNotNull(1),OPERACION_RESTRICCION_COLUMNA.NOT_NULL)
+    #elif t[1] == "UNIQUE":
+    #    print(t[1])
+    #    t[0] = TipoRestriccion(RestriccionUniqueSimple(1),OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA)
+    #elif t[1] == "PRIMARY":
+    #    t[0] = TipoRestriccion(RestriccionPrimaryKeyColumn(1),OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)
+    else:
+        print("FFFFF")
+    
     h.reporteGramatical1 +="paramopc    ::=      paramopc\n"
+    #print(t[0])
     
 
+def p_paramopc_2(t):
+    'paramopc           : constraintinColumn'
+    h.reporteGramatical1 +="paramopc    ::=      "+str(t[1])+"\n"
 
-def p_constraintinColumn(t):
+def p_paramopc_3(t):
+    'paramopc           : checkinColumn'
+    t[0] = TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)
+    h.reporteGramatical1+="paramopc     ::=     "+str(t[1])+"\n"
+
+def p_paramopc_4(t):
+    'paramopc           : CONSTRAINT ID UNIQUE'
+    t[0] = TipoRestriccion(RestriccionConstraintUnique(t[2]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT)
+    h.reporteGramatical1 +="constraintinColumn    ::=      CONSTRAINT   ID   UNIQUE"
+
+def p_constraintinColumn_1(t):
     '''constraintinColumn   : CONSTRAINT ID checkinColumn
-                            | CONSTRAINT ID uniqueinColumn
     '''
+    t[0]=RestriccionConstraintCheck(t[2],t[3])
+    h.reporteGramatical1 +="constraintinColumn    ::=      CONSTRAINT   ID   "+str(t[3])+"\n"
+
+
+def p_constraintinColumn_2(t):
+    'ConstraintinColumn     : CONSTRAINT ID uniqueinColumn'
+    t[0]=RestriccionConstraintUnique(t[2])
     h.reporteGramatical1 +="constraintinColumn    ::=      CONSTRAINT   ID   "+str(t[3])+"\n"
 
 def p_checkinColumn(t):
     'checkinColumn      : CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
+    t[0]=RestriccionCheck(t[3])
     h.reporteGramatical1 +="checkinColumn    ::=      CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
 
 
 def p_uniqueinColumn(t):
     'uniqueinColumn     : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
+    t[0]=RestriccionUnique(t[3])
     h.reporteGramatical1 +="uniqueinColumn    ::=      UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
 
 
 def p_primaryKey(t):
     'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
+    t[0]=RestriccionPrimaryKey(t[4])
     h.reporteGramatical1 +="primaryKey    ::=      PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
 
 
 def p_foreingkey(t):
     'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA' 
+    t[0]=RestriccionForeingkey(t[4],t[7],t[9])
     h.reporteGramatical1 +="foreignKey    ::=      FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
 
 #-----------------------------------------------------TIPOS DE DATOS--------------------------------------------------------------------
@@ -1154,8 +1246,7 @@ def p_tipo(t):
                         | DECIMAL
                         | NUMERIC
                         | REAL
-                        | DOUBLE
-                        | PRECISION
+                        | DOUBLE PRECISION
                         | MONEY
                         | VARCHAR PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
                         | CHARACTER VARYING PARENTESISIZQUIERDA ENTERO PARENTESISDERECHA
@@ -1174,8 +1265,14 @@ def p_tipo(t):
                         | MINUTE
                         | SECOND
     '''
-    h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+    if t[1]=="SMALLINT":
+        t[0] = t[1] 
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+    elif t[1]=="INTEGER":
+        t[0] = t[1]
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
 
+    
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
 def p_select(t):
     '''selectData       : SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
