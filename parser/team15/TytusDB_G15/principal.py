@@ -14,10 +14,6 @@ salida = ""
 def procesar_createTable(instr,ts,tc) :
     # print(instr.id)
     if instr.instrucciones != []:
-        i = 0
-        while i < len(instr.instrucciones):
-            print(instr.instrucciones[i])
-            i+=1
         for ins in instr.instrucciones:
             if isinstance(ins, Definicion_Columnas): 
                 procesar_Definicion(ins,ts,tc,instr.id)
@@ -67,8 +63,8 @@ def procesar_constraint(instr,ts,tc,tabla):
                     tipo = TC.Tipo(tabla,ids.exp1.id,None,OPCIONES_CONSTRAINT.CHECK,None,None)
                     tc.actualizarRestriccion(tipo,tabla,ids.exp1.id,OPCIONES_CONSTRAINT.CHECK)
                 else: 
-                    tipo = TC.Tipo(tabla,ids.exp1.id,None,OPCIONES_CONSTRAINT.CHECK,None,None)
-                    tc.actualizarRestriccion(tipo,tabla,ids.exp1.id,OPCIONES_CONSTRAINT.CHECK)
+                    tipo = TC.Tipo(tabla,ids.exp2.id,None,OPCIONES_CONSTRAINT.CHECK,None,None)
+                    tc.actualizarRestriccion(tipo,tabla,ids.exp2.id,OPCIONES_CONSTRAINT.CHECK)
     
 def procesar_check(instr,ts,tc):
     print('Check')
@@ -119,7 +115,7 @@ def procesar_instrucciones(instrucciones,ts,tc) :
 
     return salida
 
-f = open("./entrada.txt", "r")
+'''f = open("./entrada.txt", "r")
 input = f.read()
 
 instrucciones = g.parse(input)
@@ -132,7 +128,7 @@ astG = AST()
 astG.generarAST(instrucciones)
 typeC = TipeChecker()
 typeC.crearReporte(tc_global)
-
+'''
 
 def ts_graph(ts_global):
     dot3 = Digraph('TS', node_attr={'shape': 'plaintext','color': 'lightblue2'})
