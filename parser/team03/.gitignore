@@ -1,9 +1,9 @@
 ## - Gitignore file to use on root of the proyect in order to help avoid mistakes while pushing changes.
 ##   (this only works for Compiladores 2 students, other courses need to tweak the rules).
 ##
-## - Uncomment Line 14 after put file in your root directory.
+## - Uncomment Line 18 after put file in your root directory.
 ##
-## - Uncomment Line 15-17 (just this one, not the root one) and DON'T push the file if you want to use storageManager
+## - Uncomment Line 18-21 (just this one, not the root one) and DON'T push the file if you want to use storageManager
 ##   inside team folder (not recommended, refactor would be needed anyways)
 
 
