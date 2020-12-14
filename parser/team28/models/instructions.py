@@ -1,3 +1,4 @@
+#TODO: DISTINCT
 class Instruction:
     '''Clase abstracta'''
 class BinaryOperation(Instruction):
@@ -8,33 +9,15 @@ class BinaryOperation(Instruction):
         self.value1 = value1
         self.value2 = value2
         self.operador = operador
-        
 
-'''
-    Lenguaje de Definición de Datos (DDL) =======================================================================================================================
-'''
-class CreateDB(Instruction):
+class Alias(Instruction):
     '''
-        CREATE DATABASE recibe el id de la base
+        Alias recibe el ID original y su ALIAS
     '''
-    def __init__(self, id) :
+    def __init__(self, id, alias) :
         self.id = id
+        self.alias = alias
 
-class CreateTable(Instruction):
-    '''
-        CREATE TABLE recibe el nombre de la tabla y un array con sus columnas
-    '''
-    def __init__(self, table, arr_columns) :
-        self.table = table
-        self.arr_columns = arr_columns
-
-class Drop(Instruction):
-    '''
-        DROP recibe el id y si es tabla(0), o database(1)
-    '''
-    def __init__(self, id, dtype) :
-        self.id = id
-        self.dtype = dtype
 
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
@@ -62,21 +45,39 @@ class Update(Instruction):
     '''
         UPDATE recibe tres parametros: 
             1. tabla a insertar
-            2. columnas donde insertar (puede estar vacio (se inserta en todas))
-            3. valores a insertar
-        TODO: VER COMO MANEJAR BIEN LOS DOS ARRAYS QUE RECIBE
+            2. array de columnas con el valor a insertar (ColumnVal[])
+            3. recibe un array con todas los parametros OPCIONALES
     '''
-    def __init__(self,  table, arr_columns, arr_values) :
+    def __init__(self,  table, arr_columns_vals, params) :
         self.table = table
-        self.arr_columns = arr_columns
-        self.arr_values = arr_values
+        self.arr_columns_vals = arr_columns_vals
+        self.params = params
+
+class ColumnVal(Instruction):
+    '''
+        ColumnVal recibe dos parametros: 
+            1. nombre del campo a insertar
+            2. valor a poner
+    '''
+    def __init__(self,  column, value) :
+        self.column = column
+        self.value = value
+
+class Opt1(Instruction):
+    '''
+        Recibe si se ha introducido un ALIAS y un asterisco (true || false)
+    '''
+    def __init__(self, isAsterisco, alias) :
+        self.isAsterisco = isAsterisco
+        self.alias = alias
 
 class Delete(Instruction):
     '''
-        DELETE recibe la tabla donde tiene que borrar
+        DELETE recibe la tabla donde tiene que borrar y recibe un array con todas los parametros OPCIONALES
     '''
-    def __init__(self,  table) :
+    def __init__(self,  table, params) :
         self.table = table
+        self.params = params
 
 class From(Instruction):
     '''
@@ -107,7 +108,21 @@ class Having(Instruction):
     '''
     def __init__(self,  condition) :
         self.condition = condition
-    
+
+class Using(Instruction):
+    '''
+        USING recibe un array con ids
+    '''
+    def __init__(self,  value):
+        self.value = value
+
+class Returning(Instruction):
+    '''
+        RETURNING recibe un array con ids o un asterisco
+    '''
+    def __init__(self,  value):
+        self.value = value
+
 class Between(Instruction):
     '''
         BETWEEN recibe 2 parametros
