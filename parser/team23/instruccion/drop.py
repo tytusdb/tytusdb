@@ -18,13 +18,14 @@ class drop(instruccion):
         self.nodo.hijos.append(nodo_AST('DROP',num_nodo+1))
         self.nodo.hijos.append(nodo_AST('DATABASE', num_nodo + 2))
         if if_exists != None:
-            self.nodo.hijos.append(if_exists.nodo)
-        self.nodo.hijos.append(nodo_AST(id, num_nodo + 3))
+            self.nodo.hijos.append(nodo_AST('IF EXISTS', num_nodo + 3))
+            self.nodo.hijos.append(nodo_AST(id, num_nodo + 4))
+        else:
+            self.nodo.hijos.append(nodo_AST(id, num_nodo + 3))
 
         # Gramatica
         self.grammar_ = "<TR><TD>INSTRUCCION ::= drop_statement; </TD><TD>INSTRUCCION = falta poner accicon;</TD></TR>"
-        if if_exists != None:
-            self.grammar_ = if_exists.grammar_
+
 
     def ejecutar(self):
         try:
