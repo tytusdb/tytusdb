@@ -10,5 +10,13 @@ def createDatabase(nameDb):
         tabla = AvlT()
         DataBase.insertar(tabla,nameDb)
         return 0
-    else:
+    elif busqueda != None:
         return 2
+    else: 
+        return 1
+
+def showDatabases():
+    bases = DataBase.recorrido()
+    lista = bases.split(' ')
+    lista.pop()
+    return lista

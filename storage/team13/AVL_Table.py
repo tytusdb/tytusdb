@@ -2,7 +2,8 @@ import os
 
 class Nodo:
 
-    def __init__(self,valor):
+    def __init__(self,valor,name):
+        self.name = name
         self.valor = valor
         self.izq = None
         self.der = None
@@ -14,17 +15,17 @@ class Avl:
     def __init__(self):
         self.raiz = None
 
-    def insertar(self,valor):
-        self.raiz = self.__insertar(self.raiz,valor)
+    def insertar(self,tabla,valor):
+        self.raiz = self.__insertar(self.raiz,tabla,name)
 
-    def __insertar(self,nodo,valor):
+    def __insertar(self,nodo,tabla,name):
         #Insertar nodos
         if nodo == None:
-            return Nodo(valor)
-        elif valor < nodo.valor:
-            nodo.izq = self.__insertar(nodo.izq,valor)
-        elif valor > nodo.valor:
-            nodo.der = self.__insertar(nodo.der,valor)
+            return Nodo(tabla,name)
+        elif name < nodo.name:
+            nodo.izq = self.__insertar(nodo.izq,tabla,name)
+        elif name > nodo.name:
+            nodo.der = self.__insertar(nodo.der,tabla,name)
         
         #Determinar el Factor
         nodo.factor = 1 + max(self.__obtenerFactor(nodo.der),self.__obtenerFactor(nodo.izq))
@@ -32,14 +33,14 @@ class Avl:
         factorBalance = self.__obtenerBalance(nodo)
 
         #Rotaciones
-        if factorBalance > 1 and valor < nodo.izq.valor:
+        if factorBalance > 1 and name < nodo.izq.name:
             return self.__rotacionDerecha(nodo)
-        if factorBalance < -1 and valor > nodo.der.valor:
+        if factorBalance < -1 and name > nodo.der.name:
             return self.__rotacionIzquierda(nodo)
-        if factorBalance > 1 and valor > nodo.izq.valor:
+        if factorBalance > 1 and name > nodo.izq.name:
             nodo.izq = self.__rotacionIzquierda(nodo.izq)
             return self.__rotacionDerecha(nodo)
-        if factorBalance < -1 and valor < nodo.der.valor:
+        if factorBalance < -1 and name < nodo.der.name:
             nodo.der = self.__rotacionDerecha(nodo.der)
             return self.__rotacionIzquierda(nodo)
 
@@ -88,15 +89,15 @@ class Avl:
 
 
 
-    def __eliminar(self,raiz,valor):
+    def __eliminar(self,raiz,name):
 
         #Buscar el nodo
         if raiz == None:
             return raiz
-        elif valor < raiz.valor:
-            raiz.izq = self.__eliminar(raiz.izq,valor)
-        elif valor > raiz.valor:
-            raiz.der = self.__eliminar(raiz.der,valor)
+        elif name < raiz.name:
+            raiz.izq = self.__eliminar(raiz.izq,name)
+        elif name > raiz.name:
+            raiz.der = self.__eliminar(raiz.der,name)
         else:
             #Nodo Hoja
             if raiz.factor == 1:
@@ -146,7 +147,7 @@ class Avl:
 
         if nodo.der == None:
             valores = NodoyValor()
-            valores.valor = nodo.valor
+            valores.valor = nodo.name
             nodo = None
             valores.nodo = nodo
             return valores
@@ -172,10 +173,10 @@ class Avl:
             graph += "node[shape = \"record\"]\n"
             graph += self.__graficar(self.raiz)
             graph += '}'
-            file = open("AVL_DB.dot","w")
+            file = open("AVL_T.dot","w")
             file.write(graph)
             file.close()
-            os.system('dot -Tpng AVL_DB.dot -o AVL_DB.png')
+            os.system('dot -Tpng AVL_T.dot -o AVL_T.png')
         else:
             print('No ha Bases de datos')
 
@@ -188,15 +189,31 @@ class Avl:
         graph += self.__graficar(raiz.der)
         graph += self.__graficar(raiz.izq)
 
-        nodo = 'node' + str(raiz.valor)
+        nodo = 'node' + str(raiz.name)
 
         if raiz.factor == 1:
-            graph += nodo + '[label=' + str(raiz.valor) + ']\n'
+            graph += nodo + '[label=' + str(raiz.name) + ']\n'
         else:
-            graph += nodo + '[label=\"<f0>|{' + str(raiz.valor) + '}|<f2>\"]\n'
+            graph += nodo + '[label=\"<f0>|{' + str(raiz.name) + '}|<f2>\"]\n'
             if raiz.izq != None:
-                graph += nodo + ':f0 -> ' + 'node' + str(raiz.izq.valor) + '\n'
+                graph += nodo + ':f0 -> ' + 'node' + str(raiz.izq.name) + '\n'
             if raiz.der != None:
-                graph += nodo + ':f2 -> ' + 'node' + str(raiz.der.valor) + '\n'
+                graph += nodo + ':f2 -> ' + 'node' + str(raiz.der.name) + '\n'
         
         return graph
+
+    def recorrido(self):
+        lista_BD = self.__recorrido(self.raiz)
+        return lista_BD
+
+    def __recorrido(self,nodo):
+        bases = ''
+
+        if nodo == None:
+            return ''
+
+        bases += str(self.__recorrido(nodo.izq))
+        bases += nodo.name + ' '
+        bases += str(self.__recorrido(nodo.der))
+
+        return bases
