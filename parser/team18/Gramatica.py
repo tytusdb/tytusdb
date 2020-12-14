@@ -1,6 +1,5 @@
 # Imports Librerias
 from reportes import *
-from tkinter import *
 
 # Analisis Lexico
 Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'replace':'REPLACE', 'if':'IF', 'exists':'EXISTS',
@@ -73,13 +72,13 @@ t_POTENCIA = r'\^'
 t_MODULO = r'\%'
 
 def t_DECIMAL(t):
-    r'-?\d+\.\d+'
-    try:
-        t.value = float(t.value)
-    except ValueError:
-        print("Valor no es parseable a decimal %d",t.value)
-        t.value = 0
-    return t    
+     r'-?\d+\.\d+'
+     try:
+          t.value = float(t.value)
+     except ValueError:
+          print("Valor no es parseable a decimal %d",t.value)
+          t.value = 0
+     return t    
 
 
 def t_ENTERO(t):
@@ -92,10 +91,10 @@ def t_ENTERO(t):
      return t
 
 def t_BOOLEAN(t):
-    r'(true|false)'
-    mapping = {"true": True, "false": False}
-    t.value = mapping[t.value]
-    return t
+     r'(true|false)'
+     mapping = {"true": True, "false": False}
+     t.value = mapping[t.value]
+     return t
 
 def t_ID(t):
      r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -103,33 +102,33 @@ def t_ID(t):
      return t
 
 def t_CADENA1(t):
-    r'\".*?\"'
-    t.value = t.value[1:-1]
-    return t
+     r'\".*?\"'
+     t.value = t.value[1:-1]
+     return t
 
 def t_CADENA2(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
+     r'\'.*?\''
+     t.value = t.value[1:-1] 
+     return t 
 
 def t_COMENT_MULTI(t):
-    r'/\*(.|\n)*?\*/'
-    t.lexer.lineno += t.value.count('\n')
+     r'/\*(.|\n)*?\*/'
+     t.lexer.lineno += t.value.count('\n')
 
 def t_COMENT_SIMPLE(t):
-    r'--.*\n'
-    t.lexer.lineno += 1
+     r'--.*\n'
+     t.lexer.lineno += 1
 
 t_ignore = " \t"
 
 def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+     r'\n+'
+     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print("Caracter Invalido '%s'" % t.value[0])
-    Error_Lex.append("Error Lexico: "+t.value[0]+" en la Fila: "+str(int(t.lexer.lineno)))
-    t.lexer.skip(1)
+     print("Caracter Invalido '%s'" % t.value[0])
+     Error_Lex.append("Error Lexico: "+t.value[0]+" en la Fila: "+str(int(t.lexer.lineno)))
+     t.lexer.skip(1)
 
 import ply.lex as lex
 lexer = lex.lex()
@@ -141,21 +140,33 @@ from expresiones import *
 from instrucciones import *
 
 
-def p_ini(t):
-    'inicio : sentencias'
+def p_init(t):
+     'init            : l_sentencias'
+     t[0] = t[1]
+
+def p_l_sentencias1(t):
+     'l_sentencias : l_sentencias sentencias'
+     t[1].append(t[2])
+     t[0] = t[1]
+
+def p_l_sentencias2(t):
+     'l_sentencias : sentencias'
+     t[0] = [t[1]]
 
 def p_lista_instrucciones(t):
-     '''sentencias : sentencias PTCOMA sentencia
-                   | sentencia 
-                   | PTCOMA'''
+     'sentencias : sentencia PTCOMA'
+     t[0] = t[1]
+
 
 def p_instruccion(t):
      '''sentencia : sentencia_ddl 
-                  | sentencia_dml'''   
+                  | sentencia_dml'''  
+     t[0] = t[1]
 
 def p_sentencia_ddl(t):
      '''sentencia_ddl : crear
                       | liberar'''
+     t[0] = t[1]
 
 def p_sentencia_dml(t):
      '''sentencia_dml : insertar
@@ -655,41 +666,64 @@ def p_crear(t):
      '''crear : CREATE reemplazar DATABASE verificacion ID propietario modo
               | CREATE TABLE ID PAR_A columnas PAR_C herencia
               | CREATE TYPE ID AS ENUM PAR_A lista_exp PAR_C'''
+     
      if(t[3].lower()=='database'):
-          t[0]=CrearBD(t[2],t[4],t[5],t[6],t[7])
-          print('llamar funcion Database')
+          t[0]=CrearBD(t[2], t[4], t[5], t[6], t[7])
      else:
           if(t[2].lower()=='table'):
                t[0]=CrearTabla(t[3],t[7],t[5])
-               print('llamar funcion Table')
           else:
                t[0]=CrearType(t[3],t[7])
                print('llamar funcion Type')
-
+     
 
 def p_reemplazar(t):
      '''reemplazar : OR REPLACE
                    | empty'''
+     if(len(t)==3):
+          t[0]=True
+     else:
+          t[0]=False
 
 def p_verificacion(t):
      '''verificacion : IF NOT EXISTS
                      | empty'''
+     if(len(t)==4):
+          t[0]=True
+     else:
+          t[0]=False
 
 def p_propietario(t):
      '''propietario : OWNER valorowner
                     | empty'''
+     if(len(t)==3):
+          t[0]=t[2]
+     else:
+          t[0]=False
 
 def p_valorownero(t):
      '''valorowner : ID
                    | IGUAL ID'''
+     if(len(t)==3):
+          t[0] = t[2]
+     else:
+          t[0] = t[1]
 
 def p_modo(t):
      '''modo : MODE valormodo
              | empty'''
+     if(len(t)==3):
+          t[0]=t[2]
+     else:
+          t[0]=False
 
 def p_valormodoo(t):
      '''valormodo : ENTERO
                   | IGUAL ENTERO'''
+     if(len(t)==3):
+          t[0] = t[2]
+     else:
+          t[0] = t[1]
 
 def p_herencia(t):
      '''herencia : INHERITS PAR_A ID PAR_C
@@ -698,11 +732,23 @@ def p_herencia(t):
 def p_columnas(t):
      '''columnas : columnas COMA columna
                  | columna'''
+     if(len(t)==4):
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
 
 def p_columna(t):
      '''columna : ID tipo valortipo zonahoraria atributocolumn
                 | PRIMARY KEY PAR_A lnombres PAR_C
                 | FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C'''
+     
+     if(t[1].lower()=='primary'):
+          t[0]=llaveTabla(True, None, t[4], None)
+     elif(t[1].lower()=='foreign'):
+          t[0]=llaveTabla(False, t[7], t[4], t[9])
+     else:
+          t[0]=columnaTabla(t[1], t[2], t[3],t[4], t[5])
 
 def p_tipo(t):
      '''tipo : smallint
@@ -723,33 +769,79 @@ def p_tipo(t):
              | time
              | interval
              | boolean'''
+     
+     if(len(t)==2):
+          t[0]=t[1]
+     else:
+          t[0]=str(t[1])+' '+str(t[2])
 
 def p_valortipo(t):
      '''valortipo : PAR_A lvaloresdefault PAR_C
                   | lvaloresdefault
                   | empty'''
+     if(len(t)==4):
+          t[0]=t[2]
+     else:
+          t[0]=t[1]
+
 
 def p_zona_horaria(t):
      '''zonahoraria : with time zone
                     | empty'''
+     if(len(t)==2):
+          t[0]=False
+     else:
+          t[0]=True
+
 
 def p_atributo_columna(t):
      '''atributocolumn : atributocolumn atributo
                        | atributo'''
+     if(len(t)==3):
+          t[1].append(t[2])
+          t[0] = t[1]
+     else:
+          t[0]=[t[1]]
 
 def p_atributo(t):
      '''atributo : DEFAULT valoresdefault
                  | CONSTRAINT ID
-                 | NOT
-                 | NULL
+                 | NULL 
+                 | NOT NULL
                  | UNIQUE
                  | PRIMARY KEY
                  | CHECK PAR_A lista_exp PAR_C
                  | empty'''
+     if(t[1]!=None):
+          if(t[1].lower()=='null'):
+               t[0]=atributoColumna(None,None,True,None,None,None)
+          elif(t[1].lower()=='unique'):
+               t[0]=atributoColumna(None,None,None,True,None,None)
+          if(t[1].lower()=='default'):
+               t[0]=atributoColumna(t[2],None,None,None,None,None)
+          elif(t[1].lower()=='constraint'):
+               t[0]=atributoColumna(None,t[2],None,None,None,None)
+          elif(t[1].lower()=='primary'):
+               t[0]=atributoColumna(None,None,None,None,True,None)
+          elif(t[1].lower()=='not'):
+               t[0]=atributoColumna(None,None,False,None,None,None)
+          elif(t[1].lower()=='check'):
+               t[0]=atributoColumna(None,None,False,None,None,None)
+     else:
+          #atributoColumna(default,constraint,null,unique,primary,check);
+          t[0]=atributoColumna(None,None,None,None,None,None)
+     
+
+
 
 def p_lvalores_default(t):
-     '''lvaloresdefault : lvaloresdefault valoresdefault
+     '''lvaloresdefault : lvaloresdefault COMA valoresdefault
                         | valoresdefault'''
+     if(len(t)==4):
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:  
+          t[0]=[t[1]]   
 
 def p_valores_default(t):
      '''valoresdefault : CADENA1
@@ -763,10 +855,16 @@ def p_valores_default(t):
                        | SECOND
                        | MINUTE
                        | HOURS'''
+     t[0]=t[1]
 
 def p_lnombres(t):
      '''lnombres : lnombres COMA ID
                  | ID'''
+     if(len(t)==2):
+          t[0]=[t[1]]
+     else:
+          t[1].append(t[3])
+          t[0] = t[1]
 
 def p_liberar(t):
      '''liberar : DROP TABLE existencia ID
@@ -787,6 +885,7 @@ def p_existencia(t):
 def p_empty(t):
      'empty : '
 
+
 def p_error(t):
      if(t!=None):
           print("Error sintactico en: '%s'" % t.value)
@@ -799,6 +898,7 @@ def p_error(t):
                     break
                elif(tk.type=="PTCOMA"):
                     break
+          
           #parser.errok()
           parser.restart()
           #return tk
@@ -816,13 +916,19 @@ parser = yacc.yacc()
 #f = open("./entrada.txt", "r")
 #input = f.read()
 #parser.parse(input)
-
+'''
 def AnalizarInput(texto):
-     parser.parse(texto)
      global Error_Lex
      global Error_Sin
      Reporte_Errores(Error_Lex,Error_Sin)
-''' AGREGAR AL SELECT EL LIMIT
-AGREGAR LOS TIPOS DE SELECT (UNION.....)
-AGREGAR EL CASE PARA EL SELECT
-AGREGAR LOS SELECT GREATEST,LEAST'''
+
+     return parser.parse(texto)
+'''
+import ply.yacc as yacc
+parser = yacc.yacc()
+
+def parse(input) :
+     global Error_Lex
+     global Error_Sin
+     Reporte_Errores(Error_Lex,Error_Sin)
+     return parser.parse(input)

@@ -64,3 +64,50 @@ class EliminarDB(Instruccion) :
     def __init__(self, existencia, nombre) :
         self.nombre = nombre
         self.existencia = existencia    
+
+class columnaTabla(Instruccion) :
+    '''
+        Esta clase las columnas de una tabla
+    '''
+
+    def __init__(self, id, tipo, valor,zonahoraria, atributos = []) :
+        self.id = id
+        self.tipo = tipo
+        self.valor = valor
+        self.zonahoraria = zonahoraria
+        self.atributos = atributos   
+
+class columnaTabla(Instruccion) :
+    '''
+        Esta clase las columnas de una tabla
+    '''
+    def __init__(self, id, tipo, valor,zonahoraria, atributos = []) :
+        self.id = id
+        self.tipo = tipo
+        self.valor = valor
+        self.zonahoraria = zonahoraria
+        self.atributos = atributos   
+
+class llaveTabla(Instruccion) :
+    '''
+        Esta clase representa las llaves de una tabla ya sean foraneas o primarias
+        Tipo= Primaria=True
+        Tipo= Foreing=False
+    '''
+    def __init__(self, tipo,referencia,columnas = [],columnasRef = []) :
+        self.tipo = tipo
+        self.referencia = referencia
+        self.columnas = columnas
+        self.columnasRef = columnasRef
+
+class atributoColumna(Instruccion) :
+    '''
+        Esta clase los atributos de una columna
+    '''
+    def __init__(self, default,constraint,null,unique,primary,check) :
+        self.default = default
+        self.constraint = constraint
+        self.null = null
+        self.unique = unique
+        self.primary = primary
+        self.check = check

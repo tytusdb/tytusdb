@@ -1,6 +1,5 @@
-from tkinter import*
-import Gramatica #importar el modulo de la gramatica 
-
+from tkinter import *
+import AST
 
 ventana = Tk()
 ventana.title("COMPI2")
@@ -9,9 +8,7 @@ ventana.title("COMPI2")
 def enviarTexto():
     input=cuadroTxt.get(1.0,"end-1c")
     #print(input)
-    print(".........Analizando....")
-    Gramatica.AnalizarInput(input)
-    print(".........Fin Analisis....")
+    AST.Analisar(input)
 
 
 #cuadro de texto
