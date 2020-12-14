@@ -3,6 +3,7 @@ from tools.console_text import *
 from tools.tabla_tipos import *
 
 class create_column(instruccion):
+
     def __init__(self, id_column, type_, condicion, line, column, num_nodo):
         super().__init__(line, column)
         self.id_column = id_column
@@ -12,10 +13,12 @@ class create_column(instruccion):
         #Nodo AST Create Column
         self.nodo = nodo_AST('COLUMN', num_nodo)
         self.nodo.hijos.append(nodo_AST(id_column, num_nodo+1))
+
         self.nodo.hijos.append(nodo_AST(type_, num_nodo+2))
 
         if condicion != None:
-            self.nodo.hijos.append(condicion.nodo)
+            for cond in condicion:
+                self.nodo.hijos.append(cond.nodo)
 
 
     def ejecutar(self):

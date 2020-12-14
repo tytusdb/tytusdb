@@ -15,7 +15,7 @@ precedence = (
     ('left','AND'),
     ('left','OR'),
     ('nonassoc','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
-    ('nonassoc','IS','ISNULL','NOTNULL'),
+    ('nonassoc','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
     ('right','UMENOS','UMAS','NOT'),  
 ) 
 
@@ -36,10 +36,16 @@ def p_instrucciones_instruccion(p):
 
 
 def p_instruccion(p):
-    '''instruccion :  sentenciaUpdate PTCOMA 
-                    | sentenciaDelete PTCOMA
-                    | insert PTCOMA
-                    | definicion PTCOMA'''
+    '''instruccion :  sentenciaUpdate   PTCOMA 
+                    | sentenciaDelete   PTCOMA
+                    | insert            PTCOMA
+                    | definicion        PTCOMA
+                    | alter_table       PTCOMA
+                    | combine_querys    PTCOMA
+                    '''
+                    # 
+                     
+                   
     p[0] = p[1]
 # __________________________________________definicion
 
@@ -95,33 +101,39 @@ def p_definicion_10(p):
     'definicion : CREATE TABLE ID PABRE columnas PCIERRA'
 
 def p_alter_table(p):
-    '''alter_table: ALTER TABLE ID alter_options
-                 | ALTER TABLE ID alter_varchar_lista'''
+    '''alter_table : ALTER TABLE ID alter_options
+                   | ALTER TABLE ID alter_varchar_lista'''
 
 def p_alter_options(p):
     '''alter_options : ADD COLUMN ID tipo
                     | DROP COLUMN ID
-                    | ADD CHECK PABRE ID DIFERENTE CADENA2 PCIERRA
+                    | ADD CHECK PABRE ID DIFERENTE CADENA PCIERRA
                     | ADD CONSTRAINT ID UNIQUE PABRE ID PCIERRA
                     | ADD FOREIGN KEY PABRE lista_ids PCIERRA REFERENCES lista_ids
                     | ALTER COLUMN ID SET NOT NULL
                     | DROP CONSTRAINT ID'''
 
 def p_alter_varchar_lista(p):
-    '''alter_varchar_lista : alter_varchar
-                        |  alterVarcharLista COMA alter_varchar'''
+    '''alter_varchar_lista :  alter_varchar
+                           |  alter_varchar_lista COMA alter_varchar'''
 
 def p_alter_varchar(p):
     '''alter_varchar : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA '''
 
+# <TABLA> ::=  'id' 
+#          |   'id' 'as' 'id'
+#          |   <SUBQUERY>
+#          |   <SUBQUERY> 'as' 'id'
 def p_tablas(p):
     '''tabla : ID
-            |  subquery'''
+            |  ID AS ID
+            |  subquery
+            |  subquery AS ID '''
 
 def p_filtro(p):
     '''filtro : where group_by having
               | where group_by
-              | where'''
+              | where '''
 
 def p_join(p):
     '''join : ID join_type JOIN ID ON expresion
@@ -150,7 +162,7 @@ def p_combine_querys3(p):
     'combine_querys : combine_querys INTERSECT ALL select'
 
 def p_combine_querys4(p):
-    'combine_querys : combine_querys UNION select'
+    'combine_querys : combine_querys INTERSECT select'
 
 def p_combine_querys5(p):
     'combine_querys : combine_querys EXCEPT ALL select'
@@ -160,108 +172,116 @@ def p_combine_querys6(p):
 
 def p_combine_querys7(p):
     'combine_querys : select'
+#_____________________________________________________________ SELECT
+# def p_select1(p):
+#     'select : SELECT select_list FROM lista_tablas filtro join'
 
-def p_select1(p):
-    'select : SELECT select_list FROM lista_tablas filtro join'
+# def p_select2(p):
+#     'select : SELECT select_list FROM lista_tablas filtro'
 
-def p_select2(p):
-    'select : SELECT select_list FROM lista_tablas filtro'
+# def p_select3(p):
+#     'select : SELECT select_list FROM lista_tablas orders limits offset join'
 
-def p_select3(p):
-    'select : SELECT select_list FROM lista_tablas orders limits offset join'
+# def p_select4(p):
+#     'select : SELECT select_list FROM lista_tablas orders limits offset'
 
-def p_select4(p):
-    'select : SELECT select_list FROM lista_tablas orders limits offset'
+# def p_select5(p):
+#     'select : SELECT select_list FROM lista_tablas orders limits join'
 
-def p_select5(p):
-    'select : SELECT select_list FROM lista_tablas orders limits join'
+# def p_select6(p):
+#     'select : SELECT select_list FROM lista_tablas orders limits'
 
-def p_select6(p):
-    'select : SELECT select_list FROM lista_tablas orders limits'
+# def p_select7(p):
+#     'select : SELECT select_list FROM lista_tablas orders offset join'
 
-def p_select7(p):
-    'select : SELECT select_list FROM lista_tablas orders offset join'
+# def p_select8(p):
+#     'select : SELECT select_list FROM lista_tablas orders offset'
 
-def p_select8(p):
-    'select : SELECT select_list FROM lista_tablas orders offset'
+# def p_select9(p):
+#     'select : SELECT select_list FROM lista_tablas orders join'
 
-def p_select9(p):
-    'select : SELECT select_list FROM lista_tablas orders join'
+# def p_select10(p):
+#     'select : SELECT select_list FROM lista_tablas orders'
 
-def p_select10(p):
-    'select : SELECT select_list FROM lista_tablas orders'
+# def p_select11(p):
+#     'select : SELECT select_list FROM lista_tablas limits offset join'
 
-def p_select11(p):
-    'select : SELECT select_list FROM lista_tablas limits offset join'
+# def p_select12(p):
+#     'select : SELECT select_list FROM lista_tablas limits offset'
 
-def p_select12(p):
-    'select : SELECT select_list FROM lista_tablas limits offset'
+# def p_select13(p):
+#     'select : SELECT select_list FROM lista_tablas limits join'
 
-def p_select13(p):
-    'select : SELECT select_list FROM lista_tablas limits join'
+# def p_select14(p):
+#     'select : SELECT select_list FROM lista_tablas limits'
 
-def p_select14(p):
-    'select : SELECT select_list FROM lista_tablas limits'
+# def p_select15(p):
+#     'select : SELECT select_list FROM lista_tablas offset join'
 
-def p_select15(p):
-    'select : SELECT select_list FROM lista_tablas offset join'
+# def p_select16(p):
+#     'select : SELECT select_list FROM lista_tablas offset'
 
-def p_select16(p):
-    'select : SELECT select_list FROM lista_tablas offset'
+# def p_select17(p):
+#     'select : SELECT ASTERISCO FROM lista_tablas filtro join'
 
-def p_select17(p):
-    'select : SELECT * FROM lista_tablas filtro join'
+# def p_select18(p):
+#     'select : SELECT ASTERISCO FROM lista_tablas filtro'
 
-def p_select18(p):
-    'select : SELECT * FROM lista_tablas filtro'
+# def p_select19(p):
+#     'select : SELECT DISTINCT ID FROM lista_tablas filtro join'
 
-def p_select19(p):
-    'select : SELECT DISTINCT ID FROM lista_tablas filtro join'
+# def p_select20(p):
+#     'select : SELECT DISTINCT ID FROM lista_tablas filtro'
 
-def p_select20(p):
-    'select : SELECT DISTINCT ID FROM lista_tablas filtro'
+# def p_select21(p):
+#     'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas filtro join'
 
-def p_select21(p):
-    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas filtro join'
+# def p_select22(p):
+#     'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas filtro'
 
-def p_select22(p):
-    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas filtro'
+# def p_select23(p):
+#     'select : SELECT select_list FROM lista_tablas join'
 
-def p_select23(p):
-    'select : SELECT select_list FROM lista_tablas join'
+# def p_select24(p):
+#     'select : SELECT select_list FROM lista_tablas'
 
-def p_select24(p):
-    'select : SELECT select_list FROM lista_tablas'
-
-def p_select25(p):
-    'select : SELECT * FROM lista_tablas join'
+# def p_select25(p):
+#     'select : SELECT ASTERISCO FROM lista_tablas join'
 
 def p_select26(p):
-    'select : SELECT * FROM lista_tablas'
+    'select : SELECT ASTERISCO FROM lista_tablas'
+    print('select ok')
 
-def p_select27(p):
-    'select : SELECT DISTINCT ID FROM lista_tablas join'
+# def p_select27(p):
+#     'select : SELECT DISTINCT ID FROM lista_tablas join'
 
 def p_select28(p):
     'select : SELECT DISTINCT ID FROM lista_tablas'
+    print('select con un DISTINC ok')
 
-def p_select29(p):
-    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas join'
+# def p_select29(p):
+#     'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas join'
 
-def p_select30(p):
-    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas'
+# def p_select30(p):
+#     'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas'
 
 def p_select31(p):
     'select : SELECT funciones AS ID join'
+    print('ok')
 
 def p_select32(p):
     'select : SELECT funciones AS ID'
+    print('ok')
 
 def p_select33(p):
     'select : SELECT funciones join'
+    print('ok')
 
 def p_select34(p):
     'select : SELECT funciones'
+    print('ok')
+
+#________________________________________ LIMIT 
 
 def p_limits(p):
     'limits : LIMIT limitc'
@@ -297,7 +317,7 @@ def p_funciones7(p):
     'funciones : GET_BYTE PABRE CADENA TYPECAST BYTEA COMA NUMERO PCIERRA'
 
 def p_funciones8(p):
-    'funciones : SET_BYTE PABRE CADEA TYPECAST BYTEA COMA NUMERO COMA NUMERO PCIERRA'
+    'funciones : SET_BYTE PABRE CADENA TYPECAST BYTEA COMA NUMERO COMA NUMERO PCIERRA'
 
 def p_funciones9(p):
     'funciones : CONVERT PABRE CADENA AS DATE PCIERRA'
@@ -468,7 +488,7 @@ def p_funciones64(p):
     'funciones : tipo_numero NUMERAL tipo_numero'
 
 def p_funciones65(p):
-    'funciones : GUION_CURVEADO tipo_numero'
+    'funciones : BITWISE_NOT tipo_numero'
 
 def p_funciones66(p):
     'funciones : tipo_numero CORRIMIENTO_IZQ tipo_numero'
@@ -479,18 +499,24 @@ def p_funciones67(p):
 def p_lista_numeros(p):
     '''lista_numeros : tipo_numero
                      | lista_numeros COMA tipo_numero'''
-
+#___________________________________ <TIPO_NUMERO>                    
+#    <TIPO_NUMERO> ::= 'numero'
+#                  |   'decimal'
 def p_tipo_numero1(p):
     'tipo_numero : NUMERO'
 
 def p_tipo_numero2(p):
     'tipo_numero : DECIMAL_LITERAL'
+    
 
-def p_lista_tablas1(p):
-    'lista_tablas : tabla alias'
+def p_lista_tablas(p):
+    '''
+    lista_tablas : lista_tablas COMA tabla
+                 | tabla
+    '''
 
-def p_lista_tablas2(p):
-    'lista_tablas : tabla'
+
+    
 
 def p_select_list(p):
     '''select_list : select_item
@@ -1007,49 +1033,36 @@ def p_asignacion(p):
 
 
 # ______________________________________________EXPRESION_______________________________
-# <EXPRESION> ::= 'not' <EXPRESION>
-#             | '-'   <EXPRESION>
-#             | <EXPRESION> 'and'  <EXPRESION>
-#             | <EXPRESION> 'or'   <EXPRESION>
-#             | <EXPRESION> '='  <EXPRESION>
-#             | <EXPRESION> '<>'  <EXPRESION>
-#             | <EXPRESION> '>='  <EXPRESION>
-#             | <EXPRESION> '<='  <EXPRESION>
-#             | <EXPRESION>  '>'  <EXPRESION>
-#             | <EXPRESION>  '<'  <EXPRESION>
-#             | <EXPRESION>  '+'  <EXPRESION>
-#             | <EXPRESION>  '-'  <EXPRESION>
-#             | <EXPRESION>  '*'  <EXPRESION>
-#             | <EXPRESION>  '/'  <EXPRESION>
-#             | 'cadena'
-#             | 'numero'
-#             | 'decimal'
-#             | 'id' '.' 'id'
-#             | 'id'
-#             | '(' <EXPRESION> ')'
-# ------------------- falta esta parte -------------------------
-#             | 'sum' '(' 'id' ')'
-#             | <TIMESTAMP>
-#             | 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
 
 def p_expresiones_unarias(p):
     ''' expresion : MENOS expresion %prec UMENOS 
-                  | MAS expresion %prec UMAS
-                  | NOT expresion 
-                  | expresion IS NULL
-                  | expresion IS NOT NULL
-                  | expresion ISNULL
-                  | expresion NOTNULL
-                  | expresion IS TRUE
-                  | expresion IS NOT TRUE
-                  | expresion IS FALSE
-                  | expresion IS NOT FALSE
-                  | expresion IS UNKNOWN
-                  | expresion IS NOT UNKNOWN
-                  '''
+                  | MAS expresion %prec UMAS'''
+     
     print('expresion: '+str(p[1]) + '.'+str(p[3]))  # solo para ver que viene
     p[0] = p[2]
+    
+def p_expresiones_is_complemento(p):
+    '''
+    expresion    : expresion IS NULL    
+                 | expresion IS NOT NULL
+                 | expresion ISNULL 
+                 | expresion NOTNULL
+                 | expresion IS TRUE
+                 | expresion IS NOT TRUE
+                 | expresion IS FALSE 
+                 | expresion IS NOT FALSE
+                 | expresion IS UNKNOWN
+                 | expresion IS NOT UNKNOWN 
+                 | expresion IS DISTINCT FROM expresion 
+                 | expresion IS NOT DISTINCT FROM expresion '''
+  
 
+def p_expresion_ternaria(p): 
+    '''expresion : expresion BETWEEN  expresion
+                 | expresion BETWEEN SYMMETRIC expresion 
+                 | expresion NOTBETWEEN expresion 
+                 | expresion NOTBETWEEN SYMMETRIC expresion ''' 
+                 
 def p_expreion_funciones(p):
     'expresion : funciones'
     
@@ -1057,44 +1070,21 @@ def p_expreion_entre_parentesis(p):
     'expresion : PABRE expresion  PCIERRA'
     p[0] = p[2]
 
-
-def p_expresion_cadena(p):
-    'expresion : CADENA '
-    p[0] = p[1]
-
-
+def p_expresion_primitivo(p):
+    '''
+    expresion : CADENA
+              | NUMERO
+              | DECIMAL_LITERAL
+    '''
 def p_expresion_id(p):
     'expresion : ID'
     p[0] = p[1]
-
-
-def p_expresion_numero(p):
-    'expresion : NUMERO'
-    p[0] = p[1]
-
-
-def p_expresion_decimal(p):
-    'expresion : DECIMAL_LITERAL'
-    p[0] = p[1]
-
-
+    
 def p_expresion_tabla_campo(p):
     'expresion : ID PUNTO ID'
-    print('expresion: '+str(p[1]) + '.'+str(p[3]))  # solo para ver que viene
-    p[0] = p[1]
-
-
-def p_expresion_sum(p):
-    'expresion : SUM PABRE ID PCIERRA'
-
-
+    
 def p_expresion_timestamp(p):
     'expresion : timestamp'
-
-
-def p_expresion_substring(p):
-    'expresion : SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA'
-
 
 def p_expresion_con_dos_nodos(p):
     '''expresion : expresion MAS expresion 
@@ -1112,38 +1102,9 @@ def p_expresion_con_dos_nodos(p):
                  | expresion MODULO expresion
                  | expresion OR expresion
                  | expresion AND expresion
-                 | expresion IS DISTINCT FROM expresion
-                 | expresion IS NOT DISTINCT FROM expresion
     '''
-   # print('expresion:'+str(p[1])+str(p[2])+str(p[3])) # solo para ver que viene
-   # if p[2] == '+':  p[0] = p[1]+p[2]
-   # elif p[2] == '-': p[0] = p[1]-p[2]
-   # elif p[2] == '*': p[0] = p[1]*p[2]
-   # elif p[2] == '/': p[0] = p[1]/p[2]
-   # elif p[2] == '>': print('mayor')
-   # elif p[2] == '<': print('menor')
-   # elif p[2] == '>=': print('MAYOR_igual')
-   # elif p[2] == '<=': print('menor_igual')
-   # elif p[2] == '^': print('POTENCIA o CIRCUNFLEJO')
-   # elif p[2] == '%': print('modulo')
-   # elif p[2] == '=': print('igual')
-   # elif p[2] == '<>': print('distino')
-   # elif p[2] == '!=': print('distino2')
+#----------------------------------------------------------------------------------------------------- FIN EXPRESION
 
-
-def p_expresion_ternaria(p):
-    '''expresion : expresion BETWEEN expresion AND expresion 
-                 | expresion NOT BETWEEN expresion AND expresion
-                 | expresion BETWEEN SYMMETRIC expresion AND expresion
-                 | expresion NOT BETWEEN SYMMETRIC expresion AND expresion
-    '''
-
-#    <ALIAS> ::= 'as' 'id'
-def p_alias(p):
-        'alias : AS ID'
-#             | 'id'
-def p_alias2(p):
-        'alias : ID'
 
 #<SUBQUERY> ::= '('<SELECT>')'
 def p_subquery(p):
@@ -1152,6 +1113,7 @@ def p_subquery(p):
 #<WHERE> ::= 'where' <EXPRESION>
 def p_where(p):
         'where : WHERE expresion'
+        print('realizando un sentencia con un WHERE')
 
 #<GROUP_BY> ::= <LISTA_IDS>
 def p_groupby(p):
@@ -1283,14 +1245,10 @@ def p_lista_exp_2(p):
 
 #<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
 def p_when_case(p):
-        'when_case : WHEN expresion THEN expresion'
+    'when_case : WHEN expresion THEN expresion'
         
-#    <TIPO_NUMERO> ::= 'numero'
-def p_tipo_numero(p):
-        'tipo_numero : NUMERO'
-#                  |   'decimal'
-def p_tipo_numero1(p):
-        'tipo_numero : DECIMAL'
+
+
 
 
 def p_error(p):
@@ -1306,11 +1264,7 @@ def analizarEntrada(entrada):
 
 
 print(analizarEntrada('''
-                      
-CREATE TABLE employees (
-   id varchar(10) PRIMARY KEY NOT NULL,
-   first_name VARCHAR (50),
-   last_name VARCHAR (50)
-);
 
+-- comentario:                       
+ select * from tbsujeto; --where edad BETWEEN 5 and 45 ;
                       '''))
