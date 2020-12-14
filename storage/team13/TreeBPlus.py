@@ -24,6 +24,31 @@ class TreeBPlus:
     
     def printTree(self):
         return self.__root.callPage()
+    
+    # Print tree
+    def showTree(self):
+        self._showTree(self.__root, 0)
+
+    def _showTree(self, tmp, level):
+        print("Level", level, ": ", end="")
+        tmp.showKeys()
+        if not (len(tmp.get_chlds()) == 0):
+            for i in range(len(tmp.get_chlds())):
+                self._showTree(tmp.get_chlds()[i], level + 1)
+
+    # graph tree
+    def graphTree(self):
+        dot = Digraph(comment='B+', node_attr={'shape': 'record'})
+        dot.attr(rankdir='TB', rank='same')
+        dot.format = 'svg'
+        self._graphTree(self.__root, 0, dot)
+        dot.render('ArbolB+')
+
+    def _graphTree(self, tmp, level, dot):
+        tmp.graphKeys2(tmp, level, dot)
+        if not (len(tmp.get_chlds()) == 0):
+            for i in range(len(tmp.get_chlds())):
+                self._graphTree(tmp.get_chlds()[i], level + 1, dot)
 
 class PageTBPlus:
     
@@ -318,20 +343,62 @@ class PageTBPlus:
     def Travel(self):
         pass
 
+    # Show Keys of Page
+    def showKeys(self):
+        if not (len(self.__keys) == 0):
+            print("[", end=" ")
+            for i in range(len(self.__keys)):
+                print(self.__keys[i].value, ",", end=" ")
+            print("]", end=" ")
+            if not (self.__next is None):
+                print("[ ", end="")
+                for i in range(len(self.__next.__keys)):
+                    print(self.__next.__keys[i].value, end=" ")
+                print("]", end="")
+            else:
+                pass
+        contador = 0
+        if not (len(self.__childs) == 0):
+            for x in range(len(self.__childs)):
+                contador += 1
+        print(" contador hijos: ", contador)
+
+    # Graph and show keys
+    def graphKeys(self, tmp, level, dot):
+        if not (len(self.__keys) == 0):
+            keysString = ""
+            if level != 0:
+                for i in range(len(self.__keys)):
+                    if not (i == (len(self.__keys) - 1)):
+                        keysString += f"{self.__keys[i].value}, "
+                    else:
+                        keysString += f"{self.__keys[i].value}"
+                dot.node(f'{tmp}', f"{keysString}", color='red')
+
+                if len(self.__childs) != 0:
+                    for i in range(len(self.__childs)):
+                        dot.edge(f"{tmp}", f"{self.__childs[i]}")
+
+                if not (self.__next is None):
+                    dot.edge(f"{tmp}", f"{self.__next}")
+
+            else:
+                for i in range(len(self.__keys)):
+                    if not (i == (len(self.__keys) - 1)):
+                        keysString += f"{self.__keys[i].value}, "
+                    else:
+                        keysString += f"{self.__keys[i].value}"
+                dot.node(f'{tmp}', f"{keysString}", color='green')
+
+                if len(self.__childs) != 0:
+                    for i in range(len(self.__childs)):
+                        dot.edge(f"{tmp}", f"{self.__childs[i]}")
+
 class NodeTBPlus:
 
     def __init__(self, value):
         self.value = value
         
-    # class TreeBPlus:
-    #   def showTree(self):
-    #       self._showTree(self.__root, 0)
-    # 
-    #   def _showTree(self, tmp, level):
-    #       print("Level", level, ": ", end="")
-    #       tmp.showKeys()
-    #       if not (len(tmp.get_chlds()) == 0):
-    #           for i in range(len(tmp.get_chlds())):
-    #               self._showTree(tmp.get_chlds()[i], level + 1)
+
 
     
