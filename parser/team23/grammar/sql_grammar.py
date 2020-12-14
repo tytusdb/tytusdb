@@ -234,6 +234,16 @@ lexer = lex.lex(reflags=re.IGNORECASE)
 
 precedence = (
     ('left', 'PAR_ABRE', 'PAR_CIERRA'),
+    ('right', 'IGUAL'),
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('left', 'NO_IGUAL'),
+    ('nonassoc', 'MAYOR', 'MENOR', 'MAYOR_IGUAL', 'MENOR_IGUAL'),
+    ('left','MAS','MENOS'),
+    ('left', 'ASTERISCO','DIVISION', 'MODULO'),
+    ('left', 'POTENCIA'),
+    ('right', 'NOT'),
+    ('left', 'LLAVE_ABRE', 'LLAVE_CIERRA')
 )
 
 #Analizador Sintáctico 
@@ -253,6 +263,10 @@ from instruccion.drop import *
 from instruccion.delete_from import *
 from instruccion.condicion_simple import *
 from instruccion.Query_Select import *
+from instruccion.unique_simple import *
+from instruccion.caux import *
+from instruccion.listas_IDS import *
+from instruccion.check_simple import *
 
 #Tabla tipos
 from tools.tabla_tipos import *
@@ -391,7 +405,10 @@ def p_drop_tbl(t):
 def p_if_exists_db(t):
     '''if_exists : IF EXISTS
                  | '''
-    t[0]=None
+    try:
+        t[0]=t[1]
+    except:
+        t[0]=None
 
 def p_contenido_tabla(t):
     '''contenido_tabla  : contenido_tabla COMA manejo_tabla'''
@@ -412,8 +429,6 @@ def p_aux_declaracion_columna(t):
     global num_nodo
     t[0] = create_column(t[1], t[2], t[3],t.lineno(1), t.lexpos(1), num_nodo)
     num_nodo += 4
-
-
 
 def p_declaracion_columna(t):
     '''declaracion_columna : ID type_column'''
@@ -450,9 +465,21 @@ def p_aux_condition_column_row(t):
 
 def p_condition_column(t):
     '''condition_column :  constraint UNIQUE op_unique
-                         | constraint CHECK PAR_ABRE  condition_columns PAR_CIERRA
-                         | constraint UNIQUE constraint CHECK PAR_ABRE  condition_columns PAR_CIERRA
- 		                 | key_table'''
+                         | constraint CHECK PAR_ABRE expression PAR_CIERRA
+                         | key_table'''
+
+    global num_nodo
+
+    if t[2].lower()=='unique':
+
+      t[0] = unique_simple(t[1],t[3],t.lineno,t.lexpos,num_nodo)
+      num_nodo += 4
+
+    if t[2].lower()=='check':
+
+        t[0] = check_simple(t[1], None, t.lineno, t.lexpos, num_nodo)
+        num_nodo += 6
+
 
 def p_aux_condition_column(t):
     '''condition_column : DEFAULT op_val
@@ -462,35 +489,80 @@ def p_aux_condition_column(t):
 		                 | CONSTRAINT ID key_table
  		                 | '''
     global num_nodo
-    t[0] = condicion_simple(t[1],t[2],t[3], t.lineno(1), t.lexpos(1), num_nodo)
-    num_nodo += 3
+    try:
+
+        if t[1].lower() == 'default':
+
+            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+        elif t[1].lower() == 'null':
+
+            t[0] = condicion_simple(t[1], None, None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+        elif t[1].lower() == 'not':
+
+            t[0] = condicion_simple(t[1], None, None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+        elif t[1].lower() == 'reference':
+
+            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+        elif t[1].lower() == 'constraint':
+            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+
+    except:
+        t[0] = None
 
 def p_constraint(t):
     '''constraint : CONSTRAINT ID
                  | '''
 
+    global num_nodo
+    try:
+
+        t[0]=caux(t[2],t.lineno,t.lexpos,num_nodo)
+        num_nodo  += 3
+
+    except:
+        t[0] = None
+
 def p_op_unique(t):
+
     '''op_unique : PAR_ABRE list_id PAR_CIERRA
-                  | '''
+                 | constraint CHECK PAR_ABRE  expression PAR_CIERRA
+                 | '''
+    try:
+        if t[1] == '(':
+
+            t[0] = t[2]
+
+        else:
+
+            pass
+
+    except:
+        t[0] = None
 
 def p_list_id(t):
-    'list_id : list_id COMA ID alias'
+    'list_id : list_id COMA alias'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_aux_list_id(t):
-    'list_id : ID alias'
+    'list_id : alias'
+    t[0] = [t[1]]
 
 def p_alias(t):
-    '''alias : AS ID
-            | '''
-
-def p_condition_columns(t):
-    'condition_columns : condition_columns COMA expresion'
-
-def p_aux_condition_columns(t):
-    'condition_columns : expresion'
-
-def p_expresion(t):
-    'expresion : '
+    '''alias : ID'''
+    global num_nodo
+    t[0] = listas_IDS(t[1],t.lineno,t.lexpos,num_nodo)
+    num_nodo += 2
 
 def p_key_table(t):
     '''key_table : PRIMARY KEY list_key
@@ -503,7 +575,9 @@ def p_list_key(t):
 def p_alter_op(t):
     '''alter_op : ADD op_add
 	            | ALTER COLUMN ID alter_col_op
-	            | DROP CONSTRAINT ID'''
+	            | DROP CONSTRAINT ID
+	            | DROP COLUMN ID'''
+
 
 def p_op_add(t):
     '''op_add : CHECK PAR_ABRE ID DIFERENTE CADENA PAR_CIERRA
@@ -551,18 +625,20 @@ def p_seleccionar(t):
 def p_aux_seleccionar(t):
     '''seleccionar  : SELECT GREATEST expressiones
                     | SELECT LEAST expressiones'''
+
     global num_nodo
-    
-    try:
-        t[0] = Query_Select(t[2], t.lineno,t.lexpos, num_nodo)
-        num_nodo+=4
-        print('todo bien')
-    except:
-        print('nada bien')
+    t[0] = Query_Select(t[2], t.lineno,t.lexpos, num_nodo)
+    num_nodo+=4
+
 
 def p_list_fin_select(t):
-    '''list_fin_select : list_fin_select fin_select
-                         | fin_select'''
+    '''list_fin_select : list_fin_select fin_select'''
+    t[1].append(t[2])
+    t[0]=t[1]
+
+def p_aux_list_fin_select(t):
+    '''list_fin_select : fin_select'''
+    t[0]=[t[1]]
 
 def p_fin_select(t):
     '''fin_select   : group_by  
@@ -571,53 +647,70 @@ def p_fin_select(t):
 	                | group_having
 	                | limite
                 	| '''
+    try:
+        t[0]=t[1]
+    except:
+        t[0]=None
 
 def p_expressiones(t):
-    '''expressiones : list_expression
-                      | PAR_ABRE list_expression PAR_CIERRA'''
+    '''expressiones : PAR_ABRE list_expression PAR_CIERRA'''
+    t[0]=t[2]
+
 
 def p_distinto(t):
     '''distinto : DISTINCT
 	              | '''
+    try:
+        t[0]=t[1]
+    except:
+        t[0]=None
 
 def p_select_list(t):
     '''select_list : ASTERISCO
 	                 | expressiones '''
+    t[0]=t[1]
 
-def p_table_expression(p):
+def p_table_expression(t):
     '''table_expression : expressiones'''
+    t[0]=t[1]
 
-def p_donde(p):
+def p_donde(t):
     '''donde : WHERE expressiones'''
 
-def p_group_by(p):
+def p_group_by(t):
     '''group_by : GROUP BY expressiones '''
+    t[0]=t[3]
 
-def p_order_by(p):
+def p_order_by(t):
     '''order_by : ORDER BY expressiones asc_desc nulls_f_l'''
 
-def p_group_having(p):
+def p_group_having(t):
     '''group_having : HAVING expressiones'''
 
-def p_asc_desc(p):
+def p_asc_desc(t):
     ''' asc_desc  : ASC
 	              | DESC'''
 
-def p_nulls_f_l(p):
+def p_nulls_f_l(t):
     '''nulls_f_l : NULLS LAST
 	             | NULLS FIRST
 	             | '''
 
-def p_limite(p):
+def p_limite(t):
     '''limite   : LIMIT ENTERO
 	            | LIMIT ALL
 	            | OFFSET ENTERO'''
 
-def p_list_expression(p):
-    '''list_expression  : list_expression COMA expression
-                        | expression'''
+def p_list_expression(t):
+    '''list_expression  : list_expression COMA expression'''
+    t[1].append(t[3])
+    t[0]=t[1]
 
-def p_expression(p):
+def p_aux_list_expression(t):
+    '''list_expression  : expression'''
+    t[0]=[t[1]]
+
+def p_expression(t):
     '''expression : expression MAYOR expression
             | expression MENOR expression
             | expression MAYOR_IGUAL expression
