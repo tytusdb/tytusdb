@@ -38,6 +38,7 @@ def fondo(app):
     label.grid(row=0, column=0)
 
 
+# ------------------------------------------------- VENTANAS PRINCIPALES -----------------------------------------------
 def ventana_principal():
     # Raíz de la aplicación
     app = Tk()
@@ -60,7 +61,7 @@ def ventana_principal():
     db.place(x=600, y=400)
 
     img_func = PhotoImage(file="./images/codificacion.png")
-    db = Button(text="Funciones", bg="#FFFFFF", image=img_func, compound="top", font=("Georgia", 16), command=ventana_funciones)
+    db = Button(text="Funciones", bg="#FFFFFF", image=img_func, compound="top", font=("Georgia", 16), command=lambda: ventana_funciones(''))
     db.place(x=700, y=200)
 
     # ---------------------------------------------------- FUNCIONES ---------------------------------------------------
@@ -169,7 +170,7 @@ def ventana_tupla(ventana, tupla, db):
     # Combobox
     def selection_changed(event):
         mensaje = combo.get()+'\nnombre: Kevin\n'+'Apellido: Sandoval'
-        messagebox.showinfo(tupla, mensaje)  # título, mensaje
+        messagebox.showinfo(tupla, mensaje)
         ventana_tupla('', tupla, db)
 
     combo = ttk.Combobox(app, font=("Georgia", 10))
@@ -186,7 +187,9 @@ def ventana_tupla(ventana, tupla, db):
     boton_regresar.place(x=10, y=5)
 
 
-def ventana_funciones():
+def ventana_funciones(ventana):
+    if ventana != '':
+        ventana.withdraw()
     app = Toplevel()
     configuracion_defecto(app)
     centrar_ventana(app, 500, 700)
@@ -194,6 +197,16 @@ def ventana_funciones():
 
     # Combobox db
     def selection_changed_db(event):
+        seleccion = combo_db.get()
+        if seleccion == 'createDatabase':
+            ventana_create_database(app)
+        if seleccion == 'showDatabases':
+            ventana_show_database()
+            ventana_funciones(app)
+        if seleccion == 'alterDatabase':
+            ventana_alter_database(app)
+        if seleccion == 'dropDatabase':
+            ventana_drop_database(app)
         print(combo_db.get())
 
     combo_db = ttk.Combobox(app, font=("Georgia", 10))
@@ -204,6 +217,26 @@ def ventana_funciones():
 
     # Combobox tablas
     def selection_changed_tablas(event):
+        seleccion = combo_tabla.get()
+        if seleccion == 'createTable':
+            ventana_create_table(app)
+        if seleccion == 'definePK':
+            ventana_define_pk(app)
+        if seleccion == 'showTables':
+            ventana_show_tables()
+            ventana_funciones(app)
+        if seleccion == 'alterTable':
+            ventana_alter_table(app)
+        if seleccion == 'dropTable':
+            ventana_drop_table(app)
+        if seleccion == 'alterAddColumn':
+            ventana_alter_addcolumn(app)
+        if seleccion == 'alterDropColumn':
+            ventana_alter_dropcolumn(app)
+        if seleccion == 'extractTable':
+            ventana_extract_table(app)
+        if seleccion == 'extractRangeTable':
+            ventana_extract_rangetable(app)
         print(combo_tabla.get())
 
     combo_tabla = ttk.Combobox(app, font=("Georgia", 10))
@@ -215,13 +248,528 @@ def ventana_funciones():
 
     # Combobox tuplas
     def selection_changed_tuplas(event):
+        seleccion = combo_tuplas.get()
+        if seleccion == 'insert':
+            ventana_tupla_insert(app)
+        if seleccion == 'update':
+            ventana_tupla_update(app)
+        if seleccion == 'deleteTable':
+            ventana_deletetable(app)
+        if seleccion == 'truncate':
+            ventana_tupla_truncate(app)
+        if seleccion == 'extractRow':
+            ventana_extract_row(app)
         print(combo_tuplas.get())
 
     combo_tuplas = ttk.Combobox(app, font=("Georgia", 10))
     combo_tuplas.place(x=150, y=430)
     Label(app, text='Tuplas', bg="#F0FFFF", font=("Georgia", 13)).place(x=210, y=400)
     combo_tuplas["values"] = ['insert', 'update', 'deleteTable', 'truncate', 'extractRow']
-    combo_tuplas.bind("<<ComboboxSelected>>", selection_changed_tablas)
+    combo_tuplas.bind("<<ComboboxSelected>>", selection_changed_tuplas)
+
+
+# --------------------------------------------- FUNCIONES DE BASES DE DATOS --------------------------------------------
+def ventana_create_database(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='createDatabase', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre', bg="#F0FFFF", font=("Georgia", 10)).place(x=100, y=200)
+    nombre_database = Entry(app, width=25, font=("Georgia", 10))
+    nombre_database.grid(row=0, column=0, padx=180, pady=200)
+
+    bt = Button(app, text="Guardar", font='Georgia 10', bg='#98FB98')
+    bt.place(x=220, y=260)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_show_database():
+    bases_datos = '--------------------\nDB1\nDB2\nDB2\n--------------------'
+    messagebox.showinfo('BASES DE DATOS', bases_datos)
+
+
+def ventana_alter_database(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='alterDatabase', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre actual:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_actual = Entry(app, font=("Georgia", 10))
+    nombre_actual.place(x=190, y=200, width=200)
+
+    Label(app, text='Nombre nuevo:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_nuevo = Entry(app, font=("Georgia", 10))
+    nombre_nuevo.place(x=190, y=230, width=200)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado exitosamente')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Guardar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=260)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_drop_database(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='dropDatabase', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre', bg="#F0FFFF", font=("Georgia", 10)).place(x=100, y=200)
+    nombre_database = Entry(app, font=("Georgia", 10))
+    nombre_database.place(x=180, y=200, width=200)
+
+    def mensaje_drop_database():
+        messagebox.showinfo('', 'DB eliminada correctamente')
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje_drop_database)
+    bt.place(x=220, y=260)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+# ------------------------------------------------- FUNCIONES DE TABLAS ------------------------------------------------
+def ventana_create_table(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='createTable', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=200)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=215, y=230, width=200)
+
+    Label(app, text='Número de columnas:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    numero_columnas = Entry(app, font=("Georgia", 10))
+    numero_columnas.place(x=215, y=260, width=200)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado exitosamente')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=290)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_define_pk(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='definePK', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=245)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=215, y=230, width=245)
+
+    Label(app, text='Lista de columnas:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    lista_columnas = Text(app, height=6, width=30)
+    lista_columnas.place(x=215, y=260)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado exitosamente')
+        print(lista_columnas.get("1.0", END), end='')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=215, y=380)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_show_tables():
+    tablas = '--------------------\nT1\nT2\nT3\n--------------------'
+    messagebox.showinfo('showTables', tablas)
+
+
+def ventana_alter_table(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='alterTable', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=190, y=200, width=200)
+
+    Label(app, text='Nombre actual:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_actual = Entry(app, font=("Georgia", 10))
+    nombre_actual.place(x=190, y=230, width=200)
+
+    Label(app, text='Nombre nuevo:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    nombre_nuevo = Entry(app, font=("Georgia", 10))
+    nombre_nuevo.place(x=190, y=260, width=200)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado exitosamente')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=290)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_drop_table(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='dropTable', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=190, y=200, width=200)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_actual = Entry(app, font=("Georgia", 10))
+    nombre_actual.place(x=190, y=230, width=200)
+
+    def mensaje():
+        messagebox.showinfo('', 'Tabla eliminanda\n  exitosamente')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=290)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_alter_addcolumn(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='alterAddColumn', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=190, y=200, width=200)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=190, y=230, width=200)
+
+    Label(app, text='Columna:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    columna = Entry(app, font=("Georgia", 10))
+    columna.place(x=190, y=260, width=200)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado\n  exitosamente')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=290)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_alter_dropcolumn(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='alterDropColumn', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=190, y=200, width=200)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=190, y=230, width=200)
+
+    Label(app, text='Número columna:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    columna = Entry(app, font=("Georgia", 10))
+    columna.place(x=190, y=260, width=200)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado\n  exitosamente')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=290)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_extract_table(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='extractTable', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=190, y=200, width=200)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=190, y=230, width=200)
+
+    def mensaje():
+        registros = '--------------------\nTABLA: Estudiante\nRegistro1\nRegistro2\nRegistro3\n--------------------'
+        messagebox.showinfo('extractTable', registros)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=250)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_extract_rangetable(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='extractRangeTable', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=190, y=200, width=200)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=190, y=230, width=200)
+
+    Label(app, text='Límite inferior:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    limite_inferior = Entry(app, font=("Georgia", 10))
+    limite_inferior.place(x=190, y=260, width=200)
+
+    Label(app, text='Límite superior:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=290)
+    limite_superior = Entry(app, font=("Georgia", 10))
+    limite_superior.place(x=190, y=290, width=200)
+
+    def mensaje():
+        registros_rango = '--------------------\nRegistros de una tabla\nen un rango especifico\n--------------------'
+        messagebox.showinfo('extractTable', registros_rango)
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=310)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+# ------------------------------------------------- FUNCIONES DE TUPLAS ------------------------------------------------
+def ventana_tupla_insert(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='insert', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=245)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=215, y=230, width=245)
+
+    Label(app, text='Lista de campos:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    lista_campos = Text(app, height=6, width=30)
+    lista_campos.place(x=215, y=260)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado exitosamente')
+        print(lista_campos.get("1.0", END), end='')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=215, y=380)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_tupla_update(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='update', bg="#F0FFFF", font=("Georgia", 20)).place(x=200, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=210, y=200, width=200)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=210, y=230, width=200)
+
+    Label(app, text='ID:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    id_tabla = Entry(app, font=("Georgia", 10))
+    id_tabla.place(x=210, y=260, width=200)
+
+    Label(app, text='Número de columna:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=290)
+    numero_columna = Entry(app, font=("Georgia", 10))
+    numero_columna.place(x=210, y=290, width=200)
+
+    Label(app, text='Valor:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=320)
+    valor = Entry(app, font=("Georgia", 10))
+    valor.place(x=210, y=320, width=200)
+
+    def mensaje():
+        mensaje = 'Proceso realizado\n  exitosamente'
+        messagebox.showinfo('extractTable', mensaje)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=220, y=370)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_deletetable(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='deleteTable', bg="#F0FFFF", font=("Georgia", 20)).place(x=170, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=245)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=215, y=230, width=245)
+
+    Label(app, text='ID:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    id_registro = Entry(app, font=("Georgia", 10))
+    id_registro.place(x=215, y=260, width=245)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado exitosamente')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=215, y=300)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_tupla_truncate(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='truncate', bg="#F0FFFF", font=("Georgia", 20)).place(x=200, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=245)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=215, y=230, width=245)
+
+    def mensaje():
+        messagebox.showinfo('', 'Proceso realizado exitosamente')
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=215, y=290)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
+
+
+def ventana_extract_row(ventana):
+    if ventana != '':
+        ventana.withdraw()
+    app = Toplevel()
+    configuracion_defecto(app)
+    centrar_ventana(app, 500, 600)
+    Label(app, text='extractRow', bg="#F0FFFF", font=("Georgia", 20)).place(x=200, y=140)
+
+    # Cajas de texto
+    Label(app, text='Nombre DB:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=200)
+    nombre_db = Entry(app, font=("Georgia", 10))
+    nombre_db.place(x=215, y=200, width=245)
+
+    Label(app, text='Nombre tabla:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=230)
+    nombre_tabla = Entry(app, font=("Georgia", 10))
+    nombre_tabla.place(x=215, y=230, width=245)
+
+    Label(app, text='ID:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    id_registro = Entry(app, font=("Georgia", 10))
+    id_registro.place(x=215, y=260, width=245)
+
+    def mensaje():
+        tupla = 'devuelve una tupla especificada'
+        messagebox.showinfo('', tupla)
+        ventana_funciones(app)
+
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98', command=mensaje)
+    bt.place(x=215, y=300)
+
+    boton_regresar = Button(app, text="Regresar", bg="#FFFFFF", compound="top", font=("Georgia", 10), command=lambda: ventana_funciones(app))
+    boton_regresar.place(x=10, y=5)
 
 
 # CARGAR ARCHIVO

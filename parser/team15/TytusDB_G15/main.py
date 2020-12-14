@@ -25,7 +25,6 @@ selected = False
 
 # ACTIONS
 def analizar(txt):
-
     listaErrores = []
     global instrucciones_Global,tc_global1
     instrucciones = g.parse(txt)
@@ -65,6 +64,7 @@ def generarReporteTC():
     global tc_global1
     typeC = TipeChecker()
     typeC.crearReporte(tc_global1)
+
 
 def generarReporteErrores():
     erroressss = ErrorHTML()

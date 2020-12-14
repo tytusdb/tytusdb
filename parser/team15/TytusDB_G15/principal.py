@@ -85,6 +85,7 @@ def resolver_expresion_aritmetica(instr,ts,tc):
 def procesar_Expresion_Numerica(instr,ts,tc):
     print('Entero')
 
+
 def procesar_createDatabase(instr,ts,tc) :
 
     result = j.createDatabase(str(instr.nombre.id))
@@ -101,6 +102,7 @@ def procesar_createDatabase(instr,ts,tc) :
         print("ERROR:  database \"" + str(instr.nombre.id) +"\" already exists \nSQL state: 42P04 ")
 
 def procesar_instrucciones(instrucciones,ts,tc) :
+
     try:
         global salida
         salida = ""
@@ -122,11 +124,13 @@ def procesar_instrucciones(instrucciones,ts,tc) :
 '''f = open("./entrada.txt", "r")
 input = f.read()
 listaErrores = []
+
 instrucciones = g.parse(input)
 instrucciones_Global = instrucciones
 ts_global = TS.TablaDeSimbolos()
 tc_global = TC.TablaDeTipos()
 procesar_instrucciones(instrucciones,ts_global,tc_global)
+
 erroressss = ErrorHTML()
 erroressss.crearReporte()'''
 '''astG = AST()
@@ -134,6 +138,11 @@ astG.generarAST(instrucciones)
 typeC = TipeChecker()
 typeC.crearReporte(tc_global)'''
 
+astG = AST()
+astG.generarAST(instrucciones)
+typeC = TipeChecker()
+typeC.crearReporte(tc_global)
+'''
 
 def ts_graph(ts_global):
     dot3 = Digraph('TS', node_attr={'shape': 'plaintext','color': 'lightblue2'})

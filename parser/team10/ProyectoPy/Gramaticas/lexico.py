@@ -3,6 +3,8 @@
 from ply import *
 #lexer = lex.lex()
 
+elex = []
+
 keywords = (
     'create', 'varchar', 'date', 'not', 'null', 'identity', 'primary', 'key', 'alter', 'database', 'owner',
     'table', 'add', 'drop', 'truncate', 'insert', 'into', 'values', 'update', 'set', 'from','delete', 'select', 
@@ -64,7 +66,7 @@ def t_NEWLINE(t):
     return t
 
 def t_error(t):
-    print("Illegal character %s" % t.value[0])
+    elex.append("Error. Line: "+str(t.lexer.lineno)+", col: " + str(t.lexer.lexpos) + ", keyword: " + t.value[0])
     t.lexer.skip(1)
 
 lex.lex(debug=0)
