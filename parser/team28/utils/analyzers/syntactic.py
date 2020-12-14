@@ -285,52 +285,25 @@ def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
-    nodo = Node('UPDATESTATEMENT')
-    if (len(p) == 8):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
-        nodo.add_childrens(p[6])
-        nodo.add_childrens(Node(p[7]))
-    elif (len(p) == 7):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(p[4])
-        nodo.add_childrens(p[5])
-        nodo.add_childrens(Node(p[6]))
-    elif (len(p) == 6):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(p[4])
-        nodo.add_childrens(Node(p[5]))
-    
-    p[0] = nodo
-
+    if(len(p) == 7):
+        p[0] = Update(p[2],p[5],p[6])
+    elif(len(p) == 6):
+        p[0] = Update(p[2],p[4],p[5])
+    else:
+        p[0] = Update(p[2],p[4],None)
 
 def p_set_list(p):
     '''SETLIST : SETLIST COMMA COLUMNVALUES
                | COLUMNVALUES'''
-    nodo = Node('SETLIST')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
     else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
-
+        p[0] = [p[1]]
 
 def p_column_values(p):
     '''COLUMNVALUES : OBJECTREFERENCE EQUALS SQLEXPRESSION2'''
-    nodo = Node('COLUMNVALUES')
-    nodo.add_childrens(p[1])
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    p[0] = nodo
+    p[0] = ColumnVal(p[1],p[2])
 
 
 def p_sql_expression2(p):
@@ -393,7 +366,7 @@ def p_delete_statement(p):
         nodo.add_childrens(Node(p[4]))
     p[0] = nodo
 
-
+#TODO: OPTIONS Y OPTIONS4
 def p_options_list(p):
     '''OPTIONSLIST : OPTIONS1 OPTIONS2 OPTIONS3 OPTIONS4
                    | OPTIONS1 OPTIONS2 OPTIONS3
@@ -410,6 +383,10 @@ def p_options_list(p):
                    | OPTIONS2
                    | OPTIONS3
                    | OPTIONS4'''
+    # if (len(p) == 5):
+    # elif (len(p) == 4):
+    # elif (len(p) == 3):
+    # else:
     nodo = Node('OPTIONSLIST')
     if (len(p) == 5):
         nodo.add_childrens(p[1])
@@ -432,80 +409,51 @@ def p_options1(p):
     '''OPTIONS1 : ASTERISK SQLALIAS
                 | ASTERISK
                 | SQLALIAS'''
-    nodo = Node('OPTIONS1')
-    if (len(p) == 2):
-        if (p[1] == "*"):
-            nodo.add_childrens(Node(p[1]))
-        else:
-            nodo.add_childrens(p[1])
+    if(len(p) == 2):
+        p[0] = Opt1(True, p[2])
     else:
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-    p[0] = nodo
-
+        if(p[1] == "*"):
+            p[0] = Opt1(True, None)
+        else:
+            p[0] = Opt1(False, p[2])
 
 def p_options2(p):
     '''OPTIONS2 : USING USINGLIST'''
-    nodo = Node('OPTIONS2')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(p[2])
-    p[0] = nodo
-
+    p[0] = Using(p[2])
 
 def p_using_list(p):
     '''USINGLIST  : USINGLIST COMMA SQLNAME
                   | SQLNAME'''
-    nodo = Node('USINGLIST')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
     else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = [p[1]]
 
 
 def p_options3(p):
     '''OPTIONS3 : WHERE SQLEXPRESSION'''
-    nodo = Node('OPTIONS3')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(p[2])
-    p[0] = nodo
+    p[0] = Where(p[2])
 
-
+#TODO: QUE HACE OPTIONS4?
 def p_options4(p):
     '''OPTIONS4 : RETURNING RETURNINGLIST'''
-    nodo = Node('OPTIONS4')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(p[2])
-    p[0] = nodo
+    p[0] = Returning(p[2])
 
 
 def p_returning_list(p):
     '''RETURNINGLIST   : ASTERISK
                        | EXPRESSIONRETURNING'''
-    nodo = Node('RETURNINGLIST')
-    if (p[1] == '*'):
-        nodo.add_childrens(Node(p[1]))
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
-
+    p[0] = p[1]
 
 def p_returning_expression(p):
     '''EXPRESSIONRETURNING : EXPRESSIONRETURNING COMMA SQLEXPRESSION SQLALIAS
                            | SQLEXPRESSION SQLALIAS'''
-    nodo = Node('EXPRESSIONRETURNING')
-    if (len(p) == 5):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(p[4])
+    if(len(p) == 5):
+        p[1].append(p[3])
+        p[0] = p[1]
     else:
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    p[0] = nodo
-
+        p[0] = [p[1]]
 
 def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
@@ -1195,16 +1143,15 @@ def p_trigonometric_functions(p):
                                | ACOSH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                                | ASINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                                | ATANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+#TODO: REVISAR QUE SQLALIAS SEA OPCIONAL
 def p_sql_alias(p):
     '''SQLALIAS : AS SQLNAME
                 | SQLNAME'''
-    nodo = Node('SQLALIAS')
     if (len(p) == 3):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
+        p[0] = p[2]
     elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = p[1]
+
 
 def p_expressions_time(p):
     '''EXPRESSIONSTIME : EXTRACT LEFT_PARENTHESIS DATETYPES FROM TIMESTAMP SQLNAME RIGHT_PARENTHESIS
@@ -1244,7 +1191,7 @@ def p_cont_of_aggregate(p):
     else:
         nodo.add_childrens(p[1])
     p[0] = nodo
-
+#TODO: TERMINAR AST OBJECTREFERENCE
 def p_sql_object_reference(p):
     '''OBJECTREFERENCE : SQLNAME DOT SQLNAME DOT SQLNAME
                        | SQLNAME DOT SQLNAME
@@ -1332,17 +1279,13 @@ def p_date_types(p):
 def p_sql_integer(p):
     '''SQLINTEGER : INT_NUMBER
                   | FLOAT_NUMBER'''
-    nodo = Node('SQLINTEGER')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    p[0] = p[1]
 
 
 def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-    # nodo = Node('SQLNAME')
-    # nodo.add_childrens(Node(p[1]))
     p[0] = p[1]
 
 
