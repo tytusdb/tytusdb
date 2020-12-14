@@ -1,4 +1,6 @@
+
 from Tokens import *
+
 # Construccion del analizador léxico
 import ply.lex as lex
 lexer = lex.lex()
@@ -24,8 +26,7 @@ precedence = (
         # "R_IS",
     ),
     ("right", "R_NOT"),
-    ("left", "R_AND"),
-    ("left", "R_OR"),
+    ("left", "R_AND", "R_OR"),
     ("left","R_UNION","R_INTERSECT","R_EXCEPT")
 )
 
@@ -36,7 +37,7 @@ import Instrucciones
 
 def p_init(t):
     """init : stmtList"""
-    t[0] = t[1].execute()
+    t[0] = t[1]
 
 def p_stmt_list(t):
     """stmtList : stmtList stmt"""
@@ -60,7 +61,7 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
-    t[0] = t[1]
+    t[0] = t[1].execute()
 
 # Statement para el CREATE
 # region CREATE
@@ -238,11 +239,18 @@ def p_referencesOpt(t):
 # Gramatica para expresiones
 # region Expresiones
 def p_expresion(t) :
-  '''
-  expresion : datatype
+    '''
+    expresion : datatype
             | expBool
-            | S_PARIZQ selectStmt S_PARDER
-  '''
+    '''
+    t[0] = t[1]
+
+def p_expresion_(t) :
+    '''
+    expresion : S_PARIZQ selectStmt S_PARDER
+    '''
+    t[0] = t[2]
+
 def p_funcCall(t) :
   '''
   funcCall : ID S_PARIZQ paramsList S_PARDER
@@ -310,22 +318,19 @@ def p_literal(t):
     | STRING
     | DECIMAL
     | CHARACTER
-    | literalBoolean
+    | R_TRUE
+    | R_FALSE
     """
-    if t.slice[1].type == 'CHARACTER' or 'STRING':
+
+    if t.slice[1].type == 'CHARACTER' or t.slice[1].type == 'STRING':
         tipo = Expresiones.TYPE.STRING
-    elif t.slice[1].type == 'R_TRUE' or 'R_TRUE':
+    elif t.slice[1].type == 'R_TRUE' or t.slice[1].type == 'R_FALSE':
+        t.slice[1].value = t.slice[1].value == 'TRUE'
         tipo = Expresiones.TYPE.BOOLEAN
     else:
         tipo = Expresiones.TYPE.NUMBER
     t[0] = Expresiones.Primitivos(tipo, t.slice[1].value)
 
-def p_literal_boolean(t):
-    """
-    literalBoolean :  R_TRUE
-    | R_FALSE
-    """
-    t[0] = t[1]
 
 def p_params_list(t):
     """paramsList : paramsList S_COMA datatype"""
@@ -369,7 +374,7 @@ def p_datatype_agrupacion(t):
     """
     t[0] = t[2]
 
-def p_expComp(t):
+def p_expCompBinario_1(t):
     """
     expComp : datatype OL_MENORQUE datatype
     | datatype OL_MAYORQUE datatype
@@ -377,22 +382,58 @@ def p_expComp(t):
     | datatype OL_MENORIGUALQUE datatype
     | datatype S_IGUAL datatype
     | datatype OL_DISTINTODE datatype
-    | datatype R_BETWEEN datatype R_AND datatype
-    | datatype R_NOT R_BETWEEN datatype R_AND datatype
+    """
+    t[0] = Expresiones.ExpresionCompBinaria(t[1],t[3],t[2])
+
+def p_expCompBinario_2(t):
+    """
+    expComp : datatype R_IS R_DISTINCT R_FROM datatype
+    """
+    t[0] = Expresiones.ExpresionCompBinaria(t[1],t[5],t[2]+t[3]+t[4])
+
+def p_expCompBinario_3(t):
+    """
+    expComp : datatype R_IS R_NOT R_DISTINCT R_FROM datatype
+    """
+    t[0] = Expresiones.ExpresionCompBinaria(t[1],t[6],t[2]+t[3]+t[4]+t[5])
+
+def p_expComp_ternario_1(t):
+    """
+    expComp :  datatype R_BETWEEN datatype R_AND datatype
+    """
+    t[0] = Expresiones.ExpresionCompTernaria(t[1],t[3],t[5],t[2])
+
+def p_expComp_ternario_2(t):
+    """
+    expComp : datatype R_NOT R_BETWEEN datatype R_AND datatype
     | datatype R_BETWEEN R_SYMMETRIC datatype R_AND datatype
-    | datatype R_IS R_DISTINCT R_FROM datatype
-    | datatype R_IS R_NOT R_DISTINCT R_FROM datatype
-    | datatype R_IS R_NULL
-    | datatype R_IS R_NOT R_NULL
-    | datatype R_ISNULL
+    """
+    t[0] = Expresiones.ExpresionCompTernaria(t[1],t[4],t[6],t[2]+t[3])
+
+def p_expComp_unario_1(t):
+    """
+    expComp : datatype R_ISNULL
     | datatype R_NOTNULL
+    """
+    t[0] = Expresiones.ExpresionCompUnaria(t[1],t[2])
+
+def p_expComp_unario_2(t):
+    """
+    expComp : datatype R_IS R_NULL
     | datatype R_IS R_TRUE
-    | datatype R_IS R_NOT R_TRUE
     | datatype R_IS R_FALSE
-    | datatype R_IS R_NOT R_FALSE
     | datatype R_IS R_UNKNOWN
+    """
+    t[0] = Expresiones.ExpresionCompUnaria(t[1],t[2]+t[3])
+
+def p_expComp_unario_3(t):
+    """
+    expComp : datatype R_IS R_NOT R_NULL
+    | datatype R_IS R_NOT R_TRUE
+    | datatype R_IS R_NOT R_FALSE
     | datatype R_IS R_NOT R_UNKNOWN
     """
+    t[0] = Expresiones.ExpresionCompUnaria(t[1],t[2]+t[3]+t[4])
 
 def p_expSubq(t) :
   '''
@@ -426,30 +467,53 @@ def p_stringExp(t) :
         | columnName
   '''
 
-def p_subqValues(t) :
+
+def p_subqValues(t):
   '''
   subqValues : R_ALL
                 | R_ANY
                 | R_SOME
   '''
 
-def p_boolean(t) :
-  '''
-  boolean : expComp
-            | R_EXISTS S_PARIZQ selectStmt S_PARDER
+
+def p_boolean_1(t):
+    '''
+    boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
             | datatype R_IN S_PARIZQ selectStmt S_PARDER
             | datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
-            | expSubq
-  '''
+    '''
 
-def p_expBool(t) :
-  '''
-  expBool : expBool R_AND expBool
+def p_boolean_2(t) :
+    '''
+    boolean : expComp
+            | expSubq
+    '''
+    t[0] = t[1]
+
+def p_expBool_1(t) :
+    '''
+    expBool : expBool R_AND expBool
             | expBool R_OR expBool
-            | R_NOT expBool
-            | S_PARIZQ boolean S_PARDER
-            | boolean
-  '''
+    '''
+    t[0] = Expresiones.ExpresionBooleanaBinaria(t[1],t[3],t[2])
+
+def p_expBool_2(t) :
+    '''
+    expBool : R_NOT expBool
+    '''
+    t[0] = Expresiones.ExpresionBooleanaUnaria(t[2],t[1])
+
+def p_expBool_3(t) :
+    '''
+    expBool : S_PARIZQ expBool S_PARDER
+    '''
+    t[0] = t[2]
+
+def p_expBool_4(t) :
+    '''
+    expBool : boolean
+    '''
+    t[0] = t[1]
 
 def p_columnName_id(t):
     """
@@ -546,7 +610,6 @@ def p_ifExists(t):
 # region SELECT
 def p_selectStmt(t):
     """selectStmt : R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
-    | R_SELECT selectParams
     | R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl
     | selectStmt R_UNION allOpt selectStmt
     | selectStmt R_INTERSECT allOpt selectStmt
@@ -554,26 +617,55 @@ def p_selectStmt(t):
     | S_PARIZQ selectStmt S_PARDER
     """
 
+def p_selectstmt_only_params(t):
+    """selectStmt : R_SELECT selectParams
+    """
+    t[0] = Instrucciones.SelectOnlyParams(t[2].params)
+
 def p_allOpt(t):
     """allOpt : R_ALL
         |
     """
 
-def p_selectParams(t):
-    """selectParams : O_PRODUCTO
-     | selectList
-    """
+def p_selectparams_all(t):
+    """selectParams : O_PRODUCTO"""
+    t[0] = Instrucciones.SelectParams(Instrucciones.SELECT_MODE.ALL)
 
-def p_selectList(t):
-    """selectList : selectList S_COMA expresion optAlias
-                  | expresion optAlias
-    """
+def p_selectparams_params(t):
+    """selectParams : selectList"""
+    t[0] = Instrucciones.SelectParams(Instrucciones.SELECT_MODE.PARAMS, t[1])
 
-def p_optAlias(t):
-    """optAlias : R_AS ID
-    | ID
-    |
+#cambiar datatype - expresion optAlias
+def p_selectList_list(t):
+    """selectList : selectList S_COMA expresion optAlias"""
+    if t[4] != None: t[3].temp = t[4]
+    t[1].append(t[3])
+    t[0] = t[1]
+
+#cambiar datatype - expresion optAlias
+def p_selectList_u(t):
+    """selectList : expresion optAlias"""
+    if t[2] != None: t[1].temp = t[2]
+    t[0] = [t[1]]
+
+
+def p_optalias_as(t):
     """
+    optAlias : R_AS ID
+    | R_AS STRING
+    """
+    t[0] = t[2]
+
+def p_optalias_id(t):
+    """
+    optAlias : ID
+    | STRING
+    """
+    t[0] = t[1]
+
+def p_optalias_none(t):
+    """optAlias : """
+    t[0] = None
 
 def p_tableExp(t):
     """tableExp : tableExp S_COMA fromBody optAlias
@@ -752,7 +844,7 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 s = """
-    True +  True
+    SELECT 3<1 or 23-7/4 BETWEEN 3 AND 4 AND NOT TRUE = false AS "test 1";
 """
 result = parser.parse(s)
-print(result.value)
+print(result)
