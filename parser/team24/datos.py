@@ -113,4 +113,4 @@ class logico:
 
 class boolean(logico):
     def __init__(self,valor):
-        self.val= val
+        self.val= valor

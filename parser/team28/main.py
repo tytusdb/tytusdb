@@ -1,3 +1,4 @@
+import json
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askopenfilename
@@ -140,6 +141,8 @@ class GUI:
         global report_ast
         texto = self.entrada.get("1.0", END)
         result = parse(texto)
+        jsonStr = json.dumps(result.__dict__)
+        print(jsonStr)
         report_ast = result
         values = list_errors.head_value
         if values is not None:
