@@ -1,5 +1,6 @@
 # LEXICO 
 palabrasReservadas = {
+    'symmetric' : 'SYMMETRIC',
     'insert':'INSERT',
     'varchar':'VARCHAR',
     'columns':'COLUMNS',                 
@@ -179,6 +180,7 @@ palabrasReservadas = {
     'convert':'CONVERT',
     'encode':'ENCODE',
     'decode':'DECODE',
+    'sum': 'SUM',
 }
 tokens = [
     # corchetes no porque dijo el aux que no venia
