@@ -7,12 +7,16 @@
   <tr>
     <td>inicio     ::=      queries 
 <br>queries     ::=      query
-<br>opcionTrim     ::=      opcion
-<br>mostrarBD    ::=        SHOW DATABASES PUNTOYCOMA
-<br>queries     ::=      query
-<br>opcionTrim     ::=      opcion
-<br> mostrarBD    ::=        SHOW DATABASES PUNTOYCOMA
+<br>query     ::=      opcion
+<br>crearBD    ::=        CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA
+<br>parametrosCrearBD    ::=        parametroCrearBD
+<br>parametroCrearBD    ::=        OWNER   IGUAL  <expresiones.ExpresionNumero object at 0x0354D4F0>
+<br> final    ::=      Numero(1)
 <br></td>
-    #<td> <br></td>
+    #<td>t[0] = CreateDatabaseswithParameters(t[3],t[4])
+<br>t[0]=[t[1]]
+<br>t[0]=ExpresionOwner(t[1],t[3])
+<br> t[0]=ExpresionNumero(t[1])
+<br></td>
   </tr>
 </table> 
