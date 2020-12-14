@@ -1089,6 +1089,24 @@ def p_CondicionIsDistinct(t):
 def p_CondicionIsNotDistinct(t):
     'CONDICION  :   CONDICION IS NOT DISTINCT FROM CONDICION '
 
+def p_CondicionNull(t):
+    'CONDICION  :   NULL '
+
+def p_CondicionUnknown(t):
+    'CONDICION  :   UNKNOWN '
+
+def p_CondicionSubConsulta(t):
+    'CONDICION  :   PABRE SUBCONSULTA PCIERRA '
+
+def p_CondicionFunciones(t):
+    'CONDICION  :   FUNCION PABRE ID PCIERRA'
+
+def p_CondicionFunciones1(t):
+    'CONDICION  :   FUNCION PABRE ID PUNTO ID PCIERRA'
+
+def p_CondicionNow(t):
+    'CONDICION  :   NOW PABRE PCIERRA '
+
 def p_FuncionesSistemaAlias(t):
     'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
 
@@ -1113,9 +1131,45 @@ def p_FuncionesSistemaTrimA1(t):
 def p_FuncionesSistemaTrim1(t):
     'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA   '
 
+def p_Id_FuncionSubstring(t):
+    'ID_FUNCION_S  :   SUBSTRING   '
+
+def p_Id_FuncionLength(t):
+    'ID_FUNCION_S  :   LENGTH   '
+
+def p_Id_FuncionSubstr(t):
+    'ID_FUNCION_S  :   SUBSTR   '
+
+def p_LBOTHLeading(t):
+    'LBOTH  :   LEADING   '
+
+def p_LBOTHTrailing(t):
+    'LBOTH  :   TRAILING   '
+
+def p_LBOTHBoth(t):
+    'LBOTH  :   BOTH   '
+
+def p_LCondicionFuncion_Condicion(t):
+    'LCONDICION_FUNCION_S  :   CONDICION   '
+
+def p_LCondicionFuncion_S(t):
+    'LCONDICION_FUNCION_S  :   CONDICION COMA NUMERO COMA NUMERO   '
+
+def p_IdFuncionAbs(t):
+    'ID_FUNCION  :   ABS  '
+
+def p_IdFuncionCBRT(t):
+    'ID_FUNCION  :   CBRT  '
+
+def p_IdFuncionCeil(t):
+    'ID_FUNCION  :   CEIL  '
+
+def p_IdFuncionCeiling(t):
+    'ID_FUNCION  :   CEILING  '
+
 def p_LCondicionFuncion1(t):
     'LCONDICION_FUNCION  :   CONDICION  '
-    
+
 def p_LCondicionFuncion(t):
     'LCONDICION_FUNCION  :   LCONDICION_FUNCION COMA CONDICION  '
 
