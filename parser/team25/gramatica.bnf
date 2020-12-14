@@ -174,16 +174,16 @@
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <OFFSET>
               | 'select' '*' 'from' <LISTA_TABLAS>  <FILTRO> <JOIN>
               | 'select' '*' 'from' <LISTA_TABLAS>  <FILTRO>
-              | 'select' 'distinct' 'id' 'from'  <LISTA_TABLAS> <FILTRO> <JOIN>
-              | 'select' 'distinct' 'id' 'from'  <LISTA_TABLAS> <FILTRO>
+              | 'select' 'distinct' <opcionDistinc> 'from'  <LISTA_TABLAS> <FILTRO> <JOIN>
+              | 'select' 'distinct' <opcionDistinc> 'from'  <LISTA_TABLAS> <FILTRO>
+              | 'select' 'distinct' <opcionDistinc> 'from' <LISTA_TABLAS>   <JOIN>
+              | 'select' 'distinct' <opcionDistinc> 'from' <LISTA_TABLAS>  
               | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> <FILTRO> <JOIN>
               | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> <FILTRO>
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>   <JOIN>
               | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>  
               | 'select' '*' 'from' <LISTA_TABLAS>   <JOIN>
               | 'select' '*' 'from' <LISTA_TABLAS>  
-              | 'select' 'distinct' 'id' 'from' <LISTA_TABLAS>   <JOIN>
-              | 'select' 'distinct' 'id' 'from' <LISTA_TABLAS>  
               | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS>  <JOIN>
               | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> 
               | 'select' <FUNCIONES> 'as' 'id' <JOIN>
@@ -191,9 +191,12 @@
               | 'select' <FUNCIONES> <JOIN>
               | 'select' <FUNCIONES>
 
-    <JOIN> ::= 'id' <JOIN_TYPE> 'join' 'id' 'on' <EXPRESION>
-             | 'id' <JOIN_TYPE> 'join' 'id' 'using' '(' 'join' <LISTA_IDS> ')'
-             | 'id' 'natural'<JOIN_TYPE> 'join' 'id'
+<opcionDistinct> :: =  'id'
+                    | '*'
+
+    <JOIN> ::=  <JOIN_TYPE> 'join' 'id' 'on' <EXPRESION>
+             |  <JOIN_TYPE> 'join' 'id' 'using' '(' 'join' <LISTA_IDS> ')'
+             |  'natural'<JOIN_TYPE> 'join' 'id'
 
     <JOIN_TYPE> ::= 'inner'
                 |   <OUTER>
@@ -322,10 +325,10 @@
                 | <EXPRESION>  '/'  <EXPRESION>
                 | <EXPRESION>  '%'  <EXPRESION>
                 | <EXPRESION>  '^'  <EXPRESION>
-                | <EXP_AUX> 'between' <EXP_AUX> 'and' <EXP_AUX>
-                | <EXP_AUX> 'not' 'between' <EXP_AUX> 'and' <EXP_AUX>
-                | <EXP_AUX> 'between' 'symmetric' <EXP_AUX> 'and' <EXP_AUX>
-                | <EXP_AUX> 'not' 'between' 'symmetric' <EXP_AUX> 'and' <EXP_AUX>
+                | <EXPRESION> 'between' <EXP_AUX> 'and' <EXP_AUX>
+                | <EXPRESION> 'not' 'between' <EXP_AUX> 'and' <EXP_AUX>
+                | <EXPRESION> 'between' 'symmetric' <EXP_AUX> 'and' <EXP_AUX>
+                | <EXPRESION> 'not' 'between' 'symmetric' <EXP_AUX> 'and' <EXP_AUX>
                 | <EXPRESION> 'is' 'distinct' 'from' <EXPRESION>
                 | <EXPRESION> 'is' 'not' 'distinct' 'from' <EXPRESION>
                 | <EXPRESION> 'is' 'null'
