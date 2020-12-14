@@ -48,6 +48,7 @@ class ExpresionBinaria(Expresion):
       self.exp1 = exp1
       self.exp2 = exp2
       self.operador = operador
+      self.temp = exp1.temp + str(operador) + exp2.temp
       self.lineno = 0
 
   def execute(self):
@@ -71,7 +72,7 @@ class ExpresionBinaria(Expresion):
       print("Error de tipos")
     except:
       print("Error desconocido")
-      return Primitivos(None, None)
+    return Primitivos(None, None)
     
 class Primitivos(Expresion):
   '''
@@ -80,6 +81,7 @@ class Primitivos(Expresion):
   def __init__(self, tipo, value):
       self.tipo = tipo
       self.value = value
+      self.temp = str(value)
       self.lineno = 0
   
   def execute(self):

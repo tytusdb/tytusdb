@@ -813,7 +813,7 @@ def p_expresion_logica_rel(t):
 
 
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
+    print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(entradaa), t))
     global reporte_sintactico
     reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
       

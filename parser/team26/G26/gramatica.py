@@ -1,3 +1,7 @@
+from error import error
+
+errores = list()
+
 reservadas = {
     'smallint' : 'SMALLINT',
     'integer' : 'INTEGER',
@@ -314,7 +318,9 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    description = "Error lexico con -> " + t.value
+    mistake = error("Lexico", description, str(t.lineno))
+    errores.append(mistake)
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
@@ -354,12 +360,18 @@ def p_instruccion(t) :
                         | UPDATE update
                         | AS condiciones
                         | alter
-                        | select'''
+                        | select
+                        | error PTCOMA'''
     if isinstance(t[1], alter.Alter) : t[0] = alter.FatherAlter(t[1])
     else : t[0] = t[2]
 
+def p_problem(t):
+    '''problem  :  error PTCOMA'''
+    t[0] = "error"
+
 def p_select(t):
-    'select : SELECT parametrosselect fromopcional'
+    '''select : SELECT parametrosselect fromopcional
+            | SELECT error'''
 
 
 def p_from_opcional(t):
@@ -536,7 +548,8 @@ def p_create_instruccion(t) :
     '''create : TYPE createenum
               | TABLE createtable
               | OR REPLACE DATABASE createdatabase
-              | DATABASE createdatabase'''
+              | DATABASE createdatabase
+              | problem'''
     if t[1].lower() == 'type' : t[0] = create.Create('type', t[2]['id'], t[2]['list'])
     elif t[1].lower() == 'table' : t[0] = create.Create('table', t[2]['id'], t[2])
     elif t[1].lower() == 'or' : t[0] = create.Create('replace', None, t[4])
@@ -769,12 +782,14 @@ def p_fields(t):
 
 ###########USE
 def p_use(t):
-    'use    :  ID PTCOMA'
+    '''use    :  ID PTCOMA
+            | error PTCOMA'''
     t[0] = use.Use(ident.Identificador(None, t[1]))
 
 ##########SHOW
 def p_show(t):
-    'show   :    DATABASES likeopcional'
+    '''show   :    DATABASES likeopcional
+                | error PTCOMA'''
     t[0] = t[2]
 
 def p_likeopcional(t):
@@ -786,7 +801,8 @@ def p_likeopcional(t):
 ##########DROP
 def p_drop(t):
     '''drop :   DATABASE dropdb PTCOMA
-            |   TABLE ID PTCOMA '''
+            |   TABLE ID PTCOMA 
+            |   error PTCOMA'''
     if t[1].lower() == 'database' : t[0] = t[2]
     else : t[0] = drop.Drop(ident.Identificador(None, t[2]), False)
 
@@ -803,7 +819,8 @@ def p_alter_rec(t):
     t[0] = t[1]
 
 def p_alter(t):
-    '''alter    : ALTER alterp'''
+    '''alter    : ALTER alterp
+                | error PTCOMA'''
     t[0] = [t[2]]
 
 def p_alterp(t):
@@ -862,12 +879,14 @@ def p_tipodedrop(t):
 
 #------------------------------------------------------------DELETE----------------------------------------------------
 def p_instrucciones_delete(t) :
-    '''delete    : FROM ID WHERE condiciones PTCOMA'''
+    '''delete    : FROM ID WHERE condiciones PTCOMA
+                | error PTCOMA'''
     t[0] = delete.Delete(ident.Identificador(None, t[2]), t[4])
 
 #-------------------------------------------------------INSERT-------------------------------------------
 def p_instrucciones_insert(t):
-    '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA'''
+    '''insert    : INTO ID VALUES PARENIZQ values PARENDER PTCOMA
+                    | error PTCOMA'''
     t[0] = insert.Insert(ident.Identificador(None, t[2]), t[5])
 
 def p_values_rec(t):
@@ -897,7 +916,8 @@ def p_valueb(t):
 
 #-------------------------------------------------------UPDATE-------------------------------------------
 def p_instrucciones_update(t):
-    '''update    : ID SET asignaciones WHERE condiciones PTCOMA'''
+    '''update    : ID SET asignaciones WHERE condiciones PTCOMA
+                    | error PTCOMA'''
     t[0] = update.Update(t[1], t[3], t[5])
 
 def p_asignaciones_rec(t):
@@ -1038,8 +1058,14 @@ def p_boleano(t):
     else : t[0] = primi.Primitive('boolean', False)
 
 def p_error(t):
-    # print(t)
-    print("Error sintáctico en '%s'" % t.value)
+    description = "Error sintactico con: " + t.value
+    mistake = error("Sintactico", description, str(t.lineno))
+    errores.append(mistake)
+
+
+def getMistakes():
+    return errores
+    errores.clear()
 
 import ply.yacc as yacc
 parser = yacc.yacc()
