@@ -1,0 +1,251 @@
+CREatE TYPE mood AS ENUM ('sad', 'ok', 'happy');
+
+CREATE TABLE cities (
+    name            text PRIMARY KEY,
+    population      float NOT NULL,
+    elevation       integer  NULL,
+    PRIMARY KEY(name, population),
+    FOREING KEY(elevation) REFERENCES ID(state),
+    UNIQUE(elevation),
+    CONSTRAINT name CHECK (preciomin>=0 and preciomay>=0)
+);
+
+UPDATE products SET price = 10 WHERE price = 5;
+DELETE FROM products WHERE price = 10;
+
+select (select * from Hola;) from Hola2;
+SELECT AVG(hola), max(hola2) from prueba;
+
+CREATE TABLE capitals (
+    state char(2)
+) INHERITS (cities);
+
+ALTER DATABASE name RENAME TO new_name;
+
+ALTER DATABASE name OWNER TO PRUEBA;
+
+drop table hola, prueba;
+
+
+select sum(5+ 4), COUNT(*)  from Prueba;
+
+SELECT P.HolaMen from prueba2 AS Hola
+LEFT JOIN Prueba as P
+ON P.hola = prueba2.hola
+Group by hola, yaSalio;
+
+select Hola from prueba as prueba;
+
+select
+case
+WHEN salary >= 8000 AND salary <= 10000 Then 'Director'
+WHEN salary >= 8000 AND salary <= 10000 Then 'Director'
+when 'November' then 'Noviembre'
+when 'December' then 'Diciembre'
+Else 'Director'
+End
+from Empleado as hola;
+
+Select A.campo1,A.campo2,A.campo3,B.campo4,B.campo5
+from tabla1 as A
+LEFT join tabla2 as B on A.campo1 = B.campo1 and A.campo2 = B.campo2;   
+
+insert into PRUEBA(prueba) values ('manuel',5);
+
+delete from Prueba where Prueba1 = 'CARRO';
+
+Select A.campo1,A.campo2,A.campo3,B.campo4,B.campo5
+from tabla1 as A
+inner join tabla2 as B  on A.campo1 = B.campo1 and A.campo2 = B.campo2  
+where Hola = 'perro';
+
+insert into tabla (campo1,campo2,campo3,campo4) values ('manuel',5);    
+
+update tabla
+set campo1=5,campo2='df' WHERE CustomerID = 1;
+
+UPDATE Customers
+SET ContactName = 'Alfred Schmidt', City= 'Frankfurt'
+WHERE CustomerID = 1;
+
+select * from Prueba as Hola where prueba = 'prueba';
+
+DELETE FROM links
+WHERE id = 8;
+
+SELECT DISTINCT prueba, hola  FROM TABLA;
+
+SELECT * FROM Customers
+WHERE return_date BETWEEN '2005-05-29' AND id;
+
+select * from prueba;
+
+SELECT * FROM Customers
+WHERE Country LIKE '%hola%';
+
+Select * from basic ;
+SELECT substring(contact_name,1,3)
+    FROM contacts;
+
+    SELECT substring(contact_name,1,3)
+    FROM contacts;
+
+SELECT P.HolaMen from prueba2 AS Hola
+OUTER JOIN Prueba as P
+ON P.hola = prueba2.hola
+Group by hola, yaSalio;
+
+SELECT column_nam FROM table1
+UNION
+SELECT column_na FROM table2;
+
+SELECT
+        film_id,
+        title,
+        release_year
+FROM
+        film
+ORDER BY
+        film_id
+LIMIT 4 OFFSET 3;
+
+SELECT
+    a,
+    fruit_a,
+    b,
+    fruit_b
+FROM
+    basket_a
+RIGHT JOIN basket_b ON fruit_a = fruit_b;
+
+
+SELECT
+    a,
+    fruit_a,
+    b,
+    fruit_b
+FROM
+    basket_a
+RIGHT JOIN basket_b JOIN fruit_b;
+
+
+SELECT
+    a,
+    fruit_a,
+    b,
+    fruit_b
+FROM
+    basket_a
+RIGHT JOIN basket_b USING(hola, mundo)
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');   
+SELECT CURRENT_DATE;
+SELECT CURRENT_TIME;
+SELECT TIMESTAMP 'now';
+ALTER TABLE tablea DROP CONSTRAINT some_name;
+DELETE FROM products WHERE price = 10;
+
+select *
+from tbsujeto
+where fechanacimiento between '2004-01-01' and '2005-01-01';
+
+select *
+from tbsujeto
+where edad between 5 and 25;
+
+select distinct puesto,salario
+from tbempleado;
+
+select *
+from tbcolaborador
+where nombre is distinct from 'sujeto1';
+
+
+select *
+from (select nombre,fechanacimiento
+from tbcolaborador
+where substring(nombre,1,4) = 'suje') A;
+
+select A.nombre,A.fechanacimiento,(select identificacion from
+tbidentificacioncolaborador B where B.idcolaborador = A.id )
+from tbcolaborador A
+where substring(nombre,1,4) = 'suje';
+
+select A.nombre,A.fechanacimiento,(select identificacion from
+tbidentificacioncolaborador B where B.idcolaborador = A.id )
+from tbcolaborador A
+where substring(nombre,1,4) = 'suje';
+
+
+SELECT 
+   COUNT(*) 
+FROM 
+   table_name
+WHERE
+   condition;
+
+
+   SELECT 
+    COUNT(a.log_id) AS overall_count
+FROM 
+    tablita 
+WHERE 
+    count(*)>7 ;
+
+ALTER TABLE distributors
+    ALTER COLUMN address TYPE varchar(80),
+    ALTER COLUMN name TYPE varchar(100);
+
+    ALTER TABLE distributors
+    ALTER COLUMN address, masadress TYPE varchar(80),
+    ALTER COLUMN name TYPE varchar(100);
+
+CREATE DATABASE yo
+    OWNER = ma
+    MODE = 1
+;
+
+Select cbrt(columna-int) from a;
+
+SELECT 
+    COUNT(a.log_id) AS overall_count
+FROM 
+    tablita 
+WHERE 
+    abs(identif)>7 ;
+
+SELECT CBRT(343) AS 'Cube Root';
+
+
+ALTER DATABASE NAME OWNER TO 'JC';
+
+ALTER TABLE tabla ADD COLUMN a VARCHAR(12), c integer ; 
+
+
+SELECT RANDOM() AS 'random nums ' ;
+
+
+UPDATE products SET price = ACOSD(2) WHERE price = 5;
+
+Select substr(ident, 1,2) from tablita;
+
+SELECT encode ('hola'::bytea, 'esCAPE');
+
+SELECT CONVERT ('2014-03-02' AS DATE),
+       convert ('10' AS INTEGER);
+
+SELECT
+	first_name,
+	last_name
+FROM
+	customer
+WHERE
+	Country NOT LIKE 'bar_';
+

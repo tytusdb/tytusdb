@@ -1,0 +1,92 @@
+Definición de Gramática Ascendente V3
+•	Producciones Generales
+<INICIO>	:=	<INICIO> <INST>
+		|	<INST>
+<INST>	:=	<CREATEDB>
+		|	<SHOWDB>
+		|	<ALTERDB>
+		|	<DROPDB>
+		|	<CREATETB>
+		|	<DROPTB>
+		|	<ALTERTB>
+		|	<INSERT>
+		|	<UPDATE>
+		|	<DELETE>
+<ID> 		:=	Identificador
+<TIPO>	:=	int
+<COND>	:=	<ID> > <TIPO>
+		|	<ID> < <TIPO>
+		|	<ID> = <TIPO> 
+		|	<ID> <= <TIPO>
+		|	<ID> >= <TIPO>
+<WHERECOND>	:=	BETWEEN <TIPO> AND <TIPO>
+			|	= <TIPO>
+•	Manipulación de Bases de Datos
+<CREATEDB>	:=	CREATE <REPLACEDB> DATABASE <IFNOTEXISTS> <ID> <OWNER> <MODE>;
+<REPLACEDB>	:=	OR REPLACE
+			|	Є
+<IFNOTEXISTS>	:= 	IF NOT EXISTS
+			|	Є
+<OWNER> 	:=	OWNER = <ID>
+		|	Є
+<MODE> 	:=	MODE = <ID>
+		|	Є
+<SHOWDB>	:=	SHOW DATABASES;
+<ALTERDB>	:=	ALTER DATABASE <ALTERDB2>;
+<ALTERDB2>	:=	<ID> <ALTERDB3>
+			|	NAME OWNER TO <TIPO>
+<ALTERDB3>	:=	RENAME TO <ID>
+			|	OWNER TO {<ID>|<ID>|<ID>}
+<DROPDB>	:=	DROP DATABASE <IFEXISTS> <ID>;
+<IFEXISTS>	:=	IF EXISTS
+		|	Є
+•	Manipulación de Tablas
+<CREATETB>	:=	CREATE TABLE <ID> (<COLTB>); <INHERITS>
+<INHERITS>		:=	INHERITS (<ID>);
+			|	Є
+<COLTB>		:=	<COLTB>, <COLUMNA>
+			|	<COLUMNA>
+<COLUMNA>	:=	<ID> <TIPO> <KEY><REFERENCES><DEFAULT><NOTNULL><CONSTRAINT>
+<REFERENCES>	:=	REFERENCES <ID>
+			|	Є
+<KEY>		:=	SERIAL PRIMARY KEY
+			|	PRIMARY KEY <COLKEY>
+			|	FOREIGN KEY <COLKEY>
+			|	Є
+<COLKEY>		:=	(COLKEY2);
+			|	Є
+<COLKEY2>		:=	<COLKEY2>, <ID>
+			|	<ID>
+<DEFAULT>		:=	DEFAULT <ID>
+			|	Є
+<NOTNULL>		:=	<NOT> NULL
+			|	Є
+<NOT>		:=	NOT
+			|	Є
+
+<CONSTRAINT>	:=	<CONST> UNIQUE
+			|	<CONST> CHECK (<COND>)
+			|	Є
+<CONST>		:=	CONSTRAINT <ID>
+			|	Є
+<DROPTB>		:=	DROP TABLE <ID>;
+<ALTERTB>		:=	ALTER TABLE <ID> <ALTERTB2>;
+<ALTERTB2>	:=	ADD COLUMN <ID> <TIPO>
+			|	DROP COLUMN <ID>
+|	DROP CONSTRAINT <ID>
+			|	ADD <ADDPROP>
+			|	<ALTCOL>
+<ADDPROP>	:=	CHECK (<COND>)
+			|	CONSTRAINT <ID> UNIQUE (<ID>)
+			|	FOREIGN KEY (<COLKEY>) REFERENCES (<COLKEY>)
+<ALTCOL>	:=	<ALTCOL> , <ALTER>
+		|	<ALTER>
+<ALTER>	:=	ALTER COLUMN <ID> <PROPALTCOL>
+<PROPALTCOL>	:=	TYPE <TIPO>
+			|	SET NOT NULL
+•	Manipulación de Datos
+<INSERT>	:=	INSERT INTO <ID> VALUES (<VALORES>);
+<VALORES>	:=	<VALORES>, <TIPO>
+		|	<TIPO>
+<UPDATE>	:=	UPDATE <ID> SET <COND> WHERE <WHERECOND>;
+<DELETE>	:=	DELETE FROM <ID> WHERE <WHERECOND>;
