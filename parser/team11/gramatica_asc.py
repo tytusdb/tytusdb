@@ -168,7 +168,8 @@ def p_instruccion(t) :
                       | showDB_instr
                       | create_instr
                       | alter_instr PTCOMA
-                      | insert_instr'''
+                      | insert_instr
+                      | update_instr'''
 
 ##CREATE DATABASE
 def p_create_db(t):
@@ -365,7 +366,7 @@ def p_lista_owner(t):
                         | ID
     '''
 
-#############################################################################################
+#####################################################################################################
 
 ## INSERT 
 def p_insert_sinorden(t) :
@@ -385,7 +386,33 @@ def p_lista_parametros(t) :
 
 def p_lista_parametros_salida(t) :
     'parametros     : expresion'
+    
+## UPDATE
+def p_update_sinwhere(t) : 
+    'update_instr     : UPDATE ID SET asignaciones PTCOMA'
 
+def p_update_conwhere(t) : 
+    'update_instr     : UPDATE ID SET asignaciones WHERE condiciones PTCOMA'  
+    
+def p_lista_asignaciones(t): 
+    'asignaciones     : asignaciones COMA asignacion'
+
+def p_lista_asignacion_salida(t) :
+    'asignaciones     : asignacion'
+
+def p_asignacion(t) :
+    'asignacion       : ID IGUAL expresion'
+    
+## -------------------------------- EXPRESIONES ------------------------------------------    
+
+## expresiones logicas (condiciones)
+def p_lista_condicion(t): 
+    '''condiciones    : condiciones AND expresion
+                      | condiciones OR  expresion'''
+
+def p_lista_condicion_salida(t) :
+    'condiciones      : expresion'
+    
 def p_expresion(t) : 
 '''expresion      : CADENADOBLE
                   | CADENASIMPLE

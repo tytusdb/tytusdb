@@ -1,2 +1,6 @@
 entrada.txt
-__pycache__ 
+__pycache__/
+.idea/
+data/
+parser.out
+parsetab.py 
