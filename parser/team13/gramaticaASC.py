@@ -147,7 +147,7 @@ reservadas = {
     'sign': 'sign',
     'sqrt': 'sqrt',
     'trim_scale': 'trim_scale',
-    'truc': 'truc',
+    'trunc': 'trunc',
     'width_bucket': 'width_bucket',
     'random': 'random',
     'setseed': 'setseed',
@@ -990,6 +990,7 @@ def p_booleano(p):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 ######################################### QUERIES 
+
 def p_QUERY(p):
     '''QUERY : EXPR_SELECT 
              | EXPR_SELECT EXPR_FROM 
@@ -1130,34 +1131,43 @@ def p_QUERY_p7_5(p):
 
 
 def p_EXPR_SELECT(p):
-    '''EXPR_SELECT : select EXPR_COLUMNAS
-                   | select distinct EXPR_COLUMNAS
+    '''EXPR_SELECT : select distinct EXPR_COLUMNAS
                    | select multi
                    | select now parAbre parCierra
                    | select current_time
-                   | select current_date 
+                   | select current_date
                    ''' 
     if len(p) == 3:
+        print("P2 es " + p[2])
         if p[2] == "*":
             p[0] = SSelectCols(False,p[2])
         elif p[2].lower() == "current_time" :
             p[0] = SSelectFunc(p[2])
         elif p[2].lower() == "current_date" :
             p[0] = SSelectFunc(p[2])
-        else:
-            p[0] = SSelectCols(False,p[2])
     elif p[2].lower() == "now":
             p[0] = SSelectFunc(p[2])
     else:
         p[0] = SSelectCols(True,p[3])
 
 
+def p_EXPR_SELECT_C(p):
+    '''EXPR_SELECT : select EXPR_COLUMNAS''' 
+    p[0] = SSelectCols(False,p[2])
 
+    
 # todos los parametros de select - columnas
 def p_EXPR_COLUMNAS(p):
     '''EXPR_COLUMNAS : EXPR_COLUMNAS coma EXPR_COLUMNAS1
                      | EXPR_COLUMNAS1'''
+    if len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
+    
 
+#LEN 1 y 3
 def p_EXPR_COLUMNAS1(p):
     '''EXPR_COLUMNAS1 : E
                      | EXPR_AGREGACION
@@ -1167,25 +1177,46 @@ def p_EXPR_COLUMNAS1(p):
                      | EXPR_EXTRA
                      | EXPR_FECHA
                      | EXPR_CASE
-                     | substring parAbre E coma E coma E parCierra
-                     | greatest parAbre E_LIST parCierra
-                     | least parAbre E_LIST parCierra
                      | E as E
                      | EXPR_AGREGACION as E
                      | EXPR_MATHS as E
-                     | EXPR_TRIG as E
+                     | EXPR_TRIG as E 
                      | EXPR_BINARIAS as E
                      | EXPR_EXTRA as E
                      | EXPR_FECHA as E
-                     | EXPR_CASE as E
+                     | EXPR_CASE as E '''
+    if len(p) == 4:
+        p[0] = SColumnasAsSelect(p[3],p[1])
+    else:
+        p[0] = SColumnasSelect(p[1])
+
+#LEN 
+def p_EXPR_COLUMNAS1_p1(p):
+    '''EXPR_COLUMNAS1 : substring parAbre E coma E coma E parCierra
+                     | greatest parAbre E_LIST parCierra
+                     | least parAbre E_LIST parCierra
                      | substring parAbre E coma E coma E parCierra as E
                      | greatest parAbre E_LIST parCierra as E
                      | least parAbre E_LIST parCierra as E '''
-
+    if p[1].lower() == "substring":
+        if p[9].lower() == "as":
+            p[0] = SColumnasSubstr(p[3],p[5],p[7],p[10])
+        else:
+            p[0] = SColumnasSubstr(p[3],p[5],p[7],False)
+    elif p[1].lower() == "greatest":
+        if len(p) == 7:
+            p[0] = SColumnasGreatest(p[6],p[3])
+        else:
+            p[0] = SColumnasGreatest(False,p[3])
+    elif p[1].lower() == "least":
+        if len(p) == 7:
+            p[0] = SColumnasLeast(p[6],p[3])
+        else:
+            p[0] = SColumnasLeast(False,p[3])
 
 def p_EXPR_EXTRA(p):
     '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp E parCierra'''
-
+    p[0] = SExtract(p[3],p[6])
 
 def p_EXPR_AGREGACION(p):
     '''EXPR_AGREGACION : count E
@@ -1198,6 +1229,12 @@ def p_EXPR_AGREGACION(p):
                        | max parAbre multi parCierra
                        | min parAbre multi parCierra
                        | sum parAbre multi parCierra'''
+
+    if len(p) == 3:
+        p[0] = SFuncAgregacion(p[1],p[2])
+    else:
+        p[0] = SFuncAgregacion(p[1],p[3])
+
 
 
 def p_EXPR_MATHS(p):
@@ -1225,11 +1262,19 @@ def p_EXPR_MATHS(p):
                      | sign E
                      | sqrt E
                      | trim_scale E
-                     | truc E
+                     | trunc E
                      | width_bucket parAbre LISTA_EXP parCierra
                      | random parAbre parCierra
                      | setseed E  '''
-
+    if len(p) == 3:
+        p[0] = SFuncMath(p[1],p[2])
+    elif len(p) == 4:
+        p[0] = SFuncMathSimple(p[1])
+    elif len(p) == 7:
+        p[0] = SFuncMath2(p[1],p[3],p[5])
+    elif len(p) == 5:
+        p[0] = SFuncMathLista(p[1],p[3])
+        
 
 def p_EXPR_TRIG(p):
     '''EXPR_TRIG :  acos E 
@@ -1254,6 +1299,10 @@ def p_EXPR_TRIG(p):
                 | asinh E 
                 | acosh E 
                 | atanh E'''
+    if len(p) == 3:
+        p[0] = SFuncTrig(p[1],p[2])
+    elif len(p) == 7:
+        p[0] = SFuncTrig2(p[1],p[3],p[5])
 
 
 def p_EXPR_BINARIAS(p):
@@ -1267,6 +1316,7 @@ def p_EXPR_BINARIAS(p):
                      | convert E
                      | encode E
                      | decode E'''
+    p[0] = SFuncBinary(p[1],p[2])
 
 
 def p_EXPR_FECHA(p):
@@ -1275,37 +1325,74 @@ def p_EXPR_FECHA(p):
                   | current_time
                   | now parAbre parCierra
                   | DATE_TYPES E'''
+    if len(p) == 2:
+        p[0] = SSelectFunc(p[2])
+    elif len(p) == 4:
+        p[0] = SSelectFunc(p[2])
+    elif len(p) == 3:
+        p[0] = SFechaFunc(p[1],p[2])
+    else: 
+        p[0] = SFechaFunc2(p[1],p[3],p[5],p[6])
 
 
 def p_EXPR_CASE(p):
     '''EXPR_CASE : case CASE_LIST end
                  | case CASE_LIST else E end'''
+    if len(p) == 2:
+        p[0] = SCase(p[2])
+    else:
+        p[0] = SCaseElse(p[2],p[4])
 
 
 def p_CASE_LIST(p):
     '''CASE_LIST : CASE_LIST when E then E
-                 | when E then E'''
+                | when E then E''' 
+    if len(p) == 6:
+        p[0] = SCaseList(p[3],p[5],p[1])
+    else:
+        p[0] = SCaseList(p[2],p[4],False)
 
 
 def p_E_LIST(p):
     '''E_LIST : E_LIST coma E_LIST1
               | E_LIST1
               '''
+    if len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 
-def p_E_LIST(p):
-    '''E_LIST : E
-              | now parAbre parCierra'''
+def p_E_LIST1(p):
+    '''E_LIST1 : E
+               | now parAbre parCierra'''
+    if len(p) == 4:
+        p[0] = SSelectFunc(p[1])
+    else:
+        p[0] = [p[1]]
 
 def p_EXPR_FROM(p):
-    '''EXPR_FROM : from L_IDsAlias
+    '''EXPR_FROM : from L_IDsAlias 
                  | from parAbre QUERY parCierra 
                  | from parAbre QUERY parCierra id
                  | from parAbre QUERY parCierra as id'''
-
+    if len(p) == 3:
+        p[0] = SFrom(p[2])
+    elif len(p) == 4:
+        p[0] = SFrom2(False,p[3])
+    elif len(p) == 5:
+        p[0] = SFrom2(p[5],p[3])
+    elif len(p) == 6:
+        p[0] = SFrom2(p[6],p[3])
 
 def p_L_IDsAlias(p):
     '''L_IDsAlias : L_IDsAlias coma L_IDsAlias1
                   | L_IDsAlias1 '''
+    if len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 
 def p_L_IDsAlias_p1(p):
     '''L_IDsAlias1 : id id 
@@ -1319,6 +1406,11 @@ def p_EXPR_WHERE(p):
 def p_LIST_CONDS(p):
     '''LIST_CONDS : LIST_CONDS COND1
                   | COND1  '''
+    if len(p) == 3:
+        p[1].append(p[2])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 
 def p_COND1(p):
     '''COND1 :  E 

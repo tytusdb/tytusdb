@@ -1,6 +1,9 @@
 from abstract.instruccion import *
 from tools.console_text import *
 from tools.tabla_tipos import *
+from storage import jsonMode as funciones
+from error.errores import *
+
 
 class create_db(instruccion):
     def __init__(self, id_db, replace_, if_exists, owner, mode, line, column, num_nodo):
@@ -44,4 +47,15 @@ class create_db(instruccion):
             self.grammar_ += mode.grammar_
 
     def ejecutar(self):
-        pass
+        try:       
+            crear = funciones.createDatabase(self.id_db)
+
+            if(crear == 0):
+                add_text("Base de datos creada con exito con nombre - " + self.id_db + " -")
+            if(crear == 2):
+                add_text("Base de datos ya existe - " + self.id_db + " -")
+            else:
+                add_text("Base de datos no pudo ser creada.")
+
+        except:
+            errores.append(nodo_error(self.line, self.column, 'Error en create database', 'Semántico'))

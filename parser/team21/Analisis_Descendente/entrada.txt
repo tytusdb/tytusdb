@@ -1,4 +1,4 @@
-/*create or replace database if not exists marisela OWNER = marcos MODE=1;
+create or replace database if not exists marisela OWNER = marcos MODE=1;
 show databases like 'm';
 
 create database marisela OWNER = marcos MODE=1;
@@ -48,11 +48,10 @@ CREATE TABLE my_first_table (
 
 ALTER TABLE tabla ADD CHECK (name <> '');
 
-*/
 
---ALTER TABLE tabla ADD CONSTRAINT some_name UNIQUE (columna1);
---ALTER TABLE tabla ADD FOREIGN KEY (columna) REFERENCES column2;
-/*
+ALTER TABLE tabla ADD CONSTRAINT some_name UNIQUE (columna1);
+ALTER TABLE tabla ADD FOREIGN KEY (columna) REFERENCES column2;
+
 
 ALTER TABLE distributors
  ALTER COLUMN address TYPE varchar(80),
@@ -73,9 +72,22 @@ CREATE TABLE my_first_table (
 CREATE TABLE my_first_table (
  coluumn1 INTEGER,
 
-) INHERITS (TABLAPRINCIPAL);*/
+) INHERITS (TABLAPRINCIPAL);
+insert into mitabla values (1,'CHEESE',9.99,0.54);
+UPDATE products SET price = 10 WHERE price = 5;
 
-/*
+DELETE FROM products WHERE price = 10;
+show databases like 'm';
+DROP DATABASE MARCOS;
+
+
+DROP DATABASE IF EXISTs marcos;
+
+SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
+SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
+SELECT now();
+
+
 insert into mitabla values (1,'CHEESE',9.99,0.54);
 
 UPDATE products SET price = 10 WHERE price = 5;
@@ -98,4 +110,4 @@ select greatest(1,2,3,4,5);
 select greatest('1970-12-10','2000-11-11','2019-01-01');
 select GREATEST('2030-02-20',now());
 select least(1,2,3,3,5);
-select least('a','b','c','aa');*/
+select least('a','b','c','aa');
