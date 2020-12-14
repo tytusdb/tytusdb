@@ -1,5 +1,13 @@
+#TODO: DISTINCT
+from abc import abstractmethod
+from models.nodo import Node
 class Instruction:
     '''Clase abstracta'''
+    @abstractmethod
+    def execute(self):
+        ''' recibe hijos paras el ast grafico '''
+        pass
+
 class BinaryOperation(Instruction):
     '''
         Una operacion binaria recibe, sus dos operandos y el operador
@@ -8,82 +16,31 @@ class BinaryOperation(Instruction):
         self.value1 = value1
         self.value2 = value2
         self.operador = operador
-        
+    
+    def __repr__(self):
+        return str(vars(self))
 
-'''
-    Lenguaje de Definición de Datos (DDL) =======================================================================================================================
-'''
-class CreateDB(Instruction):
+
+class Alias(Instruction):
     '''
-        CREATE DATABASE recibe el id de la base
+        Alias recibe el ID original y su ALIAS
     '''
-    def __init__(self, id) :
+    def __init__(self, id, alias) :
         self.id = id
-
-class CreateTable(Instruction):
-    '''
-        CREATE TABLE recibe el nombre de la tabla y un array con sus columnas
-    '''
-    def __init__(self, table, arr_columns) :
-        self.table = table
-        self.arr_columns = arr_columns
-
-class Drop(Instruction):
-    '''
-        DROP recibe el id y si es tabla(0), o database(1)
-    '''
-    def __init__(self, id, dtype) :
-        self.id = id
-        self.dtype = dtype
-
-'''
-    Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
-'''
-class Select(Instruction):
-    '''
-        SELECT recibe un array con todas los parametros
-    '''
-    def __init__(self,  instrs) :
-        self.instrs = instrs
-
-class Insert(Instruction):
-    '''
-        INSERT recibe tres parametros: 
-            1. tabla a insertar
-            2. columnas donde insertar (puede estar vacio (se inserta en todas))
-            3. valores a insertar
-    '''
-    def __init__(self,  table, arr_columns, arr_values) :
-        self.table = table
-        self.arr_columns = arr_columns
-        self.arr_values = arr_values
-
-class Update(Instruction):
-    '''
-        UPDATE recibe tres parametros: 
-            1. tabla a insertar
-            2. columnas donde insertar (puede estar vacio (se inserta en todas))
-            3. valores a insertar
-        TODO: VER COMO MANEJAR BIEN LOS DOS ARRAYS QUE RECIBE
-    '''
-    def __init__(self,  table, arr_columns, arr_values) :
-        self.table = table
-        self.arr_columns = arr_columns
-        self.arr_values = arr_values
-
-class Delete(Instruction):
-    '''
-        DELETE recibe la tabla donde tiene que borrar
-    '''
-    def __init__(self,  table) :
-        self.table = table
+        self.alias = alias
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class From(Instruction):
     '''
         FROM recibe una tabla en la cual buscar los datos
     '''
-    def __init__(self,  table) :
-        self.table = table
+    def __init__(self,  tables) :
+        self.tables = tables
+    
+    def __repr__(self):
+        return str(vars(self))
     
 class Where(Instruction):
     '''
@@ -92,6 +49,9 @@ class Where(Instruction):
     def __init__(self,  condition) :
         self.condition = condition
     
+    def __repr__(self):
+        return str(vars(self))
+
 class GroupBy(Instruction):
     '''
         * The GROUP BY statement groups rows 
@@ -101,6 +61,9 @@ class GroupBy(Instruction):
     def __init__(self,  column_names) :
         self.column_names = column_names
     
+    def __repr__(self):
+        return str(vars(self))
+    
 class Having(Instruction):
     '''
         HAVING recibe una condicion logica
@@ -108,6 +71,25 @@ class Having(Instruction):
     def __init__(self,  condition) :
         self.condition = condition
     
+    def __repr__(self):
+        return str(vars(self))
+
+class Using(Instruction):
+    '''
+        USING recibe un array con ids
+    '''
+    def __repr__(self):
+        return str(vars(self))
+class Returning(Instruction):
+    '''
+        RETURNING recibe un array con ids o un asterisco
+    '''
+    def __init__(self,  value):
+        self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+
 class Between(Instruction):
     '''
         BETWEEN recibe 2 parametros
@@ -116,6 +98,10 @@ class Between(Instruction):
     def __init__(self,  value1, value2) :
         self.value1 = value1
         self.value2 = value2
+    
+    def __repr__(self):
+        return str(vars(self))
+
 '''
     FUNCIONES MATEMATICAS =======================================================================================================================
 '''
@@ -126,12 +112,18 @@ class Abs(Instruction):
     def __init__(self,  value) :
         self.value = value
 
+    def __repr__(self):
+        return str(vars(self))
+
 class Cbrt(Instruction):
     '''
         Raiz Cubica de un numero o una columna tipo entero.
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Ceil(Instruction):
     '''
@@ -140,6 +132,9 @@ class Ceil(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Ceiling(Instruction):
     '''
@@ -148,6 +143,9 @@ class Ceiling(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Degrees(Instruction):
     '''
@@ -156,6 +154,9 @@ class Degrees(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Div(Instruction):
     '''
@@ -165,6 +166,9 @@ class Div(Instruction):
     def __init__(self,  dividendo, divisor) :
         self.dividendo = dividendo
         self.divisor = divisor
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Exp(Instruction):
     '''
@@ -173,6 +177,9 @@ class Exp(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Factorial(Instruction):
     '''
@@ -180,6 +187,9 @@ class Factorial(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Floor(Instruction):
     '''
@@ -189,6 +199,9 @@ class Floor(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Gcd(Instruction):
     '''
@@ -198,12 +211,18 @@ class Gcd(Instruction):
     def __init__(self,  value) :
         self.value = value
 
+    def __repr__(self):
+        return str(vars(self))
+
 class Ln(Instruction):
     '''
         Logaritmo natural de un numero ***
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Log(Instruction):
     '''
@@ -211,6 +230,9 @@ class Log(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Mod(Instruction):
     '''
@@ -222,6 +244,9 @@ class Mod(Instruction):
         self.value1 = value1
         self.value2 = value2
 
+    def __repr__(self):
+        return str(vars(self))
+
 class Pi(Instruction):
     '''
         Retorna el valor de la constant PI
@@ -229,6 +254,9 @@ class Pi(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Power(Instruction):
     '''
@@ -239,6 +267,9 @@ class Power(Instruction):
     def __init__(self, base, exp) :
         self.base = base
         self.exp = exp
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Radians(Instruction):
     '''
@@ -247,6 +278,9 @@ class Radians(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class Round(Instruction):
     '''
@@ -256,6 +290,9 @@ class Round(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
 
 
 

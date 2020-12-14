@@ -148,46 +148,44 @@
 
     <INHERITS> ::= 'INHERITS' '(' 'ID' ')'
     
-    <COMBINE_QUERYS> ::= <COMBINE_QUERYS> <CMB> <SELECT>
-                   |     <SELECT>
+    <COMBINE_QUERYS> ::= <COMBINE_QUERYS> 'union' 'all'<SELECT>
+                   | <COMBINE_QUERYS> 'union'<SELECT>
+                   | <COMBINE_QUERYS> 'intersect' 'all'<SELECT>
+                   | <COMBINE_QUERYS> 'intersect'<SELECT>
+                   | <COMBINE_QUERYS> 'except' 'all'<SELECT>
+                   | <COMBINE_QUERYS> 'except'<SELECT>
+                   | <SELECT>
 
-    <CMB> ::= 'union' 'all'
-        |     'union'
-        |     'intersect' 'all'
-        |     'intersect'
-        |     'except' 'all'
-        |     'except'
-
-    <SELECT> ::= 'select' <SELECT_LIST> 'from' <TABLAS> <FILTRO> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <FILTRO> 
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <LIMITS> <OFFSET> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <LIMITS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <LIMITS>  <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <LIMITS> 
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <OFFSET> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS>  <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> 
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <LIMITS> <OFFSET> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <LIMITS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <LIMITS>  <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <LIMITS> 
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <OFFSET> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <OFFSET>
-              | 'select' '*' 'from' <TABLAS>  <FILTRO> <JOIN>
-              | 'select' '*' 'from' <TABLAS>  <FILTRO>
-              | 'select' 'distinct' 'id' 'from'  <TABLAS> <FILTRO> <JOIN>
-              | 'select' 'distinct' 'id' 'from'  <TABLAS> <FILTRO>
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <TABLAS> <FILTRO> <JOIN>
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <TABLAS> <FILTRO>
-              | 'select' <SELECT_LIST> 'from' <TABLAS>   <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS>  
-              | 'select' '*' 'from' <TABLAS>   <JOIN>
-              | 'select' '*' 'from' <TABLAS>  
-              | 'select' 'distinct' 'id' 'from' <TABLAS>   <JOIN>
-              | 'select' 'distinct' 'id' 'from' <TABLAS>  
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <TABLAS>  <JOIN>
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <TABLAS> 
+    <SELECT> ::= 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO> 
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> <OFFSET> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> <OFFSET>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS>  <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> 
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <OFFSET> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <OFFSET>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS>  <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> 
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> <OFFSET> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> <OFFSET>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS>  <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> 
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <OFFSET> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <OFFSET>
+              | 'select' '*' 'from' <LISTA_TABLAS>  <FILTRO> <JOIN>
+              | 'select' '*' 'from' <LISTA_TABLAS>  <FILTRO>
+              | 'select' 'distinct' 'id' 'from'  <LISTA_TABLAS> <FILTRO> <JOIN>
+              | 'select' 'distinct' 'id' 'from'  <LISTA_TABLAS> <FILTRO>
+              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> <FILTRO> <JOIN>
+              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> <FILTRO>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>   <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>  
+              | 'select' '*' 'from' <LISTA_TABLAS>   <JOIN>
+              | 'select' '*' 'from' <LISTA_TABLAS>  
+              | 'select' 'distinct' 'id' 'from' <LISTA_TABLAS>   <JOIN>
+              | 'select' 'distinct' 'id' 'from' <LISTA_TABLAS>  
+              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS>  <JOIN>
+              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> 
               | 'select' <FUNCIONES> 'as' 'id' <JOIN>
               | 'select' <FUNCIONES> 'as' 'id'
               | 'select' <FUNCIONES> <JOIN>

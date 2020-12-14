@@ -8,9 +8,9 @@ class Expresion(Exp):
         self.operador = operador
 
 class Unario(Exp):
-    def __init__(self, op, operador):
-        self.op = op
+    def __init__(self, operador, op):
         self.operador = operador
+        self.op = op
 
 class Primitivo(Exp):
     def __init__(self, valor = 0):
