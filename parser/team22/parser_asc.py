@@ -153,7 +153,8 @@ def p_instruccion_Use_BD(t) :
 #========================================================
 # INSTRUCCIONES CON "SELECT"
 def p_instruccion_selects(t) :
-    '''selects      : POR FROM select_all 
+    '''selects      : POR FROM select_all
+                    | POR FROM state_subquery inicio_condicional
                     | lista_parametros FROM lista_parametros inicio_condicional 
                     | lista_parametros COMA CASE case_state FROM lista_parametros inicio_condicional
                     | GREATEST PARIZQ lista_parametros PARDER PTCOMA
@@ -222,7 +223,8 @@ def p_instruccion_selects_offset(t) :
 def p_instruccion_selects_offset2(t) :
     '''state_offset         : state_union 
                             | state_intersect
-                            | state_except'''
+                            | state_except
+                            | state_subquery'''
     
 def p_instruccion_selects_union(t) :
     '''state_union      : UNION SELECT selects
@@ -254,14 +256,14 @@ def p_instruccion_Select_All(t) :
 #Gramatica para fechas
 #========================================================
 def p_date_functions(t):
-    '''date_functions   : EXTRACT PARIZQ lista_date_functions 
-                        | date_part PARIZQ lista_date_functions
-                        | NOW PARIZQ lista_date_functions
-                        | lista_date_functions'''
+    '''date_functions   : EXTRACT PARIZQ opcion_date_functions 
+                        | date_part PARIZQ opcion_date_functions
+                        | NOW PARIZQ opcion_date_functions
+                        | opcion_date_functions'''
     print("fecha")
 
 def p_validate_date(t):
-    'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER PTCOMA'
+    'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER'
     try:
         fecha = re.split('[-: ]',t[4].replace("'",""))
         if (5 < len(fecha)):
@@ -273,12 +275,21 @@ def p_validate_date(t):
     except Exception:
         pass
 
+def p_opcion_lista_date_fuctions(t):
+    '''opcion_date_functions    : opcion_date_functions lista_date_functions
+                                | lista_date_functions'''
+
 def p_lista_date_functions(t):
-    '''lista_date_functions : CADENA COMA INTERVAL CADENA PARDER 
-                            | TIMESTAMP CADENA 
-                            | CURRENT_DATE 
-                            | CURRENT_TIME 
-                            | PARDER '''
+    '''lista_date_functions : CADENA COMA INTERVAL CADENA
+                            | TIMESTAMP CADENA
+                            | CURRENT_DATE
+                            | CURRENT_TIME
+                            | PARDER'''
+
+# Subqueries
+def p_state_subquery(t):
+    '''state_subquery   : PARIZQ SELECT selects PARDER'''
+
 #========================================================
 
     
@@ -385,7 +396,9 @@ def p_parametro_con_tabla(t) :
 def p_parametros_funciones(t) :
     '''parametro         : lista_funciones
                          | funciones_math_esenciales
-                         | fun_binario_select'''
+                         | fun_binario_select
+                         | date_functions
+                         | state_subquery'''
     t[0] = t[1]
 
 def p_parametros_cadena(t) :
@@ -396,16 +409,6 @@ def p_parametros_numeros(t) :
     '''parametro            : DECIMAL
                             | ENTERO'''
     t[0] = t[1]
-
-
-#ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
-#=====================================================
-def p_parametro_con_tabla_columna(t) :
-    'name_column        : ID'
-    t[0] = t[1]
-    # print("Nombre de la columna")
-#=====================================================
-
 
 def p_parametro_sin_tabla(t) :
     'parametro        : ID'
@@ -551,68 +554,7 @@ def p_instrucciones_insercion_select(t) :
 
 #========================================================
 
-# LISTA DE CONDICIONES --- ESTE FRAGMENTO DE CODIGO SE <<< ELIMINARA >>>
 #========================================================
-def p_instrucciones_lista_condiciones_AND(t) :
-    'lista_condiciones    : lista_condiciones AND condicion'
-    t[1].append(t[3])
-    t[0] = t[1]
-    # print("condicion con  AND")
-    
-def p_instrucciones_lista_condiciones_OR(t) :
-    'lista_condiciones    : lista_condiciones OR condicion'
-    t[1].append(t[3])
-    t[0] = t[1]
-    # print("condicion con OR")
-    
-def p_instrucciones_lista_condiciones_NOT(t) :
-    'lista_condiciones    : NOT lista_condiciones'
-    t[1].append(t[3])
-    t[0] = t[1]
-    # print("condicion con NOT")
-
-def p_instrucciones_condiciones(t) :
-    'lista_condiciones    : condicion '
-    t[0] = [t[1]]
-    # print("Una condicion")
-
-def p_parametro_con_tabl_2(t) :
-    'condicion        : def_condicion signo_relacional ID PUNTO name_column '
-    t[0] = t[1]
-    # print("Condicion con indice de tabla")
-
-def p_def_condicion(t) :
-    '''def_condicion    : ID PUNTO ID
-                        | ID'''
-
-def p_parametro_signo_relacional(t) :
-    '''signo_relacional         : IGUAL IGUAL
-                                | MAYOR
-                                | MENOR
-                                | MENORIGUAL
-                                | MAYORIGUAL
-                                | DIFERENTE'''
-    t[0] = t[1]
-
-    if t[1] == '>':
-        print("Condicion de tipo MAYOR")
-    elif t[1] == '<':
-        print("Condicion de tipo MENOR")
-    elif t[1] == '<=':
-        print("Condicion de tipo MENOR IGUAL")
-    elif t[1] == '>=':
-        print("Condicion de tipo MAYOR IGUAL")
-    elif t[1] == '<>':
-        print("Condicion de tipo DIFERENTE")
-    else:
-        print("Condicion de tipo IGUALACION")
-
-def p_parametro_sin_tabla_2(t) :
-    'condicion        : ID signo_relacional ID'
-    t[0] = t[1]
-    # print("Condicion SIN indice de tabla")
-#========================================================
-
 
 # INSTRUCCION CON "DELETE"
 def p_instruccion_delete(t) :
@@ -743,10 +685,17 @@ def p_relacional(t) :
                     | aritmetica MAYORIGUAL aritmetica
                     | aritmetica DIFERENTE aritmetica
                     | aritmetica NO_IGUAL aritmetica
+                    | aritmetica IGUAL aritmetica
                     | aritmetica
                     | relacional AND relacional
                     | relacional OR relacional
                     | NOT relacional
+                    | EXISTS state_subquery
+                    | IN state_subquery
+                    | NOT IN state_subquery
+                    | ANY state_subquery
+                    | ALL state_subquery
+                    | SOME state_subquery
                     | state_between
                     | state_predicate_nulls
                     | state_is_distinct
@@ -774,7 +723,9 @@ def p_valor(t) :
                     | date_functions
                     | CADENA
                     | ID PUNTO ID
-                    | lista_funciones_where'''
+                    | lista_funciones_where
+                    | fun_binario_where
+                    | state_subquery'''
 
 def p_instruccion_update_where(t) :
     '''update_table : ID SET def_update WHERE relacional'''
@@ -795,7 +746,8 @@ def p_def_update(t) :
 #=======================================================
 def p_between(t) :
     '''state_between    : valor BETWEEN valor AND valor
-                        | valor NOT BETWEEN valor AND valor'''
+                        | valor NOT BETWEEN valor AND valor
+                        | valor NOT IN state_subquery'''
 #=======================================================
 
 # IS [NOT] DISTINCT

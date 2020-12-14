@@ -76,6 +76,48 @@ class DB():
 
     # ---------------------FUNCIONES TABLAS----------------------#
 
+    # CREAR TABLA EN UNA DETERMINADA BASE DE DATOS
+
+    def createTable(self, database, table, numberColumns):
+        t = Table()
+        ready = False
+        if self.searchDB(database):
+            if self.searchTB(database,table):
+                return 3
+            else:
+                self.dicDB.get(database)[table] = t.create(table, numberColumns)
+                ready = True
+            if ready:
+                return 0
+            else:
+                return 1
+        else:
+            return 2
+        
+    # LISTA DE TABLAS AGREGADAS EN UNA DETERMINADA BASE DE DATOS
+    
+    def showTables(self, database):
+        if self.searchDB(database):
+            l = list()
+            for key in self.dicDB.get(database).keys():
+                l.append(key)
+            return l
+        else:
+            return None
+        
+    # OBTIENE REGISTROS DE UNA TABLA EN UNA DETERMINADA BASE DE DATOS
+    
+    def extractTable(self, database, table):
+        t = Table()
+        if self.searchDB(database):
+            if self.searchTB(database, table):
+                return self.dicDB.get(database).get(table)
+            else:
+                return None
+        else:
+            return None
+
+
     #--------------------UTILIDADES--------------------#
 
     # VALIDA EL NOMBRE CON LAS REGLAS DE IDENTIFICADORES DE SQL
@@ -106,56 +148,13 @@ class DB():
             return True
         else:
             return False
+        
+    # BUSCAR SI EXISTE LA TABLA EN UNA DETERMINADA BASE DE DATOS
 
-    # ---------------------EXTRAS----------------------#
-
-    # CREAR Y AÑADIR UNA TABLA
-
-    def addTable(self, key, name, content):
-        if self.searchDB(key):
-            if self.dicDB.get(key):
-                if self.searchTB(key, name):
-                    print("Ya existe una tabla con ese nombre")
-                else:
-                    dict2 = self.dicDB.get(key)
-                    dict2[name] = content
-                    self.dicDB[key] = dict2
-            else:
-                self.dicDB[key] = {name:content}
-        else:
-            print("No existe la base de datos")
-
-    # BUSCAR SI EXISTE LA TABLA EN UNA BASE DE DATOS
-
-    def searchTB(self, key, name):
-        if name in self.dicDB.get(key).keys():
+    def searchTB(self, database,table):
+        if table in self.dicDB[database]:
             return True
         else:
-            False
-
-    # ELIMINAR TABLA DE UNA BASE DE DATOS
-
-    def deleteTB(self, key, name):
-        self.dicDB.get(key).pop(name)
-
-    # MOSTRAR BASES DE DATOS ALMACENADAS
-
-    def print(self):
-        n = 0
-        for key in self.dicDB:
-            print("[" + str(n) + "]","Base:", key, "| Tablas:", self.dicDB.get(key))
-            n +=1
-
-    # MOSTRAR TABLAS ALMACENDAS
-
-    def print(self):
-        n = 0
-        for key in self.dicDB.keys():
-            print(key + ":")
-            for i in self.dicDB.get(key).keys():
-                print("  "+i + ":")
-                for j in self.dicDB.get(key).get(i).keys():
-                    print("    "+j+":")
-                    for k in self.dicDB.get(key).get(i).get(j):
-                        print("     "+str(k))
+            return False  
+      
 
