@@ -4,13 +4,15 @@ where nombre = 'carros' and a.apellido LIKE 'santos' or apellido ILIKE 'compilad
 GROUP BY nombre,indentificacion
 HAVING sum(salario)>100000;
 
+
 SELECT a.nombre 'carro',a.indentificacion alias,sum(salario) 'mi salario'
 FROM tbsujeto as a, tabla2 as m
 where not a.nombre != 'carros'
 GROUP BY a.nombre,a.indentificacion
 HAVING sum(salario)>100000;
 
-SELECT a.nombre,a.indentificacion as 'dato',sum(salario)  as salario
+
+SELECT a.nombre,a.indentificacion as 'dato',sum(salario)  as salario, now() as 'hora actual'
 FROM tbsujeto a, tabla2 m
 where a.nombre = 'carros'
 GROUP BY a.nombre,a.indentificacion

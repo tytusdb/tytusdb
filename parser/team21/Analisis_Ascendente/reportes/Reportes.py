@@ -45,11 +45,11 @@ class RealizarReportes:
         texto += "<table>"
         texto += "<tr>"
 
-        texto += "<th>NO.</th>"
-        texto += "<th>LEXEMA</th>"
-        texto += "<th>TIPO</th>"
-        texto += "<th>FILA</th>"
-        texto += "<th>COLUMNA</th>"
+        texto += "<th>#</th>"
+        texto += "<th>Tipo de Error</th>"
+        texto += "<th>Lexema o caracter</th>"
+        texto += "<th>Fila</th>"
+        texto += "<th>Columna</th>"
         texto += "</tr>"
         texto += "<tr>"
 
@@ -110,11 +110,11 @@ class RealizarReportes:
         texto += "<table>"
         texto += "<tr>"
 
-        texto += "<th>NO.</th>"
-        texto += "<th>LEXEMA</th>"
-        texto += "<th>TIPO</th>"
-        texto += "<th>FILA</th>"
-        texto += "<th>COLUMNA</th>"
+        texto += "<th>#</th>"
+        texto += "<th>Tipo de Error</th>"
+        texto += "<th>Lexema o caracter</th>"
+        texto += "<th>Fila</th>"
+        texto += "<th>Columna</th>"
         texto += "</tr>"
         texto += "<tr>"
 

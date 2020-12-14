@@ -1269,7 +1269,25 @@ def p_columna0(t):
     '''columna : PARIZQ select2 PARDR
                 '''
 #aqui no se puede hacer el llamdo a subquery pero no obstante pueden venir consultas entre columnas
+def p_columna1_0(t):
+    '''columna : Time
+                '''
 
+def p_columna1_1(t):
+    '''columna : Time AS ID
+                '''
+
+def p_columna1_2(t):
+    '''columna : Time ID
+                '''
+
+def p_columna1_3(t):
+    '''columna : Time AS CADENA
+                '''
+
+def p_columna1_4(t):
+    '''columna : Time CADENA
+                '''
 
 
 def p_columna2(t):
@@ -1599,7 +1617,7 @@ def ejecutarAnalisis(entrada):
     reportes.generar_reporte_sintactico(L_errores_sintacticos)
     print("Fin de analisis")
     print("Realizando reporte gramatical")
-    graphstack(varGramatical, varSemantico)
+    #graphstack(varGramatical, varSemantico)
 
 
 ejecutarAnalisis("prueba")
