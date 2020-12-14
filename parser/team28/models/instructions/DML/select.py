@@ -79,3 +79,183 @@ class LimitClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+
+class JoinClause(Instruction):
+    '''
+    JoinClause recibe los parametros de 
+    Tipo de Join, Tabla y Expression
+    '''
+    def __init__(self, type_join, table, arr_expression):
+        self.type_join = type_join
+        self.table = table
+        self.arr_expression = arr_expression
+
+    def __repr__(self):
+        return str(vars(self))
+    
+class ExistsClause(Instruction):
+    '''
+    ExistsClause recibe de parametro
+    un subquery 
+    '''
+    def __init__(self, subquery):
+        self.subquery = subquery
+    
+    def __repr__(self):
+        return str(vars(self))
+
+class NotOption(Instruction):
+    '''
+    NotClause recibe una lista 
+    de instrucciones a ser negadas
+    '''
+    def __init__(self, arr_not):
+        self.arr_not = arr_not
+
+    def __repr__(self):
+        return str(vars(self))
+
+class InClause(Instruction):
+    '''
+    InClause
+    '''
+    def __init__(self, arr_lista):
+        self.arr_lista = arr_lista
+
+    def __repr__(self):
+        return str(vars(self))
+
+class Relop(Instruction):
+    '''
+    Relop contiene los operadores logicos
+    == != >= ...
+    '''
+    def __init__(self, operador_logico):
+        self.operador_logico = operador_logico
+
+    def __repr__(self):
+        return str(vars(self))
+
+class LikeClause(Instruction):
+    '''
+    LikeClause
+    '''
+    def __init__(self, arr_list):
+        self.arr_list = arr_list
+
+    def __repr__(self):
+        return str(vars(self))
+
+class isClause(Instruction):
+    '''
+    IsClause
+    '''
+    def __init__(self, arr_list):
+        self.arr_list = arr_list
+
+    def __repr__(self):
+        return str(vars(self))
+
+class AgreggateFunctions(Instruction):
+    '''
+    AgreggateFunctions
+    '''
+    def __init__(self, type_agg, cont_agg, opt_alias):
+        self.type_agg = type_agg
+        self.cont_agg = cont_agg
+        self.opt_alias = opt_alias
+    def __repr__(self):
+        return str(vars(self))
+
+class ObjectReference(Instruction):
+    '''
+    ObjectReference
+    '''
+    def __init__(self, reference_base, reference_table, reference_column, opt_asterisk):
+        self.reference_base = reference_base
+        self.reference_table = reference_table
+        self.reference_colunm = reference_column
+        self.opt_asterisk = opt_asterisk
+
+    def __repr__(self):
+        return str(vars(self))
+
+class ExpressionsTime(Instruction):
+    '''
+    ExpressionsTime
+    '''
+    def __init__(self, name_date, type_date, name_opt):
+        self.name_date = name_date
+        self.type_date = type_date
+        self.name_opt = name_opt
+
+    def __repr__(self):
+        return str(vars(self))
+
+class ExpressionsTrigonometric(Instruction):
+    '''
+    ExpressionsTrigonometric
+    '''
+    def __init__(self, type_trigonometric, expression1, optional_expression2):
+        self.type_trigonometric = type_trigonometric
+        self.expression1 = expression1
+        self.optional_expression2 = optional_expression2
+
+    def __repr__(self):
+        return str(vars(self))
+
+class ExpressionsGreastLeast(Instruction):
+    '''
+    ExpressionsGreastLeast
+    '''
+    def __init__(self, type_expression, lista_arr):
+        self.type_expression = type_expression
+        self.lista_arr = lista_arr
+    def __repr__(self):
+        return str(vars(self))
+
+class MathematicalExpressions(Instruction):
+    '''
+    MathematicalExpressions
+    '''
+    def __init__(self, type_expression, lista_arr, optional_alias):
+        self.type_expression = type_expression
+        self.lista_arr = lista_arr
+        self.optiona_alias = optional_alias
+    
+    def __repr__(self):
+        return str(vars(self))
+
+class UnaryOrSquareExpressions(Instruction):
+    '''
+    UnaryOrSquareExpressions
+    '''
+    def __init__(self, sign, expression_list):
+        self.sign = sign
+        self.expression_list = expression_list
+    
+    def __repr__(self):
+        return str(vars(self))
+
+
+class AndExpressionsList(Instruction):
+    '''
+    AndExpressionsList
+    '''
+    def __init__(self, lista_arr, and_word):
+        self.lista_arr = lista_arr
+        self.and_word = and_word
+
+    def __repr__(self):
+        return str(vars(self))
+
+class OrExpressionsList(Instruction):
+    '''
+    OrExpressionsList
+    '''
+    def __init__(self, lista_arr, or_word):
+        self.lista_arr = lista_arr
+        self.or_word = or_word
+        
+    def __repr__(self):
+        return str(vars(self))
