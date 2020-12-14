@@ -1,7 +1,9 @@
 CREATE TABLE asignacionCurso1(
-	id_asignacion1 INTEGER NULL,
-	prueba1 INTEGER NULL,
-	Nombre1 Integer
+	id_asignacion INTEGER,
+    id_estudiante INTEGER,
+    CONSTRAINT llaveForanea FOREING KEY (id_estudiante) REFERENCES ESTUDIANTE(carnet),
+    CONSTRAINT check1 CHECK(100 >id_asignacion)
+
 );
 
 
