@@ -1,5 +1,15 @@
 class Instruction:
     '''Clase abstracta'''
+class BinaryOperation(Instruction):
+    '''
+        Una operacion binaria recibe, sus dos operandos y el operador
+    '''
+    def __init__(self, value1, value2, operador) :
+        self.value1 = value1
+        self.value2 = value2
+        self.operador = operador
+        
+
 '''
     Lenguaje de Definición de Datos (DDL) =======================================================================================================================
 '''
