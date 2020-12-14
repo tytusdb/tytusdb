@@ -193,8 +193,11 @@ reservadas = {
     'except' : 'EXCEPT',
     'is'    :   'IS',
     'default'   :   'DEFAULT',
-    'ture'      :   'TRUE',
-    'false'     :   'FALSE'
+    'true'      :   'TRUE',
+    'false'     :   'FALSE',
+    'column' : 'COLUMN',
+    'current_user' : 'CURRENT_USER',
+    'session_user' : 'SESSION_USER'
 }
 
 tokens  = [
@@ -375,6 +378,12 @@ from clasesAbstractas import updateColumna
 from clasesAbstractas import updateTable
 from clasesAbstractas import expresion
 from clasesAbstractas import betweenIN
+from clasesAbstractas import createTable
+from clasesAbstractas import createDatabase
+from clasesAbstractas import alterDatabase 
+from clasesAbstractas import alterTable
+from clasesAbstractas import dropDatabase
+from clasesAbstractas import dropTable
 
 
 def p_init(t):
@@ -391,14 +400,54 @@ def p_instrucciones_instruccion(t):
     t[0] = [t[1]]
 
 def p_instruccion(t):
-    '''instruccion  :   crear_enum
-                    |   insert_table
+    '''instruccion  :   insert_table
                     |   delete_table
                     |   update_table'''
     t[0] = t[1]
+    
+def p_instruccion_crear(t):
+    'instruccion      : crear_instr'
+    t[0] = t[1]
+
+def p_instruccion_alter(t):
+    'instruccion : alter_instr'
+    t[0] = t[1]
+
+def p_instruccion_drop(t):
+    'instruccion : drop_instr'
+    t[0] = t[1]
+    
+#--------------------------------------------Instrucciones crear------------------------------------------------------------
+def p_instruccion_crear_table(t):
+    'crear_instr : CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA'
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoColumnas = t[5]
+    nodoHerencia = t[7]
+    instru = createTable.createTable(t[3],t[7],t[5].hijos)  
+    hijos.append(nodoId)
+    hijos.append(nodoColumnas)
+    hijos.append(nodoHerencia)
+    instru.setearValores(linea,columna,"CREATE_TABLE",nNodo,"",hijos)
+    t[0] = instru
+
+def p_crear_database(t):
+    'crear_instr : CREATE opReplace DATABASE opExists ID opDatabase PTCOMA'
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+    nodoId = crear_nodo_general("ID",t[5],linea,columna)
+    nodoOpciones = t[6]
+    instru = createDatabase.createDatabase(t[5],t[6].hijos)
+    hijos.append(nodoId)
+    hijos.append(nodoOpciones)
+    instru.setearValores(linea,columna,"CREATE_DATABASE",nNodo,"",hijos)
+    t[0] = instru
 
 def p_instr_crear_enum(t):
-    'crear_enum     :   CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA'
+    'crear_instr     :   CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA'
     
     instru = createType.createType(t[3],[t[7]])    
     nNodo = incNodo(numNodo)
@@ -994,7 +1043,580 @@ def p_set_columna(t):
     nodoSet.setearValores(linea,columna,"set_columna",nNodo,"",hijos)
     t[0] = nodoSet
         
+#--------------------------------------------Definiciones de las columnas de tablas----------------------------------------------------    
+def p_columnas_lista(t):
+    'columnas : columnas COMA columna'
+    linea = str(t.lexer.lineno)
+    nodoColumnas = t[1]
+    nodoColumna = t[3]
+    nodoColumnas.hijos.append(nodoColumna)
+    t[0] = nodoColumnas
 
+def p_columnas_columna(t):
+    'columnas : columna'
+    linea = str(t.lexer.lineno)
+    nodoColumna = t[1]
+    nodoColumnas = crear_nodo_general("columnas","",linea,columna)
+    nodoColumnas.hijos.append(nodoColumna)
+    t[0] = nodoColumnas
+
+def p_columna_id(t):
+    'columna : ID tipos opcional'
+    linea = str(t.lexer.lineno)
+    nodoColumna = crear_nodo_general("columna","",linea,columna)
+    nodoId = crear_nodo_general("ID",t[1],linea,columna)
+    nodoTipo = t[2]
+    nodoOpcional = t[3]
+    nodoColumna.hijos.append(nodoId)
+    nodoColumna.hijos.append(nodoTipo)
+    nodoColumna.hijos.append(nodoOpcional)
+    t[0] = nodoColumna
+
+def p_columna_primary(t):
+    'columna : PRIMARY KEY PARIZQUIERDO identificadores PARDERECHO'
+    linea = str(t.lexer.lineno)
+    nodoColumna = crear_nodo_general("columna","",linea,columna)
+    nodoPK = crear_nodo_general("PRIMARY","PRIMARY KEY",linea,columna)
+    listaIds = t[4]
+    nodoColumna.hijos.append(nodoPK)
+    nodoColumna.hijos.append(listaIds)
+    t[0] = nodoColumna
+
+def p_columna_foreign(t):
+    'columna : FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO REFERENCES ID PARIZQUIERDO identificadores PARDERECHO'
+    linea = str(t.lexer.lineno)
+    nodoColumna = crear_nodo_general("columna","",linea,columna)
+    nodoFK = crear_nodo_general("FOREIGN","FOREIGN KEY",linea,columna)
+    listaId1 = t[4]
+    nodoReferences = crear_nodo_general("REFERENCES","REFERENCES",linea,columna)
+    nodoId = crear_nodo_general("ID",t[7],linea,columna)
+    listaId2 = t[9]
+    nodoColumna.hijos.append(nodoFK)
+    nodoColumna.hijos.append(listaId1)
+    nodoColumna.hijos.append(nodoReferences)
+    nodoColumna.hijos.append(nodoId)
+    nodoColumna.hijos.append(listaId2)
+    t[0] = nodoColumna
+
+
+def p_columna_unique(t):
+    'columna : UNIQUE PARIZQUIERDO identificadores PARDERECHO'
+    linea = str(t.lexer.lineno)
+    nodoColumna = crear_nodo_general("columna","",linea,columna)
+    nodoUnique = crear_nodo_general("UNIQUE","UNIQUE",linea,columna)
+    listaIds = t[3]
+    nodoColumna.hijos.append(nodoUnique)
+    nodoColumna.hijos.append(listaIds)
+    t[0] = nodoColumna
+
+#-------------------------------------------Definiciones de opcionales para la columna ID Tipo...---------------------------------------
+def p_opcionales(t):
+    'opcional : DEFAULT opcionNull'
+    linea = str(t.lexer.lineno)
+    nodoOpcional = crear_nodo_general("opcional","",linea,columna)
+    nodoDefault = crear_nodo_general("DEFAULT","DEFAULT",linea,columna)
+    nodoOpNull = t[2]
+    nodoOpcional.hijos.append(nodoDefault)
+    nodoOpcional.hijos.append(nodoOpNull)
+    t[0] = nodoOpcional
+
+def p_opcional_opcionNull(t):
+    'opcional : opcionNull'
+    linea = str(t.lexer.lineno)
+    nodoOpcional = crear_nodo_general("opcional","",linea,columna)
+    nodoOpNull = t[1]
+    nodoOpcional.hijos.append(nodoOpNull)
+    t[0] = nodoOpcional
+
+def p_opcion_null(t):
+    'opcionNull : NULL opConstraint'
+    linea = str(t.lexer.lineno)
+    nodoOpNull = crear_nodo_general("opcionNull","",linea,columna)
+    nodoNull = crear_nodo_general("NULL","NULL",linea,columna)
+    nodoOpConstraint = t[2]
+    nodoOpNull.hijos.append(nodoNull)
+    nodoOpNull.hijos.append(nodoOpConstraint)
+    t[0] = nodoOpNull
+
+def p_opcion_not_null(t):
+    'opcionNull : NOT NULL opConstraint'
+    linea = str(t.lexer.lineno)
+    nodoOpNull = crear_nodo_general("opcionNull","",linea,columna)
+    nodoNull = crear_nodo_general("NOTNULL","NOT NULL",linea,columna)
+    nodoOpConstraint = t[3]
+    nodoOpNull.hijos.append(nodoNull)
+    nodoOpNull.hijos.append(nodoOpConstraint)
+    t[0] = nodoOpNull
+
+def p_opcion_null_constraint(t):
+    'opcionNull : opConstraint '
+    linea = str(t.lexer.lineno)
+    nodoOpNull = crear_nodo_general("opcionNull","",linea,columna)
+    nodoOpConstraint = t[1]
+    nodoOpNull.hijos.append(nodoOpConstraint)
+    t[0] = nodoOpNull
+
+def p_op_constraint(t):
+    'opConstraint : CONSTRAINT ID opUniqueCheck'
+    linea = str(t.lexer.lineno)
+    nodoOpConstraint = crear_nodo_general("opConstraint","",linea,columna)
+    nodoConstrant = crear_nodo_general("CONSTRAINT","CONSTRAINT",linea,columna)
+    nodoId = crear_nodo_general("ID",t[2],linea,columna)
+    nodoopUniqueCheck = t[3]
+    nodoOpConstraint.hijos.append(nodoConstrant)
+    nodoOpConstraint.hijos.append(nodoId)
+    nodoOpConstraint.hijos.append(nodoopUniqueCheck)
+    t[0] = nodoOpConstraint
+    
+
+def p_op_constraint_unique_check(t):
+    'opConstraint : opUniqueCheck'
+    linea = str(t.lexer.lineno)
+    nodoOpUnique = t[1]
+    nodoOpConstraint = crear_nodo_general("opConstraint","",linea,columna)
+    nodoOpConstraint.hijos.append(nodoOpUnique)
+    t[0] = nodoOpConstraint
+
+def p_op_unique_check(t):
+    'opUniqueCheck : UNIQUE'
+    linea = str(t.lexer.lineno)
+    nodoUnique = crear_nodo_general("UNIQUE","UNIQUE",linea,columna)
+    nodoOpUnique = crear_nodo_general("opUniqueCheck","",linea,columna)
+    nodoOpUnique.hijos.append(nodoUnique)
+    t[0] = nodoOpUnique
+
+def p_op_unique_check_check(t):
+    'opUniqueCheck : CHECK PARIZQUIERDO condicion_check PARDERECHO' 
+    linea =  str(t.lexer.lineno)
+    nodoopUniqueCheck = crear_nodo_general("opUniqueCheck","",linea,columna)
+    nodoCheck = crear_nodo_general("CHECK","CHECK",linea,columna)
+    nodoCondicion = t[3]
+    nodoopUniqueCheck.hijos.append(nodoCheck)
+    nodoopUniqueCheck.hijos.append(nodoCondicion)
+    t[0] = instr
+
+def p_condicion_check(t):
+    '''condicion_check : ID MENOR_QUE expresion
+                        | ID MENOR_IGUAL expresion
+                        | ID MAYOR_QUE expresion
+                        | ID MAYOR_IGUAL expresion
+                        | ID DISTINTO expresion
+                        | ID IGUAL expresion '''
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nodoId = crear_nodo_general("ID",t[1],linea,columna)
+    nodoComp = crear_nodo_general("comparacion",t[2],linea,columna)
+    nodoPrimitivo = crear_nodo_general("primitivo",t[3],linea,columna)
+    nodoCondicion = crear_nodo_general("condicion_check","",linea,columna)
+    nodoCondicion.hijos.append(nodoId)
+    nodoCondicion.hijos.append(nodoComp)
+    nodoCondicion.hijos.append(nodoPrimitivo)
+    t[0] = nodoCondicion                       
+
+def p_op_unique_empty(t):
+    'opUniqueCheck : empty'
+    t[0] = None
+ #------------------------------------------------Definicion de regla epsilon y herencia----------------------------------------------------------   
+
+def p_empty(t):
+     'empty :'
+     pass
+
+def p_herencia(t):
+    'herencia : INHERITS PARIZQUIERDO ID PARDERECHO'
+    linea = str(t.lexer.lineno)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoHerencia = crear_nodo_general("herencia","",linea,columna)
+    nodoHerencia.hijos.append(nodoId)
+    t[0] = nodoHerencia
+
+def p_herencia_empty(t):
+    'herencia : empty'
+    t[0] = None
+#--------------------------------------------------Lista de identificadores y cadenas------------------------------------------------------------
+def p_identificadores_lista(t):
+    'identificadores : identificadores COMA ID'
+    linea = str(t.lexer.lineno)
+    nodoPadre = t[1]
+    nodoId = crear_nodo_general("ID",t[3],str(linea),columna)
+    nodoPadre.hijos.append(nodoId)
+    t[0] = nodoPadre
+
+def p_identificadores_id(t):
+    'identificadores : ID'
+    linea = str(t.lexer.lineno)
+    nodoId = crear_nodo_general("ID",t[1],str(linea),columna)
+    nodoLista = crear_nodo_general("identificadores","",linea,columna)
+    nodoLista.hijos.append(nodoId)
+    t[0] = nodoLista
+
+def p_cadenas_lista(t):
+    'cadenas : cadenas COMA  CADENA'
+    linea = str(t.lexer.lineno)
+    nodoPadre = t[1]
+    nodoId = crear_nodo_general("CADENA",t[3],str(linea),columna)
+    nodoPadre.hijos.append(nodoId)
+    t[0] = nodoPadre
+
+def p_cadenas_cadena(t):
+    'cadenas : CADENA'
+    linea = str(t.lexer.lineno)
+    nodoId = crear_nodo_general("CADENA",t[1],str(linea),columna)
+    nodoLista = crear_nodo_general("cadenas","",linea,columna)
+    nodoLista.hijos.append(nodoId)
+    t[0] = nodoLista
+
+#-------------------------------------------------Definiciones de opcionales para crear databases--------------------------------------
+def p_op_replace(t):
+    'opReplace : OR REPLACE'
+    linea = str(t.lexer.lineno)
+    nodoOpReplace = crear_nodo_general("opReplace","",linea,columna)
+    nodoOrReplace = crear_nodo_general("ORREPLACE", "OR REPLACE",linea,columna)
+    nodoOpReplace.hijos.append(nodoOrReplace)
+    t[0] = nodoOpReplace
+
+def p_op_replace_empty(t):
+    'opReplace : empty'
+    t[0] = None
+
+def p_op_exists(t):
+    'opExists : IF NOT EXISTS'
+    linea = str(t.lexer.lineno)
+    nodoOpExists = crear_nodo_general("opExists","",linea,columna)
+    nodoCondicion = crear_nodo_general("IFNOTEXISTS","IF NOT EXISTS",linea,columna)
+    nodoOpExists.hijos.append(nodoCondicion)
+    t[0] = nodoOpExists
+
+def p_op_exists_empty(t):
+    'opExists : empty'
+    t[0] = None
+
+def p_op_database(t):
+    'opDatabase : OWNER opIgual ID mode'
+    linea = str(t.lexer.lineno)
+    nodoOpDatabase = crear_nodo_general("opDatabase","",linea,columna)
+    nodoOwner = crear_nodo_general("OWNER","OWNER",linea,columna)
+    nodoOpIgual = t[2]
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoModo = crear_nodo_general("mode",t[4],linea,columna)
+    nodoOpDatabase.hijos.append(nodoOwner)
+    nodoOpDatabase.hijos.append(nodoOpIgual)
+    nodoOpDatabase.hijos.append(nodoId)
+    nodoOpDatabase.hijos.append(nodoModo)
+    t[0] = nodoOpDatabase
+
+def p_op_database_mode(t):
+    'opDatabase : mode'
+    linea = str(t.lexer.lineno)
+    nodoOpDatabase = crear_nodo_general("opDatabase","",linea,columna)
+    nodoModo = t[1]
+    nodoOpDatabase.hijos.append(nodoModo)
+    t[0] = nodoOpDatabase
+
+def p_op_igual(t):
+    'opIgual : IGUAL'
+    linea = str(t.lexer.lineno)
+    nodoOpIgual = crear_nodo_general("opIgual","",linea,columna)
+    nodoIgual = crear_nodo_general("IGUAL",t[1],linea,columna)
+    nodoOpIgual.hijos.append(nodoIgual)
+    t[0] = nodoOpIgual
+
+def p_op_igual_empty(t):
+    'opIgual : empty'
+    t[0] = None 
+
+def p_mode(t):
+    'mode : MODE opIgual ENTERO'
+    linea = str(t.lexer.lineno)
+    nodoModo = crear_nodo_general("modo","",linea,columna)
+    nodoMode = crear_nodo_general("MODE",t[1],linea,columna)
+    nodoOpIgual = t[2]
+    nodoEntero = crear_nodo_general("ENTERO",t[3],linea,columna)
+    nodoModo.hijos.append(nodoMode)
+    nodoModo.hijos.append(nodoOpIgual)
+    nodoModo.hijos.append(nodoEntero)
+    t[0] = nodoModo
+
+def p_mode_empty(t):
+    'mode : empty'
+    t[0] = None 
+
+
+#---------------------------------------------------Instrucciones alter------------------------------------
+def p_alter_instr(t):
+    'alter_instr : ALTER DATABASE ID opAlterDatabase PTCOMA'
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoInstr = t[4]
+    instru = alterDatabase.alterDatabase(t[3],t[4].hijos)
+    hijos.append(nodoId)
+    hijos.append(nodoInstr)
+    instru.setearValores(linea,columna,"ALTER_DATABASE",nNodo,"",hijos)
+    t[0] = instru
+
+def p_alter_instr_table(t):
+    'alter_instr : ALTER TABLE ID alter_table_instr PTCOMA'
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoInstr = t[4]
+    instru = alterTable.alterTable(t[3],t[4].hijos)
+    hijos.append(nodoId)
+    hijos.append(nodoInstr)
+    instru.setearValores(linea,columna,"ALTER_TABLE",nNodo,"",hijos)
+    t[0] = instru
+
+def p_op_alter_database(t):
+    'opAlterDatabase : RENAME TO ID'
+    linea = str(t.lexer.lineno)
+    nodoOpAlter = crear_nodo_general("opAlterDatabase","",linea,columna)
+    nodoRename = crear_nodo_general("RENAME","RENAME TO",linea,columna)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoOpAlter.hijos.append(nodoRename)
+    nodoOpAlter.hijos.append(nodoId)
+    t[0] = nodoOpAlter
+
+def p_op_alter_database_owner(t):
+    'opAlterDatabase : OWNER TO ownerList'
+    linea = str(t.lexer.lineno)
+    nodoOpAlter = crear_nodo_general("opAlterDatabase","",linea,columna)
+    nodoOwner = crear_nodo_general("OWNER","OWNER TO",linea,columna)
+    nodoOwnerList = t[3]
+    nodoOpAlter.hijos.append(nodoOwner)
+    nodoOpAlter.hijos.append(nodoOwnerList)
+    t[0] = nodoOpAlter
+
+def p_owner_list(t):
+    'ownerList : ID'
+    linea = str(t.lexer.lineno)
+    nodoOwnerList = crear_nodo_general("ownerList","",linea,columna)
+    nodoId = crear_nodo_general("ID",t[1],linea,columna)
+    nodoOwnerList.hijos.append(nodoId)
+    t[0] = nodoOwnerList
+
+def p_owner_current(t):
+    'ownerList : CURRENT_USER'
+    linea = str(t.lexer.lineno)
+    nodoOwnerList = crear_nodo_general("ownerList","",linea,columna)
+    nodoCurrent = crear_nodo_general("CURRENT_USER",t[1],linea,columna)
+    nodoOwnerList.hijos.append(nodoCurrent)
+    t[0] = nodoOwnerList
+
+def p_owner_session(t):
+    'ownerList : SESSION_USER'
+    linea = str(t.lexer.lineno)
+    nodoOwnerList = crear_nodo_general("ownerList","",linea,columna)
+    nodoSession = crear_nodo_general("SESSION_USER",t[1],linea,columna)
+    nodoOwnerList.hijos.append(nodoSession)
+    t[0] = nodoOwnerList
+
+def p_alter_table_instr(t):
+    'alter_table_instr : ADD add_instr'
+    linea = str(t.lexer.lineno)
+    nodoAddI = t[2]
+    nodoAdd = crear_nodo_general("ADD","ADD",linea,columna)
+    nodoAlter = crear_nodo_general("alter_column_instr","",linea,columna)
+    nodoAlter.hijos.append(nodoAdd)
+    nodoAlter.hijos.append(nodoAddI)
+    t[0] = nodoAlter
+
+def p_alter_table_instr_column(t):
+    'alter_table_instr : alter_columnas'
+    linea = str(t.lexer.lineno)
+    nodoColumnas = t[1]
+    nodoAlter = crear_nodo_general("alter_column_instr","",linea,columna)
+    nodoAlter.hijos.append(nodoColumnas)
+    t[0] = nodoAlter
+
+def p_alter_table_instr_drop_columnas(t):
+    'alter_table_instr : drop_columnas'
+    linea = str(t.lexer.lineno)
+    nodoDrop = t[1]
+    nodoAlter = crear_nodo_general("alter_column_instr","",linea,columna)
+    nodoAlter.hijos.append(nodoDrop)
+    t[0] = nodoAlter
+
+def p_alter_columnas(t):
+    'alter_columnas : alter_columnas COMA alter_columna'
+    linea = str(t.lexer.lineno)
+    nodoColumnas = t[1]
+    nodoColumna = t[3]
+    nodoColumnas.hijos.append(nodoColumna)
+    t[0] = nodoColumnas
+    
+def p_alter_columnas_columna(t):
+    'alter_columnas : alter_columna'
+    linea = str(t.lexer.lineno)
+    nodoColumna = t[1]
+    nodoColumnas = crear_nodo_general("alter_columnas","",linea,columna)
+    nodoColumnas.hijos.append(nodoColumna)
+    t[0] = nodoColumnas
+
+def p_alter_columna(t):
+    'alter_columna : ALTER COLUMN ID alter_column_instr'
+    linea = str(t.lexer.lineno)
+    nodoIAlterColumn = crear_nodo_general("alter_columna","",linea,columna)
+    nodoAlterColumn = crear_nodo_general("ALTER","ALTER COLUMN",linea,columna)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoAlterInstr = t[4]
+    nodoIAlterColumn.hijos.append(nodoAlterColumn)
+    nodoIAlterColumn.hijos.append(nodoId)
+    nodoIAlterColumn.hijos.append(nodoAlterInstr)
+    t[0] = nodoIAlterColumn
+
+def p_drop_columnas(t):
+    'drop_columnas : drop_columnas COMA drop_columna'
+    linea = str(t.lexer.lineno)
+    nodoColumnas = t[1]
+    nodoColumna = t[3]
+    nodoColumnas.hijos.append(nodoColumna)
+    t[0] = nodoColumnas
+
+
+def p_drop_columnas_columna(t):
+    'drop_columnas : drop_columna'
+    linea = str(t.lexer.lineno)
+    nodoColumna = t[1]
+    nodoColumnas = crear_nodo_general("drop_columnas","",linea,columna)
+    nodoColumnas.hijos.append(nodoColumna)
+    t[0] = nodoColumnas
+
+def p_drop_columna(t):
+    'drop_columna : DROP COLUMN ID'
+    linea = str(t.lexer.lineno)
+    nodoDropInstr = crear_nodo_general("drop_instr","",linea,columna)
+    nodoDrop = crear_nodo_general("DROP","DROP",linea,columna)
+    nodoColumna = crear_nodo_general("COLUMN","COLUMN",linea,columna)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoDropInstr.hijos.append(nodoDrop)
+    nodoDropInstr.hijos.append(nodoColumna)
+    nodoDropInstr.hijos.append(nodoId)
+    t[0] = nodoDropInstr
+
+def p_alter_table_instr_drop(t):
+    'alter_table_instr : DROP CONSTRAINT ID'
+    linea = str(t.lexer.lineno)
+    nodoAlter = crear_nodo_general("alter_table_instr","",linea,columna)
+    nodoDrop = crear_nodo_general("DROP","DROP",linea,columna)
+    nodoConstrant = crear_nodo_general("CONSTRAINT","CONSTRAINT",linea,columna)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    nodoAlter.hijos.append(nodoDrop)
+    nodoAlter.hijos.append(nodoConstrant)
+    nodoAlter.hijos.append(nodoId)
+    t[0] = nodoAlter
+
+def p_add_instr(t):
+    'add_instr : CHECK PARIZQUIERDO condicion_check PARDERECHO'
+    linea = str(t.lexer.lineno)
+    nodoAdd = crear_nodo_general("add_instr","",linea,columna)
+    nodoCheck = crear_nodo_general("CHECK","CHECK",linea,columna)
+    nodoCondicion = crear_nodo_general("condicion_check",t[3],linea,columna)
+    nodoAdd.hijos.append(nodoCheck)
+    nodoAdd.hijos.append(nodoCondicion)
+    t[0] = nodoAdd
+
+def p_add_instr_constraint(t):
+    'add_instr : CONSTRAINT ID UNIQUE PARIZQUIERDO ID PARDERECHO'
+    linea = str(t.lexer.lineno)
+    nodoAdd = crear_nodo_general("add_instr","",linea,columna)
+    nodoConstrant = crear_nodo_general("CONSTRAINT","CONSTRAINT",linea,columna)
+    nodoId1 = crear_nodo_general("ID",t[2],linea,columna)
+    nodoUnique = crear_nodo_general("UNIQUE","UNIQUE",linea,columna)
+    nodoId2 = crear_nodo_general("ID",t[5],linea,columna)
+    nodoAdd.hijos.append(nodoConstrant)
+    nodoAdd.hijos.append(nodoId1)
+    nodoAdd.hijos.append(nodoUnique)
+    nodoAdd.hijos.append(nodoId2)
+    t[0] = nodoAdd
+
+def p_alter_column_instr(t):
+    'alter_column_instr : SET NOT NULL'
+    linea = str(t.lexer.lineno)
+    nodoAlterColumn = crear_nodo_general("alter_table_instr","",linea,columna)
+    nodoSet = crear_nodo_general("SET","SET",linea,columna)
+    nodoNull = crear_nodo_general("NOTNULL","NOT NULL",linea,columna)
+    nodoAlterColumn.hijos.append(nodoSet)
+    nodoAlterColumn.hijos.append(nodoNull)
+    t[0] = nodoAlterColumn
+
+def p_alter_column_instr_null(t):
+    'alter_column_instr : SET NULL'
+    linea = str(t.lexer.lineno)
+    nodoAlterColumn = crear_nodo_general("alter_table_instr","",linea,columna)
+    nodoSet = crear_nodo_general("SET","SET",linea,columna)
+    nodoNull = crear_nodo_general("NULL","NULL",linea,columna)
+    nodoAlterColumn.hijos.append(nodoSet)
+    nodoAlterColumn.hijos.append(nodoNull)
+    t[0] = nodoAlterColumn
+
+def p_alter_column_instr_tipo(t):
+    'alter_column_instr : TYPE ID '   #HAY QUE COLOCAR UN TIPO
+    linea = str(t.lexer.lineno)
+    nodoAlterColumn = crear_nodo_general("alter_table_instr","",linea,columna)
+    nodoType = crear_nodo_general("TYPE","TYPE",linea,columna)
+    nodoId = crear_nodo_general("ID",t[2],linea,columna)
+    nodoAlterColumn.hijos.append(nodoType)
+    nodoAlterColumn.hijos.append(nodoId)
+    t[0] = nodoAlterColumn
+
+#--------------------------------------------------------INSTRUCCIONES DROP-------------------------------------------------------------
+def p_drop_instr(t):
+    'drop_instr : DROP DATABASE si_existe ID PTCOMA'
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+    nodoId = crear_nodo_general("ID",t[4],linea,columna)
+    instru = dropDatabase.dropDatabase(t[4])
+    hijos.append(nodoId)
+    instru.setearValores(linea,columna,"DROP_DATABASE",nNodo,"",hijos)   
+    t[0] = instru
+
+def p_drop_instr_table(t):
+    'drop_instr : DROP TABLE ID PTCOMA'
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+    nodoId = crear_nodo_general("ID",t[3],linea,columna)
+    instru = dropDatabase.dropDatabase(t[3])
+    hijos.append(nodoId)
+    instru.setearValores(linea,columna,"drop_instr",nNodo,"DROP TABLE",hijos)
+    t[0] = instru
+
+def p_si_existe(t):
+    'si_existe : IF EXISTS'
+    nodoPadre = crear_nodo_general("si_existe","",str(t.lexer.lineno),columna)
+    nodo = crear_nodo_general("IFEXISTS","IF EXISTS",str(t.lexer.lineno),columna)
+    nodoPadre.hijos.append(nodo)
+    t[0] = nodo
+
+def p_si_existe_empty(t):
+    'si_existe : empty'
+    t[0] = None 
+
+#--------------------------------------------------------------Tipos de datos------------------------------------------------------------------
+def p_tipos(t):
+    '''tipos : SMALLINT
+             | INTEGER
+             | BIGINIT
+             | DECIMAL
+             | NUMERIC
+             | REAL
+             | DOUBLE
+             | MONEY
+             | VARCHAR
+             | CHARACTER
+             | TEXT
+             | TIMESTAMP
+             | TIME
+             | DATE
+             | INTERVAL
+             | BOOLEAN
+    '''
+    nodoType = crear_nodo_general("TYPE",t[1],str(t.lexer.lineno),columna)
+    t[0] = nodoType
 
 import ply.yacc as yacc
 parser = yacc.yacc()
