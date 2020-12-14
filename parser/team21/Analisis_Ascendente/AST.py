@@ -117,8 +117,13 @@ class AST:
                     self.c += 'Nodo' + ncp +' -> ' + 'Nodo'+ a + ';\n'                     
                 if campo.caso == 4:
                     self.contador = self.contador + 1
-                    self.c += 'Nodo'+ str(self.contador)+ '[label="PRIMARY KEY: '+ campo.id +'"]\n' 
-                    self.c += 'Nodo' + ncp +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+                    a = str(self.contador)
+                    #if len(campo.id) == 1:
+                     #   self.c += 'Nodo'+ str(self.contador)+ '[label="PRIMARY KEY: '+ campo.id +'"]\n' 
+                    #else:
+                    self.c += 'Nodo'+ str(self.contador)+ '[label="PRIMARY KEY"]\n' #
+                    self.listaID(campo.id, str(self.contador))#
+                    self.c += 'Nodo' + ncp +' -> ' + 'Nodo'+ a + ';\n'
         if inst.idInherits != None:
             self.contador = self.contador + 1
             self.c += 'Nodo'+ str(self.contador)+ '[label="INHERITS: '+ inst.idInherits +'"]\n' 
