@@ -1,5 +1,11 @@
 import enum
 
+# Tipos de errores posibles para postgrestsql que considero que tendriamos
+# Puden seguir agregando mas si es que los consideran necesarios o quitar
+# Use esta pagina https://sqliteonline.com/ para ver que errores recibo
+# por eso para el lexico y sintactico uso el 33 y para cuando el sintactico
+# no se puede recuperar uso el 1
+
 class ErrorType(enum.Enum):
     warning = 1
     no_data = 2
@@ -34,7 +40,12 @@ class ErrorType(enum.Enum):
     duplicate_table = 31
     duplicate_alias = 32
     syntax_error = 33
-    
+
+# Este metodo rebice el numero de error, es decir de clase enum que esta arriba
+# asi como warning es el 1, entonces para retornar su descripcion y id del error
+# el metodo debe recibir como parametro el 1 
+# Observa la clase lex.py y syntactic.py como uso este metodo para que me hagarres
+# la onda 
 def get_type_error(option):
         description = ''
         id_error = ''
