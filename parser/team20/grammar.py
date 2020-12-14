@@ -123,6 +123,29 @@ reservedwords = (
     'POWER',
     'RADIANS',
     'ROUND',
+    'AND',
+    'OR',
+    'ACOS', 
+    'ACOSD' 
+    'ASIN',
+    'ASIND',
+    'ATAN',
+    'ATAND',
+    'ATAN2',
+    'ATAN2D',
+    'COS',
+    'COSD',
+    'COT',
+    'COTD', 
+    'SIN',
+    'SIND',
+    'TAN',
+    'TAND',
+    'SINH',
+    'COSH',
+    'TANH',
+    'ASINH',
+    'ATANH',
 )
 
 symbols = (
@@ -232,6 +255,9 @@ lexer = lex.lex()
 
 # Operators precedence and association
 precedence = (
+    ('left','OR'),
+    ('left','AND'),
+    ('rigth','NOT'),
     ('left','UNION','INTERSECT','EXCEPT'),
     ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
@@ -1008,6 +1034,13 @@ def p_expression_binaryarithmetic(t):
 def p_expression_binaryseparator(t):
     '''expression : expression NSEPARATOR expression'''
 
+#LOGICAL
+def p_expression_logical(t):
+    '''expression : NOT expression 
+                  | expression AND expression
+                  | expression OR expression
+                  '''
+
 #MATH FUNCTIONS
 def p_expression_as(t):
     '''expression : expression AS STRING'''
@@ -1018,18 +1051,44 @@ def p_expression_mathfunctions(t):
                   | CEIL BRACKET_OPEN expression BRACKET_CLOSE 
                   | CEILING BRACKET_OPEN expression BRACKET_CLOSE 
                   | DEGREES BRACKET_OPEN expression BRACKET_CLOSE 
-                  | DIV BRACKET_OPEN expression BRACKET_CLOSE 
+                  | DIV BRACKET_OPEN expressionList BRACKET_CLOSE 
                   | EXP BRACKET_OPEN expression BRACKET_CLOSE 
                   | FACTORIAL BRACKET_OPEN expression BRACKET_CLOSE 
                   | FLOOR BRACKET_OPEN expression BRACKET_CLOSE 
-                  | GCD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | GCD BRACKET_OPEN expressionList BRACKET_CLOSE 
                   | LN BRACKET_OPEN expression BRACKET_CLOSE 
                   | LOG BRACKET_OPEN expression BRACKET_CLOSE 
-                  | MOD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | MOD BRACKET_OPEN expressionList BRACKET_CLOSE 
                   | PI BRACKET_OPEN BRACKET_CLOSE 
-                  | POWER BRACKET_OPEN expression BRACKET_CLOSE 
+                  | POWER BRACKET_OPEN expressionList BRACKET_CLOSE 
                   | RADIANS BRACKET_OPEN expression BRACKET_CLOSE
                   | ROUND BRACKET_OPEN expression BRACKET_CLOSE  
+                  '''
+
+#TRIGONOMETRIC FUNCTIONS
+def p_expression_trigonometricfunctions(t):
+    '''expression : ACOS BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ACOSD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ASIN BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ASIND BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ATAN BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ATAND BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ATAN2 BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | ATAN2D BRACKET_OPEN expressionList BRACKET_CLOSE 
+                  | COS BRACKET_OPEN expression BRACKET_CLOSE 
+                  | COSD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | COT BRACKET_OPEN expression BRACKET_CLOSE 
+                  | COTD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | SIN BRACKET_OPEN expression BRACKET_CLOSE 
+                  | SIND BRACKET_OPEN expression BRACKET_CLOSE 
+                  | TAN BRACKET_OPEN expression BRACKET_CLOSE 
+                  | TAND BRACKET_OPEN expression BRACKET_CLOSE 
+                  | SINH BRACKET_OPEN expression BRACKET_CLOSE 
+                  | COSH BRACKET_OPEN expression BRACKET_CLOSE 
+                  | TANH BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ASINH BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ACOSH BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ATANH BRACKET_OPEN expression BRACKET_CLOSE 
                   '''
 
 #VALUES
