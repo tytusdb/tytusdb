@@ -27,7 +27,7 @@ def invertir_cadena_manual(cadena):
 def reporteGramatical(ruta):
     var1= invertir_cadena_manual(reporteGramatical1)
     var2= invertir_cadena_manual(reporteGramatical2)
-    var3="""<h1 style="text-align:center;">REPORTE GRAMAICAL<h1>
+    var3="""<h1 style="text-align:center;">REPORTE GRAMATICAL<h1>
     <table  border="1" style="margin-left: auto; margin-right: auto">
   <tr>
     <td>Producciones</td>

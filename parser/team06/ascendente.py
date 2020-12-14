@@ -8,7 +8,7 @@ import math as mt
 import random as rand
 
 from expresiones import *
-from math import *
+import math
 import storageManager.jsonMode as store
 import reportes as h
 from expresiones import * 
@@ -17,13 +17,15 @@ import numpy as geek
 # ---------------------------------------------------------------------------------------------------------------------
 #                                QUERY SHOW DATABASE
 # ---------------------------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------- 
+#                                             QUERIES
+# ----------------------------------------------------------------------------------------------------------------
 
 def procesar_showdb(query,ts):
-    print("entra a Show BD")
-    print("entra al print con: ",query.variable)
     h.textosalida+="TYTUS>> Bases de datos existentes\n"
     print(store.showDatabases())
     #llamo al metodo de EDD
+# ---------------------------------------------------------------------------------------------------------------- 
 
 # ---------------------------------------------------------------------------------------------------------------------
 #                                QUERY SELECT
@@ -61,6 +63,480 @@ def procesar_select_Tipo2(query,ts):
     print("************************ENTRO AL 2DO SELECT*********************")
     print(query)
             
+def procesar_createdb(query,ts):
+    h.textosalida+="TYTUS>> Bases de datos existentes\n"
+    if store.createDatabase(query.variable) == 0: 
+        print("SE CREO LA BASE DE DATOS "+str(query.variable)+" ")
+    elif store.createDatabase(query.variable) == 2:
+        print("LA BASE DE DATOS "+str(query.variable)+" YA EXISTE")
+    elif store.createDatabase(query.variable) == 1:
+        print("ERROR :(")
+        
+    #llamo al metodo de EDD
+# ---------------------------------------------------------------------------------------------------------------- 
+def procesar_createwithparametersdb(query,ts):
+    for q in query.parametros:   
+        if isinstance(q, ExpresionOwner) :
+            print(query.variable)
+            print("OWNER:",q.owner)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        elif isinstance(q, ExpresionMode) :
+            print(query.variable)
+            print("MODE:",q.mode)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        else:
+            print("TIPO INCORRECTO DE QUERY:",query)
+# ---------------------------------------------------------------------------------------------------------------- 
+def procesar_alterdb(query,ts):
+    if store.alterDatabase(query.id_original,query.id_alter) == 0: 
+        print("LA BASE DE DATOS "+str(query.id_original)+" HA SIDO ALTERADA")
+# ---------------------------------------------------------------------------------------------------------------- 
+    elif store.alterDatabase(query.id_original,query.id_alter)  == 3:
+        print("LA BASE DE DATOS "+str(query.id_alter)+" YA EXISTE")
+# ---------------------------------------------------------------------------------------------------------------- 
+    elif store.alterDatabase(query.id_original,query.id_alter)  == 2:
+        print("LA BASE DE DATOS "+str(query.id_original)+" NO EXISTE")
+# ---------------------------------------------------------------------------------------------------------------- 
+    elif store.alterDatabase(query.id_original,query.id_alter)  == 1:
+        print("ERROR :(")
+# ---------------------------------------------------------------------------------------------------------------- 
+def procesar_alterwithparametersdb(query,ts):
+    print(query.id_original)
+    print(query.owner)
+    print(query.id_alter)
+# ---------------------------------------------------------------------------------------------------------------- 
+def procesar_dropdb(query,ts):
+    if store.dropDatabase(query.id) == 0: 
+        print("LA BASE DE DATOS "+str(query.id)+" HA SIDO ELIMINADA")
+# ---------------------------------------------------------------------------------------------------------------- 
+    elif store.dropDatabase(query.id)  == 2:
+        print("LA BASE DE DATOS "+str(query.id)+" NO EXISTE")
+# ---------------------------------------------------------------------------------------------------------------- 
+    elif store.dropDatabase(query.id)  == 1:
+        print("ERROR :(")
+# ---------------------------------------------------------------------------------------------------------------- 
+#                                             QUERIES
+# ----------------------------------------------------------------------------------------------------------------
+
+
+
+# ---------------------------------------------------------------------------------------------------------------- 
+#                                             EXPRESIONES
+# ----------------------------------------------------------------------------------------------------------------
+
+# --------------------------------------EXPRESION ARITMETICA-----------------------------------------------------------
+def resolver_expresion_aritmetica(expNum, ts) :
+    if isinstance(expNum, ExpresionAritmetica) :
+        exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
+        exp2 = resolver_expresion_aritmetica(expNum.exp2, ts)
+        #---------------------------------OPERACION MAS-----------------------------------------------------------------------        
+        if expNum.operador == OPERACION_ARITMETICA.MAS : 
+            if  isinstance(exp1,int)  and isinstance(exp2,int):
+                print("RESULTADO:",exp1+exp2)
+                return exp1 + exp2
+            elif  isinstance(exp1,int)  and isinstance(exp2,float): 
+                print("RESULTADO:",exp1 + exp2)
+                return exp1 + exp2
+            elif  isinstance(exp1,float)  and isinstance(exp2,float): 
+                print("RESULTADO:",exp1 + exp2)
+                return exp1 + exp2
+            elif  isinstance(exp1,float)  and isinstance(exp2,int): 
+                print("RESULTADO:",exp1 + exp2)
+                return exp1 + exp2
+            elif  isinstance(exp1,str)  and isinstance(exp2,str): 
+                print("RESULTADO:",exp1 + exp2)
+                return exp1 + exp2
+            else: 
+                print("error: no se pueden operar distintos tipos")
+                h.errores+=  "<tr><td>"+str(exp1)+"+"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                return 0
+        #---------------------------------OPERACION MENOS-----------------------------------------------------------------------        
+        elif expNum.operador == OPERACION_ARITMETICA.MENOS : 
+            if  isinstance(exp1,int)  and isinstance(exp2,int):
+                print("RESULTADO:",exp1-exp2)
+                return exp1 - exp2
+            elif  isinstance(exp1,float)  and isinstance(exp2,int):
+                print("RESULTADO:",exp1-exp2)
+                return exp1 - exp2
+            elif  isinstance(exp1,float)  and isinstance(exp2,float):
+                print("RESULTADO:",exp1-exp2)
+                return exp1 - exp2
+            elif  isinstance(exp1,int)  and isinstance(exp2,float):
+                print("RESULTADO:",exp1-exp2)
+                return exp1 - exp2
+            else: 
+                print("error: no se pueden operar distintos tipos")
+                h.errores+=  "<tr><td>"+str(exp1)+"-"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                return 0
+        #---------------------------------OPERACION POR-----------------------------------------------------------------------        
+        elif expNum.operador == OPERACION_ARITMETICA.POR : 
+            if  isinstance(exp1,int)  and isinstance(exp2,int):
+                print("RESULTADO:",exp1 * exp2)
+                return exp1 * exp2
+            elif  isinstance(exp1,float)  and isinstance(exp2,int):
+                print("RESULTADO:",exp1 * exp2)
+                return exp1 * exp2
+            elif  isinstance(exp1,float)  and isinstance(exp2,float):
+                print("RESULTADO:",exp1 * exp2)
+                return exp1 * exp2
+            elif  isinstance(exp1,int)  and isinstance(exp2,float):
+                print("RESULTADO:",exp1 * exp2)
+                return exp1 * exp2
+            else: 
+                print("error: no se pueden operar distintos tipos")
+                h.errores+=  "<tr><td>"+str(exp1)+"*"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                return 0
+        #---------------------------------OPERACION DIVISION-----------------------------------------------------------------------        
+        elif expNum.operador == OPERACION_ARITMETICA.DIVIDIDO : 
+            if  isinstance(exp1,int)  and isinstance(exp2,int):
+                print("DIVIDENDO:",exp1)
+                print("DIVISOR:",exp2)  
+                if exp2==0 :
+                    print("error: divido por 0 da infinito")
+                    h.errores+=  "<tr><td>"+str(exp1)+"/"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                    return 0 
+                return exp1/exp2
+
+            elif  isinstance(exp1,float)  and isinstance(exp2,int):
+                print("DIVIDENDO:",exp1)
+                print("DIVISOR:",exp2)   
+                if exp2 == 0 :
+                    print("error: divido por 0 da infinito")
+                    h.errores+=  "<tr><td>"+str(exp1)+"/"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                    return 0  
+                return exp1 / exp2
+
+            elif  isinstance(exp1,float)  and isinstance(exp2,float):
+                print("DIVIDENDO:",exp1)
+                print("DIVISOR:",exp2)   
+                if exp2 == 0.0 :
+                    print("error: divido por 0.0 da infinito")
+                    h.errores+=  "<tr><td>"+str(exp1)+"/"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                    return 0  
+                return exp1 / exp2
+
+            elif  isinstance(exp1,int)  and isinstance(exp2,float):
+                print("DIVIDENDO:",exp1)
+                print("DIVISOR:",exp2)   
+                if exp2 == 0.0 :
+                    print("error: divido por 0.0 da infinito")
+                    h.errores+=  "<tr><td>"+str(exp1)+"/"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                    return 0  
+                return exp1 / exp2
+            else: 
+                print("error: no se pueden operar distintos tipos")
+                h.errores+=  "<tr><td>"+str(exp1)+"/"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                return 0
+        #---------------------------------OPERACION MODULO-----------------------------------------------------------------------        
+        elif expNum.operador == OPERACION_ARITMETICA.MODULO : 
+            if  isinstance(exp1,int)  and isinstance(exp2,int):
+                print("NUMERO:",exp1)
+                print("MODULO:",exp2) 
+                if exp2==0 :
+                    print("error: divido modular por 0 da infinito")
+                    h.errores+=  "<tr><td>"+str(exp1)+"%"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                    return 0 
+                return exp1 % exp2
+
+            elif  isinstance(exp1,float)  and isinstance(exp2,int):
+                print("NUMERO:",exp1)
+                print("MODULO:",exp2)
+                if exp2==0 :
+                    print("error: divido modular por 0 da infinito")
+                    h.errores+=  "<tr><td>"+str(exp1)+"%"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                    return 0  
+                return exp1 % exp2
+
+            elif  isinstance(exp1,float)  and isinstance(exp2,float):
+                print("NUMERO:",exp1)
+                print("MODULO:",exp2)
+                if exp2==0.0 :
+                    print("error: divido modular por 0.0 da infinito")
+                    h.errores+=  "<tr><td>"+str(exp1)+"%"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                    return 0  
+                return exp1 % exp2
+
+            elif  isinstance(exp1,int)  and isinstance(exp2,float):
+                print("NUMERO:",exp1)
+                print("MODULO:",exp2)
+                if exp2==0.0 :
+                    print("error: divido modular por 0.0 da infinito")
+                    h.errores+=  "<tr><td>"+str(exp1)+"%"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                    return 0  
+                return exp1 % exp2
+
+            else: 
+                print("error: no se pueden operar distintos tipos")
+                h.errores+=  "<tr><td>"+str(exp1)+"%"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                return 0
+        #---------------------------------OPERACION POTENCIA-----------------------------------------------------------------------        
+        elif expNum.operador == OPERACION_ARITMETICA.POTENCIA : 
+            if  isinstance(exp1,int)  and isinstance(exp2,int):
+                print("RESULTADO:",math.pow(exp1,exp2))  
+                return math.pow(exp1,exp2)
+            elif  isinstance(exp1,float)  and isinstance(exp2,int):
+                return math.pow(exp1,exp2)
+            elif  isinstance(exp1,float)  and isinstance(exp2,float):
+                return math.pow(exp1,exp2)
+            elif  isinstance(exp1,int)  and isinstance(exp2,float):
+                return math.pow(exp1,exp2)
+            else: 
+                print("error: no se pueden operar distintos tipos")
+                h.errores+=  "<tr><td>"+str(exp1)+"^"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
+                return 0
+#--------------------------------------------------------------------------------------------------------------------------          
+    elif isinstance(expNum, ExpresionNegativo) :
+        print("NEGATIVO")
+        print("EXP_NUM:",expNum.exp)
+        return expNum.exp * -1
+#--------------------------------------------------------------------------------------------------------------------------        
+#--------------------------------------------------------------------------------------------------------------------------        
+    elif isinstance(expNum, ExpresionInvocacion) :
+        resultado = "" 
+        #r1 = ts.obtener(expNum.id).valor 
+        #r2 = ts.obtener(expNum.id1).valor
+        r1 = expNum.id
+        r2 = expNum.id1
+        resultado = r1 + "." + r2
+        print(resultado)
+        return resultado
+#--------------------------------------------------------------------------------------------------------------------------        
+
+#--------------------------------------------------------------------------------------------------------------------------        
+    elif isinstance(expNum,ExpresionABS):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return abs(exp)
+    elif isinstance(expNum,ExpresionCBRT):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return exp**(1/3)
+    elif isinstance(expNum,ExpresionCEIL):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.ceil(exp)
+    elif isinstance(expNum,ExpresionCEILING):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.ceil(exp)
+    elif isinstance(expNum,ExpresionDEGREES):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.degrees(exp)
+    elif isinstance(expNum,ExpresionDIV):
+        exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
+        exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
+        return exp1//exp2
+    elif isinstance(expNum,ExpresionEXP):
+        exp1= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.exp(exp1)
+    elif isinstance(expNum,ExpresionFACTORIAL):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.factorial(exp)
+    elif isinstance(expNum,ExpresionFLOOR):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.floor(exp)
+    elif isinstance(expNum,ExpresionGCD):
+        exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
+        exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
+        return mt.gcd(exp1,exp2)
+    elif isinstance(expNum,ExpresionLN):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.log(exp) #este devuelve el logaritmo natural
+    elif isinstance(expNum,ExpresionLOG):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.log10(exp) #este devuelve el logaritmo base 10
+    elif isinstance(expNum,ExpresionMOD):
+        exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
+        exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
+        return mt.fmod(exp1,exp2)
+    elif isinstance(expNum,ExpresionPI):
+        return mt.pi
+    elif isinstance(expNum,ExpresionPOWER):
+        exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
+        exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
+        return mt.pow(exp1,exp2)
+    elif isinstance(expNum,ExpresionRADIANS):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.radians(exp)   
+    elif isinstance(expNum,ExpresionROUND):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return round(exp)
+    elif isinstance(expNum,ExpresionSIGN):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return geek.sign(exp)
+    elif isinstance(expNum,ExpresionSQRT):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.sqrt(exp)
+    elif isinstance(expNum,ExpresionTRUNC):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.trunc(exp)
+    elif isinstance(expNum,ExpresionRANDOM):
+        return rand.random()
+    elif isinstance(expNum,ExpresionWIDTHBUCKET):
+        exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
+        exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
+        exp3= resolver_expresion_aritmetica(expNum.exp3, ts)
+        exp4= resolver_expresion_aritmetica(expNum.exp4, ts)
+        return 0
+    elif isinstance(expNum,ExpresionACOS):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.acos(exp)
+    elif isinstance(expNum,ExpresionACOSD):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.degrees(mt.acos(exp))
+    elif isinstance(expNum,ExpresionASIN):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.asin(exp)
+    elif isinstance(expNum,ExpresionASIND):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.degrees(mt.asin(exp))
+    elif isinstance(expNum,ExpresionATAN):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.atan(exp)
+    elif isinstance(expNum,ExpresionATAND):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.degrees(mt.asin(exp))
+    elif isinstance(expNum,ExpresionATAN2):
+        exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
+        exp2 = resolver_expresion_aritmetica(expNum.exp2, ts)
+        return mt.atan2(exp1,exp2)
+    elif isinstance(expNum,ExpresionATAN2D):
+        exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
+        exp2 = resolver_expresion_aritmetica(expNum.exp2, ts)
+        return mt.degrees(mt.atan2(exp1,exp2))
+    elif isinstance(expNum,ExpresionCOS):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.cos(exp)
+    elif isinstance(expNum,ExpresionCOSD):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.degrees(mt.asin(exp))
+    elif isinstance(expNum,ExpresionCOT):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return 1/mt.tan(exp)
+    elif isinstance(expNum,ExpresionCOTD):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.degrees(1/mt.tan(exp))
+    elif isinstance(expNum,ExpresionSIN):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.sin(exp)
+    elif isinstance(expNum,ExpresionSIND):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.degrees(mt.sin(exp))
+    elif isinstance(expNum,ExpresionTAN):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.tan(exp)
+    elif isinstance(expNum,ExpresionTAND):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.degrees(mt.tan(exp))
+    elif isinstance(expNum,ExpresionSINH):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.sinh(exp)
+    elif isinstance(expNum,ExpresionCOSH):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.cosh(exp)
+    elif isinstance(expNum,ExpresionTANH):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.tanh(exp)
+    elif isinstance(expNum,ExpresionASINH):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.asinh(exp)
+    elif isinstance(expNum,ExpresionACOSH):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.acosh(exp)
+    elif isinstance(expNum,ExpresionATANH):
+        exp= resolver_expresion_aritmetica(expNum.exp, ts)
+        return mt.atanh(exp)
+    elif isinstance(expNum, ExpresionNumero) :
+        return expNum.id
+    elif isinstance(expNum, ExpresionIdentificador) :
+        return ts.obtener(expNum.id).valor
+    elif isinstance(expNum,ExpresionCadenas):
+        return expNum.id
+    else:
+        print("error de operacion aritmetica")
+        #h.errores+=  "<tr><td>"+str(exp1)+"|"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>error de operacion</td></tr>\n"
+
+# ------------------------------------------------EXPRESION LOGICA---------------------------------------------------------------------
+
+def resolver_expresion_logica(expLog, ts) :
+    if isinstance(expLog,ExpresionLogica):
+        exp1 = resolver_expresion_aritmetica(expLog.exp1, ts)
+        print("EXP1:",exp1)
+        exp2 = resolver_expresion_aritmetica(expLog.exp2, ts)
+        print("EXP2:",exp2)
+        #---------------------------------OPERACION AND-----------------------------------------------------------------------        
+        if expLog.operador == OPERACION_LOGICA.AND : 
+            return exp1 and exp2
+        #---------------------------------OPERACION OR-----------------------------------------------------------------------                
+        elif expLog.operador == OPERACION_LOGICA.OR : 
+            return exp1 or exp2
+#---------------------------------OPERACION NOT-----------------------------------------------------------------------                     
+    elif isinstance(expLog,ExpresionNOT):
+        exp = resolver_expresion_aritmetica(expLog.exp, ts)
+        print("EXP:",exp)
+        pivote=not exp
+        print("PIVOTE",pivote)
+        if pivote==True: 
+            print("TRUE")
+            return 1
+        else:
+            print("FALSE") 
+            return 0
+
+# ------------------------------------------------EXPRESION BIT---------------------------------------------------------------------
+
+def resolver_expresion_bit(expBit, ts) :
+    print("ENTRO")
+    if isinstance(expBit,ExpresionBIT):
+        exp1 = resolver_expresion_aritmetica(expBit.exp1, ts)
+        print("EXP1:",exp1)
+        exp2 = resolver_expresion_aritmetica(expBit.exp2, ts)
+        print("EXP2:",exp2)
+        #---------------------------------OPERACION LEFT SHIFT-----------------------------------------------------------------------        
+        if expBit.operador == OPERACION_BIT.DESPLAZAMIENTO_IZQUIERDA :
+            print("RESULTADO:",exp1<<exp2) 
+            return exp1 << exp2
+        #---------------------------------OPERACION RIGHT SHIFT-----------------------------------------------------------------------                
+        elif expBit.operador == OPERACION_BIT.DESPLAZAMIENTO_DERECHA :
+            print("RESULTADO:",exp1>>exp2)  
+            return exp1 >> exp2
+
+# ------------------------------------------------EXPRESION RELACIONAL---------------------------------------------------------------------
+
+def resolver_expresion_relacional(expRel, ts) :
+    print("ENTRO")
+    if isinstance(expRel,ExpresionRelacional):
+        exp1 = resolver_expresion_aritmetica(expRel.exp1, ts)
+        print("EXP1:",exp1)
+        exp2 = resolver_expresion_aritmetica(expRel.exp2, ts)
+        print("EXP2:",exp2)
+        #---------------------------------OPERACION IGUAL_IGUAL-----------------------------------------------------------------------        
+        if expRel.operador == OPERACION_RELACIONAL.IGUAL_IGUAL :
+            print("RESULTADO:",exp1==exp2) 
+            return exp1 == exp2
+        #---------------------------------OPERACION DIFERENTE-----------------------------------------------------------------------                
+        if expRel.operador == OPERACION_RELACIONAL.DIFERENTE :
+            print("RESULTADO:",exp1!=exp2) 
+            return exp1 != exp2
+        #---------------------------------OPERACION NO IGUAL-----------------------------------------------------------------------                
+        if expRel.operador == OPERACION_RELACIONAL.NO_IGUAL :
+            print("RESULTADO:",exp1!=exp2) 
+            return exp1 != exp2
+        #---------------------------------OPERACION MAYOR IGUAL-----------------------------------------------------------------------                
+        if expRel.operador == OPERACION_RELACIONAL.MAYOR_IGUAL :
+            print("RESULTADO:",exp1>=exp2) 
+            return exp1 >= exp2
+        #---------------------------------OPERACION MAYOR-----------------------------------------------------------------------                
+        if expRel.operador == OPERACION_RELACIONAL.MAYOR :
+            print("RESULTADO:",exp1>exp2) 
+            return exp1 > exp2
+        #---------------------------------OPERACION MENOR IGUAL-----------------------------------------------------------------------                
+        if expRel.operador == OPERACION_RELACIONAL.MENOR_IGUAL :
+            print("RESULTADO:",exp1<=exp2) 
+            return exp1 <= exp2
+        #---------------------------------OPERACION RIGHT SHIFT-----------------------------------------------------------------------                
+        if expRel.operador == OPERACION_RELACIONAL.MENOR :
+            print("RESULTADO:",exp1<exp2) 
+            return exp1 < exp2                                    
+# --------------------------------------------------------------------------------------------------------------------- 
+#                                             EXPRESIONES
+# ---------------------------------------------------------------------------------------------------------------------
 def procesar_insertBD(query,ts):
     print("entra a insert")
     print("entra al print con: ",query.idTable, query.listRegistros)
@@ -245,160 +721,7 @@ def guardar_asignacion(valor, variable,ts):
 #                                Expresiones aritmeticas
 # ---------------------------------------------------------------------------------------------------------------------
 
-def resolver_expresion_aritmetica(expNum, ts) :
-    try:
-        if isinstance(expNum, ExpresionNegativo) :
-            return expNum.id * -1
-        elif isinstance(expNum,ExpresionABS):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return abs(exp)
-        elif isinstance(expNum,ExpresionCBRT):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return exp**(1/3)
-        elif isinstance(expNum,ExpresionCEIL):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.ceil(exp)
-        elif isinstance(expNum,ExpresionCEILING):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.ceil(exp)
-        elif isinstance(expNum,ExpresionDEGREES):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.degrees(exp)
-        elif isinstance(expNum,ExpresionDIV):
-            exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
-            exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
-            return exp1//exp2
-        elif isinstance(expNum,ExpresionEXP):
-            exp1= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.exp(exp1)
-        elif isinstance(expNum,ExpresionFACTORIAL):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.factorial(exp)
-        elif isinstance(expNum,ExpresionFLOOR):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.floor(exp)
-        elif isinstance(expNum,ExpresionGCD):
-            exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
-            exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
-            return mt.gcd(exp1,exp2)
-        elif isinstance(expNum,ExpresionLN):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.log(exp) #este devuelve el logaritmo natural
-        elif isinstance(expNum,ExpresionLOG):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.log10(exp) #este devuelve el logaritmo base 10
-        elif isinstance(expNum,ExpresionMOD):
-            exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
-            exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
-            return mt.fmod(exp1,exp2)
-        elif isinstance(expNum,ExpresionPI):
-            return mt.pi
-        elif isinstance(expNum,ExpresionPOWER):
-            exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
-            exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
-            return mt.pow(exp1,exp2)
-        elif isinstance(expNum,ExpresionRADIANS):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.radians(exp)   
-        elif isinstance(expNum,ExpresionROUND):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return round(exp)
-        elif isinstance(expNum,ExpresionSIGN):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return geek.sign(exp)
-        elif isinstance(expNum,ExpresionSQRT):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.sqrt(exp)
-        elif isinstance(expNum,ExpresionTRUNC):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.trunc(exp)
-        elif isinstance(expNum,ExpresionRANDOM):
-            return rand.random()
-        elif isinstance(expNum,ExpresionWIDTHBUCKET):
-            exp1= resolver_expresion_aritmetica(expNum.exp1, ts)
-            exp2= resolver_expresion_aritmetica(expNum.exp2, ts)
-            exp3= resolver_expresion_aritmetica(expNum.exp3, ts)
-            exp4= resolver_expresion_aritmetica(expNum.exp4, ts)
-            return 0
-        elif isinstance(expNum,ExpresionACOS):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.acos(exp)
-        elif isinstance(expNum,ExpresionACOSD):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.degrees(mt.acos(exp))
-        elif isinstance(expNum,ExpresionASIN):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.asin(exp)
-        elif isinstance(expNum,ExpresionASIND):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.degrees(mt.asin(exp))
-        elif isinstance(expNum,ExpresionATAN):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.atan(exp)
-        elif isinstance(expNum,ExpresionATAND):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.degrees(mt.asin(exp))
-        elif isinstance(expNum,ExpresionATAN2):
-            exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
-            exp2 = resolver_expresion_aritmetica(expNum.exp2, ts)
-            return mt.atan2(exp1,exp2)
-        elif isinstance(expNum,ExpresionATAN2D):
-            exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
-            exp2 = resolver_expresion_aritmetica(expNum.exp2, ts)
-            return mt.degrees(mt.atan2(exp1,exp2))
-        elif isinstance(expNum,ExpresionCOS):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.cos(exp)
-        elif isinstance(expNum,ExpresionCOSD):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.degrees(mt.asin(exp))
-        elif isinstance(expNum,ExpresionCOT):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return 1/mt.tan(exp)
-        elif isinstance(expNum,ExpresionCOTD):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.degrees(1/mt.tan(exp))
-        elif isinstance(expNum,ExpresionSIN):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.sin(exp)
-        elif isinstance(expNum,ExpresionSIND):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.degrees(mt.sin(exp))
-        elif isinstance(expNum,ExpresionTAN):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.tan(exp)
-        elif isinstance(expNum,ExpresionTAND):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.degrees(mt.tan(exp))
-        elif isinstance(expNum,ExpresionSINH):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.sinh(exp)
-        elif isinstance(expNum,ExpresionCOSH):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.cosh(exp)
-        elif isinstance(expNum,ExpresionTANH):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.tanh(exp)
-        elif isinstance(expNum,ExpresionASINH):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.asinh(exp)
-        elif isinstance(expNum,ExpresionACOSH):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.acosh(exp)
-        elif isinstance(expNum,ExpresionATANH):
-            exp= resolver_expresion_aritmetica(expNum.exp, ts)
-            return mt.atanh(exp)
-        elif isinstance(expNum, ExpresionNumero) :
-            return expNum.id
-        elif isinstance(expNum, ExpresionIdentificador) :
-            return ts.obtener(expNum.id).valor
-        elif isinstance(expNum,ExpresionCadenas):
-            return expNum.id
-        else:
-            print("error de operacion aritmetica")
-            #h.errores+=  "<tr><td>"+str(exp1)+"|"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>error de operacion</td></tr>\n"
-    except ValueError as F:
-        return ("Se genero un error: "+str(F))
+
 def procesar_deleteinBD(query,ts):
     print("entra a delete from")
     print("entra al print con: ",query.idTable)
@@ -469,11 +792,44 @@ def alter_table(query,ts):
 # ---------------------------------------------------------------------------------------------------------------------
 def procesar_queries(queries, ts) :
     ## lista de instrucciones recolectadas
+    print(queries)
     for query in queries :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query, Select) : procesar_select(query, ts)
         
         elif isinstance(query, Select2) : procesar_select_Tipo2(query, ts)
+        if isinstance(query, ShowDatabases) : 
+            procesar_showdb(query, ts)
+        elif isinstance(query, CreateDatabases) : 
+            procesar_createdb(query, ts)
+        elif isinstance(query, CreateDatabaseswithParameters) :
+            procesar_createwithparametersdb(query, ts)
+        elif isinstance(query, AlterDB) :
+            procesar_alterdb(query, ts)
+        elif isinstance(query, AlterOwner) :
+            procesar_alterwithparametersdb(query, ts)
+        elif isinstance(query, DropDB) :
+            procesar_dropdb(query, ts)
+        elif isinstance(query, DropDBIF) :
+            procesar_dropdb(query, ts)
+        elif isinstance(query, ExpresionAritmetica) : 
+            resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNegativo) : 
+            resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionInvocacion) : 
+            resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNumero) : 
+            resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionIdentificador) : 
+            resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionCadenas) : 
+            resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNOT) : 
+            resolver_expresion_logica(query, ts)
+        elif isinstance(query, ExpresionBIT) : 
+            resolver_expresion_bit(query, ts)
+        elif isinstance(query, ExpresionRelacional) : 
+            resolver_expresion_relacional(query, ts)
         elif isinstance(query, InsertinDataBases) : procesar_insertBD(query,ts)
         elif isinstance(query, UpdateinDataBase) : procesar_updateinBD(query,ts)
         elif isinstance(query, DeleteinDataBases) : procesar_deleteinBD(query, ts)
@@ -487,23 +843,29 @@ def procesar_queries(queries, ts) :
             h.errores+=  "<tr><td>"+str(query)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La consulta no es valida.</td></tr>\n"  
 
 
-
 def ejecucionAscendente(input):
     #print("El resultado de la creacion de tabla es: %d",store.createTable("db5", "table1", 5))
     #print(store.showTables)
     #print(store.showTables("db2"))
     #print("--------------------------------Archivo original---------------------------------------")
     #print(input)
+
     print("--------------------------------Archivo Ejecucion---------------------------------------")
     prueba =g.parse(input)
     ts_global=TS.TablaDeSimbolos()
     h.todo=prueba
-    print(prueba)
     procesar_queries(prueba,ts_global)
     h.textosalida+="--------------------FIN EJECUCION ASCENDENTE--------------------\n"
     return h.textosalida
 
-# ---------------------------------REPORTE GRAMATICAL -------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
+#                                 EJECUCION DE LOS QUERIES PRINCIPALES
+# ---------------------------------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+#                                 REPORTE GRAMATICAL
+# ---------------------------------------------------------------------------------------------------------------------
 def genenerarReporteGramaticalAscendente(ruta):
     h.reporteGramatical(ruta)
 
@@ -524,3 +886,6 @@ def generarReporteSimbolos(ruta):
     #construyo el archivo html
     print("manda los datos")
     h.reporteSimbolos(ruta,val)
+# ---------------------------------------------------------------------------------------------------------------------
+#                                 REPORTE GRAMATICAL
+# ---------------------------------------------------------------------------------------------------------------------

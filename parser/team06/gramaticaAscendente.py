@@ -1,4 +1,4 @@
-
+import re
 from queries import *
 from expresiones import *
 # -----------------------------------------------------------------------------
@@ -396,6 +396,8 @@ import reportes as h
 
 
 
+
+
 # estructura de mi gramatica
 #-----------------------------------------------------INICIO--------------------------------------------------------------------
 def p_inicio_1(t) :
@@ -436,11 +438,11 @@ def p_query(t):
                     | contDrop
                     | contAlter
                     | listaid
-                    | tipoAlter
-                    
+                    | tipoAlter                    
                     | selectData
     '''
     h.reporteGramatical1 +="query     ::=      opcion\n"
+    h.reporteGramatical2 +="t[0]=t[1]\n"
     t[0]=t[1]
  
                     # derivando cada produccion a cosas como el create, insert, select; funciones como avg, sum, substring irian como otra produccion 
@@ -455,51 +457,72 @@ def p_query(t):
 def p_crearBaseDatos_1(t):
     'crearBD    : CREATE DATABASE ID PUNTOYCOMA'
     h.reporteGramatical1 +="crearBD    ::=        CREATE DATABASE ID PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
+    t[0] = CreateDatabases(t[3])
 
 
 def p_crearBaseDatos_2(t):
     'crearBD    : CREATE OR REPLACE DATABASE ID PUNTOYCOMA'
     h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[5])\n"
+    t[0] = CreateDatabases(t[5])
 
 def p_crearBaseDatos_3(t):
     'crearBD    : CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA'
     h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabaseswithParameters(t[5],t[6])\n"
+    t[0] = CreateDatabaseswithParameters(t[5],t[6])
 
 def p_crearBaseDatos_4(t):
     'crearBD    : CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA'
     h.reporteGramatical1 +="crearBD    ::=        CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
-
+    h.reporteGramatical2 +="t[0] = CreateDatabaseswithParameters(t[3],t[4])\n"
+    t[0] = CreateDatabaseswithParameters(t[3],t[4])
 
 
 def p_parametrosCrearBD_1(t):
     'parametrosCrearBD : parametrosCrearBD parametroCrearBD'
     h.reporteGramatical1 +="parametrosCrearBD    ::=        parametrosCrearBD parametroCrearBD\n"
+    h.reporteGramatical2 +="t[1].append(t[2])\n t[0]=t[1]\n"
+    t[1].append(t[2])
+    t[0]=t[1]
 
 def p_parametrosCrearBD_2(t):
     'parametrosCrearBD :  parametroCrearBD'
     h.reporteGramatical1 +="parametrosCrearBD    ::=        parametroCrearBD\n"
+    h.reporteGramatical2 +="t[0]=[t[1]]\n"
+    t[0]=[t[1]]
 
 def p_parametroCrearBD(t):
     '''parametroCrearBD :  OWNER IGUAL final
                         |  MODE IGUAL final
     '''
-    h.reporteGramatical1 +="parametroCrearBD    ::=        "+str(t[1])+"   IGUAL final\n"
-
+    h.reporteGramatical1 +="parametroCrearBD    ::=        "+str(t[1])+"   IGUAL  "+str(t[3])+"\n"
+    
+    if t[1] == "OWNER":
+        h.reporteGramatical2 +="t[0]=ExpresionOwner(t[1],t[3])\n"
+        t[0]=ExpresionOwner(t[1],t[3])
+    elif t[1] == "MODE":
+        h.reporteGramatical2 +="t[0]=ExpresionMode(t[1],t[3])\n"
+        t[0]=ExpresionMode(t[1],t[3])
 #-----------------------------------------------------SHOW DB--------------------------------------------------------------------
 def p_mostrarBD(t):
     'mostrarBD  : SHOW DATABASES PUNTOYCOMA'
     h.reporteGramatical1 +="mostrarBD    ::=        SHOW DATABASES PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0]=ShowDatabases(1)\n"
     t[0]=ShowDatabases(1)
-
-
 #-----------------------------------------------------ALTER BD--------------------------------------------------------------------
 def p_alterBD_1(t):
     'alterBD    : ALTER DATABASE ID RENAME TO ID PUNTOYCOMA'
-    h.reporteGramatical1 +="alterBD    ::=       ALTER DATABASE ID RENAME TO ID PUNTOYCOMA\n"
+    h.reporteGramatical1 +="alterBD    ::=       ALTER DATABASE "+str(t[3])+" RENAME TO "+str(t[6])+" PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = AlterDB(t[3],t[6])\n"
+    t[0] = AlterDB(t[3],t[6])
 
 def p_alterBD_2(t):
     'alterBD    : ALTER DATABASE ID OWNER TO parametroAlterUser PUNTOYCOMA'
-    h.reporteGramatical1 +="alterBD    ::=       ALTER DATABASE ID OWNER TO parametroAlterUser PUNTOYCOMA\n"
+    h.reporteGramatical1 +="alterBD    ::=       ALTER DATABASE "+str(t[3])+" OWNER TO "+str(t[6])+" PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = AlterOwner(t[3],t[4],t[6])\n"
+    t[0] = AlterOwner(t[3],t[4],t[6])
 
 def p_parametroAlterUser(t):
     '''parametroAlterUser : CURRENT_USER
@@ -507,7 +530,8 @@ def p_parametroAlterUser(t):
                         |   final
     '''
     h.reporteGramatical1 +="parametroAlterUser    ::=        "+str(t[1])+" \n"
-
+    h.reporteGramatical2 +="t[0] = t[1]\n"
+    t[0] = t[1]
 #-----------------------------------------------------DROP TABLE-----------------------------------------------------------------
 def p_dropTable(t) :
     'dropTable  : DROP TABLE ID PUNTOYCOMA'
@@ -605,18 +629,18 @@ def p_listaID(t):
     listaid     :   listaid COMA ID
     '''
     h.reporteGramatical1 +="listaid    ::=         listaid COMA ID\n"
+    h.reporteGramatical2 +="t[1].append(t[3])\nt[0]=t[1]\n"
     t[1].append(t[3])
     t[0]=t[1]
-    
 
 def p_listaID_2(t):
     '''
     listaid     :   ID
     '''
     h.reporteGramatical1 +="listaid    ::=          ID\n"
-    t[0]=t[1]
-
-
+    h.reporteGramatical2 +="t[0]=[t[1]]"
+    t[0]=ExpresionIdentificador(t[1])
+    
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
 def p_tipoAlter(t):
     '''
@@ -625,14 +649,18 @@ def p_tipoAlter(t):
     '''
     h.reporteGramatical1 +="operacion    ::=       final\n"
 #-----------------------------------------------------Tipo Alter--------------------------------------------------------------------
-
 def p_dropBD_1(t):
     'dropBD    : DROP DATABASE ID PUNTOYCOMA'
-    h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE ID PUNTOYCOMA\n"
+    h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE  "+str(t[3])+" PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0]= DropDB(t[3])\n"
+    t[0]= DropDB(t[3])
+
 
 def p_dropBD_2(t):
     'dropBD    : DROP DATABASE IF EXISTS ID PUNTOYCOMA'
-    h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE IF EXISTS ID PUNTOYCOMA\n"
+    h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE IF EXISTS  "+str(t[5])+" PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0]= DropDBIF(t[5])\n"
+    t[0]= DropDBIF(t[5])
 #-----------------------------------------------------OPERACIONES Y EXPRESIONES--------------------------------------------------------------------
 def p_operacion(t):
     '''operacion          : operacion MAS operacion
@@ -640,110 +668,162 @@ def p_operacion(t):
                           | operacion POR operacion
                           | operacion DIV operacion
                           | operacion RESIDUO operacion
-
-
                           | operacion POTENCIA operacion
                           | operacion AND operacion
                           | operacion OR operacion
                           | operacion SIMBOLOOR2 operacion
                           | operacion SIMBOLOOR operacion
-
-
                           | operacion SIMBOLOAND2 operacion
                           | operacion DESPLAZAMIENTOIZQUIERDA operacion
                           | operacion DESPLAZAMIENTODERECHA operacion
                           | operacion IGUAL operacion
                           | operacion IGUALIGUAL operacion
-
-
                           | operacion NOTEQUAL operacion
                           | operacion MAYORIGUAL operacion
                           | operacion MENORIGUAL operacion
                           | operacion MAYOR operacion
                           | operacion MENOR operacion
                           | operacion DIFERENTE operacion
-                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA
-                          
+                          | PARENTESISIZQUIERDA operacion PARENTESISDERECHA                          
                           '''
+# --------------------------------------------------------------------------------------------------------------                          
     if t[2]=='+':
         h.reporteGramatical1 +="operacion    ::=       operacion MAS operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.MAS)\n"
+        t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.MAS)
+# --------------------------------------------------------------------------------------------------------------                                  
     elif t[2]=='-':
         h.reporteGramatical1 +="operacion    ::=       operacion MENOS operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.MENOS)\n"
+        t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.MENOS)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='*':
         h.reporteGramatical1 +="operacion    ::=       operacion POR operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.POR)\n"
+        t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.POR)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='/':
         h.reporteGramatical1 +="operacion    ::=      operacion DIV operacion\n"
-        t[0]=t[1]/t[3]
+        h.reporteGramatical2 +="t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.DIVIDIDO)\n"
+        t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.DIVIDIDO)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='%':
         h.reporteGramatical1 +="operacion    ::=      operacion RESIDUO operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.MODULO)\n"
+        t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.MODULO)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='^':
         print("entra a la potencia")
         h.reporteGramatical1 +="operacion    ::=      operacion POTENCIA operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.POTENCIA)\n"
+        t[0]=ExpresionAritmetica(t[1],t[3],OPERACION_ARITMETICA.POTENCIA)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=="AND":
         h.reporteGramatical1 +="operacion    ::=      operacion AND operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.AND)\n"
+        t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.AND)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=="OR":
         h.reporteGramatical1 +="operacion    ::=      operacion OR operacion\n"
-    elif t[2]=='#':
-        h.reporteGramatical1 +="operacion    ::=      operacion SIMBOLOOR2 operacion\n"
-    elif t[2]=='&&':
-        h.reporteGramatical1 +="operacion    ::=      operacion SIMBOLOOR operacion\n"
-    elif t[2]=='>>':
-        h.reporteGramatical1 +="operacion    ::=      operacion DESPLAZAMIENTOIZQUIERDA operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR)\n"
+        t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR)
+# --------------------------------------------------------------------------------------------------------------                          
+    elif t[2]=='|':
+        h.reporteGramatical1 +="operacion    ::=      operacion | operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR)\n"
+        t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR)
+# --------------------------------------------------------------------------------------------------------------                          
+    elif t[2]=='||':
+        h.reporteGramatical1 +="operacion    ::=      operacion || operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR)\n"
+        t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.OR)
+# --------------------------------------------------------------------------------------------------------------                          
+    elif t[2]=='&':
+        h.reporteGramatical1 +="operacion    ::=      operacion & operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.AND)\n"
+        t[0]=ExpresionLogica(t[1],t[3],OPERACION_LOGICA.AND)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='<<':
+        print(t[2])
+        h.reporteGramatical1 +="operacion    ::=      operacion DESPLAZAMIENTOIZQUIERDA operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionBIT(t[1],t[3],OPERACION_BIT.DESPLAZAMIENTO_IZQUIERDA)\n"
+        t[0]=ExpresionBIT(t[1],t[3],OPERACION_BIT.DESPLAZAMIENTO_IZQUIERDA)
+# --------------------------------------------------------------------------------------------------------------                          
+    elif t[2]=='>>':
         h.reporteGramatical1 +="operacion    ::=      operacion DESPLAZAMIENTODERECHA operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionBIT(t[1],t[3],OPERACION_BIT.DESPLAZAMIENTO_DERECHA)\n"
+        t[0]=ExpresionBIT(t[1],t[3],OPERACION_BIT.DESPLAZAMIENTO_DERECHA)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='=':
         h.reporteGramatical1 +="operacion    ::=      operacion IGUAL operacion\n"
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='==':
         h.reporteGramatical1 +="operacion    ::=      operacion IGUALIGUAL operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.IGUAL_IGUAL)\n"
+        t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.IGUAL_IGUAL)
+# --------------------------------------------------------------------------------------------------------------                            
     elif t[2]=='!=':
         h.reporteGramatical1 +="operacion    ::=      operacion NOTEQUAL operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.NO_IGUAL)\n"
+        t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.NO_IGUAL)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='>=':
         h.reporteGramatical1 +="operacion    ::=      operacion MAYORIGUAL operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYOR_IGUAL)\n"
+        t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYOR_IGUAL)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='<=':
         h.reporteGramatical1 +="operacion    ::=      operacion MENORIGUAL operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENOR_IGUAL)\n"
+        t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENOR_IGUAL)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='>':
         h.reporteGramatical1 +="operacion    ::=      operacion MAYOR operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYOR)\n"
+        t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MAYOR)
+# --------------------------------------------------------------------------------------------------------------                          
     elif t[2]=='<':
         h.reporteGramatical1 +="operacion    ::=      operacion MENOR operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENOR)\n"
+        t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.MENOR)
+# --------------------------------------------------------------------------------------------------------------                                  
     elif t[2]=='<>':
         h.reporteGramatical1 +="operacion    ::=      operacion DIFERENTE operacion\n"
+        h.reporteGramatical2 +="t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.DIFERENTE)\n"
+        t[0]=ExpresionRelacional(t[1],t[3],OPERACION_RELACIONAL.DIFERENTE)
+# --------------------------------------------------------------------------------------------------------------                          
     else:
         h.reporteGramatical1 +="operacion    ::=      PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-
-    
+        t[0]=t[2]
+# --------------------------------------------------------------------------------------------------------------                              
 def p_operacion_menos_unario(t):
     '''operacion : MENOS ENTERO  %prec UMINUS
                 | MENOS DECIMAL  %prec UMINUS
     
-    '''
-    h.reporteGramatical1 +="operacion    ::=      MENOS "+str(t[2])+"  %prec UMINUS\n"
-    t[0]=ExpresionNegativo(t[2])
- 
-
+    ''' 
+    h.reporteGramatical1 +="operacion    ::=      MENOS operacion  %prec UMINUS\n"
+    h.reporteGramatical2 +="t[0]=ExpresionNegativo(t[2])\n"
+    t[0]=ExpresionNegativo(t[2]) 
+# --------------------------------------------------------------------------------------------------------------                          
 def p_operacion_not_unario(t):
-    'operacion : NOT operacion  %prec UNOT'
+    'operacion : NOT operacion %prec UNOT'
     h.reporteGramatical1 +="operacion    ::=      NOT operacion  %prec UNOT\n"
-
+    h.reporteGramatical2 +="t[0]=ExpresionNOT(t[2])\n"
+    t[0]=ExpresionNOT(t[2])
+# --------------------------------------------------------------------------------------------------------------                          
 def p_operacion_funcion(t):
     'operacion  : funcionBasica'
     h.reporteGramatical1 +="operacion    ::=      funcionBasica\n"
+    h.reporteGramatical2 +="t[0]=t[1]\n"
     t[0]=t[1]
-
-
+# --------------------------------------------------------------------------------------------------------------                          
 def p_operacion_final(t):
     'operacion :     final'
     t[0] = t[1]
     h.reporteGramatical1 +="operacion    ::=      final\n"
+    h.reporteGramatical2 +="t[0]=t[1]\n"
     t[0]=t[1]
-
-
 #-----------------------------------------------------FUNCIONES MATEMATICAS--------------------------------------------------------------------
-# MATEMATICAS
-# TRIGONOMETRICAS
-# ALGUNAS BINARIAS
-# poner PI?
-
-#FUNCOINES SIMPLES DE 1 PARAMETRO
 def p_funcion_basica(t):
     '''funcionBasica    : ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | CBRT PARENTESISIZQUIERDA operacion PARENTESISDERECHA
@@ -1008,6 +1088,7 @@ def p_final(t):
     '''final        : DECIMAL
                     | ENTERO'''
     h.reporteGramatical1 +="final    ::=      Numero("+str(t[1])+")\n"
+    h.reporteGramatical2 +="t[0]=ExpresionNumero(t[1])\n"
     t[0]=ExpresionNumero(t[1])
 
 
@@ -1015,16 +1096,19 @@ def p_final_id(t):
     'final          : ID'
     t[0] = t[1]
     h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+")\n"
+    h.reporteGramatical2 +="t[0]=ExpresionIdentificador(t[1])\n"
     t[0]=ExpresionIdentificador(t[1])
 
 def p_final_invocacion(t):
     'final          : ID PUNTO ID'
-    h.reporteGramatical1 +="final    ::=      ("+str(t[1])+") . ID("+str(t[1])+")\n"
-
+    h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+") . ID("+str(t[3])+")\n"
+    h.reporteGramatical2 +="t[0] = ExpresionInvocacion(t[1],t[3])\n"
+    t[0] = ExpresionInvocacion(t[1],t[3])
 def p_final_cadena(t):
     'final          : CADENA'
     t[0] = t[1]
     h.reporteGramatical1 +="final     ::=     CADENA ("+t[1]+")\n"
+    h.reporteGramatical2 +="t[0]=ExpresionCadenas(t[1])\n"
     t[0]=ExpresionCadenas(t[1])
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
@@ -1052,7 +1136,6 @@ def p_listaParam_2(t):
     t[0] = [t[1]]
     h.reporteGramatical1 +="insertinBD    ::=      final\n"
 
-
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):
     'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
@@ -1079,7 +1162,6 @@ def p_asigna(t):
     t[0] = AsignacioninTable(t[1],t[3])
     h.reporteGramatical1 +="asigna    ::=      ID IGUAL operacion\n"
 
-
 #-----------------------------------------------------DELETE IN BD--------------------------------------------------------------------
 def p_deleteinBD_1(t):
     'deleteinBD         : DELETE FROM ID PUNTOYCOMA'
@@ -1089,8 +1171,6 @@ def p_deleteinBD_2(t):
     'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
     t[0] = DeleteinDataBases(t[3],t[5])
     h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE operacion PUNTOYCOMA\n"
-
-
 
 #-----------------------------------------------------CREATE TABLE--------------------------------------------------------------------
 def p_createTable(t):
@@ -1118,7 +1198,6 @@ def p_creaColumna_2(t):
     t[0]=[t[1]]
     h.reporteGramatical1 +="createTable    ::=      Columna\n"
 
-
 def p_columna_1(t):
     'Columna            : ID tipo'
     t[0]=ColumnasTable(t[1],t[2],None)
@@ -1142,7 +1221,6 @@ def p_columna_4(t):
     '''
     t[0] = t[1]
     h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
-
 
 def p_paramOpcional(t):
     '''paramOpcional    : paramOpcional paramopc
