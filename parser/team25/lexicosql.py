@@ -1,6 +1,5 @@
 # LEXICO 
 palabrasReservadas = {
-    'symmetric' : 'SYMMETRIC',
     'insert':'INSERT',
     'varchar':'VARCHAR',
     'columns':'COLUMNS',                 
@@ -121,6 +120,7 @@ palabrasReservadas = {
     'type':'TYPE',
     'enum':'ENUM',
     # FUNCIONES DE AGREGACION 
+    'sum':'SUM',
     'now':'NOW',
     'date':'DATE',
     'avg':'AVG',
@@ -180,7 +180,14 @@ palabrasReservadas = {
     'convert':'CONVERT',
     'encode':'ENCODE',
     'decode':'DECODE',
-    'sum': 'SUM',
+    'order':'ORDER',
+    'nulls':'NULLS',
+    'count':'COUNT',
+    'end':'END',
+    'greatest':'GREATEST',
+    'least':'LEAST'
+    
+    
 }
 tokens = [
     # corchetes no porque dijo el aux que no venia
@@ -206,29 +213,29 @@ tokens = [
     'PCIERRA',
     'COMA',
     'TYPECAST',
-    'XOR',
+    'EXPONENT',
     'MODULO',
     'PIPE',
     'DOBLE_PIPE',
      # Binary string funcions - operators: 
     'AMPERSAND',
     'NUMERAL',
-    'GUION_CURVEADO',
+    'BITWISE_NOT',
     'CORRIMIENTO_DER',
     'CORRIMIENTO_IZQ'
- 
 ] + list(palabrasReservadas.values())
+
 
 # expresiones regulares
 t_CORRIMIENTO_DER = r'>>'
 t_CORRIMIENTO_IZQ = r'<<'
-t_GUION_CURVEADO = r'~'
+t_BITWISE_NOT = r'~'
 t_AMPERSAND = r'&'
 t_NUMERAL = r'\#'
 t_PIPE = r'\|'
 t_DOBLE_PIPE =  r'\|\|'
 t_MODULO = r'%'
-t_XOR = r'\^'
+t_EXPONENT = r'\^'
 t_TYPECAST =r'[:][:]'
 t_PTCOMA = r';'
 t_IGUAL  = r'='
@@ -246,6 +253,7 @@ t_MAYORIGUAL = r'>='
 t_PABRE = r'\('
 t_PCIERRA = r'\)'
 t_COMA = r','
+
 # funcion para id, aca tambien se reconocen las palabras reservadas
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -303,7 +311,6 @@ def t_CADENA2(t):
     t.type = "CADENA"
     return t
 
-
 #ignorando espacios    
 t_ignore = ' \t'
 
@@ -322,18 +329,13 @@ lexer = lex.lex()
 # para debugger los nuevos tokens
 
 # lexer.input('''
-# update tabla set campo = NuevoCampo ;
+# ''
+# 'cadena'
 # ''')
 # while not False:
 #     token = lexer.token()
 #     if not token:
 #         break
 #     print(f'tipo: {token.type} valor: {token.value}  linea:{token.lineno} col:{token.lexpos}')
-
-
-
-
-
-
 
 

@@ -1,23 +1,23 @@
 import ply.yacc as yacc
 from lexicosql import tokens
 
-# _______________________________________________________________________________________________________________________________
+#_______________________________________________________________________________________________________________________________
 #                                                          PARSER
-# _______________________________________________________________________________________________________________________________
+#_______________________________________________________________________________________________________________________________
 
-# ---------------- MANEJO DE LA PRECEDENCIA
+#---------------- MANEJO DE LA PRECEDENCIA
 precedence = (
-    ('left', 'OR'),
-    ('left', 'AND'),
-    ('left', 'IGUAL', 'DIFERENTE', 'DIFERENTE2'),
-    ('left', 'MENOR', 'MAYOR', 'MENORIGUAL', 'MAYORIGUAL'),
-    ('left', 'OR'),
-    ('left', 'MAS', 'MENOS'),
-    ('left', 'ASTERISCO', 'DIVISION', 'AND', 'OR'),
-    ('left', 'XOR', 'MODULO'),
-    ('right', 'UMENOS', 'NOT', 'UMAS')
-)
-
+    ('left','IGUAL','DIFERENTE','DIFERENTE2'),
+    ('left','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
+    ('left','MAS','MENOS'),
+    ('left','EXPONENT'),
+    ('left','ASTERISCO','DIVISION','MODULO'),
+    ('left','AND'),
+    ('left','OR'),
+    ('nonassoc','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
+    ('nonassoc','IS','ISNULL','NOTNULL'),
+    ('right','UMENOS','UMAS','NOT'),  
+) 
 
 def p_init(p):
     'init : instrucciones'
@@ -234,8 +234,8 @@ def p_columnas_2(p):
 #  <COLUMNA> ::=
 #             | id' <TIPO>
 #             | id' <TIPO> <listaOpciones>
-#             | 'constraint' 'id' 'check' (<LISTA_CONDICIONES>)
-#             | 'id' 'check' (<LISTA_CONDICIONES>)
+#             | 'constraint' 'id' 'check' (<lista_exp>)
+#             | 'id' 'check' (<lista_exp>)
 #             | 'unique' (<LISTA_IDS>)
 #             | 'primary' 'key' (<LISTA_IDS>)
 #             | 'foreign' 'key' (<LISTA_IDS>) 'references' 'id' (<LISTA_IDS>)
@@ -260,7 +260,7 @@ def p_columna_2(p):
 
 
 def p_columna_3(p):
-    'columna : CONSTRAINT  ID CHECK PABRE lista_condiciones PCIERRA '
+    'columna : CONSTRAINT  ID CHECK PABRE lista_exp PCIERRA '
 
 
 def p_columna_4(p):
@@ -276,7 +276,7 @@ def p_columna_6(p):
 
 
 def p_columna_7(p):
-    'columna : CHECK PABRE lista_condiciones PCIERRA'
+    'columna : CHECK PABRE lista_exp PCIERRA'
 
 
 def p_listaOpciones_List(p):
@@ -525,40 +525,20 @@ def p_constraints_2(p):
     'constraints : UNIQUE'
 
 
-# _________________________________________ <CHECKS>
-# <CHECKS> ::= 'constraint' id 'check' (<CONDICION>)
-#             |'check' (<CONDICION>)
+#_________________________________________ <CHECKS>
+# <CHECKS> ::= 'constraint' 'id' 'check' '('<EXPRESION>')'
+#             |'check' '('<EXPRESION>')' 
 
 def p_checks_1(p):
-    'checks : CONSTRAINT ID CHECK PABRE condicion PCIERRA '
-
+    'checks : CONSTRAINT ID CHECK PABRE expresion PCIERRA '
 
 def p_checks_2(p):
-    'checks : CHECK PABRE condicion PCIERRA '
-
-# _________________________________________ condicion
-# <CONDICION> ::= <PREDICADO>
-#              |  <CONDICION> ',' <PREDICADO>
+    'checks : CHECK PABRE expresion PCIERRA'  
 
 
-def p_condicion_1(p):
-    'condicion : predicado'
 
 
-def p_condicion_2(p):
-    'condicion : condicion COMA predicado'
 
-
-# _________________________________________ <LISTA_CONDICIONES>
-# <LISTA_CONDICIONES> ::= <CONDICION>
-#                     |   <LISTA_CONDICIONES>, <CONDICION>
-
-def p_lista_condiciones_1(p):
-    'lista_condiciones : condicion'
-
-
-def p_lista_condiciones_2(p):
-    'lista_condiciones : lista_condiciones condicion'
 
 
 # __________________________________________update
@@ -703,15 +683,15 @@ def p_expresion_tabla_campo(p):
 
 
 def p_expresion_sum(p):
-    'expresion: SUM PABRE ID PCIERRA'
+    'expresion : SUM PABRE ID PCIERRA'
 
 
 def p_expresion_timestamp(p):
-    'expresion: timestamp'
+    'expresion : timestamp'
 
 
 def p_expresion_substring(p):
-    'expresion: SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA'
+    'expresion : SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA'
 
 
 def p_expresion_con_dos_nodos(p):
@@ -726,7 +706,7 @@ def p_expresion_con_dos_nodos(p):
                  | expresion DIFERENTE expresion
                  | expresion DIFERENTE2 expresion
                  | expresion IGUAL expresion
-                 | expresion XOR expresion
+                 | expresion EXPONENT expresion
                  | expresion MODULO expresion
                  | expresion OR expresion
                  | expresion AND expresion
@@ -755,6 +735,162 @@ def p_expresion_ternaria(p):
                  | expresion BETWEEN SYMMETRIC expresion AND expresion
                  | expresion NOT BETWEEN SYMMETRIC expresion AND expresion
     '''
+
+#    <ALIAS> ::= 'as' 'id'
+def p_alias(p):
+        'alias : AS ID'
+#             | 'id'
+def p_alias2(p):
+        'alias : ID'
+
+#<SUBQUERY> ::= '('<SELECT>')'
+def p_subquery(p):
+        'subquery :  PABRE select PCIERRA'
+
+#<WHERE> ::= 'where' <EXPRESION>
+def p_where(p):
+        'where : WHERE expresion'
+
+#<GROUP_BY> ::= <LISTA_IDS>
+def p_groupby(p):
+        'group_by : lista_ids'
+
+#<HAVING> ::= 'having' <EXPRESION>
+def p_having(p):
+        'having : HAVING expresion'
+
+#    <ORDERS> ::= <ORDERBY>
+def p_orders(p):
+        'orders : orderby'
+#                |<ORDERS> ',' <ORDERBY>
+def p_orders1(p):
+        'orders : orders COMA orderby'
+
+#    <ORDERBY> ::= 'order' 'by' <EXPRESION> <ASC_DEC> <NULLS>
+def p_orderby(p):
+        'orderby : ORDER BY expresion asc_dec nulls'
+#               | 'order' 'by' <EXPRESION> <ASC_DEC>
+def p_orderby1(p):
+        'orderby : ORDER BY expresion asc_dec'
+#                | 'order' 'by' <EXPRESION> <NULLS>
+def p_orderby2(p):
+        'orderby : ORDER BY expresion nulls'
+#                | 'order' 'by' <EXPRESION>        
+def p_orderby3(p):
+        'orderby : ORDER BY expresion'
+
+#    <ASC_DEC> ::= 'asc'
+def p_asc_dec(p):
+        'asc_dec : ASC'
+#               | 'desc'
+def p_asc_dec1(p):
+        'asc_dec : DESC'
+
+#<NULLS> ::= 'nulls' <FIRST_LAST>
+def p_nulls(p):
+        'nulls : NULLS first_last'
+
+#   <FIRST_LAST> ::= 'first'
+def p_first_last(p):
+        'first_last : FIRST'
+#                |    'last'
+def p_first_last1(p):
+        'first_last : LAST'
+
+#    <SELECT_ITEM>::=  'id'
+def p_select_item(p):
+        'select_item : ID'
+#                  | 'id' '.' 'id'
+def p_select_item1(p):
+        'select_item : ID COMA ID'
+#                  | <COUNT>
+def p_select_item2(p):
+        'select_item : count'
+#                  | <AGGREGATE_F>
+def p_select_item3(p):
+        'select_item : aggregate_f'
+#                  | <SUBQUERY>
+def p_select_item4(p):
+        'select_item : subquery'
+#                  | <CASE>
+def p_select_item5(p):
+        'select_item : case'
+#                  | <GREATEST>
+def p_select_item6(p):
+        'select_item : greatest'
+#                  | <LEAST>
+def p_select_item7(p):
+        'select_item : least'
+
+#    <COUNT> ::= 'count' '(' '*' ')'  
+def p_count(p):
+        'count : COUNT PABRE ASTERISCO PCIERRA'
+#             |  'count' '(' 'id' ')'
+def p_count1(p):
+        'count : COUNT PABRE ID PCIERRA'
+#             |  'count' '(' 'distinct' 'id' ')' 
+def p_count2(p):
+        'count : COUNT PABRE DISTINCT ID PCIERRA'
+
+#    <AGGREGATE_F> ::= 'sum' '(' 'id' ')'
+def p_aggregate_f(p):
+        'aggregate_f : SUM PABRE ID PCIERRA'
+#                |     'avg' '(' 'id' ')'
+def p_aggregate_f1(p):
+        'aggregate_f : AVG PABRE ID PCIERRA'
+#                |     'max' '(' 'id' ')'
+def p_aggregate_f2(p):
+        'aggregate_f : MAX PABRE ID PCIERRA'
+#                |     'min' '(' 'id' ')'
+def p_aggregate_f3(p):
+        'aggregate_f : MIN PABRE ID PCIERRA'
+
+#    <CASE> ::= 'case' <SUBCASE> <ELSE_CASE> 'end'
+def p_case(p):
+        'case : CASE subcase else_case END'
+#             | 'case' <SUBCASE> 'end'   
+def p_case1(p):
+        'case : CASE subcase END'    
+#    <SUBCASE> ::= <WHEN_CASE>
+def p_subcase(p):
+        'subcase : when_case'
+#                | <SUBCASE> <WHEN_CASE>
+def p_subcase1(p):
+        'subcase : subcase when_case'
+
+#<ELSE_CASE> ::= 'else' <EXPRESION>
+def p_else_case(p):
+        'else_case : ELSE expresion'
+
+#<GREATEST> ::= 'greatest' '(' <LISTA_EXP>')'
+def p_greatiest(p):
+        'greatest : GREATEST PABRE lista_exp PCIERRA'
+
+#<LEAST> ::= 'least' '(' <LISTA_EXP> ')'
+def p_least(p):
+        'least : LEAST PABRE lista_exp PCIERRA'
+
+# <LISTA_EXP> ::= <EXPRESION>
+#            | <LISTA_EXP> ',' <EXPRESION>
+
+def p_lista_exp_1(p):
+    'lista_exp : expresion'
+
+def p_lista_exp_2(p):
+    'lista_exp : lista_exp COMA expresion'    
+
+#<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
+def p_when_case(p):
+        'when_case : WHEN expresion THEN expresion'
+        
+#    <TIPO_NUMERO> ::= 'numero'
+def p_tipo_numero(p):
+        'tipo_numero : NUMERO'
+#                  |   'decimal'
+def p_tipo_numero1(p):
+        'tipo_numero : DECIMAL'
+
+
 def p_error(p):
     print(p)
     print("Error sintáctico en '%s'" % p.value)

@@ -212,6 +212,7 @@ def t_ID(t):
     r"[a-zA-Z_][a-zA-Z_0-9]*"
     # Verificamos si no es una palabra reservada
     t.type = reservadas.get(t.value.upper(), "ID")
+    if t.type != "ID": t.value = t.value.upper()
     return t
 
 
