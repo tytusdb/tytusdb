@@ -1,3 +1,5 @@
+import os
+
 class Nodo:
     def __init__(self, valor):
         self.valor = valor
@@ -256,7 +258,16 @@ class ArbolAVL:
         contenido = "digraph grafica{\n    rankdir=TB;\n    node [shape = record, style=filled, fillcolor=lightcyan2];\n    "
         contenido += self._graficar(self.raiz)
         contenido += "}"
-        return contenido
+
+        if contenido != "":
+            tabGen = open("tab.dot","w")
+            tabGen.write(contenido)
+            tabGen.close()
+            tab = open("tab.cmd","w")
+            tab.write("dot -Tpng tab.dot -o tab.png")
+            tab.close()
+            subprocess.call("dot -Tpng tab.dot -o tab.png")
+            os.system('tab.png')
 
     def _graficar(self, tmp):
         contenido = ""
@@ -269,8 +280,7 @@ class ArbolAVL:
                 tmp.izq.valor) + "\n    ";
 
         if tmp.der != None:
-            contenido += self._graficar(tmp.der) + "nodo" + str(tmp.valor) + ":AD->nodo" + str(
-                tmp.der.valor) + "\n    ";
+            contenido += self._graficar(tmp.der) + "nodo" + str(tmp.valor) + ":AD->nodo" + str(tmp.der.valor) + "\n    "
 
         return contenido
 
@@ -354,12 +364,23 @@ class ArbolAVL:
         else:
             return 2
 t = ArbolAVL()
+t2 = ArbolAVL()
 t.createdatabase(1)
 t.createdatabase(23)
 t.createdatabase(45)
 t.createdatabase(86)
 t.createdatabase(89)
 t.createdatabase(5)
+
+t2.agregar(56)
+t2.agregar(23)
+t2.agregar(95)
+t2.agregar(32)
+t2.agregar(86)
+t2.agregar(3)
+t2.agregar(51)
+
+t2.graficar()
 
 t.showdatabases()
 t.enorden()

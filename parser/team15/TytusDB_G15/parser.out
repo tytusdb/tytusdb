@@ -2,12 +2,146 @@ Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
 Unused terminals:
 
-    COMA
-    INHERITS
-    INTEGER
-    PAR_A
-    PAR_C
-    TABLE
+    ABS
+    ACOS
+    ACOSD
+    ACOSH
+    ADD
+    ALL
+    ALTER
+    ANY
+    AS
+    ASC
+    ASIN
+    ASIND
+    ASINH
+    ATAN
+    ATAN2
+    ATAN2D
+    ATAND
+    ATANH
+    AVG
+    BETWEEN
+    BY
+    CASE
+    CBRT
+    CEIL
+    CEILING
+    CEJILLA
+    COLUMN
+    CONVERT
+    COS
+    COSD
+    COSH
+    COT
+    COTD
+    COUNT
+    CURRENT_DATE
+    CURRENT_TIME
+    CURRENT_USER
+    DATE_PART
+    DECODE
+    DEGREES
+    DELETE
+    DESC
+    DISTINCT
+    DIV
+    DROP
+    D_OR
+    ELSE
+    ENCODE
+    END
+    ENUM
+    EXCEPT
+    EXP
+    EXTRACT
+    FACTORIAL
+    FLOOR
+    FOREIGN
+    FROM
+    FULL
+    GCD
+    GET_BYTE
+    GROUP
+    HASHTAG
+    HAVING
+    IN
+    INNER
+    INSERT
+    INTERSECT
+    INTO
+    IS
+    ISNULL
+    JOIN
+    LCM
+    LEFT
+    LENGTH
+    LIKE
+    LIMIT
+    LN
+    LOG
+    LOG10
+    MAX
+    MAYMAY
+    MD5
+    MENMEN
+    MIN
+    MIN_SCALE
+    MOD
+    MODULO
+    MULTI
+    NATURAL
+    NOTNULL
+    NOW
+    OFFSET
+    ON
+    ONLY
+    ORDER
+    OUTER
+    PI
+    POWER
+    RADIANS
+    RANDOM
+    RENAME
+    RETURNING
+    RIGHT
+    ROUND
+    SCALE
+    SELECT
+    SESSION_USER
+    SET
+    SETSEED
+    SET_BYTE
+    SHA256
+    SIGN
+    SIN
+    SIND
+    SINH
+    SOME
+    SQRT
+    SUBSTR
+    SUBSTRING
+    SUM
+    SYMMETRIC
+    S_OR
+    TAN
+    TAND
+    TANH
+    THEN
+    TRIM
+    TRIM_SCALE
+    TRUC
+    TYPE
+    UNION
+    UNKNOWN
+    UPDATE
+    USE
+    USING
+    VALUES
+    WHEN
+    WHERE
+    WIDTH_BUCKET
+    Y
 
 Grammar
 
@@ -16,62 +150,337 @@ Rule 1     init -> instrucciones
 Rule 2     instrucciones -> instrucciones instruccion
 Rule 3     instrucciones -> instruccion
 Rule 4     instruccion -> createDB_insrt
-Rule 5     createDB_insrt -> CREATE DATABASE ID PTCOMA
-Rule 6     createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA
-Rule 7     createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA
-Rule 8     createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA
-Rule 9     createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA
-Rule 10    createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA
-Rule 11    createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-Rule 12    createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-Rule 13    createDB_unParam -> OWNER ID
-Rule 14    createDB_unParam -> OWNER IGUAL ID
-Rule 15    createDB_unParam -> MODE ENTERO
-Rule 16    createDB_unParam -> MODE IGUAL ENTERO
-Rule 17    createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA
-Rule 18    createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA
-Rule 19    createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
-Rule 20    createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
-Rule 21    createDB_dosParam -> OWNER ID MODE ENTERO
-Rule 22    createDB_dosParam -> OWNER ID MODE IGUAL ENTERO
-Rule 23    createDB_dosParam -> OWNER IGUAL ID MODE ENTERO
-Rule 24    createDB_dosParam -> OWNER IGUAL ID MODE IGUAL ENTERO
-Rule 25    createDB_dosParam -> MODE ENTERO OWNER ID
-Rule 26    createDB_dosParam -> MODE ENTERO OWNER IGUAL ID
-Rule 27    createDB_dosParam -> MODE IGUAL ENTERO OWNER ID
-Rule 28    createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL ID
+Rule 5     instruccion -> create_Table_isnrt
+Rule 6     createDB_insrt -> CREATE DATABASE ID PTCOMA
+Rule 7     createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA
+Rule 8     createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA
+Rule 9     createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA
+Rule 10    createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA
+Rule 11    createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA
+Rule 12    createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+Rule 13    createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+Rule 14    createDB_unParam -> OWNER ID
+Rule 15    createDB_unParam -> OWNER IGUAL ID
+Rule 16    createDB_unParam -> MODE ENTERO
+Rule 17    createDB_unParam -> MODE IGUAL ENTERO
+Rule 18    createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA
+Rule 19    createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA
+Rule 20    createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+Rule 21    createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+Rule 22    createDB_dosParam -> OWNER ID MODE ENTERO
+Rule 23    createDB_dosParam -> OWNER ID MODE IGUAL ENTERO
+Rule 24    createDB_dosParam -> OWNER IGUAL ID MODE ENTERO
+Rule 25    createDB_dosParam -> OWNER IGUAL ID MODE IGUAL ENTERO
+Rule 26    createDB_dosParam -> MODE ENTERO OWNER ID
+Rule 27    createDB_dosParam -> MODE ENTERO OWNER IGUAL ID
+Rule 28    createDB_dosParam -> MODE IGUAL ENTERO OWNER ID
+Rule 29    createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL ID
+Rule 30    constraint_esp -> CHECK PAR_A expresion_logica PAR_C
+Rule 31    constraint_esp -> UNIQUE PAR_A campos_c PAR_C
+Rule 32    constraint_esp -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
+Rule 33    campos_c -> campos_c COMA ID
+Rule 34    campos_c -> ID
+Rule 35    create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+Rule 36    create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA
+Rule 37    cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable
+Rule 38    cuerpo_createTable_lista -> cuerpo_createTable
+Rule 39    cuerpo_createTable -> ID TIPO_DATO
+Rule 40    cuerpo_createTable -> ID TIPO_DATO PRIMARY KEY
+Rule 41    cuerpo_createTable -> ID TIPO_DATO REFERENCES ID
+Rule 42    cuerpo_createTable -> ID TIPO_DATO NOT NULL
+Rule 43    cuerpo_createTable -> ID TIPO_DATO NULL
+Rule 44    cuerpo_createTable -> PRIMARY KEY PAR_A ID PAR_C
+Rule 45    cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
+Rule 46    cuerpo_createTable -> UNIQUE PAR_A campos_c PAR_C
+Rule 47    cuerpo_createTable -> CONSTRAINT ID constraint_esp
+Rule 48    TIPO_DATO -> TEXT
+Rule 49    TIPO_DATO -> FLOAT
+Rule 50    TIPO_DATO -> INTEGER
+Rule 51    TIPO_DATO -> SMALLINT
+Rule 52    TIPO_DATO -> MONEY
+Rule 53    TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO PAR_C
+Rule 54    TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO PAR_C
+Rule 55    TIPO_DATO -> BIGINT
+Rule 56    TIPO_DATO -> REAL
+Rule 57    TIPO_DATO -> DOUBLE PRECISION
+Rule 58    TIPO_DATO -> INTERVAL extract_time TO extract_time
+Rule 59    TIPO_DATO -> INTERVAL
+Rule 60    TIPO_DATO -> TIME
+Rule 61    TIPO_DATO -> TIMESTAMP
+Rule 62    TIPO_DATO -> DATE
+Rule 63    TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO PAR_C
+Rule 64    TIPO_DATO -> VARCHAR PAR_A ENTERO PAR_C
+Rule 65    TIPO_DATO -> CHAR PAR_A ENTERO PAR_C
+Rule 66    TIPO_DATO -> CHARACTER PAR_A ENTERO PAR_C
+Rule 67    TIPO_DATO -> CHAR PAR_A PAR_C
+Rule 68    TIPO_DATO -> CHARACTER PAR_A PAR_C
+Rule 69    extract_time -> YEAR
+Rule 70    extract_time -> DAY
+Rule 71    extract_time -> MONTH
+Rule 72    extract_time -> HOUR
+Rule 73    extract_time -> MINUTE
+Rule 74    extract_time -> SECOND
+Rule 75    agrupacion_expresion -> PAR_A expresion PAR_C
+Rule 76    expresion -> CADENA
+Rule 77    expresion -> ENTERO
+Rule 78    expresion -> FLOTANTE
+Rule 79    expresion -> ID
+Rule 80    expresion -> ID PUNTO ID
+Rule 81    expresion -> expresion SUMA expresion
+Rule 82    expresion -> expresion RESTA expresion
+Rule 83    expresion -> expresion DIVISION expresion
+Rule 84    expresion -> expresion ASTERISCO expresion
+Rule 85    expresion -> TRUE
+Rule 86    expresion -> FALSE
+Rule 87    string_type -> CADENA
+Rule 88    string_type -> ID
+Rule 89    expresion_relacional -> expresion MAYQUE expresion
+Rule 90    expresion_relacional -> expresion MENQUE expresion
+Rule 91    expresion_relacional -> expresion MAYIGQUE expresion
+Rule 92    expresion_relacional -> expresion MENIGQUE expresion
+Rule 93    expresion_relacional -> expresion DOBLEIG expresion
+Rule 94    expresion_relacional -> expresion IGUAL expresion
+Rule 95    expresion_relacional -> expresion NOIG expresion
+Rule 96    expresion_relacional -> expresion NOIGUAL expresion
+Rule 97    expresion_relacional -> expresion
+Rule 98    expresion_logica -> expresion_relacional AND expresion_relacional
+Rule 99    expresion_logica -> expresion_relacional OR expresion_relacional
+Rule 100   expresion_logica -> NOT expresion_relacional
+Rule 101   expresion_logica -> expresion_relacional
 
 Terminals, with rules where they appear
 
-COMA                 : 
-CREATE               : 5 6 7 8 9 10 11 12 17 18 19 20
-DATABASE             : 5 6 7 8 9 10 11 12 17 18 19 20
-ENTERO               : 15 16 21 22 23 24 25 26 27 28
-EXISTS               : 7 8 11 12 19 20
-ID                   : 5 6 7 8 9 10 11 12 13 14 17 18 19 20 21 22 23 24 25 26 27 28
-IF                   : 7 8 11 12 19 20
-IGUAL                : 14 16 22 23 24 24 26 27 28 28
-INHERITS             : 
-INTEGER              : 
-MODE                 : 15 16 21 22 23 24 25 26 27 28
-NOT                  : 7 8 11 12 19 20
-OR                   : 6 8 10 12 18 20
-OWNER                : 13 14 21 22 23 24 25 26 27 28
-PAR_A                : 
-PAR_C                : 
-PTCOMA               : 5 6 7 8 9 10 11 12 17 18 19 20
-REPLACE              : 6 8 10 12 18 20
-TABLE                : 
+ABS                  : 
+ACOS                 : 
+ACOSD                : 
+ACOSH                : 
+ADD                  : 
+ALL                  : 
+ALTER                : 
+AND                  : 98
+ANY                  : 
+AS                   : 
+ASC                  : 
+ASIN                 : 
+ASIND                : 
+ASINH                : 
+ASTERISCO            : 84
+ATAN                 : 
+ATAN2                : 
+ATAN2D               : 
+ATAND                : 
+ATANH                : 
+AVG                  : 
+BETWEEN              : 
+BIGINT               : 55
+BY                   : 
+CADENA               : 76 87
+CASE                 : 
+CBRT                 : 
+CEIL                 : 
+CEILING              : 
+CEJILLA              : 
+CHAR                 : 65 67
+CHARACTER            : 63 66 68
+CHECK                : 30
+COLUMN               : 
+COMA                 : 33 37 53 54
+CONSTRAINT           : 47
+CONVERT              : 
+COS                  : 
+COSD                 : 
+COSH                 : 
+COT                  : 
+COTD                 : 
+COUNT                : 
+CREATE               : 6 7 8 9 10 11 12 13 18 19 20 21 35 36
+CURRENT_DATE         : 
+CURRENT_TIME         : 
+CURRENT_USER         : 
+DATABASE             : 6 7 8 9 10 11 12 13 18 19 20 21
+DATE                 : 62
+DATE_PART            : 
+DAY                  : 70
+DECIMAL              : 53
+DECODE               : 
+DEGREES              : 
+DELETE               : 
+DESC                 : 
+DISTINCT             : 
+DIV                  : 
+DIVISION             : 83
+DOBLEIG              : 93
+DOUBLE               : 57
+DROP                 : 
+D_OR                 : 
+ELSE                 : 
+ENCODE               : 
+END                  : 
+ENTERO               : 16 17 22 23 24 25 26 27 28 29 53 53 54 54 63 64 65 66 77
+ENUM                 : 
+EXCEPT               : 
+EXISTS               : 8 9 12 13 20 21
+EXP                  : 
+EXTRACT              : 
+FACTORIAL            : 
+FALSE                : 86
+FLOAT                : 49
+FLOOR                : 
+FLOTANTE             : 78
+FOREIGN              : 
+FOREING              : 32 45
+FROM                 : 
+FULL                 : 
+GCD                  : 
+GET_BYTE             : 
+GROUP                : 
+HASHTAG              : 
+HAVING               : 
+HOUR                 : 72
+ID                   : 6 7 8 9 10 11 12 13 14 15 18 19 20 21 22 23 24 25 26 27 28 29 32 32 32 33 34 35 36 36 39 40 41 41 42 43 44 45 45 45 47 79 80 80 88
+IF                   : 8 9 12 13 20 21
+IGUAL                : 15 17 23 24 25 25 27 28 29 29 94
+IN                   : 
+INHERITS             : 36
+INNER                : 
+INSERT               : 
+INTEGER              : 50
+INTERSECT            : 
+INTERVAL             : 58 59
+INTO                 : 
+IS                   : 
+ISNULL               : 
+JOIN                 : 
+KEY                  : 32 40 44 45
+LCM                  : 
+LEFT                 : 
+LENGTH               : 
+LIKE                 : 
+LIMIT                : 
+LN                   : 
+LOG                  : 
+LOG10                : 
+MAX                  : 
+MAYIGQUE             : 91
+MAYMAY               : 
+MAYQUE               : 89
+MD5                  : 
+MENIGQUE             : 92
+MENMEN               : 
+MENQUE               : 90
+MIN                  : 
+MINUTE               : 73
+MIN_SCALE            : 
+MOD                  : 
+MODE                 : 16 17 22 23 24 25 26 27 28 29
+MODULO               : 
+MONEY                : 52
+MONTH                : 71
+MULTI                : 
+NATURAL              : 
+NOIG                 : 95
+NOIGUAL              : 96
+NOT                  : 8 9 12 13 20 21 42 100
+NOTNULL              : 
+NOW                  : 
+NULL                 : 42 43
+NUMERIC              : 54
+OFFSET               : 
+ON                   : 
+ONLY                 : 
+OR                   : 7 9 11 13 19 21 99
+ORDER                : 
+OUTER                : 
+OWNER                : 14 15 22 23 24 25 26 27 28 29
+PAR_A                : 30 31 32 32 35 36 36 44 45 45 46 53 54 63 64 65 66 67 68 75
+PAR_C                : 30 31 32 32 35 36 36 44 45 45 46 53 54 63 64 65 66 67 68 75
+PI                   : 
+POWER                : 
+PRECISION            : 57
+PRIMARY              : 40 44
+PTCOMA               : 6 7 8 9 10 11 12 13 18 19 20 21 35 36
+PUNTO                : 80
+RADIANS              : 
+RANDOM               : 
+REAL                 : 56
+REFERENCES           : 32 41 45
+RENAME               : 
+REPLACE              : 7 9 11 13 19 21
+RESTA                : 82
+RETURNING            : 
+RIGHT                : 
+ROUND                : 
+SCALE                : 
+SECOND               : 74
+SELECT               : 
+SESSION_USER         : 
+SET                  : 
+SETSEED              : 
+SET_BYTE             : 
+SHA256               : 
+SIGN                 : 
+SIN                  : 
+SIND                 : 
+SINH                 : 
+SMALLINT             : 51
+SOME                 : 
+SQRT                 : 
+SUBSTR               : 
+SUBSTRING            : 
+SUM                  : 
+SUMA                 : 81
+SYMMETRIC            : 
+S_OR                 : 
+TABLE                : 35 36
+TAN                  : 
+TAND                 : 
+TANH                 : 
+TEXT                 : 48
+THEN                 : 
+TIME                 : 60
+TIMESTAMP            : 61
+TO                   : 58
+TRIM                 : 
+TRIM_SCALE           : 
+TRUC                 : 
+TRUE                 : 85
+TYPE                 : 
+UNION                : 
+UNIQUE               : 31 46
+UNKNOWN              : 
+UPDATE               : 
+USE                  : 
+USING                : 
+VALUES               : 
+VARCHAR              : 64
+VARYING              : 63
+WHEN                 : 
+WHERE                : 
+WIDTH_BUCKET         : 
+Y                    : 
+YEAR                 : 69
 error                : 
 
 Nonterminals, with rules where they appear
 
-createDB_dosParam    : 17 18 19 20
+TIPO_DATO            : 39 40 41 42 43
+agrupacion_expresion : 
+campos_c             : 31 33 46
+constraint_esp       : 47
+createDB_dosParam    : 18 19 20 21
 createDB_insrt       : 4
-createDB_unParam     : 9 10 11 12
+createDB_unParam     : 10 11 12 13
+create_Table_isnrt   : 5
+cuerpo_createTable   : 37 38
+cuerpo_createTable_lista : 35 36 37
+expresion            : 75 81 81 82 82 83 83 84 84 89 89 90 90 91 91 92 92 93 93 94 94 95 95 96 96 97
+expresion_logica     : 30
+expresion_relacional : 98 98 99 99 100 101
+extract_time         : 58 58
 init                 : 0
 instruccion          : 2 3
 instrucciones        : 1 2
+string_type          : 
 
 Parsing method: LALR
 
@@ -82,25 +491,29 @@ state 0
     (2) instrucciones -> . instrucciones instruccion
     (3) instrucciones -> . instruccion
     (4) instruccion -> . createDB_insrt
-    (5) createDB_insrt -> . CREATE DATABASE ID PTCOMA
-    (6) createDB_insrt -> . CREATE OR REPLACE DATABASE ID PTCOMA
-    (7) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID PTCOMA
-    (8) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA
-    (9) createDB_insrt -> . CREATE DATABASE ID createDB_unParam PTCOMA
-    (10) createDB_insrt -> . CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA
-    (11) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-    (12) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-    (17) createDB_insrt -> . CREATE DATABASE ID createDB_dosParam PTCOMA
-    (18) createDB_insrt -> . CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA
-    (19) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
-    (20) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (5) instruccion -> . create_Table_isnrt
+    (6) createDB_insrt -> . CREATE DATABASE ID PTCOMA
+    (7) createDB_insrt -> . CREATE OR REPLACE DATABASE ID PTCOMA
+    (8) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID PTCOMA
+    (9) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA
+    (10) createDB_insrt -> . CREATE DATABASE ID createDB_unParam PTCOMA
+    (11) createDB_insrt -> . CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA
+    (12) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+    (13) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+    (18) createDB_insrt -> . CREATE DATABASE ID createDB_dosParam PTCOMA
+    (19) createDB_insrt -> . CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA
+    (20) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (21) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (35) create_Table_isnrt -> . CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (36) create_Table_isnrt -> . CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA
 
-    CREATE          shift and go to state 5
+    CREATE          shift and go to state 6
 
     init                           shift and go to state 1
     instrucciones                  shift and go to state 2
     instruccion                    shift and go to state 3
     createDB_insrt                 shift and go to state 4
+    create_Table_isnrt             shift and go to state 5
 
 state 1
 
@@ -113,24 +526,28 @@ state 2
     (1) init -> instrucciones .
     (2) instrucciones -> instrucciones . instruccion
     (4) instruccion -> . createDB_insrt
-    (5) createDB_insrt -> . CREATE DATABASE ID PTCOMA
-    (6) createDB_insrt -> . CREATE OR REPLACE DATABASE ID PTCOMA
-    (7) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID PTCOMA
-    (8) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA
-    (9) createDB_insrt -> . CREATE DATABASE ID createDB_unParam PTCOMA
-    (10) createDB_insrt -> . CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA
-    (11) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-    (12) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-    (17) createDB_insrt -> . CREATE DATABASE ID createDB_dosParam PTCOMA
-    (18) createDB_insrt -> . CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA
-    (19) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
-    (20) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (5) instruccion -> . create_Table_isnrt
+    (6) createDB_insrt -> . CREATE DATABASE ID PTCOMA
+    (7) createDB_insrt -> . CREATE OR REPLACE DATABASE ID PTCOMA
+    (8) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID PTCOMA
+    (9) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA
+    (10) createDB_insrt -> . CREATE DATABASE ID createDB_unParam PTCOMA
+    (11) createDB_insrt -> . CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA
+    (12) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+    (13) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+    (18) createDB_insrt -> . CREATE DATABASE ID createDB_dosParam PTCOMA
+    (19) createDB_insrt -> . CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA
+    (20) createDB_insrt -> . CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (21) createDB_insrt -> . CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (35) create_Table_isnrt -> . CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (36) create_Table_isnrt -> . CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA
 
     $end            reduce using rule 1 (init -> instrucciones .)
-    CREATE          shift and go to state 5
+    CREATE          shift and go to state 6
 
-    instruccion                    shift and go to state 6
+    instruccion                    shift and go to state 7
     createDB_insrt                 shift and go to state 4
+    create_Table_isnrt             shift and go to state 5
 
 state 3
 
@@ -150,24 +567,35 @@ state 4
 
 state 5
 
-    (5) createDB_insrt -> CREATE . DATABASE ID PTCOMA
-    (6) createDB_insrt -> CREATE . OR REPLACE DATABASE ID PTCOMA
-    (7) createDB_insrt -> CREATE . DATABASE IF NOT EXISTS ID PTCOMA
-    (8) createDB_insrt -> CREATE . OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA
-    (9) createDB_insrt -> CREATE . DATABASE ID createDB_unParam PTCOMA
-    (10) createDB_insrt -> CREATE . OR REPLACE DATABASE ID createDB_unParam PTCOMA
-    (11) createDB_insrt -> CREATE . DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-    (12) createDB_insrt -> CREATE . OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-    (17) createDB_insrt -> CREATE . DATABASE ID createDB_dosParam PTCOMA
-    (18) createDB_insrt -> CREATE . OR REPLACE DATABASE ID createDB_dosParam PTCOMA
-    (19) createDB_insrt -> CREATE . DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
-    (20) createDB_insrt -> CREATE . OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (5) instruccion -> create_Table_isnrt .
 
-    DATABASE        shift and go to state 7
-    OR              shift and go to state 8
+    CREATE          reduce using rule 5 (instruccion -> create_Table_isnrt .)
+    $end            reduce using rule 5 (instruccion -> create_Table_isnrt .)
 
 
 state 6
+
+    (6) createDB_insrt -> CREATE . DATABASE ID PTCOMA
+    (7) createDB_insrt -> CREATE . OR REPLACE DATABASE ID PTCOMA
+    (8) createDB_insrt -> CREATE . DATABASE IF NOT EXISTS ID PTCOMA
+    (9) createDB_insrt -> CREATE . OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA
+    (10) createDB_insrt -> CREATE . DATABASE ID createDB_unParam PTCOMA
+    (11) createDB_insrt -> CREATE . OR REPLACE DATABASE ID createDB_unParam PTCOMA
+    (12) createDB_insrt -> CREATE . DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+    (13) createDB_insrt -> CREATE . OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+    (18) createDB_insrt -> CREATE . DATABASE ID createDB_dosParam PTCOMA
+    (19) createDB_insrt -> CREATE . OR REPLACE DATABASE ID createDB_dosParam PTCOMA
+    (20) createDB_insrt -> CREATE . DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (21) createDB_insrt -> CREATE . OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (35) create_Table_isnrt -> CREATE . TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (36) create_Table_isnrt -> CREATE . TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA
+
+    DATABASE        shift and go to state 8
+    OR              shift and go to state 9
+    TABLE           shift and go to state 10
+
+
+state 7
 
     (2) instrucciones -> instrucciones instruccion .
 
@@ -175,562 +603,2586 @@ state 6
     $end            reduce using rule 2 (instrucciones -> instrucciones instruccion .)
 
 
-state 7
-
-    (5) createDB_insrt -> CREATE DATABASE . ID PTCOMA
-    (7) createDB_insrt -> CREATE DATABASE . IF NOT EXISTS ID PTCOMA
-    (9) createDB_insrt -> CREATE DATABASE . ID createDB_unParam PTCOMA
-    (11) createDB_insrt -> CREATE DATABASE . IF NOT EXISTS ID createDB_unParam PTCOMA
-    (17) createDB_insrt -> CREATE DATABASE . ID createDB_dosParam PTCOMA
-    (19) createDB_insrt -> CREATE DATABASE . IF NOT EXISTS ID createDB_dosParam PTCOMA
-
-    ID              shift and go to state 9
-    IF              shift and go to state 10
-
-
 state 8
 
-    (6) createDB_insrt -> CREATE OR . REPLACE DATABASE ID PTCOMA
-    (8) createDB_insrt -> CREATE OR . REPLACE DATABASE IF NOT EXISTS ID PTCOMA
-    (10) createDB_insrt -> CREATE OR . REPLACE DATABASE ID createDB_unParam PTCOMA
-    (12) createDB_insrt -> CREATE OR . REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-    (18) createDB_insrt -> CREATE OR . REPLACE DATABASE ID createDB_dosParam PTCOMA
-    (20) createDB_insrt -> CREATE OR . REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (6) createDB_insrt -> CREATE DATABASE . ID PTCOMA
+    (8) createDB_insrt -> CREATE DATABASE . IF NOT EXISTS ID PTCOMA
+    (10) createDB_insrt -> CREATE DATABASE . ID createDB_unParam PTCOMA
+    (12) createDB_insrt -> CREATE DATABASE . IF NOT EXISTS ID createDB_unParam PTCOMA
+    (18) createDB_insrt -> CREATE DATABASE . ID createDB_dosParam PTCOMA
+    (20) createDB_insrt -> CREATE DATABASE . IF NOT EXISTS ID createDB_dosParam PTCOMA
 
-    REPLACE         shift and go to state 11
+    ID              shift and go to state 11
+    IF              shift and go to state 12
 
 
 state 9
 
-    (5) createDB_insrt -> CREATE DATABASE ID . PTCOMA
-    (9) createDB_insrt -> CREATE DATABASE ID . createDB_unParam PTCOMA
-    (17) createDB_insrt -> CREATE DATABASE ID . createDB_dosParam PTCOMA
-    (13) createDB_unParam -> . OWNER ID
-    (14) createDB_unParam -> . OWNER IGUAL ID
-    (15) createDB_unParam -> . MODE ENTERO
-    (16) createDB_unParam -> . MODE IGUAL ENTERO
-    (21) createDB_dosParam -> . OWNER ID MODE ENTERO
-    (22) createDB_dosParam -> . OWNER ID MODE IGUAL ENTERO
-    (23) createDB_dosParam -> . OWNER IGUAL ID MODE ENTERO
-    (24) createDB_dosParam -> . OWNER IGUAL ID MODE IGUAL ENTERO
-    (25) createDB_dosParam -> . MODE ENTERO OWNER ID
-    (26) createDB_dosParam -> . MODE ENTERO OWNER IGUAL ID
-    (27) createDB_dosParam -> . MODE IGUAL ENTERO OWNER ID
-    (28) createDB_dosParam -> . MODE IGUAL ENTERO OWNER IGUAL ID
+    (7) createDB_insrt -> CREATE OR . REPLACE DATABASE ID PTCOMA
+    (9) createDB_insrt -> CREATE OR . REPLACE DATABASE IF NOT EXISTS ID PTCOMA
+    (11) createDB_insrt -> CREATE OR . REPLACE DATABASE ID createDB_unParam PTCOMA
+    (13) createDB_insrt -> CREATE OR . REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+    (19) createDB_insrt -> CREATE OR . REPLACE DATABASE ID createDB_dosParam PTCOMA
+    (21) createDB_insrt -> CREATE OR . REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
 
-    PTCOMA          shift and go to state 12
-    OWNER           shift and go to state 15
-    MODE            shift and go to state 16
+    REPLACE         shift and go to state 13
 
-    createDB_unParam               shift and go to state 13
-    createDB_dosParam              shift and go to state 14
 
 state 10
 
-    (7) createDB_insrt -> CREATE DATABASE IF . NOT EXISTS ID PTCOMA
-    (11) createDB_insrt -> CREATE DATABASE IF . NOT EXISTS ID createDB_unParam PTCOMA
-    (19) createDB_insrt -> CREATE DATABASE IF . NOT EXISTS ID createDB_dosParam PTCOMA
+    (35) create_Table_isnrt -> CREATE TABLE . ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (36) create_Table_isnrt -> CREATE TABLE . ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA
 
-    NOT             shift and go to state 17
+    ID              shift and go to state 14
 
 
 state 11
 
-    (6) createDB_insrt -> CREATE OR REPLACE . DATABASE ID PTCOMA
-    (8) createDB_insrt -> CREATE OR REPLACE . DATABASE IF NOT EXISTS ID PTCOMA
-    (10) createDB_insrt -> CREATE OR REPLACE . DATABASE ID createDB_unParam PTCOMA
-    (12) createDB_insrt -> CREATE OR REPLACE . DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
-    (18) createDB_insrt -> CREATE OR REPLACE . DATABASE ID createDB_dosParam PTCOMA
-    (20) createDB_insrt -> CREATE OR REPLACE . DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (6) createDB_insrt -> CREATE DATABASE ID . PTCOMA
+    (10) createDB_insrt -> CREATE DATABASE ID . createDB_unParam PTCOMA
+    (18) createDB_insrt -> CREATE DATABASE ID . createDB_dosParam PTCOMA
+    (14) createDB_unParam -> . OWNER ID
+    (15) createDB_unParam -> . OWNER IGUAL ID
+    (16) createDB_unParam -> . MODE ENTERO
+    (17) createDB_unParam -> . MODE IGUAL ENTERO
+    (22) createDB_dosParam -> . OWNER ID MODE ENTERO
+    (23) createDB_dosParam -> . OWNER ID MODE IGUAL ENTERO
+    (24) createDB_dosParam -> . OWNER IGUAL ID MODE ENTERO
+    (25) createDB_dosParam -> . OWNER IGUAL ID MODE IGUAL ENTERO
+    (26) createDB_dosParam -> . MODE ENTERO OWNER ID
+    (27) createDB_dosParam -> . MODE ENTERO OWNER IGUAL ID
+    (28) createDB_dosParam -> . MODE IGUAL ENTERO OWNER ID
+    (29) createDB_dosParam -> . MODE IGUAL ENTERO OWNER IGUAL ID
 
-    DATABASE        shift and go to state 18
+    PTCOMA          shift and go to state 15
+    OWNER           shift and go to state 18
+    MODE            shift and go to state 19
 
+    createDB_unParam               shift and go to state 16
+    createDB_dosParam              shift and go to state 17
 
 state 12
 
-    (5) createDB_insrt -> CREATE DATABASE ID PTCOMA .
+    (8) createDB_insrt -> CREATE DATABASE IF . NOT EXISTS ID PTCOMA
+    (12) createDB_insrt -> CREATE DATABASE IF . NOT EXISTS ID createDB_unParam PTCOMA
+    (20) createDB_insrt -> CREATE DATABASE IF . NOT EXISTS ID createDB_dosParam PTCOMA
 
-    CREATE          reduce using rule 5 (createDB_insrt -> CREATE DATABASE ID PTCOMA .)
-    $end            reduce using rule 5 (createDB_insrt -> CREATE DATABASE ID PTCOMA .)
+    NOT             shift and go to state 20
 
 
 state 13
 
-    (9) createDB_insrt -> CREATE DATABASE ID createDB_unParam . PTCOMA
+    (7) createDB_insrt -> CREATE OR REPLACE . DATABASE ID PTCOMA
+    (9) createDB_insrt -> CREATE OR REPLACE . DATABASE IF NOT EXISTS ID PTCOMA
+    (11) createDB_insrt -> CREATE OR REPLACE . DATABASE ID createDB_unParam PTCOMA
+    (13) createDB_insrt -> CREATE OR REPLACE . DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA
+    (19) createDB_insrt -> CREATE OR REPLACE . DATABASE ID createDB_dosParam PTCOMA
+    (21) createDB_insrt -> CREATE OR REPLACE . DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA
 
-    PTCOMA          shift and go to state 19
+    DATABASE        shift and go to state 21
 
 
 state 14
 
-    (17) createDB_insrt -> CREATE DATABASE ID createDB_dosParam . PTCOMA
+    (35) create_Table_isnrt -> CREATE TABLE ID . PAR_A cuerpo_createTable_lista PAR_C PTCOMA
+    (36) create_Table_isnrt -> CREATE TABLE ID . PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA
 
-    PTCOMA          shift and go to state 20
+    PAR_A           shift and go to state 22
 
 
 state 15
 
-    (13) createDB_unParam -> OWNER . ID
-    (14) createDB_unParam -> OWNER . IGUAL ID
-    (21) createDB_dosParam -> OWNER . ID MODE ENTERO
-    (22) createDB_dosParam -> OWNER . ID MODE IGUAL ENTERO
-    (23) createDB_dosParam -> OWNER . IGUAL ID MODE ENTERO
-    (24) createDB_dosParam -> OWNER . IGUAL ID MODE IGUAL ENTERO
+    (6) createDB_insrt -> CREATE DATABASE ID PTCOMA .
 
-    ID              shift and go to state 21
-    IGUAL           shift and go to state 22
+    CREATE          reduce using rule 6 (createDB_insrt -> CREATE DATABASE ID PTCOMA .)
+    $end            reduce using rule 6 (createDB_insrt -> CREATE DATABASE ID PTCOMA .)
 
 
 state 16
 
-    (15) createDB_unParam -> MODE . ENTERO
-    (16) createDB_unParam -> MODE . IGUAL ENTERO
-    (25) createDB_dosParam -> MODE . ENTERO OWNER ID
-    (26) createDB_dosParam -> MODE . ENTERO OWNER IGUAL ID
-    (27) createDB_dosParam -> MODE . IGUAL ENTERO OWNER ID
-    (28) createDB_dosParam -> MODE . IGUAL ENTERO OWNER IGUAL ID
+    (10) createDB_insrt -> CREATE DATABASE ID createDB_unParam . PTCOMA
 
-    ENTERO          shift and go to state 23
-    IGUAL           shift and go to state 24
+    PTCOMA          shift and go to state 23
 
 
 state 17
 
-    (7) createDB_insrt -> CREATE DATABASE IF NOT . EXISTS ID PTCOMA
-    (11) createDB_insrt -> CREATE DATABASE IF NOT . EXISTS ID createDB_unParam PTCOMA
-    (19) createDB_insrt -> CREATE DATABASE IF NOT . EXISTS ID createDB_dosParam PTCOMA
+    (18) createDB_insrt -> CREATE DATABASE ID createDB_dosParam . PTCOMA
 
-    EXISTS          shift and go to state 25
+    PTCOMA          shift and go to state 24
 
 
 state 18
 
-    (6) createDB_insrt -> CREATE OR REPLACE DATABASE . ID PTCOMA
-    (8) createDB_insrt -> CREATE OR REPLACE DATABASE . IF NOT EXISTS ID PTCOMA
-    (10) createDB_insrt -> CREATE OR REPLACE DATABASE . ID createDB_unParam PTCOMA
-    (12) createDB_insrt -> CREATE OR REPLACE DATABASE . IF NOT EXISTS ID createDB_unParam PTCOMA
-    (18) createDB_insrt -> CREATE OR REPLACE DATABASE . ID createDB_dosParam PTCOMA
-    (20) createDB_insrt -> CREATE OR REPLACE DATABASE . IF NOT EXISTS ID createDB_dosParam PTCOMA
+    (14) createDB_unParam -> OWNER . ID
+    (15) createDB_unParam -> OWNER . IGUAL ID
+    (22) createDB_dosParam -> OWNER . ID MODE ENTERO
+    (23) createDB_dosParam -> OWNER . ID MODE IGUAL ENTERO
+    (24) createDB_dosParam -> OWNER . IGUAL ID MODE ENTERO
+    (25) createDB_dosParam -> OWNER . IGUAL ID MODE IGUAL ENTERO
 
-    ID              shift and go to state 26
-    IF              shift and go to state 27
+    ID              shift and go to state 25
+    IGUAL           shift and go to state 26
 
 
 state 19
 
-    (9) createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA .
+    (16) createDB_unParam -> MODE . ENTERO
+    (17) createDB_unParam -> MODE . IGUAL ENTERO
+    (26) createDB_dosParam -> MODE . ENTERO OWNER ID
+    (27) createDB_dosParam -> MODE . ENTERO OWNER IGUAL ID
+    (28) createDB_dosParam -> MODE . IGUAL ENTERO OWNER ID
+    (29) createDB_dosParam -> MODE . IGUAL ENTERO OWNER IGUAL ID
 
-    CREATE          reduce using rule 9 (createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA .)
-    $end            reduce using rule 9 (createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA .)
+    ENTERO          shift and go to state 27
+    IGUAL           shift and go to state 28
 
 
 state 20
 
-    (17) createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA .
+    (8) createDB_insrt -> CREATE DATABASE IF NOT . EXISTS ID PTCOMA
+    (12) createDB_insrt -> CREATE DATABASE IF NOT . EXISTS ID createDB_unParam PTCOMA
+    (20) createDB_insrt -> CREATE DATABASE IF NOT . EXISTS ID createDB_dosParam PTCOMA
 
-    CREATE          reduce using rule 17 (createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA .)
-    $end            reduce using rule 17 (createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA .)
+    EXISTS          shift and go to state 29
 
 
 state 21
 
-    (13) createDB_unParam -> OWNER ID .
-    (21) createDB_dosParam -> OWNER ID . MODE ENTERO
-    (22) createDB_dosParam -> OWNER ID . MODE IGUAL ENTERO
+    (7) createDB_insrt -> CREATE OR REPLACE DATABASE . ID PTCOMA
+    (9) createDB_insrt -> CREATE OR REPLACE DATABASE . IF NOT EXISTS ID PTCOMA
+    (11) createDB_insrt -> CREATE OR REPLACE DATABASE . ID createDB_unParam PTCOMA
+    (13) createDB_insrt -> CREATE OR REPLACE DATABASE . IF NOT EXISTS ID createDB_unParam PTCOMA
+    (19) createDB_insrt -> CREATE OR REPLACE DATABASE . ID createDB_dosParam PTCOMA
+    (21) createDB_insrt -> CREATE OR REPLACE DATABASE . IF NOT EXISTS ID createDB_dosParam PTCOMA
 
-    PTCOMA          reduce using rule 13 (createDB_unParam -> OWNER ID .)
-    MODE            shift and go to state 28
+    ID              shift and go to state 30
+    IF              shift and go to state 31
 
 
 state 22
 
-    (14) createDB_unParam -> OWNER IGUAL . ID
-    (23) createDB_dosParam -> OWNER IGUAL . ID MODE ENTERO
-    (24) createDB_dosParam -> OWNER IGUAL . ID MODE IGUAL ENTERO
+    (35) create_Table_isnrt -> CREATE TABLE ID PAR_A . cuerpo_createTable_lista PAR_C PTCOMA
+    (36) create_Table_isnrt -> CREATE TABLE ID PAR_A . cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA
+    (37) cuerpo_createTable_lista -> . cuerpo_createTable_lista COMA cuerpo_createTable
+    (38) cuerpo_createTable_lista -> . cuerpo_createTable
+    (39) cuerpo_createTable -> . ID TIPO_DATO
+    (40) cuerpo_createTable -> . ID TIPO_DATO PRIMARY KEY
+    (41) cuerpo_createTable -> . ID TIPO_DATO REFERENCES ID
+    (42) cuerpo_createTable -> . ID TIPO_DATO NOT NULL
+    (43) cuerpo_createTable -> . ID TIPO_DATO NULL
+    (44) cuerpo_createTable -> . PRIMARY KEY PAR_A ID PAR_C
+    (45) cuerpo_createTable -> . FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
+    (46) cuerpo_createTable -> . UNIQUE PAR_A campos_c PAR_C
+    (47) cuerpo_createTable -> . CONSTRAINT ID constraint_esp
 
-    ID              shift and go to state 29
+    ID              shift and go to state 32
+    PRIMARY         shift and go to state 35
+    FOREING         shift and go to state 36
+    UNIQUE          shift and go to state 37
+    CONSTRAINT      shift and go to state 38
 
+    cuerpo_createTable_lista       shift and go to state 33
+    cuerpo_createTable             shift and go to state 34
 
 state 23
 
-    (15) createDB_unParam -> MODE ENTERO .
-    (25) createDB_dosParam -> MODE ENTERO . OWNER ID
-    (26) createDB_dosParam -> MODE ENTERO . OWNER IGUAL ID
+    (10) createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA .
 
-    PTCOMA          reduce using rule 15 (createDB_unParam -> MODE ENTERO .)
-    OWNER           shift and go to state 30
+    CREATE          reduce using rule 10 (createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA .)
+    $end            reduce using rule 10 (createDB_insrt -> CREATE DATABASE ID createDB_unParam PTCOMA .)
 
 
 state 24
 
-    (16) createDB_unParam -> MODE IGUAL . ENTERO
-    (27) createDB_dosParam -> MODE IGUAL . ENTERO OWNER ID
-    (28) createDB_dosParam -> MODE IGUAL . ENTERO OWNER IGUAL ID
+    (18) createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA .
 
-    ENTERO          shift and go to state 31
+    CREATE          reduce using rule 18 (createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA .)
+    $end            reduce using rule 18 (createDB_insrt -> CREATE DATABASE ID createDB_dosParam PTCOMA .)
 
 
 state 25
 
-    (7) createDB_insrt -> CREATE DATABASE IF NOT EXISTS . ID PTCOMA
-    (11) createDB_insrt -> CREATE DATABASE IF NOT EXISTS . ID createDB_unParam PTCOMA
-    (19) createDB_insrt -> CREATE DATABASE IF NOT EXISTS . ID createDB_dosParam PTCOMA
+    (14) createDB_unParam -> OWNER ID .
+    (22) createDB_dosParam -> OWNER ID . MODE ENTERO
+    (23) createDB_dosParam -> OWNER ID . MODE IGUAL ENTERO
 
-    ID              shift and go to state 32
+    PTCOMA          reduce using rule 14 (createDB_unParam -> OWNER ID .)
+    MODE            shift and go to state 39
 
 
 state 26
 
-    (6) createDB_insrt -> CREATE OR REPLACE DATABASE ID . PTCOMA
-    (10) createDB_insrt -> CREATE OR REPLACE DATABASE ID . createDB_unParam PTCOMA
-    (18) createDB_insrt -> CREATE OR REPLACE DATABASE ID . createDB_dosParam PTCOMA
-    (13) createDB_unParam -> . OWNER ID
-    (14) createDB_unParam -> . OWNER IGUAL ID
-    (15) createDB_unParam -> . MODE ENTERO
-    (16) createDB_unParam -> . MODE IGUAL ENTERO
-    (21) createDB_dosParam -> . OWNER ID MODE ENTERO
-    (22) createDB_dosParam -> . OWNER ID MODE IGUAL ENTERO
-    (23) createDB_dosParam -> . OWNER IGUAL ID MODE ENTERO
-    (24) createDB_dosParam -> . OWNER IGUAL ID MODE IGUAL ENTERO
-    (25) createDB_dosParam -> . MODE ENTERO OWNER ID
-    (26) createDB_dosParam -> . MODE ENTERO OWNER IGUAL ID
-    (27) createDB_dosParam -> . MODE IGUAL ENTERO OWNER ID
-    (28) createDB_dosParam -> . MODE IGUAL ENTERO OWNER IGUAL ID
+    (15) createDB_unParam -> OWNER IGUAL . ID
+    (24) createDB_dosParam -> OWNER IGUAL . ID MODE ENTERO
+    (25) createDB_dosParam -> OWNER IGUAL . ID MODE IGUAL ENTERO
 
-    PTCOMA          shift and go to state 33
-    OWNER           shift and go to state 15
-    MODE            shift and go to state 16
+    ID              shift and go to state 40
 
-    createDB_unParam               shift and go to state 34
-    createDB_dosParam              shift and go to state 35
 
 state 27
 
-    (8) createDB_insrt -> CREATE OR REPLACE DATABASE IF . NOT EXISTS ID PTCOMA
-    (12) createDB_insrt -> CREATE OR REPLACE DATABASE IF . NOT EXISTS ID createDB_unParam PTCOMA
-    (20) createDB_insrt -> CREATE OR REPLACE DATABASE IF . NOT EXISTS ID createDB_dosParam PTCOMA
+    (16) createDB_unParam -> MODE ENTERO .
+    (26) createDB_dosParam -> MODE ENTERO . OWNER ID
+    (27) createDB_dosParam -> MODE ENTERO . OWNER IGUAL ID
 
-    NOT             shift and go to state 36
+    PTCOMA          reduce using rule 16 (createDB_unParam -> MODE ENTERO .)
+    OWNER           shift and go to state 41
 
 
 state 28
 
-    (21) createDB_dosParam -> OWNER ID MODE . ENTERO
-    (22) createDB_dosParam -> OWNER ID MODE . IGUAL ENTERO
+    (17) createDB_unParam -> MODE IGUAL . ENTERO
+    (28) createDB_dosParam -> MODE IGUAL . ENTERO OWNER ID
+    (29) createDB_dosParam -> MODE IGUAL . ENTERO OWNER IGUAL ID
 
-    ENTERO          shift and go to state 37
-    IGUAL           shift and go to state 38
+    ENTERO          shift and go to state 42
 
 
 state 29
 
-    (14) createDB_unParam -> OWNER IGUAL ID .
-    (23) createDB_dosParam -> OWNER IGUAL ID . MODE ENTERO
-    (24) createDB_dosParam -> OWNER IGUAL ID . MODE IGUAL ENTERO
+    (8) createDB_insrt -> CREATE DATABASE IF NOT EXISTS . ID PTCOMA
+    (12) createDB_insrt -> CREATE DATABASE IF NOT EXISTS . ID createDB_unParam PTCOMA
+    (20) createDB_insrt -> CREATE DATABASE IF NOT EXISTS . ID createDB_dosParam PTCOMA
 
-    PTCOMA          reduce using rule 14 (createDB_unParam -> OWNER IGUAL ID .)
-    MODE            shift and go to state 39
+    ID              shift and go to state 43
 
 
 state 30
 
-    (25) createDB_dosParam -> MODE ENTERO OWNER . ID
-    (26) createDB_dosParam -> MODE ENTERO OWNER . IGUAL ID
+    (7) createDB_insrt -> CREATE OR REPLACE DATABASE ID . PTCOMA
+    (11) createDB_insrt -> CREATE OR REPLACE DATABASE ID . createDB_unParam PTCOMA
+    (19) createDB_insrt -> CREATE OR REPLACE DATABASE ID . createDB_dosParam PTCOMA
+    (14) createDB_unParam -> . OWNER ID
+    (15) createDB_unParam -> . OWNER IGUAL ID
+    (16) createDB_unParam -> . MODE ENTERO
+    (17) createDB_unParam -> . MODE IGUAL ENTERO
+    (22) createDB_dosParam -> . OWNER ID MODE ENTERO
+    (23) createDB_dosParam -> . OWNER ID MODE IGUAL ENTERO
+    (24) createDB_dosParam -> . OWNER IGUAL ID MODE ENTERO
+    (25) createDB_dosParam -> . OWNER IGUAL ID MODE IGUAL ENTERO
+    (26) createDB_dosParam -> . MODE ENTERO OWNER ID
+    (27) createDB_dosParam -> . MODE ENTERO OWNER IGUAL ID
+    (28) createDB_dosParam -> . MODE IGUAL ENTERO OWNER ID
+    (29) createDB_dosParam -> . MODE IGUAL ENTERO OWNER IGUAL ID
 
-    ID              shift and go to state 40
-    IGUAL           shift and go to state 41
+    PTCOMA          shift and go to state 44
+    OWNER           shift and go to state 18
+    MODE            shift and go to state 19
 
+    createDB_unParam               shift and go to state 45
+    createDB_dosParam              shift and go to state 46
 
 state 31
 
-    (16) createDB_unParam -> MODE IGUAL ENTERO .
-    (27) createDB_dosParam -> MODE IGUAL ENTERO . OWNER ID
-    (28) createDB_dosParam -> MODE IGUAL ENTERO . OWNER IGUAL ID
+    (9) createDB_insrt -> CREATE OR REPLACE DATABASE IF . NOT EXISTS ID PTCOMA
+    (13) createDB_insrt -> CREATE OR REPLACE DATABASE IF . NOT EXISTS ID createDB_unParam PTCOMA
+    (21) createDB_insrt -> CREATE OR REPLACE DATABASE IF . NOT EXISTS ID createDB_dosParam PTCOMA
 
-    PTCOMA          reduce using rule 16 (createDB_unParam -> MODE IGUAL ENTERO .)
-    OWNER           shift and go to state 42
+    NOT             shift and go to state 47
 
 
 state 32
 
-    (7) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID . PTCOMA
-    (11) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID . createDB_unParam PTCOMA
-    (19) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID . createDB_dosParam PTCOMA
-    (13) createDB_unParam -> . OWNER ID
-    (14) createDB_unParam -> . OWNER IGUAL ID
-    (15) createDB_unParam -> . MODE ENTERO
-    (16) createDB_unParam -> . MODE IGUAL ENTERO
-    (21) createDB_dosParam -> . OWNER ID MODE ENTERO
-    (22) createDB_dosParam -> . OWNER ID MODE IGUAL ENTERO
-    (23) createDB_dosParam -> . OWNER IGUAL ID MODE ENTERO
-    (24) createDB_dosParam -> . OWNER IGUAL ID MODE IGUAL ENTERO
-    (25) createDB_dosParam -> . MODE ENTERO OWNER ID
-    (26) createDB_dosParam -> . MODE ENTERO OWNER IGUAL ID
-    (27) createDB_dosParam -> . MODE IGUAL ENTERO OWNER ID
-    (28) createDB_dosParam -> . MODE IGUAL ENTERO OWNER IGUAL ID
+    (39) cuerpo_createTable -> ID . TIPO_DATO
+    (40) cuerpo_createTable -> ID . TIPO_DATO PRIMARY KEY
+    (41) cuerpo_createTable -> ID . TIPO_DATO REFERENCES ID
+    (42) cuerpo_createTable -> ID . TIPO_DATO NOT NULL
+    (43) cuerpo_createTable -> ID . TIPO_DATO NULL
+    (48) TIPO_DATO -> . TEXT
+    (49) TIPO_DATO -> . FLOAT
+    (50) TIPO_DATO -> . INTEGER
+    (51) TIPO_DATO -> . SMALLINT
+    (52) TIPO_DATO -> . MONEY
+    (53) TIPO_DATO -> . DECIMAL PAR_A ENTERO COMA ENTERO PAR_C
+    (54) TIPO_DATO -> . NUMERIC PAR_A ENTERO COMA ENTERO PAR_C
+    (55) TIPO_DATO -> . BIGINT
+    (56) TIPO_DATO -> . REAL
+    (57) TIPO_DATO -> . DOUBLE PRECISION
+    (58) TIPO_DATO -> . INTERVAL extract_time TO extract_time
+    (59) TIPO_DATO -> . INTERVAL
+    (60) TIPO_DATO -> . TIME
+    (61) TIPO_DATO -> . TIMESTAMP
+    (62) TIPO_DATO -> . DATE
+    (63) TIPO_DATO -> . CHARACTER VARYING PAR_A ENTERO PAR_C
+    (64) TIPO_DATO -> . VARCHAR PAR_A ENTERO PAR_C
+    (65) TIPO_DATO -> . CHAR PAR_A ENTERO PAR_C
+    (66) TIPO_DATO -> . CHARACTER PAR_A ENTERO PAR_C
+    (67) TIPO_DATO -> . CHAR PAR_A PAR_C
+    (68) TIPO_DATO -> . CHARACTER PAR_A PAR_C
 
-    PTCOMA          shift and go to state 43
-    OWNER           shift and go to state 15
-    MODE            shift and go to state 16
+    TEXT            shift and go to state 49
+    FLOAT           shift and go to state 50
+    INTEGER         shift and go to state 51
+    SMALLINT        shift and go to state 52
+    MONEY           shift and go to state 53
+    DECIMAL         shift and go to state 54
+    NUMERIC         shift and go to state 55
+    BIGINT          shift and go to state 56
+    REAL            shift and go to state 57
+    DOUBLE          shift and go to state 58
+    INTERVAL        shift and go to state 59
+    TIME            shift and go to state 60
+    TIMESTAMP       shift and go to state 61
+    DATE            shift and go to state 62
+    CHARACTER       shift and go to state 63
+    VARCHAR         shift and go to state 64
+    CHAR            shift and go to state 65
 
-    createDB_unParam               shift and go to state 44
-    createDB_dosParam              shift and go to state 45
+    TIPO_DATO                      shift and go to state 48
 
 state 33
 
-    (6) createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA .
+    (35) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista . PAR_C PTCOMA
+    (36) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista . PAR_C INHERITS PAR_A ID PAR_C PTCOMA
+    (37) cuerpo_createTable_lista -> cuerpo_createTable_lista . COMA cuerpo_createTable
 
-    CREATE          reduce using rule 6 (createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA .)
-    $end            reduce using rule 6 (createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA .)
+    PAR_C           shift and go to state 66
+    COMA            shift and go to state 67
 
 
 state 34
 
-    (10) createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam . PTCOMA
+    (38) cuerpo_createTable_lista -> cuerpo_createTable .
 
-    PTCOMA          shift and go to state 46
+    PAR_C           reduce using rule 38 (cuerpo_createTable_lista -> cuerpo_createTable .)
+    COMA            reduce using rule 38 (cuerpo_createTable_lista -> cuerpo_createTable .)
 
 
 state 35
 
-    (18) createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam . PTCOMA
+    (44) cuerpo_createTable -> PRIMARY . KEY PAR_A ID PAR_C
 
-    PTCOMA          shift and go to state 47
+    KEY             shift and go to state 68
 
 
 state 36
 
-    (8) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT . EXISTS ID PTCOMA
-    (12) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT . EXISTS ID createDB_unParam PTCOMA
-    (20) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT . EXISTS ID createDB_dosParam PTCOMA
+    (45) cuerpo_createTable -> FOREING . KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
 
-    EXISTS          shift and go to state 48
+    KEY             shift and go to state 69
 
 
 state 37
 
-    (21) createDB_dosParam -> OWNER ID MODE ENTERO .
+    (46) cuerpo_createTable -> UNIQUE . PAR_A campos_c PAR_C
 
-    PTCOMA          reduce using rule 21 (createDB_dosParam -> OWNER ID MODE ENTERO .)
+    PAR_A           shift and go to state 70
 
 
 state 38
 
-    (22) createDB_dosParam -> OWNER ID MODE IGUAL . ENTERO
+    (47) cuerpo_createTable -> CONSTRAINT . ID constraint_esp
 
-    ENTERO          shift and go to state 49
+    ID              shift and go to state 71
 
 
 state 39
 
-    (23) createDB_dosParam -> OWNER IGUAL ID MODE . ENTERO
-    (24) createDB_dosParam -> OWNER IGUAL ID MODE . IGUAL ENTERO
+    (22) createDB_dosParam -> OWNER ID MODE . ENTERO
+    (23) createDB_dosParam -> OWNER ID MODE . IGUAL ENTERO
 
-    ENTERO          shift and go to state 51
-    IGUAL           shift and go to state 50
+    ENTERO          shift and go to state 72
+    IGUAL           shift and go to state 73
 
 
 state 40
 
-    (25) createDB_dosParam -> MODE ENTERO OWNER ID .
+    (15) createDB_unParam -> OWNER IGUAL ID .
+    (24) createDB_dosParam -> OWNER IGUAL ID . MODE ENTERO
+    (25) createDB_dosParam -> OWNER IGUAL ID . MODE IGUAL ENTERO
 
-    PTCOMA          reduce using rule 25 (createDB_dosParam -> MODE ENTERO OWNER ID .)
+    PTCOMA          reduce using rule 15 (createDB_unParam -> OWNER IGUAL ID .)
+    MODE            shift and go to state 74
 
 
 state 41
 
-    (26) createDB_dosParam -> MODE ENTERO OWNER IGUAL . ID
+    (26) createDB_dosParam -> MODE ENTERO OWNER . ID
+    (27) createDB_dosParam -> MODE ENTERO OWNER . IGUAL ID
 
-    ID              shift and go to state 52
+    ID              shift and go to state 75
+    IGUAL           shift and go to state 76
 
 
 state 42
 
-    (27) createDB_dosParam -> MODE IGUAL ENTERO OWNER . ID
-    (28) createDB_dosParam -> MODE IGUAL ENTERO OWNER . IGUAL ID
+    (17) createDB_unParam -> MODE IGUAL ENTERO .
+    (28) createDB_dosParam -> MODE IGUAL ENTERO . OWNER ID
+    (29) createDB_dosParam -> MODE IGUAL ENTERO . OWNER IGUAL ID
 
-    ID              shift and go to state 54
-    IGUAL           shift and go to state 53
+    PTCOMA          reduce using rule 17 (createDB_unParam -> MODE IGUAL ENTERO .)
+    OWNER           shift and go to state 77
 
 
 state 43
 
-    (7) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA .
+    (8) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID . PTCOMA
+    (12) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID . createDB_unParam PTCOMA
+    (20) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID . createDB_dosParam PTCOMA
+    (14) createDB_unParam -> . OWNER ID
+    (15) createDB_unParam -> . OWNER IGUAL ID
+    (16) createDB_unParam -> . MODE ENTERO
+    (17) createDB_unParam -> . MODE IGUAL ENTERO
+    (22) createDB_dosParam -> . OWNER ID MODE ENTERO
+    (23) createDB_dosParam -> . OWNER ID MODE IGUAL ENTERO
+    (24) createDB_dosParam -> . OWNER IGUAL ID MODE ENTERO
+    (25) createDB_dosParam -> . OWNER IGUAL ID MODE IGUAL ENTERO
+    (26) createDB_dosParam -> . MODE ENTERO OWNER ID
+    (27) createDB_dosParam -> . MODE ENTERO OWNER IGUAL ID
+    (28) createDB_dosParam -> . MODE IGUAL ENTERO OWNER ID
+    (29) createDB_dosParam -> . MODE IGUAL ENTERO OWNER IGUAL ID
 
-    CREATE          reduce using rule 7 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA .)
-    $end            reduce using rule 7 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA .)
+    PTCOMA          shift and go to state 78
+    OWNER           shift and go to state 18
+    MODE            shift and go to state 19
 
+    createDB_unParam               shift and go to state 79
+    createDB_dosParam              shift and go to state 80
 
 state 44
 
-    (11) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam . PTCOMA
+    (7) createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA .
 
-    PTCOMA          shift and go to state 55
+    CREATE          reduce using rule 7 (createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA .)
+    $end            reduce using rule 7 (createDB_insrt -> CREATE OR REPLACE DATABASE ID PTCOMA .)
 
 
 state 45
 
-    (19) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam . PTCOMA
+    (11) createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam . PTCOMA
 
-    PTCOMA          shift and go to state 56
+    PTCOMA          shift and go to state 81
 
 
 state 46
 
-    (10) createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA .
+    (19) createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam . PTCOMA
 
-    CREATE          reduce using rule 10 (createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA .)
-    $end            reduce using rule 10 (createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA .)
+    PTCOMA          shift and go to state 82
 
 
 state 47
 
-    (18) createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA .
+    (9) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT . EXISTS ID PTCOMA
+    (13) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT . EXISTS ID createDB_unParam PTCOMA
+    (21) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT . EXISTS ID createDB_dosParam PTCOMA
 
-    CREATE          reduce using rule 18 (createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA .)
-    $end            reduce using rule 18 (createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA .)
+    EXISTS          shift and go to state 83
 
 
 state 48
 
-    (8) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS . ID PTCOMA
-    (12) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS . ID createDB_unParam PTCOMA
-    (20) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS . ID createDB_dosParam PTCOMA
+    (39) cuerpo_createTable -> ID TIPO_DATO .
+    (40) cuerpo_createTable -> ID TIPO_DATO . PRIMARY KEY
+    (41) cuerpo_createTable -> ID TIPO_DATO . REFERENCES ID
+    (42) cuerpo_createTable -> ID TIPO_DATO . NOT NULL
+    (43) cuerpo_createTable -> ID TIPO_DATO . NULL
 
-    ID              shift and go to state 57
+    PAR_C           reduce using rule 39 (cuerpo_createTable -> ID TIPO_DATO .)
+    COMA            reduce using rule 39 (cuerpo_createTable -> ID TIPO_DATO .)
+    PRIMARY         shift and go to state 84
+    REFERENCES      shift and go to state 85
+    NOT             shift and go to state 86
+    NULL            shift and go to state 87
 
 
 state 49
 
-    (22) createDB_dosParam -> OWNER ID MODE IGUAL ENTERO .
+    (48) TIPO_DATO -> TEXT .
 
-    PTCOMA          reduce using rule 22 (createDB_dosParam -> OWNER ID MODE IGUAL ENTERO .)
+    PRIMARY         reduce using rule 48 (TIPO_DATO -> TEXT .)
+    REFERENCES      reduce using rule 48 (TIPO_DATO -> TEXT .)
+    NOT             reduce using rule 48 (TIPO_DATO -> TEXT .)
+    NULL            reduce using rule 48 (TIPO_DATO -> TEXT .)
+    PAR_C           reduce using rule 48 (TIPO_DATO -> TEXT .)
+    COMA            reduce using rule 48 (TIPO_DATO -> TEXT .)
 
 
 state 50
 
-    (24) createDB_dosParam -> OWNER IGUAL ID MODE IGUAL . ENTERO
+    (49) TIPO_DATO -> FLOAT .
 
-    ENTERO          shift and go to state 58
+    PRIMARY         reduce using rule 49 (TIPO_DATO -> FLOAT .)
+    REFERENCES      reduce using rule 49 (TIPO_DATO -> FLOAT .)
+    NOT             reduce using rule 49 (TIPO_DATO -> FLOAT .)
+    NULL            reduce using rule 49 (TIPO_DATO -> FLOAT .)
+    PAR_C           reduce using rule 49 (TIPO_DATO -> FLOAT .)
+    COMA            reduce using rule 49 (TIPO_DATO -> FLOAT .)
 
 
 state 51
 
-    (23) createDB_dosParam -> OWNER IGUAL ID MODE ENTERO .
+    (50) TIPO_DATO -> INTEGER .
 
-    PTCOMA          reduce using rule 23 (createDB_dosParam -> OWNER IGUAL ID MODE ENTERO .)
+    PRIMARY         reduce using rule 50 (TIPO_DATO -> INTEGER .)
+    REFERENCES      reduce using rule 50 (TIPO_DATO -> INTEGER .)
+    NOT             reduce using rule 50 (TIPO_DATO -> INTEGER .)
+    NULL            reduce using rule 50 (TIPO_DATO -> INTEGER .)
+    PAR_C           reduce using rule 50 (TIPO_DATO -> INTEGER .)
+    COMA            reduce using rule 50 (TIPO_DATO -> INTEGER .)
 
 
 state 52
 
-    (26) createDB_dosParam -> MODE ENTERO OWNER IGUAL ID .
+    (51) TIPO_DATO -> SMALLINT .
 
-    PTCOMA          reduce using rule 26 (createDB_dosParam -> MODE ENTERO OWNER IGUAL ID .)
+    PRIMARY         reduce using rule 51 (TIPO_DATO -> SMALLINT .)
+    REFERENCES      reduce using rule 51 (TIPO_DATO -> SMALLINT .)
+    NOT             reduce using rule 51 (TIPO_DATO -> SMALLINT .)
+    NULL            reduce using rule 51 (TIPO_DATO -> SMALLINT .)
+    PAR_C           reduce using rule 51 (TIPO_DATO -> SMALLINT .)
+    COMA            reduce using rule 51 (TIPO_DATO -> SMALLINT .)
 
 
 state 53
 
-    (28) createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL . ID
+    (52) TIPO_DATO -> MONEY .
 
-    ID              shift and go to state 59
+    PRIMARY         reduce using rule 52 (TIPO_DATO -> MONEY .)
+    REFERENCES      reduce using rule 52 (TIPO_DATO -> MONEY .)
+    NOT             reduce using rule 52 (TIPO_DATO -> MONEY .)
+    NULL            reduce using rule 52 (TIPO_DATO -> MONEY .)
+    PAR_C           reduce using rule 52 (TIPO_DATO -> MONEY .)
+    COMA            reduce using rule 52 (TIPO_DATO -> MONEY .)
 
 
 state 54
 
-    (27) createDB_dosParam -> MODE IGUAL ENTERO OWNER ID .
+    (53) TIPO_DATO -> DECIMAL . PAR_A ENTERO COMA ENTERO PAR_C
 
-    PTCOMA          reduce using rule 27 (createDB_dosParam -> MODE IGUAL ENTERO OWNER ID .)
+    PAR_A           shift and go to state 88
 
 
 state 55
 
-    (11) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .
+    (54) TIPO_DATO -> NUMERIC . PAR_A ENTERO COMA ENTERO PAR_C
 
-    CREATE          reduce using rule 11 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .)
-    $end            reduce using rule 11 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .)
+    PAR_A           shift and go to state 89
 
 
 state 56
 
-    (19) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .
+    (55) TIPO_DATO -> BIGINT .
 
-    CREATE          reduce using rule 19 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .)
-    $end            reduce using rule 19 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .)
+    PRIMARY         reduce using rule 55 (TIPO_DATO -> BIGINT .)
+    REFERENCES      reduce using rule 55 (TIPO_DATO -> BIGINT .)
+    NOT             reduce using rule 55 (TIPO_DATO -> BIGINT .)
+    NULL            reduce using rule 55 (TIPO_DATO -> BIGINT .)
+    PAR_C           reduce using rule 55 (TIPO_DATO -> BIGINT .)
+    COMA            reduce using rule 55 (TIPO_DATO -> BIGINT .)
 
 
 state 57
 
-    (8) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID . PTCOMA
-    (12) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID . createDB_unParam PTCOMA
-    (20) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID . createDB_dosParam PTCOMA
-    (13) createDB_unParam -> . OWNER ID
-    (14) createDB_unParam -> . OWNER IGUAL ID
-    (15) createDB_unParam -> . MODE ENTERO
-    (16) createDB_unParam -> . MODE IGUAL ENTERO
-    (21) createDB_dosParam -> . OWNER ID MODE ENTERO
-    (22) createDB_dosParam -> . OWNER ID MODE IGUAL ENTERO
-    (23) createDB_dosParam -> . OWNER IGUAL ID MODE ENTERO
-    (24) createDB_dosParam -> . OWNER IGUAL ID MODE IGUAL ENTERO
-    (25) createDB_dosParam -> . MODE ENTERO OWNER ID
-    (26) createDB_dosParam -> . MODE ENTERO OWNER IGUAL ID
-    (27) createDB_dosParam -> . MODE IGUAL ENTERO OWNER ID
-    (28) createDB_dosParam -> . MODE IGUAL ENTERO OWNER IGUAL ID
+    (56) TIPO_DATO -> REAL .
 
-    PTCOMA          shift and go to state 60
-    OWNER           shift and go to state 15
-    MODE            shift and go to state 16
+    PRIMARY         reduce using rule 56 (TIPO_DATO -> REAL .)
+    REFERENCES      reduce using rule 56 (TIPO_DATO -> REAL .)
+    NOT             reduce using rule 56 (TIPO_DATO -> REAL .)
+    NULL            reduce using rule 56 (TIPO_DATO -> REAL .)
+    PAR_C           reduce using rule 56 (TIPO_DATO -> REAL .)
+    COMA            reduce using rule 56 (TIPO_DATO -> REAL .)
 
-    createDB_unParam               shift and go to state 61
-    createDB_dosParam              shift and go to state 62
 
 state 58
 
-    (24) createDB_dosParam -> OWNER IGUAL ID MODE IGUAL ENTERO .
+    (57) TIPO_DATO -> DOUBLE . PRECISION
 
-    PTCOMA          reduce using rule 24 (createDB_dosParam -> OWNER IGUAL ID MODE IGUAL ENTERO .)
+    PRECISION       shift and go to state 90
 
 
 state 59
 
-    (28) createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL ID .
+    (58) TIPO_DATO -> INTERVAL . extract_time TO extract_time
+    (59) TIPO_DATO -> INTERVAL .
+    (69) extract_time -> . YEAR
+    (70) extract_time -> . DAY
+    (71) extract_time -> . MONTH
+    (72) extract_time -> . HOUR
+    (73) extract_time -> . MINUTE
+    (74) extract_time -> . SECOND
 
-    PTCOMA          reduce using rule 28 (createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL ID .)
+    PRIMARY         reduce using rule 59 (TIPO_DATO -> INTERVAL .)
+    REFERENCES      reduce using rule 59 (TIPO_DATO -> INTERVAL .)
+    NOT             reduce using rule 59 (TIPO_DATO -> INTERVAL .)
+    NULL            reduce using rule 59 (TIPO_DATO -> INTERVAL .)
+    PAR_C           reduce using rule 59 (TIPO_DATO -> INTERVAL .)
+    COMA            reduce using rule 59 (TIPO_DATO -> INTERVAL .)
+    YEAR            shift and go to state 92
+    DAY             shift and go to state 93
+    MONTH           shift and go to state 94
+    HOUR            shift and go to state 95
+    MINUTE          shift and go to state 96
+    SECOND          shift and go to state 97
 
+    extract_time                   shift and go to state 91
 
 state 60
 
-    (8) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA .
+    (60) TIPO_DATO -> TIME .
 
-    CREATE          reduce using rule 8 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA .)
-    $end            reduce using rule 8 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA .)
+    PRIMARY         reduce using rule 60 (TIPO_DATO -> TIME .)
+    REFERENCES      reduce using rule 60 (TIPO_DATO -> TIME .)
+    NOT             reduce using rule 60 (TIPO_DATO -> TIME .)
+    NULL            reduce using rule 60 (TIPO_DATO -> TIME .)
+    PAR_C           reduce using rule 60 (TIPO_DATO -> TIME .)
+    COMA            reduce using rule 60 (TIPO_DATO -> TIME .)
 
 
 state 61
 
-    (12) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam . PTCOMA
+    (61) TIPO_DATO -> TIMESTAMP .
 
-    PTCOMA          shift and go to state 63
+    PRIMARY         reduce using rule 61 (TIPO_DATO -> TIMESTAMP .)
+    REFERENCES      reduce using rule 61 (TIPO_DATO -> TIMESTAMP .)
+    NOT             reduce using rule 61 (TIPO_DATO -> TIMESTAMP .)
+    NULL            reduce using rule 61 (TIPO_DATO -> TIMESTAMP .)
+    PAR_C           reduce using rule 61 (TIPO_DATO -> TIMESTAMP .)
+    COMA            reduce using rule 61 (TIPO_DATO -> TIMESTAMP .)
 
 
 state 62
 
-    (20) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam . PTCOMA
+    (62) TIPO_DATO -> DATE .
 
-    PTCOMA          shift and go to state 64
+    PRIMARY         reduce using rule 62 (TIPO_DATO -> DATE .)
+    REFERENCES      reduce using rule 62 (TIPO_DATO -> DATE .)
+    NOT             reduce using rule 62 (TIPO_DATO -> DATE .)
+    NULL            reduce using rule 62 (TIPO_DATO -> DATE .)
+    PAR_C           reduce using rule 62 (TIPO_DATO -> DATE .)
+    COMA            reduce using rule 62 (TIPO_DATO -> DATE .)
 
 
 state 63
 
-    (12) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .
+    (63) TIPO_DATO -> CHARACTER . VARYING PAR_A ENTERO PAR_C
+    (66) TIPO_DATO -> CHARACTER . PAR_A ENTERO PAR_C
+    (68) TIPO_DATO -> CHARACTER . PAR_A PAR_C
 
-    CREATE          reduce using rule 12 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .)
-    $end            reduce using rule 12 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .)
+    VARYING         shift and go to state 98
+    PAR_A           shift and go to state 99
 
 
 state 64
 
-    (20) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .
+    (64) TIPO_DATO -> VARCHAR . PAR_A ENTERO PAR_C
 
-    CREATE          reduce using rule 20 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .)
-    $end            reduce using rule 20 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .)
+    PAR_A           shift and go to state 100
+
+
+state 65
+
+    (65) TIPO_DATO -> CHAR . PAR_A ENTERO PAR_C
+    (67) TIPO_DATO -> CHAR . PAR_A PAR_C
+
+    PAR_A           shift and go to state 101
+
+
+state 66
+
+    (35) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C . PTCOMA
+    (36) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C . INHERITS PAR_A ID PAR_C PTCOMA
+
+    PTCOMA          shift and go to state 102
+    INHERITS        shift and go to state 103
+
+
+state 67
+
+    (37) cuerpo_createTable_lista -> cuerpo_createTable_lista COMA . cuerpo_createTable
+    (39) cuerpo_createTable -> . ID TIPO_DATO
+    (40) cuerpo_createTable -> . ID TIPO_DATO PRIMARY KEY
+    (41) cuerpo_createTable -> . ID TIPO_DATO REFERENCES ID
+    (42) cuerpo_createTable -> . ID TIPO_DATO NOT NULL
+    (43) cuerpo_createTable -> . ID TIPO_DATO NULL
+    (44) cuerpo_createTable -> . PRIMARY KEY PAR_A ID PAR_C
+    (45) cuerpo_createTable -> . FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
+    (46) cuerpo_createTable -> . UNIQUE PAR_A campos_c PAR_C
+    (47) cuerpo_createTable -> . CONSTRAINT ID constraint_esp
+
+    ID              shift and go to state 32
+    PRIMARY         shift and go to state 35
+    FOREING         shift and go to state 36
+    UNIQUE          shift and go to state 37
+    CONSTRAINT      shift and go to state 38
+
+    cuerpo_createTable             shift and go to state 104
+
+state 68
+
+    (44) cuerpo_createTable -> PRIMARY KEY . PAR_A ID PAR_C
+
+    PAR_A           shift and go to state 105
+
+
+state 69
+
+    (45) cuerpo_createTable -> FOREING KEY . PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
+
+    PAR_A           shift and go to state 106
+
+
+state 70
+
+    (46) cuerpo_createTable -> UNIQUE PAR_A . campos_c PAR_C
+    (33) campos_c -> . campos_c COMA ID
+    (34) campos_c -> . ID
+
+    ID              shift and go to state 108
+
+    campos_c                       shift and go to state 107
+
+state 71
+
+    (47) cuerpo_createTable -> CONSTRAINT ID . constraint_esp
+    (30) constraint_esp -> . CHECK PAR_A expresion_logica PAR_C
+    (31) constraint_esp -> . UNIQUE PAR_A campos_c PAR_C
+    (32) constraint_esp -> . FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
+
+    CHECK           shift and go to state 110
+    UNIQUE          shift and go to state 111
+    FOREING         shift and go to state 112
+
+    constraint_esp                 shift and go to state 109
+
+state 72
+
+    (22) createDB_dosParam -> OWNER ID MODE ENTERO .
+
+    PTCOMA          reduce using rule 22 (createDB_dosParam -> OWNER ID MODE ENTERO .)
+
+
+state 73
+
+    (23) createDB_dosParam -> OWNER ID MODE IGUAL . ENTERO
+
+    ENTERO          shift and go to state 113
+
+
+state 74
+
+    (24) createDB_dosParam -> OWNER IGUAL ID MODE . ENTERO
+    (25) createDB_dosParam -> OWNER IGUAL ID MODE . IGUAL ENTERO
+
+    ENTERO          shift and go to state 115
+    IGUAL           shift and go to state 114
+
+
+state 75
+
+    (26) createDB_dosParam -> MODE ENTERO OWNER ID .
+
+    PTCOMA          reduce using rule 26 (createDB_dosParam -> MODE ENTERO OWNER ID .)
+
+
+state 76
+
+    (27) createDB_dosParam -> MODE ENTERO OWNER IGUAL . ID
+
+    ID              shift and go to state 116
+
+
+state 77
+
+    (28) createDB_dosParam -> MODE IGUAL ENTERO OWNER . ID
+    (29) createDB_dosParam -> MODE IGUAL ENTERO OWNER . IGUAL ID
+
+    ID              shift and go to state 118
+    IGUAL           shift and go to state 117
+
+
+state 78
+
+    (8) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA .
+
+    CREATE          reduce using rule 8 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA .)
+    $end            reduce using rule 8 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID PTCOMA .)
+
+
+state 79
+
+    (12) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam . PTCOMA
+
+    PTCOMA          shift and go to state 119
+
+
+state 80
+
+    (20) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam . PTCOMA
+
+    PTCOMA          shift and go to state 120
+
+
+state 81
+
+    (11) createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA .
+
+    CREATE          reduce using rule 11 (createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA .)
+    $end            reduce using rule 11 (createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_unParam PTCOMA .)
+
+
+state 82
+
+    (19) createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA .
+
+    CREATE          reduce using rule 19 (createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA .)
+    $end            reduce using rule 19 (createDB_insrt -> CREATE OR REPLACE DATABASE ID createDB_dosParam PTCOMA .)
+
+
+state 83
+
+    (9) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS . ID PTCOMA
+    (13) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS . ID createDB_unParam PTCOMA
+    (21) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS . ID createDB_dosParam PTCOMA
+
+    ID              shift and go to state 121
+
+
+state 84
+
+    (40) cuerpo_createTable -> ID TIPO_DATO PRIMARY . KEY
+
+    KEY             shift and go to state 122
+
+
+state 85
+
+    (41) cuerpo_createTable -> ID TIPO_DATO REFERENCES . ID
+
+    ID              shift and go to state 123
+
+
+state 86
+
+    (42) cuerpo_createTable -> ID TIPO_DATO NOT . NULL
+
+    NULL            shift and go to state 124
+
+
+state 87
+
+    (43) cuerpo_createTable -> ID TIPO_DATO NULL .
+
+    PAR_C           reduce using rule 43 (cuerpo_createTable -> ID TIPO_DATO NULL .)
+    COMA            reduce using rule 43 (cuerpo_createTable -> ID TIPO_DATO NULL .)
+
+
+state 88
+
+    (53) TIPO_DATO -> DECIMAL PAR_A . ENTERO COMA ENTERO PAR_C
+
+    ENTERO          shift and go to state 125
+
+
+state 89
+
+    (54) TIPO_DATO -> NUMERIC PAR_A . ENTERO COMA ENTERO PAR_C
+
+    ENTERO          shift and go to state 126
+
+
+state 90
+
+    (57) TIPO_DATO -> DOUBLE PRECISION .
+
+    PRIMARY         reduce using rule 57 (TIPO_DATO -> DOUBLE PRECISION .)
+    REFERENCES      reduce using rule 57 (TIPO_DATO -> DOUBLE PRECISION .)
+    NOT             reduce using rule 57 (TIPO_DATO -> DOUBLE PRECISION .)
+    NULL            reduce using rule 57 (TIPO_DATO -> DOUBLE PRECISION .)
+    PAR_C           reduce using rule 57 (TIPO_DATO -> DOUBLE PRECISION .)
+    COMA            reduce using rule 57 (TIPO_DATO -> DOUBLE PRECISION .)
+
+
+state 91
+
+    (58) TIPO_DATO -> INTERVAL extract_time . TO extract_time
+
+    TO              shift and go to state 127
+
+
+state 92
+
+    (69) extract_time -> YEAR .
+
+    TO              reduce using rule 69 (extract_time -> YEAR .)
+    PRIMARY         reduce using rule 69 (extract_time -> YEAR .)
+    REFERENCES      reduce using rule 69 (extract_time -> YEAR .)
+    NOT             reduce using rule 69 (extract_time -> YEAR .)
+    NULL            reduce using rule 69 (extract_time -> YEAR .)
+    PAR_C           reduce using rule 69 (extract_time -> YEAR .)
+    COMA            reduce using rule 69 (extract_time -> YEAR .)
+
+
+state 93
+
+    (70) extract_time -> DAY .
+
+    TO              reduce using rule 70 (extract_time -> DAY .)
+    PRIMARY         reduce using rule 70 (extract_time -> DAY .)
+    REFERENCES      reduce using rule 70 (extract_time -> DAY .)
+    NOT             reduce using rule 70 (extract_time -> DAY .)
+    NULL            reduce using rule 70 (extract_time -> DAY .)
+    PAR_C           reduce using rule 70 (extract_time -> DAY .)
+    COMA            reduce using rule 70 (extract_time -> DAY .)
+
+
+state 94
+
+    (71) extract_time -> MONTH .
+
+    TO              reduce using rule 71 (extract_time -> MONTH .)
+    PRIMARY         reduce using rule 71 (extract_time -> MONTH .)
+    REFERENCES      reduce using rule 71 (extract_time -> MONTH .)
+    NOT             reduce using rule 71 (extract_time -> MONTH .)
+    NULL            reduce using rule 71 (extract_time -> MONTH .)
+    PAR_C           reduce using rule 71 (extract_time -> MONTH .)
+    COMA            reduce using rule 71 (extract_time -> MONTH .)
+
+
+state 95
+
+    (72) extract_time -> HOUR .
+
+    TO              reduce using rule 72 (extract_time -> HOUR .)
+    PRIMARY         reduce using rule 72 (extract_time -> HOUR .)
+    REFERENCES      reduce using rule 72 (extract_time -> HOUR .)
+    NOT             reduce using rule 72 (extract_time -> HOUR .)
+    NULL            reduce using rule 72 (extract_time -> HOUR .)
+    PAR_C           reduce using rule 72 (extract_time -> HOUR .)
+    COMA            reduce using rule 72 (extract_time -> HOUR .)
+
+
+state 96
+
+    (73) extract_time -> MINUTE .
+
+    TO              reduce using rule 73 (extract_time -> MINUTE .)
+    PRIMARY         reduce using rule 73 (extract_time -> MINUTE .)
+    REFERENCES      reduce using rule 73 (extract_time -> MINUTE .)
+    NOT             reduce using rule 73 (extract_time -> MINUTE .)
+    NULL            reduce using rule 73 (extract_time -> MINUTE .)
+    PAR_C           reduce using rule 73 (extract_time -> MINUTE .)
+    COMA            reduce using rule 73 (extract_time -> MINUTE .)
+
+
+state 97
+
+    (74) extract_time -> SECOND .
+
+    TO              reduce using rule 74 (extract_time -> SECOND .)
+    PRIMARY         reduce using rule 74 (extract_time -> SECOND .)
+    REFERENCES      reduce using rule 74 (extract_time -> SECOND .)
+    NOT             reduce using rule 74 (extract_time -> SECOND .)
+    NULL            reduce using rule 74 (extract_time -> SECOND .)
+    PAR_C           reduce using rule 74 (extract_time -> SECOND .)
+    COMA            reduce using rule 74 (extract_time -> SECOND .)
+
+
+state 98
+
+    (63) TIPO_DATO -> CHARACTER VARYING . PAR_A ENTERO PAR_C
+
+    PAR_A           shift and go to state 128
+
+
+state 99
+
+    (66) TIPO_DATO -> CHARACTER PAR_A . ENTERO PAR_C
+    (68) TIPO_DATO -> CHARACTER PAR_A . PAR_C
+
+    ENTERO          shift and go to state 129
+    PAR_C           shift and go to state 130
+
+
+state 100
+
+    (64) TIPO_DATO -> VARCHAR PAR_A . ENTERO PAR_C
+
+    ENTERO          shift and go to state 131
+
+
+state 101
+
+    (65) TIPO_DATO -> CHAR PAR_A . ENTERO PAR_C
+    (67) TIPO_DATO -> CHAR PAR_A . PAR_C
+
+    ENTERO          shift and go to state 132
+    PAR_C           shift and go to state 133
+
+
+state 102
+
+    (35) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .
+
+    CREATE          reduce using rule 35 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+    $end            reduce using rule 35 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C PTCOMA .)
+
+
+state 103
+
+    (36) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS . PAR_A ID PAR_C PTCOMA
+
+    PAR_A           shift and go to state 134
+
+
+state 104
+
+    (37) cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable .
+
+    PAR_C           reduce using rule 37 (cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable .)
+    COMA            reduce using rule 37 (cuerpo_createTable_lista -> cuerpo_createTable_lista COMA cuerpo_createTable .)
+
+
+state 105
+
+    (44) cuerpo_createTable -> PRIMARY KEY PAR_A . ID PAR_C
+
+    ID              shift and go to state 135
+
+
+state 106
+
+    (45) cuerpo_createTable -> FOREING KEY PAR_A . ID PAR_C REFERENCES ID PAR_A ID PAR_C
+
+    ID              shift and go to state 136
+
+
+state 107
+
+    (46) cuerpo_createTable -> UNIQUE PAR_A campos_c . PAR_C
+    (33) campos_c -> campos_c . COMA ID
+
+    PAR_C           shift and go to state 137
+    COMA            shift and go to state 138
+
+
+state 108
+
+    (34) campos_c -> ID .
+
+    PAR_C           reduce using rule 34 (campos_c -> ID .)
+    COMA            reduce using rule 34 (campos_c -> ID .)
+
+
+state 109
+
+    (47) cuerpo_createTable -> CONSTRAINT ID constraint_esp .
+
+    PAR_C           reduce using rule 47 (cuerpo_createTable -> CONSTRAINT ID constraint_esp .)
+    COMA            reduce using rule 47 (cuerpo_createTable -> CONSTRAINT ID constraint_esp .)
+
+
+state 110
+
+    (30) constraint_esp -> CHECK . PAR_A expresion_logica PAR_C
+
+    PAR_A           shift and go to state 139
+
+
+state 111
+
+    (31) constraint_esp -> UNIQUE . PAR_A campos_c PAR_C
+
+    PAR_A           shift and go to state 140
+
+
+state 112
+
+    (32) constraint_esp -> FOREING . KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
+
+    KEY             shift and go to state 141
+
+
+state 113
+
+    (23) createDB_dosParam -> OWNER ID MODE IGUAL ENTERO .
+
+    PTCOMA          reduce using rule 23 (createDB_dosParam -> OWNER ID MODE IGUAL ENTERO .)
+
+
+state 114
+
+    (25) createDB_dosParam -> OWNER IGUAL ID MODE IGUAL . ENTERO
+
+    ENTERO          shift and go to state 142
+
+
+state 115
+
+    (24) createDB_dosParam -> OWNER IGUAL ID MODE ENTERO .
+
+    PTCOMA          reduce using rule 24 (createDB_dosParam -> OWNER IGUAL ID MODE ENTERO .)
+
+
+state 116
+
+    (27) createDB_dosParam -> MODE ENTERO OWNER IGUAL ID .
+
+    PTCOMA          reduce using rule 27 (createDB_dosParam -> MODE ENTERO OWNER IGUAL ID .)
+
+
+state 117
+
+    (29) createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL . ID
+
+    ID              shift and go to state 143
+
+
+state 118
+
+    (28) createDB_dosParam -> MODE IGUAL ENTERO OWNER ID .
+
+    PTCOMA          reduce using rule 28 (createDB_dosParam -> MODE IGUAL ENTERO OWNER ID .)
+
+
+state 119
+
+    (12) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .
+
+    CREATE          reduce using rule 12 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .)
+    $end            reduce using rule 12 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .)
+
+
+state 120
+
+    (20) createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .
+
+    CREATE          reduce using rule 20 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .)
+    $end            reduce using rule 20 (createDB_insrt -> CREATE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .)
+
+
+state 121
+
+    (9) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID . PTCOMA
+    (13) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID . createDB_unParam PTCOMA
+    (21) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID . createDB_dosParam PTCOMA
+    (14) createDB_unParam -> . OWNER ID
+    (15) createDB_unParam -> . OWNER IGUAL ID
+    (16) createDB_unParam -> . MODE ENTERO
+    (17) createDB_unParam -> . MODE IGUAL ENTERO
+    (22) createDB_dosParam -> . OWNER ID MODE ENTERO
+    (23) createDB_dosParam -> . OWNER ID MODE IGUAL ENTERO
+    (24) createDB_dosParam -> . OWNER IGUAL ID MODE ENTERO
+    (25) createDB_dosParam -> . OWNER IGUAL ID MODE IGUAL ENTERO
+    (26) createDB_dosParam -> . MODE ENTERO OWNER ID
+    (27) createDB_dosParam -> . MODE ENTERO OWNER IGUAL ID
+    (28) createDB_dosParam -> . MODE IGUAL ENTERO OWNER ID
+    (29) createDB_dosParam -> . MODE IGUAL ENTERO OWNER IGUAL ID
+
+    PTCOMA          shift and go to state 144
+    OWNER           shift and go to state 18
+    MODE            shift and go to state 19
+
+    createDB_unParam               shift and go to state 145
+    createDB_dosParam              shift and go to state 146
+
+state 122
+
+    (40) cuerpo_createTable -> ID TIPO_DATO PRIMARY KEY .
+
+    PAR_C           reduce using rule 40 (cuerpo_createTable -> ID TIPO_DATO PRIMARY KEY .)
+    COMA            reduce using rule 40 (cuerpo_createTable -> ID TIPO_DATO PRIMARY KEY .)
+
+
+state 123
+
+    (41) cuerpo_createTable -> ID TIPO_DATO REFERENCES ID .
+
+    PAR_C           reduce using rule 41 (cuerpo_createTable -> ID TIPO_DATO REFERENCES ID .)
+    COMA            reduce using rule 41 (cuerpo_createTable -> ID TIPO_DATO REFERENCES ID .)
+
+
+state 124
+
+    (42) cuerpo_createTable -> ID TIPO_DATO NOT NULL .
+
+    PAR_C           reduce using rule 42 (cuerpo_createTable -> ID TIPO_DATO NOT NULL .)
+    COMA            reduce using rule 42 (cuerpo_createTable -> ID TIPO_DATO NOT NULL .)
+
+
+state 125
+
+    (53) TIPO_DATO -> DECIMAL PAR_A ENTERO . COMA ENTERO PAR_C
+
+    COMA            shift and go to state 147
+
+
+state 126
+
+    (54) TIPO_DATO -> NUMERIC PAR_A ENTERO . COMA ENTERO PAR_C
+
+    COMA            shift and go to state 148
+
+
+state 127
+
+    (58) TIPO_DATO -> INTERVAL extract_time TO . extract_time
+    (69) extract_time -> . YEAR
+    (70) extract_time -> . DAY
+    (71) extract_time -> . MONTH
+    (72) extract_time -> . HOUR
+    (73) extract_time -> . MINUTE
+    (74) extract_time -> . SECOND
+
+    YEAR            shift and go to state 92
+    DAY             shift and go to state 93
+    MONTH           shift and go to state 94
+    HOUR            shift and go to state 95
+    MINUTE          shift and go to state 96
+    SECOND          shift and go to state 97
+
+    extract_time                   shift and go to state 149
+
+state 128
+
+    (63) TIPO_DATO -> CHARACTER VARYING PAR_A . ENTERO PAR_C
+
+    ENTERO          shift and go to state 150
+
+
+state 129
+
+    (66) TIPO_DATO -> CHARACTER PAR_A ENTERO . PAR_C
+
+    PAR_C           shift and go to state 151
+
+
+state 130
+
+    (68) TIPO_DATO -> CHARACTER PAR_A PAR_C .
+
+    PRIMARY         reduce using rule 68 (TIPO_DATO -> CHARACTER PAR_A PAR_C .)
+    REFERENCES      reduce using rule 68 (TIPO_DATO -> CHARACTER PAR_A PAR_C .)
+    NOT             reduce using rule 68 (TIPO_DATO -> CHARACTER PAR_A PAR_C .)
+    NULL            reduce using rule 68 (TIPO_DATO -> CHARACTER PAR_A PAR_C .)
+    PAR_C           reduce using rule 68 (TIPO_DATO -> CHARACTER PAR_A PAR_C .)
+    COMA            reduce using rule 68 (TIPO_DATO -> CHARACTER PAR_A PAR_C .)
+
+
+state 131
+
+    (64) TIPO_DATO -> VARCHAR PAR_A ENTERO . PAR_C
+
+    PAR_C           shift and go to state 152
+
+
+state 132
+
+    (65) TIPO_DATO -> CHAR PAR_A ENTERO . PAR_C
+
+    PAR_C           shift and go to state 153
+
+
+state 133
+
+    (67) TIPO_DATO -> CHAR PAR_A PAR_C .
+
+    PRIMARY         reduce using rule 67 (TIPO_DATO -> CHAR PAR_A PAR_C .)
+    REFERENCES      reduce using rule 67 (TIPO_DATO -> CHAR PAR_A PAR_C .)
+    NOT             reduce using rule 67 (TIPO_DATO -> CHAR PAR_A PAR_C .)
+    NULL            reduce using rule 67 (TIPO_DATO -> CHAR PAR_A PAR_C .)
+    PAR_C           reduce using rule 67 (TIPO_DATO -> CHAR PAR_A PAR_C .)
+    COMA            reduce using rule 67 (TIPO_DATO -> CHAR PAR_A PAR_C .)
+
+
+state 134
+
+    (36) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A . ID PAR_C PTCOMA
+
+    ID              shift and go to state 154
+
+
+state 135
+
+    (44) cuerpo_createTable -> PRIMARY KEY PAR_A ID . PAR_C
+
+    PAR_C           shift and go to state 155
+
+
+state 136
+
+    (45) cuerpo_createTable -> FOREING KEY PAR_A ID . PAR_C REFERENCES ID PAR_A ID PAR_C
+
+    PAR_C           shift and go to state 156
+
+
+state 137
+
+    (46) cuerpo_createTable -> UNIQUE PAR_A campos_c PAR_C .
+
+    PAR_C           reduce using rule 46 (cuerpo_createTable -> UNIQUE PAR_A campos_c PAR_C .)
+    COMA            reduce using rule 46 (cuerpo_createTable -> UNIQUE PAR_A campos_c PAR_C .)
+
+
+state 138
+
+    (33) campos_c -> campos_c COMA . ID
+
+    ID              shift and go to state 157
+
+
+state 139
+
+    (30) constraint_esp -> CHECK PAR_A . expresion_logica PAR_C
+    (98) expresion_logica -> . expresion_relacional AND expresion_relacional
+    (99) expresion_logica -> . expresion_relacional OR expresion_relacional
+    (100) expresion_logica -> . NOT expresion_relacional
+    (101) expresion_logica -> . expresion_relacional
+    (89) expresion_relacional -> . expresion MAYQUE expresion
+    (90) expresion_relacional -> . expresion MENQUE expresion
+    (91) expresion_relacional -> . expresion MAYIGQUE expresion
+    (92) expresion_relacional -> . expresion MENIGQUE expresion
+    (93) expresion_relacional -> . expresion DOBLEIG expresion
+    (94) expresion_relacional -> . expresion IGUAL expresion
+    (95) expresion_relacional -> . expresion NOIG expresion
+    (96) expresion_relacional -> . expresion NOIGUAL expresion
+    (97) expresion_relacional -> . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    NOT             shift and go to state 160
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion_logica               shift and go to state 158
+    expresion_relacional           shift and go to state 159
+    expresion                      shift and go to state 161
+
+state 140
+
+    (31) constraint_esp -> UNIQUE PAR_A . campos_c PAR_C
+    (33) campos_c -> . campos_c COMA ID
+    (34) campos_c -> . ID
+
+    ID              shift and go to state 108
+
+    campos_c                       shift and go to state 168
+
+state 141
+
+    (32) constraint_esp -> FOREING KEY . PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C
+
+    PAR_A           shift and go to state 169
+
+
+state 142
+
+    (25) createDB_dosParam -> OWNER IGUAL ID MODE IGUAL ENTERO .
+
+    PTCOMA          reduce using rule 25 (createDB_dosParam -> OWNER IGUAL ID MODE IGUAL ENTERO .)
+
+
+state 143
+
+    (29) createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL ID .
+
+    PTCOMA          reduce using rule 29 (createDB_dosParam -> MODE IGUAL ENTERO OWNER IGUAL ID .)
+
+
+state 144
+
+    (9) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA .
+
+    CREATE          reduce using rule 9 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA .)
+    $end            reduce using rule 9 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID PTCOMA .)
+
+
+state 145
+
+    (13) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam . PTCOMA
+
+    PTCOMA          shift and go to state 170
+
+
+state 146
+
+    (21) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam . PTCOMA
+
+    PTCOMA          shift and go to state 171
+
+
+state 147
+
+    (53) TIPO_DATO -> DECIMAL PAR_A ENTERO COMA . ENTERO PAR_C
+
+    ENTERO          shift and go to state 172
+
+
+state 148
+
+    (54) TIPO_DATO -> NUMERIC PAR_A ENTERO COMA . ENTERO PAR_C
+
+    ENTERO          shift and go to state 173
+
+
+state 149
+
+    (58) TIPO_DATO -> INTERVAL extract_time TO extract_time .
+
+    PRIMARY         reduce using rule 58 (TIPO_DATO -> INTERVAL extract_time TO extract_time .)
+    REFERENCES      reduce using rule 58 (TIPO_DATO -> INTERVAL extract_time TO extract_time .)
+    NOT             reduce using rule 58 (TIPO_DATO -> INTERVAL extract_time TO extract_time .)
+    NULL            reduce using rule 58 (TIPO_DATO -> INTERVAL extract_time TO extract_time .)
+    PAR_C           reduce using rule 58 (TIPO_DATO -> INTERVAL extract_time TO extract_time .)
+    COMA            reduce using rule 58 (TIPO_DATO -> INTERVAL extract_time TO extract_time .)
+
+
+state 150
+
+    (63) TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO . PAR_C
+
+    PAR_C           shift and go to state 174
+
+
+state 151
+
+    (66) TIPO_DATO -> CHARACTER PAR_A ENTERO PAR_C .
+
+    PRIMARY         reduce using rule 66 (TIPO_DATO -> CHARACTER PAR_A ENTERO PAR_C .)
+    REFERENCES      reduce using rule 66 (TIPO_DATO -> CHARACTER PAR_A ENTERO PAR_C .)
+    NOT             reduce using rule 66 (TIPO_DATO -> CHARACTER PAR_A ENTERO PAR_C .)
+    NULL            reduce using rule 66 (TIPO_DATO -> CHARACTER PAR_A ENTERO PAR_C .)
+    PAR_C           reduce using rule 66 (TIPO_DATO -> CHARACTER PAR_A ENTERO PAR_C .)
+    COMA            reduce using rule 66 (TIPO_DATO -> CHARACTER PAR_A ENTERO PAR_C .)
+
+
+state 152
+
+    (64) TIPO_DATO -> VARCHAR PAR_A ENTERO PAR_C .
+
+    PRIMARY         reduce using rule 64 (TIPO_DATO -> VARCHAR PAR_A ENTERO PAR_C .)
+    REFERENCES      reduce using rule 64 (TIPO_DATO -> VARCHAR PAR_A ENTERO PAR_C .)
+    NOT             reduce using rule 64 (TIPO_DATO -> VARCHAR PAR_A ENTERO PAR_C .)
+    NULL            reduce using rule 64 (TIPO_DATO -> VARCHAR PAR_A ENTERO PAR_C .)
+    PAR_C           reduce using rule 64 (TIPO_DATO -> VARCHAR PAR_A ENTERO PAR_C .)
+    COMA            reduce using rule 64 (TIPO_DATO -> VARCHAR PAR_A ENTERO PAR_C .)
+
+
+state 153
+
+    (65) TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .
+
+    PRIMARY         reduce using rule 65 (TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .)
+    REFERENCES      reduce using rule 65 (TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .)
+    NOT             reduce using rule 65 (TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .)
+    NULL            reduce using rule 65 (TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .)
+    PAR_C           reduce using rule 65 (TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .)
+    COMA            reduce using rule 65 (TIPO_DATO -> CHAR PAR_A ENTERO PAR_C .)
+
+
+state 154
+
+    (36) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID . PAR_C PTCOMA
+
+    PAR_C           shift and go to state 175
+
+
+state 155
+
+    (44) cuerpo_createTable -> PRIMARY KEY PAR_A ID PAR_C .
+
+    PAR_C           reduce using rule 44 (cuerpo_createTable -> PRIMARY KEY PAR_A ID PAR_C .)
+    COMA            reduce using rule 44 (cuerpo_createTable -> PRIMARY KEY PAR_A ID PAR_C .)
+
+
+state 156
+
+    (45) cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C . REFERENCES ID PAR_A ID PAR_C
+
+    REFERENCES      shift and go to state 176
+
+
+state 157
+
+    (33) campos_c -> campos_c COMA ID .
+
+    PAR_C           reduce using rule 33 (campos_c -> campos_c COMA ID .)
+    COMA            reduce using rule 33 (campos_c -> campos_c COMA ID .)
+
+
+state 158
+
+    (30) constraint_esp -> CHECK PAR_A expresion_logica . PAR_C
+
+    PAR_C           shift and go to state 177
+
+
+state 159
+
+    (98) expresion_logica -> expresion_relacional . AND expresion_relacional
+    (99) expresion_logica -> expresion_relacional . OR expresion_relacional
+    (101) expresion_logica -> expresion_relacional .
+
+    AND             shift and go to state 178
+    OR              shift and go to state 179
+    PAR_C           reduce using rule 101 (expresion_logica -> expresion_relacional .)
+
+
+state 160
+
+    (100) expresion_logica -> NOT . expresion_relacional
+    (89) expresion_relacional -> . expresion MAYQUE expresion
+    (90) expresion_relacional -> . expresion MENQUE expresion
+    (91) expresion_relacional -> . expresion MAYIGQUE expresion
+    (92) expresion_relacional -> . expresion MENIGQUE expresion
+    (93) expresion_relacional -> . expresion DOBLEIG expresion
+    (94) expresion_relacional -> . expresion IGUAL expresion
+    (95) expresion_relacional -> . expresion NOIG expresion
+    (96) expresion_relacional -> . expresion NOIGUAL expresion
+    (97) expresion_relacional -> . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion_relacional           shift and go to state 180
+    expresion                      shift and go to state 161
+
+state 161
+
+    (89) expresion_relacional -> expresion . MAYQUE expresion
+    (90) expresion_relacional -> expresion . MENQUE expresion
+    (91) expresion_relacional -> expresion . MAYIGQUE expresion
+    (92) expresion_relacional -> expresion . MENIGQUE expresion
+    (93) expresion_relacional -> expresion . DOBLEIG expresion
+    (94) expresion_relacional -> expresion . IGUAL expresion
+    (95) expresion_relacional -> expresion . NOIG expresion
+    (96) expresion_relacional -> expresion . NOIGUAL expresion
+    (97) expresion_relacional -> expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    MAYQUE          shift and go to state 181
+    MENQUE          shift and go to state 182
+    MAYIGQUE        shift and go to state 183
+    MENIGQUE        shift and go to state 184
+    DOBLEIG         shift and go to state 185
+    IGUAL           shift and go to state 186
+    NOIG            shift and go to state 187
+    NOIGUAL         shift and go to state 188
+    AND             reduce using rule 97 (expresion_relacional -> expresion .)
+    OR              reduce using rule 97 (expresion_relacional -> expresion .)
+    PAR_C           reduce using rule 97 (expresion_relacional -> expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 162
+
+    (76) expresion -> CADENA .
+
+    MAYQUE          reduce using rule 76 (expresion -> CADENA .)
+    MENQUE          reduce using rule 76 (expresion -> CADENA .)
+    MAYIGQUE        reduce using rule 76 (expresion -> CADENA .)
+    MENIGQUE        reduce using rule 76 (expresion -> CADENA .)
+    DOBLEIG         reduce using rule 76 (expresion -> CADENA .)
+    IGUAL           reduce using rule 76 (expresion -> CADENA .)
+    NOIG            reduce using rule 76 (expresion -> CADENA .)
+    NOIGUAL         reduce using rule 76 (expresion -> CADENA .)
+    SUMA            reduce using rule 76 (expresion -> CADENA .)
+    RESTA           reduce using rule 76 (expresion -> CADENA .)
+    DIVISION        reduce using rule 76 (expresion -> CADENA .)
+    ASTERISCO       reduce using rule 76 (expresion -> CADENA .)
+    AND             reduce using rule 76 (expresion -> CADENA .)
+    OR              reduce using rule 76 (expresion -> CADENA .)
+    PAR_C           reduce using rule 76 (expresion -> CADENA .)
+
+
+state 163
+
+    (77) expresion -> ENTERO .
+
+    MAYQUE          reduce using rule 77 (expresion -> ENTERO .)
+    MENQUE          reduce using rule 77 (expresion -> ENTERO .)
+    MAYIGQUE        reduce using rule 77 (expresion -> ENTERO .)
+    MENIGQUE        reduce using rule 77 (expresion -> ENTERO .)
+    DOBLEIG         reduce using rule 77 (expresion -> ENTERO .)
+    IGUAL           reduce using rule 77 (expresion -> ENTERO .)
+    NOIG            reduce using rule 77 (expresion -> ENTERO .)
+    NOIGUAL         reduce using rule 77 (expresion -> ENTERO .)
+    SUMA            reduce using rule 77 (expresion -> ENTERO .)
+    RESTA           reduce using rule 77 (expresion -> ENTERO .)
+    DIVISION        reduce using rule 77 (expresion -> ENTERO .)
+    ASTERISCO       reduce using rule 77 (expresion -> ENTERO .)
+    AND             reduce using rule 77 (expresion -> ENTERO .)
+    OR              reduce using rule 77 (expresion -> ENTERO .)
+    PAR_C           reduce using rule 77 (expresion -> ENTERO .)
+
+
+state 164
+
+    (78) expresion -> FLOTANTE .
+
+    MAYQUE          reduce using rule 78 (expresion -> FLOTANTE .)
+    MENQUE          reduce using rule 78 (expresion -> FLOTANTE .)
+    MAYIGQUE        reduce using rule 78 (expresion -> FLOTANTE .)
+    MENIGQUE        reduce using rule 78 (expresion -> FLOTANTE .)
+    DOBLEIG         reduce using rule 78 (expresion -> FLOTANTE .)
+    IGUAL           reduce using rule 78 (expresion -> FLOTANTE .)
+    NOIG            reduce using rule 78 (expresion -> FLOTANTE .)
+    NOIGUAL         reduce using rule 78 (expresion -> FLOTANTE .)
+    SUMA            reduce using rule 78 (expresion -> FLOTANTE .)
+    RESTA           reduce using rule 78 (expresion -> FLOTANTE .)
+    DIVISION        reduce using rule 78 (expresion -> FLOTANTE .)
+    ASTERISCO       reduce using rule 78 (expresion -> FLOTANTE .)
+    AND             reduce using rule 78 (expresion -> FLOTANTE .)
+    OR              reduce using rule 78 (expresion -> FLOTANTE .)
+    PAR_C           reduce using rule 78 (expresion -> FLOTANTE .)
+
+
+state 165
+
+    (79) expresion -> ID .
+    (80) expresion -> ID . PUNTO ID
+
+    MAYQUE          reduce using rule 79 (expresion -> ID .)
+    MENQUE          reduce using rule 79 (expresion -> ID .)
+    MAYIGQUE        reduce using rule 79 (expresion -> ID .)
+    MENIGQUE        reduce using rule 79 (expresion -> ID .)
+    DOBLEIG         reduce using rule 79 (expresion -> ID .)
+    IGUAL           reduce using rule 79 (expresion -> ID .)
+    NOIG            reduce using rule 79 (expresion -> ID .)
+    NOIGUAL         reduce using rule 79 (expresion -> ID .)
+    SUMA            reduce using rule 79 (expresion -> ID .)
+    RESTA           reduce using rule 79 (expresion -> ID .)
+    DIVISION        reduce using rule 79 (expresion -> ID .)
+    ASTERISCO       reduce using rule 79 (expresion -> ID .)
+    AND             reduce using rule 79 (expresion -> ID .)
+    OR              reduce using rule 79 (expresion -> ID .)
+    PAR_C           reduce using rule 79 (expresion -> ID .)
+    PUNTO           shift and go to state 193
+
+
+state 166
+
+    (85) expresion -> TRUE .
+
+    MAYQUE          reduce using rule 85 (expresion -> TRUE .)
+    MENQUE          reduce using rule 85 (expresion -> TRUE .)
+    MAYIGQUE        reduce using rule 85 (expresion -> TRUE .)
+    MENIGQUE        reduce using rule 85 (expresion -> TRUE .)
+    DOBLEIG         reduce using rule 85 (expresion -> TRUE .)
+    IGUAL           reduce using rule 85 (expresion -> TRUE .)
+    NOIG            reduce using rule 85 (expresion -> TRUE .)
+    NOIGUAL         reduce using rule 85 (expresion -> TRUE .)
+    SUMA            reduce using rule 85 (expresion -> TRUE .)
+    RESTA           reduce using rule 85 (expresion -> TRUE .)
+    DIVISION        reduce using rule 85 (expresion -> TRUE .)
+    ASTERISCO       reduce using rule 85 (expresion -> TRUE .)
+    AND             reduce using rule 85 (expresion -> TRUE .)
+    OR              reduce using rule 85 (expresion -> TRUE .)
+    PAR_C           reduce using rule 85 (expresion -> TRUE .)
+
+
+state 167
+
+    (86) expresion -> FALSE .
+
+    MAYQUE          reduce using rule 86 (expresion -> FALSE .)
+    MENQUE          reduce using rule 86 (expresion -> FALSE .)
+    MAYIGQUE        reduce using rule 86 (expresion -> FALSE .)
+    MENIGQUE        reduce using rule 86 (expresion -> FALSE .)
+    DOBLEIG         reduce using rule 86 (expresion -> FALSE .)
+    IGUAL           reduce using rule 86 (expresion -> FALSE .)
+    NOIG            reduce using rule 86 (expresion -> FALSE .)
+    NOIGUAL         reduce using rule 86 (expresion -> FALSE .)
+    SUMA            reduce using rule 86 (expresion -> FALSE .)
+    RESTA           reduce using rule 86 (expresion -> FALSE .)
+    DIVISION        reduce using rule 86 (expresion -> FALSE .)
+    ASTERISCO       reduce using rule 86 (expresion -> FALSE .)
+    AND             reduce using rule 86 (expresion -> FALSE .)
+    OR              reduce using rule 86 (expresion -> FALSE .)
+    PAR_C           reduce using rule 86 (expresion -> FALSE .)
+
+
+state 168
+
+    (31) constraint_esp -> UNIQUE PAR_A campos_c . PAR_C
+    (33) campos_c -> campos_c . COMA ID
+
+    PAR_C           shift and go to state 194
+    COMA            shift and go to state 138
+
+
+state 169
+
+    (32) constraint_esp -> FOREING KEY PAR_A . ID PAR_C REFERENCES ID PAR_A ID PAR_C
+
+    ID              shift and go to state 195
+
+
+state 170
+
+    (13) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .
+
+    CREATE          reduce using rule 13 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .)
+    $end            reduce using rule 13 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_unParam PTCOMA .)
+
+
+state 171
+
+    (21) createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .
+
+    CREATE          reduce using rule 21 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .)
+    $end            reduce using rule 21 (createDB_insrt -> CREATE OR REPLACE DATABASE IF NOT EXISTS ID createDB_dosParam PTCOMA .)
+
+
+state 172
+
+    (53) TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO . PAR_C
+
+    PAR_C           shift and go to state 196
+
+
+state 173
+
+    (54) TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO . PAR_C
+
+    PAR_C           shift and go to state 197
+
+
+state 174
+
+    (63) TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO PAR_C .
+
+    PRIMARY         reduce using rule 63 (TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO PAR_C .)
+    REFERENCES      reduce using rule 63 (TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO PAR_C .)
+    NOT             reduce using rule 63 (TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO PAR_C .)
+    NULL            reduce using rule 63 (TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO PAR_C .)
+    PAR_C           reduce using rule 63 (TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO PAR_C .)
+    COMA            reduce using rule 63 (TIPO_DATO -> CHARACTER VARYING PAR_A ENTERO PAR_C .)
+
+
+state 175
+
+    (36) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C . PTCOMA
+
+    PTCOMA          shift and go to state 198
+
+
+state 176
+
+    (45) cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C REFERENCES . ID PAR_A ID PAR_C
+
+    ID              shift and go to state 199
+
+
+state 177
+
+    (30) constraint_esp -> CHECK PAR_A expresion_logica PAR_C .
+
+    PAR_C           reduce using rule 30 (constraint_esp -> CHECK PAR_A expresion_logica PAR_C .)
+    COMA            reduce using rule 30 (constraint_esp -> CHECK PAR_A expresion_logica PAR_C .)
+
+
+state 178
+
+    (98) expresion_logica -> expresion_relacional AND . expresion_relacional
+    (89) expresion_relacional -> . expresion MAYQUE expresion
+    (90) expresion_relacional -> . expresion MENQUE expresion
+    (91) expresion_relacional -> . expresion MAYIGQUE expresion
+    (92) expresion_relacional -> . expresion MENIGQUE expresion
+    (93) expresion_relacional -> . expresion DOBLEIG expresion
+    (94) expresion_relacional -> . expresion IGUAL expresion
+    (95) expresion_relacional -> . expresion NOIG expresion
+    (96) expresion_relacional -> . expresion NOIGUAL expresion
+    (97) expresion_relacional -> . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion_relacional           shift and go to state 200
+    expresion                      shift and go to state 161
+
+state 179
+
+    (99) expresion_logica -> expresion_relacional OR . expresion_relacional
+    (89) expresion_relacional -> . expresion MAYQUE expresion
+    (90) expresion_relacional -> . expresion MENQUE expresion
+    (91) expresion_relacional -> . expresion MAYIGQUE expresion
+    (92) expresion_relacional -> . expresion MENIGQUE expresion
+    (93) expresion_relacional -> . expresion DOBLEIG expresion
+    (94) expresion_relacional -> . expresion IGUAL expresion
+    (95) expresion_relacional -> . expresion NOIG expresion
+    (96) expresion_relacional -> . expresion NOIGUAL expresion
+    (97) expresion_relacional -> . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion_relacional           shift and go to state 201
+    expresion                      shift and go to state 161
+
+state 180
+
+    (100) expresion_logica -> NOT expresion_relacional .
+
+    PAR_C           reduce using rule 100 (expresion_logica -> NOT expresion_relacional .)
+
+
+state 181
+
+    (89) expresion_relacional -> expresion MAYQUE . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 202
+
+state 182
+
+    (90) expresion_relacional -> expresion MENQUE . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 203
+
+state 183
+
+    (91) expresion_relacional -> expresion MAYIGQUE . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 204
+
+state 184
+
+    (92) expresion_relacional -> expresion MENIGQUE . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 205
+
+state 185
+
+    (93) expresion_relacional -> expresion DOBLEIG . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 206
+
+state 186
+
+    (94) expresion_relacional -> expresion IGUAL . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 207
+
+state 187
+
+    (95) expresion_relacional -> expresion NOIG . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 208
+
+state 188
+
+    (96) expresion_relacional -> expresion NOIGUAL . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 209
+
+state 189
+
+    (81) expresion -> expresion SUMA . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 210
+
+state 190
+
+    (82) expresion -> expresion RESTA . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 211
+
+state 191
+
+    (83) expresion -> expresion DIVISION . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 212
+
+state 192
+
+    (84) expresion -> expresion ASTERISCO . expresion
+    (76) expresion -> . CADENA
+    (77) expresion -> . ENTERO
+    (78) expresion -> . FLOTANTE
+    (79) expresion -> . ID
+    (80) expresion -> . ID PUNTO ID
+    (81) expresion -> . expresion SUMA expresion
+    (82) expresion -> . expresion RESTA expresion
+    (83) expresion -> . expresion DIVISION expresion
+    (84) expresion -> . expresion ASTERISCO expresion
+    (85) expresion -> . TRUE
+    (86) expresion -> . FALSE
+
+    CADENA          shift and go to state 162
+    ENTERO          shift and go to state 163
+    FLOTANTE        shift and go to state 164
+    ID              shift and go to state 165
+    TRUE            shift and go to state 166
+    FALSE           shift and go to state 167
+
+    expresion                      shift and go to state 213
+
+state 193
+
+    (80) expresion -> ID PUNTO . ID
+
+    ID              shift and go to state 214
+
+
+state 194
+
+    (31) constraint_esp -> UNIQUE PAR_A campos_c PAR_C .
+
+    PAR_C           reduce using rule 31 (constraint_esp -> UNIQUE PAR_A campos_c PAR_C .)
+    COMA            reduce using rule 31 (constraint_esp -> UNIQUE PAR_A campos_c PAR_C .)
+
+
+state 195
+
+    (32) constraint_esp -> FOREING KEY PAR_A ID . PAR_C REFERENCES ID PAR_A ID PAR_C
+
+    PAR_C           shift and go to state 215
+
+
+state 196
+
+    (53) TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO PAR_C .
+
+    PRIMARY         reduce using rule 53 (TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO PAR_C .)
+    REFERENCES      reduce using rule 53 (TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO PAR_C .)
+    NOT             reduce using rule 53 (TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO PAR_C .)
+    NULL            reduce using rule 53 (TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO PAR_C .)
+    PAR_C           reduce using rule 53 (TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO PAR_C .)
+    COMA            reduce using rule 53 (TIPO_DATO -> DECIMAL PAR_A ENTERO COMA ENTERO PAR_C .)
+
+
+state 197
+
+    (54) TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO PAR_C .
+
+    PRIMARY         reduce using rule 54 (TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO PAR_C .)
+    REFERENCES      reduce using rule 54 (TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO PAR_C .)
+    NOT             reduce using rule 54 (TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO PAR_C .)
+    NULL            reduce using rule 54 (TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO PAR_C .)
+    PAR_C           reduce using rule 54 (TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO PAR_C .)
+    COMA            reduce using rule 54 (TIPO_DATO -> NUMERIC PAR_A ENTERO COMA ENTERO PAR_C .)
+
+
+state 198
+
+    (36) create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA .
+
+    CREATE          reduce using rule 36 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA .)
+    $end            reduce using rule 36 (create_Table_isnrt -> CREATE TABLE ID PAR_A cuerpo_createTable_lista PAR_C INHERITS PAR_A ID PAR_C PTCOMA .)
+
+
+state 199
+
+    (45) cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C REFERENCES ID . PAR_A ID PAR_C
+
+    PAR_A           shift and go to state 216
+
+
+state 200
+
+    (98) expresion_logica -> expresion_relacional AND expresion_relacional .
+
+    PAR_C           reduce using rule 98 (expresion_logica -> expresion_relacional AND expresion_relacional .)
+
+
+state 201
+
+    (99) expresion_logica -> expresion_relacional OR expresion_relacional .
+
+    PAR_C           reduce using rule 99 (expresion_logica -> expresion_relacional OR expresion_relacional .)
+
+
+state 202
+
+    (89) expresion_relacional -> expresion MAYQUE expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    AND             reduce using rule 89 (expresion_relacional -> expresion MAYQUE expresion .)
+    OR              reduce using rule 89 (expresion_relacional -> expresion MAYQUE expresion .)
+    PAR_C           reduce using rule 89 (expresion_relacional -> expresion MAYQUE expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 203
+
+    (90) expresion_relacional -> expresion MENQUE expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    AND             reduce using rule 90 (expresion_relacional -> expresion MENQUE expresion .)
+    OR              reduce using rule 90 (expresion_relacional -> expresion MENQUE expresion .)
+    PAR_C           reduce using rule 90 (expresion_relacional -> expresion MENQUE expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 204
+
+    (91) expresion_relacional -> expresion MAYIGQUE expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    AND             reduce using rule 91 (expresion_relacional -> expresion MAYIGQUE expresion .)
+    OR              reduce using rule 91 (expresion_relacional -> expresion MAYIGQUE expresion .)
+    PAR_C           reduce using rule 91 (expresion_relacional -> expresion MAYIGQUE expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 205
+
+    (92) expresion_relacional -> expresion MENIGQUE expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    AND             reduce using rule 92 (expresion_relacional -> expresion MENIGQUE expresion .)
+    OR              reduce using rule 92 (expresion_relacional -> expresion MENIGQUE expresion .)
+    PAR_C           reduce using rule 92 (expresion_relacional -> expresion MENIGQUE expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 206
+
+    (93) expresion_relacional -> expresion DOBLEIG expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    AND             reduce using rule 93 (expresion_relacional -> expresion DOBLEIG expresion .)
+    OR              reduce using rule 93 (expresion_relacional -> expresion DOBLEIG expresion .)
+    PAR_C           reduce using rule 93 (expresion_relacional -> expresion DOBLEIG expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 207
+
+    (94) expresion_relacional -> expresion IGUAL expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    AND             reduce using rule 94 (expresion_relacional -> expresion IGUAL expresion .)
+    OR              reduce using rule 94 (expresion_relacional -> expresion IGUAL expresion .)
+    PAR_C           reduce using rule 94 (expresion_relacional -> expresion IGUAL expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 208
+
+    (95) expresion_relacional -> expresion NOIG expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    AND             reduce using rule 95 (expresion_relacional -> expresion NOIG expresion .)
+    OR              reduce using rule 95 (expresion_relacional -> expresion NOIG expresion .)
+    PAR_C           reduce using rule 95 (expresion_relacional -> expresion NOIG expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 209
+
+    (96) expresion_relacional -> expresion NOIGUAL expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    AND             reduce using rule 96 (expresion_relacional -> expresion NOIGUAL expresion .)
+    OR              reduce using rule 96 (expresion_relacional -> expresion NOIGUAL expresion .)
+    PAR_C           reduce using rule 96 (expresion_relacional -> expresion NOIGUAL expresion .)
+    SUMA            shift and go to state 189
+    RESTA           shift and go to state 190
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+
+state 210
+
+    (81) expresion -> expresion SUMA expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    MAYQUE          reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    MENQUE          reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    MAYIGQUE        reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    MENIGQUE        reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    DOBLEIG         reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    IGUAL           reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    NOIG            reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    NOIGUAL         reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    SUMA            reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    RESTA           reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    AND             reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    OR              reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    PAR_C           reduce using rule 81 (expresion -> expresion SUMA expresion .)
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+  ! DIVISION        [ reduce using rule 81 (expresion -> expresion SUMA expresion .) ]
+  ! ASTERISCO       [ reduce using rule 81 (expresion -> expresion SUMA expresion .) ]
+  ! SUMA            [ shift and go to state 189 ]
+  ! RESTA           [ shift and go to state 190 ]
+
+
+state 211
+
+    (82) expresion -> expresion RESTA expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    MAYQUE          reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    MENQUE          reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    MAYIGQUE        reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    MENIGQUE        reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    DOBLEIG         reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    IGUAL           reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    NOIG            reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    NOIGUAL         reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    SUMA            reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    RESTA           reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    AND             reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    OR              reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    PAR_C           reduce using rule 82 (expresion -> expresion RESTA expresion .)
+    DIVISION        shift and go to state 191
+    ASTERISCO       shift and go to state 192
+
+  ! DIVISION        [ reduce using rule 82 (expresion -> expresion RESTA expresion .) ]
+  ! ASTERISCO       [ reduce using rule 82 (expresion -> expresion RESTA expresion .) ]
+  ! SUMA            [ shift and go to state 189 ]
+  ! RESTA           [ shift and go to state 190 ]
+
+
+state 212
+
+    (83) expresion -> expresion DIVISION expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    MAYQUE          reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    MENQUE          reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    MAYIGQUE        reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    MENIGQUE        reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    DOBLEIG         reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    IGUAL           reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    NOIG            reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    NOIGUAL         reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    SUMA            reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    RESTA           reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    DIVISION        reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    ASTERISCO       reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    AND             reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    OR              reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+    PAR_C           reduce using rule 83 (expresion -> expresion DIVISION expresion .)
+
+  ! SUMA            [ shift and go to state 189 ]
+  ! RESTA           [ shift and go to state 190 ]
+  ! DIVISION        [ shift and go to state 191 ]
+  ! ASTERISCO       [ shift and go to state 192 ]
+
+
+state 213
+
+    (84) expresion -> expresion ASTERISCO expresion .
+    (81) expresion -> expresion . SUMA expresion
+    (82) expresion -> expresion . RESTA expresion
+    (83) expresion -> expresion . DIVISION expresion
+    (84) expresion -> expresion . ASTERISCO expresion
+
+    MAYQUE          reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    MENQUE          reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    MAYIGQUE        reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    MENIGQUE        reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    DOBLEIG         reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    IGUAL           reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    NOIG            reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    NOIGUAL         reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    SUMA            reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    RESTA           reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    DIVISION        reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    ASTERISCO       reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    AND             reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    OR              reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+    PAR_C           reduce using rule 84 (expresion -> expresion ASTERISCO expresion .)
+
+  ! SUMA            [ shift and go to state 189 ]
+  ! RESTA           [ shift and go to state 190 ]
+  ! DIVISION        [ shift and go to state 191 ]
+  ! ASTERISCO       [ shift and go to state 192 ]
+
+
+state 214
+
+    (80) expresion -> ID PUNTO ID .
+
+    MAYQUE          reduce using rule 80 (expresion -> ID PUNTO ID .)
+    MENQUE          reduce using rule 80 (expresion -> ID PUNTO ID .)
+    MAYIGQUE        reduce using rule 80 (expresion -> ID PUNTO ID .)
+    MENIGQUE        reduce using rule 80 (expresion -> ID PUNTO ID .)
+    DOBLEIG         reduce using rule 80 (expresion -> ID PUNTO ID .)
+    IGUAL           reduce using rule 80 (expresion -> ID PUNTO ID .)
+    NOIG            reduce using rule 80 (expresion -> ID PUNTO ID .)
+    NOIGUAL         reduce using rule 80 (expresion -> ID PUNTO ID .)
+    SUMA            reduce using rule 80 (expresion -> ID PUNTO ID .)
+    RESTA           reduce using rule 80 (expresion -> ID PUNTO ID .)
+    DIVISION        reduce using rule 80 (expresion -> ID PUNTO ID .)
+    ASTERISCO       reduce using rule 80 (expresion -> ID PUNTO ID .)
+    AND             reduce using rule 80 (expresion -> ID PUNTO ID .)
+    OR              reduce using rule 80 (expresion -> ID PUNTO ID .)
+    PAR_C           reduce using rule 80 (expresion -> ID PUNTO ID .)
+
+
+state 215
+
+    (32) constraint_esp -> FOREING KEY PAR_A ID PAR_C . REFERENCES ID PAR_A ID PAR_C
+
+    REFERENCES      shift and go to state 217
+
+
+state 216
+
+    (45) cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A . ID PAR_C
+
+    ID              shift and go to state 218
+
+
+state 217
+
+    (32) constraint_esp -> FOREING KEY PAR_A ID PAR_C REFERENCES . ID PAR_A ID PAR_C
+
+    ID              shift and go to state 219
+
+
+state 218
+
+    (45) cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID . PAR_C
+
+    PAR_C           shift and go to state 220
+
+
+state 219
+
+    (32) constraint_esp -> FOREING KEY PAR_A ID PAR_C REFERENCES ID . PAR_A ID PAR_C
+
+    PAR_A           shift and go to state 221
+
+
+state 220
+
+    (45) cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C .
+
+    PAR_C           reduce using rule 45 (cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C .)
+    COMA            reduce using rule 45 (cuerpo_createTable -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C .)
+
+
+state 221
+
+    (32) constraint_esp -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A . ID PAR_C
+
+    ID              shift and go to state 222
+
+
+state 222
+
+    (32) constraint_esp -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID . PAR_C
+
+    PAR_C           shift and go to state 223
+
+
+state 223
+
+    (32) constraint_esp -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C .
+
+    PAR_C           reduce using rule 32 (constraint_esp -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C .)
+    COMA            reduce using rule 32 (constraint_esp -> FOREING KEY PAR_A ID PAR_C REFERENCES ID PAR_A ID PAR_C .)
 

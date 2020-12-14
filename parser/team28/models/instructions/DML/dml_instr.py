@@ -1,13 +1,10 @@
-from shared import Instruction
+from models.instructions.shared import Instruction
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
 '''
-class Select(Instruction):
-    '''
-        SELECT recibe un array con todas los parametros
-    '''
-    def __init__(self,  instrs) :
-        self.instrs = instrs
+
+
+
 
 class Insert(Instruction):
     '''
@@ -21,6 +18,10 @@ class Insert(Instruction):
         self.arr_columns = arr_columns
         self.arr_values = arr_values
 
+    def __repr__(self):
+        return str(vars(self))
+    
+
 class Update(Instruction):
     '''
         UPDATE recibe tres parametros: 
@@ -32,6 +33,9 @@ class Update(Instruction):
         self.table = table
         self.arr_columns_vals = arr_columns_vals
         self.params = params
+    
+    def __repr__(self):
+        return str(vars(self))
 
 class ColumnVal(Instruction):
     '''
@@ -42,6 +46,10 @@ class ColumnVal(Instruction):
     def __init__(self,  column, value) :
         self.column = column
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
 
 class Opt1(Instruction):
     '''
@@ -50,6 +58,10 @@ class Opt1(Instruction):
     def __init__(self, isAsterisco, alias) :
         self.isAsterisco = isAsterisco
         self.alias = alias
+    
+    def __repr__(self):
+        return str(vars(self))
+    
 
 class Delete(Instruction):
     '''
@@ -58,3 +70,6 @@ class Delete(Instruction):
     def __init__(self,  table, params) :
         self.table = table
         self.params = params
+    
+    def __repr__(self):
+        return str(vars(self))

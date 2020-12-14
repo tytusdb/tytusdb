@@ -6,11 +6,11 @@ import os
 import json
 
 
-#############
-# Databases #
-#############
+##################
+# Databases CRUD #
+##################
 
-# Create a database checking their existence
+# CREATE a database checking their existence
 def createDatabase(database: str) -> int:
     initCheck()
     dump = False
@@ -29,7 +29,17 @@ def createDatabase(database: str) -> int:
     else:
         return 1
 
-# Rename a database name by inserting new_key and deleting old_key
+# READ and show databases by constructing a list
+def showDatabases() -> list:
+    initCheck()
+    databases = []
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        for d in data:
+            databases.append(d);
+    return databases
+
+# UPDATE and rename a database name by inserting new_key and deleting old_key
 def alterDatabase(databaseOld: str, databaseNew) -> int:
     initCheck()
     dump = False
@@ -50,7 +60,7 @@ def alterDatabase(databaseOld: str, databaseNew) -> int:
     else:
         return 1    
 
-# delete database by pop from dictionary
+# DELETE a database by pop from dictionary
 def dropDatabase(database: str) -> int:
     initCheck()
     dump = False
@@ -68,22 +78,12 @@ def dropDatabase(database: str) -> int:
     else:
         return 1    
 
-# show databases by constructing a list
-def showDatabases() -> list:
-    initCheck()
-    databases = []
-    with open('data/json/databases') as file:
-        data = json.load(file)
-        for d in data:
-            databases.append(d);
-    return databases
 
+###############
+# Tables CRUD #
+###############
 
-##########
-# Tables #
-##########
-
-# Create a table checking their existence
+# CREATE a table checking their existence
 def createTable(database: str, table: str, numberColumns: int) -> int:
     initCheck()
     dump = False
@@ -120,50 +120,40 @@ def showTables(database: str) -> list:
             tables.append(d);
     return tables
 
-# Rename a table name by inserting new_key and deleting old_key
-def alterTable(database: str, tableOld: str, tableNew: str) -> int:
+# extract all register of a table
+def extractTable(database: str, table: str) -> list:
     initCheck()
-    dump = False
+    rows = []
     with open('data/json/databases') as file:
         data = json.load(file)
         if not database in data:
-            return 2
-        else:
-            if not tableOld in data[database]:
-                return 3
-            if tableNew in data[database]:
-                return 4            
-            else:
-                data[database][tableNew] = data[database][tableOld]
-                data[database].pop(tableOld)
-                dump = True
-    if dump:
-        with open('data/json/databases', 'w') as file:
-            json.dump(data, file)
-        return 0
-    else:
-        return 1   
+            return rows
+        else: 
+            if table not in data[database]:
+                return rows
+    with open('data/json/'+database+'-'+table) as file:
+        data = json.load(file)
+        for d in data:
+            rows.append(data[d]);
+    return rows
 
-# Delete a table name by inserting new_key and deleting old_key
-def dropTable(database: str, table: str) -> int:
+# extract a range registers of a table
+def extractRangeTable(database: str, table: str, lower: any, upper: any) -> list:
     initCheck()
-    dump = False
+    rows = []
     with open('data/json/databases') as file:
         data = json.load(file)
         if not database in data:
-            return 2
-        else:
-            if not table in data[database]:
-                return 3
-            else:                
-                data[database].pop(table)
-                dump = True
-    if dump:
-        with open('data/json/databases', 'w') as file:
-            json.dump(data, file)
-        return 0
-    else:
-        return 1  
+            return rows
+        else: 
+            if table not in data[database]:
+                return rows
+    with open('data/json/'+database+'-'+table) as file:
+        data = json.load(file)
+        for d in data:
+            if (str(d)<=str(upper) and str(d)>=str(lower)):
+                rows.append(data[d]);
+    return rows
 
 # Add a PK list to specific table and database
 def alterAddPK(database: str, table: str, columns: list) -> int:
@@ -218,11 +208,118 @@ def alterDropPK(database: str, table: str) -> int:
         return 1  
 
 
-#############
-# Registers #
-#############
+# Rename a table name by inserting new_key and deleting old_key
+def alterTable(database: str, tableOld: str, tableNew: str) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not tableOld in data[database]:
+                return 3
+            if tableNew in data[database]:
+                return 4            
+            else:
+                data[database][tableNew] = data[database][tableOld]
+                data[database].pop(tableOld)
+                dump = True
+    if dump:
+        with open('data/json/databases', 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1   
 
-# insert a register 
+# add a column at the end of register with default value
+def alterAddColumn(database: str, table: str, default: any) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            data[database][table]['NCOL']+=1
+            dump = True
+    if dump:
+        with open('data/json/databases', 'w') as file:
+            json.dump(data, file)
+
+        with open('data/json/'+database+'-'+table) as file:
+            data = json.load(file)
+            for d in data:
+                data[d].append(default)
+        with open('data/json/'+database+'-'+table, 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1  
+
+# drop a column and its content (except primary key columns)
+def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            ncol = data[database][table]['NCOL']            
+            pkey = data[database][table]['PKEY']
+            if columnNumber in pkey:
+                return 4            
+            if not ncol >len(pkey):
+                return 4
+            if columnNumber<0 or columnNumber>ncol-1:
+                return 5
+            data[database][table]['NCOL']-=1
+            dump = True
+    if dump:
+        with open('data/json/databases', 'w') as file:
+            json.dump(data, file)
+
+        with open('data/json/'+database+'-'+table) as file:
+            data = json.load(file)
+            for d in data:
+                data[d].pop(columnNumber)
+        with open('data/json/'+database+'-'+table, 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1  
+        
+# Delete a table name by inserting new_key and deleting old_key
+def dropTable(database: str, table: str) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if not table in data[database]:
+                return 3
+            else:                
+                data[database].pop(table)
+                dump = True
+    if dump:
+        with open('data/json/databases', 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1  
+
+##################
+# Registers CRUD #
+##################
+
+# CREATE or insert a register 
 def insert(database: str, table: str, register: list) -> int:    
     initCheck()
     dump = False
@@ -265,7 +362,49 @@ def insert(database: str, table: str, register: list) -> int:
     else:
         return 1
 
-# update a register
+# READ or load a CSV file to a table
+def loadCSV(filepath: str, database: str, table: str) -> list:
+    res = []
+    import csv
+    with open(filepath, 'r') as file:
+        reader = csv.reader(file, delimiter = ',')
+        for row in reader:
+            res.append(insert(database,table,row))
+    return res
+
+# READ or extract a register
+def extractRow(database: str, table: str, columns: list) -> list:
+    initCheck()
+    hide = False
+    ncol = None
+    pkey = None
+    pk = ""
+    with open('data/json/databases') as file:
+        data = json.load(file)
+        if not database in data:
+            return []
+        else: 
+            if table not in data[database]:
+                return []
+            if "PKEY" not in data[database][table]:
+                # hidden pk
+                hide = True
+            else:
+                # defined pk
+                pkey = data[database][table]["PKEY"]            
+    with open('data/json/'+database+'-'+table) as file:
+        data = json.load(file)
+        if hide:
+            pk = columns[0]
+        else:
+            for i in pkey:
+                pk += str(columns[i])
+        if not pk in data:
+            return []
+        else:
+            return data[pk]
+
+# UPDATE a register
 def update(database: str, table: str, register: dict, columns: list) -> int:
     initCheck()
     dump = False
@@ -306,7 +445,7 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
     else:
         return 1
 
-# delete a register
+# DELETE a specific register
 def delete(database: str, table: str, columns: list) -> int:
     initCheck()
     dump = False
@@ -346,7 +485,7 @@ def delete(database: str, table: str, columns: list) -> int:
     else:
         return 1
 
-# truncate a table
+# DELETE or truncate all registers of the table
 def truncate(database: str, table: str) -> int:
     initCheck()
     dump = False
@@ -370,7 +509,6 @@ def truncate(database: str, table: str) -> int:
     else:
         return 1
 
-
 #############
 # Utilities #
 #############
@@ -386,7 +524,6 @@ def initCheck():
         data = {}
         with open('data/json/databases', 'w') as file:
             json.dump(data, file)    
-
 
 # Show the complete file of databases and tables
 def showJSON(fileName: str):
