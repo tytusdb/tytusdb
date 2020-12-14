@@ -95,7 +95,7 @@ class tabs:
         self.consola.pack(side=LEFT, fill=BOTH)
         self.scroll.pack(side=RIGHT, fill=Y)
 
-    def parse_gramar(self):
+    def parse_grammar(self):
         cadena = self.textArea.textarea.get(1.0, tk.END)
         instrucciones = g.parse(cadena)
 
