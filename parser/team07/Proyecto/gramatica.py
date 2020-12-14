@@ -821,16 +821,29 @@ def p_exp_aritmetica(t):
             nodoExp.hijos.append(nodoBetween)
             t[0] = nodoExp
         elif tipOp.lower() == "in":
-            nNodo = incNodo(numNodo)
-            nodoBetween = betweenIN.BetweenIn()
-            nodoBetween.inn(t[1],t[4],tipoSimbolo.TipoSimbolo.INN)    
-            hijosBetween = []
-            hijosBetween.append(t[1])
-            hijosBetween.append(t[4])        
-            nodoBetween.setearValores(linea,columna,"IN",nNodo,"",hijosBetween)
-            nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.INN)
-            nodoExp.hijos.append(nodoBetween)
-            t[0] = nodoExp    
+            if len(t) == 4:
+                nNodo = incNodo(numNodo)
+                nodoBetween = betweenIN.BetweenIn()
+                nodoBetween.innSubquery(t[1],None,tipoSimbolo.TipoSimbolo.INN)                
+                hijosBetween = []
+                hijosBetween.append(t[1])
+                hijosBetween.append(None)
+                nodoBetween.setearValores(linea,columna,"IN",nNodo,"",hijosBetween)
+                nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.INN)
+                nodoExp.hijos.append(nodoBetween)
+                t[0] = nodoExp 
+            else:
+
+                nNodo = incNodo(numNodo)
+                nodoBetween = betweenIN.BetweenIn()
+                nodoBetween.inn(t[1],t[4],tipoSimbolo.TipoSimbolo.INN)    
+                hijosBetween = []
+                hijosBetween.append(t[1])
+                hijosBetween.append(t[4])        
+                nodoBetween.setearValores(linea,columna,"IN",nNodo,"",hijosBetween)
+                nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.INN)
+                nodoExp.hijos.append(nodoBetween)
+                t[0] = nodoExp    
         elif tipOp.lower() == "like":
             nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.LIKE)
             nodoMas = crear_nodo_general("LIKE","like",linea,columna)
@@ -880,16 +893,29 @@ def p_exp_aritmetica(t):
                 nodoExp.hijos.append(nodoBetween)
                 t[0] = nodoExp
             elif tip2.lower() == "in":
-                nNodo = incNodo(numNodo)
-                nodoBetween = betweenIN.BetweenIn()
-                nodoBetween.inn(t[1],t[5],tipoSimbolo.TipoSimbolo.NOT_INN)    
-                hijosBetween = []
-                hijosBetween.append(t[1])
-                hijosBetween.append(t[5])        
-                nodoBetween.setearValores(linea,columna,"NOT_IN",nNodo,"",hijosBetween)
-                nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.NOT_INN)
-                nodoExp.hijos.append(nodoBetween)
-                t[0] = nodoExp    
+
+                if len(t) == 5:
+                    nNodo = incNodo(numNodo)
+                    nodoBetween = betweenIN.BetweenIn()
+                    nodoBetween.innSubquery(t[1],None,tipoSimbolo.TipoSimbolo.NOT_INN)                    
+                    hijosBetween = []
+                    hijosBetween.append(t[1])
+                    hijosBetween.append(None)        
+                    nodoBetween.setearValores(linea,columna,"NOT_IN",nNodo,"",hijosBetween)
+                    nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.NOT_INN)
+                    nodoExp.hijos.append(nodoBetween)
+                    t[0] = nodoExp                 
+                else:
+                    nNodo = incNodo(numNodo)
+                    nodoBetween = betweenIN.BetweenIn()
+                    nodoBetween.inn(t[1],t[5],tipoSimbolo.TipoSimbolo.NOT_INN)    
+                    hijosBetween = []
+                    hijosBetween.append(t[1])
+                    hijosBetween.append(t[5])        
+                    nodoBetween.setearValores(linea,columna,"NOT_IN",nNodo,"",hijosBetween)
+                    nodoExp.operacionUnaria(nodoBetween,tipoSimbolo.TipoSimbolo.NOT_INN)
+                    nodoExp.hijos.append(nodoBetween)
+                    t[0] = nodoExp    
             elif tip2.lower() == "like":
                 nodoExp.operacionBinaria(t[1],t[4],tipoSimbolo.TipoSimbolo.NOT_LIKE)
                 nodoMas = crear_nodo_general("NOT_LIKE","not like",linea,columna)
@@ -1209,7 +1235,7 @@ def p_op_unique_check_check(t):
     nodoCondicion = t[3]
     nodoopUniqueCheck.hijos.append(nodoCheck)
     nodoopUniqueCheck.hijos.append(nodoCondicion)
-    t[0] = instr
+    t[0] = nodoopUniqueCheck
 
 def p_condicion_check(t):
     '''condicion_check : ID MENOR_QUE expresion

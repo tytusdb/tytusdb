@@ -5,6 +5,8 @@ ply/
 *$py.class
 parser.out/
 parsertab.py/
+/parser.out
+/parsetab.py
 
 # C extensions
 *.so

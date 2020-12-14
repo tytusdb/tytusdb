@@ -9,6 +9,7 @@ class   BetweenIn(InstruccionAbstracta):
         self.valorFin = None
         self.listaIn = None
         self.tipoOperacion = None
+        self.subQuery = None
 
     def between(self,valorCom,valInicio,valFin,tipoOp):
         self.valorComparar = valorCom
@@ -21,6 +22,12 @@ class   BetweenIn(InstruccionAbstracta):
         self.valorComparar = valorCom
         self.listaIn = listaIn
         self.tipoOperacion = tipoOp
+    
+    def innSubquery(self,valorCom,subquery,tipoOp):
+        self.valorComparar = valorCom
+        self.subQuery = subquery
+        self.tipoOperacion = tipoOp
+
     
 
     def ejecutar(self, tabalSimbolos, listaErrores):
