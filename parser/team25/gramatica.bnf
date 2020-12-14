@@ -24,28 +24,24 @@
     <COLUMNAS> ::= <COLUMNA> 
                 | <COLUMNAS> ',' <COLUMNA> 
 
-    <COLUMNA> ::= 'id' <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS> <CHECKS> 
-                | 'id' <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS>
-                | 'id' <TIPO> <DEFAULT> <NULLABLE> <CHECKS>
-                | 'id' <TIPO> <DEFAULT> <NULLABLE>
-                | 'id' <TIPO> <DEFAULT> <CONSTRAINTS> <CHECKS>
-                | 'id' <TIPO> <DEFAULT> <CONSTRAINTS>
-                | 'id' <TIPO> <DEFAULT> <CHECKS>
-                | 'id' <TIPO> <DEFAULT>
-                | 'id' <TIPO> <NULLABLE> <CONSTRAINTS> <CHECKS>
-                | 'id' <TIPO> <NULLABLE> <CONSTRAINTS>
-                | 'id' <TIPO> <NULLABLE> <CHECKS>
-                | 'id' <TIPO> <NULLABLE>
-                | 'id' <TIPO> <CONSTRAINTS> <CHECKS>
-                | 'id' <TIPO> <CONSTRAINTS>
-                | 'id' <TIPO> <CHECKS>
-                | 'id' <TIPO>
-                | 'id' <TIPO> 'primary' 'key'
-                | 'id' <TIPO> 'references' 'id'
-                | 'constraint' 'id' 'check' '('<LISTA_CONDICIONES>')'
-                | 'unique' '('<LISTA_IDS>')'
-                | 'primary' 'key' '('<LISTA_IDS>')'
-                | 'foreign' 'key' '('<LISTA_IDS>')' 'references' 'id' '('<LISTA_IDS>')'
+    <COLUMNA> ::= 
+            | 'id' <TIPO>
+            | 'id' <TIPO> <LISTAOPCIONES> 
+            | 'constraint' 'id' 'check' '('<LISTA_CONDICIONES>')' 
+            | 'id' 'check' '('<LISTA_CONDICIONES>')'
+            | 'unique' '('<LISTA_IDS>')'
+            | 'primary' 'key' '('<LISTA_IDS>')'
+            | 'foreign' 'key' '('<LISTA_IDS>')' 'references' 'id' '('<LISTA_IDS>')'
+
+    <LISTAOPCIONES> ::= <LISTAOPCIONES> <OPCOL> 
+                 | <OPCOL> 
+
+    <OPCOL>   ::=  <DEFAULT> 
+            |  <CONSTRAINTS>
+            |  <CHECKS> 
+            |  <NULLABLE>
+            |  'primary' 'key'
+            |  'references' 'id'
 
 
     <DEFAULT> ::= 'default' <VALOR>
@@ -311,7 +307,7 @@
 
     <EXPRESION> ::= 'not' <EXPRESION>
                 | '-'   <EXPRESION>
-                | '<>'  <EXPRESION>
+                | <EXPRESION> '<>'  <EXPRESION>
                 | <EXPRESION> 'and'  <EXPRESION>
                 | <EXPRESION> 'or'   <EXPRESION>
                 | <EXPRESION> '='  <EXPRESION>

@@ -19,7 +19,7 @@ class Pantalla_AST():
         #Label(self.pw, image=imagen, bd=0).pack()
         self.pw.pack()
         btn = Button(self.top, text="Regresar",command=self.close)
-        btn.pack(side =TOP, ancho=E)
+        btn.pack(side=TOP, anchor=E, padx=25, pady=20)
         self.top.mainloop()
     
      def close(self):
