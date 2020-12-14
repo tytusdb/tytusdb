@@ -1,17 +1,16 @@
+
 from Tokens import *
 
 # Construccion del analizador léxico
 import ply.lex as lex
-
 lexer = lex.lex()
-
 # Asociación de operadores y precedencia
 precedence = (
     ("left", "OC_CONCATENAR"),
     ("left", "O_SUMA", "O_RESTA"),
     ("left", "O_PRODUCTO", "O_DIVISION", "O_MODULAR"),
     ("left", "O_EXPONENTE"),
-    # ("right", "UO_SUMA", "UO_RESTA"),
+    ("right", "UO_SUMA", "UO_RESTA"),
     (
         "left",
         "S_IGUAL",
@@ -27,29 +26,27 @@ precedence = (
         # "R_IS",
     ),
     ("right", "R_NOT"),
-    ("left", "R_AND"),
-    ("left", "R_OR"),
+    ("left", "R_AND", "R_OR"),
     ("left","R_UNION","R_INTERSECT","R_EXCEPT")
 )
 
 # Definición de la gramática
 
+import Expresiones
+import Instrucciones
 
 def p_init(t):
     """init : stmtList"""
     t[0] = t[1]
-
 
 def p_stmt_list(t):
     """stmtList : stmtList stmt"""
     t[1].append(t[2])
     t[0] = t[1]
 
-
 def p_stmt_u(t):
     """stmtList : stmt"""
     t[0] = [t[1]]
-
 
 def p_stmt(t):
     """
@@ -64,8 +61,7 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
-    t[0] = t[1]
-
+    t[0] = t[1].execute()
 
 # Statement para el CREATE
 # region CREATE
@@ -73,13 +69,11 @@ def p_createStmt(t):
     """createStmt : R_CREATE createBody"""
     t[0] = t[2]
 
-
 def p_createBody(t):
     """
     createBody : R_OR R_REPLACE createOpts
     | createOpts
     """
-
 
 def p_createOpts(t):
     """
@@ -88,20 +82,17 @@ def p_createOpts(t):
     | R_TYPE ifNotExists ID R_AS R_ENUM S_PARIZQ paramsList S_PARDER
     """
 
-
 def p_ifNotExists(t):
     """
     ifNotExists : R_IF R_NOT R_EXISTS
     |
     """
 
-
 def p_inheritsOpt(t):
     """
     inheritsOpt : R_INHERITS S_PARIZQ ID S_PARDER
     |
     """
-
 
 def p_createOwner(t):
     """
@@ -110,7 +101,6 @@ def p_createOwner(t):
     |
     """
 
-
 def p_createMode(t):
     """
     createMode : R_MODE INTEGER
@@ -118,14 +108,11 @@ def p_createMode(t):
     |
     """
 
-
 def p_createTable_list(t):
     """createTableList : createTableList S_COMA createTable"""
 
-
 def p_createTable_u(t):
     """createTableList :  createTable"""
-
 
 def p_createTable(t):
     """
@@ -136,26 +123,20 @@ def p_createTable(t):
     | createForeign
     """
 
-
 def p_createColumNs(t):
     """
     createColumns : colOptionsList
     |
     """
 
-
-# cambiar literal
 def p_createConstraint(t):
     """createConstraint : constrName R_CHECK S_PARIZQ expBoolCheck S_PARDER"""
-
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
 
-
 def p_createPrimary(t):
     """createPrimary : R_PRIMARY R_KEY S_PARIZQ idList S_PARDER"""
-
 
 def p_createForeign(t):
     """
@@ -163,21 +144,17 @@ def p_createForeign(t):
     | R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID
     """
 
-
 def p_constrName(t):
     """
     constrName : R_CONSTRAINT ID
     |
     """
 
-
 def p_id_list(t):
     """idList : idList S_COMA ID"""
 
-
 def p_id_u(t):
     """idList : ID"""
-
 
 def p_types(t):
     """
@@ -198,7 +175,6 @@ def p_types(t):
     | timeType
     """
 
-
 def p_timeType(t):
     """
     timeType :  R_TIMESTAMP optParams
@@ -206,7 +182,6 @@ def p_timeType(t):
     | T_TIME optParams
     | R_INTERVAL intervalFields optParams
     """
-
 
 def p_intervalFields(t):
     """
@@ -219,18 +194,14 @@ def p_intervalFields(t):
     |
     """
 
-
 def p_optParams(t):
     """optParams : S_PARIZQ literalList S_PARDER"""
-
 
 def p_colOptions_list(t):
     """colOptionsList : colOptionsList colOptions"""
 
-
 def p_colOptions_u(t):
     """colOptionsList : colOptions"""
-
 
 def p_colOptions(t):
     """
@@ -241,18 +212,15 @@ def p_colOptions(t):
     | referencesOpt
     """
 
-
 # cambiar literal
 def p_defaultVal(t):
     """defaultVal : R_DEFAULT literal"""
-
 
 def p_nullOpt(t):
     """
     nullOpt : R_NOT R_NULL
     | R_NULL
     """
-
 
 # cambiar literal
 def p_constraintOpt(t):
@@ -261,25 +229,27 @@ def p_constraintOpt(t):
     | constrName R_CHECK S_PARIZQ expBoolCheck S_PARDER
     """
 
-
 def p_primaryOpt(t):
     """primaryOpt : R_PRIMARY R_KEY"""
-
 
 def p_referencesOpt(t):
     """referencesOpt : R_REFERENCES ID"""
 
-
 # endregion CREATE
-
 # Gramatica para expresiones
 # region Expresiones
 def p_expresion(t) :
-  '''
-  expresion : datatype
+    '''
+    expresion : datatype
             | expBool
-            | S_PARIZQ selectStmt S_PARDER
-  '''
+    '''
+    t[0] = t[1]
+
+def p_expresion_(t) :
+    '''
+    expresion : S_PARIZQ selectStmt S_PARDER
+    '''
+    t[0] = t[2]
 
 def p_funcCall(t) :
   '''
@@ -336,14 +306,11 @@ def p_current(t) :
         | timeStamp
   '''
 
-
 def p_literal_list(t):
     """literalList : literalList S_COMA literal"""
 
-
 def p_literal_u(t):
     """literalList : literal"""
-
 
 def p_literal(t):
     """
@@ -351,45 +318,63 @@ def p_literal(t):
     | STRING
     | DECIMAL
     | CHARACTER
-    | literalBoolean
-    """
-
-
-def p_literal_boolean(t):
-    """
-    literalBoolean :  R_TRUE
+    | R_TRUE
     | R_FALSE
     """
+
+    if t.slice[1].type == 'CHARACTER' or t.slice[1].type == 'STRING':
+        tipo = Expresiones.TYPE.STRING
+    elif t.slice[1].type == 'R_TRUE' or t.slice[1].type == 'R_FALSE':
+        t.slice[1].value = t.slice[1].value == 'TRUE'
+        tipo = Expresiones.TYPE.BOOLEAN
+    else:
+        tipo = Expresiones.TYPE.NUMBER
+    t[0] = Expresiones.Primitivos(tipo, t.slice[1].value)
 
 
 def p_params_list(t):
     """paramsList : paramsList S_COMA datatype"""
 
-
 def p_params_u(t):
     """paramsList : datatype"""
 
-
-def p_datatype(t):
+def p_datatype_operadores_binarios(t):
     """
-    datatype :  columnName
-    | literal
-    | funcCall
-    | extract
-    | datePart
-    | current
-    | datatype O_SUMA datatype
+    datatype : datatype O_SUMA datatype
     | datatype O_RESTA datatype
     | datatype O_PRODUCTO datatype
     | datatype O_DIVISION datatype
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
     | datatype OC_CONCATENAR datatype
-    | S_PARIZQ datatype S_PARDER
     """
+    t[0] = Expresiones.ExpresionBinaria(t[1], t[3], t[2])
 
+def p_datatype_operadores_unarios(t):
+    """
+    datatype : O_RESTA datatype %prec UO_RESTA
+    | O_SUMA datatype %prec UO_SUMA
+    """
+    t[0] = Expresiones.ExpresionUnaria(t[2], t[1])
 
-def p_expComp(t):
+def p_datatype_operandos(t):
+    """
+    datatype : columnName
+    | literal
+    | funcCall
+    | extract
+    | datePart
+    | current
+    """
+    t[0] = t[1]
+
+def p_datatype_agrupacion(t):
+    """
+    datatype : S_PARIZQ datatype S_PARDER
+    """
+    t[0] = t[2]
+
+def p_expCompBinario_1(t):
     """
     expComp : datatype OL_MENORQUE datatype
     | datatype OL_MAYORQUE datatype
@@ -397,22 +382,58 @@ def p_expComp(t):
     | datatype OL_MENORIGUALQUE datatype
     | datatype S_IGUAL datatype
     | datatype OL_DISTINTODE datatype
-    | datatype R_BETWEEN datatype R_AND datatype
-    | datatype R_NOT R_BETWEEN datatype R_AND datatype
+    """
+    t[0] = Expresiones.ExpresionCompBinaria(t[1],t[3],t[2])
+
+def p_expCompBinario_2(t):
+    """
+    expComp : datatype R_IS R_DISTINCT R_FROM datatype
+    """
+    t[0] = Expresiones.ExpresionCompBinaria(t[1],t[5],t[2]+t[3]+t[4])
+
+def p_expCompBinario_3(t):
+    """
+    expComp : datatype R_IS R_NOT R_DISTINCT R_FROM datatype
+    """
+    t[0] = Expresiones.ExpresionCompBinaria(t[1],t[6],t[2]+t[3]+t[4]+t[5])
+
+def p_expComp_ternario_1(t):
+    """
+    expComp :  datatype R_BETWEEN datatype R_AND datatype
+    """
+    t[0] = Expresiones.ExpresionCompTernaria(t[1],t[3],t[5],t[2])
+
+def p_expComp_ternario_2(t):
+    """
+    expComp : datatype R_NOT R_BETWEEN datatype R_AND datatype
     | datatype R_BETWEEN R_SYMMETRIC datatype R_AND datatype
-    | datatype R_IS R_DISTINCT R_FROM datatype
-    | datatype R_IS R_NOT R_DISTINCT R_FROM datatype
-    | datatype R_IS R_NULL
-    | datatype R_IS R_NOT R_NULL
-    | datatype R_ISNULL
+    """
+    t[0] = Expresiones.ExpresionCompTernaria(t[1],t[4],t[6],t[2]+t[3])
+
+def p_expComp_unario_1(t):
+    """
+    expComp : datatype R_ISNULL
     | datatype R_NOTNULL
+    """
+    t[0] = Expresiones.ExpresionCompUnaria(t[1],t[2])
+
+def p_expComp_unario_2(t):
+    """
+    expComp : datatype R_IS R_NULL
     | datatype R_IS R_TRUE
-    | datatype R_IS R_NOT R_TRUE
     | datatype R_IS R_FALSE
-    | datatype R_IS R_NOT R_FALSE
     | datatype R_IS R_UNKNOWN
+    """
+    t[0] = Expresiones.ExpresionCompUnaria(t[1],t[2]+t[3])
+
+def p_expComp_unario_3(t):
+    """
+    expComp : datatype R_IS R_NOT R_NULL
+    | datatype R_IS R_NOT R_TRUE
+    | datatype R_IS R_NOT R_FALSE
     | datatype R_IS R_NOT R_UNKNOWN
     """
+    t[0] = Expresiones.ExpresionCompUnaria(t[1],t[2]+t[3]+t[4])
 
 def p_expSubq(t) :
   '''
@@ -447,7 +468,7 @@ def p_stringExp(t) :
   '''
 
 
-def p_subqValues(t) :
+def p_subqValues(t):
   '''
   subqValues : R_ALL
                 | R_ANY
@@ -455,31 +476,56 @@ def p_subqValues(t) :
   '''
 
 
-def p_boolean(t) :
-  '''
-  boolean : expComp
-            | R_EXISTS S_PARIZQ selectStmt S_PARDER
+def p_boolean_1(t):
+    '''
+    boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
             | datatype R_IN S_PARIZQ selectStmt S_PARDER
             | datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
+    '''
+
+def p_boolean_2(t) :
+    '''
+    boolean : expComp
             | expSubq
-  '''
+    '''
+    t[0] = t[1]
 
-def p_expBool(t) :
-  '''
-  expBool : expBool R_AND expBool
+def p_expBool_1(t) :
+    '''
+    expBool : expBool R_AND expBool
             | expBool R_OR expBool
-            | R_NOT expBool
-            | S_PARIZQ boolean S_PARDER
-            | boolean
-  '''
+    '''
+    t[0] = Expresiones.ExpresionBooleanaBinaria(t[1],t[3],t[2])
 
+def p_expBool_2(t) :
+    '''
+    expBool : R_NOT expBool
+    '''
+    t[0] = Expresiones.ExpresionBooleanaUnaria(t[2],t[1])
 
-def p_columnName(t):
+def p_expBool_3(t) :
+    '''
+    expBool : S_PARIZQ expBool S_PARDER
+    '''
+    t[0] = t[2]
+
+def p_expBool_4(t) :
+    '''
+    expBool : boolean
+    '''
+    t[0] = t[1]
+
+def p_columnName_id(t):
     """
-    columnName :  ID
-    | ID S_PUNTO ID
+    columnName : ID
     """
+    t[0] = Expresiones.NombreColumna(None, t[3])
 
+def p_columnName_table_id(t):
+    """
+    columnName : ID S_PUNTO ID
+    """
+    t[0] = Expresiones.NombreColumna(t[1], t[3])
 
 def p_expBoolCheck(t):
     """
@@ -490,11 +536,11 @@ def p_expBoolCheck(t):
     | S_PARIZQ booleanCheck S_PARDER
     """
 
-
 def p_boolCheck(t):
     """
     booleanCheck :  expComp
     """
+
 #endregion
 
 # Statement para el ALTER
@@ -503,7 +549,6 @@ def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE ID alterDb
     | R_ALTER R_TABLE ID alterTableList
     """
-
 
 def p_alterDb(t):
     """alterDb : R_RENAME R_TO ID
@@ -541,9 +586,13 @@ def p_alterCol(t):
     | R_ALTER R_COLUMN ID R_SET R_NULL
     | R_ALTER R_COLUMN ID R_TYPE types
     """
+
 #endregion
 
-# Statement para el DROP
+'''
+Statement para el DROP
+'''
+
 #region DROP
 def p_dropStmt(t):
     """dropStmt : R_DROP R_TABLE ID
@@ -554,13 +603,13 @@ def p_ifExists(t):
     """ifExists : R_IF R_EXISTS 
     |
     """
+
 #endregion
 
 # Statement para el SELECT
 # region SELECT
 def p_selectStmt(t):
     """selectStmt : R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
-    | R_SELECT selectParams
     | R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl
     | selectStmt R_UNION allOpt selectStmt
     | selectStmt R_INTERSECT allOpt selectStmt
@@ -568,26 +617,56 @@ def p_selectStmt(t):
     | S_PARIZQ selectStmt S_PARDER
     """
 
+def p_selectstmt_only_params(t):
+    """selectStmt : R_SELECT selectParams
+    """
+    t[0] = Instrucciones.SelectOnlyParams(t[2].params)
+
 def p_allOpt(t):
     """allOpt : R_ALL
         |
     """
 
-def p_selectParams(t):
-    """selectParams : O_PRODUCTO
-     | selectList
-    """
+def p_selectparams_all(t):
+    """selectParams : O_PRODUCTO"""
+    t[0] = Instrucciones.SelectParams(Instrucciones.SELECT_MODE.ALL)
 
-def p_selectList(t):
-    """selectList : selectList S_COMA expresion optAlias
-                  | expresion optAlias
-    """
+def p_selectparams_params(t):
+    """selectParams : selectList"""
+    t[0] = Instrucciones.SelectParams(Instrucciones.SELECT_MODE.PARAMS, t[1])
 
-def p_optAlias(t):
-    """optAlias : R_AS ID
-    | ID
-    |
+#cambiar datatype - expresion optAlias
+def p_selectList_list(t):
+    """selectList : selectList S_COMA expresion optAlias"""
+    if t[4] != None: t[3].temp = t[4]
+    t[1].append(t[3])
+    t[0] = t[1]
+
+#cambiar datatype - expresion optAlias
+def p_selectList_u(t):
+    """selectList : expresion optAlias"""
+    if t[2] != None: t[1].temp = t[2]
+    t[0] = [t[1]]
+
+
+def p_optalias_as(t):
     """
+    optAlias : R_AS ID
+    | R_AS STRING
+    """
+    t[0] = t[2]
+
+def p_optalias_id(t):
+    """
+    optAlias : ID
+    | STRING
+    """
+    t[0] = t[1]
+
+def p_optalias_none(t):
+    """optAlias : """
+    t[0] = None
+
 def p_tableExp(t):
     """tableExp : tableExp S_COMA fromBody optAlias
     | fromBody optAlias
@@ -617,6 +696,7 @@ def p_nameList(t):
     """nameList : nameList S_COMA columnName
     | columnName
     """
+
 def p_joinOpt(t):
     """joinOpt : R_INNER
         | R_LEFT 
@@ -637,7 +717,6 @@ def p_groupByCl(t):
     | 
     """
 
-
 def p_groupList(t):
     """groupList :  groupList S_COMA columnName
     | columnName
@@ -657,6 +736,7 @@ def p_orderList(t):
     """orderList : orderList S_COMA orderByElem
     | orderByElem
     """
+
 def p_orderByElem(t):
     """orderByElem : columnName orderOpts orderNull"""
 
@@ -682,10 +762,11 @@ def p_offsetLimit(t):
     """offsetLimit : R_OFFSET INTEGER
         |
     """
+
 #endregion
 
-
 # Statement para el INSERT 
+
 #region INSERT
 def p_insertStmt(t):
     """insertStmt : R_INSERT R_INTO ID R_VALUES S_PARIZQ paramsList S_PARDER
@@ -693,6 +774,7 @@ def p_insertStmt(t):
 #endregion
 
 # Statement para el UPDATE 
+
 #region UPDATE
 def p_updateStmt(t):
     """updateStmt : R_UPDATE ID optAlias R_SET updateCols S_IGUAL updateVals whereCl
@@ -717,13 +799,16 @@ def p_updateExp(t):
     """updateExp : datatype
     | R_DEFAULT
     """
+
 #endregion
 
 # Statement para el DELETE y OTROS
+
 #region DELETE, ETC
 def p_deleteStmt(t):
     """deleteStmt : R_DELETE R_FROM ID optAlias whereCl
     """
+
 def p_truncateStmt(t):
     """truncateStmt : R_TRUNCATE tableOpt ID
     """
@@ -741,9 +826,11 @@ def p_likeOpt(t):
     """likeOpt : R_LIKE STRING
         |
     """
+
 def p_useStmt(t):
     """useStmt : R_USE R_DATABASE ID
     """
+
 #endregion
 
 def p_error(t):
@@ -753,103 +840,11 @@ def p_error(t):
     except AttributeError:
         print("end of file")
 
-
 import ply.yacc as yacc
-
 parser = yacc.yacc()
 
-
 s = """
-CREATE OR REPLACE DATABASE IF NOT EXISTS DB1;
-
-CREATE DATABASE IF NOT EXISTS DB2
-OWNER = root
-MODE = 1;
-
-CREATE TABLE IF NOT EXISTS User (
-  id INTEGER NOT NULL DEFAULT 0 PRIMARY KEY,
-  username VARCHAR(50) NULL CONSTRAINT k_username UNIQUE,
-  email CHAR(100) CONSTRAINT k_email CHECK (username != 'caca') REFERENCES Company,
-  phone CHARACTER(15) NOT NULL,
-  location_ CHARACTER VARYING(100),
-  createdAt DATE,
-  CONSTRAINT k_phone CHECK (username != 'res'),
-  CHECK (username != 'negro'),
-  UNIQUE (username, email)
-);
-
-CREATE TABLE IF NOT EXISTS Company (
-  id INTEGER NOT NULL,
-  name_ VARCHAR(50) NULL,
-  email CHAR(100),
-  phone CHARACTER(15) NOT NULL,
-  location_ CHARACTER VARYING(100),
-  createdAt DATE,
-  CHECK (name_ != 'culo'),
-  UNIQUE (name_, email),
-  PRIMARY KEY (id, email),
-  FOREIGN KEY (phone, location_) REFERENCES User (phone, location_)
-);
-
-CREATE TABLE Cities  (
-  id INTEGER,
-  name_ TEXT,
-  population_ NUMERIC,
-  elevation INTEGER
-);
-
-CREATE TABLE Capital  (
-  id INTEGER,
-  state_ CHAR(2)
-) INHERITS (Cities);
-CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');
-SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
-SELECT now();
---SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
---SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
---SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
-SELECT CURRENT_DATE;
-SELECT CURRENT_TIME;
-SELECT TIMESTAMP 'now';
---
-SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
-SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
-SELECT CURRENT_DATE;
-SELECT CURRENT_TIME;
-SELECT TIMESTAMP 'now';
---
-/*DROP TABLE my_first_table;
-ALTER TABLE table_ ADD COLUMN column_ SMALLINT;
-ALTER TABLE products DROP COLUMN description;
-ALTER TABLE table_ ADD CHECK (name <> '');
-ALTER TABLE table_ ADD CONSTRAINT some_name UNIQUE (column_);
-ALTER TABLE table_ ADD FOREIGN KEY (column_group_id) REFERENCES column_groups;
-ALTER TABLE table_ ALTER COLUMN column_ SET NOT NULL; 
-ALTER TABLE table_ DROP CONSTRAINT some_name;
-ALTER TABLE distributors
-ALTER COLUMN address TYPE varchar(80),
-ALTER COLUMN name TYPE varchar(100);
-*/INSERT INTO products VALUES (1, 'Cheese', 7);
-UPDATE products SET price = 10 WHERE price = 5;
-DELETE FROM products WHERE price = 10;
-
-SELECT nombre,indentificacion,sum(salario)
-FROM tbsujeto
-where X < 3
-GROUP BY nombre,indentificacion
-HAVING sum(salario)>100000;
-
-SELECT DISTINCT nombre
-FROM tbsujeto
-where X = nombre
-GROUP BY nombre,indentificacion
-HAVING sum(salario)>100000;
+    SELECT 3<1 or 23-7/4 BETWEEN 3 AND 4 AND NOT TRUE = false AS "test 1";
 """
 result = parser.parse(s)
-# print(result)
+print(result)

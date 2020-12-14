@@ -3,7 +3,7 @@ import os
 import sys
 import platform
 
-import accionesIDE as accionesVarias
+#import accionesIDE as accionesVarias
 #import mostrarLineas
 
 
@@ -35,7 +35,7 @@ class Interfaz(tk.Frame):
 
         self.filename = None
 
-        self.terminal = tk.Text(root, width=45, height=1, background="black",foreground="#00AA00")
+        self.terminal = tk.Text(root, width=75, height=1, background="black",foreground="#00AA00")
         self.terminal.pack(side="right", fill="both", expand=True)
 
         # Special Text
@@ -76,10 +76,10 @@ class Interfaz(tk.Frame):
         run_dropdown.add_command(label="Ejecutar Ascendente", command=self.ejecutar_ascendente)
         run_dropdown.add_command(label="Ejecutar Descendente")
 
-        report_dropdown.add_command(label="Reporte de Errores" )
+        report_dropdown.add_command(label="Reporte de Errores", command=self.generarReporteErrores )
         report_dropdown.add_command(label="Reporte AST", )
-        report_dropdown.add_command(label="Reporte de Gramatical")
-        report_dropdown.add_command(label="Tabla de Simbolos" )
+        report_dropdown.add_command(label="Reporte de Gramatical", command=self.generarReporteGramatical)
+        report_dropdown.add_command(label="Tabla de Simbolos", command=self.generarReporteSimbolos )
         
         help_dropdown.add_command(label="Acerca de", command=self.about)
         help_dropdown.add_command(label="Manual de Usuario", command=self.m_user)
@@ -89,6 +89,56 @@ class Interfaz(tk.Frame):
         menubar.add_cascade(label="Ejecutar", menu=run_dropdown)
         menubar.add_cascade(label="Reportes", menu=report_dropdown)
         menubar.add_cascade(label="Ayuda", menu=help_dropdown)
+
+#-------------------------------------------------------Metodo para reportes---------------------------------------------------------------------
+
+    def generarReporteGramatical(self):
+        try:
+            state_script_dir = os.getcwd()
+            report_dir = state_script_dir + "\\Reportes\\reporteGramatical.html"
+            print(report_dir)
+            analizador.genenerarReporteGramaticalAscendente(report_dir)
+            print("Si se genero el reporte :D!")
+            edge_path = 'C://Program Files (x86)//Microsoft//Edge//Application/msedge.exe %s'
+            webbrowser.get(edge_path).open(report_dir)
+        except:
+            print("no se genero el reporte :(")
+            box_tilte = "Report Error"
+            box_msg = "El archivo del reporte no existe"
+            messagebox.showinfo(box_tilte, box_msg)
+
+
+    def generarReporteErrores(self):
+        try:
+            state_script_dir = os.getcwd()
+            report_dir = state_script_dir + "\\Reportes\\reporteDeErrores.html"
+            print(report_dir)
+            analizador.genenerarReporteErroresAscendente(report_dir)
+            print("Si se genero el reporte de errores :D!")
+            edge_path = 'C://Program Files (x86)//Microsoft//Edge//Application/msedge.exe %s'
+            webbrowser.get(edge_path).open(report_dir)
+        except:
+            print("no se genero el reporte :(")
+            box_tilte = "Report Error"
+            box_msg = "El archivo del reporte no existe"
+            messagebox.showinfo(box_tilte, box_msg)
+
+
+
+    def generarReporteSimbolos(self):
+        try:
+            state_script_dir = os.getcwd()
+            report_dir = state_script_dir + "\\Reportes\\TablaDeSimbolos.html"
+            print(report_dir)
+            analizador.generarReporteSimbolos(report_dir)
+            print("Si se genero el reporte :D!")
+            edge_path = 'C://Program Files (x86)//Microsoft//Edge//Application/msedge.exe %s'
+            webbrowser.get(edge_path).open(report_dir)
+        except:
+            print("no se genero el reporte :(")
+            box_tilte = "Report Error"
+            box_msg = "El archivo del reporte no existe"
+            messagebox.showinfo(box_tilte, box_msg)
 #-------------------------------------------------------Color Tags for the Paint Method---------------------------------------------------------------------
         """self.text.tag_configure("reserved", foreground="red")
         self.text.tag_configure("var", foreground="#008000")

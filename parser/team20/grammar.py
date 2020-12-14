@@ -1,4 +1,7 @@
 from pathlib import Path
+from execution.AST.expression import *
+from execution.AST.sentence import *
+from execution.execute import * 
 # -----------------------------------------------------------------------------
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
@@ -226,21 +229,33 @@ precedence = (
     )
 
 # Grammar definition
-def p_instructions_list(t):
-    '''sentences : sentences sentence
-                 | sentence '''
+def p_start(t):
+    '''start : sentences'''
+    exec = Execute(t[1])
+    exec.execute()
+    t[0] = t[1]
+
+def p_instructions_list_list(t):
+    '''sentences : sentences sentence '''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_instructions_list_single(t):
+    '''sentences : sentence '''
+    t[0] = [t[1]]
 
 def p_instructions_sql(t):
     '''sentence : ddl SEMICOLON
                 | dml SEMICOLON'''
-
+    t[0] = t[1]
 # Sentences
 def p_instructions_ddl(t):
     '''ddl : drop
            | alter
            | use
            | create'''
-           
+    t[0] = t[1]
+       
 def p_instructions_dml(t):
     '''dml : show
            | insert
@@ -248,6 +263,7 @@ def p_instructions_dml(t):
            | update
            | delete
            | truncate'''
+    t[0] = t[1]
 
 # DDL sentences
 #CREATE
@@ -255,13 +271,19 @@ def p_instruction_create(t):
     '''create : createDatabase
               | createTable
               | createType'''
+    t[0] = t[1]
+
+def p_instruction_create_database_id(t):
+    '''createDatabase : CREATE DATABASE ID'''
+    t[0] = CreateDatabase(t[3],False)
+def p_instruction_create_database_ifnotexists_id(t):
+    '''createDatabase : CREATE DATABASE IF NOT EXISTS ID'''
+    t[0] = CreateDatabase(t[6],True)
 
 def p_instruction_create_database(t):
     '''createDatabase : CREATE DATABASE ID ownerMode
               | REPLACE DATABASE ID ownerMode
-              | CREATE DATABASE  IF NOT EXISTS ID ownerMode
-              | CREATE DATABASE ID
-              | CREATE DATABASE IF NOT EXISTS ID'''
+              | CREATE DATABASE IF NOT EXISTS ID ownerMode'''
 
 def p_instruction_create_table(t):
     '''createTable : CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
@@ -441,6 +463,7 @@ def p_instruction_show(t):
 def p_instruction_insert(t):
     '''insert : INSERT INTO ID VALUES BRACKET_OPEN expressionList BRACKET_CLOSE
               | INSERT INTO ID BRACKET_OPEN idList BRACKET_CLOSE VALUES BRACKET_OPEN expressionList BRACKET_CLOSE'''
+    
 
 #SELECT 
 def p_instruction_select(t):
@@ -501,42 +524,54 @@ def p_instruction_sortexpressionlist(t):
                           | expression ASC
                           | expression DESC'''
 
-def p_instruction_expressionlist(t):
-    '''expressionList : expressionList COMMA expression
-                      | expression'''
+def p_instruction_expressionlist_list(t):
+    '''expressionList : expressionList COMMA expression'''
+    t[1].append(t[3])
+    t[0]  = t[1]
+
+def p_instruction_expressionlist_single(t):
+    '''expressionList : expression'''
+    t[0] = [t[1]]
 #UNARY
 def p_expression_unaryminus(t):
-    'expression : MINUS expression %prec UMINUS'
-    t[0] = -t[2]
-
-def p_expression_unaryplus(t):
-    'expression : PLUS expression %prec UPLUS'
-    t[0] = t[2]
+    '''expression : MINUS expression %prec UMINUS
+                  | PLUS expression %prec UPLUS'''
+                  #| NOT expression
+    t[0] = Unary(t[2],t[1])
 
 #BINARY
-def p_expression_binaryarithmetic(t):
+def p_expression_arithmetic(t):
     '''expression : expression PLUS expression
                   | expression MINUS expression
                   | expression TIMES expression
                   | expression DIVIDED expression
                   | expression EXPONENTIATION expression
-                  | expression MODULO expression
-                  | expression BETWEEN expression
+                  | expression MODULO expression'''
+    t[0] = Arithmetic(t[1], t[3], t[2])
+
+def p_expression_range(t):
+    '''expression : expression BETWEEN expression
                   | expression IN expression
                   | expression LIKE expression
                   | expression ILIKE expression
-                  | expression SIMILAR expression
-                  | expression LESSTHAN expression
+                  | expression SIMILAR expression'''
+    t[0] = Range(t[1], t[3], t[2])
+
+def p_expression_relational(t):
+    '''expression : expression LESSTHAN expression
                   | expression GREATERTHAN expression
                   | expression EQUAL expression
                   | expression LESSTHANEQUAL expression
                   | expression GREATERTHANEQUAL expression
                   | expression NOTEQUAL expression
                   '''
-    if t[2] == '+'  : t[0] = t[1] + t[3]
-    elif t[2] == '-': t[0] = t[1] - t[3]
-    elif t[2] == '*': t[0] = t[1] * t[3]
-    elif t[2] == '/': t[0] = t[1] / t[3]
+    t[0] = Relational(t[1], t[3], t[2])
+
+# def p_expression_logical(t):
+#     '''expression : expression AND expression
+#                   | expression OR expression
+#                   '''
+#     t[0] = Logical(t[1], t[3], t[2])
 
 def p_expression_binaryseparator(t):
     '''expression : expression NSEPARATOR expression'''
@@ -566,17 +601,25 @@ def p_expression_mathfunctions(t):
                   '''
 
 #VALUES
-def p_expression_number(t):
-    '''expression : INT
-                  | NDECIMAL
-                  | STRING
-                  | REGEX
-                  | ID'''
-    t[0] = t[1]
+def p_expression_int(t):
+    '''expression : INT'''
+    t[0] = Value(1, t[1])
+def p_expression_decimal(t):
+    '''expression : NDECIMAL'''
+    t[0] = Value(2, t[1])
+def p_expression_string(t):
+    '''expression : STRING'''
+    t[0] = Value(3, t[1])
+def p_expression_id(t):
+    '''expression : ID'''
+    t[0] = Value(4, t[1])
+def p_expression_regex(t):
+    '''expression : REGEX'''
+    t[0] = Value(5, t[1])
 
 #ERROR
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value)
+    print("Error sintáctico en '%s' %d" % (t.value, t.lineno))
 
 import ply.yacc as yacc
 parser = yacc.yacc()

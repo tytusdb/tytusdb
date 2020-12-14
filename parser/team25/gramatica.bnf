@@ -3,50 +3,45 @@
     <INSTRUCCIONES> ::= <INSTRUCCIONES> <INSTRUCCION> 
             | <INSTRUCCION>
 
-    <INSTRUCCION> ::= <SELECT> ';'
+    <INSTRUCCION> ::= <COMBINE_QUERYS> ';'
                   | <INSERT> ';'
                   | <UPDATE> ';'
                   | <DELETE> ';'
                   | <DEFINICION> ';'
-                  | <COMBINE_QUERYS> ';'
                   | <ALTER_TABLE> ';'
 
     <DEFINICION> ::= 'create' 'type' 'as' 'enum' '(' <LISTA_ENUM> ')'
                   | <CREATE_OR_REPLACE> 'database' <COMBINACIONES1>
-                  | 'show' 'databases' 'like' regex
+                  | 'show' 'databases' 'like' 'regex'
                   | 'show' 'databases'
-                  | 'alter' 'database' id <ALTER>
-                  | 'drop' 'database' 'if' 'exists' id
-                  | 'drop' 'database' id
-                  | 'drop' 'table' id
-                  | 'create' 'table' id (<COLUMNAS>)<INHERITS>
-                  | 'create' 'table' id (<COLUMNAS>)
+                  | 'alter' 'database' 'id' <ALTER>
+                  | 'drop' 'database' 'if' 'exists' 'id'
+                  | 'drop' 'database' 'id'
+                  | 'drop' 'table' 'id'
+                  | 'create' 'table' 'id' '('<COLUMNAS>')' <INHERITS>
+                  | 'create' 'table' 'id' '('<COLUMNAS>')'
 
     <COLUMNAS> ::= <COLUMNA> 
-                | <COLUMNAS>, <COLUMNA> 
+                | <COLUMNAS> ',' <COLUMNA> 
 
-    <COLUMNA> ::= id <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS> <CHECKS> 
-                | id <TIPO> <DEFAULT> <NULLABLE> <CONSTRAINTS>
-                | id <TIPO> <DEFAULT> <NULLABLE> <CHECKS>
-                | id <TIPO> <DEFAULT> <NULLABLE>
-                | id <TIPO> <DEFAULT> <CONSTRAINTS> <CHECKS>
-                | id <TIPO> <DEFAULT> <CONSTRAINTS>
-                | id <TIPO> <DEFAULT> <CHECKS>
-                | id <TIPO> <DEFAULT>
-                | id <TIPO> <NULLABLE> <CONSTRAINTS> <CHECKS>
-                | id <TIPO> <NULLABLE> <CONSTRAINTS>
-                | id <TIPO> <NULLABLE> <CHECKS>
-                | id <TIPO> <NULLABLE>
-                | id <TIPO> <CONSTRAINTS> <CHECKS>
-                | id <TIPO> <CONSTRAINTS>
-                | id <TIPO> <CHECKS>
-                | id <TIPO>
-                | id <TIPO> 'primary' 'key'
-                | id <TIPO> 'references' id
-                | 'constraint' id 'check' (<LISTA_CONDICIONES>)
-                | 'unique' (<LISTA_IDS>)
-                | 'primary' 'key' (<LISTA_IDS>)
-                | 'foreign' 'key' (<LISTA_IDS>) 'references' id (<LISTA_IDS>)
+    <COLUMNA> ::= 
+            | 'id' <TIPO>
+            | 'id' <TIPO> <LISTAOPCIONES> 
+            | 'constraint' 'id' 'check' '('<LISTA_CONDICIONES>')' 
+            | 'id' 'check' '('<LISTA_CONDICIONES>')'
+            | 'unique' '('<LISTA_IDS>')'
+            | 'primary' 'key' '('<LISTA_IDS>')'
+            | 'foreign' 'key' '('<LISTA_IDS>')' 'references' 'id' '('<LISTA_IDS>')'
+
+    <LISTAOPCIONES> ::= <LISTAOPCIONES> <OPCOL> 
+                 | <OPCOL> 
+
+    <OPCOL>   ::=  <DEFAULT> 
+            |  <CONSTRAINTS>
+            |  <CHECKS> 
+            |  <NULLABLE>
+            |  'primary' 'key'
+            |  'references' 'id'
 
 
     <DEFAULT> ::= 'default' <VALOR>
@@ -54,17 +49,15 @@
     <NULLABLE> ::= 'not' 'null'
                 | 'null'
 
-    <CONSTRAINTS> ::= 'constraint' id 'unique'
+    <CONSTRAINTS> ::= 'constraint' 'id' 'unique'
                     | 'unique'
 
-    <CHECKS> ::= 'constraint' id 'check' (<CONDICION>)
-                |'check' (<CONDICION>) 
+    <CHECKS> ::= 'constraint' 'id' 'check' '('<EXPRESION>')'
+                |'check' '('<EXPRESION>')' 
+         
 
-    <CONDICION> ::= <EXPRESION>
-                 |  <CONDICION>, <EXPRESION>             
-
-    <LISTA_CONDICIONES> ::= <CONDICIONES>
-                        |   <LISTA_CONDICIONES>, <CONDICIONES>            
+    <LISTA_CONDICIONES> ::= <EXPRESION>
+                        |   <LISTA_CONDICIONES> ',' <EXPRESION>            
 
     <TIPO> ::= 'smallint'
             |  'integer'
@@ -74,10 +67,10 @@
             |  'real'
             |  'double' 'precision'
             |  'money'
-            |  'character' 'varying' ('numero')
-            |  'varchar' ('numero')
-            |  'character' ('numero')
-            |  'char' ('numero')
+            |  'character' 'varying' '(''numero'')'
+            |  'varchar' '(''numero'')'
+            |  'character' '(''numero'')'
+            |  'char' '(''numero'')'
             |  'text'
             |  <TIMESTAMP>
             |  'date'
@@ -85,20 +78,20 @@
             |  <INTERVAL>
             |  'boolean'
 
-    <TIMESTAMP> ::= 'timestamp' ('numero') 'tmstamp'
+    <TIMESTAMP> ::= 'timestamp' '(''numero'')' 'tmstamp'
                 |   'timestamp' 'tmstamp'
-                |   'timestamp' ('numero') 
+                |   'timestamp' '(''numero'')' 
                 |   'timestamp' 
                 | 'now' '(' ')'
 
-    <TIME> ::= 'time' ('numero') 'tmstamp'
+    <TIME> ::= 'time' '(''numero'')' 'tmstamp'
             |  'time' 'tmstamp'
-            |  'time' ('numero') 
+            |  'time' '(''numero'')' 
             |  'time' 
 
-    <INTERVAL> ::= 'interval' <FIELDS> ('numero')
+    <INTERVAL> ::= 'interval' <FIELDS> '(''numero'')'
                 |  'interval' <FIELDS>
-                |  'interval' ('numero')
+                |  'interval' '(''numero'')'
                 |  'interval'
                 
     <FIELDS> ::= 'year'
@@ -108,95 +101,95 @@
               |  'minute'
               |  'second'
 
-    <ALTER> ::= 'rename to' id
+    <ALTER> ::= 'rename' 'to' 'id'
              | 'owner to' <NEW_OWNER>
 
-    <NEW_OWNER> ::= id
+    <NEW_OWNER> ::= 'id'
                  | 'current_user'
                  | 'session_user'
 
-    <COMBINACIONES1> ::= 'if' 'not' 'exists' id <COMBINACIONES2>
-                      | id <COMBINACIONES2>
-                      | id
+    <COMBINACIONES1> ::= 'if' 'not' 'exists' 'id' <COMBINACIONES2>
+                      | 'id' <COMBINACIONES2>
+                      | 'id'
 
     <COMBINACIONES2> ::= <OWNER>
                       |<MODE>
                       |<OWNER><MODE>
-    <OWNER> ::= 'owner' id
-             | 'owner' '=' id
 
-    <MODE> ::= 'mode' entero
-            | 'mode' '=' entero
+    <OWNER> ::= 'owner' 'id'
+             | 'owner' '=' 'id'
+
+    <MODE> ::= 'mode' 'entero'
+            | 'mode' '=' 'entero'
 
     <CREATE_OR_REPLACE> ::= 'create'
-                         | 'create or replace'
+                         | 'create' 'or' 'replace'
                   
 
-    <LISTA_ENUM> ::= <ITEM>
-                  | <LISTA_ENUM> ',' <ITEM>
-    <ITEM> ::= cadena
+    <LISTA_ENUM> ::= 'cadena'
+                  | <LISTA_ENUM> ',' 'cadena'
 
-    <ALTER_TABLE> ::=  'alter' 'table' id <ALTER_OPTIONS>
-                   | 'alter' 'table' id <ALTER_VARCHAR_LISTA>
 
-    <ALTER_OPTION> ::= 'add' 'column' id <TIPO>
-                    | 'drop' 'column' id
-                    | 'add' 'check' '(' id '<''>' '\'' '\'' ')'
-                    | 'add' 'constraint' id 'unique' '('id')'
+    <ALTER_TABLE> ::=  'alter' 'table' 'id' <ALTER_OPTIONS>
+                   | 'alter' 'table' 'id' <ALTER_VARCHAR_LISTA>
+
+    <ALTER_OPTION> ::= 'add' 'column' 'id' <TIPO>
+                    | 'drop' 'column' 'id'
+                    | 'add' 'check' '(' 'id' '<''>' '\'' '\'' ')'
+                    | 'add' 'constraint' 'id' 'unique' '(' 'id' ')'
                     | 'add' 'foreign' 'key' '('<LISTA_IDS>')' 'references' <LISTA_IDS>
-                    | 'alter' 'column' id 'set' 'not' 'null' 
-                    | 'drop' 'constraint' id
+                    | 'alter' 'column' 'id' 'set' 'not' 'null' 
+                    | 'drop' 'constraint' 'id'
                     
     <ALTER_VARCHAR_LISTA>::= <ALTER_VARCHAR>
                            | <ALTER_VARCHAR_LISTA> ',' <ALTER_VARCHAR>
     
-    <ALTER_VARCHAR> ::= 'alter' 'column' id 'type' 'varchar('entero')'
+    <ALTER_VARCHAR> ::= 'alter' 'column' 'id' 'type' 'varchar(''entero'')'
 
-    <INHERITS> ::= 'INHERITS' '('ID')'
+    <INHERITS> ::= 'INHERITS' '(' 'ID' ')'
     
-    <COMBINE_QUERYS> ::= <SELECT> <CMB> <SELECT>
+    <COMBINE_QUERYS> ::= <COMBINE_QUERYS> 'union' 'all'<SELECT>
+                   | <COMBINE_QUERYS> 'union'<SELECT>
+                   | <COMBINE_QUERYS> 'intersect' 'all'<SELECT>
+                   | <COMBINE_QUERYS> 'intersect'<SELECT>
+                   | <COMBINE_QUERYS> 'except' 'all'<SELECT>
+                   | <COMBINE_QUERYS> 'except'<SELECT>
+                   | <SELECT>
 
-    <CMB> ::= 'union' 'all'
-        |     'union'
-        |     'intersect' 'all'
-        |     'intersect'
-        |     'except' 'all'
-        |     'except'
-
-    <SELECT> ::= 'select' <SELECT_LIST> 'from' <TABLAS> <FILTRO> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <FILTRO> 
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <LIMITS> <OFFSET> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <LIMITS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <LIMITS>  <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <LIMITS> 
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <OFFSET> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS>  <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <ORDERS> 
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <LIMITS> <OFFSET> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <LIMITS> <OFFSET>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <LIMITS>  <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <LIMITS> 
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <OFFSET> <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS> <OFFSET>
-              | 'select' '*' 'from' <TABLAS>  <FILTRO> <JOIN>
-              | 'select' '*' 'from' <TABLAS>  <FILTRO>
-              | 'select' 'distinct' 'id' 'from'  <TABLAS> <FILTRO> <JOIN>
-              | 'select' 'distinct' 'id' 'from'  <TABLAS> <FILTRO>
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <TABLAS> <FILTRO> <JOIN>
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <TABLAS> <FILTRO>
-              | 'select' <SELECT_LIST> 'from' <TABLAS>   <JOIN>
-              | 'select' <SELECT_LIST> 'from' <TABLAS>  
-              | 'select' '*' 'from' <TABLAS>   <JOIN>
-              | 'select' '*' 'from' <TABLAS>  
-              | 'select' 'distinct' 'id' 'from' <TABLAS>   <JOIN>
-              | 'select' 'distinct' 'id' 'from' <TABLAS>  
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <TABLAS>  <JOIN>
-              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <TABLAS> 
-              | 'select' <FUNCIONES_MATEMATICAS> 'as' 'id' <JOIN>
-              | 'select' <FUNCIONES_MATEMATICAS> 'as' 'id'
-              | 'select' <FUNCIONES_MATEMATICAS> <JOIN>
-              | 'select' <FUNCIONES_MATEMATICAS>
+    <SELECT> ::= 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <FILTRO> 
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> <OFFSET> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> <OFFSET>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS>  <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <LIMITS> 
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <OFFSET> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> <OFFSET>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS>  <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <ORDERS> 
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> <OFFSET> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> <OFFSET>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS>  <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <LIMITS> 
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <OFFSET> <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS> <OFFSET>
+              | 'select' '*' 'from' <LISTA_TABLAS>  <FILTRO> <JOIN>
+              | 'select' '*' 'from' <LISTA_TABLAS>  <FILTRO>
+              | 'select' 'distinct' 'id' 'from'  <LISTA_TABLAS> <FILTRO> <JOIN>
+              | 'select' 'distinct' 'id' 'from'  <LISTA_TABLAS> <FILTRO>
+              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> <FILTRO> <JOIN>
+              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> <FILTRO>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>   <JOIN>
+              | 'select' <SELECT_LIST> 'from' <LISTA_TABLAS>  
+              | 'select' '*' 'from' <LISTA_TABLAS>   <JOIN>
+              | 'select' '*' 'from' <LISTA_TABLAS>  
+              | 'select' 'distinct' 'id' 'from' <LISTA_TABLAS>   <JOIN>
+              | 'select' 'distinct' 'id' 'from' <LISTA_TABLAS>  
+              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS>  <JOIN>
+              | 'select' 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'  <LISTA_TABLAS> 
+              | 'select' <FUNCIONES> 'as' 'id' <JOIN>
+              | 'select' <FUNCIONES> 'as' 'id'
+              | 'select' <FUNCIONES> <JOIN>
+              | 'select' <FUNCIONES>
 
     <JOIN> ::= 'id' <JOIN_TYPE> 'join' 'id' 'on' <EXPRESION>
              | 'id' <JOIN_TYPE> 'join' 'id' 'using' '(' 'join' <LISTA_IDS> ')'
@@ -212,23 +205,12 @@
               | 'right' 
               | 'full' 
 
-    <FUNCIONES_MATEMATICAS>::= 'as' '('<EXPRESION>')'
-                 | 'cbrt' '('<EXPRESION>')'
-                 | 'ceil' '('<EXPRESION>')'
-                 | 'ceiling' '('<EXPRESION>')'
-                 | 'degrees' '('<EXPRESION>')'
-                 | 'div' '('<EXPRESION>','<EXPRESION>')'
-                 | 'exp' '('<EXPRESION>')'
-                 | 'factorial' '('<EXPRESION>')'
-                 | 'floor' '('<EXPRESION>')'
-                 | 'gcd' '('<EXPRESION>')'
-                 | 'ln' '('<EXPRESION>')'
-                 | 'log' '('<EXPRESION>')'
-                 | 'mod' '('<EXPRESION> ',' <EXPRESION>')'
-                 | 'pi' '('')'
-                 | 'power' '('<EXPRESION> ',' <EXPRESION>')'
-                 | 'radians' '('<EXPRESION>')'
-                 | 'round' '('<EXPRESION>')'
+
+    <LISTA_NUMEROS> ::= <TIPO_NUMERO>
+                     |  <LISTA_NUMEROS> ',' <TIPO_NUMERO>
+    
+    <TIPO_NUMERO> ::= 'numero'
+                  |   'decimal'
 
     <LISTA_TABLAS> ::= <TABLA><ALIAS>
                     | <TABLA>
@@ -245,7 +227,7 @@
 
     <HAVING> ::= 'having' <EXPRESION>
 
-    <WHERE> ::= 'where' <PREDICADO>
+    <WHERE> ::= 'where' <EXPRESION>
 
     <GROUP_BY> ::= <LISTA_IDS>
 
@@ -271,53 +253,6 @@
                 |'all'
 
     <OFFSET> ::= 'offset' 'numero'
-
-    <PREDICADO> ::= <PREDICADO> '<' <PREDICADO>
-                 | <PREDICADO> '>' <PREDICADO>
-                 | <PREDICADO> '<=' <PREDICADO>
-                 | <PREDICADO> '>=' <PREDICADO>
-                 | <PREDICADO> '=' <PREDICADO>
-                 | <PREDICADO> '< >' <PREDICADO>
-                 | <PREDICADO> '!=' <PREDICADO>
-                 | <PREDICADO> 'between' <PREDICADO> 'and' <PREDICADO>
-                 | <PREDICADO> 'not' 'between' <PREDICADO> 'and' <PREDICADO>
-                 | <PREDICADO> 'between' 'symmetric' <PREDICADO> 'and' <PREDICADO>
-                 | <PREDICADO> 'not' 'between' 'symmetric' <PREDICADO> 'and' <PREDICADO>
-                 | <PREDICADO> 'is' 'distinct' 'from' <PREDICADO>
-                 | <PREDICADO> 'is' 'not' 'distinct' 'from' <PREDICADO>
-                 | <PREDICADO> 'is' 'null'
-                 | <PREDICADO> 'is' 'not' 'null'
-                 | <PREDICADO> 'isnull'
-                 | <PREDICADO> 'notnull'
-                 | <PREDICADO> 'is' 'true'
-                 | <PREDICADO> 'is' 'not' 'true'
-                 | <PREDICADO> 'is' 'false'
-                 | <PREDICADO> 'is' 'not' 'false'
-                 | <PREDICADO> 'is' 'unknown'
-                 | <PREDICADO> 'is' 'not' 'unknown'
-                 | 'cadena'
-                 | 'numero'
-                 | 'decimal'
-                 | 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
-                 | 'abs' '('<EXPRESION>')'
-                 | 'cbrt' '('<EXPRESION>')'
-                 | 'ceil' '('<EXPRESION>')'
-                 | 'ceiling' '('<EXPRESION>')'
-                 | 'degrees' '('<EXPRESION>')'
-                 | 'div' '('<EXPRESION>','<EXPRESION>')'
-                 | 'exp' '('<EXPRESION>')'
-                 | 'factorial' '('<EXPRESION>')'
-                 | 'floor' '('<EXPRESION>')'
-                 | 'gcd' '('<EXPRESION>')'
-                 | 'ln' '('<EXPRESION>')'
-                 | 'log' '('<EXPRESION>')'
-                 | 'mod' '('<EXPRESION>',' <EXPRESION>')'
-                 | 'pi' '('')'
-                 | 'power' '('<EXPRESION>',' <EXPRESION>')'
-                 | 'radians' '('<EXPRESION>')'
-                 | 'round' '('<EXPRESION>')'
-                 | <TIMESTAMP>
-
 
     <SELECT_LIST> ::= <SELECT_ITEM>
                     | <SELECT_LIST> ',' <SELECT_ITEM>
@@ -351,7 +286,7 @@
     <SUBCASE> ::= <WHEN_CASE>
                 | <SUBCASE> <WHEN_CASE>
 
-    <WHEN_CASE> ::= 'when' <PREDICADO> 'then' <EXPRESION>
+    <WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
 
     <ELSE_CASE> ::= 'else' <EXPRESION>
 
@@ -360,7 +295,7 @@
     <INSERT> ::= 'insert' 'into'  'id' 'values' '('<LISTA_EXP>')'
 
     <LISTA_EXP> ::= <EXPRESION>
-               | <LISTA_EXP>, <EXPRESION>
+               | <LISTA_EXP> ',' <EXPRESION>
 
 
     <PARAMETROS> ::= '(' <LISTA_IDS> ')'
@@ -370,7 +305,7 @@
 
     <EXPRESION> ::= 'not' <EXPRESION>
                 | '-'   <EXPRESION>
-                | '<>'  <EXPRESION>
+                | <EXPRESION> '<>'  <EXPRESION>
                 | <EXPRESION> 'and'  <EXPRESION>
                 | <EXPRESION> 'or'   <EXPRESION>
                 | <EXPRESION> '='  <EXPRESION>
@@ -383,15 +318,100 @@
                 | <EXPRESION>  '-'  <EXPRESION>
                 | <EXPRESION>  '*'  <EXPRESION>
                 | <EXPRESION>  '/'  <EXPRESION>
+                | <EXPRESION> 'between' <EXPRESION> 'and' <EXPRESION>
+                | <EXPRESION> 'not' 'between' <EXPRESION> 'and' <EXPRESION>
+                | <EXPRESION> 'between' 'symmetric' <EXPRESION> 'and' <EXPRESION>
+                | <EXPRESION> 'not' 'between' 'symmetric' <EXPRESION> 'and' <EXPRESION>
+                | <EXPRESION> 'is' 'distinct' 'from' <EXPRESION>
+                | <EXPRESION> 'is' 'not' 'distinct' 'from' <EXPRESION>
+                | <EXPRESION> 'is' 'null'
+                | <EXPRESION> 'is' 'not' 'null'
+                | <EXPRESION> 'isnull'
+                | <EXPRESION> 'notnull'
+                | <EXPRESION> 'is' 'true'
+                | <EXPRESION> 'is' 'not' 'true'
+                | <EXPRESION> 'is' 'false'
+                | <EXPRESION> 'is' 'not' 'false'
+                | <EXPRESION> 'is' 'unknown'
+                | <EXPRESION> 'is' 'not' 'unknown'
                 | 'cadena'
                 | 'numero'
                 | 'decimal'
                 | 'id' '.' 'id'
                 | 'id'
                 | '(' <EXPRESION> ')'
-                | 'sum' '(' 'id' ')'
+                | <FUNCIONES>
                 | <TIMESTAMP>
-                | 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
+
+    <FUNCIONES> ::= 'length' '(' 'id' ')'
+                    |   'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
+                    |   'trim' '(' 'id' ')'
+                    |   'md5' '(' 'cadena' ')'
+                    |   'sha256' '(' 'cadena' ')'
+                    |   'substr''(' 'id' ',' 'entero' ',' 'entero' ')'
+                    |   'get_byte' '(' 'cadena' ':' ':' 'bytea' ',' 'numero' ')'
+                    |   'set_byte' '(' 'cadena' ':' ':' 'bytea' ',' 'numero' ',' 'numero' ')'
+                    |   'convert' '(' 'cadena' 'as' 'date' ')'
+                    |   'convert' '(' 'cadena' 'as' 'integer' ')'
+                    |   'encode' '(' 'cadena' ':' ':' 'bytea' ',' 'cadena' ')'
+                    |   'decode' '(' 'cadena' ',' 'cadena' ')'
+                    |   'as' '('<EXPRESION>')'
+                    |   'acos' '('<EXPRESION>')'
+                    |   'acosd' '('<EXPRESION>')'
+                    |   'asin' '('<EXPRESION>')'
+                    |   'asind' '('<EXPRESION>')'
+                    |   'atan' '('<EXPRESION>')'
+                    |   'atand' '('<EXPRESION>')'
+                    |   'atan2' '('<EXPRESION>','<EXPRESION>')'
+                    |   'atan2d' '('<EXPRESION>','<EXPRESION>')'
+                    |   'cos' '('<EXPRESION>')'
+                    |   'cosd' '('<EXPRESION>')'
+                    |   'cot' '('<EXPRESION>')'
+                    |   'cotd' '('<EXPRESION>')'
+                    |   'sin' '('<EXPRESION>')'
+                    |   'sind' '('<EXPRESION>')'
+                    |   'tan' '('<EXPRESION>')'
+                    |   'tand' '('<EXPRESION>')'
+                    |   'cosh' '('<EXPRESION>')'
+                    |   'sinh' '('<EXPRESION>')'
+                    |   'tanh' '('<EXPRESION>')'
+                    |   'acosh' '('<EXPRESION>')'
+                    |   'asinh' '('<EXPRESION>')'
+                    |   'atanh' '('<EXPRESION>')'
+                    |   'abs' '('<EXPRESION>')'
+                    |   'cbrt' '('<EXPRESION>')'
+                    |   'ceil' '('<EXPRESION>')'
+                    |   'ceiling' '('<EXPRESION>')'
+                    |   'degrees' '('<EXPRESION>')'
+                    |   'div' '('<EXPRESION>','<EXPRESION>')'
+                    |   'exp' '('<EXPRESION>')'
+                    |   'factorial' '('<EXPRESION>')'
+                    |   'floor' '('<EXPRESION>')'
+                    |   'gcd' '('<EXPRESION>')'
+                    |   'ln' '('<EXPRESION>')'
+                    |   'log' '('<EXPRESION>')'
+                    |   'mod' '('<EXPRESION>',' <EXPRESION>')'
+                    |   'pi' '('')'
+                    |   'power' '('<EXPRESION>',' <EXPRESION>')'
+                    |   'radians' '('<EXPRESION>')'
+                    |   'round' '('<EXPRESION>')'
+                    |   'sign' '(' <TIPO_NUMERO> ')'
+                    |   'sqrt' '(' <TIPO_NUMERO> ')'
+                    |   'width_bucket' '(' <LISTA_NUMEROS> ')'
+                    |   'trunc' '(' <TIPO_NUMERO> ',' 'numero' ')'
+                    |   'trunc' '(' <TIPO_NUMERO> ')'
+                    |   'random' '(' ')'
+                    |   'sum' '(' 'id' ')'
+                    |   'square_root' <TIPO_NUMERO> /* VALOR DEL TOKEN square_root: | */
+                    |   'cube_root' <TIPO_NUMERO> /* VALOR DEL TOKEN cube_root: || */
+                    |   <TIPO_NUMERO> 'bitwise_and' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_and: & */
+                    |   <TIPO_NUMERO> 'bitwise_or' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_or: | */
+                    |   <TIPO_NUMERO> 'bitwise_xor' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_xor: # */
+                    |   'bitwise_not' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_not: ~ */
+                    |   <TIPO_NUMERO> 'bitwise_shift_left' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_shift_left: << */
+                    |   <TIPO_NUMERO> 'bitwise_shift_right' <TIPO_NUMERO> /* VALOR DEL TOKEN bitwise_shift_right: >> */
+
+     
 
 
     <DELETE> ::= 'delete' 'from' 'id' 'where' <EXPRESION>
