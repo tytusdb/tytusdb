@@ -44,7 +44,7 @@ class TipoNull(Enum):
 
 class Columna():
     'Esta clase representa las columnas de las tablas'
-    def __init__(self, tipo: {}, default = '', references: str = '', constraints: [str] = [], is_null = TipoNull.NULL, is_primary = 0, is_unique = 0):
+    def __init__(self, tipo: {}, default = None, references: str = None, constraints: [str] = [], is_null = TipoNull.NULL, is_primary = 0, is_unique = 0):
         # tipo = {'tipo': TipoColumna, 'n': int, 'p': int, 'field': {'origen': TipoFields, 'destino': TipoFields}}
         self.tipo = tipo
         self.default = default
