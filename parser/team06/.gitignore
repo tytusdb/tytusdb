@@ -4,6 +4,7 @@
 /ply/__pycache__/
 /parser.out
 /parser.py
+/parsetab.py
 /storageManager/jsonMode.py
 /storageManager/
 /data/
