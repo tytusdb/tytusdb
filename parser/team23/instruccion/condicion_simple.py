@@ -13,7 +13,7 @@ class condicion_simple(instruccion):
         #Nodos
 
         if comando.lower() == 'default':
-
+            print("entro 5")
             self.nodo = nodo_AST('DEFAULT', num_nodo)
             self.nodo.hijos.append(nodo_AST('DEFAULT', num_nodo + 1))
             self.nodo.hijos.append(nodo_AST(ID, num_nodo + 2))
@@ -39,7 +39,7 @@ class condicion_simple(instruccion):
             self.nodo = nodo_AST('CONSTRAINT', num_nodo)
             self.nodo.hijos.append(nodo_AST('CONSTRAINT', num_nodo + 1))
             self.nodo.hijos.append(nodo_AST(ID, num_nodo + 2))
-            self.nodo.hijos.append(key.nodo)
+            #self.nodo.hijos.append(key.nodo)
 
 
     def ejecutar(self):

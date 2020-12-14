@@ -719,6 +719,140 @@ def p_ValorFuncionesSha(t):
 def p_ValorFuncionesShaA(t):
     'VALOR  :   SHA256 PABRE CADENA PCIERRA ALIAS   '
 
+def p_ValorOperadorMatAlias(t):
+    'VALOR  :   NUM OPERADOR NUM ALIAS '
+
+def p_ValorOperadorMat(t):
+    'VALOR  :   NUM OPERADOR NUM '
+
+def p_ValorOperadorNotA(t):
+    'VALOR  :   BNot NUM ALIAS '
+
+def p_ValorOperadorNot(t):
+    'VALOR  :   BNot NUM '
+
+def p_ValorRaizCuadradaA(t):
+    'VALOR  :   raizCuadrada NUM ALIAS '
+
+def p_ValorRaizCuadrada(t):
+    'VALOR  :   raizCuadrada NUM '
+
+def p_ValorRaizCubicaA(t):
+    'VALOR  :   raizCubica NUM ALIAS '
+
+def p_ValorRaizCubica(t):
+    'VALOR  :   raizCubica NUM '
+
+def p_ValorFuncionesGetByte(t):
+    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA '
+
+def p_ValorFuncionesGetByteA(t):
+    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA ALIAS '
+
+def p_ValorFuncionesSetByte(t):
+    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA '
+
+def p_ValorFuncionesSetByteA(t):
+    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA ALIAS '
+
+def p_ValorCase(t):
+    'VALOR  :   CASE LWHEN END '
+
+def p_ValorCaseAlias(t):
+    'VALOR  :   CASE LWHEN END ALIAS'
+
+def p_ValorFunAlias(t):
+    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
+
+def p_ValorFun(t):
+    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA   '
+
+def p_LWHEN(t):
+    'LWHEN  :   WHEN CONDICION THEN CONDICION LWHEN '
+
+def p_LWHENSimple(t):
+    'LWHEN  :   WHEN CONDICION THEN CONDICION '
+
+def p_LWHENElse(t):
+    'LWHEN  :   ELSE CONDICION '
+
+def p_IdFuncionDegrees(t):
+    'ID_VALOR  :   DEGREES  '
+
+def p_IdFuncionDiv(t):
+    'ID_VALOR  :   DIV  '
+
+def p_IdFuncionExp(t):
+    'ID_VALOR  :   FEXP  '
+
+def p_IdFuncionFactorial(t):
+    'ID_VALOR  :   FACTORIAL  '
+
+def p_IdFuncionFloor(t):
+    'ID_VALOR  :   FLOOR  '
+
+def p_IdFuncionGcd(t):
+    'ID_VALOR  :   GCD  '
+
+def p_IdFuncionLn(t):
+    'ID_VALOR  :   LN  '
+
+def p_IdFuncionLog(t):
+    'ID_VALOR  :   LOG  '
+
+def p_IdFuncionMod(t):
+    'ID_VALOR  :   MOD  '
+
+def p_IdFuncionPower(t):
+    'ID_VALOR  :   POWER  '
+
+def p_IdFuncionRadians(t):
+    'ID_VALOR  :   RADIANS  '
+
+def p_IdFuncionRound(t):
+    'ID_VALOR  :   ROUND  '
+
+def p_IdFuncionSign(t):
+    'ID_VALOR  :   SIGN  '
+
+def p_IdFuncionSqrt(t):
+    'ID_VALOR  :   SQRT  '
+
+def p_IdFuncionWidth_bucket(t):
+    'ID_VALOR  :   WIDTH_BUCKET  '
+
+def p_IdFuncionTrunc(t):
+    'ID_VALOR  :   TRUNC  '
+
+def p_OPERADORAnd(t):
+    'OPERADOR  :   BAnd '
+
+def p_OPERADOROr(t):
+    'OPERADOR  :   BOr '
+
+def p_OPERADORXor(t):
+    'OPERADOR  :   BXor '
+
+def p_OPERADORDIz(t):
+    'OPERADOR  :   DesplazaI '
+
+def p_OPERADORDDe(t):
+    'OPERADOR  :   DesplazaD '
+
+def p_LNumNumLNum(t):
+    'LNUM  : LNUM COMA NUM'
+
+def p_LNumNum(t):
+    'LNUM   : NUM'
+
+def p_NumNumero(t):  
+    'NUM    : NUMERO '
+
+def p_NumDecimal(t):
+    'NUM  :   DECIMAL '
+
+def p_NumCadena(t):
+    'NUM  :   CADENA '
 
 def p_FTrigonometricasAcos(t):
     'FTRIGONOMETRICAS  :   ACOS '
@@ -921,6 +1055,123 @@ def p_CondicionId(t):
 
 def p_CondicionIdP(t):
     'CONDICION  :   ID PUNTO ID '
+
+def p_CondicionFuncionSistema(t):
+    'CONDICION  :   FUNCIONES_SISTEMA '
+
+def p_CondicionDatePart(t):
+    'CONDICION  :   DATE_PART PABRE CADENA COMA INTERVAL CADENA PCIERRA '
+
+def p_CondicionCurrentDate(t):
+    'CONDICION  :   CURRENT_DATE '
+
+def p_CondicionCurrentTime(t):
+    'CONDICION  :   CURRENT_TIME '
+
+def p_CondicionTimeStamp(t):
+    'CONDICION  :   TIMESTAMP CADENA '
+
+def p_CondicionBetween(t):
+    'CONDICION  :   CONDICION BETWEEN CONDICION '
+
+def p_CondicionNotBetween(t):
+    'CONDICION  :   CONDICION NOT BETWEEN CONDICION %prec NOTB'
+
+def p_CondicionBetweenSimetric(t):
+    'CONDICION  :   CONDICION BETWEEN SIMMETRIC CONDICION '
+
+def p_CondicionBetweenNotSimetric(t):
+    'CONDICION  :   CONDICION NOT BETWEEN SIMMETRIC CONDICION  %prec NOTB'
+
+def p_CondicionIsDistinct(t):
+    'CONDICION  :   CONDICION IS DISTINCT FROM CONDICION '
+
+def p_CondicionIsNotDistinct(t):
+    'CONDICION  :   CONDICION IS NOT DISTINCT FROM CONDICION '
+
+def p_CondicionNull(t):
+    'CONDICION  :   NULL '
+
+def p_CondicionUnknown(t):
+    'CONDICION  :   UNKNOWN '
+
+def p_CondicionSubConsulta(t):
+    'CONDICION  :   PABRE SUBCONSULTA PCIERRA '
+
+def p_CondicionFunciones(t):
+    'CONDICION  :   FUNCION PABRE ID PCIERRA'
+
+def p_CondicionFunciones1(t):
+    'CONDICION  :   FUNCION PABRE ID PUNTO ID PCIERRA'
+
+def p_CondicionNow(t):
+    'CONDICION  :   NOW PABRE PCIERRA '
+
+def p_FuncionesSistemaAlias(t):
+    'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
+
+def p_FuncionesSistema(t):
+    'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA   '
+
+def p_FuncionesSistemaString(t):
+    'FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA ALIAS   '
+
+def p_FuncionesSistemaString1(t):
+    'FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA   '
+
+def p_FuncionesSistemaTrimA(t):
+    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA ALIAS   '
+
+def p_FuncionesSistemaTrim(t):
+    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA   '
+
+def p_FuncionesSistemaTrimA1(t):
+    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA ALIAS   '
+
+def p_FuncionesSistemaTrim1(t):
+    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA   '
+
+def p_Id_FuncionSubstring(t):
+    'ID_FUNCION_S  :   SUBSTRING   '
+
+def p_Id_FuncionLength(t):
+    'ID_FUNCION_S  :   LENGTH   '
+
+def p_Id_FuncionSubstr(t):
+    'ID_FUNCION_S  :   SUBSTR   '
+
+def p_LBOTHLeading(t):
+    'LBOTH  :   LEADING   '
+
+def p_LBOTHTrailing(t):
+    'LBOTH  :   TRAILING   '
+
+def p_LBOTHBoth(t):
+    'LBOTH  :   BOTH   '
+
+def p_LCondicionFuncion_Condicion(t):
+    'LCONDICION_FUNCION_S  :   CONDICION   '
+
+def p_LCondicionFuncion_S(t):
+    'LCONDICION_FUNCION_S  :   CONDICION COMA NUMERO COMA NUMERO   '
+
+def p_IdFuncionAbs(t):
+    'ID_FUNCION  :   ABS  '
+
+def p_IdFuncionCBRT(t):
+    'ID_FUNCION  :   CBRT  '
+
+def p_IdFuncionCeil(t):
+    'ID_FUNCION  :   CEIL  '
+
+def p_IdFuncionCeiling(t):
+    'ID_FUNCION  :   CEILING  '
+
+def p_LCondicionFuncion1(t):
+    'LCONDICION_FUNCION  :   CONDICION  '
+
+def p_LCondicionFuncion(t):
+    'LCONDICION_FUNCION  :   LCONDICION_FUNCION COMA CONDICION  '
 
 def p_DateTimeYear(t):
     'DATETIME  :   YEAR '
