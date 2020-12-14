@@ -47,6 +47,7 @@ palabrasReservadas = {
     'foreign':'FOREIGN',
     'key':'KEY',
     'inherits':'INHERITS',
+    'use':'USE',
     # VARIABLES DE ADMIN 
     'current_user':'CURRENT_USER',
     'session_user':'SESSION_USER',    

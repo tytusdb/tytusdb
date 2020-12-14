@@ -533,7 +533,7 @@ def p_exp(t):
 def p_arg_greatest(t):
     '''arg_greatest  : GREATEST PARABRE exp_list PARCIERRE''' 
 
-def p_arg_greatest(t):
+def p_arg_least(t):
     '''arg_least  : LEAST PARABRE exp_list PARCIERRE''' 
 
 def p_exp_list(t):
@@ -640,7 +640,7 @@ def p_arg_offset(t):
 def p_ins_update(t):
     '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
 
-def p_ins_update(t):
+def p_ins_asign_list(t):
     '''asign_list  : asign_list COMA ID SIGNO_IGUAL list_vls 
                    | ID SIGNO_IGUAL list_vls'''
 
