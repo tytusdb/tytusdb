@@ -10,7 +10,7 @@ class OpArithmetic(Enum):
     POWER = 6
 
 
-class OpLogical(Enum):
+class OpRelational(Enum):
     GREATER = 1
     LESS = 2
     EQUALS = 3
@@ -21,10 +21,24 @@ class OpLogical(Enum):
     NOT_LIKE = 8
 
 
-class OpRelational(Enum):
+class OpLogic(Enum):
     AND = 1
     OR = 2
     NOT = 3
+
+
+class OpPredicate(Enum):
+    NULL = 1
+    NOT_NULL = 2
+    DISTINCT = 3
+    NOT_DISTINCT = 4
+    TRUE = 5
+    NOT_TRUE = 6
+    FALSE = 7
+    NOT_FALSE = 8
+    UNKNOWN = 9
+    NOT_UNKNOWN = 10
+
 
 def say_hi():
     print('Python Cook Book')

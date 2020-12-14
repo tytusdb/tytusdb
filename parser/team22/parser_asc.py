@@ -436,7 +436,7 @@ def p_instrucciones_columnas(t) :
 
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
-    #t[0] = Nueva_Columna_Param(t[1], t[2], t[3])
+    t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
@@ -462,16 +462,24 @@ def p_instrucciones_columna_unique(t) :
 
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
-    #t[1].append(t[2])
-    #t[0] = t[1]
+    t[1].update(t[2])
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
-    #t[0] = [t[1]]
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
+
+def p_instrucciones_parametro_columna_default(t) :
+    'parametro_columna      : DEFAULT valor'
+    #t[1] = {} -> t[0] = {}
+    t[0] = {'default': t[2]}
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
-    #t[0] = t[1]
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
 
 def p_instrucciones_parametro_columna_unique(t) :
     'parametro_columna      : unic'
@@ -481,19 +489,19 @@ def p_instrucciones_parametro_columna_checkeo(t) :
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
-    #t[0] = Parametro('PRIMARY KEY')
+    t[0] = {'is_primary': 1}
 
-def p_instrucciones_parametro_columna_auto_increment(t) :
-    'parametro_columna      : AUTO_INCREMENT'
-    #t[0] = Parametro('AUTO_INCREMENT')
+def p_instrucciones_parametro_columna_fkey(t) :
+    'parametro_columna      : REFERENCES ID'
+    t[0] = {'references': t[2]}
 
 def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
-    #t[0] = Parametro('NOT NULL')
+    t[0] = {'is_null': TipoNull.NOT_NULL}
 
 def p_instrucciones_unul(t) :
     'unul   : NULL'
-    #t[0] = Parametros('NULL')
+    t[0] = {'is_null': TipoNull.NULL}
 
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
