@@ -36,7 +36,8 @@ class AST:
         dot.edge(padre, "node" + str(contadorNodos))
         temp1 = "node" + str(contadorNodos)
         self.crearNodoNombreDatabase(temp1,instruccion)
-        self.crearNodoUsuarioDatabase(temp1,instruccion)
+        if instruccion.usuario.id != "":
+            self.crearNodoUsuarioDatabase(temp1,instruccion)
         self.crearNodoModoDatabase(temp1,instruccion)
 
     def crearNodoNombreDatabase(self,padre,instruccion):
@@ -66,10 +67,11 @@ class AST:
     def crearNodoExpresion(self, padre, expresion):
         global contadorNodos, dot
         if isinstance(expresion, ExpresionIdentificador):
-            contadorNodos = contadorNodos + 1
-            dot.node("node" + str(contadorNodos), str(expresion.id))
-            dot.edge(padre, "node" + str(contadorNodos))
-        elif isinstance(expresion, ExpresionNumero):
+            if expresion.id != "":
+                contadorNodos = contadorNodos + 1
+                dot.node("node" + str(contadorNodos), str(expresion.id))
+                dot.edge(padre, "node" + str(contadorNodos))
+        elif isinstance(expresion, ExpresionNumeroSimple):
             contadorNodos = contadorNodos + 1
             dot.node("node" + str(contadorNodos), str(expresion.val))
             dot.edge(padre, "node" + str(contadorNodos))
