@@ -1,7 +1,7 @@
 import abc
 import sys
 
-sys.path.append("..")
+#sys.path.append("..")
 
 
 class ASTNode(abc.ABC):

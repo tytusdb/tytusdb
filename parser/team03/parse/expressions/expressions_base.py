@@ -1,18 +1,19 @@
 import sys
-from expression_enum import OpArithmetic, OpRelational, OpLogic, OpPredicate
+from . expression_enum import OpArithmetic, OpRelational, OpLogic, OpPredicate
 from datetime import date
 
-sys.path.insert(0, '..')
-from ast_node import ASTNode
+##sys.path.insert(0, '..')
+##from ast_node import ASTNode
+from .. ast_node import ASTNode
 
 
 class Numeric(ASTNode):
     def __init__(self, val, line, column):
         ASTNode.__init__(self, line, column)
-        self.val = val
+        self.val = val        
 
     def execute(self, table, tree):
-        super().execute(table, tree)
+        super().execute(table, tree)        
         return self.val
 
 
@@ -56,19 +57,22 @@ class BinaryExpression(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        if self.operador == OpArithmetic.PLUS:
-            return self.exp1 + self.exp2
-        if self.operador == OpArithmetic.MINUS:
-            return self.exp1 - self.exp2
-        if self.operador == OpArithmetic.TIMES:
-            return self.exp1 * self.exp2
-        if self.operador == OpArithmetic.DIVIDE:
-            return self.exp1 / self.exp2
-        if self.operador == OpArithmetic.MODULE:
-            return self.exp1 % self.exp2
-        if self.operador == OpArithmetic.POWER:
+        print("slef.operator: ",self.operator)
+        if self.operator == None: #'Number' or 'artirmetic function' production for example
+            return self.exp1.val
+        if self.operator == OpArithmetic.PLUS:          
+            return self.exp1.execute(None,None) + self.exp2.execute(None,None)
+        if self.operator == OpArithmetic.MINUS:                    
+            return self.exp1.execute(None,None) - self.exp2.execute(None,None)
+        if self.operator == OpArithmetic.TIMES:
+            return self.exp1.execute(None,None) * self.exp2.execute(None,None)
+        if self.operator == OpArithmetic.DIVIDE:
+            return self.exp1.execute(None,None) / self.exp2.execute(None,None)
+        #if self.operator == OpArithmetic.MODULE:
+        #    return self.exp1.execute(None,None)  self.exp2.execute(None,None)
+        if self.operator == OpArithmetic.POWER:
             return pow(self.exp1, self.exp2)
-
+        
 
 class RelationalExpression(ASTNode):
     # Class that handles every relational expression
