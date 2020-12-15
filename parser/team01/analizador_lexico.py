@@ -38,6 +38,23 @@ reservadas = {
     'minutes'   : 'MINUTES',
     'seconds'   : 'SECONDS',
     'year'      : 'YEAR',
+    'month'     : 'MONTH',
+    'day'       : 'DAY',
+    'date_part' : 'DATE_PART',
+    'drop'      : 'DROP',
+    'owner'     : 'OWNER',
+    'rename'    : 'RENAME',
+    'to'        : 'TO',
+    'replace'   : 'REPLACE',
+    'or'        : 'OR',
+    'if'        : 'IF',
+    'not'       : 'NOT',
+	'seconds'   : 'SECONDS',
+    'year'      : 'YEAR',
+    'month'     : 'MONTH',
+    'day'       : 'DAY',
+    'date_part' : 'DATE_PART',    
+	'interval'  : 'INTERVAL'
 }
 
 tokens  = [
@@ -59,7 +76,6 @@ tokens  = [
     'EXISTS',
     'NOTH',
     'ORH'
-
 ] + list(reservadas.values())
 resultado_lexema = []
 
@@ -89,6 +105,12 @@ def t_NOTH(t):
         t.type = reservadas[ t.value ]
     return t
 
+#Creo un token "OR" para que no de conflico con el simbolo OR de los peradores logicos "CREATE OR REPLACE)
+def t_ORH(t):
+    r"""(O|o)(R|r)"""
+    if t.value in reservadas:
+        t.type = reservadas[ t.value ]
+    return t
 def t_DECIMAL(t):
     r'\d+\.\d+'
     try:
@@ -152,4 +174,3 @@ def t_error(t):
 
  # instanciamos el analizador lexico
 analizador = lex.lex()
-
