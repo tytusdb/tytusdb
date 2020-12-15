@@ -1,0 +1,12 @@
+/Interpreter/__pycache__/
+/Interpreter/Instructions/__pycache__/
+/Interpreter/Expressions/__pycache__/
+/Interpreter/Expressions/Binaries/__pycache__/
+/Interpreter/Expressions/Binaries/Arithmetics/__pycache__/
+/Interpreter/Expressions/Binaries/Relationals/__pycache__/
+/Interpreter/parser.out
+/Interpreter/parsetab.py
+/ply
+
+
+/Interpreter/descparse.py
