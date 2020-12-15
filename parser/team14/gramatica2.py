@@ -230,7 +230,7 @@ from Expresion.Logica import  Logica
 from Expresion.Unaria import  Unaria
 from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
-from Instrucciones.CreateDb import *
+from Instrucciones.CreateDB import *
 
 # Asociación de operadores y precedencia
 precedence = (

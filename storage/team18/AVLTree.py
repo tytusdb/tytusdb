@@ -1,3 +1,4 @@
+import os
 class TreeNode:
     def __init__(self, val):
         self.val = val
@@ -153,12 +154,20 @@ class AVLTree:
 
         return self.getMinValueNode(root.left)
 
-    def preOrder(self, root):
+    def preOrder(self, root, f, nodes):
         if not root:
             return
         print("{0} ".format(root.val), end="")
-        self.preOrder(root.left)
-        self.preOrder(root.right)
+        name = 'Nodo' + ''.join(str(root.val))
+        f.write(name + ' [label = "' + root.val + '"];\n')
+        if root.left:
+            connection = 'Nodo' + ''.join(str(root.val)) + '->' + 'Nodo' + ''.join(str(root.left.val)) + ';\n'
+            nodes.append(connection)
+        if root.right:
+            connection = 'Nodo' + ''.join(str(root.val)) + '->' + 'Nodo' + ''.join(str(root.right.val)) + ';\n'
+            nodes.append(connection)
+        self.preOrder(root.left, f, nodes)
+        self.preOrder(root.right, f, nodes)
 
         # List all the keys in postorder
     def postOrder(self, root):
@@ -181,3 +190,18 @@ class AVLTree:
 
     def getRoot(self):
         return self.AVLroot
+
+    def graph(self):
+        nodes = []
+        f = open('bases.dot', 'w', encoding='utf-8')
+        f.write("digraph dibujo{\n")
+        f.write('graph [ordering="out"];')
+        f.write('rankdir=TB;\n')
+        f.write('node [shape = box];\n')
+        self.preOrder(self.getRoot(), f, nodes)
+        for x in nodes:
+            f.write(x)
+        f.write('}')
+        f.close()
+        os.system('dot -Tpng bases.dot -o ./Data/DataBases.png')
+        # os.system('C:/Users/Marcos/Desktop/Data/DataBases.png')
