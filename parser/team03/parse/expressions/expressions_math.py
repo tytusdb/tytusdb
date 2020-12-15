@@ -17,7 +17,7 @@ class Abs(ASTNode):
         return abs(self.exp)
 
 
-class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar probably doesn't support it
+'''class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar probably doesn't support it
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
@@ -25,7 +25,7 @@ class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar pro
     def execute(self, table, tree):
         super().execute(table, tree)
         return np.cbrt(self.exp)
-
+'''
 
 class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in grammar or semantic error? 
     def __init__(self, exp, line, column):
@@ -230,7 +230,7 @@ class SetSeed(ASTNode):
         return random.seed(self.exp)
 
 
-class Sign(ASTNode):
+'''class Sign(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
@@ -238,7 +238,7 @@ class Sign(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return np.sign(self.exp)
-
+'''
 
 class Sqrt(ASTNode):
     def __init__(self, exp, line, column):
@@ -267,7 +267,8 @@ class Trunc(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.trunc(self.exp)
+        print ("Executing TRUNC: ",self.exp)
+        return math.trunc(self.exp.execute(None,None))
 
 
 class WithBucket(ASTNode):
