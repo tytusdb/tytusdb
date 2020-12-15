@@ -1,173 +1,123 @@
+from DataBase import Database
+
+
 class Tytus:
     def __init__(self):
         self.databases = []
+                
+    """
+    @return
+        0 operación exitosa
+        1 error en la operación 
+        2 base de datos existente
+    """
+    def createDatabase(self, nameDB):
+        try:
+            if self.buscarDB(nameDB) != None:
+                print("Base de datos existente")
+                return 2
+            else:
+                self.databases.append(Database(nameDB))
+                print("Operación exitosa")
+                return 0
+        except: 
+            print("Error en la operación")
+            return 1
 
-    # @description | Devuelve una lista de los nombres de la base de datos, el nombre es único.
+   
+    """
+    @return 
+        una lista de nombres de la base de datos
+    """
     def showDatabases(self):
-        print("showDatabases")
+        listNamesDB = []
+        for db in self.databases:
+            if db != None:
+                listNamesDB.append(db.getName())
+        return listNamesDB
 
-    # @description | Cambia el nombre de una base de datos.
-    def alterDatabase(self, old, new):
-        print("alterDatabase")
+    """
+    @return 
+        0 operación exitosa
+        1 Error en la operación
+        2 databaseOld no existente
+        3 databaseNew existente
+    """
+    def alterDatabase(self, databaseOld, databaseNew):
+        try:
+            banderaDB = self.buscarDB(databaseOld)
+            if banderaDB != None:
+                if self.buscarDB(databaseNew) != None:
+                    print("databaseNew existente")
+                    return 3
+                else:
+                    self.databases[banderaDB].setName(databaseNew)
+                    print("operación exitosa")
+                    return 0
+            else:
+                print("dtabaseOld no existente")
+                return 2
+        except Exception as e:
+            print("Error de la operación")
+            print(e)
+            return 1
 
-    # @desciption | Crea una base de datos.
-    def createDatabase(self, name):
-        print("createDatabase")
+    """
+    @return
+        0 Operación exitosa
+        1 Error en la operación
+        2 Base de datos no existente
+    """
+    def dropDatabase(self, nameDB):
+        try:
+            banderaDB = self.buscarDB(nameDB)
+            if banderaDB != None:
+                self.databases.pop(banderaDB)
+            else:
+                print("Base de datos no existente")
+                return 2
+        except:
+            print("Error en la operación")
+            return 1
 
-    # @desciption | Elimina por completo la base de datos indicada. 
-    def dropDatabase(self, name):
-        print("dropDatabase")
-    
-    # @desciption | Crea una tabla según el modo de almacenamiento, la base de datos debe existir, y solo se define el número de columnas.
-    def createTable(self, db, name, nCols):
-        print("createTable")
+    """
+    prototype method
+    """
+    def buscarDB(self, name):
+        if len(self.databases) == 0:
+            #vacia
+            return None
+        else:
+            #no vacia
+            for db in self.databases:
+                if name == db.getName():
+                    #econtrada
+                    return self.databases.index(db)
+                else:
+                    #no econtrada
+                    return None
 
-    # @desciption | Cambia el nombre de una base de datos.
-    def alterTable(self, db, old, new):
-        print("alterTable")
+    """
+    loadCSV()
+    @return
+        0 Operación exitosa
+        1 Error en la operación
+        2 Database no existente
+        3 Tabla no existe
+        4 Llave primaria duplicada
+        5 Columnas fuera de límites
+    """
+    def loadCSV(self, fileCSV, db, table,):
+        print("loadCSV")
+        try:
+            if self.buscarDB(nameDB) != None:
+                print("fs")
+            else:
+                print("else")
+        except:
+            print("Error en la operación")
+            return 1
 
-    # @desciption | Elimina por completo la tabla indicada.
-    def dropTable(self, db, name):
-        print("dropTable")
-    
-    # @desciption | Agrega una columna a cada registro de la tabla.
-    def alterAdd(self, db, name, columnName):
-        print("alterTable")
+        
 
-    # @desciption | Elimina un n-esima columna de cada registro de la tabla.
-    def alterDrop(self, db, name, column):
-        print("alterDrop")
 
-    # @desciption | Extrae y devuelve en una lista de listas el contenido de la tabla
-    def extractTable(self, db, name, column):
-        print("extractTable")
-    
-    # @desciption | Carga un archivo csv de una ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla
-    #               existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe,
-    #               la crea con el modo especificado.
-    def loadCSV(self, fileCSV, db, table, mode):#mode debe ser un int
-        print("chargueCSV")
-
-    # @desciption | Inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla
-    #               y columns es una lista de campos a insertar. Devuelve un True si no hubo problema y una False si no se logró insertar.
-    def insertTuple(self, db, table, campos):
-        print("insertTuple")
-
-    # @desciption | Actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualió correctamente
-    #               y False si no se logró actualizar.
-    def updateTuple(self, db, table, id, nCol, val):
-        print("updateTuple")
-
-    # @desciption | Elimina un nodo o elemento de página indicado de una tabla y base de datos especificada.
-    def deleteTuple(self, db, table, id):
-        print("deleteTuple")
-
-    # @desciption | Vacía la tabla de todos los registros.
-    def truncateTuple(self, db, table):
-        print("truncateTuple")
-
-    # @desciption | Extrae y devuelve una tupla especificada
-    def extractRow(db, table, id):
-        print("extractRow")
-    
-    def extractTuple(self, table, idTuple):
-        print("extractTuple")
-
-class Database:
-    
-    def __init__(self):
-        self.tables = []
-
-    def showTable(self):
-        print("showTable")
-
-    def alterDatabase(self, new):
-        print("alterDatabase")
-    
-    def createTable(self, name, nCols):
-        print("createTable")
-    
-    def alterTable(self, old, new):
-        print("alterTable")
-
-    def dropTable(self, name):
-        print("dropTable")
-
-    def alterAdd(self, name, columnName):
-        print("alterAdd")
-
-    def alterDrop(self, name, column):
-        print("alterDrop")
-    
-    def extractTable(self, name, column):
-        print("extractTable")
-
-class HashTable:
-
-    def __init__(self):
-        self.lenght = 0
-        self.percentage = 0.0
-        arrayNodes = []
-
-    def funcionHash(key):
-        print("funcionHash")
-
-    def addNode(value):
-        print("addNode")
-    
-    def rehashing():
-        print("rehashing")
-
-    def searchValue(key):
-        print("searchValue")
-
-    def deleteNode(key):
-        print("deleteNode")
-
-    def updateNode(key):
-        print("updateNode")
-
-    def generateGraph():
-        print("generateGraph")
-
-class Table:
-
-    def __init__(self):
-        self.arrayTuples = []
-        self.position = 0
-        self. key = 0
-        self.name = ""
-        self.arrayColumns = []
-        self.idTable = 0
-
-    def createTable(name, nCols):
-        print("createTable")
-
-    def alterTable(new):
-        print("alterTable")
-
-    def alterAdd(colunmName):
-        print("alterAdd")
-
-    def alterDrop(column):
-        print("alterDrop")
-
-    def extractTable():
-        print("extractTable")
-
-class Column:
-    def __init__(self):
-        self.name = ""
-        self.index = 0
-
-    def createColumn(self, name):
-        print("createColumn")
-
-class Tuple:
-
-    def __init__(self):
-        self.id = 0
-        self.values = []
-
-    def updateTuple(nCol, val):
-        print("updateTuple")
