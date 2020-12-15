@@ -42,7 +42,7 @@ class Pantalla_TS():
       tabla.heading("DECLARACION",text="Declaracion",anchor=CENTER)
       tabla.heading("REFERENCIA",text="Referencia",anchor=CENTER)
       btn = Button(self.top, text="Regresar",command=self.close)
-      btn.pack(side =TOP, ancho=E)
+      btn.pack(side=TOP, anchor=E, padx=25)
       self.top.mainloop()
   
    def close(self):
