@@ -41,6 +41,15 @@ class Entorno:
         
         return None
 
+    def mostrarSimbolos(self):
+        ent = self
+
+        while ent != None:
+            for x in ent.tablaSimbolo.values():
+                print(x.toString())
+                
+            ent = ent.anterior
+
     def getDataBase(self):
         ent = self
 
