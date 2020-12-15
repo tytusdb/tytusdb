@@ -14,18 +14,18 @@ class Abs(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return abs(self.exp)
+        return abs(self.exp.execute(None,None))
 
 
-'''class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar probably doesn't support it
+class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar probably doesn't support it    
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return np.cbrt(self.exp)
-'''
+        return np.cbrt(self.exp.execute(None,None))
+
 
 class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in grammar or semantic error? 
     def __init__(self, exp, line, column):
@@ -34,7 +34,7 @@ class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in gr
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.ceil(self.exp)
+        return math.ceil(self.exp.execute(None,None))
 
 
 class Degrees(ASTNode):
@@ -44,7 +44,7 @@ class Degrees(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.degrees(self.exp)
+        return math.degrees(self.exp.execute(None,None))
 
 
 class Div(ASTNode):
@@ -65,7 +65,7 @@ class Exp(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.exp(self.exp)
+        return math.exp(self.exp.execute(None,None))
 
 
 class Factorial(ASTNode):
@@ -75,7 +75,7 @@ class Factorial(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.factorial(self.exp)
+        return math.factorial(self.exp.execute(None,None))
 
 
 class Floor(ASTNode):
@@ -230,7 +230,7 @@ class SetSeed(ASTNode):
         return random.seed(self.exp)
 
 
-'''class Sign(ASTNode):
+class Sign(ASTNode):
     def __init__(self, exp, line, column):
         ASTNode.__init__(self, line, column)
         self.exp = exp
@@ -238,7 +238,7 @@ class SetSeed(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         return np.sign(self.exp)
-'''
+
 
 class Sqrt(ASTNode):
     def __init__(self, exp, line, column):
@@ -267,7 +267,6 @@ class Trunc(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        print ("Executing TRUNC: ",self.exp)
         return math.trunc(self.exp.execute(None,None))
 
 
