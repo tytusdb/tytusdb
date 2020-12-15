@@ -167,7 +167,7 @@ reservadas = {
     'sin': 'sin',
     'sind': 'sind',
     'tan': 'tan',
-    'tand':'tand',
+    'tand': 'tand',
     'sinh': 'sinh',
     'cosh': 'cosh',
     'tanh': 'tanh',
@@ -214,13 +214,13 @@ reservadas = {
     'extract': 'tExtract',
     'in': 'in'
 
-    #nuevos -10
-    ,'asc':'asc',
-    'desc':'desc',
-    'nulls':'nulls',
-    'first':'first',
-    'last':'last',
-    'order':'order'
+    # nuevos -10
+    , 'asc': 'asc',
+    'desc': 'desc',
+    'nulls': 'nulls',
+    'first': 'first',
+    'last': 'last',
+    'order': 'order'
 
 }
 
@@ -264,7 +264,7 @@ tokens = [
              'mayormayor',
              'menormenor',
 
-             #TOKENS PARA EL RECONOCIMIENTO DE FECHA Y HORA
+             # TOKENS PARA EL RECONOCIMIENTO DE FECHA Y HORA
              'fecha',
              'hora',
              'fecha_hora'
@@ -329,19 +329,19 @@ def t_entero(t):
     return t
 
 
-#DEFINICIÓN PARA LA HORA
+# DEFINICIÓN PARA LA HORA
 def t_hora(t):
     r'\'[0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9]\''
     return t
 
 
-#DEFINICIÓN PARA LA FECHA
+# DEFINICIÓN PARA LA FECHA
 def t_fecha(t):
     r'\'[0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9]\''
     return t
 
 
-#DEFINICIÓN PARA TIMESTAMP
+# DEFINICIÓN PARA TIMESTAMP
 def t_fecha_hora(t):
     r'\'([0-9]{4}-[0-1]?[0-9]-[0-3]?[0-9])(\s)([0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9])\''
     return t
@@ -377,7 +377,7 @@ def t_COMENTARIO_MULTILINEA(t):
 # DEFINICIÓN DE UN COMENTARIO SIMPLE
 def t_COMENTARIO_SIMPLE(t):
     r'--.*'
-    #t.lexer.lineno += 1  # Descartamos la linea desde aca
+    # t.lexer.lineno += 1  # Descartamos la linea desde aca
 
 
 # IGNORAR COMENTARIOS SIMPLES
@@ -435,14 +435,18 @@ def p_init(t):
     print("Lectura Finalizada")
     t[0] = t[1]
 
+
 def p_sentencias_lista(t):
     'sentencias : sentencias sentencia'
     t[1].append(t[2])
-    t[0]=t[1] 
-     
+    t[0] = t[1]
+
+
 def p_sentencias_sentencia(t):
     'sentencias : sentencia'
-    t[0] = [t[1]] 
+    t[0] = [t[1]]
+
+
 def p_sentencia(t):
     '''sentencia : CrearBase
                  | ShowBase
@@ -464,18 +468,18 @@ def p_sentencia(t):
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_crearBase(t):
-    '''CrearBase : create database id ptComa
-                 | create database id owner igual id ptComa
-                 | create database id mode igual entero ptComa
-                 | create database id owner igual id mode igual entero ptComa
-                 | create or replace database id ptComa
-                 | create or replace database id owner igual id ptComa
-                 | create or replace database id mode igual entero ptComa
-                 | create or replace database id owner igual id mode igual entero ptComa
-                 | create database if not exists id ptComa
-                 | create database if not exists id owner igual id ptComa
-                 | create database if not exists id mode igual entero ptComa
-                 | create database if not exists id owner igual id mode igual entero ptComa'''
+    '''CrearBase : create database E ptComa
+                 | create database E owner igual id ptComa
+                 | create database E mode igual entero ptComa
+                 | create database E owner igual id mode igual entero ptComa
+                 | create or replace database E ptComa
+                 | create or replace database E owner igual id ptComa
+                 | create or replace database E mode igual entero ptComa
+                 | create or replace database E owner igual id mode igual entero ptComa
+                 | create database if not exists E ptComa
+                 | create database if not exists E owner igual id ptComa
+                 | create database if not exists E mode igual entero ptComa
+                 | create database if not exists E owner igual id mode igual entero ptComa'''
     # def __init__(self, owner, mode, replace, exists, id)
     if len(t) == 5:
         # primera produccion
@@ -533,10 +537,10 @@ def p_showBase(t):
 
 
 def p_AlterBase(t):
-    '''AlterBase : alter database id rename tTo id ptComa
-                 | alter database id owner tTo id ptComa
-                 | alter database id owner tTo currentuser ptComa
-                 | alter database id owner tTo sessionuser ptComa
+    '''AlterBase : alter database E rename tTo id ptComa
+                 | alter database E owner tTo id ptComa
+                 | alter database E owner tTo currentuser ptComa
+                 | alter database E owner tTo sessionuser ptComa
     '''
     # def __init__(self, id, rename, owner, id):
     if t[4].lower() == "rename":
@@ -546,8 +550,8 @@ def p_AlterBase(t):
 
 
 def p_DropBase(t):
-    '''DropBase : drop database id ptComa
-                | drop database if exists id ptComa'''
+    '''DropBase : drop database E ptComa
+                | drop database if exists E ptComa'''
     if len(t) == 5:
         t[0] = SDropBase(False, t[3])
     else:
@@ -571,18 +575,13 @@ def p_produccion0(t):
 
 # PRODUCCIÓN PARA HACER UN DELETE
 def p_produccion0_1(t):
-    ''' DeleteBase  : tDelete from id CONDICION ptComa '''
+    ''' DeleteBase  : tDelete from id where E ptComa '''
     t[0] = SDeleteBase(t[3], t[4])
 
 
-# CONDICIÓN QUE PUEDE O NO VENIR DENTRO DE UN DELETE
 def p_produccion0_2(t):
-    ''' CONDICION   : where E
-                    |  '''
-    if len(t) == 3:
-        t[0] = t[2]
-    else:
-        t[0] = False
+    ''' DeleteBase : tDelete from id ptComa'''
+    t[0] = SDeleteBase(t[3], False)
 
 
 # PRODUCCIÓN PARA HACER UN TRUNCATE
@@ -654,15 +653,15 @@ def p_EXPR_ASSIGNS(t):
             t[0] = SColumna(t[1], t[2], None)
     elif len(t) == 4:
         t[0] = SColumna(t[1], t[2], t[3])
-    elif len(t)==5:
-        if t[1].lower()=="constraint":
-            t[0]=SColumnaCheck(t[2],t[4])
+    elif len(t) == 5:
+        if t[1].lower() == "constraint":
+            t[0] = SColumnaCheck(t[2], t[4])
         else:
-            t[0]=SColumnaUnique(t[3])
-    elif len(t)==6:
-        t[0]=SColumnaPk(t[4])
-    elif len(t)==11:
-        t[0]=SColumnaFk(t[7],t[4],t[9])
+            t[0] = SColumnaUnique(t[3])
+    elif len(t) == 6:
+        t[0] = SColumnaPk(t[4])
+    elif len(t) == 11:
+        t[0] = SColumnaFk(t[7], t[4], t[9])
 
 
 def p_EXPR_OPCIONALES(t):
@@ -677,32 +676,32 @@ def p_EXPR_OPCIONALES(t):
 
 def p_EXPR_OPCION(t):
     '''OPCION : tDefault E'''
-    t[0] = SOpcionales(TipoOpcionales.DEFAULT, t[2],None)
+    t[0] = SOpcionales(TipoOpcionales.DEFAULT, t[2], None)
 
 
 def p_EXPR_OPCION1(t):
     '''OPCION : tPrimary tKey'''
-    t[0] = SOpcionales(TipoOpcionales.PRIMARYKEY, None,None)
+    t[0] = SOpcionales(TipoOpcionales.PRIMARYKEY, None, None)
 
 
 def p_EXPR_OPCION2(t):
     '''OPCION : not null'''
-    t[0] = SOpcionales(TipoOpcionales.NOTNULL, None,None)
+    t[0] = SOpcionales(TipoOpcionales.NOTNULL, None, None)
 
 
 def p_EXPR_OPCION3(t):
     '''OPCION : null'''
-    t[0] = SOpcionales(TipoOpcionales.NULL, None,None)
+    t[0] = SOpcionales(TipoOpcionales.NULL, None, None)
 
 
 def p_EXPR_OPCION4(t):
     '''OPCION : tUnique'''
-    t[0] = SOpcionales(TipoOpcionales.UNIQUE, None,None)
+    t[0] = SOpcionales(TipoOpcionales.UNIQUE, None, None)
 
 
 def p_EXPR_OPCION5(t):
     '''OPCION : tCheck E'''
-    t[0] = SOpcionales(TipoOpcionales.CHECK, t[2],None)
+    t[0] = SOpcionales(TipoOpcionales.CHECK, t[2], None)
 
 
 def p_EXPR_OPCION6(t):
@@ -719,11 +718,11 @@ def p_EXPR_COLS(t):
     '''COLS : COLS coma E
             | E '''
 
-    if len(t)==4:
+    if len(t) == 4:
         t[1].append(t[3])
-        t[0]=t[1]
+        t[0] = t[1]
     else:
-        t[0]=[t[1]]
+        t[0] = [t[1]]
 
 
 def p_EXPR_TIPO(t):
@@ -769,9 +768,11 @@ def p_EXPR_DATE_TYPES(t):
                   | tInterval FIELDS'''
     t[0] = STipoDato(t[1], TipoDato.FECHA, None)
 
+
 def p_EXPR_BOOL_TYPES(t):
     '''BOOL_TYPES : tBoolean'''
-    t[0]=STipoDato(t[1],TipoDato.BOOLEAN,None)
+    t[0] = STipoDato(t[1], TipoDato.BOOLEAN, None)
+
 
 def p_EXPR_FIELDS(t):
     '''FIELDS : tYear
@@ -797,11 +798,10 @@ def p_EXPR_DROP_TABLE(t):
 def p_EXPR_ALTER_TABLE(t):
     '''ALTER_TABLE : alter table id rename tColumn id tTo id ptComa
                    | alter table id EXPR_ALTER
-                   | alter table id add tColumn id CHAR_TYPES ptComa
+                   | alter table id LColumn ptComa
                    | alter table id add tCheck E ptComa
                    | alter table id add tConstraint id tUnique parAbre id parCierra ptComa      
-                   | alter table id add tForeign tKey parAbre id parCierra tReferences id ptComa    
-                   | alter table id drop tColumn id ptComa
+                   | alter table id add tForeign tKey parAbre COLS parCierra tReferences COLS ptComa
                    | alter table id drop tConstraint id ptComa 
                    '''
     if len(t) == 10:
@@ -812,23 +812,54 @@ def p_EXPR_ALTER_TABLE(t):
             # cuarta produccion
             t[0] = SAlterTableCheck(t[3], t[6])
         elif t[4].lower() == "drop":
-            if t[5].lower() == "column":
-                t[0] = SAlterTableDrop(t[3], False, TipoAlterDrop.COLUMN)
-            else:
-                t[0] = SAlterTableDrop(t[3], t[6], TipoAlterDrop.CONSTRAINT)
-
+            t[0] = SAlterTableDrop(t[3], TipoAlterDrop.CONSTRAINT, t[6], )
     elif len(t) == 5:
         # segunda produccion
         t[0] = SAlterTable_AlterColumn(t[3], t[4])
-    elif len(t) == 9:
+    elif len(t) == 6:
         # tercera produccion
-        t[0] = SAlterTableAddColumn(t[3], t[6], t[7])
+        t[0] = SAlterTableAddColumn(t[3], t[4])
     elif len(t) == 12:
         # quinta produccion
         t[0] = SAlterTableAddUnique(t[3], t[6], t[9]);
     elif len(t) == 13:
         # sexta produccion
         t[0] = SAlterTableAddFK(t[3], t[8], t[11])
+
+
+def p_EXPR_ALTER_TABLE1(t):
+    '''ALTER_TABLE : alter table id LDColumn ptComa '''
+    t[0] = SAlterTableDrop(t[3], TipoAlterDrop.COLUMN, t[4])
+
+
+def p_LDropColumn(t):
+    ''' LDColumn : LDColumn coma LDCol
+                 | LDCol'''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+
+
+def p_LDCol(t):
+    ''' LDCol : drop tColumn id '''
+    t[0] = SNAlterDrop(t[3])
+
+
+def p_LAddColumn(t):
+    ''' LColumn : LColumn coma LCol
+                | LCol '''
+    if len(t) == 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+
+
+def p_LCol(t):
+    '''LCol : add tColumn id TIPO'''
+    t[0] = SNAlterAdd(t[3], t[4])
 
 
 def p_EXPR_ALTER(t):
@@ -996,138 +1027,169 @@ def p_QUERY(p):
              | EXPR_SELECT EXPR_FROM 
              | EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT 
     '''
-    #LEN 2 Y 3 y 7    #select, ffrom, where, groupby, having, orderby, limit
+    # LEN 2 Y 3 y 7    #select, ffrom, where, groupby, having, orderby, limit
     if len(p) == 2:
-        p[0] = SQuery(p[1],False,False,False,False,False,False)
+        p[0] = SQuery(p[1], False, False, False, False, False, False)
     elif len(p) == 3:
-        p[0] = SQuery(p[1],p[2],False,False,False,False,False)
-    else: 
-        p[0] = SQuery(p[1],p[2],p[3],p[4],p[5],p[6],p[7])
+        p[0] = SQuery(p[1], p[2], False, False, False, False, False)
+    else:
+        p[0] = SQuery(p[1], p[2], p[3], p[4], p[5], p[6], p[7])
 
-    #LEN 4     #select, ffrom, where, groupby, having, orderby, limit
+    # LEN 4     #select, ffrom, where, groupby, having, orderby, limit
+
+
 def p_QUERY_p4_1(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_ORDERBY''' 
-    p[0] = SQuery(p[1],p[2],False,False,False,p[3],False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_ORDERBY'''
+    p[0] = SQuery(p[1], p[2], False, False, False, p[3], False)
+
 
 def p_QUERY_p4_2(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_LIMIT''' 
-    p[0] = SQuery(p[1],p[2],False,False,False,False,p[3])
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_LIMIT'''
+    p[0] = SQuery(p[1], p[2], False, False, False, False, p[3])
+
 
 def p_QUERY_p4_3(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE''' 
-    p[0] = SQuery(p[1],p[2],p[3],False,False,False,False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE'''
+    p[0] = SQuery(p[1], p[2], p[3], False, False, False, False)
+
 
 def p_QUERY_p4_4(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING''' 
-    p[0] = SQuery(p[1],p[2],False,False,p[3],False,False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING'''
+    p[0] = SQuery(p[1], p[2], False, False, p[3], False, False)
+
 
 def p_QUERY_p4_5(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY''' 
-    p[0] = SQuery(p[1],p[2],False,p[3],False,False,False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY'''
+    p[0] = SQuery(p[1], p[2], False, p[3], False, False, False)
 
-    #LEN 5     #select, ffrom, where, groupby, having, orderby, limit
+    # LEN 5     #select, ffrom, where, groupby, having, orderby, limit
+
+
 def p_QUERY_p5_1(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_ORDERBY EXPR_LIMIT''' 
-    p[0] = SQuery(p[1],p[2],False,False,False,p[3],p[4])
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_ORDERBY EXPR_LIMIT'''
+    p[0] = SQuery(p[1], p[2], False, False, False, p[3], p[4])
+
 
 def p_QUERY_p5_2(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY ''' 
-    p[0] = SQuery(p[1],p[2],p[3],False,False,p[4],False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY '''
+    p[0] = SQuery(p[1], p[2], p[3], False, False, p[4], False)
+
 
 def p_QUERY_p5_3(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_LIMIT''' 
-    p[0] = SQuery(p[1],p[2],p[3],False,False,False,p[4])
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_LIMIT'''
+    p[0] = SQuery(p[1], p[2], p[3], False, False, False, p[4])
+
 
 def p_QUERY_p5_4(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY''' 
-    p[0] = SQuery(p[1],p[2],p[3],p[4],False,False,False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY'''
+    p[0] = SQuery(p[1], p[2], p[3], p[4], False, False, False)
+
 
 def p_QUERY_p5_5(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_LIMIT''' 
-    p[0] = SQuery(p[1],p[2],False,p[3],False,False,p[4])
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_LIMIT'''
+    p[0] = SQuery(p[1], p[2], False, p[3], False, False, p[4])
+
 
 def p_QUERY_p5_6(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY ''' 
-    p[0] = SQuery(p[1],p[2],False,p[3],False,p[4],False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY '''
+    p[0] = SQuery(p[1], p[2], False, p[3], False, p[4], False)
+
 
 def p_QUERY_p5_7(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING''' 
-    p[0] = SQuery(p[1],p[2],False,p[3],p[4],False,False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING'''
+    p[0] = SQuery(p[1], p[2], False, p[3], p[4], False, False)
+
 
 def p_QUERY_p5_8(p):
-    '''QUERY :  EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_LIMIT''' 
-    p[0] = SQuery(p[1],p[2],False,False,p[3],False,p[4])
+    '''QUERY :  EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_LIMIT'''
+    p[0] = SQuery(p[1], p[2], False, False, p[3], False, p[4])
+
 
 def p_QUERY_p5_9(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY''' 
-    p[0] = SQuery(p[1],p[2],False,False,p[3],p[4],False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY'''
+    p[0] = SQuery(p[1], p[2], False, False, p[3], p[4], False)
+
 
 def p_QUERY_p5_10(p):
-    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING''' 
-    p[0] = SQuery(p[1],p[2],p[3],False,p[4],False,False)
+    '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING'''
+    p[0] = SQuery(p[1], p[2], p[3], False, p[4], False, False)
 
 
- #LEN 6     #select, ffrom, where, groupby, having, orderby, limit
+# LEN 6     #select, ffrom, where, groupby, having, orderby, limit
 def p_QUERY_p6_1(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_ORDERBY EXPR_LIMIT '''
-    p[0] = SQuery(p[1],p[2],p[3],False,False,p[4],p[5])
+    p[0] = SQuery(p[1], p[2], p[3], False, False, p[4], p[5])
+
 
 def p_QUERY_p6_2(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY '''
-    p[0] = SQuery(p[1],p[2],p[3],p[4],False,p[5],False)
+    p[0] = SQuery(p[1], p[2], p[3], p[4], False, p[5], False)
+
 
 def p_QUERY_p6_3(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_LIMIT '''
-    p[0] = SQuery(p[1],p[2],p[3],p[4],False,False,p[5])
+    p[0] = SQuery(p[1], p[2], p[3], p[4], False, False, p[5])
+
 
 def p_QUERY_p6_4(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING '''
-    p[0] = SQuery(p[1],p[2],p[3],p[4],p[5],False,False)
+    p[0] = SQuery(p[1], p[2], p[3], p[4], p[5], False, False)
+
 
 def p_QUERY_p6_5(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT '''
-    p[0] = SQuery(p[1],p[2],False,p[3],False,p[4],p[5])
+    p[0] = SQuery(p[1], p[2], False, p[3], False, p[4], p[5])
+
 
 def p_QUERY_p6_6(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT '''
-    p[0] = SQuery(p[1],p[2],False,p[3],p[4],False,p[5])
+    p[0] = SQuery(p[1], p[2], False, p[3], p[4], False, p[5])
+
 
 def p_QUERY_p6_7(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY '''
-    p[0] = SQuery(p[1],p[2],False,p[3],p[4],p[5],False)
+    p[0] = SQuery(p[1], p[2], False, p[3], p[4], p[5], False)
+
 
 def p_QUERY_p6_8(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
-    p[0] = SQuery(p[1],p[2],False,False,p[5],p[4],p[5])
+    p[0] = SQuery(p[1], p[2], False, False, p[5], p[4], p[5])
+
 
 def p_QUERY_p6_9(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_LIMIT'''
-    p[0] = SQuery(p[1],p[2],p[3],False,p[4],False,p[5])
+    p[0] = SQuery(p[1], p[2], p[3], False, p[4], False, p[5])
+
 
 def p_QUERY_p6_10(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY'''
-    p[0] = SQuery(p[1],p[2],p[3],False,p[4],p[5],False)
+    p[0] = SQuery(p[1], p[2], p[3], False, p[4], p[5], False)
 
- #LEN 7     #select, ffrom, where, groupby, having, orderby, limit
+
+# LEN 7     #select, ffrom, where, groupby, having, orderby, limit
 def p_QUERY_p7_1(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_ORDERBY EXPR_LIMIT'''
-    p[0] = SQuery(p[1],p[2],p[3],p[4],False,p[5],p[6])
+    p[0] = SQuery(p[1], p[2], p[3], p[4], False, p[5], p[6])
+
 
 def p_QUERY_p7_2(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_LIMIT'''
-    p[0] = SQuery(p[1],p[2],p[3],p[4],p[5],False,p[6])
+    p[0] = SQuery(p[1], p[2], p[3], p[4], p[5], False, p[6])
+
 
 def p_QUERY_p7_3(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY'''
-    p[0] = SQuery(p[1],p[2],p[3],p[4],p[5],p[6],False)
+    p[0] = SQuery(p[1], p[2], p[3], p[4], p[5], p[6], False)
+
 
 def p_QUERY_p7_4(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_GROUPBY EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
-    p[0] = SQuery(p[1],p[2],False,p[3],p[4],p[5],p[6])
+    p[0] = SQuery(p[1], p[2], False, p[3], p[4], p[5], p[6])
+
 
 def p_QUERY_p7_5(p):
     '''QUERY : EXPR_SELECT EXPR_FROM EXPR_WHERE EXPR_HAVING EXPR_ORDERBY EXPR_LIMIT'''
-    p[0] = SQuery(p[1],p[2],p[3],False,p[4],p[5],p[6])
+    p[0] = SQuery(p[1], p[2], p[3], False, p[4], p[5], p[6])
 
 
 def p_EXPR_SELECT(p):
@@ -1136,26 +1198,26 @@ def p_EXPR_SELECT(p):
                    | select now parAbre parCierra
                    | select current_time
                    | select current_date
-                   ''' 
+                   '''
     if len(p) == 3:
         print("P2 es " + p[2])
         if p[2] == "*":
-            p[0] = SSelectCols(False,p[2])
-        elif p[2].lower() == "current_time" :
+            p[0] = SSelectCols(False, p[2])
+        elif p[2].lower() == "current_time":
             p[0] = SSelectFunc(p[2])
-        elif p[2].lower() == "current_date" :
+        elif p[2].lower() == "current_date":
             p[0] = SSelectFunc(p[2])
     elif p[2].lower() == "now":
-            p[0] = SSelectFunc(p[2])
+        p[0] = SSelectFunc(p[2])
     else:
-        p[0] = SSelectCols(True,p[3])
+        p[0] = SSelectCols(True, p[3])
 
 
 def p_EXPR_SELECT_C(p):
-    '''EXPR_SELECT : select EXPR_COLUMNAS''' 
-    p[0] = SSelectCols(False,p[2])
+    '''EXPR_SELECT : select EXPR_COLUMNAS'''
+    p[0] = SSelectCols(False, p[2])
 
-    
+
 # todos los parametros de select - columnas
 def p_EXPR_COLUMNAS(p):
     '''EXPR_COLUMNAS : EXPR_COLUMNAS coma EXPR_COLUMNAS1
@@ -1165,9 +1227,9 @@ def p_EXPR_COLUMNAS(p):
         p[0] = p[1]
     else:
         p[0] = [p[1]]
-    
 
-#LEN 1 y 3
+
+# LEN 1 y 3
 def p_EXPR_COLUMNAS1(p):
     '''EXPR_COLUMNAS1 : E
                      | EXPR_AGREGACION
@@ -1186,11 +1248,12 @@ def p_EXPR_COLUMNAS1(p):
                      | EXPR_FECHA as E
                      | EXPR_CASE as E '''
     if len(p) == 4:
-        p[0] = SColumnasAsSelect(p[3],p[1])
+        p[0] = SColumnasAsSelect(p[3], p[1])
     else:
         p[0] = SColumnasSelect(p[1])
 
-#LEN 
+
+# LEN
 def p_EXPR_COLUMNAS1_p1(p):
     '''EXPR_COLUMNAS1 : substring parAbre E coma E coma E parCierra
                      | greatest parAbre E_LIST parCierra
@@ -1200,23 +1263,25 @@ def p_EXPR_COLUMNAS1_p1(p):
                      | least parAbre E_LIST parCierra as E '''
     if p[1].lower() == "substring":
         if p[9].lower() == "as":
-            p[0] = SColumnasSubstr(p[3],p[5],p[7],p[10])
+            p[0] = SColumnasSubstr(p[3], p[5], p[7], p[10])
         else:
-            p[0] = SColumnasSubstr(p[3],p[5],p[7],False)
+            p[0] = SColumnasSubstr(p[3], p[5], p[7], False)
     elif p[1].lower() == "greatest":
         if len(p) == 7:
-            p[0] = SColumnasGreatest(p[6],p[3])
+            p[0] = SColumnasGreatest(p[6], p[3])
         else:
-            p[0] = SColumnasGreatest(False,p[3])
+            p[0] = SColumnasGreatest(False, p[3])
     elif p[1].lower() == "least":
         if len(p) == 7:
-            p[0] = SColumnasLeast(p[6],p[3])
+            p[0] = SColumnasLeast(p[6], p[3])
         else:
-            p[0] = SColumnasLeast(False,p[3])
+            p[0] = SColumnasLeast(False, p[3])
+
 
 def p_EXPR_EXTRA(p):
     '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp E parCierra'''
-    p[0] = SExtract(p[3],p[6])
+    p[0] = SExtract(p[3], p[6])
+
 
 def p_EXPR_AGREGACION(p):
     '''EXPR_AGREGACION : count E
@@ -1231,10 +1296,9 @@ def p_EXPR_AGREGACION(p):
                        | sum parAbre multi parCierra'''
 
     if len(p) == 3:
-        p[0] = SFuncAgregacion(p[1],p[2])
+        p[0] = SFuncAgregacion(p[1], p[2])
     else:
-        p[0] = SFuncAgregacion(p[1],p[3])
-
+        p[0] = SFuncAgregacion(p[1], p[3])
 
 
 def p_EXPR_MATHS(p):
@@ -1267,14 +1331,14 @@ def p_EXPR_MATHS(p):
                      | random parAbre parCierra
                      | setseed E  '''
     if len(p) == 3:
-        p[0] = SFuncMath(p[1],p[2])
+        p[0] = SFuncMath(p[1], p[2])
     elif len(p) == 4:
         p[0] = SFuncMathSimple(p[1])
     elif len(p) == 7:
-        p[0] = SFuncMath2(p[1],p[3],p[5])
+        p[0] = SFuncMath2(p[1], p[3], p[5])
     elif len(p) == 5:
-        p[0] = SFuncMathLista(p[1],p[3])
-        
+        p[0] = SFuncMathLista(p[1], p[3])
+
 
 def p_EXPR_TRIG(p):
     '''EXPR_TRIG :  acos E 
@@ -1300,9 +1364,9 @@ def p_EXPR_TRIG(p):
                 | acosh E 
                 | atanh E'''
     if len(p) == 3:
-        p[0] = SFuncTrig(p[1],p[2])
+        p[0] = SFuncTrig(p[1], p[2])
     elif len(p) == 7:
-        p[0] = SFuncTrig2(p[1],p[3],p[5])
+        p[0] = SFuncTrig2(p[1], p[3], p[5])
 
 
 def p_EXPR_BINARIAS(p):
@@ -1316,7 +1380,7 @@ def p_EXPR_BINARIAS(p):
                      | convert E
                      | encode E
                      | decode E'''
-    p[0] = SFuncBinary(p[1],p[2])
+    p[0] = SFuncBinary(p[1], p[2])
 
 
 def p_EXPR_FECHA(p):
@@ -1330,9 +1394,9 @@ def p_EXPR_FECHA(p):
     elif len(p) == 4:
         p[0] = SSelectFunc(p[2])
     elif len(p) == 3:
-        p[0] = SFechaFunc(p[1],p[2])
-    else: 
-        p[0] = SFechaFunc2(p[1],p[3],p[5],p[6])
+        p[0] = SFechaFunc(p[1], p[2])
+    else:
+        p[0] = SFechaFunc2(p[1], p[3], p[5], p[6])
 
 
 def p_EXPR_CASE(p):
@@ -1341,16 +1405,16 @@ def p_EXPR_CASE(p):
     if len(p) == 2:
         p[0] = SCase(p[2])
     else:
-        p[0] = SCaseElse(p[2],p[4])
+        p[0] = SCaseElse(p[2], p[4])
 
 
 def p_CASE_LIST(p):
     '''CASE_LIST : CASE_LIST when E then E
-                | when E then E''' 
+                | when E then E'''
     if len(p) == 6:
-        p[0] = SCaseList(p[3],p[5],p[1])
+        p[0] = SCaseList(p[3], p[5], p[1])
     else:
-        p[0] = SCaseList(p[2],p[4],False)
+        p[0] = SCaseList(p[2], p[4], False)
 
 
 def p_E_LIST(p):
@@ -1363,6 +1427,7 @@ def p_E_LIST(p):
     else:
         p[0] = [p[1]]
 
+
 def p_E_LIST1(p):
     '''E_LIST1 : E
                | now parAbre parCierra'''
@@ -1370,6 +1435,7 @@ def p_E_LIST1(p):
         p[0] = SSelectFunc(p[1])
     else:
         p[0] = [p[1]]
+
 
 def p_EXPR_FROM(p):
     '''EXPR_FROM : from L_IDsAlias 
@@ -1379,11 +1445,12 @@ def p_EXPR_FROM(p):
     if len(p) == 3:
         p[0] = SFrom(p[2])
     elif len(p) == 4:
-        p[0] = SFrom2(False,p[3])
+        p[0] = SFrom2(False, p[3])
     elif len(p) == 5:
-        p[0] = SFrom2(p[5],p[3])
+        p[0] = SFrom2(p[5], p[3])
     elif len(p) == 6:
-        p[0] = SFrom2(p[6],p[3])
+        p[0] = SFrom2(p[6], p[3])
+
 
 def p_L_IDsAlias(p):
     '''L_IDsAlias : L_IDsAlias coma L_IDsAlias1
@@ -1394,10 +1461,12 @@ def p_L_IDsAlias(p):
     else:
         p[0] = [p[1]]
 
+
 def p_L_IDsAlias_p1(p):
     '''L_IDsAlias1 : id id 
                     | id as id 
                     | id'''
+
 
 def p_EXPR_WHERE(p):
     '''EXPR_WHERE : where LIST_CONDS '''
@@ -1412,6 +1481,7 @@ def p_LIST_CONDS(p):
     else:
         p[0] = [p[1]]
 
+
 def p_COND1(p):
     '''COND1 :  E 
                 | E tIs distinct from E
@@ -1424,6 +1494,7 @@ def p_COND1(p):
                 | E OPERATOR some parAbre QUERY parCierra
                 | E OPERATOR all parAbre QUERY parCierra'''
 
+
 def p_OPERATOR(p):
     '''OPERATOR : igual
                 | menor
@@ -1433,14 +1504,15 @@ def p_OPERATOR(p):
                 | diferente'''
 
 
-def p_EXPR_GROUPBY( p ):
+def p_EXPR_GROUPBY(p):
     '''EXPR_GROUPBY : group by LISTA_EXP'''
 
 
 def p_EXPR_HAVING(p):
     '''EXPR_HAVING : having E_FUNC OPERATOR E_FUNC'''
 
-def p_EXPR_E_FUNC( p ):
+
+def p_EXPR_E_FUNC(p):
     '''E_FUNC : EXPR_AGREGACION
               | EXPR_MATHS
               | EXPR_TRIG
@@ -1448,12 +1520,15 @@ def p_EXPR_E_FUNC( p ):
               | EXPR_FECHA
               | E '''
 
-def p_EXPR_ORDERBY( p ):
+
+def p_EXPR_ORDERBY(p):
     '''EXPR_ORDERBY : order by LIST_ORDERBY'''
+
 
 def p_LIST_ORDERBY(p):
     '''LIST_ORDERBY : LIST_ORDERBY coma LIST_ORDERBY_1
                     | LIST_ORDERBY_1'''
+
 
 def p_LIST_ORDERBY_p1(p):
     '''LIST_ORDERBY_1 : E asc
@@ -1474,12 +1549,11 @@ def p_EXPR_LIMIT(p):
                   | limit E offset E'''
 
 
-
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def p_error(t):
     col = find_column(t)
-    print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col) )
+    print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col))
 
 
 import ply.yacc as yacc
