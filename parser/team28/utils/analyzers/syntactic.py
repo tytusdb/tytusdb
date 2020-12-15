@@ -1268,7 +1268,7 @@ def p_error(p):
         column = find_column(p)
         ErrorController().add(33, 'Syntactic', description, p.lineno, column)
     except AttributeError:
-        print(number_error, description)
+        # print(number_error, description)
         ErrorController().add(1, 'Syntactic', '', 'EOF', 'EOF')
 
 parser = yacc.yacc()

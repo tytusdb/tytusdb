@@ -1,4 +1,5 @@
 from Expresion.Expresion import Expresion
+from Entorno import Entorno
 
 class Extract(Expresion):
     'This is an abstract class'
@@ -8,7 +9,7 @@ class Extract(Expresion):
         self.timestamp=timestamp
 
 
-    def getval(self):
+    def getval(self,entorno):
         'spliteo el timestamp'
         splited=self.timestamp.split(' ')
         fecha= splited[0]

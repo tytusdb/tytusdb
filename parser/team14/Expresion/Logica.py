@@ -1,4 +1,5 @@
 from Expresion.Binaria import Binaria
+from Entorno import Entorno
 
 
 class Logica(Binaria):
@@ -7,12 +8,15 @@ class Logica(Binaria):
         Binaria.__init__(self, exp1, exp2, operador)
 
 
-    def getval(self, ):
-        valizq = self.exp1.getval();
-        valder = self.exp2.getval();
+    def getval(self, entorno):
+        valizq = self.exp1.getval(entorno);
+        valder = self.exp2.getval(entorno);
+
+        if valizq not in('true','false') or valder not in('true','false') :
+           return 'Error los operandos deben ser booleanos'
+
         if self.operador == 'and':
             self.val = valizq and valder;
         elif self.operador == 'or':
             self.val = valizq or valder;
-        print(self.val)
         return self.val

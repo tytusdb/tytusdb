@@ -1,5 +1,3 @@
-from Instrucciones.Select import Select
-
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -101,7 +99,8 @@ reservadas = {
     'union': 'union',
     'except': 'except',
     'intersect': 'intersect',
-    'with': 'with'
+    'with': 'with',
+    'use':'use'
 
 }
 
@@ -222,17 +221,16 @@ import ply.lex as lex
 
 lexer = lex.lex()
 
-from graphviz import Digraph
 from Expresion.Aritmetica import Aritmetica
 from Expresion.Relacional import Relacional
+from Expresion.Extract import Extract
 from Tipo import  Tipo
 from Expresion.Terminal import  Terminal
 from Expresion.Logica import  Logica
 from Expresion.Unaria import  Unaria
-from Expresion.Extract import Extract
-
-
-arbol = Digraph(comment='Árbol Sintáctico Abstracto (AST)')
+from Instrucciones.CreateTable import *
+from Instrucciones.Select import Select
+from Instrucciones.CreateDb import *
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -247,14 +245,6 @@ precedence = (
     ('right', 'umenos', 'umas'),
     ('left', 'punto'),
     ('left', 'lsel'),
-
-
-
-
-
-
-
-
 )
 
 
@@ -266,7 +256,7 @@ def p_init(t):
     'init            : instrucciones'
     t[0] = t[1]
     print("ok")
-
+    return t[0]
 
 def p_instrucciones_lista(t):
     'instrucciones    : instrucciones instruccion'
@@ -293,6 +283,10 @@ def p_instruccion(t):
                     | SHOWDB ptcoma
     '''
     t[0] = t[1]
+
+def p_instruccion1(t):
+    '''instruccion      :  use id ptcoma'''
+    #manejar el entorno
 
 
 def p_CASE(t):
@@ -326,6 +320,15 @@ def p_DROP(t):
     '''DROP : drop table id
              | drop databases if exist id
              | drop databases id '''
+    if len(t)==4:
+        if(t[2]=='table'):
+            print("eliminar tabla")
+         
+        else:
+            t[0] = DropDb(str(t[3]))
+
+    elif len(t)==5:
+        t[0]=DropDb(str(t[5]))
 
 
 def p_ALTER(t):
@@ -391,7 +394,14 @@ def p_CREATEDB(t):
         | create RD id
         | create RD id OPCCDB
     '''
-
+    if len(t)==7:
+        t[0] = CreateDb(str(t[6]))
+    elif len(t)==8:
+        t[0]=CreateDb(str(t[6]))
+    elif len(t)==4:
+        t[0]=CreateDb(str(t[3]))
+    elif len(t)==5:
+        t[0]=CreateDb(str(t[4]))
 
 def p_OPCCDB(t):
     '''OPCCDB : PROPIETARIO
@@ -417,48 +427,93 @@ def p_MODO(t):
     '''
 
 
-def p_CREATETABLE(t):
-    '''CREATETABLE : create table id para LDEF parc ptcoma
-                    | create table id para LDEF parc HERENCIA ptcoma'''
+def p_CREATETABLE1(t):
+    '''CREATETABLE : create table id para LDEF parc ptcoma'''
+    t[0] = CreateTable(str(t[3]),t[5])
 
+def p_CREATETABLE2(t):
+    '''CREATETABLE : create table id para LDEF parc HERENCIA ptcoma'''
+    t[0] = CreateTable(str(t[3]),t[5])
 
-def p_LDEF(t):
-    '''LDEF : LDEF coma COLDEF
-            | COLDEF'''
+def p_LDEF1(t):
+    '''LDEF : LDEF coma COLDEF'''
+    t[1].append(t[3])
+    t[0] = t[1]
 
+def p_LDEF2(t):
+    '''LDEF : COLDEF'''
+    t[0] = [t[1]]
 
-def p_COLDEF(t):
-    '''COLDEF : OPCONST
-            | constraint id OPCONST
-            | id TIPO
+def p_COLDEF1(t): #opconst: primary, foreign, check, unique
+    '''COLDEF : OPCONST '''
+    t[0] = t[1]
+
+def p_COLDEF2(t):
+    '''COLDEF : constraint id OPCONST'''
+    t[0] = Constraint(str(t[2]),t[3])
+
+def p_COLDEF3(t):
+    '''COLDEF : id TIPO
             | id TIPO LOPCOLUMN'''
+    if len(t) == 3: t[0] = Columna(str(t[1]),t[2])
+    else: t[0] = Columna(str(t[1]),t[2],t[3])
 
 
-def p_LOPCOLUMN(t):
-    '''LOPCOLUMN : LOPCOLUMN OPCOLUMN
-            | OPCOLUMN'''
+def p_LOPCOLUMN1(t):
+    '''LOPCOLUMN : LOPCOLUMN OPCOLUMN'''
+    t[1].append(t[2])
+    t[0] = t[1]
 
+def p_LOPCOLUMN2(t):
+    '''LOPCOLUMN : OPCOLUMN'''
+    t[0] = [t[1]]
 
-def p_OPCOLUMN(t):
-    '''OPCOLUMN : constraint id unique
-            | constraint id check para EXP parc
-            | default EXP
-            | not null
-            | null
-            | primary key
-            | references id'''
+def p_OPCOLUMN1(t):
+    '''OPCOLUMN : constraint id unique'''
+    t[0] = Atributo(AtributosColumna.UNICO,str(t[2]))
 
+def p_OPCOLUMN2(t):
+    '''OPCOLUMN : constraint id check para EXP parc'''
+    t[0] = Atributo(AtributosColumna.CHECK, str(t[2]), t[5])
 
-def p_OPCONST(t):
-    '''OPCONST : primary key para LEXP parc
-            | foreign key para LEXP parc references id para LEXP parc
-            | unique para LEXP parc
-            | check para LEXP parc'''
+def p_OPCOLUMN3(t):
+    '''OPCOLUMN : default EXP'''
+    t[0] = Atributo(AtributosColumna.DEFAULT)
 
+def p_OPCOLUMN4(t):
+    '''OPCOLUMN : not null'''
+    t[0] = Atributo(AtributosColumna.NO_NULO)
+
+def p_OPCOLUMN5(t):
+    '''OPCOLUMN : null'''
+    t[0] = Atributo(AtributosColumna.NULO)
+
+def p_OPCOLUMN6(t):
+    '''OPCOLUMN : primary key'''
+    t[0] = Atributo(AtributosColumna.PRIMARY)
+
+def p_OPCOLUMN7(t):
+    '''OPCOLUMN : references id'''
+    t[0] = Atributo(AtributosColumna.REFERENCES, str(id))
+
+def p_OPCONST1(t):
+    '''OPCONST : primary key para LEXP parc'''
+    t[0] = Primaria(t[4])
+
+def p_OPCONST2(t):
+    '''OPCONST : foreign key para LEXP parc references id para LEXP parc'''
+    t[0] = Foranea(t[4],str(t[7]),t[9])
+
+def p_OPCONST3(t):
+    '''OPCONST : unique para LEXP parc'''
+    t[0] = Unique(t[3])
+
+def p_OPCONST4(t):
+    '''OPCONST : check para LEXP parc'''
+    t[0] = Check(t[3])
 
 def p_HERENCIA(t):
     'HERENCIA : inherits para LEXP parc'
-
 
 def p_CREATETYPE(t):
     'CREATETYPE : create type id as enum para LEXP parc'
@@ -584,8 +639,11 @@ def p_TIPO(t):
             | date
             | time
             | interval
-            | boolean
-            | timestamp without time zone
+            | boolean'''
+    t[0] = str(t[1])
+
+def p_TIPO22(t):
+    '''TIPO : timestamp without time zone
             | timestamp with time zone
             | time without time zone
             | time with time zone'''
@@ -719,7 +777,7 @@ def p_EXPext(t):
 
 def p_EXPT1(t):
     'EXP : int'
-    tipo = Tipo('int',t[1]);
+    tipo = Tipo('int',t[1])
     t[0] = Terminal(tipo.getTipo(), t[1])
 
 def p_EXPT2(t):
@@ -763,7 +821,7 @@ def p_EXPT11(t):
 
 def p_EXPT12(t):
     'EXP : timestamp cadena'
-    t[0] = Terminal('timestamp without time zone', t[1])
+    t[0] = Terminal('timestamp without time zone', t[2])
 
 def p_EXPT13(t):
     'EXP : interval cadena'
@@ -786,6 +844,4 @@ parser = yacc.yacc()
 
 
 def parse(input):
-    # arbol.render('ast', view=False)  # doctest: +SKIP
-    # 'ast.pdf'
     return parser.parse(input)
