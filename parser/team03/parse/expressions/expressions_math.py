@@ -2,9 +2,7 @@ import sys
 import math
 import random
 import numpy as np
-
-sys.path.insert(0, '..')
-from ast_node import ASTNode
+from parse.ast_node import ASTNode
 
 
 # From here on, classes describing various mathematical operations

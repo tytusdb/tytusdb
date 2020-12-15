@@ -1,7 +1,5 @@
-import sys
-
-sys.path.insert(0, '..')
-from ast_node import ASTNode
+from parse.ast_node import ASTNode
+from jsonMode import alterDatabase
 
 
 class AlterDatabaseRename(ASTNode):
@@ -12,7 +10,20 @@ class AlterDatabaseRename(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return True
+        result_name = self.name.execute()
+        result_new_name = self.new_name.execute()
+        result = alterDatabase(result_name, result_new_name)
+        if result == 1:
+            # log error on operation
+            return False
+        elif result == 2:
+            # log error, old database name does not exists
+            return False
+        elif result == 3:
+            # log error, new database name already exists
+            return False
+        else:
+            return True
 
 
 class AlterDatabaseOwner(ASTNode):
