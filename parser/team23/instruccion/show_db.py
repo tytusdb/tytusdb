@@ -9,7 +9,7 @@ class show_db(instruccion):
         super().__init__(line, column)
 
         #Nodo AST Show DB
-        self.nodo = nodo_AST('SHOW DATABASES', num_nodo)
+        self.nodo = nodo_AST('instruccion', num_nodo)
         self.nodo.hijos.append(nodo_AST('SHOW DATABASES', num_nodo+1))
 
         # Gramatica        
@@ -18,7 +18,6 @@ class show_db(instruccion):
     def ejecutar(self):
         try:
             bases_datos = funciones.showDatabases()
-            # Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].
 
             conteo = 0
             if len(bases_datos) > 0:
@@ -28,9 +27,10 @@ class show_db(instruccion):
                     print_db += " " + str(conteo) + " | " + base + "\n"
                     conteo += 1
                 print_db += "-------------------------------\n"
-                
+
+                print(print_db)
                 add_text(print_db)
             else:
-                add_text("No existen bases de datos.\n")
+                add_text("No existen bases de datos.")
         except:
             errores.append(nodo_error(self.line, self.column, 'Error en show databases', 'Semántico'))

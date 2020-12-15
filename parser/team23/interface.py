@@ -7,7 +7,6 @@ import grammar.sql_grammar as gramatica
 from graphviz import Source
 from tools.console_text import *
 from error.errores import *
-from tools.tabla_simbolos import *
 
 import os
 
@@ -68,8 +67,8 @@ class window:
         file_menu.add_separator()
         file_menu.add_command(label="Open File", command=self.open_file , accelerator="Ctrl+O")
         file_menu.add_separator()
-        file_menu.add_command(label="Save File", command=self.save_file, accelerator="Ctrl+Shift-S")
-        file_menu.add_command(label="Save As", command=self.save_as, accelerator="Ctrl+S")
+        file_menu.add_command(label="Save File", command=self.save_file, accelerator="Ctrl+S")
+        file_menu.add_command(label="Save As", command=self.save_as, accelerator="Ctrl+Shift+S")
         file_menu.add_separator()
         file_menu.add_command(label="Close Tab", command=self.delete_tab, accelerator="Ctrl+W")
         file_menu.add_command(label="Exit", command=self.ventana.quit)
@@ -90,9 +89,9 @@ class window:
         tools_menu.add_command(label = "Errores Semanticos", command = self.compilar_semantico_png)
         tools_menu.add_command(label = "Todos los errores", command = self.compilar_Error_png)
         tools_menu.add_separator()
-        tools_menu.add_command(label = "Reporte Gramatical", command = self.compilar_grammar_png)
+        tools_menu.add_command(label = "Reporte Gramatical")
         tools_menu.add_separator()
-        tools_menu.add_command(label = "Tabla de Simbolos", command=self.compilar_ts_png)
+        tools_menu.add_command(label = "Tabla de Simbolos")
         #tools_menu.add_command(label="Debug", command=self.open_file, accelerator="F5")
 
         theme_menu = Menu(options_menu, tearoff=0)
@@ -333,7 +332,7 @@ class window:
         imgSimbolo = Image.open(self.dir_os +'/assets/simbolos.png')
         imgSimbolo = imgSimbolo.resize((20, 20), Image.ANTIALIAS)
         imgSimbolo = ImageTk.PhotoImage(imgSimbolo)
-        SimboloBtn = Button(myTool, image=imgSimbolo, command=self.compilar_ts_png)
+        SimboloBtn = Button(myTool, image=imgSimbolo, command=self.compilar_Error_png)
         SimboloBtn.image = imgSimbolo
         SimboloBtn.pack(side=LEFT, padx=2, pady=2)
 
@@ -690,9 +689,6 @@ class window:
         txt_area.tag_config("boolean", foreground="#FA8C31")
 
         #Palabras
-        self.highlight_pattern(r'/\*(.|\n)*?\*/', "comentario", txt_area, regexp=True)
-        self.highlight_pattern(r'--.*\n', "comentario", txt_area, regexp=True)
-
         self.highlight_pattern("SELECT", "reservada", txt_area, case_sensitive=1)
         self.highlight_pattern("UPDATE", "reservada", txt_area, case_sensitive=1)
         self.highlight_pattern("WHERE", "reservada", txt_area, case_sensitive=1)
@@ -790,9 +786,6 @@ class window:
         self.highlight_pattern("FALSE", "reservada", txt_area, case_sensitive=1)
         self.highlight_pattern("INHERITS", "reservada", txt_area, case_sensitive=1)
         self.highlight_pattern("NULL", "reservada", txt_area, case_sensitive=1)
-        self.highlight_pattern("SHOW", "reservada", txt_area, case_sensitive=1)
-        self.highlight_pattern("DATABASES", "reservada", txt_area, case_sensitive=1)
-        self.highlight_pattern("USE", "reservada", txt_area, case_sensitive=1)
 
         self.highlight_pattern("==", "item", txt_area)
         self.highlight_pattern("!=", "item", txt_area)
@@ -813,6 +806,7 @@ class window:
         self.highlight_pattern("true", "boolean", txt_area)
         self.highlight_pattern("false", "boolean", txt_area)
         
+        self.highlight_pattern(r'/\*(.|\n)*?\*/', "comentario", txt_area, regexp=True)
         self.highlight_pattern(r'(\".*?\")|(\'.*?\')', "string", txt_area, regexp=True)
 
     def graficar_AST(self, ast_):
@@ -930,17 +924,6 @@ class window:
             with open('semantico_reporte.dot', 'w', encoding='utf8') as f:
                 f.write(reporte_errores)
 
-    def graficar_TS(self):
-        reporte_ts = ts.reporte_ts()
-
-        with open('ts_reporte.dot', 'w', encoding='utf8') as f:
-            f.write(reporte_ts)
-
-    def compilar_ts_png(self):
-        img = Source.from_file("ts_reporte.dot", format = "png", encoding="utf8")
-        img.render()
-        entrada = self.popup_reporte_png(self.ventana, "ts_reporte.dot.png")
-
     def compilar_grammar_png(self):
         img = Source.from_file("grammar_reporte.dot", format = "png", encoding="utf8")
         img.render()
@@ -993,22 +976,22 @@ class window:
 
         instruccions = []
 
-        #try:
-        instruccions = gramatica.parse(contenido)            
-        self.ejecutar_resultado(instruccions)  
+        try:
+            instruccions = gramatica.parse(contenido)            
+            self.ejecutar_resultado(instruccions)  
 
-        for tab_item in self.tab_salida.winfo_children():
-            for widget_item in tab_item.winfo_children():                
-                if isinstance(widget_item, Text):
-                        widget_item.delete('1.0', END)                                                   
-                        add_text("\nPS C:\\Users\\Grupo 23> ")
-                        widget_item.insert(INSERT, get_contenido())                             
+            for tab_item in self.tab_salida.winfo_children():
+                for widget_item in tab_item.winfo_children():                
+                    if isinstance(widget_item, Text):
+                            widget_item.delete('1.0', END)                                                   
+                            add_text("\nPS C:\\Users\\Grupo 23> ")
+                            widget_item.insert(INSERT, get_contenido())                             
 
-        #except:            
-        #    if len(contenido) == 1:
-#                add_text("No hay código para ejecutar")
-        #    else:
-        #        add_text("Error al ejecutar el código")
+        except:            
+            if len(contenido) == 1:
+                self.pop_alert("No hay código para ejecutar")
+            else:
+                self.pop_alert("Error al ejecutar el código")
 
         self.graficar_AST(instruccions)  
         self.graficar_Errores()
@@ -1016,7 +999,6 @@ class window:
         self.graficar_errores_sintacticos()
         self.graficar_errores_semanticos()
         self.graficar_Gramatical(instruccions)
-        self.graficar_TS()
 
     def ejecutar_resultado(self,instrucciones_):
         for instruccion_ in instrucciones_:
