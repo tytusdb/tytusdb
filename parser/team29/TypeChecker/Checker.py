@@ -7,6 +7,7 @@ from Types.Validations import Time as T
 from datetime import datetime
 
 lstErr = []
+dbActual = ""
 
 def addError(error):
     if error != None:
@@ -85,6 +86,11 @@ def select(col,val):
 
 def check(dbName, tableName, colName,val):
     col = S.extractColmn(dbName, tableName, colName)
-    a = Type.boolean
-    print(a)
     select(col,val)
+
+def checkTable(dbName, tableName,values):
+    table = S.extractTable(dbName, tableName)
+    indexCol=0
+    for value in values:
+        select(table['column'][indexCol],value)
+        
