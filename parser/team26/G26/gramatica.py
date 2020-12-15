@@ -31,7 +31,6 @@ reservadas = {
     'true' : 'TRUE',
     'false' : 'FALSE',
     'between' : 'BETWEEN',
-    'in' : 'IN',
     'like' : 'LIKE',
     'ilike' : 'ILIKE',
     'similar' : 'SIMILAR',
@@ -98,7 +97,6 @@ reservadas = {
     'by' : 'BY',
     'having' : 'HAVING',
     'substring' : 'SUBSTRING',
-    'exists' : 'EXISTS',
     'join' : 'JOIN',
     'inner' : 'INNER',
     'left' : 'LEFT',
@@ -117,6 +115,7 @@ reservadas = {
     'limit' : 'LIMIT',
     'offset' : 'OFFSET',
     'all' : 'ALL',
+    'any' : 'ANY',
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
     'except' : 'EXCEPT',
@@ -194,7 +193,11 @@ reservadas = {
     'end' : 'END',
     'else' : 'ELSE',
     'then' : 'THEN',
-    'when':'WHEN'
+    'when':'WHEN',
+    'trunc' :'TRUNC',
+    'some' : 'SOME',
+    'in': 'IN',
+    'all': 'ALL'
 }
 
 tokens = [
@@ -360,7 +363,8 @@ def p_instruccion(t) :
                         | UPDATE update
                         | AS condiciones
                         | alter
-                        | select
+                        | select PTCOMA
+                        | querys
                         | error PTCOMA'''
     if isinstance(t[1], alter.Alter) : t[0] = alter.FatherAlter(t[1])
     else : t[0] = t[2]
@@ -369,13 +373,21 @@ def p_problem(t):
     '''problem  :  error PTCOMA'''
     t[0] = "error"
 
+def p_querys(t):
+    '''querys : select UNION allopcional select
+              | select INTERSECT  allopcional select
+              | select EXCEPT  allopcional select'''
+def p_all_opcional(t):
+    '''allopcional  : ALL
+                    |  '''
+
 def p_select(t):
     '''select : SELECT parametrosselect fromopcional
-            | SELECT error'''
+                | SELECT error'''
 
 
 def p_from_opcional(t):
-    '''fromopcional     :  FROM parametrosfrom whereopcional
+    '''fromopcional     :  FROM parametrosfrom asopcional whereopcional
                         | '''
 def p_parametros_from(t):
     '''parametrosfrom   : ID
@@ -392,7 +404,8 @@ def p_group_by_opcional(t):
                         | '''
 
 def p_having(t):
-    'having : condiciones'
+    '''having   : HAVING condiciones
+                | '''
 
 def p_parametros_select(t):
     '''parametrosselect : DISTINCT listadeseleccion
@@ -403,31 +416,56 @@ def p_lista_de_seleccion(t):
                         | listadeseleccionados asopcional'''
 
 def p_asopcional(t):
-    '''asopcional  : AS ID
-                    | ID
+    '''asopcional  : AS argument
+                    | argument
                     | '''
 
 def p_lista_de_seleccionados(t):
     '''listadeseleccionados : ID
                             | ID PUNTO ID
-                            | COUNT PARENIZQ argument  PARENDER
-                            | MAX PARENIZQ argument  PARENDER
-                            | SUM PARENIZQ argument  PARENDER
-                            | AVG PARENIZQ argument  PARENDER
-                            | MIN PARENIZQ argument  PARENDER
                             | PARENIZQ select PARENDER
                             | ASTERISCO
+                            | funcionesmatematicassimples
                             | funcionestrigonometricas
                             | funcionesmatematicas
                             | funcionesdefechas
                             | funcionesbinarias
                             | operadoresselect
+                            | GREATEST PARENIZQ listadeargumentos  PARENDER
+                            | LEAST PARENIZQ listadeargumentos  PARENDER
                             | CASE cases  END ID '''
+
+def p_argument_funciones_matematicas_simples(t):
+    '''argument :  funcionesmatematicassimples'''
+
+def p_argument_funciones_trigonometricas(t):
+    '''argument :  funcionestrigonometricas'''
+
+def p_argument_funciones_matematicas(t):
+    '''argument :  funcionesmatematicas'''
+
+def p_argument_funciones_de_fechas(t):
+    '''argument :  funcionesdefechas'''
+
+def p_argument_funciones_binarias(t):
+    '''argument :  funcionesbinarias'''
+
+
+def p_funciones_matematicas_simples(t):
+    '''funcionesmatematicassimples  : COUNT PARENIZQ argument  PARENDER
+                                    | MAX PARENIZQ argument  PARENDER
+                                    | SUM PARENIZQ argument  PARENDER
+                                    | AVG PARENIZQ argument  PARENDER
+                                    | MIN PARENIZQ argument  PARENDER'''
+
+def p_lista_de_argumentos(t):
+    ''' listadeargumentos : listadeargumentos COMA argument
+                          | argument '''
 
 def p_casos(t):
     '''cases    : cases case elsecase
                 | case elsecase '''
-            
+
 def p_case(t):
     'case : WHEN argument  IGUAL  argument  THEN  argument'
 
@@ -435,12 +473,12 @@ def p_else_case(t):
     '''elsecase  : ELSE argument
                  |  '''
 
-def p_operadores_select(t): 
+def p_operadores_select(t):
     '''operadoresselect : PLECA argumentodeoperadores
                         | PLECA PLECA argumentodeoperadores
                         | argumentodeoperadores AMPERSON argumentodeoperadores
                         | argumentodeoperadores PLECA argumentodeoperadores
-                        | argumentodeoperadores NUMERAL 
+                        | argumentodeoperadores NUMERAL
                         | VIRGULILLA argumentodeoperadores
                         | argumentodeoperadores MENORQUE MENORQUE argumentodeoperadores
                         | argumentodeoperadores MAYORQUE MAYORQUE argumentodeoperadores'''
@@ -448,11 +486,11 @@ def p_operadores_select(t):
 def p_argumento_de_operadores(t):
     '''argumentodeoperadores    : argumentodeoperadores MAS argumentodeoperadores
                                 | argumentodeoperadores GUION argumentodeoperadores
-                                | argumentodeoperadores BARRA argumentodeoperadores 
+                                | argumentodeoperadores BARRA argumentodeoperadores
                                 | argumentodeoperadores ASTERISCO argumentodeoperadores
                                 | argumentodeoperadores PORCENTAJE argumentodeoperadores
                                 | argumentodeoperadores POTENCIA argumentodeoperadores
-                                | DECIMAL 
+                                | DECIMAL
                                 | ENTERO '''
 
 
@@ -460,24 +498,24 @@ def p_argumento_de_operadores(t):
 
 def p_funciones_binarias(t):
     '''funcionesbinarias    : LENGTH PARENIZQ  argument   PARENDER
-                            | SUBSTRING PARENIZQ  argument  COMA  ENTERO  COMA  ENTERO  PARENDER 
+                            | SUBSTRING PARENIZQ  argument  COMA  ENTERO  COMA  ENTERO  PARENDER
                             | TRIM PARENIZQ  argument   PARENDER
                             | MD5 PARENIZQ  argument   PARENDER
                             | SHA PARENIZQ  argument   PARENDER
                             | SUBSTR PARENIZQ  argument  COMA  ENTERO  COMA  ENTERO  PARENDER
-                            | GETBYTE PARENIZQ CADENA DOSPUNTOS DOSPUNTOS BYTEA COMA ENTERO COMA ENTERO PARENDER
-                            | SETBYTE PARENIZQ CADENA DOSPUNTOS DOSPUNTOS BYTEA COMA ENTERO COMA ENTERO PARENDER
-                            | CONVERT PARENIZQ CADENA AS tipo 
-                            | ENCODE PARENIZQ CADENA DOSPUNTOS DOSPUNTOS BYTEA COMA CADENA
-                            | DECODE PARENIZQ CADENA COMA CADENA PARENDER '''
+                            | GETBYTE PARENIZQ argument DOSPUNTOS DOSPUNTOS BYTEA COMA argument PARENDER
+                            | SETBYTE PARENIZQ argument DOSPUNTOS DOSPUNTOS BYTEA COMA argument COMA argument PARENDER
+                            | CONVERT PARENIZQ argument AS tipo
+                            | ENCODE PARENIZQ argument DOSPUNTOS DOSPUNTOS BYTEA COMA CADENA
+                            | DECODE PARENIZQ argument COMA argument PARENDER '''
 
 def p_funciones_de_fechas(t):
-    '''funcionesdefechas    : EXTRACT PARENIZQ  partedelafecha  FROM TIMESTAMP ID PARENDER
-                            | DATEPART PARENIZQ CADENA COMA INTERVAL CADENA PARENDER
+    '''funcionesdefechas    : EXTRACT PARENIZQ  partedelafecha  FROM TIMESTAMP argument PARENDER
+                            | DATEPART PARENIZQ argument COMA INTERVAL argument PARENDER
                             | NOW PARENIZQ PARENDER
                             | CURRENTDATE
                             | CURRENTTIME
-                            | TIMESTAMP CADENA  '''
+                            | TIMESTAMP argument  '''
 
 
 def p_parte_de_la_decha(t):
@@ -493,9 +531,9 @@ def p_funciones_matematicas (t):
     '''funcionesmatematicas : ABS PARENIZQ  argument  PARENDER
                             | CBRT PARENIZQ  argument   PARENDER
                             | CEIL PARENIZQ  argument   PARENDER
-                            | CEILING PARENIZQ  argument   PARENDER 
+                            | CEILING PARENIZQ  argument   PARENDER
                             | DEGREES PARENIZQ  argument   PARENDER
-                            | DIV PARENIZQ  argument  COMA  argument  PARENDER 
+                            | DIV PARENIZQ  argument  COMA  argument  PARENDER
                             | EXP PARENIZQ  argument   PARENDER
                             | FACTORIAL PARENIZQ  argument   PARENDER
                             | FLOOR PARENIZQ  argument   PARENDER
@@ -510,11 +548,13 @@ def p_funciones_matematicas (t):
                             | SCALE PARENIZQ  argument   PARENDER
                             | SIGN PARENIZQ  argument   PARENDER
                             | SQRT PARENIZQ  argument   PARENDER
+                            | BUCKET PARENIZQ  argument COMA argument COMA argument COMA argument PARENDER
+                            | TRUNC PARENIZQ  argument   PARENDER
                             | RANDOM PARENIZQ PARENDER
                             | SETSEED PARENIZQ PARENDER '''
 
 def p_tipo_de_round(t):
-    '''tipoderound  : COMA  argument 
+    '''tipoderound  : COMA  argument
                     | '''
 
 
@@ -618,9 +658,9 @@ def p_tabledescription(t):
                         | CONSTRAINT ID CHECK finalconstraintcheck
                         | CHECK finalconstraintcheck
                         | UNIQUE finalunique'''
-    if t[1].lower() == 'primary' : t[0] = create.TableDescription('primary', None, [], None)
+    if t[1].lower() == 'primary' : t[0] = create.TableDescription('primary', t[4], [], None)
     elif t[1].lower() == 'foreign' : t[0] = create.TableDescription('foreign', t[7], t[4], t[9])
-    elif t[1].lower() == 'constraint' : t[0] = create.TableDescription('constraint', t[2], [], None)
+    elif t[1].lower() == 'constraint' : t[0] = create.TableDescription('constraint', t[2], t[4], None)
     elif t[1].lower() == 'check' : t[0] = create.TableDescription('check', None, t[2], None)
     elif t[1].lower() == 'unique' : t[0] = create.TableDescription('unique', None, t[2], None)
     else : t[0] = create.TableDescription(t[1], t[2], t[3], None)
@@ -630,12 +670,14 @@ def p_tablekey(t):
                 | REFERENCES ID PARENIZQ columnreferences PARENDER tabledefault
                 | REFERENCES ID tabledefault
                 | tabledefault'''
-    if t[0] == None or isinstance(t[1], create.TableDescription) : t[0] = t[1]
+    if t[1] == None or isinstance(t[1], create.TableDescription) : t[0] = t[1]
     elif t[1].lower() == 'primary' :
         t[0] = create.TableDescription('primary', None, t[3], None)
     elif t[1].lower() == 'references' :
-        if t[3] == '(' :  t[0] = create.TableDescription('references', t[2], t[3], t[6])
-        else :  t[0] = create.TableDescription('references', t[2], t[3], None)
+        if t[3] == None or isinstance(t[3], create.TableDescription):
+            t[0] = create.TableDescription('references', t[2], t[3], None)
+        else:
+            t[0] = create.TableDescription('references', t[2], t[4], t[6])
 
 def p_columnreferences_r(t):
     'columnreferences : columnreferences COMA ID'
@@ -658,7 +700,7 @@ def p_tablenull(t):
                  | tableconstraintunique'''
     if isinstance(t[1], create.TableDescription) or t[1] == None : t[0] = create.TableDescription('null', False, t[1], None)
     elif t[1].lower() == 'not' : t[0] = create.TableDescription('null', True, t[3], None)
-    else : t[0] = create.TableDescription('null', False, t[3], None)
+    else : t[0] = create.TableDescription('null', False, t[3], True)
 
 def p_tableconstraintunique(t):
     '''tableconstraintunique : CONSTRAINT ID UNIQUE tableconstraintcheck
@@ -670,18 +712,17 @@ def p_tableconstraintunique(t):
 
 def p_tableconstraintcheck(t):
     '''tableconstraintcheck : CONSTRAINT ID CHECK PARENIZQ condiciones PARENDER
-                            | CHECK PARENIZQ condiciones PARENDER
-                            | '''
-    if t[0] == None : t[0] = None
-    else :
-        if t[1].lower() == 'constraint' :
-            t[0] = create.TableDescription('check', t[2], t[5], None)
-        else : t[0] = create.TableDescription('check', None, t[3], None)
+                            | CHECK PARENIZQ condiciones PARENDER'''
+    if t[1].lower() == 'constraint' : t[0] = create.TableDescription('check', t[2], t[5], None)
+    else : t[0] = create.TableDescription('check', None, t[3], None)
+
+def p_tableconstraintcheckE(t):
+    'tableconstraintcheck : '
+    t[0] = None
 
 def p_finalconstraintcheck(t):
     'finalconstraintcheck : PARENIZQ condiciones PARENDER'
     t[0] = t[2]
-
 
 def p_finalunique(t):
     'finalunique : PARENIZQ listaids PARENDER'
@@ -801,7 +842,7 @@ def p_likeopcional(t):
 ##########DROP
 def p_drop(t):
     '''drop :   DATABASE dropdb PTCOMA
-            |   TABLE ID PTCOMA 
+            |   TABLE ID PTCOMA
             |   error PTCOMA'''
     if t[1].lower() == 'database' : t[0] = t[2]
     else : t[0] = drop.Drop(ident.Identificador(None, t[2]), False)
@@ -946,7 +987,8 @@ def p_comparacionlogica(t):
 def p_condicion(t):
     '''condicion    : NOT condicion
                     | condicions'''
-    if isinstance(t[1], condicion.Condicionales) : t[0] = t[1]
+    t[0]=None
+    if isinstance(t[1], condicion.Condicionales) or t[0] == None : t[0] = t[1]
     else : t[0] = condicion.IsNotOptions(True, t[2], False)
 
 def p_condicions(t):
@@ -957,10 +999,16 @@ def p_condicions(t):
                   | argument MAYORIGUALQUE argument
                   | argument DIFERENTELL argument
                   | argument BETWEEN betweenopcion
-                  | argument NOT BETWEEN argument AND argument
                   | argument ISNULL
                   | argument NOTNULL
-                  | argument IS isopcion'''
+                  | argument IS isopcion
+                  | argument IN PARENIZQ select PARENDER
+                  | argument NOT BETWEEN betweenopcion
+                  | argument NOT IN  PARENIZQ select PARENDER
+                  | argument ANY  PARENIZQ select PARENDER
+                  | argument ALL PARENIZQ select PARENDER
+                  | argument SOME PARENIZQ select PARENDER
+                  | EXISTS PARENIZQ select PARENDER'''   ## Falta de hacer
     if t[2] == '<'    : t[0] = condicion.Condicionales(t[1], t[3], '<', None)
     elif t[2] == '>'  : t[0] = condicion.Condicionales(t[1], t[3], '>', None)
     elif t[2] == '='  : t[0] = condicion.Condicionales(t[1], t[3], '=', None)
@@ -968,10 +1016,13 @@ def p_condicions(t):
     elif t[2] == '>=' : t[0] = condicion.Condicionales(t[1], t[3], '>=', None)
     elif t[2] == '<>' : t[0] = condicion.Condicionales(t[1], t[3], '<>', None)
     elif t[2].lower() == 'between' : t[0] = condicion.Condicionales(t[1], t[3], 'between', None)
-    elif t[2].lower() == 'not' : t[0] = condicion.Condicionales(t[1], t[3], 'not', t[6])
+    elif t[2].lower() == 'not' :
+        if t[3].lower() == 'between': t[0] = condicion.Condicionales(t[1], t[4], 'notBetween', None)
+        else : t[0] = condicion.Condicionales(t[1], t[3], 'not', t[6])
     elif t[2].lower() == 'isnull' : t[0] = condicion.Condicionales(t[1], None, 'isnull', None)
     elif t[2].lower() == 'notnull' : t[0] = condicion.Condicionales(t[1], None, 'notnull', None)
     elif t[2].lower() == 'is' : t[0] = condicion.Condicionales(t[1], t[3], 'is', None)
+    else : t[0] = None
 
 def p_betweenopcion(t):
     '''betweenopcion    : SYMMETRIC argument AND argument

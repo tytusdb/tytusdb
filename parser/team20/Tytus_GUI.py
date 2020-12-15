@@ -3,7 +3,6 @@ from tkinter import filedialog as FileDialog
 from io import open
 from tkinter import scrolledtext
 import tkinter as tk
-from analyzer import *
 
 
 class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
@@ -16,11 +15,8 @@ class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
         self.tk.createcommand(self._w, self._proxy)
 
     def _proxy(self, *args):
-        cmd = (self._orig,) + args        
-        try:
-            result = self.tk.call(cmd)
-        except Exception:
-            return None
+        cmd = (self._orig,) + args
+        result = self.tk.call(cmd)
 
         # generate an event if something was added or deleted,
         # or the cursor position changed
@@ -89,18 +85,12 @@ def save_as():
         route = ""
 
 def compile():
-    #clean console
     console.configure(state="normal")
     console.delete(1.0, "end")
     console.configure(state="disabled")
-    #read input text
-    input_text = text.get(1.0,'end-1c')
-    #parse input text
-    analyzer_ = analyzer()
-    analyzer_result_ = analyzer_.analyze(input_text)
-    #print to console
+    Input_text = text.get(1.0,'end-1c')
     console.configure(state="normal")
-    console.insert(1.0, analyzer_result_.Printed_Error_Table)
+    console.insert(1.0, Input_text)
     console.configure(state="disabled")
 
 

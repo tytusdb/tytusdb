@@ -1,5 +1,7 @@
 import math
 import numpy as np
+import random
+
 
 def absolute(column):
     i = 0 
@@ -154,8 +156,9 @@ def radians(column):
     
     return result
 
-def random():
-    return random()
+def random_():
+    value = random.random()
+    return value
 
 def sign(column):
     return np.sign(column)
