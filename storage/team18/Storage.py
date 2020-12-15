@@ -65,15 +65,19 @@ def alterDatabase(dataBaseOld, dataBaseNew) -> int:
     else:
         return 1
 
-#
-# print(createDatabase("   Queso"))
-# print(createDatabase("_#B"))
-# print(createDatabase("Ca&&&&sa"))
-# print(createDatabase("_Zanahoria"))
-# print(createDatabase("Base1"))
-# print(createDatabase("Base datos 2"))
-# print(createDatabase("Base1"))
+def dropDatabase(database):
+    checkData()
+    if validateIdentifier(database):
+        with open("./Data/Databases.bin", "rb") as f:
+            dataBaseTree = pickle.load(f)
+            root = dataBaseTree.getRoot()
+            if not dataBaseTree.search(root, database):
+                return 2
+            dataBaseTree.delete(root, database)
+        with open("./Data/Databases.bin", "wb") as f:
+            pickle.dump(dataBaseTree, f)
+            return 0
+    else:
+        return 1
 
-#print(showDatabases())
-#print(alterDatabase("Base datos 2", "Base10"))
-#print(showDatabases())
+
