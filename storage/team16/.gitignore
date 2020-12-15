@@ -9,5 +9,8 @@
 /DataAccessLayer/__pycache__
 /Models/__pycache__
 /View/__pycache__
+/View/data
+/*.dat
+/*.pyc
 
 

@@ -1,2 +1,2 @@
-class Tuple:
+class TupleModule:
     pass
