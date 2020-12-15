@@ -1,3 +1,4 @@
+import arbol.AST as a
 import gramatica2 as g
 from tkinter import *
 from reportes import *
@@ -39,10 +40,14 @@ def send_data():
     Tsalida.insert(INSERT, "Salida de consultas")
     Tsalida.configure(state='disabled')
    
-    print(contenido)
+    #print(contenido)
 
-    instrucciones = g.parse(contenido)
+    g.parse(contenido)
     reporte_lex_sin()
+
+def arbol_ast():
+    contenido = Tentrada.get(1.0, 'end')
+    a.generarArbol(contenido)
 
 
 
@@ -75,7 +80,7 @@ reps_menu = Menu(menu_bar)
 menu_bar.add_cascade(label="Reportes",menu=reps_menu)
 reps_menu.add_command(label="Errores Lexicos y SIntacticos", command=mostrarimagenre)
 reps_menu.add_command(label="Tabla de Simbolos", command=send_data)
-reps_menu.add_command(label="AST", command=send_data)
+reps_menu.add_command(label="AST", command=arbol_ast)
 reps_menu.add_command(label="Gramatica", command=send_data)
 
 
