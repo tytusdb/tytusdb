@@ -203,11 +203,11 @@ class Interfaz(tk.Frame):
     def ejecutar_ascendente(self):
         x= self.text.get(1.0, tk.END)
         self.terminal.delete(1.0, tk.END)
-        try:
-            salida=analizador.ejecucionAscendente(x)
-            salida+="\n---------------------FIN EJECUCION ASCENDENTE--------------------------\n"
-        except:
-            salida="Grupo6>Se genero un error de analisis"
+        #try:
+        salida=analizador.ejecucionAscendente(x)
+        #salida+="\n---------------------FIN EJECUCION ASCENDENTE--------------------------\n"
+        #except:
+            #salida="Grupo6>Se genero un error de analisis"
         self.terminal.insert(tk.END,salida)        
 #-------------------------------------------------------Help Menu Methods---------------------------------------------------------------------
     def about(self):

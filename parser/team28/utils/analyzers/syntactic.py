@@ -12,6 +12,7 @@ from models.instructions.DDL.column_inst import *
 from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
+from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
 
@@ -238,9 +239,10 @@ def p_type_col(p):
                | INTERVAL SQLNAME
                | BOOLEAN
     '''
+    dataType = ''
     for i in range(1, len(p)):
-        if p[0] != None:     #TODO aca lo modifique
-            p[0] += str(p[i])  
+        dataType += str(p[i])
+    p[0] = dataType
 
 
 def p_options_col_list(p):
@@ -621,14 +623,14 @@ def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
-    if (len(p) == 2):
+    if len(p) == 2:
         p[0] = [p[1]]
-    elif (len(p) == 5):
+    elif len(p) == 5:
         type_combine_query = TypeQuerySelect(p[2], p[3])
         p[1].append(type_combine_query)
         p[1].append(p[4])
         p[0] = p[1]
-    elif(len(p) == 4):
+    elif len(p) == 4:
         type_combine_query = TypeQuerySelect(p[2], optionAll=None)
         p[1].append(type_combine_query)
         p[1].append(p[3])
@@ -639,9 +641,9 @@ def p_select_without_order(p):
 def p_select_set(p):
     '''SELECTSET : SELECTQ 
                  | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
-    if (len(p) == 2):
+    if len(p) == 2:
         p[0] = p[1]
-    elif (len(p) == 4):
+    elif len(p) == 4:
         p[0] = p[2]
 
 def p_selectq(p):
@@ -650,16 +652,16 @@ def p_selectq(p):
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
                | SELECT SELECTLIST'''
-    if (len(p) == 4):
+    if len(p) == 4:
         p[0] = SelectQ(None, p[2], p[3], None)
-    elif (len(p) == 5):
+    elif len(p) == 5:
         if ("ALL" in p[2] or 'DISTINCT' in p[2] or 'UNIQUE' in p[2]):
             p[0] = SelectQ(p[2], p[3], p[4], None)
         else:
             p[0] = SelectQ(None, p[2], p[3], p[4])
-    elif (len(p) == 6):
+    elif len(p) == 6:
         p[0] = SelectQ(p[2], p[3], p[4], p[5])
-    elif (len(p) == 3):
+    elif len(p) == 3:
         p[0] = SelectQ(None, p[2], None, None)
 
 
@@ -675,9 +677,9 @@ def p_select_list(p):
 def p_list_item(p):
     '''LISTITEM : LISTITEM COMMA SELECTITEM
                 | SELECTITEM'''
-    if (len(p) == 2):
+    if len(p) == 2:
         p[0] = [p[1]]
-    elif (len(p) == 4):
+    elif len(p) == 4:
         p[1].append(p[3])
         p[0] = p[1]
 
@@ -859,38 +861,13 @@ def p_join_type(p):
 
 
 def p_sql_expression(p):
-    '''SQLEXPRESSION : SQLANDEXPRESSIONLIST '''
-    p[0] = p[1]
-
-
-def p_sql_and_expression_list(p):
-    '''SQLANDEXPRESSIONLIST : SQLANDEXPRESSIONLIST OR SQLANDEXPRESSION
-                            | SQLANDEXPRESSION'''
-    if (len(p) == 4):
-        p[1].append(OrExpressionsList(p[3], p[2]))
-        p[0] = p[1] 
-    else:
-        p[0] = [p[1]]
-
-
-def p_sql_and_expression(p):
-    '''SQLANDEXPRESSION : SQLUNARYLOGICALEXPRESSIONLIST'''
-    p[0] = p[1]
-
-def p_sql_unary_logical_expression_list(p):
-    '''SQLUNARYLOGICALEXPRESSIONLIST : SQLUNARYLOGICALEXPRESSIONLIST  AND SQLUNARYLOGICALEXPRESSION
-                                     | SQLUNARYLOGICALEXPRESSION'''
-    if (len(p) == 4):
-        p[1].append(AndExpressionsList(p[3], p[2]))
-        p[0] = p[1] 
-    elif (len(p) == 2):
-        p[0] = [p[1]]
-
-
-def p_sql_unary_logical_expression(p):
-    '''SQLUNARYLOGICALEXPRESSION : NOT EXISTSORSQLRELATIONALCLAUSE
-                                 | EXISTSORSQLRELATIONALCLAUSE'''
-    if (p[1] == 'NOT'):
+    '''SQLEXPRESSION : SQLEXPRESSION OR SQLEXPRESSION
+                     | SQLEXPRESSION AND SQLEXPRESSION
+                     | NOT EXISTSORSQLRELATIONALCLAUSE
+                     | EXISTSORSQLRELATIONALCLAUSE'''
+    if len(p) == 4:
+        p[0] = LogicalOperators(p[1], p[2], p[3])
+    elif len(p) == 3:
         p[0] = NotOption(p[2])
     else:
         p[0] = p[1]
@@ -906,7 +883,7 @@ def p_exists_clause(p):
 
 
 def p_sql_relational_expression(p):
-    '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION SQLRELATIONALOPERATOREXPRESSION
+    '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION
                                | SQLSIMPLEEXPRESSION SQLINCLAUSE
                                | SQLSIMPLEEXPRESSION SQLBETWEENCLAUSE
                                | SQLSIMPLEEXPRESSION SQLLIKECLAUSE
@@ -914,13 +891,12 @@ def p_sql_relational_expression(p):
                                | SQLSIMPLEEXPRESSION'''
     if (len(p) == 3):
         p[0] = [p[1], p[2]]
+    elif (len(p) == 4):
+        p[0] = Relop(p[1], p[2], p[3])
     else:
         p[0] = p[1]
 
 
-def p_sql_relational_operator_expression(p):
-    '''SQLRELATIONALOPERATOREXPRESSION : RELOP SQLSIMPLEEXPRESSION'''
-    p[0] = [p[1], p[2]]
 
 def p_sql_in_clause(p):
     '''SQLINCLAUSE  : NOT IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
@@ -1105,18 +1081,35 @@ def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
                        | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
     p[0] = ExpressionsGreastLeast(p[1], p[3])
-def p_case_clause(p):
-    '''CASECLAUSE : CASE CASECLAUSELIST END ID'''
 
-def p_case_cluase_list(p):
+def p_case_clause(p):
+    '''CASECLAUSE : CASE CASECLAUSELIST END ID
+                  | CASE CASECLAUSELIST ELSE SQLSIMPLEEXPRESSION END ID'''
+    if(len(p) == 5):
+        p[0] = Case(p[2], None)
+    else:
+        p[0] = Case(p[2], p[4])
+
+
+def p_case_clause_list(p):
     '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
                       | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
-                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
                       | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
                       | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION'''
+
+    # El ELSE solo puede venir una vez ---> las producciones de abajo permitian que viniera varias veces
+    # WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
+    # WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+    if (len(p) == 8):
+        p[1].append( CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] ) )
+        p[0] = p[1]
+    elif (len(p) == 7):
+        p[0] = [CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] )]
+    elif (len(p) == 6):
+        p[1].append( CaseOption(p[3], p[5]) )
+        p[0] = p[1]
+    else: #len = 5
+        p[0] = [CaseOption(p[3], p[5])]
 
 def p_trigonometric_functions(p):
     '''TRIGONOMETRIC_FUNCTIONS : ACOS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
@@ -1224,7 +1217,7 @@ def p_relop(p):
              | LESS_THAN
              | LESS_EQUAL
              | NOT_EQUAL_LR'''
-    p[0] = Relop(p[1])
+    p[0] = p[1]
 
 
 def p_aggregate_types(p):
@@ -1269,28 +1262,19 @@ def p_sub_query(p):
     p[0] = p[1]
 
 def p_error(p):
-    global list_errors
-    global id_error
-    
-    id_error = list_errors.count + 1  if list_errors.count > 0 else 1
-
     try:
-        number_error, description = get_type_error(33)
-        print(str(p.value))
-        description += ' or near ' + str(p.value) 
+        # print(str(p.value))
+        description = ' or near ' + str(p.value) 
         column = find_column(p)
-        list_errors.insert_end(Error(id_error, 'Syntactic',number_error ,description, p.lineno, column))
+        ErrorController().add(33, 'Syntactic', description, p.lineno, column)
     except AttributeError:
-        number_error, description = get_type_error(1)
         print(number_error, description)
-        list_errors.insert_end(Error(id_error, 'Syntactic', number_error, description, 'EOF', 'EOF'))
-    id_error += 1
+        ErrorController().add(1, 'Syntactic', '', 'EOF', 'EOF')
 
 parser = yacc.yacc()
 def parse(inpu):
     global input
-    global list_errors
-    list_errors.remove_all()
+    ErrorController().destroy()
     lexer = lex.lex()
     lexer.lineno = 1
     input = inpu

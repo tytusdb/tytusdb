@@ -3,9 +3,9 @@ import tempfile
 from analizador_lexico import tokens
 from analizador_lexico import analizador
 from Nodo import *
-
-
-
+from datetime import datetime
+# import storageManager
+from storageManager import jsonMode as manager
 from expresiones import *
 from instrucciones import *
 from graphviz import *
@@ -32,12 +32,91 @@ def inc():
     i += 1
     return i
 
+# *************************************************
+# **********************         init  Modificado 11  de diciembre  Henry , acepta varias sentencias ***********
+# *************************************************
+
+
+def p_init(t):
+    '''init : statement_list
+    '''
+    t[0] = Nodo("init", [t[1]], 'N', None)
+
+
+def p_statement_list(t):
+    '''statement_list : statement_list statement
+    '''
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[2])
+    t[0] = Nodo("statement_list", temp, 'N', None)
+
+
+def p_statement_list_statement(t):
+    'statement_list : statement'
+    t[0] = Nodo("statement_list", [t[1]], 'N', None)
+
 
 def p_statement(t):
     '''statement : insert_statement
+                 | definitiondb_statement
                  | update_statement
+                 | delete_statement
+                 | select_statement
     '''
     t[0] = Nodo("statement", [t[1]], 'N', None)
+
+    # *************************************************
+    # **********************         createdb_statement Modificado 11  de diciembre  Henry      ***********
+    # *************************************************
+
+
+def p_definitiondb_statement(t):
+    '''definitiondb_statement : create_db
+                              | alter_db
+                              | show_db
+                              | drop_db
+    '''
+    t[0] = Nodo("definitiondb_statement", [t[1]], 'N', None)
+
+
+def p_create2_db(t):
+    'create_db : CREATE DATABASE ID PTCOMA'
+    t[0] = Nodo("create_db", [t[3]], 'S', str(t[3]))
+
+
+def p_show_db(t):
+    'show_db : SHOW DATABASES PTCOMA'
+    t[0] = Nodo("show_db", [t[2]], 'S', str(t[2]))
+
+
+def p_alter0_db(t):
+    'alter_db : ALTER DATABASE ID OWNER TO ID PTCOMA'
+    temp = list()
+    temp.append(t[3])
+    temp.append(t[4])
+    temp.append(t[6])
+    t[0] = Nodo("alter_db", temp, 'S', None)
+
+
+def p_alter1_db(t):
+    'alter_db : ALTER DATABASE ID RENAME TO ID PTCOMA'
+    temp = list()
+    temp.append(t[3])
+    temp.append(t[4])
+    temp.append(t[6])
+    t[0] = Nodo("alter_db", temp, 'S', None)
+
+
+def p_drop0_db(t):
+    'drop_db : DROP DATABASE IF EXISTS ID PTCOMA'
+    t[0] = Nodo("drop_db", [t[5]], 'S', str(t[5]))
+
+
+def p_drop1_db(t):
+    'drop_db : DROP DATABASE ID PTCOMA'
+    t[0] = Nodo("drop_db", [t[3]], 'S', str(t[3]))
+
 
 # *************************************************
 # **********************         insert_statement      ***********
@@ -211,6 +290,217 @@ def p_update_source(t):
     t[0] = Nodo("update_source", [t[1]], 'N', None)
 
 
+# *************************************************
+# **********************         delete_statement      ***********
+# *************************************************
+
+def p_delete_statement(t):
+    '''delete_statement : DELETE FROM table_name_d PTCOMA
+                        | DELETE FROM table_name_d WHERE search_condition PTCOMA
+    '''
+    if (len(t) == 5):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        
+        t[0] = Nodo("delete_statement", [t[3]], 'N', None)
+    elif (len(t) == 7):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[3])
+        temp.append(t[5])
+        
+        t[0] = Nodo("delete_statement", temp, 'N', None)
+    
+
+
+def p_table_name_d(t):
+    'table_name_d : ID '
+    t[0] = Nodo("table_name_d", [t[1]], 'S', str(t[1]))
+
+
+# *************************************************
+# **********************         select_statement      ***********
+# *************************************************
+
+def p_select_statement(t):
+    '''select_statement : SELECT select_column_list FROM table_name_s PTCOMA
+                        | SELECT select_column_list FROM table_name_s WHERE search_condition PTCOMA
+                        | SELECT DISTINCT select_column_list FROM table_name_s PTCOMA
+                        | SELECT DISTINCT select_column_list FROM table_name_s WHERE search_condition PTCOMA
+    '''
+    if (len(t) == 6):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[2])
+        temp.append(t[4])
+        t[0] = Nodo("select_statement", temp, 'N', None)
+    elif (len(t) == 8):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[2])
+        temp.append(t[4])
+        temp.append(t[6])
+        t[0] = Nodo("select_statement", temp, 'N', None)
+    elif (len(t) == 7):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[3])
+        temp.append(t[5])
+        t[0] = Nodo("select_statement", temp, 'N', None)
+    elif (len(t) == 9):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[3])
+        temp.append(t[5])
+        temp.append(t[7])
+        t[0] = Nodo("select_statement", temp, 'N', None)
+
+
+def p_table_name_s(t):
+    'table_name_s : ID '
+    t[0] = Nodo("table_name_s", [t[1]], 'S', str(t[1]))
+
+
+# *************************************************
+# **********************         select_column_list      ***********
+# *************************************************
+
+def p_select_column_list(t):
+    'select_column_list    : select_column_list  COMA column_name_select'
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[3])
+    t[0] = Nodo("select_column_list1", temp, 'N', None)
+
+
+def p_select_column_name(t):
+    'select_column_list : column_name_select'     
+    t[0] = Nodo("select_column_list2", [t[1]], 'N', None)
+
+
+# def p_column_name_select(t):
+#     'column_name_select   : column_funtion_select'
+#     # t[0] = Nodo("column_name_select", [t[1]], 'S', str(t[1]))
+#     t[0] = Nodo("column_name_select", [t[1]], 'N', None)
+
+
+def p_column_select(t):
+    '''column_name_select    : select_function 
+                                | select_function PARIZQ select_function_element PARDER
+                                | select_function value_expression
+                                | select_function PARIZQ PARDER
+                                | select_function PARIZQ column_funtionext_select PARDER
+    '''
+
+    if (len(t) == 5):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[3])
+        t[0] = Nodo("column_name_select", temp, 'N', None)
+    elif (len(t) == 2):
+        # t[0] =InsertColumnsValues(t[2],t[5])        
+        t[0] = Nodo("column_name_select", [t[1]], 'N', None)
+    elif (len(t) == 4):
+        # t[0] =InsertColumnsValues(t[2],t[5])        
+        t[0] = Nodo("column_name_select", [t[1]], 'N', None)
+    elif (len(t) == 3):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[2])
+        t[0] = Nodo("column_name_select", temp, 'N', None)
+
+
+def p_select_function(t) :
+    '''select_function  : SUM  
+                        | COUNT 
+                        | NOW
+                        | CURRENT_DATE 
+                        | CURRENT_TIME 
+                        | TIMESTAMP                          
+                        | EXTRACT                          
+                        | DATE_PART 
+                        | MULT 
+                        | ID 
+                                             
+    '''
+    t[0] = Nodo("column_name", [t[1]],'S', str(t[1]) )
+
+
+def p_select_function_element(t) :
+    '''select_function_element  : ID
+                                | NULL
+                                
+    '''
+    if (len(t) == 2):
+        t[0] = Nodo("select_function_element", [t[1]], 'S', str(t[1]))
+    else :
+        t[0] = Nodo("select_function_element", [t[1]], 'S', 'vacio')
+
+
+def p_column_functionext_select(t):
+    '''column_funtionext_select : column_datefuntion_select 
+                                | column_datepartfuntion_select 
+    '''
+    t[0] = Nodo("column_funtionext_select", [t[1]], 'N', None)
+
+def p_column_datefunction_select(t) :
+    '''column_datefuntion_select    : column_dateExtractfunc_select FROM TIMESTAMP  value_expression                  
+    '''
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[4])
+    t[0] = Nodo("column_datefuntion_select", temp, 'N', None)
+    
+
+
+def p_column_dateExtractfunc_select(t) :
+    '''column_dateExtractfunc_select    : HOUR  
+                                        | MINUTE 
+                                        | SECOND
+                                        | YEAR 
+                                        | MONTH 
+                                        | DAY                          
+    '''
+    t[0] = Nodo("column_dateExtractfunc_select", [t[1]],'S', str(t[1]) )
+   
+
+
+def p_column_datepartfunction_select(t) :
+    '''column_datepartfuntion_select    : column_datepartfunc_select COMA INTERVAL column_datepartfuncDATE_select              
+    '''
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[4])
+    t[0] = Nodo("column_datefuntion_select", temp, 'N', None)
+    
+
+
+def p_column_datepartfunc_select(t) :
+    '''column_datepartfunc_select   : HOURS  
+                                    | MINUTES 
+                                    | SECONDS                       
+    '''
+    t[0] = Nodo("column_dateExtractfunc_select", [t[1]],'S', str(t[1]) )
+   
+
+def p_column_datepartfuncDATE_select(t) :
+    '''column_datepartfuncDATE_select   : ENTERO HOURS    
+                                        | ENTERO HOURS ENTERO MINUTES  
+                                        | ENTERO HOURS ENTERO MINUTES ENTERO SECONDS                        
+    '''
+    t[0] = Nodo("column_dateExtractfunc_select", [t[1]],'S', str(t[1]) )
+
+
+
+
+# def p_value_expression_datetime(t):
+#     '''value_expression_datetime : ENTERO
+#                         | ID
+#     '''
+#     t[0] = t[1]    
+
+
 
 # *************************************************
 # **********************         search_condition      ***********
@@ -277,7 +567,14 @@ def p_boolean_primary(t) :
 def p_predicate(t) :
     '''predicate : comparison_predicate
     '''
-
+    #  | <between predicate>
+    #  | <in predicate>
+    #  | <like predicate>
+    #  | <null predicate>
+    #  | <quantified comparison predicate>
+    #  | <exists predicate>
+    #  | <match predicate>
+    #  | <overlaps predicate>
     t[0] = Nodo("predicate", [t[1]],'N',None)  
 
 
