@@ -1125,6 +1125,7 @@ def p_produccion1_2(t):
 def p_produccion1(t):
     ''' L_ASIGN : L_ASIGN coma id igual E
                  '''
+    global cont
     t[0] = t[1]
     nodo1 = Node("id", t[3],cont,t.lineno(3) ,t.lexpos(3))
     cont  = cont+1
@@ -3482,7 +3483,7 @@ def p_EXPR_E_FUNC( p ):
               | EXPR_BINARIAS
               | EXPR_FECHA
               | E '''
-    p[0] = P[1]
+    p[0] = p[1]
 
 def p_EXPR_ORDERBY( p ):
     '''EXPR_ORDERBY : order by LIST_ORDERBY'''

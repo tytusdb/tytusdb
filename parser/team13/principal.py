@@ -178,9 +178,6 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     Qhaving = nodo.query1.having
                     Qorderby = nodo.query1.orderby
                     Qlimit = nodo.query1.limit
-    for i in listaSemanticos:
-        print(i)
-    return consola
                     #SELECT 
                     if isinstance(Qselect, SSelectCols):
                         print("Entro a Select")
@@ -496,7 +493,10 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         
             else:
                 print("Query anidada")
-                
+    
+    for i in listaSemanticos:
+        print(i)
+    return consola
 
             
             
