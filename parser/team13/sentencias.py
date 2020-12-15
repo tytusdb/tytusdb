@@ -1,14 +1,5 @@
 from enum import Enum
 
-cont=0
-txt=""
-def incrementarContador():
-     global cont
-     cont= cont+1
-     return "%d" %cont 
-
-class Node():
-      pass
 
 
 class Aritmetica(Enum):
@@ -80,17 +71,6 @@ class S(Sentencia):
       def __init__(self, Etiqueta,hijo1):
            self.Etiqueta=Etiqueta
            self.hijo1=hijo1    
-      def traducir(self):
-           global txt
-           id = incrementarContador()
-           if type(self.hijo1.son1)== type(tuple()):
-               hijo1 = self.hijo1.son1[0].traducir() 
-           else:             
-               hijo1 = self.hijo1.son1py.traducir() 
-           txt+= id+"[label="+self.Etiqueta+"]"+"\n\t"
-           txt+= id+"->"+hijo1+"\n\t"
-           return "digraph G {\n\t"+txt+"}"
-
  
 class statementList2(Sentencia):
      
@@ -98,29 +78,12 @@ class statementList2(Sentencia):
          self.son1=son1
          self.son2=son2
          self.name=name
-     
-     def traducir(self):
-         global txt
-         id = incremetarContador()
-         son1 = self.son1.traducir()
-         son2 = self.son2.traducir()
-         txt += id + "[label= "+self.name+"]"+"\n\t"     
-         txt += id + " -> " + son1 + "\n\t"
-         txt += id + " -> " + son2 + "\n\t"
-         return id 
-
+    
 class statementList1(Sentencia):
         def __init__(self,son1,name):
             self.name = name
             self.son1 = son1
 
-        def traducir(self):
-            global txt
-            id = incremetarContador()
-            son1 = self.son1.traducir()
-            txt += id + "[label= "+self.name+"]"+"\n\t"
-            txt += id + " -> " + son1 + "\n\t"
-            return id
 
 class SCrearBase(Sentencia):
     def __init__(self, owner, mode, replace, exists, id):
@@ -129,26 +92,6 @@ class SCrearBase(Sentencia):
         self.mode = mode
         self.replace = replace
         self.exists = exists
-    
-    
-    def traducir(self):
-           global txt
-           txt=""
-           id = incrementarContador()
-           
-           hijo1 = self.owner 
-           hijo2 = self.mode 
-           hijo3 = self.replace 
-           hijo4 = self.exists 
-           
-           txt+= id+"[label="+"CrearBases"+"]"+"\n\t"
-           txt+= id+"->"+str("create")+"\n\t"
-           txt+= id+"->"+str("database")+"\n\t"
-           txt+= id+"->"+str(self.id)+"\n\t"
-           return txt 
-           
-           
-
 
 
 class SShowBase(Sentencia):
@@ -312,8 +255,9 @@ class SColumna(Sentencia):
 
 
 class SColumnaCheck(Sentencia):
-    def __init__(self, id=[]):
+    def __init__(self, id,condicion):
         self.id = id
+        self.condicion=condicion
 
 
 class SColumnaUnique(Sentencia):
@@ -338,3 +282,137 @@ class SOpcionales(Sentencia):
         self.tipo = tipo
         self.valor = valor
         self.id = id
+
+
+class SQuery(Sentencia):
+    def __init__(self, select, ffrom, where, groupby, having, orderby, limit):
+        self.select = select
+        self.ffrom = ffrom
+        self.where = where
+        self.groupby = groupby
+        self.having = having
+        self.orderby = orderby
+        self.limit = limit
+
+class SSelectCols(Sentencia):
+    def __init__(self, distinct, cols=[]):
+        self.distinct = distinct
+        self.cols = cols
+
+class SSelectFunc(Sentencia):
+    def __init__(self, id):
+        self.id = id
+
+class SColumnasSelect(Sentencia):
+    def __init__(self, cols=[]):
+        self.cols = cols
+
+class SColumnasAsSelect(Sentencia):
+    def __init__(self, id, cols=[]):
+        self.id = id
+        self.cols = cols
+
+class SColumnasSubstr(Sentencia):
+    def __init__(self, st, st2, st3,id):
+        self.st = st
+        self.st2 = st2
+        self.st3 = st3
+        self.id = id 
+
+class SColumnasGreatest(Sentencia):
+    def __init__(self, id, params=[]):
+        self.params = params
+        self.id = id         
+
+class SColumnasLeast(Sentencia):
+    def __init__(self, id, params=[]):
+        self.params = params
+        self.id = id
+
+class SExtract(Sentencia):
+    def __init__(self, field, timestampstr):
+        self.field = field
+        self.timestampstr = timestampstr
+
+class SFuncAgregacion(Sentencia):
+    def __init__(self, funcion, param):
+        self.funcion = funcion
+        self.param = param
+
+#1 parametro
+class SFuncMath(Sentencia):
+    def __init__(self, funcion, param):
+        self.funcion = funcion
+        self.param = param
+
+#2 parametros
+class SFuncMath2(Sentencia):
+    def __init__(self, funcion, param,param2):
+        self.funcion = funcion
+        self.param = param
+        self.param2 = param2
+
+#sin parametros
+class SFuncMathSimple(Sentencia):
+    def __init__(self, funcion):
+        self.funcion = funcion
+
+#Lista params
+class SFuncMathLista(Sentencia):
+    def __init__(self, funcion, params=[]):
+        self.funcion = funcion
+        self.params = params 
+
+#1 parametro
+class SFuncTrig(Sentencia):
+    def __init__(self, funcion, param):
+        self.funcion = funcion
+        self.param = param
+
+#2 parametros
+class SFuncTrig2(Sentencia):
+    def __init__(self, funcion, param,param2):
+        self.funcion = funcion
+        self.param = param
+        self.param2 = param2
+
+class SFuncBinary(Sentencia):
+    def __init__(self, funcion, param):
+        self.funcion = funcion
+        self.param = param
+
+class SFechaFunc(Sentencia):
+    def __init__(self,param,param2):
+        self.param = param
+        self.param2 = param2
+
+class SFechaFunc2(Sentencia):
+    def __init__(self, id, param,tipo,param2):
+        self.id = id
+        self.param = param
+        self.tipo = tipo
+        self.param2 = param2
+
+class SCase(Sentencia):
+    def __init__(self, casos):
+        self.casos = casos
+
+class SCaseElse(Sentencia):
+    def __init__(self, casos,casoelse):
+        self.casos = casos
+        self.casoelse = casoelse
+
+class SCaseList(Sentencia):
+    def __init__(self, param,param2,clist=[],):
+        self.param = param
+        self.param2 = param2
+        self.clist=clist
+
+class SFrom(Sentencia):
+    def __init__(self, clist=[],):
+        self.clist=clist
+
+class SFrom2(Sentencia):
+    def __init__(self,id, clist=[],):
+        self.id = id
+        self.clist = clist

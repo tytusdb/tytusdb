@@ -1,6 +1,12 @@
 # from generate_ast import GraficarAST
 from re import L
 from models.nodo import Node
+from models.instructions.shared import *
+from models.instructions.DDL.ddl_instr import *
+from models.instructions.DML.dml_instr import *
+from models.instructions.DML.select import *
+
+
 from utils.analyzers.lex import *
 import libs.ply.yacc as yacc
 import os
@@ -19,8 +25,6 @@ precedence = (
     ('left', 'ASTERISK', 'DIVISION', 'MODULAR', 'BITWISE_SHIFT_RIGHT', 'BITWISE_SHIFT_LEFT', 'BITWISE_AND', 'BITWISE_OR'),  # Level 8
     ('left', 'EXPONENT',  'BITWISE_XOR', 'SQUARE_ROOT', 'CUBE_ROOT'),  # Level 9
     ('right', 'UPLUS', 'UREST'),  # Level 10
-    ('left', 'LEFT_BRACE', 'RIGHT_BRACE'),  # Level 11
-    ('left', 'TYPE_CAST'),  # Level 12
     ('left', 'DOT')  # Level 13
 )
 
@@ -35,98 +39,262 @@ precedence = (
 # y estos no pueden ser usados para los nombres de los no terminales, si no lanzara error
 
 
-def p_dml_list(p):
-    '''DMLLIST : DMLLIST DML
-               | DML'''
-    nodo = Node('DMLLIST')
-    if (len(p) == 2):
-        nodo.add_childrens(p[1])
-    elif (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    p[0] = nodo
+#=====================================================================================
+#=====================================================================================
+#====================================================================================
+
+def p_instruction_list(p):
+    '''instructionlist : instructionlist sqlinstruction
+                       | sqlinstruction
+    '''
+    if (len(p) == 3):
+        p[0] = p[1].append(p[2])
+    else:
+        p[0] = p[1]
+
+def p_sql_instruction(p):
+    '''sqlinstruction : ddl
+                    | DML
+                    | MULTI_LINE_COMMENT
+                    | SINGLE_LINE_COMMENT
+                    | error SEMICOLON
+    '''
+    p[0] = p[1]
+    
+
+def p_ddl(p):
+    '''ddl : createstatement 
+           | showstatement
+           | alterstatement
+           | dropstatement
+    '''
+
+def p_create_statement(p):
+    '''createstatement : CREATE optioncreate SEMICOLON''' 
+
+def p_option_create(p):
+    '''optioncreate : TYPE SQLNAME AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS
+                    | DATABASE createdb
+                    | OR REPLACE DATABASE createdb
+                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable  RIGHT_PARENTHESIS
+                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable  RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+    '''
+
+def p_type_list(p):
+    '''typelist : typelist COMMA SQLNAME
+                | SQLNAME'''
+
+def p_create_db(p):
+    '''createdb : IF NOT EXISTS ID listpermits
+                | IF NOT EXISTS ID
+                | ID listpermits
+                | ID 
+    '''
+
+def p_list_permits(p):
+    '''listpermits : listpermits permits
+                   | permits
+    '''
+
+def p_permits(p):
+    '''permits : OWNER EQUALS ID
+               | OWNER ID
+               | MODE EQUALS INT_NUMBER
+               | MODE INT_NUMBER 
+    '''
+
+def p_columns_table(p):
+    '''columnstable : columnstable COMMA column
+                    | column
+    '''
+
+def p_column(p):
+    '''column : ID typecol optionscollist
+              | ID typecol
+              | UNIQUE LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+              | PRIMARY KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+              | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
+              | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+              | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+    '''
+
+def p_type_col(p):
+    '''typecol : SMALLINT
+               | INTEGER
+               | BIGINT
+               | DECIMAL LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+               | DECIMAL LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | NUMERIC LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+               | NUMERIC LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | REAL
+               | DOUBLE PRECISION
+               | MONEY
+               | CHARACTER VARYING LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHARACTER VARYING
+               | VARCHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | VARCHAR
+               | CHARACTER LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHARACTER
+               | CHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHAR
+               | TEXT
+               | TIMESTAMP LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | TIMESTAMP
+               | DATE
+               | TIME LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | TIME
+               | INTERVAL SQLNAME
+               | BOOLEAN
+    '''
+
+def p_options_col_list(p):
+    '''optionscollist : optionscollist optioncol
+                      | optioncol
+    '''
+
+
+def p_option_col(p):
+    '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
+                 | NOT NULL
+                 | NULL
+                 | CONSTRAINT ID UNIQUE
+                 | UNIQUE
+                 | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                 | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                 | PRIMARY KEY 
+                 | REFERENCES ID 
+    '''
+
+def p_condition_column(p):
+    '''conditionColumn : conditioncheck'''
+
+def p_condition_check(p):
+    '''conditioncheck : SQLRELATIONALEXPRESSION
+    '''
+
+def p_column_list(p):
+    '''columnlist : columnlist COMMA ID
+                  | ID
+    '''
+
+def p_show_statement(p):
+    '''showstatement : SHOW DATABASES SEMICOLON
+                     | SHOW DATABASES LIKE ID SEMICOLON
+    ''' 
+
+def p_alter_statement(p):
+    '''alterstatement : ALTER optionsalter SEMICOLON
+    '''
+
+def p_options_alter(p):
+    '''optionsalter : DATABASE alterdatabase
+                    | TABLE altertable
+    '''
+
+def p_alter_database(p):
+    '''alterdatabase : ID RENAME TO ID
+                     | ID OWNER TO typeowner
+    '''
+
+def p_type_owner(p):
+    '''typeowner : ID
+                 | CURRENT_USER
+                 | SESSION_USER 
+    '''
+
+def p_alter_table(p): 
+    '''altertable : ID alterlist
+    '''
+
+def p_alter_list(p):
+    '''alterlist : alterlist COMMA typealter
+                 | typealter
+    '''
+
+def p_type_alter(p):
+    '''typealter : ADD addalter
+                 | ALTER alteralter
+                 | DROP dropalter
+                 | RENAME  renamealter
+    '''
+
+def p_add_alter(p):
+    '''addalter : COLUMN ID typecol
+                | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
+                | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+    '''
+
+def p_alter_alter(p):
+    '''alteralter : COLUMN ID SET NOT NULL
+                  | COLUMN ID TYPE typecol
+    '''
+
+def p_drop_alter(p):
+    '''dropalter : COLUMN ID
+                 | CONSTRAINT ID
+    '''
+
+def p_rename_alter(p):
+    '''renamealter : COLUMN ID TO ID
+    '''
+
+def p_drop_statement(p):
+    '''dropstatement : DROP optionsdrop SEMICOLON''' 
+
+def p_options_drop(p):
+    '''optionsdrop : DATABASE dropdatabase
+                    | TABLE droptable
+    '''
+
+def p_drop_database(p):
+    '''dropdatabase : IF EXISTS ID
+                    | ID
+    '''
+
+def p_drop_table(p):
+    '''droptable : ID
+    '''
+
+
+
+#=====================================================================================
+#=====================================================================================
+#=====================================================================================
+
 
 
 def p_dml(p):
     '''DML : QUERYSTATEMENT
            | INSERTSTATEMENT
            | DELETESTATEMENT
-           | UPDATESTATEMENT
-           | MULTI_LINE_COMMENT
-           | SINGLE_LINE_COMMENT
-           | error SEMICOLON'''
-    if (len(p) == 2):
-        nodo = Node('DML')
-        nodo.add_childrens(p[1])
-        p[0] = nodo
-    else:
-        p[0] = 'error'
-
-
-def p_query_statement(p):
-    #  ELEMENTO 0       ELEMENTO 1     ELEMENTO 2      ELEMENTO 3
-    '''QUERYSTATEMENT : SELECTSTATEMENT SEMICOLON'''
-    nodo = Node('QUERYSTATEMENT')
-    # Uso len para verificar si la produccion consta de 2 elementos, pero pongo que sea igual a 3
-    # porque PLY incluye el indice 0 como parte de la gramatica
-    if (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        p[0] = nodo
-
-# Asi se sigue trabajando en lo restante de la gramatica
+           | UPDATESTATEMENT'''
+    p[0] = p[1]
 
 
 def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
-    nodo = Node('UPDATESTATEMENT')
-    if (len(p) == 8):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
-        nodo.add_childrens(p[6])
-        nodo.add_childrens(Node(p[7]))
-    elif (len(p) == 7):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(p[4])
-        nodo.add_childrens(p[5])
-        nodo.add_childrens(Node(p[6]))
-    elif (len(p) == 6):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(p[4])
-        nodo.add_childrens(Node(p[5]))
-    
-    p[0] = nodo
-
+    if(len(p) == 7):
+        p[0] = Update(p[2],p[5],p[6])
+    elif(len(p) == 6):
+        p[0] = Update(p[2],p[4],p[5])
+    else:
+        p[0] = Update(p[2],p[4],None)
 
 def p_set_list(p):
     '''SETLIST : SETLIST COMMA COLUMNVALUES
                | COLUMNVALUES'''
-    nodo = Node('SETLIST')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
     else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
-
+        p[0] = [p[1]]
 
 def p_column_values(p):
     '''COLUMNVALUES : OBJECTREFERENCE EQUALS SQLEXPRESSION2'''
-    nodo = Node('COLUMNVALUES')
-    nodo.add_childrens(p[1])
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    p[0] = nodo
+    p[0] = ColumnVal(p[1],p[2])
 
 
 def p_sql_expression2(p):
@@ -141,22 +309,6 @@ def p_sql_expression2(p):
                       | LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS
                       | SQLNAME
                       | SQLINTEGER'''
-    nodo = Node('SQLEXPRESSION2')
-    if (len(p) == 4):
-        if (p[1] == "(" and p[3] == ")"):
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(p[2])
-            nodo.add_childrens(Node(p[3]))
-        else:
-            nodo.add_childrens(p[1])
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-    elif (len(p) == 3):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
 
 
 def p_options_list2(p):
@@ -189,7 +341,7 @@ def p_delete_statement(p):
         nodo.add_childrens(Node(p[4]))
     p[0] = nodo
 
-
+#TODO: OPTIONS Y OPTIONS4
 def p_options_list(p):
     '''OPTIONSLIST : OPTIONS1 OPTIONS2 OPTIONS3 OPTIONS4
                    | OPTIONS1 OPTIONS2 OPTIONS3
@@ -206,6 +358,10 @@ def p_options_list(p):
                    | OPTIONS2
                    | OPTIONS3
                    | OPTIONS4'''
+    # if (len(p) == 5):
+    # elif (len(p) == 4):
+    # elif (len(p) == 3):
+    # else:
     nodo = Node('OPTIONSLIST')
     if (len(p) == 5):
         nodo.add_childrens(p[1])
@@ -228,195 +384,127 @@ def p_options1(p):
     '''OPTIONS1 : ASTERISK SQLALIAS
                 | ASTERISK
                 | SQLALIAS'''
-    nodo = Node('OPTIONS1')
-    if (len(p) == 2):
-        if (p[1] == "*"):
-            nodo.add_childrens(Node(p[1]))
-        else:
-            nodo.add_childrens(p[1])
+    if(len(p) == 2):
+        p[0] = Opt1(True, p[2])
     else:
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-    p[0] = nodo
-
+        if(p[1] == "*"):
+            p[0] = Opt1(True, None)
+        else:
+            p[0] = Opt1(False, p[2])
 
 def p_options2(p):
     '''OPTIONS2 : USING USINGLIST'''
-    nodo = Node('OPTIONS2')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(p[2])
-    p[0] = nodo
-
+    p[0] = Using(p[2])
 
 def p_using_list(p):
     '''USINGLIST  : USINGLIST COMMA SQLNAME
                   | SQLNAME'''
-    nodo = Node('USINGLIST')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
     else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = [p[1]]
 
 
 def p_options3(p):
     '''OPTIONS3 : WHERE SQLEXPRESSION'''
-    nodo = Node('OPTIONS3')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(p[2])
-    p[0] = nodo
+    p[0] = Where(p[2])
 
-
+#TODO: QUE HACE OPTIONS4?
 def p_options4(p):
     '''OPTIONS4 : RETURNING RETURNINGLIST'''
-    nodo = Node('OPTIONS4')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(p[2])
-    p[0] = nodo
+    p[0] = Returning(p[2])
 
 
 def p_returning_list(p):
     '''RETURNINGLIST   : ASTERISK
                        | EXPRESSIONRETURNING'''
-    nodo = Node('RETURNINGLIST')
-    if (p[1] == '*'):
-        nodo.add_childrens(Node(p[1]))
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
-
+    p[0] = p[1]
 
 def p_returning_expression(p):
     '''EXPRESSIONRETURNING : EXPRESSIONRETURNING COMMA SQLEXPRESSION SQLALIAS
-                                       | SQLEXPRESSION SQLALIAS'''
-    nodo = Node('EXPRESSIONRETURNING')
-    if (len(p) == 5):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(p[4])
+                           | SQLEXPRESSION SQLALIAS'''
+    if(len(p) == 5):
+        p[1].append(p[3])
+        p[0] = p[1]
     else:
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    p[0] = nodo
-
+        p[0] = [p[1]]
 
 def p_insert_statement(p):
-    '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
-    nodo = Node('INSERTSTATEMENT')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    nodo.add_childrens(Node(p[4]))
-    nodo.add_childrens(p[5])
-    nodo.add_childrens(Node(p[6]))
-    nodo.add_childrens(Node(p[7]))
-    nodo.add_childrens(Node(p[8]))
-    nodo.add_childrens(p[9])
-    nodo.add_childrens(Node(p[10]))
-    nodo.add_childrens(Node(p[11]))
-    p[0] = nodo
-
-
-def p_list_values_insert(p):
-    '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
-                        | SQLSIMPLEEXPRESSION'''
-    nodo = Node('LISTVALUESINSERT')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-    elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
-
+    '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
+                       | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
+    if(len(p) == 12):
+        p[0] = Insert(p[3],p[5],p[9])
+    else:
+        p[0] = Insert(p[3],None,p[6])
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA ID
                         | ID'''
-    nodo = Node('LISTPARAMSINSERT')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-    elif (len(p) == 2):
-        nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 
+def p_query_statement(p):
+    #  ELEMENTO 0       ELEMENTO 1     ELEMENTO 2      ELEMENTO 3
+    '''QUERYSTATEMENT : SELECTSTATEMENT SEMICOLON'''
+    p[0] = p[1]
 
 def p_select_statement(p):
-    '''SELECTSTATEMENT : SELECTWITHOUTORDER OPTIONSSELECT
+    '''SELECTSTATEMENT : SELECTWITHOUTORDER ORDERBYCLAUSE LIMITCLAUSE
+                       | SELECTWITHOUTORDER ORDERBYCLAUSE 
+                       | SELECTWITHOUTORDER LIMITCLAUSE 
                        | SELECTWITHOUTORDER'''
-    nodo = Node('SELECTSTATEMENT')
-    if (len(p) == 2):
-        nodo.add_childrens(p[1])
+    if (len(p) == 4):
+        p[0] = Select(p[1], p[2], p[3])
     elif (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    p[0] = nodo
+        if ('ORDER' in p[2]):
+            p[0] = Select(p[1], p[2], None)
+        elif ('LIMIT' in p[2]):
+            p[0] = Select(p[1], None, p[2])
+    elif (len(p) == 2):
+        p[0] = Select(p[1], None, None)
 
-def p_options_select(p):
-    '''OPTIONSSELECT : ORDERBYCLAUSE LIMITCLAUSE
-                        | LIMITCLAUSE
-                        | ORDERBYCLAUSE'''
-    nodo = Node('OPTIONSSELECT')
-    if (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
 
 def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
-
-    nodo = Node('SELECTWITHOUTORDER')
     if (len(p) == 2):
-        nodo.add_childrens(p[1])
-        
+        p[0] = [p[1]]
     elif (len(p) == 5):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(p[4])
-        
-    else:
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(p[3])
-    p[0] = nodo
+        type_combine_query = TypeQuerySelect(p[2], p[3])
+        p[1].append(type_combine_query)
+        p[1].append(p[4])
+        p[0] = p[1]
+    elif(len(p) == 4):
+        type_combine_query = TypeQuerySelect(p[2], optionAll=None)
+        p[1].append(type_combine_query)
+        p[1].append(p[3])
+        p[0] = p[1]
+    
 
 
 def p_select_set(p):
     '''SELECTSET : SELECTQ 
                  | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
-    nodo = Node('SELECTSET')
-
     if (len(p) == 2):
-        nodo.add_childrens(p[1])
-    else:
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(Node(p[3]))
-    p[0] = nodo
-
+        p[0] = p[1]
+    elif (len(p) == 4):
+        p[0] = p[2]
 
 def p_selectq(p):
     '''SELECTQ : SELECT SELECTLIST FROMCLAUSE
                | SELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
-               | SELECT SELECTLIST
-               | SELECT EXPRESSIONSTIME'''
+               | SELECT SELECTLIST'''
     nodo = Node('SELECTQ')
     if (len(p) == 4):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(p[3])
+        selectq = SelectQ(None, p[2], p[3], None)
+        p[0] = selectq
     elif (len(p) == 5):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
@@ -431,7 +519,7 @@ def p_selectq(p):
     elif (len(p) == 3):
         nodo.add_childrens(Node(p[1]))
         nodo.add_childrens(p[2])
-    p[0] = nodo
+        p[0] = nodo
 
 
 def p_select_list(p):
@@ -440,81 +528,44 @@ def p_select_list(p):
 
     nodo = Node('SELECTLIST')
     if p[1] == '*':
-        nodo.add_childrens(Node(p[1]))
+        p[0] = SelectList(p[1])
     elif (p[1] != '*'):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = SelectList(p[1])
 
 
-def p_expressions_time(p):
-    '''EXPRESSIONSTIME : EXTRACT LEFT_PARENTHESIS DATETYPES FROM TIMESTAMP SQLNAME RIGHT_PARENTHESIS'''
-    nodo = Node('EXPRESSIONSTIME')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    nodo.add_childrens(Node(p[4]))
-    nodo.add_childrens(Node(p[5]))
-    nodo.add_childrens(p[6])
-    nodo.add_childrens(Node(p[7]))
-    p[0] = nodo
+
 
 
 def p_list_item(p):
     '''LISTITEM : LISTITEM COMMA SELECTITEM
                 | SELECTITEM'''
-    nodo = Node('LISTITEM')
     if (len(p) == 2):
-        nodo.add_childrens(p[1])
+        p[0] = [p[1]]
     elif (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-    p[0] = nodo
+        p[1].append(p[3])
+        p[0] = p[1]
 
 
 def p_select_item(p):
     '''SELECTITEM : SQLSIMPLEEXPRESSION SQLALIAS
-                  | AGGREGATEFUNCTIONS SQLALIAS
                   | SQLSIMPLEEXPRESSION
-                  | AGGREGATEFUNCTIONS'''
+                  | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     nodo = Node('SELECTITEM')
     if (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
+        if(p[1] == "("):
+            p[0] = p[2]
+        else:
+            aux_lista = []
+            aux_lista.append(p[1])
+            aux_lista.append(p[2])
+            p[0] = aux_lista
     elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
-
-
-def p_aggregate_functions(p):
-    '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS'''
-    nodo = Node('AGGREGATEFUNCTIONS')
-
-    nodo.add_childrens(p[1])
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    nodo.add_childrens(Node(p[4]))
-    p[0] = nodo
+        p[0] = p[1]
 
 
 def p_from_clause(p):
     '''FROMCLAUSE : FROM FROMCLAUSELIST'''
-    nodo = Node('FROMCLAUSE')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(p[2])
-    p[0] = nodo
-
-
-def p_cont_of_aggregate(p):
-    '''CONTOFAGGREGATE : ASTERISK
-                       | SQLSIMPLEEXPRESSION'''
-    nodo = Node('CONTOFAGGREGATE')
-    if (p[1] == '*'):
-        nodo.add_childrens(Node(p[1]))
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
-
+    p[0] = From(p[2])
 
 def p_from_clause_list(p):
     '''FROMCLAUSELIST : FROMCLAUSELIST COMMA TABLEREFERENCE
@@ -523,23 +574,7 @@ def p_from_clause_list(p):
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
                       | TABLEREFERENCE'''
-    nodo = Node('FROMCLAUSELIST')
-    if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-    elif (p[1] == '('):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(Node(p[3]))
-    elif (len(p) == 5):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-    elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+    p[0] = [p[1]]
 
 
 def p_where_aggregate(p):
@@ -575,7 +610,7 @@ def p_table_reference(p):
                       | OBJECTREFERENCE'''
     nodo = Node('TABLEREFERENCE')
     if (len(p) == 2):
-        nodo.add_childrens(p[1])
+        p[0] = p[1]
     elif (len(p) == 3):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
@@ -583,89 +618,77 @@ def p_table_reference(p):
         nodo.add_childrens(p[1])
         nodo.add_childrens(p[2])
         nodo.add_childrens(p[3])
-    p[0] = nodo
+        p[0] = nodo
 
 
 def p_order_by_clause(p):
     '''ORDERBYCLAUSE : ORDER BY ORDERBYCLAUSELIST'''
-    nodo = Node('ORDERBYCLAUSE')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(Node(p[2]))
-    nodo.add_childrens(p[3])
-    p[0] = nodo
-
+    aux_lista = []
+    aux_lista.append(p[1])
+    aux_lista.append(p[3])
+    p[0] = aux_lista
 
 def p_order_by_clause_list(p):
     '''ORDERBYCLAUSELIST : ORDERBYCLAUSELIST COMMA ORDERBYEXPRESSION
                          | ORDERBYEXPRESSION'''
-    nodo = Node('ORDERBYCLAUSELIST')
     if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
+        p[1].append(p[3])
+        p[0] = p[1]
     elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = [p[1]]
+   
 
 
 def p_order_by_expression(p):
     '''ORDERBYEXPRESSION : SQLSIMPLEEXPRESSION ASC
                          | SQLSIMPLEEXPRESSION DESC
                          | SQLSIMPLEEXPRESSION'''
-    nodo = Node('ORDERBYEXPRESSION')
     if (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
+        p[0] = OrderClause(p[1], p[2])
     elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = OrderClause(p[1], type_order=None)
 
 def p_limit_clause(p):
     '''LIMITCLAUSE : LIMIT LIMITOPTIONS'''
-    nodo = Node('LIMITCLAUSE')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(p[2])
-    p[0] = nodo
+    aux_lista = []
+    aux_lista.append(p[1])
+    aux_lista.append(p[2])
+    p[0] = aux_lista
+
 def p_limit_options(p):
     '''LIMITOPTIONS : LIMITTYPES OFFSETOPTION
                     | LIMITTYPES'''
-    nodo = Node('LIMITOPTIONS')
+    
     if (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
+        p[0] = LimitClause(p[1], p[2])
     else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = LimitClause(p[1], offset=None)
+    
 
 def p_limit_types(p):
     '''LIMITTYPES : LISTLIMITNUMBER
                   | ALL'''
-    nodo = Node('LIMITTYPES')
+    
     if (p[1] == "ALL"):
-        nodo.add_childrens(Node(p[1]))
+        p[0] = p[1]
     else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo 
+        p[0] = p[1]
+   
 
 def p_list_limit_number(p):
     '''LISTLIMITNUMBER : LISTLIMITNUMBER COMMA INT_NUMBER
                        | INT_NUMBER'''
-    nodo = Node('LISTLIMITNUMBER')
+    
     if (len(p) == 2):
-        nodo.add_childrens(Node(p[1]))
+        p[0] = [p[1]]
     else:
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-    p[0] = nodo
+        p[1].append(p[3])
+        p[0] = p[1]
 
 
 def p_offset_option(p):
     '''OFFSETOPTION : OFFSET INT_NUMBER'''
-    nodo = Node('OFFSETOPTION')
-    nodo.add_childrens(Node(p[1]))
-    nodo.add_childrens(Node(p[2]))
-    p[0] = nodo
+    p[0] = p[2]
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
@@ -821,7 +844,8 @@ def p_sql_relational_operator_expression(p):
 
 def p_sql_in_clause(p):
     '''SQLINCLAUSE  : NOT IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
-                    | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
+                    | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                    | IN LEFT_PARENTHESIS listain RIGHT_PARENTHESIS'''
     nodo = Node('SQLINCLAUSE')
     if (len(p) == 6):
         nodo.add_childrens(Node(p[1]))
@@ -836,9 +860,16 @@ def p_sql_in_clause(p):
         nodo.add_childrens(Node(p[4]))
     p[0] = nodo
 
+def p_lista_in(p):
+    '''listain : listain COMMA SQLSIMPLEEXPRESSION
+               | SQLSIMPLEEXPRESSION 
+    '''
+
 def p_sql_between_clause(p):
     '''SQLBETWEENCLAUSE : NOT BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION
-                        | BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION '''
+                        | NOT BETWEEN SYMMETRIC SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION
+                        | BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION 
+                        | BETWEEN SYMMETRIC SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION '''
     nodo = Node('SQLBETWEENCLAUSE')
     if (len(p) == 6):
         nodo.add_childrens(Node(p[1]))
@@ -896,46 +927,49 @@ def p_sql_simple_expression(p):
                            | SQLSIMPLEEXPRESSION BITWISE_XOR SQLSIMPLEEXPRESSION
                            | BITWISE_NOT SQLSIMPLEEXPRESSION %prec UREST
                            | LEFT_PARENTHESIS SQLEXPRESSION RIGHT_PARENTHESIS
+                           | AGGREGATEFUNCTIONS
+                           | GREATESTORLEAST
+                           | EXPRESSIONSTIME
                            | SQUARE_ROOT SQLSIMPLEEXPRESSION
                            | CUBE_ROOT SQLSIMPLEEXPRESSION
                            | MATHEMATICALFUNCTIONS
+                           | CASECLAUSE
                            | BINARY_STRING_FUNCTIONS
                            | TRIGONOMETRIC_FUNCTIONS
                            | SQLINTEGER
                            | OBJECTREFERENCE
-                           | NULL'''
+                           | NULL
+                           | TRUE
+                           | FALSE'''
 
-    nodo = Node('SQLSIMPLEEXPRESSION')
+    #nodo = Node('SQLSIMPLEEXPRESSION')
     if (len(p) == 4):
         if (p[1] == "("):
-            nodo.add_childrens(Node(p[1]))
-            nodo.add_childrens(p[2])
-            nodo.add_childrens(Node(p[3]))
+            pass
+            #nodo.add_childrens(Node(p[1]))
+            #nodo.add_childrens(p[2])
+            #nodo.add_childrens(Node(p[3]))
         else:
-            nodo.add_childrens(p[1])
-            nodo.add_childrens(Node(p[2]))
-            nodo.add_childrens(p[3])
-    elif (len(p) == 3):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
-    elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    elif (len(p) == 2 and p[1] == 'NULL'):
-        nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+           p[0] = BinaryOperation(p[1],p[3],p[2])
+    else:
+        p[0] = p[1]
+    # elif (len(p) == 3):
+    #     nodo.add_childrens(Node(p[1]))
+    #     nodo.add_childrens(p[2])
+    # elif (len(p) == 2):
+    #     nodo.add_childrens(p[1])
+    # elif (len(p) == 2 and p[1] == 'NULL'):
+    #     nodo.add_childrens(Node(p[1]))
 
 
 def p_sql_expression_list(p):
     '''SQLEXPRESSIONLIST : SQLEXPRESSIONLIST COMMA SQLEXPRESSION
                          | SQLEXPRESSION'''
-    nodo = Node('SQLEXPRESSIONLIST')
     if (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
+        p[1].append(p[3])
+        p[0] = p[1]
     elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = [p[0]]
 
 def p_mathematical_functions(p):
     '''MATHEMATICALFUNCTIONS : ABS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
@@ -990,10 +1024,25 @@ def p_binary_string_functions(p):
                                | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
                                | SHA256 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
                                | SUBSTR LEFT_PARENTHESIS ID COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS STRINGCONT AS DATE RIGHT_PARENTHESIS
-                               | CONVERT LEFT_PARENTHESIS STRINGCONT AS INTEGER RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
+                               | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
                                | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
-                               
+def p_greatest_or_least(p):
+    '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
+                       | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
+def p_case_clause(p):
+    '''CASECLAUSE : CASE CASECLAUSELIST END ID'''
+
+def p_case_cluase_list(p):
+    '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
+                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
+                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION'''
+
 def p_trigonometric_functions(p):
     '''TRIGONOMETRIC_FUNCTIONS : ACOS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                                | ACOSD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
@@ -1017,45 +1066,100 @@ def p_trigonometric_functions(p):
                                | ACOSH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                                | ASINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                                | ATANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
+#TODO: REVISAR QUE SQLALIAS SEA OPCIONAL
 def p_sql_alias(p):
     '''SQLALIAS : AS SQLNAME
                 | SQLNAME'''
-    nodo = Node('SQLALIAS')
     if (len(p) == 3):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(p[2])
+        p[0] = p[2]
     elif (len(p) == 2):
-        nodo.add_childrens(p[1])
+        p[0] = p[1]
+
+
+def p_expressions_time(p):
+    '''EXPRESSIONSTIME : EXTRACT LEFT_PARENTHESIS DATETYPES FROM TIMESTAMP SQLNAME RIGHT_PARENTHESIS
+                       | NOW LEFT_PARENTHESIS RIGHT_PARENTHESIS
+                       | DATE_PART LEFT_PARENTHESIS SQLNAME COMMA INTERVAL SQLNAME RIGHT_PARENTHESIS
+                       | CURRENT_DATE
+                       | CURRENT_TIME
+                       | TIMESTAMP SQLNAME'''
+
+    # nodo = Node('EXPRESSIONSTIME')
+    # nodo.add_childrens(Node(p[1]))
+    # nodo.add_childrens(Node(p[2]))
+    # nodo.add_childrens(p[3])
+    # nodo.add_childrens(Node(p[4]))
+    # nodo.add_childrens(Node(p[5]))
+    # nodo.add_childrens(p[6])
+    # nodo.add_childrens(Node(p[7]))
+    # p[0] = nodo
+
+def p_aggregate_functions(p):
+    '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS
+                          | AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS SQLALIAS'''
+    nodo = Node('AGGREGATEFUNCTIONS')
+
+    nodo.add_childrens(p[1])
+    nodo.add_childrens(Node(p[2]))
+    nodo.add_childrens(p[3])
+    nodo.add_childrens(Node(p[4]))
     p[0] = nodo
 
-
+def p_cont_of_aggregate(p):
+    '''CONTOFAGGREGATE : ASTERISK
+                       | SQLSIMPLEEXPRESSION'''
+    nodo = Node('CONTOFAGGREGATE')
+    if (p[1] == '*'):
+        nodo.add_childrens(Node(p[1]))
+    else:
+        nodo.add_childrens(p[1])
+    p[0] = nodo
+#TODO: TERMINAR AST OBJECTREFERENCE
 def p_sql_object_reference(p):
     '''OBJECTREFERENCE : SQLNAME DOT SQLNAME DOT SQLNAME
                        | SQLNAME DOT SQLNAME
+                       | SQLNAME DOT ASTERISK
                        | SQLNAME'''
-    nodo = Node('OBJECTREFERENCE')
-    if (len(p) == 6):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(Node(p[4]))
-        nodo.add_childrens(p[5])
-    elif (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(p[3])
-    elif (len(p) == 2):
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+    if (len(p) == 2):
+        p[0] = p[1]
+    # if (len(p) == 6):
+    #     nodo.add_childrens(p[1])
+    #     nodo.add_childrens(Node(p[2]))
+    #     nodo.add_childrens(p[3])
+    #     nodo.add_childrens(Node(p[4]))
+    #     nodo.add_childrens(p[5])
+    # elif (len(p) == 4):
+    #     nodo.add_childrens(p[1])
+    #     nodo.add_childrens(Node(p[2]))
+    #     nodo.add_childrens(p[3])
+    # elif (len(p) == 2):
+    #     nodo.add_childrens(p[1])
+    # p[0] = nodo
 
+def p_list_values_insert(p):
+    '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
+                        | SQLSIMPLEEXPRESSION'''
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
+        
+
+    #nodo = Node('LISTVALUESINSERT')
+    #if (len(p) == 4):
+    #    nodo.add_childrens(p[1])
+    #    nodo.add_childrens(Node(p[2]))
+    #    nodo.add_childrens(p[3])
+    #elif (len(p) == 2):
+    #    nodo.add_childrens(p[1])
+    #p[0] = nodo
 
 def p_type_combine_query(p):
     '''TYPECOMBINEQUERY : UNION
                         | INTERSECT
                         | EXCEPT'''
-    nodo = Node('TYPECOMBINEQUERY')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    p[0] = p[1]
 
 def p_relop(p):
     '''RELOP : EQUALS 
@@ -1065,9 +1169,7 @@ def p_relop(p):
              | LESS_THAN
              | LESS_EQUAL
              | NOT_EQUAL_LR'''
-    nodo = Node('RELOP')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    p[0] = p[1]
 
 
 def p_aggregate_types(p):
@@ -1076,9 +1178,7 @@ def p_aggregate_types(p):
                       | COUNT
                       | MAX
                       | MIN'''
-    nodo = Node('AGGREGATETYPES')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    p[0] = p[1]
 
 
 def p_date_types(p):
@@ -1088,43 +1188,30 @@ def p_date_types(p):
                  | HOUR
                  | MINUTE
                  | SECOND'''
-    nodo = Node('DATETYPES')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
-
+    p[0] = p[1]
 
 def p_sql_integer(p):
     '''SQLINTEGER : INT_NUMBER
                   | FLOAT_NUMBER'''
-    nodo = Node('SQLINTEGER')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    p[0] = p[1]
 
 
 def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-    nodo = Node('SQLNAME')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
+    p[0] = p[1]
 
 
 def p_type_select(p):
     '''TYPESELECT : ALL
                   | DISTINCT
                   | UNIQUE'''
-
-    nodo = Node('TYPESELECT')
-    nodo.add_childrens(Node(p[1]))
-    p[0] = nodo
-
+    p[0] = p[1]
 
 def p_sub_query(p):
     '''SUBQUERY : SELECTSTATEMENT'''
-    nodo = Node('SUBQUERY')
-    nodo.add_childrens(p[1])
-    p[0] = nodo
+    p[0] = p[1]
 
 def p_error(p):
     global list_errors
@@ -1133,15 +1220,13 @@ def p_error(p):
     id_error = list_errors.count + 1  if list_errors.count > 0 else 1
 
     try:
-        SQLERROR = FindTypeError('Syntactic')
-        number_error, description = SQLERROR.find_type_error()
+        number_error, description = get_type_error(33)
         print(str(p.value))
         description += ' or near ' + str(p.value) 
         column = find_column(p)
         list_errors.insert_end(Error(id_error, 'Syntactic',number_error ,description, p.lineno, column))
     except AttributeError:
-        SQLERROR = FindTypeError('EOF')
-        number_error, description = SQLERROR.find_type_error()
+        number_error, description = get_type_error(1)
         print(number_error, description)
         list_errors.insert_end(Error(id_error, 'Syntactic', number_error, description, 'EOF', 'EOF'))
     id_error += 1
