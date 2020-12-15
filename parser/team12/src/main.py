@@ -69,6 +69,8 @@ openFile = open(pathEntrada, "r", encoding="utf-8")
 entrada = openFile.read()
 openFile.close()
 resp = run_method(entrada)
+#print("respuesta")
+resp.execute(None)
 arbol = Arbol()
 print(arbol.generar_dot(resp))
 
