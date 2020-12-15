@@ -99,15 +99,18 @@ def analizador():
 
 
 def Seleccionar():
+
     global  cadena
     cadena = my_text.get(SEL_FIRST,SEL_LAST)
     analizador()
 
 
 def Reporte():
+
     global dotString
+    cadena = my_text.get("1.0", END)
     result: Nodo = ReportParse(cadena)
-    tour: TourTree = TourTree()
+    tour:TourTree = TourTree()
     dotString = tour.getDot(result)
     graph = Source(dotString)
     #graph.render(view=True, format='svg')

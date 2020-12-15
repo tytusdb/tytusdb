@@ -10,29 +10,29 @@ from Interprete.Primitivos.BOOLEANO import BOOLEANO
 
 reservadas = {
 
-	# Boolean Type
-	'boolean': 'BOOLEAN',
-	'true': 'TRUE',
-	'false': 'FALSE',
+    # Boolean Type
+    'boolean': 'BOOLEAN',
+    'true': 'TRUE',
+    'false': 'FALSE',
     'order': 'ORDER',
 
     'into': 'INTO',
 
     # operator Precedence
-	'isnull': 'ISNULL',
-	'notnull': 'NOTNULL',
+    'isnull': 'ISNULL',
+    'notnull': 'NOTNULL',
 
-	# Definition
-	'replace': 'REPLACE',
-	'owner': 'OWNER',
-	'show': 'SHOW',
-	'databases': 'DATABASES',
+    # Definition
+    'replace': 'REPLACE',
+    'owner': 'OWNER',
+    'show': 'SHOW',
+    'databases': 'DATABASES',
     'map' : 'MAP',
     'list' : 'LIST',
     'mode' : 'MODE',
 
-	# Inheritance
-	'inherits': 'INHERITS',
+    # Inheritance
+    'inherits': 'INHERITS',
 
     # ESTRUCTURAS DE CONSULTA Y DEFINICIONES
     'select'  : 'SELECT',
@@ -624,24 +624,25 @@ def p_expSimples(t):
     '''
         expSimple   : NULL
                     | subquery
+                    | DISTINCT exp
     '''
     t[0] = t[1]
 
-def p_expSimples_ID(t):
+def p_expSimples_MULTI(t):
     '''
-        expSimples : MULTI
+        expSimple : MULTI
     '''
     t[0] = indexador_auxiliar(t[1], t[1], 5)
 
 def p_expSimples_ID(t):
     '''
-        expSimples : ID
+        expSimple : ID
     '''
     t[0] = indexador_auxiliar(None, t[1], 4)
 
 def p_expSimples_ID_PT_ID(t):
     '''
-        expSimples : ID PT ID
+        expSimple : ID PT ID
     '''
     t[0] = indexador_auxiliar(t[1], t[3], 3)
 
@@ -799,29 +800,37 @@ def p_listaespecificaciones(t):
     else:
         t[0] = [t[1]]
 
+# --------------------------------------------------------------------------------------
+# ----------------------------------------- ESPECIFICACIONES--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_especificaciones(t):
     '''
         especificaciones : UNIQUE
                          | exp
                          | DEFAULT
+                         | SET
+                         | TYPE tipo
                          | PRIMARY KEY
-                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES listaids
                          | REFERENCES ID
                          | CONSTRAINT ID
-                         | SET
                          | CHECK PARIZQ exp PARDER
-                         | TYPE tipo
                          | UNIQUE PARIZQ listaids PARDER
+                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES listaids
     '''
     t[0] = t[1]
 
 def p_tipocql(t):
     '''
-        tipocql : ID
-                | tipo
+        tipocql :tipo
     '''
-    # t[0] = interprete
 
+def p_tipocql_id(t):
+    '''
+        tipocql : ID
+    '''
+# --------------------------------------------------------------------------------------
+# -----------------------------------------TIPO--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_tipo(t):
     '''
          tipo : SMALLINT
@@ -830,79 +839,129 @@ def p_tipo(t):
               | DECIMAL
               | NUMERIC
               | REAL
-              | DOUBLE PRECISION
               | MONEY
-              | CHARACTER VARYING PARIZQ exp PARDER
-              | VARCHAR PARIZQ exp PARDER
               | TEXT
-              | CHARACTER PARIZQ exp PARDER
-              | CHAR PARIZQ exp PARDER
               | TIME
               | DATE
               | TIMESTAMP
               | INTERVAL
               | BOOLEAN
+              | DOUBLE PRECISION
+              | CHARACTER VARYING PARIZQ exp PARDER
+              | CHARACTER PARIZQ exp PARDER
+              | VARCHAR PARIZQ exp PARDER
+              | CHAR PARIZQ exp PARDER
     '''
-    # t[0] = interprete
+    if len(t)==2:#RESERWORD
+        pass
+    if len(t)==3:
+        #DOUBLE PRECISION
+        pass
+    if len(t)==6:
+        #CHARACTER VARYING PARIZQ exp PARDER
+        pass
+    if len(t)==5:
+        if t[1].lower()=='character':
+            #CHARACTER VARYING PARIZQ exp PARDER
+            pass
+        elif t[1].lower()=='varchar':
+            #VARCHAR PARIZQ exp PARDER
+            pass
+        elif t[1].lower()=='char':
+            #CHAR PARIZQ exp PARDER
+            pass
+        pass
 
-# ---------------INSERT---------------
+# --------------------------------------------------------------------------------------
+# ----------------------------------------- INSERT--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_insert(t):
     '''
         insert : INSERT INTO ID VALUES PARIZQ listavalores PARDER
                | INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
     '''
-    # t[0] = interprete
-
+    if len(t)==8:
+        #INSERT INTO ID VALUES PARIZQ listavalores PARDER
+        pass
+    elif len(t)==11:
+        #INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
+        pass
 
 def p_listaids(t):
     '''
         listaids : listaids COMA ID
                  | ID
     '''
-    if len(t) == 4:
+    if len(t) == 4:#listaids COMA ID
         t[0] = t[1]
         t[0].append(t[3])
-    else:
+    else:#ID
         t[0] = [t[1]]
 
-# ---------------UPDATE---------------
+# --------------------------------------------------------------------------------------
+# ----------------------------------------- UPDATE--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_update(t):
     '''
         update : UPDATE ID SET listaupdate WHERE exp
-              | UPDATE ID SET listaupdate
+               | UPDATE ID SET listaupdate
     '''
-    # t[0] = interprete
+    if len(t)==7:
+        #UPDATE ID SET listaupdate WHERE exp
+        pass
+    elif len(t)==5:
+        #UPDATE ID SET listaupdate
+        pass
 
 def p_listaupdate(t):
     '''
         listaupdate : listaupdate COMA asignacionupdate
                    | asignacionupdate
     '''
-    if len(t) == 4:
+    if len(t) == 4:#listaupdate COMA asignacionupdate
         t[0] = t[1]
         t[0].append(t[3])
-    else:
+    else:#asignacionupdate
         t[0] = [t[1]]
 
 def p_asignacionupdate(t):
     '''
         asignacionupdate : acceso IGUAL exp
     '''
-    # t[0] = interprete
 
+# --------------------------------------------------------------------------------------
+# ------------------------------ ACCESO--------------------------------------
+# --------------------------------------------------------------------------------------
 # TODO: Segun la gramatica, hace falta la produccion 'Variable' cuya exp. reg. es: "@[A-Za-z][_A-Za-z0-9]*"
 def p_acceso(t):
     '''
-        acceso : acceso PT ID
-               | acceso PT funcioncollection
+        acceso : acceso PT funcioncollection
                | acceso  CORIZQ exp CORDER
                | ID
     '''
-    # t[0] = interprete
+    if len(t)==4:
+      #acceso PT funcioncollection
+        pass
+    elif len(t)==5:
+        #acceso  CORIZQ exp CORDER
+        pass
+    elif len(t)==2:
+        #ID
+        pass
 
+
+def p_acceso_ID(t):
+    '''
+        acceso : acceso PT ID
+    '''
+
+
+# --------------------------------------------------------------------------------------
+# ------------------------------FUNCION COLLECTION--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_funcioncollection(t):
     '''
-        funcioncollection : INSERT PARIZQ exp COMA exp PARDER
+        funcioncollection   : INSERT PARIZQ exp COMA exp PARDER
                             | INSERT PARIZQ exp PARDER
                             | SET PARIZQ exp COMA exp PARDER
                             | REMOVE PARIZQ exp PARDER
@@ -912,9 +971,38 @@ def p_funcioncollection(t):
                             | LENGTH PARIZQ PARDER
                             | SUBSTRING PARIZQ exp COMA exp PARDER
     '''
-    # t[0] = interprete
+    if t[1].lower() == 'insert':
+        if len(t)==7:
+            #INSERT PARIZQ exp COMA exp PARDER
+            pass
+        elif len(t)==5:
+            #INSERT PARIZQ exp PARDER
+	        pass
+    elif t[1].lower() == 'set':
+        #SET PARIZQ exp COMA exp PARDER
+        pass
+    elif t[1].lower() == 'remove':
+        #REMOVE PARIZQ exp PARDER
+        pass
+    elif t[1].lower() == 'size':
+        #SIZE PARIZQ PARDER
+        pass
+    elif t[1].lower() == 'clear':
+        #CLEAR PARIZQ PARDER
+        pass
+    elif t[1].lower() == 'contains':
+        #CONTAINS PARIZQ exp PARDER
+        pass
+    elif t[1].lower() == 'length':
+        #LENGTH PARIZQ PARDER
+        pass
+    elif t[1].lower() == 'substring':
+        #SUBSTRING PARIZQ exp COMA exp PARDER
+        pass
 
-# ---------------DELETE---------------
+# --------------------------------------------------------------------------------------
+# --------------------------------- DELETE TABLE--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_deletetable(t):
     '''
         deletetable : DELETE FROM ID WHERE exp
@@ -922,20 +1010,36 @@ def p_deletetable(t):
                     | DELETE listaatributos FROM ID WHERE exp
                     | DELETE listaatributos FROM ID
     '''
-    # t[0] = interprete
+    if len(t)==6:
+        #DELETE FROM ID WHERE exp
+        pass
+    elif len(t) == 4:
+        #DELETE FROM ID
+        pass
+    elif len(t) == 7:
+        #DELETE listaatributos FROM ID WHERE exp
+        pass
+    elif len(t) == 5:
+        # DELETE listaatributos FROM ID
+        pass
 
+# --------------------------------------------------------------------------------------
+# --------------------------------- LISTAATRIBUTOS--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_listaatributos(t):
     '''
         listaatributos : listaatributos COMA acceso
                        | acceso
     '''
-    if len(t) == 4:
+    if len(t) == 4:#listaatributos COMA acceso
         t[0] = t[1]
         t[0].append(t[3])
-    else:
+    else:#acceso
         t[0] = [t[1]]
 
-# ---------------CREATE DATABASE---------------
+# -------------------------------------------------------------------------------------
+# ---------------------------------CREATE DB--------------------------------------
+# -------------------------------------------------------------------------------------
 def p_create_db(t):
     '''
         create_db : CREATE OR REPLACE DATABASE IF NOT EXISTS createdb_extra
@@ -943,75 +1047,151 @@ def p_create_db(t):
                   | CREATE DATABASE IF NOT EXISTS createdb_extra
                   | CREATE DATABASE createdb_extra
     '''
-    # t[0] = interprete
 
+    if len(t)==9:
+        #CREATE OR REPLACE DATABASE IF NOT EXISTS createdb_extra
+        pass
+    elif len(t)==6:
+        #CREATE OR REPLACE DATABASE createdb_extra
+        pass
+    elif len(t)==7:
+        #CREATE DATABASE IF NOT EXISTS createdb_extra
+        pass
+    elif len(t)==4:
+        #CREATE DATABASE createdb_extra
+        pass
+
+
+# -------------------------------------------------------------------------------------
+# ---------------------------------CREATEDB EXTRA--------------------------------------
+# -------------------------------------------------------------------------------------
 def p_createdb_extra(t):
     '''
         createdb_extra : ID OWNER IGUAL ID MODE IGUAL exp
                        | ID OWNER IGUAL ID
                        | ID
     '''
-    t[0] = t[1]
+    if len(t)==8:
+        #ID OWNER IGUAL ID MODE IGUAL exp
+        pass
+    elif len(t)==5:
+        #ID OWNER IGUAL ID
+        pass
+    elif len(t)==2:
+        #ID
+        pass
 
-# ---------------DROP TABLE---------------
+
+# -------------------------------------------------------------------------------------
+# --------------------------------- DROP TABLE--------------------------------------
+# -------------------------------------------------------------------------------------
 def p_drop_table(t):
     '''
         drop_table : DROP TABLE IF EXISTS ID
                    | DROP TABLE ID
     '''
-    # t[0] = interprete
+    if len(t)==6:
+        #DROP TABLE IF EXISTS ID
+        pass
+    elif len(t)==3:
+        #DROP TABLE ID
+        pass
 
-# ---------------ALTER TABLE---------------
+# -------------------------------------------------------------------------------------
+# ---------------------------------ALTER TABLE--------------------------------------
+# -------------------------------------------------------------------------------------
 def p_alter_table(t):
     '''
         alter_table : ALTER TABLE ID ADD listaespecificaciones
                     | ALTER TABLE ID DROP listaespecificaciones
                     | ALTER TABLE ID listacolumn
     '''
-    # t[0] = interprete
+    if len(t)==6:
+        if t[4].lower() == 'add':
+            #ALTER TABLE ID ADD listaespecificaciones
+            pass
+        elif t[4].lower() == 'drop':
+            #ALTER TABLE ID DROP listaespecificaciones
+            pass
+    elif len(t)==5:
+        #ALTER TABLE ID listacolumn
+        pass
 
+# -------------------------------------------------------------------------------------
+# ---------------------------------LISTA COLUMN--------------------------------------
+# -------------------------------------------------------------------------------------
 def p_listacolumn(t):
     '''
         listacolumn : listacolumn COMA column
                     | column
     '''
     if len(t) == 4:
+        #listacolumn COMA column
         t[0] = t[1]
         t[0].append(t[3])
     else:
+        #column
         t[0] = [t[1]]
 
+# ------------------------------------------------------------------------------------
+# ---------------------------------COLUMN--------------------------------------
+# ------------------------------------------------------------------------------------
 def p_column(t):
     '''
         column : ALTER COLUMN ID listaespecificaciones
                | ADD COLUMN ID tipo
                | DROP COLUMN ID
     '''
-    # t[0] = interprete
+    if t[1].lower()=='alter':
+        #ALTER COLUMN ID listaespecificaciones
+        pass
+    elif t[1].lower() == 'add':
+        #ADD COLUMN ID tipo
+        pass
+    elif t[1].lower() == 'drop':
+        #DROP COLUMN ID
+        pass
 
-# ---------------CREATE TYPE---------------
+# -------------------------------------------------------------------------------------
+# ---------------------------------CREATE TYPE--------------------------------------
+# -------------------------------------------------------------------------------------
 def p_create_type(t):
     '''
         create_type : CREATE TYPE ID AS ID PARIZQ listavalores PARDER
     '''
     # t[0] = interprete
 
-# ---------------ALTER DATABASE---------------
+# -------------------------------------------------------------------------------------
+# ---------------------------------ALTER DATABASE--------------------------------------
+# -------------------------------------------------------------------------------------
 # EN EL CASO DE LA PRODUCCION QUE TIENE EL TERMINAL OWNER UNICAMENTE SE VA A RECONOCER EN LA GRAMATICA
 def p_alter_database(t):
     '''
         alter_database : ALTER DATABASE ID RENAME TO ID
                        | ALTER DATABASE ID OWNER TO ID
     '''
-    # t[0] = interprete
+    if t[4].lower()=='rename':
+        #ALTER DATABASE ID RENAME TO ID
+        pass
+    elif t[4].lower()=='owner':
+        #ALTER DATABASE ID OWNER TO ID <- aqui no hay progra xd
+        pass
 
-# ---------------DROP DATABASE---------------
+# ------------------------------------------------------------------------------------
+# ---------------------------------DROP DATABASE--------------------------------------
+# ------------------------------------------------------------------------------------
 def p_drop_database(t):
     '''
         drop_database : DROP DATABASE IF EXISTS ID
                       | DROP DATABASE ID
     '''
-    # t[0] = interprete
+    if len(t)==6:
+        #DROP DATABASE IF EXISTS ID
+        pass
+    elif len(t) == 4:
+        #DROP DATABASE ID
+        pass
+
 
 #---------------ERROR SINTACTICO---------------
 def p_error(t):
