@@ -1,5 +1,5 @@
 class instruccion:
-'''Clase abstracta'''
+    '''Clase abstracta'''
 
 class create_db(instruccion):
     def __init__(self,nombre):

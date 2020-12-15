@@ -7,6 +7,7 @@ from tkinter import scrolledtext
 from tkinter.font import Font
 
 import os
+import json
 
 from utils.analyzers.syntactic import *
 from utils.reports.generate_ast import GraficarAST
@@ -22,7 +23,7 @@ class GUI:
     def __init__(self, window):
         self.ventana = window
         # Defino un titulo para el GUI
-        self.ventana.title("PROYECTO COMPI2 FASE 1")
+        self.ventana.title("Query Tool")
         # Defino un fondo para usar, pueden cambiarlo por otro color mas bonito
         self.ventana.configure(background='#3c3f41')
 
@@ -96,7 +97,7 @@ class GUI:
         # Para este editor aun hay que ver si lo usamos como consola para errores, si no lo quitamos
         Label(frame, text='Consola', borderwidth=0,
               font='Arial 15 bold', width=52, bg='#3c3f41', foreground='#fff').grid(row=3, column=1)
-        self.salida = scrolledtext.ScrolledText(frame, borderwidth=0, height=35,
+        self.salida = scrolledtext.ScrolledText(frame, state=DISABLED, borderwidth=0, height=35,
                                                 width=70, bg='#1c1c1e', foreground='#9efb01')
         self.salida.grid(row=4, column=1, padx=30)
 
@@ -140,6 +141,8 @@ class GUI:
         global report_ast
         texto = self.entrada.get("1.0", END)
         result = parse(texto)
+        # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
+        print(result)  # Imprime el AST
         report_ast = result
         values = list_errors.head_value
         if values is not None:
