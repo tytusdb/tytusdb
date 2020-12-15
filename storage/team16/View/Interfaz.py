@@ -33,12 +33,28 @@ class GUI(Frame):
             self.agregarComp2()
         elif self.val == 3:
             self.agregarComp3()
+    
+    def centrar(self):
+        if self.val == 1:
+            ancho = 500
+            alto = 500
+        elif self.val == 2:
+            ancho = 1045
+            alto = 660
+        else:
+            ancho = 1150
+            alto = 650
+        x_ventana = self.winfo_screenwidth() // 2 - ancho // 2
+        y_ventana = self.winfo_screenheight() // 2 - alto // 2
+        posicion = str(ancho) + "x" + str(alto) + "+" + str(x_ventana) + "+" + str(y_ventana - 35)
+        self.master.resizable(width=False, height=False)
+        self.master.geometry(posicion)
 
     def ventanaFunciones(self):
         self.master.iconify()
         v2 = Toplevel()
         image = Image.open('img/function.png')
-        background_image = ImageTk.PhotoImage(image.resize((1070, 600)))
+        background_image = ImageTk.PhotoImage(image.resize((1060, 680)))
         background_label = Label(v2, image=background_image)
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
         v2.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(v2, self.master))
@@ -53,27 +69,11 @@ class GUI(Frame):
         app3 = GUI(master=v3, val=3)
         app3.mainloop()
 
-    @staticmethod
-    def on_closing(win, root):
+    def on_closing(self, win, root):
         if messagebox.askokcancel("Salir", "¿Seguro que quieres salir?"):
             win.destroy()
             root.deiconify()
 
-    def centrar(self):
-        if self.val == 1:
-            ancho = 500
-            alto = 500
-        elif self.val == 2:
-            ancho = 1045
-            alto = 590
-        else:
-            ancho = 1150
-            alto = 650
-        x_ventana = self.winfo_screenwidth() // 2 - ancho // 2
-        y_ventana = self.winfo_screenheight() // 2 - alto // 2
-        posicion = str(ancho) + "x" + str(alto) + "+" + str(x_ventana) + "+" + str(y_ventana - 35)
-        self.master.resizable(width=False, height=False)
-        self.master.geometry(posicion)
 
     # Menu principal
     def agregarComp(self):
@@ -89,13 +89,14 @@ class GUI(Frame):
                                bd=0, pady=0, width=14, command=exit)
         self.btnSalir.pack(side=TOP, pady=(0, 25))
 
+
     # Ventana de funciones
     def agregarComp2(self):
-        lbl1 = Label(self.master, text="Bases de datos", font=("Century Gothic", 21), bg="#0f1319", fg="#ffffff")
+        lbl1 = Label(self.master, text="Bases de datos", font=("Century Gothic", 21), bg="#0f1319",fg="#ffffff")
         lbl1.grid(row=1, column=0, padx=(60, 85), pady=(100, 25))
 
         lbl2 = Label(self.master, text="Tablas", font=("Century Gothic", 21), bg="#0f1319", fg="#ffffff")
-        lbl2.grid(row=1, column=1, padx=(8, 0), columnspan=2, pady=(100, 25))
+        lbl2.grid(row=1, column=1, padx=(5, 0), columnspan=2, pady=(100, 25))
 
         lbl3 = Label(self.master, text="Tuplas", font=("Century Gothic", 21), bg="#0f1319", fg="#ffffff")
         lbl3.grid(row=1, column=3, padx=(130, 150), pady=(100, 25))
@@ -112,7 +113,7 @@ class GUI(Frame):
                             text="Show databases",
                             bg="#abb2b9", font=("Courier New", 14),
                             borderwidth=0.5, pady=6, width=16,
-                            command=lambda: self.controlador.ejectutarFuncion("Show DB", None))
+                            command=lambda: self.controlador.ejectutarFuncion("Show DB",None))
         btnshowDBS.grid(row=3, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
 
         btnAlterDB = Button(self.master,
@@ -129,13 +130,6 @@ class GUI(Frame):
                            command=lambda: self.simpleDialog(["database"], "Drop DB"))
         btnDropDB.grid(row=5, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
 
-        btnLoadfile = Button(self.master,
-                             text="Load CSV",
-                             bg="#abb2b9", font=("Courier New", 14),
-                             borderwidth=0.5, pady=6, width=16,
-                             command=lambda: self.simpleDialog(["file", "database", "table"], "Load file"))
-        btnLoadfile.grid(row=6, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
-
         # Tablas
         btnCreateTb = Button(self.master,
                              text="Create table",
@@ -146,18 +140,18 @@ class GUI(Frame):
         btnCreateTb.grid(row=2, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
 
         btnDefinePK = Button(self.master,
-                             text="Define PK",
+                             text="Alter add PK",
                              bg="#abb2b9", font=("Courier New", 14),
                              borderwidth=0.5, pady=6, width=15,
-                             command=lambda: self.simpleDialog(["database", "table", "columns"], "Define PK"))
+                             command=lambda: self.simpleDialog(["database","table","columns"], "Add PK"))
         btnDefinePK.grid(row=3, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
 
-        btnDefineFK = Button(self.master,
-                             text="Define FK",
+        btnDefinePK = Button(self.master,
+                             text="Alter drop PK",
                              bg="#abb2b9", font=("Courier New", 14),
                              borderwidth=0.5, pady=6, width=15,
-                             command=lambda: self.simpleDialog(["database", "table", "references"], "Define FK"))
-        btnDefineFK.grid(row=4, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
+                             command=lambda: self.simpleDialog(["database","table"], "Drop PK"))
+        btnDefinePK.grid(row=4, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
 
         btnShowTb = Button(self.master,
                            text="Show tables",
@@ -181,18 +175,18 @@ class GUI(Frame):
         btnDropTb.grid(row=2, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
 
         btnAlterAdd = Button(self.master,
-                             text="Alter add",
+                             text="Add column",
                              bg="#abb2b9", font=("Courier New", 14),
                              borderwidth=0.5, pady=6, width=15,
-                             command=lambda: self.simpleDialog(["database", "tableName", "columnName"], "Alter add"))
+                             command=lambda: self.simpleDialog(["database", "tableName","default"], "Alter add column"))
         btnAlterAdd.grid(row=3, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
 
         btnAlterDrop = Button(self.master,
-                              text="Alter drop",
+                              text="Drop column",
                               bg="#abb2b9", font=("Courier New", 14),
                               borderwidth=0.5, pady=6, width=15,
                               command=lambda: self.simpleDialog(["database", "tableName", "columnNumber"],
-                                                                "Alter drop"))
+                                                                "Alter drop column"))
         btnAlterDrop.grid(row=4, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
 
         btnExtractTb = Button(self.master,
@@ -203,11 +197,10 @@ class GUI(Frame):
         btnExtractTb.grid(row=5, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
 
         btnExtractRangeTb = Button(self.master,
-                                   text="Extract range",
-                                   bg="#abb2b9", font=("Courier New", 14),
-                                   borderwidth=0.5, pady=6, width=15,
-                                   command=lambda: self.simpleDialog(["database", "table", "lower", "upper"],
-                                                                     "Extract range table"))
+                              text="Extract range",
+                              bg="#abb2b9", font=("Courier New", 14),
+                              borderwidth=0.5, pady=6, width=15,
+                              command=lambda: self.simpleDialog(["database", "table", "lower","upper"], "Extract range table"))
         btnExtractRangeTb.grid(row=6, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
 
         # Tuplas:
@@ -215,37 +208,44 @@ class GUI(Frame):
                              text="Insert",
                              bg="#abb2b9", font=("Courier New", 14),
                              borderwidth=0.5, pady=6, width=12,
-                             command=lambda: self.simpleDialog(["database", "table", "columns"], "Insertar"))
+                             command=lambda: self.simpleDialog(["database", "table", "register"], "Insertar"))
         btnInsertTp.grid(row=2, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
+
+        btnLoadfile = Button(self.master,
+                             text="Load CSV",
+                             bg="#abb2b9", font=("Courier New", 14),
+                             borderwidth=0.5, pady=6, width=12,
+                             command=lambda: self.simpleDialog(["file", "database", "table"], "Load file"))
+        btnLoadfile.grid(row=3, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
+
+        btnExtractTp = Button(self.master,
+                              text="Extract row",
+                              bg="#abb2b9", font=("Courier New", 14),
+                              borderwidth=0.5, pady=6, width=12,
+                              command=lambda: self.simpleDialog(["database", "table", "id"], "Extract row"))
+        btnExtractTp.grid(row=4, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
 
         btnUpdateTp = Button(self.master,
                              text="Update",
                              bg="#abb2b9", font=("Courier New", 14),
                              borderwidth=0.5, pady=6, width=12,
-                             command=lambda: self.simpleDialog(["database", "table", "id", "columnNumber", "value"],
-                                                               "Actualizar valor"))
-        btnUpdateTp.grid(row=3, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
+                             command=lambda: self.simpleDialog(["database", "table", "register", "columns"],
+                                                               "Update"))
+        btnUpdateTp.grid(row=5, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
 
         btnDeleteTp = Button(self.master,
                              text="Delete",
                              bg="#abb2b9", font=("Courier New", 14),
                              borderwidth=0.5, pady=6, width=12,
-                             command=lambda: self.simpleDialog(["database", "tableName", "id"], "Eliminar registro"))
-        btnDeleteTp.grid(row=4, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
+                             command=lambda: self.simpleDialog(["database", "tableName", "columns"], "Delete"))
+        btnDeleteTp.grid(row=6, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
 
         btnTruncateTp = Button(self.master,
                                text="Truncate",
                                bg="#abb2b9", font=("Courier New", 14),
                                borderwidth=0.5, pady=6, width=12,
                                command=lambda: self.simpleDialog(["database", "tableName"], "Vaciar tabla"))
-        btnTruncateTp.grid(row=5, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
-
-        btnExtractTp = Button(self.master,
-                              text="Extract",
-                              bg="#abb2b9", font=("Courier New", 14),
-                              borderwidth=0.5, pady=6, width=12,
-                              command=lambda: self.simpleDialog(["database", "table", "id"], "Extraer tupla"))
-        btnExtractTp.grid(row=6, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
+        btnTruncateTp.grid(row=7, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
 
     # Digitador
     def simpleDialog(self, params, fun):
@@ -254,6 +254,9 @@ class GUI(Frame):
         dialog = Tk()
         dialog['bg'] = "#0f1319"
         dialog.title(fun)
+        dialog.resizable(False, False)
+        dialog.update()
+        dialog.deiconify()
         dim = len(params)
         for i in range(dim):
             Label(dialog, text=params[i] + ":", bg="#0f1319", fg="#ffffff", font=("Century Gothic", 12)
@@ -270,7 +273,9 @@ class GUI(Frame):
                 entry = Entry(dialog)
                 entry.grid(row=j, column=1, padx=(0, 18))
                 tmp.append(entry)
-
+        tmp[0].focus_set()
+        dialog.bind('<Return>', lambda event=None: self.ejecutar(tmp,dialog,fun))
+        dialog.bind('<Escape>', lambda event=None: dialog.destroy())
         submit = Button(dialog, text="OK", bg="#45c2c5",
                         borderwidth=0.5, pady=6, width=10,
                         command=lambda: self.ejecutar(tmp, dialog, fun))
@@ -288,20 +293,20 @@ class GUI(Frame):
             self.parametros.append(param.get())
         dialog.destroy()
         retorno = self.controlador.ejectutarFuncion(fun, self.parametros)
-        if retorno == 1 or retorno == 2 or retorno == 3:
-            messagebox.showerror("Error número: " + str(retorno),
-                                 "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
+        if retorno == 1 or retorno == 2 or retorno == 3 or retorno == 4 or retorno == 5 or retorno == 6:
+            messagebox.showerror("Error número: "+str(retorno), "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
+
 
     # Ventana de reporte
     def agregarComp3(self):
-        self.titulo3 = Label(self.master, text="Árbol AVL", bg="#0f1319", fg="#45c2c5", font=("Century Gothic", 42),
-                             pady=12)
+        self.titulo3 = Label(self.master, text="Árbol AVL", bg="#0f1319", fg="#45c2c5",
+                            font=("Century Gothic", 42), pady=12)
         self.titulo3.pack(fill=X)
 
         self.scrollbar = Scrollbar(self.master)
         self.scrollbar.pack(side=RIGHT, fill=Y)
-        self.listbox = Listbox(self.master, yscrollcommand=self.scrollbar.set, height=21, width=20, bg="#ecf0f1",
-                               font=("Century Gothic", 12))
+        self.listbox = Listbox(self.master, yscrollcommand=self.scrollbar.set, height=21, width=20,
+                                bg="#ecf0f1", font=("Century Gothic", 12))
         self.listbox.pack(side=LEFT, padx=(60, 0))
         self.scrollbar.config(command=self.listbox.yview)
 
@@ -332,5 +337,4 @@ def run():
     app = GUI(master=v1, val=1)
     app.mainloop()
 
-
-run()
+# run()
