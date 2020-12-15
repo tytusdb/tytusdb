@@ -220,7 +220,8 @@ reservadas = {
     'nulls': 'nulls',
     'first': 'first',
     'last': 'last',
-    'order': 'order'
+    'order': 'order',
+    'use': 'tuse'
 
 }
 
@@ -462,11 +463,19 @@ def p_sentencia(t):
                  | DROP_TABLE
                  | INSERT
                  | QUERY ptComa
+                 | USEDB
     '''
     t[0] = t[1]
 
 
+''' @@@@@@@ AGREGUE USEDB'''
+def p_USEDB(t):
+    ''' USEDB : tuse database id ptComa'''
+    t[0] = SUse(t[3])
+
+
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 def p_crearBase(t):
     '''CrearBase : create database E ptComa
                  | create database E owner igual id ptComa
@@ -493,11 +502,11 @@ def p_crearBase(t):
             print("entre aqui")
             # segunda produccion
             t[0] = SCrearBase(t[6], False, False, False, t[3])
-        if t[3].lower() == "if":
+        if t[4].lower() == "not":
             # novena produccion
             t[0] = SCrearBase(False, False, False, True, t[6])
     elif len(t) == 11:
-        if t[3].lower() == "if":
+        if t[4].lower() == "not":
             if t[7].lower() == "owner":
                 # decima produccion
                 t[0] = SCrearBase(t[9], False, False, True, t[6])
@@ -795,6 +804,7 @@ def p_EXPR_DROP_TABLE(t):
     t[0] = SDropTable(t[3])
 
 
+####@@@@@@@@@@@@@@@@@@@@@@@@@@ AQUI QUITE LA PENULTIMA PRODUCCION Y LA PUSE APARTE
 def p_EXPR_ALTER_TABLE(t):
     '''ALTER_TABLE : alter table id rename tColumn id tTo id ptComa
                    | alter table id EXPR_ALTER
@@ -832,6 +842,7 @@ def p_EXPR_ALTER_TABLE1(t):
     t[0] = SAlterTableDrop(t[3], TipoAlterDrop.COLUMN, t[4])
 
 
+# @@@@@@@@@@ AQUI EMPIEZAN NUEVAS PRODUCCIONES
 def p_LDropColumn(t):
     ''' LDColumn : LDColumn coma LDCol
                  | LDCol'''
@@ -860,6 +871,9 @@ def p_LAddColumn(t):
 def p_LCol(t):
     '''LCol : add tColumn id TIPO'''
     t[0] = SNAlterAdd(t[3], t[4])
+
+
+# @@@@@@@@@@ AQUI TERMINAN NUEVAS PRODUCCIONES
 
 
 def p_EXPR_ALTER(t):

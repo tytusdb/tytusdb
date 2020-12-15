@@ -178,6 +178,10 @@ class SCrearTabla(Sentencia):
         self.herencia = herencia
         self.nodopadre = nodopadre
 
+class SUse(Sentencia):
+    def __init__(self,id):
+        self.id=id
+
 
 class STipoDato(Sentencia):
     def __init__(self, dato, tipo, cantidad):
