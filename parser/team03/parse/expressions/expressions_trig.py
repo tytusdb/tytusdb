@@ -1,8 +1,7 @@
 import sys
 import math
 
-sys.path.insert(0, '..')
-from ast_node import ASTNode
+from parse.ast_node import ASTNode
 
 
 # From here on, classes describing various trigonometric operations
