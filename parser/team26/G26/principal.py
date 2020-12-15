@@ -10,7 +10,7 @@ input = f.read()
 
 instrucciones = g.parse(input)
 
-for instr in instrucciones :
-    instr.execute(datos)
+#for instr in instrucciones :
+#    instr.execute(datos)
 
-print (datos)
+#print (datos)
