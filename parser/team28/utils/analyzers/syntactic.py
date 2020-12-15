@@ -442,73 +442,56 @@ def p_sql_expression2(p):
 
 
 def p_options_list2(p):
-    '''OPTIONSLIST2 : OPTIONS3 OPTIONS4
-                    | OPTIONS3
+    '''OPTIONSLIST2 : WHERECLAUSE OPTIONS4
+                    | WHERECLAUSE
                     | OPTIONS4'''
-    nodo = Node('OPTIONSLIST2')
-    if (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+    # if (len(p) == 3):
+    #     nodo.add_childrens(p[1])
+    #     nodo.add_childrens(p[2])
+    # else:
+    #     nodo.add_childrens(p[1])
+    # p[0] = nodo
 
 
 def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
-    nodo = Node('DELETESTATEMENT')
     if (len(p) == 6):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(p[4])
-        nodo.add_childrens(Node(p[5]))
+        p[0] = Delete(p[3],p[4])
     else:
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(Node(p[4]))
-    p[0] = nodo
+        p[0] = Delete(p[3],None)
 
-#TODO: OPTIONS Y OPTIONS4
 def p_options_list(p):
-    '''OPTIONSLIST : OPTIONS1 OPTIONS2 OPTIONS3 OPTIONS4
-                   | OPTIONS1 OPTIONS2 OPTIONS3
-                   | OPTIONS1 OPTIONS2
-                   | OPTIONS1 OPTIONS3 OPTIONS4
+    '''OPTIONSLIST : OPTIONS1 OPTIONS2 WHERECLAUSE OPTIONS4
+                   | OPTIONS1 OPTIONS2 WHERECLAUSE
+                   | OPTIONS1 WHERECLAUSE OPTIONS4
                    | OPTIONS1 OPTIONS2 OPTIONS4
-                   | OPTIONS2 OPTIONS3 OPTIONS4
-                   | OPTIONS1 OPTIONS3
+                   | OPTIONS2 WHERECLAUSE OPTIONS4
+                   | OPTIONS1 OPTIONS2
+                   | OPTIONS1 WHERECLAUSE
                    | OPTIONS1 OPTIONS4
-                   | OPTIONS2 OPTIONS3
+                   | OPTIONS2 WHERECLAUSE
                    | OPTIONS2 OPTIONS4
-                   | OPTIONS3 OPTIONS4
+                   | WHERECLAUSE OPTIONS4
                    | OPTIONS1
                    | OPTIONS2
-                   | OPTIONS3
+                   | WHERECLAUSE
                    | OPTIONS4'''
-    # if (len(p) == 5):
-    # elif (len(p) == 4):
-    # elif (len(p) == 3):
-    # else:
-    nodo = Node('OPTIONSLIST')
     if (len(p) == 5):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(p[4])
+        p[0] = [p[1]]
+        p[1].append(p[2])
+        p[1].append(p[3])
+        p[1].append(p[4])
     elif (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(p[3])
+        p[0] = [p[1]]
+        p[1].append(p[2])
+        p[1].append(p[3])
     elif (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = [p[1]]
+        p[1].append(p[2])
 
+    p[0] = [p[1]]
+    #TODO: PROBAR SI REALMENTE SIRVE EL ARBOL XD
 
 def p_options1(p):
     '''OPTIONS1 : ASTERISK SQLALIAS
@@ -535,16 +518,13 @@ def p_using_list(p):
     else:
         p[0] = [p[1]]
 
+# def p_options3(p):
+#     '''OPTIONS3 : WHERE SQLEXPRESSION'''
+#     p[0] = Where(p[2]) --------> GRAMATICA SE REPITE
 
-def p_options3(p):
-    '''OPTIONS3 : WHERE SQLEXPRESSION'''
-    p[0] = Where(p[2])
-
-#TODO: QUE HACE OPTIONS4?
 def p_options4(p):
     '''OPTIONS4 : RETURNING RETURNINGLIST'''
     p[0] = Returning(p[2])
-
 
 def p_returning_list(p):
     '''RETURNINGLIST   : ASTERISK
@@ -850,7 +830,7 @@ def p_sql_and_expression_list(p):
     if (len(p) == 4):
         p[1].append(OrExpressionsList(p[3], p[2]))
         p[0] = p[1] 
-    elif (len(p) == 2):
+    else:
         p[0] = [p[1]]
 
 
@@ -1179,7 +1159,7 @@ def p_sql_object_reference(p):
         else:
             p[0] = ObjectReference(None, p[1], p[3], None)
     else:
-        p[0] = ObjectReference(p[1], p[3], p[5])
+        p[0] = ObjectReference(p[1], p[3], p[5], None)
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION

@@ -9,9 +9,6 @@ class Select(Instruction):
         self.limit_option = limit_option
 
     def __repr__(self):
-        return self.__str__()
-  
-    def __repr__(self):
         return str(vars(self))
         
 class TypeQuerySelect(Instruction):
