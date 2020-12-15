@@ -2,6 +2,12 @@ from abc import abstractmethod
 from enum import Enum
 from typing import Type
 
+from sys import path
+from os.path import dirname as dir
+path.append(dir(path[0]))
+
+from Funciones import MathFunctions as mf
+from Funciones import TrigonometricFunctions as trf
 
 class TYPE(Enum):
     NUMBER = 1
@@ -27,6 +33,7 @@ class ExpresionUnaria(Expresion):
         self.exp = exp
         self.operador = operador
         self.lineno = 0
+        self.temp = str(operador) + exp.temp
 
     def execute(self):
         try:
@@ -267,3 +274,129 @@ class ExpresionBooleanaUnaria(Expresion):
         except:
             print("Error desconocido 2")
             return Primitivos(None, None)
+
+#---------------------------------------------------------------------
+
+class FunctionCall(Expresion):
+    '''
+    Esta clase contiene las llamadas a funciones
+    '''
+
+    def __init__(self, funcion, params):
+        self.funcion = funcion
+        self.params = params
+        self.temp = str(funcion) + "("
+        for t in params : self.temp += t.temp
+        self.temp += ")"
+
+    # TODO: Quitar los corchetes iniciales de valores
+    def execute(self):
+        try:
+            valores = [[p.execute().value for p in self.params]]
+
+            if self.funcion == "abs" :
+                value = mf.absolute(*valores)
+            elif self.funcion == "cbrt" :
+                value = mf.cbrt(*valores)
+            elif self.funcion == "ceil" :
+                value = mf.ceil(*valores)
+            elif self.funcion == "ceiling" :
+                value = mf.ceiling(*valores)
+            elif self.funcion == "degrees" :
+                value = mf.degrees(*valores)
+            elif self.funcion == "div" :
+                value = mf.div(*valores)
+            elif self.funcion == "exp" :
+                value = mf.exp(*valores)
+            elif self.funcion == "factorial" :
+                value = mf.factorial(*valores)
+            elif self.funcion == "floor" :
+                value = mf.floor(*valores)
+            elif self.funcion == "gcd" :
+                value = mf.gcd(*valores)
+            elif self.funcion == "lcm" :
+                value = mf.lcm(*valores)
+            elif self.funcion == "ln" :
+                value = mf.ln(*valores)
+            elif self.funcion == "log" :
+                value = mf.log(*valores)
+            elif self.funcion == "log10" :
+                value = mf.log10(*valores)             
+            elif self.funcion == "mod" :
+                value = mf.mod(*valores)
+            elif self.funcion == "pi":
+                value = mf.pi()
+            elif self.funcion == "power" :
+                value = mf.pow(*valores)
+            elif self.funcion == "radians" :
+                value = mf.radians(*valores)
+            elif self.funcion == "round" :
+                value = mf.round(*valores)
+            elif self.funcion == "sign" :
+                value = mf.sign(*valores)
+            elif self.funcion == "sqrt" :
+                value = mf.sqrt(*valores)
+            elif self.funcion == "trunc" :
+                value = mf.truncate_col(*valores)
+            elif self.funcion == "width_bucket" :
+                value = mf.with_bucket(*valores)
+            elif self.funcion == "random" :
+                value = mf.random_()   
+            elif self.funcion == "acos":
+                value = trf.acos(*valores)
+            elif self.funcion == "acosd":
+                value = trf.acosd(*valores)
+            elif self.funcion == "asin":
+                value = trf.asin(*valores)
+            elif self.funcion == "asind":
+                value = trf.asind(*valores)
+            elif self.funcion == "atan":
+                value = trf.atan(*valores)
+            elif self.funcion == "atand":
+                value = trf.atand(*valores)
+            elif self.funcion == "atan2":
+                value = trf.atan2(*valores)
+            elif self.funcion == "atan2d":
+                value = trf.atan2d(*valores)
+            elif self.funcion == "cos":
+                value = trf.cos(*valores)
+            elif self.funcion == "cosd":
+                value = trf.cosd(*valores)
+            elif self.funcion == "cot":
+                value = trf.cot(*valores)
+            elif self.funcion == "cotd":
+                value = trf.cotd(*valores)
+            elif self.funcion == "sin":
+                value = trf.sin(*valores)
+            elif self.funcion == "sind":
+                value = trf.sind(*valores)
+            elif self.funcion == "tan":
+                value = trf.tan(*valores)
+            elif self.funcion == "tand":
+                value = trf.tand(*valores)
+            elif self.funcion == "sinh":
+                value = trf.sinh(*valores)
+            elif self.funcion == "cosh":
+                value = trf.cosh(*valores)
+            elif self.funcion == "tanh":
+                value = trf.tanh(*valores)
+            elif self.funcion == "asinh":
+                value = trf.asinh(*valores)
+            elif self.funcion == "acosh":
+                value = trf.acosh(*valores)
+            elif self.funcion == "atanh":
+                value = trf.atanh(*valores)
+            else :
+                value = valores[0]
+            if isinstance(value, list):
+                if len(value) <= 1:
+                    value = value[0]
+            
+            return Primitivos(None, value)
+        except TypeError:
+            print("Error de tipos")
+        except:
+            print("Error desconocido")
+        return Primitivos(None, None)
+
+        

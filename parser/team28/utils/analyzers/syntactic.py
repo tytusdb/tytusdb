@@ -1,15 +1,21 @@
 # from generate_ast import GraficarAST
 from re import L
-from models.nodo import Node
-from models.instructions.shared import *
-from models.instructions.DDL.ddl_instr import *
-from models.instructions.DML.dml_instr import *
-from models.instructions.DML.select import *
 
-
-from utils.analyzers.lex import *
 import libs.ply.yacc as yacc
 import os
+
+from models.nodo import Node
+from models.instructions.shared import *
+from models.instructions.DDL.database_inst import *
+from models.instructions.DDL.table_inst import *
+from models.instructions.DDL.column_inst import *
+from models.instructions.DDL.type_inst import *
+from models.instructions.DML.dml_instr import *
+from models.instructions.DML.select import *
+from controllers.error_controller import ErrorController
+from utils.analyzers.lex import *
+
+
 # Precedencia, entre mayor sea el nivel mayor sera su inportancia para su uso
 
 precedence = (
@@ -39,18 +45,22 @@ precedence = (
 # y estos no pueden ser usados para los nombres de los no terminales, si no lanzara error
 
 
-#=====================================================================================
-#=====================================================================================
-#====================================================================================
+# =====================================================================================
+# =====================================================================================
+# ====================================================================================
+
 
 def p_instruction_list(p):
     '''instructionlist : instructionlist sqlinstruction
                        | sqlinstruction
     '''
-    if (len(p) == 3):
-        p[0] = p[1].append(p[2])
-    else:
+    if len(p) == 3:
+        p[1].append(p[2])
         p[0] = p[1]
+
+    else:
+        p[0] = [p[1]]
+
 
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
@@ -60,29 +70,55 @@ def p_sql_instruction(p):
                     | error SEMICOLON
     '''
     p[0] = p[1]
-    
+
 
 def p_ddl(p):
-    '''ddl : createstatement 
+    '''ddl : createstatement
            | showstatement
            | alterstatement
            | dropstatement
     '''
+    p[0] = p[1]
+
 
 def p_create_statement(p):
-    '''createstatement : CREATE optioncreate SEMICOLON''' 
+    '''createstatement : CREATE optioncreate SEMICOLON'''
+    p[0] = p[2]
+
 
 def p_option_create(p):
     '''optioncreate : TYPE SQLNAME AS ENUM LEFT_PARENTHESIS typelist RIGHT_PARENTHESIS
                     | DATABASE createdb
                     | OR REPLACE DATABASE createdb
-                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable  RIGHT_PARENTHESIS
-                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable  RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS
+                    | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
+    if len(p) == 8:
+        p[0] = CreateType(p[2],p[6])
+
+    elif len(p) == 3:
+        p[0] = CreateDB(p[2], False)
+
+    elif len(p) == 5:
+        p[0] = CreateDB(p[4], True)
+
+    elif len(p) == 6:
+        p[0] = CreateTB(p[2], p[4], None)
+
+    elif len(p) == 10:
+        p[0] = CreateTB(p[2], p[4], p[6])  # TODO INHERITS
+
 
 def p_type_list(p):
     '''typelist : typelist COMMA SQLNAME
-                | SQLNAME'''
+                | SQLNAME '''
+    if len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
+
+    else:
+        p[0] = [p[1]]
+
 
 def p_create_db(p):
     '''createdb : IF NOT EXISTS ID listpermits
@@ -90,11 +126,36 @@ def p_create_db(p):
                 | ID listpermits
                 | ID 
     '''
+    p[0] = {'if_not_exists': False, 'id': None, 'listpermits': []}
+
+    if len(p) == 6:
+        p[0]['if_not_exists'] = True
+        p[0]['id'] = p[4]
+        p[0]['listpermits'] = p[5]
+
+    elif len(p) == 5:
+        p[0]['if_not_exists'] = True
+        p[0]['id'] = p[4]
+
+    elif len(p) == 3:
+        p[0]['id'] = p[1]
+        p[0]['listpermits'] = p[2]
+
+    else:
+        p[0]['id'] = p[1]
+
 
 def p_list_permits(p):
     '''listpermits : listpermits permits
                    | permits
     '''
+    if len(p) == 3:
+        p[1].append(p[2])
+        p[0] = p[1]
+
+    else:
+        p[0] = [p[1]]
+
 
 def p_permits(p):
     '''permits : OWNER EQUALS ID
@@ -102,11 +163,20 @@ def p_permits(p):
                | MODE EQUALS INT_NUMBER
                | MODE INT_NUMBER 
     '''
+    p[0] = []
+
 
 def p_columns_table(p):
     '''columnstable : columnstable COMMA column
                     | column
     '''
+    if len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
+
+    else:
+        p[0] = [p[1]]
+
 
 def p_column(p):
     '''column : ID typecol optionscollist
@@ -117,6 +187,29 @@ def p_column(p):
               | CONSTRAINT ID CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
               | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
     '''
+
+    if len(p) == 4:
+        p[0] = CreateCol(p[1], p[2], p[3])
+
+    elif len(p) == 3:
+        p[0] = CreateCol(p[1], p[2], None)
+
+    elif len(p) == 5:
+        if p[1] == 'UNIQUE':
+            p[0] = Unique(p[3])
+
+        else:  # CHECK
+            p[0] = Check(p[3])
+
+    elif len(p) == 6:
+        p[0] = PrimaryKey(p[4])
+
+    elif len(p) == 11:
+        p[0] = ForeignKey(p[4], p[7], p[9])
+
+    elif len(p) == 7:
+        p[0] = Constraint(p[2], p[5])  # TODO revisar si es constraint o check
+
 
 def p_type_col(p):
     '''typecol : SMALLINT
@@ -146,14 +239,25 @@ def p_type_col(p):
                | INTERVAL SQLNAME
                | BOOLEAN
     '''
+    dataType = ''
+    for i in range(1, len(p)):
+        dataType += str(p[i])
+    p[0] = dataType
+
 
 def p_options_col_list(p):
     '''optionscollist : optionscollist optioncol
                       | optioncol
     '''
+    if len(p) == 3:
+        p[1].append(p[2])
+        p[0] = p[1]
+
+    else:
+        p[0] = [p[1]]
 
 
-def p_option_col(p):
+def p_option_col(p):  # TODO verificar
     '''optioncol : DEFAULT SQLSIMPLEEXPRESSION                
                  | NOT NULL
                  | NULL
@@ -165,51 +269,88 @@ def p_option_col(p):
                  | REFERENCES ID 
     '''
 
+
 def p_condition_column(p):
     '''conditionColumn : conditioncheck'''
+    p[0] = p[1]
+
 
 def p_condition_check(p):
     '''conditioncheck : SQLRELATIONALEXPRESSION
     '''
+    p[0] = p[1]
+
 
 def p_column_list(p):
     '''columnlist : columnlist COMMA ID
                   | ID
     '''
+    if len(p) == 4:
+        p[1].append(p[3])
+        p[0] = p[1]
+
+    else:
+        p[0] = [p[1]]
+
 
 def p_show_statement(p):
     '''showstatement : SHOW DATABASES SEMICOLON
                      | SHOW DATABASES LIKE ID SEMICOLON
-    ''' 
+    '''
+    if len(p) == 4:
+        p[0] = ShowDatabase(None)
+    else:
+        p[0] = ShowDatabase(p[4])
+
 
 def p_alter_statement(p):
     '''alterstatement : ALTER optionsalter SEMICOLON
     '''
+    p[0] = p[2]
+
+
 
 def p_options_alter(p):
     '''optionsalter : DATABASE alterdatabase
                     | TABLE altertable
     '''
+    p[0] = p[2]
+
 
 def p_alter_database(p):
     '''alterdatabase : ID RENAME TO ID
                      | ID OWNER TO typeowner
     '''
+    if p[2].lower() == 'RENAME'.lower():   #Renombra la base de datos
+        p[0] = AlterDatabase(1,p[1],p[4])
+    else:                                  #Le cambia el duenio a la base de datos
+        p[0] = AlterDatabase(2,p[1],p[4])
+
 
 def p_type_owner(p):
     '''typeowner : ID
                  | CURRENT_USER
                  | SESSION_USER 
     '''
+    p[0] = p[1]
 
-def p_alter_table(p): 
+
+def p_alter_table(p):
     '''altertable : ID alterlist
     '''
+    p[0] = AlterTable(p[1],p[2])
+
 
 def p_alter_list(p):
     '''alterlist : alterlist COMMA typealter
                  | typealter
     '''
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]] 
+
 
 def p_type_alter(p):
     '''typealter : ADD addalter
@@ -217,6 +358,8 @@ def p_type_alter(p):
                  | DROP dropalter
                  | RENAME  renamealter
     '''
+    p[0] = p[2]
+
 
 def p_add_alter(p):
     '''addalter : COLUMN ID typecol
@@ -224,45 +367,73 @@ def p_add_alter(p):
                 | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
                 | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
     '''
+    if len(p) == 4:
+        p[0] = AlterTableAdd(CreateCol(p[2],p[3],None))
+    elif len(p) == 5:
+        p[0] = AlterTableAdd(Check(p[4]))
+    elif len(p) == 7:
+        p[0] = AlterTableAdd(Constraint(p[5],Unique(p[5]))) #TODO revisar esta asignacion
+    else:
+        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   #TODO revisar esta asignacion
+
 
 def p_alter_alter(p):
     '''alteralter : COLUMN ID SET NOT NULL
                   | COLUMN ID TYPE typecol
     '''
+    if len(p) == 6:
+        p[0] = AlterTableAlter(None) #TODO agregar un chanceType en column
+    else:
+        p[0] = AlterTableAlter(None) #TODO agregar un chanceType en column
+
 
 def p_drop_alter(p):
     '''dropalter : COLUMN ID
                  | CONSTRAINT ID
     '''
+    if p[1].lower() == 'COLUMN'.lower():
+        p[0] = AlterTableDrop(None) #TODO agregar un dropColumn en column
+    else:
+        p[0] = AlterTableDrop(None) #TODO agregar un dropConstrain en column
+
 
 def p_rename_alter(p):
     '''renamealter : COLUMN ID TO ID
     '''
+    p[0] = AlterTableRename(p[2],p[4])
+
 
 def p_drop_statement(p):
-    '''dropstatement : DROP optionsdrop SEMICOLON''' 
+    '''dropstatement : DROP optionsdrop SEMICOLON'''
+    p[0] = p[2]
+
 
 def p_options_drop(p):
     '''optionsdrop : DATABASE dropdatabase
                     | TABLE droptable
     '''
+    p[0] = p[2]
+
 
 def p_drop_database(p):
     '''dropdatabase : IF EXISTS ID
                     | ID
     '''
+    if len(p) == 4:
+        p[0] = DropDB(True, p[3])
+    else:
+        p[0] = DropDB(False, p[3])
+
 
 def p_drop_table(p):
     '''droptable : ID
     '''
+    p[0] = DropTB(p[1])
 
 
-
-#=====================================================================================
-#=====================================================================================
-#=====================================================================================
-
-
+# =====================================================================================
+# =====================================================================================
+# =====================================================================================
 
 def p_dml(p):
     '''DML : QUERYSTATEMENT
@@ -312,73 +483,56 @@ def p_sql_expression2(p):
 
 
 def p_options_list2(p):
-    '''OPTIONSLIST2 : OPTIONS3 OPTIONS4
-                    | OPTIONS3
+    '''OPTIONSLIST2 : WHERECLAUSE OPTIONS4
+                    | WHERECLAUSE
                     | OPTIONS4'''
-    nodo = Node('OPTIONSLIST2')
-    if (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+    # if (len(p) == 3):
+    #     nodo.add_childrens(p[1])
+    #     nodo.add_childrens(p[2])
+    # else:
+    #     nodo.add_childrens(p[1])
+    # p[0] = nodo
 
 
 def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
-    nodo = Node('DELETESTATEMENT')
     if (len(p) == 6):
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(p[4])
-        nodo.add_childrens(Node(p[5]))
+        p[0] = Delete(p[3],p[4])
     else:
-        nodo.add_childrens(Node(p[1]))
-        nodo.add_childrens(Node(p[2]))
-        nodo.add_childrens(Node(p[3]))
-        nodo.add_childrens(Node(p[4]))
-    p[0] = nodo
+        p[0] = Delete(p[3],None)
 
-#TODO: OPTIONS Y OPTIONS4
 def p_options_list(p):
-    '''OPTIONSLIST : OPTIONS1 OPTIONS2 OPTIONS3 OPTIONS4
-                   | OPTIONS1 OPTIONS2 OPTIONS3
-                   | OPTIONS1 OPTIONS2
-                   | OPTIONS1 OPTIONS3 OPTIONS4
+    '''OPTIONSLIST : OPTIONS1 OPTIONS2 WHERECLAUSE OPTIONS4
+                   | OPTIONS1 OPTIONS2 WHERECLAUSE
+                   | OPTIONS1 WHERECLAUSE OPTIONS4
                    | OPTIONS1 OPTIONS2 OPTIONS4
-                   | OPTIONS2 OPTIONS3 OPTIONS4
-                   | OPTIONS1 OPTIONS3
+                   | OPTIONS2 WHERECLAUSE OPTIONS4
+                   | OPTIONS1 OPTIONS2
+                   | OPTIONS1 WHERECLAUSE
                    | OPTIONS1 OPTIONS4
-                   | OPTIONS2 OPTIONS3
+                   | OPTIONS2 WHERECLAUSE
                    | OPTIONS2 OPTIONS4
-                   | OPTIONS3 OPTIONS4
+                   | WHERECLAUSE OPTIONS4
                    | OPTIONS1
                    | OPTIONS2
-                   | OPTIONS3
+                   | WHERECLAUSE
                    | OPTIONS4'''
-    # if (len(p) == 5):
-    # elif (len(p) == 4):
-    # elif (len(p) == 3):
-    # else:
-    nodo = Node('OPTIONSLIST')
     if (len(p) == 5):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(p[3])
-        nodo.add_childrens(p[4])
+        p[0] = [p[1]]
+        p[1].append(p[2])
+        p[1].append(p[3])
+        p[1].append(p[4])
     elif (len(p) == 4):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-        nodo.add_childrens(p[3])
+        p[0] = [p[1]]
+        p[1].append(p[2])
+        p[1].append(p[3])
     elif (len(p) == 3):
-        nodo.add_childrens(p[1])
-        nodo.add_childrens(p[2])
-    else:
-        nodo.add_childrens(p[1])
-    p[0] = nodo
+        p[0] = [p[1]]
+        p[1].append(p[2])
 
+    p[0] = [p[1]]
+    #TODO: PROBAR SI REALMENTE SIRVE EL ARBOL XD
 
 def p_options1(p):
     '''OPTIONS1 : ASTERISK SQLALIAS
@@ -405,16 +559,13 @@ def p_using_list(p):
     else:
         p[0] = [p[1]]
 
+# def p_options3(p):
+#     '''OPTIONS3 : WHERE SQLEXPRESSION'''
+#     p[0] = Where(p[2]) --------> GRAMATICA SE REPITE
 
-def p_options3(p):
-    '''OPTIONS3 : WHERE SQLEXPRESSION'''
-    p[0] = Where(p[2])
-
-#TODO: QUE HACE OPTIONS4?
 def p_options4(p):
     '''OPTIONS4 : RETURNING RETURNINGLIST'''
     p[0] = Returning(p[2])
-
 
 def p_returning_list(p):
     '''RETURNINGLIST   : ASTERISK
@@ -472,14 +623,14 @@ def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
-    if (len(p) == 2):
+    if len(p) == 2:
         p[0] = [p[1]]
-    elif (len(p) == 5):
+    elif len(p) == 5:
         type_combine_query = TypeQuerySelect(p[2], p[3])
         p[1].append(type_combine_query)
         p[1].append(p[4])
         p[0] = p[1]
-    elif(len(p) == 4):
+    elif len(p) == 4:
         type_combine_query = TypeQuerySelect(p[2], optionAll=None)
         p[1].append(type_combine_query)
         p[1].append(p[3])
@@ -490,9 +641,9 @@ def p_select_without_order(p):
 def p_select_set(p):
     '''SELECTSET : SELECTQ 
                  | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
-    if (len(p) == 2):
+    if len(p) == 2:
         p[0] = p[1]
-    elif (len(p) == 4):
+    elif len(p) == 4:
         p[0] = p[2]
 
 def p_selectq(p):
@@ -501,16 +652,16 @@ def p_selectq(p):
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
                | SELECT SELECTLIST'''
-    if (len(p) == 4):
+    if len(p) == 4:
         p[0] = SelectQ(None, p[2], p[3], None)
-    elif (len(p) == 5):
+    elif len(p) == 5:
         if ("ALL" in p[2] or 'DISTINCT' in p[2] or 'UNIQUE' in p[2]):
             p[0] = SelectQ(p[2], p[3], p[4], None)
         else:
             p[0] = SelectQ(None, p[2], p[3], p[4])
-    elif (len(p) == 6):
+    elif len(p) == 6:
         p[0] = SelectQ(p[2], p[3], p[4], p[5])
-    elif (len(p) == 3):
+    elif len(p) == 3:
         p[0] = SelectQ(None, p[2], None, None)
 
 
@@ -526,9 +677,9 @@ def p_select_list(p):
 def p_list_item(p):
     '''LISTITEM : LISTITEM COMMA SELECTITEM
                 | SELECTITEM'''
-    if (len(p) == 2):
+    if len(p) == 2:
         p[0] = [p[1]]
-    elif (len(p) == 4):
+    elif len(p) == 4:
         p[1].append(p[3])
         p[0] = p[1]
 
@@ -710,38 +861,13 @@ def p_join_type(p):
 
 
 def p_sql_expression(p):
-    '''SQLEXPRESSION : SQLANDEXPRESSIONLIST '''
-    p[0] = p[1]
-
-
-def p_sql_and_expression_list(p):
-    '''SQLANDEXPRESSIONLIST : SQLANDEXPRESSIONLIST OR SQLANDEXPRESSION
-                            | SQLANDEXPRESSION'''
-    if (len(p) == 4):
-        p[1].append(OrExpressionsList(p[3], p[2]))
-        p[0] = p[1] 
-    elif (len(p) == 2):
-        p[0] = [p[1]]
-
-
-def p_sql_and_expression(p):
-    '''SQLANDEXPRESSION : SQLUNARYLOGICALEXPRESSIONLIST'''
-    p[0] = p[1]
-
-def p_sql_unary_logical_expression_list(p):
-    '''SQLUNARYLOGICALEXPRESSIONLIST : SQLUNARYLOGICALEXPRESSIONLIST  AND SQLUNARYLOGICALEXPRESSION
-                                     | SQLUNARYLOGICALEXPRESSION'''
-    if (len(p) == 4):
-        p[1].append(AndExpressionsList(p[3], p[2]))
-        p[0] = p[1] 
-    elif (len(p) == 2):
-        p[0] = [p[1]]
-
-
-def p_sql_unary_logical_expression(p):
-    '''SQLUNARYLOGICALEXPRESSION : NOT EXISTSORSQLRELATIONALCLAUSE
-                                 | EXISTSORSQLRELATIONALCLAUSE'''
-    if (p[1] == 'NOT'):
+    '''SQLEXPRESSION : SQLEXPRESSION OR SQLEXPRESSION
+                     | SQLEXPRESSION AND SQLEXPRESSION
+                     | NOT EXISTSORSQLRELATIONALCLAUSE
+                     | EXISTSORSQLRELATIONALCLAUSE'''
+    if len(p) == 4:
+        p[0] = LogicalOperators(p[1], p[2], p[3])
+    elif len(p) == 3:
         p[0] = NotOption(p[2])
     else:
         p[0] = p[1]
@@ -757,7 +883,7 @@ def p_exists_clause(p):
 
 
 def p_sql_relational_expression(p):
-    '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION SQLRELATIONALOPERATOREXPRESSION
+    '''SQLRELATIONALEXPRESSION : SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION
                                | SQLSIMPLEEXPRESSION SQLINCLAUSE
                                | SQLSIMPLEEXPRESSION SQLBETWEENCLAUSE
                                | SQLSIMPLEEXPRESSION SQLLIKECLAUSE
@@ -765,13 +891,12 @@ def p_sql_relational_expression(p):
                                | SQLSIMPLEEXPRESSION'''
     if (len(p) == 3):
         p[0] = [p[1], p[2]]
+    elif (len(p) == 4):
+        p[0] = Relop(p[1], p[2], p[3])
     else:
         p[0] = p[1]
 
 
-def p_sql_relational_operator_expression(p):
-    '''SQLRELATIONALOPERATOREXPRESSION : RELOP SQLSIMPLEEXPRESSION'''
-    p[0] = [p[1], p[2]]
 
 def p_sql_in_clause(p):
     '''SQLINCLAUSE  : NOT IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
@@ -956,18 +1081,35 @@ def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
                        | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
     p[0] = ExpressionsGreastLeast(p[1], p[3])
-def p_case_clause(p):
-    '''CASECLAUSE : CASE CASECLAUSELIST END ID'''
 
-def p_case_cluase_list(p):
+def p_case_clause(p):
+    '''CASECLAUSE : CASE CASECLAUSELIST END ID
+                  | CASE CASECLAUSELIST ELSE SQLSIMPLEEXPRESSION END ID'''
+    if(len(p) == 5):
+        p[0] = Case(p[2], None)
+    else:
+        p[0] = Case(p[2], p[4])
+
+
+def p_case_clause_list(p):
     '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
                       | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
-                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
                       | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
                       | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION'''
+
+    # El ELSE solo puede venir una vez ---> las producciones de abajo permitian que viniera varias veces
+    # WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
+    # WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+    if (len(p) == 8):
+        p[1].append( CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] ) )
+        p[0] = p[1]
+    elif (len(p) == 7):
+        p[0] = [CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] )]
+    elif (len(p) == 6):
+        p[1].append( CaseOption(p[3], p[5]) )
+        p[0] = p[1]
+    else: #len = 5
+        p[0] = [CaseOption(p[3], p[5])]
 
 def p_trigonometric_functions(p):
     '''TRIGONOMETRIC_FUNCTIONS : ACOS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
@@ -1049,7 +1191,7 @@ def p_sql_object_reference(p):
         else:
             p[0] = ObjectReference(None, p[1], p[3], None)
     else:
-        p[0] = ObjectReference(p[1], p[3], p[5])
+        p[0] = ObjectReference(p[1], p[3], p[5], None)
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
@@ -1075,7 +1217,7 @@ def p_relop(p):
              | LESS_THAN
              | LESS_EQUAL
              | NOT_EQUAL_LR'''
-    p[0] = Relop(p[1])
+    p[0] = p[1]
 
 
 def p_aggregate_types(p):
@@ -1120,28 +1262,19 @@ def p_sub_query(p):
     p[0] = p[1]
 
 def p_error(p):
-    global list_errors
-    global id_error
-    
-    id_error = list_errors.count + 1  if list_errors.count > 0 else 1
-
     try:
-        number_error, description = get_type_error(33)
-        print(str(p.value))
-        description += ' or near ' + str(p.value) 
+        # print(str(p.value))
+        description = ' or near ' + str(p.value) 
         column = find_column(p)
-        list_errors.insert_end(Error(id_error, 'Syntactic',number_error ,description, p.lineno, column))
+        ErrorController().add(33, 'Syntactic', description, p.lineno, column)
     except AttributeError:
-        number_error, description = get_type_error(1)
-        print(number_error, description)
-        list_errors.insert_end(Error(id_error, 'Syntactic', number_error, description, 'EOF', 'EOF'))
-    id_error += 1
+        # print(number_error, description)
+        ErrorController().add(1, 'Syntactic', '', 'EOF', 'EOF')
 
 parser = yacc.yacc()
 def parse(inpu):
     global input
-    global list_errors
-    list_errors.remove_all()
+    ErrorController().destroy()
     lexer = lex.lex()
     lexer.lineno = 1
     input = inpu
