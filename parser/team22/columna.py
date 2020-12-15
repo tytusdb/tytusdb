@@ -68,7 +68,7 @@ class Columna():
 
 class Constraint():
     'Esta clase representa los constraint de las columnas'
-    def __init__(self, name: str, tipo: TipoConstraint, condicion):
+    def __init__(self, tipo: TipoConstraint, condicion, name: str = ''):
         self.name = str
         self.tipo = tipo
         self.condicion = condicion

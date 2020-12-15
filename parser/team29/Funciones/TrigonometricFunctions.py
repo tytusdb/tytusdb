@@ -1,5 +1,5 @@
 import math
-import MathFunctions as mt
+import Funciones.MathFunctions as mt
 
 def acos(column):
     i = 0 
@@ -19,7 +19,7 @@ def asin(column):
     column= mt.convert_num_col(column)
     result = list()
     while i < len(column):
-        result.insert(i+1,math.as(column[i]))
+        result.insert(i+1,math.asin(column[i]))
         i+=1
     
     return result
