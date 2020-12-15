@@ -15,7 +15,8 @@ def alterDatabase(databaseOld: str, databaseNew) -> int:
 
 #Elimina por completo la base de datos indicada en database. (DELETE)
 def dropDatabase(database: str) -> int:
-    return -1
+    res = mBBDD.quitar(database)
+    return res #0 operación exitosa, 1 error en la operación, 2 base de datos no existente
 
 # show databases by constructing a list
 def showDatabases() -> list:
