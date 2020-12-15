@@ -441,7 +441,6 @@ def p_ddl(t):
 def p_select(t):
     '''
         select  : SELECT listavalores FROM listavalores listawhere
-                | SELECT listavalores FROM listavalores
                 | SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
                 | SELECT DATE_PART PARIZQ CADENA COMA INTERVAL CADENA PARDER
                 | SELECT NOW PARIZQ PARDER
@@ -450,7 +449,33 @@ def p_select(t):
                 | SELECT TIMESTAMP CADENA
     '''
     if len(t) == 6:
+        # SELECT listavalores FROM listavalores listawhere
         t[0] = select(t[2], t[4], t[5], 1, 1)
+    elif t[2].lower() == "extract":
+        # SELECT EXTRACT PARIZQ time FROM TIMESTAMP CADENA PARDER
+        pass
+    elif t[2].lower() == "date_part":
+        # SELECT DATE_PART PARIZQ CADENA COMA INTERVAL CADENA PARDER
+        pass
+    elif t[2].lower() == "now":
+        # SELECT NOW PARIZQ PARDER
+        pass
+    elif t[2].lower() == "current_date":
+        # SELECT CURRENT_DATE
+        pass
+    elif t[2].lower() == "current_time":
+        # SELECT CURRENT_TIME
+        pass
+    elif t[2].lower() == "timestamp":
+        # SELECT TIMESTAMP CADENA
+        pass
+
+
+def p_select_simple(t):
+    '''
+        select : SELECT listavalores FROM listavalores
+    '''
+    # SELECT SIMPLE
 
 
 def p_time(t):
@@ -482,16 +507,35 @@ def p_atributoselecit(t):
                         | GROUP BY listavalores
                         | LIMIT exp
                         | HAVING exp
-                        | subquery
     '''
-    if t[1] == "where":
+    if t[1].lower() == "where":
         t[0] = Condicion(t[2], "where", 1, 1)
+    elif t[1].lower() == "order":
+        # ORDER BY listavalores ordenamiento
+        pass
+    elif t[1].lower() == "group":
+        # GROUP BY listavalores
+        pass
+    elif t[1].lower() == "limit":
+        # LIMIT exp
+        pass
+    elif t[1].lower() == "having":
+        # HAVING exp
+        pass
+
+def p_atributoselecit_subquery(t):
+    '''
+        atributoselect : subquery
+    '''
+    # subquery
+    t[0] = t[1]
 
 def p_ordenamiento(t):
     '''
         ordenamiento   : ASC
                        | DESC
     '''
+    t[0] = t[1]
 
 def p_listavalores(t):
     '''
@@ -505,30 +549,132 @@ def p_listavalores(t):
     else:
         t[0] = [t[1]]
 
-def p_exp(t):
+# --------------------------------------------------------------------------------------
+# ------------------------------------ EXP  --------------------------------------------
+# --------------------------------------------------------------------------------------
+def p_exp_count(t):
     '''
-        exp   : case
-              | COUNT PARIZQ exp PARDER
+        exp   : COUNT PARIZQ exp PARDER
               | COUNT PARIZQ MULTI PARDER
-              | SUM PARIZQ exp PARDER
-              | AVG PARIZQ exp PARDER
-              | GREATEST PARIZQ listavalores PARDER
-              | LEAST PARIZQ listavalores PARDER
-              | MAX PARIZQ exp PARDER
-              | MIN PARIZQ exp PARDER
-              | ABS PARIZQ exp PARDER
-              | CBRT PARIZQ exp PARDER
-              | CEIL PARIZQ exp PARDER
-              | CEILING PARIZQ exp PARDER
-              | DEGREES PARIZQ exp PARDER
-              | DIV PARIZQ exp COMA exp PARDER
-              | TKEXP PARIZQ exp PARDER
-              | FACTORIAL PARIZQ exp PARDER
-              | FLOOR PARIZQ exp PARDER
-              | GCD PARIZQ exp COMA exp PARDER
-              | LN PARIZQ exp PARDER
-              | LOG PARIZQ exp PARDER
-              | MOD PARIZQ exp COMA exp PARDER
+    '''
+    if t[3]=='*':
+        #COUNT PARIZQ MULTI PARDER
+        pass
+    else:
+        #COUNT PARIZQ exp PARDER
+        pass
+
+def p_exp_sum(t):
+    '''
+        exp   : SUM PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_avg(t):
+    '''
+        exp   : AVG PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_greatest(t):
+    '''
+        exp   : GREATEST PARIZQ listavalores PARDER
+    '''
+    pass
+
+def p_exp_least(t):
+    '''
+        exp   : LEAST PARIZQ listavalores PARDER
+    '''
+    pass
+
+def p_exp_max(t):
+    '''
+        exp   : MAX PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_min(t):
+    '''
+        exp   : MIN PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_abs(t):
+    '''
+        exp   : ABS PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_cbrt(t):
+    '''
+        exp   : CBRT PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_ceil(t):
+    '''
+        exp   : CEIL PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_ceiling(t):
+    '''
+        exp   : CEILING PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_degrees(t):
+    '''
+        exp   : DEGREES PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_div(t):
+    '''
+        exp   : DIV PARIZQ exp COMA exp PARDER
+    '''
+    pass
+
+def p_exp_tkexp(t):
+    '''
+        exp   : TKEXP PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_factorial(t):
+    '''
+        exp   : FACTORIAL PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_floor(t):
+    '''
+        exp   : FLOOR PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_gcd(t):
+    '''
+        exp   : GCD PARIZQ exp COMA exp PARDER
+    '''
+    pass
+
+def p_exp_ln(t):
+    '''
+        exp   : LN PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_log(t):
+    '''
+        exp   : LOG PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_funcion(t):
+    '''
+        exp   : MOD PARIZQ exp COMA exp PARDER
               | PI PARIZQ PARDER
               | NOW PARIZQ PARDER
               | POWER PARIZQ exp COMA exp PARDER
@@ -572,54 +718,188 @@ def p_exp(t):
               | CONVERT PARIZQ exp AS tipo PARDER
               | ENCODE PARIZQ exp COMA exp PARDER
               | DECODE PARIZQ exp COMA exp PARDER
-              | ORBB exp
+
+    '''
+    pass
+
+def p_exp_opunary(t):
+    '''
+        exp   : ORBB exp
               | ORBBDOBLE exp
-              | exp ANDBB exp
-              | exp ORBB exp
-              | exp NUMERAL exp
               | NOTBB exp
-              | exp SHIFTIZQ exp
-              | exp SHIFTDER exp
               | MAS exp
               | MENOS exp
-              | exp TKEXP exp
-              | exp MULTI exp
-              | exp DIVISION exp
-              | exp MODULO exp
-              | exp MAS exp
-              | exp MENOS exp
-              | exp BETWEEN exp AND exp
-              | exp LIKE exp
-              | exp ILIKE exp
-              | exp SIMILAR exp
-              | exp NOT exp
-              | exp IN exp
-              | exp NOT IN exp
-              | exp IGUAL exp
-              | exp IS DISTINCT FROM exp
-              | exp IS NOT DISTINCT FROM exp
-              | exp MAYORQUE exp
-              | exp MENORQUE exp
-              | exp MAYORIG exp
-              | exp MENORIG exp
-              | exp IS exp
-              | exp ISNULL exp
-              | exp NOTNULL exp
               | NOT exp
               | IS exp
-              | exp AND exp
-              | exp OR exp
-              | expSimple
     '''
-    if len(t) == 4:
-        t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
-    elif len(t) == 3:
+    if t[1]=='|':
+        #ORBB exp
         pass
-    elif len(t) == 2:
-        t[0] = t[1]
-    else:
+    elif t[1] == '||':
+        # ORBBDOBLE exp
+        pass
+    elif t[1] == '~':
+        # NOTBB exp
+        pass
+    elif t[1] == '+':
+        # MAS exp
+        pass
+    elif t[1] == '-':
+        # MENOS exp
+        pass
+    elif t[1] == 'not':
+        # NOT exp
+        pass
+    elif t[1] == 'is':
+        # IS exp
         pass
 
+def p_exp_case(t):
+    '''
+        exp : case
+    '''
+    pass
+
+def p_exp_between(t):
+    '''
+        exp : exp BETWEEN exp AND exp
+    '''
+    pass
+
+def p_exp_distinct(t):
+    '''
+         exp  : exp IS DISTINCT FROM exp
+    '''
+    pass
+
+def p_exp_notdistinct(t):
+    '''
+         exp  : exp IS NOT DISTINCT FROM exp
+    '''
+    pass
+
+def p_exp(t):
+    '''
+        exp   : exp ANDBB       exp
+              | exp ORBB        exp
+              | exp NUMERAL     exp
+              | exp SHIFTIZQ    exp
+              | exp SHIFTDER    exp
+              | exp TKEXP       exp
+              | exp MULTI       exp
+              | exp DIVISION    exp
+              | exp MODULO      exp
+              | exp MAS         exp
+              | exp MENOS       exp
+              | exp LIKE        exp
+              | exp ILIKE       exp
+              | exp SIMILAR     exp
+              | exp NOT         exp
+              | exp IN          exp
+              | exp IGUAL       exp
+              | exp MAYORQUE    exp
+              | exp MENORQUE    exp
+              | exp MAYORIG     exp
+              | exp MENORIG     exp
+              | exp IS          exp
+              | exp ISNULL      exp
+              | exp NOTNULL     exp
+              | exp AND         exp
+              | exp OR          exp
+              | expSimple
+              | exp NOT IN exp
+    '''
+    if len(t) == 4:
+        #t[0] = Opera_Relacionales(t[1], t[3], "=", 1, 1)
+        if t[2]=='&':
+            #exp ANDBB exp
+            pass
+        elif t[2]=='|':
+            # exp ORBB exp
+            pass
+        elif t[2]=='#':
+            # exp NUMERAL exp
+            pass
+        elif t[2]=='<<':
+            # exp SHIFTIZQ exp
+            pass
+        elif t[2]=='>>':
+            # exp SHIFTDER exp
+            pass
+        elif t[2]=='^':
+            # exp TKEXP exp
+            pass
+        elif t[2]=='*':
+            # exp MULTI exp
+            pass
+        elif t[2]=='/':
+            # exp DIVISION exp
+            pass
+        elif t[2]=='%':
+            # exp MODULO exp
+            pass
+        elif t[2]=='+':
+            # exp MAS exp
+            pass
+        elif t[2]=='-':
+            # exp MENOS exp
+            pass
+        elif t[2].lower()=='like':
+            # exp like  exp
+            pass
+        elif t[2].lower()=='similar':
+            # exp ORBB exp
+            pass
+        elif t[2].lower()=='ilike':
+            # exp ilike exp
+            pass
+        elif t[2].lower()=='not':
+            # exp not exp
+            pass
+        elif t[2].lower()=='in':
+            # exp IN exp
+            pass
+        elif t[2]=='=':
+            # exp IGUAL exp
+            pass
+        elif t[2]=='>':
+            # exp MAYORQUE exp
+            pass
+        elif t[2]=='<':
+            # exp MENORQUE exp
+            pass
+        elif t[2]=='>=':
+            # exp MAYORIG exp
+            pass
+        elif t[2]=='<=':
+            # exp MENORIG exp
+            pass
+        elif t[2].lower()=='is':
+            # exp IS exp
+            pass
+        elif t[2].lower()=='isnull':
+            # exp ISNULL exp
+            pass
+        elif t[2].lower()=='notnull':
+            # exp NOTNULL exp
+            pass
+        elif t[2].lower()=='and':
+            # exp AND exp
+            pass
+        elif t[2].lower()=='or':
+            # exp OR exp
+            pass
+        pass
+    elif len(t) == 5:
+        #exp NOT IN exp
+        pass
+    elif len(t) == 2:
+        #expSimple
+        t[0] = t[1]
+
+# --------------------------------------------------------------------------------------
+# ------------------------------------ EXP SIMPLE --------------------------------------
+# --------------------------------------------------------------------------------------
 def p_expSimples(t):
     '''
         expSimple   : NULL
@@ -659,17 +939,24 @@ def p_expSimples_exp_AS_ID(t):
     '''
     t[0] = indexador_auxiliar(t[1], t[3], 1)
 
-# ---------------SUBQUERY---------------
+# --------------------------------------------------------------------------------------
+# ----------------------------------------- SUBQUERY --------------------------------------
+# --------------------------------------------------------------------------------------
 def p_subquery(t):
     '''
         subquery : PARIZQ select PARDER
                  | PARIZQ select PARDER ID
                  | PARIZQ select PARDER AS ID
     '''
-    if len(t) == 5:
+    if len(t) == 4:
+        #PARIZQ select PARDER
+        pass
+    elif len(t) == 5:
+        #PARIZQ select PARDER ID
         t[0] = indexador_auxiliar(t[2], t[4], 2)
-    else:
-        t[0] = indexador_auxiliar(t[2], t[2], 2)
+    elif len(t) == 6:
+        #PARIZQ select PARDER AS ID
+        pass
 
 
 # ---------------CASE---------------
@@ -734,7 +1021,9 @@ def p_expSimples_false(t):
     '''
     t[0] = BOOLEANO(False,1,1)
 
-# ---------------CREATE TABLE---------------
+# --------------------------------------------------------------------------------------
+# ----------------------------------------- TABLE CREATE --------------------------------------
+# --------------------------------------------------------------------------------------
 def p_table_create(t):
     '''
         table_create : CREATE TABLE ID PARIZQ lista_table COMA listadolprimary inherits
@@ -742,13 +1031,27 @@ def p_table_create(t):
                      | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
                      | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
     '''
-    # t[0] = interprete
+    if len(t)==8:
+        # CREATE TABLE ID PARIZQ lista_table COMA listadolprimary inherits
+        pass
+    if len(t)==7:
+        # CREATE TABLE ID PARIZQ lista_table inherits
+        pass
+    if len(t)==12:
+        #CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
+        pass
+    if len(t)==10:
+        #CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
+        pass
 
+
+#todo:no se que hacer con PARDER FALTA ? O SOLO ASI ES ?
 def p_inherits(t):
     '''
         inherits : PARDER INHERITS PARIZQ ID PARDER
                  | PARDER
     '''
+
 
 def p_lista_table(t):
     '''
@@ -772,6 +1075,7 @@ def p_listadolprimary(t):
     else:
         t[0] = [t[1]]
 
+
 def p_lista_primary(t):
     '''
         lista_primary : PRIMARY KEY PARIZQ listaids PARDER
@@ -779,16 +1083,38 @@ def p_lista_primary(t):
                       | CONSTRAINT ID CHECK PARIZQ exp PARDER
                       | UNIQUE PARIZQ listaids PARDER
     '''
-    # t[0] = interprete
+    if len(t)==6:
+       #PRIMARY KEY PARIZQ listaids PARDER
+       pass
+    elif len(t)==11:
+        #FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
+        pass
+    elif len(t)==7:
+        # CONSTRAINT ID CHECK PARIZQ exp PARDER
+        pass
+    elif len(t)==5:
+        #UNIQUE PARIZQ listaids PARDER
+        pass
+
+
+
 
 def p_atributo_table(t):
     '''
         atributo_table : ID  tipocql listaespecificaciones
                        | ID tipocql
-    '''
-    # t[0] = interprete
-    #print(t[3])
 
+    '''
+    if len(t)==4:
+        #ID  tipocql listaespecificaciones
+        pass
+    elif len(t)==3:
+        #ID tipocql
+        pass
+
+# --------------------------------------------------------------------------------------
+# ----------------------------------------- ESPECIFICACIONES--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_listaespecificaciones(t):
     '''
         listaespecificaciones  : listaespecificaciones especificaciones
@@ -800,13 +1126,9 @@ def p_listaespecificaciones(t):
     else:
         t[0] = [t[1]]
 
-# --------------------------------------------------------------------------------------
-# ----------------------------------------- ESPECIFICACIONES--------------------------------------
-# --------------------------------------------------------------------------------------
 def p_especificaciones(t):
     '''
         especificaciones : UNIQUE
-                         | exp
                          | DEFAULT
                          | SET
                          | TYPE tipo
@@ -817,20 +1139,48 @@ def p_especificaciones(t):
                          | UNIQUE PARIZQ listaids PARDER
                          | FOREIGN KEY PARIZQ listaids PARDER REFERENCES listaids
     '''
-    t[0] = t[1]
+    if len(t)==2:
+        if t[1].lower()=='unique':
+            pass
+        elif t[1].lower()=='default':
+            pass
+        elif t[1].lower()=='set':
+            pass
+    elif len(t)==3:
+        if t[1].lower()=='primary':
+            pass
+        if t[1].lower()=='references':
+            pass
+        if t[1].lower()=='constraint':
+            pass
+    elif len(t)==5:
+        if t[1]=='check':
+            pass
+        if t[1]=='unique':
+            pass
+        pass
+    elif len(t) == 8:
+        if t[1] == 'foreign':
+            pass
 
+
+def p_especificaciones_exp(t):
+    '''
+        especificaciones : exp
+    '''
+
+# --------------------------------------------------------------------------------------
+# -----------------------------------------TIPO--------------------------------------
+# --------------------------------------------------------------------------------------
 def p_tipocql(t):
     '''
-        tipocql :tipo
+        tipocql : tipo
     '''
 
 def p_tipocql_id(t):
     '''
         tipocql : ID
     '''
-# --------------------------------------------------------------------------------------
-# -----------------------------------------TIPO--------------------------------------
-# --------------------------------------------------------------------------------------
 def p_tipo(t):
     '''
          tipo : SMALLINT
@@ -926,8 +1276,9 @@ def p_listaupdate(t):
 
 def p_asignacionupdate(t):
     '''
-        asignacionupdate : acceso IGUAL exp
+        asignacionupdate : ID IGUAL exp
     '''
+    t[0] = Opera_Relacionales(t[1], t[3], "u:=", 1, 1)
 
 # --------------------------------------------------------------------------------------
 # ------------------------------ ACCESO--------------------------------------
@@ -977,7 +1328,7 @@ def p_funcioncollection(t):
             pass
         elif len(t)==5:
             #INSERT PARIZQ exp PARDER
-	        pass
+            pass
     elif t[1].lower() == 'set':
         #SET PARIZQ exp COMA exp PARDER
         pass
