@@ -13,11 +13,10 @@ class Use(Instruccion):
 
     def execute(self, data):
         if data.comprobarExistencia(self.dbid.column.upper(), 'database'):
-            data.databaseSeleccionada = self.dbid.column.upper() #FALTA HACER EL CAMBIO DEL TIPO EN LA TABLA DE SIMBOLOS
-            print('La base de datos ' + data.databaseSeleccionada + ' ha sido seleccionada.')
+            data.databaseSeleccionada = self.dbid.column.upper()
+            return 'La base de datos ' + data.databaseSeleccionada + ' ha sido seleccionada.'
         else:
-            print('No existe la base de datos.')
-        return self
+            return 'No existe la base de datos.'
 
     def __repr__(self):
         return str(self.__dict__)

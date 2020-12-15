@@ -127,15 +127,17 @@ class Relop(Instruction):
     Relop contiene los operadores logicos
     == != >= ...
     '''
-    def __init__(self, operador_logico):
+    def __init__(self, value1, operador_logico, value2):
+        self.value1 = value1
         self.operador_logico = operador_logico
+        self.value2 = value2
 
     def __repr__(self):
         return str(vars(self))
 
 class LikeClause(Instruction):
     '''
-    LikeClause
+        LikeClause
     '''
     def __init__(self, arr_list):
         self.arr_list = arr_list
@@ -145,7 +147,7 @@ class LikeClause(Instruction):
 
 class isClause(Instruction):
     '''
-    IsClause
+        IsClause
     '''
     def __init__(self, arr_list):
         self.arr_list = arr_list
@@ -155,7 +157,7 @@ class isClause(Instruction):
 
 class AgreggateFunctions(Instruction):
     '''
-    AgreggateFunctions
+        AgreggateFunctions
     '''
     def __init__(self, type_agg, cont_agg, opt_alias):
         self.type_agg = type_agg
@@ -164,95 +166,24 @@ class AgreggateFunctions(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-class ObjectReference(Instruction):
+class Case(Instruction):
     '''
-    ObjectReference
+        CASE recibe un array con todas las opciones y un else
     '''
-    def __init__(self, reference_base, reference_table, reference_column, opt_asterisk):
-        self.reference_base = reference_base
-        self.reference_table = reference_table
-        self.reference_colunm = reference_column
-        self.opt_asterisk = opt_asterisk
+    def __init__(self, arr_op, c_else): 
+        self.arr_op = arr_op
+        self.c_else = c_else
 
     def __repr__(self):
         return str(vars(self))
 
-class ExpressionsTime(Instruction):
+class CaseOption(Instruction):
     '''
-    ExpressionsTime
+        CASE OPTION
     '''
-    def __init__(self, name_date, type_date, name_opt):
-        self.name_date = name_date
-        self.type_date = type_date
-        self.name_opt = name_opt
+    def __init__(self, when_exp, then_exp):
+        self.when_exp = when_exp
+        self.then_exp = then_exp
 
     def __repr__(self):
-        return str(vars(self))
-
-class ExpressionsTrigonometric(Instruction):
-    '''
-    ExpressionsTrigonometric
-    '''
-    def __init__(self, type_trigonometric, expression1, optional_expression2):
-        self.type_trigonometric = type_trigonometric
-        self.expression1 = expression1
-        self.optional_expression2 = optional_expression2
-
-    def __repr__(self):
-        return str(vars(self))
-
-class ExpressionsGreastLeast(Instruction):
-    '''
-    ExpressionsGreastLeast
-    '''
-    def __init__(self, type_expression, lista_arr):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-    def __repr__(self):
-        return str(vars(self))
-
-class MathematicalExpressions(Instruction):
-    '''
-    MathematicalExpressions
-    '''
-    def __init__(self, type_expression, lista_arr, optional_alias):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-        self.optiona_alias = optional_alias
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class UnaryOrSquareExpressions(Instruction):
-    '''
-    UnaryOrSquareExpressions
-    '''
-    def __init__(self, sign, expression_list):
-        self.sign = sign
-        self.expression_list = expression_list
-    
-    def __repr__(self):
-        return str(vars(self))
-
-
-class AndExpressionsList(Instruction):
-    '''
-    AndExpressionsList
-    '''
-    def __init__(self, lista_arr, and_word):
-        self.lista_arr = lista_arr
-        self.and_word = and_word
-
-    def __repr__(self):
-        return str(vars(self))
-
-class OrExpressionsList(Instruction):
-    '''
-    OrExpressionsList
-    '''
-    def __init__(self, lista_arr, or_word):
-        self.lista_arr = lista_arr
-        self.or_word = or_word
-        
-    def __repr__(self):
-        return str(vars(self))
+        return str(vars(self))    
