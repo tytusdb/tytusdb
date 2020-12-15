@@ -8,6 +8,7 @@ from scanner import tokens
 #from parse.ast_node import *
 from parse.expressions.expressions_math import *
 from parse.expressions.expressions_base import *
+from parse.expressions.expressions_trig import *
 
 start = 'statements'
 
@@ -52,6 +53,78 @@ def p_expression(t):
     else: 
         print ("You forgot wirte code for the operator: ",t[2])
 
+def p_trigonometric(t):
+    ''' expression  :ACOS PARA expression PARC
+                    |ACOSD PARA expression PARC
+                    |ASIN PARA expression PARC
+                    |ASIND PARA expression PARC
+                    |ATAN PARA expression PARC
+                    |ATAND PARA expression PARC
+                    |ATAN2 PARA expression COMA expression PARC
+                    |ATAN2D PARA expression COMA expression PARC
+                    |COS PARA expression PARC
+                    |COSD PARA expression PARC
+                    |COT PARA expression PARC
+                    |COTD PARA expression PARC
+                    |SIN PARA expression PARC
+                    |SIND PARA expression PARC
+                    |TAN PARA expression PARC
+                    |TAND PARA expression PARC
+                    |SINH PARA expression PARC
+                    |COSH PARA expression PARC
+                    |TANH PARA expression PARC
+                    |ASINH PARA expression PARC
+                    |ACOSH PARA expression PARC
+                    |ATANH PARA expression PARC'''
+
+    print("Reduciendo con:", t.slice)
+    if t[1] == 'ACOS':
+        t[0] = Acos(t[3],0,0)
+    elif t[1] == 'ACOSD':
+        t[0] = Acosd(t[3],0,0)
+    elif t[1] == 'ASIN':
+        t[0] = Asin(t[3],0,0)
+    elif t[1] == 'ASIND':
+        t[0] = Asind(t[3],0,0)
+    elif t[1] == 'ATAN':
+        t[0] = Atan(t[3],0,0)
+    elif t[1] == 'ATAND':
+        t[0] = Atand(t[3],0,0)
+    elif t[1] == 'ATAN2':
+        t[0] = Atan2(t[3],0,0)
+    elif t[1] == 'ATAN2D':
+        t[0] = Atan2d(t[3],0,0)
+    elif t[1] == 'COS':
+        t[0] = Cos(t[3],0,0)
+    elif t[1] == 'COSD':
+        t[0] = Cosd(t[3],0,0)
+    elif t[1] == 'COT':
+        t[0] = Cot(t[3],0,0)
+    elif t[1] == 'COTD':
+        t[0] = Cotd(t[3],0,0)
+    elif t[1] == 'SIN':
+        t[0] = Sin(t[3],0,0)
+    elif t[1] == 'SIND':
+        t[0] = Sind(t[3],0,0)
+    elif t[1] == 'TAN':
+        t[0] = Tan(t[3],0,0)
+    elif t[1] == 'TAND':
+        t[0] = Tand(t[3],0,0)
+    elif t[1] == 'SINH':
+        t[0] = Sinh(t[3],0,0)
+    elif t[1] == 'COSH':
+        t[0] = Cosh(t[3],0,0)
+    elif t[1] == 'TANH':
+        t[0] = Tanh(t[3],0,0)
+    elif t[1] == 'ASINH':
+        t[0] = Asinh(t[3],0,0)
+    elif t[1] == 'ACOSH':
+        t[0] = Acosh(t[3],0,0)
+    elif t[1] == 'ATANH':
+        t[0] = Atanh(t[3],0,0)
+    else:
+        print ("You forgot write code for the trigonometric expression: ",t[1])
+
 #| ABS PARA expression PARC
 #| CBRT PARA expression PARC
 #| CEIL PARA expression PARC
@@ -80,28 +153,8 @@ def p_expression(t):
 #| WIDTH_BUCKET PARA expression COMA expression PARC
 #| RANDOM PARA PARC
 #| SETSEED PARA expression PARC
-#| ACOS PARA expression PARC
-#| ACOSD PARA expression PARC
-#| ASIN PARA expression PARC
-#| ASIND PARA expression PARC
-#| ATAN PARA expression PARC
-#| ATAND PARA expression PARC
-#| ATAN2 PARA expression COMA expression PARC
-#| ATAN2D PARA expression COMA expression PARC
-#| COS PARA expression PARC
-#| COSD PARA expression PARC
-#| COT PARA expression PARC
-#| COTD PARA expression PARC
-#| SIN PARA expression PARC
-#| SIND PARA expression PARC
-#| TAN PARA expression PARC
-#| TAND PARA expression PARC
-#| SINH PARA expression PARC
-#| COSH PARA expression PARC
-#| TANH PARA expression PARC
-#| ASINH PARA expression PARC
-#| ACOSH PARA expression PARC
-#| ATANH PARA expression PARC
+
+
 #| NOT expression 
 #| MAS expression 
 #| MENOS expression
