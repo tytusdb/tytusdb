@@ -1,14 +1,19 @@
+from TypeChecker.Metadata import File    
 
 Databases = []
 # --------------------------------------Database-----------------------------------------------
-def createDatabase(name,mode):
+def createDatabase(name,mode,owner):
     database = {}
     database['name']=name
     database['mode']=mode
+    database['owner']=owner
     database['tables']=[]
+    Databases = File.importFile()
     Databases.append(database)
+    File.exportFile(Databases)
 
-def alterDatabase (databaseOld, databaseNew):
+def alterDatabase(databaseOld, databaseNew):
+    Databases = File.importFile()
     for data in Databases:
         if data['name'] == databaseOld:
             data['name']=databaseNew
@@ -24,6 +29,7 @@ def showDatabases():
 
 def dropDatabase(name):
     element ={}
+    Databases = File.importFile()
     for data in Databases:
        if data['name'] == name:
             element = data       
@@ -32,25 +38,37 @@ def dropDatabase(name):
     if element !={}:
         Databases.remove(element)
         print("Drop database")
+        File.exportFile(Databases)
         return 
     print("Database not found")
     return 
     
-
+def replaceDatabase(name,mode,owner):
+    dropDatabase(name)
+    createDatabase(name,mode,owner)
+    print("Replace database")
 # --------------------------------------Tables-----------------------------------------------
 
+def insertTable(dbName,tableName,columns):
+    createTable(dbName,tableName)
+    insertColumns(dbName,tableName,columns)
+    
+    
 def createTable (dbName, tableName):
     table={}
     table['name']=tableName
     table['colmns']= []
+    Databases = File.importFile()
     for db in Databases:
         if db['name']==dbName:
             db['tables'].append(table)
             break
+    File.exportFile(Databases)
 
 #def showTables (basededatos):
 
 def alterTable(dbName, tableOld, tableNew):
+    Databases = File.importFile()
     for db in Databases:
         if db['name']==dbName:
             for table in db['tables']:
@@ -64,6 +82,7 @@ def alterTable(dbName, tableOld, tableNew):
 
 def dropTable (dbName, tableName):
     tbl ={}
+    Databases = File.importFile()
     for db in Databases:
         if db['name'] == dbName:
             for table in db['tables']:
@@ -86,21 +105,53 @@ def createCol(name,category,type_,pk,fk,nn,inc,size):
     col['PK']=pk
     col['FK']=fk
     col['NN']=nn
-    col['AI']=inc
+    col['DEFAULT']=inc
     return col
 
-def addCol(dbName, tName,name,category,type_,pk,fk,nn,inc,size):
-    col = createCol(name,category,type_,pk,fk,nn,inc,size)
+def insertColumns(dbName, tName,columns):
+    Databases = File.importFile()
     for db in Databases:
         if db['name'] == dbName:
             for table in db['tables']:
-                if table['name']==tName:  
-                    table['colmns'].append(col)
-                    break
+                if table['name']==tName: 
 
+                    for column in columns:
+                        table['colmns'].append(getCol(column))                    
+                    break
+    File.exportFile(Databases)
+
+
+def getCol(col):
+    name = col[0]
+    type_ = col[1][0]
+    #name,category,type_,pk,fk,nn,df,size
+    pk=False
+    fk=None
+    nn=False
+    df=None
+    size = col[1][1][0]
+    category = getCategory(type_)
+    campos=col[2]
+    if campos !=None:
+        for campo in campos:
+            if campo[0]=='PRIMARY':
+                pk = campo[1]
+            elif campo[0]=='FOREIGN':
+                fk = campo[1]
+            elif campo[0]=='NULL':
+                nn = campo[1]
+            elif campo[0]=='DEFAULT':
+                df = campo[1]
+
+    col = createCol(name,category,type_,pk,fk,nn,df,size)
+    return col
+
+def getCategory(type_):
+    return 0
 
 def alterDrop(dbName, tableName, colName):
     clm={}
+    Databases = File.importFile()
     for db in Databases:
         if db['name'] == dbName:
             for table in db['tables']:
@@ -115,7 +166,8 @@ def alterDrop(dbName, tableName, colName):
         
 
 def extractColmn(dbName, tableName, colName):
-   for db in Databases:
+    Databases = File.importFile()
+    for db in Databases:
         if db['name'] == dbName:
             for table in db['tables']:
                 if table['name']==tableName:  
@@ -123,3 +175,13 @@ def extractColmn(dbName, tableName, colName):
                         if col['name']==colName:
                             return col
                     return None
+
+
+def extractTable(dbName, tableName):
+   for db in Databases:
+        if db['name'] == dbName:
+            for table in db['tables']:
+                if table['name']==tableName:  
+                    return table
+            return None
+

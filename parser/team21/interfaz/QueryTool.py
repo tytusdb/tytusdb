@@ -3,6 +3,8 @@ import os
 import sys
 import tkinter as tk
 from tkinter import ttk, font, messagebox, Image, filedialog
+import Compi2RepoAux.team21.Analisis_Ascendente.ascendente as parser
+import webbrowser as wb
 # from PIL import Image,ImageTk
 # vscode://vscode.github-authentication/did-authenticate?windowId=1&code=31765953f382697fc389&state=b734c53a-ca11-4477-9538-dad90e23013c
 
@@ -289,34 +291,34 @@ class Application(ttk.Frame):
 
         imgBoton7 = tk.PhotoImage(file=iconos[6])
         bot7 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command="")
+                         height=50, width=50, command=self.f_abrirSintactico)
         bot7.pack(side=tk.LEFT, padx=3, pady=3)
         button7_ttp = CreateToolTip(bot7, 'REPORTE SINTACTICO')
 
         bot8 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command="")
+                         height=50, width=50, command=self.f_abrirLexico)
         bot8.pack(side=tk.LEFT, padx=3, pady=3)
         button8_ttp = CreateToolTip(bot8, 'REPORTE LEXICO')
 
         bot9 = tk.Button(BarraH, image=imgBoton7,
-                         height=50, width=50, command="")
+                         height=50, width=50, command=self.f_abrirtablaSimbolos)
         bot9.pack(side=tk.LEFT, padx=3, pady=3)
         button9_ttp = CreateToolTip(bot9, 'REPORTE SEMANTICO')
 
         imgBoton8 = tk.PhotoImage(file=iconos[7])
         bot10 = tk.Button(BarraH, image=imgBoton8,
-                         height=50, width=50, command="")
+                         height=50, width=50, command=self.f_abrirAST)
         bot10.pack(side=tk.LEFT, padx=3, pady=3)
         button10_ttp = CreateToolTip(bot10, 'REPORTE AST')
 
         imgBoton9 = tk.PhotoImage(file=iconos[8])
         bot11 = tk.Button(BarraH, image=imgBoton9,
-                         height=50, width=50, command="")
+                         height=50, width=50, command=self.f_abrirBNFascendente)
         bot11.pack(side=tk.LEFT, padx=3, pady=3)
         button11_ttp = CreateToolTip(bot11, 'REPORTE BNF ASCENDENTE')
 
         bot12 = tk.Button(BarraH, image=imgBoton9,
-                         height=50, width=50, command="")
+                         height=50, width=50, command=self.f_abrirBNFdescendente)
         bot12.pack(side=tk.LEFT, padx=3, pady=3)
         button12_ttp = CreateToolTip(bot12, 'REPORTE BNF DESCENDENTE')
 
@@ -352,6 +354,8 @@ class Application(ttk.Frame):
 
         def f_key(event):
             if(event.keycode == 13):
+                #ver esto
+                global T
                 T.insert(tk.END, """>>>""")
 
         def f_mostrarContext(event):
@@ -542,9 +546,49 @@ class Application(ttk.Frame):
         else:
             sys.exit()
 
+    def f_abrirSintactico(self):
+        try:
+            wb.open_new(r'ErroresSintacticos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirLexico(self):
+        try:
+            wb.open_new(r'ErroresLexicos.html')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirBNFascendente(self):
+        try:
+            wb.open_new(r'reporteGramatica.gv.pdf')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirBNFdescendente(self):
+        try:
+            wb.open_new(r'../Analisis_Descendente/reporteGramatical.html')
+
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirAST(self):
+        try:
+            wb.open_new(r'AST.png')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
+    def f_abrirtablaSimbolos(self):
+        try:
+            wb.open_new(r'')
+        except:
+            tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
+
     def f_parsear(self, texto):
-        self.T.insert(tk.END, texto)
-        print(texto)
+       self.T.insert(tk.END,"")
+       salida= parser.ejecutarAnalisis(texto)
+
+       for output in salida:
+        self.T.insert(tk.END, output)
 
     def f_correr(self):
         lista = []
