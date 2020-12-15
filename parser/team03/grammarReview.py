@@ -54,28 +54,28 @@ def p_expression(t):
         print ("You forgot wirte code for the operator: ",t[2])
 
 def p_trigonometric(t):
-    ''' expression  :ACOS PARA expression PARC
-                    |ACOSD PARA expression PARC
-                    |ASIN PARA expression PARC
-                    |ASIND PARA expression PARC
-                    |ATAN PARA expression PARC
-                    |ATAND PARA expression PARC
-                    |ATAN2 PARA expression COMA expression PARC
-                    |ATAN2D PARA expression COMA expression PARC
-                    |COS PARA expression PARC
-                    |COSD PARA expression PARC
-                    |COT PARA expression PARC
-                    |COTD PARA expression PARC
-                    |SIN PARA expression PARC
-                    |SIND PARA expression PARC
-                    |TAN PARA expression PARC
-                    |TAND PARA expression PARC
-                    |SINH PARA expression PARC
-                    |COSH PARA expression PARC
-                    |TANH PARA expression PARC
-                    |ASINH PARA expression PARC
-                    |ACOSH PARA expression PARC
-                    |ATANH PARA expression PARC'''
+    ''' expression  :   ACOS PARA expression PARC
+                    |   ACOSD PARA expression PARC
+                    |   ASIN PARA expression PARC
+                    |   ASIND PARA expression PARC
+                    |   ATAN PARA expression PARC
+                    |   ATAND PARA expression PARC
+                    |   ATAN2 PARA expression COMA expression PARC
+                    |   ATAN2D PARA expression COMA expression PARC
+                    |   COS PARA expression PARC
+                    |   COSD PARA expression PARC
+                    |   COT PARA expression PARC
+                    |   COTD PARA expression PARC
+                    |   SIN PARA expression PARC
+                    |   SIND PARA expression PARC
+                    |   TAN PARA expression PARC
+                    |   TAND PARA expression PARC
+                    |   SINH PARA expression PARC
+                    |   COSH PARA expression PARC
+                    |   TANH PARA expression PARC
+                    |   ASINH PARA expression PARC
+                    |   ACOSH PARA expression PARC
+                    |   ATANH PARA expression PARC'''
 
     print("Reduciendo con:", t.slice)
     if t[1] == 'ACOS':
@@ -91,9 +91,9 @@ def p_trigonometric(t):
     elif t[1] == 'ATAND':
         t[0] = Atand(t[3],0,0)
     elif t[1] == 'ATAN2':
-        t[0] = Atan2(t[3],0,0)
+        t[0] = Atan2(t[3],t[5],0,0)
     elif t[1] == 'ATAN2D':
-        t[0] = Atan2d(t[3],0,0)
+        t[0] = Atan2d(t[3],t[5],0,0)
     elif t[1] == 'COS':
         t[0] = Cos(t[3],0,0)
     elif t[1] == 'COSD':
