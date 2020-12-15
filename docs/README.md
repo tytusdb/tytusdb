@@ -300,7 +300,11 @@ Además, si alguna opción no es cubierta por las funciones del administrador de
 
 ## SQL Parser
 
+### Descripción
+
 Este componente proporciona al servidor una función encargada de interpretar sentencias del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
+
+### Componentes
 
 Está compuesto por tres sub componentes:
 - SQL Parser: es el intérprete de sentencias de SQL, que tendra proporcionará una función para invocar al parser, al recibir una consulta el parser luego del proceso interno y de la planificación de la consulta debe invocar las diferentes funciones proporcionadas por el componente de administrador de almacenamiento.
@@ -308,6 +312,8 @@ Está compuesto por tres sub componentes:
 - Type Checker: es un sub componente que ayudará al parser a la comprobación de tipos. Al crear un objeto cualquiera se debe crear una estructura que almacenará los tipos de datos y cualquier información necesaria para este fin.
 
 - Query Tool: es un sub componente que consiste en una ventana gráfica similar al Query Tool de pgadmin de PostgreSQL, para ingresar consultas y mostrar los resultados, incluyendo el resalto de la sintaxis. La ejecución se realizará de todo el contenido del área de texto. 
+
+### Consideraciones
 
 En general, el intérprete debe ser capaz de:
 
@@ -319,7 +325,13 @@ En general, el intérprete debe ser capaz de:
 
 - Devolver a detalle información de la consulta al servidor, por ejemplo, si la consultas fue ejecutada correctamente o no, si hubo un error de tipos, o cualquier error que normalmente devuelve cualquier parser de SQL.
 
+### Análisis de gramáticas
+
 Cada equipo debe escribir dos gramáticas: una para un analizador ascendente; y otra, para un analizador descendente. Sin llegar a la definición dirigida por la sintaxis. Debe hacerse un análisis para saber qué gramática es más eficiente (tiempo de respuesta y otros factores) en cuanto a la lectura de los querys (sin interpretar nada). Luego concluir y seleccionar la gramática más adecuada para continuar con la definición dirigida por la sintaxis.
+
+### Códigos de error
+
+Cuando se utilice el paquete del parser de SQL y para manterner una sola manera de retornar errores cuando estos ocurran, se determinó utilizar los [Códigos de error de PostgreSQL](https://www.postgresql.org/docs/13/errcodes-appendix.html).
 
 ## Reportes y entrega
 

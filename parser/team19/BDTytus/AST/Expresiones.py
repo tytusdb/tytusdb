@@ -3,40 +3,99 @@ from TablaSimbolos.Tipos import *
 from Errores.Nodo_Error import *
 
 
+class Expression(Node.Nodo):
+    def __init__(self, *args):
+        if len(args) == 6:
+            self.exp1 = args[0]
+            self.exp2 = args[1]
+            self.op = args[2]
+            self.line = args[3]
+            self.column = args[4]
+            self.op_type = args[5]
+            self.valor = None
+            self.type = None
+
+        elif len(args) == 4:
+            self.line = args[1]
+            self.column = args[2]
+            self.valor = args[0]
+            self.op_type = None
+            if args[3] == "decimal":
+                self.type = TIPO_DATOS.FLOAT
+            elif args[3] == "entero":
+                self.type = TIPO_DATOS.INT
+            elif args[3] == "char":
+                self.type = TIPO_DATOS.CHAR
+            elif args[3] == "string":
+                self.type = TIPO_DATOS.STRING
+
+    def ejecutar(self, TS, Errores):
+        if self.op_type is None:
+            return self
+        elif self.op_type == 'Aritmetica':
+            tipo1 = self.exp1.ejecutar(TS, Errores)
+            tipo2 = self.exp2.ejecutar(TS, Errores)
+            if tipo1.type == TIPO_DATOS.INT:
+                if tipo2.type == TIPO_DATOS.INT:
+                    self.valor = tipo1.valor + tipo2.valor
+                    print(self.valor)
+                    return self
+
+        elif self.op_type == 'Relacional':
+            tipo1 = self.exp1.ejecutar(TS, Errores)
+            tipo2 = self.exp2.ejecutar(TS, Errores)
+
+
+    def getC3D(self, TS):
+        codigo = ""
+        codigo += self.Exp.getC3D(TS)
+        temp = TS.getTemp()
+        codigo += temp + '= (' + self.cast + ')' + self.Exp.temporal + ';\n'
+        self.temporal = temp
+
+        return codigo;
+
+    def graficarasc(self, padre, grafica):
+        pass
+
+
 class Aritmetica(Node.Nodo):
     def __init__(self, Exp1, Exp2, op, fila, col):
-        self.Exp1 = Exp1
-        self.Exp2 = Exp2
+        #self.Exp1 = primitivo() Descomentar correrlo produce error porque el metodo necesita mas parametros, pienso que querias poner exp1?
+        #self.Exp2 = primitivo() Descomentar correrlo produce error porque el metodo necesita mas parametros, pienso que querias poner exp2?
         self.op = op
         self.fila = fila
         self.columna = col
+        self.tipo = TIPO_DATOS.INT
+        self.valor = None
 
-    def analizar(self, TS, Errores):
-        tipo1 = self.Exp1.analizar(TS, Errores)
-        tipo2 = self.Exp2.analizar(TS, Errores)
+    def ejecutar(self, TS, Errores):
+        tipo1 = self.Exp1.ejecutar(TS, Errores)
+        tipo2 = self.Exp2.ejecutar(TS, Errores)
 
         if self.op == '+':
-
             if (
                     tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.FLOAT or tipo1 == TIPO_DATOS.DOUBLE) and (
-                    tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.FLOAT or tipo2 == TIPO_DATOS.DOUBLE):
+                    tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.DOUBLE or tipo2 == TIPO_DATOS.DOUBLE):
                 if tipo1 == TIPO_DATOS.INT and tipo2 == TIPO_DATOS.INT:
-                    return TIPO_DATOS.FLOAT
+                    self.tipo = TIPO_DATOS.INT
+
+                    return self.valor
                 elif tipo1 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.CHAR:
-                    return TIPO_DATOS.INT
-                return TIPO_DATOS.FLOAT
+                    return TIPO_DATOS.CHAR
+                return TIPO_DATOS.DOUBLE
             else:
                 return TIPO_DATOS.CHAR
 
         elif self.op == '-' or self.op == '*':
             if (
-                    tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.FLOAT or tipo1 == TIPO_DATOS.DOUBLE) and (
-                    tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.FLOAT or tipo2 == TIPO_DATOS.DOUBLE):
+                    tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.DOUBLE or tipo1 == TIPO_DATOS.DOUBLE) and (
+                    tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.DOUBLE or tipo2 == TIPO_DATOS.DOUBLE):
                 if tipo1 == TIPO_DATOS.INT and tipo2 == TIPO_DATOS.INT:
                     return TIPO_DATOS.INT
                 elif tipo1 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.CHAR:
                     return TIPO_DATOS.INT
-                return TIPO_DATOS.FLOAT
+                return TIPO_DATOS.DOUBLE
             else:
                 Errores.insertar(
                     Nodo_Error("Semantico", "No es posible operacion entre " + str(tipo1.name) + ' ' + self.op
@@ -45,9 +104,9 @@ class Aritmetica(Node.Nodo):
 
         elif self.op == '/':
             if (
-                    tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.FLOAT or tipo1 == TIPO_DATOS.DOUBLE) and (
-                    tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.FLOAT or tipo2 == TIPO_DATOS.DOUBLE):
-                return TIPO_DATOS.FLOAT
+                    tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.DOUBLE or tipo1 == TIPO_DATOS.DOUBLE) and (
+                    tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.DOUBLE or tipo2 == TIPO_DATOS.DOUBLE):
+                return TIPO_DATOS.DOUBLE
             else:
                 Errores.insertar(
                     Nodo_Error("Semantico", "No es posible operacion entre " + str(tipo1.nombre) + ' ' + self.op
@@ -93,13 +152,13 @@ class Relacional(Node.Nodo):
         self.fila = fila
         self.columna = col
 
-    def analizar(self, TS, Errores):
-        tipo1 = self.Exp1.analizar(TS, Errores)
-        tipo2 = self.Exp2.analizar(TS, Errores)
+    def ejecutar(self, TS, Errores):
+        tipo1 = self.Exp1.ejecutar(TS, Errores)
+        tipo2 = self.Exp2.ejecutar(TS, Errores)
 
         if (
-                tipo1 == TIPO_DATOS.STRING or tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.FLOAT or tipo1 == TIPO_DATOS.DOUBLE) and (
-                tipo2 == TIPO_DATOS.STRING or tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.FLOAT or tipo2 == TIPO_DATOS.DOUBLE):
+                tipo1 == TIPO_DATOS.STRING or tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.DOUBLE or tipo1 == TIPO_DATOS.DOUBLE) and (
+                tipo2 == TIPO_DATOS.STRING or tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.DOUBLE or tipo2 == TIPO_DATOS.DOUBLE):
             return TIPO_DATOS.INT
         else:
             Errores.insertar(
@@ -135,7 +194,7 @@ class primitivo(Node.Nodo):
         self.valor = Valor
         self.temporal = ""
         if tipo == "decimal":
-            self.tipo = TIPO_DATOS.FLOAT
+            self.tipo = TIPO_DATOS.DOUBLE
         elif tipo == "entero":
             self.tipo = TIPO_DATOS.INT
         elif tipo == "char":
@@ -143,8 +202,8 @@ class primitivo(Node.Nodo):
         elif tipo == "string":
             self.tipo = TIPO_DATOS.STRING
 
-    def analizar(self, TS, Errores):
-        return self.tipo
+    def ejecutar(self, TS, Errores):
+        return self.valor
 
     def getC3D(self, TS):
         if self.tipo == TIPO_DATOS.CHAR:
@@ -170,7 +229,7 @@ class variable(Node.Nodo):
         self.nombre = nombre
         self.temporal = ""
 
-    def analizar(self, TS, Errores):
+    def ejecutar(self, TS, Errores):
         simbolo = TS.obtener(self.nombre)
         if simbolo is None:
             Errores.insertar(
@@ -201,9 +260,9 @@ class bitabit(Node.Nodo):
         self.op = op
         self.temporal = ""
 
-    def analizar(self, TS, Errores):
-        tipo1 = self.Exp1.analizar(TS, Errores)
-        tipo2 = self.Exp2.analizar(TS, Errores)
+    def ejecutar(self, TS, Errores):
+        tipo1 = self.Exp1.ejecutar(TS, Errores)
+        tipo2 = self.Exp2.ejecutar(TS, Errores)
 
         if (
                 tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR) and (
@@ -244,13 +303,13 @@ class logica(Node.Nodo):
         self.Exp2 = Exp2
         self.op = op
 
-    def analizar(self, TS, Errores):
-        tipo1 = self.Exp1.analizar(TS, Errores)
-        tipo2 = self.Exp2.analizar(TS, Errores)
+    def ejecutar(self, TS, Errores):
+        tipo1 = self.Exp1.ejecutar(TS, Errores)
+        tipo2 = self.Exp2.ejecutar(TS, Errores)
 
         if (
-                tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.FLOAT or tipo1 == TIPO_DATOS.DOUBLE) and (
-                tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.FLOAT or tipo2 == TIPO_DATOS.DOUBLE):
+                tipo1 == TIPO_DATOS.INT or tipo1 == TIPO_DATOS.CHAR or tipo1 == TIPO_DATOS.DOUBLE or tipo1 == TIPO_DATOS.DOUBLE) and (
+                tipo2 == TIPO_DATOS.INT or tipo2 == TIPO_DATOS.CHAR or tipo2 == TIPO_DATOS.DOUBLE or tipo2 == TIPO_DATOS.DOUBLE):
             return TIPO_DATOS.INT
         else:
             Errores.insertar(
@@ -287,9 +346,9 @@ class incremento(Node.Nodo):
         self.primero = primero
         self.op = op
 
-    def analizar(self, TS, Errores):
-        tipo = self.Exp1.analizar(TS, Errores)
-        if tipo == TIPO_DATOS.INT or tipo == TIPO_DATOS.CHAR or tipo == TIPO_DATOS.FLOAT or tipo == TIPO_DATOS.DOUBLE:
+    def ejecutar(self, TS, Errores):
+        tipo = self.Exp1.ejecutar(TS, Errores)
+        if tipo == TIPO_DATOS.INT or tipo == TIPO_DATOS.CHAR or tipo == TIPO_DATOS.DOUBLE or tipo == TIPO_DATOS.DOUBLE:
             return tipo
         else:
             Errores.insertar(
@@ -339,8 +398,8 @@ class unario(Node.Nodo):
         self.Exp = Exp
         self.op = op
 
-    def analizar(self, TS, Errores):
-        tipo = self.Exp.analizar(TS, Errores)
+    def ejecutar(self, TS, Errores):
+        tipo = self.Exp.ejecutar(TS, Errores)
         if self.op == '~':
             if tipo == TIPO_DATOS.INT or tipo == TIPO_DATOS.CHAR:
                 return TIPO_DATOS.INT
@@ -350,7 +409,7 @@ class unario(Node.Nodo):
                                str(tipo.nombre), self.fila, self.columna))
                 return TIPO_DATOS.ERROR
         else:
-            if tipo == TIPO_DATOS.INT or tipo == TIPO_DATOS.CHAR or tipo == TIPO_DATOS.DOUBLE or tipo == TIPO_DATOS.FLOAT:
+            if tipo == TIPO_DATOS.INT or tipo == TIPO_DATOS.CHAR or tipo == TIPO_DATOS.DOUBLE or tipo == TIPO_DATOS.DOUBLE:
                 return TIPO_DATOS.INT
             else:
                 Errores.insertar(
@@ -384,15 +443,15 @@ class ternario(Node.Nodo):
         self.Exp1 = Exp1
         self.Exp2 = Exp2
 
-    def analizar(self, TS, Errores):
-        tipo = self.analizar(TS, Errores)
+    def ejecutar(self, TS, Errores):
+        tipo = self.ejecutar(TS, Errores)
         if not (
-                tipo == TIPO_DATOS.INT or tipo == TIPO_DATOS.CHAR or tipo == TIPO_DATOS.DOUBLE or tipo == TIPO_DATOS.FLOAT):
+                tipo == TIPO_DATOS.INT or tipo == TIPO_DATOS.CHAR or tipo == TIPO_DATOS.DOUBLE or tipo == TIPO_DATOS.DOUBLE):
             Errores.insertar(
                 Nodo_Error("Semantico", "La el tipo de condicion no es valido en ternario ", self.fila, self.columna))
             return TIPO_DATOS.ERROR
-        tipo2 = self.Exp1.analizar(TS, Errores)
-        tipo3 = self.Exp2.analizar(TS, Errores)
+        tipo2 = self.Exp1.ejecutar(TS, Errores)
+        tipo3 = self.Exp2.ejecutar(TS, Errores)
         if tipo == TIPO_DATOS.ERROR or tipo2 == TIPO_DATOS.ERROR or tipo3 == TIPO_DATOS.ERROR:
             return TIPO_DATOS.ERROR
 
@@ -435,14 +494,14 @@ class casteo(Node.Nodo):
         self.Exp = Exp
         self.cast = Cast
 
-    def analizar(self, TS, Errores):
-        self.Exp.analizar(TS, Errores)
+    def ejecutar(self, TS, Errores):
+        self.Exp.ejecutar(TS, Errores)
         if self.cast == "char":
             self.tipo = TIPO_DATOS.CHAR
         elif self.cast == "int":
             self.tipo = TIPO_DATOS.INT
-        elif self.cast == "float":
-            self.tipo = TIPO_DATOS.FLOAT
+        elif self.cast == "DOUBLE":
+            self.tipo = TIPO_DATOS.DOUBLE
 
     def getC3D(self, TS):
         codigo = ""
@@ -455,20 +514,3 @@ class casteo(Node.Nodo):
 
     def graficarasc(self, padre, grafica):
         pass
-
-
-class sizeof(Node.Nodo):
-    def __init__(self, Exp, fila, col):
-        self.fila = fila
-        self.columna = col
-        self.Exp = Exp
-
-    def analizar(self, TS, Errores):
-        return
-
-    def getC3D(self, TS):
-        self.temporal = "3"
-        return ""
-
-    def graficarasc(self, padre, grafica):
-        return
