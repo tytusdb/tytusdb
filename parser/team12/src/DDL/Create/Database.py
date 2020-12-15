@@ -2,7 +2,7 @@ import json
 import sys, os.path
 import os
 
-storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\Storage\\storageManager')
+storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\storageManager')
 sys.path.append(storage)
 
 from jsonMode import *
@@ -79,7 +79,6 @@ class Database():
                 if createDatabase(self.name) == 2:
                     self.responseCode="0000"
                     self.responseMessage = "La base de datos fue reemplazada exitosamente"
-                    databases[index] = jsonDatabase
             else:
                 self.responseCode="42P04"
                 self.responseMessage = "La base de datos "+self.name+" ya existe"

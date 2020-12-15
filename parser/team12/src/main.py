@@ -64,7 +64,7 @@ class mainWindow:
 
 
 # Entrada por el archivo SQL Test File
-pathEntrada = str(pathlib.Path().absolute())+ r"\src\SQL Test File.sql"
+pathEntrada = str(pathlib.Path().absolute())+ r"\SQL Test File.sql"
 openFile = open(pathEntrada, "r", encoding="utf-8")
 entrada = openFile.read()
 openFile.close()

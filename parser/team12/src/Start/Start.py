@@ -36,4 +36,6 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'SENTENCIA_USE':
                 useDB = Use()
                 useDB.execute(hijo)
+            else:
+                pass
                 

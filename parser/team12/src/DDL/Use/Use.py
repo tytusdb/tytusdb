@@ -2,7 +2,7 @@ import json
 import sys, os.path
 import os
 
-storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\Storage\\storageManager')
+storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\storageManager')
 sys.path.append(storage)
 
 from jsonMode import *

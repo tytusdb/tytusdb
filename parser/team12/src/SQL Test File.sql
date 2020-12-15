@@ -1,1 +1,1 @@
-nombre1 > nombre2 = 3;
+SHOW DATABASES;

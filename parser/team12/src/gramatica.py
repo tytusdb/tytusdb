@@ -5,6 +5,13 @@ from EXPRESION.OPERADOR.Node_Operator import *
 from EXPRESION.EXPRESIONES_TERMINALES.BOOLEAN.NODO_BOOLEAN.Node_Boolean import *
 from EXPRESION.EXPRESIONES_TERMINALES.CHAR.NODE_CHAR.Node_Char import *
 from EXPRESION.EXPRESIONES_TERMINALES.IDENTIFICADOR.NODE_IDENTIFICADOR.Node_Identificador import *
+from DDL.DROP.Drop import *
+from DDL.SHOW.Show import *
+from ERROR.Error import *
+
+#Definicion de listado de errores
+errores = []
+
 # N de nodo porque es una clase genérica.
 #Definicion de tokens
 
@@ -343,6 +350,8 @@ def p_instruccion(t):
                     | sent_insertar
                     | sent_update 
                     | sent_delete
+                    | sentencia_show
+                    | sentencia_drop
                     | Exp'''
     t[0] = t[1]
 
@@ -701,22 +710,53 @@ def p_herencia(t):
 
 
 
-#Produccion para sentencia SHOW
+######################################Produccion para sentencia SHOW
 def p_show(t):
-    ''' show : SHOW DATABASES like_option'''
-
+    ''' sentencia_show : SHOW DATABASES like_option'''
+    nuevo = Show('SENTENCIA_SHOW')
+    nuevo.hijos.append(Start('SHOW',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(Start('DATABASES',t.lineno(1),t.lexpos(1)+1))
+    if(t[3] != None):
+        nuevo.hijos.append(t[3])
+    nuevo.execute()
+    t[0] = nuevo
+        
 def p_like_option(t):
-    ''' like_option : LIKE CADENA 
-                    | '''
+    ''' like_option : LIKE CADENA'''
+    nuevo = Start('like_option')
+    nuevo.hijos.append(Start('LIKE',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(Start('CADENA',t.lineno(2),t.lexpos(2)+1,t[2]))
+    t[0] = nuevo
+
+def p_like_option_2(t):
+    ''' like_option : '''
+    t[0] = None
 
 
-#Produccion para Drops
+#########################################################Produccion para Drops
 def p_drop(t):
-    ''' drop : DROP drop_options'''
+    ''' sentencia_drop : DROP drop_options'''
+    nuevo = Drop('SENTENCIA_DROP')
+    nuevo.addChild(Start('DROP',t.lineno(1),t.lexpos(1)+1))
+    nuevo.addChild(t[2])
+    t[0] = nuevo
+
 
 def p_drop_options(t):
-    ''' drop_options : TABLE IDENTIFICADOR
-                    |   DATABASE if_exists IDENTIFICADOR '''
+    ''' drop_options : TABLE IDENTIFICADOR '''
+    nuevo = Start('drop_option')
+    nuevo.addChild(Start('TABLE',t.lineno(1),t.lexpos(1)+1))
+    nuevo.addChild(Start('IDENTIFICADOR',t.lineno(2),t.lexpos(2)+1,t[2]))
+    t[0] = nuevo
+
+def p_drop_options2(t):
+    ''' drop_options : DATABASE if_exists IDENTIFICADOR '''
+    nuevo = Start('drop_option')
+    nuevo.addChild(Start('DATABASE',t.lineno(1),t.lexpos(1)+1))
+    if(t[2] != None):
+        nuevo.addChild(t[2])
+    nuevo.addChild(Start('IDENTIFICADOR',t.lineno(3),t.lexpos(3)+1,t[3]))
+    t[0] = nuevo
 
 
 # ******************************* EXPRESION ***************************************
