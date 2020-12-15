@@ -668,12 +668,12 @@ def p_crear(t):
               | CREATE TYPE ID AS ENUM PAR_A lista_exp PAR_C'''
      
      if(t[3].lower()=='database'):
-          t[0]=CrearBD(t[2], t[4], t[5], t[6], t[7])
+          t[0]=CrearBD(t[2], t[4], ExpresionIdentificador(t[5]), t[6], t[7])
      else:
           if(t[2].lower()=='table'):
-               t[0]=CrearTabla(t[3],t[7],t[5])
+               t[0]=CrearTabla(ExpresionIdentificador(t[3]),t[7],t[5])
           else:
-               t[0]=CrearType(t[3],t[7])
+               t[0]=CrearType(ExpresionIdentificador(t[3]),t[7])
                print('llamar funcion Type')
      
 
@@ -748,7 +748,7 @@ def p_columna(t):
      elif(t[1].lower()=='foreign'):
           t[0]=llaveTabla(False, t[7], t[4], t[9])
      else:
-          t[0]=columnaTabla(t[1], t[2], t[3],t[4], t[5])
+          t[0]=columnaTabla(ExpresionIdentificador(t[1]), t[2], t[3],t[4], t[5])
 
 def p_tipo(t):
      '''tipo : smallint

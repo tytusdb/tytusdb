@@ -77,16 +77,6 @@ class columnaTabla(Instruccion) :
         self.zonahoraria = zonahoraria
         self.atributos = atributos   
 
-class columnaTabla(Instruccion) :
-    '''
-        Esta clase las columnas de una tabla
-    '''
-    def __init__(self, id, tipo, valor,zonahoraria, atributos = []) :
-        self.id = id
-        self.tipo = tipo
-        self.valor = valor
-        self.zonahoraria = zonahoraria
-        self.atributos = atributos   
 
 class llaveTabla(Instruccion) :
     '''

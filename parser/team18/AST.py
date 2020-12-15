@@ -2,6 +2,9 @@ import Gramatica as g
 import tablasimbolos as TS
 from expresiones import *
 from instrucciones import *
+from reporteAST import *
+
+listaInstrucciones = []
 
 def crear_BaseDatos(instr,ts):
     #verificacion crea la base de datos si no existe, si existe no devuelve error
@@ -82,6 +85,8 @@ def resolver_expresion_aritmetica(expNum, tablasimbolos) :
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
+    global listaInstrucciones 
+    listaInstrucciones  = instrucciones
     for instr in instrucciones :
         if isinstance(instr, CrearBD) : crear_BaseDatos(instr,ts)
         elif isinstance(instr, CrearTabla) : crear_Tabla(instr,ts)
@@ -95,4 +100,9 @@ def Analisar(input):
     ts_global = TS.TablaDeSimbolos()
     procesar_instrucciones(instrucciones,ts_global)
 
+#Metodos para graficar el ast 
+def generarAST():
+    global listaInstrucciones
+    astGraph = DOTAST()
+    astGraph.getDot(listaInstrucciones)
 

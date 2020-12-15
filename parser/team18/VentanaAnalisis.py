@@ -1,5 +1,7 @@
 from tkinter import *
 import AST
+from reporteAST import *
+
 
 ventana = Tk()
 ventana.title("COMPI2")
@@ -9,6 +11,7 @@ def enviarTexto():
     input=cuadroTxt.get(1.0,"end-1c")
     #print(input)
     AST.Analisar(input)
+    AST.generarAST()
 
 
 #cuadro de texto
