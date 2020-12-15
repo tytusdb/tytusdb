@@ -2,6 +2,13 @@ import ply.yacc as yacc
 import ply.lex as lex
 import re
 
+errores_lexicos = ""        #Variable para concatenar los errores lexicos y luego agregarlos al archivo de errores
+errores_sintacticos = ""    #Variable para concatenar los errores sintacticos y luego agregarlos al archivo de errores
+cont_error_lexico = 0
+cont_error_sintactico = 0
+linea = 1
+columna = 1
+
 # Lista de palabras reservadas
 reservadas = {
     'create' : 'CREATE',
@@ -135,10 +142,16 @@ t_ignore = " \t"
 
 def t_COMENTARIO_S(t):
     r'--.*\n'
+    global linea, columna
+    linea = linea + 1
+    columna = 1
     t.lexer.lineno += 1
 
 def t_COMENTARIO_M(t):
     r'/\*(.|\n)*?\*/'
+    global linea, columna
+    linea = linea + t.value.count('\n')
+    columna = 1
     t.lexer.lineno += t.value.count('\n')
 
 def t_ID(t):
@@ -171,12 +184,19 @@ def t_ENTERO(t):
 
 def t_nuevalinea(t):
     r'\n+'
+    global linea, columna
+    linea = linea + t.value.count('\n')
+    columna = 1
     t.lexer.lineno += t.value.count("\n")
 
 # Errores léxicos
 def t_error(t):
-    print("Caracter erroneo '%s'" % t.value[0])
+    global linea, columna
+    lex_error(t.value[0], linea, t.lexpos)
     t.lexer.skip(1)
+
+
+lexer = lex.lex(reflags=re.IGNORECASE)
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -217,7 +237,6 @@ def p_entrada(t):
                 | s_insert
                 | s_update
                 | s_select '''
-    print("Cadena correcta")
 
 #region 'Select Analisis'
 
@@ -278,10 +297,7 @@ def p_list_order(p):
 #end region 
 
 def p_create_type(t):
-    'create_type : CREATE TYPE ID AS c_type PTCOMA'
-	
-def p_c_type(t):
-    '''c_type : ENUM  PARIZQ lista1 PARDER'''
+    'create_type : CREATE TYPE ID AS ENUM PARIZQ lista1 PARDER PTCOMA'
 
 def p_lista1(t):
     '''lista1 : lista1 COMA CADENA
@@ -340,11 +356,7 @@ def p_igual_int(t):
                 | ENTERO'''
 
 def p_show_db(t):
-    'show_db : SHOW DATABASES like_id'
-
-def p_like_db(t):
-    '''like_id : LIKE CADENA PTCOMA
-                | PTCOMA'''
+    'show_db : SHOW DATABASES PTCOMA'
 
 def p_alter_db(t):
     'alter_db : ALTER DATABASE ID al_db PTCOMA' 
@@ -387,20 +399,22 @@ def p_const(t):
                 | const NOT NULL
                 | const NULL
                 | const CONSTRAINT ID  UNIQUE
+                | const CONSTRAINT ID  UNIQUE PARIZQ lista_id PARDER
                 | const UNIQUE
                 | const CONSTRAINT ID CHECK PARIZQ expresion PARDER
                 | const CHECK PARIZQ expresion PARDER
                 | const PRIMARY KEY
-                | const REFERENCES ID
+                | const REFERENCES ID PARIZQ lista_id PARDER
                 | DEFAULT valores
                 | NOT NULL
                 | NULL
                 | CONSTRAINT ID UNIQUE
+                | CONSTRAINT ID  UNIQUE PARIZQ lista_id PARDER
                 | UNIQUE
                 | CONSTRAINT ID CHECK PARIZQ expresion PARDER
                 | CHECK PARIZQ expresion PARDER
                 | PRIMARY KEY
-                | REFERENCES ID'''
+                | REFERENCES ID PARIZQ lista_id PARDER'''
 
 def p_lista_id(t):
     '''lista_id : lista_id COMA ID
@@ -481,20 +495,90 @@ def p_expresion(t):
                  | POWER PARIZQ expresion PARDER
                  | SQRT PARIZQ expresion PARDER
                  | ID
+                 | ID PUNTO ID
                  | valores'''
 
 def p_error(t):
-    print(t)
-    print("Error sintáctico en '%s'" % t.value)
+    global linea, columna
+    sin_error(t.type, t.value, linea, t.lexpos)
+    columna = columna + len(t.value)
 
 
 # Construyendo el analizador sintáctico
 parser = yacc.yacc()
 
+#Funcion para concatenar los errores léxicos en una variable
+def lex_error(lex, linea, columna):
+    global cont_error_lexico, errores_lexicos
+    cont_error_lexico = cont_error_lexico + 1
+    errores_lexicos = errores_lexicos + "<tr><td align=""center""><font color=""black"">" + str(cont_error_lexico) + "<td align=""center""><font color=""black"">" + str(lex) + "</td><td align=""center""><font color=""black"">" + str(linea) + "</td><td align=""center""><font color=""black"">" + str(columna) + "</td></tr>" + '\n'
+
+#Construccion reporte de errores léxicos
+def reporte_lex_error():
+    f = open('Errores_lexicos.html', 'w')
+    f.write("<html>")
+    f.write("<body>")
+    f.write("<table border=""1"" style=""width:100%""><tr><th>No.</th><th>Error</th><th>Linea</th><th>Columna</th></tr>")
+    f.write(errores_lexicos)
+    f.write("</table>")
+    f.write("</body>")
+    f.write("</html>")
+    f.close()
+
+#Construccion de la lista de tokens con lex.lex()
+def reporte_tokens(data):
+    cont = 0
+    lexer.input(data)
+    global errores_lexicos, cont_error_lexico, linea, columna
+    linea = 1
+    errores_lexicos = ""
+    cont_error_lexico = 0
+    f = open('Tokens.html', 'w')
+    f.write("<html>")
+    f.write("<body>")
+    f.write("<table border=""1"" style=""width:100%""><tr><th>No.</th><th>Token</th><th>Lexema</th><th>Linea</th><th>Columna</th></tr>")
+    while True:
+        cont = cont + 1
+        tok = lexer.token()
+        x = str(tok).replace('LexToken(','')[:-len(')')].split(",")
+        if(len(x) >= 4):
+            f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + x[0] + "</td><td align=""center""><font color=""black"">" + x[1] + "</td><td align=""center""><font color=""black"">" + str(linea) + "</td><td align=""center""><font color=""black"">" + str(columna) + "</td></tr>" + '\n')
+            columna = columna + len(x[1])
+        if not tok:
+            break
+    f.write("</table>")
+    f.write("</body>")
+    f.write("</html>")
+    f.close()
+
+#Funcion para concatenar los errores léxicos en una variable
+def sin_error(token, lex, linea, columna):
+    global cont_error_sintactico, errores_sintacticos
+    cont_error_sintactico = cont_error_sintactico + 1
+    errores_sintacticos = errores_sintacticos + "<tr><td align=""center""><font color=""black"">" + str(cont_error_sintactico) + "<td align=""center""><font color=""black"">" + str(token) + "<td align=""center""><font color=""black"">" + str(lex) + "</td><td align=""center""><font color=""black"">" + str(linea) + "</td><td align=""center""><font color=""black"">" + str(columna) + "</td></tr>" + '\n'
+
+#Construccion reporte de errores sintacticos
+def reporte_sin_error():
+    global cont_error_sintactico, errores_sintacticos
+    f = open('Errores_sintacticos.html', 'w')
+    f.write("<html>")
+    f.write("<body>")
+    f.write("<table border=""1"" style=""width:100%""><tr><th>No.</th><th>Token</th><th>Error</th><th>Linea</th><th>Columna</th></tr>")
+    f.write(errores_sintacticos)
+    f.write("</table>")
+    f.write("</body>")
+    f.write("</html>")
+    f.close()
+    cont_error_sintactico = 0
+    errores_sintacticos = ""
+
 def parse(entrada):
-    global parser
-    lexer = lex.lex(reflags=re.IGNORECASE)
-    lexer.lineno = 0
-    parse_result = parser.parse(entrada, lexer = lexer)
+    global parser, linea, columna
+    linea = 1
+    columna = 1
+    parse_result = parser.parse(entrada)
     print(parse_result)
+    reporte_tokens(entrada)
+    reporte_lex_error()
+    reporte_sin_error()
     return parse_result

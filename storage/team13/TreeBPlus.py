@@ -24,6 +24,48 @@ class TreeBPlus:
     
     def printTree(self):
         return self.__root.callPage()
+    
+    # Print tree
+    def showTree(self):
+        self._showTree(self.__root, 0)
+
+    def _showTree(self, tmp, level):
+        print("Level", level, ": ", end="")
+        tmp.showKeys()
+        if not (len(tmp.get_chlds()) == 0):
+            for i in range(len(tmp.get_chlds())):
+                self._showTree(tmp.get_chlds()[i], level + 1)
+
+    # graph tree
+    def graphTree(self):
+        if self.__root is not None:
+            graph = 'digraph G{\n'
+            graph += "node[shape = \"record\"]\n"
+            graph += self._graphTree(self.__root, 0)
+            graph += "{rank=same;\n"
+            graph += self._rankLeaves(self.__root)
+            graph += "}"
+            graph += '}'
+            file = open("ArbolB+.dot", "w")
+            file.write(graph)
+            file.close()
+            os.system('dot -Tpng ArbolB+.dot -o ArbolB+.png')
+        else:
+            print("No hay Tuplas")
+
+    def _graphTree(self, tmp, level):
+        cadena = ""
+        cadena += tmp.graphKeys(tmp, level)
+        if not (len(tmp.get_chlds()) == 0):
+            for i in range(len(tmp.get_chlds())):
+                cadena += self._graphTree(tmp.get_chlds()[i], level + 1)
+        return cadena
+                
+    # Rank = same to the nodes (leaves)
+    def _rankLeaves(self, tmp):
+        cadena = ""
+        cadena += tmp.rankLeavesKeys(tmp)
+        return cadena
 
 class PageTBPlus:
     
@@ -318,20 +360,75 @@ class PageTBPlus:
     def Travel(self):
         pass
 
+    # Show Keys of Page
+    def showKeys(self):
+        if not (len(self.__keys) == 0):
+            print("[", end=" ")
+            for i in range(len(self.__keys)):
+                print(self.__keys[i].value, ",", end=" ")
+            print("]", end=" ")
+            if not (self.__next is None):
+                print("[ ", end="")
+                for i in range(len(self.__next.__keys)):
+                    print(self.__next.__keys[i].value, end=" ")
+                print("]", end="")
+            else:
+                pass
+        contador = 0
+        if not (len(self.__childs) == 0):
+            for x in range(len(self.__childs)):
+                contador += 1
+        print(" contador hijos: ", contador)
+
+    # Graph and show keys
+    def graphKeys(self, tmp, level):
+        cadena = ""
+        if not (len(self.__keys) == 0):
+            keysString = ""
+            if level != 0:
+                for i in range(len(self.__keys)):
+                    if not (i == (len(self.__keys) - 1)):
+                        keysString += f"{self.__keys[i].value}, "
+                    else:
+                        keysString += f"{self.__keys[i].value}"
+                cadena += f"{tmp} [label=\"{keysString}\" color=red]\n"
+
+                if len(self.__childs) != 0:
+                    for i in range(len(self.__childs)):
+                        cadena += f"{tmp} -> {self.__childs[i]}\n"
+
+                if not (self.__next is None):
+                    cadena += f"{tmp} -> {self.__next}\n"
+
+            else:
+                for i in range(len(self.__keys)):
+                    if not (i == (len(self.__keys) - 1)):
+                        keysString += f"{self.__keys[i].value}, "
+                    else:
+                        keysString += f"{self.__keys[i].value}"
+                cadena += f"{tmp} [label=\"{keysString}\" color=green]\n"
+
+                if len(self.__childs) != 0:
+                    for i in range(len(self.__childs)):
+                        cadena += f"{tmp} -> {self.__childs[i]}\n"
+        return cadena
+                        
+    # Rank = same to the nodes (leaves)
+    def rankLeavesKeys(self, tmp):
+        cadena = ""
+        if len(tmp.get_chlds()) != 0:
+            cadena += self.rankLeavesKeys(tmp.get_chlds()[0])
+        else:
+            cadena += f"{tmp};\n"
+            if tmp.get_next() is not None:
+                cadena += self.rankLeavesKeys(tmp.get_next())
+        return cadena    
+
 class NodeTBPlus:
 
     def __init__(self, value):
         self.value = value
         
-    # class TreeBPlus:
-    #   def showTree(self):
-    #       self._showTree(self.__root, 0)
-    # 
-    #   def _showTree(self, tmp, level):
-    #       print("Level", level, ": ", end="")
-    #       tmp.showKeys()
-    #       if not (len(tmp.get_chlds()) == 0):
-    #           for i in range(len(tmp.get_chlds())):
-    #               self._showTree(tmp.get_chlds()[i], level + 1)
+
 
     

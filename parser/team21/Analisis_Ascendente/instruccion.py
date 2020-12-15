@@ -8,6 +8,10 @@ class CreateTable(Instruccion):
         self.campos = campos
         self.idInherits = idInherits
 
+
+
+
+
 class Campo(Instruccion):
     '''#1 ID tipo
        #2 CONSTRAINT
@@ -110,22 +114,19 @@ class AlterDatabase(Instruccion):
         self.newName = newName
 
 class AlterTable(Instruccion):
-    '''#1 ADD
-       #2 DROP
-       #3 ALTER'''
-    def __init__(self, caso, id, columnConstraint, idAdd, tipoAdd, checkAdd, constraintId, columnId, listaFK, listaReferences, idDrop, columnAlter):
-        self.caso = caso
+    def __init__(self, id, alter):
         self.id = id
-        self.columnConstraint = columnConstraint
-        self.idAdd = idAdd
-        self.tipoAdd = tipoAdd
-        self.checkAdd = checkAdd
-        self.constraintId = constraintId
-        self.columnId = columnId
-        self.listaFK = listaFK
-        self.listaReferences = listaReferences 
-        self.idDrop = idDrop
-        self.columnAlter = columnAlter
+        self.alter = alter
+
+class Alter(Instruccion):
+    def __init__(self, accion, ccc, id, tipo, check, id2, typeSet):
+        self.accion = accion
+        self.ccc = ccc
+        self.id = id 
+        self.tipo = tipo
+        self.check = check
+        self.id2 = id2
+        self.typeSet = typeSet
 
 #UPDATE
 class Update(Instruccion):
@@ -133,3 +134,46 @@ class Update(Instruccion):
         self.id = id
         self.asignaciones = asignaciones
         self.where = where 
+
+#SELECT
+#-----------------------
+#TIME
+class Time(Instruccion):
+    '''#1 EXTRACT
+       #2 NOW
+       #3 date_part
+       #4 current_date
+       #5 current_time
+       #6 TIMESTAMP'''
+    def __init__(self, caso, momento, cadena, cadena2):
+        self.caso = caso
+        self.momento = momento
+        self.cadena = cadena
+        self.cadena2 = cadena2
+
+
+
+
+#COMBINACION QUERIES
+class Combinacion(Instruccion):
+    '''#1 union
+       #2 intersect
+       #3 except'''
+    def __init__(self, caso, all, querie1, querie2):
+        self.caso = caso
+        self.all = all
+        self.querie1 = querie1
+        self.querie2 = querie2
+
+
+ #MATH
+class Math_(Instruccion):
+    def __init__(self, nombre, E1, E2):
+        self.nombre = nombre
+        self.E1 = E1
+        self.E2 = E2
+
+class Trigonometrica(Instruccion):
+    def __init__(self, trig, E):
+        self.trig = trig
+        self.E = E
