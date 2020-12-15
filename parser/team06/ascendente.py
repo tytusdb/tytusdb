@@ -744,29 +744,49 @@ def procesar_createTale(query,ts):
     print(query.listColumn)
     #print("cantidad de columnas: ",len(query.listColumn))
     for i in query.listColumn:
-        print(i.idColumna,i.TipoColumna)
-        if i.RestriccionesCol != None:
-            for res in i.RestriccionesCol:
-                print(res.typeR)
-                print(res.objrestriccion.valor)
-                if res.typeR == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
-                    print("columna con restriccion llave primaria")
-                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.DEFAULT:
-                    print("columna con un valor por default")
-                    print("valor: ",res.objrestriccion.valor) #<---- correccion
-                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NULL:
-                    print("columna que puede ser nulo")
-                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NOT_NULL:
-                    print("columna que no debe ser nulo")
-                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT:
-                    print("columna que debe ser unico definicon con constraint")
-                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA:
-                    print("columna que debe ser unico")
-                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
-                    print("Columna con restriccion check")
-                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
-                    print("Columna con restricion check definido con constraint")
+        if i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION:
+            print("columnas")
+            #if i.RestriccionesCol != None:
+        #    for res in i.RestriccionesCol:
+                #print(res.typeR)
+                #print(res.objrestriccion.valor)
+        #        if res.typeR == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
+        #            print("columna con restriccion llave primaria")
+        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.DEFAULT:
+        #            print("columna con un valor por default")
+        #            print("valor: ",res.objrestriccion.valor) #<---- correccion
+        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NULL:
+        #            print("columna que puede ser nulo")
+        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NOT_NULL:
+        #            print("columna que no debe ser nulo")
+        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT:
+        #            print("Restriccion en columna CONSTRAINT UNIQUE")
+        #            print("Id contraint: ",res.objrestriccion.idUnique)
+        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA:
+        #            print("columna que debe ser unico")
+        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
+        #            print("Restriccion CHECK")
+        #            print("Valor de check: ",res.objrestriccion.condCheck.val)
+        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
+        #            print("Restriccion CONSTRAINT CHECK")
+        #            print("Id contraint: ",res.objrestriccion.idConstraint)
+        #            print("Valor de check: ",res.objrestriccion.condCheck.val)
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION:
+            print("columna con restriccion")
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO:
+            print("unique")
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
+            print("check contraint")
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
+            print("check simple")
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
+            print("llave primaria")
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY:
+            print("llave foranea")
+        print(i.TypeAtrib)
     h.textosalida+="TYTUS>>Creando tabla"
+
+
 def drop_table(query,ts):
     print("voy a imprimir los valores del drop :v")
     print("aqui viene el id de la tabla a dropear:",query.id)
