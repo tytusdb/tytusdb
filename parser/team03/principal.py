@@ -12,9 +12,8 @@ import grammarReview as g
 
 f = open("./entrada.txt", "r")
 input = f.read()
-print("entrada: " + input +"\n")
+print("Input: " + input +"\n")
 obj = g.toParse(input)
-print(obj,":")
-print("Executing AST root ...")
+print("Executing AST root, please wait ...")
 val = obj.execute(None,None)
 print("AST excute result: ",val)
