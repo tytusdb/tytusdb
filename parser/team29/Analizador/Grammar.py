@@ -251,18 +251,29 @@ def p_expresion_(t) :
     '''
     t[0] = t[2]
 
-def p_funcCall(t) :
-  '''
-  funcCall : ID S_PARIZQ paramsList S_PARDER
-          | R_NOW S_PARIZQ S_PARDER
-          | ID S_PARIZQ S_PARDER
-          | R_COUNT S_PARIZQ paramsList S_PARDER
-          | R_COUNT S_PARIZQ O_PRODUCTO S_PARDER
-          | R_SUM S_PARIZQ paramsList S_PARDER
-          | R_SUM S_PARIZQ O_PRODUCTO S_PARDER
-          | R_PROM S_PARIZQ paramsList S_PARDER
-          | R_PROM S_PARIZQ O_PRODUCTO S_PARDER
-  '''
+def p_funcCall_1(t) :
+    '''
+    funcCall : ID S_PARIZQ paramsList S_PARDER
+    '''
+    t[0] = Expresiones.FunctionCall(t[1],t[3])
+    
+
+def p_funcCall_2(t) :
+    '''
+    funcCall : ID S_PARIZQ S_PARDER
+    '''
+    t[0] = Expresiones.FunctionCall(t[1],[])
+
+def p_funcCall_3(t) :
+    '''
+    funcCall : R_NOW S_PARIZQ S_PARDER
+            | R_COUNT S_PARIZQ paramsList S_PARDER
+            | R_COUNT S_PARIZQ O_PRODUCTO S_PARDER
+            | R_SUM S_PARIZQ paramsList S_PARDER
+            | R_SUM S_PARIZQ O_PRODUCTO S_PARDER
+            | R_PROM S_PARIZQ paramsList S_PARDER
+            | R_PROM S_PARIZQ O_PRODUCTO S_PARDER
+    '''
 
 def p_extract(t) :
   '''
@@ -334,9 +345,12 @@ def p_literal(t):
 
 def p_params_list(t):
     """paramsList : paramsList S_COMA datatype"""
+    t[1].append(t[3])
+    t[0] = t[1] 
 
 def p_params_u(t):
     """paramsList : datatype"""
+    t[0] = [t[1]]
 
 def p_datatype_operadores_binarios(t):
     """
@@ -844,7 +858,7 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 s = """
-    SELECT 3<1 or 23-7/4 BETWEEN 3 AND 4 AND NOT TRUE = false AS "test 1";
+    SELECT abs(-pi()+1),3+3,cos();
 """
 result = parser.parse(s)
 print(result)

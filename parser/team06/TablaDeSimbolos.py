@@ -30,6 +30,13 @@ class TablaDeSimbolos() :
             print('Error1: variable ', id, ' no definida.')
             return("no definida")
         return self.simbolos[id]
+    
+    def obtener2(self, id) :
+        print("a este entra")
+        if not id in self.simbolos :
+            print('Error1: variable ', id, ' no definida.')
+            return 0
+        return self.simbolos[id]
 
     def actualizar(self, simbolo) :
         if not simbolo.id in self.simbolos :
