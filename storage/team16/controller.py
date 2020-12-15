@@ -1,11 +1,12 @@
-from database_module import DatabaseModule
+from BusinessLayer.database_module import DatabaseModule
+
+
 # from table_module import TableModule
 class Controller:
 
     def __init__(self):
         self.dm = DatabaseModule()
         # self.tm = TableModule()
-        
 
     def ejectutarFuncion(self, fun, parametros):
         if fun == "Create DB":
@@ -17,7 +18,7 @@ class Controller:
         elif fun == "Drop DB":
             return self.dm.dropDatabase(parametros[0])
         elif fun == "Load file":
-            print("Función para añadir archivo ",parametros[0])
+            print("Función para añadir archivo ", parametros[0])
         # elif fun == "Create table":
         #     return self.tm.createTable(parametros[0], parametros[1], parametros[2])
         # elif fun == "Define PK":

@@ -1,8 +1,13 @@
+import sys
+import os
+sys.path.append(os.path.abspath('.'))
+
 from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, Scrollbar, \
     Listbox, \
     Grid, Entry, filedialog, messagebox, Toplevel
 from PIL import Image, ImageTk
 from controller import Controller
+
 
 class GUI(Frame):
 
@@ -45,7 +50,8 @@ class GUI(Frame):
         app3 = GUI(master=v3, val=3)
         app3.mainloop()
 
-    def on_closing(self, win, root):
+    @staticmethod
+    def on_closing(win, root):
         if messagebox.askokcancel("Salir", "¿Seguro que quieres salir?"):
             win.destroy()
             root.deiconify()
@@ -82,7 +88,7 @@ class GUI(Frame):
 
     # Ventana de funciones
     def agregarComp2(self):
-        lbl1 = Label(self.master, text="Bases de datos", font=("Century Gothic", 21), bg="#0f1319",fg="#ffffff")
+        lbl1 = Label(self.master, text="Bases de datos", font=("Century Gothic", 21), bg="#0f1319", fg="#ffffff")
         lbl1.grid(row=1, column=0, padx=(60, 85), pady=(100, 25))
 
         lbl2 = Label(self.master, text="Tablas", font=("Century Gothic", 21), bg="#0f1319", fg="#ffffff")
@@ -103,7 +109,7 @@ class GUI(Frame):
                             text="Show databases",
                             bg="#abb2b9", font=("Courier New", 14),
                             borderwidth=0.5, pady=6, width=16,
-                            command=lambda: self.controlador.ejectutarFuncion("Show DB",None))
+                            command=lambda: self.controlador.ejectutarFuncion("Show DB", None))
         btnshowDBS.grid(row=3, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
 
         btnAlterDB = Button(self.master,
@@ -140,14 +146,14 @@ class GUI(Frame):
                              text="Define PK",
                              bg="#abb2b9", font=("Courier New", 14),
                              borderwidth=0.5, pady=6, width=15,
-                             command=lambda: self.simpleDialog(["database","table","columns"], "Define PK"))
+                             command=lambda: self.simpleDialog(["database", "table", "columns"], "Define PK"))
         btnDefinePK.grid(row=3, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
 
         btnDefineFK = Button(self.master,
                              text="Define FK",
                              bg="#abb2b9", font=("Courier New", 14),
                              borderwidth=0.5, pady=6, width=15,
-                             command=lambda: self.simpleDialog(["database","table","references"], "Define FK"))
+                             command=lambda: self.simpleDialog(["database", "table", "references"], "Define FK"))
         btnDefineFK.grid(row=4, column=1, sticky=W, padx=(10, 0), pady=(0, 25))
 
         btnShowTb = Button(self.master,
@@ -194,10 +200,11 @@ class GUI(Frame):
         btnExtractTb.grid(row=5, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
 
         btnExtractRangeTb = Button(self.master,
-                              text="Extract range",
-                              bg="#abb2b9", font=("Courier New", 14),
-                              borderwidth=0.5, pady=6, width=15,
-                              command=lambda: self.simpleDialog(["database", "table", "lower","upper"], "Extract range table"))
+                                   text="Extract range",
+                                   bg="#abb2b9", font=("Courier New", 14),
+                                   borderwidth=0.5, pady=6, width=15,
+                                   command=lambda: self.simpleDialog(["database", "table", "lower", "upper"],
+                                                                     "Extract range table"))
         btnExtractRangeTb.grid(row=6, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
 
         # Tuplas:
@@ -267,14 +274,11 @@ class GUI(Frame):
         submit.grid(row=dim + 1, columnspan=2, pady=(8, 10))
         dialog.mainloop()
 
-
     def cargarArchivo(self, btn):
         filename = filedialog.askopenfilename(filetypes=[("csv files", "*.csv")])
         if filename:
             self.parametros.append(filename)
             btn.configure(text=filename[filename.rfind('/') + 1:])
-
-
 
     def ejecutar(self, params, dialog, fun):
         for param in params:
@@ -282,13 +286,8 @@ class GUI(Frame):
         dialog.destroy()
         retorno = self.controlador.ejectutarFuncion(fun, self.parametros)
         if retorno == 1 or retorno == 2 or retorno == 3:
-            messagebox.showerror("Error número: "+str(retorno), "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
-
-    
-    
-
-
-
+            messagebox.showerror("Error número: " + str(retorno),
+                                 "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
 
     # Ventana de reporte
     def agregarComp3(self):
@@ -320,6 +319,7 @@ class GUI(Frame):
             data = event.widget.get(index)
             self.titulo3.configure(text=data)
 
+
 def run():
     v1 = Tk()
     image = Image.open('img/main.png')
@@ -328,3 +328,6 @@ def run():
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
     app = GUI(master=v1, val=1)
     app.mainloop()
+
+
+run()

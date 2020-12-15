@@ -3,8 +3,12 @@ from Models.tree_graph import TreeGraph
 
 
 class AVLTree:
-    def __init__(self):
+    def __init__(self, database: str, name: str, numberColumns: int):
         self.root = None
+        self.database = str(database)
+        self.name = str(name)
+        self.numberColumns = numberColumns
+        self.pk = []
 
     # region basic methods
     def add(self, index, content):
@@ -171,7 +175,7 @@ class AVLTree:
     # endregion
 
 
-t = AVLTree()
+t = AVLTree("test", "tst", 5)
 t.add(57, "as")
 t.add(25, "as")
 t.add(78, "as")
