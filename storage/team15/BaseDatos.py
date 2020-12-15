@@ -28,6 +28,11 @@ class BaseDatos:
         salida = [existe, i]
         return salida
 
+    # == DEVUELVE EL OBJETO PARA LA INTERFAZ GRÁFICA
+    def Devolver(self, table):
+        temp = serealizar.rollback(table, self.main_path)
+        serealizar.commit(temp, table, self.main_path)
+        return temp
 
     # == CREAR TABLAS
     def createTable(self, tableName, numberColumns):
