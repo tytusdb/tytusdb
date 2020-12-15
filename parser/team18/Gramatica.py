@@ -910,23 +910,6 @@ Error_Sin = []
 import ply.yacc as yacc
 parser = yacc.yacc()
 
-
-
-
-#f = open("./entrada.txt", "r")
-#input = f.read()
-#parser.parse(input)
-'''
-def AnalizarInput(texto):
-     global Error_Lex
-     global Error_Sin
-     Reporte_Errores(Error_Lex,Error_Sin)
-
-     return parser.parse(texto)
-'''
-import ply.yacc as yacc
-parser = yacc.yacc()
-
 def parse(input) :
      global Error_Lex
      global Error_Sin

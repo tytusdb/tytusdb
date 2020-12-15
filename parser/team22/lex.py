@@ -1,3 +1,6 @@
+from tabla_errores import *
+tabla_errores = TablaDeErrores()
+
 ##-------------------------GRAMATICA ASCENDENTE-------------------------------
 reservadas = {
     'create' : 'CREATE',
@@ -20,8 +23,14 @@ reservadas = {
     'character': 'CHARACTER',
     'varying': 'VARYING',
     'varchar' : 'VARCHAR',
+    'bytea' : 'BYTEA',
     'char' : 'CHAR',
     'text' : 'TEXT',
+    'now' : 'NOW',
+    'date_part' : 'date_part',
+    'current_date' : 'CURRENT_DATE',
+    'current_time' : 'CURRENT_TIME',
+    'extract' : 'EXTRACT',
     'timestamp' : 'TIMESTAMP',
     'without' : 'WITHOUT',
     'time' : 'TIME',
@@ -57,9 +66,49 @@ reservadas = {
     'right' : 'RIGHT',
     'on' : 'ON',
     'any' : 'ANY',
+    'count' : 'COUNT',
     'sum' : 'SUM',
     'like' : 'LIKE',
     'avg' : 'AVG',
+    'abs' : 'ABS',
+    'cbrt' : 'CBRT',
+    'ceil' : 'CEIL',
+    'ceiling' : 'CEILING',
+    'degrees' : 'DEGREES',
+    'div' : 'DIV',
+    'exp' : 'REXP',
+    'factorial' : 'FACTORIAL',
+    'floor' : 'FLOOR',
+    'gcd' : 'GCD',
+    'ln' : 'LN',
+    'log' : 'LOG',
+    'mod' : 'MOD',
+    'pi' : 'PI',
+    'power' : 'POWER',
+    'radians' : 'RADIANS',
+    'round' : 'ROUND',
+    'acos' : 'ACOS',
+    'asin' : 'ASIN',
+    'atan' : 'ATAN',
+    'atan2' : 'ATAN2',
+    'cos' : 'COS',
+    'cot' : 'COT',
+    'sin' : 'SIN',
+    'tan' : 'TAN',
+    'acosd' : 'ACOSD',
+    'asind' : 'ASIND',
+    'atand' : 'ATAND',
+    'atan2d' : 'ATAN2D',
+    'cosd' : 'COSD',
+    'cotd' : 'COTD',
+    'sind' : 'SIND',
+    'tand' : 'TAND',
+    'sinh' : 'SINH',
+    'cosh' : 'COSH',
+    'tanh' : 'TANH',
+    'asinh' : 'ASINH',
+    'acosh' : 'ACOSH',
+    'atanh' : 'ATANH',
     'max' : 'MAX',
     'min' : 'MIN',
     'order' : 'ORDER',
@@ -81,6 +130,8 @@ reservadas = {
     'exists' : 'EXISTS',
     'intersect' : 'INTERSECT',
     'except' : 'EXCEPT',
+    'offset' : 'OFFSET',
+    'limit' : 'LIMIT',
     'all' : 'ALL',
     'into' : 'INTO',
     'some' : 'SOME',
@@ -110,7 +161,35 @@ reservadas = {
     'truncate' : 'TRUNCATE',
     'update' : 'UPDATE',
     'asc' : 'ASC',
-    'show': 'SHOW'
+    'show': 'SHOW',
+    'when' : 'WHEN',
+    'then' : 'THEN',
+    'greatest' : 'GREATEST',
+    'least' : 'LEAST',
+    'end' : 'END',
+    'else' : 'ELSE',
+    'least': 'LEAST',
+    'true' : 'TRUE',
+    'false' : 'FALSE',
+    'unknown' : 'UNKNOWN',
+    'isnull' : 'ISNULL',
+    'notnull' : 'NOTNULL',
+    'length' : 'LENGTH',
+    'substring' : 'SUBSTRING',
+    'trim' : 'TRIM',
+    'md5' : 'MD5',
+    'sha256' : 'SHA256',
+    'substr' : 'SUBSTR',
+    'get_byte' : 'GET_BYTE',
+    'set_byte' : 'SET_BYTE',
+    'convert' : 'CONVERT',
+    'encode' : 'ENCODE',
+    'decode' : 'DECODE',
+    'sign' : 'SIGN',
+    'sqrt' : 'SQRT',
+    'width_bucket' : 'WIDTH_BUCKET',
+    'trunc' : 'TRUNC',
+    'random' : 'RANDOM'
 }
 
 tokens  = [
@@ -131,6 +210,7 @@ tokens  = [
     'MAYORIGUAL',
     'MAYOR',
     'DIFERENTE',
+    'NO_IGUAL',
     'MENORIGUAL',
     'MENOR',
     'ASIGNACION_SUMA',
@@ -143,7 +223,9 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
-    'ID'
+    'CADENA_DOBLE',
+    'ID',
+    'COMILLA_SIMPLE'
 ] + list(reservadas.values())
 
 # Tokens
@@ -165,6 +247,7 @@ t_MENOR             = r'<'
 t_MENORIGUAL        = r'<='
 t_MAYORIGUAL        = r'>='
 t_DIFERENTE         = r'<>'
+t_NO_IGUAL          = r'!='
 t_ASIGNACION_SUMA   = r'\+='
 t_ASIGNACION_RESTA  = r'\-='
 t_ASIGNACION_MULT   = r'\*='
@@ -172,6 +255,7 @@ t_ASIGNACION_DIVID  = r'\/='
 t_ASIGNACION_MODULO = r'\%='
 t_DOS_PUNTOS        = r'\:'
 t_DIAG_INVERSA      = r'\\'
+t_COMILLA_SIMPLE    = r'\''
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -201,6 +285,11 @@ def t_CADENA(t):
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
 
+def t_CADENA_DOBLE(t):
+    r'\".*?\"'
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t 
+
 # Comentario de múltiples líneas /* .. */
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -216,8 +305,10 @@ t_ignore = " \t"
 
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+    t.lexer.lineno += len(t.value)
     
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    error = Error('Léxico', "Caracter desconocido '%s'" % t.value[0], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    print(error.imprimir())
     t.lexer.skip(1)
