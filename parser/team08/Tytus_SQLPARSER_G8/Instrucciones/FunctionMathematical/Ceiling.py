@@ -14,6 +14,8 @@ class Ceiling(Instruccion):
         return math.ceil(self.valor)
 
 #por lo que encontre es lo mismo ceil y ceiling
+'''
 instruccion = Ceiling(0.50,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

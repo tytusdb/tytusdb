@@ -2,7 +2,12 @@
 palabrasReservadas = {
     'insert':'INSERT',
     'varchar':'VARCHAR',
-    'columns':'COLUMNS',                 
+    'columns':'COLUMNS', 
+    'column':'COLUMN',
+    'natural':'NATURAL',
+    'outer':'OUTER',
+    'bytea':'BYTEA',
+    'sign':'SIGN',               
     'rename':'RENAME',
     'asc':'ASC',
     'desc':'DESC',
@@ -42,6 +47,7 @@ palabrasReservadas = {
     'foreign':'FOREIGN',
     'key':'KEY',
     'inherits':'INHERITS',
+    'use':'USE',
     # VARIABLES DE ADMIN 
     'current_user':'CURRENT_USER',
     'session_user':'SESSION_USER',    
@@ -120,6 +126,73 @@ palabrasReservadas = {
     'type':'TYPE',
     'enum':'ENUM',
     # FUNCIONES DE AGREGACION 
+    'sum':'SUM',
+    'now':'NOW',
+    'date':'DATE',
+    'avg':'AVG',
+    'max':'MAX',
+    'min':'MIN',
+    'abs':'ABS',
+    'cbrt':'CBRT',
+    'ceil':'CEIL',
+    'ceiling':'CEILING',
+    'degrees':'DEGREES',
+    'div':'DIV',
+    'exp':'EXP',
+    'factorial':'FACTORIAL',
+    'floor':'FLOOR',
+    'gcd':'GCD',
+    'ln':'LN',
+    'log':'LOG',
+    'mod':'MOD',
+    'pi':'PI',
+    'power':'POWER',
+    'radians':'RADIANS',
+    'round':'ROUND',
+    'sing':'SING',
+    'sqrt':'SQRT',
+    'width_bucket':'WIDTH_BUCKET',
+    'trunc':'TRUNC',
+    'random':'RANDOM',
+    'acos':'ACOS',
+    'acosd':'ACOSD',
+    'asin':'ASIN',
+    'asind':'ASIND',
+    'atan':'ATAN',
+    'atand':'ATAND',
+    'atan2':'ATAN2',
+    'atan2d':'ATAN2D',
+    'cos':'COS',
+    'cosd':'COSD',
+    'cot':'COT',
+    'cotd':'COTD',
+    'sin':'SIN',
+    'sind':'SIND',
+    'tan':'TAN',
+    'tand':'TAND',
+    'sinh':'SINH',
+    'cosh':'COSH',
+    'tanh':'TANH',
+    'asinh':'ASINH',
+    'acosh':'ACOSH',
+    'atanh':'ATANH',
+    'length':'LENGTH',
+    'substring':'SUBSTRING',
+    'trim':'TRIM',
+    'md5':'MD5',
+    'sha256':'SHA256',
+    'substr':'SUBSTR',
+    'get_byte':'GET_BYTE',
+    'set_byte':'SET_BYTE',
+    'convert':'CONVERT',
+    'encode':'ENCODE',
+    'decode':'DECODE',
+    'order':'ORDER',
+    'nulls':'NULLS',
+    'count':'COUNT',
+    'end':'END',
+    'greatest':'GREATEST',
+    'least':'LEAST'
 }
 tokens = [
     # corchetes no porque dijo el aux que no venia
@@ -134,6 +207,7 @@ tokens = [
     'MAYOR',
     'MENOR',
     'DIFERENTE',
+    'DIFERENTE2',
     'MAYORIGUAL',
     'MENORIGUAL', 
     'MAS',
@@ -144,32 +218,34 @@ tokens = [
     'PCIERRA',
     'COMA',
     'TYPECAST',
-    'XOR',
+    'EXPONENT',
     'MODULO',
     'PIPE',
     'DOBLE_PIPE',
      # Binary string funcions - operators: 
     'AMPERSAND',
     'NUMERAL',
-    'GUION_CURVEADO',
+    'BITWISE_NOT',
     'CORRIMIENTO_DER',
-    'CORRIMIENTO_IZQ'
- 
+    'CORRIMIENTO_IZQ',
+    'NOTBETWEEN'
 ] + list(palabrasReservadas.values())
+
 
 # expresiones regulares
 t_CORRIMIENTO_DER = r'>>'
 t_CORRIMIENTO_IZQ = r'<<'
-t_GUION_CURVEADO = r'~'
+t_BITWISE_NOT = r'~'
 t_AMPERSAND = r'&'
 t_NUMERAL = r'\#'
 t_PIPE = r'\|'
 t_DOBLE_PIPE =  r'\|\|'
 t_MODULO = r'%'
-t_XOR = r'\^'
+t_EXPONENT = r'\^'
 t_TYPECAST =r'[:][:]'
 t_PTCOMA = r';'
 t_IGUAL  = r'='
+t_DIFERENTE2 = r'[!][=]'
 t_MAYOR  = r'>'
 t_MENOR  = r'<'
 t_MAS = r'\+'
@@ -183,6 +259,12 @@ t_MAYORIGUAL = r'>='
 t_PABRE = r'\('
 t_PCIERRA = r'\)'
 t_COMA = r','
+
+
+def t_NOTBETWEEN(t):
+    r'[Nn][Oo][tT][ ]+[Bb][eE][tT][wW][eE][eE][nN]'
+    t.type = 'NOTBETWEEN'
+    return t
 # funcion para id, aca tambien se reconocen las palabras reservadas
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
@@ -240,7 +322,6 @@ def t_CADENA2(t):
     t.type = "CADENA"
     return t
 
-
 #ignorando espacios    
 t_ignore = ' \t'
 
@@ -257,20 +338,14 @@ import ply.lex as lex
 lexer = lex.lex()
 
 # para debugger los nuevos tokens
-
 # lexer.input('''
-# update tabla set campo = NuevoCampo ;
+#     NOT BETWEEN 
+#     BETWEEN NOT 
 # ''')
 # while not False:
 #     token = lexer.token()
 #     if not token:
 #         break
 #     print(f'tipo: {token.type} valor: {token.value}  linea:{token.lineno} col:{token.lexpos}')
-
-
-
-
-
-
 
 

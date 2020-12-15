@@ -1,9 +1,16 @@
 import gramatica as g
+import Utils.TablaSimbolos as table
+import Utils.Lista as l
 
-ruta = 'C:/Users/Leni_n/Desktop/Nueva carpeta/entrada.txt'
+datos = l.Lista([], '')
+
+ruta = '../G26/entrada.txt'
 f = open(ruta, "r")
 input = f.read()
-# print(input)
 
 instrucciones = g.parse(input)
-# print(instrucciones)
+
+#for instr in instrucciones :
+#    instr.execute(datos)
+
+#print (datos)
