@@ -95,7 +95,9 @@ class Between(Instruction):
         BETWEEN recibe 2 parametros
         Sintax: BETWEEN value1 AND value2
     '''
-    def __init__(self,  value1, value2) :
+    def __init__(self, opt_not, opt_simmetric,  value1, value2) :
+        self.opt_not = opt_not
+        self.opt_simmetric = opt_simmetric
         self.value1 = value1
         self.value2 = value2
     

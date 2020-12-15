@@ -3,7 +3,7 @@ import os
 import sys
 import platform
 
-import accionesIDE as accionesVarias
+#import accionesIDE as accionesVarias
 #import mostrarLineas
 
 

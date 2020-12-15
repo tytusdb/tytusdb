@@ -3,8 +3,21 @@ import ply.lex as lex
 from lex import *
 from type_checker import *
 from columna import *
+from graphviz import Graph
+
+dot = Graph()
+dot.attr(splines = 'false')
+dot.node_attr.update(fontname = 'Eras Medium ITC', style='filled', fillcolor="tan",
+                     fontcolor = 'black')
+dot.edge_attr.update(color = 'black')
+
 lexer = lex.lex()
 type_checker = TypeChecker()
+i = 0
+def inc():
+    global i 
+    i += 1
+    return i
 
 
 # Asociación de operadores y precedencia
@@ -25,18 +38,24 @@ from instrucciones import *
 
 def p_init(t) :
     'init            : instrucciones'
-    t[0] = t[1]
+    id = inc()
+    t[0] = {'id': id}
+    dot.node(str(id), 'INICIO')
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
     
-
 def p_instrucciones_lista(t) :
     'instrucciones    : instrucciones instruccion'
+    #                   [{'id': id}]  {'id': id}
     t[1].append(t[2])
+    #[{'id': id}, {'id': id}]
     t[0] = t[1]
 
 
 def p_instrucciones_instruccion(t) :
     'instrucciones    : instruccion '
     t[0] = [t[1]]
+    # [{'id': id}]
 
 def p_instruccion(t) :
     '''instruccion      : CREATE creacion
@@ -50,7 +69,14 @@ def p_instruccion(t) :
                         | INSERT insercion
                         | DROP dropear
                         '''
-    t[0] = t[2]
+    id = inc()
+    t[0] = {'id': id}
+
+    if t[1].upper() == 'CREATE':
+        dot.node(str(id), 'CREATE')
+    elif t[1].upper() == 'SHOW':
+        dot.node(str(id), 'SHOW')
+    
 
 #========================================================
 
@@ -436,7 +462,7 @@ def p_instrucciones_columnas(t) :
 
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
-    #t[0] = Nueva_Columna_Param(t[1], t[2], t[3])
+    t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
@@ -462,16 +488,24 @@ def p_instrucciones_columna_unique(t) :
 
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
-    #t[1].append(t[2])
-    #t[0] = t[1]
+    t[1].update(t[2])
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
-    #t[0] = [t[1]]
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
+
+def p_instrucciones_parametro_columna_default(t) :
+    'parametro_columna      : DEFAULT valor'
+    #t[1] = {} -> t[0] = {}
+    t[0] = {'default': t[2]}
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
-    #t[0] = t[1]
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
 
 def p_instrucciones_parametro_columna_unique(t) :
     'parametro_columna      : unic'
@@ -481,19 +515,19 @@ def p_instrucciones_parametro_columna_checkeo(t) :
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
-    #t[0] = Parametro('PRIMARY KEY')
+    t[0] = {'is_primary': 1}
 
-def p_instrucciones_parametro_columna_auto_increment(t) :
-    'parametro_columna      : AUTO_INCREMENT'
-    #t[0] = Parametro('AUTO_INCREMENT')
+def p_instrucciones_parametro_columna_fkey(t) :
+    'parametro_columna      : REFERENCES ID'
+    t[0] = {'references': t[2]}
 
 def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
-    #t[0] = Parametro('NOT NULL')
+    t[0] = {'is_null': TipoNull.NOT_NULL}
 
 def p_instrucciones_unul(t) :
     'unul   : NULL'
-    #t[0] = Parametros('NULL')
+    t[0] = {'is_null': TipoNull.NULL}
 
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
@@ -506,6 +540,7 @@ def p_instrucciones_chequeo_constraint(t) :
 
 def p_instrucciones_chequeo(t) :
     'chequeo    : CHECK PARIZQ relacional PARDER'
+    
 
 #========================================================
 
@@ -1129,4 +1164,6 @@ parser = yacc.yacc()
 
 
 def parse(input) :
-    return parser.parse(input)
+    retorno = parser.parse(input)
+    dot.view()
+    return retorno
