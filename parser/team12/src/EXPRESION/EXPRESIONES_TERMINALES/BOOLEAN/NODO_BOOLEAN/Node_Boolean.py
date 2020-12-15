@@ -8,9 +8,20 @@ sys.path.append(nodo_ast)
 
 from Expresion import Expresion
 from Tipo import Data_Type
+from Tipo_Expresion import Type_Expresion
 
 class Boolean_Expresion(Expresion):
     
     def __init__(self, nombreNodo, fila, columna, valor):
-        Expresion.__init__(self, nombreNodo, fila, columna, valor)
-        self.tipo = Data_Type.boolean
+        Expresion.__init__(self, nombreNodo, fila, columna, valor)    
+    
+    def execute(self, enviroment):
+        
+        self.tipo = Type_Expresion(Data_Type.boolean)
+
+        if self.valor.lower() == 'true':
+            self.valorExpresion = True
+        else:
+            self.valorExpresion = False
+        
+        return self.valorExpresion

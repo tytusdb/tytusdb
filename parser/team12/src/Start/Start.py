@@ -36,6 +36,10 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'SENTENCIA_USE':
                 useDB = Use()
                 useDB.execute(hijo)
+            elif hijo.nombreNodo == 'E':
+                hijo.execute(enviroment)
+                print("Tipo Expresion: "+str(hijo.tipo.data_type))
+                print("Expresion valor: "+str(hijo.valorExpresion))
             else:
                 pass
                 
