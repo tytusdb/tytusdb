@@ -1,16 +1,12 @@
 import libs.ply.lex as lex
 from libs.ply.lex import TOKEN
-from models.error import Error
-from controllers.linked_list import SingleLinkedList
-from models.find_type_error import FindTypeError
+
+from controllers.error_controller import ErrorController
 
 # Hacen falta palabras reservadas hay que anadirlas
-list_errors = SingleLinkedList()
-id_error = 1
-
 # Definitions of tokens reserved
 k_reserved = {
-    'ADD' : 'ADD',
+    'ADD': 'ADD',
     'ALL': 'ALL',
     'ALTER': 'ALTER',
     'ABS': 'ABS',
@@ -22,52 +18,59 @@ k_reserved = {
     'BIGINT': 'BIGINT',
     'BOOLEAN': 'BOOLEAN',
     'BY': 'BY',
+    'CASE': 'CASE',
     'CBRT': 'CBRT',
     'CONVERT': 'CONVERT',
     'CEIL': 'CEIL',
     'CEILING': 'CEILING',
     'CHAR': 'CHAR',
     'CHARACTER': 'CHARACTER',
-    'CHECK' : 'CHECK',
+    'CHECK': 'CHECK',
     'CREATE': 'CREATE',
-    'COLUMN' : 'COLUMN',
-    'CONSTRAINT' : 'CONSTRAINT',
+    'COLUMN': 'COLUMN',
+    'CONSTRAINT': 'CONSTRAINT',
     'COUNT': 'COUNT',
-    'CURRENT_USER' : 'CURRENT_USER',
+    'CURRENT_DATE': 'CURRENT_DATE',
+    'CURRENT_TIME': 'CURRENT_TIME',
+    'CURRENT_USER': 'CURRENT_USER',
     'DAY': 'DAY',
-    'DATABASE' : 'DATABASE',
-    'DATABASES' : 'DATABASES',
+    'DATABASE': 'DATABASE',
+    'DATABASES': 'DATABASES',
     'DATE': 'DATE',
+    'DATE_PART': 'DATE_PART',
     'DECIMAL': 'DECIMAL',
     'DEGREES': 'DEGREES',
     'DECODE': 'DECODE',
     'DECLARE': 'DECLARE',
-    'DEFAULT' : 'DEFAULT',
+    'DEFAULT': 'DEFAULT',
     'DELETE': 'DELETE',
     'DESC': 'DESC',
     'DISTINCT': 'DISTINCT',
     'DIV': 'DIV',
     'DOUBLE': 'DOUBLE',
-    'DROP' : 'DROP',
-    'ENUM' : 'ENUM',  
+    'DROP': 'DROP',
+    'ENUM': 'ENUM',
     'EXISTS': 'EXISTS',
     'EXCEPT': 'EXCEPT',
     'EXP': 'EXP',
+    'ELSE': 'ELSE',
+    'END': 'END',
     'EXTRACT': 'EXTRACT',
     'FACTORIAL': 'FACTORIAL',
     'FALSE': 'FALSE',
-    'FOREIGN' : 'FOREIGN',
+    'FOREIGN': 'FOREIGN',
     'FROM': 'FROM',
     'FLOOR': 'FLOOR',
     'FULL': 'FULL',
     'GROUP': 'GROUP',
+    'GREATEST': 'GREATEST',
     'GCD': 'GCD',
     'HAVING': 'HAVING',
     'HOUR': 'HOUR',
-    'IF' : 'IF',
+    'IF': 'IF',
     'ILIKE': 'ILIKE',
     'IN': 'IN',
-    'INHERITS' : 'INHERITS', 
+    'INHERITS': 'INHERITS',
     'INSERT': 'INSERT',
     'INTEGER': 'INTEGER',
     'INTERVAL': 'INTERVAL',
@@ -77,8 +80,9 @@ k_reserved = {
     'IS': 'IS',
     'ISNULL': 'ISNULL',
     'JOIN': 'JOIN',
-    'KEY' : 'KEY', 
+    'KEY': 'KEY',
     'LEFT': 'LEFT',
+    'LEAST': 'LEAST',
     'LENGTH': 'LENGTH',
     'LIKE': 'LIKE',
     'LIMIT': 'LIMIT',
@@ -88,37 +92,38 @@ k_reserved = {
     'MIN': "MIN",
     'MOD': 'MOD',
     'MINUTE': 'MINUTE',
-    'MODE' : 'MODE', 
+    'MODE': 'MODE',
     'MONEY': 'MONEY',
     'MONTH': 'MONTH',
     'MD5': 'MD5',
     'NOT': 'NOT',
     'NOTNULL': 'NOTNULL',
+    'NOW': 'NOW',
     'NULL': 'NULL',
     'NUMERIC': 'NUMERIC',
     'ON': 'ON',
     'OUTER': 'OUTER',
     'OR': 'OR',
     'ORDER': 'ORDER',
-    'OWNER' : 'OWNER',  
+    'OWNER': 'OWNER',
     'OFFSET': 'OFFSET',
     'PRECISION': 'PRECISION',
-    'PRIMARY' : 'PRIMARY',
+    'PRIMARY': 'PRIMARY',
     'PI': 'PI',
     'POWER': 'POWER',
     'RANDOM': 'RANDOM',
     'RADIANS': 'RADIANS',
     'REAL': 'REAL',
-    'REFERENCES' : 'REFERENCES', 
-    'RENAME' : 'RENAME',
-    'REPLACE' : 'REPLACE',
+    'REFERENCES': 'REFERENCES',
+    'RENAME': 'RENAME',
+    'REPLACE': 'REPLACE',
     'RETURNING': 'RETURNING',
     'RIGHT': 'RIGHT',
     'ROUND': 'ROUND',
     'SELECT': 'SELECT',
     'SECOND': 'SECOND',
-    'SESSION_USER' : 'SESSION_USER',
-    'SHOW' : 'SHOW',   
+    'SESSION_USER': 'SESSION_USER',
+    'SHOW': 'SHOW',
     'SHA256': 'SHA256',
     'SMALLINT': 'SMALLINT',
     'SET': 'SET',
@@ -128,12 +133,13 @@ k_reserved = {
     'SUBSTRING': 'SUBSTRING',
     'SUBSTR': 'SUBSTR',
     'SQRT': 'SQRT',
-    'SYMMETRIC' : 'SYMMETRIC',
-    'TABLE' : 'TABLE',
+    'SYMMETRIC': 'SYMMETRIC',
+    'TABLE': 'TABLE',
     'TEXT': 'TEXT',
     'TIME': 'TIME',
     'TIMESTAMP': 'TIMESTAMP',
-    'TO' : 'TO', 
+    'THEN': 'THEN',
+    'TO': 'TO',
     'TYPE': 'TYPE',
     'TRIM': 'TRIM',
     'TRUNC': 'TRUNC',
@@ -147,10 +153,12 @@ k_reserved = {
     'VARCHAR': 'VARCHAR',
     'VARYING': 'VARYING',
     'WHERE': 'WHERE',
+    'WHEN': 'WHEN',
     'WIDTH_BUCKET': 'WIDTH_BUCKET',
     'YEAR': 'YEAR',
-    
-    #Trigonometricas
+
+
+    # Trigonometricas
     'ACOS': 'ACOS',
     'ACOSD': 'ACOSD',
     'ASIN': 'ASIN',
@@ -186,12 +194,9 @@ tokens = [
     'ASTERISK',
     'LEFT_PARENTHESIS',
     'RIGHT_PARENTHESIS',
-    'LEFT_BRACE',
-    'RIGHT_BRACE',
     'SEMICOLON',
     'COLON',
-    'TYPE_CAST',
-    
+
     'SQUARE_ROOT',
     'CUBE_ROOT',
     'BITWISE_AND',
@@ -212,7 +217,6 @@ tokens = [
     # Basic Operators
     'PLUS',
     'REST',
-    'PRODUCT',
     'DIVISION',
     'EXPONENT',
     'MODULAR',
@@ -261,9 +265,6 @@ t_PLUS = r'\+'
 t_REST = r'\-'
 t_DIVISION = r'\/'
 t_EXPONENT = r'\^'
-t_TYPE_CAST = r'\:\:'
-t_LEFT_BRACE = r'\['
-t_RIGHT_BRACE = r'\]'
 t_MODULAR = r'\%'
 t_SQUARE_ROOT = r'\|\/'
 t_CUBE_ROOT = r'\|\|\/'
@@ -278,6 +279,8 @@ t_BITWISE_SHIFT_RIGHT = r'\>\>'
 
 
 input = ""
+
+
 @TOKEN(decimal)
 def t_FLOAT_NUMBER(t):
     # r'\d+\.\d+'
@@ -347,22 +350,14 @@ def t_white_space(t):
 
 
 def t_error(t):
-    global list_errors
     global input
-    global id_error
-    
-    id_error = list_errors.count + 1  if list_errors.count > 0 else 1
-    SQLERROR = FindTypeError('Lexical')
-    number_error, description = SQLERROR.find_type_error()
-    
-    description += ' or near ' + str(t.value[0])
+
+    description = ' or near ' + str(t.value[0])
     column = find_column(t)
-    
-    print(f"The character {t.value[0]} ilegal, {t.lexer.lineno}  {find_column(t)}")
-    
-    list_errors.insert_end(Error(id_error, 'Lexical',number_error, description, t.lexer.lineno, column))
-    id_error += 1
-    
+    ErrorController().add(33, 'Lexical', description, t.lexer.lineno, column)
+
+    print(f"The character {t.value[0]} ilegal, {t.lexer.lineno} {find_column(t)}")
+
     t.lexer.skip(1)
 
 # Find column
@@ -372,11 +367,8 @@ def find_column(token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
+
 def get_text(entra):
     global input
-    global id_error
-    id_error = 1
     input = entra
     return input
-
-

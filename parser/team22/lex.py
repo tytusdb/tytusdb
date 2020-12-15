@@ -1,3 +1,6 @@
+from tabla_errores import *
+tabla_errores = TablaDeErrores()
+
 ##-------------------------GRAMATICA ASCENDENTE-------------------------------
 reservadas = {
     'create' : 'CREATE',
@@ -23,7 +26,7 @@ reservadas = {
     'bytea' : 'BYTEA',
     'char' : 'CHAR',
     'text' : 'TEXT',
-    'now' : 'now',
+    'now' : 'NOW',
     'date_part' : 'date_part',
     'current_date' : 'CURRENT_DATE',
     'current_time' : 'CURRENT_TIME',
@@ -220,6 +223,7 @@ tokens  = [
     'DECIMAL',
     'ENTERO',
     'CADENA',
+    'CADENA_DOBLE',
     'ID',
     'COMILLA_SIMPLE'
 ] + list(reservadas.values())
@@ -281,6 +285,11 @@ def t_CADENA(t):
     t.value = t.value[1:-1] # remuevo las comillas
     return t 
 
+def t_CADENA_DOBLE(t):
+    r'\".*?\"'
+    t.value = t.value[1:-1] # remuevo las comillas
+    return t 
+
 # Comentario de múltiples líneas /* .. */
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -296,8 +305,10 @@ t_ignore = " \t"
 
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+    t.lexer.lineno += len(t.value)
     
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    error = Error('Léxico', "Caracter desconocido '%s'" % t.value[0], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    print(error.imprimir())
     t.lexer.skip(1)

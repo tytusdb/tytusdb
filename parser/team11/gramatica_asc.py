@@ -168,7 +168,8 @@ def p_instruccion(t) :
                       | showDB_instr
                       | create_instr
                       | alter_instr PTCOMA
-                      | insert_instr'''
+                      | insert_instr
+                      | update_instr'''
 
 ##CREATE DATABASE
 def p_create_db(t):
@@ -365,7 +366,7 @@ def p_lista_owner(t):
                         | ID
     '''
 
-#############################################################################################
+#####################################################################################################
 
 ## INSERT 
 def p_insert_sinorden(t) :
@@ -381,21 +382,111 @@ def p_lista_columnas_salida(t) :
     'columnas       : ID'
     
 def p_lista_parametros(t) :
-    'parametros     : parametros COMA expresion'
+    'parametros       : parametros COMA parametroinsert'
 
 def p_lista_parametros_salida(t) :
-    'parametros     : expresion'
+    'parametros       : parametroinsert'
 
+def p_parametro (t) :
+    '''parametroinsert  : DEFAULT
+                        | expresion'''
+    
+## UPDATE
+def p_update_sinwhere(t) : 
+    'update_instr     : UPDATE ID SET asignaciones PTCOMA'
+
+def p_update_conwhere(t) : 
+    'update_instr     : UPDATE ID SET asignaciones WHERE condiciones PTCOMA'  
+    
+def p_lista_asignaciones(t): 
+    'asignaciones     : asignaciones COMA asignacion'
+
+def p_lista_asignacion_salida(t) :
+    'asignaciones     : asignacion'
+
+def p_asignacion(t) :
+    'asignacion       : ID IGUAL expresion'
+    
+## DELETE
+def p_delete_sinwhere(t):
+    'delete_instr     : DELETE FROM ID PTCOMA'
+
+def p_delete_conwhere(t):
+    'delete_instr     : DELETE FROM ID WHERE condiciones PTCOMA'
+    
+## TRUNCATE
+def p_truncate_simple(t):
+    'truncate_instr   : TRUNCATE listtablas PTCOMA'
+
+def p_truncate_simple_cascade(t):
+    'truncate_instr   : TRUNCATE listtablas CASCADE PTCOMA'
+
+def p_truncate_table(t) :
+    'truncate_instr   : TRUNCATE TABLE listtablas PTCOMA'
+
+def p_truncate_table_cascade(t) :
+    'truncate_instr   : TRUNCATE TABLE listtablas CASCADE PTCOMA'
+
+def p_listatablas(t) : 
+    'listtablas       : listtablas COMA ID'
+
+def p_listatablas_salida(t) :
+    'listtablas       : ID'
+
+    
+## -------------------------------- EXPRESIONES ------------------------------------------    
+
+## expresiones logicas (condiciones)
+def p_lista_condicion(t): 
+    '''condiciones    : condiciones AND condicion
+                      | condiciones OR  condicion'''
+
+def p_lista_condicion_salida(t) :
+    'condiciones      : condicion'
+    
+## expresiones relacionales
+def p_condicion (t):
+    '''condicion      : expresion MENQUE expresion
+                      | expresion MAYQUE expresion
+                      | expresion MENIGUAL expresion
+                      | expresion MAYIGUAL expresion
+                      | expresion IGUAL expresion 
+                      | expresion DIFERENTE expresion'''
+    
 def p_expresion(t) : 
-'''expresion      : CADENADOBLE
-                  | CADENASIMPLE
-                  | DEFAULT
-                  | expresionaritmetica'''
+'''expresion          : cualquiercadena
+                      | expresionaritmetica'''
+
+## expresiones aritmeticas
+def p_expresion_aritmetica (t):
+    '''expresionaritmetica  : expresionaritmetica MAS expresionaritmetica 
+                            | expresionaritmetica MENOS expresionaritmetica 
+                            | expresionaritmetica ASTERISCO expresionaritmetica 
+                            | expresionaritmetica DIVIDIDO expresionaritmetica 
+                            | expresionaritmetica MODULO expresionaritmetica 
+                            | expresionaritmetica EXPONENTE expresionaritmetica'''
+    
+def p_expresion_aritmetica_2(t) : 
+    'expresionaritmetica    : MENOS expresionaritmetica %prec UMENOS'
 
 def p_expresion_aritmetica_3(t) : 
-    '''expresionaritmetica  : ENTERO
-                            | DECIMAL
-                            | ID'''
+    '''expresionaritmetica  : cualquiernumero
+                            | cualquieridentificador'''
+
+def p_expresion_aritmetica_4(t) : 
+    'expresionaritmetica    : PARIZQ expresionaritmetica PARDER'
+
+def p_cualquiernumero(t) : 
+    '''cualquiernumero      : ENTERO
+                            | DECIMAL'''
+
+def p_culquiercadena (t):
+    '''cualquiercadena      : CADENASIMPLE
+                            | CADENADOBLE'''
+
+def p_culquieridentificador (t):
+    '''cualquieridentificador    : ID
+                                 | ID PUNTO ID'''
     
 ##Epsilon 
 def p_empty(t) :
@@ -406,3 +497,8 @@ def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
 #------------------------------------------------------------------------------
+
+#Analizador sintactico
+import ply.yacc as yacc
+parser = yacc.yacc()
+
