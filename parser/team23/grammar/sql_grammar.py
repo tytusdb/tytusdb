@@ -272,6 +272,10 @@ from instruccion.F_Key import *
 from instruccion.drop_tb import *
 from instruccion.select_normal import *
 from instruccion.group_by import *
+from instruccion.where import *
+from instruccion.order_by import *
+from instruccion.group_having import *
+from instruccion.limite import *
 from instruccion.inherits import *
 from instruccion.rename_owner_db import *
 from instruccion.alter_db import *
@@ -740,6 +744,12 @@ def p_table_expression(t):
 
 def p_donde(t):
     '''donde : WHERE expressiones'''
+    global num_nodo
+    try:
+        t[0]=where(None,t.lineno,t.lexpos, num_nodo)
+        num_nodo+=3
+    except:
+        print('No jala la produccion de donde')
 
 def p_group_by(t):
     '''group_by : GROUP BY expressiones '''
@@ -752,23 +762,46 @@ def p_group_by(t):
 
 def p_order_by(t):
     '''order_by : ORDER BY expressiones asc_desc nulls_f_l'''
+    global num_nodo
+    try:
+        t[0] = order_by(None,t[4],t[5],t.lineno,t.lexpos, num_nodo)
+        num_nodo+=6
+    except:
+        print('No jala la gramatica del order by')
 
 def p_group_having(t):
     '''group_having : HAVING expressiones'''
+    global num_nodo
+    try:
+        t[0] = group_having(None,t.lineno,t.lexpos, num_nodo)
+        num_nodo+=3
+    except:
+        print('No jala la gramatica del group having')
 
 def p_asc_desc(t):
     ''' asc_desc  : ASC
 	              | DESC'''
+    t[0]=t[1]
 
 def p_nulls_f_l(t):
     '''nulls_f_l : NULLS LAST
 	             | NULLS FIRST
 	             | '''
+    try:
+        t[0] = t[2]
+    except:
+        t[0] = None
 
 def p_limite(t):
     '''limite   : LIMIT ENTERO
 	            | LIMIT ALL
 	            | OFFSET ENTERO'''
+    global num_nodo
+    try:
+        t[0]=limite(t[1],t[2],t.lineno,t.lexpos, num_nodo)
+        num_nodo+=3
+    except:
+        print('No funciona limite en la gramatica')
 
 def p_list_expression(t):
     '''list_expression  : list_expression COMA expression'''
