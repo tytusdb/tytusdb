@@ -117,53 +117,52 @@ def p_trigonometric(t):
                     |   ACOSH PARA expression PARC
                     |   ATANH PARA expression PARC'''
 
-    print("Reduciendo con:", t.slice)
-    if t[1] == 'ACOS':
-        t[0] = Acos(t[3],0,0)
-    elif t[1] == 'ACOSD':
-        t[0] = Acosd(t[3],0,0)
-    elif t[1] == 'ASIN':
-        t[0] = Asin(t[3],0,0)
-    elif t[1] == 'ASIND':
-        t[0] = Asind(t[3],0,0)
-    elif t[1] == 'ATAN':
-        t[0] = Atan(t[3],0,0)
-    elif t[1] == 'ATAND':
-        t[0] = Atand(t[3],0,0)
-    elif t[1] == 'ATAN2':
-        t[0] = Atan2(t[3],t[5],0,0)
-    elif t[1] == 'ATAN2D':
-        t[0] = Atan2d(t[3],t[5],0,0)
-    elif t[1] == 'COS':
-        t[0] = Cos(t[3],0,0)
-    elif t[1] == 'COSD':
-        t[0] = Cosd(t[3],0,0)
-    elif t[1] == 'COT':
-        t[0] = Cot(t[3],0,0)
-    elif t[1] == 'COTD':
-        t[0] = Cotd(t[3],0,0)
-    elif t[1] == 'SIN':
-        t[0] = Sin(t[3],0,0)
-    elif t[1] == 'SIND':
-        t[0] = Sind(t[3],0,0)
-    elif t[1] == 'TAN':
-        t[0] = Tan(t[3],0,0)
-    elif t[1] == 'TAND':
-        t[0] = Tand(t[3],0,0)
-    elif t[1] == 'SINH':
-        t[0] = Sinh(t[3],0,0)
-    elif t[1] == 'COSH':
-        t[0] = Cosh(t[3],0,0)
-    elif t[1] == 'TANH':
-        t[0] = Tanh(t[3],0,0)
-    elif t[1] == 'ASINH':
-        t[0] = Asinh(t[3],0,0)
-    elif t[1] == 'ACOSH':
-        t[0] = Acosh(t[3],0,0)
-    elif t[1] == 'ATANH':
-        t[0] = Atanh(t[3],0,0)
-    else:
-        print ("You forgot write code for the trigonometric expression: ",t[1])
+    if t.slice[1].type == 'ACOS':
+        t[0] = Acos(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ACOSD':
+        t[0] = Acosd(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ASIN':
+        t[0] = Asin(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ASIND':
+        t[0] = Asind(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ATAN':
+        t[0] = Atan(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ATAND':
+        t[0] = Atand(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ATAN2':
+        t[0] = Atan2(t[3],t[5], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ATAN2D':
+        t[0] = Atan2d(t[3],t[5], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'COS':
+        t[0] = Cos(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'COSD':
+        t[0] = Cosd(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'COT':
+        t[0] = Cot(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'COTD':
+        t[0] = Cotd(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'SIN':
+        t[0] = Sin(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'SIND':
+        t[0] = Sind(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'TAN':
+        t[0] = Tan(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'TAND':
+        t[0] = Tand(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'SINH':
+        t[0] = Sinh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'COSH':
+        t[0] = Cosh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'TANH':
+        t[0] = Tanh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ASINH':
+        t[0] = Asinh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ACOSH':
+        t[0] = Acosh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    elif t.slice[1].type == 'ATANH':
+        t[0] = Atanh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+
+
 def p_aritmetic(t):
     '''expression   : ABS PARA expression PARC            
                     | CBRT PARA expression PARC

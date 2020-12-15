@@ -10,7 +10,7 @@ class Acos(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.acos(exp)
 
 
@@ -22,7 +22,7 @@ class Acosd(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.degrees(math.acos(exp))
 
 
@@ -34,7 +34,7 @@ class Asin(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.asin(exp)
 
 
@@ -46,7 +46,7 @@ class Asind(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.degrees(math.asin(exp))
 
 
@@ -58,7 +58,7 @@ class Atan(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.atan(exp)
 
 
@@ -70,7 +70,7 @@ class Atand(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.degrees(math.atan(exp))
 
 
@@ -83,8 +83,8 @@ class Atan2(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp1 = self.exp1.execute(None, None)
-        exp2 = self.exp2.execute(None, None)
+        exp1 = self.exp1.execute(table, tree)
+        exp2 = self.exp2.execute(table, tree)
         return math.atan2(exp1, exp2)
 
 
@@ -97,8 +97,8 @@ class Atan2d(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp1 = self.exp1.execute(None, None)
-        exp2 = self.exp2.execute(None, None)
+        exp1 = self.exp1.execute(table, tree)
+        exp2 = self.exp2.execute(table, tree)
         return math.degrees(math.atan2(exp1, exp2))
 
 
@@ -110,7 +110,7 @@ class Cos(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.cos(exp)
 
 
@@ -122,7 +122,7 @@ class Cosd(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.cos(math.radians(exp))
 
 
@@ -134,7 +134,7 @@ class Cot(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return 1/math.tan(exp)
 
 
@@ -146,7 +146,7 @@ class Cotd(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return 1/math.tan(math.radians(exp))
 
 
@@ -158,7 +158,7 @@ class Sin(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.sin(exp)
 
 
@@ -170,7 +170,7 @@ class Sind(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.sin(math.radians(exp))
 
 
@@ -182,7 +182,7 @@ class Tan(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.tan(exp)
 
 
@@ -194,7 +194,7 @@ class Tand(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.tan(math.radians(exp))
 
 
@@ -206,7 +206,7 @@ class Sinh(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.sinh(exp)
 
 
@@ -218,7 +218,7 @@ class Cosh(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.cosh(exp)
 
 
@@ -230,7 +230,7 @@ class Tanh(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.tanh(exp)
 
 
@@ -242,7 +242,7 @@ class Asinh(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.asinh(exp)
 
 
@@ -254,7 +254,7 @@ class Acosh(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.acosh(exp)
 
 
@@ -266,5 +266,5 @@ class Atanh(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        exp = self.exp.execute(None, None)
+        exp = self.exp.execute(table, tree)
         return math.atanh(exp)
