@@ -272,6 +272,9 @@ from instruccion.F_Key import *
 from instruccion.drop_tb import *
 from instruccion.select_normal import *
 from instruccion.group_by import *
+from instruccion.inherits import *
+from instruccion.rename_owner_db import *
+from instruccion.alter_db import *
 
 #Tabla tipos
 from tools.tabla_tipos import *
@@ -327,7 +330,7 @@ def p_aux_instruccion(t):
 def p_crear_statement_tbl(t):
     '''crear_statement  : CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA inherits_statement'''
     global num_nodo
-    t[0] = create_table(t[3], t[5], t.lineno(1), t.lexpos(1), num_nodo)
+    t[0] = create_table(t[3], t[5], t[7], t.lineno(1), t.lexpos(1), num_nodo)
     num_nodo += 5
 
 def p_crear_statement_db(t):
@@ -379,6 +382,11 @@ def p_mode_db(t):
 def p_alter_db(t):
     '''alter_statement : ALTER DATABASE ID rename_owner'''
 
+    global num_nodo
+    t[0] = alter_db(t[3],t[4],t.lineno,t.lexpos,num_nodo)
+    num_nodo += 5
+
+
 def p_alter_tbl(t):
     '''alter_statement : ALTER TABLE ID alter_op'''
 
@@ -386,10 +394,19 @@ def p_rename_owner_db(t):
     '''rename_owner : RENAME TO ID
                     | OWNER TO LLAVE_ABRE ow_op LLAVE_CIERRA'''
 
+    global num_nodo
+    if t[1].lower() == 'rename':
+        t[0] = rename_owner_db(t[1],t[3],t.lineno,t.lexpos, num_nodo)
+        num_nodo += 4
+    else:
+        t[0] = rename_owner_db(t[1], t[4], t.lineno, t.lexpos, num_nodo)
+        num_nodo += 5
+
 def p_ow_op_db(t):
     '''ow_op : ID
              | CURRENT_USER
              | SESSION_USER'''
+    t[0] = t[1]
 
 def p_drop_db(t):
     '''drop_statement : DROP DATABASE if_exists ID'''
@@ -608,15 +625,29 @@ def p_op_add(t):
 
 def p_alter_col_op(t):
     '''alter_col_op : SET NOT NULL
-                  | TYPE type_column'''
+                    | TYPE type_column'''
 
 def p_inherits_tbl(t):
     '''inherits_statement : INHERITS PAR_ABRE ID PAR_CIERRA
                | '''
 
+    global num_nodo
+    try:
+
+        t[0] = inherits(t[3],t.lineno,t.lexpos,num_nodo)
+        num_nodo += 5
+
+    except:
+        t[0] = t[1]
+
 def p_list_val(t):
-    '''list_val : list_val COMA op_val
-               | op_val'''
+    '''list_val : list_val COMA op_val'''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_aux_list_val(t):
+    '''list_val : op_val'''
+    t[0] = [t[1]]
 
 def p_op_val(t):
     '''op_val : ID
@@ -661,7 +692,6 @@ def p_aux_seleccionar(t):
     t[0] = Query_Select(t[2], t.lineno,t.lexpos, num_nodo)
     num_nodo+=4
 
-
 def p_list_fin_select(t):
     '''list_fin_select : list_fin_select fin_select'''
     t[1].append(t[2])
@@ -690,7 +720,6 @@ def p_expressiones(t):
 def p_aux_expressiones(t):
     '''expressiones : list_expression'''
     t[0]=t[1]
-
 
 def p_distinto(t):
     '''distinto : DISTINCT
@@ -820,7 +849,6 @@ def p_expression_decimal(t):
     elif n_decimal in range(-92233720368547758 , 92233720368547759):
         print("Money")
     
-
 def p_expression_cadena(t):
     '''expression : CADENA'''
     t[0]=t[1]
@@ -839,10 +867,9 @@ def p_error(t):
     while True:
         tok = parser.token()
         if not tok or tok.type == 'PUNTOCOMA':
+            print("Se recupero con ;")
             break
-    tok = parser.token()
-    parser.errok()
-    return tok 
+    parser.restart()
     
 import ply.yacc as yacc
 parser = yacc.yacc()
