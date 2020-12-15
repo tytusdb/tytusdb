@@ -406,9 +406,9 @@ def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
-    if(len(p) == 7):
+    if(len(p) == 8):
         p[0] = Update(p[2],p[5],p[6])
-    elif(len(p) == 6):
+    elif(len(p) == 7):
         p[0] = Update(p[2],p[4],p[5])
     else:
         p[0] = Update(p[2],p[4],None)
@@ -424,7 +424,7 @@ def p_set_list(p):
 
 def p_column_values(p):
     '''COLUMNVALUES : OBJECTREFERENCE EQUALS SQLEXPRESSION2'''
-    p[0] = ColumnVal(p[1],p[2])
+    p[0] = ColumnVal(p[1],p[3])
 
 
 def p_sql_expression2(p):
@@ -439,18 +439,24 @@ def p_sql_expression2(p):
                       | LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS
                       | SQLNAME
                       | SQLINTEGER'''
-
+    if len(p) == 4:
+        if p[1] == '(':
+            p[0] = p[2]
+        else:
+            p[0] = BinaryOperation(p[1], p[3], p[2])
+    elif len(p) == 3:
+        p[0] = UnaryOrSquareExpressions(p[1], p[2])
+    else:
+        p[0] = p[1]
 
 def p_options_list2(p):
     '''OPTIONSLIST2 : WHERECLAUSE OPTIONS4
                     | WHERECLAUSE
                     | OPTIONS4'''
-    # if (len(p) == 3):
-    #     nodo.add_childrens(p[1])
-    #     nodo.add_childrens(p[2])
-    # else:
-    #     nodo.add_childrens(p[1])
-    # p[0] = nodo
+    if len(p) == 3:
+        p[0] = [p[1], p[2]]
+    else:
+        p[0] = p[1]
 
 
 def p_delete_statement(p):
@@ -1040,35 +1046,18 @@ def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
                        | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
     p[0] = ExpressionsGreastLeast(p[1], p[3])
-
 def p_case_clause(p):
-    '''CASECLAUSE : CASE CASECLAUSELIST END ID
-                  | CASE CASECLAUSELIST ELSE SQLSIMPLEEXPRESSION END ID'''
-    if(len(p) == 5):
-        p[0] = Case(p[2], None)
-    else:
-        p[0] = Case(p[2], p[4])
+    '''CASECLAUSE : CASE CASECLAUSELIST END ID'''
 
-
-def p_case_clause_list(p):
+def p_case_cluase_list(p):
     '''CASECLAUSELIST : CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
                       | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
+                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | CASECLAUSELIST WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
+                      | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
                       | WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION
                       | WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION'''
-
-    # El ELSE solo puede venir una vez ---> las producciones de abajo permitian que viniera varias veces
-    # WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
-    # WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
-    if (len(p) == 8):
-        p[1].append( CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] ) )
-        p[0] = p[1]
-    elif (len(p) == 7):
-        p[0] = [CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] )]
-    elif (len(p) == 6):
-        p[1].append( CaseOption(p[3], p[5]) )
-        p[0] = p[1]
-    else: #len = 5
-        p[0] = [CaseOption(p[3], p[5])]
 
 def p_trigonometric_functions(p):
     '''TRIGONOMETRIC_FUNCTIONS : ACOS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
