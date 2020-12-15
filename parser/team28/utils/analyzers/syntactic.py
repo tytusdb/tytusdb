@@ -12,6 +12,7 @@ from models.instructions.DDL.column_inst import *
 from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
+from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
 
@@ -238,9 +239,10 @@ def p_type_col(p):
                | INTERVAL SQLNAME
                | BOOLEAN
     '''
+    dataType = ''
     for i in range(1, len(p)):
-        if p[0] != None:     #TODO aca lo modifique
-            p[0] += str(p[i])  
+        dataType += str(p[i])
+    p[0] = dataType
 
 
 def p_options_col_list(p):
@@ -1269,28 +1271,19 @@ def p_sub_query(p):
     p[0] = p[1]
 
 def p_error(p):
-    global list_errors
-    global id_error
-    
-    id_error = list_errors.count + 1  if list_errors.count > 0 else 1
-
     try:
-        number_error, description = get_type_error(33)
-        print(str(p.value))
-        description += ' or near ' + str(p.value) 
+        # print(str(p.value))
+        description = ' or near ' + str(p.value) 
         column = find_column(p)
-        list_errors.insert_end(Error(id_error, 'Syntactic',number_error ,description, p.lineno, column))
+        ErrorController().add(33, 'Syntactic', description, p.lineno, column)
     except AttributeError:
-        number_error, description = get_type_error(1)
         print(number_error, description)
-        list_errors.insert_end(Error(id_error, 'Syntactic', number_error, description, 'EOF', 'EOF'))
-    id_error += 1
+        ErrorController().add(1, 'Syntactic', '', 'EOF', 'EOF')
 
 parser = yacc.yacc()
 def parse(inpu):
     global input
-    global list_errors
-    list_errors.remove_all()
+    ErrorController().destroy()
     lexer = lex.lex()
     lexer.lineno = 1
     input = inpu
