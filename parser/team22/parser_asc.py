@@ -1,10 +1,28 @@
 # Construyendo el analizador léxico
 import ply.lex as lex
+from ts import *
 from lex import *
 from type_checker import *
 from columna import *
+from graphviz import Graph
+
+dot = Graph()
+dot.attr(splines = 'false')
+dot.node_attr.update(fontname = 'Eras Medium ITC', style='filled', fillcolor="tan",
+                     fontcolor = 'black')
+dot.edge_attr.update(color = 'black')
+
 lexer = lex.lex()
-type_checker = TypeChecker()
+tabla_simbolos = TablaDeSimbolos()
+consola = []
+salida = []
+type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
+
+i = 0
+def inc():
+    global i 
+    i += 1
+    return i
 
 
 # Asociación de operadores y precedencia
@@ -25,18 +43,24 @@ from instrucciones import *
 
 def p_init(t) :
     'init            : instrucciones'
-    t[0] = t[1]
+    id = inc()
+    t[0] = {'id': id}
+    dot.node(str(id), 'INICIO')
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
     
-
 def p_instrucciones_lista(t) :
     'instrucciones    : instrucciones instruccion'
+    #                   [{'id': id}]  {'id': id}
     t[1].append(t[2])
+    #[{'id': id}, {'id': id}, ...]
     t[0] = t[1]
 
 
 def p_instrucciones_instruccion(t) :
     'instrucciones    : instruccion '
     t[0] = [t[1]]
+    # [{'id': id}]
 
 def p_instruccion(t) :
     '''instruccion      : CREATE creacion
@@ -50,8 +74,14 @@ def p_instruccion(t) :
                         | INSERT insercion
                         | DROP dropear
                         '''
-    t[0] = t[2]
+    id = inc()
+    t[0] = {'id': id}
 
+    if t[1].upper() == 'CREATE':
+        dot.node(str(id), 'CREATE')
+    elif t[1].upper() == 'SHOW':
+        dot.node(str(id), 'SHOW')
+    
 #========================================================
 
 #========================================================
@@ -61,34 +91,28 @@ def p_instruccion_creacion(t) :
                     | OR REPLACE DATABASE crear_bd
                     | TABLE crear_tb
                     | TYPE crear_type'''
-    print("Creacion")
-
+    
 def p_instruccion_crear_BD(t) :
     'crear_bd     : ID PTCOMA'
-    t[0] = Crear_BD(t[1])
-    print("Creacion de BD")
-    print(type_checker.createDatabase(database = t[1]))
+    type_checker.createDatabase(database = t[1].upper(), line = t.lexer.lineno)
 
 def p_instruccion_crear_BD_Parametros(t) :
     'crear_bd     : ID lista_parametros_bd PTCOMA'
-    print('Creacion de BD parametros')
     if 'mode' in t[2]:
-        print(type_checker.createDatabase(database = t[1], mode = t[2]['params']['mode']))
+        type_checker.createDatabase(database = t[1].upper(), mode = t[2]['params']['mode'], line = t.lexer.lineno)
     else:
-        print(type_checker.createDatabase(database = t[1]))
+        type_checker.createDatabase(database = t[1].upper(), line = t.lexer.lineno)
 
 def p_instruccion_crear_BD_if_exists(t) :
     'crear_bd       : IF NOT EXISTS ID PTCOMA'
-    print('Creacion de BD if not exists')
-    print(type_checker.createDatabase(database = t[4]))
+    type_checker.createDatabase(database = t[4].upper(), line = t.lexer.lineno)
 
 def p_instruccion_crear_BD_if_exists_Parametros(t) :
     'crear_bd       : IF NOT EXISTS ID lista_parametros_bd PTCOMA'
-    print('Creacion de BD parametros if not exist')
     if 'mode' in t[5]:
-        print(type_checker.createDatabase(database = t[4], mode = t[5]['params']['mode']))
+        type_checker.createDatabase(database = t[4].upper(), mode = t[5]['params']['mode'], line = t.lexer.lineno)
     else:
-        print(type_checker.createDatabase(database = t[4]))
+        type_checker.createDatabase(database = t[4].upper(), line = t.lexer.lineno)
 
 def p_instruccion_crear_TB_herencia(t):
     '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER tb_herencia PTCOMA'''
@@ -117,11 +141,10 @@ def p_instruccion_TB_herencia(t) :
 def p_instruccion_show(t) :
     '''show_db      : DATABASES
                     | DATABASES LIKE CADENA'''
-    print("Show Databases")
     if len(t) == 2:
-        print(type_checker.showDatabase())
+        type_checker.showDatabase()
     else:
-        print(type_checker.showDatabase(t[3]))
+        type_checker.showDatabase(t[3].upper())
 
 #========================================================
 
@@ -130,8 +153,7 @@ def p_instruccion_show(t) :
 def p_instruccion_alter_database(t) :
     '''alter_database   : ID RENAME TO ID
                         | ID OWNER TO def_alter_db'''
-    print("Alter Database")
-    print(type_checker.alterDatabase(databaseOld = t[1], databaseNew = t[4]))
+    type_checker.alterDatabase(databaseOld = t[1].upper(), databaseNew = t[4].upper(), line = t.lexer.lineno)
 
 def p_def_alter_db(t) :
     '''def_alter_db     : ID
@@ -145,8 +167,7 @@ def p_def_alter_db(t) :
 # INSTRUCCION CON "USE"
 def p_instruccion_Use_BD(t) :
     'cambio_bd     : ID PTCOMA'
-    print("CAMBIO de BD")
-    print(type_checker.useDatabase(t[1]))
+    type_checker.useDatabase(t[1].upper(), line = t.lexer.lineno)
 
 #========================================================
 
@@ -311,18 +332,16 @@ def p_instruccion_insert(t) :
     print('Insert sin columnas')
 
 #========================================================
-
-#========================================================
 # DROP BASES DE DATOS Y TABLAS
 def p_instruccion_Drop_BD_exists(t) :
     '''dropear      : DATABASE IF EXISTS ID PTCOMA
                     | DATABASE IF EXISTS ID'''
-    print(type_checker.dropDatabase(database = t[4]))
+    type_checker.dropDatabase(database = t[4].upper(), line = t.lexer.lineno)
 
 def p_instruccion_Drop_BD(t) :
     '''dropear      : DATABASE ID PTCOMA
                     | DATABASE ID'''
-    print(type_checker.dropDatabase(database = t[2]))
+    type_checker.dropDatabase(database = t[2].upper(), line = t.lexer.lineno)
 
 def p_instruccion_Drop_TB(t) :
     '''dropear      : TABLE ID PTCOMA
@@ -343,7 +362,10 @@ def p_instrucciones_parametros_BD(t) :
 def p_parametros_BD_owner(t) :
     '''parametros_bd    : OWNER IGUAL ID
                         | OWNER ID'''
-    t[0] = {'owner': ''}
+    if len(t) == 3:
+        t[0] = {'owner': t[2]}
+    else:
+        t[0] = {'owner': t[3]}
 
 def p_parametros_BD_Mode(t) :
     '''parametros_bd    : MODE IGUAL ENTERO
@@ -436,7 +458,7 @@ def p_instrucciones_columnas(t) :
 
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
-    #t[0] = Nueva_Columna_Param(t[1], t[2], t[3])
+    t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
@@ -462,16 +484,24 @@ def p_instrucciones_columna_unique(t) :
 
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
-    #t[1].append(t[2])
-    #t[0] = t[1]
+    t[1].update(t[2])
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
-    #t[0] = [t[1]]
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
+
+def p_instrucciones_parametro_columna_default(t) :
+    'parametro_columna      : DEFAULT valor'
+    #t[1] = {} -> t[0] = {}
+    t[0] = {'default': t[2]}
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
-    #t[0] = t[1]
+    #t[1] = {} -> t[0] = {}
+    t[0] = t[1]
 
 def p_instrucciones_parametro_columna_unique(t) :
     'parametro_columna      : unic'
@@ -481,19 +511,19 @@ def p_instrucciones_parametro_columna_checkeo(t) :
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
-    #t[0] = Parametro('PRIMARY KEY')
+    t[0] = {'is_primary': 1}
 
-def p_instrucciones_parametro_columna_auto_increment(t) :
-    'parametro_columna      : AUTO_INCREMENT'
-    #t[0] = Parametro('AUTO_INCREMENT')
+def p_instrucciones_parametro_columna_fkey(t) :
+    'parametro_columna      : REFERENCES ID'
+    t[0] = {'references': t[2]}
 
 def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
-    #t[0] = Parametro('NOT NULL')
+    t[0] = {'is_null': TipoNull.NOT_NULL}
 
 def p_instrucciones_unul(t) :
     'unul   : NULL'
-    #t[0] = Parametros('NULL')
+    t[0] = {'is_null': TipoNull.NULL}
 
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
@@ -506,6 +536,7 @@ def p_instrucciones_chequeo_constraint(t) :
 
 def p_instrucciones_chequeo(t) :
     'chequeo    : CHECK PARIZQ relacional PARDER'
+    
 
 #========================================================
 
@@ -1121,12 +1152,15 @@ def p_instrucciones_funcion_binary_string_decode(t) :
 #========================================================
 
 def p_error(t):
-    print(t)
-    print("Error sintáctico en '%s'" % t)
+    error = Error('Sintáctico', "No se esperaba el caracter '%s'" % t.value[0], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    print(error.imprimir())
 
 import ply.yacc as yacc
 parser = yacc.yacc()
 
 
 def parse(input) :
-    return parser.parse(input)
+    retorno = parser.parse(input)
+    dot.view()
+    return retorno

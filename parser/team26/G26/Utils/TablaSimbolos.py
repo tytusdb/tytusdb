@@ -2,9 +2,7 @@ class TablaSimbolos:
     'Clase abstracta'
 
 class TableData(TablaSimbolos):
-    def __init__(self, database, table, name, type, size, pk, fk, default, null, unique, check):
-        self.database = database
-        self.table = table
+    def __init__(self, name, type, size, pk, fk, default, null, unique, check):
         self.name = name
         self.type = type
         self.size = size
