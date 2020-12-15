@@ -230,6 +230,7 @@ from Expresion.Logica import  Logica
 from Expresion.Unaria import  Unaria
 from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
+from Instrucciones.CreateDb import *
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -319,6 +320,15 @@ def p_DROP(t):
     '''DROP : drop table id
              | drop databases if exist id
              | drop databases id '''
+    if len(t)==4:
+        if(t[2]=='table'):
+            print("eliminar tabla")
+         
+        else:
+            t[0] = DropDb(str(t[3]))
+
+    elif len(t)==5:
+        t[0]=DropDb(str(t[5]))
 
 
 def p_ALTER(t):
@@ -384,7 +394,14 @@ def p_CREATEDB(t):
         | create RD id
         | create RD id OPCCDB
     '''
-
+    if len(t)==7:
+        t[0] = CreateDb(str(t[6]))
+    elif len(t)==8:
+        t[0]=CreateDb(str(t[6]))
+    elif len(t)==4:
+        t[0]=CreateDb(str(t[3]))
+    elif len(t)==5:
+        t[0]=CreateDb(str(t[4]))
 
 def p_OPCCDB(t):
     '''OPCCDB : PROPIETARIO
