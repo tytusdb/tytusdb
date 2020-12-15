@@ -394,28 +394,6 @@ def p_nombre_columnas(t):
         dot.edge(str(id), str(id2)) 
         dot.node(str(id2), t[1])
 
-def p_nombre_columnas_references(t):
-    '''nombre_columnas_references : nombre_columnas_references COMA ID 
-                          | ID '''
-    if len(t) == 4:
-        id = inc()
-        t[0] = id
-        dot.node(str(id), "nombre_columnas_references")
-        dot.edge(str(id), str(t[1]))
-        id2 = inc()
-        dot.edge(str(id), str(id2)) 
-        dot.node(str(id2), t[2])
-        id3 = inc()
-        dot.edge(str(id), str(id3)) 
-        dot.node(str(id3), t[3])
-    else:
-        id = inc()
-        t[0] = id
-        dot.node(str(id), "nombre_columnas_references")
-        id2 = inc()
-        dot.edge(str(id), str(id2)) 
-        dot.node(str(id2), t[1])
-
 def p_tipo_dato(t):
     '''tipo_dato : VARCHAR
                  | INTEGER
@@ -603,32 +581,6 @@ def p_create_opciones(t):
         dot.edge(str(id), str(id) + '_' + str(t[3]))
         if t[4] != None:
             dot.edge(str(id), str(t[4])) 
-    else:
-        t[0] = None
-
-def p_ins_owner(t): 
-    '''ins_owner : OWNER SIGNO_IGUAL ID
-                       | '''
-    if len(t) == 4:
-        id = inc()
-        t[0] = id
-        dot.node(str(id), "ins_owner")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
-        dot.edge(str(id), str(id) + '_' + str(t[3]))
-    else:
-        t[0] = None
-
-def p_ins_mode(t): 
-    '''ins_mode : MODE SIGNO_IGUAL NUMERO
-                       | '''
-    if len(t) == 4:
-        id = inc()
-        t[0] = id
-        dot.node(str(id), "ins_mode")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
-        dot.edge(str(id), str(id) + '_' + str(t[3]))
     else:
         t[0] = None
 

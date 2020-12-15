@@ -35,7 +35,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'ACOS','ACOSD','ASIN','ASIND','ATAN','ATAND','ATAN2','ATAN2D','COS','COSD','COT','COTD','SIN','SIND','TAN','TAND',
               'SINH','COSH','TANH','ASINH','ACOSH','ATANH',
               'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
-              'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE'
+              'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS'
               ]
 
 tokens = reservadas + ['PUNTO','PUNTO_COMA','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -197,11 +197,11 @@ def p_instrucciones_evaluar(t):
                    | ins_delete'''
 
 def p_instruccion_use(t):
-    '''ins_use : USE ID'''
+    '''ins_use : USE ID PUNTO_COMA'''
     print('INSTRUCCION USE')
 
 def p_instruccion_show(t):
-    '''ins_show : SHOW DATABASES'''
+    '''ins_show : SHOW DATABASES PUNTO_COMA'''
     print('INSTRUCCION SHOW')
 
 def p_instruccion_create(t):
@@ -209,15 +209,33 @@ def p_instruccion_create(t):
     print('INSTRUCCION CREATE')   
 
 def p_tipo_create(t):
-    '''tipo_create : ins_replace DATABASE if_exist ID create_opciones puntocoma
-                   | TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA'''
+    '''tipo_create : ins_replace DATABASE if_exist ID create_opciones PUNTO_COMA
+                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA'''
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
                           | columna ''' # no se *** si va la coma o no
 
 def p_columna(t):
-    '''columna : ID tipo_dato definicion_valor_defecto ins_constraint'''
+    '''columna : ID tipo_dato definicion_valor_defecto ins_constraint
+                | ID definicion_valor_defecto ins_constraint
+                | ID TYPE tipo_dato definicion_valor_defecto ins_constraint
+                | primary_key 
+                | foreign_key '''
+
+def p_ins_inherits(t):
+    '''ins_inherits : INHERITS PARABRE ID PARCIERRE
+                |  ''' #EPSILON
+
+def p_primary_key(t):
+    '''primary_key : PRIMARY KEY PARABRE nombre_columnas PARCIERRE ins_references'''
+
+def p_foreign_key(t):
+    '''foreign_key : FOREIGN KEY PARABRE nombre_columnas PARCIERRE REFERENCES ID PARABRE nombre_columnas PARCIERRE ins_references'''
+
+def p_nombre_columnas(t):
+    '''nombre_columnas : nombre_columnas COMA ID 
+                          | ID '''
 
 def p_tipo_dato(t):
     '''tipo_dato : SMALLINT          
@@ -255,19 +273,21 @@ def p_definicion_valor_defecto(t):
 
 def p_ins_constraint(t):
     '''ins_constraint : CONSTRAINT ID restriccion_columna 
-                                | ''' #epsilon
+                        | restriccion_columna
+                        | ''' #epsilon
 
 def p_restriccion_columna(t):
     '''restriccion_columna : NOT NULL
+                           | SET NOT NULL
                            | NULL
                            | PRIMARY KEY
                            | UNIQUE
-                           | FOREIGN KEY ID PARABRE ID PARCIERRE ins_references
                            | CHECK PARABRE exp PARCIERRE''' #cambio del condicion columna
 
 def p_references(t):
-    '''ins_references : ON DELETE accion
-                      | ON UPDATE accion'''
+    '''ins_references : ON DELETE accion ins_references
+                      | ON UPDATE accion ins_references
+                      | '''
 
 def p_accion(t):
     '''accion : CASCADE
@@ -281,17 +301,17 @@ def p_tipo_default(t): #ESTE NO SE SI SON RESERVADAS O LOS VALORES
                     | NULL'''
 
 def p_ins_replace(t): 
-    '''ins_replace : OR REPLACE puntocoma
+    '''ins_replace : OR REPLACE
                | '''#EPSILON
 
 def p_if_exist(t): 
-    '''if_exist :  IF NOT EXIST puntocoma
+    '''if_exist :  IF NOT EXIST
                 |  IF EXIST
                 | ''' # EPSILON
 
 def p_create_opciones(t): 
-    '''create_opciones : OWNER SIGNO_IGUAL ID
-                       | MODE SIGNO_IGUAL NUMERO'''
+    '''create_opciones : OWNER SIGNO_IGUAL ID create_opciones
+                       | MODE SIGNO_IGUAL NUMERO create_opciones'''
 
 def p_puntocoma(t): 
     '''puntocoma : PUNTO_COMA

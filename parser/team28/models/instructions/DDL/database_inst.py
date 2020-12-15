@@ -20,3 +20,35 @@ class DropDB(Instruction):
 
     def execute(self):
         pass
+
+
+class ShowDatabase(Instruction):
+    '''
+        SHOW DATABASE recibe una ER para mostrar esas bases de datos, caso contrario muestra todas
+    '''
+    def __init__(self, patherMatch) :
+        self._patherMatch = patherMatch
+    
+    def execute(self):
+        pass
+
+    def __repr__(self):
+        return str(vars(self))
+
+
+class AlterDatabase(Instruction):
+    '''
+        ALTER DATABASE recibe ya sea el nombre o el duenio antiguo y lo sustituye por un nuevo nombre o duenio
+        si recibe un 1 es porque es la base de datos
+        si recibe un 2 es porque es el duenio
+    '''
+    def __init__(self, alterType, oldValue, newValue) :
+        self._alterType = alterType
+        self._oldValue = oldValue
+        self._newValue = newValue
+
+    def execute(self):
+        pass
+    
+    def __repr__(self):
+        return str(vars(self))
