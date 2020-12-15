@@ -1,3 +1,6 @@
+from tabla_errores import *
+tabla_errores = TablaDeErrores()
+
 ##-------------------------GRAMATICA ASCENDENTE-------------------------------
 reservadas = {
     'create' : 'CREATE',
@@ -302,9 +305,10 @@ t_ignore = " \t"
 
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+    t.lexer.lineno += len(t.value)
     
 def t_error(t):
-    print("Caracter desconocido '%s'" % t.value[0])
-    # print("Caracter desconocido - "+str(t.value[0])+ " - en la linea "+str(t.lexer.lineno)+ ", columna "+"\n" )
+    error = Error('Léxico', "Caracter desconocido '%s'" % t.value[0], t.lexer.lineno)
+    tabla_errores.agregar(error)
+    print(error.imprimir())
     t.lexer.skip(1)

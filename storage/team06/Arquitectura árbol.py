@@ -1,9 +1,10 @@
 import os
+import pickle
 
 class Nodo:
-    def __init__(self, valor):
+    def __init__(self, valor, dic):
         self.valor = valor
-        self.campos = None
+        self.campos = dic
         self.izq = self.der = None
         self.padre = None
         self.altura = 1
@@ -14,29 +15,29 @@ class ArbolAVL:
     def __init__(self):
         self.raiz = None
 
-    def agregar(self, valor):
+    def agregar(self, valor, dic):
         if self.raiz == None:
-            self.raiz = Nodo(valor)
+            self.raiz = Nodo(valor, dic)
         else:
-            self._agregar(valor, self.raiz)
+            self._agregar(valor, self.raiz, dic)
 
-    def _agregar(self, valor, tmp):
+    def _agregar(self, valor, tmp, dic):
         if valor < tmp.valor:
             if tmp.izq == None:
-                tmp.izq = Nodo(valor)
+                tmp.izq = Nodo(valor, dic)
                 tmp.izq.padre = tmp
                 self.confirmaAgre(tmp.izq)
                 return 1
             else:
-                self._agregar(valor, tmp.izq)
+                self._agregar(valor, tmp.izq, dic)
         else:
             if tmp.der == None:
-                tmp.der = Nodo(valor)
+                tmp.der = Nodo(valor, dic)
                 tmp.der.padre = tmp
                 self.confirmaAgre(tmp.der)
                 return 1
             else:
-                self._agregar(valor, tmp.der)
+                self._agregar(valor, tmp.der, dic)
 
     def preorden(self):
         self._preorden(self.raiz)
@@ -254,6 +255,122 @@ class ArbolAVL:
         der = self.altura(tmp.der)
         return tmp.izq if izq >= der else tmp.der
 
+    def agregaralista(self, db, tabla, dic):
+        raiz = self.buscar(db)
+        i = self.buscartabla(db, tabla)
+        if i is None:
+            if raiz != None:
+                if raiz.lista is None:
+                    raiz.lista = ArbolAVL()
+                    cam = [None, dic]
+                    raiz.lista.agregar(tabla, cam)
+                    return 1
+                else:
+                    cam = [None, dic]
+                    raiz.lista.agregar(tabla, cam)
+                    print("Base de datos: ", raiz.valor)
+                    raiz.lista.preorden()
+                    return 1
+            else:
+                print("no existe la base de datos: ", db)
+                return 2
+        else:
+            return 3
+
+    def eliminartabla(self, db, tabla):
+        raiz = self.buscar(db)
+        if raiz != None:
+            if raiz.lista is None:
+                print("la lista no tiene raiz")
+            else:
+                raiz.lista.eliminar(tabla)
+                print("Base de datos",raiz.valor)
+                raiz.lista.preorden()
+
+        else:
+            print("no existe la base de datos: ", db)
+
+
+    def buscartabla(self, db,tabla):
+        raiz = self.buscar(db)
+        if raiz != None:
+            if raiz.lista != None:
+                return raiz.lista.buscar(tabla)
+            else:
+                return None
+        else:
+            return None
+
+    def agregarregistroatabla(self, db, tabla, valor):
+        raiz = self.buscartabla(db, tabla)
+        if raiz != None:
+            if raiz.lista is None:
+                raiz.lista = ArbolAVL()
+                raiz.lista.agregar(valor[0], valor)
+                print("base: ",db,"Tabla:" , raiz.valor)
+                raiz.lista.preorden()
+                return False
+            else:
+                raiz.lista.agregar(valor[0], valor)
+                print("base: ",db,"Tabla:" , raiz.valor)
+                raiz.lista.preorden()
+                return False
+        else:
+            return True
+
+    def generarlista(self, tmp, lista):
+        if tmp:
+            lista.append(tmp.valor)
+            self.generarlista(tmp.izq, lista)
+            self.generarlista(tmp.der, lista)
+            return lista
+
+    def generarregistros(self, tmp, lista, max, min):
+        if max ==0 and min == 0:
+            if tmp:
+                cadena = ""
+                for i in tmp.campos:
+                    cadena = cadena + str(i)
+                lista.append(cadena)
+                self.generarregistros(tmp.izq, lista,0,0)
+                self.generarregistros(tmp.der, lista,0,0)
+                return lista
+        else:
+            if tmp:
+                if tmp.valor > min and tmp.valor < max:
+                    cadena = ""
+                    for i in tmp.campos:
+                        cadena = cadena + str(i)
+                    lista.append(cadena)
+                    self.generarregistros(tmp.izq, lista, min, max)
+                    self.generarregistros(tmp.der, lista, min, max)
+                    return lista
+                else:
+                    self.generarregistros(tmp.izq, lista, min, max)
+                    self.generarregistros(tmp.der, lista, min, max)
+
+    def agregarcolumna(self, tmp, valor):
+        if tmp:
+            tmp.campos[1].append(valor)
+            self.generarregistros(tmp.izq, valor)
+            self.generarregistros(tmp.der, valor)
+
+    def eliminarcolumna(self, raiz, Nocol):
+        if raiz.campos != None:
+            raiz.campos.__delitem__(Nocol)
+            self.eliminarcolumna(raiz.izquierdo, Nocol)
+            self.eliminarcolumna(raiz.derecho, Nocol)
+
+    def extraercolumna(self, raiz, lista, columnas):
+        if raiz.campos:
+            for i in lista:
+                if raiz.campos[i] == columnas[i]:
+                    print(raiz.campos)
+                    return raiz
+                else:
+                    self.extraercolumna(raiz.izquierdo, lista, columnas)
+                    self.extraercolumna(raiz.derecho, lista, columnas)
+
     def graficar(self):
         contenido = "digraph grafica{\n    rankdir=TB;\n    node [shape = record, style=filled, fillcolor=lightcyan2];\n    "
         contenido += self._graficar(self.raiz)
@@ -284,73 +401,25 @@ class ArbolAVL:
 
         return contenido
 
-    def agregaralista(self, db, tabla, dic):
-        raiz = self.buscar(db)
-        temp = None
-        if raiz != None:
-            temp = raiz.lista
-            if raiz.lista is None:
-                raiz.lista = ArbolAVL()
-                raiz.lista.agregar(tabla)
-            else:
-                raiz.lista.agregar(tabla)
-                print("Base de datos: ",raiz.valor)
-                raiz.lista.preorden()
-        else:
-            print("no existe la base de datos: ",db)
-
-    def eliminartabla(self, db, tabla):
-        raiz = self.buscar(db)
-        if raiz != None:
-            if raiz.lista is None:
-                print("la lista no tiene raiz")
-            else:
-                raiz.lista.eliminar(tabla)
-                print("Base de datos",raiz.valor)
-                raiz.lista.preorden()
-
-        else:
-            print("no existe la base de datos: ", db)
-
-
-    def buscartabla(self, db,tabla):
-        raiz = self.buscar(db)
-        if raiz != None:
-            return raiz.lista.buscar(tabla)
-        else:
-            return None
-
-    def agregarregistroatabla(self, db, tabla, valor):
-        raiz = self.buscartabla(db, tabla)
-        if raiz != None:
-            if raiz.lista is None:
-                raiz.lista = ArbolAVL()
-                raiz.lista.agregar(valor)
-                print("Tabla:" , raiz.valor)
-                raiz.lista.preorden()
-                return False
-            else:
-                raiz.lista.agregar(valor)
-                print("Tabla:",raiz.valor)
-                raiz.lista.preorden()
-                return False
-        else:
-            return True
-
     def createdatabase(self, valor):
         nodo = self.buscar(valor)
         if nodo is None:
-            i = self.agregar(valor)
-            if i == 1:
+            try:
+                self.agregar(valor, None)
                 return 0
-            else:
+            except:
                 return 1
+
         else:
             return 2
 
     def showdatabases(self):
-        self.preorden()
-
+        lista = []
+        list = self.generarlista(self.raiz, lista)
+        print()
+        print("Lista de elementos en arbol")
+        print(list)
+        return list
 
     def alterdatabase(self, old, nuevo):
         vieja = self.buscar(old)
@@ -363,8 +432,238 @@ class ArbolAVL:
                 return 3
         else:
             return 2
+
+    def dropdatabase(self, db):
+        base = self.buscar(db)
+        if base is None:
+            return 2
+        else:
+            self.eliminar(db)
+            i = self.buscar(db)
+            if i is None:
+                return 0
+            else:
+                return 1
+
+    def createtable(self, db, tabla, dic):
+        raiz = self.buscar(db)
+        i = self.buscartabla(db, tabla)
+        if i is None:
+            if raiz != None:
+                if raiz.lista is None:
+                    try:
+                        raiz.lista = ArbolAVL()
+                        lista = [None, dic]
+                        raiz.lista.agregar(tabla, lista)
+                        return 1
+                    except:
+                        return 0
+                else:
+                    try:
+                        lista=[None, dic]
+                        raiz.lista.agregar(tabla, lista)
+                        print("Base de datos: ", raiz.valor)
+                        raiz.lista.preorden()
+                        return 1
+                    except:
+                        return 0
+            else:
+                print("no existe la base de datos: ", db)
+                return 2
+        else:
+            return 3
+
+    def showtables(self, db):
+        raiz = self.buscar(db)
+        if raiz != None:
+            lista = []
+            if raiz.lista != None:
+                list = raiz.lista.generarlista(raiz.lista.raiz, lista)
+                print(list)
+                return list
+        else:
+            return None
+
+    def extracttable(self, db, tabla):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                lista = []
+                li = self.generarregistros(i.lista.raiz ,lista,0,0)
+                print(li)
+                return li
+        else:
+            return None
+
+
+    def extractrangetable(self, db, tabla, max, min):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                lista = []
+                li = self.generarregistros(i.lista.raiz, lista, max, min)
+                print(li)
+                return li
+        else:
+            return None
+
+    def alteraddpk(self, db, tabla, columnas):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                if i.campos[0] != None:
+                    return 4
+                else:
+                    try:
+                        i.campos[0] = columnas
+                        print(i.campos)
+                        return 0
+                    except:
+                        return 1
+            else:
+                return 3
+        else:
+            return 2
+
+    def alterdroppk(self, db, tabla):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                if i.campos[0] != None:
+                    try:
+                        i.campos[0]=None
+                        return 0
+                    except:
+                        return 1
+                else:
+                    return 4
+            else:
+                return 3
+        else:
+            return 2
+
+    def altertable(self, db, tabla, tablanueva):
+        print("altertable")
+
+    def alteraddcolumn(self, db, tabla, valor):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                try:
+                    self.agregarcolumna(i.lista.raiz, valor)
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2
+
+    def alterdropcolumn(self, db, tabla, Nocol):
+        raiz = self.buscar(db)
+        if raiz !=None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                if i.campos[1] < Nocol:
+                    return 5
+                else:
+                    for f in i.campos[0]:
+                        if f == Nocol:
+                            return 4
+                try:
+                    self.eliminarcolumna(i.lista.raiz, Nocol)
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2
+
+    def droptable(self, db, tabla):
+        print("eliminar tabla")
+
+    def insert(self, db, tabla, lista):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                try:
+                    self.agregarregistroatabla(db, tabla, lista)
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2
+
+    def extractrow(self, db, tabla, columnas):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                lista = i.campos[0]
+                try:
+                    self.extraercolumna(i.lista.raiz, lista, columnas)
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2
+
+    def deletet(self, db, tabla, columnas):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                lista = i.campos[0]
+                try:
+                    tmp = self.extraercolumna(i.lista.raiz, lista, columnas)
+                    i.lista.eliminar(tmp.valor)
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2
+
+    def truncate(self, db, tabla):
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                try:
+                    i.lista = None
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2
+
+def commit(objeto, nombre):
+    file = open(nombre + ".bin", "wb+")
+    file.write(pickle.dumps(objeto))
+    file.close()
+
+def rollback(nombre):
+    file = open(nombre + ".bin", "rb")
+    b = file.read()
+    file.close()
+    return pickle.loads(b)
+
+
 t = ArbolAVL()
-t2 = ArbolAVL()
 t.createdatabase(1)
 t.createdatabase(23)
 t.createdatabase(45)
@@ -372,39 +671,36 @@ t.createdatabase(86)
 t.createdatabase(89)
 t.createdatabase(5)
 
-t2.agregar(56)
-t2.agregar(23)
-t2.agregar(95)
-t2.agregar(32)
-t2.agregar(86)
-t2.agregar(3)
-t2.agregar(51)
-
-t2.graficar()
-
 t.showdatabases()
 t.enorden()
-
-t.eliminar(23)
+t.dropdatabase(20)
 
 t.preorden()
 t.enorden()
 
-t.agregaralista(1, 3, 1)
-t.agregaralista(1, 10, 1)
-t.agregaralista(1, 13, 1)
-t.agregaralista(1, 5, 1)
-t.agregaralista(5, 6, 1)
-t.agregaralista(5, 15, 1)
-t.agregaralista(5, 20, 1)
+t.createtable(1, 3, 1)
+t.createtable(1, 10, 1)
+t.createtable(1, 13, 1)
+t.createtable(1, 5, 1)
+t.createtable(5, 6, 1)
+t.createtable(5, 15, 1)
+t.createtable(5, 20, 1)
 t.eliminartabla(1,5)
-t.eliminartabla(5,20)
-t.agregarregistroatabla(1,3,4)
-t.agregarregistroatabla(1,3,6)
-t.agregarregistroatabla(1,3,10)
-t.agregarregistroatabla(1,3,20)
-t.alterdatabase(1,222)
+lita = [1,2,3]
+lita1 = [2,2,4]
+lita2 = [3,2,5]
+
+t.agregarregistroatabla(1,3,lita)
+t.agregarregistroatabla(1,3,lita1)
+t.agregarregistroatabla(1,3,lita2)
+print("extraer tabla")
+t.extracttable(1,3)
+print("extraer rango de tablas")
+t.extractrangetable(1,3,3,1)
+t.agregarregistroatabla(5,6,lita)
 t.preorden()
-
-
-
+t.showtables(1)
+t.showtables(1)
+t.alteraddpk(1,3,[0,1])
+t.alterdroppk(1,3)
+t.alteraddpk(1,3,[0,2])

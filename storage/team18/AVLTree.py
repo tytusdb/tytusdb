@@ -1,0 +1,183 @@
+class TreeNode:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+        self.height = 1
+        self.struc = None
+
+class AVLTree:
+
+    def __init__(self):
+        self.AVLroot = None
+
+    def add(self, root, key):
+        if not root:
+            self.AVLroot = TreeNode(key)
+            return TreeNode(key)
+        elif key < root.val:
+            root.left = self.add(root.left, key)
+        else:
+            root.right = self.add(root.right, key)
+
+        root.height = 1 + max(self.getHeight(root.left),
+                              self.getHeight(root.right))
+
+        balance = self.getBalance(root)
+
+        # Caso 1 - LL
+        if balance > 1 and key < root.left.val:
+            return self.rightRotate(root)
+
+        # Caso 2 - RR
+        if balance < -1 and key > root.right.val:
+            return self.leftRotate(root)
+
+        # Caso 3 - LR
+        if balance > 1 and key > root.left.val:
+            root.left = self.leftRotate(root.left)
+            return self.rightRotate(root)
+
+        # Caso 4 - RL
+        if balance < -1 and key < root.right.val:
+            root.right = self.rightRotate(root.right)
+            return self.leftRotate(root)
+
+        self.AVLroot = root
+        return root
+
+    def delete(self, root, key):
+
+        if not root:
+            return root
+
+        elif key < root.val:
+            root.left = self.delete(root.left, key)
+
+        elif key > root.val:
+            root.right = self.delete(root.right, key)
+
+        else:
+            if root.left is None:
+                temp = root.right
+                root = None
+                self.AVLroot = temp
+                return temp
+
+            elif root.right is None:
+                temp = root.left
+                root = None
+                self.AVLroot = temp
+                return temp
+
+            temp = self.getMinValueNode(root.right)
+            root.val = temp.val
+            root.right = self.delete(root.right,
+                                     temp.val)
+
+        if root is None:
+            self.AVLroot = root
+            return root
+
+        root.height = 1 + max(self.getHeight(root.left),
+                              self.getHeight(root.right))
+
+        balance = self.getBalance(root)
+
+        # Caso 1 - LL
+        if balance > 1 and self.getBalance(root.left) >= 0:
+            return self.rightRotate(root)
+
+        # Caso 2 - RR
+        if balance < -1 and self.getBalance(root.right) <= 0:
+            return self.leftRotate(root)
+
+        # Caso 3 - LR
+        if balance > 1 and self.getBalance(root.left) < 0:
+            root.left = self.leftRotate(root.left)
+            return self.rightRotate(root)
+
+        # Caso 4 - RL
+        if balance < -1 and self.getBalance(root.right) > 0:
+            root.right = self.rightRotate(root.right)
+            return self.leftRotate(root)
+
+        self.AVLroot = root
+        return root
+
+    def leftRotate(self, z):
+
+        y = z.right
+        T2 = y.left
+
+        y.left = z
+        z.right = T2
+
+        z.height = 1 + max(self.getHeight(z.left),
+                           self.getHeight(z.right))
+        y.height = 1 + max(self.getHeight(y.left),
+                           self.getHeight(y.right))
+        self.AVLroot = y
+        return y
+
+    def rightRotate(self, z):
+
+        y = z.left
+        T3 = y.right
+
+        y.right = z
+        z.left = T3
+
+        z.height = 1 + max(self.getHeight(z.left),
+                           self.getHeight(z.right))
+        y.height = 1 + max(self.getHeight(y.left),
+                           self.getHeight(y.right))
+        self.AVLroot = y
+        return y
+
+    def getHeight(self, root):
+        if not root:
+            return 0
+
+        return root.height
+
+    def getBalance(self, root):
+        if not root:
+            return 0
+
+        return self.getHeight(root.left) - self.getHeight(root.right)
+
+    def getMinValueNode(self, root):
+        if root is None or root.left is None:
+            return root
+
+        return self.getMinValueNode(root.left)
+
+    def preOrder(self, root):
+        if not root:
+            return
+        print("{0} ".format(root.val), end="")
+        self.preOrder(root.left)
+        self.preOrder(root.right)
+
+        # List all the keys in postorder
+    def postOrder(self, root):
+        if root:
+            return self.postOrder(root.left).strip() + self.postOrder(root.right).strip() + root.val + "-"
+        else:
+            return ""
+
+    # Check if the key exists and returns the node
+    def search(self, root, key):
+        if root:
+            if root.val == key:
+                return root
+            elif key < root.val:
+                return self.search(root.left, key)
+            else:
+                return self.search(root.right, key)
+        else:
+            return None
+
+    def getRoot(self):
+        return self.AVLroot
