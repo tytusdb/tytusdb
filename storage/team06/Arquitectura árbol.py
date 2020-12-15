@@ -1,4 +1,5 @@
 import os
+import pickle
 
 class Nodo:
     def __init__(self, valor, dic):
@@ -650,6 +651,17 @@ class ArbolAVL:
         else:
             return 2
 
+def commit(objeto, nombre):
+    file = open(nombre + ".bin", "wb+")
+    file.write(pickle.dumps(objeto))
+    file.close()
+
+def rollback(nombre):
+    file = open(nombre + ".bin", "rb")
+    b = file.read()
+    file.close()
+    return pickle.loads(b)
+
 
 t = ArbolAVL()
 t.createdatabase(1)
@@ -692,5 +704,3 @@ t.showtables(1)
 t.alteraddpk(1,3,[0,1])
 t.alterdroppk(1,3)
 t.alteraddpk(1,3,[0,2])
-
-
