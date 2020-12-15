@@ -10,12 +10,31 @@ from Models.tree_graph import TreeGraph
 
 
 class AVLTree:
-    def __init__(self, database: str, name: str, numberColumns: int):
+    def __init__(self, database: str, name: str, numberColumns: int, pklist: list):
         self.root = None
-        self.database = str(database)
-        self.name = str(name)
-        self.numberColumns = numberColumns
-        self.pk = []
+        self.name = name
+        self.database = database
+        self.numberColumns = int(numberColumns)
+        self.pklist = pklist
+        # self.columns = self.crearCols(numberColumns)
+    
+    def __repr__(self) -> str:
+        return str(self.name)
+    
+        #En caso sirva:
+    # def crearCols(self, numberColumns: int) -> list:
+    #     tmp = []
+    #     for i in range(numberColumns):
+    #         tmp.append(i)
+    #     return tmp
+    
+    # def agregarCols(self, columns: list):
+    #     columns.append(int(columns[-1])+1)
+    
+    # def eliminarCol(self, posicion):
+    #     self.columns.pop(posicion)
+
+
 
     # region basic methods
     def add(self, index, content):
@@ -182,7 +201,7 @@ class AVLTree:
     # endregion
 
 
-t = AVLTree("test", "tst", 5)
+t = AVLTree("test", "tst", 5,[])
 t.add(57, "as")
 t.add(25, "as")
 t.add(78, "as")
