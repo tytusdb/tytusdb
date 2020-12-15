@@ -1,5 +1,7 @@
 import tkinter as tk
 import gramaticaASC as g
+import Graficar as graficando
+from Graficar import*
 import principal as principal
 
 from tkinter import filedialog
@@ -140,12 +142,15 @@ if __name__ == "__main__":
     
         entrada = my_editor.text.get('1.0',END)
         arbol = g.parse(entrada)
+        raiz = graficando.analizador(entrada)
         principal.interpretar_sentencias(arbol)
         
         if arbol is not None:
             consola.configure(state=tk.NORMAL)
             consola.delete('1.0',END)
-            consola.insert(INSERT, 'Archivo analizado con éxito')
+            consola.insert(INSERT, 'Archivo analizado con éxito \n')
+            #consola.insert(INSERT, str(recorrerNodo(raiz)))
+            GraficarAST(raiz)
             consola.configure(state=tk.DISABLED)
             
         else:
