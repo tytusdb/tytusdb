@@ -83,15 +83,14 @@ def insertarSimbolos(var):
 
 
 def reporteSimbolos(ruta,cadena):
-    print(q)
+    #print(q)
     print(cadena)
     print(ruta)
-    ar3="""<h1>REPORTE TABLA DE SIMBOLOS<h1>
+    ar3="""<h1 >REPORTE TABLA DE SIMBOLOS<h1>
     <table>
     <tr>
     <td>IDENTIFICADOR</td>
     <td>VALOR</td>
-    <td>TIPO</td>
     </tr>"""+cadena+"""</table> """
     print("forma bien la cadena")
     with open(ruta, "w") as f:
