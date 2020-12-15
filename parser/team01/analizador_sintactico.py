@@ -3,9 +3,9 @@ import tempfile
 from analizador_lexico import tokens
 from analizador_lexico import analizador
 from Nodo import *
-
-
-
+from datetime import datetime
+# import storageManager
+from storageManager import jsonMode as manager
 from expresiones import *
 from instrucciones import *
 from graphviz import *
@@ -32,13 +32,89 @@ def inc():
     i += 1
     return i
 
+# *************************************************
+# **********************         init  Modificado 11  de diciembre  Henry , acepta varias sentencias ***********
+# *************************************************
+
+
+def p_init(t):
+    '''init : statement_list
+    '''
+    t[0] = Nodo("init", [t[1]], 'N', None)
+
+
+def p_statement_list(t):
+    '''statement_list : statement_list statement
+    '''
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[2])
+    t[0] = Nodo("statement_list", temp, 'N', None)
+
+
+def p_statement_list_statement(t):
+    'statement_list : statement'
+    t[0] = Nodo("statement_list", [t[1]], 'N', None)
 
 def p_statement(t):
     '''statement : insert_statement
+                 | definitiondb_statement
                  | update_statement
                  | delete_statement
     '''
     t[0] = Nodo("statement", [t[1]], 'N', None)
+
+    # *************************************************
+    # **********************         createdb_statement Modificado 11  de diciembre  Henry      ***********
+    # *************************************************
+
+
+def p_definitiondb_statement(t):
+    '''definitiondb_statement : create_db
+                              | alter_db
+                              | show_db
+                              | drop_db
+    '''
+    t[0] = Nodo("definitiondb_statement", [t[1]], 'N', None)
+
+
+def p_create2_db(t):
+    'create_db : CREATE DATABASE ID PTCOMA'
+    t[0] = Nodo("create_db", [t[3]], 'S', str(t[3]))
+
+
+def p_show_db(t):
+    'show_db : SHOW DATABASES PTCOMA'
+    t[0] = Nodo("show_db", [t[2]], 'S', str(t[2]))
+
+
+def p_alter0_db(t):
+    'alter_db : ALTER DATABASE ID OWNER TO ID PTCOMA'
+    temp = list()
+    temp.append(t[3])
+    temp.append(t[4])
+    temp.append(t[6])
+    t[0] = Nodo("alter_db", temp, 'S', None)
+
+
+def p_alter1_db(t):
+    'alter_db : ALTER DATABASE ID RENAME TO ID PTCOMA'
+    temp = list()
+    temp.append(t[3])
+    temp.append(t[4])
+    temp.append(t[6])
+    t[0] = Nodo("alter_db", temp, 'S', None)
+
+
+def p_drop0_db(t):
+    'drop_db : DROP DATABASE IF EXISTS ID PTCOMA'
+    t[0] = Nodo("drop_db", [t[5]], 'S', str(t[5]))
+
+
+def p_drop1_db(t):
+    'drop_db : DROP DATABASE ID PTCOMA'
+    t[0] = Nodo("drop_db", [t[3]], 'S', str(t[3]))
+
 
 # *************************************************
 # **********************         insert_statement      ***********
