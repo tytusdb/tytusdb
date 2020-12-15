@@ -1191,6 +1191,14 @@ def p_deleteinBD_2(t):
     t[0] = DeleteinDataBases(t[3],t[5])
     h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE operacion PUNTOYCOMA\n"
 
+
+#-----------------------------------------------------CREATE TABLE CON INHERITS-------------------------------------------------------
+def p_inheritsBD(t):
+    'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
+    h.reporteGramatical1 +="inheritsBD    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA\n"
+
+
+
 #-----------------------------------------------------CREATE TABLE--------------------------------------------------------------------
 def p_createTable(t):
     'createTable        : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA'
@@ -1199,16 +1207,14 @@ def p_createTable(t):
 
 
 
-def p_inheritsBD(t):
-    'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
-    h.reporteGramatical1 +="inheritsBD    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA\n"
-
+# -------------------------------------------------------------------------------------------------------------- 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_creaColumna(t):
     '''creaColumnas        : creaColumnas COMA Columna 
     '''
     t[1].append(t[3])
     t[0] = t[1]
+    #print(t[0])
     h.reporteGramatical1 +="creaColumnas    ::=      creaColumnas COMA Columna\n"
 
 def p_creaColumna_2(t):
@@ -1217,47 +1223,67 @@ def p_creaColumna_2(t):
     t[0]=[t[1]]
     h.reporteGramatical1 +="createTable    ::=      Columna\n"
 
+# -------------------------------------------------------------------------------------------------------------- 
+#INICIA LAS PRODUCCIONES DE COLUMNAS
 def p_columna_1(t):
     'Columna            : ID tipo'
-    t[0]=ColumnasTable(t[1],t[2],None)
+    t[0]=TipoAtributoTable(ColumnasTable(t[1],t[2],None),OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION)
     h.reporteGramatical1 +="Columna    ::=      ID tipo\n"
 
 def p_columna_2(t):
     'Columna            : ID tipo paramOpcional'
     #print(t[3])
-    t[0]=ColumnasTable(t[1],t[2],t[3])
+    t[0]=TipoAtributoTable(ColumnasTable(t[1],t[2],t[3]),OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION)
     h.reporteGramatical1+="Columna      ::=     ID tipo paramOpcional"
 
 def p_columna_3(t):
-    'Columna            : uniqueinColumn'
-    h.reporteGramatical+="Columna       ::=     uniqueinColumn"
+    'Columna            : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
+    t[0]=TipoAtributoTable(RestriccionUnique(t[3]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO)
+    print(t[1])
+    h.reporteGramatical1+="Columna            : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA"
 
 def p_columna_4(t):
-    '''Columna          : constraintinColumn 
-                        | checkinColumn
-                        | primaryKey
-                        | foreignKey
+    '''Columna          : constraintcheck
     '''
-    t[0] = t[1]
+    t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT)
     h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
 
+def p_columna_5(t):
+    'Columna            : checkinColumn'
+    t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)
+    h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+
+def p_columna_6(t):
+    'Columna            : primaryKey'
+    t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)
+    h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+
+def p_columna_7(t):
+    'Columna            : foreignKey'
+    t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY)
+    h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+
+
+# -------------------------------------------------------------------------------------------------------------- 
+#INICIA LA LISTA DE RESTRICCIONES OPCIONALES EN LAS COLUMNAS
 def p_paramOpcional(t):
     '''paramOpcional    : paramOpcional paramopc
     '''
     t[1].append(t[2])
     t[0] = t[1]
     h.reporteGramatical1 +="paramOpcional    ::=      paramOpcional paramopc\n"
-    print("parametro-----")
     
 
 def p_paramOpcional_1(t):
     '''paramOpcional    : paramopc
     '''
     t[0] = [t[1]]
-    print("parametro++++")
-    print(t[0])
     h.reporteGramatical1 +="paramOpcional    ::=      paramopc\n"
 
+
+
+# -------------------------------------------------------------------------------------------------------------- 
+#INICIA LAS RESTRICCIONES EN LAS COLUMNAS
 def p_paramopc_1(t):
     '''paramopc         : DEFAULT final
                         | NULL
@@ -1268,59 +1294,56 @@ def p_paramopc_1(t):
     if t[1].upper() == "DEFAULT":
         
         t[0] = TipoRestriccion(RestriccionDefaul(t[2]),OPERACION_RESTRICCION_COLUMNA.DEFAULT)
-        print("entro default " ,t[0])
-    #elif t[1].upper() == "NULL":
-    #    t[0] = TipoRestriccion(RestriccionNull(1),OPERACION_RESTRICCION_COLUMNA.NULL)
-    #elif t[1] == "NOT":
-    #    t[0] = TipoRestriccion(RestriccionNotNull(1),OPERACION_RESTRICCION_COLUMNA.NOT_NULL)
-    #elif t[1] == "UNIQUE":
-    #    print(t[1])
-    #    t[0] = TipoRestriccion(RestriccionUniqueSimple(1),OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA)
-    #elif t[1] == "PRIMARY":
-    #    t[0] = TipoRestriccion(RestriccionPrimaryKeyColumn(1),OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)
+    elif t[1].upper() == "NULL":
+        t[0] = TipoRestriccion(RestriccionNull(1),OPERACION_RESTRICCION_COLUMNA.NULL)
+    elif t[1] == "NOT":
+        t[0] = TipoRestriccion(RestriccionNotNull(1),OPERACION_RESTRICCION_COLUMNA.NOT_NULL)
+    elif t[1] == "UNIQUE":
+        #print(t[1])
+        t[0] = TipoRestriccion(RestriccionUniqueSimple(1),OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA)
+    elif t[1] == "PRIMARY":
+        t[0] = TipoRestriccion(RestriccionPrimaryKeyColumn(1),OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)
     else:
         print("FFFFF")
     
     h.reporteGramatical1 +="paramopc    ::=      paramopc\n"
-    #print(t[0])
     
 
+# -------------------------------------------------------------------------------------------------------------- 
+#LLAMADA A LAS RESTRICCION CHECK
 def p_paramopc_2(t):
-    'paramopc           : constraintinColumn'
-    h.reporteGramatical1 +="paramopc    ::=      "+str(t[1])+"\n"
-
+    'paramopc           : constraintcheck'
+    t[0] = TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT)
+    h.reporteGramatical1 +="paramopc    ::=      constraintcheck"
+    
 def p_paramopc_3(t):
     'paramopc           : checkinColumn'
-    t[0] = TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)
-    h.reporteGramatical1+="paramopc     ::=     "+str(t[1])+"\n"
+    t[0]=TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)
+    h.reporteGramatical1 +="paramopc    ::=      checkinColumn"
 
+
+# -------------------------------------------------------------------------------------------------------------- 
+#RESTRICCION UNIQUE
 def p_paramopc_4(t):
     'paramopc           : CONSTRAINT ID UNIQUE'
     t[0] = TipoRestriccion(RestriccionConstraintUnique(t[2]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT)
-    h.reporteGramatical1 +="constraintinColumn    ::=      CONSTRAINT   ID   UNIQUE"
-
-def p_constraintinColumn_1(t):
-    '''constraintinColumn   : CONSTRAINT ID checkinColumn
-    '''
-    t[0]=RestriccionConstraintCheck(t[2],t[3])
-    h.reporteGramatical1 +="constraintinColumn    ::=      CONSTRAINT   ID   "+str(t[3])+"\n"
+    h.reporteGramatical1 +="paramopc    ::=      CONSTRAINT   ID   UNIQUE"
 
 
-def p_constraintinColumn_2(t):
-    'ConstraintinColumn     : CONSTRAINT ID uniqueinColumn'
-    t[0]=RestriccionConstraintUnique(t[2])
-    h.reporteGramatical1 +="constraintinColumn    ::=      CONSTRAINT   ID   "+str(t[3])+"\n"
-
-def p_checkinColumn(t):
-    'checkinColumn      : CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
+# -------------------------------------------------------------------------------------------------------------- 
+#RESTRICION CHECK 
+def p_checkcolumna(t):
+    'checkinColumn      :  CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
     t[0]=RestriccionCheck(t[3])
-    h.reporteGramatical1 +="checkinColumn    ::=      CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+    h.reporteGramatical1+="paramopc     ::=     "+str(t[1])+"\n"
+
+def p_constraintcheck(t):
+    'constraintcheck    : CONSTRAINT ID CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
+    t[0]=RestriccionConstraintCheck(t[2],t[5])
+    h.reporteGramatical1 +="paramopc    ::=      "+str(t[1])+"\n"
 
 
-def p_uniqueinColumn(t):
-    'uniqueinColumn     : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
-    t[0]=RestriccionUnique(t[3])
-    h.reporteGramatical1 +="uniqueinColumn    ::=      UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
+
 
 
 def p_primaryKey(t):
@@ -1333,7 +1356,6 @@ def p_foreingkey(t):
     'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA' 
     t[0]=RestriccionForeingkey(t[4],t[7],t[9])
     h.reporteGramatical1 +="foreignKey    ::=      FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
-
 #-----------------------------------------------------TIPOS DE DATOS--------------------------------------------------------------------
 
 def p_tipo(t):
