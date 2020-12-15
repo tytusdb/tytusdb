@@ -44,11 +44,8 @@ class Simbolo():
 # es decir tablasimbolos = entorno de cada definiacion
 class TablaDeSimbolos():
 
-
     def __init__(self, simbolos={}):
         self.simbolos = simbolos
-
-
 
     def agregar_sim(self, simbolo):
         self.simbolos[simbolo.id] = simbolo
@@ -56,8 +53,13 @@ class TablaDeSimbolos():
     def buscar_sim(self, id):
         if not id in self.simbolos:
             print('Error: el identificador ', id, ' no esta definido.')
-
         return self.simbolos[id]
+
+    def validar_sim(self, id):
+        val = 1
+        if not id in self.simbolos:
+            val = -1
+        return val
 
     def actualizar_sim(self, simbolo):
         if not simbolo.id in self.simbolos:

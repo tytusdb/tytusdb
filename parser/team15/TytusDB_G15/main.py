@@ -9,6 +9,7 @@ from expresiones import *
 from instrucciones import *
 from ast import *
 from report_tc import *
+from report_errores import *
 
 instrucciones_Global = []
 
@@ -24,6 +25,7 @@ selected = False
 
 # ACTIONS
 def analizar(txt):
+    listaErrores = []
     global instrucciones_Global,tc_global1
     instrucciones = g.parse(txt)
     instrucciones_Global = instrucciones
@@ -40,6 +42,8 @@ def analizar(txt):
 def analizar_select(e):
     global selected
     if my_text.selection_get():
+
+        listaErrores = []
         global instrucciones_Global
         selected = my_text.selection_get()
         print(selected)
@@ -60,6 +64,11 @@ def generarReporteTC():
     global tc_global1
     typeC = TipeChecker()
     typeC.crearReporte(tc_global1)
+
+
+def generarReporteErrores():
+    erroressss = ErrorHTML()
+    erroressss.crearReporte()
 
 def graficar_TS():
     ''' '''
@@ -106,7 +115,7 @@ my_menu.add_cascade(label = "Reportes", menu = reportes_menu)
 reportes_menu.add_command(label = "Tabla de Simbolos", command = lambda: graficar_TS())
 reportes_menu.add_command(label = "Tabla de Tipos", command = lambda: generarReporteTC())
 reportes_menu.add_command(label = "AST", command = lambda: generarReporteAST())
-reportes_menu.add_command(label = "Errores")
+reportes_menu.add_command(label = "Errores", command = lambda: generarReporteErrores())
 
 analizar_button = Button(toolbar_frame)
 photoCompila = PhotoImage(file="iconos/all.png")
