@@ -1,59 +1,92 @@
-from BusinessLayer.database_module import DatabaseModule
-from BusinessLayer.table_module import TableModule
+from avltree_structure import AVLTreeStructure
 
-# from BusinessLayer.tuple_module import TupleModule
 
 class Controller:
 
     def __init__(self):
-        self.tm = TableModule()
-        self.dm = DatabaseModule()
-        # self.rm = TupleModule()
-        
+        self.structure = AVLTreeStructure()
 
-    def ejectutarFuncion(self, fun, parametros):
-        #Bases de datos
-        if fun == "Create DB":
-            return self.dm.createDatabase(parametros[0])
-        elif fun == "Show DB":
-            return self.dm.showDatabases()
-        elif fun == "Alter database":
-            return self.dm.alterDatabase(parametros[0], parametros[1])
-        elif fun == "Drop DB":
-            return self.dm.dropDatabase(parametros[0])
-        #Tablas
-        elif fun == "Create table":
-            return self.tm.createTable(parametros[0], parametros[1],int(parametros[2]))
-        elif fun == "Show tables":
-            return self.tm.showTables(parametros[0])
-        elif fun == "Extract table":
-            return self.tm.extractTable(parametros[0],parametros[1])
-        elif fun == "Extract range table":
-            return self.tm.extractRangeTable(parametros[0],parametros[1],parametros[2],parametros[3]) #averiguar any
-        elif fun == "Add PK":
-            return self.tm.alterAddPK(parametros[0],parametros[1],parametros[2].split(','))
-        elif fun == "Drop PK":
-            return self.tm.alterDropPK(parametros[0],parametros[1])
-        elif fun == "Alter table":
-            return self.tm.alterTable(parametros[0],parametros[1],parametros[2])
-        elif fun == "Alter add column":
-            return self.tm.alterAddColumn(parametros[0],parametros[1],parametros[2]) #averiguar any
-        elif fun == "Alter drop column":
-            return self.tm.alterDropColumn(parametros[0],parametros[1],int(parametros[2]))
-        elif fun == "Drop table":
-            return self.tm.dropTable(parametros[0],parametros[1])
-        #Tuplas
-        # elif fun == "Insertar":
-        #     return self.rm.insert(parametros[0],parametros[1],parametros[2].split(','))
-        # elif fun == "Load file":
-        #     return self.rm.loadCSV(parametros[0],parametros[1],parametros[2])
-        # elif fun == "Extract row":
-        #     return self.rm.extractRow(parametros[0],parametros[1],parametros[2].split(','))
-        # elif fun == "Update":
-        #     return self.rm.update(parametros[0],parametros[1],parametros[2],parametros[3].split(',')) #averiguar dict
-        # elif fun == "Delete":
-        #     return self.rm.delete(parametros[0],parametros[1],parametros[2].split(','))
-        # elif fun == "Vaciar tabla":
-        #     return self.rm.truncate(parametros[0],parametros[1])
+    def execute(self, args, action):
+        actions = Enums.actions
+
+        # region Database
+        if action == actions[1]:
+            return self.structure.createDatabase(args[0])
+        elif action == actions[2]:
+            return self.structure.showDatabases()
+        elif action == actions[3]:
+            return self.structure.alterDatabase(args[0], args[1])
+        elif action == actions[4]:
+            return self.structure.dropDatabase(args[0])
+        # endregion
+
+        # region Tables
+        elif action == actions[5]:
+            return self.structure.createTable(args[0], args[1], int(args[2]))
+        elif action == actions[6]:
+            return self.structure.showTables(args[0])
+        elif action == actions[7]:
+            return self.structure.extractTable(args[0], args[1])
+        elif action == actions[8]:
+            return self.structure.extractRangeTable(args[0], args[1], args[2], args[3])
+        elif action == actions[9]:
+            return self.structure.alterAddPK(args[0], args[1], args[2].split(','))
+        elif action == actions[10]:
+            return self.structure.alterDropPK(args[0], args[1])
+        elif action == actions[13]:
+            return self.structure.alterTable(args[0], args[1], args[2])
+        elif action == actions[14]:
+            return self.structure.alterAddColumn(args[0], args[1], args[2])
+        elif action == actions[15]:
+            return self.structure.alterDropColumn(args[0], args[1], int(args[2]))
+        elif action == actions[16]:
+            return self.structure.dropTable(args[0], args[1])
+
+        # endregion
+
+        # region Tuples
+        #
+        # elif action == actions[17]:
+        #     return self.structure.insert(args[0], args[1], args[2].split(','))
+        # elif action == actions[18]:
+        #     return self.structure.loadCSV(args[0], args[1], args[2])
+        # elif action == actions[19]:
+        #     return self.structure.extractRow(args[0], args[1], args[2].split(','))
+        # elif action == actions[20]:
+        #     return self.structure.update(args[0], args[1], args[2], args[3].split(','))
+        # elif action == actions[21]:
+        #     return self.structure.delete(args[0], args[1], args[2].split(','))
+        # elif action == actions[22]:
+        #     return self.structure.truncate(args[0], args[1])
+        #
+        # endregion
+
         else:
             return 6
+
+
+class Enums:
+    actions = {
+        1: "Create DB",
+        2: "Show DB",
+        3: "Alter DB",
+        4: "Drop DB",
+        5: "Create Table",
+        6: "Show Tables",
+        7: "Extract Table",
+        8: "Extract Range Table",
+        9: "Add PK",
+        10: "Drop PK",
+        11: "Add FK",
+        12: "Add Index",
+        13: "Alter Table",
+        14: "Add Column",
+        15: "Drop Column",
+        16: "Drop Table",
+        17: "Inserts",
+        18: "Load CSV",
+        19: "Extract Row",
+        20: "Update",
+        21: "Delete",
+        22: "Truncate"
+    }
