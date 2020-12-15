@@ -510,7 +510,7 @@ def p_create_campo_tabla(t):
     gramatica = 'l_campo ::= tipo  l_campo'
     lista.append(gramatica)
 
-    
+
 def p_create_campo_tabla1(t):
     '''l_campo : '''
     gramatica = 'l_campo ::= epsilon'
