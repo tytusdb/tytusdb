@@ -413,6 +413,25 @@ def p_delete_sinwhere(t):
 
 def p_delete_conwhere(t):
     'delete_instr     : DELETE FROM ID WHERE condiciones PTCOMA'
+    
+## TRUNCATE
+def p_truncate_simple(t):
+    'truncate_instr   : TRUNCATE listtablas PTCOMA'
+
+def p_truncate_simple_cascade(t):
+    'truncate_instr   : TRUNCATE listtablas CASCADE PTCOMA'
+
+def p_truncate_table(t) :
+    'truncate_instr   : TRUNCATE TABLE listtablas PTCOMA'
+
+def p_truncate_table_cascade(t) :
+    'truncate_instr   : TRUNCATE TABLE listtablas CASCADE PTCOMA'
+
+def p_listatablas(t) : 
+    'listtablas       : listtablas COMA ID'
+
+def p_listatablas_salida(t) :
+    'listtablas       : ID'
 
     
 ## -------------------------------- EXPRESIONES ------------------------------------------    
