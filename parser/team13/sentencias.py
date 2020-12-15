@@ -66,27 +66,6 @@ class Sentencia:
     '''clase abstracta'''
 
 
-class S(Sentencia):
-
-    def __init__(self, Etiqueta, hijo1):
-        self.Etiqueta = Etiqueta
-        self.hijo1 = hijo1
-
-
-class statementList2(Sentencia):
-
-    def __init__(self, son1, son2, name):
-        self.son1 = son1
-        self.son2 = son2
-        self.name = name
-
-
-class statementList1(Sentencia):
-    def __init__(self, son1, name):
-        self.name = name
-        self.son1 = son1
-
-
 class SCrearBase(Sentencia):
     def __init__(self, owner, mode, replace, exists, id):
         self.id = id
@@ -146,12 +125,6 @@ class SValSet(Sentencia):
     def __init__(self, columna, valor):
         self.columna = columna
         self.valor = valor
-
-
-class SValWhere(Sentencia):
-    def __init__(self, columna, valor):
-        self.columna = columna
-        self.columna = valor
 
 
 class SDeleteBase(Sentencia):
@@ -298,6 +271,11 @@ class SOpcionales(Sentencia):
         self.valor = valor
         self.id = id
 
+class Squeries(Sentencia):
+    def __init__(self, query1,ope,query2):
+        self.query1 = query1
+        self.ope = ope
+        self.query2 = query2
 
 class SQuery(Sentencia):
     def __init__(self, select, ffrom, where, groupby, having, orderby, limit):
@@ -320,12 +298,6 @@ class SSelectFunc(Sentencia):
     def __init__(self, id):
         self.id = id
 
-
-class SColumnasSelect(Sentencia):
-    def __init__(self, cols=[]):
-        self.cols = cols
-
-
 class SColumnasAsSelect(Sentencia):
     def __init__(self, id, cols=[]):
         self.id = id
@@ -341,14 +313,15 @@ class SColumnasSubstr(Sentencia):
 
 
 class SColumnasGreatest(Sentencia):
-    def __init__(self, id, params=[]):
-        self.params = params
-        self.id = id
+    def __init__(self, id, cols=[]):
+        self.id = id  
+        self.cols = cols
+               
 
 
 class SColumnasLeast(Sentencia):
-    def __init__(self, id, params=[]):
-        self.params = params
+    def __init__(self, id, cols=[]):
+        self.cols = cols
         self.id = id
 
 
@@ -357,6 +330,12 @@ class SExtract(Sentencia):
         self.field = field
         self.timestampstr = timestampstr
 
+class SExtract2(Sentencia):
+    def __init__(self, field, dtype,timestampstr):
+        self.field = field
+        self.dtype = dtype
+        self.timestampstr = timestampstr
+        
 
 class SFuncAgregacion(Sentencia):
     def __init__(self, funcion, param):
@@ -412,7 +391,27 @@ class SFuncBinary(Sentencia):
     def __init__(self, funcion, param):
         self.funcion = funcion
         self.param = param
+    
+class SFuncBinary2(Sentencia):
+    def __init__(self, funcion, param, param2):
+        self.funcion = funcion
+        self.param = param
+        self.param2 = param2
 
+class SFuncBinary3(Sentencia):
+    def __init__(self, funcion, param, det, param2):
+        self.funcion = funcion
+        self.param = param
+        self.det = det
+        self.param2 = param2
+
+class SFuncBinary4(Sentencia):
+    def __init__(self, funcion, param,param2,param3):
+        self.funcion = funcion
+        self.param = param
+        self.param2 = param2
+        self.param3 = param3
+        
 
 class SFechaFunc(Sentencia):
     def __init__(self, param, param2):
@@ -440,18 +439,110 @@ class SCaseElse(Sentencia):
 
 
 class SCaseList(Sentencia):
-    def __init__(self, param, param2, clist=[], ):
+    def __init__(self, param,param2,clist=[]):
         self.param = param
         self.param2 = param2
         self.clist = clist
 
 
 class SFrom(Sentencia):
-    def __init__(self, clist=[], ):
-        self.clist = clist
+    def __init__(self, clist=[]):
+        self.clist=clist
 
 
 class SFrom2(Sentencia):
-    def __init__(self, id, clist=[], ):
+    def __init__(self,id, clist=[]):
         self.id = id
         self.clist = clist
+
+class SWhere(Sentencia):
+    def __init__(self,clist=[]):
+        self.clist = clist
+
+class SGroupBy(Sentencia):
+    def __init__(self,slist=[]):
+        self.slist = slist
+
+class SLimit(Sentencia):
+    def __init__(self,limit,offset):
+        self.limit = limit
+        self.offset = offset
+
+class SListOrderBy(Sentencia):
+    def __init__(self,ascdesc,firstlast,listorder=[]):
+        self.ascdesc = ascdesc 
+        self.firstlast = firstlast
+        self.listorder = listorder
+
+class sOrderBy(Sentencia):
+    def __init__(self,slist=[]):
+        self.slist = slist
+
+class SAlias(Sentencia):
+    def __init__(self,id,alias):
+        self.id = id
+        self.alias = alias
+
+class SWhereCond1(Sentencia):
+    def __init__(self,conds=[]):
+        self.conds = conds
+
+class SWhereCond2(Sentencia):
+    def __init__(self,isnotNull,conds=[]):
+        self.isnotNull = isnotNull
+        self.conds = conds
+
+class SWhereCond3(Sentencia):
+    def __init__(self,tIs,tNot,directiva,conds=[]):
+        self.tIs = tIs
+        self.tNot = tNot
+        self.directiva = directiva
+        self.conds = conds
+
+class SWhereCond4(Sentencia):
+    def __init__(self,tIs,tNot,distinct,conds=[],ffrom=[]):
+        self.tIs = tIs
+        self.tNot = tNot
+        self.distinct = distinct
+        self.conds = conds
+        self.ffrom = ffrom
+
+class SWhereCond5(Sentencia):
+    def __init__(self,substr,c1=[],c2=[],c3=[]):
+        self.substr = substr
+        self.c1 = c1
+        self.c2 = c2
+        self.c3 = c3
+
+class SWhereCond6(Sentencia):
+    def __init__(self,tNot,exists,cols=[]):
+        self.tNot = tNot
+        self.exists = exists
+        self.cols= cols
+
+class SWhereCond7(Sentencia):
+    def __init__(self,operador,anyallsome,efunc=[],qcols=[]):
+        self.operador = operador
+        self.anyallsome = anyallsome
+        self.efunc = efunc
+        self.qcols= qcols
+
+class SWhereCond8(Sentencia):
+    def __init__(self,tNot,tIn,efunc=[],qcols=[]):
+        self.tNot = tNot
+        self.tIn = tIn
+        self.efunc = efunc
+        self.qcols= qcols
+
+class SWhereCond9(Sentencia):
+    def __init__(self,tNot,between,efunc=[],efunc2=[]):
+        self.tNot = tNot
+        self.between = between
+        self.efunc = efunc
+        self.efunc2 = efunc2
+
+class SHaving(Sentencia):
+    def __init__(self,ope,efunc=[],efunc2=[]):
+        self.ope = ope
+        self.efunc = efunc
+        self.efunc2 = efunc2

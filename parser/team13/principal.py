@@ -164,9 +164,342 @@ def interpretar_sentencias(arbol, tablaSimbolos):
         elif isinstance(nodo, SCrearTabla):
             crearTabla(nodo, tablaSimbolos)
 
+        
+        #FRANCISCO
+        elif isinstance(nodo, Squeries): 
+            print("Entró a Query")
+            if nodo.ope == False :
+                print("Query Simple")
+                if isinstance(nodo.query1, SQuery): 
+                    Qselect = nodo.query1.select
+                    Qffrom = nodo.query1.ffrom
+                    Qwhere = nodo.query1.where
+                    Qgroupby = nodo.query1.groupby
+                    Qhaving = nodo.query1.having
+                    Qorderby = nodo.query1.orderby
+                    Qlimit = nodo.query1.limit
     for i in listaSemanticos:
         print(i)
     return consola
+                    #SELECT 
+                    if isinstance(Qselect, SSelectCols):
+                        print("Entro a Select")
+                        #Distinct
+                        if Qselect.distinct != False:
+                            print("Distinct True")
+
+                        #Cantidad de columnas
+                        if Qselect.cols=="*":
+                            print("Todas las Columnas")
+                            
+                        else:
+                            print("Columnas Específicas")
+                            for col in Qselect.cols:
+                                ##LISTAS
+                                if isinstance(col.cols,SExpresion):
+                                    print("Expre")
+                                    print(col.cols.valor)
+                                    #print("Tipo")
+                                    #print(col.cols.tipo)
+                                elif isinstance(col.cols,SOperacion):
+                                    print("Operación")
+                                    if isinstance(col.cols.opIzq,SExpresion):
+                                        print(col.cols.opIzq.valor)
+                                        print(col.cols.operador)
+                                        print(col.cols.opDer.valor)
+
+                                ##FUNCIONES DE AGREGACION
+                                elif isinstance(col.cols,SFuncAgregacion): 
+                                    print("Funcion Agregación:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("val")
+                                        print(col.cols.param.valor) 
+                                    else: 
+                                        print("val")
+                                        print(col.cols.param)  
+
+                                ##FUNCIONES MATH
+                                elif isinstance(col.cols,SFuncMath):
+                                    print("Funcion Math:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor) 
+                                    else: 
+                                        print("param")
+                                        print(col.cols.param)      
+
+                                elif isinstance(col.cols,SFuncMath2):
+                                    print("Funcion Math2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)                                         
+                                        print(col.cols.param2.valor)
+                                    else: 
+                                        print("params")
+                                        print(col.cols.param)  
+                                        print(col.cols.param2) 
+
+                                elif isinstance(col.cols,SFuncMathSimple):
+                                    print("Funcion MathSimple:")
+                                    print(col.cols.funcion) 
+
+                                ##FUNCIONES TRIG
+                                elif isinstance(col.cols,SFuncTrig):
+                                    print("Funcion Trig1:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor)  
+                                    else: 
+                                        print("param")
+                                        print(col.cols.param)   
+
+                                elif isinstance(col.cols,SFuncTrig2):
+                                    print("Funcion Trig2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)                                         
+                                        print(col.cols.param2.valor)
+                                    else: 
+                                        print("params")
+                                        print(col.cols.param)  
+                                        print(col.cols.param2)
+
+                                ##FUNCIONES BINARIAS
+                                elif isinstance(col.cols,SFuncBinary):
+                                    print("Funcion Binaria1:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor)       
+                                    else: 
+                                        print("param")
+                                        print(col.cols.param)  
+
+                                elif isinstance(col.cols,SFuncBinary2):
+                                    print("Funcion Binaria2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)                                         
+                                        print(col.cols.param2.valor)
+                                    else: 
+                                        print("params")
+                                        print(col.cols.param)  
+                                        print(col.cols.param2)
+                                
+                                elif isinstance(col.cols,SFuncBinary3):
+                                    print("Funcion Binaria3:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor) 
+                                        print(col.cols.param.det)                                        
+                                        print(col.cols.param2.valor)
+                                    else: 
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.det)  
+                                        print(col.cols.param2)
+                                
+                                elif isinstance(col.cols,SFuncBinary4):
+                                    print("Funcion Binaria4:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param,SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)                                      
+                                        print(col.cols.param2.valor)
+                                        print(col.cols.param3.valor)
+                                    else: 
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+                                        print(col.cols.param3)
+                                    
+
+                                #EXTRACT
+                                elif isinstance(col.cols,SExtract):
+                                    print("Funcion Extract:")
+                                    if isinstance(col.cols.field,STipoDato):
+                                        print(col.cols.field.dato)
+                                        print(col.cols.field.tipo)
+                                        print(col.cols.field.cantidad)
+                                    print(col.cols.timestampstr)
+
+                                elif isinstance(col.cols,SExtract2):
+                                    print("Funcion Extract2:")
+                                    if isinstance(col.cols.field,STipoDato):
+                                        print(col.cols.field.dato)
+                                        print(col.cols.dtype.dato)
+                                    if isinstance(col.cols.timestampstr,SExpresion):
+                                        print("param")
+                                        print(col.cols.timestampstr.valor)   
+                                    
+
+                                #FUNCIONES DE FECHA
+                                elif isinstance(col.cols,SSelectFunc):
+                                    print("Funcion getFecha:")
+                                    print(col.cols.id)
+
+                                elif isinstance(col.cols,SFechaFunc):
+                                    print("Funcion Fecha:")
+                                    if isinstance(col.cols.param,STipoDato):
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                    else: 
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+
+                                elif isinstance(col.cols,SFechaFunc2):
+                                    print("Funcion Fecha2:")
+                                    print(col.cols.id)
+                                    print(col.cols.param)
+                                    print(col.cols.tipo)
+                                    print(col.cols.param2)
+
+                                
+                                #CASE
+                                elif isinstance(col.cols,SCase):
+                                    print("Funcion Case:")
+                                    if isinstance(col.cols.casos,SCaseList):
+                                        print(col.cols.casos.param)
+                                        print(col.cols.casos.param2)
+                                        print(col.cols.casos.clist)
+
+                                elif isinstance(col.cols,SCaseElse):
+                                    print("Funcion CaseElse:")
+                                    if isinstance(col.cols.casos,SCaseList):
+                                        print(col.cols.casos.param)
+                                        print(col.cols.casos.param2)
+                                        print(col.cols.casos.clist)
+                                    print(col.cols.casoelse)
+
+                                #OTRAS FUNCIONES
+                                elif isinstance(col.cols,SColumnasSubstr):
+                                    print("Funcion Substr:")
+                                    print(col.cols.st)
+                                    print(col.cols.st2)
+                                    print(col.cols.st3)
+
+                                elif isinstance(col,SColumnasGreatest):
+                                    print("Funcion Greatest:")
+                                    print(col.cols)
+
+                                elif isinstance(col.cols,SColumnasLeast):
+                                    print("Funcion Least:")
+                                    print(col.cols)
+                                
+                                else: 
+                                    print("Otro")
+                                    print(col.cols)
+
+                                #ALIAS
+                                if col.id !=False:
+                                    if isinstance(col.id,SExpresion):
+                                        print("Alias")
+                                        print(col.id.valor)             
+                   
+                    #FROM 
+                    if isinstance(Qffrom, SFrom):
+                        print("entro al From")
+                        for col in Qffrom.clist:
+                            if isinstance(col,SAlias):
+                                if col.alias == False :
+                                    print("id")
+                                    print(col.id)
+                                else:
+                                    print("id/alias")
+                                    print(col.id)
+                                    print(col.alias)
+                                    
+                    elif isinstance(Qffrom, SFrom2):
+                        print("entro al From2")
+                        #Subquerie
+                        print(Qffrom.clist) 
+                        print(Qffrom.id) 
+
+                    else:
+                        print("Otro From")
+
+                    #WHERE 
+                    if isinstance(Qwhere, SWhere):
+                        print("entro al Where")
+                        for col in Qwhere.clist:
+                            if isinstance(col,SWhereCond1):
+                                print("Es where1")
+                                print(col.conds)
+                                #print(col.conds.param.opIzq.valor)
+                                #print(col.conds.param.operador)
+                                #print(col.conds.param.opDer.valor)
+
+                            elif isinstance(col,SWhereCond2) :
+                                print("Es where2")
+                                print(col.conds)
+                                print(col.isnotNull)
+
+                            elif isinstance(col,SWhereCond3) :
+                                print("Es where3")
+                                print(col.conds)
+                                print(col.directiva)
+
+                            elif isinstance(col,SWhereCond4) :
+                                print("Es where4")
+                                print(col.conds)
+                                print(col.ffrom)
+
+                            elif isinstance(col,SWhereCond5) :
+                                print("Es where5")
+                                print(col.c1)
+                                print(col.c2)
+                                print(col.c3)
+
+                            elif isinstance(col,SWhereCond6) :
+                                print("Es where6")
+                                print(col.cols)
+
+                            elif isinstance(col,SWhereCond7) :
+                                print("Es where7")
+                                print(col.efunc)
+                                print(col.qcols)
+                                print(col.anyallsome)
+                                print(col.operador)
+
+                            elif isinstance(col,SWhereCond8) :
+                                print("Es where8")
+                                print(col.qcols)
+                                print(col.efunc)
+
+                            elif isinstance(col,SWhereCond9) :
+                                print("Es where9")
+                                print(col.between)
+                                print(col.efunc)
+                                print(col.efunc2)
+                            else:
+                                print("Otro Where")
+                    #GROUP BY 
+                    if isinstance(Qgroupby, SGroupBy): 
+                        print("entro al Group By")
+                        for col in Qgroupby.slist:
+                            if isinstance(col,SExpresion):
+                                print("Agrupado por")
+                                print(col.valor) 
+                            else: 
+                                print("Agrupado por")
+                                print(col)
+                    #HAVING
+                    if isinstance(Qhaving, SHaving): 
+                        print("entro al Having")
+                        
+            else:
+                print("Query anidada")
+                
+
+            
+            
 
 
 def crearBase(nodo, tablaSimbolos):
