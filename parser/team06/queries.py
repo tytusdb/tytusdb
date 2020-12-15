@@ -147,6 +147,16 @@ class CreateTable(query):
         self.idTable = idTable
         self.listColumn = listColumn
 
+class TipoAtributoTable(query):
+    '''
+        Esta clase representa el tipo de atributo que se creara
+        en la tabal, puede ser una columna, constraint, llave primaria,
+        llave foranea
+    '''
+    def __init__(self,objAtributo,TypeAtrib):
+        self.objAtributo = objAtributo
+        self.TypeAtrib = TypeAtrib
+
 class ColumnasTable(query):
     '''Esta clase representa la accion que alamcena todas las
         columnas que se crearan

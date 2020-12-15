@@ -1,5 +1,6 @@
 
 from Nodo import Nodo
+from Entorno import Entorno
 class Expresion(Nodo):
     '''
         Esta clase representa una expresión
@@ -11,6 +12,6 @@ class Expresion(Nodo):
         self.valor=None
         self.tipo=None
 
-    def getval(self):
+    def getval(self,entorno):
             'Metodo Abstracto para obtener el valor de la Instrruccion'
 

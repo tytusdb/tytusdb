@@ -138,9 +138,9 @@ class ExpresionOwner(ExpresionQueries) :
 class OPERACION_RESTRICCION_COLUMNA(Enum):
     CHECK_SIMPLE = 1
     CHECK_CONSTRAINT = 2
-    UNIQUE_COLUMNA = 3    
-    UNIQUE_SIMPLE = 4
-    UNIQUE_CONSTAINT = 5
+    UNIQUE_COLUMNA = 3    #<--- Cuando se declara en la columna
+    UNIQUE_ATRIBUTO = 4   #<--- Cuando se declara como atributo   
+    UNIQUE_CONSTAINT = 5  #<--- Cuando se declara con constraint
     PRIMARY_KEY = 6
     FOREIGN_KEY = 7
     NULL = 8
