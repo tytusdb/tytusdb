@@ -1,3 +1,5 @@
+from Instrucciones.Select import Select
+
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -223,9 +225,11 @@ lexer = lex.lex()
 from graphviz import Digraph
 from Expresion.Aritmetica import Aritmetica
 from Expresion.Relacional import Relacional
+from Tipo import  Tipo
 from Expresion.Terminal import  Terminal
 from Expresion.Logica import  Logica
 from Expresion.Unaria import  Unaria
+from Expresion.Extract import Extract
 
 
 arbol = Digraph(comment='Árbol Sintáctico Abstracto (AST)')
@@ -462,9 +466,11 @@ def p_CREATETYPE(t):
 
 def p_SELECT(t):
     ''' SELECT : select distinct  LEXP r_from LEXP  WHERE GROUP HAVING COMBINING ORDER LIMIT
-	| select  LEXP r_from LEXP WHERE  GROUP HAVING  COMBINING ORDER LIMIT
-	| select  LEXP WHERE  GROUP HAVING  COMBINING ORDER LIMIT
+	    | select  LEXP r_from LEXP WHERE  GROUP HAVING  COMBINING ORDER LIMIT
+	    | select  LEXP WHERE  GROUP HAVING  COMBINING ORDER LIMIT
     '''
+    if len(t)==9:
+        t[0]=Select(None,t[2],None,None,None,None,None,None,None)
 
 
 def p_LIMIT(t):
@@ -538,10 +544,14 @@ def p_EXIST(t):
     '''
 
 
-def p_LEXP(t):
-    '''LEXP : LEXP coma EXP
-	| EXP'''
+def p_LEXP1(t):
+    'LEXP : LEXP coma EXP'
+    t[1].append(t[2])
+    t[0]=t[1]
 
+def p_LEXP2(t):
+    'LEXP : EXP'
+    t[0]=[t[1]]
 
 def p_TIPOE(t):
     '''TIPO : interval cadena
@@ -555,14 +565,12 @@ def p_TIPOE(t):
             | time para int parc
             | character varying para int parc'''
 
-
 def p_TIPOL(t):
     ''' TIPO : timestamp para int parc without time zone
             | timestamp para int parc with time zone
             | time para int parc without time zone
             | time para int parc with time zone
             | interval para int parc cadena '''
-
 
 def p_TIPO(t):
     '''TIPO : smallint
@@ -590,6 +598,7 @@ def p_FIELDS(t):
         | hour
         | minute
         | second'''
+    t[0]=t[1].lower()
 
 
 def p_EXP3(t):
@@ -691,6 +700,8 @@ def p_EXPJ(t):
             | para EXP parc'''
     if t[1]=='(':
         t[0]= t[2]
+    else:
+        t[0]=t[1]
 
 
 def p_EXP(t):
@@ -698,33 +709,38 @@ def p_EXP(t):
             | id para LEXP parc
             | any para LEXP parc
             | all para LEXP parc
-            | some para LEXP parc
-            | extract para FIELDS r_from timestamp cadena parc'''
+            | some para LEXP parc'''
+
+def p_EXPext(t):
+    ' EXP : extract para FIELDS r_from timestamp cadena parc'
+    t[0]= Extract(t[3],t[6])
+
 
 
 def p_EXPT1(t):
     'EXP : int'
-
-    t[0] = Terminal('int', t[1])
+    tipo = Tipo('int',t[1]);
+    t[0] = Terminal(tipo.getTipo(), t[1])
 
 def p_EXPT2(t):
     'EXP : decimales'
-    t[0] = Terminal('decimal', t[1])
+    tipo = Tipo('decimal', t[1]);
+    t[0] = Terminal(tipo.getTipo(), t[1])
 
 def p_EXPT3(t):
     'EXP : cadena'
-    t[0] = Terminal('cadena', t[1])
+    t[0] = Terminal('varchar', t[1])
 def p_EXPT4(t):
     'EXP : cadenaString'
-    t[0] = Terminal('cadena', t[1])
+    t[0] = Terminal('varchar', t[1])
 
 def p_EXPT5(t):
     'EXP : true'
-    t[0] = Terminal('booleano', t[1])
+    t[0] = Terminal('boolean', t[1])
 
 def p_EXPT6(t):
     'EXP : false'
-    t[0] = Terminal('booleano', t[1])
+    t[0] = Terminal('boolean', t[1])
 
 def p_EXPT7(t):
     'EXP : id'
@@ -732,24 +748,26 @@ def p_EXPT7(t):
 
 def p_EXPT8(t):
     'EXP : multiplicacion %prec lsel'
-
+    t[0] = Terminal('todo', t[1])
 def p_EXPT9(t):
     'EXP : null'
     t[0] = Terminal('indefinido', t[1])
 
 def p_EXPT10(t):
     'EXP : current_time'
-    t[0] = Terminal('fecha', t[1])
+    t[0] = Terminal('time without time zone', t[1])
 
 def p_EXPT11(t):
     'EXP : current_date'
-    t[0] = Terminal('fecha', t[1])
+    t[0] = Terminal('date', t[1])
 
 def p_EXPT12(t):
     'EXP : timestamp cadena'
+    t[0] = Terminal('timestamp without time zone', t[1])
 
 def p_EXPT13(t):
     'EXP : interval cadena'
+    t[0] = Terminal('interval', t[1])
 
 
 def p_EXPT16(t):
