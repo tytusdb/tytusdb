@@ -43,7 +43,8 @@ class TableModule:
                     print(avl.numberColumns)
                     print(avl.columns)
                     print(avl.pklist)
-                print("Tabla sin registros")
+                else:
+                    print("Tabla sin registros")
                 return tmp
             else:
                 print("No existe la tabla o la DB")
@@ -107,8 +108,13 @@ class TableModule:
                 if database == i.name:
                     if not self.handler.siExiste(database, tableNew):
                         if self.handler.siExiste(database, tableOld):
+                            for j in range(len(i.tablesName)):
+                                if i.tablesName[j] == tableOld:
+                                    i.tablesName[j] = tableNew
+                            self.handler.actualizarArchivoDB(databases)
                             avl = self.handler.leerArchivoTB(database,tableOld)
                             avl.name = tableNew
+                            self.handler.renombrarArchivo(str(tableOld)+'-'+str(database)+'.tbl',str(tableNew)+'-'+str(database)+'.tbl')
                             return 0
                         else:
                             return 3
@@ -157,17 +163,16 @@ class TableModule:
     
     def dropTable(self, database: str, table: str) -> int: 
         try:
-            aux = 0
             databases = self.handler.leerArchivoDB()
             for i in databases:
                 if database == i.name:
                     if self.handler.siExiste(database, table):
-                        i.tablesName.pop(aux)
+                        i.tablesName.remove(table)
+                        self.handler.actualizarArchivoDB(databases)
                         self.handler.borrarArchivo(str(table)+'-'+str(database)+'.tbl')
                         return 0
                     else:
                         return 3
-                aux +=1
             return 2
         except:
             return 1

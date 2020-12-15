@@ -18,6 +18,7 @@ class DatabaseModule:
     
     def createDatabase(self, database: str) -> int:
         try:
+            self.databases = self.handler.leerArchivoDB()
             for i in self.databases:
                 if database == i.name:
                     return  2
@@ -28,6 +29,7 @@ class DatabaseModule:
             return 1
 
     def showDatabases(self) -> list:
+        self.databases = self.handler.leerArchivoDB()
         temporal = []
         for i in self.databases:
             temporal.append(i.name)
@@ -36,6 +38,7 @@ class DatabaseModule:
 
     def alterDatabase(self, databaseOld: str, databaseNew: str) -> int:
         try:
+            self.databases = self.handler.leerArchivoDB()
             for i in self.databases:
                 if str(databaseNew) == str(i.name):
                     return 3
@@ -56,6 +59,7 @@ class DatabaseModule:
 
     def dropDatabase(self, database: str) -> int:
         try:
+            self.databases = self.handler.leerArchivoDB()
             aux = 0
             for i in range(len(self.databases)):
                 if str(database) == str(self.databases[i].name):
