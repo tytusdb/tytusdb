@@ -45,10 +45,16 @@ class Now(ASTNode):
         super().execute(table, tree)
         return date.today()
 
-
+''''class Expression(ASTNode):    
+    def __init__(self,exp1,line,column):
+        ASTNode.__init__(self,line,column)
+        self.exp1 = exp1
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        #TODO: check each value or AST node which can reduce...
+'''
 class BinaryExpression(ASTNode):
     # Class that handles every arithmetic expression
-
     def __init__(self, exp1, exp2, operator, line, column):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
@@ -57,7 +63,7 @@ class BinaryExpression(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        print("slef.operator: ",self.operator)
+        
         if self.operator == None: #'Number' or 'artirmetic function' production for example
             return self.exp1.val
         if self.operator == OpArithmetic.PLUS:          
