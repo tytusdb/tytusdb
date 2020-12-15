@@ -1,4 +1,5 @@
 from Instrucciones.Instruccion import Instruccion
+from Entorno import Entorno
 
 class Select(Instruccion):
     'This is an abstract class'
@@ -15,9 +16,10 @@ class Select(Instruccion):
         self.combinig=combinging
 
 
-    def ejecutar(self):
+    def ejecutar(self,entorno):
             'Metodo Abstracto para ejecutar la instruccion'
             if self.distinct is None and self.froms is None and self.where is None and self.group is None and self.having is None and self.order is None and self.combinig is None:
                 for exp in self.exps:
-                    print(exp.getval())
-                    return exp.getval()
+                    print(exp.getval(entorno))
+                    return exp.getval(entorno)
+
