@@ -9,9 +9,11 @@ from models.instructions.shared import *
 from models.instructions.DDL.database_inst import *
 from models.instructions.DDL.table_inst import *
 from models.instructions.DDL.column_inst import *
+from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
 from utils.analyzers.lex import *
+
 
 # Precedencia, entre mayor sea el nivel mayor sera su inportancia para su uso
 
@@ -91,7 +93,7 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
     if len(p) == 8:
-        pass  # TODO TYPE
+        p[0] = CreateType(p[2],p[6])
 
     elif len(p) == 3:
         p[0] = CreateDB(p[2], False)
@@ -100,10 +102,10 @@ def p_option_create(p):
         p[0] = CreateDB(p[4], True)
 
     elif len(p) == 6:
-        p[0] = CreateTB(p[2], p[4])
+        p[0] = CreateTB(p[2], p[4], None)
 
     elif len(p) == 10:
-        p[0] = CreateTB(p[2], p[4])  # TODO INHERITS
+        p[0] = CreateTB(p[2], p[4], p[6])  # TODO INHERITS
 
 
 def p_type_list(p):
@@ -205,7 +207,7 @@ def p_column(p):
         p[0] = ForeignKey(p[4], p[7], p[9])
 
     elif len(p) == 7:
-        p[0] = Constraint(p[2], p[5])
+        p[0] = Constraint(p[2], p[5])  # TODO revisar si es constraint o check
 
 
 def p_type_col(p):
@@ -237,7 +239,8 @@ def p_type_col(p):
                | BOOLEAN
     '''
     for i in range(1, len(p)):
-        p[0] += str(p[i])
+        if p[0] != None:     #TODO aca lo modifique
+            p[0] += str(p[i])  
 
 
 def p_options_col_list(p):
@@ -292,23 +295,34 @@ def p_show_statement(p):
     '''showstatement : SHOW DATABASES SEMICOLON
                      | SHOW DATABASES LIKE ID SEMICOLON
     '''
+    if len(p) == 4:
+        p[0] = ShowDatabase(None)
+    else:
+        p[0] = ShowDatabase(p[4])
 
 
 def p_alter_statement(p):
     '''alterstatement : ALTER optionsalter SEMICOLON
     '''
+    p[0] = p[2]
+
 
 
 def p_options_alter(p):
     '''optionsalter : DATABASE alterdatabase
                     | TABLE altertable
     '''
+    p[0] = p[2]
 
 
 def p_alter_database(p):
     '''alterdatabase : ID RENAME TO ID
                      | ID OWNER TO typeowner
     '''
+    if p[2].lower() == 'RENAME'.lower():   #Renombra la base de datos
+        p[0] = AlterDatabase(1,p[1],p[4])
+    else:                                  #Le cambia el duenio a la base de datos
+        p[0] = AlterDatabase(2,p[1],p[4])
 
 
 def p_type_owner(p):
@@ -316,17 +330,24 @@ def p_type_owner(p):
                  | CURRENT_USER
                  | SESSION_USER 
     '''
+    p[0] = p[1]
 
 
 def p_alter_table(p):
     '''altertable : ID alterlist
     '''
+    p[0] = AlterTable(p[1],p[2])
 
 
 def p_alter_list(p):
     '''alterlist : alterlist COMMA typealter
                  | typealter
     '''
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]] 
 
 
 def p_type_alter(p):
@@ -335,6 +356,7 @@ def p_type_alter(p):
                  | DROP dropalter
                  | RENAME  renamealter
     '''
+    p[0] = p[2]
 
 
 def p_add_alter(p):
@@ -343,23 +365,40 @@ def p_add_alter(p):
                 | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
                 | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
     '''
+    if len(p) == 4:
+        p[0] = AlterTableAdd(CreateCol(p[2],p[3],None))
+    elif len(p) == 5:
+        p[0] = AlterTableAdd(Check(p[4]))
+    elif len(p) == 7:
+        p[0] = AlterTableAdd(Constraint(p[5],Unique(p[5]))) #TODO revisar esta asignacion
+    else:
+        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   #TODO revisar esta asignacion
 
 
 def p_alter_alter(p):
     '''alteralter : COLUMN ID SET NOT NULL
                   | COLUMN ID TYPE typecol
     '''
+    if len(p) == 6:
+        p[0] = AlterTableAlter(None) #TODO agregar un chanceType en column
+    else:
+        p[0] = AlterTableAlter(None) #TODO agregar un chanceType en column
 
 
 def p_drop_alter(p):
     '''dropalter : COLUMN ID
                  | CONSTRAINT ID
     '''
+    if p[1].lower() == 'COLUMN'.lower():
+        p[0] = AlterTableDrop(None) #TODO agregar un dropColumn en column
+    else:
+        p[0] = AlterTableDrop(None) #TODO agregar un dropConstrain en column
 
 
 def p_rename_alter(p):
     '''renamealter : COLUMN ID TO ID
     '''
+    p[0] = AlterTableRename(p[2],p[4])
 
 
 def p_drop_statement(p):
