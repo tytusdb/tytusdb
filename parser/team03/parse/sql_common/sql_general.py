@@ -1,7 +1,5 @@
-import sys
-
-sys.path.insert(0, '..')
-from ast_node import ASTNode
+from parse.ast_node import ASTNode
+from jsonMode import showDatabases as showDB
 
 
 class ShowDatabases(ASTNode):
@@ -11,7 +9,8 @@ class ShowDatabases(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return True
+        result_name = self.name.execute()
+        return showDB()  # add filter using name_like_regex... this has to be stored on TS or comes from function?
 
 
 class Union(ASTNode):

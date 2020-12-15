@@ -4,12 +4,13 @@ from tkinter import messagebox
 from tkinter import scrolledtext
 import re
 import os
+import defasc
 
 root = Tk()
 
 """INTERFAZ GRAFICA"""
 #PROPIEDADES DE LA VENTANA
-root.geometry("1050x700")
+root.geometry("1100x650")
 root.title("[OLC2]Fase 1")
 root.configure(bg='grey')
 #FUNCIONES MENU
@@ -54,6 +55,11 @@ def GuardarComo():
     return  
 def LimpiarTexto():
     texto.delete('1.0',END)
+def AnalizadorASC():
+    contenido = ""
+    contenido = texto.get("1.0",END)
+    consola.delete('1.0', END)
+    consola.insert(END,defasc.Analizar(contenido))
 #CREACION DE COMPONENTES GRAFICOS
 BarraMenu=Menu(root)  
 root.config(menu=BarraMenu)
@@ -70,7 +76,7 @@ MenuEditar.add_command(label="Limpiar Texto",command=LimpiarTexto)
 BarraMenu.add_cascade(label="Editar", menu=MenuEditar)
 
 MenuAnalizador= Menu(BarraMenu, tearoff=0)  
-MenuAnalizador.add_command(label="Analizar Ascendente")
+MenuAnalizador.add_command(label="Analizar Ascendente", command=AnalizadorASC)
 MenuAnalizador.add_command(label="Analizar Descendente")
 BarraMenu.add_cascade(label="Analizar", menu=MenuAnalizador)
 
@@ -86,14 +92,17 @@ lblanalizador = Label(root,text="Area del Analizador",bg='grey')
 texto = scrolledtext.ScrolledText(root, height=35, width=80,borderwidth=1,wrap="none")
 textHsb = Scrollbar(root, orient="horizontal", command=texto.xview)
 texto.configure(xscrollcommand=textHsb.set)
-# COLOCACION DE COMPONENTES
-lblanalizador.pack()
-texto.pack()
-textHsb.pack()
-"""FIN INTERFAZ GRAFICA"""
 
-"""INICIO ANALIZADOR"""
-#from lexico import Analizar
-#lexico.Analizar("SELECT")
-"""FIN ANALIZADOR"""
+lblconsola = Label(root,text="Area de la consola",bg='grey')
+consola = scrolledtext.ScrolledText(root, height=35, width=50,bg="black",fg="#bbd500",borderwidth=1,wrap="none")
+consolaHsb = Scrollbar(root, orient="horizontal", command=consola.xview)
+consola.configure(xscrollcommand=consolaHsb.set)
+# COLOCACION DE COMPONENTES
+lblanalizador.grid(row=1,column=0)
+lblconsola.grid(row=1,column=1)
+texto.grid(row=2,column=0)
+textHsb.grid(row=3, column=0, sticky="ew")
+consola.grid(row=2,column=1)
+consolaHsb.grid(row=3, column=1, sticky="ew")
+"""FIN INTERFAZ GRAFICA"""
 root.mainloop()
