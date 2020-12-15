@@ -35,7 +35,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'ACOS','ACOSD','ASIN','ASIND','ATAN','ATAND','ATAN2','ATAN2D','COS','COSD','COT','COTD','SIN','SIND','TAN','TAND',
               'SINH','COSH','TANH','ASINH','ACOSH','ATANH',
               'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
-              'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE'
+              'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE'
               ]
 
 tokens = reservadas + ['PUNTO','PUNTO_COMA','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -43,7 +43,7 @@ tokens = reservadas + ['PUNTO','PUNTO_COMA','COMA','SIGNO_IGUAL','PARABRE','PARC
                        'CORCHETECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','MAYORQUE','MENORQUE',
                        'MAYORIGUALQUE','MENORIGUALQUE',
                        'SIGNO_PIPE','SIGNO_DOBLE_PIPE','SIGNO_AND','SIGNO_VIRGULILLA','SIGNO_NUMERAL','SIGNO_DOBLE_MENORQUE','SIGNO_DOBLE_MAYORQUE',
-                       'FECHA_HORA','F_HORA','COMILLA'
+                       'FECHA_HORA','F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT'
                        ]
 
 
@@ -57,6 +57,8 @@ t_SIGNO_VIRGULILLA = r'\~'
 t_SIGNO_NUMERAL = r'\#'
 t_SIGNO_DOBLE_MENORQUE = r'\<\<'
 t_SIGNO_DOBLE_MAYORQUE = r'\>\>'
+t_SIGNO_MENORQUE_MAYORQUE = r'\<\>'
+t_SIGNO_NOT = r'\!\='
 
 t_PUNTO= r'\.'
 t_PUNTO_COMA = r'\;'
@@ -75,10 +77,10 @@ t_CORCHETECIERRE = r'\]'
 t_DOBLE_DOSPUNTOS= r'\:\:'
 t_SIGNO_POTENCIA = r'\^'
 t_SIGNO_MODULO = r'\%'
-t_MAYORQUE = r'\>'
-t_MENORQUE = r'\<'
 t_MAYORIGUALQUE = r'\>\='
 t_MENORIGUALQUE = r'\<\='
+t_MAYORQUE = r'\>'
+t_MENORQUE = r'\<'
 t_COMILLA = r'\''
 
 
@@ -190,7 +192,9 @@ def p_instrucciones_evaluar(t):
                    | ins_drop
                    | ins_create
                    | ins_insert
-                   | ins_select'''
+                   | ins_select
+                   | ins_update
+                   | ins_delete'''
 
 def p_instruccion_use(t):
     '''ins_use : USE ID'''
@@ -216,15 +220,34 @@ def p_columna(t):
     '''columna : ID tipo_dato definicion_valor_defecto ins_constraint'''
 
 def p_tipo_dato(t):
-    '''tipo_dato : VARCHAR
-                 | INTEGER
-                 | CHAR
-                 | TEXT
+    '''tipo_dato : SMALLINT          
                  | BIGINT
-                 | DECIMAL
                  | NUMERIC
-                 | REAL ''' # FALTAN POR PONER MAS TIPOS DE DATOS
+                 | DECIMAL
+                 | INTEGER
+                 | REAL
+                 | DOUBLE PRECISION
+                 | CHAR PARABRE NUMERO PARCIERRE
+                 | CHARACTER tipochar
+                 | VARCHAR PARABRE NUMERO PARCIERRE
+                 | TEXT
+                 | TIMESTAMP arg_precision
+                 | TIME arg_precision
+                 | DATE
+                 | INTERVAL arg_tipo arg_precision
+                 | BOOLEAN
+                 | MONEY'''
 
+def p_arg_precision(t):
+    '''arg_precision : PARABRE NUMERO PARCIERRE 
+                     | ''' #epsilon
+def p_arg_tipo(t):
+    '''arg_tipo : MONTH
+                | YEAR
+                | HOUR
+                | MINUTE
+                | SECOND            
+                | '''
 
 def p_definicion_valor_defecto(t):
     '''definicion_valor_defecto : DEFAULT tipo_default 
@@ -239,8 +262,8 @@ def p_restriccion_columna(t):
                            | NULL
                            | PRIMARY KEY
                            | UNIQUE
-                           | FOREIGN KEY ID PARABRE ID PARCIERRE ins_references'''
-                           #| CHECK PARABRE condicion_columna PARCIERRE #condicion_columna no definida
+                           | FOREIGN KEY ID PARABRE ID PARCIERRE ins_references
+                           | CHECK PARABRE exp PARCIERRE''' #cambio del condicion columna
 
 def p_references(t):
     '''ins_references : ON DELETE accion
@@ -327,7 +350,7 @@ def p_ins_select(t):
     '''ins_select : ins_select UNION option_all ins_select
                     |    ins_select INTERSECT option_all ins_select
                     |    ins_select EXCEPT option_all ins_select
-                    |   SELECT arg_distict colum_list FROM table_list arg_where '''
+                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset'''
 
 def p_option_all(t):
     '''option_all   :   ALL
@@ -338,9 +361,12 @@ def p_arg_distict(t):
                     |    '''
 
 def p_colum_list(t):
-    '''colum_list   : colum_list COMA columns as_id
-                        |   columns as_id
-                        |   SIGNO_POR '''
+    '''colum_list   :   s_list
+                    |   SIGNO_POR '''
+
+def p_s_list(t):
+    '''s_list   :   s_list COMA columns as_id
+                |   columns as_id'''
 
 
 def p_columns(t):
@@ -471,19 +497,155 @@ def p_table_list(t):
                     |   ID '''
 
 def p_arg_where(t):
-    '''arg_where    :   WHERE list_exp
+    '''arg_where    :   WHERE exp
                     |    '''
 
-def p_list_expressions(t):
-    '''list_exp    :    ID
-                    |    '''
+def p_exp(t):
+    '''exp  : exp SIGNO_MAS exp
+            | exp SIGNO_MENOS exp 
+            | exp SIGNO_POR exp 
+            | exp SIGNO_DIVISION exp 
+            | exp SIGNO_MODULO exp 
+            | exp SIGNO_POTENCIA exp 
+            | exp OR exp 
+            | exp AND exp 
+            | exp MENORQUE exp 
+            | exp MAYORQUE exp 
+            | exp MAYORIGUALQUE exp 
+            | exp MENORIGUALQUE exp 
+            | exp SIGNO_IGUAL exp
+            | exp SIGNO_MENORQUE_MAYORQUE exp
+            | exp SIGNO_NOT exp 
+            | arg_pattern
+            | sub_consulta
+            | NOT exp
+            | data
+            | predicates
+            | aggregates
+            | functions
+            | arg_pattern
+            | arg_case
+            | arg_greatest
+            | arg_least '''
+# values -> list_vls
 
 
+def p_arg_greatest(t):
+    '''arg_greatest  : GREATEST PARABRE exp_list PARCIERRE''' 
+
+def p_arg_least(t):
+    '''arg_least  : LEAST PARABRE exp_list PARCIERRE''' 
+
+def p_exp_list(t):
+    '''exp_list  : exp_list COMA exp
+                 | exp'''
+
+def p_case(t):
+    '''arg_case  : CASE arg_when arg_else END''' 
+
+def p_arg_when(t):
+    '''arg_when  : arg_when WHEN exp THEN exp
+                 | WHEN exp THEN exp''' 
+def p_arg_else(t):
+    '''arg_else :  ELSE exp
+                 | ''' # epsilon
+
+def p_predicates(t):
+    '''predicates  : data BETWEEN list_vls AND list_vls
+                   | data NOT BETWEEN list_vls AND list_vls
+                   | data BETWEEN SYMMETRIC list_vls AND list_vls 
+                   | data NOT BETWEEN SYMMETRIC list_vls AND list_vls
+                   | data IS DISTINCT FROM list_vls
+                   | data IS NOT DISTINCT FROM list_vls
+                   | data IS NULL 
+                   | data ISNULL
+                   | data NOTNULL
+                   | data IS TRUE
+                   | data IS NOT TRUE
+                   | data IS FALSE
+                   | data IS NOT FALSE
+                   | data IS UNKNOWN
+                   | data IS NOT UNKNOWN'''
+
+def p_data(t):
+    '''data  : ID table_at''' 
+
+def p_table_at(t):
+    '''table_at  : PUNTO ID
+                 | ''' #epsilon
+            
+def p_sub_consulta(t):
+    '''sub_consulta   : PARABRE ins_select  PARCIERRE''' 
+
+def p_arg_pattern(t):
+    '''arg_pattern   : data LIKE CADENA   
+                     | data NOT LIKE CADENA ''' 
+
+def p_arg_group_by(t):
+    '''arg_group_by    :   GROUP BY g_list
+                       |  ''' #epsilon
+
+def p_g_list(t):
+    '''g_list    : g_list COMA g_item
+                 | g_item ''' 
+
+def p_g_item(t):
+    '''g_item    : ID g_refitem''' 
+
+def p_g_refitem(t):
+    '''g_refitem  : PUNTO ID
+                  | ''' #epsilon
+
+def p_arg_order_by(t):
+    '''arg_order_by    :   ORDER BY o_list
+                       |  ''' #epsilon
+
+def p_o_list(t):
+    '''o_list    : o_list COMA o_item
+                 | o_item ''' 
+
+def p_o_item(t):
+    '''o_item    : ID o_refitem ad arg_nulls''' 
+
+def p_o_refitem(t):
+    '''o_refitem  : PUNTO ID
+                  | ''' #epsilon
+
+def p_ad(t):
+    '''ad : ASC
+          | DESC
+          | ''' #epsilon
+
+def p_arg_nulls(t):
+    '''arg_nulls : NULLS arg_fl
+                 | ''' #epsilon
+
+def p_arg_fl(t):
+    '''arg_fl : FIRST
+              | LAST''' #epsilon
+
+def p_arg_limit(t):
+    '''arg_limit   :  LIMIT option_limit
+                   |  ''' #epsilon
+
+def p_option_limit(t):
+    '''option_limit   : NUMERO
+                      | ALL ''' 
+
+def p_arg_offset(t):
+    '''arg_offset   : OFFSET NUMERO 
+                    |  ''' #epsilon
 
 
+def p_ins_update(t):
+    '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
 
+def p_ins_asign_list(t):
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL list_vls 
+                   | ID SIGNO_IGUAL list_vls'''
 
-
+def p_ins_delete(t):
+    '''ins_delete   : DELET FROM ID WHERE exp PUNTO_COMA'''
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
