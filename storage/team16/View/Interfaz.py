@@ -1,6 +1,9 @@
+# region Code
 import sys
 import os
+
 sys.path.append(os.path.abspath('.'))
+# endregion
 
 from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, Scrollbar, \
     Listbox, \
