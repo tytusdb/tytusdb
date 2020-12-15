@@ -43,6 +43,7 @@ def showDatabases():
         dataBaseTree = pickle.load(f)
         root = dataBaseTree.getRoot()
         dbKeys = dataBaseTree.postOrder(root)
+        dataBaseTree.graph()
         return dbKeys[:-1].split("-")
 
 
@@ -73,6 +74,6 @@ def alterDatabase(dataBaseOld, dataBaseNew) -> int:
 # print(createDatabase("Base datos 2"))
 # print(createDatabase("Base1"))
 
-print(showDatabases())
-print(alterDatabase("Base datos 2", "Base10"))
-print(showDatabases())
+#print(showDatabases())
+#print(alterDatabase("Base datos 2", "Base10"))
+#print(showDatabases())
