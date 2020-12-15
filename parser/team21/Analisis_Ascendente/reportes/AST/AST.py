@@ -1,6 +1,8 @@
 from subprocess import check_call
-from expresion import *
-from instruccion import *
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createTable import CreateTable
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createDatabase import CreateReplace,ComplementoCR
 
 
 class AST:

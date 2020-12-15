@@ -1,17 +1,6 @@
 class Instruccion:
     'clase abstracta'
 
-#CREATE TABLE
-class CreateTable(Instruccion):
-    def __init__(self, id, campos, idInherits):
-        self.id = id
-        self.campos = campos
-        self.idInherits = idInherits
-
-
-
-
-
 class Campo(Instruccion):
     '''#1 ID tipo
        #2 CONSTRAINT
@@ -30,6 +19,7 @@ class Acompaniamiento(Instruccion):
     def __init__(self, tipo, valorDefault):
         self.tipo = tipo
         self.valorDefault = valorDefault
+
 
 #TIPOS DE DATO
 class Tipo(Instruccion):
@@ -82,22 +72,6 @@ class Drop(Instruccion):
         self.caso = caso
         self.exists = exists
         self.id = id
-
-#CREATE [OR REPLACE] DATABASE
-class CreateReplace(Instruccion):
-    '''#1 create
-       #2 create or replace'''
-    def __init__(self, caso, exists, id, complemento):
-        self.caso = caso
-        self.exists = exists
-        self.id = id
-        self.complemento = complemento
-
-#complemento de create or replace
-class ComplementoCR(Instruccion):
-    def __init__(self, idOwner, mode):
-        self.idOwner = idOwner
-        self.mode = mode
 
 #SHOW DATABASE
 class Show(Instruccion):
