@@ -36,6 +36,7 @@ def inc():
 def p_statement(t):
     '''statement : insert_statement
                  | update_statement
+                 | delete_statement
     '''
     t[0] = Nodo("statement", [t[1]], 'N', None)
 
@@ -211,6 +212,31 @@ def p_update_source(t):
     t[0] = Nodo("update_source", [t[1]], 'N', None)
 
 
+# *************************************************
+# **********************         delete_statement      ***********
+# *************************************************
+
+def p_delete_statement(t):
+    '''delete_statement : DELETE FROM table_name_d PTCOMA
+                        | DELETE FROM table_name_d WHERE search_condition PTCOMA
+    '''
+    if (len(t) == 5):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        
+        t[0] = Nodo("delete_statement", [t[3]], 'N', None)
+    elif (len(t) == 7):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[3])
+        temp.append(t[5])
+        
+        t[0] = Nodo("delete_statement", temp, 'N', None)
+    
+
+
+def p_table_name_d(t):
+    'table_name_d : ID '
+    t[0] = Nodo("table_name_d", [t[1]], 'S', str(t[1]))
 
 # *************************************************
 # **********************         search_condition      ***********
