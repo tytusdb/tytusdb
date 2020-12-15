@@ -1,4 +1,5 @@
 from Expresion.Expresion import Expresion
+from Entorno import Entorno
 
 class Binaria(Expresion) :
     '''
