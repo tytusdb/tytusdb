@@ -4,7 +4,7 @@ class TreeNode:
         self.left = None
         self.right = None
         self.height = 1
-
+        self.struc = None
 
 class AVLTree:
 
