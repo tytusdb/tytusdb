@@ -85,7 +85,10 @@ Cada atributo será debilmente tipado, a efectos de no verificar tipo en este pu
 
 #### Funciones
 
-A continuación se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas.
+A continuación se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas. 
+
+- Queda a discreción del equipo manejar o hacer conversiones de tipos de datos. 
+- El nombre de las bases de datos y de las tablas deben cumplir el formato de una identificador.
 
 ##### Respecto de las funciones CRUD de las bases de datos están: 
 
@@ -100,7 +103,7 @@ Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de dato
 def showDatabases() -> list:
 ```
 Devuelve una lista de los nombres de las bases de datos. (READ)  
-Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].  
+Valor de retorno: lista de strings con los nombres de las bases de datos, si ocurrió un error o no hay bases de datos devuelve una lista vacía [].  
 
 ```
 def alterDatabase(databaseOld, databaseNew) -> int:
