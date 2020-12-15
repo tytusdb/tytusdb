@@ -369,4 +369,40 @@ def crearTabla(nodo, tablaSimbolos):
         else:
             consola += "La tabla " + nodo.id + " ya existe. \n"
 
-#aqui van los alter
+def AlterDatabase(nodo, tablaSimbolos):
+    global consola
+    if nodo.rename:
+        b = jBase.alterDatabase(nodo.id.valor, nodo.idnuevo)
+        if b == 0:
+            base = tablaSimbolos.renameBase(nodo.id.valor, nodo.idnuevo)
+            if base:
+                consola += "La base se renombró con éxito " + nodo.idnuevo + " \n"
+            else:
+                consola += "Error no se pudo renombrar la base " + nodo.id.valor + " en la tabla de simbolos \n"
+        elif b == 2:
+            listaSemanticos.append(Error.ErrorS("Error Semantico", "La base de datos " + nodo.id.valor + " no existe"))
+        elif b == 3:
+            listaSemanticos.append(Error.ErrorS("Error Semantico", "La base de datos ya existe " + nodo.idnuevo))
+        elif b == 1:
+            listaSemanticos.append(Error.ErrorS("Error Semantico", "Error en la operacion."))
+
+
+def AlterAddColumn(nodo, tablaSimbolos):
+    global consola
+    global useActual
+    base = tablaSimbolos.get(useActual)
+    tabla = base.getTabla(nodo.idtabla)
+    for col in nodo.listaColumnas:
+        auxcol = TS.SimboloColumna(col.idcolumna, col.tipo, False, None, None, None, True, None)
+        if tabla.crearColumna(col.idcolumna, auxcol):
+            b = jBase.alterAddColumn(useActual, nodo.idtabla, col.idcolumna)
+            if b == 0:
+                consola += "La columna " + col.idcolumna + " se agregó a la tabla " + nodo.idtabla + " \n"
+            elif b == 1:
+                listaSemanticos.append(Error.ErrorS("Error Semantico", "Error en la operacion."))
+            elif b == 2:
+                listaSemanticos.append(Error.ErrorS("Error Semantico", "Error la base " + useActual + "no existe"))
+            elif b == 3:
+                listaSemanticos.append(Error.ErrorS("Error Semantico", "Error la tabla " + nodo.idtabla + "no existe"))
+        else:
+            consola += "Error al crear la columna " + col.idcolumna + " \n"
