@@ -8,7 +8,24 @@ reservadas = {
     'into'      : 'INTO',
     'values'    : 'VALUES',
     'update'    : 'UPDATE',
-
+    'delete'    : 'DELETE',
+    'select'    : 'SELECT',
+    'distinct'  : 'DISTINCT',
+    'sum'       : 'SUM',
+    'count'     : 'COUNT',
+    'set'       : 'SET',
+    'from'      : 'FROM',
+    'now'       : 'NOW',
+    'current_date'  : 'CURRENT_DATE',
+    'current_time'  : 'CURRENT_TIME',
+    'timestamp'  : 'TIMESTAMP',
+    'where'     : 'WHERE',
+    'or'        : 'OR',
+    'and'       : 'AND',
+    'null'      : 'NULL',
+    'not'       : 'NOT',
+	'extract'   : 'EXTRACT',
+    'hour'      : 'HOUR',
 
 }
 
@@ -28,6 +45,9 @@ tokens  = [
     'ENTERO',
     'ID',
     'CADENACOMSIMPLE', 
+    'EXISTS',
+    'NOTH',
+    'ORH'
 
 ] + list(reservadas.values())
 resultado_lexema = []
