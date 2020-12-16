@@ -1,6 +1,30 @@
+<<<<<<< HEAD
 FactOrial (
     TrUC(
         +5 + 45/5 + 0.0-23432.432324*0 -56+343.43*0 -0.864385
         )
     *0 +5
     )
+=======
+/*round(RADIANS( Pi() *0+90*2 ))
+*/
+
+sign(34534*-1)
+//random()
+
+
+
+/*
+
+
+
+| SCALE PARA expression PARC
+| SIGN PARA expression PARC
+| SQRT PARA expression PARC
+| TRIM_SCALE PARA expression PARC
+| WIDTH_BUCKET PARA expression COMA expression PARC
+| RANDOM PARA PARC
+| SETSEED PARA expression PARC
+
+*/
+>>>>>>> f9e528e1d37e5370e02bb73299a7f81b08a5af29

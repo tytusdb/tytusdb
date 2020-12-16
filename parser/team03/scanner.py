@@ -112,7 +112,7 @@ reserved = {
     'pi' : 'PI',
     'power' : 'POWER',
     'radians' : 'RADIANS',
-    'rund' : 'RUND',
+    'round' : 'ROUND',
     'scale' : 'SCALE',
     'sign' : 'SIGN',
     'sqrt' : 'SQRT',

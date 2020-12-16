@@ -1,13 +1,3 @@
-'''from scanner import lexer
-lexer.input("1+4")
-while True:
-    tok = lexer.token()
-    if not tok:
-        break      # No more input
-    print(tok)
-    print(type(tok))
-'''
-
 import grammarReview as g
 from parse.errors import Error as our_error
 f = open("./entrada.txt", "r")
