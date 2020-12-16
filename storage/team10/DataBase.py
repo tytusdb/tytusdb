@@ -96,11 +96,10 @@ class Database:
     def extractTable2(self,table):
         try:
             if self.buscarTable(table) != None:
-                print("Tabla existente")
+                #print("Tabla existente")
                 index = self.buscarTable(table)
-                table = self.tables[index]
-                table.printTbl()               
-                return 2
+                table = self.tables[index]               
+                return table.printlistTbl()
             else:
                 print("Tabla NO existente")
                 return 0
@@ -108,6 +107,16 @@ class Database:
             print("Error en la operación")
             return 1        
 
-    def extractRangeTable2(self,table,lower,upper):
-        pass              
-
+    def extractRangeTable2(self,table,columnNumber,lower,upper):
+        try:
+            if self.buscarTable(table) != None:
+                #print("Tabla existente")
+                index = self.buscarTable(table)
+                table = self.tables[index]               
+                return table.imp1(columnNumber,lower,upper) ##Cambiar esto
+            else:
+                print("Tabla NO existente")
+                return 0
+        except: 
+            print("Error en la operación")
+            return 1  
