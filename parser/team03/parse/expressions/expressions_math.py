@@ -1,4 +1,3 @@
-import sys
 import math
 import random
 import numpy as np
@@ -8,10 +7,10 @@ from parse.ast_node import ASTNode
 # From here on, classes describing various mathematical operations
 # TODO: minScale, scale, trimScale, widthBucket
 class Abs(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -19,10 +18,10 @@ class Abs(ASTNode):
 
 
 class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar probably doesn't support it    
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -30,10 +29,10 @@ class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar pro
 
 
 class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in grammar or semantic error? 
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -41,10 +40,10 @@ class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in gr
 
 
 class Degrees(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -52,11 +51,11 @@ class Degrees(ASTNode):
 
 
 class Div(ASTNode):
-    def __init__(self, exp1, exp2, line, column,id):
+    def __init__(self, exp1, exp2, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -64,10 +63,10 @@ class Div(ASTNode):
 
 
 class Exp(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -75,10 +74,10 @@ class Exp(ASTNode):
 
 
 class Factorial(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -86,10 +85,10 @@ class Factorial(ASTNode):
 
 
 class Floor(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -97,11 +96,11 @@ class Floor(ASTNode):
 
 
 class Gcd(ASTNode):
-    def __init__(self, exp1, exp2, line, column,id):
+    def __init__(self, exp1, exp2, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -109,11 +108,11 @@ class Gcd(ASTNode):
 
 
 class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python version
-    def __init__(self, exp1, exp2, line, column,id):
+    def __init__(self, exp1, exp2, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -121,10 +120,10 @@ class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python 
 
 
 class Ln(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -132,20 +131,21 @@ class Ln(ASTNode):
 
 
 class Log(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
         return math.log(self.exp.execute(table, tree))
 
-    
+
 class Log10(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -153,10 +153,10 @@ class Log10(ASTNode):
 
 
 class MinScale(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -164,11 +164,11 @@ class MinScale(ASTNode):
 
 
 class Mod(ASTNode):
-    def __init__(self, exp1, exp2, line, column,id):
+    def __init__(self, exp1, exp2, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -176,9 +176,9 @@ class Mod(ASTNode):
 
 
 class PI(ASTNode):
-    def __init__(self, line, column,id):
+    def __init__(self, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -186,11 +186,11 @@ class PI(ASTNode):
 
 
 class Power(ASTNode):
-    def __init__(self, exp1, exp2, line, column,id):
+    def __init__(self, exp1, exp2, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -198,20 +198,20 @@ class Power(ASTNode):
 
 
 class Radians(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
         return math.radians(self.exp.execute(table, tree))
 
 
-class Random(ASTNode): # TODO check SQL docs, it has a range or something?
-    def __init__(self, line, column,id):
+class Random(ASTNode):  # TODO check SQL docs, it has a range or something?
+    def __init__(self, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -219,10 +219,10 @@ class Random(ASTNode): # TODO check SQL docs, it has a range or something?
 
 
 class Round(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -230,29 +230,29 @@ class Round(ASTNode):
 
 
 class Scale(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        r = self.exp.execute(table, tree)        
+        r = self.exp.execute(table, tree)
         if isinstance(r, float):
-            arr = r.__str__().split(".")            
+            arr = r.__str__().split(".")
             if len(arr) == 1:
                 return 0
-            else:                
+            else:
                 return len(arr[1])
         else:
             return 0
 
 
 class SetSeed(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -260,10 +260,10 @@ class SetSeed(ASTNode):
 
 
 class Sign(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -271,10 +271,10 @@ class Sign(ASTNode):
 
 
 class Sqrt(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -282,10 +282,10 @@ class Sqrt(ASTNode):
 
 
 class TrimScale(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -293,10 +293,10 @@ class TrimScale(ASTNode):
 
 
 class Trunc(ASTNode):
-    def __init__(self, exp, line, column,id):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -304,11 +304,11 @@ class Trunc(ASTNode):
 
 
 class WithBucket(ASTNode):
-    def __init__(self, exp1, exp2, line, column,id):
+    def __init__(self, exp1, exp2, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
-        self.id=id
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)

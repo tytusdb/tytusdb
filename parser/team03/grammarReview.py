@@ -8,42 +8,47 @@ from treeGraph import *
 start = 'init'
 
 precedence = (
-    
-    #Arthmetic
+
+    # Arthmetic
     ('left', 'MAS', 'MENOS'),
     ('left', 'POR', 'DIAGONAL'),
     ('left', 'EXPONENCIANCION'),
-    ('right','UMENOS'),
-    ('right','UMAS'),    
-    #Relational
+    ('right', 'UMENOS'),
+    ('right', 'UMAS'),
+    # Relational
     ('left', 'MENOR', 'MAYOR', 'IGUAL', 'MENORQ', 'MAYORQ'),
-    #logic
-    #('left', 'OR'),
-    #('left', 'AND'),
-    #('right', 'NOT'),
-    
+    # logic
+    # ('left', 'OR'),
+    # ('left', 'AND'),
+    # ('right', 'NOT'),
+
 )
+
 
 def p_init(t):
     ''' init : statements'''
     t[0] = t[1]
+
 
 def p_statements(t):
     ''' statements  :   statements statement    '''
     t[1].append(t[2])
     t[0] = t[1]
 
+
 def p_statements2(t):
     ''' statements  :   statement '''
     t[0] = [t[1]]
 
+
 def p_statement(t):
     '''statement : relExpression PUNTOCOMA
-                    '''    
+                    '''
     t[0] = t[1]
 
+
 ########## Definition of opttional productions, who could reduce to 'empty' (epsilon) ################
-#def p_not_opt(t):
+# def p_not_opt(t):
 #    '''not_opt : NOT
 #               | empty'''
 ########## Definition of Relational expressions ##############                        
@@ -58,34 +63,38 @@ def p_relExpression(t):
                         | expression LIKE TEXTO'''
     token = t.slice[2]
     if token.type == "MENOR":
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.LESS,0,0,id)
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = RelationalExpression(t[1], t[3], OpRelational.LESS, 0, 0, graph_ref)
     elif token.type == "MAYOR":
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.GREATER,0,0,id)
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = RelationalExpression(t[1], t[3], OpRelational.GREATER, 0, 0, graph_ref)
     elif token.type == "IGUAL":
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.EQUALS,0,0,id)
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = RelationalExpression(t[1], t[3], OpRelational.EQUALS, 0, 0, graph_ref)
     elif token.type == "MENORQ":
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.LESS_EQUALS,0,0,id)
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = RelationalExpression(t[1], t[3], OpRelational.LESS_EQUALS, 0, 0, graph_ref)
     elif token.type == "MAYORQ":
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.GREATER_EQUALS,0,0,id)
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = RelationalExpression(t[1], t[3], OpRelational.GREATER_EQUALS, 0, 0, graph_ref)
     elif token.type == "DIFERENTE":
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.NOT_EQUALS,0,0,id)
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = RelationalExpression(t[1], t[3], OpRelational.NOT_EQUALS, 0, 0, graph_ref)
     elif token.type == "NOT":
-        id = nodoHojaUnaArista(str(t[2]+" "+t[3]),t[1].id) 
-        t[0] = RelationalExpression(t[1],t[4],OpRelational.NOT_LIKE,0,0,id)
+        graph_ref = graph_node(str(str(t[2] + " " + t[3]), [t[1].graph_ref]))
+        t[0] = RelationalExpression(t[1], t[4], OpRelational.NOT_LIKE, 0, 0, graph_ref)
     elif token.type == "LIKE":
-        id = nodoHojaUnaArista(str(t[2]+" "+t[3]),t[1].id) 
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.LIKE,0,0,id)
-    else: 
-        print("Missing code from: ",t.slice)
+        graph_ref = graph_node(str(str(t[2] + " " + t[3]), [t[1].graph_ref]))
+        t[0] = RelationalExpression(t[1], t[3], OpRelational.LIKE, 0, 0, graph_ref)
+    else:
+        print("Missing code from: ", t.slice)
+
+
 def p_relExpReducExp(t):
-    '''relExpression    : expression''' 
+    '''relExpression    : expression'''
     t[0] = t[1]
+
+
 ########## Defintions of produtions for expression :== ##############
 def p_expression(t):
     ''' expression  : expression MAS expression
@@ -94,27 +103,28 @@ def p_expression(t):
                     | expression DIAGONAL expression
                     | expression PORCENTAJE expression
                     | expression EXPONENCIANCION expression                    
-                    '''    
-    if t[2] == '+'  :
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.PLUS,0,0,id)
+                    '''
+    if t[2] == '+':
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.PLUS, 0, 0, graph_ref)
     elif t[2] == '-':
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MINUS,0,0,id)
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MINUS, 0, 0, graph_ref)
     elif t[2] == '*':
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.TIMES,0,0,id)
-    elif t[2] == '/': 
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.DIVIDE,0,0,id)
-    elif t[2] == '%': 
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MODULE,0,0,id)
-    elif t[2] == '^': 
-        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.POWER,0,0,id)
-    else: 
-        print ("You forgot wirte code for the operator: ",t[2])
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.TIMES, 0, 0, graph_ref)
+    elif t[2] == '/':
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.DIVIDE, 0, 0, graph_ref)
+    elif t[2] == '%':
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MODULE, 0, 0, graph_ref)
+    elif t[2] == '^':
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.POWER, 0, 0, graph_ref)
+    else:
+        print("You forgot wirte code for the operator: ", t[2])
+
 
 def p_trigonometric(t):
     ''' expression  :   ACOS PARA expression PARC
@@ -141,71 +151,71 @@ def p_trigonometric(t):
                     |   ATANH PARA expression PARC'''
 
     if t.slice[1].type == 'ACOS':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Acos(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Acos(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ACOSD':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)        
-        t[0] = Acosd(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Acosd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ASIN':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Asin(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Asin(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ASIND':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Asind(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Asind(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATAN':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Atan(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Atan(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATAND':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Atand(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Atand(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATAN2':
-        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
-        t[0] = Atan2(t[3],t[5], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        t[0] = Atan2(t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATAN2D':
-        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id) 
-        t[0] = Atan2d(t[3],t[5], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        t[0] = Atan2d(t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COS':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Cos(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Cos(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COSD':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Cosd(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Cosd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COT':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Cot(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Cot(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COTD':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Cotd(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Cotd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'SIN':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Sin(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Sin(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'SIND':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Sind(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Sind(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'TAN':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Tan(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Tan(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'TAND':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Tand(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Tand(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'SINH':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Sinh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Sinh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COSH':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Cosh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Cosh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'TANH':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Tanh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Tanh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ASINH':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)          
-        t[0] = Asinh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Asinh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ACOSH':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)        
-        t[0] = Acosh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Acosh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATANH':
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)        
-        t[0] = Atanh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Atanh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 
 def p_aritmetic(t):
@@ -239,99 +249,101 @@ def p_aritmetic(t):
                 '''
     token = t.slice[1]
     if token.type == "ABS":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
-        t[0] = Abs(t[3],token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Abs(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "CBRT":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
-        t[0] = Cbrt(t[3],token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Cbrt(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "CEIL" or token.type == "CEILING":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
-        t[0] = Ceil(t[3],token.lineno, token.lexpos)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Ceil(t[3], token.lineno, token.lexpos)
     elif token.type == "DEGREES":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
-        t[0] = Degrees(t[3],token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Degrees(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "DIV":
-        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
-        t[0] = Div(t[3],t[5],token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        t[0] = Div(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "EXP":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Exp(t[3],token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Exp(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "FACTORIAL":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Factorial(t[3],token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Factorial(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "FLOOR":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Floor(t[3],token.lineno, token.lexpos,id)    
-    elif token.type == "GCD":        
-        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
-        t[0] = Gcd(t[3],t[5],token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Floor(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == "GCD":
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        t[0] = Gcd(t[3], t[5], token.lineno, token.lexpos, graph_ref)
         ###
     elif token.type == "LCM":
-        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
-        t[0] = Lcm(t[3],t[5],token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        t[0] = Lcm(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "LN":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Ln(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Ln(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "LOG":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Log(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Log(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "LOG10":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Log10(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Log10(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "MIN_SCALE":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = MinScale(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = MinScale(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "MOD":
-        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
-        t[0] = Mod(t[3], t[5], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        t[0] = Mod(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "PI":
-        id = nodoHoja(str(t[1])) 
-        t[0] = PI(token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]))
+        t[0] = PI(token.lineno, token.lexpos, graph_ref)
     elif token.type == "POWER":
-        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
-        t[0] = Power(t[3], t[5], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        t[0] = Power(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "RADIANS":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Radians(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Radians(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "ROUND":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Round(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Round(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "SCALE":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Scale(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Scale(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "SIGN":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Sign(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Sign(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "SQRT":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Sqrt(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Sqrt(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "TRIM_SCALE":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = TrimScale(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = TrimScale(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "WIDTH_BUCKET":
-        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
-        t[0] = WithBucket(t[3], t[5], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        t[0] = WithBucket(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "RANDOM":
-        id = nodoHoja(str(t[1])) 
-        t[0] = Random(token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]))
+        t[0] = Random(token.lineno, token.lexpos, graph_ref)
     elif token.type == "SETSEED":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = SetSeed(t[3], token.lineno, token.lexpos,id)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = SetSeed(t[3], token.lineno, token.lexpos, graph_ref)
 
-#| NOT expression 
-#'''
-#| PARA logicExpression PARC'''
+
+# | NOT expression
+# '''
+# | PARA logicExpression PARC'''
 def p_exp_unary(t):
     '''expression : MENOS expression %prec UMENOS
-                  | MAS expression %prec UMAS '''                  
-    if t[1] == '+':      
-        id = nodoHojaUnaArista(str(t[1]),t[2].id)  
-        t[0] = BinaryExpression(Numeric(1,0,0,0),t[2],OpArithmetic.TIMES,0,0,id)
+                  | MAS expression %prec UMAS '''
+    if t[1] == '+':
+        graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+        t[0] = BinaryExpression(Numeric(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
     elif t[1] == '-':
-        id =  nodoHojaUnaArista(str(t[1]),t[2].id)
-        t[0] = BinaryExpression(NumericNegative(1,0,0,0),t[2],OpArithmetic.TIMES,0,0,id)
+        graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+        t[0] = BinaryExpression(NumericNegative(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
     else:
-        print ("Missed code from unary expression")
+        print("Missed code from unary expression")
+
 
 def p_exp_num(t):
     '''expression : numero
@@ -345,27 +357,29 @@ def p_exp_val(t):
                     | NOW PARA PARC'''
     token = t.slice[1]
     if token.type == "TEXTO":
-        id = nodoHoja(str(t[1]))  
-        t[0] = Text(token.value,token.lineno,token.lexpos,id)
+        graph_ref = graph_node(str(t[1]))
+        t[0] = Text(token.value, token.lineno, token.lexpos, graph_ref)
     if token.type == "BOOLEAN_VALUE":
-        id = nodoHoja(str(t[1]))  
-        t[0] = Bool(token.value,token.lineno,token.lexpos,id)
-    if token.type == "NOW":        
-        id = nodoHoja(str(t[1]))  
-        t[0] = Now(toke.lineno,token.lexpos,id)
+        graph_ref = graph_node(str(t[1]))
+        t[0] = BoolAST(token.value, token.lineno, token.lexpos, graph_ref)
+    if token.type == "NOW":
+        graph_ref = graph_node(str(t[1]))
+        t[0] = Now(token.lineno, token.lexpos, graph_ref)
+
 
 def p_exp_afunc1(t):
-    '''expression : TRUC PARA expression PARC''' 
-    
-    token = t.slice[1]        
+    '''expression : TRUC PARA expression PARC'''
+
+    token = t.slice[1]
     if token.type == "TRUC":
-        id=nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Trunc(t[3],0,0,id)
-    
-    #else:
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Trunc(t[3], 0, 0, graph_ref)
+
+    # else:
     #    print("Missing code from: ",t[1])
 
-#def p_empty(t):
+
+# def p_empty(t):
 #    '''empty :'''
 #    pass
 
@@ -373,11 +387,12 @@ def p_error(p):
     if not p:
         print("End of file!")
         return
-    #Read ahead looking for a closing ';'
+    # Read ahead looking for a closing ';'
     while True:
-        tok = parse.token() #Get the next token
+        tok = parse.token()  # Get the next token
         if not tok or tok.type == 'PUNTOCOMA':
-            print("-->Syntax Error: Ilega token \""+str(p.type)+"\" Line: "+str(p.lineno)+ "Column: "+ str(p.lexpos))
+            print("-->Syntax Error: Ilega token \"" + str(p.type) + "\" Line: " + str(p.lineno) + "Column: " + str(
+                p.lexpos))
             break
     parse.restart()
 
@@ -386,8 +401,8 @@ def p_numero(t):
     ''' numero  : ENTERO
                 | FLOAT'''
     token = t.slice[1]
-    id = nodoHoja(str(t[1]))  
-    t[0] = Numeric(token.value,token.lineno,token.lexpos,id)
+    graph_ref = graph_node(str(t[1]))
+    t[0] = Numeric(token.value, token.lineno, token.lexpos, graph_ref)
 
 
 def p_col_name(t):
@@ -395,18 +410,20 @@ def p_col_name(t):
                  | ID '''
     token = t.slice[1]
     if len(t) == 2:
-        id = nodoHoja(str(t[1]))    
-        t[0] = ColumnName(None,t[1],token.lineno,token.lexpos,id)
+        graph_ref = graph_node(str(t[1]))
+        t[0] = ColumnName(None, t[1], token.lineno, token.lexpos, graph_ref)
     else:
-        id = nodoHoja(str(t[1]+t[2]+t[3]))
-        t[0] = ColumnName(t[1],t[3],token.lineno,token.lexpos,id)
-        
+        graph_ref = graph_node(str(t[1] + t[2] + t[3]))
+        t[0] = ColumnName(t[1], t[3], token.lineno, token.lexpos, graph_ref)
+
 
 import ply.yacc as yacc
+
 parse = yacc.yacc()
 
+
 def toParse(input):
-    #return parse.parse(input,lexer)
+    # return parse.parse(input,lexer)
     parse.parse(input)
-    #dot.view()
+    dot.view()
     return parse.parse(input)
