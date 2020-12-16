@@ -177,6 +177,7 @@ def p_select0(p):
     'select : SELECT expresion'
     p[0] = p[2].ejecutar(0)
     print(p[0].val)
+    print(p[0].linea)
 
 def p_select1(p):
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -1049,9 +1050,9 @@ def p_expresiones_unarias(p):
     ''' expresion : MENOS expresion %prec UMENOS 
                   | MAS expresion %prec UMAS'''
     if p[1] == '+':
-        p[0] = ExpresionPositiva(p[2], 0)
+        p[0] = ExpresionPositiva(p[2], p.slice[1].lineno)
     elif p[1] == '-':
-        p[0] = ExpresionNegativa(p[2], 0)
+        p[0] = ExpresionNegativa(p[2], p.slice[1].lineno)
     
 def p_expresiones_is_complemento(p):
     '''
@@ -1087,11 +1088,11 @@ def p_expresion_primitivo(p):
 
 def p_expresion_primitivo1(p):
     'expresion : NUMERO'
-    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, 0)
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, p.slice[1].lineno)
 
 def p_expresion_primitivo2(p):
     'expresion : DECIMAL_LITERAL'
-    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, 0)
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, p.slice[1].lineno)
 
 def p_expresion_id(p):
     'expresion : ID'
@@ -1121,17 +1122,18 @@ def p_expresion_con_dos_nodos(p):
                  | expresion AND expresion
     '''
     if p[2] == '+':
-        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MAS)
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MAS, p.slice[2].lineno)
     elif p[2] == '-':
-        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MENOS)
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MENOS, p.slice[2].lineno)
     elif p[2] == '*':
-        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.POR)
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.POR, p.slice[2].lineno)
     elif p[2] == '/':
-        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.DIVIDO)
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.DIVIDO, p.slice[2].lineno)
     elif p[2] == '%':
-        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO)
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
     elif p[2] == '^':
-        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE)
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
+
 
 
 
@@ -1336,5 +1338,5 @@ def analizarEntrada(entrada):
 
 
 print(analizarEntrada('''
-select -(((5+5-(8*8)+90)/2)%5)^2;
+select -((((5+5-(8*8)+90)/2)%5)^2);
                       '''))
