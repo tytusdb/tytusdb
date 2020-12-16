@@ -13,8 +13,10 @@ def analisis():
     instrucciones = g.parse(texto)
     errores = g.getMistakes()
     recorrerErrores()
+    Rerrores()
+    errores.clear()
 
-def errores():
+def Rerrores():
     f = open("./Reportes/Reporte_Errores.html", "w")
     f.write("<!DOCTYPE html>\n")
     f.write("<html>\n")

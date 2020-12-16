@@ -4,14 +4,17 @@ from re import L
 import libs.ply.yacc as yacc
 import os
 
-from models.nodo import Node
 from models.instructions.shared import *
 from models.instructions.DDL.database_inst import *
 from models.instructions.DDL.table_inst import *
 from models.instructions.DDL.column_inst import *
+from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
+from models.instructions.Expression.expression import *
+from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
+
 
 # Precedencia, entre mayor sea el nivel mayor sera su inportancia para su uso
 
@@ -90,20 +93,23 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
+    noColumn = 0
+    noLine = 0
+
     if len(p) == 8:
-        pass  # TODO TYPE
+        p[0] = CreateType(p[2],p[6])
 
     elif len(p) == 3:
-        p[0] = CreateDB(p[2], False)
+        p[0] = CreateDB(p[2], False, noLine, noColumn)
 
     elif len(p) == 5:
-        p[0] = CreateDB(p[4], True)
+        p[0] = CreateDB(p[4], True, noLine, noColumn)
 
     elif len(p) == 6:
-        p[0] = CreateTB(p[2], p[4])
+        p[0] = CreateTB(p[2], p[4], None)
 
     elif len(p) == 10:
-        p[0] = CreateTB(p[2], p[4])  # TODO INHERITS
+        p[0] = CreateTB(p[2], p[4], p[6])  # TODO INHERITS
 
 
 def p_type_list(p):
@@ -205,7 +211,7 @@ def p_column(p):
         p[0] = ForeignKey(p[4], p[7], p[9])
 
     elif len(p) == 7:
-        p[0] = Constraint(p[2], p[5])
+        p[0] = Constraint(p[2], p[5])  # TODO revisar si es constraint o check
 
 
 def p_type_col(p):
@@ -236,8 +242,10 @@ def p_type_col(p):
                | INTERVAL SQLNAME
                | BOOLEAN
     '''
+    dataType = ''
     for i in range(1, len(p)):
-        p[0] += str(p[i])
+        dataType += str(p[i])
+    p[0] = dataType
 
 
 def p_options_col_list(p):
@@ -292,23 +300,34 @@ def p_show_statement(p):
     '''showstatement : SHOW DATABASES SEMICOLON
                      | SHOW DATABASES LIKE ID SEMICOLON
     '''
+    if len(p) == 4:
+        p[0] = ShowDatabase(None)
+    else:
+        p[0] = ShowDatabase(p[4])
 
 
 def p_alter_statement(p):
     '''alterstatement : ALTER optionsalter SEMICOLON
     '''
+    p[0] = p[2]
+
 
 
 def p_options_alter(p):
     '''optionsalter : DATABASE alterdatabase
                     | TABLE altertable
     '''
+    p[0] = p[2]
 
 
 def p_alter_database(p):
     '''alterdatabase : ID RENAME TO ID
                      | ID OWNER TO typeowner
     '''
+    if p[2].lower() == 'RENAME'.lower():   #Renombra la base de datos
+        p[0] = AlterDatabase(1,p[1],p[4])
+    else:                                  #Le cambia el duenio a la base de datos
+        p[0] = AlterDatabase(2,p[1],p[4])
 
 
 def p_type_owner(p):
@@ -316,17 +335,24 @@ def p_type_owner(p):
                  | CURRENT_USER
                  | SESSION_USER 
     '''
+    p[0] = p[1]
 
 
 def p_alter_table(p):
     '''altertable : ID alterlist
     '''
+    p[0] = AlterTable(p[1],p[2])
 
 
 def p_alter_list(p):
     '''alterlist : alterlist COMMA typealter
                  | typealter
     '''
+    if(len(p) == 4):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]] 
 
 
 def p_type_alter(p):
@@ -335,6 +361,7 @@ def p_type_alter(p):
                  | DROP dropalter
                  | RENAME  renamealter
     '''
+    p[0] = p[2]
 
 
 def p_add_alter(p):
@@ -343,23 +370,40 @@ def p_add_alter(p):
                 | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
                 | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
     '''
+    if len(p) == 4:
+        p[0] = AlterTableAdd(CreateCol(p[2],p[3],None))
+    elif len(p) == 5:
+        p[0] = AlterTableAdd(Check(p[4]))
+    elif len(p) == 7:
+        p[0] = AlterTableAdd(Constraint(p[5],Unique(p[5]))) #TODO revisar esta asignacion
+    else:
+        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   #TODO revisar esta asignacion
 
 
 def p_alter_alter(p):
     '''alteralter : COLUMN ID SET NOT NULL
                   | COLUMN ID TYPE typecol
     '''
+    if len(p) == 6:
+        p[0] = AlterTableAlter(None) #TODO agregar un chanceType en column
+    else:
+        p[0] = AlterTableAlter(None) #TODO agregar un chanceType en column
 
 
 def p_drop_alter(p):
     '''dropalter : COLUMN ID
                  | CONSTRAINT ID
     '''
+    if p[1].lower() == 'COLUMN'.lower():
+        p[0] = AlterTableDrop(None) #TODO agregar un dropColumn en column
+    else:
+        p[0] = AlterTableDrop(None) #TODO agregar un dropConstrain en column
 
 
 def p_rename_alter(p):
     '''renamealter : COLUMN ID TO ID
     '''
+    p[0] = AlterTableRename(p[2],p[4])
 
 
 def p_drop_statement(p):
@@ -378,16 +422,20 @@ def p_drop_database(p):
     '''dropdatabase : IF EXISTS ID
                     | ID
     '''
+    noColumn = 0
+    noLine = 0
     if len(p) == 4:
-        p[0] = DropDB(True, p[3])
+        p[0] = DropDB(True, p[3], noLine, noColumn)
     else:
-        p[0] = DropDB(False, p[3])
+        p[0] = DropDB(False, p[1], noLine, noColumn)
 
 
 def p_drop_table(p):
     '''droptable : ID
     '''
-    p[0] = DropTB(p[1])
+    noColumn = 0
+    noLine = 0
+    p[0] = DropTB(p[1], noLine, noColumn)
 
 
 # =====================================================================================
@@ -851,7 +899,20 @@ def p_sql_relational_expression(p):
     if (len(p) == 3):
         p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        p[0] = Relop(p[1], p[2], p[3])
+        if p[2] == '==':
+            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3])
+        elif p[2] == '!=':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3])
+        elif p[2] == '>=':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3])
+        elif p[2] == '>':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3])
+        elif p[2] == '<=':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3])
+        elif p[2] == '<':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3])
+        elif p[2] == '<>':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3])
     else:
         p[0] = p[1]
 
@@ -949,7 +1010,28 @@ def p_sql_simple_expression(p):
         if (p[1] == "("):
             p[0] = p[2]
         else:
-           p[0] = BinaryOperation(p[1],p[3],p[2])
+            if p[2] == '+':
+                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS)
+            elif p[2] == '-':
+                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS)
+            elif p[2] == '*':
+                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES)
+            elif p[2] == '/':
+                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON)
+            elif p[2] == '^':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT)
+            elif p[2] == '%':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR)
+            elif p[2] == '>>':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT)
+            elif p[2] == '<<':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT)
+            elif p[2] == '&':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND)
+            elif p[2] == '|':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR)
+            elif p[2] == '#':
+                 p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR)
     elif (len(p) == 3):
         p[0] = UnaryOrSquareExpressions(p[1], p[2])
     else:
@@ -1200,14 +1282,17 @@ def p_date_types(p):
 def p_sql_integer(p):
     '''SQLINTEGER : INT_NUMBER
                   | FLOAT_NUMBER'''
-    p[0] = p[1]
+    p[0] = NumberExpression(SymbolsTipoDato.INTEGER, p[1])
 
 
 def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-    p[0] = p[1]
+    if (p[1] == 'STRINGCONT' or p[1] == 'CHARCONT'):
+        p[0] = StringExpression("STRING", p[1])
+    else:
+        p[0] = StringExpression('ID', p[1])
 
 
 def p_type_select(p):
@@ -1221,28 +1306,19 @@ def p_sub_query(p):
     p[0] = p[1]
 
 def p_error(p):
-    global list_errors
-    global id_error
-    
-    id_error = list_errors.count + 1  if list_errors.count > 0 else 1
-
     try:
-        number_error, description = get_type_error(33)
-        print(str(p.value))
-        description += ' or near ' + str(p.value) 
+        # print(str(p.value))
+        description = ' or near ' + str(p.value) 
         column = find_column(p)
-        list_errors.insert_end(Error(id_error, 'Syntactic',number_error ,description, p.lineno, column))
+        ErrorController().add(33, 'Syntactic', description, p.lineno, column)
     except AttributeError:
-        number_error, description = get_type_error(1)
-        print(number_error, description)
-        list_errors.insert_end(Error(id_error, 'Syntactic', number_error, description, 'EOF', 'EOF'))
-    id_error += 1
+        # print(number_error, description)
+        ErrorController().add(1, 'Syntactic', '', 'EOF', 'EOF')
 
 parser = yacc.yacc()
 def parse(inpu):
     global input
-    global list_errors
-    list_errors.remove_all()
+    ErrorController().destroy()
     lexer = lex.lex()
     lexer.lineno = 1
     input = inpu

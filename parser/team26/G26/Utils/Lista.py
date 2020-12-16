@@ -9,19 +9,15 @@ class Lista:
         return str(self.__dict__)
 
     def comprobarExistencia(self, name, tipo):
-        if len(self.tablaSimbolos) == 0 : return False
-        else:
-            for tabla in self.tablaSimbolos:
-                if tipo == 'enum':
-                    if isinstance(tabla, EnumData):
-                        if tabla.name == name : return True
-                if tipo == 'database':
-                    if isinstance(tabla, TableData):
-                        if tabla.name == name : return True
-                if tipo == 'database':
-                    if isinstance(tabla, DatabaseData):
-                        if tabla.name == name : return True
-        return False
+        if tipo == 'database':
+            return name in self.tablaSimbolos
+        elif tipo == 'enum':
+            if name in self.tablaSimbolos :
+                ''
+        elif tipo == 'table':
+            if self.databaseSeleccionada == '':
+                return None
+        return True
 
     def obtenerDatabase(self, name):
         if len(self.tablaSimbolos) == 0 : return None
