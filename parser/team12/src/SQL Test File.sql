@@ -1,1 +1,1 @@
-SHOW DATABASES;
+2*2 > 3*3 and 'cadena1 ' = 'cadena2';

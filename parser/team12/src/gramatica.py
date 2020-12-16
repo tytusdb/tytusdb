@@ -321,11 +321,14 @@ t_ignore = " \t"
 
 # Asociación de operadores y precedencia
 precedence = (   
+    ('left','OR'),
+    ('left','AND'),
     ('left','DIFERENTEQUE','IGUAL'), 
     ('nonassoc','MAYORQUE','MENORQUE','MAYORIGUAL','MENORIGUAL'),
     ('left','MAS','MENOS'),
     ('left','ASTERISCO','SLASH','PORCENTAJE'),
-    ('left','POTENCIA')
+    ('left','POTENCIA'),
+    ('right','UMINUS','NOT')
     )
 
 #Generación del lexer
@@ -352,8 +355,31 @@ def p_instruccion(t):
                     | sent_delete
                     | sentencia_show
                     | sentencia_drop
+                    | sentencia_select
                     | Exp'''
     t[0] = t[1]
+
+#------------------------------ Produccion Select ------------------------------------------
+def p_instruccion_select(t):
+    '''sentencia_select : SELECT campos'''
+
+def p_instruccion_select_campos(t):
+    'campos : ASTERISCO'
+
+def p_instruccion_select_campos_1(t):
+    'campos : lista_id'
+
+def p_select_lista_id(t):
+    '''lista_id : lista_id COMA elemento'''
+
+def p_select_lista_id_1(t):
+    'lista_id : elemento'
+
+def p_select_lista_elemento(t):
+    'elemento : IDENTIFICADOR'
+
+def p_select_lista_elemento_1(t):
+    'elemento : IDENTIFICADOR PUNTO IDENTIFICADOR'
 
 #------------------------------ Producciones útiles ----------------------------------------
 def p_tipo_declaracion_1(t):
@@ -370,12 +396,14 @@ def p_tipo_declaracion_1(t):
     nuevo = Start("TIPO_DECLARACION")
     nuevo.createChild(t[1])
     t[0] = nuevo
+
 def p_tipo_declaracion_2(t):
     '''tipo_declaracion : DOUBLE PRECISION'''
     nuevo = Start("TIPO_DECLARACION",-1,-1,None)
     nuevo.createChild(t[1])
     nuevo.createChild(t[2])
     t[0] = nuevo 
+
 def p_tipo_declaracion_3(t):
     '''tipo_declaracion : CHARACTER VARYNG PARENTESISIZQ ENTERO PARENTESISDER'''
     nuevo = Start("TIPO_DECLARACION")
@@ -383,6 +411,7 @@ def p_tipo_declaracion_3(t):
     nuevo.createChild(t[2])
     nuevo.createTerminal(t.slice[4])
     t[0] = nuevo
+
 def p_tipo_declaracion_4(t):
     '''tipo_declaracion : VARCHAR PARENTESISIZQ ENTERO PARENTESISDER
                 | CHARACTER PARENTESISIZQ ENTERO PARENTESISDER
@@ -391,6 +420,7 @@ def p_tipo_declaracion_4(t):
     nuevo.createChild(t[1])
     nuevo.createTerminal(t.slice[3])
     t[0] = nuevo
+
 def p_tipo_declaracion_5(t):
     '''tipo_declaracion : TIMESTAMP time_opcionales
                 | TIME time_opcionales
@@ -434,6 +464,7 @@ def p_interval_opcionales(t):
         t[0] = nuevo
     elif t[1] != None:
         t[0]=t[1]
+
 def p_interval_opcionales_p(t):
     '''interval_opcionales_p : PARENTESISIZQ ENTERO PARENTESISDER
                             |'''
@@ -442,6 +473,7 @@ def p_interval_opcionales_p(t):
         nuevo.createTerminal(t.slice[1])
         nuevo.addChild(t[2])
         t[0] = nuevo
+
 def p_if_exists(t):
     ''' if_exists : IF EXISTS
                     |  '''
@@ -459,6 +491,7 @@ def p_sentencia_crear_1(t):
     nuevo.createTerminal(t.slice[3])
     nuevo.addChild(t[7])# lista_cadenas
     t[0] = nuevo
+
 def p_sentencia_crear_2(t):
     '''sentencia_crear : CREATE sentencia_orreplace DATABASE sentencia_ifnotexists IDENTIFICADOR opcionales_crear_database'''    
     nuevo = Start("CREATE_DATABASE")
@@ -470,6 +503,7 @@ def p_sentencia_crear_2(t):
     if t[6] != None: # opcionales crear database
         nuevo.addChild(t[6])
     t[0] = nuevo
+
 def p_sentencia_crear_3(t):
     '''sentencia_crear : CREATE TABLE IDENTIFICADOR PARENTESISIZQ cuerpo_creartabla PARENTESISDER'''
     nuevo = Start("CREATE_TABLE")
@@ -511,6 +545,7 @@ def p_opcional_creartabla_columna_1(t):
     nuevo.createChild(t[2])
     nuevo.createChild(t[3])
     t[0] = nuevo
+
 def p_opcional_creartabla_columna_2(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna NULL'''
     nuevo =Start("OPCIONALES_ATRIBUTO_TABLA")
@@ -518,6 +553,7 @@ def p_opcional_creartabla_columna_2(t):
         nuevo.addChild(t[1])
     nuevo.createChild(t[2])
     t[0] = nuevo
+
 def p_opcional_creartabla_columna_3(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint UNIQUE '''
     nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
@@ -527,6 +563,7 @@ def p_opcional_creartabla_columna_3(t):
         nuevo.addChild(t[2])
     nuevo.createChild(t[3])
     t[0] = nuevo
+
 def p_opcional_creartabla_columna_4(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint CHECK PARENTESISIZQ Exp PARENTESISDER'''
     nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
@@ -536,18 +573,21 @@ def p_opcional_creartabla_columna_4(t):
         nuevo.addChild(t[2])
     nuevo.createTerminal(t.slice[3])
     t[0] = nuevo
+
 def p_opcional_creartabla_columna_5(t):
     '''opcional_creartabla_columna : NOT NULL'''
     nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
     nuevo.createChild(t[1])
     nuevo.createChild(t[2])
     t[0] = nuevo
+
 def p_opcional_creartabla_columna_6(t):
     '''opcional_creartabla_columna : NULL'''
     nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
     nuevo.createTerminal(t.slice[1])
     nuevo.createTerminal(t.slice[2])
     t[0] = nuevo
+
 def p_opcional_creartabla_columna_7(t):
     '''opcional_creartabla_columna : opcional_constraint UNIQUE'''
     nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
@@ -762,6 +802,28 @@ def p_drop_options2(t):
 # ******************************* EXPRESION ***************************************
 
 # ***** L O G I C A S
+def p_exp_and(t):
+    'Exp : Exp AND Exp'
+    op = Operator("AND",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_or(t):
+    'Exp : Exp OR Exp'
+    op = Operator("OR",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[3])
+
+def p_exp_not(t):
+    'Exp : NOT Exp'
+    op = Operator("NOT",t.lineno(2),t.lexpos(2)+1,None)
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[2])
 
 # ***** R E L A C I O N A L E S
 def p_exp_igualdad(t):
@@ -861,6 +923,13 @@ def p_exp_mod(t):
     t[0].hijos.append(t[1])
     t[0].hijos.append(op)
     t[0].hijos.append(t[3])
+
+def p_exp_negativo(t):
+    'Exp : MENOS Exp %prec UMINUS'
+    t[0] = Expresion("E",-1,-1,None)
+    op = op = Operator("-",t.lineno(2),t.lexpos(2)+1,None)
+    t[0].hijos.append(op)
+    t[0].hijos.append(t[2])
 
 # ***** T E R M I N A L E S
 
