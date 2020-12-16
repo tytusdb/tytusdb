@@ -112,6 +112,22 @@ class Example(tk.Frame):
 if __name__ == "__main__":
 
     ########################################## FUNCIONES ##########################################
+    
+    #FUNCIÓN PARA IMPRIMIR EN CONSOLA
+    def imprimir_consola(expresion):
+        consola.configure(state=tk.NORMAL)
+        consola.delete('1.0',END)
+        consola.insert(INSERT, expresion)
+        consola.configure(state=tk.DISABLED)
+
+
+    #FUNCIÓN PARA ADJUNTAR TEXTO EN LA CONSOLA (SIN LIMPIARLA)
+    def append_consola(expresion):
+        consola.configure(state=tk.NORMAL)
+        consola.insert(INSERT, expresion + '\n')
+        consola.configure(state=tk.DISABLED)
+    
+    
     # FUNCIÓN PARA CREAR UN NUEVO ARCHIVO
     def __funcion_nuevo():
         print('Creando...')
@@ -148,35 +164,80 @@ if __name__ == "__main__":
 
     def __funcion_analizar():
 
+        g.errores_lexicos.clear()
+        g.errores_sintacticos.clear()
+
         tablaSimbolos = TS.Entorno(None)
         entrada = my_editor.text.get('1.0', END)
+
         arbol = g.parse(entrada)
-        #raiz = graficando.analizador(entrada)
-        data=principal.interpretar_sentencias(arbol,tablaSimbolos)
-        tablaSimbolos.mostrar()
-        imprimir_consola(data)
-        #GraficarAST(raiz)
+
+        if len(g.errores_lexicos) == 0:
+
+            if len(g.errores_sintacticos) == 0:
+                
+                # raiz = graficando.analizador(entrada)
+                data=principal.interpretar_sentencias(arbol,tablaSimbolos)
+                tablaSimbolos.mostrar()
+                imprimir_consola(data)
+                # GraficarAST(raiz)
+            
+            else:
+
+                imprimir_consola('Se detectaron algunos errores sintácticos')
+                append_consola('')
+                append_consola('No. \t Lexema \t Tipo \t\t Fila \t Columna \t Descripción ')
+                
+                i = 0
+                while i < len(g.errores_sintacticos):
+                    
+                    append_consola( str(i) + ' \t ' + str(g.errores_sintacticos[i].lexema) +  ' \t ' + str(g.errores_sintacticos[i].tipo) +  ' \t ' + str(g.errores_sintacticos[i].fila) +  ' \t ' + str(g.errores_sintacticos[i].columna) +  ' \t ' + str(g.errores_sintacticos[i].descripcion) +  ' ')
+                    i += 1
+        else:
+
+            imprimir_consola('Se detectaron algunos errores léxicos')
+            append_consola('')
+            append_consola('No. \t Lexema \t Tipo \t\t Fila \t Columna \t Descripción ')
+                
+            i = 0
+            while i < len(g.errores_lexicos):
+                    
+                append_consola( str(i) + ' \t ' + str(g.errores_lexicos[i].lexema) +  ' \t ' + str(g.errores_lexicos[i].tipo) +  ' \t ' + str(g.errores_lexicos[i].fila) +  ' \t ' + str(g.errores_lexicos[i].columna) +  ' \t ' + str(g.errores_lexicos[i].descripcion) +  ' ')
+                i += 1
 
 
-    def imprimir_consola(expresion):
-        consola.configure(state=tk.NORMAL)
-        consola.delete('1.0', END)
-        consola.insert(INSERT, expresion)
-        consola.configure(state=tk.DISABLED)
+        # FUNCIÓN PRIVADA PARA ANALIZAR EL ARCHIVO DE ENTRADA
+    def __funcion_analizar_desc():
+    
+        """ entrada = my_editor.text.get('1.0',END)
+        gd.parse(entrada) """
 
 
-    # FUNCIÓN PARA ADJUNTAR TEXTO EN LA CONSOLA (SIN LIMPIARLA)
-    def append_consola(expresion):
-        consola.configure(state=tk.NORMAL)
-        consola.insert(INSERT, expresion + '\n')
-        consola.configure(state=tk.DISABLED)
+    # FUNCIÓN PRIVADA PARA REALIZAR EL REPORTE DE ERRORES LÉXICOS
+    def __funcion_errores_lexicos():
+
+        g.erroresLexicos()
+    
+        """ entrada = my_editor.text.get('1.0',END)
+        gd.parse(entrada) """
+
+
+    # FUNCIÓN PRIVADA PARA REALIZAR EL REPORTE DE ERRORES SINTÁCTICOS
+    def __funcion_errores_sintacticos():
+
+        g.erroresSintacticos()
+    
+        """ entrada = my_editor.text.get('1.0',END)
+        gd.parse(entrada) """
+        
 
 ######################################## FIN FUNCIONES ########################################
 
 
 ######################### CONFIGURANDO LOS PARÁMETROS PARA LA VENTANA #########################
     root = tk.Tk()
-    root.config(width=1366, height=728)
+    m = root.maxsize()
+    root.geometry('{}x{}+0+0'.format(*m))
     root.title("[G13]OLC2 TytusDB Query tool ")
 
     # VENTANA PRINCIPAL
@@ -206,8 +267,9 @@ if __name__ == "__main__":
     ### MENÚ ANALIZAR
     menu_analizar = tk.Menu(menubar, tearoff=0)
 
-    # SUB MENÚS PARA EL MENÚ ANALIZAR
-    menu_analizar.add_command(label="Analizar Entrada", command=__funcion_analizar)
+    #SUB MENÚS PARA EL MENÚ ANALIZAR
+    menu_analizar.add_command(label="Análisis Ascendente", command=__funcion_analizar)
+    menu_analizar.add_command(label="Análisis Descendente", command=__funcion_analizar_desc)
 
     # CREACIÓN DEL MENÚ ANALIZAR INCRUSTANDO LOS SUBMENÚS
     menubar.add_cascade(label="Analizar", menu=menu_analizar)
@@ -218,11 +280,11 @@ if __name__ == "__main__":
     ### MENÚ REPORTES
     menu_reporte = tk.Menu(menubar, tearoff=0)
 
-    # SUB MENÚS PARA EL MENÚ ANALIZAR
+    #SUB MENÚS PARA EL MENÚ ANALIZAR
     menu_reporte.add_command(label="AST", command=__funcion_analizar)
     menu_reporte.add_separator()
-    menu_reporte.add_command(label="Errores Léxicos", command=__funcion_analizar)
-    menu_reporte.add_command(label="Errores Sintácticos", command=__funcion_analizar)
+    menu_reporte.add_command(label="Errores Léxicos", command=__funcion_errores_lexicos)
+    menu_reporte.add_command(label="Errores Sintácticos", command=__funcion_errores_sintacticos)
     menu_reporte.add_command(label="Errores Semánticos", command=__funcion_analizar)
 
     # CREACIÓN DEL MENÚ ANALIZAR INCRUSTANDO LOS SUBMENÚS

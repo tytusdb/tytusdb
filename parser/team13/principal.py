@@ -876,6 +876,40 @@ def AlterTableCheck(nodo, tablaSimbolos):
         listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la columna con id " + idcol))
 
 
+def AlterTableUnique(nodo, tablaSimbolos):
+    global consola
+    global useActual
+    base = tablaSimbolos.get(useActual)
+    tabla = base.getTabla(nodo.idtabla)
+    if tabla.modificarUnique(nodo.idcolumna, True, nodo.idconstraint):
+        listaConstraint.append(TS.Constraints(useActual, nodo.idtabla, nodo.idconstraint, nodo.idcolumna, "unique"))
+        consola += "Se agrego el unique a la columna " + nodo.idcolumna + " exitosamente \n"
+    else:
+        listaSemanticos.append(
+            Error.ErrorS("Error Semantico", "No se encontró la columna con id " + nodo.idcolumna))
 
+
+def AlterTableFK(nodo, tablaSimbolos):
+    global useActual
+    global consola
+    base = tablaSimbolos.get(useActual)
+    tabla = base.getTabla(nodo.idtabla)
+    for i in range(len(nodo.idlocal)):
+        idlocal = nodo.idlocal[i].valor
+        idfk = nodo.idfk[i].valor
+        columnafk = tablaSimbolos.getColumna(useActual, nodo.idtablafk, idfk)
+        columnalocal = tabla.getColumna(idlocal)
+        if columnafk != None and columnalocal != None:
+            if columnafk.tipo.tipo == columnalocal.tipo.tipo:
+                tabla.modificarFk(idlocal, nodo.idtablafk, idfk)
+                listaFK.append(TS.llaveForanea(useActual, nodo.idtabla, nodo.idtablafk, idlocal, idfk))
+                consola += "Se agrego la llave foranea a " + idlocal + " exitosamente \n"
+            else:
+                listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                    "La columna %s y la columna %s no tienen el mismo tipo" % (
+                                                        idlocal, idfk)))
+        else:
+            listaSemanticos.append(
+                Error.ErrorS("Error Semantico", "No se encontró la columna"))
 
 

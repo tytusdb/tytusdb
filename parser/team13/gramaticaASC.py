@@ -397,24 +397,31 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
-def t_error(t):
-    t.lexer.skip(1)
+#IMPORTACIÓN Y CREACIÓN DE LISTAS PARA GUARDAR LOS ERRORES
+from Error import Error
+errores_lexicos = []
+errores_sintacticos = []
 
-    print("Caracter inválido '%s'" % t.value[0], " Línea: '%s'" % str(t.lineno))
 
-
+#HALLAR LA COLUMNA DEL TOKEN ESPECIFICADO
 def find_column(token):  # Columna relativa a la fila
     global con
     line_start = con.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
 
+#FUNCIÓN DE ERROR PARA LOS ERRORES LÉXICOS
+def t_error(t):
+    col = find_column(t)
+    #print("Caracter inválido '%s'" % t.value[0], " Línea: '%s'" % str(t.lineno))
+    errores_lexicos.append(Error(t.value[0],'Error Léxico','El caracter \'' + str(t.value[0]) + '\' no pertenece al lenguaje',col,t.lineno))
+    t.lexer.skip(1)
+
+
 # Construyendo el analizador léxico
 import ply.lex as lex
 import re
 
-lexer = lex.lex()
-lex.lex(reflags=re.IGNORECASE)
 
 # DEFINIENDO LA PRECEDENCIA DE LOS OPERADORES
 # ---------Modificado Edi------
@@ -434,6 +441,7 @@ precedence = (
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< INICIO DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 from sentencias import *
 
+from graphviz import Digraph
 
 def p_init(t):
     'inicio :   sentencias'
@@ -1692,17 +1700,70 @@ def p_EXPR_LIMIT2(p):
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
+
+#FUNCIÓN PARA EL MANEJO DE LOS ERRORES SINTÁCTICOS
 def p_error(t):
     col = find_column(t)
-    print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col))
+    #print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col) )
+    errores_sintacticos.append(Error(t.value,'Error Sintáctico','Símbolo no esperado',col,t.lineno))
 
+
+#MÉTODO PARA GENERAR EL REPORTE DE ERRORES LÉXICOS
+def erroresLexicos():
+    print('Generando reporte de errores léxicos')
+    __generar_reporte('Lexicos', errores_lexicos)
+
+
+#MÉTODO PARA GENERAR EL REPORTE DE ERRORES SINTÁCTICOS
+def erroresSintacticos():
+    print('Generando reporte de errores sintácticos')
+    __generar_reporte('Sintacticos', errores_sintacticos)
+
+
+from datetime import datetime
+
+
+#FUNCIÓN PARA GENERAR EL REPORTE DE ERRORES 
+def __generar_reporte(titulo, lista):
+
+    if len(lista) > 0:
+        ''' '''
+        nodos = '''<
+        <TABLE>        
+        <TR>
+            <TD colspan="5">REPORTE DE ERRORES %s <BR/> %s </TD>
+        </TR>
+        <TR>
+            <TD>LEXEMA</TD>
+            <TD>TIPO</TD>
+            <TD>DESCRIPCION</TD>
+            <TD>COLUMNA</TD>
+            <TD>FILA</TD>
+        </TR>                               \n''' % (titulo, str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        s = Digraph(titulo, node_attr={'color': 'black', 'fillcolor': 'lightblue2','style': 'filled', 'shape': 'record'})
+        for e in lista:
+            nodos += '<TR> '
+            nodos += (' \n\t<TD> '  + str(e.lexema).replace('{','\{').replace('}','\}').replace('<','\<').replace('>','\>') + ' </TD> ')
+            nodos += (' \n\t<TD> '  + str(e.tipo) + ' </TD> ')
+            nodos += (' \n\t<TD> '  + str(e.descripcion).replace('{','\{').replace('}','\}').replace('<','\<').replace('>','\>') + ' </TD> ')
+            nodos += (' \n\t<TD> '  + str(e.columna) + ' </TD> ')
+            nodos += (' \n\t<TD> '  + str(e.fila) + ' </TD> ')
+            nodos += ' \n</TR> \n'
+        nodos += '</TABLE>>'
+        s.node('lbl', nodos)
+        s.render('Reportes/'+titulo, format='png', view=True)
 
 import ply.yacc as yacc
 
-parser = yacc.yacc()
+
 
 
 def parse(input):
     global con
     con = input
+
+    lexer = lex.lex()
+    lex.lex(reflags=re.IGNORECASE)
+    parser = yacc.yacc()
+
     return parser.parse(input)
