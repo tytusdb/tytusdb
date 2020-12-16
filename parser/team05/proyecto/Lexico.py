@@ -180,7 +180,10 @@ palabras_reservadas = {
     'boolean'       : 'BOOLEAN',
     'varying'       : 'VARYING',
     'type'          : 'TYPE',
-    'enum'          : 'ENUM'
+    'enum'          : 'ENUM',
+    'add'           : 'ADD',
+    'column'        : 'COLUMN',
+    'use'           : 'USE'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -381,6 +384,12 @@ def p_Instruccion6(t):
 
 def p_Instruccion7(t):
     'INSTRUCCION  :   I_DELETE '
+
+def p_Instruccion8(t):
+    'INSTRUCCION  :   I_USE  '
+
+def p_use(t):
+    'I_USE        : USE DATABASE ID PCOMA'
 
 def p_Create(t):
     'I_CREATE      : CREATE I_TCREATE'
@@ -592,6 +601,78 @@ def p_alter(t):
 
 def p_tAlter(t):
     'I_TALTER    : I_ALTERDB'
+
+def p_tAlter1(t):
+    'I_TALTER    : I_ALTERTB'
+
+def p_alterTB(t):
+    'I_ALTERTB   : TABLE ID I_OPALTER '
+
+def p_opAlterTB(t):
+    'I_OPALTER   : I_LADDC PCOMA'
+
+def p_opAlterTB1(t):
+    'I_OPALTER   : I_LDROPC PCOMA'
+
+def p_opAlterTB2(t):
+    'I_OPALTER   : ADD I_TALTER PCOMA'
+
+def p_opAlterTB3(t):
+    'I_OPALTER   : ALTER COLUMN ID SET NOT NULL PCOMA'
+
+def p_opAlterTB4(t):
+    'I_OPALTER   : DROP CONSTRAINT ID PCOMA'
+
+def p_opAlterTB5(t):
+    'I_OPALTER   : ID I_LCOL PCOMA'
+
+def p_lCol(t):
+    'I_LCOL      : I_LCOL COMA I_PCOL'
+
+def p_lCol2(t):
+    'I_LCOL      : I_PCOL'
+
+def p_pCol3(t):
+    'I_PCOL      : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA'
+
+def p_tipAlterC(t): 
+    'I_TALTER    : CHECK CONDICION '
+
+def p_tipAlterU(t): 
+    'I_TALTER    : UNIQUE PABRE I_LIDS  PCIERRA'
+
+def p_tipAlterFK(t): 
+    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
+
+def p_tipAlterCo(t): 
+    'I_TALTER    : CONSTRAINT ID I_TCONST '
+
+def p_tipoConstraintC(t):
+    'I_TCONST    : CHECK CONDICION '
+
+def p_tipoConstraintU(t):
+    'I_TCONST    : UNIQUE PABRE I_LIDS PCIERRA'
+
+def p_tipoConstraintFK(t):
+    'I_TCONST    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA  '
+
+def p_lCDrop(t):
+    'I_LDROPC    : I_LDROPC COMA I_DROPC'
+
+def p_lCDrop1(t):
+    'I_LDROPC    : I_DROPC'
+
+def p_cDrop(t):
+    'I_DROPC     : DROP COLUMN ID'
+
+def p_lCAdd(t):
+    'I_LADDC     : I_LADDC COMA I_ADDC'
+
+def p_lCAdd2(t):
+    'I_LADDC     : I_ADDC'
+
+def p_cAdd(t):
+    'I_ADDC      : ADD COLUMN ID I_TIPO'
 
 def p_tDrop(t):
     'I_TDROP     : I_DROPDB'
