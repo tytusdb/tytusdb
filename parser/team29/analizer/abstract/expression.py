@@ -1,14 +1,16 @@
 from abc import abstractmethod
 from enum import Enum
-import pandas as pd 
+import pandas as pd
 
-from functions import MathFunctions as mf
-from functions import TrigonometricFunctions as trf
-import abstract.select_data as data
+from analizer.functions import MathFunctions as mf
+from analizer.functions import TrigonometricFunctions as trf
 
-#Prueba para dataframe:
-df = data.dataSelect()
-df.crossJoin()
+# import abstract.select_data as data
+
+# Prueba para dataframe:
+# df = data.dataSelect()
+# df.crossJoin()
+
 
 class TYPE(Enum):
     NUMBER = 1
@@ -57,6 +59,7 @@ class Identifiers(Expression):
     """
     Esta clase representa los nombre de columnas
     """
+
     value = None
     # TODO: implementar la funcion para obtener el type de la columna
     def __init__(self, table, name, row, column):
@@ -70,7 +73,7 @@ class Identifiers(Expression):
         """
         TODO:Se debe hacer la logica para buscar los identificadores en la tabla
         """
-        self.value = df.dataTable[self.temp]
+        # self.value = df.dataTable[self.temp]
         return self
 
 
@@ -310,14 +313,16 @@ class BinaryLogicalOperation(Expression):
         if exp1.type != TYPE.BOOLEAN or exp2.type != TYPE.BOOLEAN:
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
 
-        if isinstance(exp1.value,pd.core.series.Series) or isinstance(exp2.value,pd.core.series.Series):
+        if isinstance(exp1.value, pd.core.series.Series) or isinstance(
+            exp2.value, pd.core.series.Series
+        ):
             if operator == "AND":
                 value = exp1.value & exp2.value
             elif operator == "OR":
                 value = exp1.value | exp2.value
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        else :
+        else:
             if operator == "AND":
                 value = exp1.value and exp2.value
             elif operator == "OR":
@@ -345,12 +350,12 @@ class UnaryLogicalOperation(Expression):
         if exp.type != TYPE.BOOLEAN:
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
-        if isinstance(exp.value,pd.core.series.Series):
+        if isinstance(exp.value, pd.core.series.Series):
             if operator == "NOT":
                 value = ~exp.value
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        else :
+        else:
             if operator == "NOT":
                 value = not exp.value
             else:
@@ -444,13 +449,12 @@ class FunctionCall(Expression):
             self.temp += t.temp
         self.temp += ")"
 
-    # TODO: Quitar los corchetes iniciales de valores
     def execute(self, environment):
         try:
             valores = []
             for p in self.params:
                 val = p.execute(environment).value
-                if isinstance(val , pd.core.series.Series):
+                if isinstance(val, pd.core.series.Series):
                     val = val.tolist()
                 valores.append(val)
 
@@ -551,12 +555,11 @@ class FunctionCall(Expression):
             if isinstance(value, list):
                 if len(value) <= 1:
                     value = value[0]
-                    print(value)
-                else :
+                else:
                     value = pd.Series(value)
 
             return Primitive(TYPE.NUMBER, value, self.row, self.column)
         except TypeError:
-            print("Error de tipos")
+            print("Error de tipos en llamada a funciones")
         except:
             print("Error desconocido")
