@@ -1,8 +1,8 @@
-import analizer.ply.yacc as yacc
-from analizer.tokens import *
+import ply.yacc as yacc
+from tokens import *
 
 # Construccion del analizador léxico
-import analizer.ply.lex as lex
+import ply.lex as lex
 
 lexer = lex.lex()
 # Asociación de operadores y precedencia
@@ -33,8 +33,8 @@ precedence = (
 
 # Definición de la gramática
 
-import analizer.abstract.expression as expression
-import analizer.abstract.instruction as instruction
+import abstract.expression as expression
+import abstract.instruction as instruction
 
 
 def p_init(t):
@@ -404,11 +404,12 @@ def p_literal(t):
 
 def p_params_list(t):
     """paramsList : paramsList S_COMA datatype"""
-
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_params_u(t):
     """paramsList : datatype"""
-
+    t[0] = [t[1]]
 
 def p_datatype_operadores_binarios(t):
     """
@@ -666,6 +667,7 @@ def p_alterDb(t):
     t[0]=[t[1],t[3]]
 
 
+
 def p_ownerOpts(t):
     """ownerOPts : ID
     | R_CURRENT_USER
@@ -721,6 +723,8 @@ def p_dropStmt(t):
     if(t[3]==None):
         exists=False
     t[0] =  instruction.Drop(t[2],t[4],exists)
+
+
 
 def p_ifExists(t):
     """ifExists : R_IF R_EXISTS
@@ -1002,6 +1006,7 @@ def p_truncateStmt(t):
     """truncateStmt : R_TRUNCATE tableOpt ID"""
     t[0] = instruction.Truncate(t[3])
 
+
 def p_tableOpt(t):
     """tableOpt : R_TABLE
     |
@@ -1043,3 +1048,7 @@ def parse(input):
     except Exception as e:
         print(e)
         return None
+
+
+test = "SELECT NOT div(purchase.amount, 1)-8 < 5 AND div(product.price, pi()-1)-8 > 0 as sexo; "
+print(parse(test))
