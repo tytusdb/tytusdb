@@ -1,5 +1,5 @@
 from enum import Enum
-
+from reporteErrores.errorReport import ErrorReport # EN EL AMBITO MAS EXTERIOR SE INGRESAN A LA LISTA , EN ESTAS SUB CLASES SOLO SE SUBE EL ERROR
 # Enumeraciones para identificar expresiones que comparten clase
 
 class TIPO_DE_DATO(Enum):
@@ -46,10 +46,11 @@ class Expresion:
 
 
 class ExpresionAritmetica(Expresion):
-    def __init__(self, exp1, exp2, operador):
+    def __init__(self, exp1, exp2, operador, linea):
         self.exp1 = exp1
         self.exp2 = exp2
         self.operador = operador
+        self.linea = linea
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -65,87 +66,86 @@ class ExpresionAritmetica(Expresion):
     def ejecutar(self, ts):
         expizq = self.exp1.ejecutar(ts)
         expder = self.exp2.ejecutar(ts)
+        # por si se quiere operar un error con una expresion buena ,  retorna de una el error
+        if isinstance(expizq , ErrorReport):
+            return expizq
+        if isinstance(expder , ErrorReport):
+            return expder
+
         if self.operador == OPERACION_ARITMETICA.MAS:
             if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.ENTERO,0) 
+                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL,0)
+                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL,self.linea)
             else:
-                
                 return 0
         elif self.operador == OPERACION_ARITMETICA.MENOS:
             if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.ENTERO,0) 
+                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL,0)
+                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL,self.linea)
             else:
                
                 return 0
         elif self.operador == OPERACION_ARITMETICA.POR:
             if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.ENTERO,0) 
+                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL,0)
+                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL,self.linea)
             else:
                 
                 return 0
         elif self.operador == OPERACION_ARITMETICA.DIVIDO:
             if expder.val != 0:
                 if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
-                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.ENTERO,0) 
+                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
                 elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
                 elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
-                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
                 elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL,0)
+                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL,self.linea)
                 else:
                    
                     return 0
             else:
-               
-                return 0
+                return ErrorReport('semantico', 'No se puede dividir entre 0' ,self.linea)
         elif self.operador == OPERACION_ARITMETICA.MODULO:
             if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.ENTERO,0) 
+                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL,0)
+                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL,self.linea)
             else:
                 
                 return 0
         elif self.operador == OPERACION_ARITMETICA.EXPONENTE:
             if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.ENTERO,0) 
+                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.DECIMAL,0) 
+                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.DECIMAL,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
-                return ExpresionNumero(int(expizq.val) ** expder.val, TIPO_DE_DATO.ENTERO,0) 
+                return ExpresionNumero(int(expizq.val) ** expder.val, TIPO_DE_DATO.ENTERO,self.linea) 
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
-                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.DECIMAL,0)
+                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.DECIMAL,self.linea)
             else:
                 
                 return 0
-                
-    def valor(self, ts):
-        if self.operador == '+':
-            # count(*) as a; a + 5
-            return self.exp1.valor(ts) + self.exp2.valor(ts)
 
 # Clase de expresión negativa
 
@@ -185,7 +185,7 @@ class ExpresionPositiva(Expresion):
 
     def ejecutar(self, ts):
         unario = self.exp.ejecutar(ts)
-        return ExpresionNumero(unario.val, unario.tipo, self.linea,0)
+        return ExpresionNumero(unario.val, unario.tipo, self.linea)
 
 # Clase de expresión numero
 
@@ -208,8 +208,10 @@ class ExpresionNumero(Expresion):
         
 
 class ExpresionID(Expresion):
-    def __init__(self, val):
+    def __init__(self, val , linea , tabla = None):
         self.val = val
+        self.linea = linea
+        self.tabla = tabla
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -217,40 +219,21 @@ class ExpresionID(Expresion):
         nodo = "\n" + identificador + "[ label =\"" + str(self.val) + "\" ];\n"
 
         return nodo
+    def ejecutar(self ,ts):
+        return self
 
-# ------FUNCIONES NUMERICAS (EXPRESIONES NUMERICAS)
 
 
-class FuncionNumerica(Expresion):
-    def __init__(self, funcion, parametro1=None, parametro2=None):
-        self.parametro1 = parametro1
-        self.parametro2 = parametro2
-        self.funcion = funcion
 
-    def dibujar(self):
-        identificador = str(hash(self))
-
-        nodo = "\n" + identificador + "[ label =\"" + self.funcion + "\" ];"
-
-        # Retorno
-        if self.parametro1:
-            nodo += "\n" + identificador + " -> " + \
-                str(hash(self.parametro1)) + ";"
-            nodo += self.parametro1.dibujar()
-        if self.parametro2:
-            nodo += "\n" + identificador + " -> " + \
-                str(hash(self.parametro2)) + ";"
-            nodo += self.parametro2.dibujar()
-
-        return nodo
 
 # ------EXPRESIONES LOGICAS
 # Expresión binaria de comparacion
 class ExpresionComparacion(Expresion):
-    def __init__(self, exp1, exp2, operador):
+    def __init__(self, exp1, exp2, operador, linea):
         self.exp1 = exp1
         self.exp2 = exp2
         self.operador = operador
+        self.linea = linea
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -263,12 +246,39 @@ class ExpresionComparacion(Expresion):
         nodo += self.exp2.dibujar()
 
         return nodo
+    def ejecutar(self, ts):
+        izq = self.exp1.ejecutar(ts)
+        der = self.exp2.ejecutar(ts)
+        
+        if isinstance(izq , ErrorReport):
+            return izq
+        if isinstance(der , ErrorReport):
+            return der
+        # como expresionNumero abarca tanto decimales como enteros 
+        if isinstance(izq,ExpresionNumero) and isinstance(izq,ExpresionNumero):
+            if self.operador == OPERACION_RELACIONAL.DESIGUAL:
+                return ExpresionBooleano(izq.val != der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.IGUAL:
+                return ExpresionBooleano(izq.val == der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.MAYOR:
+                return ExpresionBooleano(izq.val > der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+                return ExpresionBooleano(izq.val >= der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.MENOR:
+                return ExpresionBooleano(izq.val < der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.MENORIGUAL:
+                return ExpresionBooleano(izq.val <= der.val, self.linea)
+        #elif isinstance() comparar cadenas  y ids 
+        else:
+            return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)
+
 
 class ExpresionLogica(Expresion):
-    def __init__(self, exp1, exp2, operador):
+    def __init__(self, exp1, exp2, operador, linea):
         self.exp1 = exp1
         self.exp2 = exp2
         self.operador = operador
+        self.linea  = linea
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -281,6 +291,23 @@ class ExpresionLogica(Expresion):
         nodo += self.exp2.dibujar()
 
         return nodo
+
+    def ejecutar(self, ts):
+        izq = self.exp1.ejecutar(ts)
+        der = self.exp2.ejecutar(ts)
+        # por si se quiere operar un error con una expresion buena ,  retorna de una el error
+        if isinstance(izq , ErrorReport):
+            return izq
+        if isinstance(der , ErrorReport):
+            return der
+        
+        if izq.tipo == TIPO_DE_DATO.BOOLEANO and der.tipo == TIPO_DE_DATO.BOOLEANO:
+            if self.operador == OPERACION_LOGICA.AND:
+                return ExpresionBooleano(izq.val and der.val,self.linea)
+            elif self.operador == OPERACION_LOGICA.OR:
+                return ExpresionBooleano(izq.val or der.val, self.linea)
+        else:
+            return ErrorReport('semantico', 'Error , se esta operando con valores No booleanos' ,self.linea)
 
 # Expresion negada
 class ExpresionNegada(Expresion):
@@ -300,9 +327,10 @@ class ExpresionNegada(Expresion):
 
 # Expresión booleana (Valor puro)
 class ExpresionBooleano(Expresion):
-    def __init__(self, val):
+    def __init__(self, val, linea):
         self.val = val
         self.tipo = TIPO_DE_DATO.BOOLEANO
+        self.linea = linea
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -310,6 +338,9 @@ class ExpresionBooleano(Expresion):
         nodo = "\n" + identificador + "[ label =\"" + str(self.val) + "\" ];\n"
 
         return nodo
+    
+    def ejecutar(self, ts):
+        return self
 
 # Expresión Between: Contempla tanto al Between como al Between Symmetric, asi como las versiones negadas
 
@@ -370,8 +401,10 @@ class ExpresionIs(Expresion):
 
 # ------EXPRESIONES DE CADENAS
 class ExpresionCadena(Expresion):
-    def __init__(self, valor):
-        self.val = valor
+    def __init__(self, valor , tipo, linea):
+        self.tipo = tipo 
+        self.val = str(valor)
+        self.linea = linea
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -383,34 +416,7 @@ class ExpresionCadena(Expresion):
         nodo = "\n" + identificador + "[ label =\"" + temp + "\" ];\n"
 
         return nodo
+    def ejecutar(self,ts):
+        return self
 
 
-class FuncionCadena(Expresion):
-    def __init__(self, funcion, parametro1, parametro2=None, parametro3=None):
-        self.funcion = funcion
-        self.parametro1 = parametro1
-        self.parametro2 = parametro2
-        self.parametro3 = parametro3
-
-    def dibujar(self):
-        identificador = str(hash(self))
-
-        nodo = "\n" + identificador + "[ label = \"" + self.funcion + "\" ];"
-        nodo += "\n" + identificador + " -> " + \
-            str(hash(self.parametro1)) + ";"
-        nodo += "\n" + str(hash(self.parametro1)) + \
-            "[label = \"" + self.parametro1 + "\"];"
-
-        if self.parametro2:
-            if isinstance(self.parametro2, str):
-                nodo += "\n" + identificador + " -> " + \
-                    str(hash(self.parametro2)) + ";"
-                nodo += "\n" + str(hash(self.parametro2)) + \
-                    "[label = \"" + self.parametro2 + "\"];"
-            else:
-                nodo += "\n" + identificador + " -> " + \
-                    str(hash(self.parametro2)) + ";"
-                nodo += "\n" + str(hash(self.parametro2)) + \
-                    "[label = \"" + str(self.parametro2) + "\"];"
-
-        return nodo
