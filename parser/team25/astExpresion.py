@@ -2,12 +2,20 @@ from enum import Enum
 
 # Enumeraciones para identificar expresiones que comparten clase
 
+class TIPO_DE_DATO(Enum):
+    ENTERO = 1
+    DECIMAL = 2
+    CADENA = 3
+    TIMESTAMP = 4
+    BOOLEANO = 5
 
 class OPERACION_ARITMETICA(Enum):
     MAS = 1
     MENOS = 2
     POR = 3
     DIVIDO = 4
+    MODULO = 5
+    EXPONENTE = 6
 
 
 class OPERACION_RELACIONAL(Enum):
@@ -54,7 +62,86 @@ class ExpresionAritmetica(Expresion):
         nodo += self.exp2.dibujar()
 
         return nodo
-
+    def ejecutar(self, ts):
+        expizq = self.exp1.ejecutar(ts)
+        expder = self.exp2.ejecutar(ts)
+        if self.operador == OPERACION_ARITMETICA.MAS:
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.ENTERO) 
+            elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL)
+            else:
+                print("ERROR PUTO SEMANTICO")
+                return 0
+        elif self.operador == OPERACION_ARITMETICA.MENOS:
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.ENTERO) 
+            elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val - expder.val, TIPO_DE_DATO.DECIMAL)
+            else:
+                print("ERROR PUTO SEMANTICO")
+                return 0
+        elif self.operador == OPERACION_ARITMETICA.POR:
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.ENTERO) 
+            elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val * expder.val, TIPO_DE_DATO.DECIMAL)
+            else:
+                print("ERROR PUTO SEMANTICO")
+                return 0
+        elif self.operador == OPERACION_ARITMETICA.DIVIDO:
+            if expder.val != 0:
+                if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.ENTERO) 
+                elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL) 
+                elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
+                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL) 
+                elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                    return ExpresionNumero(expizq.val / expder.val, TIPO_DE_DATO.DECIMAL)
+                else:
+                    print("ERROR PUTO SEMANTICO")
+                    return 0
+            else:
+                print("NO SE PUEDE DIVIDIR DENTRO DE CERO POR LA GRAN PUTA")
+                return 0
+        elif self.operador == OPERACION_ARITMETICA.MODULO:
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.ENTERO) 
+            elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val % expder.val, TIPO_DE_DATO.DECIMAL)
+            else:
+                print("ERROR PUTO SEMANTICO")
+                return 0
+        elif self.operador == OPERACION_ARITMETICA.EXPONENTE:
+            if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.ENTERO) 
+            elif expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.DECIMAL) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.ENTERO:
+                return ExpresionNumero(int(expizq.val) ** expder.val, TIPO_DE_DATO.ENTERO) 
+            elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
+                return ExpresionNumero(expizq.val ** expder.val, TIPO_DE_DATO.DECIMAL)
+            else:
+                print("ERROR PUTO SEMANTICO")
+                return 0
+                
     def valor(self, ts):
         if self.operador == '+':
             # count(*) as a; a + 5
@@ -96,6 +183,22 @@ class ExpresionPositiva(Expresion):
 
 
 class ExpresionNumero(Expresion):
+    def __init__(self, val, tipo):
+        self.val = val
+        self.tipo = tipo
+
+    def dibujar(self):
+        identificador = str(hash(self))
+
+        nodo = "\n" + identificador + "[ label =\"" + str(self.val) + "\" ];\n"
+
+        return nodo
+    
+    def ejecutar(self, ts):
+        return self
+        
+
+class ExpresionID(Expresion):
     def __init__(self, val):
         self.val = val
 
