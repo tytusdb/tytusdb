@@ -1,10 +1,7 @@
-import sys
 from . expression_enum import OpArithmetic, OpRelational, OpLogic, OpPredicate
 from datetime import date, datetime
-
-##sys.path.insert(0, '..')
-##from ast_node import ASTNode
-from .. ast_node import ASTNode
+from parse.errors import Error, ErrorType
+from parse.ast_node import ASTNode
 
 
 class Numeric(ASTNode):
@@ -111,7 +108,7 @@ class BinaryExpression(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         #TODO: Validate type                
-        if self.operator == None: #'Number' or 'artirmetic function' production for example            
+        if self.operator == None: #'Number' or 'artirmetic function' production for example
             return self.exp1.execute(None,None)
         if self.operator == OpArithmetic.PLUS:          
             return self.exp1.execute(None,None) + self.exp2.execute(None,None)

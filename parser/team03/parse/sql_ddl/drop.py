@@ -10,7 +10,7 @@ class DropDatabase(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_name = self.name.execute()
+        result_name = self.name.execute(table, tree)
         dropDatabase(result_name)
         return True
 

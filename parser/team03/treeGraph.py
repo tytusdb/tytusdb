@@ -41,9 +41,4 @@ def nodoTresAristas(valor,izquierda,derecha,medio):
     dot.edge(str(id),str(derecha))
     return id
 
-def nodoHojaUnaArista(valor,medio):
-    id= inc()
-    dot.node(str(id),str(valor))
-    dot.edge(str(id),str(medio))  
-    return id
     
