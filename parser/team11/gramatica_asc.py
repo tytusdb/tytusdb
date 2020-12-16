@@ -497,8 +497,43 @@ def p_asignar_alias(t):
                          | AS CADENASIMPLE
                          | AS CADENADOBLE
                          | empty'''
-                         
-                            
+
+
+# Producciones para el manejo del where, incluyendo subquerys
+
+def p_whereselect_1(t):
+    'whereselect       : WHERE condicioneswhere'
+
+
+def p_whereselect_5(t):
+    'whereselect       : empty'
+
+
+def p_lista_condicionwhere(t):
+    '''condicioneswhere    : condicioneswhere OR  condicionwhere
+                           | condicioneswhere AND condicionwhere'''
+
+
+def p_lista_condicionwhere_salida(t):
+    'condicioneswhere      : condicionwhere'
+
+
+def p_condicionwhere(t):
+    '''condicionwhere      : whereexists
+                           | wherenotin
+                           | wherein
+                           | wherenotlike
+                           | wherelike
+                           | wheresubstring
+                           | between_state
+                           | predicates_state
+                           | is_distinct_state
+                           | condicion'''                     
+
+def p_existwhere(t):
+    'whereexists       : EXISTS PARIZQ select_instr1 PARDER'
+
+    
 ## -------------------------------- EXPRESIONES ------------------------------------------    
 
 ## expresiones logicas (condiciones)
