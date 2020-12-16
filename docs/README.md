@@ -249,13 +249,13 @@ Parámetro table: es el nombre de la tabla a utilizar.
 Valor de retorno, una lista con el resultado de insertar cada línea del CSV: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primari  a duplicada, 5 columnas fuera de limites.  
 
 ```
-def extractRow(database: str, table: str, columns: list) -> int:
+def extractRow(database: str, table: str, columns: list) -> list:
 ```
 Extrae y devuelve un registro especificado por su llave primaria.  (READ)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
 Parámeto columns: es la llave primaria, si es simple [llave], si es compuesta [llaveatr1, llaveatr2...].  (si no hay pk se debe enviar la hiddenPK)  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria no existe.  
+Valor de retorno: lista con los valores del registro, si ocurrió un error o no hay registro que mostrar devuelve una lista vacía [].  
 
 ```
 def update(database: str, table: str, register: dict, columns: list) -> int:
