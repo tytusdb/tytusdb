@@ -28,11 +28,20 @@ class SimboloBase:
     def getTabla(self, id):
         return self.tablas[id]
 
-    def deleteTable(self,id):
+    def deleteTable(self, id):
         if id in self.tablas:
             del self.tablas[id]
             return True
         return None
+
+    def renameTable(self, idactual, idnuevo):
+        if idactual in self.tablas:
+            if idnuevo not in self.tablas:
+                self.tablas[idnuevo] = self.tablas.pop(idactual)
+                self.tablas[idnuevo].nombre = idnuevo
+                return 0
+            return 1
+        return 2
 
 
 class SimboloTabla:
@@ -49,9 +58,18 @@ class SimboloTabla:
             return True
         return None
 
-    def modificarUnique(self, id, unique, idconstraint):
-        if id in self.columnas:
-            self.columnas[id].unique = {"id": idconstraint, "unique": unique}
+    def renameColumna(self, idactual, idnuevo):
+        if idactual in self.columnas:
+            if idnuevo not in self.columnas:
+                self.columnas[idnuevo] = self.columnas.pop(idactual)
+                self.columnas[idnuevo].nombre = idnuevo
+                return 0
+            return 1
+        return 2
+
+    def modificarUnique(self, idcol, unique, idconstraint):
+        if idcol in self.columnas:
+            self.columnas[idcol].unique = {"id": idconstraint, "unique": unique}
             return True
         return None
 
@@ -89,6 +107,24 @@ class SimboloColumna:
         self.default = default
         self.null = null
         self.check = check
+
+
+class llaveForanea:
+    def __init__(self, idbase, idtlocal, idtfk, idclocal, idcfk):
+        self.idbase = idbase
+        self.idtlocal = idtlocal
+        self.idtfk = idtfk
+        self.idclocal = idclocal
+        self.idcfk = idcfk
+
+
+class Constraints:
+    def __init__(self, idbase, idtabla, idconstraint, idcol, tipo):
+        self.idbase = idbase
+        self.idtabla = idtabla
+        self.idconstraint = idconstraint
+        self.idcol = idcol
+        self.tipo = tipo
 
 
 class Entorno:
@@ -132,15 +168,13 @@ class Entorno:
         return None
 
     # renombrar base
-    def renameBase(self,idactual,idnuevo):
-        actual=self.get(idactual)
-        if actual!=None:
-            self.tabla[idnuevo]=self.tabla.pop(idactual)
-            self.tabla[idnuevo].nombre=idnuevo
+    def renameBase(self, idactual, idnuevo):
+        actual = self.get(idactual)
+        if actual != None:
+            self.tabla[idnuevo] = self.tabla.pop(idactual)
+            self.tabla[idnuevo].nombre = idnuevo
             return True
         return None
-
-
 
     # MOSTRAR Base
     def mostrar(self):

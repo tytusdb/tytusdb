@@ -151,11 +151,11 @@ if __name__ == "__main__":
         tablaSimbolos = TS.Entorno(None)
         entrada = my_editor.text.get('1.0', END)
         arbol = g.parse(entrada)
-        # raiz = graficando.analizador(entrada)
+        #raiz = graficando.analizador(entrada)
         data=principal.interpretar_sentencias(arbol,tablaSimbolos)
         tablaSimbolos.mostrar()
         imprimir_consola(data)
-        # GraficarAST(raiz)
+        #GraficarAST(raiz)
 
 
     def imprimir_consola(expresion):

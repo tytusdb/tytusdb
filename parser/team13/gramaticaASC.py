@@ -223,9 +223,9 @@ reservadas = {
     'order': 'order',
     'use': 'tuse'
 
-    #otros
-    ,'unknown':'unknown',
-    'bytea':'bytea'
+    # otros
+    , 'unknown': 'unknown',
+    'bytea': 'bytea'
 
 }
 
@@ -473,6 +473,8 @@ def p_sentencia(t):
 
 
 ''' @@@@@@@ AGREGUE USEDB'''
+
+
 def p_USEDB(t):
     ''' USEDB : tuse database id ptComa'''
     t[0] = SUse(t[3])
@@ -813,20 +815,28 @@ def p_EXPR_ALTER_TABLE(t):
     '''ALTER_TABLE : alter table id rename tColumn id tTo id ptComa
                    | alter table id EXPR_ALTER
                    | alter table id LColumn ptComa
+                   | alter table id add tConstraint id tCheck E ptComa
                    | alter table id add tCheck E ptComa
-                   | alter table id add tConstraint id tUnique parAbre id parCierra ptComa      
-                   | alter table id add tForeign tKey parAbre COLS parCierra tReferences COLS ptComa
-                   | alter table id drop tConstraint id ptComa 
+                   | alter table id add tConstraint id tUnique parAbre id parCierra ptComa
+                   | alter table id add tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra ptComa
+                   | alter table id drop tConstraint id ptComa
+                   | alter table id rename tTo id ptComa
                    '''
     if len(t) == 10:
-        # primera produccion
-        t[0] = SAlterTableRename(t[3], t[6], t[8])
+        if t[4].lower() == "rename":
+            # primera produccion
+            t[0] = SAlterTableRenameColumn(t[3], t[6], t[8])
+        elif t[4].lower() == "add":
+            t[0] = SAlterTableCheck(t[3], t[8], t[6])
+
     elif len(t) == 8:
         if t[4].lower() == "add":
             # cuarta produccion
-            t[0] = SAlterTableCheck(t[3], t[6])
+            t[0] = SAlterTableCheck(t[3], t[6], None)
         elif t[4].lower() == "drop":
-            t[0] = SAlterTableDrop(t[3], TipoAlterDrop.CONSTRAINT, t[6], )
+            t[0] = SAlterTableDrop(t[3], TipoAlterDrop.CONSTRAINT, t[6])
+        elif t[4].lower() == "rename":
+            t[0] = SAlterRenameTable(t[3], t[6])
     elif len(t) == 5:
         # segunda produccion
         t[0] = SAlterTable_AlterColumn(t[3], t[4])
@@ -836,9 +846,9 @@ def p_EXPR_ALTER_TABLE(t):
     elif len(t) == 12:
         # quinta produccion
         t[0] = SAlterTableAddUnique(t[3], t[6], t[9])
-    elif len(t) == 13:
+    elif len(t) == 16:
         # sexta produccion
-        t[0] = SAlterTableAddFK(t[3], t[8], t[11])
+        t[0] = SAlterTableAddFK(t[3], t[11], t[8], t[13])
 
 
 def p_EXPR_ALTER_TABLE1(t):
@@ -1046,9 +1056,10 @@ def p_QUERIES(p):
                | QUERY except QUERY
                | QUERY'''
     if len(p) == 2:
-        p[0] = Squeries(p[1],False,False)
+        p[0] = Squeries(p[1], False, False)
     elif len(p) == 3:
-        p[0] = Squeries(p[1],p[2],p[3])
+        p[0] = Squeries(p[1], p[2], p[3])
+
 
 def p_QUERY(p):
     '''QUERY : EXPR_SELECT 
@@ -1223,9 +1234,9 @@ def p_QUERY_p7_5(p):
 def p_EXPR_SELECT(p):
     '''EXPR_SELECT : select distinct EXPR_COLUMNAS
                    | select multi
-                   ''' 
+                   '''
     if len(p) == 3:
-        p[0] = SSelectCols(False,p[2])
+        p[0] = SSelectCols(False, p[2])
     else:
         p[0] = SSelectCols(True, p[3])
 
@@ -1267,10 +1278,11 @@ def p_EXPR_COLUMNAS1(p):
     if len(p) == 4:
         p[0] = SColumnasAsSelect(p[3], p[1])
     else:
-        p[0] = SColumnasAsSelect(False,p[1])
+        p[0] = SColumnasAsSelect(False, p[1])
 
-#LEN 
-def p_EXPR_COLUMNAS1_p1(p): #error
+
+# LEN
+def p_EXPR_COLUMNAS1_p1(p):  # error
     '''EXPR_COLUMNAS1 : substring parAbre E coma E coma E parCierra
                      | greatest parAbre E_LIST parCierra
                      | least parAbre E_LIST parCierra
@@ -1278,8 +1290,8 @@ def p_EXPR_COLUMNAS1_p1(p): #error
                      | greatest parAbre E_LIST parCierra as E
                      | least parAbre E_LIST parCierra as E '''
     if p[1].lower() == "substring":
-        if len (p) == 11:
-            p[0] = SColumnasSubstr(p[3],p[5],p[7],p[10])
+        if len(p) == 11:
+            p[0] = SColumnasSubstr(p[3], p[5], p[7], p[10])
         else:
             p[0] = SColumnasSubstr(p[3], p[5], p[7], False)
     elif p[1].lower() == "greatest":
@@ -1295,13 +1307,12 @@ def p_EXPR_COLUMNAS1_p1(p): #error
 
 
 def p_EXPR_EXTRA(p):
-    
     '''EXPR_EXTRA : tExtract parAbre FIELDS from DATE_TYPES E parCierra
                   | tExtract parAbre FIELDS from E parCierra'''
     if len(p) == 7:
-        p[0] = SExtract(p[3],p[5])
-    else: 
-        p[0] = SExtract2(p[3],p[5],p[6])
+        p[0] = SExtract(p[3], p[5])
+    else:
+        p[0] = SExtract2(p[3], p[5], p[6])
 
 
 def p_EXPR_AGREGACION(p):
@@ -1318,7 +1329,7 @@ def p_EXPR_AGREGACION(p):
 
     if len(p) == 3:
         print("aca")
-        p[0] = SFuncAgregacion(p[1],p[2])
+        p[0] = SFuncAgregacion(p[1], p[2])
     else:
         p[0] = SFuncAgregacion(p[1], p[3])
 
@@ -1411,16 +1422,16 @@ def p_EXPR_BINARIAS(p):
                      | E menormenor E
                      | E mayormayor E'''
     if len(p) == 3:
-        p[0] = SFuncBinary(p[1],p[2])
+        p[0] = SFuncBinary(p[1], p[2])
     if len(p) == 4:
-        p[0] = SFuncBinary2(p[1],p[2],p[3])
+        p[0] = SFuncBinary2(p[1], p[2], p[3])
     elif len(p) == 7:
-        p[0] = SFuncBinary3(p[1],p[3],p[4],p[5])
+        p[0] = SFuncBinary3(p[1], p[3], p[4], p[5])
     elif len(p) == 10:
-        p[0] = SFuncBinary2(p[1],p[3],p[8])
+        p[0] = SFuncBinary2(p[1], p[3], p[8])
     elif len(p) == 12:
-        p[0] = SFuncBinary4(p[1],p[3],p[8],p[10])
-    
+        p[0] = SFuncBinary4(p[1], p[3], p[8], p[10])
+
 
 def p_EXPR_FECHA(p):
     '''EXPR_FECHA : date_part parAbre E coma DATE_TYPES E parCierra
@@ -1483,15 +1494,15 @@ def p_EXPR_FROM(p):
                  | from parAbre QUERY parCierra as id'''
     if len(p) == 3:
         p[0] = SFrom(p[2])
-   
+
     elif len(p) == 5:
-        p[0] = SFrom2(False,p[3])
+        p[0] = SFrom2(False, p[3])
     elif len(p) == 6:
         print("uno")
-        p[0] = SFrom2(p[5],p[3])
+        p[0] = SFrom2(p[5], p[3])
     elif len(p) == 7:
         print("dos")
-        p[0] = SFrom2(p[6],p[3])
+        p[0] = SFrom2(p[6], p[3])
 
 
 def p_L_IDsAlias(p):
@@ -1503,16 +1514,17 @@ def p_L_IDsAlias(p):
     else:
         p[0] = [p[1]]
 
-def p_L_IDsAlias_p1(p): #fix
+
+def p_L_IDsAlias_p1(p):  # fix
     '''L_IDsAlias1 : id id 
                     | id as id 
                     | id'''
     if len(p) == 4:
-        p[0] = SAlias(p[1],p[3]) 
-    elif len(p) == 3:  
-        p[0] = SAlias(p[1],p[2])      
+        p[0] = SAlias(p[1], p[3])
+    elif len(p) == 3:
+        p[0] = SAlias(p[1], p[2])
     else:
-        p[0] = SAlias(p[1],False) 
+        p[0] = SAlias(p[1], False)
 
 
 def p_EXPR_WHERE(p):
@@ -1550,17 +1562,17 @@ def p_COND1(p):
     if len(p) == 2:
         p[0] = SWhereCond1(p[1])
     elif len(p) == 3:
-        p[0] = SWhereCond2(p[2],p[1])
+        p[0] = SWhereCond2(p[2], p[1])
     elif len(p) == 4:
-        p[0] = SWhereCond3(p[2],False,p[3])
+        p[0] = SWhereCond3(p[2], False, p[3])
     elif len(p) == 5:
-        p[0] = SWhereCond3(p[2],p[3],p[4])
+        p[0] = SWhereCond3(p[2], p[3], p[4])
     elif len(p) == 6:
-         p[0] = SWhereCond4(p[2],False,p[3],p[1],p[5])
+        p[0] = SWhereCond4(p[2], False, p[3], p[1], p[5])
     elif len(p) == 7:
-        p[0] = SWhereCond4(p[2],p[3],p[4],p[1],p[6])
+        p[0] = SWhereCond4(p[2], p[3], p[4], p[1], p[6])
     elif len(p) == 11:
-        p[0] = SWhereCond5(p[1],p[3],p[5],p[7])
+        p[0] = SWhereCond5(p[1], p[3], p[5], p[7])
 
 
 def p_COND2(p):
@@ -1570,27 +1582,29 @@ def p_COND2(p):
                 | E_FUNC not in parAbre QUERY parCierra
                 | E_FUNC OPERATOR any parAbre QUERY parCierra
                 | E_FUNC OPERATOR some parAbre QUERY parCierra
-                | E_FUNC OPERATOR all parAbre QUERY parCierra'''    
+                | E_FUNC OPERATOR all parAbre QUERY parCierra'''
     if len(p) == 5:
-        p[0] = SWhereCond6(False,p[1],p[3])
+        p[0] = SWhereCond6(False, p[1], p[3])
     elif len(p) == 6:
-        if p(2).lower(2)=="exists":
-            p[0] = SWhereCond6(p[1],p[2],p[4])
+        if p(2).lower(2) == "exists":
+            p[0] = SWhereCond6(p[1], p[2], p[4])
         else:
-            p[0] = SWhereCond8(False,p[2],p[1],p[4])
+            p[0] = SWhereCond8(False, p[2], p[1], p[4])
     elif len(p) == 7:
         if p[3].lower == "in":
-            p[0] = SWhereCond7(p[2],p[3],p[1],p[5])
+            p[0] = SWhereCond7(p[2], p[3], p[1], p[5])
         else:
-            p[0] = SWhereCond8(False,p[2],p[1],p[4])
+            p[0] = SWhereCond8(False, p[2], p[1], p[4])
+
 
 def p_COND3(p):
     '''COND1 :  E_FUNC tBetween E_FUNC 
-                | E_FUNC not tBetween E_FUNC''' 
+                | E_FUNC not tBetween E_FUNC'''
     if len(p) == 4:
-            p[0] = SWhereCond9(False,p[2],p[1],p[3])
+        p[0] = SWhereCond9(False, p[2], p[1], p[3])
     elif len(p) == 5:
-            p[0] = SWhereCond9(p[2],p[3],p[1],p[4])
+        p[0] = SWhereCond9(p[2], p[3], p[1], p[4])
+
 
 def p_OPERATOR(p):
     '''OPERATOR : igual
@@ -1602,7 +1616,7 @@ def p_OPERATOR(p):
     p[0] = p[1]
 
 
-def p_EXPR_GROUPBY( p ):
+def p_EXPR_GROUPBY(p):
     '''EXPR_GROUPBY : group by LISTA_EXP'''
     p[0] = SGroupBy(p[3])
 
@@ -1620,12 +1634,11 @@ def p_EXPR_E_FUNC(p):
               | EXPR_FECHA
               | E '''
     p[0] = p[1]
-    
 
 
 def p_EXPR_ORDERBY(p):
     '''EXPR_ORDERBY : order by LIST_ORDERBY'''
-    p[0]= sOrderBy(p[3])
+    p[0] = sOrderBy(p[3])
 
 
 def p_LIST_ORDERBY(p):
@@ -1636,7 +1649,6 @@ def p_LIST_ORDERBY(p):
         p[0] = p[1]
     else:
         p[0] = [p[1]]
-    
 
 
 def p_LIST_ORDERBY_p1(p):
@@ -1649,35 +1661,33 @@ def p_LIST_ORDERBY_p1(p):
                     | E 
                     | E nulls first
                     | E nulls last'''
-    
+
     if len(p) == 2:
-        p[0] = SListOrderBy(False,False,p[1])
+        p[0] = SListOrderBy(False, False, p[1])
     elif len(p) == 3:
-        p[0] = SListOrderBy(p[2],False,p[1])
+        p[0] = SListOrderBy(p[2], False, p[1])
     elif len(p) == 4:
-        p[0] = SListOrderBy(False,p[3],p[1])
+        p[0] = SListOrderBy(False, p[3], p[1])
     elif len(p) == 5:
-        p[0] = SListOrderBy(p[2],p[4],p[1])
+        p[0] = SListOrderBy(p[2], p[4], p[1])
 
 
 def p_EXPR_LIMIT(p):
     '''EXPR_LIMIT : limit all
                   | limit all offset E'''
     if len(p) == 3:
-        p[0] = SLimit(p[2],0)
+        p[0] = SLimit(p[2], 0)
     else:
-        p[0] = SLimit(p[2],p[4])
+        p[0] = SLimit(p[2], p[4])
+
 
 def p_EXPR_LIMIT2(p):
     '''EXPR_LIMIT : limit E
                   | limit E offset E'''
     if len(p) == 3:
-        p[0] = SLimit(p[2],0)
+        p[0] = SLimit(p[2], 0)
     else:
-        p[0] = SLimit(p[2],p[4])
-
-    
-
+        p[0] = SLimit(p[2], p[4])
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
