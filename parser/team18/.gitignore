@@ -1,4 +1,6 @@
 **/__pycache__/**
+**/__storageManager__/**
+test.py
 parser.out
 parsetab.py
 debug.log

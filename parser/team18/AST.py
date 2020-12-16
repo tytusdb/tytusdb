@@ -3,31 +3,54 @@ import tablasimbolos as TS
 from expresiones import *
 from instrucciones import *
 from reporteAST import *
+from temporal import *
 
+#---------variables globales
 listaInstrucciones = []
+DB_existente = []
+outputTxt=' '
+
 
 def crear_BaseDatos(instr,ts):
+    nombreDB=resolver_operacion(instr.nombre,ts)
+
+    global outputTxt
+    outputTxt+='\n> Creando base de datos: '+nombreDB
+
+    #crear la nueva base de datos de forma temporal
+    nuevaDB=Base_run()
+    nuevaDB.nombre=nombreDB
+    nuevaDB.activa=False;
+    nuevaDB.tabla=[]
+
+    #agregar la nueva base de datos a la lista temporal
+    global DB_existente
+    DB_existente.append(nuevaDB)
+
     #verificacion crea la base de datos si no existe, si existe no devuelve error
     #reemplazar si la base de datos si existe la reemplaza
     if instr.reemplazar:
-        ''
+        outputTxt+='\n\tReemplazar si existe'
         #eliminar
         #crear
     elif instr.verificacion:
-        ''
+        outputTxt+='\n\tsi existe no mostrar error'
         #buscar si existe
             #si existe break
             #si no existe se crea
     else:
-        ''
+        outputTxt+='\n\tsi hay error mostrarlo'
         #buscar si existe
             #si existe, mostrar error
             #si no existe , se crea
-
     print('reemplazar:',instr.reemplazar,'verificar:',instr.verificacion,'nombre:',instr.nombre,'propietario:',instr.propietario,'modo:',instr.modo)
 
-
 def crear_Tabla(instr,ts):
+    nombreT=resolver_operacion(instr.nombre,ts)
+
+    global outputTxt
+    outputTxt+='\n> Creando Tabla: '+nombreT
+
     print('nombre:',instr.nombre,'padre:',instr.padre)
     for colum in instr.columnas :
         if isinstance(colum, llaveTabla) : 
@@ -40,6 +63,50 @@ def crear_Tabla(instr,ts):
                     if(atributoC.check != None):
                         for exp in atributoC.check:
                             print('resultado: ',resolver_operacion(exp,ts))
+
+def crear_Type(instr,ts):
+    nombreT=resolver_operacion(instr.nombre,ts)
+
+    global outputTxt
+    outputTxt+='\n> Creando Type: '+nombreT;
+    print('nombre:',instr.nombre,'valores:',instr.valores)
+
+def eliminar_BaseDatos(instr,ts):
+    nombreDB=resolver_operacion(instr.nombre,ts)
+
+    global outputTxt
+    outputTxt+='\n> Eliminado Base de datos: '+nombreDB;
+    #verificar si hay existencia
+    #eliminar
+    if(instr.existencia):
+        outputTxt+='\n\tVerificar existencia y omitir error'
+        #si retorna error no se muestra
+    else:
+        outputTxt+='\n\tno verificar existencia y mostrar error'
+        #si retorna error se muestra
+
+    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
+
+def eliminar_Tabla(instr,ts):
+    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
+    nombreT=''
+    nombreT=resolver_operacion(instr.nombre,ts)
+
+    global outputTxt
+    outputTxt+='\n> Eliminado Tabla: '+nombreT;
+    #verificar si hay existencia
+    #eliminar
+    if(instr.existencia):
+        outputTxt+='\n\tVerificar existencia y omitir error'
+        #si retorna error no se muestra
+    else:
+        outputTxt+='\n\tno verificar existencia y mostrar error'
+        #si retorna error se muestra
+
+    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
+
+
+
 
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
@@ -119,7 +186,9 @@ def resolver_operacion(operacion,ts):
     elif isinstance(operacion, Operando_Numerico):
         return operacion.valor
     elif isinstance(operacion, Operando_Cadena):
-        return operacion.valor  
+        return operacion.valor
+    elif isinstance(operacion, Operando_ID):
+        return operacion.id 
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
@@ -128,15 +197,22 @@ def procesar_instrucciones(instrucciones, ts) :
     for instr in instrucciones :
         if isinstance(instr, CrearBD) : crear_BaseDatos(instr,ts)
         elif isinstance(instr, CrearTabla) : crear_Tabla(instr,ts)
+        elif isinstance(instr, CrearType) : crear_Type(instr,ts)
+        elif isinstance(instr, EliminarDB) : eliminar_BaseDatos(instr,ts)
+        elif isinstance(instr, EliminarTabla) : eliminar_Tabla(instr,ts)
         else : print('Error: instrucción no válida')
 
 
 
 def Analisar(input):
+    global outputTxt
+    outputTxt='------------SALIDA--------------\n';
+
     instrucciones = g.parse(input)
     print(instrucciones)
     ts_global = TS.TablaDeSimbolos()
     procesar_instrucciones(instrucciones,ts_global)
+    return outputTxt;
 
 #Metodos para graficar el ast 
 def generarAST():

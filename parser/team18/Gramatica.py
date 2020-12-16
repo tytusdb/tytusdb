@@ -753,7 +753,6 @@ def p_crear(t):
                t[0]=CrearTabla(Operando_ID(t[3]),t[7],t[5])
           else:
                t[0]=CrearType(Operando_ID(t[3]),t[7])
-               print('llamar funcion Type')
      
 
 def p_reemplazar(t):
@@ -946,16 +945,19 @@ def p_liberar(t):
                 | DROP DATABASE existencia ID'''
 
      if(t[2].lower()=='table'):
-          t[0]=EliminarTabla(t[3],t[4])
-          print('llamar funcion drope table')
+          t[0]=EliminarTabla(t[3],Operando_ID(t[4]))
      else:
-          print('llamar funcion drope database')
-          t[0]=EliminarDB(t[3],t[4])
+          t[0]=EliminarDB(t[3],Operando_ID(t[4]))
 
 
 def p_existencia(t):
      '''existencia : IF EXISTS
                   | empty'''
+     if(len(t)==2):
+          t[0]=False;
+     else:
+          t[0]=True
+
 
 def p_empty(t):
      'empty : '
