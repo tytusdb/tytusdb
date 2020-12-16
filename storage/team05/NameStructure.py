@@ -31,3 +31,27 @@ class NombreEstructuras:
             return False
         else:
             return True
+    
+    #Agregar al diccionario la base de datos
+    def createDatabase(self, database: str):
+        try:
+            if self.ComprobarNombre(database) == True:  #Verificamos el identificador sea correcto
+                
+                if self.searchDatabase(database) == False: #Si la base no existe se crea
+                    tablas = {} #inicializamos una estructura tipo diccionario para los nombres de tablas
+                    self.database.setdefault(database, tablas)
+                    return 0
+                else:
+                    return 2
+            else:
+                return 1
+        except:
+            return 1
+
+    #Devuelve una lista con los nombres de la base de datos
+    def showDatabases(self):
+        arreglotmp = []
+        for x in self.database:
+            arreglotmp.append(str(x))
+        
+        return arreglotmp
