@@ -1,10 +1,7 @@
-import sys
 from . expression_enum import OpArithmetic, OpRelational, OpLogic, OpPredicate
 from datetime import date, datetime
-
-##sys.path.insert(0, '..')
-##from ast_node import ASTNode
-from .. ast_node import ASTNode
+from parse.errors import Error, ErrorType
+from parse.ast_node import ASTNode
 
 
 class Numeric(ASTNode):
