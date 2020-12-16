@@ -2,7 +2,6 @@ import arbol.AST as a
 import gramatica2 as g
 from tkinter import *
 from reportes import *
-from Entorno.Entorno import Entorno
 from subprocess import check_call
 from Entorno.Entorno import Entorno
 
@@ -46,10 +45,13 @@ def send_data():
     #print(contenido)
     Principal = Entorno()
 
+    Principal.database = "DB1"
     instrucciones = g.parse(contenido)
     for instr in instrucciones:
         if instr != None:
             instr.ejecutar(Principal)
+
+    Principal.mostrarSimbolos()
 
     reporte_lex_sin()
 
