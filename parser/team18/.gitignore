@@ -1,8 +1,10 @@
 **/__pycache__/**
 **/storageManager/**
+**/data/**
 test.py
 parser.out
 parsetab.py
 debug.log
 Reporte_Errores.html
 reporte_AST.pdf
+entrada.sql

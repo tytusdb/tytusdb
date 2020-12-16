@@ -4,58 +4,182 @@ from expresiones import *
 from instrucciones import *
 from reporteAST import *
 from temporal import *
+from storageManager import jsonMode as EDD
 
 #---------variables globales
 listaInstrucciones = []
-DB_existente = []
+listaTablas = [] #guarda las cabeceras de las tablas creadas
 outputTxt=' '
+baseActiva = 'pruebas' #Guarda la base temporalmente activa
+#--------Ejecucion Datos temporales-----------
+def insertartabla(columnas,nombre):
+    nuevaTabla=Tabla_run()
+    Tabla_run.nombre=nombre
+    Tabla_run.Atributos=columnas
+
+    global listaTablas
+    listaTablas.append(nuevaTabla)
+
+def EliminarTablaTemp(baseAc,nombre):
+    global listaTablas
+    pos=0
+    #all para eliminar todas las tablas de una base de datos
+    if(nombre=='all'):
+        while pos< len(listaTablas):
+            if(listaTablas[pos].basepadre==baseAc):
+                listaTablas.pop(pos)
+            else:
+                pos=pos+1
+    else:
+        while pos< len(listaTablas):
+            if(listaTablas[pos].nombre==nombre and listaTablas[pos].basepadre==baseAc):
+                listaTablas.pop(pos)
+                break
+            else:
+                pos=pos+1
 
 
+#---------Ejecucion Funciones EDD-------------
 def crear_BaseDatos(instr,ts):
     nombreDB=resolver_operacion(instr.nombre,ts)
+    crearOK=False
 
     global outputTxt
     outputTxt+='\n> Creando base de datos: '+nombreDB
 
-    #crear la nueva base de datos de forma temporal
-    nuevaDB=Base_run()
-    nuevaDB.nombre=nombreDB
-    nuevaDB.activa=False;
-    nuevaDB.tabla=[]
+    #result=0 operacion exitosa
+    #result=1 error en la operacion
+    #result=2 base de datos existente       
+    result = EDD.createDatabase(nombreDB)
 
-    #agregar la nueva base de datos a la lista temporal
-    global DB_existente
-    DB_existente.append(nuevaDB)
-
-    #verificacion crea la base de datos si no existe, si existe no devuelve error
-    #reemplazar si la base de datos si existe la reemplaza
-    if instr.reemplazar:
-        outputTxt+='\n\tReemplazar si existe'
+    if instr.reemplazar and result==2:
         #eliminar
+        EDD.dropDatabase(nombreDB)
+        EliminarTablaTemp(nombreDB,'all')#eliminar los temporales
         #crear
+        result = EDD.createDatabase(nombreDB)
+        crearOK=True
+        if result==1:
+            crearOK=False
+            outputTxt+='\n\tError en EDD'
+        else:
+            outputTxt+='\n\tFue Reemplazada'
     elif instr.verificacion:
-        outputTxt+='\n\tsi existe no mostrar error'
-        #buscar si existe
-            #si existe break
-            #si no existe se crea
+        if result==2:
+            crearOK=False
+        else:
+            crearOK=True
+            #si retorna error no se muestra
     else:
-        outputTxt+='\n\tsi hay error mostrarlo'
-        #buscar si existe
-            #si existe, mostrar error
-            #si no existe , se crea
-    print('reemplazar:',instr.reemplazar,'verificar:',instr.verificacion,'nombre:',instr.nombre,'propietario:',instr.propietario,'modo:',instr.modo)
+        if result==2:
+            crearOK=False
+            outputTxt+='\n\tError base de existente: '+nombreDB
+        else:
+            crearOK=True
+            outputTxt+='\n\tTodo OK'
+    #print('reemplazar:',instr.reemplazar,'verificar:',instr.verificacion,'nombre:',instr.nombre,'propietario:',instr.propietario,'modo:',instr.modo)
+
+def eliminar_BaseDatos(instr,ts):
+    nombreDB=str(resolver_operacion(instr.nombre,ts))
+    eliminarOK=False;
+    #result=0 operacion exitosa
+    #result=1 error en la operacion
+    #result=2 base de datos no existente  
+    result = EDD.dropDatabase(nombreDB)
+    print('result edd:',result)
+    global outputTxt
+    outputTxt+='\n> Eliminado Base de datos: '+nombreDB;
+
+    if(instr.existencia):
+        if(result==0):
+            eliminarOK=True;
+            outputTxt+='\n\tTodo OK'
+        else:
+            eliminarOK=False
+            #si retorna error no se muestra
+    else:
+        if(result==0):
+            eliminarOK=True;
+            outputTxt+='\n\tTodo OK'
+        elif(result==1):
+            eliminarOK=False
+            outputTxt+='\n\tError en EDD'
+        else:
+            outputTxt+='\n\tError base de datos no existente: '+nombreDB
+    
+    if eliminarOK:
+        EliminarTablaTemp(nombreDB,'all')#eliminar los temporales
+
+    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
+
+def mostrar_db(instr,ts):
+    #retorna una lista[db1,db2...], si no hay estara vacia[]
+    result=EDD.showDatabases()
+    global outputTxt
+    if not result:
+        outputTxt+='\n> No existen bases de datos ...'    
+    else:
+        outputTxt+='\n> Listado de base de datos'
+        for val in result:
+            outputTxt+='\n>\t'+val
+    
+def eliminar_Tabla(instr,ts):
+    nombreT=''
+    nombreT=resolver_operacion(instr.nombre,ts)
+
+    #Valor de retorno: 0 operación exitosa
+    # 1 error en la operación, 
+    # 2 database no existente, 
+    # 3 table no existente.
+    result=EDD.dropTable(baseActiva,nombreT)
+    eliminarOK=False;
+
+    global outputTxt
+    outputTxt+='\n> Funcion Drop table'
+    if(instr.existencia):
+        if(result==0):
+            outputTxt+='\n\tTabla eliminada:'+nombreT
+            eliminarOK=True
+        else:
+            ''
+        #si retorna error no se muestra
+    else:
+        if(result==0):
+            outputTxt+='\n\tTabla eliminada:'+nombreT
+            eliminarOK=True
+        elif(result==1):
+            outputTxt+='\n\tError en EDD'
+        elif(result==2):
+            outputTxt+='\n\tError en la base de datos activa:'+baseActiva
+        elif(result==3):
+            outputTxt+='\n\tError Tabla no existe:'+nombreT
+        
+    if eliminarOK:
+        EliminarTablaTemp(baseActiva,nombreT)
+
+    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
+
+
+
+
+
+#-----pendientes
 
 def crear_Tabla(instr,ts):
     nombreT=resolver_operacion(instr.nombre,ts)
+    listaColumnas=[]
 
     global outputTxt
     outputTxt+='\n> Creando Tabla: '+nombreT
+    contC=0# variable para contar las columnas a mandar a EDD
 
     print('nombre:',instr.nombre,'padre:',instr.padre)
+    
     for colum in instr.columnas :
         if isinstance(colum, llaveTabla) : 
             print('llaves Primaria:',colum.tipo,'lista:',colum.columnas,'tablaref',colum.referencia,'listaref',colum.columnasRef)
-        elif isinstance(colum, columnaTabla) : 
+        elif isinstance(colum, columnaTabla) :
+            contC=contC+1 
             print('id:',colum.id,'Tipo:',colum.tipo,'valor',colum.valor,'zonahoraria',colum.zonahoraria)
             for atributoC in colum.atributos :
                 if isinstance(atributoC, atributoColumna):
@@ -64,6 +188,22 @@ def crear_Tabla(instr,ts):
                         for exp in atributoC.check:
                             print('resultado: ',resolver_operacion(exp,ts))
 
+    #analisas si las columnas estan bien
+    #buscar las tablas de una base de datos retorna una lista de tablas
+    result=EDD.showTables(baseActiva)
+    crearOK=True
+    if(result!=None):
+        for tab in result:
+            if tab==nombreT:
+                outputTxt+='\n>\tError La tabla existe: '+nombreT
+                crearOK=False
+                break
+        if crearOK:
+            EDD.createTable(baseActiva,nombreT,contC)
+            insertartabla(listaColumnas,nombreT)
+    else:
+        outputTxt+='\n>\tno existe la base de datos: '+baseActiva
+
 def crear_Type(instr,ts):
     nombreT=resolver_operacion(instr.nombre,ts)
 
@@ -71,39 +211,9 @@ def crear_Type(instr,ts):
     outputTxt+='\n> Creando Type: '+nombreT
     print('nombre:',instr.nombre,'valores:',instr.valores)
 
-def eliminar_BaseDatos(instr,ts):
-    nombreDB=resolver_operacion(instr.nombre,ts)
 
-    global outputTxt
-    outputTxt+='\n> Eliminado Base de datos: '+nombreDB
-    #verificar si hay existencia
-    #eliminar
-    if(instr.existencia):
-        outputTxt+='\n\tVerificar existencia y omitir error'
-        #si retorna error no se muestra
-    else:
-        outputTxt+='\n\tno verificar existencia y mostrar error'
-        #si retorna error se muestra
 
-    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
 
-def eliminar_Tabla(instr,ts):
-    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
-    nombreT=''
-    nombreT=resolver_operacion(instr.nombre,ts)
-
-    global outputTxt
-    outputTxt+='\n> Eliminado Tabla: '+nombreT
-    #verificar si hay existencia
-    #eliminar
-    if(instr.existencia):
-        outputTxt+='\n\tVerificar existencia y omitir error'
-        #si retorna error no se muestra
-    else:
-        outputTxt+='\n\tno verificar existencia y mostrar error'
-        #si retorna error se muestra
-
-    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
 
 
 def insertar_en_tabla(instr,ts):
@@ -134,7 +244,6 @@ def actualizar_en_tabla(instr,ts):
     outputTxt+='\n> Valores: '+values
     outputTxt+='\n> '+str(len(instr.valores))+' Filas afectadas'
 
-
 def eliminar_de_tabla(instr,ts):
     print('nombre:',instr.nombre,'condicion:',instr.condicion)
     nombreT=''
@@ -150,13 +259,6 @@ def eleccion(instr,ts):
 
     global outputTxt
     outputTxt+='\n> Base de Datos '+nombreT+' seleccionada'
-
-def mostrar_db(instr,ts):
-    '''
-        Despliega el listado de base de datos
-    '''
-    global outputTxt
-    outputTxt+='\n> Listado de base de datos ...'
 
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
@@ -262,7 +364,7 @@ def procesar_instrucciones(instrucciones, ts) :
 def Analisar(input):
     global outputTxt
     outputTxt='------------SALIDA--------------\n'
-
+    EDD.dropAll() #eliminar para ir haciendo pruebas
     instrucciones = g.parse(input)
     print(instrucciones)
     ts_global = TS.TablaDeSimbolos()

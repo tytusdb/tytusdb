@@ -1,14 +1,8 @@
 class temporal:
     '''This is an abstract class'''
 
-class Base_run:
-    nombre = ''
-    activa = False
-    tabla = []
-
-
-
 class Tabla_run:
+    basepadre=''
     nombre = ''
     Atributos = []
 
