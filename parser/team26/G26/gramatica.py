@@ -80,9 +80,7 @@ reservadas = {
     'delete' : 'DELETE',
     'from' : 'FROM',
     'only' : 'ONLY',
-    'using' : 'USING',
     'where' : 'WHERE',
-    'current' : 'CURRENT',
     'of' : 'OF',
     'returning' : 'RETURNING',
     'inherits' : 'INHERITS',
@@ -105,8 +103,6 @@ reservadas = {
     'outer' : 'OUTER',
     'on' : 'ON',
     'natural' : 'NATURAL',
-    'asc' : 'ASC',
-    'desc' : 'DESC',
     'nulls' : 'NULLS',
     'first' : 'FIRST',
     'last' : 'LAST',
@@ -131,7 +127,6 @@ reservadas = {
     'lcm' : 'LCM',
     'ln' : 'LN',
     'log' : 'LOG',
-    'log10' : 'LOGDIEZ',
     'min_scale' : 'MINSCALE',
     'mod' : 'MOD',
     'pi' : 'PI',
@@ -142,7 +137,6 @@ reservadas = {
     'sign' : 'SIGN',
     'sqrt' : 'SQRT',
     'trim_scale' : 'TRIM',
-    'truc' : 'TRUC',
     'width_bucket' : 'BUCKET',
     'random' : 'RANDOM',
     'setseed' : 'SETSEED',
@@ -219,16 +213,13 @@ tokens = [
     'PUNTO',
     'COMA',
     'ENTERO',
-    'DECIMALVALOR',
     'CADENA',
     'ID',
-    'BACKSPACE',
     'FEED',
     'NEWLINE',
     'RETURN',
     'TAB',
     'FECHA',
-    'SFACTORIAL',
     'PORCENTAJE',
     'POTENCIA',
     'DOSPUNTOS',
@@ -261,13 +252,10 @@ t_MENORQUE      = r'<'
 t_DIFERENTELL   = r'<>|!='
 t_PUNTO         = r'.'
 t_COMA          = r'\,'
-t_BACKSPACE     = r'\\b'
 t_FEED          = r'\\f'
 t_NEWLINE       = r'\\n'
-t_RETURN        = r'\\r'
 t_TAB           = r'\\r'
 t_PORCENTAJE    = r'%'
-t_SFACTORIAL    = r'!'
 t_POTENCIA      = r'\^'
 
 def t_DECIMAL(t):
@@ -325,7 +313,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
-import ply.lex as lex
+import Librerias.ply.lex as lex
 lexer = lex.lex()
 
 from imports import *
@@ -398,39 +386,69 @@ def p_querys(t):
     '''querys : select UNION allopcional select
               | select INTERSECT  allopcional select
               | select EXCEPT  allopcional select'''
+    if t[2] == 'union' : t[0] = select.QuerysSelect(t[2].lower(),t[1],t[3],t[4])
+    elif t[2] == 'intersect' : t[0] = select.QuerysSelect(t[2].lower(),t[1],t[3],t[4])
+    elif t[2] == 'except' : t[0] = select.QuerysSelect(t[2].lower(),t[1],t[3],t[4])
+
 def p_all_opcional(t):
     '''allopcional  : ALL
                     |  '''
+    if t[1].lower() == 'all' : t[0]= select.Allopcional(t[1])
+    else : t[0]= select.Allopcional(None)
 
 def p_select(t):
-    '''select : SELECT parametrosselect fromopcional
-                | SELECT error'''
+        'select : SELECT parametrosselect fromopcional'
+        t[0]=select.Select(t[2],t[3])
+
+def p_select_error(t):    
+    'select   : SELECT error'
 
 
 def p_from_opcional(t):
     '''fromopcional     :  FROM parametrosfrom asopcional whereopcional
                         | '''
+    if t[1].lower() == 'from' : t[0] =select.FromOpcional(t[2],t[3],t[4])
+    else : t[0] = select.FromOpcional(None,None,None)
+
 def p_parametros_from(t):
-    '''parametrosfrom   : ID
-                        | ID  PUNTO ID
+    'parametrosfrom : parametrosfrom COMA parametrosfromr'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_parametros_from_r(t):#cambie de parametrosfrom -> parametrosfromr
+    'parametrosfrom : parametrosfromr'
+    t[0] = [t[1]]    
+
+def p_parametros_fromr(t):
+    '''parametrosfromr   : ID
                         | PARENIZQ select PARENDER'''
+    if t[1].lower() == '(' : t[0]= select.ParametrosFrom(t[2])
+    else : t[0] = select.ParametrosFrom(t[1]) 
 
 
 def p_where_opcional(t):
     '''whereopcional :  WHERE condiciones groupbyopcional
                      |  '''
+    if t[1].lower() == 'where' : t[0] = select.WhereOpcional(t[2],t[3])
+    else : t[0] = select.WhereOpcional(None,None)
 
 def p_group_by_opcional(t):
     '''groupbyopcional  : GROUP BY listaids having
                         | '''
+    if t[1].lower() == 'group' and t[2].lower()=='by' : t[0]=select.GroupByOpcional(t[3],t[4])
+    else :t[0] = select.GroupByOpcional(None,None)
 
 def p_having(t):
     '''having   : HAVING condiciones
                 | '''
+    if t[1].lower() == 'having' : t[0] = select.HavingOpcional(t[2])
+    else: t[0]= select.HavingOpcional(None)
 
 def p_parametros_select(t):
     '''parametrosselect : DISTINCT listadeseleccion
                         | listadeseleccion'''
+    if t[1].lower() == 'disctinct' : select.ParametrosSelect(t[1],t[2])
+    else : select.ParametrosSelect(None,t[2])
 
 def p_lista_de_seleccion(t):
     '''listadeseleccion : listadeseleccion COMA  listadeseleccionados asopcional
@@ -440,11 +458,12 @@ def p_asopcional(t):
     '''asopcional  : AS argument
                     | argument
                     | '''
+    if t[1].lower() == 'as' : select.As(t[2])
+    elif t[1].lowe() != '' : select.As(t[2])
+    else : select.As(None)
 
 def p_lista_de_seleccionados(t):
-    '''listadeseleccionados : ID
-                            | ID PUNTO ID
-                            | PARENIZQ select PARENDER
+    '''listadeseleccionados : PARENIZQ select PARENDER
                             | ASTERISCO
                             | funcionesmatematicassimples
                             | funcionestrigonometricas
@@ -455,6 +474,14 @@ def p_lista_de_seleccionados(t):
                             | GREATEST PARENIZQ listadeargumentos  PARENDER
                             | LEAST PARENIZQ listadeargumentos  PARENDER
                             | CASE cases  END ID '''
+
+def p_lista_de_seleccionados_id(t):
+    'listadeseleccionados : ID'  
+    t[0] = ident.Identificador(None, t[1])
+
+def p_lista_de_seleccionados_id_punto_id(t):
+    'listadeseleccionados : ID PUNTO ID'  
+    t[0] = ident.Identificador(t[1], t[3]) 
 
 def p_argument_funciones_matematicas_simples(t):
     '''argument :  funcionesmatematicassimples'''
@@ -478,21 +505,35 @@ def p_funciones_matematicas_simples(t):
                                     | SUM PARENIZQ argument  PARENDER
                                     | AVG PARENIZQ argument  PARENDER
                                     | MIN PARENIZQ argument  PARENDER'''
+    if t[1].lower() == 'count' : select.FuncionMatematicaSimple(t[1],t[3])
+    elif t[1].lower() == 'max' : select.FuncionMatematicaSimple(t[1],t[3])
+    elif t[1].lower() == 'sum' : select.FuncionMatematicaSimple(t[1],t[3])
+    elif t[1].lower() == 'avg' : select.FuncionMatematicaSimple(t[1],t[3])
+    elif t[1].lower() == 'min' : select.FuncionMatematicaSimple(t[1],t[3])
+
 
 def p_lista_de_argumentos(t):
-    ''' listadeargumentos : listadeargumentos COMA argument
-                          | argument '''
+    'listadeargumentos : argument '
+    t[0] = [t[1]]
+
+def p_lista_de_argumentos_r(t):
+    'listadeargumentos : listadeargumentos COMA argument'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_casos(t):
     '''cases    : cases case elsecase
                 | case elsecase '''
 
 def p_case(t):
-    'case : WHEN argument  IGUAL  argument  THEN  argument'
+    'case : WHEN condiciones  THEN  argument'
+    t[0] =select.Case(t[2],t[4])
 
 def p_else_case(t):
     '''elsecase  : ELSE argument
                  |  '''
+    if t[1].lower() == 'else' : t[0] = select.ElseOpcional(t[2])
+    else : t[0] = select.ElseOpcional(None)
 
 def p_operadores_select(t):
     '''operadoresselect : PLECA argumentodeoperadores
@@ -503,6 +544,15 @@ def p_operadores_select(t):
                         | VIRGULILLA argumentodeoperadores
                         | argumentodeoperadores MENORQUE MENORQUE argumentodeoperadores
                         | argumentodeoperadores MAYORQUE MAYORQUE argumentodeoperadores'''
+    if t[1] == '|' and t[2] == '|' :  t[0] = select.OperadoresSelect('cube root ',t[2])
+    elif t[1] == '|' and t[2] != '|' : t[0] = select.OperadoresSelect('square root',t[3])
+    elif t[2] == '&' : t[0] = select.OperadoresSelect('bitwise AND',t[1],t[3])
+    elif t[1] != '|' and t[2] == '|' : t[0] = select.OperadoresSelect('bitwise OR',t[1],t[3])
+    elif t[2] != '#' : t[0] = select.OperadoresSelect('bitwise XOR',t[1],t[3])
+    elif t[2] != '~' : t[0] = select.OperadoresSelect('bitwise NOT',t[2])
+    elif  t[2] == '<' and t[3] == '<' : t[0] = select.OperadoresSelect('bitwise shift left',t[1],t[4])
+    elif  t[2] == '>' and t[3] == '>' : t[0] = select.OperadoresSelect('bitwise shift right',t[1],t[4])
+  
 
 def p_argumento_de_operadores(t):
     '''argumentodeoperadores    : argumentodeoperadores MAS argumentodeoperadores
@@ -510,12 +560,21 @@ def p_argumento_de_operadores(t):
                                 | argumentodeoperadores BARRA argumentodeoperadores
                                 | argumentodeoperadores ASTERISCO argumentodeoperadores
                                 | argumentodeoperadores PORCENTAJE argumentodeoperadores
-                                | argumentodeoperadores POTENCIA argumentodeoperadores
-                                | DECIMAL
-                                | ENTERO '''
+                                | argumentodeoperadores POTENCIA argumentodeoperadores'''
+    if t[2] == '+'   : t[0] = arit.Arithmetic(t[1], t[3], '+')
+    elif t[2] == '-' : t[0] = arit.Arithmetic(t[1], t[3], '-')
+    elif t[2] == '/' : t[0] = arit.Arithmetic(t[1], t[3], '/')
+    elif t[2] == '*' : t[0] = arit.Arithmetic(t[1], t[3], '*')
+    elif t[2] == '%' : t[0] = arit.Arithmetic(t[1], t[3], '%')
+    elif t[2] == '^' : t[0] = arit.Arithmetic(t[1], t[3], '^')
 
+def p_argumento_de_operadores_decimal(t):
+    'argumentodeoperadores : DECIMAL'
+    t[0] = primi.Primitive('float', t[1])
 
-
+def p_argumento_de_operadores_entero(t):
+    'argumentodeoperadores : ENTERO'
+    t[0] = primi.Primitive('integer', t[1])
 
 def p_funciones_binarias(t):
     '''funcionesbinarias    : LENGTH PARENIZQ  argument   PARENDER
@@ -529,6 +588,17 @@ def p_funciones_binarias(t):
                             | CONVERT PARENIZQ argument AS tipo
                             | ENCODE PARENIZQ argument DOSPUNTOS DOSPUNTOS BYTEA COMA CADENA
                             | DECODE PARENIZQ argument COMA argument PARENDER '''
+    if t[1].lower() == 'length' :  t[0] =  select.FuncionBinaria(t[1].lower(),t[3])
+    elif t[1].lower() == 'substring' :  t[0] =  select.FuncionBinaria(t[1].lower(),t[3],t[5],t[7])
+    elif t[1].lower() == 'trim' :  t[0] =  select.FuncionBinaria(t[1].lower(),t[3])
+    elif t[1].lower() == 'md5' : t[0] =   select.FuncionBinaria(t[1].lower(),t[3])
+    elif t[1].lower() == 'sha256' : t[0] =   select.FuncionBinaria(t[1].lower(),t[3])
+    elif t[1].lower() == 'substr' :  t[0] =  select.FuncionBinaria(t[1].lower(),t[3],t[5],t[7])
+    elif t[1].lower() == 'get_byte' : t[0] =   select.FuncionBinaria(t[1].lower(),t[3],t[8])
+    elif t[1].lower() == 'set_byte' :  t[0] =  select.FuncionBinaria(t[1].lower(),t[3],t[8])
+    elif t[1].lower() == 'convert' :  t[0] =  select.FuncionBinaria(t[1].lower(),t[3],t[3],t[5])
+    elif t[1].lower() == 'encode' :  t[0] =  select.FuncionBinaria(t[1].lower(),t[3],t[8])
+    elif t[1].lower() == 'decode' :  t[0] =  select.FuncionBinaria(t[1].lower(),t[3],t[5])
 
 def p_funciones_de_fechas(t):
     '''funcionesdefechas    : EXTRACT PARENIZQ  partedelafecha  FROM TIMESTAMP argument PARENDER
@@ -537,6 +607,13 @@ def p_funciones_de_fechas(t):
                             | CURRENTDATE
                             | CURRENTTIME
                             | TIMESTAMP argument  '''
+    if t[1].lower() == 'extract' : t[0] = select.FuncionFecha(t[1].lower(),t[3],t[6])
+    elif t[1].lower() == 'datepart' : t[0] = select.FuncionFecha(t[1].lower(),t[3],t[6])
+    elif t[1].lower() == 'now' :t[0] = select.FuncionFecha(t[1].lower())
+    elif t[1].lower() == 'current_date' :t[0] =  select.FuncionFecha(t[1].lower())
+    elif t[1].lower() == 'current_time' : t[0] = select.FuncionFecha(t[1].lower())
+    elif t[1].lower() == 'timestamp' : t[0] = select.FuncionFecha(t[1].lower(),t[2])
+
 
 
 def p_parte_de_la_decha(t):
@@ -546,6 +623,7 @@ def p_parte_de_la_decha(t):
                         | HOUR
                         | MINUTE
                         | SECOND'''
+    t[0] = select.Fecha(t[1])
 
 
 def p_funciones_matematicas (t):
@@ -573,10 +651,37 @@ def p_funciones_matematicas (t):
                             | TRUNC PARENIZQ  argument   PARENDER
                             | RANDOM PARENIZQ PARENDER
                             | SETSEED PARENIZQ PARENDER '''
+    if t[1].lower() == 'abs' : t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'cbrt' : t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'ceil' :t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'ceiling' :t[0] =  select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'degrees' : t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'div' : t[0] = select.FuncionMatematica(t[1].lower(),t[3],t[5])
+    elif t[1].lower() == 'exp' : t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'factorial' :t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'floor' :t[0] =  select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'gcd' : t[0] = select.FuncionMatematica(t[1].lower(),t[3],t[5])
+    elif t[1].lower() == 'ln' : t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'log' : t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'mod' :t[0] = select.FuncionMatematica(t[1].lower(),t[3],t[5])
+    elif t[1].lower() == 'pi' :t[0] =  select.FuncionMatematica(t[1].lower())
+    elif t[1].lower() == 'power' : t[0] = select.FuncionMatematica(t[1].lower(),t[3],t[5])
+    elif t[1].lower() == 'radians' : t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'round' : t[0] = select.FuncionMatematica(t[1].lower(),t[3],t[4])
+    elif t[1].lower() == 'scale' :t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'sign' :t[0] =  select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'sqrt' : t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'width_bucket' : t[0] = select.FuncionMatematica(t[1].lower(),t[3],t[5],t[7],t[9])
+    elif t[1].lower() == 'trunc' :t[0] = select.FuncionMatematica(t[1].lower(),t[3])
+    elif t[1].lower() == 'random' :t[0] =  select.FuncionMatematica(t[1].lower())
+    elif t[1].lower() == 'setseed' : t[0] = select.FuncionMatematica(t[1].lower())
+  
 
 def p_tipo_de_round(t):
     '''tipoderound  : COMA  argument
                     | '''
+    if t[1].lower() == ',' : t[0] = select.TipoRound(t[2])
+    else : t[0]= None
 
 
 def p_funciones_trigonometricas(t):
@@ -602,6 +707,27 @@ def p_funciones_trigonometricas(t):
                                 | ASINH PARENIZQ argument  PARENDER
                                 | ACOSH PARENIZQ argument  PARENDER
                                 | ATANH PARENIZQ argument  PARENDER '''
+    if t[1].lower() == 'acos' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'asin' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'acosd' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'asind' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'atan' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'atan2' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'atan2d' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'cos' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'cosd' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'cot' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'cotd' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'sin' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'sind' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'tan' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'tand' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'sinh' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'cosh' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'tanh' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'asinh' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'acosh' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
+    elif t[1].lower() == 'atanh' : t[0] = select.FucionTrigonometrica(t[1].lower(),t[3])
 
 
 #-----------------------------------------------------CREATEEE------------------------------------------------------
@@ -1066,11 +1192,11 @@ def p_fieldsE(t):
 
 ###########USE
 def p_use(t):
-    '''use    :  ID PTCOMA
+    '''use    : DATABASE ID PTCOMA
             | error PTCOMA'''
     grafo.newnode('USE')
-    grafo.newchildrenE(t[1])
-    t[0] = {'ast' : use.Use(ident.Identificador(None, t[1])), 'graph' : grafo.index}
+    grafo.newchildrenE(t[2])
+    t[0] = {'ast' : use.Use(ident.Identificador(None, t[2])), 'graph' : grafo.index}
 
 ##########SHOW
 def p_show(t):
@@ -1583,7 +1709,7 @@ def getMistakes():
     return errores
     errores.clear()
 
-import ply.yacc as yacc
+import Librerias.ply.yacc as yacc
 parser = yacc.yacc()
 
 def parse(input) :
