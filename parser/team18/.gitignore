@@ -1,5 +1,5 @@
 **/__pycache__/**
-**/__storageManager__/**
+**/storageManager/**
 test.py
 parser.out
 parsetab.py
