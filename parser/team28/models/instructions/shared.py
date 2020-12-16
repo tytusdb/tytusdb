@@ -8,7 +8,6 @@ class Instruction:
         ''' recibe hijos paras el ast grafico '''
         pass
 
-
 class Alias(Instruction):
     '''
         Alias recibe el ID original y su ALIAS
