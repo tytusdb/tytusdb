@@ -110,3 +110,65 @@ class Truncate(Instruction):
             return "Hubo un problema en la ejecucion de la sentencia"
         if valor==0:
             return "Instruccion ejecutada con exito"
+
+
+
+class InsertInto(Instruccion):
+    def __init__(self,tabla,parametros):
+        self.tabla = tabla
+        self.parametros = parametros
+
+
+
+    def execute(self):
+        #TODO Falta la validación de tipos
+        lista = []
+        tab = self.tabla
+        for p in self.parametros :
+            lista.append(p.execute().value)
+
+        res = jsonMode.insert(dataBase,tab,lista)
+
+        if res == 2:
+            return "No existe la base de datos"
+        elif res == 3:
+            print("No existe la tabla")
+            return "No existe la tabla"
+        elif res == 5:
+            return "Columnas fuera de los limites"
+        elif res == 4:
+            return "Llaves primarias duplicadas"
+        elif res == 1:
+            return "Error en la operacion"
+        elif res == 0:
+            return "Fila Insertada correctamente"
+
+class useDataBase(Instruccion):
+    def __init__(self,db):
+        self.db = db
+
+    def execute(self):
+        global dbtemp
+        dbtemp = self.db 
+      
+
+    
+class showDataBases(Instruccion):
+    def __init__(self,like):
+        if like != None:
+            self.like = like[1:len(like)-1] 
+        else:
+            self.like = None
+    def execute(self):
+        lista = []
+        if self.like != None:
+            for l in jsonMode.showDatabases():
+                if self.like in l[1:len(l)-1]:
+                    lista.append(l)
+        else:
+            lista = jsonMode.showDatabases()
+        
+        if len(lista) == 0:
+            print("No hay bases de datos")
+        else:
+            return lista
