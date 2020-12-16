@@ -3,9 +3,10 @@ from parse.ast_node import ASTNode
 
 
 class Acos(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -15,9 +16,10 @@ class Acos(ASTNode):
 
          
 class Acosd(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -27,9 +29,10 @@ class Acosd(ASTNode):
 
          
 class Asin(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -39,9 +42,10 @@ class Asin(ASTNode):
 
          
 class Asind(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -51,9 +55,10 @@ class Asind(ASTNode):
 
          
 class Atan(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -63,9 +68,10 @@ class Atan(ASTNode):
 
          
 class Atand(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -75,10 +81,11 @@ class Atand(ASTNode):
 
          
 class Atan2(ASTNode):
-    def __init__(self, exp1, exp2, line, column):
+    def __init__(self, exp1, exp2, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -89,10 +96,11 @@ class Atan2(ASTNode):
 
          
 class Atan2d(ASTNode):
-    def __init__(self, exp1, exp2, line, column):
+    def __init__(self, exp1, exp2, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -103,9 +111,10 @@ class Atan2d(ASTNode):
 
          
 class Cos(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -115,9 +124,10 @@ class Cos(ASTNode):
 
          
 class Cosd(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -127,9 +137,10 @@ class Cosd(ASTNode):
 
          
 class Cot(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -139,9 +150,10 @@ class Cot(ASTNode):
 
          
 class Cotd(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -151,9 +163,10 @@ class Cotd(ASTNode):
 
          
 class Sin(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -163,9 +176,10 @@ class Sin(ASTNode):
 
          
 class Sind(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -175,9 +189,10 @@ class Sind(ASTNode):
 
          
 class Tan(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -187,9 +202,10 @@ class Tan(ASTNode):
 
          
 class Tand(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -199,9 +215,10 @@ class Tand(ASTNode):
 
          
 class Sinh(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -211,9 +228,10 @@ class Sinh(ASTNode):
 
          
 class Cosh(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -223,9 +241,10 @@ class Cosh(ASTNode):
 
          
 class Tanh(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -235,9 +254,10 @@ class Tanh(ASTNode):
 
          
 class Asinh(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -247,9 +267,10 @@ class Asinh(ASTNode):
 
          
 class Acosh(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -259,9 +280,10 @@ class Acosh(ASTNode):
 
          
 class Atanh(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column,id):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.id=id
 
     def execute(self, table, tree):
         super().execute(table, tree)

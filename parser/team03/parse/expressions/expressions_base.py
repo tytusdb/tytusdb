@@ -5,9 +5,10 @@ from parse.ast_node import ASTNode
 
 
 class Numeric(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
-        self.val = val        
+        self.val = val
+        self.id =id        
 
     def execute(self, table, tree):
         super().execute(table, tree)        
@@ -15,9 +16,10 @@ class Numeric(ASTNode):
 
 
 class NumericNegative(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
         self.val = val
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -25,9 +27,10 @@ class NumericNegative(ASTNode):
 
 
 class Text(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
         self.val = val
+        self.id =id  
 
     def execute(self, table, tree):        
         super().execute(table, tree)
@@ -35,9 +38,10 @@ class Text(ASTNode):
 
 
 class BoolAST(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
         self.val = val
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -45,8 +49,9 @@ class BoolAST(ASTNode):
 
 
 class DateAST(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
+        self.id =id  
         try:
             self.val=datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
         except:
@@ -59,10 +64,11 @@ class DateAST(ASTNode):
 
 
 class ColumnName(ASTNode):
-    def __init__(self, tName, cName, line, column):
+    def __init__(self, tName, cName, line, column, id):
         ASTNode.__init__(self, line, column)
         self.tName = tName
         self.cName = cName
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -74,15 +80,16 @@ class ColumnName(ASTNode):
 
 
 class Now(ASTNode):
-    def __init__(self, line, column):
+    def __init__(self, line, column, id):
         ASTNode.__init__(self, line, column)
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
         return date.today()
 
 ''''class Expression(ASTNode):    
-    def __init__(self,exp1,line,column):
+    def __init__(self,exp1,line,column, id):
         ASTNode.__init__(self,line,column)
         self.exp1 = exp1
     def execute(self, table, tree):
@@ -91,27 +98,28 @@ class Now(ASTNode):
 '''
 class BinaryExpression(ASTNode):
     # Class that handles every arithmetic expression
-    def __init__(self, exp1, exp2, operator, line, column):
+    def __init__(self, exp1, exp2, operator, line, column, id):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
         self.operator = operator
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
         #TODO: Validate type                
-        if self.operator == None: #'Number' or 'artirmetic function' production for example
-            return self.exp1.execute(None,None)
+        if self.operator == None: #'Number' or 'artirmetic function' production for example            
+            return self.exp1.execute(table, tree)
         if self.operator == OpArithmetic.PLUS:          
-            return self.exp1.execute(None,None) + self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) + self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.MINUS:                    
-            return self.exp1.execute(None,None) - self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) - self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.TIMES:
-            return self.exp1.execute(None,None) * self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) * self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.DIVIDE:
-            return self.exp1.execute(None,None) / self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) / self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.MODULE:
-            return self.exp1.execute(None,None) % self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) % self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.POWER:
             return pow(self.exp1, self.exp2)
         
@@ -119,40 +127,42 @@ class BinaryExpression(ASTNode):
 class RelationalExpression(ASTNode):
     # Class that handles every relational expression
 
-    def __init__(self, exp1, exp2, operator, line, column):
+    def __init__(self, exp1, exp2, operator, line, column, id):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
         self.operator = operator
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)        
         if self.operator == OpRelational.GREATER:
-            return self.exp1.execute(None,None) > self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) > self.exp2.execute(table, tree)
         if self.operator == OpRelational.LESS:
-            return self.exp1.execute(None,None) < self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) < self.exp2.execute(table, tree)
         if self.operator == OpRelational.EQUALS:            
-            return self.exp1.execute(None,None) == self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) == self.exp2.execute(table, tree)
         if self.operator == OpRelational.NOT_EQUALS:
-            return self.exp1.execute(None,None) != self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) != self.exp2.execute(table, tree)
         if self.operator == OpRelational.GREATER_EQUALS:
-            return self.exp1.execute(None,None) >= self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) >= self.exp2.execute(table, tree)
         if self.operator == OpRelational.LESS_EQUALS:
-            return self.exp1.execute(None,None) <= self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) <= self.exp2.execute(table, tree)
         if self.operator == OpRelational.LIKE:  # TODO add execution to [NOT] LIKE, Regex maybe?
-            return self.exp1.execute(None,None) == self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) == self.exp2.execute(table, tree)
         if self.operator == OpRelational.NOT_LIKE:
-            return self.exp1.execute(None,None) != self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) != self.exp2.execute(table, tree)
 
 
 class PredicateExpression(ASTNode):#TODO check operations and call to exceute function
     # Class that handles every logic expression
 
-    def __init__(self, exp1, exp2, operator, line, column):
+    def __init__(self, exp1, exp2, operator, line, column, id):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
         self.operator = operator
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)

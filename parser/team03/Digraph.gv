@@ -1,0 +1,54 @@
+// The Round Table
+digraph {
+	node [fillcolor=lightyellow1 fontcolor=black fontsize=15 margin=0 shape=circle style=filled width=0.5]
+	edge [color=firebrick]
+	1 [label=5]
+	2 [label="+"]
+	2 -> 1
+	3 [label=45]
+	4 [label=5]
+	5 [label="/"]
+	5 -> 3
+	5 -> 4
+	6 [label="+"]
+	6 -> 2
+	6 -> 5
+	7 [label=0.0]
+	8 [label="+"]
+	8 -> 6
+	8 -> 7
+	9 [label=23432.432324]
+	10 [label=0]
+	11 [label="*"]
+	11 -> 9
+	11 -> 10
+	12 [label="-"]
+	12 -> 8
+	12 -> 11
+	13 [label=56]
+	14 [label="-"]
+	14 -> 12
+	14 -> 13
+	15 [label=343.43]
+	16 [label=0]
+	17 [label="*"]
+	17 -> 15
+	17 -> 16
+	18 [label="+"]
+	18 -> 14
+	18 -> 17
+	19 [label=0.864385]
+	20 [label="-"]
+	20 -> 18
+	20 -> 19
+	21 [label=TrUC]
+	21 -> 20
+	22 [label=0]
+	23 [label="*"]
+	23 -> 21
+	23 -> 22
+	24 [label=5]
+	25 [label="+"]
+	25 -> 23
+	25 -> 24
+}
