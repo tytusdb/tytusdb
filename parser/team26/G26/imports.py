@@ -15,3 +15,5 @@ import Expresiones.Logicas as logic
 import Expresiones.Primitivo as primi
 import Expresiones.Identificador as ident
 import Expresiones.Type as type
+
+import Reportes.graph as graph
