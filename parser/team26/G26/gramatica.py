@@ -313,7 +313,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
-import ply.lex as lex
+import Librerias.ply.lex as lex
 lexer = lex.lex()
 
 from imports import *
@@ -415,8 +415,8 @@ def p_parametros_from(t):
     t[1].append(t[3])
     t[0] = t[1]
 
-def p_parametros_from_r(t):
-    'parametrosfrom : parametrosfrom'
+def p_parametros_from_r(t):#cambie de parametrosfrom -> parametrosfromr
+    'parametrosfrom : parametrosfromr'
     t[0] = [t[1]]    
 
 def p_parametros_fromr(t):
@@ -1192,11 +1192,11 @@ def p_fieldsE(t):
 
 ###########USE
 def p_use(t):
-    '''use    :  ID PTCOMA
+    '''use    : DATABASE ID PTCOMA
             | error PTCOMA'''
     grafo.newnode('USE')
-    grafo.newchildrenE(t[1])
-    t[0] = {'ast' : use.Use(ident.Identificador(None, t[1])), 'graph' : grafo.index}
+    grafo.newchildrenE(t[2])
+    t[0] = {'ast' : use.Use(ident.Identificador(None, t[2])), 'graph' : grafo.index}
 
 ##########SHOW
 def p_show(t):
@@ -1709,7 +1709,7 @@ def getMistakes():
     return errores
     errores.clear()
 
-import ply.yacc as yacc
+import Librerias.ply.yacc as yacc
 parser = yacc.yacc()
 
 def parse(input) :
