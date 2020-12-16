@@ -1,17 +1,19 @@
-import ply.yacc as yacc
-from tokens import *
+import analizer.ply.yacc as yacc
+from analizer.tokens import *
 
 # Construccion del analizador léxico
-import ply.lex as lex
+import analizer.ply.lex as lex
 
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 precedence = (
-    ("left", "OC_CONCATENAR"),
-    ("left", "O_SUMA", "O_RESTA"),
-    ("left", "O_PRODUCTO", "O_DIVISION", "O_MODULAR"),
-    ("left", "O_EXPONENTE"),
-    ("right", "UO_SUMA", "UO_RESTA"),
+    ("left", "R_AND", "R_OR"),
+    ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
+    (
+        "left",
+        "R_BETWEEN",
+        # "R_IS",
+    ),
     (
         "left",
         "S_IGUAL",
@@ -21,20 +23,18 @@ precedence = (
         "OL_MAYORIGUALQUE",
         "OL_MENORIGUALQUE",
     ),
-    (
-        "left",
-        "R_BETWEEN",
-        # "R_IS",
-    ),
+    ("left", "OC_CONCATENAR"),
+    ("left", "O_SUMA", "O_RESTA"),
+    ("left", "O_PRODUCTO", "O_DIVISION", "O_MODULAR"),
+    ("left", "O_EXPONENTE"),
+    ("right", "UO_SUMA", "UO_RESTA"),
     ("right", "R_NOT"),
-    ("left", "R_AND", "R_OR"),
-    ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
 )
 
 # Definición de la gramática
 
-import abstract.expression as expression
-import abstract.instruction as instruction
+import analizer.abstract.expression as expression
+import analizer.abstract.instruction as instruction
 
 
 def p_init(t):
@@ -73,31 +73,62 @@ def p_stmt(t):
 # region CREATE
 
 
-def p_createStmt(t):
+def p_createstmt(t):
     """createStmt : R_CREATE createBody"""
     t[0] = t[2]
 
 
-def p_createBody(t):
+def p_createbody(t):
     """
-    createBody : R_OR R_REPLACE createOpts
-    | createOpts
+    createBody : createOpts
+    """
+    t[0] = t[1]
+
+
+def p_createopts_table(t):
+    """createOpts : R_TABLE ifNotExists ID S_PARIZQ createTableList S_PARDER inheritsOpt """
+    t[0] = instruction.CreateTable(t[2], t[3], t[5])
+
+
+def p_createopts_db(t):
+    """
+    createOpts : orReplace R_DATABASE ifNotExists ID createOwner createMode
+    """
+    t[0] = instruction.CreateDatabase(t[1], t[3], t[4], t[5], t[6])
+
+
+def p_replace_true(t):
+    """
+    orReplace : R_OR R_REPLACE
+    """
+    t[0] = True
+
+
+def p_replace_false(t):
+    """
+    orReplace :
+    """
+    t[0] = False
+
+
+def p_createopts_type(t):
+    """
+    createOpts : R_TYPE ifNotExists ID R_AS R_ENUM S_PARIZQ paramsList S_PARDER
     """
 
 
-def p_createOpts(t):
-    """
-    createOpts : R_TABLE ifNotExists ID S_PARIZQ createTableList S_PARDER inheritsOpt
-    | R_DATABASE ifNotExists ID createOwner createMode
-    | R_TYPE ifNotExists ID R_AS R_ENUM S_PARIZQ paramsList S_PARDER
-    """
-
-
-def p_ifNotExists(t):
+def p_ifnotexists_true(t):
     """
     ifNotExists : R_IF R_NOT R_EXISTS
-    |
     """
+    t[0] = True
+
+
+def p_ifnotexists_false(t):
+    """
+    ifNotExists :
+    """
+    t[0] = False
 
 
 def p_inheritsOpt(t):
@@ -107,31 +138,60 @@ def p_inheritsOpt(t):
     """
 
 
-def p_createOwner(t):
+def p_createowner(t):
     """
     createOwner : R_OWNER ID
-    | R_OWNER S_IGUAL ID
-    |
     """
+    t[0] = t[2]
 
 
-def p_createMode(t):
+def p_createowner_asg(t):
+    """
+    createOwner :  R_OWNER S_IGUAL ID
+    """
+    t[0] = t[3]
+
+
+def p_createowner_none(t):
+    """
+    createOwner :
+    """
+    t[0] = None
+
+
+def p_createmode(t):
     """
     createMode : R_MODE INTEGER
-    | R_MODE S_IGUAL INTEGER
-    |
     """
+    t[0] = t[2]
 
 
-def p_createTable_list(t):
+def p_createMode_asg(t):
+    """
+    createMode : R_MODE S_IGUAL INTEGER
+    """
+    t[0] = t[3]
+
+
+def p_createmode_none(t):
+    """
+    createMode :
+    """
+    t[0] = None
+
+
+def p_createtable_list(t):
     """createTableList : createTableList S_COMA createTable"""
+    t[1].append(t[3])
+    t[0] = t[1]
 
 
-def p_createTable_u(t):
+def p_createtable_u(t):
     """createTableList :  createTable"""
+    t[0] = [t[1]]
 
 
-def p_createTable(t):
+def p_createtable(t):
     """
     createTable :  ID types createColumns
     | createConstraint
@@ -407,9 +467,11 @@ def p_params_list(t):
     t[1].append(t[3])
     t[0] = t[1]
 
+
 def p_params_u(t):
     """paramsList : datatype"""
     t[0] = [t[1]]
+
 
 def p_datatype_operadores_binarios(t):
     """
@@ -657,15 +719,15 @@ def p_alterStmt(t):
     """alterStmt : R_ALTER R_DATABASE ID alterDb
     | R_ALTER R_TABLE ID alterTableList
     """
-    if t[2]=='DATABASE':
-        t[0]=instruction.AlterDataBase(t[4][0],t[3],t[4][1])
+    if t[2] == "DATABASE":
+        t[0] = instruction.AlterDataBase(t[4][0], t[3], t[4][1])
+
 
 def p_alterDb(t):
     """alterDb : R_RENAME R_TO ID
     | R_OWNER R_TO ownerOPts
     """
-    t[0]=[t[1],t[3]]
-
+    t[0] = [t[1], t[3]]
 
 
 def p_ownerOpts(t):
@@ -719,11 +781,10 @@ def p_dropStmt(t):
     """dropStmt : R_DROP R_TABLE ifExists ID
     | R_DROP R_DATABASE ifExists ID
     """
-    exists=True
-    if(t[3]==None):
-        exists=False
-    t[0] =  instruction.Drop(t[2],t[4],exists)
-
+    exists = True
+    if t[3] == None:
+        exists = False
+    t[0] = instruction.Drop(t[2], t[4], exists)
 
 
 def p_ifExists(t):
@@ -956,6 +1017,8 @@ def p_insertStmt(t):
     """insertStmt : R_INSERT R_INTO ID R_VALUES S_PARIZQ paramsList S_PARDER"""
 
     t[0] = instruction.InsertInto(t[3], t[6])
+
+
 # endregion
 
 # Statement para el UPDATE
@@ -1018,19 +1081,21 @@ def p_showStmt(t):
 
     t[0] = instruction.showDataBases(t[3])
 
+
 def p_likeOpt(t):
     """likeOpt : R_LIKE STRING
     |
     """
-
     if len(t) == 3:
         t[0] = t[2]
     else:
-        t[0] = None 
+        t[0] = None
+
 
 def p_useStmt(t):
     """useStmt : R_USE R_DATABASE ID"""
     t[0] = instruction.useDataBase(t[3])
+
 
 # endregion
 
@@ -1053,7 +1118,3 @@ def parse(input):
     except Exception as e:
         print(e)
         return None
-
-
-test = "SELECT NOT div(purchase.amount, 1)-8 < 5 AND div(product.price, pi()-1)-8 > 0 as sexo; "
-print(parse(test))

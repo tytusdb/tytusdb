@@ -1,28 +1,29 @@
 import ply.yacc as yacc
 from lexicosql import tokens
-from astExpresion import ExpresionNegativa, ExpresionNumero, ExpresionPositiva, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
-
+from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
+from astExpresion import ExpresionCadena, ExpresionID
+from astFunciones import FuncionNumerica , FuncionCadena
+from arbol import Arbol
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
 
 #---------------- MANEJO DE LA PRECEDENCIA
 precedence = (
-    ('left','IGUAL','DIFERENTE','DIFERENTE2'),
-    ('left','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
+    ('left','AND','OR'),
+    ('left','IGUAL','DIFERENTE','DIFERENTE2','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
+    ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
+    ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
     ('left','MAS','MENOS'),
-    ('left','EXPONENT'),
     ('left','ASTERISCO','DIVISION','MODULO'),
-    ('left','AND'),
-    ('left','OR'),
-    ('nonassoc','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
-    ('nonassoc','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
-    ('right','UMENOS','UMAS','NOT'),  
+    ('left','EXPONENT'),
+    ('right','UMENOS','UMAS','NOT')
 ) 
 
 def p_init(p):
     'init : instrucciones'
-    p[0] = [p[1]]
+    #p[0] = [p[1]]
+    p[0] = Arbol(p[1])
 
 
 def p_instrucciones_list(p):
@@ -44,6 +45,7 @@ def p_instruccion(p):
                     | alter_table       PTCOMA
                     | combine_querys    PTCOMA
                     | USE ID            PTCOMA
+                    | funciones PTCOMA
                     '''     
     p[0] = p[1]
 
@@ -173,11 +175,12 @@ def p_combine_querys6(p):
 def p_combine_querys7(p):
     'combine_querys : select'
 #_____________________________________________________________ SELECT
-def p_select0(p):
-    'select : SELECT expresion'
-    p[0] = p[2].ejecutar(0)
-    print(p[0].val)
-    print(p[0].linea)
+# SOLO DE PRUEBA :V
+# def p_select0(p):
+#     'select : SELECT expresion'
+#     p[0] = p[2].ejecutar(0)
+#     print(p[0].val)
+#     print(p[0])
 
 def p_select1(p):
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -305,24 +308,38 @@ def p_limitc2(p):
 
 def p_offset(p):
     'offset : OFFSET NUMERO'
+#__________________________________________________________________________________________________________ FUNCIONES 
+def p_funciones1(p):#ya
+    'funciones : LENGTH PABRE exp_aux PCIERRA'
+    print("CADENA SIMPLE EN PARAMETRO " + str(p[3]))
+    p[0] = FuncionCadena(funcion='LENGTH',parametro1=p[3], linea= p.slice[2].lineno)
 
-def p_funciones1(p):
-    'funciones : LENGTH PABRE ID PCIERRA'
-
-def p_funciones2(p):
+def p_funciones2(p):#ya
     'funciones : SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA'
+    # espero id o string , numero ENTERO  , numero ENTERO
+    p[0] = FuncionCadena(funcion='SUBSTRING',parametro1=ExpresionID(p[3], p.slice[1].lineno),parametro2= ExpresionNumero(p[5], TIPO_DE_DATO.ENTERO, p.slice[2].lineno), parametro3=ExpresionNumero(p[7], TIPO_DE_DATO.ENTERO, p.slice[2].lineno), linea= p.slice[2].lineno)
+def p_funciones2_2(p):#ya
+    'funciones : SUBSTRING PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA'
+    # espero id o string , numero ENTERO  , numero ENTERO
+    p[0] = FuncionCadena(funcion='SUBSTRING',parametro1=ExpresionCadena(p[3],TIPO_DE_DATO.CADENA,p.slice[1].lineno) ,parametro2= ExpresionNumero(p[5], TIPO_DE_DATO.ENTERO, p.slice[2].lineno), parametro3=ExpresionNumero(p[7], TIPO_DE_DATO.ENTERO, p.slice[2].lineno), linea= p.slice[2].lineno)
 
-def p_funciones3(p):
-    'funciones : TRIM PABRE ID PCIERRA'
+def p_funciones3(p):#ya
+    'funciones : TRIM PABRE exp_aux PCIERRA'
+    p[0] = FuncionCadena(funcion='TRIM',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones4(p):
-    'funciones : MD5 PABRE CADENA PCIERRA'
+    'funciones : MD5 PABRE exp_aux PCIERRA'
+    # cadena o ID
+    p[0] = FuncionCadena(funcion='MD5',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones5(p):
-    'funciones : SHA256 PABRE CADENA PCIERRA'
+    'funciones : SHA256 PABRE exp_aux PCIERRA'
+    # cadena o ID
+    p[0] = FuncionCadena(funcion='SHA256',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones6(p):
-    'funciones : SUBSTR PABRE ID COMA NUMERO COMA NUMERO PCIERRA'
+    'funciones : SUBSTR PABRE exp_aux COMA NUMERO COMA NUMERO PCIERRA'
+    p[0] = FuncionCadena(funcion='SUBSTR',parametro1=p[3], parametro2=p[5] , parametro3=p[7],  linea= p.slice[2].lineno)
 
 def p_funciones7(p):
     'funciones : GET_BYTE PABRE CADENA TYPECAST BYTEA COMA NUMERO PCIERRA'
@@ -342,146 +359,179 @@ def p_funciones11(p):
 def p_funciones12(p):
     'funciones : DECODE PABRE CADENA COMA CADENA PCIERRA'
 
-def p_funciones13(p):
-    'funciones : AS PABRE expresion PCIERRA'
- 
-def p_funciones14(p):
-    'funciones : ACOS PABRE expresion PCIERRA'
+# def p_funciones13(p):
+#     'funciones : AS PABRE exp_aux PCIERRA'
 
+def p_funciones14(p):
+    'funciones : ACOS PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ACOS',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones15(p):
-    'funciones : ACOSD PABRE expresion PCIERRA'
+    'funciones : ACOSD PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ACOSD',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones16(p):
-    'funciones : ASIN PABRE expresion PCIERRA'
- 
+    'funciones : ASIN PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ASIN',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones17(p):
-    'funciones : ASIND PABRE expresion PCIERRA'
+    'funciones : ASIND PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ASIND',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones18(p):
-    'funciones : ATAN PABRE expresion PCIERRA'
-
+    'funciones : ATAN PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ATAN',parametro1=p[3], linea= p.slice[2].lineno)
+    
 def p_funciones19(p):
-    'funciones : ATAND PABRE expresion PCIERRA'
-
+    'funciones : ATAND PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ATAND',parametro1=p[3], linea= p.slice[2].lineno)
+#_______________________________________ BINARIAS
 def p_funciones20(p):
-    'funciones : ATAN2 PABRE expresion COMA expresion PCIERRA'
-
+    'funciones : ATAN2 PABRE exp_aux COMA exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ATAN2D',parametro1=p[3], parametro2=p[5], linea= p.slice[2].lineno)
 def p_funciones21(p):
-    'funciones : ATAN2D PABRE expresion COMA expresion PCIERRA'
+    'funciones : ATAN2D PABRE exp_aux COMA exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ATAN2D',parametro1=p[3], parametro2=p[5], linea= p.slice[2].lineno)
 
 def p_funciones22(p):
-    'funciones : COS PABRE expresion PCIERRA'
+    'funciones : COS PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='COS',parametro1=p[3], linea= p.slice[2].lineno)
  
 def p_funciones23(p):
-    'funciones : COSD PABRE expresion PCIERRA'
+    'funciones : COSD PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='COSD',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones24(p):
-    'funciones : COT PABRE expresion PCIERRA'
+    'funciones : COT PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='COT',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones25(p):
-    'funciones : COTD PABRE expresion PCIERRA'
+    'funciones : COTD PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='COTD',parametro1=p[3], linea= p.slice[2].lineno)
  
 def p_funciones26(p):
-    'funciones : SIN PABRE expresion PCIERRA'
+    'funciones : SIN PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='SIN',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones27(p):
-    'funciones : SIND PABRE expresion PCIERRA'
+    'funciones : SIND PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='SIND',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones28(p):
-    'funciones : TAN PABRE expresion PCIERRA'
-
+    'funciones : TAN PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='TAN',parametro1=p[3], linea= p.slice[2].lineno)
+    
 def p_funciones29(p):
-    'funciones : TAND PABRE expresion PCIERRA'
- 
+    'funciones : TAND PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='TAND',parametro1=p[3], linea= p.slice[2].lineno)
+    
 def p_funciones30(p):
-    'funciones : COSH PABRE expresion PCIERRA'
-
+    'funciones : COSH PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='COSH',parametro1=p[3], linea= p.slice[2].lineno)
+    
 def p_funciones31(p):
-    'funciones : SINH PABRE expresion PCIERRA'
-
+    'funciones : SINH PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='SINH',parametro1=p[3], linea= p.slice[2].lineno)
+     
 def p_funciones32(p):
-    'funciones : TANH PABRE expresion PCIERRA'
+    'funciones : TANH PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='TANH',parametro1=p[3], linea= p.slice[2].lineno)
  
 def p_funciones33(p):
-    'funciones : ACOSH PABRE expresion PCIERRA'
+    'funciones : ACOSH PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ACOSH',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones34(p):
-    'funciones : ASINH PABRE expresion PCIERRA'
+    'funciones : ASINH PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ASINH',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones35(p):
-    'funciones : ATANH PABRE expresion PCIERRA'
+    'funciones : ATANH PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ATANH',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones36(p):
-    'funciones : ABS PABRE expresion PCIERRA'
+    'funciones : ABS PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ABS',parametro1=p[3], linea= p.slice[2].lineno)
  
 def p_funciones37(p):
-    'funciones : CBRT PABRE expresion PCIERRA'
-
+    'funciones : CBRT PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='CBRT',parametro1=p[3], linea= p.slice[2].lineno)
+    
 def p_funciones38(p):
-    'funciones : CEIL PABRE expresion PCIERRA'
-
+    'funciones : CEIL PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='CEIL',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones39(p):
-    'funciones : CEILING PABRE expresion PCIERRA'
- 
+    'funciones : CEILING PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='CEILING',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones40(p):
-    'funciones : DEGREES PABRE expresion PCIERRA'
-
+    'funciones : DEGREES PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='DEGREES',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones41(p):
-    'funciones : DIV PABRE expresion COMA expresion PCIERRA'
-
+    'funciones : DIV PABRE exp_aux COMA exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='DIV',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones42(p):
-    'funciones : FACTORIAL PABRE expresion PCIERRA'
- 
+    'funciones : FACTORIAL PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='FACTORIAL',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones43(p):
-    'funciones : FLOOR PABRE expresion PCIERRA'
-
-def p_funciones44(p):
-    'funciones : GCD PABRE expresion PCIERRA'
-
+    'funciones : FLOOR PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='FLOOR',parametro1=p[3], linea= p.slice[2].lineno)
+def p_funciones44(p):# MAXIMO COMO UN DIVISOR
+    'funciones : GCD PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='GCD',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones45(p):
-    'funciones : LN PABRE expresion PCIERRA'
+    'funciones : LN PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='LN',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones46(p):
-    'funciones : LOG PABRE expresion PCIERRA'
+    'funciones : LOG PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='LOG',parametro1=p[3], linea= p.slice[2].lineno)
  
 def p_funciones47(p):
-    'funciones : EXP PABRE expresion PCIERRA'
+    'funciones : EXP PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='EXP',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones48(p):
-    'funciones : MOD PABRE expresion COMA expresion PCIERRA'
+    'funciones : MOD PABRE exp_aux COMA exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='MOD',parametro1=p[3], linea= p.slice[2].lineno)
 
-def p_funciones49(p):
+def p_funciones49(p):#YA
     'funciones : PI PABRE PCIERRA'
+    p[0] = FuncionNumerica(funcion='PI', linea= p.slice[1].lineno)
 
-def p_funciones50(p):
-    'funciones : POWER PABRE expresion COMA expresion PCIERRA'
-
+def p_funciones50(p):#BINARIA 
+    'funciones : POWER PABRE exp_aux COMA exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='POWER',parametro1=p[3], parametro2=p[5], linea= p.slice[2].lineno)
 def p_funciones51(p):
-    'funciones : RADIANS PABRE expresion PCIERRA'
-
+    'funciones : RADIANS PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='RADIANS',parametro1=p[3], linea= p.slice[2].lineno)
+    
 def p_funciones52(p):
-    'funciones : ROUND PABRE expresion PCIERRA'
+    'funciones : ROUND PABRE exp_aux PCIERRA'
+    p[0] = FuncionNumerica(funcion='ROUND',parametro1=p[3], linea= p.slice[2].lineno)
 
-def p_funciones53(p):
+def p_funciones53(p):# decimal y entero 
     'funciones : SIGN PABRE tipo_numero PCIERRA'
+    p[0] = FuncionNumerica(funcion='SIGN',parametro1=p[3], linea= p.slice[2].lineno)
 
-def p_funciones54(p):
+def p_funciones54(p):# decimal y entero 
     'funciones : SQRT PABRE tipo_numero PCIERRA'
- 
-def p_funciones55(p):
+    p[0] = FuncionNumerica(funcion='SQRT',parametro1=p[3], linea= p.slice[2].lineno)
+    
+def p_funciones55(p):# decimal y entero  , LISTA DE NUMEROS []
     'funciones : WIDTH_BUCKET PABRE lista_numeros PCIERRA'
+    p[0] = FuncionNumerica(funcion='WIDTH_BUCKET',parametro1=p[3], linea= p.slice[2].lineno)
 
-def p_funciones56(p):
+def p_funciones56(p):# BINARIA 
     'funciones : TRUNC PABRE tipo_numero COMA NUMERO PCIERRA'
-
+    p[0] = FuncionNumerica(funcion='TRUNC',parametro1=p[3], parametro2=p[5], linea= p.slice[2].lineno)
 def p_funciones57(p):
     'funciones : TRUNC PABRE tipo_numero PCIERRA'
-
+    p[0] = FuncionNumerica(funcion='TRUNC',parametro1=p[3], linea= p.slice[2].lineno)
 def p_funciones58(p):
     'funciones : RANDOM PABRE PCIERRA'
+    p[0] = FuncionNumerica(funcion='RANDOM',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones59(p):
     'funciones : SUM PABRE ID PCIERRA'
+    p[0] = FuncionNumerica(funcion='SUM',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones60(p):
     'funciones : PIPE tipo_numero'
@@ -510,14 +560,21 @@ def p_funciones67(p):
 def p_lista_numeros(p):
     '''lista_numeros : tipo_numero
                      | lista_numeros COMA tipo_numero'''
+    if (len(p) == 3):
+        p[1].append(p[3])
+        p[0] = p[1]
+    else:
+        p[0] = [p[1]]
 #___________________________________ <TIPO_NUMERO>                    
 #    <TIPO_NUMERO> ::= 'numero'
 #                  |   'decimal'
 def p_tipo_numero1(p):
     'tipo_numero : NUMERO'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, p.slice[1].lineno)
 
 def p_tipo_numero2(p):
     'tipo_numero : DECIMAL_LITERAL'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, p.slice[1].lineno)
     
 
 def p_lista_tablas(p):
@@ -1078,6 +1135,7 @@ def p_expresion_ternaria(p):
                  
 def p_expreion_funciones(p):
     'expresion : funciones'
+    p[0] = p[1]
     
 def p_expreion_entre_parentesis(p):
     'expresion : PABRE expresion  PCIERRA'
@@ -1085,6 +1143,7 @@ def p_expreion_entre_parentesis(p):
 
 def p_expresion_primitivo(p):
     'expresion : CADENA'
+    p[0] = ExpresionCadena(p[1], TIPO_DE_DATO.CADENA, p.slice[1].lineno)
 
 def p_expresion_primitivo1(p):
     'expresion : NUMERO'
@@ -1100,9 +1159,12 @@ def p_expresion_id(p):
     
 def p_expresion_tabla_campo(p):
     'expresion : ID PUNTO ID'
+    # mmm tal vez agregar un atributo tabla en  expresionID
+    p[0] = ExpresionID(p[3], p.slice[1].lineno , tabla = p[1])
     
 def p_expresion_timestamp(p):
     'expresion : timestamp'
+    p[0] = p[1]
 
 def p_expresion_con_dos_nodos(p):
     '''expresion : expresion MAS expresion 
@@ -1133,10 +1195,28 @@ def p_expresion_con_dos_nodos(p):
         p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
     elif p[2] == '^':
         p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
-
-
-
-
+    elif p[2] == '<':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MENOR, p.slice[2].lineno)
+    elif p[2] == '>':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MAYOR, p.slice[2].lineno)
+    elif p[2] == '<=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MENORIGUAL, p.slice[2].lineno)
+    elif p[2] == '>=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MAYORIGUAL, p.slice[2].lineno)
+    elif p[2] == '=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.IGUAL, p.slice[2].lineno)
+    elif p[2] == '<>':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.DESIGUAL, p.slice[2].lineno)
+    elif p[2] == '!=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.DESIGUAL, p.slice[2].lineno)
+    elif p[2] == 'and':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.AND, p.slice[2].lineno)
+    elif p[2] == 'AND':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.AND, p.slice[2].lineno)
+    elif p[2] == 'or':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.OR, p.slice[2].lineno)
+    elif p[2] == 'OR':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.OR, p.slice[2].lineno)
 
 #----------------------------------------------------------------------------------------------------- FIN EXPRESION
 #<EXP_AUX>::= '-'  <EXP_AUX>
@@ -1147,38 +1227,65 @@ def p_expresion_con_dos_nodos(p):
 #          | <EXP_AUX>  '/'  <EXP_AUX>
 #          | <EXP_AUX>  '%'  <EXP_AUX>
 #          | <EXP_AUX>  '^'  <EXP_AUX>
-def p_exp_aux(p):
-        '''exp_aux : exp_aux MAS exp_aux 
+def p_exp_aux_unarias(p):
+    ''' exp_aux : MENOS exp_aux %prec UMENOS 
+                | MAS exp_aux %prec UMAS'''
+    if p[1] == '+':
+        p[0] = ExpresionPositiva(p[2], p.slice[1].lineno)
+    elif p[1] == '-':
+        p[0] = ExpresionNegativa(p[2], p.slice[1].lineno)
+        
+def p_exp_auxp(p):
+    '''exp_aux : exp_aux MAS exp_aux 
                  | exp_aux MENOS exp_aux
                  | exp_aux ASTERISCO exp_aux
                  | exp_aux DIVISION exp_aux 
                  | exp_aux EXPONENT exp_aux
                  | exp_aux MODULO exp_aux
     '''
+    if p[2] == '+':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MAS, p.slice[2].lineno)
+    elif p[2] == '-':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MENOS, p.slice[2].lineno)
+    elif p[2] == '*':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.POR, p.slice[2].lineno)
+    elif p[2] == '/':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.DIVIDO, p.slice[2].lineno)
+    elif p[2] == '%':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
+    elif p[2] == '^':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
 #          | '(' <EXP_AUX> ')'
 def p_exp_aux_entre_parentesis(p):
     'exp_aux : PABRE exp_aux  PCIERRA'
+    p[0] = p[2]
 #          | 'cadena'
 def p_exp_aux_cadena(p):
     'exp_aux :  CADENA'
+    p[0] = ExpresionCadena(p[1], TIPO_DE_DATO.CADENA, p.slice[1].lineno)
 #          | 'numero'          
 def p_exp_aux_numero(p):
     'exp_aux :  NUMERO'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, p.slice[1].lineno)
 #          | 'decimal'
 def p_exp_aux_decimal(p):
     'exp_aux :  DECIMAL_LITERAL'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, p.slice[1].lineno)
 #          | 'id' '.' 'id'
 def p_exp_aux_tabla(p):
     'exp_aux :  ID PUNTO ID'
 #          | 'id'
 def p_exp_aux_id(p):
     'exp_aux :  ID'
+    p[0] = ExpresionID(p[1], p.slice[1].lineno)
 #          | <FUNCIONES>
 def p_exp_aux_funciones(p):
     'exp_aux :  funciones'
+    p[0] = p[1]
 #          | <TIMESTAMP>
 def p_exp_aux_timestamp(p):
     'exp_aux :  timestamp'
+    p[0] = p[1]
 
 #<SUBQUERY> ::= '('<SELECT>')'
 def p_subquery(p):
@@ -1337,6 +1444,7 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 
-print(analizarEntrada('''
-select -((((5+5-(8*8)+90)/2)%5)^2);
-                      '''))
+arbolParser = analizarEntrada("md5('CADENA') ; ")
+arbolParser.ejecutar()
+#viendo el resultado: 
+print(arbolParser.instrucciones[0].ejecutar(0).val)

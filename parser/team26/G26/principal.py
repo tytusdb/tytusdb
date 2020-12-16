@@ -25,8 +25,9 @@ instrucciones = g.parse(input)
 print(instrucciones)
 #for instr in instrucciones :
     #print(instr.execute(datos))
+    #instr.execute(datos)
 
-#print('TABLA DE SIMBOLOS')
+#print('\n\nTABLA DE SIMBOLOS')
 #print (datos)
 
 g.grafo.showtree()
