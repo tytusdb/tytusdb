@@ -13,7 +13,7 @@ from utils.analyzers.syntactic import *
 from controllers.error_controller import ErrorController
 from utils.reports.generate_ast import GraficarAST
 from utils.reports.report_error import ReportError
-
+from controllers.ast_construction import *
 report_error = None
 report_ast = None
 
@@ -144,12 +144,13 @@ class GUI:
         result = parse(texto)
         # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
         print(result)  # Imprime el AST
-        report_ast = result
 
         if len(ErrorController().getList()) > 0:
             report_error = ReportError()
             messagebox.showerror('ERRORES', 'Se encontraron errores')
         else:
+            result2 = parse2(texto)
+            report_ast = result2
             messagebox.showinfo("EXITO", "SE FINALIZO EL ANALISIS CON EXITO")
 
     # Para mostrar el editor

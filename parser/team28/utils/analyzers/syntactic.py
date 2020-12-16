@@ -4,7 +4,6 @@ from re import L
 import libs.ply.yacc as yacc
 import os
 
-from models.nodo import Node
 from models.instructions.shared import *
 from models.instructions.DDL.database_inst import *
 from models.instructions.DDL.table_inst import *
@@ -12,6 +11,7 @@ from models.instructions.DDL.column_inst import *
 from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
+from models.instructions.Expression.expression import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
@@ -892,7 +892,20 @@ def p_sql_relational_expression(p):
     if (len(p) == 3):
         p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        p[0] = Relop(p[1], p[2], p[3])
+        if p[2] == '==':
+            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3])
+        elif p[2] == '!=':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3])
+        elif p[2] == '>=':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3])
+        elif p[2] == '>':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3])
+        elif p[2] == '<=':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3])
+        elif p[2] == '<':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3])
+        elif p[2] == '<>':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3])
     else:
         p[0] = p[1]
 
@@ -990,7 +1003,28 @@ def p_sql_simple_expression(p):
         if (p[1] == "("):
             p[0] = p[2]
         else:
-           p[0] = BinaryOperation(p[1],p[3],p[2])
+            if p[2] == '+':
+                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS)
+            elif p[2] == '-':
+                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS)
+            elif p[2] == '*':
+                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES)
+            elif p[2] == '/':
+                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON)
+            elif p[2] == '^':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT)
+            elif p[2] == '%':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR)
+            elif p[2] == '>>':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT)
+            elif p[2] == '<<':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT)
+            elif p[2] == '&':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND)
+            elif p[2] == '|':
+                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR)
+            elif p[2] == '#':
+                 p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR)
     elif (len(p) == 3):
         p[0] = UnaryOrSquareExpressions(p[1], p[2])
     else:
@@ -1241,14 +1275,17 @@ def p_date_types(p):
 def p_sql_integer(p):
     '''SQLINTEGER : INT_NUMBER
                   | FLOAT_NUMBER'''
-    p[0] = p[1]
+    p[0] = NumberExpression(SymbolsTipoDato.INTEGER, p[1])
 
 
 def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-    p[0] = p[1]
+    if (p[1] == 'STRINGCONT' or p[1] == 'CHARCONT'):
+        p[0] = StringExpression("STRING", p[1])
+    else:
+        p[0] = StringExpression('ID', p[1])
 
 
 def p_type_select(p):
