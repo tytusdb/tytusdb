@@ -1,17 +1,6 @@
 class Instruccion:
     'clase abstracta'
 
-#CREATE TABLE
-class CreateTable(Instruccion):
-    def __init__(self, id, campos, idInherits):
-        self.id = id
-        self.campos = campos
-        self.idInherits = idInherits
-
-
-
-
-
 class Campo(Instruccion):
     '''#1 ID tipo
        #2 CONSTRAINT
@@ -31,6 +20,7 @@ class Acompaniamiento(Instruccion):
         self.tipo = tipo
         self.valorDefault = valorDefault
 
+
 #TIPOS DE DATO
 class Tipo(Instruccion):
     def __init__(self, tipo, longitud):
@@ -38,9 +28,18 @@ class Tipo(Instruccion):
         self.longitud = longitud
 
 class IdId(Instruccion):
+    '''ID.ID'''
     def __init__(self, id1, id2):
         self.id1 = id1
         self.id2 = id2
+
+class IdAsId(Instruccion):
+    '''ID ID
+       o
+       ID AS ID'''
+    def __init__(self, id1, id2):
+        self.id1 = id1 #puede venir time, math, trig, binario
+        self.id2 = id2 #puede venir una cadena
         
 #INSERT INTO
 class InsertInto(Instruccion):
@@ -83,22 +82,6 @@ class Drop(Instruccion):
         self.exists = exists
         self.id = id
 
-#CREATE [OR REPLACE] DATABASE
-class CreateReplace(Instruccion):
-    '''#1 create
-       #2 create or replace'''
-    def __init__(self, caso, exists, id, complemento):
-        self.caso = caso
-        self.exists = exists
-        self.id = id
-        self.complemento = complemento
-
-#complemento de create or replace
-class ComplementoCR(Instruccion):
-    def __init__(self, idOwner, mode):
-        self.idOwner = idOwner
-        self.mode = mode
-
 #SHOW DATABASE
 class Show(Instruccion):
     def __init__(self, fv):
@@ -119,7 +102,7 @@ class AlterTable(Instruccion):
         self.alter = alter
 
 class Alter(Instruccion):
-    def __init__(self, accion, ccc, id, tipo, check, id2, typeSet):
+    def __init__(self, accion, ccc, id, tipo, check, id2, typeSet, id3):
         self.accion = accion
         self.ccc = ccc
         self.id = id 
@@ -127,6 +110,7 @@ class Alter(Instruccion):
         self.check = check
         self.id2 = id2
         self.typeSet = typeSet
+        self.id3 = id3
 
 #UPDATE
 class Update(Instruccion):

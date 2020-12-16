@@ -1,7 +1,17 @@
 from subprocess import check_call
-from expresion import *
-from instruccion import *
+from Instrucciones.expresion import *
+from Instrucciones.instruccion import *
+from Instrucciones.Create.createTable import CreateTable
+from Instrucciones.Create.createDatabase import CreateReplace,ComplementoCR
+from Instrucciones.Select.select import Select, Limit, Having, GroupBy
+from Instrucciones.Select.union import Union
 
+
+#from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.expresion import *
+#from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import *
+#from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createTable import CreateTable
+#from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createDatabase import CreateReplace,ComplementoCR
+#from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select import Select, Limit, Having
 
 class AST:
     def __init__(self, sentencias):
@@ -11,7 +21,7 @@ class AST:
         self.pe = 0
 
     def ReportarAST(self):
-        print('en clase ast')
+        print('Graficando AST....')
         #print(self.sentencias)
         f = open('AST.dot', 'w')
         self.c = 'digraph G{\n' 
@@ -32,19 +42,22 @@ class AST:
             for i in inst:
                 if isinstance(i, CreateTable):
                     self.CreateTable(i, padre)
-                if isinstance(i, InsertInto):
+                elif isinstance(i, InsertInto):
                     self.InsertInto(i, padre)
-                if isinstance(i, CreateReplace):
+                elif isinstance(i, CreateReplace):
                     self.CreateReplace(i, padre)
-                if isinstance(i, Show):
+                elif isinstance(i, Show):
                     self.Show(padre)
-                if isinstance(i, AlterDatabase):
+                elif isinstance(i, AlterDatabase):
                     self.AlterDatabase(i, padre)
-                if isinstance(i, AlterTable):
+                elif isinstance(i, AlterTable):
                     self.AlterTable(i, padre)
-                if isinstance(i, Update):
+                elif isinstance(i, Update):
                     self.Update(i, padre)
-
+                elif isinstance(i, Select):
+                    self.Select(i, padre)
+                elif isinstance(i, Union):
+                    self.Union(i, padre)
 
     
     def CreateTable(self, inst, padre):
@@ -204,7 +217,10 @@ class AST:
         self.c += 'Nodo'+ str(self.contador)+ '[label="' + label + '"]\n' 
         self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         self.contador = self.contador + 1
-        self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.newName + '"]\n' 
+        if isinstance(inst.newName, Primitivo):
+            self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.newName.valor + '"]\n' 
+        elif isinstance(inst.newName, Id):
+            self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.newName.id + '"]\n' 
         self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
 
     def AlterTable(self, inst, padre):
@@ -215,102 +231,125 @@ class AST:
         self.contador = self.contador + 1
         self.c += 'Nodo'+ str(self.contador)+ '[label="Tabla: ' + inst.id + '"]\n' 
         self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-        #ADD
-        if inst.caso == 1:
-            self.contador = self.contador + 1
-            self.c += 'Nodo'+ str(self.contador)+ '[label="ADD"]\n' 
-            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-            #ADD COLUMN
-            if inst.idAdd != None:
+        for alt in inst.alter:
+            if isinstance(alt, Alter):
+                print('es alter')
+                self.Alter(alt, np)
+
+    def Alter(self, inst, padre):
+        self.contador = self.contador + 1
+        self.c += 'Nodo'+ str(self.contador)+ '[label="ALTER"]\n' 
+        self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+        np = str(self.contador)
+        self.contador = self.contador + 1
+        self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.accion + inst.ccc + '"]\n' 
+        self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+        if inst.accion == 'ADD':
+            if inst.ccc == ' COLUMN':
+                self.listaID(inst.id, str(self.contador))    
                 self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="COLUMN"]\n' 
+                label = inst.tipo.tipo
+                if inst.tipo.longitud != None:
+                    label += '(' + str(inst.tipo.longitud.valor) + ')'
+                self.c += 'Nodo'+ str(self.contador)+ '[label="Tipo: ' + label + '"]\n' 
                 self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-                self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.idAdd + '"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-                self.contador = self.contador + 1
-                if inst.tipoAdd != None:
-                    self.c += 'Nodo'+ str(self.contador)+ '[label="Tipo: ' + inst.tipoAdd.tipo + '(' + str(inst.tipoAdd.longitud.valor) + ')' + '"]\n' 
-                else:
-                    self.c += 'Nodo'+ str(self.contador)+ '[label="Tipo: ' + inst.tipoAdd.tipo + '"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-            #ADD CONSTRAINT
-            if inst.constraintId != None:
-                self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="CONSTRAINT"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-                self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.constraintId + '"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-                self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="UNIQUE"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-                if inst.columnId != None:
+            elif inst.ccc == ' CONSTRAINT':
+                self.Id(inst.id, np) 
+            elif inst.ccc == ' CHECK':
+                if isinstance(inst.check, Expresion):
+                    self.E(inst.check, str(self.contador))
+                else: #lista de valores
+                    self.Id(inst.check, str(self.contador)) 
+            elif inst.ccc == ' FOREIGN KEY':
+                    self.listaID(inst.id, str(self.contador))
                     self.contador = self.contador + 1
-                    self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.columnId + '"]\n' 
+                    self.c += 'Nodo'+ str(self.contador)+ '[label="REFERENCES: ' + inst.id2 + '"]\n' 
                     self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-            #ADD FOREIGN
-            if inst.listaFK != None:
-                self.contador = self.contador + 1
-                a = str(self.contador)
-                if len(inst.listaFK) == 1:
-                        self.c += 'Nodo'+ str(self.contador)+ '[label="FOREIGN KEY: ' + inst.listaFK[0].id + '"]\n' 
-                else:
-                    self.c += 'Nodo'+ str(self.contador)+ '[label="FOREIGN KEY"]\n' 
-                    self.listaID(inst.listaFK, str(self.contador))
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ a + ';\n'
-                if inst.listaReferences != None:
                     self.contador = self.contador + 1
-                    a = str(self.contador)
-                    if len(inst.listaReferences) == 1:
-                        self.c += 'Nodo'+ str(self.contador)+ '[label="REFERENCES: ' + inst.listaReferences[0].id + '"]\n' 
-                    else:
-                        self.c += 'Nodo'+ str(self.contador)+ '[label="REFERENCES"]\n' 
-                        self.listaID(inst.listaReferences, str(self.contador))    
-                    self.c += 'Nodo' + np +' -> ' + 'Nodo'+ a + ';\n'
-            #ADD CHECK
+                    self.c += 'Nodo'+ str(self.contador)+ '[label="Columnas"]\n' 
+                    self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+                    self.listaID(inst.id3, str(self.contador)) 
+        elif inst.accion == 'DROP':
+            self.listaID(inst.id, str(self.contador))
+        elif inst.accion == 'ALTER':
+            self.Id(inst.id, np)
+            self.contador = self.contador + 1
+            self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.typeSet + '"]\n' 
+            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            if inst.tipo != None:
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="Tipo: ' + inst.tipo + '"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+        elif inst.accion == 'UNIQUE':
+            self.Id(inst.id, np)
+        elif inst.accion == 'PRIMARY':
+            self.listaID(inst.id, str(self.contador))
 
-        #DROP
-        if inst.caso == 2:
-            self.contador = self.contador + 1
-            self.c += 'Nodo'+ str(self.contador)+ '[label="DROP"]\n' 
-            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-            if inst.columnConstraint != None:
-                self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.columnConstraint + '"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-            if inst.idDrop != None:
-                self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.idDrop + '"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-        #ALTER
-        if inst.caso == 3:
-            self.contador = self.contador + 1
-            self.c += 'Nodo'+ str(self.contador)+ '[label="ALTER COLUMN"]\n' 
-            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-            if inst.columnAlter != None:
-                self.contador = self.contador + 1
-                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.columnAlter + '"]\n' 
-                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-            self.contador = self.contador + 1
-            self.c += 'Nodo'+ str(self.contador)+ '[label="SET NOT NULL"]\n' 
-            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
 
-    
     def Update(self, inst, padre):
         self.contador = self.contador + 1
         self.c += 'Nodo'+ str(self.contador)+ '[label="Instruccion: UPDATE"]\n' 
         self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         np = str(self.contador)
-        self.contador = self.contador + 1
-        self.c += 'Nodo'+ str(self.contador)+ '[label="Id: ' + inst.id + '"]\n' 
-        self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+        self.Id(inst.id, np)
         for asign in inst.asignaciones:
-            print('asignar')
-            if isinstance(asign, Asignacion):
-                self.Asignacion(asign, np)
+            if isinstance(asign, Expresion):
+                if asign.operador == '=':
+                    self.Asignacion(asign, np)
+
+    def Select(self, inst, padre):
+        self.CrearNodo('Instruccion: Select', padre)
+        np = str(self.contador)
+        if inst.distinct:
+            self.CrearNodo('DISTINCT', np)
+        if inst.time != None:
+            #select time ;
+            self.Time(inst.time, np)
+        if inst.columnas != None:
+            if inst.columnas == '*':
+                self.CrearNodo('*', np)
+            else:
+                self.Columnas(inst.columnas, np)
+        if inst.subquery != None:
+            self.CrearNodo('FROM', np)
+            self.Select(inst.subquery, np)
+        if inst.inner != None:
+            if inst.subquery == None:
+                self.CrearNodo('FROM', np)
+            #puede ser un GroupBy o una lista de columnas, por esta fase
+            if isinstance(inst.inner, GroupBy):
+                print('group by')
+                if inst.inner.listaC != None:
+                    self.Columnas(inst.inner.listaC, np)
+                self.CrearNodo('GROUP BY', np)
+                #es Having si andOr != None
+                #inst.inner.compGroup
+                if isinstance(inst.inner.compGroup, Having):
+                    self.Columnas(inst.inner.compGroup.lista, np)
+                    if inst.inner.compGroup.ordenar != None:
+                        self.CrearNodo(inst.inner.compGroup.ordenar, np)
+                    if inst.inner.compGroup.andOr != None:
+                        self.CrearNodo('HAVING', np)
+                        #falta andOr
+            else:
+                self.Columnas(inst.inner, np)
+        if inst.orderby != None:
+            self.CrearNodo('ORDER BY', np)
+            self.listaID(inst.orderby, np)
+        if inst.limit != None:
+            pass
+            #self.CrearNodo(inst.limit, np) 
+            #falta complementS (where)
 
 
+    def Union(self, inst, padre):
+        self.CrearNodo('Instruccion: Combinar Queries', padre)
+        np = str(self.contador)
+        self.Select(inst.q1, np)
+        self.CrearNodo(inst.tipo, np)
+        if inst.all:
+            self.CrearNodo('ALL', np)
+        self.Select(inst.q2, np)
 
 #---------------------LISTAS----------------------------------------
 #es una lista de entero, decimal, cadena, id
@@ -320,10 +359,87 @@ class AST:
                 self.contador += self.contador
                 self.c += 'Nodo'+ str(self.contador)+ '[label="' + var.id + '"]\n' 
                 self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-            if isinstance(var, Primitivo):
+            elif isinstance(var, Primitivo):
                 self.contador += self.contador
                 self.c += 'Nodo'+ str(self.contador)+ '[label="' + str(var.valor) + '"]\n' 
                 self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            elif isinstance(var, Time):
+                self.Time(var, padre)
+
+
+
+    def Columnas(self, inst, padre):
+        self.CrearNodo('Columnas', padre)
+        np = str(self.contador)
+        for col in inst:
+            if isinstance(col, Select):
+                self.Select(col, np)
+            elif isinstance(col, Time):
+                self.Time(col, np)
+            elif isinstance(col, IdId):
+                self.CrearNodo(col.id1.id + '.' + col.id2.id, np)
+            elif isinstance(col, Id):
+                self.CrearNodo(col.id, np)
+            elif isinstance(col, IdAsId):
+                self.IdAsId(col, np)
+            elif isinstance(col, Math_):
+                self.Math_(col, np)
+            elif isinstance(col, Trigonometrica):
+                pass #self.Trig(col, np)
+            #elif isisnstance(col, Binario):
+                #self.Binario(col, np)
+            
+
+    def IdAsId(self, inst, padre):
+        self.CrearNodo('Alias', padre)
+        np = str(self.contador)
+        #id1
+        if isinstance(inst.id1, Time):
+            self.Time(inst.id1, np)
+        elif isinstance(inst.id1, Select):
+            self.Select(inst.id1, np)
+        elif isinstance(inst.id1, Id):
+            self.CrearNodo(inst.id1.id, np)
+        elif isinstance(inst.id1, IdId):
+            self.CrearNodo(inst.id1.id1.id + '.' + inst.id1.id2.id, np)
+        elif isinstance(inst.id1, Math_):
+            self.Math_(inst.id1, np)
+        elif isinstance(inst.id1, Trigonometrica):
+            pass #self.Trig(col, np)
+        #elif isinstance(inst.id1, Binario):
+         #   self.Binario(col, np)
+        #id2
+        if isinstance(inst.id2, Id):
+            self.CrearNodo(inst.id2.id, np)
+        elif isinstance(inst.id2, Primitivo):
+            self.Primitivo(inst.id2, np)
+
+    def Math_(self, inst, padre):
+        self.CrearNodo('Math', padre)
+        np = str(self.contador)
+        self.CrearNodo(inst.nombre, np)
+        if inst.E1 != None:
+            print(inst.E1)
+            if isinstance(inst.E1, Id):
+                self.Id(inst.E1.id, np)
+                print('es id')
+            elif isinstance(inst.E1, Primitivo):
+                self.Primitivo(inst.E1, np)
+            elif isinstance(inst.E1, IdId):
+                self.CrearNodo(inst.E1.id1 + '.' + inst.E1.id2, np)
+            elif isinstance(inst.E1, Expresion):
+                self.E(inst.E1, np)
+        if inst.E2 != None:
+            print(inst.E2)
+            if isinstance(inst.E2, Id):
+                self.Id(inst.E2.id, np)
+                print('es id')
+            elif isinstance(inst.E2, Primitivo):
+                self.Primitivo(inst.E2, np)
+            elif isinstance(inst.E2, IdId):
+                self.CrearNodo(inst.E2.id1 + '.' + inst.E2.id2, np)
+            elif isinstance(inst.E2, Expresion):
+                self.E(inst.E2, np)
 
 #EXPRESION
     def E(self, inst, padre):
@@ -434,7 +550,7 @@ class AST:
         self.c += 'Nodo'+ str(self.contador)+ '[label="' + unario.operador + '"]\n' 
         self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         a = str(self.contador)
-        self.contador += self.contador
+        #self.contador += self.contador#
         print('UNARIO')
         #if isinstance(unario.op, Id):
          #   print(unario.op)
@@ -456,10 +572,10 @@ class AST:
         self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         padre = str(self.contador)
         self.contador += self.contador
-        if isinstance(inst.id, Id):
-            self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.id.id + '"]\n' 
-        if isinstance(inst.id, IdId):
-            self.c += 'Nodo'+ str(self.contador)+ '[label="' + str(inst.id.id1.id) + '.' + str(inst.id.id2.id) + '"]\n' 
+        if isinstance(inst.iz, Id):
+            self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.iz.id + '"]\n' 
+        if isinstance(inst.iz, IdId):
+            self.c += 'Nodo'+ str(self.contador)+ '[label="' + str(inst.iz.id1.id) + '.' + str(inst.iz.id2.id) + '"]\n' 
         self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         self.contador += self.contador
         self.c += 'Nodo'+ str(self.contador)+ '[label="="]\n' 
@@ -467,5 +583,38 @@ class AST:
         #self.contador += self.contador
         #self.c += 'Nodo'+ str(self.contador)+ '[label="E"]\n' 
         #self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
-        self.E(inst.expresion, padre)
+        self.E(inst.dr, padre)
+
+    def CrearNodo(self, label, padre):
+        self.contador += self.contador
+        self.c += 'Nodo'+ str(self.contador)+ '[label="' + label + '"]\n' 
+        self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+
+        
+    def Time(self, inst, padre):
+        self.CrearNodo('Time', padre)
+        np = str(self.contador)
+        if inst.caso == 1:
+            self.CrearNodo('EXTRACT', np)
+            self.CrearNodo(inst.momento, np)
+            self.CrearNodo('FROM TIMESTAMP', np)
+            self.CrearNodo(inst.cadena, np)
+        elif inst.caso == 2:
+            self.CrearNodo('NOW', np)
+        elif inst.caso == 3:
+            self.CrearNodo('date_part', np)
+            self.CrearNodo(inst.cadena, np)
+            self.CrearNodo('INTERVAL', np)
+            self.CrearNodo(inst.cadena2, np)
+        elif inst.caso == 4:
+            self.CrearNodo('CURRENT_DATE', np)
+        elif inst.caso == 5:
+            self.CrearNodo('CURRENT_TIME', np)
+        elif inst.caso == 6:
+            self.CrearNodo('TIMESTAMP', np)
+            self.CrearNodo(inst.cadena, np)
+
+
+
+
         
