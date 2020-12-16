@@ -582,22 +582,59 @@ def p_instrucciones_lista_columnas(t) :
     'crear_tb_columnas      : crear_tb_columnas COMA crear_tb_columna'
     #t[1].append(t[3])
     #t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'COLUMNAS')
+    
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_columnas(t) :
     'crear_tb_columnas      : crear_tb_columna'
     #t[0] = [t[1]]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'COLUMNA')
+    
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_columna_parametros(t) :
     'crear_tb_columna       : ID tipos parametros_columna'
     t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'ID')
+    dot.edge(str(id), t[1])
+    
+    for element in t[2]:
+        dot.edge(str(id), str(element['id']))
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
+
 
 def p_instrucciones_columna_noparam(t) :
     'crear_tb_columna       : ID tipos'
     t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2])}
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'ID')
+    dot.edge(str(id), t[1])
+    
+    for element in t[2]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_columna_pk(t) :
     'crear_tb_columna       : PRIMARY KEY PARIZQ lista_id PARDER'
     #t[0] = LlavesPrimarias(t[4])
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), ' PRIMARY KEY')
+    
+    for element in t[4]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_columna_fk(t) :
     'crear_tb_columna       : FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'
@@ -607,66 +644,157 @@ def p_instrucciones_columna_fk(t) :
     else:
         print('Se creó referencia de llave foranea')
 
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), ' FOREIGN KEY')
+    
+    for element in t[4]:
+        dot.edge(str(id), str(element['id']))
+
+    dot.node(str(id), t[6] + ' - ' + t[7])
+    for element in t[9]:
+        dot.edge(str(id), str(element['id']))
+
+
 def p_instrucciones_columna_check(t) :
     'crear_tb_columna   : chequeo'
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'PARAMETRO')
+    
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_columna_unique(t) :
     'crear_tb_columna   : UNIQUE PARIZQ lista_id PARDER'
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'UNIQUE')
+    
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_lista_params_columnas(t) :
     'parametros_columna     : parametros_columna parametro_columna'
     t[1].update(t[2])
     #t[1] = {} -> t[0] = {}
     t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'PARAMETRO')
+    
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
+    for element in t[2]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_params_columnas(t) :
     'parametros_columna     : parametro_columna'
     #t[1] = {} -> t[0] = {}
     t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'PARAMETRO')
+    
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_parametro_columna_default(t) :
     'parametro_columna      : DEFAULT valor'
     #t[1] = {} -> t[0] = {}
     t[0] = {'default': t[2]}
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'PARAMETRO')
+
+    for element in t[2]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_parametro_columna_nul(t) :
     'parametro_columna      : unul'
     #t[1] = {} -> t[0] = {}
     t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'PARAMETRO')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_parametro_columna_unique(t) :
     'parametro_columna      : unic'
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'PARAMETRO')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_parametro_columna_checkeo(t) :
     'parametro_columna      : chequeo'
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'PARAMETRO')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_parametro_columna_pkey(t) :
     'parametro_columna      : PRIMARY KEY'
     t[0] = {'is_primary': 1}
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'PRIMARY KEY')
 
 def p_instrucciones_parametro_columna_fkey(t) :
     'parametro_columna      : REFERENCES ID'
     t[0] = {'references': t[2]}
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'REFERENCES')
+    dot.edge(str(id), t[2])
 
 def p_instrucciones_nnul(t) :
     'unul   : NOT NULL'
     t[0] = {'is_null': TipoNull.NOT_NULL}
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'NOT NULL')
 
 def p_instrucciones_unul(t) :
     'unul   : NULL'
     t[0] = {'is_null': TipoNull.NULL}
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'NULL')
 
 def p_instrucciones_unic_constraint(t) :
     'unic   : CONSTRAINT ID UNIQUE'
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'CONSTRAINT ' + t[2] + ' CHECK')
 
 def p_instrucciones_unic(t) :
     'unic   : UNIQUE'
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'UNIQUE ')
 
 def p_instrucciones_chequeo_constraint(t) :
     'chequeo    : CONSTRAINT ID CHECK PARIZQ relacional PARDER'
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'CONSTRAINT ' + t[2] + ' CHECK')
+    for element in t[5]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_chequeo(t) :
     'chequeo    : CHECK PARIZQ relacional PARDER'
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'CHECK')
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
     
 
 #========================================================
@@ -677,19 +805,42 @@ def p_instrucciones_lista_ids(t) :
     'lista_id   : lista_id COMA ID'
     t[1].append(t[3])
     t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Lista de ID')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_lista_id(t) :
     'lista_id   : ID'
     t[0] = [t[1]]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'ID')
+    dot.edge(str(id), t[1])
 
 def p_instrucciones_lista_objetos(t) :
     'lista_objetos  : lista_objetos COMA objeto'
     t[1].append(t[3])
     t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Lista de Objetos')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
+
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_lista_objeto(t) :
     'lista_objetos  : objeto'
     t[0] = [t[1]]
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), t[1])
 
 def p_instrucciones_objeto(t) :
     '''objeto       : DECIMAL
@@ -704,18 +855,45 @@ def p_instrucciones_objeto(t) :
 def p_instrucciones_lista_insercion_objeto(t) :
     '''lista_insercion  : lista_insercion COMA objeto'''
     #para objetos simples
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Lista de Insercion')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
+
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_lista_insercion_select(t) :
     'lista_insercion  : lista_insercion COMA PARIZQ SELECT selects PARDER'
     #para cuando haya querys select
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Lista de Insercion')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
+
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_insercion_objeto(t) :
     '''lista_insercion  : objeto'''
     #para un objeto simple
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Insercion de Objeto')
+    dot.edge(str(id), t[1])
 
 def p_instrucciones_insercion_select(t) :
     'lista_insercion  : PARIZQ SELECT selects PARDER'
     #Para un query select
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'SUB-QUERY')
+
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
 
 #========================================================
 
@@ -726,25 +904,47 @@ def p_instruccion_delete(t) :
     '''deletes      : delete_condicional
                     | delete_incondicional'''
     print("ELIMINACION")
+                    
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'DELETE')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instruccion_delete_incondicional(t) :
     'delete_incondicional     : ID PTCOMA'
     t[0] = Delete_incondicional(t[1])
     print("Eliminar tabla: " + t[1])
+                    
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'ID')
+    dot.edge(str(id), t[1])
 
 def p_instruccion_delete_condicional(t) :
     'delete_condicional     : ID WHERE relacional PTCOMA'
     # t[0] = Delete_incondicional(t[1])
     print("Eliminar tabla: " + t[1])
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'COONDICION WHERE')
+    dot.edge(str(id), t[1])
+
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
 
 # INSTRUCCION ALTER TABLE
 def p_instruccion_alter(t) :
     '''alter_table  : ID def_alter'''
     print("ALTER TABLE")
 
-    id_alter = inc()
-    t[0] = {'id_alter': id_alter}
-    dot.node(str(id_alter), t[1])
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.edge(str(id), t[1])
+
+    for element in t[2]:
+        dot.edge(str(id), str(element['id']))
 
 def p_def_alter(t) :
     '''def_alter    : ADD COLUMN ID tipos
@@ -755,6 +955,32 @@ def p_def_alter(t) :
                     | ALTER COLUMN ID SET NOT NULL
                     | DROP CONSTRAINT ID
                     | RENAME COLUMN ID TO ID'''
+                    
+    id = inc()
+    t[0] = [{'id': id}]
+
+    if t[1].upper() == 'ADD':
+        if t[2].upper() == 'COLUMN':
+            dot.node(str(id), 'ADD COLUMN')
+        if t[2].upper() == 'CHECK':
+            dot.node(str(id), 'ADD CHECK')
+        if t[2].upper() == 'CONSTRAINT':
+            dot.node(str(id), 'ADD CONSTRAINT')
+        if t[2].upper() == 'FOREIGN':
+            dot.node(str(id), 'ADD FOREIGN KEY')
+
+    elif t[1].upper() == 'DROP':
+        if t[2].upper() == 'COLUMN':
+            dot.node(str(id), 'DROP COLUMN')
+        if t[2].upper() == 'CONSTRAINT':
+            dot.node(str(id), 'DROP CONSTRAINT')
+
+    elif t[1].upper() == 'ALTER':
+        dot.node(str(id), 'ALTER COLUMN')
+
+    elif t[1].upper() == 'RENAME':
+        dot.node(str(id), 'RENAME COLUMN')
+
 
 def p_tipos_1(t) :
     '''tipos        : SMALLINT
@@ -771,20 +997,38 @@ def p_tipos_1(t) :
                     | TIME
                     | BOOLEAN
                     | INTERVAL'''
+                    
+    id = inc()
+    t[0] = [{'id': id}]
+
     if len(t) == 2:
+        dot.node(str(id), t[1])
         t[0] = {'tipo': TipoColumna[t[1].upper()]}
     else:
+        dot.node(str(id), 'DOUBLE_PRECISION')
         t[0] = {'tipo': TipoColumna['DOUBLE_PRECISION']}
+
 
 def p_tipos_2(t) :
     '''tipos        : CHARACTER VARYING PARIZQ ENTERO PARDER'''
     t[0] = {'tipo': TipoColumna['CHARACTER_VARYING'], 'n': t[4]}
+    
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), t[1] + ' ' + t[2])
+    dot.edge(str(id), t[4])
+
 
 def p_tipos_3(t) :
     '''tipos        : VARCHAR PARIZQ ENTERO PARDER
                     | CHARACTER PARIZQ ENTERO PARDER
                     | CHAR PARIZQ ENTERO PARDER'''
     t[0] = {'tipo': TipoColumna[t[1].upper()], 'n': t[3]}
+    
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), t[1])
+    dot.edge(str(id), t[3])
 
 def p_tipos_4(t) :
     '''tipos        : TIMESTAMP def_dt_types
@@ -793,48 +1037,113 @@ def p_tipos_4(t) :
     t[0] = {'tipo': TipoColumna[t[1].upper() + sufix]}
     if 'p' in t[2]:
         t[0]['p'] = t[2]['p'] 
+        
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), t[1])
+
+    for element in t[2]:
+        dot.edge(str(id), str(element['id']))
+
 
 def p_tipos_5(t) :
     '''tipos        : INTERVAL def_interval'''
     t[0] = {'tipo': TipoColumna[t[1].upper()]}
     t[0].update(t[2])
+    t[0] = t[1]
+
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'INTERVAL TIME')
+
+    for element in t[2]:
+        dot.edge(str(id), str(element['id']))
 
 def p_def_dt_types_1(t) :
     '''def_dt_types : PARIZQ ENTERO PARDER WITHOUT TIME ZONE
                     | PARIZQ ENTERO PARDER WITH TIME ZONE
                     | PARIZQ ENTERO PARDER'''
+    t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+
     t[0] = {'p': t[2]}  
     if len(t) > 4:
         if t[4].lower() == 'without':
+            dot.node(str(id), 'WITHOUT TIME ZONE')
+            dot.edge(str(id), t[2])
             t[0]['w'] = '_WO' 
         else:
+            dot.node(str(id), 'WITH TIME ZONE')
+            dot.edge(str(id), t[2])
             t[0]['w'] = '_W' 
+    else:
+        dot.node(str(id), t[2])
+
                     
 def p_def_dt_types_2(t) :
     '''def_dt_types : WITHOUT TIME ZONE
                     | WITH TIME ZONE'''
+    t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+
     if t[1].lower() == 'without':
         t[0] = {'w': '_WO'} 
+        dot.node(str(id), 'WITHOUT TIME ZON')
     else:
         t[0] = {'w': '_W'} 
+        dot.node(str(id), 'WITH TIME ZON')
 
 def p_def_interval_1(t) :
     '''def_interval : def_fld_to PARIZQ ENTERO PARDER
                     | def_fld_to'''
+    t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Intervalor')
+
     t[0] = {'field': t[1]}
     if len(t) == 5:
         t[0]['p'] = t[3]
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+
+        dot.edge(str(id), t[3])
+    else:
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+
 
 def p_def_interval_2(t) :
     '''def_interval : PARIZQ ENTERO PARDER'''
     t[0] = {'p': t[2]}
+    t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Intervalor')
+    dot.edge(str(id), t[2])
 
 def p_def_fld_to(t) :
     '''def_fld_to   : def_fields TO def_fields
                     | def_fields'''
     t[0] = t[1]
+    id = inc()
+    t[0] = [{'id': id}]
+
     if len(t) > 2:
+        dot.node(str(id), 'TO')
+
         t[0]['destino'] = t[3]['origen']
+
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+        for element in t[3]:
+            dot.edge(str(id), str(element['id']))
+    else:
+        dot.node(str(id), 'Tiempo')
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
 
 
 def p_def_fields(t) :
@@ -845,6 +1154,11 @@ def p_def_fields(t) :
                     | MINUTE
                     | SECOND'''
     t[0] = {'origen': TipoFields[t[1].upper()]}
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Tiempo')
+    dot.edge(str(id), t[1])
+
 
 def p_relacional(t) :
     '''relacional   : aritmetica MENOR aritmetica
@@ -865,11 +1179,44 @@ def p_relacional(t) :
                     | ANY state_subquery
                     | ALL state_subquery
                     | SOME state_subquery
-                    | state_between
+                    '''
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Valor Relacional')
+
+    if len(t) == 2:
+        dot.edge(str(id), t[1])
+        dot.edge(str(id), t[2])
+    elif len(t) == 3:
+        if t[1].upper() == 'NOT':
+            dot.edge(str(id), t[1])
+            dot.edge(str(id), t[2])
+            dot.edge(str(id), t[3])
+        else:
+            for element in t[1]:
+                dot.edge(str(id), str(element['id']))
+
+            dot.edge(str(id), t[2])
+
+            for element in t[3]:
+                dot.edge(str(id), str(element['id']))
+
+    else:
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+
+def p_relacional2(t) :
+    '''relacional   : state_between
                     | state_predicate_nulls
                     | state_is_distinct
                     | state_pattern_match
                     '''
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Valor Relacional')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_aritmetica(t) :
     '''aritmetica   : aritmetica MAS aritmetica
@@ -879,43 +1226,106 @@ def p_aritmetica(t) :
                     | aritmetica MODULO aritmetica
                     | aritmetica EXP aritmetica
                     | valor
-                    | PARIZQ aritmetica PARDER
-                    | funciones_math_esenciales
+                    | PARIZQ aritmetica PARDER'''
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Valor aritmetico')
+
+    if len(t) == 2:
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+    else:
+        if t[1].upper() == "PARIZQ":
+            for element in t[2]:
+                dot.edge(str(id), str(element['id']))
+        else:
+            for element in t[1]:
+                dot.edge(str(id), str(element['id']))
+
+            dot.edge(str(id), t[2])
+
+            for element in t[3]:
+                dot.edge(str(id), str(element['id']))
+
+
+def p_aritmetica2(t) :
+    '''aritmetica   : funciones_math_esenciales
                     | lista_funciones
                     | fun_binario_select
                     | fun_trigonometrica'''
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Funciones')
+
+    for element in t[1]:
+        dot.edge(str(id), str(element['id']))
 
 def p_valor(t) :
     '''valor        : ID
                     | ENTERO
                     | DECIMAL  
-                    | date_functions
                     | CADENA
                     | ID PUNTO ID
-                    | lista_funciones_where
+                    '''
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'Valor')
+
+    if len(t) == 2:
+        dot.edge(str(id), t[1])
+    else:
+        dot.edge(str(id), t[1] + t[2] + t[3])
+
+def p_valor2(t) :
+    '''valor        : lista_funciones_where
                     | fun_binario_where
+                    | date_functions
                     | state_subquery'''
     id = inc()
     t[0] = [{'id': id}]
+    dot.node(str(id), 'Funciones')
 
-    if len(t) == 2:
-        dot.node(str(id), t[1])
-    else:
-        dot.node(str(id), t[1] + t[2] + t[3])
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
+
 
 def p_instruccion_update_where(t) :
     '''update_table : ID SET def_update WHERE relacional'''
     print("UPDATE TABLE")
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'SET')
+    dot.edge(str(id), t[1])
+
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
 
 def p_instruccion_update(t) :
     '''update_table : ID SET def_update'''
     print("UPDATE TABLE")
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), 'SET')
+    dot.edge(str(id), t[1])
+
+    for element in t[3]:
+        dot.edge(str(id), str(element['id']))
 
 def p_def_update_rec(t) :
     '''def_update   : def_update COMA ID IGUAL valor'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    for element in t[1]:
+        dot.node(str(id), str(element['id']))
+
+    dot.node(str(id), t[3] + ' = ' + t[5])
 
 def p_def_update(t) :
     '''def_update   : ID IGUAL valor'''
+    id = inc()
+    t[0] = [{'id': id}]
+    dot.node(str(id), t[1] + ' = ' + t[3])
 
 
 # BETWEEN
@@ -924,6 +1334,25 @@ def p_between(t) :
     '''state_between    : valor BETWEEN valor AND valor
                         | valor NOT BETWEEN valor AND valor
                         | valor NOT IN state_subquery'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    if t[2].upper() == 'NOT':
+        if t[3].upper() == 'IN':
+            dot.node(str(id), 'NOT IN')
+            dot.edge(str(id), t[1])
+
+            for element in t[4]:
+                dot.edge(str(id), str(element['id']))
+        else:
+            dot.node(str(id), 'NOT BETWEEN')
+            dot.edge(str(id), t[1])
+            dot.edge(str(id), t[4] + ' [AND] ' + t[6])
+    else:
+        dot.node(str(id), 'BETWEEN')
+        dot.edge(str(id), t[1])
+        dot.edge(str(id), t[3] + ' [AND] ' + t[5])
+
 #=======================================================
 
 # IS [NOT] DISTINCT
@@ -931,16 +1360,45 @@ def p_between(t) :
 def p_is_distinct(t) :
     '''state_is_distinct    : valor IS DISTINCT FROM valor state_aliases_table
                             | valor IS NOT DISTINCT FROM valor state_aliases_table'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    if t[3].upper() == 'NOT':
+        dot.node(str(id), 'IS NOT DISTINCT')
+        dot.edge(str(id), t[1])
+        dot.edge(str(id), t[6] + ' [table]')
+
+        for element in t[7]:
+            dot.edge(str(id), str(element['id']))
+    else:
+        dot.node(str(id), 'IS DISTINCT')
+        dot.edge(str(id), t[1])
+        dot.edge(str(id), t[5] + ' [table]')
+
+        for element in t[6]:
+            dot.edge(str(id), str(element['id']))
 #=======================================================
 
 
 # ESTADO PREDICATES
 #=======================================================
 def p_predicate_nulls(t) :
-    '''state_predicate_nulls      : valor IS NULL
-                              | valor IS NOT NULL
-                              | valor ISNULL
-                              | valor NOTNULL'''
+    '''state_predicate_nulls        : valor IS NULL
+                                    | valor IS NOT NULL
+                                    | valor ISNULL
+                                    | valor NOTNULL'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'Predicates')
+
+    if t[2].upper() == 'IS':
+        if t[3].upper() == 'NOT':
+            dot.edge(str(id), 'IS NOT NULL')
+        else:
+            dot.edge(str(id), 'IS NULL')
+    else:
+        dot.edge(str(id), t[2])
 #=======================================================
 
 
@@ -950,6 +1408,13 @@ def p_matchs(t) :
     '''state_pattern_match      : aritmetica LIKE CADENA
                                 | aritmetica LIKE CADENA_DOBLE'''
     print("LIKE")
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'Pattern Match')
+
+    dot.edge(str(id), t[1])
+    dot.edge(str(id), t[3])
 # #=======================================================
 
 
@@ -962,6 +1427,19 @@ def p_aliases_table(t):
                                 | ID
                                 |'''
     print("alias de tablas")
+    id = inc()
+    t[0] = [{'id': id}]
+
+    if len == 1:
+        dot.node(str(id), 'ALIAS')
+
+        if len == 2:
+            for element in t[1]:
+                dot.edge(str(id), str(element['id']))
+
+        else:
+            for element in t[2]:
+                dot.edge(str(id), str(element['id']))
 # -------------------------------------------------------
 
 # PARA LOS CAMPOS
@@ -972,6 +1450,14 @@ def p_aliases_field(t):
                                 | AS ID
                                 |'''
     print("alias de campos")
+    id = inc()
+    t[0] = [{'id': id}]
+
+    if len == 1:
+        dot.node(str(id), 'ALIAS')
+
+        for element in t[2]:
+            dot.edge(str(id), str(element['id']))
 # -------------------------------------------------------
 # #=======================================================
 
@@ -981,31 +1467,95 @@ def p_aliases_field(t):
 def p_case_state(t):
     ''' case_state    : case_state auxcase_state END
                       | auxcase_state END'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'CASE')
+    if len == 3:
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), 'END')
+    else:
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+        for element in t[2]:
+            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), 'END')
                       
 def p_auxcase_state(t):
     'auxcase_state  : WHEN relacional THEN CADENA'
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'WHEN')
+    for element in t[2]:
+        dot.edge(str(id), str(element['id']))
+        
+    dot.edge(str(id), t[4])
 
 def p_auxcase_state2(t):
     'auxcase_state  : ELSE COMILLA_SIMPLE ID COMILLA_SIMPLE'
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ELSE')
+    dot.edge(str(id), t[3])
 #========================================================
 
 # FUNCIONES MATEMÁTICAS
 def p_instrucciones_funcion_count(t):
     '''funciones_math_esenciales    : COUNT PARIZQ lista_funciones_math_esenciales PARDER parametro
                                     | COUNT PARIZQ lista_funciones_math_esenciales PARDER'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'COUNT')
+    if len == 5:
+        for element in t[3]:
+            dot.edge(str(id), str(element['id']))
+    else:
+        for element in t[3]:
+            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_sum(t):
     '''funciones_math_esenciales    : SUM PARIZQ lista_funciones_math_esenciales PARDER parametro
                                     | SUM PARIZQ lista_funciones_math_esenciales PARDER'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUM')
+    if len == 5:
+        for element in t[3]:
+            dot.edge(str(id), str(element['id']))
+    else:
+        for element in t[3]:
+            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_avg(t):
     '''funciones_math_esenciales    : AVG PARIZQ lista_funciones_math_esenciales PARDER parametro
                                     | AVG PARIZQ lista_funciones_math_esenciales PARDER'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'AVG')
+    if len == 5:
+        for element in t[3]:
+            dot.edge(str(id), str(element['id']))
+    else:
+        for element in t[3]:
+            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), t[5])
 
 def p_lista_instrucciones_funcion_math(t):
     '''lista_funciones_math_esenciales  : aritmetica
                                         | lista_id
                                         | POR'''
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), t[0])
 
 #SOLO ESTOS SE PUEDEN USAR EN EL WHERE
 def p_instrucciones_funcion_abs_where(t) :
@@ -1277,90 +1827,202 @@ def p_instrucciones_funcion_math_parametro_negativo(t) :
 def p_instrucciones_funcion_trigonometrica_acos(t) :
     'fun_trigonometrica : ACOS PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ACOS')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ACOS')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_asin(t) :
     'fun_trigonometrica : ASIN PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ASIN')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ASIN')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_atan(t) :
     'fun_trigonometrica : ATAN PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ATAN')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ATAN')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_atan2(t) :
     'fun_trigonometrica : ATAN2 PARIZQ aritmetica COMA aritmetica PARDER'
     print('Ejecuta Funcion ATAN2')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ATAN2')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_trigonometrica_cos(t) :
     'fun_trigonometrica : COS PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COS')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'COS')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_cot(t) :
     'fun_trigonometrica : COT PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COT')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'COT')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_sin(t) :
     'fun_trigonometrica : SIN PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion SIN')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SIN')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_tan(t) :
     'fun_trigonometrica : TAN PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion TAN')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'TAN')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_acosd(t) :
     'fun_trigonometrica : ACOSD PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ACOSD')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ACOSD')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_asind(t) :
     'fun_trigonometrica : ASIND PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ASIND')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ASIND')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_atand(t) :
     'fun_trigonometrica : ATAND PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ATAND')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ATAND')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_atan2d(t) :
     'fun_trigonometrica : ATAN2D PARIZQ aritmetica COMA aritmetica PARDER'
     print('Ejecuta Funcion ATAN2D')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ACATAN2DOS')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_trigonometrica_cosd(t) :
     'fun_trigonometrica : COSD PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COSD')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'COSD')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_cotd(t) :
     'fun_trigonometrica : COTD PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COTD')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'COTD')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_sind(t) : 
     'fun_trigonometrica : SIND PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion SIND')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SIND')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_tand(t) :
     'fun_trigonometrica : TAND PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion TAND')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'TAND')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_sinh(t) :
     'fun_trigonometrica : SINH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion SINH')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SINH')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_cosh(t) :
     'fun_trigonometrica : COSH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion COSH')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'COSH')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_tanh(t) :
     'fun_trigonometrica : TANH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion TANH')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'TANH')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_asinh(t) :
     'fun_trigonometrica : ASINH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ASINH')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ASINH')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_acosh(t) :
     'fun_trigonometrica : ACOSH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ACOSH')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ACOSH')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_trigonometrica_atanh(t) :
     'fun_trigonometrica : ATANH PARIZQ aritmetica PARDER'
     print('Ejecuta Funcion ATANH')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ATANH')
+    dot.edge(str(id), t[3])
 #========================================================
 
 #========================================================
@@ -1368,102 +2030,257 @@ def p_instrucciones_funcion_trigonometrica_atanh(t) :
 def p_instrucciones_funcion_binary_string_length_select(t) :
     'fun_binario_select    : LENGTH PARIZQ valor PARDER'
     print('Ejecuta Funcion length')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'LENGTH')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_binary_string_length_where(t) :
     'fun_binario_where    : LENGTH PARIZQ valor PARDER'
     print('Ejecuta Funcion length')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'LENGTH')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_binary_string_substring_select(t) :
     'fun_binario_select    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substring')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_substring_insert(t) :
     'fun_binario_insert    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substring')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_substring_update(t) :
     'fun_binario_update    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substring')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_substring_where(t) :
     'fun_binario_where    : SUBSTRING PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substring')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_trim_select(t) :
     'fun_binario_select    : TRIM PARIZQ CADENA FROM valor PARDER'
     print('Ejecuta Funcion trim')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'TRIM')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_binary_string_trim_insert(t) :
     'fun_binario_insert    : TRIM PARIZQ CADENA FROM valor PARDER'
     print('Ejecuta Funcion trim')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'TRIM')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_binary_string_trim_update(t) :
     'fun_binario_update    : TRIM PARIZQ CADENA FROM valor PARDER'
     print('Ejecuta Funcion trim')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'TRIM')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_binary_string_trim_where(t) :
     'fun_binario_where    : TRIM PARIZQ CADENA FROM valor PARDER'
     print('Ejecuta Funcion trim')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'TRIM')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_binary_string_md5_insert(t) :
     'fun_binario_insert : MD5 PARIZQ valor PARDER'
     print('Ejecuta Funcion md5')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'MD5')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_binary_string_md5_update(t) :
     'fun_binario_update : MD5 PARIZQ valor PARDER'
     print('Ejecuta Funcion md5')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'MD5')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_binary_string_sha256_select(t) :
     'fun_binario_select : SHA256 PARIZQ valor PARDER'
     print('Ejecuta Funcion sha256')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SHA256')
+    dot.edge(str(id), t[3])
 
 def p_instrucciones_funcion_binary_string_substr_select(t) :
     'fun_binario_select : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substr')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_substr_insert(t) :
     'fun_binario_insert : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substr')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_substr_update(t) :
     'fun_binario_update : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substr')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_substr_where(t) :
     'fun_binario_where : SUBSTR PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta Funcion substr')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SUBSTRING')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_get_byte(t) :
     'fun_binario_select : GET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO PARDER'
     print('Ejecuta funcion getbyte')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'GET_BYTE')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[8])
 
 def p_instrucciones_funcion_binary_string_get_byte2(t) :
     'fun_binario_select : GET_BYTE PARIZQ valor COMA ENTERO PARDER'
     print('Ejecuta funcion getbyte')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'GET_BYTE')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_binary_string_set_byte(t) :
     'fun_binario_select : SET_BYTE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta funcion setbyte')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SET_BYTE')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[8])
+    dot.edge(str(id), t[10])
 
 def p_instrucciones_funcion_binary_string_set_byte2(t) :
     'fun_binario_select : SET_BYTE PARIZQ valor COMA ENTERO COMA ENTERO PARDER'
     print('Ejecuta funcion setbyte')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'SET_BYTE')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
+    dot.edge(str(id), t[7])
 
 def p_instrucciones_funcion_binary_string_Convert(t) :
     'fun_binario_select : CONVERT PARIZQ valor AS tipos PARDER'
     print('Ejecuta funcion convert')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'CONVERT')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_binary_string_encode(t) :
     'fun_binario_select : ENCODE PARIZQ valor DOS_PUNTOS DOS_PUNTOS BYTEA COMA CADENA PARDER'
     print('Ejectua funcion encode')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ENCODE')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[8])
 
 def p_instrucciones_funcion_binary_string_encode2(t) :
     'fun_binario_select : ENCODE PARIZQ valor COMA CADENA PARDER'
     print('Ejecuta funcion encode')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'ENCODE')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 def p_instrucciones_funcion_binary_string_decode(t) :
     'fun_binario_select : DECODE PARIZQ valor COMA CADENA PARDER'
     print('Ejecuta funcion decode')
+    id = inc()
+    t[0] = [{'id': id}]
+
+    dot.node(str(id), 'DECODE')
+    dot.edge(str(id), t[3])
+    dot.edge(str(id), t[5])
 
 #========================================================
 
