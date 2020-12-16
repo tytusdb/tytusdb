@@ -5,33 +5,27 @@ sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
 sys.path.append('../tytus/parser/team27/G-27/libraries')
 from function import *
 from typ import *
+from math_functions import sqrt
 
-class Round(Function):
-    def __init__(self, input, decimal, row, column):
+class Sqrt(Function):
+    def __init__(self, input, row, column):
         Function.__init__(self,row,column)
         self.input = input
-        self.decimal = decimal
     
     def execute(self, environment):
-        #Input es una lista        
+        #input es una lista        
         if isinstance(self.input,list):
             respuesta = []
-            for i in range(len(self.input)):
-                value = self.input[i].execute(environment)
-                value2 = self.decimal[i].execute(environment)
+            for val in self.input:
+                value = val.execute(environment)
                 if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
                     return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-                if value2['typ'] != Type.INT:
-                    return {'Error':"El valor del segundo parámetro no es entero", 'linea':self.row,'columna':self.column }
-                result = round(value['value'], value2['value'])
-                respuesta.append({'value':result, 'typ': Type.INT})
+                result = sqrt(value['value'])
+                respuesta.append({'value':result, 'typ': Type.DECIMAL})
             return respuesta
-        #Input valor puntual
+        #input valor puntual
         else:
             value = self.input.execute(environment)
-            value2 = self.decimal.execute(environment)
             if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-            if value2['typ'] != Type.INT:
-                return {'Error':"El valor del segundo parámetro no es entero.", 'linea':self.row,'columna':self.column }
-            return [{'value':round(value['value'],value2['value']), 'typ': Type.INT}]
+            return [{'value':sqrt(value['value']), 'typ': Type.DECIMAL}]

@@ -5,9 +5,9 @@ sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
 sys.path.append('../tytus/parser/team27/G-27/libraries')
 from function import *
 from typ import *
-from math_functions import sign
+from math_functions import floor
 
-class Sign(Function):
+class Floor(Function):
     def __init__(self, input, row, column):
         Function.__init__(self,row,column)
         self.input = input
@@ -19,8 +19,8 @@ class Sign(Function):
             for val in self.input:
                 value = val.execute(environment)
                 if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
-                    return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-                result = sign(value['value'])
+                    return {'Error':"El valor " + value['value'] + " no es decimal o entero.", 'linea':self.row,'columna':self.column }
+                result = floor(value['value'])
                 respuesta.append({'value':result, 'typ': Type.INT})
             return respuesta
         #input valor puntual
@@ -28,4 +28,4 @@ class Sign(Function):
             value = self.input.execute(environment)
             if value['typ'] != Type.INT and value['typ'] != Type.DECIMAL:
                 return {'Error':"El valor " + value['value'] + " no es decimal o entero", 'linea':self.row,'columna':self.column }
-            return [{'value':sign(value['value']), 'typ': Type.INT}]
+            return [{'value': floor(value['value']), 'typ': Type.INT}]
