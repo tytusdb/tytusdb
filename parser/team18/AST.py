@@ -68,14 +68,14 @@ def crear_Type(instr,ts):
     nombreT=resolver_operacion(instr.nombre,ts)
 
     global outputTxt
-    outputTxt+='\n> Creando Type: '+nombreT;
+    outputTxt+='\n> Creando Type: '+nombreT
     print('nombre:',instr.nombre,'valores:',instr.valores)
 
 def eliminar_BaseDatos(instr,ts):
     nombreDB=resolver_operacion(instr.nombre,ts)
 
     global outputTxt
-    outputTxt+='\n> Eliminado Base de datos: '+nombreDB;
+    outputTxt+='\n> Eliminado Base de datos: '+nombreDB
     #verificar si hay existencia
     #eliminar
     if(instr.existencia):
@@ -93,7 +93,7 @@ def eliminar_Tabla(instr,ts):
     nombreT=resolver_operacion(instr.nombre,ts)
 
     global outputTxt
-    outputTxt+='\n> Eliminado Tabla: '+nombreT;
+    outputTxt+='\n> Eliminado Tabla: '+nombreT
     #verificar si hay existencia
     #eliminar
     if(instr.existencia):
@@ -106,7 +106,57 @@ def eliminar_Tabla(instr,ts):
     print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
 
 
+def insertar_en_tabla(instr,ts):
+    print('nombre:',instr.nombre,'valores:',instr.valores)
+    nombreT=''
+    nombreT=resolver_operacion(instr.nombre,ts)
+    values=''
 
+    for val in instr.valores:
+        values+=str(resolver_operacion(val,ts))+' '
+
+    global outputTxt
+    outputTxt+='\n> Insertado en Tabla: '+nombreT
+    outputTxt+='\n> Valores: '+values
+    outputTxt+='\n> '+str(len(instr.valores))+' Filas afectadas'
+
+def actualizar_en_tabla(instr,ts):
+    print('nombre:',instr.nombre,'condicion:',instr.condicion,'valores:',instr.valores)
+    nombreT=''
+    nombreT=resolver_operacion(instr.nombre,ts)
+    values=''
+
+    for val in instr.valores:
+        values+=resolver_operacion(val.nombre,ts)+'='+str(resolver_operacion(val.valor,ts))+' '
+
+    global outputTxt
+    outputTxt+='\n> Actualizado en Tabla: '+nombreT
+    outputTxt+='\n> Valores: '+values
+    outputTxt+='\n> '+str(len(instr.valores))+' Filas afectadas'
+
+
+def eliminar_de_tabla(instr,ts):
+    print('nombre:',instr.nombre,'condicion:',instr.condicion)
+    nombreT=''
+    nombreT=resolver_operacion(instr.nombre,ts)
+
+    global outputTxt
+    outputTxt+='\n> Eliminacion de Tabla: '+nombreT
+
+def eleccion(instr,ts):
+    print('nombre:',instr.nombre)
+    nombreT=''
+    nombreT=resolver_operacion(instr.nombre,ts)
+
+    global outputTxt
+    outputTxt+='\n> Base de Datos '+nombreT+' seleccionada'
+
+def mostrar_db(instr,ts):
+    '''
+        Despliega el listado de base de datos
+    '''
+    global outputTxt
+    outputTxt+='\n> Listado de base de datos ...'
 
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
@@ -200,19 +250,24 @@ def procesar_instrucciones(instrucciones, ts) :
         elif isinstance(instr, CrearType) : crear_Type(instr,ts)
         elif isinstance(instr, EliminarDB) : eliminar_BaseDatos(instr,ts)
         elif isinstance(instr, EliminarTabla) : eliminar_Tabla(instr,ts)
+        elif isinstance(instr, Insertar) : insertar_en_tabla(instr,ts)
+        elif isinstance(instr, Actualizar) : actualizar_en_tabla(instr,ts)
+        elif isinstance(instr, Eliminar) : eliminar_de_tabla(instr,ts)
+        elif isinstance(instr, DBElegida) : eleccion(instr,ts)
+        elif isinstance(instr, MostrarDB) : mostrar_db(instr,ts)
         else : print('Error: instrucción no válida')
 
 
 
 def Analisar(input):
     global outputTxt
-    outputTxt='------------SALIDA--------------\n';
+    outputTxt='------------SALIDA--------------\n'
 
     instrucciones = g.parse(input)
     print(instrucciones)
     ts_global = TS.TablaDeSimbolos()
     procesar_instrucciones(instrucciones,ts_global)
-    return outputTxt;
+    return outputTxt
 
 #Metodos para graficar el ast 
 def generarAST():

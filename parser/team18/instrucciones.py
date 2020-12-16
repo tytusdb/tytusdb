@@ -92,7 +92,7 @@ class llaveTabla(Instruccion) :
 
 class atributoColumna(Instruccion) :
     '''
-        Esta clase los atributos de una columna
+        Esta clase representa los atributos de una columna
     '''
     def __init__(self, default,constraint,null,unique,primary,check) :
         self.default = default
@@ -101,3 +101,48 @@ class atributoColumna(Instruccion) :
         self.unique = unique
         self.primary = primary
         self.check = check
+
+class Insertar(Instruccion):
+    '''
+        Estan clase representa los valores a insertar en una tabla
+    '''
+    def __init__(self, nombre, valores=[]) :
+        self.nombre = nombre
+        self.valores = valores
+
+class Actualizar(Instruccion):
+    '''
+        Esta clase representa los valores a actualizar de la tabla
+    '''
+    def __init__(self, nombre, condicion, valores=[]) :
+        self.nombre = nombre
+        self.condicion = condicion
+        self.valores = valores
+
+class columna_actualizar(Instruccion):
+    '''
+        Esta clase representa las columnas a actualizar
+    '''
+    def __init__(self, nombre, valor) :
+        self.nombre = nombre
+        self.valor = valor
+
+class Eliminar(Instruccion): 
+    '''
+        Esta clase representa la eliminacion de una tabla 
+    '''
+    def __init__(self, nombre, condicion):
+        self.nombre = nombre
+        self.condicion = condicion
+
+class DBElegida(Instruccion):
+    '''
+        Esta clase representa la base de datos elegida
+    '''
+    def __init__(self,nombre):
+        self.nombre = nombre
+
+class MostrarDB(Instruccion):
+    '''
+        Esta clase representa las base de datos creadas
+    '''

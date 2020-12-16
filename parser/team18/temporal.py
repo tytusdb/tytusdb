@@ -19,6 +19,6 @@ class Columna_run:
     anulable = ''
     default = ''
     primary = False
-    foreign = False;
+    foreign = False
     refence = ''
 

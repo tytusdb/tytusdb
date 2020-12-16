@@ -25,7 +25,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'in':'IN','any':'ANY', 'all':'ALL','some':'SOME','union':'UNION','intersect':'INTERSECT','except':'EXCEPT'  ,'case':'CASE','when':'WHEN','else':'ELSE','end':'END',
                'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'between':'BETWEEN' ,'offset':'OFFSET',
                'greatest':'GREATEST' , 'least':'LEAST','md5':'MD5','extract':'EXTRACT','now':'NOW' ,'date_part':'DATE_PART' ,
-               'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME' ,
+               'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME' , 'use':'USE'
              } 
  
 
@@ -185,7 +185,9 @@ def p_sentencia_dml(t):
                       | eliminar
                       | seleccionH
                       | mostrar
-                      | altert'''                            
+                      | altert
+                      | usar'''
+     t[0] = t[1]                            
 #NUEVO YO---------------------------------------------
 
 
@@ -295,15 +297,35 @@ def p_alttbadd3(t):
 
 #fin alter codigo-----------------------------------------------------------------
 
-
 def p_insertar(t):
      '''insertar : INSERT INTO ID VALUES PAR_A lista_exp PAR_C'''
+     t[0] = Insertar(Operando_ID(t[3]),t[6])
 
 def p_actualizar(t):
-     '''actualizar : UPDATE ID SET exp WHERE exp''' 
+     '''actualizar : UPDATE ID SET listaupdate WHERE exp'''
+     t[0] = Actualizar(Operando_ID(t[2]),t[6],t[4]) 
+
+def p_lista_update(t):
+     '''listaupdate : listaupdate COMA campoupdate
+                    | campoupdate'''
+     if len(t) == 4:
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
+
+def p_campo_update(t):
+     '''campoupdate : ID IGUAL exp'''
+     t[0] = columna_actualizar(Operando_ID(t[1]),t[3])
 
 def p_eliminar(t):
      '''eliminar : DELETE FROM ID WHERE exp'''
+     t[0] = Eliminar(Operando_ID(t[3]),t[5])
+
+def p_usear_db(t):
+     '''usar : USE ID'''
+     t[0] = DBElegida(Operando_ID(t[2]))
+
 #------------------------------------------------select-----------------------------------------------
 def p_seleccionar(t):
      '''seleccionar : seleccionar1 LIMIT ENTERO offsetop
@@ -312,12 +334,6 @@ def p_seleccionar(t):
                     | seleccionar1 LIMIT ENTERO
                     | seleccionar1 LIMIT ALL
                     | seleccionar1 '''
-
-
-
-
-
-
 
 def p_extract(t):
      '''extract : EXTRACT PAR_A extract1  FROM timestamp  valoresdefault  PAR_C
@@ -399,11 +415,6 @@ def p_resultV(t):
                 | CADENA2
                 | ID
                 | PAR_A resultV PAR_C'''
-
-
-
-
-
 
 
 def p_columna_name(t):
@@ -581,6 +592,7 @@ def p_funcion_date(t):
 
 def p_mostrar_databases(t):
      '''mostrar : SHOW DATABASES'''
+     t[0] = MostrarDB()
 
 def p_valores_trim(t):
      '''valorestrim : leading
@@ -598,7 +610,7 @@ def p_listaexp(t):
           t[1].append(t[3])
           t[0] = t[1]
      else:
-          t[0] = [t[1]]   
+          t[0] = [t[1]]  
 
 def p_expresiones(t):
      '''exp : exp_log
@@ -632,8 +644,7 @@ def p_expresion_patron(t):
                          | exp ILIKE exp
                          | exp NOT ILIKE  exp  
                          | exp SIMILAR TO exp
-                         | exp NOT SIMILAR TO exp
-                         | exp COMA exp'''
+                         | exp NOT SIMILAR TO exp''' #| exp COMA exp quite por que daba problema
 
 
 def p_expresion_relacional(t):
