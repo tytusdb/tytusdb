@@ -5,6 +5,7 @@ class Entorno:
         self.anterior = anterior
         self.database = "" 
         self.tablaSimbolo = {}
+        self.consola = []
 
     def nuevoSimbolo(self, symbol):
         x = self.tablaSimbolo.get(symbol.nombre)
@@ -40,6 +41,16 @@ class Entorno:
             ent = ent.anterior
         
         return None
+
+    def mostrarSimbolos(self):
+        ent = self
+
+        while ent != None:
+            for x in ent.tablaSimbolo.values():
+                if x != None:
+                    print(x.toString())
+                
+            ent = ent.anterior
 
     def getDataBase(self):
         ent = self
