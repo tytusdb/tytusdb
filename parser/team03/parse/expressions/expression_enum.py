@@ -38,6 +38,7 @@ class OpPredicate(Enum):
     NOT_FALSE = 8
     UNKNOWN = 9
     NOT_UNKNOWN = 10
+    BETWEEN = 11
 
 
 def say_hi():

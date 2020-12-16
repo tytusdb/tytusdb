@@ -6,7 +6,7 @@ from models.table import Table
 from models.column import Column
 from controllers.error_controller import ErrorController
 
-from storageManager import jsonMode  # TODO Change storage manager
+# from storageManager import jsonMode  # TODO Change storage manager
 
 
 @singleton

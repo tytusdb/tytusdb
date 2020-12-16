@@ -13,7 +13,7 @@ from utils.analyzers.syntactic import *
 from controllers.error_controller import ErrorController
 from utils.reports.generate_ast import GraficarAST
 from utils.reports.report_error import ReportError
-
+from controllers.ast_construction import *
 report_error = None
 report_ast = None
 
@@ -143,14 +143,28 @@ class GUI:
         texto = self.entrada.get("1.0", END)
         result = parse(texto)
         # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
-        print(result)  # Imprime el AST
-        report_ast = result
+        # print(result)  # Imprime el AST
 
         if len(ErrorController().getList()) > 0:
             report_error = ReportError()
             messagebox.showerror('ERRORES', 'Se encontraron errores')
         else:
+            result2 = parse2(texto)
+            report_ast = result2
             messagebox.showinfo("EXITO", "SE FINALIZO EL ANALISIS CON EXITO")
+
+            # ---------- TEST ---------
+            for inst in result:
+                # print(inst)
+                inst.execute()
+            #report_errors = ReportError()
+            #report = open('dot.txt', 'w')
+            # report.write(report_errors.get_report(
+            #    ErrorController().getExeErrList()))
+            # report.close()
+            #os.system('dot -Tpdf dot.txt -o  error.pdf')
+            # os.startfile('error.pdf')
+            # ---------- TEST ---------
 
     # Para mostrar el editor
     def report_ast_ubuntu(self):
