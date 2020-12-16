@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from lexicosql import tokens
-from astExpresion import ExpresionNegativa, ExpresionNumero, ExpresionPositiva, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
+from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
 
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
@@ -8,16 +8,14 @@ from astExpresion import ExpresionNegativa, ExpresionNumero, ExpresionPositiva, 
 
 #---------------- MANEJO DE LA PRECEDENCIA
 precedence = (
-    ('left','IGUAL','DIFERENTE','DIFERENTE2'),
-    ('left','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
+    ('left','AND','OR'),
+    ('left','IGUAL','DIFERENTE','DIFERENTE2','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
+    ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
+    ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
     ('left','MAS','MENOS'),
-    ('left','EXPONENT'),
     ('left','ASTERISCO','DIVISION','MODULO'),
-    ('left','AND'),
-    ('left','OR'),
-    ('nonassoc','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
-    ('nonassoc','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
-    ('right','UMENOS','UMAS','NOT'),  
+    ('left','EXPONENT'),
+    ('right','UMENOS','UMAS','NOT')
 ) 
 
 def p_init(p):
@@ -177,7 +175,7 @@ def p_select0(p):
     'select : SELECT expresion'
     p[0] = p[2].ejecutar(0)
     print(p[0].val)
-    print(p[0].linea)
+    print(p[0])
 
 def p_select1(p):
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -1133,10 +1131,28 @@ def p_expresion_con_dos_nodos(p):
         p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
     elif p[2] == '^':
         p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
-
-
-
-
+    elif p[2] == '<':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MENOR, p.slice[2].lineno)
+    elif p[2] == '>':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MAYOR, p.slice[2].lineno)
+    elif p[2] == '<=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MENORIGUAL, p.slice[2].lineno)
+    elif p[2] == '>=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MAYORIGUAL, p.slice[2].lineno)
+    elif p[2] == '=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.IGUAL, p.slice[2].lineno)
+    elif p[2] == '<>':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.DESIGUAL, p.slice[2].lineno)
+    elif p[2] == '!=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.DESIGUAL, p.slice[2].lineno)
+    elif p[2] == 'and':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.AND, p.slice[2].lineno)
+    elif p[2] == 'AND':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.AND, p.slice[2].lineno)
+    elif p[2] == 'or':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.OR, p.slice[2].lineno)
+    elif p[2] == 'OR':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.OR, p.slice[2].lineno)
 
 #----------------------------------------------------------------------------------------------------- FIN EXPRESION
 #<EXP_AUX>::= '-'  <EXP_AUX>
@@ -1147,26 +1163,41 @@ def p_expresion_con_dos_nodos(p):
 #          | <EXP_AUX>  '/'  <EXP_AUX>
 #          | <EXP_AUX>  '%'  <EXP_AUX>
 #          | <EXP_AUX>  '^'  <EXP_AUX>
-def p_exp_aux(p):
-        '''exp_aux : exp_aux MAS exp_aux 
+def p_exp_auxp(p):
+    '''exp_aux : exp_aux MAS exp_aux 
                  | exp_aux MENOS exp_aux
                  | exp_aux ASTERISCO exp_aux
                  | exp_aux DIVISION exp_aux 
                  | exp_aux EXPONENT exp_aux
                  | exp_aux MODULO exp_aux
     '''
+    if p[2] == '+':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MAS, p.slice[2].lineno)
+    elif p[2] == '-':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MENOS, p.slice[2].lineno)
+    elif p[2] == '*':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.POR, p.slice[2].lineno)
+    elif p[2] == '/':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.DIVIDO, p.slice[2].lineno)
+    elif p[2] == '%':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
+    elif p[2] == '^':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
 #          | '(' <EXP_AUX> ')'
 def p_exp_aux_entre_parentesis(p):
     'exp_aux : PABRE exp_aux  PCIERRA'
+    p[0] = p[2]
 #          | 'cadena'
 def p_exp_aux_cadena(p):
     'exp_aux :  CADENA'
 #          | 'numero'          
 def p_exp_aux_numero(p):
     'exp_aux :  NUMERO'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, p.slice[1].lineno)
 #          | 'decimal'
 def p_exp_aux_decimal(p):
     'exp_aux :  DECIMAL_LITERAL'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, p.slice[1].lineno)
 #          | 'id' '.' 'id'
 def p_exp_aux_tabla(p):
     'exp_aux :  ID PUNTO ID'
@@ -1338,5 +1369,5 @@ def analizarEntrada(entrada):
 
 
 print(analizarEntrada('''
-select -((((5+5-(8*8)+90)/2)%5)^2);
+select 9+8!=8+9 or 8*8 != 64;
                       '''))
