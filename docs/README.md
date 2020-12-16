@@ -148,14 +148,15 @@ Parámetro table: es el nombre de la tabla a utilizar.
 Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
 
 ```
-def extractRangeTable(database: str, table: str, lower: any, upper: any) -> list:
+def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
 ```
 Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabala.  (READ)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
-Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la tabla.  
-Parámetro upper: es el limite superior (inclusive) del rango a extraer de la tabla.  
-Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
+Parámetro columnNumber: es el número de índice de columna a restringir o verificar con los valores upper y lower.
+Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la columna indicada de la tabla.  
+Parámetro upper: es el limite superior (inclusive) del rango a extraer de la columna indicada de la tabla.  
+Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros(lista), si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla o cualquier error devuelve None.  
 Consideraciones:
 - Para la comparación de lower y upper se puede hacer cast a str cuando las llaves sean compuestas o en general para reducir complejidad.
 - Ver el submódulo Any del paquete typing.  
@@ -249,13 +250,13 @@ Parámetro table: es el nombre de la tabla a utilizar.
 Valor de retorno, una lista con el resultado de insertar cada línea del CSV: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primari  a duplicada, 5 columnas fuera de limites.  
 
 ```
-def extractRow(database: str, table: str, columns: list) -> int:
+def extractRow(database: str, table: str, columns: list) -> list:
 ```
 Extrae y devuelve un registro especificado por su llave primaria.  (READ)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
 Parámeto columns: es la llave primaria, si es simple [llave], si es compuesta [llaveatr1, llaveatr2...].  (si no hay pk se debe enviar la hiddenPK)  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria no existe.  
+Valor de retorno: lista con los valores del registro, si ocurrió un error o no hay registro que mostrar devuelve una lista vacía [].  
 
 ```
 def update(database: str, table: str, register: dict, columns: list) -> int:

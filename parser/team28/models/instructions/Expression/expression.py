@@ -1,42 +1,9 @@
-from enum import Enum
-
+import math
 from abc import abstractmethod
-
-class SymbolsAritmeticos(Enum):
-    PLUS = 1
-    MINUS = 2
-    TIMES = 3
-    DIVISON = 4
-    EXPONENT = 5
-    MODULAR = 6
-    BITWISE_SHIFT_RIGHT = 7
-    BITWISE_SHIFT_LEFT = 8
-    BITWISE_AND = 9
-    BITWISE_OR = 10
-    BITWISE_XOR = 11
-
-class DATA_TYPE(Enum):
-    NUMBER = 1
-    STRING = 2
-    CHAR = 3
-    BOOLEANO = 4
-
-class SymbolsRelop(Enum):
-    EQUALS = 1
-    NOT_EQUAL = 2
-    GREATE_EQUAL = 3
-    GREATE_THAN = 4
-    LESS_THAN = 5
-    LESS_EQUAL = 6
-    NOT_EQUAL_LR = 7
-
-class SymbolsUnaryOrOthers(Enum):
-    UMINUS = 1
-    UPLUS = 2
-    BITWISE_NOT = 3
-    SQUARE_ROOT = 4
-    CUBE_ROOT = 5
-
+from datetime import datetime, time
+from math import *
+from models.instructions.Expression.type_enum import *
+import re
 
 class Expression:
     @abstractmethod
@@ -126,20 +93,18 @@ class Relop(Expression):
         operator = self.operator
         try:
             value = 0
-            if operator == "<":
-                value = value1 < value2
-            elif operator == ">":
-                value = value1 > value2
-            elif operator == ">=":
-                value = value1 >= value2
-            elif operator == "<=":
-                value = value1 <= value2
-            elif operator == "=":
-                value = value1 == value2
-            elif operator == "!=":
-                value = value1 != value2
-            elif operator == "<>":
-                value = value1 != value2
+            if operator == SymbolsRelop.LESS_THAN:
+                value = value1.value < value2.value
+            elif operator == SymbolsRelop.GREATE_THAN:
+                value = value1.value > value2.value
+            elif operator == SymbolsRelop.GREATE_EQUAL:
+                value = value1.value >= value2.value
+            elif operator == SymbolsRelop.LESS_EQUAL:
+                value = value1.value <= value2.value
+            elif operator == SymbolsRelop.EQUALS:
+                value = value1.value == value2.value
+            elif operator == SymbolsRelop.NOT_EQUAL or operator == SymbolsRelop.NOT_EQUAL_LR:
+                value = value1.value != value2.value
             else:
                 print("Operador no valido: " + operator)
                 return
@@ -196,6 +161,72 @@ class ExpressionsTime(Expression):
     def __repr__(self):
         return str(vars(self))
 
+    def process(self, expression):
+        name_date =  self.name_date
+        type_date = ""
+        name_opt = ""
+        current_time = ""
+        
+        if isinstance(self.type_date, PrimitiveData):
+            type_date = self.type_date.process(expression)
+        if isinstance(self.name_opt, PrimitiveData):
+            name_opt = self.name_opt.process(expression)
+
+
+        if name_date == SymbolsTime.CURRENT_TIME:
+            current_time = datetime.now().strftime('%H:%M:%S')
+        elif name_date == SymbolsTime.CURRENT_DATE:
+            current_time = datetime.now().strftime('%Y-%B-%A')
+        elif name_date == SymbolsTime.NOW:
+            current_time = datetime.now().strftime('%Y-%B-%A  %H:%M:%S')
+        elif name_date == SymbolsTime.EXTRACT:
+            if type_date.value.lower() == "YEAR".lower():
+                match = re.search('\d{4}', name_opt.value)
+                current_time = datetime.strptime(match.group(), '%Y').year
+            elif type_date.value.lower() == "MONTH".lower():
+                match = re.search('\d{4}-\d{2}-\d{2}', name_opt.value)
+                current_time = datetime.strptime(match.group(), '%Y-%m-%d').month
+            elif type_date.value.lower() == "DAY".lower():
+                match = re.search('\d{4}-\d{2}-\d{2}', name_opt.value)
+                current_time = datetime.strptime(match.group(), '%Y-%m-%d').day
+            elif type_date.value.lower() == "HOUR".lower():
+                match = re.search('\d{2}:\d{2}:\d{2}', name_opt.value)
+                current_time = datetime.strptime(match.group(), '%H:%M:%S').hour
+            elif type_date.value.lower() == "MINUTE".lower():
+                match = re.search('\d{2}:\d{2}:\d{2}', name_opt.value)
+                current_time = datetime.strptime(match.group(), '%H:%M:%S').minute
+            elif type_date.value.lower() == "SECOND".lower():
+                match = re.search('\d{2}:\d{2}:\d{2}', name_opt.value)
+                current_time = datetime.strptime(match.group(), '%H:%M:%S').second
+        elif name_date == SymbolsTime.DATE_PART:
+            # TODO Pendiente 
+            pass
+        elif name_date == SymbolsTime.TIMESTAMP:
+            time_data = self.method_for_timestamp(name_opt.value)
+            current_time = str(datetime(time_data[0], time_data[1], time_data[2], time_data[3], time_data[4], time_data[5]))
+        return PrimitiveData(DATA_TYPE.STRING, current_time)
+        
+    def method_for_timestamp(self, fecha):
+        data_time = ""
+        list_data_time = []
+        for index, data in enumerate(fecha):
+            if data == '\t' or data == '\r' or data == '\b' or data == '\f' or data == ' ':
+                pass
+            elif data != '-' and not (data == ':'):
+                data_time += data
+                if len(data_time) == 4:
+                    list_data_time.append(int(data_time))
+                    data_time = ""
+                elif len(data_time) == 2 and len(list_data_time) != 0:
+                    list_data_time.append(int(data_time))
+                    data_time = ""
+            elif data != ':' and not (data == "-"):
+                data_time += data
+                if len(data_time) == 2 and len(list_data_time) != 0:
+                    list_data_time.append(int(data_time))
+                    data_time = ""
+        return list_data_time
+
 class ExpressionsTrigonometric(Expression):
     '''
         ExpressionsTrigonometric
@@ -218,11 +249,6 @@ class UnaryOrSquareExpressions(Expression):
     
     def __repr__(self):
         return str(vars(self))
-
-# class StringExpression(Expression):
-#     def __init__(self, type, value):
-#         self.type = type
-#         self.value = value
     
 #     def execute(self):
 #         return self

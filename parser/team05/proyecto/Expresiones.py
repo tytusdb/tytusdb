@@ -20,6 +20,12 @@ class OPERACIONES(Enum):
     IS = 7
     ISNULL = 8
     NOTNULL = 9
+    BETWEEN = 10
+    NOTBETWEEN = 11
+    BETWEENSIMMETRIC = 12
+    NOTBETWEENSIMMETRIC = 13
+    ISDISTINCT = 14
+    ISNOTDISTINCT = 15
 
 
 # OPERACIONES LÓGICAS
@@ -63,3 +69,6 @@ class ExpresionUnaria(Expresion):
 # EXPRESIONES DE VALOR
 class ExpresionDeValor(Expresion):
     """ Expresión de valor - [número, decimal, cadena, true, false, date, time, datetime] """
+
+    def __init__(self, p_valor):
+        self.valor = p_valor
