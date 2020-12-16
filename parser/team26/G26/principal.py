@@ -17,14 +17,17 @@ datos = l.Lista({}, '')
 
 #print(dic1)
 
-ruta = '../G26/entrada.txt'
+ruta = 'C:/Users/alvar/Desktop/entrada.txt'
 f = open(ruta, "r")
 input = f.read()
 
 instrucciones = g.parse(input)
 print(instrucciones)
-for instr in instrucciones :
-    print(instr.execute(datos))
+#for instr in instrucciones :
+    #print(instr.execute(datos))
+    #instr.execute(datos)
 
-print('TABLA DE SIMBOLOS')
-print (datos)
+#print('\n\nTABLA DE SIMBOLOS')
+#print (datos)
+
+g.grafo.showtree()
