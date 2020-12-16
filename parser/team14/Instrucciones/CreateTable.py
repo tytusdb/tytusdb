@@ -12,6 +12,7 @@ class CreateTable(Instruccion):
         self.numColumnas = 0
 
     def ejecutar(self, ent:Entorno):
+        dbActual = ent.getDataBase()
         tam = len(self.listaDef)
         print (tam)
         nuevaTabla = Simbolo(TipoSimbolo.TABLA,self.id)
@@ -21,17 +22,58 @@ class CreateTable(Instruccion):
             if tt.tipo == AtributosColumna.COLUMNA_SIMPLE:
                 self.numColumnas += 1
                 nuevaColumna = Simbolo(tt.tipoDato,tt.identificador)
+                if tt.lista != None: #aca se mete si viene por ejemplo: columna1 integer references tabla2
+                    tamano = len(tt.lista)
+                    for y in range(tamano):
+                        atrColumna = tt.lista[y]
+                        if atrColumna.tipo == AtributosColumna.UNICO:
+                            nuevoUnico = Simbolo(TipoSimbolo.CONSTRAINT_UNIQUE,atrColumna.valor)
+                            nuevoUnico.baseDatos = dbActual
+                            nuevoUnico.tabla = self.id
+                            ent.nuevoSimbolo(nuevoUnico)
+                            nuevaColumna.atributos.update({'unique':atrColumna.valor})
+                        elif atrColumna.tipo == AtributosColumna.CHECK:
+                            nuevoCheck = Simbolo(TipoSimbolo.CONSTRAINT_CHECK,atrColumna.valor)
+                            nuevoCheck.baseDatos = dbActual
+                            nuevoCheck.tabla = self.id
+                            ent.nuevoSimbolo(nuevoCheck)
+                            nuevaColumna.atributos.update({'check':atrColumna.valor})
+                        elif atrColumna.tipo == AtributosColumna.DEFAULT:
+                            nuevaColumna.atributos.update({'default':atrColumna.valor})
+                        elif atrColumna.tipo == AtributosColumna.NO_NULO:
+                            nuevaColumna.atributos.update({'not null':True})
+                        elif atrColumna.tipo == AtributosColumna.NULO:
+                            nuevaColumna.atributos.update({'null':True})
+                        elif atrColumna.tipo == AtributosColumna.PRIMARY:
+                            nuevaPrimaria = Simbolo(TipoSimbolo.CONSTRAINT_PRIMARY,str("PK_" + self.id))
+                            nuevaPrimaria.baseDatos = dbActual
+                            nuevaPrimaria.tabla = self.id
+                            ent.nuevoSimbolo(nuevaPrimaria)
+                            nuevaColumna.atributos.update({'primary':str("PK_" + self.id)})
+                        elif atrColumna.tipo == AtributosColumna.REFERENCES:
+                            rr = DBMS.extractTable(dbActual,atrColumna.valor)
+                            if rr == []:
+                                return str("La tabla \'" + atrColumna.valor + "\' a la que está referenciando, no existe")
+                            else:
+                                nuevaForanea = Simbolo(TipoSimbolo.CONSTRAINT_FOREIGN,str("FK_" + self.id))
+                                nuevaForanea.baseDatos = dbActual
+                                nuevaForanea.tabla = self.id
+                                ent.nuevoSimbolo(nuevaForanea)
+                                nuevaColumna.atributos.update({'foreign':str("FK_" + self.id)})
+                
                 listaColumnas.append(nuevaColumna)
-        
+
+        #considerar la situacion de cuando no se haya creado la tabla pero ya se hayan 
+        #agregado los constraint a la tabla de simbolos 
         nuevaTabla.valor = listaColumnas
-        dbActual = ent.getDataBase()
         if dbActual != None:
             estado = DBMS.createTable(dbActual,self.id, self.numColumnas)
             if estado == 0: 
                 nuevaTabla.baseDatos = dbActual
                 ent.nuevoSimbolo(nuevaTabla)
-                print("Tabla Creada")
+                
                 DBMS.showCollection()
+                return str("Tabla " + nuevaTabla.nombre + " creada exitosamente")
             #elif estado == 1: 
 
 class Check(CreateTable):
@@ -60,6 +102,7 @@ class Atributo(CreateTable):
     def __init__(self,tipo:AtributosColumna,valor = None, exp = None):
         self.tipo = tipo
         self.valor = valor
+        self.exp = exp
 
 class Constraint(CreateTable):
     def __init__(self,identificador:str,objeto):

@@ -15,12 +15,11 @@ class SymbolsAritmeticos(Enum):
     BITWISE_OR = 10
     BITWISE_XOR = 11
 
-class SymbolsTipoDato(Enum):
-    INTEGER = 1
-    FLOAT = 2
-    STRING = 3
-    CHAR = 4
-    BOOLEANO = 5
+class DATA_TYPE(Enum):
+    NUMBER = 1
+    STRING = 2
+    CHAR = 3
+    BOOLEANO = 4
 
 class SymbolsRelop(Enum):
     EQUALS = 1
@@ -41,10 +40,23 @@ class SymbolsUnaryOrOthers(Enum):
 
 class Expression:
     @abstractmethod
-    def procces(self):
+    def process(self):
         pass
+    
+class PrimitiveData(Expression):
+    """
+    Esta clase contiene los tipos primitivos
+    de datos como STRING, NUMBER, BOOLEAN
+    """
 
-class BinaryOperation(Expression):
+    def __init__(self, data_type, value):
+        self.data_type = data_type
+        self.value = value
+
+    def process(self, environment):
+        return self
+
+class ArithmeticBinaryOperation(Expression):
     '''
         Una operacion binaria recibe, sus dos operandos y el operador
     '''
@@ -56,51 +68,123 @@ class BinaryOperation(Expression):
     def __repr__(self):
         return str(vars(self))
     
-    def procces(self, expression):
-        value1 = self.value1.procces(expression)
-        value2 = self.value2.procces(expression)
+    def process(self, expression):
+        value1 = self.value1.process(expression)
+        value2 = self.value2.process(expression)
         operador = self.operador
-        if value1.type != SymbolsTipoDato.INTEGER and value2.type != SymbolsTipoDato.INTEGER:
-            print('error de ejecucion')
-            return
-        value = 0
-        if operador == SymbolsAritmeticos.PLUS:
-            value = round(value1.value + value2.value, 2)
-        elif operador == SymbolsAritmeticos.MINUS:
-            value = round(value1.value - value2.value, 2)
-        elif operador == SymbolsAritmeticos.TIMES:
-            value = round(value1.value * value2.value, 2)
-        elif operador == SymbolsAritmeticos.DIVISON:
-            value = round(value1.value / value2.value, 2)
-        elif operador == SymbolsAritmeticos.EXPONENT:
-            value = round(value1.value ** value2.value, 2)
-        elif operador == SymbolsAritmeticos.MODULAR:
-            value = round(value1.value % value2.value, 2)
-        elif operador == SymbolsAritmeticos.BITWISE_SHIFT_LEFT:
-            value = round(value1.value << value2.value, 2)
-        elif operador == SymbolsAritmeticos.BITWISE_SHIFT_RIGHT:
-            value = round(value1.value >> value2.value, 2)
-        elif operador == SymbolsAritmeticos.BITWISE_AND:
-            value = round(value1.value & value2.value)
-        elif operador == SymbolsAritmeticos.BITWISE_OR:
-            value = round(value1.value | value2.value)
-        elif operador == SymbolsAritmeticos.BITWISE_XOR:
-            value = round(value1.value ^ value2.value)
-        return NumberExpression(SymbolsTipoDato.INTEGER, value)
+        try:
+            if value1.type == DATA_TYPE.NUMBER and value2.type == DATA_TYPE.NUMBER: #OPERACIONES MATEMATICAS
+                value = 0
+                if operador == SymbolsAritmeticos.PLUS:
+                        value = round(value1.value + value2.value, 2)
+                elif operador == SymbolsAritmeticos.MINUS:
+                    value = round(value1.value - value2.value, 2)
+                elif operador == SymbolsAritmeticos.TIMES:
+                    value = round(value1.value * value2.value, 2)
+                elif operador == SymbolsAritmeticos.DIVISON:
+                    value = round(value1.value / value2.value, 2)
+                elif operador == SymbolsAritmeticos.EXPONENT:
+                    value = round(value1.value ** value2.value, 2)
+                elif operador == SymbolsAritmeticos.MODULAR:
+                    value = round(value1.value % value2.value, 2)
+                elif operador == SymbolsAritmeticos.BITWISE_SHIFT_LEFT:
+                    value = round(value1.value << value2.value, 2)
+                elif operador == SymbolsAritmeticos.BITWISE_SHIFT_RIGHT:
+                    value = round(value1.value >> value2.value, 2)
+                elif operador == SymbolsAritmeticos.BITWISE_AND:
+                    value = round(value1.value & value2.value)
+                elif operador == SymbolsAritmeticos.BITWISE_OR:
+                    value = round(value1.value | value2.value)
+                elif operador == SymbolsAritmeticos.BITWISE_XOR:
+                    value = round(value1.value ^ value2.value)
+                return PrimitiveData(DATA_TYPE.NUMBER, value)
+            else:
+                print("Error de tipo")
+                print(self)
+                return   
+        except:
+            print("FATAL ERROR, ni idea porque murio, F")
+
+        
 
 # TODO JUAN MARCOS 
 class Relop(Expression):
     '''
     Relop contiene los operadores logicos
     == != >= ...
+    Devuelve un valor booleano
     '''
-    def __init__(self, value1, operador_logico, value2):
+    def __init__(self, value1, operator, value2):
         self.value1 = value1
-        self.operador_logico = operador_logico
+        self.operator = operator
         self.value2 = value2
 
     def __repr__(self):
         return str(vars(self))
+
+    def process(self, expression):
+        value1 = self.value1.process(expression)
+        value2 = self.value2.process(expression)
+        operator = self.operator
+        try:
+            value = 0
+            if operator == "<":
+                value = value1 < value2
+            elif operator == ">":
+                value = value1 > value2
+            elif operator == ">=":
+                value = value1 >= value2
+            elif operator == "<=":
+                value = value1 <= value2
+            elif operator == "=":
+                value = value1 == value2
+            elif operator == "!=":
+                value = value1 != value2
+            elif operator == "<>":
+                value = value1 != value2
+            else:
+                print("Operador no valido: " + operator)
+                return
+            return PrimitiveData(DATA_TYPE.BOOLEANO, value)
+        except TypeError:
+            print("Error de tipo")
+            print(self)
+            return
+        except:
+            print("FATAL ERROR, ni idea porque murio, F --- Relop")
+
+    
+class LogicalOperators(Expression):
+    '''
+        LogicalOperators
+    '''
+    def __init__(self, value1, operator, value2):
+        self.value1 = value1
+        self.operator = operator
+        self.value2 = value2
+
+    def __repr__(self):
+        return str(vars(self))
+    def process(self, expression):
+        value1 = self.value1.process(expression)
+        value2 = self.value2.process(expression)
+        operator = self.operator
+        try:
+            value = 0
+            if operator == "AND":
+                value = value1 & value2
+            elif operator == "OR":
+                value = value1 | value2
+            else:
+                print("Operador no valido: " + operator)
+                return
+            return PrimitiveData(DATA_TYPE.BOOLEANO, value)
+        except TypeError:
+            print("Error de tipo")
+            print(self)
+            return
+        except:
+            print("FATAL ERROR, ni idea porque murio, F --- LogicalOperators")
 
 class ExpressionsTime(Expression):
     '''
@@ -159,37 +243,13 @@ class UnaryOrSquareExpressions(Expression):
     def __repr__(self):
         return str(vars(self))
 
-
-class LogicalOperators(Expression):
-    '''
-    LogicalOperators
-    '''
-    def __init__(self, value1, logical_operator, value2):
-        self.value1 = value1
-        self.logical_operator = logical_operator
-        self.value2 = value2
-
-    def __repr__(self):
-        return str(vars(self))
-
-
-class NumberExpression(Expression):
-    def __init__(self, type, value):
-        self.value = value
-        self.type = type
-    def procces(self, object):
-        return self
-
-    def __repr__(self):
-        return str(vars(self))
-
-class StringExpression(Expression):
-    def __init__(self, type, value):
-        self.type = type
-        self.value = value
+# class StringExpression(Expression):
+#     def __init__(self, type, value):
+#         self.type = type
+#         self.value = value
     
-    def procces(self):
-        return self
+#     def process(self):
+#         return self
     
-    def __repr__(self):
-        return str(vars(self))
+#     def __repr__(self):
+#         return str(vars(self))
