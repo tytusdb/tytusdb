@@ -313,7 +313,7 @@ def p_type_column(t) :
                       | INTERVAL field'''
  
 # Campos para intervalos de tiempo   
- def p_field(t) :
+def p_field(t) :
     '''field          : YEAR
                       | MONTH
                       | DAY
@@ -433,7 +433,72 @@ def p_listatablas(t) :
 def p_listatablas_salida(t) :
     'listtablas       : ID'
 
+## ################################# GRAMATICA DE QUERYS ########################################
+
+def p_select(t):
+    'select_instr     :  select_instr1 PTCOMA'
+    t[0] = t[1]
+
+def p_select_simple(t):
+    'select_instr1    : SELECT termdistinct selectlist FROM listatablasselect whereselect groupby orderby'
+
+# Producciones para el manejo del Select
+
+def p_termdistinct(t):
+    '''termdistinct   : DISTINCT
+                      | empty'''
+
+def p_selectlist(t):
+    '''selectlist     : ASTERISCO
+                      | listaselect'''
+
+def p_listaselect(t):
+    'listaselect      : listaselect COMA valselect'
+
+def p_listaselect_salida(t):
+    'listaselect      : valselect'
+
+def p_valselect_1(t):
+    '''valselect      : ID alias
+                      | ID PUNTO ID alias
+                      | funcion_matematica_ws alias
+                      | funcion_matematica_s alias
+                      | funcion_trigonometrica
+                      | PARIZQ select_instr1 PARDER alias
+                      | agregacion PARIZQ cualquieridentificador PARDER alias
+                      | COUNT PARIZQ ASTERISCO PARDER alias
+                      | COUNT PARIZQ val_agregacion PARDER alias'''
     
+def p_funcionagregacion(t):
+    '''agregacion      : SUM
+                       | AVG
+                       | MAX
+                       | MIN'''
+
+def p_val_agregacion(t):
+    '''val_agregacion : ID
+                      | ID PUNTO ID'''
+
+def p_listatablasselect(t):
+    'listatablasselect : listatablasselect COMA tablaselect'
+
+def p_listatablasselect_salida(t):
+    'listatablasselect : tablaselect'
+
+def p_tablasselect_1(t):
+    'tablaselect       : ID alias'
+
+def p_tablasselect_2(t):
+    'tablaselect       : PARIZQ select_instr1 PARDER alias'
+
+def p_asignar_alias(t):
+    '''alias             : ID
+                         | AS ID
+                         | AS CADENASIMPLE
+                         | AS CADENADOBLE
+                         | empty'''
+                         
+                            
 ## -------------------------------- EXPRESIONES ------------------------------------------    
 
 ## expresiones logicas (condiciones)
@@ -454,7 +519,7 @@ def p_condicion (t):
                       | expresion DIFERENTE expresion'''
     
 def p_expresion(t) : 
-'''expresion          : cualquiercadena
+    '''expresion          : cualquiercadena
                       | expresionaritmetica'''
 
 ## expresiones aritmeticas
