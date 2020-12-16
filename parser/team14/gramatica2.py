@@ -231,6 +231,7 @@ from Expresion.Unaria import  Unaria
 from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
 from Instrucciones.CreateDB import *
+from Expresion.FuncionesNativas import FuncionesNativas
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -777,11 +778,16 @@ def p_EXPJ(t):
     else:
         t[0]=t[1]
 
+def p_EXP_FuncNativas(t):
+    '''EXP : id para LEXP parc '''
+    t[0] = FuncionesNativas(t[1],t[3])
+
+def p_EXP_FuncNativas2(t):
+    '''EXP : id para parc '''
+    t[0] = Terminal('identificador', t[1])
 
 def p_EXP(t):
-    '''EXP : id para parc
-            | id para LEXP parc
-            | any para LEXP parc
+    '''EXP : any para LEXP parc
             | all para LEXP parc
             | some para LEXP parc'''
 

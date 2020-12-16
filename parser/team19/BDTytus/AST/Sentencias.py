@@ -1,8 +1,11 @@
 from graphviz import Digraph
 from AST.Nodo import Nodo
 from AST.Nodo import reset_id_arbol
+import AST.Nodo as Node
+from AST.Expresiones import *
 
-class Raiz(Nodo):
+
+class Raiz(Node.Nodo):
     def __init__(self, Errores, sentencias = [], fila = 0, columna = 0):
         super().__init__(fila=fila, columna=columna)
         self.sentencias = sentencias
@@ -10,9 +13,16 @@ class Raiz(Nodo):
 
     def ejecutar(self, TS, Errores):
         respuesta = []
-        for hijo in self.sentencias:
-            respuesta += hijo.ejecutar(TS, Errores)
-        return respuesta
+        valor = 0
+        if len(self.sentencias) > 1:
+            for hijo in self.sentencias:
+                respuesta.append(hijo.ejecutar(TS, Errores))
+            return respuesta
+        else:
+            respuesta = self.sentencias[0].ejecutar(TS, Errores)
+            if isinstance(respuesta, Expression):
+                return respuesta.val
+            return respuesta
 
     def getC3D(self, TS):
         pass 

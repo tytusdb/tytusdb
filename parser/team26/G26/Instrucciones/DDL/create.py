@@ -29,7 +29,7 @@ class Create(Instruccion):
                 owner = description.owner.execute()
                 mode = owner.mode.execute()
                 if owner.id == None : owner.id = 'CURRENT_USER'
-                data.tablaSimbolos[description.id.upper()] = {'tablas' : {}, 'enum' : {}, 'owner' : owner.id.upper(), 'mode' : mode.val}
+                data.tablaSimbolos[description.id.upper()] = {'tablas' : {}, 'enum' : {}, 'owner' : owner.id, 'mode' : mode.val}
                 return 'Se ha creado la base de datos ' + description.id.upper() + ' correctamente.'
             elif valRetorno == 1:
                 return 'Error(42P12): invalid_database_definition.'
