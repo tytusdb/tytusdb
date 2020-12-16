@@ -3,6 +3,7 @@ nodo_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\
 sys.path.append(nodo_dir)
 from Libraries import Nodo
 from Libraries import Database
+from Libraries import Table
 from Libraries import Use
 
 
@@ -36,10 +37,15 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'SENTENCIA_USE':
                 useDB = Use()
                 useDB.execute(hijo)
+            elif hijo.nombreNodo == 'CREATE_TABLE':
+                nuevaTabla = Table()
+                nuevaTabla.execute(hijo)
+                
             elif hijo.nombreNodo == 'E':
                 hijo.execute(enviroment)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
                 print("Expresion valor: "+str(hijo.valorExpresion))
+            
             else:
                 pass
                 

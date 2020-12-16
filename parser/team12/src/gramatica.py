@@ -396,14 +396,12 @@ def p_tipo_declaracion_1(t):
     nuevo = Start("TIPO_DECLARACION")
     nuevo.createChild(t[1])
     t[0] = nuevo
-
 def p_tipo_declaracion_2(t):
     '''tipo_declaracion : DOUBLE PRECISION'''
     nuevo = Start("TIPO_DECLARACION",-1,-1,None)
     nuevo.createChild(t[1])
     nuevo.createChild(t[2])
     t[0] = nuevo 
-
 def p_tipo_declaracion_3(t):
     '''tipo_declaracion : CHARACTER VARYNG PARENTESISIZQ ENTERO PARENTESISDER'''
     nuevo = Start("TIPO_DECLARACION")
@@ -411,7 +409,6 @@ def p_tipo_declaracion_3(t):
     nuevo.createChild(t[2])
     nuevo.createTerminal(t.slice[4])
     t[0] = nuevo
-
 def p_tipo_declaracion_4(t):
     '''tipo_declaracion : VARCHAR PARENTESISIZQ ENTERO PARENTESISDER
                 | CHARACTER PARENTESISIZQ ENTERO PARENTESISDER
@@ -420,7 +417,6 @@ def p_tipo_declaracion_4(t):
     nuevo.createChild(t[1])
     nuevo.createTerminal(t.slice[3])
     t[0] = nuevo
-
 def p_tipo_declaracion_5(t):
     '''tipo_declaracion : TIMESTAMP time_opcionales
                 | TIME time_opcionales
@@ -464,7 +460,6 @@ def p_interval_opcionales(t):
         t[0] = nuevo
     elif t[1] != None:
         t[0]=t[1]
-
 def p_interval_opcionales_p(t):
     '''interval_opcionales_p : PARENTESISIZQ ENTERO PARENTESISDER
                             |'''
@@ -473,7 +468,6 @@ def p_interval_opcionales_p(t):
         nuevo.createTerminal(t.slice[1])
         nuevo.addChild(t[2])
         t[0] = nuevo
-
 def p_if_exists(t):
     ''' if_exists : IF EXISTS
                     |  '''
@@ -491,7 +485,6 @@ def p_sentencia_crear_1(t):
     nuevo.createTerminal(t.slice[3])
     nuevo.addChild(t[7])# lista_cadenas
     t[0] = nuevo
-
 def p_sentencia_crear_2(t):
     '''sentencia_crear : CREATE sentencia_orreplace DATABASE sentencia_ifnotexists IDENTIFICADOR opcionales_crear_database'''    
     nuevo = Start("CREATE_DATABASE")
@@ -503,7 +496,6 @@ def p_sentencia_crear_2(t):
     if t[6] != None: # opcionales crear database
         nuevo.addChild(t[6])
     t[0] = nuevo
-
 def p_sentencia_crear_3(t):
     '''sentencia_crear : CREATE TABLE IDENTIFICADOR PARENTESISIZQ cuerpo_creartabla PARENTESISDER'''
     nuevo = Start("CREATE_TABLE")
@@ -519,107 +511,162 @@ def p_cuerpo_crear_tabla_1(t):
         nuevo.addChild(hijo)
     nuevo.addChild(t[3])
     t[0] = nuevo
-
 def p_cuerpo_crear_tabla_2(t):
     '''cuerpo_creartabla : cuerpo_creartabla_p '''
     nuevo = Start("CUERPO_CREAR_TABLA")
     nuevo.addChild(t[1])
     t[0]=nuevo
 
-def p_cuerpo_crear_tabla_p(t):
+def p_cuerpo_crear_tabla_p_1(t):
     '''cuerpo_creartabla_p : IDENTIFICADOR tipo_declaracion opcional_creartabla_columna'''
-    nuevo = Start("ATRIBUTO_CREAR_TABLA")
+    nuevo = Start("ATRIBUTO_COLUMNA")
     nuevo.createTerminal(t.slice[1])
     nuevo.addChild(t[2])
     if t[3] != None:
-        nuevo.addChild(t[3])
+        for hijo in t[3].hijos:
+            nuevo.addChild(hijo)
     t[0] = nuevo
+
+def p_cuerpo_crear_tabla_p_2(t):
+    '''cuerpo_creartabla_p : opcional_constraint  CHECK PARENTESISIZQ Exp PARENTESISDER'''
+    t[0] = Start("ATRIBUTO_CHECK")
+    if t[1] != None : 
+        t[0].addChild(t[1])
+    t[0].addChild(t[4])
+    
+def p_cuerpo_crear_tabla_p_3(t):
+    '''cuerpo_creartabla_p : UNIQUE PARENTESISIZQ lista_ids  PARENTESISDER'''
+    t[0] = Start("ATRIBUTO_UNIQUE")
+    for hijo in t[3].hijos:
+        t[0].addChild(hijo)
+
+def p_cuerpo_crear_tabla_p_4(t):
+    '''cuerpo_creartabla_p : PRIMARY KEY PARENTESISIZQ lista_ids PARENTESISDER'''
+    t[0] = Start("ATRIBUTO_PRIMARY_KEY")
+    for hijo in t[4].hijos:
+        t[0].addChild(hijo)
+
+def p_cuerpo_crear_tabla_p_5(t):
+    '''cuerpo_creartabla_p : FOREIGN KEY PARENTESISIZQ lista_ids PARENTESISDER REFERENCES IDENTIFICADOR PARENTESISIZQ lista_ids PARENTESISDER'''
+    t[0] = Start("ATRIBUTO_FOREIGN_KEY")
+    t[0].addChild(t[4])
+    t[0].createTerminal(t.slice[7])
+    t[0].addChild(t[9])
+    
 
 # Falta DEFAULT EXPRESION
 # Falta las comparaciones del CHECK
 def p_opcional_creartabla_columna_1(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna NOT NULL'''
-    nuevo =Start("OPCIONALES_ATRIBUTO_TABLA")
-    if t[1] != None:
-        nuevo.addChild(t[1])
+    nuevo =Start("OPCIONALES_NOT_NULL")
     nuevo.createChild(t[2])
     nuevo.createChild(t[3])
-    t[0] = nuevo
-
+    temporal = Start("Temp")
+    if t[1] != None:
+        for hijo in t[1].hijos:
+            temporal.addChild(hijo)
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_creartabla_columna_2(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna NULL'''
-    nuevo =Start("OPCIONALES_ATRIBUTO_TABLA")
-    if t[1]!=None:
-        nuevo.addChild(t[1])
+    nuevo =Start("OPCIONALES_ATRIBUTO_NULL")
     nuevo.createChild(t[2])
-    t[0] = nuevo
-
+    temporal = Start("Temp")
+    if t[1] != None:
+        for hijo in t[1].hijos:
+            temporal.addChild(hijo)
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_creartabla_columna_3(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint UNIQUE '''
-    nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
-    if t[1]!= None:
-        nuevo.addChild(t[1])
+    nuevo = Start("OPCIONALES_ATRIBUTO_UNIQUE")
     if t[2] != None:
         nuevo.addChild(t[2])
     nuevo.createChild(t[3])
-    t[0] = nuevo
-
+    temporal = Start("Temp")
+    if t[1] != None:
+        for hijo in t[1].hijos:
+            temporal.addChild(hijo)
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_creartabla_columna_4(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint CHECK PARENTESISIZQ Exp PARENTESISDER'''
-    nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
-    if t[1] != None:
-        nuevo.addChild(t[1])
+    nuevo = Start("OPCIONALES_ATRIBUTO_CHECK")
     if t[2] != None:
         nuevo.addChild(t[2])
-    nuevo.createTerminal(t.slice[3])
-    t[0] = nuevo
-
+    nuevo.addChild(t[5])
+    temporal = Start("Temp")
+    if t[1] != None:
+        for hijo in t[1].hijos:
+            temporal.addChild(hijo)
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_creartabla_columna_5(t):
     '''opcional_creartabla_columna : NOT NULL'''
-    nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
+    nuevo = Start("OPCIONALES_ATRIBUTO_NOT_NULL")
     nuevo.createChild(t[1])
     nuevo.createChild(t[2])
-    t[0] = nuevo
-
+    t[0] = Start("Temp").addChild(nuevo)
 def p_opcional_creartabla_columna_6(t):
     '''opcional_creartabla_columna : NULL'''
-    nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
+    nuevo = Start("OPCIONALES_ATRIBUTO_NULL")
     nuevo.createTerminal(t.slice[1])
     nuevo.createTerminal(t.slice[2])
-    t[0] = nuevo
-
+    t[0] = Start("Temp").addChild(nuevo)
 def p_opcional_creartabla_columna_7(t):
     '''opcional_creartabla_columna : opcional_constraint UNIQUE'''
-    nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
+    nuevo = Start("OPCIONALES_ATRIBUTO_UNIQUE")
     if t[1] != None:
         nuevo.addChild(t[1])
     nuevo.createChild(t[2])
-    t[0] = nuevo
-
+    t[0] = Start("Temp").addChild(nuevo)
 def p_opcional_creartabla_columna_8(t):
     '''opcional_creartabla_columna : PRIMARY KEY'''
-    nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
+    nuevo = Start("OPCIONALES_ATRIBUTO_PRIMARY")
     nuevo.createChild(t[1])
     nuevo.createChild(t[2])
-    t[0] = nuevo
-
-
+    t[0] = Start("Temp").addChild(nuevo)
 def p_opcional_creartabla_columna_9(t):
     '''opcional_creartabla_columna : opcional_constraint CHECK PARENTESISIZQ PARENTESISDER
                                     |'''
     if len(t) > 1:
-        nuevo = Start("OPCIONALES_ATRIBUTO_TABLA")
+        nuevo = Start("OPCIONALES_ATRIBUTO_CHECK")
         if t[1] != None:
             nuevo.addChild(t[1])
         nuevo.createTerminal(t.slice[2])
-        t[0] = nuevo
-
+        t[0] = Start("Temp").addChild(nuevo)
+def p_opcional_creartabla_columna_10(t):
+    '''opcional_creartabla_columna : opcional_creartabla_columna DEFAULT Exp'''
+    nuevo = Start("OPCIONALES_ATRIBUTO_DEFAULT")
+    nuevo.createChild(t[2])
+    nuevo.addChild(t[3])
+    temporal = Start("Temp")
+    if t[1] != None:
+        for hijo in t[1].hijos:
+            temporal.addChild(hijo)
+    temporal.addChild(nuevo)
+    t[0] = temporal
+def p_opcional_creartabla_columna_11(t):
+    '''opcional_creartabla_columna : DEFAULT Exp'''
+    nuevo = Start("OPCIONALES_ATRIBUTO_DEFAULT")
+    nuevo.createChild(t[1])
+    nuevo.addChild(t[2])
+    t[0]=Start("Temp").addChild(nuevo)
+def p_opcional_creartabla_columna_12(t):
+    '''opcional_creartabla_columna : opcional_creartabla_columna REFERENCES IDENTIFICADOR'''
+    nuevo = Start("OPCIONALES_ATRIBUTO_REFERENCES")
+    nuevo.createChild(t[3])
+    temporal = Start("Temp")
+    if t[1] != None:
+        for hijo in t[1].hijos:
+            temporal.addChild(hijo)
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_constraint(t):
     '''opcional_constraint : CONSTRAINT IDENTIFICADOR
                             | '''
     if len(t) > 1:
         nuevo = Start("OPCIONAL_CONSTRAINT")
-        nuevo.createTerminal(t.slice[1])
         nuevo.createTerminal(t.slice[2])
         t[0] = nuevo
 
@@ -630,6 +677,20 @@ def p_lista_cadenas(t):
     if len(t) == 4:
         if t[1] != None:
             nuevo.addChild(t[1])
+        nuevo.createTerminal(t.slice[3])
+    else:
+        nuevo.createTerminal(t.slice[1])        
+    t[0] = nuevo
+
+def p_lista_ids(t):
+    '''lista_ids : lista_ids COMA IDENTIFICADOR
+                        | IDENTIFICADOR '''
+    nuevo = Start("LISTA_IDS")
+    if len(t) == 4:
+        if t[1] != None:
+            #nuevo.addChild(t[1])
+            for hijo in t[1].hijos:
+                nuevo.addChild(hijo)
         nuevo.createTerminal(t.slice[3])
     else:
         nuevo.createTerminal(t.slice[1])        
@@ -930,7 +991,7 @@ def p_exp_negativo(t):
     op = op = Operator("-",t.lineno(2),t.lexpos(2)+1,None)
     t[0].hijos.append(op)
     t[0].hijos.append(t[2])
-
+    
 # ***** T E R M I N A L E S
 
 def p_exp_exp(t):

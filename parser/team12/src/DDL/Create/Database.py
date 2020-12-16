@@ -72,7 +72,6 @@ class Database():
             if createDatabase(self.name) == 0:
                 self.responseCode="0000"
                 self.responseMessage="Se creo la base de datos."
-                databases.append(jsonDatabase)
         else:
             index = showDatabases().index(self.name) 
             if not (self.ifNotExists) and self.replaced :

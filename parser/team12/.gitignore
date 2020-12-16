@@ -9,3 +9,4 @@ src/Storage/
 data/
 __pycache__
 src/storageManager
+storageManager

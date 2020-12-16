@@ -10,6 +10,9 @@ sys.path.append(create_dir)
 create_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\DDL\\Use')
 sys.path.append(create_dir)
 
+
+
 from Nodo import Nodo
 from Database import Database
+from Table import Table
 from Use import Use
