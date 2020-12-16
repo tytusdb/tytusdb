@@ -1,3 +1,6 @@
+
+from report_errores import *
+
 reporte_sintactico=""
 reporte_lexico = ""
 
@@ -332,7 +335,10 @@ def t_error(t):
     print("Illegal character '%s'" % t.value[0], t.lineno, t.lexpos)
     global reporte_lexico
     reporte_lexico += "<tr> <td> Lexico </td> <td>" + t.value[0] + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(t.lexpos)+"</td></th>"
- 
+   
+    errorLexico = Error(str(t.value[0]),int(t.lineno),int(t.lexpos), "Error Lexico")
+    listaErrores.append(errorLexico)
+
     t.lexer.skip(1)
 # TOKENIZAR
 
@@ -753,6 +759,7 @@ def p_expresion(t):
                  | expresion RESTA expresion
                  | expresion DIVISION expresion
                  | expresion ASTERISCO expresion '''
+
     
     if t[2] == '+' : t[0] = ExpresionBinaria(t[1],t[3], OPERACION_ARITMETICA.MAS)
     if t[2] == '-' : t[0] = ExpresionBinaria(t[1],t[3], OPERACION_ARITMETICA.MENOS)
@@ -781,6 +788,7 @@ def p_expresion_relacional(t):
                              | expresion NOIG expresion
                              | expresion NOIGUAL expresion'''
     
+
     if t[2] == '>' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.MAYQUE)
     if t[2] == '<' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.MENQUE)
     if t[2] == '>=' : t[0] = ExpresionRelacional(t[1],t[3], OPERACION_RELACIONAL.MAYIGQUE)
@@ -813,10 +821,13 @@ def p_expresion_logica_rel(t):
 
 
 def p_error(t):
-    print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(input), t))
+    print("Error sintáctico en '%s'" % t.value, str(t.lineno),find_column(str(entradaa), t))
     global reporte_sintactico
     reporte_sintactico += "<tr> <td> Sintactico </td> <td>" + t.value + "</td>" + "<td>" + str(t.lineno) + "</td> <td> "+ str(find_column(str(input),t))+"</td></th>"
-      
+    errorSintactico = Error(str(t.value),int(t.lineno),int(find_column(str(entradaa),t)), "Error Sintactico")
+    listaErrores.append(errorSintactico) 
+
+
 def find_column(input, token):
     line_start = input.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1

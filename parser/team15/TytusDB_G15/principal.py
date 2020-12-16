@@ -6,6 +6,7 @@ from instrucciones import *
 from graphviz import Digraph
 from ast import *
 from report_tc import *
+from report_errores import *
 
 from storageManager import jsonMode as j
 
@@ -14,10 +15,6 @@ salida = ""
 def procesar_createTable(instr,ts,tc) :
     # print(instr.id)
     if instr.instrucciones != []:
-        i = 0
-        while i < len(instr.instrucciones):
-            print(instr.instrucciones[i])
-            i+=1
         for ins in instr.instrucciones:
             if isinstance(ins, Definicion_Columnas): 
                 procesar_Definicion(ins,ts,tc,instr.id)
@@ -67,8 +64,8 @@ def procesar_constraint(instr,ts,tc,tabla):
                     tipo = TC.Tipo(tabla,ids.exp1.id,None,OPCIONES_CONSTRAINT.CHECK,None,None)
                     tc.actualizarRestriccion(tipo,tabla,ids.exp1.id,OPCIONES_CONSTRAINT.CHECK)
                 else: 
-                    tipo = TC.Tipo(tabla,ids.exp1.id,None,OPCIONES_CONSTRAINT.CHECK,None,None)
-                    tc.actualizarRestriccion(tipo,tabla,ids.exp1.id,OPCIONES_CONSTRAINT.CHECK)
+                    tipo = TC.Tipo(tabla,ids.exp2.id,None,OPCIONES_CONSTRAINT.CHECK,None,None)
+                    tc.actualizarRestriccion(tipo,tabla,ids.exp2.id,OPCIONES_CONSTRAINT.CHECK)
     
 def procesar_check(instr,ts,tc):
     print('Check')
@@ -88,6 +85,7 @@ def resolver_expresion_aritmetica(instr,ts,tc):
 def procesar_Expresion_Numerica(instr,ts,tc):
     print('Entero')
 
+
 def procesar_createDatabase(instr,ts,tc) :
 
     result = j.createDatabase(str(instr.nombre.id))
@@ -104,23 +102,28 @@ def procesar_createDatabase(instr,ts,tc) :
         print("ERROR:  database \"" + str(instr.nombre.id) +"\" already exists \nSQL state: 42P04 ")
 
 def procesar_instrucciones(instrucciones,ts,tc) :
-    global salida
-    salida = ""
-    ## lista de instrucciones recolectadas
-    for instr in instrucciones :
-        #CREATE DATABASE
-        if isinstance(instr,CreateDatabase) : procesar_createDatabase(instr,ts,tc)
-        elif isinstance(instr, Create_Table) : procesar_createTable(instr,ts,tc)
-        elif isinstance(instr, ExpresionRelacional) : procesar_Expresion_Relacional(instr,ts,tc)
-        elif isinstance(instr, ExpresionBinaria) : procesar_Expresion_Binaria(instr,ts,tc)
-        elif isinstance(instr, ExpresionLogica) : procesar_Expresion_logica(instr,ts,tc)
-        
-        else : print('Error: instrucción no válida ' + str(instr))
 
-    return salida
+    try:
+        global salida
+        salida = ""
+        ## lista de instrucciones recolectadas
+        for instr in instrucciones :
+            #CREATE DATABASE
+            if isinstance(instr,CreateDatabase) : procesar_createDatabase(instr,ts,tc)
+            elif isinstance(instr, Create_Table) : procesar_createTable(instr,ts,tc)
+            elif isinstance(instr, ExpresionRelacional) : procesar_Expresion_Relacional(instr,ts,tc)
+            elif isinstance(instr, ExpresionBinaria) : procesar_Expresion_Binaria(instr,ts,tc)
+            elif isinstance(instr, ExpresionLogica) : procesar_Expresion_logica(instr,ts,tc)
+            
+            else : print('Error: instrucción no válida ' + str(instr))
 
-f = open("./entrada.txt", "r")
+        return salida
+    except:
+        pass
+
+'''f = open("./entrada.txt", "r")
 input = f.read()
+listaErrores = []
 
 instrucciones = g.parse(input)
 instrucciones_Global = instrucciones
@@ -128,11 +131,18 @@ ts_global = TS.TablaDeSimbolos()
 tc_global = TC.TablaDeTipos()
 procesar_instrucciones(instrucciones,ts_global,tc_global)
 
+erroressss = ErrorHTML()
+erroressss.crearReporte()'''
+'''astG = AST()
+astG.generarAST(instrucciones)
+typeC = TipeChecker()
+typeC.crearReporte(tc_global)'''
+
 astG = AST()
 astG.generarAST(instrucciones)
 typeC = TipeChecker()
 typeC.crearReporte(tc_global)
-
+'''
 
 def ts_graph(ts_global):
     dot3 = Digraph('TS', node_attr={'shape': 'plaintext','color': 'lightblue2'})

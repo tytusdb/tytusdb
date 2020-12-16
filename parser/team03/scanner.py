@@ -28,6 +28,7 @@ reserved = {
     'minute' : 'MINUTE',
     'second' : 'SECOND',
     'extract' : 'EXTRACT',
+    'date_part' : 'DATE_PART',
     'now' : 'NOW',
     'current_date' : 'CURRENT_DATE',
     'current_time' : 'CURRENT_TIME',
@@ -35,14 +36,13 @@ reserved = {
     'true' : 'TRUE',
     'false' : 'FALSE',
     'between' : 'BETWEEN',
+    'symmetric' : 'SYMMETRIC',
     'in' : 'IN',
     'like' : 'LIKE',
     'ilike' : 'ILIKE',
     'similar' : 'SIMILAR',
     'is' : 'IS',
-    'isnull' : 'ISNULL',
     'null' : 'NULL',
-    'notnull' : 'NOTNULL',
     'not' : 'NOT',
     'and' : 'AND',
     'or' : 'OR',
@@ -90,6 +90,11 @@ reserved = {
     'by' : 'BY',
     'having' : 'HAVING',
     'unknown' : 'UNKNOWN',
+    'count' : 'COUNT',
+    'min' : 'MIN',
+    'max' : 'MAX',
+    'sum' : 'SUM',
+    'avg' : 'AVG',
     'abs' : 'ABS',
     'cbrt' : 'CBRT',
     'ceil' : 'CEIL',
@@ -140,6 +145,17 @@ reserved = {
     'asinh' : 'ASINH',
     'acosh' : 'ACOSH',
     'atanh' : 'ATANH',
+    'length' : 'LENGTH',
+    'substring' : 'SUBSTRING',
+    'trim' : 'TRIM',
+    'get_byte' : 'GET_BYTE',
+    'md5' : 'MD5',
+    'set_byte' : 'SET_BYTE',
+    'sha256' : 'SHA256',
+    'substr' : 'SUBSTR',
+    'convert' : 'CONVERT',
+    'encode' : 'ENCODE',
+    'decode' : 'DECODE',
     'substring' : 'SUBSTRING',
     'any' : 'ANY',
     'all' : 'ALL',
@@ -151,7 +167,7 @@ reserved = {
     'then' : 'THEN',
     'else' : 'ELSE',
     'end' : 'END',
-    'gratest' : 'GRATEST',
+    'greatest' : 'GREATEST',
     'least' : 'LEAST',
     'order' : 'ORDER',
     'limit' : 'LIMIT',
@@ -159,6 +175,19 @@ reserved = {
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
     'except' : 'EXCEPT',
+    'inner' : 'INNER',
+    'left' : 'LEFT',
+    'right' : 'RIGHT',
+    'full' : 'FULL',
+    'outer' : 'OUTER',
+    'join' : 'JOIN',
+    'on' : 'ON',
+    'using' : 'USING',
+    'natural' : 'NATURAL',
+    'first' : 'FIRST',
+    'last' : 'LAST',
+    'nulls' : 'NULLS',
+
 }
 
 tokens = [
@@ -185,6 +214,13 @@ tokens = [
     'FLOAT',
     'TEXTO',
     'ID',
+    'SQUARE_ROOT',
+    'CUBE_ROOT',
+    'AMPERSON',
+    'NUMERAL',
+    'PRIME',
+    'SHIFT_L',
+    'SHIFT_R',
 ] +list(reserved.values()) 
 
 t_PARA = r'\('
@@ -205,7 +241,14 @@ t_MENOR = r'<'
 t_IGUAL = r'='
 t_MAYORQ = r'>='
 t_MENORQ = r'<='
-t_DIFERENTE = r'<>'
+t_SQUARE_ROOT = r'\|'
+t_CUBE_ROOT = r'\|\|'
+t_AMPERSON = r'\&'
+t_NUMERAL = r'\#'
+t_PRIME = r'\~'
+t_SHIFT_L = r'<<'
+t_SHIFT_R = r'>>'
+
 
 
 # ignored regular expressions
@@ -213,10 +256,13 @@ t_ignore = " \t"
 t_ignore_COMMENT =r'\-\-.*'
 t_ignore_COMMENTMULTI = r'(/\*(.|\n)*?\*/)|(//.*)'
 
+def t_DIFERENTE(t):
+    r'((<>)|(!=))'
+    t.type = reserved.get(t.value,'DIFERENTE')    
+    return t
 
 def t_FLOAT(t):
-    r'((\d*\.\d*)((e[\+-]?\d+)?)|(\d*e[\+-]?\d+))'
-    print(t.value)
+    r'((\d+\.\d*)((e[\+-]?\d+)?)|(\d*e[\+-]?\d+))'
     t.value = float(t.value)    
     return t
 
@@ -228,12 +274,13 @@ def t_ENTERO(t):
 
 def t_TEXTO(t):
     r'\'([^\\\n]|(\\.))*?\''
-    t.type = reserved.get(t.value,'TEXTO')    # Check for reserved words
+    t.value = t.value[1:-1]
+    t.type = reserved.get(t.value,'TEXTO')    
     return t
     
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value.lower(),'ID')    # Check for reserved words
+    t.type = reserved.get(t.value.lower(),'ID')    
     return t
 
 def t_newline(t):
@@ -245,5 +292,4 @@ def t_error(t):
     t.lexer.skip(1)
 
 
-# Construyendo el analizador léxico
 lexer = lex.lex(debug = False, reflags=re.IGNORECASE) 

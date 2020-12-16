@@ -9,7 +9,7 @@ class query():
 
 class select(query):
 
-    def __init__(self, distinct=False, select_list=[], table_expression=[], condition=[], group=False, having=[], orderby=[], orderAscDesc='F', limit=0, offset=0):
+    def __init__(self, distinct=False, select_list=[], table_expression=[], condition=[], group=False, having=[], orderby=[], limit=0, offset=0):
         self.distinct = distinct
         self.select_list = select_list
         self.table_expression = table_expression
@@ -17,7 +17,6 @@ class select(query):
         self.group = group
         self.having = having
         self.orderby = orderby
-        self.orderascdesc = orderAscDesc
         self.limit = limit
         self.offset = offset
 
@@ -50,18 +49,12 @@ class exp_text(exp_query):
         self.val = val
 
 
-class exp_int(exp_query):
-    'Devuelve un entero'
+class exp_num(exp_query):
+    'Devuelve un número'
 
     def __init__(self, val):
         self.val = val
 
-
-class exp_dec(exp_query):
-    'Devuelve un flotante'
-
-    def __init__(self, val):
-        self.val = val
 
 
 class exp_suma(exp_query):
@@ -73,7 +66,6 @@ class exp_suma(exp_query):
 
 
 class exp_resta(exp_query):
-    'Suma las dos expresiones'
 
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
@@ -81,7 +73,6 @@ class exp_resta(exp_query):
 
 
 class exp_multiplicacion(exp_query):
-    'Suma las dos expresiones'
 
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
@@ -89,7 +80,6 @@ class exp_multiplicacion(exp_query):
 
 
 class exp_division(exp_query):
-    'Suma las dos expresiones'
 
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
@@ -141,6 +131,10 @@ class math_div(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
+class math_exp(column_mathtrig):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
 
 class math_factorial(column_mathtrig):
     def __init__(self, exp, alias):
@@ -159,6 +153,13 @@ class math_gcd(column_mathtrig):
         self.exp1 = exp1
         self.exp2 = exp2
         self.alias = alias
+
+class math_lcm(column_mathtrig):
+    def __init__(self,exp1,exp2,alias):
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.alias = alias 
+
 
 
 class math_ln(column_mathtrig):
@@ -179,10 +180,20 @@ class math_log10(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
+class math_min_scale(column_mathtrig):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
+
+class math_scale(column_mathtrig):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
 
 class math_mod(column_mathtrig):
-    def __init__(self, exp, alias):
-        self.exp = exp
+    def __init__(self, exp1,exp2, alias):
+        self.exp1 = exp1
+        self.exp2  = exp2
         self.alias = alias
 
 
@@ -222,6 +233,10 @@ class math_sqrt(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
+class math_trim_scale(column_mathtrig):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
 
 class math_widthBucket(column_mathtrig):
     def __init__(self, exp1, exp2, exp3, exp4, alias):
@@ -241,6 +256,11 @@ class math_trunc(column_mathtrig):
 class math_random(column_mathtrig):
     def __init__(self, alias):
         self.alias = alias
+
+class math_setseed(column_mathtrig):
+    def __init__(self,exp, alias):
+        self.exp = exp
+        self.alias = alias 
 
 
 class trig_acos(column_mathtrig):
@@ -372,14 +392,41 @@ class trig_atanh(column_mathtrig):
 class column_function(select_column):
     'clase Abstracta'
 
+class fun_sum(column_function):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
+
+class fun_avg(column_function):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
+
+class fun_max(column_function):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
+
+class fun_min(column_function):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
+
+class fun_count(column_function):
+    def __init__(self,exp,alias):
+        self.exp = exp
+        self.alias = alias
+
 class fun_length(column_function):
     def __init__ (self,exp,alias):
         self.exp = exp
         self.alias = alias
 
 class fun_substring(column_function):
-    def __init__ (self,exp,alias):
+    def __init__ (self,exp,min,max,alias):
         self.exp = exp
+        self.min = min
+        self.max = max
         self.alias = alias
 
 class fun_trim(column_function):
@@ -398,8 +445,10 @@ class fun_sha256(column_function):
         self.alias = alias
 
 class fun_substr(column_function):
-    def __init__ (self,exp,alias):
+    def __init__ (self,exp,min,max,alias):
         self.exp = exp
+        self.min = min
+        self.max = max
         self.alias = alias
 
 class fun_convert(column_function):
@@ -418,3 +467,88 @@ class fun_least(column_function):
         self.lexps = lexps
         self.alias = alias
         
+class condition(exp_query):
+    def __init__(self,exp ,union):
+        self.exp = exp
+        self.union = union
+
+class exp_igual(exp_query):
+
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+class exp_mayor(exp_query):
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+class exp_menor(exp_query):
+
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+class exp_mayor_igual(exp_query):
+
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+
+
+class exp_menor_igual(exp_query):
+
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+
+class exp_diferente(exp_query):
+
+    def __init__(self, exp1, exp2):
+        self.exp1 = exp1
+        self.exp2 = exp2
+
+class exp_in(exp_query):
+    def __init__(self, exp, query):
+        self.exp = exp
+        self.query = query
+
+class exp_not_in(exp_query):
+    def __init__(self, exp, query):
+        self.exp = exp
+        self.query = query
+
+class exp_between(exp_query):
+    def __init__(self, exp1, exp2,exp3):
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.exp3 = exp3
+
+
+class casewhen(exp_query):
+    def __init__(self, case,exp,lcases,els,alias):
+        self.case = case
+        self.exp = exp 
+        self.lcases = lcases
+        self.els = els
+        self.alias = alias
+
+class case(exp_query):
+    def __init__(self, exp_cas, exp ):
+        self.exp_cas = exp_cas
+        self.exp = exp
+
+class table_expression():
+    'Abstract Class'
+
+class texp_id(table_expression):
+    def __init__(self,id,alias):
+        self.id = id
+        self.alias = alias
+
+class texp_query(table_expression)        :
+    def __init__(self,query,alias):
+        self.query = query
+        self.alias = alias

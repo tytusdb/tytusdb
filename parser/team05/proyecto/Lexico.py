@@ -19,7 +19,6 @@ counter_syntactic_error = 1
 # LISTADO DE PALABRAS RESERVADAS
 palabras_reservadas = {
     'select'        : 'SELECT',
-    'from'          : 'FROM',
     'where'         : 'WHERE',
     'limit'         : 'LIMIT',
     'group'         : 'GROUP',
@@ -63,7 +62,6 @@ palabras_reservadas = {
     'then'          : 'THEN',
     'else'          : 'ELSE',
     'pi'            : 'PI',
-    'exists'         : 'EXISTS',
     'in'            : 'IN',
     'any'           : 'ANY',
     'some'          : 'SOME',
@@ -126,7 +124,6 @@ palabras_reservadas = {
     'drop'          : 'DROP',
     'show'          : 'SHOW',
     'rename'        : 'RENAME',
-    'owner'         : 'OWNER',
     'to'            : 'TO',
     'insert'        : 'INSERT',
     'update'        : 'UPDATE',
@@ -157,7 +154,33 @@ palabras_reservadas = {
     'tanh'          : 'TANH',
     'asinh'         : 'ASINH',
     'acosh'         : 'ACOSH',
-    'atanh'         : 'ATANH'
+    'atanh'         : 'ATANH',
+    'get_byte'      : 'GETBYTE',
+    'set_byte'      : 'SETBYTE',
+    'inherits'      : 'INHERITS',
+    'primary'       : 'PRIMARY',
+    'key'           : 'KEY',
+    'foreign'       : 'FOREIGN',
+    'references'    : 'REFERENCES',
+    'constraint'    : 'CONSTRAINT',
+    'check'         : 'CHECK',
+    'unique'        : 'UNIQUE',
+    'default'       : 'DEFAULT',
+    'smallint'      : 'SMALLINT',
+    'bigint'        : 'BIGINT',
+    'numeric'       : 'NUMERIC',
+    'real'          : 'REAL',
+    'double'        : 'DOUBLE',
+    'money'         : 'MONEY',
+    'character'     : 'CHARACTER',
+    'varchar'       : 'VARCHAR',
+    'char'          : 'CHAR',
+    'text'          : 'TEXT',
+    'time'          : 'TIME',
+    'boolean'       : 'BOOLEAN',
+    'varying'       : 'VARYING',
+    'type'          : 'TYPE',
+    'enum'          : 'ENUM'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -317,11 +340,12 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('left','MENORIGUAL','MAYORIGUAL','IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
-    ('nonassoc','BETWEEN'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
-    ('right','UMENOS', 'UMAS')
+    ('right','UMENOS', 'UMAS'),
+    ('nonassoc','BETWEEN','NOTB')
+
 
 )
 
@@ -359,9 +383,199 @@ def p_Instruccion7(t):
     'INSTRUCCION  :   I_DELETE '
 
 def p_Create(t):
-    'I_CREATE      : CREATE I_REPLACE'
+    'I_CREATE      : CREATE I_TCREATE'
     t[0] = t[2]
-    print('Se creo la base de datos ' + t[0])
+    
+def p_tCreate(t):
+    'I_TCREATE     : I_REPLACE'
+
+def p_tCreate1(t):
+    'I_TCREATE     : I_CTABLE'
+
+def p_tCreate2(t):
+    'I_TCREATE     : I_CTYPE'
+
+def p_ctype(t):
+    'I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA'
+
+def p_lcad(t):
+    'I_LCAD        : I_LCAD CADENASI '
+
+def p_lcad1(t):
+    'I_LCAD        : CADENASI '
+
+def p_cTable(t):
+    'I_CTABLE      : TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS'
+
+def p_inherits(t):
+    'I_INHERITS    : INHERITS PABRE ID PCIERRA PCOMA'
+
+def p_tAtributos(t):
+    'I_LTATRIBUTOS    : I_LTATRIBUTOS COMA I_TATRIBUTOS'
+
+def p_tAtributos1(t):
+    'I_LTATRIBUTOS    : I_TATRIBUTOS'
+
+def p_atributosT(t):
+    'I_TATRIBUTOS     : ID I_TIPO I_LLAVES'
+
+def p_atributosT1(t):
+    'I_TATRIBUTOS     : PRIMARY KEY PABRE I_LIDS PCIERRA'
+
+def p_atributosT2(t):
+    'I_TATRIBUTOS     : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
+
+def p_atributosT3(t):
+    'I_TATRIBUTOS     : CONSTRAINT ID CHECK I_CCHECK'
+
+def p_atributosT4(t):
+    'I_TATRIBUTOS     : CHECK I_CCHECK'
+
+def p_ccheck(t):
+    'I_CCHECK         : PABRE CONDICION PCIERRA'
+
+def p_atributosT5(t):
+    'I_TATRIBUTOS     : UNIQUE I_UNIQUE'
+
+def p_unique(t):
+    'I_UNIQUE         : PABRE I_LIDS PCIERRA'
+
+def p_llave(t):
+    'I_LLAVES         : PRIMARY KEY I_DEFAULT'
+
+def p_default(t):
+    'I_DEFAULT        : DEFAULT I_VALOR I_NULL'
+
+def p_default1(t):
+    'I_DEFAULT        : I_NULL'
+
+def p_null(t):
+    'I_NULL           : NOT NULL I_CUNIQUE '
+
+def p_null1(t):
+    'I_NULL           : NULL I_CUNIQUE '
+
+def p_null2(t):
+    'I_NULL           : I_CUNIQUE '
+
+def p_cunique(t):
+    'I_CUNIQUE        : CONSTRAINT ID UNIQUE I_CHECK'
+
+def p_check(t):
+    'I_CHECK          : CONSTRAINT ID CHECK PABRE CONDICION PCIERRA'
+
+def p_check1(t):
+    'I_CHECK          : CHECK PABRE CONDICION PCIERRA'
+
+def p_check2(t):
+    'I_CHECK          : '
+
+def p_llave2(t):
+    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA I_DEFAULT' 
+
+def p_cRef(t):
+    'I_CREFERENCE     : I_CREFERENCE COMA ID'
+
+def p_cRef2(t):
+    'I_CREFERENCE     : ID'
+
+def p_llave3(t):
+    'I_LLAVES         : REFERENCES ID I_DEFAULT'
+
+def p_llave4(t):
+    'I_LLAVES         : I_DEFAULT'
+
+def p_lIds(t):
+    'I_LIDS           : I_LIDS COMA ID'
+
+def p_lIds1(t):
+    'I_LIDS           : ID'
+
+def p_tipo(t):
+    'I_TIPO           : SMALLINT'
+
+def p_tipo2(t):
+    'I_TIPO           : INTEGER'
+
+def p_tipo3(t):
+    'I_TIPO           : BIGINT'
+
+def p_tipo4(t):
+    'I_TIPO           : DECIMAL'
+
+def p_tipo5(t):
+    'I_TIPO           : NUMERIC'
+
+def p_tipo6(t):
+    'I_TIPO           : REAL'
+
+def p_tipo7(t):
+    'I_TIPO           : DOUBLE I_PREC'
+
+def p_tipo8(t):
+    'I_TIPO           : MONEY'
+
+def p_tipo9(t):
+    'I_TIPO           : CHARACTER I_TCHAR'
+
+def p_tipo11(t):
+    'I_TIPO           : VARCHAR PABRE NUMERO PCIERRA'
+
+def p_tipo22(t):
+    'I_TIPO           : CHAR PABRE NUMERO PCIERRA'
+
+def p_tipo33(t):
+    'I_TIPO           : TEXT'
+
+def p_tipo44(t):
+    'I_TIPO           : TIMESTAMP I_PREC'
+
+def p_tipo55(t):
+    'I_TIPO           : TIME I_PREC'
+
+def p_tipo66(t):
+    'I_TIPO           : DATE'
+
+def p_tipo77(t):
+    'I_TIPO           : INTERVAL I_FIELDS I_PREC'
+
+def p_tipo88(t):
+    'I_TIPO           : BOOLEAN'
+
+def p_tipo99(t):
+    'I_TIPO           : ID'
+
+def p_tchar(t):
+    'I_TCHAR          : VARYING PABRE NUMERO PCIERRA'
+
+def p_tchar1(t):
+    'I_TCHAR          : PABRE NUMERO PCIERRA'
+
+def p_prec(t):
+    'I_PREC           : PABRE NUMERO PCIERRA'
+
+def p_prec1(t):
+    'I_PREC           : '
+
+def p_fields(t):
+    'I_FIELDS         : MONTH'
+
+def p_fields1(t):
+    'I_FIELDS         : HOUR'
+
+def p_fields2(t):
+    'I_FIELDS         : MINUTE'
+
+def p_fields3(t):
+    'I_FIELDS         : SECOND'
+
+def p_fields4(t):
+    'I_FIELDS         : YEAR'
+
+def p_inherits1(t):
+    'I_INHERITS    : PCOMA'
+
+
 
 def p_Replace(t):
     'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
@@ -719,6 +933,140 @@ def p_ValorFuncionesSha(t):
 def p_ValorFuncionesShaA(t):
     'VALOR  :   SHA256 PABRE CADENA PCIERRA ALIAS   '
 
+def p_ValorOperadorMatAlias(t):
+    'VALOR  :   NUM OPERADOR NUM ALIAS '
+
+def p_ValorOperadorMat(t):
+    'VALOR  :   NUM OPERADOR NUM '
+
+def p_ValorOperadorNotA(t):
+    'VALOR  :   BNot NUM ALIAS '
+
+def p_ValorOperadorNot(t):
+    'VALOR  :   BNot NUM '
+
+def p_ValorRaizCuadradaA(t):
+    'VALOR  :   raizCuadrada NUM ALIAS '
+
+def p_ValorRaizCuadrada(t):
+    'VALOR  :   raizCuadrada NUM '
+
+def p_ValorRaizCubicaA(t):
+    'VALOR  :   raizCubica NUM ALIAS '
+
+def p_ValorRaizCubica(t):
+    'VALOR  :   raizCubica NUM '
+
+def p_ValorFuncionesGetByte(t):
+    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA '
+
+def p_ValorFuncionesGetByteA(t):
+    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA ALIAS '
+
+def p_ValorFuncionesSetByte(t):
+    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA '
+
+def p_ValorFuncionesSetByteA(t):
+    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA ALIAS '
+
+def p_ValorCase(t):
+    'VALOR  :   CASE LWHEN END '
+
+def p_ValorCaseAlias(t):
+    'VALOR  :   CASE LWHEN END ALIAS'
+
+def p_ValorFunAlias(t):
+    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
+
+def p_ValorFun(t):
+    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA   '
+
+def p_LWHEN(t):
+    'LWHEN  :   WHEN CONDICION THEN CONDICION LWHEN '
+
+def p_LWHENSimple(t):
+    'LWHEN  :   WHEN CONDICION THEN CONDICION '
+
+def p_LWHENElse(t):
+    'LWHEN  :   ELSE CONDICION '
+
+def p_IdFuncionDegrees(t):
+    'ID_VALOR  :   DEGREES  '
+
+def p_IdFuncionDiv(t):
+    'ID_VALOR  :   DIV  '
+
+def p_IdFuncionExp(t):
+    'ID_VALOR  :   FEXP  '
+
+def p_IdFuncionFactorial(t):
+    'ID_VALOR  :   FACTORIAL  '
+
+def p_IdFuncionFloor(t):
+    'ID_VALOR  :   FLOOR  '
+
+def p_IdFuncionGcd(t):
+    'ID_VALOR  :   GCD  '
+
+def p_IdFuncionLn(t):
+    'ID_VALOR  :   LN  '
+
+def p_IdFuncionLog(t):
+    'ID_VALOR  :   LOG  '
+
+def p_IdFuncionMod(t):
+    'ID_VALOR  :   MOD  '
+
+def p_IdFuncionPower(t):
+    'ID_VALOR  :   POWER  '
+
+def p_IdFuncionRadians(t):
+    'ID_VALOR  :   RADIANS  '
+
+def p_IdFuncionRound(t):
+    'ID_VALOR  :   ROUND  '
+
+def p_IdFuncionSign(t):
+    'ID_VALOR  :   SIGN  '
+
+def p_IdFuncionSqrt(t):
+    'ID_VALOR  :   SQRT  '
+
+def p_IdFuncionWidth_bucket(t):
+    'ID_VALOR  :   WIDTH_BUCKET  '
+
+def p_IdFuncionTrunc(t):
+    'ID_VALOR  :   TRUNC  '
+
+def p_OPERADORAnd(t):
+    'OPERADOR  :   BAnd '
+
+def p_OPERADOROr(t):
+    'OPERADOR  :   BOr '
+
+def p_OPERADORXor(t):
+    'OPERADOR  :   BXor '
+
+def p_OPERADORDIz(t):
+    'OPERADOR  :   DesplazaI '
+
+def p_OPERADORDDe(t):
+    'OPERADOR  :   DesplazaD '
+
+def p_LNumNumLNum(t):
+    'LNUM  : LNUM COMA NUM'
+
+def p_LNumNum(t):
+    'LNUM   : NUM'
+
+def p_NumNumero(t):  
+    'NUM    : NUMERO '
+
+def p_NumDecimal(t):
+    'NUM  :   DECIMAL '
+
+def p_NumCadena(t):
+    'NUM  :   CADENA '
 
 def p_FTrigonometricasAcos(t):
     'FTRIGONOMETRICAS  :   ACOS '
@@ -896,7 +1244,7 @@ def p_CondicionP(t):
     'CONDICION  :   MAS CONDICION %prec UMAS'
 
 def p_CondicionExtract(t):
-    'CONDICION  :   EXTRACT PABRE DATETIME FROM TIMESTAMP CADENA PCIERRA '
+    'CONDICION  :   EXTRACT PABRE DATETIME FROM PTIMESTAMP PCIERRA '
 
 def p_CondicionFuncionWhere(t):
     'CONDICION  :   FUNCIONES_WHERE '
@@ -921,6 +1269,123 @@ def p_CondicionId(t):
 
 def p_CondicionIdP(t):
     'CONDICION  :   ID PUNTO ID '
+
+def p_CondicionFuncionSistema(t):
+    'CONDICION  :   FUNCIONES_SISTEMA '
+
+def p_CondicionDatePart(t):
+    'CONDICION  :   DATE_PART PABRE CADENA COMA INTERVAL CADENA PCIERRA '
+
+def p_CondicionCurrentDate(t):
+    'CONDICION  :   CURRENT_DATE '
+
+def p_CondicionCurrentTime(t):
+    'CONDICION  :   CURRENT_TIME '
+
+def p_CondicionTimeStamp(t):
+    'CONDICION  :   TIMESTAMP CADENA '
+
+def p_CondicionBetween(t):
+    'CONDICION  :   CONDICION BETWEEN CONDICION '
+
+def p_CondicionNotBetween(t):
+    'CONDICION  :   CONDICION NOT BETWEEN CONDICION %prec NOTB'
+
+def p_CondicionBetweenSimetric(t):
+    'CONDICION  :   CONDICION BETWEEN SIMMETRIC CONDICION '
+
+def p_CondicionBetweenNotSimetric(t):
+    'CONDICION  :   CONDICION NOT BETWEEN SIMMETRIC CONDICION  %prec NOTB'
+
+def p_CondicionIsDistinct(t):
+    'CONDICION  :   CONDICION IS DISTINCT FROM CONDICION '
+
+def p_CondicionIsNotDistinct(t):
+    'CONDICION  :   CONDICION IS NOT DISTINCT FROM CONDICION '
+
+def p_CondicionNull(t):
+    'CONDICION  :   NULL '
+
+def p_CondicionUnknown(t):
+    'CONDICION  :   UNKNOWN '
+
+def p_CondicionSubConsulta(t):
+    'CONDICION  :   PABRE SUBCONSULTA PCIERRA '
+
+def p_CondicionFunciones(t):
+    'CONDICION  :   FUNCION PABRE ID PCIERRA'
+
+def p_CondicionFunciones1(t):
+    'CONDICION  :   FUNCION PABRE ID PUNTO ID PCIERRA'
+
+def p_CondicionNow(t):
+    'CONDICION  :   NOW PABRE PCIERRA '
+
+def p_FuncionesSistemaAlias(t):
+    'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
+
+def p_FuncionesSistema(t):
+    'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA   '
+
+def p_FuncionesSistemaString(t):
+    'FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA ALIAS   '
+
+def p_FuncionesSistemaString1(t):
+    'FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA   '
+
+def p_FuncionesSistemaTrimA(t):
+    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA ALIAS   '
+
+def p_FuncionesSistemaTrim(t):
+    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA   '
+
+def p_FuncionesSistemaTrimA1(t):
+    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA ALIAS   '
+
+def p_FuncionesSistemaTrim1(t):
+    'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA   '
+
+def p_Id_FuncionSubstring(t):
+    'ID_FUNCION_S  :   SUBSTRING   '
+
+def p_Id_FuncionLength(t):
+    'ID_FUNCION_S  :   LENGTH   '
+
+def p_Id_FuncionSubstr(t):
+    'ID_FUNCION_S  :   SUBSTR   '
+
+def p_LBOTHLeading(t):
+    'LBOTH  :   LEADING   '
+
+def p_LBOTHTrailing(t):
+    'LBOTH  :   TRAILING   '
+
+def p_LBOTHBoth(t):
+    'LBOTH  :   BOTH   '
+
+def p_LCondicionFuncion_Condicion(t):
+    'LCONDICION_FUNCION_S  :   CONDICION   '
+
+def p_LCondicionFuncion_S(t):
+    'LCONDICION_FUNCION_S  :   CONDICION COMA NUMERO COMA NUMERO   '
+
+def p_IdFuncionAbs(t):
+    'ID_FUNCION  :   ABS  '
+
+def p_IdFuncionCBRT(t):
+    'ID_FUNCION  :   CBRT  '
+
+def p_IdFuncionCeil(t):
+    'ID_FUNCION  :   CEIL  '
+
+def p_IdFuncionCeiling(t):
+    'ID_FUNCION  :   CEILING  '
+
+def p_LCondicionFuncion1(t):
+    'LCONDICION_FUNCION  :   CONDICION  '
+
+def p_LCondicionFuncion(t):
+    'LCONDICION_FUNCION  :   LCONDICION_FUNCION COMA CONDICION  '
 
 def p_DateTimeYear(t):
     'DATETIME  :   YEAR '
@@ -984,6 +1449,24 @@ def p_OperatorFwDif(t):
 
 def p_OperatorFwDif1(t):
     'OPERATOR_FW  :   DIF1   '
+
+def p_PTimestamC(t):
+    'PTIMESTAMP  :   TIMESTAMP CADENA '
+
+def p_PTimestamId(t):
+    'PTIMESTAMP  :   TIMESTAMP ID '
+
+def p_PTimestamIdPId(t):
+    'PTIMESTAMP  :   TIMESTAMP ID PUNTO ID '
+
+def p_PTimestamCadena(t):
+    'PTIMESTAMP  :   CADENA '
+
+def p_PTimestamId1(t):
+    'PTIMESTAMP  :   ID '
+
+def p_PTimestamIdP(t):
+    'PTIMESTAMP  :   ID PUNTO ID '
 
 def p_empty(t):
     'EMPTY :'
