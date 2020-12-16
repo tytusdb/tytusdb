@@ -313,7 +313,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 # Construyendo el analizador léxico
-import ply.lex as lex
+import Librerias.ply.lex as lex
 lexer = lex.lex()
 
 from imports import *
@@ -1709,7 +1709,7 @@ def getMistakes():
     return errores
     errores.clear()
 
-import ply.yacc as yacc
+import Librerias.ply.yacc as yacc
 parser = yacc.yacc()
 
 def parse(input) :
