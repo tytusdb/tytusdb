@@ -10,3 +10,5 @@ test.py
 storageManager
 ErroresLexicos.html
 ErroresSintacticos.html
+reporteGramatica.gv
+reporteGramatica.gv.pdf
