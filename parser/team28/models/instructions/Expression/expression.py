@@ -40,7 +40,7 @@ class SymbolsUnaryOrOthers(Enum):
 
 class Expression:
     @abstractmethod
-    def process(self):
+    def execute(self):
         pass
     
 class PrimitiveData(Expression):
@@ -53,7 +53,7 @@ class PrimitiveData(Expression):
         self.data_type = data_type
         self.value = value
 
-    def process(self, environment):
+    def execute(self, environment):
         return self
 
 class ArithmeticBinaryOperation(Expression):
@@ -68,9 +68,9 @@ class ArithmeticBinaryOperation(Expression):
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, expression):
-        value1 = self.value1.process(expression)
-        value2 = self.value2.process(expression)
+    def execute(self, expression):
+        value1 = self.value1.execute(expression)
+        value2 = self.value2.execute(expression)
         operador = self.operador
         try:
             if value1.type == DATA_TYPE.NUMBER and value2.type == DATA_TYPE.NUMBER: #OPERACIONES MATEMATICAS
@@ -106,8 +106,6 @@ class ArithmeticBinaryOperation(Expression):
             print("FATAL ERROR, ni idea porque murio, F")
 
         
-
-# TODO JUAN MARCOS 
 class Relop(Expression):
     '''
     Relop contiene los operadores logicos
@@ -122,9 +120,9 @@ class Relop(Expression):
     def __repr__(self):
         return str(vars(self))
 
-    def process(self, expression):
-        value1 = self.value1.process(expression)
-        value2 = self.value2.process(expression)
+    def execute(self, expression):
+        value1 = self.value1.execute(expression)
+        value2 = self.value2.execute(expression)
         operator = self.operator
         try:
             value = 0
@@ -165,9 +163,9 @@ class LogicalOperators(Expression):
 
     def __repr__(self):
         return str(vars(self))
-    def process(self, expression):
-        value1 = self.value1.process(expression)
-        value2 = self.value2.process(expression)
+    def execute(self, expression):
+        value1 = self.value1.execute(expression)
+        value2 = self.value2.execute(expression)
         operator = self.operator
         try:
             value = 0
@@ -209,28 +207,6 @@ class ExpressionsTrigonometric(Expression):
 
     def __repr__(self):
         return str(vars(self))
-# TODO JUAN MARCOS 
-class ExpressionsGreastLeast(Expression):
-    '''
-        ExpressionsGreastLeast
-    '''
-    def __init__(self, type_expression, lista_arr):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-    def __repr__(self):
-        return str(vars(self))
-# TODO JUAN MARCOS 
-class MathematicalExpressions(Expression):
-    '''
-        MathematicalExpressions
-    '''
-    def __init__(self, type_expression, lista_arr, optional_alias):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-        self.optiona_alias = optional_alias
-    
-    def __repr__(self):
-        return str(vars(self))
 
 class UnaryOrSquareExpressions(Expression):
     '''
@@ -248,7 +224,7 @@ class UnaryOrSquareExpressions(Expression):
 #         self.type = type
 #         self.value = value
     
-#     def process(self):
+#     def execute(self):
 #         return self
     
 #     def __repr__(self):
