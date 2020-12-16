@@ -8,18 +8,6 @@ class Instruction:
         ''' recibe hijos paras el ast grafico '''
         pass
 
-class BinaryOperation(Instruction):
-    '''
-        Una operacion binaria recibe, sus dos operandos y el operador
-    '''
-    def __init__(self, value1, value2, operador) :
-        self.value1 = value1
-        self.value2 = value2
-        self.operador = operador
-    
-    def __repr__(self):
-        return str(vars(self))
-
 
 class Alias(Instruction):
     '''
@@ -305,76 +293,6 @@ class ObjectReference(Instruction):
         self.reference_table = reference_table
         self.reference_colunm = reference_column
         self.opt_asterisk = opt_asterisk
-
-    def __repr__(self):
-        return str(vars(self))
-
-class ExpressionsTime(Instruction):
-    '''
-        ExpressionsTime
-    '''
-    def __init__(self, name_date, type_date, name_opt):
-        self.name_date = name_date
-        self.type_date = type_date
-        self.name_opt = name_opt
-
-    def __repr__(self):
-        return str(vars(self))
-
-class ExpressionsTrigonometric(Instruction):
-    '''
-        ExpressionsTrigonometric
-    '''
-    def __init__(self, type_trigonometric, expression1, optional_expression2):
-        self.type_trigonometric = type_trigonometric
-        self.expression1 = expression1
-        self.optional_expression2 = optional_expression2
-
-    def __repr__(self):
-        return str(vars(self))
-
-class ExpressionsGreastLeast(Instruction):
-    '''
-        ExpressionsGreastLeast
-    '''
-    def __init__(self, type_expression, lista_arr):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-    def __repr__(self):
-        return str(vars(self))
-
-class MathematicalExpressions(Instruction):
-    '''
-        MathematicalExpressions
-    '''
-    def __init__(self, type_expression, lista_arr, optional_alias):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-        self.optiona_alias = optional_alias
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class UnaryOrSquareExpressions(Instruction):
-    '''
-    UnaryOrSquareExpressions
-    '''
-    def __init__(self, sign, expression_list):
-        self.sign = sign
-        self.expression_list = expression_list
-    
-    def __repr__(self):
-        return str(vars(self))
-
-
-class LogicalOperators(Instruction):
-    '''
-    LogicalOperators
-    '''
-    def __init__(self, value1, logical_operator, value2):
-        self.value1 = value1
-        self.logical_operator = logical_operator
-        self.value2 = value2
 
     def __repr__(self):
         return str(vars(self))

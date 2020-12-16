@@ -122,19 +122,6 @@ class InClause(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-class Relop(Instruction):
-    '''
-    Relop contiene los operadores logicos
-    == != >= ...
-    '''
-    def __init__(self, value1, operador_logico, value2):
-        self.value1 = value1
-        self.operador_logico = operador_logico
-        self.value2 = value2
-
-    def __repr__(self):
-        return str(vars(self))
-
 class LikeClause(Instruction):
     '''
         LikeClause
