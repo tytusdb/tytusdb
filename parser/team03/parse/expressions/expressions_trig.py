@@ -1,4 +1,3 @@
-import sys
 import math
 from parse.ast_node import ASTNode
 

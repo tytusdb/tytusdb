@@ -1,4 +1,4 @@
-from jsonMode import createDatabase, createTable
+from jsonMode import createDatabase, createTable, dropDatabase
 from parse.ast_node import ASTNode
 
 
@@ -23,9 +23,11 @@ class CreateDatabase(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_name = self.name.execute()
-        result_owner = self.owner.execute() if self.owner else None  # Owner seems to be stored only to ST
-        result_mode = self.owner.mode() if self.mode else 6  # Change to 1 when default mode from EDD available
+        result_name = self.name.execute(table, tree)
+        result_owner = self.owner.execute(table, tree) if self.owner else None  # Owner seems to be stored only to ST
+        result_mode = self.owner.mode(table, tree) if self.mode else 6  # Change to 1 when default mode from EDD available
+        if self.replace:
+            dropDatabase(result_name)
         result = 0
         if result_mode == 6:  # add more ifs when modes from EDD available
             result = createDatabase(result_name)
@@ -49,8 +51,8 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_name = self.name.execute()
-        result_inherits_from = self.inherits_from.execute() if self.inherits_from else None
+        result_name = self.name.execute(table, tree)
+        result_inherits_from = self.inherits_from.execute(table, tree) if self.inherits_from else None
         result_fields = []
         if result_inherits_from:
             # get inheritance table, if doesn't exists throws semantic error, else append result
