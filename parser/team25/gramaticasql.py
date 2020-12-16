@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 from lexicosql import tokens
-from astExpresion import ExpresionNumero, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
+from astExpresion import ExpresionNegativa, ExpresionNumero, ExpresionPositiva, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
 
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
@@ -1048,9 +1048,10 @@ def p_asignacion(p):
 def p_expresiones_unarias(p):
     ''' expresion : MENOS expresion %prec UMENOS 
                   | MAS expresion %prec UMAS'''
-     
-    print('expresion: '+str(p[1]) + '.'+str(p[3]))  # solo para ver que viene
-    p[0] = p[2]
+    if p[1] == '+':
+        p[0] = ExpresionPositiva(p[2], 0)
+    elif p[1] == '-':
+        p[0] = ExpresionNegativa(p[2], 0)
     
 def p_expresiones_is_complemento(p):
     '''
@@ -1086,11 +1087,11 @@ def p_expresion_primitivo(p):
 
 def p_expresion_primitivo1(p):
     'expresion : NUMERO'
-    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO)
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, 0)
 
 def p_expresion_primitivo2(p):
     'expresion : DECIMAL_LITERAL'
-    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL)
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, 0)
 
 def p_expresion_id(p):
     'expresion : ID'
@@ -1335,5 +1336,5 @@ def analizarEntrada(entrada):
 
 
 print(analizarEntrada('''
-select (((5+5-(8*8)+90)/2)%5)^2;
+select -(((5+5-(8*8)+90)/2)%5)^2;
                       '''))
