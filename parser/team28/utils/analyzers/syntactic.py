@@ -1011,30 +1011,32 @@ def p_sql_simple_expression(p):
             p[0] = p[2]
         else:
             if p[2] == '+':
-                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS)
             elif p[2] == '-':
-                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS)
             elif p[2] == '*':
-                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES)
             elif p[2] == '/':
-                p[0] = BinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON)
             elif p[2] == '^':
-                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3], SymbolsAritmeticos.EXPONENT)
             elif p[2] == '%':
-                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3], SymbolsAritmeticos.MODULAR)
             elif p[2] == '>>':
-                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT)
             elif p[2] == '<<':
-                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT)
             elif p[2] == '&':
-                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3], SymbolsAritmeticos.BITWISE_AND)
             elif p[2] == '|':
-                p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3], SymbolsAritmeticos.BITWISE_OR)
             elif p[2] == '#':
-                 p[0] = BinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR)
+                 p[0] = ArithmeticBinaryOperation(p[1],p[3], SymbolsAritmeticos.BITWISE_XOR)
     elif (len(p) == 3):
         p[0] = UnaryOrSquareExpressions(p[1], p[2])
     else:
+        if  p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1])
         p[0] = p[1]
 
 
@@ -1142,10 +1144,10 @@ def p_case_clause_list(p):
     # WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
     # WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
     if (len(p) == 8):
-        p[1].append( CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] ) )
+        p[1].append( CaseOption( Relop(p[3],p[5],p[4]), p[7] ) )
         p[0] = p[1]
     elif (len(p) == 7):
-        p[0] = [CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] )]
+        p[0] = [CaseOption( Relop(p[3],p[5],p[4]), p[7] )]
     elif (len(p) == 6):
         p[1].append( CaseOption(p[3], p[5]) )
         p[0] = p[1]
@@ -1282,17 +1284,18 @@ def p_date_types(p):
 def p_sql_integer(p):
     '''SQLINTEGER : INT_NUMBER
                   | FLOAT_NUMBER'''
-    p[0] = NumberExpression(SymbolsTipoDato.INTEGER, p[1])
+    p[0] = PrimitiveData(DATA_TYPE.NUMBER, p[1])
 
 
 def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-    if (p[1] == 'STRINGCONT' or p[1] == 'CHARCONT'):
-        p[0] = StringExpression("STRING", p[1])
+               
+    if (p.slice[1].type == "STRINGCONT" or p.slice[1].type == "CHARCONT"):
+        p[0] = PrimitiveData(DATA_TYPE.STRING, p[1])
     else:
-        p[0] = StringExpression('ID', p[1])
+        p[0] = PrimitiveData(DATA_TYPE.STRING, p[1]) #TODO: REVISAR MANEJOR DE IDS
 
 
 def p_type_select(p):
