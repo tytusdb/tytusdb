@@ -1,5 +1,11 @@
 """IMPORTS"""
+from tkinter import messagebox
+
+from graphviz import Digraph
+
 import InstruccionesDGA as inst
+
+list_error = []
 
 reservadas = {
     'smallint' : 'SMARLLINT',
@@ -242,6 +248,7 @@ def t_nuevalinea(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
+    list_error.append([str(t.lexer.lineno), str(t.lexer.lexpos), str("Error lexico'%s'" % t.value[0])])
     print("Error lexico'%s'" % t.value[0])
     t.lexer.skip(1)
 
@@ -578,6 +585,21 @@ def p_delete(p):
     "delete :   DELETE FROM id WHERE wherecond PUNTOCOMA"
     p[0] = inst.delete(p[3],p[5])
 
+#Errores sintacticos
+def p_error(t):
+    #print("Error sintáctico en '%s'" % t.value)
+    list_error.append([str(t.lexer.lineno), str(t.lexer.lexpos), str("Error sintáctico en '%s'" % t.value)])
+
+    if not t:
+        return
+
+    while True:
+        tok = parser.token()  # Get the next token
+        if not tok or tok.type == 'PUNTOCOMA':
+            print("Se recupero con ;")
+            break
+    parser.restart()
+
 import ply.yacc as yacc
 parser = yacc.yacc()
 import time
@@ -588,5 +610,26 @@ while True:
     except EOFError:
         break
     parser.parse(s)
- 
+
+def report_errors():
+    global list_error
+    s = Digraph('structs', filename='reporteErrrores.gv', node_attr={'shape': 'plaintext'})
+    c = 'lista [label =  <<TABLE> \n <TR><TD>Fila</TD><TD>Columna</TD><TD>Error</TD></TR> '
+    if len(list_error)>0:
+        for t in list_error:
+            c+= '<TR>\n'
+            c+= '<TD>\n'
+            c+= str(t[0])
+            c+= '\n</TD><TD>'
+            c+= str(t[1])
+            c+= '\n</TD><TD>'
+            c+= str(t[2])
+            c+= '\n</TD></TR>'
+        c += '</TABLE>>, ];'
+        s.body.append(c)
+        s.view()
+    else:
+        messagebox.showinfo(message="Lexico y sintatico correcto", title="Correcto")
+    list_error = []
+
 """FIN ANALIZADOR SINTACTICO ASCENDENTE"""

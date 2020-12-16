@@ -1,3 +1,5 @@
+
+ 
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -230,7 +232,7 @@ from Expresion.Logica import  Logica
 from Expresion.Unaria import  Unaria
 from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
-from Instrucciones.CreateDb import *
+from Instrucciones.CreateDB import *
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -325,6 +327,7 @@ def p_DROP(t):
             print("eliminar tabla")
          
         else:
+            print("eliminar bd")
             t[0] = DropDb(str(t[3]))
 
     elif len(t)==5:
@@ -332,14 +335,21 @@ def p_DROP(t):
 
 
 def p_ALTER(t):
-    '''ALTER : alter databases id RO
-              | altertable'''
-
-
-def p_r_o(t):
-    '''RO : rename to id
-           | owner to id
+    '''ALTER : alter databases id rename to id
+              | alter databases id owner to id
+              | altertable
     '''
+    if len(t)==7:
+        if(t[4]=='rename'):
+            print("renombrar db")
+            t[0]=AlterDb(str(t[3]),t[6])
+         
+        else:
+            print("renombrar owner")
+            
+
+    elif len(t)==1:
+        print("altertable")
 
 
 def p_altertable(t):
@@ -385,7 +395,8 @@ def p_ADD(t):
 
 def p_SHOWDB(t):
     ''' SHOWDB : show databases
-     '''
+    '''
+    t[0]=ShowDb()
 
 
 def p_CREATEDB(t):
@@ -767,7 +778,13 @@ def p_EXP(t):
             | id para LEXP parc
             | any para LEXP parc
             | all para LEXP parc
-            | some para LEXP parc'''
+            | some para LEXP parc
+    '''
+    if len(t)==4:
+        t[0]=Select(None,t[2],None,None,None,None,None,None,None)
+    elif len(t)==5:
+        t[0]=Select(None,t[2],None,None,None,None,None,None,None)
+
 
 def p_EXPext(t):
     ' EXP : extract para FIELDS r_from timestamp cadena parc'

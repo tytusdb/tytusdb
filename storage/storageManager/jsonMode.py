@@ -1,81 +1,78 @@
-# JSON Mode Package
-# Released under MIT License
-# Copyright (c) 2020 TytusDb Team
+# Package:      JSON Mode
+# License:      Released under MIT License
+# Notice:       Copyright (c) 2020 TytusDB Team
+# Developer:    Luis Espino
 
 import os 
 import json
+from contextlib import ContextDecorator
 
-
+path = 'data/json/'
+dataPath = path + 'databases'
+    
 ##################
 # Databases CRUD #
 ##################
 
 # CREATE a database checking their existence
 def createDatabase(database: str) -> int:
-    initCheck()
-    dump = False
-    with open('data/json/databases') as file:
-        data = json.load(file)
+    try:
+        if not database.isidentifier():
+            raise Exception()
+        initCheck()
+        data = read(dataPath)
         if database in data:
             return 2
-        else: 
-            new = {database:{}}
-            data.update(new)
-            dump = True
-    if dump:
-        with open('data/json/databases', 'w') as file:
-            json.dump(data, file)
+        new = {database:{}}
+        data.update(new)
+        write(dataPath, data)
         return 0
-    else:
+    except:
         return 1
 
 # READ and show databases by constructing a list
 def showDatabases() -> list:
-    initCheck()
-    databases = []
-    with open('data/json/databases') as file:
-        data = json.load(file)
+    try:
+        initCheck()
+        databases = []
+        data = read(dataPath)
         for d in data:
             databases.append(d);
-    return databases
+        return databases
+    except:
+        return databases
 
 # UPDATE and rename a database name by inserting new_key and deleting old_key
 def alterDatabase(databaseOld: str, databaseNew) -> int:
-    initCheck()
-    dump = False
-    with open('data/json/databases') as file:
-        data = json.load(file)
+    try:
+        if not databaseOld.isidentifier() or not databaseNew.isidentifier():
+            raise Exception()
+        initCheck()
+        data = read(dataPath)        
         if not databaseOld in data:
             return 2
         if databaseNew in data:
             return 3
-        else:
-            data[databaseNew] = data[databaseOld]
-            data.pop(databaseOld)
-            dump = True
-    if dump:
-        with open('data/json/databases', 'w') as file:
-            json.dump(data, file)
+        data[databaseNew] = data[databaseOld]
+        data.pop(databaseOld)
+        write(dataPath, data)
         return 0
-    else:
-        return 1    
+    except:
+        return 1
 
 # DELETE a database by pop from dictionary
 def dropDatabase(database: str) -> int:
-    initCheck()
-    dump = False
-    with open('data/json/databases') as file:
-        data = json.load(file)        
+    try:
+        if not database.isidentifier():
+            raise Exception()
+        initCheck()
+        data = read(dataPath)
         if not database in data:
             return 2
-        else:
-            data.pop(database)
-            dump = True
-    if dump:
-        with open('data/json/databases', 'w') as file:
-            json.dump(data, file)
+        data.pop(database)
+        write(dataPath, data)
         return 0
-    else:
+    except:
         return 1    
 
 
@@ -523,7 +520,19 @@ def initCheck():
     if not os.path.exists('data/json/databases'):
         data = {}
         with open('data/json/databases', 'w') as file:
-            json.dump(data, file)    
+            json.dump(data, file)
+
+# Read a JSON file
+def read(path: str) -> dict:
+    with open(path) as file:
+        return json.load(file)    
+
+# Write a JSON file
+def write(path: str, data: dict):
+    with open(path, 'w') as file:
+        json.dump(data, file)
+
+
 
 # Show the complete file of databases and tables
 def showJSON(fileName: str):
