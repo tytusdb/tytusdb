@@ -37,12 +37,13 @@ class Arithmetic(Expression):
         if self.operator == '/':
             #Reportar error de división entre cero
             return {'Error':"La división entre cero no tiene definición matemática", 'Linea':self.row, 'Columna': self.column }
-
         if op1['typ'] != Type.INT and op1['typ'] != Type.DECIMAL:
             #Reportar error de tipos de operandos
             return {'Error':"No se puede operar " + op1['value'] + " y " + op2['value'], 'Linea':self.row, 'Columna': self.column }
+        if op2 == None:#Cuando se requiere negar aritméticamente
+            return {'value': 0 - op1['value'], 'typ': op1['typ']}
 
-        switcher ={
+        switcher = {
             '+': {'value': op1['value'] + op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},
             '-': {'value': op1['value'] - op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},
             '*': {'value': op1['value'] * op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},

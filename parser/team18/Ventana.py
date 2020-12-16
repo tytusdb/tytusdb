@@ -5,14 +5,14 @@ import tkinter.filedialog
 import tkinter.messagebox
 import webbrowser
 import Gramatica #importar el modulo de la gramatica 
+import AST
 
-IDE = "TysusDB_18"
 archivo = None
 
 # Configuración de Ventana
 ventana = Tk()
-ventana.geometry('1000x710')
-ventana.title(IDE)
+ventana.geometry('950x700')
+ventana.title("TytusDB_18")
 
 
 # show pop-up menu
@@ -190,8 +190,14 @@ def redo(event=None):
 def analizar():
     input = content_text.get(1.0,"end-1c")
     #print(input)
-    print(".........Analizando....")
-    Gramatica.AnalizarInput(input)
+    #print(".........Analizando....")
+    #Gramatica.AnalizarInput(input)
+    AST.Analisar(input)
+    #AST.generarAST()
+
+#Metodo para generar el reporte del arbol ast
+def abrirAST():
+    AST.generarAST()
 
 
 menu_bar = Menu(ventana)
@@ -213,8 +219,8 @@ editar.add_command(label='Seleccionar Todo', underline=7,accelerator='Ctrl+A', c
 menu_bar.add_cascade(label='Editar', menu=editar)
 
 compil = Menu(menu_bar, tearoff=0)
-compil.add_command(label="Compilar Ascendente", accelerator='Ctrl+9', compound="left", command=analizar)
-compil.add_command(label="Compilar Descendente", accelerator='Ctrl+8', compound="left", command=compilar)
+compil.add_command(label="Compilar Ascendente", compound="left", command=analizar)
+#compil.add_command(label="Compilar Descendente", accelerator='Ctrl+8', compound="left", command=compilar)
 menu_bar.add_cascade(label='Compilar', menu=compil)
 
 report = Menu(menu_bar, tearoff=0)

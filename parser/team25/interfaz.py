@@ -6,6 +6,8 @@ from tkinter.filedialog import asksaveasfile
 from gramaticasql import analizarEntrada # metodo para ejecutar el parser
 import tkinter.font as tkFont
 import os 
+from reporteErrores.errorReport import ErrorReport
+from reporteErrores.instance import listaErrores
 
 class InterfazCompi:
     def __init__(self, window):
@@ -28,22 +30,15 @@ class InterfazCompi:
         filemenu = Menu(menuPrincipal)
         reporteMenu = Menu(menuPrincipal)
         filemenu.add_command(label="Abrir" , command = self.openFIILE)
-        reporteMenu.add_command(label="View" , command = self.viewImage)
-        
+        reporteMenu.add_command(label="Reporte Arbol" , command = self.viewImage)
+        reporteMenu.add_command(label="Reporte Errores" , command = self.viewErrors)
         # los agrega a la pantalla principal
         menuPrincipal.add_cascade(label="Archivos", menu=filemenu)
-        menuPrincipal.add_cascade(label="Reportes", menu=reporteMenu)
-        
+        menuPrincipal.add_cascade(label="Reportes", menu=reporteMenu)        
 
-        
         self.ejecutar = Button(frame,justify = 'center', width= 45,bd = 8, fg='black', bg= 'OliveDrab1', text ="EJECUTAR", command = self.analizar , relief = 'ridge' ,  pady = 10 , padx = 0 , activeforeground  = 'black' , activebackground  ='orange')
-        self.ejecutar.grid(row=0,column=0)
+        self.ejecutar.grid(row=0,column=0)        
         
-
-
-        
-         
-
     
         #_____________________________________________ TEXT AREA
         Label(frame , text ='ENTRADA:' , font = myfont ,  background='black' ,fg = 'white').grid(row=60,column=0 , pady = 20 )
@@ -69,6 +64,7 @@ class InterfazCompi:
          
         
     def analizar(self):
+        listaErrores.clear()
         print('analizando una entrada')
         result = msg.askyesno("EJECUTANDO", "¿Quiere ejecutar esta entrada?")
         if result==True:
@@ -79,19 +75,17 @@ class InterfazCompi:
             except:
                 print("NO SE PUDO EJECUTAR :v")
 
-   
+    def viewErrors(self):
+    #    error1 = ErrorReport('lexico' , 'ERROR  DESDE LA INTERFAZ ' , '3') 
+    #    listaErrores.addError(error1)
+       listaErrores.generateReport()
+       os.system('reporteErrores.html') # & para ejecutar dos comandos en una sola linea de la terminal
             
     
     def viewImage(self):
-        ventana = Tk()
-        try:
-            ventana.title("imagenes")
-            ventana.geometry("700x700")
-            imagen = PhotoImage(file="graphviz.png")
-            fondo = Label(ventana , image = imagen ).place(x = 0 , y = 0)
-            ventana.mainloop() 
-        except:
-            print('NO SE ENCONTRO LA IMAGEN')            
+        # queda mas facil usar el visor de windows 
+        #os.system('reporteErrores.html')
+        pass
 
 if __name__ == '__main__':
     window = Tk()
