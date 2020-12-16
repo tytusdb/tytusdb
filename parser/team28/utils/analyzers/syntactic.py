@@ -93,14 +93,17 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
+    noColumn = 0
+    noLine = 0
+
     if len(p) == 8:
         p[0] = CreateType(p[2],p[6])
 
     elif len(p) == 3:
-        p[0] = CreateDB(p[2], False)
+        p[0] = CreateDB(p[2], False, noLine, noColumn)
 
     elif len(p) == 5:
-        p[0] = CreateDB(p[4], True)
+        p[0] = CreateDB(p[4], True, noLine, noColumn)
 
     elif len(p) == 6:
         p[0] = CreateTB(p[2], p[4], None)
@@ -419,16 +422,20 @@ def p_drop_database(p):
     '''dropdatabase : IF EXISTS ID
                     | ID
     '''
+    noColumn = 0
+    noLine = 0
     if len(p) == 4:
-        p[0] = DropDB(True, p[3])
+        p[0] = DropDB(True, p[3], noLine, noColumn)
     else:
-        p[0] = DropDB(False, p[3])
+        p[0] = DropDB(False, p[1], noLine, noColumn)
 
 
 def p_drop_table(p):
     '''droptable : ID
     '''
-    p[0] = DropTB(p[1])
+    noColumn = 0
+    noLine = 0
+    p[0] = DropTB(p[1], noLine, noColumn)
 
 
 # =====================================================================================
