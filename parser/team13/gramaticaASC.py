@@ -1608,8 +1608,8 @@ def p_EXPR_GROUPBY( p ):
 
 
 def p_EXPR_HAVING(p):
-    '''EXPR_HAVING : having E_FUNC OPERATOR E_FUNC'''
-    p[0] = SHaving(p[2],p[3],p[4])
+    '''EXPR_HAVING : having E_FUNC '''
+    p[0] = SHaving(p[2])
 
 
 def p_EXPR_E_FUNC(p):
@@ -1620,6 +1620,7 @@ def p_EXPR_E_FUNC(p):
               | EXPR_FECHA
               | E '''
     p[0] = p[1]
+    
 
 
 def p_EXPR_ORDERBY(p):
@@ -1654,7 +1655,7 @@ def p_LIST_ORDERBY_p1(p):
     elif len(p) == 3:
         p[0] = SListOrderBy(p[2],False,p[1])
     elif len(p) == 4:
-        p[0] = SListOrderBy(False,p[3].p[1])
+        p[0] = SListOrderBy(False,p[3],p[1])
     elif len(p) == 5:
         p[0] = SListOrderBy(p[2],p[4],p[1])
 

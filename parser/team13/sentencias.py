@@ -542,7 +542,5 @@ class SWhereCond9(Sentencia):
         self.efunc2 = efunc2
 
 class SHaving(Sentencia):
-    def __init__(self,ope,efunc=[],efunc2=[]):
-        self.ope = ope
+    def __init__(self,efunc=[]):
         self.efunc = efunc
-        self.efunc2 = efunc2

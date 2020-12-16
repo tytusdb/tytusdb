@@ -490,7 +490,42 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     #HAVING
                     if isinstance(Qhaving, SHaving): 
                         print("entro al Having")
+                        print(Qhaving.efunc)
+                    
+                    #ORDER BY
+                    if isinstance(Qorderby, sOrderBy): 
+                        print("entro al Order By")
+                        for col in Qorderby.slist:
+                            if isinstance(col, SListOrderBy):
+                                if col.ascdesc == False and col.firstlast == False:
+                                    print("OrderBy1")
+                                    print(col.listorder)
+                                elif col.ascdesc == False and col.firstlast != False:
+                                    print("OrderBy2")
+                                    print(col.listorder)
+                                    print(col.firstlast)
+                                elif col.ascdesc != False and col.firstlast == False:
+                                    print("OrderBy3")
+                                    print(col.listorder)
+                                    print(col.ascdesc)
+                                elif col.ascdesc != False and col.firstlast != False:
+                                    print("OrderBy4")
+                                    print(col.listorder)
+                                    print(col.ascdesc)
+                                    print(col.firstlast)
+                    
+                    #LIMIT
+                    if isinstance(Qlimit,SLimit): 
+                        print("Entro a Limit")
+                        if isinstance(Qlimit.limit, SExpresion):
+                            print(Qlimit.limit.valor)
+                        else: 
+                            print(Qlimit.limit)
                         
+                        if isinstance(Qlimit.offset, SExpresion):
+                            print(Qlimit.offset.valor)
+                        else: 
+                            print(Qlimit.offset)                       
             else:
                 print("Query anidada")
     
