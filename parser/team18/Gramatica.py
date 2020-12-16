@@ -23,17 +23,11 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'encode':'encode', 'width_bucket':'width_bucket', 'current_user':'CURRENT_USER', 'session_user':'SESSION_USER',
                'natural':'NATURAL', 'join':'JOIN', 'inner':'INNER', 'left':'LEFT', 'right':'RIGHT', 'full':'FULL', 'outer':'OUTER', 'using':'USING', 'on':'ON',
                'in':'IN','any':'ANY', 'all':'ALL','some':'SOME','union':'UNION','intersect':'INTERSECT','except':'EXCEPT'  ,'case':'CASE','when':'WHEN','else':'ELSE','end':'END',
-               'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'in':'IN' , 'between':'BETWEEN' ,'offset':'OFFSET',
-               'greatest':'GREATEST' , 'least':'LEAST','md5':'MD5','extract':'EXTRACT' ,'year':'YEAR' ,
-               'hour':'HOUR' ,'minute':'MINUTE' ,'second':'SECOND' ,'month':'MONTH' ,'now':'NOW' ,'date_part':'DATE_PART' ,
+               'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'between':'BETWEEN' ,'offset':'OFFSET',
+               'greatest':'GREATEST' , 'least':'LEAST','md5':'MD5','extract':'EXTRACT','now':'NOW' ,'date_part':'DATE_PART' ,
                'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME' ,
-             }
+             } 
  
- 
- 
- 
-
-             
 
 tokens = [ 'ID', 'PTCOMA', 'IGUAL', 'DECIMAL', 'ENTERO', 'PAR_A', 'PAR_C', 'PUNTO', 'COMA', 'CADENA1', 'CADENA2', 'BOOLEAN',
            'DESIGUAL','DESIGUAL2','MAYORIGUAL','MENORIGUAL','MAYOR','MENOR','ASTERISCO', 'RESTA','SUMA','DIVISION', 
@@ -72,7 +66,7 @@ t_POTENCIA = r'\^'
 t_MODULO = r'\%'
 
 def t_DECIMAL(t):
-     r'-?\d+\.\d+'
+     r'\d+\.\d+'
      try:
           t.value = float(t.value)
      except ValueError:
@@ -82,7 +76,7 @@ def t_DECIMAL(t):
 
 
 def t_ENTERO(t):
-     r'-?\d+'
+     r'\d+'
      try:
         t.value = int(t.value)
      except ValueError:
@@ -139,6 +133,23 @@ lexer = lex.lex()
 from expresiones import *
 from instrucciones import *
 
+# Precedencia de operadores
+precedence = (
+               ('right','NOT'),
+               ('left', 'AND', 'OR'),
+               ('left', 'IGUAL', 'DESIGUAL'),
+               ('left', 'DESIGUAL2', 'MAYORIGUAL'),
+               ('left', 'MENORIGUAL', 'MAYOR'),
+               ('left', 'MENOR'),
+               ('left', 'SUMA', 'RESTA'),
+               ('left', 'ASTERISCO', 'DIVISION'),
+               ('left', 'POTENCIA', 'MODULO'),
+               ('right', 'UMENOS', 'USQRT2'),
+               ('right', 'CBRT2', 'NOT2'),
+               ('left', 'SQRT2', 'AND2'),
+               ('left', 'XOR', 'SH_LEFT'),
+               ('left', 'SH_RIGHT')
+             )
 
 def p_init(t):
      'init            : l_sentencias'
@@ -323,7 +334,7 @@ def p_extract1(t):
      '''extract1 : YEAR
                  | MONTH
                  | DAY
-                 | HOUR
+                 | HOURS
                  | MINUTE
                  | SECOND
                  | CADENA1
@@ -582,7 +593,12 @@ def p_byteaop(t):
 
 def p_listaexp(t):
      '''lista_exp : lista_exp COMA exp  
-                  | exp'''   
+                  | exp''' 
+     if(len(t) == 4):
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]   
 
 def p_expresiones(t):
      '''exp : exp_log
@@ -591,11 +607,19 @@ def p_expresiones(t):
             | exp_select
             | expresion_patron
             | E'''
+     t[0] = t[1]
 
 def p_expresion_logica(t):
      '''exp_log : NOT exp
                 | exp AND exp  
                 | exp OR exp'''
+     if(len(t) == 4):
+          if(t[2].lower() == 'and'):
+               t[0] = Operacion_Logica_Binaria(t[1],t[3],OPERACION_LOGICA.AND)
+          else:
+               t[0] = Operacion_Logica_Binaria(t[1],t[3],OPERACION_LOGICA.OR)
+     else:
+          t[0] = Operacion_Logica_Unaria(t[2])
 
 
 
@@ -614,6 +638,20 @@ def p_expresion_patron(t):
 
 def p_expresion_relacional(t):
      '''exp_rel : exp toperador exp'''
+     if t[2] == "=":
+          t[0] = Operacion_Relacional(t[1],t[3],OPERACION_RELACIONAL.IGUAL)
+     elif t[2] == "!=":
+          t[0] = Operacion_Relacional(t[1],t[3],OPERACION_RELACIONAL.DIFERENTE)
+     elif t[2] == "<>":
+          t[0] = Operacion_Relacional(t[1],t[3],OPERACION_RELACIONAL.DIFERENTE)
+     elif t[2] == ">=":
+          t[0] = Operacion_Relacional(t[1],t[3],OPERACION_RELACIONAL.MAYORIGUALQUE)
+     elif t[2] == "<=":
+          t[0] = Operacion_Relacional(t[1],t[3],OPERACION_RELACIONAL.MENORIGUALQUE)
+     elif t[2] == ">":
+          t[0] = Operacion_Relacional(t[1],t[3],OPERACION_RELACIONAL.MAYOR_QUE)
+     elif t[2] == "<":
+          t[0] = Operacion_Relacional(t[1],t[3],OPERACION_RELACIONAL.MENOR_QUE)
 
 def p_toperador(t):
      '''toperador : IGUAL
@@ -623,6 +661,7 @@ def p_toperador(t):
                   | MENORIGUAL
                   | MAYOR
                   | MENOR'''
+     t[0]=t[1]
 
 def p_expresion_aritmetica(t):
      '''exp_ar : exp SUMA exp
@@ -631,27 +670,58 @@ def p_expresion_aritmetica(t):
                | exp DIVISION exp
                | exp POTENCIA exp
                | exp MODULO exp'''
+     if t[2] == "+":
+          t[0] = Operacion_Aritmetica(t[1],t[3],OPERACION_ARITMETICA.MAS)
+     elif t[2] == "-":
+          t[0] = Operacion_Aritmetica(t[1],t[3],OPERACION_ARITMETICA.MENOS)
+     elif t[2] == "*":
+          t[0] = Operacion_Aritmetica(t[1],t[3],OPERACION_ARITMETICA.POR)
+     elif t[2] == "/":
+          t[0] = Operacion_Aritmetica(t[1],t[3],OPERACION_ARITMETICA.DIVIDIDO)
+     elif t[2] == "^":
+          t[0] = Operacion_Aritmetica(t[1],t[3],OPERACION_ARITMETICA.POTENCIA)
+     elif t[2] == "%":
+          t[0] = Operacion_Aritmetica(t[1],t[3],OPERACION_ARITMETICA.MODULO)
+
+
+def p_expresion_aritmetica_unitaria(t):
+     '''exp_ar : RESTA exp %prec UMENOS'''
+     t[0] = Negacion_Unaria(t[2])
+
 
 def p_exp_select(t):
-     '''exp_select : SQRT2 exp
-                   | CBRT2 exp
+     '''exp_select : CBRT2 exp
+                   | NOT2 exp
                    | exp AND2 exp
                    | exp SQRT2 exp
-                   | NOT2 exp
                    | exp XOR exp
                    | exp SH_LEFT exp
                    | exp SH_RIGHT exp'''
+     if len(t) == 3:  
+          if t[1] == "||":
+               t[0] = Operacion_Especial_Unaria(t[2],OPERACION_ESPECIAL.CBRT2)
+          elif t[1] == "~":
+               t[0] = Operacion_Especial_Unaria(t[2],OPERACION_ESPECIAL.NOT2)
+     else:
+          if t[2] == "&":
+               t[0] = Operacion_Especial_Binaria(t[1],t[3],OPERACION_ESPECIAL.AND2)
+          elif t[2] == "|":
+               t[0] = Operacion_Especial_Binaria(t[1],t[3],OPERACION_ESPECIAL.OR2)
+          elif t[2] == "#":
+               t[0] = Operacion_Especial_Binaria(t[1],t[3],OPERACION_ESPECIAL.XOR)
+          elif t[2] == ">>":
+               t[0] = Operacion_Especial_Binaria(t[1],t[3],OPERACION_ESPECIAL.DEPDER)
+          elif t[2] == "<<":
+               t[0] = Operacion_Especial_Binaria(t[1],t[3],OPERACION_ESPECIAL.DEPIZQ)
+
+def p_exp_select_or_unario(t):
+     '''exp_select : SQRT2 exp %prec USQRT2'''
+     t[0] = Operacion_Especial_Unaria(t[2],OPERACION_ESPECIAL.SQRT2)
 
 
 
 def p_expresion(t):
-     '''E : ENTERO
-          | DECIMAL
-          | CADENA1
-          | CADENA2
-          | ID
-          | ID PUNTO ID
-          | PAR_A exp PAR_C
+     '''E : ID PUNTO ID
           | ANY
           | ALL
           | SOME
@@ -659,8 +729,17 @@ def p_expresion(t):
           | seleccionar
           | funcion_math
           | NULL
-          | lvaloresdefault
+          | valoresdefault
           | NOT IN'''
+     t[0] = t[1]
+
+def p_expresion_id(t):
+     '''E : ID'''
+     t[0] = Operando_ID(t[1])
+
+def p_expresion_par(t):
+     '''E : PAR_A exp PAR_C'''
+     t[0] = t[2]
 
 def p_crear(t):
      '''crear : CREATE reemplazar DATABASE verificacion ID propietario modo
@@ -668,12 +747,12 @@ def p_crear(t):
               | CREATE TYPE ID AS ENUM PAR_A lista_exp PAR_C'''
      
      if(t[3].lower()=='database'):
-          t[0]=CrearBD(t[2], t[4], ExpresionIdentificador(t[5]), t[6], t[7])
+          t[0]=CrearBD(t[2], t[4], Operando_ID(t[5]), t[6], t[7])
      else:
           if(t[2].lower()=='table'):
-               t[0]=CrearTabla(ExpresionIdentificador(t[3]),t[7],t[5])
+               t[0]=CrearTabla(Operando_ID(t[3]),t[7],t[5])
           else:
-               t[0]=CrearType(ExpresionIdentificador(t[3]),t[7])
+               t[0]=CrearType(Operando_ID(t[3]),t[7])
                print('llamar funcion Type')
      
 
@@ -742,13 +821,12 @@ def p_columna(t):
      '''columna : ID tipo valortipo zonahoraria atributocolumn
                 | PRIMARY KEY PAR_A lnombres PAR_C
                 | FOREIGN KEY PAR_A lnombres PAR_C REFERENCES ID PAR_A lnombres PAR_C'''
-     
      if(t[1].lower()=='primary'):
           t[0]=llaveTabla(True, None, t[4], None)
      elif(t[1].lower()=='foreign'):
           t[0]=llaveTabla(False, t[7], t[4], t[9])
      else:
-          t[0]=columnaTabla(ExpresionIdentificador(t[1]), t[2], t[3],t[4], t[5])
+          t[0]=columnaTabla(Operando_ID(t[1]), t[2], t[3],t[4], t[5])
 
 def p_tipo(t):
      '''tipo : smallint
@@ -776,13 +854,12 @@ def p_tipo(t):
           t[0]=str(t[1])+' '+str(t[2])
 
 def p_valortipo(t):
-     '''valortipo : PAR_A lvaloresdefault PAR_C
-                  | lvaloresdefault
+     '''valortipo : PAR_A lista_exp PAR_C
                   | empty'''
      if(len(t)==4):
           t[0]=t[2]
      else:
-          t[0]=t[1]
+          t[0]=False
 
 
 def p_zona_horaria(t):
@@ -826,30 +903,28 @@ def p_atributo(t):
           elif(t[1].lower()=='not'):
                t[0]=atributoColumna(None,None,False,None,None,None)
           elif(t[1].lower()=='check'):
-               t[0]=atributoColumna(None,None,False,None,None,None)
+               t[0]=atributoColumna(None,None,False,None,None,t[3])
      else:
           #atributoColumna(default,constraint,null,unique,primary,check);
           t[0]=atributoColumna(None,None,None,None,None,None)
      
 
+def p_valores_default_cad(t):
+     '''valoresdefault : CADENA1
+                       | CADENA2'''
+     t[0]=Operando_Cadena(t[1])
 
+def p_valores_default_bool(t):
+     '''valoresdefault : BOOLEAN'''
+     t[0]=Operando_Booleano(t[1]) 
 
-def p_lvalores_default(t):
-     '''lvaloresdefault : lvaloresdefault COMA valoresdefault
-                        | valoresdefault'''
-     if(len(t)==4):
-          t[1].append(t[3])
-          t[0] = t[1]
-     else:  
-          t[0]=[t[1]]   
+def p_valores_default_num(t):
+     '''valoresdefault : DECIMAL
+                       | ENTERO'''
+     t[0]=Operando_Numerico(t[1])
 
 def p_valores_default(t):
-     '''valoresdefault : CADENA1
-                       | CADENA2
-                       | DECIMAL
-                       | ENTERO
-                       | BOOLEAN
-                       | YEAR
+     '''valoresdefault : YEAR
                        | MONTH
                        | DAY
                        | SECOND

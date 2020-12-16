@@ -37,51 +37,89 @@ def crear_Tabla(instr,ts):
             for atributoC in colum.atributos :
                 if isinstance(atributoC, atributoColumna):
                     print('atributos-->','default:',atributoC.default,'constraint:',atributoC.constraint,'null:',atributoC.null,'unique:',atributoC.unique,'primary:',atributoC.primary,'check:',atributoC.check)
-                        
+                    if(atributoC.check != None):
+                        for exp in atributoC.check:
+                            print('resultado: ',resolver_operacion(exp,ts))
 
-
-
-
-def resolver_cadena(expCad, tablasimbolos) :
-    if isinstance(expCad, ExpresionConcatenar) :
-        exp1 = resolver_cadena(expCad.exp1, tablasimbolos)
-        exp2 = resolver_cadena(expCad.exp2, tablasimbolos)
-        return exp1 + exp2
-    elif isinstance(expCad, ExpresionDobleComilla) :
-        return expCad.val
-    elif isinstance(expCad, ExpresionCadenaNumerico) :
-        return str(resolver_expresion_aritmetica(expCad.exp, tablasimbolos))
-    else :
-        print('Error: Expresión cadena no válida')
-
-
-def resolver_expresion_logica(expLog, tablasimbolos) :
-    exp1 = resolver_expresion_aritmetica(expLog.exp1, tablasimbolos)
-    exp2 = resolver_expresion_aritmetica(expLog.exp2, tablasimbolos)
-    if expLog.operador == OPERACION_LOGICA.MAYOR_QUE : return exp1 > exp2
-    if expLog.operador == OPERACION_LOGICA.MENOR_QUE : return exp1 < exp2
-    if expLog.operador == OPERACION_LOGICA.IGUAL : return exp1 == exp2
-    if expLog.operador == OPERACION_LOGICA.DIFERENTE : return exp1 != exp2
-    if expLog.operador == OPERACION_LOGICA.MAYORIGUALQUE : return exp1 >= exp2
-    if expLog.operador == OPERACION_LOGICA.MENORIGUALQUE : return exp1 <= exp2
-
-def resolver_expresion_aritmetica(expNum, tablasimbolos) :
-    if isinstance(expNum, ExpresionBinaria) :
-        exp1 = resolver_expresion_aritmetica(expNum.exp1, tablasimbolos)
-        exp2 = resolver_expresion_aritmetica(expNum.exp2, tablasimbolos)
-        if expNum.operador == OPERACION_ARITMETICA.MAS : return exp1 + exp2
-        if expNum.operador == OPERACION_ARITMETICA.MENOS : return exp1 - exp2
-        if expNum.operador == OPERACION_ARITMETICA.POR : return exp1 * exp2
-        if expNum.operador == OPERACION_ARITMETICA.DIVIDIDO : return exp1 / exp2
-        if expNum.operador == OPERACION_ARITMETICA.POTENCIA : return pow(exp1,exp2)
-        if expNum.operador == OPERACION_ARITMETICA.MODULO : return exp1 % exp2
-    elif isinstance(expNum, ExpresionNegativo) :
-        exp = resolver_expresion_aritmetica(expNum.exp, tablasimbolos)
-        return exp * -1
-    elif isinstance(expNum, ExpresionNumero) :
-        return expNum.val
-    elif isinstance(expNum, ExpresionIdentificador) :
-        return tablasimbolos.obtener(expNum.id).valor
+def resolver_operacion(operacion,ts):
+    if isinstance(operacion, Operacion_Logica_Unaria):
+        op = resolver_operacion(operacion.op, ts)
+        if isinstance(op, bool):
+            return not(op)
+        else:
+            print('Error: No se permite operar los tipos involucrados')
+    elif isinstance(operacion, Operacion_Logica_Binaria):
+        op1 = resolver_operacion(operacion.op1,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
+        if isinstance(op1, bool) and isinstance(op2, bool):
+            if operacion.operador == OPERACION_LOGICA.AND: return op1 and op2
+            elif operacion.operador == OPERACION_LOGICA.OR: return op1 or op2 
+        else:
+            print('Error: No se permite operar los tipos involucrados')
+    elif isinstance(operacion, Operacion_Relacional):
+        op1 = resolver_operacion(operacion.op1,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
+        if isinstance(op1, (int,float)) and isinstance(op2, (int,float)):
+            if operacion.operador == OPERACION_RELACIONAL.IGUAL: return op1 == op2
+            elif operacion.operador == OPERACION_RELACIONAL.DIFERENTE: return op1 != op2
+            elif operacion.operador == OPERACION_RELACIONAL.MAYORIGUALQUE: return op1 >= op2
+            elif operacion.operador == OPERACION_RELACIONAL.MENORIGUALQUE: return op1 <= op2
+            elif operacion.operador == OPERACION_RELACIONAL.MAYOR_QUE: return op1 > op2
+            elif operacion.operador == OPERACION_RELACIONAL.MENOR_QUE: return op1 < op2
+        elif isinstance(op1, (str)) and isinstance(op2, (str)):
+            if operacion.operador == OPERACION_RELACIONAL.IGUAL: return op1 == op2
+            elif operacion.operador == OPERACION_RELACIONAL.DIFERENTE: return op1 != op2
+            elif operacion.operador == OPERACION_RELACIONAL.MAYORIGUALQUE: return op1 >= op2
+            elif operacion.operador == OPERACION_RELACIONAL.MENORIGUALQUE: return op1 <= op2
+            elif operacion.operador == OPERACION_RELACIONAL.MAYOR_QUE: return op1 > op2
+            elif operacion.operador == OPERACION_RELACIONAL.MENOR_QUE: return op1 < op2
+        else:
+            print('Error: No se permite operar los tipos involucrados') 
+    elif isinstance(operacion, Operacion_Aritmetica):
+        op1 = resolver_operacion(operacion.op1,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
+        if isinstance(op1, (int,float)) and isinstance(op2, (int,float)):
+            if operacion.operador == OPERACION_ARITMETICA.MAS: return op1 + op2
+            elif operacion.operador == OPERACION_ARITMETICA.MENOS: return op1 - op2
+            elif operacion.operador == OPERACION_ARITMETICA.POR: return op1 * op2
+            elif operacion.operador == OPERACION_ARITMETICA.DIVIDIDO: return op1 / op2
+            elif operacion.operador == OPERACION_ARITMETICA.POTENCIA: return op1 ** op2
+            elif operacion.operador == OPERACION_ARITMETICA.MODULO: return op1 % op2
+        else:
+            print('Error: No se permite operar los tipos involucrados') 
+    elif isinstance(operacion, Operacion_Especial_Binaria):
+        op1 = resolver_operacion(operacion.op1,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
+        if isinstance(op1, int) and isinstance(op2, int):
+            if operacion.operador == OPERACION_ESPECIAL.AND2: return op1 & op2
+            elif operacion.operador == OPERACION_ESPECIAL.OR2: return op1 | op2
+            elif operacion.operador == OPERACION_ESPECIAL.XOR: return op1 ^ op2
+            elif operacion.operador == OPERACION_ESPECIAL.DEPDER: return op1 >> op2
+            elif operacion.operador == OPERACION_ESPECIAL.DEPIZQ: return op1 << op2
+        else:
+            print('Error: No se permite operar los tipos involucrados')
+    elif isinstance(operacion, Operacion_Especial_Unaria):
+        op = resolver_operacion(operacion.op,ts)
+        if isinstance(op, (int,float)):
+            if operacion.operador == OPERACION_ESPECIAL.SQRT2: return op ** (1/2)
+            elif operacion.operador == OPERACION_ESPECIAL.CBRT2: return op ** (1/3)
+            elif operacion.operador == OPERACION_ESPECIAL.NOT2: 
+                if isinstance(op, int): return ~op
+                else: print('Error: No se permite operar los tipos involucrados')
+            else:
+                print('Error: No se permite operar los tipos involucrados')
+    elif isinstance(operacion, Negacion_Unaria):
+        op = resolver_operacion(operacion.op,ts)
+        if isinstance(op, (int,float)):
+            return op * -1
+        else:
+            print('Error: No se permite operar los tipos involucrados')
+    elif isinstance(operacion, Operando_Booleano):
+        return operacion.valor
+    elif isinstance(operacion, Operando_Numerico):
+        return operacion.valor
+    elif isinstance(operacion, Operando_Cadena):
+        return operacion.valor  
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas

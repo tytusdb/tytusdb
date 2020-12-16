@@ -140,15 +140,15 @@ class DOTAST:
     #Expresiones resultantes 
     def getTextDotExpresion(self, padre, expresion):
         global contador, TextDot
-        if isinstance(expresion, ExpresionIdentificador):
+        if isinstance(expresion, Operando_ID):
             contador = contador + 1
             TextDot.node("node" + str(contador), str(expresion.id))
             TextDot.edge(padre, "node" + str(contador))
-        elif isinstance(expresion, ExpresionNumero):
+        elif isinstance(expresion, Operando_Numerico):
             contador = contador + 1 
             TextDot.node("node" + str(contador), str(expresion.val))
             TextDot.edge(padre, "node" + str(contador))
-        elif isinstance(expresion, ExpresionDobleComilla):
+        elif isinstance(expresion, Operando_Cadena):
             contador = contador + 1
             TextDot.node("node"+str(contador),str(expresion.val))
             TextDot.edge(padre,"node"+str(contador))
