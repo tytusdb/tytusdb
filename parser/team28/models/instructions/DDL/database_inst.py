@@ -1,34 +1,66 @@
 from models.instructions.shared import Instruction
+from controllers.type_checker import TypeChecker
 
 
 class CreateDB(Instruction):
 
-    def __init__(self, properties, replace):
+    def __init__(self, properties, replace, noLine, noColumn):
         # if_not_exists:bool, id:str, listpermits: []
         self._properties = properties
         self._replace = replace
+        self._noLine = noLine
+        self._noColumn = noColumn
+
+    def __repr__(self):
+        return str(vars(self))
 
     def execute(self):
-        pass
+        typeChecker = TypeChecker()
+        database = typeChecker.searchDatabase(self._properties['id'])
+
+        if database:
+            if self._properties['if_not_exists']:
+                return
+
+            if self._replace:
+                typeChecker.deleteDatabase(database.name, self._noLine,
+                                           self._noColumn)
+
+        # TODO Verificar permisos
+        typeChecker.createDatabase(self._properties['id'], self._noLine,
+                                   self._noColumn)
 
 
 class DropDB(Instruction):
 
-    def __init__(self, if_exists, database_name):
+    def __init__(self, if_exists, database_name, noLine, noColumn):
         self._if_exists = if_exists
         self._database_name = database_name
+        self._noLine = noLine
+        self._noColumn = noColumn
+
+    def __repr__(self):
+        return str(vars(self))
 
     def execute(self):
-        pass
+        typeChecker = TypeChecker()
+        database = typeChecker.searchDatabase(self._database_name)
+
+        if self._if_exists and not database:
+            return
+
+        typeChecker.deleteDatabase(self._database_name, self._noLine,
+                                   self._noColumn)
 
 
 class ShowDatabase(Instruction):
     '''
         SHOW DATABASE recibe una ER para mostrar esas bases de datos, caso contrario muestra todas
     '''
-    def __init__(self, patherMatch) :
+
+    def __init__(self, patherMatch):
         self._patherMatch = patherMatch
-    
+
     def execute(self):
         pass
 
@@ -42,13 +74,14 @@ class AlterDatabase(Instruction):
         si recibe un 1 es porque es la base de datos
         si recibe un 2 es porque es el duenio
     '''
-    def __init__(self, alterType, oldValue, newValue) :
+
+    def __init__(self, alterType, oldValue, newValue):
         self._alterType = alterType
         self._oldValue = oldValue
         self._newValue = newValue
 
     def execute(self):
         pass
-    
+
     def __repr__(self):
         return str(vars(self))

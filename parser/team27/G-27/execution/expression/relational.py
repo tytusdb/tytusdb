@@ -31,7 +31,7 @@ class Relational(Expression):
             mensaje = "No se puede operar " + str(op1['value']) + " y " + op2['value'] + " ya que " + op2['value'] + " no es de tipo numérico."
             return {'Error': mensaje, 'Linea':self.row, 'Columna': self.column}
         
-        switcher ={
+        switcher = {
             '>': {'value': op1['value'] > op2['value'], 'typ': Type.BOOLEAN},
             '<': {'value': op1['value'] < op2['value'], 'typ': Type.BOOLEAN},
             '>=': {'value': op1['value'] >= op2['value'], 'typ': Type.BOOLEAN},

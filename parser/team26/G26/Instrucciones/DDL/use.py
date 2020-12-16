@@ -1,10 +1,12 @@
 import sys
 sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
+sys.path.append('../G26/Librerias/storageManager')
 
 from instruccion import *
 from Lista import *
 from TablaSimbolos import *
+from jsonMode import *
 
 class Use(Instruccion):
 
@@ -12,12 +14,13 @@ class Use(Instruccion):
         self.dbid = dbid
 
     def execute(self, data):
-        if data.comprobarExistencia(self.dbid.column.upper(), 'database'):
-            data.databaseSeleccionada = self.dbid.column.upper() #FALTA HACER EL CAMBIO DEL TIPO EN LA TABLA DE SIMBOLOS
-            print('La base de datos ' + data.databaseSeleccionada + ' ha sido seleccionada.')
-        else:
-            print('No existe la base de datos.')
-        return self
+        databaseList = showDatabases()
+        for database in databaseList:
+            if self.dbid.column.upper() == database :
+                data.databaseSeleccionada = database
+                data.tablaSimbolos[database] = {'tablas' : {}, 'enum' : {}, 'owner' : 'CURRENT_USER', 'mode' : '1'}
+                return 'La database ' + database + ' ha sido seleccionada.'
+        return 'Error(???): La database ' + self.dbid.column.upper() + ' no existe.'
 
     def __repr__(self):
         return str(self.__dict__)
