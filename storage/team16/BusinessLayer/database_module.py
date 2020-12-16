@@ -1,5 +1,5 @@
-from DataAccessLayer.handler import Handler
-from BusinessLayer.table_module import TableModule
+from handler import Handler
+from table_module import TableModule
 
 class Database:
     def __init__(self, name, tablesName):
@@ -44,7 +44,7 @@ class DatabaseModule:
                     return 3
             for i in self.databases:
                 if str(databaseOld) == str(i.name):
-                    # print(i.tablesName)
+                    print(i.tablesName)
                     tables_temp = self.handler.findCoincidences(databaseOld,i.tablesName)
                     i.name = databaseNew
                     for j in tables_temp:
