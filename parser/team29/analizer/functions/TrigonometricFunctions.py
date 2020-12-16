@@ -1,5 +1,5 @@
 import math
-import analizer.functions.MathFunctions as mt
+import functions.MathFunctions as mt
 
 
 def acos(column):
@@ -7,7 +7,12 @@ def acos(column):
     column = mt.convert_num_col(column)
     result = list()
     while i < len(column):
-        result.insert(i + 1, math.acos(column[i]))
+        valor = ""
+        if(column[i]>=-1 and 1>=column[i]):
+            valor =  str(math.acos(column[i]))
+        else:
+            valor="Error de dominio"
+        result.insert(i+1,valor)
         i += 1
 
     return result
@@ -22,7 +27,12 @@ def asin(column):
     column = mt.convert_num_col(column)
     result = list()
     while i < len(column):
-        result.insert(i + 1, math.asin(column[i]))
+        valor = ""
+        if(column[i]>=-1 and 1>=column[i]):
+            valor =  str(math.asin(column[i]))
+        else:
+            valor="Error de dominio"
+        result.insert(i+1,valor)
         i += 1
 
     return result
@@ -86,7 +96,10 @@ def cot(column):
     column = mt.convert_num_col(column)
     result = list()
     while i < len(column):
-        result.insert(i + 1, (math.cos(column[i]) / math.sen(column[i])))
+        if column[i] % math.pi != 0:
+            result.insert(i+1, (math.cos(column[i])/math.sin(column[i])))
+        else:
+            result.insert(i+1, "Error de dominio")
         i += 1
 
     return result
@@ -118,7 +131,10 @@ def tan(column):
     column = mt.convert_num_col(column)
     result = list()
     while i < len(column):
-        result.insert(i + 1, math.tan(column[i]))
+        if (column[i]-(math.pi/2))%(math.pi)!=0:
+            result.insert(i+1, math.tan(column[i]))
+        else:
+            result.insert(i+1,"Error en el dominio")
         i += 1
 
     return result
@@ -178,9 +194,11 @@ def acosh(column):
     column = mt.convert_num_col(column)
     result = list()
     while i < len(column):
-        result.insert(i + 1, math.acosh(column[i]))
+        if(column[i]>=1):
+            result.insert(i+1, math.acosh(column[i]))
+        else:
+            result.insert(i+1,"Error de dominio")
         i += 1
-
     return result
 
 
@@ -189,7 +207,10 @@ def atanh(column):
     column = mt.convert_num_col(column)
     result = list()
     while i < len(column):
-        result.insert(i + 1, math.atanh(column[i]))
+        if (column[i]<1 and column[i]>-1):
+            result.insert(i+1, math.atanh(column[i]))
+        else:
+            result.insert(i+1,"Error de dominio")
         i += 1
 
     return result
