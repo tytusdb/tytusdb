@@ -9,19 +9,32 @@ class NodoB:
     def insertar(self, valor): 
         if valor not in self.llaves:
             self.llaves.append(valor)
-            self.llaves.sort()
+            self.ordenar_llaves() 
         return len(self.llaves)
     
     def comparar(self, valor):
         i = 0
         length = len(self.llaves) 
-        if self.hijos == [] or valor in self.llaves: #Si la lista de hijos esta vacia o el valor ya se encuentra en la lista de llaves
+        if self.hijos == [] or self.buscar_llave(valor, self.llaves): #Si la lista de hijos esta vacia o el valor ya se encuentra en la lista de llaves
             return -1
         while(i < length):
-            if valor < self.llaves[i]:
+            if int(valor) < int(self.llaves[i].llave_arbol):
                 return i
             i += 1
         return i #Regresa la posicion
+    
+    def buscar_llave(self, llave, llaves):
+        for i in llaves:
+            if int(i.llave_primaria) == llave:
+                return True
+
+    def ordenar_llaves(self): #ADRIAN
+        for i in range(len(self.llaves)-1):
+            for j in range(i+1,len(self.llaves)):
+                if int(self.llaves[i].llave_arbol) > int(self.llaves[j].llave_arbol):
+                    tmp = self.llaves[i]
+                    self.llaves[i] = self.llaves[j]
+                    self.llaves[j] = tmp
 
  # ----------------ARMAR EL ARBOL -----------------#
 class ArbolB:
@@ -30,8 +43,8 @@ class ArbolB:
         self.grado = grado
         self.enmedio = int((self.grado-1)/2)
  
-    def buscar(self, valor):
-        return self._buscar(valor, None)
+    def buscar(self, valor, tmp = None):
+        return self._buscar(valor, tmp)
 
     def _buscar(self, valor, tmp):
         if not tmp:
@@ -97,7 +110,7 @@ class ArbolB:
  
     def insertar(self, *valores):
         for valor in valores:
-            tmp = self.buscar(valor)
+            tmp = self.buscar(valor.llave_arbol)
             self._insertar(valor, tmp)
     
     def _insertar(self, valor, tmp):

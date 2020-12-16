@@ -1,3 +1,4 @@
+
 from Instrucciones.instruccion import Instruccion
 #from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 from storageManager.jsonMode import *
@@ -5,6 +6,11 @@ from storageManager.jsonMode import *
 import Tabla_simbolos.TablaSimbolos as ts
 #import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as TS
 
+
+
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from Compi2RepoAux.team21.Analisis_Ascendente.storageManager.jsonMode import *
+import Compi2RepoAux.team21.Analisis_Ascendente.Tabla_simbolos.TablaSimbolos as ts
 
 
 #CREATE [OR REPLACE] DATABASE
@@ -18,7 +24,6 @@ class CreateReplace(Instruccion):
         self.complemento = complemento
 
     def ejecutar(createDataBase, ts,consola):
-
 
         if createDataBase.caso==1 and createDataBase.exists==False or createDataBase.exists==True:
             #create database
@@ -83,7 +88,6 @@ class CreateReplace(Instruccion):
             ts.agregar_sim(simbolo)
             consola.append(f"Se creo la base de datos {createDataBase.id} exitosamente\n")
             print(ts.simbolos)
-
 
 
 

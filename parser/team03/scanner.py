@@ -28,21 +28,19 @@ reserved = {
     'minute' : 'MINUTE',
     'second' : 'SECOND',
     'extract' : 'EXTRACT',
+    'date_part' : 'DATE_PART',
     'now' : 'NOW',
     'current_date' : 'CURRENT_DATE',
     'current_time' : 'CURRENT_TIME',
     'boolean' : 'BOOLEAN',
-    'true' : 'TRUE',
-    'false' : 'FALSE',
     'between' : 'BETWEEN',
+    'symmetric' : 'SYMMETRIC',
     'in' : 'IN',
     'like' : 'LIKE',
     'ilike' : 'ILIKE',
     'similar' : 'SIMILAR',
     'is' : 'IS',
-    'isnull' : 'ISNULL',
     'null' : 'NULL',
-    'notnull' : 'NOTNULL',
     'not' : 'NOT',
     'and' : 'AND',
     'or' : 'OR',
@@ -90,6 +88,11 @@ reserved = {
     'by' : 'BY',
     'having' : 'HAVING',
     'unknown' : 'UNKNOWN',
+    'count' : 'COUNT',
+    'min' : 'MIN',
+    'max' : 'MAX',
+    'sum' : 'SUM',
+    'avg' : 'AVG',
     'abs' : 'ABS',
     'cbrt' : 'CBRT',
     'ceil' : 'CEIL',
@@ -109,7 +112,7 @@ reserved = {
     'pi' : 'PI',
     'power' : 'POWER',
     'radians' : 'RADIANS',
-    'rund' : 'RUND',
+    'round' : 'ROUND',
     'scale' : 'SCALE',
     'sign' : 'SIGN',
     'sqrt' : 'SQRT',
@@ -140,6 +143,17 @@ reserved = {
     'asinh' : 'ASINH',
     'acosh' : 'ACOSH',
     'atanh' : 'ATANH',
+    'length' : 'LENGTH',
+    'substring' : 'SUBSTRING',
+    'trim' : 'TRIM',
+    'get_byte' : 'GET_BYTE',
+    'md5' : 'MD5',
+    'set_byte' : 'SET_BYTE',
+    'sha256' : 'SHA256',
+    'substr' : 'SUBSTR',
+    'convert' : 'CONVERT',
+    'encode' : 'ENCODE',
+    'decode' : 'DECODE',
     'substring' : 'SUBSTRING',
     'any' : 'ANY',
     'all' : 'ALL',
@@ -151,7 +165,7 @@ reserved = {
     'then' : 'THEN',
     'else' : 'ELSE',
     'end' : 'END',
-    'gratest' : 'GRATEST',
+    'greatest' : 'GREATEST',
     'least' : 'LEAST',
     'order' : 'ORDER',
     'limit' : 'LIMIT',
@@ -159,6 +173,19 @@ reserved = {
     'union' : 'UNION',
     'intersect' : 'INTERSECT',
     'except' : 'EXCEPT',
+    'inner' : 'INNER',
+    'left' : 'LEFT',
+    'right' : 'RIGHT',
+    'full' : 'FULL',
+    'outer' : 'OUTER',
+    'join' : 'JOIN',
+    'on' : 'ON',
+    'using' : 'USING',
+    'natural' : 'NATURAL',
+    'first' : 'FIRST',
+    'last' : 'LAST',
+    'nulls' : 'NULLS',
+
 }
 
 tokens = [
@@ -184,7 +211,17 @@ tokens = [
     'ENTERO',
     'FLOAT',
     'TEXTO',
+    'FECHA_HORA',
+    'PATTERN_LIKE',
+    'BOOLEAN_VALUE',
     'ID',
+    'SQUARE_ROOT',
+    'CUBE_ROOT',
+    'AMPERSON',
+    'NUMERAL',
+    'PRIME',
+    'SHIFT_L',
+    'SHIFT_R',
 ] +list(reserved.values()) 
 
 t_PARA = r'\('
@@ -205,7 +242,14 @@ t_MENOR = r'<'
 t_IGUAL = r'='
 t_MAYORQ = r'>='
 t_MENORQ = r'<='
-t_DIFERENTE = r'<>'
+t_SQUARE_ROOT = r'\|'
+t_CUBE_ROOT = r'\|\|'
+t_AMPERSON = r'\&'
+t_NUMERAL = r'\#'
+t_PRIME = r'\~'
+t_SHIFT_L = r'<<'
+t_SHIFT_R = r'>>'
+
 
 
 # ignored regular expressions
@@ -213,10 +257,14 @@ t_ignore = " \t"
 t_ignore_COMMENT =r'\-\-.*'
 t_ignore_COMMENTMULTI = r'(/\*(.|\n)*?\*/)|(//.*)'
 
+def t_DIFERENTE(t):
+    r'((<>)|(!=))'
+    t.type = reserved.get(t.value,'DIFERENTE')    
+    return t
+
 
 def t_FLOAT(t):
-    r'((\d*\.\d*)((e[\+-]?\d+)?)|(\d*e[\+-]?\d+))'
-    print(t.value)
+    r'((\d+\.\d*)((e[\+-]?\d+)?)|(\d*e[\+-]?\d+))'
     t.value = float(t.value)    
     return t
 
@@ -226,24 +274,43 @@ def t_ENTERO(t):
     t.value = int(float(t.value))  
     return t
 
+def t_FECHA_HORA(t):
+    r'\'\d{4}-[0-1]?\d-[0-3]?\d [0-2]\d:[0-5]\d:[0-5]\d\''
+    t.value = t.value[1:-1]
+    t.type = reserved.get(t.value,'FECHA_HORA')
+    return t
+
+def t_PATTERN_LIKE(t):
+    r'\'\%.*\%\''
+    t.value = t.value[2:-2]
+    t.type = reserved.get(t.value,'PATTERN_LIKE')
+    return t
+
 def t_TEXTO(t):
     r'\'([^\\\n]|(\\.))*?\''
-    t.type = reserved.get(t.value,'TEXTO')    # Check for reserved words
+    t.value = t.value[1:-1]
+    t.type = reserved.get(t.value,'TEXTO')    
     return t
     
+def t_BOOLEAN_VALUE(t):
+    r'((false)|(true))'
+    t.value = t.value.lower()
+    t.type = reserved.get(t.value,'BOOLEAN_VALUE')    
+    return t
+
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value.lower(),'ID')    # Check for reserved words
+    t.type = reserved.get(t.value.lower(),'ID')    
     return t
 
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
     
+    
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    print("--> Error Lexico: Illegal character \'"+ t.value[0] + "\' Line: "+ str(t.lineno) )
     t.lexer.skip(1)
 
 
-# Construyendo el analizador léxico
 lexer = lex.lex(debug = False, reflags=re.IGNORECASE) 

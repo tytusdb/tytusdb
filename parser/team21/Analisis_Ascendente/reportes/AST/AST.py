@@ -1,4 +1,5 @@
 from subprocess import check_call
+
 from Instrucciones.expresion import *
 from Instrucciones.instruccion import *
 from Instrucciones.Create.createTable import CreateTable
@@ -13,6 +14,7 @@ from Instrucciones.Select.union import Union
 #from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Create.createDatabase import CreateReplace,ComplementoCR
 #from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.Select.select import Select, Limit, Having
 
+
 class AST:
     def __init__(self, sentencias):
         self.contador = 0
@@ -22,6 +24,7 @@ class AST:
 
     def ReportarAST(self):
         print('Graficando AST....')
+
         #print(self.sentencias)
         f = open('AST.dot', 'w')
         self.c = 'digraph G{\n' 
@@ -217,10 +220,12 @@ class AST:
         self.c += 'Nodo'+ str(self.contador)+ '[label="' + label + '"]\n' 
         self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         self.contador = self.contador + 1
+
         if isinstance(inst.newName, Primitivo):
             self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.newName.valor + '"]\n' 
         elif isinstance(inst.newName, Id):
             self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.newName.id + '"]\n' 
+
         self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
 
     def AlterTable(self, inst, padre):
@@ -286,6 +291,89 @@ class AST:
             self.listaID(inst.id, str(self.contador))
 
 
+        #ADD
+        if inst.caso == 1:
+            self.contador = self.contador + 1
+            self.c += 'Nodo'+ str(self.contador)+ '[label="ADD"]\n' 
+            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            #ADD COLUMN
+            if inst.idAdd != None:
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="COLUMN"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.idAdd + '"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+                self.contador = self.contador + 1
+                if inst.tipoAdd != None:
+                    self.c += 'Nodo'+ str(self.contador)+ '[label="Tipo: ' + inst.tipoAdd.tipo + '(' + str(inst.tipoAdd.longitud.valor) + ')' + '"]\n' 
+                else:
+                    self.c += 'Nodo'+ str(self.contador)+ '[label="Tipo: ' + inst.tipoAdd.tipo + '"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            #ADD CONSTRAINT
+            if inst.constraintId != None:
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="CONSTRAINT"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.constraintId + '"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="UNIQUE"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+                if inst.columnId != None:
+                    self.contador = self.contador + 1
+                    self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.columnId + '"]\n' 
+                    self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            #ADD FOREIGN
+            if inst.listaFK != None:
+                self.contador = self.contador + 1
+                a = str(self.contador)
+                if len(inst.listaFK) == 1:
+                        self.c += 'Nodo'+ str(self.contador)+ '[label="FOREIGN KEY: ' + inst.listaFK[0].id + '"]\n' 
+                else:
+                    self.c += 'Nodo'+ str(self.contador)+ '[label="FOREIGN KEY"]\n' 
+                    self.listaID(inst.listaFK, str(self.contador))
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ a + ';\n'
+                if inst.listaReferences != None:
+                    self.contador = self.contador + 1
+                    a = str(self.contador)
+                    if len(inst.listaReferences) == 1:
+                        self.c += 'Nodo'+ str(self.contador)+ '[label="REFERENCES: ' + inst.listaReferences[0].id + '"]\n' 
+                    else:
+                        self.c += 'Nodo'+ str(self.contador)+ '[label="REFERENCES"]\n' 
+                        self.listaID(inst.listaReferences, str(self.contador))    
+                    self.c += 'Nodo' + np +' -> ' + 'Nodo'+ a + ';\n'
+            #ADD CHECK
+
+        #DROP
+        if inst.caso == 2:
+            self.contador = self.contador + 1
+            self.c += 'Nodo'+ str(self.contador)+ '[label="DROP"]\n' 
+            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            if inst.columnConstraint != None:
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.columnConstraint + '"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            if inst.idDrop != None:
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.idDrop + '"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+        #ALTER
+        if inst.caso == 3:
+            self.contador = self.contador + 1
+            self.c += 'Nodo'+ str(self.contador)+ '[label="ALTER COLUMN"]\n' 
+            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            if inst.columnAlter != None:
+                self.contador = self.contador + 1
+                self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.columnAlter + '"]\n' 
+                self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+            self.contador = self.contador + 1
+            self.c += 'Nodo'+ str(self.contador)+ '[label="SET NOT NULL"]\n' 
+            self.c += 'Nodo' + np +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
+
+    
+
     def Update(self, inst, padre):
         self.contador = self.contador + 1
         self.c += 'Nodo'+ str(self.contador)+ '[label="Instruccion: UPDATE"]\n' 
@@ -350,6 +438,7 @@ class AST:
         if inst.all:
             self.CrearNodo('ALL', np)
         self.Select(inst.q2, np)
+
 
 #---------------------LISTAS----------------------------------------
 #es una lista de entero, decimal, cadena, id
@@ -440,6 +529,7 @@ class AST:
                 self.CrearNodo(inst.E2.id1 + '.' + inst.E2.id2, np)
             elif isinstance(inst.E2, Expresion):
                 self.E(inst.E2, np)
+
 
 #EXPRESION
     def E(self, inst, padre):
@@ -550,7 +640,9 @@ class AST:
         self.c += 'Nodo'+ str(self.contador)+ '[label="' + unario.operador + '"]\n' 
         self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         a = str(self.contador)
+
         #self.contador += self.contador#
+
         print('UNARIO')
         #if isinstance(unario.op, Id):
          #   print(unario.op)
@@ -572,6 +664,7 @@ class AST:
         self.c += 'Nodo' + padre +' -> ' + 'Nodo'+ str(self.contador) + ';\n'
         padre = str(self.contador)
         self.contador += self.contador
+
         if isinstance(inst.iz, Id):
             self.c += 'Nodo'+ str(self.contador)+ '[label="' + inst.iz.id + '"]\n' 
         if isinstance(inst.iz, IdId):
@@ -616,5 +709,4 @@ class AST:
 
 
 
-
-        
+        self.E(inst.expresion, padre)

@@ -144,7 +144,7 @@ t_P_COMA         = r';'
 t_PUNTO         = r'\.'
 t_MAS           = r'\+'
 t_MENOS         = r'-'
-t_AND_SIGNO      = r'&'
+t_AND_SIGNO     = r'&'
 t_CONCATENACION = r'\|\|'
 t_XOR           = r'\#'
 t_NOT_SIMBOLO    = r'~'
@@ -234,15 +234,18 @@ lexer = lex.lex()
 #ANALIZADOR SINTACTICO
 #----------------------------------------------------------------------------------------
 def p_init(t):
-    's : instrucciones'
+    's  : instrucciones'
 
 def p_instrucciones_evaluar(t):
-    '''instrucciones  : instruccion P_COMA instruccion_prima '''
+    '''instrucciones  : instruccion instrucciones_prima '''
 
 def p_instrucciones_prima(t):
-    '''instruccion_prima    : instruccion P_COMA instruccion_prima 
+    '''instrucciones_prima    : P_COMA instrucciones_prima2 
                             | '''
 
+def p_instrucciones_prima2(t):
+    '''instrucciones_prima2 : instruccion P_COMA instrucciones_prima2
+                            | '''
 def p_instruccion_evaluar(t):
     '''instruccion  : CREATE c
                     | SHOW DATABASE lk
@@ -515,6 +518,7 @@ def p_error(t):
 import ply.yacc as yacc
 parser = yacc.yacc()
 
-f = open("./entrada.txt", "r")
-input = f.read()
+input = '''select * from hola
+            --Comentario de una linea
+            /*Estos son comentarios multilinea*/'''
 parser.parse(input)

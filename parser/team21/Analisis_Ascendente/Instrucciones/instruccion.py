@@ -28,6 +28,7 @@ class Tipo(Instruccion):
         self.longitud = longitud
 
 class IdId(Instruccion):
+
     '''ID.ID'''
     def __init__(self, id1, id2):
         self.id1 = id1
@@ -40,7 +41,7 @@ class IdAsId(Instruccion):
     def __init__(self, id1, id2):
         self.id1 = id1 #puede venir time, math, trig, binario
         self.id2 = id2 #puede venir una cadena
-        
+
 #INSERT INTO
 class InsertInto(Instruccion):
     def __init__(self, id, listaId, values):
@@ -102,7 +103,9 @@ class AlterTable(Instruccion):
         self.alter = alter
 
 class Alter(Instruccion):
+
     def __init__(self, accion, ccc, id, tipo, check, id2, typeSet, id3):
+
         self.accion = accion
         self.ccc = ccc
         self.id = id 
@@ -111,6 +114,7 @@ class Alter(Instruccion):
         self.id2 = id2
         self.typeSet = typeSet
         self.id3 = id3
+
 
 #UPDATE
 class Update(Instruccion):

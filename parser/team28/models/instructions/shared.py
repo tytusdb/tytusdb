@@ -1,14 +1,12 @@
 #TODO: DISTINCT
+from abc import abstractmethod
+from models.nodo import Node
 class Instruction:
     '''Clase abstracta'''
-class BinaryOperation(Instruction):
-    '''
-        Una operacion binaria recibe, sus dos operandos y el operador
-    '''
-    def __init__(self, value1, value2, operador) :
-        self.value1 = value1
-        self.value2 = value2
-        self.operador = operador
+    @abstractmethod
+    def process(self):
+        ''' metodo para la ejecucion '''
+        pass
 
 class Alias(Instruction):
     '''
@@ -17,13 +15,25 @@ class Alias(Instruction):
     def __init__(self, id, alias) :
         self.id = id
         self.alias = alias
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class From(Instruction):
     '''
         FROM recibe una tabla en la cual buscar los datos
     '''
-    def __init__(self,  table) :
-        self.table = table
+    def __init__(self,  tables) :
+        self.tables = tables
+    
+    def __repr__(self):
+        return str(vars(self))
+
+    def process(self, instrucction):
+        pass
     
 class Where(Instruction):
     '''
@@ -32,6 +42,12 @@ class Where(Instruction):
     def __init__(self,  condition) :
         self.condition = condition
     
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+
 class GroupBy(Instruction):
     '''
         * The GROUP BY statement groups rows 
@@ -41,35 +57,64 @@ class GroupBy(Instruction):
     def __init__(self,  column_names) :
         self.column_names = column_names
     
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+    
 class Having(Instruction):
     '''
         HAVING recibe una condicion logica
     '''
     def __init__(self,  condition) :
         self.condition = condition
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Using(Instruction):
     '''
         USING recibe un array con ids
     '''
-    def __init__(self,  value):
-        self.value = value
+    def __repr__(self):
+        return str(vars(self))
 
+    def process(self, instrucction):
+        pass
 class Returning(Instruction):
     '''
         RETURNING recibe un array con ids o un asterisco
     '''
     def __init__(self,  value):
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+
+    def process(self, instrucction):
+        pass
 
 class Between(Instruction):
     '''
         BETWEEN recibe 2 parametros
         Sintax: BETWEEN value1 AND value2
     '''
-    def __init__(self,  value1, value2) :
+    def __init__(self, opt_not, opt_simmetric,  value1, value2) :
+        self.opt_not = opt_not
+        self.opt_simmetric = opt_simmetric
         self.value1 = value1
         self.value2 = value2
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+
 '''
     FUNCIONES MATEMATICAS =======================================================================================================================
 '''
@@ -80,12 +125,24 @@ class Abs(Instruction):
     def __init__(self,  value) :
         self.value = value
 
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+
 class Cbrt(Instruction):
     '''
         Raiz Cubica de un numero o una columna tipo entero.
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Ceil(Instruction):
     '''
@@ -94,6 +151,12 @@ class Ceil(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Ceiling(Instruction):
     '''
@@ -102,6 +165,12 @@ class Ceiling(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Degrees(Instruction):
     '''
@@ -110,6 +179,12 @@ class Degrees(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Div(Instruction):
     '''
@@ -119,6 +194,12 @@ class Div(Instruction):
     def __init__(self,  dividendo, divisor) :
         self.dividendo = dividendo
         self.divisor = divisor
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Exp(Instruction):
     '''
@@ -127,6 +208,12 @@ class Exp(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Factorial(Instruction):
     '''
@@ -134,6 +221,12 @@ class Factorial(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Floor(Instruction):
     '''
@@ -143,6 +236,12 @@ class Floor(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Gcd(Instruction):
     '''
@@ -152,12 +251,24 @@ class Gcd(Instruction):
     def __init__(self,  value) :
         self.value = value
 
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+
 class Ln(Instruction):
     '''
         Logaritmo natural de un numero ***
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Log(Instruction):
     '''
@@ -165,6 +276,12 @@ class Log(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Mod(Instruction):
     '''
@@ -176,6 +293,12 @@ class Mod(Instruction):
         self.value1 = value1
         self.value2 = value2
 
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+
 class Pi(Instruction):
     '''
         Retorna el valor de la constant PI
@@ -183,6 +306,12 @@ class Pi(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Power(Instruction):
     '''
@@ -193,6 +322,12 @@ class Power(Instruction):
     def __init__(self, base, exp) :
         self.base = base
         self.exp = exp
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Radians(Instruction):
     '''
@@ -201,6 +336,12 @@ class Radians(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Round(Instruction):
     '''
@@ -210,7 +351,28 @@ class Round(Instruction):
     '''
     def __init__(self,  value) :
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
+class ObjectReference(Instruction):
+    '''
+        ObjectReference
+    '''
+    def __init__(self, reference_base, reference_table, reference_column, opt_asterisk):
+        self.reference_base = reference_base
+        self.reference_table = reference_table
+        self.reference_colunm = reference_column
+        self.opt_asterisk = opt_asterisk
+
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 
 

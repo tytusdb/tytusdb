@@ -45,7 +45,42 @@ reservadas = {
     'order'     : 'ORDER',             'having'    : 'HAVING',
     'asc'       : 'ASC',               'desc'      : 'DESC',
     'nulls'     : 'NULLS',             'first'     : 'FIRST',
-    'last'      : 'LAST'
+    'last'      : 'LAST',              'limit'     : 'LIMIT',
+    'all'       : 'ALL',               'offset'    : 'OFFSET',
+    'abs'       : 'ABS',                'cbrt'     : 'CBRT',
+    'ceil'      : 'CEIL',               'ceiling'  : 'CEILING',
+    'degrees'   : 'DEGREES',            'div'      : 'DIV',
+    'exp'       : 'EXP',                'factorial': 'FACTORIAL',
+    'floor'     : 'FLOOR',              'gcd'      : 'GCD',
+    'ln'        : 'LN',                 'log'      : 'LOG',
+    'mod'       : 'MOD',                'pi'       : 'PI',
+    'power'     : 'POWER',              'radians'  : 'RADIANS',
+    'round': 'ROUND',
+    'acos': 'ACOS',               'acosd': 'ACOSD',
+    'asin': 'ASIN',               'asind': 'ASIND',
+    'atan': 'ATAN',               'atand': 'ATAND',
+    'atan2': 'ATAN2',              'atan2d': 'ATAN2D',
+    'cos': 'COS',                'cosd': 'COSD',
+    'cot': 'COT',                'cotd': 'COTD',
+    'sin': 'SIN',                'sind': 'SIND',
+    'tan': 'TAN',                'tand': 'TAND',
+    'sinh': 'SINH',               'cosh': 'COSH',
+    'tanh': 'TANH',               'asinh': 'ASINH',
+    'acosh': 'ACOSH',              'atanh': 'ATANH',
+    'length': 'LENGTH',             'substring': 'SUBSTRING',
+    'trim': 'TRIM',               'get_byte': 'GET_BYTE',
+    'md5': 'MD5',                'set_byte': 'SET_BYTE',
+    'sha256': 'SHA256',             'substr': 'SUBSTR',
+    'convert': 'CONVERT',            'encode': 'ENCODE',
+    'decode': 'DECODE',             'for': 'FOR',
+    'between': 'BETWEEN',           'isnull' : 'ISNULL',
+    'notnull' : 'NOTNULL',          'case' : 'CASE',
+    'end' : 'END',                  'when' : 'WHEN',
+    'then' : 'THEN'   ,              'else' : 'ELSE',
+    'is' : 'IS',
+    'sign': 'SIGN',                 'sqrt': 'SQRT',
+    'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
+    'random': 'RANDOM'
 }
 
 tokens  = [
@@ -313,7 +348,7 @@ def p_type_column(t) :
                       | INTERVAL field'''
  
 # Campos para intervalos de tiempo   
- def p_field(t) :
+def p_field(t) :
     '''field          : YEAR
                       | MONTH
                       | DAY
@@ -382,10 +417,14 @@ def p_lista_columnas_salida(t) :
     'columnas       : ID'
     
 def p_lista_parametros(t) :
-    'parametros     : parametros COMA expresion'
+    'parametros       : parametros COMA parametroinsert'
 
 def p_lista_parametros_salida(t) :
-    'parametros     : expresion'
+    'parametros       : parametroinsert'
+
+def p_parametro (t) :
+    '''parametroinsert  : DEFAULT
+                        | expresion'''
     
 ## UPDATE
 def p_update_sinwhere(t) : 
@@ -403,26 +442,211 @@ def p_lista_asignacion_salida(t) :
 def p_asignacion(t) :
     'asignacion       : ID IGUAL expresion'
     
+## DELETE
+def p_delete_sinwhere(t):
+    'delete_instr     : DELETE FROM ID PTCOMA'
+
+def p_delete_conwhere(t):
+    'delete_instr     : DELETE FROM ID WHERE condiciones PTCOMA'
+    
+## TRUNCATE
+def p_truncate_simple(t):
+    'truncate_instr   : TRUNCATE listtablas PTCOMA'
+
+def p_truncate_simple_cascade(t):
+    'truncate_instr   : TRUNCATE listtablas CASCADE PTCOMA'
+
+def p_truncate_table(t) :
+    'truncate_instr   : TRUNCATE TABLE listtablas PTCOMA'
+
+def p_truncate_table_cascade(t) :
+    'truncate_instr   : TRUNCATE TABLE listtablas CASCADE PTCOMA'
+
+def p_listatablas(t) : 
+    'listtablas       : listtablas COMA ID'
+
+def p_listatablas_salida(t) :
+    'listtablas       : ID'
+
+## ################################# GRAMATICA DE QUERYS ########################################
+
+def p_select(t):
+    'select_instr     :  select_instr1 PTCOMA'
+    t[0] = t[1]
+
+def p_select_simple(t):
+    'select_instr1    : SELECT termdistinct selectlist FROM listatablasselect whereselect groupby orderby'
+
+# Producciones para el manejo del Select
+
+def p_termdistinct(t):
+    '''termdistinct   : DISTINCT
+                      | empty'''
+
+def p_selectlist(t):
+    '''selectlist     : ASTERISCO
+                      | listaselect'''
+
+def p_listaselect(t):
+    'listaselect      : listaselect COMA valselect'
+
+def p_listaselect_salida(t):
+    'listaselect      : valselect'
+
+def p_valselect_1(t):
+    '''valselect      : ID alias
+                      | ID PUNTO ID alias
+                      | funcion_matematica_ws alias
+                      | funcion_matematica_s alias
+                      | funcion_trigonometrica
+                      | PARIZQ select_instr1 PARDER alias
+                      | agregacion PARIZQ cualquieridentificador PARDER alias
+                      | COUNT PARIZQ ASTERISCO PARDER alias
+                      | COUNT PARIZQ val_agregacion PARDER alias'''
+    
+def p_funcionagregacion(t):
+    '''agregacion      : SUM
+                       | AVG
+                       | MAX
+                       | MIN'''
+
+def p_val_agregacion(t):
+    '''val_agregacion : ID
+                      | ID PUNTO ID'''
+
+def p_listatablasselect(t):
+    'listatablasselect : listatablasselect COMA tablaselect'
+
+def p_listatablasselect_salida(t):
+    'listatablasselect : tablaselect'
+
+def p_tablasselect_1(t):
+    'tablaselect       : ID alias'
+
+def p_tablasselect_2(t):
+    'tablaselect       : PARIZQ select_instr1 PARDER alias'
+
+def p_asignar_alias(t):
+    '''alias             : ID
+                         | AS ID
+                         | AS CADENASIMPLE
+                         | AS CADENADOBLE
+                         | empty'''
+
+
+# Producciones para el manejo del where, incluyendo subquerys
+
+def p_whereselect_1(t):
+    'whereselect       : WHERE condicioneswhere'
+
+
+def p_whereselect_5(t):
+    'whereselect       : empty'
+
+
+def p_lista_condicionwhere(t):
+    '''condicioneswhere    : condicioneswhere OR  condicionwhere
+                           | condicioneswhere AND condicionwhere'''
+
+
+def p_lista_condicionwhere_salida(t):
+    'condicioneswhere      : condicionwhere'
+
+
+def p_condicionwhere(t):
+    '''condicionwhere      : whereexists
+                           | wherenotin
+                           | wherein
+                           | wherenotlike
+                           | wherelike
+                           | wheresubstring
+                           | between_state
+                           | predicates_state
+                           | is_distinct_state
+                           | condicion'''                     
+
+def p_existwhere(t):
+    'whereexists       : EXISTS PARIZQ select_instr1 PARDER'
+
+
+def p_inwhere(t):
+    '''wherein         : cualquiernumero IN PARIZQ select_instr1 PARDER
+                       | cadenastodas IN PARIZQ select_instr1 PARDER'''
+
+
+def p_notinwhere(t):
+    '''wherenotin      : cualquiernumero NOT IN PARIZQ select_instr1 PARDER
+                       | cadenastodas NOT IN PARIZQ select_instr1 PARDER'''
+
+
+def p_notlikewhere(t):
+    'wherenotlike      : cadenastodas NOT LIKE CADENALIKE'
+
+
+def p_likewhere(t):
+    'wherelike         : cadenastodas LIKE CADENALIKE'
+
+
+def p_substringwhere(t):
+    'wheresubstring    : SUBSTRING PARIZQ cadenastodas COMA ENTERO COMA ENTERO PARDER IGUAL CADENASIMPLE'
+
+
+def p_cadenas(t):
+    '''cadenastodas    : cualquiercadena
+                       | cualquieridentificador'''
 ## -------------------------------- EXPRESIONES ------------------------------------------    
 
 ## expresiones logicas (condiciones)
 def p_lista_condicion(t): 
-    '''condiciones    : condiciones AND expresion
-                      | condiciones OR  expresion'''
+    '''condiciones    : condiciones AND condicion
+                      | condiciones OR  condicion'''
 
 def p_lista_condicion_salida(t) :
-    'condiciones      : expresion'
+    'condiciones      : condicion'
+    
+## expresiones relacionales
+def p_condicion (t):
+    '''condicion      : expresion MENQUE expresion
+                      | expresion MAYQUE expresion
+                      | expresion MENIGUAL expresion
+                      | expresion MAYIGUAL expresion
+                      | expresion IGUAL expresion 
+                      | expresion DIFERENTE expresion'''
     
 def p_expresion(t) : 
-'''expresion      : CADENADOBLE
-                  | CADENASIMPLE
-                  | DEFAULT
-                  | expresionaritmetica'''
+    '''expresion          : cualquiercadena
+                      | expresionaritmetica'''
+
+## expresiones aritmeticas
+def p_expresion_aritmetica (t):
+    '''expresionaritmetica  : expresionaritmetica MAS expresionaritmetica 
+                            | expresionaritmetica MENOS expresionaritmetica 
+                            | expresionaritmetica ASTERISCO expresionaritmetica 
+                            | expresionaritmetica DIVIDIDO expresionaritmetica 
+                            | expresionaritmetica MODULO expresionaritmetica 
+                            | expresionaritmetica EXPONENTE expresionaritmetica'''
+    
+def p_expresion_aritmetica_2(t) : 
+    'expresionaritmetica    : MENOS expresionaritmetica %prec UMENOS'
 
 def p_expresion_aritmetica_3(t) : 
-    '''expresionaritmetica  : ENTERO
-                            | DECIMAL
-                            | ID'''
+    '''expresionaritmetica  : cualquiernumero
+                            | cualquieridentificador'''
+
+def p_expresion_aritmetica_4(t) : 
+    'expresionaritmetica    : PARIZQ expresionaritmetica PARDER'
+
+def p_cualquiernumero(t) : 
+    '''cualquiernumero      : ENTERO
+                            | DECIMAL'''
+
+def p_culquiercadena (t):
+    '''cualquiercadena      : CADENASIMPLE
+                            | CADENADOBLE'''
+
+def p_culquieridentificador (t):
+    '''cualquieridentificador    : ID
+                                 | ID PUNTO ID'''
     
 ##Epsilon 
 def p_empty(t) :
@@ -433,3 +657,8 @@ def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
 #------------------------------------------------------------------------------
+
+#Analizador sintactico
+import ply.yacc as yacc
+parser = yacc.yacc()
+
