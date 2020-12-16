@@ -1,5 +1,7 @@
 import math
 import numpy as np
+import random
+
 
 def absolute(column):
     i = 0 
@@ -47,7 +49,7 @@ def degrees(column):
     return result
 
 def div(column1,column2):
-   return div_columns(column1,column2)
+    return div_columns(column1,column2)
 
 def exp(column):
     i = 0 
@@ -86,8 +88,12 @@ def gcd(column1, column2):
     result = list()
     if (len(column1)==len(column2)):
         while i < len(column1):
-                result.insert(i+1,math.gcd(column1[i],column2[i]))
-                i+=1
+            result.insert(i+1,math.gcd(column1[i],column2[i]))
+            i+=1
+    elif (len(column2)==1):
+        while i < len(column1):
+            result.insert(i+1,math.gcd(column1[i],column2[0]))
+            i+=1
     
     return result
 
@@ -98,9 +104,12 @@ def lcm(column1, column2):
     result = list()
     if (len(column1)==len(column2)):
         while i < len(column1):
-                result.insert(i+1,abs(column1[i]*column2[i]) // math.gcd(column1[i],column2[i]))
-                i+=1
-    
+            result.insert(i+1,abs(column1[i]*column2[i]) // math.gcd(column1[i],column2[i]))
+            i+=1
+    elif (len(column2)==1):
+        while i < len(column1):
+            result.insert(i+1,abs(column1[i]*column2[0]) // math.gcd(column1[i],column2[0]))
+            i+=1
     return result
 
 def ln(column):
@@ -113,29 +122,32 @@ def ln(column):
     
     return result
 
+def log(column):
+       
+    return log10(column)
+
 def log10(column):
     return log(column,10)
 
-def log(column,base=10):
+def log(column,base):
     i = 0 
-    column= convert_num_col(column)
+    column1= convert_num_col(column)
     result = list()
-    while i < len(column):
+    while i < len(column1):
         result.insert(i+1,math.log(column[i],base))
         i+=1
-    
+
     return result
 
 def mod(column1, column2):
     return mod_columns(column1,column2)
 
 def pi():
-    return math.pi
+    return [math.pi]
 
 def pow(column1, column2):
     i = 0 
-    column1= convert_num_col(column1)
-    column2= convert_num_col(column2)
+    column= convert_num_col(column)
     result = list()
     if (len(column1)==len(column2)):
         while i < len(column1):
@@ -154,8 +166,9 @@ def radians(column):
     
     return result
 
-def random():
-    return random()
+def random_():
+    value = random.random()
+    return [value]
 
 def sign(column):
     return np.sign(column)
@@ -245,6 +258,10 @@ def mult_columns(column1, column2):
         while i < len(column1):
             result.insert(i+1,column1[i]*column2[i])
             i+=1
+    elif (len(column2)==1):
+        while i < len(column1):
+            result.insert(i+1,column1[i]*column2[0])
+            i+=1
     
     return result
 
@@ -257,7 +274,10 @@ def div_columns(column1, column2):
         while i < len(column1):
             result.insert(i+1,column1[i]/column2[i])
             i+=1
-    
+    elif (len(column2)==1):
+        while i < len(column1):
+            result.insert(i+1,column1[i]/column2[0])
+            i+=1
     return result
 
 def mod_columns(column1, column2):
@@ -269,16 +289,19 @@ def mod_columns(column1, column2):
         while i < len(column1):
             result.insert(i+1,column1[i]%column2[i])
             i+=1
+    elif (len(column2)==1):
+        while i < len(column1):
+            result.insert(i+1,column1[i]%column2[0])
+            i+=1
     
     return result
 
 def convert_num_col(num):
-    if not isinstance(num,int) and not isinstance(num,float):
-        return num
+    if isinstance(num,int) or isinstance(num,float):
+       return [num]
     else:
-        resultado = [num]
-        return resultado
-       
+        return num
+
 def exp_columns(column1, column2):
     i = 0 
     column1= convert_num_col(column1)
@@ -287,6 +310,10 @@ def exp_columns(column1, column2):
     if (len(column1)==len(column2)):
         while i < len(column1):
             result.insert(i+1,column1[i]**column2[i])
+            i+=1
+    elif (len(column2)==1):
+        while i < len(column1):
+            result.insert(i+1,column1[i]**column2[0])
             i+=1
     
     return result
