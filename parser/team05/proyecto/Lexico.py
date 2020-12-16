@@ -363,9 +363,11 @@ def p_Inicio1(t):
 
 def p_Instruccion(t):
     'INSTRUCCION  :   I_SELECT COMPLEMENTOSELECT  '
+    
 
 def p_Instruccion1(t):
     'INSTRUCCION  :   I_CREATE  '
+    #CLASE CREATE
 
 def p_Instruccion2(t):
     'INSTRUCCION  :   I_DROP '
@@ -397,12 +399,15 @@ def p_Create(t):
     
 def p_tCreate(t):
     'I_TCREATE     : I_REPLACE'
+    # INSTRUCCION CREATE
 
 def p_tCreate1(t):
     'I_TCREATE     : I_CTABLE'
+    # INSTRUCCION CREATE1
 
 def p_tCreate2(t):
     'I_TCREATE     : I_CTYPE'
+   # INSTRUCCION CREATE2 
 
 def p_ctype(t):
     'I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA'
@@ -676,18 +681,22 @@ def p_cAdd(t):
 
 def p_tDrop(t):
     'I_TDROP     : I_DROPDB'
+    # INSTRUCCION DROP
 
 def p_tDrop2(t):
     'I_TDROP     : I_DROPTB'
 
 def p_dropDB(t):
     'I_DROPDB    : DATABASE I_IFEXIST'
+    # INSTRUCCION DROPDB
 
 def p_ifExist(t):
     'I_IFEXIST     : IF EXISTS ID PCOMA'
+    # INSTRUCCION IFEXIST
 
 def p_ifExist2(t):
     'I_IFEXIST     : ID PCOMA'
+    # INSTRUCCION IFEXIST 
 
 def p_Exist(t):
     'I_EXIST       : IF NOT EXISTS ID I_OWMOD '
@@ -776,18 +785,24 @@ def p_valTab1(t):
 
 def p_ISelect(t):
     'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO   '
+    #CLASE SELECT MINIMO
     
 def p_ISelect1(t):
     'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO    '
+    # INSTRUCCION SELECT WITH WHERE 
+
 
 def p_ISelect2(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO   '
+     # INSTRUCCION SELECT DISTINCT 
 
 def p_ISelect3(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO    '
+    # INSTRUCCION SELECT DISTINCT WITH WHERE
 
 def p_ISelect4(t):
     'I_SELECT   :   SELECT VALORES '
+    #INSTRUCCION SELECT SOLO VALORES 
 
 def p_ComplementoH(t):
     'COMPLEMENTO  :   PGROUPBY PHAVING  '
@@ -815,24 +830,31 @@ def p_ComplementoE(t):
 
 def p_ComplementoSelectUnion(t):
     'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
+    # INSTRUCCION COMPLEMENTOSELECTUNION
 
 def p_ComplementoSelectUnionAll(t):
     'COMPLEMENTOSELECT  : UNION ALL I_SELECT PCOMA '
+    # INSTRUCCION COMPLEMENTOSELECTALL
 
 def p_ComplementoSelectIntersect(t):
     'COMPLEMENTOSELECT  : INTERSECT I_SELECT PCOMA '
+    # INSTRUCCION COMPLEMENTOSELECTINTERSECT
 
 def p_ComplementoSelectIntersectALL(t):
     'COMPLEMENTOSELECT  : INTERSECT ALL I_SELECT PCOMA '
+    # INSTRUCCION COMPLEMENTOSELECTINTERSECTALL
 
 def p_ComplementoSelectExcept(t):
     'COMPLEMENTOSELECT  : EXCEPT I_SELECT PCOMA '
+    # INSTRUCCION COMPLEMENTOSELECTEXCEPT
 
 def p_ComplementoSelectExceptAll(t):
     'COMPLEMENTOSELECT  : EXCEPT ALL I_SELECT PCOMA '
+    # INSTRUCCION COMPLEMENTOSELECTEXCEPTALL
 
 def p_ComplementoSelectExceptPcoma(t):
     'COMPLEMENTOSELECT  : PCOMA '
+    # INSTRUCCION COMPLEMENTOSELECTEXCEPTPCOMA
 
 def p_Limit(t):
     'PLIMIT  :   LIMIT CONDICION    '
