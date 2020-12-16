@@ -7,7 +7,8 @@ mBBDD = avl.AVL()
 
 #Crea una base de datos. (CREATE)
 def createDatabase(database: str) -> int:
-    return -1
+    res = mBBDD.agregar(database)
+    return res #0 operación exitosa, 1 error en la operación, 2 base de datos existente
 
 #Renombra la base de datos databaseOld por databaseNew. (UPDATE)
 def alterDatabase(databaseOld: str, databaseNew) -> int:
