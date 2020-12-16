@@ -54,5 +54,10 @@ class Indice:
             data.extend(cil.readAll())
         return data
 
-    def readRange(self, lower, upper):
-        
+    def readRange(self, columnNumber ,lower, upper):
+        data = []
+        for cil in self.indx:
+            if cil == None:
+                continue
+            data.extend(cil.readRange(columnNumber, lower, upper))
+        return data

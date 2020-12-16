@@ -8,14 +8,6 @@ class Cilindro:
         self.pkeys = pkeys
         self.seguiente = ikey + 1
 
-    def _hashl(self, key):
-        multi = 1
-        hashvalue = 0
-        for ch in key:
-            hashvalue += multi * ord(ch)
-            multi += 1
-        return hashvalue % 30
-
     def _hashn(self, key):
         return key % 30
 
@@ -25,7 +17,9 @@ class Cilindro:
     def _createKey(self, values):
         key = ""
         for k in values:
-            key += str(k)
+            key += str(k)+"-"
+        if key[-1] == "-":
+            key = key[:-1]
         try:
             r = int(key)
             return r
@@ -135,9 +129,9 @@ class Cilindro:
                     if self._createKey(ke) == keyval:
                         return self.indx[v]
                 else:
-                    return 4
+                    return []
         except:
-            return 1
+            return []
 
     def readAll(self):
         data = []
@@ -145,6 +139,15 @@ class Cilindro:
             if x is None:
                 continue
             data.append(x.valores)
+        return data
+
+    def readRange(self, columnNumber, lower, upper):
+        data=[]
+        for x in self.indx:
+            if (x.valores[columnNumber] >= lower) and (x.valores[columnNumber] <= upper):
+                data.append(x.valores)
+            else:
+                continue
         return data
 
 class Registro:
