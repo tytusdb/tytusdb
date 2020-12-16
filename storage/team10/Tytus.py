@@ -207,7 +207,7 @@ class Tytus:
             flagDB = self.buscarDB(database)
             if flagDB != None:
                 db = self.databases[flagDB]
-                db.extractTable2(table)
+                return db.extractTable2(table)
             else:
                 print("Base de datos no existente")
                 return 2
@@ -215,5 +215,15 @@ class Tytus:
             print("Error en la operacion")
             return 1      
 
-    def extractRangeTable(self,database,table,lower,upper):
-        pass 
+    def extractRangeTable(self,database,table,columnNumber,lower,upper):
+        try:
+            flagDB = self.buscarDB(database)
+            if flagDB != None:
+                db = self.databases[flagDB]
+                return db.extractRangeTable2(table,columnNumber,lower,upper) ##Cambiar esto
+            else:
+                print("Base de datos no existente")
+                return 2
+        except:
+            print("Error en la operacion")
+            return 1     
