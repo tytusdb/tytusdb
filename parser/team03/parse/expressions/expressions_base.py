@@ -104,17 +104,17 @@ class BinaryExpression(ASTNode):
         super().execute(table, tree)
         #TODO: Validate type                
         if self.operator == None: #'Number' or 'artirmetic function' production for example            
-            return self.exp1.execute(None,None)
+            return self.exp1.execute(table, tree)
         if self.operator == OpArithmetic.PLUS:          
-            return self.exp1.execute(None,None) + self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) + self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.MINUS:                    
-            return self.exp1.execute(None,None) - self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) - self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.TIMES:
-            return self.exp1.execute(None,None) * self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) * self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.DIVIDE:
-            return self.exp1.execute(None,None) / self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) / self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.MODULE:
-            return self.exp1.execute(None,None) % self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) % self.exp2.execute(table, tree)
         if self.operator == OpArithmetic.POWER:
             return pow(self.exp1, self.exp2)
         
@@ -131,21 +131,21 @@ class RelationalExpression(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)        
         if self.operator == OpRelational.GREATER:
-            return self.exp1.execute(None,None) > self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) > self.exp2.execute(table, tree)
         if self.operator == OpRelational.LESS:
-            return self.exp1.execute(None,None) < self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) < self.exp2.execute(table, tree)
         if self.operator == OpRelational.EQUALS:            
-            return self.exp1.execute(None,None) == self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) == self.exp2.execute(table, tree)
         if self.operator == OpRelational.NOT_EQUALS:
-            return self.exp1.execute(None,None) != self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) != self.exp2.execute(table, tree)
         if self.operator == OpRelational.GREATER_EQUALS:
-            return self.exp1.execute(None,None) >= self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) >= self.exp2.execute(table, tree)
         if self.operator == OpRelational.LESS_EQUALS:
-            return self.exp1.execute(None,None) <= self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) <= self.exp2.execute(table, tree)
         if self.operator == OpRelational.LIKE:  # TODO add execution to [NOT] LIKE, Regex maybe?
-            return self.exp1.execute(None,None) == self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) == self.exp2.execute(table, tree)
         if self.operator == OpRelational.NOT_LIKE:
-            return self.exp1.execute(None,None) != self.exp2.execute(None,None)
+            return self.exp1.execute(table, tree) != self.exp2.execute(table, tree)
 
 
 class PredicateExpression(ASTNode):#TODO check operations and call to exceute function

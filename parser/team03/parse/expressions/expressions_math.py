@@ -14,7 +14,7 @@ class Abs(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return abs(self.exp.execute(None,None))
+        return abs(self.exp.execute(table, tree))
 
 
 class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar probably doesn't support it    
@@ -24,7 +24,7 @@ class Cbrt(ASTNode):  # TODO CHECK GRAMMAR, It receives an array and grammar pro
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return np.cbrt(self.exp.execute(None,None))
+        return np.cbrt(self.exp.execute(table, tree))
 
 
 class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in grammar or semantic error? 
@@ -34,7 +34,7 @@ class Ceil(ASTNode):  # Same for ceiling. Only receives float value, check in gr
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.ceil(self.exp.execute(None,None))
+        return math.ceil(self.exp.execute(table, tree))
 
 
 class Degrees(ASTNode):
@@ -44,7 +44,7 @@ class Degrees(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.degrees(self.exp.execute(None,None))
+        return math.degrees(self.exp.execute(table, tree))
 
 
 class Div(ASTNode):
@@ -55,7 +55,7 @@ class Div(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return self.exp1 // self.exp2
+        return self.exp1.execute(table, tree) // self.exp2.execute(table, tree)
 
 
 class Exp(ASTNode):
@@ -65,7 +65,7 @@ class Exp(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.exp(self.exp.execute(None,None))
+        return math.exp(self.exp.execute(table, tree))
 
 
 class Factorial(ASTNode):
@@ -75,7 +75,7 @@ class Factorial(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.factorial(self.exp.execute(None,None))
+        return math.factorial(self.exp.execute(table, tree))
 
 
 class Floor(ASTNode):
@@ -85,7 +85,7 @@ class Floor(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.floor(self.exp)
+        return math.floor(self.exp.execute(table, tree))
 
 
 class Gcd(ASTNode):
@@ -96,7 +96,7 @@ class Gcd(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.gcd(self.exp1, self.exp2)
+        return math.gcd(self.exp1.execute(table, tree), self.exp2.execute(table, tree))
 
 
 class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python version
@@ -107,7 +107,7 @@ class Lcm(ASTNode):  # Only available on Python 3.9+, please update your python 
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.lcm(self.exp1, self.exp2)
+        return math.lcm(self.exp1.execute(table, tree), self.exp2.execute(table, tree))
 
 
 class Ln(ASTNode):
@@ -117,7 +117,7 @@ class Ln(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.log2(self.exp)
+        return math.log2(self.exp.execute(table, tree))
 
 
 class Log(ASTNode):
@@ -127,7 +127,7 @@ class Log(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.log(self.exp)
+        return math.log(self.exp.execute(table, tree))
 
     
 class Log10(ASTNode):
@@ -137,7 +137,7 @@ class Log10(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.log10(self.exp)
+        return math.log10(self.exp.execute(table, tree))
 
 
 class MinScale(ASTNode):
@@ -158,7 +158,7 @@ class Mod(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.fmod(self.exp1, self.exp2)
+        return math.fmod(self.exp1.execute(table, tree), self.exp2.execute(table, tree))
 
 
 class PI(ASTNode):
@@ -178,7 +178,7 @@ class Power(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.pow(self.exp1, self.exp2)
+        return math.pow(self.exp1.execute(table, tree), self.exp2.execute(table, tree))
 
 
 class Radians(ASTNode):
@@ -188,7 +188,7 @@ class Radians(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.radians(self.exp)
+        return math.radians(self.exp.execute(table, tree))
 
 
 class Random(ASTNode): # TODO check SQL docs, it has a range or something?
@@ -207,7 +207,7 @@ class Round(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return round(self.exp)
+        return round(self.exp.execute(table, tree))
 
 
 class Scale(ASTNode):
@@ -217,7 +217,15 @@ class Scale(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return True
+        r = self.exp.execute(table, tree)        
+        if isinstance(r, float):
+            arr = r.__str__().split(".")            
+            if len(arr) == 1:
+                return 0
+            else:                
+                return len(arr[1])
+        else:
+            return 0
 
 
 class SetSeed(ASTNode):
@@ -227,7 +235,7 @@ class SetSeed(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return random.seed(self.exp)
+        return random.seed(self.exp.execute(table, tree))
 
 
 class Sign(ASTNode):
@@ -237,7 +245,7 @@ class Sign(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return np.sign(self.exp)
+        return np.sign(self.exp.execute(table, tree))
 
 
 class Sqrt(ASTNode):
@@ -247,7 +255,7 @@ class Sqrt(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.sqrt(self.exp)
+        return math.sqrt(self.exp.execute(table, tree))
 
 
 class TrimScale(ASTNode):
@@ -267,7 +275,7 @@ class Trunc(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.trunc(self.exp.execute(None,None))
+        return math.trunc(self.exp.execute(table, tree))
 
 
 class WithBucket(ASTNode):
