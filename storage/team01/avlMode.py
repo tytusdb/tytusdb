@@ -12,7 +12,7 @@ def createDatabase(database: str) -> int:
 
 #Renombra la base de datos databaseOld por databaseNew. (UPDATE)
 def alterDatabase(databaseOld: str, databaseNew) -> int:
-   if databaseOld in mBBDD:
+    if databaseOld in mBBDD:
         if databaseNew not in mBBDD:
             res = mBBDD.quitar(databaseOld)
             if res == 0:
