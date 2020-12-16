@@ -1,7 +1,5 @@
 import math
 import numpy as np
-import random
-
 
 def absolute(column):
     i = 0 
@@ -18,7 +16,8 @@ def cbrt(column):
     column= convert_num_col(column) 
     result = list()
     while i < len(column):
-        result.insert(i+1,round(column[i]**(1/3.),2))
+        valor = column[i]**(1/3.)
+        result.insert(i+1,round(valor))
         i+=1
     
     return result
@@ -82,7 +81,8 @@ def floor(column):
 
 def gcd(column1, column2):
     i = 0 
-    column= convert_num_col(column)
+    column1= convert_num_col(column1)
+    column2= convert_num_col(column2)
     result = list()
     if (len(column1)==len(column2)):
         while i < len(column1):
@@ -93,7 +93,8 @@ def gcd(column1, column2):
 
 def lcm(column1, column2):
     i = 0 
-    column= convert_num_col(column)
+    column1= convert_num_col(column1)
+    column2= convert_num_col(column2)
     result = list()
     if (len(column1)==len(column2)):
         while i < len(column1):
@@ -112,14 +113,10 @@ def ln(column):
     
     return result
 
-def log(column):
-       
-    return log10(column)
-
 def log10(column):
     return log(column,10)
 
-def log(column,base):
+def log(column,base=10):
     i = 0 
     column= convert_num_col(column)
     result = list()
@@ -137,7 +134,8 @@ def pi():
 
 def pow(column1, column2):
     i = 0 
-    column= convert_num_col(column)
+    column1= convert_num_col(column1)
+    column2= convert_num_col(column2)
     result = list()
     if (len(column1)==len(column2)):
         while i < len(column1):
@@ -156,9 +154,8 @@ def radians(column):
     
     return result
 
-def random_():
-    value = random.random()
-    return value
+def random():
+    return random()
 
 def sign(column):
     return np.sign(column)
@@ -276,12 +273,12 @@ def mod_columns(column1, column2):
     return result
 
 def convert_num_col(num):
-    if not isinstance(num,int):
-       return num
-    if isinstance(num,int):
-        result =  [num]
-        return result
-
+    if not isinstance(num,int) and not isinstance(num,float):
+        return num
+    else:
+        resultado = [num]
+        return resultado
+       
 def exp_columns(column1, column2):
     i = 0 
     column1= convert_num_col(column1)
