@@ -606,26 +606,34 @@ def p_opcional_creartabla_columna_5(t):
     nuevo = Start("OPCIONALES_ATRIBUTO_NOT_NULL")
     nuevo.createChild(t[1])
     nuevo.createChild(t[2])
-    t[0] = Start("Temp").addChild(nuevo)
+    temporal = Start("Temp")
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_creartabla_columna_6(t):
     '''opcional_creartabla_columna : NULL'''
     nuevo = Start("OPCIONALES_ATRIBUTO_NULL")
     nuevo.createTerminal(t.slice[1])
     nuevo.createTerminal(t.slice[2])
-    t[0] = Start("Temp").addChild(nuevo)
+    temporal = Start("Temp")
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_creartabla_columna_7(t):
     '''opcional_creartabla_columna : opcional_constraint UNIQUE'''
     nuevo = Start("OPCIONALES_ATRIBUTO_UNIQUE")
     if t[1] != None:
         nuevo.addChild(t[1])
     nuevo.createChild(t[2])
-    t[0] = Start("Temp").addChild(nuevo)
+    temporal = Start("Temp")
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_creartabla_columna_8(t):
     '''opcional_creartabla_columna : PRIMARY KEY'''
     nuevo = Start("OPCIONALES_ATRIBUTO_PRIMARY")
     nuevo.createChild(t[1])
     nuevo.createChild(t[2])
-    t[0] = Start("Temp").addChild(nuevo)
+    temporal = Start("Temp")
+    temporal.addChild(nuevo)
+    t[0] = temporal
 def p_opcional_creartabla_columna_9(t):
     '''opcional_creartabla_columna : opcional_constraint CHECK PARENTESISIZQ PARENTESISDER
                                     |'''
@@ -634,7 +642,9 @@ def p_opcional_creartabla_columna_9(t):
         if t[1] != None:
             nuevo.addChild(t[1])
         nuevo.createTerminal(t.slice[2])
-        t[0] = Start("Temp").addChild(nuevo)
+        temporal = Start("Temp")
+        temporal.addChild(nuevo)
+        t[0] = temporal
 def p_opcional_creartabla_columna_10(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna DEFAULT Exp'''
     nuevo = Start("OPCIONALES_ATRIBUTO_DEFAULT")
@@ -649,9 +659,10 @@ def p_opcional_creartabla_columna_10(t):
 def p_opcional_creartabla_columna_11(t):
     '''opcional_creartabla_columna : DEFAULT Exp'''
     nuevo = Start("OPCIONALES_ATRIBUTO_DEFAULT")
-    nuevo.createChild(t[1])
     nuevo.addChild(t[2])
-    t[0]=Start("Temp").addChild(nuevo)
+    temporal = Start("Temp")
+    temporal.addChild(nuevo)
+    t[0]=temporal
 def p_opcional_creartabla_columna_12(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna REFERENCES IDENTIFICADOR'''
     nuevo = Start("OPCIONALES_ATRIBUTO_REFERENCES")
@@ -743,8 +754,9 @@ def p_opcional_comparar(t):
 #------------------------------ Inicia sentencia USE ---------------------------------------
 def p_sentencia_use(t):
     '''sentencia_use : USE IDENTIFICADOR'''
-    t[0] = Start("SENTENCIA_USE")
-    t[0].createTerminal(t.slice[2])
+    temporal = Start("SENTENCIA_USE")
+    temporal.createTerminal(t.slice[2])
+    t[0] = temporal
 #------------------------------ Termina sentencia USE --------------------------------------
 
 #---------------Inician las sentencias con la palabra reservada SELECT.---------------------

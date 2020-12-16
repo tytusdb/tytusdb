@@ -39,7 +39,7 @@ class Start(Nodo):
                 useDB.execute(hijo)
             elif hijo.nombreNodo == 'CREATE_TABLE':
                 nuevaTabla = Table()
-                nuevaTabla.execute(hijo)
+                nuevaTabla.execute(hijo, enviroment)
                 
             elif hijo.nombreNodo == 'E':
                 hijo.execute(enviroment)
