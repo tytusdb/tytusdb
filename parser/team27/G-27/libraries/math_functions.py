@@ -1,3 +1,4 @@
+
 """Librería para realizar operaciones matemáticas sobre datos numéricos."""
 import math
 import random
@@ -82,7 +83,7 @@ def div(divisor,dividend):
     Returns:
         Number
     """
-    return int(divisor/dividendo)
+    return int(divisor/dividend)
 
 def exp(input):
     """Exponenciación de euler
@@ -187,7 +188,7 @@ def power(base,exponent):
     Returns:
         Number
     """
-    return input1**input2
+    return base**exponent
 
 def radians(input):
     """Convertir radianes
@@ -201,19 +202,6 @@ def radians(input):
         Number
     """
     return input*math.pi/180
-
-def round(input, decimales):
-    """Aproximación a n decimales
-
-    Redondear la entrada a cierta cantidad de decimales.
-
-    Args:
-        input(Number): valor real
-    
-    Returns:
-        Number
-    """
-    return math.round(input,decimales)
 
 def sign(input):
     """Signo
