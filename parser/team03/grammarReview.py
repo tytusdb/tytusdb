@@ -225,105 +225,84 @@ def p_aritmetic(t):
                 '''
     token = t.slice[1]
     if token.type == "ABS":
-<<<<<<< HEAD
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)
-        t[0] = Abs(t[3],token.lineno, token.lexpos,0,id)
-    if token.type == "CBRT":
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
+        t[0] = Abs(t[3],token.lineno, token.lexpos,id)
+    elif token.type == "CBRT":
         id = nodoHojaUnaArista(str(t[1]),t[3].id)  
         t[0] = Cbrt(t[3],token.lineno, token.lexpos,id)
-    if token.type == "CEIL" or token.type == "CEILING":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
-        t[0] = Ceil(t[3],token.lineno, token.lexpos,id)
-    if token.type == "DEGREES":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
-        t[0] = Degrees(t[3],token.lineno, token.lexpos,id)
-    if token.type == "EXP":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
-        t[0] = Exp(t[3],token.lineno, token.lexpos,id)
-    if token.type == "FACTORIAL":
-        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
-        t[0] = Factorial(t[3],token.lineno, token.lexpos,id)
- 
-#| 
-#| 
-#| DIV PARA expression COMA expression PARC
-#| 
-#| 
-#| FLOOR PARA expression  PARC
-#| GCD PARA expression COMA expression PARC
-#| LCM PARA expression COMA expression PARC
-#| LN PARA expression PARC
-#| LOG PARA expression PARC
-#| LOG10 PARA expression PARC
-#| MIN_SCALE PARA expression PARC
-#| MOD PARA expression COMA expression PARC
-#| PI PARA PARC
-#| POWER PARA expression COMA expression PARC
-#| RADIANS PARA expression PARC
-#| RUND PARA expression PARC
-#| SCALE PARA expression PARC
-#| SIGN PARA expression PARC
-#| SQRT PARA expression PARC
-#| TRIM_SCALE PARA expression PARC
-
-#| WIDTH_BUCKET PARA expression COMA expression PARC
-#| RANDOM PARA PARC
-#| SETSEED PARA expression PARC
-
-=======
-        t[0] = Abs(t[3],token.lineno, token.lexpos)
-    elif token.type == "CBRT":
-        t[0] = Cbrt(t[3],token.lineno, token.lexpos)
     elif token.type == "CEIL" or token.type == "CEILING":
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
         t[0] = Ceil(t[3],token.lineno, token.lexpos)
     elif token.type == "DEGREES":
-        t[0] = Degrees(t[3],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
+        t[0] = Degrees(t[3],token.lineno, token.lexpos,id)
     elif token.type == "DIV":
-        t[0] = Div(t[3],t[5],token.lineno, token.lexpos)
+        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
+        t[0] = Div(t[3],t[5],token.lineno, token.lexpos,id)
     elif token.type == "EXP":
-        t[0] = Exp(t[3],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Exp(t[3],token.lineno, token.lexpos,id)
     elif token.type == "FACTORIAL":
-        t[0] = Factorial(t[3],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Factorial(t[3],token.lineno, token.lexpos,id)
     elif token.type == "FLOOR":
-        t[0] = Floor(t[3],token.lineno, token.lexpos)    
-    elif token.type == "GCD":
-        t[0] = Gcd(t[3],t[5],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Floor(t[3],token.lineno, token.lexpos,id)    
+    elif token.type == "GCD":        
+        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
+        t[0] = Gcd(t[3],t[5],token.lineno, token.lexpos,id)
         ###
     elif token.type == "LCM":
-        t[0] = Lcm(t[3],t[5],token.lineno, token.lexpos)
+        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
+        t[0] = Lcm(t[3],t[5],token.lineno, token.lexpos,id)
     elif token.type == "LN":
-        t[0] = Ln(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Ln(t[3], token.lineno, token.lexpos,id)
     elif token.type == "LOG":
-        t[0] = Log(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Log(t[3], token.lineno, token.lexpos,id)
     elif token.type == "LOG10":
-        t[0] = Log10(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Log10(t[3], token.lineno, token.lexpos,id)
     elif token.type == "MIN_SCALE":
-        t[0] = MinScale(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = MinScale(t[3], token.lineno, token.lexpos,id)
     elif token.type == "MOD":
-        t[0] = Mod(t[3], t[5], token.lineno, token.lexpos)
+        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
+        t[0] = Mod(t[3], t[5], token.lineno, token.lexpos,id)
     elif token.type == "PI":
-        t[0] = PI(token.lineno, token.lexpos)
+        id = nodoHoja(str(t[1])) 
+        t[0] = PI(token.lineno, token.lexpos,id)
     elif token.type == "POWER":
-        t[0] = Power(t[3], t[5], token.lineno, token.lexpos)
+        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
+        t[0] = Power(t[3], t[5], token.lineno, token.lexpos,id)
     elif token.type == "RADIANS":
-        t[0] = Radians(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Radians(t[3], token.lineno, token.lexpos,id)
     elif token.type == "ROUND":
-        t[0] = Round(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Round(t[3], token.lineno, token.lexpos,id)
     elif token.type == "SCALE":
-        t[0] = Scale(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Scale(t[3], token.lineno, token.lexpos,id)
     elif token.type == "SIGN":
-        t[0] = Sign(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Sign(t[3], token.lineno, token.lexpos,id)
     elif token.type == "SQRT":
-        t[0] = Sqrt(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Sqrt(t[3], token.lineno, token.lexpos,id)
     elif token.type == "TRIM_SCALE":
-        t[0] = TrimScale(t[3], token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = TrimScale(t[3], token.lineno, token.lexpos,id)
     elif token.type == "WIDTH_BUCKET":
-        t[0] = WithBucket(t[3], t[5], token.lineno, token.lexpos)
+        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
+        t[0] = WithBucket(t[3], t[5], token.lineno, token.lexpos,id)
     elif token.type == "RANDOM":
-        t[0] = Random(token.lineno, token.lexpos)
+        id = nodoHoja(str(t[1])) 
+        t[0] = Random(token.lineno, token.lexpos,id)
     elif token.type == "SETSEED":
-        t[0] = SetSeed(t[3], token.lineno, token.lexpos)
->>>>>>> f9e528e1d37e5370e02bb73299a7f81b08a5af29
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = SetSeed(t[3], token.lineno, token.lexpos,id)
 
 #| NOT expression 
 #'''

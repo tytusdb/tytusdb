@@ -51,6 +51,4 @@ digraph {
 	25 [label="+"]
 	25 -> 23
 	25 -> 24
-	26 [label=FactOrial]
-	26 -> 25
 }
