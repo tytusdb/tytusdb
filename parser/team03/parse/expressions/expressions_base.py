@@ -8,9 +8,10 @@ from .. ast_node import ASTNode
 
 
 class Numeric(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
-        self.val = val        
+        self.val = val
+        self.id =id        
 
     def execute(self, table, tree):
         super().execute(table, tree)        
@@ -18,9 +19,10 @@ class Numeric(ASTNode):
 
 
 class NumericNegative(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
         self.val = val
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -28,9 +30,10 @@ class NumericNegative(ASTNode):
 
 
 class Text(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
         self.val = val
+        self.id =id  
 
     def execute(self, table, tree):        
         super().execute(table, tree)
@@ -38,9 +41,10 @@ class Text(ASTNode):
 
 
 class BoolAST(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
         self.val = val
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -48,8 +52,9 @@ class BoolAST(ASTNode):
 
 
 class DateAST(ASTNode):
-    def __init__(self, val, line, column):
+    def __init__(self, val, line, column, id):
         ASTNode.__init__(self, line, column)
+        self.id =id  
         try:
             self.val=datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
         except:
@@ -62,10 +67,11 @@ class DateAST(ASTNode):
 
 
 class ColumnName(ASTNode):
-    def __init__(self, tName, cName, line, column):
+    def __init__(self, tName, cName, line, column, id):
         ASTNode.__init__(self, line, column)
         self.tName = tName
         self.cName = cName
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -77,15 +83,16 @@ class ColumnName(ASTNode):
 
 
 class Now(ASTNode):
-    def __init__(self, line, column):
+    def __init__(self, line, column, id):
         ASTNode.__init__(self, line, column)
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
         return date.today()
 
 ''''class Expression(ASTNode):    
-    def __init__(self,exp1,line,column):
+    def __init__(self,exp1,line,column, id):
         ASTNode.__init__(self,line,column)
         self.exp1 = exp1
     def execute(self, table, tree):
@@ -94,11 +101,12 @@ class Now(ASTNode):
 '''
 class BinaryExpression(ASTNode):
     # Class that handles every arithmetic expression
-    def __init__(self, exp1, exp2, operator, line, column):
+    def __init__(self, exp1, exp2, operator, line, column, id):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
         self.operator = operator
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -122,11 +130,12 @@ class BinaryExpression(ASTNode):
 class RelationalExpression(ASTNode):
     # Class that handles every relational expression
 
-    def __init__(self, exp1, exp2, operator, line, column):
+    def __init__(self, exp1, exp2, operator, line, column, id):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
         self.operator = operator
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)        
@@ -151,11 +160,12 @@ class RelationalExpression(ASTNode):
 class PredicateExpression(ASTNode):#TODO check operations and call to exceute function
     # Class that handles every logic expression
 
-    def __init__(self, exp1, exp2, operator, line, column):
+    def __init__(self, exp1, exp2, operator, line, column, id):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
         self.operator = operator
+        self.id =id  
 
     def execute(self, table, tree):
         super().execute(table, tree)

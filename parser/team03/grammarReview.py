@@ -9,6 +9,7 @@ from scanner import tokens
 from parse.expressions.expressions_math import *
 from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
+from treeGraph import *
 
 start = 'statements'
 
@@ -49,21 +50,29 @@ def p_relExpression(t):
                         | expression LIKE TEXTO'''
     token = t.slice[2]
     if token.type == "MENOR":
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.LESS,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = RelationalExpression(t[1],t[3],OpRelational.LESS,0,0,id)
     elif token.type == "MAYOR":
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.GREATER,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = RelationalExpression(t[1],t[3],OpRelational.GREATER,0,0,id)
     elif token.type == "IGUAL":
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.EQUALS,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = RelationalExpression(t[1],t[3],OpRelational.EQUALS,0,0,id)
     elif token.type == "MENORQ":
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.LESS_EQUALS,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = RelationalExpression(t[1],t[3],OpRelational.LESS_EQUALS,0,0,id)
     elif token.type == "MAYORQ":
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.GREATER_EQUALS,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = RelationalExpression(t[1],t[3],OpRelational.GREATER_EQUALS,0,0,id)
     elif token.type == "DIFERENTE":
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.NOT_EQUALS,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = RelationalExpression(t[1],t[3],OpRelational.NOT_EQUALS,0,0,id)
     elif token.type == "NOT":
-        t[0] = RelationalExpression(t[1],t[4],OpRelational.NOT_LIKE,0,0)
+        id = nodoHojaUnaArista(str(t[2]+" "+t[3]),t[1].id) 
+        t[0] = RelationalExpression(t[1],t[4],OpRelational.NOT_LIKE,0,0,id)
     elif token.type == "LIKE":
-        t[0] = RelationalExpression(t[1],t[3],OpRelational.LIKE,0,0)
+        id = nodoHojaUnaArista(str(t[2]+" "+t[3]),t[1].id) 
+        t[0] = RelationalExpression(t[1],t[3],OpRelational.LIKE,0,0,id)
     else: 
         print("Missing code from: ",t.slice)
 def p_relExpReducExp(t):
@@ -78,18 +87,24 @@ def p_expression(t):
                     | expression PORCENTAJE expression
                     | expression EXPONENCIANCION expression                    
                     '''    
-    if t[2] == '+'  :             
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.PLUS,0,0)
-    elif t[2] == '-':             
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MINUS,0,0)
-    elif t[2] == '*': 
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.TIMES,0,0)
+    if t[2] == '+'  :
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.PLUS,0,0,id)
+    elif t[2] == '-':
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MINUS,0,0,id)
+    elif t[2] == '*':
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.TIMES,0,0,id)
     elif t[2] == '/': 
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.DIVIDE,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.DIVIDE,0,0,id)
     elif t[2] == '%': 
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MODULE,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MODULE,0,0,id)
     elif t[2] == '^': 
-        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.POWER,0,0)
+        id = nodoDosAristas(str(t[2]),t[1].id,t[3].id)  
+        t[0] = BinaryExpression(t[1], t[3], OpArithmetic.POWER,0,0,id)
     else: 
         print ("You forgot wirte code for the operator: ",t[2])
 
@@ -118,49 +133,71 @@ def p_trigonometric(t):
                     |   ATANH PARA expression PARC'''
 
     if t.slice[1].type == 'ACOS':
-        t[0] = Acos(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Acos(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ACOSD':
-        t[0] = Acosd(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)        
+        t[0] = Acosd(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ASIN':
-        t[0] = Asin(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Asin(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ASIND':
-        t[0] = Asind(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Asind(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ATAN':
-        t[0] = Atan(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Atan(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ATAND':
-        t[0] = Atand(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Atand(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ATAN2':
-        t[0] = Atan2(t[3],t[5], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id)   
+        t[0] = Atan2(t[3],t[5], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ATAN2D':
-        t[0] = Atan2d(t[3],t[5], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoDosAristas(str(t[1]),t[3].id,t[5].id) 
+        t[0] = Atan2d(t[3],t[5], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'COS':
-        t[0] = Cos(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Cos(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'COSD':
-        t[0] = Cosd(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Cosd(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'COT':
-        t[0] = Cot(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Cot(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'COTD':
-        t[0] = Cotd(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Cotd(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'SIN':
-        t[0] = Sin(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Sin(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'SIND':
-        t[0] = Sind(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Sind(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'TAN':
-        t[0] = Tan(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Tan(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'TAND':
-        t[0] = Tand(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Tand(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'SINH':
-        t[0] = Sinh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Sinh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'COSH':
-        t[0] = Cosh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Cosh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'TANH':
-        t[0] = Tanh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Tanh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ASINH':
-        t[0] = Asinh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)          
+        t[0] = Asinh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ACOSH':
-        t[0] = Acosh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)        
+        t[0] = Acosh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
     elif t.slice[1].type == 'ATANH':
-        t[0] = Atanh(t[3], t.slice[1].lineno, t.slice[1].lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)        
+        t[0] = Atanh(t[3], t.slice[1].lineno, t.slice[1].lexpos,id)
 
 
 def p_aritmetic(t):
@@ -174,17 +211,23 @@ def p_aritmetic(t):
     '''
     token = t.slice[1]
     if token.type == "ABS":
-        t[0] = Abs(t[3],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Abs(t[3],token.lineno, token.lexpos,0,id)
     if token.type == "CBRT":
-        t[0] = Cbrt(t[3],token.lineno, token.lexpos)
-    if token.type == "CEIL" or token.type == "CEILING":        
-        t[0] = Ceil(t[3],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
+        t[0] = Cbrt(t[3],token.lineno, token.lexpos,id)
+    if token.type == "CEIL" or token.type == "CEILING":
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
+        t[0] = Ceil(t[3],token.lineno, token.lexpos,id)
     if token.type == "DEGREES":
-        t[0] = Degrees(t[3],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
+        t[0] = Degrees(t[3],token.lineno, token.lexpos,id)
     if token.type == "EXP":
-        t[0] = Exp(t[3],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
+        t[0] = Exp(t[3],token.lineno, token.lexpos,id)
     if token.type == "FACTORIAL":
-        t[0] = Factorial(t[3],token.lineno, token.lexpos)
+        id = nodoHojaUnaArista(str(t[1]),t[3].id)  
+        t[0] = Factorial(t[3],token.lineno, token.lexpos,id)
  
 #| 
 #| 
@@ -224,10 +267,12 @@ def p_aritmetic(t):
 def p_exp_unary(t):
     '''expression : MENOS expression %prec UMENOS
                   | MAS expression %prec UMAS '''                  
-    if t[1] == '+':        
-        t[0] = BinaryExpression(Numeric(1,0,0),t[2],OpArithmetic.TIMES,0,0)
+    if t[1] == '+':      
+        id = nodoHojaUnaArista(str(t[1]),t[2].id)  
+        t[0] = BinaryExpression(Numeric(1,0,0,0),t[2],OpArithmetic.TIMES,0,0,id)
     elif t[1] == '-':
-        t[0] = BinaryExpression(NumericNegative(1,0,0),t[2],OpArithmetic.TIMES,0,0)
+        id =  nodoHojaUnaArista(str(t[1]),t[2].id)
+        t[0] = BinaryExpression(NumericNegative(1,0,0,0),t[2],OpArithmetic.TIMES,0,0,id)
     else:
         print ("Missed code from unary expression")
 
@@ -243,18 +288,22 @@ def p_exp_val(t):
                     | NOW PARA PARC'''
     token = t.slice[1]
     if token.type == "TEXTO":
-        t[0] = Text(token.value,token.lineno,token.lexpos)
+        id = nodoHoja(str(t[1]))  
+        t[0] = Text(token.value,token.lineno,token.lexpos,id)
     if token.type == "BOOLEAN_VALUE":
-        t[0] = Bool(token.value,token.lineno,token.lexpos)
+        id = nodoHoja(str(t[1]))  
+        t[0] = Bool(token.value,token.lineno,token.lexpos,id)
     if token.type == "NOW":        
-        t[0] = Now(toke.lineno,token.lexpos)
+        id = nodoHoja(str(t[1]))  
+        t[0] = Now(toke.lineno,token.lexpos,id)
 
 def p_exp_afunc1(t):
     '''expression : TRUC PARA expression PARC''' 
     
     token = t.slice[1]        
     if token.type == "TRUC":
-        t[0] = Trunc(t[3],0,0)
+        id=nodoHojaUnaArista(str(t[1]),t[3].id)
+        t[0] = Trunc(t[3],0,0,id)
     
     #else:
     #    print("Missing code from: ",t[1])
@@ -272,7 +321,8 @@ def p_numero(t):
     ''' numero  : ENTERO
                 | FLOAT'''
     token = t.slice[1]
-    t[0] = Numeric(token.value,token.lineno,token.lexpos)
+    id = nodoHoja(str(t[1]))  
+    t[0] = Numeric(token.value,token.lineno,token.lexpos,id)
 
 
 def p_col_name(t):
@@ -280,9 +330,11 @@ def p_col_name(t):
                  | ID '''
     token = t.slice[1]
     if len(t) == 2:
-        t[0] = ColumnName(None,t[1],token.lineno,token.lexpos)
+        id = nodoHoja(str(t[1]))    
+        t[0] = ColumnName(None,t[1],token.lineno,token.lexpos,id)
     else:
-        t[0] = ColumnName(t[1],t[3],token.lineno,token.lexpos)
+        id = nodoHoja(str(t[1]+t[2]+t[3]))
+        t[0] = ColumnName(t[1],t[3],token.lineno,token.lexpos,id)
         
 
 import ply.yacc as yacc
@@ -290,4 +342,6 @@ parse = yacc.yacc()
 
 def toParse(input):
     #return parse.parse(input,lexer)
+    parse.parse(input)
+    dot.view()
     return parse.parse(input)
