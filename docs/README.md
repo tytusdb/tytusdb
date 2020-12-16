@@ -148,14 +148,15 @@ Parámetro table: es el nombre de la tabla a utilizar.
 Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
 
 ```
-def extractRangeTable(database: str, table: str, lower: any, upper: any) -> list:
+def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
 ```
 Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabala.  (READ)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
-Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la tabla.  
-Parámetro upper: es el limite superior (inclusive) del rango a extraer de la tabla.  
-Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
+Parámetro columnNumber: es el número de índice de columna a restringir o verificar con los valores upper y lower.
+Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la columna indicada de la tabla.  
+Parámetro upper: es el limite superior (inclusive) del rango a extraer de la columna indicada de la tabla.  
+Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros(lista), si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla o cualquier error devuelve None.  
 Consideraciones:
 - Para la comparación de lower y upper se puede hacer cast a str cuando las llaves sean compuestas o en general para reducir complejidad.
 - Ver el submódulo Any del paquete typing.  
