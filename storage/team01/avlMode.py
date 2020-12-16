@@ -37,7 +37,18 @@ def showDatabases() -> list:
 
 #Crea una tabla en una base de datos especificada
 def createTable(database: str, table: str, numberColumns: int) -> int:
-    return -1
+    if database in mBBDD:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            if table not in nodoBD.datos:
+                res = nodoBD.datos.agregar(table, [list(range(0, numberColumns+1)), [0], 1])
+                return res #0=Operación exitosa, 1=Error en la operación
+            else:
+                return 3 #Tabla existente
+        else:
+            return 1 #Error en la operación
+    else:
+        return 2 #Base de datos inexistente
 
 #Devuelve una lista de los nombres de las tablas de una bases de datos
 def showTables(database: str) -> list:
