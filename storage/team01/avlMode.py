@@ -7,15 +7,29 @@ mBBDD = avl.AVL()
 
 #Crea una base de datos. (CREATE)
 def createDatabase(database: str) -> int:
-    return -1
+    res = mBBDD.agregar(database)
+    return res #0 operación exitosa, 1 error en la operación, 2 base de datos existente
 
 #Renombra la base de datos databaseOld por databaseNew. (UPDATE)
 def alterDatabase(databaseOld: str, databaseNew) -> int:
-    return -1
+    if databaseOld in mBBDD:
+        if databaseNew not in mBBDD:
+            res = mBBDD.quitar(databaseOld)
+            if res == 0:
+                res = mBBDD.agregar(databaseNew)
+                return res #0 si operación es exitosa
+            else:
+                return 1 #Error en la operación
+        else:
+            return 3 #databaseNew existente            
+    else:
+        return 2 #databaseOld no existente
+		
 
 #Elimina por completo la base de datos indicada en database. (DELETE)
 def dropDatabase(database: str) -> int:
-    return -1
+    res = mBBDD.quitar(database)
+    return res #0 operación exitosa, 1 error en la operación, 2 base de datos no existente
 
 # show databases by constructing a list
 def showDatabases() -> list:
@@ -23,11 +37,29 @@ def showDatabases() -> list:
 
 #Crea una tabla en una base de datos especificada
 def createTable(database: str, table: str, numberColumns: int) -> int:
-    return -1
+    if database in mBBDD:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            if table not in nodoBD.datos:
+                res = nodoBD.datos.agregar(table, [list(range(0, numberColumns+1)), [0], 1])
+                return res #0=Operación exitosa, 1=Error en la operación
+            else:
+                return 3 #Tabla existente
+        else:
+            return 1 #Error en la operación
+    else:
+        return 2 #Base de datos inexistente
 
 #Devuelve una lista de los nombres de las tablas de una bases de datos
 def showTables(database: str) -> list:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        if nodoBD.datos.tamano == 0:
+            return '[]'
+        else:
+            return list(nodoBD.datos.raiz)
+    else:
+        return None
 
 #Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla
 def extractTable(database: str, table: str) -> list:
