@@ -1,4 +1,4 @@
-from .storageManager.jsonMode import createDatabase
+from .storageManager.jsonMode import createDatabase,dropDatabase
 from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase
 
 def executeCreateDatabase(self, database):
