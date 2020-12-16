@@ -955,7 +955,7 @@ def p_offsetLimit(t):
 def p_insertStmt(t):
     """insertStmt : R_INSERT R_INTO ID R_VALUES S_PARIZQ paramsList S_PARDER"""
 
-
+    t[0] = instruction.InsertInto(t[3], t[6])
 # endregion
 
 # Statement para el UPDATE
@@ -1016,16 +1016,21 @@ def p_tableOpt(t):
 def p_showStmt(t):
     """showStmt : R_SHOW R_DATABASES likeOpt"""
 
+    t[0] = instruction.showDataBases(t[3])
 
 def p_likeOpt(t):
     """likeOpt : R_LIKE STRING
     |
     """
 
+    if len(t) == 3:
+        t[0] = t[2]
+    else:
+        t[0] = None 
 
 def p_useStmt(t):
     """useStmt : R_USE R_DATABASE ID"""
-
+    t[0] = instruction.useDataBase(t[3])
 
 # endregion
 
