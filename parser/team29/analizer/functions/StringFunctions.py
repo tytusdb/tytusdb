@@ -9,13 +9,13 @@ def substring(string1,start,end):
     return string1[start:end]
 
 def trim_leading(string1,characters):
-    return string1.lstrip(character)
+    return string1.lstrip(characters)
 
 def trim_trailing(string1,characters):
-    return string1.rstrip(character)
+    return string1.rstrip(characters)
 
 def trim_both(string1,characters):
-    return string1.strip(character)
+    return string1.strip(characters)
 
 def md5(string1):
     string1 = hashlib.md5(string1.encode())
@@ -49,20 +49,21 @@ def set_byte(string,num,num2 ):
 
 def encode_string(string,format):
     if(format=="escape"):
-
+      return string
     elif(format=="base64"):
-        string = string.encode('ascii')
+        string = bytes(string, 'utf-8')
         string_base64 = base64.b64encode(string)
         return string_base64
     elif(format=="hex"):
+        return string.encode('utf-8').hex()
 
 def decode_string(string,format):
     if(format=="escape"):
-
+        return string
     elif(format=="base64"):
-       
+        print('escape')
     elif(format=="hex"):
-
+        print('escape')
 
 def convert_date(string):
     date = datetime.strptime(string, "%Y-%m-%d %H:%M:%S")
