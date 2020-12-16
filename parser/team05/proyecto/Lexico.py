@@ -19,7 +19,6 @@ counter_syntactic_error = 1
 # LISTADO DE PALABRAS RESERVADAS
 palabras_reservadas = {
     'select'        : 'SELECT',
-    'from'          : 'FROM',
     'where'         : 'WHERE',
     'limit'         : 'LIMIT',
     'group'         : 'GROUP',
@@ -63,7 +62,6 @@ palabras_reservadas = {
     'then'          : 'THEN',
     'else'          : 'ELSE',
     'pi'            : 'PI',
-    'exists'         : 'EXISTS',
     'in'            : 'IN',
     'any'           : 'ANY',
     'some'          : 'SOME',
@@ -126,7 +124,6 @@ palabras_reservadas = {
     'drop'          : 'DROP',
     'show'          : 'SHOW',
     'rename'        : 'RENAME',
-    'owner'         : 'OWNER',
     'to'            : 'TO',
     'insert'        : 'INSERT',
     'update'        : 'UPDATE',
@@ -157,7 +154,33 @@ palabras_reservadas = {
     'tanh'          : 'TANH',
     'asinh'         : 'ASINH',
     'acosh'         : 'ACOSH',
-    'atanh'         : 'ATANH'
+    'atanh'         : 'ATANH',
+    'get_byte'      : 'GETBYTE',
+    'set_byte'      : 'SETBYTE',
+    'inherits'      : 'INHERITS',
+    'primary'       : 'PRIMARY',
+    'key'           : 'KEY',
+    'foreign'       : 'FOREIGN',
+    'references'    : 'REFERENCES',
+    'constraint'    : 'CONSTRAINT',
+    'check'         : 'CHECK',
+    'unique'        : 'UNIQUE',
+    'default'       : 'DEFAULT',
+    'smallint'      : 'SMALLINT',
+    'bigint'        : 'BIGINT',
+    'numeric'       : 'NUMERIC',
+    'real'          : 'REAL',
+    'double'        : 'DOUBLE',
+    'money'         : 'MONEY',
+    'character'     : 'CHARACTER',
+    'varchar'       : 'VARCHAR',
+    'char'          : 'CHAR',
+    'text'          : 'TEXT',
+    'time'          : 'TIME',
+    'boolean'       : 'BOOLEAN',
+    'varying'       : 'VARYING',
+    'type'          : 'TYPE',
+    'enum'          : 'ENUM'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -317,11 +340,12 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('left','MENORIGUAL','MAYORIGUAL','IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
-    ('nonassoc','BETWEEN'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
-    ('right','UMENOS', 'UMAS')
+    ('right','UMENOS', 'UMAS'),
+    ('nonassoc','BETWEEN','NOTB')
+
 
 )
 
@@ -359,9 +383,199 @@ def p_Instruccion7(t):
     'INSTRUCCION  :   I_DELETE '
 
 def p_Create(t):
-    'I_CREATE      : CREATE I_REPLACE'
+    'I_CREATE      : CREATE I_TCREATE'
     t[0] = t[2]
-    print('Se creo la base de datos ' + t[0])
+    
+def p_tCreate(t):
+    'I_TCREATE     : I_REPLACE'
+
+def p_tCreate1(t):
+    'I_TCREATE     : I_CTABLE'
+
+def p_tCreate2(t):
+    'I_TCREATE     : I_CTYPE'
+
+def p_ctype(t):
+    'I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA'
+
+def p_lcad(t):
+    'I_LCAD        : I_LCAD CADENASI '
+
+def p_lcad1(t):
+    'I_LCAD        : CADENASI '
+
+def p_cTable(t):
+    'I_CTABLE      : TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS'
+
+def p_inherits(t):
+    'I_INHERITS    : INHERITS PABRE ID PCIERRA PCOMA'
+
+def p_tAtributos(t):
+    'I_LTATRIBUTOS    : I_LTATRIBUTOS COMA I_TATRIBUTOS'
+
+def p_tAtributos1(t):
+    'I_LTATRIBUTOS    : I_TATRIBUTOS'
+
+def p_atributosT(t):
+    'I_TATRIBUTOS     : ID I_TIPO I_LLAVES'
+
+def p_atributosT1(t):
+    'I_TATRIBUTOS     : PRIMARY KEY PABRE I_LIDS PCIERRA'
+
+def p_atributosT2(t):
+    'I_TATRIBUTOS     : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
+
+def p_atributosT3(t):
+    'I_TATRIBUTOS     : CONSTRAINT ID CHECK I_CCHECK'
+
+def p_atributosT4(t):
+    'I_TATRIBUTOS     : CHECK I_CCHECK'
+
+def p_ccheck(t):
+    'I_CCHECK         : PABRE CONDICION PCIERRA'
+
+def p_atributosT5(t):
+    'I_TATRIBUTOS     : UNIQUE I_UNIQUE'
+
+def p_unique(t):
+    'I_UNIQUE         : PABRE I_LIDS PCIERRA'
+
+def p_llave(t):
+    'I_LLAVES         : PRIMARY KEY I_DEFAULT'
+
+def p_default(t):
+    'I_DEFAULT        : DEFAULT I_VALOR I_NULL'
+
+def p_default1(t):
+    'I_DEFAULT        : I_NULL'
+
+def p_null(t):
+    'I_NULL           : NOT NULL I_CUNIQUE '
+
+def p_null1(t):
+    'I_NULL           : NULL I_CUNIQUE '
+
+def p_null2(t):
+    'I_NULL           : I_CUNIQUE '
+
+def p_cunique(t):
+    'I_CUNIQUE        : CONSTRAINT ID UNIQUE I_CHECK'
+
+def p_check(t):
+    'I_CHECK          : CONSTRAINT ID CHECK PABRE CONDICION PCIERRA'
+
+def p_check1(t):
+    'I_CHECK          : CHECK PABRE CONDICION PCIERRA'
+
+def p_check2(t):
+    'I_CHECK          : '
+
+def p_llave2(t):
+    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA I_DEFAULT' 
+
+def p_cRef(t):
+    'I_CREFERENCE     : I_CREFERENCE COMA ID'
+
+def p_cRef2(t):
+    'I_CREFERENCE     : ID'
+
+def p_llave3(t):
+    'I_LLAVES         : REFERENCES ID I_DEFAULT'
+
+def p_llave4(t):
+    'I_LLAVES         : I_DEFAULT'
+
+def p_lIds(t):
+    'I_LIDS           : I_LIDS COMA ID'
+
+def p_lIds1(t):
+    'I_LIDS           : ID'
+
+def p_tipo(t):
+    'I_TIPO           : SMALLINT'
+
+def p_tipo2(t):
+    'I_TIPO           : INTEGER'
+
+def p_tipo3(t):
+    'I_TIPO           : BIGINT'
+
+def p_tipo4(t):
+    'I_TIPO           : DECIMAL'
+
+def p_tipo5(t):
+    'I_TIPO           : NUMERIC'
+
+def p_tipo6(t):
+    'I_TIPO           : REAL'
+
+def p_tipo7(t):
+    'I_TIPO           : DOUBLE I_PREC'
+
+def p_tipo8(t):
+    'I_TIPO           : MONEY'
+
+def p_tipo9(t):
+    'I_TIPO           : CHARACTER I_TCHAR'
+
+def p_tipo11(t):
+    'I_TIPO           : VARCHAR PABRE NUMERO PCIERRA'
+
+def p_tipo22(t):
+    'I_TIPO           : CHAR PABRE NUMERO PCIERRA'
+
+def p_tipo33(t):
+    'I_TIPO           : TEXT'
+
+def p_tipo44(t):
+    'I_TIPO           : TIMESTAMP I_PREC'
+
+def p_tipo55(t):
+    'I_TIPO           : TIME I_PREC'
+
+def p_tipo66(t):
+    'I_TIPO           : DATE'
+
+def p_tipo77(t):
+    'I_TIPO           : INTERVAL I_FIELDS I_PREC'
+
+def p_tipo88(t):
+    'I_TIPO           : BOOLEAN'
+
+def p_tipo99(t):
+    'I_TIPO           : ID'
+
+def p_tchar(t):
+    'I_TCHAR          : VARYING PABRE NUMERO PCIERRA'
+
+def p_tchar1(t):
+    'I_TCHAR          : PABRE NUMERO PCIERRA'
+
+def p_prec(t):
+    'I_PREC           : PABRE NUMERO PCIERRA'
+
+def p_prec1(t):
+    'I_PREC           : '
+
+def p_fields(t):
+    'I_FIELDS         : MONTH'
+
+def p_fields1(t):
+    'I_FIELDS         : HOUR'
+
+def p_fields2(t):
+    'I_FIELDS         : MINUTE'
+
+def p_fields3(t):
+    'I_FIELDS         : SECOND'
+
+def p_fields4(t):
+    'I_FIELDS         : YEAR'
+
+def p_inherits1(t):
+    'I_INHERITS    : PCOMA'
+
+
 
 def p_Replace(t):
     'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
@@ -1030,7 +1244,7 @@ def p_CondicionP(t):
     'CONDICION  :   MAS CONDICION %prec UMAS'
 
 def p_CondicionExtract(t):
-    'CONDICION  :   EXTRACT PABRE DATETIME FROM TIMESTAMP CADENA PCIERRA '
+    'CONDICION  :   EXTRACT PABRE DATETIME FROM PTIMESTAMP PCIERRA '
 
 def p_CondicionFuncionWhere(t):
     'CONDICION  :   FUNCIONES_WHERE '
@@ -1235,6 +1449,24 @@ def p_OperatorFwDif(t):
 
 def p_OperatorFwDif1(t):
     'OPERATOR_FW  :   DIF1   '
+
+def p_PTimestamC(t):
+    'PTIMESTAMP  :   TIMESTAMP CADENA '
+
+def p_PTimestamId(t):
+    'PTIMESTAMP  :   TIMESTAMP ID '
+
+def p_PTimestamIdPId(t):
+    'PTIMESTAMP  :   TIMESTAMP ID PUNTO ID '
+
+def p_PTimestamCadena(t):
+    'PTIMESTAMP  :   CADENA '
+
+def p_PTimestamId1(t):
+    'PTIMESTAMP  :   ID '
+
+def p_PTimestamIdP(t):
+    'PTIMESTAMP  :   ID PUNTO ID '
 
 def p_empty(t):
     'EMPTY :'

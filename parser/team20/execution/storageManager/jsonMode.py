@@ -36,7 +36,7 @@ def showDatabases() -> list:
     with open('data/json/databases') as file:
         data = json.load(file)
         for d in data:
-            databases.append(d);
+            databases.append(d)
     return databases
 
 # UPDATE and rename a database name by inserting new_key and deleting old_key
