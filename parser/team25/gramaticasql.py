@@ -1,5 +1,6 @@
 import ply.yacc as yacc
 from lexicosql import tokens
+from astExpresion import ExpresionNegativa, ExpresionNumero, ExpresionPositiva, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
 
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
@@ -172,6 +173,12 @@ def p_combine_querys6(p):
 def p_combine_querys7(p):
     'combine_querys : select'
 #_____________________________________________________________ SELECT
+def p_select0(p):
+    'select : SELECT expresion'
+    p[0] = p[2].ejecutar(0)
+    print(p[0].val)
+    print(p[0].linea)
+
 def p_select1(p):
     'select : SELECT select_list FROM lista_tablas filtro join'
 
@@ -560,7 +567,8 @@ def p_create_or_replace_2(p):
 # <COMBINACIONES1> ::= 'if' 'not' 'exists' id <COMBINACIONES2>
 #                   | id <COMBINACIONES2>
 #                   | id
-
+def p_combinaciones1_0(p):
+    'combinaciones1 : IF NOT EXISTS ID'
 
 def p_combinaciones1_1(p):
     'combinaciones1 : IF NOT EXISTS ID combinaciones2'
@@ -987,7 +995,7 @@ def p_update(p):
 
 
 def p_sentenciaInsert(p):
-    ''' insert : INSERT INTO ID parametros VALUES parametros'''
+    ''' insert : INSERT INTO ID VALUES PABRE lista_exp PCIERRA'''
     p[0] = p[1]
 # ___________________________________________PARAMETROS
 
@@ -1041,9 +1049,10 @@ def p_asignacion(p):
 def p_expresiones_unarias(p):
     ''' expresion : MENOS expresion %prec UMENOS 
                   | MAS expresion %prec UMAS'''
-     
-    print('expresion: '+str(p[1]) + '.'+str(p[3]))  # solo para ver que viene
-    p[0] = p[2]
+    if p[1] == '+':
+        p[0] = ExpresionPositiva(p[2], p.slice[1].lineno)
+    elif p[1] == '-':
+        p[0] = ExpresionNegativa(p[2], p.slice[1].lineno)
     
 def p_expresiones_is_complemento(p):
     '''
@@ -1075,11 +1084,16 @@ def p_expreion_entre_parentesis(p):
     p[0] = p[2]
 
 def p_expresion_primitivo(p):
-    '''
-    expresion : CADENA
-              | NUMERO
-              | DECIMAL_LITERAL
-    '''
+    'expresion : CADENA'
+
+def p_expresion_primitivo1(p):
+    'expresion : NUMERO'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, p.slice[1].lineno)
+
+def p_expresion_primitivo2(p):
+    'expresion : DECIMAL_LITERAL'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, p.slice[1].lineno)
+
 def p_expresion_id(p):
     'expresion : ID'
     p[0] = p[1]
@@ -1107,6 +1121,23 @@ def p_expresion_con_dos_nodos(p):
                  | expresion OR expresion
                  | expresion AND expresion
     '''
+    if p[2] == '+':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MAS, p.slice[2].lineno)
+    elif p[2] == '-':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MENOS, p.slice[2].lineno)
+    elif p[2] == '*':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.POR, p.slice[2].lineno)
+    elif p[2] == '/':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.DIVIDO, p.slice[2].lineno)
+    elif p[2] == '%':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
+    elif p[2] == '^':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
+
+
+
+
+
 #----------------------------------------------------------------------------------------------------- FIN EXPRESION
 #<EXP_AUX>::= '-'  <EXP_AUX>
 #          |    '+'  <EXP_AUX>
@@ -1307,7 +1338,5 @@ def analizarEntrada(entrada):
 
 
 print(analizarEntrada('''
-
-
- select distinct * from t1; 
+select -((((5+5-(8*8)+90)/2)%5)^2);
                       '''))

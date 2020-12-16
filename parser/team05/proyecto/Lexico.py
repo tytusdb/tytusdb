@@ -157,7 +157,30 @@ palabras_reservadas = {
     'atanh'         : 'ATANH',
     'get_byte'      : 'GETBYTE',
     'set_byte'      : 'SETBYTE',
-    'inherits'      : 'INHERITS'
+    'inherits'      : 'INHERITS',
+    'primary'       : 'PRIMARY',
+    'key'           : 'KEY',
+    'foreign'       : 'FOREIGN',
+    'references'    : 'REFERENCES',
+    'constraint'    : 'CONSTRAINT',
+    'check'         : 'CHECK',
+    'unique'        : 'UNIQUE',
+    'default'       : 'DEFAULT',
+    'smallint'      : 'SMALLINT',
+    'bigint'        : 'BIGINT',
+    'numeric'       : 'NUMERIC',
+    'real'          : 'REAL',
+    'double'        : 'DOUBLE',
+    'money'         : 'MONEY',
+    'character'     : 'CHARACTER',
+    'varchar'       : 'VARCHAR',
+    'char'          : 'CHAR',
+    'text'          : 'TEXT',
+    'time'          : 'TIME',
+    'boolean'       : 'BOOLEAN',
+    'varying'       : 'VARYING',
+    'type'          : 'TYPE',
+    'enum'          : 'ENUM'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -317,7 +340,6 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('left','MENORIGUAL','MAYORIGUAL','IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
-    ('nonassoc','BETWEEN'),
     ('left','MAS','MENOS'),
     ('left','POR','DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
@@ -373,6 +395,15 @@ def p_tCreate1(t):
 def p_tCreate2(t):
     'I_TCREATE     : I_CTYPE'
 
+def p_ctype(t):
+    'I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA'
+
+def p_lcad(t):
+    'I_LCAD        : I_LCAD CADENASI '
+
+def p_lcad1(t):
+    'I_LCAD        : CADENASI '
+
 def p_cTable(t):
     'I_CTABLE      : TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS'
 
@@ -400,20 +431,65 @@ def p_atributosT3(t):
 def p_atributosT4(t):
     'I_TATRIBUTOS     : CHECK I_CCHECK'
 
+def p_ccheck(t):
+    'I_CCHECK         : PABRE CONDICION PCIERRA'
+
 def p_atributosT5(t):
     'I_TATRIBUTOS     : UNIQUE I_UNIQUE'
+
+def p_unique(t):
+    'I_UNIQUE         : PABRE I_LIDS PCIERRA'
 
 def p_llave(t):
     'I_LLAVES         : PRIMARY KEY I_DEFAULT'
 
+def p_default(t):
+    'I_DEFAULT        : DEFAULT I_VALOR I_NULL'
+
+def p_default1(t):
+    'I_DEFAULT        : I_NULL'
+
+def p_null(t):
+    'I_NULL           : NOT NULL I_CUNIQUE '
+
+def p_null1(t):
+    'I_NULL           : NULL I_CUNIQUE '
+
+def p_null2(t):
+    'I_NULL           : I_CUNIQUE '
+
+def p_cunique(t):
+    'I_CUNIQUE        : CONSTRAINT ID UNIQUE I_CHECK'
+
+def p_check(t):
+    'I_CHECK          : CONSTRAINT ID CHECK PABRE CONDICION PCIERRA'
+
+def p_check1(t):
+    'I_CHECK          : CHECK PABRE CONDICION PCIERRA'
+
+def p_check2(t):
+    'I_CHECK          : '
+
 def p_llave2(t):
     'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA I_DEFAULT' 
+
+def p_cRef(t):
+    'I_CREFERENCE     : I_CREFERENCE COMA ID'
+
+def p_cRef2(t):
+    'I_CREFERENCE     : ID'
 
 def p_llave3(t):
     'I_LLAVES         : REFERENCES ID I_DEFAULT'
 
 def p_llave4(t):
     'I_LLAVES         : I_DEFAULT'
+
+def p_lIds(t):
+    'I_LIDS           : I_LIDS COMA ID'
+
+def p_lIds1(t):
+    'I_LIDS           : ID'
 
 def p_tipo(t):
     'I_TIPO           : SMALLINT'
@@ -473,10 +549,10 @@ def p_tchar(t):
     'I_TCHAR          : VARYING PABRE NUMERO PCIERRA'
 
 def p_tchar1(t):
-    'I_TCHAR          : PABRE ENTERO PCIERRA'
+    'I_TCHAR          : PABRE NUMERO PCIERRA'
 
 def p_prec(t):
-    'I_PREC           : PABRE ENTERO PCIERRA'
+    'I_PREC           : PABRE NUMERO PCIERRA'
 
 def p_prec1(t):
     'I_PREC           : '
@@ -499,8 +575,7 @@ def p_fields4(t):
 def p_inherits1(t):
     'I_INHERITS    : PCOMA'
 
-def p_tCreate3(t):
-    'I_TCREATE     : I_REPLACE'
+
 
 def p_Replace(t):
     'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
