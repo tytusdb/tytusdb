@@ -116,7 +116,8 @@ reservadas = {
     'stmmetric' : 'SYMMETRIC',
     'uknown' : 'UNKNOWN',
     'substring' : 'SUBSTRING',
-    'avg' : 'AVG'
+    'avg' : 'AVG',
+    'databases' : 'DATABASES'
 }
 
 #Lista de tokens
@@ -128,8 +129,8 @@ tokens = [
     'PAR_ABRE',
     'PAR_CIERRA',    
     'CADENA',
-    'ENTERO',
     'DECIMAL_NUM',
+    'ENTERO',
     'MENOR_IGUAL',
     'MAS',
     'MAYOR_IGUAL',
@@ -177,21 +178,21 @@ t_CASTEO = r'::'
 
 num_nodo = 0
 
-def t_ENTERO(t):
-    r'\d+'
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Valor entero es muy grande %d", t.value)
-        t.value = 0
-    return t
-
 def t_DECIMAL_NUM(t):    
-    r'\d+(\.\d+)?'
+    r'-?\d+\.\d+'
     try:
         t.value = float(t.value)
     except ValueError:
         print("Valor decimal es muy grande %d", t.value)
+        t.value = 0
+    return t
+
+def t_ENTERO(t):
+    r'-?\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Valor entero es muy grande %d", t.value)
         t.value = 0
     return t
 
@@ -233,6 +234,16 @@ lexer = lex.lex(reflags=re.IGNORECASE)
 
 precedence = (
     ('left', 'PAR_ABRE', 'PAR_CIERRA'),
+    ('right', 'IGUAL'),
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('left', 'NO_IGUAL'),
+    ('nonassoc', 'MAYOR', 'MENOR', 'MAYOR_IGUAL', 'MENOR_IGUAL'),
+    ('left','MAS','MENOS'),
+    ('left', 'ASTERISCO','DIVISION', 'MODULO'),
+    ('left', 'POTENCIA'),
+    ('right', 'NOT'),
+    ('left', 'LLAVE_ABRE', 'LLAVE_CIERRA')
 )
 
 #Analizador Sintáctico 
@@ -244,6 +255,30 @@ from instruccion.create_db import *
 from instruccion.create_column import *
 from instruccion.create_table import *
 from instruccion.owner_mode import *
+from instruccion.show_db import *
+from instruccion.insert_into import *
+from instruccion.where_up_de import *
+from instruccion.update_st import *
+from instruccion.drop import *
+from instruccion.delete_from import *
+from instruccion.condicion_simple import *
+from instruccion.Query_Select import *
+from instruccion.unique_simple import *
+from instruccion.caux import *
+from instruccion.listas_IDS import *
+from instruccion.check_simple import *
+from instruccion.P_Key import *
+from instruccion.F_Key import *
+from instruccion.drop_tb import *
+from instruccion.select_normal import *
+from instruccion.group_by import *
+from instruccion.where import *
+from instruccion.order_by import *
+from instruccion.group_having import *
+from instruccion.limite import *
+from instruccion.inherits import *
+from instruccion.rename_owner_db import *
+from instruccion.alter_db import *
 
 #Tabla tipos
 from tools.tabla_tipos import *
@@ -263,34 +298,68 @@ def p_instrucciones_instruccion(t):
 
 def p_instruccion(t):
     '''instruccion      : crear_statement PUNTOCOMA
-                        | SHOW DATABASE PUNTOCOMA
                         | alter_statement PUNTOCOMA
                         | drop_statement PUNTOCOMA
-                        | INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
-                        | UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
-                        | DELETE FROM ID where PUNTOCOMA
                         | seleccionar PUNTOCOMA'''
     t[0] = t[1]
+
+def p_aux_instruccion(t):
+    '''instruccion      : SHOW DATABASES PUNTOCOMA
+                        | INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+                        | UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
+                        | DELETE FROM ID WHERE ID IGUAL op_val PUNTOCOMA'''
+    global num_nodo
+
+    if t[1].lower() == 'show':
+
+        t[0] = show_db(t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo += 1
+
+    elif t[1].lower() == 'insert':
+
+        t[0] = insert_into(t[3],t[6],t.lineno(1),t.lexpos(1),num_nodo)
+        num_nodo += 7
+
+    elif t[1].lower() == 'update':
+
+        t[0]= update_st(t[2],t[4],t[6],t[7],t.lineno(1),t.lexpos(1),num_nodo)
+        num_nodo += 8
+
+    elif t[1].lower() == 'delete':
+
+        t[0] = delete_from(t[3], t[5], t[7], t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo += 8
+
 
 def p_crear_statement_tbl(t):
     '''crear_statement  : CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA inherits_statement'''
     global num_nodo
-    t[0] = create_table(t[3], t[5], t.lineno(1), t.lexpos(1), num_nodo)
+    t[0] = create_table(t[3], t[5], t[7], t.lineno(1), t.lexpos(1), num_nodo)
     num_nodo += 5
 
 def p_crear_statement_db(t):
     '''crear_statement  : CREATE or_replace DATABASE if_not_exists ID owner_ mode_'''
     global num_nodo
-    t[0] = create_db(t[5], None, None, t[6], t[7], t.lineno(1), t.lexpos(1), num_nodo)
+    t[0] = create_db(t[5], t[2], t[4], t[6], t[7], t.lineno(1), t.lexpos(1), num_nodo)
     num_nodo += 6
 
 def p_or_replace_db(t):
     '''or_replace : OR REPLACE
                   |   '''
+    try:
+        if t[1] != None:
+            t[0] = True
+    except:
+        t[0] = False
 
 def p_if_not_exists_db(t):
     '''if_not_exists : IF NOT EXISTS
                   |   '''
+    try:
+        if t[1] != None:
+            t[0] = True
+    except:
+        t[0] = False
 
 def p_owner_db(t):
     '''owner_ : OWNER IGUAL ID
@@ -317,6 +386,11 @@ def p_mode_db(t):
 def p_alter_db(t):
     '''alter_statement : ALTER DATABASE ID rename_owner'''
 
+    global num_nodo
+    t[0] = alter_db(t[3],t[4],t.lineno,t.lexpos,num_nodo)
+    num_nodo += 5
+
+
 def p_alter_tbl(t):
     '''alter_statement : ALTER TABLE ID alter_op'''
 
@@ -324,20 +398,46 @@ def p_rename_owner_db(t):
     '''rename_owner : RENAME TO ID
                     | OWNER TO LLAVE_ABRE ow_op LLAVE_CIERRA'''
 
+    global num_nodo
+    if t[1].lower() == 'rename':
+        t[0] = rename_owner_db(t[1],t[3],t.lineno,t.lexpos, num_nodo)
+        num_nodo += 4
+    else:
+        t[0] = rename_owner_db(t[1], t[4], t.lineno, t.lexpos, num_nodo)
+        num_nodo += 5
+
 def p_ow_op_db(t):
     '''ow_op : ID
              | CURRENT_USER
              | SESSION_USER'''
+    t[0] = t[1]
 
 def p_drop_db(t):
-    'drop_statement : DROP DATABASE if_exists ID'
+    '''drop_statement : DROP DATABASE if_exists ID'''
+
+    global num_nodo
+    try:
+        if t[1].lower() == 'drop':
+           
+            t[0]=drop(t[4],t[3],t.lineno(1),t.lexpos(1),num_nodo)
+            num_nodo += 5
+
+    except:
+        t[0]=None
 
 def p_drop_tbl(t):
     'drop_statement : DROP TABLE ID'
+    global num_nodo
+    t[0] = drop_tb(t[3],t.lineno,t.lexpos,num_nodo)
+    num_nodo += 4
 
 def p_if_exists_db(t):
     '''if_exists : IF EXISTS
                  | '''
+    try:
+        t[0]=t[1]
+    except:
+        t[0]=None
 
 def p_contenido_tabla(t):
     '''contenido_tabla  : contenido_tabla COMA manejo_tabla'''
@@ -355,11 +455,14 @@ def p_manejo_tabla(t):
 
 def p_aux_declaracion_columna(t):
     '''declaracion_columna : ID type_column condition_column_row'''
+    global num_nodo
+    t[0] = create_column(t[1], t[2], t[3],t.lineno(1), t.lexpos(1), num_nodo)
+    num_nodo += 4
 
 def p_declaracion_columna(t):
     '''declaracion_columna : ID type_column'''
     global num_nodo #Llamar al contador de nodos
-    t[0] = create_column(t[1], t[2], t.lineno(1), t.lexpos(1), num_nodo)
+    t[0] = create_column(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
     num_nodo += 3 #Sumar la cantidad de nodos posibles a crear
 
 def p_type_column(t):
@@ -382,61 +485,142 @@ def p_type_column(t):
 
 def p_condition_column_row(t):
     'condition_column_row : condition_column_row condition_column'
+    t[1].append(t[2])
+    t[0] = t[1]
 
 def p_aux_condition_column_row(t):
     'condition_column_row : condition_column'
+    t[0] = [t[1]]
 
 def p_condition_column(t):
+    '''condition_column :  constraint UNIQUE op_unique
+                         | constraint CHECK PAR_ABRE expression PAR_CIERRA
+                         | key_table'''
+
+    global num_nodo
+    try:
+        if t[2].lower()=='unique':
+            t[0] = unique_simple(t[1],t[3],t.lineno,t.lexpos,num_nodo)
+            num_nodo += 4
+        elif t[2].lower()=='check':
+            t[0] = check_simple(t[1], None, t.lineno, t.lexpos, num_nodo)
+            num_nodo += 6
+
+    except:
+
+        t[0]=t[1]
+
+def p_aux_condition_column(t):
     '''condition_column : DEFAULT op_val
                          | NULL
                          | NOT NULL
-	                     | constraint UNIQUE op_unique
-                         | constraint CHECK PAR_ABRE  condition_columns PAR_CIERRA
-                         | constraint UNIQUE  constraint CHECK PAR_ABRE  condition_columns PAR_CIERRA
- 		                 | key_table
-                         | REFERENCE ID
+	                     | REFERENCE ID
 		                 | CONSTRAINT ID key_table
  		                 | '''
+    global num_nodo
+    try:
+
+        if t[1].lower() == 'default':
+
+            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+        elif t[1].lower() == 'null':
+
+            t[0] = condicion_simple(t[1], None, None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+        elif t[1].lower() == 'not':
+
+            t[0] = condicion_simple(t[1], None, None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+        elif t[1].lower() == 'reference':
+
+            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+        elif t[1].lower() == 'constraint':
+            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
+            num_nodo += 3
+
+
+    except:
+        t[0] = None
 
 def p_constraint(t):
     '''constraint : CONSTRAINT ID
                  | '''
 
+    global num_nodo
+    try:
+
+        t[0]=caux(t[2],t.lineno,t.lexpos,num_nodo)
+        num_nodo  += 3
+
+    except:
+        t[0] = None
+
 def p_op_unique(t):
     '''op_unique : PAR_ABRE list_id PAR_CIERRA
-                  | '''
+                 | constraint CHECK PAR_ABRE  expression PAR_CIERRA
+                 | '''
+    try:
+        if t[1] == '(':
+
+            t[0] = t[2]
+
+        else:
+            t[0] = check_simple(t[1], None, t.lineno, t.lexpos, num_nodo)
+            num_nodo += 6
+
+    except:
+        t[0] = None
 
 def p_list_id(t):
-    'list_id : list_id COMA ID alias'
+    'list_id : list_id COMA alias'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_aux_list_id(t):
-    'list_id : ID alias'
+    'list_id : alias'
+    t[0] = [t[1]]
 
 def p_alias(t):
-    '''alias : AS ID
-            | '''
-
-def p_condition_columns(t):
-    'condition_columns : condition_columns COMA expresion'
-
-def p_aux_condition_columns(t):
-    'condition_columns : expresion'
-
-def p_expresion(t):
-    'expresion : '
+    '''alias : ID'''
+    global num_nodo
+    t[0] = listas_IDS(t[1],t.lineno,t.lexpos,num_nodo)
+    num_nodo += 2
 
 def p_key_table(t):
     '''key_table : PRIMARY KEY list_key
 	            | FOREIGN KEY PAR_ABRE list_id PAR_CIERRA REFERENCES ID PAR_ABRE list_id PAR_CIERRA'''
 
+    global num_nodo
+    if t[1].lower() == 'primary':
+
+        t[0] = P_Key(t[3], t.lineno, t.lexpos, num_nodo)
+        num_nodo += 4
+
+    elif t[1].lower() == 'foreign':
+        t[0] = F_key(t[4],t[7],t[9],t.lineno,t.lexpos,num_nodo)
+        num_nodo += 10
+
+
 def p_list_key(t):
     '''list_key : PAR_ABRE list_id PAR_CIERRA
 	           | '''
+    try:
+        t[0] = t[2]
+    except:
+        t[0] = None
 
 def p_alter_op(t):
     '''alter_op : ADD op_add
 	            | ALTER COLUMN ID alter_col_op
-	            | DROP CONSTRAINT ID'''
+	            | DROP CONSTRAINT ID
+	            | DROP COLUMN ID'''
+
 
 def p_op_add(t):
     '''op_add : CHECK PAR_ABRE ID DIFERENTE CADENA PAR_CIERRA
@@ -445,34 +629,81 @@ def p_op_add(t):
 
 def p_alter_col_op(t):
     '''alter_col_op : SET NOT NULL
-                  | TYPE type_column'''
+                    | TYPE type_column'''
 
 def p_inherits_tbl(t):
     '''inherits_statement : INHERITS PAR_ABRE ID PAR_CIERRA
                | '''
 
+    global num_nodo
+    try:
+
+        t[0] = inherits(t[3],t.lineno,t.lexpos,num_nodo)
+        num_nodo += 5
+
+    except:
+        t[0] = t[1]
+
 def p_list_val(t):
-    '''list_val : list_val COMA op_val
-               | op_val'''
+    '''list_val : list_val COMA op_val'''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_aux_list_val(t):
+    '''list_val : op_val'''
+    t[0] = [t[1]]
 
 def p_op_val(t):
     '''op_val : ID
              | CADENA
-             | DECIMAL'''
+             | DECIMAL
+             | ENTERO'''
+    t[0] = t[1]
 
 def p_where(t):
     '''where : WHERE ID IGUAL op_val
             | '''
+    try:
 
+        global num_nodo
+
+        if t[1].lower() == 'where':
+
+            t[0] = where_up_de(t[2],t[4],t.lineno,t.lexpos,num_nodo)
+            num_nodo += 5
+
+
+    except:
+        t[0] = None
 
 def p_seleccionar(t):
-    '''seleccionar  : SELECT distinto  select_list FROM table_expression list_fin_select
-                      | SELECT GREATEST expressiones
-                      | SELECT LEAST expressiones'''
+    '''seleccionar  : SELECT distinto  select_list FROM table_expression list_fin_select'''
+    print('Si jala select normal1')
+    global num_nodo
+
+    try:
+        print('Si jala select normal')
+        t[0] = select_normal(t[2],t[3],t[6],t.lineno,t.lexpos,num_nodo)
+        num_nodo+=6
+    except:
+        print('No jala select normal')
+
+def p_aux_seleccionar(t):
+    '''seleccionar  : SELECT GREATEST expressiones
+                    | SELECT LEAST expressiones'''
+
+    global num_nodo
+    t[0] = Query_Select(t[2], t.lineno,t.lexpos, num_nodo)
+    num_nodo+=4
 
 def p_list_fin_select(t):
-    '''list_fin_select : list_fin_select fin_select
-                         | fin_select'''
+    '''list_fin_select : list_fin_select fin_select'''
+    t[1].append(t[2])
+    t[0]=t[1]
+
+def p_aux_list_fin_select(t):
+    '''list_fin_select : fin_select'''
+    t[0]=[t[1]]
 
 def p_fin_select(t):
     '''fin_select   : group_by  
@@ -481,53 +712,107 @@ def p_fin_select(t):
 	                | group_having
 	                | limite
                 	| '''
+    try:
+        t[0]=t[1]
+    except:
+        t[0]=None
 
 def p_expressiones(t):
-    '''expressiones : list_expression
-                      | PAR_ABRE list_expression PAR_CIERRA'''
+    '''expressiones : PAR_ABRE list_expression PAR_CIERRA'''
+    t[0]=t[2]
+
+def p_aux_expressiones(t):
+    '''expressiones : list_expression'''
+    t[0]=t[1]
 
 def p_distinto(t):
     '''distinto : DISTINCT
 	              | '''
+    try:
+        t[0]=t[1]
+    except:
+        t[0]=None
 
 def p_select_list(t):
     '''select_list : ASTERISCO
 	                 | expressiones '''
+    t[0]=t[1]
 
-def p_table_expression(p):
+def p_table_expression(t):
     '''table_expression : expressiones'''
+    t[0]=t[1]
 
-def p_donde(p):
+def p_donde(t):
     '''donde : WHERE expressiones'''
+    global num_nodo
+    try:
+        t[0]=where(None,t.lineno,t.lexpos, num_nodo)
+        num_nodo+=3
+    except:
+        print('No jala la produccion de donde')
 
-def p_group_by(p):
+def p_group_by(t):
     '''group_by : GROUP BY expressiones '''
+    global num_nodo
+    try:
+        t[0] = group_by(None,t.lineno,t.lexpos, num_nodo)
+        num_nodo+=3
+    except:
+        print('No jala la gramatica del group by')
 
-def p_order_by(p):
+def p_order_by(t):
     '''order_by : ORDER BY expressiones asc_desc nulls_f_l'''
+    global num_nodo
+    try:
+        t[0] = order_by(None,t[4],t[5],t.lineno,t.lexpos, num_nodo)
+        num_nodo+=6
+    except:
+        print('No jala la gramatica del order by')
 
-def p_group_having(p):
+def p_group_having(t):
     '''group_having : HAVING expressiones'''
+    global num_nodo
+    try:
+        t[0] = group_having(None,t.lineno,t.lexpos, num_nodo)
+        num_nodo+=3
+    except:
+        print('No jala la gramatica del group having')
 
-def p_asc_desc(p):
+def p_asc_desc(t):
     ''' asc_desc  : ASC
 	              | DESC'''
+    t[0]=t[1]
 
-def p_nulls_f_l(p):
+def p_nulls_f_l(t):
     '''nulls_f_l : NULLS LAST
 	             | NULLS FIRST
 	             | '''
+    try:
+        t[0] = t[2]
+    except:
+        t[0] = None
 
-def p_limite(p):
+def p_limite(t):
     '''limite   : LIMIT ENTERO
 	            | LIMIT ALL
 	            | OFFSET ENTERO'''
+    global num_nodo
+    try:
+        t[0]=limite(t[1],t[2],t.lineno,t.lexpos, num_nodo)
+        num_nodo+=3
+    except:
+        print('No funciona limite en la gramatica')
 
-def p_list_expression(p):
-    '''list_expression  : list_expression COMA expression
-                        | expression'''
+def p_list_expression(t):
+    '''list_expression  : list_expression COMA expression'''
+    t[1].append(t[3])
+    t[0]=t[1]
 
-def p_expression(p):
+def p_aux_list_expression(t):
+    '''list_expression  : expression'''
+    t[0]=[t[1]]
+
+def p_expression(t):
     '''expression : expression MAYOR expression
             | expression MENOR expression
             | expression MAYOR_IGUAL expression
@@ -545,7 +830,7 @@ def p_expression(p):
             | expression NOT BETWEEN SYMMETRIC expression AND expression
             | expression IS DISTINCT FROM expression
             | expression IS NOT DISTINCT FROM expression
-            | expression PUNTO expression
+            | ID PUNTO ID
             | expression IS NULL
             | expression IS NOT NULL
             | expression ISNULL
@@ -561,21 +846,63 @@ def p_expression(p):
             | COUNT PAR_ABRE expression PAR_CIERRA
             | AVG PAR_ABRE expression PAR_CIERRA
             | ID
-            | CADENA
-            | DECIMAL_NUM
-            | ENTERO
             | ASTERISCO
             | seleccionar'''
+
+def p_expression_entero(t):
+    '''expression : ENTERO'''
+    t[0]=t[1]
+
+    n_entero = t[1]
+    if n_entero in range(-32768 , 32768):
+        print("es smallint")
+    elif n_entero in range(-2147483648 , 2147483647):
+        print("es integer")
+    elif n_entero in range(-9223372036854775808 , 9223372036854775807):
+        print("es bigint")
+
+def p_expression_decimal(t):
+    '''expression : DECIMAL_NUM'''
+    t[0]=t[1]
+
+    texto_decimal = str(t[1])
+    patron_real = re.compile(r'-?\d+\.\d\d\d\d\d\d+')
+    m_real = patron_real.match(texto_decimal)
+    patron_presicion = re.compile(r'-?\d+\.\d\d\d\d\d\d\d\d\d\d\d\d\d\d\d+')
+    m_presicion = patron_presicion.match(texto_decimal)
+
+    n_decimal = t[1]
+    n_decimal = int(n_decimal)
+    if m_presicion != None:
+        print("Double_Precision")
+    elif m_real != None:
+        print("Real")
+    elif n_decimal in range(-131072 , 131073):
+        print("Decimal")
+    elif n_decimal in range(-92233720368547758 , 92233720368547759):
+        print("Money")
+    
+def p_expression_cadena(t):
+    '''expression : CADENA'''
+    t[0]=t[1]
+    
+    n_tiempo = str(t[1])
+    patron_tiempo = re.compile(r'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d')
+    m_tiempo = patron_tiempo.match(n_tiempo)
+
+    if m_tiempo != None:
+        print("Fecha")
+    else:
+        print("Texto")
 
 def p_error(t):
     errores.append(nodo_error(t.lexer.lineno, t.lexer.lexpos, "Error sintáctico: '%s'" % t.value, 'Sintáctico'))
     while True:
         tok = parser.token()
-        if not tok or tok.type == 'PTCOMA': 
+        if not tok or tok.type == 'PUNTOCOMA':
+            print("Se recupero con ;")
             break
-    tok = parser.token()
-    parser.errok()
-    return tok 
+    parser.restart()
     
 import ply.yacc as yacc
 parser = yacc.yacc()

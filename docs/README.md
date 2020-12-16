@@ -83,135 +83,207 @@ Cada atributo será debilmente tipado, a efectos de no verificar tipo en este pu
 
 - Se sugiere manejar los archivos de manera binaria para no exponer la información. 
 
-
 #### Funciones
 
-A continuación se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas.
+A continuación se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas. 
 
-##### Respecto de las funciones de las bases de datos están: 
+- Queda a discreción del equipo manejar o hacer conversiones de tipos de datos. 
+- El nombre de las bases de datos y de las tablas deben cumplir el formato de una identificador.
+
+##### Respecto de las funciones CRUD de las bases de datos están: 
 
 ```
 def createDatabase(database: str) -> int:
 ```
-Crea una base de datos.  
+Crea una base de datos.  (CREATE)  
 Parámetro database: es el nombre de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos existente  
 
 ```
 def showDatabases() -> list:
 ```
-Devuelve una lista de los nombres de las bases de datos  
-Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].  
+Devuelve una lista de los nombres de las bases de datos. (READ)  
+Valor de retorno: lista de strings con los nombres de las bases de datos, si ocurrió un error o no hay bases de datos devuelve una lista vacía [].  
 
 ```
 def alterDatabase(databaseOld, databaseNew) -> int:
 ```
-Renombra la base de datos databaseOld por databaseNew.  
+Renombra la base de datos databaseOld por databaseNew.  (UPDATE)  
 Parámetro databaseOld: es el nombre actual de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro databaseNew: es el nuevo nombre que tendrá de la base de datos databaseOld, debe cumplir con las reglas de identificadores de SQL.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 databaseOld no existente, 3 databaseNew existente.  
 
 ```
-def dropDatabase(database: str) -> int:
+def dropDatabase(database: str) -> int: 
 ```
-Elimina por completo la base de datos indicada en database.  
+Elimina por completo la base de datos indicada en database.  (DELETE)  
 Parámetro database: es el nombre de la base de datos que se desea eliminar, debe cumplir con las reglas de identificadores de SQL.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente.  
 
-##### Respecto de las funciones de las tablas están:
+
+##### Respecto de las funciones CRUD de las tablas están:
 
 ```
-def createTable(database: str, table: str, numberColumns) -> int:
+def createTable(database: str, table: str, numberColumns: int) -> int:
 ```
-Crea una tabla en una base de datos especificada recibiendo una lista de índices referentes a la llave primaria y llave foránea.  
+Crea una tabla en una base de datos especificada recibiendo una lista de índices referentes a la llave primaria y llave foránea.  (CREATE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla que se desea crear.  
-Parámetro numberColumns: es el número de columnas que tendrá cada registro de la tabla.
+Parámetro numberColumns: es el número de columnas que tendrá cada registro de la tabla.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos inexistente, 3 tabla existente.  
-
-```
-def definePK(database: str, table str, columns: list) -> int:
-```
-Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas, esto para anticipar el índice de la estructura de la tabla cuando se inserten registros.
-Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro table: es el nombre de la tabla a utilizar.  
-Parámetro columns: es el listado de números de columnas que formarán parte de la llave primaria. Si ya existía una definición previa entonces la define de nuevo. Si ya existían registros se calcula de nuevo la estructura de índices.
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columnas fuera de limites.  
-Si no se define al menos una llave primaria, cuando ocurre el primer insert se debe utilizar una llave primaria escondida (numérica).
-
-```
-def defineFK(database: str, table str, references: dict) -> int:
-```
-Asocia la integridad referencial entre llaves foráneas y llaves primarias, para efectos de la fase 1 se ignora esta petición. Debido a que será parte de la fase 2 en la construcción de índices secundarios.  
 
 ```
 def showTables(database: str) -> list:
 ```
-Devuelve una lista de los nombres de las tablas de una bases de datos.  
+Devuelve una lista de los nombres de las tablas de una bases de datos.  (READ)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Valor de retorno: si existen la base de datos y las tablas devuelve una lista de nombres de tablas, si existe la base de datos pero no existen tablas devuelve una lista vacía, y si no existe la base de datos devuelve None.  
 
 ```
-def alterTable(database: str, tableOld: str, tableNew: str) -> int:
+def extractTable(database: str, table: str) -> list:
 ```
-Renombra el nombre de la tabla de una base de datos especificada.  
-Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro tableOld: es el nombre de la tabla a renombrar.  
-Parámetro tableNew: es el nuevo nombre con que renombrará la tableOld.
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 tableOld no existente, 4 tableNew existente.  
-
-```
-def dropTable(database: str, table str) -> int:
-```
-Elimina por completo una tabla de una base de datos especificada.  
-Parámetro database: es el nombre de la base de datos a utilizar.
-Parámetro table: es el nombre de la tabla a eliminar
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
-
-```
-def alterAddColumn(database: str, table str) -> int:
-```
-Agrega una columna al final de cada registro de la tabla y base de datos especificada.  
-Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro table: es el nombre de la tabla a modificar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
-
-```
-def alterDropColumn(database: str, table str, columnNumber: int) -> int:
-```
-Eliminar una n-ésima columna de cada registro de la tabla.
-Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro table: es el nombre de la tabla a modificar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columna fuera de limites.  
-
-```
-def extractTable(database: str, table str) -> list:
-```
-Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla.
+Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla.  (READ)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
 Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
 
 ```
-def extractRangeTable(database: str, table str, lower: Any, upper: Any) -> list:
+def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
 ```
-Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabala.  
+Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabala.  (READ)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro table: es el nombre de la tabla a utilizar.
-Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la tabla.  
-Parámetro upper: es el limite superior (inclusive) del rango a extraer de la tabla.  
-Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
-Ver el submódulo Any del paquete typing.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro columnNumber: es el número de índice de columna a restringir o verificar con los valores upper y lower.
+Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la columna indicada de la tabla.  
+Parámetro upper: es el limite superior (inclusive) del rango a extraer de la columna indicada de la tabla.  
+Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros(lista), si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla o cualquier error devuelve None.  
+Consideraciones:
+- Para la comparación de lower y upper se puede hacer cast a str cuando las llaves sean compuestas o en general para reducir complejidad.
+- Ver el submódulo Any del paquete typing.  
 
-Respecto de las funciones de las tuplas están:
-- insert(database, table, columns): inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla y columns es una lista de campos a insertar. Devuelve un True si no hubo problema, y un False si no se logró insertar.
-- update(database, table, id, columnNumber, value): actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualizó correctamente y False si no se logró actualizar.
-- deleteTable(database, tableName, id): elimina un nodo o elemento de página indicado de una tabla y base de datos especificada.
-- truncate(database, tableName): vacía la tabla de todos los registros.
-- extractRow(database, table, id): extrae y devuelve una tupla especificada 
+```
+def alterAddPK(database: str, table: str, columns: list) -> int:
+```
+Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas, esto para anticipar el índice de la estructura de la tabla cuando se inserten registros. (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro columns: es el listado de números de columnas que formarán parte de la llave primaria. 
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria existente, 5 columnas fuera de limites.  
 
-Respecto de la función de carga desde un archivo CSV:
-- loadCSV(filecsv, database, table, [modo]): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea con el modo especificado.
+Considerar:
+- Si no se define al menos una llave primaria, cuando ocurre el primer insert se debe utilizar una llave primaria escondida (numérica).  
+- Si ya existían datos sin llave primaria explícita se recalcula el índice de la estructura de índices con la actual llave primaria.  
+- Si la llave primaria es compuesta, se sugiere concatener en cualqueir estilo las columnas, para manternas intactas (sería como llave primaria escondida).
+- El error 42P16 de PostgreSQL invalid_table_definition, entre algunas causas no permite definir múltiples llaves primarias (nótese de la diferencia de una llave primaria compuesta). Si ya existe una llave primaria y se desea agregar otro campo, entonces se debe eliminar la llave actual recalculado el índice cuando sea modificado, si no hay modificación se queda con el llave anterior.
+- El error 23505 de PostgreSQL unique_violation, cuando se ejecuta esta función se debe recalcular el índice, si hay un valor duplicado en una parte de la llave primaria debe dar error y dejar el índice como estaba.
+
+```
+def alterDropPK(database: str, table: str) -> int:
+```
+Elimina la llave primaria actual en la información de la tabla, manteniendo el índice actual de la estructura del árbol hasta que se invoque de nuevo el alterAddPK().  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 pk no existente.  
+
+```
+def alterAddFK(database: str, table: str, references: dict) -> int:
+```
+Asocia la integridad referencial entre llaves foráneas y llaves primarias, para efectos de la fase 1 se ignora esta petición. Debido a que será parte de la fase 2 en la construcción de índices secundarios.  (UPDATE PENDIENTE)  
+
+```
+def alterAddIndex(database: str, table: str, references: dict) -> int:
+```
+Asocia un índice, para efectos de la fase 1 se ignora esta petición. Debido a que será parte de la fase 2 en la construcción de índices secundarios.  (UPDATE PENDIENTE)  
+
+```
+def alterTable(database: str, tableOld: str, tableNew: str) -> int:
+```
+Renombra el nombre de la tabla de una base de datos especificada.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro tableOld: es el nombre de la tabla a renombrar.  
+Parámetro tableNew: es el nuevo nombre con que renombrará la tableOld.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 tableOld no existente, 4 tableNew existente.  
+
+```
+def alterAddColumn(database: str, table: str, default: any) -> int:
+```
+Agrega una columna al final de cada registro de la tabla y base de datos especificada.  (UPDATE) 
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a modificar.  
+Parámetro default: es el valor que se establecerá en al nueva columna para los registros existentes.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
+
+```
+def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
+```
+Eliminar una n-ésima columna de cada registro de la tabla excepto si son llaves primarias.  (DELETE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a modificar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave no puede elimnarse o tabla quedarse sin columnas, 5 columna fuera de limites.  
+
+```
+def dropTable(database: str, table: str) -> int: 
+```
+Elimina por completo una tabla de una base de datos especificada.  (DELETE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a eliminar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
+
+
+##### Respecto de las funciones CRUD de las tuplas están:
+
+```
+def insert(database: str, table: str, register: list) -> int:
+```
+Inserta un registro en la estructura de datos asociada a la tabla y la base de datos.  (CREATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro register: es una lista de elementos que representan un registro.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primari  a duplicada, 5 columnas fuera de limites.  
+
+```
+def loadCSV(file: str, database: str, table: str) -> list:
+```
+Carga un archivo CSV de una ruta especificada indicando la base de datos y tabla donde será almacenado. La base de datos y la tabla deben existir, y coincidir con el número de columnas. Si hay llaves primarias duplicadas se ignoran. No se utilizan títulos de columnas y la separación es por comas.  (CREATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno, una lista con el resultado de insertar cada línea del CSV: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primari  a duplicada, 5 columnas fuera de limites.  
+
+```
+def extractRow(database: str, table: str, columns: list) -> list:
+```
+Extrae y devuelve un registro especificado por su llave primaria.  (READ)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámeto columns: es la llave primaria, si es simple [llave], si es compuesta [llaveatr1, llaveatr2...].  (si no hay pk se debe enviar la hiddenPK)  
+Valor de retorno: lista con los valores del registro, si ocurrió un error o no hay registro que mostrar devuelve una lista vacía [].  
+
+```
+def update(database: str, table: str, register: dict, columns: list) -> int:
+``` 
+Inserta un registro en la estructura de datos asociada a la tabla y la base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro register: es una lista de elementos llave:valor que representa los elementos a actualizar del registro. La llave el número de coluna y el valor el contenido del campo.  
+Parámeto columns: es la llave primaria, si es simple [llave], si es compuesta [llaveatr1, llaveatr2...].  (si no hay pk se debe enviar la hiddenPK)
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria no existe.
+
+```
+def delete(database: str, table: str, columns: list) -> int:
+```
+Elimina un registro de una tabla y base de datos especificados por la llave primaria.  (DELETE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámeto columns: es la llave primaria, si es simple [llave], si es compuesta [llaveatr1, llaveatr2...].  (si no hay pk se debe enviar la hiddenPK)  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria no existe.  
+
+```
+def truncate(database: str, table: str) -> int:
+```
+Elimina todos los registros de una tabla y base de datos.  (DELETE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
 
 ## Administrador de la base de datos
 
@@ -232,7 +304,11 @@ Además, si alguna opción no es cubierta por las funciones del administrador de
 
 ## SQL Parser
 
+### Descripción
+
 Este componente proporciona al servidor una función encargada de interpretar sentencias del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
+
+### Componentes
 
 Está compuesto por tres sub componentes:
 - SQL Parser: es el intérprete de sentencias de SQL, que tendra proporcionará una función para invocar al parser, al recibir una consulta el parser luego del proceso interno y de la planificación de la consulta debe invocar las diferentes funciones proporcionadas por el componente de administrador de almacenamiento.
@@ -240,6 +316,8 @@ Está compuesto por tres sub componentes:
 - Type Checker: es un sub componente que ayudará al parser a la comprobación de tipos. Al crear un objeto cualquiera se debe crear una estructura que almacenará los tipos de datos y cualquier información necesaria para este fin.
 
 - Query Tool: es un sub componente que consiste en una ventana gráfica similar al Query Tool de pgadmin de PostgreSQL, para ingresar consultas y mostrar los resultados, incluyendo el resalto de la sintaxis. La ejecución se realizará de todo el contenido del área de texto. 
+
+### Consideraciones
 
 En general, el intérprete debe ser capaz de:
 
@@ -251,7 +329,13 @@ En general, el intérprete debe ser capaz de:
 
 - Devolver a detalle información de la consulta al servidor, por ejemplo, si la consultas fue ejecutada correctamente o no, si hubo un error de tipos, o cualquier error que normalmente devuelve cualquier parser de SQL.
 
+### Análisis de gramáticas
+
 Cada equipo debe escribir dos gramáticas: una para un analizador ascendente; y otra, para un analizador descendente. Sin llegar a la definición dirigida por la sintaxis. Debe hacerse un análisis para saber qué gramática es más eficiente (tiempo de respuesta y otros factores) en cuanto a la lectura de los querys (sin interpretar nada). Luego concluir y seleccionar la gramática más adecuada para continuar con la definición dirigida por la sintaxis.
+
+### Códigos de error
+
+Cuando se utilice el paquete del parser de SQL y para manterner una sola manera de retornar errores cuando estos ocurran, se determinó utilizar los [Códigos de error de PostgreSQL](https://www.postgresql.org/docs/13/errcodes-appendix.html).
 
 ## Reportes y entrega
 

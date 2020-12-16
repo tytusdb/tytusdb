@@ -13,6 +13,8 @@ class Asinh(Instruccion):
         print(math.asin(self.valor))
         return math.asin(self.valor)
 
+'''
 instruccion = Asinh(1,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

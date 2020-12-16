@@ -10,7 +10,8 @@ class Encode(Instruccion):
         print("ENCODE")
         print(self.valor.encode('base64','strict'))
         return self.valor.encode('base64','strict')
-
+'''
 instruccion = Encode("hola mundo",None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''

@@ -13,6 +13,9 @@ class Floor(Instruccion):
         print(math.floor(self.valor))
         return math.floor(self.valor)
 
+
+'''
 instruccion = Floor(5.0,None, 1,2)
 
 instruccion.ejecutar(None,None)
+'''
