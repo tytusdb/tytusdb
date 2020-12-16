@@ -1,11 +1,11 @@
 # Gramatica TytusDB
 ## Gramatica LL
 
-<h4>&ltinit&gt ::= &ltinstrucciones&gt</h4><br>
+<p>&ltinit&gt ::= &ltinstrucciones&gt</p><br>
 
-<h4>&ltintrucciones &gt ::= &ltintrucciones&gt &ltinstruccion&gt</h4>
-<h4 style="text-indent: 8em;">
- | &ltinstruccion&gt <br></h4><br>
+<p>&ltintrucciones &gt ::= &ltintrucciones&gt &ltinstruccion&gt</p>
+<p style="text-indent: 8em;">
+ | &ltinstruccion&gt </p><br>
 
 <h4>&ltinstruccion&gt ::= &ltcrear_instr&gt</h4>
 <h4 style="text-indent: 8em;">
