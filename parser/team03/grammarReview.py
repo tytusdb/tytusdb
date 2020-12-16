@@ -5,7 +5,7 @@ from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
 from treeGraph import *
 
-start = 'statements'
+start = 'init'
 
 precedence = (
     
@@ -24,10 +24,24 @@ precedence = (
     
 )
 
+def p_init(t):
+    ''' init : statements'''
+    t[0] = t[1]
+
 def p_statements(t):
-    '''statements : relExpression
+    ''' statements  :   statements statement    '''
+    t[1].append(t[2])
+    t[0] = t[1]
+
+def p_statements2(t):
+    ''' statements  :   statement '''
+    t[0] = [t[1]]
+
+def p_statement(t):
+    '''statement : relExpression PUNTOCOMA
                     '''    
     t[0] = t[1]
+
 ########## Definition of opttional productions, who could reduce to 'empty' (epsilon) ################
 #def p_not_opt(t):
 #    '''not_opt : NOT
@@ -394,5 +408,5 @@ parse = yacc.yacc()
 def toParse(input):
     #return parse.parse(input,lexer)
     parse.parse(input)
-    dot.view()
+    #dot.view()
     return parse.parse(input)
