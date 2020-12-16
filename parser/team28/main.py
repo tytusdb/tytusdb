@@ -168,7 +168,7 @@ class GUI:
     def report_errors_ubuntu(self):
         global report_error
         report = open('./team28/dot.txt', 'w')
-        report.write(report_error.get_report())
+        report.write(report_error.get_report(ErrorController().getList()))
         report.close()
         os.system('dot -Tpdf ./team28/dot.txt -o ./team28/error.pdf')
         os.system('xdg-open ./team28/error.pdf')
@@ -176,7 +176,7 @@ class GUI:
     def report_errors_windows(self):
         global report_error
         report = open('dot.txt', 'w')
-        report.write(report_error.get_report())
+        report.write(report_error.get_report(ErrorController().getList()))
         report.close()
         os.system('dot -Tpdf dot.txt -o  error.pdf')
         os.startfile('error.pdf')
