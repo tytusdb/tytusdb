@@ -1,3 +1,4 @@
+from Interprete.CREATE_TABLE.create_table import CreateTable
 from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
@@ -7,6 +8,7 @@ from Interprete.Primitivos.ENTERO import ENTERO
 from Interprete.Primitivos.DECIMAL import DECIMAL
 from Interprete.Primitivos.CADENAS import CADENAS
 from Interprete.Primitivos.BOOLEANO import BOOLEANO
+from Interprete.Tabla_de_simbolos import Columna
 
 reservadas = {
 
@@ -117,6 +119,7 @@ reservadas = {
     'unknown' : 'UNKNOWN',
     'is'    : 'IS',
     'distinct'  : 'DISTINCT',
+    'use' : 'USE',
 
     # FUNCIONES MATEMATICAS
     'abs' : 'ABS',
@@ -435,6 +438,13 @@ def p_ddl(t):
              | create_type
              | alter_database
              | drop_database
+             | use_database
+    '''
+    t[0] = t[1]
+
+def p_use_database(t):
+    '''
+        use_database : USE ID
     '''
     t[0] = t[1]
 
@@ -550,7 +560,7 @@ def p_listavalores(t):
         t[0] = [t[1]]
 
 # --------------------------------------------------------------------------------------
-# ------------------------------------ EXP  --------------------------------------------
+# ------------------------------------ EXPRESSION  --------------------------------------------
 # --------------------------------------------------------------------------------------
 def p_exp_count(t):
     '''
@@ -569,7 +579,6 @@ def p_exp_sum(t):
         exp   : SUM PARIZQ exp PARDER
     '''
     pass
-
 def p_exp_avg(t):
     '''
         exp   : AVG PARIZQ exp PARDER
@@ -672,55 +681,290 @@ def p_exp_log(t):
     '''
     pass
 
-def p_exp_funcion(t):
+def p_exp_mod(t):
     '''
         exp   : MOD PARIZQ exp COMA exp PARDER
-              | PI PARIZQ PARDER
-              | NOW PARIZQ PARDER
-              | POWER PARIZQ exp COMA exp PARDER
-              | RADIANS PARIZQ exp PARDER
-              | ROUND PARIZQ exp PARDER
-              | SIGN PARIZQ exp PARDER
-              | SQRT PARIZQ exp PARDER
-              | WIDTH_BUCKET PARIZQ exp COMA exp COMA exp COMA exp PARDER
-              | TRUNC PARIZQ exp PARDER
-              | RANDOM PARIZQ PARDER
-              | ACOS PARIZQ exp PARDER
-              | ACOSD PARIZQ exp PARDER
-              | ASIN PARIZQ exp PARDER
-              | ASIND PARIZQ exp PARDER
-              | ATAN PARIZQ exp PARDER
-              | ATAND PARIZQ exp PARDER
-              | ATAN2 PARIZQ exp COMA exp PARDER
-              | ATAN2D PARIZQ exp COMA exp PARDER
-              | COS PARIZQ exp PARDER
-              | COSD PARIZQ exp PARDER
-              | COT PARIZQ exp PARDER
-              | COTD PARIZQ exp PARDER
-              | SIN PARIZQ exp PARDER
-              | SIND PARIZQ exp PARDER
-              | TAN PARIZQ exp PARDER
-              | TAND PARIZQ exp PARDER
-              | SINH PARIZQ exp PARDER
-              | COSH PARIZQ exp PARDER
-              | TANH PARIZQ exp PARDER
-              | ASINH PARIZQ exp PARDER
-              | ACOSH PARIZQ exp PARDER
-              | ATANH PARIZQ exp PARDER
-              | LENGTH PARIZQ exp PARDER
-              | SUBSTRING PARIZQ exp COMA exp COMA exp PARDER
-              | TRIM PARIZQ exp PARDER
-              | MD5 PARIZQ exp PARDER
-              | SHA256 PARIZQ exp PARDER
-              | SUBSTR PARIZQ exp COMA exp COMA exp PARDER
-              | GET_BYTE PARIZQ exp COMA exp PARDER
-              | SET_BYTE PARIZQ exp COMA exp COMA exp PARDER
-              | CONVERT PARIZQ exp AS tipo PARDER
-              | ENCODE PARIZQ exp COMA exp PARDER
-              | DECODE PARIZQ exp COMA exp PARDER
+   '''
+    pass
 
+def p_exp_pi(t):
+    '''
+        exp   : PI PARIZQ PARDER
     '''
     pass
+
+def p_exp_now(t):
+    '''
+        exp   : NOW PARIZQ PARDER
+    '''
+    pass
+
+def p_exp_power(t):
+    '''
+        exp   : POWER PARIZQ exp COMA exp PARDER
+    '''
+    pass
+
+def p_exp_radians(t):
+    '''
+        exp   : RADIANS PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_round(t):
+    '''
+        exp   : ROUND PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_sign(t):
+    '''
+        exp   : SIGN PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_sqrt(t):
+    '''
+        exp   : SQRT PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_width(t):
+    '''
+        exp   : WIDTH_BUCKET PARIZQ exp COMA exp COMA exp COMA exp PARDER
+    '''
+    pass
+
+
+def p_exp_trunc(t):
+    '''
+        exp   : TRUNC PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_random(t):
+    '''
+        exp   : RANDOM PARIZQ PARDER
+    '''
+    pass
+
+def p_exp_acos(t):
+    '''
+        exp   : ACOS PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_acosd(t):
+    '''
+        exp   : ACOSD PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_asin(t):
+    '''
+        exp   : ASIN PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_asind(t):
+    '''
+        exp   : ASIND PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_atan(t):
+    '''
+        exp   : ATAN PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_atand(t):
+    '''
+        exp   : ATAND PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_atan2(t):
+    '''
+        exp   : ATAN2 PARIZQ exp COMA exp PARDER
+    '''
+    pass
+
+
+def p_exp_atan2d(t):
+    '''
+        exp   : ATAN2D PARIZQ exp COMA exp PARDER
+    '''
+    pass
+
+
+def p_exp_cos(t):
+    '''
+        exp   : COS PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_cosd(t):
+    '''
+        exp   : COSD PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_cot(t):
+    '''
+        exp   : COT PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_cotd(t):
+    '''
+        exp   : COTD PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_sin(t):
+    '''
+        exp   : SIN PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_sind(t):
+    '''
+        exp   : SIND PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_tan(t):
+    '''
+        exp   : TAN PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_tand(t):
+    '''
+        exp   : TAND PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_sinh(t):
+    '''
+        exp   : SINH PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_cosh(t):
+    '''
+        exp   : COSH PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_tanh(t):
+    '''
+        exp   : TANH PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_asinh(t):
+    '''
+        exp   : ASINH PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_acosh(t):
+    '''
+        exp   : ACOSH PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_atanh(t):
+    '''
+        exp   : ATANH PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_length(t):
+    '''
+        exp   : LENGTH PARIZQ exp PARDER
+    '''
+    pass
+
+def p_exp_substring(t):
+    '''
+        exp   : SUBSTRING PARIZQ exp COMA exp COMA exp PARDER
+    '''
+    pass
+
+
+def p_exp_trim(t):
+    '''
+        exp   : TRIM PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_md5(t):
+    '''
+        exp   : MD5 PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_sha256(t):
+    '''
+        exp   : SHA256 PARIZQ exp PARDER
+    '''
+    pass
+
+
+def p_exp_substr(t):
+    '''
+        exp   : SUBSTR PARIZQ exp COMA exp COMA exp PARDER
+    '''
+    pass
+
+def p_exp_getbyte(t):
+    '''
+        exp   : GET_BYTE PARIZQ exp COMA exp PARDER
+    '''
+    pass
+
+
+def p_exp_setbyte(t):
+    '''
+        exp   : SET_BYTE PARIZQ exp COMA exp COMA exp PARDER
+    '''
+    pass
+
+
+def p_exp_convert(t):
+    '''
+        exp   : CONVERT PARIZQ exp AS tipo PARDER
+    '''
+    pass
+
+
+def p_exp_encode(t):
+    '''
+        exp   : ENCODE PARIZQ exp COMA exp PARDER
+    '''
+    pass
+
+def p_exp_decode(t):
+    '''
+        exp   : DECODE PARIZQ exp COMA exp PARDER
+    '''
+    pass
+
 
 def p_exp_opunary(t):
     '''
@@ -731,6 +975,7 @@ def p_exp_opunary(t):
               | MENOS exp
               | NOT exp
               | IS exp
+              | EXISTS exp
     '''
     if t[1]=='|':
         #ORBB exp
@@ -751,6 +996,9 @@ def p_exp_opunary(t):
         # NOT exp
         pass
     elif t[1] == 'is':
+        # IS exp
+        pass
+    elif t[1].lower() == 'exists':
         # IS exp
         pass
 
@@ -908,6 +1156,12 @@ def p_expSimples(t):
     '''
     t[0] = t[1]
 
+def p_expSimples_ALIAS_MULTI(t):
+    '''
+        expSimple : ID PT MULTI
+    '''
+    t[0] = indexador_auxiliar(t[1], t[1], 6)
+
 def p_expSimples_MULTI(t):
     '''
         expSimple : MULTI
@@ -1036,7 +1290,7 @@ def p_table_create(t):
         pass
     if len(t)==7:
         # CREATE TABLE ID PARIZQ lista_table inherits
-        pass
+        t[0] = CreateTable(t[3], t[5])
     if len(t)==12:
         #CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
         pass
@@ -1106,11 +1360,12 @@ def p_atributo_table(t):
 
     '''
     if len(t)==4:
+        t[0] = Columna(t[1], t[2], t[3])
         #ID  tipocql listaespecificaciones
-        pass
     elif len(t)==3:
+        t[0] = Columna(t[1], t[2], None)
         #ID tipocql
-        pass
+
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- ESPECIFICACIONES--------------------------------------
@@ -1137,7 +1392,7 @@ def p_especificaciones(t):
                          | CONSTRAINT ID
                          | CHECK PARIZQ exp PARDER
                          | UNIQUE PARIZQ listaids PARDER
-                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES listaids
+                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
     '''
     if len(t)==2:
         if t[1].lower()=='unique':
@@ -1176,11 +1431,13 @@ def p_tipocql(t):
     '''
         tipocql : tipo
     '''
+    t[0] = t[1]
 
 def p_tipocql_id(t):
     '''
         tipocql : ID
     '''
+    t[0] = t[1]
 def p_tipo(t):
     '''
          tipo : SMALLINT
@@ -1203,24 +1460,23 @@ def p_tipo(t):
               | CHAR PARIZQ exp PARDER
     '''
     if len(t)==2:#RESERWORD
-        pass
+        t[0] = t[1]
     if len(t)==3:
         #DOUBLE PRECISION
-        pass
+        t[0] = t[1] + " " + t[2]
     if len(t)==6:
         #CHARACTER VARYING PARIZQ exp PARDER
-        pass
+        t[0] = t[1] + t[2]
     if len(t)==5:
         if t[1].lower()=='character':
-            #CHARACTER VARYING PARIZQ exp PARDER
-            pass
+            #CHARACTER PARIZQ exp PARDER
+            t[0] = t[1]
         elif t[1].lower()=='varchar':
             #VARCHAR PARIZQ exp PARDER
-            pass
+            t[0] = t[1]
         elif t[1].lower()=='char':
             #CHAR PARIZQ exp PARDER
-            pass
-        pass
+            t[0] = t[1]
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- INSERT--------------------------------------
@@ -1415,23 +1671,20 @@ def p_create_db(t):
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------CREATEDB EXTRA--------------------------------------
+# ------------------ESTA PARTE SOLO SE DEBE RECONOCER EN LA GRAMATICA------------------
 # -------------------------------------------------------------------------------------
 def p_createdb_extra(t):
     '''
-        createdb_extra : ID OWNER IGUAL ID MODE IGUAL exp
-                       | ID OWNER IGUAL ID
-                       | ID
+        createdb_extra : ID OWNER IGUAL exp MODE IGUAL exp
+                       | ID OWNER IGUAL exp MODE exp
+                       | ID OWNER exp MODE IGUAL exp
+                       | ID OWNER exp MODE exp
+                       | ID OWNER IGUAL exp
+                       | ID MODE IGUAL exp
+                       | ID OWNER exps
+                       | ID MODE exp
     '''
-    if len(t)==8:
-        #ID OWNER IGUAL ID MODE IGUAL exp
-        pass
-    elif len(t)==5:
-        #ID OWNER IGUAL ID
-        pass
-    elif len(t)==2:
-        #ID
-        pass
-
+    t[0] = t[1]
 
 # -------------------------------------------------------------------------------------
 # --------------------------------- DROP TABLE--------------------------------------
