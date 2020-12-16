@@ -7,15 +7,29 @@ mBBDD = avl.AVL()
 
 #Crea una base de datos. (CREATE)
 def createDatabase(database: str) -> int:
-    return -1
+    res = mBBDD.agregar(database)
+    return res #0 operación exitosa, 1 error en la operación, 2 base de datos existente
 
 #Renombra la base de datos databaseOld por databaseNew. (UPDATE)
 def alterDatabase(databaseOld: str, databaseNew) -> int:
-    return -1
+   if databaseOld in mBBDD:
+        if databaseNew not in mBBDD:
+            res = mBBDD.quitar(databaseOld)
+            if res == 0:
+                res = mBBDD.agregar(databaseNew)
+                return res #0 si operación es exitosa
+            else:
+                return 1 #Error en la operación
+        else:
+            return 3 #databaseNew existente            
+    else:
+        return 2 #databaseOld no existente
+		
 
 #Elimina por completo la base de datos indicada en database. (DELETE)
 def dropDatabase(database: str) -> int:
-    return -1
+    res = mBBDD.quitar(database)
+    return res #0 operación exitosa, 1 error en la operación, 2 base de datos no existente
 
 # show databases by constructing a list
 def showDatabases() -> list:

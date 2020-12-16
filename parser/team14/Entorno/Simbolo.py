@@ -7,8 +7,9 @@ class Simbolo:
         self.valor = valor
         self.linea = linea
         self.atributos = []
+        self.baseDatos = ""
     
     def toString(self):
         if self.nombre != None:
-            print(self.tipo, ";", self.nombre, ";", self.valor, ";", self.linea)
+            print(self.tipo, ";", self.nombre, ";", self.valor, ";", self.baseDatos)
         
