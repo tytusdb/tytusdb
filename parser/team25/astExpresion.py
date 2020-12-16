@@ -76,7 +76,6 @@ class ExpresionAritmetica(Expresion):
             elif expizq.tipo == TIPO_DE_DATO.DECIMAL and expder.tipo == TIPO_DE_DATO.DECIMAL:
                 return ExpresionNumero(expizq.val + expder.val, TIPO_DE_DATO.DECIMAL,self.linea)
             else:
-                
                 return 0
         elif self.operador == OPERACION_ARITMETICA.MENOS:
             if expizq.tipo == TIPO_DE_DATO.ENTERO and expder.tipo == TIPO_DE_DATO.ENTERO:
@@ -142,11 +141,6 @@ class ExpresionAritmetica(Expresion):
             else:
                 
                 return 0
-                
-    def valor(self, ts):
-        if self.operador == '+':
-            # count(*) as a; a + 5
-            return self.exp1.valor(ts) + self.exp2.valor(ts)
 
 # Clase de expresión negativa
 
@@ -265,12 +259,32 @@ class ExpresionComparacion(Expresion):
         nodo += self.exp2.dibujar()
 
         return nodo
+    def ejecutar(self, ts):
+        izq = self.exp1.ejecutar(ts)
+        der = self.exp2.ejecutar(ts)
+        if izq.tipo == TIPO_DE_DATO.ENTERO or der.tipo == TIPO_DE_DATO.DECIMAL:
+            if self.operador == OPERACION_RELACIONAL.DESIGUAL:
+                return ExpresionBooleano(izq.val != der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.IGUAL:
+                return ExpresionBooleano(izq.val == der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.MAYOR:
+                return ExpresionBooleano(izq.val > der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+                return ExpresionBooleano(izq.val >= der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.MENOR:
+                return ExpresionBooleano(izq.val < der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.MENORIGUAL:
+                return ExpresionBooleano(izq.val <= der.val, self.linea)
+        else:
+            print ("ERROR SEMÁNTICO")
+            return 0
 
 class ExpresionLogica(Expresion):
-    def __init__(self, exp1, exp2, operador):
+    def __init__(self, exp1, exp2, operador, linea):
         self.exp1 = exp1
         self.exp2 = exp2
         self.operador = operador
+        self.linea  = linea
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -283,6 +297,18 @@ class ExpresionLogica(Expresion):
         nodo += self.exp2.dibujar()
 
         return nodo
+
+    def ejecutar(self, ts):
+        izq = self.exp1.ejecutar(ts)
+        der = self.exp2.ejecutar(ts)
+        if izq.tipo == TIPO_DE_DATO.BOOLEANO and der.tipo == TIPO_DE_DATO.BOOLEANO:
+            if self.operador == OPERACION_LOGICA.AND:
+                return ExpresionBooleano(izq.val and der.val,self.linea)
+            elif self.operador == OPERACION_LOGICA.OR:
+                return ExpresionBooleano(izq.val or der.val, self.linea)
+        else:
+            print("Error semántico")
+            return 0
 
 # Expresion negada
 class ExpresionNegada(Expresion):
@@ -302,9 +328,10 @@ class ExpresionNegada(Expresion):
 
 # Expresión booleana (Valor puro)
 class ExpresionBooleano(Expresion):
-    def __init__(self, val):
+    def __init__(self, val, linea):
         self.val = val
         self.tipo = TIPO_DE_DATO.BOOLEANO
+        self.linea = linea
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -312,6 +339,9 @@ class ExpresionBooleano(Expresion):
         nodo = "\n" + identificador + "[ label =\"" + str(self.val) + "\" ];\n"
 
         return nodo
+    
+    def ejecutar(self, ts):
+        return self
 
 # Expresión Between: Contempla tanto al Between como al Between Symmetric, asi como las versiones negadas
 
