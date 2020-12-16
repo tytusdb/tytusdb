@@ -1,5 +1,6 @@
 import ply.yacc as yacc
 from lexicosql import tokens
+from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
 
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
@@ -7,16 +8,14 @@ from lexicosql import tokens
 
 #---------------- MANEJO DE LA PRECEDENCIA
 precedence = (
-    ('left','IGUAL','DIFERENTE','DIFERENTE2'),
-    ('left','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
+    ('left','AND','OR'),
+    ('left','IGUAL','DIFERENTE','DIFERENTE2','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
+    ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
+    ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
     ('left','MAS','MENOS'),
-    ('left','EXPONENT'),
     ('left','ASTERISCO','DIVISION','MODULO'),
-    ('left','AND'),
-    ('left','OR'),
-    ('nonassoc','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
-    ('nonassoc','IS','ISNULL','NOTNULL'),
-    ('right','UMENOS','UMAS','NOT'),  
+    ('left','EXPONENT'),
+    ('right','UMENOS','UMAS','NOT')
 ) 
 
 def p_init(p):
@@ -36,11 +35,16 @@ def p_instrucciones_instruccion(p):
 
 
 def p_instruccion(p):
-    '''instruccion :  sentenciaUpdate PTCOMA 
-                    | sentenciaDelete PTCOMA
-                    | insert PTCOMA
-                    | definicion PTCOMA'''
+    '''instruccion :  sentenciaUpdate   PTCOMA 
+                    | sentenciaDelete   PTCOMA
+                    | insert            PTCOMA
+                    | definicion        PTCOMA
+                    | alter_table       PTCOMA
+                    | combine_querys    PTCOMA
+                    | USE ID            PTCOMA
+                    '''     
     p[0] = p[1]
+
 # __________________________________________definicion
 
 # <DEFINICION> ::= 'create' 'type' 'as' 'enum' '(' <LISTA_ENUM> ')'
@@ -95,38 +99,44 @@ def p_definicion_10(p):
     'definicion : CREATE TABLE ID PABRE columnas PCIERRA'
 
 def p_alter_table(p):
-    '''alter_table: ALTER TABLE ID alter_options
-                 | ALTER TABLE ID alter_varchar_lista'''
+    '''alter_table : ALTER TABLE ID alter_options
+                   | ALTER TABLE ID alter_varchar_lista'''
 
 def p_alter_options(p):
     '''alter_options : ADD COLUMN ID tipo
                     | DROP COLUMN ID
-                    | ADD CHECK PABRE ID DIFERENTE CADENA2 PCIERRA
+                    | ADD CHECK PABRE ID DIFERENTE CADENA PCIERRA
                     | ADD CONSTRAINT ID UNIQUE PABRE ID PCIERRA
                     | ADD FOREIGN KEY PABRE lista_ids PCIERRA REFERENCES lista_ids
                     | ALTER COLUMN ID SET NOT NULL
                     | DROP CONSTRAINT ID'''
 
 def p_alter_varchar_lista(p):
-    '''alter_varchar_lista : alter_varchar
-                        |  alterVarcharLista COMA alter_varchar'''
+    '''alter_varchar_lista :  alter_varchar
+                           |  alter_varchar_lista COMA alter_varchar'''
 
 def p_alter_varchar(p):
     '''alter_varchar : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA '''
 
+# <TABLA> ::=  'id' 
+#          |   'id' 'as' 'id'
+#          |   <SUBQUERY>
+#          |   <SUBQUERY> 'as' 'id'
 def p_tablas(p):
     '''tabla : ID
-            |  subquery'''
+            |  ID AS ID
+            |  subquery
+            |  subquery AS ID '''
 
 def p_filtro(p):
     '''filtro : where group_by having
               | where group_by
-              | where'''
+              | where '''
 
 def p_join(p):
-    '''join : ID join_type JOIN ID ON expresion
-            | ID join_type JOIN ID USING PABRE JOIN lista_ids PCIERRA
-            | ID NATURAL join_type JOIN ID'''
+    '''join :  join_type JOIN ID ON expresion
+            |  join_type JOIN ID USING PABRE JOIN lista_ids PCIERRA
+            |  NATURAL join_type JOIN ID'''
 
 def p_join_type(p):
     '''join_type : INNER
@@ -150,7 +160,7 @@ def p_combine_querys3(p):
     'combine_querys : combine_querys INTERSECT ALL select'
 
 def p_combine_querys4(p):
-    'combine_querys : combine_querys UNION select'
+    'combine_querys : combine_querys INTERSECT select'
 
 def p_combine_querys5(p):
     'combine_querys : combine_querys EXCEPT ALL select'
@@ -160,6 +170,12 @@ def p_combine_querys6(p):
 
 def p_combine_querys7(p):
     'combine_querys : select'
+#_____________________________________________________________ SELECT
+def p_select0(p):
+    'select : SELECT expresion'
+    p[0] = p[2].ejecutar(0)
+    print(p[0].val)
+    print(p[0])
 
 def p_select1(p):
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -210,22 +226,22 @@ def p_select16(p):
     'select : SELECT select_list FROM lista_tablas offset'
 
 def p_select17(p):
-    'select : SELECT * FROM lista_tablas filtro join'
+    'select : SELECT ASTERISCO FROM lista_tablas filtro join'
 
 def p_select18(p):
-    'select : SELECT * FROM lista_tablas filtro'
+    'select : SELECT ASTERISCO FROM lista_tablas filtro'
 
 def p_select19(p):
-    'select : SELECT DISTINCT ID FROM lista_tablas filtro join'
+    'select : SELECT DISTINCT opcionDistinct FROM lista_tablas filtro join'
 
 def p_select20(p):
-    'select : SELECT DISTINCT ID FROM lista_tablas filtro'
+    'select : SELECT DISTINCT opcionDistinct FROM lista_tablas filtro'
 
 def p_select21(p):
-    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas filtro join'
+    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA FROM  lista_tablas filtro join'
 
 def p_select22(p):
-    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas filtro'
+    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA FROM  lista_tablas filtro'
 
 def p_select23(p):
     'select : SELECT select_list FROM lista_tablas join'
@@ -234,34 +250,47 @@ def p_select24(p):
     'select : SELECT select_list FROM lista_tablas'
 
 def p_select25(p):
-    'select : SELECT * FROM lista_tablas join'
+    'select : SELECT ASTERISCO FROM lista_tablas join'
 
 def p_select26(p):
-    'select : SELECT * FROM lista_tablas'
+    'select : SELECT ASTERISCO FROM lista_tablas'
+    print('select ok')
 
 def p_select27(p):
-    'select : SELECT DISTINCT ID FROM lista_tablas join'
+    'select : SELECT DISTINCT opcionDistinct FROM lista_tablas join'
 
 def p_select28(p):
-    'select : SELECT DISTINCT ID FROM lista_tablas'
+    'select : SELECT DISTINCT opcionDistinct FROM lista_tablas'
+    print('select con un DISTINC ok')
 
 def p_select29(p):
-    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas join'
+    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA FROM lista_tablas join'
 
 def p_select30(p):
-    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA lista_tablas'
+    'select : SELECT SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA FROM  lista_tablas'
 
 def p_select31(p):
     'select : SELECT funciones AS ID join'
+    print('ok')
 
 def p_select32(p):
     'select : SELECT funciones AS ID'
+    print('ok')
 
 def p_select33(p):
     'select : SELECT funciones join'
+    print('ok')
 
 def p_select34(p):
     'select : SELECT funciones'
+    print('ok')
+
+#________________________________________ opcionDistinct
+def p_opcionDistinct(p):
+    ''' opcionDistinct : ID
+                       | ASTERISCO '''
+
+#________________________________________ LIMIT 
 
 def p_limits(p):
     'limits : LIMIT limitc'
@@ -297,7 +326,7 @@ def p_funciones7(p):
     'funciones : GET_BYTE PABRE CADENA TYPECAST BYTEA COMA NUMERO PCIERRA'
 
 def p_funciones8(p):
-    'funciones : SET_BYTE PABRE CADEA TYPECAST BYTEA COMA NUMERO COMA NUMERO PCIERRA'
+    'funciones : SET_BYTE PABRE CADENA TYPECAST BYTEA COMA NUMERO COMA NUMERO PCIERRA'
 
 def p_funciones9(p):
     'funciones : CONVERT PABRE CADENA AS DATE PCIERRA'
@@ -468,7 +497,7 @@ def p_funciones64(p):
     'funciones : tipo_numero NUMERAL tipo_numero'
 
 def p_funciones65(p):
-    'funciones : GUION_CURVEADO tipo_numero'
+    'funciones : BITWISE_NOT tipo_numero'
 
 def p_funciones66(p):
     'funciones : tipo_numero CORRIMIENTO_IZQ tipo_numero'
@@ -479,18 +508,24 @@ def p_funciones67(p):
 def p_lista_numeros(p):
     '''lista_numeros : tipo_numero
                      | lista_numeros COMA tipo_numero'''
-
+#___________________________________ <TIPO_NUMERO>                    
+#    <TIPO_NUMERO> ::= 'numero'
+#                  |   'decimal'
 def p_tipo_numero1(p):
     'tipo_numero : NUMERO'
 
 def p_tipo_numero2(p):
     'tipo_numero : DECIMAL_LITERAL'
+    
 
-def p_lista_tablas1(p):
-    'lista_tablas : tabla alias'
+def p_lista_tablas(p):
+    '''
+    lista_tablas : lista_tablas COMA tabla
+                 | tabla
+    '''
 
-def p_lista_tablas2(p):
-    'lista_tablas : tabla'
+
+    
 
 def p_select_list(p):
     '''select_list : select_item
@@ -530,7 +565,8 @@ def p_create_or_replace_2(p):
 # <COMBINACIONES1> ::= 'if' 'not' 'exists' id <COMBINACIONES2>
 #                   | id <COMBINACIONES2>
 #                   | id
-
+def p_combinaciones1_0(p):
+    'combinaciones1 : IF NOT EXISTS ID'
 
 def p_combinaciones1_1(p):
     'combinaciones1 : IF NOT EXISTS ID combinaciones2'
@@ -957,7 +993,7 @@ def p_update(p):
 
 
 def p_sentenciaInsert(p):
-    ''' insert : INSERT INTO ID parametros VALUES parametros'''
+    ''' insert : INSERT INTO ID VALUES PABRE lista_exp PCIERRA'''
     p[0] = p[1]
 # ___________________________________________PARAMETROS
 
@@ -1007,49 +1043,37 @@ def p_asignacion(p):
 
 
 # ______________________________________________EXPRESION_______________________________
-# <EXPRESION> ::= 'not' <EXPRESION>
-#             | '-'   <EXPRESION>
-#             | <EXPRESION> 'and'  <EXPRESION>
-#             | <EXPRESION> 'or'   <EXPRESION>
-#             | <EXPRESION> '='  <EXPRESION>
-#             | <EXPRESION> '<>'  <EXPRESION>
-#             | <EXPRESION> '>='  <EXPRESION>
-#             | <EXPRESION> '<='  <EXPRESION>
-#             | <EXPRESION>  '>'  <EXPRESION>
-#             | <EXPRESION>  '<'  <EXPRESION>
-#             | <EXPRESION>  '+'  <EXPRESION>
-#             | <EXPRESION>  '-'  <EXPRESION>
-#             | <EXPRESION>  '*'  <EXPRESION>
-#             | <EXPRESION>  '/'  <EXPRESION>
-#             | 'cadena'
-#             | 'numero'
-#             | 'decimal'
-#             | 'id' '.' 'id'
-#             | 'id'
-#             | '(' <EXPRESION> ')'
-# ------------------- falta esta parte -------------------------
-#             | 'sum' '(' 'id' ')'
-#             | <TIMESTAMP>
-#             | 'substring' '(' 'id' ',' 'entero' ',' 'entero' ')'
 
 def p_expresiones_unarias(p):
     ''' expresion : MENOS expresion %prec UMENOS 
-                  | MAS expresion %prec UMAS
-                  | NOT expresion 
-                  | expresion IS NULL
-                  | expresion IS NOT NULL
-                  | expresion ISNULL
-                  | expresion NOTNULL
-                  | expresion IS TRUE
-                  | expresion IS NOT TRUE
-                  | expresion IS FALSE
-                  | expresion IS NOT FALSE
-                  | expresion IS UNKNOWN
-                  | expresion IS NOT UNKNOWN
-                  '''
-    print('expresion: '+str(p[1]) + '.'+str(p[3]))  # solo para ver que viene
-    p[0] = p[2]
+                  | MAS expresion %prec UMAS'''
+    if p[1] == '+':
+        p[0] = ExpresionPositiva(p[2], p.slice[1].lineno)
+    elif p[1] == '-':
+        p[0] = ExpresionNegativa(p[2], p.slice[1].lineno)
+    
+def p_expresiones_is_complemento(p):
+    '''
+    expresion    : expresion IS NULL    
+                 | expresion IS NOT NULL
+                 | expresion ISNULL 
+                 | expresion NOTNULL
+                 | expresion IS TRUE
+                 | expresion IS NOT TRUE
+                 | expresion IS FALSE 
+                 | expresion IS NOT FALSE
+                 | expresion IS UNKNOWN
+                 | expresion IS NOT UNKNOWN 
+                 | expresion IS DISTINCT FROM expresion 
+                 | expresion IS NOT DISTINCT FROM expresion '''
+  
 
+def p_expresion_ternaria(p): 
+    '''expresion : expresion BETWEEN  exp_aux AND exp_aux
+                 | expresion BETWEEN SYMMETRIC exp_aux AND exp_aux
+                 | expresion NOTBETWEEN exp_aux AND exp_aux
+                 | expresion NOTBETWEEN SYMMETRIC exp_aux AND exp_aux''' 
+                 
 def p_expreion_funciones(p):
     'expresion : funciones'
     
@@ -1057,44 +1081,26 @@ def p_expreion_entre_parentesis(p):
     'expresion : PABRE expresion  PCIERRA'
     p[0] = p[2]
 
+def p_expresion_primitivo(p):
+    'expresion : CADENA'
 
-def p_expresion_cadena(p):
-    'expresion : CADENA '
-    p[0] = p[1]
+def p_expresion_primitivo1(p):
+    'expresion : NUMERO'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, p.slice[1].lineno)
 
+def p_expresion_primitivo2(p):
+    'expresion : DECIMAL_LITERAL'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, p.slice[1].lineno)
 
 def p_expresion_id(p):
     'expresion : ID'
     p[0] = p[1]
-
-
-def p_expresion_numero(p):
-    'expresion : NUMERO'
-    p[0] = p[1]
-
-
-def p_expresion_decimal(p):
-    'expresion : DECIMAL_LITERAL'
-    p[0] = p[1]
-
-
+    
 def p_expresion_tabla_campo(p):
     'expresion : ID PUNTO ID'
-    print('expresion: '+str(p[1]) + '.'+str(p[3]))  # solo para ver que viene
-    p[0] = p[1]
-
-
-def p_expresion_sum(p):
-    'expresion : SUM PABRE ID PCIERRA'
-
-
+    
 def p_expresion_timestamp(p):
     'expresion : timestamp'
-
-
-def p_expresion_substring(p):
-    'expresion : SUBSTRING PABRE ID COMA NUMERO COMA NUMERO PCIERRA'
-
 
 def p_expresion_con_dos_nodos(p):
     '''expresion : expresion MAS expresion 
@@ -1112,38 +1118,98 @@ def p_expresion_con_dos_nodos(p):
                  | expresion MODULO expresion
                  | expresion OR expresion
                  | expresion AND expresion
-                 | expresion IS DISTINCT FROM expresion
-                 | expresion IS NOT DISTINCT FROM expresion
     '''
-   # print('expresion:'+str(p[1])+str(p[2])+str(p[3])) # solo para ver que viene
-   # if p[2] == '+':  p[0] = p[1]+p[2]
-   # elif p[2] == '-': p[0] = p[1]-p[2]
-   # elif p[2] == '*': p[0] = p[1]*p[2]
-   # elif p[2] == '/': p[0] = p[1]/p[2]
-   # elif p[2] == '>': print('mayor')
-   # elif p[2] == '<': print('menor')
-   # elif p[2] == '>=': print('MAYOR_igual')
-   # elif p[2] == '<=': print('menor_igual')
-   # elif p[2] == '^': print('POTENCIA o CIRCUNFLEJO')
-   # elif p[2] == '%': print('modulo')
-   # elif p[2] == '=': print('igual')
-   # elif p[2] == '<>': print('distino')
-   # elif p[2] == '!=': print('distino2')
+    if p[2] == '+':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MAS, p.slice[2].lineno)
+    elif p[2] == '-':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MENOS, p.slice[2].lineno)
+    elif p[2] == '*':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.POR, p.slice[2].lineno)
+    elif p[2] == '/':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.DIVIDO, p.slice[2].lineno)
+    elif p[2] == '%':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
+    elif p[2] == '^':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
+    elif p[2] == '<':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MENOR, p.slice[2].lineno)
+    elif p[2] == '>':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MAYOR, p.slice[2].lineno)
+    elif p[2] == '<=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MENORIGUAL, p.slice[2].lineno)
+    elif p[2] == '>=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MAYORIGUAL, p.slice[2].lineno)
+    elif p[2] == '=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.IGUAL, p.slice[2].lineno)
+    elif p[2] == '<>':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.DESIGUAL, p.slice[2].lineno)
+    elif p[2] == '!=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.DESIGUAL, p.slice[2].lineno)
+    elif p[2] == 'and':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.AND, p.slice[2].lineno)
+    elif p[2] == 'AND':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.AND, p.slice[2].lineno)
+    elif p[2] == 'or':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.OR, p.slice[2].lineno)
+    elif p[2] == 'OR':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.OR, p.slice[2].lineno)
 
-
-def p_expresion_ternaria(p):
-    '''expresion : expresion BETWEEN expresion AND expresion 
-                 | expresion NOT BETWEEN expresion AND expresion
-                 | expresion BETWEEN SYMMETRIC expresion AND expresion
-                 | expresion NOT BETWEEN SYMMETRIC expresion AND expresion
+#----------------------------------------------------------------------------------------------------- FIN EXPRESION
+#<EXP_AUX>::= '-'  <EXP_AUX>
+#          |    '+'  <EXP_AUX>
+#          | <EXP_AUX>  '+'  <EXP_AUX>
+#          | <EXP_AUX>  '-'  <EXP_AUX>
+#          | <EXP_AUX>  '*'  <EXP_AUX>
+#          | <EXP_AUX>  '/'  <EXP_AUX>
+#          | <EXP_AUX>  '%'  <EXP_AUX>
+#          | <EXP_AUX>  '^'  <EXP_AUX>
+def p_exp_auxp(p):
+    '''exp_aux : exp_aux MAS exp_aux 
+                 | exp_aux MENOS exp_aux
+                 | exp_aux ASTERISCO exp_aux
+                 | exp_aux DIVISION exp_aux 
+                 | exp_aux EXPONENT exp_aux
+                 | exp_aux MODULO exp_aux
     '''
-
-#    <ALIAS> ::= 'as' 'id'
-def p_alias(p):
-        'alias : AS ID'
-#             | 'id'
-def p_alias2(p):
-        'alias : ID'
+    if p[2] == '+':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MAS, p.slice[2].lineno)
+    elif p[2] == '-':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MENOS, p.slice[2].lineno)
+    elif p[2] == '*':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.POR, p.slice[2].lineno)
+    elif p[2] == '/':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.DIVIDO, p.slice[2].lineno)
+    elif p[2] == '%':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
+    elif p[2] == '^':
+        p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
+#          | '(' <EXP_AUX> ')'
+def p_exp_aux_entre_parentesis(p):
+    'exp_aux : PABRE exp_aux  PCIERRA'
+    p[0] = p[2]
+#          | 'cadena'
+def p_exp_aux_cadena(p):
+    'exp_aux :  CADENA'
+#          | 'numero'          
+def p_exp_aux_numero(p):
+    'exp_aux :  NUMERO'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, p.slice[1].lineno)
+#          | 'decimal'
+def p_exp_aux_decimal(p):
+    'exp_aux :  DECIMAL_LITERAL'
+    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, p.slice[1].lineno)
+#          | 'id' '.' 'id'
+def p_exp_aux_tabla(p):
+    'exp_aux :  ID PUNTO ID'
+#          | 'id'
+def p_exp_aux_id(p):
+    'exp_aux :  ID'
+#          | <FUNCIONES>
+def p_exp_aux_funciones(p):
+    'exp_aux :  funciones'
+#          | <TIMESTAMP>
+def p_exp_aux_timestamp(p):
+    'exp_aux :  timestamp'
 
 #<SUBQUERY> ::= '('<SELECT>')'
 def p_subquery(p):
@@ -1152,6 +1218,7 @@ def p_subquery(p):
 #<WHERE> ::= 'where' <EXPRESION>
 def p_where(p):
         'where : WHERE expresion'
+        print('realizando un sentencia con un WHERE')
 
 #<GROUP_BY> ::= <LISTA_IDS>
 def p_groupby(p):
@@ -1204,7 +1271,7 @@ def p_select_item(p):
         'select_item : ID'
 #                  | 'id' '.' 'id'
 def p_select_item1(p):
-        'select_item : ID COMA ID'
+        'select_item : ID PUNTO ID'
 #                  | <COUNT>
 def p_select_item2(p):
         'select_item : count'
@@ -1283,14 +1350,10 @@ def p_lista_exp_2(p):
 
 #<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
 def p_when_case(p):
-        'when_case : WHEN expresion THEN expresion'
+    'when_case : WHEN expresion THEN expresion'
         
-#    <TIPO_NUMERO> ::= 'numero'
-def p_tipo_numero(p):
-        'tipo_numero : NUMERO'
-#                  |   'decimal'
-def p_tipo_numero1(p):
-        'tipo_numero : DECIMAL'
+
+
 
 
 def p_error(p):
@@ -1306,11 +1369,5 @@ def analizarEntrada(entrada):
 
 
 print(analizarEntrada('''
-                      
-CREATE TABLE employees (
-   id varchar(10) PRIMARY KEY NOT NULL,
-   first_name VARCHAR (50),
-   last_name VARCHAR (50)
-);
-
+select 9+8!=8+9 or 8*8 != 64;
                       '''))

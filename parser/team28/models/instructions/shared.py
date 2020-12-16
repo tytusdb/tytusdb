@@ -8,18 +8,6 @@ class Instruction:
         ''' recibe hijos paras el ast grafico '''
         pass
 
-class BinaryOperation(Instruction):
-    '''
-        Una operacion binaria recibe, sus dos operandos y el operador
-    '''
-    def __init__(self, value1, value2, operador) :
-        self.value1 = value1
-        self.value2 = value2
-        self.operador = operador
-    
-    def __repr__(self):
-        return str(vars(self))
-
 
 class Alias(Instruction):
     '''
@@ -95,7 +83,9 @@ class Between(Instruction):
         BETWEEN recibe 2 parametros
         Sintax: BETWEEN value1 AND value2
     '''
-    def __init__(self,  value1, value2) :
+    def __init__(self, opt_not, opt_simmetric,  value1, value2) :
+        self.opt_not = opt_not
+        self.opt_simmetric = opt_simmetric
         self.value1 = value1
         self.value2 = value2
     
@@ -294,6 +284,18 @@ class Round(Instruction):
     def __repr__(self):
         return str(vars(self))
 
+class ObjectReference(Instruction):
+    '''
+        ObjectReference
+    '''
+    def __init__(self, reference_base, reference_table, reference_column, opt_asterisk):
+        self.reference_base = reference_base
+        self.reference_table = reference_table
+        self.reference_colunm = reference_column
+        self.opt_asterisk = opt_asterisk
+
+    def __repr__(self):
+        return str(vars(self))
 
 
 

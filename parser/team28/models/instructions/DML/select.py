@@ -9,9 +9,6 @@ class Select(Instruction):
         self.limit_option = limit_option
 
     def __repr__(self):
-        return self.__str__()
-  
-    def __repr__(self):
         return str(vars(self))
         
 class TypeQuerySelect(Instruction):
@@ -79,3 +76,101 @@ class LimitClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+
+class JoinClause(Instruction):
+    '''
+    JoinClause recibe los parametros de 
+    Tipo de Join, Tabla y Expression
+    '''
+    def __init__(self, type_join, table, arr_expression):
+        self.type_join = type_join
+        self.table = table
+        self.arr_expression = arr_expression
+
+    def __repr__(self):
+        return str(vars(self))
+    
+class ExistsClause(Instruction):
+    '''
+    ExistsClause recibe de parametro
+    un subquery 
+    '''
+    def __init__(self, subquery):
+        self.subquery = subquery
+    
+    def __repr__(self):
+        return str(vars(self))
+
+class NotOption(Instruction):
+    '''
+    NotClause recibe una lista 
+    de instrucciones a ser negadas
+    '''
+    def __init__(self, arr_not):
+        self.arr_not = arr_not
+
+    def __repr__(self):
+        return str(vars(self))
+
+class InClause(Instruction):
+    '''
+    InClause
+    '''
+    def __init__(self, arr_lista):
+        self.arr_lista = arr_lista
+
+    def __repr__(self):
+        return str(vars(self))
+
+class LikeClause(Instruction):
+    '''
+        LikeClause
+    '''
+    def __init__(self, arr_list):
+        self.arr_list = arr_list
+
+    def __repr__(self):
+        return str(vars(self))
+
+class isClause(Instruction):
+    '''
+        IsClause
+    '''
+    def __init__(self, arr_list):
+        self.arr_list = arr_list
+
+    def __repr__(self):
+        return str(vars(self))
+
+class AgreggateFunctions(Instruction):
+    '''
+        AgreggateFunctions
+    '''
+    def __init__(self, type_agg, cont_agg, opt_alias):
+        self.type_agg = type_agg
+        self.cont_agg = cont_agg
+        self.opt_alias = opt_alias
+    def __repr__(self):
+        return str(vars(self))
+
+class Case(Instruction):
+    '''
+        CASE recibe un array con todas las opciones y un else
+    '''
+    def __init__(self, arr_op, c_else): 
+        self.arr_op = arr_op
+        self.c_else = c_else
+
+    def __repr__(self):
+        return str(vars(self))
+
+class CaseOption(Instruction):
+    '''
+        CASE OPTION
+    '''
+    def __init__(self, when_exp, then_exp):
+        self.when_exp = when_exp
+        self.then_exp = then_exp
+
+    def __repr__(self):
+        return str(vars(self))    
