@@ -14,9 +14,6 @@ class TablaHash:
     def getName(self):
         return self.name
 
-    def setName(self, name):
-        self.name = name
-
     def getSize(self):
         return self.Size
 
@@ -31,10 +28,7 @@ class TablaHash:
         self.values = nodo
 
     def alterAddPK(self, indices):
-        if not self.pk:
-            self.pk = indices
-        else:
-            print("No se puede poner otra PK")
+        self.pk = indices
     
     def toASCII(self, cadena):
         result = 0
@@ -102,14 +96,14 @@ class TablaHash:
         nodo_hash = self.values[posicion_hash]
         if nodo_hash is not None:
             if nodo_hash.eliminar(dato):
-                return "dato eliminado"
+                print("dato eliminado")
             elif nodo_hash.eliminar(dato) == 0: 
-                return "dato eliminado"
+                print("dato eliminado")
                 self.values[posicion_hash] = None
             else:
-                return "dato no eliminado"
+                print("dato no eliminado")
         else:
-            return "el dato no existe"
+            print("el dato no existe")
 
     def truncate(self):
         try:
@@ -124,13 +118,13 @@ class TablaHash:
         if nodo:
             respuesta = nodo.modificar(columna,modificacion,posicion_hash)
             if respuesta == 0:
-                return "dato modificado exitosamente"
+                print("dato modificado exitosamente")
             elif respuesta == 4:
-                return "llave no existente"
+                print("llave no existente")
             else:
-                return "error de indice"
+                print("error de indice")
         else:
-            return "Error de llave"
+            print("Error de llave")
 
     def ElementosEn_tbl(self):
         auxiliar = 0 
@@ -152,7 +146,7 @@ class TablaHash:
             for j in lista:
                 self.insert(self.name, j)
             arrayAuxiliar.clear()
-            return "El rehashing fue realizado con exito"
+            print("El rehashing fue realizado con exito")
 
     def verificarDato(self, dato, position):
         aux_bol = False
@@ -165,20 +159,20 @@ class TablaHash:
         posicion_hash = self.funcionHash(dato)
         nodo_hash = self.values[posicion_hash]
         if nodo_hash.eliminar(posicion_hash):
-            return "dato eliminado"
+            print("dato eliminado")
         elif nodo_hash.eliminar(posicion_hash) == 0: 
-            return "dato eliminado"
+            print("dato eliminado")
             self.values[posicion_hash] = None
         else:
-            return "dato no eliminado"
+            print("dato no eliminado")
 
     def printTbl(self):
         if self.values:
             for i in self.values:
-                if i and (len(i.array) > 0):
-                    print(str(i.pk) + " | " + str(i.array))
+                if i :
+                    print(str(i.pk) + " | " + str(i.array)) 
         else:
-            return "vacio"
+            print("vacio")
 
     def buscar(self, dato):
         posicion_hash = self.funcionHash(dato)
@@ -187,3 +181,24 @@ class TablaHash:
             return nodo.busquedaB(posicion_hash)
         else:
             return None
+
+    def printlistTbl(self):
+        listTbl=[]
+        if self.values:
+            for i in self.values:
+                if i :
+                    new = str(i.pk) + " | " + str(i.array).replace('[','')
+                    new2 = new.replace(']','')
+                    listTbl.append(new2)            
+        else:
+            print("vacio")        
+        return listTbl
+
+    def imp1(self,columnNumber,lower,upper):
+        listCol=[]
+        for nodo in self.values:
+            if nodo is not None:
+                val = nodo.imp_column(columnNumber,lower,upper)
+                if val != None:
+                    listCol.append(val)   
+        return listCol   
