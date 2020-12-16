@@ -1,10 +1,11 @@
 /*round(RADIANS( Pi() *0+90*2 ))
 */
 
-sign(34534*-1)
+//sign(34534*-1)
 //random()
-
-
+//(1+1*2) = 3 or 1=1 or 3=4
+//not (1=1) and 6 = 5 and 5=8787 or true and not false
+not false
 
 /*
 
