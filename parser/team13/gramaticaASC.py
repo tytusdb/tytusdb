@@ -397,31 +397,33 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
-#IMPORTACIÓN Y CREACIÓN DE LISTAS PARA GUARDAR LOS ERRORES
+# IMPORTACIÓN Y CREACIÓN DE LISTAS PARA GUARDAR LOS ERRORES
 from Error import Error
+
 errores_lexicos = []
 errores_sintacticos = []
 
 
-#HALLAR LA COLUMNA DEL TOKEN ESPECIFICADO
+# HALLAR LA COLUMNA DEL TOKEN ESPECIFICADO
 def find_column(token):  # Columna relativa a la fila
     global con
     line_start = con.rfind('\n', 0, token.lexpos) + 1
     return (token.lexpos - line_start) + 1
 
 
-#FUNCIÓN DE ERROR PARA LOS ERRORES LÉXICOS
+# FUNCIÓN DE ERROR PARA LOS ERRORES LÉXICOS
 def t_error(t):
     col = find_column(t)
-    #print("Caracter inválido '%s'" % t.value[0], " Línea: '%s'" % str(t.lineno))
-    errores_lexicos.append(Error(t.value[0],'Error Léxico','El caracter \'' + str(t.value[0]) + '\' no pertenece al lenguaje',col,t.lineno))
+    # print("Caracter inválido '%s'" % t.value[0], " Línea: '%s'" % str(t.lineno))
+    errores_lexicos.append(
+        Error(t.value[0], 'Error Léxico', 'El caracter \'' + str(t.value[0]) + '\' no pertenece al lenguaje', col,
+              t.lineno))
     t.lexer.skip(1)
 
 
 # Construyendo el analizador léxico
 import ply.lex as lex
 import re
-
 
 # DEFINIENDO LA PRECEDENCIA DE LOS OPERADORES
 # ---------Modificado Edi------
@@ -442,6 +444,7 @@ precedence = (
 from sentencias import *
 
 from graphviz import Digraph
+
 
 def p_init(t):
     'inicio :   sentencias'
@@ -484,25 +487,25 @@ def p_sentencia(t):
 
 
 def p_USEDB(t):
-    ''' USEDB : tuse database id ptComa'''
-    t[0] = SUse(t[3])
+    ''' USEDB : tuse id ptComa'''
+    t[0] = SUse(t[2])
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< HEIDY <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 def p_crearBase(t):
     '''CrearBase : create database E ptComa
-                 | create database E owner igual id ptComa
+                 | create database E owner igual E ptComa
                  | create database E mode igual entero ptComa
-                 | create database E owner igual id mode igual entero ptComa
+                 | create database E owner igual E mode igual entero ptComa
                  | create or replace database E ptComa
-                 | create or replace database E owner igual id ptComa
+                 | create or replace database E owner igual E ptComa
                  | create or replace database E mode igual entero ptComa
-                 | create or replace database E owner igual id mode igual entero ptComa
+                 | create or replace database E owner igual E mode igual entero ptComa
                  | create database if not exists E ptComa
-                 | create database if not exists E owner igual id ptComa
+                 | create database if not exists E owner igual E ptComa
                  | create database if not exists E mode igual entero ptComa
-                 | create database if not exists E owner igual id mode igual entero ptComa'''
+                 | create database if not exists E owner igual E mode igual entero ptComa'''
     # def __init__(self, owner, mode, replace, exists, id)
     if len(t) == 5:
         # primera produccion
@@ -668,6 +671,7 @@ def p_EXPR_ASSIGNS(t):
                | tConstraint id tCheck E
                | tUnique parAbre COLS parCierra
                | tPrimary tKey parAbre COLS parCierra
+               | tConstraint id tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra
                | tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra'''
     if len(t) == 3:
         if t[1].lower == "check":
@@ -684,7 +688,9 @@ def p_EXPR_ASSIGNS(t):
     elif len(t) == 6:
         t[0] = SColumnaPk(t[4])
     elif len(t) == 11:
-        t[0] = SColumnaFk(t[7], t[4], t[9])
+        t[0] = SColumnaFk(t[7], None, t[4], t[9])
+    else:
+        t[0] = SColumnaFk(t[9], t[2], t[6], t[11])
 
 
 def p_EXPR_OPCIONALES(t):
@@ -826,6 +832,7 @@ def p_EXPR_ALTER_TABLE(t):
                    | alter table id add tConstraint id tCheck E ptComa
                    | alter table id add tCheck E ptComa
                    | alter table id add tConstraint id tUnique parAbre id parCierra ptComa
+                   | alter table id add tConstraint id tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra ptComa
                    | alter table id add tForeign tKey parAbre COLS parCierra tReferences id parAbre COLS parCierra ptComa
                    | alter table id drop tConstraint id ptComa
                    | alter table id rename tTo id ptComa
@@ -836,7 +843,6 @@ def p_EXPR_ALTER_TABLE(t):
             t[0] = SAlterTableRenameColumn(t[3], t[6], t[8])
         elif t[4].lower() == "add":
             t[0] = SAlterTableCheck(t[3], t[8], t[6])
-
     elif len(t) == 8:
         if t[4].lower() == "add":
             # cuarta produccion
@@ -856,7 +862,9 @@ def p_EXPR_ALTER_TABLE(t):
         t[0] = SAlterTableAddUnique(t[3], t[6], t[9])
     elif len(t) == 16:
         # sexta produccion
-        t[0] = SAlterTableAddFK(t[3], t[11], t[8], t[13])
+        t[0] = SAlterTableAddFK(t[3], t[11], None, t[8], t[13])
+    else:
+        t[0] = SAlterTableAddFK(t[3], t[13], t[6], t[10], t[15])
 
 
 def p_EXPR_ALTER_TABLE1(t):
@@ -922,8 +930,12 @@ def p_EXPR_ALTER(t):
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_INSERT(p):
-    ''' INSERT :  insert into id values parAbre LISTA_EXP parCierra ptComa   '''
-    p[0] = SInsertBase(p[3], p[6])
+    ''' INSERT :  insert into id values parAbre LISTA_EXP parCierra ptComa
+               |  insert into id parAbre LISTA_EXP parCierra values parAbre LISTA_EXP parCierra ptComa'''
+    if len(p) == 9:
+        p[0] = SInsertBase(p[3], None, p[6])
+    else:
+        p[0] = SInsertBase(p[3], p[5], p[9])
 
 
 def p_LISTA_EXP(p):
@@ -1594,15 +1606,15 @@ def p_COND2(p):
     if len(p) == 5:
         p[0] = SWhereCond6(False, p[1], p[3])
     elif len(p) == 6:
-        if p(2).lower(2) == "exists":
+        if p[2].lower() == "exists":
             p[0] = SWhereCond6(p[1], p[2], p[4])
         else:
             p[0] = SWhereCond8(False, p[2], p[1], p[4])
     elif len(p) == 7:
         if p[3].lower == "in":
-            p[0] = SWhereCond7(p[2], p[3], p[1], p[5])
+            p[0] = SWhereCond8(p[2], p[3], p[1], p[5])
         else:
-            p[0] = SWhereCond8(False, p[2], p[1], p[4])
+            p[0] = SWhereCond7(False, p[2], p[1], p[4])
 
 
 def p_COND3(p):
@@ -1701,20 +1713,20 @@ def p_EXPR_LIMIT2(p):
 # <<<<<<<<<<<<<<<<<<<<<<<<<<<<< FIN DE LAS PRODUCCIONES <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 
-#FUNCIÓN PARA EL MANEJO DE LOS ERRORES SINTÁCTICOS
+# FUNCIÓN PARA EL MANEJO DE LOS ERRORES SINTÁCTICOS
 def p_error(t):
     col = find_column(t)
-    #print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col) )
-    errores_sintacticos.append(Error(t.value,'Error Sintáctico','Símbolo no esperado',col,t.lineno))
+    # print("Error sintáctico en '%s'" % t.value, " Línea: '%s'" % str(t.lineno), " Columna: '%s'" % str(col) )
+    errores_sintacticos.append(Error(t.value, 'Error Sintáctico', 'Símbolo no esperado', col, t.lineno))
 
 
-#MÉTODO PARA GENERAR EL REPORTE DE ERRORES LÉXICOS
+# MÉTODO PARA GENERAR EL REPORTE DE ERRORES LÉXICOS
 def erroresLexicos():
     print('Generando reporte de errores léxicos')
     __generar_reporte('Lexicos', errores_lexicos)
 
 
-#MÉTODO PARA GENERAR EL REPORTE DE ERRORES SINTÁCTICOS
+# MÉTODO PARA GENERAR EL REPORTE DE ERRORES SINTÁCTICOS
 def erroresSintacticos():
     print('Generando reporte de errores sintácticos')
     __generar_reporte('Sintacticos', errores_sintacticos)
@@ -1723,9 +1735,8 @@ def erroresSintacticos():
 from datetime import datetime
 
 
-#FUNCIÓN PARA GENERAR EL REPORTE DE ERRORES 
+# FUNCIÓN PARA GENERAR EL REPORTE DE ERRORES
 def __generar_reporte(titulo, lista):
-
     if len(lista) > 0:
         ''' '''
         nodos = '''<
@@ -1740,22 +1751,25 @@ def __generar_reporte(titulo, lista):
             <TD>COLUMNA</TD>
             <TD>FILA</TD>
         </TR>                               \n''' % (titulo, str(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-        s = Digraph(titulo, node_attr={'color': 'black', 'fillcolor': 'lightblue2','style': 'filled', 'shape': 'record'})
+        s = Digraph(titulo,
+                    node_attr={'color': 'black', 'fillcolor': 'lightblue2', 'style': 'filled', 'shape': 'record'})
         for e in lista:
             nodos += '<TR> '
-            nodos += (' \n\t<TD> '  + str(e.lexema).replace('{','\{').replace('}','\}').replace('<','\<').replace('>','\>') + ' </TD> ')
-            nodos += (' \n\t<TD> '  + str(e.tipo) + ' </TD> ')
-            nodos += (' \n\t<TD> '  + str(e.descripcion).replace('{','\{').replace('}','\}').replace('<','\<').replace('>','\>') + ' </TD> ')
-            nodos += (' \n\t<TD> '  + str(e.columna) + ' </TD> ')
-            nodos += (' \n\t<TD> '  + str(e.fila) + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.lexema).replace('{', '\{').replace('}', '\}').replace('<', '\<').replace('>',
+                                                                                                                    '\>') + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.tipo) + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.descripcion).replace('{', '\{').replace('}', '\}').replace('<',
+                                                                                                      '\<').replace('>',
+                                                                                                                    '\>') + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.columna) + ' </TD> ')
+            nodos += (' \n\t<TD> ' + str(e.fila) + ' </TD> ')
             nodos += ' \n</TR> \n'
         nodos += '</TABLE>>'
         s.node('lbl', nodos)
-        s.render('Reportes/'+titulo, format='png', view=True)
+        s.render('Reportes/' + titulo, format='png', view=True)
+
 
 import ply.yacc as yacc
-
-
 
 
 def parse(input):

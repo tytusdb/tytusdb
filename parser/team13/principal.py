@@ -103,12 +103,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 print(id)
         elif isinstance(nodo, SInsertBase):
             print("Insert Table-------------")
-            print("nombre tabla")
-            print(nodo.id)
-            print("valores")
-            for val in nodo.listValores:
-                if isinstance(val, SExpresion):
-                    print(val.valor)
+            InsertTable(nodo, tablaSimbolos)
         elif isinstance(nodo, SShowTable):
             print("Mostrando tablas----------")
             tablas = jBase.showTables(useActual)
@@ -157,14 +152,19 @@ def interpretar_sentencias(arbol, tablaSimbolos):
             AlterTableFK(nodo, tablaSimbolos)
         elif isinstance(nodo, SAlterTable_AlterColumn):
             print("Alter column--------------")
-            print(nodo.idtabla)
             for col in nodo.columnas:
-                print(col.idcolumna)
+                if col.tipo == TipoAlterColumn.NOTNULL:
+                    AlterColumnNotNull(nodo, tablaSimbolos)
+                    break
+                else:
+                    AlterColumnCTipo(nodo, tablaSimbolos)
+                    break
         elif isinstance(nodo, SAlterTableDrop):
             print("Alter drop----------")
-            print(nodo.idtabla)
-            print("Es un constraint?")
-            print(nodo.idco)
+            if nodo.tipo == TipoAlterDrop.COLUMN:
+                AlterTableDropColumn(nodo, tablaSimbolos)
+            else:
+                AlterTableDropConstraint(nodo, tablaSimbolos)
         elif isinstance(nodo, SCrearTabla):
             crearTabla(nodo, tablaSimbolos)
 
@@ -557,14 +557,14 @@ def crearBase(nodo, tablaSimbolos):
                 consola += "Error al crear la base de datos \n"
         elif nodo.owner != False and nodo.mode == False:
             if jBase.createDatabase(val) == 0:
-                bd = TS.SimboloBase(val, nodo.owner, None)
+                bd = TS.SimboloBase(val, nodo.owner.valor, None)
                 tablaSimbolos.put(val, bd)
                 consola += "Base de datos " + val + " creada. \n"
             else:
                 consola += "Error al crear la base de datos \n"
         elif nodo.owner != False and nodo.mode != False:
             if jBase.createDatabase(val) == 0:
-                bd = TS.SimboloBase(val, nodo.owner, nodo.mode)
+                bd = TS.SimboloBase(val, nodo.owner.valor, nodo.mode)
                 tablaSimbolos.put(val, bd)
                 consola += "Base de datos " + val + " creada. \n"
             else:
@@ -712,6 +712,9 @@ def crearTabla(nodo, tablaSimbolos):
                 if result != True:
                     listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontró la columna con id " + idcol))
             elif isinstance(col, SColumnaFk):
+                print("ESTOY AQUI-------------------------")
+                print(col.idlocal)
+                print(col.idfk)
                 for i in range(len(col.idlocal)):
                     idlocal = col.idlocal[i].valor
                     idfk = col.idfk[i].valor
@@ -721,6 +724,9 @@ def crearTabla(nodo, tablaSimbolos):
                     if columnafk != None and columnalocal != None:
                         if columnafk.tipo.tipo == columnalocal.tipo.tipo:
                             nueva.modificarFk(idlocal, col.id, idfk)
+                            if col.idconstraint != None:
+                                listaConstraint.append(
+                                    TS.Constraints(useActual, val, col.idconstraint, columnalocal, "FK"))
                             listaFK.append(TS.llaveForanea(useActual, val, col.id, idlocal, idfk))
                         else:
                             listaSemanticos.append(Error.ErrorS("Error Semantico",
@@ -902,6 +908,9 @@ def AlterTableFK(nodo, tablaSimbolos):
         if columnafk != None and columnalocal != None:
             if columnafk.tipo.tipo == columnalocal.tipo.tipo:
                 tabla.modificarFk(idlocal, nodo.idtablafk, idfk)
+                if nodo.idconstraint != None:
+                    listaConstraint.append(
+                        TS.Constraints(useActual, nodo.idtabla, nodo.idconstraint, columnalocal, "FK"))
                 listaFK.append(TS.llaveForanea(useActual, nodo.idtabla, nodo.idtablafk, idlocal, idfk))
                 consola += "Se agrego la llave foranea a " + idlocal + " exitosamente \n"
             else:
@@ -911,5 +920,80 @@ def AlterTableFK(nodo, tablaSimbolos):
         else:
             listaSemanticos.append(
                 Error.ErrorS("Error Semantico", "No se encontró la columna"))
+
+
+def AlterTableDropColumn(nodo, tablaSimbolos):
+    global useActual
+    global consola
+    base = tablaSimbolos.get(useActual)
+    tabla = base.getTabla(nodo.idtabla)
+    for col in nodo.listaColumnas:
+        if tabla.deleteColumn(col.idcolumna):
+            consola += "Se eliminó con exito la columna " + col.idcolumna + "\n"
+        else:
+            listaSemanticos.append(Error.ErrorS("Error Semantico", "La columna " + col.idcolumna + " no existe"))
+
+
+def AlterTableDropConstraint(nodo, tablaSimbolos):
+    global useActual
+    global consola
+    base = tablaSimbolos.get(useActual)
+    tabla = base.getTabla(nodo.idtabla)
+    bandera = False
+    for cons in listaConstraint:
+        if cons.idconstraint == nodo.listaColumnas:
+            bandera = True
+            if cons.tipo == "unique":
+                if tabla.deleteUnique(cons.idcol):
+                    consola += "Se eliminó con éxito el constraint " + nodo.listaColumnas + "\n"
+                else:
+                    consola += "Error no se pudo eliminar el constraint " + nodo.listaColumnas + "\n"
+            elif cons.tipo == "check":
+                if tabla.deleteCheck(cons.idcol):
+                    consola += "Se eliminó con éxito el constraint " + nodo.listaColumnas + "\n"
+                else:
+                    consola += "Error no se pudo eliminar el constraint " + nodo.listaColumnas + "\n"
+            elif cons.tipo == "FK":
+                if tabla.deleteFk(cons.idcol):
+                    consola += "Se eliminó con éxito el constraint " + nodo.listaColumnas + "\n"
+                else:
+                    consola += "Error no se pudo eliminar el constraint " + nodo.listaColumnas + "\n"
+
+    if bandera == False:
+        listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontro el constraint " + nodo.listaColumnas))
+
+
+def AlterColumnNotNull(nodo, tablaSimbolos):
+    global useActual
+    global consola
+
+    base = tablaSimbolos.get(useActual)
+    tabla = base.getTabla(nodo.idtabla)
+
+    for col in nodo.columnas:
+        if tabla.modificarNull(col.idcolumna):
+            consola += "Se cambió a not null con exito la columna " + col.idcolumna + " \n"
+        else:
+            listaSemanticos.append(Error.ErrorS("Error Semantico", "No se encontro la columna" + col.idcolumna))
+
+
+def AlterColumnCTipo(nodo, tablaSimbolos):
+    global useActual
+    global consola
+
+    base = tablaSimbolos.get(useActual)
+    tabla = base.getTabla(nodo.idtabla)
+
+    for col in nodo.columnas:
+        b = tabla.modificarTipo(col.idcolumna, col.valcambio.tipo, col.valcambio.cantidad)
+        if b == 0:
+            consola += "Se modificó el tipo exitosamente a la columna " + col.idcolumna + " \n"
+        elif b == 1:
+            listaSemanticos.append(Error.ErrorS("Error Semantico", "El valor es menor al actual"))
+        elif b == 2:
+            listaSemanticos.append(Error.ErrorS("Error Semantico", "Los tipos no coinciden"))
+        elif b == 3:
+            listaSemanticos.append(Error.ErrorS("Error Semantico", "la columna no existe " + col.idcolumna))
+
 
 

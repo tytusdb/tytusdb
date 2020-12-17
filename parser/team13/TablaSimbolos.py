@@ -52,6 +52,12 @@ class SimboloTabla:
         self.columnas = {}
         self.padre = padre
 
+    def deleteColumn(self, id):
+        if id in self.columnas:
+            del self.columnas[id]
+            return True
+        return None
+
     def crearColumna(self, id, columna):
         if id not in self.columnas:
             self.columnas[id] = columna
@@ -73,9 +79,21 @@ class SimboloTabla:
             return True
         return None
 
+    def deleteUnique(self, idcol):
+        if idcol in self.columnas:
+            self.columnas[idcol].unique = False
+            return True
+        return None
+
     def modificarCheck(self, idcolumna, condicion, idconstraint):
         if idcolumna in self.columnas:
             self.columnas[idcolumna].check = {"id": idconstraint, "condicion": condicion}
+            return True
+        return None
+
+    def deleteCheck(self, idcol):
+        if idcol in self.columnas:
+            self.columnas[idcol].check = None
             return True
         return None
 
@@ -85,11 +103,33 @@ class SimboloTabla:
             return True
         return None
 
+    def deleteFk(self, idcol):
+        if idcol in self.columnas:
+            self.columnas[idcol].foreign_key = None
+            return True
+        return None
+
     def modificarPk(self, id):
         if id in self.columnas:
             self.columnas[id].primary_key = True
             return True
         return None
+
+    def modificarNull(self,idcol):
+        if idcol in self.columnas:
+            self.columnas[idcol].null = False
+            return True
+        return None
+
+    def modificarTipo(self,idcol,tipo,ntama):
+        if idcol in self.columnas:
+            if self.columnas[idcol].tipo.tipo==tipo:
+                if self.columnas[idcol].tipo.cantidad<ntama:
+                    self.columnas[idcol].tipo.cantidad=ntama
+                    return 0
+                return 1
+            return 2
+        return 3
 
     def getColumna(self, idcolumna):
         return self.columnas[idcolumna]

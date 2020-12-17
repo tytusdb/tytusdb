@@ -53,6 +53,8 @@ class TipoAlterDrop(Enum):
     COLUMN = 2
 
 
+
+
 class TipoOpcionales(Enum):
     PRIMARYKEY = 1
     DEFAULT = 2
@@ -139,8 +141,9 @@ class STruncateBase(Sentencia):
 
 
 class SInsertBase(Sentencia):
-    def __init__(self, id, listValores=[]):
+    def __init__(self, id, listaColumnas=[],listValores=[]):
         self.id = id
+        self.listaColumnas=listaColumnas
         self.listValores = listValores
 
 
@@ -220,9 +223,10 @@ class SAlterTableAddUnique(Sentencia):
 
 
 class SAlterTableAddFK(Sentencia):
-    def __init__(self, idtabla, idtablafk,idlocal=[], idfk=[]):
+    def __init__(self, idtabla, idtablafk,idconstraint,idlocal=[], idfk=[]):
         self.idtabla = idtabla
         self.idtablafk=idtablafk
+        self.idconstraint=idconstraint
         self.idlocal = idlocal
         self.idfk = idfk
 
@@ -269,8 +273,9 @@ class SColumnaPk(Sentencia):
 
 
 class SColumnaFk(Sentencia):
-    def __init__(self, id, idlocal=[], idfk=[]):
+    def __init__(self, id, idconstraint,idlocal=[], idfk=[]):
         self.id = id
+        self.idconstraint=idconstraint
         self.idlocal = idlocal
         self.idfk = idfk
 
