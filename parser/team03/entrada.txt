@@ -6,7 +6,13 @@
     )+
 cos(34+2)-
 cos(3.14159274)
-;
-1=0 or 5!=2;*/
-
-true
+-(cos(34+2)-cos(3.14159274))
+= 'hola' or (  'adios' = 'adios')
+;*/
+/*
+1=1*/
+//0 = 0 and 0!=0 or 1=1;
+//1+1-1 = -1 or 'hola' = 'hola';
+//'hola' = 'hola' and 3 < 1;
+1 is null;
+false is false;

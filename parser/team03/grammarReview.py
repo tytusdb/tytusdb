@@ -42,7 +42,7 @@ def p_statements2(t):
 
 
 def p_statement(t):
-    '''statement : relExpression PUNTOCOMA
+    '''statement : predicateExpression PUNTOCOMA
                     '''
     t[0] = t[1]
 
@@ -96,19 +96,56 @@ def p_relExpReducExp(t):
 
 
 ########## Definition of logical expressions ##############
+def p_predicateExpression(t):
+    '''predicateExpression  : BETWEEN expression AND expression'''
+    graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[4].graph_ref])
+    t[0] = PredicateExpression(t[2], t[4], OpPredicate.BETWEEN, token.lineno, token.lexpos,graph_ref)
+def p_predicateExpression0(t):
+    '''predicateExpression  : logicExpression'''
+    t[0] = t[1]
+
+def p_predicateExpression1(t):
+    '''predicateExpression  : expression IS NULL
+                            | expression IS DISTINCT FROM expression
+                            | expression IS BOOLEAN_VALUE
+                            | expression IS UNKNOWN '''
+    token = t.slice[3]
+    #graph_ref = graph_node(str(t[3]), [t[2].graph_ref, t[4].graph_ref])
+    if token.type == "NULL":
+        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])
+        t[0] = PredicateExpression(t[1], None, OpPredicate.NULL,  token.lineno, token.lexpos,graph_ref)
+    elif token.type == "DISTINCT":
+        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref, t[5].graph_ref])
+        t[0] = PredicateExpression(t[1], t[5], OpPredicate.DISTINCT,  token.lineno, token.lexpos,graph_ref)
+    elif token.type == "BOOLEAN_VALUE":
+        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])        
+        if bool(t[3]):
+            t[0] = PredicateExpression(t[1], None, OpPredicate.TRUE, token.lineno, token.lexpos,graph_ref)
+        else:
+            t[0] = PredicateExpression(t[1], None, OpPredicate.FALSE, token.lineno, token.lexpos,graph_ref)
+    elif token.type == "UNKNOWN":
+        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])
+        t[0] = PredicateExpression(t[1], None, OpPredicate.UNKNOWN, token.lineno, token.lexpos,graph_ref)
+
+def p_predicateExpression2(t):
+    '''predicateExpression  : expression IS NOT NULL
+                            | expression IS NOT DISTINCT FROM expression
+                            | expression IS NOT BOOLEAN_VALUE
+                            | expression IS NOT UNKNOWN '''
+
 def p_logicExpression(t):
     '''logicExpression  : relExpression'''
     t[0] = t[1]
     
 def p_logicNotExpression(t):
-    '''logicExpression  : NOT relExpression'''
+    '''logicExpression  : NOT logicExpression'''
     token = t.slice[1]
     graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
     t[0] = Negation(t[2],token.lineno,token.lexpos,graph_ref)
 
 def p_binLogicExpression(t):     
-    '''logicExpression  : relExpression AND relExpression
-                        | relExpression OR  relExpression
+    '''logicExpression  : logicExpression AND logicExpression
+                        | logicExpression OR  logicExpression
                         '''    
     token = t.slice[2]
     if token.type == "AND":
@@ -154,7 +191,8 @@ def p_expression(t):
 def p_expNotExp(t):
     '''expression   : NOT expression'''
     token = t.slice[1]
-    t[0] = Negation(t[1],token.lineno,token.lexpos)
+    graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+    t[0] = Negation(t[1],token.lineno,token.lexpos, graph_ref)
 
 def p_expPerenteLogic(t):
     '''expression   : PARA logicExpression PARC'''
@@ -442,6 +480,6 @@ parse = yacc.yacc()
 
 def toParse(input):
     # return parse.parse(input,lexer)
-    parse.parse(input)
-    dot.view()
+    #parse.parse(input)
+    #dot.view()
     return parse.parse(input)
