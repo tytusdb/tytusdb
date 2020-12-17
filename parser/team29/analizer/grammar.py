@@ -1209,16 +1209,21 @@ def p_useStmt(t):
 # endregion
 
 
+listErrors=list()
+
 def p_error(t):
     try:
-        print(t)
-        print("Error sintáctico en '%s'" % t.value)
+        """ print(t)
+        print("Error sintáctico en '%s'" % t.value) """
+        listErrors.insert(len(listErrors),["Error sintáctico en '%s'" % t.value,t.lineno])
     except AttributeError:
         print("end of file")
 
 
 parser = yacc.yacc()
 
+def returnSintacticErrors():
+    return listErrors
 
 def parse(input):
     try:
