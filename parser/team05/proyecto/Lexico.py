@@ -157,33 +157,7 @@ palabras_reservadas = {
     'atanh'         : 'ATANH',
     'get_byte'      : 'GETBYTE',
     'set_byte'      : 'SETBYTE',
-    'inherits'      : 'INHERITS',
-    'primary'       : 'PRIMARY',
-    'key'           : 'KEY',
-    'foreign'       : 'FOREIGN',
-    'references'    : 'REFERENCES',
-    'constraint'    : 'CONSTRAINT',
-    'check'         : 'CHECK',
-    'unique'        : 'UNIQUE',
-    'default'       : 'DEFAULT',
-    'smallint'      : 'SMALLINT',
-    'bigint'        : 'BIGINT',
-    'numeric'       : 'NUMERIC',
-    'real'          : 'REAL',
-    'double'        : 'DOUBLE',
-    'money'         : 'MONEY',
-    'character'     : 'CHARACTER',
-    'varchar'       : 'VARCHAR',
-    'char'          : 'CHAR',
-    'text'          : 'TEXT',
-    'time'          : 'TIME',
-    'boolean'       : 'BOOLEAN',
-    'varying'       : 'VARYING',
-    'type'          : 'TYPE',
-    'enum'          : 'ENUM',
-    'add'           : 'ADD',
-    'column'        : 'COLUMN',
-    'use'           : 'USE'
+    'inherits'      : 'INHERITS'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -472,65 +446,20 @@ def p_atributosT3(t):
 def p_atributosT4(t):
     'I_TATRIBUTOS     : CHECK I_CCHECK'
 
-def p_ccheck(t):
-    'I_CCHECK         : PABRE CONDICION PCIERRA'
-
 def p_atributosT5(t):
     'I_TATRIBUTOS     : UNIQUE I_UNIQUE'
-
-def p_unique(t):
-    'I_UNIQUE         : PABRE I_LIDS PCIERRA'
 
 def p_llave(t):
     'I_LLAVES         : PRIMARY KEY I_DEFAULT'
 
-def p_default(t):
-    'I_DEFAULT        : DEFAULT I_VALOR I_NULL'
-
-def p_default1(t):
-    'I_DEFAULT        : I_NULL'
-
-def p_null(t):
-    'I_NULL           : NOT NULL I_CUNIQUE '
-
-def p_null1(t):
-    'I_NULL           : NULL I_CUNIQUE '
-
-def p_null2(t):
-    'I_NULL           : I_CUNIQUE '
-
-def p_cunique(t):
-    'I_CUNIQUE        : CONSTRAINT ID UNIQUE I_CHECK'
-
-def p_check(t):
-    'I_CHECK          : CONSTRAINT ID CHECK PABRE CONDICION PCIERRA'
-
-def p_check1(t):
-    'I_CHECK          : CHECK PABRE CONDICION PCIERRA'
-
-def p_check2(t):
-    'I_CHECK          : '
-
 def p_llave2(t):
     'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA I_DEFAULT' 
-
-def p_cRef(t):
-    'I_CREFERENCE     : I_CREFERENCE COMA ID'
-
-def p_cRef2(t):
-    'I_CREFERENCE     : ID'
 
 def p_llave3(t):
     'I_LLAVES         : REFERENCES ID I_DEFAULT'
 
 def p_llave4(t):
     'I_LLAVES         : I_DEFAULT'
-
-def p_lIds(t):
-    'I_LIDS           : I_LIDS COMA ID'
-
-def p_lIds1(t):
-    'I_LIDS           : ID'
 
 def p_tipo(t):
     'I_TIPO           : SMALLINT'
@@ -590,10 +519,10 @@ def p_tchar(t):
     'I_TCHAR          : VARYING PABRE NUMERO PCIERRA'
 
 def p_tchar1(t):
-    'I_TCHAR          : PABRE NUMERO PCIERRA'
+    'I_TCHAR          : PABRE ENTERO PCIERRA'
 
 def p_prec(t):
-    'I_PREC           : PABRE NUMERO PCIERRA'
+    'I_PREC           : PABRE ENTERO PCIERRA'
 
 def p_prec1(t):
     'I_PREC           : '
@@ -616,7 +545,6 @@ def p_fields4(t):
 def p_inherits1(t):
     'I_INHERITS    : PCOMA'
 
-
 def p_Replace(t):
     'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
     t[0] = t[4]
@@ -632,78 +560,6 @@ def p_alter(t):
 
 def p_tAlter(t):
     'I_TALTER    : I_ALTERDB'
-
-def p_tAlter1(t):
-    'I_TALTER    : I_ALTERTB'
-
-def p_alterTB(t):
-    'I_ALTERTB   : TABLE ID I_OPALTER '
-
-def p_opAlterTB(t):
-    'I_OPALTER   : I_LADDC PCOMA'
-
-def p_opAlterTB1(t):
-    'I_OPALTER   : I_LDROPC PCOMA'
-
-def p_opAlterTB2(t):
-    'I_OPALTER   : ADD I_TALTER PCOMA'
-
-def p_opAlterTB3(t):
-    'I_OPALTER   : ALTER COLUMN ID SET NOT NULL PCOMA'
-
-def p_opAlterTB4(t):
-    'I_OPALTER   : DROP CONSTRAINT ID PCOMA'
-
-def p_opAlterTB5(t):
-    'I_OPALTER   : ID I_LCOL PCOMA'
-
-def p_lCol(t):
-    'I_LCOL      : I_LCOL COMA I_PCOL'
-
-def p_lCol2(t):
-    'I_LCOL      : I_PCOL'
-
-def p_pCol3(t):
-    'I_PCOL      : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA'
-
-def p_tipAlterC(t): 
-    'I_TALTER    : CHECK CONDICION '
-
-def p_tipAlterU(t): 
-    'I_TALTER    : UNIQUE PABRE I_LIDS  PCIERRA'
-
-def p_tipAlterFK(t): 
-    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
-
-def p_tipAlterCo(t): 
-    'I_TALTER    : CONSTRAINT ID I_TCONST '
-
-def p_tipoConstraintC(t):
-    'I_TCONST    : CHECK CONDICION '
-
-def p_tipoConstraintU(t):
-    'I_TCONST    : UNIQUE PABRE I_LIDS PCIERRA'
-
-def p_tipoConstraintFK(t):
-    'I_TCONST    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA  '
-
-def p_lCDrop(t):
-    'I_LDROPC    : I_LDROPC COMA I_DROPC'
-
-def p_lCDrop1(t):
-    'I_LDROPC    : I_DROPC'
-
-def p_cDrop(t):
-    'I_DROPC     : DROP COLUMN ID'
-
-def p_lCAdd(t):
-    'I_LADDC     : I_LADDC COMA I_ADDC'
-
-def p_lCAdd2(t):
-    'I_LADDC     : I_ADDC'
-
-def p_cAdd(t):
-    'I_ADDC      : ADD COLUMN ID I_TIPO'
 
 def p_tDrop(t):
     'I_TDROP     : I_DROPDB'
@@ -772,6 +628,7 @@ def p_dropTB(t):
 
 def p_insertTB(t):
     'I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA'
+    # INSTRUCCION INSERT
 
 def p_lValt(t):
     'I_LVALT       : I_LVALT COMA I_VALTAB'
@@ -857,30 +714,37 @@ def p_ComplementoE(t):
 def p_ComplementoSelectUnion(t):
     'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
     # INSTRUCCION COMPLEMENTOSELECTUNION
+    t[0]=ComplementoSelectUnion(t[2])
 
 def p_ComplementoSelectUnionAll(t):
     'COMPLEMENTOSELECT  : UNION ALL I_SELECT PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTALL
+    t[0]=ComplementoSelectUnionAll(t[3])
 
 def p_ComplementoSelectIntersect(t):
     'COMPLEMENTOSELECT  : INTERSECT I_SELECT PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTINTERSECT
+    t[0]=ComplementoSelectIntersect(t[2])
 
 def p_ComplementoSelectIntersectALL(t):
     'COMPLEMENTOSELECT  : INTERSECT ALL I_SELECT PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTINTERSECTALL
+    t[0]=ComplementoSelectIntersectALL(t[3])
 
 def p_ComplementoSelectExcept(t):
     'COMPLEMENTOSELECT  : EXCEPT I_SELECT PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTEXCEPT
+    t[0]=ComplementoSelectExcept(t[2])
 
 def p_ComplementoSelectExceptAll(t):
     'COMPLEMENTOSELECT  : EXCEPT ALL I_SELECT PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTEXCEPTALL
+    t[0]=ComplementoSelectExceptAll(t[2])
 
 def p_ComplementoSelectExceptPcoma(t):
     'COMPLEMENTOSELECT  : PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTEXCEPTPCOMA
+    t[0]=ComplementoSelectExceptPcoma()
 
 def p_Limit(t):
     'PLIMIT  :   LIMIT CONDICION    '
