@@ -8,6 +8,12 @@ from EXPRESION.EXPRESIONES_TERMINALES.IDENTIFICADOR.NODE_IDENTIFICADOR.Node_Iden
 from DDL.DROP.Drop import *
 from DDL.SHOW.Show import *
 from ERROR.Error import *
+from DML.DELETE.Delete import *
+from DML.UPDATE.UPDATE.Update import *
+from DML.UPDATE.UPDATE_COL.UpdateCol import *
+from DML.INSERT.Insert import *
+from DML.ALTER.Alter import *
+from DML.IDENTIFICADOR.IdentificadorDML import *
 
 #Definicion de listado de errores
 errores = []
@@ -353,6 +359,7 @@ def p_instruccion(t):
                     | sent_insertar
                     | sent_update 
                     | sent_delete
+                    | sent_alter
                     | sentencia_show
                     | sentencia_drop
                     | sentencia_select
@@ -770,51 +777,201 @@ def p_sentencia_case(t):
 
 # SENTENCIA DE INSERT
 def p_insert(t):
-    '''sent_insertar : INSERT INTO IDENTIFICADOR VALUES PARENTESISIZQ l_param_insert PARENTESISDER 
-    '''
-
+    '''sent_insertar : INSERT INTO IDENTIFICADOR VALUES PARENTESISIZQ l_param_insert PARENTESISDER'''
+    nuevo = Insert('SENTENCIA_INSERT')
+    nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(t[6])
+    t[0] = nuevo
+    
 def p_insert2(t):
-    '''sent_insertar : INSERT INTO IDENTIFICADOR PARENTESISIZQ l_param_column PARENTESISDER VALUES PARENTESISIZQ l_param_insert PARENTESISDER 
-    '''
-
+    '''sent_insertar : INSERT INTO IDENTIFICADOR PARENTESISIZQ l_param_column PARENTESISDER VALUES PARENTESISIZQ l_param_insert PARENTESISDER'''
+    nuevo = Insert('SENTENCIA_INSERT')
+    nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(t[5])
+    nuevo.hijos.append(t[9])
+    t[0] = nuevo
+    
 def p_list_column(t):
-    '''l_param_column : l_param_column COMA IDENTIFICADOR
-                        |  IDENTIFICADOR'''                                       
+    '''l_param_column : l_param_column COMA IDENTIFICADOR'''     
+    nuevo = nuevo = Insert('L_COLUMN')
+    nuevo.hijos.append(t[1])
+    nuevo.hijos.append(IdentificadorDML("COL",t.lineno(1),t.lexpos(1)+1,t[3]))
+    t[0] = nuevo
+                 
+def p_list_column1(t):
+    '''l_param_column : IDENTIFICADOR'''                                   
+    t[0] = IdentificadorDML("COL",t.lineno(1),t.lexpos(1)+1,t[1])
     
 def p_list_param_insert(t):
-    '''l_param_insert : l_param_insert COMA  param_insert 
-                        | param_insert  
-    '''
+    '''l_param_insert : l_param_insert COMA  Exp'''
+    nuevo = Insert('PARAM_INSERT')
+    nuevo.hijos.append(t[1])
+    nuevo.hijos.append(t[3])
+    t[0] = nuevo
+    
+def p_list_param_insert1(t):
+    '''l_param_insert : Exp'''
+    t[0] = t[1]
 
-def p_parametro_insert(t):
-    '''param_insert : CADENA
-                    | NUMDECIMAL
-                    | ENTERO'''
 # FIN SENTENCIA INSERT
 
 # SENTENCIA DE UPDATE //FALTA WHERE
 def p_update(t):
     '''sent_update : UPDATE IDENTIFICADOR SET l_col_update ''' 
+    nuevo = Update('SENTENCIA_UPDATE')
+    nuevo.hijos.append(Update('UPDATE',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[2]))
+    nuevo.hijos.append(Update('SET',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(t[4])
+    t[0] = nuevo
 
 def p_list_col_update(t):
-    '''l_col_update : l_col_update COMA col_update
-                    | col_update'''
+    '''l_col_update : l_col_update COMA col_update'''
+    nuevo = Update('LISTA_UPDATE')
+    nuevo.hijos.append(t[1])
+    nuevo.hijos.append(t[3])
+    t[0] = nuevo
+
+def p_list_col_update1(t):
+    '''l_col_update : col_update'''
+    t[0] = t[1]
     
 def p_column_update(t):
-    '''col_update : IDENTIFICADOR IGUAL params_update'''
+    '''col_update : IDENTIFICADOR IGUAL Exp'''
+    nuevo = UpdateCol('COL_UPDATE',-1,-1,None)
+    nuevo.hijos.append(IdentificadorDML("Col",t.lineno(1),t.lexpos(1)+1,t[1]))
+    #nuevo.hijos.append(UpdateCol('=',t.lineno(1),t.lexpos(1)+1,None))
+    nuevo.hijos.append(t[3])
+    t[0] = nuevo
     
-def p_params_update(t):
-    '''params_update : CADENA
-                    |   NUMDECIMAL
-                    |   ENTERO
-                    |   IDENTIFICADOR'''
 # FIN SENTENCIA UPDATE
 
 # SENTENCIAS DELETE //FALTA WH
 def p_delete(t):
     '''sent_delete : DELETE FROM IDENTIFICADOR'''
+    nuevo = Delete('SENTENCIA_DELETE')
+    nuevo.hijos.append(Delete('DELETE',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(Delete('FROM',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[3]))
+    t[0] = nuevo
+    
 # FIN SENTENCIA DELETE
 
+# SENTENCIA ALTER
+def p_alter(t):
+    '''sent_alter : ALTER DATABASE IDENTIFICADOR accion_alter_db'''
+    nuevo = Alter('SENTENCIA_ALTER')
+    nuevo.hijos.append(Alter('ALTER',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(IdentificadorDML("DATABASE",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(t[4])
+    t[0] = nuevo
+
+def p_alter2(t):
+    '''sent_alter : ALTER TABLE IDENTIFICADOR accion_alter_table
+    '''
+    nuevo = Alter('SENTENCIA_ALTER')
+    nuevo.hijos.append(Alter('ALTER',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(IdentificadorDML("TABLE",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(t[4])
+    t[0] = nuevo
+    
+def p_alter_db(t):
+    '''accion_alter_db  : RENAME TO IDENTIFICADOR'''
+    nuevo = Alter('C_ALTER')
+    nuevo.hijos.append(Alter('RENAME',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(Alter('TO',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(IdentificadorDML("Name",t.lineno(1),t.lexpos(1)+1,t[3]))
+    t[0] = nuevo
+
+def p_alter_db1(t):
+    '''accion_alter_db  : OWNER TO nuevo_prop'''
+    nuevo = Alter('C_ALTER')
+    nuevo.hijos.append(Alter('OWNER',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(Alter('TO',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(t[3])
+    t[0] = nuevo
+                                              
+def p_nuevo_prop_db(t):
+    ''' nuevo_prop  : CADENA
+                    | CURRENT_USER
+                    | SESSION_USER'''
+    t[0] = IdentificadorDML("OWNER",t.lineno(1),t.lexpos(1)+1,t[1])
+
+def p_alter_table(t):
+    '''accion_alter_table   : alter_add_col    
+                            | alter_drop_col
+                            | l_alter_col'''
+    t[0] = t[1]
+                            
+def p_alter_add_col(t):
+    ''' alter_add_col   : ADD COLUMN IDENTIFICADOR tipo_declaracion'''                
+    nuevo = Alter('ADD')
+    nuevo.hijos.append(IdentificadorDML("COLUMN",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(t[4])
+    t[0] = nuevo
+    
+def p_alter_add_col1(t):
+    ''' alter_add_col   : ADD CHECK PARENTESISIZQ Exp PARENTESISDER'''    
+    nuevo = Alter('ADD')
+    nuevo.hijos.append(IdentificadorDML("CHECK",t.lineno(1),t.lexpos(1)+1,None))
+    nuevo.hijos.append(t[4])
+    t[0] = nuevo
+                        
+def p_alter_add_col2(t):
+    ''' alter_add_col   : ADD CONSTRAINT IDENTIFICADOR FOREIGN KEY IDENTIFICADOR REFERENCES IDENTIFICADOR'''    
+    nuevo = Alter('ADD')
+    nuevo.hijos.append(IdentificadorDML("CONSTRAINT",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(IdentificadorDML("FOREIGN KEY",t.lineno(1),t.lexpos(1)+1,t[6]))
+    nuevo.hijos.append(IdentificadorDML("REFERENCES",t.lineno(1),t.lexpos(1)+1,t[8]))
+    t[0] = nuevo  
+    
+def p_alter_add_col3(t):
+    ''' alter_add_col   : ADD CONSTRAINT IDENTIFICADOR UNIQUE IDENTIFICADOR'''    
+    nuevo = Alter('ADD')
+    nuevo.hijos.append(IdentificadorDML("CONSTRAINT",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(IdentificadorDML("UNIQUE",t.lineno(1),t.lexpos(1)+1,t[5]))
+    t[0] = nuevo
+                        
+                                              
+                            
+def p_alter_drop_col(t):
+    ''' alter_drop_col  : DROP COLUMN IDENTIFICADOR'''
+    nuevo = Alter('DROP')
+    nuevo.hijos.append(IdentificadorDML("COLUMN",t.lineno(1),t.lexpos(1)+1,t[3]))
+    t[0] = nuevo
+    
+def p_alter_drop_col1(t):
+    ''' alter_drop_col  : DROP CONSTRAINT IDENTIFICADOR'''
+    nuevo = Alter('DROP')
+    nuevo.hijos.append(IdentificadorDML("CONSTRAINT",t.lineno(1),t.lexpos(1)+1,t[3]))
+    t[0] = nuevo
+    
+def p_alter_l_column(t):
+    ''' l_alter_col : l_alter_col COMA alter_col'''
+    nuevo = Alter('L_ALTER')
+    nuevo.hijos.append(t[1])
+    nuevo.hijos.append(t[3])
+    t[0] = nuevo
+    
+def p_alter_l_column1(t):
+    ''' l_alter_col : alter_col'''
+    t[0] = t[1]
+    
+def p_alter_col(t):
+    '''alter_col : ALTER COLUMN IDENTIFICADOR SET NOT NULL'''
+    nuevo = Alter('ALTER')
+    nuevo.hijos.append(IdentificadorDML("Column",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(Alter('SET NOT NULL',t.lineno(1),t.lexpos(1)+1))
+    t[0] = nuevo
+
+def p_alter_col1(t):
+    '''alter_col : ALTER COLUMN IDENTIFICADOR TYPE tipo_declaracion'''
+    nuevo = Alter('ALTER')
+    nuevo.hijos.append(IdentificadorDML("Column",t.lineno(1),t.lexpos(1)+1,t[3]))
+    nuevo.hijos.append(Alter('TYPE',t.lineno(1),t.lexpos(1)+1))
+    nuevo.hijos.append(t[5])
+    t[0] = nuevo
+# FIN SENTENCIA ALTER
 
 
 #Produccion para inherits
