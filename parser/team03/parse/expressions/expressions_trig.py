@@ -1,5 +1,6 @@
 import math
 from parse.ast_node import ASTNode
+from parse.errors import Error, ErrorType
 
 
 class Acos(ASTNode):
@@ -11,8 +12,14 @@ class Acos(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.acos(exp)
-
+        try:
+            return math.acos(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ACOS() function argument error'))
 
 class Acosd(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
@@ -23,7 +30,14 @@ class Acosd(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.degrees(math.acos(exp))
+        try:
+            return math.degrees(math.acos(exp))
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ACOSD() function argument error'))
 
 
 class Asin(ASTNode):
@@ -35,8 +49,14 @@ class Asin(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.asin(exp)
-
+        try:
+            return math.asin(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ASIN() function argument error'))
 
 class Asind(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
@@ -47,7 +67,14 @@ class Asind(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.degrees(math.asin(exp))
+        try:
+            return math.degrees(math.asin(exp))
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ASIND() function argument error'))
 
 
 class Atan(ASTNode):
@@ -59,8 +86,14 @@ class Atan(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.atan(exp)
-
+        try:
+            return math.atan(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ATAN() function argument error'))
 
 class Atand(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
@@ -71,7 +104,14 @@ class Atand(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.degrees(math.atan(exp))
+        try:
+            return math.degrees(math.atan(exp))
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ATAND() function argument error'))
 
 
 class Atan2(ASTNode):
@@ -85,7 +125,14 @@ class Atan2(ASTNode):
         super().execute(table, tree)
         exp1 = self.exp1.execute(table, tree)
         exp2 = self.exp2.execute(table, tree)
-        return math.atan2(exp1, exp2)
+        try:
+            return math.atan2(exp1, exp2)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a real number'))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ATAN2() function argument error'))
 
 
 class Atan2d(ASTNode):
@@ -99,7 +146,14 @@ class Atan2d(ASTNode):
         super().execute(table, tree)
         exp1 = self.exp1.execute(table, tree)
         exp2 = self.exp2.execute(table, tree)
-        return math.degrees(math.atan2(exp1, exp2))
+        try:
+            return math.degrees(math.atan2(exp1, exp2))
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: Both arguments must be a real number'))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ATAN2D() function argument error'))
 
 
 class Cos(ASTNode):
@@ -111,9 +165,15 @@ class Cos(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.cos(exp)
+        try:
+            return math.cos(exp)
 
-
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'COS() function argument error'))
 class Cosd(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -123,7 +183,14 @@ class Cosd(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.cos(math.radians(exp))
+        try:
+            return math.cos(math.radians(exp))
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'COSD() function argument error'))
 
 
 class Cot(ASTNode):
@@ -135,8 +202,14 @@ class Cot(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return 1 / math.tan(exp)
-
+        try:
+            return 1 / math.tan(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error.'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'Infinity: cotangent of zero doesn’t exist'))
 
 class Cotd(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
@@ -147,7 +220,14 @@ class Cotd(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return 1 / math.tan(math.radians(exp))
+        try:
+            return 1 / math.tan(math.radians(exp))
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'Infinity: cotangent of zero doesn’t exist'))
 
 
 class Sin(ASTNode):
@@ -159,9 +239,15 @@ class Sin(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.sin(exp)
+        try:
+            return math.sin(exp)
 
-
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'SIN() function argument error'))
 class Sind(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -171,7 +257,14 @@ class Sind(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.sin(math.radians(exp))
+        try:
+            return math.sin(math.radians(exp))
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'SIND() function argument error'))
 
 
 class Tan(ASTNode):
@@ -183,9 +276,15 @@ class Tan(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.tan(exp)
+        try:
+            return math.tan(exp)
 
-
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TAN() function argument error'))
 class Tand(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
@@ -195,7 +294,14 @@ class Tand(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.tan(math.radians(exp))
+        try:
+            return math.tan(math.radians(exp))
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TAND() function argument error'))
 
 
 class Sinh(ASTNode):
@@ -207,8 +313,14 @@ class Sinh(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.sinh(exp)
-
+        try:
+            return math.sinh(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'SINH() function argument error'))
 
 class Cosh(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
@@ -219,8 +331,14 @@ class Cosh(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.cosh(exp)
-
+        try:
+            return math.cosh(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'COSH() function argument error'))
 
 class Tanh(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
@@ -231,8 +349,14 @@ class Tanh(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.tanh(exp)
-
+        try:
+            return math.tanh(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TANH() function argument error'))
 
 class Asinh(ASTNode):
     def __init__(self, exp, line, column, graph_ref):
@@ -243,7 +367,14 @@ class Asinh(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.asinh(exp)
+        try:
+            return math.asinh(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error.'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ASINH() function argument error'))
 
 
 class Acosh(ASTNode):
@@ -255,7 +386,14 @@ class Acosh(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.acosh(exp)
+        try:
+            return math.acosh(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error.'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ACOSH() function argument error'))
 
 
 class Atanh(ASTNode):
@@ -267,4 +405,11 @@ class Atanh(ASTNode):
     def execute(self, table, tree):
         super().execute(table, tree)
         exp = self.exp.execute(table, tree)
-        return math.atanh(exp)
+        try:
+            return math.atanh(exp)
+        except ValueError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: Math domain error.'))
+        except TypeError:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be real number, not '+ str(type(exp))))
+        except:
+            raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ATANH function argument error'))
