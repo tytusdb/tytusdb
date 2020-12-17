@@ -7,7 +7,6 @@ from Models.avl_tree import AVLTree
 class TableModule:
     def __init__(self):
         self.handler = Handler()
-        self.avl = AVLTree()
 
     def createTable(self, database: str, table: str, numberColumns: int) -> int:
         try:
@@ -40,29 +39,31 @@ class TableModule:
                 tmp = []
                 avl = self.handler.leerArchivoTB(database,table)
                 if avl.root != None:
-                    tmp = avl.list()
+                    tmp = avl.toList()
                 return tmp
             else:
                 return None
         except:
             return None
     
-    def extractRangeTable(self, database: str, table: str, lower: any, upper: any) -> list:
+    def extractRangeTable(self, database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
         try:
             if self.handler.siExiste(database,table):
                 tmp = []
                 avl = self.handler.leerArchivoTB(database,table)
-                if avl.root != None:
-                    for i in avl.list():
-                        #Considerando que la primera columna es la clave primaria
-                        if type(i[0]) == type(3):
-                            if int(i[0]) >= int(lower) and int(i[0]) <= int(upper):
+                if avl.root:
+                    for i in avl.toList():
+                        if type(i[columnNumber]) == type(3):
+                            if int(i[columnNumber]) >= int(lower) and int(i[columnNumber]) <= int(upper):
                                 tmp.append(i)
-                        elif type(i[0]) == type("string"):
-                            if str(i[0]) >= str(lower) and str(i[0]) <= str(upper):
+                        elif type(i[columnNumber]) == type("string"):
+                            if str(i[columnNumber]) >= str(lower) and str(i[columnNumber]) <= str(upper):
                                 tmp.append(i)
-                        elif type(i[0]) == type(3.1):
-                            if float(i[0]) >= float(lower) and float(i[0]) <= float(upper):
+                        elif type(i[columnNumber]) == type(3.1):
+                            if float(i[columnNumber]) >= float(lower) and float(i[columnNumber]) <= float(upper):
+                                tmp.append(i)
+                        elif type(i[columnNumber]) == type(True):
+                            if bool(i[columnNumber]) >= bool(lower) and bool(i[columnNumber]) <= bool(upper):
                                 tmp.append(i)
                 return tmp
             else:
@@ -70,25 +71,34 @@ class TableModule:
         except:
             return None
     
-    def alterAddPK(self, database: str, table: str, columns: list) -> int: #si ya existen y se agrega o modifica, eliminar la actual recalculando el indice
+    def alterAddPK(self, database: str, table: str, columns: list) -> int:
         try:
-            databases = self.handler.leerArchivoDB() #si hay registros duplicados al querer agregar llave primaria en esa columna retornar error
+            databases = self.handler.leerArchivoDB()
             for i in databases:
                 if database == i.name:
                     if self.handler.siExiste(database,table):
                         avl = self.handler.leerArchivoTB(database,table)
                         if avl.pklist == []:
-                            for i in columns:
-                                if i < 0 or i >= avl.numberColumns:
+                            for j in columns:
+                                if j < 0 or j >= avl.numberColumns:
                                     return 5
                             if avl.root == None:
                                 avl.pklist = columns
                                 return 0
                             else:
-                                if avl.hidden:
-                                    #reestructurar los indices del arbol con la actual llave primaria
-                                else:
-                                    return 1
+                                temporal = []
+                                for tupla in avl.toList():
+                                    tmp2 = ""
+                                    for key in columns:
+                                        tmp2 += "-" + str(tupla[key])
+                                    tmp2.pop(0)
+                                    if tmp2 in temporal:
+                                        return 1
+                                    temporal.append(tmp2)
+                                newAvl = AVLTree(database, table, avl.numberColumns, columns)
+                                for tupla in avl.toList():
+                                    newAvl.add(tupla)
+                                self.handler.actualizarArchivoTB(newAvl, database, table)
                                 return 0
                         else:
                             return 4
