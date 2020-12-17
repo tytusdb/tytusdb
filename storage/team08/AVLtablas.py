@@ -1,7 +1,9 @@
 from graphviz import Digraph
 import sys
 import os
-#os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin'
+import AVLbase as ba
+import GeneralesAVL as gA
+os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin'
 
 class nodoTabla:
     index = 0
@@ -27,71 +29,46 @@ class AVLTablas:
         nodoTabla.index = hey
         return hey
     
-    #rotaciones
-    def srl(self, t1):
-        t2 = t1.izquierda
-        t1.izquierda = t2.derecha
-        t2.derecha = t1
-        t1.nivel = self.maxi(self.nivel(t1.izquierda), self.nivel(t1.derecha))+1
-        t2.nivel = self.maxi(self.nivel(t2.izquierda), t1.nivel)+1
-        return t2
-
-    def srr(self, t1):
-        t2 = t1.derecha
-        t1.derecha = t2.izquierda
-        t2.izquierda = t1
-        t1.nivel = self.maxi(self.nivel(t1.izquierda), self.nivel(t1.derecha))+1
-        t2.nivel = self.maxi(self.nivel(t2.izquierda), t1.nivel)+1
-        return t2
-    
-    def drl(self, tmp):
-        tmp.izquierda = self.srr(tmp.izquierda)
-        return self.srl(tmp)
-    
-    def drr(self, tmp):
-        tmp.derecha = self.srl(tmp.derecha)
-        return self.srr(tmp)
-
     #agregar tabla
-    def jalarValN(self, vali):
-        return sum(ord(x) for x in vali)
-    
     def createTable(self, nomDTB, nomTBL, numCOL):
-        self.root = self._createTable(nomDTB, nomTBL, numCOL,self.root)
+        try:
+            valueBase = gA.g.jalarValN(nomDTB)
+            valueTabla = gA.g.jalarValN(nomTBL)
+            if ba.b.buscarBase(valueBase):
+                if self.buscar(valueTabla, nomDTB):
+                    return 3
+                else:
+                    self.root = self._createTable(nomDTB, nomTBL, numCOL,self.root)
+                    return 0
+            else:
+                return 2
+        except:
+            return 1
     
     def _createTable(self, nomDTB, nomTBL, numCOL, tmp):
         if tmp is None:
             index = self.indexNodo()
             nodoTabla.grafica += str(index) + ' [label="' + nomDTB + ' | ' + nomTBL  + ' | ' + str(numCOL) + '"]\n'
-            return nodoTabla(nomDTB, nomTBL, numCOL, index, self.jalarValN(nomTBL))
-        elif self.jalarValN(nomTBL) > (self.jalarValN(tmp.nomTBL)):
+            return nodoTabla(nomDTB, nomTBL, numCOL, index, gA.g.jalarValN(nomTBL))
+        elif gA.g.jalarValN(nomTBL) > (gA.g.jalarValN(tmp.nomTBL)):
             tmp.derecha = self._createTable(nomDTB, nomTBL, numCOL, tmp.derecha)
-            if(self.nivel(tmp.derecha) - self.nivel(tmp.izquierda)) == 2:
-                if self.jalarValN(nomTBL) > self.jalarValN(tmp.derecha.nomTBL):
-                    tmp = self.srr(tmp)
+            if(gA.g.nivel(tmp.derecha) - gA.g.nivel(tmp.izquierda)) == 2:
+                if gA.g.jalarValN(nomTBL) > gA.g.jalarValN(tmp.derecha.nomTBL):
+                    tmp = gA.g.srr(tmp)
                 else:
-                    tmp = self.drr(tmp)
+                    tmp = gA.g.drr(tmp)
         else:
             tmp.izquierda = self._createTable(nomDTB, nomTBL, numCOL, tmp.izquierda)
-            if (self.nivel(tmp.izquierda) - self.nivel(tmp.derecha)) == 2:
-                if self.jalarValN(nomTBL) < self.jalarValN(tmp.izquierda.nomTBL):
-                    tmp = self.srl(tmp)
+            if (gA.g.nivel(tmp.izquierda) - gA.g.nivel(tmp.derecha)) == 2:
+                if gA.g.jalarValN(nomTBL) < gA.g.jalarValN(tmp.izquierda.nomTBL):
+                    tmp = gA.g.srl(tmp)
                 else:
-                    tmp = self.drl(tmp)
-        d = self.nivel(tmp.derecha)
-        i = self.nivel(tmp.izquierda)
-        m = self.maxi(d, i)
+                    tmp = gA.g.drl(tmp)
+        d = gA.g.nivel(tmp.derecha)
+        i = gA.g.nivel(tmp.izquierda)
+        m = gA.g.maxi(d, i)
         tmp.nivel = m + 1
         return tmp
-
-    def nivel(self, tmp):
-        if tmp is None:
-            return -1
-        else:
-            return tmp.nivel
-        
-    def maxi(self, r, l):
-        return (l,r)[r>l]
 
     #saber quien es el padre:
     def tatascan(self, niv, value):
@@ -114,8 +91,8 @@ class AVLTablas:
 
     def _mostrarTablasConsola(self, tmp):
         if tmp != None:
-            self._mostrarTablasConsola(tmp.izquierda)
             print('Base = %s, Tabla = %s, Columnas = %d, Nivel = %d, Index: %d, Valor: %d'%(tmp.nomDTB, tmp.nomTBL, tmp.numCOL, tmp.nivel, tmp.index, tmp.value))
+            self._mostrarTablasConsola(tmp.izquierda)
             self._mostrarTablasConsola(tmp.derecha)
 
     #mostrar usando graphviz, pendiente de correcciones
@@ -197,38 +174,42 @@ class AVLTablas:
             return lstTBL
     
     #eliminar tabla ---------------------
-    def leMenor(self, tmp):
-        while tmp.izquierda != None:
-            tmp = tmp.izquierda
-        return tmp  
-
-    def buscar(self, value):
+    def buscar(self, value, nomDTB):
         if self.root == None:
             return None
         else:
-            return self._buscar(value, self.root)
+            return self._buscar(value, nomDTB, self.root)
         
-    def _buscar(self, value, tmp):
+    def _buscar(self, value, nomDTB, tmp):
+        if value == tmp.value and nomDTB == tmp.nomDTB:
+            return True
+        elif value > tmp.value and tmp.derecha != None:
+            return self._buscar(value, nomDTB, tmp.derecha)
+        elif value < tmp.value and tmp.izquierda != None:
+            return self._buscar(value, nomDTB, tmp.izquierda)
+    
+    def buscarNodo(self, value):
+        if self.root == None:
+            return None
+        else:
+            return self._buscarNodo(value, self.root)
+        
+    def _buscarNodo(self, value, tmp):
         if value == tmp.value:
             return tmp
         elif value > tmp.value and tmp.derecha != None:
-            return self._buscar(value, tmp.derecha)
+            return self._buscarNodo(value, tmp.derecha)
         elif value < tmp.value and tmp.izquierda != None:
-            return self._buscar(value, tmp.izquierda)
-
-    def nHojas(self, tmp):
-        nHojas = 0
-        if tmp.izquierda != None:
-            nHojas += 1
-        if tmp.derecha != None:
-            nHojas += 1
-        return nHojas
+            return self._buscarNodo(value, tmp.izquierda)
 
     def dropTable(self, nomDTB, nomTBL):
         try:
-            value = self.jalarValN(nomTBL)
-            return self.dropTableN(self.buscar(value))
-            #falta comprobar que exista la base para devolver 2 sino existe
+            valueB = gA.g.jalarValN(nomDTB)
+            value = gA.g.jalarValN(nomTBL)
+            if ba.b.buscarBase(valueB):
+                return self.dropTableN(self.buscarNodo(value))
+            else:
+                return 2
         except:
             return 1
 
@@ -236,7 +217,7 @@ class AVLTablas:
         if tmp == None:
             return 3  #tabla no existe
         else:
-            nHoja = self.nHojas(tmp)
+            nHoja = gA.g.nHojas(tmp)
             if nHoja == 0: #nodo sin hojas
                 tata = self.tatascan((tmp.nivel+1), tmp.value)
                 if tata != None:
@@ -249,7 +230,6 @@ class AVLTablas:
                 else:
                     self.root = None
                     return 0
-
             elif nHoja == 1: #nodo con 1 hoja
                 if tmp.izquierda != None:
                     hijo = tmp.izquierda
@@ -276,13 +256,13 @@ class AVLTablas:
 
             elif nHoja == 2: #nodo con dos hojas
                 if tmp.nivel != self.root.nivel: #esta condicion es para que tome bien el nivel si en dado caso quiere eliminar la raíz
-                    leSigue = self.leMenor(tmp)
+                    leSigue = gA.g.leMenor(tmp)
                     self.dropTableN(leSigue)
                     tmp.value = leSigue.value
                     tmp.nivel = leSigue.nivel + 1
                     return 0
                 else:
-                    leSigue = self.leMenor(tmp)
+                    leSigue = gA.g.leMenor(tmp)
                     self.dropTableN(leSigue)
                     tmp.value = leSigue.value
                     tmp.nivel = self.root.nivel + 1
@@ -291,24 +271,10 @@ class AVLTablas:
         
 
     
-#iniciar
-os.system('cls')
-t = AVLTablas()
-
-#agregando tablas
-t.createTable('Base 1', 'Nombre 1', 25) #692   1
-t.createTable('Base 2', 'Tabla 2', 15) #566  2
-t.createTable('Base 1', 'Tabla 1', 50) #565   3
-t.createTable('Base 2', 'Nombre', 8) #611   4
-t.createTable('Base 2', 'ya no', 15) #471    5
-t.createTable('Base 3', 'ya', 5) #218    6
-t.createTable('Base 1', 'Empleados', 45) #922    7
-t.createTable('Base 2', 'Sucursal', 5) #850    8
-t.createTable('Base 1', 'Yucas', 5) #517    9
-
+'''#iniciar
 #mostrar
 t.mostrarTablasConsola()
-'''#t.crearGraphviz()
+#t.crearGraphviz()
 
 #buscar tablas en base de datos
 busc = 'Base 2'
@@ -327,8 +293,10 @@ xtraerT = 'Tabla 2'
 up = 5
 lo = 6
 print('Se va a extraer: ' + xtraerT + ' de ' + xtraerB + ' desde ' + str(lo) + ' hasta ' + str(up))
-print(t.extractRangeTable(extraerB,extraerT,lo,up))'''
+print(t.extractRangeTable(extraerB,extraerT,lo,up))
 eliB = 'Base 1'
 eliT = 'Tabla 555'
 print(t.dropTable(eliB,eliT))
-t.mostrarTablasConsola()
+t.mostrarTablasConsola()'''
+
+t = AVLTablas()
