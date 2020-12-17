@@ -59,21 +59,25 @@ class Identifiers(Expression):
     """
     Esta clase representa los nombre de columnas
     """
-
     value = None
     # TODO: implementar la funcion para obtener el type de la columna
-    def __init__(self, table, name, row, column):
+    def __init__(self, table, name, df, row, column):
         Expression.__init__(self, row, column)
         self.table = table
         self.name = name
-        self.temp = table + "." + name
+        self.df = df
+        if table == None : self.temp = name
+        else : self.temp = table + "." + name
         self.type = TYPE.NUMBER
 
-    def execute(self, environment):
+    def execute(self, environment): 
         """
         TODO:Se debe hacer la logica para buscar los identificadores en la tabla
         """
-        # self.value = df.dataTable[self.temp]
+        col = ""
+        if self.table == None : col= self.name
+        else : col = self.table + "." + self.name
+        self.value = self.df[col]
         return self
 
 
@@ -346,18 +350,42 @@ class UnaryLogicalOperation(Expression):
     def execute(self, environment):
         exp = self.exp.execute(environment)
         operator = self.operator
-
+        #MOMO IF OPERADORES
         if exp.type != TYPE.BOOLEAN:
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
-        if isinstance(exp.value, pd.core.series.Series):
+        if isinstance(exp.value,pd.core.series.Series):
             if operator == "NOT":
                 value = ~exp.value
+            elif operator == "ISTRUE":
+                value = exp.value == True
+            elif operator == "ISFALSE":
+                value = exp.value == False
+            elif operator == "ISUNKNOWN":
+                value = exp.value == None
+            elif operator == "ISNOTTRUE":
+                value = exp.value != True
+            elif operator == "ISNOTFALSE":
+                value = exp.value != False
+            elif operator == "ISNOTUNKNOWN":
+                value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        else:
+        else :
             if operator == "NOT":
                 value = not exp.value
+            elif operator == "ISTRUE":
+                value = exp.value == True
+            elif operator == "ISFALSE":
+                value = exp.value == False
+            elif operator == "ISUNKNOWN":
+                value = exp.value == None
+            elif operator == "ISNOTTRUE":
+                value = exp.value != True
+            elif operator == "ISNOTFALSE":
+                value = exp.value != False
+            elif operator == "ISNOTUNKNOWN":
+                value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.BOOLEAN, value, self.row, self.column)

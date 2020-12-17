@@ -317,12 +317,12 @@ t_ignore = "\r"
 
 global columna
 columna = 0
-global numNodo
 numNodo = 0
 
 
 def incNodo(valor):
-    numNodo = valor +1
+    global numNodo
+    numNodo = numNodo + 1
     return numNodo
 
 def IncColuma(valor):
@@ -349,7 +349,7 @@ def find_column(input, token):
 def crear_nodo_general(nombre, valor,fila,column):
     nNodo = incNodo(numNodo)
     nodoEnviar = nodoGeneral.NodoGeneral()
-    nodoEnviar.setearValores(fila,columna,nombre,nNodo,valor)
+    nodoEnviar.setearValores(fila,columna,nombre,nNodo,valor,[])
     return nodoEnviar
 
 # Construyendo el analizador léxico
@@ -379,7 +379,7 @@ precedence = (
 from clasesAbstractas import createType
 from clasesAbstractas import insertTable
 from clasesAbstractas import nodoGeneral
-from tablaSimbolos import tipoSimbolo
+from tabla_Simbolos import tipoSimbolo
 from clasesAbstractas import deleteTable
 from clasesAbstractas import updateColumna
 from clasesAbstractas import updateTable
@@ -392,19 +392,27 @@ from clasesAbstractas import alterTable
 from clasesAbstractas import dropDatabase
 from clasesAbstractas import dropTable
 
+from clasesAbstractas import select_query
+from clasesAbstractas import selectSimple
+from clasesAbstractas import columnaCampoAlias
+from clasesAbstractas import funcion
+from clasesAbstractas import funcionCase
 
 def p_init(t):
-    'init   :   instrucciones'
+    'init   :   instrucciones'   
     t[0] = t [1]
 
 def p_lista_instrucciones(t):
     'instrucciones  :   instrucciones instruccion'
-    t[1].append(t[2])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[2])    
+    t[0] = nodo
 
 def p_instrucciones_instruccion(t):
     'instrucciones  :   instruccion'
-    t[0] = [t[1]]
+    nodo = crear_nodo_general("init","",str(t.lexer.lineno),columna)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
 
 def p_instruccion(t):
     '''instruccion  :   insert_table
@@ -574,7 +582,7 @@ def p_expresion_cadena(t):
     nNodo = incNodo(numNodo)
     nodoExp = expresion.Expresion()
     nodoExp.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.CADENA)
-    nodoExp.setearValores(str(t.lexer.lineno),columna,"CADENA",nNodo,t[1])
+    nodoExp.setearValores(str(t.lexer.lineno),columna,"CADENA",nNodo,t[1],[])
     t[0] = nodoExp
 
 
@@ -583,7 +591,7 @@ def p_expresion_entero(t):
     nNodo = incNodo(numNodo)
     nodoExp = expresion.Expresion()
     nodoExp.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.ENTERO)
-    nodoExp.setearValores(str(t.lexer.lineno),columna,"ENTERO",nNodo,t[1])
+    nodoExp.setearValores(str(t.lexer.lineno),columna,"ENTERO",nNodo,t[1],[])
     t[0] = nodoExp
 
 
@@ -593,7 +601,7 @@ def p_expresion_decimal(t):
     nNodo = incNodo(numNodo)
     nodoExp = expresion.Expresion()
     nodoExp.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.DECIMAL)
-    nodoExp.setearValores(str(t.lexer.lineno),columna,"DECIMAL_",nNodo,t[1])
+    nodoExp.setearValores(str(t.lexer.lineno),columna,"DECIMAL_",nNodo,t[1],[])
     t[0] = nodoExp
 
 def p_instr_delete(t):
@@ -612,16 +620,16 @@ def p_instr_delete(t):
         nodoDelete.setearValores(linea,columna,"DELETE_FROM",nNodo,"",hijos)
         t[0] = nodoDelete
     else:
-        nodoDelete = deleteTable.DeleteTable(t[3],t[4])
+        nodoDelete = deleteTable.DeleteTable(t[3],t[5])
         hijos.append(nodoId)
-        hijos.append(t[4])
+        hijos.append(t[5])
         nodoDelete.setearValores(linea,columna,"DELETE_FROM",nNodo,"",hijos)
         t[0] = nodoDelete
 
 def p_instr_condicion_where(t):
     'exp_operacion  :  exp_logica'
-    nodoExp = crear_nodo_general("OPERACION","",str(t.lexer.lineno),columna)
-    nodoExp.hijos.append(nodoExp)
+    nodoExp = crear_nodo_general("Exp_OPERACION","",str(t.lexer.lineno),columna)
+    nodoExp.hijos.append(t[1])
     t[0] = nodoExp
 
 def p_exp_logica(t):
@@ -636,7 +644,7 @@ def p_exp_logica(t):
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
         nodoExp = expresion.Expresion()
-        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"")
+        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"",[])
         nodoExp.operacionUnaria(t[2],tipoSimbolo.TipoSimbolo.NOT)
         nodoMas = crear_nodo_general("NOT","not",linea,columna)
         nodoExp.hijos.append(nodoMas)
@@ -647,7 +655,7 @@ def p_exp_logica(t):
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
         nodoExp = expresion.Expresion()
-        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"")
+        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"",[])
 
         if tipOp.lower() == "or":
             nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.OR)
@@ -682,7 +690,7 @@ def p_exp_relacional(t):
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
         nodoExp = expresion.Expresion()
-        nodoExp.setearValores(linea,columna,"EXPRESION_RELACIONAL",nNodo,"")
+        nodoExp.setearValores(linea,columna,"EXPRESION_RELACIONAL",nNodo,"",[])
 
         if tipOp == "<":
             nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.MENOR_QUE)
@@ -764,7 +772,7 @@ def p_exp_aritmetica(t):
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
         nodoExp = expresion.Expresion()
-        nodoExp.setearValores(linea,columna,"EXPRESION_ARITMETICA",nNodo,"")
+        nodoExp.setearValores(linea,columna,"EXPRESION_ARITMETICA",nNodo,"",[])
 
         if tipOp == "+":
             nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.SUMA)
@@ -990,7 +998,7 @@ def p_primitivo_entero(t):
     linea = str(t.lexer.lineno)
     nodoPri = expresion.Expresion()
     nodoPri.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.ENTERO)
-    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1])
+    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1],[])
     t[0] = nodoPri
 
 def p_primitivo_decimal(t):
@@ -1000,7 +1008,7 @@ def p_primitivo_decimal(t):
     linea = str(t.lexer.lineno)
     nodoPri = expresion.Expresion()
     nodoPri.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.DECIMAL)
-    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1])
+    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1],[])
     t[0] = nodoPri
 
     
@@ -1012,7 +1020,7 @@ def p_primitivo_cadena(t):
     linea = str(t.lexer.lineno)
     nodoPri = expresion.Expresion()
     nodoPri.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.CADENA)
-    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1])
+    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1],[])
     t[0] = nodoPri
 
 def p_primitivo_booleano(t):
@@ -1025,12 +1033,12 @@ def p_primitivo_booleano(t):
     if (tipo.lower()=="true"):
         nodoPri = expresion.Expresion()
         nodoPri.valorPrimitivo(True,tipoSimbolo.TipoSimbolo.BOOLEANO)
-        nodoPri.setearValores(linea,columna,"PRIMTIVO",nNodo,True)
+        nodoPri.setearValores(linea,columna,"PRIMTIVO",nNodo,True,[])
         t[0] = nodoPri
     else:
         nodoPri = expresion.Expresion()
         nodoPri.valorPrimitivo(False,tipoSimbolo.TipoSimbolo.BOOLEANO)
-        nodoPri.setearValores(linea,columna,"PRIMTIVO",nNodo,False)
+        nodoPri.setearValores(linea,columna,"PRIMTIVO",nNodo,False,[])
         t[0] = nodoPri
 
 
@@ -1647,6 +1655,27 @@ def p_inst_query(t):
                     |   select_query INTERSECT ALL select_query
                     |   select_query EXCEPT select_query
                     |   select_query EXCEPT ALL select_query'''
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+
+    if len(t) == 2:
+        instruccion = select_query.select_query(t[1], None, None)
+        hijos.append(t[1])
+        instruccion.setearValores(linea, columna, 'INSTRUCCION_SELECT',nNodo,'',hijos)
+        t[0] = instruccion
+    else:
+        nodoOp = crear_nodo_general("OP_QUERY", t[2], linea, columna)
+        instruccion = select_query.select_query(t[1], t[3], nodoOp)
+        hijos.append(t[1])
+        hijos.append(nodoOp)
+        hijos.append(t[3])
+        instruccion.setearValores(linea, columna, 'INSTRUCCION_SELECT',nNodo,'',hijos)
+        t[0] = instruccion
+
+
+
+    
 
 def p_select_query(t):
     '''select_query     :   SELECT DISTINCT select_list FROM from_query_list lista_condiciones_query
@@ -1654,44 +1683,239 @@ def p_select_query(t):
                         |   SELECT DISTINCT select_list FROM from_query_list 
                         |   SELECT select_list FROM from_query_list
                         |   SELECT select_list'''
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+
+    if len(t) == 7:
+        instruccion = selectSimple.selectSimple(t[3], t[5], t[6])
+        hijos.append(t[3])
+        hijos.append(t[5])
+        hijos.append(t[6])
+        instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
+        t[0] = instruccion
+    elif len(t) == 6:
+        if t[2] == 'distinct':
+            instruccion = selectSimple.selectSimple(t[3], t[5], None)
+            hijos.append(t[3])
+            hijos.append(t[5])
+            instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
+            t[0] = instruccion
+        else:
+            instruccion = selectSimple.selectSimple(t[2], t[4], t[5])
+            hijos.append(t[2])
+            hijos.append(t[4])
+            hijos.append(t[5])
+            instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
+            t[0] = instruccion
+
+    elif len(t) == 5:
+        instruccion = selectSimple.selectSimple(t[2], t[4], None)
+        hijos.append(t[2])
+        hijos.append(t[4])
+        instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
+        t[0] = instruccion
+    
+    elif len(t) == 3:
+        instruccion = selectSimple.selectSimple(t[2], None, None)
+        hijos.append(t[2])
+        instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
+        t[0] = instruccion
+    
 
 def p_select_list(t):
     '''select_list  :   MULTIPLICACION
                     |   elementos_select_list'''
+    linea = str(t.lexer.lineno)
+
+    if t[1] == "*":
+        nodoMult = crear_nodo_general('ASTERISCO', '*', linea, columna)
+        t[0] = nodoMult
+    else:
+        t[0] = t[1]
+
+
 
 def p_elementos_select_list(t):
     '''elementos_select_list    :   elementos_select_list COMA elemento_select
                                 |   elemento_select'''
+    
+    linea = str(t.lexer.lineno)
+    if len(t) == 4:
+        NodoListaElementos = t[1]
+        NodoElemento = t[3]
+        NodoListaElementos.hijos.append(NodoElemento)
+        t[0] = NodoListaElementos
+    else:
+        NodoListaElementos = t[1]
+        NodoSelectList = crear_nodo_general('elementos_select_list', '', linea, columna)
+        NodoSelectList.hijos.append(NodoListaElementos)
+        t[0] = NodoSelectList
 
-def p_elemento_select(t):
-    '''elemento_select  :   dec_select_columna
-                        |   subquery AS ID
+
+def p_elemento_select_id(t):
+    'elemento_select  :   dec_select_columna'
+    t[0] = t[1]
+
+
+def p_elemento_select_subquery(t):
+    '''elemento_select  :   subquery AS ID
                         |   subquery ID
-                        |   subquery
-                        |   funcion AS ID
+                        |   subquery'''
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nodoElemento = crear_nodo_general("elemento_select", "", linea, columna)
+
+    if len(t) == 4:
+        nodoID = crear_nodo_general("ID", t[3], linea, columna)
+        hijos.append(t[1])
+        hijos.append(nodoID)
+        nodoElemento.setearValores(linea, columna, "elemento_select", "", hijos)
+        t[0] = nodoElemento
+
+    elif len(t) == 3:
+        nodoID = crear_nodo_general("ID", t[2], linea, columna)
+        hijos.append(t[1])
+        hijos.append(nodoID)
+        nodoElemento.setearValores(linea, columna, "elemento_select", "", hijos)
+        t[0] = nodoElemento
+
+    elif len(t) == 2:
+        hijos.append(t[1])
+        nodoElemento.setearValores(linea, columna, "elemento_select", "", hijos)
+        t[0] = nodoElemento
+
+    
+    
+
+def p_elemento_select_funcion(t):
+    '''elemento_select  :   funcion AS ID
                         |   funcion ID
                         |   funcion'''
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nodoElemento = crear_nodo_general("elemento_select", "", linea, columna)
+
+    if len(t) == 4:
+        nodoID = crear_nodo_general("ID", t[3], linea, columna)
+        hijos.append(t[1])
+        hijos.append(nodoID)
+        nodoElemento.setearValores(linea, columna, "elemento_select", "", hijos)
+        t[0] = nodoElemento
+
+    elif len(t) == 3:
+        nodoID = crear_nodo_general("ID", t[2], linea, columna)
+        hijos.append(t[1])
+        hijos.append(nodoID)
+        nodoElemento.setearValores(linea, columna, "elemento_select", "", hijos)
+        t[0] = nodoElemento
+
+    elif len(t) == 2:
+        hijos.append(t[1])
+        nodoElemento.setearValores(linea, columna, "elemento_select", "", hijos)
+        t[0] = nodoElemento
 
 def p_dec_select_columna(t):
     '''dec_select_columna   :   ID PUNTO ID AS ID
                             |   ID PUNTO ID ID
                             |   ID PUNTO ID
                             |   ID'''
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+
+    if len(t) == 6:
+        instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], t[5])
+        nodoIDcol = crear_nodo_general("ID",t[1],linea,columna)
+        nodoIDcampo = crear_nodo_general("ID", t[3], linea, columna)
+        nodoIDalias = crear_nodo_general("ID", t[5], linea, columna)
+        hijos.append(nodoIDcol)
+        hijos.append(nodoIDcampo)
+        hijos.append(nNodo)
+        instruccion.setearValores(linea, columna, "TABLA_CAMPO_ALIAS", nNodo, '', hijos)
+        t[0] = instruccion
+    
+    elif len(t) == 5:
+        instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], t[4])
+        nodoIDcol = crear_nodo_general("ID",t[1],linea,columna)
+        nodoIDcampo = crear_nodo_general("ID", t[3], linea, columna)
+        nodoIDalias = crear_nodo_general("ID", t[4], linea, columna)
+        hijos.append(nodoIDcol)
+        hijos.append(nodoIDcampo)
+        hijos.append(nNodo)
+        instruccion.setearValores(linea, columna, "TABLA_CAMPO_ALIAS", nNodo, '', hijos)
+        t[0] = instruccion
+    
+    elif len(t) == 4:
+        instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], None)
+        nodoIDcol = crear_nodo_general("ID",t[1],linea,columna)
+        nodoIDcampo = crear_nodo_general("ID", t[3], linea, columna)
+        hijos.append(nodoIDcol)
+        hijos.append(nodoIDcampo)
+        instruccion.setearValores(linea, columna, "TABLA_CAMPO_ALIAS", nNodo, '', hijos)
+        t[0] = instruccion
+
+    elif len(t) == 2:
+        instruccion = columnaCampoAlias.columnaCampoAlias(t[1], None, None)
+        nodoIDcol = crear_nodo_general("ID",t[1],linea,columna)
+        hijos.append(nodoIDcol)
+        instruccion.setearValores(linea, columna, "TABLA_CAMPO_ALIAS", nNodo, '', hijos)
+        t[0] = instruccion
+
 
 def p_funcion(t):
     '''funcion  :   funcion_time
                 |   funcion_mate
                 |   funcion_trig
                 |   funcion_binstr
-                |   funcion_exprecion'''
+                |   funcion_exprecion
+                |   funcion_agregacion
+                |   dec_case'''
+    t[0] = t[1]
+    
 
 def p_funcion_time(t):
     '''funcion_time :   EXTRACT PARIZQUIERDO var_time FROM var_timeextract CADENA PARDERECHO
                     |   DATE_PART PARIZQUIERDO CADENA COMA var_timeextract CADENA PARDERECHO
                     |   NOW PARIZQUIERDO PARDERECHO
-                    |   var_timeextract CADENA
                     |   CURRENT_DATE
                     |   CURRENT_TIME'''
+    
+    linea = str(t.lexer.lineno)
+    hijos = []
+    if len(t) == 8:
+        if t[1] == 'extract':
+            nodoFuncion = funcion.funcion()
+            nodoCadena = crear_nodo_general("CADENA", t[6], linea, columna)
+            hijos.append(t[3])
+            hijos.append(t[5])
+            hijos.append(nodoCadena)
+            nNodo = incNodo(numNodo)
+            nodoFuncion.setearValores(linea, columna, "FUNCION_TIME", nNodo, "", hijos)
+            nodoFuncion.funcionTimeExtract(t[3], t[5], t[6])
+            t[0] = nodoFuncion
+        elif t[1] == 'date_part':
+            nodoFuncion = funcion.funcion()
+            nodoCadenaPart = crear_nodo_general("CADENA", t[3], linea, columna)
+            nodoCadenaTiempo = crear_nodo_general("CADENA", t[6], linea, columna)
+            hijos.append(nodoCadenaPart)
+            hijos.append(t[5])
+            hijos.append(nodoCadenaTiempo)
+            nNodo = incNodo(numNodo)
+            nodoFuncion.setearValores(linea, columna, "FUNCION_TIME", nNodo, "", hijos)
+            nodoFuncion.funcionTimeExtract(t[3], t[5], t[6])
+            t[0] = nodoFuncion
+            pass
+    else:
+        nodoFuncion = funcion.funcion()
+        nodoTipoLlamada = crear_nodo_general("PAMETRO_PREDEFINIDO", t[1], linea, columna)
+        hijos.append(nodoTipoLlamada)
+        nNodo = incNodo(numNodo)
+        nodoFuncion.setearValores(linea, columna, "FUNCION_TIME", nNodo, "", hijos)
+        nodoFuncion.funcionTiempoPredefinido(t[1])
+        t[0] = t[1]
+
+
 
 def p_var_time(t):
     '''var_time :   YEAR
@@ -1700,12 +1924,16 @@ def p_var_time(t):
                 |   HOUR
                 |   MINUTE
                 |   SECOND'''
+    nodoVarTime = crear_nodo_general("VAR_TIME", t[1], str(t.lexer.lineno), columna)
+    t[0] = nodoVarTime
 
 def p_var_timeextract(t):
     '''var_timeextract  :   TIMESTAMP
                         |   TIME
                         |   DATE
                         |   INTERVAL'''
+    nodoVarTimeExtract = crear_nodo_general("VAR_TIMEEXTRACT", t[1], str(t.lexer.lineno), columna)
+    t[0] = nodoVarTimeExtract
 
 def p_funcion_mate(t):
     '''funcion_mate :   ABS PARIZQUIERDO exp_operacion PARDERECHO
@@ -1729,13 +1957,47 @@ def p_funcion_mate(t):
                     |   SQRT PARIZQUIERDO exp_operacion PARDERECHO
                     |   WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO
                     |   TRUNC PARIZQUIERDO exp_operacion PARDERECHO
-                    |   RANDOM PARIZQUIERDO exp_operacion PARDERECHO
-                    |   SUM PARIZQUIERDO exp_operacion PARDERECHO
-                    |   COUNT PARIZQUIERDO exp_operacion PARDERECHO
-                    |   COUNT PARIZQUIERDO MULTIPLICACION PARDERECHO
-                    |   AVG PARIZQUIERDO exp_operacion PARDERECHO
-                    |   MAX PARIZQUIERDO exp_operacion PARDERECHO
-                    |   MIN PARIZQUIERDO exp_operacion PARDERECHO'''
+                    |   RANDOM PARIZQUIERDO exp_operacion PARDERECHO'''
+    linea = str(t.lexer.lineno)
+    nNodo = incNodo(numNodo)
+    
+    if len(t) == 4:
+        nodoFuncion = funcion.funcion()
+        nodoFuncion.setearValores(linea,columna,"FUNCION_MATEMATICA",nNodo,"")
+        tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+        nodoFuncion.funcionMateUnitaria(tipoFuncion, None)
+        nodoFuncion.hijos.append(tipoFuncion)
+        t[0] = nodoFuncion
+    elif len(t) == 5:    
+        nodoFuncion = funcion.funcion()
+        nodoFuncion.setearValores(linea,columna,"FUNCION_MATEMATICA",nNodo,"")
+        tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+        nodoFuncion.funcionMateUnitaria(tipoFuncion, t[3])
+        nodoFuncion.hijos.append(tipoFuncion)
+        nodoFuncion.hijos.append(t[3])
+        t[0] = nodoFuncion
+    elif len(t) == 7:
+        nodoFuncion = funcion.funcion()
+        nodoFuncion.setearValores(linea,columna,"FUNCION_MATEMATICA",nNodo,"")
+        tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+        nodoFuncion.funcionMateBinaria(tipoFuncion, t[3], t[5])
+        nodoFuncion.hijos.append(tipoFuncion)
+        nodoFuncion.hijos.append(t[3])
+        nodoFuncion.hijos.append(t[5])
+        t[0] = nodoFuncion
+    elif len(t) == 11:
+        nodoFuncion = funcion.funcion()
+        nodoFuncion.setearValores(linea,columna,"FUNCION_MATEMATICA",nNodo,"")
+        tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+        nodoFuncion.funcionMateWidthBucket(tipoFuncion, t[3], t[5], t[7], t[9])
+        nodoFuncion.hijos.append(tipoFuncion)
+        nodoFuncion.hijos.append(t[3])
+        nodoFuncion.hijos.append(t[5])
+        nodoFuncion.hijos.append(t[7])
+        nodoFuncion.hijos.append(t[9])
+        t[0] = nodoFuncion
+    
+
                     
 def p_funcion_trig(t):
     '''funcion_trig :   ACOS PARIZQUIERDO exp_operacion PARDERECHO
@@ -1758,36 +2020,168 @@ def p_funcion_trig(t):
                     |   ASINH PARIZQUIERDO exp_operacion PARDERECHO
                     |   ACOSH PARIZQUIERDO exp_operacion PARDERECHO
                     |   ATANH PARIZQUIERDO exp_operacion PARDERECHO'''
+    linea = str(t.lexer.lineno)
+    nNodo = incNodo(numNodo)
+
+    if len(t) == 5:    
+        nodoFuncion = funcion.funcion()
+        nodoFuncion.setearValores(linea,columna,"FUNCION_TRIGONOMETRICA",nNodo,"")
+        tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+        nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3])
+        nodoFuncion.hijos.append(tipoFuncion)
+        nodoFuncion.hijos.append(t[3])
+        t[0] = nodoFuncion
+    elif len(t) == 7:
+        nodoFuncion = funcion.funcion()
+        nodoFuncion.setearValores(linea,columna,"FUNCION_TRIGONOMETRICA",nNodo,"")
+        tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+        nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3], t[5])
+        nodoFuncion.hijos.append(tipoFuncion)
+        nodoFuncion.hijos.append(t[3])
+        nodoFuncion.hijos.append(t[5])
+        t[0] = nodoFuncion
+
 
 def p_funcion_binstr(t):
     '''funcion_binstr   :   LENGTH PARIZQUIERDO exp_operacion PARDERECHO
-                        |   SUBSTRING PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO
+                        |   SUBSTRING PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO
                         |   TRIM PARIZQUIERDO exp_operacion PARDERECHO
                         |   MD5 PARIZQUIERDO exp_operacion PARDERECHO
                         |   SHA256 PARIZQUIERDO exp_operacion PARDERECHO
-                        |   SUBSTR PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO
-                        |   GET_BYTE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
-                        |   SET_BYTE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
+                        |   SUBSTR PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO
+                        |   GET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO PARDERECHO
+                        |   SET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO
                         |   CONVERT PARIZQUIERDO exp_operacion AS tipos PARDERECHO
                         |   ENCODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO
                         |   DECODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO'''
+    linea = str(t.lexer.lineno)
+    nNodo = incNodo(numNodo)
+
+    if len(t) == 5:
+        nodoFuncion = funcion.funcion()
+        nodoFuncion.setearValores(linea,columna,"FUNCION_BINARIASTR",nNodo,"")
+        tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+        nodoFuncion.funcionBinariaStrUnitaria(tipoFuncion, t[3])
+        nodoFuncion.hijos.append(tipoFuncion)
+        nodoFuncion.hijos.append(t[3])
+        t[0] = nodoFuncion
+    elif len(t) == 7:
+        if t[1] == 'get_byte':
+            nodoFuncion = funcion.funcion()
+            nodoFuncion.setearValores(linea,columna,"FUNCION_BINARIASTR",nNodo,"")
+            tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+            nodoP2 = crear_nodo_general("ENTERO", t[5], linea, columna)
+            nodoFuncion.funcionTrigonometricaBinaria(tipoFuncion, t[3], t[5])
+            nodoFuncion.hijos.append(tipoFuncion)
+            nodoFuncion.hijos.append(t[3])
+            nodoFuncion.hijos.append(nodoP2)
+            t[0] = nodoFuncion
+        else:
+            nodoFuncion = funcion.funcion()
+            nodoFuncion.setearValores(linea,columna,"FUNCION_BINARIASTR",nNodo,"")
+            tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+            nodoFuncion.funcionTrigonometricaBinaria(tipoFuncion, t[3], t[5])
+            nodoFuncion.hijos.append(tipoFuncion)
+            nodoFuncion.hijos.append(t[3])
+            nodoFuncion.hijos.append(t[5])
+            t[0] = nodoFuncion
+
+    elif len(t) == 9:
+        nodoFuncion = funcion.funcion()
+        nodoFuncion.setearValores(linea,columna,"FUNCION_BINARIASTR",nNodo,"")
+
+        tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+        nodoP2 = crear_nodo_general("ENTERO", t[5], linea, columna)
+        nodoP3 = crear_nodo_general("ENTERO", t[7], linea, columna)
+
+        nodoFuncion.funcionTrigonometricaTriple(tipoFuncion, t[3], t[5], t[7])
+        nodoFuncion.hijos.append(tipoFuncion)
+        nodoFuncion.hijos.append(nodoP2)
+        nodoFuncion.hijos.append(nodoP3)
+        t[0] = nodoFuncion
+    
+    
+
+def p_funcion_agregacion(t):
+    '''funcion_agregacion   :   SUM PARIZQUIERDO exp_operacion PARDERECHO
+                            |   COUNT PARIZQUIERDO exp_operacion PARDERECHO
+                            |   COUNT PARIZQUIERDO MULTIPLICACION PARDERECHO
+                            |   AVG PARIZQUIERDO exp_operacion PARDERECHO
+                            |   MAX PARIZQUIERDO exp_operacion PARDERECHO
+                            |   MIN PARIZQUIERDO exp_operacion PARDERECHO'''
+
 
 def p_funcion_exprecion(t):
     '''funcion_exprecion    :   GREATEST PARIZQUIERDO lista_exp PARDERECHO
-                            |   LEAST PARIZQUIERDO lista_exp PARDERECHO
-                            |   dec_case'''
+                            |   LEAST PARIZQUIERDO lista_exp PARDERECHO'''
+    linea = str(t.lexer.lineno)
+    nNodo = incNodo(numNodo)
+    nodoFuncion = funcion.funcion()
+    nodoFuncion.setearValores(linea,columna,"FUNCION_BINARIASTR",nNodo,"")
+    tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
+    nodoFuncion.funcionExprecion(tipoFuncion, t[3])
+    nodoFuncion.hijos.append(tipoFuncion)
+    nodoFuncion.hijos.append(t[3])
+
+    t[0] = nodoFuncion
+    
 
 def p_dec_case(t):
     '''dec_case :   CASE lista_when_case ELSE exp_operacion END
                 |   CASE lista_when_case END'''
+    linea = str(t.lexer.lineno)
+    nNodo = incNodo(numNodo)
+
+    if len(t) == 6:
+        nodoCase = funcionCase.funcionCase(t[2], t[4])
+        nodoCase.setearValores(linea, columna, "CASE", nNodo, "")
+        nodoCase.hijos.append(t[2])
+        nodoCase.hijos.append(t[4])
+    else:
+        nodoCase = funcionCase.funcionCase(t[2], None)
+        nodoCase.setearValores(linea, columna, "CASE", nNodo, "")
+        nodoCase.hijos.append(t[2])
+
 
 def p_lista_when_case(t):
-    '''lista_when_case  :   lista_when_case WHEN exp_operacion THEN exp_operacion
-                        |   WHEN exp_operacion THEN exp_operacion'''
+    '''lista_when_case  :   lista_when_case clausula_case_when
+                        |   clausula_case_when'''
+    linea = str(t.lexer.lineno)
+    if len(t) == 3:
+        NodoListaWhenCase = t[1]
+        NodoElemento = t[2]
+        NodoListaWhenCase.hijos.append(NodoElemento)
+        t[0] = NodoListaWhenCase
+    else:
+        NodoListaWhenCase = t[1]
+        NodoSelectList = crear_nodo_general("lista_when_case", '', linea, columna)
+        NodoSelectList.hijos.append(NodoListaWhenCase)
+        t[0] = NodoSelectList
+
+
+def p_clausula_case_when(t):
+    'clausula_case_when :   WHEN exp_operacion THEN exp_operacion'
+    linea = str(t.lexer.lineno)
+    NodoClausulaWhenCase = crear_nodo_general("clausula_case_when", "", linea, columna)
+    NodoClausulaWhenCase.hijos.append(t[2])
+    NodoClausulaWhenCase.hijos.append(t[4])
+    t[0] = NodoClausulaWhenCase
+
 
 def p_from_query_list(t):
     '''from_query_list  :   from_query_list COMA from_query_element
                         |   from_query_element'''
+    linea = str(t.lexer.lineno)
+    if len(t) == 4:
+        NodoQueryList = t[1]
+        NodoElemento = t[3]
+        NodoQueryList.hijos.append(NodoElemento)
+        t[0] = NodoQueryList
+    else:
+        NodoQueryList = t[1]
+        NodoSelectList = crear_nodo_general("from_query_list", '', linea, columna)
+        NodoSelectList.hijos.append(NodoQueryList)
+        t[0] = NodoSelectList
 
 
 def p_from_query_element(t):
@@ -1795,16 +2189,66 @@ def p_from_query_element(t):
                             |   subquery AS ID
                             |   subquery ID
                             |   subquery'''
+    linea = str(t.lexer.lineno)
+    if len(t) == 2:
+        nodoFromQuery = crear_nodo_general("from_query_element", "", linea, columna)
+        nodoFromQuery.hijos.append(t[1])
+        t[0] = nodoFromQuery
+    elif len(t) == 3:
+        nodoFromQuery = crear_nodo_general("from_query_element", "", linea, columna)
+        nodoID = crear_nodo_general("ID", t[2], linea, columna)
+        nodoFromQuery.hijos.append(t[1])
+        nodoFromQuery.hijos.append(nodoID)
+        t[0] = nodoFromQuery
+        
+    elif len(t) == 4:
+        nodoFromQuery = crear_nodo_general("from_query_element", "", linea, columna)
+        nodoID = crear_nodo_general("ID", t[3], linea, columna)
+        nodoFromQuery.hijos.append(t[1])
+        nodoFromQuery.hijos.append(nodoID)
+        t[0] = nodoFromQuery
+
 
 def p_dec_id_from(t):
     '''dec_id_from  :   ID AS ID
                     |   ID ID
                     |   ID'''
+    linea = str(t.lexer.lineno)
+    if len(t) == 2:
+        nodoDecIdForm = crear_nodo_general("dec_id_from", "", linea, columna)
+        nodoID1 = crear_nodo_general("ID", t[1], linea, columna)
+        nodoDecIdForm.hijos.append(nodoID1)
+        t[0] = nodoDecIdForm
+    elif len(t) == 3:
+        nodoDecIdForm = crear_nodo_general("dec_id_from", "", linea, columna)
+        nodoID1 = crear_nodo_general("ID", t[1], linea, columna)
+        nodoID2 = crear_nodo_general("ID", t[2], linea, columna)
+        nodoDecIdForm.hijos.append(nodoID1)
+        nodoDecIdForm.hijos.append(nodoID2)
+        t[0] = nodoDecIdForm
+    elif len(t) == 4:
+        nodoDecIdForm = crear_nodo_general("dec_id_from", "", linea, columna)
+        nodoID1 = crear_nodo_general("ID", t[1], linea, columna)
+        nodoID2 = crear_nodo_general("ID", t[3], linea, columna)
+        nodoDecIdForm.hijos.append(nodoID1)
+        nodoDecIdForm.hijos.append(nodoID2)
+        t[0] = nodoDecIdForm
 
 
 def p_lista_condiciones_query(t):
     '''lista_condiciones_query      :   lista_condiciones_query condicion_query
                                     |   condicion_query'''
+    linea = str(t.lexer.lineno)
+    if len(t) == 3:
+        NodoListaCondQuery = t[1]
+        NodoElemento = t[2]
+        NodoListaCondQuery.hijos.append(NodoElemento)
+        t[0] = NodoListaCondQuery
+    else:
+        NodoListaCondQuery = t[1]
+        NodoSelectList = crear_nodo_general("lista_condiciones_query", '', linea, columna)
+        NodoSelectList.hijos.append(NodoListaCondQuery)
+        t[0] = NodoSelectList
 
 def p_condicion_query(t):
     '''condicion_query  :   WHERE exp_operacion
@@ -1813,44 +2257,149 @@ def p_condicion_query(t):
                         |   ORDER BY lista_order_by
                         |   LIMIT condicion_limit OFFSET exp_operacion
                         |   LIMIT condicion_limit'''
+    
+    linea = str(t.lexer.lineno)
+    if len(t) == 3:
+        nodoCondicion = crear_nodo_general("condicion_query", "", linea, columna)
+        nodoTipCond = crear_nodo_general("TIPO_CONDICION", t[1], linea, columna)
+        nodoCondicion.hijos.append(nodoTipCond)
+        nodoCondicion.hijos.append(t[2])
+        t[0] = nodoCondicion
+
+    elif len(t) == 4:
+        nodoCondicion = crear_nodo_general("condicion_query", "", linea, columna)
+        nodoTipCond = crear_nodo_general("TIPO_CONDICION", t[1], linea, columna)
+        nodoCondicion.hijos.append(nodoTipCond)
+        nodoCondicion.hijos.append(t[3])
+        t[0] = nodoCondicion
+
+    elif len(t) == 5:
+        nodoCondicion = crear_nodo_general("condicion_query", "", linea, columna)
+        nodoTipCond = crear_nodo_general("TIPO_CONDICION", t[1], linea, columna)
+        nodoCondicion.hijos.append(nodoTipCond)
+        nodoCondicion.hijos.append(t[2])
+        nodoCondicion.hijos.append(t[4])
+        t[0] = nodoCondicion
+    
 
 def p_condicion_limit(t):
-    '''condicion_limit  :   exp_operacion
-                        |   ALL'''
+    '''condicion_limit  :   exp_operacion'''
+    t[0] = t[1]
+
+    
+def p_condicion_limit_all(t):
+    '''condicion_limit  :   ALL'''
+    t[0] = crear_nodo_general("ALL", t[1], str(t.lexer.lineno), columna)
+
 
 def p_lista_ids(t):
     '''lista_ids    :   lista_ids COMA dec_select_columna
                     |   dec_select_columna'''
+    linea = str(t.lexer.lineno)
+    if len(t) == 4:
+        NodoListaID = t[1]
+        NodoElemento = t[3]
+        NodoListaID.hijos.append(NodoElemento)
+        t[0] = NodoListaID
+    else:
+        NodoListaID = t[1]
+        NodoSelectList = crear_nodo_general('lista_ids', '', linea, columna)
+        NodoSelectList.hijos.append(NodoListaID)
+        t[0] = NodoSelectList
+
 
 def p_lista_order_by(t):
     '''lista_order_by   :   lista_order_by COMA elemento_order_by
                         |   elemento_order_by'''
+    linea = str(t.lexer.lineno)
+    if len(t) == 4:
+        NodoListaOrder = t[1]
+        NodoElemento = t[3]
+        NodoListaOrder.hijos.append(NodoElemento)
+        t[0] = NodoListaOrder
+    else:
+        NodoListaOrder = t[1]
+        NodoSelectList = crear_nodo_general('lista_order_by', '', linea, columna)
+        NodoSelectList.hijos.append(NodoListaOrder)
+        t[0] = NodoSelectList
+
+def p_elemento_order_by_nulls(t):
+    'elemento_order_by    :   exp_operacion asc_desc NULLS condicion_null'
+
+    linea = str(t.lexer.lineno)
+    nodoElementoOrder = crear_nodo_general("elemento_order_by", "", linea, columna)
+    nodoAscDesc = crear_nodo_general("ASC_DESC", t[2], linea, columna)
+    nodoNulls = crear_nodo_general("NULLS", t[3], linea, columna)
+    nodoCondicionNull = crear_nodo_general("condicion_null", t[4], linea, columna)
+    
+    nodoElementoOrder.hijos.append(t[1])
+    nodoElementoOrder.hijos.append(nodoAscDesc)
+    nodoElementoOrder.hijos.append(nodoNulls)
+    nodoElementoOrder.hijos.append(nodoCondicionNull)
+
+    t[0] = nodoElementoOrder
+
 
 def p_elemento_order_by(t):
-    '''elemento_order_by    :   exp_operacion asc_desc condicion_null
-                            |   exp_operacion asc_desc'''
+    'elemento_order_by    :   exp_operacion asc_desc'
+
+    linea = str(t.lexer.lineno)
+    nodoElementoOrder = crear_nodo_general("elemento_order_by", "", linea, columna)
+    nodoAscDesc = crear_nodo_general("ASC_DESC", t[2], linea, columna)
+    nodoElementoOrder.hijos.append(t[1])
+    nodoElementoOrder.hijos.append(nodoAscDesc)
+    t[0] = nodoElementoOrder
+
 
 def p_asc_desc(t):
     '''asc_desc :   ASC
                 |   DESC'''
-
+    t[0] = t[1]
 
 def p_condicion_null(t):
-    '''condicion_null   :   NULLS FIRST
-                        |   NULLS LAST'''
+    '''condicion_null   :   FIRST
+                        |   LAST'''
+    t[0] = t[1]
 
 def p_pimitivo_id_punto(t):
     'primitivo    :   ID PUNTO ID'
+    linea = str(t.lexer.lineno)
+    hijos = []
+    nNodo = incNodo(numNodo)
+
+    instruccion = columnaCampoAlias.columnaCampoAlias(t[1], t[3], None)
+    nodoIDcol = crear_nodo_general("ID",t[1],linea,columna)
+    nodoIDcampo = crear_nodo_general("ID", t[3], linea, columna)
+    hijos.append(nodoIDcol)
+    hijos.append(nodoIDcampo)
+    instruccion.setearValores(linea, columna, "PRIMITIVO", nNodo, '', hijos)
+    t[0] = instruccion
 
 def p_primitivo_funcion(t):
     'primitivo  :   funcion'
+    linea = str(t.lexer.lineno)
+    nodoPrimitivo = crear_nodo_general("PRIMITIVO", "", linea, columna)
+    nodoPrimitivo.hijos.append(t[1])
+    t[0] = nodoPrimitivo
 
 def p_subquery(t):
     '''subquery :   PARIZQUIERDO select_query PARDERECHO'''
+    t[0] = t[2]
 
 def p_lista_exp(t):
     '''lista_exp    :   lista_exp COMA exp_operacion
                     |   exp_operacion'''
+    linea = str(t.lexer.lineno)
+    if len(t) == 4:
+        NodoListaExp = t[1]
+        NodoElemento = t[3]
+        NodoListaExp.hijos.append(NodoElemento)
+        t[0] = NodoListaExp
+    else:
+        NodoListaExp = t[1]
+        NodoSelectList = crear_nodo_general('lista_exp', '', linea, columna)
+        NodoSelectList.hijos.append(NodoListaExp)
+        t[0] = NodoSelectList
 
 #--------------------------------------------------------------Tipos de datos------------------------------------------------------------------
 def p_tipos(t):
