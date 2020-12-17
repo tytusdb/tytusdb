@@ -6,35 +6,36 @@
 # region Pycharm
 from Models.node import Node
 from Models.tree_graph import TreeGraph
+
+
 # endregion
 
 
 class AVLTree:
     def __init__(self, database: str, name: str, numberColumns: int, pklist: list):
         self.root = None
-        self.name = name
         self.database = database
+        self.name = name
         self.numberColumns = int(numberColumns)
         self.pklist = pklist
         # self.columns = self.crearCols(numberColumns)
-    
+
     def __repr__(self) -> str:
         return str(self.name)
-    
-        #En caso sirva:
+
+        # En caso sirva:
+
     # def crearCols(self, numberColumns: int) -> list:
     #     tmp = []
     #     for i in range(numberColumns):
     #         tmp.append(i)
     #     return tmp
-    
+
     # def agregarCols(self, columns: list):
     #     columns.append(int(columns[-1])+1)
-    
+
     # def eliminarCol(self, posicion):
     #     self.columns.pop(posicion)
-
-
 
     # region basic methods
     def add(self, index, content):
@@ -50,6 +51,45 @@ class AVLTree:
             node.right = self.__add(index, content, node.right)
             node = self.__balance(node)
         return node  # depends of the event returns different node to be the root
+
+    def search(self, index):
+        return self.__search(index, self.root)
+
+    def __search(self, index, node):
+        if node:
+            if node.index == index:
+                return node.content
+            elif node.index < index:
+                content = self.__search(index, node.right)
+            else:
+                content = self.__search(index, node.left)
+            return content
+        return None
+
+    def tolist(self) -> list:
+        return self.__tolist(self.root, tuples=[]) if self.root is not None else []
+
+    def __tolist(self, node: Node, tuples: list) -> list:
+        if node:
+            self.__tolist(node.left, tuples)
+            tuples.append(node.content)
+            self.__tolist(node.right, tuples)
+            return tuples
+
+    def massiveupdate(self, action: str, arg):
+        self.__massiveupdate(self.root, action, arg)
+
+    def __massiveupdate(self, node, action: str, arg):
+        if node:
+            if action == "add":
+                node.content.append(arg)
+            elif action == "drop" and isinstance(arg, int):
+                if int(arg) < len(node.content):
+                    del node.content[int(arg)]
+                else:
+                    return
+            self.__massiveupdate(node.left, action, arg)
+            self.__massiveupdate(node.right, action, arg)
 
     def delete(self, index):
         self.root = self.__delete(index, self.root)
@@ -183,7 +223,7 @@ class AVLTree:
     def __inorder(self, temp):
         if temp:
             self.__inorder(temp.left)
-            print(temp.index, end=' ')
+            print(temp.content, end=' ')
             self.__inorder(temp.right)
         # backtracking action
 
@@ -201,47 +241,60 @@ class AVLTree:
     # endregion
 
 
-t = AVLTree("test", "tst", 5,[])
-t.add(57, "as")
-t.add(25, "as")
-t.add(78, "as")
-t.add(17, "as")
-t.add(45, "as")
-t.add(64, "as")
-t.add(97, "as")
-t.add(4, "as")
-t.add(20, "as")
-t.add(43, "as")
-t.add(56, "as")
-t.add(61, "as")
-t.add(68, "as")
-t.add(89, "as")
-t.add(100, "as")
-t.add(1, "as")
-t.add(12, "as")
-t.add(19, "as")
-t.add(23, "as")
-t.add(54, "as")
-t.add(62, "as")
-t.add(66, "as")
-t.add(73, "as")
-t.add(87, "as")
-t.add(90, "as")
-t.add(10, "as")
-t.add(15, "as")
-t.add(58, "as")
+t = AVLTree("test", "tst", 5, [])
+t.add(57, ["test", "test2"])
+t.add(25, ["test", "test2"])
+t.add(78, ["test", "test2"])
+t.add(17, ["test", "test2"])
+t.add(45, ["test", "test2"])
+t.add(64, ["test", "test2"])
+t.add(97, ["test", "test2"])
+t.add(4, ["test", "test2"])
+t.add(20, ["test", "test2"])
+t.add(43, ["test", "test2"])
+t.add(56, ["test", "test2"])
+t.add(61, ["test", "test2"])
+t.add(68, ["test", "test2"])
+t.add(89, ["test", "test2"])
+t.add(100, ["test", "test2"])
+t.add(1, ["test", "test2"])
+t.add(12, ["test", "test2"])
+t.add(19, ["test", "test2"])
+t.add(23, ["test", "test2"])
+t.add(54, ["test", "test2"])
+t.add(62, ["test", "test2"])
+t.add(66, ["test", "test2"])
+t.add(73, ["test", "test2"])
+t.add(87, ["test", "test2"])
+t.add(90, ["test", "test2"])
+t.add(10, ["test", "test2"])
+t.add(15, ["test", "test2"])
+t.add(58, ["test", "test2"])
 t.delete(64)
-t.add(9, "as")
-t.add(3, "as")
+t.add(9, ["test", "test2"])
+t.add(3, ["test", "test2"])
 t.delete(9)
 t.delete(15)
 t.delete(12)
 t.delete(57)
-t.add(103, "as")
-t.add(98, "as")
-t.add(102, "as")
+t.add(103, ["test", "test2"])
+t.add(98, ["test", "test2"])
+t.add(102, ["test", "test2"])
 t.delete(103)
 
+search = t.search(103)
+if search:
+    print(search)
+else:
+    print("empty")
+
+t.tolist()
+
+# t.inorder()
+# aa = TreeGraph(t)
+# aa.export()
+
+
+t.massiveupdate("add", "perro")
+t.massiveupdate("drop", 2)
 t.inorder()
-aa = TreeGraph(t)
-aa.export()
