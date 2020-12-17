@@ -131,3 +131,54 @@ class Operando_Booleano(Expresion):
 
     def __init__(self,valor=False):
         self.valor=valor
+
+class Operando_ID_Columna(Expresion):
+    '''
+        Esta clase representa un id con acceso a columnas
+    '''
+    def __init__(self, nombre, columna):
+        self.nombre=nombre
+        self.columna=columna
+
+class Operacion_NOW(Expresion):
+    '''
+        Esta clase representa la operacion NOW
+    '''
+
+class Operacion_CURRENT(Expresion):
+    '''
+        Esta clase representa la operacion CURRENT_TIME o CURRENT_DATE
+    '''
+    def __init__(self, tipo):
+        self.tipo=tipo
+
+class Operacion_TIMESTAMP(Expresion):
+    '''
+        Esta clase representa la operaciion TIMESTAMP
+    '''
+    def __init__(self, valor):
+        self.valor=valor
+
+class Operando_EXTRACT(Expresion):
+    '''
+        Esta clase representa la operacion EXTRACT
+    '''
+    def __init__(self, medida, valores):
+        self.medida=medida
+        self.valores=valores
+
+class Operacion_DATE_PART(Expresion):
+    '''
+        Esta clase representa la operacion DATE_PART
+    '''
+    def __init__(self, val1, val2):
+        self.val1=val1
+        self.val2=val2
+
+class Operacion_Great_Least(Expresion):
+    '''
+        Esta clase representa la operacion greatnes y leastnes
+    '''
+    def __init__(self, tipo, expresion):
+        self.tipo=tipo
+        self.expresion=expresion

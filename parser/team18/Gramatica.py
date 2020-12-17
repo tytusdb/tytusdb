@@ -190,8 +190,6 @@ def p_sentencia_dml(t):
      t[0] = t[1]                            
 #NUEVO YO---------------------------------------------
 
-
-
 def p_seleccionH1(t):
      '''seleccionH  : seleccionH UNION seleccionar
                     | seleccionH INTERSECT seleccionar
@@ -201,17 +199,38 @@ def p_seleccionH1(t):
                     | seleccionH EXCEPT ALL seleccionar
                     | PAR_A seleccionH PAR_C
                     | seleccionar'''
+     if len(t) ==  4:
+          if t[2].lower() == "union":
+               t[1].append(t[3])
+               t[0] = t[1]
+          elif t[2].lower() == "intersect":
+               t[1].append(t[3])
+               t[0] = t[1]
+          elif t[2].lower() == "except":
+               t[1].append(t[3])
+               t[0] = t[1]
+          else:
+               t[0] = t[2]
+     elif len(t) == 5:
+          if t[2].lower() == "union":
+               t[1].append(t[4])
+               t[0] = t[1]
+          elif t[2].lower() == "intersect":
+               t[1].append(t[4])
+               t[0] = t[1]
+          elif t[2].lower() == "except":
+               t[1].append(t[4])
+               t[0] = t[1]
+     else:
+          t[0] = [t[1]]
+
+
 #FIN NUEVO YO-----------------------------------
-
-
-
-
 #alter codigo -----------------------------------------------------------------
 
 def p_altert(t):
      '''altert : alterdb
                | altertb'''
-
 
 def p_alterdb(t):
     '''alterdb : ALTER DATABASE ID alterdb1'''
@@ -243,20 +262,13 @@ def p_alttbrename1(t):
                     | CONSTRAINT ID TO ID
                     | TO ID '''
 
-
-
-
 def p_alttbalterv(t):
     '''alttbalterv : alttbalterv COMA alttbalter
                   | alttbalter '''
 
-
 def p_alttbalter(t):
     '''alttbalter : ALTER COLUMN ID alttbalter1
                   | CONSTRAINT ID '''
-
-
-
 
 def p_alttbalter1(t):
     '''alttbalter1 : SET NOT NULL
@@ -266,7 +278,6 @@ def p_alttbalter1(t):
                   | SET DEFAULT CADENA1
                   | DROP DEFAULT  '''
 
-
 def p_alttbdrop(t):
     '''alttbdrop : DROP alttbdrop1  '''
 
@@ -274,8 +285,6 @@ def p_alttbdrop1(t):
     '''alttbdrop1 : COLUMN ID 
                   |  ID 
                   | CONSTRAINT ID  '''
-
-
 
 def p_alttbadd(t):
     '''alttbadd : ADD ID tipo valortipo
@@ -287,19 +296,25 @@ def p_alttbadd2(t):
     '''alttbadd2 : alttbadd2 alttbadd3
                   | alttbadd3  '''
 
-
 def p_alttbadd3(t):
     '''alttbadd3 : CHECK PAR_A exp PAR_C
                   | UNIQUE PAR_A CADENA1 PAR_C
                   | PRIMARY KEY PAR_A CADENA1 PAR_C
                   | FOREIGN KEY PAR_A CADENA1 PAR_C REFERENCES  ID PAR_A CADENA1 PAR_C'''
 
-
 #fin alter codigo-----------------------------------------------------------------
 
 def p_insertar(t):
-     '''insertar : INSERT INTO ID VALUES PAR_A lista_exp PAR_C'''
-     t[0] = Insertar(Operando_ID(t[3]),t[6])
+     '''insertar : INSERT INTO ID par_op VALUES PAR_A lista_exp PAR_C'''
+     t[0] = Insertar(Operando_ID(t[3]),t[4],t[7])
+
+def p_insertar_par(t):
+     '''par_op : PAR_A lnombres PAR_C
+               | empty'''
+     if len(t) == 4:
+          t[0] = t[2]
+     else:
+          t[0] = False
 
 def p_actualizar(t):
      '''actualizar : UPDATE ID SET listaupdate WHERE exp'''
@@ -328,23 +343,57 @@ def p_usear_db(t):
 
 #------------------------------------------------select-----------------------------------------------
 def p_seleccionar(t):
-     '''seleccionar : seleccionar1 LIMIT ENTERO offsetop
-                    | seleccionar1 LIMIT ALL offsetop
-                    | seleccionar1 offsetop
-                    | seleccionar1 LIMIT ENTERO
-                    | seleccionar1 LIMIT ALL
-                    | seleccionar1 '''
+     '''seleccionar : seleccionar1 LIMIT ENTERO offsetop'''
+     t[0] = Limite_Select(t[1],Operando_Numerico(t[3]),Operando_Numerico(t[4]))
+
+def p_seleccionar_limit_all_off(t):
+     '''seleccionar :  seleccionar1 LIMIT ALL offsetop'''
+     t[0] = Limite_Select(t[1],t[3],Operando_Numerico(t[4]))
+                    
+def p_seleccionar_limit(t):
+     '''seleccionar : seleccionar1 LIMIT ENTERO'''
+     t[0] = Limite_Select(t[1],Operando_Numerico(t[3]),None)
+
+def p_seleccionar_limit_off_all(t):
+     '''seleccionar : seleccionar1 LIMIT ALL'''
+     t[0] = Limite_Select(t[1],t[3],None)
+
+def p_seleccionar_off(t):
+     '''seleccionar : seleccionar1 offsetop'''
+     t[0] = Limite_Select(t[1],None,Operando_Numerico(t[2]))              
+                    
+def p_seleccionar_solo(t):
+     '''seleccionar : seleccionar1'''
+     t[0] = t[1]
+
 
 def p_extract(t):
-     '''extract : EXTRACT PAR_A extract1  FROM timestamp  valoresdefault  PAR_C
-                | DATE_PART PAR_A valoresdefault COMA interval valoresdefault  PAR_C
-                | nowf
-                | CURRENT_DATE
-                | CURRENT_TIME
+     '''extract : nowf
                 | timestamp valoresdefault'''
+     if len(t) == 2:
+          t[0] = t[1]
+     else:
+          t[0] = Operacion_TIMESTAMP(t[2])
+
+def p_extract_multi(t):
+     '''extract : EXTRACT PAR_A extract1 FROM timestamp valoresdefault PAR_C
+                | DATE_PART PAR_A valoresdefault COMA interval valoresdefault  PAR_C'''
+     if t[1].lower() == "extract":
+          t[0] = Operando_EXTRACT(t[3],t[6])
+     else:
+          t[0] = Operacion_DATE_PART(t[3],t[6])
+
+def p_extract_current_date(t):
+     '''extract : CURRENT_DATE'''
+     t[0] = Operacion_CURRENT('date')
+
+def p_extract_current_time(t):
+     '''extract : CURRENT_TIME'''
+     t[0] = Operacion_CURRENT('time')
 
 def p_nowf(t):
      '''nowf : NOW PAR_A PAR_C'''
+     t[0] = Operacion_NOW()
 
 def p_extract1(t):
      '''extract1 : YEAR
@@ -355,9 +404,11 @@ def p_extract1(t):
                  | SECOND
                  | CADENA1
                  | CADENA2'''
+     t[0] = t[1]
 
 def p_offset_opcional(t):
      '''offsetop : OFFSET ENTERO'''
+     t[0] = t[2]
 
 def p_seleccionar1(t):
      '''seleccionar1 : SELECT cantidad_select parametros_select cuerpo_select 
@@ -365,91 +416,191 @@ def p_seleccionar1(t):
                      | SELECT funcion_date
                      | SELECT funcionGREALEAST
                      | SELECT extract'''
+     if len(t) == 3:
+          t[0] = SELECT(None,t[2],None,None)
+     elif len(t) == 4:
+          t[0] = SELECT(None,t[2],t[3],None)
+     else:
+          t[0] = SELECT(t[2],t[3],None,t[5])
                     
 def p_funcionGREALEAST(t):
-     '''funcionGREALEAST : GREATEST PAR_A exp PAR_C
-                         | LEAST PAR_A exp PAR_C '''
-
-
+     '''funcionGREALEAST : GREATEST PAR_A lista_exp PAR_C
+                         | LEAST PAR_A lista_exp PAR_C '''
+     t[0] = Operacion_Great_Least(t[1].loweer(),t[3])
 
 def p_cantidad_select(t):
      '''cantidad_select : DISTINCT
                         | empty'''
+     if t[1].lower() == "distinct":
+          t[0] = t[1]
+     else:
+          t[0] = False                    
+
 def p_parametros_select(t):
      '''parametros_select : ASTERISCO 
                           | lista_select'''
+     t[0] = t[1]
 
 def p_lista_select(t):
      ''' lista_select : lista_select COMA value_select
                       | value_select'''
+     if len(t) == 4:
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]   
 
 def p_value_select(t):
      '''value_select : columna_name alias_name
                      | ID PUNTO ASTERISCO alias_name
                      | funcion_math alias_name
-                     | PAR_A seleccionar PAR_C alias_name
-                     | case'''
+                     | PAR_A seleccionar PAR_C alias_name'''
+     if len(t) == 2:
+          t[0] = Valor_Select(t[1],'normal',t[2],None)
+     elif len(t) == 3:
+          t[0] = Valor_Select(None,'math',t[2],t[1])
+     else:
+          if t[1] == "(":
+               t[0] = Valor_Select(None,'subquery',t[4],t[2])
+          else:
+               t[0] = t[0] = Valor_Select(Operando_ID(t[1]),'*',t[4],None)
+
+
+def p_value_select_case(t):
+     '''value_select : case'''
+     t[0] = t[1]
+     
 
 def p_case(t) : 
-      '''case : CASE loop_condition  END 
+     '''case : CASE loop_condition  END 
               | CASE loop_condition  END AS ID
               | CASE loop_condition  else  END 
-              | CASE loop_condition  else  END AS ID
-              | PAR_A case PAR_C'''
+              | CASE loop_condition  else  END AS ID'''
+     if len(t) == 4:
+          t[0] = Case(t[2],None,None)
+     elif len(t) == 5:
+          t[0] = Case(t[2],t[3],None)
+     elif len(t) == 6:
+          t[0] = Case(t[2],None,t[5])
+     else:
+          t[0] = Case(t[2],t[3],t[6])
 
-
+def p_case_par(t):
+     '''case : PAR_A case PAR_C'''
+     t[0] = t[1]
+     
 
 def p_loop_condition(t):
-     '''loop_condition : loop_condition   WHEN exp THEN resultV
-                       | WHEN exp THEN resultV'''
-
+     '''loop_condition : loop_condition  when_then 
+                       | when_then'''
+     if len(t) == 3:
+          t[1].append(t[2])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]] 
+     
+def p_when_then(t):
+     '''when_then : WHEN exp THEN resultV'''
+     t[0] = Condicion_WHEN_THEN(t[2],t[4])
 
 def p_else(t):
      '''else : ELSE resultV '''
+     t[0] = t[2]
 
 #no se si puede hacer operaciones aqui
 def p_resultV(t):
      '''resultV : ENTERO
-                | DECIMAL
-                | CADENA1
-                | CADENA2
-                | ID
-                | PAR_A resultV PAR_C'''
+                | DECIMAL'''
+     t[0] = Operando_Numerico(t[1])
+
+def p_resultV_cad(t):
+     '''resultV : CADENA1
+                | CADENA2'''
+     t[0] = Operando_Cadena(t[1])
+                
+def p_resultV_id(t):
+     '''resultV : ID
+                 | PAR_A resultV PAR_C'''
+     if len(t) == 2:
+          t[0] = Operando_ID(t[1])
+     else:
+          t[0] = t[2]
 
 
 def p_columna_name(t):
      '''columna_name : ID
                     | ID PUNTO ID'''
+     if len(t) == 2:
+          t[0] = Operando_ID(t[1])
+     else:
+          t[0] = Operando_ID_Columna(Operando_ID(t[1]),Operando_ID(t[3]))
 
 def p_list_colum(t):
      '''list_colum : list_colum COMA columna_name
                     | columna_name'''
+     if len(t) == 4:
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]] 
 
 
 def p_sub_query(t):
      '''sub_query : EXISTS
-                  | exp
-                  | exp NOT IN
-                  | exp IN'''
+                  | NOT EXISTS'''
+     if len(t) == 2:
+          t[0] = t[1]
+     else:
+          t[0] = t[1]+' '+t[2]
+     
+def p_sub_query_in(t):
+     '''sub_query : exp
+                  | exp IN
+                  | exp NOT IN'''
+     if len(t) == 2:
+          t[0] = t[1]
+     elif len(t) == 3:
+          t[0] = SubQuery_IN(t[1],True)
+     else:
+          t[0] = SubQuery_IN(t[1],False)
+          
 
 def p_cuerpo_select(t):
      '''cuerpo_select : bloque_from bloque_join bloque_where bloque_group bloque_having bloque_order'''
+     t[0] = CUERPO_SELECT(t[1],t[2],t[3],t[4],t[5],t[6])
 
 def p_bloque_from(t):
      '''bloque_from : FROM lista_tablas'''
+     t[0] = t[2]
 
 def p_lista_tablas(t):
      '''lista_tablas : lista_tablas COMA value_from
                      | value_from'''
+     if len(t) == 4:
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
 
 def p_value_from(t):
      '''value_from : tabla_name
                    | PAR_A seleccionar PAR_C ID 
                    | PAR_A seleccionar PAR_C AS ID'''
+     if len(t) == 2:
+          t[0] = Valor_From(t[1],None,None)
+     elif len(t) == 5:
+          t[0] = Valor_From(None,t[2],Operando_ID(t[4]))
+     else:
+          t[0] = Valor_From(None,t[2],Operando_ID(t[5]))
 
 def p_tabla_name(t):
      '''tabla_name : ID
                    | ID ID'''
+     if len(t) == 2:
+          t[0] = t[1]
+     else:
+          t[0] = t[1]+' '+t[2]
+
 
 def p_bloque_join(t):
      '''bloque_join : bloque_join lista_joins
@@ -474,54 +625,107 @@ def p_value_join(t):
 def p_bloque_where(t):
      '''bloque_where : WHERE cuerpo_where 
                     | empty'''
+     if len(t) == 3:
+          t[0] = t[2]
+     else:
+          t[0] = False
 
 def p_cuerpo_where(t):
      '''cuerpo_where : condicion_boleana 
-                     | sub_query PAR_A seleccionar PAR_C alias_name'''            
+                     | sub_query PAR_A seleccionar PAR_C alias_name''' 
+     if len(t) == 2:
+          t[0] = t[1]
+     else:
+          t[0] = SubQuery(t[1],t[3],t[5])          
 
 def p_bloque_group(t):
      '''bloque_group : GROUP BY list_colum
                      | empty'''
+     if len(t) == 4:
+          t[0] = t[3]
+     else:
+          t[0] = False
+     
 
 def p_bloque_having(t):
      '''bloque_having : HAVING condicion_boleana
                       | empty'''
+     if len(t) == 3:
+          t[0] = t[2]
+     else:
+          t[0] = False
 
 def p_bloque_order(t):
      '''bloque_order : ORDER BY lista_order 
                      | empty'''
+     if len(t) == 4:
+          t[0] = t[3]
+     else:
+          t[0] = False
 
 def p_lista_order(t):
      '''lista_order : lista_order COMA value_order
-                    | value_order
-                    | case'''
+                    | value_order'''
+     if len(t) == 4:
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
+
+def p_lista_order_case(t):
+     '''lista_order : case'''
 
 def p_value_order(t): #ACA NO SOLO ES ID
      '''value_order : ID value_direction value_rang'''
+     t[0] = Orden_Atributo(Operando_ID(t[1]),t[2],t[3])
 
 def p_value_direction(t):
      '''value_direction : ASC
-                        | DESC
-                        | empty'''
+                        | DESC'''
+     t[0] = t[1]
+
+def p_values_direccion_empty(t):
+     '''value_direction : empty'''
+     t[0] = False
+     
+
 def p_value_rang(t):
      '''value_rang : NULLS FIRST
                    | NULLS LAST
                    | NULLS FIRST NULLS LAST
                    | NULLS LAST NULLS FIRST
                    | empty'''
+     if len(t) == 3:
+          t[0] = t[1]+' '+t[2]
+     elif len(t) == 5:
+          t[0] = t[1]+' '+t[2]+' '+t[3]+' '+t[4]
+     else:
+          t[0] = False     
 
 def p_alias_name(t):
-     '''alias_name : valoralias
-                   | AS valoralias
+     '''alias_name : valoralias'''
+     t[0]=t[1]
+
+def p_alias_name_as(t):
+     '''alias_name :  AS valoralias
                    | empty'''
+     if len(t) == 3:
+          t[0] = t[2]
+     else:
+          t[0] = False
 
 def p_valor_alias(t):
-     '''valoralias : ID
-                   | CADENA1
+     '''valoralias : ID'''
+     t[0] = Operando_ID(t[1])
+
+def p_valor_alias_Cad(t):
+     '''valoralias : CADENA1
                    | CADENA2'''
+     t[0] = Operando_Cadena(t[1])          
 
 def p_condicion_boleana(t):
      '''condicion_boleana : exp'''
+     t[0] = t[1]
 
 def p_funcion_math(t):
      '''funcion_math : ABS PAR_A exp PAR_C
@@ -587,7 +791,8 @@ def p_funcion_math(t):
 
 
 def p_funcion_date(t):
-     '''funcion_date : empty''' #completar                                            
+     '''funcion_date : extract'''
+     t[0] = t[1]                                            
 #------------------------------------------------------------------------------------------------------
 
 def p_mostrar_databases(t):
@@ -729,34 +934,34 @@ def p_exp_select_or_unario(t):
      '''exp_select : SQRT2 exp %prec USQRT2'''
      t[0] = Operacion_Especial_Unaria(t[2],OPERACION_ESPECIAL.SQRT2)
 
-
-
 def p_expresion(t):
-     '''E : ID PUNTO ID
-          | ANY
+     '''E : ANY
           | ALL
           | SOME
-          | IN
+          | NULL
           | seleccionar
           | funcion_math
-          | NULL
           | valoresdefault
-          | NOT IN'''
+          | extract''' # quite IN y NOT IN ya que esta duplicado en exp_patron
      t[0] = t[1]
 
 def p_expresion_id(t):
      '''E : ID'''
      t[0] = Operando_ID(t[1])
 
+def p_expresion_id_column(t):
+     '''E : ID PUNTO ID'''
+     t[0] = Operando_ID_Columna(Operando_ID(t[1]),Operando_ID(t[3]))
+
 def p_expresion_par(t):
      '''E : PAR_A exp PAR_C'''
      t[0] = t[2]
+
 
 def p_crear(t):
      '''crear : CREATE reemplazar DATABASE verificacion ID propietario modo
               | CREATE TABLE ID PAR_A columnas PAR_C herencia
               | CREATE TYPE ID AS ENUM PAR_A lista_exp PAR_C'''
-     
      if(t[3].lower()=='database'):
           t[0]=CrearBD(t[2], t[4], Operando_ID(t[5]), t[6], t[7])
      else:
@@ -765,7 +970,6 @@ def p_crear(t):
           else:
                t[0]=CrearType(Operando_ID(t[3]),t[7])
      
-
 def p_reemplazar(t):
      '''reemplazar : OR REPLACE
                    | empty'''
@@ -817,6 +1021,10 @@ def p_valormodoo(t):
 def p_herencia(t):
      '''herencia : INHERITS PAR_A ID PAR_C
                  | empty'''
+     if len(t) == 5:
+          t[0] = Operando_ID(t[3])
+     else:
+          t[0] = False
      
 def p_columnas(t):
      '''columnas : columnas COMA columna
@@ -857,7 +1065,6 @@ def p_tipo(t):
              | time
              | interval
              | boolean'''
-     
      if(len(t)==2):
           t[0]=t[1]
      else:
@@ -954,7 +1161,6 @@ def p_lnombres(t):
 def p_liberar(t):
      '''liberar : DROP TABLE existencia ID
                 | DROP DATABASE existencia ID'''
-
      if(t[2].lower()=='table'):
           t[0]=EliminarTabla(t[3],Operando_ID(t[4]))
      else:
@@ -965,7 +1171,7 @@ def p_existencia(t):
      '''existencia : IF EXISTS
                   | empty'''
      if(len(t)==2):
-          t[0]=False;
+          t[0]=False
      else:
           t[0]=True
 
