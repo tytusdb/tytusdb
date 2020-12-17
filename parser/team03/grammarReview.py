@@ -401,22 +401,6 @@ def p_exp_val(t):
         t[0] = Now(token.lineno, token.lexpos, graph_ref)
 
 
-def p_exp_afunc1(t):
-    '''expression : TRUC PARA expression PARC'''
-
-    token = t.slice[1]
-    if token.type == "TRUC":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
-        t[0] = Trunc(t[3], 0, 0, graph_ref)
-
-    # else:
-    #    print("Missing code from: ",t[1])
-
-
-# def p_empty(t):
-#    '''empty :'''
-#    pass
-
 def p_error(p):
     if not p:
         print("End of file!")
