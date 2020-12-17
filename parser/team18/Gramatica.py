@@ -916,8 +916,8 @@ def p_atributo(t):
                t[0]=atributoColumna(None,None,False,None,None,t[3])
      else:
           #atributoColumna(default,constraint,null,unique,primary,check);
-          t[0]=atributoColumna(None,None,None,None,None,None)
-     
+          #t[0]=atributoColumna(None,None,None,None,None,None)
+          t[0]=False;
 
 def p_valores_default_cad(t):
      '''valoresdefault : CADENA1

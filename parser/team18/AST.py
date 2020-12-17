@@ -9,7 +9,7 @@ from storageManager import jsonMode as EDD
 #---------variables globales
 listaInstrucciones = []
 listaTablas = [] #guarda las cabeceras de las tablas creadas
-outputTxt=' '
+outputTxt = [] #guarda los mensajes a mostrar en consola
 baseActiva = 'pruebas' #Guarda la base temporalmente activa
 #--------Ejecucion Datos temporales-----------
 def insertartabla(columnas,nombre):
@@ -38,14 +38,20 @@ def EliminarTablaTemp(baseAc,nombre):
             else:
                 pos=pos+1
 
+def agregarMensjae(tipo,mensaje):
+    global outputTxt
+    txtOut=MensajeOut()
+    txtOut.tipo=tipo
+    txtOut.mensaje=mensaje
+    outputTxt.append(txtOut)
+
 
 #---------Ejecucion Funciones EDD-------------
 def crear_BaseDatos(instr,ts):
     nombreDB=resolver_operacion(instr.nombre,ts)
-    crearOK=False
-
-    global outputTxt
-    outputTxt+='\n> Creando base de datos: '+nombreDB
+    
+    msg='Creando base de datos: '+nombreDB
+    agregarMensjae('normal',msg)
 
     #result=0 operacion exitosa
     #result=1 error en la operacion
@@ -58,25 +64,32 @@ def crear_BaseDatos(instr,ts):
         EliminarTablaTemp(nombreDB,'all')#eliminar los temporales
         #crear
         result = EDD.createDatabase(nombreDB)
-        crearOK=True
         if result==1:
-            crearOK=False
-            outputTxt+='\n\tError en EDD'
+            msg='Error en EDD'
+            agregarMensjae('error',msg)
         else:
-            outputTxt+='\n\tFue Reemplazada'
+            msg='Fue Reemplazada'
+            agregarMensjae('alert',msg)
+
     elif instr.verificacion:
-        if result==2:
-            crearOK=False
-        else:
-            crearOK=True
+        if result==0:
+            msg='Todo OK'
+            agregarMensjae('exito',msg)
+        elif result==2 :
+            msg='existe pero se omite error'
+            agregarMensjae('alert',msg)
             #si retorna error no se muestra
     else:
-        if result==2:
-            crearOK=False
-            outputTxt+='\n\tError base de existente: '+nombreDB
-        else:
-            crearOK=True
-            outputTxt+='\n\tTodo OK'
+        if result==0:
+            msg='Todo OK'
+            agregarMensjae('exito',msg)
+        elif result==2:
+            msg='Error base de existente: '+nombreDB
+            agregarMensjae('error',msg)
+        elif result==1:
+            msg='Error en EDD'
+            agregarMensjae('error',msg)
+
     #print('reemplazar:',instr.reemplazar,'verificar:',instr.verificacion,'nombre:',instr.nombre,'propietario:',instr.propietario,'modo:',instr.modo)
 
 def eliminar_BaseDatos(instr,ts):
@@ -86,43 +99,50 @@ def eliminar_BaseDatos(instr,ts):
     #result=1 error en la operacion
     #result=2 base de datos no existente  
     result = EDD.dropDatabase(nombreDB)
-    print('result edd:',result)
-    global outputTxt
-    outputTxt+='\n> Eliminado Base de datos: '+nombreDB;
-
+    msg='Eliminado Base de datos: '+nombreDB;
+    agregarMensjae('normal',msg)
+    
     if(instr.existencia):
         if(result==0):
             eliminarOK=True;
-            outputTxt+='\n\tTodo OK'
+            msg='Todo OK'
+            agregarMensjae('exito',msg)
         else:
             eliminarOK=False
+            msg='no se muestra el error'
+            agregarMensjae('alert',msg)
             #si retorna error no se muestra
     else:
         if(result==0):
             eliminarOK=True;
-            outputTxt+='\n\tTodo OK'
+            msg='Todo OK'
+            agregarMensjae('exito',msg)
         elif(result==1):
             eliminarOK=False
-            outputTxt+='\n\tError en EDD'
+            msg='Error en EDD'
+            agregarMensjae('error',msg)
         else:
-            outputTxt+='\n\tError base de datos no existente: '+nombreDB
+            msg='Error base de datos no existente: '+nombreDB
+            agregarMensjae('error',msg)
     
     if eliminarOK:
         EliminarTablaTemp(nombreDB,'all')#eliminar los temporales
 
-    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
+    #print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
 
 def mostrar_db(instr,ts):
     #retorna una lista[db1,db2...], si no hay estara vacia[]
     result=EDD.showDatabases()
-    global outputTxt
+    msg='Lista de bases de datos'
+    agregarMensjae('normal',msg)
+
     if not result:
-        outputTxt+='\n> No existen bases de datos ...'    
+        msg='No existen bases de datos ...' 
+        agregarMensjae('alert',msg)   
     else:
-        outputTxt+='\n> Listado de base de datos'
         for val in result:
-            outputTxt+='\n>\t'+val
-    
+            agregarMensjae('exito',val)
+
 def eliminar_Tabla(instr,ts):
     nombreT=''
     nombreT=resolver_operacion(instr.nombre,ts)
@@ -134,75 +154,139 @@ def eliminar_Tabla(instr,ts):
     result=EDD.dropTable(baseActiva,nombreT)
     eliminarOK=False;
 
-    global outputTxt
-    outputTxt+='\n> Funcion Drop table'
+    msg='Eliminar Tabla:'+nombreT
+    agregarMensjae('normal',msg)
     if(instr.existencia):
         if(result==0):
-            outputTxt+='\n\tTabla eliminada:'+nombreT
+            msg='Tabla eliminada'
+            agregarMensjae('exito',msg)
             eliminarOK=True
         else:
-            ''
-        #si retorna error no se muestra
+            msg='se omite error'
+            agregarMensjae('alert',msg)
     else:
         if(result==0):
-            outputTxt+='\n\tTabla eliminada:'+nombreT
+            msg='Tabla eliminada'
+            agregarMensjae('exito',msg)
             eliminarOK=True
         elif(result==1):
-            outputTxt+='\n\tError en EDD'
+            msg='Error en EDD'
+            agregarMensjae('error',msg)
         elif(result==2):
-            outputTxt+='\n\tError en la base de datos activa:'+baseActiva
+            msg='no existe la base de datos activa:'+baseActiva
+            agregarMensjae('error',msg)
         elif(result==3):
-            outputTxt+='\n\tError Tabla no existe:'+nombreT
+            msg='Tabla no existe:'+nombreT
+            agregarMensjae('error',msg)
         
     if eliminarOK:
         EliminarTablaTemp(baseActiva,nombreT)
 
-    print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
+    #print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
 
 
 
 
 
 #-----pendientes
-
 def crear_Tabla(instr,ts):
     nombreT=resolver_operacion(instr.nombre,ts)
     listaColumnas=[]
+    crearOK=True
 
-    global outputTxt
-    outputTxt+='\n> Creando Tabla: '+nombreT
+    msg='Creando Tabla:'+nombreT
+    agregarMensjae('normal',msg)
     contC=0# variable para contar las columnas a mandar a EDD
 
-    print('nombre:',instr.nombre,'padre:',instr.padre)
-    
+    print('padre:',instr.padre)
+    #recorrer las columnas
     for colum in instr.columnas :
-        if isinstance(colum, llaveTabla) : 
+        colAux=Columna_run()#columna temporal para almacenar
+        if isinstance(colum, llaveTabla) :
+            #listado de foraneas o primarias compuestas
             print('llaves Primaria:',colum.tipo,'lista:',colum.columnas,'tablaref',colum.referencia,'listaref',colum.columnasRef)
         elif isinstance(colum, columnaTabla) :
-            contC=contC+1 
+            contC=contC+1
+            colAux.nombre=resolver_operacion(colum.id,ts)#guardar nombre col
+            if isinstance(colum.tipo,Operando_ID):
+                #revisar la lista de Types
+            else:
+                colAux.tipo=colum.tipo #guardar tipo col
+
+            #atributos es una lista o False
+                #el atributo check trae otra lista
             print('id:',colum.id,'Tipo:',colum.tipo,'valor',colum.valor,'zonahoraria',colum.zonahoraria)
-            for atributoC in colum.atributos :
-                if isinstance(atributoC, atributoColumna):
-                    print('atributos-->','default:',atributoC.default,'constraint:',atributoC.constraint,'null:',atributoC.null,'unique:',atributoC.unique,'primary:',atributoC.primary,'check:',atributoC.check)
-                    if(atributoC.check != None):
-                        for exp in atributoC.check:
-                            print('resultado: ',resolver_operacion(exp,ts))
+            if(colum.valor!=False):
+                '''aca se debe verificar el valor es una lista'''
+            if(colum.zonahoraria!=False):
+                '''aca se debe verificar la zonahoraria es una lista'''
+            if(colum.atributos!=False):
+                #aca se debe verificar la lista de atributos de una columna
+                for atributoC in colum.atributos :
+                    if isinstance(atributoC, atributoColumna):
+                        print('atributos-->','primary:',atributoC.primary,'check:',atributoC.check)
+                        if(atributoC.default!=None):
+                            if(colAux.default==None):
+                                colAux.default=resolver_operacion(atributoC.default,ts)#guardar default
+                            else:
+                                crearOK=False
+                                msg='atributo default repetido en Col:'+colAux.nombre
+                                agregarMensjae('error',msg)
+                        elif(atributoC.constraint!=None):
+                            if(colAux.constraint==None):
+                                colAux.constraint=atributoC.constraint#guardar constraint
+                            else:
+                                crearOK=False
+                                msg='atributo constraint repetido en Col:'+colAux.nombre
+                                agregarMensjae('error',msg)
+                        elif(atributoC.null!=None):
+                            if(colAux.anulable==None):
+                                colAux.anulable=atributoC.null#guardar anulable
+                            else:
+                                crearOK=False
+                                msg='atributo anulable repetido en Col:'+colAux.nombre
+                                agregarMensjae('error',msg)
+                        elif(atributoC.unique!=None):
+                            if(colAux.unique==None):
+                                colAux.unique=atributoC.unique#guardar unique
+                            else:
+                                crearOK=False
+                                msg='atributo unique repetido en Col:'+colAux.nombre
+                                agregarMensjae('error',msg)
+                        elif(atributoC.primary!=None):
+                            if(colAux.primary==None):
+                                colAux.primary=atributoC.primary#guardar primary
+                            else:
+                                crearOK=False
+                                msg='atributo primary repetido en Col:'+colAux.nombre
+                                agregarMensjae('error',msg)
+                        elif(atributoC.check != None):
+                            for exp in atributoC.check:
+                                print('resultado: ',resolver_operacion(exp,ts))
+            
+
+            #agregar la columna
+            listaColumnas.append(Columna_run)
 
     #analisas si las columnas estan bien
     #buscar las tablas de una base de datos retorna una lista de tablas
-    result=EDD.showTables(baseActiva)
-    crearOK=True
-    if(result!=None):
-        for tab in result:
-            if tab==nombreT:
-                outputTxt+='\n>\tError La tabla existe: '+nombreT
-                crearOK=False
-                break
-        if crearOK:
-            EDD.createTable(baseActiva,nombreT,contC)
-            insertartabla(listaColumnas,nombreT)
-    else:
-        outputTxt+='\n>\tno existe la base de datos: '+baseActiva
+    if(crearOK):
+        result=EDD.showTables(baseActiva)
+        if(result!=None):
+            for tab in result:
+                if tab==nombreT:
+                    msg='Error la tabla ya existe:'+nombreT
+                    agregarMensjae('error',msg)
+                    crearOK=False
+                    break
+            if crearOK:
+                EDD.createTable(baseActiva,nombreT,contC)
+                insertartabla(listaColumnas,nombreT)
+                msg='Todo OK'
+                agregarMensjae('exito',msg)
+        else:
+            msg='no existe la base de datos activa:'+baseActiva
+            agregarMensjae('error',msg)
 
 def crear_Type(instr,ts):
     nombreT=resolver_operacion(instr.nombre,ts)
@@ -363,7 +447,7 @@ def procesar_instrucciones(instrucciones, ts) :
 
 def Analisar(input):
     global outputTxt
-    outputTxt='------------SALIDA--------------\n'
+    outputTxt=[]
     EDD.dropAll() #eliminar para ir haciendo pruebas
     instrucciones = g.parse(input)
     print(instrucciones)

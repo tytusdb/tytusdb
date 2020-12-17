@@ -1,6 +1,11 @@
 class temporal:
     '''This is an abstract class'''
 
+class MensajeOut:
+    tipo='normal'
+    mensaje=''
+
+
 class Tabla_run:
     basepadre=''
     nombre = ''
@@ -10,9 +15,12 @@ class Columna_run:
     nombre = ''
     tipo = ''
     size = ''
-    anulable = ''
-    default = ''
-    primary = False
-    foreign = False
-    refence = ''
+    unique = None
+    anulable = None
+    default = None
+    primary = None
+    foreign = None
+    refence = None
+    check = None
+    constraint = None
 
