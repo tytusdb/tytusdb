@@ -42,7 +42,7 @@ def p_statements2(t):
 
 
 def p_statement(t):
-    '''statement : relExpression PUNTOCOMA
+    '''statement : predicateExpression PUNTOCOMA
                     '''
     t[0] = t[1]
 
@@ -95,6 +95,68 @@ def p_relExpReducExp(t):
     t[0] = t[1]
 
 
+########## Definition of logical expressions ##############
+def p_predicateExpression(t):
+    '''predicateExpression  : BETWEEN expression AND expression'''
+    graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[4].graph_ref])
+    t[0] = PredicateExpression(t[2], t[4], OpPredicate.BETWEEN, token.lineno, token.lexpos,graph_ref)
+def p_predicateExpression0(t):
+    '''predicateExpression  : logicExpression'''
+    t[0] = t[1]
+
+def p_predicateExpression1(t):
+    '''predicateExpression  : expression IS NULL
+                            | expression IS DISTINCT FROM expression
+                            | expression IS BOOLEAN_VALUE
+                            | expression IS UNKNOWN '''
+    token = t.slice[3]
+    #graph_ref = graph_node(str(t[3]), [t[2].graph_ref, t[4].graph_ref])
+    if token.type == "NULL":
+        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])
+        t[0] = PredicateExpression(t[1], None, OpPredicate.NULL,  token.lineno, token.lexpos,graph_ref)
+    elif token.type == "DISTINCT":
+        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref, t[5].graph_ref])
+        t[0] = PredicateExpression(t[1], t[5], OpPredicate.DISTINCT,  token.lineno, token.lexpos,graph_ref)
+    elif token.type == "BOOLEAN_VALUE":
+        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])        
+        if bool(t[3]):
+            t[0] = PredicateExpression(t[1], None, OpPredicate.TRUE, token.lineno, token.lexpos,graph_ref)
+        else:
+            t[0] = PredicateExpression(t[1], None, OpPredicate.FALSE, token.lineno, token.lexpos,graph_ref)
+    elif token.type == "UNKNOWN":
+        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])
+        t[0] = PredicateExpression(t[1], None, OpPredicate.UNKNOWN, token.lineno, token.lexpos,graph_ref)
+
+def p_predicateExpression2(t):
+    '''predicateExpression  : expression IS NOT NULL
+                            | expression IS NOT DISTINCT FROM expression
+                            | expression IS NOT BOOLEAN_VALUE
+                            | expression IS NOT UNKNOWN '''
+
+def p_logicExpression(t):
+    '''logicExpression  : relExpression'''
+    t[0] = t[1]
+    
+def p_logicNotExpression(t):
+    '''logicExpression  : NOT logicExpression'''
+    token = t.slice[1]
+    graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+    t[0] = Negation(t[2],token.lineno,token.lexpos,graph_ref)
+
+def p_binLogicExpression(t):     
+    '''logicExpression  : logicExpression AND logicExpression
+                        | logicExpression OR  logicExpression
+                        '''    
+    token = t.slice[2]
+    if token.type == "AND":
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = BoolExpression(t[1],t[3],OpLogic.AND,token.lineno,token.lexpos,graph_ref)
+    elif token.type == "OR":
+        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        t[0] = BoolExpression(t[1],t[3],OpLogic.OR,token.lineno,token.lexpos,graph_ref)
+    else:
+        print("Missing code for: ",token.type)
+
 ########## Defintions of produtions for expression :== ##############
 def p_expression(t):
     ''' expression  : expression MAS expression
@@ -126,6 +188,16 @@ def p_expression(t):
         print("You forgot wirte code for the operator: ", t[2])
 
 
+def p_expNotExp(t):
+    '''expression   : NOT expression'''
+    token = t.slice[1]
+    graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+    t[0] = Negation(t[1],token.lineno,token.lexpos, graph_ref)
+
+def p_expPerenteLogic(t):
+    '''expression   : PARA logicExpression PARC'''
+    t[0] = t[2]
+    
 def p_trigonometric(t):
     ''' expression  :   ACOS PARA expression PARC
                     |   ACOSD PARA expression PARC
@@ -246,6 +318,7 @@ def p_aritmetic(t):
                     | WIDTH_BUCKET PARA expression COMA expression PARC
                     | RANDOM PARA PARC
                     | SETSEED PARA expression PARC
+                    | TRUC PARA expression PARC
                 '''
     token = t.slice[1]
     if token.type == "ABS":
@@ -326,12 +399,11 @@ def p_aritmetic(t):
         t[0] = Random(token.lineno, token.lexpos, graph_ref)
     elif token.type == "SETSEED":
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
-        t[0] = SetSeed(t[3], token.lineno, token.lexpos, graph_ref)
+        t[0] = SetSeed(t[3], token.lineno, token.lexpos, graph_ref)        
+    elif token.type == "TRUC":
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        t[0] = Trunc(t[3], token.lineno, token.lexpos, graph_ref)
 
-
-# | NOT expression
-# '''
-# | PARA logicExpression PARC'''
 def p_exp_unary(t):
     '''expression : MENOS expression %prec UMENOS
                   | MAS expression %prec UMAS '''
@@ -355,7 +427,7 @@ def p_exp_val(t):
     '''expression   : TEXTO
                     | BOOLEAN_VALUE                    
                     | NOW PARA PARC'''
-    token = t.slice[1]
+    token = t.slice[1]    
     if token.type == "TEXTO":
         graph_ref = graph_node(str(t[1]))
         t[0] = Text(token.value, token.lineno, token.lexpos, graph_ref)
@@ -366,22 +438,6 @@ def p_exp_val(t):
         graph_ref = graph_node(str(t[1]))
         t[0] = Now(token.lineno, token.lexpos, graph_ref)
 
-
-def p_exp_afunc1(t):
-    '''expression : TRUC PARA expression PARC'''
-
-    token = t.slice[1]
-    if token.type == "TRUC":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
-        t[0] = Trunc(t[3], 0, 0, graph_ref)
-
-    # else:
-    #    print("Missing code from: ",t[1])
-
-
-# def p_empty(t):
-#    '''empty :'''
-#    pass
 
 def p_error(p):
     if not p:
@@ -424,6 +480,6 @@ parse = yacc.yacc()
 
 def toParse(input):
     # return parse.parse(input,lexer)
-    parse.parse(input)
-    dot.view()
+    #parse.parse(input)
+    #dot.view()
     return parse.parse(input)
