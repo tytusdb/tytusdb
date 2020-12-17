@@ -442,14 +442,14 @@ def p_funcCall_1(t):
 def p_funcCall_2(t):
     """
     funcCall : ID S_PARIZQ S_PARDER
+            | R_NOW S_PARIZQ S_PARDER
     """
     t[0] = expression.FunctionCall(t[1], [], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_funcCall_3(t):
     """
-    funcCall : R_NOW S_PARIZQ S_PARDER
-            | R_COUNT S_PARIZQ paramsList S_PARDER
+    funcCall : R_COUNT S_PARIZQ paramsList S_PARDER
             | R_COUNT S_PARIZQ O_PRODUCTO S_PARDER
             | R_SUM S_PARIZQ paramsList S_PARDER
             | R_SUM S_PARIZQ O_PRODUCTO S_PARDER
@@ -462,14 +462,14 @@ def p_extract(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
     """
-
+    t[0] = expression.ExtractDate(t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos)
 
 def p_timeStamp(t):
     """
     timeStamp : R_TIMESTAMP STRING
           | R_INTERVAL STRING
     """
-
+    t[0] = [t[1],t[2]]
 
 def p_optsExtract(t):
     """
@@ -480,30 +480,37 @@ def p_optsExtract(t):
                   | R_MINUTE
                   | R_SECOND
     """
-
+    t[0] = t[1]
 
 def p_datePart(t):
     """
     datePart : R_DATE_PART S_PARIZQ STRING S_COMA dateSource S_PARDER
     """
-
+    t[0] = expression.DatePart(t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos)
 
 def p_dateSource(t):
     """
     dateSource : R_TIMESTAMP STRING
           | T_DATE STRING
           | T_TIME STRING
-          | R_INTERVAL intervalFields STRING
+          | R_INTERVAL STRING
           | R_NOW S_PARIZQ S_PARDER
     """
-
+    t[0] = [t[1],t[2]]
 
 def p_current(t):
     """
     current : R_CURRENT_DATE
           | R_CURRENT_TIME
-          | timeStamp
     """
+    t[0] = expression.Current(t[1], None, t.slice[1].lineno, t.slice[1].lexpos)
+
+# TODO: Arreglar columna y fila
+def p_current_1(t):
+    """
+    current : timeStamp
+    """
+    t[0] = expression.Current(t[1][0], t[1][1], 0, 0)
 
 
 def p_literal_list(t):
@@ -1048,7 +1055,6 @@ def p_joinOpt(t):
 
 def p_whereCl(t):
     """whereCl : R_WHERE expBool
-    |
     """
     if t[2]!= None: t[0] = instruction.WhereClause(t[2],t.slice[1].lineno, t.slice[1].lexpos)
     else : t[0] = None
