@@ -120,6 +120,20 @@ class NodoAVL:
             self.extraer(arbol.Izq, lista)
             lista.append(arbol.valor)
             self.extraer(arbol.Der, lista)
+    
+    #Agrega una Columna en cada registro con un valor default
+    def agregaColumna(self, arbol, default):
+        if arbol:
+            self.agregaColumna(arbol.Izq, default)
+            arbol.valor.append(default)
+            self.agregaColumna(arbol.Der, default)
+
+    #Quita una Columna en cada registro
+    def quitaColumna(self, arbol, pos):
+        if arbol:
+            self.quitaColumna(arbol.Izq, pos)
+            arbol.valor.pop(pos)
+            self.quitaColumna(arbol.Der, pos)
 
 #Clase Arbol AVL
 class AVL:

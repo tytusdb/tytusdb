@@ -395,7 +395,7 @@ def p_use(t):
     """
         I_USE           :   USE ID PCOMA
     """
-    t[0] = UseDatabase(t[3])
+    t[0] = UseDatabase(t[2])
 
 
 def p_create(t):
@@ -490,17 +490,12 @@ def p_ipoConstraintCheck(t):
 def p_ipoConstraintForeignKey(t):
     'TIPO_CONSTRAINT        : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
 
-    
 
 def p_Lllave(t):
     'LI_LLAVES         : LI_LLAVES I_LLAVES'
 
 def p_Lllave1(t):
     'LI_LLAVES         : I_LLAVES'
-
-
-
-
 
 
 def p_cRef(t):
@@ -538,8 +533,6 @@ def p_llave10(t):
 
 def p_llave11(t): 
     'I_LLAVES    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
-
-
 
 
 def p_lIds(t):
@@ -630,19 +623,29 @@ def p_fields4(t):
     'I_FIELDS         : YEAR'
 
 
-def p_Replace(t):
-    'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
-    t[0] = t[4]
-def p_Replace1(t):
-    'I_REPLACE     : DATABASE I_EXIST'
-    t[0] = t[2]
+def p_replace1(t):
+    """
+        I_REPLACE       :   OR REPLACE DATABASE I_EXIST
+    """
+    t[0] = CreateDatabase(True, t[4])
+
+
+def p_replace2(t):
+    """
+        I_REPLACE       :   DATABASE I_EXIST
+    """
+    t[0] = CreateDatabase(False, t[2])
+
 
 def p_drop(t):
-    'I_DROP      : DROP I_TDROP ' 
+    """
+        I_DROP          :   DROP I_TDROP
+    """
+    t[0] = t[2]
+
 
 def p_alter(t):
     'I_ALTER     : ALTER I_TALTER'
-
 
 
 def p_alterTB(t):
@@ -723,61 +726,106 @@ def p_lCAdd2(t):
 def p_cAdd(t):
     'I_ADDC      : ADD COLUMN ID I_TIPO'
 
-def p_tDrop(t):
-    'I_TDROP     : I_DROPDB'
-    # INSTRUCCION DROP
 
-def p_tDrop2(t):
-    'I_TDROP     : I_DROPTB'
+def p_tdrop1(t):
+    """
+        I_TDROP         :   I_DROPDB
+    """
+    t[0] = t[1]
 
-def p_dropDB(t):
-    'I_DROPDB    : DATABASE I_IFEXIST'
-    # INSTRUCCION DROPDB
 
-def p_ifExist(t):
-    'I_IFEXIST     : IF EXISTS ID PCOMA'
-    # INSTRUCCION IFEXIST
+def p_tdrop2(t):
+    """
+        I_TDROP         :   I_DROPTB
+    """
+    t[0] = t[1]
 
-def p_ifExist2(t):
-    'I_IFEXIST     : ID PCOMA'
-    # INSTRUCCION IFEXIST 
 
-def p_Exist(t):
-    'I_EXIST       : IF NOT EXISTS ID I_OWMOD '
+def p_drop_db(t):
+    """
+        I_DROPDB        :   DATABASE I_IFEXIST
+    """
+    t[0] = DropDB(t[2])
+
+
+def p_if_exist1(t):
+    """
+        I_IFEXIST       :   IF EXISTS ID PCOMA
+    """
+    t[0] = IfExist(t[3])
+
+
+def p_if_exist2(t):
+    """
+        I_IFEXIST       :   ID PCOMA
+    """
+    t[0] = IfExist(t[1])
+
+
+def p_exist1(t):
+    """
+        I_EXIST         :   IF NOT EXISTS ID I_OWMOD
+    """
     t[0] = DatabaseInfo(True, t[4], t[5])
 
-def p_Exist1(t):
-    'I_EXIST       : ID I_OWMOD'
 
-def p_Owmod(t):
-    'I_OWMOD       : OWNER IGUAL ID I_MODE'
+def p_exist2(t):
+    """
+        I_EXIST         :   ID I_OWMOD
+    """
+    t[0] = DatabaseInfo(False, t[1], t[2])
+
+
+def p_owmod1(t):
+    """
+        I_OWMOD         :   OWNER IGUAL ID I_MODE
+                        |   OWNER IGUAL CADENA I_MODE
+    """
     t[0] = Owner_Mode(t[3], t[4])
 
-def p_Owmod1(t):
-    'I_OWMOD       : OWNER IGUAL CADENA I_MODE'
+
+def p_owmod2(t):
+    """
+        I_OWMOD         :   MODE IGUAL NUMERO I_OWNER
+    """
+    t[0] = Owner_Mode(t[4], t[3])
 
 
-def p_OwmodN2(t):
-    'I_OWMOD       : MODE IGUAL NUMERO I_OWNER'
-
-def p_Owmod2(t):
-    'I_OWMOD       : PCOMA'
-
-def p_ModeN(t):
-    'I_MODE       : MODE IGUAL NUMERO I_OWNER'
+def p_owmod3(t):
+    """
+        I_OWMOD         :   PCOMA
+    """
+    t[0] = Owner_Mode(None, None)
 
 
-def p_Mode1(t):
-    'I_MODE        : PCOMA'
+def p_mode1(t):
+    """
+        I_MODE          :   MODE IGUAL NUMERO I_OWNER
+    """
+    t[0] = t[3]
 
-def p_Owner(t):
-    'I_OWNER       : OWNER IGUAL ID PCOMA'
 
-def p_OwnerCadena(t):
-    'I_OWNER       : OWNER IGUAL CADENA PCOMA'
+def p_mode2(t):
+    """
+        I_MODE          :   PCOMA
+    """
+    t[0] = None
 
-def p_Owner1(t):
-    'I_OWNER       : PCOMA'
+
+def p_owner1(t):
+    """
+        I_OWNER         :   OWNER IGUAL ID PCOMA
+                        |   OWNER IGUAL CADENA PCOMA
+    """
+    t[0] = t[3]
+
+
+def p_owner2(t):
+    """
+        I_OWNER         :   PCOMA
+    """
+    t[0] = None
+
 
 def p_AlterDB(t):
     'I_ALTERDB     : DATABASE ID I_OPALTERDB I_VALALTDB PCOMA'
