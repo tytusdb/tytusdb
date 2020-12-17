@@ -1,6 +1,7 @@
 reservadas = {
     'show': 'show',
     'database': 'databases',
+     'databases': 'dbs',
     'like': 'like',
     'select': 'select',
     'distinct': 'distinct',
@@ -232,6 +233,7 @@ from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
 from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
+from Instrucciones.Insert import Insert
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -287,7 +289,7 @@ def p_instruccion(t):
 
 def p_instruccion1(t):
     '''instruccion      :  use id ptcoma'''
-    #manejar el entorno
+      t[0]=Use(t[2])
 
 
 def p_CASE(t):
@@ -311,10 +313,13 @@ def p_ELSE(t):
     '''ELSE : else LEXP
     '''
 
-
 def p_INSERT(t):
-    '''INSERT : insert into id values para LEXP parc
-            | insert into id para LEXP parc values para LEXP parc'''
+    'INSERT : insert into id values para LEXP parc'
+    t[0]=Insert(t[3],t[6])
+
+def p_INSERT2(t):
+    'INSERT : insert into id para LEXP parc values para LEXP parc'
+
 
 
 def p_DROP(t):
@@ -386,8 +391,9 @@ def p_ADD(t):
 
 
 def p_SHOWDB(t):
-    ''' SHOWDB : show databases
-     '''
+    ''' SHOWDB : show dbs
+    '''
+    t[0] =ShowDb()
 
 
 def p_CREATEDB(t):
@@ -541,7 +547,11 @@ def p_SELECT(t):
 	    | select  LEXP WHERE  GROUP HAVING  COMBINING ORDER LIMIT
     '''
     if len(t)==9:
-        t[0]=Select(None,t[2],None,None,None,None,None,None,None)
+        t[0] =Select(None ,t[2] ,None ,t[4] ,t[5] ,t[6] ,t[7] ,t[8] ,t[9])
+    elif  len(t)==10:
+        t[0] = Select(None, t[2], t[4], t[5], t[6], t[7], t[8], t[9], t[10])
+    elif  len(t)==11:
+        t[0] = Select(t[1], t[2], t[4], t[5], t[6], t[7], t[8], t[9], t[10])
 
 
 def p_LIMIT(t):
@@ -625,17 +635,69 @@ def p_LEXP2(t):
     'LEXP : EXP'
     t[0]=[t[1]]
 
+
 def p_TIPOE(t):
-    '''TIPO : interval cadena
-            | decimal para LEXP parc
-            | numeric para LEXP parc
-            | varchar para int parc
-            | timestamp para int parc
-            | character para int parc
-            | interval para int parc
-            | char para int parc
-            | time para int parc
-            | character varying para int parc'''
+    'TIPO : interval cadena'
+    tipo = Tipo('interval',None,-1,-1)
+    t[0]=tipo
+def p_TIPOE2(t):
+    '''TIPO : decimal para  int coma int parc
+            | decimal para int parc
+            | decimal '''
+    tipo=None
+    if len(t)==7:
+        tipo = Tipo('decimal', None, t[3], t[5])
+    elif len(t)==5:
+        tipo = Tipo('decimal', None, t[3], -1)
+    elif len(t)==2:
+        tipo = Tipo('decimal', None, -1, -1)
+
+    t[0] = tipo
+
+
+def p_TIPOE3(t):
+    '''TIPO : numeric para int coma int parc
+    | numeric para int parc
+    | numeric '''
+    tipo = None
+    if len(t) == 7:
+        tipo = Tipo('decimal', None, t[3], t[5])
+    elif len(t) == 5:
+        tipo = Tipo('decimal', None, t[3], -1)
+    elif len(t) == 2:
+        tipo = Tipo('decimal', None, -1, -1)
+
+    t[0] = tipo
+
+def p_TIPOE4(t):
+    'TIPO : varchar para int parc'
+    tipo = Tipo('varchar',None,t[3],-1)
+    t[0]=tipo
+def p_TIPOE5(t):
+    'TIPO : timestamp para int parc'
+    tipo = Tipo('timestap', None, t[3], -1)
+    t[0] = tipo
+def p_TIPOE6(t):
+    'TIPO : character para int parc'
+    tipo = Tipo('character', None, t[3], -1)
+    t[0] = tipo
+def p_TIPOE7(t):
+    'TIPO : interval para int parc'
+    tipo = Tipo('interval', None, t[3], -1)
+    t[0] = tipo
+def p_TIPOE8(t):
+    'TIPO : char para int parc'
+    tipo = Tipo('char', None, t[3], -1)
+    t[0] = tipo
+def p_TIPOE9(t):
+    'TIPO : time para int parc'
+    tipo = Tipo('time', None, t[3], -1)
+    t[0] = tipo
+def p_TIPOE10(t):
+    'TIPO : character varying para int parc'
+    tipo = Tipo('varchar', None, t[3], -1)
+    t[0] = tipo
+
 
 def p_TIPOL(t):
     ''' TIPO : timestamp para int parc without time zone
@@ -657,7 +719,8 @@ def p_TIPO(t):
             | time
             | interval
             | boolean'''
-    t[0] = str(t[1])
+    t[0] = Tipo(t[1], None, -1, -1)
+
 
 def p_TIPO22(t):
     '''TIPO : timestamp without time zone
@@ -673,7 +736,7 @@ def p_FIELDS(t):
         | hour
         | minute
         | second'''
-    t[0]=t[1].lower()
+    t[0 ] =t[1].lower()
 
 
 def p_EXP3(t):
@@ -752,8 +815,8 @@ def p_EXP1(t):
         t[0] = Unaria(t[2], '*')
 
 def p_EXPV(t):
-    '''EXP : EXP in para LEXP parc %prec predicates
-            | EXP not in para LEXP parc %prec predicates
+    '''EXP : EXP in para EXP parc %prec predicates
+            | EXP not in para EXP parc %prec predicates
             | EXP not between EXP %prec predicates
             | EXP  between symetric EXP %prec predicates
             | EXP not between symetric EXP %prec predicates
@@ -773,10 +836,11 @@ def p_EXPJ(t):
     '''EXP : SELECT
             | CASE
             | para EXP parc'''
-    if t[1]=='(':
-        t[0]= t[2]
+    if t[1 ]=='(':
+        t[0 ]= t[2]
     else:
-        t[0]=t[1]
+        t[0 ] =t[1]
+
 
 def p_EXP_FuncNativas(t):
     '''EXP : id para LEXP parc '''
@@ -793,66 +857,98 @@ def p_EXP(t):
 
 def p_EXPext(t):
     ' EXP : extract para FIELDS r_from timestamp cadena parc'
-    t[0]= Extract(t[3],t[6])
+    t[0 ]= Extract(t[3] ,t[6])
 
 
 
 def p_EXPT1(t):
     'EXP : int'
-    tipo = Tipo('int',t[1])
-    t[0] = Terminal(tipo.getTipo(), t[1])
+    tipo = Tipo('int',t[1],len(str(t[1])),-1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXPT2(t):
     'EXP : decimales'
-    tipo = Tipo('decimal', t[1]);
-    t[0] = Terminal(tipo.getTipo(), t[1])
+    tipo = Tipo('decimal', t[1],len(str(t[1])),-1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXPT3(t):
     'EXP : cadena'
-    t[0] = Terminal('varchar', t[1])
+    tipo = Tipo('varchar', t[1],len(t[1]),-1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 def p_EXPT4(t):
     'EXP : cadenaString'
-    t[0] = Terminal('varchar', t[1])
+    tipo = Tipo('varchar', t[1],len(t[1]),-1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXPT5(t):
     'EXP : true'
-    t[0] = Terminal('boolean', t[1])
+    tipo = Tipo('boolean', t[1],len(t[1]),-1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXPT6(t):
     'EXP : false'
-    t[0] = Terminal('boolean', t[1])
+    tipo = Tipo('boolean', t[1],len(t[1]),-1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXPT7(t):
     'EXP : id'
-    t[0] = Terminal('identificador', t[1])
+    tipo = Tipo('identificador', t[1],len(t[1]),-1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
+
 
 def p_EXPT8(t):
     'EXP : multiplicacion %prec lsel'
-    t[0] = Terminal('todo', t[1])
+    tipo = Tipo('todo', t[1],len(t[1]),-1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
+
 def p_EXPT9(t):
     'EXP : null'
-    t[0] = Terminal('indefinido', t[1])
+    tipo = Tipo('indefinido', t[1], len(t[1]), -1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXPT10(t):
     'EXP : current_time'
-    t[0] = Terminal('time without time zone', t[1])
+    tipo = Tipo('time without time zone', t[1], len(t[1]), -1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXPT11(t):
     'EXP : current_date'
-    t[0] = Terminal('date', t[1])
+    tipo = Tipo('date', t[1], len(t[1]), -1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
+
 
 def p_EXPT12(t):
     'EXP : timestamp cadena'
-    t[0] = Terminal('timestamp without time zone', t[2])
+
+    tipo = Tipo('timestamp without time zone', t[2], len(t[2]), -1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[2])
+
 
 def p_EXPT13(t):
     'EXP : interval cadena'
-    t[0] = Terminal('interval', t[1])
+    tipo = Tipo('interval', t[2], len(t[2]), -1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[2])
+
 
 
 def p_EXPT16(t):
     'EXP : default'
-    t[0] = Terminal('default',t[1])
+    tipo = Tipo('default', t[1], len(t[1]), -1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
 
 
 def p_error(t):
