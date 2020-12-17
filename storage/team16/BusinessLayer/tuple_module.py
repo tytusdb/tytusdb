@@ -1,5 +1,6 @@
 from DataAccessLayer.handler import Handler
 from Models.avl_tree import AVLTree
+import csv
 
 
 class TupleModule:
@@ -21,14 +22,17 @@ class TupleModule:
                     tempAVL = self.handler.leerArchivoTB(database, table)
 
                     # lista que almacena las columnas que son PK en el parametro
-                    auxPk = []
+                    auxPk = ""
                     for i in range(len(register)):
                         if str(i) in tempAVL.pklist:
-                            auxPk.append(register[i])
+                            if i == 0:
+                                auxPk = register[i]
+                            else:
+                                auxPk = auxPk + "-" + register[i]
 
                     if len(register) > tempAVL.numberColumns: # más parametros de los esperado en register
                         return 5
-                    elif tempAVL.find(auxPk) is False: # PK repetida
+                    elif tempAVL.find(auxPk) is None: # PK repetida
                         return 4
                     else:
                         if len(tempAVL.pklist) < 0:
@@ -48,19 +52,107 @@ class TupleModule:
 
     def loadCSV(self, file: str, database: str, table: str) -> list:
         try:
-            return []
+            # validando ruta y extención del archivo
+            if file.endswith(".csv") is False:
+                return [None]
+            archivo = open(file,"r")
+            lector = csv.reader(archivo)
+
+            dbList = self.handler.leerArchivoDB()
+            existeDB = False
+            existeTable = False
+            for db in dbList:
+                if db.name == database:
+                    existeDB = True
+                    break
+            existeTable = self.handler.leerArchivoTB(database, table)
+
+            if existeTable is True and existeDB is True:
+                tempAvl = self.handler.leerArchivoTB(database, table)
+                result = []
+                for columna in lector:
+                    if len(columna) <= tempAvl.numberColumns:
+                        result.append(self.insert(database, table, columna))
+                self.handler.actualizarArchivoTB(tempAvl, database, table)
+                return result
+            elif existeDB is False:
+                return [2]
+            else:
+                return [3]
         except:
             return [None]
 
-    def extractRow(self, database: str, table: str, columns: list) -> int:
+    def extractRow(self, database: str, table: str, columns: list) -> list:
         try:
-            return 0
+            dbList = self.handler.leerArchivoDB()
+            existeDB = False
+            existeTable = False
+            for db in dbList:
+                if db.name == database:
+                    existeDB = True
+                    break
+            existeTable = self.handler.leerArchivoTB(database, table)
+
+            if existeTable is True and existeDB is True:
+                tempAvl = self.handler.leerArchivoTB(database, table)
+                auxStr = ""
+                for el in columns:
+                    if el == columns[0]:
+                        auxStr = str(el)
+                    else:
+                        auxStr = auxStr + "-" + str(el)
+
+                foundNode = tempAvl.find(auxStr)
+                if foundNode is not None:
+                    return foundNode.content
+                else:
+                    return [4]
+            elif existeDB is False:
+                return [2]
+            else:
+                return [3]
         except:
-            return 1
+            return [1]
 
     def update(self, database: str, table: str, register: dict, columns: list) -> int:
         try:
-            return 0
+            dbList = self.handler.leerArchivoDB()
+            existeDB = False
+            existeTable = False
+            for db in dbList:
+                if db.name == database:
+                    existeDB = True
+                    break
+            existeTable = self.handler.leerArchivoTB(database, table)
+
+            if existeTable is True and existeDB is True:
+                tempAvl = self.handler.leerArchivoTB(database, table)
+                auxStr = ""
+                for el in columns:
+                    if el == columns[0]:
+                        auxStr = str(el)
+                    else:
+                        auxStr = auxStr + "-" + str(el)
+
+                foundNode = tempAvl.find(auxStr)
+                if foundNode is not None:
+                    if len(register) <= tempAvl.numberColumns:
+                        newContent = tempAvl.content
+                        for key in register:
+                            newContent[key] = register[key]
+
+                        # actualizas el nodo auxStr-> concatenacion de las llaves y el newContent -> lista del content
+                        tempAvl.update(auxStr, newContent)
+                        self.handler.actualizarArchivoTB(tempAvl, database, table)
+                        return 0
+                    else:
+                        return 1
+                else:
+                    return 4
+            elif existeDB is False:
+                return 2
+            else:
+                return 3
         except:
             return 1
 
@@ -79,7 +171,7 @@ class TupleModule:
                 return 3
             elif tabla is True and existe is True:
                 tempAVL = self.handler.leerArchivoTB(database, table)
-                if tempAVL.find(columns) is True:
+                if tempAVL.find(columns) is None:
                     keyAux = ""
                     for i in range(len(columns)):
                         if i == 0:
