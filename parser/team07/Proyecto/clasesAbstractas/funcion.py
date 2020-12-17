@@ -1,8 +1,9 @@
 from .instruccionAbstracta import InstruccionAbstracta
 
+
 class funcion(InstruccionAbstracta):
 
-    def __init__(self):   
+    def __init__(self):
         pass
 
     def funcionTimeExtract(self, VarTime, TipoTiempo, CadenaTiempo):
@@ -37,7 +38,7 @@ class funcion(InstruccionAbstracta):
     def funcionTrigonometricaUnitaria(self, TipoFuncion, Parametro):
         self.TipoFuncion = TipoFuncion
         self.Parametro = Parametro
-    
+
     def funcionTrigonometricaBinaria(self, TipoFuncion, Param1, Param2):
         self.TipoFuncion = TipoFuncion
         self.Param1 = Param1
@@ -62,6 +63,10 @@ class funcion(InstruccionAbstracta):
         self.TipoFuncion = TipoFuncion
         self.ListaFunciones = ListaFunciones
 
+    def funcionAgregacion(self, TipoFuncion, Parametro):
+        self.TipoFuncion = TipoFuncion
+        self.parametro = Parametro
+
     def ejecutar(self, tabalSimbolos, listaErrores):
-         
-        pass  
+
+        pass
