@@ -38,17 +38,34 @@ class TreeBPlus:
 
     # graph tree
     def graphTree(self):
-        dot = Digraph(comment='B+', node_attr={'shape': 'record'})
-        dot.attr(rankdir='TB', rank='same')
-        dot.format = 'svg'
-        self._graphTree(self.__root, 0, dot)
-        dot.render('ArbolB+')
+        if self.__root is not None:
+            graph = 'digraph G{\n'
+            graph += "node[shape = \"record\"]\n"
+            graph += self._graphTree(self.__root, 0)
+            graph += "{rank=same;\n"
+            graph += self._rankLeaves(self.__root)
+            graph += "}"
+            graph += '}'
+            file = open("ArbolB+.dot", "w")
+            file.write(graph)
+            file.close()
+            os.system('dot -Tpng ArbolB+.dot -o ArbolB+.png')
+        else:
+            print("No hay Tuplas")
 
-    def _graphTree(self, tmp, level, dot):
-        tmp.graphKeys2(tmp, level, dot)
+    def _graphTree(self, tmp, level):
+        cadena = ""
+        cadena += tmp.graphKeys(tmp, level)
         if not (len(tmp.get_chlds()) == 0):
             for i in range(len(tmp.get_chlds())):
-                self._graphTree(tmp.get_chlds()[i], level + 1, dot)
+                cadena += self._graphTree(tmp.get_chlds()[i], level + 1)
+        return cadena
+                
+    # Rank = same to the nodes (leaves)
+    def _rankLeaves(self, tmp):
+        cadena = ""
+        cadena += tmp.rankLeavesKeys(tmp)
+        return cadena
 
 class PageTBPlus:
     
@@ -364,7 +381,8 @@ class PageTBPlus:
         print(" contador hijos: ", contador)
 
     # Graph and show keys
-    def graphKeys(self, tmp, level, dot):
+    def graphKeys(self, tmp, level):
+        cadena = ""
         if not (len(self.__keys) == 0):
             keysString = ""
             if level != 0:
@@ -373,14 +391,14 @@ class PageTBPlus:
                         keysString += f"{self.__keys[i].value}, "
                     else:
                         keysString += f"{self.__keys[i].value}"
-                dot.node(f'{tmp}', f"{keysString}", color='red')
+                cadena += f"{tmp} [label=\"{keysString}\" color=red]\n"
 
                 if len(self.__childs) != 0:
                     for i in range(len(self.__childs)):
-                        dot.edge(f"{tmp}", f"{self.__childs[i]}")
+                        cadena += f"{tmp} -> {self.__childs[i]}\n"
 
                 if not (self.__next is None):
-                    dot.edge(f"{tmp}", f"{self.__next}")
+                    cadena += f"{tmp} -> {self.__next}\n"
 
             else:
                 for i in range(len(self.__keys)):
@@ -388,11 +406,23 @@ class PageTBPlus:
                         keysString += f"{self.__keys[i].value}, "
                     else:
                         keysString += f"{self.__keys[i].value}"
-                dot.node(f'{tmp}', f"{keysString}", color='green')
+                cadena += f"{tmp} [label=\"{keysString}\" color=green]\n"
 
                 if len(self.__childs) != 0:
                     for i in range(len(self.__childs)):
-                        dot.edge(f"{tmp}", f"{self.__childs[i]}")
+                        cadena += f"{tmp} -> {self.__childs[i]}\n"
+        return cadena
+                        
+    # Rank = same to the nodes (leaves)
+    def rankLeavesKeys(self, tmp):
+        cadena = ""
+        if len(tmp.get_chlds()) != 0:
+            cadena += self.rankLeavesKeys(tmp.get_chlds()[0])
+        else:
+            cadena += f"{tmp};\n"
+            if tmp.get_next() is not None:
+                cadena += self.rankLeavesKeys(tmp.get_next())
+        return cadena    
 
 class NodeTBPlus:
 

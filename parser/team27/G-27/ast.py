@@ -1,3 +1,4 @@
+# encoding: utf-8
 # Importe de Graphviz
 from graphviz import Graph
 #importamos la libreria PLY para hacer nuestro analizador lexico.
@@ -15,11 +16,8 @@ i = 0
 
 def inc(): 
     global i
+    print(str(i))
     i += 1
-    return i
-
-def getI(): 
-    global i
     return i
 
 # creamos la lista de tokens de nuestro lenguaje.
@@ -42,17 +40,36 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'ALL','SOME','ANY','INNER','JOIN','LEFT','RIGTH','FULL','OUTER','NATURAL',
               'ASC','DESC','FIRST','LAST','NULLS',
               'CASE','WHEN','THEN','ELSE','END','LIMIT',
-              'UNION','INTERSECT','EXCEPT','OFFSET','GREATEST','LEAST','WHERE','DEFAULT','CASCADE','NO','ACTION'
+              'UNION','INTERSECT','EXCEPT','OFFSET','GREATEST','LEAST','WHERE','DEFAULT','CASCADE','NO','ACTION',
+              'COUNT','SUM','AVG','MAX','MIN',
+              'CBRT','CEIL','CEILING','DEGREES','DIV','EXP','FACTORIAL','FLOOR','GCD','LOG','MOD','PI','POWER','ROUND',
+              'ACOS','ACOSD','ASIN','ASIND','ATAN','ATAND','ATAN2','ATAN2D','COS','COSD','COT','COTD','SIN','SIND','TAN','TAND',
+              'SINH','COSH','TANH','ASINH','ACOSH','ATANH',
+              'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
+              'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS'
               ]
 
 tokens = reservadas + ['PUNTO','PUNTO_COMA','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
-                       'SIGNO_DIVISION','SIGNO_POR','NUMERO','NUM_DECIMAL','CADENA','ID','LLAVEABRE','LLAVECIERRE','CORCHETEABRE',
+                       'SIGNO_DIVISION','SIGNO_POR','NUMERO','NUM_DECIMAL','CADENA','CADENASIMPLE','ID','LLAVEABRE','LLAVECIERRE','CORCHETEABRE',
                        'CORCHETECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','MAYORQUE','MENORQUE',
-                       'MAYORIGUALQUE','MENORIGUALQUE']
-
+                       'MAYORIGUALQUE','MENORIGUALQUE',
+                       'SIGNO_PIPE','SIGNO_DOBLE_PIPE','SIGNO_AND','SIGNO_VIRGULILLA','SIGNO_NUMERAL','SIGNO_DOBLE_MENORQUE','SIGNO_DOBLE_MAYORQUE',
+                       'FECHA_HORA','F_HORA','COMILLA','SIGNO_MENORQUE_MAYORQUE','SIGNO_NOT'
+                       ]
 
 # lista para definir las expresiones regulares que conforman los tokens.
 t_ignore = '\t\r '
+
+t_SIGNO_DOBLE_PIPE = r'\|\|'
+t_SIGNO_PIPE = r'\|'
+t_SIGNO_AND = r'\&'
+t_SIGNO_VIRGULILLA = r'\~'
+t_SIGNO_NUMERAL = r'\#'
+t_SIGNO_DOBLE_MENORQUE = r'\<\<'
+t_SIGNO_DOBLE_MAYORQUE = r'\>\>'
+t_SIGNO_MENORQUE_MAYORQUE = r'\<\>'
+t_SIGNO_NOT = r'\!\='
+
 t_PUNTO= r'\.'
 t_PUNTO_COMA = r'\;'
 t_COMA = r'\,'
@@ -70,10 +87,11 @@ t_CORCHETECIERRE = r'\]'
 t_DOBLE_DOSPUNTOS= r'\:\:'
 t_SIGNO_POTENCIA = r'\^'
 t_SIGNO_MODULO = r'\%'
-t_MAYORQUE = r'\>'
-t_MENORQUE = r'\<'
 t_MAYORIGUALQUE = r'\>\='
 t_MENORIGUALQUE = r'\<\='
+t_MAYORQUE = r'\>'
+t_MENORQUE = r'\<'
+t_COMILLA = r'\''
 
 
 # expresion regular para los id´s
@@ -88,12 +106,13 @@ def t_ID (t):
 # expresion regular para comentario de linea
 def t_COMMENT(t):
     r'--.*'
-    pass
+    t.lexer.lineno += 1
 
 # expresion regular para comentario de linea
-def t_COMMENT_MULTI(t):
-    r'[/][*][^*]*[*]+([^/*][^*]*[*]+)*[/]'
-    pass
+def t_COMMENT_MULT(t):
+    r'/\*(.|\n)?\*/'
+    t.lexer.lineno += t.value.count('\n')
+
 
 
 def t_NUM_DECIMAL(t):
@@ -107,7 +126,30 @@ def t_NUMERO(t):
     t.value = int(t.value)
     return t
 
+# expresion regular para reconocer formato hora
+def t_F_HORA(t):
+    r'\'\s*(\d+\s+(hours|HOURS))?(\s*\d+\s+(minutes|MINUTES))?(\s*\d+\s+(seconds|SECONDS))?\s*\''
+    t.value = t.value[1:-1]
+    return t
 
+# expresion regular para reconocer fecha_hora
+def t_FECHA_HORA(t):
+    r'\'\d+-\d+-\d+ \d+:\d+:\d+\''
+    t.value = t.value[1:-1]
+    return t
+    
+# expresion regular para reconocer cadenas
+def t_CADENA(t):
+    r'\".*?\"'
+    t.value = str(t.value)
+    t.value = t.value[1:-1]
+    return t
+
+def t_CADENASIMPLE(t):
+    r'\'.*?\''
+    t.value = str(t.value)
+    t.value = t.value[1:-1]
+    return t
 
 # expresion regular para saltos de linea
 def t_newline(t):
@@ -121,9 +163,7 @@ def t_error(t):
 # fin de las expresiones regulares para reconocer nuestro lenguaje.
     
 # Construyendo el analizador léxico
-import ply.lex as lex
 lexer = lex.lex()
-
 
 ######### inicia el analizador Sintactico ##########
 
@@ -135,22 +175,23 @@ precedence = (
     ('left','MAYORIGUALQUE','MENORIGUALQUE','MAYORQUE','MENORQUE'),
     ('left','SIGNO_MAS','SIGNO_MENOS'),
     ('left','SIGNO_POR','SIGNO_DIVISION'),
-    ('left','SIGNO_POTENCIA','SIGNO_MODULO')
-    )          
-
+    ('left','SIGNO_POTENCIA','SIGNO_MODULO'),    
+    )              
 
 # Definición de la gramática
 def p_inicio(t):
     '''inicio : instrucciones '''
     id = inc()
     t[0] = id
+
+    dot.attr('node', shape='star', style='filled', color='yellow')
     dot.node(str(id), 'inicio')
+    dot.attr(color='darkgreen')
     dot.edge(str(id), str(t[1]))
 
 def p_instrucciones_lista(t):
     '''instrucciones : instrucciones instruccion 
                      | instruccion '''
-    
     if len(t) == 3:
         id = inc()
         t[0] = id
@@ -168,7 +209,11 @@ def p_instrucciones_evaluar(t):
                    | ins_show
                    | ins_alter
                    | ins_drop
-                   | ins_create '''
+                   | ins_create
+                   | ins_insert
+                   | ins_select
+                   | ins_update
+                   | ins_delete'''
     id = inc()
     t[0] = id
     dot.node(str(id), "instruccion")
@@ -182,9 +227,15 @@ def p_instruccion_use(t):
     id = inc()
     t[0] = id
     dot.node(str(id), "ins_use")
-    dot.edge(str(id), str(id) + '_' + str(t[1]))
-    dot.edge(str(id), str(id) + '_' + str(t[2]))
-    dot.edge(str(id), str(id) + '_' + str(t[3]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), t[1])
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), t[2])
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), t[3])
     
 
 def p_instruccion_show(t):
@@ -193,9 +244,15 @@ def p_instruccion_show(t):
     id = inc()
     t[0] = id
     dot.node(str(id), "ins_show")
-    dot.edge(str(id), str(id) + '_' + str(t[1]))
-    dot.edge(str(id), str(id) + '_' + str(t[2]))
-    dot.edge(str(id), str(id) + '_' + str(t[3]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), t[1])
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), t[2])
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), t[3])
 
 def p_instruccion_create(t):
     '''ins_create : CREATE tipo_create'''
@@ -203,12 +260,14 @@ def p_instruccion_create(t):
     id = inc()
     t[0] = id
     dot.node(str(id), "ins_create")
-    dot.edge(str(id), str(id) + '_'+ str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), t[1])
     dot.edge(str(id), str(t[2])) 
 
 def p_tipo_create(t):
     '''tipo_create : ins_replace DATABASE if_exist ID create_opciones PUNTO_COMA
-                   | TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA'''
+                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA'''
     if t[1] == 'TABLE':
         id = inc()
         t[0] = id
@@ -223,28 +282,69 @@ def p_tipo_create(t):
         id4 = inc()
         dot.edge(str(id), str(id4)) 
         dot.node(str(id4), t[3])
-        dot.edge(str(id), str(t[4]))
         id5 = inc()
         dot.edge(str(id), str(id5)) 
-        dot.node(str(id5), t[5])
+        dot.node(str(id5), str(t[4]))
+        dot.edge(str(id5), str(t[4])) 
         id6 = inc()
         dot.edge(str(id), str(id6)) 
-        dot.node(str(id6), t[6])
+        dot.node(str(id6), t[5])
+        if t[6] != None:
+            id7 = inc()
+            dot.edge(str(id), str(id7)) 
+            dot.node(str(id7), str(t[6]))
+            dot.edge(str(id7), str(t[6]))
+        id8 = inc()
+        dot.edge(str(id), str(id8)) 
+        dot.node(str(id8), t[7])
 
     else: 
         id = inc()
         t[0] = id
-        print(t[3])
         dot.node(str(id), "tipo_create")
         if t[1] != None:
-            dot.edge(str(id), str(t[1])) 
-        dot.edge(str(id), str(id) + '_'+ str(t[2])) 
+            dot.edge(str(id), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), t[2])
         if t[3] != None:
-            dot.edge(str(id), str(t[3]))
-        dot.edge(str(id), str(id) + '_'+ str(t[4])) 
+            id3 = inc()
+            dot.edge(str(id), str(id3)) 
+            dot.node(str(id3), str(t[3]))
+            dot.edge(str(id3), str(t[3])) 
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), t[4])
         if t[5] != None:
-            dot.edge(str(id), str(t[5])) 
-        dot.edge(str(id), str(id) + '_'+ str(t[6]))
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+            dot.edge(str(id5), str(t[5])) 
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), t[6])
+
+def p_ins_inherits(t):
+    '''ins_inherits : INHERITS PARABRE ID PARCIERRE
+                |  ''' #EPSILON
+    if len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "ins_inherits")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), t[2])
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), t[3])
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), t[4])
+    else:
+        t[0] == None
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
@@ -283,21 +383,33 @@ def p_columna(t):
         dot.node(str(id3), str(t[2]))
         dot.edge(str(id), str(t[3])) 
         if t[4] != None:
-            dot.edge(str(id), str(t[4])) 
+            id4 = inc()
+            dot.edge(str(id), str(id4)) 
+            dot.node(str(id4), str(t[4]))
+            dot.edge(str(id4), str(t[4])) 
         if t[5] != None:
-            dot.edge(str(id), str(t[5]))
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+            dot.edge(str(id5), str(t[5])) 
     elif len(t) == 5:
         id = inc()
         t[0] = id
         dot.node(str(id), "columna")
-        id2 = inc()
-        dot.edge(str(id), str(id2)) 
-        dot.node(str(id2), str(t[1]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
         dot.edge(str(id), str(t[2])) 
         if t[3] != None:
-            dot.edge(str(id), str(t[3])) 
+            id3 = inc()
+            dot.edge(str(id), str(id3)) 
+            dot.node(str(id3), str(t[3]))
+            dot.edge(str(id3), str(t[3])) 
         if t[4] != None:
-            dot.edge(str(id), str(t[4]))
+            id4 = inc()
+            dot.edge(str(id), str(id4)) 
+            dot.node(str(id4), str(t[4]))
+            dot.edge(str(id4), str(t[4])) 
     elif len(t) == 4:
         id = inc()
         t[0] = id
@@ -306,9 +418,15 @@ def p_columna(t):
         dot.edge(str(id), str(id2)) 
         dot.node(str(id2), str(t[1]))
         if t[2] != None:
-            dot.edge(str(id), str(t[2])) 
+            id2 = inc()
+            dot.edge(str(id), str(id2)) 
+            dot.node(str(id2), str(t[2]))
+            dot.edge(str(id2), str(t[2]))  
         if t[3] != None:
-            dot.edge(str(id), str(t[3]))
+            id3 = inc()
+            dot.edge(str(id), str(id3)) 
+            dot.node(str(id3), str(t[3]))
+            dot.edge(str(id3), str(t[3])) 
     else: 
         id = inc()
         t[0] = id
@@ -329,7 +447,10 @@ def p_primary_key(t):
     id4 = inc()
     dot.edge(str(id), str(id4)) 
     dot.node(str(id4), str(t[3]))
-    dot.edge(str(id), str(t[4]))
+    id0 = inc()
+    dot.edge(str(id), str(id0)) 
+    dot.node(str(id0), str(t[4]))
+    dot.edge(str(id0), str(t[4]))
     id5 = inc()
     dot.edge(str(id), str(id5)) 
     dot.node(str(id5), str(t[5]))
@@ -352,7 +473,10 @@ def p_foreign_key(t):
     id4 = inc()
     dot.edge(str(id), str(id4)) 
     dot.node(str(id4), str(t[3]))
-    dot.edge(str(id), str(t[4]))
+    id0 = inc()
+    dot.edge(str(id), str(id0)) 
+    dot.node(str(id0), str(t[4]))
+    dot.edge(str(id0), str(t[4]))
     id5 = inc()
     dot.edge(str(id), str(id5)) 
     dot.node(str(id5), str(t[5]))
@@ -365,7 +489,10 @@ def p_foreign_key(t):
     id8 = inc()
     dot.edge(str(id), str(id8)) 
     dot.node(str(id8), str(t[8]))
-    dot.edge(str(id), str(t[9]))
+    id00 = inc()
+    dot.edge(str(id), str(id00)) 
+    dot.node(str(id00), str(t[9]))
+    dot.edge(str(id00), str(t[9]))
     id9 = inc()
     dot.edge(str(id), str(id9)) 
     dot.node(str(id9), str(t[10]))
@@ -394,40 +521,114 @@ def p_nombre_columnas(t):
         dot.edge(str(id), str(id2)) 
         dot.node(str(id2), t[1])
 
-def p_nombre_columnas_references(t):
-    '''nombre_columnas_references : nombre_columnas_references COMA ID 
-                          | ID '''
+def p_tipo_dato(t):
+    '''tipo_dato : SMALLINT          
+                 | BIGINT
+                 | NUMERIC
+                 | DECIMAL
+                 | INTEGER
+                 | REAL
+                 | TEXT
+                 | DATE
+                 | BOOLEAN
+                 | MONEY
+                 | DOUBLE PRECISION
+                 | CHAR PARABRE NUMERO PARCIERRE
+                 | VARCHAR PARABRE NUMERO PARCIERRE
+                 | CHARACTER
+                 | TIMESTAMP arg_precision
+                 | TIME arg_precision
+                 | INTERVAL arg_tipo arg_precision''' 
+    # TODO: tipochar falta
+    if len(t) == 2:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "tipo_dato")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+    elif t[1] == 'DOUBLE':
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "tipo_dato")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+    elif len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "tipo_dato")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+    elif len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "tipo_dato")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        if t[2] != None:
+            dot.edge(str(id), str(t[2]))
+        if t[3] != None:
+            dot.edge(str(id), str(t[3]))
+    else: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "tipo_dato")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        if t[2] != None:
+            dot.edge(str(id), str(t[2]))
+
+def p_arg_precision(t):
+    '''arg_precision : PARABRE NUMERO PARCIERRE 
+                     | ''' #epsilon
     if len(t) == 4:
         id = inc()
         t[0] = id
-        dot.node(str(id), "nombre_columnas_references")
-        dot.edge(str(id), str(t[1]))
+        dot.node(str(id), "arg_precision")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
         id2 = inc()
         dot.edge(str(id), str(id2)) 
-        dot.node(str(id2), t[2])
+        dot.node(str(id2), str(t[2]))
         id3 = inc()
         dot.edge(str(id), str(id3)) 
-        dot.node(str(id3), t[3])
+        dot.node(str(id3), str(t[3]))
     else:
+        t[0] = None
+
+def p_arg_tipo(t):
+    '''arg_tipo : MONTH
+                | YEAR
+                | HOUR
+                | MINUTE
+                | SECOND            
+                | '''
+    if len(t) == 2:
         id = inc()
         t[0] = id
-        dot.node(str(id), "nombre_columnas_references")
-        id2 = inc()
-        dot.edge(str(id), str(id2)) 
-        dot.node(str(id2), t[1])
-
-def p_tipo_dato(t):
-    '''tipo_dato : VARCHAR
-                 | INTEGER
-                 | CHAR
-                 | TEXT
-                 | BIGINT
-                 | DECIMAL
-                 | NUMERIC
-                 | REAL ''' # FALTAN POR PONER MAS TIPOS DE DATOS
-    id = inc()
-    t[0] = id
-    dot.node(str(id), t[1])
+        dot.node(str(id), "arg_tipo")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+    else:
+        t[0] = None
 
 def p_definicion_valor_defecto(t):
     '''definicion_valor_defecto : DEFAULT tipo_default 
@@ -472,9 +673,26 @@ def p_restriccion_columna(t):
                            | PRIMARY KEY
                            | UNIQUE
                            | NULL
+                           | CHECK PARABRE exp PARCIERRE
                            '''
-                           #| CHECK PARABRE condicion_columna PARCIERRE #condicion_columna no definida
-    if len(t) == 4:
+    if len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "restriccion_columna")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+    elif len(t) == 4:
         id = inc()
         t[0] = id
         dot.node(str(id), "restriccion_columna")
@@ -523,7 +741,7 @@ def p_references(t):
         if t[4] != None:
             dot.edge(str(id), str(t[4]))
     else: 
-        t[0]: None
+        t[0] = None
 
 def p_accion(t):
     '''accion : CASCADE
@@ -563,8 +781,12 @@ def p_ins_replace(t):
         id = inc()
         t[0] = id
         dot.node(str(id), "ins_replace")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
     else:
         t[0] = None
 
@@ -576,18 +798,26 @@ def p_if_exist(t):
         id = inc()
         t[0] = id
         dot.node(str(id), "if_exist")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
-        dot.edge(str(id), str(id) + '_' + str(t[3]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
     elif len(t) == 3:
-        print('ENTRO A 3')
         id = inc()
         t[0] = id
         dot.node(str(id), "if_exist")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
     else:
-        print('ENTRO A ELSE')
         t[0] = None
 
 def p_create_opciones(t): 
@@ -598,43 +828,19 @@ def p_create_opciones(t):
         id = inc()
         t[0] = id
         dot.node(str(id), "create_opciones")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
-        dot.edge(str(id), str(id) + '_' + str(t[3]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
         if t[4] != None:
             dot.edge(str(id), str(t[4])) 
     else:
         t[0] = None
-
-def p_ins_owner(t): 
-    '''ins_owner : OWNER SIGNO_IGUAL ID
-                       | '''
-    if len(t) == 4:
-        id = inc()
-        t[0] = id
-        dot.node(str(id), "ins_owner")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
-        dot.edge(str(id), str(id) + '_' + str(t[3]))
-    else:
-        t[0] = None
-
-def p_ins_mode(t): 
-    '''ins_mode : MODE SIGNO_IGUAL NUMERO
-                       | '''
-    if len(t) == 4:
-        id = inc()
-        t[0] = id
-        dot.node(str(id), "ins_mode")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
-        dot.edge(str(id), str(id) + '_' + str(t[3]))
-    else:
-        t[0] = None
-
-def p_puntocoma(t): 
-    '''puntocoma : PUNTO_COMA
-                 | ''' # EPSILON
 
 def p_alter(t): 
     '''ins_alter : ALTER tipo_alter ''' 
@@ -650,29 +856,23 @@ def p_alter(t):
 def p_tipo_alter(t): 
     '''tipo_alter : DATABASE ID alter_database PUNTO_COMA
                   | TABLE ID alteracion_tabla PUNTO_COMA''' # NO SE SI VAN LOS PUNTO Y COMA
-    if len(t) == 5:
-        id = inc()
-        t[0] = id
-        dot.node(str(id), "tipo_alter")
-        dot.edge(str(id), str(id) + '_'+ str(t[1])) 
-        dot.edge(str(id), str(id) + '_'+ str(t[2]))
-        if t[3] != None:
-            dot.edge(str(id), str(t[3]))
-        dot.edge(str(id), str(id) + '_'+ str(t[4]))
-    else: 
-        id = inc()
-        t[0] = id
-        dot.node(str(id), "tipo_alter")
-        id2 = inc()
-        dot.edge(str(id), str(id2)) 
-        dot.node(str(id2), str(t[1]))
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "tipo_alter")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), t[1])
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), t[2])
+    if t[3] != None:
         id3 = inc()
         dot.edge(str(id), str(id3)) 
-        dot.node(str(id3), str(t[2]))
-        dot.edge(str(id), str(t[3])) 
-        id4 = inc()
-        dot.edge(str(id), str(id4)) 
-        dot.node(str(id4), str(t[4]))
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3])) 
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), t[4])
 
 def p_alteracion_tabla(t): 
     '''alteracion_tabla : alteracion_tabla COMA alterar_tabla
@@ -698,19 +898,20 @@ def p_alterar_tabla(t):
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
     if t[1] == 'ADD' or t[1] == 'ALTER':
-        print('ADD O ALTER')
         id = inc()
         t[0] = id
         dot.node(str(id), "alterar_tabla")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
         id2 = inc()
         dot.edge(str(id), str(id2)) 
-        dot.node(str(id2), t[1])
+        dot.node(str(id2), str(t[2]))
         id3 = inc()
         dot.edge(str(id), str(id3)) 
-        dot.node(str(id3), t[2])
-        dot.edge(str(id), str(t[3]))
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
     else:
-        print('DROP O DROP')
         id = inc()
         t[0] = id
         dot.node(str(id), "alterar_tabla")
@@ -730,9 +931,15 @@ def p_alter_database(t):
     id = inc()
     t[0] = id
     dot.node(str(id), "alter_database")
-    dot.edge(str(id), str(id) + '_' + str(t[1]))
-    dot.edge(str(id), str(id) + '_' + str(t[2]))
-    dot.edge(str(id), str(id) + '_' + str(t[3]))
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), t[1])
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), t[2])
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), t[3])
 
 def p_drop(t): 
     '''ins_drop : DROP tipo_drop'''
@@ -740,7 +947,9 @@ def p_drop(t):
     id = inc()
     t[0] = id
     dot.node(str(id), "ins_drop")
-    dot.edge(str(id), str(id) + '_'+ str(t[1]))
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), t[1])
     dot.edge(str(id), str(t[2]))
 
 def p_tipo_drop(t): 
@@ -749,30 +958,1516 @@ def p_tipo_drop(t):
     if len(t) == 5:
         id = inc()
         t[0] = id
-        if t[2] == None:
-            dot.node(str(id), "tipo_drop")
-            dot.edge(str(id), str(id) + '_' + str(t[1]))
-            dot.edge(str(id), str(id) + '_' + str(t[3]))
-            dot.edge(str(id), str(id) + '_' + str(t[4]))
-        else:
-            dot.node(str(id), "tipo_drop")
-            dot.edge(str(id), str(id) + '_' + str(t[1]))
-            dot.edge(str(id), str(t[2]))
-            dot.edge(str(id), str(id) + '_' + str(t[3]))
-            dot.edge(str(id), str(id) + '_' + str(t[4]))
+        dot.node(str(id), "tipo_drop")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        if t[2] != None:
+            id2 = inc()
+            dot.edge(str(id), str(id2)) 
+            dot.node(str(id2), str(t[2]))
+            dot.edge(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), t[3])
     else: 
         print('DROP TABLE')
         id = inc()
         t[0] = id
         dot.node(str(id), "tipo_drop")
-        dot.edge(str(id), str(id) + '_' + str(t[1]))
-        dot.edge(str(id), str(id) + '_' + str(t[2]))
-        dot.edge(str(id), str(id) + '_' + str(t[3]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), t[2])
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), t[3])
+
+def p_ins_insert(t):
+    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA '''
+    print('INSERT INTO ID VALUES ( *values* )')
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "ins_insert")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+    id5 = inc()
+    dot.edge(str(id), str(id5)) 
+    dot.node(str(id5), str(t[5]))
+    id6 = inc()
+    dot.edge(str(id), str(id6)) 
+    dot.node(str(id6), str(t[6]))
+    dot.edge(str(id6), str(t[6]))
+    id7 = inc()
+    dot.edge(str(id), str(id7)) 
+    dot.node(str(id7), str(t[7]))
+    id8 = inc()
+    dot.edge(str(id), str(id8)) 
+    dot.node(str(id8), str(t[8]))
+
+def p_list_vls(t):
+    '''list_vls : list_vls COMA val_value
+                | val_value '''
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "list_vls")
+        dot.edge(str(id), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id), str(t[3])) 
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "exp_list")
+        dot.edge(str(id), str(t[1]))
+    
+
+# TODO: Agregar cadena simple a Lexico.py
+# |   CADENASIMPLE
+def p_val_value(t):
+    '''val_value : CADENA
+                |   NUMERO
+                |   NUM_DECIMAL
+                |   FECHA_HORA
+                |   TRUE
+                |   FALSE '''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "val_value")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+
+def p_ins_select(t):
+    '''ins_select : ins_select UNION option_all ins_select
+                    |    ins_select INTERSECT option_all ins_select
+                    |    ins_select EXCEPT option_all ins_select
+                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset'''
+    if len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "ins_select")
+        dot.edge(str(id), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        if t[3] != None:
+            id3 = inc()
+            dot.edge(str(id), str(id3)) 
+            dot.node(str(id3), str(t[3]))
+            dot.edge(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        dot.edge(str(id4), str(t[4]))
+    else: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "ins_select")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        if t[2] != None:
+            id2 = inc()
+            dot.edge(str(id), str(id2)) 
+            dot.node(str(id2), str(t[2]))
+            dot.edge(str(id2), str(t[2]))
+        if t[3] != None:
+            id3 = inc()
+            dot.edge(str(id), str(id3)) 
+            dot.node(str(id3), str(t[3]))
+            dot.edge(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        if t[5] != None:
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+            dot.edge(str(id5), str(t[5]))
+        if t[6] != None:
+            id6 = inc()
+            dot.edge(str(id), str(id6)) 
+            dot.node(str(id6), str(t[6]))
+            dot.edge(str(id6), str(t[6]))
+        if t[7] != None:
+            id7 = inc()
+            dot.edge(str(id), str(id7)) 
+            dot.node(str(id7), str(t[7]))
+            dot.edge(str(id7), str(t[7]))
+        if t[8] != None:
+            id8 = inc()
+            dot.edge(str(id), str(id8)) 
+            dot.node(str(id8), str(t[8]))
+            dot.edge(str(id8), str(t[8]))
+        if t[9] != None:
+            id9 = inc()
+            dot.edge(str(id), str(id9)) 
+            dot.node(str(id9), str(t[9]))
+            dot.edge(str(id9), str(t[9]))
+        if t[10] != None:
+            id10 = inc()
+            dot.edge(str(id), str(id10)) 
+            dot.node(str(id10), str(t[10]))
+            dot.edge(str(id10), str(t[10]))
+
+def p_option_all(t):
+    '''option_all   :   ALL
+                    |    '''
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "option_all")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+    else:
+        t[0] = None
+
+def p_arg_distict(t):
+    '''arg_distict :    DISTINCT
+                    |    '''
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_distict")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+    else:
+        t[0] = None
+
+def p_colum_list(t):
+    '''colum_list   :   s_list
+                    |   SIGNO_POR '''
+    if t[1] == 'SIGNO_POR':
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "colum_list")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "colum_list")
+        dot.edge(str(id), str(t[1]))
+
+def p_s_list(t):
+    '''s_list   :   s_list COMA columns as_id
+                |   columns as_id'''
+    if len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "s_list")
+        dot.edge(str(id), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id), str(t[3]))
+        if t[4] != None:
+            dot.edge(str(id), str(t[4]))
+    else: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "s_list")
+        dot.edge(str(id), str(t[1]))
+        if t[2] != None:
+            dot.edge(str(id), str(t[2]))
+
+def p_columns(t):
+    '''columns   : ID dot_table
+                    |   aggregates
+                    |   functions '''
+    if len(t) == 3:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "columns")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        if t[2] != None:
+            dot.edge(str(id), str(t[2]))
+    else: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "columns")
+        if t[1] != None:
+            dot.edge(str(id), str(t[1])) 
+
+
+def p_dot_table(t):
+    '''dot_table    :   PUNTO ID
+                    |    '''
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "dot_table")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), t[1])
+    else:
+        t[0] = None
+
+def p_as_id(t): #  REVISRA CADENA Y AS CADENA
+    '''as_id    :   AS ID
+                    |   AS CADENA
+                    |   CADENA
+                    |   '''
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "as_id")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), t[1])
+    elif len(t) == 2: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "as_id")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+    else:
+        t[0] = None
+
+def p_aggregates(t):
+    '''aggregates   :   COUNT PARABRE param PARCIERRE
+                    |   SUM PARABRE param PARCIERRE
+                    |   AVG PARABRE param PARCIERRE
+                    |   MAX PARABRE param PARCIERRE
+                    |   MIN PARABRE param PARCIERRE ''' 
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "aggregates")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+    dot.edge(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+
+def p_functions(t):
+    '''functions    :   math
+                    |   trig
+                    |   string_func
+                    |   time_func '''
+    # TODO: CORREGIR GRAMATICA <STRING_FUNC>
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "functions")
+    dot.edge(str(id), str(t[1])) 
+
+
+def p_math(t):
+    '''math :   AVG PARABRE NUMERO PARCIERRE
+                |   CBRT PARABRE NUMERO PARCIERRE
+                |   CEIL PARABRE NUMERO PARCIERRE
+                |   CEILING PARABRE NUMERO PARCIERRE
+                |   DEGREES PARABRE NUMERO PARCIERRE
+                |   DIV PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   EXP PARABRE NUMERO PARCIERRE
+                |   FACTORIAL PARABRE NUMERO PARCIERRE
+                |   FLOOR PARABRE NUMERO PARCIERRE
+                |   GCD PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   IN PARABRE NUMERO PARCIERRE
+                |   LOG PARABRE NUMERO PARCIERRE
+                |   MOD PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   PI PARABRE  PARCIERRE
+                |   POWER PARABRE NUMERO COMA NUMERO PARCIERRE 
+                |   ROUND PARABRE NUMERO PARCIERRE '''
+    if len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "math")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+    elif len(t) == 7:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "math")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        id5 = inc()
+        dot.edge(str(id), str(id5)) 
+        dot.node(str(id5), str(t[4]))
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[4]))
+    elif len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "math")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+
+def p_trig(t):
+    '''trig :   ACOS PARABRE NUMERO PARCIERRE
+                |   ACOSD PARABRE NUMERO PARCIERRE
+                |   ASIN PARABRE NUMERO PARCIERRE
+                |   ASIND PARABRE NUMERO PARCIERRE
+                |   ATAN PARABRE NUMERO PARCIERRE
+                |   ATAND PARABRE NUMERO PARCIERRE
+                |   ATAN2 PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   ATAN2D PARABRE NUMERO COMA NUMERO PARCIERRE
+                |   COS PARABRE NUMERO PARCIERRE
+                |   COSD PARABRE NUMERO PARCIERRE
+                |   COT PARABRE NUMERO PARCIERRE
+                |   COTD PARABRE NUMERO PARCIERRE
+                |   SIN PARABRE NUMERO PARCIERRE
+                |   SIND PARABRE NUMERO PARCIERRE
+                |   TAN PARABRE NUMERO PARCIERRE
+                |   TAND PARABRE NUMERO PARCIERRE
+                |   SINH PARABRE NUMERO PARCIERRE
+                |   COSH PARABRE NUMERO PARCIERRE
+                |   TANH PARABRE NUMERO PARCIERRE
+                |   ASINH PARABRE NUMERO PARCIERRE
+                |   ACOSH PARABRE NUMERO PARCIERRE
+                |   ATANH PARABRE NUMERO PARCIERRE  '''
+    if len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "trig")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "trig")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        id5 = inc()
+        dot.edge(str(id), str(id5)) 
+        dot.node(str(id5), str(t[4]))
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[4]))
+
+def p_string_func(t):   #TODO: CORREGIR GRAMÁTICA
+    '''string_func  :   LENGTH PARABRE s_param PARCIERRE
+                    |   TRIM PARABRE s_param PARCIERRE
+                    |   MOD5 PARABRE s_param PARCIERRE
+                    |   SHA256 PARABRE s_param PARCIERRE
+                    |   SUBSTRING PARABRE s_param COMA NUMERO COMA NUMERO PARCIERRE 
+                    |   SUBSTRING PARABRE s_param COMA s_param COMA CADENA PARCIERRE
+                    |   SET_BYTE PARABRE COMA NUMERO COMA NUMERO s_param PARCIERRE
+                    |   CONVERT PARABRE tipo_dato COMA ID dot_table PARCIERRE
+                    |   ENCODE PARABRE s_param COMA s_param PARCIERRE
+                    |   DECODE PARABRE s_param COMA s_param PARCIERRE 
+                    |   GET_BYTE PARABRE s_param COMA NUMERO PARCIERRE'''
+    if len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "string_func")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+    elif len(t) == 7:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "string_func")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        if t[5] == 'NUMERO':
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+        else:
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+            dot.edge(str(id5), str(t[5]))
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[6]))
+    elif len(t) == 8:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "string_func")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        id5 = inc()
+        dot.edge(str(id), str(id5)) 
+        dot.node(str(id5), str(t[5]))
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[6]))
+        dot.edge(str(id6), str(t[6]))
+        id7 = inc()
+        dot.edge(str(id), str(id7)) 
+        dot.node(str(id7), str(t[7]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "string_func")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id8 = inc()
+        dot.edge(str(id), str(id8)) 
+        dot.node(str(id8), str(t[8]))
+
+def p_s_param(t):
+    '''s_param  :   s_param string_op CADENA
+                |   CADENA '''
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "s_param")
+        dot.edge(str(id), str(t[1])) 
+        dot.edge(str(id), str(t[2])) 
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[3]))
+    else: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "s_param")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+
+def p_string_op(t):
+    '''string_op    :   SIGNO_PIPE
+                    |   SIGNO_DOBLE_PIPE
+                    |   SIGNO_AND
+                    |   SIGNO_VIRGULILLA
+                    |   SIGNO_NUMERAL
+                    |   SIGNO_DOBLE_MENORQUE
+                    |   SIGNO_DOBLE_MAYORQUE'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "string_op")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+
+def p_time_func(t):
+    '''time_func    :   DATE_PART PARABRE COMILLA h_m_s COMILLA COMA INTERVAL F_HORA PARCIERRE 
+        | NOW PARABRE PARCIERRE
+        | EXTRACT PARABRE reserv_time  FROM TIMESTAMP  PARCIERRE
+        | CURRENT_TIME
+        | CURRENT_DATE'''
+    if len(t) == 2:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "time_func")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+    elif len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "time_func")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+    elif len(t) == 7:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "time_func")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        id5 = inc()
+        dot.edge(str(id), str(id5)) 
+        dot.node(str(id5), str(t[5]))
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[6]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "time_func")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        dot.edge(str(id4), str(t[4]))
+        id5 = inc()
+        dot.edge(str(id), str(id5)) 
+        dot.node(str(id5), str(t[5]))
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[6]))
+        id7 = inc()
+        dot.edge(str(id), str(id7)) 
+        dot.node(str(id7), str(t[7]))
+        id8 = inc()
+        dot.edge(str(id), str(id8)) 
+        dot.node(str(id8), str(t[8]))
+        id9 = inc()
+        dot.edge(str(id), str(id9)) 
+        dot.node(str(id9), str(t[9]))
+
+def p_reserv_time(t):
+    '''reserv_time  :   h_m_s 
+                    |   YEAR
+                    |   MONTH
+                    |   DAY'''
+    if t[1] == 'YEAR' or t[1] == 'MONTH' or t[1] == 'DAY':
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "reserv_time")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+    else: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "reserv_time")
+        dot.edge(str(id), str(t[1]))
+
+def p_h_m_s(t):
+    '''h_m_s    :   HOUR
+                    |   MINUTE
+                    |   SECOND '''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "h_m_s")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+
+def p_param(t):
+    '''param    :   ID dot_table
+                |   SIGNO_POR '''
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "param")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id2), str(t[2]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "param")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+
+def p_table_list(t):
+    '''table_list   :   table_list COMA ID
+                    |   ID '''
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "table_list")
+        dot.edge(str(id), str(t[1])) 
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[3]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "table_list")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+
+def p_arg_where(t):
+    '''arg_where    :   WHERE exp
+                    |    '''
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_where")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id2), str(t[2]))
+    else:
+        t[0] = None
+
+def p_exp(t):
+    '''exp  : exp SIGNO_MAS exp
+            | exp SIGNO_MENOS exp 
+            | exp SIGNO_POR exp 
+            | exp SIGNO_DIVISION exp 
+            | exp SIGNO_MODULO exp 
+            | exp SIGNO_POTENCIA exp 
+            | exp OR exp 
+            | exp AND exp 
+            | exp MENORQUE exp 
+            | exp MAYORQUE exp 
+            | exp MAYORIGUALQUE exp 
+            | exp MENORIGUALQUE exp 
+            | exp SIGNO_IGUAL exp
+            | exp SIGNO_MENORQUE_MAYORQUE exp
+            | exp SIGNO_NOT exp 
+            | arg_pattern
+            | sub_consulta
+            | NOT exp
+            | data
+            | predicates
+            | aggregates
+            | functions
+            | arg_case
+            | arg_greatest
+            | arg_least 
+            | list_vls'''
+# values -> list_vls
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "exp")
+        dot.edge(str(id), str(t[1]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        dot.edge(str(id), str(t[3]))
+    elif len(t) == 3:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "exp")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        dot.edge(str(id), str(t[2]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "exp")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+
+def p_arg_greatest(t):
+    '''arg_greatest  : GREATEST PARABRE exp_list PARCIERRE''' 
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "arg_greatest")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+    dot.edge(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+
+def p_arg_least(t):
+    '''arg_least  : LEAST PARABRE exp_list PARCIERRE''' 
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "arg_least")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+    dot.edge(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+
+def p_exp_list(t):
+    '''exp_list  : exp_list COMA exp
+                 | exp'''
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "exp_list")
+        dot.edge(str(id), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id), str(t[3]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "exp_list")
+        dot.edge(str(id), str(t[1]))
+
+def p_case(t):
+    '''arg_case  : CASE arg_when arg_else END''' 
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "arg_case")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    dot.edge(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+    dot.edge(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+
+def p_arg_when(t):
+    '''arg_when  : arg_when WHEN exp THEN exp
+                 | WHEN exp THEN exp''' 
+    if len(t) == 6:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_when")
+        dot.edge(str(id), str(t[1])) 
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[3]))
+        dot.edge(str(id2), str(t[3]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[4]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[5]))
+        dot.edge(str(id4), str(t[5])) 
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_when")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        dot.edge(str(id4), str(t[4])) 
+                
+def p_arg_else(t):
+    '''arg_else :  ELSE exp
+                 | ''' # epsilon
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_else")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id2), str(t[2]))
+    else:
+        t[0] = None
+
+def p_predicates(t):
+    '''predicates  : data BETWEEN list_vls AND list_vls
+                   | data NOT BETWEEN list_vls AND list_vls
+                   | data BETWEEN SYMMETRIC list_vls AND list_vls
+                   | data NOT BETWEEN SYMMETRIC list_vls AND list_vls
+                   | data IS DISTINCT FROM list_vls
+                   | data IS NOT DISTINCT FROM list_vls
+                   | data IS NULL 
+                   | data ISNULL
+                   | data NOTNULL
+                   | data IS TRUE
+                   | data IS NOT TRUE
+                   | data IS FALSE
+                   | data IS NOT FALSE
+                   | data IS UNKNOWN
+                   | data IS NOT UNKNOWN'''
+    if len(t) == 3:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "predicates")
+        dot.edge(str(id), str(t[1])) 
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "predicates")
+        dot.edge(str(id), str(t[1])) 
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[3]))
+    elif len(t) == 5:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "predicates")
+        dot.edge(str(id), str(t[1])) 
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+    elif len(t) == 6:
+        if t[2] == 'BETWEEN':
+            id = inc()
+            t[0] = id
+            dot.node(str(id), "predicates")
+            dot.edge(str(id), str(t[1])) 
+            id1 = inc()
+            dot.edge(str(id), str(id1)) 
+            dot.node(str(id1), str(t[2]))
+            id2 = inc()
+            dot.edge(str(id), str(id2)) 
+            dot.node(str(id2), str(t[3]))
+            id4 = inc()
+            dot.edge(str(id), str(id4)) 
+            dot.node(str(id4), str(t[4]))
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+            dot.edge(str(id5), str(t[5]))
+        else: 
+            id = inc()
+            t[0] = id
+            dot.node(str(id), "predicates")
+            dot.edge(str(id), str(t[1])) 
+            id1 = inc()
+            dot.edge(str(id), str(id1)) 
+            dot.node(str(id1), str(t[2]))
+            id2 = inc()
+            dot.edge(str(id), str(id2)) 
+            dot.node(str(id2), str(t[3]))
+            dot.edge(str(id2), str(t[3]))
+            id4 = inc()
+            dot.edge(str(id), str(id4)) 
+            dot.node(str(id4), str(t[4]))
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+            dot.edge(str(id5), str(t[5]))
+    elif len(t) == 7:                       # PRODUCCION 7
+        if t[2] == 'IS':
+            id = inc()
+            t[0] = id
+            dot.node(str(id), "predicates")
+            dot.edge(str(id), str(t[1])) 
+            id1 = inc()
+            dot.edge(str(id), str(id1)) 
+            dot.node(str(id1), str(t[2]))
+            id2 = inc()
+            dot.edge(str(id), str(id2)) 
+            dot.node(str(id2), str(t[3]))
+            id4 = inc()
+            dot.edge(str(id), str(id4)) 
+            dot.node(str(id4), str(t[4]))
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+            id6 = inc()
+            dot.edge(str(id), str(id6)) 
+            dot.node(str(id6), str(t[6]))
+            dot.edge(str(id6), str(t[6]))
+        else: 
+            id = inc()
+            t[0] = id
+            dot.node(str(id), "predicates")
+            dot.edge(str(id), str(t[1])) 
+            id1 = inc()
+            dot.edge(str(id), str(id1)) 
+            dot.node(str(id1), str(t[2]))
+            id2 = inc()
+            dot.edge(str(id), str(id2)) 
+            dot.node(str(id2), str(t[3]))
+            id4 = inc()
+            dot.edge(str(id), str(id4)) 
+            dot.node(str(id4), str(t[4]))
+            dot.edge(str(id4), str(t[4]))
+            id5 = inc()
+            dot.edge(str(id), str(id5)) 
+            dot.node(str(id5), str(t[5]))
+            id6 = inc()
+            dot.edge(str(id), str(id6)) 
+            dot.node(str(id6), str(t[6]))
+            dot.edge(str(id6), str(t[6]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "predicates")
+        dot.edge(str(id), str(t[1])) 
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[3]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[4]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[5]))
+        dot.edge(str(id4), str(t[5]))
+        id5 = inc()
+        dot.edge(str(id), str(id5)) 
+        dot.node(str(id5), str(t[6]))
+        id6 = inc()
+        dot.edge(str(id), str(id6)) 
+        dot.node(str(id6), str(t[7]))
+        dot.edge(str(id6), str(t[7]))
+
+def p_data(t):
+    '''data  : ID table_at''' 
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "data")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    if t[2] != None:
+        id2 = inc()
+        dot.edge(str(id), str(t[2]))
+
+def p_table_at(t):
+    '''table_at  : PUNTO ID
+                 | ''' #epsilon
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "table_at")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+    else:
+        t[0] = None
+            
+def p_sub_consulta(t):
+    '''sub_consulta   : PARABRE ins_select  PARCIERRE''' 
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "sub_consulta")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    dot.edge(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+
+def p_arg_pattern(t):
+    '''arg_pattern   : data LIKE CADENA   
+                     | data NOT LIKE CADENA '''
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_pattern")
+        dot.edge(str(id), str(t[1]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[3]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_pattern")
+        dot.edge(str(id), str(t[1]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[3]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[4]))
+
+def p_arg_group_by(t):
+    '''arg_group_by    :   GROUP BY g_list
+                       |  ''' #epsilon
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_group_by")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+    else:
+        t[0] = None
+
+def p_g_list(t):
+    '''g_list    : g_list COMA g_item
+                 | g_item '''
+    if len(t) == 4:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "g_list")
+        dot.node(str(id), str(t[1]))
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[2]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[3]))
+        dot.edge(str(id2), str(t[3]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "g_list")
+        dot.node(str(id), str(t[1]))
+
+def p_g_item(t):
+    '''g_item    : ID g_refitem''' 
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "g_item")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    if t[2] != None:
+        dot.edge(str(id), str(t[2]))
+
+def p_g_refitem(t):
+    '''g_refitem  : PUNTO ID
+                  | ''' #epsilon
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "g_refitem")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), t[2])
+    else:
+        t[0] = None
+
+def p_arg_order_by(t):
+    '''arg_order_by    :   ORDER BY o_list
+                       |  ''' #epsilon
+    if len(t) == 4: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_order_by")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+    else:
+        t[0] = None
+
+def p_o_list(t):
+    '''o_list    : o_list COMA o_item
+                 | o_item ''' 
+    if len(t) == 4: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "o_list")
+        dot.node(str(id), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "o_list")
+        dot.node(str(id), str(t[1]))
+
+def p_o_item(t):
+    '''o_item : ID o_refitem ad arg_nulls'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "o_item")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[2]))
+    if t[2] != None:
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id2), str(t[2]))
+    if t[3] != None:
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+    if t[4] != None:
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        dot.edge(str(id4), str(t[4]))
+
+def p_o_refitem(t):
+    '''o_refitem  : PUNTO ID
+                  | ''' #epsilon
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "o_refitem")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), t[2])
+    else:
+        t[0] = None
+
+def p_ad(t):
+    '''ad : ASC
+          | DESC
+          | ''' #epsilon
+    if len(t) == 2: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "ad")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+    else:
+        t[0] = None
+
+def p_arg_nulls(t):
+    '''arg_nulls : NULLS arg_fl
+                 | ''' #epsilon
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_nulls")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id2), str(t[2]))
+    else:
+        t[0] = None
+
+def p_arg_fl(t):
+    '''arg_fl : FIRST
+              | LAST''' #epsilon
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "arg_fl")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), t[1])
+
+def p_arg_limit(t):
+    '''arg_limit   :  LIMIT option_limit
+                   |  ''' #epsilon
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_limit")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        dot.edge(str(id2), str(t[2]))
+    else:
+        t[0] = None
+
+def p_option_limit(t):
+    '''option_limit   : NUMERO
+                      | ALL ''' 
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "option_limit")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), t[1])
+
+def p_arg_offset(t):
+    '''arg_offset   : OFFSET NUMERO 
+                    |  ''' #epsilon
+    if len(t) == 3: 
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "arg_offset")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), t[1])
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), t[2])
+    else:
+        t[0] = None
+
+
+def p_ins_update(t):
+    '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "ins_update")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3))
+    dot.node(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4))
+    dot.node(str(id4), str(t[4]))
+    dot.edge(str(id4), str(t[4]))
+    id5 = inc()
+    dot.edge(str(id), str(id5))
+    dot.node(str(id5), str(t[5]))
+    id6 = inc()
+    dot.edge(str(id), str(id6))
+    dot.node(str(id6), str(t[6]))
+    dot.edge(str(id6), str(t[6]))
+    id7 = inc()
+    dot.edge(str(id), str(id7))
+    dot.node(str(id7), str(t[7]))
+
+def p_ins_asign_list(t):
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL val_value
+                   | ID SIGNO_IGUAL val_value'''
+    if len(t) == 6:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "asign_list")
+        dot.edge(str(id), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        id4 = inc()
+        dot.edge(str(id), str(id4)) 
+        dot.node(str(id4), str(t[4]))
+        id5 = inc()
+        dot.edge(str(id), str(id5)) 
+        dot.node(str(id5), str(t[5]))
+        dot.edge(str(id5), str(t[5]))
+    else:
+        id = inc()
+        t[0] = id
+        dot.node(str(id), "asign_list")
+        id1 = inc()
+        dot.edge(str(id), str(id1)) 
+        dot.node(str(id1), str(t[1]))
+        id2 = inc()
+        dot.edge(str(id), str(id2)) 
+        dot.node(str(id2), str(t[2]))
+        id3 = inc()
+        dot.edge(str(id), str(id3)) 
+        dot.node(str(id3), str(t[3]))
+        dot.edge(str(id3), str(t[3]))
+
+
+def p_ins_delete(t):
+    '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''
+    id = inc()
+    t[0] = id
+    dot.node(str(id), "ins_delete")
+    id1 = inc()
+    dot.edge(str(id), str(id1)) 
+    dot.node(str(id1), str(t[1]))
+    id2 = inc()
+    dot.edge(str(id), str(id2)) 
+    dot.node(str(id2), str(t[2]))
+    id3 = inc()
+    dot.edge(str(id), str(id3)) 
+    dot.node(str(id3), str(t[3]))
+    id4 = inc()
+    dot.edge(str(id), str(id4)) 
+    dot.node(str(id4), str(t[4]))
+    id5 = inc()
+    dot.edge(str(id), str(id5))
+    dot.node(str(id4), str(t[5]))
+    dot.edge(str(id4), str(t[5]))
+    id6 = inc()
+    dot.edge(str(id), str(id6)) 
+    dot.node(str(id6), str(t[6]))
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
 
-import ply.yacc as yacc
 parser = yacc.yacc()
 
 while True:
@@ -780,7 +2475,7 @@ while True:
     dot = Graph()
     dot.attr(splines='false')
     dot.node_attr.update(shape='circle')
-    dot.node_attr.update(color='blue')
+    dot.node_attr.update(color='darkgreen')
     try:
         s = input('SQL> ')
     except EOFError:
