@@ -106,8 +106,9 @@ class Insertar(Instruccion):
     '''
         Estan clase representa los valores a insertar en una tabla
     '''
-    def __init__(self, nombre, valores=[]) :
+    def __init__(self, nombre, columnas, valores=[]) :
         self.nombre = nombre
+        self.columnas = columnas
         self.valores = valores
 
 class Actualizar(Instruccion):
@@ -146,3 +147,96 @@ class MostrarDB(Instruccion):
     '''
         Esta clase representa las base de datos creadas
     '''
+
+class Limite_Select(Instruccion):
+    '''
+        Esta clase representa el limit del select
+    '''
+    def __init__(self, select, limit, offset):
+        self.select=select
+        self.limit=limit
+        self.offset=offset
+
+class SELECT(Instruccion):
+    '''
+        Esta clase representa a una select
+    '''
+    def __init__(self, cantidad, parametros, alias, cuerpo):
+        self.cantida=cantidad
+        self.parametros=parametros
+        self.alias=alias
+        self.cuerpo=cuerpo
+
+class CUERPO_SELECT(Instruccion):
+    '''
+        Esta clase representa el cuerpo de un select
+    '''
+    def __init__(self, b_from, b_join, b_where, b_group, b_having, b_order):
+        self.b_from=b_from
+        self.b_join=b_join
+        self.b_where=b_where
+        self.b_group=b_group
+        self.b_having=b_having
+        self.b_order=b_order
+
+class Orden_Atributo(Instruccion):
+    '''
+        Esta clase representa el orden que tendra el atributo
+    '''
+    def __init__(self, nombre, direccion, rango):
+        self.nombre=nombre
+        self.direccion=direccion
+        self.rango=rango
+
+class SubQuery(Instruccion):
+    '''
+        Esta clase representa a una subquery y su comparacion con la query principal
+    '''
+    def __init__(self, condicion, subquery, alias):
+        self.condicion=condicion
+        self.subquery=subquery
+        self.alias=alias
+
+class Valor_From(Instruccion):
+    '''
+        Esta clase representa el contenido del from de una consulta
+    '''
+    def __init__(self, nombre, subquery, alias):
+        self.nombre=nombre
+        self.subquery=subquery
+        self.alias=alias
+
+class SubQuery_IN(Instruccion):
+    '''
+        Esta clase representa el si se declara un in o not in en subquery
+    '''
+    def __init__(self, exp, tipo):
+        self.exp=exp
+        self.tipo=tipo
+
+class Valor_Select(Instruccion):
+    '''
+        Esta clase representa los valores para un select
+    '''
+    def __init__(self, nombre, tipo, alias, fun_exp):
+        self.nombre=nombre
+        self.tipo=tipo
+        self.alias=alias
+        self.fun_exp=fun_exp
+
+class Condicion_WHEN_THEN(Instruccion):
+    ''' 
+        Esta clase representa la condicion when then 
+    '''
+    def __init__(self, exp, resultado):
+        self.exp=exp
+        self.resultado=resultado
+
+class Case(Instruccion):
+    '''
+        Esta clase representa la un case
+    '''
+    def __init__(self, condicion, sino, alias):
+        self.condicion=condicion
+        self.sino=sino
+        self.alias=alias
