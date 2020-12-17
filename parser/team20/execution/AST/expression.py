@@ -8,7 +8,8 @@ class Value(Expression):
         2: 'Decimal',
         3: 'Cadena',
         4: 'Variable',
-        5: 'Regex'
+        5: 'Regex',
+        6: 'All'
     }
     def __init__(self, type, value):
         self.type = type
@@ -52,7 +53,12 @@ class Unary(Expression):
         self.value = value
         self.type = type
 
-class MathFunctions(Expression):
+class MathFunction(Expression):
+    def __init__(self, function, expression):
+        self.function = function
+        self.expression = expression
+
+class AggFunction(Expression):
     def __init__(self, function, expression):
         self.function = function
         self.expression = expression
@@ -65,3 +71,7 @@ class NSeparator(Expression):
     def __init__(self, value1, value2):
         self.value1 = value1
         self.value2 = value2
+class Alias(Expression):
+    def __init__(self, expression, alias):
+        self.expression = expression
+        self.alias = alias
