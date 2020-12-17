@@ -1,4 +1,5 @@
 import os
+from clasesAbstractas import instruccionAbstracta
 
 class GraphArbol():
     
@@ -10,28 +11,36 @@ class GraphArbol():
 
     def crearCuerpo(self, raiz):
         if raiz !=None:
-            self.cuerpo += str(raiz.idnodo)+" [label=\""+raiz.etiqueta + "\"];\n"
-            for hijo in raiz.hijos:
-                self.crearCuerpo(hijo)
-                self.cuerpoaux += str(raiz.idnodo)+"->"+str(hijo.idnodo)+";\n"
+            if isinstance(raiz,instruccionAbstracta.InstruccionAbstracta):                            
+                
+                for hijo in raiz.hijos:
+                    if isinstance(hijo,instruccionAbstracta.InstruccionAbstracta):
+                        self.cuerpo += "\"" + str(raiz.numeroNodo) + "_" + raiz.nombreNodo + " -> " + str(raiz.valor) + "\"->\"" + str(hijo.numeroNodo) + "_" + hijo.nombreNodo + " -> " + str(hijo.valor) + "\"\n"
+                        self.crearCuerpo(hijo)
+                        
         
 
 
 
     def crearArbol(self):
         self.crearCuerpo(self.raiz)
-        printCuerpo="digraph arbolAST{\n"+self.cuerpo+self.cuerpoaux+"}\n"
+        printCuerpo="digraph G {node[shape=box, style=filled, color=blanchedalmond]; edge[color=chocolate3];rankdir=UD \n"
+        printCuerpo += self.cuerpo
+        printCuerpo += "\n}"
+
         #print(printCuerpo)
 
         try:
             f= open('Arbol.dot','w+')
             f.write(printCuerpo)
             f.close()
+
         except: 
             print("An exception ocurred")
 
         cmd ='"C:\\Program Files (x86)\\Graphviz2.38\\bin\\dot.exe"' + " -Tpng Arbol.dot -o Arbol.png"
         try:
             os.system(cmd)
+            print("Ejecutado")
         except: 
             print("An exception ocurred")

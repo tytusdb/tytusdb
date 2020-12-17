@@ -2,6 +2,7 @@ import gramatica as g
 from tabla_Simbolos import tablaSimbolos
 from Errores import errorReportar
 from clasesAbstractas import instruccionAbstracta
+from graficarArbol import GraphArbol
 
 def procesar_instrucciones(instrucciones,tablaSimbolos,listaErrores):
     
@@ -20,9 +21,9 @@ input = f.read()
 miTablaSimbolos = tablaSimbolos.tablaDeSimbolos()
 miListaErrores = []   #Será una lista de de objetos: errorReportar
 instrucciones = g.parse(input)
+print(len(instrucciones.hijos))
+print(instrucciones)
+procesar_instrucciones(instrucciones.hijos,miTablaSimbolos,miListaErrores)
 
-procesar_instrucciones(instrucciones,miTablaSimbolos,miListaErrores)
-
-
-
-
+grafica = GraphArbol(instrucciones)
+grafica.crearArbol()

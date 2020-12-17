@@ -317,12 +317,12 @@ t_ignore = "\r"
 
 global columna
 columna = 0
-global numNodo
 numNodo = 0
 
 
 def incNodo(valor):
-    numNodo = valor +1
+    global numNodo
+    numNodo = numNodo + 1
     return numNodo
 
 def IncColuma(valor):
@@ -349,7 +349,7 @@ def find_column(input, token):
 def crear_nodo_general(nombre, valor,fila,column):
     nNodo = incNodo(numNodo)
     nodoEnviar = nodoGeneral.NodoGeneral()
-    nodoEnviar.setearValores(fila,columna,nombre,nNodo,valor)
+    nodoEnviar.setearValores(fila,columna,nombre,nNodo,valor,[])
     return nodoEnviar
 
 # Construyendo el analizador léxico
@@ -379,7 +379,7 @@ precedence = (
 from clasesAbstractas import createType
 from clasesAbstractas import insertTable
 from clasesAbstractas import nodoGeneral
-from tablaSimbolos import tipoSimbolo
+from tabla_Simbolos import tipoSimbolo
 from clasesAbstractas import deleteTable
 from clasesAbstractas import updateColumna
 from clasesAbstractas import updateTable
@@ -394,17 +394,20 @@ from clasesAbstractas import dropTable
 
 
 def p_init(t):
-    'init   :   instrucciones'
+    'init   :   instrucciones'   
     t[0] = t [1]
 
 def p_lista_instrucciones(t):
     'instrucciones  :   instrucciones instruccion'
-    t[1].append(t[2])
-    t[0] = t[1]
+    nodo = t[1]
+    nodo.hijos.append(t[2])    
+    t[0] = nodo
 
 def p_instrucciones_instruccion(t):
     'instrucciones  :   instruccion'
-    t[0] = [t[1]]
+    nodo = crear_nodo_general("init","",str(t.lexer.lineno),columna)
+    nodo.hijos.append(t[1])
+    t[0] = nodo
 
 def p_instruccion(t):
     '''instruccion  :   insert_table
@@ -574,7 +577,7 @@ def p_expresion_cadena(t):
     nNodo = incNodo(numNodo)
     nodoExp = expresion.Expresion()
     nodoExp.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.CADENA)
-    nodoExp.setearValores(str(t.lexer.lineno),columna,"CADENA",nNodo,t[1])
+    nodoExp.setearValores(str(t.lexer.lineno),columna,"CADENA",nNodo,t[1],[])
     t[0] = nodoExp
 
 
@@ -583,7 +586,7 @@ def p_expresion_entero(t):
     nNodo = incNodo(numNodo)
     nodoExp = expresion.Expresion()
     nodoExp.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.ENTERO)
-    nodoExp.setearValores(str(t.lexer.lineno),columna,"ENTERO",nNodo,t[1])
+    nodoExp.setearValores(str(t.lexer.lineno),columna,"ENTERO",nNodo,t[1],[])
     t[0] = nodoExp
 
 
@@ -593,7 +596,7 @@ def p_expresion_decimal(t):
     nNodo = incNodo(numNodo)
     nodoExp = expresion.Expresion()
     nodoExp.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.DECIMAL)
-    nodoExp.setearValores(str(t.lexer.lineno),columna,"DECIMAL_",nNodo,t[1])
+    nodoExp.setearValores(str(t.lexer.lineno),columna,"DECIMAL_",nNodo,t[1],[])
     t[0] = nodoExp
 
 def p_instr_delete(t):
@@ -612,16 +615,16 @@ def p_instr_delete(t):
         nodoDelete.setearValores(linea,columna,"DELETE_FROM",nNodo,"",hijos)
         t[0] = nodoDelete
     else:
-        nodoDelete = deleteTable.DeleteTable(t[3],t[4])
+        nodoDelete = deleteTable.DeleteTable(t[3],t[5])
         hijos.append(nodoId)
-        hijos.append(t[4])
+        hijos.append(t[5])
         nodoDelete.setearValores(linea,columna,"DELETE_FROM",nNodo,"",hijos)
         t[0] = nodoDelete
 
 def p_instr_condicion_where(t):
     'exp_operacion  :  exp_logica'
-    nodoExp = crear_nodo_general("OPERACION","",str(t.lexer.lineno),columna)
-    nodoExp.hijos.append(nodoExp)
+    nodoExp = crear_nodo_general("Exp_OPERACION","",str(t.lexer.lineno),columna)
+    nodoExp.hijos.append(t[1])
     t[0] = nodoExp
 
 def p_exp_logica(t):
@@ -636,7 +639,7 @@ def p_exp_logica(t):
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
         nodoExp = expresion.Expresion()
-        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"")
+        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"",[])
         nodoExp.operacionUnaria(t[2],tipoSimbolo.TipoSimbolo.NOT)
         nodoMas = crear_nodo_general("NOT","not",linea,columna)
         nodoExp.hijos.append(nodoMas)
@@ -647,7 +650,7 @@ def p_exp_logica(t):
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
         nodoExp = expresion.Expresion()
-        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"")
+        nodoExp.setearValores(linea,columna,"EXPRESION_LOGICA",nNodo,"",[])
 
         if tipOp.lower() == "or":
             nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.OR)
@@ -682,7 +685,7 @@ def p_exp_relacional(t):
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
         nodoExp = expresion.Expresion()
-        nodoExp.setearValores(linea,columna,"EXPRESION_RELACIONAL",nNodo,"")
+        nodoExp.setearValores(linea,columna,"EXPRESION_RELACIONAL",nNodo,"",[])
 
         if tipOp == "<":
             nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.MENOR_QUE)
@@ -764,7 +767,7 @@ def p_exp_aritmetica(t):
         linea = str(t.lexer.lineno)
         nNodo = incNodo(numNodo)
         nodoExp = expresion.Expresion()
-        nodoExp.setearValores(linea,columna,"EXPRESION_ARITMETICA",nNodo,"")
+        nodoExp.setearValores(linea,columna,"EXPRESION_ARITMETICA",nNodo,"",[])
 
         if tipOp == "+":
             nodoExp.operacionBinaria(t[1],t[3],tipoSimbolo.TipoSimbolo.SUMA)
@@ -990,7 +993,7 @@ def p_primitivo_entero(t):
     linea = str(t.lexer.lineno)
     nodoPri = expresion.Expresion()
     nodoPri.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.ENTERO)
-    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1])
+    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1],[])
     t[0] = nodoPri
 
 def p_primitivo_decimal(t):
@@ -1000,7 +1003,7 @@ def p_primitivo_decimal(t):
     linea = str(t.lexer.lineno)
     nodoPri = expresion.Expresion()
     nodoPri.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.DECIMAL)
-    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1])
+    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1],[])
     t[0] = nodoPri
 
     
@@ -1012,7 +1015,7 @@ def p_primitivo_cadena(t):
     linea = str(t.lexer.lineno)
     nodoPri = expresion.Expresion()
     nodoPri.valorPrimitivo(t[1],tipoSimbolo.TipoSimbolo.CADENA)
-    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1])
+    nodoPri.setearValores(linea,columna,"PRIMITIVO",nNodo,t[1],[])
     t[0] = nodoPri
 
 def p_primitivo_booleano(t):
@@ -1025,12 +1028,12 @@ def p_primitivo_booleano(t):
     if (tipo.lower()=="true"):
         nodoPri = expresion.Expresion()
         nodoPri.valorPrimitivo(True,tipoSimbolo.TipoSimbolo.BOOLEANO)
-        nodoPri.setearValores(linea,columna,"PRIMTIVO",nNodo,True)
+        nodoPri.setearValores(linea,columna,"PRIMTIVO",nNodo,True,[])
         t[0] = nodoPri
     else:
         nodoPri = expresion.Expresion()
         nodoPri.valorPrimitivo(False,tipoSimbolo.TipoSimbolo.BOOLEANO)
-        nodoPri.setearValores(linea,columna,"PRIMTIVO",nNodo,False)
+        nodoPri.setearValores(linea,columna,"PRIMTIVO",nNodo,False,[])
         t[0] = nodoPri
 
 

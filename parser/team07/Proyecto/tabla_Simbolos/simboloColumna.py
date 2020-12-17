@@ -31,8 +31,9 @@ class SimboloColumna():
         self.primaryKey = False             # primaryKey = false --->> NO es llavaPrimaria
         self.unique = False                 # unique = false ---->> NO es columnaUnique
         self.tablaForanea = None            # tablaForanea --->> Guarda el nombre de la tabla a la que  hace referencia la llave foránea
-        self.columnasForanea = []       # columnaFornea --->> Guarda el nombre de la columnas a la que hace referencia la llave foránea
+        self.columnasForanea = []           # columnaFornea --->> Guarda el nombre de la columnas a la que hace referencia la llave foránea
         self.nombreConstraint = None        # nombre del constraint, si tuviera
+        self.check = None                   # instancia de clase expresion
 
 
     def crearLlavePrimaria(self):
