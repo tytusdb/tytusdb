@@ -159,8 +159,8 @@ class DropDB(Instruccion):
 class DropDB(Instruccion):
     """ Instrucción DROPTB """
 
-    def __init__(self):
-        #SIN ATRIBUTOS
+    def __init__(self, param=None):
+        self.param = param
 
 # INSTRUCCION IFEXIST
 class IfExist(Instruccion):
@@ -201,7 +201,7 @@ class Alter(Instruccion):
 class AlterDB(Instruccion):
     """ Instrucción ALTERDB """
 
-    def __init__(self, i_id, operacio, val ):
+    def __init__(self, i_id, operacion, val):
         self.i_id = i_id
         self.operacion = operacion
         self.val = val
@@ -211,7 +211,7 @@ class AlterDB(Instruccion):
 class Update(Instruccion):
     """ Instrucción UPDATE """
 
-    def __init__(self, _id, lvalor ):
+    def __init__(self, i_id, lvalor ):
         self.i_id = i_id
         self.lvalor = lvalor
 
@@ -219,7 +219,7 @@ class Update(Instruccion):
 class Update(Instruccion):
     """ Instrucción UPDATE """
 
-    def __init__(self, _id, lvalor ):
+    def __init__(self, i_id, lvalor ):
         self.i_id = i_id
         self.lvalor = lvalor
 
@@ -229,8 +229,8 @@ class Update(Instruccion):
 class Show(Instruccion):
     """ Instrucción SHOW """
 
-    def __init__(self ):
-        #sin atributos
+    def __init__(self, param=None):
+        self.param = param
 
 #----------FIN DE SHOW--------------------
 #----------INICIO DE DELETE--------------------
@@ -238,17 +238,45 @@ class Show(Instruccion):
 class Delete(Instruccion):
     """ Instrucción DELETE """
 
-    def __init__(sel,i_id, where ):
+    def __init__(self,i_id, where ):
         self.i_id = i_id
         self.where = where
 
 #----------FIN DE DELETE--------------------
-#----------INICIO DE USE--------------------
-# INSTRUCCION DELETE
-class Delete(Instruccion):
-    """ Instrucción USE """
 
-    def __init__(sel,i_id ):
-        self.i_id = i_id
+# ----------INICIO DE USE DATABASE------------
+class UseDatabase(Instruccion):
+    """ Instrucción USE DATABASE """
 
-#----------FIN DE USE--------------------
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+# ----------FIN DE USE DATABASE---------------
+
+
+# ----------INICIO DE CREATE DATABASE---------
+class CreateDatabase(Instruccion):
+    """ Instrucción CREATE DATABASE """
+
+    def __init__(self, replace, datos):
+        self.replace = replace
+        self.datos = datos
+
+
+class DatabaseInfo(Instruccion):
+    """ Parte de la instrucción de CREATE DATABASE - Nombre, IF NOT EXIST, DATOS[OWNER, MODE] """
+
+    def __init__(self, noexiste, nombre, datos):
+        self.noexiste = noexiste
+        self.nombre = nombre
+        self.datos = datos
+
+
+class Owner_Mode(Instruccion):
+    """ Parte de la instrucción de CREATE DATABASE - Owner, Mode """
+
+    def __init__(self, owner, mode):
+        self.owner = owner
+        self.mode = mode
+
+# ----------FIN DE CREATE DATABASE------------
