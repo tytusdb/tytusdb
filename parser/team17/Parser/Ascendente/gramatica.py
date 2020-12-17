@@ -9,7 +9,6 @@ from Interprete.Primitivos.ENTERO import ENTERO
 from Interprete.Primitivos.DECIMAL import DECIMAL
 from Interprete.Primitivos.CADENAS import CADENAS
 from Interprete.Primitivos.BOOLEANO import BOOLEANO
-from Interprete.Tabla_de_simbolos import Columna
 from Interprete.Insert.insert import Insert
 from Interprete.USE_DATABASE.use_database import UseDatabase
 
@@ -1229,7 +1228,7 @@ def p_expSimples_ID(t):
     '''
         expSimple : ID
     '''
-    t[0] = indexador_auxiliar(None, t[1], 4)
+    t[0] = indexador_auxiliar("none", t[1], 4)
 
 def p_expSimples_ID_PT_ID(t):
     '''
@@ -1267,6 +1266,7 @@ def p_subquery(t):
         t[0] = indexador_auxiliar(t[2], t[4], 2)
     elif len(t) == 6:
         #PARIZQ select PARDER AS ID
+        t[0] = indexador_auxiliar(t[2], t[5], 2)
         pass
 
 
@@ -1417,11 +1417,13 @@ def p_atributo_table(t):
 
     '''
     if len(t)==4:
-        t[0] = Columna(t[1], t[2], t[3])
+        # t[0] = Columna(t[1], t[2], t[3])
         #ID  tipocql listaespecificaciones
+        pass
     elif len(t)==3:
-        t[0] = Columna(t[1], t[2], None)
+        # t[0] = Columna(t[1], t[2], None)
         #ID tipocql
+        pass
 
 
 # --------------------------------------------------------------------------------------
