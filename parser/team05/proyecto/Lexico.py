@@ -292,6 +292,10 @@ def t_CADENASI(t):
     t.value = t.value[1:-1] 
     return t 
 
+
+
+
+
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
     t.lexer.lineno += t.value.count('\n')
@@ -300,12 +304,10 @@ def t_COMENTARIO_SIMPLE(t):
     r'--.*\n'
     t.lexer.lineno += 1
 
-
 # Function to count lines in input
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
-
 
 # Function to get column of a token
 def get_column(p_input, p_token):
@@ -336,117 +338,88 @@ lexer = lex.lex(reflags=re.IGNORECASE)
 
 # OPERATORS PRECEDENCE
 precedence = (
-    ('left', 'OR'),
-    ('left', 'AND'),
+    ('left','OR'),
+    ('left','AND'),
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
-    ('left', 'MENORIGUAL', 'MAYORIGUAL', 'IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
-    ('left', 'MAS', 'MENOS'),
-    ('left', 'POR', 'DIVIDIDO', 'MODULO'),
+    ('left','MENORIGUAL','MAYORIGUAL','IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
+    ('left','MAS','MENOS'),
+    ('left','POR','DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
-    ('right', 'UMENOS', 'UMAS'),
-    ('nonassoc', 'BETWEEN', 'NOTB')
+    ('right','UMENOS', 'UMAS'),
+    ('nonassoc','BETWEEN','NOTB')
+
+
 )
 
 
 # GRAMMAR DEFINITION
-def p_init(t):
-    """
-        init            :   INSTRUCCIONES
-    """
-    t[0] = t[1]
+def p_Inicio(t):
+    'INSTRUCCIONES  :   INSTRUCCIONES INSTRUCCION   '
+    t[0] = "terminado"
 
+def p_Inicio1(t):
+    'INSTRUCCIONES  :   INSTRUCCION '
 
-def p_instrucciones1(t):
-    """
-        INSTRUCCIONES   :   INSTRUCCIONES INSTRUCCION
-    """
-    t[1].append(t[2])
-    t[0] = t[1]
+def p_Instruccion(t):
+    'INSTRUCCION  :   I_SELECT COMPLEMENTOSELECT  '
+    
 
+def p_Instruccion1(t):
+    'INSTRUCCION  :   I_CREATE  '
+    #CLASE CREATE
 
-def p_instrucciones2(t):
-    """
-        INSTRUCCIONES   :   INSTRUCCION
-    """
-    t[0] = [t[1]]
+def p_Instruccion2(t):
+    'INSTRUCCION  :   I_DROP '
 
+def p_Instruccion3(t):
+    'INSTRUCCION  :   I_INSERT '
 
-def p_instruccion1(t):
-    """
-        INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
-    """
-    t[0] = t[1]
+def p_Instruccion4(t):
+    'INSTRUCCION  :   I_ALTER '
 
+def p_Instruccion5(t):
+    'INSTRUCCION  :   I_UPDATE '
 
-def p_instruccion2(t):
-    """
-        INSTRUCCION     :   I_CREATE
-                        |   I_DROP
-                        |   I_INSERT
-                        |   I_ALTER
-                        |   I_UPDATE
-                        |   I_SHOW
-                        |   I_DELETE
-                        |   I_USE
-    """
-    t[0] = t[1]
+def p_Instruccion6(t):
+    'INSTRUCCION  :   I_SHOW '
 
+def p_Instruccion7(t):
+    'INSTRUCCION  :   I_DELETE '
+
+def p_Instruccion8(t):
+    'INSTRUCCION  :   I_USE  '
 
 def p_use(t):
-    """
-        I_USE           :   USE DATABASE ID PCOMA
-    """
-    t[0] = t[1]
+    'I_USE        : USE DATABASE ID PCOMA'
 
-
-def p_create(t):
-    """
-        I_CREATE        :   CREATE I_TCREATE
-    """
+def p_Create(t):
+    'I_CREATE      : CREATE I_TCREATE'
     t[0] = t[2]
-    # CLASE CREATE
+    
+def p_tCreate(t):
+    'I_TCREATE     : I_REPLACE'
+    # INSTRUCCION CREATE
 
+def p_tCreate1(t):
+    'I_TCREATE     : I_CTABLE'
+    # INSTRUCCION CREATE1
 
-def p_tcreate(t):
-    """
-        I_TCREATE       :   I_REPLACE
-                        |   I_CTABLE
-                        |   I_CTYPE
-    """
-    t[0] = t[1]
-    # INSTRUCCION CREATE (I_REPLACE)
-    # INSTRUCCION CREATE1 (I_CTABLE)
-    # INSTRUCCION CREATE2 (I_CTYPE)
-
+def p_tCreate2(t):
+    'I_TCREATE     : I_CTYPE'
+   # INSTRUCCION CREATE2 
 
 def p_ctype(t):
-    """
-        I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA
-    """
-    # Instruccion
+    'I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA'
 
+def p_lcad(t):
+    'I_LCAD        : I_LCAD CADENASI '
 
 def p_lcad1(t):
-    """
-        I_LCAD          :   I_LCAD CADENASI
-    """
-    # Instruccion
+    'I_LCAD        : CADENASI '
 
-
-def p_lcad2(t):
-    """
-        I_LCAD          :   CADENASI
-    """
-    # Instruccion
-
-
-def p_ctable(t):
-    """
-        I_CTABLE        :   TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS
-    """
-    # Instruccion
-
+def p_cTable(t):
+    'I_CTABLE      : TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS'
 
 def p_inherits(t):
     'I_INHERITS    : INHERITS PABRE ID PCIERRA PCOMA'
@@ -615,6 +588,7 @@ def p_fields4(t):
 
 def p_inherits1(t):
     'I_INHERITS    : PCOMA'
+
 
 
 def p_Replace(t):

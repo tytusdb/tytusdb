@@ -4,7 +4,6 @@ from tkinter import *
 from reportes import *
 from subprocess import check_call
 from Entorno.Entorno import Entorno
-from storageManager import jsonMode
 
 
 ventana= Tk()
@@ -36,28 +35,22 @@ def mostrarimagenre():
 def send_data():
     print("Analizando Entrada:")
     print("==============================================")
-    # reporteerrores = []
+    #reporteerrores = []
     contenido = Tentrada.get(1.0, 'end')
     Tsalida.delete("1.0", "end")
     Tsalida.configure(state='normal')
-
-    # print(contenido)
-    jsonMode.dropAll()
-    jsonMode.createDatabase("DB1")
+    Tsalida.insert(INSERT, "Salida de consultas")
+    Tsalida.configure(state='disabled')
+   
+    #print(contenido)
     Principal = Entorno()
 
     Principal.database = "DB1"
     instrucciones = g.parse(contenido)
-    Tsalida.insert(INSERT, "Salida de consultas\n")
     for instr in instrucciones:
         if instr != None:
-            
-            res=instr.ejecutar(Principal)
-            if res!= None:
-                res += '\n'
-                Tsalida.insert(INSERT, res)
-                
-    Tsalida.configure(state='disabled')
+            instr.ejecutar(Principal)
+
     Principal.mostrarSimbolos()
 
     reporte_lex_sin()

@@ -1,6 +1,4 @@
-
-from Instrucciones.instruccion import Instruccion
-#from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
+from Compi2RepoAux.team21.Analisis_Ascendente.Instrucciones.instruccion import Instruccion
 
 #CREATE TABLE
 class CreateTable(Instruccion):

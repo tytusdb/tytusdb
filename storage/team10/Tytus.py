@@ -83,12 +83,18 @@ class Tytus:
     prototype method
     """
     def buscarDB(self, name):
-        if len(self.databases) != 0:
+        if len(self.databases) == 0:
+            #vacia
+            return None
+        else:
+            #no vacia
             for db in self.databases:
                 if name == db.getName():
                     #econtrada
                     return self.databases.index(db)
-            return None
+                else:
+                    #no econtrada
+                    return None
 
     def createTable(self, database, table, nCols):
         try:
@@ -103,34 +109,13 @@ class Tytus:
             print("Error en operacion")
             return 1
 
-    def dropTable(self, database, table):
-        try:
-            indiceDB = self.buscarDB(database)
-            if indiceDB != None:
-                indiceTabla = self.databases[indiceDB].buscarTable(table)
-                if indiceTabla != None:
-                    # exito 0, o error 1
-                    return self.databases[indiceDB].dropTable(indiceTabla)
-                else:
-                    print("Table no existe")
-                    return 3
-            else:
-                print("Database no existe") 
-                return 2
-        except:
-            print("Error en la operación")
-            return 1
-
     def showTables(self, database):
         tables = []
         for db in self.databases:
-            if db.name == database:
+            if db != None:
                 tables = db.showTables()
-                break
             else:
-                pass            ##16/12/2020 Cristian
-        if tables==[]:
-            return None        
+                return None
         return tables
 
     def alterAddPK(self, database, table, columns):
@@ -138,20 +123,7 @@ class Tytus:
             flagDB = self.buscarDB(database)
             if flagDB != None:
                 db = self.databases[flagDB]
-                db.alterAddPK(table, columns)
-            else:
-                print("Base de datos no existente")
-                return 2
-        except:
-            print("Error en operacion")
-            return 1
-
-    def insert(self, database, table, register):
-        try:
-            flagDB = self.buscarDB(database)
-            if flagDB != None:
-                db = self.databases[flagDB]
-                db.insert(table, register)
+                
             else:
                 print("Base de datos no existente")
                 return 2
@@ -170,50 +142,12 @@ class Tytus:
         5 Columnas fuera de límites
     """
     def loadCSV(self, fileCSV, db, table,):
+        print("loadCSV")
         try:
-            import csv
-            #verifica que la base de datos exista
-            indiceDB = self.buscarDB(db)
-            if indiceDB != None:
-                #verifica que la tabla exista en la base de datos
-                indiceTabla = self.databases[indiceDB].buscarTable(table)
-                if  indiceTabla != None:
-                    #aquie va lo de la llave primaria y las columnas
-                    print("$$$$$$$$$$$$$$$$$$$$$$$$$")
-                    tb = self.databases[indiceDB].getTable(indiceTabla).getName()
-                    print(tb)
-                    print("$$$$$$$$$$$$$$$$$$$$$$$$$")
-                    #-------------------leee el csv
-                    with open(fileCSV, 'r') as fileCsv:
-                        lector = csv.reader(fileCsv, delimiter = ',')
-                        for f in lector:
-                            print(f)
-                    #-------------------termina leer csv
-                else:
-                    print("Tabla no existe")
-                    return 3
+            if self.buscarDB(db) != None:
+                print("fs")
             else:
-                print("Database no existente")  
-                return 2
-        except Exception as e:
-            print(e)
-
+                print("else")
+        except:
             print("Error en la operación")
             return 1
-
-    ##16/12/2020 CRISTIAN
-    def extractTable(self,database,table):
-        try:
-            flagDB = self.buscarDB(database)
-            if flagDB != None:
-                db = self.databases[flagDB]
-                db.extractTable2(table)
-            else:
-                print("Base de datos no existente")
-                return 2
-        except:
-            print("Error en la operacion")
-            return 1      
-
-    def extractRangeTable(self,database,table,lower,upper):
-        pass 

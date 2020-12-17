@@ -10,8 +10,7 @@ class Insert(Instruccion):
         self.values = values
 
     def execute(self):
-        print(self)
-        return self
+        return self.tableid
 
     def __repr__(self):
         return str(self.__dict__)

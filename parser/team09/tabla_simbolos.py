@@ -1,5 +1,4 @@
 from enum import Enum
-import Errores as E
 
 class tipo_simbolo(Enum):
     DATABASE = 1,
@@ -45,88 +44,61 @@ class Simbolo():
 class tabla_simbolos():
     def __init__(self, list_simbolos = []): #constructor 
         self.lis_simbolos = list_simbolos
-    
-    #agregar simbolos: bases, tablas, columnas y constraints
-
+ 
     def agregar_simbolo(self, new_simbolo):  #agrega tablas y bases de datoos
         self.lis_simbolos.append(new_simbolo)
 
-
-    def agregar_columna(self,table, db,columna): 
-        # agrega un simbolo columna a un simbolo tabla en la lista de valores de la misma
-        database = self.get_simbol(db)
-        if(isinstance(database,E.Errores)):
-            return database #la base de datos no existe en la ts, database ya trae el error
-        tabla = self.get_table(db,table)
-        if isinstance(tabla,E.Errores):
-            return tabla #la tabla no existe en la ts, table ya trae el error
-        else:
-            #validar que no exista una columna con el mismo nombre
-            for columna  in tabla.valor:
-                if columna.id == columna:
-                    msj_error = 'La columna -',columna,' ya existe en la tabla -',tabla,'-.'
-                    error = E.Errores('EROOR', msj_error)
-                    return error
-            tabla.valor.append(columna)
-            return columna
-
-    def add_const(self,db,tabla,colum, ob_const):
-        validar_columna = self.get_column(db,tabla,colum)
-        if(isinstance(validar_columna),E.Errores):
-            return validar_columna # el error lo trae el metodo 
-        else:
-            #validar que el nombre del constrint 
-            for const in validar_columna.valor:
-                if const.id == ob_const.id:
-                    msj_error = 'El constraint -',ob_const.id,' ya existe en la columna -',colum,'-.'
-                    error = E.Errores('EROOR', msj_error)
-                    return error
-            #se agrega el constraint a la lista de la columna 
-            validar_columna.valor.append(ob_const)
-            return ob_const
-
+        
     #gets_simbols
     def get_simbol(self,id): #devuelve los simbolos 
         for simbolo in self.lis_simbolos:
             if simbolo.id == id:
                 return simbolo
-        #no encuentra la base, retorna error
-        msj_error = 'la base de datos -',id,'- no existe.'
-        error = E.Errores('ERROR', msj_error)
-        return error
+        return None
 
     def get_table(self,db,id_tabla):
         for Simbolo in self.lis_simbolos:
             if Simbolo.id == id_tabla:
                 if Simbolo.base == db:
                     return Simbolo
-                else: #la tabla no pertenece a esa base
-                    msj_error = 'la tabla -',id_tabla, '- no se encuentra en la base de datos -',db,'-.'
-                    error = E.Errores('EROOR', msj_error)
-                    return error
-        #No se encontro la tabla
-        msj_error = 'La tabla -',id_tabla,' no existe.'
-        error = E.Errores('EROOR', msj_error)
-        return error
-
+        return None #no se encontro la tabla en la base de datos indicada
 
     def get_column(self,db,table,id_column):
-        tabla= self.get_table(db,table)
-        if( not isinstance(tabla,E.Errores)):
+        tabla= get_table(db,table)
+        if(tabla != None):
             for columna in tabla.valor:
                 if columna.id == id_column:
                     return columna
-            #no existe la columna en esa tabla
-            msj_error = 'La columna -',id_column,' no existe en la tabla -',tabla,'-.'
-            error = E.Errores('EROOR', msj_error)
-            return error
-        else: # la tabla no existe, la variable tabla tare el error 
-            return tabla
+            return None
+        else: # la tabla no existe 
+            return None
 
+    def agregar_columna(self,table, db,columna): 
+        # agrega un simbolo columna a un simbolo tabla en la lista de valores de la misma
+        if(get_simbol(db) == None):
+            return None #la base de datos no existe en la ts
+        tabla = get_simbol(tabla)
+        if tabla == None:
+            return None #la tabla no existe en la ts
+        else:
+            if tabla.base == db: #si existe la db y la tabla pero la tabla no pertenese a esa base
+                tabla.valor.append(columna)
+            else:
+                #si existe la db y la tabla pero la tabla no pertenese a esa base
+                return None
 
-        
-
-        
+    def add_const(self,db,tabla,colum, ob_const):
+        if(get_simbol(db) == None):
+            return None #la base de datos no existe en la ts
+        tabla = get_simbol(tabla)
+        if tabla == None:
+            return None #la tabla no existe en la ts
+        else:
+            if tabla.base == db: #si existe la db y la tabla pero la tabla no pertenese a esa base
+                tabla.valor.append(ob_const)
+            else:
+                #si existe la db y la tabla pero la tabla no pertenese a esa base
+                return None
 
     def graficar(self):
         for simbolos in self.lis_simbolos:

@@ -36,7 +36,7 @@ class Main(tk.Tk):
         self.search_list = list()
         self.active_file = ""
         self.DATA_TYPES_BLUE = ["CREATE", "create", "SHOW", "show", "USE", "use", "ALTER", "alter", "DROP", "drop"]
-        self.KEYWORDS_FUNCTIONS = ["DATABASE", "database"]
+        self.KEYWORDS_FUNCTIONS = ["print"]
         self.SPACES_REGEX = re.compile("^\s*")
         self.STRING_REGEX_SINGLE = re.compile("'[^'\r\n]*'")
         self.STRING_REGEX_DOUBLE = re.compile('"[^"\r\n]*"')
@@ -433,16 +433,16 @@ class Main(tk.Tk):
             ins = g.parse(tytus)
             st_global = st.SymbolTable()
 
-            #            if not ins:
-            #               messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
-            #          else:
+#            if not ins:
+ #               messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
+  #          else:
             self.do_body(ins, st_global)
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
     # EJECUCIÓN DE ANÁLISIS - PARSER --------------------------
     def do_body(self, p_inst, p_st):
-        print(p_inst)
+        #print(p_inst)
         print("Analisis terminado")
 
 

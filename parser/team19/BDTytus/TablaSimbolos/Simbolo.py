@@ -1,7 +1,7 @@
 class Simbolo:
-    def __init__(self, object_type, object_name, data_type, ambit, pos):
-        self.object_type = object_type
-        self.name = object_name
-        self.data_type = data_type
-        self.ambit = ambit
-        self.pos = pos
+    def __init__(self,tipo,nombre,posicion,ambito,dimensiones=0):
+        self.tipo=tipo
+        self.nombre=nombre
+        self.posicion=posicion
+        self.ambito=ambito
+        self.dimensiones=dimensiones

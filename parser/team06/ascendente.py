@@ -1,6 +1,4 @@
 import gramaticaAscendente as g
-import gramaticaAscendenteTree as gt
-import astMethod
 #import gramaticaAscendente as gr
 import re
 import reportes as h
@@ -24,7 +22,8 @@ import numpy as geek
 # ----------------------------------------------------------------------------------------------------------------
 
 def procesar_showdb(query,ts):
-    h.textosalida+="TYTUS>> "+str(store.showDatabases())+"\n"
+    h.textosalida+="TYTUS>> Bases de datos existentes\n"
+    print(store.showDatabases())
     #llamo al metodo de EDD
 # ---------------------------------------------------------------------------------------------------------------- 
 
@@ -127,6 +126,8 @@ def procesar_dropdb(query,ts):
 
 # --------------------------------------EXPRESION ARITMETICA-----------------------------------------------------------
 def resolver_expresion_aritmetica(expNum, ts) :
+    print("+++++++++++++++++++++++++++++++++")
+    print(expNum)
     try:
         if isinstance(expNum, ExpresionAritmetica) :
             exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
@@ -168,7 +169,6 @@ def resolver_expresion_aritmetica(expNum, ts) :
                     return exp1 - exp2
                 else: 
                     print("error: no se pueden operar distintos tipos")
-                    
                     h.errores+=  "<tr><td>"+str(exp1)+"-"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
                     return 0
             #---------------------------------OPERACION POR-----------------------------------------------------------------------        
@@ -196,7 +196,6 @@ def resolver_expresion_aritmetica(expNum, ts) :
                     print("DIVISOR:",exp2)  
                     if exp2==0 :
                         print("error: divido por 0 da infinito")
-                        #22012	division_by_zero
                         h.errores+=  "<tr><td>"+str(exp1)+"/"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
                         return 0 
                     return exp1/exp2
@@ -453,6 +452,7 @@ def resolver_expresion_aritmetica(expNum, ts) :
         elif isinstance(expNum,ExpresionCadenas):
             return expNum.id
         elif isinstance(expNum, ExpresionNegativo) :
+            print("NEGATIVO")
             print("EXP_NUM:",expNum.id)
             return expNum.id * -1
         else:
@@ -510,6 +510,7 @@ def resolver_expresion_bit(expBit, ts) :
 # ------------------------------------------------EXPRESION RELACIONAL---------------------------------------------------------------------
 
 def resolver_expresion_relacional(expRel, ts) :
+    print("ENTRO")
     if isinstance(expRel,ExpresionRelacional):
         exp1 = resolver_expresion_aritmetica(expRel.exp1, ts)
         print("EXP1:",exp1)
@@ -826,6 +827,8 @@ def procesar_queries(queries, ts) :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query, Select) : procesar_select(query, ts)
         elif isinstance(query, Select2) : procesar_select_Tipo2(query, ts)
+        elif isinstance(query, ShowDatabases) : 
+            procesar_showdb(query, ts)
         elif isinstance(query, CreateDatabases) : 
             procesar_createdb(query, ts)
         elif isinstance(query, CreateDatabaseswithParameters) :
@@ -878,7 +881,6 @@ def ejecucionAscendente(input):
 
     print("--------------------------------Archivo Ejecucion---------------------------------------")
     prueba =g.parse(input)
-    arbol =gt.parse(input)
     ts_global=TS.TablaDeSimbolos()
     h.todo=prueba
     procesar_queries(prueba,ts_global)
@@ -913,10 +915,6 @@ def generarReporteSimbolos(ruta):
     #construyo el archivo html
     print("manda los datos")
     h.reporteSimbolos(ruta,val)
-
-def generarASTReport():
-    print(gt.gramaticaAscendenteTree.tree.root)            
-    astMethod.astFile("ast", gt.gramaticaAscendenteTree.tree.root)
 # ---------------------------------------------------------------------------------------------------------------------
 #                                 REPORTE GRAMATICAL
 # ---------------------------------------------------------------------------------------------------------------------

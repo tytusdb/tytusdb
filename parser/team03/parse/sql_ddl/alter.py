@@ -1,5 +1,7 @@
-from parse.ast_node import ASTNode
-from jsonMode import alterDatabase, alterAddColumn, alterDropColumn
+import sys
+
+sys.path.insert(0, '..')
+from ast_node import ASTNode
 
 
 class AlterDatabaseRename(ASTNode):
@@ -10,20 +12,7 @@ class AlterDatabaseRename(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_name = self.name.execute(table, tree)
-        result_new_name = self.new_name.execute(table, tree)
-        result = alterDatabase(result_name, result_new_name)
-        if result == 1:
-            # log error on operation
-            return False
-        elif result == 2:
-            # log error, old database name does not exists
-            return False
-        elif result == 3:
-            # log error, new database name already exists
-            return False
-        else:
-            return True
+        return True
 
 
 class AlterDatabaseOwner(ASTNode):
@@ -47,22 +36,7 @@ class AlterTableAddColumn(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_table_name = self.table_name.execute(table, tree)
-        result_field_name = self.field_name.execute(table, tree)
-        result_field_type = self.field_type.execute(table, tree)
-        result_field_length = self.field_length.execute(table, tree)
-        result = alterAddColumn('db_name_from_st', result_field_name, None)
-        if result == 1:
-            # log error on operation
-            return False
-        elif result == 2:
-            # log error, old database name does not exists
-            return False
-        elif result == 3:
-            # log error, table does not exists
-            return False
-        else:
-            return True
+        return True
 
 
 class AlterTableAddCheck(ASTNode):
@@ -84,26 +58,7 @@ class AlterTableDropColumn(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_table_name = self.table_name.execute(table, tree)
-        result_field_name = self.field_name.execute(table, tree)
-        result = alterDropColumn('db_name_from_st', result_field_name, 'column_number_from_st')
-        if result == 1:
-            # log error on operation
-            return False
-        elif result == 2:
-            # log error, old database name does not exists
-            return False
-        elif result == 3:
-            # log error, table does not exists
-            return False
-        elif result == 4:
-            # log error, PK cannot be deleted or table to be empty
-            return False
-        elif result == 4:
-            # log error, column out of index
-            return False
-        else:
-            return True
+        return True
 
 
 class AlterTableAddConstraint(ASTNode):

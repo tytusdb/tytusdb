@@ -4,20 +4,12 @@ from Errores.Nodo_Error import *
 
 
 class Select(Node.Nodo):
-    def __init__(self, *args):
-        if args[0] == '*':
-            self.arguments = None
-            self.tables = args[1]
-            self.line = args[3]
-            self.column = args[4]
-            self.conditions = args[2]
-        else:
-            self.arguments = args[0]
-            self.tables = args[1]
-            self.line = args[3]
-            self.column = args[4]
-            self.conditions = args[2]
-
+    def __init__(self, Exp1, Exp2, op, fila, col):
+        self.Exp1 = Exp1
+        self.Exp2 = Exp2
+        self.op = op
+        self.fila = fila
+        self.columna = col
 
     def ejecutar(self, TS, Errores):
         return 1

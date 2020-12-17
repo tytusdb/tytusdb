@@ -33,6 +33,8 @@ reserved = {
     'current_date' : 'CURRENT_DATE',
     'current_time' : 'CURRENT_TIME',
     'boolean' : 'BOOLEAN',
+    'true' : 'TRUE',
+    'false' : 'FALSE',
     'between' : 'BETWEEN',
     'symmetric' : 'SYMMETRIC',
     'in' : 'IN',
@@ -112,7 +114,7 @@ reserved = {
     'pi' : 'PI',
     'power' : 'POWER',
     'radians' : 'RADIANS',
-    'round' : 'ROUND',
+    'rund' : 'RUND',
     'scale' : 'SCALE',
     'sign' : 'SIGN',
     'sqrt' : 'SQRT',
@@ -211,9 +213,6 @@ tokens = [
     'ENTERO',
     'FLOAT',
     'TEXTO',
-    'FECHA_HORA',
-    'PATTERN_LIKE',
-    'BOOLEAN_VALUE',
     'ID',
     'SQUARE_ROOT',
     'CUBE_ROOT',
@@ -262,7 +261,6 @@ def t_DIFERENTE(t):
     t.type = reserved.get(t.value,'DIFERENTE')    
     return t
 
-
 def t_FLOAT(t):
     r'((\d+\.\d*)((e[\+-]?\d+)?)|(\d*e[\+-]?\d+))'
     t.value = float(t.value)    
@@ -274,30 +272,12 @@ def t_ENTERO(t):
     t.value = int(float(t.value))  
     return t
 
-def t_FECHA_HORA(t):
-    r'\'\d{4}-[0-1]?\d-[0-3]?\d [0-2]\d:[0-5]\d:[0-5]\d\''
-    t.value = t.value[1:-1]
-    t.type = reserved.get(t.value,'FECHA_HORA')
-    return t
-
-def t_PATTERN_LIKE(t):
-    r'\'\%.*\%\''
-    t.value = t.value[2:-2]
-    t.type = reserved.get(t.value,'PATTERN_LIKE')
-    return t
-
 def t_TEXTO(t):
     r'\'([^\\\n]|(\\.))*?\''
     t.value = t.value[1:-1]
     t.type = reserved.get(t.value,'TEXTO')    
     return t
     
-def t_BOOLEAN_VALUE(t):
-    r'((false)|(true))'
-    t.value = t.value.lower()
-    t.type = reserved.get(t.value,'BOOLEAN_VALUE')    
-    return t
-
 def t_ID(t):
     r'[a-zA-Z_][a-zA-Z_0-9]*'
     t.type = reserved.get(t.value.lower(),'ID')    
@@ -307,9 +287,8 @@ def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
     
-    
 def t_error(t):
-    print("--> Error Lexico: Illegal character \'"+ t.value[0] + "\' Line: "+ str(t.lineno) )
+    print("Illegal character '%s'" % t.value[0])
     t.lexer.skip(1)
 
 

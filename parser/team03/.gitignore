@@ -61,5 +61,3 @@ pip-delete-this-directory.txt
 parser.out
 parsetab.py
 **/__pycache__/**
-Digraph.gv
-Digraph.gv.pdf

@@ -1,5 +1,7 @@
-from parse.ast_node import ASTNode
-from jsonMode import dropDatabase
+import sys
+
+sys.path.insert(0, '..')
+from ast_node import ASTNode
 
 
 class DropDatabase(ASTNode):
@@ -10,8 +12,6 @@ class DropDatabase(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_name = self.name.execute(table, tree)
-        dropDatabase(result_name)
         return True
 
 

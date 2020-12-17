@@ -1,4 +1,7 @@
-from parse.ast_node import ASTNode
+import sys
+
+sys.path.insert(0, '..')
+from ast_node import ASTNode
 
 
 class Delete(ASTNode):

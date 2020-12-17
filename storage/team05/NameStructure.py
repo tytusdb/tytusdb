@@ -74,21 +74,6 @@ class NombreEstructuras:
                 return 1
         except:
             return 1
-
-    #Elimina la base de datos
-    def dropDatabase(self, database):
-        if self.ComprobarNombre(database) == True:
-            if self.searchDatabase(database) == True:
-                del self.database[database]
-                return 0
-            else:
-                return 2
-        else:
-            return 1
-        
-    #Método para buscar una tabla en el diccionario
-    def buscarTabla(self, nombre, tablas):
-        if tablas.get(nombre) == None:
-            return False
-        else:
-            return True
+                    
+            
+   

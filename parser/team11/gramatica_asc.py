@@ -45,42 +45,7 @@ reservadas = {
     'order'     : 'ORDER',             'having'    : 'HAVING',
     'asc'       : 'ASC',               'desc'      : 'DESC',
     'nulls'     : 'NULLS',             'first'     : 'FIRST',
-    'last'      : 'LAST',              'limit'     : 'LIMIT',
-    'all'       : 'ALL',               'offset'    : 'OFFSET',
-    'abs'       : 'ABS',                'cbrt'     : 'CBRT',
-    'ceil'      : 'CEIL',               'ceiling'  : 'CEILING',
-    'degrees'   : 'DEGREES',            'div'      : 'DIV',
-    'exp'       : 'EXP',                'factorial': 'FACTORIAL',
-    'floor'     : 'FLOOR',              'gcd'      : 'GCD',
-    'ln'        : 'LN',                 'log'      : 'LOG',
-    'mod'       : 'MOD',                'pi'       : 'PI',
-    'power'     : 'POWER',              'radians'  : 'RADIANS',
-    'round': 'ROUND',
-    'acos': 'ACOS',               'acosd': 'ACOSD',
-    'asin': 'ASIN',               'asind': 'ASIND',
-    'atan': 'ATAN',               'atand': 'ATAND',
-    'atan2': 'ATAN2',              'atan2d': 'ATAN2D',
-    'cos': 'COS',                'cosd': 'COSD',
-    'cot': 'COT',                'cotd': 'COTD',
-    'sin': 'SIN',                'sind': 'SIND',
-    'tan': 'TAN',                'tand': 'TAND',
-    'sinh': 'SINH',               'cosh': 'COSH',
-    'tanh': 'TANH',               'asinh': 'ASINH',
-    'acosh': 'ACOSH',              'atanh': 'ATANH',
-    'length': 'LENGTH',             'substring': 'SUBSTRING',
-    'trim': 'TRIM',               'get_byte': 'GET_BYTE',
-    'md5': 'MD5',                'set_byte': 'SET_BYTE',
-    'sha256': 'SHA256',             'substr': 'SUBSTR',
-    'convert': 'CONVERT',            'encode': 'ENCODE',
-    'decode': 'DECODE',             'for': 'FOR',
-    'between': 'BETWEEN',           'isnull' : 'ISNULL',
-    'notnull' : 'NOTNULL',          'case' : 'CASE',
-    'end' : 'END',                  'when' : 'WHEN',
-    'then' : 'THEN'   ,              'else' : 'ELSE',
-    'is' : 'IS',
-    'sign': 'SIGN',                 'sqrt': 'SQRT',
-    'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
-    'random': 'RANDOM'
+    'last'      : 'LAST'
 }
 
 tokens  = [
@@ -568,32 +533,7 @@ def p_condicionwhere(t):
 def p_existwhere(t):
     'whereexists       : EXISTS PARIZQ select_instr1 PARDER'
 
-
-def p_inwhere(t):
-    '''wherein         : cualquiernumero IN PARIZQ select_instr1 PARDER
-                       | cadenastodas IN PARIZQ select_instr1 PARDER'''
-
-
-def p_notinwhere(t):
-    '''wherenotin      : cualquiernumero NOT IN PARIZQ select_instr1 PARDER
-                       | cadenastodas NOT IN PARIZQ select_instr1 PARDER'''
-
-
-def p_notlikewhere(t):
-    'wherenotlike      : cadenastodas NOT LIKE CADENALIKE'
-
-
-def p_likewhere(t):
-    'wherelike         : cadenastodas LIKE CADENALIKE'
-
-
-def p_substringwhere(t):
-    'wheresubstring    : SUBSTRING PARIZQ cadenastodas COMA ENTERO COMA ENTERO PARDER IGUAL CADENASIMPLE'
-
-
-def p_cadenas(t):
-    '''cadenastodas    : cualquiercadena
-                       | cualquieridentificador'''
+    
 ## -------------------------------- EXPRESIONES ------------------------------------------    
 
 ## expresiones logicas (condiciones)

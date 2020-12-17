@@ -87,7 +87,7 @@ def p_createbody(t):
 
 def p_createopts_table(t):
     """createOpts : R_TABLE ifNotExists ID S_PARIZQ createTableList S_PARDER inheritsOpt """
-    t[0]=instruction.CreateTable(t[2],t[3],t[7],t[5])
+    t[0] = instruction.CreateTable(t[2], t[3], t[5])
 
 
 def p_createopts_db(t):
@@ -134,14 +134,9 @@ def p_ifnotexists_false(t):
 def p_inheritsOpt(t):
     """
     inheritsOpt : R_INHERITS S_PARIZQ ID S_PARDER
+    |
     """
-    t[0]=t[3]
 
-def p_inheritsOpt_none(t):
-    """
-    inheritsOpt :
-    """
-    t[0]=None
 
 def p_createowner(t):
     """
@@ -196,34 +191,21 @@ def p_createtable_u(t):
     t[0] = [t[1]]
 
 
-def p_createTable_id(t):
+def p_createtable(t):
     """
     createTable :  ID types createColumns
-    """
-    t[0]=[False,t[1],t[2],t[3]]
-    
-
-def p_createTable(t):
-    """
-    createTable : createConstraint
+    | createConstraint
     | createUnique
     | createPrimary
     | createForeign
     """
-    t[0]=[True,t[1]]
 
 
 def p_createColumNs(t):
     """
     createColumns : colOptionsList
+    |
     """
-    t[0]=t[1]
-
-def p_createColumNs_none(t):
-    """
-    createColumns : 
-    """
-    t[0]=None
 
 
 def p_createConstraint(t):
@@ -232,93 +214,61 @@ def p_createConstraint(t):
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
-    t[0]= [t[1],t[3]]
 
 
 def p_createPrimary(t):
     """createPrimary : R_PRIMARY R_KEY S_PARIZQ idList S_PARDER"""
-    t[0]= [t[1],t[4]]
 
 
 def p_createForeign(t):
     """
     createForeign : R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
+    | R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID
     """
-    t[0]= [t[1],t[4],t[7],t[9]]
-
-
-def p_createForeign_op2(t):
-    """
-    createForeign : R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID
-    """
-    t[0]= [t[1],t[4],t[7]]
 
 
 def p_constrName(t):
     """
     constrName : R_CONSTRAINT ID
+    |
     """
-    t[0]=t[2]
-
-def p_constrName_none(t):
-    """
-    constrName :
-    """
-    t[0]=None
 
 
 def p_id_list(t):
     """idList : idList S_COMA ID"""
-    t[1].append(t[3])
-    t[0] = t[1]
+
 
 def p_id_u(t):
     """idList : ID"""
-    t[0] = [t[1]]
+
 
 def p_types(t):
     """
     types :  ID
-    """
-
-def p_types_simple(t):
-    """
-    types : T_SMALLINT
+    | T_SMALLINT
     | T_INTEGER
     | T_BIGINT
+    | T_DECIMAL
+    | T_NUMERIC
     | T_REAL
     | T_DOUBLE T_PRECISION
     | T_MONEY
-    | T_TEXT
-    | T_BOOLEAN
-    | R_TIMESTAMP
-    | T_DATE
-    | T_TIME
-    """
-    t[0]=[t[1],[None]]
-
-def p_types_params(t):
-    """
-    types : T_DECIMAL optParams
-    | T_NUMERIC optParams
+    | T_CHARACTER T_VARYING optParams
     | T_VARCHAR optParams
     | T_CHARACTER optParams
     | T_CHAR optParams
+    | T_TEXT
+    | timeType
     """
-    t[0]=[t[1],t[2]]
 
 
-def p_types_var(t):
+def p_timeType(t):
     """
-    types : T_CHARACTER T_VARYING optParams
+    timeType :  R_TIMESTAMP optParams
+    | T_DATE
+    | T_TIME optParams
+    | R_INTERVAL intervalFields optParams
     """
-    t[0]=[t[2],t[3]]
-
-def p_timeType_interval(t):
-    """
-    types : R_INTERVAL intervalFields
-    """  
-    t[0]=[t[1],[t[2]]]
 
 
 def p_intervalFields(t):
@@ -329,29 +279,21 @@ def p_intervalFields(t):
     | R_HOUR
     | R_MINUTE
     | R_SECOND
+    |
     """
-    t[0]=t[1]
-
-
-def p_intervalFields_none(t):
-    """
-    intervalFields : 
-    """
-    t[0]=False
 
 
 def p_optParams(t):
     """optParams : S_PARIZQ literalList S_PARDER"""
-    t[0]=t[2]
+
 
 def p_colOptions_list(t):
     """colOptionsList : colOptionsList colOptions"""
-    t[1].append(t[2])
-    t[0]=t[1]
+
 
 def p_colOptions_u(t):
     """colOptionsList : colOptions"""
-    t[0]=[t[1]]
+
 
 def p_colOptions(t):
     """
@@ -361,28 +303,20 @@ def p_colOptions(t):
     | primaryOpt
     | referencesOpt
     """
-    t[0]=t[1]
+
 
 # cambiar literal
 
 
 def p_defaultVal(t):
     """defaultVal : R_DEFAULT literal"""
-    t[0]=[t[1],t[2].execute(0).value]
 
 
-def p_nullOpt_true(t):
+def p_nullOpt(t):
     """
     nullOpt : R_NOT R_NULL
+    | R_NULL
     """
-    t[0]=[t[2],True]
-
-
-def p_nullOpt_false(t):
-    """
-    nullOpt : R_NULL
-    """
-    t[0]=[t[1],False]
 
 
 # cambiar literal
@@ -397,12 +331,11 @@ def p_constraintOpt(t):
 
 def p_primaryOpt(t):
     """primaryOpt : R_PRIMARY R_KEY"""
-    t[0]=[t[1],True]
 
 
 def p_referencesOpt(t):
     """referencesOpt : R_REFERENCES ID"""
-    t[0]=[t[1],t[2]]
+
 
 # endregion CREATE
 
@@ -502,13 +435,11 @@ def p_current(t):
 
 def p_literal_list(t):
     """literalList : literalList S_COMA literal"""
-    t[1].append(t[3].execute(0).value)
-    t[0]=t[1]
 
 
 def p_literal_u(t):
     """literalList : literal"""
-    t[0]=[t[1].execute(0).value]
+
 
 def p_literal(t):
     """

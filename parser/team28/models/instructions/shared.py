@@ -4,8 +4,8 @@ from models.nodo import Node
 class Instruction:
     '''Clase abstracta'''
     @abstractmethod
-    def process(self):
-        ''' metodo para la ejecucion '''
+    def execute(self):
+        ''' recibe hijos paras el ast grafico '''
         pass
 
 class Alias(Instruction):
@@ -18,9 +18,6 @@ class Alias(Instruction):
     
     def __repr__(self):
         return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
 
 class From(Instruction):
     '''
@@ -31,9 +28,6 @@ class From(Instruction):
     
     def __repr__(self):
         return str(vars(self))
-
-    def process(self, instrucction):
-        pass
     
 class Where(Instruction):
     '''
@@ -44,9 +38,6 @@ class Where(Instruction):
     
     def __repr__(self):
         return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
 
 class GroupBy(Instruction):
     '''
@@ -60,9 +51,6 @@ class GroupBy(Instruction):
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, instrucction):
-        pass
-    
 class Having(Instruction):
     '''
         HAVING recibe una condicion logica
@@ -72,9 +60,6 @@ class Having(Instruction):
     
     def __repr__(self):
         return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
 
 class Using(Instruction):
     '''
@@ -82,9 +67,6 @@ class Using(Instruction):
     '''
     def __repr__(self):
         return str(vars(self))
-
-    def process(self, instrucction):
-        pass
 class Returning(Instruction):
     '''
         RETURNING recibe un array con ids o un asterisco
@@ -94,9 +76,6 @@ class Returning(Instruction):
     
     def __repr__(self):
         return str(vars(self))
-
-    def process(self, instrucction):
-        pass
 
 class Between(Instruction):
     '''
@@ -111,9 +90,6 @@ class Between(Instruction):
     
     def __repr__(self):
         return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
 
 class ObjectReference(Instruction):
     '''
@@ -127,9 +103,6 @@ class ObjectReference(Instruction):
 
     def __repr__(self):
         return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
 
 
 

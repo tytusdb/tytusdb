@@ -18,15 +18,7 @@ where a.nombre = 'carros'
 GROUP BY a.nombre,a.indentificacion
 HAVING sum(salario)<>100000;
 
-SELECT s.id, s.nombre 
-FROM sujeto s
-GROUP BY s.id ASC;
 
-SELECT u.dpi, u.apellido
-FROM usuario u
-GROUP BY u.dpi 
-HAVING sum(algo) > 1200;
-/*
 SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
 SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
 SELECT now();
@@ -88,6 +80,9 @@ salary numeric CHECK (salary >0)
 );
 
 
+select *
+from tbsujeto
+where fechanacimiento between '2004-01-01' and '2005-01-01';
 
 select *
 from tbsujeto
@@ -144,7 +139,7 @@ select *
 from (select nombre,fechanacimiento
  from tbcolaborador
  where substring(nombre,1,4) = 'suje') A;
-*/
+
 
  (select A.nombre,A.fechanacimiento,(select identificacion from
 tbidentificacioncolaborador B where B.idcolaborador = A.id )
@@ -159,7 +154,7 @@ UNION
  and A.id not in (select idcolaborador from
 tbidentificacioncolaborador B) order by marcos limit 5 offset 9);
 
-/*
+
 select CASE when nombre = 'sujeto3' then 'Juan Carlos'
  when nombre = 'sujeto4' then 'Luis Espino'
  end Nombrecambiado
@@ -168,48 +163,3 @@ select CASE when nombre = 'sujeto3' then 'Juan Carlos'
  and A.id not in (select idcolaborador from
 tbidentificacioncolaborador B) ;
 
-*/
-/*
-alter table nombretabla
-add constraint nombre
-foreign key (nombre)
-references  nombre (campo);
-
-alter table marocs
-add constraint asddasd_asdas_Asd
-unique (documento)
-add constraint nombre
-primary key (hola)
-add column af, sg char(4)
-drop column c1, c3, c4;
-
-SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT date_part('hour', INTERVAL '4 hours 3 minutes');
-SELECT now();
-SELECT EXTRACT(HOUR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(MINUTE FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(YEAR FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT EXTRACT(MONTH FROM TIMESTAMP '2001-02-16 20i:38:40');
-SELECT EXTRACT(DAY FROM TIMESTAMP '2001-02-16 20:38:40');
-SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
-SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
-SELECT CURRENT_DATE;
-SELECT CURRENT_TIME;
-SELECT TIMESTAMP 'now';
-
-INSERT INTO tbcolaborador values (5,'sujeto5', now());
-
-ALTER DATABASE NAME OWNER TO 'JC';*/
-
---SELECT TIMESTAMP 'now';
-/*
-select *
-from tbsujeto ;*/
-
-use database basededatos1;
-
-select nombre , count (id)
-from tbcolaboradeores c
-inner join tbindentificadorcolaborardor A on A.idcolaborador= C.id
-group by nombre asc;
