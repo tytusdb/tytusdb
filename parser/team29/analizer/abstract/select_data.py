@@ -13,6 +13,7 @@ class dataSelect:
         # self.product = pd.read_csv("./product.csv")
         # self.purchase = pd.read_csv("./purchase.csv")
         #self.tables = [self.customer, self.product, self.purchase]
+        self.tables = []
         # print(self.customer)
         # print("\n")
         # print(self.product)

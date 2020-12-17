@@ -30,12 +30,16 @@ s = """
         primary key (dpi,nombre),
         FOREIGN key (socio) REFERENCES prueba1 (dpi)
     );
-    */
+    
 
     SELECT customer.first_name as nombre, purchase.amount as amount, product.name as producto, product.price as precio
     WHERE amount < 10 AND purchase.cust_id=customer.id AND purchase.prod_id=product.id;
-
+*/
     SELECT 9+8!=8+9 or 8*8 != 64 AND 9+8!=8+9 or 8*8 = 64 IS TRUE as XD;
+
+    SELECT date_part('days', NOW()), CURRENT_TIME, EXTRACT(month FROM TIMESTAMP 'now');
+    SELECT NOW();
+    
     --INSERT INTO Usuario VALUES (3216883330506, 100000, "Francisco Suarez", "1999-08-16 10:28:30", 5);
 """
 

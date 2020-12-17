@@ -128,6 +128,13 @@ class NodoAVL:
             arbol.valor.append(default)
             self.agregaColumna(arbol.Der, default)
 
+    #Quita una Columna en cada registro
+    def quitaColumna(self, arbol, pos):
+        if arbol:
+            self.quitaColumna(arbol.Izq, pos)
+            arbol.valor.pop(pos)
+            self.quitaColumna(arbol.Der, pos)
+
 #Clase Arbol AVL
 class AVL:
     #Constructor de Arbol Binario de Busqueda
