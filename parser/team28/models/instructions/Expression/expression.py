@@ -7,7 +7,7 @@ import re
 
 class Expression:
     @abstractmethod
-    def execute(self):
+    def process(self):
         pass
 
 class ArithmeticBinaryOperation(Expression):
@@ -22,9 +22,9 @@ class ArithmeticBinaryOperation(Expression):
     def __repr__(self):
         return str(vars(self))
     
-    def execute(self, expression):
-        value1 = self.value1.execute(expression)
-        value2 = self.value2.execute(expression)
+    def process(self, expression):
+        value1 = self.value1.process(expression)
+        value2 = self.value2.process(expression)
         operador = self.operador
         if value1.data_type != DATA_TYPE.NUMBER and value2.data_type != DATA_TYPE.NUMBER:
             print('error de ejecucion')
@@ -54,7 +54,6 @@ class ArithmeticBinaryOperation(Expression):
             value = round(value1.value ^ value2.value)
         return PrimitiveData(DATA_TYPE.NUMBER, value)
 
-# TODO JUAN MARCOS 
 class Relop(Expression):
     '''
     Relop contiene los operadores logicos
@@ -69,9 +68,9 @@ class Relop(Expression):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self, expression):
-        value1 = self.value1.execute(expression)
-        value2 = self.value2.execute(expression)
+    def process(self, expression):
+        value1 = self.value1.process(expression)
+        value2 = self.value2.process(expression)
         operator = self.operator
         try:
             value = 0
@@ -241,28 +240,7 @@ class ExpressionsTrigonometric(Expression):
         elif type_trigo.lower() == 'atanh':
             result = round(atanh(float(exp1.value)),4)
         return PrimitiveData(DATA_TYPE.NUMBER, result)
-# TODO JUAN MARCOS 
-class ExpressionsGreastLeast(Expression):
-    '''
-        ExpressionsGreastLeast
-    '''
-    def __init__(self, type_expression, lista_arr):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-    def __repr__(self):
-        return str(vars(self))
-# TODO JUAN MARCOS 
-class MathematicalExpressions(Expression):
-    '''
-        MathematicalExpressions
-    '''
-    def __init__(self, type_expression, lista_arr, optional_alias):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-        self.optiona_alias = optional_alias
-    
-    def __repr__(self):
-        return str(vars(self))
+
 
 class UnaryOrSquareExpressions(Expression):
     '''
