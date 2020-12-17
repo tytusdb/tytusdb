@@ -10,11 +10,15 @@ class tabla_simbolos:
         self.simbolos[simbolo_db.id_] = simbolo_db
 
     def add_tb(self, db_id, simbolo_tb):
-        self.simbolos[db_id] = self.simbolos[db_id].tablas[simbolo_tb.id_] = simbolo_tb
+        base_datos = self.simbolos[db_id]
+        base_datos.tablas[simbolo_tb.id_] = simbolo_tb 
+        self.simbolos[db_id] = base_datos
             
     def add_col(self, db_id, tb_id, simbolo_col):
+        tabla_datos = self.simbolos[db_id].tablas[tb_id]
+        tabla_datos.columnas[simbolo_col.id_] = simbolo_col        
         simbolo_col.num = len(self.simbolos[db_id].tablas[tb_id].columnas)
-        self.simbolos[db_id].tablas[tb_id] = self.simbolos[db_id].tablas[tb_id].columnas[simbolo_col.id_] = simbolo_col
+        self.simbolos[db_id].tablas[tb_id] = tabla_datos
 
     #GET SIMBOLOS
 
@@ -42,15 +46,15 @@ class tabla_simbolos:
 
     def update_db(self, id_db, new_db):
         del self.simbolos[id_db]
-        self.simbolos[new_db.id] = new_db
+        self.simbolos[new_db.id_] = new_db
 
     def update_tb(self, id_db, id_tb, new_tb):
         del self.simbolos[id_db].tablas[id_tb] 
-        self.simbolos[id_db].tablas[new_tb.id] = new_tb
+        self.simbolos[id_db].tablas[new_tb.id_] = new_tb
 
     def update_col(self, id_db, id_tb, id_col, new_col):
         del self.simbolos[id_db].tablas[id_tb].columnas[id_col]
-        self.simbolos[id_db].tablas[id_tb].columnas[new_col.id] = new_col
+        self.simbolos[id_db].tablas[id_tb].columnas[new_col.id_] = new_col
 
     def reiniciar_ts(self):
         self.simbolos = {}
@@ -100,7 +104,7 @@ class tabla_simbolos:
             return "CHAR"
         elif tipo == tipo_primitivo.TEXT:
             return "TEXT"
-        elif tipo == tipo_primitivo.STAMP:
+        elif tipo == tipo_primitivo.TIMESTAMP:
             return "TIMESTAMP"
         elif tipo == tipo_primitivo.DATE:
             return "DATE"
@@ -122,9 +126,10 @@ class symbol_tb:
         self.columnas = columnas
 
 class symbol_col:
-    def __init__(self, id_, tipo, condiciones):
+    def __init__(self, id_, size, tipo, condiciones):
         self.id_ = id_
         self.num = 0
+        self.size = size
         self.tipo = tipo
         self.condiciones = condiciones
 
