@@ -1294,9 +1294,23 @@ def p_EXPR_COLUMNAS1(p):
                      | EXPR_BINARIAS as E
                      | EXPR_EXTRA as E
                      | EXPR_FECHA as E
-                     | EXPR_CASE as E '''
+                     | EXPR_CASE as E 
+                     | E E
+                     | EXPR_AGREGACION  E
+                     | EXPR_MATHS E
+                     | EXPR_TRIG E 
+                     | EXPR_BINARIAS E
+                     | EXPR_EXTRA E
+                     | EXPR_FECHA E
+                     | EXPR_CASE E 
+                     | E punto multi'''
     if len(p) == 4:
-        p[0] = SColumnasAsSelect(p[3], p[1])
+        if p[3] == "*":
+            p[0] = SColumnasMulti(p[1], p[3])
+        else: 
+            p[0] = SColumnasAsSelect(p[3], p[1])
+    elif len(p) == 3:
+        p[0] = SColumnasAsSelect(p[2], p[1])
     else:
         p[0] = SColumnasAsSelect(False, p[1])
 

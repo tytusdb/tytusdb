@@ -395,6 +395,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
 
                                 else:
                                     print("Otro")
+                                    print(col.id)
                                     print(col.cols)
 
                                 # ALIAS

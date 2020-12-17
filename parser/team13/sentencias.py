@@ -581,3 +581,8 @@ class SWhereCond9(Sentencia):
 class SHaving(Sentencia):
     def __init__(self, efunc=[]):
         self.efunc = efunc
+
+class SColumnasMulti(Sentencia):
+    def __init__(self, id, cols=[]):
+        self.id = id
+        self.cols = cols
