@@ -1,21 +1,24 @@
-
 import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Instrucciones.Excepcion import Excepcion
 
 class Factorial(Instruccion):
-    def __init__(self, valor, tipo, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, valor, linea, columna):
+        Instruccion.__init__(self,Tipo(Tipo_Dato.NUMERIC),linea,columna)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print("FACTORIAL")
-        print(math.factorial(self.valor))
-        return math.factorial(self.valor)
-
-
-'''
-instruccion = Factorial(2,None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+        resultado = self.valor.ejecutar(tabla,arbol)
+        if self.valor.tipo.tipo != Tipo_Dato.INTEGER:
+            error = Excepcion('42883',"Semántico","No existe la función factorial("+self.valor.tipo.toString()+")",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+        if resultado < 0:
+            error = Excepcion('2201F',"Semántico","La función FACTORIAL únicamente acepta valores númericos positivos",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+            return error
+        return math.factorial(resultado)

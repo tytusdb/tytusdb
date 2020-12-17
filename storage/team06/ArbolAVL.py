@@ -419,6 +419,15 @@ class ArbolAVL:
         else:
            return None
 
+    def cambiardatos(self, tmp, columnas):
+        cadena = ""
+        if tmp != None:
+            for i in columnas:
+                cadena += str(tmp.campos[i])+","
+            cadena = cadena[0:len(cadena)-1]
+            tmp.valor = cadena
+            self.cambiardatos(tmp.izq, columnas)
+            self.cambiardatos(tmp.der, columnas)
 
     def graficar(self):
         contenido = "digraph grafica{\n    rankdir=TB;\n    node [shape = record, style=filled, fillcolor=lightcyan2];\n    "
@@ -648,14 +657,18 @@ class ArbolAVL:
                     return 4
                 else:
                     try:
-                        t2=i.lista
-                        if t2.contadorRep(columnas):
-                            i.lista = t2
-                            i.campos[0]=columnas
-                            print("funciono")
+                        if i.lista is None:
+                            i.campos[0] = columnas
                         else:
-                            print("llaves repetidas")
-                        print(i.campos)
+                            t2 = i.lista
+                            if t2.contadorRep(columnas):
+                                i.campos[0] = columnas
+                                print("funciono")
+                                i.lista.cambiardatos(i.lista.raiz, i.campos[0])
+                                i.lista.validaEliminacion(i.lista.raiz)
+                                i.lista.preorden()
+                            else:
+                                print("llaves repetidas")
                         return 0
                     except:
                         return 1
@@ -825,7 +838,21 @@ class ArbolAVL:
             if i != None:
                 lista = i.campos[0]
                 try:
-                    self.extraercolumna(i.lista.raiz, lista, columnas)
+                    if lista is None:
+                        i.lista.eliminar(columnas[0])
+                        print("eliminado", columnas)
+                        i.lista.preorden()
+                    else:
+                        cadena = ""
+                        for i in columnas:
+                            cadena += str(i) +","
+                        cadena = cadena[0:len(cadena)-1]
+                        print("eliminado", cadena)
+                        eliminado=self.buscarreistro(db, tabla, cadena)
+                        if eliminado != None:
+                            i.lista.eliminar(eliminado.valor)
+                        else:
+                            return 4
                     return 0
                 except:
                     return 1

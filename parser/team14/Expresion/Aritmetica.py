@@ -1,7 +1,9 @@
 
 
+
 from Expresion.Binaria import Binaria
 from Entorno import Entorno
+from Tipo import Tipo
 import math
 
 class Aritmetica(Binaria):
@@ -28,6 +30,8 @@ class Aritmetica(Binaria):
         elif self.operador == '%':
             self.val = valizq % valder;
         elif self.operador == '^':
-            self.val = valizq ^ valder;
+            self.val = valizq ** valder;
 
+        tipo= Tipo(self.val,'decimal')
+        self.tipo=tipo
         return self.val
