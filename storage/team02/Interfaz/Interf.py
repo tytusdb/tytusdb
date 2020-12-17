@@ -31,4 +31,27 @@ BuscarBaseDatos2Label = Label(VentanaPrincipal, text="Buscar:")
 BuscarBaseDatos2Label.place(x = 730 , y = 205)
 BuscarBaseDatos2Label.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
 
+#--------------------CREACIÓN DE CAMPOS PARA Tuplas
+
+nomTabla = Entry(VentanaPrincipal)
+nomTabla.place( x = 1050 , y = 170)
+nomTabla.config(relief = "sunken", borderwidth = 4)
+nomTablaLabel = Label(VentanaPrincipal, text="Nombre Tabla:")
+nomTablaLabel.place (x = 960 , y = 170)
+nomTablaLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
+
+nomBaseDatos = Entry(VentanaPrincipal)
+nomBaseDatos.place(x = 1050 , y = 205)
+nomBaseDatos.config(relief = "sunken", borderwidth = 4)
+nomBaseDatosLabel = Label(VentanaPrincipal, text="Nombre BD:")
+nomBaseDatosLabel.place(x = 960 , y = 205)
+nomBaseDatosLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
+
+Registro = Entry(VentanaPrincipal)
+Registro.place (x = 1050 ,  y = 240)
+Registro.config(relief = "sunken", borderwidth = 4)
+RegistroLabel = Label(VentanaPrincipal, text="Registro:" )
+RegistroLabel.place (x =960 , y = 240)
+RegistroLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
+
 raiz.mainloop()
