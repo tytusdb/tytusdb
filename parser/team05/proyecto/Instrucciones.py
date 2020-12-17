@@ -22,7 +22,7 @@ class SelectCompleto(Instruccion):
 class Select(Instruccion):
     """ Instrucción SELECT """
 
-    def __init__(self, valores, pfrom, complemento):
+    def __init__(self, valores, pfrom, complementos):
         self.valores = valores
         self.pfrom = pfrom
         self.complementos = complementos
@@ -31,7 +31,7 @@ class Select(Instruccion):
 class Select1(Instruccion):
     """ Instrucción SELECT """
 
-    def __init__(self, valores, pfrom, where, complemento):
+    def __init__(self, valores, pfrom, where, complementos):
         self.valores = valores
         self.pfrom = pfrom
         self.where = where
@@ -41,7 +41,7 @@ class Select1(Instruccion):
 class Select2(Instruccion):
     """ Instrucción SELECT """
 
-    def __init__(self, valores, pfrom, complemento):
+    def __init__(self, valores, pfrom, complementos):
         self.valores = valores
         self.pfrom = pfrom
         self.complementos = complementos
@@ -50,7 +50,7 @@ class Select2(Instruccion):
 class Select3(Instruccion):
     """ Instrucción SELECT """
 
-    def __init__(self, valores, pfrom, where, complemento):
+    def __init__(self, valores, pfrom, where, complementos):
         self.valores = valores
         self.pfrom = pfrom
         self.where = where
@@ -109,13 +109,13 @@ class ComplementoSelectExceptAll(Instruccion):
 class ComplementoSelectExceptPcoma(Instruccion):
     """ Instrucción COMPLEMENTO SELECT """
 
-    def __init__(self):
-        #NO RECIBE PARAMETROS 
+    def __init__(self, param=None):
+        self.param = param
+        # NO RECIBE PARAMETROS
 
+# ----------FIN DE CLASES SELECT--------------
 
-#----------FIN DE CLASES SELECT--------------
-
-#----------INICIO DE CREATE------------------
+# ----------INICIO DE CREATE------------------
 
 # INSTRUCCION CREATE
 class Create(Instruccion):
@@ -138,9 +138,9 @@ class Create(Instruccion):
     def __init__(self, tipe):
         self.tipe = tipe
 
-#----------FIN DE CLASES CREATE--------------
+# ----------FIN DE CLASES CREATE--------------
 
-#----------INICIO DE DROP--------------------
+# ----------INICIO DE DROP--------------------
 # INSTRUCCION DROP
 class Drop(Instruccion):
     """ Instrucción DROP """

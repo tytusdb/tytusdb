@@ -2,7 +2,7 @@ from abstract.expresion import *
 from tools.tabla_tipos import *
 from abstract.retorno import *
 
-class literal(expresion):
+class primitivo(expresion):
     def __init__(self, line, column, valor, tipo, num_nodo):
         super().__init__(line, column)
         self.valor = valor
