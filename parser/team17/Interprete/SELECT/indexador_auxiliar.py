@@ -8,7 +8,6 @@ class IAT(Enum):
     ACCESO = 3
     ACCESO_SIN_ALIAS = 4
     TODO = 5
-    TODO_CON_ALIAS = 6
 
 
 class indexador_auxiliar:

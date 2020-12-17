@@ -1,4 +1,3 @@
-from Interprete.CREATE_TABLE.create_table import CreateTable
 from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
@@ -8,7 +7,7 @@ from Interprete.Primitivos.ENTERO import ENTERO
 from Interprete.Primitivos.DECIMAL import DECIMAL
 from Interprete.Primitivos.CADENAS import CADENAS
 from Interprete.Primitivos.BOOLEANO import BOOLEANO
-from Interprete.Tabla_de_simbolos import Columna
+from Interprete.Insert.insert import Insert
 
 reservadas = {
 
@@ -119,7 +118,6 @@ reservadas = {
     'unknown' : 'UNKNOWN',
     'is'    : 'IS',
     'distinct'  : 'DISTINCT',
-    'use' : 'USE',
 
     # FUNCIONES MATEMATICAS
     'abs' : 'ABS',
@@ -425,26 +423,68 @@ def p_sentence(t):
     '''
     t[0] = t[1]
 
-def p_ddl(t):
+# --------------------------------------------------------------------------------------
+# ------------------------------------ DDL ---------------------------------------------
+# --------------------------------------------------------------------------------------
+
+def p_ddl_select(t):
     '''
         ddl  : select
-             | table_create
-             | insert
-             | update
-             | deletetable
-             | create_db
-             | drop_table
-             | alter_table
-             | create_type
-             | alter_database
-             | drop_database
-             | use_database
     '''
-    t[0] = t[1]
+    pass
 
-def p_use_database(t):
+def p_ddl_table_create(t):
     '''
-        use_database : USE ID
+        ddl  : table_create
+    '''
+    pass
+
+def p_ddl_insert(t):
+    '''
+        ddl  : insert
+    '''
+    t[0]=t[1]
+
+
+def p_ddl_update(t):
+    '''
+        ddl  : update
+    '''
+    pass
+
+def p_ddl_deletetable(t):
+    '''
+        ddl  : deletetable
+    '''
+    pass
+
+def p_ddl_create_db(t):
+    '''
+        ddl  : create_db
+    '''
+    pass
+
+def p_ddl_alter_table(t):
+    '''
+        ddl  : alter_table
+    '''
+    pass
+
+def p_ddl_create_type(t):
+    '''
+        ddl  : create_type
+    '''
+    pass
+
+def p_ddl_alter_database(t):
+    '''
+        ddl  : alter_database
+    '''
+    pass
+
+def p_ddl_drop_database(t):
+    '''
+        ddl  : drop_database
     '''
     t[0] = t[1]
 
@@ -480,13 +520,11 @@ def p_select(t):
         # SELECT TIMESTAMP CADENA
         pass
 
-
 def p_select_simple(t):
     '''
         select : SELECT listavalores FROM listavalores
     '''
     # SELECT SIMPLE
-
 
 def p_time(t):
     '''
@@ -975,7 +1013,6 @@ def p_exp_opunary(t):
               | MENOS exp
               | NOT exp
               | IS exp
-              | EXISTS exp
     '''
     if t[1]=='|':
         #ORBB exp
@@ -996,9 +1033,6 @@ def p_exp_opunary(t):
         # NOT exp
         pass
     elif t[1] == 'is':
-        # IS exp
-        pass
-    elif t[1].lower() == 'exists':
         # IS exp
         pass
 
@@ -1156,12 +1190,6 @@ def p_expSimples(t):
     '''
     t[0] = t[1]
 
-def p_expSimples_ALIAS_MULTI(t):
-    '''
-        expSimple : ID PT MULTI
-    '''
-    t[0] = indexador_auxiliar(t[1], t[1], 6)
-
 def p_expSimples_MULTI(t):
     '''
         expSimple : MULTI
@@ -1290,7 +1318,7 @@ def p_table_create(t):
         pass
     if len(t)==7:
         # CREATE TABLE ID PARIZQ lista_table inherits
-        t[0] = CreateTable(t[3], t[5])
+        pass
     if len(t)==12:
         #CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
         pass
@@ -1360,12 +1388,11 @@ def p_atributo_table(t):
 
     '''
     if len(t)==4:
-        t[0] = Columna(t[1], t[2], t[3])
         #ID  tipocql listaespecificaciones
+        pass
     elif len(t)==3:
-        t[0] = Columna(t[1], t[2], None)
         #ID tipocql
-
+        pass
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- ESPECIFICACIONES--------------------------------------
@@ -1392,10 +1419,11 @@ def p_especificaciones(t):
                          | CONSTRAINT ID
                          | CHECK PARIZQ exp PARDER
                          | UNIQUE PARIZQ listaids PARDER
-                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
+                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES listaids
     '''
     if len(t)==2:
         if t[1].lower()=='unique':
+
             pass
         elif t[1].lower()=='default':
             pass
@@ -1431,13 +1459,11 @@ def p_tipocql(t):
     '''
         tipocql : tipo
     '''
-    t[0] = t[1]
 
 def p_tipocql_id(t):
     '''
         tipocql : ID
     '''
-    t[0] = t[1]
 def p_tipo(t):
     '''
          tipo : SMALLINT
@@ -1460,38 +1486,39 @@ def p_tipo(t):
               | CHAR PARIZQ exp PARDER
     '''
     if len(t)==2:#RESERWORD
-        t[0] = t[1]
+        pass
     if len(t)==3:
         #DOUBLE PRECISION
-        t[0] = t[1] + " " + t[2]
+        pass
     if len(t)==6:
         #CHARACTER VARYING PARIZQ exp PARDER
-        t[0] = t[1] + t[2]
+        pass
     if len(t)==5:
         if t[1].lower()=='character':
-            #CHARACTER PARIZQ exp PARDER
-            t[0] = t[1]
+            #CHARACTER VARYING PARIZQ exp PARDER
+            pass
         elif t[1].lower()=='varchar':
             #VARCHAR PARIZQ exp PARDER
-            t[0] = t[1]
+            pass
         elif t[1].lower()=='char':
             #CHAR PARIZQ exp PARDER
-            t[0] = t[1]
+            pass
+        pass
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- INSERT--------------------------------------
 # --------------------------------------------------------------------------------------
 def p_insert(t):
     '''
-        insert : INSERT INTO ID VALUES PARIZQ listavalores PARDER
+        insert : INSERT INTO ID                        VALUES PARIZQ listavalores PARDER
                | INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
     '''
     if len(t)==8:
         #INSERT INTO ID VALUES PARIZQ listavalores PARDER
-        pass
+        t[0]= Insert(t[3],[],t[6],t.lineno,0)
     elif len(t)==11:
         #INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
-        pass
+        t[0]= Insert(t[3],t[5],t[9],t.lineno,0)
 
 def p_listaids(t):
     '''
@@ -1671,20 +1698,23 @@ def p_create_db(t):
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------CREATEDB EXTRA--------------------------------------
-# ------------------ESTA PARTE SOLO SE DEBE RECONOCER EN LA GRAMATICA------------------
 # -------------------------------------------------------------------------------------
 def p_createdb_extra(t):
     '''
-        createdb_extra : ID OWNER IGUAL exp MODE IGUAL exp
-                       | ID OWNER IGUAL exp MODE exp
-                       | ID OWNER exp MODE IGUAL exp
-                       | ID OWNER exp MODE exp
-                       | ID OWNER IGUAL exp
-                       | ID MODE IGUAL exp
-                       | ID OWNER exps
-                       | ID MODE exp
+        createdb_extra : ID OWNER IGUAL ID MODE IGUAL exp
+                       | ID OWNER IGUAL ID
+                       | ID
     '''
-    t[0] = t[1]
+    if len(t)==8:
+        #ID OWNER IGUAL ID MODE IGUAL exp
+        pass
+    elif len(t)==5:
+        #ID OWNER IGUAL ID
+        pass
+    elif len(t)==2:
+        #ID
+        pass
+
 
 # -------------------------------------------------------------------------------------
 # --------------------------------- DROP TABLE--------------------------------------
