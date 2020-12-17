@@ -2,7 +2,8 @@
 import os
 import sys
 import platform
-
+from nodeAst import nodeAst
+import ascendente as analizador
 #import accionesIDE as accionesVarias
 #import mostrarLineas
 
@@ -18,15 +19,6 @@ from tkinter import messagebox
 from CustomText import CustomText
 #For managing the Line Numbers in the text area
 from TextLine import TextLineNumbers
-
-
-#from random import seed
-#from random import randint
-import ascendente as analizador
-
-
-
-
 
 class Interfaz(tk.Frame):
     def __init__(self, *args, **kwargs):
@@ -77,7 +69,7 @@ class Interfaz(tk.Frame):
         run_dropdown.add_command(label="Ejecutar Descendente")
 
         report_dropdown.add_command(label="Reporte de Errores", command=self.generarReporteErrores )
-        report_dropdown.add_command(label="Reporte AST", )
+        report_dropdown.add_command(label="Reporte AST", command=self.astReport)
         report_dropdown.add_command(label="Reporte de Gramatical", command=self.generarReporteGramatical)
         report_dropdown.add_command(label="Tabla de Simbolos", command=self.generarReporteSimbolos )
         
@@ -139,6 +131,10 @@ class Interfaz(tk.Frame):
             box_tilte = "Report Error"
             box_msg = "El archivo del reporte no existe"
             messagebox.showinfo(box_tilte, box_msg)
+
+    def astReport(self):
+        analizador.generarASTReport()
+
 #-------------------------------------------------------Color Tags for the Paint Method---------------------------------------------------------------------
         """self.text.tag_configure("reserved", foreground="red")
         self.text.tag_configure("var", foreground="#008000")
