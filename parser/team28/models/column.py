@@ -15,6 +15,9 @@ class Column(object):
         # TODO FOREIGN KEY implementation
         # {'refTable':None,'refColumn':None} {'Referenced table': None}
 
+    def __str__(self):
+        return self._name
+
     @property
     def name(self):
         return self._name

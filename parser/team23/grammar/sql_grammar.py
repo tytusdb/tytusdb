@@ -105,7 +105,6 @@ reservadas = {
     'session user' : 'SESSION_USER',
     'double':'DOUBLE',
     'precision':'PRECISION',
-    'nvarchar':'NVARCHAR',
     'default':'DEFAULT',
     'unique' : 'UNIQUE',
     'add': 'ADD',
@@ -117,7 +116,8 @@ reservadas = {
     'uknown' : 'UNKNOWN',
     'substring' : 'SUBSTRING',
     'avg' : 'AVG',
-    'databases' : 'DATABASES'
+    'databases' : 'DATABASES',
+    'use' : 'USE'
 }
 
 #Lista de tokens
@@ -279,6 +279,7 @@ from instruccion.limite import *
 from instruccion.inherits import *
 from instruccion.rename_owner_db import *
 from instruccion.alter_db import *
+from instruccion.use_db import *
 from instruccion.altertb_drop import *
 from instruccion.alter_col import *
 from instruccion.altertb_alter import *
@@ -314,28 +315,24 @@ def p_aux_instruccion(t):
     '''instruccion      : SHOW DATABASES PUNTOCOMA
                         | INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
                         | UPDATE ID SET ID IGUAL op_val where PUNTOCOMA
-                        | DELETE FROM ID WHERE ID IGUAL op_val PUNTOCOMA'''
+                        | DELETE FROM ID WHERE ID IGUAL op_val PUNTOCOMA
+                        | USE DATABASE ID PUNTOCOMA'''
     global num_nodo
-
     if t[1].lower() == 'show':
-
         t[0] = show_db(t.lineno(1), t.lexpos(1), num_nodo)
-        num_nodo += 1
-
+        num_nodo += 2
     elif t[1].lower() == 'insert':
-
         t[0] = insert_into(t[3],t[6],t.lineno(1),t.lexpos(1),num_nodo)
         num_nodo += 7
-
     elif t[1].lower() == 'update':
-
         t[0]= update_st(t[2],t[4],t[6],t[7],t.lineno(1),t.lexpos(1),num_nodo)
         num_nodo += 8
-
     elif t[1].lower() == 'delete':
-
         t[0] = delete_from(t[3], t[5], t[7], t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 8
+    elif t[1].lower() == 'use':        
+        t[0] = use_db(t[3], t.lineno(1), t.lexpos(1), num_nodo)
+        num_nodo += 3
 
 def p_crear_statement_tbl(t):
     '''crear_statement  : CREATE TABLE ID PAR_ABRE contenido_tabla PAR_CIERRA inherits_statement'''
@@ -391,13 +388,12 @@ def p_mode_db(t):
 
 def p_alter_db(t):
     '''alter_statement : ALTER DATABASE ID rename_owner'''
-
     global num_nodo
     t[0] = alter_db(t[3],t[4],t.lineno,t.lexpos,num_nodo)
-    num_nodo += 5
+    num_nodo += 4
 
 def p_alter_tbl(t):
-    '''alter_statement : ALTER TABLE ID alter_op'''
+    '''alter_statement : ALTER TABLE ID alter_op'''   
 
     global num_nodo
     t[0] = alter_tb(t[3], t[4], t.lineno, t.lexpos, num_nodo)
@@ -406,7 +402,6 @@ def p_alter_tbl(t):
 def p_rename_owner_db(t):
     '''rename_owner : RENAME TO ID
                     | OWNER TO LLAVE_ABRE ow_op LLAVE_CIERRA'''
-
     global num_nodo
     if t[1].lower() == 'rename':
         t[0] = rename_owner_db(t[1],t[3],t.lineno,t.lexpos, num_nodo)
@@ -423,14 +418,11 @@ def p_ow_op_db(t):
 
 def p_drop_db(t):
     '''drop_statement : DROP DATABASE if_exists ID'''
-
     global num_nodo
     try:
-        if t[1].lower() == 'drop':
-           
+        if t[1].lower() == 'drop':           
             t[0]=drop(t[4],t[3],t.lineno(1),t.lexpos(1),num_nodo)
             num_nodo += 5
-
     except:
         t[0]=None
 
@@ -484,13 +476,44 @@ def p_type_column(t):
 	               | DOUBLE PRECISION
 	               | MONEY
 	               | VARCHAR PAR_ABRE ENTERO PAR_CIERRA
-                   | NVARCHAR PAR_ABRE ENTERO PAR_CIERRA
-                   | VARCHAR
-                   | NVARCHAR
-	               | CHAR
+                   | CHAR PAR_ABRE ENTERO PAR_CIERRA
+                   | CHARACTER PAR_ABRE ENTERO PAR_CIERRA
+                   | CHARACTER VARYING PAR_ABRE ENTERO PAR_CIERRA
  	               | TEXT
-	               | DATE'''
-    t[0] = t[1]
+	               | DATE
+                   | TIMESTAMP
+                   | TIME'''
+    if t[1].lower() == 'smallint':
+        t[0] = tipo_primitivo.SMALLINT
+    elif t[1].lower() == 'integer':
+        t[0] = tipo_primitivo.INTEGER
+    elif t[1].lower() == 'bigint':
+        t[0] = tipo_primitivo.BIGINT
+    elif t[1].lower() == 'decimal':
+        t[0] = tipo_primitivo.DECIMAL
+    elif t[1].lower() == 'numeric':
+        t[0] = tipo_primitivo.DECIMAL
+    elif t[1].lower() == 'real':
+        t[0] = tipo_primitivo.REAL
+    elif t[1].lower() == 'double':
+        t[0] = tipo_primitivo.DOUBLE_PRECISION
+    elif t[1].lower() == 'money':
+        t[0] = tipo_primitivo.MONEY
+    elif t[1].lower() == 'varchar':
+        t[0] = (tipo_primitivo.VARCHAR, t[3])
+    elif t[1].lower() == 'char':
+        t[0] = (tipo_primitivo.CHAR, t[3])
+    elif t[1].lower() == 'character' and t[2].lower() == 'varying':
+        t[0] = (tipo_primitivo.VARCHAR, t[4])
+    elif t[1].lower() == 'character':
+        t[0] = (tipo_primitivo.CHAR, t[3])
+    elif t[1].lower() == 'date':
+        t[0] = tipo_primitivo.DATE
+    elif t[1].lower() == 'time':
+        t[0] = tipo_primitivo.TIME
+    elif t[1].lower() == 'timestamp':
+        t[0] = tipo_primitivo.TIMESTAMP
+    
 
 def p_condition_column_row(t):
     'condition_column_row : condition_column_row condition_column'
@@ -528,27 +551,18 @@ def p_aux_condition_column(t):
  		                 | '''
     global num_nodo
     try:
-
         if t[1].lower() == 'default':
-
             t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
             num_nodo += 3
-
         elif t[1].lower() == 'null':
-
             t[0] = condicion_simple(t[1], None, None, t.lineno(1), t.lexpos(1), num_nodo)
             num_nodo += 3
-
         elif t[1].lower() == 'not':
-
             t[0] = condicion_simple(t[1], None, None, t.lineno(1), t.lexpos(1), num_nodo)
             num_nodo += 3
-
         elif t[1].lower() == 'reference':
-
             t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
             num_nodo += 3
-
         elif t[1].lower() == 'constraint':
             t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
             num_nodo += 3
@@ -684,15 +698,12 @@ def p_alter_col_op(t):
 def p_inherits_tbl(t):
     '''inherits_statement : INHERITS PAR_ABRE ID PAR_CIERRA
                | '''
-
     global num_nodo
     try:
-
         t[0] = inherits(t[3],t.lineno,t.lexpos,num_nodo)
         num_nodo += 5
-
     except:
-        t[0] = t[1]
+        t[0] = None
 
 def p_list_val(t):
     '''list_val : list_val COMA op_val'''
@@ -714,23 +725,16 @@ def p_where(t):
     '''where : WHERE ID IGUAL op_val
             | '''
     try:
-
         global num_nodo
-
         if t[1].lower() == 'where':
-
             t[0] = where_up_de(t[2],t[4],t.lineno,t.lexpos,num_nodo)
             num_nodo += 5
-
-
     except:
         t[0] = None
 
 def p_seleccionar(t):
     '''seleccionar  : SELECT distinto  select_list FROM table_expression list_fin_select'''
-    print('Si jala select normal1')
     global num_nodo
-
     try:
         print('Si jala select normal')
         t[0] = select_normal(t[2],t[3],t[5],t[6],t.lineno,t.lexpos,num_nodo)
@@ -741,7 +745,6 @@ def p_seleccionar(t):
 def p_aux_seleccionar(t):
     '''seleccionar  : SELECT GREATEST expressiones
                     | SELECT LEAST expressiones'''
-
     global num_nodo
     t[0] = Query_Select(t[2],t[3], t.lineno,t.lexpos, num_nodo)
     num_nodo+=4
@@ -921,11 +924,11 @@ def p_expression_entero(t):
 
     n_entero = t[1]
     if n_entero in range(-32768 , 32768):
-        print("es smallint")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.SMALLINT, num_nodo)
     elif n_entero in range(-2147483648 , 2147483647):
-        print("es integer")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.INTEGER, num_nodo)
     elif n_entero in range(-9223372036854775808 , 9223372036854775807):
-        print("es bigint")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.BIGINT, num_nodo)
 
 def p_expression_decimal(t):
     '''expression : DECIMAL_NUM'''
@@ -946,13 +949,13 @@ def p_expression_decimal(t):
     n_decimal = t[1]
     n_decimal = int(n_decimal)
     if m_presicion != None:
-        print("Double_Precision")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.DOUBLE_PRECISION, num_nodo)
     elif m_real != None:
-        print("Real")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.REAL, num_nodo)
     elif n_decimal in range(-131072 , 131073):
-        print("Decimal")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.DECIMAL, num_nodo)
     elif n_decimal in range(-92233720368547758 , 92233720368547759):
-        print("Money")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.MONEY, num_nodo)
     
 def p_expression_cadena(t):
     '''expression : CADENA'''
@@ -968,18 +971,25 @@ def p_expression_cadena(t):
     m_tiempo = patron_tiempo.match(n_tiempo)
 
     if m_tiempo != None:
-        print("Fecha")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.TIME, num_nodo)
     else:
-        print("Texto")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.VARCHAR, num_nodo)
 
 def p_error(t):
     errores.append(nodo_error(t.lexer.lineno, t.lexer.lexpos, "Error sintáctico: '%s'" % t.value, 'Sintáctico'))
+    print("Whoa. Error Sintactico encontrado.")
+    if not t:
+        print("End of File!")
+        return
+
+    # Read ahead looking for a closing ';'
     while True:
-        tok = parser.token()
+        tok = parser.token()  # Get the next token
+        print(tok)
         if not tok or tok.type == 'PUNTOCOMA':
-            print("Se recupero con ;")
+            print("se recupera")
             break
-    parser.restart()
+        
     
 import ply.yacc as yacc
 parser = yacc.yacc()

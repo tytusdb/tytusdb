@@ -1,3 +1,4 @@
+import storageManager
 from tkinter import *
 
 from os import path
@@ -15,9 +16,36 @@ import reportes.reportesimbolos as rs
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
+
+from storageManager.jsonMode import *
 
 import sintactico
+'''
+instruccion = CreateDatabase("bd1",None,"TRUE",None,None,None,None, 1,2)
+instruccion.ejecutar(None,None)
 
+# ---------------------------- PRUEBA DE UNA SUMA  ----------------------------
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Instrucciones.Expresiones import Primitivo, Logica
+
+p1 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
+p2 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
+a = Arbol([])
+op = Logica.Logica(p1,p2,'AND',1,2)
+print('Resultado logica: ' + str(suma.ejecutar(None,a)))
+
+# ---------------------------- PRUEBA DE UNA SUMA CON ERROR DE TIPO ----------------------------
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Instrucciones.Expresiones import Primitivo, Aritmetica
+
+p1 = Primitivo.Primitivo(1,Tipo(Tipo_Dato.BOOLEAN),1,1)
+p2 = Primitivo.Primitivo(2,Tipo(Tipo_Dato.INTEGER),1,1)
+a = Arbol([])
+suma = Aritmetica.Aritmetica(p1,p2,'+',1,2)
+suma.ejecutar(None,a)
+reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(a.excepciones)
+'''
 
 class interfaz():
     def __init__(self):
@@ -80,7 +108,8 @@ class interfaz():
         print("Estoy ejecutando el main")
         f = open("./entrada.txt", "r")
         input = f.read()
-        
+        #lista = "" : ""
+        #insert(database: "world", table: "countries", register: lista) 
         #print(input)
         #parser.parse(input)
         #Inserta "Archivo Analizado" en txtsalida
@@ -136,6 +165,7 @@ class interfaz():
 
     ##############################################EVENTOS DE LOS BOTONES DEL FRAME####################################
     def btnanalizar_click(self):
+        dropAll()
         os.system ("cls")
         #Elimina el Contenido de txtsalida
         self.txtsalida[self.tab.index("current")].delete(1.0,END)
@@ -155,9 +185,10 @@ class interfaz():
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
         # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
+        mensaje = ''
         for m in arbol.consola:
-            print(m)
-        self.txtsalida[self.tab.index("current")].insert(INSERT,"Archivo Analizado")
+            mensaje += m + '\n'
+        self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")

@@ -6,6 +6,7 @@ import threading
 import Errores.Nodo_Error as error
 import Errores.ListaErrores as lista_err
 from Reportes.ReporteError import ReporteError
+from Reportes.ReporteGramatical import ReporteGramatical
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
@@ -30,7 +31,7 @@ class Interfaz():
         reportes_menu.add_separator()
         reportes_menu.add_command(label='Reporte de Errores HTML', compound='left', underline=0,command=self.mostrar_reporte_errores)
         reportes_menu.add_separator()
-        reportes_menu.add_command(label='Reporte Gramaticas', compound='left', underline=0)
+        reportes_menu.add_command(label='Reporte Gramaticas', compound='left', underline=0,command = self.mostrar_gramatica)
         reportes_menu.add_separator()
         reportes_menu.add_command(label='Reporte AST', compound='left', underline=0, command=self.mostrar_reporte_AST)
         reportes_menu.add_separator()
@@ -97,6 +98,9 @@ class Interfaz():
         except FileNotFoundError:
             messagebox.showinfo("Informacion", "No se seleccionó un archivo")
 
+    def mostrar_gramatica(self):
+        reporte = ReporteGramatical()
+        reporte.open_file_on_my_computer()
 
     def mostrar_reporte_errores(self):
         reporte_error = ReporteError(self.errors)

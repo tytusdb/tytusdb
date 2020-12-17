@@ -1,11 +1,5 @@
 """IMPORTS"""
-from tkinter import messagebox
-
-from graphviz import Digraph
-
 import InstruccionesDGA as inst
-
-list_error = []
 
 reservadas = {
     'smallint' : 'SMARLLINT',
@@ -136,7 +130,8 @@ reservadas = {
     'only' : 'ONLY',
     'serial' : 'SERIAL',
     'name' : 'NAME',
-    'default' : 'DEFAULT'
+    'default' : 'DEFAULT',
+    'use'   :   'USE'
 }
 
 tokens = [
@@ -248,7 +243,6 @@ def t_nuevalinea(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    list_error.append([str(t.lexer.lineno), str(t.lexer.lexpos), str("Error lexico'%s'" % t.value[0])])
     print("Error lexico'%s'" % t.value[0])
     t.lexer.skip(1)
 
@@ -263,13 +257,19 @@ def p_inicio(p):
     """
     p[1].append(p[2])
     p[0] = p[1]
+    for instrucciones in p[0]:
+        instrucciones.ejecutar()
+    inst.Textoresultado()
 
 def p_inicio2(p):
     """
     inicio  :   inst
     """
     p[0] = [p[1]]
-
+    for instrucciones in p[0]:
+        instrucciones.ejecutar()
+    inst.Textoresultado()
+    
 def p_inst(p):
     """
     inst    :   createdb
@@ -282,6 +282,7 @@ def p_inst(p):
             |   insert
             |   update
             |   delete
+            |   usedb
     """
     p[0] = p[1]
 
@@ -338,15 +339,15 @@ def p_ifnotexists1(p):
 
 def p_owner(p):
     "owner :   OWNER id"
-    p[0] = inst.owner(p[2])
+    p[0] = p[1]
 
 def p_owner1(p):
     "owner  :   "
     p[0] = ""
 
 def p_mode(p):
-    "mode   :   MODE IGUAL id"
-    p[0] = inst.mode(p[3])
+    "mode   :   MODE IGUAL tipo"
+    p[0] = p[3]
 
 def p_mode1(p):
     "mode   :   "
@@ -391,6 +392,11 @@ def p_ifexists1(p):
     "ifexists   :   "
     p[0] = ""
 
+#USE DATABASE----------------------
+def p_usedb(p):
+    "usedb  :   USE id PUNTOCOMA"
+    p[0] = inst.usedb(p[2])
+
 #MANIPULACION DE TABLAS
 # CREATE TABLE-------------------
 def p_createtb(p):
@@ -399,7 +405,7 @@ def p_createtb(p):
 
 def p_inherits(p):
     "inherits   :   INHERITS PARA id PARC PUNTOCOMA"
-    p[0] = inst.inherits(p[3])
+    p[0] = p[3]
 
 def p_inhrits1(p):
     "inherits   :   "
@@ -420,7 +426,7 @@ def p_columna(p):
 
 def p_references(p):
     "references :   REFERENCES id"
-    p[0] = inst.references(p[2])
+    p[0] = p[2]
 
 def p_references1(p):
     "references :   "
@@ -432,7 +438,7 @@ def p_key(p):
         |   PRIMARY KEY colkey
         |   FOREIGN KEY colkey
     """
-    p[0] = inst.key(p[3])
+    p[0] = p[3]
 
 def p_key1(p):
     "key    :   "
@@ -440,7 +446,7 @@ def p_key1(p):
 
 def p_colkey(p):
     "colkey :   PARA colkey2 PARC PUNTOCOMA"
-    p[0] = inst.colkey(p[2])
+    p[0] = p[2]
 
 def p_colkey1(p):
     "colkey :   "
@@ -448,7 +454,7 @@ def p_colkey1(p):
 
 def p_colkey2(p):
     "colkey2    :   colkey2 COMA id"
-    p[0] = inst.colkey2(p[1],p[3])
+    p[0] = [p[1],p[3]]
 
 def p_colkey21(p):
     "colkey2    :   id"
@@ -484,7 +490,7 @@ def p_constraint(p):
 
 def p_constraint1(p):
     "constraint :   const CHECK PARA cond PARC"
-    p[0] = inst.constraint1(p[0],p[4])
+    p[0] = [p[0],p[4]]
 
 def p_constraint11(p):
     "constraint :   "
@@ -501,7 +507,7 @@ def p_const1(p):
 #DROP TABLE----------
 def p_droptb(p):
     "droptb :   DROP TABLE id PUNTOCOMA"
-    p[0] = p[3]
+    p[0] = inst.droptb(p[3])
 
 #ALTER TABLE---------
 def p_altertb(p):
@@ -510,14 +516,14 @@ def p_altertb(p):
 
 def p_altertb2(p):
     "altertb2   :   ADD COLUMN id tipo"
-    p[0] = inst.altertb2(p[3],p[4])
+    p[0] = inst.altertb2(p[1]+" "+p[2],p[3],p[4])
 
 def p_altertb21(p):
     """
     altertb2    :   DROP COLUMN id
                 |   DROP CONSTRAINT id
     """
-    p[0] = inst.altertb21(p[3])
+    p[0] = inst.altertb21(p[1]+" "+p[2],p[3])
 
 def p_alttertb211(p):
     "altertb2   :   ADD addprop"
@@ -585,21 +591,6 @@ def p_delete(p):
     "delete :   DELETE FROM id WHERE wherecond PUNTOCOMA"
     p[0] = inst.delete(p[3],p[5])
 
-#Errores sintacticos
-def p_error(t):
-    #print("Error sintáctico en '%s'" % t.value)
-    list_error.append([str(t.lexer.lineno), str(t.lexer.lexpos), str("Error sintáctico en '%s'" % t.value)])
-
-    if not t:
-        return
-
-    while True:
-        tok = parser.token()  # Get the next token
-        if not tok or tok.type == 'PUNTOCOMA':
-            print("Se recupero con ;")
-            break
-    parser.restart()
-
 import ply.yacc as yacc
 parser = yacc.yacc()
 import time
@@ -610,26 +601,5 @@ while True:
     except EOFError:
         break
     parser.parse(s)
-
-def report_errors():
-    global list_error
-    s = Digraph('structs', filename='reporteErrrores.gv', node_attr={'shape': 'plaintext'})
-    c = 'lista [label =  <<TABLE> \n <TR><TD>Fila</TD><TD>Columna</TD><TD>Error</TD></TR> '
-    if len(list_error)>0:
-        for t in list_error:
-            c+= '<TR>\n'
-            c+= '<TD>\n'
-            c+= str(t[0])
-            c+= '\n</TD><TD>'
-            c+= str(t[1])
-            c+= '\n</TD><TD>'
-            c+= str(t[2])
-            c+= '\n</TD></TR>'
-        c += '</TABLE>>, ];'
-        s.body.append(c)
-        s.view()
-    else:
-        messagebox.showinfo(message="Lexico y sintatico correcto", title="Correcto")
-    list_error = []
-
+ 
 """FIN ANALIZADOR SINTACTICO ASCENDENTE"""
