@@ -116,6 +116,7 @@ palabras_reservadas = {
     'create'        : 'CREATE',
     'replace'       : 'REPLACE',
     'database'      : 'DATABASE',
+    'databases'      : 'DATABASES',
     'if'            : 'IF',
     'exists'        : 'EXISTS',
     'owner'         : 'OWNER',
@@ -183,7 +184,8 @@ palabras_reservadas = {
     'enum'          : 'ENUM',
     'add'           : 'ADD',
     'column'        : 'COLUMN',
-    'use'           : 'USE'
+    'use'           : 'USE',
+    'md5'           : 'MD5'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -218,8 +220,7 @@ tokens = [
     'BXor',
     'BNot',
     'DesplazaI',
-    'DesplazaD',
-    'CADENASI'
+    'DesplazaD'
 ] + list(palabras_reservadas.values())
 
 # EXPRESIONES REGULARES PARA TOKENS
@@ -287,10 +288,6 @@ def t_CADENA(t):
     t.value = t.value[1:-1] 
     return t 
 
-def t_CADENASI(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -341,11 +338,12 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('left', 'MENORIGUAL', 'MAYORIGUAL', 'IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
+    ('nonassoc', 'BETWEEN', 'NOTB'),
     ('left', 'MAS', 'MENOS'),
     ('left', 'POR', 'DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
-    ('right', 'UMENOS', 'UMAS'),
-    ('nonassoc', 'BETWEEN', 'NOTB')
+    ('right', 'UMENOS', 'UMAS')
+    
 )
 
 
@@ -376,7 +374,7 @@ def p_instruccion1(t):
     """
         INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
     """
-    t[0] = t[1]
+    t[0] = SelectCompleto(t[1],t[2])
 
 
 def p_instruccion2(t):
@@ -395,9 +393,9 @@ def p_instruccion2(t):
 
 def p_use(t):
     """
-        I_USE           :   USE DATABASE ID PCOMA
+        I_USE           :   USE ID PCOMA
     """
-    t[0] = t[1]
+    t[0] = UseDatabase(t[3])
 
 
 def p_create(t):
@@ -422,23 +420,28 @@ def p_tcreate(t):
 
 def p_ctype(t):
     """
-        I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA
+        I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA PCOMA
     """
     # Instruccion
 
 
 def p_lcad1(t):
     """
-        I_LCAD          :   I_LCAD CADENASI
+        I_LCAD          :   I_LCAD COMA LCAD
     """
     # Instruccion
 
 
 def p_lcad2(t):
     """
-        I_LCAD          :   CADENASI
+        I_LCAD          :   LCAD
     """
     # Instruccion
+
+def p_Ilcad2(t):
+    """
+        LCAD          :   CADENA
+    """
 
 
 def p_ctable(t):
@@ -451,6 +454,9 @@ def p_ctable(t):
 def p_inherits(t):
     'I_INHERITS    : INHERITS PABRE ID PCIERRA PCOMA'
 
+def p_inherits1(t):
+    'I_INHERITS    : PCOMA'
+
 def p_tAtributos(t):
     'I_LTATRIBUTOS    : I_LTATRIBUTOS COMA I_TATRIBUTOS'
 
@@ -458,61 +464,44 @@ def p_tAtributos1(t):
     'I_LTATRIBUTOS    : I_TATRIBUTOS'
 
 def p_atributosT(t):
-    'I_TATRIBUTOS     : ID I_TIPO I_LLAVES'
+    'I_TATRIBUTOS     : ID I_TIPO LI_LLAVES'
+
+def p_atributosTipo(t):
+    'I_TATRIBUTOS     : ID I_TIPO'
 
 def p_atributosT1(t):
-    'I_TATRIBUTOS     : PRIMARY KEY PABRE I_LIDS PCIERRA'
+    'I_TATRIBUTOS     : PCONSTRAINT'
 
-def p_atributosT2(t):
-    'I_TATRIBUTOS     : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
+def p_PConstraint(t):
+    'PCONSTRAINT     : CONSTRAINT ID TIPO_CONSTRAINT'
 
-def p_atributosT3(t):
-    'I_TATRIBUTOS     : CONSTRAINT ID CHECK I_CCHECK'
+def p_PConstrainTipo(t):
+    'PCONSTRAINT     :  TIPO_CONSTRAINT'
 
-def p_atributosT4(t):
-    'I_TATRIBUTOS     : CHECK I_CCHECK'
+def p_TipoConstraintUnique(t):
+    'TIPO_CONSTRAINT     :  UNIQUE PABRE I_LIDS PCIERRA' 
 
-def p_ccheck(t):
-    'I_CCHECK         : PABRE CONDICION PCIERRA'
+def p_TipoConstraintPrimaryKey(t):
+    'TIPO_CONSTRAINT     :  PRIMARY KEY PABRE I_LIDS PCIERRA' 
 
-def p_atributosT5(t):
-    'I_TATRIBUTOS     : UNIQUE I_UNIQUE'
+def p_ipoConstraintCheck(t):
+    'TIPO_CONSTRAINT        : CHECK CONDICION'
 
-def p_unique(t):
-    'I_UNIQUE         : PABRE I_LIDS PCIERRA'
+def p_ipoConstraintForeignKey(t):
+    'TIPO_CONSTRAINT        : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
 
-def p_llave(t):
-    'I_LLAVES         : PRIMARY KEY I_DEFAULT'
+    
 
-def p_default(t):
-    'I_DEFAULT        : DEFAULT I_VALOR I_NULL'
+def p_Lllave(t):
+    'LI_LLAVES         : LI_LLAVES I_LLAVES'
 
-def p_default1(t):
-    'I_DEFAULT        : I_NULL'
+def p_Lllave1(t):
+    'LI_LLAVES         : I_LLAVES'
 
-def p_null(t):
-    'I_NULL           : NOT NULL I_CUNIQUE '
 
-def p_null1(t):
-    'I_NULL           : NULL I_CUNIQUE '
 
-def p_null2(t):
-    'I_NULL           : I_CUNIQUE '
 
-def p_cunique(t):
-    'I_CUNIQUE        : CONSTRAINT ID UNIQUE I_CHECK'
 
-def p_check(t):
-    'I_CHECK          : CONSTRAINT ID CHECK PABRE CONDICION PCIERRA'
-
-def p_check1(t):
-    'I_CHECK          : CHECK PABRE CONDICION PCIERRA'
-
-def p_check2(t):
-    'I_CHECK          : '
-
-def p_llave2(t):
-    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA I_DEFAULT' 
 
 def p_cRef(t):
     'I_CREFERENCE     : I_CREFERENCE COMA ID'
@@ -520,17 +509,44 @@ def p_cRef(t):
 def p_cRef2(t):
     'I_CREFERENCE     : ID'
 
+def p_llave(t):
+    'I_LLAVES         : PRIMARY KEY'
+
+def p_llave2(t):
+    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA' 
+
 def p_llave3(t):
-    'I_LLAVES         : REFERENCES ID I_DEFAULT'
+    'I_LLAVES         : DEFAULT ID'
 
 def p_llave4(t):
-    'I_LLAVES         : I_DEFAULT'
+    'I_LLAVES         : NULL'
+
+def p_llave5(t):
+    'I_LLAVES         : NOT NULL'
+
+def p_llave6(t):
+    'I_LLAVES         : CONSTRAINT ID'
+
+def p_llave7(t):
+    'I_LLAVES         : UNIQUE PABRE I_LIDS PCIERRA'
+
+def p_llave9(t):
+    'I_LLAVES         : UNIQUE'
+
+def p_llave10(t):
+    'I_LLAVES         : CHECK PABRE I_LIDS PCIERRA'
+
+def p_llave11(t): 
+    'I_LLAVES    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
+
+
+
 
 def p_lIds(t):
-    'I_LIDS           : I_LIDS COMA ID'
+    'I_LIDS           : I_LIDS COMA CONDICION'
 
 def p_lIds1(t):
-    'I_LIDS           : ID'
+    'I_LIDS           : CONDICION'
 
 def p_tipo(t):
     'I_TIPO           : SMALLINT'
@@ -613,9 +629,6 @@ def p_fields3(t):
 def p_fields4(t):
     'I_FIELDS         : YEAR'
 
-def p_inherits1(t):
-    'I_INHERITS    : PCOMA'
-
 
 def p_Replace(t):
     'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
@@ -630,11 +643,7 @@ def p_drop(t):
 def p_alter(t):
     'I_ALTER     : ALTER I_TALTER'
 
-def p_tAlter(t):
-    'I_TALTER    : I_ALTERDB'
 
-def p_tAlter1(t):
-    'I_TALTER    : I_ALTERTB'
 
 def p_alterTB(t):
     'I_ALTERTB   : TABLE ID I_OPALTER '
@@ -655,7 +664,7 @@ def p_opAlterTB4(t):
     'I_OPALTER   : DROP CONSTRAINT ID PCOMA'
 
 def p_opAlterTB5(t):
-    'I_OPALTER   : ID I_LCOL PCOMA'
+    'I_OPALTER   : I_LCOL PCOMA'
 
 def p_lCol(t):
     'I_LCOL      : I_LCOL COMA I_PCOL'
@@ -675,8 +684,17 @@ def p_tipAlterU(t):
 def p_tipAlterFK(t): 
     'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
 
+def p_tipAlterFK1(t): 
+    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID '
+
 def p_tipAlterCo(t): 
     'I_TALTER    : CONSTRAINT ID I_TCONST '
+
+def p_tAlter(t):
+    'I_TALTER    : I_ALTERDB'
+
+def p_tAlter1(t):
+    'I_TALTER    : I_ALTERTB'
 
 def p_tipoConstraintC(t):
     'I_TCONST    : CHECK CONDICION '
@@ -726,22 +744,28 @@ def p_ifExist2(t):
 
 def p_Exist(t):
     'I_EXIST       : IF NOT EXISTS ID I_OWMOD '
-    t[0] = t[4]
+    t[0] = DatabaseInfo(True, t[4], t[5])
+
 def p_Exist1(t):
-    'I_EXIST       : ID PCOMA'
-    t[0] = t[1]
+    'I_EXIST       : ID I_OWMOD'
 
 def p_Owmod(t):
     'I_OWMOD       : OWNER IGUAL ID I_MODE'
+    t[0] = Owner_Mode(t[3], t[4])
 
 def p_Owmod1(t):
-    'I_OWMOD       : MODE IGUAL ID I_OWNER'
+    'I_OWMOD       : OWNER IGUAL CADENA I_MODE'
+
+
+def p_OwmodN2(t):
+    'I_OWMOD       : MODE IGUAL NUMERO I_OWNER'
 
 def p_Owmod2(t):
     'I_OWMOD       : PCOMA'
 
-def p_Mode(t):
-    'I_MODE        : MODE IGUAL ID PCOMA'
+def p_ModeN(t):
+    'I_MODE       : MODE IGUAL NUMERO I_OWNER'
+
 
 def p_Mode1(t):
     'I_MODE        : PCOMA'
@@ -749,11 +773,14 @@ def p_Mode1(t):
 def p_Owner(t):
     'I_OWNER       : OWNER IGUAL ID PCOMA'
 
+def p_OwnerCadena(t):
+    'I_OWNER       : OWNER IGUAL CADENA PCOMA'
+
 def p_Owner1(t):
     'I_OWNER       : PCOMA'
 
 def p_AlterDB(t):
-    'I_ALTERDB     : ALTER DATABASE ID I_OPALTERDB I_VALALTDB'
+    'I_ALTERDB     : DATABASE ID I_OPALTERDB I_VALALTDB PCOMA'
 
 def p_opAlterDB(t):
     'I_OPALTERDB   : RENAME TO'
@@ -765,7 +792,7 @@ def p_valAlterDb(t):
     'I_VALALTDB    : ID'
 
 def p_valAlterDb1(t):
-    'I_VALALTDB    : CADENASI'
+    'I_VALALTDB    : CADENA'
 
 def p_dropTB(t):
     'I_DROPTB      : TABLE ID PCOMA'
@@ -773,11 +800,17 @@ def p_dropTB(t):
 def p_insertTB(t):
     'I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA'
 
+def p_insertTB1(t):
+    'I_INSERT      : INSERT INTO ID PABRE I_LVALT PCIERRA VALUES PABRE I_LVALT PCIERRA PCOMA'
+
 def p_lValt(t):
     'I_LVALT       : I_LVALT COMA I_VALTAB'
 
+def p_lValt1(t):
+    'I_LVALT       : I_VALTAB'
+
 def p_update(t):
-    'I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE '
+    'I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE PCOMA'
 
 def p_lUpdate(t):
     'I_LUPDATE     : I_LUPDATE COMA I_VALUPDATE'
@@ -786,28 +819,36 @@ def p_lUpdate1(t):
     'I_LUPDATE     : I_VALUPDATE'
 
 def p_valUpdate(t):
-    'I_VALUPDATE   : ID IGUAL I_VALOR'
+    'I_VALUPDATE   : CONDICION'
 
-def p_valor(t):
-    'I_VALOR       : CADENASI'
-
-def p_valor1(t):
-    'I_VALOR      : NUMERO'
 
 def p_show(t):
-    'I_SHOW       : SHOW DATABASE PCOMA'
+    'I_SHOW       : SHOW DATABASES PCOMA'
 
 def p_delete(t):
-    'I_DELETE     : DELETE FROM ID PWHERE'
-
-def p_lValt1(t):
-    'I_LVALT       : I_VALTAB'
+    'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
 
 def p_valTab(t):
     'I_VALTAB      : NUMERO'
 
 def p_valTab1(t):
-    'I_VALTAB      : CADENASI'
+    'I_VALTAB      : CADENA'
+
+def p_valTabId(t):
+    'I_VALTAB      : ID'
+
+def p_valTabDecimal(t):
+    'I_VALTAB      : DECIMAL'
+
+def p_valTabIdAlias(t):
+    'I_VALTAB      : IDALIAS'
+
+    
+def p_valTabMd5(t):
+    'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
+
+def p_valTabNow(t):
+    'I_VALTAB      : NOW PABRE PCIERRA'
 
 def p_ISelect(t):
     'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO   '
@@ -963,9 +1004,6 @@ def p_ListaValoresS(t):
 def p_ValorSub(t):
     'VALOR  :   PABRE SUBCONSULTA PCIERRA ALIAS'
 
-def p_ValorSub1(t):
-    'VALOR  :   PABRE SUBCONSULTA PCIERRA '
-
 def p_ValorCountAa(t):
     'VALOR  :   COUNT PABRE POR PCIERRA ALIAS'
 
@@ -984,11 +1022,6 @@ def p_ValorCountAliasId(t):
 def p_ValorCountIdP(t):
     'VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA'
 
-def p_ValorFunciones(t):
-    'VALOR  :   FUNCION PABRE ID PUNTO ID PCIERRA'
-
-def p_ValorFunciones1(t):
-    'VALOR  :   FUNCION PABRE ID  PCIERRA'
 
 def p_ValorFuncionesA(t):
     'VALOR  :   FUNCION PABRE ID PUNTO ID PCIERRA ALIAS'
@@ -1287,14 +1320,23 @@ def p_AliasC(t):
 def p_AliasCS(t):
     'ALIAS  :   IDALIAS'
 
-def p_FromIdA(t):
-    'PFROM  :   FROM ID ALIAS '
+def p_PFROM(t):
+    'PFROM  :   FROM LVALORESFROM '
 
-def p_FromId(t):
-    'PFROM  :   FROM ID '
+def p_LValoresFrom(t):
+    'LVALORESFROM   :   LVALORESFROM  COMA VALORFROM '
 
-def p_FromSub(t):
-    'PFROM  :   FROM PABRE SUBCONSULTA PCIERRA ALIAS    '
+def p_LValoresFrom1(t):
+    'LVALORESFROM   :   VALORFROM '
+
+def p_ValoresFromIdAlias(t):
+    'VALORFROM  :   ID ALIAS '
+
+def p_ValoresFromId(t):
+    'VALORFROM  :   ID '
+
+def p_ValoresFromSub(t):
+    'VALORFROM  :   PABRE SUBCONSULTA PCIERRA ALIAS    '
 
 def p_SubconsultaFrom(t):
     'SUBCONSULTA    :   SELECT VALORES PFROM COMPLEMENTO '
@@ -1398,6 +1440,9 @@ def p_CondicionId(t):
 
 def p_CondicionIdP(t):
     'CONDICION  :   ID PUNTO ID '
+
+def p_CondicionIdPor(t):
+    'CONDICION  :   ID PUNTO POR '
 
 def p_CondicionFuncionSistema(t):
     'CONDICION  :   FUNCIONES_SISTEMA '
