@@ -1,5 +1,3 @@
-
- 
 reservadas = {
     'show': 'show',
     'database': 'databases',
@@ -233,6 +231,7 @@ from Expresion.Unaria import  Unaria
 from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
 from Instrucciones.CreateDB import *
+from Expresion.FuncionesNativas import FuncionesNativas
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -315,7 +314,7 @@ def p_ELSE(t):
 
 def p_INSERT(t):
     '''INSERT : insert into id values para LEXP parc
-    '''
+            | insert into id para LEXP parc values para LEXP parc'''
 
 
 def p_DROP(t):
@@ -327,7 +326,6 @@ def p_DROP(t):
             print("eliminar tabla")
          
         else:
-            print("eliminar bd")
             t[0] = DropDb(str(t[3]))
 
     elif len(t)==5:
@@ -335,21 +333,14 @@ def p_DROP(t):
 
 
 def p_ALTER(t):
-    '''ALTER : alter databases id rename to id
-              | alter databases id owner to id
-              | altertable
-    '''
-    if len(t)==7:
-        if(t[4]=='rename'):
-            print("renombrar db")
-            t[0]=AlterDb(str(t[3]),t[6])
-         
-        else:
-            print("renombrar owner")
-            
+    '''ALTER : alter databases id RO
+              | altertable'''
 
-    elif len(t)==1:
-        print("altertable")
+
+def p_r_o(t):
+    '''RO : rename to id
+           | owner to id
+    '''
 
 
 def p_altertable(t):
@@ -390,13 +381,13 @@ def p_ADD(t):
             | check para LEXP parc
             | constraint id unique para id parc
             | foreign key para LEXP parc references id para LEXP parc
+            | constraint id foreign key para LEXP parc references id para LEXP parc
     '''
 
 
 def p_SHOWDB(t):
     ''' SHOWDB : show databases
-    '''
-    t[0]=ShowDb()
+     '''
 
 
 def p_CREATEDB(t):
@@ -429,6 +420,10 @@ def p_RD(t):
 def p_PROPIETARIO(t):
     '''PROPIETARIO : owner igual id
 		| owner id
+        | owner igual cadena
+		| owner cadena
+        | owner igual cadenaString
+		| owner cadenaString
     '''
 
 
@@ -483,13 +478,23 @@ def p_OPCOLUMN1(t):
     '''OPCOLUMN : constraint id unique'''
     t[0] = Atributo(AtributosColumna.UNICO,str(t[2]))
 
+def p_OPCOLUMN12(t):
+    '''OPCOLUMN : unique'''
+    t[0] = Atributo(AtributosColumna.UNICO)
+
 def p_OPCOLUMN2(t):
     '''OPCOLUMN : constraint id check para EXP parc'''
     t[0] = Atributo(AtributosColumna.CHECK, str(t[2]), t[5])
 
+def p_OPCOLUMN22(t):
+    '''OPCOLUMN : check para EXP parc'''
+    atrCheck = Atributo(AtributosColumna.CHECK)
+    atrCheck.exp = t[3]
+    t[0] = atrCheck
+
 def p_OPCOLUMN3(t):
     '''OPCOLUMN : default EXP'''
-    t[0] = Atributo(AtributosColumna.DEFAULT)
+    t[0] = Atributo(AtributosColumna.DEFAULT, t[2])
 
 def p_OPCOLUMN4(t):
     '''OPCOLUMN : not null'''
@@ -505,7 +510,7 @@ def p_OPCOLUMN6(t):
 
 def p_OPCOLUMN7(t):
     '''OPCOLUMN : references id'''
-    t[0] = Atributo(AtributosColumna.REFERENCES, str(id))
+    t[0] = Atributo(AtributosColumna.REFERENCES, str(t[2]))
 
 def p_OPCONST1(t):
     '''OPCONST : primary key para LEXP parc'''
@@ -607,12 +612,13 @@ def p_DELETE(t):
 
 def p_EXIST(t):
     '''EXIST : exist para SELECT parc
+            | not exist para SELECT parc
     '''
 
 
 def p_LEXP1(t):
     'LEXP : LEXP coma EXP'
-    t[1].append(t[2])
+    t[1].append(t[3])
     t[0]=t[1]
 
 def p_LEXP2(t):
@@ -772,19 +778,18 @@ def p_EXPJ(t):
     else:
         t[0]=t[1]
 
+def p_EXP_FuncNativas(t):
+    '''EXP : id para LEXP parc '''
+    t[0] = FuncionesNativas(t[1],t[3])
+
+def p_EXP_FuncNativas2(t):
+    '''EXP : id para parc '''
+    t[0] = Terminal('identificador', t[1])
 
 def p_EXP(t):
-    '''EXP : id para parc
-            | id para LEXP parc
-            | any para LEXP parc
+    '''EXP : any para LEXP parc
             | all para LEXP parc
-            | some para LEXP parc
-    '''
-    if len(t)==4:
-        t[0]=Select(None,t[2],None,None,None,None,None,None,None)
-    elif len(t)==5:
-        t[0]=Select(None,t[2],None,None,None,None,None,None,None)
-
+            | some para LEXP parc'''
 
 def p_EXPext(t):
     ' EXP : extract para FIELDS r_from timestamp cadena parc'

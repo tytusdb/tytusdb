@@ -4,7 +4,6 @@ from re import L
 import libs.ply.yacc as yacc
 import os
 
-from models.nodo import Node
 from models.instructions.shared import *
 from models.instructions.DDL.database_inst import *
 from models.instructions.DDL.table_inst import *
@@ -12,6 +11,8 @@ from models.instructions.DDL.column_inst import *
 from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
+from models.instructions.Expression.expression import *
+from models.instructions.Expression.math_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
@@ -93,14 +94,17 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
+    noColumn = 0
+    noLine = 0
+
     if len(p) == 8:
         p[0] = CreateType(p[2],p[6])
 
     elif len(p) == 3:
-        p[0] = CreateDB(p[2], False)
+        p[0] = CreateDB(p[2], False, noLine, noColumn)
 
     elif len(p) == 5:
-        p[0] = CreateDB(p[4], True)
+        p[0] = CreateDB(p[4], True, noLine, noColumn)
 
     elif len(p) == 6:
         p[0] = CreateTB(p[2], p[4], None)
@@ -419,16 +423,20 @@ def p_drop_database(p):
     '''dropdatabase : IF EXISTS ID
                     | ID
     '''
+    noColumn = 0
+    noLine = 0
     if len(p) == 4:
-        p[0] = DropDB(True, p[3])
+        p[0] = DropDB(True, p[3], noLine, noColumn)
     else:
-        p[0] = DropDB(False, p[3])
+        p[0] = DropDB(False, p[1], noLine, noColumn)
 
 
 def p_drop_table(p):
     '''droptable : ID
     '''
-    p[0] = DropTB(p[1])
+    noColumn = 0
+    noLine = 0
+    p[0] = DropTB(p[1], noLine, noColumn)
 
 
 # =====================================================================================
@@ -892,7 +900,20 @@ def p_sql_relational_expression(p):
     if (len(p) == 3):
         p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        p[0] = Relop(p[1], p[2], p[3])
+        if p[2] == '=':
+            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3])
+        elif p[2] == '!=':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3])
+        elif p[2] == '>=':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3])
+        elif p[2] == '>':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3])
+        elif p[2] == '<=':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3])
+        elif p[2] == '<':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3])
+        elif p[2] == '<>':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3])
     else:
         p[0] = p[1]
 
@@ -990,11 +1011,44 @@ def p_sql_simple_expression(p):
         if (p[1] == "("):
             p[0] = p[2]
         else:
-           p[0] = BinaryOperation(p[1],p[3],p[2])
+            if p[2] == '+':
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS)
+            elif p[2] == '-':
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS)
+            elif p[2] == '*':
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES)
+            elif p[2] == '/':
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON)
+            elif p[2] == '^':
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT)
+            elif p[2] == '%':
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR)
+            elif p[2] == '>>':
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT)
+            elif p[2] == '<<':
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT)
+            elif p[2] == '&':
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND)
+            elif p[2] == '|':
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR)
+            elif p[2] == '#':
+                 p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR)
     elif (len(p) == 3):
-        p[0] = UnaryOrSquareExpressions(p[1], p[2])
+        if p[1] == '-':
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.UMINUS, p[2])
+        elif p[1] == '+':
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.UPLUS, p[2])
+        elif p[1] == '||/':
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.CUBE_ROOT, p[2])
+        elif p[1] == '|/':
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.SQUARE_ROOT, p[2])
+        elif p[1] == '~':
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.BITWISE_NOT, p[2])
     else:
-        p[0] = p[1]
+        if  p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1])
+        else:
+            p[0] = p[1]
 
 
 def p_sql_expression_list(p):
@@ -1051,21 +1105,53 @@ def p_mathematical_functions(p):
                              | TRUNC LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                              | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS SQLALIAS
                              | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS '''
-    if (len(p) == 6):
-        p[0] = MathematicalExpressions(p[1], p[3], p[5])
-    elif (len(p) == 5):
-        if (p[1] == 'PI' or p[1] == 'RANDOM'):
-            p[0] = MathematicalExpressions(p[1], None, p[4])
-        else:
-            p[0] = MathematicalExpressions(p[1], p[3], None)
-    elif (len(p) == 8):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5]], p[7])
-    elif (len(p) == 7):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5]], None)
-    elif (len(p) == 12):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5], p[7], p[9]], p[11])
-    elif (len(p) == 11):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5], p[7], p[9]], None)
+    
+    #TODO: RANDOM Y MANEJO DE ALIAS
+    if  p.slice[1].type == "ABS":
+      p[0] =   Abs(p[3])
+    elif  p.slice[1].type == "CBRT":
+        p[0] = Cbrt(p[3])
+    elif  p.slice[1].type == "CEIL":
+        p[0] = Ceil(p[3])
+    elif  p.slice[1].type == "CEILING":
+        p[0] = Ceiling(p[3])
+    elif  p.slice[1].type == "DEGREES":
+        p[0] = Degrees(p[3])
+    elif  p.slice[1].type == "DIV":
+        p[0] = Div(p[3], p[5])
+    elif  p.slice[1].type == "EXP":
+        p[0] = Exp(p[3])
+    elif  p.slice[1].type == "FACTORIAL":
+        p[0] = Factorial(p[3])
+    elif  p.slice[1].type == "FLOOR":
+        p[0] = Floor(p[3])
+    elif  p.slice[1].type == "GCD":
+        p[0] = Gcd(p[3], p[5])
+    elif  p.slice[1].type == "LN":
+        p[0] = Ln(p[3])
+    elif  p.slice[1].type == "LOG":
+        p[0] = Log(p[3])
+    elif  p.slice[1].type == "MOD":
+        p[0] = Mod(p[3], p[5])
+    elif  p.slice[1].type == "PI":
+        p[0] = Pi()
+    elif  p.slice[1].type == "POWER":
+        p[0] = Power(p[3], p[5])
+    elif  p.slice[1].type == "RADIANS":
+        p[0] = Radians(p[3])
+    elif  p.slice[1].type == "ROUND":
+        p[0] = Round(p[3])
+    elif  p.slice[1].type == "SIGN":
+        p[0] = Sign(p[3])
+    elif  p.slice[1].type == "SQRT":
+        p[0] = Sqrt(p[3])
+    elif  p.slice[1].type == "WIDTH_BUCKET":
+        #TODO: WithBucket(p[3])
+        pass
+    elif  p.slice[1].type == "TRUNC":
+        p[0] = Trunc(p[3])
+    elif  p.slice[1].type == "RANDOM":
+        p[0] = Random()
 
 def p_binary_string_functions(p):
     '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
@@ -1077,10 +1163,16 @@ def p_binary_string_functions(p):
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
                                | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
+
+#TODO: MANEJAMOS ARRAYS CORRECTAMENTE???? ---> PROBAR
 def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
                        | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
-    p[0] = ExpressionsGreastLeast(p[1], p[3])
+    if  p.slice[1].type == "GREATEST":
+        p[0] = Greatest(p[3])
+    else:
+        p[0] = Least(p[3])
+
 
 def p_case_clause(p):
     '''CASECLAUSE : CASE CASECLAUSELIST END ID
@@ -1101,10 +1193,10 @@ def p_case_clause_list(p):
     # WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
     # WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
     if (len(p) == 8):
-        p[1].append( CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] ) )
+        p[1].append( CaseOption( Relop(p[3],p[5],p[4]), p[7] ) )
         p[0] = p[1]
     elif (len(p) == 7):
-        p[0] = [CaseOption( BinaryOperation(p[3],p[5],p[4]), p[7] )]
+        p[0] = [CaseOption( Relop(p[3],p[5],p[4]), p[7] )]
     elif (len(p) == 6):
         p[1].append( CaseOption(p[3], p[5]) )
         p[0] = p[1]
@@ -1156,11 +1248,19 @@ def p_expressions_time(p):
                        | CURRENT_TIME
                        | TIMESTAMP SQLNAME'''
     if (len(p) == 8):
-        p[0] = ExpressionsTime(p[1], p[3], p[6])
+        if p[1] == 'EXTRACT':
+            p[0] = ExpressionsTime(SymbolsTime.EXTRACT, p[3], p[6])
+        elif p[1] == 'DATE_PART':
+            p[0] = ExpressionsTime(SymbolsTime.DATE_PART, p[3], p[6])
     elif (len(p) == 3):
-        p[0] = ExpressionsTime(p[1], None, p[3])
+        p[0] = ExpressionsTime(SymbolsTime.TIMESTAMP, None, p[2])
     else:
-        p[0] = ExpressionsTime(p[1], None, None)
+        if p[1] == 'CURRENT_DATE':
+            p[0] = ExpressionsTime(SymbolsTime.CURRENT_DATE, None, None)
+        elif p[1] == 'CURRENT_TIME':
+            p[0] = ExpressionsTime(SymbolsTime.CURRENT_TIME, None, None)
+        elif p[1] == 'NOW':
+            p[0] = ExpressionsTime(SymbolsTime.NOW, None, None)
 
 def p_aggregate_functions(p):
     '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS
@@ -1236,19 +1336,20 @@ def p_date_types(p):
                  | HOUR
                  | MINUTE
                  | SECOND'''
-    p[0] = p[1]
+    p[0] = PrimitiveData(DATA_TYPE.STRING, p[1])
 
 def p_sql_integer(p):
     '''SQLINTEGER : INT_NUMBER
                   | FLOAT_NUMBER'''
-    p[0] = p[1]
+    p[0] = PrimitiveData(DATA_TYPE.NUMBER, p[1])
 
 
 def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-    p[0] = p[1]
+               
+    p[0] = PrimitiveData(DATA_TYPE.STRING, p[1])
 
 
 def p_type_select(p):
