@@ -12,6 +12,7 @@ from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
 from models.instructions.Expression.expression import *
+from models.instructions.Expression.math_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
@@ -1104,21 +1105,53 @@ def p_mathematical_functions(p):
                              | TRUNC LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                              | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS SQLALIAS
                              | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS '''
-    if (len(p) == 6):
-        p[0] = MathematicalExpressions(p[1], p[3], p[5])
-    elif (len(p) == 5):
-        if (p[1] == 'PI' or p[1] == 'RANDOM'):
-            p[0] = MathematicalExpressions(p[1], None, p[4])
-        else:
-            p[0] = MathematicalExpressions(p[1], p[3], None)
-    elif (len(p) == 8):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5]], p[7])
-    elif (len(p) == 7):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5]], None)
-    elif (len(p) == 12):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5], p[7], p[9]], p[11])
-    elif (len(p) == 11):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5], p[7], p[9]], None)
+    
+    #TODO: RANDOM Y MANEJO DE ALIAS
+    if  p.slice[1].type == "ABS":
+      p[0] =   Abs(p[3])
+    elif  p.slice[1].type == "CBRT":
+        p[0] = Cbrt(p[3])
+    elif  p.slice[1].type == "CEIL":
+        p[0] = Ceil(p[3])
+    elif  p.slice[1].type == "CEILING":
+        p[0] = Ceiling(p[3])
+    elif  p.slice[1].type == "DEGREES":
+        p[0] = Degrees(p[3])
+    elif  p.slice[1].type == "DIV":
+        p[0] = Div(p[3], p[5])
+    elif  p.slice[1].type == "EXP":
+        p[0] = Exp(p[3])
+    elif  p.slice[1].type == "FACTORIAL":
+        p[0] = Factorial(p[3])
+    elif  p.slice[1].type == "FLOOR":
+        p[0] = Floor(p[3])
+    elif  p.slice[1].type == "GCD":
+        p[0] = Gcd(p[3], p[5])
+    elif  p.slice[1].type == "LN":
+        p[0] = Ln(p[3])
+    elif  p.slice[1].type == "LOG":
+        p[0] = Log(p[3])
+    elif  p.slice[1].type == "MOD":
+        p[0] = Mod(p[3], p[5])
+    elif  p.slice[1].type == "PI":
+        p[0] = Pi()
+    elif  p.slice[1].type == "POWER":
+        p[0] = Power(p[3], p[5])
+    elif  p.slice[1].type == "RADIANS":
+        p[0] = Radians(p[3])
+    elif  p.slice[1].type == "ROUND":
+        p[0] = Round(p[3])
+    elif  p.slice[1].type == "SIGN":
+        p[0] = Sign(p[3])
+    elif  p.slice[1].type == "SQRT":
+        p[0] = Sqrt(p[3])
+    elif  p.slice[1].type == "WIDTH_BUCKET":
+        #TODO: WithBucket(p[3])
+        pass
+    elif  p.slice[1].type == "TRUNC":
+        p[0] = Trunc(p[3])
+    elif  p.slice[1].type == "RANDOM":
+        p[0] = Random()
 
 def p_binary_string_functions(p):
     '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
@@ -1130,10 +1163,16 @@ def p_binary_string_functions(p):
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
                                | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
+
+#TODO: MANEJAMOS ARRAYS CORRECTAMENTE???? ---> PROBAR
 def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
                        | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
-    p[0] = ExpressionsGreastLeast(p[1], p[3])
+    if  p.slice[1].type == "GREATEST":
+        p[0] = Greatest(p[3])
+    else:
+        p[0] = Least(p[3])
+
 
 def p_case_clause(p):
     '''CASECLAUSE : CASE CASECLAUSELIST END ID
