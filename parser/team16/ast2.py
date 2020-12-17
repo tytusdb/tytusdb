@@ -1132,5 +1132,766 @@ class Ast2:
 
 
 
+    # Instruccion SELECT
+    # ----------------------------------------------------------------------------------------------------------
+
+    def GrafoSelect(self, ListaCampos, NombresTablas, Uniones, padre):
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION_SELECT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "SELECT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeCampos(ListaCampos, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "FROM")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_TABLAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeNombres(NombresTablas, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i),"Uniones")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        #Recorrer lista de uniones
+        self.RecorrerListaUniones(Uniones, 'Node' + str(self.i))
+
+
+    def GrafoSelect2(self,ListaCampos, NombresTablas,cuerpo, Uniones, padre ):
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION_SELECT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "SELECT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeCampos(ListaCampos, 'Node' + str(self.i));
+
+        self.inc();
+        dot.node('Node' + str(self.i), "FROM")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_TABLAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeNombres(NombresTablas, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "CUERPO")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.RecorrerListaCuerpos(cuerpo, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i),"Uniones")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        #Recorrer lista de uniones
+        self.RecorrerListaUniones(Uniones, 'Node' + str(self.i))
+
+
+    def GrafoSelect3(self,Distict, ListaCampos, NombresTablas, Uniones, padre):
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION_SELECT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "SELECT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc();
+        dot.node('Node' + str(self.i), Distict)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeCampos(ListaCampos, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "FROM")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_TABLAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeNombres(NombresTablas, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i),"Uniones")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        #Recorrer lista de uniones
+        self.RecorrerListaUniones(Uniones, 'Node' + str(self.i))
+
+
+
+    def GrafoSelect4(self,Distict,ListaCampos, NombresTablas,cuerpo, Uniones, padre ):
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION_SELECT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "SELECT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc();
+        dot.node('Node' + str(self.i), Distict)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeCampos(ListaCampos, 'Node' + str(self.i));
+
+        self.inc();
+        dot.node('Node' + str(self.i), "FROM")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_TABLAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeNombres(NombresTablas, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "CUERPO")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.RecorrerListaCuerpos(cuerpo, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i),"Uniones")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        #Recorrer lista de uniones
+        self.RecorrerListaUniones(Uniones, 'Node' + str(self.i))
+
+
+
+
+
+    # Instruccion SUB  SELECT
+    # ----------------------------------------------------------------------------------------------------------
+
+
+
+#GRAFO DEL SUB SELECT
+    def GrafoSubSelect(self, ListaCampos, NombresTablas, padre):
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION_SELECT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "SELECT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeCampos(ListaCampos, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "FROM")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_TABLAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeNombres(NombresTablas, 'Node' + str(self.i))
+
+
+
+
+#Grafo Sub Select Con Cuerpo
+    def GrafoSubSelect2(self, ListaCampos, NombresTablas, cuerpo, padre):
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION_SELECT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "SELECT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeCampos(ListaCampos, 'Node' + str(self.i));
+
+        self.inc();
+        dot.node('Node' + str(self.i), "FROM")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_TABLAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeNombres(NombresTablas, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "CUERPO")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListaCuerpos(cuerpo, 'Node' + str(self.i))
+
+
+
+
+    def GrafoSubSelect3(self,Distinct,ListaCampos, NombresTablas, padre):
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION_SELECT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "SELECT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc();
+        dot.node('Node' + str(self.i), Distinct)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeCampos(ListaCampos, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "FROM")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_TABLAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeNombres(NombresTablas, 'Node' + str(self.i))
+
+
+
+        # Grafo Sub Select Con Cuerpo
+    def GrafoSubSelect4(self,Distinct,ListaCampos, NombresTablas, cuerpo, padre):
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION_SELECT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "SELECT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), Distinct)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeCampos(ListaCampos, 'Node' + str(self.i));
+
+        self.inc();
+        dot.node('Node' + str(self.i), "FROM")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "LISTA_TABLAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListadeNombres(NombresTablas, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), "CUERPO")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.RecorrerListaCuerpos(cuerpo, 'Node' + str(self.i))
+
+
+
+
+
+
+    def GrafoGroupBy(self, Lista_Campos, Condiciones, padre):
+        global dot
+       #Group by ListaCampos Having Condiciones
+        if ((Lista_Campos!=False) and  (Condiciones!=False)):
+
+            self.inc();
+            nuevoPadre = self.i
+            dot.node('Node' + str(self.i), "INSTRUCCION GROUP BY ")
+            dot.edge(padre, 'Node' + str(self.i))
+
+
+            self.inc();
+            dot.node('Node' + str(self.i), "GROUP BY")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc();
+            dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+            self.RecorrerListaCamposGroupBy(Lista_Campos,'Node' + str(self.i))
+
+            self.inc();
+            dot.node('Node' + str(self.i), "HAVING")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc();
+            dot.node('Node' + str(self.i), "CONDICIONES")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+            self.Recorrer_Condiciones(Condiciones, 'Node' + str(self.i))
+
+       #Group by ListaCampos
+        elif ((Lista_Campos != False) and (Condiciones == False)):
+
+           self.inc();
+           nuevoPadre = self.i
+           dot.node('Node' + str(self.i), "INSTRUCCION GROUP BY ")
+           dot.edge(padre, 'Node' + str(self.i))
+
+           self.inc();
+           dot.node('Node' + str(self.i), "GROUP BY")
+           dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+           self.inc();
+           dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+           dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+           self.RecorrerListaCamposGroupBy(Lista_Campos,'Node' + str(self.i))
+
+
+
+
+
+
+
+
+#Grafo de los Limit
+    def GrafoLimit(self,Reservada, Expresion_Numerica,padre):
+
+        global dot
+
+        self.inc();
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "INSTRUCCION LIMIT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), Reservada)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), Expresion_Numerica)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+
+
+
+
+    # ----------------------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------------------
+    # FIN DE INSTRUCCIONES NECESARIAS PARA LOS SELECT
+    # ----------------------------------------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+# ----------------------------------------------------------------------------------------------------------
+# ----------------------- GRAFO DROP TABLE-------------------------------------------------------------------
+    def grafoDropTable(self, id, padre):
+        global  dot,tag,i
+
+        self.inc()
+        nuevoPadre=self.i
+        dot.node('Node'+str(self.i),"DROP_TABLE")
+        dot.edge(padre,'Node'+str(self.i))
+
+        self.inc();
+        nuevoPadre2 = self.i
+        dot.node('Node'+str(self.i),"ID TABLA")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+        for i in id:
+            self.inc();
+            dot.node('Node'+  str(self.i), i.val)
+            dot.edge('Node' + str(nuevoPadre2),'Node'+str(self.i))
+
+
+
+#----------------------------------------------------------------------------------------------------------
+#-----------------------GRAFICAR INSERTAR-------------------------------------------------------------------
+    def grafoInsert_Data(self, id, valores, padre):
+        global  dot,tag,i
+
+        self.inc()
+        nuevoPadre=self.i
+        dot.node('Node'+str(self.i),"INSERT")
+        dot.edge(padre,'Node'+str(self.i))
+
+        self.inc();
+        nuevoPadre2 = self.i
+        dot.node('Node'+str(self.i),"ID TABLA")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+        for i in id:
+            self.inc();
+            dot.node('Node'+  str(self.i), i.val)
+            dot.edge('Node' + str(nuevoPadre2),'Node'+str(self.i))
+
+        self.inc();
+        nuevoPadre3 = self.i
+        dot.node('Node'+str(self.i),"VALORES TABLA")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+
+       #GRAFICANDO EXPRESION===========================
+        for i in valores:
+            self.inc();
+            dot.node('Node'+  str(self.i), "VALOR NUEVO")
+            dot.edge('Node' + str(nuevoPadre3),'Node'+str(self.i))
+            #LLAMAMOS A GRAFICAR EXPRESION
+            padrenuevo4 = self.i
+            self.graficar_expresion(i)
+            Respuesta = Inter.procesar_expresion(i,None)
+            print("RESPUESTA DE EXPRESION-----")
+            print(Respuesta)
+            self.inc()
+
+            dot.edge('Node'+str(padrenuevo4),str(padrenuevo4+1))
+
+
+#----------------------------------------------------------------------------------------------------------
+#-----------------------GRAFICAR EXPRESION-----------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------------
+
+    def graficar_expresion(self, expresiones):
+        global  dot,tag,i
+
+        if isinstance(expresiones,ExpresionAritmetica):
+            self.graficar_arit_log_rel_bb(expresiones,"Aritmetica")
+        elif isinstance(expresiones,ExpresionRelacional) :
+            self.graficar_arit_log_rel_bb(expresiones,"Relacional")
+        elif isinstance(expresiones,ExpresionLogica) :
+            self.graficar_arit_log_rel_bb(expresiones,"Logica")
+        elif isinstance(expresiones,UnitariaNegAritmetica) :
+            self.graficarUnaria(expresiones,"NegAritmetica")
+        elif isinstance(expresiones,UnitariaLogicaNOT) :
+            self.graficarUnaria(expresiones,"LogicaNOT")
+        elif isinstance(expresiones,UnitariaNotBB) :
+            self.graficarUnaria(expresiones,"NotBB")
+        elif isinstance(expresiones, ExpresionFuncion):
+            self.graficarExpresionFuncion(expresiones, "FUNCION NATIVA")
+        elif isinstance(expresiones, UnitariaAritmetica):
+            self.graficarUnitariaAritmetica(expresiones, "UnitariaAritmetica")
+        #NUEVAS UNITARIAS
+
+        #----------------------------------------
+        elif isinstance(expresiones,ExpresionValor) :
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),'ExpresionValor')
+            dot.edge(str(padreID),str(padreID+1))
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),str(expresiones.val))
+        elif isinstance(expresiones, UnariaReferencia) :
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),' ExpresionReferencia')
+            dot.edge(str(padreID),str(padreID+1))
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),expresiones.tipoVar.id)
+        elif isinstance(expresiones,Absoluto):
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),' ( Expresion )')
+            dot.edge(str(padreID),str(padreID+1))
+            self.graficar_expresion(expresiones.variable)
+        elif isinstance(expresiones, ExpresionCondicionalSubquery):
+            self.inc()
+            padreID = self.i
+            dot.node(str(padreID), self.getVar(expresiones.val))
+            # dot.edge(str(padreID), str(padreID + 1))
+            # self.graficar_expresion(expresiones.variable) CAMPO_TABLA_ID_PUNTO_ID
+        elif isinstance(expresiones, AccesoSubConsultas):
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),'Subconsulta')
+            self.GrafoAccesoSubConsultas(expresiones.AnteQuery, expresiones.Query, expresiones.Lista_Alias, str(padreID))
+        elif isinstance(expresiones,CAMPO_TABLA_ID_PUNTO_ID) :
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),'ExpresionValor ID punto ID')
+            dot.edge(str(padreID),str(padreID+1))
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),str(expresiones.tablaid)+"."+str(expresiones.campoid))
+
+    def graficar_arit_log_rel_bb(self,expresion,tipo_exp="") :
+        global  dot,tag,i
+        if expresion.exp1 and expresion.exp2:
+            self.inc()
+            padreID=self.i
+            padre=padreID
+            dot.node(str(padreID),'Expresion'+tipo_exp)
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),'exp1')
+            dot.edge(str(padre),str(padreID))
+            dot.edge(str(padreID),str(padreID+1))
+            self.graficar_expresion(expresion.exp1)
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),self.getVar(expresion.operador))
+            dot.edge(str(padre),str(padreID))
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),'exp2')
+            dot.edge(str(padre),str(padreID))
+            dot.edge(str(padreID),str(padreID+1))
+            self.graficar_expresion(expresion.exp2)
+        elif expresion.exp1 == None and expresion.exp2 == None:
+            self.inc()
+            padreID=self.i
+            padre=padreID
+            dot.node(str(padreID), self.getVar(expresion.operador))
+        elif  expresion.exp2 == None:
+            self.inc()
+            padreID=self.i
+            padre=padreID
+            dot.node(str(padreID),'Expresion'+tipo_exp)
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),'exp1')
+            dot.edge(str(padre),str(padreID))
+            dot.edge(str(padreID),str(padreID+1))
+            self.graficar_expresion(expresion.exp1)
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),self.getVar(expresion.operador))
+            dot.edge(str(padre),str(padreID))
+
+
+    def graficarUnaria(self,expresion,tipo_exp=""):
+        self.inc()
+        padreID=self.i
+        dot.node(str(padreID),'Expresion'+tipo_exp)
+        dot.edge(str(padreID),str(padreID+1))
+        if isinstance(expresion,UnitariaNegAritmetica):
+            self.graficar_expresion(expresion.exp)
+        else:
+            self.graficar_expresion(expresion.expresion)
+
+    def getVar(self, padreID):
+        if padreID==OPERACION_ARITMETICA.MAS:
+            return '+'
+        elif padreID==OPERACION_ARITMETICA.MENOS:
+            return '-'
+        elif padreID==OPERACION_ARITMETICA.MULTI:
+            return '*'
+        elif padreID==OPERACION_ARITMETICA.DIVIDIDO:
+            return '/'
+        elif padreID==OPERACION_ARITMETICA.RESIDUO:
+            return '%'
+        elif padreID==OPERACION_LOGICA.AND:
+            return 'AND'
+        elif padreID==OPERACION_LOGICA.OR:
+            return 'OR'
+        elif padreID==OPERACION_RELACIONAL.IGUALQUE:
+            return '=='
+        elif padreID==OPERACION_RELACIONAL.DISTINTO:
+            return '!='
+        elif padreID==OPERACION_RELACIONAL.MAYORIGUAL:
+            return '>='
+        elif padreID==OPERACION_RELACIONAL.MENORIGUAL:
+            return '!='
+        elif padreID==OPERACION_RELACIONAL.MAYORQUE:
+            return '>'
+        elif padreID==OPERACION_RELACIONAL.MENORQUE:
+            return '<'
+        #NUEVAS COSAS
+        elif padreID==OPERACION_LOGICA.IS_NOT_NULL:
+            return 'IS_NOT_NULL'
+        elif padreID==OPERACION_LOGICA.IS_NOT_TRUE:
+            return 'IS_NOT_TRUE'
+        elif padreID==OPERACION_LOGICA.IS_NOT_FALSE:
+            return 'IS_NOT_FALSE'
+        elif padreID==OPERACION_LOGICA.IS_NOT_UNKNOWN:
+            return 'IS_NOT_UNKNOWN'
+        elif padreID==OPERACION_LOGICA.IS_NULL:
+            return 'IS_NULL'
+        elif padreID==OPERACION_LOGICA.IS_TRUE:
+            return 'IS_TRUE'
+        elif padreID==OPERACION_LOGICA.IS_FALSE:
+            return 'IS_FALSE'
+        elif padreID==OPERACION_LOGICA.IS_UNKNOWN:
+            return 'IS_NOT_UNKNOWN'
+        elif padreID==OPERACION_LOGICA.IS_NOT_DISTINCT:
+            return 'IS_NOT_DISTINCT'
+        elif padreID==OPERACION_LOGICA.IS_DISTINCT:
+            return 'IS_DISTINCT'
+        elif padreID==OPERACION_LOGICA.EXISTS:
+            return 'EXISTS'
+        elif padreID==OPERACION_LOGICA.NOT_EXIST:
+            return 'NOT_EXISTS'
+        elif padreID==OPERACION_LOGICA.IN:
+            return 'IN'
+        elif padreID==OPERACION_LOGICA.NOT_IN:
+            return 'NOT_IN'
+        elif padreID==FUNCION_NATIVA.ABS:
+            return 'ABS'
+        elif padreID==FUNCION_NATIVA.CBRT:
+            return 'CBRT'
+        elif padreID==FUNCION_NATIVA.CEIL:
+            return 'CEIL'
+        elif padreID==FUNCION_NATIVA.CEILING:
+            return 'CEILING'
+        elif padreID==FUNCION_NATIVA.DEGREES:
+            return 'DEGREES'
+        elif padreID==FUNCION_NATIVA.EXP:
+            return 'EXP'
+        elif padreID==FUNCION_NATIVA.FACTORIAL:
+            return 'FACTORIAL'
+        elif padreID==FUNCION_NATIVA.FLOOR:
+            return 'FLOOR'
+        elif padreID==FUNCION_NATIVA.LN:
+            return 'LN'
+        elif padreID==FUNCION_NATIVA.LOG:
+            return 'LOG'
+        elif padreID==FUNCION_NATIVA.MOD:
+            return 'MOD'
+        elif padreID==FUNCION_NATIVA.RADIANS:
+            return 'RADIANS'
+        elif padreID==FUNCION_NATIVA.ROUND:
+            return 'ROUND'
+        elif padreID==FUNCION_NATIVA.SIGN:
+            return 'SIGN'
+        elif padreID==FUNCION_NATIVA.SQRT:
+            return 'SQRT'
+        elif padreID==FUNCION_NATIVA.TRUNC:
+            return 'TRUNC'
+        elif padreID==FUNCION_NATIVA.ACOS:
+            return 'ACOS'
+        elif padreID==FUNCION_NATIVA.ACOSD:
+            return 'ACOSD'
+        elif padreID==FUNCION_NATIVA.ASIN:
+            return 'ASIN'
+        elif padreID==FUNCION_NATIVA.ASIND:
+            return 'ASIND'
+        elif padreID==FUNCION_NATIVA.ATAN:
+            return 'ATAN'
+        elif padreID==FUNCION_NATIVA.ATAND:
+            return 'ATAND'
+        elif padreID==FUNCION_NATIVA.COS:
+            return 'COS'
+        elif padreID==FUNCION_NATIVA.COSD:
+            return 'COSD'
+        elif padreID==FUNCION_NATIVA.COT:
+            return 'COT'
+        elif padreID==FUNCION_NATIVA.COTD:
+            return 'COTD'
+        elif padreID==FUNCION_NATIVA.COSD:
+            return 'COSD'
+        elif padreID==FUNCION_NATIVA.SIN:
+            return 'SIN'
+        elif padreID==FUNCION_NATIVA.SIND:
+            return 'SIND'
+        elif padreID==FUNCION_NATIVA.TAN:
+            return 'TAN'
+        elif padreID==FUNCION_NATIVA.TAND:
+            return 'TAND'
+        elif padreID==FUNCION_NATIVA.SINH:
+            return 'SINH'
+        elif padreID==FUNCION_NATIVA.COSH:
+            return 'COSH'
+        elif padreID==FUNCION_NATIVA.TANH:
+            return 'TANH'
+        elif padreID==FUNCION_NATIVA.ASINH:
+            return 'ASINH'
+        elif padreID==FUNCION_NATIVA.ACOSH:
+            return 'ACOSH'
+        elif padreID==FUNCION_NATIVA.ATANH:
+            return 'ATANH'
+        elif padreID==FUNCION_NATIVA.LENGTH:
+            return 'LENGTH'
+        elif padreID==FUNCION_NATIVA.TRIM:
+            return 'TRIM'
+        elif padreID==FUNCION_NATIVA.MD5:
+            return 'MD5'
+        elif padreID==FUNCION_NATIVA.SHA256:
+            return 'SHA256'
+        elif padreID==FUNCION_NATIVA.DIV:
+            return 'DIV'
+        elif padreID==FUNCION_NATIVA.GCD:
+            return 'GCD'
+        elif padreID==FUNCION_NATIVA.MOD:
+            return 'MOD'
+        elif padreID==FUNCION_NATIVA.POWER:
+            return 'POWER'
+        elif padreID==FUNCION_NATIVA.ATAN2:
+            return 'ATAN2'
+        elif padreID==FUNCION_NATIVA.ATAN2D:
+            return 'ATAN2D'
+        elif padreID==FUNCION_NATIVA.GET_BYTE:
+            return 'GET_BYTE'
+        elif padreID==FUNCION_NATIVA.ENCODE:
+            return 'ENCODE'
+        elif padreID==FUNCION_NATIVA.DECODE:
+            return 'DECODE'
+        elif padreID==CONDICIONAL_SUBQUERY.ANY:
+            return 'ANY'
+        elif padreID==CONDICIONAL_SUBQUERY.ALL:
+            return 'ALL'
+        elif padreID==CONDICIONAL_SUBQUERY.SOME:
+            return 'SOME'
+        elif padreID==FUNCION_NATIVA.SUBSTRING:
+            return 'SUBSTRING'
+        elif padreID==FUNCION_NATIVA.SUBSTR:
+            return 'SUBSTR'
+        elif padreID==FUNCION_NATIVA.SET_BYTE:
+            return 'SET_BYTE'
+        elif padreID==FUNCION_NATIVA.WIDTH_BUCKET:
+            return 'WIDTH_BUCKET'
+        elif padreID == OPERACION_ARITMETICA.CUBICA:
+            return '||'
+        elif padreID==OPERACION_ARITMETICA.CUADRATICA:
+            return '|'
+        elif padreID==OPERACION_ARITMETICA.POTENCIA:
+            return '^'
+        else:
+            return 'op'
+
 
 
