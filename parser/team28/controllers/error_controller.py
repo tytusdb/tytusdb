@@ -25,20 +25,18 @@ class ErrorController(object):
         self._idExecutionError = 0
         self._executionErrorList = []
 
-    def add(self, noType, type, desc, line, column):
+    def add(self, noType, errorType, desc, line, column):
         numberError, description = get_type_error(noType)
         self._idError += 1
         description += desc
 
-        self._errorsList.append(Error(self._idError, type, numberError,
+        self._errorsList.append(Error(self._idError, errorType, numberError,
                                       description, line, column))
 
-        # print(numberError, description)
-
-    def addExecutionError(self, noType, type, desc, line, column):
+    def addExecutionError(self, noType, errorType, desc, line, column):
         numberError, description = get_type_error(noType)
         self._idExecutionError += 1
         description += desc
 
-        self._executionErrorList.append(Error(self._idExecutionError, type, numberError,
+        self._executionErrorList.append(Error(self._idExecutionError, errorType, numberError,
                                               description, line, column))
