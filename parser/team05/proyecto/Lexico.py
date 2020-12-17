@@ -829,71 +829,72 @@ def p_delete(t):
     'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
 
 def p_valTab(t):
-    'I_VALTAB      : NUMERO'
+    'I_VALTAB      : CONDICION'
 
-def p_valTab1(t):
-    'I_VALTAB      : CADENA'
-
-def p_valTabId(t):
-    'I_VALTAB      : ID'
-
-def p_valTabDecimal(t):
-    'I_VALTAB      : DECIMAL'
-
-def p_valTabIdAlias(t):
-    'I_VALTAB      : IDALIAS'
 
     
 def p_valTabMd5(t):
     'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
 
-def p_valTabNow(t):
-    'I_VALTAB      : NOW PABRE PCIERRA'
 
 def p_ISelect(t):
-    'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO   '
+    'I_SELECT  :   SELECT VALORES PFROM LCOMPLEMENTOS'
+    #CLASE SELECT MINIMO
+
+def p_ISelect1(t):
+    'I_SELECT  :   SELECT VALORES PFROM'
     #CLASE SELECT MINIMO
     
-def p_ISelect1(t):
-    'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO    '
+def p_ISelect2(t):
+    'I_SELECT  :   SELECT VALORES PFROM PWHERE LCOMPLEMENTOS'
     # INSTRUCCION SELECT WITH WHERE 
 
-
-def p_ISelect2(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO   '
-     # INSTRUCCION SELECT DISTINCT 
-
 def p_ISelect3(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO    '
-    # INSTRUCCION SELECT DISTINCT WITH WHERE
+    'I_SELECT  :   SELECT VALORES PFROM PWHERE'
+    # INSTRUCCION SELECT WITH WHERE 
 
 def p_ISelect4(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM LCOMPLEMENTOS'
+     # INSTRUCCION SELECT DISTINCT 
+
+def p_ISelect5(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM'
+     # INSTRUCCION SELECT DISTINCT    
+
+def p_ISelect6(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE LCOMPLEMENTOS'
+    # INSTRUCCION SELECT DISTINCT WITH WHERE
+
+def p_ISelect7(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE'
+    # INSTRUCCION SELECT DISTINCT WITH WHERE
+
+def p_ISelect8(t):
     'I_SELECT   :   SELECT VALORES '
     #INSTRUCCION SELECT SOLO VALORES 
 
+def p_ISelect9(t):
+    'I_SELECT   :   SELECT DISTINCT VALORES '
+    #INSTRUCCION SELECT SOLO VALORES 
+
+def p_LComplementoS(t):
+    'LCOMPLEMENTOS  :   LCOMPLEMENTOS COMPLEMENTO  '
+
+def p_LComplementoS1(t):
+    'LCOMPLEMENTOS  :   COMPLEMENTO  '
+
 def p_ComplementoH(t):
-    'COMPLEMENTO  :   PGROUPBY PHAVING  '
+    'COMPLEMENTO  :   PGROUPBY'
 
-def p_ComplementoHL(t):
-    'COMPLEMENTO  :   PGROUPBY PHAVING PLIMIT   '
-
-def p_ComplementoG(t):
-    'COMPLEMENTO  :   PGROUPBY  '
-
-def p_ComplementoGL(t):
-    'COMPLEMENTO  :   PGROUPBY PLIMIT   '
+def p_ComplementoHa(t):
+    'COMPLEMENTO  :   PHAVING'
 
 def p_ComplementoO(t):
     'COMPLEMENTO  :   PORDERBY  '
 
-def p_ComplementoOL(t):
-    'COMPLEMENTO  :   PORDERBY PLIMIT   '
-
 def p_ComplementoL(t):
     'COMPLEMENTO  :   PLIMIT    '
 
-def p_ComplementoE(t):
-    'COMPLEMENTO  :   EMPTY '
 
 def p_ComplementoSelectUnion(t):
     'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
@@ -939,13 +940,10 @@ def p_ComplementoOrderL1(t):
     'LCOMPLEMENTOORDERBY  :   COMPLEMENTOORDERBY    '
 
 def p_ComplementoOrderCI(t):
-    'COMPLEMENTOORDERBY  :   ID COMPLEMENTOORDERBY1    '
+    'COMPLEMENTOORDERBY  :   CONDICION COMPLEMENTOORDERBY1    '
 
 def p_ComplementoOrderCOBC(t):
     'COMPLEMENTOORDERBY1  :   COMPLEMENTOORDER   '
-
-def p_ComplementoOrderCOBP(t):
-    'COMPLEMENTOORDERBY1  :   PUNTO ID COMPLEMENTOORDER   '
 
 
 def p_ComplementoOrder(t):
@@ -983,10 +981,7 @@ def p_ComplementoGroupLS(t):
     'LCOMPLEMENTOGROUP  :   COMPLEMENTOGROUP '
 
 def p_ComplementoGroupC(t):
-    'COMPLEMENTOGROUP  :   ID '
-
-def p_ComplementoGroupC1(t):
-    'COMPLEMENTOGROUP  :   ID PUNTO ID '
+    'COMPLEMENTOGROUP  :   CONDICION '
 
 def p_Valores(t):
     'VALORES  :   POR '
@@ -1339,10 +1334,16 @@ def p_ValoresFromSub(t):
     'VALORFROM  :   PABRE SUBCONSULTA PCIERRA ALIAS    '
 
 def p_SubconsultaFrom(t):
-    'SUBCONSULTA    :   SELECT VALORES PFROM COMPLEMENTO '
+    'SUBCONSULTA    :   SELECT VALORES PFROM LCOMPLEMENTOS '
 
 def p_SubconsultaFromW(t):
-    'SUBCONSULTA    :   SELECT VALORES PFROM PWHERE COMPLEMENTO '
+    'SUBCONSULTA    :   SELECT VALORES PFROM PWHERE LCOMPLEMENTOS '
+
+def p_SubconsultaFrom1(t):
+    'SUBCONSULTA    :   SELECT VALORES PFROM'
+
+def p_SubconsultaFromW1(t):
+    'SUBCONSULTA    :   SELECT VALORES PFROM PWHERE'
 
 
 def p_Where(t):
@@ -1647,6 +1648,7 @@ def p_empty(t):
 
 def p_error(t):
     global counter_syntactic_error
+    print("Error sintáctico en '%s'" % t.value)
     err = open("reports/error_syntactic.txt", "a+")
     txt = '<tr><td>' + str(counter_syntactic_error) + '</td>'
     txt += '<td>' + str(t.value) + '</td>'
