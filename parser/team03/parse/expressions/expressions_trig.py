@@ -1,128 +1,270 @@
-import sys
 import math
-
-sys.path.insert(0, '..')
-from ast_node import ASTNode
+from parse.ast_node import ASTNode
 
 
-# From here on, classes describing various trigonometric operations
-# TODO: acosd, asind, atand, atand2, cosd, sind, tand
 class Acos(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.acos(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.acos(exp)
 
 
-class Acosh(ASTNode):
-    def __init__(self, exp, line, column):
+class Acosd(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.acosh(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.degrees(math.acos(exp))
+
+
+class Asin(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.asin(exp)
+
+
+class Asind(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.degrees(math.asin(exp))
 
 
 class Atan(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.atan(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.atan(exp)
+
+
+class Atand(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.degrees(math.atan(exp))
 
 
 class Atan2(ASTNode):
-    def __init__(self, exp1, exp2, line, column):
+    def __init__(self, exp1, exp2, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp1 = exp1
         self.exp2 = exp2
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.atan2(self.exp1, self.exp2)
+        exp1 = self.exp1.execute(table, tree)
+        exp2 = self.exp2.execute(table, tree)
+        return math.atan2(exp1, exp2)
 
 
-class Atanh(ASTNode):
-    def __init__(self, exp, line, column):
+class Atan2d(ASTNode):
+    def __init__(self, exp1, exp2, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.exp = exp
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.atanh(self.exp)
+        exp1 = self.exp1.execute(table, tree)
+        exp2 = self.exp2.execute(table, tree)
+        return math.degrees(math.atan2(exp1, exp2))
 
 
 class Cos(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.cos(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.cos(exp)
 
 
-class Cosh(ASTNode):
-    def __init__(self, exp, line, column):
+class Cosd(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.cosh(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.cos(math.radians(exp))
 
 
 class Cot(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return 1 / math.tan(self.exp)
+        exp = self.exp.execute(table, tree)
+        return 1 / math.tan(exp)
+
+
+class Cotd(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return 1 / math.tan(math.radians(exp))
 
 
 class Sin(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.sin(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.sin(exp)
 
 
-class Sinh(ASTNode):
-    def __init__(self, exp, line, column):
+class Sind(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.sinh(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.sin(math.radians(exp))
 
 
 class Tan(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.tan(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.tan(exp)
+
+
+class Tand(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.tan(math.radians(exp))
+
+
+class Sinh(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.sinh(exp)
+
+
+class Cosh(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.cosh(exp)
 
 
 class Tanh(ASTNode):
-    def __init__(self, exp, line, column):
+    def __init__(self, exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.exp = exp
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return math.tanh(self.exp)
+        exp = self.exp.execute(table, tree)
+        return math.tanh(exp)
+
+
+class Asinh(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.asinh(exp)
+
+
+class Acosh(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.acosh(exp)
+
+
+class Atanh(ASTNode):
+    def __init__(self, exp, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.exp = exp
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exp = self.exp.execute(table, tree)
+        return math.atanh(exp)
