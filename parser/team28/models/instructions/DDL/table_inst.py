@@ -1,4 +1,6 @@
 from models.instructions.shared import Instruction
+from controllers.type_checker import TypeChecker
+from controllers.error_controller import ErrorController
 
 
 class CreateTB(Instruction):
@@ -17,14 +19,26 @@ class CreateTB(Instruction):
 
 class DropTB(Instruction):
 
-    def __init__(self, table_name):
+    def __init__(self, table_name, noLine, noColumn):
         self._table_name = table_name
+        self._noLine = noLine
+        self._noColumn = noColumn
 
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
-        pass
+    def process(self, instrucction):
+        typeChecker = TypeChecker()
+        database = None  # TODO Obtener desde la tabla de simbolos
+
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().addExecutionError(4, 'Execution', desc,
+                                                self._noLine, self._noColumn)
+            return
+
+        typeChecker.deleteTable(database, self._table_name,
+                                self._noLine, self._noColumn)
 
 
 class AlterTable(Instruction):

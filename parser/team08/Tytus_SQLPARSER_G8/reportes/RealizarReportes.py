@@ -2,7 +2,7 @@ import webbrowser
 class RealizarReportes:
 
     def generar_reporte_lexicos(lista):
-        print(len(lista))
+        #print(len(lista))
         nombre = "Reporte_Errores.html"
         texto = ""
         texto += "<!DOCTYPE html>"
@@ -30,8 +30,9 @@ class RealizarReportes:
         texto += "<table>"
         texto += "<tr>"
         texto += "<th>NO.</th>"
-        texto += "<th>LEXEMA</th>"
+        texto += "<th>ERROR CODE</th>"
         texto += "<th>TIPO</th>"
+        texto += "<th>DESCRIPCIÓN</th>"
         texto += "<th>FILA</th>"
         texto += "<th>COLUMNA</th>"
         texto += "</tr>"
@@ -40,10 +41,11 @@ class RealizarReportes:
         i = 1
         for token in lista:
             texto += "<td>" + str(i) + "</td>"
-            texto += "<td>" + str(token.LEXEMA) + "</td>"
-            texto += "<td>" + str(token.TIPO) + "</td>"
-            texto += "<td>" + str(token.FIL) + "</td>"
-            texto += "<td>" + str(token.COL) + "</td>"
+            texto += "<td>" + str(token.cod_error) + "</td>"
+            texto += "<td>" + str(token.tipo) + "</td>"
+            texto += "<td>" + str(token.descripcion) + "</td>"
+            texto += "<td>" + str(token.linea) + "</td>"
+            texto += "<td>" + str(token.columna) + "</td>"
             texto += "</tr>"
             i=i+1
 

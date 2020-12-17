@@ -1,8 +1,15 @@
 from abc import abstractmethod
 from enum import Enum
+import pandas as pd
 
 from analizer.functions import MathFunctions as mf
 from analizer.functions import TrigonometricFunctions as trf
+
+# import abstract.select_data as data
+
+# Prueba para dataframe:
+# df = data.dataSelect()
+# df.crossJoin()
 
 
 class TYPE(Enum):
@@ -50,21 +57,28 @@ class Primitive(Expression):
 
 class Identifiers(Expression):
     """
-    Esta clase XD
+    Esta clase representa los nombre de columnas
     """
-
-    def __init__(self, table, value, row, column):
+    value = None
+    # TODO: implementar la funcion para obtener el type de la columna
+    def __init__(self, table, name, df, row, column):
         Expression.__init__(self, row, column)
         self.table = table
-        self.value = value
-        # self.temp = tabla + "." + value
-        self.temp = str(value)
+        self.name = name
+        self.df = df
+        if table == None : self.temp = name
+        else : self.temp = table + "." + name
+        self.type = TYPE.NUMBER
 
-    def execute(self, environment):
+    def execute(self, environment): 
         """
         TODO:Se debe hacer la logica para buscar los identificadores en la tabla
         """
-        return Primitive(TYPE.NUMBER, 0, self.row, self.column)
+        col = ""
+        if self.table == None : col= self.name
+        else : col = self.table + "." + self.name
+        self.value = self.df[col]
+        return self
 
 
 class UnaryArithmeticOperation(Expression):
@@ -303,12 +317,22 @@ class BinaryLogicalOperation(Expression):
         if exp1.type != TYPE.BOOLEAN or exp2.type != TYPE.BOOLEAN:
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
 
-        if operator == "AND":
-            value = exp1.value and exp2.value
-        elif operator == "OR":
-            value = exp1.value or exp2.value
+        if isinstance(exp1.value, pd.core.series.Series) or isinstance(
+            exp2.value, pd.core.series.Series
+        ):
+            if operator == "AND":
+                value = exp1.value & exp2.value
+            elif operator == "OR":
+                value = exp1.value | exp2.value
+            else:
+                return ErrorOperatorExpression(operator, self.row, self.column)
         else:
-            return ErrorOperatorExpression(operator, self.row, self.column)
+            if operator == "AND":
+                value = exp1.value and exp2.value
+            elif operator == "OR":
+                value = exp1.value or exp2.value
+            else:
+                return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
 
 
@@ -326,14 +350,44 @@ class UnaryLogicalOperation(Expression):
     def execute(self, environment):
         exp = self.exp.execute(environment)
         operator = self.operator
-
+        #MOMO IF OPERADORES
         if exp.type != TYPE.BOOLEAN:
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
-        if operator == "NOT":
-            value = not exp.value
-        else:
-            return ErrorOperatorExpression(operator, self.row, self.column)
+        if isinstance(exp.value,pd.core.series.Series):
+            if operator == "NOT":
+                value = ~exp.value
+            elif operator == "ISTRUE":
+                value = exp.value == True
+            elif operator == "ISFALSE":
+                value = exp.value == False
+            elif operator == "ISUNKNOWN":
+                value = exp.value == None
+            elif operator == "ISNOTTRUE":
+                value = exp.value != True
+            elif operator == "ISNOTFALSE":
+                value = exp.value != False
+            elif operator == "ISNOTUNKNOWN":
+                value = exp.value != None
+            else:
+                return ErrorOperatorExpression(operator, self.row, self.column)
+        else :
+            if operator == "NOT":
+                value = not exp.value
+            elif operator == "ISTRUE":
+                value = exp.value == True
+            elif operator == "ISFALSE":
+                value = exp.value == False
+            elif operator == "ISUNKNOWN":
+                value = exp.value == None
+            elif operator == "ISNOTTRUE":
+                value = exp.value != True
+            elif operator == "ISNOTFALSE":
+                value = exp.value != False
+            elif operator == "ISNOTUNKNOWN":
+                value = exp.value != None
+            else:
+                return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
 
 
@@ -423,10 +477,14 @@ class FunctionCall(Expression):
             self.temp += t.temp
         self.temp += ")"
 
-    # TODO: Quitar los corchetes iniciales de valores
     def execute(self, environment):
         try:
-            valores = [[p.execute(environment).value for p in self.params]]
+            valores = []
+            for p in self.params:
+                val = p.execute(environment).value
+                if isinstance(val, pd.core.series.Series):
+                    val = val.tolist()
+                valores.append(val)
 
             if self.function == "abs":
                 value = mf.absolute(*valores)
@@ -525,8 +583,11 @@ class FunctionCall(Expression):
             if isinstance(value, list):
                 if len(value) <= 1:
                     value = value[0]
+                else:
+                    value = pd.Series(value)
+
             return Primitive(TYPE.NUMBER, value, self.row, self.column)
         except TypeError:
-            print("Error de tipos")
+            print("Error de tipos en llamada a funciones")
         except:
             print("Error desconocido")

@@ -10,6 +10,9 @@ class Select(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
         
 class TypeQuerySelect(Instruction):
     '''
@@ -25,6 +28,9 @@ class TypeQuerySelect(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class SelectQ(Instruction):
     '''va a recibir la lista de parametros a seleccion y de que traba se esta seleccionando'''
@@ -36,6 +42,9 @@ class SelectQ(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
     
 
 class SelectList(Instruction):
@@ -50,6 +59,9 @@ class SelectList(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class OrderClause(Instruction):
     '''
@@ -63,6 +75,9 @@ class OrderClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class LimitClause(Instruction):
     '''
@@ -76,6 +91,9 @@ class LimitClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class JoinClause(Instruction):
     '''
@@ -90,6 +108,9 @@ class JoinClause(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
+    
 class ExistsClause(Instruction):
     '''
     ExistsClause recibe de parametro
@@ -100,6 +121,9 @@ class ExistsClause(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class NotOption(Instruction):
     '''
@@ -111,6 +135,9 @@ class NotOption(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class InClause(Instruction):
     '''
@@ -121,19 +148,9 @@ class InClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
-
-class Relop(Instruction):
-    '''
-    Relop contiene los operadores logicos
-    == != >= ...
-    '''
-    def __init__(self, value1, operador_logico, value2):
-        self.value1 = value1
-        self.operador_logico = operador_logico
-        self.value2 = value2
-
-    def __repr__(self):
-        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class LikeClause(Instruction):
     '''
@@ -144,6 +161,9 @@ class LikeClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class isClause(Instruction):
     '''
@@ -154,6 +174,9 @@ class isClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class AgreggateFunctions(Instruction):
     '''
@@ -165,6 +188,9 @@ class AgreggateFunctions(Instruction):
         self.opt_alias = opt_alias
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Case(Instruction):
     '''
@@ -176,6 +202,9 @@ class Case(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class CaseOption(Instruction):
     '''
@@ -186,4 +215,7 @@ class CaseOption(Instruction):
         self.then_exp = then_exp
 
     def __repr__(self):
-        return str(vars(self))    
+        return str(vars(self)) 
+
+    def process(self, instrucction):
+        pass  

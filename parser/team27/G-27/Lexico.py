@@ -103,8 +103,6 @@ def t_COMMENT_MULT(t):
     r'/\*(.|\n)?\*/'
     t.lexer.lineno += t.value.count('\n')
 
-
-
 def t_NUM_DECIMAL(t):
     r'\d+\.\d+'
     t.value = float(t.value)
@@ -364,7 +362,9 @@ def p_val_value(t):
                 |   NUM_DECIMAL
                 |   FECHA_HORA
                 |   TRUE
-                |   FALSE '''
+                |   FALSE 
+                |   NULL
+                |   F_HORA'''
 
 def p_ins_select(t):
     '''ins_select : ins_select UNION option_all ins_select
@@ -543,10 +543,11 @@ def p_exp(t):
             | predicates
             | aggregates
             | functions
-            | arg_pattern
             | arg_case
             | arg_greatest
-            | arg_least '''
+            | arg_least 
+            | val_value
+            | ID'''
 # values -> list_vls
 
 

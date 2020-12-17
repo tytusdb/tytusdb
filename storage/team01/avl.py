@@ -114,6 +114,20 @@ class NodoAVL:
                 for elem in self.Der:
                     yield elem
 
+    #Extrae los datos de un arbol en recorrido inorden
+    def extraer(self, arbol, lista):
+        if arbol:
+            self.extraer(arbol.Izq, lista)
+            lista.append(arbol.valor)
+            self.extraer(arbol.Der, lista)
+    
+    #Agrega una Columna en cada registro con un valor default
+    def agregaColumna(self, arbol, default):
+        if arbol:
+            self.agregaColumna(arbol.Izq, default)
+            arbol.valor.append(default)
+            self.agregaColumna(arbol.Der, default)
+
 #Clase Arbol AVL
 class AVL:
     #Constructor de Arbol Binario de Busqueda
