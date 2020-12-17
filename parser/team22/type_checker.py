@@ -85,7 +85,7 @@ class TypeChecker():
             self.tabla_errores.agregar(Error('Semántico', error, line))
         else:
             error = Codigos().database_undefined_object(database)
-            self.consola.append()
+            self.consola.append(error)
             self.tabla_errores.agregar(Error('Semántico', error, line))
 
     def useDatabase(self, database: str, line: int):
@@ -102,12 +102,15 @@ class TypeChecker():
         # 1 -> error en la operación
         # 2 -> base de datos inexistente
         # 3 -> tabla existente
-        if database not in self.type_checker:
+
+
+
+        '''if database not in self.type_checker:
             return 2
         elif table in self.type_checker[database]:
             return 3
         elif table not in self.type_checker[database]:
             return 0
         else:
-            return 1
+            return 1'''
         
