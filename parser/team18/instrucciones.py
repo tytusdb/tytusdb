@@ -161,11 +161,19 @@ class SELECT(Instruccion):
     '''
         Esta clase representa a una select
     '''
-    def __init__(self, cantidad, parametros, alias, cuerpo):
+    def __init__(self, cantidad, parametros, cuerpo, funcion_alias):
         self.cantida=cantidad
         self.parametros=parametros
-        self.alias=alias
         self.cuerpo=cuerpo
+        self.funcion_alias=funcion_alias
+
+class Funcion_Alias(Instruccion):
+    '''
+        Esta clase representa un funcion junto a su alias
+    '''
+    def __init__(self, nombre, alias):
+        self.nombre=nombre
+        self.alias=alias
 
 class CUERPO_SELECT(Instruccion):
     '''

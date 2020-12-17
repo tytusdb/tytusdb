@@ -25,7 +25,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'in':'IN','any':'ANY', 'all':'ALL','some':'SOME','union':'UNION','intersect':'INTERSECT','except':'EXCEPT'  ,'case':'CASE','when':'WHEN','else':'ELSE','end':'END',
                'then':'THEN' , 'limit':'LIMIT', 'similar':'SIMILAR', 'like':'LIKE', 'ilike':'ILIKE', 'between':'BETWEEN' ,'offset':'OFFSET',
                'greatest':'GREATEST' , 'least':'LEAST','md5':'MD5','extract':'EXTRACT','now':'NOW' ,'date_part':'DATE_PART' ,
-               'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME' , 'use':'USE'
+               'current_date':'CURRENT_DATE' ,'current_time':'CURRENT_TIME', 'use':'USE', 'count':'COUNT', 'sum':'SUM', 'avg':'AVG', 'max':'MAX', 'min':'MIN'
              } 
  
 
@@ -376,12 +376,20 @@ def p_extract(t):
           t[0] = Operacion_TIMESTAMP(t[2])
 
 def p_extract_multi(t):
-     '''extract : EXTRACT PAR_A extract1 FROM timestamp valoresdefault PAR_C
-                | DATE_PART PAR_A valoresdefault COMA interval valoresdefault  PAR_C'''
+     '''extract : EXTRACT PAR_A extract1 FROM timeop valoresdefault PAR_C
+                | DATE_PART PAR_A valoresdefault intervalop valoresdefault  PAR_C'''
      if t[1].lower() == "extract":
           t[0] = Operando_EXTRACT(t[3],t[6])
      else:
           t[0] = Operacion_DATE_PART(t[3],t[6])
+
+def p_timestampop(t):
+     '''timeop : timestamp
+               | empty'''
+     
+def p_interval_op(t):
+     '''intervalop : COMA interval
+                   | empty'''
 
 def p_extract_current_date(t):
      '''extract : CURRENT_DATE'''
@@ -412,16 +420,28 @@ def p_offset_opcional(t):
 
 def p_seleccionar1(t):
      '''seleccionar1 : SELECT cantidad_select parametros_select cuerpo_select 
-                     | SELECT funcion_math alias_name
-                     | SELECT funcion_date
-                     | SELECT funcionGREALEAST
-                     | SELECT extract'''
-     if len(t) == 3:
-          t[0] = SELECT(None,t[2],None,None)
-     elif len(t) == 4:
-          t[0] = SELECT(None,t[2],t[3],None)
+                     | SELECT funciones_alias'''
+     if len(t) == 5:
+          t[0] = SELECT(t[2],t[3],t[4],None)
      else:
-          t[0] = SELECT(t[2],t[3],None,t[5])
+          t[0] = SELECT(None,None,None,t[2])
+
+
+def p_funciones_alias(t):
+     '''funciones_alias : funciones_alias COMA funcion_alias
+                        | funcion_alias'''
+     if len(t) == 4:
+          t[1].append(t[3])
+          t[0] = t[1]
+     else:
+          t[0] = [t[1]]
+
+def p_funcion_alias(t):
+     '''funcion_alias : funcion_math alias_name
+                      | funcion_date alias_name
+                      | funcionGREALEAST alias_name'''
+     t[0] = Funcion_Alias(t[1],t[2])
+
                     
 def p_funcionGREALEAST(t):
      '''funcionGREALEAST : GREATEST PAR_A lista_exp PAR_C
@@ -429,12 +449,12 @@ def p_funcionGREALEAST(t):
      t[0] = Operacion_Great_Least(t[1].loweer(),t[3])
 
 def p_cantidad_select(t):
-     '''cantidad_select : DISTINCT
-                        | empty'''
-     if t[1].lower() == "distinct":
-          t[0] = t[1]
-     else:
-          t[0] = False                    
+     '''cantidad_select : DISTINCT'''
+     t[0] = t[1]
+                
+def p_cantidad_select_empty(t):
+     '''cantidad_select : empty'''
+     t[0] = False               
 
 def p_parametros_select(t):
      '''parametros_select : ASTERISCO 
@@ -454,11 +474,12 @@ def p_value_select(t):
      '''value_select : columna_name alias_name
                      | ID PUNTO ASTERISCO alias_name
                      | funcion_math alias_name
+                     | funcion_date alias_name
                      | PAR_A seleccionar PAR_C alias_name'''
      if len(t) == 2:
           t[0] = Valor_Select(t[1],'normal',t[2],None)
      elif len(t) == 3:
-          t[0] = Valor_Select(None,'math',t[2],t[1])
+          t[0] = Valor_Select(None,'funcion',t[2],t[1])
      else:
           if t[1] == "(":
                t[0] = Valor_Select(None,'subquery',t[4],t[2])
@@ -487,7 +508,7 @@ def p_case(t) :
 
 def p_case_par(t):
      '''case : PAR_A case PAR_C'''
-     t[0] = t[1]
+     t[0] = t[2]
      
 
 def p_loop_condition(t):
@@ -528,12 +549,8 @@ def p_resultV_id(t):
 
 
 def p_columna_name(t):
-     '''columna_name : ID
-                    | ID PUNTO ID'''
-     if len(t) == 2:
-          t[0] = Operando_ID(t[1])
-     else:
-          t[0] = Operando_ID_Columna(Operando_ID(t[1]),Operando_ID(t[3]))
+     '''columna_name : valoresdefault'''
+     t[0] = t[1]
 
 def p_list_colum(t):
      '''list_colum : list_colum COMA columna_name
@@ -674,9 +691,10 @@ def p_lista_order(t):
 
 def p_lista_order_case(t):
      '''lista_order : case'''
+     t[0] = t[1]
 
 def p_value_order(t): #ACA NO SOLO ES ID
-     '''value_order : ID value_direction value_rang'''
+     '''value_order : valoresdefault value_direction value_rang'''
      t[0] = Orden_Atributo(Operando_ID(t[1]),t[2],t[3])
 
 def p_value_direction(t):
@@ -787,6 +805,11 @@ def p_funcion_math(t):
                      | substr PAR_A lista_exp PAR_C
                      | CONVERT PAR_A exp AS tipo PAR_C 
                      | width_bucket PAR_A lista_exp PAR_C
+                     | COUNT PAR_A val_count PAR_C
+                     | SUM PAR_A exp PAR_C
+                     | AVG PAR_A exp PAR_C
+                     | MAX PAR_A exp PAR_C
+                     | MIN PAR_A exp PAR_C
                      | empty'''
 
 
@@ -803,10 +826,20 @@ def p_valores_trim(t):
      '''valorestrim : leading
                     | trailing
                     | both'''
+     t[0] = t[1]
 
 def p_byteaop(t):
      '''byteaop : DOSPUNTOS bytea
                 | empty'''
+     if len(t) == 3:
+          t[0] = t[2]
+     else:
+          t[0] = False
+
+def p_valcount(t):
+     '''val_count : ASTERISCO
+                  | exp'''
+     t[0] = t[1]
 
 def p_listaexp(t):
      '''lista_exp : lista_exp COMA exp  
@@ -945,13 +978,6 @@ def p_expresion(t):
           | extract''' # quite IN y NOT IN ya que esta duplicado en exp_patron
      t[0] = t[1]
 
-def p_expresion_id(t):
-     '''E : ID'''
-     t[0] = Operando_ID(t[1])
-
-def p_expresion_id_column(t):
-     '''E : ID PUNTO ID'''
-     t[0] = Operando_ID_Columna(Operando_ID(t[1]),Operando_ID(t[3]))
 
 def p_expresion_par(t):
      '''E : PAR_A exp PAR_C'''
@@ -995,8 +1021,8 @@ def p_propietario(t):
           t[0]=False
 
 def p_valorownero(t):
-     '''valorowner : ID
-                   | IGUAL ID'''
+     '''valorowner : valoresdefault
+                   | IGUAL valoresdefault'''
      if(len(t)==3):
           t[0] = t[2]
      else:
@@ -1070,6 +1096,10 @@ def p_tipo(t):
      else:
           t[0]=str(t[1])+' '+str(t[2])
 
+def p_tipo_id(t):
+     '''tipo : ID'''
+     t[0] = Operando_ID(t[1])
+
 def p_valortipo(t):
      '''valortipo : PAR_A lista_exp PAR_C
                   | empty'''
@@ -1123,8 +1153,7 @@ def p_atributo(t):
                t[0]=atributoColumna(None,None,False,None,None,t[3])
      else:
           #atributoColumna(default,constraint,null,unique,primary,check);
-          #t[0]=atributoColumna(None,None,None,None,None,None)
-          t[0]=False;
+          t[0]=False
 
 def p_valores_default_cad(t):
      '''valoresdefault : CADENA1
@@ -1148,6 +1177,14 @@ def p_valores_default(t):
                        | MINUTE
                        | HOURS'''
      t[0]=t[1]
+
+def p_expresion_id(t):
+     '''valoresdefault : ID'''
+     t[0] = Operando_ID(t[1])
+
+def p_expresion_id_column(t):
+     '''valoresdefault : ID PUNTO ID'''
+     t[0] = Operando_ID_Columna(Operando_ID(t[1]),Operando_ID(t[3]))
 
 def p_lnombres(t):
      '''lnombres : lnombres COMA ID

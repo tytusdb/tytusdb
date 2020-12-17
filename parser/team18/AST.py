@@ -210,6 +210,7 @@ def crear_Tabla(instr,ts):
             colAux.nombre=resolver_operacion(colum.id,ts)#guardar nombre col
             if isinstance(colum.tipo,Operando_ID):
                 #revisar la lista de Types
+                ' '
             else:
                 colAux.tipo=colum.tipo #guardar tipo col
 
