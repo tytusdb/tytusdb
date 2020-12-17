@@ -1893,5 +1893,771 @@ class Ast2:
         else:
             return 'op'
 
+#----------------------------------------------------------------------------------------------------------
+#-----------------------GRAFICAR CREATE TABLE-------------------------------------------------------------------
+    def grafoCreateTable(self, id, cuerpo, inher, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "CREATE TABLE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Id: '+id)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        for k in cuerpo:
+            if isinstance(k, CampoTabla):
+                self.grafoCampoTabla(k, nuevoPadre)
+            elif isinstance(k, constraintTabla):
+                #print("* Graficar CONTRAINTS")
+                self.grafoConstraintTabla(k, nuevoPadre)
+
+
+        # Graficar INHERITS DE CREATE TABLE
+        if inher is not None:
+           # print("Si tiene un inher")
+            self.grafoInhertis(inher.id, nuevoPadre)
+        else:
+            print("No tiene inherits")
+
+    def grafoConstraintTabla(self, contraint:constraintTabla, padre):
+        global dot, i
+
+        '''CONSTRAINTS OPTIONS: '''
+
+        self.inc();
+        nuevop = self.i
+        dot.node('Node' + str(self.i), "CONSTRAINT:")
+        dot.edge('Node' + str(padre), 'Node' + str(self.i))
+
+        if contraint.valor != None:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Valor: '+str(contraint.valor))
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+
+        if contraint.id != None:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Id: ' + str(contraint.id))
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+
+        if contraint.condiciones != None:
+            for i in contraint.condiciones:
+                #print(i)
+                self.inc();
+                dot.node('Node' + str(self.i), "VALOR NUEVO")
+                dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+                # LLAMAMOS A GRAFICAR EXPRESION
+                padrenuevo4 = self.i
+                self.graficar_expresion(i)
+                self.inc()
+                dot.edge('Node' + str(padrenuevo4), str(padrenuevo4 + 1))
+
+        if contraint.listas_id != None:
+            self.inc()
+            miP = self.i
+            dot.node('Node' + str(self.i), 'COLUMNA')
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+            self.grafoListaIDs(contraint.listas_id, miP)
+
+        if contraint.idRef != None:
+            self.inc()
+            dot.node('Node' + str(self.i), 'ID TABLA REF: ' + str(contraint.idRef))
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+
+        if contraint.referencia != None:
+            self.inc()
+            miP = self.i
+            dot.node('Node' + str(self.i), 'COLUMNA REFERENCIA')
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+            self.grafoListaIDs(contraint.referencia, miP)
+
+    def grafoListaIDs(self, lista : ExpresionValor, padre):
+        for v in lista:
+            self.inc();
+            dot.node('Node'+ str(self.i), str(v.val))
+            dot.edge('Node' + str(padre), 'Node'+str(self.i))
+
+    def grafoCampoTabla(self, campo, padre):
+        global dot, i
+
+        self.inc();
+        nuevop = self.i
+        dot.node('Node' + str(self.i), "CAMPO")
+        dot.edge('Node' + str(padre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Id: '+str(campo.id))
+        dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+
+        if isinstance(campo.tipo, valorTipo):
+            self.inc()
+            nuevoPadre3 = self.i
+            dot.node('Node' + str(self.i), 'Tipo: ' + str(campo.tipo.valor))
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+
+            self.inc();
+            nuevoPadre4 = self.i
+            dot.node('Node' + str(self.i), 'EXPRESION')
+            dot.edge('Node' + str(nuevoPadre3), 'Node' + str(self.i))
+            self.graficar_expresion(campo.tipo.expresion)
+            dot.edge('Node' + str(nuevoPadre4), str(nuevoPadre4 + 1))
+        else:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Tipo: '+str(campo.tipo))
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+
+        for k in campo.validaciones:
+            if isinstance(k, CampoValidacion):
+                if k.id != None and k.valor != None:
+                    self.grafoCampoValidaciones(k, nuevop)
+                elif k.id != None and k.valor == None:
+                    self.grafoCampoValidaciones(k, nuevop)
+
+    def grafoCampoValidaciones(self, validacion, padre):
+        global dot, i
+
+        self.inc();
+        nuevop = self.i
+        dot.node('Node' + str(self.i), "VALIDACION")
+        dot.edge('Node' + str(padre), 'Node' + str(self.i))
+
+        if (validacion.valor == None):
+            self.inc()
+            dot.node('Node' + str(self.i), str(validacion.id))
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+        else:
+            self.inc()
+            dot.node('Node' + str(self.i), str(validacion.id)+' '+str(validacion.valor))
+            dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+
+    def grafoInhertis(self, id, padre):
+        global dot, i
+
+        self.inc();
+        nuevop = self.i
+        dot.node('Node' + str(self.i), "INHERITS")
+        dot.edge('Node' + str(padre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Id: '+id)
+        dot.edge('Node' + str(nuevop), 'Node' + str(self.i))
+
+    def grafoCreateDataBase(self, replace, exists, idBase, idOwner, Modo, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "CREATE DATABASE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Id: '+ idBase)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        if replace == 1:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Or Replace')
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        if exists == 1:
+            self.inc()
+            dot.node('Node' + str(self.i), 'If Not Exists')
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        if idOwner != 0:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Owner: ' + str(idOwner))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        if Modo != 0:
+            self.inc()
+            dot.node('Node' + str(self.i), 'Mode: ' + str(Modo))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        #crearBASEDEDATOS(OBJETO)
+
+    def grafoShowDatabases(self, cadenaLike, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "SHOW DATABASE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        if cadenaLike != 0:
+            self.inc()
+            dot.node('Node' + str(self.i), 'LIKE: ' + str(cadenaLike))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoAlterDataBase(self, idBD, opcion, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "ALTER DATABASE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Id: '+ str(idBD))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        if opcion != 0:
+            self.inc()
+            dot.node('Node' + str(self.i), str(opcion))
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoDropDataBase(self, idDB, existe, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DROP DATABASE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Id: '+ str(idDB))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        if existe != 0:
+            self.inc()
+            dot.node('Node' + str(self.i), " IF EXISTS")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoSelectExtract(self, tipoTiempo, cadenaSimple, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "SELECT EXTRACT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'FROM TIMESTAMP')
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Tipo: '+ str(tipoTiempo))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Valor: ' + str(cadenaSimple))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoSelectDatePart(self, cadena, intervalo, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "SELECT DATE_PART")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Valor: ' + str(cadena))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'INTERVAL: '+ str(intervalo))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoSelectTipoCurrent(self, tipoCurrent, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "SELECT CURRENT")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Tipo: ' + str(tipoCurrent))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoSelectStamp(self, cadena, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "SELECT TIMESTAMP")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Valor: ' + str(cadena))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoSelectnow(self, constru, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "SELECT NOW")
+        dot.edge(padre, 'Node' + str(self.i))
+
+    def grafoCreacionEnum(self, lista, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "CREATE TYPE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        miP = self.i
+        dot.node('Node' + str(self.i), 'ENUM')
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+        self.grafoListaCadenas(lista, miP)
+
+    def grafoListaCadenas(self, lista, padre):
+        for v in lista:
+            self.inc();
+            dot.node('Node'+ str(self.i), str(v))
+            dot.edge('Node' + str(padre), 'Node'+str(self.i))
+
+
+# ----------------------------------------------------------------------------------------------------------
+
+# def GrafoAccesoTabla(self,NombreT,Columna,padre):
+
+#    self.contador+1
+#    rootActual = self.contador
+#    self.c +='Node'+str(self.contador)+ '[label="Campo"]\n'
+#     self.c +='Node'+ padre + '->'+'Node'+str(self.contador)+';\n'
+#  self.contador+1
+# self.c +='Node'+str(self.contador)+'[label="'+NombreT+]
+
+
+
+#----------------------------------------------------------------------------------------------------------
+#-----------------------GRAFICAR DELETE-------------------------------------------------------------------
+    def grafoDelete_Data(self, id, valores, padre):
+        global  dot,tag,i
+
+        self.inc()
+        nuevoPadre=self.i
+        dot.node('Node'+str(self.i),"DELETE")
+        dot.edge(padre,'Node'+str(self.i))
+
+        self.inc();
+        nuevoPadre2 = self.i
+        dot.node('Node'+str(self.i),"ID TABLA")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+        for i in id:
+            self.inc();
+            dot.node('Node'+  str(self.i), i.val)
+            dot.edge('Node' + str(nuevoPadre2),'Node'+str(self.i))
+
+        self.inc();
+        nuevoPadre3 = self.i
+        dot.node('Node'+str(self.i),"WHERE")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+       #GRAFICANDO EXPRESION===========================
+        i = valores
+        self.inc();
+        dot.node('Node'+  str(self.i), "VALOR CONDICION")
+        dot.edge('Node' + str(nuevoPadre3),'Node'+str(self.i))
+        #LLAMAMOS A GRAFICAR EXPRESION
+        padrenuevo4 = self.i
+        self.graficar_expresion(i)
+        self.inc()
+        dot.edge('Node'+str(padrenuevo4),str(padrenuevo4+1))
+
+
+#----------------------------------------------------------------------------------------------------------
+#-----------------------GRAFICAR UPDATE-------------------------------------------------------------------
+    def grafoUpdate__Data(self, id, valores_set,valores, padre):
+        global  dot,tag,i
+
+        self.inc()
+        nuevoPadre=self.i
+        dot.node('Node'+str(self.i),"UPDATE")
+        dot.edge(padre,'Node'+str(self.i))
+
+        self.inc();
+        nuevoPadre2 = self.i
+        dot.node('Node'+str(self.i),"ID TABLA")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+        for i in id:
+            self.inc();
+            dot.node('Node'+  str(self.i), i.val)
+            dot.edge('Node' + str(nuevoPadre2),'Node'+str(self.i))
+
+
+        #GRAFICAR============VALORES DEL SET======================
+        self.inc();
+        nuevoPadre3 = self.i
+        dot.node('Node'+str(self.i),"SET")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+       #GRAFICANDO EXPRESION===========================
+        for i in valores_set:
+            self.inc();
+            dot.node('Node'+  str(self.i), "VALOR CONDICION SET")
+            dot.edge('Node' + str(nuevoPadre3),'Node'+str(self.i))
+            #LLAMAMOS A GRAFICAR EXPRESION
+            padrenuevo4 = self.i
+            self.graficar_expresion(i)
+            self.inc()
+            dot.edge('Node'+str(padrenuevo4),str(padrenuevo4+1))
+
+        #GRAFICAR============VALORES DEL WHERE======================
+        self.inc();
+        nuevoPadre3 = self.i
+        dot.node('Node'+str(self.i),"WHERE")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+       #GRAFICANDO EXPRESION===========================
+        i = valores
+        self.inc();
+        dot.node('Node'+  str(self.i), "VALOR CONDICION WHERE")
+        dot.edge('Node' + str(nuevoPadre3),'Node'+str(self.i))
+        #LLAMAMOS A GRAFICAR EXPRESION
+        padrenuevo4 = self.i
+        self.graficar_expresion(i)
+        self.inc()
+        dot.edge('Node'+str(padrenuevo4),str(padrenuevo4+1))
+
+
+
+#----------------------------------------------------------------------------------------------------------
+#-----------------------GRAFICAR ALTER TABLE ADD COLUM-------------------------------------------------------------------
+    def grafoAlter_AddColumn(self, id_tablas,id_columnas, padre):
+        global  dot,tag,i
+
+        self.inc()
+        nuevoPadre=self.i
+        dot.node('Node'+str(self.i),"ALTER TABLE ADD COLUMN")
+        dot.edge(padre,'Node'+str(self.i))
+
+        self.inc();
+        nuevoPadre2 = self.i
+        dot.node('Node'+str(self.i),"ID TABLA")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+        self.inc();
+        dot.node('Node'+  str(self.i), str(id_tablas))
+        dot.edge('Node' + str(nuevoPadre2),'Node'+str(self.i))
+
+
+        self.inc();
+        nuevoPadre3 = self.i
+        dot.node('Node'+str(self.i),"COLUMNAS")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+        for i in id_columnas:
+            self.inc();
+            dot.node('Node'+  str(self.i), i.val +' Tipo: '+ i.tipo)
+            dot.edge('Node' + str(nuevoPadre3),'Node'+str(self.i))
+
+
+#----------------------------------------------------------------------------------------------------------
+#-----------------------GRAFICAR ALTER TABLE ALTER COLUM-------------------------------------------------------------------
+    def grafoAlter_Column(self, id_tabla,columnas, padre):
+        global  dot,tag,i # id_columna  tipo
+
+        self.inc()
+        nuevoPadre=self.i
+        dot.node('Node'+str(self.i),"ALTER COLUMN")
+        dot.edge(padre,'Node'+str(self.i))
+
+        self.inc();
+        nuevoPadre2 = self.i
+        dot.node('Node'+str(self.i),"ID TABLA")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+        self.inc();
+        dot.node('Node'+  str(self.i), str(id_tabla))
+        dot.edge('Node' + str(nuevoPadre2),'Node'+str(self.i))
+
+
+
+        self.inc();
+        nuevoPadre3 = self.i
+        dot.node('Node'+str(self.i),"COLUMNAS")
+        dot.edge('Node' + str(nuevoPadre),'Node'+str(self.i))
+
+        for i in columnas:
+            if isinstance(i.tipo, valorTipo):
+                self.inc();
+                dot.node('Node'+  str(self.i), ' Tipo: '+ i.tipo.valor)
+                dot.edge('Node' + str(nuevoPadre3),'Node'+str(self.i))
+            else:
+                self.inc();
+                dot.node('Node'+  str(self.i), i.val +' Tipo: '+ i.tipo)
+                dot.edge('Node' + str(nuevoPadre3),'Node'+str(self.i))
+           
+
+
+       
+
+
+        
+
+
+    def grafoAlter_DropColumn(self, id_tabla , columnas, padre):
+        global dot, tag, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DML_COMANDOS")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ALTER TABLE")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), str( id_tabla ))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "DROP COLUMN")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), "COLUMNAS")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        for columna in columnas:
+            self.inc();
+            dot.node('Node' + str(self.i), columna.val)
+            dot.edge('Node' + str(nuevoPadre3), 'Node' + str(self.i))
+
+    def grafoAlter_RenameColumn(self, id_tabla, old_column, new_column, padre):
+        global dot, tag, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DML_COMANDOS")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ALTER TABLE")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), str(id_tabla))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "RENAME COLUMN")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), old_column.val)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), "TO")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), new_column.val)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoAlter_DropConstraint(self, id_tabla, id_constraint, padre):
+        global dot, tag, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DML_COMANDOS")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ALTER TABLE")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), str(id_tabla))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "DROP CONSTRAINT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), id_constraint.val)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def grafoAlter_AlterColumnSet(self, id_tabla, id_column, padre):
+        global dot, tag, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DML_COMANDOS")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ALTER TABLE")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), str(id_tabla))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ALTER COLUMN")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), id_column.val)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "SET NOT NULL")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+    def grafoAlter_AddForeignKey(self, id_tabla, id_column, id_column_references, padre):
+        global dot, tag, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DML_COMANDOS")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ALTER TABLE")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), str(id_tabla))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ADD FOREIGN KEY")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), id_column.val)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "REFERENCES")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), id_column_references.val)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+
+
+    def grafoAlter_AddConstraint(self, id_tabla, id_constraint, id_column, padre):
+        global dot, tag, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "DML_COMANDOS")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ALTER TABLE")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        dot.node('Node' + str(self.i), str(id_tabla))
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "ADD CONSTRAINT")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), id_constraint.val)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre2 = self.i
+        dot.node('Node' + str(self.i), "UNIQUE")
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+        self.inc();
+        # nuevoPadre3 = self.i
+        dot.node('Node' + str(self.i), id_column.val)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+    def graficarExpresionFuncion(self, expresion, tipo_exp="") :
+        global  dot,tag,i
+        if expresion.exp1:
+            self.inc()
+            padreID = self.i
+            padre = padreID
+            dot.node(str(padreID), 'Expresion' + tipo_exp)
+
+            self.inc()
+            padreID = self.i
+            dot.node(str(padreID), self.getVar(expresion.id_funcion))
+            dot.edge(str(padre), str(padreID))
+
+
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),'exp1')
+            dot.edge(str(padre),str(padreID))
+            dot.edge(str(padreID),str(padreID+1))
+
+            self.graficar_expresion(expresion.exp1)
+
+        if expresion.exp2:
+            self.inc()
+            padreID=self.i
+            dot.node(str(padreID),'exp2')
+            dot.edge(str(padre),str(padreID))
+            dot.edge(str(padreID),str(padreID+1))
+            self.graficar_expresion(expresion.exp2)
+        if expresion.exp3:
+            self.inc()
+            padreID = self.i
+            dot.node(str(padreID), 'exp3')
+            dot.edge(str(padre), str(padreID))
+            dot.edge(str(padreID), str(padreID + 1))
+            self.graficar_expresion(expresion.exp3)
+        if expresion.exp3:
+            self.inc()
+            padreID = self.i
+            dot.node(str(padreID), 'exp4')
+            dot.edge(str(padre), str(padreID))
+            dot.edge(str(padreID), str(padreID + 1))
+            self.graficar_expresion(expresion.exp4)
+
+    def graficarUnitariaAritmetica(self,expresion,tipo_exp=""):
+        self.inc()
+        padreID = self.i
+        padre = padreID
+        dot.node(str(padreID), 'Expresion' + tipo_exp)
+
+        self.inc()
+        padreID = self.i
+        dot.node(str(padreID), self.getVar(expresion.operador))
+        dot.edge(str(padre), str(padreID))
+
+        self.inc()
+        padreID = self.i
+        dot.node(str(padreID), 'exp1')
+        dot.edge(str(padre), str(padreID))
+        dot.edge(str(padreID), str(padreID + 1))
+
+        self.graficar_expresion(expresion.exp1)
 
 
