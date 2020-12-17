@@ -92,7 +92,12 @@ def t_ID (t):
             t.type = t.value    
         return t
 
-  
+def t_CADENASIMPLE(t):
+    r'\'.*?\''
+    t.value = str(t.value)
+    t.value = t.value[1:-1]
+    return t
+
 # expresion regular para comentario de linea
 def t_COMMENT(t):
     r'--.*'
@@ -246,6 +251,7 @@ def p_tipo_dato(t):
                  | CHAR PARABRE NUMERO PARCIERRE
                  | CHARACTER tipochar
                  | VARCHAR PARABRE NUMERO PARCIERRE
+                 | CHARACTER PARABRE NUMERO PARCIERRE
                  | TEXT
                  | TIMESTAMP arg_precision
                  | TIME arg_precision
@@ -271,14 +277,14 @@ def p_definicion_valor_defecto(t):
 
 def p_ins_constraint(t):
     '''ins_constraint : CONSTRAINT ID restriccion_columna 
-                        | restriccion_columna
-                        | ''' #epsilon
+                        | restriccion_columna''' #epsilon
 
 def p_restriccion_columna(t):
     '''restriccion_columna : NOT NULL
                            | SET NOT NULL
                            | NULL
                            | PRIMARY KEY
+                           | NOT NULL PRIMARY KEY 
                            | UNIQUE
                            | CHECK PARABRE exp PARCIERRE''' #cambio del condicion columna
 
@@ -309,7 +315,8 @@ def p_if_exist(t):
 
 def p_create_opciones(t): 
     '''create_opciones : OWNER SIGNO_IGUAL ID create_opciones
-                       | MODE SIGNO_IGUAL NUMERO create_opciones'''
+                       | MODE SIGNO_IGUAL NUMERO create_opciones
+                       | '''
 
 def p_puntocoma(t): 
     '''puntocoma : PUNTO_COMA
@@ -329,6 +336,7 @@ def p_alteracion_tabla(t):
 
 def p_alterar_tabla(t): 
     '''alterar_tabla : ADD COLUMN columna
+                     | ADD CONSTRAINT ID columna
                      | ALTER COLUMN columna
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
@@ -358,6 +366,7 @@ def p_list_vls(t):
 
 def p_val_value(t):
     '''val_value : CADENA
+                |   CADENASIMPLE
                 |   NUMERO
                 |   NUM_DECIMAL
                 |   FECHA_HORA
@@ -367,10 +376,10 @@ def p_val_value(t):
                 |   F_HORA'''
 
 def p_ins_select(t):
-    '''ins_select : ins_select UNION option_all ins_select
-                    |    ins_select INTERSECT option_all ins_select
-                    |    ins_select EXCEPT option_all ins_select
-                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset'''
+    '''ins_select : ins_select UNION option_all ins_select PUNTO_COMA
+                    |    ins_select INTERSECT option_all ins_select PUNTO_COMA
+                    |    ins_select EXCEPT option_all ins_select PUNTO_COMA
+                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA'''
 
 def p_option_all(t):
     '''option_all   :   ALL
@@ -662,11 +671,11 @@ def p_ins_update(t):
     '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
 
 def p_ins_asign_list(t):
-    '''asign_list  : asign_list COMA ID SIGNO_IGUAL list_vls 
-                   | ID SIGNO_IGUAL list_vls'''
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL val_value 
+                   | ID SIGNO_IGUAL val_value'''
 
 def p_ins_delete(t):
-    '''ins_delete   : DELET FROM ID WHERE exp PUNTO_COMA'''
+    '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
