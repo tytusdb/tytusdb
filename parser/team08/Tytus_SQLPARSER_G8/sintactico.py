@@ -858,45 +858,65 @@ def p_operadores_trigonometricas(t):
     elif t[1] == 'ACOSD':
         t[0] = Acosd.Acosd(t[3], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'ACOSH':
-        t[0] = Acosh.Acosh(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Acosh.Acosh(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'ASIN':
-        t[0] = Asin.Asinh(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Asin.Asinh(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'ASIND':
-        t[0] = Asind.Asind(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Asind.Asind(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'ASINH':
-        t[0] = Asinh.Asinh(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Asinh.Asinh(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'ATAN':
-        t[0] = Atan.Atan(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atan.Atan(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'ATAN2':
-        t[0] = Atan2.Atan2(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atan2.Atan2(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'ATAN2D':
-        t[0] = Atan2d.Atan2d(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atan2d.Atan2d(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'ATAND':
-        t[0] = Atand.Atand(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atand.Atand(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'ATANH':
-        t[0] = Atanh.Atanh(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Atanh.Atanh(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'COS':
-        t[0] = Cos.Cos(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cos.Cos(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'COSD':
-        t[0] = Cosd.Cosd(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cosd.Cosd(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'COSH':
-        t[0] = Cosh.Cosh(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cosh.Cosh(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'COT':
-        t[0] = Cot.Cot(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cot.Cot(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'COTD':
-        t[0] = Cotd.Cotd(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Cotd.Cotd(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'SIN':
-        t[0] = Sin.Sin(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Sin.Sin(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'SIND':
-        t[0] = Sind.Sind(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Sind.Sind(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'SINH':
-        t[0] = Sinh.Sinh(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Sinh.Sinh(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'TAN':
-        t[0] = Tan.Tan(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Tan.Tan(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'TAND':
-        t[0] = Tand.Tand(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Tand.Tand(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
     elif t[1] == 'TANH':
-        t[0] = Tanh.Tanh(t[3], t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Tanh.Tanh(t[3], Tipo(Tipo_Dato.INTEGER), t.lexer.lineno, t.lexer.lexpos)
+        pass
             
 def p_operadores_otros(t):
     ''' expre : EXTRACT PARIZQ tiempo FROM TIMESTAMP CARACTER PARDER
