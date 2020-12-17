@@ -40,7 +40,7 @@ class Text(ASTNode):
 class BoolAST(ASTNode):
     def __init__(self, val, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.val = val
+        self.val = bool(val)        
         self.graph_ref = graph_ref
 
     def execute(self, table, tree):
@@ -189,3 +189,39 @@ class PredicateExpression(ASTNode):  # TODO check operations and call to exceute
             return False
         if self.operator == OpPredicate.NOT_UNKNOWN:  # Same as previous comment about Unknown
             return False
+
+
+class BoolExpression(ASTNode):
+    def __init__(self, exp1, exp2, operator, line, column):
+        ASTNode.__init__(self, line, column)
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operator = operator
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exec1 = self.exp1.execute(table, tree)
+        exec2 = self.exp2.execute(table, tree)
+
+        if isinstance(exec1,bool) and isinstance(exec2,bool):
+            if self.operator == OpLogic.AND:
+                return exec1 and exec2
+            if self.operator == OpLogic.OR:
+                return exec1 and exec2
+        else:
+            raise Exception("The result of operation isn't boolean value")
+        
+
+class Negation(ASTNode):
+    def __init__(self, exp1, line, column):
+        ASTNode.__init__(self, line, column)
+        self.exp1 = exp1        
+        
+    def execute(self, table, tree):
+        super().execute(table, tree)
+        exec1 = self.exp1.execute(table, tree)
+        
+        if isinstance(exec1,bool):          
+            return not exec1
+        else:
+            raise Exception("The result of operation isn't boolean value")
+        
