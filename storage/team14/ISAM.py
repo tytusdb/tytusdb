@@ -203,3 +203,49 @@ class ISAM:
                     file.write('"' + str(tail)[:-2] + '" -> "' + str(nextHead)[:-2] + '" \n')
                 file.close()
                 self._chart(tmp.next, level + 1)
+    
+    #Metodo que busca el valor especificado
+    def search(self, value):
+        return self._search(value, self.root, 0)
+
+    def _search(self, value, tmp, level):
+        if tmp:
+            if level < 2:
+                for i in tmp.values:
+                    if i.PK == value and len(i.data) > 0:
+                        return i.data
+                if value <= tmp.values[0].PK:
+                    return self._search(value, tmp.left, level + 1)
+                elif tmp.values[0].PK <= value < tmp.values[1].PK:
+                    return self._search(value, tmp.center, level + 1)
+                elif value >= tmp.values[1].PK:
+                    return self._search(value, tmp.right, level + 1)
+            else:
+                for i in tmp.values:
+                    if i.PK == value and len(i.data) > 0:
+                        return i.data
+                    return self._search(value, tmp.next, level + 1)
+    
+    #Metodo que extrae informacion entre los limites especificados
+    def extractRange(self, lower, upper):
+        tuples = []
+        self._extractRange(self.root, upper, lower, 0, tuples)
+        return tuples
+
+    def _extractRange(self, tmp, upper, lower, level, tuples):
+        if tmp:
+            if level < 2:
+                for i in tmp.values:
+                    if lower <= i.PK <= upper and len(i.data) > 0:
+                        tuples.append(i.data)
+                if lower <= tmp.values[0].PK <= upper:
+                    self._extractRange(tmp.left, upper, lower, level + 1, tuples)
+                if lower <= tmp.values[0].PK and upper >= tmp.values[1].PK:
+                    self._extractRange(tmp.center, upper, lower, level + 1, tuples)
+                if tmp.values[1].PK >= lower:
+                    self._extractRange(tmp.right, upper, lower, level + 1, tuples)
+            else:
+                for i in tmp.values:
+                    if lower <= i.PK <= upper and len(i.data) > 0:
+                        tuples.append(i.data)
+                self._extractRange(tmp.next, upper, lower, level + 1, tuples)
