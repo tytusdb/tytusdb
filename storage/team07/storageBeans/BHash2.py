@@ -1,14 +1,10 @@
-import tkinter
-from BHash2 import BHash
-
-
-class DataBase(object):
+class Tabla(object):
     def __init__(self, name):
         self.name = name
-        self.BHash = BHash()
+        # self.AVLtree = ArbolAVL()  # datos de tabla
 
 
-class Hash:
+class BHash:
     def __init__(self):
         self.m = 5  # tamaño del vector de posiciones
         self.min = 20  # porcentaje minimo a ocupar
@@ -29,17 +25,17 @@ class Hash:
         for i in range(int(self.m)):
             self.h.append(None)
         for i in range(int(self.m)):
-            self.h[i] = DataBase(-1)
+            self.h[i] = Tabla(-1)
             i += 1
         # print(len(self.h))
 
-    def insert(self, k):
+    def insertTable(self, k):
         cadena = k
         k = self.toASCII(k)
         i = int(self.division(k))
         while (self.h[int(i)].name != -1):
             i = self.linear(i)
-        self.h[int(i)] = DataBase(cadena)
+        self.h[int(i)] = Tabla(cadena)
         self.n += 1
         self.rehashing()
 
@@ -59,51 +55,34 @@ class Hash:
         else:
             self.print()
 
-    def search(self, database):
-        k = self.toASCII(database)
+    def searchTable(self, table):
+        k = self.toASCII(table)
         i = int(self.division(k))
         try:
             paso = i
-            while (self.h[int(i)].name != database):
+            while (self.h[int(i)].name != table):
                 i = self.linear(i)
                 if (paso == i):
                     break
-            if (self.h[int(i)].name == database):
+            if (self.h[int(i)].name == table):
                 return True
             else:
                 return False
         except:
             return False
 
-    def delete(self, database):
-        k = self.toASCII(database)
+    def deleteTable(self, table):
+        k = self.toASCII(table)
         i = int(self.division(k))
         paso = i
-        while (self.h[int(i)].name != database):
+        while (self.h[int(i)].name != table):
             i = self.linear(i)
             if (paso == i):
                 break
-        self.h[int(i)] = DataBase(-1)  # asumiendo que antes se buscara si existe o no la base de datos
+        self.h[int(i)] = Tabla(-1)  # asumiendo que antes se buscara si existe o no la tabla
         self.n -= 1
         self.print()
         # self.rehashingInverso()
-
-    # def rehashingInverso(self):
-    #     if ((self.n * 100 / self.m) < self.min):
-    #         # copia del arreglo existente
-    #         temp = self.h  # temp posee la copia del arreglo
-    #         self.print()
-    #         # rehashing
-    #         mprev = self.m  # copia del  tamaño del vector que quedara atras
-    #         ant = (mprev * self.min) / 100
-    #         self.m = (ant * 100) / self.max  # nuevo tamaño del vector
-    #         self.init()
-    #         for i in range(int(mprev)):
-    #             if (temp[int(i)].name != -1):
-    #                 self.insert(temp[int(i)].name)
-    #             i += 1
-    #     else:
-    #         self.print()
 
     def print(self):
         cadena = ""
@@ -122,8 +101,8 @@ class Hash:
             resultado += ord(i)
         return resultado
 
-    def updateName(self, newName, OldName):
-        if (t.search(OldName)):  # si la base de datos existe
+    def updateNameTable(self, newName, OldName):
+        if (t.search(OldName)):  # si la tabla existe
             k = self.toASCII(OldName)
             i = int(self.division(k))
             paso = i
@@ -131,21 +110,21 @@ class Hash:
                 i = self.linear(i)
                 if (paso == i):
                     break
-            self.h[int(i)].name = newName  # asumiendo que antes se buscara si existe o no la base de datos
+            self.h[int(i)].name = newName  # asumiendo que antes se buscara si existe o no la tabla
             self.print()
             return True
-        else:  # significa que la base de datos no existe
+        else:  # significa que la tabla no existe
             return False
 
-    def getData(self):
+    def getDataTables(self):
         lista = []
         for i in range(len(self.h)):
             if self.h[i].name != -1:
                 lista.append(self.h[i].name)
         return lista
 
-    def getDataBase(self, OldName):
-        if (t.search(OldName)):  # si la base de datos existe
+    def getTable(self,OldName):
+        if (t.search(OldName)):  # si la tabla existe
             k = self.toASCII(OldName)
             i = int(self.division(k))
             paso = i
@@ -153,42 +132,6 @@ class Hash:
                 i = self.linear(i)
                 if (paso == i):
                     break
-            return self.h[int(i)]  # asumiendo que antes se buscara si existe o no la base de datos
-        else:  # significa que la base de datos no existe
+            return self.h[int(i)] # asumiendo que antes se buscara si existe o no la tabla
+        else:  # significa que la tabla no existe
             return False
-
-    # def show_DATASTRUCTURE(self):
-    #     ventana = tkinter.Tk()
-    #     ventana.mainloop()
-
-
-t = Hash()
-t.insert("_sas")
-t.insert("sasas")
-t.insert("dfs")
-t.insert("scv3")
-t.insert("sdko")
-t.insert("ácpas")
-t.insert("lokas")
-t.insert("qkm")
-t.insert("342d")
-t.insert("ncm")
-t.insert("vsd")
-
-# print(t.search("scv3"))
-t.delete("scv3")
-t.delete("ncm")
-# t.delete("sas")
-# t.delete("dfs")
-# t.delete("sdko")
-# t.delete("lokas")
-# t.delete("qkm")
-# t.delete("vsd")
-# print(t.search("_sas"))
-# t.insert("Ulitmooo")
-# print(t.search("scv3"))
-# print(t.search("Ulitmooo"))
-print(t.updateName("byron", "sasas"))
-a = t.getData()
-for i in range(len(a)):
-    print(a[i])

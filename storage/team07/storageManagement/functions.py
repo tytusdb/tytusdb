@@ -4,6 +4,7 @@ from storage.team07.storageBeans.TableHash import Hash
 t = Hash()  # hash para almacenar base de datos , estructura incial
 
 
+# dabatase  functions , only name database
 def createDatabase(database):  # recibo el string con el nombre de  la base de datos
     try:
         if (t.search(database) is False):
@@ -44,3 +45,44 @@ def dropDatabase(database):
             return 2
     except:
         return 1  # error
+
+
+# tables functions only the name table
+def showTables(database):
+    if t.search(database):
+        data = t.getDataBase(database)  # get the database
+        return data.BHash.getDataTables()  # return name of tables
+    else:
+        return None
+
+
+def alterTable(database, tableOld, tableNew):
+    try:
+        if t.search(database):
+            data = t.getDataBase(database)  # get the database
+            if data.BHash.searchTable(tableOld):  # table exist
+                if data.BHash.searchTable(tableNew):  # new table exist
+                    return 4
+                else:
+                    data.BHash.updateNameTable(tableNew, tableOld)  # all data is correct  -> change the name of table
+                    return 0
+            else:  # table doesn´t exist
+                return 3
+        else:
+            return 2
+    except:
+        return 1
+
+def dropTable(database, table):
+    try:
+        if t.search(database):
+            data = t.getDataBase(database)
+            if data.BHash.searchTable(table):
+                data.BHash.deleteTable(table)
+                return 0
+            else:
+                return 3 # table doesn´t exist
+        else:
+            return 2    # database doesn´t exist
+    except:
+        return 1
