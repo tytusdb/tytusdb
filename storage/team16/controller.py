@@ -46,18 +46,18 @@ class Controller:
 
         # region Tuples
         #
-        # elif action == actions[17]:
-        #     return self.structure.insert(args[0], args[1], args[2].split(','))
+        elif action == actions[17]:
+            return self.structure.insert(args[0], args[1], args[2].split(','))
         # elif action == actions[18]:
         #     return self.structure.loadCSV(args[0], args[1], args[2])
         # elif action == actions[19]:
         #     return self.structure.extractRow(args[0], args[1], args[2].split(','))
         # elif action == actions[20]:
         #     return self.structure.update(args[0], args[1], args[2], args[3].split(','))
-        # elif action == actions[21]:
-        #     return self.structure.delete(args[0], args[1], args[2].split(','))
-        # elif action == actions[22]:
-        #     return self.structure.truncate(args[0], args[1])
+        elif action == actions[21]:
+            return self.structure.delete(args[0], args[1], args[2].split(','))
+        elif action == actions[22]:
+            return self.structure.truncate(args[0], args[1])
         #
         # endregion
 
