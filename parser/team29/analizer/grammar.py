@@ -1,8 +1,13 @@
+from sys import path
+from os.path import dirname as dir
+
+path.append(dir(path[0]))
 import analizer.ply.yacc as yacc
 from analizer.tokens import *
 
-#Prueba para dataframe:
-import abstract.select_data as data
+# Prueba para dataframe:
+import analizer.abstract.select_data as data
+
 df = data.dataSelect()
 df.crossJoin()
 
@@ -33,8 +38,7 @@ precedence = (
     ("left", "O_SUMA", "O_RESTA"),
     ("left", "O_PRODUCTO", "O_DIVISION", "O_MODULAR"),
     ("left", "O_EXPONENTE"),
-    ("right", "UO_SUMA", "UO_RESTA")
-
+    ("right", "UO_SUMA", "UO_RESTA"),
 )
 
 # Definición de la gramática
@@ -77,6 +81,12 @@ def p_stmt(t):
 
 # Statement para el CREATE
 # region CREATE
+def p_id_string(t):
+    """
+    idOrString : ID
+    | STRING
+    """
+    t[0] = t[1]
 
 
 def p_createstmt(t):
@@ -92,13 +102,13 @@ def p_createbody(t):
 
 
 def p_createopts_table(t):
-    """createOpts : R_TABLE ifNotExists ID S_PARIZQ createTableList S_PARDER inheritsOpt """
-    t[0]=instruction.CreateTable(t[2],t[3],t[7],t[5])
+    """createOpts : R_TABLE ifNotExists idOrString S_PARIZQ createTableList S_PARDER inheritsOpt """
+    t[0] = instruction.CreateTable(t[2], t[3], t[7], t[5])
 
 
 def p_createopts_db(t):
     """
-    createOpts : orReplace R_DATABASE ifNotExists ID createOwner createMode
+    createOpts : orReplace R_DATABASE ifNotExists idOrString createOwner createMode
     """
     t[0] = instruction.CreateDatabase(t[1], t[3], t[4], t[5], t[6])
 
@@ -141,17 +151,20 @@ def p_inheritsOpt(t):
     """
     inheritsOpt : R_INHERITS S_PARIZQ ID S_PARDER
     """
-    t[0]=t[3]
+    t[0] = t[3]
+
 
 def p_inheritsOpt_none(t):
     """
     inheritsOpt :
     """
-    t[0]=None
+    t[0] = None
+
 
 def p_createowner(t):
     """
     createOwner : R_OWNER ID
+    | R_OWNER STRING
     """
     t[0] = t[2]
 
@@ -159,6 +172,7 @@ def p_createowner(t):
 def p_createowner_asg(t):
     """
     createOwner :  R_OWNER S_IGUAL ID
+    | R_OWNER S_IGUAL STRING
     """
     t[0] = t[3]
 
@@ -206,8 +220,8 @@ def p_createTable_id(t):
     """
     createTable :  ID types createColumns
     """
-    t[0]=[False,t[1],t[2],t[3]]
-    
+    t[0] = [False, t[1], t[2], t[3]]
+
 
 def p_createTable(t):
     """
@@ -216,20 +230,21 @@ def p_createTable(t):
     | createPrimary
     | createForeign
     """
-    t[0]=[True,t[1]]
+    t[0] = [True, t[1]]
 
 
 def p_createColumNs(t):
     """
     createColumns : colOptionsList
     """
-    t[0]=t[1]
+    t[0] = t[1]
+
 
 def p_createColumNs_none(t):
     """
-    createColumns : 
+    createColumns :
     """
-    t[0]=None
+    t[0] = None
 
 
 def p_createConstraint(t):
@@ -238,39 +253,40 @@ def p_createConstraint(t):
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
-    t[0]= [t[1],t[3]]
+    t[0] = [t[1], t[3]]
 
 
 def p_createPrimary(t):
     """createPrimary : R_PRIMARY R_KEY S_PARIZQ idList S_PARDER"""
-    t[0]= [t[1],t[4]]
+    t[0] = [t[1], t[4]]
 
 
 def p_createForeign(t):
     """
     createForeign : R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
     """
-    t[0]= [t[1],t[4],t[7],t[9]]
+    t[0] = [t[1], t[4], t[7], t[9]]
 
 
 def p_createForeign_op2(t):
     """
     createForeign : R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID
     """
-    t[0]= [t[1],t[4],t[7]]
+    t[0] = [t[1], t[4], t[7]]
 
 
 def p_constrName(t):
     """
     constrName : R_CONSTRAINT ID
     """
-    t[0]=t[2]
+    t[0] = t[2]
+
 
 def p_constrName_none(t):
     """
     constrName :
     """
-    t[0]=None
+    t[0] = None
 
 
 def p_id_list(t):
@@ -278,14 +294,17 @@ def p_id_list(t):
     t[1].append(t[3])
     t[0] = t[1]
 
+
 def p_id_u(t):
     """idList : ID"""
     t[0] = [t[1]]
+
 
 def p_types(t):
     """
     types :  ID
     """
+
 
 def p_types_simple(t):
     """
@@ -301,7 +320,8 @@ def p_types_simple(t):
     | T_DATE
     | T_TIME
     """
-    t[0]=[t[1],[None]]
+    t[0] = [t[1], [None]]
+
 
 def p_types_params(t):
     """
@@ -311,20 +331,21 @@ def p_types_params(t):
     | T_CHARACTER optParams
     | T_CHAR optParams
     """
-    t[0]=[t[1],t[2]]
+    t[0] = [t[1], t[2]]
 
 
 def p_types_var(t):
     """
     types : T_CHARACTER T_VARYING optParams
     """
-    t[0]=[t[2],t[3]]
+    t[0] = [t[2], t[3]]
+
 
 def p_timeType_interval(t):
     """
     types : R_INTERVAL intervalFields
-    """  
-    t[0]=[t[1],[t[2]]]
+    """
+    t[0] = [t[1], [t[2]]]
 
 
 def p_intervalFields(t):
@@ -336,28 +357,36 @@ def p_intervalFields(t):
     | R_MINUTE
     | R_SECOND
     """
-    t[0]=t[1]
+    t[0] = t[1]
 
 
 def p_intervalFields_none(t):
     """
-    intervalFields : 
+    intervalFields :
     """
-    t[0]=False
+    t[0] = False
 
 
 def p_optParams(t):
     """optParams : S_PARIZQ literalList S_PARDER"""
-    t[0]=t[2]
+    t[0] = t[2]
+
+
+def p_optParams_none(t):
+    """optParams : """
+    t[0] = None
+
 
 def p_colOptions_list(t):
     """colOptionsList : colOptionsList colOptions"""
     t[1].append(t[2])
-    t[0]=t[1]
+    t[0] = t[1]
+
 
 def p_colOptions_u(t):
     """colOptionsList : colOptions"""
-    t[0]=[t[1]]
+    t[0] = [t[1]]
+
 
 def p_colOptions(t):
     """
@@ -367,56 +396,63 @@ def p_colOptions(t):
     | primaryOpt
     | referencesOpt
     """
-    t[0]=t[1]
+    t[0] = t[1]
+
 
 # cambiar literal
-
-
 def p_defaultVal(t):
     """defaultVal : R_DEFAULT literal"""
-    t[0]=[t[1],t[2].execute(0).value]
+    t[0] = [t[1], t[2].execute(0).value]
 
 
 def p_nullOpt_true(t):
     """
     nullOpt : R_NOT R_NULL
     """
-    t[0]=[t[2],True]
+    t[0] = [t[2], True]
 
 
 def p_nullOpt_false(t):
     """
     nullOpt : R_NULL
     """
-    t[0]=[t[1],False]
+    t[0] = [t[1], False]
 
 
 # cambiar literal
 
 
-def p_constraintOpt(t):
+def p_constraintOpt_unique(t):
     """
     constraintOpt : constrName R_UNIQUE
-    | constrName R_CHECK S_PARIZQ expBoolCheck S_PARDER
+    """
+    if t[1] == None:
+        t[0] = [t[2]]
+    else:
+        t[0] = None
+
+
+def p_constraintOpt_check(t):
+    """
+    constraintOpt : constrName R_CHECK S_PARIZQ expBoolCheck S_PARDER
     """
 
 
 def p_primaryOpt(t):
     """primaryOpt : R_PRIMARY R_KEY"""
-    t[0]=[t[1],True]
+    t[0] = [t[1], True]
 
 
 def p_referencesOpt(t):
     """referencesOpt : R_REFERENCES ID"""
-    t[0]=[t[1],t[2]]
+    t[0] = [t[1], t[2]]
+
 
 # endregion CREATE
 
 # Gramatica para expresiones
 
 # region Expresiones
-
-
 def p_expresion(t):
     """
     expresion : datatype
@@ -462,14 +498,18 @@ def p_extract(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
     """
-    t[0] = expression.ExtractDate(t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.ExtractDate(
+        t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+    )
+
 
 def p_timeStamp(t):
     """
     timeStamp : R_TIMESTAMP STRING
           | R_INTERVAL STRING
     """
-    t[0] = [t[1],t[2]]
+    t[0] = [t[1], t[2]]
+
 
 def p_optsExtract(t):
     """
@@ -482,11 +522,15 @@ def p_optsExtract(t):
     """
     t[0] = t[1]
 
+
 def p_datePart(t):
     """
     datePart : R_DATE_PART S_PARIZQ STRING S_COMA dateSource S_PARDER
     """
-    t[0] = expression.DatePart(t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.DatePart(
+        t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+    )
+
 
 def p_dateSource(t):
     """
@@ -496,7 +540,8 @@ def p_dateSource(t):
           | R_INTERVAL STRING
           | R_NOW S_PARIZQ S_PARDER
     """
-    t[0] = [t[1],t[2]]
+    t[0] = [t[1], t[2]]
+
 
 def p_current(t):
     """
@@ -504,6 +549,7 @@ def p_current(t):
           | R_CURRENT_TIME
     """
     t[0] = expression.Current(t[1], None, t.slice[1].lineno, t.slice[1].lexpos)
+
 
 # TODO: Arreglar columna y fila
 def p_current_1(t):
@@ -516,12 +562,13 @@ def p_current_1(t):
 def p_literal_list(t):
     """literalList : literalList S_COMA literal"""
     t[1].append(t[3].execute(0).value)
-    t[0]=t[1]
+    t[0] = t[1]
 
 
 def p_literal_u(t):
     """literalList : literal"""
-    t[0]=[t[1].execute(0).value]
+    t[0] = [t[1].execute(0).value]
+
 
 def p_literal(t):
     """
@@ -760,11 +807,13 @@ def p_expBool_4(t):
     """
     t[0] = t[1]
 
+
 def p_expBool_5(t):
     """
     expBool : expBool optBoolPredicate
     """
     t[0] = expression.UnaryLogicalOperation(t[1], t[2], t[1].row, t[1].column)
+
 
 def p_optBoolPredicate_1(t):
     """
@@ -772,7 +821,8 @@ def p_optBoolPredicate_1(t):
     | R_IS R_FALSE
     | R_IS R_UNKNOWN
     """
-    t[0] = t[1]+t[2]
+    t[0] = t[1] + t[2]
+
 
 def p_optBoolPredicate_2(t):
     """
@@ -780,20 +830,25 @@ def p_optBoolPredicate_2(t):
     | R_IS R_NOT R_FALSE
     | R_IS R_NOT R_UNKNOWN
     """
-    t[0] = t[1]+t[2]+t[3]
+    t[0] = t[1] + t[2] + t[3]
+
 
 def p_columnName_id(t):
     """
     columnName : ID
     """
-    t[0] = expression.Identifiers(None, t[1], df.dataTable, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.Identifiers(
+        None, t[1], df.dataTable, t.slice[1].lineno, t.slice[1].lexpos
+    )
 
 
 def p_columnName_table_id(t):
     """
     columnName : ID S_PUNTO ID
     """
-    t[0] = expression.Identifiers(t[1], t[3], df.dataTable, t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.Identifiers(
+        t[1], t[3], df.dataTable, t.slice[1].lineno, t.slice[1].lexpos
+    )
 
 
 def p_expBoolCheck(t):
@@ -819,35 +874,39 @@ def p_boolCheck(t):
 
 
 def p_alterStmt(t):
-    """alterStmt : R_ALTER R_DATABASE ID alterDb
-    | R_ALTER R_TABLE ID alterTableList
+    """alterStmt : R_ALTER R_DATABASE idOrString alterDb
+    | R_ALTER R_TABLE idOrString alterTableList
     """
     if t[2] == "DATABASE":
         t[0] = instruction.AlterDataBase(t[4][0], t[3], t[4][1])
 
 
 def p_alterDb(t):
-    """alterDb : R_RENAME R_TO ID
+    """alterDb : R_RENAME R_TO idOrString
     | R_OWNER R_TO ownerOPts
     """
     t[0] = [t[1], t[3]]
 
 
 def p_ownerOpts(t):
-    """ownerOPts : ID
+    """
+    ownerOPts : idOrString
     | R_CURRENT_USER
     | R_SESSION_USER
     """
+    t[0] = t[1]
 
 
 def p_alterTableList(t):
-    """alterTableList : alterTableList S_COMA alterTable
+    """
+    alterTableList : alterTableList S_COMA alterTable
     | alterTable
     """
 
 
 def p_alterTable(t):
-    """alterTable : R_ADD alterConstraint
+    """
+    alterTable : R_ADD alterConstraint
     | alterCol
     | R_DROP R_CONSTRAINT ID
     | R_DROP R_COLUMN ID
@@ -856,7 +915,8 @@ def p_alterTable(t):
 
 
 def p_alterConstraint(t):
-    """alterConstraint : R_CHECK S_PARIZQ expBoolCheck S_PARDER
+    """
+    alterConstraint : R_CHECK S_PARIZQ expBoolCheck S_PARDER
     | R_CONSTRAINT ID R_UNIQUE S_PARIZQ ID S_PARDER
     | createForeign
     | R_COLUMN ID types
@@ -864,7 +924,8 @@ def p_alterConstraint(t):
 
 
 def p_alterCol(t):
-    """alterCol : R_ALTER R_COLUMN ID R_SET R_NOT R_NULL
+    """
+    alterCol : R_ALTER R_COLUMN ID R_SET R_NOT R_NULL
     | R_ALTER R_COLUMN ID R_SET R_NULL
     | R_ALTER R_COLUMN ID R_TYPE types
     """
@@ -881,8 +942,9 @@ Statement para el DROP
 
 
 def p_dropStmt(t):
-    """dropStmt : R_DROP R_TABLE ifExists ID
-    | R_DROP R_DATABASE ifExists ID
+    """
+    dropStmt : R_DROP R_TABLE ifExists idOrString
+    | R_DROP R_DATABASE ifExists idOrString
     """
     exists = True
     if t[3] == None:
@@ -910,15 +972,17 @@ def p_selectStmt(t):
     | S_PARIZQ selectStmt S_PARDER
     """
 
+
 def p_selectStmt(t):
-    """selectStmt : R_SELECT selectParams whereCl
-    """
+    """selectStmt : R_SELECT selectParams whereCl"""
     if t[3] == None:
         t[0] = instruction.SelectOnlyParams(
             t[2].params, t[2].params[0].row, t[2].params[0].row
         )
-    else :
-        t[0] = instruction.Select(t[2].params, t[3], df.dataTable, t[2].row, t[2].column)
+    else:
+        t[0] = instruction.Select(
+            t[2].params, t[3], df.dataTable, t[2].row, t[2].column
+        )
 
 
 # TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
@@ -927,7 +991,6 @@ def p_selectStmt(t):
 def p_selectstmt_u(t):
     """selectStmt : R_SELECT selectParams R_FROM tableExp"""
     # t[0] = instruction.Select(t[2].params, t[4])
-
 
 
 def p_selectstmt_only_params(t):
@@ -1054,10 +1117,11 @@ def p_joinOpt(t):
 
 
 def p_whereCl(t):
-    """whereCl : R_WHERE expBool
-    """
-    if t[2]!= None: t[0] = instruction.WhereClause(t[2],t.slice[1].lineno, t.slice[1].lexpos)
-    else : t[0] = None
+    """whereCl : R_WHERE expBool"""
+    if t[2] != None:
+        t[0] = instruction.WhereClause(t[2], t.slice[1].lineno, t.slice[1].lexpos)
+    else:
+        t[0] = None
 
 
 def p_groupByCl(t):
@@ -1208,28 +1272,35 @@ def p_likeOpt(t):
 
 
 def p_useStmt(t):
-    """useStmt : R_USE R_DATABASE ID"""
-    t[0] = instruction.useDataBase(t[3])
+    """
+    useStmt : R_USE idOrString
+    """
+    t[0] = instruction.useDataBase(t[2])
 
 
 # endregion
 
 
-listErrors=list()
+listErrors = list()
+
 
 def p_error(t):
     try:
-        """ print(t)
-        print("Error sintáctico en '%s'" % t.value) """
-        listErrors.insert(len(listErrors),["Error sintáctico en '%s'" % t.value,t.lineno])
+        print(t)
+        print("Error sintáctico en '%s'" % t.value)
+        listErrors.insert(
+            len(listErrors), ["Error sintáctico en '%s'" % t.value, t.lineno]
+        )
     except AttributeError:
         print("end of file")
 
 
 parser = yacc.yacc()
 
+
 def returnSintacticErrors():
     return listErrors
+
 
 def parse(input):
     try:
