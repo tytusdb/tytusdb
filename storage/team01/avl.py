@@ -114,6 +114,13 @@ class NodoAVL:
                 for elem in self.Der:
                     yield elem
 
+    #Extrae los datos de un arbol en recorrido inorden
+    def extraer(self, arbol, lista):
+        if arbol:
+            self.extraer(arbol.Izq, lista)
+            lista.append(arbol.valor)
+            self.extraer(arbol.Der, lista)
+
 #Clase Arbol AVL
 class AVL:
     #Constructor de Arbol Binario de Busqueda
