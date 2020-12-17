@@ -1,15 +1,24 @@
 
 class Cilindro:
-    def __init__(self, nombre, pkeys, ikey):
+    def __init__(self, nombre, pkeys, ikey, ruta):
         self.indx = [None]*30
         self.longi = 30
         self.nombre = nombre
+        self.ruta = ruta
         self.icode = ikey
         self.pkeys = pkeys
         self.seguiente = ikey + 1
 
     def _hashn(self, key):
         return key % 30
+
+    def _hashl(self, key):
+        multi = 1
+        hashvalue = 0
+        for ch in key:
+            hashvalue += multi * ord(ch)
+            multi += 1
+        return hashvalue % 30
 
     def _rehash(self, val, i):
         return (val+i)**2 % 30
@@ -41,8 +50,9 @@ class Cilindro:
                 key.append(registro[k])
             keyval = self._createKey(key)
             val = self.hash(keyval)
+            i=0
             while i<3:
-                if self.indx[val] == None :
+                if self.indx[val] is None :
                     self.indx[val] = Registro(registro)
                     return 0
                 else:
@@ -51,10 +61,10 @@ class Cilindro:
                         ke.append(self.indx[val].valores[k])
                     if self._createKey(ke) == keyval:
                         return 4
-                    val = self._rehash(keyval, i)
+                    val = self._rehash(val, i)
                 i+=1
             else:
-                self.indx.append(registro)
+                self.indx.append(Registro(registro))
                 self.longi +=1
         except:
             return 1
@@ -63,13 +73,14 @@ class Cilindro:
         try:
             keyval = self._createKey(key)
             val = self.hash(keyval)
+            i = 0
             while i < 3:
                 ke = []
                 for k in self.pkeys:
                     ke.append(self.indx[val].valores[k])
                 if self._createKey(ke) == keyval:
                     return self.indx[val].update(register)
-                val = self._rehash(keyval, i)
+                val = self._rehash(val, i)
                 i += 1
             else:
                 for v in range(30, self.longi):
@@ -87,6 +98,7 @@ class Cilindro:
         try:
             keyval = self._createKey(key)
             val = self.hash(keyval)
+            i = 0
             while i < 3:
                 ke = []
                 for k in self.pkeys:
@@ -94,7 +106,7 @@ class Cilindro:
                 if self._createKey(ke) == keyval:
                     self.indx[val] = None
                     return 0
-                val = self._rehash(keyval, i)
+                val = self._rehash(val, i)
                 i += 1
             else:
                 for v in range(30, self.longi):
@@ -113,13 +125,14 @@ class Cilindro:
         try:
             keyval = self._createKey(key)
             val = self.hash(keyval)
+            i = 0
             while i < 3:
                 ke = []
                 for k in self.pkeys:
                     ke.append(self.indx[val].valores[k])
                 if self._createKey(ke) == keyval:
-                    return self.indx[val]
-                val = self._rehash(keyval, i)
+                    return self.indx[val].valores
+                val = self._rehash(val, i)
                 i += 1
             else:
                 for v in range(30, self.longi):
@@ -127,7 +140,7 @@ class Cilindro:
                     for k in self.pkeys:
                         ke.append(self.indx[v].valores[k])
                     if self._createKey(ke) == keyval:
-                        return self.indx[v]
+                        return self.indx[v].valores
                 else:
                     return []
         except:
@@ -139,15 +152,17 @@ class Cilindro:
             if x is None:
                 continue
             data.append(x.valores)
+
         return data
 
     def readRange(self, columnNumber, lower, upper):
         data=[]
         for x in self.indx:
+            if x is None:
+                continue
+                #Convertir todo a CAPS si es string
             if (x.valores[columnNumber] >= lower) and (x.valores[columnNumber] <= upper):
                 data.append(x.valores)
-            else:
-                continue
         return data
 
 class Registro:
@@ -163,7 +178,11 @@ class Registro:
         return 0
 
     def alterAddColumn(self):
-        pass
+        try:
+            self.valores.append(None)
+            return 0
+        except:
+            return 1
 
     def alterDropColumn(self, ind: int):
         try:
