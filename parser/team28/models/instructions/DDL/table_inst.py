@@ -52,6 +52,7 @@ class AlterTable(Instruction):
 
     def execute(self):
         pass
+        
 
     def __repr__(self):
         return str(vars(self))
