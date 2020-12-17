@@ -231,77 +231,207 @@ def p_seleccionH1(t):
 def p_altert(t):
      '''altert : alterdb
                | altertb'''
+     t[0]=t[1]
 
 def p_alterdb(t):
-    '''alterdb : ALTER DATABASE ID alterdb1'''
+     '''alterdb : ALTER DATABASE ID alterdb1'''
+     #print (t[4])
+     
+     t[0] = ALTERDBO(t[3],(t[4])[0],(t[4])[1])
+     
+
 
 def p_alterdb1(t):
-    '''alterdb1 : RENAME TO ID 
+     '''alterdb1 : RENAME TO ID 
                | OWNER TO alterdb2'''
+     t[1]=[t[1]]
+     t[1].append(t[3])
+     t[0]=t[1]
 
 def p_alterdb2(t):
-    '''alterdb2 : ID 
-               | CURRENT_USER
-               | SESSION_USER'''
+     '''alterdb2 : ID 
+                 | CURRENT_USER
+                 | SESSION_USER'''
+     t[0]=t[1]
+
+
+
+
+
 
 def p_altertb(t):
-    '''altertb : ALTER TABLE ID altertb1'''
+     '''altertb : ALTER TABLE ID altertb1'''
+     t[0]=ALTERTBO(t[3],t[4])
+     
+     #print("sale arol:    ",t[1],"  ",t[2],"  ",t[3],"  ",t[4])
+
 
 def p_altertb1(t):
-    '''altertb1 : alttbadd 
-               | alttbdrop
-               | alttbalterv
-               | alttbname  '''
+     '''altertb1 : alttbadd 
+                 | alttbdrop
+                 | alttbalterv
+                 | alttbname  '''
+     t[0]=t[1]
 
 def p_alttbname(t):
-    '''alttbname : RENAME alttbrename1  '''
+     '''alttbname : RENAME alttbrename1  '''
+     t[0]=[t[1],t[2]]
 
 def p_alttbrename1(t):
-    '''alttbrename1 : COLUMN ID TO ID 
+     '''alttbrename1 : COLUMN ID TO ID 
                     | ID TO ID 
                     | CONSTRAINT ID TO ID
                     | TO ID '''
+     temp=t[1]
+     temp=temp.upper()
+     temp2=t[2]
+     temp2=temp2.upper()
+
+
+     if temp == "COLUMN":
+          t[0]=ALTERTBO_RENAME(t[2],t[4],t[1])
+     elif temp2 == "TO":
+          t[0]=ALTERTBO_RENAME(t[1],t[3],0)
+     elif temp == "CONSTRAINT":
+          t[0]=ALTERTBO_RENAME(t[2],t[4],t[1])
+     elif temp == "TO":
+          t[0]=ALTERTBO_RENAME(t[2],0,0)
+
+     
+
+
 
 def p_alttbalterv(t):
-    '''alttbalterv : alttbalterv COMA alttbalter
-                  | alttbalter '''
+     '''alttbalterv : alttbalterv COMA alttbalter
+                    | alttbalter '''
+     if len(t)==4:
+          t[0]= t[1]+[t[3]]
+     else:
+          t[0]=[t[1]]
+
+
 
 def p_alttbalter(t):
-    '''alttbalter : ALTER COLUMN ID alttbalter1
-                  | CONSTRAINT ID '''
+     '''alttbalter : ALTER COLUMN ID alttbalter1
+                   | ALTER CONSTRAINT ID '''
+     temp=t[2]
+     temp=temp.upper()
+
+     if temp=="COLUMN":
+          t[0]=ALTERTBO_ALTER(t[2],t[3],t[4])
+     else:
+          t[0]=ALTERTBO_ALTER(t[2],t[3],0)
+
+     
+
+
 
 def p_alttbalter1(t):
-    '''alttbalter1 : SET NOT NULL
-                  | DROP NOT NULL
-                  | SET DATA TYPE tipo valortipo
-                  | TYPE tipo valortipo
-                  | SET DEFAULT CADENA1
-                  | DROP DEFAULT  '''
+     '''alttbalter1 : SET     NOT       NULL
+                    | DROP    NOT       NULL
+                    | SET     DATA      TYPE tipo valortipo
+                    | TYPE    tipo      valortipo
+                    | SET     DEFAULT   exp
+                    | DROP    DEFAULT  '''
+     temp=t[1]
+     temp=temp.upper()
+
+     temp2=t[2]
+     temp2=temp2.upper()
+
+
+     if temp=="SET" and temp2=="NOT":
+          t[0]=ALTERTBO_ALTER_PROPIEDADES(t[1],t[2],t[3],0,0)
+     elif temp=="DROP" and temp2=="NOT":
+          t[0]=ALTERTBO_ALTER_PROPIEDADES(t[1],t[2],t[3],0,0)
+     elif temp=="SET" and temp2=="DATA":
+          t[0]=ALTERTBO_ALTER_PROPIEDADES(t[1],t[2],t[3],t[4],t[5])
+     elif temp=="TYPE" :
+          t[0]=ALTERTBO_ALTER_PROPIEDADES(t[1],t[2],t[3],0,0)
+     elif temp=="SET" and temp2=="DEFAULT":
+          t[0]=ALTERTBO_ALTER_PROPIEDADES(t[1],t[2],t[3],0,0)
+     elif temp=="DROP" and temp2=="DEFAULT":
+          t[0]=ALTERTBO_ALTER_PROPIEDADES(t[1],t[2],0,0,0)
+
+
+
+
+
 
 def p_alttbdrop(t):
-    '''alttbdrop : DROP alttbdrop1  '''
+     '''alttbdrop : DROP alttbdrop1  '''
+     t[0]=t[2]
 
 def p_alttbdrop1(t):
-    '''alttbdrop1 : COLUMN ID 
+     '''alttbdrop1 : COLUMN ID 
                   |  ID 
                   | CONSTRAINT ID  '''
+     temp=t[1]
+     temp=temp.upper()
+
+     if temp=="COLUMN":
+          t[0]=ALTERTBO_DROP(t[1],t[2])
+     elif temp=="CONSTRAINT":
+          t[0]=ALTERTBO_DROP(t[1],t[2])
+     else:
+          t[0]=ALTERTBO_DROP(0,t[1])
+
+
 
 def p_alttbadd(t):
-    '''alttbadd : ADD ID tipo valortipo
+     '''alttbadd : ADD ID tipo valortipo
                   | ADD COLUMN ID tipo valortipo
                   | ADD CONSTRAINT ID alttbadd2
                   | ADD alttbadd2  '''
+     
+     if len(t)==3:
+          t[0]=ALTERTBO_ADD(0,0,0,0,t[2])
+     else:
+          temp=t[2]
+          temp=temp.upper()
+
+          if (temp!="COLUMN" and temp!="CONSTRAINT"):
+               t[0]=ALTERTBO_ADD(t[2],t[3],t[4],0,0)
+          elif temp=="COLUMN":
+               t[0]=ALTERTBO_ADD(t[3],t[4],t[5],t[2],0)
+          elif temp=="CONSTRAINT":
+               t[0]=ALTERTBO_ADD(t[3],0,0,t[2],t[4])
+     
+          
 
 def p_alttbadd2(t):
-    '''alttbadd2 : alttbadd2 alttbadd3
+     '''alttbadd2 : alttbadd2 COMA alttbadd3
                   | alttbadd3  '''
+     if len(t)==4:
+          t[0]=t[1]+[t[3]]
+     else:
+          t[0]=[t[1]]
 
 def p_alttbadd3(t):
-    '''alttbadd3 : CHECK PAR_A exp PAR_C
-                  | UNIQUE PAR_A CADENA1 PAR_C
-                  | PRIMARY KEY PAR_A CADENA1 PAR_C
-                  | FOREIGN KEY PAR_A CADENA1 PAR_C REFERENCES  ID PAR_A CADENA1 PAR_C'''
+     '''alttbadd3 : CHECK PAR_A exp PAR_C
+                  | UNIQUE PAR_A alttbadd4 PAR_C
+                  | PRIMARY KEY PAR_A alttbadd4 PAR_C
+                  | FOREIGN KEY PAR_A alttbadd4 PAR_C REFERENCES  ID PAR_A alttbadd4 PAR_C'''
+     temp=t[1]
+     temp=temp.upper()
+     
+     if temp=="CHECK" :
+          t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[3],0,0)
+     elif temp=="UNIQUE":
+          t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[3],0,0)
+     elif temp=="PRIMARY":
+          t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[4],0,0)
+     elif temp=="FOREIGN" :
+          t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[4],t[6],t[9])
 
+
+def p_alttbadd4(t):
+     '''alttbadd4 : alttbadd4 COMA ID
+                  | ID'''
+     if len(t)==4:
+          t[0]=t[1]+[t[3]]
+     else:
+          t[0]=[t[1]]
 #fin alter codigo-----------------------------------------------------------------
 
 def p_insertar(t):

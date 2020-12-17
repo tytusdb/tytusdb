@@ -352,6 +352,16 @@ def eleccion(instr,ts):
     global outputTxt
     outputTxt+='\n> Base de Datos '+nombreT+' seleccionada'
 
+
+
+def AlterDBF(instr,ts):
+    print("nombre:",instr.Id,"Tipo:",instr.TipoCon,"Valor:",instr.valor)
+     
+def AlterTBF(instr,ts):
+    print("nombre:",instr.Id,"Cuerpo:",instr.cuerpo)
+
+
+
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
         op = resolver_operacion(operacion.op, ts)
@@ -520,7 +530,16 @@ def procesar_instrucciones(instrucciones, ts) :
         elif isinstance(instr, Eliminar) : eliminar_de_tabla(instr,ts)
         elif isinstance(instr, DBElegida) : eleccion(instr,ts)
         elif isinstance(instr, MostrarDB) : mostrar_db(instr,ts)
+
+        elif isinstance(instr, ALTERDBO) : AlterDBF(instr,ts)
+        elif isinstance(instr, ALTERTBO) : AlterTBF(instr,ts)
+
         else : print('Error: instrucción no válida')
+
+
+
+
+
 
 
 

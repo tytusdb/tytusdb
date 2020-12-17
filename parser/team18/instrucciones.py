@@ -248,3 +248,88 @@ class Case(Instruccion):
         self.condicion=condicion
         self.sino=sino
         self.alias=alias
+
+#---------------------mmms
+
+class ALTERDBO(Instruccion): 
+    '''
+        ALTER DATABASE ID CONDICION = VALOR
+    '''
+    def __init__(self, Id, TipoCon,valor):
+        self.Id = Id
+        self.TipoCon = TipoCon
+        self.valor = valor
+
+class ALTERTBO(Instruccion): 
+    '''
+        ALTER TABLE
+    '''
+    def __init__(self, Id,cuerpo):
+        self.Id = Id
+        self.cuerpo = cuerpo
+
+class ALTERTBO_RENAME(Instruccion): 
+    '''
+        ALTER TABLE RENAME
+    '''
+    def __init__(self, Id1,Id2,operacion):
+        self.Id1 = Id1
+        self.Id2 = Id2
+        self.operacion = operacion 
+
+
+class ALTERTBO_ALTER_PROPIEDADES(Instruccion): 
+    '''
+        ALTER TABLE ALTER
+    '''
+    def __init__(self, prop1,prop2,prop3,prop4,prop5):
+        self.prop1 = prop1
+        self.prop2 = prop2
+        self.prop3 = prop3 
+
+        self.prop4 = prop4
+        self.prop5 = prop5 
+
+class ALTERTBO_ALTER(Instruccion): 
+    '''
+        ALTER TABLE ALTER
+    '''
+    def __init__(self, instruccion,id,extra):
+        self.instruccion = instruccion
+        self.id = id
+        self.extra = extra 
+
+
+class ALTERTBO_DROP(Instruccion): 
+    '''
+        ALTER TABLE DROP
+    '''
+    def __init__(self, instruccion,id):
+        self.instruccion = instruccion
+        self.id = id
+
+
+class ALTERTBO_ADD(Instruccion): 
+    '''
+        ALTER TABLE ADD
+    '''
+    def __init__(self, id,tipo,valortipo,instruccion,extra):
+        self.id = id
+        self.tipo = tipo
+        self.valortipo = valortipo
+
+        self.instruccion = instruccion
+        self.extra = extra
+
+
+class ALTERTBO_ADD_EXTRAS(Instruccion): 
+    '''
+        ALTER TABLE ADD Extras
+    '''
+    def __init__(self, instruccion,contenido,  id , contenido2):
+        self.instruccion = instruccion
+        self.contenido = contenido
+
+        self.id = id
+        self.contenido2 = contenido2
+
