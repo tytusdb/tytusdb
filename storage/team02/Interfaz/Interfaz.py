@@ -6,4 +6,5 @@ VentanaPrincipal = Frame(raiz, width = 1200, height=600)
 VentanaPrincipal.config(background = "#f9e0ae")
 raiz.config(background = "#f9e0ae")
 VentanaPrincipal.pack()
+
 raiz.mainloop()
