@@ -10,7 +10,7 @@ from storageManager import jsonMode  # TODO Change storage manager
 
 
 @singleton
-class TypeChecker(object):  # TODO messages
+class TypeChecker(object):
     def __init__(self):
         self._typeCheckerList = []
 

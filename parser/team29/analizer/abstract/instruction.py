@@ -1,8 +1,7 @@
 from abc import abstractmethod
 from enum import Enum
 from storage.storageManager import jsonMode
-from analizer.typechecker.Metadata import Struct as s
-from analizer.typechecker.Metadata import File as f
+from analizer.typechecker.Metadata import Struct
 
 
 class SELECT_MODE(Enum):
@@ -50,6 +49,33 @@ class SelectParams(Instruction):
     def execute(self, environment):
         pass
 
+
+class WhereClause(Instruction):
+    def __init__(self, series, row, column):
+        super().__init__(row, column)
+        self.series = series
+
+    def execute(self, environment, df, labels):
+        filt = self.series.execute(environment)
+        return df.loc[filt.value,labels]
+
+class Select(Instruction):
+    def __init__(self, params, wherecl, df, row, column):
+        Instruction.__init__(self, row, column)
+        self.params = params
+        self.wherecl = wherecl
+        self.df = df
+
+    def execute(self, environment):
+        
+        value = [p.execute(environment).value for p in self.params]
+        
+        labels = [p.temp for p in self.params]
+        
+        for i in range(len(labels)):
+            self.df[labels[i]] = value[i]
+        
+        return self.wherecl.execute(environment,self.df,labels)
 
 class Drop(Instruction):
     """
@@ -199,19 +225,66 @@ class CreateDatabase(Instruction):
         1: error
         2: exists
         """
+
         if self.mode == None:
             self.mode = 1
 
         if result == 0:
-            s.createDatabase(self.name, self.mode, self.owner)
+            Struct.createDatabase(self.name, self.mode, self.owner)
             report = "Base de datos insertada"
         elif result == 1:
             report = "Error al insertar la base de datos"
         elif result == 2 and self.replace:
-            s.replaceDatabase(self.name, self.mode, self.owner)
+            Struct.replaceDatabase(self.name, self.mode, self.owner)
             report = "Base de datos reemplazada"
         elif result == 2 and self.exists:
             report = "Base de datos no insertada, la base de datos ya existe"
         else:
             report = "Error: La base de datos ya existe"
         return report
+
+
+class CreateTable(Instruction):
+
+    def __init__(self,exists,name,inherits,columns=[]):
+        self.exists = exists
+        self.name = name
+        self.columns = columns
+        self.inherits = inherits
+        
+
+    def execute(self,environment):
+        nCol = self.count()
+        result = jsonMode.createTable(dbtemp,self.name,nCol)  
+        print(result)    
+        """
+        Result
+        0: insert
+        1: error
+        2: not found database
+        3: exists table
+        """
+        if result == 0:
+            insert = Struct.insertTable(dbtemp,self.name,self.columns,self.inherits)
+            if insert == None:
+                report = "Tabla " + self.name +" creada"
+            else:
+                jsonMode.dropTable(dbtemp,self.name)
+                Struct.dropTable(dbtemp,self.name)
+                report = insert
+        elif result == 1:
+            report = "Error: No se puedo crear la tabla: " + self.name 
+        elif result == 2:
+            report = "Error: Base de datos no encontrada: " + dbtemp 
+        elif result == 3 and self.exists:
+            report = "Tabla no creada, ya existe en la base de datos"
+        elif result == 3:
+            report = "Error: ya existe la tabla " + self.name 
+        return report
+
+    def count(self):
+        n = 0
+        for column in self.columns:
+            if not column[0]:
+                n += 1
+        return n
