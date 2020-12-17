@@ -29,6 +29,73 @@ class OPERACION_ESPECIAL(Enum):
     XOR = 6
     DEPIZQ = 7
     DEPDER = 8
+
+
+class OPERACION_MATH(Enum):
+    ABS = 1
+    CBRT = 2
+    CEIL = 3
+    CEILING = 4
+    DEGREES = 5
+    DIV = 6
+    EXP = 7
+    FACTORIAL = 8
+    FLOOR = 9
+    GCD = 10
+    LN = 11
+    LOG = 12
+    MOD = 13
+    PI = 14
+    POWER = 15
+    RADIANS = 16
+    ROUND = 17
+    MIN_SCALE =18
+    SCALE = 19
+    SIGN = 20
+    SQRT = 21
+    TRIM = 22
+    TRUNC =  23
+    RANDOM =  24
+    SETSEED = 25
+    #trigonometric functions
+    ACOS = 26
+    ACOSD = 27
+    ASIN = 28
+    ASIND = 29
+    ATAN = 30
+    ATAND = 31
+    ATAN2 = 32
+    ATAN2D = 33
+    COS = 34
+    COSD = 35
+    COT = 36
+    COTD = 37
+    SIN = 38
+    SIND = 39
+    TAN = 40
+    TAND = 41
+    SINH = 42
+    COSH = 43
+    TANH = 44
+    ASINH = 45
+    ACOSH = 46
+    ATANH = 47
+
+
+class OPERACION_BINARY_STRING(Enum):
+    LENGTH = 1
+    SUBSTRING = 2
+    TTRIM = 3
+    MD5 = 4
+    SHA256 = 5
+    DECODE = 6
+    ENCODE = 7
+    GET_BYTE = 8
+    SET_BYTE = 9
+    SUBSTR =  10
+    CONVERT = 11
+    WIDTH_BUCKET = 12
+
     
 class Expresion:
     '''
@@ -182,3 +249,48 @@ class Operacion_Great_Least(Expresion):
     def __init__(self, tipo, expresion):
         self.tipo=tipo
         self.expresion=expresion
+
+
+class Operacion_Math_Unaria(Expresion):
+    '''
+        Esta clase representa la expresion matematica con un solo argumento
+        Esta clase recibe el nombre de la funcion y una sola expresion
+    '''
+    def __init__(self,op,operador):
+        self.op = op
+        self.operador  = operador
+
+class Operacion_Math_Binaria(Expresion):
+    '''
+        Esta clase representa la expresion matematica con un dos argumentos
+        Esta clase recibe el operador y 2 expresiones
+    '''
+    def __init__(self,op1,op2,operador):
+        self.op1 = op1
+        self.op2 = op2
+        self.operador  = operador
+
+class Operacion_Definida(Expresion):
+    '''
+        Esta clase representa la constante pi y random 
+    '''
+    def __init__(self,operador):
+        self.operador = operador
+
+class Operacion_Strings(Expresion):
+    '''
+        Esta clase representa las operaciones unarias que se pueden realizar con strings
+    '''
+    def __init__(self,cadena, operador):
+        self.cadena = cadena
+        self.operador =  operador
+
+class Operacion_String_Compuesta(Expresion):
+    '''
+        Esta clase representa las operaciones compuestas que se pueden realizar con string
+    '''
+    def __init__(self,op1,op2,op3,operador):
+        self.op1 = op1
+        self.op2 = op2
+        self.op3 = op3
+        self.operador = operador

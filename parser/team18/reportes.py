@@ -47,3 +47,21 @@ def Reporte_Errores(lexicos,sintacticos):
         print("No fue posible generar el reporte: "+ str(e))
     
     return texto
+
+
+def ReporteTS():
+    texto = '''
+    <!DOCTYPE html>
+    <html lang=\"es\">
+    <head><meta charset=\"UTF-8\">  <title> Reporte Tabla de simbolos </title> 
+    <style type=\"text/css\"> \n'''
+    texto += textocss
+    texto += '''</style> </head> </body>
+    <div id=\"main-container\">
+    <table> <thead> <tr>
+    <th>#</th>
+    <th>Tabla de simbolos</th>
+    </tr> </thead>
+    '''
+
+    return texto

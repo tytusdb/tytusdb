@@ -5,6 +5,13 @@ from instrucciones import *
 from reporteAST import *
 from temporal import *
 from storageManager import jsonMode as EDD
+import Funciones as f
+import math
+import random
+from tkinter import *
+import tkinter.filedialog
+import tkinter.messagebox
+
 
 #---------variables globales
 listaInstrucciones = []
@@ -426,6 +433,77 @@ def resolver_operacion(operacion,ts):
         return operacion.valor
     elif isinstance(operacion, Operando_ID):
         return operacion.id 
+    elif isinstance(operacion, Operacion_Math_Unaria):
+        op = resolver_operacion(operacion.op,ts)
+        print("Entre a math unaria")
+        if isinstance(op, (int,float)):
+            if operacion.operador == OPERACION_MATH.ABS: return abs(op) 
+            elif operacion.operador == OPERACION_MATH.CBRT: return f.func_cbrt(op)
+            elif operacion.operador == OPERACION_MATH.CEIL: return math.ceil(op)
+            elif operacion.operador == OPERACION_MATH.CEILING: return math.ceil(op)
+            elif operacion.operador == OPERACION_MATH.DEGREES: return math.degrees(op)
+            elif operacion.operador == OPERACION_MATH.EXP: return math.exp(op)
+            elif operacion.operador == OPERACION_MATH.FACTORIAL: return math.factorial(op)
+            elif operacion.operador == OPERACION_MATH.FLOOR: return math.floor(op)
+            elif operacion.operador == OPERACION_MATH.LN: return math.log(op)
+            elif operacion.operador == OPERACION_MATH.LOG: return math.log10(op)
+            elif operacion.operador == OPERACION_MATH.RADIANS: return math.radians(op)
+            elif operacion.operador == OPERACION_MATH.SIGN: return f.func_sign(op)
+            elif operacion.operador == OPERACION_MATH.SQRT: return  math.sqrt(op)
+            elif operacion.operador == OPERACION_MATH.TRUNC: return math.trunc(op)
+
+            elif operacion.operador == OPERACION_MATH.ACOS: return math.acos(op)
+            elif operacion.operador == OPERACION_MATH.ACOSD: return math.acos(math.radians(op))
+            elif operacion.operador == OPERACION_MATH.ASIN: return math.asin(op)
+            elif operacion.operador == OPERACION_MATH.ASIND: return math.asin(math.radians(op))
+            elif operacion.operador == OPERACION_MATH.ATAN: return math.atan(op)
+            elif operacion.operador == OPERACION_MATH.ATAND: return math.atan(math.radians(op))
+            elif operacion.operador == OPERACION_MATH.ATAN2: return math.atan2(op)
+            elif operacion.operador == OPERACION_MATH.ATAN2D: return math.atan2(math.radians(op))
+            elif operacion.operador == OPERACION_MATH.COS: return math.cos(op)
+            elif operacion.operador == OPERACION_MATH.COSD: return math.cos(math.radians(op))
+            elif operacion.operador == OPERACION_MATH.COT: return f.func_cot(op)
+            elif operacion.operador == OPERACION_MATH.COTD: return f.func_cot(math.radians(op))
+            elif operacion.operador == OPERACION_MATH.SIN: return math.sin(op)
+            elif operacion.operador == OPERACION_MATH.SIND: return math.sin(math.radians(op))
+            elif operacion.operador == OPERACION_MATH.TAN: return math.tan(op)
+            elif operacion.operador == OPERACION_MATH.TAND: return math.tan(math.radians(op))
+            elif operacion.operador == OPERACION_MATH.SINH: return math.sinh(op)
+            elif operacion.operador == OPERACION_MATH.COSH: return math.cosh(op)
+            elif operacion.operador == OPERACION_MATH.TANH: return math.tanh(op)
+            elif operacion.operador == OPERACION_MATH.ASINH: return math.asinh(op)
+            elif operacion.operador == OPERACION_MATH.ACOSH: return math.acosh(op)
+            elif operacion.operador == OPERACION_MATH.ATANH: return math.atanh(op)
+
+    elif isinstance(operacion, Operacion_Math_Binaria):
+        op1 = resolver_operacion(operacion.op1,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
+        if isinstance(op1,(int,float)) and isinstance(op2,(int,float)):
+            if operacion.operador == OPERACION_MATH.DIV: return op1//op2
+            elif operacion.operador == OPERACION_MATH.MOD: return math.fmod(op1,op2)
+            elif operacion.operador == OPERACION_MATH.GCD: return math.gcd(op1,op2)
+            elif operacion.operador == OPERACION_MATH.POWER: return math.pow(op1,op2)
+            elif operacion.operador == OPERACION_MATH.ROUND: return f.func_round(op1,op2)
+            
+    elif isinstance(operacion, Operacion_Definida):
+        if operacion.operador == OPERACION_MATH.PI: return math.pi
+        elif operacion.operador == OPERACION_MATH.RANDOM: return f.func_random() 
+
+    elif isinstance(operacion, Operacion_Strings):
+        op = resolver_operacion(operacion.cadena,ts)
+        if isinstance (op,(str)):
+            if operacion.operador == OPERACION_BINARY_STRING.MD5: return f.func_md5(op)
+            elif operacion.operador == OPERACION_BINARY_STRING.SHA256: return f.func_md5(op)
+            elif operacion.operador == OPERACION_BINARY_STRING.LENGTH: return f.func_length(op)
+    
+    elif isinstance(operacion,Operacion_String_Compuesta):
+        op1 = resolver_operacion(operacion.op1,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
+        op3 = resolver_operacion(operacion.op3,ts)
+        if isinstance(op1,(str)) and isinstance(op2,(int)) and isinstance(op3,(int)) :
+            if operacion.operador == OPERACION_BINARY_STRING.SUBSTR: return f.func_substring(op1,op2,op3)
+            elif operacion.operador == OPERACION_BINARY_STRING.SUBSTRING: return f.func_substring(op1,op2,op3)
+    
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
@@ -454,6 +532,14 @@ def Analisar(input):
     print(instrucciones)
     ts_global = TS.TablaDeSimbolos()
     procesar_instrucciones(instrucciones,ts_global)
+
+    #crea la consola y muestra el resultado
+    '''consola = tkinter.Tk() # Create the object
+    consola.geometry('950x200')
+    text = tkinter.Text(consola,height=200, width=1280)
+    consola.title("Consola")
+    text.pack()
+    text.insert(END,outputTxt)'''
     return outputTxt
 
 #Metodos para graficar el ast 
