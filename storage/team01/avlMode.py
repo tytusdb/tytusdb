@@ -63,7 +63,19 @@ def showTables(database: str) -> list:
 
 #Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla
 def extractTable(database: str, table: str) -> list:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(table)
+        if nodoTBL:
+            if nodoTBL.datos.tamano == 0:
+                return '[]' #No hay registros
+            else:
+                return list(nodoTBL.datos.raiz) #Lista de registros
+        else:
+            return None #Tabla inexistente en la Base de Datos
+    else:
+        return None #Base de Datos inexistente
+    
 
 #Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabla
 def extractRangeTable(database: str, table: str, lower: any, upper: any) -> list:

@@ -157,6 +157,7 @@ def t_decimales(t):
         t.value = float(t.value)
     except ValueError:
         print("Error no se puede convertir %d", t.value)
+        reporteerrores.append(Lerrores("Error Semantico","No se puede convertir '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos)) 
         t.value = 0
     return t
 
@@ -167,6 +168,7 @@ def t_int(t):
         t.value = int(t.value)
     except ValueError:
         print("Valor numerico incorrecto %d", t.value)
+        reporteerrores.append(Lerrores("Error semantico","Valor Numerico Invalido '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos)) 
         t.value = 0
     return t
 
@@ -210,10 +212,12 @@ t_ignore = " \t"
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
+  
 
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    print("Caracter invalido '%s'" % t.value[0])
+    reporteerrores.append(Lerrores("Error Lexico","Caracter incorrecto '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos)) 
     t.lexer.skip(1)
 
 
@@ -233,7 +237,7 @@ from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
 from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
-from Instrucciones.Insert import Insert
+#from Instrucciones.Insert import Insert
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -254,6 +258,7 @@ precedence = (
 # ----------------------------------------------DEFINIMOS LA GRAMATICA------------------------------------------
 # Definición de la gramática
 
+from reportes import *
 
 def p_init(t):
     'init            : instrucciones'
@@ -289,7 +294,7 @@ def p_instruccion(t):
 
 def p_instruccion1(t):
     '''instruccion      :  use id ptcoma'''
-      t[0]=Use(t[2])
+    t[0]=Use(t[2])
 
 
 def p_CASE(t):
@@ -338,14 +343,19 @@ def p_DROP(t):
 
 
 def p_ALTER(t):
-    '''ALTER : alter databases id RO
-              | altertable'''
+ '''ALTER : alter databases id rename to id
+            | alter databases id owner to id
+            | altertable
+ '''
+ if len(t)==7:
+     if(t[4]=='rename'):
+         print("renombrar db")
+         t[0]=AlterDb(str(t[3]),t[6])
+     else:
+         print("renombrar owner")
+ elif len(t)==1:
+     print("altertable")
 
-
-def p_r_o(t):
-    '''RO : rename to id
-           | owner to id
-    '''
 
 
 def p_altertable(t):
@@ -942,7 +952,10 @@ def p_EXPT13(t):
     tipo.getTipo()
     t[0] = Terminal(tipo, t[2])
 
-
+def p_EXPT14(t):
+    'EXP : cadena as TIPO'
+    #aqui es en donde va el convert
+    t[0] = Terminal(t[3], t[1])
 
 def p_EXPT16(t):
     'EXP : default'
@@ -954,6 +967,8 @@ def p_EXPT16(t):
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
+    reporteerrores.append(Lerrores("Error Sintactico","Error en  '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos))
+
 
 
 import ply.yacc as yacc
