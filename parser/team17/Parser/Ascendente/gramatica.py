@@ -1,3 +1,4 @@
+from Interprete.CREATE_DATABASE.create_database import CreateDatabase
 from Interprete.CREATE_TABLE.create_table import CreateTable
 from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
 from Interprete.Condicionantes.Condicion import Condicion
@@ -9,6 +10,8 @@ from Interprete.Primitivos.DECIMAL import DECIMAL
 from Interprete.Primitivos.CADENAS import CADENAS
 from Interprete.Primitivos.BOOLEANO import BOOLEANO
 from Interprete.Tabla_de_simbolos import Columna
+from Interprete.Insert.insert import Insert
+from Interprete.USE_DATABASE.use_database import UseDatabase
 
 reservadas = {
 
@@ -32,6 +35,7 @@ reservadas = {
     'map' : 'MAP',
     'list' : 'LIST',
     'mode' : 'MODE',
+    'use' : 'USE',
 
     # Inheritance
     'inherits': 'INHERITS',
@@ -119,7 +123,6 @@ reservadas = {
     'unknown' : 'UNKNOWN',
     'is'    : 'IS',
     'distinct'  : 'DISTINCT',
-    'use' : 'USE',
 
     # FUNCIONES MATEMATICAS
     'abs' : 'ABS',
@@ -425,26 +428,80 @@ def p_sentence(t):
     '''
     t[0] = t[1]
 
-def p_ddl(t):
+# --------------------------------------------------------------------------------------
+# ------------------------------------ DDL ---------------------------------------------
+# --------------------------------------------------------------------------------------
+
+def p_ddl_select(t):
     '''
         ddl  : select
-             | table_create
-             | insert
-             | update
-             | deletetable
-             | create_db
-             | drop_table
-             | alter_table
-             | create_type
-             | alter_database
-             | drop_database
-             | use_database
+    '''
+    t[0] = t[1]
+
+def p_ddl_use(t):
+    '''
+        ddl  : use_database
     '''
     t[0] = t[1]
 
 def p_use_database(t):
     '''
         use_database : USE ID
+    '''
+    t[0] = UseDatabase(t[2])
+
+def p_ddl_table_create(t):
+    '''
+        ddl  : table_create
+    '''
+    pass
+
+def p_ddl_insert(t):
+    '''
+        ddl  : insert
+    '''
+    t[0]=t[1]
+
+
+def p_ddl_update(t):
+    '''
+        ddl  : update
+    '''
+    pass
+
+def p_ddl_deletetable(t):
+    '''
+        ddl  : deletetable
+    '''
+    pass
+
+def p_ddl_create_db(t):
+    '''
+        ddl  : create_db
+    '''
+    t[0] = t[1]
+
+def p_ddl_alter_table(t):
+    '''
+        ddl  : alter_table
+    '''
+    pass
+
+def p_ddl_create_type(t):
+    '''
+        ddl  : create_type
+    '''
+    pass
+
+def p_ddl_alter_database(t):
+    '''
+        ddl  : alter_database
+    '''
+    pass
+
+def p_ddl_drop_database(t):
+    '''
+        ddl  : drop_database
     '''
     t[0] = t[1]
 
@@ -480,12 +537,12 @@ def p_select(t):
         # SELECT TIMESTAMP CADENA
         pass
 
-
 def p_select_simple(t):
     '''
         select : SELECT listavalores FROM listavalores
     '''
     # SELECT SIMPLE
+    t[0] = select(t[2], t[4], "N/A", 1, 1)
 
 
 def p_time(t):
@@ -1396,6 +1453,7 @@ def p_especificaciones(t):
     '''
     if len(t)==2:
         if t[1].lower()=='unique':
+
             pass
         elif t[1].lower()=='default':
             pass
@@ -1418,7 +1476,7 @@ def p_especificaciones(t):
         if t[1] == 'foreign':
             pass
 
-
+## 1 + 1
 def p_especificaciones_exp(t):
     '''
         especificaciones : exp
@@ -1483,15 +1541,15 @@ def p_tipo(t):
 # --------------------------------------------------------------------------------------
 def p_insert(t):
     '''
-        insert : INSERT INTO ID VALUES PARIZQ listavalores PARDER
+        insert : INSERT INTO ID                        VALUES PARIZQ listavalores PARDER
                | INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
     '''
     if len(t)==8:
         #INSERT INTO ID VALUES PARIZQ listavalores PARDER
-        pass
+        t[0]= Insert(t[3],[],t[6],t.lineno,0)
     elif len(t)==11:
         #INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
-        pass
+        t[0]= Insert(t[3],t[5],t[9],t.lineno,0)
 
 def p_listaids(t):
     '''
@@ -1657,17 +1715,16 @@ def p_create_db(t):
 
     if len(t)==9:
         #CREATE OR REPLACE DATABASE IF NOT EXISTS createdb_extra
-        pass
+        t[0] = CreateDatabase(t[8], True, True)
     elif len(t)==6:
         #CREATE OR REPLACE DATABASE createdb_extra
-        pass
+        t[0] = CreateDatabase(t[5], True, False)
     elif len(t)==7:
         #CREATE DATABASE IF NOT EXISTS createdb_extra
-        pass
+        t[0] = CreateDatabase(t[6], False, True)
     elif len(t)==4:
         #CREATE DATABASE createdb_extra
-        pass
-
+        t[0] = CreateDatabase(t[3], False, False)
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------CREATEDB EXTRA--------------------------------------
@@ -1681,8 +1738,9 @@ def p_createdb_extra(t):
                        | ID OWNER exp MODE exp
                        | ID OWNER IGUAL exp
                        | ID MODE IGUAL exp
-                       | ID OWNER exps
+                       | ID OWNER exp
                        | ID MODE exp
+                       | ID
     '''
     t[0] = t[1]
 
