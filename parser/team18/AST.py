@@ -55,7 +55,7 @@ def agregarMensjae(tipo,mensaje):
 
 #---------Ejecucion Funciones EDD-------------
 def crear_BaseDatos(instr,ts):
-    nombreDB=resolver_operacion(instr.nombre,ts)
+    nombreDB=resolver_operacion(instr.nombre,ts).lower()
     
     msg='Creando base de datos: '+nombreDB
     agregarMensjae('normal',msg)
@@ -100,7 +100,7 @@ def crear_BaseDatos(instr,ts):
     #print('reemplazar:',instr.reemplazar,'verificar:',instr.verificacion,'nombre:',instr.nombre,'propietario:',instr.propietario,'modo:',instr.modo)
 
 def eliminar_BaseDatos(instr,ts):
-    nombreDB=str(resolver_operacion(instr.nombre,ts))
+    nombreDB=str(resolver_operacion(instr.nombre,ts)).lower()
     eliminarOK=False;
     #result=0 operacion exitosa
     #result=1 error en la operacion
@@ -152,7 +152,7 @@ def mostrar_db(instr,ts):
 
 def eliminar_Tabla(instr,ts):
     nombreT=''
-    nombreT=resolver_operacion(instr.nombre,ts)
+    nombreT=resolver_operacion(instr.nombre,ts).lower()
 
     #Valor de retorno: 0 operación exitosa
     # 1 error en la operación, 
@@ -195,12 +195,20 @@ def eliminar_Tabla(instr,ts):
 
 
 
-#-----pendientes
+#---------pendientes-----------------------
 def crear_Tabla(instr,ts):
-    nombreT=resolver_operacion(instr.nombre,ts)
+    #Pendiente
+    # -foraneas
+    # -default igual al tipo de la columna
+    # -tipo columna TYPE
+    # -zonahoraria
+    # -check
+    # -herencia
+
+    nombreT=resolver_operacion(instr.nombre,ts).lower()
     listaColumnas=[]
     crearOK=True
-
+    pkCompuesta=False
     msg='Creando Tabla:'+nombreT
     agregarMensjae('normal',msg)
     contC=0# variable para contar las columnas a mandar a EDD
@@ -210,71 +218,158 @@ def crear_Tabla(instr,ts):
     for colum in instr.columnas :
         colAux=Columna_run()#columna temporal para almacenar
         if isinstance(colum, llaveTabla) :
-            #listado de foraneas o primarias compuestas
-            print('llaves Primaria:',colum.tipo,'lista:',colum.columnas,'tablaref',colum.referencia,'listaref',colum.columnasRef)
+            if(colum.tipo==True):
+                if(pkCompuesta==False):
+                    pkCompuesta=True#primer bloque pk(list)
+                    #pk compuesta, revisar la lista
+                    for pkC in colum.columnas:
+                        exCol=False
+                        for lcol in listaColumnas:
+                            if(lcol.nombre==pkC.lower()):
+                                exCol=True
+                                if(lcol.primary==None):
+                                    lcol.primary=True
+                                else:
+                                    crearOK=False
+                                    msg='primary key repetida:'+pkC.lower()
+                                    agregarMensjae('error',msg)   
+                        if(exCol==False):
+                            crearOK=False
+                            msg='No se puede asignar como primaria:'+pkC.lower()
+                            agregarMensjae('error',msg)
+                else:
+                    crearOK=False
+                    msg='Solo puede existir un bloque de PK(list)'
+                    agregarMensjae('error',msg)
+            else:
+                #bloque de foraneas
+                print('llaves Primaria:',colum.tipo,'lista:',colum.columnas,'tablaref',colum.referencia,'listaref',colum.columnasRef)
         elif isinstance(colum, columnaTabla) :
             contC=contC+1
-            colAux.nombre=resolver_operacion(colum.id,ts)#guardar nombre col
-            if isinstance(colum.tipo,Operando_ID):
-                #revisar la lista de Types
-                ' '
-            else:
-                colAux.tipo=colum.tipo #guardar tipo col
-
-            #atributos es una lista o False
-                #el atributo check trae otra lista
-            print('id:',colum.id,'Tipo:',colum.tipo,'valor',colum.valor,'zonahoraria',colum.zonahoraria)
-            if(colum.valor!=False):
-                '''aca se debe verificar el valor es una lista'''
-            if(colum.zonahoraria!=False):
-                '''aca se debe verificar la zonahoraria es una lista'''
-            if(colum.atributos!=False):
-                #aca se debe verificar la lista de atributos de una columna
-                for atributoC in colum.atributos :
-                    if isinstance(atributoC, atributoColumna):
-                        print('atributos-->','primary:',atributoC.primary,'check:',atributoC.check)
-                        if(atributoC.default!=None):
-                            if(colAux.default==None):
-                                colAux.default=resolver_operacion(atributoC.default,ts)#guardar default
-                            else:
+            colAux.nombre=resolver_operacion(colum.id,ts).lower()#guardar nombre col
+            #revisar columnas repetidas
+            pos=0
+            colOK=True
+            while pos< len(listaColumnas):
+                if(listaColumnas[pos].nombre==colAux.nombre):
+                    crearOK=False;
+                    colOK=False
+                    msg='nombre de columna repetido:'+colAux.nombre
+                    agregarMensjae('error',msg)
+                    break;
+                else:
+                    pos=pos+1
+            #si no existe el nombre de la columna revisa el resto de errores
+            if(colOK):
+                if isinstance(colum.tipo,Operando_ID):
+                    colAux.tipo=resolver_operacion(colum.tipo,ts).lower()#guardar tipo col
+                    #revisar la lista de Types
+                    crearOK=False
+                    msg='No existe el tipo '+colAux.tipo+' en la columna '+colAux.nombre
+                    agregarMensjae('error',msg)
+                else:
+                    colAux.tipo=colum.tipo.lower() #guardar tipo col
+                if(colum.valor!=False):
+                    if(colAux.tipo=='varchar' or colAux.tipo=='char'):
+                        if(len(colum.valor)==1):
+                            errT=True;#variable error en p varchar(p)
+                            if isinstance(colum.valor[0],Operando_Numerico):
+                                val=resolver_operacion(colum.valor[0],ts)
+                                if(type(val) == int):
+                                    colAux.size=val
+                                    errT=False#no existe error
+                            if errT:
                                 crearOK=False
-                                msg='atributo default repetido en Col:'+colAux.nombre
+                                msg='el tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre
                                 agregarMensjae('error',msg)
-                        elif(atributoC.constraint!=None):
-                            if(colAux.constraint==None):
-                                colAux.constraint=atributoC.constraint#guardar constraint
-                            else:
+                        else:
+                            crearOK=False
+                            msg='el tipo '+colAux.tipo+' solo acepta 1 parametro: '+colAux.nombre
+                            agregarMensjae('error',msg)
+                    elif(colAux.tipo=='decimal' or colAux.tipo=='numeric' or colAux.tipo=='double precision'):
+                        if(len(colum.valor)==1):
+                            errT=True;#variable error en p varchar(p)
+                            if isinstance(colum.valor[0],Operando_Numerico):
+                                val=resolver_operacion(colum.valor[0],ts)
+                                if(type(val) == int):
+                                    colAux.size=val
+                                    errT=False#no existe error
+                            if errT:
                                 crearOK=False
-                                msg='atributo constraint repetido en Col:'+colAux.nombre
+                                msg='el tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre
                                 agregarMensjae('error',msg)
-                        elif(atributoC.null!=None):
-                            if(colAux.anulable==None):
-                                colAux.anulable=atributoC.null#guardar anulable
-                            else:
+                        elif(len(colum.valor)==2):
+                            errT=True;#variable error en p varchar(p)
+                            if (isinstance(colum.valor[0],Operando_Numerico) and isinstance(colum.valor[1],Operando_Numerico)):
+                                val1=resolver_operacion(colum.valor[0],ts)
+                                val2=resolver_operacion(colum.valor[1],ts)
+                                if(type(val1) == int and type(val2) == int):
+                                    colAux.size=val1
+                                    colAux.precision=val2
+                                    errT=False#no existe error
+                            if errT:
                                 crearOK=False
-                                msg='atributo anulable repetido en Col:'+colAux.nombre
+                                msg='el tipo '+colAux.tipo+' acepta enteros como parametro: '+colAux.nombre
                                 agregarMensjae('error',msg)
-                        elif(atributoC.unique!=None):
-                            if(colAux.unique==None):
-                                colAux.unique=atributoC.unique#guardar unique
-                            else:
-                                crearOK=False
-                                msg='atributo unique repetido en Col:'+colAux.nombre
-                                agregarMensjae('error',msg)
-                        elif(atributoC.primary!=None):
-                            if(colAux.primary==None):
-                                colAux.primary=atributoC.primary#guardar primary
-                            else:
-                                crearOK=False
-                                msg='atributo primary repetido en Col:'+colAux.nombre
-                                agregarMensjae('error',msg)
-                        elif(atributoC.check != None):
-                            for exp in atributoC.check:
-                                print('resultado: ',resolver_operacion(exp,ts))
+                        else:
+                            crearOK=False
+                            msg='el tipo '+colAux.tipo+' acepta maximo 2 parametro: '+colAux.nombre
+                            agregarMensjae('error',msg)
+                    else:
+                        crearOK=False
+                        msg='el tipo '+colAux.tipo+' no acepta parametros:'+colAux.nombre
+                        agregarMensjae('error',msg)
+                if(colum.zonahoraria!=False):
+                    '''aca se debe verificar la zonahoraria es una lista'''
+                    print('zonahoraria',colum.zonahoraria)
+                if(colum.atributos!=False):
+                    #aca se debe verificar la lista de atributos de una columna
+                    for atributoC in colum.atributos :
+                        if isinstance(atributoC, atributoColumna):
+                            if(atributoC.default!=None):
+                                if(colAux.default==None):
+                                    colAux.default=resolver_operacion(atributoC.default,ts)#guardar default
+                                else:
+                                    crearOK=False
+                                    msg='atributo default repetido en Col:'+colAux.nombre
+                                    agregarMensjae('error',msg)
+                            elif(atributoC.constraint!=None):
+                                if(colAux.constraint==None):
+                                    colAux.constraint=atributoC.constraint#guardar constraint
+                                else:
+                                    crearOK=False
+                                    msg='atributo constraint repetido en Col:'+colAux.nombre
+                                    agregarMensjae('error',msg)
+                            elif(atributoC.null!=None):
+                                if(colAux.anulable==None):
+                                    colAux.anulable=atributoC.null#guardar anulable
+                                else:
+                                    crearOK=False
+                                    msg='atributo anulable repetido en Col:'+colAux.nombre
+                                    agregarMensjae('error',msg)
+                            elif(atributoC.unique!=None):
+                                if(colAux.unique==None):
+                                    colAux.unique=atributoC.unique#guardar unique
+                                else:
+                                    crearOK=False
+                                    msg='atributo unique repetido en Col:'+colAux.nombre
+                                    agregarMensjae('error',msg)
+                            elif(atributoC.primary!=None):
+                                if(colAux.primary==None):
+                                    colAux.primary=atributoC.primary#guardar primary
+                                else:
+                                    crearOK=False
+                                    msg='atributo primary repetido en Col:'+colAux.nombre
+                                    agregarMensjae('error',msg)
+                            elif(atributoC.check != None):
+                                #el atributo check trae otra lista
+                                print('check:',atributoC.check)
+                                for exp in atributoC.check:
+                                    print('resultado: ',resolver_operacion(exp,ts))
+                listaColumnas.append(colAux)
+ 
+                
             
-
-            #agregar la columna
-            listaColumnas.append(Columna_run)
 
     #analisas si las columnas estan bien
     #buscar las tablas de una base de datos retorna una lista de tablas
@@ -297,7 +392,7 @@ def crear_Tabla(instr,ts):
             agregarMensjae('error',msg)
 
 def crear_Type(instr,ts):
-    nombreT=resolver_operacion(instr.nombre,ts)
+    nombreT=resolver_operacion(instr.nombre,ts).lower()
 
     global outputTxt
     outputTxt+='\n> Creando Type: '+nombreT
