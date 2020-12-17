@@ -81,4 +81,16 @@ numeroDeColumnaLabel = Label(VentanaPrincipal, text="No. Columna:" )
 numeroDeColumnaLabel.place (x =460 , y = 240)
 numeroDeColumnaLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
 
+#------------ENTRADA DE TEXTO PARA CARGA MASIVA --------------------- 
+
+cargaNasiva = Text(VentanaPrincipal, width = 55, height = 21)
+cargaNasiva.place(x=10, y = 50)
+
+#--------------BOTONES PARA CARGA MASIVA --------- 
+
+botonCarga = Button(VentanaPrincipal , text = "AGREGAR")
+botonCarga.place(x=300, y = 400)
+botonCarga.config(background = "#682c0e", fg="white", font=("Helvetica", 9 , "bold") )
+
+
 raiz.mainloop()
