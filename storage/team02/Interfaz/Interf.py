@@ -115,4 +115,22 @@ filemenu.add_command(label="Nuevo")
 filemenu.add_command(label="Abrir")
 filemenu.add_command(label="Guardar")
 filemenu.add_command(label="Cerrar")
+
+
+
+#-------------------------TITULOS DE SECCIONES-------------------
+
+nomTablasLabel = Label(VentanaPrincipal, text="Tablas")
+nomTablasLabel.place(x = 550 , y = 105)
+nomTablasLabel.config(background = "#f9e0ae" , foreground = "#c24914", font = ("Helvetica", 15, "bold"))
+
+
+nomBasesLabel = Label(VentanaPrincipal, text="Bases de Datos")
+nomBasesLabel.place(x = 760 , y = 105)
+nomBasesLabel.config(background = "#f9e0ae" , foreground = "#c24914", font = ("Helvetica", 15, "bold"))
+
+nomTuplasLabel = Label(VentanaPrincipal, text = "Tuplas")
+nomTuplasLabel.place(x=1000, y = 105)
+nomTuplasLabel.config(background = "#f9e0ae" , foreground = "#c24914", font = ("Helvetica", 15, "bold"))
+
 raiz.mainloop()
