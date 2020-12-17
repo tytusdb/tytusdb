@@ -34,7 +34,10 @@ class Codigos():
         return 'ERROR: La base de datos «' + name + '» no existe\n' + 'SQL state: 42704\n'
 
     def table_successful(self, name: str):
-        return 'CREATE TABLE ' + name + '\nConsulta devuelta correctamente \nSQL state: 00000\n'
+        return 'CREATE TABLE «' + name + '»\nConsulta devuelta correctamente \nSQL state: 00000\n'
+
+    def table_duplicate_table(self, name: str):
+        return 'ERROR: La tabla «' + name + '» ya existe\n' + 'SQL state: 42P07\n'
 
     def successful_completion(self, consulta: str):
         return consulta + '\nConsulta devuelta correctamente \nSQL state: 00000\n'

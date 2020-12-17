@@ -50,6 +50,33 @@ class SelectParams(Instruction):
         pass
 
 
+class WhereClause(Instruction):
+    def __init__(self, series, row, column):
+        super().__init__(row, column)
+        self.series = series
+
+    def execute(self, environment, df, labels):
+        filt = self.series.execute(environment)
+        return df.loc[filt.value,labels]
+
+class Select(Instruction):
+    def __init__(self, params, wherecl, df, row, column):
+        Instruction.__init__(self, row, column)
+        self.params = params
+        self.wherecl = wherecl
+        self.df = df
+
+    def execute(self, environment):
+        
+        value = [p.execute(environment).value for p in self.params]
+        
+        labels = [p.temp for p in self.params]
+        
+        for i in range(len(labels)):
+            self.df[labels[i]] = value[i]
+        
+        return self.wherecl.execute(environment,self.df,labels)
+
 class Drop(Instruction):
     """
     Clase que representa la instruccion DROP TABLE and DROP DATABASE

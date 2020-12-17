@@ -76,3 +76,17 @@ class Constraint(Instruction):
 
     def execute(self):
         pass
+
+
+class ColumnTipo(Instruction):
+
+    def __init__(self, tipoColumna, paramOne, paramTwo):
+        self._tipoColumna = tipoColumna 
+        self._paramOne = paramOne
+        self._paraTwo = paramTwo
+
+    def __repr__(self):
+        return str(vars(self))
+
+    def execute(self):
+        pass

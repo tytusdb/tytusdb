@@ -1,18 +1,24 @@
 import analizer.ply.yacc as yacc
 from analizer.tokens import *
 
+#Prueba para dataframe:
+import abstract.select_data as data
+df = data.dataSelect()
+df.crossJoin()
+
 # Construccion del analizador léxico
 import analizer.ply.lex as lex
 
 lexer = lex.lex()
 # Asociación de operadores y precedencia
 precedence = (
-    ("left", "R_AND", "R_OR"),
     ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
+    ("right", "R_NOT"),
+    ("left", "R_AND", "R_OR"),
     (
         "left",
         "R_BETWEEN",
-        # "R_IS",
+        "R_IS",
     ),
     (
         "left",
@@ -27,8 +33,8 @@ precedence = (
     ("left", "O_SUMA", "O_RESTA"),
     ("left", "O_PRODUCTO", "O_DIVISION", "O_MODULAR"),
     ("left", "O_EXPONENTE"),
-    ("right", "UO_SUMA", "UO_RESTA"),
-    ("right", "R_NOT"),
+    ("right", "UO_SUMA", "UO_RESTA")
+
 )
 
 # Definición de la gramática
@@ -747,19 +753,40 @@ def p_expBool_4(t):
     """
     t[0] = t[1]
 
+def p_expBool_5(t):
+    """
+    expBool : expBool optBoolPredicate
+    """
+    t[0] = expression.UnaryLogicalOperation(t[1], t[2], t[1].row, t[1].column)
+
+def p_optBoolPredicate_1(t):
+    """
+    optBoolPredicate : R_IS R_TRUE
+    | R_IS R_FALSE
+    | R_IS R_UNKNOWN
+    """
+    t[0] = t[1]+t[2]
+
+def p_optBoolPredicate_2(t):
+    """
+    optBoolPredicate : R_IS R_NOT R_TRUE
+    | R_IS R_NOT R_FALSE
+    | R_IS R_NOT R_UNKNOWN
+    """
+    t[0] = t[1]+t[2]+t[3]
 
 def p_columnName_id(t):
     """
     columnName : ID
     """
-    t[0] = expression.Identifiers(None, t[1], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.Identifiers(None, t[1], df.dataTable, t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_columnName_table_id(t):
     """
     columnName : ID S_PUNTO ID
     """
-    t[0] = expression.Identifiers(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+    t[0] = expression.Identifiers(t[1], t[3], df.dataTable, t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_expBoolCheck(t):
@@ -876,6 +903,16 @@ def p_selectStmt(t):
     | S_PARIZQ selectStmt S_PARDER
     """
 
+def p_selectStmt(t):
+    """selectStmt : R_SELECT selectParams whereCl
+    """
+    if t[3] == None:
+        t[0] = instruction.SelectOnlyParams(
+            t[2].params, t[2].params[0].row, t[2].params[0].row
+        )
+    else :
+        t[0] = instruction.Select(t[2].params, t[3], df.dataTable, t[2].row, t[2].column)
+
 
 # TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
 
@@ -883,6 +920,7 @@ def p_selectStmt(t):
 def p_selectstmt_u(t):
     """selectStmt : R_SELECT selectParams R_FROM tableExp"""
     # t[0] = instruction.Select(t[2].params, t[4])
+
 
 
 def p_selectstmt_only_params(t):
@@ -1012,6 +1050,8 @@ def p_whereCl(t):
     """whereCl : R_WHERE expBool
     |
     """
+    if t[2]!= None: t[0] = instruction.WhereClause(t[2],t.slice[1].lineno, t.slice[1].lexpos)
+    else : t[0] = None
 
 
 def p_groupByCl(t):
@@ -1169,16 +1209,21 @@ def p_useStmt(t):
 # endregion
 
 
+listErrors=list()
+
 def p_error(t):
     try:
-        print(t)
-        print("Error sintáctico en '%s'" % t.value)
+        """ print(t)
+        print("Error sintáctico en '%s'" % t.value) """
+        listErrors.insert(len(listErrors),["Error sintáctico en '%s'" % t.value,t.lineno])
     except AttributeError:
         print("end of file")
 
 
 parser = yacc.yacc()
 
+def returnSintacticErrors():
+    return listErrors
 
 def parse(input):
     try:

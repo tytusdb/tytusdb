@@ -5,12 +5,13 @@ from models.database import Database
 from models.table import Table
 from models.column import Column
 from controllers.error_controller import ErrorController
+from controllers.symbol_table import SymbolTable
 
 from storageManager import jsonMode  # TODO Change storage manager
 
 
 @singleton
-class TypeChecker(object):  # TODO messages
+class TypeChecker(object):
     def __init__(self):
         self._typeCheckerList = []
 
@@ -82,7 +83,7 @@ class TypeChecker(object):  # TODO messages
         :return: Returns a database
         """
         for db in self._typeCheckerList:
-            if db.name == name:
+            if db.name.lower() == name.lower():
                 return db
         return None
 
@@ -98,8 +99,12 @@ class TypeChecker(object):  # TODO messages
         dbStatement = jsonMode.createDatabase(database)
 
         if dbStatement == 0:
-            self._typeCheckerList.append(Database(database))
+            db = Database(database)
+            self._typeCheckerList.append(db)
             self.writeFile()
+
+            SymbolTable().add(db, 'New Database', 'Database', 'Global',
+                              None, line, column)
             print('Database created successfully')
             # Query returned successfully in # secs # msec.
 
@@ -156,6 +161,8 @@ class TypeChecker(object):  # TODO messages
             database = self.searchDatabase(name)
             self._typeCheckerList.remove(database)
             self.writeFile()
+
+            SymbolTable().delete(database)
             print('Database deleted successfully')
 
         elif dbStatement == 1:
@@ -179,7 +186,7 @@ class TypeChecker(object):  # TODO messages
         """
         if database:
             for tb in database.tables:
-                if tb.name == name:
+                if tb.name.lower() == name.lower():
                     return tb
             return None
 
@@ -300,7 +307,7 @@ class TypeChecker(object):  # TODO messages
         """
         if table:
             for col in table.columns:
-                if col.name == name:
+                if col.name.lower() == name.lower():
                     return col
         return None
 
