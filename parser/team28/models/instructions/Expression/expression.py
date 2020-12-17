@@ -7,7 +7,7 @@ import re
 
 class Expression:
     @abstractmethod
-    def process(self):
+    def execute(self):
         pass
 
 class ArithmeticBinaryOperation(Expression):
@@ -22,9 +22,9 @@ class ArithmeticBinaryOperation(Expression):
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, expression):
-        value1 = self.value1.process(expression)
-        value2 = self.value2.process(expression)
+    def execute(self, expression):
+        value1 = self.value1.execute(expression)
+        value2 = self.value2.execute(expression)
         operador = self.operador
         if value1.data_type != DATA_TYPE.NUMBER and value2.data_type != DATA_TYPE.NUMBER:
             print('error de ejecucion')
@@ -69,9 +69,9 @@ class Relop(Expression):
     def __repr__(self):
         return str(vars(self))
 
-    def process(self, expression):
-        value1 = self.value1.process(expression)
-        value2 = self.value2.process(expression)
+    def execute(self, expression):
+        value1 = self.value1.execute(expression)
+        value2 = self.value2.execute(expression)
         operator = self.operator
         try:
             value = 0

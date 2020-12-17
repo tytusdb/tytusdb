@@ -13,5 +13,8 @@ class inherits(instruccion):
         self.nodo.hijos.append(nodo_AST(ID, num_nodo + 3))
         self.nodo.hijos.append(nodo_AST(')', num_nodo + 4))
 
+        #Gramatica
+        self.grammar_ = '<TR><TD> INHERITS ::= INHERITS (' + ID + ') </TD><TD> new inherits(' + ID + '); </TD></TR>'
+
     def ejecutar(self):
-        pass
+        pass  
