@@ -35,7 +35,7 @@ class AVLTreeStructure:
         return self.TBL.extractTable(database, table)
 
     def extractRangeTable(self, database: str, table: str, lower: any, upper: any) -> list:
-        return self.TBL.extractTable(database, table, lower, upper)
+        return self.TBL.extractRange(database, table, lower, upper)
 
     def alterAddPK(self, database: str, table: str, columns: list) -> int:
         return self.TBL.alterAddPK(database, table, columns)

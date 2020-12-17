@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath('.'))
 from DataAccessLayer.handler import Handler
 from Models.avl_tree import AVLTree
 
@@ -25,9 +28,7 @@ class TableModule:
             databases = self.handler.leerArchivoDB()
             for i in databases:
                 if database == i.name:
-                    print(i.tablesName)
                     return i.tablesName
-            print("No existe la base de datos")
             return None
         except:
             return None
@@ -38,40 +39,69 @@ class TableModule:
                 tmp = []
                 avl = self.handler.leerArchivoTB(database,table)
                 if avl.root != None:
-                    # Hacer append al tmp[] por cada nodo presente en arbol
-                    avl.inorder() # !!<- solo por prueba para que imprima valores
-                    print(avl.numberColumns)
-                    print(avl.columns)
-                    print(avl.pklist)
-                else:
-                    print("Tabla sin registros")
+                    tmp = avl.toList()
                 return tmp
             else:
-                print("No existe la tabla o la DB")
                 return None
         except:
             return None
     
-    def extractRangeTable(self, database: str, table: str, lower: any, upper: any) -> list: #pendiente
-        pass
-    
-    def alterAddPK(self, database: str, table: str, columns: list) -> int: #si ya existen y se agrega o modifica, eliminar la actual recalculando el indice
+    def extractRangeTable(self, database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
         try:
-            databases = self.handler.leerArchivoDB() #si hay registros duplicados al querer agregar llave primaria en esa columna retornar error
+            if self.handler.siExiste(database,table):
+                tmp = []
+                avl = self.handler.leerArchivoTB(database,table)
+                if avl.root:
+                    for i in avl.toList():
+                        if type(i[columnNumber]) == type(3):
+                            if int(i[columnNumber]) >= int(lower) and int(i[columnNumber]) <= int(upper):
+                                tmp.append(i)
+                        elif type(i[columnNumber]) == type("string"):
+                            if str(i[columnNumber]) >= str(lower) and str(i[columnNumber]) <= str(upper):
+                                tmp.append(i)
+                        elif type(i[columnNumber]) == type(3.1):
+                            if float(i[columnNumber]) >= float(lower) and float(i[columnNumber]) <= float(upper):
+                                tmp.append(i)
+                        elif type(i[columnNumber]) == type(True):
+                            if bool(i[columnNumber]) >= bool(lower) and bool(i[columnNumber]) <= bool(upper):
+                                tmp.append(i)
+                return tmp
+            else:
+                return None
+        except:
+            return None
+    
+    def alterAddPK(self, database: str, table: str, columns: list) -> int:
+        try:
+            databases = self.handler.leerArchivoDB()
             for i in databases:
                 if database == i.name:
                     if self.handler.siExiste(database,table):
                         avl = self.handler.leerArchivoTB(database,table)
-                        if avl.root == None:
-                            avl.pklist = columns
-                            return 0
-                        else: #pendiente con el arbol...
-
-                            #if avl.pklist es de llaves escondidas: 
-                                #entonces reestructurar los indices del arbol con la actual llave primaria
-                            #if avl.pklist es de llave preestablecida anteriormente:
-                                #entonces eliminar las llaves actuales recalculando los indices con la(s) nueva llave
-                            return 0
+                        if avl.pklist == []:
+                            for j in columns:
+                                if j < 0 or j >= avl.numberColumns:
+                                    return 5
+                            if avl.root == None:
+                                avl.pklist = columns
+                                return 0
+                            else:
+                                temporal = []
+                                for tupla in avl.toList():
+                                    tmp2 = ""
+                                    for key in columns:
+                                        tmp2 += "-" + str(tupla[key])
+                                    tmp2.pop(0)
+                                    if tmp2 in temporal:
+                                        return 1
+                                    temporal.append(tmp2)
+                                newAvl = AVLTree(database, table, avl.numberColumns, columns)
+                                for tupla in avl.toList():
+                                    newAvl.add(tupla)
+                                self.handler.actualizarArchivoTB(newAvl, database, table)
+                                return 0
+                        else:
+                            return 4
                     else:
                         return 3
             return 2
@@ -132,7 +162,7 @@ class TableModule:
                     if self.handler.siExiste(database, table):
                         avl = self.handler.leerArchivoTB(database,table)
                         avl.numberColumns += 1
-                        # falta agregar a todos los nodos del arbol el parametro default en la ultima columna
+                        avl.addColumn(default)
                         return 0
                     else:
                         return 3
@@ -147,13 +177,13 @@ class TableModule:
                 if database == i.name:
                     if self.handler.siExiste(database, table):
                         avl = self.handler.leerArchivoTB(database,table)
-                        if columnNumber > avl.numberColumns:
+                        if columnNumber > avl.numberColumns or columnNumber < 0:
                             return 5
                         elif columnNumber == avl.numberColumns or columnNumber in avl.pklist:
                             return 4
                         else:
                             avl.numberColumns -= 1
-                            # falta eliminar todos los registros pertenecientes a esa columna
+                            avl.dropColumn(columnNumber)
                             return 0
                     else:
                         return 3
