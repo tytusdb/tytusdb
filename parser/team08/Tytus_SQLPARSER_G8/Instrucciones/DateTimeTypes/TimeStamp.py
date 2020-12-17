@@ -1,7 +1,7 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 from Instrucciones.TablaSimbolos.Simbolo import Simbolo 
 
-class Declare(Instruccion):
+class TimeStamp(Instruccion):
     def __init__(self, id, operacion, id2, linea, columna):
         Instruccion.__init__(self,None,linea,columna)
         self.identificador = id
