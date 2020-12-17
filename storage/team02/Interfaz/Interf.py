@@ -54,4 +54,31 @@ RegistroLabel = Label(VentanaPrincipal, text="Registro:" )
 RegistroLabel.place (x =960 , y = 240)
 RegistroLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
 
+#---------------CREACIÓN DE CAMPOS PARA LAS Tablas ---------- 
+
+#**************NOMBRE DE LA TABLA****************
+nomTabla = Entry(VentanaPrincipal)
+nomTabla.place( x = 560 , y = 170)
+nomTabla.config(relief = "sunken", borderwidth = 4)
+nomTablaLabel = Label(VentanaPrincipal, text="Nombre Tabla:")
+nomTablaLabel.place (x = 460 , y = 170)
+nomTablaLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
+
+#*************NOMBRE DE LA BASE DE DATOS ************** 
+
+nomBaseDatos = Entry(VentanaPrincipal)
+nomBaseDatos.place(x = 560 , y = 205)
+nomBaseDatos.config(relief = "sunken", borderwidth = 4)
+nomBaseDatosLabel = Label(VentanaPrincipal, text="Nombre BD:")
+nomBaseDatosLabel.place(x = 460 , y = 205)
+nomBaseDatosLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold"))
+
+#***********No de Columna**************
+numeroDeColumna = Entry(VentanaPrincipal)
+numeroDeColumna.place (x = 560 ,  y = 240)
+numeroDeColumna.config(relief = "sunken", borderwidth = 4)
+numeroDeColumnaLabel = Label(VentanaPrincipal, text="No. Columna:" )
+numeroDeColumnaLabel.place (x =460 , y = 240)
+numeroDeColumnaLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
+
 raiz.mainloop()
