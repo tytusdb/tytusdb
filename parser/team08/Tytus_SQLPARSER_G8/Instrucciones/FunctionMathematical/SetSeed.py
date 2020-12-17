@@ -1,4 +1,3 @@
-
 import math
 import random
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
@@ -10,12 +9,5 @@ class SetSeed(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print("SET_SEED")
-        print(random.seed(self.valor))
-        return random.seed(self.valor)
-
-'''
-instruccion = SetSeed(1,None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+        #print(random.seed(self.valor))
+        arbol.consola.append('Función en proceso...')

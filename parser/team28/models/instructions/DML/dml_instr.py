@@ -2,10 +2,6 @@ from models.instructions.shared import Instruction
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
 '''
-
-
-
-
 class Insert(Instruction):
     '''
         INSERT recibe tres parametros: 
@@ -20,6 +16,9 @@ class Insert(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
     
 
 class Update(Instruction):
@@ -36,6 +35,9 @@ class Update(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class ColumnVal(Instruction):
     '''
@@ -50,6 +52,9 @@ class ColumnVal(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
+    
 
 class Opt1(Instruction):
     '''
@@ -62,10 +67,17 @@ class Opt1(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
 
 class Delete(Instruction):
     '''
         DELETE recibe la tabla donde tiene que borrar y recibe un array con todas los parametros OPCIONALES
+        Las opciones disponibles en un array del DELETE
+        opt1 = ASTERISK SQLALIAS || ASTERISK || SQLALIAS
+        opt2 = USING
+        opt3 = WHERE
+        opt4 = RETURNING
     '''
     def __init__(self,  table, params) :
         self.table = table
@@ -73,3 +85,6 @@ class Delete(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass

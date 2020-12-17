@@ -35,7 +35,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'ACOS','ACOSD','ASIN','ASIND','ATAN','ATAND','ATAN2','ATAN2D','COS','COSD','COT','COTD','SIN','SIND','TAN','TAND',
               'SINH','COSH','TANH','ASINH','ACOSH','ATANH',
               'DATE_PART','NOW','EXTRACT','CURRENT_TIME','CURRENT_DATE',
-              'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE'
+              'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS'
               ]
 
 tokens = reservadas + ['PUNTO','PUNTO_COMA','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
@@ -92,7 +92,12 @@ def t_ID (t):
             t.type = t.value    
         return t
 
-  
+def t_CADENASIMPLE(t):
+    r'\'.*?\''
+    t.value = str(t.value)
+    t.value = t.value[1:-1]
+    return t
+
 # expresion regular para comentario de linea
 def t_COMMENT(t):
     r'--.*'
@@ -102,8 +107,6 @@ def t_COMMENT(t):
 def t_COMMENT_MULT(t):
     r'/\*(.|\n)?\*/'
     t.lexer.lineno += t.value.count('\n')
-
-
 
 def t_NUM_DECIMAL(t):
     r'\d+\.\d+'
@@ -197,11 +200,11 @@ def p_instrucciones_evaluar(t):
                    | ins_delete'''
 
 def p_instruccion_use(t):
-    '''ins_use : USE ID'''
+    '''ins_use : USE ID PUNTO_COMA'''
     print('INSTRUCCION USE')
 
 def p_instruccion_show(t):
-    '''ins_show : SHOW DATABASES'''
+    '''ins_show : SHOW DATABASES PUNTO_COMA'''
     print('INSTRUCCION SHOW')
 
 def p_instruccion_create(t):
@@ -209,15 +212,33 @@ def p_instruccion_create(t):
     print('INSTRUCCION CREATE')   
 
 def p_tipo_create(t):
-    '''tipo_create : ins_replace DATABASE if_exist ID create_opciones puntocoma
-                   | TABLE ID PARABRE definicion_columna PARCIERRE PUNTO_COMA'''
+    '''tipo_create : ins_replace DATABASE if_exist ID create_opciones PUNTO_COMA
+                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA'''
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
                           | columna ''' # no se *** si va la coma o no
 
 def p_columna(t):
-    '''columna : ID tipo_dato definicion_valor_defecto ins_constraint'''
+    '''columna : ID tipo_dato definicion_valor_defecto ins_constraint
+                | ID definicion_valor_defecto ins_constraint
+                | ID TYPE tipo_dato definicion_valor_defecto ins_constraint
+                | primary_key 
+                | foreign_key '''
+
+def p_ins_inherits(t):
+    '''ins_inherits : INHERITS PARABRE ID PARCIERRE
+                |  ''' #EPSILON
+
+def p_primary_key(t):
+    '''primary_key : PRIMARY KEY PARABRE nombre_columnas PARCIERRE ins_references'''
+
+def p_foreign_key(t):
+    '''foreign_key : FOREIGN KEY PARABRE nombre_columnas PARCIERRE REFERENCES ID PARABRE nombre_columnas PARCIERRE ins_references'''
+
+def p_nombre_columnas(t):
+    '''nombre_columnas : nombre_columnas COMA ID 
+                          | ID '''
 
 def p_tipo_dato(t):
     '''tipo_dato : SMALLINT          
@@ -230,6 +251,7 @@ def p_tipo_dato(t):
                  | CHAR PARABRE NUMERO PARCIERRE
                  | CHARACTER tipochar
                  | VARCHAR PARABRE NUMERO PARCIERRE
+                 | CHARACTER PARABRE NUMERO PARCIERRE
                  | TEXT
                  | TIMESTAMP arg_precision
                  | TIME arg_precision
@@ -255,19 +277,21 @@ def p_definicion_valor_defecto(t):
 
 def p_ins_constraint(t):
     '''ins_constraint : CONSTRAINT ID restriccion_columna 
-                                | ''' #epsilon
+                        | restriccion_columna''' #epsilon
 
 def p_restriccion_columna(t):
     '''restriccion_columna : NOT NULL
+                           | SET NOT NULL
                            | NULL
                            | PRIMARY KEY
+                           | NOT NULL PRIMARY KEY 
                            | UNIQUE
-                           | FOREIGN KEY ID PARABRE ID PARCIERRE ins_references
                            | CHECK PARABRE exp PARCIERRE''' #cambio del condicion columna
 
 def p_references(t):
-    '''ins_references : ON DELETE accion
-                      | ON UPDATE accion'''
+    '''ins_references : ON DELETE accion ins_references
+                      | ON UPDATE accion ins_references
+                      | '''
 
 def p_accion(t):
     '''accion : CASCADE
@@ -281,17 +305,18 @@ def p_tipo_default(t): #ESTE NO SE SI SON RESERVADAS O LOS VALORES
                     | NULL'''
 
 def p_ins_replace(t): 
-    '''ins_replace : OR REPLACE puntocoma
+    '''ins_replace : OR REPLACE
                | '''#EPSILON
 
 def p_if_exist(t): 
-    '''if_exist :  IF NOT EXIST puntocoma
+    '''if_exist :  IF NOT EXIST
                 |  IF EXIST
                 | ''' # EPSILON
 
 def p_create_opciones(t): 
-    '''create_opciones : OWNER SIGNO_IGUAL ID
-                       | MODE SIGNO_IGUAL NUMERO'''
+    '''create_opciones : OWNER SIGNO_IGUAL ID create_opciones
+                       | MODE SIGNO_IGUAL NUMERO create_opciones
+                       | '''
 
 def p_puntocoma(t): 
     '''puntocoma : PUNTO_COMA
@@ -311,6 +336,7 @@ def p_alteracion_tabla(t):
 
 def p_alterar_tabla(t): 
     '''alterar_tabla : ADD COLUMN columna
+                     | ADD CONSTRAINT ID columna
                      | ALTER COLUMN columna
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
@@ -340,17 +366,20 @@ def p_list_vls(t):
 
 def p_val_value(t):
     '''val_value : CADENA
+                |   CADENASIMPLE
                 |   NUMERO
                 |   NUM_DECIMAL
                 |   FECHA_HORA
                 |   TRUE
-                |   FALSE '''
+                |   FALSE 
+                |   NULL
+                |   F_HORA'''
 
 def p_ins_select(t):
-    '''ins_select : ins_select UNION option_all ins_select
-                    |    ins_select INTERSECT option_all ins_select
-                    |    ins_select EXCEPT option_all ins_select
-                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset'''
+    '''ins_select : ins_select UNION option_all ins_select PUNTO_COMA
+                    |    ins_select INTERSECT option_all ins_select PUNTO_COMA
+                    |    ins_select EXCEPT option_all ins_select PUNTO_COMA
+                    |    SELECT arg_distict colum_list FROM table_list arg_where arg_group_by arg_order_by arg_limit arg_offset PUNTO_COMA'''
 
 def p_option_all(t):
     '''option_all   :   ALL
@@ -523,10 +552,11 @@ def p_exp(t):
             | predicates
             | aggregates
             | functions
-            | arg_pattern
             | arg_case
             | arg_greatest
-            | arg_least '''
+            | arg_least 
+            | val_value
+            | ID'''
 # values -> list_vls
 
 
@@ -641,11 +671,11 @@ def p_ins_update(t):
     '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
 
 def p_ins_asign_list(t):
-    '''asign_list  : asign_list COMA ID SIGNO_IGUAL list_vls 
-                   | ID SIGNO_IGUAL list_vls'''
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL val_value 
+                   | ID SIGNO_IGUAL val_value'''
 
 def p_ins_delete(t):
-    '''ins_delete   : DELET FROM ID WHERE exp PUNTO_COMA'''
+    '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
