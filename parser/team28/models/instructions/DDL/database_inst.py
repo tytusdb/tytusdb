@@ -14,7 +14,7 @@ class CreateDB(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self, instrucction):
         typeChecker = TypeChecker()
         database = typeChecker.searchDatabase(self._properties['id'])
 
@@ -42,7 +42,7 @@ class DropDB(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self, instrucction):
         typeChecker = TypeChecker()
         database = typeChecker.searchDatabase(self._database_name)
 
