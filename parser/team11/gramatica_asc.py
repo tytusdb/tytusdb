@@ -45,7 +45,42 @@ reservadas = {
     'order'     : 'ORDER',             'having'    : 'HAVING',
     'asc'       : 'ASC',               'desc'      : 'DESC',
     'nulls'     : 'NULLS',             'first'     : 'FIRST',
-    'last'      : 'LAST'
+    'last'      : 'LAST',              'limit'     : 'LIMIT',
+    'all'       : 'ALL',               'offset'    : 'OFFSET',
+    'abs'       : 'ABS',                'cbrt'     : 'CBRT',
+    'ceil'      : 'CEIL',               'ceiling'  : 'CEILING',
+    'degrees'   : 'DEGREES',            'div'      : 'DIV',
+    'exp'       : 'EXP',                'factorial': 'FACTORIAL',
+    'floor'     : 'FLOOR',              'gcd'      : 'GCD',
+    'ln'        : 'LN',                 'log'      : 'LOG',
+    'mod'       : 'MOD',                'pi'       : 'PI',
+    'power'     : 'POWER',              'radians'  : 'RADIANS',
+    'round': 'ROUND',
+    'acos': 'ACOS',               'acosd': 'ACOSD',
+    'asin': 'ASIN',               'asind': 'ASIND',
+    'atan': 'ATAN',               'atand': 'ATAND',
+    'atan2': 'ATAN2',              'atan2d': 'ATAN2D',
+    'cos': 'COS',                'cosd': 'COSD',
+    'cot': 'COT',                'cotd': 'COTD',
+    'sin': 'SIN',                'sind': 'SIND',
+    'tan': 'TAN',                'tand': 'TAND',
+    'sinh': 'SINH',               'cosh': 'COSH',
+    'tanh': 'TANH',               'asinh': 'ASINH',
+    'acosh': 'ACOSH',              'atanh': 'ATANH',
+    'length': 'LENGTH',             'substring': 'SUBSTRING',
+    'trim': 'TRIM',               'get_byte': 'GET_BYTE',
+    'md5': 'MD5',                'set_byte': 'SET_BYTE',
+    'sha256': 'SHA256',             'substr': 'SUBSTR',
+    'convert': 'CONVERT',            'encode': 'ENCODE',
+    'decode': 'DECODE',             'for': 'FOR',
+    'between': 'BETWEEN',           'isnull' : 'ISNULL',
+    'notnull' : 'NOTNULL',          'case' : 'CASE',
+    'end' : 'END',                  'when' : 'WHEN',
+    'then' : 'THEN'   ,              'else' : 'ELSE',
+    'is' : 'IS',
+    'sign': 'SIGN',                 'sqrt': 'SQRT',
+    'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
+    'random': 'RANDOM',             'use' : 'USE'
 }
 
 tokens  = [
@@ -58,7 +93,9 @@ tokens  = [
     'NIGUALQUE',   'DIFERENTE', 'MODULO',
     'DECIMAL',     'ENTERO',    'CADENADOBLE',
     'CADENASIMPLE','ID',        'MENIGUAL',
-    'MAYIGUAL',    'PUNTO'
+    'MAYIGUAL',    'PUNTO', 'CADENALIKE',
+    'CONCAT', 'BITWAND', 'BITWOR', 'BITWXOR',
+    'BITWNOT', 'BITWSHIFTL', 'BITWSHIFTR', 'CSIMPLE'
 ] + list(reservadas.values())
 
 # Tokens
@@ -84,6 +121,14 @@ t_MENIGUAL  = r'<='
 t_MAYIGUAL  = r'>='
 t_DIFERENTE = r'<>'
 t_MODULO    = r'%'
+t_BITWOR = r'\|'
+t_CONCAT = r'\|\|'
+t_BITWAND = r'&'
+t_BITWXOR = r'\#'
+t_BITWNOT = r'~'
+t_BITWSHIFTL = r'<<'
+t_BITWSHIFTR = r'>>'
+t_CSIMPLE = r'\''
 
 
 def t_DECIMAL(t):
@@ -147,7 +192,22 @@ import ply.lex as lex
 lexer = lex.lex()
 
 # Asociación de operadores y precedencia
+precedence = (
 
+    ('left', 'CONCAT'),
+    ('left', 'BITWOR'),
+    ('left', 'BITWXOR'),
+    ('left', 'BITWAND'),
+    ('left', 'BITWSHIFTL', 'BITWSHIFTR'),
+    ('left', 'BITWNOT'),
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('left', 'MENQUE', 'MAYQUE', 'MENIGUAL', 'MAYIGUAL', 'IGUAL', 'DIFERENTE'),
+    ('left', 'MAS', 'MENOS'),
+    ('left', 'ASTERISCO', 'DIVIDIDO', 'MODULO'),
+    ('left', 'EXPONENTE'),
+    ('right', 'UMENOS')
+)
 
 
 ###################################### Definición de la gramática #######################################
@@ -169,7 +229,8 @@ def p_instruccion(t) :
                       | create_instr
                       | alter_instr PTCOMA
                       | insert_instr
-                      | update_instr'''
+                      | update_instr
+                      | use_instr'''
 
 ##CREATE DATABASE
 def p_create_db(t):
@@ -269,6 +330,8 @@ def p_showDB_regexp(t):
                     | MODULO ENTERO MODULO
                     | ENTERO MODULO'''
 
+def p_use_instr(t):
+    'use_instr      : USE DATABASE ID PTCOMA'
 ##########################################################################################
 
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
@@ -533,7 +596,32 @@ def p_condicionwhere(t):
 def p_existwhere(t):
     'whereexists       : EXISTS PARIZQ select_instr1 PARDER'
 
-    
+
+def p_inwhere(t):
+    '''wherein         : cualquiernumero IN PARIZQ select_instr1 PARDER
+                       | cadenastodas IN PARIZQ select_instr1 PARDER'''
+
+
+def p_notinwhere(t):
+    '''wherenotin      : cualquiernumero NOT IN PARIZQ select_instr1 PARDER
+                       | cadenastodas NOT IN PARIZQ select_instr1 PARDER'''
+
+
+def p_notlikewhere(t):
+    'wherenotlike      : cadenastodas NOT LIKE CADENALIKE'
+
+
+def p_likewhere(t):
+    'wherelike         : cadenastodas LIKE CADENALIKE'
+
+
+def p_substringwhere(t):
+    'wheresubstring    : SUBSTRING PARIZQ cadenastodas COMA ENTERO COMA ENTERO PARDER IGUAL CADENASIMPLE'
+
+
+def p_cadenas(t):
+    '''cadenastodas    : cualquiercadena
+                       | cualquieridentificador'''
 ## -------------------------------- EXPRESIONES ------------------------------------------    
 
 ## expresiones logicas (condiciones)
@@ -587,7 +675,72 @@ def p_culquiercadena (t):
 def p_culquieridentificador (t):
     '''cualquieridentificador    : ID
                                  | ID PUNTO ID'''
+
+######################################################
+#-----------------------------case--------------------
+def p_estadocase(t):
+    '''case_state   : case_state casestate2 END
+                    | casestate2 END
+                    | empty'''
+#################################################################################################################################################
+def p_estadorelacional(t):
+    '''estadorelacional : expresionaritmetica MENQUE expresionaritmetica
+                        | expresionaritmetica MAYQUE expresionaritmetica
+                        | expresionaritmetica IGUAL IGUAL expresionaritmetica
+                        | expresionaritmetica MENIGUAL expresionaritmetica
+                        | expresionaritmetica MAYIGUAL expresionaritmetica
+                        | expresionaritmetica DIFERENTE expresionaritmetica
+                        | estadorelacional AND estadorelacional
+                        | estadorelacional OR estadorelacional '''
     
+def p_estadorelacional2(t):
+    '''estadorelacional : expresionaritmetica
+                        | between_state
+                        | predicates_state
+                        | is_distinct_state '''
+    t[0] = t[1]
+
+def p_casestate2(t):
+    'casestate2   : WHEN estadorelacional THEN CADENASIMPLE'
+
+def p_casestate22(t):
+    'casestate2    : ELSE CSIMPLE ID CSIMPLE'
+
+def p_casestate22_(t):
+    'casestate2    : empty'
+
+######################################################################################################
+# --------------Between------------------------------------------------------------------------
+def p_between_state(t):
+    '''between_state    : valores BETWEEN valores AND valores
+                        | valores NOT BETWEEN valores AND valores'''
+
+# --------------PREDICATES NULLS---------------------------------------------------------------
+def p_predicates_state(t):
+    '''predicates_state : valores IS NULL
+                        | valores IS NOT NULL
+                        | valores ISNULL
+                        | valores NOTNULL'''
+    #t[0] = Nodo('COMPARISON PREDICATES','', [t[1]], t.lexer.lineno)
+#---------------IS DISTINCT ----------------------------------------------------------------
+def p_is_distinct_state(t):
+    'is_distinct_state : valores IS DISTINCT FROM valores'
+    #t[0] = Nodo('DISTINCT', str(t[1]), [t[5]], t.lexer.lineno)
+
+def p_is_distinct_state2(t):
+    'is_distinct_state : valores IS NOT DISTINCT FROM valores'
+    #t[0] = Nodo('NOT DISTINCT', str(t[1]), [t[6]], t.lexer.lineno)
+
+def p_is_distinct_state(t):
+    'is_distinct_state : empty'
+    
+
+def p_valores(t):
+    '''valores  : cualquiernumero
+                | cualquiercadena
+                | cualquieridentificador'''
+   # t[0] = t[1]
+
 ##Epsilon 
 def p_empty(t) :
     'empty            : '

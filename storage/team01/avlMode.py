@@ -12,7 +12,7 @@ def createDatabase(database: str) -> int:
 
 #Renombra la base de datos databaseOld por databaseNew. (UPDATE)
 def alterDatabase(databaseOld: str, databaseNew) -> int:
-   if databaseOld in mBBDD:
+    if databaseOld in mBBDD:
         if databaseNew not in mBBDD:
             res = mBBDD.quitar(databaseOld)
             if res == 0:
@@ -52,7 +52,14 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
 
 #Devuelve una lista de los nombres de las tablas de una bases de datos
 def showTables(database: str) -> list:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        if nodoBD.datos.tamano == 0:
+            return '[]'
+        else:
+            return list(nodoBD.datos.raiz)
+    else:
+        return None
 
 #Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla
 def extractTable(database: str, table: str) -> list:

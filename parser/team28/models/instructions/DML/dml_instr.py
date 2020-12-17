@@ -17,6 +17,9 @@ class Insert(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
+    
 
 class Update(Instruction):
     '''
@@ -32,6 +35,9 @@ class Update(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class ColumnVal(Instruction):
     '''
@@ -46,6 +52,9 @@ class ColumnVal(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
+    
 
 class Opt1(Instruction):
     '''
@@ -58,6 +67,8 @@ class Opt1(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
 
 class Delete(Instruction):
     '''
@@ -73,4 +84,7 @@ class Delete(Instruction):
         self.params = params
     
     def __repr__(self):
-        return str(vars(self))    
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
