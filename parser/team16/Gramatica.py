@@ -127,7 +127,10 @@ reservadas = {
     'current_user': 'CURRENT_USER',
     'session_user': 'SESSION_USER',
 
-    'substring': 'SUBSTRING'
+    'substring': 'SUBSTRING',
+
+    'true': 'TRUE',
+    'false': 'FALSE'
 
 }
 
@@ -176,7 +179,7 @@ tokens = [
          ] + list(reservadas.values())
 
 # TOKENS DE LOS SIMBOLOS UTILIZADOS EN EL LENGUAJE
-t_DIFERENTE = r'!='
+t_DIFERENTE = r'(!=)|(<>)'
 t_NEGACION = r'\!'
 t_IGUAL = r'='
 t_MAYOR = r'>'
@@ -279,7 +282,7 @@ def t_FECHA(t):
 
 # CARACTERES IGNORADOS DEL LENGUAJE
 
-t_ignore = "\b|\f|\n|\r|\t"
+t_ignore = r"\b|\f|\n|\r|\t"
 
 
 def t_newline(t):
@@ -336,6 +339,7 @@ precedence = (
     ('left', 'OR'),
     ('left', 'AND'),
     ('right', 'NOT'),
+    ('nonassoc', 'MENOR', 'MAYOR', 'MENORIGUAL', 'MAYORIGUAL', 'IGUAL', 'DIFERENTE'),
     ('left', 'DOBLEPLECA', 'AMPERSAND', 'PLECA', 'NUMERAL', 'LEFTSHIFT', 'RIGHTSHIFT'),
     ('right', 'VIRGULILLA'),
     ('left', 'MAS', 'MENOS'),
@@ -1753,11 +1757,33 @@ def p_instruccion_dml_comandos_ALTER_TABLE9(t):
 def p_expresion_global(t):
     '''EXPRESION_GLOBAL : EXPBINARIO
                         | EXPNUMERICA
-                        | EXPCADENA'''
+                        | EXPCADENA
+                        | EXPLOGICA
+                        | VALORGLOBAL'''
 
   #  t[0] = str(t[1])
     print('\n' + str(t[1]) + '\n')
 
+def p_expresion_global_paren(t):
+    '''EXPRESION_GLOBAL : PARIZQ VALORESPARENGLOBAL PARDER'''
+
+def p_expresion_global_paren2(t):
+    '''VALORESPARENGLOBAL : EXPNUMERICA
+                          | VALORNUMERICO'''
+
+def p_expresion_valor_global(t):
+    '''VALORGLOBAL : ENTERO
+                    | FLOTANTE
+                    | CADENABINARIA
+                    | ID
+                    | ID PUNTO ID
+                    | CADENASIMPLE
+                    | CADENADOBLE
+                    | COMPARACION
+                    | TRUE
+                    | FALSE
+                    | NULL
+                    '''
 
 # DDL
 # -----------------------------------------------------------------------------------------------------------------
@@ -1954,11 +1980,11 @@ def p_cs2(t):
 # Expresiones numericas
 
 def p_expnumerica(t):
-    '''EXPNUMERICA : EXPNUMERICA MAS EXPNUMERICA
-                   | EXPNUMERICA MENOS EXPNUMERICA
-                   | EXPNUMERICA ASTERISCO EXPNUMERICA
-                   | EXPNUMERICA DIVISION EXPNUMERICA
-                   | EXPNUMERICA PORCENTAJE EXPNUMERICA'''
+    '''EXPNUMERICA : VALORNUMERICO MAS VALORNUMERICO
+                   | VALORNUMERICO MENOS VALORNUMERICO
+                   | VALORNUMERICO ASTERISCO VALORNUMERICO
+                   | VALORNUMERICO DIVISION VALORNUMERICO
+                   | VALORNUMERICO PORCENTAJE VALORNUMERICO'''
    # t[0] = str(t[1]) + str(t[2]) + str(t[3])
     print('\n'+t[0]+'\n')
 
@@ -1969,46 +1995,94 @@ def p_expnumerica_agrupacion(t):
 
 
 def p_expnumerica_valor(t):
-    '''EXPNUMERICA : ID
+    '''VALORNUMERICO : ID
                    | ENTERO
                    | FLOTANTE
-                   | DEFAULT'''
+                   | DEFAULT
+                   | EXPNUMERICA'''
 
    # t[0] = str(t[1])
 
 
 def p_expresion_binario(t):
-    '''EXPBINARIO : EXPBINARIO DOBLEPLECA EXPBINARIO
-                |   EXPBINARIO AMPERSAND EXPBINARIO
-                |   EXPBINARIO PLECA EXPBINARIO
-                |   EXPBINARIO NUMERAL EXPBINARIO
-                |   EXPBINARIO LEFTSHIFT EXPNUMERICA
-                |   EXPBINARIO RIGHTSHIFT EXPNUMERICA'''
+    '''EXPBINARIO : VALORBINARIO DOBLEPLECA VALORBINARIO
+                |   VALORBINARIO AMPERSAND VALORBINARIO
+                |   VALORBINARIO PLECA VALORBINARIO
+                |   VALORBINARIO NUMERAL VALORBINARIO
+                |   VALORBINARIO LEFTSHIFT VALORNUMERICO
+                |   VALORBINARIO RIGHTSHIFT VALORNUMERICO'''
 
    # t[0] = str(t[1]) + str(t[2]) + str(t[3])
     print(t[0])
 
 
 def p_expresion_binario_n(t):
-    'EXPBINARIO : VIRGULILLA EXPBINARIO'
+    'EXPBINARIO : VIRGULILLA VALORBINARIO'
    # t[0] = str(t[1]) + str(t[2])
 
 
 def p_expresion_binario_val(t):
-    'EXPBINARIO : CADENABINARIA'
+    '''VALORBINARIO : CADENABINARIA
+                    | ID
+                    | EXPBINARIO'''
     #t[0] = str(t[1])
 
+def p_expresion_binario_paren(t):
+    'VALORBINARIO : PARIZQ EXPBINARIO PARDER'
 
 def p_expresoin_cadena(t):
-    'EXPCADENA : SUBSTRING PARIZQ EXPCADENA COMA EXPNUMERICA COMA EXPNUMERICA PARDER'
+    'EXPCADENA : SUBSTRING PARIZQ VALORCADENA COMA VALORNUMERICO COMA VALORNUMERICO PARDER'
     #t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
 
-
 def p_expresion_cadena_val(t):
-    '''EXPCADENA : CADENASIMPLE
-                 | CADENADOBLE'''
+    '''VALORCADENA : CADENASIMPLE
+                   | CADENADOBLE
+                   | ID
+                   | EXPCADENA'''
     #t[0] = str(t[1])
 
+def p_expresion_logica(t):
+    '''EXPLOGICA : VALORLOGICO OR VALORLOGICO
+                 | VALORLOGICO AND VALORLOGICO'''
+
+def p_expresion_logica_not(t):
+    'EXPLOGICA : NOT VALORLOGICO'
+
+def p_expresion_logica_valores(t):
+    '''VALORLOGICO : ID
+                    | ID PUNTO ID
+                    | TRUE
+                    | FALSE
+                    | NULL
+                    | COMPARACION
+                    | EXPLOGICA'''
+
+def p_expresion_logica_paren(t):
+    '''VALORLOGICO : PARIZQ EXPLOGICA PARDER'''
+
+def p_expresion_comparacion(t):
+    '''COMPARACION : EXPNUMERICA MENOR EXPNUMERICA
+                   | EXPNUMERICA MAYOR EXPNUMERICA
+                   | EXPNUMERICA MENORIGUAL EXPNUMERICA
+                   | EXPNUMERICA MAYORIGUAL EXPNUMERICA
+                   | VALORCOMPARACION IGUAL VALORCOMPARACION
+                   | VALORCOMPARACION DIFERENTE VALORCOMPARACION'''
+
+def p_expresion_comparacion_valor(t):
+    '''VALORCOMPARACION : ID
+                       | ID PUNTO ID
+                       | ENTERO
+                       | FLOTANTE
+                       | CADENABINARIA
+                       | NULL
+                       | TRUE
+                       | FALSE
+                       | CADENASIMPLE
+                       | CADENADOBLE
+                       | EXPNUMERICA
+                       | EXPCADENA
+                       | EXPBINARIO
+                       | EXPLOGICA'''
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
@@ -2032,15 +2106,6 @@ parser = yacc.yacc()
 
 def parse():
     # Variables Utilizadas
-    global Input2, Grafica, HayRecursion, ListadoArbol, contador, ContadorSentencias, ContadorNode, ListaSentencias, ListaSentencias_, SenteciaProducida, res, Grafica
-    # Errores
-    global LErroresSintacticos, LErroresLexicos
-
-
-    # Input2 = input
-
-    Grafica = open('./Reportes/ast.dot', 'a')  # creamos el archivo
-    Grafica.write("\n")
 
     lexer = lex.lex()
     parser = yacc.yacc()

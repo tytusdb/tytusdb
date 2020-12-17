@@ -145,6 +145,7 @@ tokens = [
              'MENORIGUAL',
              'MAYORIGUAL',
 
+
              'PARIZQ',
              'PARDER',
              'COMA',
@@ -180,7 +181,7 @@ tokens = [
          ] + list(reservadas.values())
 
 # TOKENS DE LOS SIMBOLOS UTILIZADOS EN EL LENGUAJE
-t_DIFERENTE = r'!='
+t_DIFERENTE = r'(!=)|(<>)'
 t_NEGACION  = r'\!'
 t_IGUAL     = r'='
 t_MAYOR     = r'>'
@@ -387,6 +388,7 @@ precedence = (
     ('left', 'OR'),
     ('left', 'AND'),
     ('right', 'NOT'),
+    ('', 'MENOR', 'MAYOR', 'MENORIGUAL', 'MAYORIGUAL', 'IGUAL', '', 'DIFERENTE'),
     ('left', 'DOBLEPLECA', 'AMPERSAND', 'PLECA', 'NUMERAL', 'LEFTSHIFT', 'RIGHTSHIFT'),
     ('right', 'VIRGULILLA'),
     ('left', 'MAS', 'MENOS'),
@@ -488,7 +490,7 @@ def p_s_comalista(t):
 def p_s_comalista(t):
     'S_COMALISTA:'
     t[0] = ''
-sss
+
 
 
 
