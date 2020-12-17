@@ -1,11 +1,13 @@
 import math
 
-def sum(column): 
+
+def sum(column):
     """
     Funcion encargada de sumar todas las cantidades de una columna
     """
-   
+
     return math.fsum(column)
+
 
 def count(column):
     """
@@ -13,17 +15,20 @@ def count(column):
     """
     return len(column)
 
+
 def avg(column):
     """
     Funcion encargada de promediar todas las cantidades de una columna
     """
-    return sum(column)/count(column)
+    return sum(column) / count(column)
+
 
 def max(column):
     """
     Funcion encargada de devolver el valor maximo de una columna
     """
     return max(column)
+
 
 def min(column):
     """
