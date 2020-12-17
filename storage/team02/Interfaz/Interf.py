@@ -92,5 +92,27 @@ botonCarga = Button(VentanaPrincipal , text = "AGREGAR")
 botonCarga.place(x=300, y = 400)
 botonCarga.config(background = "#682c0e", fg="white", font=("Helvetica", 9 , "bold") )
 
+#------------------------------MENU BAR------------------------------------- 
+menubar = Menu(raiz)
+raiz.config(menu = menubar)
 
+#------- LOS SUBMENUS --------------------
+
+filemenu = Menu(menubar, tearoff = 0)
+editmenu = Menu(menubar, tearoff = 0)
+helpmenu = Menu(menubar, tearoff = 0)
+
+
+#-----------------Añadirlos a la barra ---------- 
+menubar.add_cascade(label = "Archivo", menu=filemenu)
+menubar.add_cascade(label = "Graficar", menu = editmenu )
+menubar.add_cascade(label = "Mostrar", menu = helpmenu)
+
+
+
+#---------------AÑADIENDO SUBMENUS--------------------- 
+filemenu.add_command(label="Nuevo")
+filemenu.add_command(label="Abrir")
+filemenu.add_command(label="Guardar")
+filemenu.add_command(label="Cerrar")
 raiz.mainloop()
