@@ -133,4 +133,32 @@ nomTuplasLabel = Label(VentanaPrincipal, text = "Tuplas")
 nomTuplasLabel.place(x=1000, y = 105)
 nomTuplasLabel.config(background = "#f9e0ae" , foreground = "#c24914", font = ("Helvetica", 15, "bold"))
 
+#--------------------------MENU DESPLEGABLE PARA LAS TUPLAS
+
+var = StringVar(VentanaPrincipal)
+opciones = ['Insertar', 'Actualizar','Eliminar', 'Limpiar Tabla', 'Buscar']
+opcion = OptionMenu(VentanaPrincipal, var, *opciones)
+
+opcion.place(x= 1000, y = 300)
+opcion.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "bold"))
+
+
+#-----------MENU DESPLEGABLE PARA LAS BASES DE DATOS
+
+var2 = StringVar(VentanaPrincipal)
+opciones2 = ["Crear", "Mostrar BD", "Renombrar", "Eliminar"]
+opciones2 = OptionMenu(VentanaPrincipal, var2, *opciones2)
+
+opciones2.place(x=800 , y = 300 )
+opciones2.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "bold"))
+
+
+#----------------------MENU DESPLEGABLE PARA TABLAS 
+
+var3 = StringVar(VentanaPrincipal)
+opciones3 = ["Crear", "Mostrar", "E.Table", "E.Range", "A.Drop", "A.Add", "A.AddTK", "Renombrar", "Add.Col", "Del.Col", "Eliminar"]
+opciones3 = OptionMenu(VentanaPrincipal, var3 , *opciones3)
+opciones3.place(x=550, y =300)
+opciones3.config(background = "#fc8621", fg="white", font = ("Helvetica", 10, "bold"))
+
 raiz.mainloop()
