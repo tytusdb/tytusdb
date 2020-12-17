@@ -142,8 +142,8 @@ class GUI:
         global report_ast
         texto = self.entrada.get("1.0", END)
         result = parse(texto)
-        # jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
-        # print(result)  # Imprime el AST
+        #jsonStr = json.dumps(result, default=lambda o: o.__dict__) #Convierte el AST a formato JSON para poder saber como se esta formando
+        print(result)  # Imprime el AST
 
         if len(ErrorController().getList()) > 0:
             report_error = ReportError()
@@ -156,7 +156,7 @@ class GUI:
             # ---------- TEST ---------
             for inst in result:
                 # print(inst)
-                inst.process(0)
+                print(inst.process(0))
             #report_errors = ReportError()
             #report = open('dot.txt', 'w')
             # report.write(report_errors.get_report(
