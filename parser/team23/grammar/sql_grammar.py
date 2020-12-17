@@ -924,11 +924,11 @@ def p_expression_entero(t):
 
     n_entero = t[1]
     if n_entero in range(-32768 , 32768):
-        print("es smallint")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.SMALLINT, num_nodo)
     elif n_entero in range(-2147483648 , 2147483647):
-        print("es integer")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.INTEGER, num_nodo)
     elif n_entero in range(-9223372036854775808 , 9223372036854775807):
-        print("es bigint")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.BIGINT, num_nodo)
 
 def p_expression_decimal(t):
     '''expression : DECIMAL_NUM'''
@@ -949,13 +949,13 @@ def p_expression_decimal(t):
     n_decimal = t[1]
     n_decimal = int(n_decimal)
     if m_presicion != None:
-        print("Double_Precision")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.DOUBLE_PRECISION, num_nodo)
     elif m_real != None:
-        print("Real")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.REAL, num_nodo)
     elif n_decimal in range(-131072 , 131073):
-        print("Decimal")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.DECIMAL, num_nodo)
     elif n_decimal in range(-92233720368547758 , 92233720368547759):
-        print("Money")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.MONEY, num_nodo)
     
 def p_expression_cadena(t):
     '''expression : CADENA'''
@@ -971,22 +971,24 @@ def p_expression_cadena(t):
     m_tiempo = patron_tiempo.match(n_tiempo)
 
     if m_tiempo != None:
-        print("Fecha")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.TIME, num_nodo)
     else:
-        print("Texto")
+        t[0] = primitivo(línea, columna , t[1], tipo_primitivo.VARCHAR, num_nodo)
 
-def p_error(t):    
+def p_error(t):
+    errores.append(nodo_error(t.lexer.lineno, t.lexer.lexpos, "Error sintáctico: '%s'" % t.value, 'Sintáctico'))
+    print("Whoa. Error Sintactico encontrado.")
     if not t:
-        errores.append(nodo_error(0, 0, 'EOF', 'Sintáctico'))
+        print("End of File!")
         return
-    
-    errores.append(nodo_error(str(t.lineno), str(t.lexpos), "Error sintáctico: '%s'" % t.value, 'Sintáctico'))        
+
+    # Read ahead looking for a closing ';'
     while True:
-        tok = parser.token()
+        tok = parser.token()  # Get the next token
+        print(tok)
         if not tok or tok.type == 'PUNTOCOMA':
-            break   
-    parser.errok()
-    return tok
+            print("se recupera")
+            break
         
     
 import ply.yacc as yacc
