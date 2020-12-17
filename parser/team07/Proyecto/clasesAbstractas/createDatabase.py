@@ -1,4 +1,6 @@
 from .instruccionAbstracta import InstruccionAbstracta
+from Errores import errorReportar
+from tabla_Simbolos import simboloBaseDatos
 
 class createDatabase(InstruccionAbstracta):
     '''
@@ -11,4 +13,20 @@ class createDatabase(InstruccionAbstracta):
 
 
     def ejecutar(self, tabalSimbolos, listaErrores):        
-        pass 
+
+        if self.identificador != None:
+            bandera = tabalSimbolos.comprobarNombreBaseDatos(self.identificador)
+
+            if bandera == 1:
+                errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Nombre de base de datos repetido")
+                listaErrores.append(errorEnviar)
+                return
+            else:
+                # llamar funcion ingeniero
+
+
+                dbGuardar = simboloBaseDatos.SimboloBaseDatos(self.identificador)
+                tabalSimbolos.guardarBaseDatos(dbGuardar)
+                
+        
+        

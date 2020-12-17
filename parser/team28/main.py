@@ -156,7 +156,7 @@ class GUI:
             # ---------- TEST ---------
             for inst in result:
                 # print(inst)
-                inst.execute()
+                inst.process(0)
             #report_errors = ReportError()
             #report = open('dot.txt', 'w')
             # report.write(report_errors.get_report(

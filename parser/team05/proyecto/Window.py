@@ -19,6 +19,8 @@ import Lexico as g
 import TablaSimbolos as st
 import os
 import re
+from Instrucciones import *
+from Expresiones import *
 import webbrowser
 
 
@@ -433,18 +435,67 @@ class Main(tk.Tk):
             ins = g.parse(tytus)
             st_global = st.SymbolTable()
 
-            #            if not ins:
-            #               messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
-            #          else:
-            self.do_body(ins, st_global)
+            if not ins:
+                messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
+            else:
+                self.do_body(ins, st_global)
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
     # EJECUCIÓN DE ANÁLISIS - PARSER --------------------------
-    def do_body(self, p_inst, p_st):
-        print(p_inst)
-        print("Analisis terminado")
+    def do_body(self, p_instruccion, p_st):
+        if not p_instruccion:
+            messagebox.showerror("Tytus DB",
+                                 "Ha ocurrido un problema en la ejecución del programa. Revisar los reportes de errores. ")
+            return
 
+        for inst in p_instruccion:
+            if isinstance(inst, CreateDatabase):
+                self.do_create_database(inst, p_st)
+            elif isinstance(inst, UseDatabase):
+                self.do_use(inst, p_st)
+            elif isinstance(inst, DropDB):
+                self.do_drop_db(inst, p_st)
+            else:
+                print(inst)
+
+        print("--- ANÁLISIS TERMINADO ---")
+
+    # USO DE BASE DE DATOS
+    def do_use(self, p_inst, p_st):
+        print('USAR BASE DE DATOS')
+        print('Nombre: ' + p_inst.nombre)
+        print()
+
+    # CREACIÓN DE BASE DE DATOS
+    def do_create_database(self, p_inst, p_st):
+        print('CREAR BASE DE DATOS')
+        print('Nombre: ' + p_inst.datos.nombre)
+
+        if p_inst.replace:
+            print('Reemplazar: SI')
+        else:
+            print('Reemplazar: NO')
+
+        if p_inst.datos.noexiste:
+            print('Comprobar si no existe?: SI')
+        else:
+            print('Comprobar si no existe?: NO')
+
+        if p_inst.datos.datos is not None:
+            if p_inst.datos.datos.owner is not None:
+                print('Owner: ' + p_inst.datos.datos.owner)
+
+            if p_inst.datos.datos.mode is not None:
+                print('Mode: ' + str(p_inst.datos.datos.mode))
+
+        print()
+
+    # ELIMINACIÓN DE BASE DE DATOS
+    def do_drop_db(self, p_inst, p_st):
+        print('ELIMINAR BASE DE DATOS')
+        print('Nombre: ' + p_inst.ifexist.nombre)
+        print()
 
 if __name__ == "__main__":
     main = Main()

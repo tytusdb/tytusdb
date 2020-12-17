@@ -1,9 +1,11 @@
 from abc import abstractmethod
 from enum import Enum
 import pandas as pd
+from datetime import datetime
 
 from analizer.functions import MathFunctions as mf
 from analizer.functions import TrigonometricFunctions as trf
+from analizer.functions import StringFunctions as strf
 
 # import abstract.select_data as data
 
@@ -59,21 +61,25 @@ class Identifiers(Expression):
     """
     Esta clase representa los nombre de columnas
     """
-
     value = None
     # TODO: implementar la funcion para obtener el type de la columna
-    def __init__(self, table, name, row, column):
+    def __init__(self, table, name, df, row, column):
         Expression.__init__(self, row, column)
         self.table = table
         self.name = name
-        self.temp = table + "." + name
+        self.df = df
+        if table == None : self.temp = name
+        else : self.temp = table + "." + name
         self.type = TYPE.NUMBER
 
-    def execute(self, environment):
+    def execute(self, environment): 
         """
         TODO:Se debe hacer la logica para buscar los identificadores en la tabla
         """
-        # self.value = df.dataTable[self.temp]
+        col = ""
+        if self.table == None : col= self.name
+        else : col = self.table + "." + self.name
+        self.value = self.df[col]
         return self
 
 
@@ -346,18 +352,42 @@ class UnaryLogicalOperation(Expression):
     def execute(self, environment):
         exp = self.exp.execute(environment)
         operator = self.operator
-
+        #MOMO IF OPERADORES
         if exp.type != TYPE.BOOLEAN:
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
-        if isinstance(exp.value, pd.core.series.Series):
+        if isinstance(exp.value,pd.core.series.Series):
             if operator == "NOT":
                 value = ~exp.value
+            elif operator == "ISTRUE":
+                value = exp.value == True
+            elif operator == "ISFALSE":
+                value = exp.value == False
+            elif operator == "ISUNKNOWN":
+                value = exp.value == None
+            elif operator == "ISNOTTRUE":
+                value = exp.value != True
+            elif operator == "ISNOTFALSE":
+                value = exp.value != False
+            elif operator == "ISNOTUNKNOWN":
+                value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        else:
+        else :
             if operator == "NOT":
                 value = not exp.value
+            elif operator == "ISTRUE":
+                value = exp.value == True
+            elif operator == "ISFALSE":
+                value = exp.value == False
+            elif operator == "ISUNKNOWN":
+                value = exp.value == None
+            elif operator == "ISNOTTRUE":
+                value = exp.value != True
+            elif operator == "ISNOTFALSE":
+                value = exp.value != False
+            elif operator == "ISNOTUNKNOWN":
+                value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
@@ -442,13 +472,14 @@ class FunctionCall(Expression):
 
     def __init__(self, function, params, row, column):
         Expression.__init__(self, row, column)
-        self.function = function
+        self.function = function.lower()
         self.params = params
         self.temp = str(function) + "("
         for t in params:
             self.temp += t.temp
         self.temp += ")"
 
+    # TODO: Agregar un error de parametros incorrectos
     def execute(self, environment):
         try:
             valores = []
@@ -550,7 +581,34 @@ class FunctionCall(Expression):
                 value = trf.acosh(*valores)
             elif self.function == "atanh":
                 value = trf.atanh(*valores)
+            elif self.function == "length":
+                value = strf.length(*valores)
+            elif self.function == "substring":
+                value = strf.substring(*valores)
+            elif self.function == "trim":
+                value = strf.trim_(*valores)
+            elif self.function == "get_byte":
+                value = strf.get_byte(*valores)
+            elif self.function == "md5":
+                value = strf.md5(*valores)
+            elif self.function == "set_byte":
+                value = strf.set_byte(*valores)
+            elif self.function == "sha256":
+                value = strf.sha256(*valores)
+            elif self.function == "substr":
+                value = strf.substring(*valores)
+            elif self.function == "convert_date":
+                value = strf.convert_date(*valores)
+            elif self.function == "convert_int":
+                value = strf.convert_int(*valores)
+            elif self.function == "encode":
+                value = strf.encode(*valores)
+            elif self.function == "decode":
+                value = strf.decode(*valores)
+            elif self.function == "now":
+                value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             else:
+                # TODO: Agregar un error de funcion desconocida
                 value = valores[0]
             if isinstance(value, list):
                 if len(value) <= 1:
@@ -563,3 +621,188 @@ class FunctionCall(Expression):
             print("Error de tipos en llamada a funciones")
         except:
             print("Error desconocido")
+
+class ExtractDate(Expression):
+    def __init__(self, opt, type, str, row, column):
+        Expression.__init__(self, row, column)
+        self.opt = opt
+        self.type = type
+        self.str = str.split()
+        self.temp = "EXTRACT( "+opt+" FROM "+type+" "+str+" )"
+
+    def execute(self, environment):
+        try:
+            if self.type == "TIMESTAMP":
+                if self.str[0] == "now":
+                    self.str = datetime.now().strftime("%Y/%m/%d %H:%M:%S").split()
+                if self.opt == "YEAR":
+                    val = self.str[0][:4]
+                elif self.opt == "MONTH":
+                    val = self.str[0][5:7]
+                elif self.opt == "DAY":
+                    val = self.str[0][8:10]
+                elif self.opt == "HOUR":
+                    val = self.str[1][:2]
+                elif self.opt == "MINUTE":
+                    val = self.str[1][3:5]
+                elif self.opt == "SECOND":
+                    val = self.str[1][6:8]
+                else :
+                    # ERROR
+                    val = self.str
+            elif self.type == "INTERVAL":
+                if self.opt == "YEAR":
+                    idx = self.str.index("years")
+                    val = self.str[idx-1]
+                elif self.opt == "MONTH":
+                    idx = self.str.index("months")
+                    val = self.str[idx-1]
+                elif self.opt == "DAY":
+                    idx = self.str.index("days")
+                    val = self.str[idx-1]
+                elif self.opt == "HOUR":
+                    idx = self.str.index("hours")
+                    val = self.str[idx-1]
+                elif self.opt == "MINUTE":
+                    idx = self.str.index("minutes")
+                    val = self.str[idx-1]
+                elif self.opt == "SECOND":
+                    idx = self.str.index("seconds")
+                    val = self.str[idx-1]
+                else :
+                    # ERROR
+                    val = self.str
+            else:
+                val = self.str
+                 # ERROR
+            return Primitive(TYPE.NUMBER,int(val),self.row, self.column)
+        except TypeError:
+            pass
+        except ValueError: #cuando no tiene el valor INTERVAL
+            pass
+
+class DatePart(Expression):
+
+    def __init__(self, opt, type, str, row, column) -> None:
+        super().__init__(row, column)
+        self.opt = opt.lower()
+        self.type = type
+        self.str = str.split()
+        self.temp = "date_part( "+opt+" , "+type+" "+str+" )"
+
+    def execute(self, environment):
+        try:
+            if self.type == "TIMESTAMP":
+                if self.str[0] == "now":
+                    self.str = datetime.now().strftime("%Y/%m/%d %H:%M:%S").split()
+                if self.opt == "years":
+                    val = self.str[0][:4]
+                elif self.opt == "months":
+                    val = self.str[0][5:7]
+                elif self.opt == "days":
+                    val = self.str[0][8:10]
+                elif self.opt == "hours":
+                    val = self.str[1][:2]
+                elif self.opt == "minutes":
+                    val = self.str[1][3:5]
+                elif self.opt == "seconds":
+                    val = self.str[1][6:8]
+                else :
+                    # ERROR
+                    val = self.str
+            elif self.type == "DATE":
+                if self.opt == "years":
+                    val = self.str[0][:4]
+                elif self.opt == "months":
+                    val = self.str[0][5:7]
+                elif self.opt == "days":
+                    val = self.str[0][8:10]
+                else :
+                    # ERROR
+                    val = self.str
+            elif self.type == "TIME":
+                if self.opt == "hours":
+                    val = self.str[0][:4]
+                elif self.opt == "minutes":
+                    val = self.str[0][5:7]
+                elif self.opt == "seconds":
+                    val = self.str[0][8:10]
+                else :
+                    # ERROR
+                    val = self.str
+            elif self.type == "INTERVAL":
+                if self.opt == "years":
+                    idx = self.str.index("years")
+                    val = self.str[idx-1]
+                elif self.opt == "months":
+                    idx = self.str.index("months")
+                    val = self.str[idx-1]
+                elif self.opt == "days":
+                    idx = self.str.index("days")
+                    val = self.str[idx-1]
+                elif self.opt == "hours":
+                    idx = self.str.index("hours")
+                    val = self.str[idx-1]
+                elif self.opt == "minutes":
+                    idx = self.str.index("minutes")
+                    val = self.str[idx-1]
+                elif self.opt == "seconds":
+                    idx = self.str.index("seconds")
+                    val = self.str[idx-1]
+                else :
+                    # ERROR
+                    val = self.str
+            elif self.type == "NOW":
+                self.str = datetime.now().strftime("%Y/%m/%d %H:%M:%S").split()
+                if self.opt == "years":
+                    val = self.str[0][:4]
+                elif self.opt == "months":
+                    val = self.str[0][5:7]
+                elif self.opt == "days":
+                    val = self.str[0][8:10]
+                elif self.opt == "hours":
+                    val = self.str[1][:2]
+                elif self.opt == "minutes":
+                    val = self.str[1][3:5]
+                elif self.opt == "seconds":
+                    val = self.str[1][6:8]
+                else :
+                    # ERROR
+                    val = self.str
+            else:
+                val = self.str
+                 # ERROR
+            return Primitive(TYPE.NUMBER,int(val),self.row, self.column)
+        except TypeError:
+            pass
+        except ValueError: #cuando no tiene el valor INTERVAL
+            pass
+
+class Current(Expression):
+    def __init__(self, val, optStr, row, column) -> None:
+        super().__init__(row, column)
+        self.val = val
+        self.optStr = optStr
+        self.temp = val
+        if optStr != None : self.temp += " " + optStr
+
+    def execute(self, environment):
+
+        try:
+            if self.val == "CURRENT_DATE":
+                value = datetime.now().strftime("%Y/%m/%d")
+            elif self.val == "CURRENT_TIME":
+                value = datetime.now().strftime("%H:%M:%S")
+            elif self.val == "TIMESTAMP":
+                if self.optStr == "now":
+                    value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
+                else :
+                    value = self.val
+            else :
+                #ERROR
+                value = self.val  
+            return Primitive(TYPE.STRING, value, self.row, self.column)
+        except :
+            pass  
+        
+        
