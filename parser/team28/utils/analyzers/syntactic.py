@@ -95,7 +95,7 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
     noColumn = 0
-    noLine = 0
+    noLine = p.slice[1].lineno
 
     if len(p) == 8:
         p[0] = CreateType(p[2],p[6])
@@ -530,7 +530,7 @@ def p_drop_database(p):
                     | ID
     '''
     noColumn = 0
-    noLine = 0
+    noLine = p.slice[1].lineno
     if len(p) == 4:
         p[0] = DropDB(True, p[3], noLine, noColumn)
     else:
@@ -541,7 +541,7 @@ def p_drop_table(p):
     '''droptable : ID
     '''
     noColumn = 0
-    noLine = 0
+    noLine = p.slice[1].lineno
     p[0] = DropTB(p[1], noLine, noColumn)
 
 
