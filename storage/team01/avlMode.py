@@ -175,4 +175,14 @@ def delete(database: str, table: str, columns: list) -> int:
 
 #Elimina todos los registros de una tabla y base de datos. (DELETE)
 def truncate(database: str, table: str) -> int:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(table)
+        if nodoTBL:
+            nodoTBL.datos.raiz = None
+            nodoTBL.datos.tamano = 0
+            return 0 #Operacion exitosa
+        else:
+            return 3 #Tabla no existe en la base de datos
+    else:
+        return 2 #Base de datos inexistente
