@@ -1,5 +1,7 @@
 from jsonMode import createDatabase, createTable, dropDatabase
 from parse.ast_node import ASTNode
+from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol
+from parse.errors import Error, ErrorType
 
 
 class CreateEnum(ASTNode):
@@ -8,9 +10,11 @@ class CreateEnum(ASTNode):
         self.name = name             # type name
         self.value_list = value_list  # list of possible values
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        return True
+        result_values = self.value_list.execute(table, tree)
+        symbol = TypeSymbol(self.name, result_values)
+        return table.add(symbol)
 
 
 class CreateDatabase(ASTNode):
@@ -21,7 +25,7 @@ class CreateDatabase(ASTNode):
         self.mode = mode        # mode integer
         self.replace = replace  # boolean type
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
         result_owner = self.owner.execute(table, tree) if self.owner else None  # Owner seems to be stored only to ST
@@ -34,12 +38,14 @@ class CreateDatabase(ASTNode):
 
         if result == 1:
             # log error on operation
+            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
             return False
         elif result == 2:
             # log error because db already exists
+            raise Error(0, 0, ErrorType.RUNTIME, '42P04: duplicate_database')
             return False
         else:
-            return True
+            return table.add(DatabaseSymbol(result_name, result_owner, result_mode))
 
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
@@ -49,7 +55,7 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
         self.inherits_from = inherits_from  # optional inheritance
         self.fields = fields                # list of fields
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
         result_inherits_from = self.inherits_from.execute(table, tree) if self.inherits_from else None
@@ -59,17 +65,16 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
             result_fields.append([])
         result = createTable('db_from_st', result_name, len(result_fields))
         if result == 1:
-            # log error on operation
+            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
             return False
         elif result == 2:
-            # log error because db does not exists
+            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
             return False
         elif result == 3:
-            # log error because table already exists
+            raise Error(0, 0, ErrorType.RUNTIME, '42P07: duplicate_table')
             return False
         else:
-            return True
-        return True
+            return table.add(TableSymbol('CURRENT_DB', result_name))
 
 
 class TableField(ASTNode):

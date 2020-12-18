@@ -3,9 +3,10 @@ from jsonMode import showDatabases as showDB
 
 
 class ShowDatabases(ASTNode):
-    def __init__(self, name, line, column):
+    def __init__(self, name, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -14,21 +15,24 @@ class ShowDatabases(ASTNode):
 
 
 class UseDatabase(ASTNode):
-    def __init__(self, name, line, column):
+    def __init__(self, name, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
         return True
 
+
 class Union(ASTNode):
-    def __init__(self, records_a, records_b, is_all, line, column):
+    def __init__(self, records_a, records_b, is_all, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.records_a = records_a
         self.records_b = records_b
         self.is_all = is_all
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -42,11 +46,12 @@ class Union(ASTNode):
 
 
 class Intersect(ASTNode):
-    def __init__(self, records_a, records_b, is_all, line, column):
+    def __init__(self, records_a, records_b, is_all, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.records_a = records_a
         self.records_b = records_b
         self.is_all = is_all
+        self.graph_ref = graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
@@ -57,11 +62,12 @@ class Intersect(ASTNode):
 
 
 class Except(ASTNode):
-    def __init__(self, records_a, records_b, is_all, line, column):
+    def __init__(self, records_a, records_b, is_all, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.records_a = records_a
         self.records_b = records_b
         self.is_all = is_all
+        self.graph_ref =graph_ref
 
     def execute(self, table, tree):
         super().execute(table, tree)
