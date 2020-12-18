@@ -1,3 +1,4 @@
+
 from enum import Enum
 
 class Tipo_Dato(Enum):
@@ -24,11 +25,14 @@ class Tipo_Dato(Enum):
     # BOOLEAN
     BOOLEAN = 18
     TIPOENUM = 19
+    # ID 
+    ID = 20
 
 class Tipo():
     'Esta clase será de utilidad para la comprobación de tipos.'
-    def __init__(self,tipo):
+    def __init__(self, tipo, dimension=None):
         self.tipo = tipo
+        self.dimension = dimension
         
     def toString(self):
         if self.tipo == Tipo_Dato.SMALLINT:

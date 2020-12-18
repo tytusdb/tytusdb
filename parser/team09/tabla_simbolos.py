@@ -21,6 +21,13 @@ class tipo_simbolo(Enum):
     TIME = 17,
     INTERVAL = 18
 
+class t_constraint(Enum):
+    NOT_NULL    = 1,
+    NULL        = 2,
+    UNIQUE      = 3,
+    DEFOULT     = 4,
+    CHECK       = 5
+
 class Simbolo(): 
 
 #los tipos de los simbolos ayudan a idetificar que tipo de simbolo es
@@ -64,7 +71,7 @@ class tabla_simbolos():
             #validar que no exista una columna con el mismo nombre
             for columna  in tabla.valor:
                 if columna.id == columna:
-                    msj_error = 'La columna -',columna,' ya existe en la tabla -',tabla,'-.'
+                    msj_error = 'La columna -'+columna+' ya existe en la tabla -'+tabla+'-.'
                     error = E.Errores('EROOR', msj_error)
                     return error
             tabla.valor.append(columna)
@@ -78,7 +85,7 @@ class tabla_simbolos():
             #validar que el nombre del constrint 
             for const in validar_columna.valor:
                 if const.id == ob_const.id:
-                    msj_error = 'El constraint -',ob_const.id,' ya existe en la columna -',colum,'-.'
+                    msj_error = 'El constraint -'+ob_const.id+' ya existe en la columna -'+colum+'-.'
                     error = E.Errores('EROOR', msj_error)
                     return error
             #se agrega el constraint a la lista de la columna 
@@ -91,7 +98,7 @@ class tabla_simbolos():
             if simbolo.id == id:
                 return simbolo
         #no encuentra la base, retorna error
-        msj_error = 'la base de datos -',id,'- no existe.'
+        msj_error = 'la base de datos -'+id+'- no existe.'
         error = E.Errores('ERROR', msj_error)
         return error
 
@@ -101,11 +108,11 @@ class tabla_simbolos():
                 if Simbolo.base == db:
                     return Simbolo
                 else: #la tabla no pertenece a esa base
-                    msj_error = 'la tabla -',id_tabla, '- no se encuentra en la base de datos -',db,'-.'
+                    msj_error = 'la tabla -'+id_tabla+'- no se encuentra en la base de datos -'+db+'-.'
                     error = E.Errores('EROOR', msj_error)
                     return error
         #No se encontro la tabla
-        msj_error = 'La tabla -',id_tabla,' no existe.'
+        msj_error = 'La tabla -'+id_tabla+' no existe.'
         error = E.Errores('EROOR', msj_error)
         return error
 
@@ -117,16 +124,44 @@ class tabla_simbolos():
                 if columna.id == id_column:
                     return columna
             #no existe la columna en esa tabla
-            msj_error = 'La columna -',id_column,' no existe en la tabla -',tabla,'-.'
+            msj_error = 'La columna -'+id_column+' no existe en la tabla -',tabla,'-.'
             error = E.Errores('EROOR', msj_error)
             return error
         else: # la tabla no existe, la variable tabla tare el error 
             return tabla
 
 
+    def get_constraint(self,db,table,column,id_const):
+        columna = self.get_column(db,table,column)
+        if(isinstance(columna,E.Errores)):
+            #la variable columna trae el error, si la db, la tabla o la columna no existe
+            return columna
         
+        #buscar el constrint por id 
+        for const in columna.valor:
+            if const.id == id_const:
+                return const
+        
+        #no se encontro el constraint
+        msj_error = 'No se encontro el constrint -'+id_const+'-.'
+        
+    
+    #funciones para borrar simbolos
+    def drop_db(self,db):
+        #verificar que exista la db
+        database = self.get_simbol(db)
+        if(isinstance(database,E.Errores)): #la base no existe
+            return database
+        
+        #si existe eliminamos el simbolo base de datos
+        self.lis_simbolos.remove(database)
+        return True
 
-        
+        #eliminar todas las tablas que perteneces a esa base de datos
+        for Sim in self.lis_simbolos:
+            if Sim.tipo == tipo_simbolo.TABLE and Sim.base == db :
+                self.lis_simbolos.remove(Sim)
+
 
     def graficar(self):
         for simbolos in self.lis_simbolos:
@@ -135,8 +170,9 @@ class tabla_simbolos():
 
 class const():
     #esta clase servira para almacenar los constraints de las columnas de las tablas
-    def __init__(self,id,valor,condicion):
+    def __init__(self,id,valor,condicion,tipo):
         self.id = id
+        self.tipo = tipo #el tipo sera un valor en el enum
         self.valor = valor
         self.condicion = condicion # <,>,>=,<=,=,<>, 
     
