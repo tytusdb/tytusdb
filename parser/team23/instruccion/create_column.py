@@ -55,7 +55,7 @@ class create_column(instruccion):
             if isinstance(self.type_, tuple):
                 size = self.type_[1]
                 tipo = self.type_[0]
-
+                
             new_col = symbol_col(self.id_column, size, tipo, self.condicion)
             ts.add_col(use_actual_db, id_tb, new_col)
             add_text('Columna ' + self.id_column + ' creada en tabla: ' + id_tb + '\n')

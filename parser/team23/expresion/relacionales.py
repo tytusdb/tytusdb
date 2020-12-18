@@ -25,11 +25,11 @@ class relacional(expresion):
 
         #Gramatica
         self.grammar_ = '<TR><TD> EXPRESION ::= EXPRESION1 ' + self.get_str_oper(tipo_oper) + ' EXPRESION2 </TD><TD> EXPRESION = new relacional(EXPRESION1, EXPRESION2, ' + self.get_str_oper(tipo_oper) + '); </TD></TR>\n'
-        self.grammar_ += str(left.grammar_) + "\n"
-        self.grammar_ += str(right.grammar_) + "\n"
+        #self.grammar_ += str(left.grammar_) + "\n"
+        #self.grammar_ += str(right.grammar_) + "\n"
 
     def ejecutar(self):
-        left_value = self.left.ejecutar()
+        '''left_value = self.left.ejecutar()
         right_value = self.right.ejecutar()
 
         if self.tipo_oper == operacion_relacional.IGUALDAD:
@@ -43,7 +43,7 @@ class relacional(expresion):
         elif self.tipo_oper == operacion_relacional.MAYOR_IGUAL:
             return retorno(left_value.valor >= right_value.valor, tipo_primitivo.BOOLEAN)
         elif self.tipo_oper == operacion_relacional.MENOR_IGUAL:
-            return retorno(left_value.valor <= right_value.valor, tipo_primitivo.BOOLEAN)
+            return retorno(left_value.valor <= right_value.valor, tipo_primitivo.BOOLEAN)'''
 
     def get_str_tipo(self, tipo):
         if tipo == tipo_primitivo.SMALLINT:
