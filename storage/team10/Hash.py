@@ -202,3 +202,10 @@ class TablaHash:
                 if val != None:
                     listCol.append(val)   
         return listCol   
+    
+    # agrega la nueva columna y asigna el valor
+    def alterAddColumn(self, dato):
+        self.nCols += 1
+        for i in self.values:
+                if i :
+                    i.alterAddColumn(dato)
