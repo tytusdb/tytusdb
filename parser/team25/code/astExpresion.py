@@ -31,6 +31,16 @@ class OPERACION_LOGICA(Enum):
     AND = 1
     OR = 2
 
+class OPERACION_UNARIA_IS(Enum):
+    IS_TRUE = "is true"
+    IS_FALSE = "is false"
+    IS_NOT_FALSE = "is not false"
+    IS_NOT_TRUE = "is not true"
+
+class OPERACION_BINARIA_IS(Enum):
+    IS_DISTINCT_FROM = "is distinct from"
+    IS_NOT_DISTINCT_FROM = "is not distinct from"
+
 # ------------------------ EXPRESIONES ----------------------------
 # ------EXPRESIONES NUMERICAS
 
@@ -425,4 +435,62 @@ class ExpresionCadena(Expresion):
     def ejecutar(self,ts):
         return self
 
+class ExpresionUnariaIs(Expresion):
+    def __init__(self, exp, linea, tipo):
+        self.exp = exp
+        self.linea = linea
+        self.tipo = tipo
+    def dibujar(self):
+        identificador = str(hash(self))
 
+        nodo = "\n" + identificador + "[ label =\"self.tipo.value\" ];"
+        nodo += "\n" + identificador + " -> " + str(hash(self.exp)) + ";\n"
+
+        nodo += self.exp.dibujar()
+
+        return nodo
+    def ejecutar(self, ts):
+        unario = self.exp.ejecutar(ts)
+        if unario.tipo == TIPO_DE_DATO.BOOLEANO:
+            if self.tipo == OPERACION_UNARIA_IS.IS_TRUE:
+                return ExpresionBooleano(unario.val == True, self.linea) 
+            elif self.tipo == OPERACION_UNARIA_IS.IS_FALSE:
+                return ExpresionBooleano(unario.val == False, self.linea) 
+            elif self.tipo == OPERACION_UNARIA_IS.IS_NOT_FALSE:
+                return ExpresionBooleano(unario.val == True, self.linea) 
+            elif self.tipo == OPERACION_UNARIA_IS.IS_NOT_TRUE:
+                return ExpresionBooleano(unario.val == False, self.linea) 
+        else:
+            print("Error semántico, Operador de tipo", unario.tipo,"no admitido para operacion unaria", self.tipo)
+
+class ExpresionBinariaIs(Expresion):
+    def __init__(self, exp1, exp2, operador, linea):
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operador = operador
+        self.linea = linea
+
+    def dibujar(self):
+        identificador = str(hash(self))
+
+        nodo = "\n" + identificador + "[ label =\"" + self.operador.value + "\" ];"
+        nodo += "\n" + identificador + " -> " + str(hash(self.exp1)) + ";"
+        nodo += "\n" + identificador + " -> " + str(hash(self.exp2)) + ";\n"
+
+        nodo += self.exp1.dibujar()
+        nodo += self.exp2.dibujar()
+
+        return nodo
+    def ejecutar(self, ts):
+        izq = self.exp1.ejecutar(ts)
+        der = self.exp2.ejecutar(ts)
+    
+        # como expresionNumero abarca tanto decimales como enteros 
+        if isinstance(izq,ExpresionNumero) and isinstance(izq,ExpresionNumero):
+            if self.operador == OPERACION_BINARIA_IS.IS_NOT_DISTINCT_FROM:
+                return ExpresionBooleano(izq.val == der.val, self.linea)
+            elif self.operador == OPERACION_BINARIA_IS.IS_DISTINCT_FROM:
+                return ExpresionBooleano(izq.val != der.val, self.linea)
+        #elif isinstance() comparar cadenas  y ids 
+        else:
+            return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)
