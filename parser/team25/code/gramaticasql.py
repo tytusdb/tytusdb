@@ -1,8 +1,11 @@
 import ply.yacc as yacc
+
+
 from lexicosql import tokens
-from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
+from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada
 from astExpresion import ExpresionCadena, ExpresionID
 from astFunciones import FuncionNumerica , FuncionCadena
+from astUse import Use
 from arbol import Arbol
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
@@ -10,14 +13,15 @@ from arbol import Arbol
 
 #---------------- MANEJO DE LA PRECEDENCIA
 precedence = (
+    ('left', 'NOT'),
     ('left','AND','OR'),
     ('left','IGUAL','DIFERENTE','DIFERENTE2','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
     ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
     ('left','MAS','MENOS'),
     ('left','ASTERISCO','DIVISION','MODULO'),
-    ('left','EXPONENT'),
-    ('right','UMENOS','UMAS','NOT')
+    ('right','UMENOS','UMAS'),
+    ('left', 'EXPONENT')
 ) 
 
 def p_init(p):
@@ -44,10 +48,14 @@ def p_instruccion(p):
                     | definicion        PTCOMA
                     | alter_table       PTCOMA
                     | combine_querys    PTCOMA
-                    | USE ID            PTCOMA
-                    | funciones   PTCOMA
-                    '''     # QUITAR FUNCIONES PTCOMA
+                    | use           PTCOMA
+                    | select PTCOMA
+                    '''     
     p[0] = p[1]
+    
+def p_use(p):
+    'use : USE ID'
+    p[0] = Use(p[2], p.slice[2].lineno)
 
 # __________________________________________definicion
 
@@ -176,11 +184,9 @@ def p_combine_querys7(p):
     'combine_querys : select'
 #_____________________________________________________________ SELECT
 # SOLO DE PRUEBA :V
-# def p_select0(p):
-#     'select : SELECT expresion'
-#     p[0] = p[2].ejecutar(0)
-#     print(p[0].val)
-#     print(p[0])
+def p_select0(p):
+    'select : SELECT expresion'
+    p[0] = p[2]
 
 def p_select1(p):
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -515,7 +521,7 @@ def p_funciones54(p):#ya
     p[0] = FuncionNumerica(funcion='SQRT',parametro1=p[3], linea= p.slice[2].lineno)
     
 def p_funciones55(p):# decimal y entero  , LISTA DE NUMEROS []
-    'funciones : WIDTH_BUCKET PABRE lista_numeros PCIERRA'
+    'funciones : WIDTH_BUCKET PABRE lista_exp PCIERRA'
     p[0] = FuncionNumerica(funcion='WIDTH_BUCKET',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones56(p):#ya
@@ -1109,11 +1115,14 @@ def p_asignacion(p):
 
 def p_expresiones_unarias(p):
     ''' expresion : MENOS expresion %prec UMENOS 
-                  | MAS expresion %prec UMAS'''
+                  | MAS expresion %prec UMAS
+                  | NOT expresion'''
     if p[1] == '+':
         p[0] = ExpresionPositiva(p[2], p.slice[1].lineno)
     elif p[1] == '-':
         p[0] = ExpresionNegativa(p[2], p.slice[1].lineno)
+    else:
+        p[0] = ExpresionNegada(p[2])
     
 def p_expresiones_is_complemento(p):
     '''
@@ -1278,6 +1287,7 @@ def p_exp_aux_decimal(p):
 #          | 'id' '.' 'id'
 def p_exp_aux_tabla(p):
     'exp_aux :  ID PUNTO ID'
+    p[0] = ExpresionID(p[3], p.slice[1].lineno , tabla = p[1])
 #          | 'id'
 def p_exp_aux_id(p):
     'exp_aux :  ID'
@@ -1424,9 +1434,12 @@ def p_least(p):
 
 def p_lista_exp_1(p):
     'lista_exp : expresion'
+    p[0] = [p[1]]
 
 def p_lista_exp_2(p):
-    'lista_exp : lista_exp COMA expresion'    
+    'lista_exp : lista_exp COMA expresion'  
+    p[1].append(p[3])
+    p[0] = p[1]  
 
 #<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
 def p_when_case(p):
@@ -1448,6 +1461,7 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 
-arbolParser = analizarEntrada(''' RANDOM() ; ''')
-arbolParser.ejecutar()#viendo el resultado: 
+arbolParser = analizarEntrada(''' select not 8 != 8 and 8*8 = 64;  ''')
 print(arbolParser.instrucciones[0].ejecutar(0).val)
+
+

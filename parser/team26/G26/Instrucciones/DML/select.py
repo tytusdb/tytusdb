@@ -16,18 +16,73 @@ class Select(Instruccion):
         return str(self.__dict__)
 
 
-class FromOpcional(Instruccion):
+class Casos(Instruccion):
 
-    def __init__(self, parametros,asopcional,whereopcional):
-        self.parametros = parametros
-        self.asopcional = asopcional
-        self.whereopcional = whereopcional
+    def __init__(self, caso,elsecase):
+        self.caso = caso
+        self.elsecase = elsecase
 
     def execute(self):
         return self
 
     def __repr__(self):
         return str(self.__dict__)
+
+
+class FromOpcional(Instruccion):
+
+    def __init__(self, parametros,whereogroup):
+        self.parametros = parametros
+        self.whereopcional = whereogroup
+
+    def execute(self):
+        return self
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+class ParametrosFromR(Instruccion):
+
+    def __init__(self, parametros,asop):
+        self.parametros = parametros
+        self.asop = asop
+
+    def execute(self):
+        return self
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+
+class ListaDeSeleccionadosConOperador(Instruccion):
+    #puede venir grastest con arg1
+    #least con arg 1
+    #case con arg1 y 2
+    def __init__(self, operador,arg1,arg2):
+        self.operador = operador
+        self.arg1 = arg1
+        self.arg2 = arg2
+
+    def execute(self):
+        return self
+
+    def __repr__(self):
+        return str(self.__dict__)
+
+
+class ListaDeSeleccionados(Instruccion):
+    #puede venir asterisco(*) entonces tipo == True
+    #puede venir un select completo -> Tipo == False
+    def __init__(self, argumento,tipo):
+        self.argumento = argumento
+        self.tipo = tipo
+
+    def execute(self):
+        return self
+
+    def __repr__(self):
+        return str(self.__dict__)
+
 
 
 class ElseOpcional(Instruccion):
@@ -56,9 +111,11 @@ class QuerysSelect(Instruccion):
         return str(self.__dict__) 
 
 class ParametrosFrom(Instruccion):
-
-    def __init__(self, parametro):
+    #true select
+    #false id
+    def __init__(self, parametro,tipoparametro):
         self.operador = parametro
+        self.tipoparametro = tipoparametro
 
     def execute(self):
         return self
@@ -127,11 +184,24 @@ class Case(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
+class ListaDeSeleccionadosR(Instruccion):
+
+    def __init__(self, listaseleccionados,asopcional):
+        self.listaseleccionados = listaseleccionados
+        self.asopcional = asopcional
+
+
+    def execute(self):
+        return self
+
+    def __repr__(self):
+        return str(self.__dict__)
 
 
 
 class ParametrosSelect(Instruccion):
-
+    #true si hay distinct
+    #false no hay distinct
     def __init__(self, distinct, listadeseleccion):
         self.distinct = distinct
         self.listadeseleccion = listadeseleccion
@@ -143,17 +213,6 @@ class ParametrosSelect(Instruccion):
         return str(self.__dict__)
 
 class As(Instruccion):
-
-    def __init__(self, argumento):
-        self.argumento = argumento
-
-    def execute(self):
-        return self
-
-    def __repr__(self):
-        return str(self.__dict__)
-
-class Fecha(Instruccion):
 
     def __init__(self, argumento):
         self.argumento = argumento
@@ -177,7 +236,7 @@ class TipoRound(Instruccion):
 
 
 class FuncionBinaria(Instruccion):
-
+    #convert tiene un tipo no un argumento
     def __init__(self, operador, arg1,arg2,arg3):
         self.operador = operador
         self.arg1 = arg1
@@ -203,7 +262,14 @@ class FucionTrigonometrica(Instruccion):
         return str(self.__dict__)
 
 class OperadoresSelect(Instruccion):
-
+        # | square
+        # ||  cube
+        # & and
+        # | or dos args
+        # # <- xor
+        # ~ not
+        # << sl(bitwise shift left) 
+        # >> sr(bitwise shift right)
     def __init__(self, tipoOperador, arg1,arg2):
         self.tipoOperador = tipoOperador
         self.arg1 = arg1
@@ -233,7 +299,8 @@ class FuncionMatematica(Instruccion):
 
 
 class FuncionFecha(Instruccion):
-
+    #2arg:
+    #extract(parte y tamestap) y datepart ( argument y argument)
     def __init__(self, tipofuncionfehca, arg1,arg2):
         self.tipofuncionfehca = tipofuncionfehca
         self.arg1 = arg1
@@ -246,7 +313,8 @@ class FuncionFecha(Instruccion):
         return str(self.__dict__)
 
 class FuncionMatematicaSimple(Instruccion):
-
+    #puede venir:
+    #Count,max,sum,avg,min
     def __init__(self, operador, argumento):
         self.argumento = argumento
         self.operador = operador

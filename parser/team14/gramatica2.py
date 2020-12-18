@@ -101,7 +101,8 @@ reservadas = {
     'except': 'except',
     'intersect': 'intersect',
     'with': 'with',
-    'use':'use'
+    'use':'use',
+    'int': 't_int'
 
 }
 
@@ -128,7 +129,8 @@ tokens = [
              'cadena',
              'cadenaString',
              'parc',
-             'id'
+             'id',
+	     'idPunto'
          ] + list(reservadas.values())
 
 # Tokens
@@ -172,6 +174,10 @@ def t_int(t):
         t.value = 0
     return t
 
+def t_PUNTOPUNTO(t):
+    r'[a-zA-Z_][a-zA-Z_0-9]*\.[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reservadas.get(t.value.lower(), 'idPunto')
+    return t
 
 
 
@@ -237,7 +243,7 @@ from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
 from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
-#from Instrucciones.Insert import Insert
+from Instrucciones.Insert import Insert
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -557,7 +563,7 @@ def p_SELECT(t):
 	    | select  LEXP WHERE  GROUP HAVING  COMBINING ORDER LIMIT
     '''
     if len(t)==9:
-        t[0] =Select(None ,t[2] ,None ,t[4] ,t[5] ,t[6] ,t[7] ,t[8] ,t[9])
+    	t[0] = Select(None, t[2], None, t[3], t[4], t[5], t[6], t[7], t[8])
     elif  len(t)==10:
         t[0] = Select(None, t[2], t[4], t[5], t[6], t[7], t[8], t[9], t[10])
     elif  len(t)==11:
@@ -584,12 +590,12 @@ def p_WHERE(t):
 
 
 def p_COMBINING(t):
-    '''COMBINING :  union LEXP
-                | union all LEXP
-                | intersect LEXP
-                | intersect all LEXP
-                | except LEXP
-                | except all LEXP
+    '''COMBINING :  union EXP
+                | union all EXP
+                | intersect EXP
+                | intersect all EXP
+                | except EXP
+                | except all EXP
 	            | '''
 
 
@@ -599,7 +605,7 @@ def p_GROUP(t):
 
 
 def p_HAVING(t):
-    ''' HAVING : having LEXP
+    ''' HAVING : having EXP
 	| '''
 
 
@@ -619,7 +625,7 @@ def p_UPDATE(t):
 
 
 def p_LCAMPOS(t):
-    '''LCAMPOS :  LCAMPOS id igual EXP
+    '''LCAMPOS :  LCAMPOS coma id igual EXP
 		| id igual EXP'''
 
 
@@ -858,7 +864,16 @@ def p_EXP_FuncNativas(t):
 
 def p_EXP_FuncNativas2(t):
     '''EXP : id para parc '''
-    t[0] = Terminal('identificador', t[1])
+    tipo=None
+    if t[1].lower() =='now':
+        tipo = Tipo('timestamp without time zone', t[1], len(t[1]), -1)
+    elif t[1].lower() =='random':
+        tipo = Tipo('double', t[1], len(t[1]), -1)
+    elif t[1].lower()=='pi':
+        tipo = Tipo('double', t[1], len(t[1]), -1)
+
+
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXP(t):
     '''EXP : any para LEXP parc
@@ -962,6 +977,13 @@ def p_EXPT16(t):
     tipo = Tipo('default', t[1], len(t[1]), -1)
     tipo.getTipo()
     t[0] = Terminal(tipo, t[1])
+	
+def p_EXPT17(t):
+    'EXP : idPunto'
+    tipo = Tipo('acceso', t[1], len(t[1]), -1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
+
 
 
 def p_error(t):
