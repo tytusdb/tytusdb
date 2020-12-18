@@ -14,18 +14,17 @@ class Node:
             self.array.append(i)
 
     def buscarDato_binary(self, dato):
-        inicio = 0
-        final = len(self.array) -1 
-        while inicio <= final:
-            mid = inicio + (final - inicio) //2
-            arreglo = self.array[mid]
-            # if int(arreglo[0]) == int(dato):
-            if int(arreglo[self.pk]) == int(dato):
+        ub = len(self.array) 
+        lb = 0 
+        while lb <= ub-1:
+            med = (ub + lb ) // 2
+            arreglo = self.array[med]
+            if int(arreglo[0]) == int(dato[0]):
                 return True
-            elif int(dato) < int(arreglo[self.pk]):
-                final = mid -1 
-            else:
-                inicio = mid +1
+            elif int(arreglo[0]) < int(dato[0]):
+                lb = med +1
+            elif int(arreglo[0]) > int(dato[0]):
+                ub = med -1
         return False
 
     def busquedaB(self, dato):
@@ -35,9 +34,9 @@ class Node:
             mid = inicio + (final - inicio) //2
             arreglo = self.array[mid]
             # if int(arreglo[0]) == int(dato):
-            if int(arreglo[self.pk]) == int(dato):
+            if int(self.pk) == int(dato):
                 return arreglo
-            elif int(dato) < int(arreglo[self.pk]):
+            elif int(dato) < int(arreglo[0]):
                 final = mid -1 
             else:
                 inicio = mid +1
@@ -81,10 +80,10 @@ class Node:
                 mid = inicio + (final - inicio) //2
                 arreglo = self.array[mid]
                 # if int(arreglo[0]) == int(key):
-                if int(arreglo[self.pk]) == int(key):
+                if int(self.pk) == int(key):
                     self.array[mid][columna] = modificacion
                     return 0
-                elif int(key) < int(arreglo[self.pk]):
+                elif int(key) < int(arreglo[0]):
                     final = mid -1 
                 else:
                     inicio = mid +1
@@ -99,19 +98,54 @@ class Node:
             mid = inicio + (final - inicio) //2
             arreglo = self.array[mid]
             # if int(arreglo[0]) == int(dato):
-            if int(arreglo[self.pk]) == int(dato):
+            if int(self.pk) == int(dato):
                 self.array.pop(mid)
                 return True
-            elif int(dato) < int(arreglo[self.pk]):
+            elif int(dato) < int(arreglo[0]):
                 final = mid -1 
             else:
                 inicio = mid +1
         return None
 
-    def imp_column(self,columnNumber,lower,upper): ##trabaja solo en esa tabla, de esa base de datos en esa columna dada. wujuuuuuuuuuuuuuuuuuuuu
-        for i in self.array:
-            if int(i[columnNumber]) <= upper and int(i[columnNumber]) >= lower :
-                #print(i)  
-                return i
+    def obtenerLower(self,valor,lower): ##Cristian 17/12/2020
+        let=""
+        contador = 0
+        x= len(lower)-1
+        for i in valor:
+            if contador > x:
+                if lower.upper() == let.upper():
+                    return True
+                else:
+                    return False
             else:
-                return None
+                contador+=1
+                let+=i
+
+    def obtenerUpper(self,valor,upper):
+        let=""
+        contador = 0
+        x= len(upper)-1
+        for i in valor[::-1]:
+            if contador > x:
+                if upper.upper() == let[::-1].upper():
+                    return True
+                else:
+                    return False
+            else:
+                contador+=1
+                let+=i    
+
+    def imp_column(self,columnNumber,lower,upper): 
+        
+        if isinstance(lower, int) == True:
+            for i in self.array:
+                if int(i[columnNumber]) <= upper and int(i[columnNumber]) >= lower :
+                    return i
+                else:
+                    return None
+        else:
+            for i in self.array:
+                if self.obtenerLower(str(i[columnNumber]),lower) == True and self.obtenerUpper(str(i[columnNumber]),upper) == True:
+                    return i
+                else:
+                    return None 
