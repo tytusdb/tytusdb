@@ -1,8 +1,20 @@
 #
-import mathtrig as mt
-from mathtrig import *
-from datetime import date
 import hashlib
+from datetime import date
+from main import TS as ts
+import storage as s
+from enum import Enum
+from main import default_db
+import mathtrig as mt
+#
+
+#
+class exp_type(Enum):
+    numeric = 1
+    text  = 2
+    boolean = 3
+    identifier = 4
+
 #
 
 
@@ -36,7 +48,81 @@ class exp_id(exp_query):
     def __init__(self, val, table):
         self.val = val
         self.table = table
+        self.alias = None
         
+
+    def ejecutar(self,tables):
+        #Falta definir el tipo de la columna
+        #Verificar si sabemos la tabla
+        if self.table is None:
+            #No sabemos la tabla
+            tupla = ts.getTabla(self.val)
+            #Este devuelve la base de datos y la
+            # tabla
+            if tupla is None : return #Error semántico
+            #Ahora obtenemos los registros de la columna
+            registros = s.extractTable(tupla.db,tupla.tabla)
+
+            #Obtener el indice de la columna
+
+            indice = ts.getIndice(tupla.db,tupla.tabla,self.val)
+
+            # Obtener la columna de los registros
+
+            columna = []
+            for reg in registros:
+                columna.append(reg[indice])
+            dict = {
+                "valores":columna,
+                "columna":[{"nombre":self.val,"indice":indice,"tabla":tupla.table}]
+            }
+            return dict
+        else:
+            #Verificamos que exista 
+            if self.table not in tables or self.table not in tables.values():
+                #Error semántico
+                pass
+            # Existe, ahora obtenemos el nombre de la tabla
+             
+            if self.table not in tables.values():
+                # si no fuera un alias 
+                #significa que el nombre es la tabla
+                registros = s.extractTable(default_db,self.table)
+                indice = ts.getIndice(default_db,self.table,self.val)
+                col = []
+                for reg in registros:
+                    col.append(reg[indice])
+
+                dic = {
+                    "valores" : col,
+                    "columna" : [{"nombre":self.val,"indice":indice,"tabla":self.table}] 
+                }
+                return dic
+
+            else:
+                #Obtenemos el nombre basado en el alias
+                table = getKeyFromValue(self.table,tables)      
+                #Obtenemos la tabla
+                registros = s.extractTable(default_db,table)
+                #Obtenemos el indice de esa tabla
+                indice = ts.getIndice(default_db,table,self.val)
+                #Obtenemos la columan que queremos
+                col = []
+                for reg in registros:
+                    col.append(reg[indice])
+
+                dic = {
+                    "valores" : col,
+                    "columna" : [{"nombre":self.val,"indice":indice,"tabla":table}] 
+                }
+                return dic
+
+
+
+
+
+
+
 
 
 class exp_bool(exp_query):
@@ -46,12 +132,17 @@ class exp_bool(exp_query):
     def __init__(self, val):
         self.val = val
 
+    def ejecutar(self):
+        return self.val
+
 
 class exp_text(exp_query):
     'Devuelve el texto'
 
     def __init__(self, val):
         self.val = val
+    def ejecutar(self):
+        return self.val
 
 
 class exp_num(exp_query):
@@ -59,6 +150,8 @@ class exp_num(exp_query):
 
     def __init__(self, val):
         self.val = val
+    def ejecutar(self):
+        return self.val
 
 
 
@@ -68,6 +161,52 @@ class exp_suma(exp_query):
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
+        self.type = None
+    
+    #Vamos a asumir el tipo 
+    # suponemos que es numérico :v
+
+    def ejecutar(self):
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(menor[i]+mayor[i])
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(col+val)
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return float(exp1) + float(exp2)
+
+
+    
 
 
 class exp_resta(exp_query):
@@ -75,6 +214,46 @@ class exp_resta(exp_query):
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
+        self.type = None
+
+    def ejecutar(self):
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(menor[i]-mayor[i])
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(col-val)
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return float(exp1) - float(exp2)
 
 
 class exp_multiplicacion(exp_query):
@@ -82,6 +261,46 @@ class exp_multiplicacion(exp_query):
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
+        self.type = None
+
+    def ejecutar(self):
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(menor[i]*mayor[i])
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(col*val)
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return float(exp1) * float(exp2)
 
 
 class exp_division(exp_query):
@@ -89,17 +308,59 @@ class exp_division(exp_query):
     def __init__(self, exp1, exp2):
         self.exp1 = exp1
         self.exp2 = exp2
+        self.type = None
+
+    def ejecutar(self):
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(menor[i]/mayor[i])
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(col/val)
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return float(exp1) / float(exp2)
 
 
 class select_column():
     'Abstract Class'
 
 
-class column_id(select_column):
-    def __init__(self, id, table, alias):
-        self.id = id
-        self. table = table
-        self.alias = alias
+#class column_id(select_column):
+#    def __init__(self, id, table, alias):
+#        self.id = id
+#        self. table = table
+#        self.alias = alias
+
+    
 
 
 class column_mathtrig(select_column):
@@ -110,6 +371,25 @@ class math_abs(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
+        self.type = exp_type.numeric
+    
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(abs(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return abs(exp)
+        
+        
 
 
 class math_cbrt(column_mathtrig):
@@ -117,17 +397,65 @@ class math_cbrt(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.cbrt(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.cbrt(exp)
+
 
 class math_ceil(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.ceil(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.ceil(exp)
+
 
 class math_degrees(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
+
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.degrees(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.degrees(exp)
 
 
 class math_div(column_mathtrig):
@@ -136,21 +464,110 @@ class math_div(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(mt.div(menor[i],mayor[i]))
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(mt.div(col,val))
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return mt.div(float(exp1) , float(exp2))
+        
+
 class math_exp(column_mathtrig):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
+
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.exp(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.exp(exp)
 
 class math_factorial(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.factorial(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.factorial(exp)
+
 
 class math_floor(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
+
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.floor(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.floor(exp)
 
 
 class math_gcd(column_mathtrig):
@@ -159,11 +576,91 @@ class math_gcd(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(mt.gcd(menor[i],mayor[i]))
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(mt.gcd(col,val))
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return mt.gcd(float(exp1) , float(exp2))
+
 class math_lcm(column_mathtrig):
     def __init__(self,exp1,exp2,alias):
         self.exp1 = exp1
         self.exp2 = exp2
         self.alias = alias 
+
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(mt.lcm(menor[i],mayor[i]))
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(mt.lcm(col,val))
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return mt.lcm(float(exp1) , float(exp2))
 
 
 
@@ -172,6 +669,22 @@ class math_ln(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.ln(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.ln(exp)
+
 
 class math_log(column_mathtrig):
     def __init__(self, exp1, exp2, alias):
@@ -179,21 +692,109 @@ class math_log(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(mt.log(menor[i],mayor[i]))
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(mt.log(col,val))
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return mt.log(float(exp1) , float(exp2))
+
 
 class math_log10(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.log10(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.log10(exp)
+
 class math_min_scale(column_mathtrig):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.min_scale(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.min_scale(exp)
+
 class math_scale(column_mathtrig):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
+
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.scale(str(reg)))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.scale(str(exp))
 
 class math_mod(column_mathtrig):
     def __init__(self, exp1,exp2, alias):
@@ -201,11 +802,54 @@ class math_mod(column_mathtrig):
         self.exp2  = exp2
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(mt.mod(menor[i],mayor[i]))
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(mt.mod(col,val))
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return mt.mod(float(exp1) , float(exp2))
+
 
 class math_pi(column_mathtrig):
     def __init__(self, alias):
-        self.val = pi()
+        self.val = mt.pi()
         self.alias = alias
+
+    def ejecutar(self):
+        return self.val
 
 
 class math_power(column_mathtrig):
@@ -213,6 +857,46 @@ class math_power(column_mathtrig):
         self.exp1 = exp1
         self.exp2 = exp2
         self.alias = alias
+    
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp1 = self.exp1.ejecutar()
+        exp2 = self.exp2.ejecutar()
+        # si al menos una es diccionario
+        if isinstance(exp1,dict) or isinstance(exp2,dict):
+            #Si ambas son diccionario
+            if isinstance(exp1,dict) and isinstance(exp2,dict):
+                val1 = exp1['valores']
+                val2 = exp2['valores']
+                #vemos cual es el menor
+                menor = val1 if len(val1) < len(val2) else val2
+                mayor = val1 if len(val1) > len(val2) else val2
+                result = []
+                #iteramos sobre el menor
+                for i in range(len(menor)):
+                    result.append(mt.power(menor[i],mayor[i]))
+                newdict = {
+                    'valores':result,
+                    'columna': exp1['columna'].append(exp2['columna'][0])
+                }
+                return newdict
+            else:
+                #Solo una de ellas es diccionario
+                dic = exp1 if isinstance(exp1,dict) else exp2
+                val = exp1 if not isinstance(exp1,dict) else exp2
+                valores = dic['valores']
+                result = []
+                for col in valores:
+                    result.append(mt.power(col,val))
+                newdict = {
+                    'valores':result,
+                    'columna': dic['columna']
+                }
+                return newdict
+
+        #si ninguna es diccionario
+        else:
+            return mt.power(float(exp1) , float(exp2))
 
 
 class math_radians(column_mathtrig):
@@ -220,11 +904,43 @@ class math_radians(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.radians(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.radians(exp)
+
 
 class math_round(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
+
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(round(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return round(exp)
 
 
 class math_sign(column_mathtrig):
@@ -232,16 +948,64 @@ class math_sign(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.sign(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.sign(exp)
+
 
 class math_sqrt(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.sqrt(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.sqrt(exp)
+
 class math_trim_scale(column_mathtrig):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
+
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.trim_scale(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.trim_scale(exp)
 
 class math_widthBucket(column_mathtrig):
     def __init__(self, exp1, exp2, exp3, exp4, alias):
@@ -251,21 +1015,47 @@ class math_widthBucket(column_mathtrig):
         self.exp4 = exp4
         self.alias = alias
 
+    def ejecutar(self):
+        #xd
+        return mt.width_bucket(9,8,7,6)
+
 
 class math_trunc(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
 
+    def ejecutar(self):
+        #Verificamos si viene un diccionario o un valor
+        exp = self.exp.ejecutar()
+        if isinstance(exp,dict):
+            #es diccionario
+            registros = exp['valores']
+            result = []
+            for reg in registros:
+                result.append(mt.trunc(reg))
+            exp['valores']  = result
+            return exp
+
+        else:
+            #no es diccionario
+            return mt.trunc(exp)
+
 
 class math_random(column_mathtrig):
     def __init__(self, alias):
         self.alias = alias
 
+    def ejecutar(self):
+        return mt.random()
+
 class math_setseed(column_mathtrig):
     def __init__(self,exp, alias):
         self.exp = exp
         self.alias = alias 
+
+    def ejecutar(self):
+        mt.setseed(self.exp.ejecutar())
 
 
 class trig_acos(column_mathtrig):
@@ -2279,6 +3069,12 @@ class case(exp_query):
         self.exp_cas = exp_cas
         self.exp = exp
 
+class exp_exists(exp_query):
+    def __init__(self,query,alias,yesno) -> None:
+        self.query = query
+        self.alias = alias
+        self.yesno = yesno
+
 class table_expression():
     'Abstract Class'
 
@@ -2287,7 +3083,21 @@ class texp_id(table_expression):
         self.id = id
         self.alias = alias
 
+
+
+
 class texp_query(table_expression)        :
     def __init__(self,query,alias):
         self.query = query
         self.alias = alias
+
+#############
+# Funciones que usaré 
+#############
+
+def getKeyFromValue(value,d):
+    for table, alias in d:
+        if alias == value:
+            return table
+
+    return None
