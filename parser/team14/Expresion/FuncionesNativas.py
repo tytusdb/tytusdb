@@ -1,8 +1,12 @@
+
 from Expresion.Expresion import Expresion
 from Entorno import Entorno
 import math
 import random as rn
-
+import hashlib
+import base64
+from reportes import *
+from Expresion.Importes import *
 
 class FuncionesNativas(Expresion) :
     '''
@@ -43,7 +47,25 @@ class FuncionesNativas(Expresion) :
                 val4expresion = self.expresiones[3].getval(entorno)
                 return self.FunctionWithBucket(funcion,sizeparametro,val1expresion,val2expresion,val3expresion,val4expresion)
         except:
-            return "Error: La función: "+funcion+" solo recibe valores númericos"
+             return "Error: La función: "+funcion+" solo recibe valores númericos"
+     
+        if(funcion=="length" or funcion=="md5" or funcion=="sha256" or funcion=="convert"):
+            valexpresion= self.expresiones[0].getval(entorno)
+            return self.FunctionWithOneParameter(funcion,sizeparametro,valexpresion)
+            
+        elif(funcion=="get_byte" or funcion=="set_byte" or funcion=="encode" or funcion=="decode" or funcion=="trim" or funcion=="date_part"):
+            val1expresion = self.expresiones[0].getval(entorno)
+            val2expresion = self.expresiones[1].getval(entorno)
+            return self.FunctionWithTwoParameter(funcion,sizeparametro,val1expresion,val2expresion)
+
+        elif(funcion=="substr" or funcion=="substring" ):
+            val1expresion = self.expresiones[0].getval(entorno)
+            val2expresion = self.expresiones[1].getval(entorno)
+            val3expresion = self.expresiones[2].getval(entorno)
+            return self.FunctionWithTreeParameter(funcion,sizeparametro,val1expresion,val2expresion,val3expresion)
+        else:
+            reporteerrores.append(Lerrores("Error Semantico","La funcion"+funcion+"no existe",0, 0))
+            return "Error: La función: "+funcion+" no existe"
         
     def FunctionWithOneParameter(self,funcion,parametros,exp):
         if(parametros==1):
@@ -125,7 +147,24 @@ class FuncionesNativas(Expresion) :
                 return math.acosh(exp)
             elif (funcion=="atanh"): 
                 return math.atanh(exp)
+            elif (funcion=="length"):
+                 leng=len(exp)
+                 return leng
+            elif (funcion=="md5"):
+                m=exp
+                result = hashlib.md5(m.encode()) 
+                return result.hexdigest()
+            elif (funcion=="sha256"):
+                m=exp
+                result= hashlib.sha256(m.encode()).hexdigest()
+                return result
+            elif (funcion=="convert"):
+                print("convert")
+                 
+            
+                
         else:
+            reporteerrores.append(Lerrores("Error Semantico","La funcion"+funcion+"solo recibe 2 parametros",0, 0))
             return "Error: La funcion: "+funcion+" recibe un parametro"
     
     def FunctionWithTwoParameter(self,funcion,parametros,exp1,exp2):
@@ -144,12 +183,56 @@ class FuncionesNativas(Expresion) :
                 return math.atan(exp1/exp2)
             elif (funcion=="atan2d"):
                 return math.degrees(math.atan(exp1/exp2))
+            elif (funcion=="encode"):
+                if(exp2.lower()=="base64"):
+                    cascci=exp1.encode('ascii')
+                    codificado=base64.b64encode(cascci)
+                    return codificado.decode('utf-8')
+                elif (exp2.lower()=="hex"): 
+                    cascci=exp1.encode('utf-8')
+                    codificado=base64.b16encode(cascci)
+                    return codificado.decode('utf-8')
+                elif (exp2.lower()=="escape"):
+                    codificado=exp1.encode('unicode_escape').decode('utf-8')
+                    return codificado
+            elif (funcion=="decode"):
+                if(exp2.lower()=="base64"):
+                    codificado=base64.b64decode(exp1)
+                    return codificado.decode('utf-8')
+                elif (exp2.lower()=="hex"): 
+                    codificado=base64.b16decode(exp1)
+                    return codificado.decode('utf-8')
+                elif (exp2.lower()=="escape"):
+                    codificado=exp1.encode('utf-8').decode('unicode_escape')
+                    return codificado
+            elif(funcion=="date_part"):
+                datepart=Date_Part(exp1, exp2)
+                return datepart
         else:
+            print("Error semantico en '%s'" % t.value)
+            reporteerrores.append(Lerrores("Error Semantico","La funcion"+funcion+"solo recibe 2 parametros",0, 0))
             return "Error: La funcion: "+funcion+" recibe 2 parametro"
+    
+    def FunctionWithTreeParameter(self,funcion,parametros,exp1,exp2,exp3):
+        if(parametros==3):
+            if (funcion=="substring"):
+                inicio=exp2-1
+                fin=inicio + exp3
+                sub=exp1[inicio:fin]
+                return sub
+            elif (funcion=="substr"):
+                inicio=exp2-1
+                fin=inicio + exp3
+                sub=exp1[inicio:fin]
+                return sub       
+        else:
+            reporteerrores.append(Lerrores("Error Semantico","La funcion"+funcion+"solo recibe 3 parametros",0, 0))
+            return "Error: La funcion: "+funcion+" recibe 3 parametro"
     
     def FunctionWithBucket(self,funcion,parametros,exp1,exp2,exp3,exp4):
         if(parametros==4):
             if(exp1<exp2 or exp1>exp3):
+                reporteerrores.append(Lerrores("Error Semantico","Valor"+str(exp1)+"no se encuentra en el rango",0, 0))
                 return "Error: El valor: "+str(exp1)+" no esta en el rango de: ("+str(exp2)+","+str(exp3)+")"
             else:
                 contador = 1
@@ -168,4 +251,25 @@ class FuncionesNativas(Expresion) :
                     inicio=final
                     final=final+columnas    
         else:
+            reporteerrores.append(Lerrores("Error Semantico","La funcion"+funcion+"solo recibe 2 parametros",0, 0))
             return "Error: La funcion: "+funcion+" recibe 4 parametro"
+            
+
+class Date_Part(FuncionesNativas):
+    'This is an abstract class'
+
+    def __init__(self,field=None,interval=None):
+        self.field=field
+        self.interval=interval
+
+
+    def getval(self,entorno):
+        'spliteo el timestamp'
+        splited=self.interval.getval(entorno).split(' ')
+        cont=0
+        for contenido in splited:
+            if contenido == self.field:
+                print(splited[cont-1])
+                return splited[cont-1]
+            cont=cont+1
+        return None

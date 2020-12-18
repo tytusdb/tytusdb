@@ -313,11 +313,11 @@ def t_REGEX2(t): # primero verifico , si es un regex
 
 # comillas simples y dobles ambos se reconocen como token tipo CADENA
 def t_CADENA(t):
-    r'\".*\"'
+    r'\"[^"]*\"'
     t.value = t.value[1:-1] # quitando las comillas dobles al inicio y al final
     return t
 def t_CADENA2(t):
-    r'\'.*\''
+    r'\'[^\']*\''
     t.value = t.value[1:-1] # quitando las comillas dobles al inicio y al final
     t.type = "CADENA"
     return t
