@@ -1521,6 +1521,192 @@ def validarTiposFecha(dato,expresion):
             return True
     return False
 
+# MÉTODO PARA VALIDAR LOS UNIQUE
+def validarUnique(col, val,tabla):
+
+    global useActual
+    registros = jBase.extractTable(useActual,tabla.nombre)
+    indice = col.index
+
+    if ( col.unique == True ):
+
+        for i in range(len(registros)):
+
+            if registros[i][indice] == val:
+                return False
+
+    return True
+
+
+# MÉTODO PARA VALIDAR LAS PRIMARY KEY
+def validarPK(col, val,tabla):
+    global useActual
+    registros = jBase.extractTable(useActual,tabla.nombre)
+    indice = col.index
+
+    if ( col.primary_key == True ):
+
+        if registros != None:
+
+            for i in range(len(registros)):
+
+                if registros[i][indice] == val:
+                    return False
+
+    return True
+
+
+def validarTiposNumericos(dato, expresion):
+    if dato == "smallint":
+        if expresion.tipo == Expresion.ENTERO:
+            if expresion.valor >= -32768 and expresion.valor <= 32767:
+                return True
+    elif dato=="integer":
+        if expresion.tipo == Expresion.ENTERO:
+            if expresion.valor >= -2147483648 and expresion.valor <= 2147483647:
+                return True
+    elif dato=="bigint":
+        if expresion.tipo == Expresion.ENTERO:
+            if expresion.valor >= -9223372036854775808 and expresion.valor <= 9223372036854775807:
+                return True
+    elif dato=="decimal":
+        if expresion.tipo==Expresion.DECIMAL:
+            return True
+    elif dato=="numeric":
+        if expresion.tipo==Expresion.DECIMAL:
+            return True
+    elif dato=="real":
+        if expresion.tipo==Expresion.DECIMAL:
+            return True
+    elif dato=="double":
+        if expresion.tipo==Expresion.DECIMAL:
+            return True
+    elif dato=="money":
+        if expresion.tipo==Expresion.DECIMAL or expresion.tipo==Expresion.ENTERO:
+            return True
+    return False
+
+
+def validarTiposChar(dato, expresion):
+    if dato.dato.lower()=="varying" or dato.dato.lower()=="varchar":
+        if len(expresion.valor)<=dato.cantidad:
+            return True
+    elif dato.dato.lower()=="character" or dato.dato.lower()=="char":
+        if len(expresion.valor)<=dato.cantidad:
+            return True
+    elif dato.dato.lower() == "text":
+        return  True
+    return False
+
+
+def validarTiposFecha(dato,expresion):
+    if dato=="date":
+        if expresion.tipo==Expresion.FECHA:
+            return True
+    elif dato=="timestamp":
+        if expresion.tipo==Expresion.FECHA or expresion.tipo==Expresion.FECHA_HORA:
+            return True
+    elif dato=="time":
+        if expresion.tipo==Expresion.HORA:
+            return True
+    elif dato=="interval":
+        if expresion.tipo==Expresion.INTERVALO:
+            return True
+    return False
+
+
+# MÉTODO PARA VALIDAR LOS UNIQUE
+def validarUnique(col, val,tabla):
+
+    global useActual
+    registros = jBase.extractTable(useActual,tabla.nombre)
+    indice = col.index
+
+    if ( col.unique == True ):
+
+        for i in range(len(registros)):
+
+            if registros[i][indice] == val:
+                return False
+
+    return True
+
+
+# MÉTODO PARA VALIDAR LAS PRIMARY KEY
+def validarPK(col, val,tabla):
+    global useActual
+    registros = jBase.extractTable(useActual,tabla.nombre)
+    indice = col.index
+
+    if ( col.primary_key == True ):
+
+        if registros != None:
+
+            for i in range(len(registros)):
+
+                if registros[i][indice] == val:
+                    return False
+
+    return True
+
+
+def validarTiposNumericos(dato, expresion):
+    if dato == "smallint":
+        if expresion.tipo == Expresion.ENTERO:
+            if expresion.valor >= -32768 and expresion.valor <= 32767:
+                return True
+    elif dato=="integer":
+        if expresion.tipo == Expresion.ENTERO:
+            if expresion.valor >= -2147483648 and expresion.valor <= 2147483647:
+                return True
+    elif dato=="bigint":
+        if expresion.tipo == Expresion.ENTERO:
+            if expresion.valor >= -9223372036854775808 and expresion.valor <= 9223372036854775807:
+                return True
+    elif dato=="decimal":
+        if expresion.tipo==Expresion.DECIMAL:
+            return True
+    elif dato=="numeric":
+        if expresion.tipo==Expresion.DECIMAL:
+            return True
+    elif dato=="real":
+        if expresion.tipo==Expresion.DECIMAL:
+            return True
+    elif dato=="double":
+        if expresion.tipo==Expresion.DECIMAL:
+            return True
+    elif dato=="money":
+        if expresion.tipo==Expresion.DECIMAL or expresion.tipo==Expresion.ENTERO:
+            return True
+    return False
+
+
+def validarTiposChar(dato, expresion):
+    if dato.dato.lower()=="varying" or dato.dato.lower()=="varchar":
+        if len(expresion.valor)<=dato.cantidad:
+            return True
+    elif dato.dato.lower()=="character" or dato.dato.lower()=="char":
+        if len(expresion.valor)<=dato.cantidad:
+            return True
+    elif dato.dato.lower() == "text":
+        return  True
+    return False
+
+
+def validarTiposFecha(dato,expresion):
+    if dato=="date":
+        if expresion.tipo==Expresion.FECHA:
+            return True
+    elif dato=="timestamp":
+        if expresion.tipo==Expresion.FECHA or expresion.tipo==Expresion.FECHA_HORA:
+            return True
+    elif dato=="time":
+        if expresion.tipo==Expresion.HORA:
+            return True
+    elif dato=="interval":
+        if expresion.tipo==Expresion.INTERVALO:
+            return True
+    return False
 
 
 def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
@@ -1633,3 +1819,4 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
             result = not expresion.valor
             return result
         return expresion
+
