@@ -1150,181 +1150,419 @@ def p_opcionTrim(t):
 def p_final(t):
     '''final        : DECIMAL
                     | ENTERO'''
-    h.reporteGramatical1 +="final    ::=      Numero("+str(t[1])+")\n"
-    h.reporteGramatical2 +="t[0]=ExpresionNumero(t[1])\n"
-    t[0]=ExpresionNumero(t[1])
+    nodeFather = nodeAst()
+    nodeFather.token = 'final'
 
+    nodeSon1 = nodeAst()
+    nodeSon1.token = "ENTERO-DECIMAL"
+    nodeSon1.lexeme = t[1]
+
+    nodeFather.son.append(nodeSon1)
+    
+    t[0] = nodeFather
 
 def p_final_id(t):
     'final          : ID'
-    t[0] = t[1]
-    h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+")\n"
-    h.reporteGramatical2 +="t[0]=ExpresionIdentificador(t[1])\n"
-    t[0]=ExpresionIdentificador(t[1])
+    nodeFather = nodeAst()
+    nodeFather.token = 'final'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = "ID"
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 def p_final_invocacion(t):
     'final          : ID PUNTO ID'
     h.reporteGramatical1 +="final    ::=      ID("+str(t[1])+") . ID("+str(t[3])+")\n"
     h.reporteGramatical2 +="t[0] = ExpresionInvocacion(t[1],t[3])\n"
     t[0] = ExpresionInvocacion(t[1],t[3])
+
+
 def p_final_cadena(t):
     'final          : CADENA'
-    t[0] = t[1]
-    h.reporteGramatical1 +="final     ::=     CADENA ("+t[1]+")\n"
-    h.reporteGramatical2 +="t[0]=ExpresionCadenas(t[1])\n"
-    t[0]=ExpresionCadenas(t[1])
+    nodeFather = nodeAst()
+    nodeFather.token = 'final'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = "CADENA"
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 #-----------------------------------------------------INSERT BD--------------------------------------------------------------------
 def p_insertBD_1(t):
     'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
-    #print(t[3],t[6])
-    t[0] = InsertinDataBases(t[3],t[6])
-    h.reporteGramatical1 +="insertinBD    ::=      INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'insertinBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'INSERT'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'INTO'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ID'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'VALUES'
+    nodeSon4.lexeme = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = t[6]
+    nodeFather.son.append(nodeSon5)
+
+    t[0] = nodeFather
 
 def p_insertBD_2(t):
     'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
-    h.reporteGramatical1 +="insertinBD    ::=     INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
+    #pendiente
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_listaParam(t):
-    '''listaParam         : listaParam COMA final
-    '''
-    t[1].append(t[3])
-    t[0] = t[1]
-    h.reporteGramatical1 +="insertinBD    ::=      listaParam COMA final\n"
+    'listaParam           : listaParam COMA final'
+    nodeFather = nodeAst()
+    nodeFather.token = 'listaParam'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+    
 
 def p_listaParam_2(t):
-    '''listaParam         : final
-    '''
-    t[0] = [t[1]]
-    h.reporteGramatical1 +="insertinBD    ::=      final\n"
+    'listaParam           : final'
+    nodeFather = nodeAst()
+    nodeFather.token = 'listaParam'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):
     'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
-    t[0]= UpdateinDataBase(t[2],t[4],t[6])
-    h.reporteGramatical1 +="updateinBD    ::=      UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'insertinBD'
 
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'UPDATE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'SET'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'WHERE'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = t[6]
+    nodeFather.son.append(nodeSon6)
+
+    t[0] = nodeFather
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_asignaciones(t):
-    '''asignaciones       : asignaciones COMA asigna
-    '''
-    t[1].append(t[3])
-    t[0] = t[1]
-    h.reporteGramatical1 +="asignaciones    ::=      asignaciones COMA asigna\n"
+    'asignaciones         : asignaciones COMA asigna'
+    nodeFather = nodeAst()
+    nodeFather.token = 'asignaciones'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+
 
 def p_asignaciones_2(t):
-    '''asignaciones       : asigna
-    '''
-    t[0] = [t[1]]
-    h.reporteGramatical1 +="asignaciones    ::=      asigna\n"
+    'asignaciones         : asigna'
+    nodeFather = nodeAst()
+    nodeFather.token = 'asignaciones'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
+
 
 def p_asigna(t):
-    'asigna             : ID IGUAL operacion'
-    t[0] = AsignacioninTable(t[1],t[3])
-    h.reporteGramatical1 +="asigna    ::=      ID IGUAL operacion\n"
+    'asigna               : ID IGUAL operacion'
+    nodeFather = nodeAst()
+    nodeFather.token = 'asigna'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ID'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
 
 #-----------------------------------------------------DELETE IN BD--------------------------------------------------------------------
 def p_deleteinBD_1(t):
     'deleteinBD         : DELETE FROM ID PUNTOYCOMA'
-    h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID PUNTOYCOMA\n"
+    #no especificado en enunciado
 
 def p_deleteinBD_2(t):
     'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
-    t[0] = DeleteinDataBases(t[3],t[5])
-    h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE operacion PUNTOYCOMA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'deleteinBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'DELETE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'FROM'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ID'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'FROM'
+    nodeSon4.lexeme = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    t[0] = nodeFather
 
 
 #-----------------------------------------------------CREATE TABLE CON INHERITS-------------------------------------------------------
 def p_inheritsBD(t):
     'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
-    h.reporteGramatical1 +="inheritsBD    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'inheritsBD'
 
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CREATE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
 
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'TABLE'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ID'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[5]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'INHERITS'
+    nodeSon5.lexeme = t[7]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = t[9]
+    nodeFather.son.append(nodeSon6)
+
+    t[0] = nodeFather
 
 #-----------------------------------------------------CREATE TABLE--------------------------------------------------------------------
 def p_createTable(t):
     'createTable        : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA'
-    t[0]= CreateTable(t[3],t[5])
-    h.reporteGramatical1 +="createTable    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'createTable'
 
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CREATE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
 
+    nodeSon2 = nodeAst()
+    nodeSon2.token = "TABLE"
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ID'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[5]
+    nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
 
 # -------------------------------------------------------------------------------------------------------------- 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_creaColumna(t):
-    '''creaColumnas        : creaColumnas COMA Columna 
-    '''
-    t[1].append(t[3])
-    t[0] = t[1]
-    #print(t[0])
-    h.reporteGramatical1 +="creaColumnas    ::=      creaColumnas COMA Columna\n"
+    'creaColumnas          : creaColumnas COMA Columna'
+    nodeFather = nodeAst()
+    nodeFather.token = 'creaColumnas'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
 
 def p_creaColumna_2(t):
-    '''creaColumnas        : Columna 
-    '''
-    t[0]=[t[1]]
-    h.reporteGramatical1 +="createTable    ::=      Columna\n"
+    'creaColumnas          : Columna'
+    nodeFather = nodeAst()
+    nodeFather.token = 'creaColumnas'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 # -------------------------------------------------------------------------------------------------------------- 
 #INICIA LAS PRODUCCIONES DE COLUMNAS
 def p_columna_1(t):
     'Columna            : ID tipo'
-    t[0]=TipoAtributoTable(ColumnasTable(t[1],t[2],None),OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION)
-    h.reporteGramatical1 +="Columna    ::=      ID tipo\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'Columna'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ID'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
 
 def p_columna_2(t):
     'Columna            : ID tipo paramOpcional'
-    #print(t[3])
-    t[0]=TipoAtributoTable(ColumnasTable(t[1],t[2],t[3]),OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION)
-    h.reporteGramatical1+="Columna      ::=     ID tipo paramOpcional"
+    nodeFather = nodeAst()
+    nodeFather.token = 'Columna'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'ID'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
 
 def p_columna_3(t):
     'Columna            : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
-    t[0]=TipoAtributoTable(RestriccionUnique(t[3]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO)
-    print(t[1])
-    h.reporteGramatical1+="Columna            : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA"
+    nodeFather = nodeAst()
+    nodeFather.token = 'Columna'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'UNIQUE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
 
 def p_columna_4(t):
-    '''Columna          : constraintcheck
-    '''
-    t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT)
-    h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+    'Columna            : constraintcheck'
+    nodeFather = nodeAst()
+    nodeFather.token = 'Columna'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 def p_columna_5(t):
     'Columna            : checkinColumn'
-    t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)
-    h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'Columna'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 def p_columna_6(t):
     'Columna            : primaryKey'
-    t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)
-    h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'Columna'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 def p_columna_7(t):
     'Columna            : foreignKey'
-    t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY)
-    h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'Columna'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 
 # -------------------------------------------------------------------------------------------------------------- 
 #INICIA LA LISTA DE RESTRICCIONES OPCIONALES EN LAS COLUMNAS
 def p_paramOpcional(t):
-    '''paramOpcional    : paramOpcional paramopc
-    '''
-    t[1].append(t[2])
-    t[0] = t[1]
-    h.reporteGramatical1 +="paramOpcional    ::=      paramOpcional paramopc\n"
-    
+    'paramOpcional      : paramOpcional paramopc'
+    nodeFather = nodeAst()
+    nodeFather.token = 'paramOpcional'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
 
 def p_paramOpcional_1(t):
-    '''paramOpcional    : paramopc
-    '''
-    t[0] = [t[1]]
-    h.reporteGramatical1 +="paramOpcional    ::=      paramopc\n"
+    'paramOpcional      : paramopc'
+    nodeFather = nodeAst()
+    nodeFather.token = 'ParamOpcional'
 
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
 
+    t[0] = nodeFather
 
 # -------------------------------------------------------------------------------------------------------------- 
 #INICIA LAS RESTRICCIONES EN LAS COLUMNAS
@@ -1336,70 +1574,222 @@ def p_paramopc_1(t):
                         | PRIMARY KEY
     '''
     if t[1].upper() == "DEFAULT":
+        nodeFather = nodeAst()
+        nodeFather.token = 'paramopc'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'DEFAULT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
         
-        t[0] = TipoRestriccion(RestriccionDefaul(t[2]),OPERACION_RESTRICCION_COLUMNA.DEFAULT)
     elif t[1].upper() == "NULL":
-        t[0] = TipoRestriccion(RestriccionNull(1),OPERACION_RESTRICCION_COLUMNA.NULL)
+        nodeFather = nodeAst()
+        nodeFather.token = 'paramopc'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'NULL'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
     elif t[1] == "NOT":
-        t[0] = TipoRestriccion(RestriccionNotNull(1),OPERACION_RESTRICCION_COLUMNA.NOT_NULL)
+        nodeFather = nodeAst()
+        nodeFather.token = 'paramopc'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'NOT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'NULL'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
     elif t[1] == "UNIQUE":
-        #print(t[1])
-        t[0] = TipoRestriccion(RestriccionUniqueSimple(1),OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA)
+        nodeFather = nodeAst()
+        nodeFather.token = 'paramopc'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'UNIQUE'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
     elif t[1] == "PRIMARY":
-        t[0] = TipoRestriccion(RestriccionPrimaryKeyColumn(1),OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)
+        nodeFather = nodeAst()
+        nodeFather.token = 'paramopc'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PRIMARY'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'KEY'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
     else:
         print("FFFFF")
-    
-    h.reporteGramatical1 +="paramopc    ::=      paramopc\n"
     
 
 # -------------------------------------------------------------------------------------------------------------- 
 #LLAMADA A LAS RESTRICCION CHECK
 def p_paramopc_2(t):
     'paramopc           : constraintcheck'
-    t[0] = TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT)
-    h.reporteGramatical1 +="paramopc    ::=      constraintcheck"
+    nodeFather = nodeAst()
+    nodeFather.token = 'paramopc'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
     
 def p_paramopc_3(t):
     'paramopc           : checkinColumn'
-    t[0]=TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)
-    h.reporteGramatical1 +="paramopc    ::=      checkinColumn"
+    nodeFather = nodeAst()
+    nodeFather.token = 'paramopc'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 
 # -------------------------------------------------------------------------------------------------------------- 
 #RESTRICCION UNIQUE
 def p_paramopc_4(t):
     'paramopc           : CONSTRAINT ID UNIQUE'
-    t[0] = TipoRestriccion(RestriccionConstraintUnique(t[2]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT)
-    h.reporteGramatical1 +="paramopc    ::=      CONSTRAINT   ID   UNIQUE"
+    nodeFather = nodeAst()
+    nodeFather.token = 'paramopc'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CONSTRAINT'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'UNIQUE'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
 
 
 # -------------------------------------------------------------------------------------------------------------- 
 #RESTRICION CHECK 
 def p_checkcolumna(t):
     'checkinColumn      :  CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
-    t[0]=RestriccionCheck(t[3])
-    h.reporteGramatical1+="paramopc     ::=     "+str(t[1])+"\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'checkinColumn'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CHECK'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = t[3]
+    nodeFather.son.append(nodeSon2)
+
+    t[0] = nodeFather
+    
 
 def p_constraintcheck(t):
     'constraintcheck    : CONSTRAINT ID CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
-    t[0]=RestriccionConstraintCheck(t[2],t[5])
-    h.reporteGramatical1 +="paramopc    ::=      "+str(t[1])+"\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'constraintcheck'
 
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CONSTRAINT'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
 
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
 
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'CHECK'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    #odeSon4 = t[5]
+    #nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
 
 
 def p_primaryKey(t):
     'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
-    t[0]=RestriccionPrimaryKey(t[4])
-    h.reporteGramatical1 +="primaryKey    ::=      PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'primaryKey'
 
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'PRIMARY'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'KEY'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = t[4]
+    nodeFather.son.append(nodeSon3)
+
+    t[0] = nodeFather
 
 def p_foreingkey(t):
     'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA' 
-    t[0]=RestriccionForeingkey(t[4],t[7],t[9])
-    h.reporteGramatical1 +="foreignKey    ::=      FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'foreignKey'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'FOREIGN'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'KEY'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = t[4]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'REFERENCES'
+    nodeSon4.lexeme = t[6]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'ID'
+    nodeSon5.lexeme = t[7]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = t[9]
+    nodeFather.son.append(nodeSon6)
+
+    t[0] = nodeFather
+
 #-----------------------------------------------------TIPOS DE DATOS--------------------------------------------------------------------
 
 def p_tipo(t):
@@ -1428,12 +1818,310 @@ def p_tipo(t):
                         | MINUTE
                         | SECOND
     '''
-    if t[1]=="SMALLINT":
-        t[0] = t[1] 
-        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
-    elif t[1]=="INTEGER":
-        t[0] = t[1]
-        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+    # -------------------------------------------------------------------------------------------------------------- 
+    if t[1].upper()=="SMALLINT":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'SMALLINT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="INTEGER":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'INTEGER'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="BEGIN":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'BEGIN'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="DECIMAL":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'DECIMAL'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="NUMERIC":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'NUMERIC'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="REAL":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'REAL'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="DOUBLE":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'DOUBLE'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'PRECISION'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="MONEY":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'MONEY'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="CHARACTER" and t[2].upper()=="VARING":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'CHARACTER'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2.token = 'VARING'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'ENTERO'
+        nodeSon3.lexeme = t[4]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="VARCHAR":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'VARCHAR'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'ENTERO'
+        nodeSon2.lexeme = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="CHARACTER":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'CHARACTER'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'ENTERO'
+        nodeSon2.lexeme = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="CHAR":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'CHAR'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'ENTERO'
+        nodeSon2.lexeme = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="TEXT":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'TEXT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="BOOLEAN":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'BOOLEAN'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="TIMESTAMP":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'TIMESTAMP'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="TIME":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'TIME'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="INTERVAL":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'INTERVAL'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="DATE":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'DATE'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="YEAR":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'YEAR'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="MONT":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'MONT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="HOUR":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'HOUR'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="MINUT":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'MINUT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="SECOND":
+        nodeFather = nodeAst()
+        nodeFather.token = 'tipo'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'SECOND'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
 
     
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
