@@ -324,6 +324,12 @@ class ExpresionNegada(Expresion):
         nodo += self.exp.dibujar()
 
         return nodo
+    def ejecutar(self, ts):
+        expu = self.exp.ejecutar(ts)
+        if expu.tipo == TIPO_DE_DATO.BOOLEANO:
+            return ExpresionBooleano(not expu.val, expu.linea)
+        else:
+            print('Error semántico, operador no admitido para not', self.exp.tipo)
 
 # Expresión booleana (Valor puro)
 class ExpresionBooleano(Expresion):
