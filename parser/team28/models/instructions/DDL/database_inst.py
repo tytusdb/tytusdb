@@ -1,4 +1,5 @@
 from models.instructions.shared import Instruction
+from models.database import Database
 from controllers.type_checker import TypeChecker
 
 
@@ -26,8 +27,9 @@ class CreateDB(Instruction):
                 typeChecker.deleteDatabase(database.name, self._noLine,
                                            self._noColumn)
 
-        # TODO Verificar permisos
-        typeChecker.createDatabase(self._properties['id'], self._noLine,
+        # TODO Verificar permisos y modo
+        database = Database(self._properties['id'])
+        typeChecker.createDatabase(database, self._noLine,
                                    self._noColumn)
 
 
