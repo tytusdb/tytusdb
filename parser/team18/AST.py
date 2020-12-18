@@ -17,7 +17,7 @@ import tkinter.messagebox
 listaInstrucciones = []
 listaTablas = [] #guarda las cabeceras de las tablas creadas
 outputTxt = [] #guarda los mensajes a mostrar en consola
-baseActiva = 'pruebas' #Guarda la base temporalmente activa
+baseActiva = "" #Guarda la base temporalmente activa
 #--------Ejecucion Datos temporales-----------
 def insertartabla(columnas,nombre):
     nuevaTabla=Tabla_run()
@@ -52,6 +52,13 @@ def agregarMensjae(tipo,mensaje):
     txtOut.mensaje=mensaje
     outputTxt.append(txtOut)
 
+def use_db(nombre):
+    global baseActiva
+    baseActiva = nombre
+
+'''def elim_use():
+    global baseActiva
+    baseActiva = ""'''
 
 #---------Ejecucion Funciones EDD-------------
 def crear_BaseDatos(instr,ts):
@@ -134,6 +141,7 @@ def eliminar_BaseDatos(instr,ts):
     
     if eliminarOK:
         EliminarTablaTemp(nombreDB,'all')#eliminar los temporales
+        #elim_use()
 
     #print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
 
@@ -189,12 +197,25 @@ def eliminar_Tabla(instr,ts):
     if eliminarOK:
         EliminarTablaTemp(baseActiva,nombreT)
 
+
     #print('nombre:',instr.nombre,'validarExistencia',instr.existencia)
 
-
-
-
-
+def seleccion_db(instr,ts):
+    nombreDB = resolver_operacion(instr.nombre,ts).lower()
+    result=EDD.showDatabases()
+    msg='Seleccionando base de datos: '+nombreDB
+    agregarMensjae('normal',msg)
+    if not result: # Lista Vacia
+        msg='No existen bases de datos ...'
+        agregarMensjae('alert',msg)  
+    elif nombreDB in result: # Encontrada
+        msg='Base de datos seleccionada'
+        agregarMensjae('exito',msg)
+        use_db(nombreDB)
+    else: # No encontrada
+        msg='Base de datos \"'+str(nombreDB)+'\" no registrada'
+        agregarMensjae('error',msg)
+        
 #---------pendientes-----------------------
 def crear_Tabla(instr,ts):
     #Pendiente
@@ -393,14 +414,59 @@ def crear_Tabla(instr,ts):
 
 def crear_Type(instr,ts):
     nombreT=resolver_operacion(instr.nombre,ts).lower()
-
-    global outputTxt
-    outputTxt+='\n> Creando Type: '+nombreT
-    print('nombre:',instr.nombre,'valores:',instr.valores)
-
-
-
-
+    msg='Creacion de Type: '+nombreT
+    agregarMensjae('normal',msg)
+    if baseActiva != "":
+        result=EDD.showTables(baseActiva)
+        cont=0
+        flag=False
+        lvalores=[]
+        if instr.valores is not None:  
+            if nombreT in result: # Repetido
+                msg='Nombre repetido ...'
+                agregarMensjae('error',msg)
+            else:
+                for valor in instr.valores: # Verificacion tipos
+                    val=resolver_operacion(valor,ts)
+                    if isinstance(val, str):
+                        lvalores.append(resolver_operacion(valor,ts))
+                        cont=cont+1
+                if cont != len(instr.valores):
+                    msg='No todos los valores son del mismo tipo'
+                    agregarMensjae('error',msg)
+                else:
+                    flag=True
+            if(flag): # crea e inserta valores
+                respuestatype=EDD.createTable(baseActiva,nombreT,cont)
+                if respuestatype==0:
+                    msg='Type registrado con exito'
+                    agregarMensjae('exito',msg)
+                    insertartabla(None,nombreT)
+                    respuestavalores=EDD.insert(baseActiva,nombreT,lvalores)
+                    if respuestavalores==0:
+                        msg='con valores: '+str(lvalores)
+                        agregarMensjae('exito',msg)
+                    elif respuestavalores==1:
+                        msg='Error insertando valores'
+                        agregarMensjae('error',msg)
+                    elif respuestavalores==2:
+                        msg='Base de datos no existe'
+                        agregarMensjae('error',msg)
+                    elif respuestavalores==3:
+                        msg='Type no encontrado'
+                        agregarMensjae('error',msg)
+                elif respuestatype==1:
+                    msg='Error al crear type'
+                    agregarMensjae('error',msg)
+                elif respuestatype==2:
+                    msg='Base de datos no existe'
+                    agregarMensjae('error',msg)
+                elif respuestatype==3:
+                    msg='Nombre repetido ...'
+                    agregarMensjae('error',msg)
+    else:
+        msg='No hay una base de datos activa'
+        agregarMensjae('alert',msg)
 
 
 def insertar_en_tabla(instr,ts):
@@ -438,15 +504,6 @@ def eliminar_de_tabla(instr,ts):
 
     global outputTxt
     outputTxt+='\n> Eliminacion de Tabla: '+nombreT
-
-def eleccion(instr,ts):
-    print('nombre:',instr.nombre)
-    nombreT=''
-    nombreT=resolver_operacion(instr.nombre,ts)
-
-    global outputTxt
-    outputTxt+='\n> Base de Datos '+nombreT+' seleccionada'
-
 
 
 def AlterDBF(instr,ts):
@@ -614,23 +671,23 @@ def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
     global listaInstrucciones 
     listaInstrucciones  = instrucciones
-    for instr in instrucciones :
-        if isinstance(instr, CrearBD) : crear_BaseDatos(instr,ts)
-        elif isinstance(instr, CrearTabla) : crear_Tabla(instr,ts)
-        elif isinstance(instr, CrearType) : crear_Type(instr,ts)
-        elif isinstance(instr, EliminarDB) : eliminar_BaseDatos(instr,ts)
-        elif isinstance(instr, EliminarTabla) : eliminar_Tabla(instr,ts)
-        elif isinstance(instr, Insertar) : insertar_en_tabla(instr,ts)
-        elif isinstance(instr, Actualizar) : actualizar_en_tabla(instr,ts)
-        elif isinstance(instr, Eliminar) : eliminar_de_tabla(instr,ts)
-        elif isinstance(instr, DBElegida) : eleccion(instr,ts)
-        elif isinstance(instr, MostrarDB) : mostrar_db(instr,ts)
-
-        elif isinstance(instr, ALTERDBO) : AlterDBF(instr,ts)
-        elif isinstance(instr, ALTERTBO) : AlterTBF(instr,ts)
-
-        else : print('Error: instrucción no válida')
-
+    if instrucciones is not None:
+        for instr in instrucciones :
+            if isinstance(instr, CrearBD) : crear_BaseDatos(instr,ts)
+            elif isinstance(instr, CrearTabla) : crear_Tabla(instr,ts)
+            elif isinstance(instr, CrearType) : crear_Type(instr,ts)
+            elif isinstance(instr, EliminarDB) : eliminar_BaseDatos(instr,ts)
+            elif isinstance(instr, EliminarTabla) : eliminar_Tabla(instr,ts)
+            elif isinstance(instr, Insertar) : insertar_en_tabla(instr,ts)
+            elif isinstance(instr, Actualizar) : actualizar_en_tabla(instr,ts)
+            elif isinstance(instr, Eliminar) : eliminar_de_tabla(instr,ts)
+            elif isinstance(instr, DBElegida) : seleccion_db(instr,ts)
+            elif isinstance(instr, MostrarDB) : mostrar_db(instr,ts)
+            elif isinstance(instr, ALTERDBO) : AlterDBF(instr,ts)
+            elif isinstance(instr, ALTERTBO) : AlterTBF(instr,ts)
+            else : print('Error: instrucción no válida')
+    else:
+        agregarMensjae('error','El arbol no se genero debido a un error en la entrada')
 
 
 

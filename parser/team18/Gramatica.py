@@ -9,7 +9,7 @@ Reservadas = { 'create':'CREATE', 'database':'DATABASE', 'table': 'TABLE', 'repl
                'insert':'INSERT','into':'INTO', 'values':'VALUES', 'update':'UPDATE','set':'SET','where':'WHERE','delete':'DELETE','from':'FROM',
                'and':'AND','not':'NOT','or':'OR', 'character':'character', 'varying':'varying', 'varchar':'varchar', 'char':'char', 'text':'text',
                'timestamp':'timestamp', 'with':'with', 'time':'time', 'zone':'zone', 'date':'date', 'interval':'interval', 'boolean':'boolean',
-               'year':'YEAR', 'month':'MONTH', 'day':'DAY', 'hours':'HOURS', 'minute':'MINUTE', 'second':'SECOND', 'select':'SELECT', 'distinct':'DISTINCT', 
+               'year':'YEAR', 'month':'MONTH', 'day':'DAY', 'hour':'HOUR', 'minute':'MINUTE', 'second':'SECOND', 'select':'SELECT', 'distinct':'DISTINCT', 
                'group':'GROUP', 'by':'BY', 'having':'HAVING', 'order':'ORDER', 'as':'AS','asc':'ASC', 'desc':'DESC', 'nulls':'NULLS', 'first':'FIRST',
                'last':'LAST', 'type':'TYPE', 'enum':'ENUM', 'check':'CHECK', 'show':'SHOW', 'databases':'DATABASES', 'drop':'DROP',
                'column':'COLUMN','rename':'RENAME','alter':'ALTER','data':'DATA','to':'TO','add':'ADD', 'abs':'ABS', 'cbrt':'CBRT',
@@ -537,7 +537,7 @@ def p_extract1(t):
      '''extract1 : YEAR
                  | MONTH
                  | DAY
-                 | HOURS
+                 | HOUR
                  | MINUTE
                  | SECOND
                  | CADENA1
@@ -1406,7 +1406,7 @@ def p_valores_default(t):
                        | DAY
                        | SECOND
                        | MINUTE
-                       | HOURS'''
+                       | HOUR'''
      t[0]=t[1]
 
 def p_expresion_id(t):
