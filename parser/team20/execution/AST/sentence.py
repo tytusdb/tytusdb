@@ -113,13 +113,34 @@ class CreateTable(Sentence):
         #Types:
         #column -> {ColumnId,ColumnCheck,ColumnConstraint,ColumnUnique,ColumnPrimaryKey,ColumnForeignKey}
 
+class Select(Sentence):
+    def __init__(self, columns, distinct, tables, options):
+        self.columns = columns
+        self.distinct = distinct
+        self.tables = tables
+        self.options = options # options = {'where','orderby','limit','offset','groupby','having'} or None
+        # options se puede acceder a los items de la forma options['nombrepropiedad'] si no existe devuelve 'nombrepropiedad'
+        # where -> Expression
+        # orderby -> SortExpressionList
+            # sortExpressionList -> lista de expresiones de la forma [Expression,ASC/DESC]
+        # limit -> Expression/ALL ALL is the same as omitting the LIMIT clause
+        # offset -> Expression OFFSET says to skip that many rows before beginning to return rows. OFFSET 0 is the same as omitting the OFFSET clause. 
+            # If both OFFSET and LIMIT appear, then OFFSET rows are skipped before starting to count the LIMIT rows that are returned.
+        # groupby -> ExpressionList
+        # having -> Expression
+class SelectMultiple(Sentence):
+    def __init__(self, select1, operator, select2):
+        self.select1 = select1
+        self.operator = operator
+        self.select2 = select2
+
 class CreateTableOpt:
     ''' '''
 class ColumnId(CreateTableOpt):
     def __init__(self, name, type, options):
         self.name = name
         self.type = type
-        self.options = options #options = {'default','null','primary','reference','unique','constraint','check'} or None
+        self.options = options #options = {'default','null','primary','reference','unique','constraint','check'}
         # options se puede acceder a los items de la forma options['nombrepropiedad'] si no existe devuelve 'nombrepropiedad'
         # default -> Expression
         # null -> True/False
@@ -150,4 +171,4 @@ class ColumnPrimaryKey(CreateTableOpt):
 class ColumnForeignKey(CreateTableOpt):
     def __init__(self, columnslist, columnslist_ref):
         self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
-        self.columnslist_ref = columnslist_ref # is and idList [refcolumnname1,refcolumnname2,...,refcolumnnamen]
+        self.columnslist_ref = columnslist_ref # is and idList [refcolumnname1,refcolumnname2,...,refcolumnname

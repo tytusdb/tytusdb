@@ -643,26 +643,44 @@ def p_instruction_insert(t):
     else: t[0] = Insert(t[3],t[5],t[9])
 
 #SELECT 
-def p_instruction_select(t):
+def p_instruction_select_single(t):
+    '''select : selectInstruction'''
+    t[0] = t[1]
+def p_instruction_select_simple(t):
     '''select : select UNION select
-              | select UNION ALL selectInstruction
               | select INTERSECT select
-              | select EXCEPT ALL selectInstruction
-              | select EXCEPT select
-              | select INTERSECT ALL selectInstruction
-              | selectInstruction'''
-
+              | select EXCEPT select'''
+    t[0] = SelectMultiple(t[1],t[2],t[3])
+def p_instruction_select_compound(t):
+    '''select : select UNION ALL select
+              | select EXCEPT ALL select
+              | select INTERSECT ALL select'''
+    t[0] = SelectMultiple(t[1],t[2]+t[3],t[4])
 def p_instruction_selectinstruction(t):
-    '''selectInstruction : SELECT expressionList
-                         | SELECT expressionList FROM expressionList
+    '''selectInstruction : SELECT expressionList FROM expressionList
                          | SELECT expressionList FROM expressionList selectOptions
                          | SELECT DISTINCT expressionList FROM expressionList
                          | SELECT DISTINCT expressionList FROM expressionList selectOptions'''
+    if(t[2]=='DISTINCT'):
+        try:
+            t[0] = Select(t[3],True,t[5],t[6])
+        except Exception as e:
+            print(e)
+            t[0] = Select(t[3],True,t[5],None)
+    else:
+        try:
+            t[0] = Select(t[2],False,t[4],t[5])
+        except Exception as e:
+            print(e)
+            t[0] = Select(t[2],False,t[4],None)
+
+def p_instruction_selectoptions_single(t):
+    '''selectOptions : selectOption'''
+    t[0] = t[1]
 
 def p_instruction_selectoptions(t):
-    '''selectOptions : selectOptions selectOption
-                     | selectOption'''
-
+    '''selectOptions : selectOptions selectOption'''
+    t[0] = t[1] | t[2]
 def p_instruction_selectoption(t):
     '''selectOption : WHERE expression
                      | ORDER BY sortExpressionList
@@ -671,6 +689,19 @@ def p_instruction_selectoption(t):
                      | OFFSET expression
                      | GROUP BY expressionList
                      | HAVING expression'''
+    if(t[1]=='WHERE'):
+        t[0] = {'where':t[2]}
+    elif(t[1]=='ORDER'):
+        t[0] = {'orderby':t[3]}
+    elif(t[1]=='LIMIT'):
+        t[0] = {'limit':t[2]}
+    elif(t[1]=='OFFSET'):
+        t[0] = {'offset':t[2]}
+    elif(t[1]=='GROUP'):
+        t[0] = {'groupby':t[3]}
+    elif(t[1]=='HAVING'):
+        t[0] = {'having':t[2]}
+
 #UPDATE
 def p_instruction_update(t):
     '''update : UPDATE ID SET reallocationOfValues WHERE expression'''
