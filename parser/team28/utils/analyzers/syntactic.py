@@ -66,12 +66,16 @@ def p_instruction_list(p):
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
                     | DML
+                    | usestatement
                     | MULTI_LINE_COMMENT
                     | SINGLE_LINE_COMMENT
                     | error SEMICOLON
     '''
     p[0] = p[1]
 
+def p_use_statement(p):
+    '''usestatement : USE ID'''
+    p[0] = UseDatabase(p[2])
 
 def p_ddl(p):
     '''ddl : createstatement
@@ -352,31 +356,34 @@ def p_option_col(p):  # TODO verificar
                  | REFERENCES ID 
     '''
     p[0] = {
-        'default_vale' : None,
-        'is_null' : False,
-        'contraint_unique' : None,
-        'unique' : False,
-        'contraint_check_condition' : None,
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
         'check_condition' : None,
-        'pk_option' : False,
+        'pk_option' : None,
         'fk_references_to' : None
     }
     if p[1].lower() == 'DEFAULT'.lower():   
         p[0]['default_value'] = p[2]
     elif p[1].lower() == 'NOT'.lower():                                  
+        p[0]['is_null'] = False
+    elif p[1].lower() == 'NULL'.lower():                                  
         p[0]['is_null'] = True
-    elif p[1].lower() == 'CONTRAINT'.lower() and len(p) == 4:
-        p[0]['contrain_unique'] = p[2]
+    elif p[1].lower() == 'CONSTRAINT'.lower() and len(p) == 4:
+        p[0]['constraint_unique'] = p[2]
     elif p[1].lower() == 'UNIQUE'.lower():
         p[0]['unique'] = True
     elif p[1].lower() == 'CONSTRAINT'.lower() and len(p) == 7:
-        p[0]['contraint_check_condition'] = p[5]
+        p[0]['constraint_check_condition'] = p[5]
     elif p[1].lower() == 'CHECK'.lower():
         p[0]['check_condition'] = p[3]
     elif p[1].lower() == 'PRIMARY'.lower():
         p[0]['pk_option'] = True
-    elif p[1].lower() == 'UNIQUE'.lower():
+    elif p[1].lower() == 'REFERENCES'.lower():
         p[0]['fk_references_to'] = p[2]  
+    
     
 
 def p_condition_column(p):
@@ -404,7 +411,7 @@ def p_column_list(p):
 
 def p_show_statement(p):
     '''showstatement : SHOW DATABASES SEMICOLON
-                     | SHOW DATABASES LIKE ID SEMICOLON
+                     | SHOW DATABASES LIKE SQLNAME SEMICOLON
     '''
     if len(p) == 4:
         p[0] = ShowDatabase(None)

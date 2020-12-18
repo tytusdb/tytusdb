@@ -1,12 +1,14 @@
 import sys
 sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
 from database import *
+from symbol import *
 
 class Environment:
     def __init__(self, father):
         self.father = father
         self.db = None
         self.bases = []
+        self.simbolos = []
 
     def getActualDataBase(self):
         #Buscamos la base de datos 
@@ -57,3 +59,30 @@ class Environment:
             if env.bases[i].name == name:
                 del env.bases[i]
                 break
+
+    
+    def guardarVariable(self,name,tipo,value):
+        self.simbolos.append(Symbol(name,tipo,value))
+
+    def deleteVariable(self, name):
+        env = self
+        while env.father != None:
+            for i in range(0,len(env.simbolos)):
+                if env.simbolos[i].name == name:
+                    del env.simbolos[i]
+                    break
+            env = env.father    
+
+    def vaciarVariables(self, name):
+        env = self
+        env.simbolos = []
+
+    
+     def buscarVariable(self, name):
+        env = self
+        while env.father != None:
+            for i in range(0,len(env.simbolos)):
+                if env.simbolos[i].name == name:
+                    return {'value': env.simbolos[i].value , 'tipo':env.simbolos[i].tipo}
+            env = env.father
+        return None     

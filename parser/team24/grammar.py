@@ -1,6 +1,7 @@
 #Parte lexica en ply
 
 reservadas = {
+    'now' : 'NOW',
     'smallint' : 'SMALLINT',
     'integer' : 'INTEGER',
     'bigint' : 'BIGINT',
@@ -341,15 +342,17 @@ def p_distinctEmpty(t):
 
 def p_select_listAll(t):
     'select_list : MULTIPLICACION'
-    t[0]=['All']
+    t[0]=[exp_id('*',None)]
 
 def p_select_listList(t):
     'select_list : list'
     t[0] = t[1]
+
 def p_list(t):
     'list : list COMA column aliascol'
     t[3].alias = t[4]
     t[1].append(t[3])
+    t[0] = t[1]
 
 
 def p_listSingle(t):
@@ -502,6 +505,7 @@ def p_function(t):
                 | CONVERT PARA exp AS type PARC
                 | GREATEST PARA lexps PARC
                 | LEAST PARA lexps PARC
+                | NOW PARA PARC
 
     '''
     if t[1].lower() == 'sum' : t[0] = fun_sum(t[3],None)
@@ -510,14 +514,15 @@ def p_function(t):
     if t[1].lower() == 'min' : t[0] = fun_min(t[3],None)
     if t[1].lower() == 'count' : t[0] = fun_count(t[3],None)
     if t[1].lower() == 'length' : t[0] = fun_length(t[3],None)
-    if t[1].lower() == 'substring' : t[0] = fun_substring(t[3],t[5],t[7],None)
+    if t[1].lower() == 'substring' : t[0] = fun_substr(t[3],t[5],t[7],None)
     if t[1].lower() == 'trim' : t[0] = fun_trim(t[3],None)
     if t[1].lower() == 'md5' : t[0] = fun_md5(t[3],None)
     if t[1].lower() == 'sha256' : t[0] = fun_sha256(t[3],None)
     if t[1].lower() == 'substr' : t[0] = fun_substr(t[3],t[5],t[7],None)
-    if t[1].lower() == 'convert' : t[0] = fun_sha256(t[3],t[5],None)
+    if t[1].lower() == 'convert' : t[0] = fun_convert(t[3],t[5],None)
     if t[1].lower() == 'greatest' : t[0] = fun_greatest(t[3],None)
     if t[1].lower() == 'least' : t[0] = fun_least(t[3],None)
+    if t[1].lower() == 'NOW' : t[0] = fun_now()
     
 def p_type(t):
     '''
@@ -546,8 +551,11 @@ def p_lexpsSingle(t):
     t[0] = [t[1]]
 
 def p_columnp(t):
-    'columnp : PUNTO ID'
+    '''columnp : PUNTO ID
+            | PUNTO MULTIPLICACION
+    '''
     t[0] = t[2]
+
 
 def p_columnpEmpty(t):
     'columnp : empty'
@@ -602,11 +610,11 @@ def p_exp_case(t):
     elif t[2] == '<=': t[0] = exp_menor_igual(t[1], t[3])
 
 def p_expcaseIn(t):
-    'exp_case : exp IN PARA query PARC'
+    'exp_case : exp IN PARA queryp PARC'
     t[0] = exp_in(t[1],t[4])
 
 def p_expcaseNotIn(t):
-    'exp_case : exp NOT IN PARA query PARC'
+    'exp_case : exp NOT IN PARA queryp PARC'
     t[0] = exp_not_in(t[1],t[5])
 
 def p_expcaseBetween(t):
@@ -621,6 +629,13 @@ def p_expcaseIsNotDistinct(t):
     'exp_case : exp IS NOT DISTINCT FROM exp'
     t[0] = exp_igual(t[1],t[6])
 
+def p_expcaseExists(t):
+    'exp_case : EXISTS PARA queryp PARC'
+    t[0] = exp_exists(t[3],None,True)
+
+def p_expcaseNotExists(t):
+    'exp_case : NOT EXISTS PARA queryp PARC'
+    t[0] = exp_exists(t[3],None,False)
 
 
 def p_expNum(t):

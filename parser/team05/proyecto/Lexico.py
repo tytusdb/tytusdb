@@ -288,6 +288,10 @@ def t_CADENA(t):
     t.value = t.value[1:-1] 
     return t 
 
+def t_CADENASI(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] 
+    return t 
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -343,7 +347,6 @@ precedence = (
     ('left', 'POR', 'DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
     ('right', 'UMENOS', 'UMAS')
-    
 )
 
 
@@ -354,7 +357,7 @@ def p_init(t):
     """
     t[0] = t[1]
 
-
+    
 def p_instrucciones1(t):
     """
         INSTRUCCIONES   :   INSTRUCCIONES INSTRUCCION
@@ -397,13 +400,12 @@ def p_use(t):
     """
     t[0] = UseDatabase(t[2])
 
-
+    
 def p_create(t):
     """
         I_CREATE        :   CREATE I_TCREATE
     """
     t[0] = t[2]
-    # CLASE CREATE
 
 
 def p_tcreate(t):
@@ -413,16 +415,16 @@ def p_tcreate(t):
                         |   I_CTYPE
     """
     t[0] = t[1]
-    # INSTRUCCION CREATE (I_REPLACE)
-    # INSTRUCCION CREATE1 (I_CTABLE)
-    # INSTRUCCION CREATE2 (I_CTYPE)
+    
+    
+    
 
 
 def p_ctype(t):
     """
         I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA PCOMA
     """
-    # Instruccion
+    #INSTRUCCION CTYPE
 
 
 def p_lcad1(t):
@@ -443,12 +445,18 @@ def p_Ilcad2(t):
         LCAD          :   CADENA
     """
 
+    
+def p_Ilcad2(t):
+    """
+        LCAD          :   CADENA
+    """
+
 
 def p_ctable(t):
     """
         I_CTABLE        :   TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS
     """
-    # Instruccion
+    #INSTRUCCION CTABLE
 
 
 def p_inherits(t):
@@ -489,14 +497,12 @@ def p_ipoConstraintCheck(t):
 
 def p_ipoConstraintForeignKey(t):
     'TIPO_CONSTRAINT        : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
-
-
+    
 def p_Lllave(t):
     'LI_LLAVES         : LI_LLAVES I_LLAVES'
 
 def p_Lllave1(t):
     'LI_LLAVES         : I_LLAVES'
-
 
 def p_cRef(t):
     'I_CREFERENCE     : I_CREFERENCE COMA ID'
@@ -533,7 +539,6 @@ def p_llave10(t):
 
 def p_llave11(t): 
     'I_LLAVES    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
-
 
 def p_lIds(t):
     'I_LIDS           : I_LIDS COMA CONDICION'
@@ -627,14 +632,16 @@ def p_replace1(t):
     """
         I_REPLACE       :   OR REPLACE DATABASE I_EXIST
     """
-    t[0] = CreateDatabase(True, t[4])
+    #INSTRUCCION REPLACE1
+    #t[0] = CreateDatabase(True, t[4])
 
 
 def p_replace2(t):
     """
         I_REPLACE       :   DATABASE I_EXIST
     """
-    t[0] = CreateDatabase(False, t[2])
+    #INSTRUCCION REPLACE2
+    #t[0] = CreateDatabase(False, t[2])
 
 
 def p_drop(t):
@@ -646,6 +653,56 @@ def p_drop(t):
 
 def p_alter(t):
     'I_ALTER     : ALTER I_TALTER'
+
+def p_alterTB(t):
+    'I_ALTERTB   : TABLE ID I_OPALTER '
+
+def p_opAlterTB(t):
+    'I_OPALTER   : I_LADDC PCOMA'
+
+def p_opAlterTB1(t):
+    'I_OPALTER   : I_LDROPC PCOMA'
+
+def p_opAlterTB2(t):
+    'I_OPALTER   : ADD I_TALTER PCOMA'
+
+def p_opAlterTB3(t):
+    'I_OPALTER   : ALTER COLUMN ID SET NOT NULL PCOMA'
+
+def p_opAlterTB4(t):
+    'I_OPALTER   : DROP CONSTRAINT ID PCOMA'
+
+def p_opAlterTB5(t):
+    'I_OPALTER   : I_LCOL PCOMA'
+
+def p_lCol(t):
+    'I_LCOL      : I_LCOL COMA I_PCOL'
+
+def p_lCol2(t):
+    'I_LCOL      : I_PCOL'
+
+def p_pCol3(t):
+    'I_PCOL      : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA'
+
+def p_tipAlterC(t): 
+    'I_TALTER    : CHECK CONDICION '
+    #INSTRUCCION TIPALTERC
+
+def p_tipAlterU(t): 
+    'I_TALTER    : UNIQUE PABRE I_LIDS  PCIERRA'
+    #INSTRUCCION TIPALTERU
+
+def p_tipAlterFK(t): 
+    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
+    #INSTRUCCION TIPALTERFK
+
+def p_tipAlterFK1(t): 
+    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID '
+    #INSTRUCCION TIPALTERFK1
+
+def p_tipAlterCo(t): 
+    'I_TALTER    : CONSTRAINT ID I_TCONST '
+    #INSTRUCCION TIPALTERCO
 
 
 def p_alterTB(t):
@@ -695,18 +752,25 @@ def p_tipAlterCo(t):
 
 def p_tAlter(t):
     'I_TALTER    : I_ALTERDB'
+    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
+    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
+    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
+    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
 
 def p_tAlter1(t):
     'I_TALTER    : I_ALTERTB'
 
 def p_tipoConstraintC(t):
     'I_TCONST    : CHECK CONDICION '
+    #INSTRUCCION TIPOCONSTRAINTC
 
 def p_tipoConstraintU(t):
     'I_TCONST    : UNIQUE PABRE I_LIDS PCIERRA'
+    #INSTRUCCION TIPOCONSTRAINTU
 
 def p_tipoConstraintFK(t):
     'I_TCONST    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA  '
+    #INSTRUCCION TIPOCONSTRAINTFK
 
 def p_lCDrop(t):
     'I_LDROPC    : I_LDROPC COMA I_DROPC'
@@ -745,6 +809,7 @@ def p_drop_db(t):
     """
         I_DROPDB        :   DATABASE I_IFEXIST
     """
+    # INSTRUCCION DROPDB
     t[0] = DropDB(t[2])
 
 
@@ -752,14 +817,16 @@ def p_if_exist1(t):
     """
         I_IFEXIST       :   IF EXISTS ID PCOMA
     """
-    t[0] = IfExist(t[3])
+    # INSTRUCCION IFEXIST1
+    t[0] = IfExist1(t[3])
 
 
 def p_if_exist2(t):
     """
         I_IFEXIST       :   ID PCOMA
     """
-    t[0] = IfExist(t[1])
+    # INSTRUCCION IFEXIST2
+    t[0] = IfExist2(t[1])
 
 
 def p_exist1(t):
@@ -844,15 +911,24 @@ def p_valAlterDb1(t):
 
 def p_dropTB(t):
     'I_DROPTB      : TABLE ID PCOMA'
+    # INSTRUCCION DROPTB
+    #t[0]=DropTB(t[2])
 
 def p_insertTB(t):
     'I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA'
+    # INSTRUCCION INSERTTB
 
 def p_insertTB1(t):
     'I_INSERT      : INSERT INTO ID PABRE I_LVALT PCIERRA VALUES PABRE I_LVALT PCIERRA PCOMA'
+    # INSTRUCCION INSERTTB1
 
 def p_lValt(t):
     'I_LVALT       : I_LVALT COMA I_VALTAB'
+    # INSTRUCCION REALIZADA
+
+def p_lValt1(t):
+    'I_LVALT       : I_VALTAB'
+    # INSTRUCCION REALIZADA
 
 def p_lValt1(t):
     'I_LVALT       : I_VALTAB'
@@ -878,25 +954,31 @@ def p_delete(t):
 
 def p_valTab(t):
     'I_VALTAB      : NUMERO'
+    # INSTRUCCION VALTAB
 
 def p_valTab1(t):
     'I_VALTAB      : CADENA'
+    # INSTRUCCION VALTAB
 
 def p_valTabId(t):
     'I_VALTAB      : ID'
+    # INSTRUCCION VALTAB
 
 def p_valTabDecimal(t):
     'I_VALTAB      : DECIMAL'
+    # INSTRUCCION VALTAB
 
 def p_valTabIdAlias(t):
     'I_VALTAB      : IDALIAS'
-
+    # INSTRUCCION VALTAB
     
 def p_valTabMd5(t):
     'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
+    # INSTRUCCION VALTAB
 
 def p_valTabNow(t):
     'I_VALTAB      : NOW PABRE PCIERRA'
+    # INSTRUCCION VALTAB
 
 def p_ISelect(t):
     'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO   '

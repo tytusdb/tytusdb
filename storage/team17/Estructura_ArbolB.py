@@ -14,24 +14,27 @@ class NodoB:
     
     def comparar(self, valor):
         i = 0
-        length = len(self.llaves) 
+        tamano = len(self.llaves) 
         if self.hijos == [] or self.buscar_llave(valor, self.llaves): #Si la lista de hijos esta vacia o el valor ya se encuentra en la lista de llaves
             return -1
-        while(i < length):
-            if int(valor) < int(self.llaves[i].llave_arbol):
+        while(i < tamano):
+            if valor < self.llaves[i][0]:
                 return i
             i += 1
         return i #Regresa la posicion
     
+    def posicionNodo(self):
+        return self.padre.hijos.index(self)
+    
     def buscar_llave(self, llave, llaves):
         for i in llaves:
-            if int(i.llave_primaria) == llave:
+            if i[0] == llave:
                 return True
 
-    def ordenar_llaves(self): #ADRIAN
+    def ordenar_llaves(self):
         for i in range(len(self.llaves)-1):
             for j in range(i+1,len(self.llaves)):
-                if int(self.llaves[i].llave_arbol) > int(self.llaves[j].llave_arbol):
+                if self.llaves[i][0] > self.llaves[j][0]:
                     tmp = self.llaves[i]
                     self.llaves[i] = self.llaves[j]
                     self.llaves[j] = tmp
@@ -43,10 +46,10 @@ class ArbolB:
         self.grado = grado
         self.enmedio = int((self.grado-1)/2)
  
-    def buscar(self, valor, tmp = None):
-        return self._buscar(valor, tmp)
+    def buscar(self, valor):
+        return self._buscar(valor)
 
-    def _buscar(self, valor, tmp):
+    def _buscar(self, valor, tmp = None):
         if not tmp:
             tmp2 = self.root
         else:
@@ -110,11 +113,136 @@ class ArbolB:
  
     def insertar(self, *valores):
         for valor in valores:
-            tmp = self.buscar(valor.llave_arbol)
+            tmp = self.buscar(valor[0])
             self._insertar(valor, tmp)
     
     def _insertar(self, valor, tmp):
         length = tmp.insertar(valor)
         if length == self.grado:
             self.separar_nodo(tmp)
+    
+    # UTILIDADES
+    # ME DEVUELVE UNA LISTA CON LA INFORMACION DE TODOS LOS NODOS INGRESADOS
+    def registros(self):
+        global l
+        l = list()
+        return self._registros(self.root)
+
+    def _registros(self, tmp):
+        if tmp:
+            for i in tmp.llaves:
+                l.append(i[1])
+            for j in tmp.hijos:
+                self._registros(j)
+        return l
+
+    # ME DEVUELVE UNA LISTA CON LA PK DE TODOS LOS NODOS INGRESADOS
+    def Keys(self):
+        global l
+        l = list()
+        return self._Keys(self.root)
+
+    def _Keys(self, tmp):
+        if tmp:
+            for i in tmp.llaves:
+                l.append(i[0])
+            for j in tmp.hijos:
+                self._Keys(j)
+        return l
+    
+    # AGREGA UNA COLUMNA MAS A TODOS LOS NODOS
+    def agregarValor(self, valor):
+        self.root = self._agregarValor(self.root, valor)
+    
+    def _agregarValor(self, tmp, valor):
+        if tmp:
+            for i in tmp.llaves:
+                i[1].append(valor)
+            for j in tmp.hijos:
+                self._agregarValor(j,valor)
+        return tmp
+
+    # ELIMINA UNA COLUMNA A TODOS LOS NODOS
+    def eliminarValor(self, valor):
+        self.root = self._eliminarValor(self.root, valor)
+    
+    def _eliminarValor(self, tmp, valor):
+        if tmp:
+            for i in tmp.llaves:
+                i[1].pop(valor)
+            for j in tmp.hijos:
+                self._eliminarValor(j,valor)
+        return tmp
+    
+    # ELIMINA UN NODO DEL ARBOL
+    def _del(self, llave):
+        tmp = self.buscar(llave)
+        posicion = self.posicion(tmp, llave)
+        tmp.llaves.pop(posicion)
+        self.estructurar(tmp, posicion)
+
+    # ME RETORNA LA POSICION DE UNA TUPLA EN UN NODO
+    def posicion(self, nodo, llave):
+        for i in range(len(nodo.llaves)):
+            if str(nodo.llaves[i][0]) == str(llave):
+                return i
+    
+    # ME RETORNA EL VALOR EN UNA POSICION
+    def valor_buscar(self, nodo, llave):
+        for i in range(len(nodo.llaves)):
+            if str(nodo.llaves[i][0]) == str(llave):
+                return nodo.llaves[i]
+
+    # ORDENA EL ARBOL DE NUEVO
+    def estructurar(self, tmp, posicion):
+        if tmp.hijos == []:
+            return self.unir(tmp, tmp.posicionNodo())
+        siguiente = tmp.hijos[posicion + 1]
+        tmp.insertar(siguiente.llaves.pop(0))
+        return self.estructurar(siguiente, 0)
+    
+    # UNE LOS HIJOS AL PADRE PARA REGRESAR A LA FORMA IDEAL
+    def unir(self, tmp, pos):
+        if not tmp.padre:
+            return 0
+        
+        if len(tmp.llaves) >= self.enmedio:
+            return 0
+ 
+        padre = tmp.padre
+        if pos:
+            pre = padre.llaves[pos-1]
+            tmp2 = padre.hijos[pos-1]
+        else:
+            pre = None
+            tmp2 = padre.hijos[1]
+ 
+        if len(tmp2.llaves) > self.enmedio:
+            return self.rotar(tmp, tmp2, padre, pre)
+ 
+        if not pre:
+            tmp.insertar(padre.llaves.pop(0))
+            tmp2.hijos = tmp.hijos + tmp2.hijos
+        else:
+            tmp.insertar(padre.llaves.pop(pos-1))
+            tmp2.hijos = tmp.hijos + tmp2.hijos
+        tmp2.llaves += tmp.llaves
+        tmp2.ordenar_llaves()       
+        padre.hijos.remove(tmp)
+        if len(padre.llaves) == 0 and not padre.padre:
+            self.root = tmp2
+            return 0
+        
+        if len(padre.llaves) < self.enmedio:
+            return self.unir(padre, padre.posicionNodo())
+
+    def rotar(self, nodo, tmp, padre, pre):
+        if not pre:
+            nodo.insertar(padre.llaves.pop(0)) #Izquierda
+            padre.insertar(tmp.llaves.pop(0))
+            return 0
+        pos = nodo.posicionNodo() #Derecha
+        nodo.insertar(padre.llaves.pop(pos-1))
+        padre.insertar(tmp.llaves.pop(-1))
+        return 0
 
