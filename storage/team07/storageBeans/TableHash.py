@@ -1,10 +1,11 @@
 import tkinter
+from BHash2 import BHash
 
 
 class DataBase(object):
     def __init__(self, name):
         self.name = name
-        # self.BTree = ArbolB()
+        self.BHash = BHash()
 
 
 class Hash:
@@ -32,7 +33,7 @@ class Hash:
             i += 1
         # print(len(self.h))
 
-    def insert(self, k, data):
+    def insert(self, k):
         cadena = k
         k = self.toASCII(k)
         i = int(self.division(k))
@@ -143,6 +144,19 @@ class Hash:
                 lista.append(self.h[i].name)
         return lista
 
+    def getDataBase(self, OldName):
+        if (t.search(OldName)):  # si la base de datos existe
+            k = self.toASCII(OldName)
+            i = int(self.division(k))
+            paso = i
+            while (self.h[int(i)].name != OldName):
+                i = self.linear(i)
+                if (paso == i):
+                    break
+            return self.h[int(i)]  # asumiendo que antes se buscara si existe o no la base de datos
+        else:  # significa que la base de datos no existe
+            return False
+
     # def show_DATASTRUCTURE(self):
     #     ventana = tkinter.Tk()
     #     ventana.mainloop()
@@ -174,7 +188,7 @@ t.delete("ncm")
 # t.insert("Ulitmooo")
 # print(t.search("scv3"))
 # print(t.search("Ulitmooo"))
-print(t.updateName("byron", "sasas2"))
+print(t.updateName("byron", "sasas"))
 a = t.getData()
 for i in range(len(a)):
     print(a[i])

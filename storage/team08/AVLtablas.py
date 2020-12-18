@@ -1,8 +1,8 @@
 from graphviz import Digraph
 import sys
 import os
-import AVLbase as ba
 import GeneralesAVL as gA
+import AVLbase as ba
 os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin'
 
 class nodoTabla:
@@ -21,6 +21,9 @@ class nodoTabla:
 class AVLTablas:
     def __init__(self):
         self.root = None
+    
+    def guardar(self):
+        gA.g.commitTabla(self)
     
     #index nodo
     def indexNodo(self):
@@ -70,20 +73,6 @@ class AVLTablas:
         tmp.nivel = m + 1
         return tmp
 
-    #saber quien es el padre:
-    def tatascan(self, niv, value):
-        return self._tatascan(niv, value, self.root)
-
-    def _tatascan(self, niv, value, tmp):
-        if (niv - 1) == self.root.nivel:
-            return None
-        elif tmp.nivel == niv and (tmp.izquierda.value == value or tmp.derecha.value == value):
-            return tmp
-        elif value > tmp.value and tmp.derecha != None:
-            return self._tatascan(niv, value, tmp.derecha)
-        elif value < tmp.value and tmp.izquierda != None:
-            return self._tatascan(niv, value, tmp.izquierda)
-
     #para mostrar en consola
     def mostrarTablasConsola(self):
         if self.root != None:
@@ -94,24 +83,6 @@ class AVLTablas:
             print('Base = %s, Tabla = %s, Columnas = %d, Nivel = %d, Index: %d, Valor: %d'%(tmp.nomDTB, tmp.nomTBL, tmp.numCOL, tmp.nivel, tmp.index, tmp.value))
             self._mostrarTablasConsola(tmp.izquierda)
             self._mostrarTablasConsola(tmp.derecha)
-
-    #mostrar usando graphviz, pendiente de correcciones
-    def crearGraphviz(self):
-        self._crearGraphviz(self.root)
-        nodoTabla.grafica += '}'
-        archivo = open('Tablas.dot','w')
-        archivo.write(nodoTabla.grafica)
-        archivo.close()
-        os.system('dot -Tsvg Tablas.dot -o Tablas.svg')
-
-    def _crearGraphviz(self, tmp):
-        if tmp:
-            if tmp != self.root:
-                tata = self.tatascan((tmp.nivel + 1), tmp.value)
-                if tata is not None:
-                    nodoTabla.grafica += str(tata.index) + ' -> ' + str(tmp.index) + '\n'
-            self._crearGraphviz(tmp.izquierda)
-            self._crearGraphviz(tmp.derecha)
 
     #buscar por nombre de Base de datos y devolver lista
     def showTables(self, base):
@@ -207,69 +178,80 @@ class AVLTablas:
             valueB = gA.g.jalarValN(nomDTB)
             value = gA.g.jalarValN(nomTBL)
             if ba.b.buscarBase(valueB):
-                return self.dropTableN(self.buscarNodo(value))
+                if self.buscar(value, nomDTB):
+                    self._dropTable(value, self.root)
+                    return 0
+                else:
+                    return 3
             else:
                 return 2
         except:
             return 1
 
-    def dropTableN(self, tmp):
-        if tmp == None:
-            return 3  #tabla no existe
+    def _dropTable(self, value, tmp):
+        if not tmp:
+            return tmp
+        elif value < tmp.value:
+            tmp.izquierda = self._dropTable(value, tmp.izquierda)
+        elif value > tmp.value:
+            tmp.derecha = self._dropTable(value, tmp.derecha)
         else:
-            nHoja = gA.g.nHojas(tmp)
-            if nHoja == 0: #nodo sin hojas
-                tata = self.tatascan((tmp.nivel+1), tmp.value)
-                if tata != None:
-                    if tata.izquierda == tmp:
-                        tata.izquierda = None
-                        return 0
-                    else:
-                        tata.derecha = None
-                        return 0
-                else:
-                    self.root = None
-                    return 0
-            elif nHoja == 1: #nodo con 1 hoja
-                if tmp.izquierda != None:
-                    hijo = tmp.izquierda
-                else:
-                    hijo = tmp.derecha
-                
-                tata = self.tatascan((tmp.nivel+1), tmp.value)
-                
-                if tata != None:
-                    if tata.izquierda == tmp:
-                        tata.izquierda = hijo
-                        tata.izquierda.nivel = hijo.nivel + 1
-                        hijo = None
-                        return 0
-                    else:
-                        tata.derecha = hijo
-                        tata.derecha.nivel = hijo.nivel + 1
-                        hijo = None
-                        r = 0
-                        return r
-                else:
-                    self.root = hijo
-                    return 0
-
-            elif nHoja == 2: #nodo con dos hojas
-                if tmp.nivel != self.root.nivel: #esta condicion es para que tome bien el nivel si en dado caso quiere eliminar la raíz
-                    leSigue = gA.g.leMenor(tmp)
-                    self.dropTableN(leSigue)
-                    tmp.value = leSigue.value
-                    tmp.nivel = leSigue.nivel + 1
-                    return 0
-                else:
-                    leSigue = gA.g.leMenor(tmp)
-                    self.dropTableN(leSigue)
-                    tmp.value = leSigue.value
-                    tmp.nivel = self.root.nivel + 1
-                    return 0
-    #fin eliminar tabla -----------------
+            if tmp.derecha is None:
+                temp = tmp.derecha
+                tmp = None
+                return temp
+            elif tmp.derecha is None:
+                temp = tmp.izquierda
+                tmp = None
+                return temp
+            temp = gA.g.leMenor(tmp.derecha)
+            tmp.value = temp.value
+            tmp.derecha = self._dropTable(temp.value, tmp.derecha)
         
+        if tmp is None:
+            return tmp
+        
+        tmp.nivel = 1 + gA.g.maxi(gA.g.nivel(tmp.izquierda), gA.g.nivel(tmp.derecha))
+        balan = gA.g.Balance(tmp)
 
+        if balan > 1 + gA.g.Balance(tmp.izquierda) >= 0:
+            return gA.g.srr(tmp)
+
+        if balan < -1 and gA.g.Balance(tmp.derecha) <= 0:
+            return gA.g.srl(tmp)
+
+        if balan > 1 and gA.g.Balance(tmp.izquierda) < 0:
+            tmp.derecha = gA.g.srl(tmp.izquierda)
+            return gA.g.srr(tmp)
+
+        if balan < -1 and gA.g.Balance(tmp.derecha) < 0:
+            tmp.derecha = gA.g.srr(tmp.derecha)
+            return gA.g.drl(tmp)
+            
+        return tmp
+
+    #renombrar tabla de una base de datos
+    def alterTable(self, nomDTB, nomTBLV, nomTBLN):
+        try:
+            valueDTB = gA.g.jalarValN(nomDTB)
+            valueTBLV = gA.g.jalarValN(nomTBLV)
+            valueTBLN = gA.g.jalarValN(nomTBLN)
+            if ba.b.buscarBase(valueDTB):
+                if self.buscar(valueTBLV, nomDTB):
+                    if self.buscar(valueTBLN, nomDTB):
+                        return 4
+                    else:
+                        tmp = self.buscarNodo(valueTBLV)
+                        c = tmp.numCOL
+                        self.dropTable(nomDTB, nomTBLV)
+                        self.createTable(nomDTB, nomTBLN,c)
+                        return 0
+                else:
+                    return 3
+            else:
+                return 2
+        except:
+            return 1
     
 '''#iniciar
 #mostrar
