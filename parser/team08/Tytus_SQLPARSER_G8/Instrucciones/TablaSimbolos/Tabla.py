@@ -5,7 +5,7 @@ class Tabla():
         self.anterior = anterior
         self.variables = []
         self.funciones = []
-    
+        
     def setVariable(self,simbolo):
         tabla = self
         for variable in tabla.variables:
@@ -27,7 +27,9 @@ class Tabla():
         tabla = self
         for f in tabla.funciones:
             if f.id == funcion.id:
+                print("La variable " + f.id + " ya ha sido declarada.")
                 return "La variable " + f.id + " ya ha sido declarada."
+        print("se agrego la funcion")
         self.funciones.append(funcion)
         return None
     

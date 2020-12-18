@@ -10,6 +10,27 @@ class ShowDatabases(query) :
     def __init__(self, variable) :
         self.variable = variable
 
+class Select(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, tipo, operacion) :
+        self.tipo = tipo
+        self.operacion = operacion
+
+class Select2(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, tipo, operacion1, operacion2) :
+        self.tipo = tipo
+        self.operacion1 = operacion2
+        self.operacion2 = operacion2
+
 class CreateDatabases(query) :
     '''
         Esta clase representa una accion que elimina la variable
@@ -28,7 +49,7 @@ class CreateDatabaseswithParameters(query) :
     def __init__(self, variable,parametros) :
         self.variable = variable
         self.parametros = parametros
-
+    
 class AlterDB(query) :
     '''
         Esta clase representa una accion que elimina la variable
@@ -50,6 +71,7 @@ class AlterOwner(query) :
         self.owner = owner
         self.id_alter = id_alter
 
+
 class DropDB(query) :
     '''
         Esta clase representa una accion que elimina la variable
@@ -67,6 +89,16 @@ class DropDBIF(query) :
 
     def __init__(self, id) :
         self.id = id
+
+
+class Asignacion(query) :
+    '''
+        Esta clase representa la instruccion de una asignacion AS
+        recibe como parametro el campo y su nuevo nombre a manejar
+    '''
+    def __init__(self, campo, alias) :
+        self.campo = campo
+        self.alias = alias
 
 class InsertinDataBases(query):
     '''
@@ -116,6 +148,16 @@ class CreateTable(query):
         self.idTable = idTable
         self.listColumn = listColumn
 
+class TipoAtributoTable(query):
+    '''
+        Esta clase representa el tipo de atributo que se creara
+        en la tabal, puede ser una columna, constraint, llave primaria,
+        llave foranea
+    '''
+    def __init__(self,objAtributo,TypeAtrib):
+        self.objAtributo = objAtributo
+        self.TypeAtrib = TypeAtrib
+
 class ColumnasTable(query):
     '''Esta clase representa la accion que alamcena todas las
         columnas que se crearan
@@ -133,6 +175,18 @@ class TipoRestriccion(query):
     def __init__(self,objrestriccion,typeR):
         self.objrestriccion = objrestriccion
         self.typeR = typeR
+
+class InheritsBD(query):
+    '''
+        Esta clase represetn la accion de crear una tabla que herede
+        las columnas y/o restricciones de otra tabla
+    '''
+    def __init__(self,idTable,idTableHereda,listColumn=[]):
+        self.idTable=idTable
+        self.idtableHereda=idTableHereda
+        self.listColumn=listColumn
+
+
 class DropTable(query):
     '''
         Esta clase representa la acción de eliminar una tabla

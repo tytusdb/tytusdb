@@ -1,6 +1,7 @@
 #Parte lexica en ply
 
 reservadas = {
+    'now' : 'NOW',
     'smallint' : 'SMALLINT',
     'integer' : 'INTEGER',
     'bigint' : 'BIGINT',
@@ -504,6 +505,7 @@ def p_function(t):
                 | CONVERT PARA exp AS type PARC
                 | GREATEST PARA lexps PARC
                 | LEAST PARA lexps PARC
+                | NOW PARA PARC
 
     '''
     if t[1].lower() == 'sum' : t[0] = fun_sum(t[3],None)
@@ -512,14 +514,15 @@ def p_function(t):
     if t[1].lower() == 'min' : t[0] = fun_min(t[3],None)
     if t[1].lower() == 'count' : t[0] = fun_count(t[3],None)
     if t[1].lower() == 'length' : t[0] = fun_length(t[3],None)
-    if t[1].lower() == 'substring' : t[0] = fun_substring(t[3],t[5],t[7],None)
+    if t[1].lower() == 'substring' : t[0] = fun_substr(t[3],t[5],t[7],None)
     if t[1].lower() == 'trim' : t[0] = fun_trim(t[3],None)
     if t[1].lower() == 'md5' : t[0] = fun_md5(t[3],None)
     if t[1].lower() == 'sha256' : t[0] = fun_sha256(t[3],None)
     if t[1].lower() == 'substr' : t[0] = fun_substr(t[3],t[5],t[7],None)
-    if t[1].lower() == 'convert' : t[0] = fun_sha256(t[3],t[5],None)
+    if t[1].lower() == 'convert' : t[0] = fun_convert(t[3],t[5],None)
     if t[1].lower() == 'greatest' : t[0] = fun_greatest(t[3],None)
     if t[1].lower() == 'least' : t[0] = fun_least(t[3],None)
+    if t[1].lower() == 'NOW' : t[0] = fun_now()
     
 def p_type(t):
     '''

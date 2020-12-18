@@ -1,4 +1,3 @@
-
 import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 
@@ -9,11 +8,4 @@ class Scale(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        '''
-        print("SCALE")
-        print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-
-instruccion = Scale("hola mundo",None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+        arbol.consola.append('Función en proceso...')

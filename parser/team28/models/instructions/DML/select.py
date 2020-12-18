@@ -1,4 +1,17 @@
-from models.instructions.shared import Instruction
+from models.instructions.shared import *
+from models.instructions.Expression.expression import *
+from models.instructions.DML.special_functions import *
+
+class Union(Instruction):
+    def __init__(self,  array_instr, type_union) :
+        self.array_instr = array_instr
+        self.type_union = type_union
+
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 class Select(Instruction):
     '''
         SELECT recibe un array con todas los parametros
@@ -10,6 +23,10 @@ class Select(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        instr = self.instrs.process(instrucction)
+        return instr
         
 class TypeQuerySelect(Instruction):
     '''
@@ -25,6 +42,15 @@ class TypeQuerySelect(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+class Table:
+    def __init__(self, headers, values):
+        self.headers = headers
+        self.values = values
+    def __repr__(self):
+        return str(vars(self))
 
 class SelectQ(Instruction):
     '''va a recibir la lista de parametros a seleccion y de que traba se esta seleccionando'''
@@ -36,6 +62,14 @@ class SelectQ(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        headers = []
+        for val in self.select_list:
+            headers.append(val.alias)
+        list_select = operating_list_number(self.select_list, instrucction)
+
+        return Table(headers, list_select)
     
 
 class SelectList(Instruction):
@@ -50,6 +84,9 @@ class SelectList(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class OrderClause(Instruction):
     '''
@@ -63,6 +100,9 @@ class OrderClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class LimitClause(Instruction):
     '''
@@ -76,6 +116,9 @@ class LimitClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class JoinClause(Instruction):
     '''
@@ -90,6 +133,9 @@ class JoinClause(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
+    
 class ExistsClause(Instruction):
     '''
     ExistsClause recibe de parametro
@@ -100,6 +146,9 @@ class ExistsClause(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class NotOption(Instruction):
     '''
@@ -111,6 +160,9 @@ class NotOption(Instruction):
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class InClause(Instruction):
     '''
@@ -121,41 +173,39 @@ class InClause(Instruction):
 
     def __repr__(self):
         return str(vars(self))
-
-class Relop(Instruction):
-    '''
-    Relop contiene los operadores logicos
-    == != >= ...
-    '''
-    def __init__(self, operador_logico):
-        self.operador_logico = operador_logico
-
-    def __repr__(self):
-        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class LikeClause(Instruction):
     '''
-    LikeClause
+        LikeClause
     '''
     def __init__(self, arr_list):
         self.arr_list = arr_list
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class isClause(Instruction):
     '''
-    IsClause
+        IsClause
     '''
     def __init__(self, arr_list):
         self.arr_list = arr_list
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class AgreggateFunctions(Instruction):
     '''
-    AgreggateFunctions
+        AgreggateFunctions
     '''
     def __init__(self, type_agg, cont_agg, opt_alias):
         self.type_agg = type_agg
@@ -163,96 +213,34 @@ class AgreggateFunctions(Instruction):
         self.opt_alias = opt_alias
     def __repr__(self):
         return str(vars(self))
-
-class ObjectReference(Instruction):
-    '''
-    ObjectReference
-    '''
-    def __init__(self, reference_base, reference_table, reference_column, opt_asterisk):
-        self.reference_base = reference_base
-        self.reference_table = reference_table
-        self.reference_colunm = reference_column
-        self.opt_asterisk = opt_asterisk
-
-    def __repr__(self):
-        return str(vars(self))
-
-class ExpressionsTime(Instruction):
-    '''
-    ExpressionsTime
-    '''
-    def __init__(self, name_date, type_date, name_opt):
-        self.name_date = name_date
-        self.type_date = type_date
-        self.name_opt = name_opt
-
-    def __repr__(self):
-        return str(vars(self))
-
-class ExpressionsTrigonometric(Instruction):
-    '''
-    ExpressionsTrigonometric
-    '''
-    def __init__(self, type_trigonometric, expression1, optional_expression2):
-        self.type_trigonometric = type_trigonometric
-        self.expression1 = expression1
-        self.optional_expression2 = optional_expression2
-
-    def __repr__(self):
-        return str(vars(self))
-
-class ExpressionsGreastLeast(Instruction):
-    '''
-    ExpressionsGreastLeast
-    '''
-    def __init__(self, type_expression, lista_arr):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-    def __repr__(self):
-        return str(vars(self))
-
-class MathematicalExpressions(Instruction):
-    '''
-    MathematicalExpressions
-    '''
-    def __init__(self, type_expression, lista_arr, optional_alias):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-        self.optiona_alias = optional_alias
     
+    def process(self, instrucction):
+        pass
+
+class Case(Instruction):
+    '''
+        CASE recibe un array con todas las opciones y un else
+    '''
+    def __init__(self, arr_op, c_else): 
+        self.arr_op = arr_op
+        self.c_else = c_else
+
     def __repr__(self):
         return str(vars(self))
-
-class UnaryOrSquareExpressions(Instruction):
-    '''
-    UnaryOrSquareExpressions
-    '''
-    def __init__(self, sign, expression_list):
-        self.sign = sign
-        self.expression_list = expression_list
     
+    def process(self, instrucction):
+        pass
+
+class CaseOption(Instruction):
+    '''
+        CASE OPTION
+    '''
+    def __init__(self, when_exp, then_exp):
+        self.when_exp = when_exp
+        self.then_exp = then_exp
+
     def __repr__(self):
-        return str(vars(self))
+        return str(vars(self)) 
 
-
-class AndExpressionsList(Instruction):
-    '''
-    AndExpressionsList
-    '''
-    def __init__(self, lista_arr, and_word):
-        self.lista_arr = lista_arr
-        self.and_word = and_word
-
-    def __repr__(self):
-        return str(vars(self))
-
-class OrExpressionsList(Instruction):
-    '''
-    OrExpressionsList
-    '''
-    def __init__(self, lista_arr, or_word):
-        self.lista_arr = lista_arr
-        self.or_word = or_word
-        
-    def __repr__(self):
-        return str(vars(self))
+    def process(self, instrucction):
+        pass  

@@ -3,6 +3,7 @@
 from .executeSentence import executeSentence
 class Execute():
     nodes = []
+    errors = []
     types = {
         1: 'Entero',
         2: 'Decimal',
@@ -21,5 +22,11 @@ class Execute():
         if(self.nodes is not None):
            for node in self.nodes:
                executeSentence(self,node)
+
+
+#Como guardar un error
+# self.errors.append(
+#                         Error('Semántico', 'Ya existe una tabla con el nombre ' + nodo.id, nodo.fila, nodo.columna))
+    
     
     
