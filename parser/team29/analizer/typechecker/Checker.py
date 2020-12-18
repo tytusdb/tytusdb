@@ -1,9 +1,13 @@
+from sys import path
+from os.path import dirname as dir
+
+path.append(dir(path[0]))
 from enum import Enum
-import Metadata.Struct as S
-from Types.Type import Type
-from Types.Validations import Number as N
-from Types.Validations import Character as C
-from Types.Validations import Time as T
+import analizer.typechecker.Metadata.Struct as S
+from analizer.typechecker.Types.Type import Type
+from analizer.typechecker.Types.Validations import Number as N
+from analizer.typechecker.Types.Validations import Character as C
+from analizer.typechecker.Types.Validations import Time as T
 from datetime import datetime
 
 lstErr = []

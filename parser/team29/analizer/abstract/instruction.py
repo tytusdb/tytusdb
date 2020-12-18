@@ -57,7 +57,8 @@ class WhereClause(Instruction):
 
     def execute(self, environment, df, labels):
         filt = self.series.execute(environment)
-        return df.loc[filt.value,labels]
+        return df.loc[filt.value, labels]
+
 
 class Select(Instruction):
     def __init__(self, params, wherecl, df, row, column):
@@ -67,20 +68,21 @@ class Select(Instruction):
         self.df = df
 
     def execute(self, environment):
-        
+
         value = [p.execute(environment).value for p in self.params]
-        
+
         labels = [p.temp for p in self.params]
-        
+
         for i in range(len(labels)):
             self.df[labels[i]] = value[i]
-        
-        return self.wherecl.execute(environment,self.df,labels)
+
+        return self.wherecl.execute(environment, self.df, labels)
+
 
 class Drop(Instruction):
     """
     Clase que representa la instruccion DROP TABLE and DROP DATABASE
-    Esta instruccion es la encargada de crear una nueva base de datos en el DBMS
+    Esta instruccion es la encargada de eliminar una base de datos en el DBMS
     """
 
     def __init__(self, structure, name, exists):
@@ -99,7 +101,8 @@ class Drop(Instruction):
                 if valor == 1:
                     return "Hubo un problema en la ejecucion de la sentencia"
                 if valor == 0:
-                    return "Instruccion ejecutada con exito"
+                    Struct.dropTable(dbtemp, self.name)
+                    return "Instruccion ejecutada con exito DROP TABLE"
             return "El nombre de la base de datos no esta especificado operacion no realizada"
         else:
             valor = jsonMode.dropDatabase(self.name)
@@ -108,7 +111,9 @@ class Drop(Instruction):
             if valor == 2:
                 return "La base de datos no existe"
             if valor == 0:
-                return "Instruccion ejecutada con exito"
+                Struct.dropDatabase(self.name)
+                return "Instruccion ejecutada con exito DROP DATABASE"
+        return "Fatal Error: DropTable"
 
 
 class AlterDataBase(Instruction):
@@ -127,7 +132,15 @@ class AlterDataBase(Instruction):
             if valor == 1:
                 return "Hubo un problema en la ejecucion de la sentencia"
             if valor == 0:
-                return "Instruccion ejecutada con exito"
+                Struct.alterDatabaseRename(self.name, self.newname)
+                return "Instruccion ejecutada con exito ALTER DATABASE RENAME"
+            return "Error ALTER DATABASE RENAME"
+        elif self.option == "OWNER":
+            valor = Struct.alterDatabaseOwner(self.name, self.newname)
+            if valor == 0:
+                return "Instruccion ejecutada con exito ALTER DATABASE OWNER"
+            return "Error ALTER DATABASE OWNER"
+        return "Fatal Error ALTER DATABASE"
 
 
 class Truncate(Instruction):
@@ -211,7 +224,7 @@ class CreateDatabase(Instruction):
     Esta instruccion es la encargada de crear una nueva base de datos en el DBMS
     """
 
-    def __init__(self, replace, exists, name, mode, owner):
+    def __init__(self, replace, exists, name, owner, mode):
         self.exists = exists
         self.name = name
         self.mode = mode
@@ -245,18 +258,15 @@ class CreateDatabase(Instruction):
 
 
 class CreateTable(Instruction):
-
-    def __init__(self,exists,name,inherits,columns=[]):
+    def __init__(self, exists, name, inherits, columns=[]):
         self.exists = exists
         self.name = name
         self.columns = columns
         self.inherits = inherits
-        
 
-    def execute(self,environment):
+    def execute(self, environment):
         nCol = self.count()
-        result = jsonMode.createTable(dbtemp,self.name,nCol)  
-        print(result)    
+        result = jsonMode.createTable(dbtemp, self.name, nCol)
         """
         Result
         0: insert
@@ -265,21 +275,21 @@ class CreateTable(Instruction):
         3: exists table
         """
         if result == 0:
-            insert = Struct.insertTable(dbtemp,self.name,self.columns,self.inherits)
+            insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
             if insert == None:
-                report = "Tabla " + self.name +" creada"
+                report = "Tabla " + self.name + " creada"
             else:
-                jsonMode.dropTable(dbtemp,self.name)
-                Struct.dropTable(dbtemp,self.name)
+                jsonMode.dropTable(dbtemp, self.name)
+                Struct.dropTable(dbtemp, self.name)
                 report = insert
         elif result == 1:
-            report = "Error: No se puedo crear la tabla: " + self.name 
+            report = "Error: No se puedo crear la tabla: " + self.name
         elif result == 2:
-            report = "Error: Base de datos no encontrada: " + dbtemp 
+            report = "Error: Base de datos no encontrada: " + dbtemp
         elif result == 3 and self.exists:
             report = "Tabla no creada, ya existe en la base de datos"
-        elif result == 3:
-            report = "Error: ya existe la tabla " + self.name 
+        else:
+            report = "Error: ya existe la tabla " + self.name
         return report
 
     def count(self):

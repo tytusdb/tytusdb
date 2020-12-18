@@ -6,8 +6,7 @@ from models.table import Table
 from models.column import Column
 from controllers.error_controller import ErrorController
 from controllers.symbol_table import SymbolTable
-
-from storageManager import jsonMode  # TODO Change storage manager
+from controllers import data_mode
 
 
 @singleton
@@ -87,33 +86,37 @@ class TypeChecker(object):
                 return db
         return None
 
-    def createDatabase(self, database: str, line, column):
+    def createDatabase(self, database: Database, line, column):
         """
         Method to create a database in type checker
 
-        :param database: The name of database
+        :param database: Database object
         :param line: The instruction line
         :param column: The instruction column
         :return: Returns nothing
         """
-        dbStatement = jsonMode.createDatabase(database)
+        if self.searchDatabase(database.name):
+            desc = f": Database {database.name} already exists"
+            ErrorController().addExecutionError(30, 'Execution', desc, line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).createDatabase(
+            database.name)
 
         if dbStatement == 0:
-            db = Database(database)
-            self._typeCheckerList.append(db)
+            self._typeCheckerList.append(database)
             self.writeFile()
 
-            SymbolTable().add(db, 'New Database', 'Database', 'Global',
+            SymbolTable().add(database, 'New Database', 'Database', 'Global',
                               None, line, column)
             print('Database created successfully')
-            # Query returned successfully in # secs # msec.
 
         elif dbStatement == 1:
-            desc = f": Can't create database {database}"
+            desc = f": Can't create database {database.name}"
             ErrorController().addExecutionError(34, 'Execution', desc, line, column)
 
         elif dbStatement == 2:
-            desc = f": Database {database} already exists"
+            desc = f": Database {database.name} already exists"
             ErrorController().addExecutionError(30, 'Execution', desc, line, column)
 
     def updateDatabase(self, databaseOld: str, databaseNew: str, line, column):
@@ -126,10 +129,16 @@ class TypeChecker(object):
         :param column: The instruction column
         :return: Returns nothing
         """
-        dbStatement = jsonMode.alterDatabase(databaseOld, databaseNew)
+        database = self.searchDatabase(databaseOld)
+        if not database:
+            desc = f": Database {databaseOld} does not exist"
+            ErrorController().addExecutionError(35, 'Execution', desc, line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterDatabase(databaseOld,
+                                                                  databaseNew)
 
         if dbStatement == 0:
-            database = self.searchDatabase(databaseOld)
             database.name = databaseNew
             self.writeFile()
             print('Database updated successfully')
@@ -155,10 +164,15 @@ class TypeChecker(object):
         :param column: The instruction column
         :return: Returns nothing
         """
-        dbStatement = jsonMode.dropDatabase(name)
+        database = self.searchDatabase(name)
+        if not database:
+            desc = f": Database {name} does not exist"
+            ErrorController().addExecutionError(35, 'Execution', desc, line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).dropDatabase(name)
 
         if dbStatement == 0:
-            database = self.searchDatabase(name)
             self._typeCheckerList.remove(database)
             self.writeFile()
 
@@ -172,8 +186,6 @@ class TypeChecker(object):
         elif dbStatement == 2:
             desc = f": Database {name} does not exist"
             ErrorController().addExecutionError(35, 'Execution', desc, line, column)
-
-    # TODO def showDatabases
 
     # ------------------------- Tables -------------------------
     def searchTable(self, database: Database, name: str) -> Table:
@@ -193,18 +205,25 @@ class TypeChecker(object):
         # print('No database selected')
         return None
 
-    def createTable(self, database: Database, name: str, columns: int, line, column):
+    def createTable(self, name: str, columns: int, line, column):
         """
         Method to create a table in database
 
-        :param database: Table database
         :param name: The name of table
         :param columns: Number of columns
         :param line: The instruction line
         :param column: The instruction column
         :return: Returns nothing
         """
-        dbStatement = jsonMode.createTable(database.name, name, columns)
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().addExecutionError(4, 'Execution', desc,
+                                                line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).createTable(database.name,
+                                                                name, columns)
 
         if dbStatement == 0:
             table = Table(name)
@@ -225,18 +244,25 @@ class TypeChecker(object):
             desc = f": Table {name} already exists"
             ErrorController().addExecutionError(31, 'Execution', desc, line, column)
 
-    def updateTable(self, database: Database, tableOld: str, tableNew: str, line, column):
+    def updateTable(self, tableOld: str, tableNew: str, line, column):
         """
         Method to update the name of a table in database
 
-        :param database: Table database
         :param tableOld: The old name of the table
         :param tableNew: The new name of the table
         :param line: The instruction line
         :param column: The instruction column
         :return: Returns nothing
         """
-        dbStatement = jsonMode.alterTable(database.name, tableOld, tableNew)
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().addExecutionError(4, 'Execution', desc,
+                                                line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterTable(database.name,
+                                                               tableOld, tableNew)
 
         if dbStatement == 0:
             table = self.searchTable(database, tableOld)
@@ -260,7 +286,7 @@ class TypeChecker(object):
             desc = f": Table {tableNew} already exists"
             ErrorController().addExecutionError(31, 'Execution', desc, line, column)
 
-    def deleteTable(self, database: Database, name: str, line, column):
+    def deleteTable(self, name: str, line, column):
         """
         Method to remove a table in database
 
@@ -270,7 +296,14 @@ class TypeChecker(object):
         :param column: The instruction column
         :return: Returns nothing
         """
-        dbStatement = jsonMode.dropTable(database.name, name)
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().addExecutionError(4, 'Execution', desc,
+                                                line, column)
+            return
+        dbStatement = data_mode.mode(
+            database.mode).dropTable(database.name, name)
 
         if dbStatement == 0:
             table = self.searchTable(database, name)
@@ -311,35 +344,39 @@ class TypeChecker(object):
                     return col
         return None
 
-    def createColumnTable(self, database: Database, table: Table, column: Column,
+    def createColumnTable(self, table: Table, column: Column,
                           noLine, noColumn):
         """
         Method to create a column in table
 
-        :param database: Table database
         :param table: The name of table
         :param column: Number of columns
         :param noLine: The instruction line
         :param noColumn: The instruction column
         :return: Returns nothing
         """
-        dbStatement = jsonMode.alterAddColumn(database.name, table.name,
-                                              column.default)
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().addExecutionError(4, 'Execution', desc,
+                                                noLine, noColumn)
+            return
 
-        if dbStatement == 0:
-            if not self.searchColumn(table, column.name):
-                if len(table.columns) > 0:
-                    column.number = table.columns[-1].number + 1
-
-                table.columns.append(column)
-                self.writeFile()
-                print('Table updated successfully')
-                return
-
-            jsonMode.alterDropColumn(database.name, table.name,
-                                     column.number)
+        if self.searchColumn(table, column.name):
             desc = f": Column {column.name} already exists"
             ErrorController().addExecutionError(29, 'Execution', desc, noLine, noColumn)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterAddColumn(database.name, table.name,
+                                                                   column.default)
+
+        if dbStatement == 0:
+            if len(table.columns) > 0:
+                column.number = table.columns[-1].number + 1
+
+            table.columns.append(column)
+            self.writeFile()
+            print('Table updated successfully')
 
         elif dbStatement == 1:
             desc = f": Can't update table {table.name}"
@@ -353,20 +390,26 @@ class TypeChecker(object):
             desc = f": Table {table.name} does not exist"
             ErrorController().addExecutionError(27, 'Execution', desc, noLine, noColumn)
 
-    def deleteColumn(self, database: Database, table: Table, column: Column,
+    def deleteColumn(self, table: Table, column: Column,
                      noLine, noColumn):
         """
         Method to remove a column in table
 
-        :param database: Table database
         :param table: The name of table
         :param column: Number of columns
         :param noLine: The instruction line
         :param noColumn: The instruction column
         :return: Returns nothing
         """
-        dbStatement = jsonMode.alterDropColumn(database.name, table.name,
-                                               column.number)
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().addExecutionError(4, 'Execution', desc,
+                                                noLine, noColumn)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterDropColumn(database.name,
+                                                                    table.name, column.number)
 
         if dbStatement == 0:
             if column:
