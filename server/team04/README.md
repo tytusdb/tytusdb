@@ -8,4 +8,8 @@
 - Grupo 4
 - Diciembre 2020
 
-Esta es una segunda prueba para ver si funciona el pull request.
+**To run the server manually**
+
+    > python server.py
+
+- Ctrl-C to stop the server

@@ -244,6 +244,7 @@ from Instrucciones.Select import Select
 from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
 from Instrucciones.Insert import Insert
+from Instrucciones.Drop import *
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -294,7 +295,7 @@ def p_instruccion(t):
                     | CREATETYPE ptcoma
                     | CASE
                     | CREATEDB ptcoma
-                    | SHOWDB ptcoma
+                    | SHOW ptcoma
     '''
     t[0] = t[1]
 
@@ -331,7 +332,9 @@ def p_INSERT(t):
 def p_INSERT2(t):
     'INSERT : insert into id para LEXP parc values para LEXP parc'
 
-
+def p_DROPALL(t):
+    '''DROP : drop all para parc '''
+    t[0] = DropAll()
 
 def p_DROP(t):
     '''DROP : drop table id
@@ -339,8 +342,7 @@ def p_DROP(t):
              | drop databases id '''
     if len(t)==4:
         if(t[2]=='table'):
-            print("eliminar tabla")
-         
+            t[0] = DropTable(t[3])
         else:
             t[0] = DropDb(str(t[3]))
 
@@ -411,6 +413,15 @@ def p_SHOWDB(t):
     '''
     t[0] =ShowDb()
 
+def p_SHOWTABLES(t):
+    ''' SHOW : show tables para id parc
+    '''
+    t[0] = ShowTables(t[4])
+
+def p_SHOWCOLLECTION(t):
+    ''' SHOW : show collection para parc
+    '''
+    t[0] = ShowCollection()
 
 def p_CREATEDB(t):
     '''CREATEDB : create RD if not exist id

@@ -14,6 +14,8 @@ class Raiz(Node.Nodo):
     def ejecutar(self, TS, Errores):
         respuesta = ''
         for hijo in self.sentencias:
+            if isinstance(hijo, Expression):
+                respuesta += ''
             respuesta += hijo.ejecutar(TS, Errores) + '\n'
         return respuesta
 
