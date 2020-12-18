@@ -1,6 +1,9 @@
+import re
+
 from models.instructions.shared import Instruction
 from models.database import Database
 from controllers.type_checker import TypeChecker
+from controllers.data_controller import DataController
 
 
 class CreateDB(Instruction):
@@ -56,15 +59,37 @@ class DropDB(Instruction):
 
 
 class ShowDatabase(Instruction):
-    '''
-        SHOW DATABASE recibe una ER para mostrar esas bases de datos, caso contrario muestra todas
-    '''
 
     def __init__(self, patherMatch):
         self._patherMatch = patherMatch
 
-    def process(self,instrucction):
-        pass
+    def process(self, instrucction):
+        databases = DataController().showDatabases()
+        if self._patherMatch != None:
+            if self._patherMatch.value[0] == '%' and self._patherMatch.value[-1] == '%':
+                # Busca en cualquier parte
+                pattern = rf"{self._patherMatch.value[1:-1].lower()}"
+                databases = list(filter(lambda x: re.findall(pattern, x.lower()),
+                                        databases))
+
+            elif self._patherMatch.value[0] == '%':
+                # Busca al final
+                pattern = rf".{{0,}}{self._patherMatch.value[1:].lower()}$"
+                databases = list(filter(lambda x: re.match(pattern, x.lower()),
+                                        databases))
+
+            elif self._patherMatch.value[-1] == '%':
+                # Busca al inicio
+                pattern = rf"{self._patherMatch.value[:-1].lower()}"
+                databases = list(filter(lambda x: re.findall(pattern, x.lower()),
+                                        databases))
+
+            else:
+                # Busca especificamente
+                pattern = rf"{self._patherMatch.value.lower()}$"
+                databases = list(filter(lambda x: re.match(pattern, x.lower()),
+                                        databases))
+        print(databases)  # TODO implementar en la vista a la vista
 
     def __repr__(self):
         return str(vars(self))
@@ -82,7 +107,7 @@ class AlterDatabase(Instruction):
         self._oldValue = oldValue
         self._newValue = newValue
 
-    def process(self,instrucction):
+    def process(self, instrucction):
         pass
 
     def __repr__(self):
@@ -97,7 +122,7 @@ class UseDatabase(Instruction):
     def __init__(self, dbActual):
         self._dbActual = dbActual
 
-    def process(self,instrucction):
+    def process(self, instrucction):
         pass
 
     def __repr__(self):
