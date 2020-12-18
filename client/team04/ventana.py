@@ -1,4 +1,4 @@
-from tkinter import Menu, Tk, Text, RAISED,Frame, Button, Scrollbar, Canvas
+from tkinter import Menu, Tk, Text, RAISED,Frame, Button, Scrollbar, Canvas, END
 from tkinter import messagebox as MessageBox
 from tkinter import ttk
 
@@ -51,7 +51,7 @@ class CustomText(Text):
         # return what the actual widget returned
         return result 
 
-class Example(Frame):
+class Campo(Frame):
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
         self.text = CustomText(self)
@@ -70,6 +70,21 @@ class Example(Frame):
 
     def _on_change(self, event):
         self.linenumbers.redraw()
+
+class Arbol(Frame):
+    
+    def __init__(self, *args, **kwargs):
+        Frame.__init__(self, *args, **kwargs)
+        self.treeview = ttk.Treeview(self)
+        self.treeview.heading("#0", text="Navegador")
+        item = self.treeview.insert("", END, text="Bases de datos")
+        subitem = self.treeview.insert(item, END, text="Amazon")
+        self.treeview.insert(subitem, END, text="Empleado")
+        self.treeview.insert(subitem, END, text="Cliente")
+        self.treeview.insert(subitem, END, text="Producto")
+        self.treeview.pack(side="top", fill="both", expand=True)
+        
+        self.pack(side="top", fill="both", expand=True)
 
 def abrirDoc():
     MessageBox.showinfo(title="Aviso",message="Hizo clic en abrir documento")
@@ -118,17 +133,14 @@ def CrearVentana():
     barraDeMenu.add_cascade(label="Ayuda",menu=ayuda)
     #Se indica que la barra de menú debe estar en la ventana
     raiz.config(menu=barraDeMenu)
-
-
     
-    fr_buttons = Frame(raiz, relief=RAISED, bd=2)
-    btn_open = Button(fr_buttons, text="Arbol de datos")
-    btn_open.grid(row=0, column=0, sticky="ew", padx=5, pady=5)
-    fr_buttons.pack(side="left", fill="both")
-    
+    FrameIzquiero = Frame(raiz, relief=RAISED, bd=2)
+    FrameIzquiero.pack(side="left", fill="both")
+    Arbol(FrameIzquiero)
+
     # Posicionarla en la ventana..
 
-    Example(raiz).pack(side="right", fill="both", expand=True)
+    Campo(raiz).pack(side="right", fill="both", expand=True)
     
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
     raiz.mainloop()
