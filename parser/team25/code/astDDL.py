@@ -1,4 +1,7 @@
 from enum import Enum
+from entorno import Entorno
+import storageManager.jsonMode as DBMS
+import typeChecker.typeChecker as TypeCheck
 
 class IS(Enum):
     TRUE = 1
@@ -25,7 +28,7 @@ class CONSTRAINT_FIELD(Enum):
 # ------------------------ DDL ----------------------------
 # Instruccion (Abstracta)
 class Instruccion:
-    def ejecutar(self):
+    def ejecutar(self,ts):
         pass
 
     def dibujar(self):
@@ -68,6 +71,21 @@ class CreateDatabase(Instruccion):
 
         return nodo
 
+    def ejecutar(self,ts):
+        exito = 0
+        databases = DBMS.showDatabases()
+
+        if self.reemplazo:
+            if self.nombre in databases: #Eliminamos si existe 
+                DBMS.dropDatabase(self.nombre)
+            exito = DBMS.createDatabase(self.nombre)
+        elif self.existencia:
+            if not self.nombre in databases:
+                exito = DBMS.createDatabase(self.nombre)
+        else:
+            exito = DBMS.createDatabase(self.nombre)
+        return exito
+
 # Create Table
 class CreateTable(Instruccion):
     def __init__(self, nombre, columnas, herencia = None):
@@ -93,6 +111,10 @@ class CreateTable(Instruccion):
 
         return nodo
 
+    def ejecutar(self, ts):
+        
+        
+
 # Alter Database
 class AlterDatabase(Instruccion):
     def __init__(self, nombre, accion):
@@ -104,9 +126,30 @@ class AlterDatabase(Instruccion):
         
         nodo = "\n" + identificador + "[ label = \"ALTER DATABASE\" ];"
         nodo += "\n" + identificador + " -> " + str(hash(self.accion)) + ";"
-        nodo += self.accion.dibujar()
+        
+        if self.accion[0] == 'OWNER':
+            subid = str(hash(self.accion))
+            nodo += "\n" + subid + "[ label = \"OWNER\" ];"
+            nodo += "\n" + subid + " -> OWNER" + subid + ";"
+            nodo += "\nOWNER" + subid + "[ label = \"" + self.accion[1] + "\" ];"
+            nodo += "\n" + subid + " -> OWNER" + subid + ";\n"
+        else:
+            subid = str(hash(self.accion))
+            nodo += "\n" + subid + "[ label = \"NAME\" ];"
+            nodo += "\n" + subid + " -> NAME" + subid + ";"
+            nodo += "\nNAME" + subid + "[ label = \"" + self.accion[1] + "\" ];"
+            nodo += "\n" + subid + " -> NAME" + subid + ";\n"
 
         return nodo
+    
+    def ejecutar(self, ts):
+        if self.accion[0] == 'OWNER':
+            pass
+        else:
+            result = DBMS.alterDatabase(self.nombre, self.accion[2])
+            return result
+        return 0
+
 
 # Alter Table
 class AlterTable(Instruccion):
@@ -271,6 +314,7 @@ class CreateField(Instruccion):
         nodo += "\n//FIN DE ATRIBUTOS DE CREAR CAMPO " + identificador + "\n"
 
         return nodo
+        
 
 # Default Field
 class DefaultField(Instruccion):
