@@ -29,7 +29,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             myFile = "File not found"
             self.send_response(404)
         self.end_headers()
-        self.wfile.write()
+        self.wfile.write(bytes(myFile, 'utf-8'))
     
 
     def do_POST(self):
