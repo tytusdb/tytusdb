@@ -339,7 +339,7 @@ class Application(ttk.Frame):
         Consola.config(bg="SteelBlue1", relief=tk.RAISED, width="700", bd=2)
 
         S = tk.Scrollbar(Consola)
-        self.T = tk.Text(Consola, height=4, width=50,
+        self.T = tk.Text(Consola, height=4, width=70,
                          bg="black", fg="chartreuse2")
         S.pack(side=tk.RIGHT, fill=tk.Y)
         self.T.pack(side=tk.LEFT, fill=tk.Y)
@@ -584,7 +584,7 @@ class Application(ttk.Frame):
             tk.messagebox.showwarning(title="This file not exists", message="Please run de program to generated the files")
 
     def f_parsear(self, texto):
-       self.T.insert(tk.END,"")
+       self.T.insert(tk.END,'')
        salida= parser.ejecutarAnalisis(texto)
 
        for output in salida:

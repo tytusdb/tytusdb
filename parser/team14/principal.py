@@ -4,12 +4,13 @@ from tkinter import *
 from reportes import *
 from subprocess import check_call
 from Entorno.Entorno import Entorno
+from storageManager import jsonMode
+from Expresion.variablesestaticas import variables
 
 
-ventana= Tk()
-ventana.geometry("1000x900")
-ventana.resizable(False,False)
-ventana.config(background = "gray25")
+variables.ventana.geometry("1000x600")
+variables.ventana.resizable(False, False)
+variables.ventana.config(background="gray25")
 
 
 def reporte_lex_sin():
@@ -35,23 +36,29 @@ def mostrarimagenre():
 def send_data():
     print("Analizando Entrada:")
     print("==============================================")
-    #reporteerrores = []
+    # reporteerrores = []
     contenido = Tentrada.get(1.0, 'end')
-    Tsalida.delete("1.0", "end")
-    Tsalida.configure(state='normal')
-    Tsalida.insert(INSERT, "Salida de consultas")
-    Tsalida.configure(state='disabled')
-   
-    #print(contenido)
+    variables.consola.delete("1.0", "end")
+    variables.consola.configure(state='normal')
+
+    # print(contenido)
+    jsonMode.dropAll()
+    jsonMode.createDatabase("DB1")
     Principal = Entorno()
 
     Principal.database = "DB1"
     instrucciones = g.parse(contenido)
+    variables.consola.insert(INSERT, "Salida de consultas\n")
     for instr in instrucciones:
         if instr != None:
-            instr.ejecutar(Principal)
-
-    Principal.mostrarSimbolos()
+            
+            res=instr.ejecutar(Principal)
+            if res!= None:
+                res += '\n'
+                variables.consola.insert(INSERT, res)
+                
+    variables.consola.configure(state='disabled')
+    #Principal.mostrarSimbolos()
 
     reporte_lex_sin()
 
@@ -69,16 +76,16 @@ Tentrada.config(foreground="white")
 Tentrada.config(insertbackground="white")
 Tentrada.place(x = 10, y = 10)
 
-Tsalida = Text(ventana)
-Tsalida.config(width=120, height=19)
-Tsalida.config(background="gray10")
-Tsalida.config(foreground="white")
-Tsalida.config(insertbackground="white")
-Tsalida.place(x = 10, y = 580)
-Tsalida.configure(state='disabled')
-menu_bar = Menu(ventana)
+variables.consola = Text(variables.ventana)
+variables.consola.config(width=120, height=15)
+variables.consola.config(background="gray10")
+variables.consola.config(foreground="white")
+variables.consola.config(insertbackground="white")
+variables.consola.place(x=10, y=350)
+variables.consola.configure(state='disabled')
+menu_bar = Menu(variables.ventana)
 
-ventana.config(menu=menu_bar)
+variables.ventana.config(menu=menu_bar)
 # Menu Ejecutar
 ej_menu = Menu(menu_bar)
 menu_bar.add_cascade(label="Ejecutar",menu=ej_menu)
@@ -95,7 +102,7 @@ reps_menu.add_command(label="Gramatica", command=send_data)
 
 
 
-ventana.mainloop()
+variables.ventana.mainloop()
 
 
 

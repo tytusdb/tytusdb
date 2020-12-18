@@ -1,4 +1,6 @@
 import gramaticaAscendente as g
+import gramaticaAscendenteTree as gt
+import astMethod
 #import gramaticaAscendente as gr
 import re
 import reportes as h
@@ -22,8 +24,7 @@ import numpy as geek
 # ----------------------------------------------------------------------------------------------------------------
 
 def procesar_showdb(query,ts):
-    h.textosalida+="TYTUS>> Bases de datos existentes\n"
-    print(store.showDatabases())
+    h.textosalida+="TYTUS>> "+str(store.showDatabases())+"\n"
     #llamo al metodo de EDD
 # ---------------------------------------------------------------------------------------------------------------- 
 
@@ -126,8 +127,6 @@ def procesar_dropdb(query,ts):
 
 # --------------------------------------EXPRESION ARITMETICA-----------------------------------------------------------
 def resolver_expresion_aritmetica(expNum, ts) :
-    print("+++++++++++++++++++++++++++++++++")
-    print(expNum)
     try:
         if isinstance(expNum, ExpresionAritmetica) :
             exp1 = resolver_expresion_aritmetica(expNum.exp1, ts)
@@ -169,6 +168,7 @@ def resolver_expresion_aritmetica(expNum, ts) :
                     return exp1 - exp2
                 else: 
                     print("error: no se pueden operar distintos tipos")
+                    
                     h.errores+=  "<tr><td>"+str(exp1)+"-"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
                     return 0
             #---------------------------------OPERACION POR-----------------------------------------------------------------------        
@@ -196,6 +196,7 @@ def resolver_expresion_aritmetica(expNum, ts) :
                     print("DIVISOR:",exp2)  
                     if exp2==0 :
                         print("error: divido por 0 da infinito")
+                        #22012	division_by_zero
                         h.errores+=  "<tr><td>"+str(exp1)+"/"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>no se pueden operar distintos tipos</td></tr>\n"
                         return 0 
                     return exp1/exp2
@@ -452,7 +453,6 @@ def resolver_expresion_aritmetica(expNum, ts) :
         elif isinstance(expNum,ExpresionCadenas):
             return expNum.id
         elif isinstance(expNum, ExpresionNegativo) :
-            print("NEGATIVO")
             print("EXP_NUM:",expNum.id)
             return expNum.id * -1
         else:
@@ -510,7 +510,6 @@ def resolver_expresion_bit(expBit, ts) :
 # ------------------------------------------------EXPRESION RELACIONAL---------------------------------------------------------------------
 
 def resolver_expresion_relacional(expRel, ts) :
-    print("ENTRO")
     if isinstance(expRel,ExpresionRelacional):
         exp1 = resolver_expresion_aritmetica(expRel.exp1, ts)
         print("EXP1:",exp1)
@@ -549,13 +548,23 @@ def resolver_expresion_relacional(expRel, ts) :
 # ---------------------------------------------------------------------------------------------------------------------
 def procesar_insertBD(query,ts):
     print("entra a insert")
-    print("entra al print con: ",query.idTable, query.listRegistros)
+    print("entra al print con: ",query.idTable)
     h.textosalida+="TYTUS>> Insertando registro de una tabla"
+    for i in query.listRegistros:
+        print("dato: ",i.id)
 
 def procesar_updateinBD(query,ts):
     print("entro a update")
     print("entro al print con: ",query.idTable,query.asignaciones,query.listcond)
     h.textosalida+="TYTUS>> Actualizando datos en la tabla"
+    print("Valores que se asignaran")
+    for i in query.asignaciones:
+        print("id: ",i.id," valor: ",i.expNumerica.id)
+
+    print("Condicion de where")
+    for x in query.listcond:
+        print("id: ",x.id," valor: ",x.expNumerica.id)
+
 
 def procesar_select2_obtenerTablas(query,ts):
     print("Entra al else del select")
@@ -736,55 +745,107 @@ def procesar_deleteinBD(query,ts):
     print("entra a delete from")
     print("entra al print con: ",query.idTable)
     h.textosalida+="TYTUS>> Eliminando registro de una tabla"
+    for i in query.condColumna:
+        print("id: ",i.id," valor: ",i.expNumerica.id)
     #llamada de funcion
 
 def procesar_createTale(query,ts):
     print("entra a Create table")
     print("entra al print con: ",query.idTable)
-    print(query.listColumn)
-    #print("cantidad de columnas: ",len(query.listColumn))
-    for i in query.listColumn:
-        if i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION:
-            print("columnas")
-            #if i.RestriccionesCol != None:
-        #    for res in i.RestriccionesCol:
-                #print(res.typeR)
-                #print(res.objrestriccion.valor)
-        #        if res.typeR == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
-        #            print("columna con restriccion llave primaria")
-        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.DEFAULT:
-        #            print("columna con un valor por default")
-        #            print("valor: ",res.objrestriccion.valor) #<---- correccion
-        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NULL:
-        #            print("columna que puede ser nulo")
-        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NOT_NULL:
-        #            print("columna que no debe ser nulo")
-        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT:
-        #            print("Restriccion en columna CONSTRAINT UNIQUE")
-        #            print("Id contraint: ",res.objrestriccion.idUnique)
-        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA:
-        #            print("columna que debe ser unico")
-        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
-        #            print("Restriccion CHECK")
-        #            print("Valor de check: ",res.objrestriccion.condCheck.val)
-        #        elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
-        #            print("Restriccion CONSTRAINT CHECK")
-        #            print("Id contraint: ",res.objrestriccion.idConstraint)
-        #            print("Valor de check: ",res.objrestriccion.condCheck.val)
-        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION:
-            print("columna con restriccion")
-        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO:
-            print("unique")
-        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
-            print("check contraint")
-        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
-            print("check simple")
-        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
-            print("llave primaria")
-        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY:
-            print("llave foranea")
-        print(i.TypeAtrib)
     h.textosalida+="TYTUS>>Creando tabla"
+
+    for i in query.listColumn:
+        print("---------------------------")
+    # -------------------------------------------------------------------------------------------------------------- 
+        if i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION:
+            print("Crea Columna: ",i.objAtributo.idColumna)
+            print("Tipo de dato: ",i.objAtributo.TipoColumna.id)
+
+    # -------------------------------------------------------------------------------------------------------------- 
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION:
+            print("Crea Columna: ",i.objAtributo.idColumna)
+            print("Tipo de dato: ",i.objAtributo.TipoColumna.id)
+            for res in i.objAtributo.RestriccionesCol:
+                if res.typeR == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
+                    print("Restriccion: PRIMARY KEY")
+
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.DEFAULT:
+                    print("REstriccion: DEFAULT ")
+                    print("Dato Default: ",res.objrestriccion.valor)
+
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NULL:
+                    print("Restriccion: NULL")
+
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NOT_NULL:
+                    print("Restriccion: NOT NULL")
+
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT:
+                    print("Restriccion: CONSTRAINT UNIQUE")
+                    print("Id contraint: ",res.objrestriccion.idUnique)
+
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA:
+                    print("Restriccion: UNIQUE")
+
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
+                    print("Restriccion: CHECK")
+                    print("Valor de check: ",res.objrestriccion.condChek.exp1.id,res.objrestriccion.condChek.operador,res.objrestriccion.condChek.exp2.id)
+
+                elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
+                    print("Restriccion: CONSTRAINT CHECK")
+                    print("Id contraint: ",res.objrestriccion.idConstraint)
+                    print("Valor de check: ",res.objrestriccion.condCheck.exp1.id,res.objrestriccion.condCheck.operador,res.objrestriccion.condCheck.exp2.id)
+                else:
+                    print("No se encontro ninguna restriccion")
+        
+    # -------------------------------------------------------------------------------------------------------------- 
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO:
+            print("Declaracion de varias columnas UNIQUE")
+            print("Lista de columnas: ")
+            for lc in i.objAtributo.listColumn:
+                print("id: ",lc.id)
+    # -------------------------------------------------------------------------------------------------------------- 
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
+            print("Declaracion de constraint check")
+            print("Id constraint: ", i.objAtributo.idConstraint)
+            print("Condicion check: ",i.objAtributo.condCheck.exp1.id, i.objAtributo.condCheck.operador, i.objAtributo.condCheck.exp2.id)
+    # -------------------------------------------------------------------------------------------------------------- 
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
+            print("Delaracion de check")
+            print("Condicion check: ",i.objAtributo.condCheck.exp1.id, i.objAtributo.condCheck.operador, i.objAtributo.condCheck.exp2.id)
+    # -------------------------------------------------------------------------------------------------------------- 
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
+            print("Declaracion de una o varias PRIMARY KEY")
+            print("Lista de columnas: ")
+            for lc in i.objAtributo.listColumn:
+                print("id: ",lc.id)
+    # -------------------------------------------------------------------------------------------------------------- 
+        elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY:
+            print("Declaracion de FOREIGN KEY")
+            print("Lista de ID FOREING KEY")
+            for lc in i.objAtributo.idForanea:
+                print("id: ",lc.id)
+            print("Columna reference: ",i.objAtributo.idTable)
+            print("Lista de ID REFERENCES: ")
+            for lc in i.objAtributo.idLlaveF:
+                print("id: ",lc.id)
+    # -------------------------------------------------------------------------------------------------------------- 
+        else:
+            print("No se encontraron columnas a crear")
+
+
+def procesar_inheritsBD(query, ts):
+    print("entra a Inherits")
+    print("Crea tabla con id: ",query.idTable)
+    print("Hereda atributos de tabla: ",query.idtableHereda)
+    h.textosalida+="TYTUS>>Creando tabla Inherits"
+
+    for i in query.listColumn:
+        print("---------------------------")
+    #-------------------------------------------------------------------------------------------------------------- 
+        if i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION:
+            print("Crea Columna: ",i.objAtributo.idColumna)
+            print("Tipo de dato: ",i.objAtributo.TipoColumna.id)
+    
 
 
 def drop_table(query,ts):
@@ -827,8 +888,6 @@ def procesar_queries(queries, ts) :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query, Select) : procesar_select(query, ts)
         elif isinstance(query, Select2) : procesar_select_Tipo2(query, ts)
-        elif isinstance(query, ShowDatabases) : 
-            procesar_showdb(query, ts)
         elif isinstance(query, CreateDatabases) : 
             procesar_createdb(query, ts)
         elif isinstance(query, CreateDatabaseswithParameters) :
@@ -863,6 +922,7 @@ def procesar_queries(queries, ts) :
         elif isinstance(query, UpdateinDataBase) : procesar_updateinBD(query,ts)
         elif isinstance(query, DeleteinDataBases) : procesar_deleteinBD(query, ts)
         elif isinstance(query, CreateTable) : procesar_createTale(query,ts)
+        elif isinstance(query, InheritsBD) : procesar_inheritsBD(query,ts)
         #elif
         #elif isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query,DropTable): drop_table(query,ts)
@@ -881,6 +941,7 @@ def ejecucionAscendente(input):
 
     print("--------------------------------Archivo Ejecucion---------------------------------------")
     prueba =g.parse(input)
+    arbol =gt.parse(input)
     ts_global=TS.TablaDeSimbolos()
     h.todo=prueba
     procesar_queries(prueba,ts_global)
@@ -915,6 +976,33 @@ def generarReporteSimbolos(ruta):
     #construyo el archivo html
     print("manda los datos")
     h.reporteSimbolos(ruta,val)
+
+def generarASTReport():
+    print(gt.gramaticaAscendenteTree.tree.root)            
+    astMethod.astFile("ast", gt.gramaticaAscendenteTree.tree.root)
 # ---------------------------------------------------------------------------------------------------------------------
 #                                 REPORTE GRAMATICAL
 # ---------------------------------------------------------------------------------------------------------------------
+
+
+def validaTipoDato(tipo, valor):
+    if tipo == 'INTEGER':
+        if -2147483648 < valor and valor > 2147483648:
+            return True
+        else:
+            print("El valor ingresado supera la longitud permitida para INTEGER")
+            return False
+    elif tipo == 'SMALLINT':
+        if -2147483648 < valor and valor > 2147483648:
+            return True
+        else:
+            print("El valor ingresado supera la lingitud permitida para SMALLINT")
+            return False
+    elif tipo == 'BIGINT':
+        if -9223372036854775808 < valor and valor > 9223372036854775807:
+            return True
+        else:
+            print("El valor ingresado supera la longitud permitida para BIGING")
+            return False
+    elif tipo == "DECIMAL":
+        print("a")

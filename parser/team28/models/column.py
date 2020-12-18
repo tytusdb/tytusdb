@@ -1,6 +1,6 @@
 class Column(object):
     def __init__(self, name, dataType):
-        self._number = 1
+        self._number = 0
         self._name = name
         self._dataType = dataType
         self._length = None
@@ -14,6 +14,9 @@ class Column(object):
         self._autoincrement = False
         # TODO FOREIGN KEY implementation
         # {'refTable':None,'refColumn':None} {'Referenced table': None}
+
+    def __str__(self):
+        return self._name
 
     @property
     def name(self):

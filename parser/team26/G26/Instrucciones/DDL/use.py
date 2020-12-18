@@ -18,7 +18,10 @@ class Use(Instruccion):
         for database in databaseList:
             if self.dbid.column.upper() == database :
                 data.databaseSeleccionada = database
-                data.tablaSimbolos[database] = {'tablas' : {}, 'enum' : {}, 'owner' : 'CURRENT_USER', 'mode' : '1'}
+                if database in data.tablaSimbolos:
+                    ''
+                else:
+                    data.tablaSimbolos[database] = {'tablas' : {}, 'enum' : {}, 'owner' : 'CURRENT_USER', 'mode' : '1'}
                 return 'La database ' + database + ' ha sido seleccionada.'
         return 'Error(???): La database ' + self.dbid.column.upper() + ' no existe.'
 
