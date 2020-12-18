@@ -288,13 +288,10 @@ def t_CADENA(t):
     t.value = t.value[1:-1] 
     return t 
 
-<<<<<<< Updated upstream
 def t_CADENASI(t):
     r'\'.*?\''
     t.value = t.value[1:-1] 
     return t 
-=======
->>>>>>> Stashed changes
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -345,20 +342,11 @@ precedence = (
     ('right', 'NOT'),
     ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
     ('left', 'MENORIGUAL', 'MAYORIGUAL', 'IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
-<<<<<<< Updated upstream
-    ('left', 'MAS', 'MENOS'),
-    ('left', 'POR', 'DIVIDIDO', 'MODULO'),
-    ('left', 'EXP'),
-    ('right', 'UMENOS', 'UMAS'),
-    ('nonassoc', 'BETWEEN', 'NOTB')
-=======
     ('nonassoc', 'BETWEEN', 'NOTB'),
     ('left', 'MAS', 'MENOS'),
     ('left', 'POR', 'DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
     ('right', 'UMENOS', 'UMAS')
-    
->>>>>>> Stashed changes
 )
 
 
@@ -368,9 +356,8 @@ def p_init(t):
         init            :   INSTRUCCIONES
     """
     t[0] = t[1]
-<<<<<<< Updated upstream
 
-
+    
 def p_instrucciones1(t):
     """
         INSTRUCCIONES   :   INSTRUCCIONES INSTRUCCION
@@ -390,56 +377,6 @@ def p_instruccion1(t):
     """
         INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
     """
-    t[0] = t[1]
-
-
-def p_instruccion2(t):
-    """
-        INSTRUCCION     :   I_CREATE
-                        |   I_DROP
-                        |   I_INSERT
-                        |   I_ALTER
-                        |   I_UPDATE
-                        |   I_SHOW
-                        |   I_DELETE
-                        |   I_USE
-    """
-    t[0] = t[1]
-
-
-def p_use(t):
-    """
-        I_USE           :   USE DATABASE ID PCOMA
-    """
-    t[0] = t[1]
-
-
-=======
-
-
-def p_instrucciones1(t):
-    """
-        INSTRUCCIONES   :   INSTRUCCIONES INSTRUCCION
-    """
-    #TODO: ACCIONES AGREGADAS
-    t[1].append(t[2])
-    t[0] = t[1]
-
-
-def p_instrucciones2(t):
-    """
-        INSTRUCCIONES   :   INSTRUCCION
-    """
-    #TODO: ACCIONES AGREGADAS
-    t[0] = [t[1]]
-
-
-def p_instruccion1(t):
-    """
-        INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
-    """
-    #TODO: ACCIONES AGREGADAS
-    #INSTRUCCION SELECT COMPLETO
     t[0] = SelectCompleto(t[1],t[2])
 
 
@@ -454,7 +391,6 @@ def p_instruccion2(t):
                         |   I_DELETE
                         |   I_USE
     """
-    #TODO: ACCIONES AGREGADAS
     t[0] = t[1]
 
 
@@ -464,18 +400,12 @@ def p_use(t):
     """
     t[0] = UseDatabase(t[2])
 
-
->>>>>>> Stashed changes
+    
 def p_create(t):
     """
         I_CREATE        :   CREATE I_TCREATE
     """
-<<<<<<< Updated upstream
-=======
-    #TODO: ACCIONES AGREGADAS
->>>>>>> Stashed changes
     t[0] = t[2]
-    # CLASE CREATE
 
 
 def p_tcreate(t):
@@ -484,34 +414,6 @@ def p_tcreate(t):
                         |   I_CTABLE
                         |   I_CTYPE
     """
-<<<<<<< Updated upstream
-    t[0] = t[1]
-    # INSTRUCCION CREATE (I_REPLACE)
-    # INSTRUCCION CREATE1 (I_CTABLE)
-    # INSTRUCCION CREATE2 (I_CTYPE)
-
-
-def p_ctype(t):
-    """
-        I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA
-    """
-    # Instruccion
-
-
-def p_lcad1(t):
-    """
-        I_LCAD          :   I_LCAD CADENASI
-    """
-    # Instruccion
-
-
-def p_lcad2(t):
-    """
-        I_LCAD          :   CADENASI
-    """
-    # Instruccion
-=======
-    #TODO: ACCIONES AGREGADAS
     t[0] = t[1]
     
     
@@ -542,18 +444,19 @@ def p_Ilcad2(t):
     """
         LCAD          :   CADENA
     """
->>>>>>> Stashed changes
+
+    
+def p_Ilcad2(t):
+    """
+        LCAD          :   CADENA
+    """
 
 
 def p_ctable(t):
     """
         I_CTABLE        :   TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS
     """
-<<<<<<< Updated upstream
-    # Instruccion
-=======
     #INSTRUCCION CTABLE
->>>>>>> Stashed changes
 
 
 def p_inherits(t):
@@ -594,14 +497,12 @@ def p_ipoConstraintCheck(t):
 
 def p_ipoConstraintForeignKey(t):
     'TIPO_CONSTRAINT        : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
-
-
+    
 def p_Lllave(t):
     'LI_LLAVES         : LI_LLAVES I_LLAVES'
 
 def p_Lllave1(t):
     'LI_LLAVES         : I_LLAVES'
-
 
 def p_cRef(t):
     'I_CREFERENCE     : I_CREFERENCE COMA ID'
@@ -638,7 +539,6 @@ def p_llave10(t):
 
 def p_llave11(t): 
     'I_LLAVES    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
-
 
 def p_lIds(t):
     'I_LIDS           : I_LIDS COMA CONDICION'
@@ -728,20 +628,11 @@ def p_fields4(t):
     'I_FIELDS         : YEAR'
 
 
-<<<<<<< Updated upstream
-def p_Replace(t):
-    'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
-    t[0] = t[4]
-def p_Replace1(t):
-    'I_REPLACE     : DATABASE I_EXIST'
-    t[0] = t[2]
-=======
 def p_replace1(t):
     """
         I_REPLACE       :   OR REPLACE DATABASE I_EXIST
     """
     #INSTRUCCION REPLACE1
-    
     #t[0] = CreateDatabase(True, t[4])
 
 
@@ -752,20 +643,16 @@ def p_replace2(t):
     #INSTRUCCION REPLACE2
     #t[0] = CreateDatabase(False, t[2])
 
->>>>>>> Stashed changes
 
 def p_drop(t):
     """
         I_DROP          :   DROP I_TDROP
     """
-    #INSTRUCCION REALIZADA
     t[0] = t[2]
 
 
 def p_alter(t):
     'I_ALTER     : ALTER I_TALTER'
-    #INSTRUCCION REALIZADA
-
 
 def p_alterTB(t):
     'I_ALTERTB   : TABLE ID I_OPALTER '
@@ -817,6 +704,52 @@ def p_tipAlterCo(t):
     'I_TALTER    : CONSTRAINT ID I_TCONST '
     #INSTRUCCION TIPALTERCO
 
+
+def p_alterTB(t):
+    'I_ALTERTB   : TABLE ID I_OPALTER '
+
+def p_opAlterTB(t):
+    'I_OPALTER   : I_LADDC PCOMA'
+
+def p_opAlterTB1(t):
+    'I_OPALTER   : I_LDROPC PCOMA'
+
+def p_opAlterTB2(t):
+    'I_OPALTER   : ADD I_TALTER PCOMA'
+
+def p_opAlterTB3(t):
+    'I_OPALTER   : ALTER COLUMN ID SET NOT NULL PCOMA'
+
+def p_opAlterTB4(t):
+    'I_OPALTER   : DROP CONSTRAINT ID PCOMA'
+
+def p_opAlterTB5(t):
+    'I_OPALTER   : I_LCOL PCOMA'
+
+def p_lCol(t):
+    'I_LCOL      : I_LCOL COMA I_PCOL'
+
+def p_lCol2(t):
+    'I_LCOL      : I_PCOL'
+
+def p_pCol3(t):
+    'I_PCOL      : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA'
+
+def p_tipAlterC(t): 
+    'I_TALTER    : CHECK CONDICION '
+
+def p_tipAlterU(t): 
+    'I_TALTER    : UNIQUE PABRE I_LIDS  PCIERRA'
+
+def p_tipAlterFK(t): 
+    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
+
+def p_tipAlterFK1(t): 
+    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID '
+
+def p_tipAlterCo(t): 
+    'I_TALTER    : CONSTRAINT ID I_TCONST '
+
 def p_tAlter(t):
     'I_TALTER    : I_ALTERDB'
     #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
@@ -862,7 +795,6 @@ def p_tdrop1(t):
     """
         I_TDROP         :   I_DROPDB
     """
-    #INTRUCCION REALIZADA
     t[0] = t[1]
 
 
@@ -870,7 +802,6 @@ def p_tdrop2(t):
     """
         I_TDROP         :   I_DROPTB
     """
-    #INTRUCCION REALIZADA
     t[0] = t[1]
 
 
@@ -999,6 +930,9 @@ def p_lValt1(t):
     'I_LVALT       : I_VALTAB'
     # INSTRUCCION REALIZADA
 
+def p_lValt1(t):
+    'I_LVALT       : I_VALTAB'
+
 def p_update(t):
     'I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE PCOMA'
 
@@ -1037,7 +971,6 @@ def p_valTabDecimal(t):
 def p_valTabIdAlias(t):
     'I_VALTAB      : IDALIAS'
     # INSTRUCCION VALTAB
-
     
 def p_valTabMd5(t):
     'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
