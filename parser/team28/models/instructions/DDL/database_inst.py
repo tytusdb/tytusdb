@@ -63,7 +63,7 @@ class ShowDatabase(Instruction):
     def __init__(self, patherMatch):
         self._patherMatch = patherMatch
 
-    def execute(self):
+    def process(self,instrucction):
         pass
 
     def __repr__(self):
@@ -82,7 +82,22 @@ class AlterDatabase(Instruction):
         self._oldValue = oldValue
         self._newValue = newValue
 
-    def execute(self):
+    def process(self,instrucction):
+        pass
+
+    def __repr__(self):
+        return str(vars(self))
+
+
+class UseDatabase(Instruction):
+    '''
+        Use database recibe el nombre de la base de datos que sera utilizada
+    '''
+
+    def __init__(self, dbActual):
+        self._dbActual = dbActual
+
+    def process(self,instrucction):
         pass
 
     def __repr__(self):
