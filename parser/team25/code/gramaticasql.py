@@ -1,8 +1,11 @@
 import ply.yacc as yacc
+
+
 from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
 from astExpresion import ExpresionCadena, ExpresionID
 from astFunciones import FuncionNumerica , FuncionCadena
+from astUse import Use
 from arbol import Arbol
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
@@ -44,10 +47,13 @@ def p_instruccion(p):
                     | definicion        PTCOMA
                     | alter_table       PTCOMA
                     | combine_querys    PTCOMA
-                    | USE ID            PTCOMA
-                    | funciones   PTCOMA
-                    '''     # QUITAR FUNCIONES PTCOMA
+                    | use           PTCOMA
+                    '''     
     p[0] = p[1]
+    
+def p_use(p):
+    'use : USE ID'
+    p[0] = Use(p[2], p.slice[2].lineno)
 
 # __________________________________________definicion
 
@@ -515,7 +521,7 @@ def p_funciones54(p):#ya
     p[0] = FuncionNumerica(funcion='SQRT',parametro1=p[3], linea= p.slice[2].lineno)
     
 def p_funciones55(p):# decimal y entero  , LISTA DE NUMEROS []
-    'funciones : WIDTH_BUCKET PABRE lista_numeros PCIERRA'
+    'funciones : WIDTH_BUCKET PABRE lista_exp PCIERRA'
     p[0] = FuncionNumerica(funcion='WIDTH_BUCKET',parametro1=p[3], linea= p.slice[2].lineno)
 
 def p_funciones56(p):#ya
@@ -1278,6 +1284,7 @@ def p_exp_aux_decimal(p):
 #          | 'id' '.' 'id'
 def p_exp_aux_tabla(p):
     'exp_aux :  ID PUNTO ID'
+    p[0] = ExpresionID(p[3], p.slice[1].lineno , tabla = p[1])
 #          | 'id'
 def p_exp_aux_id(p):
     'exp_aux :  ID'
@@ -1424,9 +1431,12 @@ def p_least(p):
 
 def p_lista_exp_1(p):
     'lista_exp : expresion'
+    p[0] = [p[1]]
 
 def p_lista_exp_2(p):
-    'lista_exp : lista_exp COMA expresion'    
+    'lista_exp : lista_exp COMA expresion'  
+    p[1].append(p[3])
+    p[0] = p[1]  
 
 #<WHEN_CASE> ::= 'when' <EXPRESION> 'then' <EXPRESION>
 def p_when_case(p):
@@ -1448,6 +1458,6 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 
-arbolParser = analizarEntrada(''' RANDOM() ; ''')
+arbolParser = analizarEntrada(''' USE NUEVA ;  ''')
 arbolParser.ejecutar()#viendo el resultado: 
-print(arbolParser.instrucciones[0].ejecutar(0).val)
+

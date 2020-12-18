@@ -19,6 +19,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/plain") #Setting headers 
         self.end_headers()
 
+
     def do_GET(self):
         if self.path == '/':           
             pass
@@ -31,14 +32,23 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(bytes(myFile, 'utf-8'))
     
+    
 
     def do_POST(self):
-        content_length = int(self.headers['Content-Length']) #Getting size of data
-        myData = self.rfile.read(content_length) #Reading data (form)
+        dataSize = int(self.headers['Content-Length']) #Getting size of data
+        myData = self.rfile.read(dataSize) #Reading data (form)
         decodedData = myData.decode("utf-8")#Decoding data
         self._set_headers()
+        self.saveFile(bytes(decodedData, 'utf-8'))
         self.wfile.write(bytes(decodedData, 'utf-8'))
+        
 
+
+    #Method to create file on server
+    def saveFile(self, file):
+        newFile = open("database.tytus", "wb") #Temporary example
+        newFile.write(file)
+        newFile.close()
 
 # Setting and starting server
 myServer = HTTPServer(('localhost', PORT), MyRequestHandler)
