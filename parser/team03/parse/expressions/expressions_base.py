@@ -40,7 +40,7 @@ class Text(ASTNode):
 class BoolAST(ASTNode):
     def __init__(self, val, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
-        self.val = bool(val)        
+        self.val = (str(val).upper() == "TRUE")
         self.graph_ref = graph_ref
 
     def execute(self, table, tree):
@@ -207,7 +207,7 @@ class BoolExpression(ASTNode):
             if self.operator == OpLogic.AND:
                 return exec1 and exec2
             if self.operator == OpLogic.OR:
-                return exec1 and exec2
+                return exec1 or exec2
         else:
             raise Exception("The result of operation isn't boolean value")
         
