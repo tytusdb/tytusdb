@@ -4,6 +4,8 @@ from storageManager import jsonMode as DBMS
 from Entorno.Entorno import Entorno
 from Entorno.Simbolo import Simbolo
 from Entorno.TipoSimbolo import TipoSimbolo
+from Expresion.variablesestaticas import variables
+from tkinter import *
 
 class CreateTable(Instruccion):
     def __init__(self, id:str, listaDef):
@@ -15,7 +17,7 @@ class CreateTable(Instruccion):
         dbActual = ent.getDataBase()
         tam = len(self.listaDef)
         print (tam)
-        nuevaTabla = Simbolo(TipoSimbolo.TABLA,self.id)
+        nuevaTabla = Simbolo(TipoSimbolo.TABLA, (self.id+"_"+dbActual))
         listaColumnas = []
         for x in range(0,tam,1):
             tt = self.listaDef[x]
@@ -116,3 +118,21 @@ class Columna(CreateTable):
         self.lista = lista #este recibe una lista
         self.tipoDato = tipoDato
         self.tipo = AtributosColumna.COLUMNA_SIMPLE
+        
+class ShowTables(Instruccion):
+    def __init__(self, id):
+        self.id = id
+
+    def ejecutar(self, ent):
+        variables.consola.insert(INSERT,"Ejecutando Show Tables para la base de datos: "+self.id+" \n")
+        resultado = DBMS.showTables(self.id) 
+        if(resultado==None):
+            return "ERROR >> En la instrucción Show Tables("+self.id+"), base de datos: "+self.id+" NO existe"
+        else:
+            variables.x.title="DB: "+self.id
+            variables.x.add_column("Tables",resultado)
+            variables.consola.insert(INSERT,variables.x)
+            variables.x.clear()
+            variables.consola.insert(INSERT,"\n")
+            return "Show Tables Exitoso"
+    

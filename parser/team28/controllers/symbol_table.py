@@ -12,6 +12,14 @@ class SymbolTable(object):
     def getList(self):
         return self._symbols
 
+    @property
+    def useDatabase(self):
+        return self._useDatabase
+
+    @useDatabase.setter
+    def useDatabase(self, useDatabase):
+        self._useDatabase = useDatabase
+
     def destroy(self):
         self._idSymbol = 0
         self._symbols = []
