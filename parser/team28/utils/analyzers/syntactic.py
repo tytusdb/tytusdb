@@ -95,7 +95,7 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
     noColumn = 0
-    noLine = 0
+    noLine = p.slice[1].lineno
 
     if len(p) == 8:
         p[0] = CreateType(p[2],p[6])
@@ -530,7 +530,7 @@ def p_drop_database(p):
                     | ID
     '''
     noColumn = 0
-    noLine = 0
+    noLine = p.slice[1].lineno
     if len(p) == 4:
         p[0] = DropDB(True, p[3], noLine, noColumn)
     else:
@@ -541,7 +541,7 @@ def p_drop_table(p):
     '''droptable : ID
     '''
     noColumn = 0
-    noLine = 0
+    noLine = p.slice[1].lineno
     p[0] = DropTB(p[1], noLine, noColumn)
 
 
@@ -738,7 +738,7 @@ def p_select_without_order(p):
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
     if len(p) == 2:
-        p[0] = [p[1]]
+        p[0] = p[1]
     elif len(p) == 5:
         type_combine_query = TypeQuerySelect(p[2], p[3])
         p[1].append(type_combine_query)
@@ -803,7 +803,8 @@ def p_select_item(p):
                   | SQLEXPRESSION
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
-        p[0] = [p[1], p[2]]
+        p[1].alias = p[2].alias
+        p[0] = p[1]
     elif (len(p) == 4):
         p[0] = p[2]
     elif (len(p) == 2):
@@ -860,10 +861,10 @@ def p_select_group_having(p):
 
 
 def p_table_reference(p):
-    '''TABLEREFERENCE : OBJECTREFERENCE SQLALIAS
-                      | OBJECTREFERENCE SQLALIAS JOINLIST
-                      | OBJECTREFERENCE JOINLIST
-                      | OBJECTREFERENCE'''
+    '''TABLEREFERENCE : SQLNAME SQLALIAS
+                      | SQLNAME SQLALIAS JOINLIST
+                      | SQLNAME JOINLIST
+                      | SQLNAME'''
     if (len(p) == 2):
         p[0] = p[1]
     elif (len(p) == 3):
@@ -1118,27 +1119,27 @@ def p_sql_simple_expression(p):
             p[0] = p[2]
         else:
             if p[2] == '+':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS, '+')
             elif p[2] == '-':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS, '-')
             elif p[2] == '*':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES, '*')
             elif p[2] == '/':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON, '/')
             elif p[2] == '^':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT, '^')
             elif p[2] == '%':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR, '%')
             elif p[2] == '>>':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT, '>>')
             elif p[2] == '<<':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT, '<<')
             elif p[2] == '&':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND, '&')
             elif p[2] == '|':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR, '|')
             elif p[2] == '#':
-                 p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR)
+                 p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR, '#')
     elif (len(p) == 3):
         if p[1] == '-':
             p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.UMINUS, p[2])

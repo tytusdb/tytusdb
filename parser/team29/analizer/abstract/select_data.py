@@ -6,13 +6,13 @@ class dataSelect:
     dataTable = None
 
     def __init__(self):
-        #self.customer = pd.read_csv("C:\\Users\\momob\\OneDrive\\Documentos\\OLC2_DOCS\\OLC2_PROYECTO_DOCS\\analizer\\abstract\\customer.csv")
-        #self.product = pd.read_csv("C:\\Users\\momob\\OneDrive\\Documentos\\OLC2_DOCS\\OLC2_PROYECTO_DOCS\\analizer\\abstract\\product.csv") 
-        #self.purchase = pd.read_csv("C:\\Users\\momob\\OneDrive\\Documentos\\OLC2_DOCS\\OLC2_PROYECTO_DOCS\\analizer\\abstract\\purchase.csv") 
+        # self.customer = pd.read_csv("C:\\Users\\momob\\OneDrive\\Documentos\\OLC2_DOCS\\OLC2_PROYECTO_DOCS\\analizer\\abstract\\customer.csv")
+        # self.product = pd.read_csv("C:\\Users\\momob\\OneDrive\\Documentos\\OLC2_DOCS\\OLC2_PROYECTO_DOCS\\analizer\\abstract\\product.csv")
+        # self.purchase = pd.read_csv("C:\\Users\\momob\\OneDrive\\Documentos\\OLC2_DOCS\\OLC2_PROYECTO_DOCS\\analizer\\abstract\\purchase.csv")
         # self.customer = pd.read_csv("./customer.csv")
         # self.product = pd.read_csv("./product.csv")
         # self.purchase = pd.read_csv("./purchase.csv")
-        #self.tables = [self.customer, self.product, self.purchase]
+        # self.tables = [self.customer, self.product, self.purchase]
         self.tables = []
         # print(self.customer)
         # print("\n")

@@ -103,6 +103,15 @@ class Tytus:
             print("Error en operacion")
             return 1
 
+     """
+    dropTable(nombreDB, nombreTable)
+    @description elimina por completo una tabla de una base de datos especificada
+    @return 
+        0 operación exitosa
+        1 error en la operación
+        2 database no existe
+        3 table no existe
+    """
     def dropTable(self, database, table):
         try:
             indiceDB = self.buscarDB(database)
@@ -111,14 +120,9 @@ class Tytus:
                 if indiceTabla != None:
                     # exito 0, o error 1
                     return self.databases[indiceDB].dropTable(indiceTabla)
-                else:
-                    print("Table no existe")
-                    return 3
-            else:
-                print("Database no existe") 
-                return 2
+                return 3
+            return 2
         except:
-            print("Error en la operación")
             return 1
 
     def showTables(self, database):
@@ -189,12 +193,10 @@ class Tytus:
                         for f in lector:
                             print(f)
                     #-------------------termina leer csv
-                else:
-                    print("Tabla no existe")
-                    return 3
-            else:
-                print("Database no existente")  
-                return 2
+                print("Tabla no existe")
+                return 3
+            print("Database no existente")  
+            return 2
         except Exception as e:
             print(e)
 
