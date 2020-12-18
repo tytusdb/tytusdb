@@ -135,6 +135,28 @@ class ExpresionOwner(ExpresionQueries) :
         self.final = final
 
 
+# ---------------------------------------------------------------------------------------------------------------- 
+#clases para los tipos de dato
+class DataType:
+    '''
+        Esta clase representa las limitaciones en un
+        tipo de dato, que se le asignara a la columna
+        en una tabla
+    '''
+class TipoDatoColumna(DataType):
+    '''
+        Esta clase representa las limitaciones que tendra
+        el tipo de dato en una columna, que es creada en la 
+        tabla
+    '''
+    def __init__(self,id,limInferior,limSuperior):
+        self.id=id
+        self.limInferior=limInferior
+        self.limSuperior=limSuperior
+
+
+# ---------------------------------------------------------------------------------------------------------------- 
+#clases para restricciones
 class OPERACION_RESTRICCION_COLUMNA(Enum):
     CHECK_SIMPLE = 1
     CHECK_CONSTRAINT = 2
@@ -174,7 +196,7 @@ class RestriccionForeingkey(RestriccionTabla):
         Esta clase representa la restriccion de que
         columna es una llave foranea
     ''' 
-    def __init__(self,idForanea,idTable,idLlaveF):
+    def __init__(self,idTable,idForanea=[],idLlaveF=[]):
         self.idForanea=idForanea
         self.idTable=idTable
         self.idLlaveF=idLlaveF
@@ -184,9 +206,9 @@ class RestriccionConstraintCheck(RestriccionTabla):
         Esta clase representa la restriccion de check
         con su contraint en la columna
     '''
-    def __init__(self,idConstraint,condChek):
+    def __init__(self,idConstraint,condCheck):
         self.idConstraint = idConstraint
-        self.condCheck = condChek
+        self.condCheck = condCheck
 
 class RestriccionCheck(RestriccionTabla):
     '''
