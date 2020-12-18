@@ -1,6 +1,3 @@
-import sys
-import os
-sys.path.append(os.path.abspath('.'))
 from DataAccessLayer.handler import Handler
 from Models.avl_tree import AVLTree
 

@@ -1,5 +1,5 @@
-from handler import Handler
-from table_module import TableModule
+from DataAccessLayer.handler import Handler
+from BusinessLayer.table_module import TableModule
 
 class Database:
     def __init__(self, name, tablesName):

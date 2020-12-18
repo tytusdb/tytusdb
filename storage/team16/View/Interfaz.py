@@ -1,10 +1,3 @@
-# region Code
-import sys
-import os
-
-sys.path.append(os.path.abspath('.'))
-# endregion
-
 from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, Scrollbar, \
     Listbox, \
     Grid, Entry, filedialog, messagebox, Toplevel
@@ -25,7 +18,7 @@ class GUI(Frame):
 
     def initComp(self):
         self.master.title("EDD - TytusDB")
-        self.master.iconbitmap('img/logo.ico')
+        self.master.iconbitmap('View/img/logo.ico')
         self.master.deiconify()
         self.centrar()
         if self.val == 1:
@@ -54,7 +47,7 @@ class GUI(Frame):
     def ventanaFunciones(self):
         v2 = Toplevel()
         self.master.iconify()
-        image = Image.open('img/function.png')
+        image = Image.open('View/img/function.png')
         background_image = ImageTk.PhotoImage(image.resize((1060, 680)))
         background_label = Label(v2, image=background_image)
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -348,7 +341,7 @@ class GUI(Frame):
 
 def run():
     v1 = Tk()
-    image = Image.open('img/main.png')
+    image = Image.open('View/img/main.png')
     background_image = ImageTk.PhotoImage(image.resize((500, 500)))
     background_label = Label(v1, image=background_image)
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -356,4 +349,4 @@ def run():
     app.mainloop()
 
 
-run()
+#run()
