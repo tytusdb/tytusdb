@@ -58,6 +58,11 @@ class MathFunction(Expression):
         self.function = function
         self.expression = expression
 
+class TrigonometricFunction(Expression):
+    def __init__(self, function, expression):
+        self.function = function
+        self.expression = expression
+        
 class AggFunction(Expression):
     def __init__(self, function, expression):
         self.function = function

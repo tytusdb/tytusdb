@@ -125,6 +125,28 @@ reservedwords = (
     'COUNT',
     'AVG',
     'SUM',
+    'ACOS',
+    'ACOSD',
+    'ASIN',
+    'ASIND',
+    'ATAN',
+    'ATAND',
+    'ATAN2',
+    'ATAN2D',
+    'COS',
+    'COSD',
+    'COT',
+    'COTD',
+    'SIN',
+    'SIND',
+    'TAN',
+    'TAND',
+    'SINH',
+    'COSH',
+    'TANH',
+    'ASINH',
+    'ACOSH',
+    'ATANH',
 )
 
 symbols = (
@@ -805,6 +827,7 @@ def p_expression_relational(t):
                   '''
     t[0] = Relational(t[1], t[3], t[2])
 
+#LOGICAL
 def p_expression_logical(t):
     '''expression : expression AND expression
                    | expression OR expression
@@ -841,6 +864,34 @@ def p_expression_mathfunctions(t):
                   '''
     if(t[1]=='PI'): MathFunction(t[1],0)
     else: t[0] = MathFunction(t[1],t[3])
+
+#TRIGONOMETRIC FUNCTIONS
+def p_expression_trigonometricfunctions(t):
+    '''expression : ACOS BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ACOSD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ASIN BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ASIND BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ATAN BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ATAND BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ATAN2 BRACKET_OPEN expression BRACKET_CLOSE 
+                  | ATAN2D BRACKET_OPEN expression BRACKET_CLOSE 
+                  | COS BRACKET_OPEN expression BRACKET_CLOSE 
+                  | COSD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | COT BRACKET_OPEN expression BRACKET_CLOSE 
+                  | COTD BRACKET_OPEN expression BRACKET_CLOSE 
+                  | SIN BRACKET_OPEN expression BRACKET_CLOSE
+                  | SIND BRACKET_OPEN expression BRACKET_CLOSE 
+                  | TAN BRACKET_OPEN expression BRACKET_CLOSE
+                  | TAND BRACKET_OPEN expression BRACKET_CLOSE
+                  | SINH BRACKET_OPEN expression BRACKET_CLOSE
+                  | COSH BRACKET_OPEN expression BRACKET_CLOSE
+                  | TANH BRACKET_OPEN expression BRACKET_CLOSE
+                  | ASINH BRACKET_OPEN expression BRACKET_CLOSE
+                  | ACOSH BRACKET_OPEN expression BRACKET_CLOSE
+                  | ATANH BRACKET_OPEN expression BRACKET_CLOSE
+                  '''
+    t[0] = TrigonometricFunction(t[1],t[3])
+
 def p_expression_aggfunctions(t):
     '''expression : COUNT BRACKET_OPEN expression BRACKET_CLOSE
                   | AVG BRACKET_OPEN expression BRACKET_CLOSE
