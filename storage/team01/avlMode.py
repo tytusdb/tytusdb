@@ -33,7 +33,10 @@ def dropDatabase(database: str) -> int:
 
 # show databases by constructing a list
 def showDatabases() -> list:
-    return -1
+    if mBBDD.tamano == 0:
+        return []
+    else:
+        return list(mBBDD.raiz)
 
 #Crea una tabla en una base de datos especificada
 def createTable(database: str, table: str, numberColumns: int) -> int:
@@ -55,7 +58,7 @@ def showTables(database: str) -> list:
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
         if nodoBD.datos.tamano == 0:
-            return '[]'
+            return []
         else:
             return list(nodoBD.datos.raiz)
     else:
@@ -68,7 +71,7 @@ def extractTable(database: str, table: str) -> list:
         nodoTBL = nodoBD.datos.obtener(table)
         if nodoTBL:
             if nodoTBL.datos.tamano == 0:
-                return '[]' #No hay registros
+                return [] #No hay registros
             else:
                 return list(nodoTBL.datos.raiz) #Lista de registros
         else:
@@ -79,7 +82,19 @@ def extractTable(database: str, table: str) -> list:
 
 #Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabla
 def extractRangeTable(database: str, table: str, lower: any, upper: any) -> list:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(table)
+        if nodoTBL:
+            if nodoTBL.datos.tamano == 0:
+                return [] #No hay registros
+            else:
+                #Filtrar lo datos entre lower y upper
+                return list(nodoTBL.datos.raiz) #Lista de registros
+        else:
+            return None #Tabla inexistente en la Base de Datos
+    else:
+        return None #Base de Datos inexistente
 
 #Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas
 def alterAddPK(database: str, table: str, columns: list) -> int:
