@@ -411,7 +411,7 @@ def p_column_list(p):
 
 def p_show_statement(p):
     '''showstatement : SHOW DATABASES SEMICOLON
-                     | SHOW DATABASES LIKE ID SEMICOLON
+                     | SHOW DATABASES LIKE SQLNAME SEMICOLON
     '''
     if len(p) == 4:
         p[0] = ShowDatabase(None)
