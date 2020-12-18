@@ -122,6 +122,9 @@ reservedwords = (
     'ROUND',
     'AND',
     'OR',
+    'COUNT',
+    'AVG',
+    'SUM',
 )
 
 symbols = (
@@ -358,10 +361,20 @@ def p_instruction_create_ownereqmodeeq(t):
 def p_instruction_create_table(t):
     '''createTable : CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
                    | CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE INHERITS BRACKET_OPEN ID BRACKET_CLOSE'''
+    try:
+        t[0] = CreateTable(t[3],t[5],t[9])
+    except Exception as e:
+        print(e)
+        t[0] = CreateTable(t[3],t[5],None) 
 
-def p_instruction_create_table_columns(t):
-    '''columns : columns COMMA column
-               | column'''
+def p_instruction_create_table_columns_list(t):
+    '''columns : columns COMMA column'''
+    t[1].append(t[3])
+    t[0]  = t[1]
+
+def p_instruction_create_table_columns_single(t):
+    '''columns : column'''
+    t[0] = [t[1]]
 
 def p_instruction_create_table_column(t):
     '''column : ID type
@@ -369,16 +382,35 @@ def p_instruction_create_table_column(t):
               | CHECK BRACKET_OPEN expression BRACKET_CLOSE
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
               | UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
-              | PRIMARY KEY  BRACKET_OPEN idList BRACKET_CLOSE 
-              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE  REFERENCES  BRACKET_OPEN idList BRACKET_CLOSE '''
+              | PRIMARY KEY BRACKET_OPEN idList BRACKET_CLOSE 
+              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES BRACKET_OPEN idList BRACKET_CLOSE '''
+    if(t[1]=='CHECK'):
+        ColumnCheck(t[3])
+    elif(t[1]=='CONSTRAINT'):
+        ColumnConstraint(t[2],t[5])
+    elif(t[1]=='UNIQUE'):
+        ColumnUnique(t[3])
+    elif(t[1]=='PRIMARY'):
+        ColumnPrimaryKey(t[4])
+    elif(t[1]=='FOREIGN'):
+        ColumnForeignKey(t[4],t[8])
+    else:
+        try:
+            ColumnId(t[1],t[2],t[3])
+            #print(t[3]) #testing options
+        except Exception as e:
+            print(e)
+            ColumnId(t[1],t[2],None)
+
 
 def p_instruction_create_table_opt1(t):
-    '''opt1 :  default 
+    '''opt1 : default 
            | null
            | primarys
            | reference
            | uniques
            | checks'''
+    t[0] = t[1]
 def p_instruction_create_default (t):
     '''default : DEFAULT expression 
                | DEFAULT expression null
@@ -386,6 +418,11 @@ def p_instruction_create_default (t):
                | DEFAULT expression reference
                | DEFAULT expression uniques
                | DEFAULT expression checks'''
+    try:
+        t[0] = {'default':t[2]} | t[3]
+    except Exception as e:
+        print(e)
+        t[0] = {'default':t[2]}
 def p_instruction_create_null (t):
     '''null : NULL 
             | NULL default
@@ -399,6 +436,19 @@ def p_instruction_create_null (t):
             | NOT NULL uniques
             | NOT NULL checks
             | NOT NULL'''
+    if(t[1]=='NULL'):
+        try:
+            t[0] = {'null':True} | t[2]
+        except Exception as e:
+            print(e)
+            t[0] = {'null':True}
+    else:
+        try:
+            t[0] = {'null':False} | t[3]
+        except Exception as e:
+            print(e)
+            t[0] = {'null':False}
+
 def p_instruction_create_primary (t):
     '''primarys : PRIMARY KEY
                 | PRIMARY KEY default
@@ -406,6 +456,11 @@ def p_instruction_create_primary (t):
                 | PRIMARY KEY reference
                 | PRIMARY KEY uniques
                 | PRIMARY KEY checks'''
+    try:
+        t[0] = {'primary':True} | t[3]
+    except Exception as e:
+        print(e)
+        t[0] = {'primary':True}
 def p_instruction_create_references (t):
     '''reference : REFERENCES ID
                  | REFERENCES ID default
@@ -413,6 +468,12 @@ def p_instruction_create_references (t):
                  | REFERENCES ID primarys
                  | REFERENCES ID uniques
                  | REFERENCES ID checks'''
+    try:
+        t[0] = {'reference':t[2]} | t[3]
+    except Exception as e:
+        print(e)
+        t[0] = {'reference':t[2]}
+
 def p_instruction_create_unique (t):
     '''uniques : UNIQUE
                | UNIQUE default
@@ -425,9 +486,21 @@ def p_instruction_create_unique (t):
                | CONSTRAINT ID UNIQUE null
                | CONSTRAINT ID UNIQUE primarys
                | CONSTRAINT ID UNIQUE reference
-               | CONSTRAINT ID UNIQUE checks   '''
+               | CONSTRAINT ID UNIQUE checks'''
+    if(t[1]=='UNIQUE'):
+        try:
+            t[0] = {'unique':True} | t[2]
+        except Exception as e:
+            print(e)
+            t[0] = {'unique':True}
+    else:
+        try:
+            t[0] = {'constraintunique':t[2]} | t[4]
+        except Exception as e:
+            print(e)
+            t[0] = {'constraintunique':t[2]}
 
-def p_instruction_create_check (t):
+def p_instruction_create_check(t):
     '''checks : CHECK BRACKET_OPEN expression BRACKET_CLOSE
               | CHECK BRACKET_OPEN expression BRACKET_CLOSE default
               | CHECK BRACKET_OPEN expression BRACKET_CLOSE null
@@ -439,8 +512,19 @@ def p_instruction_create_check (t):
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE null
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE primarys
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE reference
-              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE uniques
-              '''
+              | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE uniques'''
+    if(t[1]=='CHECK'):
+        try:
+            t[0] = {'check':t[3]} | t[5]
+        except Exception as e:
+            print(e)
+            t[0] = {'check':t[3]}
+    else:
+        try:
+            t[0] = {'constraintcheck':[t[2],t[5]]} | t[7]
+        except Exception as e:
+            print(e)
+            t[0] = {'constraintcheck':[t[2],t[5]]}
 
 def p_instruction_type(t):
     '''type : SMALLINT
@@ -463,7 +547,8 @@ def p_instruction_type(t):
             | TIME WITHOUT TIME ZONE
             | TIME WITH TIME ZONE
             | INTERVAL INT
-            | TIMESTAMP WITH TIME ZONE'''
+            | TIMESTAMP WITH TIME ZONE
+            | ID'''
     t[0] = [t[1]]
 
 def p_instruction_type_bin(t):
@@ -537,6 +622,9 @@ def p_instruction_altertable_altercolumnnull(t):
 def p_instruction_altertable_altercolumntype(t):
     '''alterTable : ALTER TABLE ID ALTER COLUMN ID TYPE type'''
     t[0] = AlterTableAlterColumnType(t[3],t[6],t[8])
+def p_instruction_altertable_alteraddcolumn(t):
+    '''alterTable : ALTER TABLE ID ADD COLUMN ID type'''
+    t[0] = AlterTableAddColumn(t[3],t[6],t[7])
 def p_instruction_altertable_dropcontraint(t):
     '''alterTable : ALTER TABLE ID DROP CONSTRAINT ID'''
     t[0] = AlterTableDropConstraint(t[3],t[6])
@@ -644,6 +732,13 @@ def p_instruction_expressionlist_list(t):
 def p_instruction_expressionlist_single(t):
     '''expressionList : expression'''
     t[0] = [t[1]]
+#ALIAS
+def p_expression_alias(t):
+    '''expression : expression AS ID
+                  | expression ID'''
+    if(t[2]=='AS'): t[0] = Alias(t[1],t[3])
+    else: t[0] = Alias(t[1],t[2])
+
 #UNARY
 def p_expression_unaryminus(t):
     '''expression : MINUS expression %prec UMINUS
@@ -713,8 +808,13 @@ def p_expression_mathfunctions(t):
                   | ROUND BRACKET_OPEN expression BRACKET_CLOSE
                   | PI BRACKET_OPEN BRACKET_CLOSE   
                   '''
-    if(t[1]=='PI'): MathFunctions(t[1],0)
-    else: t[0] = MathFunctions(t[1],t[3])
+    if(t[1]=='PI'): MathFunction(t[1],0)
+    else: t[0] = MathFunction(t[1],t[3])
+def p_expression_aggfunctions(t):
+    '''expression : COUNT BRACKET_OPEN expression BRACKET_CLOSE
+                  | AVG BRACKET_OPEN expression BRACKET_CLOSE
+                  | SUM BRACKET_OPEN expression BRACKET_CLOSE'''
+    t[0] = AggFunction(t[1],t[3])
 #VALUES
 def p_expression_int(t):
     '''expression : INT'''
@@ -731,6 +831,9 @@ def p_expression_id(t):
 def p_expression_regex(t):
     '''expression : REGEX'''
     t[0] = Value(5, t[1])
+def p_expression_all(t):
+    '''expression : TIMES'''
+    t[0] = Value(6, t[1])
 
 #ERROR
 def p_error(t):
@@ -748,10 +851,10 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 
-f = open(Path(__file__).parent / "./test.txt", "r")
+f = open(Path(__file__).parent / "./testopt1.txt", "r")
 input = f.read()
 print(input)
-parser.parse(input)
+parser.parse(input.upper())
 print(grammarerrors)
 
 # def analyze(input):

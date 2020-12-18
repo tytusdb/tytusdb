@@ -52,11 +52,30 @@ def createTable(database: str, table: str, numberColumns: int) -> int:
 
 #Devuelve una lista de los nombres de las tablas de una bases de datos
 def showTables(database: str) -> list:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        if nodoBD.datos.tamano == 0:
+            return '[]'
+        else:
+            return list(nodoBD.datos.raiz)
+    else:
+        return None
 
 #Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla
 def extractTable(database: str, table: str) -> list:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(table)
+        if nodoTBL:
+            if nodoTBL.datos.tamano == 0:
+                return '[]' #No hay registros
+            else:
+                return list(nodoTBL.datos.raiz) #Lista de registros
+        else:
+            return None #Tabla inexistente en la Base de Datos
+    else:
+        return None #Base de Datos inexistente
+    
 
 #Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabla
 def extractRangeTable(database: str, table: str, lower: any, upper: any) -> list:
@@ -81,7 +100,25 @@ def alterAddIndex(database: str, table: str, references: dict) -> int:
 
 #Renombra el nombre de la tabla de una base de datos especificada. (UPDATE)
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(tableOld)
+        if nodoTBL:
+            if tableNew not in nodoBD.datos:
+                v = nodoTBL.valor
+                d = nodoTBL.datos 
+                res = nodoBD.datos.quitar(tableOld)
+                if res == 0:
+                    res = nodoBD.datos.agregar(tableNew, v, d)
+                    return res #0 si operación es exitosa
+                else:
+                    return 1 #Error en la operación
+            else:
+                return 4 #Tabla ya existe en la Base de Datos
+        else:
+            return 3 #Tabla inexistente en la Base de Datos
+    else:
+        return 2 #Base de Datos inexistente
 
 #Agrega una columna al final de cada registro de la tabla y base de datos especificada
 def alterAddColumn(database: str, table: str, default: any) -> int:

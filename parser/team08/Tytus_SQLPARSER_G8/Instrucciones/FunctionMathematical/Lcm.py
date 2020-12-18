@@ -1,19 +1,14 @@
-
 import math
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 
 class Lcm(Instruccion):
-    def __init__(self, valor, tipo, linea, columna):
-        Instruccion.__init__(self,tipo,linea,columna)
+    def __init__(self, valor, linea, columna):
+        Instruccion.__init__(self,None,linea,columna)
         self.valor = valor
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print("LCM")
-        '''
-        print(math.lcm(self.valor))
-        return math.lcm(self.valor)
-        '''
+        arbol.consola.append('Función en proceso...')
 
 '''
 #esta funcion solo se  encuentra en la version 3.9 y nosotros no la tenemos :'(

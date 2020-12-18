@@ -25,9 +25,14 @@ class TypeCheckerReport(object):
         databases = self._typeChecker.getList()
 
         for db in databases:
-            self._data += '\n\t\t\t<tr>\n\t\t\t\t<td bgcolor="#324960" colspan=\'11\' SIDES=\"TB\">'
+            self._data += '\n\t\t\t<tr>'
+            self._data += '\n\t\t\t\t<td bgcolor="#324960" colspan=\'10\' SIDES=\"TB\">'
             self._data += f"\n\t\t\t\t\t<font color=\"white\">DATABASE: {db.name}</font>"
-            self._data += '\n\t\t\t\t</td>\n\t\t\t</tr>'
+            self._data += '\n\t\t\t\t</td>'
+            self._data += '\n\t\t\t\t<td bgcolor="#324960" colspan=\'1\' SIDES=\"TB\">'
+            self._data += f"\n\t\t\t\t\t<font color=\"white\">MODE: {db.mode}</font>"
+            self._data += '\n\t\t\t\t</td>'
+            self._data += '\n\t\t\t</tr>'
             self.generateTables(db)
             self._data += '\n\t\t\t<tr>\n\t\t\t\t<td colspan=\'11\' SIDES="T"> </td>\n\t\t\t</tr>'
 
