@@ -5,6 +5,8 @@ from expresiones import *
 from instrucciones import *
 import tablasimbolos as TS
 
+from storageManager import jsonMode as EDD
+
 contador = 0
 lista_instrucciones = []
 
@@ -33,6 +35,16 @@ class DOTAST:
                 self.getTextDotEliminarBD("node2",instruccion)
             elif isinstance(instruccion,CrearType):
                 self.getTextDotCrearType("node2",instruccion)
+            elif isinstance(instruccion,EliminarTabla):
+                self.getTextDotEliminarTabla("node2",instruccion)
+            elif isinstance(instruccion,Insertar):
+                self.getTextDotInsertar("node2",instruccion)
+            elif isinstance(instruccion,Actualizar):
+                self.getTextDotActualizarTabla("node2",instruccion)
+            elif isinstance(instruccion,DBElegida):
+                self.getTextDotUseDB("node2",instruccion)
+            elif isinstance(instruccion,MostrarDB):
+                self.getTextDotShowDB("node2",instruccion)
             tam = tam +1
             print(TextDot)
         TextDot.view('reporte_AST', cleanup=True)
@@ -132,10 +144,74 @@ class DOTAST:
     def getTextDotEliminarBD(self,padre,instr):
         global contador,TextDot
         contador = contador+1
-        TextDot.node("node"+str(contador),"DROP_BD")
+        TextDot.node("node"+str(contador),"DROP_DATABASE")
         TextDot.edge(padre, "node"+str(contador))
         aux = "node"+str(contador)
         self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotEliminarTabla(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"DROP_TABLE")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotInsertar(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"INSERT")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotActualizarTabla(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"ACTUALIZAR TABLA")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotUseDB(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"USE DATABASE")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotShowDB(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"SHOW DATABASES")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+
+        listado = EDD.showDatabases()
+        if not listado:
+            print("No hay base de datos")
+        else:
+            for val in listado:
+                self.getTextDotListaBD(aux,val)
+                print("Si hay bd")
+
+    def getTextDotListaBD(self,padre,instr):
+        global contador,TextDot
+        contador = contador +1
+        TextDot.node("node"+str(contador),str(instr))
+        TextDot.edge(padre,"node"+str(contador))
+        
+
+
+    #Por implementar
+    def getTextDotSelect(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"SELECT")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        #self.getTextDotExpresion(aux,instr.nombre)
 
     #Expresiones resultantes 
     def getTextDotExpresion(self, padre, expresion):
