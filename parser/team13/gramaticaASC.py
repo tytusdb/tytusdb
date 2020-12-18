@@ -272,7 +272,8 @@ tokens = [
              # TOKENS PARA EL RECONOCIMIENTO DE FECHA Y HORA
              'fecha',
              'hora',
-             'fecha_hora'
+             'fecha_hora',
+             'intervaloc'
 
          ] + list(reservadas.values())
 
@@ -334,6 +335,11 @@ def t_entero(t):
     return t
 
 
+# DEFINICION PARA INTERVALO
+def t_intervaloc(t):
+    r'\'[\d+\s(Year|Years|Month|Months|day|days|hour|hours|minute|minutes|second|seconds)]+\''
+    return t
+
 # DEFINICIÓN PARA LA HORA
 def t_hora(t):
     r'\'[0-2]?[0-9]:[0-5]?[0-9]:[0-5]?[0-9]\''
@@ -364,6 +370,7 @@ def t_cadena(t):
     r'\'.*?\'|\".*?\"'
     t.value = t.value[1:-1]
     return t
+
 
 
 # DEFINICIÓN DE UN ID
@@ -939,8 +946,8 @@ def p_INSERT(p):
 
 
 def p_LISTA_EXP(p):
-    ''' LISTA_EXP :    LISTA_EXP coma E    
-                    |  E 
+    ''' LISTA_EXP :    LISTA_EXP coma E_FUNC
+                    |  E_FUNC
     '''
     if len(p) == 4:
         p[1].append(p[3])
@@ -1040,19 +1047,19 @@ def p_id(p):
 def p_fecha(p):
     ''' E : fecha    
     '''
-    p[0] = SExpresion(p[1], Expresion.ID)
+    p[0] = SExpresion(p[1], Expresion.FECHA)
 
 
 def p_hora(p):
     ''' E : hora    
     '''
-    p[0] = SExpresion(p[1], Expresion.ID)
+    p[0] = SExpresion(p[1], Expresion.HORA)
 
 
 def p_fecha_hora(p):
     ''' E : fecha_hora    
     '''
-    p[0] = SExpresion(p[1], Expresion.ID)
+    p[0] = SExpresion(p[1], Expresion.FECHA_HORA)
 
 
 def p_booleano(p):
@@ -1064,6 +1071,10 @@ def p_booleano(p):
           | tFalse
     '''
     p[0] = SExpresion(p[1], Expresion.BOOLEAN)
+
+def p_interval(p):
+    '''E : intervaloc '''
+    p[0]=SExpresion(p[1],Expresion.INTERVALO)
 
 
 # <<<<<<<<<<<<<<<<<<<<<<<<<<< EDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<

@@ -178,7 +178,7 @@ if __name__ == "__main__":
                 
                 # raiz = graficando.analizador(entrada)
                 data=principal.interpretar_sentencias(arbol,tablaSimbolos)
-                tablaSimbolos.mostrar()
+                #tablaSimbolos.mostrar()
                 imprimir_consola(data)
                 # GraficarAST(raiz)
             

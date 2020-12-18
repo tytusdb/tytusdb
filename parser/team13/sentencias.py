@@ -33,6 +33,10 @@ class Expresion(Enum):
     CADENA = 5
     TABATT = 6
     NEGATIVO = 7
+    FECHA=8
+    HORA=9
+    FECHA_HORA=10
+    INTERVALO=11
 
 
 class TipoDato(Enum):

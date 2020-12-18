@@ -26,7 +26,11 @@ class SimboloBase:
         return None
 
     def getTabla(self, id):
-        return self.tablas[id]
+
+        if id in self.tablas:
+            return self.tablas[id]
+
+        return None
 
     def deleteTable(self, id):
         if id in self.tablas:
@@ -52,16 +56,51 @@ class SimboloTabla:
         self.columnas = {}
         self.padre = padre
 
+    def comprobarNulas(self, listaColumnas):
+        #VERIFICAMOS SI EXISTE EN LA TABLA
+        for col in listaColumnas:
+            if col.valor not in self.columnas:
+                return {"cod": 1, "col": col.valor}
+        #VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
+        for col in self.columnas:
+            if self.columnas[col].nombre not in listaColumnas:
+                if self.columnas[col].null != True and self.columnas[col].default == None:
+                    return {"cod": 2, "col": self.columnas[col].nombre}
+        return {"cod":0}
+
+
+    def comprobarNulas2(self, listaColumnas):
+        #VERIFICAMOS SI EXISTE EN LA TABLA
+        for col in listaColumnas:
+            if col not in self.columnas:
+                return {"cod": 1, "col": col}
+        #VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
+        for col in self.columnas:
+            if self.columnas[col].nombre not in listaColumnas:
+                if self.columnas[col].null != True and self.columnas[col].default == None:
+                    return {"cod": 2, "col": self.columnas[col].nombre}
+        return {"cod":0}
+
     def deleteColumn(self, id):
+        val = 0
         if id in self.columnas:
+            val = self.columnas[id].index
             del self.columnas[id]
             return True
+        for id2 in self.columnas:
+            if self.columnas[id2].index > val:
+                self.columnas[id2].index = self.columnas[id2].index - 1
         return None
 
     def crearColumna(self, id, columna):
         if id not in self.columnas:
             self.columnas[id] = columna
             return True
+        return None
+
+    def getIndex(self, idcol):
+        if idcol in self.columnas:
+            return self.columnas[idcol].index
         return None
 
     def renameColumna(self, idactual, idnuevo):
@@ -115,17 +154,17 @@ class SimboloTabla:
             return True
         return None
 
-    def modificarNull(self,idcol):
+    def modificarNull(self, idcol):
         if idcol in self.columnas:
             self.columnas[idcol].null = False
             return True
         return None
 
-    def modificarTipo(self,idcol,tipo,ntama):
+    def modificarTipo(self, idcol, tipo, ntama):
         if idcol in self.columnas:
-            if self.columnas[idcol].tipo.tipo==tipo:
-                if self.columnas[idcol].tipo.cantidad<ntama:
-                    self.columnas[idcol].tipo.cantidad=ntama
+            if self.columnas[idcol].tipo.tipo == tipo:
+                if self.columnas[idcol].tipo.cantidad < ntama:
+                    self.columnas[idcol].tipo.cantidad = ntama
                     return 0
                 return 1
             return 2
@@ -138,7 +177,7 @@ class SimboloTabla:
 class SimboloColumna:
     ''' Clase Para Almacenar Información Sobre Las Columnas de Una Tabla '''
 
-    def __init__(self, nombre, tipo, primary_key, foreign_key, unique, default, null, check):
+    def __init__(self, nombre, tipo, primary_key, foreign_key, unique, default, null, check, index):
         self.nombre = nombre
         self.tipo = tipo
         self.primary_key = primary_key
@@ -147,6 +186,7 @@ class SimboloColumna:
         self.default = default
         self.null = null
         self.check = check
+        self.index = index
 
 
 class llaveForanea:
