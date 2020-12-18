@@ -579,17 +579,31 @@ def p_parametroAlterUser(t):
 #-----------------------------------------------------DROP TABLE-----------------------------------------------------------------
 def p_dropTable(t) :
     'dropTable  : DROP TABLE ID PUNTOYCOMA'
-    h.reporteGramatical1 +="dropTable    ::=        DROP TABLE ID PUNTOYCOMA\n"
-    t[0]=DropTable(t[3])
+    nodeFather = nodeAst()
+    nodeFather.token = 'DROP TABLE'
+    nodeFather.lexeme = 'DROP'
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[3]
+    nodeFather.son.append(nodeSon2)
+    t[0]=nodeFather
 #-----------------------------------------------------ALTER TABLE-----------------------------------------------------------------
 def p_alterTable(t):
     '''
     alterTable  : ALTER TABLE ID variantesAt PUNTOYCOMA
 
     '''
-    h.reporteGramatical1 +="alterTable    ::=        ALTER TABLE ID variantesAt PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0] = AlterTable(t[3],t[4])"
-    t[0] = AlterTable(t[3],t[4])
+    nodeFather = nodeAst()
+    nodeFather.token = 'ALTER TABLE'
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[3]
+    nodeFather.son.append(nodeSon2)
+    nodeSon3 = t[4]
+    nodeFather.son.append(nodeSon3)
+    t[0]=nodeFather
+
+   
 
 #---------------------------------------------------TIPOS------------------------------------------------------------------------
 def p_variantesAt(t):
@@ -598,18 +612,12 @@ def p_variantesAt(t):
                 |   ALTER contAlter
                 |   DROP contDrop
     '''
-    if t[1].upper()=="ADD": 
-        h.reporteGramatical1 +="variantesAt    ::=        ADD contAdd\n"
-        h.reporteGramatical2 +="t[0]=VariantesAt(t[1],t[2])"  
-        t[0]=VariantesAt(t[1],t[2])
-    elif t[1].upper()=="ALTER":
-        h.reporteGramatical1 +="variantesAt    ::=        ALTER listaContAlter\n"
-        h.reporteGramatical2 +="t[0]=VariantesAt(t[1],t[2])"
-        t[0]=VariantesAt(t[1],t[2])
-    elif t[1].upper()=="DROP":
-        h.reporteGramatical1 +="variantesAt    ::=         DROP contDrop\n"
-        h.reporteGramatical2 +="t[0]=VariantesAt(t[1],t[2])"
-        t[0]=VariantesAt(t[1],t[2])
+    nodeFather = nodeAst()
+    nodeFather.token = t[1]
+
+    nodeSon2 = t[2]
+    nodeFather.son.append(nodeSon2)
+    t[0]=nodeFather
     
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaContAlter(t):
@@ -631,13 +639,39 @@ def p_contAlter(t):
                 | COLUMN ID TYPE tipo
     '''
     if t[3].upper()=="SET":
-        h.reporteGramatical1 +="contAlter    ::=         COLUMN ID   SET  NOT NULL\n"
-        h.reporteGramatical2 +="t[0]=contAlter(t[2],t[3],t[4])"
-        t[0]=contAlter(t[2],t[3],t[4])
+        nodeFather = nodeAst()
+        nodeFather.token = 'contALTER'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'COLUMN'
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'ID'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'SET NOT NULL'
+        nodeFather.son.append(nodeSon3)
+
+        t[0]=nodeFather
     elif t[3].upper()=="TYPE":
-        h.reporteGramatical1 +="contAlter    ::=         COLUMN ID  TYPE  tipo\n"
-        h.reporteGramatical2 +="t[0]=contAlter(t[2],t[3],t[4])"
-        t[0]=contAlter(t[2],t[3],t[4])
+        nodeFather = nodeAst()
+        nodeFather.token = 'contALTER'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'COLUMN TYPE'
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'ID'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = t[4]
+        nodeFather.son.append(nodeSon3)
+        t[0]=nodeFather
 
 
 def p_contAdd(t):
@@ -647,29 +681,118 @@ def p_contAdd(t):
                 |   FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID
                 |   PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA
                 |   CONSTRAINT ID PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA
-                |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA
+                |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA ID PARENTESISDERECHA
     '''
+    nodeFather = nodeAst()
+    nodeFather.token = "contAdd"
+    
     if t[1].upper()=="COLUMN":
-        h.reporteGramatical1 +="contAdd    ::=         COLUMN ID tipo\n"
-        h.reporteGramatical2 +="t[0]=contAdd(t[1],t[3],t[2],None,None)"
-        t[0]=contAdd(t[1],t[3],t[2],None,None)
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'COLUMN'
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'ID'
+        nodeSon3.lexeme = t[2]
+        nodeFather.son.append(nodeSon3)
+    
+        nodeSon4 = t[3]
+        nodeFather.son.append(nodeSon4)
+        t[0]=nodeFather
+
     elif t[1].upper()=="CHECK":
-        h.reporteGramatical1 +="contAdd    ::=         CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-        h.reporteGramatical2 +="t[0]=contAdd(t[1],None,None,None,t[3])"
-        t[0]=contAdd(t[1],None,None,None,t[3])
-    elif t[1].upper()=="FOREIGN":
-        h.reporteGramatical1 +="contAdd    ::=        FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID\n"
-        h.reporteGramatical2 +="t[0]=contAdd(t[1],None,t[4],t[7],None)"
-        t[0]=contAdd(t[1],None,t[4],t[7],None)
+        #CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'CHECK'
+        nodeFather.son.append(nodeSon2)
+        nodeSon3 = nodeAst()
+        nodeSon3.token = '('
+        nodeFather.son.append(nodeSon3)
+        nodeSon1 = t[3]
+        nodeFather.son.append(nodeSon1)
+        nodeSon4 = nodeAst()
+        nodeSon4.token = ')'
+        nodeFather.son.append(nodeSon4)
+        t[0]=nodeFather
+
+    elif t[1].upper()=="FOREIGN KEY":
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'FOREIGN KEY'
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = '('
+        nodeFather.son.append(nodeSon3)
+    
+        nodeSon1 = nodeAst()
+        nodeSon1.token = "ID"
+        nodeSon1.lexeme = t[4]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon4 = nodeAst()
+        nodeSon4.token = ')'
+        nodeFather.son.append(nodeSon4)
+
+        nodeSon5 = nodeAst()
+        nodeSon5.token = 'REFERENCES'
+        nodeSon5.lexeme = t[6]
+        nodeFather.son.append(nodeSon5)
+        t[0]=nodeFather
     elif t[1].upper()=="CONSTRAINT":
+        #CONSTRAINT ID PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA
+        #CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA ID PARENTESISDERECHA
+        
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'CONSTRAINT'
+        nodeFather.son.append(nodeSon2)
+
         if t[3].upper()=="PRIMARY":
-            h.reporteGramatical1 +="contAdd     ::= CONSTRAINT ID PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA\n"
-            h.reporteGramatical2 +="t[0]=contAdd(t[1],t[3],t[2],t[6],None)"
-            t[0]=contAdd(t[1],t[3],t[2],t[6],None)
+            nodeSon2 = nodeAst()
+            nodeSon2.token = 'PRIMARY KEY'
+            nodeFather.son.append(nodeSon2)
+
+            nodeSon7 = nodeAst()
+            nodeSon7.token = 'ID'
+            nodeSon7.lexeme = t[2]
+            nodeFather.son.append(nodeSon7)
+
+            nodeSon3 = nodeAst()
+            nodeSon3.token = '('
+            nodeFather.son.append(nodeSon3)
+    
+            nodeSon1 = nodeAst()
+            nodeSon1.token = "ID"
+            nodeSon1.lexeme = t[6]
+            nodeFather.son.append(nodeSon1)
+
+            nodeSon4 = nodeAst()
+            nodeSon4.token = ')'
+            nodeFather.son.append(nodeSon4)
+            t[0]=nodeFather
         else:
-            h.reporteGramatical1 +="contAdd    ::=         CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA\n"
-            h.reporteGramatical2 +="t[0]=contAdd(t[1],None,t[2],None,t[5])"
-            t[0]=contAdd(t[1],None,t[2],None,t[5])
+            nodeSon2 = nodeAst()
+            nodeSon2.token = 'UNIQUE'
+            nodeFather.son.append(nodeSon2)
+
+            nodeSon7 = nodeAst()
+            nodeSon7.token = 'ID'
+            nodeSon7.lexeme = t[2]
+            nodeFather.son.append(nodeSon7)
+
+            nodeSon3 = nodeAst()
+            nodeSon3.token = '('
+            nodeFather.son.append(nodeSon3)
+    
+            nodeSon1 = nodeAst()
+            nodeSon1.token = "ID"
+            nodeSon1.lexeme = t[6]
+            nodeFather.son.append(nodeSon1)
+
+            nodeSon4 = nodeAst()
+            nodeSon4.token = ')'
+            nodeFather.son.append(nodeSon4)
+            t[0]=nodeFather
+        
 
 
 def p_contDrop(t):
@@ -678,13 +801,33 @@ def p_contDrop(t):
                 | CONSTRAINT ID
     '''
     if t[1].upper()=="COLUMN":
-        h.reporteGramatical1 +="contDrop    ::=         COLUMN ID \n"
-        h.reporteGramatical2 +="t[0]=contDrop(t[1],t[2])"
-        t[0]=contDrop(t[1],t[2])
+
+        nodeFather = nodeAst()
+        nodeFather.token = 'contDROP'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'COLUMN'
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'ID'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+        t[0]=nodeFather
     elif t[1].upper()=="CONSTRAINT":
-        h.reporteGramatical1 +="contDrop    ::=         CONSTRAINT ID\n"
-        h.reporteGramatical2 +="t[0]=contDrop(t[1],t[2])"
-        t[0]=contDrop(t[1],t[2])
+        nodeFather = nodeAst()
+        nodeFather.token = 'contDROP'
+        
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'CONSTRAINT'
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'ID'
+        nodeSon2.lexeme = t[2]
+        nodeFather.son.append(nodeSon2)
+        t[0]=nodeFather
+
 
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):

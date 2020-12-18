@@ -436,9 +436,7 @@ def p_query(t):
                     | variantesAt
                     | contAdd
                     | contDrop
-                    | contAlter
-                    | listaid
-                    | tipoAlter                    
+                    | contAlter                    
                     | selectData
     '''
     h.reporteGramatical1 +="query     ::=      opcion\n"
@@ -661,13 +659,8 @@ def p_listaID_2(t):
     t[0]=ExpresionIdentificador(t[1])
     
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
-def p_tipoAlter(t):
-    '''
-    tipoAlter   :   ADD 
-                |   DROP
-    '''
-    h.reporteGramatical1 +="operacion    ::=       final\n"
-#-----------------------------------------------------Tipo Alter--------------------------------------------------------------------
+
+
 def p_dropBD_1(t):
     'dropBD    : DROP DATABASE ID PUNTOYCOMA'
     h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE  "+str(t[3])+" PUNTOYCOMA\n"
