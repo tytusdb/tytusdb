@@ -11,3 +11,5 @@
 **To run the server manually**
 
     > python server.py
+
+- Ctrl-C to stop the server
