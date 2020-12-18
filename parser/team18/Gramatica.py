@@ -930,7 +930,7 @@ def p_funcion_math(t):
                      | set_byte PAR_A exp DOSPUNTOS bytea COMA exp COMA exp COMA exp PAR_C
                      | substr PAR_A exp COMA exp COMA exp PAR_C
                      | CONVERT PAR_A exp AS tipo PAR_C 
-                     | width_bucket PAR_A exp COMA exp COMA exp PAR_C
+                     | width_bucket PAR_A exp COMA exp COMA exp COMA exp PAR_C
                      | COUNT PAR_A val_count PAR_C
                      | SUM PAR_A exp PAR_C
                      | AVG PAR_A exp PAR_C

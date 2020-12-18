@@ -81,6 +81,8 @@ class OPERACION_MATH(Enum):
     ACOSH = 46
     ATANH = 47
 
+    WIDTH_BUCKET = 48
+
 
 class OPERACION_BINARY_STRING(Enum):
     LENGTH = 1
@@ -94,7 +96,6 @@ class OPERACION_BINARY_STRING(Enum):
     SET_BYTE = 9
     SUBSTR =  10
     CONVERT = 11
-    WIDTH_BUCKET = 12
 
     
 class Expresion:

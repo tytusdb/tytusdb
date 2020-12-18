@@ -22,6 +22,28 @@ def func_random():
 def func_round(n, decimals=0):
     multiplier = 10 ** decimals
     return int(n * multiplier) / multiplier
+
+
+def func_width_bucket(valor,inicio,final,cubos):
+    if inicio!=final:
+        if inicio==valor:
+            return 0
+        if final==valor:
+            return cubos+1
+
+        intervalo = (final - inicio)/cubos
+        result = ((valor-inicio)/intervalo)+1
+        if math.floor(result)>cubos :
+            return cubos+1
+        elif result<0:
+            return 0
+        else:
+            return math.floor(int(result))
+
+#print(func_width_bucket(3, 1, 12, 3))
+#print(func_width_bucket(5, 1, 12, 3))
+#print(func_width_bucket(9, 1, 12, 3))
+
 #Trigonometric Functions
 
 def func_cot(exp):
@@ -34,6 +56,16 @@ def func_cot(exp):
 
 def func_length(exp):
     return len(exp)
+
+#Funciones para trim
+def func_trim_leading(exp, characters): #Caracteres iniciales
+    return exp.lstrip(characters)
+
+def func_trim_trailing(string1, characters): #Caracteres finales
+    return exp.rstrip(characters)
+
+def func_trim_both(string1, characters): #Iniciales y finales
+    return exp.strip(characters)
 
 #substring y substr
 def func_substring(exp,inicio,final):
