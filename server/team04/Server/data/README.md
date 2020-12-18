@@ -8,8 +8,4 @@
 - Grupo 4
 - Diciembre 2020
 
-**To run the server manually**
-
-    > python server.py
-
-- Ctrl-C to stop the server
+"Data" directory to server main storage
