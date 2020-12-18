@@ -1,5 +1,6 @@
 from parse.ast_node import ASTNode
 from jsonMode import showDatabases as showDB
+from parse.symbol_table import SymbolTable
 
 
 class ShowDatabases(ASTNode):
@@ -8,9 +9,10 @@ class ShowDatabases(ASTNode):
         self.name = name
         self.graph_ref = graph_ref
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
+        # SymbolTable.get_all_db() # if methods doesn't exist probably
         return showDB()  # add filter using name_like_regex... this has to be stored on TS or comes from function?
 
 
@@ -20,9 +22,10 @@ class UseDatabase(ASTNode):
         self.name = name
         self.graph_ref = graph_ref
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
+        table.set_current_db(result_name)
         return True
 
 

@@ -33,6 +33,7 @@ class DatabaseSymbol(Symbol):
         self.name = name
         self.owner = owner
         self.mode = mode
+        self.selected = False
 
 
 class TableSymbol(Symbol):
@@ -83,21 +84,37 @@ class SymbolTable:
         return result
 
     def get(self, symbol_name, symbol_type):
-        result = next((sym for sym in self.symbols if sym.name == symbol_name and sym.type == symbol_type), None)
+        result = next((sym for sym in self.symbols if sym.type == symbol_type and sym.name == symbol_name), None)
         if result is None:
             raise Error(0, 0, ErrorType.RUNTIME, f'[TS]{symbol_name} no pudo ser encontrado')
         return result
 
-    # def get_fields_from_table(self, table_name):
-    #
-    #    if result is None:
-    #        raise Error(0, 0, ErrorType.RUNTIME, f'[TS]Simbolo id:{symbol_id} no pudo ser encontrado')
-    #    return result
+    def get_fields_from_table(self, table_name):
+        # check if table exists
+        self.get(table_name, SymbolType.TABLE)
+        result = list(filter(lambda sym: sym.type == SymbolType.FIELD and sym.table_name == table_name, self.symbols))
+        return result
 
     def update(self, symbol):
         result = self.get(symbol.id)
         self.symbols[self.symbols.index(result)] = symbol
         return True
+
+    def get_current_db(self):
+        result = next((sym for sym in self.symbols if sym.type == SymbolType.DATABASE and sym.selected == True), None)
+        if result is None:
+            raise Error(0, 0, ErrorType.RUNTIME, 'No se ha seleccionado base de datos')
+        return result
+
+    def set_current_db(self, db_name):
+        db_to_select = self.get(db_name, SymbolType.DATABASE)
+        db_to_select.selected = True
+        self.update(db_to_select)
+        return True
+
+    def get_all_db(self, table_name):
+        result = list(filter(lambda sym: sym.type == SymbolType.DATABASE, self.symbols))
+        return result
 
     def return_content(self):
         return self.symbols
@@ -106,12 +123,16 @@ class SymbolTable:
         for x in range(len(self.symbols)):
             print(f'{self.symbols[x].id} - {self.symbols[x].type} - {self.symbols[x].name}')
 
+
 # BLOCK TO TEST SYMBOL TABLE
-# db = DatabaseSymbol('test_db')
+# db = DatabaseSymbol('test_db', None, 6)
 # table = TableSymbol(db.name, 'test_table')
 # field = FieldSymbol(db.name, table.name, 'test_field', 'int', None, False, True, None, None)
 # ts = SymbolTable([])
 # ts.add(db)
 # ts.add(table)
 # ts.add(field)
+# field = FieldSymbol(db.name, table.name, 'test_field2', 'int', None, False, True, None, None)
+# ts.add(field)
 # ts.print_content()
+# print(ts.get_fields_from_table('test_table'))
