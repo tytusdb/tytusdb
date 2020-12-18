@@ -1,0 +1,36 @@
+digraph d {
+nodo2613722111472 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:inicio|Lexema:}"];
+nodo2613722110992 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:queries|Lexema:}"];
+nodo2613722110032 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:query|Lexema:}"];
+nodo2613722110608 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:insertinBD|Lexema:}"];
+nodo2613722110368 [shape=record,style=filled,fillcolor="#33FF76",label="{Token:INSERT|Lexema:INSERT}"];
+nodo2613722110608 -> nodo2613722110368;
+nodo2613722110704 [shape=record,style=filled,fillcolor="#33FF76",label="{Token:INTO|Lexema:INTO}"];
+nodo2613722110608 -> nodo2613722110704;
+nodo2613722111280 [shape=record,style=filled,fillcolor="#33FF76",label="{Token:ID|Lexema:products}"];
+nodo2613722110608 -> nodo2613722111280;
+nodo2613722111376 [shape=record,style=filled,fillcolor="#33FF76",label="{Token:VALUES|Lexema:VALUES}"];
+nodo2613722110608 -> nodo2613722111376;
+nodo2613722110752 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:listaParam|Lexema:}"];
+nodo2613722110272 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:listaParam|Lexema:}"];
+nodo2613722109072 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:listaParam|Lexema:}"];
+nodo2613722109840 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:final|Lexema:}"];
+nodo2613722109168 [shape=record,style=filled,fillcolor="#33FF76",label="{Token:ENTERO-DECIMAL|Lexema:1}"];
+nodo2613722109840 -> nodo2613722109168;
+nodo2613722109072 -> nodo2613722109840;
+nodo2613722110272 -> nodo2613722109072;
+nodo2613722109696 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:final|Lexema:}"];
+nodo2613722110512 [shape=record,style=filled,fillcolor="#33FF76",label="{Token:CADENA|Lexema:Cheese}"];
+nodo2613722109696 -> nodo2613722110512;
+nodo2613722110272 -> nodo2613722109696;
+nodo2613722110752 -> nodo2613722110272;
+nodo2613722110128 [shape=record,style=filled,fillcolor="#C3A7A4",label="{Token:final|Lexema:}"];
+nodo2613722109264 [shape=record,style=filled,fillcolor="#33FF76",label="{Token:ENTERO-DECIMAL|Lexema:9.99}"];
+nodo2613722110128 -> nodo2613722109264;
+nodo2613722110752 -> nodo2613722110128;
+nodo2613722110608 -> nodo2613722110752;
+nodo2613722110032 -> nodo2613722110608;
+nodo2613722110992 -> nodo2613722110032;
+nodo2613722111472 -> nodo2613722110992;
+
+}

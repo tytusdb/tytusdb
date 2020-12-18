@@ -153,3 +153,4 @@ storageManager/
 test/
 data/
 view/
+.vscode/
