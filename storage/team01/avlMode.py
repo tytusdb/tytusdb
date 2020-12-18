@@ -70,7 +70,26 @@ def alterAddIndex(database: str, table: str, references: dict) -> int:
 
 #Renombra el nombre de la tabla de una base de datos especificada. (UPDATE)
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(tableOld)
+        if nodoTBL:
+            if tableNew not in nodoBD.datos:
+                v = nodoTBL.valor
+                d = nodoTBL.datos
+                res = nodoBD.datos.quitar(tableOld)
+                if res == 0:
+                    res = nodoBD.datos.agregar(tableNew, v, d)
+                    return  res #0 si operación es exitosa
+                else:
+                    return 1 # Error en la operación
+            else:
+                return 4 #Tabla ya existente en la Base de Datos
+        else:
+            return 3 # Tabla inexistente en la Base de Datos
+    else:
+        return 2 # Base de Datos inexistente
+
 
 #Agrega una columna al final de cada registro de la tabla y base de datos especificada
 def alterAddColumn(database: str, table: str, default: any) -> int:
