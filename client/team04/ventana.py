@@ -1,4 +1,5 @@
-from tkinter import Menu, Tk, Text, RAISED,Frame, Button, Scrollbar, Canvas, END
+import tkinter as tk
+from tkinter import Menu, Tk, Text, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
 from tkinter import messagebox as MessageBox
 from tkinter import ttk
 
@@ -75,15 +76,28 @@ class Arbol(Frame):
     
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
+
+        style = ttk.Style()
+        style.theme_use("clam")
+        style.configure("Treeview",
+            background = "silver",
+            foreground = "black",
+            fieldbackground = "silver"
+            )
+        self.file_image = tk.PhotoImage(file="file.png")
+        self.file_image = self.file_image.subsample(35)
+        self.folder_image = tk.PhotoImage(file="folder.png")
+        self.folder_image = self.folder_image.subsample(38)
+
         self.treeview = ttk.Treeview(self)
         self.treeview.heading("#0", text="Navegador")
         item = self.treeview.insert("", END, text="Bases de datos")
-        subitem = self.treeview.insert(item, END, text="Amazon")
-        self.treeview.insert(subitem, END, text="Empleado")
-        self.treeview.insert(subitem, END, text="Cliente")
-        self.treeview.insert(subitem, END, text="Producto")
+        subitem = self.treeview.insert(item, END, text="Amazon",image=self.folder_image)
+        self.treeview.insert(subitem, END, text="Empleado",image=self.file_image)
+        self.treeview.insert(subitem, END, text="Cliente",image=self.file_image)
+        self.treeview.insert(subitem, END, text="Producto",image=self.file_image)
+        subitem = self.treeview.insert(item, END, text="Aurora",image=self.folder_image)
         self.treeview.pack(side="top", fill="both", expand=True)
-        
         self.pack(side="top", fill="both", expand=True)
 
 def abrirDoc():
@@ -92,37 +106,42 @@ def abrirDoc():
 def CrearVentana():
     raiz = Tk()
     raiz.title("TytuSQL") #Cambiar el nombre de la ventana
+    raiz.iconbitmap('icon.ico')
     raiz.rowconfigure(0, minsize=800, weight=1)
     raiz.columnconfigure(1, minsize=800, weight=1)
+    
     ########### menu ############
     #Se crea la barra
-    barraDeMenu=Menu(raiz)
+    barraDeMenu=Menu(raiz, tearoff=0,relief=FLAT, font=("Verdana", 12),activebackground='red')
     #Se crean los menus que se deseen
-    archivo=Menu(barraDeMenu)
+    archivo=Menu(barraDeMenu, tearoff=0)
     #Crear las opciones de la opción del menú
     archivo.add_command(label="Nueva ventana", command=CrearVentana)
     archivo.add_command(label="Abrir un documento",command=abrirDoc)
     archivo.add_command(label="Abrir un modelo")
+    archivo.add_separator()
     archivo.add_command(label="Nueva Query")
     archivo.add_command(label="Guardar como...")
     archivo.add_command(label="Guardar")
+    archivo.add_separator()
     archivo.add_command(label="Salir")
     #creando el Editar
-    editar=Menu(barraDeMenu)
+    editar=Menu(barraDeMenu, tearoff=0)
     #agregando su lista
     editar.add_command(label="Cortar")
     editar.add_command(label="Pegar")
     editar.add_command(label="Copiar")
+    editar.add_separator()
     editar.add_command(label="Seleccionar todo")
     editar.add_command(label="Formato")
     editar.add_command(label="Preferencias")
     #se agrega Tools
-    tools=Menu(barraDeMenu)
+    tools=Menu(barraDeMenu, tearoff=0)
     #se agrega su lista
     tools.add_command(label="Configuración")
     tools.add_command(label="Utilidades")
     #se agrega ayuda
-    ayuda=Menu(barraDeMenu)
+    ayuda=Menu(barraDeMenu, tearoff=0)
     #lista de ayuda
     ayuda.add_command(label="Documentación de TytuSQL")
     ayuda.add_command(label="Acerca de TytuSQL")
@@ -132,8 +151,8 @@ def CrearVentana():
     barraDeMenu.add_cascade(label="Herramientas",menu=tools)
     barraDeMenu.add_cascade(label="Ayuda",menu=ayuda)
     #Se indica que la barra de menú debe estar en la ventana
-    raiz.config(menu=barraDeMenu)
-    
+    raiz.config(menu=barraDeMenu, background='black')
+
     FrameIzquiero = Frame(raiz, relief=RAISED, bd=2)
     FrameIzquiero.pack(side="left", fill="both")
     Arbol(FrameIzquiero)
