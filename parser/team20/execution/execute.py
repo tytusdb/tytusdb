@@ -1,6 +1,7 @@
 #Importacion de metodos de ejecucion
 #Se utilizan archivos separados para minimizar los conflictos
 from .executeSentence import executeSentence
+from .generateASTReport import graphAST
 class Execute():
     nodes = []
     errors = []
@@ -22,6 +23,8 @@ class Execute():
         if(self.nodes is not None):
            for node in self.nodes:
                executeSentence(self,node)
+        graphAST(self)
+
 
 
 #Como guardar un error

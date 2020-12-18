@@ -15,9 +15,11 @@ from execution.AST.error import *
 # -----------------------------------------------------------------------------
 def __init__(self):
     self.grammarerrors = []
+    self.grammarreport = ""
 
 # Global variables
 grammarerrors = []
+grammarreport = ""
 
 #LEXER
 
@@ -278,22 +280,37 @@ precedence = (
 # Grammar definition
 def p_start(t):
     '''start : sentences'''
+    global grammarreport
+    grammarreport = "<start> ::= <sentences> { start.val = sentences.val }\n" + grammarreport
     exec = Execute(t[1]) # Esto se correra desde la GUI
     exec.execute()
     t[0] = t[1]
 
 def p_instructions_list_list(t):
     '''sentences : sentences sentence '''
+    global grammarreport
+    grammarreport = "<sentences> ::= <sentences> <sentence> { sentences.val = sentences.val.append(sentence.val) }\n" + grammarreport
     t[1].append(t[2])
     t[0] = t[1]
 
 def p_instructions_list_single(t):
     '''sentences : sentence '''
+    global grammarreport
+    grammarreport = "<sentences> ::= <sentence> { setences.val = [sentence.val] }\n" + grammarreport
     t[0] = [t[1]]
 
 def p_instructions_sql(t):
     '''sentence : ddl SEMICOLON
                 | dml SEMICOLON'''
+    global grammarreport
+    if(isinstance(t[1],DropDatabase)
+    or isinstance(t[1],AlterDatabaseOwner)
+    or isinstance(t[1],AlterDatabaseRename)
+    or isinstance(t[1],Use)
+    or isinstance(t[1],CreateDatabase)
+    or isinstance(t[1],CreateTable)
+    or isinstance(t[1],CreateType)): grammarreport = "<sentence> ::= <ddl> ';' { sentence.val = ddl.val }\n" + grammarreport
+    else: grammarreport = "<sentence> ::= <dml> ';' { sentence.val = dml.val }\n" + grammarreport
     t[0] = t[1]
 
 # Sentences
@@ -303,6 +320,12 @@ def p_instructions_ddl(t):
            | use
            | create'''
     t[0] = t[1]
+    global grammarreport
+    if(isinstance(t[1],DropDatabase)): grammarreport = "<ddl> ::= <drop> { ddl.val = drop.val }\n" + grammarreport
+    elif(isinstance(t[1],Use)): grammarreport = "<ddl> ::= <use> { ddl.val = use.val }\n" + grammarreport
+    elif(isinstance(t[1],AlterDatabaseOwner)
+    or isinstance(t[1],AlterDatabaseRename)): grammarreport = "<ddl> ::= <alter> { ddl.val = alter.val }\n" + grammarreport
+    else: grammarreport = "<ddl> ::= <create> { ddl.val = create.val }\n" + grammarreport
        
 def p_instructions_dml(t):
     '''dml : show
@@ -312,7 +335,14 @@ def p_instructions_dml(t):
            | delete
            | truncate'''
     t[0] = t[1]
-
+    global grammarreport
+    if(isinstance(t[1],ShowDatabases)): grammarreport = "<dml> ::= <show> { dml.val = show.val }\n" + grammarreport
+    elif(isinstance(t[1],Update)): grammarreport = "<dml> ::= <update> { dml.val = update.val }\n" + grammarreport
+    elif(isinstance(t[1],Delete)): grammarreport = "<dml> ::= <delete> { dml.val = delete.val }\n" + grammarreport
+    elif(isinstance(t[1],Truncate)): grammarreport = "<dml> ::= <truncate> { dml.val = truncate.val }\n" + grammarreport
+    elif(isinstance(t[1],Insert)
+    or isinstance(t[1],InsertAll)): grammarreport = "<dml> ::= <insert> { dml.val =insert.val }\n" + grammarreport
+    else: grammarreport = "<dml> ::= <select> { dml.val = select.val }\n" + grammarreport
 # DDL sentences
 #CREATE
 def p_instruction_create(t):
@@ -320,83 +350,126 @@ def p_instruction_create(t):
               | createTable
               | createType'''
     t[0] = t[1]
+    global grammarreport
+    if(isinstance(t[1],CreateDatabase)): grammarreport = "<create> ::= <createDatabase> { create.val = createDatabase.val }\n" + grammarreport
+    elif(isinstance(t[1],CreateTable)): grammarreport = "<create> ::= <createTable> { create.val = createTable.val }\n" + grammarreport
+    else: grammarreport = "<create> ::= <createType> { create.val = createType.val }\n" + grammarreport
 
 def p_instruction_create_database_id(t):
     '''createDatabase : CREATE DATABASE ID'''
     t[0] = CreateDatabase(t[3],False,False,[None,None])
+    global grammarreport
+    grammarreport = "<createDatabase> ::= CREATE DATABASE ID { ID.val='"+t[3]+"'; createDatabase.val = CreateDatabase(ID.val,False,False,[None,None]); }\n" + grammarreport
 
 def p_instruction_create_database_ifnotexists_id(t):
     '''createDatabase : CREATE DATABASE IF NOT EXISTS ID'''
     t[0] = CreateDatabase(t[6],True,False,[None,None])
+    global grammarreport
+    grammarreport = "<createDatabase> ::= CREATE DATABASE IF NOT EXISTS ID { ID.val='"+t[6]+"'; createDatabase.val = CreateDatabase(ID.val,True,False,[None,None]); }\n" + grammarreport
 
 def p_instruction_create_or_replace_database_id(t):
     '''createDatabase : CREATE OR REPLACE DATABASE ID'''
     t[0] = CreateDatabase(t[5],False,True,[None,None])
+    global grammarreport
+    grammarreport = "<createDatabase> ::= CREATE OR REPLACE DATABASE ID { ID.val='"+t[5]+"'; createDatabase.val = CreateDatabase(ID.val,False,True,[None,None]); }\n" + grammarreport
 
 def p_instruction_create_or_replace_database_ifnotexists_id(t):
     '''createDatabase : CREATE OR REPLACE DATABASE IF NOT EXISTS ID'''
     t[0] = CreateDatabase(t[8],True,True,[None,None])
+    global grammarreport
+    grammarreport = "<createDatabase> ::= CREATE OR REPLACE DATABASE IF NOT EXISTS ID { ID.val='"+t[8]+"'; createDatabase.val = CreateDatabase(ID.val,True,True,[None,None]); }\n" + grammarreport
 
 def p_instruction_create_database_ownermode(t):
     '''createDatabase : CREATE DATABASE ID ownerMode'''
     t[0] = CreateDatabase(t[3],False,False,t[4])
+    global grammarreport
+    grammarreport = "<createDatabase> ::= CREATE DATABASE ID <ownerMode> { ID.val="+t[3]+"; createDatabase.val = CreateDatabase(ID.val,False,False,ownerMode.val); }\n" + grammarreport
 
 def p_instruction_create_database_ifnotexists_ownermode(t):
     '''createDatabase : CREATE DATABASE IF NOT EXISTS ID ownerMode'''
     t[0] = CreateDatabase(t[6],True,False,t[7])
+    global grammarreport
+    grammarreport = "<createDatabase> ::= CREATE DATABASE IF NOT EXISTS ID <ownerMode> { ID.val='"+t[6]+"'; createDatabase.val = CreateDatabase(ID.val,True,False,ownerMode.val); }\n" + grammarreport
 
 def p_instruction_create_or_replace_database_ownermode(t):
     '''createDatabase : CREATE OR REPLACE DATABASE ID ownerMode'''
-    t[0] = CreateDatabase(t[5],False,True,t[6]) 
+    t[0] = CreateDatabase(t[5],False,True,t[6])
+    global grammarreport
+    grammarreport = "<createDatabase> ::= CREATE OR REPLACE DATABASE ID <ownerMode> { ID.val='"+t[5]+"'; createDatabase.val = CreateDatabase(ID.val,False,True,ownerMode.val); }\n" + grammarreport
 
 def p_instruction_create_or_replace_database_ifnotexists_ownermode(t):
     '''createDatabase : CREATE OR REPLACE DATABASE IF NOT EXISTS ID ownerMode'''
     t[0] = CreateDatabase(t[8],True,True,t[9])
+    global grammarreport
+    grammarreport = "<createDatabase> ::= CREATE OR REPLACE DATABASE IF NOT EXISTS ID <ownerMode> { ID.val='"+t[8]+"'; createDatabase.val = CreateDatabase(ID.val,True,True,ownerMode.val); }\n" + grammarreport
 
 #[owner,mode]  None = not included    
 def p_instruction_create_ownereq(t):
     '''ownerMode : OWNER EQUAL ID'''
     t[0] = [t[3], None]
+    global grammarreport
+    grammarreport = "<ownerMode> ::= OWNER EQUAL ID { ID.val='"+t[3]+"'; ownerMode.val = [ID.val,None]; }\n" + grammarreport
 def p_instruction_create_owner(t):
     '''ownerMode : OWNER ID'''
     t[0] = [t[2], None]
+    global grammarreport
+    grammarreport = "<ownerMode> ::= OWNER ID { ID.val='"+t[2]+"'; ownerMode.val = [ID.val,None] }\n" + grammarreport
 def p_instruction_create_mode(t):
     '''ownerMode : MODE expression'''
     t[0] = [None, t[2]]
+    global grammarreport
+    grammarreport = "<ownerMode> ::= MODE <expression> { ownerMode.val = [None,expression.val] }\n" + grammarreport
 def p_instruction_create_modeeq(t):
     '''ownerMode : MODE EQUAL expression'''
     t[0] = [None, t[3]]
+    global grammarreport
+    grammarreport = "<ownerMode> ::= MODE EQUAL <expression> { ownerMode.val = [None,expression.val] }\n" + grammarreport
 def p_instruction_create_ownermode(t):
     '''ownerMode : OWNER ID MODE expression'''
     t[0] = [t[2], t[4]]
+    global grammarreport
+    grammarreport = "<ownerMode> ::= OWNER ID MODE <expression> { ID.val='"+t[2]+"'; ownerMode.val = [ID.val,expression.val]; }\n" + grammarreport
 def p_instruction_create_ownereqmode(t):
     '''ownerMode : OWNER EQUAL ID MODE expression'''
     t[0] = [t[3], t[5]]
+    global grammarreport
+    grammarreport = "<ownerMode> ::= OWNER EQUAL ID MODE <expression> { ID.val='"+t[3]+"'; ownerMode.val = [ID.val,expression.val]; }\n" + grammarreport
 def p_instruction_create_ownermodeeq(t):
     '''ownerMode : OWNER ID MODE EQUAL expression'''
     t[0] = [t[2], t[5]]
+    global grammarreport
+    grammarreport = "<ownerMode> ::= OWNER ID MODE <expression> { ID.val='"+t[2]+"'; ownerMode.val = [ID.val,expression.val]; }\n" + grammarreport
 def p_instruction_create_ownereqmodeeq(t):
     '''ownerMode : OWNER EQUAL ID MODE EQUAL expression'''
     t[0] = [t[3], t[6]]
+    global grammarreport
+    grammarreport = "<ownerMode> ::=  <expression> {  }\n" + grammarreport
 
 #createTable
 def p_instruction_create_table(t):
     '''createTable : CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE
                    | CREATE TABLE ID BRACKET_OPEN columns BRACKET_CLOSE INHERITS BRACKET_OPEN ID BRACKET_CLOSE'''
+    global grammarreport
     try:
         t[0] = CreateTable(t[3],t[5],t[9])
+        grammarreport = "<createTable> ::=  CREATE TABLE ID '(' <columns> ')' INHERITS '(' ID ')' { ID1.val='"+t[3]+"'; ID1.val='"+t[9]+"'; createTable.val = CreateTable(ID1.val,columns.val,ID2.val); }\n" + grammarreport
     except Exception as e:
         print(e)
-        t[0] = CreateTable(t[3],t[5],None) 
+        t[0] = CreateTable(t[3],t[5],None)
+        grammarreport = "<createTable> ::=  CREATE TABLE ID '(' <columns> ')' { ID.val='"+t[3]+"'; createTable.val = CreateTable(ID.val,columns.val,None); }\n" + grammarreport
 
 def p_instruction_create_table_columns_list(t):
     '''columns : columns COMMA column'''
     t[1].append(t[3])
     t[0]  = t[1]
+    global grammarreport
+    grammarreport = "<columns> ::= <columns> ',' <column> { columns.val = columns.val.append(column.val) }\n" + grammarreport
 
 def p_instruction_create_table_columns_single(t):
     '''columns : column'''
     t[0] = [t[1]]
+    global grammarreport
+    grammarreport = "<columns> ::= <column> { columns.val = [column.val] }\n" + grammarreport
 
 def p_instruction_create_table_column(t):
     '''column : ID type
@@ -608,10 +681,10 @@ def p_instruction_droptable(t):
     '''dropTable : DROP TABLE ID'''
     t[0] = DropTable(t[3])
 
-# USE
+#USE
 def p_instruction_use(t):
     '''use : USE ID'''
-    t[0] = Use(t[1])
+    t[0] = Use(t[2])
 
 #ALTER
 def p_instruction_alter(t):
@@ -900,6 +973,8 @@ def p_expression_aggfunctions(t):
 #VALUES
 def p_expression_int(t):
     '''expression : INT'''
+    global grammarreport
+    grammarreport = "<expression> ::= INT { INT.val=int("+str(t[1])+"); expression.val = INT.val  }\n" + grammarreport
     t[0] = Value(1, t[1])
 def p_expression_decimal(t):
     '''expression : NDECIMAL'''
@@ -938,6 +1013,7 @@ input = f.read()
 print(input)
 parser.parse(input.upper())
 print(grammarerrors)
+print(grammarreport)
 
 # def analyze(input):
 #     # limpiar variables
