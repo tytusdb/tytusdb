@@ -279,11 +279,11 @@
                 |<EXP_LOG>
 
 ---
-**\<EXP_LOG>** ::= \<EXP_REL> tAnd \<EXP_REL>
+**\<EXP_LOG>** ::= \<EXP_LOG> tAnd \<EXP_LOG>
 
-                |<EXP_REL> tOR  <EXP_REL>
-                |tNot <EXP_REL>
-                |<EXP_REL> 
+                |<EXP_LOG> tOR  <EXP_LOG>
+                |tNot <EXP_LOG>
+                |<EXP_LOG> 
 
 ---
 **\<EXP_REL>** ::=  \<EXP> ‘\<’ \<EXP> 
@@ -293,7 +293,7 @@
                 |<EXP> ‘<=’ <EXP>
                 |<EXP> ‘>=’ <EXP>
                 |<EXP> ‘<>’ <EXP>
-                |<EXP> [tNot] tLike [‘%’] <EXP> [‘%’]
+                |<EXP> [tNot] tLike [‘%’] tTexto [‘%’]
                 |<EXP>
 
 ---
@@ -355,7 +355,7 @@
                 | tAcosh ‘(’ <EXP> ’)’
                 | tAtanh ‘(’ <EXP> ’)’
                 | tNot <EXP> 
-                | [+            |-]<EXP> 
+                | [+|-]<EXP> 
                 | tTexto
                 | <COL_NAME>
                 | tTrue

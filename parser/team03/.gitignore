@@ -63,3 +63,4 @@ parsetab.py
 **/__pycache__/**
 Digraph.gv
 Digraph.gv.pdf
+reportGrammar.md
