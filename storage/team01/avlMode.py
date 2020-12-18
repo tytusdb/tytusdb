@@ -145,7 +145,13 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 
 #Elimina por completo una tabla de una base de datos especificada. (DELETE)
 def dropTable(database: str, table: str) -> int:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        res = nodoBD.datos.quitar(table)
+        if res == 2: res = 3
+        return res #0 operación exitosa, 1 error en la operación, 3 tabla no existe en la BD
+    else:
+        return 2 # Base de datos inexistente
 
 #Inserta un registro en la estructura de datos asociada a la tabla y la base de datos. (CREATE)
 def insert(database: str, table: str, register: list) -> int:
