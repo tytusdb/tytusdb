@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import Menu, Tk, Text, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
+from tkinter import Menu, Tk, Text, DISABLED, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
 from tkinter import messagebox as MessageBox
 from tkinter import ttk
 
@@ -58,13 +58,12 @@ class Campo(Frame):
         self.text = CustomText(self)
         self.vsb = Scrollbar(orient="vertical", command=self.text.yview)
         self.text.configure(yscrollcommand=self.vsb.set)
-        self.text.tag_configure("bigfont", font=("Helvetica", "24", "bold"))
         self.linenumbers = TextLineNumbers(self, width=30)
         self.linenumbers.attach(self.text)
 
-        self.vsb.pack(side="right", fill="y")
         self.linenumbers.pack(side="left", fill="y")
         self.text.pack(side="right", fill="both", expand=True)
+        self.vsb.pack(side="right", fill="y")
 
         self.text.bind("<<Change>>", self._on_change)
         self.text.bind("<Configure>", self._on_change)
@@ -151,7 +150,7 @@ def CrearVentana():
     barraDeMenu.add_cascade(label="Herramientas",menu=tools)
     barraDeMenu.add_cascade(label="Ayuda",menu=ayuda)
     #Se indica que la barra de menú debe estar en la ventana
-    raiz.config(menu=barraDeMenu, background='black')
+    raiz.config(menu=barraDeMenu, background='silver')
 
     FrameIzquiero = Frame(raiz, relief=RAISED, bd=2)
     FrameIzquiero.pack(side="left", fill="both")
@@ -159,6 +158,11 @@ def CrearVentana():
 
     # Posicionarla en la ventana..
 
+    Button(raiz, text="Enviar Consulta").pack(side="top",fill="both")
+    consola = Text(raiz)
+    consola.pack(side="bottom",fill="both")
+    consola.insert(1.0,"Consola de Salida")
+    consola.config(state=DISABLED)
     Campo(raiz).pack(side="right", fill="both", expand=True)
     
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
