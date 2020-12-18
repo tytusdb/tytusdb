@@ -1,4 +1,5 @@
-from Cilindro import Cilindro, Registro
+from Cilindro import Cilindro
+import BinWriter as bin
 
 class Indice:
     def __init__(self, pkey, ruta):
@@ -17,6 +18,7 @@ class Indice:
             i = self._hashl(val[0])
         if self.indx[i] == None:
             self.indx[i] = Cilindro("CS"+str(i), self.pkey, i, self.ruta)
+            bin.write([], self.ruta +"/"+ "CS"+str(i)+".bin")
         return self.indx[i].insert(registro)
 
     def _hashl(self, key):
@@ -63,51 +65,7 @@ class Indice:
             data.extend(cil.readRange(columnNumber, lower, upper))
         return data
 
-
-i = Indice([1], "c")
-
-s = 0
-d = "a"
-#while s < 90:
- #   print(i.insert([ d,s]))
-  #  s += 10
-
-i.insert([1, 'Guatemala',    'Guatemala',    'GTM'])
-i.insert([2, 'Cuilapa',      'Santa Rosa',   'GTM'])
-i.insert([3, 'San Salvador', 'San Salvador', 'SLV'])
-i.insert([5, 'Peten', 'Yucatan', 'aaa'])
-i.insert([4, 'San Miguel',   'San Miguel',   'SLV'])
-f = i.readAll()
-for x in f:
-    print(x)
-
-print()
-print(i.update({2:"ahora", 3:"nunca"}, ["Peten"]))
-print(i.delete(['Guatemala']))
-print(i.extractRow(['San Salvador']))
-print()
-f = i.readAll()
-for x in f:
-    print(x)
-""""
-f = i.readAll()
-for x in f:
-    print(x)
-print()
-r = i.readRange(1, "g","s")
-for x in r:
-    print(x)
-print()
-f = i.indx[0].readAll()
-for x in f:
-    print(x)
-print()
-#f = i.indx[2].readAll()
-#for x in f:
-  #  print(x)
-  """
-
-i.insert([1, 'Guatemala',    'Guatemala',    'GTM'])
-i.insert([2, 'Cuilapa',      'Santa Rosa',   'GTM'])
-i.insert([3, 'San Salvador', 'San Salvador', 'SLV'])
-i.insert([4, 'San Miguel',   'San Miguel',   'SLV'])
+    def refreshMem(self):
+        for x in indx:
+            if x != None:
+                x.indx = bin.read(self.ruta +"/"+ x.nombre + ".b")
