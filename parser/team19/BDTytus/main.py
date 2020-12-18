@@ -1,5 +1,6 @@
 import Gramatica.Gramatica as g
 import TablaSimbolos.TS as ts
+import os
 import graphviz
 import sys
 import threading
@@ -9,79 +10,186 @@ from Reportes.ReporteError import ReporteError
 from Reportes.ReporteGramatical import ReporteGramatical
 from tkinter import *
 from tkinter import filedialog
+from tkinter import scrolledtext
 from tkinter import messagebox
 from tkinter import font
 from tkinter import ttk
 
+if __name__=='__main__':
+    from LineNumber import LineMain
+    from Graphics import Tkinter
+    from ColorLight import ColorLight
+else:
+    from .LineNumber import LineMain
+    from .Graphics import Tkinter
+    from .ColorLight import ColorLight
+
+class Connect:
+    def __init__(self, pad):
+        self.pad = pad
+        self.modules_connections()
+
+    def modules_connections(self):
+        LineMain(self.pad)
+        ColorLight(self.pad)
+        return
+
+class TextPad(Tkinter.Text):
+    def __init__(self, *args, **kwargs):
+        Tkinter.Text.__init__(self, *args, **kwargs)
+        self.storeobj = {"Root": self.master}
+        self.Connect_External_Module_Features()
+        self.config(font=("Consolas", 11), padx=2, pady=2)
+        self._pack()
+
+    def Connect_External_Module_Features(self):
+        Connect(self)
+        return
+
+    def _pack(self):
+        self.pack(expand = True, fill = "both")
+        return
+
 #------------------------------------ Interfaz ----------------------------------------------------------
-class Interfaz():
+class Interfaz:
     def __init__(self):
+        os.environ['DB'] = 'None'
         self.root = Tk()
+        #self.root.attributes('-zoomed', True)
         self.root.title('TytusDB - Team 19')
-        self.root.geometry("1000x750")
+        self.root.geometry("1100x700")
+        self.root.resizable(1, 1)
+        self.txtarea = TextPad(self.root, pady=5)
+        self.consola = scrolledtext.ScrolledText(self.root, width=150, height=15, font=("Consolas", 10))
+        self.frame = ttk.Frame(self.root)
+        self.frame.pack(fill=X, side='left')
+        self.tree_consultas = ttk.Treeview(self.frame)
+        #self.tree_consultas["columns"] = ("Tipo", "Descripcion", "Fila", "Columna")
+        #self.tree_consultas.grid(column=1, row=2, sticky=S)
+        self.tree_consultas.column("#0", width=600, stretch=NO)
+        #self.tree_consultas.column("Tipo", width=50, minwidth=20, stretch=NO)
+        #self.tree_consultas.column("Descripcion", width=50, minwidth=20)
+        #self.tree_consultas.column("Fila", width=50, minwidth=20)
+        #self.tree_consultas.column("Columna", width=50, minwidth=20)
+        #self.tree_consultas.heading("#0", text="HOla", anchor=W)
+        #self.tree_consultas.heading("Descripcion", text="Descripcion", anchor=W)
+        #self.tree_consultas.heading("Tipo", text="Tipo", anchor=W)
+        #self.tree_consultas.heading("Fila", text="Fila", anchor=W)
+        #self.tree_consultas.heading("Columna", text="Columna", anchor=W)
+        #lbl = Label(self.root, text="Consola de Salida:", font=("Consolas", 9))
+        # lbl.pack(side=TOP, fill=Y, anchor=E)
+        self.tree_consultas.pack(side=LEFT, fill=X, pady=5, padx=5)
+        self.consola.pack(side=RIGHT)
+        self.consola.config(foreground='white', bg = 'black')
+        self.menubar = Menu(self.root)
+        self.root.config(menu=self.menubar)
+        archivo = Menu(self.menubar, tearoff=0)
+        archivo.add_command(label="Limpiar Pantalla",
+                            command=self.limpiar)
+        archivo.add_separator()
+        archivo.add_command(label="Abrir Archivo",
+                            command=self.abriarchivo)
+        archivo.add_separator()
+        archivo.add_command(label="Guardar",
+                            command=self.guardar)
+        archivo.add_command(label="Guardar Como",
+                            command=self.guardarcomo)
+        self.menubar.add_cascade(label="Archivo", menu=archivo)
+        ejecucioin = Menu(self.menubar, tearoff=0)
+        ejecucioin.add_command(label="Ejecutar", command=self.ejecutar)
+
+        self.menubar.add_cascade(label="Ejecucion", menu=ejecucioin)
+        reportes = Menu(self.menubar, tearoff=0)
+        reportes.add_command(label="Reporte AST", command=self.mostrar_reporte_AST)
+        reportes.add_separator()
+        reportes.add_command(label='Reporte Gramatica', command=self.mostrar_gramatica)
+        reportes.add_separator()
+        reportes.add_command(label='Reporte Errores', command=self.errores_r)
+        reportes.add_command(label='Reporte Errores HTML', command=self.mostrar_reporte_errores)
+        reportes.add_separator()
+        reportes.add_command(label='Tabla de Simbolos', command=self.mostrar_reporte_errores)
+        self.menubar.add_cascade(label="Reportes", menu=reportes)
+        opciones = Menu(self.menubar, tearoff=0)
+        opciones.add_command(label="Acerca de...")
+        opciones.add_separator()
+        opciones.add_command(label="Manual de Usuario")
+        opciones.add_command(label="Manual Tecnico")
+        self.menubar.add_cascade(label="Opciones", menu=opciones)
+        info = Menu(self.menubar, tearoff=0)
+        self.menubar.add_cascade(label="Base de Datos: " + os.environ['DB'], menu=info)
         self.errors = None
         self.raizAST = None
-        menu_bar = Menu(self.root)
-        file_menu = Menu(menu_bar, tearoff=0)
-        file_menu.add_command(label='Open', compound='left', underline=0, command=self.open_File)
-        file_menu.add_command(label='Ejecutar', compound='left', underline=0, command=self.ejecutar)
-        menu_bar.add_cascade(label='File', menu=file_menu)
-        reportes_menu = Menu(menu_bar, tearoff=0)
-        reportes_menu.add_command(label='Ventana de Reporte de Errores', compound='left', underline=0, command=self.errores_r)
-        reportes_menu.add_separator()
-        reportes_menu.add_command(label='Reporte de Errores HTML', compound='left', underline=0,command=self.mostrar_reporte_errores)
-        reportes_menu.add_separator()
-        reportes_menu.add_command(label='Reporte Gramaticas', compound='left', underline=0,command = self.mostrar_gramatica)
-        reportes_menu.add_separator()
-        reportes_menu.add_command(label='Reporte AST', compound='left', underline=0, command=self.mostrar_reporte_AST)
-        reportes_menu.add_separator()
-        reportes_menu.add_command(label='Tabla de Simbolos', compound='left', underline=0)
-        menu_bar.add_cascade(label='Reportes', menu=reportes_menu)
-        self.show_line_number = IntVar()
-        self.show_line_number.set(1)
-        self.root.config(menu=menu_bar)
-
-        my_frame = Frame(self.root)
-        my_frame.pack(pady=10)
-
-        text_scroll = Scrollbar(my_frame)
-        text_scroll.pack(side=RIGHT, fill=Y)
-
-        self.line_number_bar = Text(my_frame, width=4, padx=3, takefocus=0, fg='white', border=0, background='#282828',
-                               state='disabled', wrap='none')
-        self.line_number_bar.pack(side='left', fill='y')
-
-        self.my_text = Text(my_frame, width=110, height=30, selectforeground="black", yscrollcommand=text_scroll.set)
-        text_scroll.config(command=self.my_text.yview)
-
-        separator = ttk.Separator(self.root, orient='horizontal')
-        separator.place(relx=0, rely=0.47, relwidth=1, relheight=1)
-
-        self.Output = Text(self.root, height=10, width=115, bg="light cyan")
-        self.my_text.bind('<Any-KeyPress>', self.on_content_changed)
-
-        entrada = self.my_text.get("1.0", END)
-
-        self.my_text.pack()
-        separator.pack()
-        self.Output.pack()
-
+        entrada = self.txtarea.get("1.0", END)
         self.root.mainloop()
+
+
+    def limpiar(self):
+        self.txtarea.delete(1.0, END)
+        self.archivoactgual = "v"
+
+
+    def abriarchivo(self):
+        filename = filedialog.askopenfilename(
+            defaultextension=".txt",
+            filetypes=[("All Files", "*.*")])
+        if filename:
+            self.archivoactgual = filename
+            self.txtarea.delete(1.0, END)
+            with open(filename, "r") as f:
+                self.txtarea.insert(1.0, f.read())
+
+
+    def guardar(self):
+        if self.archivoactgual == '':
+            filename = filedialog.askopenfilename(
+                defaultextension=".txt",
+                filetypes=[("All Files", "*.*")])
+        else:
+            filename=self.archivoactgual
+        if filename:
+            try:
+                contenido = self.txtarea.get(1.0, END)
+                with open(filename, "w") as f:
+                    f.write(contenido)
+            except Exception as e:
+                print(e)
+
+
+    def guardarcomo(self):
+        try:
+            nuevoarchivo = filedialog.asksaveasfilename(
+                initialfile="Untitled.txt",
+                defaultextension=".txt",
+                filetypes=[("All Files", "*.*"),
+                           ("Text Files", "*.txt"),
+                           ("Python Scripts", "*.py"),
+                           ("Markdown Documents", "*.md"),
+                           ("JavaScript Files", "*.js"),
+                           ("HTML Documents", "*.html"),
+                           ("CSS Documents", "*.css")])
+            contenido = self.txtarea.get(1.0, END)
+            with open(nuevoarchivo, "w") as f:
+                f.write(contenido)
+        except Exception as e:
+            print(e)
+
 
     def ejecutar(self):
         reporteg = []
-        global errores, raizAST
-        errores = lista_err.ListaErrores()
-        entrada = self.my_text.get("1.0", END)
-        raizAST = g.parse(entrada, errores)
-        self.Output.delete(1.0, "end")
+        self.errors = lista_err.ListaErrores()
+        entrada1 = self.txtarea.get("1.0", END)
+        entrada = entrada1.lower()
+        self.raizAST = g.parse(entrada, self.errors)
+        self.consola.delete(1.0, "end")
         TS = ts.TabladeSimbolos("global")
-        if errores.principio is None:
-            respuestaConsola = str(raizAST.ejecutar(TS, errores))
+        if self.errors.principio is None:
+            respuestaConsola = str(self.raizAST.ejecutar(TS, self.errors))
         else:
             respuestaConsola = "Hubieron errores ve a Reporte -> Errores"
-            self.errors = errores
-        self.Output.insert("1.0", respuestaConsola)
+        self.consola.insert("1.0", respuestaConsola)
+
+    def entorno(self):
+        print(os.environ['DB'])
 
     def open_File(self):
         try:
@@ -93,8 +201,7 @@ class Interfaz():
             self.my_text.insert(END, stuff)
             self.update_line_numbers()
             text_file.close()
-            global raizAST, errores
-            raizAST = errores = None
+            self.raizAST = self.errors = None
         except FileNotFoundError:
             messagebox.showinfo("Informacion", "No se seleccionó un archivo")
 
@@ -108,11 +215,13 @@ class Interfaz():
 
 
     def mostrar_reporte_AST(self):
-        global raizAST
-        if raizAST is not None:
-            raizAST.graficarasc()
+        if self.raizAST is not None:
+            self.raizAST.graficarasc()
         else:
             messagebox.showinfo("Informacion", "No hay arbol para mostrar presione ejecutar primero...")
+
+
+
 
     def errores_r(self):
         ventana = Toplevel(self.root)
@@ -158,8 +267,6 @@ class Interfaz():
         self.line_number_bar.delete('1.0', 'end')
         self.line_number_bar.insert('1.0', line_numbers)
         self.line_number_bar.config(state='disabled')
-
-
 
 Interfaz()
 
