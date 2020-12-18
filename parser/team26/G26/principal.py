@@ -17,7 +17,8 @@ datos = l.Lista({}, '')
 
 #print(dic1)
 
-ruta = 'C:/Users/alvar/Desktop/entrada.txt'
+
+ruta = 'C:/Users/chris/Desktop/OLC2/tytus/parser/team26/G26/selecprueba.txt'
 f = open(ruta, "r")
 input = f.read()
 
