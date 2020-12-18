@@ -145,6 +145,7 @@ k_reserved = {
     'TRUNC': 'TRUNC',
     'TRUE': 'TRUE',
     'UPDATE': 'UPDATE',
+    'USE' : 'USE',
     'USING': 'USING',
     'UNION': 'UNION',
     'UNKNOWN': 'UNKNOWN',
