@@ -1,7 +1,7 @@
 #
 import hashlib
 from datetime import date
-from main import TS as ts
+from main import ts 
 import storage as s
 from enum import Enum
 from main import default_db
@@ -34,6 +34,21 @@ class select(query):
         self.orderby = orderby
         self.limit = limit
         self.offset = offset
+
+    def ejecutar(self):
+        #Obtener la lista de tablas
+        tables = {}
+        for tabla in self.table_expression:
+            tables[tabla.id]  = tabla.alias
+
+
+        results = []
+        for col in self.select_list:
+            res = col.ejecutar(tables)
+            results.append(res)
+            
+        return results
+            
 
 
 
@@ -132,7 +147,7 @@ class exp_bool(exp_query):
     def __init__(self, val):
         self.val = val
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.val
 
 
@@ -141,7 +156,7 @@ class exp_text(exp_query):
 
     def __init__(self, val):
         self.val = val
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.val
 
 
@@ -150,7 +165,7 @@ class exp_num(exp_query):
 
     def __init__(self, val):
         self.val = val
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.val
 
 
@@ -166,9 +181,9 @@ class exp_suma(exp_query):
     #Vamos a asumir el tipo 
     # suponemos que es numérico :v
 
-    def ejecutar(self):
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+    def ejecutar(self,tablas):
+        exp1 = self.exp1.ejecutar(tablas)
+        exp2 = self.exp2.ejecutar(tablas)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -216,9 +231,9 @@ class exp_resta(exp_query):
         self.exp2 = exp2
         self.type = None
 
-    def ejecutar(self):
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+    def ejecutar(self,tables):
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -263,9 +278,9 @@ class exp_multiplicacion(exp_query):
         self.exp2 = exp2
         self.type = None
 
-    def ejecutar(self):
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+    def ejecutar(self,tables):
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -310,9 +325,9 @@ class exp_division(exp_query):
         self.exp2 = exp2
         self.type = None
 
-    def ejecutar(self):
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+    def ejecutar(self,tables):
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -373,9 +388,9 @@ class math_abs(column_mathtrig):
         self.alias = alias
         self.type = exp_type.numeric
     
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -397,9 +412,9 @@ class math_cbrt(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -419,9 +434,9 @@ class math_ceil(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -441,9 +456,9 @@ class math_degrees(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -464,10 +479,10 @@ class math_div(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -510,9 +525,9 @@ class math_exp(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -531,9 +546,9 @@ class math_factorial(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -553,9 +568,9 @@ class math_floor(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -576,10 +591,10 @@ class math_gcd(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -622,10 +637,10 @@ class math_lcm(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias 
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -669,9 +684,9 @@ class math_ln(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -692,10 +707,10 @@ class math_log(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -738,9 +753,9 @@ class math_log10(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -759,9 +774,9 @@ class math_min_scale(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -780,9 +795,9 @@ class math_scale(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -802,10 +817,10 @@ class math_mod(column_mathtrig):
         self.exp2  = exp2
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -848,7 +863,7 @@ class math_pi(column_mathtrig):
         self.val = mt.pi()
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.val
 
 
@@ -858,10 +873,10 @@ class math_power(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
     
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -904,9 +919,9 @@ class math_radians(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -926,9 +941,9 @@ class math_round(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -948,9 +963,9 @@ class math_sign(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -970,9 +985,9 @@ class math_sqrt(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -991,9 +1006,9 @@ class math_trim_scale(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -1015,7 +1030,7 @@ class math_widthBucket(column_mathtrig):
         self.exp4 = exp4
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #xd
         return mt.width_bucket(9,8,7,6)
 
@@ -1025,9 +1040,9 @@ class math_trunc(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
@@ -1046,7 +1061,7 @@ class math_random(column_mathtrig):
     def __init__(self, alias):
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return mt.random()
 
 class math_setseed(column_mathtrig):
@@ -1054,8 +1069,8 @@ class math_setseed(column_mathtrig):
         self.exp = exp
         self.alias = alias 
 
-    def ejecutar(self):
-        mt.setseed(self.exp.ejecutar())
+    def ejecutar(self,tables):
+        mt.setseed(self.exp.ejecutar(tables))
 
 
 class trig_acos(column_mathtrig):
@@ -1063,8 +1078,8 @@ class trig_acos(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1109,8 +1124,8 @@ class trig_acosd(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1153,8 +1168,8 @@ class trig_asin(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1200,8 +1215,8 @@ class trig_asind(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1247,8 +1262,8 @@ class trig_atan(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1293,8 +1308,8 @@ class trig_atand(column_mathtrig):
         self.alias = alias
 
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1340,8 +1355,8 @@ class trig_atan2(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1389,8 +1404,8 @@ class trig_atan2d(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1435,8 +1450,8 @@ class trig_cos(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1482,8 +1497,8 @@ class trig_cosd(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1529,8 +1544,8 @@ class trig_cot(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1573,8 +1588,8 @@ class trig_cotd(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1618,8 +1633,8 @@ class trig_sin(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1661,8 +1676,8 @@ class trig_sind(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1704,8 +1719,8 @@ class trig_tan(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1749,8 +1764,8 @@ class trig_tand(column_mathtrig):
         self.alias = alias
     
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1793,8 +1808,8 @@ class trig_sinh(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1839,8 +1854,8 @@ class trig_cosh(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1884,8 +1899,8 @@ class trig_tanh(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1929,8 +1944,8 @@ class trig_asinh(column_mathtrig):
         self.alias = alias
     
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -1974,8 +1989,8 @@ class trig_acosh(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2018,8 +2033,8 @@ class trig_atanh(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2065,8 +2080,8 @@ class fun_sum(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2092,8 +2107,8 @@ class fun_avg(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2119,8 +2134,8 @@ class fun_max(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2158,8 +2173,8 @@ class fun_min(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2200,8 +2215,8 @@ class fun_count(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(tablas):
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
 
@@ -2215,7 +2230,7 @@ class fun_count(column_function):
                 return val
             else:
                 if val['valores'] == 'All':
-                    if len(tablas) != 1:
+                    if len(tables) != 1:
                         return None
                     else:
                         t = ts.obtenerTabla(val)
@@ -2241,8 +2256,8 @@ class fun_length(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2284,8 +2299,8 @@ class fun_trim(column_function):
         self.exp = exp
         self.alias = alias    
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2329,8 +2344,8 @@ class fun_md5(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2381,8 +2396,8 @@ class fun_sha256(column_function):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2435,7 +2450,7 @@ class fun_convert(column_function):
         self.type = tipo
         self.alias = alias
     
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.exp
 
 class fun_substr(column_function):
@@ -2445,8 +2460,8 @@ class fun_substr(column_function):
         self.max = max
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2487,13 +2502,13 @@ class fun_greatest(column_function):
         self.lexps = lexps
         self.alias = alias
     
-    def ejecutar(self):
-        if len(lexps) == 0 : return None
+    def ejecutar(self,tables):
+        if len(self.lexps) == 0 : return None
         try:
-            val = lexps[0].ejecutar()
+            val = self.lexps[0].ejecutar(tables)
             if val['valores'] == None or len(val['valores']) == 0: return None
             #Viene solo un id, es columna
-            if len(lexps) == 1 and isinstance(val,dict):                    
+            if len(self.lexps) == 1 and isinstance(val,dict):                    
                 maximo = val['valores'][0]
                 for valor in val['valores']:
                         
@@ -2510,8 +2525,8 @@ class fun_greatest(column_function):
                 else:
                     maximo = val
                 
-                for dato in lexps:
-                    t = dato.ejecutar()
+                for dato in self.lexps:
+                    t = dato.ejecutar(tables)
                     #obtengo el valor de diferente manera
                     if isinstance(t,dict):
                         temp = t['valores']
@@ -2535,13 +2550,13 @@ class fun_least(column_function):
         self.lexps = lexps
         self.alias = alias
     
-    def ejecutar(self):
-        if len(lexps) == 0 : return None
+    def ejecutar(self,tables):
+        if len(self.lexps) == 0 : return None
         try:
-            val = lexps[0].ejecutar()
+            val = self.lexps[0].ejecutar(tables)
             if val['valores'] == None or len(val['valores']) == 0: return None
             #Viene solo un id, es columna
-            if len(lexps) == 1 and isinstance(val,dict):                   
+            if len(self.lexps) == 1 and isinstance(val,dict):                   
                 minimo = val['valores'][0]
                 for valor in val['valores']:
                         
@@ -2558,8 +2573,8 @@ class fun_least(column_function):
                 else:
                     minimo = val
                 
-                for dato in lexps:
-                    t = dato.ejecutar()
+                for dato in self.lexps:
+                    t = dato.ejecutar(tables)
                     #obtengo el valor de diferente manera
                     if isinstance(t,dict):
                         temp = t['valores']
@@ -2589,10 +2604,10 @@ class dato(column_function):
     
 
 class fun_now(column_function):
-    def __init__ (self):
+    def __init__ (self,tables):
         pass
         
-    def ejecutar(self):
+    def ejecutar(self,tables):
         # dd/mm/YY
         today = date.today()
         d1 = today.strftime("%Y-%m-%d %H:%M:%S")
@@ -2610,12 +2625,12 @@ class exp_igual(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
     
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
@@ -2676,12 +2691,12 @@ class exp_mayor(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
@@ -2744,12 +2759,12 @@ class exp_menor(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
     
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
@@ -2812,12 +2827,12 @@ class exp_mayor_igual(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
@@ -2880,12 +2895,12 @@ class exp_menor_igual(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
@@ -2947,12 +2962,12 @@ class exp_diferente(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
@@ -3023,13 +3038,13 @@ class exp_between(exp_query):
         self.exp2 = exp2
         self.exp3 = exp3
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
-        val3 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
+        val3 = self.exp3.ejecutar(tables)
         #id op val
         if isinstance(val1,dict):
             if isinstance(val2,dict):
@@ -3086,6 +3101,7 @@ class texp_id(table_expression):
 
 
 
+
 class texp_query(table_expression)        :
     def __init__(self,query,alias):
         self.query = query
@@ -3096,7 +3112,7 @@ class texp_query(table_expression)        :
 #############
 
 def getKeyFromValue(value,d):
-    for table, alias in d:
+    for table, alias in d.items():
         if alias == value:
             return table
 
