@@ -367,11 +367,11 @@ def p_instruccionAlter(t):
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
-    t[0] = {'ast' : None, 'graph' : grafo.index}
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
 
 def p_instruccionQuerys(t):
     'instruccion  : querys'
-    t[0] = {'ast' : None, 'graph' : grafo.index}
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
 
 def p_instruccionError(t):
     'instruccion  : error PTCOMA'
@@ -796,7 +796,7 @@ def p_funciones_matematicas_S (t):
                             | RANDOM PARENIZQ PARENDER'''
     grafo.newnode('F_MATH')
     grafo.newchildrenE(t[1].upper())
-    t[0] =  select.FuncionMatematica(t[1].lower(), None, None, None, None)
+    t[0] =  {'ast' : select.FuncionMatematica(t[1].lower(), None, None, None, None), 'graph' : grafo.index}
 
 def p_funciones_matematicas_1 (t):
     '''funcionesmatematicas : ABS PARENIZQ  argument  PARENDER
@@ -816,7 +816,7 @@ def p_funciones_matematicas_1 (t):
     grafo.newnode('F_MATH')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
-    t[0] = select.FuncionMatematica(t[1].lower(),t[3]['ast'], None, None, None)
+    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'], None, None, None), 'graph' : grafo.index}
   
 def p_funciones_matematicas_2 (t):
     '''funcionesmatematicas : DIV PARENIZQ  argument  COMA  argument  PARENDER
@@ -827,7 +827,7 @@ def p_funciones_matematicas_2 (t):
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
-    t[0] = select.FuncionMatematica(t[1].lower(),t[3]['ast'],t[5]['ast'], None, None)
+    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'],t[5]['ast'], None, None), 'graph' : grafo.index}
 
 def p_funciones_matematicas_2R (t):
     'funcionesmatematicas : ROUND PARENIZQ  argument   tipoderound  PARENDER'
@@ -835,7 +835,7 @@ def p_funciones_matematicas_2R (t):
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[4]['graph'])
-    t[0] = select.FuncionMatematica(t[1].lower(), t[3]['ast'], t[4]['ast'], None, None)
+    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(), t[3]['ast'], t[4]['ast'], None, None), 'graph' : grafo.index}
 
 def p_tipo_de_round(t):
     'tipoderound  : COMA  argument'
@@ -857,7 +857,7 @@ def p_funciones_matematicas_4 (t):
     grafo.newchildrenF(grafo.index, t[5]['graph'])
     grafo.newchildrenF(grafo.index, t[7]['graph'])
     grafo.newchildrenF(grafo.index, t[9]['graph'])
-    t[0] = select.FuncionMatematica(t[1].lower(),t[3]['ast'],t[5]['ast'],t[7]['ast'],t[9]['ast'])
+    t[0] = {'ast' : select.FuncionMatematica(t[1].lower(),t[3]['ast'],t[5]['ast'],t[7]['ast'],t[9]['ast']), 'graph' : grafo.index}
 
 def p_funciones_trigonometricas(t):
     '''funcionestrigonometricas :  ACOS PARENIZQ argument  PARENDER
@@ -912,7 +912,7 @@ def p_funciones_de_fechas(t):
         t[0] = {'ast' :select.FuncionFecha(t[1].lower(),None,None), 'graph' : grafo.index}
     elif t[1].lower() == 'timestamp' : 
         grafo.newchildrenF(grafo.index,t[2]['graph']) 
-        t[0] = {'ast' :select.FuncionFecha(t[1].lower(),t[2]['ast']), 'graph' : grafo.index}
+        t[0] = {'ast' :select.FuncionFecha(t[1].lower(), t[2]['ast'], None), 'graph' : grafo.index}
 
 def p_parte_de_la_decha(t):
     '''partedelafecha   : YEAR
@@ -1687,7 +1687,7 @@ def p_asignaciones_rec(t):
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenE(t[3])
     grafo.newchildrenF(grafo.index, t[5]['graph'])
-    t[1]['ast'].append(update.AsignacionUpdate(ident.Identificador(None, t[3]['ast']), t[5]['ast']))
+    t[1]['ast'].append(update.AsignacionUpdate(ident.Identificador(None, t[3]), t[5]['ast']))
     t[0] = {'ast' : t[1], 'graph' : grafo.index}
 
 def p_asignaciones(t):
@@ -1869,8 +1869,7 @@ def p_argument_binary(t):
                 | argument BARRA argument
                 | argument ASTERISCO argument
                 | argument PORCENTAJE argument
-                | argument POTENCIA argument
-                | boleano'''
+                | argument POTENCIA argument'''
     grafo.newnode('ARGUMENT')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     if t[2] == '+'   :
@@ -1897,7 +1896,10 @@ def p_argument_binary(t):
         grafo.newchildrenE(t[2])
         grafo.newchildrenF(grafo.index, t[3]['graph'])
         t[0] = {'ast' : arit.Arithmetic(t[1]['ast'], t[3]['ast'], '^'), 'graph' : grafo.index}
-    else : t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
+
+def p_argument_bolano(t):
+    'argument : boleano'
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
 
 def p_argument_unary(t):
     '''argument : MAS argument %prec UMAS
