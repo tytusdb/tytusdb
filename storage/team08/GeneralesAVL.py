@@ -1,3 +1,4 @@
+import pickle
 
 class Generales:
 
@@ -38,17 +39,37 @@ class Generales:
     def maxi(self, r, l):
         return (l,r)[r>l]
 
+    def Balance(self, tmp):
+        if not tmp:
+            return 0
+        return self.Balance(tmp.izquierda) - self.nivel(tmp.derecha)
+    
     def leMenor(self, tmp):
-        while tmp.izquierda != None:
-            tmp = tmp.izquierda
-        return tmp  
+        if tmp is None or tmp.izquierda is None:
+            return tmp
+        return self.leMenor(tmp.izquierda)
 
-    def nHojas(self, tmp):
-        nHojas = 0
-        if tmp.izquierda != None:
-            nHojas += 1
-        if tmp.derecha != None:
-            nHojas += 1
-        return nHojas
+    def commitBase(self, contenido):
+        with open('Base.bin', 'wb') as f:
+            datos = contenido
+            pickle.dump(datos, f )
+        
+    
+    def loadBase(self):
+        with open('Base.bin', 'rb') as g:
+            datos = pickle.load(g)
+            return datos
+        
+    def commitTabla(self, contenido):
+        with open('Tabla.bin', 'wb') as f:
+            datos = contenido
+            pickle.dump(datos, f )
+        
+    
+    def loadTabla(self):
+        with open('Tabla.bin', 'rb') as g:
+            datos = pickle.load(g)
+            return datos
+    
 
 g = Generales()

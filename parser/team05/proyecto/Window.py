@@ -454,6 +454,8 @@ class Main(tk.Tk):
                 self.do_create_database(inst, p_st)
             elif isinstance(inst, UseDatabase):
                 self.do_use(inst, p_st)
+            elif isinstance(inst, DropDB):
+                self.do_drop_db(inst, p_st)
             else:
                 print(inst)
 
@@ -485,10 +487,15 @@ class Main(tk.Tk):
                 print('Owner: ' + p_inst.datos.datos.owner)
 
             if p_inst.datos.datos.mode is not None:
-                print('Mode: ' + p_inst.datos.datos.mode)
+                print('Mode: ' + str(p_inst.datos.datos.mode))
 
         print()
 
+    # ELIMINACIÓN DE BASE DE DATOS
+    def do_drop_db(self, p_inst, p_st):
+        print('ELIMINAR BASE DE DATOS')
+        print('Nombre: ' + p_inst.ifexist.nombre)
+        print()
 
 if __name__ == "__main__":
     main = Main()

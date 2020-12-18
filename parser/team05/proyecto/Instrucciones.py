@@ -27,7 +27,7 @@ class Select(Instruccion):
         self.pfrom = pfrom
         self.complementos = complementos
 
-# INSTRUCCION SELECT WITH WHERE 
+# INSTRUCCION SELECT WITH WHERE
 class Select1(Instruccion):
     """ Instrucción SELECT """
 
@@ -148,30 +148,23 @@ class Drop(Instruccion):
     def __init__(self, tdrop):
         self.tdrop = tdrop
 
-# INSTRUCCION DROPDB
+
 class DropDB(Instruccion):
-    """ Instrucción DROPDB """
+    """ Instrucción DROP DATABASE """
 
     def __init__(self, ifexist):
         self.ifexist = ifexist
 
-# INSTRUCCION DROPTB
-class DropDB(Instruccion):
-    """ Instrucción DROPTB """
 
-    def __init__(self, param=None):
-        self.param = param
-
-# INSTRUCCION IFEXIST
 class IfExist(Instruccion):
-    """ Instrucción EXIST """
+    """ Instrucción IF EXIST """
 
-    def __init__(self, i_id):
-        self.i_id = i_id
+    def __init__(self, nombre):
+        self.nombre = nombre
 
-#----------FIN DE DROP--------------------
+# ----------FIN DE DROP--------------------
 
-#----------INICIO DE INSERT--------------------
+# ----------INICIO DE INSERT--------------------
 
 # INSTRUCCION INSERT
 class InsertTB(Instruccion):
@@ -187,9 +180,9 @@ class ValTab(Instruccion):
     def __init__(self, valor ):
         self.valor = valor
 
-#----------FIN DE INSERT--------------------
+# ----------FIN DE INSERT--------------------
 
-#----------INICIO DE ALTER--------------------
+# ----------INICIO DE ALTER--------------------
 # INSTRUCCION ALTER
 class Alter(Instruccion):
     """ Instrucción ALTER """
@@ -205,8 +198,8 @@ class AlterDB(Instruccion):
         self.i_id = i_id
         self.operacion = operacion
         self.val = val
-#----------FIN DE ALTER--------------------
-#----------INICIO DE UPDATE--------------------
+# ----------FIN DE ALTER--------------------
+# ----------INICIO DE UPDATE--------------------
 # INSTRUCCION UPDATE
 class Update(Instruccion):
     """ Instrucción UPDATE """
@@ -223,8 +216,8 @@ class Update(Instruccion):
         self.i_id = i_id
         self.lvalor = lvalor
 
-#----------FIN DE UPDATE--------------------
-#----------INICIO DE SHOW--------------------
+# ----------FIN DE UPDATE--------------------
+# ----------INICIO DE SHOW--------------------
 # INSTRUCCION SHOW
 class Show(Instruccion):
     """ Instrucción SHOW """
@@ -232,8 +225,8 @@ class Show(Instruccion):
     def __init__(self, param=None):
         self.param = param
 
-#----------FIN DE SHOW--------------------
-#----------INICIO DE DELETE--------------------
+# ----------FIN DE SHOW--------------------
+# ----------INICIO DE DELETE--------------------
 # INSTRUCCION DELETE
 class Delete(Instruccion):
     """ Instrucción DELETE """
@@ -242,7 +235,7 @@ class Delete(Instruccion):
         self.i_id = i_id
         self.where = where
 
-#----------FIN DE DELETE--------------------
+# ----------FIN DE DELETE--------------------
 
 # ----------INICIO DE USE DATABASE------------
 class UseDatabase(Instruccion):
