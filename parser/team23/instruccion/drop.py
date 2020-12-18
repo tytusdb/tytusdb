@@ -3,7 +3,6 @@ from tools.console_text import *
 from tools.tabla_tipos import *
 from storage import jsonMode as funciones
 from error.errores import *
-from storage.jsonMode import *
 from tools.tabla_simbolos import *
 
 class drop(instruccion):
@@ -25,8 +24,11 @@ class drop(instruccion):
             self.nodo.hijos.append(nodo_AST(id, num_nodo + 3))
 
         # Gramatica
-        self.grammar_ = "<TR><TD>INSTRUCCION ::= drop_statement; </TD><TD>INSTRUCCION = new drop(" + id + ");</TD></TR>"
-
+        self.grammar_ = "<TR><TD> INSTRUCCION ::= DROP DATABASE IF_EXISTS " + id + " </TD><TD>INSTRUCCION = new drop(" + id + ", IF_EXISTS); </TD></TR>\n"
+        if if_exists != None:
+            self.grammar_ += "<TR><TD> IF_EXISTS ::= IF EXISTS </TD><TD> IF_EXISTS =  True; </TD></TR>\n"
+        else:
+            self.grammar_ += "<TR><TD> IF_EXISTS ::= Epsilon </TD><TD> IF_EXISTS =  None; </TD></TR>\n"
 
     def ejecutar(self):
         try:
@@ -42,5 +44,5 @@ class drop(instruccion):
                 add_text("ERROR - Base de datos no se pudo eliminar, con nombre "+ self.id + "\n")
                 errores.append(nodo_error(self.line,self.column,'Error en drop DataBase','Semantico'))
         except:
-            errores.append(nodo_error(self.line,self.column,'Error en drop DataBase','Semantico'))
+            errores.append(nodo_error(self.line,self.column,'ERROR - No se pudo ejecutar drop DataBase','Semantico'))
             add_text("ERROR - Base de datos no se pudo eliminar, con nombre "+ self.id + "\n")
