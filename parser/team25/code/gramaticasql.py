@@ -2,7 +2,7 @@ import ply.yacc as yacc
 
 
 from lexicosql import tokens
-from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada
+from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID
 from astFunciones import FuncionNumerica , FuncionCadena
 from astUse import Use
@@ -13,15 +13,15 @@ from arbol import Arbol
 
 #---------------- MANEJO DE LA PRECEDENCIA
 precedence = (
+    ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
     ('left', 'NOT'),
     ('left','AND','OR'),
     ('left','IGUAL','DIFERENTE','DIFERENTE2','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
-    ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
     ('left','MAS','MENOS'),
     ('left','ASTERISCO','DIVISION','MODULO'),
     ('right','UMENOS','UMAS'),
-    ('left', 'EXPONENT')
+    ('left', 'EXPONENT') 
 ) 
 
 def p_init(p):
@@ -1124,21 +1124,42 @@ def p_expresiones_unarias(p):
     else:
         p[0] = ExpresionNegada(p[2])
     
+# def p_expresiones_is_complemento(p):
+#     '''
+#     expresion    : expresion IS NULL    
+#                  | expresion IS NOT NULL
+#                  | expresion ISNULL 
+#                  | expresion NOTNULL
+
+
+
+
+#                  | expresion IS UNKNOWN
+#                  | expresion IS NOT UNKNOWN 
+
 def p_expresiones_is_complemento(p):
-    '''
-    expresion    : expresion IS NULL    
-                 | expresion IS NOT NULL
-                 | expresion ISNULL 
-                 | expresion NOTNULL
-                 | expresion IS TRUE
-                 | expresion IS NOT TRUE
-                 | expresion IS FALSE 
-                 | expresion IS NOT FALSE
-                 | expresion IS UNKNOWN
-                 | expresion IS NOT UNKNOWN 
-                 | expresion IS DISTINCT FROM expresion 
-                 | expresion IS NOT DISTINCT FROM expresion '''
-  
+    'expresion : expresion IS TRUE'
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_TRUE)
+
+def p_expresiones_is_complemento1(p):
+    'expresion : expresion IS FALSE'
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_FALSE)
+
+def p_expresiones_is_complemento2(p):
+    'expresion : expresion IS NOT FALSE'
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NOT_FALSE)
+
+def p_expresiones_is_complemento2(p):
+    'expresion : expresion IS NOT TRUE'
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NOT_TRUE)
+
+def p_expresiones_is_complemento3(p):
+    'expresion : expresion IS DISTINCT FROM expresion'
+    p[0] = ExpresionBinariaIs(p[1], p[5], OPERACION_BINARIA_IS.IS_DISTINCT_FROM, p.slice[2].lineno )
+
+def p_expresiones_is_complemento4(p):
+    'expresion : expresion IS NOT DISTINCT FROM expresion'
+    p[0] = ExpresionBinariaIs(p[1], p[6], OPERACION_BINARIA_IS.IS_NOT_DISTINCT_FROM, p.slice[2].lineno )
 
 def p_expresion_ternaria(p): 
     '''expresion : expresion BETWEEN  exp_aux AND exp_aux
@@ -1461,7 +1482,7 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 
-arbolParser = analizarEntrada(''' select not 8 != 8 and 8*8 = 64;  ''')
+arbolParser = analizarEntrada(''' select -5 is not distinct from 5; ''')
 print(arbolParser.instrucciones[0].ejecutar(0).val)
 
 
