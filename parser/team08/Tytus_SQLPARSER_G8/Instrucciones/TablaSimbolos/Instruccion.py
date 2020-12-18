@@ -4,7 +4,7 @@ class Instruccion(ABC):
         
     @abstractmethod
     def ejecutar(self, tabla, arbol):
-        #print('Ejecutando...')
+        #print('Ejecutando...?')
         pass
     
     def __init__(self, tipo, linea, columna):

@@ -12,6 +12,9 @@ class Simbolo():
         self.valor = valor
         self.linea = linea
 
+    def imprimir(self):
+        return [self.id, self.tipo, self.valor, self.linea]
+
 class TablaDeSimbolos():
     'Esta clase representa la tabla de simbolos'
 

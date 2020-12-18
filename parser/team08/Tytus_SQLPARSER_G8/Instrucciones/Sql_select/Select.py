@@ -13,8 +13,15 @@ class Select(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print(self.dist + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-
+        if(self.lcol == "*"):
+            #vamos a mostrar todos
+            #haremos un for 
+            val = ""
+            val = self.lcol2.devolverTabla(tabla,arbol)
+        else:
+            #vamos a mostrar por columna
+            print("mostrar por  columna")
+            
 '''
 instruccion = Select("hola mundo",None, 1,2)
 

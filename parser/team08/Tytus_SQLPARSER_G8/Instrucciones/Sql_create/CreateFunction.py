@@ -3,14 +3,16 @@ from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 class CreateFunction(Instruccion):
     def __init__(self, id, tipo, lcol, id2, Instrucciones, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna)
-        self.valor = id
-        self.lcol = lcol
-        self.id2 = id2
+        self.id = id
+        self.listaDeColumnas = lcol
+        self.expresion = id2
         self.Instrucciones = Instrucciones
 
     def ejecutar(self, tabla, arbol):
-        super().ejecutar(tabla,arbol)
-        print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+        #super().ejecutar(tabla,arbol)
+        #Aqui vamos a guardar la funcion
+        tabla.setFuncion(self)
+
 '''
 instruccion = CreateFunction("hola mundo",None, 1,2)
 
