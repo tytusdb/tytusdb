@@ -8,7 +8,7 @@ from parse.sql_common.sql_general import *
 from treeGraph import *
 
 #===========================================================================================
-#======================================== ANALISIS LEXICO ==================================
+#==================================== LEXICAL ANALYSIS ==================================
 #===========================================================================================
 reserved = {
     'smallint' : 'SMALLINT',
@@ -326,7 +326,7 @@ def t_error(t):
 lexer = lex.lex(debug = False, reflags=re.IGNORECASE) 
 
 #===========================================================================================
-#==================================== ANALISIS SINTACTICO ==================================
+#==================================== SYNTACTIC ANALYSIS ==================================
 #===========================================================================================
 
 start = 'init'
@@ -370,6 +370,11 @@ def p_statement(t):
                     | stm_show   PUNTOCOMA'''
     t[0] = t[1]
 
+def p_statement_error(t):
+    '''statement    : error PUNTOCOMA
+                    '''
+    token = t.slice[1]
+    t[0] = Error(token.lineno, token.lexpos, ErrorType.SYNTAX, 'Ilegal token '+str(token.lineno))
 
 ##########   >>>>>>>>>>>>>>>>  STM_DELETE   AND  STM_ALTER  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_delete(t):
@@ -529,7 +534,7 @@ def p_stm_show(t):
                 | SHOW DATABASES LIKE PATTERN_LIKE'''
     token = t.slice[1]
     graph_ref = graph_node("SHOW", [t[4]])
-    t[0] = ShowDatabases(t[4],token.lineno, lexpos, graph_ref)
+    t[0] = ShowDatabases(t[4],token.lineno, token.lexpos, graph_ref)
 def p_stm_show0(t):
     '''stm_show : SHOW DATABASES'''
 
@@ -1023,22 +1028,6 @@ def p_empty(t):
     pass
 
 
-
-
-def p_error(p):
-    if not p:
-        print("End of file!")
-        return
-    # Read ahead looking for a closing ';'
-    while True:
-        tok = parse.token()  # Get the next token
-        if not tok or tok.type == 'PUNTOCOMA':
-            err = Error(p.lineno, p.lexpos, ErrorType.SYNTAX, 'Ilegal token '+str(p.type))
-            errorsList.append(err)
-            break
-    parse.restart()
-
-
 def p_numero(t):
     ''' numero  : ENTERO
                 | FLOAT'''
@@ -1077,7 +1066,7 @@ if __name__ == "__main__":
     print("Input: " + input +"\n")
     print("Executing AST root, please wait ...")
     instrucciones = parse.parse(input)
-    #dot.view()
+    dot.view()
 
     for instruccion in instrucciones:
         try:
