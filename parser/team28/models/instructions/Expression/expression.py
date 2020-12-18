@@ -7,24 +7,25 @@ import re
 
 class Expression:
     @abstractmethod
-    def execute(self):
+    def process(self):
         pass
 
 class ArithmeticBinaryOperation(Expression):
     '''
         Una operacion binaria recibe, sus dos operandos y el operador
     '''
-    def __init__(self, value1, value2, operador) :
+    def __init__(self, value1, value2, operador, op) :
         self.value1 = value1
         self.value2 = value2
         self.operador = operador
-    
+        self.alias = str(self.value1.alias) + str(op) + str(self.value2.alias)
+
     def __repr__(self):
         return str(vars(self))
     
-    def execute(self, expression):
-        value1 = self.value1.execute(expression)
-        value2 = self.value2.execute(expression)
+    def process(self, expression):
+        value1 = self.value1.process(expression)
+        value2 = self.value2.process(expression)
         operador = self.operador
         if value1.data_type != DATA_TYPE.NUMBER and value2.data_type != DATA_TYPE.NUMBER:
             print('error de ejecucion')
@@ -54,7 +55,6 @@ class ArithmeticBinaryOperation(Expression):
             value = round(value1.value ^ value2.value)
         return PrimitiveData(DATA_TYPE.NUMBER, value)
 
-# TODO JUAN MARCOS 
 class Relop(Expression):
     '''
     Relop contiene los operadores logicos
@@ -65,13 +65,14 @@ class Relop(Expression):
         self.value1 = value1
         self.operator = operator
         self.value2 = value2
+        self.alias = str(self.value1.alias) + str(operator) + str(self.value2.alias)
 
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self, expression):
-        value1 = self.value1.execute(expression)
-        value2 = self.value2.execute(expression)
+    def process(self, expression):
+        value1 = self.value1.process(expression)
+        value2 = self.value2.process(expression)
         operator = self.operator
         try:
             value = 0
@@ -106,6 +107,8 @@ class ExpressionsTime(Expression):
         self.name_date = name_date
         self.type_date = type_date
         self.name_opt = name_opt
+        self.alias = str(self.name_date.alias)
+
 
     def __repr__(self):
         return str(vars(self))
@@ -184,7 +187,8 @@ class ExpressionsTrigonometric(Expression):
         self.type_trigonometric = type_trigonometric
         self.expression1 = expression1
         self.optional_expression2 = optional_expression2
-
+        self.alias = str(self.type_trigonometric.alias)
+        
     def __repr__(self):
         return str(vars(self))
     def process(self, expression):
@@ -241,28 +245,7 @@ class ExpressionsTrigonometric(Expression):
         elif type_trigo.lower() == 'atanh':
             result = round(atanh(float(exp1.value)),4)
         return PrimitiveData(DATA_TYPE.NUMBER, result)
-# TODO JUAN MARCOS 
-class ExpressionsGreastLeast(Expression):
-    '''
-        ExpressionsGreastLeast
-    '''
-    def __init__(self, type_expression, lista_arr):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-    def __repr__(self):
-        return str(vars(self))
-# TODO JUAN MARCOS 
-class MathematicalExpressions(Expression):
-    '''
-        MathematicalExpressions
-    '''
-    def __init__(self, type_expression, lista_arr, optional_alias):
-        self.type_expression = type_expression
-        self.lista_arr = lista_arr
-        self.optiona_alias = optional_alias
-    
-    def __repr__(self):
-        return str(vars(self))
+
 
 class UnaryOrSquareExpressions(Expression):
     '''
@@ -271,6 +254,7 @@ class UnaryOrSquareExpressions(Expression):
     def __init__(self, sign, expression_list):
         self.sign = sign
         self.expression_list = expression_list
+        self.alias = str(self.sign) + str(self.expression_list.alias)
     
     def __repr__(self):
         return str(vars(self))
@@ -301,6 +285,7 @@ class LogicalOperators(Expression):
         self.value1 = value1
         self.operator = operator
         self.value2 = value2
+        self.alias = str(self.value1.alias) + str(self.operator) + str(self.value2.alias)
 
     def __repr__(self):
         return str(vars(self))
@@ -336,7 +321,7 @@ class PrimitiveData(Expression):
     def __init__(self, data_type, value):
         self.data_type = data_type
         self.value = value
-
+        self.alias = str(self.value)
     def __repr__(self):
         return str(vars(self))
 

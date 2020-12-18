@@ -3,6 +3,9 @@ class Database(object):
         self._name = name
         self._tables = []
 
+    def __str__(self):
+        return self._name
+
     @property
     def name(self):
         return self._name

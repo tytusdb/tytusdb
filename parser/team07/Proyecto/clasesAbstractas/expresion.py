@@ -29,5 +29,6 @@ class Expresion(InstruccionAbstracta):
 
     def ejecutar(self, tabalSimbolos, listaErrores):
          
+         
         pass   
 

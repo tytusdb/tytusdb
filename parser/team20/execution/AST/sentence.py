@@ -63,6 +63,11 @@ class AlterTableAlterColumnType(Sentence):
         self.table = table
         self.column = column
         self.newtype = newtype # type [type,length] or type = [type] 
+class AlterTableAddColumn(Sentence):
+    def __init__(self, table, column, newtype):
+        self.table = table
+        self.column = column
+        self.type = type # type [type,length] or type = [type] 
 
 class AlterTableDropConstraint(Sentence):
     def __init__(self, table, constraint):
@@ -99,3 +104,50 @@ class CreateType(Sentence):
     def __init__(self, name, expressions):
         self.name = name
         self.expressions = expressions #expressions = [expression1,expression2,...,expressionn]
+
+class CreateTable(Sentence):
+    def __init__(self, name, columns, inherits):
+        self.name = name
+        self.columns = columns #columns = [column1,column2,...,columnn] Every Column is an instance of {'id','check','constraint','unique','primary','foreign'}
+        self.inherits = inherits
+        #Types:
+        #column -> {ColumnId,ColumnCheck,ColumnConstraint,ColumnUnique,ColumnPrimaryKey,ColumnForeignKey}
+
+class CreateTableOpt:
+    ''' '''
+class ColumnId(CreateTableOpt):
+    def __init__(self, name, type, options):
+        self.name = name
+        self.type = type
+        self.options = options #options = {'default','null','primary','reference','unique','constraint','check'} or None
+        # options se puede acceder a los items de la forma options['nombrepropiedad'] si no existe devuelve 'nombrepropiedad'
+        # default -> Expression
+        # null -> True/False
+        # primary -> True
+        # reference -> ID
+        # unique -> True
+        # constraintunique -> ID
+        # check -> Expression
+        # constraintcheck -> ID,Expression
+
+class ColumnCheck(CreateTableOpt):
+    def __init__(self, expression):
+        self.expression = expression
+
+class ColumnConstraint(CreateTableOpt):
+    def __init__(self, name,expression):
+        self.name = name
+        self.expression = expression
+
+class ColumnUnique(CreateTableOpt):
+    def __init__(self, columnslist):
+        self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
+
+class ColumnPrimaryKey(CreateTableOpt):
+    def __init__(self, columnslist):
+        self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
+
+class ColumnForeignKey(CreateTableOpt):
+    def __init__(self, columnslist, columnslist_ref):
+        self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
+        self.columnslist_ref = columnslist_ref # is and idList [refcolumnname1,refcolumnname2,...,refcolumnnamen]
