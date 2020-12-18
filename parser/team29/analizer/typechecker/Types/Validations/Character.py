@@ -1,12 +1,14 @@
-def validateVarchar(n,val):
-    if 0 < len(val) and len(val)<=n:
+def validateVarchar(n, val):
+    if 0 < len(val) and len(val) <= n:
         return None
-    return {'Type':"varchar",'Descripción':"Excede el limite de caracteres"}
+    return {"Type": "varchar", "Descripción": "Excede el limite de caracteres"}
 
-def validateChar(n,val):
-    if len(val)==n:
+
+def validateChar(n, val):
+    if len(val) == n:
         return None
-    return {'Type':"char",'Descripción':"Restriccion de caracteres"}  
+    return {"Type": "char", "Descripción": "Restriccion de caracteres"}
+
 
 def validateBoolean(val):
     s = str(val).lower()
@@ -14,4 +16,4 @@ def validateBoolean(val):
         return None
     elif val == 1 or val == 0:
         return None
-    return {'Type':"boolean",'Descripción':"invalido"}
+    return {"Type": "boolean", "Descripción": "invalido"}

@@ -12,6 +12,23 @@ class InsertTable(InstruccionAbstracta):
     
 
     def ejecutar(self, tabalSimbolos, listaErrores):
+
+
+        
          
+        listaValores = []
+        for exp in self.listaExpresiones:
+            simb = exp.ejecutar(tabalSimbolos,listaErrores)
+            if simb != None:
+                return
+            else:
+                # guardar el valor como 
+                listaValores.append(simb.valorRetorno)
+                pass
+        
+
+
+
+
         pass   
 

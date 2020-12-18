@@ -1,5 +1,7 @@
 from parse.ast_node import ASTNode
 from jsonMode import alterDatabase, alterAddColumn, alterDropColumn
+from parse.errors import Error, ErrorType
+from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol, SymbolType
 
 
 class AlterDatabaseRename(ASTNode):
@@ -8,21 +10,24 @@ class AlterDatabaseRename(ASTNode):
         self.name = name  # db current name
         self.new_name = new_name  # db new name
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
         result_new_name = self.new_name.execute(table, tree)
         result = alterDatabase(result_name, result_new_name)
         if result == 1:
-            # log error on operation
+            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
             return False
         elif result == 2:
-            # log error, old database name does not exists
+            raise Error(0, 0, ErrorType.RUNTIME, '42P04: old_database_does_not_exists')
             return False
         elif result == 3:
-            # log error, new database name already exists
+            raise Error(0, 0, ErrorType.RUNTIME, '42P04: new_database_already_exists')
             return False
         else:
+            old_symbol = table.get(result_name, SymbolType.DATABASE)
+            old_symbol.name = result_new_name
+            table.update(old_symbol)
             return True
 
 
@@ -32,36 +37,56 @@ class AlterDatabaseOwner(ASTNode):
         self.name = name  # db name
         self.owner = owner  # db new owner
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
+        result_name = self.name.execute(table, tree)
+        result_owner = self.owner.execute(table, tree)
+        old_symbol = table.get(result_name, SymbolType.DATABASE)
+        old_symbol.owner = result_owner
+        table.update(old_symbol)
         return True
 
 
 class AlterTableAddColumn(ASTNode):
-    def __init__(self, table_name, field_name, field_type, field_length, line, column):
+    def __init__(self, table_name, field_name, field_type, field_length, allows_null, line, column):
         ASTNode.__init__(self, line, column)
         self.table_name = table_name
         self.field_name = field_name
         self.field_type = field_type
         self.field_length = field_length
+        self.allows_null = allows_null
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_table_name = self.table_name.execute(table, tree)
         result_field_name = self.field_name.execute(table, tree)
         result_field_type = self.field_type.execute(table, tree)
         result_field_length = self.field_length.execute(table, tree)
-        result = alterAddColumn('db_name_from_st', result_field_name, None)
+        result = alterAddColumn(table.get_current_db().name, result_field_name, None)
         if result == 1:
-            # log error on operation
+            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
             return False
         elif result == 2:
-            # log error, old database name does not exists
+            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
             return False
         elif result == 3:
-            # log error, table does not exists
+            raise Error(0, 0, ErrorType.RUNTIME, '42P04: table_does_not_exists')
             return False
         else:
+            total_fields = len(table.get_fields_from_table(result_table_name))
+            column_symbol = FieldSymbol(
+                table.get_current_db().name,
+                result_table_name,
+                total_fields + 1,
+                result_field_name,
+                result_field_type,
+                result_field_length,
+                self.allows_null,
+                False,
+                None,
+                None
+            )
+            table.add(column_symbol)
             return True
 
 
