@@ -228,4 +228,32 @@ class Tytus:
                 return 2
         except:
             print("Error en la operacion")
-            return 1     
+            return 1  
+        
+        
+    """
+    alterAddColumn(database, table, default)
+    @description
+        Agrega un registro a la tabla y base de datos especificada.
+    @param
+        database: nombre de la base de datos a utilizar
+        table: nombre de la tabla a utilizar
+        default: valor que se le asignara por defecto a la nueva columna
+    @return
+        0 Operación exitosa
+        1 Error en la operación                                                 -
+        2 Database no existente 
+        3 Tabla no existente
+    """
+    def alterAddColumn(self, database, table, default):
+        try:
+            indiceDB = self.buscarDB(database)
+            if indiceDB != None:
+                indiceTabla = self.databases[indiceDB].buscarTable(table)
+                if indiceTabla != None:
+                    self.databases[indiceDB].getTable(indiceTabla).alterAddColumn(default)
+                    return 0
+                return 3
+            return 2
+        except Exception as e:
+            return 1
