@@ -107,11 +107,45 @@ class Node:
                 inicio = mid +1
         return None
 
-    def imp_column(self,columnNumber,lower,upper): ##trabaja solo en esa tabla, de esa base de datos en esa columna dada. wujuuuuuuuuuuuuuuuuuuuu
-        
-        for i in self.array:
-            if int(i[columnNumber]) <= upper and int(i[columnNumber]) >= lower :
-                #print(i)  
-                return i
+    def obtenerLower(self,valor,lower): ##Cristian 17/12/2020
+        let=""
+        contador = 0
+        x= len(lower)-1
+        for i in valor:
+            if contador > x:
+                if lower.upper() == let.upper():
+                    return True
+                else:
+                    return False
             else:
-                return None
+                contador+=1
+                let+=i
+
+    def obtenerUpper(self,valor,upper):
+        let=""
+        contador = 0
+        x= len(upper)-1
+        for i in valor[::-1]:
+            if contador > x:
+                if upper.upper() == let[::-1].upper():
+                    return True
+                else:
+                    return False
+            else:
+                contador+=1
+                let+=i    
+
+    def imp_column(self,columnNumber,lower,upper): 
+        
+        if isinstance(lower, int) == True:
+            for i in self.array:
+                if int(i[columnNumber]) <= upper and int(i[columnNumber]) >= lower :
+                    return i
+                else:
+                    return None
+        else:
+            for i in self.array:
+                if self.obtenerLower(str(i[columnNumber]),lower) == True and self.obtenerUpper(str(i[columnNumber]),upper) == True:
+                    return i
+                else:
+                    return None 

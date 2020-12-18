@@ -1,8 +1,14 @@
+# HASH Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
+
 import os
 import subprocess
 
 
 class Nodo(object):
+    
     def __init__(self, datos, primaria, posicion):
         self.primaria = ''
         self.datos = datos
@@ -19,10 +25,11 @@ class Nodo(object):
                     self.primaria += str(datos[i]) + '-'
                 contador += 1
 
-        if type(self.primaria) is str:
-            self.tipo = 'str'
-        else:
+        if type(self.primaria) is int:
             self.tipo = 'int'
+        else:
+            self.tipo = 'str'
+            self.primaria = str(self.primaria)
 
 
 class Tabla(object):
@@ -62,8 +69,10 @@ class Tabla(object):
             if self.elementos == 0:
                 self.tipoPrimaria = nuevo.tipo
             else:
-                if self.tipoPrimaria != nuevo.tipo:
-                    return False
+                if self.tipoPrimaria is None:
+                    '''No hace nada'''
+                elif self.tipoPrimaria != nuevo.tipo:
+                    return 1
             posicion = self.funcionHash(nuevo.primaria)
             # Ahora se verificara si la posicion ya tiene una lista o esta vacia
             if self.vector[posicion] is None:
@@ -80,6 +89,8 @@ class Tabla(object):
             if self.tipoPrimaria == 'int':
                 if self.Existe(self.vector[posicion], nuevo.primaria):
                     return 4
+            elif self.tipoPrimaria is None:
+                '''No se hacce nada'''
             else:
                 if self.ExisteToAscii(self.vector[posicion], nuevo.primaria):
                     return 4
@@ -126,7 +137,7 @@ class Tabla(object):
             self.insertar(nodo.datos)
 
     def funcionHash(self, primaria):
-        if self.tipoPrimaria == 'str':
+        if type(primaria) is str:
             primaria = self.toASCII(primaria)
         index = primaria % self.tamano
         return index
@@ -163,13 +174,13 @@ class Tabla(object):
 
     def ExisteToAscii(self, lista, dato):
         for i in lista:
-            if i.primaria == dato:
+            if str(i.primaria) == str(dato):
                 return True
         return False
 
     def BuscandoNodoToAscii(self, lista, dato):
         for i in lista:
-            if i.primaria == dato:
+            if str(i.primaria) == str(dato):
                 return i
         return False
 
@@ -189,7 +200,7 @@ class Tabla(object):
     def OrdenarBurbujaToAscii(self, vector):
         for i in range(1, len(vector)):
             for j in range(0, len(vector) - 1):
-                if self.toASCII(vector[j].primaria) > self.toASCII(vector[j + 1].primaria):
+                if self.toASCII(str(vector[j].primaria)) > self.toASCII(str(vector[j + 1].primaria)):
                     aux = vector[j + 1]
                     vector[j + 1] = vector[j]
                     vector[j] = aux
@@ -219,29 +230,31 @@ class Tabla(object):
                 primaria = self.UnirLlave(primaria)
             else:
                 primaria = primaria[0]
+
+            if not (type(primaria) is int):
+                primaria = str(primaria)
+
             if self.tipoPrimaria == 'int':
                 if type(primaria) is str:
-                    return 1
+                    return []
                 indice = self.funcionHash(primaria)
                 casilla = self.vector[indice]
                 if casilla is None:
-                    return 4  # Llave primaria no existe
+                    return []  # Llave primaria no existe
                 nodo = self.BusquedaBinariaDevlviendoNodo(casilla, primaria)
             else:
-                if type(primaria) is int:
-                    return 1
                 indice = self.funcionHash(primaria)
                 casilla = self.vector[indice]
                 if casilla is None:
-                    return 4  # Llave primaria no existe
+                    return []  # Llave primaria no existe
                 nodo = self.BuscandoNodoToAscii(casilla, primaria)
 
             if type(nodo) == bool:
-                return 4
+                return []
             else:
                 return nodo.datos
         except:
-            return 1
+            return []
 
     '''
     Truncate, metodo para vaciar la tabla totalmente 
@@ -270,6 +283,10 @@ class Tabla(object):
                 primaria = self.UnirLlave(primaria)
             else:
                 primaria = primaria[0]
+
+            if not (type(primaria) is int):
+                primaria = str(primaria)
+
             if (type(primaria) is str) or (type(primaria) is int):
                 indice = self.funcionHash(primaria)
                 if self.vector[indice] is None:
@@ -302,49 +319,77 @@ class Tabla(object):
                 return lista
         else:
             for i in lista:
-                if i.primaria == primaria:
+                if str(i.primaria) == str(primaria):
                     lista.remove(i)
                     return lista
             return False
 
     def update(self, primaria, registro):
-        if len(primaria) > 1:
-            primaria = self.UnirLlave(primaria)
-        else:
-            primaria = primaria[0]
-        keys = registro.keys()
-        for i in keys:
-            if i >= self.columnas:
-                return 1
+        try:
+            if len(primaria) > 1:
+                primaria = self.UnirLlave(primaria)
+            else:
+                primaria = primaria[0]
 
-        if self.tipoPrimaria == 'int':
             if not (type(primaria) is int):
-                return 1
-            indice = self.funcionHash(primaria)
-            if self.vector[indice] is None:
-                return 4
-            if not self.Existe(self.vector[indice], primaria):
-                return 4
-            elemento = self.BusquedaBinariaDevlviendoNodo(self.vector[indice], primaria)
-            indiceInterno = self.vector[indice].index(elemento)
+                primaria = str(primaria)
+
+            keys = registro.keys()
             for i in keys:
-                elemento.datos[i] = registro[i]
-            self.vector[indice][indiceInterno] = elemento
-            return 0
+                if i >= self.columnas:
+                    return 1
+
+            if self.tipoPrimaria == 'int':
+                if not (type(primaria) is int):
+                    return 1
+                indice = self.funcionHash(primaria)
+                if self.vector[indice] is None:
+                    return 4
+                if not self.Existe(self.vector[indice], primaria):
+                    return 4
+                elemento = self.BusquedaBinariaDevlviendoNodo(self.vector[indice], primaria)
+                indiceInterno = self.vector[indice].index(elemento)
+                listaNueva = elemento.datos[:]
+                for i in keys:
+                    listaNueva[i] = registro[i]
+                for i in keys:
+                    if i in self.PK:
+                        return self.CambioPrimaria(listaNueva, indice, indiceInterno)
+                elemento.datos = listaNueva
+                self.vector[indice][indiceInterno] = elemento
+                return 0
+            else:
+
+                indice = self.funcionHash(primaria)
+                if self.vector[indice] is None:
+                    return 4
+                if not self.ExisteToAscii(self.vector[indice], primaria):
+                    return 4
+                elemento = self.BuscandoNodoToAscii(self.vector[indice], primaria)
+                indiceInterno = self.vector[indice].index(elemento)
+                listaNueva = elemento.datos[:]
+                for i in keys:
+                    listaNueva[i] = registro[i]
+                for i in keys:
+                    if i in self.PK:
+                        return self.CambioPrimaria(listaNueva, indice, indiceInterno)
+                elemento.datos = listaNueva
+                self.vector[indice][indiceInterno] = elemento
+                return 0
+        except:
+            return 1
+
+    def CambioPrimaria(self, datos, indice, indiceInterno):
+        retorno = self.insertar(datos)
+        if retorno != 0:
+            return 1
         else:
-            if not (type(primaria) is str):
-                return 1
-            indice = self.funcionHash(primaria)
-            if self.vector[indice] is None:
-                return 4
-            if not self.ExisteToAscii(self.vector[indice], primaria):
-                return 4
-            elemento = self.BuscandoNodoToAscii(self.vector[indice], primaria)
-            indiceInterno = self.vector[indice].index(elemento)
-            for i in keys:
-                elemento.datos[i] = registro[i]
-            self.vector[indice][indiceInterno] = elemento
-            return 0
+            self.vector[indice].pop(indiceInterno)
+            if len(self.vector[indice]) == 0:
+                self.vector[indice] = None
+                self.elementos -= 1
+            return retorno
+
 
     def extractTable(self):
         lista = []
@@ -416,14 +461,14 @@ class Tabla(object):
         subprocess.call('dot -Tpng hash.dot -o hash.png')
         os.system('hash.png')
 
-    def alterAddColumn(self):
+    def alterAddColumn(self, default):
         try:
             for i in self.vector:
                 if i is None:
                     '''No hace nada'''
                 else:
                     for j in i:
-                        j.datos.append(None)
+                        j.datos.append(default)
             self.columnas += 1
             return 0
         except:
@@ -462,9 +507,13 @@ class Tabla(object):
             for i in referencias:
                 if i >= self.columnas:
                     return 5
+            temporal = self.PK
             self.PK = referencias
             if self.elementos > 0:
-                self.RestructuracionPorLlavePrimaria()
+                retorno = self.RestructuracionPorLlavePrimaria()
+                if not retorno:
+                    self.PK = temporal
+                    return 1
             return 0
         except:
             return 1
@@ -474,16 +523,12 @@ class Tabla(object):
             if self.PK is None:
                 return 4
             self.PK = None
+            self.tipoPrimaria = None
             return 0
         except:
             return 1
 
     def RestructuracionPorLlavePrimaria(self):
-        self.elementos = 0
-        self.factorCarga = 0
-        self.tamano = 13
-        self.contadorPK = 0
-        self.tipoPrimaria = None
         lista = []
         for i in self.vector:
             if i is None:
@@ -491,11 +536,33 @@ class Tabla(object):
             else:
                 for j in i:
                     lista.append(j)
+
+        comprobacion = self.ComprobarReestructuracion(lista)
+
+        if not comprobacion:
+            return False
+
+        self.elementos = 0
+        self.factorCarga = 0
+        self.tamano = 13
+        self.contadorPK = 0
+        self.tipoPrimaria = None
+
         self.vector = []
         for i in range(13):
             self.vector.append(None)
         for nodo in lista:
             self.insertar(nodo.datos)
+        return True
+
+    def ComprobarReestructuracion(self, lista):
+        tablaPrueba = Tabla('prueba', self.columnas)
+        tablaPrueba.alterAddPK(self.PK)
+        for nodo in lista:
+            retorno = tablaPrueba.insertar(nodo.datos)
+            if not (retorno == 0):
+                return False
+        return True
 
     def UnirLlave(self, primaria):
         combinada = ''
@@ -508,16 +575,9 @@ class Tabla(object):
             contador += 1
         return combinada
 
-    def extractRangeTable(self, lower, upper):
+    def extractRangeTable(self, numeroColumna, lower, upper):
         try:
-            if len(lower) > 1:
-                lower = self.UnirLlave(lower)
-                upper = self.UnirLlave(upper)
-            else:
-                lower = lower[0]
-                upper = upper[0]
-
-            if self.tipoPrimaria == 'str':
+            if (not (type(lower) is int)) or (not (type(upper) is int)):
                 lower = str(lower)
                 upper = str(upper)
 
@@ -530,15 +590,15 @@ class Tabla(object):
                         lista.append(j)
 
             listaRetorno = []
-            if self.tipoPrimaria == 'int':
+            if not (type(lower) is int):
                 for nodo in lista:
-                    if lower <= nodo.primaria <= upper:
+                    if lower <= str(nodo.datos[numeroColumna]) <= upper:
                         listaRetorno.append(nodo.datos)
-            else:
-                for nodo in lista:
-                    if self.toASCII(lower) <= self.toASCII(nodo.primaria) <= self.toASCII(upper):
-                        listaRetorno.append(nodo.datos)
+                return listaRetorno
 
+            for nodo in lista:
+                if lower <= nodo.datos[numeroColumna] <= upper:
+                    listaRetorno.append(nodo.datos)
             return listaRetorno
         except:
             return []

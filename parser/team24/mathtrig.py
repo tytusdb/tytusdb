@@ -147,5 +147,5 @@ def width_bucket(w,x,y,z):
 def random():
     return r.random()
 
-def setseet(x):
+def setseed(x):
     r.seed(x)
