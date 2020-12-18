@@ -10,7 +10,7 @@ class Instruccion:
     """ This is an abstract class """
 
 
-# INSTRUCCION SELECT MINIMO
+# INSTRUCCION SELECT COMPLETO
 class SelectCompleto(Instruccion):
     """ Instrucción SELECT COMPLETO """
 
@@ -55,6 +55,7 @@ class Select3(Instruccion):
         self.pfrom = pfrom
         self.where = where
         self.complementos = complementos
+
 
 # INSTRUCCION SELECT SOLO VALORES
 class Select4(Instruccion):
@@ -112,8 +113,51 @@ class ComplementoSelectExceptPcoma(Instruccion):
     def __init__(self, param=None):
         self.param = param
         # NO RECIBE PARAMETROS
-
 # ----------FIN DE CLASES SELECT--------------
+
+
+# ----------INICIO DE REPLACE------------------
+#INSTRUCCION REPLACE1
+class Replace1(Instruccion):
+    """ Instrucción REPLACE1 """
+
+    def __init__(self, exist):
+        self.exist = exist
+
+#INSTRUCCION REPLACE2
+class Replace2(Instruccion):
+    """ Instrucción REPLACE2 """
+
+    def __init__(self, exist):
+        self.exist = exist
+
+# ----------FIN DE REPLACE------------------
+
+
+# ----------INICIO DE CTABLE------------------
+#INSTRUCCION CTABLE
+class Ctable(Instruccion):
+    """ Instrucción CTABLE """
+
+    def __init__(self, i_id,inherits):
+        self.i_id = i_id
+        self.atributos = atributos
+        self.inherits = inherits
+
+# ----------FIN DE CTABLE------------------
+
+
+# ----------INICIO DE CTYPE------------------
+#INSTRUCCION CTYPE
+class Ctype(Instruccion):
+    """ Instrucción CTABLE """
+
+    def __init__(self, i_id,cadenas):
+        self.i_id = i_id
+        self.cadenas = cadenas
+
+# ----------FIN DE CTYPE------------------
+
 
 # ----------INICIO DE CREATE------------------
 
@@ -140,13 +184,14 @@ class Create(Instruccion):
 
 # ----------FIN DE CLASES CREATE--------------
 
+
 # ----------INICIO DE DROP--------------------
 # INSTRUCCION DROP
-class Drop(Instruccion):
-    """ Instrucción DROP """
+# class Drop(Instruccion):
+#     """ Instrucción DROP """
 
-    def __init__(self, tdrop):
-        self.tdrop = tdrop
+#     def __init__(self, tdrop):
+#         self.tdrop = tdrop
 
 
 class DropDB(Instruccion):
@@ -156,22 +201,49 @@ class DropDB(Instruccion):
         self.ifexist = ifexist
 
 
-class IfExist(Instruccion):
+        # INSTRUCCION DROPTB
+class DropTB(Instruccion):
+    """ Instrucción DROPTB """
+
+    def __init__(self, i_id):
+        self.i_id = i_id
+        
+
+# INSTRUCCION IFEXIST1
+class IfExist1(Instruccion):
     """ Instrucción IF EXIST """
 
     def __init__(self, nombre):
         self.nombre = nombre
 
+        
+# INSTRUCCION IFEXIST2
+class IfExist2(Instruccion):
+    """ Instrucción IF EXIST """
+
+    def __init__(self, i_id):
+        self.i_id = i_id
 # ----------FIN DE DROP--------------------
 
+
 # ----------INICIO DE INSERT--------------------
-
-# INSTRUCCION INSERT
+# INSTRUCCION INSERTTB
 class InsertTB(Instruccion):
-    """ Instrucción INSERT """
+    """ Instrucción INSERTTB """
 
-    def __init__(self, lvalt):
+    def __init__(self, i_id,  lvalt):
+        self.i_id = i_id
         self.lvalt = lvalt
+
+# INSTRUCCION INSERTTB1
+class InsertTB(Instruccion):
+    """ Instrucción INSERTTB """
+
+    def __init__(self, i_id, lvalt, lvalt2):
+        self.i_id = i_id
+        self.lvalt = lvalt
+        self.lvalt2 = lvalt2
+
 
 # INSTRUCCION VALTAB
 class ValTab(Instruccion):
@@ -179,10 +251,72 @@ class ValTab(Instruccion):
 
     def __init__(self, valor ):
         self.valor = valor
-
 # ----------FIN DE INSERT--------------------
 
+
 # ----------INICIO DE ALTER--------------------
+#INSTRUCCION TIPALTERC
+class TipAlterC(Instruccion):
+    """ Instrucción TALTER """
+
+    def __init__(self, condicion ):
+        self.condicion = condicion
+
+#INSTRUCCION TIPALTERU
+class TipAlterU(Instruccion):
+    """ Instrucción TALTERU """
+
+    def __init__(self, lids ):
+        self.lids = lids
+
+#INSTRUCCION TIPALTERFK
+class TipAlterFK(Instruccion):
+    """ Instrucción TALTERFK """
+
+    def __init__(self, lids, i_id, lids2 ):
+        self.lids = lids
+        self.i_id = i_id
+        self.lids2 = lids2
+
+#INSTRUCCION TIPALTERFK1
+class TipAlterFK1(Instruccion):
+    """ Instrucción TALTERFK """
+
+    def __init__(self, lids, i_id, lids ):
+        self.lids = lids
+        self.i_id = i_id
+
+#INSTRUCCION TIPALTERCO
+class TipAlterCo(Instruccion):
+    """ Instrucción TALTERFK """
+
+    def __init__(self, i_id, tconst ):
+        self.i_id = i_id
+        self.tconst = tconst
+
+#INSTRUCCION TIPOCONSTRAINTC
+class TipoConstraintC(Instruccion):
+    """ Instrucción TIPOCONSTRAINTC """
+
+    def __init__(self, condicion ):
+        self.condicion = condicion
+
+#INSTRUCCION TIPOCONSTRAINTU
+class TipoConstraintU(Instruccion):
+    """ Instrucción TIPOCONSTRAINTU """
+
+    def __init__(self, lids ):
+        self.lids = lids
+
+#INSTRUCCION TIPOCONSTRAINTFK
+class TipoConstraintFK(Instruccion):
+    """ Instrucción TIPOCONSTRAINTFK """
+
+    def __init__(self, lids, i_id, lids2 ):
+        self.lids = lids
+        self.i_id = i_id
+        self.lids2 = lids2
+
 # INSTRUCCION ALTER
 class Alter(Instruccion):
     """ Instrucción ALTER """
@@ -199,6 +333,8 @@ class AlterDB(Instruccion):
         self.operacion = operacion
         self.val = val
 # ----------FIN DE ALTER--------------------
+
+
 # ----------INICIO DE UPDATE--------------------
 # INSTRUCCION UPDATE
 class Update(Instruccion):
@@ -215,8 +351,9 @@ class Update(Instruccion):
     def __init__(self, i_id, lvalor ):
         self.i_id = i_id
         self.lvalor = lvalor
-
 # ----------FIN DE UPDATE--------------------
+
+
 # ----------INICIO DE SHOW--------------------
 # INSTRUCCION SHOW
 class Show(Instruccion):
@@ -226,6 +363,8 @@ class Show(Instruccion):
         self.param = param
 
 # ----------FIN DE SHOW--------------------
+
+
 # ----------INICIO DE DELETE--------------------
 # INSTRUCCION DELETE
 class Delete(Instruccion):
@@ -234,8 +373,8 @@ class Delete(Instruccion):
     def __init__(self,i_id, where ):
         self.i_id = i_id
         self.where = where
-
 # ----------FIN DE DELETE--------------------
+
 
 # ----------INICIO DE USE DATABASE------------
 class UseDatabase(Instruccion):
@@ -271,5 +410,4 @@ class Owner_Mode(Instruccion):
     def __init__(self, owner, mode):
         self.owner = owner
         self.mode = mode
-
 # ----------FIN DE CREATE DATABASE------------
