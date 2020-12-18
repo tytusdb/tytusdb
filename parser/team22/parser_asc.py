@@ -219,6 +219,7 @@ def p_instruccion_crear_TB_herencia(t):
 
 def p_instruccion_crear_TB(t):
     '''crear_tb     : ID PARIZQ crear_tb_columnas PARDER PTCOMA'''
+    type_checker.createTable(table = t[1], columns = t[3], line = t.lexer.lineno)
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'CREATE TABLE')
@@ -1087,7 +1088,7 @@ def p_instrucciones_columna_noparam(t) :
     dot.node(str(id), t[1])
     dot.edge(str(id), str(t[2]['id']))
 
-    t[0] = {'nombre': t[1], 'col': Columna(tipo = t[2]), 'id' : id}
+    t[0] = {'nombre': t[1].lower(), 'col': Columna(tipo = t[2]), 'id' : id}
 
 
 def p_instrucciones_columna_pk(t) :

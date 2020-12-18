@@ -6,7 +6,7 @@ SENTENCIAS_SQL :: = SENTENCIAS_SQL SENTENCIA_SQL
                       | SENTENCIA_SQL
 
 SENTENCIA_SQL :: = SENTENCIAS_DML
-                  | SENTENCIA_DDL
+                  | SENTENCIAS_DDL
 
 SENTENCIAS_DML ::= SELECT_SQL pyc
                    | t_insert t_into id INSERT_SQL pyc
@@ -96,21 +96,26 @@ ALTER_COLUMN1 ::=  id t_type t_varchar par1 entero par2
 CREATE ::= CREATEDB   
                | CREATETB
 
-CREATETB ::= t_database OP1_DB
-                | t_or t_replace t_database OP1_DB
+CREATEDB ::= ORREPLACECREATEDB t_database IFNOTEXISTCREATEDB id SESION
 
-OP1_DB ::= t_if t_not t_exists id SESION
-               | id SESION
+ORREPLACECREATEDB ::= t_or t_replace
+                     | empty
+
+IFNOTEXISTCREATEDB ::=      t_if t_not t_exists
+                            | empty
 
 SESION ::= t_owner OP_SESION SESION_MODE
-                | t_mode OP_SESION
+                | t_mode OP_MODE
                 | empty 
 
-OP_SESION ::= igual id
-            | id 
+OP_SESION ::= igual char
+            | char 
 
-SESION_MODE ::= t_mode OP_SESION
+SESION_MODE ::= t_mode OP_MODE
                   | empty 
+
+OP_MODE ::= igual entero
+            | entero
 
 CREATETB ::= t_table id par1 COLUMNAS par2 INHERITS 
 

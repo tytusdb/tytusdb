@@ -27,7 +27,7 @@ class DropTB(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self, instrucction):
         typeChecker = TypeChecker()
         database = None  # TODO Obtener desde la tabla de simbolos
 
@@ -52,7 +52,6 @@ class AlterTable(Instruction):
 
     def execute(self):
         pass
-        
 
     def __repr__(self):
         return str(vars(self))
