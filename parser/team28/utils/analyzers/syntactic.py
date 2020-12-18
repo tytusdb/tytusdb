@@ -66,12 +66,16 @@ def p_instruction_list(p):
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
                     | DML
+                    | usestatement
                     | MULTI_LINE_COMMENT
                     | SINGLE_LINE_COMMENT
                     | error SEMICOLON
     '''
     p[0] = p[1]
 
+def p_use_statement(p):
+    '''usestatement : USE ID'''
+    p[0] = UseDatabase(p[2])
 
 def p_ddl(p):
     '''ddl : createstatement
@@ -352,31 +356,34 @@ def p_option_col(p):  # TODO verificar
                  | REFERENCES ID 
     '''
     p[0] = {
-        'default_vale' : None,
-        'is_null' : False,
-        'contraint_unique' : None,
-        'unique' : False,
-        'contraint_check_condition' : None,
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
         'check_condition' : None,
-        'pk_option' : False,
+        'pk_option' : None,
         'fk_references_to' : None
     }
     if p[1].lower() == 'DEFAULT'.lower():   
         p[0]['default_value'] = p[2]
     elif p[1].lower() == 'NOT'.lower():                                  
+        p[0]['is_null'] = False
+    elif p[1].lower() == 'NULL'.lower():                                  
         p[0]['is_null'] = True
-    elif p[1].lower() == 'CONTRAINT'.lower() and len(p) == 4:
-        p[0]['contrain_unique'] = p[2]
+    elif p[1].lower() == 'CONSTRAINT'.lower() and len(p) == 4:
+        p[0]['constraint_unique'] = p[2]
     elif p[1].lower() == 'UNIQUE'.lower():
         p[0]['unique'] = True
     elif p[1].lower() == 'CONSTRAINT'.lower() and len(p) == 7:
-        p[0]['contraint_check_condition'] = p[5]
+        p[0]['constraint_check_condition'] = p[5]
     elif p[1].lower() == 'CHECK'.lower():
         p[0]['check_condition'] = p[3]
     elif p[1].lower() == 'PRIMARY'.lower():
         p[0]['pk_option'] = True
-    elif p[1].lower() == 'UNIQUE'.lower():
+    elif p[1].lower() == 'REFERENCES'.lower():
         p[0]['fk_references_to'] = p[2]  
+    
     
 
 def p_condition_column(p):
@@ -738,7 +745,7 @@ def p_select_without_order(p):
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
     if len(p) == 2:
-        p[0] = [p[1]]
+        p[0] = p[1]
     elif len(p) == 5:
         type_combine_query = TypeQuerySelect(p[2], p[3])
         p[1].append(type_combine_query)
@@ -803,7 +810,8 @@ def p_select_item(p):
                   | SQLEXPRESSION
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
-        p[0] = [p[1], p[2]]
+        p[1].alias = p[2].alias
+        p[0] = p[1]
     elif (len(p) == 4):
         p[0] = p[2]
     elif (len(p) == 2):
@@ -860,10 +868,10 @@ def p_select_group_having(p):
 
 
 def p_table_reference(p):
-    '''TABLEREFERENCE : OBJECTREFERENCE SQLALIAS
-                      | OBJECTREFERENCE SQLALIAS JOINLIST
-                      | OBJECTREFERENCE JOINLIST
-                      | OBJECTREFERENCE'''
+    '''TABLEREFERENCE : SQLNAME SQLALIAS
+                      | SQLNAME SQLALIAS JOINLIST
+                      | SQLNAME JOINLIST
+                      | SQLNAME'''
     if (len(p) == 2):
         p[0] = p[1]
     elif (len(p) == 3):
@@ -1118,27 +1126,27 @@ def p_sql_simple_expression(p):
             p[0] = p[2]
         else:
             if p[2] == '+':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS, '+')
             elif p[2] == '-':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS, '-')
             elif p[2] == '*':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES, '*')
             elif p[2] == '/':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON, '/')
             elif p[2] == '^':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT, '^')
             elif p[2] == '%':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR, '%')
             elif p[2] == '>>':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT, '>>')
             elif p[2] == '<<':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT, '<<')
             elif p[2] == '&':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND, '&')
             elif p[2] == '|':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR, '|')
             elif p[2] == '#':
-                 p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR)
+                 p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR, '#')
     elif (len(p) == 3):
         if p[1] == '-':
             p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.UMINUS, p[2])
