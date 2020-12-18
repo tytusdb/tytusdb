@@ -37,17 +37,18 @@ class DatabaseSymbol(Symbol):
 
 
 class TableSymbol(Symbol):
-    def __init__(self, db_name, table_name):
+    def __init__(self, db_id, table_name):
         Symbol.__init__(self, SymbolType.TABLE, table_name)
-        self.db_name = db_name
+        self.db_id = db_id
         self.table_name = table_name
 
 
 class FieldSymbol(Symbol):
-    def __init__(self, db_name, table_name, field_name, field_type, length, is_not_null, is_pk, fk_table, fk_field):
+    def __init__(self, db_name, table_name, field_index, field_name, field_type, length, is_not_null, is_pk, fk_table, fk_field):
         Symbol.__init__(self, SymbolType.FIELD, field_name)
         self.db_name = db_name
         self.table_name = table_name
+        self.field_index = field_index
         self.field_name = field_name
         self.field_type = field_type
         self.length = length

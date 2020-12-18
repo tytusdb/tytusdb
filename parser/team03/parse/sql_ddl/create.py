@@ -27,10 +27,9 @@ class CreateDatabase(ASTNode):
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        # result_name = self.name.execute(table, tree)
-        result_name = self.name
+        result_name = self.name.execute(table, tree)
         result_owner = self.owner.execute(table, tree) if self.owner else None  # Owner seems to be stored only to ST
-        result_mode = self.mode(table, tree) if self.mode is not None else 6  # Change to 1 when default mode available
+        result_mode = self.mode(table, tree) if self.mode else 6  # Change to 1 when default mode available
         if self.replace:
             dropDatabase(result_name)
         result = 0
@@ -65,7 +64,7 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
             # get inheritance table, if doesn't exists throws semantic error, else append result
             result_fields.append(table.get_fields_from_table(result_inherits_from))
 
-        result = createTable('db_from_st', result_name, len(result_fields))
+        result = createTable(table.get_current_db().name, result_name, len(result_fields))
         if result == 1:
             raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
             return False
@@ -76,11 +75,14 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
             raise Error(0, 0, ErrorType.RUNTIME, '42P07: duplicate_table')
             return False
         else:
-            table.add(TableSymbol(table.get_current_db().name, result_name))
+            table.add(TableSymbol(table.get_current_db().id, result_name))
 
         result_fields = self.fields.execute(table, tree)  # A list of TableField assumed
+        field_index = 0
         for field in result_fields:
             field.table_name = result_name
+            field.field_index = field_index
+            field_index += 1
             table.add(field)
         return
 
@@ -102,11 +104,14 @@ class TableField(ASTNode):  # returns an item, grammar has to add it to a list a
         return FieldSymbol(
             table.get_current_db().name,
             None,
+            0,
             result_name,
             result_field_type,
             result_length,
             self.allows_null,
-            self.is_pk
+            self.is_pk,
+            None,
+            None
         )
 
 
