@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from analizer.abstract.expression import Expression
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
@@ -298,3 +299,54 @@ class CreateTable(Instruction):
             if not column[0]:
                 n += 1
         return n
+
+
+# TODO: Operacion Check
+class CheckOperation(Instruction):
+    """
+    Clase encargada de la instruccion CHECK que almacena la condicion
+    a desarrollar en el CHECK
+    """
+
+    def __init__(self, exp1, exp2, operator, row, column):
+        Instruction.__init__(self, row, column)
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operator = operator
+
+    def execute(self, environment, value1, value2, type_):
+        exp1 = self.exp1.execute(environment)
+        exp2 = self.exp2.execute(environment)
+        operator = self.operator
+        if exp1.type == "ID" and exp2.type != "ID":
+            value2 = exp2.value
+        elif exp1.type != "ID" and exp2.type == "ID":
+            value1 = exp1.value
+        elif exp1.type == "ID" and exp2.type == "ID":
+            pass
+        else:
+            print("Error en el CHECK")
+            return None
+        if type_ == "MONEY":
+            value1 = str(value1)
+            value2 = str(value2)
+        try:
+            comps = {
+                "<": value1 < value2,
+                ">": value1 > value2,
+                ">=": value1 >= value2,
+                "<=": value1 <= value2,
+                "=": value1 == value2,
+                "!=": value1 != value2,
+                "<>": value1 != value2,
+                "ISDISTINCTFROM": value1 != value2,
+                "ISNOTDISTINCTFROM": value1 == value2,
+            }
+            value = comps.get(operator, None)
+            if value == None:
+                return Expression.ErrorBinaryOperation(
+                    exp1.value, exp2.value, self.row, self.column
+                )
+            return value
+        except:
+            print("Error fatal CHECK")

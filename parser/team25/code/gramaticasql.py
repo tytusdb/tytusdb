@@ -2,7 +2,7 @@ import ply.yacc as yacc
 
 
 from lexicosql import tokens
-from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA
+from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID
 from astFunciones import FuncionNumerica , FuncionCadena
 from astUse import Use
@@ -13,14 +13,15 @@ from arbol import Arbol
 
 #---------------- MANEJO DE LA PRECEDENCIA
 precedence = (
+    ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
+    ('left', 'NOT'),
     ('left','AND','OR'),
     ('left','IGUAL','DIFERENTE','DIFERENTE2','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
-    ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
     ('left','MAS','MENOS'),
     ('left','ASTERISCO','DIVISION','MODULO'),
-    ('left','EXPONENT'),
-    ('right','UMENOS','UMAS','NOT')
+    ('right','UMENOS','UMAS'),
+    ('left', 'EXPONENT') 
 ) 
 
 def p_init(p):
@@ -48,6 +49,7 @@ def p_instruccion(p):
                     | alter_table       PTCOMA
                     | combine_querys    PTCOMA
                     | use           PTCOMA
+                    | select PTCOMA
                     '''     
     p[0] = p[1]
     
@@ -182,11 +184,9 @@ def p_combine_querys7(p):
     'combine_querys : select'
 #_____________________________________________________________ SELECT
 # SOLO DE PRUEBA :V
-# def p_select0(p):
-#     'select : SELECT expresion'
-#     p[0] = p[2].ejecutar(0)
-#     print(p[0].val)
-#     print(p[0])
+def p_select0(p):
+    'select : SELECT expresion'
+    p[0] = p[2]
 
 def p_select1(p):
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -1115,27 +1115,51 @@ def p_asignacion(p):
 
 def p_expresiones_unarias(p):
     ''' expresion : MENOS expresion %prec UMENOS 
-                  | MAS expresion %prec UMAS'''
+                  | MAS expresion %prec UMAS
+                  | NOT expresion'''
     if p[1] == '+':
         p[0] = ExpresionPositiva(p[2], p.slice[1].lineno)
     elif p[1] == '-':
         p[0] = ExpresionNegativa(p[2], p.slice[1].lineno)
+    else:
+        p[0] = ExpresionNegada(p[2])
     
+# def p_expresiones_is_complemento(p):
+#     '''
+#     expresion    : expresion IS NULL    
+#                  | expresion IS NOT NULL
+#                  | expresion ISNULL 
+#                  | expresion NOTNULL
+
+
+
+
+#                  | expresion IS UNKNOWN
+#                  | expresion IS NOT UNKNOWN 
+
 def p_expresiones_is_complemento(p):
-    '''
-    expresion    : expresion IS NULL    
-                 | expresion IS NOT NULL
-                 | expresion ISNULL 
-                 | expresion NOTNULL
-                 | expresion IS TRUE
-                 | expresion IS NOT TRUE
-                 | expresion IS FALSE 
-                 | expresion IS NOT FALSE
-                 | expresion IS UNKNOWN
-                 | expresion IS NOT UNKNOWN 
-                 | expresion IS DISTINCT FROM expresion 
-                 | expresion IS NOT DISTINCT FROM expresion '''
-  
+    'expresion : expresion IS TRUE'
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_TRUE)
+
+def p_expresiones_is_complemento1(p):
+    'expresion : expresion IS FALSE'
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_FALSE)
+
+def p_expresiones_is_complemento2(p):
+    'expresion : expresion IS NOT FALSE'
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NOT_FALSE)
+
+def p_expresiones_is_complemento2(p):
+    'expresion : expresion IS NOT TRUE'
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NOT_TRUE)
+
+def p_expresiones_is_complemento3(p):
+    'expresion : expresion IS DISTINCT FROM expresion'
+    p[0] = ExpresionBinariaIs(p[1], p[5], OPERACION_BINARIA_IS.IS_DISTINCT_FROM, p.slice[2].lineno )
+
+def p_expresiones_is_complemento4(p):
+    'expresion : expresion IS NOT DISTINCT FROM expresion'
+    p[0] = ExpresionBinariaIs(p[1], p[6], OPERACION_BINARIA_IS.IS_NOT_DISTINCT_FROM, p.slice[2].lineno )
 
 def p_expresion_ternaria(p): 
     '''expresion : expresion BETWEEN  exp_aux AND exp_aux
@@ -1458,6 +1482,7 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 
-arbolParser = analizarEntrada(''' USE NUEVA ;  ''')
-arbolParser.ejecutar()#viendo el resultado: 
+arbolParser = analizarEntrada(''' select -5 is not distinct from 5; ''')
+print(arbolParser.instrucciones[0].ejecutar(0).val)
+
 

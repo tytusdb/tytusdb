@@ -48,6 +48,7 @@ class CreateDatabaseswithParameters(query) :
 
     def __init__(self, variable,parametros) :
         self.variable = variable
+        self.parametros = parametros
     
 class AlterDB(query) :
     '''
@@ -174,6 +175,18 @@ class TipoRestriccion(query):
     def __init__(self,objrestriccion,typeR):
         self.objrestriccion = objrestriccion
         self.typeR = typeR
+
+class InheritsBD(query):
+    '''
+        Esta clase represetn la accion de crear una tabla que herede
+        las columnas y/o restricciones de otra tabla
+    '''
+    def __init__(self,idTable,idTableHereda,listColumn=[]):
+        self.idTable=idTable
+        self.idtableHereda=idTableHereda
+        self.listColumn=listColumn
+
+
 class DropTable(query):
     '''
         Esta clase representa la acción de eliminar una tabla
