@@ -2,20 +2,20 @@ from abc import abstractmethod
 from enum import Enum
 import pandas as pd
 from datetime import datetime
-
 from analizer.functions import MathFunctions as mf
 from analizer.functions import TrigonometricFunctions as trf
 from analizer.functions import StringFunctions as strf
-from reports import Nodo
-from reports import AST
-# import abstract.select_data as data
+from analizer.reports import Nodo
+from analizer.reports import AST
 
+# import abstract.select_data as data
 # Prueba para dataframe:
 # df = data.dataSelect()
 # df.crossJoin()
-
 ast = AST.AST()
 root = None
+
+
 class TYPE(Enum):
     NUMBER = 1
     STRING = 2
@@ -41,7 +41,6 @@ class Expression:
         """
         Metodo que servira para ejecutar las expresiones
         """
-    
 
 
 class Primitive(Expression):
@@ -62,7 +61,8 @@ class Primitive(Expression):
 
     def dot(self):
         nod = Nodo.Nodo(str(self.value))
-        return nod 
+        return nod
+
 
 class Identifiers(Expression):
     """
@@ -98,6 +98,7 @@ class Identifiers(Expression):
         nod = Nodo.Nodo(self.name)
         return nod
 
+
 class UnaryArithmeticOperation(Expression):
     """
     Esta clase recibe un parametro de expresion
@@ -123,16 +124,16 @@ class UnaryArithmeticOperation(Expression):
             value = exp.value * -1
         else:
             return ErrorOperatorExpression(operator, self.row, self.column)
-        self.dot()
         return Primitive(TYPE.NUMBER, value, self.row, self.column)
-    def dot(self):
 
+    def dot(self):
         n1 = self.exp.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
 
 class BinaryArithmeticOperation(Expression):
     """
@@ -151,7 +152,6 @@ class BinaryArithmeticOperation(Expression):
         exp1 = self.exp1.execute(environment)
         exp2 = self.exp2.execute(environment)
         operator = self.operator
-
         if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         if operator == "+":
@@ -170,16 +170,17 @@ class BinaryArithmeticOperation(Expression):
             return ErrorOperatorExpression(operator, self.row, self.column)
         self.dot()
         return Primitive(TYPE.NUMBER, value, self.row, self.column)
-    def dot(self):
 
+    def dot(self):
         n1 = self.exp1.dot()
         n2 = self.exp2.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         new.addNode(n2)
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
 
 class BinaryRelationalOperation(Expression):
     """
@@ -225,16 +226,17 @@ class BinaryRelationalOperation(Expression):
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         except:
             print("Error fatal BinaryRelationalOperation")
-    def dot(self):
 
+    def dot(self):
         n1 = self.exp1.dot()
         n2 = self.exp2.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         new.addNode(n2)
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
 
 comps = {
     "ISNULL": "IS NULL",
@@ -294,14 +296,15 @@ class UnaryRelationalOperation(Expression):
             return ErrorUnaryOperation(exp.value, self.row, self.column)
         except:
             print("Error fatal UnaryRelationalOperation")
-    def dot(self):
 
+    def dot(self):
         n1 = self.exp1.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
 
 class TernaryRelationalOperation(Expression):
     """
@@ -350,7 +353,6 @@ class TernaryRelationalOperation(Expression):
             print("Error fatal TernaryRelationalOperation")
 
     def dot(self):
-
         n1 = self.exp1.dot()
         n2 = self.exp2.dot()
         n3 = self.exp3.dot()
@@ -358,9 +360,11 @@ class TernaryRelationalOperation(Expression):
         new.addNode(n1)
         new.addNode(n2)
         new.addNode(n3)
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
+
 class BinaryLogicalOperation(Expression):
     """
     Esta clase contiene las expresiones booleanas binarias.
@@ -397,18 +401,18 @@ class BinaryLogicalOperation(Expression):
                 value = exp1.value or exp2.value
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        self.dot()
         return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
-    def dot(self):
 
+    def dot(self):
         n1 = self.exp1.dot()
         n2 = self.exp2.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
         new.addNode(n2)
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
 
 class UnaryLogicalOperation(Expression):
     """
@@ -419,7 +423,10 @@ class UnaryLogicalOperation(Expression):
         Expression.__init__(self, row, column)
         self.exp = exp
         self.operator = operator
-        self.temp = str(operator) + " " + exp.temp
+        if operator == "NOT":
+            self.temp = str(operator) + " " + exp.temp
+        else:
+            self.temp = exp.temp + " " + comps.get(operator)
 
     def execute(self, environment):
         exp = self.exp.execute(environment)
@@ -462,17 +469,17 @@ class UnaryLogicalOperation(Expression):
                 value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        self.dot()
         return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
 
     def dot(self):
-
         n1 = self.exp1.dot()
         new = Nodo.Nodo(self.operator)
         new.addNode(n1)
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
+
 class ErrorBinaryOperation(Expression):
     """
     Reporta error de una expresion
@@ -568,7 +575,6 @@ class FunctionCall(Expression):
                 if isinstance(val, pd.core.series.Series):
                     val = val.tolist()
                 valores.append(val)
-
             if self.function == "abs":
                 value = mf.absolute(*valores)
             elif self.function == "cbrt":
@@ -703,19 +709,18 @@ class FunctionCall(Expression):
             print("Error desconocido")
 
     def dot(self):
-
         f = Nodo.Nodo(self.function)
         p = Nodo.Nodo("PARAMS")
         new = Nodo.Nodo("CALL")
         new.addNode(f)
         new.addNode(p)
-
         for par in self.params:
-           p.addNode(par.dot()) 
-
-        global root 
-        root = new 
+            p.addNode(par.dot())
+        global root
+        root = new
         return new
+
+
 class ExtractDate(Expression):
     def __init__(self, opt, type, str, row, column):
         Expression.__init__(self, row, column)
@@ -785,14 +790,14 @@ class ExtractDate(Expression):
         ntype = Nodo.Nodo(str(self.type))
         nstr = Nodo.Nodo(str(self.str))
         nopt = Nodo.Nodo(str(self.opt))
-        
         p.addNode(nopt)
         p.addNode(ntype)
         p.addNode(nstr)
-
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
+
 class DatePart(Expression):
     def __init__(self, opt, type, str, row, column) -> None:
         super().__init__(row, column)
@@ -898,14 +903,14 @@ class DatePart(Expression):
         ntype = Nodo.Nodo(str(self.type))
         nstr = Nodo.Nodo(str(self.str))
         nopt = Nodo.Nodo(str(self.opt))
-        
         p.addNode(nopt)
         p.addNode(ntype)
         p.addNode(nstr)
-
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
+
 class Current(Expression):
     def __init__(self, val, optStr, row, column) -> None:
         super().__init__(row, column)
@@ -926,19 +931,35 @@ class Current(Expression):
                 if self.optStr == "now":
                     value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
                 else:
-                    value = self.val
+                    value = self.optStr
             else:
                 # ERROR
                 value = self.val
-            self.dot()
             return Primitive(TYPE.STRING, value, self.row, self.column)
         except:
             pass
 
     def dot(self):
         new = Nodo.Nodo(self.val)
-        global root 
-        root = new 
+        global root
+        root = new
         return new
+
+
+class CheckValue(Expression):
+    """
+    Clase que representa un valor del la condicion a desarrollar
+    en el CHECK
+    """
+
+    def __init__(self, value, type_, row, column):
+        Expression.__init__(row, column)
+        self.value = value
+        self.type = type_
+
+    def execute(self, environment):
+        return self
+
+
 def makeAst():
-     ast.makeAst(root)
+    ast.makeAst(root)
