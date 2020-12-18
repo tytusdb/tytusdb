@@ -4,6 +4,7 @@ from parse.errors import Error as our_error
 from parse.expressions.expressions_math import *
 from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
+from parse.sql_common.sql_general import *
 from treeGraph import *
 
 #===========================================================================================
@@ -341,9 +342,9 @@ precedence = (
     # Relational
     ('left', 'MENOR', 'MAYOR', 'IGUAL', 'MENORQ', 'MAYORQ'),
     # logic
-    # ('left', 'OR'),
-    # ('left', 'AND'),
-    # ('right', 'NOT'),
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('right', 'NOT'),
 
 )
 
@@ -365,11 +366,32 @@ def p_statements2(t):
 
 
 def p_statement(t):
-    '''statement : predicateExpression PUNTOCOMA
-                    '''
+    '''statement    : predicateExpression PUNTOCOMA
+                    | stm_show   PUNTOCOMA'''
     t[0] = t[1]
 
 
+
+
+def p_stm_show(t):
+    '''stm_show : SHOW DATABASES LIKE TEXTO
+                | SHOW DATABASES LIKE PATTERN_LIKE'''
+    token = t.slice[1]
+    graph_ref = graph_node("SHOW", [t[4]])
+    t[0] = ShowDatabases(t[4],token.lineno, lexpos, graph_ref)
+def p_stm_show0(t):
+    '''stm_show : SHOW DATABASES'''
+
+
+def p_exp_list(t):
+    '''exp_list : exp_list COMA expression'''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_exp_list0(t):    
+    '''exp_list : expression'''    
+    t[0] = [t[1]]
 ########## Definition of opttional productions, who could reduce to 'empty' (epsilon) ################
 # def p_not_opt(t):
 #    '''not_opt : NOT
@@ -383,7 +405,9 @@ def p_relExpression(t):
                         | expression MAYORQ expression
                         | expression DIFERENTE expression
                         | expression NOT LIKE TEXTO
-                        | expression LIKE TEXTO'''
+                        | expression LIKE TEXTO
+                        | expression NOT LIKE PATTERN_LIKE
+                        | expression LIKE PATTERN_LIKE'''
     token = t.slice[2]
     if token.type == "MENOR":
         graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
@@ -808,7 +832,7 @@ if __name__ == "__main__":
     print("Input: " + input +"\n")
     print("Executing AST root, please wait ...")
     instrucciones = parse.parse(input)
-    dot.view()
+    #dot.view()
 
     for instruccion in instrucciones:
         try:
