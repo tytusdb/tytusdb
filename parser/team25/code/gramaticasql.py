@@ -1540,7 +1540,7 @@ def p_expresiones_is_complemento5(p):
 def p_expresiones_is_complemento6(p):     
     ''' expresion   : expresion IS DISTINCT FROM expresion '''
     bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "DISTINCT" "FROM" \<expresion> ') 
-          
+    p[0] = ExpresionBinariaIs(p[1], p[5], OPERACION_BINARIA_IS.IS_DISTINCT_FROM,p.slice[2].lineno)
 
 
 def p_expresion_ternaria(p): 
@@ -1968,7 +1968,7 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 
-arbolParser = analizarEntrada(''' select 5*5+9 is not null; ''')
+arbolParser = analizarEntrada(''' select 'HOLA' = 'HOLA'; ''')
 arbolParser.ejecutar()
 #viendo el resultado: 
 
