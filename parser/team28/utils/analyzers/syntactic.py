@@ -76,7 +76,9 @@ def p_sql_instruction(p):
 
 def p_use_statement(p):
     '''usestatement : USE ID SEMICOLON'''
-    p[0] = UseDatabase(p[2])
+    noColumn = 0
+    noLine = p.slice[1].lineno
+    p[0] = UseDatabase(p[2],noLine,noColumn)
 
 def p_ddl(p):
     '''ddl : createstatement

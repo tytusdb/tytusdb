@@ -14,11 +14,12 @@ serv.connect(serv_add)
 class cliente(): 
         
     def __init__(self, img_carpeta, iconos):
+
+        # Prueba de conexion a base de datos
         message = 'data from client'
         print(message)
         serv.sendall(message.encode('utf-8'))
 
-    
         recibido = 0
         esperado = len(message)
     
@@ -26,13 +27,43 @@ class cliente():
             data = serv.recv(4096)
             recibido += len(data)
             print(data)
+            
 
+        # Creacion de la Ventana
+        self.raiz = Tk()
+
+        '''
+        iconos = (ruta_r + "pyremoto64x64.png",
+              ruta_r + "conec16x16.png",
+              ruta_r + "salir16x16.png",
+              ruta_r + "star16x16.png",
+              ruta_r + "conec32x32.png",
+              ruta_r + "salir32x32.png",
+              ruta_r + "grupo32x32.png", 
+              ruta_r + "tytusdb.png",
+              ruta_r + "open.png",
+              ruta_r + "save.png") 
+        '''
+
+        # Definicion de Iconos
         self.img_carpeta = img_carpeta
         self.iconos = iconos 
-        self.raiz = Tk() 
+        self.PYREMOTO_ICON = PhotoImage(file=self.iconos[0])   
+        # icono2 = PhotoImage(file=self.iconos[1])
+        # icono3 = PhotoImage(file=self.iconos[2])
+        self.START_ICON = PhotoImage(file=self.iconos[3])
+        self.CONNECT_ICON = PhotoImage(file=self.iconos[4])
+        self.EXIT_ICON = PhotoImage(file=self.iconos[5])
+        self.GRUPO_ICON = PhotoImage(file=self.iconos[6])
+        self.TYTUS_ICON = PhotoImage(file=self.iconos[7])
+        self.OPEN_ICON = PhotoImage(file=self.iconos[8])
+        self.SAVE_ICON = PhotoImage(file=self.iconos[9])
+
+        
+        # Preconfiguracion de la ventana
+
         self.raiz.title("TytusDB ")
-        self.icono1= PhotoImage(file=self.iconos[0])   
-        self.raiz.iconphoto(self.raiz, self.icono1)  
+        self.raiz.iconphoto(self.raiz, self.PYREMOTO_ICON)  
         self.raiz.option_add("*Font", "Helvetica 12")       
         self.raiz.option_add('*tearOff', True)  
         self.raiz.attributes('-fullscreen', True)        
@@ -50,48 +81,49 @@ class cliente():
         
         self.estado = IntVar()
         self.estado.set(1)   
-                          
-        
+
+        # Definicion del Menu      
         barramenu = Menu(self.raiz)
-        self.raiz['menu'] = barramenu
+        self.raiz['menu'] = barramenu 
+        self.fileMenu = Menu(barramenu)
+        self.objectMenu = Menu(barramenu)
+        self.toolsMenu = Menu(barramenu)
+        self.aboutMenu = Menu(barramenu)
+        barramenu.add_cascade(menu=self.fileMenu, label='FILE')
+        barramenu.add_cascade(menu=self.objectMenu, label='OBJECT')
+        barramenu.add_cascade(menu=self.toolsMenu, label='TOOLS')
+        barramenu.add_cascade(menu=self.aboutMenu, label='ABOUT')
  
 
-        menu1 = Menu(barramenu)
-        self.menu2 = Menu(barramenu)
-        menu3 = Menu(barramenu)
-        menu4 = Menu(barramenu)
-        barramenu.add_cascade(menu=menu1, label='FILE')
-        barramenu.add_cascade(menu=self.menu2, label='OBJECT')
-        barramenu.add_cascade(menu=menu3, label='TOOLS')
-        barramenu.add_cascade(menu=menu4, label='ABOUT')
- 
-
-        icono2 = PhotoImage(file=self.iconos[1])
-        icono3 = PhotoImage(file=self.iconos[2])
-        icono8 = PhotoImage(file=self.iconos[8])
-        icono9 = PhotoImage(file=self.iconos[9])
-        menu1.add_command(label='   Abrir archivo *.sql', underline=0,image=icono8, compound=LEFT,state="disabled") 
-        menu1.add_command(label='   Guardar archivo *.sql', underline=0,image=icono9, compound=LEFT,state="disabled") 
+        # Programacion del Menu de Archivos
+        self.fileMenu.add_command(label='   Abrir archivo *.sql', underline=0,image=self.OPEN_ICON, compound=LEFT,state="disabled") 
+        self.fileMenu.add_command(label='   Guardar archivo *.sql', underline=0,image=self.SAVE_ICON, compound=LEFT,state="disabled") 
       
-        icono4 = PhotoImage(file=self.iconos[3])
-        menu3.add_command(label="Query Tool", command=self.f_query_tool, image=icono4, compound=LEFT)
+        # Programacion del Menu de Objetos
 
-        icono5 = PhotoImage(file=self.iconos[6])
-        icono7 = PhotoImage(file=self.iconos[7])
-        menu4.add_command(label="GRUPO 10", command=self.f_integrantes, image=icono5, compound=LEFT)
-        menu4.add_command(label="TytusDB", command=self.f_web, image=icono7, compound=LEFT)
+        # Programacion del Menu de Herramientas
+        self.toolsMenu.add_command(label="Query Tool", command=self.f_query_tool, image=self.START_ICON, compound=LEFT)
+
+        # Programacion del Menu de informacion
+        self.aboutMenu.add_command(label="GRUPO 10", command=self.f_integrantes, image=self.GRUPO_ICON, compound=LEFT)
+        self.aboutMenu.add_command(label="TytusDB", command=self.f_web, image=self.TYTUS_ICON, compound=LEFT)
  
 
-        self.icono5 = PhotoImage(file=self.iconos[4])
-        icono6 = PhotoImage(file=self.iconos[5])
-
+        
+        # Definicion de la Barra De Herramientas
         barraherr = Frame(self.raiz, relief=RAISED, bd=2, bg="#E5E5E5")
-        bot1 = Button(barraherr, image=icono7 ,  command=self.f_conectar)
-        bot1.pack(side=LEFT, padx=2, pady=2)
-        bot2 = Button(barraherr, image=icono6,  command=self.f_salir)
-        bot2.pack(side=RIGHT, padx=1, pady=1)
         barraherr.pack(side=TOP, fill=X)
-                 
+
+        # Programacion del Boton de salida de la aplicacion
+        bot2 = Button(barraherr, image=self.EXIT_ICON,  command=self.f_salir)
+        bot2.pack(side=RIGHT, padx=1, pady=1)
+        
+        # Programacion del Boton de conexion a la base de datos
+        bot1 = Button(barraherr, image=self.CONNECT_ICON ,  command=self.f_conectar)
+        bot1.pack(side=RIGHT, padx=2, pady=2)
+
+
+        # Barra Inferior                
         now = datetime.now()
         format = now.strftime('Día :%d, Mes: %m, Año: %Y, Hora: %H, Minutos: %M, Segundos: %S')
         print(format)
@@ -103,18 +135,43 @@ class cliente():
         self.menucontext = Menu(self.raiz, tearoff=FALSE) 
         self.menucontext.add_command(label="Salir",command=self.f_salir, compound=LEFT)
 
+        # Definicion del Cuerpo de la Aplicacion
+        # Cuerpo Principal
+        cuerpo = Frame(self.raiz, relief=RAISED, bd=2, bg = "blue")
+        cuerpo.pack(side=BOTTOM, fill=BOTH, expand = True)
+
+        # Cuerpo del Treeview
+        treeFrame = LabelFrame(cuerpo, text = 'treeview')
+        treeFrame.config(bg = 'red', width = "350")
+        treeFrame.pack(side = LEFT, fill = Y)
         
+        # SubCuerpo
+        SubCuerpo = LabelFrame(cuerpo, text = 'SubCuerpo')
+        SubCuerpo.config(bg = 'yellow')
+        SubCuerpo.pack(side = LEFT, fill = BOTH, expand = True)
+
+        # QueryTool
+        QueryTool = LabelFrame(SubCuerpo, text = 'QueryTool')
+        QueryTool.config(bg = 'green', height = "400")
+        QueryTool.pack(side = TOP, fill = X)
+
+        # Consola
+        ConsoleTool = LabelFrame(SubCuerpo, text = 'Consola')
+        ConsoleTool.config(bg = 'white')
+        ConsoleTool.pack(side = BOTTOM, fill = BOTH, expand = True)
+
+        # Ejecucion de la ventana
         self.raiz.mainloop() 
 
+    
     def f_query_tool(self):
         messagebox.showinfo("Loading...", "DEBERA DEJAR EDITAR O MOSTRAR QUERY TOOL")
- 
-                                                    
+                                           
     def f_conectar(self): 
         print("Conectando")
           
     def f_cambiaropc(self):        
-        self.menu2.entryconfig("Guardar", state="normal")
+        self.objectMenu.entryconfig("Guardar", state="normal")
                     
     def f_verestado(self): 
         
@@ -139,7 +196,7 @@ class cliente():
         acerca.title("Acerca de")
         marco1 = ttk.Frame(acerca, padding=(10, 10, 10, 10),relief=RAISED)
         marco1.pack(side=TOP, fill=BOTH, expand=True)
-        etiq1 = Label(marco1, image=self.icono5,relief='raised')
+        etiq1 = Label(marco1, image=self.CONNECT_ICON,relief='raised')
         etiq1.pack(side=TOP, padx=10, pady=10, ipadx=10, ipady=10)
         etiq2 = Label(marco1, text="PyRemoto "+__version__,foreground='blue', font=self.fuente)
         etiq2.pack(side=TOP, padx=10)
