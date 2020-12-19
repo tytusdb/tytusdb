@@ -1,12 +1,9 @@
-from reportes.error import Error
-
+import webbrowser
 class RealizarReportes:
 
-    def generar_reporte_lexicos(self,lista):
-        print("estoy!!!")
-
-
-        nombre = "reporteEroresLexicos.html"
+    def generar_reporte_lexicos(lista):
+        #print(len(lista))
+        nombre = "Reporte_Errores.html"
         texto = ""
         texto += "<!DOCTYPE html>"
         texto += "<head>"
@@ -29,28 +26,26 @@ class RealizarReportes:
         texto += "</style>"
         texto += "</head>"
         texto += "<body>"
-        texto += "<h2>TABLA DE TOKENS</h2>"
+        texto += "<h2>TABLA DE ERRORES</h2>"
         texto += "<table>"
         texto += "<tr>"
         texto += "<th>NO.</th>"
-        texto += "<th>LEXEMA</th>"
+        texto += "<th>ERROR CODE</th>"
         texto += "<th>TIPO</th>"
+        texto += "<th>DESCRIPCIÓN</th>"
         texto += "<th>FILA</th>"
         texto += "<th>COLUMNA</th>"
         texto += "</tr>"
         texto += "<tr>"
 
-        int
-        i = 1;
+        i = 1
         for token in lista:
-            print("LLEgo aqui")
-            print(token[0])
-
-            texto += "<td>" + i + "</td>"
-            texto += "<td>" + token.TIPO + "</td>"
-            texto += "<td>" + token.LEXEMA + "</td>"
-            texto += "<td>" + token.FIL+ "</td>"
-            texto += "<td>" + token.COL + "</td>"
+            texto += "<td>" + str(i) + "</td>"
+            texto += "<td>" + str(token.cod_error) + "</td>"
+            texto += "<td>" + str(token.tipo) + "</td>"
+            texto += "<td>" + str(token.descripcion) + "</td>"
+            texto += "<td>" + str(token.linea) + "</td>"
+            texto += "<td>" + str(token.columna) + "</td>"
             texto += "</tr>"
             i=i+1
 
@@ -59,3 +54,4 @@ class RealizarReportes:
         f = open(nombre, 'w')
         f.write(texto)
         f.close()
+        webbrowser.open_new_tab('Reporte_Errores.html')

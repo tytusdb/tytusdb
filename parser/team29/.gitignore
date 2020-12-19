@@ -1,0 +1,6 @@
+parser.out
+parsetab.py
+**/__pycache__/**
+storage
+data
+**/*.csv

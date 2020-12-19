@@ -1,0 +1,74 @@
+create database marcos;
+create or replace database marcos;
+
+create database bbbbbbb;
+/*CREATE TABLE prueba(
+    id integer,
+    name varchar(10),
+    FOREIGN KEY (primero) REFERENCES CATEGORIA (id),
+     PRIMARY KEY(contact_id)
+);*/
+/*
+CREATE TABLE unCampo(
+      campo1 char(4)
+);
+CREATE TABLE usuario(
+    id integer not NULL primary key,
+    email varchar(23) unique not null default 1234 unique (id1, id2, id3),
+    foto VARCHAR(200) DEFAULT '/assets/fotoperfil.png' unique algo,
+    CONSTRAINT categoriaProductoFK FOREIGN KEY (idCategoria) REFERENCES CATEGORIA (id),
+    CONSTRAINT usuarioProductoFK FOREIGN KEY (idVendedor, idComprador) REFERENCES USUARIO (id, idC)
+) INHERITS (prueba);
+*/
+/*
+INSERT INTO customers(customer_name)
+VALUES('BlueBird Inc'),
+      ('Dolphin LLC');	  
+
+INSERT INTO contacts(customer_id, contact_name, phone, email)
+VALUES(1,'John Doe','(408)-111-1234','john.doe@bluebird.dev'),
+      (1,'Jane Doe','(408)-111-1235','jane.doe@bluebird.dev'),
+      (2,'David Wright','(408)-222-1234','david.wright@dolphin.dev');
+
+INSERT INTO products VALUES (1, 'Cheese', 9.99);
+
+UPDATE products SET nuevo = 4 + nuevo, price = 10 ^ -6, neg = !neg2, p.price = p.price + !!!10, id = 2 <> 3, id2 = 9 + 9 + 9 * 6 WHERE price = 5;
+
+DELETE FROM products WHERE price >= 10 and pr == 'pr' or not false or not d < 9 and id in ('a','b','c') and fechanacimiento between '2004-01-01' and '2005-01-01';
+
+DELETE FROM products WHERE p.persona > 8 or edad BETWEEN 5 and 25;
+*/
+/*
+CREATE DATABASE name1;
+
+CREATE OR REPLACE DATABASE name2;
+CREATE OR REPLACE DATABASE IF NOT EXISTS name3;
+CREATE  DATABASE IF NOT EXISTS name4;
+CREATE  DATABASE  name5 OWNER user_name MODE  3;
+
+show DATABASES;
+*/
+/*
+ALTER DATABASE db RENAME TO bd ;
+ALTER DATABASE name OWNER TO ID;
+
+ALTER TABLE tab1 ADD COLUMN nombre char(3);
+ALTER TABLE tab2 ADD CONSTRAINT cod UNIQUE (IDC);
+ALTER TABLE tab3 ADD FOREIGN KEY (uno, dos, tres) REFERENCES tabla (cuatro, cinco);
+
+ALTER TABLE tab4 DROP COLUMN drop1;
+ALTER TABLE tab5 DROP CONSTRAINT drop2;
+
+ALTER TABLE tab6 ALTER COLUMN col SET NOT NULL;*/
+
+
+/*alter table nombretabla
+add constraint nombre
+foreign key (nombre)
+references  nombre (campo);
+
+alter table marocs
+add constraint asddasd_asdas_Asd
+unique (documento)
+add constraint nombre
+primary key (hola);*/
