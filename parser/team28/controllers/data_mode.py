@@ -1,4 +1,4 @@
-from controllers.storageManager import jsonMode
+from storageManager import jsonMode
 
 
 def mode(mode):
