@@ -58,7 +58,7 @@ class base:
 
     def onExit(self):
 
-        self.quit()
+        quit()
 
 if __name__ == '__main__':
         window = Tk()
