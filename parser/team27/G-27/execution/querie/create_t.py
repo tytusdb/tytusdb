@@ -49,8 +49,8 @@ class Create_Table(Querie):
             primaryKeys = []
             ids = []
             for const in newTable.constraint:
-                if const['type'] == "PRIMARY":
-                    ids.append(const['name'])
+                if const['type'] == "primary":
+                    ids.append(const['value'])
             
             for index in range(len(newTable.columns)):
                 for id in ids:
@@ -62,7 +62,7 @@ class Create_Table(Querie):
             
             create = admin.alterAddPK(name,self.table,primaryKeys)
             if (create == 0):
-                print('Llave primaria agregada exitosamenta a la tabla' + self.table )
+                return('Llave primaria agregada exitosamenta a la tabla' + self.table )
             if (create == 1):
                 return {'Error':'Tabla ' + self.table + ' creada, pero ocurrio un error al ingresar llaves primarias', 'Fila':self.row, 'Columna':self.column}
             if (create == 2):

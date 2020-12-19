@@ -337,7 +337,7 @@ def t_CADENA(t):
 
 #definife la estructura de las etiquetas, por el momento las tomo unicamente como letras y numeros
 def t_ETIQUETA(t):
-     r'[a-zA-Z]+[a-zA-_Z0-9]*'
+     r'[a-zA-Z_]+[a-zA-Z0-9_]*'
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
 
@@ -523,6 +523,7 @@ def p_alterBD_2(t):
     t[0] = AlterOwner(t[3],t[4],t[6])
 
 def p_parametroAlterUser(t):
+   
     '''parametroAlterUser : CURRENT_USER
                         |   SESSION_USER
                         |   final

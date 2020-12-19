@@ -48,6 +48,7 @@ class CreateDatabaseswithParameters(query) :
 
     def __init__(self, variable,parametros) :
         self.variable = variable
+        self.parametros = parametros
     
 class AlterDB(query) :
     '''
