@@ -174,11 +174,60 @@ def insert(database: str, table: str, register: list) -> int:
 
 #Carga un archivo CSV de una ruta especificada indicando la base de datos y tabla donde será almacenado
 def loadCSV(file: str, database: str, table: str) -> list:
-    return -1
+    try:
+        import csv
+        res = []
+        with open(file, 'r') as Archivo:
+            reader = csv.reader(Archivo, delimiter = ',')
+            for row in reader:
+                res.append(insert(database,table,row))
+        return res
+    except:
+        return [] #Error en la operación
 
 #Extrae y devuelve un registro especificado por su llave primaria. (READ)
-def extractRow(database: str, table: str, columns: list) -> int:
-    return -1
+def extractRow(database: str, table: str, columns: list) -> list:
+    try:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                if nodoTBL.valor[1] == [-999]:
+                    #Tiene llave primaria oculta
+                    if len(columns) == 1:
+                        nodoRow = nodoTBL.datos.obtener(columns[0])
+                        if nodoRow:
+                            return nodoRow.valor
+                        else:
+                            return []
+                    else:
+                        return [] #Numero de columnas no coincide con columnas de indice
+                elif len(nodoTBL.valor[1]) == 1:
+                    #Tiene llave primaria simple
+                    if len(columns) == 1:
+                        nodoRow = nodoTBL.datos.obtener(columns[0])
+                        if nodoRow:
+                            return nodoRow.valor
+                        else:
+                            return []
+                    else:
+                        return [] #Numero de columnas no coincide con columnas de indice
+                else:
+                    #Tiene llave primaria compuesta
+                    if len(columns) == len(nodoTBL.valor[1]):
+                        nodoRow = nodoTBL.datos.obtener(columns)
+                        if nodoRow:
+                            return nodoRow.valor
+                        else:
+                            return []
+                    else:
+                        return [] #Numero de columnas no coincide con columnas de indice
+            else:
+                return [] #Tabla no existe en la base de datos
+        else:
+            return [] #Base de datos inexistente
+    except:
+        return [] #Error en la operación
 
 #auxiliar para la función 'update'
 def update_aux(nodoTBL, nodoRow, register) -> int:
