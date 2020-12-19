@@ -3,12 +3,15 @@ from analizer.abstract.expression import Expression
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
+from analizer.typechecker import Checker
 
 
 class SELECT_MODE(Enum):
     ALL = 1
     PARAMS = 2
 
+# carga de datos 
+Struct.load()
 
 # variable encargada de almacenar la base de datos a utilizar
 dbtemp = ""
@@ -166,24 +169,35 @@ class InsertInto(Instruction):
         self.parametros = parametros
 
     def execute(self, environment):
+        
         # TODO Falta la validación de tipos
-        lista = []
-        tab = self.tabla
-        for p in self.parametros:
-            lista.append(p.execute(environment).value)
-        res = jsonMode.insert(dbtemp, tab, lista)
-        if res == 2:
-            return "No existe la base de datos"
-        elif res == 3:
-            return "No existe la tabla"
-        elif res == 5:
-            return "Columnas fuera de los limites"
-        elif res == 4:
-            return "Llaves primarias duplicadas"
-        elif res == 1:
-            return "Error en la operacion"
-        elif res == 0:
-            return "Fila Insertada correctamente"
+        result = Checker.checkInsert(dbtemp,self.tabla,self.parametros)
+        
+        if result == None:
+            lista = []
+            tab = self.tabla
+
+            for p in self.parametros:
+                lista.append(p.execute(environment).value)
+
+            res = jsonMode.insert(dbtemp, tab, lista)
+
+            if res == 2:
+                return "No existe la base de datos"
+            elif res == 3:
+                return "No existe la tabla"
+            elif res == 5:
+                return "Columnas fuera de los limites"
+            elif res == 4:
+                return "Llaves primarias duplicadas"
+            elif res == 1:
+                return "Error en la operacion"
+            elif res == 0:
+                return "Fila Insertada correctamente"
+        else:
+            print(result)
+            return result
+
 
 
 class useDataBase(Instruction):
@@ -299,6 +313,26 @@ class CreateTable(Instruction):
             if not column[0]:
                 n += 1
         return n
+
+
+class CreateType(Instruction):
+
+    def __init__(self,exists,name,values=[]):
+        self.exists = exists
+        self.name = name
+        self.values = values
+
+
+    def execute(self,environment):
+        lista = []
+        for value in self.values:
+            lista.append(value.execute(environment).value)
+        result = Struct.createType(self.exists,self.name,lista)
+        if result == None:
+            report = "Type creado"
+        else:
+            report = result
+        return report
 
 
 # TODO: Operacion Check
