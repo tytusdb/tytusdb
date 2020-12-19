@@ -217,41 +217,41 @@ class ISAM:
                 for i in tmp.values:
                     if i.PK == value and len(i.data) > 0:
                         return i.data
-                if value <= tmp.values[0].PK:
+                if value < tmp.values[0].PK:
                     return self._search(value, tmp.left, level + 1)
-                elif tmp.values[0].PK <= value < tmp.values[1].PK:
-                    return self._search(value, tmp.center, level + 1)
-                elif value >= tmp.values[1].PK:
-                    return self._search(value, tmp.right, level + 1)
+                elif len(tmp.values) > 1:
+                    if tmp.values[0].PK <= value < tmp.values[1].PK:
+                        return self._search(value, tmp.center, level + 1)
+                    elif value >= tmp.values[1].PK:
+                        return self._search(value, tmp.right, level + 1)
             else:
                 for i in tmp.values:
                     if i.PK == value and len(i.data) > 0:
                         return i.data
-                    return self._search(value, tmp.next, level + 1)
+                return self._search(value, tmp.next, level + 1)
+        else:
+            return []
     
     #Metodo que extrae informacion entre los limites especificados
-    def extractRange(self, lower, upper):
+    def extractRange(self, lower, upper, column):
         tuples = []
-        self._extractRange(self.root, upper, lower, 0, tuples)
+        self._extractRange(self.root, column, upper, lower, 0, tuples)
         return tuples
 
-    def _extractRange(self, tmp, upper, lower, level, tuples):
+    def _extractRange(self, tmp, column, upper, lower, level, tuples):
         if tmp:
             if level < 2:
+                self._extractRange(tmp.left, column, upper, lower, level + 1, tuples)
                 for i in tmp.values:
-                    if lower <= i.PK <= upper and len(i.data) > 0:
+                    if len(i.data) > 0 and lower <= i.data[column] <= upper:
                         tuples.append(i.data)
-                if lower <= tmp.values[0].PK <= upper:
-                    self._extractRange(tmp.left, upper, lower, level + 1, tuples)
-                if lower <= tmp.values[0].PK and upper >= tmp.values[1].PK:
-                    self._extractRange(tmp.center, upper, lower, level + 1, tuples)
-                if tmp.values[1].PK >= lower:
-                    self._extractRange(tmp.right, upper, lower, level + 1, tuples)
+                self._extractRange(tmp.center, column, upper, lower, level + 1, tuples)
+                self._extractRange(tmp.right, column, upper, lower, level + 1, tuples)
             else:
                 for i in tmp.values:
-                    if lower <= i.PK <= upper and len(i.data) > 0:
+                    if len(i.data) > 0 and lower <= i.data[column] <= upper:
                         tuples.append(i.data)
-                self._extractRange(tmp.next, upper, lower, level + 1, tuples)
+                self._extractRange(tmp.next, column, upper, lower, level + 1, tuples)
                 
     # extrae todos los objetos almacenados en ISAM
     def extractAllObject(self):
@@ -297,3 +297,70 @@ class ISAM:
             else:
                 self._newPK(tmp.next, level + 1, PKs)
                 
+    def update(self, register, cols, PKCols):
+        lists = ''
+        for ip in cols:
+            lists += str(ip)
+        return self.__update(register, self.root, lists, PKCols)
+
+    def __update(self, register, auxiliar, cols, PKCols):
+        if auxiliar is None:
+            return 1
+        else:
+            if isinstance(auxiliar, LeafNode):
+                validando = False
+                tmp1 = None
+                for i in auxiliar.values:
+                    if i.PK == cols:
+                        validando = True
+                        tmp = auxiliar
+                        tmp1 = i
+                        break
+                    else:
+                        validando = False
+                if validando:
+                    aux = tmp1
+                    x = register.keys()
+                    for i in x:
+                        aux.data[i] = register[i]
+                    self.delete(tmp1.PK)
+                    self.insert(Tuple(aux.PK, aux.data))
+                    return 0
+                else:
+                    return self.__update(register, auxiliar.next, cols, PKCols)
+            else:
+                validando = False
+                tmp1 = None
+                lists = ''
+                for ip in cols:
+                    lists += ip
+                for i in auxiliar.values:
+                    if i.PK == lists:
+                        validando = True
+                        tmp = auxiliar
+                        tmp1 = i
+                        break
+                    else:
+                        validando = False
+                if validando and len(tmp1.data) > 0:
+                    aux = Tuple(tmp1.PK, tmp1.data[:])
+                    x = register.keys()
+                    for i in x:
+                        aux.data[i] = register[i]
+                    new_PK = ''
+                    for i in PKCols:
+                        new_PK += str(aux.data[i]) + '_'
+                    new_PK = new_PK[:-1]
+                    self.delete(tmp1.PK)
+                    self.insert(Tuple(new_PK, aux.data))
+                    return 0
+                else:
+                    if len(auxiliar.values) > 1:
+                        if cols < auxiliar.values[0].PK:
+                            return self.__update(register, auxiliar.left, cols, PKCols)
+                        elif auxiliar.values[0].PK <= cols < auxiliar.values[1].PK:
+                            return self.__update(register, auxiliar.center, cols, PKCols)
+                        else:
+                            return self.__update(register, auxiliar.right, cols, PKCols)
+                    else:
+                        return 1
