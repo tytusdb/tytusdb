@@ -147,6 +147,11 @@ class MostrarDB(Instruccion):
     '''
         Esta clase representa las base de datos creadas
     '''
+class MostrarTB(Instruccion):
+    '''
+        Esta clase Muestra Tablas de una bd
+    '''
+
 
 class Limite_Select(Instruccion):
     '''

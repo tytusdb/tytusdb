@@ -622,10 +622,10 @@ def AlterTBF(instr,ts):
         for alter_list_temp in Lista_Alter:
 
 
-            #Instruccion a procesar COLUMN extra , o CONSTRAINT 
+            #Instruccion a procesar COLUMN extra
             INSTRUCCION=alter_list_temp.instruccion
 
-            #ID coluna o constraint
+            #ID en columna o constraint
             ID=alter_list_temp.id
 
             #Analisis continuacion Column Alter , no Constraint
@@ -647,8 +647,12 @@ def AlterTBF(instr,ts):
             OPEE2=Obj_Ext.prop5 # valor tipo
 
 
-
-
+            #Modificara una propieda de una columna
+            if INSTRUCCION.upper()=="COLUMN":
+                ' '
+            
+            elif INSTRUCCION.upper()=="CONSTRAINT":
+                ' '
 
 
     #ANALISIS ALTER DROP
@@ -658,8 +662,40 @@ def AlterTBF(instr,ts):
         #Identificador 
         ID=ObjetoAnalisis.id
 
-       
-
+        if INSTRUCCION.upper()=="COLUMN" or INSTRUCCION.upper()=="ID":
+            #busco la columna en las cabeceras
+            #retorna No. de columna
+            No_col=0
+            retorno=1
+            try:
+                retorno=EDD.alterDropColumn(baseActiva,NombreTabla,No_col)
+            except:
+                ' '
+            #Verifica Respuesta
+            if retorno==0:
+                outputTxt='Se elimino exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
+                agregarMensjae('normal',outputTxt)
+            elif retorno==1:
+                outputTxt='Hubo un error durante la eliminacion de la columna  '
+                agregarMensjae('normal',outputTxt)
+            elif retorno==2:
+                outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
+                agregarMensjae('normal',outputTxt)
+            elif retorno==3:
+                outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
+                agregarMensjae('normal',outputTxt)
+            elif retorno==4:
+                outputTxt='La Tabla no puede quedar vacia o se trata eliminar Primary Key '
+                agregarMensjae('normal',outputTxt)
+            elif retorno==5:
+                outputTxt='El valor de columna esta fuera de la tabla'
+                agregarMensjae('normal',outputTxt)
+            else:
+                print("operacion desconocida 0")
+        elif INSTRUCCION.upper()=="CONSTRAINT":
+            ' '
+        else:
+            ' '#Error
 
     #ANALISIS ALTER ADD
     elif isinstance(ObjetoAnalisis,ALTERTBO_ADD ):
@@ -700,6 +736,25 @@ def AlterTBF(instr,ts):
             else:
                 print("Instruccion desconocida")
 
+
+
+def Mostrar_TB(operacion,ts):
+
+    listaR=EDD.showTables(baseActiva)
+    try:
+
+        outputTxt="Nombre BD: "+baseActiva
+        for val in listaR:
+            outputTxt+='\n> Tabla Name: '+val
+        agregarMensjae('normal',outputTxt)
+    
+    except:
+        if listaR==None:
+            outputTxt='La base de datos no Existe, ShowTables'
+            agregarMensjae('normal',outputTxt)
+        else:
+            outputTxt='La tabla no existe en la bd, ShowTables'
+            agregarMensjae('normal',outputTxt)
 
 
 
@@ -901,6 +956,7 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, MostrarDB) : mostrar_db(instr,ts)
             elif isinstance(instr, ALTERDBO) : AlterDBF(instr,ts)
             elif isinstance(instr, ALTERTBO) : AlterTBF(instr,ts)
+            elif isinstance(instr, MostrarTB) : Mostrar_TB(instr,ts)
             else : print('Error: instrucción no válida')
     else:
         agregarMensjae('error','El arbol no se genero debido a un error en la entrada')

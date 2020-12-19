@@ -318,8 +318,7 @@ def p_alttbalterv2(t):
 
 
 def p_alttbalter(t):
-     '''alttbalter : ALTER COLUMN ID alttbalter1
-                   | ALTER CONSTRAINT ID '''
+     '''alttbalter : ALTER COLUMN ID alttbalter1'''
      temp=t[2]
      temp=temp.upper()
 
@@ -380,7 +379,7 @@ def p_alttbdrop1(t):
      elif temp=="CONSTRAINT":
           t[0]=ALTERTBO_DROP(t[1],t[2])
      else:
-          t[0]=ALTERTBO_DROP(0,t[1])
+          t[0]=ALTERTBO_DROP("ID",t[1])
 
 
 
@@ -1067,8 +1066,12 @@ def p_funcion_date(t):
 #------------------------------------------------------------------------------------------------------
 
 def p_mostrar_databases(t):
-     '''mostrar : SHOW DATABASES'''
-     t[0] = MostrarDB()
+     '''mostrar : SHOW DATABASES
+                | SHOW TABLE'''
+     if (t[2]).upper()=="DATABASES":           
+          t[0] = MostrarDB()
+     elif (t[2]).upper()=="TABLE":  
+          t[0] = MostrarTB()
 
 def p_valores_trim(t):
      '''valorestrim : leading
