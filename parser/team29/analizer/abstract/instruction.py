@@ -1,13 +1,20 @@
 from abc import abstractmethod
+from analizer.abstract.expression import Expression
+
+# from analizer.abstract.table import Table
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
+import pandas as pd
 
 
 class SELECT_MODE(Enum):
     ALL = 1
     PARAMS = 2
 
+
+# carga de datos
+Struct.load()
 
 # variable encargada de almacenar la base de datos a utilizar
 dbtemp = ""
@@ -165,24 +172,34 @@ class InsertInto(Instruction):
         self.parametros = parametros
 
     def execute(self, environment):
+
         # TODO Falta la validación de tipos
-        lista = []
-        tab = self.tabla
-        for p in self.parametros:
-            lista.append(p.execute(environment).value)
-        res = jsonMode.insert(dbtemp, tab, lista)
-        if res == 2:
-            return "No existe la base de datos"
-        elif res == 3:
-            return "No existe la tabla"
-        elif res == 5:
-            return "Columnas fuera de los limites"
-        elif res == 4:
-            return "Llaves primarias duplicadas"
-        elif res == 1:
-            return "Error en la operacion"
-        elif res == 0:
-            return "Fila Insertada correctamente"
+        result = Checker.checkInsert(dbtemp, self.tabla, self.parametros)
+
+        if result == None:
+            lista = []
+            tab = self.tabla
+
+            for p in self.parametros:
+                lista.append(p.execute(environment).value)
+
+            res = jsonMode.insert(dbtemp, tab, lista)
+
+            if res == 2:
+                return "No existe la base de datos"
+            elif res == 3:
+                return "No existe la tabla"
+            elif res == 5:
+                return "Columnas fuera de los limites"
+            elif res == 4:
+                return "Llaves primarias duplicadas"
+            elif res == 1:
+                return "Error en la operacion"
+            elif res == 0:
+                return "Fila Insertada correctamente"
+        else:
+            print(result)
+            return result
 
 
 class useDataBase(Instruction):
@@ -298,3 +315,121 @@ class CreateTable(Instruction):
             if not column[0]:
                 n += 1
         return n
+
+
+class CreateType(Instruction):
+    def __init__(self, exists, name, values=[]):
+        self.exists = exists
+        self.name = name
+        self.values = values
+
+    def execute(self, environment):
+        lista = []
+        for value in self.values:
+            lista.append(value.execute(environment).value)
+        result = Struct.createType(self.exists, self.name, lista)
+        if result == None:
+            report = "Type creado"
+        else:
+            report = result
+        return report
+
+
+# TODO: Operacion Check
+class CheckOperation(Instruction):
+    """
+    Clase encargada de la instruccion CHECK que almacena la condicion
+    a desarrollar en el CHECK
+    """
+
+    def __init__(self, exp1, exp2, operator, row, column):
+        Instruction.__init__(self, row, column)
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operator = operator
+
+    def execute(self, environment, value1, value2, type_):
+        exp1 = self.exp1.execute(environment)
+        exp2 = self.exp2.execute(environment)
+        operator = self.operator
+        if exp1.type == "ID" and exp2.type != "ID":
+            value2 = exp2.value
+        elif exp1.type != "ID" and exp2.type == "ID":
+            value1 = exp1.value
+        elif exp1.type == "ID" and exp2.type == "ID":
+            pass
+        else:
+            print("Error en el CHECK")
+            return None
+        if type_ == "MONEY":
+            value1 = str(value1)
+            value2 = str(value2)
+        try:
+            comps = {
+                "<": value1 < value2,
+                ">": value1 > value2,
+                ">=": value1 >= value2,
+                "<=": value1 <= value2,
+                "=": value1 == value2,
+                "!=": value1 != value2,
+                "<>": value1 != value2,
+                "ISDISTINCTFROM": value1 != value2,
+                "ISNOTDISTINCTFROM": value1 == value2,
+            }
+            value = comps.get(operator, None)
+            if value == None:
+                return Expression.ErrorBinaryOperation(
+                    exp1.value, exp2.value, self.row, self.column
+                )
+            return value
+        except:
+            print("Error fatal CHECK")
+
+
+# ---------------------------- FROM ---------------------------------
+class FromClause(Instruction):
+    """
+    Clase encargada de la clausa FROM para la obtencion de datos
+    """
+
+    def __init__(self, tables, aliases, row, column):
+        Instruction.__init__(self, row, column)
+        self.tables = tables
+        self.aliases = aliases
+
+    def execute(self, environment):
+        lst = []
+        for i in range(len(self.tables)):
+            temp = self.tables[i].execute(environment)
+            if isinstance(self.tables[i], Select):
+                environment.addVar(
+                    self.aliases[i], self.aliases[i], "TABLE", self.row, self.column
+                )
+            else:
+                environment.addVar(
+                    self.aliases[i], self.tables[i].name, "TABLE", self.row, self.column
+                )
+                environment.addVar(
+                    self.aliases[i], self.tables[i].name, "TABLE", self.row, self.column
+                )
+            lst.append(temp)
+        return lst
+
+
+class TableID(Expression):
+    """
+    Esta clase representa un objeto abstracto para el manejo de las tablas
+    """
+
+    def __init__(self, name, row, column):
+        Expression.__init__(self, row, column)
+        self.name = name
+
+    def execute(self, environment):
+        result = jsonMode.extractTable(dbtemp, self.name)
+        if result == None:
+            return "FATAL ERROR TABLE ID"
+        # TODO: Hay que ir trearlo del archivo de ESTELA
+        columns = ["id", "firtstname", "lastname"]
+        df = pd.DataFrame(result, columns=columns)
+        return df

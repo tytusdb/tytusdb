@@ -282,7 +282,7 @@ class TipAlterFK(Instruccion):
 class TipAlterFK1(Instruccion):
     """ Instrucción TALTERFK """
 
-    def __init__(self, lids, i_id, lids ):
+    def __init__(self, lids, i_id):
         self.lids = lids
         self.i_id = i_id
 

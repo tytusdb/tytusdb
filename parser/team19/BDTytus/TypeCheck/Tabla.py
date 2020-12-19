@@ -9,5 +9,3 @@ class Tabla:
         #Punteros
         self.siguiente = None
         self.anterior = None
-
-    

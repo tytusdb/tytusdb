@@ -3,10 +3,10 @@ sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
 sys.path.append('../G26/Librerias/storageManager')
 
+from jsonMode import *
 from instruccion import *
 from Lista import *
 from TablaSimbolos import *
-from jsonMode import *
 
 class Create(Instruccion):
 
@@ -22,6 +22,7 @@ class Create(Instruccion):
             #else:
             #    tablaSimbolos.append(Enum(data.databaseSeleccionada, self.name, self.list))
             data.tablaSimbolos[data.databaseSeleccionada]['enum'][self.name.upper()] = self.list
+            return 'Se ha creado el enum ' + self.name.upper() + ' correctamente.'
         elif self.type == 'database' :
             description = self.list.execute()
             valRetorno = createDatabase(description.id.upper())
@@ -74,7 +75,6 @@ class Create(Instruccion):
                                     columnasCreadas.pk = ConstraintData('PK_' + self.name.upper() + '_' + columnsPK.column.upper(), True)
                                     break
                                 valCont = valCont + 1
-                        print(ListaColumnasPK)
                         resPK = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
                         if resPK == 1: print('Error(???): Error de operacion.')
                         elif resPK == 2: print('Error(???): La base de datos no existe.')
@@ -106,6 +106,14 @@ class Create(Instruccion):
                             references = None
 
                         type = column.id.execute()
+                        if type.type == 'id':
+                            if type.length.upper() in data.tablaSimbolos[data.databaseSeleccionada]['enum']:
+                                type.type = type.length.upper()
+                                type.length = len(data.tablaSimbolos[data.databaseSeleccionada]['enum'][type.type])
+                            else:
+                                dropTable(data.databaseSeleccionada, self.name.upper())
+                                return 'Error(???): El tipo ' + type.length.upper() + ' no se encuentra declarado en los ENUMS.'
+
                         null = default.list.execute()
                         unique = null.list.execute()
                         if unique.list == None : check = None
@@ -156,13 +164,14 @@ class Create(Instruccion):
 
                         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns'].append(TableData(column.type.upper(), type.type, type.length, primaryData, foreignData, defaultData, nullData, uniqueData, checkData))
                         contadorColumnas = contadorColumnas + 1
+                return 'Se ha creado la tabla ' + self.name.upper() + ' correctamente.'
         elif self.type == 'replace' :
             comp = data.obtenerDatabase(self.name)
             if comp == None:
                 'Se crea la base de datos'
             else:
                 'Se debe de reemplazar la base de datos'
-        return self
+        return '1'
 
     def __repr__(self):
         return str(self.__dict__)

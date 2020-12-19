@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 import ply.lex as lex
 import re
+import instrucciones as ins
 from graphviz import Digraph
 from graphviz import Graph
 
@@ -12,7 +13,8 @@ cont_error_lexico = 0
 cont_error_sintactico = 0
 linea = 1
 columna = 1
-
+errores = ""                #Variable para concatenar los errores que se mostraran en la consola
+base_actual = None
 i = 0
 
 def inc_index():
@@ -22,89 +24,163 @@ def inc_index():
 
 # Lista de palabras reservadas
 reservadas = {
-    'create' : 'CREATE',
-    'type' : 'TYPE',
-    'as' : 'AS',
-    'enum' : 'ENUM',
-    'replace' : 'REPLACE',
-    'database' : 'DATABASE',
-    'if' : 'IF',
-    'not' : 'NOT',
-    'exists' : 'EXISTS',
-    'or' : 'OR',
-    'owner' : 'OWNER',
-    'mode' : 'MODE',
-    'show' : 'SHOW',
-    'like' : 'LIKE',
-    'databases' : 'DATABASES',
-    'rename' : 'RENAME',
+    'create'        : 'CREATE',
+    'type'          : 'TYPE',
+    'as'            : 'AS',
+    'enum'          : 'ENUM',
+    'replace'       : 'REPLACE',
+    'database'      : 'DATABASE',
+    'if'            : 'IF',
+    'not'           : 'NOT',
+    'exists'        : 'EXISTS',
+    'or'            : 'OR',
+    'owner'         : 'OWNER',
+    'mode'          : 'MODE',
+    'show'          : 'SHOW',
+    'like'          : 'LIKE',
+    'databases'     : 'DATABASES',
+    'rename'        : 'RENAME',
     'currente_user' : 'CURRENT_USER',
-    'session_user' : 'SESSION_USER',
-    'text' : 'TEXT',
-    'numeric' : 'NUMERIC',
-    'integer' : 'INTEGER',
-    'alter' : 'ALTER',
-    'to' : 'TO',
-    'drop'      : 'DROP',
-    'table'     : 'TABLE',
-    'default'   : 'DEFAULT',
-    'primary'   : 'PRIMARY',
-    'key'       : 'KEY',
-    'foreign'   : 'FOREIGN',
-    'null'      : 'NULL',
-    'constraint' : 'CONSTRAINT',
-    'unique'    : 'UNIQUE',
-    'check'     : 'CHECK',
-    'references': 'REFERENCES',
-    'smallint'  : 'SMALLINT',
-    'bigint'    : 'BIGINT',
-    'decimal'   : 'DECIMAL',
-    'real'      : 'REAL',
-    'double'    : 'DOUBLE',
-    'precision' : 'PRECISION',
-    'money'     : 'MONEY',
-    'character' : 'CHARACTER',
-    'varying'   : 'VARYING',
-    'varchar'   : 'VARCHAR',
-    'char'      : 'CHAR',
-    'timestamp' : 'TIMESTAMP',
-    'data'      : 'DATA',
-    'time'      : 'TIME',
-    'interval'  : 'INTERVAL',
-    'with'      : 'WITH',
-    'without'   : 'WITHOUT',
-    'zone'      : 'ZONE',
-    'column'    : 'COLUMN',
-    'add'       : 'ADD',
-    'delete'    : 'DELETE',
-    'from'      : 'FROM',
-    'where'     : 'WHERE',
-    'insert'    : 'INSERT',
-    'into'      : 'INTO',
-    'values'    : 'VALUES',
-    'update'    : 'UPDATE',
-    'set'       : 'SET',
-    'and'       : 'AND',
-    'sum'       : 'SUM',
-    'avg'       : 'AVG',
-    'max'       : 'MAX',
-    'pi'        : 'PI',
-    'power'     : 'POWER',
-    'sqrt'      : 'SQRT',
-    'select'    : 'SELECT',
-    'inner'     : 'INNER',
-    'left'      : 'LEFT',
-    'right'     : 'RIGHT',
-    'full'      : 'FULL',
-    'outer'     : 'OUTER',
-    'on'        : 'ON',
-    'join'      : 'JOIN',
-    'order'     : 'ORDER',
-    'by'        : 'BY', 
-    'asc'       : 'ASC',
-    'desc'      : 'DESC',
-    'inherits'  : 'INHERITS',
-    'distinct'  : 'DISTINCT'
+    'session_user'  : 'SESSION_USER',
+    'text'          : 'TEXT',
+    'numeric'       : 'NUMERIC',
+    'integer'       : 'INTEGER',
+    'alter'         : 'ALTER',
+    'to'            : 'TO',
+    'drop'          : 'DROP',
+    'table'         : 'TABLE',
+    'default'       : 'DEFAULT',
+    'primary'       : 'PRIMARY',
+    'key'           : 'KEY',
+    'foreign'       : 'FOREIGN',
+    'null'          : 'NULL',
+    'constraint'    : 'CONSTRAINT',
+    'unique'        : 'UNIQUE',
+    'check'         : 'CHECK',
+    'references'    : 'REFERENCES',
+    'smallint'      : 'SMALLINT',
+    'bigint'        : 'BIGINT',
+    'decimal'       : 'DECIMAL',
+    'real'          : 'REAL',
+    'double'        : 'DOUBLE',
+    'precision'     : 'PRECISION',
+    'money'         : 'MONEY',
+    'character'     : 'CHARACTER',
+    'varying'       : 'VARYING',
+    'varchar'       : 'VARCHAR',
+    'char'          : 'CHAR',
+    'timestamp'     : 'TIMESTAMP',
+    'data'          : 'DATA',
+    'time'          : 'TIME',
+    'interval'      : 'INTERVAL',
+    'with'          : 'WITH',
+    'without'       : 'WITHOUT',
+    'zone'          : 'ZONE',
+    'column'        : 'COLUMN',
+    'add'           : 'ADD',
+    'delete'        : 'DELETE',
+    'from'          : 'FROM',
+    'where'         : 'WHERE',
+    'insert'        : 'INSERT',
+    'into'          : 'INTO',
+    'values'        : 'VALUES',
+    'update'        : 'UPDATE',
+    'set'           : 'SET',
+    'and'           : 'AND',
+    'sum'           : 'SUM',
+    'avg'           : 'AVG',
+    'max'           : 'MAX',
+    'pi'            : 'PI',
+    'power'         : 'POWER',
+    'sqrt'          : 'SQRT',
+    'select'        : 'SELECT',
+    'inner'         : 'INNER',
+    'left'          : 'LEFT',
+    'right'         : 'RIGHT',
+    'full'          : 'FULL',
+    'outer'         : 'OUTER',
+    'on'            : 'ON',
+    'join'          : 'JOIN',
+    'order'         : 'ORDER',
+    'by'            : 'BY', 
+    'asc'           : 'ASC',
+    'desc'          : 'DESC',
+    'inherits'      : 'INHERITS',
+    'distinct'      : 'DISTINCT',
+    'abs'	        : 'ABS',
+    'cbrt'	        : 'CBRT',
+    'ceil'	        : 'CEIL',
+    'ceiling'       : 'CEILING',
+    'degrees'	    : 'DEGREES',
+    'div'	        : 'DIV',
+    'exp'	        : 'EXP',
+    'factorial'	    : 'FACTORIAL',
+    'floor'	        : 'FLOOR',
+    'gcd'	        : 'GCD',
+    'ln'	        : 'LN',
+    'log'	        : 'LOG',
+    'mod'	        : 'MOD',
+    'radians'	    : 'RADIANS',
+    'round'	        : 'ROUND',
+    'sign'	        : 'SIGN',
+    'width_bucket'	: 'WIDTH_BUCKET',
+    'trunc'	        : 'TRUNC',
+    'random'	    : 'RANDOM',
+    'extract'	    : 'EXTRACT',
+    'year'	        : 'YEAR',
+    'month'	        : 'MONTH',
+    'day'	        : 'DAY',
+    'hour'	        : 'HOUR',
+    'minute'	    : 'MINUTE',
+    'second'	    : 'SECOND',
+    'date_part'	    : 'DATE_PART',
+    'sha256'	    : 'SHA256',
+    'substr'	    : 'SUBSTR',
+    'get_byte'	    : 'GET_BYTE',
+    'set_byte'	    : 'SET_BYTE',
+    'convert'	    : 'CONVERT',
+    'encode'	    : 'ENCODE',
+    'decode'	    : 'DECODE',
+    'length'	    : 'LENGTH',
+    'md5'	        : 'MD5',
+    'substring'	    : 'SUBSTRING',
+    'trim'	        : 'TRIM',
+    'leading'	    : 'LEADING',
+    'trailing'	    : 'TRAILING',
+    'both'	        : 'BOTH',
+    'acos'	        : 'ACOS',
+    'acosd'	        : 'ACOSD',
+    'asin'	        : 'ASIN',
+    'asind'	        : 'ASIND',
+    'atan'	        : 'ATAN',
+    'atand'	        : 'ATAND',
+    'atan2'	        : 'ATAN2',
+    'atan2d'	    : 'ATAN2D',
+    'cos'	        : 'COS',
+    'cosd'	        : 'COSD',
+    'cot'	        : 'COT',
+    'cotd'	        : 'COTD',
+    'sin'	        : 'SIN',
+    'sind'	        : 'SIND',
+    'tan'	        : 'TAN',
+    'tand'	        : 'TAND',
+    'sinh'	        : 'SINH',
+    'cosh'	        : 'COSH',
+    'asinh'	        : 'ASINH',
+    'acosh'	        : 'ACOSH',
+    'atanh'	        : 'ATANH',
+    'use'           : 'USE',
+    'now'           : 'NOW',
+    'in'            : 'IN',
+    'count'         : 'COUNT',
+    'true'          : 'TRUE',
+    'false'         : 'FALSE',
+    'group'         : 'GROUP',
+    'by'            : 'BY',
+    'current_time'  : 'CURRENT_TIME',
+    'current_date'  : 'CURRENT_DATE',
+    'between'       : 'BETWEEN',
+    'having'        : 'HAVING'
 }
 
 # Lista de tokens
@@ -128,7 +204,15 @@ tokens = [
     'ID',
     'DECIMA',
     'ENTERO',
-    'PUNTO'
+    'PUNTO',
+    'SQRTROOT',
+    'CUBEROOT',
+    'BITAND',
+    'BITOR',
+    'BITXOR',
+    'BITNOT',
+    'BITSLEFT',
+    'BITSRIGHT'
 ] + list(reservadas.values())
 
 # Expresiones regulares par los tokens
@@ -148,6 +232,14 @@ t_SUMAS = r'\+'
 t_DIVIS = r'/'
 t_POTEN = r'\^'
 t_PUNTO = r'.'
+t_SQRTROOT = r'\|/'
+t_CUBEROOT = r'\|\|/'
+t_BITAND = r'&'
+t_BITOR = r'\|'
+t_BITXOR = r'#'
+t_BITNOT = r'~'
+t_BITSLEFT = r'<<'
+t_BITSRIGHT = r'>>'
 
 t_ignore = " \t"
 
@@ -235,7 +327,8 @@ def p_entrada(p):
                 | entrada s_delete
                 | entrada s_insert
                 | entrada s_update
-                | entrada s_select
+                | entrada select
+                | entrada use
                 | create_type
                 | create_db
                 | show_db
@@ -247,7 +340,8 @@ def p_entrada(p):
                 | s_delete
                 | s_insert
                 | s_update
-                | s_select'''
+                | select
+                | use'''
 
     #AST graphviz
     try:
@@ -265,15 +359,45 @@ def p_entrada(p):
 
 #region 'Select Analisis'
 
+def p_use(p):
+    'use : USE ID PTCOMA'
+    global base_actual
+    base_actual = ins.UseDB(p[2]).ejecutar()
+
+def p_select(p):
+    'select : s_select PTCOMA'
+
 def p_s_select(p):
-    '''s_select : SELECT list_cols FROM list_from PTCOMA
-                | SELECT list_cols FROM list_from list_conditions PTCOMA
-                | SELECT list_cols FROM list_from list_order PTCOMA
-                | SELECT list_cols FROM list_from list_joins PTCOMA
-                | SELECT list_cols FROM list_from list_conditions list_order PTCOMA
-                | SELECT list_cols FROM list_from list_joins list_conditions PTCOMA
-                | SELECT list_cols FROM list_from list_joins list_order PTCOMA
-                | SELECT list_cols FROM list_from list_joins list_conditions list_order PTCOMA'''
+    '''s_select : SELECT list_cols FROM list_from 
+                | SELECT list_cols FROM list_from list_conditions 
+                | SELECT list_cols FROM list_from list_order 
+                | SELECT list_cols FROM list_from list_joins 
+                | SELECT list_cols FROM list_from list_conditions list_order 
+                | SELECT list_cols FROM list_from list_joins list_conditions 
+                | SELECT list_cols FROM list_from list_joins list_order 
+                | SELECT list_cols FROM list_from list_joins list_conditions list_order
+                | SELECT list_cols
+                | SELECT list_cols FROM list_from group_by
+                | SELECT list_cols FROM list_from list_conditions group_by
+                | SELECT list_cols FROM list_from group_by list_order 
+                | SELECT list_cols FROM list_from list_joins group_by
+                | SELECT list_cols FROM list_from list_conditions group_by list_order 
+                | SELECT list_cols FROM list_from list_joins list_conditions group_by
+                | SELECT list_cols FROM list_from list_joins group_by list_order 
+                | SELECT list_cols FROM list_from list_joins list_conditions group_by list_order
+                
+                | SELECT list_cols FROM list_from group_by having
+                | SELECT list_cols FROM list_from list_conditions group_by having
+                | SELECT list_cols FROM list_from group_by list_order having
+                | SELECT list_cols FROM list_from list_joins group_by having
+                | SELECT list_cols FROM list_from list_conditions group_by list_order having
+                | SELECT list_cols FROM list_from list_joins list_conditions group_by having
+                | SELECT list_cols FROM list_from list_joins group_by list_order having
+                | SELECT list_cols FROM list_from list_joins list_conditions group_by list_order having
+                | SELECT list_cols FROM list_from list_conditions having
+                | SELECT list_cols FROM list_from list_conditions list_order having
+                | SELECT list_cols FROM list_from list_joins list_conditions having
+                | SELECT list_cols FROM list_from list_joins list_conditions list_order having'''
     
     #AST graphviz
     try:
@@ -324,9 +448,21 @@ def p_s_select(p):
     except IndexError:
         print('')
 
+def p_having(p):
+    '''having : HAVING expresion'''
 
+def p_instrucciones_comp(p):
+    '''instrucciones_comp : instrucciones_comp list_conditions
+                          | instrucciones_comp list_order
+                          | instrucciones_comp list_joins
+                          | instrucciones_comp group_by
+                          | list_conditions
+                          | list_order
+                          | list_joins
+                          | group_by'''
 
-
+def p_group_by(p):
+    '''group_by : GROUP BY list_alias'''
 
 def p_list_cols(p):
     '''list_cols :  DISTINCT list_alias
@@ -378,10 +514,11 @@ def p_list_alias(p):
         print('')
 
 def p_sel_id(p):
-    ''' sel_id : ID PUNTO ID AS ID
-                  | ID PUNTO ID
-                  | ID AS ID
-                  | ID'''
+    ''' sel_id : expresion PUNTO ID AS ID
+                  | ID PUNTO MULTI
+                  | expresion AS ID
+                  | expresion
+                  | expresion ID'''
 
     #AST graphviz
     try:
@@ -446,7 +583,7 @@ def p_list_from(p):
         print('')
 
 def p_from_id(p):
-    '''from_id : ID AS ID
+    '''from_id : ID ID
                 | ID'''
 
     #AST graphviz
@@ -472,12 +609,17 @@ def p_from_id(p):
 
     
 
-def p_list_joins(p):
+def p_list_joins(p):                            #Se agregaron las últimas 5 produciones para que acepten alias
     '''list_joins : list_joins join_type JOIN ID join_conditions 
                   | list_joins JOIN ID join_conditions 
                   | join_type JOIN ID join_conditions
                   | JOIN ID join_conditions
-                  | JOIN ID'''
+                  | JOIN ID
+                  | list_joins join_type JOIN ID ID join_conditions 
+                  | list_joins JOIN ID ID join_conditions
+                  | join_type JOIN ID ID join_conditions
+                  | JOIN ID ID join_conditions
+                  | JOIN ID ID'''
     
     #AST graphviz
     try:
@@ -569,7 +711,8 @@ def p_join_conditions(p):
 
 
 def p_list_conditions(p):
-    '''list_conditions : WHERE expresion'''
+    '''list_conditions : WHERE expresion
+                       | WHERE ID expresion'''
 
     #AST graphviz
     try:
@@ -588,8 +731,9 @@ def p_list_conditions(p):
         print('')
 
 def p_list_order(p):
-    '''list_order : ORDER BY ID ASC
-                  | ORDER BY ID DESC'''
+    '''list_order : ORDER BY expresion ASC
+                  | ORDER BY expresion DESC
+                  | ORDER BY expresion'''
 
     #AST graphviz
     try:
@@ -700,6 +844,7 @@ def p_data_type(p):
             | SMALLINT 
             | BIGINT
             | DECIMAL
+            | DECIMAL PARIZQ ENTERO COMA ENTERO PARDER
             | REAL
             | DOUBLE PRECISION
             | MONEY
@@ -885,8 +1030,8 @@ def p_owner_mode(p):
         print('')
 
 def p_igual_id(p):
-    '''igual_id : IGUAL ID
-                | ID'''
+    '''igual_id : IGUAL expresion
+                | expresion'''
 
     try:
 
@@ -1062,8 +1207,10 @@ def p_drop_db(p):
         print('')
 
 def p_create_table(p): 
-    '''create_table   : CREATE TABLE ID PARIZQ valores PARDER PTCOMA
-                      | CREATE TABLE ID PARIZQ valores PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
+    '''create_table   : CREATE TABLE ID PARIZQ colum_list PARDER PTCOMA
+                      | CREATE TABLE ID PARIZQ colum_list PARDER INHERITS PARIZQ ID PARDER PTCOMA
+                      | CREATE TABLE ID PARIZQ colum_list COMA const_keys PARDER PTCOMA
+                      | CREATE TABLE ID PARIZQ colum_list COMA const_keys PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
 
     try: 
 
@@ -1120,28 +1267,6 @@ def p_create_table(p):
     except IndexError:
         print('')
 
-def p_valores(p):
-    '''valores  : colum_list
-                | colum_list COMA const_keys '''
-    try: 
-
-        id = inc_index()
-        p[0] = id
-        ast_graph.node(str(id), str('Values'))
-        
-        ast_graph.edge(str(id), str(p[1]))
-
-        if p[2]:
-            id2 = inc_index()
-            ast_graph.node(str(id2), str(p[2]))
-            ast_graph.edge(str(id), str(id2))
-
-        if p[3]:
-            ast_graph.edge(str(id), str(p[3]))
-
-    except IndexError:
-        print('')
-
 def p_colum_list(p):
     '''colum_list   : colum_list COMA ID data_type 
                     | colum_list COMA ID data_type const
@@ -1190,8 +1315,12 @@ def p_colum_list(p):
         print('')
 
 def p_const_keys(p):
-    '''const_keys   : const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
+    '''const_keys   : const_keys COMA CONSTRAINT ID PRIMARY KEY PARIZQ lista_id PARDER
+                    | const_keys COMA CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+                    | const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
                     | const_keys COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
+                    | CONSTRAINT ID PRIMARY KEY PARIZQ lista_id PARDER
+                    | CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
                     | PRIMARY KEY PARIZQ lista_id PARDER
                     | FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
 
@@ -1292,7 +1421,7 @@ def p_const_keys(p):
 
 
 def p_const(p):
-    '''const    : const DEFAULT valores
+    '''const    : const DEFAULT expresion
                 | const NOT NULL
                 | const NULL
                 | const CONSTRAINT ID  UNIQUE
@@ -1302,7 +1431,7 @@ def p_const(p):
                 | const CHECK PARIZQ expresion PARDER
                 | const PRIMARY KEY
                 | const REFERENCES ID PARIZQ lista_id PARDER
-                | DEFAULT valores
+                | DEFAULT expresion
                 | NOT NULL
                 | NULL
                 | CONSTRAINT ID UNIQUE
@@ -1587,8 +1716,8 @@ def p_lista_values(p):
         print('')
 
 def p_lista_valores(p):
-    '''lista_valores : lista_valores COMA valores
-                     | valores'''
+    '''lista_valores : lista_valores COMA expresion
+                     | expresion'''
     
     try:
 
@@ -1605,24 +1734,6 @@ def p_lista_valores(p):
 
         if p[3]:
             ast_graph.edge(str(id), str(p[3]))
-
-    except IndexError:
-        print('')
-
-def p_valores(p):
-    '''valores : CADENA
-               | ENTERO
-               | DECIMA'''
-
-    try:
-
-        id = inc_index()
-        p[0] = id
-        ast_graph.node(str(id), str('Values List'))
-
-        id2 = inc_index()
-        ast_graph.node(str(id2), str(p[1]))
-        ast_graph.edge(str(id), str(id2))
 
     except IndexError:
         print('')
@@ -1666,8 +1777,8 @@ def p_s_update(p):
         print('')
 
 def p_lista_asig(p):
-    '''lista_asig : lista_asig COMA ID IGUAL valores
-                  | ID IGUAL valores'''
+    '''lista_asig : lista_asig COMA ID IGUAL expresion
+                  | ID IGUAL expresion'''
 
     try:
 
@@ -1710,6 +1821,8 @@ def p_lista_asig(p):
 
 def p_expresion(p):
     '''expresion : NOT expresion
+                 | IN expresion
+                 | EXISTS expresion
                  | expresion OR expresion
                  | expresion AND expresion
                  | expresion MAYOR expresion
@@ -1729,12 +1842,34 @@ def p_expresion(p):
                  | SUM PARIZQ expresion PARDER
                  | AVG PARIZQ expresion PARDER
                  | MAX PARIZQ expresion PARDER
-                 | PI
-                 | POWER PARIZQ expresion PARDER
-                 | SQRT PARIZQ expresion PARDER
+                 | COUNT PARIZQ MULTI PARDER
+                 | COUNT PARIZQ expresion PARDER
+                 | expresion BETWEEN expresion
                  | ID
+                 | CADENA
+                 | ENTERO
+                 | DECIMA
                  | ID PUNTO ID
-                 | valores'''
+                 | CURRENT_DATE
+                 | CURRENT_TIME
+                 | temp_exp expresion
+                 | SQRTROOT expresion
+                 | CUBEROOT expresion
+                 | BITAND expresion
+                 | BITOR expresion
+                 | BITXOR expresion
+                 | BITNOT expresion
+                 | BITSLEFT expresion
+                 | BITSRIGHT expresion
+                 | math_sw
+                 | math_select
+                 | trigonometric
+                 | ext
+                 | d_part
+                 | now
+                 | binary_string
+                 | s_select
+                 | booleanos'''
 
     try:
 
@@ -1773,11 +1908,126 @@ def p_expresion(p):
     except IndexError:
         print('')
 
+def p_booleanos(p):
+    '''booleanos : TRUE
+                 | FALSE'''
+
+def p_now(p):
+    'now : NOW PARIZQ PARDER'
+
+def p_math_sw(p):
+    '''math_sw : ABS PARIZQ expresion PARDER
+               | CBRT PARIZQ expresion PARDER
+               | CEIL PARIZQ expresion PARDER
+               | CEILING PARIZQ expresion PARDER'''
+
+def p_math_select(p):
+    '''math_select : DEGREES PARIZQ expresion PARDER
+                   | DIV PARIZQ expresion COMA expresion PARDER
+                   | EXP PARIZQ expresion PARDER
+                   | FACTORIAL PARIZQ expresion PARDER
+                   | FLOOR PARIZQ expresion PARDER
+                   | GCD PARIZQ expresion PARDER
+                   | LN PARIZQ expresion PARDER
+                   | LOG PARIZQ expresion PARDER
+                   | MOD PARIZQ expresion COMA expresion PARDER
+                   | PI PARIZQ PARDER
+                   | POWER PARIZQ expresion COMA expresion PARDER
+                   | RADIANS PARIZQ expresion PARDER
+                   | ROUND PARIZQ expresion PARDER
+                   | SIGN PARIZQ expresion PARDER
+                   | SQRT PARIZQ expresion PARDER
+                   | WIDTH_BUCKET PARIZQ expresion lista_exp PARDER
+                   | TRUNC PARIZQ expresion trunc1
+                   | RANDOM PARIZQ PARDER'''
+
+def p_lista_exp(p):
+    '''lista_exp : lista_exp COMA expresion
+                |  COMA expresion'''
+
+def p_trunc1(p):
+    '''trunc1 : COMA ENTERO PARDER
+             | PARDER'''
+
+def p_trigonometric(p):
+    '''trigonometric : ACOS PARIZQ expresion PARDER
+                     | ACOSD PARIZQ expresion PARDER
+                     | ASIN PARIZQ expresion PARDER
+                     | ASIND PARIZQ expresion PARDER
+                     | ATAN PARIZQ expresion PARDER
+                     | ATAND PARIZQ expresion PARDER
+                     | ATAN2 PARIZQ expresion COMA expresion PARDER
+                     | ATAN2D PARIZQ expresion COMA expresion PARDER
+                     | COS PARIZQ expresion PARDER
+                     | COSD PARIZQ expresion PARDER
+                     | COT PARIZQ expresion PARDER
+                     | COTD PARIZQ expresion PARDER
+                     | SIN PARIZQ expresion PARDER
+                     | SIND PARIZQ expresion PARDER
+                     | TAN PARIZQ expresion PARDER
+                     | TAND PARIZQ expresion PARDER
+                     | SINH PARIZQ expresion PARDER
+                     | COSH PARIZQ expresion PARDER
+                     | ASINH PARIZQ expresion PARDER
+                     | ACOSH PARIZQ expresion PARDER
+                     | ATANH PARIZQ expresion PARDER'''
+
+def p_ext(p):
+    '''ext : EXTRACT PARIZQ time_type FROM temp_exp expresion PARDER
+           | EXTRACT PARIZQ time_type FROM expresion PARDER'''
+
+def p_time_type(p):
+    '''time_type : YEAR
+                 | MONTH
+                 | DAY
+                 | HOUR
+                 | MINUTE
+                 | SECOND'''
+
+def p_d_part(p):
+    'd_part : DATE_PART PARIZQ CADENA COMA temp_exp CADENA PARDER'
+
+def p_temp_exp(p):
+    '''temp_exp : TIMESTAMP
+                | TIME
+                | INTERVAL'''
+
+def p_binary_string(p):
+    '''binary_string : SHA256 PARIZQ expresion PARDER
+                     | SUBSTR PARIZQ expresion COMA ENTERO COMA ENTERO PARDER
+                     | GET_BYTE PARIZQ expresion COMA ENTERO PARDER
+                     | SET_BYTE PARIZQ expresion COMA ENTERO COMA ENTERO PARDER
+                     | CONVERT PARIZQ expresion AS data_type PARDER
+                     | ENCODE PARIZQ expresion COMA expresion PARDER
+                     | DECODE PARIZQ expresion COMA expresion PARDER
+                     | bs_sw
+                     | bs_iu
+                     | bs_siuw'''
+
+def p_bs_sw(p):
+    'bs_sw : LENGTH PARIZQ expresion PARDER'
+
+def p_bs_iu(p):
+    'bs_iu : MD5 PARIZQ expresion PARDER'
+
+def p_bs_siuw(p):
+    '''bs_siuw : SUBSTRING PARIZQ expresion COMA ENTERO COMA ENTERO PARDER
+               | TRIM PARIZQ trim1 PARDER'''
+
+def p_trim(p):
+    '''trim1 : trim2 FROM expresion
+            | expresion'''
+
+def p_trim1(p):
+    '''trim2 : LEADING
+             | TRAILING
+             | BOTH'''
+
 
 def p_error(p):
     global linea, columna
     sin_error(p.type, p.value, linea, p.lexpos)
-    columna = columna + len(p.value)
+    #columna = columna + len(p.value)
 
 
 # Construyendo el analizador sintáctico
@@ -1785,8 +2035,9 @@ parser = yacc.yacc()
 
 #Funcion para concatenar los errores léxicos en una variable
 def lex_error(lex, linea, columna):
-    global cont_error_lexico, errores_lexicos
+    global cont_error_lexico, errores_lexicos, errores
     cont_error_lexico = cont_error_lexico + 1
+    errores = errores + 'ERROR LÉXICO : Vino el símbolo -> ' + str(lex) + ' en la linea ' + str(linea) + ' y columna ' + str(columna) + '\n'
     errores_lexicos = errores_lexicos + "<tr><td align=""center""><font color=""black"">" + str(cont_error_lexico) + "<td align=""center""><font color=""black"">" + str(lex) + "</td><td align=""center""><font color=""black"">" + str(linea) + "</td><td align=""center""><font color=""black"">" + str(columna) + "</td></tr>" + '\n'
 
 #Construccion reporte de errores léxicos
@@ -1829,8 +2080,9 @@ def reporte_tokens(data):
 
 #Funcion para concatenar los errores léxicos en una variable
 def sin_error(token, lex, linea, columna):
-    global cont_error_sintactico, errores_sintacticos
+    global cont_error_sintactico, errores_sintacticos, errores
     cont_error_sintactico = cont_error_sintactico + 1
+    errores = errores + 'ERROR SINTÁCTICO : Vino token -> ' + str(token) + ' con lexema -> ' + str(lex) + ' en la linea ' + str(linea) + ' y columna ' + str(columna) + '\n'
     errores_sintacticos = errores_sintacticos + "<tr><td align=""center""><font color=""black"">" + str(cont_error_sintactico) + "<td align=""center""><font color=""black"">" + str(token) + "<td align=""center""><font color=""black"">" + str(lex) + "</td><td align=""center""><font color=""black"">" + str(linea) + "</td><td align=""center""><font color=""black"">" + str(columna) + "</td></tr>" + '\n'
 
 #Construccion reporte de errores sintacticos
@@ -1849,7 +2101,8 @@ def reporte_sin_error():
     errores_sintacticos = ""
 
 def parse(entrada):
-    global parser, linea, columna
+    global parser, linea, columna, errores
+    errores = ""
     linea = 1
     columna = 1
     parse_result = parser.parse(entrada)
@@ -1857,7 +2110,8 @@ def parse(entrada):
     reporte_tokens(entrada)
     reporte_lex_error()
     reporte_sin_error()
-    ast_graph.render('.\\Diagrama\\Diagrama.gv', view=False) 
+    #ast_graph.render('.\\Diagrama\\Diagrama.gv', view=False) 
     #ast_graph.render('.\\Diagrama\\Diagrama.gv.pdf', view=False)
     #ast_graph.render('.\\Diagrama\\Diagrama.png', view=False)
-    return parse_result
+    result = [parse_result, errores]
+    return result

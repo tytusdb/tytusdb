@@ -1,7 +1,8 @@
 class Table(object):
-    def __init__(self, name):
+    def __init__(self, name, columns, constraint):
         self.name = name
-        self.columns = []
+        self.columns = columns
+        self.constraint = constraint
     
     def createColumn(self, column):
         self.columns.append(column)
