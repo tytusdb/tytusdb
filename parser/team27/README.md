@@ -30,6 +30,7 @@
 
 <TIPO_CREATE> ::= <REPLACE> DATABASE <IF_EXIST> identificador <CREATE_OPCIONES> ;
 			| TABLE identificador ( <DEFINICION_COLUMNA> );
+			| TYPE identificador AS ENUM ( <LIST_VLS> );
 
 <REPLACE> ::= OR REPLACE 
 			| épsilon

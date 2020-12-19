@@ -15,7 +15,7 @@ class Numeric(ASTNode):
         return self.val
 
 
-class NumericNegative(ASTNode):
+class NumericPositive(ASTNode):
     def __init__(self, val, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.val = val
@@ -23,7 +23,28 @@ class NumericNegative(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        return self.val * -1
+        self.val = self.val.execute(table, tree)
+        print(type(self.val))
+        if(type(self.val) == int or type(self.val) == float):
+            return self.val * 1
+        else:
+            raise Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be number')
+        
+
+
+class NumericNegative(ASTNode):
+    def __init__(self, val, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.val = val
+        self.graph_ref = graph_ref
+
+    def execute(self, table, tree):
+        self.val = self.val.execute(table, tree)
+        if(type(self.val) == int or type(self.val) == float):
+            return self.val * -1
+        else:
+            raise Error(self.line, self.column, ErrorType.SEMANTIC, 'TypeError: must be number')
+        
 
 
 class Text(ASTNode):
@@ -72,7 +93,6 @@ class ColumnName(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        print("TEXT: ", self.tName, ".", self.cName)
         if self.tName is None or self.tName == "":
             return self.cName
         else:
