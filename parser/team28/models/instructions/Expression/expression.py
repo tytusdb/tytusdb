@@ -251,16 +251,16 @@ class UnaryOrSquareExpressions(Expression):
     '''
     UnaryOrSquareExpressions
     '''
-    def __init__(self, sign, expression_list):
+    def __init__(self, sign, value):
         self.sign = sign
-        self.expression_list = expression_list
-        self.alias = str(self.sign) + str(self.expression_list.alias)
+        self.value = value
+        self.alias = str(self.sign) + str(self.value.alias)
     
     def __repr__(self):
         return str(vars(self))
     
     def process(self, expression):
-        expression1 = self.expression_list.process(expression)
+        expression1 = self.value.process(expression)
         type_unary_or_other = self.sign
         if expression1.data_type != DATA_TYPE.NUMBER:
             print('error')

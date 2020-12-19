@@ -1,4 +1,8 @@
 from models.instructions.shared import Instruction
+from controllers.type_checker import TypeChecker
+from controllers.symbol_table import SymbolTable
+from controllers.error_controller import ErrorController
+from storageManager import jsonMode as j
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
 '''
@@ -16,10 +20,41 @@ class Insert(Instruction):
 
     def __repr__(self):
         return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-    
+
+    def process(self, instruction):
+        print("EJECUTANDO INSERT")
+        #Jalando Base de Datos
+        # database_id = SymbolTable().useDatabase
+        database_id = 'world'
+        
+        # if not database_id:
+        #     desc = f": Database not selected"
+        #     ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
+        #     return None
+        # #Base de datos existe --> Obtener tabla
+        # database = TypeChecker().searchDatabase(database_id)
+        # table_tp = TypeChecker().searchTable(database, self.table.value)
+        # if not table_tp:
+        #     desc = f": Table does not exists"
+        #     ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
+        #     return None
+        #Obtenida la tabla ---> TODO: VALIDAR TIPOS
+        # for column in table_tp.columns:
+        #     if column.
+        if self.arr_columns == None:
+        #Solo nos dieron los valores, tienen que venir todos ---> Espino ya valida longitud?
+            vals_insert = []
+            for column in self.arr_values:
+                val = column.process(instruction)
+                vals_insert.append(val.value)
+            print(vals_insert)
+            j.insert(database_id, self.table.value, vals_insert)
+        else:
+            if len(self.arr_columns) == len(self.arr_values):
+                pass
+            else:
+                print("Error Datos incompletos")
+        
 
 class Update(Instruction):
     '''
