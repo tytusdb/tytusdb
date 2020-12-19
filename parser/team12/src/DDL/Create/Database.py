@@ -5,8 +5,14 @@ import os
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\storageManager')
 sys.path.append(storage)
 
-from jsonMode import *
+storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\typeChecker')
+sys.path.append(storage)
 
+
+
+from jsonMode import *
+from typeChecker.typeChecker import *
+tc = TypeChecker()
 
 
 class Database():
@@ -32,8 +38,7 @@ class Database():
         
         if self.responseCode == "0000":
             self.addDatabase()
-
-        return {"Code":self.responseCode,"Message":self.responseMessage}
+        return {"Code":self.responseCode,"Message":self.responseMessage, "Data" : None}
 
 
     def procesarOpcionales(self,parent):
@@ -55,28 +60,21 @@ class Database():
         return True
     
     def addDatabase(self):
+        # Modo por default es 1
         if self.mode == None:
             self.mode = 1
-        jsonDatabase = {
-            'nombre': self.name,
-            'owner': self.owner,
-            'mode' : self.mode,
-            'tablas' : [{
-                'columna' : 'COL1'
-            }]
-        }
-
-
-
+        # Se crea si no existe
         if not (self.name in showDatabases()) : # No existe la base de datos, se crea
             if createDatabase(self.name) == 0:
                 self.responseCode="0000"
                 self.responseMessage="Se creo la base de datos."
+                tc.createDatabase(self.name, self.owner, self.mode)
         else:
             index = showDatabases().index(self.name) 
             if not (self.ifNotExists) and self.replaced :
                 if createDatabase(self.name) == 2:
                     self.responseCode="0000"
+                    tc.replaceDatabase(self.name, self.owner, self.mode)
                     self.responseMessage = "La base de datos fue reemplazada exitosamente"
             else:
                 self.responseCode="42P04"

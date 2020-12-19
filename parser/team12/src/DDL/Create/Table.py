@@ -5,7 +5,15 @@ import os
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\storageManager')
 sys.path.append(storage)
 
+storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\typeChecker')
+sys.path.append(storage)
+
+
+
+
+
 from jsonMode import *
+from typeChecker.typeChecker import *
 
 
 class Column():
@@ -157,6 +165,5 @@ class Table():
             elif hijo.nombreNodo == "ATRIBUTO_FOREIGN_KEY" :
                 nuevaConstraint = Constraints()
                 nuevaConstraint.crearConstraintForeign(hijo, self.columnas)
-                
 
-            
+

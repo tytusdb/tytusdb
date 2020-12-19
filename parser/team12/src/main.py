@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog
 from gramatica import run_method
 from ARBOL_AST.Arbol import *
 import pathlib
+import json
 
 # Se crea una clase para la interfaz gráfica
 class mainWindow:
@@ -12,20 +13,21 @@ class mainWindow:
 
         # Area de Edición
         self.textArea = Text(master)
-        self.textArea.pack(pady = 5, padx = 20)
-
+        self.textArea.grid(column = 0, row = 0, padx = 15, pady = 15, columnspan=3)
+        self.textArea2 = Text(master, state = 'disabled')
+        self.textArea2.grid(column = 8, row = 0, padx = 15, pady = 15, columnspan=4)
         # Consola
         self.consoleArea = ttk.Treeview(master)
         self.consoleArea['columns'] = ("Fila","Columna","Desc")
         self.consoleArea.column("#0", width = 0 , stretch = NO)
-        self.consoleArea.column("Fila", anchor = W, width = 75)
-        self.consoleArea.column("Columna", anchor = W, width = 75)
-        self.consoleArea.column("Desc", anchor = CENTER, width = 500)
+        self.consoleArea.column("Fila", anchor = W, width = 250)
+        self.consoleArea.column("Columna", anchor = W, width = 250)
+        self.consoleArea.column("Desc", anchor = CENTER, width = 800)
         self.consoleArea.heading("#0", text = "")
         self.consoleArea.heading("Fila", text = "Fila")
         self.consoleArea.heading("Columna", text = "Columna")
         self.consoleArea.heading("Desc", text = "Descripcion")
-        self.consoleArea.pack(pady = 5, padx = 20)
+        self.consoleArea.grid(columnspan=10, padx = 15, pady = 15)
         
         # Forma de Insertar las columnas
         # self.consoleArea.insert(parent = '', index= 'end', iid = 0, values = ("Columna 1","Columna 2", "Columna 3")) 
@@ -55,8 +57,23 @@ class mainWindow:
     def analyzeMethod(self):
         entrada = self.textArea.get("1.0",END)
         resp = run_method(entrada)
-        print(resp)
+        resp.execute(None)
+        self.textArea2.configure(state = 'normal')
+        self.textArea2.delete('1.0',END)
+        textOutput = ""
+        for x in resp.listaSemanticos:
+            textOutput += x['Code'] + "\t" + x['Message'] +"\n"
+        print(textOutput)
+        self.textArea2.insert("end-1c", textOutput)
+        self.textArea2.configure(state = 'disabled')
 
+
+#Borrar las variables de configuración
+with open('src/Config/Config.json') as file:
+    config = json.load(file)
+    config['databaseIndex'] = None
+with open('src/Config/Config.json',"w") as file:
+    json.dump(config,file)
 
 
 #Descomentar lo que sea necesario
@@ -64,27 +81,30 @@ class mainWindow:
 
 
 # Entrada por el archivo SQL Test File
+"""
 pathEntrada = str(pathlib.Path().absolute())+ r"\src\SQL Test File.sql"
 openFile = open(pathEntrada, "r", encoding="utf-8")
 entrada = openFile.read()
 openFile.close()
 resp = run_method(entrada)
 #print("respuesta")
-#resp.execute(None)
+resp.execute(None)
+print(resp.listaSemanticos)
+
 arbol = Arbol()
-print(arbol.generar_dot(resp))
-
-
-
-
+#print(arbol.generar_dot(resp))
 """
+
+
+
+
 
 # Entrada por interfaz gráfica
 root = Tk()
 mainWin = mainWindow(root)
 root.mainloop() 
 
-"""
+
 
 
 """

@@ -485,6 +485,7 @@ def p_if_exists(t):
         t[0] = nuevo
 
 
+
 #---------------Inician las sentencias con la palabra reservada CREATE.---------------------
 def p_sentencia_crear_1(t):
     '''sentencia_crear : CREATE TYPE IDENTIFICADOR AS ENUM PARENTESISIZQ lista_cadenas PARENTESISDER'''
@@ -641,6 +642,17 @@ def p_opcional_creartabla_columna_8(t):
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0] = temporal
+def p_opcional_creartabla_columna_8_1(t):
+    '''opcional_creartabla_columna : opcional_creartabla_columna PRIMARY KEY'''
+    nuevo = Start("OPCIONALES_ATRIBUTO_PRIMARY")
+    nuevo.createTerminal(t.slice[2])
+    nuevo.createTerminal(t.slice[3])
+    temporal = Start("Temp")
+    if t[1] != None:
+        for hijo in t[1].hijos:
+            temporal.addChild(hijo)
+    temporal.addChild(nuevo)
+    t[0] = temporal  
 def p_opcional_creartabla_columna_9(t):
     '''opcional_creartabla_columna : opcional_constraint CHECK PARENTESISIZQ PARENTESISDER
                                     |'''
@@ -693,8 +705,8 @@ def p_lista_cadenas(t):
                         | CADENA '''
     nuevo = Start("LISTA_CADENAS")
     if len(t) == 4:
-        if t[1] != None:
-            nuevo.addChild(t[1])
+        for hijo in t[1].hijos:
+            nuevo.addChild(hijo)
         nuevo.createTerminal(t.slice[3])
     else:
         nuevo.createTerminal(t.slice[1])        

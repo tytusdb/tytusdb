@@ -10,9 +10,15 @@ sys.path.append(create_dir)
 create_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\DDL\\Use')
 sys.path.append(create_dir)
 
+select_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\DML\\Select')
+sys.path.append(select_path)
+
+
 
 
 from Nodo import Nodo
 from Database import Database
 from Table import Table
 from Use import Use
+from Type import Type
+from Select import Select
