@@ -367,25 +367,19 @@ def insert(database, table, register):
 
 def loadCSV(filepath, database, table):
     checkData()
-    col = False
     dataBaseTree = serializable.Read('./Data/', "Databases")
     root = dataBaseTree.getRoot()
     if not dataBaseTree.search(root, database.upper()):
-        if createDatabase(database):
-            return []
+        return []
     tablesTree = serializable.Read(f"./Data/{database}/", database)
     if not tablesTree.search(tablesTree.getRoot(), table.upper()):
-        col = True
+        return []
     try:
         res = []
         import csv
         with open(filepath, 'r') as file:
             reader = csv.reader(file, delimiter=',')
             for row in reader:
-                if col:
-                    if createTable(database, table, len(row)):
-                        return []
-                    col = False
                 res.append(insert(database, table, row))
         return res
     except:
