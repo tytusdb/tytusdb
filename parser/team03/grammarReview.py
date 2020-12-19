@@ -977,17 +977,19 @@ def p_aritmetic(t):
         addCad("**\<EXP>** ::=   tTruc '(' \<EXP> ')'      ")
         t[0] = Trunc(t[3], token.lineno, token.lexpos, graph_ref)
 
+
 def p_exp_unary(t):
     '''expression : MENOS expression %prec UMENOS
                   | MAS expression %prec UMAS '''
+    token = t.slice[2].value
     if t[1] == '+':
         graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
-        addCad("**\<EXP>** ::=  [+|-] \<EXP>")
-        t[0] = BinaryExpression(Numeric(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
+        addCad("**\<EXP>** ::=  + \<EXP>")
+        t[0] =  NumericPositive(t[2], token.line, token.column, graph_ref) 
     elif t[1] == '-':
         graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
-        addCad("**\<EXP>** ::=  [+|-] \<EXP>")
-        t[0] = BinaryExpression(NumericNegative(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
+        addCad("**\<EXP>** ::=  - \<EXP>")
+        t[0] = NumericNegative(t[2], token.line, token.column, graph_ref) 
     else:
         print("Missed code from unary expression")
 
@@ -998,9 +1000,9 @@ def p_exp_num(t):
     t[0] = t[1]
     token = t.slice[1]   
     if token.type == "numero":
-       addCad("**\<EXP>** ::= \<NUMERO>")
+        addCad("**\<EXP>** ::= \<NUMERO>")
     elif token.type == "col_name":
-       addCad("**\<EXP>** ::= \<COL_NAME>")
+        addCad("**\<EXP>** ::= \<COL_NAME>")
 
 
 def p_exp_val(t):
@@ -1022,12 +1024,8 @@ def p_exp_val(t):
         t[0] = Now(token.lineno, token.lexpos, graph_ref)
 
 
-#########################
-def p_empty(t):
-    '''empty :'''
-    pass
 
-
+# <NUMERO> ::=
 def p_numero(t):
     ''' numero  : ENTERO
                 | FLOAT'''
@@ -1039,19 +1037,27 @@ def p_numero(t):
     graph_ref = graph_node(str(t[1]))
     t[0] = Numeric(token.value, token.lineno, token.lexpos, graph_ref)
 
-
+# --- <COL_NAME> ::= tIdentificador [‘.’ tIdentificador]
 def p_col_name(t):
-    ''' col_name : ID PUNTO ID
-                 | ID '''
+    ''' col_name : ID PUNTO ID'''
     token = t.slice[1]
-    if len(t) == 2:
-        graph_ref = graph_node(str(t[1]))
-        addCad("**\<COL_NAME>** ::= tIdentificador")
-        t[0] = ColumnName(None, t[1], token.lineno, token.lexpos, graph_ref)
-    else:
-        graph_ref = graph_node(str(t[1] + t[2] + t[3]))
-        addCad("**\<COL_NAME>** ::= tIdentificador ['.' tIdentificador]")
-        t[0] = ColumnName(t[1], t[3], token.lineno, token.lexpos, graph_ref)
+    graph_ref = graph_node(str(t[1] + t[2] + t[3]))
+    addCad("**\<COL_NAME>** ::= tIdentificador '.' tIdentificador")
+    t[0] = ColumnName(t[1], t[3], token.lineno, token.lexpos, graph_ref)
+
+def p_col_name1(t):
+    ''' col_name : ID '''
+    token = t.slice[1]
+    graph_ref = graph_node(str(t[1]))
+    addCad("**\<COL_NAME>** ::= tIdentificador")
+    t[0] = ColumnName(None, t[1], token.lineno, token.lexpos, graph_ref)
+
+# <EMPTY> ::=
+def p_empty(t):
+    '''empty :'''
+    pass
+
+
 
 
 import ply.yacc as yacc
@@ -1059,6 +1065,8 @@ from ply.yacc import token
 
 parse = yacc.yacc()
 errorsList = []
+
+
 
 if __name__ == "__main__":
     f = open("./entrada.txt", "r")
