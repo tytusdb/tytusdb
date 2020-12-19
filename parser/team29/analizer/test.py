@@ -6,23 +6,27 @@ path.append(dir(path[0]))
 from analizer import grammar
 
 s = """ 
-    /*
-    USE DATABASE db1;
-    CREATE TYPE if not exists mood AS ENUM ('sad', 'ok', 'happy');
-    CREATE TABLE IF NOT EXISTS Persona2( 
-        Dpi bigint not null primary key,
-        Nombre varchar(20),
-        fecha Date,
-        estado mood not null primary key,
-        Dpi2 bigint,
-        Foreign key (Dpi2) references Persona (Dpi)
+    use db1;
+    /*create table tblibrosalario( 
+    idempleado integer not null,
+    aniocalculo integer CONSTRAINT aniosalario CHECK (aniocalculo > 0),
+    mescalculo  integer CONSTRAINT mescalculo CHECK (mescalculo > 0 ),
+    salariobase  money not null,
+    comision decimal,
+    primary key(idempleado)
     );
+    insert into tblibrosalario values(4,2020,10,2500,6885);
+    insert into tblibrosalario values(5,2020,10,2750,5370);
     
-    INSERT INTO Persona VALUES (22, "Estela Pérez", "2000-03-29 10:28:30", "xd",0);
+    
     */
-    SELECT 3+3;
+    
+    insert into tblibrosalario (salariobase,idempleado,mescalculo) values(3000,NULL,1);
+    
 """
 
 
 result = grammar.parse(s)
 print(result)
+
+

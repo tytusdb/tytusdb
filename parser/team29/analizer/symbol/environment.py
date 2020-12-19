@@ -7,7 +7,7 @@ class Environment:
     de las diferentes ejecuciones (execute()) de las instrucciones y
     expresiones.
     """
-
+    dataFrame = None
     def __init__(self, previous=None) -> None:
         self.previous = previous
         self.variables = {}

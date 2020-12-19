@@ -103,13 +103,13 @@ def select(col, val):
     x = Type.get(col['type'])
     if x == None: #Type type
         types(col, val.value)
-    elif x == "CHARACTER" and val.type == TYPE.STRING:
+    elif x == TYPE.STRING and val.type == TYPE.STRING:
         character(col, val.value)
-    elif x == "TIME" and val.type == TYPE.STRING:
+    elif x == TYPE.DATETIME and val.type == TYPE.STRING:
         time(col, val.value)
-    elif x == "BOOLEAN" and val.type == TYPE.BOOLEAN:
+    elif x == TYPE.BOOLEAN and val.type == TYPE.BOOLEAN:
         boolean(col, val.value)
-    elif x == "NUMERIC" and val.type == TYPE.NUMBER:
+    elif x == TYPE.NUMBER and val.type == TYPE.NUMBER:
         numeric(col, val.value)
     elif col['type'] == "MONEY" and val.type == TYPE.STRING:
         numeric(col, val.value)
@@ -121,38 +121,47 @@ def check(dbName, tableName, colName, val):
     select(col, val)
 
 
-def checkInsert(dbName, tableName, values):
+def checkInsert(dbName, tableName,columns, values):
     lstErr.clear()
     S.load()
+
+    if columns != None:
+        if len(columns) != len(values):
+            return "Columnas fuera de los limites 1"
+
     table = S.extractTable(dbName, tableName)
+    values = S.getValues(table,columns,values) 
+
     if table == 0:
         return "No existe la base de datos"
     elif table == 1:
         return "No existe la tabla"
     elif len(table['columns']) != len(values):
-        return "Columnas fuera de los limites"
+        return "Columnas fuera de los limites 2"
     else:
         pass
 
     indexCol = 0
     for value in values:
-        value_ = value.execute(0)
         column = table["columns"][indexCol]
-        
-        if column['Unique'] or column['PK']:
-            validateUnique(dbName, tableName,value_.value,indexCol)
-
-        if column['FK'] != None:
-            validateForeign(dbName,column['FK'],value_.value)
-        
-        if column['Constraint'] != None:
-            validateConstraint(column['Constraint'],values,dbName,tableName,column['type'])
+        if value != None and value.type != TYPE.NULL:
             
-        select(column,value_ )
+            if column['Unique'] or column['PK']:
+                validateUnique(dbName, tableName,value.value,indexCol)
+
+            if column['FK'] != None:
+                validateForeign(dbName,column['FK'],value.value)
+            
+            if column['Constraint'] != None:
+                validateConstraint(column['Constraint'],values,dbName,tableName,column['type'])
+                
+            select(column,value )
+        else:
+            validateNotNull(column['NN'],column['name'])
 
         indexCol +=1
 
-    return listError()
+    return [listError(),values]
 
 def listError():
     if len(lstErr) == 0:
@@ -210,12 +219,12 @@ def validateConstraint(values,record,database,table,type_):
     
     if type1 == "ID":
         index1 = S.getIndex(database,table,value1)
-        value1 = record[index1].execute(0).value
-    print("hola")
+        value1 = record[index1].value
+    
     if type2 == "ID":
         index2 = S.getIndex(database,table,value2)
-        value2 = record[index2].execute(0).value
-    print("hola")
+        value2 = record[index2].value
+    
     insert = CheckOperation(value1,value2,type_,op)
 
     try:
@@ -254,3 +263,7 @@ def CheckOperation(value1, value2, type_,operator):
         return value
     except:
         return "Error fatal CHECK"
+
+def validateNotNull(notNull,name):
+    if notNull:
+        lstErr.append("La columna "+ name+ "  no puede ser nula")

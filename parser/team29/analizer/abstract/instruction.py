@@ -5,8 +5,10 @@ from analizer.abstract.expression import Expression
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
+from analizer.typechecker import Checker
 import pandas as pd
-
+from analizer.symbol.symbol import Symbol
+from analizer.symbol.environment import Environment
 
 class SELECT_MODE(Enum):
     ALL = 1
@@ -62,28 +64,32 @@ class WhereClause(Instruction):
         super().__init__(row, column)
         self.series = series
 
-    def execute(self, environment, df, labels):
+    def execute(self, environment, labels):
         filt = self.series.execute(environment)
-        return df.loc[filt.value, labels]
+        return environment.dataFrame.loc[filt.value, labels]
 
 
 class Select(Instruction):
-    def __init__(self, params, wherecl, df, row, column):
+    def __init__(self, params, fromcl, wherecl, row, column):
         Instruction.__init__(self, row, column)
         self.params = params
         self.wherecl = wherecl
-        self.df = df
+        self.fromcl = fromcl
 
     def execute(self, environment):
-
-        value = [p.execute(environment).value for p in self.params]
+        newEnv = Environment(environment)
+        self.fromcl.execute(newEnv)
+        #print(newEnv.dataFrame)
+        
+        value = [p.execute(newEnv).value for p in self.params]
 
         labels = [p.temp for p in self.params]
 
         for i in range(len(labels)):
-            self.df[labels[i]] = value[i]
-
-        return self.wherecl.execute(environment, self.df, labels)
+            newEnv.dataFrame[labels[i]] = value[i]
+        
+        #return newEnv.dataFrame
+        return self.wherecl.execute(newEnv, labels)
 
 
 class Drop(Instruction):
@@ -167,21 +173,31 @@ class Truncate(Instruction):
 
 
 class InsertInto(Instruction):
-    def __init__(self, tabla, parametros):
+    def __init__(self, tabla,columns, parametros):
         self.tabla = tabla
         self.parametros = parametros
+        self.columns = columns
 
     def execute(self, environment):
 
-        # TODO Falta la validación de tipos
-        result = Checker.checkInsert(dbtemp, self.tabla, self.parametros)
+        lista = []
+        params = []
+        tab = self.tabla
 
-        if result == None:
-            lista = []
-            tab = self.tabla
+        for p in self.parametros:
+            params.append(p.execute(environment))
+        
+        result = Checker.checkInsert(dbtemp, self.tabla,self.columns, params)
 
-            for p in self.parametros:
-                lista.append(p.execute(environment).value)
+        if result[0] == None:
+
+            for p in result[1]:
+                if p == None:
+                    lista.append(p)
+                else:
+                    lista.append(p.value)
+                
+            
 
             res = jsonMode.insert(dbtemp, tab, lista)
 
@@ -198,8 +214,7 @@ class InsertInto(Instruction):
             elif res == 0:
                 return "Fila Insertada correctamente"
         else:
-            print(result)
-            return result
+            return result[0]
 
 
 class useDataBase(Instruction):
@@ -397,30 +412,53 @@ class FromClause(Instruction):
         self.tables = tables
         self.aliases = aliases
 
+    def crossJoin(self, tables):
+        if len(tables) <= 1:
+            return tables[0]
+        for t in tables:
+            t["____tempCol"] = 1
+
+        new_df = tables[0]
+        i = 1
+        while i < len(tables):
+            new_df = pd.merge(new_df, tables[i], on=["____tempCol"])
+            i += 1
+
+        new_df = new_df.drop("____tempCol", axis=1)
+        return new_df
+
     def execute(self, environment):
         lst = []
         for i in range(len(self.tables)):
-            temp = self.tables[i].execute(environment)
+            data = self.tables[i].execute(environment)
             if isinstance(self.tables[i], Select):
+                newNames = {}
+                subqAlias = self.aliases[i]
+                for (columnName, columnData) in data.iteritems():
+                    newNames[columnName] = subqAlias+"."+columnName.split(".")[1]
+                data.rename(columns = newNames, inplace = True) 
                 environment.addVar(
-                    self.aliases[i], self.aliases[i], "TABLE", self.row, self.column
+                    subqAlias, subqAlias, "TABLE", self.row, self.column
                 )
             else:
-                environment.addVar(
-                    self.aliases[i], self.tables[i].name, "TABLE", self.row, self.column
-                )
-                environment.addVar(
-                    self.aliases[i], self.tables[i].name, "TABLE", self.row, self.column
-                )
-            lst.append(temp)
-        return lst
+                sym = Symbol(
+                    self.tables[i].name, self.tables[i].type_, 
+                    self.tables[i].row, self.tables[i].column
+                    )
+                environment.addSymbol(self.tables[i].name, sym)
+                if self.aliases[i]:
+                    environment.addSymbol(self.aliases[i], sym)
+            lst.append(data)
+        mergedData = self.crossJoin(lst)
+        environment.dataFrame = mergedData
+        return
 
 
 class TableID(Expression):
     """
     Esta clase representa un objeto abstracto para el manejo de las tablas
     """
-
+    type_ = None
     def __init__(self, name, row, column):
         Expression.__init__(self, row, column)
         self.name = name
@@ -429,7 +467,9 @@ class TableID(Expression):
         result = jsonMode.extractTable(dbtemp, self.name)
         if result == None:
             return "FATAL ERROR TABLE ID"
-        # TODO: Hay que ir trearlo del archivo de ESTELA
-        columns = ["id", "firtstname", "lastname"]
-        df = pd.DataFrame(result, columns=columns)
+        # TODO: Hay que ir trear los nombres y tipos del archivo de ESTELA 
+        columns = ["id", "firstname", "lastname"]
+        newColumns = [self.name+"."+col for col in columns]
+        df = pd.DataFrame(result, columns=newColumns)
+        #print(df)
         return df
