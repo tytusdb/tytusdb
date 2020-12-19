@@ -34,11 +34,52 @@ class FuncionNumerica(Expresion):
         else:
             return TIPO_DE_DATO.DECIMAL
         
-    def metodo_width_bucket(self , lista_numeros):
+    def metodo_width_bucket(self , lista_numeros , ts):
         if len(lista_numeros) == 4:
-            # EXPRESION , MIN_VALLUE , MAX_VALUE , N_BLOQUES
-            
-            pass    
+            #EXPRESION , MIN_VALLUE , MAX_VALUE , N_BLOQUES
+            valorPrueba = lista_numeros[0].ejecutar(ts)
+            if isinstance(valorPrueba , ErrorReport):
+                return valorPrueba
+            rangoInicial = lista_numeros[1].ejecutar(ts)
+            if isinstance(rangoInicial , ErrorReport):
+                return rangoInicial
+            rangoMax = lista_numeros[2].ejecutar(ts)
+            if isinstance(rangoMax , ErrorReport):
+                return rangoMax
+            nBloques = lista_numeros[3].ejecutar(ts)
+            if isinstance(nBloques , ErrorReport):
+                return nBloques
+            # validacion de tipo numerico , 
+            if not isinstance(valorPrueba , ExpresionNumero):
+                return ErrorReport('sintactico', 'Error solo se acepta un tipo numero' ,self.linea)
+            if not isinstance(rangoInicial, ExpresionNumero):
+                return ErrorReport('sintactico', 'Error solo se acepta un tipo numero' ,self.linea)
+            if not isinstance(rangoMax, ExpresionNumero):
+                return ErrorReport('sintactico', 'Error solo se acepta un tipo numero' ,self.linea)
+            if not isinstance(nBloques, ExpresionNumero):
+                return ErrorReport('sintactico', 'Error solo se acepta un tipo numero' ,self.linea)
+            if not self.getTipo(nBloques.val) == TIPO_DE_DATO.ENTERO:
+                return ErrorReport('sintactico', 'Error solo se acepta un ENTERO en el ultimo parametro' ,self.linea)
+                
+            # dando los meros valores
+            valorPrueba = valorPrueba.val
+            rangoInicial = rangoInicial.val
+            rangoMax = rangoMax.val
+            nBloques = nBloques.val            
+            if valorPrueba >= rangoMax:
+                return ExpresionNumero(1 + nBloques,TIPO_DE_DATO.ENTERO,self.linea)
+            elif valorPrueba < rangoInicial:
+                return ExpresionNumero( (1-1)*0  , TIPO_DE_DATO.ENTERO,self.linea)
+            else:
+                diferencia = rangoMax-rangoInicial
+                subIntervalos = diferencia/nBloques # _ , _ , _ , _ 
+                auxUbicacion = 1
+                aux = rangoInicial + subIntervalos
+            while(not valorPrueba < aux):                    
+                #print(str(aux - subIntervalos) +' , ' + str(aux))
+                aux += subIntervalos
+                auxUbicacion +=1
+            return ExpresionNumero(auxUbicacion, TIPO_DE_DATO.ENTERO,self.linea)
         else:
             return ErrorReport('sintactico', 'error en width_bucket se esperaba solo 4 parametros' ,self.linea)
         
@@ -132,6 +173,11 @@ class FuncionNumerica(Expresion):
             else:
                 return ErrorReport('semantico', 'error de tipo, se esperaba un ENTERO O DECIMAL' ,self.linea)
         elif self.parametro1 != None: # 1 PARAMETRO
+            
+            if  isinstance(self.parametro1,list):
+                if self.funcion =="WIDTH_BUCKET":
+                    return self.metodo_width_bucket(self.parametro1,ts)
+            
             
             nodoSyn1 = self.parametro1.ejecutar(ts)
             if isinstance(nodoSyn1 , ErrorReport):
@@ -342,13 +388,11 @@ class FuncionNumerica(Expresion):
                         return ExpresionNumero(valor,self.getTipo(valor),self.linea)  
                     else:
                         return ErrorReport('semantico', 'error SQRT solo recibe enteros, NO decimales' ,self.linea)
-                if self.funcion =="WIDTH_BUCKET":
-                    self.metodo_width_bucket(self.parametro1)
                 
                 if self.funcion == "TRUNC":
                     valor = math.trunc(nodoSyn1.val)
                     return ExpresionNumero(valor,TIPO_DE_DATO.ENTERO,self.linea)
-                 
+ 
                 
                     
                     

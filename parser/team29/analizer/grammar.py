@@ -37,8 +37,8 @@ precedence = (
     ("left", "OC_CONCATENAR"),
     ("left", "O_SUMA", "O_RESTA"),
     ("left", "O_PRODUCTO", "O_DIVISION", "O_MODULAR"),
-    ("left", "O_EXPONENTE"),
     ("right", "UO_SUMA", "UO_RESTA"),
+    ("left", "O_EXPONENTE"),
 )
 
 # Definición de la gramática
@@ -248,7 +248,7 @@ def p_createColumNs_none(t):
 
 
 def p_createConstraint(t):
-    """createConstraint : constrName R_CHECK S_PARIZQ expBoolCheck S_PARDER"""
+    """createConstraint : constrName R_CHECK S_PARIZQ booleanCheck S_PARDER"""
 
 
 def p_createUnique(t):
@@ -323,6 +323,7 @@ def p_types_simple(t):
     t[0] = [t[1], [None]]
 
 
+# TODO: Cambiar el optParams
 def p_types_params(t):
     """
     types : T_DECIMAL optParams
@@ -434,8 +435,9 @@ def p_constraintOpt_unique(t):
 
 def p_constraintOpt_check(t):
     """
-    constraintOpt : constrName R_CHECK S_PARIZQ expBoolCheck S_PARDER
+    constraintOpt : constrName R_CHECK S_PARIZQ booleanCheck S_PARDER
     """
+    t[0] = [t[2], t[1], t[4]]
 
 
 def p_primaryOpt(t):
@@ -508,7 +510,7 @@ def p_timeStamp(t):
     timeStamp : R_TIMESTAMP STRING
           | R_INTERVAL STRING
     """
-    t[0] = [t[1], t[2]]
+    t[0] = [t[1], t[2], t.slice[1].lineno, t.slice[1].lexpos]
 
 
 def p_optsExtract(t):
@@ -551,12 +553,11 @@ def p_current(t):
     t[0] = expression.Current(t[1], None, t.slice[1].lineno, t.slice[1].lexpos)
 
 
-# TODO: Arreglar columna y fila
 def p_current_1(t):
     """
     current : timeStamp
     """
-    t[0] = expression.Current(t[1][0], t[1][1], 0, 0)
+    t[0] = expression.Current(t[1][0], t[1][1], t[1][2], t[1][3])
 
 
 def p_literal_list(t):
@@ -716,7 +717,7 @@ def p_expComp_unario_3(t):
     | datatype R_IS R_NOT R_FALSE
     | datatype R_IS R_NOT R_UNKNOWN
     """
-    t[0] = expression.UnaryArithmeticOperation(
+    t[0] = expression.UnaryRelationalOperation(
         t[1], t[2] + t[3] + t[4], t[1].row, t[1].column
     )
 
@@ -851,20 +852,58 @@ def p_columnName_table_id(t):
     )
 
 
-def p_expBoolCheck(t):
+def p_booleanCheck_1(t):
     """
-    expBoolCheck :  expBoolCheck R_AND expBoolCheck
-    | expBoolCheck R_OR expBoolCheck
-    | R_NOT expBoolCheck
-    | booleanCheck
-    | S_PARIZQ booleanCheck S_PARDER
+    booleanCheck : idOrLiteral OL_MENORQUE idOrLiteral
+    | idOrLiteral OL_MAYORQUE idOrLiteral
+    | idOrLiteral OL_MAYORIGUALQUE idOrLiteral
+    | idOrLiteral OL_MENORIGUALQUE idOrLiteral
+    | idOrLiteral S_IGUAL idOrLiteral
+    | idOrLiteral OL_DISTINTODE idOrLiteral
     """
+    t[0] = instruction.CheckOperation(t[1], t[3], t[2], t[1].row, t[1].column)
 
 
-def p_boolCheck(t):
+def p_booleanCheck_2(t):
     """
-    booleanCheck :  expComp
+    booleanCheck : idOrLiteral R_IS R_DISTINCT R_FROM idOrLiteral
     """
+    t[0] = instruction.CheckOperation(
+        t[1], t[5], t[2] + t[3] + t[4], t[1].row, t[1].column
+    )
+
+
+def p_booleanCheck_3(t):
+    """
+    booleanCheck : idOrLiteral R_IS R_NOT R_DISTINCT R_FROM idOrLiteral
+    """
+    t[0] = expression.CheckOperation(
+        t[1], t[6], t[2] + t[3] + t[4] + t[5], t[1].row, t[1].column
+    )
+
+
+def p_idOrLiteral(t):
+    """
+    idOrLiteral : ID
+    | INTEGER
+    | STRING
+    | DECIMAL
+    | CHARACTER
+    | R_TRUE
+    | R_FALSE
+    """
+    if t.slice[1].type == "CHARACTER" or t.slice[1].type == "STRING":
+        tipo = "STRING"
+    elif t.slice[1].type == "R_TRUE" or t.slice[1].type == "R_FALSE":
+        t.slice[1].value = t.slice[1].value == "TRUE"
+        tipo = "BOOLEAN"
+    elif t.slice[1].type == "INTEGER" or t.slice[1].type == "DECIMAL":
+        tipo = "NUMBER"
+    else:
+        tipo = "ID"
+    t[0] = expression.CheckValue(
+        t.slice[1].value, tipo, t.slice[1].lineno, t.slice[1].lexpos
+    )
 
 
 # endregion
@@ -916,7 +955,7 @@ def p_alterTable(t):
 
 def p_alterConstraint(t):
     """
-    alterConstraint : R_CHECK S_PARIZQ expBoolCheck S_PARDER
+    alterConstraint : R_CHECK S_PARIZQ booleanCheck S_PARDER
     | R_CONSTRAINT ID R_UNIQUE S_PARIZQ ID S_PARDER
     | createForeign
     | R_COLUMN ID types
@@ -964,7 +1003,7 @@ def p_ifExists(t):
 # region SELECT
 
 
-def p_selectStmt(t):
+def p_selectStmt_1(t):
     """selectStmt : R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl
     | selectStmt R_UNION allOpt selectStmt
     | selectStmt R_INTERSECT allOpt selectStmt
@@ -973,7 +1012,7 @@ def p_selectStmt(t):
     """
 
 
-def p_selectStmt(t):
+def p_selectStmt_2(t):
     """selectStmt : R_SELECT selectParams whereCl"""
     if t[3] == None:
         t[0] = instruction.SelectOnlyParams(
@@ -990,6 +1029,7 @@ def p_selectStmt(t):
 
 def p_selectstmt_u(t):
     """selectStmt : R_SELECT selectParams R_FROM tableExp"""
+    print("Hare el Select")
     # t[0] = instruction.Select(t[2].params, t[4])
 
 
