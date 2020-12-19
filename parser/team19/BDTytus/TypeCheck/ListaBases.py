@@ -43,7 +43,19 @@ class ListaBases:
                     return 0
                 actual = actual.siguiente
             return 1
-    
+
+    def modificarOwnerBase(self,database:str,nuevoOwner:str):
+        if self.existeBaseDatos(database):
+            actual = self.primero
+            while (actual != None):
+                if actual.nombreBase == database:
+                    actual.owner = nuevoOwner
+                    return 0
+                actual = actual.siguiente
+            return 1
+        else:
+            return 2
+
     def eliminarBaseDatos(self,nombre:str):
         if not self.existeBaseDatos(nombre):
             return 2
