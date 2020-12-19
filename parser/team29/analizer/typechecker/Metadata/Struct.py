@@ -301,6 +301,19 @@ def extractColmn(dbName, tableName, colName):
                     return None
 
 
+def getIndex(dbName, tableName, colName):
+    
+    for db in Databases:
+        if db["name"] == dbName:
+            for table in db["tables"]:
+                if table["name"] == tableName:
+                    n = len(table['columns'])
+                    for i in range(n):
+                        col = table['columns'][i]
+                        if col["name"] == colName:
+                            return i
+                    return None
+
 #---------------------------------------------------Type--------------------------------------------------
 
 

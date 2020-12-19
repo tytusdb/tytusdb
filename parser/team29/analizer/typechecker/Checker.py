@@ -138,6 +138,16 @@ def checkInsert(dbName, tableName, values):
     for value in values:
         value_ = value.execute(0)
         column = table["columns"][indexCol]
+        
+        if column['Unique'] or column['PK']:
+            validateUnique(dbName, tableName,value_.value,indexCol)
+
+        if column['FK'] != None:
+            validateForeign(dbName,column['FK'],value_.value)
+        
+        if column['Constraint'] != None:
+            validateConstraint(column['Constraint'],values,dbName,tableName,column['type'])
+            
         select(column,value_ )
 
         indexCol +=1
@@ -148,3 +158,99 @@ def listError():
     if len(lstErr) == 0:
         return None
     return lstErr
+
+
+def validateUnique(database,table,value,index):
+    
+    records = jsonMode.extractTable(database,table)
+    
+    if records == []:
+        return
+
+    for record in records:
+        if value == record[index]:
+            lstErr.append("El Valor "+ str(value)+" ya existe dentro de la tabla")
+            break
+    
+
+def validateForeign(database,values,value):
+    # values = [references,column]
+    references =  values[0]
+    column = values[1]
+    
+
+    records = jsonMode.extractTable(database,references)
+    
+    if records == []:
+        lstErr.append("El Valor "+ str(value)+" no es una llave foranea")
+        return
+    
+    index = S.getIndex(database,references,column)
+
+    for record in records:
+        if value == record[index]:
+            return
+    lstErr.append("El Valor "+ str(value)+" no es una llave primaria")
+            
+        
+def validateConstraint(values,record,database,table,type_):
+    #values = [name,[exp1,exp2,op,type1,type2]]
+    # record = [val1,val2,...,valn]
+    name = values[0]
+    value1 = values[1][0]
+    value2 = values[1][1]
+
+    op = values[1][2]
+
+    type1 = values[1][3]
+    type2 = values[1][4]
+
+    index1  = 0
+    index1  = 0
+    
+    if type1 == "ID":
+        index1 = S.getIndex(database,table,value1)
+        value1 = record[index1].execute(0).value
+    print("hola")
+    if type2 == "ID":
+        index2 = S.getIndex(database,table,value2)
+        value2 = record[index2].execute(0).value
+    print("hola")
+    insert = CheckOperation(value1,value2,type_,op)
+
+    try:
+        if not insert:
+            lstErr.append("El registro no cumple con la restriccion")
+        elif insert:
+            return
+        else:
+            lstErr.append(insert)
+
+    except:
+        lstErr.append(insert)
+
+
+def CheckOperation(value1, value2, type_,operator):
+    if type_ == "MONEY":
+        value1 = str(value1)
+        value2 = str(value2)
+    try:
+        comps = {
+            "<": value1 < value2,
+            ">": value1 > value2,
+            ">=": value1 >= value2,
+            "<=": value1 <= value2,
+            "=": value1 == value2,
+            "!=": value1 != value2,
+            "<>": value1 != value2,
+            "ISDISTINCTFROM": value1 != value2,
+            "ISNOTDISTINCTFROM": value1 == value2,
+        }
+        value = comps.get(operator, None)
+        if value == None:
+            return Expression.ErrorBinaryOperation(
+                value1, value1, 0, 0
+            )
+        return value
+    except:
+        return "Error fatal CHECK"

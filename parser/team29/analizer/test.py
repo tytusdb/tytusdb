@@ -19,7 +19,7 @@ s = """
         Foreign key (Dpi2) references Persona (Dpi)
     );*/
     
-    INSERT INTO Persona VALUES (21, "Estela Pérez", "2000-03-29 10:28:30", "hellos",0);
+    INSERT INTO Persona VALUES (22, "Estela Pérez", "2000-03-29 10:28:30", "xd",0);
 
 """
 
