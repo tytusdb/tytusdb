@@ -6,9 +6,14 @@ path.append(dir(path[0]))
 from analizer import grammar
 
 s = """ 
-SELECT "5.1" < "5";
+    USE db1;
+    
+    SELECT 3+3;
+    SELECT users.id+300 as shute FROM users WHERE users.id < 6;
 """
 
 
 result = grammar.parse(s)
 print(result)
+
+

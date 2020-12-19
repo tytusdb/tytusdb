@@ -25,7 +25,7 @@ class TIPO(Enum) :
 
 class Simbolo() :
     
-    def __init__(self, id, tipo, valor,ambito,indice) :
+    def __init__(self, id, tipo, valor ,ambito,indice) :
         self.id = id
         self.tipo = tipo
         self.valor = valor
@@ -53,7 +53,8 @@ class Tabla() :
             self.simbolos[simbolo.id] = simbolo
 
     def getTabla(self,nombre):
-        for simbolo in self.simbolos:
+        
+        for simbolo in self.simbolos.values():
             if simbolo.valor ==nombre:
                 #Verificar si es tabla
                 #results = []
@@ -72,23 +73,29 @@ class Tabla() :
         return None
 
     def getIndice(self,db,table,col):
+
         #Buscamos el ambito de la DB
-        iddb = None
-        for simbolo in self.simbolos:
+        iddb = -1
+        for simbolo in self.simbolos.values():  
+            
             if simbolo.valor == db and simbolo.tipo == TIPO.DATABASE : 
                 iddb = simbolo.id
         #Buscamos el ambito de la Tabla
-        idtable = None
-        for simbolo in self.simbolos:
+        
+        idtable = -1
+        for simbolo in self.simbolos.values():
             if simbolo.valor == table and simbolo.tipo == TIPO.TABLE and simbolo.ambito == iddb : 
                 idtable = simbolo.id
 
         #Buscamos el indice de la columna
-        idcol = None
-        for simbolo in self.simbolos:
+        idcol = -1
+        for simbolo in self.simbolos.values():
             if simbolo.valor == col and simbolo.tipo == TIPO.COLUMN and simbolo.ambito == idtable : 
                 idcol = simbolo.indice
                 return idcol
+        return idcol
+        
+        
 
 
 
