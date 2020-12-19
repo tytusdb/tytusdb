@@ -362,9 +362,13 @@ def p_tipo_drop(t):
 
 
 def p_ins_insert(t):
-    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA '''
+    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA 
+                  | INSERT INTO ID PARABRE list_id PARCIERRE VALUES PARABRE list_vls PARCIERRE PUNTO_COMA'''
     print('INSERT INTO ID VALUES ( *values* )')
 
+def p_list_id(t):
+    '''list_id : list_id COMA id
+               | id'''
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA val_value
