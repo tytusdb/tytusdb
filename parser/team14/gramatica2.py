@@ -101,7 +101,8 @@ reservadas = {
     'except': 'except',
     'intersect': 'intersect',
     'with': 'with',
-    'use':'use'
+    'use':'use',
+    'int': 't_int'
 
 }
 
@@ -128,7 +129,8 @@ tokens = [
              'cadena',
              'cadenaString',
              'parc',
-             'id'
+             'id',
+	     'idPunto'
          ] + list(reservadas.values())
 
 # Tokens
@@ -157,6 +159,7 @@ def t_decimales(t):
         t.value = float(t.value)
     except ValueError:
         print("Error no se puede convertir %d", t.value)
+        reporteerrores.append(Lerrores("Error Semantico","No se puede convertir '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos)) 
         t.value = 0
     return t
 
@@ -167,9 +170,14 @@ def t_int(t):
         t.value = int(t.value)
     except ValueError:
         print("Valor numerico incorrecto %d", t.value)
+        reporteerrores.append(Lerrores("Error semantico","Valor Numerico Invalido '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos)) 
         t.value = 0
     return t
 
+def t_PUNTOPUNTO(t):
+    r'[a-zA-Z_][a-zA-Z_0-9]*\.[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reservadas.get(t.value.lower(), 'idPunto')
+    return t
 
 
 
@@ -210,10 +218,12 @@ t_ignore = " \t"
 def t_newline(t):
     r'\n+'
     t.lexer.lineno += t.value.count("\n")
+  
 
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    print("Caracter invalido '%s'" % t.value[0])
+    reporteerrores.append(Lerrores("Error Lexico","Caracter incorrecto '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos)) 
     t.lexer.skip(1)
 
 
@@ -234,6 +244,7 @@ from Instrucciones.Select import Select
 from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
 from Instrucciones.Insert import Insert
+from Instrucciones.Drop import *
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -254,6 +265,7 @@ precedence = (
 # ----------------------------------------------DEFINIMOS LA GRAMATICA------------------------------------------
 # Definición de la gramática
 
+from reportes import *
 
 def p_init(t):
     'init            : instrucciones'
@@ -283,13 +295,13 @@ def p_instruccion(t):
                     | CREATETYPE ptcoma
                     | CASE
                     | CREATEDB ptcoma
-                    | SHOWDB ptcoma
+                    | SHOW ptcoma
     '''
     t[0] = t[1]
 
 def p_instruccion1(t):
     '''instruccion      :  use id ptcoma'''
-      t[0]=Use(t[2])
+    t[0]=Use(t[2])
 
 
 def p_CASE(t):
@@ -320,7 +332,9 @@ def p_INSERT(t):
 def p_INSERT2(t):
     'INSERT : insert into id para LEXP parc values para LEXP parc'
 
-
+def p_DROPALL(t):
+    '''DROP : drop all para parc '''
+    t[0] = DropAll()
 
 def p_DROP(t):
     '''DROP : drop table id
@@ -328,8 +342,7 @@ def p_DROP(t):
              | drop databases id '''
     if len(t)==4:
         if(t[2]=='table'):
-            print("eliminar tabla")
-         
+            t[0] = DropTable(t[3])
         else:
             t[0] = DropDb(str(t[3]))
 
@@ -338,14 +351,19 @@ def p_DROP(t):
 
 
 def p_ALTER(t):
-    '''ALTER : alter databases id RO
-              | altertable'''
+ '''ALTER : alter databases id rename to id
+            | alter databases id owner to id
+            | altertable
+ '''
+ if len(t)==7:
+     if(t[4]=='rename'):
+         print("renombrar db")
+         t[0]=AlterDb(str(t[3]),t[6])
+     else:
+         print("renombrar owner")
+ elif len(t)==1:
+     print("altertable")
 
-
-def p_r_o(t):
-    '''RO : rename to id
-           | owner to id
-    '''
 
 
 def p_altertable(t):
@@ -395,6 +413,15 @@ def p_SHOWDB(t):
     '''
     t[0] =ShowDb()
 
+def p_SHOWTABLES(t):
+    ''' SHOW : show tables para id parc
+    '''
+    t[0] = ShowTables(t[4])
+
+def p_SHOWCOLLECTION(t):
+    ''' SHOW : show collection para parc
+    '''
+    t[0] = ShowCollection()
 
 def p_CREATEDB(t):
     '''CREATEDB : create RD if not exist id
@@ -547,7 +574,7 @@ def p_SELECT(t):
 	    | select  LEXP WHERE  GROUP HAVING  COMBINING ORDER LIMIT
     '''
     if len(t)==9:
-        t[0] =Select(None ,t[2] ,None ,t[4] ,t[5] ,t[6] ,t[7] ,t[8] ,t[9])
+    	t[0] = Select(None, t[2], None, t[3], t[4], t[5], t[6], t[7], t[8])
     elif  len(t)==10:
         t[0] = Select(None, t[2], t[4], t[5], t[6], t[7], t[8], t[9], t[10])
     elif  len(t)==11:
@@ -574,12 +601,12 @@ def p_WHERE(t):
 
 
 def p_COMBINING(t):
-    '''COMBINING :  union LEXP
-                | union all LEXP
-                | intersect LEXP
-                | intersect all LEXP
-                | except LEXP
-                | except all LEXP
+    '''COMBINING :  union EXP
+                | union all EXP
+                | intersect EXP
+                | intersect all EXP
+                | except EXP
+                | except all EXP
 	            | '''
 
 
@@ -589,7 +616,7 @@ def p_GROUP(t):
 
 
 def p_HAVING(t):
-    ''' HAVING : having LEXP
+    ''' HAVING : having EXP
 	| '''
 
 
@@ -609,7 +636,7 @@ def p_UPDATE(t):
 
 
 def p_LCAMPOS(t):
-    '''LCAMPOS :  LCAMPOS id igual EXP
+    '''LCAMPOS :  LCAMPOS coma id igual EXP
 		| id igual EXP'''
 
 
@@ -848,7 +875,16 @@ def p_EXP_FuncNativas(t):
 
 def p_EXP_FuncNativas2(t):
     '''EXP : id para parc '''
-    t[0] = Terminal('identificador', t[1])
+    tipo=None
+    if t[1].lower() =='now':
+        tipo = Tipo('timestamp without time zone', t[1], len(t[1]), -1)
+    elif t[1].lower() =='random':
+        tipo = Tipo('double', t[1], len(t[1]), -1)
+    elif t[1].lower()=='pi':
+        tipo = Tipo('double', t[1], len(t[1]), -1)
+
+
+    t[0] = Terminal(tipo, t[1])
 
 def p_EXP(t):
     '''EXP : any para LEXP parc
@@ -942,18 +978,30 @@ def p_EXPT13(t):
     tipo.getTipo()
     t[0] = Terminal(tipo, t[2])
 
-
+def p_EXPT14(t):
+    'EXP : cadena as TIPO'
+    #aqui es en donde va el convert
+    t[0] = Terminal(t[3], t[1])
 
 def p_EXPT16(t):
     'EXP : default'
     tipo = Tipo('default', t[1], len(t[1]), -1)
     tipo.getTipo()
     t[0] = Terminal(tipo, t[1])
+	
+def p_EXPT17(t):
+    'EXP : idPunto'
+    tipo = Tipo('acceso', t[1], len(t[1]), -1)
+    tipo.getTipo()
+    t[0] = Terminal(tipo, t[1])
+
 
 
 def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
+    reporteerrores.append(Lerrores("Error Sintactico","Error en  '%s'" % t.value[0],t.lexer.lineno, t.lexer.lexpos))
+
 
 
 import ply.yacc as yacc

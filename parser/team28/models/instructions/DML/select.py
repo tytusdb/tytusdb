@@ -1,4 +1,17 @@
-from models.instructions.shared import Instruction
+from models.instructions.shared import *
+from models.instructions.Expression.expression import *
+from models.instructions.DML.special_functions import *
+
+class Union(Instruction):
+    def __init__(self,  array_instr, type_union) :
+        self.array_instr = array_instr
+        self.type_union = type_union
+
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 class Select(Instruction):
     '''
         SELECT recibe un array con todas los parametros
@@ -12,7 +25,8 @@ class Select(Instruction):
         return str(vars(self))
     
     def process(self, instrucction):
-        pass
+        instr = self.instrs.process(instrucction)
+        return instr
         
 class TypeQuerySelect(Instruction):
     '''
@@ -31,6 +45,12 @@ class TypeQuerySelect(Instruction):
     
     def process(self, instrucction):
         pass
+class Table:
+    def __init__(self, headers, values):
+        self.headers = headers
+        self.values = values
+    def __repr__(self):
+        return str(vars(self))
 
 class SelectQ(Instruction):
     '''va a recibir la lista de parametros a seleccion y de que traba se esta seleccionando'''
@@ -44,7 +64,12 @@ class SelectQ(Instruction):
         return str(vars(self))
     
     def process(self, instrucction):
-        pass
+        headers = []
+        for val in self.select_list:
+            headers.append(val.alias)
+        list_select = operating_list_number(self.select_list, instrucction)
+
+        return Table(headers, list_select)
     
 
 class SelectList(Instruction):

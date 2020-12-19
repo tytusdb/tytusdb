@@ -87,10 +87,11 @@ class Main(tk.Tk):
         self.menu_bar.add_cascade(label="Queries", menu=self.sm_analyze)
         # Submenu [Reports]
         self.sm_report = Menu(self.menu_bar, tearoff=False)
-        self.sm_report.add_command(label="Reporte Léxico")
-        self.sm_report.add_command(label="Reporte Sintáctico")
-        self.sm_report.add_command(label="Reporte Semántico")
-        self.sm_report.add_command(label="Reporte Tabla de Simbolos")
+        self.sm_report.add_command(label="Reporte Léxico", command=lambda: self.report_lexic())
+        self.sm_report.add_command(label="Reporte Sintáctico", command=lambda: self.report_syntactic())
+        self.sm_report.add_command(label="Reporte Semántico", command=lambda: self.report_semantic())
+        self.sm_report.add_command(label="Reporte Tabla de Simbolos", command=lambda: self.report_st())
+        self.sm_report.add_command(label="Reporte AST", command=lambda: self.ast_report())
         self.menu_bar.add_cascade(label="Reportes", menu=self.sm_report)
         # Submenu [Help]
         self.sm_help = Menu(self.menu_bar, tearoff=False)
@@ -334,6 +335,54 @@ class Main(tk.Tk):
                 input_widget.tag_remove(SEL, 1.0, "end-1c")
         del word, index, input_widget, input_text, idx, lastidx
 
+    # Lexic report
+    def report_lexic(self):
+        if os.path.exists("reports/reporte_lexico.html"):
+            os.remove("reports/reporte_lexico.html")
+
+        if os.path.exists("reports/error_lexical.txt"):
+            report = open("reports/reporte_lexico.html", "a")
+            file1 = open("reports/inicio_error_lexico.txt", "r")
+            file2 = open("reports/error_lexical.txt", "r")
+            file3 = open("reports/fin_error.txt", "r")
+            report.write(file1.read())
+            report.write(file2.read())
+            report.write(file3.read())
+            report.close()
+            webbrowser.open('file://' + os.path.realpath("reports/reporte_lexico.html"))
+        else:
+            messagebox.showerror("INFO", "No exite un archivo de reporte.")
+
+    # Syntactic report
+    def report_syntactic(self):
+        if os.path.exists("reports/reporte_sintactico.html"):
+            os.remove("reports/reporte_sintactico.html")
+
+        if os.path.exists("reports/error_syntactic.txt"):
+            report = open("reports/reporte_sintactico.html", "a")
+            file1 = open("reports/inicio_error_sintactico.txt", "r")
+            file2 = open("reports/error_syntactic.txt", "r")
+            file3 = open("reports/fin_error.txt", "r")
+            report.write(file1.read())
+            report.write(file2.read())
+            report.write(file3.read())
+            report.close()
+            webbrowser.open('file://' + os.path.realpath("reports/reporte_sintactico.html"))
+        else:
+            messagebox.showerror("INFO", "No exite un archivo de reporte.")
+
+    # Semantic report
+    def report_semantic(self):
+        pass
+
+    # ST report
+    def report_st(self):
+        pass
+
+    # AST report
+    def ast_report(self):
+        pass
+
     # About it section
     def help_about_it(self):
         messagebox.showinfo("Tytus DB",
@@ -454,6 +503,12 @@ class Main(tk.Tk):
                 self.do_create_database(inst, p_st)
             elif isinstance(inst, UseDatabase):
                 self.do_use(inst, p_st)
+            elif isinstance(inst, DropDB):
+                self.do_drop_db(inst, p_st)
+            elif isinstance(inst, CreateType):
+                self.do_create_type(inst, p_st)
+            elif isinstance(inst, SelectCompleto):
+                self.do_select(inst, p_st)
             else:
                 print(inst)
 
@@ -485,8 +540,27 @@ class Main(tk.Tk):
                 print('Owner: ' + p_inst.datos.datos.owner)
 
             if p_inst.datos.datos.mode is not None:
-                print('Mode: ' + p_inst.datos.datos.mode)
+                print('Mode: ' + str(p_inst.datos.datos.mode))
 
+        print()
+
+    # ELIMINACIÓN DE BASE DE DATOS
+    def do_drop_db(self, p_inst, p_st):
+        print('ELIMINAR BASE DE DATOS')
+        print('Nombre: ' + p_inst.ifexist.nombre)
+        print()
+
+    # CREACIÓN DE LISTADO DE TIPOS
+    def do_create_type(self, p_inst, p_st):
+        print('CREACIÓN DE LISTADO DE TIPOS')
+        print('Nombre: ' + p_inst.nombre)
+        print('Items: ' + str(p_inst.listado))
+        print()
+
+    # SELECT
+    def do_select(self, p_inst, p_st):
+        print('SELECT EN TABLA')
+        print('Tablas: ' + str(p_inst.select.pfrom))
         print()
 
 

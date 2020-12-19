@@ -33,8 +33,6 @@ palabras_reservadas = {
     'first'         : 'FIRST',
     'as'            : 'AS',
     'is'            : 'IS',
-    'isnull'        : 'ISNULL',
-    'notnull'       : 'NOTNULL',
     'and'           : 'AND',
     'or'            : 'OR',
     'true'          : 'TRUE',
@@ -185,7 +183,8 @@ palabras_reservadas = {
     'add'           : 'ADD',
     'column'        : 'COLUMN',
     'use'           : 'USE',
-    'md5'           : 'MD5'
+    'md5'           : 'MD5',
+    'decimal'       : 'DECIMAL'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -209,7 +208,7 @@ tokens = [
     'MAYOR',     
     'MAYORIGUAL',
     'NUMERO',
-    'DECIMAL',
+    'DECIMALN',
     'CADENA',
     'PCOMA',
     'IDALIAS',
@@ -255,7 +254,7 @@ t_DesplazaD       = r'>>'
 t_ignore = " \t"
 
 
-def t_DECIMAL(t):
+def t_DECIMALN(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
@@ -288,6 +287,10 @@ def t_CADENA(t):
     t.value = t.value[1:-1] 
     return t 
 
+def t_CADENASI(t):
+    r'\'.*?\''
+    t.value = t.value[1:-1] 
+    return t 
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -336,14 +339,13 @@ precedence = (
     ('left', 'OR'),
     ('left', 'AND'),
     ('right', 'NOT'),
-    ('nonassoc', 'IS', 'ISNULL', 'NOTNULL'),
+    ('nonassoc', 'IS', 'NULL'),
     ('left', 'MENORIGUAL', 'MAYORIGUAL', 'IGUAL', 'DIF', 'DIF1', 'MENOR', 'MAYOR'),
     ('nonassoc', 'BETWEEN', 'NOTB'),
     ('left', 'MAS', 'MENOS'),
     ('left', 'POR', 'DIVIDIDO', 'MODULO'),
     ('left', 'EXP'),
     ('right', 'UMENOS', 'UMAS')
-    
 )
 
 
@@ -354,7 +356,7 @@ def p_init(t):
     """
     t[0] = t[1]
 
-
+    
 def p_instrucciones1(t):
     """
         INSTRUCCIONES   :   INSTRUCCIONES INSTRUCCION
@@ -395,15 +397,14 @@ def p_use(t):
     """
         I_USE           :   USE ID PCOMA
     """
-    t[0] = UseDatabase(t[3])
+    t[0] = UseDatabase(t[2])
 
-
+    
 def p_create(t):
     """
         I_CREATE        :   CREATE I_TCREATE
     """
     t[0] = t[2]
-    # CLASE CREATE
 
 
 def p_tcreate(t):
@@ -413,16 +414,16 @@ def p_tcreate(t):
                         |   I_CTYPE
     """
     t[0] = t[1]
-    # INSTRUCCION CREATE (I_REPLACE)
-    # INSTRUCCION CREATE1 (I_CTABLE)
-    # INSTRUCCION CREATE2 (I_CTYPE)
+    
+    
+    
 
 
 def p_ctype(t):
     """
         I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA PCOMA
     """
-    # Instruccion
+    #INSTRUCCION CTYPE
 
 
 def p_lcad1(t):
@@ -444,11 +445,12 @@ def p_Ilcad2(t):
     """
 
 
+
 def p_ctable(t):
     """
         I_CTABLE        :   TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS
     """
-    # Instruccion
+    #INSTRUCCION CTABLE
 
 
 def p_inherits(t):
@@ -489,19 +491,12 @@ def p_ipoConstraintCheck(t):
 
 def p_ipoConstraintForeignKey(t):
     'TIPO_CONSTRAINT        : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
-
     
-
 def p_Lllave(t):
     'LI_LLAVES         : LI_LLAVES I_LLAVES'
 
 def p_Lllave1(t):
     'LI_LLAVES         : I_LLAVES'
-
-
-
-
-
 
 def p_cRef(t):
     'I_CREFERENCE     : I_CREFERENCE COMA ID'
@@ -539,9 +534,6 @@ def p_llave10(t):
 def p_llave11(t): 
     'I_LLAVES    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
 
-
-
-
 def p_lIds(t):
     'I_LIDS           : I_LIDS COMA CONDICION'
 
@@ -558,10 +550,20 @@ def p_tipo3(t):
     'I_TIPO           : BIGINT'
 
 def p_tipo4(t):
+    'I_TIPO           : DECIMAL PABRE NUMERO COMA NUMERO PCIERRA'
+
+def p_tipo4_1(t):
     'I_TIPO           : DECIMAL'
 
 def p_tipo5(t):
     'I_TIPO           : NUMERIC'
+
+def p_tipo5_1(t):
+    'I_TIPO           : NUMERIC PABRE NUMERO COMA NUMERO PCIERRA'
+
+def p_tipo5_2(t):
+    'I_TIPO           : NUMERIC PABRE NUMERO PCIERRA'
+
 
 def p_tipo6(t):
     'I_TIPO           : REAL'
@@ -630,20 +632,24 @@ def p_fields4(t):
     'I_FIELDS         : YEAR'
 
 
-def p_Replace(t):
-    'I_REPLACE     : OR REPLACE DATABASE I_EXIST'
-    t[0] = t[4]
-def p_Replace1(t):
-    'I_REPLACE     : DATABASE I_EXIST'
-    t[0] = t[2]
+def p_replace1(t):
+    """
+        I_REPLACE       :   OR REPLACE DATABASE I_EXIST
+    """
+    #INSTRUCCION REPLACE1
+    #t[0] = CreateDatabase(True, t[4])
 
-def p_drop(t):
-    'I_DROP      : DROP I_TDROP ' 
+
+def p_replace2(t):
+    """
+        I_REPLACE       :   DATABASE I_EXIST
+    """
+    #INSTRUCCION REPLACE2
+    #t[0] = CreateDatabase(False, t[2])
+
 
 def p_alter(t):
     'I_ALTER     : ALTER I_TALTER'
-
-
 
 def p_alterTB(t):
     'I_ALTERTB   : TABLE ID I_OPALTER '
@@ -677,33 +683,45 @@ def p_pCol3(t):
 
 def p_tipAlterC(t): 
     'I_TALTER    : CHECK CONDICION '
+    #INSTRUCCION TIPALTERC
 
 def p_tipAlterU(t): 
     'I_TALTER    : UNIQUE PABRE I_LIDS  PCIERRA'
+    #INSTRUCCION TIPALTERU
 
 def p_tipAlterFK(t): 
     'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
+    #INSTRUCCION TIPALTERFK
 
 def p_tipAlterFK1(t): 
     'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID '
+    #INSTRUCCION TIPALTERFK1
 
 def p_tipAlterCo(t): 
     'I_TALTER    : CONSTRAINT ID I_TCONST '
+    #INSTRUCCION TIPALTERCO
 
 def p_tAlter(t):
     'I_TALTER    : I_ALTERDB'
+    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
+    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
+    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
+    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
 
 def p_tAlter1(t):
     'I_TALTER    : I_ALTERTB'
 
 def p_tipoConstraintC(t):
     'I_TCONST    : CHECK CONDICION '
+    #INSTRUCCION TIPOCONSTRAINTC
 
 def p_tipoConstraintU(t):
     'I_TCONST    : UNIQUE PABRE I_LIDS PCIERRA'
+    #INSTRUCCION TIPOCONSTRAINTU
 
 def p_tipoConstraintFK(t):
     'I_TCONST    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA  '
+    #INSTRUCCION TIPOCONSTRAINTFK
 
 def p_lCDrop(t):
     'I_LDROPC    : I_LDROPC COMA I_DROPC'
@@ -723,61 +741,82 @@ def p_lCAdd2(t):
 def p_cAdd(t):
     'I_ADDC      : ADD COLUMN ID I_TIPO'
 
-def p_tDrop(t):
-    'I_TDROP     : I_DROPDB'
-    # INSTRUCCION DROP
 
-def p_tDrop2(t):
-    'I_TDROP     : I_DROPTB'
+
+def p_dropTB(t):
+    'I_DROP      : DROP TABLE ID PCOMA'
 
 def p_dropDB(t):
-    'I_DROPDB    : DATABASE I_IFEXIST'
-    # INSTRUCCION DROPDB
+    'I_DROP    : DROP DATABASE IF EXISTS ID PCOMA'
 
-def p_ifExist(t):
-    'I_IFEXIST     : IF EXISTS ID PCOMA'
-    # INSTRUCCION IFEXIST
+def p_DropDBid(t):
+    'I_DROP     : DROP DATABASE ID PCOMA'
 
-def p_ifExist2(t):
-    'I_IFEXIST     : ID PCOMA'
-    # INSTRUCCION IFEXIST 
 
 def p_Exist(t):
-    'I_EXIST       : IF NOT EXISTS ID I_OWMOD '
+    """
+        I_EXIST         :   IF NOT EXISTS ID I_OWMOD
+    """
     t[0] = DatabaseInfo(True, t[4], t[5])
 
-def p_Exist1(t):
-    'I_EXIST       : ID I_OWMOD'
 
-def p_Owmod(t):
-    'I_OWMOD       : OWNER IGUAL ID I_MODE'
+def p_Exist1(t):
+    """
+        I_EXIST         :   ID I_OWMOD
+    """
+    t[0] = DatabaseInfo(False, t[1], t[2])
+
+
+def p_owmod1(t):
+    """
+        I_OWMOD         :   OWNER IGUAL ID I_MODE
+                        |   OWNER IGUAL CADENA I_MODE
+    """
     t[0] = Owner_Mode(t[3], t[4])
 
-def p_Owmod1(t):
-    'I_OWMOD       : OWNER IGUAL CADENA I_MODE'
+
+def p_owmod2(t):
+    """
+        I_OWMOD         :   MODE IGUAL NUMERO I_OWNER
+    """
+    t[0] = Owner_Mode(t[4], t[3])
 
 
-def p_OwmodN2(t):
-    'I_OWMOD       : MODE IGUAL NUMERO I_OWNER'
-
-def p_Owmod2(t):
-    'I_OWMOD       : PCOMA'
-
-def p_ModeN(t):
-    'I_MODE       : MODE IGUAL NUMERO I_OWNER'
+def p_owmod3(t):
+    """
+        I_OWMOD         :   PCOMA
+    """
+    t[0] = Owner_Mode(None, None)
 
 
-def p_Mode1(t):
-    'I_MODE        : PCOMA'
+def p_mode1(t):
+    """
+        I_MODE          :   MODE IGUAL NUMERO I_OWNER
+    """
+    t[0] = t[3]
 
-def p_Owner(t):
-    'I_OWNER       : OWNER IGUAL ID PCOMA'
 
-def p_OwnerCadena(t):
-    'I_OWNER       : OWNER IGUAL CADENA PCOMA'
+def p_mode2(t):
+    """
+        I_MODE          :   PCOMA
+    """
+    t[0] = None
 
-def p_Owner1(t):
-    'I_OWNER       : PCOMA'
+
+def p_owner1(t):
+    """
+        I_OWNER         :   OWNER IGUAL ID PCOMA
+                        |   OWNER IGUAL CADENA PCOMA
+    """
+    t[0] = t[3]
+
+
+def p_owner2(t):
+    """
+        I_OWNER         :   PCOMA
+    """
+    t[0] = None
+
 
 def p_AlterDB(t):
     'I_ALTERDB     : DATABASE ID I_OPALTERDB I_VALALTDB PCOMA'
@@ -794,20 +833,23 @@ def p_valAlterDb(t):
 def p_valAlterDb1(t):
     'I_VALALTDB    : CADENA'
 
-def p_dropTB(t):
-    'I_DROPTB      : TABLE ID PCOMA'
 
 def p_insertTB(t):
     'I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA'
+    # INSTRUCCION INSERTTB
 
 def p_insertTB1(t):
     'I_INSERT      : INSERT INTO ID PABRE I_LVALT PCIERRA VALUES PABRE I_LVALT PCIERRA PCOMA'
+    # INSTRUCCION INSERTTB1
 
 def p_lValt(t):
     'I_LVALT       : I_LVALT COMA I_VALTAB'
+    # INSTRUCCION REALIZADA
 
 def p_lValt1(t):
     'I_LVALT       : I_VALTAB'
+    # INSTRUCCION REALIZADA
+
 
 def p_update(t):
     'I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE PCOMA'
@@ -821,6 +863,14 @@ def p_lUpdate1(t):
 def p_valUpdate(t):
     'I_VALUPDATE   : CONDICION'
 
+def p_valUpdateT(t):
+    'I_VALUPDATE   : CONDICION IGUAL FTRIGONOMETRICASUP PABRE LNUM PCIERRA'
+
+def p_FTUP(t):
+    'FTRIGONOMETRICASUP   : ACOSD'
+
+def p_FTUP1(t):
+    'FTRIGONOMETRICASUP   : ASIN'
 
 def p_show(t):
     'I_SHOW       : SHOW DATABASES PCOMA'
@@ -829,71 +879,73 @@ def p_delete(t):
     'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
 
 def p_valTab(t):
-    'I_VALTAB      : NUMERO'
+    'I_VALTAB      : CONDICION'
+    # INSTRUCCION VALTAB
 
-def p_valTab1(t):
-    'I_VALTAB      : CADENA'
-
-def p_valTabId(t):
-    'I_VALTAB      : ID'
-
-def p_valTabDecimal(t):
-    'I_VALTAB      : DECIMAL'
-
-def p_valTabIdAlias(t):
-    'I_VALTAB      : IDALIAS'
 
     
 def p_valTabMd5(t):
     'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
+    # INSTRUCCION VALTAB
 
-def p_valTabNow(t):
-    'I_VALTAB      : NOW PABRE PCIERRA'
 
 def p_ISelect(t):
-    'I_SELECT  :   SELECT VALORES PFROM COMPLEMENTO   '
+    'I_SELECT  :   SELECT VALORES PFROM LCOMPLEMENTOS'
+    #CLASE SELECT MINIMO
+
+def p_ISelect1(t):
+    'I_SELECT  :   SELECT VALORES PFROM'
     #CLASE SELECT MINIMO
     
-def p_ISelect1(t):
-    'I_SELECT  :   SELECT VALORES PFROM PWHERE COMPLEMENTO    '
+def p_ISelect2(t):
+    'I_SELECT  :   SELECT VALORES PFROM PWHERE LCOMPLEMENTOS'
     # INSTRUCCION SELECT WITH WHERE 
 
-
-def p_ISelect2(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM COMPLEMENTO   '
-     # INSTRUCCION SELECT DISTINCT 
-
 def p_ISelect3(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE COMPLEMENTO    '
-    # INSTRUCCION SELECT DISTINCT WITH WHERE
+    'I_SELECT  :   SELECT VALORES PFROM PWHERE'
+    # INSTRUCCION SELECT WITH WHERE 
 
 def p_ISelect4(t):
-    'I_SELECT   :   SELECT VALORES '
-    #INSTRUCCION SELECT SOLO VALORES 
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM LCOMPLEMENTOS'
+     # INSTRUCCION SELECT DISTINCT 
+
+def p_ISelect5(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM'
+     # INSTRUCCION SELECT DISTINCT    
+
+def p_ISelect6(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE LCOMPLEMENTOS'
+    # INSTRUCCION SELECT DISTINCT WITH WHERE
+
+def p_ISelect7(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE'
+    # INSTRUCCION SELECT DISTINCT WITH WHERE
+
+def p_ISelect8(t):
+    'I_SELECT   :   SELECT VALORES'
+
+
+def p_ISelect9(t):
+    'I_SELECT   :   SELECT DISTINCT VALORES '
+    #INSTRUCCION SELECT SOLO VALORES   
+
+def p_LComplementoS(t):
+    'LCOMPLEMENTOS  :   LCOMPLEMENTOS COMPLEMENTO  '
+
+def p_LComplementoS1(t):
+    'LCOMPLEMENTOS  :   COMPLEMENTO  '
 
 def p_ComplementoH(t):
-    'COMPLEMENTO  :   PGROUPBY PHAVING  '
+    'COMPLEMENTO  :   PGROUPBY'
 
-def p_ComplementoHL(t):
-    'COMPLEMENTO  :   PGROUPBY PHAVING PLIMIT   '
-
-def p_ComplementoG(t):
-    'COMPLEMENTO  :   PGROUPBY  '
-
-def p_ComplementoGL(t):
-    'COMPLEMENTO  :   PGROUPBY PLIMIT   '
+def p_ComplementoHa(t):
+    'COMPLEMENTO  :   PHAVING'
 
 def p_ComplementoO(t):
     'COMPLEMENTO  :   PORDERBY  '
 
-def p_ComplementoOL(t):
-    'COMPLEMENTO  :   PORDERBY PLIMIT   '
-
 def p_ComplementoL(t):
     'COMPLEMENTO  :   PLIMIT    '
-
-def p_ComplementoE(t):
-    'COMPLEMENTO  :   EMPTY '
 
 def p_ComplementoSelectUnion(t):
     'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
@@ -939,13 +991,11 @@ def p_ComplementoOrderL1(t):
     'LCOMPLEMENTOORDERBY  :   COMPLEMENTOORDERBY    '
 
 def p_ComplementoOrderCI(t):
-    'COMPLEMENTOORDERBY  :   ID COMPLEMENTOORDERBY1    '
+    'COMPLEMENTOORDERBY  :   CONDICION COMPLEMENTOORDERBY1    '
 
 def p_ComplementoOrderCOBC(t):
     'COMPLEMENTOORDERBY1  :   COMPLEMENTOORDER   '
 
-def p_ComplementoOrderCOBP(t):
-    'COMPLEMENTOORDERBY1  :   PUNTO ID COMPLEMENTOORDER   '
 
 
 def p_ComplementoOrder(t):
@@ -983,10 +1033,7 @@ def p_ComplementoGroupLS(t):
     'LCOMPLEMENTOGROUP  :   COMPLEMENTOGROUP '
 
 def p_ComplementoGroupC(t):
-    'COMPLEMENTOGROUP  :   ID '
-
-def p_ComplementoGroupC1(t):
-    'COMPLEMENTOGROUP  :   ID PUNTO ID '
+    'COMPLEMENTOGROUP  :   CONDICION '
 
 def p_Valores(t):
     'VALORES  :   POR '
@@ -1029,9 +1076,7 @@ def p_ValorFuncionesA(t):
 def p_ValorFunciones1A(t):
     'VALOR  :   FUNCION PABRE ID  PCIERRA ALIAS'
 
-def p_ValorCondicion(t):
-    'VALOR  :   CONDICION'
-    
+   
 def p_ValorCondicionAlias(t):
     'VALOR  :   CONDICION ALIAS '
 
@@ -1143,6 +1188,9 @@ def p_ValorFunAlias(t):
 def p_ValorFun(t):
     'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA   '
 
+def p_ValorCondicion(t):
+    'VALOR  :   CONDICION'
+
 def p_LWHEN(t):
     'LWHEN  :   WHEN CONDICION THEN CONDICION LWHEN '
 
@@ -1225,7 +1273,7 @@ def p_NumNumero(t):
     'NUM    : NUMERO '
 
 def p_NumDecimal(t):
-    'NUM  :   DECIMAL '
+    'NUM  :   DECIMALN '
 
 def p_NumCadena(t):
     'NUM  :   CADENA '
@@ -1403,10 +1451,10 @@ def p_CondicionIs(t):
     'CONDICION  :   CONDICION IS CONDICION '
 
 def p_CondicionIsN(t):
-    'CONDICION  :   CONDICION ISNULL CONDICION '
+    'CONDICION  :   CONDICION IS NULL CONDICION '
 
 def p_CondicionNotN(t):
-    'CONDICION  :   CONDICION NOTNULL CONDICION '
+    'CONDICION  :   CONDICION NOT NULL CONDICION '
 
 def p_CondicionM(t):
     'CONDICION  :   MENOS CONDICION %prec UMENOS'
@@ -1424,7 +1472,7 @@ def p_CondicionNum(t):
     'CONDICION  :   NUMERO '
 
 def p_CondicionDec(t):
-    'CONDICION  :   DECIMAL'
+    'CONDICION  :   DECIMALN'
 
 def p_CondicionCad(t):
     'CONDICION  :   CADENA '

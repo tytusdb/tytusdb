@@ -1,0 +1,16 @@
+$def with (header, content, footer, sidebar,boton)
+
+         $:header
+
+<div class="container-fluid">
+    <div class="row"  style="height:90%">
+        <div class="col-2">
+            $:sidebar
+        </div>
+        <div class="col-10">
+            $:boton
+            $:content
+        </div>
+
+    </div>
+ </div>
