@@ -12,6 +12,7 @@ from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
 from models.instructions.Expression.expression import *
+from models.instructions.Expression.type_enum import *
 from models.instructions.Expression.math_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
@@ -74,7 +75,7 @@ def p_sql_instruction(p):
     p[0] = p[1]
 
 def p_use_statement(p):
-    '''usestatement : USE ID'''
+    '''usestatement : USE ID SEMICOLON'''
     p[0] = UseDatabase(p[2])
 
 def p_ddl(p):
@@ -200,10 +201,19 @@ def p_column(p):
         p[0] = CreateCol(p[1], p[2], p[3])
 
     elif len(p) == 3:
-        p[0] = CreateCol(p[1], p[2], None)
+        p[0] = CreateCol(p[1], p[2], [{
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
+        'check_condition' : None,
+        'pk_option' : None,
+        'fk_references_to' : None
+    }])
 
     elif len(p) == 5:
-        if p[1] == 'UNIQUE':
+        if p[1].lower() == 'UNIQUE'.lower():
             p[0] = Unique(p[3])
 
         else:  # CHECK
