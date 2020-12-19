@@ -7,12 +7,13 @@ class HEAD(Enum):
 	default = 2
 	notnull = 3
 	null = 4
-	unique = 5
-	fk = 6
-	pk = 7
-	check = 8
+	unique_state = 5
+	unique_name = 6
+	fk_state = 7
+	fk_reference= 8
+	fk_columnref= 9
+	pk_state = 10
+	check_name = 11
+	check_expression = 12
 
 
-class Foreign(Enum):
-	state = 0
-	references = 1

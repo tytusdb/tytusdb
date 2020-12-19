@@ -11,6 +11,7 @@ from Interprete.Primitivos.CADENAS import CADENAS
 from Interprete.Primitivos.BOOLEANO import BOOLEANO
 from Interprete.Insert.insert import Insert
 from Interprete.USE_DATABASE.use_database import UseDatabase
+from Interprete.CREATE_TABLE import clases_auxiliares
 
 reservadas = {
 
@@ -453,7 +454,7 @@ def p_ddl_table_create(t):
     '''
         ddl  : table_create
     '''
-    pass
+    t[0] = t[1]
 
 def p_ddl_insert(t):
     '''
@@ -1228,7 +1229,7 @@ def p_expSimples_ID(t):
     '''
         expSimple : ID
     '''
-    t[0] = indexador_auxiliar("none", t[1], 4)
+    t[0] = indexador_auxiliar(t[1], t[1], 4)
 
 def p_expSimples_ID_PT_ID(t):
     '''
@@ -1342,18 +1343,17 @@ def p_table_create(t):
                      | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
                      | CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
     '''
-    if len(t)==8:
+    if len(t)==9:
         # CREATE TABLE ID PARIZQ lista_table COMA listadolprimary inherits
-        pass
+        t[0] = CreateTable(t[3], t[5], t[7], t[8])
     if len(t)==7:
         # CREATE TABLE ID PARIZQ lista_table inherits
-        t[0] = CreateTable(t[3], t[5])
+        t[0] = CreateTable(t[3], t[5], None, t[6])
     if len(t)==12:
-        #CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table COMA listadolprimary inherits
-        pass
+        t[0] = CreateTable(t[6], t[8], t[10], t[11])
     if len(t)==10:
         #CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
-        pass
+        t[0] = CreateTable(t[6], t[8], None, t[9])
 
 
 #todo:no se que hacer con PARDER FALTA ? O SOLO ASI ES ?
@@ -1392,21 +1392,21 @@ def p_lista_primary(t):
         lista_primary : PRIMARY KEY PARIZQ listaids PARDER
                       | FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
                       | CONSTRAINT ID CHECK PARIZQ exp PARDER
+                      | CHECK PARIZQ exp PARDER
                       | UNIQUE PARIZQ listaids PARDER
     '''
     if len(t)==6:
-       #PRIMARY KEY PARIZQ listaids PARDER
-       pass
+       t[0] = clases_auxiliares.PrimaryKeyC(t[4])
     elif len(t)==11:
-        #FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
-        pass
+        references = clases_auxiliares.References(t[7], t[9])
+        t[0] = clases_auxiliares.ForeignKeyC(references, t[4])
     elif len(t)==7:
-        # CONSTRAINT ID CHECK PARIZQ exp PARDER
-        pass
-    elif len(t)==5:
-        #UNIQUE PARIZQ listaids PARDER
-        pass
-
+        constraint = clases_auxiliares.Constraint(t[2])
+        t[0] = clases_auxiliares.Check(t[5], constraint)
+    elif t[1].lower() == 'check':
+        t[0] = clases_auxiliares.Check(t[3])
+    elif t[1].lower() == 'unique':
+        t[0] = clases_auxiliares.UniqueC(t[3])
 
 
 
@@ -1414,17 +1414,11 @@ def p_atributo_table(t):
     '''
         atributo_table : ID  tipocql listaespecificaciones
                        | ID tipocql
-
     '''
     if len(t)==4:
-        # t[0] = Columna(t[1], t[2], t[3])
-        #ID  tipocql listaespecificaciones
-        pass
+        t[0] = clases_auxiliares.Columna(t[1], t[2], t[3])
     elif len(t)==3:
-        # t[0] = Columna(t[1], t[2], None)
-        #ID tipocql
-        pass
-
+        t[0] = clases_auxiliares.Columna(t[1], t[2])
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- ESPECIFICACIONES--------------------------------------
@@ -1442,47 +1436,37 @@ def p_listaespecificaciones(t):
 
 def p_especificaciones(t):
     '''
-        especificaciones : UNIQUE
-                         | DEFAULT
-                         | SET
-                         | TYPE tipo
+        especificaciones : DEFAULT ID
                          | PRIMARY KEY
                          | REFERENCES ID
-                         | CONSTRAINT ID
+                         | CONSTRAINT ID UNIQUE
+                         | CONSTRAINT ID CHECK PARIZQ exp PARDER
                          | CHECK PARIZQ exp PARDER
-                         | UNIQUE PARIZQ listaids PARDER
-                         | FOREIGN KEY PARIZQ listaids PARDER REFERENCES ID PARIZQ listaids PARDER
+                         | UNIQUE
+                         | NOT NULL
+                         | NULL
     '''
-    if len(t)==2:
-        if t[1].lower()=='unique':
 
-            pass
-        elif t[1].lower()=='default':
-            pass
-        elif t[1].lower()=='set':
-            pass
-    elif len(t)==3:
-        if t[1].lower()=='primary':
-            pass
-        if t[1].lower()=='references':
-            pass
-        if t[1].lower()=='constraint':
-            pass
-    elif len(t)==5:
-        if t[1]=='check':
-            pass
-        if t[1]=='unique':
-            pass
-        pass
-    elif len(t) == 8:
-        if t[1] == 'foreign':
-            pass
-
-## 1 + 1
-def p_especificaciones_exp(t):
-    '''
-        especificaciones : exp
-    '''
+    if t[1].lower() == 'default':
+        t[0] = clases_auxiliares.Default(t[2])
+    elif t[1].lower() == 'primary':
+        t[0] = clases_auxiliares.PrimaryKey()
+    elif t[1].lower() == 'references':
+        t[0] = clases_auxiliares.References(t[2])
+    elif len(t) == 4:
+        constraint = clases_auxiliares.Constraint(t[2])
+        t[0] = clases_auxiliares.Unique(constraint)
+    elif len(t) == 7:
+        constraint = clases_auxiliares.Constraint(t[2])
+        t[0] = clases_auxiliares.Check(t[5], constraint)
+    elif t[1].lower() == 'check':
+        t[0] = clases_auxiliares.Check(t[3])
+    elif t[1].lower() == 'unique':
+        t[0] = clases_auxiliares.Unique()
+    elif t[1].lower() == 'not':
+        t[0] = clases_auxiliares.NotNull()
+    elif t[1].lower() == 'null':
+        t[0] = clases_auxiliares.Null()
 
 # --------------------------------------------------------------------------------------
 # -----------------------------------------TIPO--------------------------------------
@@ -1515,28 +1499,49 @@ def p_tipo(t):
               | BOOLEAN
               | DOUBLE PRECISION
               | CHARACTER VARYING PARIZQ exp PARDER
-              | CHARACTER PARIZQ exp PARDER
               | VARCHAR PARIZQ exp PARDER
               | CHAR PARIZQ exp PARDER
     '''
-    if len(t)==2:#RESERWORD
-        t[0] = t[1]
-    if len(t)==3:
-        #DOUBLE PRECISION
-        t[0] = t[1] + " " + t[2]
-    if len(t)==6:
-        #CHARACTER VARYING PARIZQ exp PARDER
-        t[0] = t[1] + t[2]
-    if len(t)==5:
-        if t[1].lower()=='character':
-            #CHARACTER PARIZQ exp PARDER
-            t[0] = t[1]
-        elif t[1].lower()=='varchar':
-            #VARCHAR PARIZQ exp PARDER
-            t[0] = t[1]
-        elif t[1].lower()=='char':
-            #CHAR PARIZQ exp PARDER
-            t[0] = t[1]
+    if t[1].lower() == 'integer':
+        t[0] = '0'
+    elif t[1].lower() == 'smallint':
+        t[0] = '4'
+    elif t[1].lower() == 'bigint':
+        t[0] = '5'
+    elif t[1].lower() == 'decimal':
+        t[0] = '1'
+    elif t[1].lower() == 'numeric':
+        t[0] = '6'
+    elif t[1].lower() == 'real':
+        t[0] = '7'
+    elif t[1].lower() == 'money':
+        t[0] = '8'
+    elif t[1].lower() == 'text':
+        t[0] = '9'
+    elif t[1].lower() == 'time':
+        t[0] = '11'
+    elif t[1].lower() == 'date':
+        t[0] = '12'
+    elif t[1].lower() == 'timestamp':
+        t[0] = '13'
+    elif t[1].lower() == 'interval':
+        t[0] = '14'
+    elif t[1].lower() == 'boolean':
+        t[0] = '3'
+    elif t[1].lower() == 'double':
+        t[0] = '15'
+    elif len(t) == 6:
+        t[0] = '16'
+    elif t[1].lower() == 'varchar':
+        t[0] = '18'
+    elif t[1].lower() == 'char':
+        t[0] = '19'
+
+def p_tipo_character_varying(t):
+    '''
+        tipo : CHARACTER PARIZQ exp PARDER
+    '''
+    t[0] = '17'
 
 # --------------------------------------------------------------------------------------
 # ----------------------------------------- INSERT--------------------------------------

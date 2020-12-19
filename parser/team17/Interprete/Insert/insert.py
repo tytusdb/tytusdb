@@ -5,6 +5,7 @@ from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 from Interprete.Valor.Valor import Valor
 from StoreManager import jsonMode as j
+from Interprete.Primitivos.TIPO import TIPO
 
 #############################
 # Patrón intérprete: INSERT #
@@ -22,7 +23,6 @@ class Insert(NodoArbol):
 
 
     def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
-
         databaseName = entorno.getBD()
         if entorno.BDisNull() == True:
             '''
@@ -159,9 +159,10 @@ class Insert(NodoArbol):
             head   = headColumns[i].split(',')
             headName:str = str(head[HEAD.nameColumn.value])
             result.append(headName)
-
         return result
     #================================================================================================
+
+
     def getTypeHeadColumns(self, headColumns) -> list:
         '''
         :param headColumns: lista de encabezados
@@ -173,6 +174,7 @@ class Insert(NodoArbol):
             headName:int = int(head[HEAD.typeColumn.value])
             result.append(headName)
 
+        result = self.filterType(result)
         return result
     #================================================================================================
 
@@ -212,16 +214,28 @@ class Insert(NodoArbol):
             value = v.execute(entorno, arbol)
             typeValue:int  = value.tipo.value
             result.append(typeValue)
+
         return result
+    #================================================================================================
+
+    def filterType(self,listTypes:list) -> list:
+        for i in range(len(listTypes)):
+            tipe = listTypes[i]
+            if  tipe == TIPO.TEXT.value:
+                listTypes[i] = TIPO.CADENA.value
+            if  tipe == TIPO.VARCHAR.value:
+                listTypes[i] = TIPO.CADENA.value
+            if  tipe == TIPO.CHARACTER_VARYING.value:
+                listTypes[i] = TIPO.CADENA.value
+            pass
+        return listTypes
     #================================================================================================
 
     def getValues(self,listValues,entorno,arbol) -> list:
         result:list = []
-
         for v in listValues:
             value = v.execute(entorno, arbol).data
             result.append(value)
-
         return result
     #================================================================================================
 
@@ -323,6 +337,8 @@ class Insert(NodoArbol):
             print('La '+database+' de datos no existe')
             return False
     #================================================================================================
+
+
 
     def obtenerIndex(self, tabla:list, index:str):
         encabezados = tabla[0]

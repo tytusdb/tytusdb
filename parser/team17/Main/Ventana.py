@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 from Parser.Ascendente.gramatica import parse as AnaParse
-from Parser.Reportes.gramatica import parse as ReportParse
+#from Parser.Reportes.gramatica import parse as ReportParse
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
 
@@ -79,7 +79,6 @@ def analizador():
         Se obtiene el texto del text area
         se pasa el parser y se ejecuta el patron interprete
     '''
-    global cadena, dotString
     my_text1.delete("1.0", END)
 
     try:
@@ -92,7 +91,11 @@ def analizador():
         for item in result.instrucciones:
             item.execute(entornoCero, result)
 
-        my_text1.insert(END, result)
+        consola = ""
+        for item in result.console:
+            consola = consola + item
+
+        my_text1.insert(END, consola)
 
     except:
         my_text1.insert(END,'Ocurrio un error al compilar')
@@ -100,11 +103,26 @@ def analizador():
 
 def Seleccionar():
 
-    global  cadena
-    cadena = my_text.get(SEL_FIRST,SEL_LAST)
-    analizador()
+    try:
+        cadena = my_text.get(SEL_FIRST, SEL_LAST)
+        print('>> ' + cadena)
 
+        result:Arbol = AnaParse(cadena)
+        entornoCero:Tabla_de_simbolos = Tabla_de_simbolos()
+        entornoCero.NuevoAmbito()
 
+        for item in result.instrucciones:
+            item.execute(entornoCero, result)
+
+        consola = ""
+        for item in result.console:
+            consola = consola + item
+
+        my_text1.insert(END, consola)
+    except:
+        my_text1.insert(END,'Ocurrio un error al compilar')
+
+'''
 def Reporte():
 
     global dotString
@@ -120,7 +138,8 @@ def Reporte():
         print('Reporte Generado Con exito')
     except:
         print('No se genero el reporte:w')
-
+        
+'''
 
 
 
@@ -139,10 +158,11 @@ toolbar_frame.pack(fill=X)
 Analizador_button = Button(toolbar_frame,text="Analizador",command=analizador)
 Analizador_button.grid(row=0,column=0,padx=2)
 
+'''
 # Boton Reporte
 Report_button = Button(toolbar_frame,text="Reporte",command=Reporte)
 Report_button.grid(row=0,column=20,padx=2)
-
+'''
 # Ejecutar Seleccion
 Report_button = Button(toolbar_frame,text="Ejecutar Seleccion",command=Seleccionar)
 Report_button.grid(row=0,column=40,padx=2)
