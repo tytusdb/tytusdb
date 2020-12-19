@@ -890,6 +890,15 @@ def resolver_operacion(operacion,ts):
             elif operacion.operador == OPERACION_MATH.GCD: return math.gcd(op1,op2)
             elif operacion.operador == OPERACION_MATH.POWER: return math.pow(op1,op2)
             elif operacion.operador == OPERACION_MATH.ROUND: return f.func_round(op1,op2)
+    
+    elif isinstance(operacion,Operacion__Cubos):
+        op1 = resolver_operacion(operacion.op1,ts)
+        op2 = resolver_operacion(operacion.op12,ts)
+        op3 = resolver_operacion(operacion.op3,ts)
+        op4 = resolver_operacion(operacion.op4,ts)
+        if isinstance(op1,(int,float)) and isinstance(op2,(int,float)) and isinstance(op3,(int,float)) and isinstance(op4,(int,float)) :
+            if operacion.operador == OPERACION_MATH.WIDTH_BUCKET: return f.func_width_bucket(op1,op2,op3,op4)
+            else: print("Error width bucket en tipo de parametros")
             
     elif isinstance(operacion, Operacion_Definida):
         if operacion.operador == OPERACION_MATH.PI: return math.pi
@@ -901,6 +910,15 @@ def resolver_operacion(operacion,ts):
             if operacion.operador == OPERACION_BINARY_STRING.MD5: return f.func_md5(op)
             elif operacion.operador == OPERACION_BINARY_STRING.SHA256: return f.func_md5(op)
             elif operacion.operador == OPERACION_BINARY_STRING.LENGTH: return f.func_length(op)
+
+    elif isinstance(operacion,Operacion_String_Binaria):
+        op1 = resolver_operacion(operacion.op1,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
+        if isinstance(op1,(str)) and isinstance(op2,(int)):
+            if(operacion.operador == OPERACION_BINARY_STRING.GET_BYTE): return f.func_get_byte(op1,op2)
+        elif isinstance(op1,(str)) and isinstance(op2,(str)):
+            if (operacion.operador == OPERACION_BINARY_STRING.ENCODE) : return f.func_encode(op1,op2)
+            elif (operacion.operador == OPERACION_BINARY_STRING.DECODE) : return f.func_decode(op1,op2) 
     
     elif isinstance(operacion,Operacion_String_Compuesta):
         op1 = resolver_operacion(operacion.op1,ts)
@@ -909,6 +927,9 @@ def resolver_operacion(operacion,ts):
         if isinstance(op1,(str)) and isinstance(op2,(int)) and isinstance(op3,(int)) :
             if operacion.operador == OPERACION_BINARY_STRING.SUBSTR: return f.func_substring(op1,op2,op3)
             elif operacion.operador == OPERACION_BINARY_STRING.SUBSTRING: return f.func_substring(op1,op2,op3)
+            elif operacion.operador == OPERACION_BINARY_STRING.SET_BYTE: return f.func_set_byte(op1,op2,op3)
+        
+
     elif isinstance(operacion, Operacion_Patron):
         op1 = resolver_operacion(operacion.op1,ts)
         if operacion.operador == OPERACION_PATRONES.BETWEEN: return f.Between(op1,operacion.op2,ts)

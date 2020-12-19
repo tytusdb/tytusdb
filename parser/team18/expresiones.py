@@ -304,6 +304,15 @@ class Operacion_Strings(Expresion):
         self.cadena = cadena
         self.operador =  operador
 
+class Operacion_String_Binaria(Expresion):
+    '''
+        Esta clase representa las operaciones compuestas que se pueden realizar con string
+    '''
+    def __init__(self,op1,op2,operador):
+        self.op1 = op1
+        self.op2 = op2
+        self.operador = operador
+
 class Operacion_String_Compuesta(Expresion):
     '''
         Esta clase representa las operaciones compuestas que se pueden realizar con string
@@ -330,3 +339,15 @@ class Funcion_select(Expresion):
     def __init__(self,op,operador):
         self.op=op
         self.operador=operador
+
+class Operacion__Cubos(Expresion):
+    '''
+        Esta clase representa la funcion de width bucket la cual recibe 4 parametros
+        y un operador
+    '''
+    def __init__(self,op1,op2,op3,op4,operador):
+        self.op1 = op1
+        self.op2 = op2
+        self.op3 = op3
+        self.op4 = op4
+        self.operador = operador

@@ -61,14 +61,14 @@ def func_length(exp):
     return len(exp)
 
 #Funciones para trim
-def func_trim_leading(exp, characters): #Caracteres iniciales
-    return exp.lstrip(characters)
+def func_trim_leading(exp, c): #Caracteres iniciales
+    return exp.lstrip(c)
 
-def func_trim_trailing(string1, characters): #Caracteres finales
-    return string1.rstrip(characters)
+def func_trim_trailing(exp, c): #Caracteres finales
+    return exp.rstrip(c)
 
-def func_trim_both(string1, characters): #Iniciales y finales
-    return string1.strip(characters)
+def func_trim_both(exp, c): #Iniciales y finales
+    return exp.strip(c)
 
 #substring y substr
 def func_substring(exp,inicio,final):
@@ -104,15 +104,37 @@ def func_set_byte(exp, num, num2):
     return byte
 
 
-def encode_string(exp, format):
-    if format == "escape":
+def func_encode(exp, formato):
+    if formato == "escape":
         return exp
-    elif format == "base64":
+    elif formato == "base64":
         exp = bytes(exp, "utf-8")
         exp64 = base64.b64encode(exp)
         return exp64
-    elif format == "hex":
+    elif formato == "hex":
         return exp.encode("utf-8").hex()
+
+def func_decode(exp, formato):
+    if formato == "escape":
+        return exp
+    elif formato == "base64":
+        result = exp.decode('base64')
+        return result
+    elif formato == "hex":
+        result = exp.decode('utf-8').hex()
+        return result
+        
+
+#print(encode_string('123\000456', 'escape'))
+
+#Falta implementar todos los convert
+
+def func_convert(exp):
+    fecha = datetime.strptime(exp, "%Y-%m-%d %H:%M:%S")
+    return fecha
+
+
+
 
 def Between(exp1, exp2,ts):
     if isinstance(exp2, Operacion_Logica_Binaria):

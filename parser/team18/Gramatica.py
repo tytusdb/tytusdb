@@ -929,9 +929,9 @@ def p_funcion_math(t):
                      | trim PAR_A valorestrim exp FROM exp PAR_C
                      | MD5 PAR_A exp PAR_C
                      | sha256 PAR_A exp PAR_C
-                     | decode PAR_A exp byteaop COMA lista_exp PAR_C
-                     | encode PAR_A exp byteaop COMA lista_exp PAR_C
-                     | get_byte PAR_A exp DOSPUNTOS bytea COMA lista_exp PAR_C
+                     | decode PAR_A exp COMA exp PAR_C
+                     | encode PAR_A exp byteaop COMA exp PAR_C
+                     | get_byte PAR_A exp DOSPUNTOS bytea COMA exp PAR_C
                      | set_byte PAR_A exp DOSPUNTOS bytea COMA exp COMA exp COMA exp PAR_C
                      | substr PAR_A exp COMA exp COMA exp PAR_C
                      | CONVERT PAR_A exp AS tipo PAR_C 
@@ -1027,6 +1027,9 @@ def p_funcion_math(t):
           t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ACOSH)
      elif(t[1].lower() == 'atanh'):
           t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATANH)
+
+     elif(t[1].lower() == 'width_bucket'):
+          t[0] = Operacion__Cubos(t[3],t[5],t[7],t[9],OPERACION_MATH.WIDTH_BUCKET)
      
      #Binary strings
      elif(t[1].lower() == 'md5'):
@@ -1041,6 +1044,16 @@ def p_funcion_math(t):
           t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SUBSTRING)
      elif(t[1].lower() ==  'substr'):
           t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SUBSTR)
+     elif(t[1].lower() ==  'set_byte'):
+          t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SET_BYTE)
+     
+     elif(t[1].lower() ==  'get_byte'):
+          t[0] = Operacion_String_Binaria(t[3],t[7],OPERACION_BINARY_STRING.GET_BYTE)
+     elif(t[1].lower() ==  'encode'):
+          t[0] = Operacion_String_Binaria(t[3],t[6],OPERACION_BINARY_STRING.ENCODE)
+     elif(t[1].lower() ==  'decode'):
+          t[0] = Operacion_String_Binaria(t[3],t[5],OPERACION_BINARY_STRING.DECODE)
+     
      
 def p_funciones_select_count(t):
      '''funcion_math : COUNT PAR_A val_count PAR_C'''
