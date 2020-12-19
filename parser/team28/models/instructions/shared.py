@@ -122,14 +122,15 @@ class ObjectReference(Instruction):
     def __init__(self, reference_base, reference_table, reference_column, opt_asterisk):
         self.reference_base = reference_base
         self.reference_table = reference_table
-        self.reference_colunm = reference_column
+        self.reference_column = reference_column
         self.opt_asterisk = opt_asterisk
+        self.alias = reference_column.alias
 
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, instrucction):
-        pass
+    def process(self, instruction):
+        return self.reference_column.process(instruction)
 
 
 

@@ -1,15 +1,19 @@
+Error = None
+
 def validateInteger(n, val, x):
+    global Error
     s = str(val)
     if s.isdecimal() or s[1:].isdecimal():
         li = -(2 ** n)
         ls = (2 ** n) + x
-        print(li, val, ls)
         if li <= val and val <= ls:
-            return None
-    return {
-        "Type": "numeric",
-        "Descripción": "Valor entero fuera del rango establecido",
-    }
+            Error = None
+            return True
+        else:
+            Error = "El valor está fuera del rango"
+            return False
+    Error = "El valor no es un numero entero"
+    return False
 
 
 def beforePointD(max, val):
@@ -39,83 +43,167 @@ def afterPoint(max, val):
 
 
 def validateDecimal(col, val):
+    global Error
     n = str(val)
-    p = col["size"][0]
-    s = col["size"][1]
-    if "." in n:
-        lts = n.split(".")
-        x = beforePointD(p - s, int(lts[0]))
-        y = afterPoint(s, int(lts[1]))
-        print(x, y)
-        if x and y:
-            return None
-    else:
-        if beforePointD(p - s, val):
-            return None
-    return {
-        "Type": "numeric",
-        "Descripción": "Valor decimal fuera del rango establecido",
-    }
+    try:
+        if col["size"] != None:
+            p = col["size"][0]
+            s = col["size"][1]
+            if "." in n:
+                lts = n.split(".")
+                x = beforePointD(p - s, int(lts[0]))
+                y = afterPoint(s, int(lts[1]))
+                if x and y:
+                    Error = None
+                    return True
+                else: 
+                    Error = "No cumple con la precisión"
+                    return False
+            else:
+                if beforePointD(p - s, val):
+                    Error = None
+                    return True
+                else:
+                    Error = "No cumple con la presición"
+                    return False
+        else:
+            if "." in n:
+                lts = n.split(".")
+                x = beforePointD(131072, int(lts[0]))
+                y = afterPoint(16383, int(lts[1]))
+                if x and y:
+                    Error = None
+                    return True
+                else: 
+                    Error = "No cumple con la precisión"
+                    return False
+            else:
+                if beforePointD(131072, val):
+                    Error = None
+                    return True
+                else:
+                    Error = "No cumple con la presición"
+                    return False
+    except:
+        Error = "El valor no es un decimal"
+        return False
+
 
 
 def validateNumeric(col, val):
+    global Error
     n = str(val)
-    p = col["size"][0]
-    s = col["size"][1]
-    if "." in n:
-        lts = n.split(".")
-        x = beforePointN(p - s, int(lts[0]))
-        y = afterPoint(s, int(lts[1]))
-        print(x, y)
-        if x and y:
-            return None
-    else:
-        if beforePointN(p - s, val):
-            return None
-    return {
-        "Type": "numeric",
-        "Descripción": "Valor numeric fuera del rango establecido",
-    }
+    try:
+        if col["size"] != None:
+            p = col["size"][0]
+            s = col["size"][1]
+            if "." in n:
+                lts = n.split(".")
+                x = beforePointN(p - s, int(lts[0]))
+                y = afterPoint(s, int(lts[1]))
+                if x and y:
+                    Error = None
+                    return True
+                else: 
+                    Error = "No cumple con la precisión"
+                    return False
+            else:
+                if beforePointD(p - s, val):
+                    Error = None
+                    return True
+                else:
+                    Error = "No cumple con la presición"
+                    return False
+        else:
+            if "." in n:
+                lts = n.split(".")
+                x = beforePointN(131072, int(lts[0]))
+                y = afterPoint(16383, int(lts[1]))
+                if x and y:
+                    Error = None
+                    return True
+                else: 
+                    Error = "No cumple con la precisión"
+                    return False
+            else:
+                if beforePointD(131072, val):
+                    Error = None
+                    return True
+                else:
+                    Error = "No cumple con la presición"
+                    return False
+    except:
+        Error = "El valor no es un numero"
+        return False
 
 
 def validateReal(col, val):
+    global Error
     n = str(val)
     # p = col['size']
-    if "." in n:
-        lts = n.split(".")
-        x = validateInteger(31, int(lts[0]), 0)
-        y = afterPoint(6, int(lts[1]))
-        print(x, y)
-        if x and y:
-            return None
-    else:
-        if validateInteger(31, int(lts[0]), 0):
-            return None
-    return {"Type": "numeric", "Descripción": "Valor real fuera del rango establecido"}
+    try:
+        if "." in n:
+            lts = n.split(".")
+            x = validateInteger(31, int(lts[0]), 0)
+            y = afterPoint(6, int(lts[1]))
+            if x and y:
+                Error = None
+                return True
+            else: 
+                Error = "Valor real fuera del rango establecido"
+                return False
+        else:
+            if validateInteger(31, int(lts[0]), 0):
+                Error = None
+                return True
+            else: 
+                Error = "Valor real fuera del rango establecido"
+                return False
+    except:
+        Error = "El valor no es un numero"
+        return False
 
 
 def validateDouble(col, val):
+    global Error
     n = str(val)
     # p = col['size']
-    if "." in n:
-        lts = n.split(".")
-        x = validateInteger(63, int(lts[0]), 0)
-        y = afterPoint(15, int(lts[1]))
-        print(x, y)
-        if x and y:
-            return None
-    else:
-        if validateInteger(63, int(lts[0]), 0):
-            return None
-    return {
-        "Type": "numeric",
-        "Descripción": "Valor double fuera del rango establecido",
-    }
+    try:
+        if "." in n:
+            lts = n.split(".")
+            x = validateInteger(63, int(lts[0]), 0)
+            y = afterPoint(15, int(lts[1]))
+            
+            if x and y:
+                Error = None
+                return True
+            else: 
+                Error = "Valor double fuera del rango establecido"
+                return False
+        else:
+            if validateInteger(63, int(lts[0]), 0):
+                Error = None
+                return True
+            else: 
+                Error = "Valor double fuera del rango establecido"
+                return False
+    except:
+        Error = "El valor no es un numero"
+        return False
 
 
-def validateMoney(val):
+def validateMoney(value):
+    global Error
     max = 2 ** 63 + 0.07
     min = -(2 ** 63 + 0.08)
-    if min <= val and val <= max:
-        return None
-    return {"Type": "numeric", "Descripción": "Valor money fuera del rango establecido"}
+    try:
+        val = int(value)
+        if min <= val and val <= max:
+            Error = None
+            return True
+        else: 
+            Error = "Valor money fuera del rango establecido"
+            return False
+    except:
+        Error = "El valor no es un numero"
+        return False
