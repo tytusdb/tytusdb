@@ -97,6 +97,24 @@ class OPERACION_BINARY_STRING(Enum):
     SUBSTR =  10
     CONVERT = 11
 
+class OPERACION_PATRONES(Enum):
+    BETWEEN = 1
+    NOT_BETWEEN = 2
+    IN = 3
+    NOT_IN = 4
+    LIKE = 5
+    NOT_LIKE = 6
+    ILIKE = 7
+    NOT_ILIKE = 8
+    SIMILAR = 9
+    NOT_SIMILAR = 10
+
+class FUNCIONES_SELECT(Enum):
+    COUNT = 1
+    SUM = 2
+    AVG = 3
+    MIN = 4
+    MAX = 5
     
 class Expresion:
     '''
@@ -295,3 +313,20 @@ class Operacion_String_Compuesta(Expresion):
         self.op2 = op2
         self.op3 = op3
         self.operador = operador
+
+class Operacion_Patron(Expresion):
+    '''
+        Esta clase representa las operaciones de patron
+    '''
+    def __init__(self,op1,op2,operador):
+        self.op1=op1
+        self.op2=op2
+        self.operador=operador
+
+class Funcion_select(Expresion):
+    '''
+        Esta clase representa una funcion select count, sum, avg, min, max
+    '''
+    def __init__(self,op,operador):
+        self.op=op
+        self.operador=operador

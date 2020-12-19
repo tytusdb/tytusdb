@@ -857,12 +857,34 @@ def resolver_operacion(operacion,ts):
         if isinstance(op1,(str)) and isinstance(op2,(int)) and isinstance(op3,(int)) :
             if operacion.operador == OPERACION_BINARY_STRING.SUBSTR: return f.func_substring(op1,op2,op3)
             elif operacion.operador == OPERACION_BINARY_STRING.SUBSTRING: return f.func_substring(op1,op2,op3)
+    elif isinstance(operacion, Operacion_Patron):
+        op1 = resolver_operacion(operacion.op1,ts)
+        if operacion.operador == OPERACION_PATRONES.BETWEEN: return f.Between(op1,operacion.op2,ts)
+        elif operacion.operador == OPERACION_PATRONES.NOT_BETWEEN: return not(f.Between(op1,operacion.op2,ts))
+        elif operacion.operador == OPERACION_PATRONES.IN: return f.In(op1,operacion.op2,ts)
+        elif operacion.operador == OPERACION_PATRONES.NOT_IN: return not(f.In(op1,operacion.op2,ts))
+        elif operacion.operador == OPERACION_PATRONES.LIKE: return f.Like(op1,operacion.op2,ts)
+        elif operacion.operador == OPERACION_PATRONES.NOT_LIKE: return not(f.Like(op1,operacion.op2,ts))
+        elif operacion.operador == OPERACION_PATRONES.ILIKE: return f.Ilike(op1,operacion.op2,ts)
+        elif operacion.operador == OPERACION_PATRONES.NOT_ILIKE: return not(f.Ilike(op1,operacion.op2,ts))
+        elif operacion.operador == OPERACION_PATRONES.SIMILAR: return f.Similar(op1,operacion.op2,ts)
+        elif operacion.operador == OPERACION_PATRONES.NOT_SIMILAR: return not(f.Similar(op1,operacion.op2,ts))
+    elif isinstance(operacion, Operacion_NOW): return f.Now()
+    elif isinstance(operacion, Operacion_CURRENT):
+        if operacion.tipo=="date": return f.Date()
+        else: return f.Time()
+    elif isinstance(operacion, Operando_EXTRACT): return f.Extract(operacion.medida,operacion.valores,ts)
+    elif isinstance(operacion, Operacion_DATE_PART): return f.Date_Part(operacion.val1,operacion.val2,ts)
+    elif isinstance(operacion, Operacion_TIMESTAMP):
+        op = resolver_operacion(operacion.valor,ts) 
+        if op=='now': return f.Now()
+    elif isinstance(operacion, Operacion_Great_Least):
+        if operacion.tipo == 'greatest': return f.Greatest(operacion.expresion,ts)
+        else: return f.Least(operacion.expresion,ts)
     
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
-    global baseActiva
-    baseActiva=""
     global listaInstrucciones 
     listaInstrucciones  = instrucciones
     if instrucciones is not None:

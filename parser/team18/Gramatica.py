@@ -517,7 +517,7 @@ def p_extract_multi(t):
      if t[1].lower() == "extract":
           t[0] = Operando_EXTRACT(t[3],t[6])
      else:
-          t[0] = Operacion_DATE_PART(t[3],t[6])
+          t[0] = Operacion_DATE_PART(t[3],t[5])
 
 def p_timestampop(t):
      '''timeop : timestamp
@@ -582,7 +582,7 @@ def p_funcion_alias(t):
 def p_funcionGREALEAST(t):
      '''funcionGREALEAST : GREATEST PAR_A lista_exp PAR_C
                          | LEAST PAR_A lista_exp PAR_C '''
-     t[0] = Operacion_Great_Least(t[1].loweer(),t[3])
+     t[0] = Operacion_Great_Least(t[1].lower(),t[3])
 
 def p_cantidad_select(t):
      '''cantidad_select : DISTINCT'''
@@ -937,11 +937,6 @@ def p_funcion_math(t):
                      | substr PAR_A exp COMA exp COMA exp PAR_C
                      | CONVERT PAR_A exp AS tipo PAR_C 
                      | width_bucket PAR_A exp COMA exp COMA exp COMA exp PAR_C
-                     | COUNT PAR_A val_count PAR_C
-                     | SUM PAR_A exp PAR_C
-                     | AVG PAR_A exp PAR_C
-                     | MAX PAR_A exp PAR_C
-                     | MIN PAR_A exp PAR_C
                      | empty'''
      if (t[1].lower() == 'abs'):
           t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ABS)
@@ -1048,7 +1043,23 @@ def p_funcion_math(t):
      elif(t[1].lower() ==  'substr'):
           t[0] = Operacion_String_Compuesta(t[3],t[5],t[7],OPERACION_BINARY_STRING.SUBSTR)
      
+def p_funciones_select_count(t):
+     '''funcion_math : COUNT PAR_A val_count PAR_C'''
+     t[0] = Funcion_select(t[3],FUNCIONES_SELECT.COUNT)
 
+def p_funciones_select_restantes(t):
+     '''funcion_math : SUM PAR_A exp PAR_C
+                     | AVG PAR_A exp PAR_C
+                     | MAX PAR_A exp PAR_C
+                     | MIN PAR_A exp PAR_C'''
+     if t[1].lower() == "sum":
+          t[0] = Funcion_select(t[3],FUNCIONES_SELECT.SUM)
+     elif t[1].lower() == "avg":
+          t[0] = Funcion_select(t[3],FUNCIONES_SELECT.AVG)
+     elif t[1].lower() == "max":
+          t[0] = Funcion_select(t[3],FUNCIONES_SELECT.MAX)
+     elif t[1].lower() == "min":
+          t[0] = Funcion_select(t[3],FUNCIONES_SELECT.MIN)
 
 def p_funcion_date(t):
      '''funcion_date : extract'''
@@ -1109,17 +1120,45 @@ def p_expresion_logica(t):
           t[0] = Operacion_Logica_Unaria(t[2])
 
 
+def p_expresion_patron_between(t):
+     '''expresion_patron : exp BETWEEN exp'''
+     t[0] = Operacion_Patron(t[1],t[3],OPERACION_PATRONES.BETWEEN)
 
-def p_expresion_patron(t):
-     '''expresion_patron : exp BETWEEN exp
-                         | exp IN exp
-                         | exp NOT IN exp
-                         | exp LIKE exp
-                         | exp NOT LIKE  exp  
-                         | exp ILIKE exp
-                         | exp NOT ILIKE  exp  
-                         | exp SIMILAR TO exp
-                         | exp NOT SIMILAR TO exp''' #| exp COMA exp quite por que daba problema
+def p_expresion_patron_no_between(t):
+     '''expresion_patron : exp NOT BETWEEN exp'''
+     t[0] = Operacion_Patron(t[1],t[4],OPERACION_PATRONES.NOT_BETWEEN)
+
+def p_expresion_patron_in(t):
+     '''expresion_patron : exp IN PAR_A lista_exp PAR_C'''   
+     t[0] = Operacion_Patron(t[1],t[4],OPERACION_PATRONES.IN) 
+
+def p_expresion_patron_not_in(t):
+     '''expresion_patron : exp NOT IN PAR_A lista_exp PAR_C'''
+     t[0] = Operacion_Patron(t[1],t[5],OPERACION_PATRONES.NOT_IN) 
+     
+def p_expresion_patron_like(t):
+     '''expresion_patron : exp LIKE exp'''
+     t[0] = Operacion_Patron(t[1],t[3],OPERACION_PATRONES.LIKE)
+
+def p_expresion_patron_not_like(t):
+     '''expresion_patron : exp NOT LIKE exp'''
+     t[0] = Operacion_Patron(t[1],t[4],OPERACION_PATRONES.NOT_LIKE)
+     
+def p_expresion_patron_ilike(t):
+     '''expresion_patron : exp ILIKE exp'''
+     t[0] = Operacion_Patron(t[1],t[3],OPERACION_PATRONES.ILIKE)     
+
+def p_expresion_patron_not_ilike(t):
+     '''expresion_patron : exp NOT ILIKE  exp '''
+     t[0] = Operacion_Patron(t[1],t[4],OPERACION_PATRONES.NOT_ILIKE)
+
+def p_expresion_patron_similar(t):
+     '''expresion_patron : exp SIMILAR TO exp'''
+     t[0] = Operacion_Patron(t[1],t[4],OPERACION_PATRONES.SIMILAR)
+
+def p_expresion_patron_not_similar(t):
+     '''expresion_patron : exp NOT SIMILAR TO exp'''
+     t[0] = Operacion_Patron(t[1],t[5],OPERACION_PATRONES.NOT_SIMILAR)
 
 
 def p_expresion_relacional(t):
@@ -1212,7 +1251,7 @@ def p_expresion(t):
           | seleccionar
           | funcion_math
           | valoresdefault
-          | extract''' # quite IN y NOT IN ya que esta duplicado en exp_patron
+          | extract'''
      t[0] = t[1]
 
 
