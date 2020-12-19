@@ -244,9 +244,9 @@ class SelectMultiple(Sentence):
 class CreateTableOpt:
     ''' '''
 class ColumnId(CreateTableOpt):
-    def __init__(self, name, type, options):
+    def __init__(self, name, typo, options):
         self.name = name
-        self.type = type
+        self.type = typo
         self.options = options #options = {'default','null','primary','reference','unique','constraint','check'}
         # options se puede acceder a los items de la forma options['nombrepropiedad'] si no existe devuelve 'nombrepropiedad'
         # default -> Expression

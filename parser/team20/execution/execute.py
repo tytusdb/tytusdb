@@ -22,6 +22,7 @@ class Execute():
     def execute(self):
         if(self.nodes is not None):
            for node in self.nodes:
+               print(node)
                executeSentence(self,node)
         graphAST(self)
 

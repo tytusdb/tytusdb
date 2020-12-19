@@ -480,22 +480,22 @@ def p_instruction_create_table_column(t):
               | PRIMARY KEY BRACKET_OPEN idList BRACKET_CLOSE 
               | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES BRACKET_OPEN idList BRACKET_CLOSE '''
     if(t[1]=='CHECK'):
-        ColumnCheck(t[3])
+        t[0]=ColumnCheck(t[3])
     elif(t[1]=='CONSTRAINT'):
-        ColumnConstraint(t[2],t[5])
+        t[0]=ColumnConstraint(t[2],t[5])
     elif(t[1]=='UNIQUE'):
-        ColumnUnique(t[3])
+        t[0]=ColumnUnique(t[3])
     elif(t[1]=='PRIMARY'):
-        ColumnPrimaryKey(t[4])
+        t[0]=ColumnPrimaryKey(t[4])
     elif(t[1]=='FOREIGN'):
-        ColumnForeignKey(t[4],t[8])
+        t[0]=ColumnForeignKey(t[4],t[8])
     else:
         try:
-            ColumnId(t[1],t[2],t[3])
+            t[0]=ColumnId(t[1],t[2],t[3])
             #print(t[3]) #testing options
         except Exception as e:
             print(e)
-            ColumnId(t[1],t[2],None)
+            t[0]=ColumnId(t[1],t[2],None)
 
 
 def p_instruction_create_table_opt1(t):
@@ -1008,7 +1008,7 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 
-f = open(Path(__file__).parent / "./testopt1.txt", "r")
+f = open(Path(__file__).parent / "./testCarlos.txt", "r")
 input = f.read()
 print(input)
 parser.parse(input.upper())
