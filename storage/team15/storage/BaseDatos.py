@@ -132,9 +132,9 @@ class BaseDatos:
         if salida[0]:
             try:
                 temp = serealizar.rollback(tableOld, self.main_path)
-                os.remove(self.main_path+"\\"+tableOld+".bin")
-                if not tableNew in self.list_table:
+                if not tableNew in self.list_table:                    
                     if re.search(table_name_pattern, tableOld) and re.search(table_name_pattern, tableNew):
+                        os.remove(self.main_path+"\\"+tableOld+".bin")
                         self.list_table[salida[1]]= tableNew
                         temp.alterTable(tableNew)
                         serealizar.commit(temp, tableNew, self.main_path)
@@ -170,7 +170,7 @@ class BaseDatos:
         if salida[0]:
             try:
                 temp = self.Cargar(table)                    
-                var = temp.alterDropColumn()
+                var = temp.alterDropColumn(columnNumber)
                 self.Guardar()
                 return var
             except:
@@ -209,4 +209,4 @@ class BaseDatos:
         file.write(' }' + os.linesep)
         file.close()
         os.system('dot -Tpng tablas.dot -o tablas.png')
-        os.system('tablas.png')
+        os.system('dot -Tpng tablas.dot -o tablas.png')

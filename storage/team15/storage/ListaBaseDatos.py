@@ -134,7 +134,6 @@ class ListaBaseDatos:
         file.write(' }' + os.linesep)
         file.close()
         os.system('dot -Tpng dbs.dot -o dbs.png')
-        os.system('dbs.png')
 
 
     def Cargar(self, database, table):
