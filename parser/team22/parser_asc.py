@@ -16,7 +16,7 @@ lexer = lex.lex()
 tabla_simbolos = TablaDeSimbolos()
 consola = []
 salida = []
-type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
+# type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
 
 i = 0
 temp_tabla = -1
