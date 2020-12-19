@@ -1,0 +1,30 @@
+<ul class="nav nav-tabs" style="margin-top: 15px; margin-left: 15px;">
+    <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#properties">Properties</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#sql">SQL</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link " href="#statics">Statics</a>
+    </li>
+</ul>
+<div id="myTabContent" class="tab-content" style="margin-left: 15px;">
+    <div class="tab-pane fade active show" id="properties">
+        <p>CREATE TABLE inventory_list ( id VARCHAR2(11) NOT NULL, cost NUMBER(7,2) NOT NULL, units NUMBER(4) NOT NULL, CONSTRAINT inventory_list_pk PRIMARY KEY ( id ) ); CREATE TABLE items ( itm_number VARCHAR2(10) NOT NULL, name VARCHAR2(20) NOT NULL,
+            description VARCHAR2(50) NOT NULL, category VARCHAR2(25) NOT NULL, color VARCHAR2(15), "Size" CHAR(1), ilt_id VARCHAR2(11) NOT NULL, CONSTRAINT item_pk PRIMARY KEY ( itm_number ) );
+        </p>
+    </div>
+    <div class="tab-pane fade" id="sql">
+        <p>
+            CREATE TABLE inventory_list ( id VARCHAR2(11) NOT NULL, cost NUMBER(7,2) NOT NULL, units NUMBER(4) NOT NULL, CONSTRAINT inventory_list_pk PRIMARY KEY ( id ) ); CREATE TABLE items ( itm_number VARCHAR2(10) NOT NULL, name VARCHAR2(20) NOT NULL, description
+            VARCHAR2(50) NOT NULL, category VARCHAR2(25) NOT NULL, color VARCHAR2(15), "Size" CHAR(1), ilt_id VARCHAR2(11) NOT NULL, CONSTRAINT item_pk PRIMARY KEY ( itm_number ) );
+
+        </p>
+    </div>
+    <div class="tab-pane fade" id="statics">
+        <p>CREATE TABLE inventory_list ( id VARCHAR2(11) NOT NULL, cost NUMBER(7,2) NOT NULL, units NUMBER(4) NOT NULL, CONSTRAINT inventory_list_pk PRIMARY KEY ( id ) ); CREATE TABLE items ( itm_number VARCHAR2(10) NOT NULL, name VARCHAR2(20) NOT NULL,
+            description VARCHAR2(50) NOT NULL, category VARCHAR2(25) NOT NULL, color VARCHAR2(15), "Size" CHAR(1), ilt_id VARCHAR2(11) NOT NULL, CONSTRAINT item_pk PRIMARY KEY ( itm_number ) );
+        </p>
+    </div>
+</div>
