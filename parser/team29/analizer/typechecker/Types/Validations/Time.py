@@ -7,7 +7,7 @@ def validateTimeStamp(val):
             dateTime = datetime.strptime(val, "%Y-%m-%d %H:%M:%S")
         else:
             dateTime = datetime.strptime(val, "%Y/%m/%d %H:%M:%S")
-        print("Date:", dateTime.date())
+        #print("Date:", dateTime.date())
         return None
     except:
         return {"Type": "timeStamp", "Descripción": "Formato desconocido"}

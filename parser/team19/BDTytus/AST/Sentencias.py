@@ -12,17 +12,12 @@ class Raiz(Node.Nodo):
         self.errores = Errores
 
     def ejecutar(self, TS, Errores):
-        respuesta = []
-        valor = 0
-        if len(self.sentencias) > 1:
-            for hijo in self.sentencias:
-                respuesta.append(hijo.ejecutar(TS, Errores))
-            return respuesta
-        else:
-            respuesta = self.sentencias[0].ejecutar(TS, Errores)
-            if isinstance(respuesta, Expression):
-                return respuesta.val
-            return respuesta
+        respuesta = ''
+        for hijo in self.sentencias:
+            if isinstance(hijo, Expression):
+                respuesta += ''
+            respuesta += hijo.ejecutar(TS, Errores) + '\n'
+        return respuesta
 
     def getC3D(self, TS):
         pass 

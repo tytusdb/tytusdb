@@ -25,11 +25,12 @@ class TIPO(Enum) :
 
 class Simbolo() :
     
-    def __init__(self, id, tipo, valor,ambito) :
+    def __init__(self, id, tipo, valor,ambito,indice) :
         self.id = id
         self.tipo = tipo
         self.valor = valor
         self.ambito =  ambito
+        self.indice = indice
 
 class Tabla() :
     
@@ -50,3 +51,45 @@ class Tabla() :
             print('Error: variable ', simbolo.id, ' no definida.')
         else :
             self.simbolos[simbolo.id] = simbolo
+
+    def getTabla(self,nombre):
+        for simbolo in self.simbolos:
+            if simbolo.valor ==nombre:
+                #Verificar si es tabla
+                #results = []
+                if simbolo.tipo == TIPO.COLUMN:
+                    ambito = simbolo.ambito
+                    tablaaa = self.simbolos[ambito]
+                    # El nombre de la tabla es
+                    tabla = tablaaa.valor
+                    # La base de datos es 
+                    dbambito = tablaaa.ambito
+                    #DB
+                    dbb = self.simbolos[dbambito]
+                    db = dbb.valor
+                    return tabla , db
+
+        return None
+
+    def getIndice(self,db,table,col):
+        #Buscamos el ambito de la DB
+        iddb = None
+        for simbolo in self.simbolos:
+            if simbolo.valor == db and simbolo.tipo == TIPO.DATABASE : 
+                iddb = simbolo.id
+        #Buscamos el ambito de la Tabla
+        idtable = None
+        for simbolo in self.simbolos:
+            if simbolo.valor == table and simbolo.tipo == TIPO.TABLE and simbolo.ambito == iddb : 
+                idtable = simbolo.id
+
+        #Buscamos el indice de la columna
+        idcol = None
+        for simbolo in self.simbolos:
+            if simbolo.valor == col and simbolo.tipo == TIPO.COLUMN and simbolo.ambito == idtable : 
+                idcol = simbolo.indice
+                return idcol
+
+
+
+                    
