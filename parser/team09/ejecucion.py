@@ -97,7 +97,9 @@ reservadas = {
     'desc'      : 'DESC',
     'inherits'  : 'INHERITS',
     'distinct'  : 'DISTINCT',
-    'use'       : 'USE'
+    'use'       : 'USE',
+    'true'      : 'TRUE',
+    'false'     : 'FALSE'
 }
 
 # Lista de tokens
@@ -492,7 +494,8 @@ def p_db_mode(p):
 
 def p_show_db(p):
     '''show_db : SHOW DATABASES PTCOMA'''
-    #ShowDB()
+    cons = ins.ShowDB()
+    lst_instrucciones.append(cons)
 
 def p_alter_db(p):
     '''alter_db : ALTER DATABASE ID al_db PTCOMA'''
@@ -527,33 +530,62 @@ def p_create_table(p):
 def p_create_table_2(p):
     '''create_table   : CREATE TABLE ID PARIZQ valores PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
     cons = ins.CreateTable(p[3], p[5], p[9])
+    lst_instrucciones.append(cons)
 
 def p_valores_2(p):
-    '''valores  : colum_list
-                | colum_list COMA const_keys'''
+    '''valores  : colum_list'''
+
+    p[0] = p[1]
+
+def p_valores_2(p):
+    '''valores  : colum_list const_keys'''
+
+    p[1].append(p[2])
     p[0] = p[1]
 
 def p_colum_list(p):
-    '''colum_list   : ID data_type const'''
+    '''id_data   : ID data_type const'''
     arr = []
-    arr.append(p[1])
-    arr.append(p[2])
+    arr.append(str(p[1]))
+    arr.append(str(p[2]))
+
     p[0] = arr
 
 def p_colum_list_2(p):
-    '''colum_list   : colum_list COMA ID data_type const'''
-    arr = []
-    arr.append(p[3])
-    arr.append(p[4])
-    p[1].append(arr)
+    '''colum_list   : colum_list COMA id_data'''
+
+    
+    p[0] = p[1] + p[3]
+
+
+def p_colum_list_3(p):
+    '''colum_list   : id_data'''
+
     p[0] = p[1]
+
 
 
 def p_const_keys(p):
     '''const_keys   : const_keys COMA PRIMARY KEY PARIZQ lista_id PARDER
-                    | const_keys COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER
-                    | PRIMARY KEY PARIZQ lista_id PARDER
-                    | FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
+                    | const_keys COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
+    arr = []
+    key = str(p[3]) + str(p[4])
+    arr.append(key)
+    arr.append(p[6])
+    p[0] = arr
+
+def p_const_keys_2(p):
+    '''const_keys   : COMA PRIMARY KEY PARIZQ lista_id PARDER
+                    | COMA FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER'''
+    arr = []
+    key = str(p[1]) + str(p[2])
+    arr.append(key)
+    arr.append(p[4])
+    p[0] = arr
+
+def p_const_keys_2(p):
+    '''const_keys   : '''
+
 
 
 def p_const(p):
@@ -686,20 +718,22 @@ def p_lista_values(p):
 
 def p_lista_valores(p):
     '''lista_valores : lista_valores COMA valores'''
-    arr = []
-    arr.append(p[1])
-    arr.append(p[3])
-    p[0] = arr
+    p[1].append(p[3])
+    p[0] = p[1]
 
 def p_lista_valores_2(p):
     '''lista_valores : valores'''
-    p[0] = p[1]
+    arr = []
+    arr.append(p[1])
+    p[0] = arr
     
 
 def p_valores(p):
     '''valores : CADENA
                | ENTERO
-               | DECIMA'''
+               | DECIMA
+               | TRUE
+               | FALSE'''
     p[0] = p[1]
 
 def p_s_update(p):
@@ -762,6 +796,12 @@ def p_expresion(p):
 
 def p_error(p):
     print('error')
+    if p == None:
+        token = "end of file"
+    else:
+        token = f"{p.type}({p.value}) on line {p.lineno}"
+    print(token)
+
 
 
 # Construyendo el analizador sintáctico
