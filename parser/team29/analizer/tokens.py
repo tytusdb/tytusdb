@@ -18,6 +18,7 @@ r_types = {
     "TEXT": "T_TEXT",
     "DATE": "T_DATE",
     "TIME": "T_TIME",
+    "BOOLEAN": "T_BOOLEAN",
 }
 
 """
@@ -164,8 +165,8 @@ tokens = [
     "S_IGUAL",
     # Tokens
     "ID",
-    "INTEGER",
     "DECIMAL",
+    "INTEGER",
     "COMMENT",
     "STRING",
     "CHARACTER",
@@ -212,18 +213,8 @@ def t_ID(t):
     r"[a-zA-Z_][a-zA-Z_0-9]*"
     # Verificamos si no es una palabra reservada
     t.type = reservadas.get(t.value.upper(), "ID")
-    if t.type != "ID": t.value = t.value.upper()
-    return t
-
-
-# Funcion para evaluar si el token reconocido es un INTEGER
-def t_INTEGER(t):
-    r"\d+"
-    try:
-        t.value = int(t.value)
-    except ValueError:
-        print("Integer value too large %d", t.value)
-        t.value = 0
+    if t.type != "ID":
+        t.value = t.value.upper()
     return t
 
 
@@ -234,6 +225,17 @@ def t_DECIMAL(t):
         t.value = float(t.value)
     except ValueError:
         print("No se pudo convertir %d", t.value)
+        t.value = 0
+    return t
+
+
+# Funcion para evaluar si el token reconocido es un INTEGER
+def t_INTEGER(t):
+    r"\d+"
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        print("Integer value too large %d", t.value)
         t.value = 0
     return t
 
@@ -265,7 +267,16 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
+listErrors = list()
+
 # Funcion de error para el lexer
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    """ print("Illegal character '%s'" % t.value[0]) """
+    listErrors.insert(
+        len(listErrors), ["Illegal character '%s'" % t.value[0], t.lineno]
+    )
     t.lexer.skip(1)
+
+
+def returnLexicalErrors():
+    return listErrors

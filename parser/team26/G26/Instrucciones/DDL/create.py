@@ -1,7 +1,9 @@
 import sys
 sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
+sys.path.append('../G26/Librerias/storageManager')
 
+from jsonMode import *
 from instruccion import *
 from Lista import *
 from TablaSimbolos import *
@@ -20,15 +22,15 @@ class Create(Instruccion):
             #else:
             #    tablaSimbolos.append(Enum(data.databaseSeleccionada, self.name, self.list))
             data.tablaSimbolos[data.databaseSeleccionada]['enum'][self.name.upper()] = self.list
+            return 'Se ha creado el enum ' + self.name.upper() + ' correctamente.'
         elif self.type == 'database' :
             description = self.list.execute()
-            valRetorno = 0
-            #valRetorno = createDatabase(description.id.upper())
+            valRetorno = createDatabase(description.id.upper())
             if valRetorno == 0:
                 owner = description.owner.execute()
                 mode = owner.mode.execute()
                 if owner.id == None : owner.id = 'CURRENT_USER'
-                data.tablaSimbolos[description.id.upper()] = {'tablas' : {}, 'enum' : {}, 'owner' : owner.id.upper(), 'mode' : mode.val}
+                data.tablaSimbolos[description.id.upper()] = {'tablas' : {}, 'enum' : {}, 'owner' : owner.id, 'mode' : mode.val}
                 return 'Se ha creado la base de datos ' + description.id.upper() + ' correctamente.'
             elif valRetorno == 1:
                 return 'Error(42P12): invalid_database_definition.'
@@ -52,14 +54,13 @@ class Create(Instruccion):
                     ''
                 else:
                     contColumnas = contColumnas + 1
-            valRetorno = 0
-            #valRetorno = createTable(datos.databaseSeleccionada, self.name.upper(), contColumnas)
+            valRetorno = createTable(data.databaseSeleccionada, self.name.upper(), contColumnas)
             if valRetorno == 1:
                 return 'Error(42P16): invalid_table_definition.'
             elif valRetorno == 2:
                 return 'Error(???): No existe la base de datos.'
             elif valRetorno == 3:
-                return 'Error(duplicate_table): duplicate_table.'
+                return 'Error(42P07): duplicate_table.'
             elif valRetorno == 0:
                 contadorColumnas = 0
                 ListaColumnasPK = []
@@ -74,13 +75,12 @@ class Create(Instruccion):
                                     columnasCreadas.pk = ConstraintData('PK_' + self.name.upper() + '_' + columnsPK.column.upper(), True)
                                     break
                                 valCont = valCont + 1
-                        #print(ListaColumnasPK)
-                        #resPk = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
-                        #if resPK == 1: print(Error(???): Error de operacion.)
-                        #elif resPk == 2: print(Error(???): La base de datos no existe.)
-                        #elif resPk == 3: print(Error(???): La tabla no existe.)
-                        #elif resPk == 4: print(Error(???): Llave primaria existente.)
-                        #elif resPk == 5: print(Error(42P10): invalid_column_reference.)
+                        resPK = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
+                        if resPK == 1: print('Error(???): Error de operacion.')
+                        elif resPK == 2: print('Error(???): La base de datos no existe.')
+                        elif resPK == 3: print('Error(???): La tabla no existe.')
+                        elif resPK == 4: print('Error(???): Llave primaria existente.')
+                        elif resPK == 5: print('Error(42P10): invalid_column_reference.')
                     elif column.type == 'foreign':
                         print('Se agrega hasta la fase 2')
                     elif column.type == 'constraint':
@@ -106,6 +106,14 @@ class Create(Instruccion):
                             references = None
 
                         type = column.id.execute()
+                        if type.type == 'id':
+                            if type.length.upper() in data.tablaSimbolos[data.databaseSeleccionada]['enum']:
+                                type.type = type.length.upper()
+                                type.length = len(data.tablaSimbolos[data.databaseSeleccionada]['enum'][type.type])
+                            else:
+                                dropTable(data.databaseSeleccionada, self.name.upper())
+                                return 'Error(???): El tipo ' + type.length.upper() + ' no se encuentra declarado en los ENUMS.'
+
                         null = default.list.execute()
                         unique = null.list.execute()
                         if unique.list == None : check = None
@@ -125,12 +133,12 @@ class Create(Instruccion):
                             primaryData = ConstraintData('PK_' + self.name.upper() + '_' + column.type.upper(), True)
                             ListaColumnasPK.clear()
                             ListaColumnasPK.append(contadorColumnas)
-                            #resPk = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
-                            #if resPK == 1: print(Error(???): Error de operacion.)
-                            #elif resPk == 2: print(Error(???): La base de datos no existe.)
-                            #elif resPk == 3: print(Error(???): La tabla no existe.)
-                            #elif resPk == 4: print(Error(???): Llave primaria existente.)
-                            #elif resPk == 5: print(Error(42P10): invalid_column_reference.)
+                            resPK = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
+                            if resPK == 1: print('Error(???): Error de operacion.')
+                            elif resPK == 2: print('Error(???): La base de datos no existe.')
+                            elif resPK == 3: print('Error(???): La tabla no existe.')
+                            elif resPK == 4: print('Error(???): Llave primaria existente.')
+                            elif resPK == 5: print('Error(42P10): invalid_column_reference.')
                         else: primaryData = None
 
                         if references != None: foreignData = ConstraintData('FK_' + self.name.upper() + '_' + column.type.upper(), references.list)
@@ -156,13 +164,14 @@ class Create(Instruccion):
 
                         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns'].append(TableData(column.type.upper(), type.type, type.length, primaryData, foreignData, defaultData, nullData, uniqueData, checkData))
                         contadorColumnas = contadorColumnas + 1
+                return 'Se ha creado la tabla ' + self.name.upper() + ' correctamente.'
         elif self.type == 'replace' :
             comp = data.obtenerDatabase(self.name)
             if comp == None:
                 'Se crea la base de datos'
             else:
                 'Se debe de reemplazar la base de datos'
-        return self
+        return '1'
 
     def __repr__(self):
         return str(self.__dict__)

@@ -145,6 +145,7 @@ k_reserved = {
     'TRUNC': 'TRUNC',
     'TRUE': 'TRUE',
     'UPDATE': 'UPDATE',
+    'USE' : 'USE',
     'USING': 'USING',
     'UNION': 'UNION',
     'UNKNOWN': 'UNKNOWN',
@@ -325,13 +326,11 @@ def t_CHARCONT(t):
 @TOKEN(single_line)
 def t_SINGLE_LINE_COMMENT(t):
     t.lexer.lineno += t.value.count('\n')
-    return t
 
 
 @TOKEN(multi_line)
 def t_MULTI_LINE_COMMENT(t):
     t.lexer.lineno += t.value.count('\n')
-    return t
 
 
 # New line recognition
