@@ -49,11 +49,12 @@ class CreateDatabase(ASTNode):
 
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
-    def __init__(self, name, inherits_from, fields, line, column):
+    def __init__(self, name, inherits_from, fields, check_exp, line, column):
         ASTNode.__init__(self, line, column)
         self.name = name  # table name
         self.inherits_from = inherits_from  # optional inheritance
         self.fields = fields  # list of fields
+        self.check_exp = check_exp  # Expression to evaluate on insert/update, no need to execute on creation
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
@@ -75,7 +76,7 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
             raise Error(0, 0, ErrorType.RUNTIME, '42P07: duplicate_table')
             return False
         else:
-            table.add(TableSymbol(table.get_current_db().id, result_name))
+            table.add(TableSymbol(table.get_current_db().id, result_name, self.check_exp))
 
         result_fields = self.fields.execute(table, tree)  # A list of TableField assumed
         field_index = 0
@@ -96,7 +97,7 @@ class TableField(ASTNode):  # returns an item, grammar has to add it to a list a
         self.allows_null = allows_null  # if true then NULL or default, if false the means is NOT NULL
         self.is_pk = is_pk  # field is primary key
 
-    def execute(self, table, tree):
+    def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
         result_field_type = self.field_type.execute(table, tree)
