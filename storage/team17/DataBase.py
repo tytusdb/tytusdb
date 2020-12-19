@@ -191,3 +191,120 @@ class DB():
             return 3
         return 2
     
+    # ELIMINAR UNA TABLA DE LA BASE DE DATOS
+
+    def dropTable(self, database, table):
+        if self.searchDB(database):
+            if self.searchTB(database, table):
+                try:
+                    self.dicDB[database].pop(table)
+                    return 0
+                except:
+                    return 1
+            return 3
+        return 2
+
+    # AGREGAR UN NUEVO REGISTRO A LAS TABLAS EXISTENTES
+
+    def alterAddColumn(self, database, table, default):
+        if self.searchDB(database):
+            if self.searchTB(database, table):
+                try:
+                    self.dicDB[database][table][1] += 1
+                    self.dicDB[database][table][0].agregarValor(default)
+                    serializar.commit(self.dicDB[database][table][0], database + "-" + table + "-B")
+                    return 0
+                except:
+                    return 1
+            return 3
+        return 2
+
+    # ELIMINA TODOS LOS REGISTROS DE UNA TABLA
+
+    def truncate(self, database, table):
+        if self.searchDB(database):
+            if self.searchTB(database, table):
+                try:
+                    self.dicDB[database][table][0] = arbolB(self.grade)
+                    return 0
+                except:
+                    return 1
+            return 3
+        return 2
+
+    # -------------------------UTILIDADES-------------------------#
+
+    # VALIDA EL NOMBRE CON LAS REGLAS DE IDENTIFICADORES DE SQL
+
+    def identify(self, id):
+        id = str(id)
+        special = ["[", "@", "_", "o", "#"]
+        if id[0].isalpha():
+            return True
+        else:
+            if id[0].isdigit():
+                return False
+            elif id[0] in special:
+                if id[0] != '"' and id[0] != '[':
+                    return True
+                else:
+                    if id[0] == "[":
+                        if id[len(id) - 1] == "]":
+                            return True
+                        else:
+                            return False
+            else:
+                return False
+
+    # BUSCAR SI EXISTE LA BASE DE DATOS
+
+    def searchDB(self, key):
+        if key in self.dicDB.keys():
+            return True
+        else:
+            return False
+
+    # BUSCAR SI EXISTE LA TABLA EN UNA DETERMINADA BASE DE DATOS
+
+    def searchTB(self, database, table):
+        if table in self.dicDB[database]:
+            return True
+        else:
+            return False
+
+    # VERIFICAR SI EXISTEN LLAVES REPETIDAS DENTRO DE UNA LISTA
+
+    def searchRepeat(self, li):
+        tmp = list()
+        for i in li:
+            if i not in tmp:
+                tmp.append(i)
+            else:
+                return False
+        return True
+
+    # ACTUALIZAR LA TABLA CON LAS LLAVES PRIMARIAS OBTENIDAS
+
+    def updateTree(self, database, table):
+        registros = self.dicDB[database][table][0].registros()
+        tmp = arbolB(self.grade)
+        for i in registros:
+            pk = ""
+            for j in self.dicDB[database][table][2]:
+                pk += str(i[j]) + "_"
+            pk = pk[:-1]
+            tmp.insertar([pk, i])
+        self.dicDB[database][table][0] = tmp
+
+    # VERIFICAR SI NO HAY CONFLICTO ENTRE PK
+
+    def verifyPk(self, database, table, columns):
+        registros = self.dicDB[database][table][0].registros()
+        tmp = arbolB(self.grade)
+        for i in registros:
+            pk = ""
+            for j in columns:
+                pk += str(i[j]) + "_"
+            pk = pk[:-1]
+            tmp.insertar([pk, i])
+        return self.searchRepeat(tmp.Keys())
