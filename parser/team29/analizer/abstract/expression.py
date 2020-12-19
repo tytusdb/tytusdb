@@ -86,12 +86,13 @@ class Identifiers(Expression):
         """
         TODO: Se debe hacer la logica para buscar los identificadores en la tabla
         """
-        col = ""
         if self.table == None:
-            col = self.name
+            table = environment.ambiguityBetweenColumns(self.name)
+            if not table:  # Si existe ambiguedad
+                return
+            col = table + "." + self.name
         else:
             col = self.table + "." + self.name
-
         self.value = environment.dataFrame[col]
         return self
 
@@ -576,6 +577,9 @@ class FunctionCall(Expression):
                 if isinstance(val, pd.core.series.Series):
                     val = val.tolist()
                 valores.append(val)
+            # Se toma en cuenta que las funcines matematicas
+            # y trigonometricas producen un tipo NUMBER
+            type_ = TYPE.NUMBER
             if self.function == "abs":
                 value = mf.absolute(*valores)
             elif self.function == "cbrt":
@@ -692,7 +696,9 @@ class FunctionCall(Expression):
                 value = strf.encode(*valores)
             elif self.function == "decode":
                 value = strf.decode(*valores)
-            elif self.function == "now":
+            # Se toma en cuenta que la funcion now produce tipo DATE
+            if self.function == "now":
+                type_ = TYPE.DATETIME
                 value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             else:
                 # TODO: Agregar un error de funcion desconocida
@@ -703,7 +709,7 @@ class FunctionCall(Expression):
                 else:
                     value = pd.Series(value)
             self.dot()
-            return Primitive(TYPE.NUMBER, value, self.row, self.column)
+            return Primitive(type_, value, self.row, self.column)
         except TypeError:
             print("Error de tipos en llamada a funciones")
         except:
