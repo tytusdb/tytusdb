@@ -131,7 +131,7 @@ def p_createopts_type(t):
     """
     createOpts : R_TYPE ifNotExists ID R_AS R_ENUM S_PARIZQ paramsList S_PARDER
     """
-
+    t[0]=instruction.CreateType(t[2],t[3],t[7])
 
 def p_ifnotexists_true(t):
     """
@@ -249,7 +249,7 @@ def p_createColumNs_none(t):
 
 def p_createConstraint(t):
     """createConstraint : constrName R_CHECK S_PARIZQ booleanCheck S_PARDER"""
-
+    t[0] = [t[2], t[1], t[4]]
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
@@ -304,6 +304,7 @@ def p_types(t):
     """
     types :  ID
     """
+    t[0]=[t[1],[None]]
 
 
 def p_types_simple(t):
@@ -382,6 +383,7 @@ def p_colOptions_list(t):
     """colOptionsList : colOptionsList colOptions"""
     t[1].append(t[2])
     t[0] = t[1]
+   
 
 
 def p_colOptions_u(t):
@@ -861,22 +863,26 @@ def p_booleanCheck_1(t):
     | idOrLiteral S_IGUAL idOrLiteral
     | idOrLiteral OL_DISTINTODE idOrLiteral
     """
-    t[0] = instruction.CheckOperation(t[1], t[3], t[2], t[1].row, t[1].column)
-
+    
+    #t[0] = instruction.CheckOperation(t[1], t[3], t[2], t[1].row, t[1].column)
+    t[0] = [t[1].value, t[3].value, t[2], t[1].type, t[3].type]
 
 def p_booleanCheck_2(t):
     """
     booleanCheck : idOrLiteral R_IS R_DISTINCT R_FROM idOrLiteral
     """
+    
     t[0] = instruction.CheckOperation(
         t[1], t[5], t[2] + t[3] + t[4], t[1].row, t[1].column
     )
+    t[0].execute(0)
 
 
 def p_booleanCheck_3(t):
     """
     booleanCheck : idOrLiteral R_IS R_NOT R_DISTINCT R_FROM idOrLiteral
     """
+    
     t[0] = expression.CheckOperation(
         t[1], t[6], t[2] + t[3] + t[4] + t[5], t[1].row, t[1].column
     )
@@ -892,6 +898,7 @@ def p_idOrLiteral(t):
     | R_TRUE
     | R_FALSE
     """
+    
     if t.slice[1].type == "CHARACTER" or t.slice[1].type == "STRING":
         tipo = "STRING"
     elif t.slice[1].type == "R_TRUE" or t.slice[1].type == "R_FALSE":
@@ -901,9 +908,12 @@ def p_idOrLiteral(t):
         tipo = "NUMBER"
     else:
         tipo = "ID"
+    
     t[0] = expression.CheckValue(
         t.slice[1].value, tipo, t.slice[1].lineno, t.slice[1].lexpos
     )
+    
+    t[0].execute(0)
 
 
 # endregion
@@ -1312,10 +1322,9 @@ def p_likeOpt(t):
 
 
 def p_useStmt(t):
-    """
-    useStmt : R_USE idOrString
-    """
-    t[0] = instruction.useDataBase(t[2])
+    """useStmt : R_USE R_DATABASE ID"""
+    t[0] = instruction.useDataBase(t[3])
+
 
 
 # endregion

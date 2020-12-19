@@ -1,7 +1,6 @@
 
 from tkinter import *
 from HashMode import*
-from ListaBaseDatos import*
 
 
 
@@ -27,7 +26,7 @@ class Databases_Window:
         Label(self.window, text="CREATE A NEW DATABASE ", font=("Arial Black", 12)).place(x=380, y=45)
 
         '''    BOTON PARA CARGAR BASES DE DATOS     '''
-        Button(self.new_frame(window, 0, 0, 320, 100), text=" ⇧ ", width=0, anchor="c", font=("Arial Black", 12), foreground="blue").pack()
+        Button(self.new_frame(window, 0, 0, 320, 100), text=" ⇧ ", width=0, anchor="c", font=("Arial Black", 12), command=self.command_cargar_csv("") , foreground="blue").pack()
         Label(self.window, text="UPLOAD DATABASE ", font=("Arial Black", 12)).place(x=380, y=110)
 
 
@@ -91,7 +90,6 @@ class Databases_Window:
         Label(self.new_frame(temp, 0, 0, 10, 10), text=text, font=("Arial Black", 11)).pack()
         Button(self.new_frame(temp, 0, 0, 120, 60), text="Aceptar", font=("Arial", 12),
                command=self._Warning_Window_Create_Database(temp)).pack()
-        print("Entreeee problema")
         x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
         y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
         temp.geometry('{}x{}+{}+{}'.format(350, 100, x, y))
@@ -304,6 +302,115 @@ class Databases_Window:
             text="Please write the name of the database"
             tmp.destroy()
             self.Warning_Window_Create_Database(text)
+
+
+
+    '''
+         CARGAR ARCHIVO CSV   
+    '''
+    def command_cargar_csv(self, database):
+        return lambda : self._command_cargar_csv("", database, "", "", "")
+
+    def _command_cargar_csv(self, win, database, table, list_tables, list_csv):
+        temp = ""
+        if win == "":
+            temp = Toplevel()
+        else:
+            temp = win
+            tab = list_tables
+
+        Label(self.new_frame(temp, 0, 0, 10, 5), text="DATABASES: ", font=("Arial Black", 9)).pack()
+        Label(self.new_frame(temp, 0, 0, 240, 5), text="TABLES: ", font=("Arial Black", 9)).pack()
+
+        Frame_details = self.new_frame(temp, 470, 273, 470, 30)
+        Frame(Frame_details, width=200, height=150).pack()
+        Label(self.new_frame(Frame_details, 0, 0, 10, 10), text="DATABASE: ", font=("Arial Black", 10)).pack()
+        Label(self.new_frame(Frame_details, 0, 0, 10, 40), text=str(database), font=("Arial", 11)).pack()
+        Label(self.new_frame(Frame_details, 0, 0, 10, 90), text="TABLE:   ", font=("Arial Black", 10)).pack()
+        Label(self.new_frame(Frame_details, 0, 0, 10, 120), text=str(table), font=("Arial", 11)).pack()
+
+
+        Frame1 = LabelFrame(temp)
+        can = Canvas(Frame1, width=190, height=150)
+        can.pack(side=LEFT)
+        Scroll = Scrollbar(Frame1, orient="vertical", command=can.yview)
+        Scroll.pack(side=RIGHT, fill="y")
+        can.configure(yscrollcommand=Scroll.set)
+        frame = Frame(can)
+        can.create_window((False, False), window=frame, anchor="nw")
+        can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
+        Frame1.place(x=10, y=30)
+        for i in showDatabases():
+            Button(frame, text="• " + str(i), width=25, anchor="w", command=self.view_tables(temp, i)).pack()
+
+
+        temp.geometry("685x330")
+        temp.title("UPLOAD CSV")
+        temp.resizable(0, 0)
+
+    def view_tables(self, temp, database):
+        return lambda : self._view_tables(temp, database)
+
+    def _view_tables(self, temp, database):
+        Frame1 = LabelFrame(temp)
+        can = Canvas(Frame1, width=190, height=150)
+        can.pack(side=LEFT)
+        Scroll = Scrollbar(Frame1, orient="vertical", command=can.yview)
+        Scroll.pack(side=RIGHT, fill="y")
+        can.configure(yscrollcommand=Scroll.set)
+        frame = Frame(can)
+        can.create_window((False, False), window=frame, anchor="nw")
+        can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
+        Frame1.place(x=240, y=30)
+        for i in showTables(database):
+            Button(frame, text="• " + str(i), width=25, anchor="w", command=self.send_database_table(temp, database, i, "")).pack()
+        self._command_cargar_csv(temp, database, "", "", "")
+
+    def send_database_table(self, tmp, database, table, list_table):
+        return lambda : self._command_cargar_csv(tmp, database, table, list_table, self.send_csv(tmp, database, table))
+
+    def send_csv(self, tmp, database, table):
+        path=StringVar()
+        Frame_details = self.new_frame(tmp, 470, 273, 10, 200)
+        Frame(Frame_details, width=660, height=110).pack()
+        Label(self.new_frame(Frame_details, 0, 0, 10, 10), text="Enter the path of a CSV file", font=("Arial Black", 10)).pack()
+        Entry(self.new_frame(Frame_details, 0, 0, 10, 40), textvariable=path, font=("Arial", 11), width=75).pack()
+        Button(self.new_frame(Frame_details, 0, 0, 570, 70), text="Upload", anchor="w", command=self._send_csv(Frame_details, database, table, path)).pack()
+
+    def _send_csv(self, tmp, database, table, path):
+        return lambda : self._send_csv_(tmp, database, table, path)
+
+    def _send_csv_(self, tmp, database, table, path):
+        try:
+            print(loadCSV(str(path.get()), database, table))
+            tmp.destroy()
+            self.successfully()
+        except:
+            tmp.destroy()
+
+    def successfully(self) :
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 10, 10), text="The file was uploaded successfully", font=("Arial Black", 11)).pack()
+        Button(self.new_frame(temp, 0, 0, 120, 60), text="Aceptar", font=("Arial", 12), command=self._successfully(temp)).pack()
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(350, 100, x, y))
+        temp.resizable(0, 0)
+        temp.title("Successfully")
+
+    def _successfully(self, tmp):
+        return lambda : tmp.destroy()
+
+    def unsatisfactory(self) :
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 10, 10), text="The file was uploaded unsatisfactory", font=("Arial Black", 11)).pack()
+        Button(self.new_frame(temp, 0, 0, 120, 60), text="Aceptar", font=("Arial", 12), command=self._successfully(temp)).pack()
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(350, 100, x, y))
+        temp.resizable(0, 0)
+        temp.title("Unsatisfactory")
+
 
 
 
@@ -696,23 +803,26 @@ class Tables_Window:
         return lambda : self.Alter_Add_Column(database, table)
 
     def Alter_Add_Column(self, database, table):
+        default = StringVar()
         temp = Toplevel()
-        Label(self.new_frame(temp, 0, 0, 10, 10), text="Are you sure to add a new column?", font=("Arial Black", 11)).pack()
-        Button(self.new_frame(temp, 0, 0, 80, 80), text="Aceptar", font=("Arial", 12),command=self.alter_add_column(temp, database, table)).pack()
-        Button(self.new_frame(temp, 0, 0, 170, 80), text="Cancelar", font=("Arial", 12),command=self.Cancel(temp)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 10), text="Enter any value....", font=("Arial Black", 11)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 60), text="Default: ", font=("Arial Black", 8)).pack()
+        Entry(self.new_frame(temp, 5, 10, 110, 60), width=30, font=("Arial", 10), textvariable=default).pack()
+        Button(self.new_frame(temp, 0, 0, 80, 120), text="Aceptar", font=("Arial", 12),command=self.alter_add_column(temp, database, table, default)).pack()
+        Button(self.new_frame(temp, 0, 0, 170, 120), text="Cancelar", font=("Arial", 12),command=self.Cancel(temp)).pack()
 
         x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
         y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
-        temp.geometry('{}x{}+{}+{}'.format(350, 130, x, y))
+        temp.geometry('{}x{}+{}+{}'.format(350, 160, x, y))
         temp.title("ALTERADDTABLE")
         temp.resizable(0, 0)
         temp.mainloop()
 
-    def alter_add_column(self, temp, database, table):
-        return lambda: self._alter_add_column(temp, database, table)
+    def alter_add_column(self, temp, database, table, default):
+        return lambda: self._alter_add_column(temp, database, table, default)
 
-    def _alter_add_column(self, temp, database, table):
-        alterAddColumn(database, table, "")
+    def _alter_add_column(self, temp, database, table, default):
+        alterAddColumn(database, table, default)
         temp.destroy()
 
 
@@ -745,8 +855,11 @@ class Tables_Window:
         return lambda : self._alter_drop_columns(temp, database, table, columns)
 
     def _alter_drop_columns(self, temp, database, table, columns):
-        print(alterDropColumn(database, table, int(columns.get())))
-        temp.destroy()
+        try:
+            print(alterDropColumn(database, table, int(columns.get())))
+            temp.destroy()
+        except:
+            temp.destroy()
 
     '''
         AGREGA LAS COLUMNAS QUE SERAN LLAVES PRIMARIAS
@@ -863,29 +976,51 @@ class Tables_Window:
     def _command_extract_range_table(self, database, table):
         lower = StringVar()
         upper = StringVar()
+        Columns = StringVar()
         temp = Toplevel()
         Label(self.new_frame(temp, 0, 0, 10, 10), text="Enter the requested parameters", font=("Arial Black", 11)).pack()
         Label(self.new_frame(temp, 0, 0, 10, 43), text="Lower: ", font=("Arial Black", 8)).pack()
         Entry(self.new_frame(temp, 50, 10, 70, 43), width=35, font=("Arial", 10), textvariable=lower).pack()
         Label(self.new_frame(temp, 0, 0, 10, 73), text="Upper: ", font=("Arial Black", 8)).pack()
         Entry(self.new_frame(temp, 50, 10, 70, 73), width=35, font=("Arial", 10), textvariable=upper).pack()
-        Button(self.new_frame(temp, 0, 0, 80, 110), text="Aceptar", font=("Arial", 12), command=self.extract_range_table(temp, database, table, lower, upper)).pack()
-        Button(self.new_frame(temp, 0, 0, 170, 110), text="Cancelar", font=("Arial", 12),
+        Label(self.new_frame(temp, 0, 0, 10, 100), text="No. Columns: ", font=("Arial Black", 8)).pack()
+        Entry(self.new_frame(temp, 5, 10, 110, 100), width=10, font=("Arial", 10), textvariable=Columns).pack()
+        Button(self.new_frame(temp, 0, 0, 80, 130), text="Aceptar", font=("Arial", 12), command=self.extract_range_table(temp, database, table, lower, upper, Columns)).pack()
+        Button(self.new_frame(temp, 0, 0, 170, 130), text="Cancelar", font=("Arial", 12),
                command=self.Cancel(temp)).pack()
 
         x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
         y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
-        temp.geometry('{}x{}+{}+{}'.format(350, 150, x, y))
+        temp.geometry('{}x{}+{}+{}'.format(350, 180, x, y))
         temp.title("EXTRACTRANGETABLE")
         temp.resizable(0, 0)
         temp.mainloop()
 
-    def extract_range_table(self, temp, database, table, lower, upper):
-        return lambda : self._extract_range_table( temp, database, table, lower, upper)
+    def extract_range_table(self, temp, database, table, lower, upper, columns):
+        return lambda : self._extract_range_table( temp, database, table, lower, upper, columns)
 
-    def _extract_range_table(self, temp, database, table, lower, upper):
-        print(extractRangeTable(database, table, lower, upper))
+    def _extract_range_table(self, temp, database, table, lower, upper, columns):
+        col = self.Casteo(columns.get())
+        up = self.Casteo(upper.get())
+        low = self.Casteo(lower.get())
+        if col:
+            columns = int(columns.get())
+        if up:
+            upper = int(upper.get())
+        if low:
+            lower = int(lower.get())
+
+        print(extractRangeTable(database, table, columns, lower, upper))
         temp.destroy()
+
+
+    '''  CASTEO DE DATOS INGRESADOS   '''
+    def Casteo(self, dato):
+        try:
+            x=int(dato)
+            return True
+        except:
+            return False
 
 
 
@@ -968,7 +1103,7 @@ class Tuples_Window:
         Frame1.place(x=300, y=150)
 
         ''' AGREGARA LA IMAGEN DE LAS TABLAS'''
-        tmp = storage.Devolver(database, table)
+        tmp = storage.Cargar(database, table)
         tmp.Grafico()
         photo = PhotoImage(file="hash.png")
         Label(frame, image=photo).pack()
@@ -996,19 +1131,19 @@ class Tuples_Window:
         Frame(temp, width=470, height=130).pack()
 
         Label(self.new_frame(temp, 0, 0, 10, 10), text="PRIMARY KEY:", font=("Arial Black", 7)).pack()
-        Label(self.new_frame(temp, 0, 0, 90, 10), text=str(pk), font=("Arial Black", 7)).pack()
+        Label(self.new_frame(temp, 0, 0, 90, 10), text=str(pk.primaria), font=("Arial Black", 7)).pack()
 
         Label(self.new_frame(temp, 0, 0, 70, 90), text="EXTRACT ROW", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 10, 80), text=" ★ ", font=("", 14), foreground="yellow").pack()
+        Button(self.new_frame(temp, 0, 0, 10, 80), text=" ★ ", font=("", 14), foreground="yellow", command=self.command_extract_row(database, table, pk)).pack()
 
         Label(self.new_frame(temp, 0, 0, 255, 90), text="UPDATE", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 195, 80), text=" ⇧ ", font=("", 14), foreground="blue").pack()
+        Button(self.new_frame(temp, 0, 0, 195, 80), text=" ⇧ ", font=("", 14), foreground="blue", command=self.command_update(database, table, pk)).pack()
 
         Label(self.new_frame(temp, 0, 0, 390, 20), text="TRUNCATE", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 330, 10), text=" ✎ ", font=("", 14), foreground="brown").pack()
+        Button(self.new_frame(temp, 0, 0, 330, 10), text=" ✎ ", font=("", 14), foreground="brown", command=self.command_truncate(database,table)).pack()
 
         Label(self.new_frame(temp, 0, 0, 410, 90), text="DELETE", font=("Arial Black", 7)).pack()
-        Button(self.new_frame(temp, 0, 0, 350, 80), text=" ✘ ", font=("", 14), foreground="red").pack()
+        Button(self.new_frame(temp, 0, 0, 350, 80), text=" ✘ ", font=("", 14), foreground="red", command=self.command_delete(database, table, pk)).pack()
 
 
     '''  BOTON DE ACTUALIZAR PARA LIMPIAR LA IMAGEN EN PANTALLA   '''
@@ -1020,13 +1155,13 @@ class Tuples_Window:
         MOSTRAR TUPLAS
     '''
     def show_tuples(self, frame, database, table):
-        tmp = storage.Devolver(database, table)
+        tmp = storage.Cargar(database, table)
         for i in tmp.vector:
             if i is None:
                 pass
             else:
                 for j in i:
-                    Button(frame, text="• " +str(j.primaria), width=30, anchor="w", command=self._show_tuples(database, table, str(j.primaria))).pack()
+                    Button(frame, text="• " +str(j.primaria), width=30, anchor="w", command=self._show_tuples(database, table, j)).pack()
 
     def _show_tuples(self, database, table, pk):
         return lambda : Tuples_Window(self.window, self.database, self.table, self.Settings_Frame(database, table, pk))
@@ -1040,7 +1175,7 @@ class Tuples_Window:
 
     def _command_create_tuple(self, database, table):
         Entrada = StringVar()
-        tmp = storage.Devolver(database, table)
+        tmp = storage.Cargar(database, table)
         temp = Toplevel()
         Label(self.new_frame(temp, 0, 0, 10, 10), text="TABLE: " + str(table), font=("Arial Black", 8)).pack()
         Label(self.new_frame(temp, 0, 0, 230, 10), text="COLUMNS: " + str(tmp.columnas), font=("Arial Black", 8)).pack()
@@ -1068,13 +1203,173 @@ class Tuples_Window:
         try:
             list=[]
             for i in tuple.get().split(","):
-                list.append(str(i))
+                temp = self.casteo(i)
+                if temp:
+                    list.append(int(i))
+                else:
+                    list.append(str(i))
             print(insert(database, table, list))
             tmp.destroy()
             Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
         except:
             tmp.destroy()
             Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
+
+
+
+    '''
+        EXTRAER UNA TUPLA
+    '''
+    def command_extract_row(self, database, table, pk):
+        return lambda : self._command_extract_row(database, table, pk)
+
+    def _command_extract_row(self, database, table, pk):
+        temp = Toplevel()
+        Label(self.new_frame(temp, 100, 30, 20, 10), text="PRIMARY KEY: ", font=("Arial Black", 10)).pack()
+        Label(self.new_frame(temp, 100, 30, 150, 10), text=str(pk.primaria), font=("Arial", 11)).pack()
+        Frame1 = LabelFrame(temp)
+        can = Canvas(Frame1, width=430, height=20)
+        Scrollbar_x = Scrollbar(Frame1, orient="vertical", command=can.yview)
+        Scrollbar_y = Scrollbar(Frame1, orient="horizontal", command=can.xview)
+        Scrollbar_y.pack(side="bottom", fill="x")
+        Scrollbar_x.pack(side="right", fill="y")
+        can.pack(expand=True, fill="both")
+        can.configure(yscrollcommand=Scrollbar_x.set, xscrollcommand=Scrollbar_y.set)
+        frame = Frame(can)
+        can.create_window((False, False), window=frame, anchor="nw")
+        can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
+        Frame1.place(x=20, y=50)
+        Label(frame, text=str(pk.datos), font=("Arial", 10)).pack()
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(500, 140, x, y))
+        temp.resizable(0, 0)
+        temp.title("EXRACTROW")
+
+
+    '''
+        ELIMINAR TODOS LOS DATOS DE LA TABLA
+    '''
+    def command_truncate(self, database, table):
+        return lambda :self._command_truncate(database, table)
+
+    def _command_truncate(self, database,table):
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 10, 10), text="Are you sure you delete all the data?",
+              font=("Arial", 14)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 43), text="Table selected: ", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 140, 43), text=str(table), font=("Arial", 9)).pack()
+        Button(self.new_frame(temp, 0, 0, 80, 80), text="Aceptar", font=("Arial", 12),
+               command=self.truncate(temp, database, table)).pack()
+        Button(self.new_frame(temp, 0, 0, 170, 80), text="Cancelar", font=("Arial", 12),
+               command=self.Cancel(temp)).pack()
+
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(350, 130, x, y))
+        temp.title("TRUNCATE")
+        temp.resizable(0, 0)
+        temp.mainloop()
+
+    def truncate(self, tmp, database, table):
+        return lambda : self._truncate(tmp, database, table)
+
+    def _truncate(self, tmp, database, table):
+        truncate(database, table)
+        tmp.destroy()
+        Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
+
+
+    '''
+        ACTUALIZAR UNA TUPLA
+    '''
+    def command_update(self, database, table, pk):
+        return lambda : self._command_update(database, table, pk)
+
+    def _command_update(self,database, table, pk):
+        Entrada = StringVar()
+        tmp = storage.Cargar(database, table)
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 10, 10), text="TABLE: " + str(table), font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 230, 10), text="COLUMNS: " + str(tmp.columnas), font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 45), text="Enter the tuple separate by commas",
+              font=("Arial Black", 9)).pack()
+
+        Label(self.new_frame(temp, 0, 0, 10, 80), text="Tuple: ", font=("Arial Black", 8)).pack()
+        Entry(self.new_frame(temp, 40, 10, 70, 80), width=35, font=("Arial", 10), textvariable=Entrada).pack()
+
+        Button(self.new_frame(temp, 0, 0, 80, 110), text="Aceptar", font=("Arial", 12), command=self.update_tuple(temp, database, table, pk, Entrada)).pack()
+        Button(self.new_frame(temp, 0, 0, 170, 110), text="Cancelar", font=("Arial", 12),
+               command=self.Cancel(temp)).pack()
+
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(350, 160, x, y))
+        temp.title("UPDATE TUPLE")
+        temp.resizable(0, 0)
+        temp.mainloop()
+
+    def update_tuple(self, tmp, database, table, pk, entrada):
+        return lambda : self._update_tuple(tmp, database, table, pk, entrada)
+
+    def _update_tuple(self, tmp, database, table, pk, entrada):
+        list = {}
+        try:
+            for i in entrada.get().split(";"):
+                aux= i.split(",")
+                temp = self.casteo(aux[1])
+                if temp:
+                    list[int(aux[0])]=int(aux[1])
+                else:
+                    list[int(aux[0])]=str(aux[1])
+            print(str(list))
+            print(update(database, table, list, [pk.primaria]))
+            tmp.destroy()
+            Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
+        except:
+            tmp.destroy()
+            Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
+
+    '''  CASTEAR DATOS DE ENTRADA   '''
+    def casteo(self, dato):
+        try:
+            x=int(dato)
+            return True
+        except:
+            return False
+
+
+    '''
+        ELIMINAR TUPLA
+    '''
+    def command_delete(self, database, table, pk):
+        return lambda : self._command_delete(database, table, pk)
+
+    def _command_delete(self, database, table, pk):
+        temp = Toplevel()
+        Label(self.new_frame(temp, 0, 0, 10, 10), text="Are you sure you delete this tuple?",
+              font=("Arial", 14)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 43), text="Primary Key: ", font=("Arial Black", 8)).pack()
+        Label(self.new_frame(temp, 0, 0, 140, 43), text=str(pk.primaria), font=("Arial", 9)).pack()
+        Button(self.new_frame(temp, 0, 0, 80, 80), text="Aceptar", font=("Arial", 12),
+               command=self.delete_tuple(temp, database, table, pk)).pack()
+        Button(self.new_frame(temp, 0, 0, 170, 80), text="Cancelar", font=("Arial", 12),
+               command=self.Cancel(temp)).pack()
+
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(350, 130, x, y))
+        temp.title("TRUNCATE")
+        temp.resizable(0, 0)
+        temp.mainloop()
+
+    def delete_tuple(self, tmp, database, table, pk):
+        return lambda :self._delete_tuple(tmp, database, table, pk)
+
+    def _delete_tuple(self, tmp, database, table, pk):
+        print(delete(database, table, [pk.primaria]))
+        tmp.destroy()
+        Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
 
     '''
         CANCELAR LA ACCION DE LA VENTANA EMERGENTE
@@ -1110,56 +1405,6 @@ class Tuples_Window:
         return Frame1
 
 
-if __name__ == '__main__':
-
-
-    '''showDatabases()
-    showTables("BD_Principal")'''
-
-    '''print(createDatabase("BD_Principal"))
-    print(createDatabase("BD_Secundaria"))
-    input("stop")
-    print(showDatabases())'''
-
-    '''print(createTable("BD_Principal", "Tabla 1 BD", 4))
-    input("stop")
-    print(createTable("BD_Principal", "Tabla 2 BD", 5))'''
-
-
-    '''print(createTable("BD_Principal", "Tabla 1 BD", 4))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros", "Aviones", "Barcos", "Naves"]))'''
-
-    '''print(createTable("BD_Principal", "Tabla 1 BD", 4))
-
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros5", "Aviones5", "Barcos5", "Naves5"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros6", "Aviones6", "Barcos6", "Naves6"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros7", "Aviones7", "Barcos7", "Naves7"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros8", "Aviones8", "Barcos8", "Naves8"]))'''
-
-    '''print(insert("BD_Principal", "Tabla 1 BD", ["Carros5", "Aviones5", "Barcos5", "Naves5"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros6", "Aviones6", "Barcos6", "Naves6"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros7", "Aviones7", "Barcos7", "Naves7"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros8", "Aviones8", "Barcos8", "Naves8"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros9", "Aviones9", "Barcos9", "Naves9"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros10", "Aviones10", "Barcos10", "Naves10"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros11", "Aviones11", "Barcos11", "Naves11"]))
-    print(insert("BD_Principal", "Tabla 1 BD", ["Carros12", "Aviones12", "Barcos12", "Naves12"]))'''
-
-    #print(createDatabase("BD_Secundaria"))
-    print(extractTable("BD_Principal", "Tabla 1 BD"))
-    #input("stop")
-    print(showTables("BD_Principal"))
-    print(showTables("BD_Secundaria"))
-
-    print(extractRangeTable("BD_Principal", "Tabla 1 BD","hola", "adios" ))
-    '''print(createDatabase("BD_3"))
-    print(createDatabase("BD_4"))
-    print(createDatabase("BD_5"))
-    print(createDatabase("BD_6"))
-    print(createDatabase("BD_7"))'''
-
-
-    Databases_Window(Tk(), "", "")
 
 
 
