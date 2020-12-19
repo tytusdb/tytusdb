@@ -165,10 +165,115 @@ def loadCSV(file: str, database: str, table: str) -> list:
 def extractRow(database: str, table: str, columns: list) -> int:
     return -1
 
-#Inserta un registro en la estructura de datos asociada a la tabla y la base de datos. (UPDATE)
+#auxiliar para la función 'update'
+def update_aux(nodoTBL, nodoRow, register) -> int:
+    valorActual = nodoRow.valor
+    claveActual = nodoRow.clave
+    valorNuevo = valorActual
+    for c, v in register.items():
+        print(valorNuevo)
+        print(valorNuevo[c], " = ", v)
+        valorNuevo[c] = v
+    if nodoTBL.valor[1] == [-999]:
+        #Tiene llave oculta
+        if 0 in register:
+            ##nodoRow.valor = valorActual
+            return 1 #La llave oculta no puede actualizarse
+        else:
+            nodoRow.valor = valorNuevo
+            return 0 #Operacion exitosa
+    elif len(nodoTBL.valor[1]) == 1:
+        #Tiene llave primaria sencilla
+        idx = nodoTBL.valor[1][0]
+        pos = nodoTBL.valor[0].index(idx)
+        nuevaClave = valorNuevo[pos]
+        if nuevaClave != claveActual:
+            #La clave ha cambiado
+            nodoBuscar = nodoTBL.datos.obtener(nuevaClave)
+            if nodoBuscar:
+                return 1 #Hay conflicto porque ya existe una llave primaria con ese valor
+            else:
+                #ELIMINAR CLAVE ACTUAL
+                res = nodoTBL.datos.quitar(claveActual)
+                if res == 0:
+                    #AGREGAR CLAVE NUEVAS
+                    res = nodoTBL.datos.agregar(nuevaClave, valorNuevo)
+                    return res #0 operación exitosa, 1 error en la operación
+                else:
+                    return 1 #Error en la operación
+        else:
+            #Clave primaria no ha cambiado
+            nodoRow.valor = valorNuevo
+            return 0 #Operación exitosa
+    else:
+        #Tiene llave primaria compuesta
+        nuevaClave = []
+        for i in nodoTBL.valor[1]:
+            pos = nodoTBL.valor[0].index(i)
+            nuevaClave.append(valorNuevo[pos])
+        if nuevaClave != claveActual:
+            #La clave ha cambiado
+            nodoBuscar = nodoTBL.datos.obtener(nuevaClave)
+            if nodoBuscar:
+                return 1 #Hay conflicto porque ya existe una llave primaria con ese valor
+            else:
+                #ELIMINAR CLAVE ACTUAL
+                res = nodoTBL.datos.quitar(claveActual)
+                if res == 0:
+                    #AGREGAR CLAVE NUEVAS
+                    res = nodoTBL.datos.agregar(nuevaClave, valorNuevo)
+                    return res #0 operación exitosa, 1 error en la operación
+                else:
+                    return 1 #Error en la operación
+        else:
+            #Clave primaria no ha cambiado
+            nodoRow.valor = valorNuevo
+            return 0 #Operación exitosa
+        
+#Inserta un registro     en la estructura de datos asociada a la tabla y la base de datos. (UPDATE)
 def update(database: str, table: str, register: dict, columns: list) -> int:
-    return -1
-
+    try:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                if nodoTBL.valor[1] == [-999]:
+                    #Tiene llave primaria oculta
+                    if len(columns) == 1:
+                        nodoRow = nodoTBL.datos.obtener(columns[0])
+                        if nodoRow:
+                            return update_aux(nodoTBL, nodoRow, register)
+                        else:
+                            return 1
+                    else:
+                        return 1 #Numero de columnas no coincide con columnas de indice
+                elif len(nodoTBL.valor[1]) == 1:
+                    #Tiene llave primaria simple
+                    if len(columns) == 1:
+                        nodoRow = nodoTBL.datos.obtener(columns[0])
+                        if nodoRow:
+                            return update_aux(nodoTBL, nodoRow, register)
+                        else:
+                            return 1
+                    else:
+                        return 1 #Numero de columnas no coincide con columnas de indice
+                else:
+                    #Tiene llave primaria compuesta
+                    if len(columns) == len(nodoTBL.valor[1]):
+                        nodoRow = nodoTBL.datos.obtener(columns)
+                        if nodoRow:
+                            return update_aux(nodoTBL, nodoRow, register)
+                        else:
+                            return 1
+                    else:
+                        return 1 #Numero de columnas no coincide con columnas de indice
+            else:
+                return 3 #Tabla no existe en la base de datos
+        else:
+            return 2 #Base de datos inexistente
+    except:
+        return 1 #Error en la operación
+    
 #Elimina un registro de una tabla y base de datos especificados por la llave primaria. (DELETE)
 def delete(database: str, table: str, columns: list) -> int:
     return -1
