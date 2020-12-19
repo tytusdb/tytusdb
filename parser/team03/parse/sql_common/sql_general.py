@@ -10,7 +10,7 @@ class ShowDatabases(ASTNode):
 
     def execute(self, table, tree):
         super().execute(table, tree)
-        result_name = self.name.execute(table, tree)
+        #result_name = self.name.execute(table, tree) #To not execute because we show data bases without filters
         return showDB()  # add filter using name_like_regex... this has to be stored on TS or comes from function?
 
 

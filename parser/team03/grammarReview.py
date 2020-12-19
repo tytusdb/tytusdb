@@ -5,6 +5,7 @@ from parse.expressions.expressions_math import *
 from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
 from parse.sql_common.sql_general import *
+from parse.sql_ddl.create import *
 from treeGraph import *
 
 #===========================================================================================
@@ -367,7 +368,8 @@ def p_statements2(t):
 
 def p_statement(t):
     '''statement    : predicateExpression PUNTOCOMA
-                    | stm_show   PUNTOCOMA'''
+                    | stm_show   PUNTOCOMA
+                    | stm_create PUNTOCOMA'''
     t[0] = t[1]
 
 def p_statement_error(t):
@@ -397,22 +399,19 @@ def p_where_clause(t):
     addCad("**\<WHERE_CLAUSE>** ::= tWhere \<EXP_PREDICATE>")
     #
 
-def p_stm_create(t):
-    '''stm_create   : CREATE or_replace_opt DATABASE ID owner_opt mode_opt
-                    | CREATE TABLE ID PARA tab_create_list PARC inherits_opt
-                    | CREATE TYPE ID AS ENUM PARA exp_list PARC'''
-    
-    if len(t) == 7:
-        graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[3],t[4], t[5].graph_ref,t[6].graph_ref] )
-        addCad("**\<STM_CREATE>** ::=  tCreate [\<OR_REPLACE_OPT>] tDatabase tIdentifier  [\<OWNER_OPT>] [\<MODE_OPT>]")
-        #
-    elif len(t) == 8:  
-        pass
-        #
+def p_stm_create (t):
+    '''stm_create   : CREATE or_replace_opt DATABASE ID owner_opt mode_opt'''
+    #graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[3],t[4], t[5].graph_ref,t[6].graph_ref] )
+    token = t.slice[1]
+    tokenID = t.slice[4]
+    tvla = Text(tokenID.value, tokenID.lineno, tokenID.lexpos,None)    
+    addCad("**\<STM_CREATE>** ::=  tCreate [\<OR_REPLACE_OPT>] tDatabase tIdentifier  [\<OWNER_OPT>] [\<MODE_OPT>]")
+    t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1 , (True if t[2] else False) , token.lineno, token.lexpos)
 
-    elif len(t) == 9:
-        pass       
-        #
+
+def p_stm_create0 (t):
+    '''stm_create   : CREATE TABLE ID PARA tab_create_list PARC inherits_opt
+                    | CREATE TYPE ID AS ENUM PARA exp_list PARC'''
     
 
 
@@ -436,14 +435,24 @@ def p_nullable_opt(t):
 def p_inherits_opt(t):
     '''inherits_opt : INHERITS PARA ID PARC
                     | empty'''
-
+#owner option
 def p_owner_opt(t):
-    '''owner_opt    : OWNER IGUAL TEXTO
-                    | empty'''
-
+    '''owner_opt    : OWNER IGUAL ID'''
+    t[0] = t[3]
+def p_owner_opt0(t):
+    '''owner_opt    : OWNER ID'''
+    t[0] = t[2]
+def p_owner_opt1(t):
+    '''owner_opt    : empty'''
+#mode option
 def p_mode_opt(t):
-    '''mode_opt     : MODE IGUAL ENTERO
-                    | empty'''
+    '''mode_opt     : MODE IGUAL ENTERO'''
+    t[0] = t[3]
+def p_mode_opt(t):
+    '''mode_opt     : MODE ENTERO'''
+    t[0] = t[2]
+def p_mode_opt0(t):
+    '''mode_opt     : empty'''
 
 def p_or_replace_opt(t):
     '''or_replace_opt   : OR REPLACE
@@ -461,20 +470,6 @@ def p_stm_alter(t):
                     |    ALTER TABLE ID DROP CONSTRAINT ID
                     |    ALTER TABLE ID RENAME COLUMN ID TO ID
                     |    ALTER TABLE ID ALTER COLUMN TYPE type param_int_opt'''
-
-########################
-
-def p_predicateExpression(t):
-    '''predicateExpression  : BETWEEN expression AND expression
-                            | expression IS NULL
-                            | expression IS NOT NULL
-                            | expression IS not_opt DISTINCT FROM expression
-                            | expression IS not_opt BOOLEAN_VALUE expression
-                            | expression IS not_opt UNKNOWN expression
-                            | logicExpression'''
-
-
-#######################
 
 
 def p_param_int_opt(t):
@@ -529,14 +524,12 @@ def p_not_opt(t):
 
 
 
+
 def p_stm_show(t):
-    '''stm_show : SHOW DATABASES LIKE TEXTO
-                | SHOW DATABASES LIKE PATTERN_LIKE'''
-    token = t.slice[1]
-    graph_ref = graph_node("SHOW", [t[4]])
-    t[0] = ShowDatabases(t[4],token.lineno, token.lexpos, graph_ref)
-def p_stm_show0(t):
     '''stm_show : SHOW DATABASES'''
+    token = t.slice[1]
+    graph_ref = graph_node("SHOW", [])
+    t[0] = ShowDatabases(None, token.lineno, token.lexpos, graph_ref)
 
 
 def p_exp_list(t):
@@ -1066,7 +1059,7 @@ if __name__ == "__main__":
     print("Input: " + input +"\n")
     print("Executing AST root, please wait ...")
     instrucciones = parse.parse(input)
-    dot.view()
+    #dot.view()
 
     for instruccion in instrucciones:
         try:
