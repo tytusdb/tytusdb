@@ -94,6 +94,7 @@ def createTable(dbName, tableName, inherits):
         if db["name"] == dbName:
             db["tables"].append(table)
             break
+    
     File.exportFile(Databases,"Databases")
 
 
@@ -136,6 +137,55 @@ def extractTable(dbName, tableName):
 
 
 # --------------------------------------Columns-----------------------------------------------
+def extractColumns(database,table):
+    List = []
+    for db in Databases:
+        if db['name']==database:
+            for tbl in db['tables']:
+                if tbl['name']==table:
+                    for column in tbl['columns']:
+                        type_ = TYPE.Type.get(column['type'])
+                        newColumn = TYPE.Column(column['name'],type_,column['type']).get()
+                        List.append(newColumn)
+                    return List
+            return None
+    return None
+
+def getValue(nameTemp,colNames,values,dafault):
+    
+    if len(colNames) ==0:
+        return [dafault,colNames,values]
+
+    try:
+        index = colNames.index(nameTemp)
+        value = values[index]
+        colNames.remove(nameTemp)
+        values.remove(value)
+        return [value,colNames,values]
+    except:
+        return [dafault,colNames,values]
+
+
+def getValues(table,colNames,params):
+    List = []
+
+    if colNames == None:
+        return params
+
+    for column in table['columns']:
+        values = getValue(column['name'],colNames,params,column['Default'])
+        value = values[0]
+        colNames = values[1]
+        params = values[2]
+        List.append(value)
+    
+    if len(colNames)==0:
+        return List
+    return None
+
+
+
+
 def createCol(name, type_, pk, fk, nn, inc, size, cnt, un):
     col = {}
     col["name"] = name
@@ -170,11 +220,11 @@ Error = []
 
 
 def constraint(table, column, dbName):
-    print(column)
+    
     type_ = column[1][0]
     colList = column[1][1]
     if type_ == "CHECK":
-        print(column)
+        
         for colTem in table["columns"]:
             for col in colList:
                 if col == colTem["name"]:
@@ -267,7 +317,7 @@ def getCol(col):
             elif campo[0] == "UNIQUE":
                 un = True
             elif campo[0] == "CHECK":
-                print(campo)
+                
                 cnt = [campo[1],campo[2]]
     col = createCol(name, type_, pk, fk, nn, df, size, cnt, un)
     return col

@@ -581,12 +581,15 @@ def p_literal(t):
     | CHARACTER
     | R_TRUE
     | R_FALSE
+    | R_NULL
     """
     if t.slice[1].type == "CHARACTER" or t.slice[1].type == "STRING":
         tipo = expression.TYPE.STRING
     elif t.slice[1].type == "R_TRUE" or t.slice[1].type == "R_FALSE":
         t.slice[1].value = t.slice[1].value == "TRUE"
         tipo = expression.TYPE.BOOLEAN
+    elif t.slice[1].type == "R_NULL":
+        tipo = expression.TYPE.NULL
     else:
         tipo = expression.TYPE.NUMBER
     t[0] = expression.Primitive(
@@ -1245,10 +1248,19 @@ def p_offsetLimit(t):
 
 
 def p_insertStmt(t):
-    """insertStmt : R_INSERT R_INTO ID R_VALUES S_PARIZQ paramsList S_PARDER"""
+    """insertStmt : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER"""
 
-    t[0] = instruction.InsertInto(t[3], t[6])
+    t[0] = instruction.InsertInto(t[3],t[4],t[7])
 
+
+def p_paramsColumn(t):
+    """paramsColumn : S_PARIZQ idList S_PARDER"""
+    t[0]=t[2]
+
+def p_paramsColumn_none(t):
+    """paramsColumn :   
+    """
+    t[0]=None
 
 # endregion
 
