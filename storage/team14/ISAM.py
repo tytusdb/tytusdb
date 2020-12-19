@@ -89,7 +89,7 @@ class ISAM:
     
     # metodo para eliminar un nodo
     def delete(self, valor):
-        self.__delete(valor, self.root, self.root)
+        return self.__delete(valor, self.root, self.root)
 
     def __delete(self, value, auxiliar, padre):
         if auxiliar is None:
@@ -132,7 +132,7 @@ class ISAM:
                                 padre.next = temporal1
                     return 0
                 else:
-                    self.__delete(value, auxiliar.next, auxiliar)
+                    return self.__delete(value, auxiliar.next, auxiliar)
             else:
                 validando = False
                 tmp = None
@@ -144,16 +144,19 @@ class ISAM:
                         break
                     else:
                         validando = False
-                if validando and len(tmp1.data) > 0:
+                if validando and (tmp.left is None and tmp.center is None and tmp.right is None):
                     tmp1.data.clear()
+                    return 0
                 else:
-                    if len(auxiliar.values) >1:
+                    if len(auxiliar.values) > 1:
                         if value < auxiliar.values[0].PK:
-                            self.__delete(value, auxiliar.left, auxiliar)
+                            return self.__delete(value, auxiliar.left, auxiliar)
                         elif auxiliar.values[0].PK <= value < auxiliar.values[1].PK:
-                            self.__delete(value, auxiliar.center, auxiliar)
+                            return self.__delete(value, auxiliar.center, auxiliar)
                         else:
-                            self.__delete(value, auxiliar.right, auxiliar)
+                            return self.__delete(value, auxiliar.right, auxiliar)
+                    else:
+                        return 1
 
 # graficar la estructura
     def chart(self):
@@ -249,3 +252,48 @@ class ISAM:
                     if lower <= i.PK <= upper and len(i.data) > 0:
                         tuples.append(i.data)
                 self._extractRange(tmp.next, upper, lower, level + 1, tuples)
+                
+    # extrae todos los objetos almacenados en ISAM
+    def extractAllObject(self):
+        tuples = []
+        self._extractAllObject(self.root, 0, tuples)
+        return tuples
+
+    def _extractAllObject(self, tmp, level, tuples):
+        if tmp:
+            if level < 2:
+                self._extractAllObject(tmp.left, level + 1, tuples)
+                for i in tmp.values:
+                    if len(i.data) > 0:
+                        tuples.append(i)
+                self._extractAllObject(tmp.center, level + 1, tuples)
+                self._extractAllObject(tmp.right, level + 1, tuples)
+            else:
+                for i in tmp.values:
+                    if len(i.data) > 0:
+                        tuples.append(i)
+                self._extractAllObject(tmp.next, level + 1, tuples)
+
+    # define una nueva PK
+    def newPK(self, PKs):
+        self._newPK(self.root,0, PKs)
+
+    def _newPK(self, tmp, level, PKs):
+        if tmp:
+            for i in tmp.values:
+                newPK = ''
+                for j in PKs:
+                    if j == PKs[len(PKs) - 1]:
+                        if len(i.data) > 0:
+                            newPK = newPK + str(i.data[j])
+                    else:
+                        if len(i.data) > 0:
+                            newPK = newPK + str(i.data[j])+ '_'
+                i.PK = newPK
+            if level < 2:
+                self._newPK(tmp.left, level + 1, PKs)
+                self._newPK(tmp.center, level + 1, PKs)
+                self._newPK(tmp.right, level + 1, PKs)
+            else:
+                self._newPK(tmp.next, level + 1, PKs)
+                
