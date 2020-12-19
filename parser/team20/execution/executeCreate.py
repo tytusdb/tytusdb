@@ -22,6 +22,9 @@ def executeCreateDatabase(self, database):
             return jsonMode.createDatabase(database.name)
         else:
             print("ERROR: Mode between 1-5")
+            self.errors.append(
+            Error("Semántico","ERROR: Mode between 1-5",0,0)
+            ) # voy a intentar agregar el numero de linea a cada sentencia
             return 1
 
     elif(database.ifNotExistsFlag and database.OrReplace):
@@ -129,7 +132,6 @@ def executeCreateDatabase(self, database):
     return 1
 
 def executeCreateTable(self, table):
-    print('algo1')
     
     data=TCgetDatabase()
     array={}

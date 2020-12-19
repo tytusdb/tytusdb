@@ -5,6 +5,8 @@ from .generateASTReport import graphAST
 class Execute():
     nodes = []
     errors = []
+    messages = []
+    querys = []
     types = {
         1: 'Entero',
         2: 'Decimal',
@@ -14,6 +16,9 @@ class Execute():
     }
     def __init__(self, nodes):
         self.nodes = nodes
+        self.errors = []
+        self.messages = []
+        self.querys = []
     # def __init__(self, nodes, errors):
     #     self.nodes = nodes
     #     self.errors = errors
