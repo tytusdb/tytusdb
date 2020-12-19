@@ -345,7 +345,7 @@ def p_Sentencias_DML(p):
         p[0] = Select(p[2], p[3], p[4], p.slice[2].lineno, find_column(input, p.slice[2]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= select' + str(p[2]) + 'SELECT_SQL ; </TD><TD> { sentencias_dml.inst = select(lista_exp.lista, Select_SQL.val,Condiciones.val)}  </TD></TR>')
     elif p[1] == 'insert':
-        p[0] = Insert(p[3], p[4], p.slice[1].lineno, find_column(input, p.slice[1]))
+        p[0] = Insert(p[3], p[4]['col'],p[4]['valores'], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= insert into id INSERT_SQL ; </TD> <TD> {sentencias_dml.inst = insert(id,Insert_SQL.inst)}  </TD></TR>')
     elif p[1] == 'update':
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= update id set LISTA_EXP where EXP ; </TD> <TD> {sentencias_dml.inst = update(id, lista_exp.list, exp.val)} </TD></TR>')
@@ -388,12 +388,12 @@ def p_Subqueries(p):
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> INSERT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_Insert_SQL(p):
     'Insert_SQL : par1 Lista_ID par2 t_values par1 Lista_EXP par2'
-    p[0] = p[6]
-    concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= ( LISTA_ID ) values ( LISTA_EXP ) </TD> <TD> { insert_sql.inst = insert1(lista_id.lista,lista_exp.lista)} </TD></TR>')
+    p[0] = {'col':p[2],'valores':p[6]}
+    concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= ( LISTA_ID ) values ( LISTA_EXP ) </TD> <TD> { insert_sql.inst = insert.lista.add(lista_id.lista,lista_exp.lista)} </TD></TR>')
 
 def p_Insert_SQL2(p):
     'Insert_SQL : t_values par1 Lista_EXP par2'
-    p[0] = p[3]
+    p[0] = {'col':None,'valores':p[3]}
     concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= values ( LISTA_EXP ) </TD>  <TD> { insert_sql.inst = insert1(lista_exp.lista)} </TD></TR>')
 
 def p_Condiciones(p):
