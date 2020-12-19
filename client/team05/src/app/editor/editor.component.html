@@ -1,4 +1,13 @@
-<div>
+<div style="width: 100%; height:relative;">
+  <button mat-raised-button>
+    <fa-icon [icon]="faSave"></fa-icon>
+  </button>
+  <button mat-raised-button>
+    <fa-icon [icon]="faFolderOpen"></fa-icon>
+  </button>
+  <button mat-raised-button>
+    <fa-icon [icon]="faPlay"></fa-icon>
+  </button>
   <ngx-codemirror [(ngModel)]="content" [options]="{
     lineNumbers: true,
     theme: 'neat',

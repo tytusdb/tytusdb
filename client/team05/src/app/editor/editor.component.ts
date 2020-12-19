@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { faPlay, faFolderOpen, faSave } from '@fortawesome/free-solid-svg-icons'
 
 @Component({
   selector: 'app-editor',
@@ -11,5 +12,9 @@ export class EditorComponent implements OnInit {
 
   ngOnInit(): void {
   }
+
+  faPlay = faPlay;
+  faFolderOpen = faFolderOpen;
+  faSave = faSave;
   content = "SELECT * FROM PERSONA WHERE PERSONA.id = 0;"
 }
