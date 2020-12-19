@@ -7,14 +7,16 @@ class MensajeOut:
 
 
 class Tabla_run:
-    basepadre=''
-    nombre = ''
-    Atributos = []
-
+    def __init__(self, basepadre, nombre, atributos=[]): 
+        self.basepadre = basepadre
+        self.nombre = nombre
+        self.atributos = atributos
+        
 class Columna_run:
     nombre = ''
     tipo = ''
     size = ''
+    precision = None
     unique = None
     anulable = None
     default = None

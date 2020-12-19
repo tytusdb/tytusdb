@@ -11,6 +11,7 @@ import random
 from tkinter import *
 import tkinter.filedialog
 import tkinter.messagebox
+from prettytable import PrettyTable
 
 
 #---------variables globales
@@ -20,12 +21,8 @@ outputTxt = [] #guarda los mensajes a mostrar en consola
 baseActiva = "" #Guarda la base temporalmente activa
 #--------Ejecucion Datos temporales-----------
 def insertartabla(columnas,nombre):
-    nuevaTabla=Tabla_run()
-    Tabla_run.nombre=nombre
-    Tabla_run.Atributos=columnas
-
     global listaTablas
-    listaTablas.append(nuevaTabla)
+    listaTablas.append(Tabla_run(baseActiva,nombre,columnas))
 
 def EliminarTablaTemp(baseAc,nombre):
     global listaTablas
@@ -970,6 +967,8 @@ def procesar_instrucciones(instrucciones, ts) :
 def Analisar(input):
     global outputTxt
     outputTxt=[]
+    global listaTablas
+    listaTablas=[]#eliminar para ir haciendo pruebas
     EDD.dropAll() #eliminar para ir haciendo pruebas
     instrucciones = g.parse(input)
     print(instrucciones)
@@ -991,3 +990,39 @@ def generarAST():
     astGraph = DOTAST()
     astGraph.getDot(listaInstrucciones)
 
+#metodo para mostrar las tablas temporales
+def mostrarTablasTemp():
+    global listaTablas
+    misTablas=[]
+    
+    for tab in listaTablas:
+        texTab=PrettyTable()
+        texTab.title='DB:'+tab.basepadre+'\tTABLA:'+tab.nombre
+        texTab.field_names = ["nombre","tipo","size","precision","unique","anulable","default","primary","foreign","refence","check","constraint"]
+        #recorrer las columans
+        for col in tab.atributos:
+            texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check,col.constraint])
+        misTablas.append(texTab)
+
+    return misTablas
+
+   
+'''
+#usar las tablas
+table = PrettyTable()
+table.title = 'Results for method Foo'
+table.field_names = ['Experiment', 'Value']
+table.add_row(['bla', 3.14])
+table.add_row(['baz', 42.0])
+
+Salida
++-------------------------+
+|  Results for method Foo |
++---------------+---------+
+|   Experiment  |  Value  |
++---------------+---------+
+|      bla      |   3.14  |
+|      baz      |   42.0  |
++---------------+---------+
+
+'''
