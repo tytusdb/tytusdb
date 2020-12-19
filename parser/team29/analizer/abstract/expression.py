@@ -8,10 +8,7 @@ from analizer.functions import StringFunctions as strf
 from analizer.reports import Nodo
 from analizer.reports import AST
 
-# import abstract.select_data as data
-# Prueba para dataframe:
-# df = data.dataSelect()
-# df.crossJoin()
+
 ast = AST.AST()
 root = None
 
@@ -838,11 +835,11 @@ class DatePart(Expression):
                     val = self.str
             elif self.type == "TIME":
                 if self.opt == "hours":
-                    val = self.str[0][:4]
+                    val = self.str[0][:2]
                 elif self.opt == "minutes":
-                    val = self.str[0][5:7]
+                    val = self.str[0][3:5]
                 elif self.opt == "seconds":
-                    val = self.str[0][8:10]
+                    val = self.str[0][6:8]
                 else:
                     # ERROR
                     val = self.str
