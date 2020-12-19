@@ -209,3 +209,7 @@ class TablaHash:
         for i in self.values:
                 if i :
                     i.alterAddColumn(dato)
+                   
+  
+    def getNumeroColumnas(self):
+        return self.nCols
