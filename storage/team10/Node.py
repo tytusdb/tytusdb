@@ -1,12 +1,13 @@
 class Node:
-
+    
     def __init__(self):
         self.array = []
-        self.key = 0
+        self.key = -1
         self.pk = None
+        self.isGeneric = False
 
-    def insert(self, dato):
-        self.array.append(dato)
+    def insert(self, dato, key):
+        self.array.append((key,dato)) #ahora recibe el parametro key 
         lista = self.array.copy()
         lista_ordenada= self.quick_sorted(lista)
         self.array.clear()
@@ -14,17 +15,18 @@ class Node:
             self.array.append(i)
 
     def buscarDato_binary(self, dato):
-        ub = len(self.array) 
-        lb = 0 
-        while lb <= ub-1:
-            med = (ub + lb ) // 2
-            arreglo = self.array[med]
-            if int(arreglo[0]) == int(dato[0]):
+        inicio = 0
+        final = len(self.array) -1 
+        while inicio <= final:
+            mid = inicio + (final - inicio) //2
+            arreglo = self.array[mid]
+            # if int(arreglo[0]) == int(dato):
+            if int(arreglo[0]) == int(dato):
                 return True
-            elif int(arreglo[0]) < int(dato[0]):
-                lb = med +1
-            elif int(arreglo[0]) > int(dato[0]):
-                ub = med -1
+            elif int(dato) < int(arreglo[0]):
+                final = mid -1 
+            else:
+                inicio = mid +1
         return False
 
     def busquedaB(self, dato):
@@ -34,7 +36,7 @@ class Node:
             mid = inicio + (final - inicio) //2
             arreglo = self.array[mid]
             # if int(arreglo[0]) == int(dato):
-            if int(self.pk) == int(dato):
+            if int(arreglo[0]) == int(dato):
                 return arreglo
             elif int(dato) < int(arreglo[0]):
                 final = mid -1 
@@ -80,8 +82,8 @@ class Node:
                 mid = inicio + (final - inicio) //2
                 arreglo = self.array[mid]
                 # if int(arreglo[0]) == int(key):
-                if int(self.pk) == int(key):
-                    self.array[mid][columna] = modificacion
+                if int(arreglo[0]) == int(key):
+                    self.array[mid][1][columna] = modificacion
                     return 0
                 elif int(key) < int(arreglo[0]):
                     final = mid -1 
@@ -98,7 +100,7 @@ class Node:
             mid = inicio + (final - inicio) //2
             arreglo = self.array[mid]
             # if int(arreglo[0]) == int(dato):
-            if int(self.pk) == int(dato):
+            if int(arreglo[0]) == int(dato):
                 self.array.pop(mid)
                 return True
             elif int(dato) < int(arreglo[0]):
@@ -148,8 +150,16 @@ class Node:
                 if self.obtenerLower(str(i[columnNumber]),lower) == True and self.obtenerUpper(str(i[columnNumber]),upper) == True:
                     return i
                 else:
-                    return None 
-                
+                    return None
+
     #agrega una columna y registra un dato
     def alterAddColumn(self, dato):
-        self.array[0].append(dato)
+        try:
+            for i in self.array:
+                i[1].append(dato)
+            # print("ya jalo")
+        except Exception as e:
+            print("########")
+            print("en el nodo")
+            print(e)
+            print("########")
