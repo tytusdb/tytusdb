@@ -452,6 +452,7 @@ def p_instruccion_drop(t):
 
 def p_instruccion_select(t):
     'instruccion  :   inst_select PTCOMA'
+    t[0] = t[1]
 
 
 # --------------------------------------------Instrucciones crear------------------------------------------------------------
@@ -1835,22 +1836,22 @@ def p_select_query(t):
     nNodo = incNodo(numNodo)
 
     if len(t) == 7:
-        instruccion = selectSimple.selectSimple(t[3], t[5], t[6])
+        instruccion = selectSimple.selectSimple(t[3], t[5], t[6], True)
         hijos.append(t[3])
         hijos.append(t[5])
         hijos.append(t[6])
         instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
         t[0] = instruccion
     elif len(t) == 6:
-        if t[2] == 'distinct':
-            instruccion = selectSimple.selectSimple(t[3], t[5], None)
+        if str.lower(t[2]) == 'distinct':
+            instruccion = selectSimple.selectSimple(t[3], t[5], None, True)
             hijos.append(t[3])
             hijos.append(t[5])
             instruccion.setearValores(
                 linea, columna, "SELECT", nNodo, '', hijos)
             t[0] = instruccion
         else:
-            instruccion = selectSimple.selectSimple(t[2], t[4], t[5])
+            instruccion = selectSimple.selectSimple(t[2], t[4], t[5], False)
             hijos.append(t[2])
             hijos.append(t[4])
             hijos.append(t[5])
@@ -1859,14 +1860,14 @@ def p_select_query(t):
             t[0] = instruccion
 
     elif len(t) == 5:
-        instruccion = selectSimple.selectSimple(t[2], t[4], None)
+        instruccion = selectSimple.selectSimple(t[2], t[4], None, False)
         hijos.append(t[2])
         hijos.append(t[4])
         instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
         t[0] = instruccion
 
     elif len(t) == 3:
-        instruccion = selectSimple.selectSimple(t[2], None, None)
+        instruccion = selectSimple.selectSimple(t[2], None, None, False)
         hijos.append(t[2])
         instruccion.setearValores(linea, columna, "SELECT", nNodo, '', hijos)
         t[0] = instruccion
@@ -2367,8 +2368,7 @@ def p_from_query_list(t):
         t[0] = NodoQueryList
     else:
         NodoQueryList = t[1]
-        NodoSelectList = crear_nodo_general(
-            "from_query_list", '', linea, columna)
+        NodoSelectList = crear_nodo_general("from_query_list", '', linea, columna)
         NodoSelectList.hijos.append(NodoQueryList)
         t[0] = NodoSelectList
 
@@ -2380,21 +2380,18 @@ def p_from_query_element(t):
                             |   subquery'''
     linea = str(t.lexer.lineno)
     if len(t) == 2:
-        nodoFromQuery = crear_nodo_general(
-            "from_query_element", "", linea, columna)
+        nodoFromQuery = crear_nodo_general("from_query_element", "", linea, columna)
         nodoFromQuery.hijos.append(t[1])
         t[0] = nodoFromQuery
     elif len(t) == 3:
-        nodoFromQuery = crear_nodo_general(
-            "from_query_element", "", linea, columna)
+        nodoFromQuery = crear_nodo_general( "from_query_element", "", linea, columna)
         nodoID = crear_nodo_general("ID", t[2], linea, columna)
         nodoFromQuery.hijos.append(t[1])
         nodoFromQuery.hijos.append(nodoID)
         t[0] = nodoFromQuery
 
     elif len(t) == 4:
-        nodoFromQuery = crear_nodo_general(
-            "from_query_element", "", linea, columna)
+        nodoFromQuery = crear_nodo_general("from_query_element", "", linea, columna)
         nodoID = crear_nodo_general("ID", t[3], linea, columna)
         nodoFromQuery.hijos.append(t[1])
         nodoFromQuery.hijos.append(nodoID)

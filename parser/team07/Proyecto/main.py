@@ -8,7 +8,7 @@ def procesar_instrucciones(instrucciones,tablaSimbolos,listaErrores):
     
     for instrucion in instrucciones:
 
-        if isinstance(instrucciones,instruccionAbstracta.InstruccionAbstracta):
+        if isinstance(instrucion,instruccionAbstracta.InstruccionAbstracta):
             instrucion.ejecutar(tablaSimbolos,listaErrores)
             print("entro")
 
