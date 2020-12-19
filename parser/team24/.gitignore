@@ -4,3 +4,6 @@ __pycache__/
 data/
 parser.out
 parsetab.py 
+pruebas.py
+tree.svg
+tree.svg.pdf

@@ -33,7 +33,10 @@ def dropDatabase(database: str) -> int:
 
 # show databases by constructing a list
 def showDatabases() -> list:
-    return -1
+    if mBBDD.tamano == 0:
+        return []
+    else:
+        return list(mBBDD.raiz)
 
 #Crea una tabla en una base de datos especificada
 def createTable(database: str, table: str, numberColumns: int) -> int:
@@ -55,7 +58,7 @@ def showTables(database: str) -> list:
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
         if nodoBD.datos.tamano == 0:
-            return '[]'
+            return []
         else:
             return list(nodoBD.datos.raiz)
     else:
@@ -68,7 +71,7 @@ def extractTable(database: str, table: str) -> list:
         nodoTBL = nodoBD.datos.obtener(table)
         if nodoTBL:
             if nodoTBL.datos.tamano == 0:
-                return '[]' #No hay registros
+                return [] #No hay registros
             else:
                 return list(nodoTBL.datos.raiz) #Lista de registros
         else:
@@ -79,7 +82,19 @@ def extractTable(database: str, table: str) -> list:
 
 #Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabla
 def extractRangeTable(database: str, table: str, lower: any, upper: any) -> list:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(table)
+        if nodoTBL:
+            if nodoTBL.datos.tamano == 0:
+                return [] #No hay registros
+            else:
+                #Filtrar lo datos entre lower y upper
+                return list(nodoTBL.datos.raiz) #Lista de registros
+        else:
+            return None #Tabla inexistente en la Base de Datos
+    else:
+        return None #Base de Datos inexistente
 
 #Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas
 def alterAddPK(database: str, table: str, columns: list) -> int:
@@ -100,7 +115,25 @@ def alterAddIndex(database: str, table: str, references: dict) -> int:
 
 #Renombra el nombre de la tabla de una base de datos especificada. (UPDATE)
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(tableOld)
+        if nodoTBL:
+            if tableNew not in nodoBD.datos:
+                v = nodoTBL.valor
+                d = nodoTBL.datos 
+                res = nodoBD.datos.quitar(tableOld)
+                if res == 0:
+                    res = nodoBD.datos.agregar(tableNew, v, d)
+                    return res #0 si operación es exitosa
+                else:
+                    return 1 #Error en la operación
+            else:
+                return 4 #Tabla ya existe en la Base de Datos
+        else:
+            return 3 #Tabla inexistente en la Base de Datos
+    else:
+        return 2 #Base de Datos inexistente
 
 #Agrega una columna al final de cada registro de la tabla y base de datos especificada
 def alterAddColumn(database: str, table: str, default: any) -> int:
@@ -112,7 +145,13 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 
 #Elimina por completo una tabla de una base de datos especificada. (DELETE)
 def dropTable(database: str, table: str) -> int:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        res = nodoBD.datos.quitar(table)
+        if res == 2: res = 3
+        return res #0 operación exitosa, 1 error en la operación, 3 tabla no existe en la BD
+    else:
+        return 2 # Base de datos inexistente
 
 #Inserta un registro en la estructura de datos asociada a la tabla y la base de datos. (CREATE)
 def insert(database: str, table: str, register: list) -> int:
@@ -136,4 +175,14 @@ def delete(database: str, table: str, columns: list) -> int:
 
 #Elimina todos los registros de una tabla y base de datos. (DELETE)
 def truncate(database: str, table: str) -> int:
-    return -1
+    nodoBD = mBBDD.obtener(database)
+    if nodoBD:
+        nodoTBL = nodoBD.datos.obtener(table)
+        if nodoTBL:
+            nodoTBL.datos.raiz = None
+            nodoTBL.datos.tamano = 0
+            return 0 #Operacion exitosa
+        else:
+            return 3 #Tabla no existe en la base de datos
+    else:
+        return 2 #Base de datos inexistente

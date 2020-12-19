@@ -4,7 +4,8 @@ import base64
 
 
 def str_to_list(str):
-    return str if isinstance(str,list) else [str]
+    return str if isinstance(str, list) else [str]
+
 
 def lenght(string1):
     string1 = str_to_list(string1)
@@ -16,16 +17,17 @@ def substring(string1, start, end):
     return [s[start:end] for s in string1]
 
 
-def trim_(opt,string,chars):
+def trim_(opt, string, chars):
     opt = opt.lower()
-    if opt=="trailing":
-        return trim_trailing(string,chars)
-    if opt=="leading":
-        return trim_leading(string,chars)
-    if opt=="both":
-        return trim_both(string,chars)
+    if opt == "trailing":
+        return trim_trailing(string, chars)
+    if opt == "leading":
+        return trim_leading(string, chars)
+    if opt == "both":
+        return trim_both(string, chars)
     else:
         return []
+
 
 def trim_leading(string1, characters):
     string1 = str_to_list(string1)
@@ -73,7 +75,7 @@ def get_byte(string, num):
         if len(byte_array) > num:
             col.append(byte_array[num])
     return col
-    
+
 
 def convert_date(string):
     string = str_to_list(string)
@@ -83,6 +85,7 @@ def convert_date(string):
 def convert_int(string):
     string = str_to_list(string)
     return [int(s) for s in string]
+
 
 # LAS FUNCIONES DE ABAJO NO FUNCIONAN CON COLUMNAS:
 def set_byte(string, num, num2):
@@ -116,4 +119,3 @@ def decode_string(string, format):
         print("escape")
     elif format == "hex":
         print("escape")
-

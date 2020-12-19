@@ -2,16 +2,18 @@ from abc import abstractmethod
 from enum import Enum
 import pandas as pd
 from datetime import datetime
-
 from analizer.functions import MathFunctions as mf
 from analizer.functions import TrigonometricFunctions as trf
 from analizer.functions import StringFunctions as strf
+from analizer.reports import Nodo
+from analizer.reports import AST
 
 # import abstract.select_data as data
-
 # Prueba para dataframe:
 # df = data.dataSelect()
 # df.crossJoin()
+ast = AST.AST()
+root = None
 
 
 class TYPE(Enum):
@@ -54,13 +56,19 @@ class Primitive(Expression):
         self.temp = str(value)
 
     def execute(self, environment):
+        self.dot()
         return self
+
+    def dot(self):
+        nod = Nodo.Nodo(str(self.value))
+        return nod
 
 
 class Identifiers(Expression):
     """
     Esta clase representa los nombre de columnas
     """
+
     value = None
     # TODO: implementar la funcion para obtener el type de la columna
     def __init__(self, table, name, df, row, column):
@@ -68,19 +76,27 @@ class Identifiers(Expression):
         self.table = table
         self.name = name
         self.df = df
-        if table == None : self.temp = name
-        else : self.temp = table + "." + name
+        if table == None:
+            self.temp = name
+        else:
+            self.temp = table + "." + name
         self.type = TYPE.NUMBER
 
-    def execute(self, environment): 
+    def execute(self, environment):
         """
         TODO:Se debe hacer la logica para buscar los identificadores en la tabla
         """
         col = ""
-        if self.table == None : col= self.name
-        else : col = self.table + "." + self.name
+        if self.table == None:
+            col = self.name
+        else:
+            col = self.table + "." + self.name
         self.value = self.df[col]
         return self
+
+    def dot(self):
+        nod = Nodo.Nodo(self.name)
+        return nod
 
 
 class UnaryArithmeticOperation(Expression):
@@ -110,6 +126,14 @@ class UnaryArithmeticOperation(Expression):
             return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.NUMBER, value, self.row, self.column)
 
+    def dot(self):
+        n1 = self.exp.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        global root
+        root = new
+        return new
+
 
 class BinaryArithmeticOperation(Expression):
     """
@@ -128,7 +152,6 @@ class BinaryArithmeticOperation(Expression):
         exp1 = self.exp1.execute(environment)
         exp2 = self.exp2.execute(environment)
         operator = self.operator
-
         if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         if operator == "+":
@@ -145,7 +168,18 @@ class BinaryArithmeticOperation(Expression):
             value = exp1.value % exp2.value
         else:
             return ErrorOperatorExpression(operator, self.row, self.column)
+        self.dot()
         return Primitive(TYPE.NUMBER, value, self.row, self.column)
+
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        global root
+        root = new
+        return new
 
 
 class BinaryRelationalOperation(Expression):
@@ -186,11 +220,22 @@ class BinaryRelationalOperation(Expression):
                 value = exp1.value == exp2.value
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
+            self.dot()
             return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
         except TypeError:
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         except:
             print("Error fatal BinaryRelationalOperation")
+
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        global root
+        root = new
+        return new
 
 
 comps = {
@@ -245,11 +290,20 @@ class UnaryRelationalOperation(Expression):
                 value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
+            self.dot()
             return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
         except TypeError:
             return ErrorUnaryOperation(exp.value, self.row, self.column)
         except:
             print("Error fatal UnaryRelationalOperation")
+
+    def dot(self):
+        n1 = self.exp1.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        global root
+        root = new
+        return new
 
 
 class TernaryRelationalOperation(Expression):
@@ -298,6 +352,18 @@ class TernaryRelationalOperation(Expression):
         except:
             print("Error fatal TernaryRelationalOperation")
 
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        n3 = self.exp3.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        new.addNode(n3)
+        global root
+        root = new
+        return new
+
 
 class BinaryLogicalOperation(Expression):
     """
@@ -337,6 +403,16 @@ class BinaryLogicalOperation(Expression):
                 return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
 
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        global root
+        root = new
+        return new
+
 
 class UnaryLogicalOperation(Expression):
     """
@@ -347,16 +423,19 @@ class UnaryLogicalOperation(Expression):
         Expression.__init__(self, row, column)
         self.exp = exp
         self.operator = operator
-        self.temp = str(operator) + " " + exp.temp
+        if operator == "NOT":
+            self.temp = str(operator) + " " + exp.temp
+        else:
+            self.temp = exp.temp + " " + comps.get(operator)
 
     def execute(self, environment):
         exp = self.exp.execute(environment)
         operator = self.operator
-        #MOMO IF OPERADORES
+        # MOMO IF OPERADORES
         if exp.type != TYPE.BOOLEAN:
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
-        if isinstance(exp.value,pd.core.series.Series):
+        if isinstance(exp.value, pd.core.series.Series):
             if operator == "NOT":
                 value = ~exp.value
             elif operator == "ISTRUE":
@@ -373,7 +452,7 @@ class UnaryLogicalOperation(Expression):
                 value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        else :
+        else:
             if operator == "NOT":
                 value = not exp.value
             elif operator == "ISTRUE":
@@ -391,6 +470,14 @@ class UnaryLogicalOperation(Expression):
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
         return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
+
+    def dot(self):
+        n1 = self.exp1.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        global root
+        root = new
+        return new
 
 
 class ErrorBinaryOperation(Expression):
@@ -488,7 +575,6 @@ class FunctionCall(Expression):
                 if isinstance(val, pd.core.series.Series):
                     val = val.tolist()
                 valores.append(val)
-
             if self.function == "abs":
                 value = mf.absolute(*valores)
             elif self.function == "cbrt":
@@ -615,12 +701,25 @@ class FunctionCall(Expression):
                     value = value[0]
                 else:
                     value = pd.Series(value)
-
+            self.dot()
             return Primitive(TYPE.NUMBER, value, self.row, self.column)
         except TypeError:
             print("Error de tipos en llamada a funciones")
         except:
             print("Error desconocido")
+
+    def dot(self):
+        f = Nodo.Nodo(self.function)
+        p = Nodo.Nodo("PARAMS")
+        new = Nodo.Nodo("CALL")
+        new.addNode(f)
+        new.addNode(p)
+        for par in self.params:
+            p.addNode(par.dot())
+        global root
+        root = new
+        return new
+
 
 class ExtractDate(Expression):
     def __init__(self, opt, type, str, row, column):
@@ -628,7 +727,7 @@ class ExtractDate(Expression):
         self.opt = opt
         self.type = type
         self.str = str.split()
-        self.temp = "EXTRACT( "+opt+" FROM "+type+" "+str+" )"
+        self.temp = "EXTRACT( " + opt + " FROM " + type + " " + str + " )"
 
     def execute(self, environment):
         try:
@@ -647,48 +746,65 @@ class ExtractDate(Expression):
                     val = self.str[1][3:5]
                 elif self.opt == "SECOND":
                     val = self.str[1][6:8]
-                else :
+                else:
                     # ERROR
                     val = self.str
             elif self.type == "INTERVAL":
                 if self.opt == "YEAR":
                     idx = self.str.index("years")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "MONTH":
                     idx = self.str.index("months")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "DAY":
                     idx = self.str.index("days")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "HOUR":
                     idx = self.str.index("hours")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "MINUTE":
                     idx = self.str.index("minutes")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "SECOND":
                     idx = self.str.index("seconds")
-                    val = self.str[idx-1]
-                else :
+                    val = self.str[idx - 1]
+                else:
                     # ERROR
                     val = self.str
             else:
                 val = self.str
-                 # ERROR
-            return Primitive(TYPE.NUMBER,int(val),self.row, self.column)
+                # ERROR
+            self.dot()
+            return Primitive(TYPE.NUMBER, int(val), self.row, self.column)
         except TypeError:
             pass
-        except ValueError: #cuando no tiene el valor INTERVAL
+        except ValueError:  # cuando no tiene el valor INTERVAL
             pass
 
-class DatePart(Expression):
+    def dot(self):
+        f = Nodo.Nodo("EXTRACT")
+        p = Nodo.Nodo("PARAMS")
+        new = Nodo.Nodo("CALL")
+        new.addNode(f)
+        new.addNode(p)
+        ntype = Nodo.Nodo(str(self.type))
+        nstr = Nodo.Nodo(str(self.str))
+        nopt = Nodo.Nodo(str(self.opt))
+        p.addNode(nopt)
+        p.addNode(ntype)
+        p.addNode(nstr)
+        global root
+        root = new
+        return new
 
+
+class DatePart(Expression):
     def __init__(self, opt, type, str, row, column) -> None:
         super().__init__(row, column)
         self.opt = opt.lower()
         self.type = type
         self.str = str.split()
-        self.temp = "date_part( "+opt+" , "+type+" "+str+" )"
+        self.temp = "date_part( " + opt + " , " + type + " " + str + " )"
 
     def execute(self, environment):
         try:
@@ -707,7 +823,7 @@ class DatePart(Expression):
                     val = self.str[1][3:5]
                 elif self.opt == "seconds":
                     val = self.str[1][6:8]
-                else :
+                else:
                     # ERROR
                     val = self.str
             elif self.type == "DATE":
@@ -717,7 +833,7 @@ class DatePart(Expression):
                     val = self.str[0][5:7]
                 elif self.opt == "days":
                     val = self.str[0][8:10]
-                else :
+                else:
                     # ERROR
                     val = self.str
             elif self.type == "TIME":
@@ -727,29 +843,29 @@ class DatePart(Expression):
                     val = self.str[0][5:7]
                 elif self.opt == "seconds":
                     val = self.str[0][8:10]
-                else :
+                else:
                     # ERROR
                     val = self.str
             elif self.type == "INTERVAL":
                 if self.opt == "years":
                     idx = self.str.index("years")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "months":
                     idx = self.str.index("months")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "days":
                     idx = self.str.index("days")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "hours":
                     idx = self.str.index("hours")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "minutes":
                     idx = self.str.index("minutes")
-                    val = self.str[idx-1]
+                    val = self.str[idx - 1]
                 elif self.opt == "seconds":
                     idx = self.str.index("seconds")
-                    val = self.str[idx-1]
-                else :
+                    val = self.str[idx - 1]
+                else:
                     # ERROR
                     val = self.str
             elif self.type == "NOW":
@@ -766,17 +882,34 @@ class DatePart(Expression):
                     val = self.str[1][3:5]
                 elif self.opt == "seconds":
                     val = self.str[1][6:8]
-                else :
+                else:
                     # ERROR
                     val = self.str
             else:
                 val = self.str
-                 # ERROR
-            return Primitive(TYPE.NUMBER,int(val),self.row, self.column)
+                # ERROR
+            return Primitive(TYPE.NUMBER, int(val), self.row, self.column)
         except TypeError:
             pass
-        except ValueError: #cuando no tiene el valor INTERVAL
+        except ValueError:  # cuando no tiene el valor INTERVAL
             pass
+
+    def dot(self):
+        f = Nodo.Nodo("date_part")
+        p = Nodo.Nodo("PARAMS")
+        new = Nodo.Nodo("CALL")
+        new.addNode(f)
+        new.addNode(p)
+        ntype = Nodo.Nodo(str(self.type))
+        nstr = Nodo.Nodo(str(self.str))
+        nopt = Nodo.Nodo(str(self.opt))
+        p.addNode(nopt)
+        p.addNode(ntype)
+        p.addNode(nstr)
+        global root
+        root = new
+        return new
+
 
 class Current(Expression):
     def __init__(self, val, optStr, row, column) -> None:
@@ -784,7 +917,8 @@ class Current(Expression):
         self.val = val
         self.optStr = optStr
         self.temp = val
-        if optStr != None : self.temp += " " + optStr
+        if optStr != None:
+            self.temp += " " + optStr
 
     def execute(self, environment):
 
@@ -796,13 +930,36 @@ class Current(Expression):
             elif self.val == "TIMESTAMP":
                 if self.optStr == "now":
                     value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
-                else :
-                    value = self.val
-            else :
-                #ERROR
-                value = self.val  
+                else:
+                    value = self.optStr
+            else:
+                # ERROR
+                value = self.val
             return Primitive(TYPE.STRING, value, self.row, self.column)
-        except :
-            pass  
-        
-        
+        except:
+            pass
+
+    def dot(self):
+        new = Nodo.Nodo(self.val)
+        global root
+        root = new
+        return new
+
+
+class CheckValue(Expression):
+    """
+    Clase que representa un valor del la condicion a desarrollar
+    en el CHECK
+    """
+
+    def __init__(self, value, type_, row, column):
+        Expression.__init__(row, column)
+        self.value = value
+        self.type = type_
+
+    def execute(self, environment):
+        return self
+
+
+def makeAst():
+    ast.makeAst(root)

@@ -1,6 +1,6 @@
 class Column(object):
     def __init__(self, name, dataType):
-        self._number = 1
+        self._number = 0
         self._name = name
         self._dataType = dataType
         self._length = None

@@ -337,7 +337,7 @@ def t_CADENA(t):
 
 #definife la estructura de las etiquetas, por el momento las tomo unicamente como letras y numeros
 def t_ETIQUETA(t):
-     r'[a-zA-Z]+[a-zA-_Z0-9]*'
+     r'[a-zA-Z_]+[a-zA-Z0-9_]*'
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
 
@@ -436,9 +436,7 @@ def p_query(t):
                     | variantesAt
                     | contAdd
                     | contDrop
-                    | contAlter
-                    | listaid
-                    | tipoAlter                    
+                    | contAlter                    
                     | selectData
     '''
     h.reporteGramatical1 +="query     ::=      opcion\n"
@@ -525,6 +523,7 @@ def p_alterBD_2(t):
     t[0] = AlterOwner(t[3],t[4],t[6])
 
 def p_parametroAlterUser(t):
+   
     '''parametroAlterUser : CURRENT_USER
                         |   SESSION_USER
                         |   final
@@ -661,13 +660,8 @@ def p_listaID_2(t):
     t[0]=ExpresionIdentificador(t[1])
     
 #-----------------------------------------------------DROP BD--------------------------------------------------------------------
-def p_tipoAlter(t):
-    '''
-    tipoAlter   :   ADD 
-                |   DROP
-    '''
-    h.reporteGramatical1 +="operacion    ::=       final\n"
-#-----------------------------------------------------Tipo Alter--------------------------------------------------------------------
+
+
 def p_dropBD_1(t):
     'dropBD    : DROP DATABASE ID PUNTOYCOMA'
     h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE  "+str(t[3])+" PUNTOYCOMA\n"
@@ -1136,6 +1130,7 @@ def p_insertBD_1(t):
     #print(t[3],t[6])
     t[0] = InsertinDataBases(t[3],t[6])
     h.reporteGramatical1 +="insertinBD    ::=      INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 += "InsertinDabaBases(t[3],t[6]"
 
 def p_insertBD_2(t):
     'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
@@ -1148,18 +1143,21 @@ def p_listaParam(t):
     t[1].append(t[3])
     t[0] = t[1]
     h.reporteGramatical1 +="insertinBD    ::=      listaParam COMA final\n"
+    h.reporteGramatical2 +="t[0]=t[1]"
 
 def p_listaParam_2(t):
     '''listaParam         : final
     '''
     t[0] = [t[1]]
     h.reporteGramatical1 +="insertinBD    ::=      final\n"
+    h.reporteGramatical2 +="t[0]=[t[1]]"
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):
     'updateinBD           : UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA'
     t[0]= UpdateinDataBase(t[2],t[4],t[6])
     h.reporteGramatical1 +="updateinBD    ::=      UPDATE ID SET asignaciones WHERE asignaciones PUNTOYCOMA\n"
+    h.reporteGramatical1 +="t[0]=UpdateinDabaBase(t[2].t[4],t[6])"
 
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
@@ -1169,42 +1167,47 @@ def p_asignaciones(t):
     t[1].append(t[3])
     t[0] = t[1]
     h.reporteGramatical1 +="asignaciones    ::=      asignaciones COMA asigna\n"
+    h.reporteGramatical2 +="t[0]=t[1]"
 
 def p_asignaciones_2(t):
     '''asignaciones       : asigna
     '''
     t[0] = [t[1]]
     h.reporteGramatical1 +="asignaciones    ::=      asigna\n"
+    h.reporteGramatical2 +="t[0]=[t[1]]"
 
 def p_asigna(t):
     'asigna             : ID IGUAL operacion'
     t[0] = AsignacioninTable(t[1],t[3])
     h.reporteGramatical1 +="asigna    ::=      ID IGUAL operacion\n"
+    h.reporteGramatical2 +="t[0]=AsignacioninTable(t[1],t[3])" 
 
 #-----------------------------------------------------DELETE IN BD--------------------------------------------------------------------
 def p_deleteinBD_1(t):
     'deleteinBD         : DELETE FROM ID PUNTOYCOMA'
     h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0]=t[3]"
 
 def p_deleteinBD_2(t):
-    'deleteinBD         : DELETE FROM ID WHERE operacion PUNTOYCOMA'
+    'deleteinBD         : DELETE FROM ID WHERE asignaciones PUNTOYCOMA'
     t[0] = DeleteinDataBases(t[3],t[5])
-    h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE operacion PUNTOYCOMA\n"
+    h.reporteGramatical1 +="deleteinBD    ::=      DELETE FROM ID WHERE asignaciones PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0]=DeleteinDataBases(t[3],t[5])"
 
 
 #-----------------------------------------------------CREATE TABLE CON INHERITS-------------------------------------------------------
 def p_inheritsBD(t):
     'inheritsBD         : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA'
-    h.reporteGramatical1 +="inheritsBD    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA\n"
-
-
+    t[0]=InheritsBD(t[3],t[9],t[5])
+    h.reporteGramatical1 +="inheritsBD    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA  INHERITS PARENTESISIZQUIERDA ID PARENTESISDERECHA PUNTOYCOMA\n"    
+    h.reporteGramatical2 +="t[0]=InheritsBD(t[3],t[9],t[5])"
 
 #-----------------------------------------------------CREATE TABLE--------------------------------------------------------------------
 def p_createTable(t):
     'createTable        : CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA'
     t[0]= CreateTable(t[3],t[5])
     h.reporteGramatical1 +="createTable    ::=      CREATE TABLE ID PARENTESISIZQUIERDA creaColumnas PARENTESISDERECHA PUNTOYCOMA\n"
-
+    h.reporteGramatical2 += "t[0]= CreateTable(t[3],t[5])"
 
 
 # -------------------------------------------------------------------------------------------------------------- 
@@ -1216,12 +1219,14 @@ def p_creaColumna(t):
     t[0] = t[1]
     #print(t[0])
     h.reporteGramatical1 +="creaColumnas    ::=      creaColumnas COMA Columna\n"
+    h.reporteGramatical2 +="t[1]"
 
 def p_creaColumna_2(t):
     '''creaColumnas        : Columna 
     '''
     t[0]=[t[1]]
     h.reporteGramatical1 +="createTable    ::=      Columna\n"
+    h.reporteGramatical2 +="[t[1]]"
 
 # -------------------------------------------------------------------------------------------------------------- 
 #INICIA LAS PRODUCCIONES DE COLUMNAS
@@ -1229,39 +1234,44 @@ def p_columna_1(t):
     'Columna            : ID tipo'
     t[0]=TipoAtributoTable(ColumnasTable(t[1],t[2],None),OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION)
     h.reporteGramatical1 +="Columna    ::=      ID tipo\n"
+    h.reporteGramatical2 +="t[0]=TipoAtributoTable(ColumnasTable(t[1],t[2],None),OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION)"
 
 def p_columna_2(t):
     'Columna            : ID tipo paramOpcional'
-    #print(t[3])
     t[0]=TipoAtributoTable(ColumnasTable(t[1],t[2],t[3]),OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION)
-    h.reporteGramatical1+="Columna      ::=     ID tipo paramOpcional"
+    h.reporteGramatical1 +="Columna      ::=     ID tipo paramOpcional"
+    h.reporteGramatical2 +="t[0]=TipoAtributoTable(ColumnasTable(t[1],t[2],t[3]),OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION)"
 
 def p_columna_3(t):
     'Columna            : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
     t[0]=TipoAtributoTable(RestriccionUnique(t[3]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO)
-    print(t[1])
-    h.reporteGramatical1+="Columna            : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA"
+    h.reporteGramatical1 +="Columna            : UNIQUE PARENTESISIZQUIERDA listaParam PARENTESISDERECHA"
+    h.reporteGramatical2 +="t[0]=TipoAtributoTable(RestriccionUnique(t[3]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO)"
 
 def p_columna_4(t):
     '''Columna          : constraintcheck
     '''
     t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT)
     h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+    h.reporteGramatical2 +="t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT)"
 
 def p_columna_5(t):
     'Columna            : checkinColumn'
     t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)
     h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+    h.reporteGramatical2 +="t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)"
 
 def p_columna_6(t):
     'Columna            : primaryKey'
     t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)
     h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+    h.reporteGramatical2 +="t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)"
 
 def p_columna_7(t):
     'Columna            : foreignKey'
     t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY)
     h.reporteGramatical1 +="Columna    ::=      Un parametro de columna\n"
+    h.reporteGramatical2 += "t[0]=TipoAtributoTable(t[1],OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY)"
 
 
 # -------------------------------------------------------------------------------------------------------------- 
@@ -1272,6 +1282,7 @@ def p_paramOpcional(t):
     t[1].append(t[2])
     t[0] = t[1]
     h.reporteGramatical1 +="paramOpcional    ::=      paramOpcional paramopc\n"
+    h.reporteGramatical2 +="t[0]=t[1]"
     
 
 def p_paramOpcional_1(t):
@@ -1279,6 +1290,7 @@ def p_paramOpcional_1(t):
     '''
     t[0] = [t[1]]
     h.reporteGramatical1 +="paramOpcional    ::=      paramopc\n"
+    h.reporteGramatical2 +="t[0]=[t[1]]"
 
 
 
@@ -1292,21 +1304,32 @@ def p_paramopc_1(t):
                         | PRIMARY KEY
     '''
     if t[1].upper() == "DEFAULT":
-        
         t[0] = TipoRestriccion(RestriccionDefaul(t[2]),OPERACION_RESTRICCION_COLUMNA.DEFAULT)
+        h.reporteGramatical1 +="paramopc    ::=      DEFAULT final\n"
+        h.reporteGramatical2 +="TipoRestriccion(RestriccionDefaul(t[2]),OPERACION_RESTRICCION_COLUMNA.DEFAULT)"
+    
     elif t[1].upper() == "NULL":
         t[0] = TipoRestriccion(RestriccionNull(1),OPERACION_RESTRICCION_COLUMNA.NULL)
+        h.reporteGramatical1 +="paramopc    ::=      NULL\n"
+        h.reporteGramatical2 +="TipoRestriccion(RestriccionNull(1),OPERACION_RESTRICCION_COLUMNA.NULL)"
+    
     elif t[1] == "NOT":
         t[0] = TipoRestriccion(RestriccionNotNull(1),OPERACION_RESTRICCION_COLUMNA.NOT_NULL)
+        h.reporteGramatical1 +="paramopc    ::=      paramopc\n"
+        h.reporteGramatical2 +="t[0] = TipoRestriccion(RestriccionNotNull(1),OPERACION_RESTRICCION_COLUMNA.NOT_NULL)"
+    
     elif t[1] == "UNIQUE":
-        #print(t[1])
         t[0] = TipoRestriccion(RestriccionUniqueSimple(1),OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA)
+        h.reporteGramatical1 +="paramopc    ::=      paramopc\n"
+        h.reporteGramatical2 +="TipoRestriccion(RestriccionUniqueSimple(1),OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA)"
+    
     elif t[1] == "PRIMARY":
         t[0] = TipoRestriccion(RestriccionPrimaryKeyColumn(1),OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)
+        h.reporteGramatical1 +="paramopc    ::=      paramopc\n"
+        h.reporteGramatical2 +="TipoRestriccion(RestriccionPrimaryKeyColumn(1),OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY)"
+    
     else:
         print("FFFFF")
-    
-    h.reporteGramatical1 +="paramopc    ::=      paramopc\n"
     
 
 # -------------------------------------------------------------------------------------------------------------- 
@@ -1315,12 +1338,13 @@ def p_paramopc_2(t):
     'paramopc           : constraintcheck'
     t[0] = TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT)
     h.reporteGramatical1 +="paramopc    ::=      constraintcheck"
+    h.reporteGramatical2 +="t[0] = TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT)"
     
 def p_paramopc_3(t):
     'paramopc           : checkinColumn'
     t[0]=TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)
     h.reporteGramatical1 +="paramopc    ::=      checkinColumn"
-
+    h.reporteGramatical2 +="t[0]=TipoRestriccion(t[1],OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE)"
 
 # -------------------------------------------------------------------------------------------------------------- 
 #RESTRICCION UNIQUE
@@ -1328,6 +1352,7 @@ def p_paramopc_4(t):
     'paramopc           : CONSTRAINT ID UNIQUE'
     t[0] = TipoRestriccion(RestriccionConstraintUnique(t[2]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT)
     h.reporteGramatical1 +="paramopc    ::=      CONSTRAINT   ID   UNIQUE"
+    h.reporteGramatical2 +="t[0] = TipoRestriccion(RestriccionConstraintUnique(t[2]),OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT)"
 
 
 # -------------------------------------------------------------------------------------------------------------- 
@@ -1335,13 +1360,14 @@ def p_paramopc_4(t):
 def p_checkcolumna(t):
     'checkinColumn      :  CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
     t[0]=RestriccionCheck(t[3])
-    h.reporteGramatical1+="paramopc     ::=     "+str(t[1])+"\n"
+    h.reporteGramatical1 +="paramopc     ::=     "+str(t[1])+"\n"
+    h.reporteGramatical2 +="t[0]=RestriccionCheck(t[3])"
 
 def p_constraintcheck(t):
     'constraintcheck    : CONSTRAINT ID CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA'
     t[0]=RestriccionConstraintCheck(t[2],t[5])
     h.reporteGramatical1 +="paramopc    ::=      "+str(t[1])+"\n"
-
+    h.reporteGramatical2 +="t[0]=RestriccionConstraintCheck(t[2],t[5])"
 
 
 
@@ -1350,12 +1376,15 @@ def p_primaryKey(t):
     'primaryKey         : PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA'
     t[0]=RestriccionPrimaryKey(t[4])
     h.reporteGramatical1 +="primaryKey    ::=      PRIMARY KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
+    h.reporteGramatical2 +="RestriccionPrimaryKey(t[4])"
 
 
 def p_foreingkey(t):
     'foreignKey         : FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA' 
-    t[0]=RestriccionForeingkey(t[4],t[7],t[9])
+    t[0]=RestriccionForeingkey(t[7],t[4],t[9])
     h.reporteGramatical1 +="foreignKey    ::=      FOREIGN KEY PARENTESISIZQUIERDA listaParam PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA\n"
+    h.reporteGramatical2 +="t[0]=RestriccionForeingkey(t[7],t[4],t[9])"
+
 #-----------------------------------------------------TIPOS DE DATOS--------------------------------------------------------------------
 
 def p_tipo(t):
@@ -1384,13 +1413,122 @@ def p_tipo(t):
                         | MINUTE
                         | SECOND
     '''
-    if t[1]=="SMALLINT":
-        t[0] = t[1] 
-        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
-    elif t[1]=="INTEGER":
-        t[0] = t[1]
+    # -------------------------------------------------------------------------------------------------------------- 
+    if t[1].upper()=="SMALLINT":
+        t[0] = TipoDatoColumna(t[1],-32768,32768) 
         h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
 
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="INTEGER":
+        t[0] = TipoDatoColumna(t[1],-2147483648,2147483648)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="BEGIN":
+        t[0]=TipoDatoColumna(t[1],-9223372036854775808,9223372036854775808)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="DECIMAL":
+        t[0]=TipoDatoColumna(t[1],131072,16383)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="NUMERIC":
+        t[0]=TipoDatoColumna(t[1],131072,16383)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="REAL":
+        t[0]=TipoDatoColumna(t[0],0,6)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="DOUBLE":
+        t[0]=TipoDatoColumna(t[1],0,15)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="MONEY":
+        t[0]=TipoDatoColumna(t[1],-92233720368547758.08,92233720368547758.08)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="CHARACTER" and t[2].upper()=="VARING":
+        t[0]=TipoDatoColumna(t[2],0,t[4])
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="VARCHAR":
+        t[0]=TipoDatoColumna(t[1],0,t[3])
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="CHARACTER":
+        t[0]=TipoDatoColumna(t[1],0,t[3])
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="CHAR":
+        t[0]=TipoDatoColumna(t[1],0,t[3])
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="TEXT":
+        t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="BOOLEAN":
+        t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="TIMESTAMP":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="TIME":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="INTERVAL":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="DATE":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="YEAR":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="MONT":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="HOUR":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="MINUT":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    # -------------------------------------------------------------------------------------------------------------- 
+    elif t[1].upper()=="SECOND":
+        t[0]=t[0]=TipoDatoColumna(t[1],0,0)
+        h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
+
+    
     
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
 def p_select(t):
