@@ -31,10 +31,11 @@ class TablaHash:
         self.pk = indices
     
     def toASCII(self, cadena):
-        result = 0
+        result = ""
         for char in cadena:
-            result += ord(char)
-        return result
+            result += str(ord(char))
+        return int(result)
+
 
     def funcionHash(self, dato, flag = False):
         if isinstance(dato, list):
@@ -52,7 +53,7 @@ class TablaHash:
                 lenDato = self.toASCII(str(dato))
             else:
                 lenDato = int(dato)
-        return int(lenDato % self.Size)
+        return (int(lenDato % self.Size),lenDato)
 
     def sizeTabla(self):
         contadorAux = 0
@@ -61,17 +62,18 @@ class TablaHash:
                 contadorAux +=1
         return contadorAux   
 
-    def insertIntoArray(self, dato, posicion_hash):
-        bandera = self.verificarDato(dato, posicion_hash)
+   
+    def insertIntoArray(self, dato, posicion_hash, key):
+        bandera = self.verificarDato(key, posicion_hash)
         if self.values[posicion_hash] is not None:
             if bandera:
                 nuevo_dato = self.values[posicion_hash]
-                nuevo_dato.insert(dato)
+                nuevo_dato.insert(dato, key)
                 return 0
         else:
             nuevo_dato = Node()
-            nuevo_dato.pk = posicion_hash
-            nuevo_dato.insert(dato)
+            nuevo_dato.pk = self.pk
+            nuevo_dato.insert(dato,key)
             self.values[posicion_hash] = nuevo_dato
             return 0
 
@@ -80,11 +82,11 @@ class TablaHash:
         if isinstance(dato, list):
             if len(dato) == self.nCols:
                 if self.pk:
-                    posicion_hash = int(self.funcionHash(dato, True))
-                    self.insertIntoArray(dato, posicion_hash)
+                    posicion_hash = self.funcionHash(dato, True)
+                    self.insertIntoArray(dato, posicion_hash[0], posicion_hash[1]) #aqui manda las dos llaves
                 else:
                     posicion_hash = int(self.genericId % self.Size)
-                    self.insertIntoArray(dato, posicion_hash)
+                    self.insertIntoArray(dato, posicion_hash , [self.genericId] )
                     self.genericId += 1
             else:
                 return 2
@@ -133,7 +135,7 @@ class TablaHash:
                 auxiliar +=1
         return auxiliar
 
-    def rehashing(self):
+     def rehashing(self):
         actualSize = self.ElementosEn_tbl()
         factorAgregado = int(self.Size * 0.75)
         if actualSize >= factorAgregado:
@@ -144,9 +146,9 @@ class TablaHash:
             self.values = [None]*self.Size
             lista = [tupla for nodo in arrayAuxiliar if nodo is not None for tupla in nodo.array]
             for j in lista:
-                self.insert(self.name, j)
+                self.insert(self.name, j[1])
             arrayAuxiliar.clear()
-            print("El rehashing fue realizado con exito")
+            return "El rehashing fue realizado con exito"
 
     def verificarDato(self, dato, position):
         aux_bol = False
@@ -157,14 +159,14 @@ class TablaHash:
 
     def eliminarDato(self, dato):
         posicion_hash = self.funcionHash(dato)
-        nodo_hash = self.values[posicion_hash]
-        if nodo_hash.eliminar(posicion_hash):
-            print("dato eliminado")
-        elif nodo_hash.eliminar(posicion_hash) == 0: 
-            print("dato eliminado")
+        nodo_hash = self.values[posicion_hash[0]]
+        if nodo_hash.eliminar(posicion_hash[1]):
+            return "dato eliminado"
+        elif nodo_hash.eliminar(posicion_hash[1]) == 0: 
+            return "dato eliminado"
             self.values[posicion_hash] = None
         else:
-            print("dato no eliminado")
+            return "dato no eliminado"
 
     def printTbl(self):
         if self.values:
@@ -176,9 +178,9 @@ class TablaHash:
 
     def buscar(self, dato):
         posicion_hash = self.funcionHash(dato)
-        nodo = self.values[posicion_hash]
+        nodo = self.values[posicion_hash[0]]
         if nodo is not None:
-            return nodo.busquedaB(posicion_hash)
+            return nodo.busquedaB(posicion_hash[1])
         else:
             return None
 
