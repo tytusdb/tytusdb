@@ -27,9 +27,11 @@ class ISAM:
         
     # inserta un registro en la estructura ISAM
     def insert(self, data):
-        self.root = self._insert(data, self.root, 0)
+        duplicated = []
+        self.root = self._insert(data, self.root, 0, duplicated)
+        return duplicated
 
-    def _insert(self, data, tmp, level):
+    def _insert(self, data, tmp, level, duplicated):
         if tmp is None:
             if level < 2:
                 node = IndexNode()
@@ -41,33 +43,55 @@ class ISAM:
                 return node
         else:
             if len(tmp.values) < 2:
-                tmp.values.append(data)
-                tmp.values = self.sort(tmp.values)
-                return tmp
+                if tmp.values[0].PK == data.PK and len(tmp.values[0].data) > 0:
+                    duplicated.append(data)
+                    return tmp
+                elif tmp.values[0].PK == data.PK and len(tmp.values[0].data) == 0:
+                    tmp.values[0].data = data.data
+                    tmp.values[0].PK = data.PK
+                    return tmp
+                else:
+                    tmp.values.append(data)
+                    tmp.values = self.sort(tmp.values)
+                    return tmp
             else:
+                for i in tmp.values:
+                    if i.PK == data.PK and self.search(data.PK) is None:
+                        i.data = data.data
+                        i.PK = data.PK
+                        return tmp
+                    elif i.PK == data.PK:
+                        duplicated.append(data)
+                        return tmp
                 if level < 2:
                     if level == 1:
                         if tmp.center is None:
-                            tmp.center = self._insert(self.makeIndexLeaf(tmp.values[0]), tmp.center, level + 1)
+                            tmp.center = self._insert(self.makeIndexLeaf(tmp.values[0]), tmp.center, level + 1, duplicated)
                             tmp.values[0].data.clear()
                         if tmp.right is None:
-                            tmp.right = self._insert(self.makeIndexLeaf(tmp.values[1]), tmp.right, level + 1)
+                            tmp.right = self._insert(self.makeIndexLeaf(tmp.values[1]), tmp.right, level + 1, duplicated)
                             tmp.values[1].data.clear()
                         if tmp.left is None:
                             if self.root.values[0].PK < data.PK < self.root.values[1].PK:
-                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[0]), tmp.left, level + 1)
+                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[0]), tmp.left, level + 1, duplicated)
                                 self.root.values[0].data.clear()
                             elif data.PK > self.root.values[1].PK:
-                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[1]), tmp.left, level + 1)
+                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[1]), tmp.left, level + 1, duplicated)
                                 self.root.values[1].data.clear()
                     if data.PK < tmp.values[0].PK:
-                        tmp.left = self._insert(data, tmp.left, level + 1)
+                        tmp.left = self._insert(data, tmp.left, level + 1, duplicated)
                     elif tmp.values[0].PK < data.PK < tmp.values[1].PK:
-                        tmp.center = self._insert(data, tmp.center, level + 1)
+                        tmp.center = self._insert(data, tmp.center, level + 1, duplicated)
                     elif tmp.values[1].PK < data.PK:
-                        tmp.right = self._insert(data, tmp.right, level + 1)
+                        tmp.right = self._insert(data, tmp.right, level + 1, duplicated)
                 else:
-                    tmp.next = self._insert(data, tmp.next, level + 1)
+                    isTwice = False
+                    for i in tmp.values:
+                        if i.PK == data.PK:
+                            duplicated.append(data)
+                            isTwice = True
+                    if not isTwice:
+                        tmp.next = self._insert(data, tmp.next, level + 1, duplicated)
                 return tmp
     
     # envia los valores de una pagina indice a una pagina hoja
@@ -177,23 +201,29 @@ class ISAM:
             file = open('isam.dot', 'a')
             tail = ''
             for i in tmp.values:
-                tail += i.PK + ', '
+                tail += str(i.PK) + ', '
             if level < 2:
                 if tmp.left is not None:
                     leftHead = ''
                     for i in tmp.left.values:
-                        leftHead += i.PK + ', '
+                        leftHead += str(i.PK) + ', '
                     file.write('"' + str(tail)[:-2] + '" -> "' + str(leftHead)[:-2] + '" \n')
                 if tmp.center is not None:
                     centerHead = ''
                     for i in tmp.center.values:
-                        centerHead += i.PK + ', '
+                        centerHead += str(i.PK) + ', '
                     file.write('"' + str(tail)[:-2] + '" -> "' + str(centerHead)[:-2] + '" \n')
                 if tmp.right is not None:
                     rightHead = ''
                     for i in tmp.right.values:
-                        rightHead += i.PK + ', '
+                        rightHead += str(i.PK) + ', '
                     file.write('"' + str(tail)[:-2] + '" -> "' + str(rightHead)[:-2] + '" \n')
+                if tmp.left is None and tmp.right is None and tmp.center is None and level == 0:
+                    head = ''
+                    for i in tmp.values:
+                        head += i.PK + ', '
+                    head = head[:-2]
+                    file.write(' " ' + head + '"' + '[shape=box] \n')
                 file.close()
                 self._chart(tmp.left, level + 1)
                 self._chart(tmp.center, level + 1)
@@ -202,7 +232,7 @@ class ISAM:
                 if tmp.next is not None:
                     nextHead = ''
                     for i in tmp.next.values:
-                        nextHead += i.PK + ', '
+                        nextHead += str(i.PK) + ', '
                     file.write('"' + str(tail)[:-2] + '" -> "' + str(nextHead)[:-2] + '" \n')
                 file.close()
                 self._chart(tmp.next, level + 1)
@@ -231,6 +261,27 @@ class ISAM:
                 return self._search(value, tmp.next, level + 1)
         else:
             return []
+       
+    # extrae todos los registros de una estructura ISAM y los devuelve en una lista
+    def extractAll(self):
+        tuples = []
+        self._extractAll(self.root, 0, tuples)
+        return tuples
+
+    def _extractAll(self, tmp, level, tuples):
+        if tmp:
+            if level < 2:
+                self._extractAll(tmp.left, level + 1, tuples)
+                for i in tmp.values:
+                    if len(i.data) > 0:
+                        tuples.append(i.data)
+                self._extractAll(tmp.center, level + 1, tuples)
+                self._extractAll(tmp.right, level + 1, tuples)
+            else:
+                for i in tmp.values:
+                    if len(i.data) > 0:
+                        tuples.append(i.data)
+                self._extractAll(tmp.next, level + 1, tuples)
     
     #Metodo que extrae informacion entre los limites especificados
     def extractRange(self, lower, upper, column):
@@ -364,3 +415,41 @@ class ISAM:
                             return self.__update(register, auxiliar.right, cols, PKCols)
                     else:
                         return 1
+                    
+    # agrega un dato a cada uno de los registros de la estructura ISAM
+    def addAtEnd(self, default):
+        self._addAtEnd(self.root, default, 0)
+
+    def _addAtEnd(self, tmp, default, level):
+        if tmp:
+            if level < 2:
+                self._addAtEnd(tmp.left, default, level + 1)
+                for i in tmp.values:
+                    if len(i.data) > 0:
+                        i.data.append(default)
+                self._addAtEnd(tmp.center, default, level + 1)
+                self._addAtEnd(tmp.right, default, level + 1)
+            else:
+                for i in tmp.values:
+                    if len(i.data) > 0:
+                        i.data.append(default)
+                self._addAtEnd(tmp.next, default, level + 1)
+
+    # elimina un dato de todos los registros de la estructura ISAM
+    def deleteColumn(self, n):
+        self._deleteColumn(self.root, 0, n)
+
+    def _deleteColumn(self, tmp, level, n):
+        if tmp:
+            if level < 2:
+                for i in tmp.values:
+                    if len(i.data) > 0:
+                        i.data.pop(n)
+                self._deleteColumn(tmp.left, level + 1, n)
+                self._deleteColumn(tmp.center, level + 1, n)
+                self._deleteColumn(tmp.right, level + 1, n)
+            else:
+                for i in tmp.values:
+                    if len(i.data) > 0:
+                        i.data.pop(n)
+                self._deleteColumn(tmp.next, level + 1, n)
