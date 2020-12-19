@@ -953,9 +953,10 @@ class CheckValue(Expression):
     """
 
     def __init__(self, value, type_, row, column):
-        Expression.__init__(row, column)
         self.value = value
         self.type = type_
+        self.row = row
+        self.column = column
 
     def execute(self, environment):
         return self
