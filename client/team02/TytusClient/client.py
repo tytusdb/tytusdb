@@ -1,4 +1,4 @@
-from tkinter import Tk, Text, BOTH, W, N, E, S
+from tkinter import Tk, Text, BOTH, W, N, E, S, Menu
 from tkinter.ttk import Frame, Button, Label, Style
 
 
@@ -35,6 +35,24 @@ def main():
     root = Tk()
     root.geometry("350x300+300+300")
     app = Example()
+
+    # *************************** BARRA DE MENÚ ***************************    
+    menubar = Menu(root)
+    filemenu = Menu(menubar, tearoff=0)
+    filemenu.add_command(label="Nuevo")
+    filemenu.add_command(label="Abrir")
+    filemenu.add_command(label="Salir", command=root.quit)
+    helpmenu = Menu(menubar, tearoff=0)
+    helpmenu.add_command(label="Documentación")
+    helpmenu.add_command(label="Acerca de...")        
+    servermenu = Menu(menubar, tearoff=0)
+    servermenu.add_command(label="Nueva conexión")    
+    servermenu.add_command(label="Quitar conexión")    
+    menubar.add_cascade(label="Archivo", menu=filemenu) 
+    menubar.add_cascade(label="Servidor", menu=servermenu)     
+    menubar.add_cascade(label="Ayuda", menu=helpmenu)       
+    root.config(menu=menubar);
+    # *********************************************************************
 
     root.mainloop()
 
