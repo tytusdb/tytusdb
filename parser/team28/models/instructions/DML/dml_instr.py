@@ -2,6 +2,7 @@ from models.instructions.shared import Instruction
 from controllers.type_checker import TypeChecker
 from controllers.symbol_table import SymbolTable
 from controllers.error_controller import ErrorController
+from controllers.data_controller import DataController
 from storageManager import jsonMode as j
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
@@ -22,23 +23,21 @@ class Insert(Instruction):
         return str(vars(self))
 
     def process(self, instruction):
-        print("EJECUTANDO INSERT")
         #Jalando Base de Datos
-        # database_id = SymbolTable().useDatabase
-        database_id = 'world'
+        print("EJECUTANDO INSERT")
+        database_id = SymbolTable().useDatabase
         
-        # if not database_id:
-        #     desc = f": Database not selected"
-        #     ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
-        #     return None
-        # #Base de datos existe --> Obtener tabla
-        # database = TypeChecker().searchDatabase(database_id)
-        # table_tp = TypeChecker().searchTable(database, self.table.value)
-        # if not table_tp:
-        #     desc = f": Table does not exists"
-        #     ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
-        #     return None
-        #Obtenida la tabla ---> TODO: VALIDAR TIPOS
+        if not database_id:
+            desc = f": Database not selected"
+            ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
+            return None
+        #Base de datos existe --> Obtener tabla
+        table_tp = TypeChecker().searchTable(database_id, self.table.value)
+        if not table_tp:
+            desc = f": Table does not exists"
+            ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
+            return None
+        # Obtenida la tabla ---> TODO: VALIDAR TIPOS
         # for column in table_tp.columns:
         #     if column.
         if self.arr_columns == None:
@@ -48,7 +47,7 @@ class Insert(Instruction):
                 val = column.process(instruction)
                 vals_insert.append(val.value)
             print(vals_insert)
-            j.insert(database_id, self.table.value, vals_insert)
+            DataController().insert(self.table.value, vals_insert,0,1)
         else:
             if len(self.arr_columns) == len(self.arr_values):
                 pass
