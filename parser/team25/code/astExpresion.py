@@ -8,6 +8,7 @@ class TIPO_DE_DATO(Enum):
     CADENA = 3
     TIMESTAMP = 4
     BOOLEANO = 5
+    NULL = 6
 
 class OPERACION_ARITMETICA(Enum):
     MAS = 1
@@ -36,6 +37,8 @@ class OPERACION_UNARIA_IS(Enum):
     IS_FALSE = "is false"
     IS_NOT_FALSE = "is not false"
     IS_NOT_TRUE = "is not true"
+    IS_NULL = "is null"
+    IS_NOT_NULL = "is not null"
 
 class OPERACION_BINARIA_IS(Enum):
     IS_DISTINCT_FROM = "is distinct from"
@@ -461,7 +464,10 @@ class ExpresionUnariaIs(Expresion):
             elif self.tipo == OPERACION_UNARIA_IS.IS_NOT_TRUE:
                 return ExpresionBooleano(unario.val == False, self.linea) 
         else:
-            print("Error semántico, Operador de tipo", unario.tipo,"no admitido para operacion unaria", self.tipo)
+            if self.tipo == OPERACION_UNARIA_IS.IS_NULL:
+                return ExpresionBooleano(unario.val == None, self.linea)
+            elif self.tipo == OPERACION_UNARIA_IS.IS_NOT_NULL:
+                return ExpresionBooleano(unario.val != None, self.linea)
 
 class ExpresionBinariaIs(Expresion):
     def __init__(self, exp1, exp2, operador, linea):
