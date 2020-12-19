@@ -1088,7 +1088,7 @@ def p_QUERIES(p):
                | QUERY'''
     if len(p) == 2:
         p[0] = Squeries(p[1], False, False)
-    elif len(p) == 3:
+    elif len(p) == 4:
         p[0] = Squeries(p[1], p[2], p[3])
 
 
@@ -1325,6 +1325,16 @@ def p_EXPR_COLUMNAS1(p):
     else:
         p[0] = SColumnasAsSelect(False, p[1])
 
+def p_EXPR_COLUMNAS2(p):
+    '''EXPR_COLUMNAS1 : parAbre QUERY parCierra
+                     | parAbre QUERY parCierra E
+                     | parAbre QUERY parCierra as E'''
+    if len(p) == 4: 
+        p[0] = SColQuery(False, p[2])
+    if len(p) == 5:
+        p[0] = SColQuery(p[4], p[2])
+    if len(p) == 6:
+        p[0] = SColQuery(p[5], p[2])
 
 # LEN
 def p_EXPR_COLUMNAS1_p1(p):  # error
@@ -1332,6 +1342,8 @@ def p_EXPR_COLUMNAS1_p1(p):  # error
                      | greatest parAbre E_LIST parCierra
                      | least parAbre E_LIST parCierra
                      | substring parAbre E coma E coma E parCierra as E
+                     | substr parAbre E coma E coma E parCierra as E
+                     | substr parAbre E coma E coma E parCierra 
                      | greatest parAbre E_LIST parCierra as E
                      | least parAbre E_LIST parCierra as E '''
     if p[1].lower() == "substring":
@@ -1339,6 +1351,11 @@ def p_EXPR_COLUMNAS1_p1(p):  # error
             p[0] = SColumnasSubstr(p[3], p[5], p[7], p[10])
         else:
             p[0] = SColumnasSubstr(p[3], p[5], p[7], False)
+    elif p[1].lower() == "substr":
+        if len(p) == 11:
+            p[0] = SColumnasSubstr(p[10],p[3], p[5], p[7])
+        else:
+            p[0] = SColumnasSubstr(False,p[3], p[5], p[7])
     elif p[1].lower() == "greatest":
         if len(p) == 7:
             p[0] = SColumnasGreatest(p[6], p[3])
@@ -1352,7 +1369,7 @@ def p_EXPR_COLUMNAS1_p1(p):  # error
 
 
 def p_EXPR_EXTRA(p):
-    '''EXPR_EXTRA : tExtract parAbre FIELDS from DATE_TYPES E parCierra
+    '''EXPR_EXTRA : tExtract parAbre FIELDS from tTimestamp fecha_hora parCierra
                   | tExtract parAbre FIELDS from E parCierra'''
     if len(p) == 7:
         p[0] = SExtract(p[3], p[5])
@@ -1390,24 +1407,19 @@ def p_EXPR_MATHS(p):
                      | factorial E
                      | floor E
                      | gcd parAbre E coma E parCierra
-                     | lcm E
                      | ln E
                      | log E
-                     | log10 E
-                     | min_scale E
                      | mod parAbre E coma E parCierra
                      | pi parAbre parCierra
                      | power parAbre E coma E parCierra
                      | radians E
                      | round E
-                     | scale E
+                     | round parAbre E coma E parCierra
                      | sign E
                      | sqrt E
-                     | trim_scale E
                      | trunc E
                      | width_bucket parAbre LISTA_EXP parCierra
-                     | random parAbre parCierra
-                     | setseed E  '''
+                     | random parAbre parCierra '''
     if len(p) == 3:
         p[0] = SFuncMath(p[1], p[2])
     elif len(p) == 4:
@@ -1454,7 +1466,6 @@ def p_EXPR_BINARIAS(p):
                      | md5 E
                      | set_byte parAbre E dosPts dosPts bytea coma E coma E parCierra 
                      | sha256 E
-                     | substr E
                      | convert parAbre E as TIPO parCierra
                      | encode parAbre E dosPts dosPts bytea coma E parCierra 
                      | decode parAbre E coma E parCierra 
@@ -1497,7 +1508,7 @@ def p_EXPR_FECHA(p):
 def p_EXPR_CASE(p):
     '''EXPR_CASE : case CASE_LIST end
                  | case CASE_LIST else E end'''
-    if len(p) == 2:
+    if len(p) == 4:
         p[0] = SCase(p[2])
     else:
         p[0] = SCaseElse(p[2], p[4])
@@ -1579,12 +1590,24 @@ def p_EXPR_WHERE(p):
 
 def p_LIST_CONDS(p):
     '''LIST_CONDS : LIST_CONDS COND1
+                  | LIST_CONDS ORAND COND1
+                  | ORAND COND1
                   | COND1  '''
     if len(p) == 3:
         p[1].append(p[2])
-        p[0] = p[1]
+        p[0] = p[[1]]
+    elif len(p)==4:
+        print("orand")
+        p[2].append(p[3])
+        p[1].append(p[2])
+        p[0] = [p[1]]
     else:
         p[0] = [p[1]]
+
+def p_LIST_ORAND(p):
+    '''ORAND : or
+             | And'''
+    p[0]= [p[1]]
 
 
 def p_COND1(p):

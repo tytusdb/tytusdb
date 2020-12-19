@@ -327,12 +327,11 @@ class SColumnasAsSelect(Sentencia):
 
 
 class SColumnasSubstr(Sentencia):
-    def __init__(self, st, st2, st3, id):
-        self.st = st
-        self.st2 = st2
-        self.st3 = st3
+    def __init__(self, id,cols=[],cols2=[],cols3=[]):
         self.id = id
-
+        self.cols = cols
+        self.cols2 = cols2
+        self.cols3 = cols3
 
 class SColumnasGreatest(Sentencia):
     def __init__(self, id, cols=[]):
@@ -587,6 +586,17 @@ class SHaving(Sentencia):
         self.efunc = efunc
 
 class SColumnasMulti(Sentencia):
+    def __init__(self, id, cols=[]):
+        self.id = id
+        self.cols = cols
+
+class SWhereConds(Sentencia):
+    def __init__(self, ope,clist=[]):
+        self.ope = ope
+        self.clist = clist
+
+
+class SColQuery(Sentencia):
     def __init__(self, id, cols=[]):
         self.id = id
         self.cols = cols
