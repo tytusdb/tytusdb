@@ -63,7 +63,7 @@ class Relop(Expression):
     == != >= ...
     Devuelve un valor booleano
     '''
-    def __init__(self, value1, operator, value2, op,line, column):
+    def __init__(self, value1, operator, value2, op, line, column):
         self.value1 = value1
         self.operator = operator
         self.value2 = value2
@@ -263,18 +263,18 @@ class UnaryOrSquareExpressions(Expression):
     '''
     UnaryOrSquareExpressions
     '''
-    def __init__(self, sign, expression_list,line, column, sign1):
+    def __init__(self, sign, value,line, column, sign1):
         self.sign = sign
-        self.expression_list = expression_list
+        self.value = value
         self.line = line
         self.column = column
-        self.alias = str(sign1) + str(self.expression_list.alias)
+        self.alias = str(sign1) + str(self.value.alias)
     
     def __repr__(self):
         return str(vars(self))
     
     def process(self, expression):
-        expression1 = self.expression_list.process(expression)
+        expression1 = self.value.process(expression)
         type_unary_or_other = self.sign
         if expression1.data_type != DATA_TYPE.NUMBER:
             print('error')
