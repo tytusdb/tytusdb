@@ -12,111 +12,333 @@ from StoreManager import jsonMode as j
 
 # UPDATE: modificar atributos de una tabla
 
-
 class Insert(NodoArbol):
 
-	#'SLV', 'El Salvado', 'Central America', 21041
-	# insert : into countries values('COL','Colombia','Sur America',0256);
-	#        | INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
-
-	def __init__(self,tableName,listColumn,listValues,line,column):
-		super().__init__(line, column)
-		self.tableName:str   = tableName
-		self.listColumn:list = listColumn
-		self.listValues:list = listValues
+    def __init__(self,tableName,listColumn,listValues,line,column):
+        super().__init__(line, column)
+        self.tableName:str   = tableName
+        self.listColumn:list = listColumn
+        self.listValues:list = listValues
 
 
-	# insert into countries values('COL','Colombia','Sur America',0256);
-	def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
+    def execute(self, entorno: Tabla_de_simbolos, arbol:Arbol):
 
-		#DatabaseName: world
-		#tableName:countries
+        databaseName = entorno.getBD()
+        if entorno.BDisNull() == True:
+            '''
+              ______ _____  _____   ____  _____  
+             |  ____|  __ \|  __ \ / __ \|  __ \ 
+             | |__  | |__) | |__) | |  | | |__) |
+             |  __| |  _  /|  _  /| |  | |  _  / 
+             | |____| | \ \| | \ \| |__| | | \ \ 
+             |______|_|  \_\_|  \_\\____/|_|  \_\
+            borra el print de abajo o comentalo xd
+            Descripcion: BD %databaseName% no existe ("BD " + databaseName + " no existe")
+            '''
+            print('BD'+databaseName+'no existe')
+            return
 
-		#todo:obtener base de datos por el momento ira quemada
-		databaseName = 'world'
+        if not self.listColumn:
+            self.insertNormal(databaseName,entorno,arbol)
+        else:
+            self.insertWithListId(databaseName,entorno,arbol)
+    #================================================================================================
 
-		#todo:2.verificar los tipos en la columna
+    # insert into countries values('COL','Colombia','Sur America',0256);
+    def insertNormal(self,databaseName:str,entorno,arbol):
 
-		if self.exist(databaseName,self.tableName)== True:
-			table:list = j.extractTable(databaseName,self.tableName)
+        if self.exist(databaseName,self.tableName)== True:
 
-			if self.checkLen(table[0])==True and \
-			   self.TypesCompare(table[0],entorno,arbol)==True:
+            table:list = j.extractTable(databaseName,self.tableName)
+            headColumns = table[0]
 
-				values:list = self.getValues(entorno,arbol)
+            if self.checkLen(headColumns,self.listValues)==True and \
+               self.TypesCompare(headColumns,self.listValues,entorno,arbol)==True:
 
-				j.insert(databaseName, self.tableName,values)
-				print(self.tableName, ' Registro Ingresado con exito')
+                values:list = self.getValues(self.listValues,entorno,arbol)
 
+                j.insert(databaseName, self.tableName,values)
+                print(self.tableName, '1 una fila a sido afectada')
 
-	def getValues(self,entorno,arbol) -> list:
-		result:list = []
+    # 	   | INSERT INTO ID PARIZQ listaids PARDER VALUES PARIZQ listavalores PARDER
+    def insertWithListId(self,databaseName:str,entorno,arbol):
 
-		for v in self.listValues:
-			value = v.execute(entorno, arbol).data
-			result.append(value)
-		return result
+        if self.exist(databaseName,self.tableName)== True and \
+            self.checkLen(self.listColumn,self.listValues)==True  :
+            table:list = j.extractTable(databaseName,self.tableName)
+            headColumns = table[0]
 
+            if self.existColumn(self.tableName, self.listColumn,headColumns):
 
-	def checkLen(self,columns:list) -> bool:
-		lengthColumn = len(columns)
-		lengthValues = len(self.listValues)
-
-		if lengthValues > lengthColumn:
-			print('Hay Mas valores de los permitidos')
-			return False
-		elif lengthValues < lengthColumn:
-			print('Faltan valores en la columna')
-			return  False
-		#si no es mayor ni tampoco menor entonces es igual
-		else:
-			return  True
-
-	#todo: Mejorar metodo separar en varios metodos
-	def TypesCompare(self,headColumns,entorno,arbol) -> bool:
-		result:bool = True
-		for i in range(len(headColumns)):
-			col = headColumns[i]
-			v 	=  self.listValues[i]
-
-			headColumn_:list= col.split(',')
-			value:Valor = v.execute(entorno,arbol)
-
-			typeColumn:int = int(headColumn_[HEAD.typeColumn.value])
-			typeValue:int = value.tipo.value
+                #todo:3. obtener solo las columnas indicadas
+                #todo:4. Se pondra '' como valor nulo
+                #todo:1. verficar tipo de datos
+                #todo:2. verificar resctriccion  unique
+                #todo:5. Usar Default si no viene
+                #todo:6. verificar restriccion check
 
 
-			if typeColumn != typeValue:
-				print('el valor no es un tipo aceptado por la columna x')
-				result = False
+                listvalues:list = self.getValues(self.listValues,entorno,arbol)
+                newRow = self.getRowByValues(self.listColumn,listvalues,headColumns)
 
-		return  result
+                j.insert(databaseName, self.tableName,newRow)
+                print(self.tableName, '1 una fila a sido afectada')
 
-	def exist(self,database:str,table:str) -> bool:
-		tables_: list = j.showTables(database)
-		#La Base de datos existe
-		if tables_!=None:
-			for table_ in tables_:
-				if table_ == table:
-					return True
-			print('La tabla no existe en ' + database)
-			return False
-		else:
-			print('La base de datos no existe')
-			return False
+                pass
+    #================================================================================================
+
+    def contains(self,value,array) -> bool:
+        for item in array:
+            if value == item:
+                return True
+        return  False
+    #================================================================================================
 
 
-#list b1, b2
-#create table b1
-#
-#use b1
-#create table tas
-#
-#create b2
-#
-#use b2
-#
-#create table tas
-#
-#
-#insert tas
+    def getRowByValues(self,listColumns:list,listvalues:list,headColumns:list):
+        newRow = []
+        listNumberColumns:list = self.getListNumberColumns(listColumns,headColumns)
+        # LLenando de null
+        for i in range(len(headColumns)):
+            newRow.append('')
+
+        for i in range(len(listNumberColumns)):
+            numberColumn =listNumberColumns[i]
+            value = listvalues[i]
+            newRow[numberColumn] = value
+
+        #print(newRow)
+        return newRow
+    #================================================================================================
+
+    def getListNumberColumns(self,listColumnNames,headColumns) ->list:
+        result = []
+        headColumnNames = self.getNameColumns(headColumns)
+        for columnName in listColumnNames:
+            for i in range(len(headColumnNames)):
+                headColumnName = headColumnNames[i]
+                if columnName == headColumnName:
+                    result.append(i)
+
+        #result = sorted(result)
+        return result
+    #================================================================================================
+
+    def searchColumn(self,tableName:str,columnName:str,headColumns:list) -> bool:
+        '''
+        :param columnName: Nombre de la columna a buscar
+        :param headColumns: Columnas que existen en la tabla
+        :return:  TRUE -> si lo encuentra , False -> si no lo encuentra
+        '''
+        for headName in headColumns:
+            if headName == columnName:
+                return True
+
+        '''
+          ______ _____  _____   ____  _____  
+         |  ____|  __ \|  __ \ / __ \|  __ \ 
+         | |__  | |__) | |__) | |  | | |__) |
+         |  __| |  _  /|  _  /| |  | |  _  / 
+         | |____| | \ \| | \ \| |__| | | \ \ 
+         |______|_|  \_\_|  \_\\____/|_|  \_\
+        borra el print de abajo o comentalo xd
+        Descripcion:'La columna'+columnName+' no existe en la tabla ->'+tableName
+        '''
+        print('La columna'+columnName+' no existe en la tabla ->'+tableName)
+
+        return  False
+    #================================================================================================
+
+    def getNameColumns(self,headColumns) -> list:
+        '''
+        :param headColumns: lista de encabezados
+        :return: lista de nombres encabezado
+        '''
+        result = []
+        for  i in range(len(headColumns)):
+            head   = headColumns[i].split(',')
+            headName:str = str(head[HEAD.nameColumn.value])
+            result.append(headName)
+
+        return result
+    #================================================================================================
+    def getTypeHeadColumns(self, headColumns) -> list:
+        '''
+        :param headColumns: lista de encabezados
+        :return: lista con los tipos de dato de los encabezados
+        '''
+        result = []
+        for  i in range(len(headColumns)):
+            head   = headColumns[i].split(',')
+            headName:int = int(head[HEAD.typeColumn.value])
+            result.append(headName)
+
+        return result
+    #================================================================================================
+
+    def existColumn(self,tableName,listcolumn,headColumns) -> bool:
+
+        namesColumns = self.getNameColumns(headColumns)
+        aux  = []
+        for namecolumn in listcolumn:
+            existColumn:bool = self.searchColumn(tableName,namecolumn,namesColumns)
+
+            if existColumn == True:
+                if  not self.contains(namecolumn,aux):
+                    aux.append(namecolumn)
+                else:
+                    '''
+                         ______ _____  _____   ____  _____  
+                        |  ____|  __ \|  __ \ / __ \|  __ \ 
+                        | |__  | |__) | |__) | |  | | |__) |
+                        |  __| |  _  /|  _  /| |  | |  _  / 
+                        | |____| | \ \| | \ \| |__| | | \ \ 
+                        |______|_|  \_\_|  \_\\____/|_|  \_\
+                        borra el print de abajo o comentalo xd
+                         Descripcion:'la columna: '+namecolumn+'Ya se ha ingresado.'
+                    '''
+                    print('la columna: "'+namecolumn+'" ya se ha ingresado.')
+
+                    return False
+            else:
+                return False
+
+        return True
+    #================================================================================================
+
+    def getTypes(self,listValues,entorno,arbol) -> list:
+        result:list = []
+        for v in listValues:
+            value = v.execute(entorno, arbol)
+            typeValue:int  = value.tipo.value
+            result.append(typeValue)
+        return result
+    #================================================================================================
+
+    def getValues(self,listValues,entorno,arbol) -> list:
+        result:list = []
+
+        for v in listValues:
+            value = v.execute(entorno, arbol).data
+            result.append(value)
+
+        return result
+    #================================================================================================
+
+    def checkLen(self,columns:list,values:list) -> bool:
+        lengthColumn = len(columns)
+        lengthValues = len(values)
+
+        if lengthValues > lengthColumn:
+            '''
+              ______ _____  _____   ____  _____  
+             |  ____|  __ \|  __ \ / __ \|  __ \ 
+             | |__  | |__) | |__) | |  | | |__) |
+             |  __| |  _  /|  _  /| |  | |  _  / 
+             | |____| | \ \| | \ \| |__| | | \ \ 
+             |______|_|  \_\_|  \_\\____/|_|  \_\
+            borra el print de abajo o comentalo xd
+            Descripcion: Insert Demasiados Parametros
+            '''
+            print('Hay Mas valores de los permitidos')
+            return False
+        elif lengthValues < lengthColumn:
+            '''
+              ______ _____  _____   ____  _____  
+             |  ____|  __ \|  __ \ / __ \|  __ \ 
+             | |__  | |__) | |__) | |  | | |__) |
+             |  __| |  _  /|  _  /| |  | |  _  / 
+             | |____| | \ \| | \ \| |__| | | \ \ 
+             |______|_|  \_\_|  \_\\____/|_|  \_\
+            borra el print de abajo o comentalo xd
+            Descripcion: Faltan parametros en el insert
+            '''
+            print('Faltan valores para ingresar')
+            return  False
+        #si no es mayor ni tampoco menor entonces es igual
+        else:
+            return  True
+    #================================================================================================
+
+    #todo: Mejorar metodo separar en varios metodos
+    def TypesCompare(self,headColumns,listValues,entorno,arbol) -> bool:
+
+        result:bool = True
+
+        typeColumns = self.getTypeHeadColumns(headColumns)
+        typeValues  = self.getTypes(listValues,entorno,arbol)
+        nameColumns = self.getNameColumns(headColumns)
+        for i in range(len(typeColumns)):
+            nameColumn:str = nameColumns[i]
+            typeColumn:int = typeColumns[i]
+            typeValue:int  = typeValues[i]
+
+            if typeColumn != typeValue:
+                '''
+                  ______ _____  _____   ____  _____  
+                 |  ____|  __ \|  __ \ / __ \|  __ \ 
+                 | |__  | |__) | |__) | |  | | |__) |
+                 |  __| |  _  /|  _  /| |  | |  _  / 
+                 | |____| | \ \| | \ \| |__| | | \ \ 
+                 |______|_|  \_\_|  \_\\____/|_|  \_\
+                borra el print de abajo o comentalo xd
+                Descripcion: la columna: %nameColumn% No acepta el %value.tipo%
+                '''
+                print(' la columna: '+nameColumn+' No acepta el '+typeValue.tipo)
+                result = False
+
+        return  result
+    #================================================================================================
+
+    def exist(self,database:str,table:str) -> bool:
+        tables_: list = j.showTables(database)
+        #La Base de datos existe
+        if tables_!=None:
+            for table_ in tables_:
+                if table_ == table:
+                    return True
+            '''
+              ______ _____  _____   ____  _____  
+             |  ____|  __ \|  __ \ / __ \|  __ \ 
+             | |__  | |__) | |__) | |  | | |__) |
+             |  __| |  _  /|  _  /| |  | |  _  / 
+             | |____| | \ \| | \ \| |__| | | \ \ 
+             |______|_|  \_\_|  \_\\____/|_|  \_\
+            borra el print de abajo o comentalo xd
+            Descripcion: La %table% no existe en %database% 
+            '''
+            print('La tabla no existe en ' + database)
+            return False
+        else:
+            '''
+              ______ _____  _____   ____  _____  
+             |  ____|  __ \|  __ \ / __ \|  __ \ 
+             | |__  | |__) | |__) | |  | | |__) |
+             |  __| |  _  /|  _  /| |  | |  _  / 
+             | |____| | \ \| | \ \| |__| | | \ \ 
+             |______|_|  \_\_|  \_\\____/|_|  \_\
+            borra el print de abajo o comentalo xd
+            Descripcion: La %database% no existe 
+            '''
+            print('La '+database+' de datos no existe')
+            return False
+    #================================================================================================
+
+    def obtenerIndex(self, tabla:list, index:str):
+        encabezados = tabla[0]
+        for i in len(encabezados):
+            if encabezados[i] == index:
+                return i
+    #================================================================================================
+
+
+
+#================================================================================================
+#================================================================================================
+#========================================headBoard========================================================
+#================================================================================================
+#================================================================================================
+
+
+class HeadBoard:
+    pass
