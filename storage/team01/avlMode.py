@@ -291,7 +291,41 @@ def update(database: str, table: str, register: dict, columns: list) -> int:
     
 #Elimina un registro de una tabla y base de datos especificados por la llave primaria. (DELETE)
 def delete(database: str, table: str, columns: list) -> int:
-    return -1
+    try:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                if nodoTBL.valor[1] == [-999]:
+                    #Tiene llave primaria oculta
+                    if len(columns) == 1:
+                        res = nodoTBL.datos.quitar(columns[0])
+                        if res == 2: res = 4
+                        return res #0 operación exitosa, 1 error en la operación, 4 llave primaria no existe
+                    else:
+                        return 1 #Numero de columnas no coincide con columnas de indice
+                elif len(nodoTBL.valor[1]) == 1:
+                    #Tiene llave primaria simple
+                    if len(columns) == 1:
+                        res = nodoTBL.datos.quitar(columns[0])
+                        if res == 2: res = 4
+                        return res #0 operación exitosa, 1 error en la operación, 4 llave primaria no existe
+                    else:
+                        return 1 #Numero de columnas no coincide con columnas de indice
+                else:
+                    #Tiene llave primaria compuesta
+                    if len(columns) == len(nodoTBL.valor[1]):
+                        res = nodoTBL.datos.quitar(columns)
+                        if res == 2: res = 4
+                        return res #0 operación exitosa, 1 error en la operación, 4 llave primaria no existe
+                    else:
+                        return 1 #Numero de columnas no coincide con columnas de indice
+            else:
+                return 3 #Tabla no existe en la base de datos
+        else:
+            return 2 #Base de datos inexistente
+    except:
+        return 1 #Error en la operación
 
 #Elimina todos los registros de una tabla y base de datos. (DELETE)
 def truncate(database: str, table: str) -> int:
