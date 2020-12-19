@@ -333,3 +333,13 @@ class ALTERTBO_ADD_EXTRAS(Instruccion):
         self.id = id
         self.contenido2 = contenido2
 
+#nuevo hoy 18/12/2020
+
+class ALTERTBO_ALTER_SERIE(Instruccion): 
+    '''
+        ALTER TABLE ADD Extras
+    '''
+    def __init__(self, listaval):
+        self.listaval = listaval
+
+

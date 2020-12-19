@@ -505,13 +505,205 @@ def eliminar_de_tabla(instr,ts):
     global outputTxt
     outputTxt+='\n> Eliminacion de Tabla: '+nombreT
 
+#EMPIEZA MIO --------------------------------------------
+
+
+
 
 def AlterDBF(instr,ts):
-    print("nombre:",instr.Id,"Tipo:",instr.TipoCon,"Valor:",instr.valor)
-     
-def AlterTBF(instr,ts):
-    print("nombre:",instr.Id,"Cuerpo:",instr.cuerpo)
 
+    print("nombre:",instr.Id,"Tipo:",instr.TipoCon,"Valor:",instr.valor)
+    outputTxt=""
+    #Nombre de la base de datos
+    NombreBaseDatos= instr.Id
+    #Instruccion RENAME O OWNER
+    TipoOperacion= (instr.TipoCon).upper()
+    #Valor de la operacion, ID , CURREN_USER O SESSION_USER
+    ValorInstruccion=instr.valor
+
+    if TipoOperacion=="RENAME":
+        retorno=EDD.alterDatabase(NombreBaseDatos, ValorInstruccion)
+
+        if retorno==0:
+            outputTxt='La base de datos Old_Name: '+NombreBaseDatos +', New_Name: '+ValorInstruccion 
+            outputTxt+='\n> se ha renombrado exitosamente '
+            agregarMensjae('normal',outputTxt)
+            print ("La base de datos se ha renombrado exitosamente")
+        elif retorno==1:
+            outputTxt='Hubo un error durante la modificacion de la bd  '
+            agregarMensjae('normal',outputTxt)
+            print ("Hubo un error durante la modificacion de la bd")  
+        elif retorno==2:
+            outputTxt='La base de datos :'+NombreBaseDatos +' ,no existe '
+            agregarMensjae('normal',outputTxt)
+            print ("La base de datos no existe")
+        elif retorno==3:
+            outputTxt='El nombre de la base de datos :'+ValorInstruccion +' ,ya esta en uso '
+            agregarMensjae('normal',outputTxt)
+            print ("El nombre de la bd ya esta en uso")
+            
+    else:
+        #reconoce OWNER 
+        if ValorInstruccion.upper()=="CURRENT_USER":
+            outputTxt='Se ha ejecutado con exito la modificacion DB CURRENT_USER'
+            agregarMensjae('normal',outputTxt)
+        elif ValorInstruccion.upper()=="SESSION_USER":
+            outputTxt='Se ha ejecutado con exito la modificacion DB SESSION_USER'
+            agregarMensjae('normal',outputTxt)
+        else:
+            outputTxt='Se ha ejecutado con exito la modificacion DB ID'
+            agregarMensjae('normal',outputTxt)
+
+
+
+
+
+
+
+def AlterTBF(instr,ts):
+    print("nombreT:",instr.Id,"CuerpoT:",instr.cuerpo)
+    print(instr)
+    #TABLA A ANALIZAR
+    NombreTabla=instr.Id
+
+    #RENAME , ALTER_TABLE_SERIE,   ALTER_TABLE_DROP,   ALTER_TABLE_ADD
+    ObjetoAnalisis=instr.cuerpo
+
+
+
+    #ANALISIS ALTER RENAME
+    if isinstance(ObjetoAnalisis,ALTERTBO_RENAME ):
+        #Primer ID
+        ID1=ObjetoAnalisis.Id1
+        #Segundo ID
+        ID2=ObjetoAnalisis.Id2
+        #Operacion Column ,Constraint o nula
+        OPERACION=ObjetoAnalisis.operacion
+
+        #determinar si es RENAME COLUMN , RENAME COLUMN , RENAME CONSTRAINT, RENAME TABLE
+        if OPERACION.upper()=="CONSTRAINT":
+            ' '
+        elif OPERACION.upper()=="TO":
+            #Alterara el NOMBRE de una tabla de una db Seleccionada
+            print("BASEACTIVA:",baseActiva)
+            retorno=EDD.alterTable(baseActiva, NombreTabla,ID1)
+            #Verifica Respuesta
+            if retorno==0:
+                outputTxt='Se Renombro la Tabla exitosamente,'+NombreTabla +' TO '+ID1 
+                agregarMensjae('normal',outputTxt)
+            elif retorno==1:
+                outputTxt='Hubo un error durante la modificacion de la Tabla  '
+                agregarMensjae('normal',outputTxt)
+            elif retorno==2:
+                outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
+                agregarMensjae('normal',outputTxt)
+            elif retorno==3:
+                outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
+                agregarMensjae('normal',outputTxt)
+            elif retorno==4:
+                outputTxt='El nombre de la Tabla :'+ ID1 +' ,ya esta en uso '
+                agregarMensjae('normal',outputTxt)
+            else:
+                print("operacion desconocida 0")
+        elif OPERACION.upper()=="COLUMN" or OPERACION.upper()=="ID" :
+            ' '
+
+           
+
+
+
+    #ANALISIS ALTER DE ALTERS
+    elif isinstance(ObjetoAnalisis,ALTERTBO_ALTER_SERIE ):
+
+        #Lista de Alter's
+        Lista_Alter = ObjetoAnalisis.listaval
+
+        #Recorre Lista Alters 
+        for alter_list_temp in Lista_Alter:
+
+
+            #Instruccion a procesar COLUMN extra , o CONSTRAINT 
+            INSTRUCCION=alter_list_temp.instruccion
+
+            #ID coluna o constraint
+            ID=alter_list_temp.id
+
+            #Analisis continuacion Column Alter , no Constraint
+            Obj_Ext=alter_list_temp.extra
+            '''alttbalter1  : SET     NOT       NULL
+                            | DROP    NOT       NULL
+                            | SET     DATA      TYPE tipo valortipo
+                            | TYPE    tipo      valortipo
+                            | SET     DEFAULT   exp
+                            | DROP    DEFAULT  '''
+
+
+            OPE1=Obj_Ext.prop1 #set  ,drop ,type        
+            OPE2=Obj_Ext.prop2 #not  ,data ,tipo        ,default
+            OPE3=Obj_Ext.prop3 #null ,type ,valortipo   , exp
+            #si es exp ni idea
+
+            OPEE1=Obj_Ext.prop4 #tipo
+            OPEE2=Obj_Ext.prop5 # valor tipo
+
+
+
+
+
+
+    #ANALISIS ALTER DROP
+    elif isinstance(ObjetoAnalisis,ALTERTBO_DROP ):
+        #Definicion de Instruccion  COLUMN , CONSTRAINT o nula
+        INSTRUCCION=ObjetoAnalisis.instruccion
+        #Identificador 
+        ID=ObjetoAnalisis.id
+
+       
+
+
+    #ANALISIS ALTER ADD
+    elif isinstance(ObjetoAnalisis,ALTERTBO_ADD ):
+        '''alttbadd : ADD ID tipo valortipo
+                  | ADD COLUMN ID tipo valortipo
+                  | ADD CONSTRAINT ID alttbadd2
+                  | ADD alttbadd2  '''
+
+        #Identificador
+        ID=ObjetoAnalisis.id
+
+        #Etiqueta tipo de dato y su especificacion
+        TIPO=ObjetoAnalisis.tipo
+        VALORTIPO=ObjetoAnalisis.valortipo
+
+        #Recupera prefijo column constraint
+        INSTRUCCION=ObjetoAnalisis.instruccion
+
+        #Recupera posible multiple constraint
+        Obj_Extras=list(ObjetoAnalisis.extra)
+        
+        #clasificacion constraints 
+        Check_Obj = []
+        Unique_Obj = []
+        Primary_Obj = []
+        Foreign_Obj = []
+
+        for val in Obj_Extras:
+            Uptemp=(val.instruccion).upper()
+            if  Uptemp=="CHECK":
+                Check_Obj = (Check_Obj+[val])
+            elif Uptemp =="UNIQUE":
+                Unique_Obj = (Unique_Obj+[val])
+            elif Uptemp =="PRIMARY":
+                Primary_Obj = (Primary_Obj+[val])
+            elif Uptemp =="FOREIGN":
+                Foreign_Obj = (Foreign_Obj+[val])
+            else:
+                print("Instruccion desconocida")
+
+
+
+
+#FIN MIO --------------------------------------------
 
 
 def resolver_operacion(operacion,ts):
@@ -669,6 +861,8 @@ def resolver_operacion(operacion,ts):
 
 def procesar_instrucciones(instrucciones, ts) :
     ## lista de instrucciones recolectadas
+    global baseActiva
+    baseActiva=""
     global listaInstrucciones 
     listaInstrucciones  = instrucciones
     if instrucciones is not None:

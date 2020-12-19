@@ -275,7 +275,7 @@ def p_altertb1(t):
 
 def p_alttbname(t):
      '''alttbname : RENAME alttbrename1  '''
-     t[0]=[t[1],t[2]]
+     t[0]=t[2]
 
 def p_alttbrename1(t):
      '''alttbrename1 : COLUMN ID TO ID 
@@ -291,18 +291,24 @@ def p_alttbrename1(t):
      if temp == "COLUMN":
           t[0]=ALTERTBO_RENAME(t[2],t[4],t[1])
      elif temp2 == "TO":
-          t[0]=ALTERTBO_RENAME(t[1],t[3],0)
+          t[0]=ALTERTBO_RENAME(t[1],t[3],"ID")
      elif temp == "CONSTRAINT":
           t[0]=ALTERTBO_RENAME(t[2],t[4],t[1])
      elif temp == "TO":
-          t[0]=ALTERTBO_RENAME(t[2],0,0)
+          t[0]=ALTERTBO_RENAME(t[2],0,"TO")
+     else:
+          ' '#print("No sube nada *******")
 
      
 
 
-
 def p_alttbalterv(t):
-     '''alttbalterv : alttbalterv COMA alttbalter
+     '''alttbalterv : alttbalterv2 '''
+     t[0]=ALTERTBO_ALTER_SERIE(t[1])
+
+
+def p_alttbalterv2(t):
+     '''alttbalterv2 : alttbalterv2 COMA alttbalter
                     | alttbalter '''
      if len(t)==4:
           t[0]= t[1]+[t[3]]
@@ -320,7 +326,7 @@ def p_alttbalter(t):
      if temp=="COLUMN":
           t[0]=ALTERTBO_ALTER(t[2],t[3],t[4])
      else:
-          t[0]=ALTERTBO_ALTER(t[2],t[3],0)
+          t[0]=ALTERTBO_ALTER(t[2],t[3],[])
 
      
 
@@ -391,9 +397,9 @@ def p_alttbadd(t):
           temp=temp.upper()
 
           if (temp!="COLUMN" and temp!="CONSTRAINT"):
-               t[0]=ALTERTBO_ADD(t[2],t[3],t[4],0,0)
+               t[0]=ALTERTBO_ADD(t[2],t[3],t[4],0,[])
           elif temp=="COLUMN":
-               t[0]=ALTERTBO_ADD(t[3],t[4],t[5],t[2],0)
+               t[0]=ALTERTBO_ADD(t[3],t[4],t[5],t[2],[])
           elif temp=="CONSTRAINT":
                t[0]=ALTERTBO_ADD(t[3],0,0,t[2],t[4])
      
