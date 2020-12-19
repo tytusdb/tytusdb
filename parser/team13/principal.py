@@ -4,6 +4,9 @@ import TablaSimbolos as TS
 import Error as Error
 import re
 import math
+from random import random
+from datetime import datetime
+from datetime import date
 
 consola = ""
 useActual = ""
@@ -24,7 +27,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
             print("Mostrando Base-----")
             if nodo.like == False:
                 bases = jBase.showDatabases()
-                for base in bases:
+                for base in bases: 
                     consola += base + "\n"
             else:
                 bases = jBase.showDatabases()
@@ -188,6 +191,16 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     Qhaving = nodo.query1.having
                     Qorderby = nodo.query1.orderby
                     Qlimit = nodo.query1.limit
+
+                    if Qffrom == False and Qffrom == False and Qwhere == False and Qgroupby == False and Qhaving == False and Qorderby == False and Qlimit == False:
+                        print("Forma -> Select")
+                    elif Qffrom != False and Qffrom == False and Qwhere == False and Qgroupby == False and Qhaving == False and Qorderby == False and Qlimit == False:
+                        print("Forma -> Select From")
+                    elif Qffrom != False and Qffrom != False and Qwhere != False and Qgroupby != False and Qhaving != False and Qorderby != False and Qlimit != False:
+                        print("Forma -> Select From Where GroupBy Having Orderby Limit")
+                    else:
+                        print("no")
+
                     # SELECT
                     if isinstance(Qselect, SSelectCols):
                         print("Entro a Select")
@@ -339,8 +352,8 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 elif isinstance(col.cols, SExtract2):
                                     print("Funcion Extract2:")
                                     if isinstance(col.cols.field, STipoDato):
-                                        print(col.cols.field.dato)
-                                        print(col.cols.dtype.dato)
+                                        print(col.cols.field)
+                                        print(col.cols.dtype)
                                     if isinstance(col.cols.timestampstr, SExpresion):
                                         print("param")
                                         print(col.cols.timestampstr.valor)
@@ -353,8 +366,8 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 elif isinstance(col.cols, SFechaFunc):
                                     print("Funcion Fecha:")
                                     if isinstance(col.cols.param, STipoDato):
-                                        print(col.cols.param.valor)
-                                        print(col.cols.param2.valor)
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
                                     else:
                                         print(col.cols.param)
                                         print(col.cols.param2)
@@ -383,11 +396,11 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                     print(col.cols.casoelse)
 
                                 # OTRAS FUNCIONES
-                                elif isinstance(col.cols, SColumnasSubstr):
+                                elif isinstance(col, SColumnasSubstr):
                                     print("Funcion Substr:")
-                                    print(col.cols.st)
-                                    print(col.cols.st2)
-                                    print(col.cols.st3)
+                                    print(col.cols)
+                                    print(col.cols2)
+                                    print(col.cols3)
 
                                 elif isinstance(col, SColumnasGreatest):
                                     print("Funcion Greatest:")
@@ -535,7 +548,714 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         else:
                             print(Qlimit.offset)
             else:
-                print("Query anidada")
+                print("Query no 1")
+                if isinstance(nodo.query1, SQuery):
+                    Qselect = nodo.query1.select
+                    Qffrom = nodo.query1.ffrom
+                    Qwhere = nodo.query1.where
+                    Qgroupby = nodo.query1.groupby
+                    Qhaving = nodo.query1.having
+                    Qorderby = nodo.query1.orderby
+                    Qlimit = nodo.query1.limit
+                    # SELECT
+                    if isinstance(Qselect, SSelectCols):
+                        print("Entro a Select")
+                        # Distinct
+                        if Qselect.distinct != False:
+                            print("Distinct True")
+
+                        # Cantidad de columnas
+                        if Qselect.cols == "*":
+                            print("Todas las Columnas")
+
+                        else:
+                            print("Columnas Específicas")
+                            for col in Qselect.cols:
+                                ##LISTAS
+                                if isinstance(col.cols, SExpresion):
+                                    print("Expre")
+                                    print(col.cols.valor)
+                                    # print("Tipo")
+                                    # print(col.cols.tipo)
+                                elif isinstance(col.cols, SOperacion):
+                                    print("Operación")
+                                    if isinstance(col.cols.opIzq, SExpresion):
+                                        print(col.cols.opIzq.valor)
+                                        print(col.cols.operador)
+                                        print(col.cols.opDer.valor)
+
+                                ##FUNCIONES DE AGREGACION
+                                elif isinstance(col.cols, SFuncAgregacion):
+                                    print("Funcion Agregación:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("val")
+                                        print(col.cols.param.valor)
+                                    else:
+                                        print("val")
+                                        print(col.cols.param)
+
+                                        ##FUNCIONES MATH
+                                elif isinstance(col.cols, SFuncMath):
+                                    print("Funcion Math:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor)
+                                    else:
+                                        print("param")
+                                        print(col.cols.param)
+
+                                elif isinstance(col.cols, SFuncMath2):
+                                    print("Funcion Math2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+
+                                elif isinstance(col.cols, SFuncMathSimple):
+                                    print("Funcion MathSimple:")
+                                    print(col.cols.funcion)
+
+                                    ##FUNCIONES TRIG
+                                elif isinstance(col.cols, SFuncTrig):
+                                    print("Funcion Trig1:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor)
+                                    else:
+                                        print("param")
+                                        print(col.cols.param)
+
+                                elif isinstance(col.cols, SFuncTrig2):
+                                    print("Funcion Trig2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+
+                                ##FUNCIONES BINARIAS
+                                elif isinstance(col.cols, SFuncBinary):
+                                    print("Funcion Binaria1:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor)
+                                    else:
+                                        print("param")
+                                        print(col.cols.param)
+
+                                elif isinstance(col.cols, SFuncBinary2):
+                                    print("Funcion Binaria2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+
+                                elif isinstance(col.cols, SFuncBinary3):
+                                    print("Funcion Binaria3:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param.det)
+                                        print(col.cols.param2.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.det)
+                                        print(col.cols.param2)
+
+                                elif isinstance(col.cols, SFuncBinary4):
+                                    print("Funcion Binaria4:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                        print(col.cols.param3.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+                                        print(col.cols.param3)
+
+
+                                # EXTRACT
+                                elif isinstance(col.cols, SExtract):
+                                    print("Funcion Extract:")
+                                    if isinstance(col.cols.field, STipoDato):
+                                        print(col.cols.field.dato)
+                                        print(col.cols.field.tipo)
+                                        print(col.cols.field.cantidad)
+                                    print(col.cols.timestampstr)
+
+                                elif isinstance(col.cols, SExtract2):
+                                    print("Funcion Extract2:")
+                                    if isinstance(col.cols.field, STipoDato):
+                                        print(col.cols.field)
+                                        print(col.cols.dtype)
+                                    if isinstance(col.cols.timestampstr, SExpresion):
+                                        print("param")
+                                        print(col.cols.timestampstr.valor)
+
+                                        # FUNCIONES DE FECHA
+                                elif isinstance(col.cols, SSelectFunc):
+                                    print("Funcion getFecha:")
+                                    print(col.cols.id)
+
+                                elif isinstance(col.cols, SFechaFunc):
+                                    print("Funcion Fecha:")
+                                    print(col.cols.param)
+                                    print(col.cols.param2)
+
+                                elif isinstance(col.cols, SFechaFunc2):
+                                    print("Funcion Fecha2:")
+                                    print(col.cols.id)
+                                    print(col.cols.param)
+                                    print(col.cols.tipo)
+                                    print(col.cols.param2)
+
+
+                                # CASE
+                                elif isinstance(col.cols, SCase):
+                                    print("Funcion Case:")
+                                    if isinstance(col.cols.casos, SCaseList):
+                                        print(col.cols.casos.param)
+                                        print(col.cols.casos.param2)
+                                        print(col.cols.casos.clist)
+
+                                elif isinstance(col.cols, SCaseElse):
+                                    print("Funcion CaseElse:")
+                                    if isinstance(col.cols.casos, SCaseList):
+                                        print(col.cols.casos.param)
+                                        print(col.cols.casos.param2)
+                                        print(col.cols.casos.clist)
+                                    print(col.cols.casoelse)
+
+                                # OTRAS FUNCIONES
+                                elif isinstance(col, SColumnasSubstr):
+                                    print("Funcion Substr:")
+                                    print(col.cols)
+                                    print(col.cols2)
+                                    print(col.cols3)
+
+                                elif isinstance(col, SColumnasGreatest):
+                                    print("Funcion Greatest:")
+                                    print(col.cols)
+
+                                elif isinstance(col.cols, SColumnasLeast):
+                                    print("Funcion Least:")
+                                    print(col.cols)
+
+                                else:
+                                    print("Otro")
+                                    print(col.id)
+                                    print(col.cols)
+
+                                # ALIAS
+                                if col.id != False:
+                                    if isinstance(col.id, SExpresion):
+                                        print("Alias")
+                                        print(col.id.valor)
+
+                                        # FROM
+                    if isinstance(Qffrom, SFrom):
+                        print("entro al From")
+                        for col in Qffrom.clist:
+                            if isinstance(col, SAlias):
+                                if col.alias == False:
+                                    print("id")
+                                    print(col.id)
+                                else:
+                                    print("id/alias")
+                                    print(col.id)
+                                    print(col.alias)
+
+                    elif isinstance(Qffrom, SFrom2):
+                        print("entro al From2")
+                        # Subquerie
+                        print(Qffrom.clist)
+                        print(Qffrom.id)
+
+                    # WHERE
+                    if isinstance(Qwhere, SWhere):
+                        print("entro al Where")
+                        for col in Qwhere.clist:
+                            if isinstance(col, SWhereCond1):
+                                print("Es where1")
+                                print(col.conds)
+                                # print(col.conds.param.opIzq.valor)
+                                # print(col.conds.param.operador)
+                                # print(col.conds.param.opDer.valor)
+
+                            elif isinstance(col, SWhereCond2):
+                                print("Es where2")
+                                print(col.conds)
+                                print(col.isnotNull)
+
+                            elif isinstance(col, SWhereCond3):
+                                print("Es where3")
+                                print(col.conds)
+                                print(col.directiva)
+
+                            elif isinstance(col, SWhereCond4):
+                                print("Es where4")
+                                print(col.conds)
+                                print(col.ffrom)
+
+                            elif isinstance(col, SWhereCond5):
+                                print("Es where5")
+                                print(col.c1)
+                                print(col.c2)
+                                print(col.c3)
+
+                            elif isinstance(col, SWhereCond6):
+                                print("Es where6")
+                                print(col.cols)
+
+                            elif isinstance(col, SWhereCond7):
+                                print("Es where7")
+                                print(col.efunc)
+                                print(col.qcols)
+                                print(col.anyallsome)
+                                print(col.operador)
+
+                            elif isinstance(col, SWhereCond8):
+                                print("Es where8")
+                                print(col.qcols)
+                                print(col.efunc)
+
+                            elif isinstance(col, SWhereCond9):
+                                print("Es where9")
+                                print(col.between)
+                                print(col.efunc)
+                                print(col.efunc2)
+                            
+                            else: 
+                                print("col")
+                                print(col)
+                    # GROUP BY
+                    if isinstance(Qgroupby, SGroupBy):
+                        print("entro al Group By")
+                        for col in Qgroupby.slist:
+                            if isinstance(col, SExpresion):
+                                print("Agrupado por")
+                                print(col.valor)
+                            else:
+                                print("Agrupado por")
+                                print(col)
+                    # HAVING
+                    if isinstance(Qhaving, SHaving):
+                        print("entro al Having")
+                        print(Qhaving.efunc)
+
+                    # ORDER BY
+                    if isinstance(Qorderby, sOrderBy):
+                        print("entro al Order By")
+                        for col in Qorderby.slist:
+                            if isinstance(col, SListOrderBy):
+                                if col.ascdesc == False and col.firstlast == False:
+                                    print("OrderBy1")
+                                    print(col.listorder)
+                                elif col.ascdesc == False and col.firstlast != False:
+                                    print("OrderBy2")
+                                    print(col.listorder)
+                                    print(col.firstlast)
+                                elif col.ascdesc != False and col.firstlast == False:
+                                    print("OrderBy3")
+                                    print(col.listorder)
+                                    print(col.ascdesc)
+                                elif col.ascdesc != False and col.firstlast != False:
+                                    print("OrderBy4")
+                                    print(col.listorder)
+                                    print(col.ascdesc)
+                                    print(col.firstlast)
+
+                    # LIMIT
+                    if isinstance(Qlimit, SLimit):
+                        print("Entro a Limit")
+                        if isinstance(Qlimit.limit, SExpresion):
+                            print(Qlimit.limit.valor)
+                        else:
+                            print(Qlimit.limit)
+
+                        if isinstance(Qlimit.offset, SExpresion):
+                            print(Qlimit.offset.valor)
+                        else:
+                            print(Qlimit.offset)
+            
+                print("Operador " + str(nodo.ope))
+
+                print("Query no 2")
+                if isinstance(nodo.query2, SQuery):
+                    Qselect = nodo.query2.select
+                    Qffrom = nodo.query2.ffrom
+                    Qwhere = nodo.query2.where
+                    Qgroupby = nodo.query2.groupby
+                    Qhaving = nodo.query2.having
+                    Qorderby = nodo.query2.orderby
+                    Qlimit = nodo.query2.limit
+                    # SELECT
+                    if isinstance(Qselect, SSelectCols):
+                        print("Entro a Select")
+                        # Distinct
+                        if Qselect.distinct != False:
+                            print("Distinct True")
+
+                        # Cantidad de columnas
+                        if Qselect.cols == "*":
+                            print("Todas las Columnas")
+
+                        else:
+                            print("Columnas Específicas")
+                            for col in Qselect.cols:
+                                ##LISTAS
+                                if isinstance(col.cols, SExpresion):
+                                    print("Expre")
+                                    print(col.cols.valor)
+                                    # print("Tipo")
+                                    # print(col.cols.tipo)
+                                elif isinstance(col.cols, SOperacion):
+                                    print("Operación")
+                                    if isinstance(col.cols.opIzq, SExpresion):
+                                        print(col.cols.opIzq.valor)
+                                        print(col.cols.operador)
+                                        print(col.cols.opDer.valor)
+
+                                ##FUNCIONES DE AGREGACION
+                                elif isinstance(col.cols, SFuncAgregacion):
+                                    print("Funcion Agregación:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("val")
+                                        print(col.cols.param.valor)
+                                    else:
+                                        print("val")
+                                        print(col.cols.param)
+
+                                        ##FUNCIONES MATH
+                                elif isinstance(col.cols, SFuncMath):
+                                    print("Funcion Math:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor)
+                                    else:
+                                        print("param")
+                                        print(col.cols.param)
+
+                                elif isinstance(col.cols, SFuncMath2):
+                                    print("Funcion Math2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+
+                                elif isinstance(col.cols, SFuncMathSimple):
+                                    print("Funcion MathSimple:")
+                                    print(col.cols.funcion)
+
+                                    ##FUNCIONES TRIG
+                                elif isinstance(col.cols, SFuncTrig):
+                                    print("Funcion Trig1:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor)
+                                    else:
+                                        print("param")
+                                        print(col.cols.param)
+
+                                elif isinstance(col.cols, SFuncTrig2):
+                                    print("Funcion Trig2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+
+                                ##FUNCIONES BINARIAS
+                                elif isinstance(col.cols, SFuncBinary):
+                                    print("Funcion Binaria1:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("param")
+                                        print(col.cols.param.valor)
+                                    else:
+                                        print("param")
+                                        print(col.cols.param)
+
+                                elif isinstance(col.cols, SFuncBinary2):
+                                    print("Funcion Binaria2:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+
+                                elif isinstance(col.cols, SFuncBinary3):
+                                    print("Funcion Binaria3:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param.det)
+                                        print(col.cols.param2.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.det)
+                                        print(col.cols.param2)
+
+                                elif isinstance(col.cols, SFuncBinary4):
+                                    print("Funcion Binaria4:")
+                                    print(col.cols.funcion)
+                                    if isinstance(col.cols.param, SExpresion):
+                                        print("params")
+                                        print(col.cols.param.valor)
+                                        print(col.cols.param2.valor)
+                                        print(col.cols.param3.valor)
+                                    else:
+                                        print("params")
+                                        print(col.cols.param)
+                                        print(col.cols.param2)
+                                        print(col.cols.param3)
+
+
+                                # EXTRACT
+                                elif isinstance(col.cols, SExtract):
+                                    print("Funcion Extract:")
+                                    if isinstance(col.cols.field, STipoDato):
+                                        print(col.cols.field.dato)
+                                        print(col.cols.field.tipo)
+                                        print(col.cols.field.cantidad)
+                                    print(col.cols.timestampstr)
+
+                                elif isinstance(col.cols, SExtract2):
+                                    print("Funcion Extract2:")
+                                    if isinstance(col.cols.field, STipoDato):
+                                        print(col.cols.field)
+                                        print(col.cols.dtype)
+                                    if isinstance(col.cols.timestampstr, SExpresion):
+                                        print("param")
+                                        print(col.cols.timestampstr.valor)
+
+                                        # FUNCIONES DE FECHA
+                                elif isinstance(col.cols, SSelectFunc):
+                                    print("Funcion getFecha:")
+                                    print(col.cols.id)
+
+                                elif isinstance(col.cols, SFechaFunc):
+                                    print("Funcion Fecha:")
+                                    print(col.cols.param)
+                                    print(col.cols.param2)
+
+                                elif isinstance(col.cols, SFechaFunc2):
+                                    print("Funcion Fecha2:")
+                                    print(col.cols.id)
+                                    print(col.cols.param)
+                                    print(col.cols.tipo)
+                                    print(col.cols.param2)
+
+
+                                # CASE
+                                elif isinstance(col.cols, SCase):
+                                    print("Funcion Case:")
+                                    if isinstance(col.cols.casos, SCaseList):
+                                        print(col.cols.casos.param)
+                                        print(col.cols.casos.param2)
+                                        print(col.cols.casos.clist)
+
+                                elif isinstance(col.cols, SCaseElse):
+                                    print("Funcion CaseElse:")
+                                    if isinstance(col.cols.casos, SCaseList):
+                                        print(col.cols.casos.param)
+                                        print(col.cols.casos.param2)
+                                        print(col.cols.casos.clist)
+                                    print(col.cols.casoelse)
+
+                                # OTRAS FUNCIONES
+                                elif isinstance(col, SColumnasSubstr):
+                                    print("Funcion Substr:")
+                                    print(col.cols)
+                                    print(col.cols2)
+                                    print(col.cols3)
+
+                                elif isinstance(col, SColumnasGreatest):
+                                    print("Funcion Greatest:")
+                                    print(col.cols)
+
+                                elif isinstance(col.cols, SColumnasLeast):
+                                    print("Funcion Least:")
+                                    print(col.cols)
+
+                                else:
+                                    print("Otro")
+                                    print(col.id)
+                                    print(col.cols)
+
+                                # ALIAS
+                                if col.id != False:
+                                    if isinstance(col.id, SExpresion):
+                                        print("Alias")
+                                        print(col.id.valor)
+
+                                        # FROM
+                    if isinstance(Qffrom, SFrom):
+                        print("entro al From")
+                        for col in Qffrom.clist:
+                            if isinstance(col, SAlias):
+                                if col.alias == False:
+                                    print("id")
+                                    print(col.id)
+                                else:
+                                    print("id/alias")
+                                    print(col.id)
+                                    print(col.alias)
+
+                    elif isinstance(Qffrom, SFrom2):
+                        print("entro al From2")
+                        # Subquerie
+                        print(Qffrom.clist)
+                        print(Qffrom.id)
+
+                    # WHERE
+                    if isinstance(Qwhere, SWhere):
+                        print("entro al Where")
+                        for col in Qwhere.clist:
+                            if isinstance(col, SWhereCond1):
+                                print("Es where1")
+                                print(col.conds)
+                                # print(col.conds.param.opIzq.valor)
+                                # print(col.conds.param.operador)
+                                # print(col.conds.param.opDer.valor)
+
+                            elif isinstance(col, SWhereCond2):
+                                print("Es where2")
+                                print(col.conds)
+                                print(col.isnotNull)
+
+                            elif isinstance(col, SWhereCond3):
+                                print("Es where3")
+                                print(col.conds)
+                                print(col.directiva)
+
+                            elif isinstance(col, SWhereCond4):
+                                print("Es where4")
+                                print(col.conds)
+                                print(col.ffrom)
+
+                            elif isinstance(col, SWhereCond5):
+                                print("Es where5")
+                                print(col.c1)
+                                print(col.c2)
+                                print(col.c3)
+
+                            elif isinstance(col, SWhereCond6):
+                                print("Es where6")
+                                print(col.cols)
+
+                            elif isinstance(col, SWhereCond7):
+                                print("Es where7")
+                                print(col.efunc)
+                                print(col.qcols)
+                                print(col.anyallsome)
+                                print(col.operador)
+
+                            elif isinstance(col, SWhereCond8):
+                                print("Es where8")
+                                print(col.qcols)
+                                print(col.efunc)
+
+                            elif isinstance(col, SWhereCond9):
+                                print("Es where9")
+                                print(col.between)
+                                print(col.efunc)
+                                print(col.efunc2)
+                            
+                            else: 
+                                print("col")
+                                print(col)
+                    # GROUP BY
+                    if isinstance(Qgroupby, SGroupBy):
+                        print("entro al Group By")
+                        for col in Qgroupby.slist:
+                            if isinstance(col, SExpresion):
+                                print("Agrupado por")
+                                print(col.valor)
+                            else:
+                                print("Agrupado por")
+                                print(col)
+                    # HAVING
+                    if isinstance(Qhaving, SHaving):
+                        print("entro al Having")
+                        print(Qhaving.efunc)
+
+                    # ORDER BY
+                    if isinstance(Qorderby, sOrderBy):
+                        print("entro al Order By")
+                        for col in Qorderby.slist:
+                            if isinstance(col, SListOrderBy):
+                                if col.ascdesc == False and col.firstlast == False:
+                                    print("OrderBy1")
+                                    print(col.listorder)
+                                elif col.ascdesc == False and col.firstlast != False:
+                                    print("OrderBy2")
+                                    print(col.listorder)
+                                    print(col.firstlast)
+                                elif col.ascdesc != False and col.firstlast == False:
+                                    print("OrderBy3")
+                                    print(col.listorder)
+                                    print(col.ascdesc)
+                                elif col.ascdesc != False and col.firstlast != False:
+                                    print("OrderBy4")
+                                    print(col.listorder)
+                                    print(col.ascdesc)
+                                    print(col.firstlast)
+
+                    # LIMIT
+                    if isinstance(Qlimit, SLimit):
+                        print("Entro a Limit")
+                        if isinstance(Qlimit.limit, SExpresion):
+                            print(Qlimit.limit.valor)
+                        else:
+                            print(Qlimit.limit)
+
+                        if isinstance(Qlimit.offset, SExpresion):
+                            print(Qlimit.offset.valor)
+                        else:
+                            print(Qlimit.offset)
+            
 
     for i in listaSemanticos:
         print(i)
@@ -1521,193 +2241,6 @@ def validarTiposFecha(dato,expresion):
             return True
     return False
 
-# MÉTODO PARA VALIDAR LOS UNIQUE
-def validarUnique(col, val,tabla):
-
-    global useActual
-    registros = jBase.extractTable(useActual,tabla.nombre)
-    indice = col.index
-
-    if ( col.unique == True ):
-
-        for i in range(len(registros)):
-
-            if registros[i][indice] == val:
-                return False
-
-    return True
-
-
-# MÉTODO PARA VALIDAR LAS PRIMARY KEY
-def validarPK(col, val,tabla):
-    global useActual
-    registros = jBase.extractTable(useActual,tabla.nombre)
-    indice = col.index
-
-    if ( col.primary_key == True ):
-
-        if registros != None:
-
-            for i in range(len(registros)):
-
-                if registros[i][indice] == val:
-                    return False
-
-    return True
-
-
-def validarTiposNumericos(dato, expresion):
-    if dato == "smallint":
-        if expresion.tipo == Expresion.ENTERO:
-            if expresion.valor >= -32768 and expresion.valor <= 32767:
-                return True
-    elif dato=="integer":
-        if expresion.tipo == Expresion.ENTERO:
-            if expresion.valor >= -2147483648 and expresion.valor <= 2147483647:
-                return True
-    elif dato=="bigint":
-        if expresion.tipo == Expresion.ENTERO:
-            if expresion.valor >= -9223372036854775808 and expresion.valor <= 9223372036854775807:
-                return True
-    elif dato=="decimal":
-        if expresion.tipo==Expresion.DECIMAL:
-            return True
-    elif dato=="numeric":
-        if expresion.tipo==Expresion.DECIMAL:
-            return True
-    elif dato=="real":
-        if expresion.tipo==Expresion.DECIMAL:
-            return True
-    elif dato=="double":
-        if expresion.tipo==Expresion.DECIMAL:
-            return True
-    elif dato=="money":
-        if expresion.tipo==Expresion.DECIMAL or expresion.tipo==Expresion.ENTERO:
-            return True
-    return False
-
-
-def validarTiposChar(dato, expresion):
-    if dato.dato.lower()=="varying" or dato.dato.lower()=="varchar":
-        if len(expresion.valor)<=dato.cantidad:
-            return True
-    elif dato.dato.lower()=="character" or dato.dato.lower()=="char":
-        if len(expresion.valor)<=dato.cantidad:
-            return True
-    elif dato.dato.lower() == "text":
-        return  True
-    return False
-
-
-def validarTiposFecha(dato,expresion):
-    if dato=="date":
-        if expresion.tipo==Expresion.FECHA:
-            return True
-    elif dato=="timestamp":
-        if expresion.tipo==Expresion.FECHA or expresion.tipo==Expresion.FECHA_HORA:
-            return True
-    elif dato=="time":
-        if expresion.tipo==Expresion.HORA:
-            return True
-    elif dato=="interval":
-        if expresion.tipo==Expresion.INTERVALO:
-            return True
-    return False
-
-
-# MÉTODO PARA VALIDAR LOS UNIQUE
-def validarUnique(col, val,tabla):
-
-    global useActual
-    registros = jBase.extractTable(useActual,tabla.nombre)
-    indice = col.index
-
-    if ( col.unique == True ):
-
-        for i in range(len(registros)):
-
-            if registros[i][indice] == val:
-                return False
-
-    return True
-
-
-# MÉTODO PARA VALIDAR LAS PRIMARY KEY
-def validarPK(col, val,tabla):
-    global useActual
-    registros = jBase.extractTable(useActual,tabla.nombre)
-    indice = col.index
-
-    if ( col.primary_key == True ):
-
-        if registros != None:
-
-            for i in range(len(registros)):
-
-                if registros[i][indice] == val:
-                    return False
-
-    return True
-
-
-def validarTiposNumericos(dato, expresion):
-    if dato == "smallint":
-        if expresion.tipo == Expresion.ENTERO:
-            if expresion.valor >= -32768 and expresion.valor <= 32767:
-                return True
-    elif dato=="integer":
-        if expresion.tipo == Expresion.ENTERO:
-            if expresion.valor >= -2147483648 and expresion.valor <= 2147483647:
-                return True
-    elif dato=="bigint":
-        if expresion.tipo == Expresion.ENTERO:
-            if expresion.valor >= -9223372036854775808 and expresion.valor <= 9223372036854775807:
-                return True
-    elif dato=="decimal":
-        if expresion.tipo==Expresion.DECIMAL:
-            return True
-    elif dato=="numeric":
-        if expresion.tipo==Expresion.DECIMAL:
-            return True
-    elif dato=="real":
-        if expresion.tipo==Expresion.DECIMAL:
-            return True
-    elif dato=="double":
-        if expresion.tipo==Expresion.DECIMAL:
-            return True
-    elif dato=="money":
-        if expresion.tipo==Expresion.DECIMAL or expresion.tipo==Expresion.ENTERO:
-            return True
-    return False
-
-
-def validarTiposChar(dato, expresion):
-    if dato.dato.lower()=="varying" or dato.dato.lower()=="varchar":
-        if len(expresion.valor)<=dato.cantidad:
-            return True
-    elif dato.dato.lower()=="character" or dato.dato.lower()=="char":
-        if len(expresion.valor)<=dato.cantidad:
-            return True
-    elif dato.dato.lower() == "text":
-        return  True
-    return False
-
-
-def validarTiposFecha(dato,expresion):
-    if dato=="date":
-        if expresion.tipo==Expresion.FECHA:
-            return True
-    elif dato=="timestamp":
-        if expresion.tipo==Expresion.FECHA or expresion.tipo==Expresion.FECHA_HORA:
-            return True
-    elif dato=="time":
-        if expresion.tipo==Expresion.HORA:
-            return True
-    elif dato=="interval":
-        if expresion.tipo==Expresion.INTERVALO:
-            return True
-    return False
-
 
 def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
     if isinstance(expresion, SOperacion):
@@ -1807,12 +2340,318 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
                     opDer.tipo == Expresion.ENTERO or opDer.tipo == Expresion.DECIMAL):
                 result = opIzq.valor ** opDer.valor
                 return SExpresion(result, opIzq.tipo)
-
+    #f 
     elif isinstance(expresion, SFuncMath):
         if expresion.funcion.lower() == "abs":
-            param = Interpreta_Expresion(expresion.param)
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
             val = abs(param.valor)
             return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "cbrt":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = (param.valor)**(1/3)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "ceil":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.ceil(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "ceiling":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.ceil(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "degrees":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.degrees(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "exp":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.exp(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "factorial":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.factorial(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "floor":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.floor(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "ln":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.log(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "log":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.log10(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "radians":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.radians(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "round":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = round(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "sign":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            if param.valor >= 0:
+                val = 1
+            else:
+                val = -1
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "sqrt":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.sqrt(param.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "trunc":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.trunc(param.valor)
+            return SExpresion(val, param.tipo)
+
+    elif isinstance(expresion, SFuncMathSimple):
+        if expresion.funcion.lower() == "pi":
+            val = math.pi
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "random":
+            val = random()
+            return SExpresion(val, Expresion.DECIMAL)
+
+    elif isinstance(expresion, SFuncMath2):
+        if expresion.funcion.lower() == "div":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param2,tablaSimbolos, tabla)
+            val = param2.valor//param.valor
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "gcd":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param2,tablaSimbolos, tabla)
+            val = math.gcd(param.valor,param2.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "mod":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param2,tablaSimbolos, tabla)
+            val = param.valor % param2.valor
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "power":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param2,tablaSimbolos, tabla)
+            val = math.pow(param.valor,param2.valor)
+            return SExpresion(val, param.tipo)
+        elif expresion.funcion.lower() == "round":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param2,tablaSimbolos, tabla)
+            val = round(param.valor,param2.valor)
+            return SExpresion(val, param.tipo)
+        
+    elif isinstance(expresion, SFuncMathLista):
+        if expresion.funcion.lower() == "width_bucket":
+            val = 1
+            return SExpresion(val, Expresion.ENTERO)
+    
+    elif isinstance(expresion, SFuncTrig):
+        if expresion.funcion.lower() == "acos":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.acos(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "acosd":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.asin(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "asin":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.asin(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "asind":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.asin(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "asind":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val1 = math.asin(param.valor)
+            val = math.degrees(val1)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "atan":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.atan(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "atand":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val1 = math.atan(param.valor)
+            val = math.degrees(val1)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "cos":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.cos(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "cosd":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val1 = math.cos(param.valor)
+            val = math.degrees(val1)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "cot":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val= 1 / math.tan(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "cotd":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val1 = 1 / math.tan(param.valor)
+            val = math.degrees(val1)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "sin":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val= 1 / math.sin(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "sind":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val1 = math.sin(param.valor)
+            val = math.degrees(val1)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "tan":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.tan(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "tand":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val1 = math.tan(param.valor)
+            val = math.degrees(val1)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "sinh":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.sinh(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "cosh":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.cosh(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "tanh":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.tanh(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "asinh":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.asinh(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "acosh":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.acosh(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "atanh":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = math.atanh(param.valor)
+            return SExpresion(val, Expresion.DECIMAL)
+
+    elif isinstance(expresion, SFuncTrig2):
+        if expresion.funcion.lower() == "atan2":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param2,tablaSimbolos, tabla)
+            val = param.valor/param2.valor
+            return SExpresion(val, Expresion.DECIMAL)
+        elif expresion.funcion.lower() == "atan2d":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param2,tablaSimbolos, tabla)
+            val1 = param.valor/param2.valor
+            val= math.degrees(val1)
+            return SExpresion(val, Expresion.DECIMAL)
+    
+    elif isinstance(expresion, SFuncBinary):
+        if expresion.funcion.lower() == "length":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "trim":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "md5":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "sha256":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "barra":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "barraDoble":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "virgulilla":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+
+    elif isinstance(expresion, SFuncBinary2):
+        if expresion.funcion.lower() == "amp":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "barra":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "numeral":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "menormenor":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "mayormayor":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "encode":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "get_byte":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        
+    elif isinstance(expresion, SFuncBinary3):
+        if expresion.funcion.lower() == "decode":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+        elif expresion.funcion.lower() == "convert":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+
+    elif isinstance(expresion, SFuncBinary4):
+        if expresion.funcion.lower() == "set_byte":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            val = len(param)
+            return SExpresion(val, Expresion.ENTERO)
+
+    elif isinstance(expresion, SSelectFunc):
+        if expresion.id.lower() == "current_date":
+            today = date.today()
+            val = today.strftime("%d/%m/%Y")
+            return SExpresion(val, Expresion.CADENA)
+        elif expresion.id.lower() == "current_time":
+            now = datetime.now()
+            val = now.strftime("%H:%M:%S")
+            return SExpresion(val, Expresion.CADENA)
+        elif expresion.id.lower() == "now":
+            now = datetime.now()
+            val = now.strftime("%d/%m/%Y %H:%M:%S")
+            return SExpresion(val, Expresion.CADENA)
+        
+    elif isinstance(expresion, SFechaFunc2):
+        if expresion.id.lower() == "date_part":
+            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
+            param2 = Interpreta_Expresion(expresion.param2,tablaSimbolos, tabla)
+
 
     elif isinstance(expresion, SExpresion):
         if expresion.tipo == Logicas.NOT:
