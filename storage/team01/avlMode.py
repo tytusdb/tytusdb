@@ -103,7 +103,22 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
 #Elimina la llave primaria actual en la información de la tabla,
 #manteniendo el índice actual de la estructura del árbol hasta que se invoque de nuevo el alterAddPK(). (UPDATE)
 def alterDropPK(database: str, table: str) -> int:
-    return -1
+    try:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                if nodoTBL.valor[1][0] > 0:
+                    nodoTBL.valor[1][0] *= -1
+                    return 0 #Operacion exitosa
+                else:
+                    return 4 #Llave primaria inexistente
+            else:
+                return 3 #Tabla inexistente en la Base de Datos
+        else:
+            return 2 #Base de Datos inexistente
+    except:
+        return 1 #Error en la operación
 
 #Asocia la integridad referencial entre llaves foráneas y llaves primarias, para efectos de la fase 1 se ignora esta petición
 def alterAddFK(database: str, table: str, references: dict) -> int:
