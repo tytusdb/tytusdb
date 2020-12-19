@@ -5,6 +5,7 @@ from analizer.abstract.expression import Expression
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
+from analizer.typechecker import Checker
 import pandas as pd
 from analizer.symbol.symbol import Symbol
 from analizer.symbol.environment import Environment
@@ -172,21 +173,31 @@ class Truncate(Instruction):
 
 
 class InsertInto(Instruction):
-    def __init__(self, tabla, parametros):
+    def __init__(self, tabla,columns, parametros):
         self.tabla = tabla
         self.parametros = parametros
+        self.columns = columns
 
     def execute(self, environment):
 
-        # TODO Falta la validación de tipos
-        result = Checker.checkInsert(dbtemp, self.tabla, self.parametros)
+        lista = []
+        params = []
+        tab = self.tabla
 
-        if result == None:
-            lista = []
-            tab = self.tabla
+        for p in self.parametros:
+            params.append(p.execute(environment))
+        
+        result = Checker.checkInsert(dbtemp, self.tabla,self.columns, params)
 
-            for p in self.parametros:
-                lista.append(p.execute(environment).value)
+        if result[0] == None:
+
+            for p in result[1]:
+                if p == None:
+                    lista.append(p)
+                else:
+                    lista.append(p.value)
+                
+            
 
             res = jsonMode.insert(dbtemp, tab, lista)
 
@@ -203,8 +214,7 @@ class InsertInto(Instruction):
             elif res == 0:
                 return "Fila Insertada correctamente"
         else:
-            print(result)
-            return result
+            return result[0]
 
 
 class useDataBase(Instruction):
