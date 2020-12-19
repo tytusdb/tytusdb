@@ -122,5 +122,8 @@
       }
     }
   },
-  "defaultProject": "team05"
+  "defaultProject": "team05",
+  "cli": {
+    "analytics": false
+  }
 }
