@@ -68,11 +68,11 @@ class Identifiers(Expression):
 
     value = None
     # TODO: implementar la funcion para obtener el type de la columna
-    def __init__(self, table, name, df, row, column):
+    def __init__(self, table, name, row, column):
         Expression.__init__(self, row, column)
         self.table = table
         self.name = name
-        self.df = df
+
         if table == None:
             self.temp = name
         else:
@@ -81,14 +81,15 @@ class Identifiers(Expression):
 
     def execute(self, environment):
         """
-        TODO:Se debe hacer la logica para buscar los identificadores en la tabla
+        TODO: Se debe hacer la logica para buscar los identificadores en la tabla
         """
         col = ""
         if self.table == None:
             col = self.name
         else:
             col = self.table + "." + self.name
-        self.value = self.df[col]
+
+        self.value = environment.dataFrame[col]
         return self
 
     def dot(self):
