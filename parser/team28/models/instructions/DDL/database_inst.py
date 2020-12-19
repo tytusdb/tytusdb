@@ -4,7 +4,7 @@ from models.instructions.shared import Instruction
 from models.database import Database
 from controllers.type_checker import TypeChecker
 from controllers.data_controller import DataController
-
+from controllers.symbol_table import *
 
 class CreateDB(Instruction):
 
@@ -122,8 +122,16 @@ class UseDatabase(Instruction):
     def __init__(self, dbActual):
         self._dbActual = dbActual
 
-    def process(self, instrucction):
-        pass
+    def process(self,instrucction):
+        typeChecker = TypeChecker()
+        database = typeChecker.searchDatabase(self._dbActual)
+
+        if database:
+                SymbolTable()._useDatabase = database
+                print(' ')
+                print('----------> Base de datos seleccionada correctamente')
+                print(' ')
+                return
 
     def __repr__(self):
         return str(vars(self))
