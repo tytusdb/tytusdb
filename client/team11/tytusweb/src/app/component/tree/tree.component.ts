@@ -2,40 +2,29 @@ import { Component, OnInit } from '@angular/core';
 import {FlatTreeControl} from '@angular/cdk/tree';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
 
-interface FoodNode {
+interface DBNode {
   name: string;
-  children?: FoodNode[];
+  children?: DBNode[];
 }
 
-const TREE_DATA: FoodNode[] = [
+const DATA: DBNode[] = [
   {
-    name: 'Fruit',
+    name: 'Server',
     children: [
-      {name: 'Apple'},
-      {name: 'Banana'},
-      {name: 'Fruit loops'},
-    ]
-  }, {
-    name: 'Vegetables',
-    children: [
-      {
-        name: 'Green',
+      {name: 'Tytus',
+      children: [
+        {name: 'Databases',
         children: [
-          {name: 'Broccoli'},
-          {name: 'Brussels sprouts'},
-        ]
-      }, {
-        name: 'Orange',
-        children: [
-          {name: 'Pumpkins'},
-          {name: 'Carrots'},
-        ]
-      },
+          {name:'Database1'}
+        ]},
+        {name: 'Login/Groups'},
+        {name: 'TableSpaces'}
+      ]}
     ]
-  },
+  }
 ];
 
-interface ExampleFlatNode {
+interface FlatNode {
   expandable: boolean;
   name: string;
   level: number;
@@ -48,7 +37,7 @@ interface ExampleFlatNode {
 })
 export class TreeComponent implements OnInit {
 
-  private _transformer = (node: FoodNode, level: number) => {
+  private _transformer = (node: DBNode, level: number) => {
     return {
       expandable: !!node.children && node.children.length > 0,
       name: node.name,
@@ -56,7 +45,7 @@ export class TreeComponent implements OnInit {
     };
   }
 
-  treeControl = new FlatTreeControl<ExampleFlatNode>(
+  treeControl = new FlatTreeControl<FlatNode>(
       node => node.level, node => node.expandable);
 
   treeFlattener = new MatTreeFlattener(
@@ -65,10 +54,10 @@ export class TreeComponent implements OnInit {
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   constructor() {
-    this.dataSource.data = TREE_DATA;
+    this.dataSource.data = DATA;
   }
 
-  hasChild = (_: number, node: ExampleFlatNode) => node.expandable;
+  hasChild = (_: number, node: FlatNode) => node.expandable;
   ngOnInit(): void {
   }
 
