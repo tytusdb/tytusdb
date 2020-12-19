@@ -82,7 +82,6 @@ def p_use(p):
     'use : USE ID'
     p[0] = Use(p[2], p.slice[2].lineno)
     bnf.addProduccion('\<use> ::= "USE" "ID" ') 
-
 # __________________________________________definicion
 
 # <DEFINICION> ::= 'create' 'type' 'as' 'enum' '(' <LISTA_ENUM> ')'
@@ -189,7 +188,7 @@ def p_alter_options7(p):
     
 def p_alter_options8(p):
     'alter_options : DROP CONSTRAINT ID '
-    bnf.addProduccion('\<alter_options> ::= "DROP" "CONSTRAINT" "ID"')              
+    bnf.addProduccion('\<alter_options> ::= "DROP" "CONSTRAINT" "ID"')            
 
 
 def p_alter_varchar_lista(p):
