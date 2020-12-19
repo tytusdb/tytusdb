@@ -7,18 +7,13 @@ class tabla_simbolos:
     #ADD SIMBOLOS
 
     def add_db(self, simbolo_db):
-        self.simbolos[simbolo_db.id_] = simbolo_db
+        self.simbolos[simbolo_db.id_] = {}
 
     def add_tb(self, db_id, simbolo_tb):
-        base_datos = self.simbolos[db_id]
-        base_datos.tablas[simbolo_tb.id_] = simbolo_tb 
-        self.simbolos[db_id] = base_datos
+        self.simbolos[db_id][simbolo_tb.id_] = {}
             
     def add_col(self, db_id, tb_id, simbolo_col):
-        tabla_datos = self.simbolos[db_id].tablas[tb_id]
-        tabla_datos.columnas[simbolo_col.id_] = simbolo_col        
-        simbolo_col.num = len(self.simbolos[db_id].tablas[tb_id].columnas)
-        self.simbolos[db_id].tablas[tb_id] = tabla_datos
+        self.simbolos[db_id][tb_id][simbolo_col.id_] = simbolo_col
 
     #GET SIMBOLOS
 
@@ -26,10 +21,10 @@ class tabla_simbolos:
         return self.simbolos[id_db]
 
     def get_tb(self, id_db, id_tb):
-        return self.simbolos[id_db].tablas[id_tb]
+        return self.simbolos[id_db][id_tb]
 
     def get_col(self, id_db, id_tb, id_col):
-        return self.simbolos[id_db].tablas[id_tb].columnas[id_col]
+        return self.simbolos[id_db][id_tb][id_col]
 
     #DELETE SIMBOLOS
 
@@ -37,24 +32,24 @@ class tabla_simbolos:
         del self.simbolos[id_db]        
 
     def delete_tb(self, id_db, id_tb):
-        del self.simbolos[id_db].tablas[id_tb]
+        del self.simbolos[id_db][id_tb]
 
     def delete_col(self, id_db, id_tb, id_col):
-        del self.simbolos[id_db].tablas[id_tb].columnas[id_col]
+        del self.simbolos[id_db][id_tb][id_col]
 
     #UPDATE SIMBOLOS
 
     def update_db(self, id_db, new_db):
         del self.simbolos[id_db]
-        self.simbolos[new_db.id_] = new_db
+        self.simbolos[new_db.id_] = {}
 
     def update_tb(self, id_db, id_tb, new_tb):
-        del self.simbolos[id_db].tablas[id_tb] 
-        self.simbolos[id_db].tablas[new_tb.id_] = new_tb
+        del self.simbolos[id_db][id_tb] 
+        self.simbolos[id_db][new_tb.id_] = {}
 
     def update_col(self, id_db, id_tb, id_col, new_col):
-        del self.simbolos[id_db].tablas[id_tb].columnas[id_col]
-        self.simbolos[id_db].tablas[id_tb].columnas[new_col.id_] = new_col
+        del self.simbolos[id_db][id_tb][id_col]
+        self.simbolos[id_db][id_tb][new_col.id_] = new_col
 
     def reiniciar_ts(self):
         self.simbolos = {}
@@ -64,20 +59,21 @@ class tabla_simbolos:
         str_ts += 'arset [label=<\n<TABLE ALIGN=\"LEFT\">\n<TR>\n<TD>No.</TD><TD>TIPO</TD><TD>ID</TD><TD>AMBIENTE</TD><TD>DATA TYPE</TD></TR>\n'
 
         count_dbs = 1
-        
-        for database_ in self.simbolos.values():
-            str_ts += '<TR><TD>' + str(count_dbs) + '</TD><TD> BASE DATOS </TD><TD> ' + database_.id_ + '</TD><TD> - </TD><TD> - </TD></TR>'
+        for database_ in self.simbolos:
+            str_ts += '<TR><TD>' + str(count_dbs) + '</TD><TD> BASE DATOS </TD><TD> ' + database_ + '</TD><TD> - </TD><TD> - </TD></TR>\n'
+            database_val = self.simbolos[database_]
             count_dbs += 1
 
             count_tbs = 1
-            for table_ in database_.tablas.values():
-                str_ts += '<TR><TD>' + str(count_dbs) + '</TD><TD> TABLA </TD><TD> ' + table_.id_ + ' </TD><TD> ' + database_.id_ + ' </TD><TD> - </TD></TR>'
+            for table_ in database_val:
+                str_ts += '<TR><TD>' + str(count_tbs) + '</TD><TD> TABLA </TD><TD> ' + table_ + '</TD><TD> ' + database_ + ' </TD><TD> - </TD></TR>\n'
+                table_val = database_val[table_]
                 count_tbs += 1
 
                 count_cols = 1
-                for columna_ in table_.columnas.values():
-                    str_ts += '<TR><TD>' +str(count_cols) + '</TD><TD> COLUMNA </TD><TD> ' + columna_.id_ + ' </TD><TD> ' + table_.id_ + ' </TD><TD> ' + self.get_str_tipo(columna_.tipo) + ' </TD></TR>'
-                    count_cols += 1        
+                for col in table_val.values():
+                    str_ts += '<TR><TD>' + str(count_cols) + '</TD><TD> COLUMNA </TD><TD> ' + col.id_ + ' </TD><TD> ' + table_ + ' </TD><TD> ' + self.get_str_tipo(col.tipo) + ' </TD></TR>\n'
+                    count_cols += 1
 
         str_ts += '</TABLE>\n>, ];\n}'
 
@@ -116,14 +112,12 @@ class tabla_simbolos:
             return "BOOLEAN"
 
 class symbol_db:
-    def __init__(self, id_, tablas = {}):
+    def __init__(self, id_):
         self.id_ = str(id_)
-        self.tablas = tablas
 
 class symbol_tb:
-    def __init__(self, id_, columnas = {}):
+    def __init__(self, id_):
         self.id_ = str(id_)
-        self.columnas = columnas
 
 class symbol_col:
     def __init__(self, id_, size, tipo, condiciones):

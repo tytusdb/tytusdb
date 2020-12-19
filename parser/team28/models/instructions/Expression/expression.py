@@ -14,10 +14,12 @@ class ArithmeticBinaryOperation(Expression):
     '''
         Una operacion binaria recibe, sus dos operandos y el operador
     '''
-    def __init__(self, value1, value2, operador, op) :
+    def __init__(self, value1, value2, operador, op, line, column) :
         self.value1 = value1
         self.value2 = value2
         self.operador = operador
+        self.line = line 
+        self.column = column
         self.alias = str(self.value1.alias) + str(op) + str(self.value2.alias)
 
     def __repr__(self):
@@ -61,11 +63,14 @@ class Relop(Expression):
     == != >= ...
     Devuelve un valor booleano
     '''
-    def __init__(self, value1, operator, value2):
+    def __init__(self, value1, operator, value2, op,line, column):
         self.value1 = value1
         self.operator = operator
         self.value2 = value2
-        self.alias = str(self.value1.alias) + str(operator) + str(self.value2.alias)
+        self.op = op
+        self.line = line
+        self.column = column
+        self.alias = f'{str(self.value1.alias)}  {str(op)}  {str(self.value2.alias)}'
 
     def __repr__(self):
         return str(vars(self))
@@ -103,11 +108,13 @@ class ExpressionsTime(Expression):
     '''
         ExpressionsTime
     '''
-    def __init__(self, name_date, type_date, name_opt):
+    def __init__(self, name_date, type_date, name_opt,name_date2,line, column):
         self.name_date = name_date
         self.type_date = type_date
         self.name_opt = name_opt
-        self.alias = str(self.name_date.alias)
+        self.line = line
+        self.column = column
+        self.alias = f'{name_date2}'
 
 
     def __repr__(self):
@@ -154,8 +161,11 @@ class ExpressionsTime(Expression):
             # TODO Pendiente 
             pass
         elif name_date == SymbolsTime.TIMESTAMP:
-            time_data = self.method_for_timestamp(name_opt.value)
-            current_time = str(datetime(time_data[0], time_data[1], time_data[2], time_data[3], time_data[4], time_data[5]))
+            if name_opt.value == 'now':
+                current_time = datetime.now().strftime('%Y-%B-%A  %H:%M:%S')
+            else:
+                time_data = self.method_for_timestamp(name_opt.value)
+                current_time = str(datetime(time_data[0], time_data[1], time_data[2], time_data[3], time_data[4], time_data[5]))
         return PrimitiveData(DATA_TYPE.STRING, current_time)
         
     def method_for_timestamp(self, fecha):
@@ -183,11 +193,13 @@ class ExpressionsTrigonometric(Expression):
     '''
         ExpressionsTrigonometric
     '''
-    def __init__(self, type_trigonometric, expression1, optional_expression2):
+    def __init__(self, type_trigonometric, expression1, optional_expression2,line, column):
         self.type_trigonometric = type_trigonometric
         self.expression1 = expression1
         self.optional_expression2 = optional_expression2
-        self.alias = str(self.type_trigonometric.alias)
+        self.line = line
+        self.column = column
+        self.alias = str(self.type_trigonometric)
         
     def __repr__(self):
         return str(vars(self))
@@ -251,10 +263,12 @@ class UnaryOrSquareExpressions(Expression):
     '''
     UnaryOrSquareExpressions
     '''
-    def __init__(self, sign, expression_list):
+    def __init__(self, sign, expression_list,line, column, sign1):
         self.sign = sign
         self.expression_list = expression_list
-        self.alias = str(self.sign) + str(self.expression_list.alias)
+        self.line = line
+        self.column = column
+        self.alias = str(sign1) + str(self.expression_list.alias)
     
     def __repr__(self):
         return str(vars(self))
@@ -281,11 +295,13 @@ class LogicalOperators(Expression):
     '''
         LogicalOperators
     '''
-    def __init__(self, value1, operator, value2):
+    def __init__(self, value1, operator, value2,line, column):
         self.value1 = value1
         self.operator = operator
         self.value2 = value2
-        self.alias = str(self.value1.alias) + str(self.operator) + str(self.value2.alias)
+        self.line = line
+        self.column = column
+        self.alias = f'{str(self.value1.alias)}  {str(self.operator)}  {str(self.value2.alias)}'
 
     def __repr__(self):
         return str(vars(self))
