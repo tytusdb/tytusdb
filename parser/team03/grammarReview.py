@@ -195,7 +195,7 @@ reserved = {
     'first' : 'FIRST',
     'last' : 'LAST',
     'nulls' : 'NULLS',
-
+    'use' : 'USE',
 }
 
 tokens = [
@@ -369,7 +369,8 @@ def p_statements2(t):
 def p_statement(t):
     '''statement    : predicateExpression PUNTOCOMA
                     | stm_show   PUNTOCOMA
-                    | stm_create PUNTOCOMA'''
+                    | stm_create PUNTOCOMA
+                    | stm_use_db PUNTOCOMA '''
     t[0] = t[1]
 
 def p_statement_error(t):
@@ -378,6 +379,12 @@ def p_statement_error(t):
     token = t.slice[1]
     t[0] = Error(token.lineno, token.lexpos, ErrorType.SYNTAX, 'Ilegal token '+str(token.lineno))
 
+
+def p_stm_use_db(t):
+    '''stm_use_db : USE DATABASE ID'''
+    tokenID = t.slice[3]    
+    IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
+    t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
 ##########   >>>>>>>>>>>>>>>>  STM_DELETE   AND  STM_ALTER  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_delete(t):
     '''stm_delete   : DELETE FROM ID where_clause
@@ -398,23 +405,26 @@ def p_where_clause(t):
     graph_ref = graph_node(str(t[1]),[t[2].graph_ref])
     addCad("**\<WHERE_CLAUSE>** ::= tWhere \<EXP_PREDICATE>")
     #
-
+#CREATE STATEMENTS
 def p_stm_create (t):
     '''stm_create   : CREATE or_replace_opt DATABASE ID owner_opt mode_opt'''
     #graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[3],t[4], t[5].graph_ref,t[6].graph_ref] )
     token = t.slice[1]
     tokenID = t.slice[4]
-    tvla = Text(tokenID.value, tokenID.lineno, tokenID.lexpos,None)    
+    tvla = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)    
     addCad("**\<STM_CREATE>** ::=  tCreate [\<OR_REPLACE_OPT>] tDatabase tIdentifier  [\<OWNER_OPT>] [\<MODE_OPT>]")
-    t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1 , (True if t[2] else False) , token.lineno, token.lexpos)
+    t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1, (True if t[2] else False) , token.lineno, token.lexpos)
 
 
 def p_stm_create0 (t):
-    '''stm_create   : CREATE TABLE ID PARA tab_create_list PARC inherits_opt
-                    | CREATE TYPE ID AS ENUM PARA exp_list PARC'''
-    
+    '''stm_create   : CREATE TABLE ID PARA tab_create_list PARC inherits_opt'''
+    token = t.slice[1]
+    t[0] = CreateTable(t[3], t[7], t[5], None, token.lineno, token.lexpos) #TODO check if param check_exp is neceary and where we obtain that
 
+def p_stm_create1 (t):
+    '''stm_create   : CREATE TYPE ID AS ENUM PARA exp_list PARC'''
 
+#for table columns and contrainst
 def p_tab_create_list(t):
     '''tab_create_list  : tab_create_list COMA ID type nullable_opt primary_key_opt
                         | ID type nullable_opt primary_key_opt'''
@@ -434,7 +444,14 @@ def p_nullable_opt(t):
 
 def p_inherits_opt(t):
     '''inherits_opt : INHERITS PARA ID PARC
-                    | empty'''
+                    | empty'''    
+    if [1] is None:
+        return None
+    else:
+        token = slice[3]
+        return Identifier(token.value,token.lineno, token.lexpos,None)
+
+
 #owner option
 def p_owner_opt(t):
     '''owner_opt    : OWNER IGUAL ID'''
@@ -448,15 +465,24 @@ def p_owner_opt1(t):
 def p_mode_opt(t):
     '''mode_opt     : MODE IGUAL ENTERO'''
     t[0] = t[3]
-def p_mode_opt(t):
+def p_mode_opt1(t):
     '''mode_opt     : MODE ENTERO'''
     t[0] = t[2]
-def p_mode_opt0(t):
+def p_mode_opt2(t):
     '''mode_opt     : empty'''
 
+
+#Replace OPTION
 def p_or_replace_opt(t):
     '''or_replace_opt   : OR REPLACE
                         | empty'''
+    if t[1] is None :
+        t[0] = None
+    else:
+        t[0] = True
+#def p_or_replace_opt(t):
+#    '''or_replace_opt   : empty'''
+#    t[0] = False
 
 def p_stm_alter(t):
     '''stm_alter    :    ALTER DATABASE ID RENAME TO ID
@@ -1066,14 +1092,17 @@ if __name__ == "__main__":
     input = f.read()
     print("Input: " + input +"\n")
     print("Executing AST root, please wait ...")
+    ST = SymbolTable([])##TODO Check is only one ST.
+    ST.LoadMETADATA()
     instrucciones = parse.parse(input)
     #dot.view()
 
     for instruccion in instrucciones:
         try:
-            val = instruccion.execute(None,None)
+            val = instruccion.execute(ST, None)
             print("AST excute result: ", val)
         except our_error as named_error:
             errorsList.append(named_error)
 
     print(errorsList)
+    

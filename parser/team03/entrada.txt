@@ -15,4 +15,9 @@ cos(3.14159274)
 //1+1-1 = -1 or 'hola' = 'hola';
 //'hola' = 'hola' and 3 < 1;
 1 is null;
+create or replace database comp2 mode 6;
+create or replace database compiladores2 mode 6;
+use database comp2;
 false is false;
+show databases;
+use database compiladores2;

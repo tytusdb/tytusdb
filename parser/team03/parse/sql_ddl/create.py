@@ -48,8 +48,9 @@ class CreateDatabase(ASTNode):
             raise Error(0, 0, ErrorType.RUNTIME, '42P04: duplicate_database')
             return False
         else:            
-            return table.add(DatabaseSymbol(result_name, result_owner, result_mode))
-
+            #return table.add(DatabaseSymbol(result_name, result_owner, result_mode)) #chaged by loadDatabases
+            table.LoadDataBases()
+            return True
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
     def __init__(self, name, inherits_from, fields, check_exp, line, column):

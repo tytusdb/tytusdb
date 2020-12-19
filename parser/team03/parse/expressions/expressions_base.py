@@ -246,3 +246,18 @@ class Negation(ASTNode):
         else:
             raise Exception("The result of operation isn't boolean value")
         
+
+class Identifier(ASTNode):
+    def __init__(self, val, line, column, graph_ref):
+        ASTNode.__init__(self, line, column)
+        self.val = val
+        self.graph_ref = graph_ref
+
+    #Must return lexeme of ID
+    def execute(self, table, tree): 
+        super().execute(table, tree)
+        return self.val
+
+    def executeSTVal(self, table, tree): #TODO: Symbol value from ST :S
+        super().execute(table, tree)
+        return self.val

@@ -1,5 +1,6 @@
 from enum import Enum
 from parse.errors import ErrorType, Error
+from jsonMode import showDatabases as showDB
 
 index = 0
 
@@ -114,9 +115,14 @@ class SymbolTable:
         return result
 
     def set_current_db(self, db_name):
-        db_to_select = self.get(db_name, SymbolType.DATABASE)
+        db_to_select = self.get(db_name, SymbolType.DATABASE)        
+        allDB = self.get_all_db(None)#get the other databases and unselect them
+        if (len(allDB)>0):
+            for db in allDB:
+                db.selected = False
         db_to_select.selected = True
-        self.update(db_to_select)
+        #self.update(db_to_select) commet this line for test
+        
         return True
 
     def get_all_db(self, table_name):
@@ -130,6 +136,16 @@ class SymbolTable:
         for x in range(len(self.symbols)):
             print(f'{self.symbols[x].id} - {self.symbols[x].type} - {self.symbols[x].name}')
 
+    def LoadMETADATA(self):
+        self.LoadDataBases()
+    
+    def LoadDataBases(self):
+        db_memory = self.get_all_db(None)
+        db_disk = showDB()
+        for dbd in db_disk:
+            db_memory =  list(filter(lambda sym: sym.type == SymbolType.DATABASE and str(sym.name).lower() == str(dbd).lower(), self.symbols))
+            if len(db_memory) == 0:
+                self.add(DatabaseSymbol(dbd, None, 6))#TODO change the mode for phase II
 
 # BLOCK TO TEST SYMBOL TABLE
 # db = DatabaseSymbol('test_db', None, 6)
