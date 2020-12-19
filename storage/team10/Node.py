@@ -152,4 +152,4 @@ class Node:
                 
     #agrega una columna y registra un dato
     def alterAddColumn(self, dato):
-        self.array[0].append(dato)
+        self.array.append(dato)
