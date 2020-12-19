@@ -44,11 +44,11 @@ class Arithmetic(Expression):
             return {'value': 0 - op1['value'], 'typ': op1['typ']}
 
         switcher = {
-            '+': {'value': op1['value'] + op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},
-            '-': {'value': op1['value'] - op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},
-            '*': {'value': op1['value'] * op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},
-            '/': {'value': op1['value'] / op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},
-            '^': {'value': op1['value'] ** op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},
-            '%': {'value': op1['value'] % op2['value'], 'typ': tipos[op1['typ']][op2['typ']]},
+            '+': {'value': op1['value'] + op2['value'], 'typ': tipos[op1['typ'].value][op2['typ'].value]},
+            '-': {'value': op1['value'] - op2['value'], 'typ': tipos[op1['typ'].value][op2['typ'].value]},
+            '*': {'value': op1['value'] * op2['value'], 'typ': tipos[op1['typ'].value][op2['typ'].value]},
+            '/': {'value': op1['value'] / op2['value'], 'typ': tipos[op1['typ'].value][op2['typ'].value]},
+            '^': {'value': op1['value'] ** op2['value'], 'typ': tipos[op1['typ'].value][op2['typ'].value]},
+            '%': {'value': op1['value'] % op2['value'], 'typ': tipos[op1['typ'].value][op2['typ'].value]},
         }
         return switcher.get(self.operator,"Error: operador no encontrado.")

@@ -7,7 +7,8 @@ class Where(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
+        print("DEVOLVER El WHERE")
+        return self.valor
 
 '''
 instruccion = Where("hola mundo",None, 1,2)

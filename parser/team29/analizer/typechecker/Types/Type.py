@@ -1,24 +1,22 @@
 from enum import Enum
 
-class Type(Enum):
-    Numeric = 1
-    Character = 2 
-    Time = 3
-    Boolean = 4  
-    smallint = 5
-    integer = 6
-    bigint = 7
-    decimal = 8
-    numeric = 9
-    real = 10
-    doublePrecision = 11
-    money = 12
-    varchar = 13
-    char = 14
-    text = 15
-    timestamp = 16 
-    date = 17
-    time = 18
-    interval = 19 
-    boolean = 20
 
+Type = {
+    "SMALLINT": "NUMERIC",
+    "INTEGER": "NUMERIC",
+    "BIGINT": "NUMERIC",
+    "DECIMAL": "NUMERIC",
+    "NUMERIC": "NUMERIC",
+    "REAL": "NUMERIC",
+    "DOUBLE": "NUMERIC",
+    "MONEY": "NUMERIC",
+    "CHARACTER": "CHARACTER",
+    "VARYING": "CHARACTER",
+    "VARCHAR": "CHARACTER",
+    "CHAR": "CHARACTER",
+    "TEXT": "CHARACTER",
+    "DATE": "TIME",
+    "TIME": "TIME",
+    "BOOLEAN": "BOOLEAN",
+    "TIMESTAMP": "TIME",
+}
