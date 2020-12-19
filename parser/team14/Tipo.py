@@ -24,7 +24,7 @@ class Tipo():
         if len(decimales[1])<=6:
             self.tipo='real'
         elif len(decimales[1])<=15:
-            if self.val>=-92233720368547758.08  and self.val <=92233720368547758.07:
+            if self.valor>=-92233720368547758.08  and self.valor <=92233720368547758.07:
                 self.tipo='money'
             self.tipo='double'
         else:

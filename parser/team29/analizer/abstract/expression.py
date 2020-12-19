@@ -17,6 +17,9 @@ class TYPE(Enum):
     NUMBER = 1
     STRING = 2
     BOOLEAN = 3
+    DATETIME = 4
+    TYPE = 5
+    NULL = 6
 
 
 class ERROR(Enum):

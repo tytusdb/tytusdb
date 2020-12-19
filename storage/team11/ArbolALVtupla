@@ -1,3 +1,5 @@
+import copy
+
 class NodoAVL:
     def __init__(self, element):
         self.element = element
@@ -112,7 +114,7 @@ class ArbolAVLR:
         self.cadena += "}\n"
         print(self.cadena)
 
-    def get_root(self):
+    def get_root(self):        
         return self.root
 
     def __graficar(self, padre, actual, left):
@@ -212,11 +214,25 @@ class ArbolAVLR:
     def __inorder(self, nodo):
         if nodo.get_left() is not None:
             self.__inorder(nodo.get_left())
-
-        self.__list_tables.append(nodo.get_element())
-
+        self.__list_tables.append(nodo.get_element()[0])
         if nodo.get_right() is not None:
             self.__inorder(nodo.get_right())
+        return self.__list_tables
+
+    def extra_table(self):
+        self.__extract_table(self.root)
+        list_aux = self.__list_tables.copy()
+        self.__list_tables = list()
+        return list_aux
+
+    def __extract_table(self, nodo):
+        if nodo.get_left() is not None:
+            self.__extract_table(nodo.get_left())
+        list_aux = nodo.get_element().copy()   
+        list_aux.pop(0)      
+        self.__list_tables.append(list_aux)
+        if nodo.get_right() is not None:
+            self.__extract_table(nodo.get_right())
 
     def truncate(self):    
         return self.__truncate(self.root)    
@@ -224,16 +240,36 @@ class ArbolAVLR:
     def __truncate(self, nodo):
         if nodo.get_left() is not None or nodo.get_right() is not None :
             self.__truncate(self.__delete_nodo(nodo,nodo.get_element()[0]))
-                   
         self.delete_nodo(nodo.get_element()[0])
         self.root=None
        
-    def update_node(self, value,register=dict()):        
+    def update_node(self, value,register=dict()): 
         nodo = self.search_value(value)   
-
-        for key in register.keys():
-            nodo.get_element()[key+1]=register[key]
-
-        return nodo
-       
+        if nodo:
+            for key in register.keys():
+                nodo.get_element()[key+1]=register[key]    
+            return 0    
+        else: 
+            return 4
     
+    def extractRangeTable(self, column_number, lower, upper):
+        self.__extract_range_table(self.root, column_number, lower, upper)
+        list_aux = self.__list_tables.copy()
+        self.__list_tables = list()
+        return list_aux
+
+    def __extract_range_table(self, nodo: NodoAVL, column_number, lower, upper):
+        if nodo.get_left() is not None:
+            self.__extract_range_table(nodo.get_left(), column_number, lower, upper)
+
+        data = str(nodo.get_element()[int(column_number + 1)])
+        list_aux: list = nodo.get_element().copy()
+        list_aux.pop(0)
+        if str(lower) <= data <= str(upper):
+            self.__list_tables.append(list_aux)
+
+        if nodo.get_right() is not None:
+            self.__extract_range_table(nodo.get_right(), column_number, lower, upper)
+
+    def get_rootV2(self):
+        return self.root if self.root is not None else None

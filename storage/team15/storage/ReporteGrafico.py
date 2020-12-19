@@ -1,9 +1,14 @@
+# HASH Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
 
 from tkinter import *
-from HashMode import*
+from storage import HashMode as h
 
 
-
+def Mostrar():
+    Databases_Window(Tk(), "", "")
 
 class Databases_Window:
     def __init__(self, window, settings_frame, database):
@@ -47,7 +52,7 @@ class Databases_Window:
         Frame1.place(x=300, y=383)
 
         ''' AGREGARA LA IMAGEN DE LAS BASES DE DATOS'''
-        storage.graficar()
+        h._storage.graficar()
         photo = PhotoImage(file="dbs.png")
         Label(frame, image=photo).pack()
 
@@ -66,7 +71,7 @@ class Databases_Window:
         temp = Toplevel()
         Label(self.new_frame(temp, 0, 0, 10, 10), text=text, font=("Arial Black", 11)).pack()
         Button(self.new_frame(temp, 0, 0, 120, 60), text="Aceptar", font=("Arial", 12), command=self._Warning_Window_Alter_Database(temp, database)).pack()
-        print("Entreeee problema")
+        
         x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
         y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
         temp.geometry('{}x{}+{}+{}'.format(350, 100, x, y))
@@ -111,7 +116,7 @@ class Databases_Window:
     '''
     def show_databases(self, frame):
         self.frame1 = frame
-        for i in showDatabases():
+        for i in h.showDatabases():
             Button(frame, text="• " + str(i), width=30, anchor="w", command=self.command_button_databases(i)).pack()
 
     def command_button_databases(self, database):
@@ -157,7 +162,7 @@ class Databases_Window:
 
         Label(self.new_frame(temp, 0, 0, 20, 50), text="DETAILS: ", font=("Arial Black", 8)).pack()
         Label(self.new_frame(temp, 0, 0, 100, 50), text="Tables: ", font=("Arial", 9)).pack()
-        Label(self.new_frame(temp, 0, 0, 160, 50), text=str(len(showTables(database))), font=("Arial", 9)).pack()
+        Label(self.new_frame(temp, 0, 0, 160, 50), text=str(len(h.showTables(database))), font=("Arial", 9)).pack()
 
 
     '''
@@ -197,7 +202,7 @@ class Databases_Window:
     def _DropDatabase(self, temp, database):
         if database != "":
             temp.destroy()
-            dropDatabase(database)
+            h.dropDatabase(database)
             Databases_Window(self.window, self.Default_frame(), database)
 
 
@@ -244,13 +249,13 @@ class Databases_Window:
 
     def _AlterDatabase(self, tmp, entrada, database):
         if str(entrada.get()) != "":
-            temp = storage.Buscar(entrada.get())
+            temp = h._storage.Buscar(entrada.get())
             if temp:
                 text = "This database already exists"
                 tmp.destroy()
                 self.Warning_Window_Alter_Database(text, database)
             else:
-                alterDatabase(database, entrada.get())
+                h.alterDatabase(database, entrada.get())
                 tmp.destroy()
                 Databases_Window(self.window, self.Default_frame(), database)
         else:
@@ -288,14 +293,13 @@ class Databases_Window:
 
     def _Create_Database(self,tmp, name):
         if str(name.get()) != "":
-            temp = storage.Buscar(name.get())
+            temp = h._storage.Buscar(name.get())
             if temp:
                 text = "This database already exists"
                 tmp.destroy()
                 self.Warning_Window_Create_Database(text)
-            else:
-                print("ESTOY CREANDO: "+str(name.get()))
-                createDatabase(name.get())
+            else:                
+                h.createDatabase(name.get())
                 tmp.destroy()
                 Databases_Window(self.window, self.Default_frame(), "")
         else:
@@ -340,7 +344,7 @@ class Databases_Window:
         can.create_window((False, False), window=frame, anchor="nw")
         can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
         Frame1.place(x=10, y=30)
-        for i in showDatabases():
+        for i in h.showDatabases():
             Button(frame, text="• " + str(i), width=25, anchor="w", command=self.view_tables(temp, i)).pack()
 
 
@@ -362,7 +366,7 @@ class Databases_Window:
         can.create_window((False, False), window=frame, anchor="nw")
         can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
         Frame1.place(x=240, y=30)
-        for i in showTables(database):
+        for i in h.showTables(database):
             Button(frame, text="• " + str(i), width=25, anchor="w", command=self.send_database_table(temp, database, i, "")).pack()
         self._command_cargar_csv(temp, database, "", "", "")
 
@@ -382,7 +386,7 @@ class Databases_Window:
 
     def _send_csv_(self, tmp, database, table, path):
         try:
-            print(loadCSV(str(path.get()), database, table))
+            print(h.loadCSV(str(path.get()), database, table))
             tmp.destroy()
             self.successfully()
         except:
@@ -505,7 +509,7 @@ class Tables_Window:
         Frame1.place(x=300, y=383)
 
         ''' AGREGARA LA IMAGEN DE LAS TABLAS'''
-        tmp = storage.Buscar(database)
+        tmp = h._storage.Buscar(database)
         tmp.graficar()
         photo = PhotoImage(file="tablas.png")
         Label(frame, image=photo).pack()
@@ -529,7 +533,7 @@ class Tables_Window:
         MOSTRAR LISTA DE TABLAS DE UNA BASE DE DATOS SELECCIONADA   
     '''
     def show_tables(self, frame, database):
-        for i in showTables(database):
+        for i in h.showTables(database):
             Button(frame, text="• " + str(i), width=30, anchor="w",
                    command=self.command_button_tables(database, i)).pack()
 
@@ -619,7 +623,7 @@ class Tables_Window:
             dato = self.Convert_Number(columns.get())
             if dato:
                 if int(columns.get()) > 0:
-                    print(createTable(database, entrada.get(), int(columns.get())))
+                    print(h.createTable(database, entrada.get(), int(columns.get())))
                     temp.destroy()
                     Tables_Window(self.window, self.database, "", self.Default_Frame(), self.Tuplas_Default_Frame())
                 else:
@@ -751,7 +755,7 @@ class Tables_Window:
         return lambda: self._DropDatabase(temp, database, table)
 
     def _DropDatabase(self, temp, database, table):
-        dropTable(database, table)
+        h.dropTable(database, table)
         temp.destroy()
         Tables_Window(self.window, self.database,"",self.Default_Frame(), self.Tuplas_Default_Frame())
 
@@ -787,7 +791,7 @@ class Tables_Window:
 
     def _AlterTable(self, tmp, entrada, database, table):
         if entrada.get() != "":
-            alterTable(database, table, entrada.get())
+            h.alterTable(database, table, entrada.get())
             tmp.destroy()
             Tables_Window(self.window, self.database, "", self.Default_Frame(), self.Tuplas_Default_Frame())
         else:
@@ -822,7 +826,7 @@ class Tables_Window:
         return lambda: self._alter_add_column(temp, database, table, default)
 
     def _alter_add_column(self, temp, database, table, default):
-        alterAddColumn(database, table, default)
+        h.alterAddColumn(database, table, default)
         temp.destroy()
 
 
@@ -856,7 +860,7 @@ class Tables_Window:
 
     def _alter_drop_columns(self, temp, database, table, columns):
         try:
-            print(alterDropColumn(database, table, int(columns.get())))
+            print(h.alterDropColumn(database, table, int(columns.get())))
             temp.destroy()
         except:
             temp.destroy()
@@ -894,7 +898,7 @@ class Tables_Window:
             list=[]
             for i in columns.get().split(","):
                 list.append(int(i))
-            print(alterAddPK(database, table, list))
+            print(h.alterAddPK(database, table, list))
             temp.destroy()
         except:
             temp.destroy()
@@ -927,7 +931,7 @@ class Tables_Window:
         return lambda : self._alter_drop_PK(temp, database, table)
 
     def _alter_drop_PK(self, temp, database, table):
-        print(alterDropPK(database, table))
+        print(h.alterDropPK(database, table))
         temp.destroy()
 
 
@@ -955,10 +959,10 @@ class Tables_Window:
         can.create_window((False, False), window=frame, anchor="nw")
         can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
         Frame1.place(x=20, y=50)
-        h=0
-        for i in extractTable(database, table):
+        height=0
+        for i in h.extractTable(database, table):
             Label(frame, text=str(i), font=("Arial", 10)).pack()
-            h+=30
+            height+=30
 
         x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
         y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
@@ -1010,8 +1014,37 @@ class Tables_Window:
         if low:
             lower = int(lower.get())
 
-        print(extractRangeTable(database, table, columns, lower, upper))
+        text= h.extractRangeTable(database, table, columns, lower, upper)
         temp.destroy()
+        self.show_row(text, table)
+
+
+    def show_row(self, text, table):
+        temp = Toplevel()
+        Label(self.new_frame(temp, 100, 30, 20, 10), text="TABLE: ", font=("Arial Black", 10)).pack()
+        Label(self.new_frame(temp, 100, 30, 100, 10), text=str(table), font=("Arial", 11)).pack()
+        Frame1 = LabelFrame(temp)
+        can = Canvas(Frame1, width=430, height=20)
+        Scrollbar_x = Scrollbar(Frame1, orient="vertical", command=can.yview)
+        Scrollbar_y = Scrollbar(Frame1, orient="horizontal", command=can.xview)
+        Scrollbar_y.pack(side="bottom", fill="x")
+        Scrollbar_x.pack(side="right", fill="y")
+        can.pack(expand=True, fill="both")
+        can.configure(yscrollcommand=Scrollbar_x.set, xscrollcommand=Scrollbar_y.set)
+        frame = Frame(can)
+        can.create_window((False, False), window=frame, anchor="nw")
+        can.bind("<Configure>", lambda e: can.configure(scrollregion=can.bbox("all")))
+        Frame1.place(x=20, y=50)
+
+        for z in text:
+            Label(frame, text=str(z), font=("Arial", 10)).pack()
+
+        x = (temp.winfo_screenwidth() // 2) - (temp.winfo_width() // 2) - 200
+        y = (temp.winfo_screenheight() // 2) - (temp.winfo_height() // 2) - 100
+        temp.geometry('{}x{}+{}+{}'.format(500, 140, x, y))
+        temp.resizable(0, 0)
+        temp.title("EXRACTRANGETABLE")
+
 
 
     '''  CASTEO DE DATOS INGRESADOS   '''
@@ -1103,7 +1136,7 @@ class Tuples_Window:
         Frame1.place(x=300, y=150)
 
         ''' AGREGARA LA IMAGEN DE LAS TABLAS'''
-        tmp = storage.Cargar(database, table)
+        tmp = h._storage.Cargar(database, table)
         tmp.Grafico()
         photo = PhotoImage(file="hash.png")
         Label(frame, image=photo).pack()
@@ -1155,7 +1188,7 @@ class Tuples_Window:
         MOSTRAR TUPLAS
     '''
     def show_tuples(self, frame, database, table):
-        tmp = storage.Cargar(database, table)
+        tmp = h._storage.Cargar(database, table)
         for i in tmp.vector:
             if i is None:
                 pass
@@ -1175,11 +1208,11 @@ class Tuples_Window:
 
     def _command_create_tuple(self, database, table):
         Entrada = StringVar()
-        tmp = storage.Cargar(database, table)
+        tmp = h._storage.Cargar(database, table)
         temp = Toplevel()
         Label(self.new_frame(temp, 0, 0, 10, 10), text="TABLE: " + str(table), font=("Arial Black", 8)).pack()
         Label(self.new_frame(temp, 0, 0, 230, 10), text="COLUMNS: " + str(tmp.columnas), font=("Arial Black", 8)).pack()
-        Label(self.new_frame(temp, 0, 0, 10, 45), text="Enter the tuple separate by commas", font=("Arial Black", 9)).pack()
+        Label(self.new_frame(temp, 0, 0, 10, 45), text="Enter the tuple separated by commas", font=("Arial Black", 9)).pack()
 
         Label(self.new_frame(temp, 0, 0, 10, 80), text="Tuple: ", font=("Arial Black", 8)).pack()
         Entry(self.new_frame(temp, 40, 10, 70, 80), width=35, font=("Arial", 10), textvariable=Entrada).pack()
@@ -1208,7 +1241,7 @@ class Tuples_Window:
                     list.append(int(i))
                 else:
                     list.append(str(i))
-            print(insert(database, table, list))
+            print(h.insert(database, table, list))
             tmp.destroy()
             Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
         except:
@@ -1255,7 +1288,7 @@ class Tuples_Window:
 
     def _command_truncate(self, database,table):
         temp = Toplevel()
-        Label(self.new_frame(temp, 0, 0, 10, 10), text="Are you sure you delete all the data?",
+        Label(self.new_frame(temp, 0, 0, 10, 10), text="Are you sure you want tol delete all the data?",
               font=("Arial", 14)).pack()
         Label(self.new_frame(temp, 0, 0, 10, 43), text="Table selected: ", font=("Arial Black", 8)).pack()
         Label(self.new_frame(temp, 0, 0, 140, 43), text=str(table), font=("Arial", 9)).pack()
@@ -1275,7 +1308,7 @@ class Tuples_Window:
         return lambda : self._truncate(tmp, database, table)
 
     def _truncate(self, tmp, database, table):
-        truncate(database, table)
+        h.truncate(database, table)
         tmp.destroy()
         Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
 
@@ -1288,11 +1321,11 @@ class Tuples_Window:
 
     def _command_update(self,database, table, pk):
         Entrada = StringVar()
-        tmp = storage.Cargar(database, table)
+        tmp = h._storage.Cargar(database, table)
         temp = Toplevel()
         Label(self.new_frame(temp, 0, 0, 10, 10), text="TABLE: " + str(table), font=("Arial Black", 8)).pack()
         Label(self.new_frame(temp, 0, 0, 230, 10), text="COLUMNS: " + str(tmp.columnas), font=("Arial Black", 8)).pack()
-        Label(self.new_frame(temp, 0, 0, 10, 45), text="Enter the tuple separate by commas",
+        Label(self.new_frame(temp, 0, 0, 10, 45), text="Enter the tuple separated by commas",
               font=("Arial Black", 9)).pack()
 
         Label(self.new_frame(temp, 0, 0, 10, 80), text="Tuple: ", font=("Arial Black", 8)).pack()
@@ -1323,7 +1356,7 @@ class Tuples_Window:
                 else:
                     list[int(aux[0])]=str(aux[1])
             print(str(list))
-            print(update(database, table, list, [pk.primaria]))
+            print(h.update(database, table, list, [pk.primaria]))
             tmp.destroy()
             Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
         except:
@@ -1347,7 +1380,7 @@ class Tuples_Window:
 
     def _command_delete(self, database, table, pk):
         temp = Toplevel()
-        Label(self.new_frame(temp, 0, 0, 10, 10), text="Are you sure you delete this tuple?",
+        Label(self.new_frame(temp, 0, 0, 10, 10), text="Are you sure you want to delete this tuple?",
               font=("Arial", 14)).pack()
         Label(self.new_frame(temp, 0, 0, 10, 43), text="Primary Key: ", font=("Arial Black", 8)).pack()
         Label(self.new_frame(temp, 0, 0, 140, 43), text=str(pk.primaria), font=("Arial", 9)).pack()
@@ -1367,7 +1400,7 @@ class Tuples_Window:
         return lambda :self._delete_tuple(tmp, database, table, pk)
 
     def _delete_tuple(self, tmp, database, table, pk):
-        print(delete(database, table, [pk.primaria]))
+        print(h.delete(database, table, [pk.primaria]))
         tmp.destroy()
         Tuples_Window(self.window, self.database, self.table, self.Default_Frame())
 
