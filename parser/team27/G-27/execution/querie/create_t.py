@@ -1,4 +1,3 @@
-#def createTable(database: str, table: str, numberColumns: int) -> int:
 import sys
 sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
 sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
@@ -45,35 +44,31 @@ class Create_Table(Querie):
             #Creo una nueva tabla con el nombre solicitado
             newTable = Table(self.table,columnas,restricciones)
             #Agrego a la tabla las columnas pertenecientes a la misma
-            #newTable.columns = self.fields
             primaryKeys = []
             ids = []
             for const in newTable.constraint:
-                if const['type'] == "PRIMARY":
-                    ids.append(const['name'])
-            
+                if const['type'] == "primary":
+                    ids.append(const['value'])
             for index in range(len(newTable.columns)):
                 for id in ids:
                     if newTable.columns[index].name == id:
                         primaryKeys.append(index)
-                        
             #Agrego la nueva tabla a la base de datos.
             database.addTable(newTable)
             
             create = admin.alterAddPK(name,self.table,primaryKeys)
             if (create == 0):
-                print('Llave primaria agregada exitosamenta a la tabla' + self.table )
-            if (create == 1):
+                return('Llave primaria agregada exitosamenta a la tabla' + self.table )
+            elif (create == 1):
                 return {'Error':'Tabla ' + self.table + ' creada, pero ocurrio un error al ingresar llaves primarias', 'Fila':self.row, 'Columna':self.column}
-            if (create == 2):
+            elif (create == 2):
                 return {'Error':'No se encontro la Base de datos, en agregar tabla', 'Fila':self.row, 'Columna':self.column}
-            if (create == 3):
+            elif (create == 3):
                 return {'Error':'No se pudo agregar llaves pirmarias a '+ self.table + ', Tabla no existente', 'Fila':self.row, 'Columna':self.column}
-            if (create == 4):
+            elif (create == 4):
                 return {'Error':'Llave Primaria ya existente en Tabla ' + self.table, 'Fila':self.row, 'Columna':self.column}
-            if (create == 5):
+            elif (create == 5):
                 return {'Error':'Columnas fuera del límites', 'Fila':self.row, 'Columna':self.column}
-
             return 'La Tabla ' + self.table + ' ha sido creada con éxito.' 
         elif result == 1:
             #Error al crear

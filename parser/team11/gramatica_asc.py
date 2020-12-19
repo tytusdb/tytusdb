@@ -230,7 +230,10 @@ def p_instruccion(t) :
                       | alter_instr PTCOMA
                       | insert_instr
                       | update_instr
-                      | use_instr'''
+                      | use_instr
+                      | delete_instr
+                      | truncate_instr
+                      | select_instr'''
 
 ##CREATE DATABASE
 def p_create_db(t):
@@ -503,9 +506,15 @@ def p_select(t):
     t[0] = t[1]
 
 def p_select_simple(t):
-    'select_instr1    : SELECT termdistinct selectlist FROM listatablasselect whereselect groupby orderby'
+    'select_instr1    : SELECT termdistinct selectlist selectfrom'
 
-# Producciones para el manejo del Select
+def p_fromselect(t) :
+    'selectfrom       : FROM listatablasselect whereselect groupby orderby'
+
+def p_fromselect2(t) :
+    'selectfrom       : empty'  
+
+# ---------------------- Producciones para el manejo del Select -------------------------
 
 def p_termdistinct(t):
     '''termdistinct   : DISTINCT
@@ -530,7 +539,7 @@ def p_valselect_1(t):
                       | PARIZQ select_instr1 PARDER alias
                       | agregacion PARIZQ cualquieridentificador PARDER alias
                       | COUNT PARIZQ ASTERISCO PARDER alias
-                      | COUNT PARIZQ val_agregacion PARDER alias'''
+                      | COUNT PARIZQ cualquieridentificador PARDER alias'''
     
 def p_funcionagregacion(t):
     '''agregacion      : SUM
@@ -538,9 +547,7 @@ def p_funcionagregacion(t):
                        | MAX
                        | MIN'''
 
-def p_val_agregacion(t):
-    '''val_agregacion : ID
-                      | ID PUNTO ID'''
+## ------------------------- tablas que se piden en el from  ----------------------------------
 
 def p_listatablasselect(t):
     'listatablasselect : listatablasselect COMA tablaselect'
@@ -556,13 +563,16 @@ def p_tablasselect_2(t):
 
 def p_asignar_alias(t):
     '''alias             : ID
+                         | CADENASIMPLE
+                         | CADENADOBLE
                          | AS ID
                          | AS CADENASIMPLE
                          | AS CADENADOBLE
                          | empty'''
 
 
-# Producciones para el manejo del where, incluyendo subquerys
+
+# -------------------- Producciones para el manejo del where, incluyendo subquerys --------------------
 
 def p_whereselect_1(t):
     'whereselect       : WHERE condicioneswhere'
@@ -583,12 +593,14 @@ def p_lista_condicionwhere_salida(t):
 
 def p_condicionwhere(t):
     '''condicionwhere      : whereexists
+                           | notwhereexists
                            | wherenotin
                            | wherein
                            | wherenotlike
                            | wherelike
                            | wheresubstring
                            | between_state
+                           | not_between_state
                            | predicates_state
                            | is_distinct_state
                            | condicion'''                     
@@ -596,6 +608,8 @@ def p_condicionwhere(t):
 def p_existwhere(t):
     'whereexists       : EXISTS PARIZQ select_instr1 PARDER'
 
+def p_notexistwhere(t):
+    'notwhereexists    : NOT EXISTS PARIZQ select_instr1 PARDER'
 
 def p_inwhere(t):
     '''wherein         : cualquiernumero IN PARIZQ select_instr1 PARDER
@@ -622,6 +636,52 @@ def p_substringwhere(t):
 def p_cadenas(t):
     '''cadenastodas    : cualquiercadena
                        | cualquieridentificador'''
+
+
+# -------- Producciones para el manejo del group by, incluyendo Having ----------------------
+def p_gruopby(t):
+    'groupby          : GROUP BY listagroupby' 
+
+def p_groupby(t):
+    'groupby          : GROUP BY listagroupby HAVING condicioneshaving'
+
+def p_gruopby_2(t):
+    'groupby          : empty'
+
+def p_listagroupby(t):
+    'listagroupby     : listagroupby COMA valgroupby'
+
+def p_salidagroupby(t):
+    'listagroupby     : valgroupby'
+
+def p_valgroupby(t):
+    '''valgroupby     : cualquieridentificador
+                      | cualquiernumero'''
+
+def p_lista_condicionhaving(t):
+    '''condicioneshaving  : condicioneshaving OR  condicionhaving
+                          | condicioneshaving AND condicionhaving'''
+
+def p_listacondicionhaving_salida(t):
+    'condicioneshaving    :  condicionhaving'''
+
+def p_condicionhaving(t):
+    '''condicionhaving  : expresionhaving MENQUE expresionhaving
+                        | expresionhaving MAYQUE expresionhaving
+                        | expresionhaving MENIGUAL expresionhaving
+                        | expresionhaving MAYIGUAL expresionhaving
+                        | expresionhaving IGUAL expresionhaving 
+                        | expresionhaving DIFERENTE expresionhaving'''
+
+def p_expresionhaving(t):
+    '''expresionhaving     : cualquiercadena
+                           | expresionaritmetica
+                           | condicionhavingagregacion
+                           | funcion_matematica_ws'''
+
+def p_condicionhavingagregacion(t):
+    'condicionhavingagregacion  : agregacion PARIZQ cualquieridentificador PARDER'
+
 ## -------------------------------- EXPRESIONES ------------------------------------------    
 
 ## expresiones logicas (condiciones)

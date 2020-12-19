@@ -73,8 +73,13 @@ def p_instruccion5(p):
     p[0] = p[1]
     bnf.addProduccion('\<instruccion> ::= \<combine_querys> "." ') 
 
-def p_instruccion5(p):
+def p_instruccion6(p):
     'instruccion : use PTCOMA '
+    p[0] = p[1]
+    bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
+
+def p_instruccion7(p):
+    'instruccion : select PTCOMA '
     p[0] = p[1]
     bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
     
@@ -287,12 +292,10 @@ def p_combine_querys7(p):
     'combine_querys : select'
     bnf.addProduccion('\<combine_querys> ::= \<select> ')
 #_____________________________________________________________ SELECT
-# SOLO DE PRUEBA :V
-# def p_select0(p):
-#     'select : SELECT expresion'
-#     p[0] = p[2].ejecutar(0)
-#     print(p[0].val)
-#     print(p[0])
+
+def p_select0(p):
+    'select : SELECT expresion'
+    p[0] = p[2]
 
 def p_select1(p):
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -1505,23 +1508,25 @@ def p_expresiones_is_complemento4(p):
     bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "NOT ""DISTINCT" "FROM" \<expresion>')
     
 def p_expresiones_is_complemento(p):
-    '''
-    expresion    : expresion IS NULL    
-                 | expresion IS NOT NULL '''
-    if len(p) == 3:
-        bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "NULL"')
-    else:
-        bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "NOT "NULL"')
+    'expresion : expresion IS NULL'                 
+    bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "NULL"')
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NULL)
 
-        
+def p_expresiones_is_complemento_not_null(p):
+    'expresion : expresion IS NOT NULL'
+    bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "NOT "NULL"')
+    p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NOT_NULL)
+
 def p_expresiones_is_complemento2(p):
     '''       
     expresion  : expresion ISNULL 
                | expresion NOTNULL'''
     if p[2].upper() == 'ISNULL':
         bnf.addProduccion('\<expresion> ::= \<expresion> "ISNULL"')
+        p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NULL)
     else:
         bnf.addProduccion('\<expresion> ::= \<expresion> "NOTNULL"')
+        p[0] = ExpresionUnariaIs(p[1], p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NOT_NULL)
         
 def p_expresiones_is_complemento5(p):               
     ''' expresion   : expresion IS UNKNOWN
@@ -1535,7 +1540,7 @@ def p_expresiones_is_complemento5(p):
 def p_expresiones_is_complemento6(p):     
     ''' expresion   : expresion IS DISTINCT FROM expresion '''
     bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "DISTINCT" "FROM" \<expresion> ') 
-          
+    p[0] = ExpresionBinariaIs(p[1], p[5], OPERACION_BINARIA_IS.IS_DISTINCT_FROM,p.slice[2].lineno)
 
 
 def p_expresion_ternaria(p): 
@@ -1963,6 +1968,7 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 
-arbolParser = analizarEntrada(''' insert into tablee values(1,m2,3); ''')
-arbolParser.ejecutar()#viendo el resultado: 
+arbolParser = analizarEntrada(''' select 'HOLA' = 'HOLA'; ''')
+arbolParser.ejecutar()
+#viendo el resultado: 
 

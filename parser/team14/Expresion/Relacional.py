@@ -8,6 +8,9 @@ class Relacional(Binaria):
 
 
     def getval(self,entorno):
+        if (self.exp1.tipo.tipo == 'identificador' or self.exp2.tipo.tipo == 'identificador'):
+            return self
+
         valizq = self.exp1.getval(entorno);
         valder = self.exp2.getval(entorno);
         try:
@@ -21,10 +24,12 @@ class Relacional(Binaria):
                 self.val = valizq <= valder;
             elif self.operador == '<>':
                 self.val = valizq != valder;
-            elif self.operador == '==':
+            elif self.operador == '=':
                 self.val = valizq == valder;
-            print(self.val)
+
+            self.tipo = 'boolean'
             return self.val
         except :
              return 'Los tipos que se estan comparando no coinciden'
+
 
