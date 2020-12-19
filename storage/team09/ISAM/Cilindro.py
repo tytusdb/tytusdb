@@ -180,7 +180,9 @@ class Cilindro:
             v = x.valores[columnNumber]
             try:
                 if (type(v) is str) and flag:
-                    v = v.upper()
+                    a, b = len(lower), len(upper)
+                    li = (a, b)[a > b]
+                    v = v.upper()[:li]
                 if (v >= lower) and (v <= upper):
                     data.append(x.valores)
             except:

@@ -67,7 +67,7 @@ class Indice:
         except:
             return 1
 
-    def delete(self, val): #probar borrar overflow
+    def delete(self, val):
         try:
             if type(val[0]) is int:
                 i = self._hashn(val[0])
