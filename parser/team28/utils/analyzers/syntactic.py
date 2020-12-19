@@ -568,9 +568,9 @@ def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
-    if(len(p) == 7):
+    if(len(p) == 8):
         p[0] = Update(p[2],p[5],p[6])
-    elif(len(p) == 6):
+    elif(len(p) == 7):
         p[0] = Update(p[2],p[4],p[5])
     else:
         p[0] = Update(p[2],p[4],None)
@@ -586,7 +586,7 @@ def p_set_list(p):
 
 def p_column_values(p):
     '''COLUMNVALUES : OBJECTREFERENCE EQUALS SQLEXPRESSION2'''
-    p[0] = ColumnVal(p[1],p[2])
+    p[0] = ColumnVal(p[1],p[3])
 
 
 def p_sql_expression2(p):
@@ -601,7 +601,24 @@ def p_sql_expression2(p):
                       | LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS
                       | SQLNAME
                       | SQLINTEGER'''
-
+    #TODO: CUALES SON LOS UNARIOS QUE ACEPTA ---> REVISAR
+    if len(p) == 4:
+        if p[1] == '(':
+            p[0] = p[2]
+        elif p[2] == '+':
+            p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS, '+')
+        elif p[2] == '-':
+            p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS, '-')
+        elif p[2] == '*':
+            p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES, '*')
+        elif p[2] == '/':
+            p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON, '/')
+        elif p[2] == '^':
+            p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT, '^')
+        elif p[2] == '%':
+            p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR, '%')
+    elif len(p) == 2:
+        p[0] = p[1]
 
 def p_options_list2(p):
     '''OPTIONSLIST2 : WHERECLAUSE OPTIONS4

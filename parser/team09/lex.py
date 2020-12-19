@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 import ply.lex as lex
 import re
+import instrucciones as ins
 from graphviz import Digraph
 from graphviz import Graph
 
@@ -13,7 +14,7 @@ cont_error_sintactico = 0
 linea = 1
 columna = 1
 errores = ""                #Variable para concatenar los errores que se mostraran en la consola
-
+base_actual = None
 i = 0
 
 def inc_index():
@@ -360,6 +361,8 @@ def p_entrada(p):
 
 def p_use(p):
     'use : USE ID PTCOMA'
+    global base_actual
+    base_actual = ins.UseDB(p[2]).ejecutar()
 
 def p_select(p):
     'select : s_select PTCOMA'

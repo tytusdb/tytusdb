@@ -145,6 +145,12 @@ class tabla_simbolos():
         #no se encontro el constraint
         msj_error = 'No se encontro el constrint -'+id_const+'-.'
         
+    def get_databases(self):
+        databases = []
+        for simbolo in self.lis_simbolos:
+            if simbolo.tipo == tipo_simbolo.DATABASE:
+                databases.append(simbolo)
+        return databases
     
     #funciones para borrar simbolos
     def drop_db(self,db):
