@@ -1,5 +1,10 @@
-import BaseDatos as DB
-import os
+# HASH Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
+
+from storage import BaseDatos as DB
+import os, shutil
 
 main_path = os.getcwd()+"\\data\\hash"
 
@@ -68,6 +73,7 @@ class ListaBaseDatos:
 
                 try:
                     temp_old.Name = databaseNew
+                    temp_old.Name = databaseNew
 
                     temp_path_old = main_path+"\\"+databaseOld
                     temp_path_new = main_path+"\\"+databaseNew
@@ -97,8 +103,10 @@ class ListaBaseDatos:
 
                 temp_path = main_path+"\\"+database
 
-                if os.path.isdir(temp_path):
+                try:
                     os.rmdir(temp_path)
+                except:
+                    shutil.rmtree(temp_path) 
 
                 return 0
             
@@ -115,11 +123,11 @@ class ListaBaseDatos:
         info = "{"
         
         j = 0
-        for i in self.list_table:
+        for i in self.lista_bases_datos:
             if j == 0:
-                info += i+ os.linesep
+                info += i.Name+ os.linesep
             else:
-                info += "|"+i+ os.linesep
+                info += "|"+i.Name+ os.linesep
             j = j+1
             
         file.write('dbs[shape=record label="'+info+'}"];')
@@ -127,3 +135,11 @@ class ListaBaseDatos:
         file.close()
         os.system('dot -Tpng dbs.dot -o dbs.png')
         os.system('dbs.png')
+
+
+    def Cargar(self, database, table):
+
+        temp=self.Buscar(database)
+
+        if temp:
+            return temp.Cargar(table)
