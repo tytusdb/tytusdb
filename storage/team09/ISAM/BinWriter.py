@@ -1,6 +1,5 @@
 import os
 import pickle
-from Cilindro import Registro
 
 def read(ruta):
     with open(ruta, "rb") as r:

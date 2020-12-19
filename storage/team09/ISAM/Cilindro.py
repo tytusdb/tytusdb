@@ -1,17 +1,20 @@
+import BinWriter as bi
+import os
 
 class Cilindro:
     def __init__(self, nombre, pkeys, ikey, ruta):
         self.indx = [None]*30
         self.longi = 30
         self.nombre = nombre
-        self.ruta = ruta
+        self.ruta = ruta+"/"+nombre+".b"
         self.icode = ikey
         self.pkeys = pkeys
         self.seguiente = ikey + 1
-
+        self.readD()
+    #hashea numeros
     def _hashn(self, key):
         return key % 30
-
+    #hashea letras
     def _hashl(self, key):
         multi = 1
         hashvalue = 0
@@ -22,7 +25,7 @@ class Cilindro:
 
     def _rehash(self, val, i):
         return (val+i)**2 % 30
-
+    #crea una llave primaria en base a la cantidad de llaves entregada
     def _createKey(self, values):
         key = ""
         for k in values:
@@ -34,7 +37,7 @@ class Cilindro:
             return r
         except:
             return key
-
+    #hashea un llave primaria en base a su tipo de dato
     def hash(self, val):
         if type(val) is int:
             i = self._hashn(val)
@@ -42,7 +45,7 @@ class Cilindro:
             i = self._hashl(val)
         return i
 
-
+    #añade una tupla a la DB
     def insert(self, registro):
         try:
             key=[]
@@ -54,6 +57,7 @@ class Cilindro:
             while i<3:
                 if self.indx[val] is None :
                     self.indx[val] = Registro(registro)
+                    self.writeD()
                     return 0
                 else:
                     ke = []
@@ -65,10 +69,12 @@ class Cilindro:
                 i+=1
             else:
                 self.indx.append(Registro(registro))
+                self.writeD()
                 self.longi +=1
+                return 0
         except:
             return 1
-
+    #acutaliza los valores de una tupla escpecificada
     def update(self, register, key):
         try:
             keyval = self._createKey(key)
@@ -79,7 +85,9 @@ class Cilindro:
                 for k in self.pkeys:
                     ke.append(self.indx[val].valores[k])
                 if self._createKey(ke) == keyval:
-                    return self.indx[val].update(register)
+                    r =  self.indx[val].update(register)
+                    if r == 0: self.writeD()
+                    return r
                 val = self._rehash(val, i)
                 i += 1
             else:
@@ -88,12 +96,14 @@ class Cilindro:
                     for k in self.pkeys:
                         ke.append(self.indx[v].valores[k])
                     if self._createKey(ke) == keyval:
-                        return self.indx[v].update(register)
+                        r = self.indx[val].update(register)
+                        if r == 0: self.writeD()
+                        return r
                 else:
                     return 4
         except:
             return 1
-
+    #elimina una tupla segun sea especificado
     def delete(self, key):
         try:
             keyval = self._createKey(key)
@@ -105,6 +115,7 @@ class Cilindro:
                     ke.append(self.indx[val].valores[k])
                 if self._createKey(ke) == keyval:
                     self.indx[val] = None
+                    self.writeD()
                     return 0
                 val = self._rehash(val, i)
                 i += 1
@@ -115,12 +126,14 @@ class Cilindro:
                         ke.append(self.indx[v].valores[k])
                     if self._createKey(ke) == keyval:
                         self.indx.pop(v)
+                        self.longi -= 1
+                        self.writeD()
                         return 0
                 else:
                     return 4
         except:
             return 1
-
+#devuelve una tupla segun el valor solicitado
     def extractRow(self, key):
         try:
             keyval = self._createKey(key)
@@ -145,7 +158,7 @@ class Cilindro:
                     return []
         except:
             return []
-
+    #retorna todos los valores
     def readAll(self):
         data = []
         for x in self.indx:
@@ -154,16 +167,34 @@ class Cilindro:
             data.append(x.valores)
 
         return data
-
+    #retorna todos los valores dentro del rango especificado
     def readRange(self, columnNumber, lower, upper):
         data=[]
+        flag = (type(lower) is str) and (type(upper) is str)
+        if(flag):
+            lower = lower.upper()
+            upper = upper.upper()
         for x in self.indx:
             if x is None:
                 continue
-                #Convertir todo a CAPS si es string
-            if (x.valores[columnNumber] >= lower) and (x.valores[columnNumber] <= upper):
-                data.append(x.valores)
+            v = x.valores[columnNumber]
+            try:
+                if (type(v) is str) and flag:
+                    v = v.upper()
+                if (v >= lower) and (v <= upper):
+                    data.append(x.valores)
+            except:
+                data.append(None)
         return data
+
+    #escribe en los archivos acutalizados
+    def writeD(self):
+        bi.write(self.indx, self.ruta)
+    #lee los archivos almacenados
+    def readD(self):
+        if os.path.exists(self.ruta):
+            self.indx =  bi.read(self.ruta)
+
 
 class Registro:
     def __init__(self, valores):
