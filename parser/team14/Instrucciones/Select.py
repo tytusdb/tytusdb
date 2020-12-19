@@ -27,8 +27,9 @@ class Select(Instruccion):
 
 
     def ejecutar(self,ent:Entorno):
-            tablas = []
+            tablas = [] 
             result = []
+            self.encabezado = []
 
             'Metodo Abstracto para ejecutar la instruccion'
             if self.distinct is None and self.froms is None and self.where is None and self.group is None and self.having is None and self.order is None and self.combinig is None:
@@ -220,7 +221,7 @@ class Select(Instruccion):
                         nocol=i
                         nomtabla=tabla.nombre
                         nomtabla=nomtabla.replace('_'+entorno.getDataBase(),'')
-                        break
+                        continue
                     i=i+1
             if encontrado==1 and nocol>-1:
                 datos=DBMS.extractTable(entorno.getDataBase(),nomtabla)
@@ -261,9 +262,7 @@ class Select(Instruccion):
             'ya veremos dijo el ciego'
 
 
-
-
-    def group(self):
+    '''def group(self):
         'Ejecucucion del group'
 
     def having(self):
@@ -277,3 +276,4 @@ class Select(Instruccion):
 
     def combining(self):
         'Ejecucucion de combining'
+    '''
