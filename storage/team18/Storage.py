@@ -182,4 +182,139 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
 # ---------------Dyllan--------------------#
 # ---------------CRUD TUPLA----------------#
 # ---------------Rudy----------------------#
+def dropAll():
+    if os.path.isdir('./Data'):
+        shutil.rmtree('./Data')
+
+def insert(database, table, register):
+    checkData()
+    dataBaseTree = serializable.Read('./Data/', "Databases")
+    root = dataBaseTree.getRoot()
+    if not dataBaseTree.search(root, database.upper()):
+        return 2  # database no existente
+    else:
+        tablesTree = serializable.Read(f"./Data/{database}/", database)
+        if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            return 3  # table no existente
+        PKsTree = serializable.Read(f'./Data/{database}/{table}/', table)
+        if PKsTree.buscar(register):
+            return 4
+        res = PKsTree.register(register)
+        if res:
+            return res
+        serializable.update(f'./Data/{database}/{table}/', table, PKsTree)
+        return 0  # exito
+
+def loadCSV(filepath, database, table):
+    checkData()
+    col = False
+    dataBaseTree = serializable.Read('./Data/', "Databases")
+    root = dataBaseTree.getRoot()
+    if not dataBaseTree.search(root, database.upper()):
+        if createDatabase(database):
+            return []
+    tablesTree = serializable.Read(f"./Data/{database}/", database)
+    if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+        col = True
+    try:
+        res = []
+        import csv
+        with open(filepath, 'r') as file:
+            reader = csv.reader(file, delimiter=',')
+            for row in reader:
+                if col:
+                    if createTable(database, table, len(row)):
+                        return []
+                    col = False
+                res.append(insert(database, table, row))
+        return res
+    except:
+        return []
+
+def extractRow(database, table, columns):
+    checkData()
+    dataBaseTree = serializable.Read('./Data/', "Databases")
+    root = dataBaseTree.getRoot()
+    if not dataBaseTree.search(root, database.upper()):
+        return []  # database no existente
+    else:
+        tablesTree = serializable.Read(f"./Data/{database}/", database)
+        if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            return []  # table no existente
+        PKsTree = serializable.Read(f'./Data/{database}/{table}/', table)
+        return PKsTree.search(columns)  # exito
+
+def update(database, table, register, columns):
+    checkData()
+    dataBaseTree = serializable.Read('./Data/', "Databases")
+    root = dataBaseTree.getRoot()
+    if not dataBaseTree.search(root, database.upper()):
+        return 2  # database no existente
+    else:
+        tablesTree = serializable.Read(f"./Data/{database}/", database)
+        if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            return 3  # table no existente
+        PKsTree = serializable.Read(f'./Data/{database}/{table}/', table)
+        try:
+            res = PKsTree.update(register, columns)
+            serializable.update(f'./Data/{database}/{table}/', table, PKsTree)
+            return res
+        except:
+            return 1
+
+def delete(database, table, columns):
+    checkData()
+    dataBaseTree = serializable.Read('./Data/', "Databases")
+    root = dataBaseTree.getRoot()
+    if not dataBaseTree.search(root, database.upper()):
+        return 2  # database no existente
+    else:
+        tablesTree = serializable.Read(f"./Data/{database}/", database)
+        if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            return 3  # table no existente
+        PKsTree = serializable.Read(f'./Data/{database}/{table}/', table)
+        if len(PKsTree.search(columns)):
+            try:
+                PKsTree.delete(columns)
+                serializable.update(f'./Data/{database}/{table}/', table, PKsTree)
+                return 0
+            except:
+                return 1
+        else:
+            return 4
+
+def truncate(database, table):
+    checkData()
+    dataBaseTree = serializable.Read('./Data/', "Databases")
+    root = dataBaseTree.getRoot()
+    if not dataBaseTree.search(root, database.upper()):
+        return 2  # database no existente
+    else:
+        tablesTree = serializable.Read(f"./Data/{database}/", database)
+        if not tablesTree.search(tablesTree.getRoot(), table.upper()):
+            return 3  # table no existente
+        PKsTree = serializable.Read(f'./Data/{database}/{table}/', table)
+        try:
+            PKsTree.truncate()
+            serializable.update(f'./Data/{database}/{table}/', table, PKsTree)
+            return 0
+        except:
+            return 1
+    
+def showCollection():
+    checkData()
+    dataB = showDatabases()
+    print('DataBases: ',dataB)
+    for x in dataB:
+        print("")
+        print("********************* [ DATABASE: "+str(x)+"] *********************")
+        dataT = showTables(x)
+        print(x,"Tables:",dataT)
+        for y in dataT:
+            print("")
+            print("---------------------- [ TABLE: "+str(y)+"] ----------------------")
+            dataTupla = extractTable(x, y)
+            for z in dataTupla:
+                print(z)
+
 # ---------------Marcos--------------------#
