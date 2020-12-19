@@ -342,15 +342,17 @@ def p_distinctEmpty(t):
 
 def p_select_listAll(t):
     'select_list : MULTIPLICACION'
-    t[0]=['All']
+    t[0]=[exp_id('*',None)]
 
 def p_select_listList(t):
     'select_list : list'
     t[0] = t[1]
+
 def p_list(t):
     'list : list COMA column aliascol'
     t[3].alias = t[4]
     t[1].append(t[3])
+    t[0] = t[1]
 
 
 def p_listSingle(t):
@@ -549,8 +551,11 @@ def p_lexpsSingle(t):
     t[0] = [t[1]]
 
 def p_columnp(t):
-    'columnp : PUNTO ID'
+    '''columnp : PUNTO ID
+            | PUNTO MULTIPLICACION
+    '''
     t[0] = t[2]
+
 
 def p_columnpEmpty(t):
     'columnp : empty'
@@ -605,11 +610,11 @@ def p_exp_case(t):
     elif t[2] == '<=': t[0] = exp_menor_igual(t[1], t[3])
 
 def p_expcaseIn(t):
-    'exp_case : exp IN PARA query PARC'
+    'exp_case : exp IN PARA queryp PARC'
     t[0] = exp_in(t[1],t[4])
 
 def p_expcaseNotIn(t):
-    'exp_case : exp NOT IN PARA query PARC'
+    'exp_case : exp NOT IN PARA queryp PARC'
     t[0] = exp_not_in(t[1],t[5])
 
 def p_expcaseBetween(t):
@@ -624,6 +629,13 @@ def p_expcaseIsNotDistinct(t):
     'exp_case : exp IS NOT DISTINCT FROM exp'
     t[0] = exp_igual(t[1],t[6])
 
+def p_expcaseExists(t):
+    'exp_case : EXISTS PARA queryp PARC'
+    t[0] = exp_exists(t[3],None,True)
+
+def p_expcaseNotExists(t):
+    'exp_case : NOT EXISTS PARA queryp PARC'
+    t[0] = exp_exists(t[3],None,False)
 
 
 def p_expNum(t):

@@ -819,11 +819,28 @@ class window:
     def graficar_AST(self, ast_):
         if len(ast_) != 0:
             ast_str = 'digraph AST { \n node [shape=record];\n'
-            
+
+            count_nodos = 0
             for instruccion_ in ast_:
-                ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+instruccion_.nodo.valor +"\"];\n"
-                ast_str += 'start_ast -> node' + instruccion_.nodo.num + ';\n'
-                ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                if count_nodos != 0:                    
+                    ast_str += 'node' + str(count_nodos + 1000000) + '[label =\" Instruccion \"];\n'
+                    ast_str += 'node' + str(count_nodos + 10000) + '[label =\" Instrucciones \"];\n'
+
+                    ast_str += 'node' + str(count_nodos + 10000 - 1) + ' -> node' + str(count_nodos + 1000000) + ';\n'
+                    ast_str += 'node' + str(count_nodos + 10000 - 1) + ' -> node' + str(count_nodos + 10000) + ';\n'
+
+                    ast_str += 'node' + str(count_nodos + 1000000) + ' -> node' + instruccion_.nodo.num + ';\n'
+                    ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+ instruccion_.nodo.valor +"\"];\n"
+                    ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                else:
+                    ast_str += 'node' + instruccion_.nodo.num + '[label =\"'+ instruccion_.nodo.valor +"\"];\n"
+                    ast_str += 'node' + str(count_nodos + 1000000) + '[label =\" Instruccion \"];\n'
+                    ast_str += 'node' + str(count_nodos + 10000) + '[label =\" Instrucciones \"];\n'
+                    ast_str += 'start_ast -> node' + str(count_nodos + 10000) + ';\n'
+                    ast_str += 'start_ast -> node' + str(count_nodos + 1000000) + ';\n'
+                    ast_str += 'node' + str(count_nodos + 1000000) + ' -> node' + instruccion_.nodo.num + ';\n'
+                    ast_str += self.graficar_AST_hijos(instruccion_.nodo)
+                count_nodos += 1
                 
             ast_str += '\n}'
 
@@ -1022,14 +1039,14 @@ class window:
 
         instruccions = []
 
-        try:
-            instruccions = gramatica.parse(contenido)            
-            self.ejecutar_resultado(instruccions)          
-        except:            
-            if len(contenido) == 1:
-                add_text("No hay código para ejecutar")
-            else:
-                add_text("Error al ejecutar el código")
+        #try:
+        instruccions = gramatica.parse(contenido)            
+        self.ejecutar_resultado(instruccions)          
+        #except:            
+        #    if len(contenido) == 1:
+        #        add_text("No hay código para ejecutar")
+        #    else:
+        #        add_text("Error al ejecutar el código")
 
         #Imprimir consola
         for tab_item in self.tab_salida.winfo_children():
@@ -1047,7 +1064,7 @@ class window:
         self.graficar_errores_semanticos()
         self.graficar_Gramatical(instruccions)
         self.graficar_TS()
-
+    
     def ejecutar_resultado(self,instrucciones_):
         for instruccion_ in instrucciones_:
             instruccion_.ejecutar()

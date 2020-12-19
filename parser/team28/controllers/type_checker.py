@@ -323,7 +323,6 @@ class TypeChecker(object):
             desc = f": Table {name} does not exist"
             ErrorController().addExecutionError(27, 'Execution', desc, line, column)
 
-    # TODO def showTables
     # TODO def alterAddPK
     # TODO def alterDropPK
     # TODO def alterAddFK
@@ -414,6 +413,7 @@ class TypeChecker(object):
         if dbStatement == 0:
             if column:
                 table.remove(column)
+                self.updateColumnIndex(table)
                 self.writeFile()
                 print('Column deleted successfully')
                 return
@@ -435,6 +435,13 @@ class TypeChecker(object):
 
         elif dbStatement == 4:
             print('Out of range column')
+
+    def updateColumnIndex(self, table: Table):
+        if table:
+            index = 0
+            for col in table.columns:
+                col.number = index
+                index += 1
 
     # TODO def extractTable
     # TODO def extractRangeTable
