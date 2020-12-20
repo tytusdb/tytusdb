@@ -1,57 +1,65 @@
 from DataAccessLayer.handler import Handler
 from Models.avl_tree import AVLTree
-import csv
 
 
 class TupleModule:
 
     def __init__(self):
         self.handler = Handler()
+        self.dbs = None
 
     def insert(self, database: str, table: str, register: list) -> int:
         try:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(register, list):
+                raise
             filtro = False
-            listaBases = self.handler.leerArchivoDB()
-            for base in listaBases:
-                if base.name == database:
-                    if self.handler.siExiste(database, table):
+            self.dbs = self.handler.rootinstance()
+            for db in self.dbs:
+                if db.name.upper() == database.upper():
+                    if self.handler.exists(database, table):
                         filtro = True
                         break
                     else:
                         return 3
             if filtro:
-                tempAVL = self.handler.leerArchivoTB(database, table)
-                if len(register) > tempAVL.numberColumns:  # más parametros de los esperado en register
+                avl = self.handler.tableinstance(database, table)
+                if len(register) != avl.numberColumns:  # más o menos parametros de los esperado en register
                     return 5
                 # lista que almacena las columnas que son PK en el parametro
-                auxPk = ""
-                for el in tempAVL.pklist:
-                    if el == tempAVL.pklist[0]:
-                        auxPk = str(register[el])
+                if not len(avl.pklist) == 0:
+                    auxPk = ""
+                    for key in avl.pklist:
+                        auxPk += "-" + str(register[key])
+                    auxPk = auxPk[1:]
+                    if avl.search(auxPk):
+                        return 4  # si no es nulo ya existe un dato con la misma pk
                     else:
-                        auxPk = auxPk + "-" + str(register[el])
-
-                if tempAVL.search(auxPk) is not None:
-                    return 4  # si no es nulo ya existe un dato con la misma pk
+                        avl.add(auxPk, register)
                 else:
-                    tempAVL.add(auxPk, register)
-                    self.handler.actualizarArchivoTB(tempAVL, database, table)
-                    return 0
+                    index = avl.hidden
+                    while True:
+                        if avl.search(str(index)):
+                            index += 1
+                            continue
+                        avl.add(str(index), register)
+                        break
+                    avl.hidden = index
+                self.handler.tableupdate(avl)
+                return 0
             else:
                 return 2
         except:
             return 1
 
     def loadCSV(self, file: str, database: str, table: str) -> list:
-        if file.endswith(".csv") is False:
-            return []
         try:
-            reader = csv.reader(open(file, "r"), delimiter=",")
-
-            dbList = self.handler.leerArchivoDB()
-            for db in dbList:
-                if db.name == database:
-                    if self.handler.siExiste(database, table):
+            if not isinstance(database, str) or not isinstance(table, str) or not file.endswith(".csv"):
+                raise
+            reader = self.handler.readcsv(file)
+            self.dbs = self.handler.rootinstance()
+            for db in self.dbs:
+                if db.name.upper() == database.upper():
+                    if self.handler.exists(database, table):
                         result = []
                         for fila in reader:
                             result.append(self.insert(database, table, fila))
@@ -64,13 +72,15 @@ class TupleModule:
 
     def extractRow(self, database: str, table: str, columns: list) -> list:
         try:
-            dbList = self.handler.leerArchivoDB()
-            for db in dbList:
-                if db.name == database:
-                    if self.handler.siExiste(database, table):
-                        tempAVL = self.handler.leerArchivoTB(database, table)
-                        node = tempAVL.search(self.__concatKeys(columns))
-                        if node is not None:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columns, list):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for db in self.dbs:
+                if db.name.upper() == database.upper():
+                    if self.handler.exists(database, table):
+                        avl = self.handler.tableinstance(database, table)
+                        node = avl.search(self.__concat(columns))
+                        if node:
                             return node
                         return []
                     else:
@@ -81,34 +91,41 @@ class TupleModule:
 
     def update(self, database: str, table: str, register: dict, columns: list) -> int:
         try:
-            dbList = self.handler.leerArchivoDB()
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columns, list):
+                raise
+            self.dbs = self.handler.rootinstance()
             existeDB = False
-            existeTable = False
-            for db in dbList:
-                if db.name == database:
+            for db in self.dbs:
+                if db.name.upper() == database.upper():
                     existeDB = True
                     break
-            existeTable = self.handler.leerArchivoTB(database, table)
 
-            if existeTable is True and existeDB is True:
-                tempAvl = self.handler.leerArchivoTB(database, table)
+            if self.handler.exists(database, table) and existeDB:
+                avl = self.handler.tableinstance(database, table)
                 auxStr = ""
-                for el in columns:
-                    if el == columns[0]:
-                        auxStr = str(el)
-                    else:
-                        auxStr = auxStr + "-" + str(el)
-
-                foundNode = tempAvl.find(auxStr)
-                if foundNode is not None:
-                    if len(register) <= tempAvl.numberColumns:
-                        newContent = tempAvl.content
+                for key in columns:
+                    auxStr += "-" + str(key)
+                auxStr = auxStr[1:]
+                avltmp = avl.search(auxStr)
+                if avltmp:
+                    if len(register) <= avl.numberColumns:
+                        simple = True
                         for key in register:
-                            newContent[key] = register[key]
-
-                        # actualizas el nodo auxStr-> concatenacion de las llaves y el newContent -> lista del content
-                        tempAvl.update(auxStr, newContent)
-                        self.handler.actualizarArchivoTB(tempAvl, database, table)
+                            if key in avl.pklist:
+                                simple = False
+                        content = avltmp
+                        oldcontent = avltmp[:]
+                        for key in register:
+                            content[key] = register[key]
+                        if simple:
+                            avl.update(auxStr, content)
+                            self.handler.tableupdate(avl)
+                        else:
+                            tmp = []
+                            for key in avl.pklist:
+                                tmp.append(oldcontent[key])
+                            self.delete(database, table, tmp)
+                            self.insert(database, table, content)
                         return 0
                     else:
                         return 1
@@ -123,15 +140,17 @@ class TupleModule:
 
     def delete(self, database: str, table: str, columns: list) -> int:
         try:
-            dbList = self.handler.leerArchivoDB()
-            for db in dbList:
-                if db.name == database:
-                    if self.handler.siExiste(database, table):
-                        tempAVL = self.handler.leerArchivoTB(database, table)
-                        pk = self.__concatKeys(columns)
-                        if tempAVL.search(pk) is not None:
-                            tempAVL.delete(pk)
-                            self.handler.actualizarArchivoTB(tempAVL, database, table)
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columns, list):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for db in self.dbs:
+                if db.name.upper() == database.upper():
+                    if self.handler.exists(database, table):
+                        avl = self.handler.tableinstance(database, table)
+                        pk = self.__concat(columns)
+                        if avl.search(pk):
+                            avl.delete(pk)
+                            self.handler.tableupdate(avl)
                             return 0
                         return 4
                     else:
@@ -142,13 +161,15 @@ class TupleModule:
 
     def truncate(self, database: str, table: str) -> int:
         try:
-            listaBases = self.handler.leerArchivoDB()
-            for base in listaBases:
-                if base.name == database:
-                    if self.handler.siExiste(database, table):
-                        tempAVL = self.handler.leerArchivoTB(database, table)
-                        newAvl = AVLTree(database, table, tempAVL.numberColumns, tempAVL.pklist)
-                        self.handler.actualizarArchivoTB(newAvl, database, table)
+            if not isinstance(database, str) or not isinstance(table, str):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for base in self.dbs:
+                if base.name.upper() == database.upper():
+                    if self.handler.exists(database, table):
+                        avl = self.handler.tableinstance(database, table)
+                        newAvl = AVLTree(database, table, avl.numberColumns, avl.pklist)
+                        self.handler.tableupdate(newAvl)
                         return 0
                     else:
                         return 3
@@ -156,11 +177,10 @@ class TupleModule:
         except:
             return 1
 
-    def __concatKeys(self, llaves) -> str:
+    @staticmethod
+    def __concat(keys) -> str:
         res = ""
-        for pk in llaves:
-            if pk == llaves[0]:
-                res = str(pk)
-            else:
-                res = res + "-" + str(pk)
+        for pk in keys:
+            res += "-" + str(pk)
+        res = res[1:]
         return res
