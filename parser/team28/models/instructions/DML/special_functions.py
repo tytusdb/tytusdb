@@ -42,7 +42,7 @@ def select_all(array,linea, column):
         ErrorController().add(4, 'Execution', desc, linea , column)#manejar linea y columna
         return None
     table_cont = DataController().extractTable(array[0],linea,column)
-    headers = TypeChecker().searchColumns(table_tp)
+    headers = TypeChecker().searchColumnHeadings(table_tp)
     tabla_select = pd.DataFrame(table_cont)
     # print(headers)
     tabla_select.columns = headers
