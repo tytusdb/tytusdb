@@ -421,7 +421,7 @@ def p_coltb1(p):
     p[0] = [p[1]]
 
 def p_columna(p):
-    "columna    :   id tipo key references default notnull constraint"
+    "columna    :   id tipo notnull key references default constraint"
     p[0] = inst.columna(p[1],p[2],p[3],p[4],p[5],p[6],p[7])
 
 def p_references(p):
@@ -438,7 +438,7 @@ def p_key(p):
         |   PRIMARY KEY colkey
         |   FOREIGN KEY colkey
     """
-    p[0] = p[3]
+    p[0] = p[1] + " " + p[2] + " " + p[3]
 
 def p_key1(p):
     "key    :   "
@@ -470,7 +470,7 @@ def p_default1(p):
 
 def p_notnull(p):
     "notnull    :   not NULL"
-    p[0] = p[1]
+    p[0] = p[1] + " " + p[2]
 
 def p_notnull1(p):
     "notnull    :   "
@@ -573,13 +573,14 @@ def p_insert(p):
 
 def p_valores(p):
     "valores    :   valores COMA tipo"
-    p[0] = inst.valores(p[1],p[3])
+    p[1].append(p[3])
+    p[0] = p[1]
 
 def p_valores1(p):
     """
     valores    :   tipo
     """
-    p[0] = p[1]
+    p[0] = [p[1]]
 
 #UPDATE----------------
 def p_update(p):

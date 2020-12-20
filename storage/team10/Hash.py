@@ -6,13 +6,15 @@ class TablaHash:
         self.Size = size-1
         self.name = name
         self.nCols = nCols
-        self.genericId = 0
+        self.genericId = -1
         self.pk = None
-        self.diccionario = {}
         self.values = [None]*self.Size
 
     def getName(self):
         return self.name
+
+    def setName(self, name):
+        self.name = name
 
     def getSize(self):
         return self.Size
@@ -28,7 +30,19 @@ class TablaHash:
         self.values = nodo
 
     def alterAddPK(self, indices):
-        self.pk = indices
+        for i in indices:
+            if i not in range(0, self.nCols):
+                return 5
+
+        if len(indices) <= self.nCols:
+            if not self.pk:
+                self.pk = indices
+                return 0
+            else:
+                # print("No se puede poner otra PK")
+                return 4
+        else:
+            return 5
     
     def toASCII(self, cadena):
         result = ""
@@ -36,24 +50,23 @@ class TablaHash:
             result += str(ord(char))
         return int(result)
 
-
     def funcionHash(self, dato, flag = False):
         if isinstance(dato, list):
             lenDato = 0
             res = ""
             if flag:
                 for key in self.pk:
-                    res = str(dato[key]) + "," + res
+                    res += str(dato[key]) + ","
             else:
                 for key in dato:
-                    res = str(key) + "," + res
+                    res += str(key) + ","
             lenDato = self.toASCII(res)
         else:
             if str(dato).isalnum():
                 lenDato = self.toASCII(str(dato))
             else:
                 lenDato = int(dato)
-        return (int(lenDato % self.Size),lenDato)
+        return (int(lenDato % self.Size),lenDato) #cambie aqui para poder obtener la posicion en el arreglo (posicion hash, posicion en arreglo)
 
     def sizeTabla(self):
         contadorAux = 0
@@ -62,7 +75,6 @@ class TablaHash:
                 contadorAux +=1
         return contadorAux   
 
-   
     def insertIntoArray(self, dato, posicion_hash, key):
         bandera = self.verificarDato(key, posicion_hash)
         if self.values[posicion_hash] is not None:
@@ -70,10 +82,17 @@ class TablaHash:
                 nuevo_dato = self.values[posicion_hash]
                 nuevo_dato.insert(dato, key)
                 return 0
+            else:
+                return 4
         else:
             nuevo_dato = Node()
-            nuevo_dato.pk = self.pk
+            if self.pk:
+                nuevo_dato.pk = self.pk
+            else:
+                nuevo_dato.pk = self.genericId
+                nuevo_dato.isGeneric = True
             nuevo_dato.insert(dato,key)
+            nuevo_dato.key = posicion_hash
             self.values[posicion_hash] = nuevo_dato
             return 0
 
@@ -82,30 +101,31 @@ class TablaHash:
         if isinstance(dato, list):
             if len(dato) == self.nCols:
                 if self.pk:
+
+                    # Recorre las anteriores buscando su llave primaria
+                    for node in self.values:
+                        if node is not None and node.isGeneric:
+                            node.isGeneric = False
+                            self.recalculateKey(node)
+                            continue
+
                     posicion_hash = self.funcionHash(dato, True)
-                    self.insertIntoArray(dato, posicion_hash[0], posicion_hash[1]) #aqui manda las dos llaves
+                    return self.insertIntoArray(dato, posicion_hash[0], posicion_hash[1]) #aqui manda las dos llaves
                 else:
                     posicion_hash = int(self.genericId % self.Size)
-                    self.insertIntoArray(dato, posicion_hash , [self.genericId] )
                     self.genericId += 1
+                    return self.insertIntoArray(dato, posicion_hash, self.genericId)
             else:
-                return 2
+                return 5
         else:
             return 1
 
-    def eliminarDato(self, dato):
-        posicion_hash = self.funcionHash(dato)
-        nodo_hash = self.values[posicion_hash]
-        if nodo_hash is not None:
-            if nodo_hash.eliminar(dato):
-                print("dato eliminado")
-            elif nodo_hash.eliminar(dato) == 0: 
-                print("dato eliminado")
-                self.values[posicion_hash] = None
-            else:
-                print("dato no eliminado")
-        else:
-            print("el dato no existe")
+    def recalculateKey(self, node):
+        for dato in node.array:
+            posicion_hash = self.funcionHash(dato[1], True)
+            index = node.key
+            self.values[index] = None
+            self.insertIntoArray(dato[1], posicion_hash[0], posicion_hash[1])
 
     def truncate(self):
         try:
@@ -116,17 +136,20 @@ class TablaHash:
 
     def editar(self, columna, modificacion, key):
         posicion_hash = self.funcionHash(key)
-        nodo = self.values[posicion_hash]
+        nodo = self.values[posicion_hash[0]]
         if nodo:
-            respuesta = nodo.modificar(columna,modificacion,posicion_hash)
+            if columna not in self.pk:
+                respuesta = nodo.modificar(columna,modificacion,posicion_hash[1])
+            else: 
+                return 1
             if respuesta == 0:
-                print("dato modificado exitosamente")
+                return "dato modificado exitosamente"
             elif respuesta == 4:
-                print("llave no existente")
+                return "llave no existente"
             else:
-                print("error de indice")
+                return "error de indice"
         else:
-            print("Error de llave")
+            return "Error de llave"
 
     def ElementosEn_tbl(self):
         auxiliar = 0 
@@ -135,7 +158,7 @@ class TablaHash:
                 auxiliar +=1
         return auxiliar
 
-     def rehashing(self):
+    def rehashing(self):
         actualSize = self.ElementosEn_tbl()
         factorAgregado = int(self.Size * 0.75)
         if actualSize >= factorAgregado:
@@ -150,10 +173,10 @@ class TablaHash:
             arrayAuxiliar.clear()
             return "El rehashing fue realizado con exito"
 
-    def verificarDato(self, dato, position):
+    def verificarDato(self, key, position):
         aux_bol = False
         if self.values[position] is not None:
-            if not self.values[position].buscarDato_binary(dato):
+            if not self.values[position].buscarDato_binary(key):
                 aux_bol = True
         return aux_bol
 
@@ -171,10 +194,10 @@ class TablaHash:
     def printTbl(self):
         if self.values:
             for i in self.values:
-                if i :
-                    print(str(i.pk) + " | " + str(i.array)) 
+                if i and (len(i.array) > 0):
+                    print(str(i.key) + " | " + str(i.array) + "\n")
         else:
-            print("vacio")
+            return "vacio"
 
     def buscar(self, dato):
         posicion_hash = self.funcionHash(dato)
@@ -203,15 +226,35 @@ class TablaHash:
                 val = nodo.imp_column(columnNumber,lower,upper)
                 if val != None:
                     listCol.append(val)   
-        return listCol   
-    
+        return listCol
+
     # agrega la nueva columna y asigna el valor
     def alterAddColumn(self, dato):
         self.nCols += 1
         for i in self.values:
                 if i :
                     i.alterAddColumn(dato)
-                   
-  
+
+    #19/12/2020
     def getNumeroColumnas(self):
         return self.nCols
+
+    def alterDropColumn(self, columnNumber):
+        if columnNumber in range(0, self.nCols):
+            for i in self.values:
+                if i:
+                    for j in i.array:
+                        j[1].pop(columnNumber)
+                pass
+
+        newKeys = []
+        for key in self.pk:
+            if (columnNumber == (key-1)) and (key is not 0):
+                key -= 1
+            newKeys.append(key)
+        self.pk = None
+        self.alterAddPK(newKeys)
+        self.nCols -= 1
+
+    def alterDropPK(self):
+        self.pk = None

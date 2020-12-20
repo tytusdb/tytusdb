@@ -20,7 +20,7 @@ class ListaBaseDatos:
 
         for base_datos in self.lista_bases_datos:
 
-            if base_datos.Name == database:
+            if base_datos.Name.casefold() == database.casefold():
                 return base_datos
 
         else:
@@ -29,12 +29,9 @@ class ListaBaseDatos:
 
     def createDatabase(self, database):
 
-        for base_datos in self.lista_bases_datos:
+        temp = self.Buscar(database)
 
-            if base_datos.Name == database:
-                return 2
-
-        else:
+        if not temp:
 
             try:
                 temp_path = main_path+"\\"+database
@@ -49,6 +46,9 @@ class ListaBaseDatos:
 
             except:
                 return 1
+        
+        else:
+            return 2
 
 
     def showDatabases(self):

@@ -1,11 +1,12 @@
 class Node:
-
+    
     def __init__(self):
         self.array = []
-        self.key = 0
+        self.key = -1
         self.pk = None
+        self.isGeneric = False
 
-     def insert(self, dato, key):
+    def insert(self, dato, key):
         self.array.append((key,dato)) #ahora recibe el parametro key 
         lista = self.array.copy()
         lista_ordenada= self.quick_sorted(lista)
@@ -13,7 +14,7 @@ class Node:
         for i in lista_ordenada:
             self.array.append(i)
 
-   def buscarDato_binary(self, dato):
+    def buscarDato_binary(self, dato):
         inicio = 0
         final = len(self.array) -1 
         while inicio <= final:
@@ -28,7 +29,7 @@ class Node:
                 inicio = mid +1
         return False
 
-   def busquedaB(self, dato):
+    def busquedaB(self, dato):
         inicio = 0
         final = len(self.array) -1 
         while inicio <= final:
@@ -149,8 +150,16 @@ class Node:
                 if self.obtenerLower(str(i[columnNumber]),lower) == True and self.obtenerUpper(str(i[columnNumber]),upper) == True:
                     return i
                 else:
-                    return None 
-                
+                    return None
+
     #agrega una columna y registra un dato
     def alterAddColumn(self, dato):
-        self.array.append(dato)
+        try:
+            for i in self.array:
+                i[1].append(dato)
+            # print("ya jalo")
+        except Exception as e:
+            print("########")
+            print("en el nodo")
+            print(e)
+            print("########")

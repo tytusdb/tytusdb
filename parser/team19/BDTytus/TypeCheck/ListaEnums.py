@@ -1,4 +1,4 @@
-import Enum as Enum
+import TypeCheck.Enum as Enum
 
 class ListaEnums:
     def __init__(self):
