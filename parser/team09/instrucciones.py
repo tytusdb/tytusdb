@@ -68,10 +68,14 @@ class CreateTable():
     def execute(self):
         print('Ejecutando Creare Table')
         print('id : ' + str(self.id))
-
+        aux = True
         for col in self.cols :
-            print('col id : ' + str(col[0]))
-            print('col type : ' + str(col[1]))
+            if aux:
+                print('col id : ' + str(col))
+            else: 
+                print('col type : ' + str(col))
+
+            aux = not aux
 
 
         if self.inh != None :

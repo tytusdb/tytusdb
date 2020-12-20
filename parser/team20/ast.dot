@@ -1,0 +1,6 @@
+digraph ASTTytus{ 
+ rankdir = TD
+ node[shape = "box"]
+S[label="S"]
+
+ }
