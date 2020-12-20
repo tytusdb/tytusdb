@@ -286,3 +286,38 @@ class AVLL_TABLE:
         bases += str(self.__recorrido(nodo.der))
 
         return bases
+    
+    def buscar(self, name):
+        resultado = self.__buscar(name, self.raiz)
+        return resultado
+
+    def __buscar(self, name, nodo):
+        if nodo is not None:
+            if name < nodo.name:
+                nodo = self.__buscar(name, nodo.izq)
+            elif name > nodo.name:
+                nodo = self.__buscar(name, nodo.der)
+        return nodo
+
+    # Metodo para actualizar
+    def actualizar(self, valor_actual, nuevo_valor):
+        nodo = self.buscar(valor_actual)
+
+        if nodo is not None:
+            self.insertar(nodo.bPlus, nuevo_valor, nodo.numberColumns)
+            self.eliminar(nodo.name)
+            return 'exito'
+        else:
+            return 'error'
+
+    def lista_tablas(self):
+        lista = []
+        lista_db = self._lista_tablas(self.raiz, lista)
+        return lista_db
+
+    def _lista_tablas(self, nodo, lista):
+        if nodo is not None:
+            lista.append(nodo.name)
+            self._lista_tablas(nodo.izq, lista)
+            self._lista_tablas(nodo.der, lista)
+            return lista
