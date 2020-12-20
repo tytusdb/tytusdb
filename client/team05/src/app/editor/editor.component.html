@@ -1,16 +1,28 @@
 <div style="width: 100%; height:relative;">
-  <button mat-raised-button>
-    <fa-icon [icon]="faSave"></fa-icon>
-  </button>
-  <button mat-raised-button>
-    <fa-icon [icon]="faFolderOpen"></fa-icon>
-  </button>
-  <button mat-raised-button>
-    <fa-icon [icon]="faPlay"></fa-icon>
-  </button>
-  <ngx-codemirror [(ngModel)]="content" [options]="{
-    lineNumbers: true,
-    theme: 'neat',
-    mode: 'sql'
-  }" name="inputScript"></ngx-codemirror>
+  <div class="btn-group m-1" role="group">
+    <button type="button" class="btn btn-outline-dark" >
+      <fa-icon [icon]="faFolderOpen"></fa-icon>
+    </button>
+    <button type="button" class="btn btn-outline-dark" >
+      <fa-icon [icon]="faSave"></fa-icon>
+    </button>
+    <button type="button" class="btn btn-outline-dark" >
+      <fa-icon [icon]="faAngleDown"></fa-icon>
+    </button>
+  </div>
+  <div class="btn-group m-1" role="group">
+    <button type="button" class="btn btn-outline-dark" >
+      <fa-icon [icon]="faStop"></fa-icon>
+    </button>
+    <button type="button" class="btn btn-outline-dark" >
+      <fa-icon [icon]="faPlay"></fa-icon>
+    </button>
+  </div>
+  <div class="border border-dark rounded-top m-1" >
+    <ngx-codemirror style="font-size: large;" [(ngModel)]="content" [options]="{
+      lineNumbers: true,
+      theme: 'duotone-light',
+      mode: 'sql'
+    }" name="inputScript"></ngx-codemirror>
+  </div>
 </div>
