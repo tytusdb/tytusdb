@@ -127,7 +127,7 @@ reserved = {
     'sign' : 'SIGN',
     'sqrt' : 'SQRT',
     'trim_scale' : 'TRIM_SCALE',
-    'truc' : 'TRUC',
+    'trunc' : 'TRUNC',
     'width_bucket' : 'WIDTH_BUCKET',
     'random' : 'RANDOM',
     'setseed' : 'SETSEED',
@@ -765,94 +765,95 @@ def p_trigonometric(t):
                     |   ACOSH PARA expression PARC
                     |   ATANH PARA expression PARC'''
 
-    if t.slice[1].type == 'ACOS':
+    token = t.slice[1]
+    if token.type == 'ACOS':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAcos '(' \<EXP> ')' ")
-        t[0] = Acos(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ACOSD':
+        t[0] = Acos(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ACOSD':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAcosd '(' \<EXP> ')' ")
-        t[0] = Acosd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ASIN':
+        t[0] = Acosd(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ASIN':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAsin '(' \<EXP> ')' ")
-        t[0] = Asin(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ASIND':
+        t[0] = Asin(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ASIND':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAsind '(' \<EXP> ')' ")
-        t[0] = Asind(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ATAN':
+        t[0] = Asind(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ATAN':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAtan '(' \<EXP> ')' ")                 
-        t[0] = Atan(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ATAND':
+        t[0] = Atan(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ATAND':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAtand '(' \<EXP> ')' ")
-        t[0] = Atand(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ATAN2':
+        t[0] = Atand(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ATAN2':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
         addCad("**\<EXP>** ::= tAtan2 '(' \<EXP> ',' \<EXP> ')' ")
-        t[0] = Atan2(t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ATAN2D':
+        t[0] = Atan2(t[3], t[5], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ATAN2D':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
         addCad("**\<EXP>** ::= tAtand2 '(' \<EXP> ',' \<EXP> ')' ")
-        t[0] = Atan2d(t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'COS':
+        t[0] = Atan2d(t[3], t[5], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'COS':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tCos '(' \<EXP> ')' ")    
-        t[0] = Cos(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'COSD':
+        t[0] = Cos(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'COSD':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tCosd '(' \<EXP> ')' ")
-        t[0] = Cosd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'COT':
+        t[0] = Cosd(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'COT':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tCot '(' \<EXP> ')' ")
-        t[0] = Cot(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'COTD':
+        t[0] = Cot(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'COTD':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tCotd '(' \<EXP> ')' ")
-        t[0] = Cotd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'SIN':
+        t[0] = Cotd(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'SIN':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tSin '(' \<EXP> ')' ")
-        t[0] = Sin(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'SIND':
+        t[0] = Sin(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'SIND':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tSind '(' \<EXP> ')' ")
-        t[0] = Sind(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'TAN':
+        t[0] = Sind(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'TAN':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tTan '(' \<EXP> ')' ")
-        t[0] = Tan(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'TAND':
+        t[0] = Tan(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'TAND':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tTand '(' \<EXP> ')' ")
-        t[0] = Tand(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'SINH':
+        t[0] = Tand(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'SINH':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tSinh '(' \<EXP> ')' ")
-        t[0] = Sinh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'COSH':
+        t[0] = Sinh(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'COSH':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tCosh '(' \<EXP> ')' ")
-        t[0] = Cosh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'TANH':
+        t[0] = Cosh(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'TANH':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tTanh '(' \<EXP> ')' ")
-        t[0] = Tanh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ASINH':
+        t[0] = Tanh(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ASINH':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAsinh '(' \<EXP> ')' ")
-        t[0] = Asinh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ACOSH':
+        t[0] = Asinh(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ACOSH':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAcosh '(' \<EXP> ')' ")
-        t[0] = Acosh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
-    elif t.slice[1].type == 'ATANH':
+        t[0] = Acosh(t[3], token.lineno, token.lexpos, graph_ref)
+    elif token.type == 'ATANH':
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::= tAtanh '(' \<EXP> ')' ")
-        t[0] = Atanh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        t[0] = Atanh(t[3], token.lineno, token.lexpos, graph_ref)
 
 
 def p_aritmetic(t):
@@ -876,14 +877,15 @@ def p_aritmetic(t):
                     | POWER PARA expression COMA expression PARC
                     | RADIANS PARA expression PARC                    
                     | ROUND PARA expression PARC
+                    | ROUND PARA expression COMA expression PARC
                     | SCALE PARA expression PARC
                     | SIGN PARA expression PARC
                     | SQRT PARA expression PARC
                     | TRIM_SCALE PARA expression PARC
-                    | WIDTH_BUCKET PARA expression COMA expression PARC
+                    | WIDTH_BUCKET PARA expression COMA expression COMA expression COMA expression PARC
                     | RANDOM PARA PARC
                     | SETSEED PARA expression PARC
-                    | TRUC PARA expression PARC
+                    | TRUNC PARA expression PARC
                 '''
     token = t.slice[1]
     if token.type == "ABS":
@@ -897,7 +899,7 @@ def p_aritmetic(t):
     elif token.type == "CEIL" or token.type == "CEILING":
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::=   [tCeil | tCeiling ] '(' \<EXP> ')'        ")
-        t[0] = Ceil(t[3], token.lineno, token.lexpos)
+        t[0] = Ceil(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "DEGREES":
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::=    tDegrees '(' \<EXP> ')'        ")
@@ -960,9 +962,14 @@ def p_aritmetic(t):
         addCad("**\<EXP>** ::=   tRadians '(' \<EXP> ')'      ")
         t[0] = Radians(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "ROUND":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
-        addCad("**\<EXP>** ::=   tRound '(' \<EXP> ')'      ")
-        t[0] = Round(t[3], token.lineno, token.lexpos, graph_ref)
+        if len(t) == 5:
+            graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+            addCad("**\<EXP>** ::=   tRound '(' \<EXP> ')'      ")
+            t[0] = Round(t[3], 0, token.lineno, token.lexpos, graph_ref)
+        else:
+            graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+            addCad("**\<EXP>** ::=   tRound '(' \<EXP> ','\<EXP> ')'      ")
+            t[0] = Round(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "SCALE":
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::=   tScale '(' \<EXP> ')'      ")
@@ -980,9 +987,9 @@ def p_aritmetic(t):
         addCad("**\<EXP>** ::=  tTrimScale '(' \<EXP> ')'       ")
         t[0] = TrimScale(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "WIDTH_BUCKET":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
-        addCad("**\<EXP>** ::=  tWidthBucket '(' \<EXP> ','\<EXP> ')'       ")
-        t[0] = WithBucket(t[3], t[5], token.lineno, token.lexpos, graph_ref)
+        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref, t[7].graph_ref, t[9].graph_ref])
+        addCad("**\<EXP>** ::=  tWidthBucket '(' \<EXP> ','\<EXP>','\<EXP>','\<EXP> ')'       ")
+        t[0] = WidthBucket(t[3], t[5], t[7], t[9], token.lineno, token.lexpos, graph_ref)
     elif token.type == "RANDOM":
         graph_ref = graph_node(str(t[1]))
         addCad("**\<EXP>** ::=  tRandom '()'       ")
@@ -991,9 +998,9 @@ def p_aritmetic(t):
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
         addCad("**\<EXP>** ::=  tSetseed '(' \<EXP> ')'       ")
         t[0] = SetSeed(t[3], token.lineno, token.lexpos, graph_ref)        
-    elif token.type == "TRUC":
+    elif token.type == "TRUNC":
         graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
-        addCad("**\<EXP>** ::=   tTruc '(' \<EXP> ')'      ")
+        addCad("**\<EXP>** ::=   tTrunc '(' \<EXP> ')'      ")
         t[0] = Trunc(t[3], token.lineno, token.lexpos, graph_ref)
 
 
