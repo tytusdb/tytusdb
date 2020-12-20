@@ -37,6 +37,7 @@ class TablaHash:
         if len(indices) <= self.nCols:
             if not self.pk:
                 self.pk = indices
+                self.recalculateKey(self.pk)
                 return 0
             else:
                 # print("No se puede poner otra PK")
@@ -46,8 +47,16 @@ class TablaHash:
     
     def toASCII(self, cadena):
         result = ""
+        aux = 0
+        comma = 0
         for char in cadena:
-            result += str(ord(char))
+            if char != ",":
+                result += str(ord(char))
+            else:
+                comma += int(ord(char))
+                aux = int(result)
+                aux += comma
+                result = str(aux)
         return int(result)
 
     def funcionHash(self, dato, flag = False):
@@ -61,11 +70,6 @@ class TablaHash:
                 for key in dato:
                     res += str(key) + ","
             lenDato = self.toASCII(res)
-        else:
-            if str(dato).isalnum():
-                lenDato = self.toASCII(str(dato))
-            else:
-                lenDato = int(dato)
         return (int(lenDato % self.Size),lenDato) #cambie aqui para poder obtener la posicion en el arreglo (posicion hash, posicion en arreglo)
 
     def sizeTabla(self):
@@ -103,11 +107,10 @@ class TablaHash:
                 if self.pk:
 
                     # Recorre las anteriores buscando su llave primaria
-                    for node in self.values:
-                        if node is not None and node.isGeneric:
-                            node.isGeneric = False
-                            self.recalculateKey(node)
-                            continue
+                    # for node in self.values:
+                    #     if node is not None and node.isGeneric:
+                    #         self.recalculateKey(node)
+                    #         node.isGeneric = False
 
                     posicion_hash = self.funcionHash(dato, True)
                     return self.insertIntoArray(dato, posicion_hash[0], posicion_hash[1]) #aqui manda las dos llaves
@@ -120,12 +123,17 @@ class TablaHash:
         else:
             return 1
 
-    def recalculateKey(self, node):
-        for dato in node.array:
-            posicion_hash = self.funcionHash(dato[1], True)
-            index = node.key
-            self.values[index] = None
-            self.insertIntoArray(dato[1], posicion_hash[0], posicion_hash[1])
+    def recalculateKey(self, newPk):
+        lista = self.values.copy()
+        self.values.clear()
+        self.values = [None]*self.Size
+
+        data = []
+        for node in lista:
+            if node is not None:
+                for n in node.array:
+                    data = n[1]
+                    self.insert("table1", data)
 
     def truncate(self):
         try:
@@ -141,15 +149,15 @@ class TablaHash:
             if columna not in self.pk:
                 respuesta = nodo.modificar(columna,modificacion,posicion_hash[1])
             else: 
-                return 1
+                return 4
             if respuesta == 0:
-                return "dato modificado exitosamente"
+                return 0
             elif respuesta == 4:
-                return "llave no existente"
+                return 4
             else:
-                return "error de indice"
+                return 1
         else:
-            return "Error de llave"
+            return 4
 
     def ElementosEn_tbl(self):
         auxiliar = 0 
@@ -183,13 +191,14 @@ class TablaHash:
     def eliminarDato(self, dato):
         posicion_hash = self.funcionHash(dato)
         nodo_hash = self.values[posicion_hash[0]]
-        if nodo_hash.eliminar(posicion_hash[1]):
-            return "dato eliminado"
-        elif nodo_hash.eliminar(posicion_hash[1]) == 0: 
-            return "dato eliminado"
-            self.values[posicion_hash] = None
-        else:
-            return "dato no eliminado"
+        if nodo_hash:
+            if nodo_hash.eliminar(posicion_hash[1]):
+                return "dato eliminado"
+            elif nodo_hash.eliminar(posicion_hash[1]) == 0: 
+                return "dato eliminado"
+                self.values[posicion_hash] = None
+            else:
+                return "dato no eliminado"
 
     def printTbl(self):
         if self.values:
@@ -212,20 +221,27 @@ class TablaHash:
         if self.values:
             for i in self.values:
                 if i :
-                    new = str(i.pk) + " | " + str(i.array).replace('[','')
+                    new = str(i.key) + " | " + str(i.array).replace('[','')
                     new2 = new.replace(']','')
                     listTbl.append(new2)            
         else:
             print("vacio")        
         return listTbl
 
-    def imp1(self,columnNumber,lower,upper):
+    def imp1(self,columnNumber,lower,upper): ##Modificando este metodo
         listCol=[]
-        for nodo in self.values:
+        for nodo in self.values:           
             if nodo is not None:
-                val = nodo.imp_column(columnNumber,lower,upper)
-                if val != None:
-                    listCol.append(val)   
+                #print(nodo.array)
+                if len(nodo.array)>1:
+                    for subnodo in nodo.array:
+                        val = nodo.imp_column(subnodo[1],columnNumber,lower,upper) ##
+                        if val != None:
+                            listCol.append(val)
+                else:
+                    val = nodo.imp_column2(columnNumber,lower,upper) ##
+                    if val != None:
+                        listCol.append(val)   
         return listCol
 
     # agrega la nueva columna y asigna el valor
@@ -246,15 +262,18 @@ class TablaHash:
                     for j in i.array:
                         j[1].pop(columnNumber)
                 pass
-
+            pass
         newKeys = []
         for key in self.pk:
-            if (columnNumber == (key-1)) and (key is not 0):
+            if (key > columnNumber) and (key != 0):
                 key -= 1
             newKeys.append(key)
+        self.nCols -= 1
         self.pk = None
         self.alterAddPK(newKeys)
-        self.nCols -= 1
 
     def alterDropPK(self):
         self.pk = None
+        for i in self.values:
+            if i:
+                i.isGeneric = True

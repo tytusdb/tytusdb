@@ -68,6 +68,17 @@ class cliente():
         self.TB_ICON = PhotoImage(file = self.iconos[12])
         self.COL_ICON = PhotoImage(file = self.iconos[13])
 
+
+        self.TBASE_ICON = PhotoImage(file=self.iconos[14])
+        self.TCARPETA_ICON = PhotoImage(file=self.iconos[15])
+        self.TGUARDAR_ICON = PhotoImage(file=self.iconos[16])
+        self.TBUSCAR_ICON = PhotoImage(file=self.iconos[17])
+        self.TVACIAR_ICON = PhotoImage(file=self.iconos[18])
+        self.TCOMPILAR_ICON = PhotoImage(file=self.iconos[19])
+        self.TEXPLICAR_ICON = PhotoImage(file=self.iconos[20])
+        self.TDESCARGAR_ICON = PhotoImage(file=self.iconos[21])
+        self.TCERRAR_ICON = PhotoImage(file=self.iconos[22])
+
         # Preconfiguracion de la ventana
 
         self.raiz.title("TytusDB ")
@@ -175,9 +186,70 @@ class cliente():
         SubCuerpo.pack(side=LEFT, fill=BOTH, expand=True)
 
         # QueryTool
-        QueryTool = LabelFrame(SubCuerpo, text='QueryTool')
-        QueryTool.config(bg='green', height="400")
-        QueryTool.pack(side=TOP, fill=X)
+        self.QueryTool = LabelFrame(SubCuerpo, text = 'Not QueryTool')
+        self.QueryTool.config(bg = 'gray', height = "400")
+        self.QueryTool.pack(side = TOP, fill = X)
+
+
+        # QueryTool Edit Text
+        self.QueryTool2 = LabelFrame(SubCuerpo)
+        self.QueryTool2.config(bg = 'green', height = "400")
+        self.QueryTool2.pack(side = TOP, fill = X)
+
+        self.QueryTool2.pack_forget()
+
+        #botones
+        toolbar3 = Label(self.QueryTool2, bg="Gainsboro")
+        toolbar3.pack(side=TOP, fill = X)
+
+        btnBase = Button(toolbar3, image=self.TBASE_ICON)
+        btnBase.grid(row=0,column=1, padx=8)
+
+        btnCarpeta = Button(toolbar3, image=self.TCARPETA_ICON)
+        btnCarpeta.grid(row=0,column=2, padx=8)
+
+        btnGuardar = Button(toolbar3, image=self.TGUARDAR_ICON)
+        btnGuardar.grid(row=0,column=3, padx=8)
+
+        btnBuscar = Button(toolbar3, image=self.TBUSCAR_ICON)
+        btnBuscar.grid(row=0,column=4, padx=8)
+
+        btnVaciar = Button(toolbar3, image=self.TVACIAR_ICON)
+        btnVaciar.grid(row=0,column=5, padx=8)
+
+        btnCompilar = Button(toolbar3, image=self.TCOMPILAR_ICON)
+        btnCompilar.grid(row=0,column=6, padx=8)
+
+        btnExplicar = Button(toolbar3, image=self.TEXPLICAR_ICON)
+        btnExplicar.grid(row=0,column=7, padx=8)
+
+        btnDescargar = Button(toolbar3, image=self.TDESCARGAR_ICON)
+        btnDescargar.grid(row=0,column=8, padx=8)
+
+        btnCerrar = Button(toolbar3, image=self.TCERRAR_ICON, command=self.f_cerrar_query_tool)
+        btnCerrar.grid(row=0,column=9, padx=20)
+
+
+        #subtitulo
+        toolbar2 = Label(self.QueryTool2, bg="LightSteelBlue")
+        toolbar2.pack(side=TOP, fill = X)
+
+        tituloQuery = StringVar()
+        tituloQuery.set("Query Editor")
+        barrita = Label(toolbar2, textvar=tituloQuery, justify = 'left', bg="LightSteelBlue", font=('arial',11))
+        barrita.pack(side = "left")
+
+        lista_numeros = Label(self.QueryTool2, bg = 'Silver', width = "3")
+        lista_numeros.pack(side = LEFT, fill = Y)
+
+        #text
+        scroll = Scrollbar(self.QueryTool2)
+        scroll.pack(side=RIGHT, fill =Y)
+        texto = Text(self.QueryTool2)
+        texto.pack(fill="both", expand=1)
+        texto.config(bd=0, padx=6, pady=4, bg="Beige", font=("Consolas", 12), yscrollcommand=scroll.set)
+        scroll.config(command=texto.yview)
+
 
         # Consola
         ConsoleTool = LabelFrame(SubCuerpo, text='Consola')
@@ -187,9 +259,20 @@ class cliente():
         # Ejecucion de la ventana
         self.raiz.mainloop()
 
+
+    #abrir query tool
     def f_query_tool(self):
+        self.QueryTool2.pack(side = TOP, fill = X)     
+        self.QueryTool.pack_forget()
+        """
         messagebox.showinfo(
             "Loading...", "DEBERA DEJAR EDITAR O MOSTRAR QUERY TOOL")
+        """
+
+    #cerrar query tool
+    def f_cerrar_query_tool(self):
+        self.QueryTool2.pack_forget()
+        self.QueryTool.pack(side = TOP, fill = X) 
 
     def f_conectar(self):
         print("Conectando")
@@ -220,7 +303,7 @@ class cliente():
         marco1.pack(side=TOP, fill=BOTH, expand=True)
         etiq1 = Label(marco1, image=self.CONNECT_ICON, relief='raised')
         etiq1.pack(side=TOP, padx=10, pady=10, ipadx=10, ipady=10)
-        etiq2 = Label(marco1, text="PyRemoto "+__version__,
+        etiq2 = Label(marco1, text="PyRemoto "+ __version__,
                       foreground='blue', font=self.fuente)
         etiq2.pack(side=TOP, padx=10)
         etiq3 = Label(marco1, text="Python para impacientes")
@@ -262,8 +345,19 @@ def main():
               ruta_r + "serv.png",
               ruta_r + "bd.png",
               ruta_r + "tb.png",
-              ruta_r + "col.png"
+              ruta_r + "col.png",
+
+              ruta_r + "Tbasedatos.png",
+              ruta_r + "Tcarpeta.png",
+              ruta_r + "Tguardar.png",
+              ruta_r + "Tbuscar.png",
+              ruta_r + "Tbasura.png",
+              ruta_r + "Tcompilar.png",
+              ruta_r + "Texplicar.png",
+              ruta_r + "Tdescargar.png",
+              ruta_r + "Tcerrar.png"
               )
+
     error1 = f_verificar_iconos(iconos)
 
     if not error1:

@@ -6,6 +6,11 @@ from querie import *
 from environment import * 
 
 class Use(Querie):
+    '''
+     database = nombre de la base de datos que deseamos utilizar (cadena)
+     row = numero de fila(int)
+     column = numero de columna(int)
+    '''
     def  __init__(self, database, row, column):
         Querie.__init__(self, row, column)
         self.database = database
