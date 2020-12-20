@@ -5,10 +5,11 @@ from parse.expressions.expressions_math import *
 from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
 from parse.sql_common.sql_general import *
+from parse.sql_ddl.create import *
 from treeGraph import *
 
 #===========================================================================================
-#======================================== ANALISIS LEXICO ==================================
+#==================================== LEXICAL ANALYSIS ==================================
 #===========================================================================================
 reserved = {
     'smallint' : 'SMALLINT',
@@ -126,7 +127,7 @@ reserved = {
     'sign' : 'SIGN',
     'sqrt' : 'SQRT',
     'trim_scale' : 'TRIM_SCALE',
-    'truc' : 'TRUC',
+    'trunc' : 'TRUNC',
     'width_bucket' : 'WIDTH_BUCKET',
     'random' : 'RANDOM',
     'setseed' : 'SETSEED',
@@ -194,7 +195,7 @@ reserved = {
     'first' : 'FIRST',
     'last' : 'LAST',
     'nulls' : 'NULLS',
-
+    'use' : 'USE',
 }
 
 tokens = [
@@ -326,7 +327,7 @@ def t_error(t):
 lexer = lex.lex(debug = False, reflags=re.IGNORECASE) 
 
 #===========================================================================================
-#==================================== ANALISIS SINTACTICO ==================================
+#==================================== SYNTACTIC ANALYSIS ==================================
 #===========================================================================================
 
 start = 'init'
@@ -368,10 +369,23 @@ def p_statements2(t):
 def p_statement(t):
 #    '''statement    : stm_create    PUNTOCOMA'''
     '''statement    : predicateExpression PUNTOCOMA
-                    | stm_show   PUNTOCOMA'''
+                    | stm_show   PUNTOCOMA
+                    | stm_create PUNTOCOMA
+                    | stm_use_db PUNTOCOMA '''
     t[0] = t[1]
 
+def p_statement_error(t):
+    '''statement    : error PUNTOCOMA
+                    '''
+    token = t.slice[1]
+    t[0] = Error(token.lineno, token.lexpos, ErrorType.SYNTAX, 'Ilegal token '+str(token.lineno))
 
+
+def p_stm_use_db(t):
+    '''stm_use_db : USE DATABASE ID'''
+    tokenID = t.slice[3]    
+    IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
+    t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
 ##########   >>>>>>>>>>>>>>>>  STM_DELETE   AND  STM_ALTER  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_delete(t):
     '''stm_delete   : DELETE FROM ID where_clause
@@ -405,18 +419,20 @@ def p_stm_create(t):
                     | CREATE TYPE ID AS ENUM PARA exp_list PARC'''
     
     if len(t) == 7:
+        token = t.slice[1]
+        tokenID = t.slice[4]
         childsProduction = addNotNoneChild(t,[2,5,6])                
         graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=  tCreate [\<OR_REPLACE_OPT>] tDatabase tIdentifier  [\<OWNER_OPT>] [\<MODE_OPT>]")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####       
+        tvla = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)         
+        t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1, (True if t[2] else False) , token.lineno, token.lexpos, graph_ref)       
 
     elif len(t) == 8: 
         childsProduction = addNotNoneChild(t,[5,7])                
         graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=  tCreate tTable tIdentifier '('\<TAB_CREATE_LST>')'[tInherits '(' tIdentifier ')']")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
+        token = t.slice[1]
+        t[0] = CreateTable(t[3], t[7], t[5], None, token.lineno, token.lexpos, graph_ref) #TODO check if param check_exp is neceary and where we obtain that
 
     elif len(t) == 9:
         childsProduction = addNotNoneChild(t,[2,7])                
@@ -424,9 +440,9 @@ def p_stm_create(t):
         addCad("**\<STM_CREATE>** ::=   tCreate tType tIdentifier tAs tEnum ‘(‘ \<EXP_LIST> ‘)’")     
         t[0] = upNodo("token", 0, 0, graph_ref)
         ##### 
-    
+ 
 
-
+#for table columns and contrainst
 def p_tab_create_list(t):
     '''tab_create_list  : tab_create_list COMA ID type nullable_opt primary_key_opt
                         | ID type nullable_opt primary_key_opt'''
@@ -489,40 +505,56 @@ def p_inherits_opt(t):
     if len(t) == 5:
         graph_ref = graph_node(str(t[1]+" "+str(t[2])+" "+str(t[3])+" "+str(t[4]) ))
         addCad("**\<INHERITS_OPT>** ::= tInherits '(' tIdentifier ')'  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####         
+        token = slice[3]
+        t[0]= Identifier(token.value,token.lineno, token.lexpos,None)
     else:                 
         t[0] = None
 
+#owner option
 def p_owner_opt(t):
-    '''owner_opt    : OWNER IGUAL TEXTO
-                    | empty'''
-    if len(t) == 4:
-        graph_ref = graph_node(str(t[1]+" "+t[2]+" "+t[3]))
-        addCad("**\<OWNER_OPT>** ::= tOwner '=' tTexto   ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####        
-    else:                 
-        t[0] = None
+    '''owner_opt    : OWNER IGUAL ID'''
+    graph_ref = graph_node(str(t[1]+" "+t[2]+" "+t[3]))
+    addCad("**\<OWNER_OPT>** ::= tOwner '=' tTexto   ")
+    tokenID = t.slice[3]
+    t[0]= Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,graph_ref) 
+
+def p_owner_opt0(t):
+    '''owner_opt    : OWNER ID'''
+    tokenID = t.slice[2]
+    t[0]= Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,graph_ref) 
     
+    
+def p_owner_opt1(t):
+    '''owner_opt    : empty'''
+    t[0]= None
 
+#mode option
 def p_mode_opt(t):
-    '''mode_opt     : MODE IGUAL ENTERO
-                    | empty'''
-    if len(t) == 4:
-        graph_ref = graph_node(str(t[1]+" "+t[2]+" "+str(t[3])))
-        addCad("**\<MODE_OPT>** ::= tMode '=' tEntero ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####        
-    else:                 
-        t[0] = None
+    '''mode_opt     : MODE IGUAL ENTERO'''
+    tokenID = t.slice[3]
+    graph_ref = graph_node(str(t[1]+" "+t[2]+" "+str(t[3])))
+    addCad("**\<MODE_OPT>** ::= tMode '=' tEntero ")
+    t[0]=Numeric(tokenID.value, tokenID.lineno, tokenID.lexpos, graph_ref)
 
+def p_mode_opt1(t):
+    '''mode_opt     : MODE ENTERO'''
+    tokenID = t.slice[2]
+    graph_ref = graph_node(str(t[1]+" "+str(t[2]) ) )
+    addCad("**\<MODE_OPT>** ::= tMode  tEntero ")
+    t[0]=Numeric(tokenID.value, tokenID.lineno, tokenID.lexpos, graph_ref)
+
+def p_mode_opt2(t):
+    '''mode_opt     : empty'''
+    t[0] = None
+
+
+#Replace OPTION
 def p_or_replace_opt(t):
     '''or_replace_opt   : OR REPLACE
                         | empty'''
     if len(t) == 3:
         graph_ref = graph_node(str(t[1]+" "+t[2]))
-        addCad("**\<OR_REPLACE_OPT>** ::= tOr tReplace ")
+        addCad("**\<OR_REPLACE_OPT>** ::= tOr tReplace ")        
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####        
     else:                 
@@ -543,20 +575,6 @@ def p_stm_alter(t):
                     |    ALTER TABLE ID DROP CONSTRAINT ID
                     |    ALTER TABLE ID RENAME COLUMN ID TO ID
                     |    ALTER TABLE ID ALTER COLUMN TYPE type param_int_opt'''
-
-########################
-
-def p_predicateExpression(t):
-    '''predicateExpression  : BETWEEN expression AND expression
-                            | expression IS NULL
-                            | expression IS NOT NULL
-                            | expression IS not_opt DISTINCT FROM expression
-                            | expression IS not_opt BOOLEAN_VALUE expression
-                            | expression IS not_opt UNKNOWN expression
-                            | logicExpression'''
-
-
-#######################
 
 
 def p_param_int_opt(t):
@@ -681,13 +699,6 @@ def p_not_opt(t):
 
 
 
-def p_stm_show(t):
-    '''stm_show : SHOW DATABASES LIKE TEXTO
-                | SHOW DATABASES LIKE PATTERN_LIKE'''
-    token = t.slice[1]
-    graph_ref = graph_node("SHOW", [t[4]],[])
-    t[0] = ShowDatabases(t[4],token.lineno, lexpos, graph_ref)
-
 
 
 def p_stm_show0(t):
@@ -695,9 +706,9 @@ def p_stm_show0(t):
     if len(t) == 2:
         graph_ref = graph_node( str(str(t[1])+" "+str(t[2]))  )
         addCad("**\<STM_SHOW>** ::= tShow tDatabases ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####     
-
+        token = t.slice[1]
+        t[0] = ShowDatabases(None, token.lineno, token.lexpos, graph_ref)
+             
 
 def p_exp_list(t):
     '''exp_list : exp_list COMA expression'''
@@ -794,8 +805,8 @@ def p_predicateExpression0(t):
 def p_predicateExpression1(t):
     '''predicateExpression  : expression IS NULL
                             | expression IS DISTINCT FROM expression
-                            | expression IS BOOLEAN_VALUE expression
-                            | expression IS UNKNOWN  expression '''
+                            | expression IS BOOLEAN_VALUE 
+                            | expression IS UNKNOWN   '''
     token = t.slice[3]
     #graph_ref = graph_node(str(t[3]), [t[2].graph_ref, t[4].graph_ref])
     if token.type == "NULL":
@@ -810,7 +821,7 @@ def p_predicateExpression1(t):
         t[0] = PredicateExpression(t[1], t[5], OpPredicate.DISTINCT,  token.lineno, token.lexpos,graph_ref)
     elif token.type == "BOOLEAN_VALUE":
         childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_PREDICATE>** ::=   <EXP> tIs [tTrue|tFalse] \<EXP> ")      
         if bool(t[3]):
             t[0] = PredicateExpression(t[1], None, OpPredicate.TRUE, token.lineno, token.lexpos,graph_ref)
@@ -818,15 +829,15 @@ def p_predicateExpression1(t):
             t[0] = PredicateExpression(t[1], None, OpPredicate.FALSE, token.lineno, token.lexpos,graph_ref)
     elif token.type == "UNKNOWN":
         childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_PREDICATE>** ::=   \<EXP> tIs  tUnknown  \<EXP>  ")  
         t[0] = PredicateExpression(t[1], None, OpPredicate.UNKNOWN, token.lineno, token.lexpos,graph_ref)
 
 def p_predicateExpression2(t):
     '''predicateExpression  : expression IS NOT NULL
                             | expression IS NOT DISTINCT FROM expression
-                            | expression IS NOT BOOLEAN_VALUE expression
-                            | expression IS NOT UNKNOWN  expression '''
+                            | expression IS NOT BOOLEAN_VALUE 
+                            | expression IS NOT UNKNOWN   '''
 
     token = t.slice[4]
     if token.type == "NULL":
@@ -842,7 +853,7 @@ def p_predicateExpression2(t):
        # t[0] = PredicateExpression(t[1], t[5], OpPredicate.DISTINCT,  token.lineno, token.lexpos,graph_ref)
     elif token.type == "BOOLEAN_VALUE":
         childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4],t[5]]       ,childsProduction)
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
         addCad("**\<EXP_PREDICATE>** ::=   <EXP> tIs [tTrue|tFalse] \<EXP> ")      
         if bool(t[3]):
             pass
@@ -852,7 +863,7 @@ def p_predicateExpression2(t):
             #t[0] = PredicateExpression(t[1], None, OpPredicate.FALSE, token.lineno, token.lexpos,graph_ref)
     elif token.type == "UNKNOWN":
         childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4],t[5]]       ,childsProduction)
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
         addCad("**\<EXP_PREDICATE>** ::=   \<EXP> tIs  tUnknown  \<EXP>  ")  
         #t[0] = PredicateExpression(t[1], None, OpPredicate.UNKNOWN, token.lineno, token.lexpos,graph_ref)
 
@@ -1078,7 +1089,7 @@ def p_trigonometric(t):
         childsProduction = addNotNoneChild(t,[3])                
         graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAtanh '(' \<EXP> ')' ")
-        t[0] = Atanh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
+        t[0] = Atanh(t[3], token.lineno, token.lexpos, graph_ref)
 
 
 def p_aritmetic(t):
@@ -1102,14 +1113,15 @@ def p_aritmetic(t):
                     | POWER PARA expression COMA expression PARC
                     | RADIANS PARA expression PARC                    
                     | ROUND PARA expression PARC
+                    | ROUND PARA expression COMA expression PARC
                     | SCALE PARA expression PARC
                     | SIGN PARA expression PARC
                     | SQRT PARA expression PARC
                     | TRIM_SCALE PARA expression PARC
-                    | WIDTH_BUCKET PARA expression COMA expression PARC
+                    | WIDTH_BUCKET PARA expression COMA expression COMA expression COMA expression PARC
                     | RANDOM PARA PARC
                     | SETSEED PARA expression PARC
-                    | TRUC PARA expression PARC
+                    | TRUNC PARA expression PARC
                 '''
     token = t.slice[1]
     if token.type == "ABS":
@@ -1126,7 +1138,7 @@ def p_aritmetic(t):
         childsProduction = addNotNoneChild(t,[3])                
         graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   [tCeil | tCeiling ] '(' \<EXP> ')'        ")
-        t[0] = Ceil(t[3], token.lineno, token.lexpos)
+        t[0] = Ceil(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "DEGREES":
         childsProduction = addNotNoneChild(t,[3])                
         graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
@@ -1204,10 +1216,16 @@ def p_aritmetic(t):
         addCad("**\<EXP>** ::=   tRadians '(' \<EXP> ')'      ")
         t[0] = Radians(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "ROUND":
-        childsProduction = addNotNoneChild(t,[3])                
-        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
-        addCad("**\<EXP>** ::=   tRound '(' \<EXP> ')'      ")
-        t[0] = Round(t[3], token.lineno, token.lexpos, graph_ref)
+        if len(t) == 5:
+            childsProduction = addNotNoneChild(t,[3])                
+            graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
+            addCad("**\<EXP>** ::=   tRound '(' \<EXP> ')'      ")
+            t[0] = Round(t[3], 0, token.lineno, token.lexpos, graph_ref)
+        else:
+            childsProduction = addNotNoneChild(t,[3,5])                
+            graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+            addCad("**\<EXP>** ::=   tRound '(' \<EXP> ','\<EXP> ')'      ")
+            t[0] = Round(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "SCALE":
         childsProduction = addNotNoneChild(t,[3])                
         graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
@@ -1231,8 +1249,8 @@ def p_aritmetic(t):
     elif token.type == "WIDTH_BUCKET":
         childsProduction = addNotNoneChild(t,[3,5])                
         graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
-        addCad("**\<EXP>** ::=  tWidthBucket '(' \<EXP> ','\<EXP> ')'       ")
-        t[0] = WithBucket(t[3], t[5], token.lineno, token.lexpos, graph_ref)
+        addCad("**\<EXP>** ::=  tWidthBucket '(' \<EXP> ',' \<EXP> ',' \<EXP> ',' \<EXP> ')' ") 
+        t[0] = WidthBucket(t[3], t[5], t[7], t[9], token.lineno, token.lexpos, graph_ref)
     elif token.type == "RANDOM":
                        
         graph_ref = graph_node(str(str(t[1])+" "+str(t[2])+" "+str(t[3])))
@@ -1249,19 +1267,21 @@ def p_aritmetic(t):
         addCad("**\<EXP>** ::=   tTruc '(' \<EXP> ')'      ")
         t[0] = Trunc(t[3], token.lineno, token.lexpos, graph_ref)
 
+
 def p_exp_unary(t):
     '''expression : MENOS expression %prec UMENOS
                   | MAS expression %prec UMAS '''
+    token = t.slice[2].value
     if t[1] == '+':
         childsProduction = addNotNoneChild(t,[2])                
         graph_ref = graph_node(str("exp"), [t[1],t[2]]    ,childsProduction)
         addCad("**\<EXP>** ::=  [+|-] \<EXP>")
-        t[0] = BinaryExpression(Numeric(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
+        t[0] =  NumericPositive(t[2], token.line, token.column, graph_ref) 
     elif t[1] == '-':
         childsProduction = addNotNoneChild(t,[2])                
         graph_ref = graph_node(str("exp"), [t[1],t[2]]    ,childsProduction)
         addCad("**\<EXP>** ::=  [+|-] \<EXP>")
-        t[0] = BinaryExpression(NumericNegative(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
+        t[0] = NumericNegative(t[2], token.line, token.column, graph_ref) 
     else:
         print("Missed code from unary expression")
 
@@ -1272,9 +1292,9 @@ def p_exp_num(t):
     t[0] = t[1]
     token = t.slice[1]   
     if token.type == "numero":
-       addCad("**\<EXP>** ::= \<NUMERO>")
+        addCad("**\<EXP>** ::= \<NUMERO>")
     elif token.type == "col_name":
-       addCad("**\<EXP>** ::= \<COL_NAME>")
+        addCad("**\<EXP>** ::= \<COL_NAME>")
 
 
 def p_exp_val(t):
@@ -1296,28 +1316,8 @@ def p_exp_val(t):
         t[0] = Now(token.lineno, token.lexpos, graph_ref)
 
 
-#########################
-def p_empty(t):
-    '''empty :'''
-    pass
 
-
-
-
-def p_error(p):
-    if not p:
-        print("End of file!")
-        return
-    # Read ahead looking for a closing ';'
-    while True:
-        tok = parse.token()  # Get the next token
-        if not tok or tok.type == 'PUNTOCOMA':
-            err = Error(p.lineno, p.lexpos, ErrorType.SYNTAX, 'Ilegal token '+str(p.type))
-            errorsList.append(err)
-            break
-    parse.restart()
-
-
+# <NUMERO> ::=
 def p_numero(t):
     ''' numero  : ENTERO
                 | FLOAT'''
@@ -1329,19 +1329,26 @@ def p_numero(t):
     graph_ref = graph_node(str(t[1]))
     t[0] = Numeric(token.value, token.lineno, token.lexpos, graph_ref)
 
-
+# --- <COL_NAME> ::= tIdentificador [‘.’ tIdentificador]
 def p_col_name(t):
-    ''' col_name : ID PUNTO ID
-                 | ID '''
+    ''' col_name : ID PUNTO ID'''
     token = t.slice[1]
-    if len(t) == 2:
-        graph_ref = graph_node(str(t[1]))
-        addCad("**\<COL_NAME>** ::= tIdentificador")
-        t[0] = ColumnName(None, t[1], token.lineno, token.lexpos, graph_ref)
-    else:
-        graph_ref = graph_node(str(str(t[1])+" " + str(t[2])+ " " + str(t[3])))
-        addCad("**\<COL_NAME>** ::= tIdentificador '.' tIdentificador")
-        t[0] = ColumnName(t[1], t[3], token.lineno, token.lexpos, graph_ref)
+    graph_ref = graph_node(str(str(t[1])+" " + str(t[2])+ " " + str(t[3])))
+    addCad("**\<COL_NAME>** ::= tIdentificador '.' tIdentificador")
+    t[0] = ColumnName(t[1], t[3], token.lineno, token.lexpos, graph_ref)
+
+def p_col_name1(t):
+    ''' col_name : ID '''
+    token = t.slice[1]
+    graph_ref = graph_node(str(t[1]))
+    addCad("**\<COL_NAME>** ::= tIdentificador")
+    t[0] = ColumnName(None, t[1], token.lineno, token.lexpos, graph_ref)
+
+# <EMPTY> ::=
+def p_empty(t):
+    '''empty :'''
+    pass
+
 
 
 import ply.yacc as yacc
@@ -1350,11 +1357,15 @@ from ply.yacc import token
 parse = yacc.yacc()
 errorsList = []
 
+
+
 if __name__ == "__main__":
     f = open("./entrada.txt", "r")
     input = f.read()
     print("Input: " + input +"\n")
     print("Executing AST root, please wait ...")
+    ST = SymbolTable([])##TODO Check is only one ST.
+    ST.LoadMETADATA()
     instrucciones = parse.parse(input)
     createFile()
     creategrafo()
@@ -1362,9 +1373,10 @@ if __name__ == "__main__":
 
     for instruccion in instrucciones:
         try:
-            val = instruccion.execute(None,None)
+            val = instruccion.execute(ST, None)
             print("AST excute result: ", val)
         except our_error as named_error:
             errorsList.append(named_error)
 
     print(errorsList)
+    

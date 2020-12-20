@@ -103,6 +103,15 @@ class Tytus:
             print("Error en operacion")
             return 1
 
+     """
+    dropTable(nombreDB, nombreTable)
+    @description elimina por completo una tabla de una base de datos especificada
+    @return 
+        0 operación exitosa
+        1 error en la operación
+        2 database no existe
+        3 table no existe
+    """
     def dropTable(self, database, table):
         try:
             indiceDB = self.buscarDB(database)
@@ -111,14 +120,9 @@ class Tytus:
                 if indiceTabla != None:
                     # exito 0, o error 1
                     return self.databases[indiceDB].dropTable(indiceTabla)
-                else:
-                    print("Table no existe")
-                    return 3
-            else:
-                print("Database no existe") 
-                return 2
+                return 3
+            return 2
         except:
-            print("Error en la operación")
             return 1
 
     def showTables(self, database):
@@ -189,12 +193,10 @@ class Tytus:
                         for f in lector:
                             print(f)
                     #-------------------termina leer csv
-                else:
-                    print("Tabla no existe")
-                    return 3
-            else:
-                print("Database no existente")  
-                return 2
+                print("Tabla no existe")
+                return 3
+            print("Database no existente")  
+            return 2
         except Exception as e:
             print(e)
 
@@ -207,7 +209,7 @@ class Tytus:
             flagDB = self.buscarDB(database)
             if flagDB != None:
                 db = self.databases[flagDB]
-                db.extractTable2(table)
+                return db.extractTable2(table)
             else:
                 print("Base de datos no existente")
                 return 2
@@ -215,5 +217,43 @@ class Tytus:
             print("Error en la operacion")
             return 1      
 
-    def extractRangeTable(self,database,table,lower,upper):
-        pass 
+    def extractRangeTable(self,database,table,columnNumber,lower,upper):
+        try:
+            flagDB = self.buscarDB(database)
+            if flagDB != None:
+                db = self.databases[flagDB]
+                return db.extractRangeTable2(table,columnNumber,lower,upper) ##Cambiar esto
+            else:
+                print("Base de datos no existente")
+                return 2
+        except:
+            print("Error en la operacion")
+            return 1  
+        
+        
+    """
+    alterAddColumn(database, table, default)
+    @description
+        Agrega un registro a la tabla y base de datos especificada.
+    @param
+        database: nombre de la base de datos a utilizar
+        table: nombre de la tabla a utilizar
+        default: valor que se le asignara por defecto a la nueva columna
+    @return
+        0 Operación exitosa
+        1 Error en la operación                                                 -
+        2 Database no existente 
+        3 Tabla no existente
+    """
+    def alterAddColumn(self, database, table, default):
+        try:
+            indiceDB = self.buscarDB(database)
+            if indiceDB != None:
+                indiceTabla = self.databases[indiceDB].buscarTable(table)
+                if indiceTabla != None:
+                    self.databases[indiceDB].getTable(indiceTabla).alterAddColumn(default)
+                    return 0
+                return 3
+            return 2
+        except Exception as e:
+            return 1

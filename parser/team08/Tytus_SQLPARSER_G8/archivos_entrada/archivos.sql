@@ -2,12 +2,10 @@ select * from tbsujeto S
 inner join tbsujetoide SI on S.
 
 create function promedio
-
 Begin
 	Declare @promedio as double
-	Select @promedio = sum(ventas)/count(*) from tbventas where fecha='2020-12-04;
+	Select @promedio = sum(ventas)/count(*) from tbventas where fecha='2020-12-04';
 	return @promedio
-
 End
 
 

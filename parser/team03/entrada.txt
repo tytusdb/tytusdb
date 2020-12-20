@@ -1,4 +1,23 @@
-create table edificio (
-    apellido char null primary key
-);
-
+/*FactOrial (
+    TrUC(
+        +5 + 45/5 + 0.0-23432.432324*0 -56+343.43*0 -0.864385
+        )
+    *0 +5
+    )+
+cos(34+2)-
+cos(3.14159274)
+-(cos(34+2)-cos(3.14159274))
+= 'hola' or (  'adios' = 'adios')
+;*/
+/*
+1=1*/
+//0 = 0 and 0!=0 or 1=1;
+//1+1-1 = -1 or 'hola' = 'hola';
+//'hola' = 'hola' and 3 < 1;
+1 is null;
+create or replace database comp2 mode 6;
+create or replace database compiladores2 mode 6;
+use database comp2;
+false is false;
+show databases;
+use database compiladores2;

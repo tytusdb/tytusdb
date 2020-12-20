@@ -36,7 +36,7 @@ reservadas = (
     'EXTRACT', 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND',
     'NOW', 'DATE_PART','CURRENT_DATE', 'CURRENT_TIME',
     # BOOLEAN TYPE
-    'BOOLEAN', 
+    'BOOLEAN', 'TRUE', 'FALSE',
     # OPERADORES LOGICOS
     'AND', 'OR', 'NOT',
     # SENTENCIAS DML
@@ -132,8 +132,8 @@ t_DISTINTO = r'\<\>'
 t_IGUAL = r'\='
 t_MAYORQ = r'\>'
 t_MENORQ = r'\<'
-t_MAYOR_IGUALQ = r'>='
-t_MENOR_IGUALQ = r'<='
+t_MAYOR_IGUALQ = r'\>\='
+t_MENOR_IGUALQ = r'\<\='
 
 
 
@@ -178,7 +178,7 @@ def t_ID(t):
         #print(t.type)
     else:
         t.type = 'ID'
-
+        
     return t
 
 
