@@ -7,6 +7,9 @@ import math
 from random import random
 from datetime import datetime
 from datetime import date
+import hashlib
+from prettytable import PrettyTable
+
 
 consola = ""
 useActual = ""
@@ -274,6 +277,15 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     Qorderby = nodo.query1.orderby
                     Qlimit = nodo.query1.limit
 
+                    # VARIABLES
+                    tablaConsulta = ""
+                    aliasTablaConsulta = ""
+                    distinct = False
+                    todasCols = False
+                    Ssid = ""
+                    Ssalida = ""
+                    ncolumna=""
+
                     if Qffrom == False and Qffrom == False and Qwhere == False and Qgroupby == False and Qhaving == False and Qorderby == False and Qlimit == False:
                         print("Forma -> Select")
                     elif Qffrom != False and Qffrom == False and Qwhere == False and Qgroupby == False and Qhaving == False and Qorderby == False and Qlimit == False:
@@ -289,10 +301,12 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         # Distinct
                         if Qselect.distinct != False:
                             print("Distinct True")
+                            distinct=True
 
                         # Cantidad de columnas
                         if Qselect.cols == "*":
                             print("Todas las Columnas")
+                            todasCols=True
 
                         else:
                             print("Columnas Específicas")
@@ -301,6 +315,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 if isinstance(col.cols, SExpresion):
                                     print("Expre")
                                     print(col.cols.valor)
+                                    ncolumna=col.cols.valor
                                     # print("Tipo")
                                     # print(col.cols.tipo)
                                 elif isinstance(col.cols, SOperacion):
@@ -443,13 +458,14 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                         # FUNCIONES DE FECHA
                                 elif isinstance(col.cols, SSelectFunc):
                                     print("Funcion getFecha:")
-                                    print(col.cols.id)
+                                    Ssid = col.cols.id
+                                    Ssalida = getFechaFunc(col.cols.id)
 
                                 elif isinstance(col.cols, SFechaFunc):
                                     print("Funcion Fecha:")
                                     if isinstance(col.cols.param, STipoDato):
-                                        print(col.cols.param)
-                                        print(col.cols.param2)
+                                        Ssid = col.cols.param2.valor
+                                        Ssalida = getFechaFunc2(col.cols.param.dato, col.cols.param2.valor)
                                     else:
                                         print(col.cols.param)
                                         print(col.cols.param2)
@@ -511,9 +527,11 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                                 if col.alias == False:
                                     print("id")
                                     print(col.id)
+                                    tablaConsulta=col.id
                                 else:
                                     print("id/alias")
                                     print(col.id)
+                                    tablaConsulta=col.id
                                     print(col.alias)
 
                     elif isinstance(Qffrom, SFrom2):
@@ -629,6 +647,53 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                             print(Qlimit.offset.valor)
                         else:
                             print(Qlimit.offset)
+
+                    # TODOS LOS DATOS
+                    if tablaConsulta != "":
+                        bConsulta = jBase.extractTable(useActual, tablaConsulta)
+                        base=tablaSimbolos.get(useActual)
+                        tabla=base.getTabla(tablaConsulta)
+                        indice=tabla.getColumna(ncolumna).index
+                        arr=[]
+                        if distinct:
+                            for i in range(len(bConsulta)):
+                                if bConsulta[i][indice] not in arr:
+                                    arr.append(bConsulta[i][indice])
+                            x = PrettyTable()
+                            x.field_names=[ncolumna]
+                            print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+                            print(arr)
+                            for datam in arr:
+                                x.add_row([datam])
+                            consola+=str(x)+"\n"
+
+                        else:
+                            x = PrettyTable()
+                            t2 = base.getTabla(tablaConsulta)
+                            nombreCols = []
+                            for e in t2.columnas.keys():
+                                nombreCols.append(e)
+                            x.field_names = nombreCols
+                            print(tablaConsulta)
+                            print(useActual)
+                            bConsulta = jBase.extractTable(useActual, tablaConsulta)
+                            for e in bConsulta:
+                                x.add_row(e)
+                            consola += str(x)+"\n"
+
+                    # NOW TODAY
+                    elif Ssid != "":
+
+                        nombreCols = []
+                        nombreCols.append(Ssid)
+                        x = PrettyTable()
+                        x.field_names = nombreCols
+                        x.add_row([Ssalida])
+                        consola += str(x) + "\n"
+
+                    else:
+                        print("error")
+
             else:
                 print("Query no 1")
                 if isinstance(nodo.query1, SQuery):
@@ -1524,6 +1589,7 @@ def crearBase(nodo, tablaSimbolos):
 
 def crearTabla(nodo, tablaSimbolos):
     val = nodo.id
+    global useActual
     global consola
     primarykeys = []
     if nodo.herencia == False:
@@ -1955,7 +2021,7 @@ def InsertTable(nodo, tablaSimbolos):
                                 else:
                                     result = False
                                     listaSemanticos.append(Error.ErrorS(
-                                        "Error Semantico", "Error de tipos: tipo "+col.tipo.dato+" columna "+col.nombre+" valor a insertar "+ val.tipo.tipo))
+                                        "Error Semantico", "Error de tipos: tipo "+col.tipo.dato+" columna "+col.nombre+" valor a insertar "+ str(val.tipo)))
                             elif col.tipo.tipo == TipoDato.FECHA:
                                 result = validarTiposFecha(
                                     col.tipo.dato.lower(), val)
@@ -1965,6 +2031,7 @@ def InsertTable(nodo, tablaSimbolos):
                             if not result:
                                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                                     "Error de tipos: tipo " + col.tipo.dato + " columna " + col.nombre + " valor a insertar " + str(val.tipo)))
+                                flag= False
                                 break
                             else:
                                 bas1 = validaCheck(
@@ -2069,7 +2136,7 @@ def InsertTable(nodo, tablaSimbolos):
                                 else:
                                     result = False
                                     listaSemanticos.append(Error.ErrorS(
-                                        "Error Semantico", "Error de tipos: tipo "+col.tipo.dato+" columna "+col.nombre+" valor a insertar "+ val.tipo.tipo))
+                                        "Error Semantico", "Error de tipos: tipo "+col.tipo.dato+" columna "+col.nombre+" valor a insertar "+ str(val.tipo)))
                             elif col.tipo.tipo == TipoDato.FECHA:
                                 result = validarTiposFecha(
                                     col.tipo.dato.lower(), val)
@@ -2079,6 +2146,7 @@ def InsertTable(nodo, tablaSimbolos):
                             if not result:
                                 listaSemanticos.append(Error.ErrorS("Error Semantico",
                                                                     "Error de tipos: tipo " + col.tipo.dato + " columna " + col.nombre + " valor a insertar " + str(val.tipo)))
+                                flag=False
                                 break
                             else:
                                 bas1 = validaCheck(
@@ -2336,7 +2404,7 @@ def validarDefault2(listaC, listaV,tabla,tablaSimbolos):
 
                 if tabla.columnas[i].nombre == listaC[j]:
 
-                    tupla.append(listaV[j].valor)
+                    tupla.append(Interpreta_Expresion(listaV[j],tablaSimbolos,tabla).valor)
                     indice += 1
                     i = 0
                     encontrado = True
@@ -2833,12 +2901,12 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
             return SExpresion(val, Expresion.ENTERO)
         elif expresion.funcion.lower() == "md5":
             param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
-            val = len(param)
-            return SExpresion(val, Expresion.ENTERO)
+            val = hashlib.md5(str(param.valor).encode("utf-8")).hexdigest()
+            return SExpresion(val, Expresion.CADENA)
         elif expresion.funcion.lower() == "sha256":
             param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
-            val = len(param)
-            return SExpresion(val, Expresion.ENTERO)
+            val = hashlib.md5(str(param.valor).encode("utf-8")).hexdigest()
+            return SExpresion(val, Expresion.CADENA)
         elif expresion.funcion.lower() == "barra":
             param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
             val = len(param)
@@ -2908,15 +2976,15 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         if expresion.id.lower() == "current_date":
             today = date.today()
             val = today.strftime("%d/%m/%Y")
-            return SExpresion(val, Expresion.CADENA)
+            return SExpresion(val, Expresion.FECHA)
         elif expresion.id.lower() == "current_time":
             now = datetime.now()
             val = now.strftime("%H:%M:%S")
-            return SExpresion(val, Expresion.CADENA)
+            return SExpresion(val, Expresion.HORA)
         elif expresion.id.lower() == "now":
             now = datetime.now()
             val = now.strftime("%d/%m/%Y %H:%M:%S")
-            return SExpresion(val, Expresion.CADENA)
+            return SExpresion(val, Expresion.FECHA)
         
     elif isinstance(expresion, SFechaFunc2):
         if expresion.id.lower() == "date_part":
@@ -2972,3 +3040,37 @@ def retornarTipo(tipo):
 
     elif tipo == "interval":
         return Expresion.INTERVALO
+
+def getFechaFunc(funcion):
+    if funcion.lower() == "current_date":
+        today = date.today()
+        val = today.strftime("%d/%m/%Y")
+        return val
+    elif funcion.lower() == "current_time":
+        now = datetime.now()
+        val = now.strftime("%H:%M:%S")
+        return val
+    elif funcion.lower() == "now":
+        now = datetime.now()
+        val = now.strftime("%d/%m/%Y %H:%M:%S")
+        return val
+
+
+def getFechaFunc2(funcion, param):
+    if funcion.lower() == "timestamp":
+        if param.lower() == "now":
+            now = datetime.now()
+            val = now.strftime("%d/%m/%Y %H:%M:%S")
+            return val
+        else:
+            today = date.today()
+            val = today.strftime("%d/%m/%Y %H:%M:%S")
+            return val
+    elif funcion.lower() == "date":
+        today = date.today()
+        val = today.strftime("%d/%m/%Y")
+        return val
+    elif funcion.lower() == "time":
+        now = datetime.now()
+        val = now.strftime("%H:%M:%S")
+        return val

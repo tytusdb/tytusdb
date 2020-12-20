@@ -1,6 +1,6 @@
 import tkinter as tk
 import gramaticaASC as g
-import Graficar as graficando
+#import Graficar as graficando
 import principal as principal
 import os
 from tkinter import filedialog
@@ -180,12 +180,12 @@ if __name__ == "__main__":
 
             if len(g.errores_sintacticos) == 0:
                 imprimir_consola("") 
-                raiz = graficando.analizador(entrada)
-                #data=principal.interpretar_sentencias(arbol,tablaSimbolos)
+                #raiz = graficando.analizador(entrada)
+                data=principal.interpretar_sentencias(arbol,tablaSimbolos)
                 tablaSimbolos.mostrar()
-                #imprimir_consola(data)
-                graficando.GraficarAST(raiz)
-                graficando.ReporteGramatical()
+                imprimir_consola(data)
+                #graficando.GraficarAST(raiz)
+                #graficando.ReporteGramatical()
             else:
 
                 imprimir_consola('Se detectaron algunos errores sintácticos')

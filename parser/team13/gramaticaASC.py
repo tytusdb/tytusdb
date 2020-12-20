@@ -337,7 +337,7 @@ def t_entero(t):
 
 # DEFINICION PARA INTERVALO
 def t_intervaloc(t):
-    r'\'[\d+\s(Year|Years|Month|Months|day|days|hour|hours|minute|minutes|second|seconds)]+\''
+    r'\'\d+[\s(Year|Years|Month|Months|day|days|hour|hours|minute|minutes|second|seconds)]+\''
     return t
 
 # DEFINICIÓN PARA LA HORA
