@@ -47,6 +47,18 @@ export class DataComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
+  // tslint:disable-next-line:typedef
+  addColumn() {
+    const randomColumn = Math.floor(Math.random() * this.displayedColumns.length);
+    this.columnsToDisplay.push(this.displayedColumns[randomColumn]);
+  }
+
+  // tslint:disable-next-line:typedef
+  removeColumn() {
+    if (this.columnsToDisplay.length) {
+      this.columnsToDisplay.pop();
+    }
+  }
 
 
   constructor() { }
