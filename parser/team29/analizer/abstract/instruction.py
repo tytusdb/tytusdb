@@ -85,8 +85,8 @@ class Select(Instruction):
                         params.append(r)
                 else:
                     params.append(p)
-            value = [p.execute(newEnv).value for p in params]
             labels = [p.temp for p in params]
+            value = [p.execute(newEnv).value for p in params]
         else:
             value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
             labels = [p for p in newEnv.dataFrame]
@@ -99,7 +99,8 @@ class Select(Instruction):
         # Si la clausula WHERE devuelve un dataframe vacio
         if w2.empty:
             return None
-        return w2
+        
+        return [w2, environment.types]
 
 
 class FromClause(Instruction):
@@ -130,7 +131,9 @@ class FromClause(Instruction):
     def execute(self, environment):
         tempDf = None
         for i in range(len(self.tables)):
-            data = self.tables[i].execute(environment)
+            exec = self.tables[i].execute(environment)
+            data = exec[0]
+            types = exec[1]
             if isinstance(self.tables[i], Select):
                 newNames = {}
                 subqAlias = self.aliases[i]
@@ -138,14 +141,16 @@ class FromClause(Instruction):
                     colSplit = columnName.split(".")
                     if len(colSplit) >= 2:
                         newNames[columnName] = subqAlias + "." + colSplit[1]
+                        types[subqAlias + "." + colSplit[1]] = columnName
                     else:
                         newNames[columnName] = subqAlias + "." + colSplit[0]
+                        types[subqAlias + "." + colSplit[0]] = columnName
                 data.rename(columns=newNames, inplace=True)
                 environment.addVar(subqAlias, subqAlias, "TABLE", self.row, self.column)
             else:
                 sym = Symbol(
                     self.tables[i].name,
-                    self.tables[i].type_,
+                    None,
                     self.tables[i].row,
                     self.tables[i].column,
                 )
@@ -157,6 +162,7 @@ class FromClause(Instruction):
             else:
                 tempDf = self.crossJoin([tempDf, data])
             environment.dataFrame = tempDf
+            environment.types.update(types)
         return
 
 
@@ -189,7 +195,10 @@ class TableID(Expression):
         newColumns = [self.name + "." + col for col in columns]
         df = pd.DataFrame(result, columns=newColumns)
         environment.addTable(self.name)
-        return df
+        tempTypes = {}
+        for i in range(len(newColumns)):
+            tempTypes[newColumns[i]] = lst[i].type
+        return [df, tempTypes]
 
 
 class WhereClause(Instruction):
