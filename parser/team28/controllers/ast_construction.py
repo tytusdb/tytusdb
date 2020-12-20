@@ -59,11 +59,18 @@ def p_instruction_list(p):
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
                     | DML
+                    | usestatement
                     | MULTI_LINE_COMMENT
                     | SINGLE_LINE_COMMENT
     '''
     nodo = Node('sqlinstruction')
     nodo.add_childrens(p[1])
+    p[0] = nodo
+
+def p_use_statement(p):
+    '''usestatement : USE ID SEMICOLON'''
+    nodo = Node('usestatement')
+    nodo.add_childrens(p[2])
     p[0] = nodo
 
 def p_ddl(p):
@@ -452,7 +459,7 @@ def p_column_list(p):
 
 def p_show_statement(p):
     '''showstatement : SHOW DATABASES SEMICOLON
-                     | SHOW DATABASES LIKE ID SEMICOLON
+                     | SHOW DATABASES LIKE SQLNAME SEMICOLON
     '''
     nodo = Node('showstatement')
     if len(p) == 4:

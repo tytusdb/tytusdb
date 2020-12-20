@@ -4,7 +4,7 @@ from tkinter import scrolledtext
 from tkinter import messagebox
 from tkinter import filedialog
 import lex 
-
+import ejecucion
 
 def abrir_btn():
     print('open file')
@@ -27,6 +27,8 @@ def analizar_btn():
 
 def btnejecutar_click():
     print('ejecutando')
+    txt_entrada = editor_box.get(1.0, END+"-1c")
+    parse_result = ejecucion.ejecutar(str(txt_entrada))
 
 def tblerrores_click():
     print('tabla errores')

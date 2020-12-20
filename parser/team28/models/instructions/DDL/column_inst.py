@@ -11,7 +11,7 @@ class CreateCol(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self,instruction):
         pass
 
 
@@ -23,7 +23,7 @@ class Unique(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self,instruction):
         pass
 
 
@@ -35,7 +35,7 @@ class Check(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self,instruction):
         pass
 
 
@@ -47,7 +47,7 @@ class PrimaryKey(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self,instruction):
         pass
 
 
@@ -61,7 +61,7 @@ class ForeignKey(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self,instruction):
         pass
 
 
@@ -74,7 +74,7 @@ class Constraint(Instruction):
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self,instruction):
         pass
 
 
@@ -83,10 +83,10 @@ class ColumnTipo(Instruction):
     def __init__(self, tipoColumna, paramOne, paramTwo):
         self._tipoColumna = tipoColumna 
         self._paramOne = paramOne
-        self._paraTwo = paramTwo
+        self._paramTwo = paramTwo
 
     def __repr__(self):
         return str(vars(self))
 
-    def execute(self):
+    def process(self,instruction):
         pass

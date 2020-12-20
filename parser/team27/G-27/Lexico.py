@@ -16,7 +16,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'YEAR','MONTH','DAY','HOUR','MINUTE','SECOND',
               'BOOLEAN',
               'CREATE','TYPE','AS','ENUM','USE',
-              'BETWEEN','IN','LIKE','ILIKE','SIMILAR','ON','INTO','TO',
+              'BETWEEN','LIKE','ILIKE','SIMILAR','ON','INTO','TO',
               'IS','ISNULL','NOTNULL',
               'NOT','AND','OR',
               'REPLACE','DATABASE','DATABASES','IF','EXISTS','OWNER','MODE','SELECT','EXIST',
@@ -38,7 +38,7 @@ reservadas = ['SMALLINT','INTEGER','BIGINT','DECIMAL','NUMERIC','REAL','DOBLE','
               'LENGTH','TRIM','GET_BYTE','MOD5','SET_BYTE','SHA256','SUBSTR','CONVERT','ENCODE','DECODE','DOUBLE','INHERITS'
               ]
 
-tokens = reservadas + ['PUNTO','PUNTO_COMA','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
+tokens = reservadas + ['PUNTO','PUNTO_COMA','CADENASIMPLE','COMA','SIGNO_IGUAL','PARABRE','PARCIERRE','SIGNO_MAS','SIGNO_MENOS',
                        'SIGNO_DIVISION','SIGNO_POR','NUMERO','NUM_DECIMAL','CADENA','ID','LLAVEABRE','LLAVECIERRE','CORCHETEABRE',
                        'CORCHETECIERRE','DOBLE_DOSPUNTOS','SIGNO_POTENCIA','SIGNO_MODULO','MAYORQUE','MENORQUE',
                        'MAYORIGUALQUE','MENORIGUALQUE',
@@ -212,8 +212,9 @@ def p_instruccion_create(t):
     print('INSTRUCCION CREATE')   
 
 def p_tipo_create(t):
-    '''tipo_create : ins_replace DATABASE if_exist ID create_opciones PUNTO_COMA
-                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA'''
+    '''tipo_create : ins_replace DATABASE if_exists ID create_opciones PUNTO_COMA
+                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA
+                   | TYPE ID AS ENUM PARABRE list_vls PARCIERRE PUNTO_COMA'''
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
@@ -249,7 +250,6 @@ def p_tipo_dato(t):
                  | REAL
                  | DOUBLE PRECISION
                  | CHAR PARABRE NUMERO PARCIERRE
-                 | CHARACTER tipochar
                  | VARCHAR PARABRE NUMERO PARCIERRE
                  | CHARACTER PARABRE NUMERO PARCIERRE
                  | TEXT
@@ -276,17 +276,24 @@ def p_definicion_valor_defecto(t):
                                 | ''' #epsilon
 
 def p_ins_constraint(t):
-    '''ins_constraint : CONSTRAINT ID restriccion_columna 
-                        | restriccion_columna''' #epsilon
+    '''ins_constraint : ins_constraint constraint restriccion_columna 
+                        | restriccion_columna
+                        |''' #epsilon
+
+def p_constraint(t):
+    '''constraint :  CONSTRAINT ID 
+                    |  '''
 
 def p_restriccion_columna(t):
-    '''restriccion_columna : NOT NULL
-                           | SET NOT NULL
-                           | NULL
-                           | PRIMARY KEY
+    '''restriccion_columna : NOT NULL 
+                           | SET NOT NULL 
+                           | PRIMARY KEY 
+                           | UNIQUE 
+                           | NULL 
                            | NOT NULL PRIMARY KEY 
-                           | UNIQUE
-                           | CHECK PARABRE exp PARCIERRE''' #cambio del condicion columna
+                           | CHECK PARABRE exp PARCIERRE 
+                           | 
+                           ''' #cambio del condicion columna
 
 def p_references(t):
     '''ins_references : ON DELETE accion ins_references
@@ -308,19 +315,21 @@ def p_ins_replace(t):
     '''ins_replace : OR REPLACE
                | '''#EPSILON
 
-def p_if_exist(t): 
-    '''if_exist :  IF NOT EXIST
-                |  IF EXIST
+def p_if_exists(t): 
+    '''if_exists :  IF NOT EXISTS
+                |  IF EXISTS
                 | ''' # EPSILON
 
 def p_create_opciones(t): 
-    '''create_opciones : OWNER SIGNO_IGUAL ID create_opciones
+    '''create_opciones : OWNER SIGNO_IGUAL user_name create_opciones
                        | MODE SIGNO_IGUAL NUMERO create_opciones
                        | '''
 
-def p_puntocoma(t): 
-    '''puntocoma : PUNTO_COMA
-                 | ''' # EPSILON
+def p_user_name(t):
+    '''user_name : ID
+                  | CADENA 
+                  | CADENASIMPLE'''
+
 
 def p_alter(t): 
     '''ins_alter : ALTER tipo_alter ''' 
@@ -335,9 +344,11 @@ def p_alteracion_tabla(t):
                         | alterar_tabla'''
 
 def p_alterar_tabla(t): 
-    '''alterar_tabla : ADD COLUMN columna
-                     | ADD CONSTRAINT ID columna
-                     | ALTER COLUMN columna
+    #alter column viene como una lista
+    '''alterar_tabla : ADD COLUMN ID tipo_dato
+                     | ADD CONSTRAINT ins_constraint
+                     | ALTER COLUMN ID TYPE tipo_dato
+                     | ALTER COLUMN ID SET NOT NULL
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
 
@@ -349,16 +360,20 @@ def p_drop(t):
     '''ins_drop : DROP tipo_drop'''
 
 def p_tipo_drop(t): 
-    '''tipo_drop : DATABASE if_exist ID PUNTO_COMA
+    '''tipo_drop : DATABASE if_exists ID PUNTO_COMA
                  | TABLE ID PUNTO_COMA'''
 
 
 
 
 def p_ins_insert(t):
-    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA '''
+    '''ins_insert : INSERT INTO ID VALUES PARABRE list_vls PARCIERRE PUNTO_COMA 
+                  | INSERT INTO ID PARABRE list_id PARCIERRE VALUES PARABRE list_vls PARCIERRE PUNTO_COMA'''
     print('INSERT INTO ID VALUES ( *values* )')
 
+def p_list_id(t):
+    '''list_id : list_id COMA id
+               | id'''
 
 def p_list_vls(t):
     '''list_vls : list_vls COMA val_value
@@ -522,8 +537,8 @@ def p_param(t):
                 |   SIGNO_POR '''
 
 def p_table_list(t):
-    '''table_list   :   table_list COMA ID
-                    |   ID '''
+    '''table_list   :   table_list COMA ID as_id
+                    |   ID as_id'''
 
 def p_arg_where(t):
     '''arg_where    :   WHERE exp
@@ -555,8 +570,7 @@ def p_exp(t):
             | arg_case
             | arg_greatest
             | arg_least 
-            | val_value
-            | ID'''
+            | val_value'''
 # values -> list_vls
 
 
@@ -671,14 +685,15 @@ def p_ins_update(t):
     '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
 
 def p_ins_asign_list(t):
-    '''asign_list  : asign_list COMA ID SIGNO_IGUAL val_value 
-                   | ID SIGNO_IGUAL val_value'''
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL exp 
+                   | ID SIGNO_IGUAL exp'''
 
 def p_ins_delete(t):
     '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''
 
 def p_error(t):
     print("Error sintáctico en '%s'" % t.value)
+    print(str(t.lineno))
 
 
 
