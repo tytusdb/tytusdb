@@ -12,7 +12,8 @@ class Insert(Instruccion):
         self.valores=valores
 
     def ejecutar(self, ent:Entorno):
-        tabla:Simbolo = ent.buscarSimbolo(self.nombre)
+        completo=self.nombre+'_'+ent.getDataBase()
+        tabla:Simbolo = ent.buscarSimbolo(completo)
         if tabla != None:
             columnas=tabla.valor
             if len(self.valores)== len(columnas):
@@ -32,4 +33,13 @@ class Insert(Instruccion):
                 for val in self.valores:
                     terminales.append(val.getval(ent))
 
-                DBMS.insert(ent.getDataBase(),tabla.nombre,terminales)
+                DBMS.insert(ent.getDataBase(),self.nombre,terminales)
+
+
+
+
+
+
+
+
+

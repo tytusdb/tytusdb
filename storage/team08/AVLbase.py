@@ -1,4 +1,5 @@
 from graphviz import Digraph
+import pickle
 import sys
 import os
 import GeneralesAVL as gA
@@ -17,9 +18,13 @@ class nodoBase:
         self.nivel = 0
 
 class AVLBases:
+    
     def __init__(self):
         self.root = None
     
+    def guardar(self):
+        gA.g.commitBase(self)
+
     #index nodo
     def indexNodo(self):
         hey = nodoBase.index
@@ -104,20 +109,6 @@ class AVLBases:
         elif value < tmp.value and tmp.izquierda != None:
             return self._buscarBase(value, tmp.izquierda)
 
-    def buscarBaseNodo(self, value):
-        if self.root == None:
-            return None
-        else:
-            return self._buscarBaseNodo(value, self.root)
-        
-    def _buscarBaseNodo(self, value, tmp):
-        if value == tmp.value:
-            return tmp
-        elif value > tmp.value and tmp.derecha != None:
-            return self._buscarBaseNodo(value, tmp.derecha)
-        elif value < tmp.value and tmp.izquierda != None:
-            return self._buscarBaseNodo(value, tmp.izquierda)
-
     #cambiar nombre de Base
     def alterDatabase(self, dtbVieja, dtbNueva):
         try:
@@ -128,104 +119,76 @@ class AVLBases:
             elif self.buscarBase(valueNuevo):
                 return 3
             else:
-                return self._alterDatabase(dtbNueva, valueViejo, self.root)
+                self.dropDatabase(dtbVieja)
+                self.createBase(dtbNueva)
+                return 0
         except:
             return 1
     
-    def _alterDatabase(self, dtbNueva, valueViejo, tmp):
-        if valueViejo == tmp.value:
-            tmp.nomDTB = dtbNueva
-            tmp.value = gA.g.jalarValN(dtbNueva)
-            return 0
-        elif valueViejo > tmp.value and tmp.derecha != None:
-            return self._alterDatabase(dtbNueva, valueViejo, tmp.derecha)
-        elif valueViejo < tmp.value and tmp.izquierda != None:
-            return self._alterDatabase(dtbNueva, valueViejo, tmp.izquierda)
-
-    #eliminar base de datos
-    def tatascan(self, niv, value):
-        return self._tatascan(niv, value, self.root)
-
-    def _tatascan(self, niv, value, tmp):
-        if (niv - 1) == self.root.nivel:
-            return None
-        elif tmp.nivel == niv and (tmp.izquierda.value == value or tmp.derecha.value == value):
-            return tmp
-        elif value > tmp.value and tmp.derecha != None:
-            return self._tatascan(niv, value, tmp.derecha)
-        elif value < tmp.value and tmp.izquierda != None:
-            return self._tatascan(niv, value, tmp.izquierda)
-
+    #eliminar tabla
     def dropDatabase(self, nomDTB):
         try:
             value = gA.g.jalarValN(nomDTB)
             if self.buscarBase(value):
                 tablas = ta.t.showTables(nomDTB)
                 print(tablas)
-                for n in range(0,len(tablas)):
-                    ta.t.dropTable(nomDTB, tablas[n])
-                
-                self.dropDatabaseN(self.buscarBaseNodo(value))
-                return 0
+                if tablas is None:
+                    self._dropDatabase(value ,self.root)
+                    return 0
+                else:
+                    for n in range(0,len(tablas)):
+                        ta.t.dropTable(nomDTB, tablas[n])
+                    self._dropDatabase(value, self.root)
+                    return 0    
+            else:
+                return 2
         except:
             return 1
     
-    def dropDatabaseN(self, tmp):
-        if tmp == None:
-            return 2  #base no existe
+    def _dropDatabase(self, value, tmp):
+        if not tmp:
+            return tmp
+        elif value < tmp.value:
+            tmp.izquierda = self._dropDatabase(value, tmp.izquierda)
+        elif value > tmp.value:
+            tmp.derecha = self._dropDatabase(value, tmp.derecha)
         else:
-            nHoja = gA.g.nHojas(tmp)
-            if nHoja == 0: #nodo sin hojas
-                tata = self.tatascan((tmp.nivel+1), tmp.value)
-                if tata != None:
-                    if tata.izquierda == tmp:
-                        tata.izquierda = None
-                        return 0
-                    else:
-                        tata.derecha = None
-                        return 0
-                else:
-                    self.root = None
-                    return 0
+            if tmp.derecha is None:
+                temp = tmp.derecha
+                tmp = None
+                return temp
+            elif tmp.derecha is None:
+                temp = tmp.izquierda
+                tmp = None
+                return temp
+            temp = gA.g.leMenor(tmp.derecha)
+            tmp.value = temp.value
+            tmp.derecha = self._dropDatabase(temp.value, tmp.derecha)
+        
+        if tmp is None:
+            return tmp
+        
+        tmp.nivel = 1 + gA.g.maxi(gA.g.nivel(tmp.izquierda), gA.g.nivel(tmp.derecha))
+        balan = gA.g.Balance(tmp)
 
-            elif nHoja == 1: #nodo con 1 hoja
-                if tmp.izquierda != None:
-                    hijo = tmp.izquierda
-                else:
-                    hijo = tmp.derecha
-                
-                tata = self.tatascan((tmp.nivel+1), tmp.value)
-                
-                if tata != None:
-                    if tata.izquierda == tmp:
-                        tata.izquierda = hijo
-                        tata.izquierda.nivel = hijo.nivel + 1
-                        hijo = None
-                        return 0
-                    else:
-                        tata.derecha = hijo
-                        tata.derecha.nivel = hijo.nivel + 1
-                        hijo = None
-                        r = 0
-                        return r
-                else:
-                    self.root = hijo
-                    return 0
+        if balan > 1 + gA.g.Balance(tmp.izquierda) >= 0:
+            return gA.g.srr(tmp)
 
-            elif nHoja == 2: #nodo con dos hojas
-                if tmp.nivel != self.root.nivel: #esta condicion es para que tome bien el nivel si en dado caso quiere eliminar la raíz
-                    leSigue = gA.g.leMenor(tmp)
-                    self.dropDatabaseN(leSigue)
-                    tmp.value = leSigue.value
-                    tmp.nivel = leSigue.nivel + 1
-                    return 0
-                else:
-                    leSigue = gA.g.leMenor(tmp)
-                    self.dropDatabaseN(leSigue)
-                    tmp.value = leSigue.value
-                    tmp.nivel = self.root.nivel + 1
-                    return 0
-    #fin eliminar base -----------------
+        if balan < -1 and gA.g.Balance(tmp.derecha) <= 0:
+            return gA.g.srl(tmp)
+
+        if balan > 1 and gA.g.Balance(tmp.izquierda) < 0:
+            tmp.derecha = gA.g.srl(tmp.izquierda)
+            return gA.g.srr(tmp)
+
+        if balan < -1 and gA.g.Balance(tmp.derecha) < 0:
+            tmp.derecha = gA.g.srr(tmp.derecha)
+            return gA.g.drl(tmp)
+            
+        return tmp
+
+
+
 
 
 b = AVLBases()

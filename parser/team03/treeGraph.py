@@ -12,7 +12,7 @@ dot.node_attr.update(fillcolor='lightyellow1')
 dot.edge_attr.update(color='firebrick')
 
 i = 0
-
+gram="# REPORTE DE GRAMATICA EN EJECUCION \n\n"
 
 def inc():
     global i
@@ -26,3 +26,14 @@ def graph_node(value, child_list=[]):
     for child in child_list:
         dot.edge(str(graph_id), str(child))
     return graph_id
+
+
+def createFile():
+    archivo = open('reportGrammar.md', 'w')
+    archivo.write(gram)
+    archivo.close()
+
+
+def addCad(cadena):
+    global gram
+    gram = gram + cadena + "\n"+"<br>"+"\n\n" 

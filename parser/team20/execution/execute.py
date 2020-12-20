@@ -1,9 +1,12 @@
 #Importacion de metodos de ejecucion
 #Se utilizan archivos separados para minimizar los conflictos
 from .executeSentence import executeSentence
+from .generateASTReport import graphAST
 class Execute():
     nodes = []
     errors = []
+    messages = []
+    querys = []
     types = {
         1: 'Entero',
         2: 'Decimal',
@@ -13,6 +16,9 @@ class Execute():
     }
     def __init__(self, nodes):
         self.nodes = nodes
+        self.errors = []
+        self.messages = []
+        self.querys = []
     # def __init__(self, nodes, errors):
     #     self.nodes = nodes
     #     self.errors = errors
@@ -21,7 +27,10 @@ class Execute():
     def execute(self):
         if(self.nodes is not None):
            for node in self.nodes:
+               print(node)
                executeSentence(self,node)
+        graphAST(self)
+
 
 
 #Como guardar un error

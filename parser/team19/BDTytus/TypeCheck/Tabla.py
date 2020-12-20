@@ -1,5 +1,5 @@
-import ListaAtributos as ListaAtributos
-import ListaConstraints as ListaConstraints
+import TypeCheck.ListaAtributos as ListaAtributos
+import TypeCheck.ListaConstraints as ListaConstraints
 
 class Tabla:
     def __init__(self,nombreTabla:str):
@@ -9,5 +9,3 @@ class Tabla:
         #Punteros
         self.siguiente = None
         self.anterior = None
-
-    
