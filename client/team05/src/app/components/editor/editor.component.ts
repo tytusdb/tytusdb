@@ -33,4 +33,22 @@ export class EditorComponent implements OnInit {
       reader.readAsText(readFile);
     }
   }
+
+  saveFile() {
+    var file = new Blob([this.content], {type: 'text/plain'});
+    if (window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveOrOpenBlob(file, "script.sql");
+    } else {
+      var a = document.createElement("a"),
+        url = URL.createObjectURL(file);
+      a.href = url;
+      a.download = "script.sql"; 
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 0);
+    }
+  }
 }

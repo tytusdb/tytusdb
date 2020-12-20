@@ -4,7 +4,7 @@
         <a><fa-icon [icon]="faFolderOpen"></fa-icon></a>
         <input type='file' hidden="true" style="display:none;" id="openScript" name="openScript" (change)="handleFileInput($event)" accept=".txt,.sql" >
     </label>
-    <button type="button" class="btn btn-outline-dark" >
+    <button type="button" (click)="saveFile()" class="btn btn-outline-dark" >
       <fa-icon [icon]="faSave"></fa-icon>
     </button>
   </div>
