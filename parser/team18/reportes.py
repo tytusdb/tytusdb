@@ -64,4 +64,9 @@ def ReporteTS():
     </tr> </thead>
     '''
 
+    try:
+        with open('Reporte_TS.html','w') as rep:
+            rep.write(texto)
+    except Exception as e:
+        print("No fue posible generar el reporte de TS: "+ str(e))
     return texto

@@ -12,6 +12,7 @@ from tkinter import *
 import tkinter.filedialog
 import tkinter.messagebox
 from prettytable import PrettyTable
+from reporte_g import *
 
 
 #---------variables globales
@@ -1128,6 +1129,18 @@ def generarAST():
     global listaInstrucciones
     astGraph = DOTAST()
     astGraph.getDot(listaInstrucciones)
+
+
+#Metodo para generar los reportes gramaticales 
+def generarGASC():
+    global listaInstrucciones
+    r_asc = Reporte_Gramaticas()
+    r_asc.grammarASC(listaInstrucciones)
+
+def generarGDSC():
+    global listaInstrucciones
+    r_asc = Reporte_Gramaticas()
+    r_asc.grammarDSC(listaInstrucciones)
 
 #metodo para mostrar las tablas temporales
 def mostrarTablasTemp():
