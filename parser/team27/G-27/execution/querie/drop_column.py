@@ -12,6 +12,11 @@ from typ import *
 from storageManager import jsonMode as admin
 
 class Drop_Column(Querie):
+    '''
+     columnName = nombre de la columna que deseamos eliminar(cadena)
+     row = numero de fila(int)
+     column = numero de columna(int)
+    '''
     def __init__(self, columnName, row, column):
         Querie.__init__(self, row, column)
         self.columnName = columnName

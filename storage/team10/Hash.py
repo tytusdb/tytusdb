@@ -258,3 +258,40 @@ class TablaHash:
 
     def alterDropPK(self):
         self.pk = None
+    def genGraph(self, name):
+        f = Digraph("structs" , filename = name+".gv" , format = "png",
+                    node_attr={'shape' : 'record', } )
+        f.attr(rankdir='LR', size='8,5')
+        hashTB = ''
+        contador = 0 
+        for i in self.values:
+            if i:
+                hashTB += '<f' + str(contador) +'>' + str(i.key)+ '|'
+                contador +=1
+        hashTB = hashTB[0: len(hashTB)-1]
+        f.node('hash', hashTB)
+
+        datos = "{<n>"
+        
+        for j in self.values:
+            count = 0
+            if j:
+                for i in j.array:
+                    for k in i[1]:
+                        datos +=    str(k) +"|"
+                    datos+="<p>}"
+                    with f.subgraph(name=str(j.key)+","+str(count) ) as a:
+                        a.node("node" +str(j.key)+str(count),datos)
+                        datos="{<n>"
+                    count +=1
+        n = 0
+        for j in self.values:
+            m = 0
+            if j:
+                f.edges([("hash:f"+str(n), "node" +str(j.key)+str(0)+":n")])
+                for i in j.array:
+                    if m+1 < len(j.array):
+                        f.edges([("node" +str(j.key)+str(m)+":p", ("node"+str(j.key)+str(m+1)+":n" ))])
+                        m+=1 
+                n+=1
+        f.view()
