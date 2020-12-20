@@ -9,6 +9,7 @@ from jsonMode import *
 from instruccion import *
 from Error import *
 from Primitivo import *
+from datetime import *
 
 import math
 import random
@@ -105,7 +106,6 @@ class Casos(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class FromOpcional(Instruccion):
 
     def __init__(self,parametros, whereogroup):
@@ -130,7 +130,6 @@ class ParametrosFromR(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class ListaDeSeleccionadosConOperador(Instruccion):
     #puede venir grastest con arg1
     #least con arg 1
@@ -146,7 +145,6 @@ class ListaDeSeleccionadosConOperador(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class ListaDeSeleccionados(Instruccion):
     #puede venir asterisco(*) entonces tipo == True
     #puede venir un select completo -> Tipo == False
@@ -159,8 +157,6 @@ class ListaDeSeleccionados(Instruccion):
 
     def __repr__(self):
         return str(self.__dict__)
-
-
 
 class ElseOpcional(Instruccion):
 
@@ -235,8 +231,6 @@ class HavingOpcional(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
-
 class Allopcional(Instruccion):
 
     def __init__(self, allopcional):
@@ -275,8 +269,6 @@ class ListaDeSeleccionadosR(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
-
 class ParametrosSelect(Instruccion):
     #true si hay distinct
     #false no hay distinct
@@ -285,6 +277,9 @@ class ParametrosSelect(Instruccion):
         self.listadeseleccion = listadeseleccion
 
     def execute(self, data):
+        if self.listadeseleccion != None:
+            for selection in self.listadeseleccion:
+                return selection.execute(data)
         return self
 
     def __repr__(self):
@@ -312,7 +307,6 @@ class TipoRound(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class FuncionBinaria(Instruccion):
     #convert tiene un tipo no un argumento
     def __init__(self, operador, arg1,arg2,arg3):
@@ -322,7 +316,7 @@ class FuncionBinaria(Instruccion):
         self.arg3 = arg3
 
     def execute(self,data):
-        tipo = str(self.tipofuncionTrigonometrica)
+        tipo = str(self.operador)
         if tipo == 'length':
             argumento = self.arg1.execute()
             if argumento.type == 'string' or argumento.type == 'ID' :
@@ -342,14 +336,20 @@ class FuncionBinaria(Instruccion):
         elif tipo == 'md5':
             argumento = self.arg1.execute()
             if argumento.type == 'string' or argumento.type == 'ID' :
-                return Primitive('string',hashlib.md5(str(argumento.val)).hexdigest())
+                textoaconvertir = str(argumento.val)
+                md5_object = hashlib.md5(textoaconvertir.encode())
+                md5_hash = md5_object.hexdigest()
+                return Primitive('string',md5_hash)
             else:
                 error = Error('Semántico', 'Error de tipos en MD5, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
                 return error 
         elif tipo == 'sha256':
             argumento = self.arg1.execute()
             if argumento.type == 'string' or argumento.type == 'ID' :
-                return Primitive('string',hashlib.sha256(str(argumento.val)).hexdigest())
+                textoaconvertir = str(argumento.val)
+                sha256_object = hashlib.sha256(textoaconvertir.encode())
+                sha256_hash = sha256_object.hexdigest()
+                return Primitive('string',sha256_hash)
             else:
                 error = Error('Semántico', 'Error de tipos en MD5, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
                 return error  
@@ -372,8 +372,7 @@ class FucionTrigonometrica(Instruccion):
             argumento =  self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' : 
                 try :
-                    result = Primitive('float',math.acos(argumento.val))
-                    return result
+                    return Primitive('float',math.acos(argumento.val)) 
                 except :
                     error = Error('Semántico', 'Error de DOMINIO en ACOS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                     return error   
@@ -643,7 +642,7 @@ class FucionTrigonometrica(Instruccion):
                 error = Error('Semántico', 'Error de tipos en ATANH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         
-        return self
+        #return self
 
 
     def __repr__(self):
@@ -668,7 +667,6 @@ class OperadoresSelect(Instruccion):
 
     def __repr__(self):
         return str(self.__dict__)
-
 
 class FuncionMatematica(Instruccion):
 
@@ -1044,7 +1042,6 @@ class FuncionMatematica(Instruccion):
     def __repr__(self):
         return str(self.__dict__)
 
-
 class FuncionFecha(Instruccion):
     #2arg:
     #extract(parte y tamestap) y datepart ( argument y argument)
@@ -1054,7 +1051,93 @@ class FuncionFecha(Instruccion):
         self.arg2 = arg2
     
     def execute(self,data):
+        tipo = self.tipofuncionfehca
+        if tipo == 'extract':
+            extraccion = self.arg1
+            dextraccion = self.arg2.execute()
+            fechacopleta = ''
+            hora = ''
+            años = ''
+            try:
+                fechacopleta = datetime.strptime(dextraccion.val,'%Y-%m-%d %H:%M:%S')
+            except: 
+                try:
+                    hora = datetime.strptime(dextraccion.val,'%H:%M:%S')
+                except:
+                    try :
+                         años = datetime.strptime(dextraccion.val,'%Y-%m-%d')
+                    except :
+                        error = Error('Semántico', 'Error de tipos en DATE, solo se aceptan valores de fechas, se obtuvo: '+str(dextraccion.val), 0, 0)
+                        return error 
+                        
+            if fechacopleta != '' :
+                if extraccion == 'YEAR':
+                    return Primitive('integer',fechacopleta.year)
+                elif extraccion == 'MONTH':
+                    return Primitive('integer',fechacopleta.month)
+                elif extraccion == 'DAY':
+                    return Primitive('integer',fechacopleta.day)
+                elif extraccion == 'HOUR':
+                    return Primitive('integer',fechacopleta.hour)
+                elif extraccion == 'MINUTE':
+                    return Primitive('integer',fechacopleta.minute)
+                elif extraccion == 'SECOND':
+                    return Primitive('integer',fechacopleta.second)
+            elif hora != '' :
+                if extraccion == 'HOUR':
+                    return Primitive('integer',fechacopleta.hour)
+                elif extraccion == 'MINUTE':
+                    return Primitive('integer',fechacopleta.minute)
+                elif extraccion == 'SECOND':
+                    return Primitive('integer',fechacopleta.second)
+                else :
+                    error = Error('Semántico', 'Error de tipos en DATE, se quiere extraer una parte de la fecha no ingresada', 0, 0)
+                    return error 
+            elif hora != '' :
+                if extraccion == 'YEAR':
+                    return Primitive('integer',fechacopleta.year)
+                elif extraccion == 'MONTH':
+                    return Primitive('integer',fechacopleta.month)
+                elif extraccion == 'DAY':
+                    return Primitive('integer',fechacopleta.day)
+                else :
+                    error = Error('Semántico', 'Error de tipos en DATE, se quiere extraer una parte de la fecha no fue ingresada', 0, 0)
+                    return error 
+        elif tipo == 'now' :
+            return Primitive('string',str(datetime.now())[:19])
+        elif tipo == 'current_date' :
+            return Primitive('string',str(datetime.now().date()))
+        elif tipo == 'current_time' :
+            return Primitive('string',str(datetime.now().time())[:8])
+        elif tipo == 'timestamp' :
+            dextraccion = self.arg2.execute()
+            fechaval = datetime.strptime(dextraccion.val,'%Y-%m-%d %H:%M:%S')
+            return Primitive('string',str(fechaval))
+        elif tipo == 'date_part' :
+            extraccion = self.arg1.execute()
+            dextraccion = self.arg2.execute()
+            dic ={}
+            valor = ''
+            descrip = ''
+            for dex in dextraccion.val:
+                if dex.isnumeric():
+                    valor += dex
+                elif (dex == ' ' and descrip != ''):
+                    dic[descrip] = valor
+                    valor = ''
+                    descrip = ''
+                elif dex.isalpha() : 
+                    descrip +=dex 
+            dic[descrip] = valor
+            #print(dic)
+            for key in dic:
+                if str(key).find(extraccion.val) != -1 :
+                     return Primitive('integer',dic[key])
+            error = Error('Semántico', 'Error de valores en DATEPART, se solicita un valo no encontrado en la cadena  ', 0, 0)
+            return error 
+            
         return self
+
 
     def __repr__(self):
         return str(self.__dict__)
