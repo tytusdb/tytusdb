@@ -1,6 +1,7 @@
 from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, Scrollbar, \
     Listbox, \
     Grid, Entry, filedialog, messagebox, Toplevel
+from tkinter.ttk import Combobox
 from PIL import Image, ImageTk
 from controller import Controller, Enums
 
@@ -26,7 +27,7 @@ class GUI(Frame):
         elif self.val == 2:
             self.funciones()
         elif self.val == 3:
-            self.reportes()
+            self.reportes(self.controller)
 
     def centrar(self):
         if self.val == 1:
@@ -251,7 +252,9 @@ class GUI(Frame):
     # endregion
 
     # region Ventana de reporte
-    def reportes(self):
+    def reportes(self, controller):
+        self.controller = controller
+
         self.titulo3 = Label(self.master, text="Árbol AVL", bg="#0f1319", fg="#45c2c5",
                              font=("Century Gothic", 42), pady=12)
         self.titulo3.pack(fill=X)
@@ -263,11 +266,21 @@ class GUI(Frame):
         self.listbox.pack(side=LEFT, padx=(60, 0))
         self.scrollbar.config(command=self.listbox.yview)
 
-        self.panel = Label(self.master, bg="#0f1319", height=31, width=110)
-        self.panel.pack(side=TOP, pady=(40, 0))
+        self.panel = Label(self.master, bg="#ffffff", height=25, width=110)
+        self.panel.pack(side=TOP, pady=(100, 0))
 
-        self.desplegarDB()
+        self.desplegarDB(controller)
         self.listbox.bind("<<ListboxSelect>>", self.displayData)
+
+        self.tableList = Combobox(self.master, state="readonly")
+        self.tableList.place(x=450, y=130)
+        self.tableList.bind("<<ComboboxSelected>>", self.displayTableData)
+
+        self.tuplelist = Combobox(self.master, state="readonly")
+        self.tuplelist.place(x=850, y=130)
+        self.tuplelist.bind("<<ComboboxSelected>>", self.tupleMode)
+
+        self.opcion = 0
 
     # endregion
 
@@ -327,16 +340,35 @@ class GUI(Frame):
         messagebox.showinfo("Siuu", "Proceso realizado con éxito")
         dialog.destroy()
 
-    def desplegarDB(self):
-        for i in range(1, 26, 1):
-            self.listbox.insert(END, "Base de datos " + str(i))
+    def desplegarDB(self, controller):
+        dbList = controller.execute(None, "Show DB")
+        for i in dbList:
+            self.listbox.insert(END, str(i))
 
     def displayData(self, event):
         selection = event.widget.curselection()
+        data = ""
         if selection:
             index = selection[0]
             data = event.widget.get(index)
             self.titulo3.configure(text=data)
+        dbList = self.controller.execute(None, "Show DB")
+        for db in dbList:
+            if db == str(data):
+                self.tableList["values"] = self.controller.execute([db], "Show Tables")
+                if len(self.tableList["values"]) > 0:
+                    self.tableList.current(0)
+                break
+
+    def displayTableData(self, event):
+        db =str(self.titulo3["text"])
+        tb =  str(self.tableList.get())
+        tp = self.controller.execute([db, tb], "Extract Table")
+        self.tuplelist["values"] = tp
+        # graficar tabla
+
+    def tupleMode(self, event):
+            # graficar la tupla
 
 
 def run():
