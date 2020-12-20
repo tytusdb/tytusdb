@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';//se instalo para el modal
 import { DatabaseService } from 'src/app/service/database/database.service';
+import { TableService } from 'src/app/service/table/table.service';
 
 @Component({
   selector: 'app-componente-navbar',
@@ -13,8 +14,13 @@ export class ComponenteNavbarComponent implements OnInit {
     nombrebd: ""
   }
 
+  nuevaTabla = {
+    nombre: "",
+    bd: "database"
+  }
 
-  constructor(private modalService: NgbModal, private dbServs: DatabaseService) { }
+
+  constructor(private modalService: NgbModal, private dbServs: DatabaseService, private tbServs : TableService) { }
 
   ngOnInit(): void {
 
@@ -35,6 +41,18 @@ export class ComponenteNavbarComponent implements OnInit {
         const msg = body.msg;
         alert('El servidor dice: ' + msg);
       });
+    }
+  }
+
+  createTable() {
+    if (this.nuevaTabla.nombre.trim().length === 0) {
+      alert('Especifique nombre para la tabla');
+    } else {
+      this.tbServs.create(this.nuevaTabla.nombre, this.nuevaTabla.bd).subscribe((response) => {
+        const body = response.body;
+        const msg = body.msg;
+        alert('El servidor dice: ' + msg);
+      })
     }
   }
 }
