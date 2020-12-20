@@ -1,4 +1,5 @@
 import sys, os.path
+import math
 
 dir_nodo = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\EXPRESION\\EXPRESION\\')
 sys.path.append(dir_nodo)
@@ -10,10 +11,10 @@ from Expresion import Expresion
 from Tipo import Data_Type
 from Tipo_Expresion import Type_Expresion
 
-class Function_Ceil(Expresion):
+class Function_Factorial(Expresion):
 
     def __init__(self, nombreNodo, fila, columna, valor):
-        Expresion.__init__(self, nombreNodo, fila, columna, valor)    
+        Expresion.__init__(self, nombreNodo, fila, columna, valor)
     
     def execute(self, enviroment):
         hijo = self.hijos[0]
@@ -21,17 +22,21 @@ class Function_Ceil(Expresion):
 
         if hijo.tipo.data_type == Data_Type.numeric :
 
-            self.tipo = Type_Expresion(Data_Type.numeric)
-            self.valorExpresion = round(res)
+            try:
+            
+                self.tipo = Type_Expresion(Data_Type.numeric)
+                self.valorExpresion = math.factorial(res)
+                return self.valorExpresion
 
-            if self.valorExpresion < res :
-                    self.valorExpresion = self.valorExpresion + 1
+            except:
 
-            return self.valorExpresion
+                self.tipo = Type_Expresion(Data_Type.error)
+                self.valorExpresion = None 
+                return self.valorExpresion
 
         else :
 
             self.tipo = Type_Expresion(Data_Type.error)
-            self.valorExpresion = None
+            self.valorExpresion = None 
             return self.valorExpresion
-            
+        

@@ -1,4 +1,5 @@
 import sys, os.path
+import math
 
 dir_nodo = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..','..')) + '\\EXPRESION\\EXPRESION\\')
 sys.path.append(dir_nodo)
@@ -10,28 +11,22 @@ from Expresion import Expresion
 from Tipo import Data_Type
 from Tipo_Expresion import Type_Expresion
 
-class Function_Ceil(Expresion):
+class Function_Radians(Expresion):
 
     def __init__(self, nombreNodo, fila, columna, valor):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)    
     
     def execute(self, enviroment):
-        hijo = self.hijos[0]
-        res = hijo.execute(enviroment)
+        op1 = self.hijos[0]
+        res1 = op1.execute(enviroment)
 
-        if hijo.tipo.data_type == Data_Type.numeric :
+        if op1.tipo.data_type == Data_Type.numeric :
 
             self.tipo = Type_Expresion(Data_Type.numeric)
-            self.valorExpresion = round(res)
-
-            if self.valorExpresion < res :
-                    self.valorExpresion = self.valorExpresion + 1
-
+            self.valorExpresion = res1 * ( math.pi / 180 )
             return self.valorExpresion
-
+            
         else :
-
             self.tipo = Type_Expresion(Data_Type.error)
             self.valorExpresion = None
             return self.valorExpresion
-            

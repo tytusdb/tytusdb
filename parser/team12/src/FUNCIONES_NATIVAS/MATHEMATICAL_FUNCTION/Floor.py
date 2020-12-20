@@ -10,7 +10,7 @@ from Expresion import Expresion
 from Tipo import Data_Type
 from Tipo_Expresion import Type_Expresion
 
-class Function_Ceil(Expresion):
+class Function_Floor(Expresion):
 
     def __init__(self, nombreNodo, fila, columna, valor):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)    
@@ -22,10 +22,10 @@ class Function_Ceil(Expresion):
         if hijo.tipo.data_type == Data_Type.numeric :
 
             self.tipo = Type_Expresion(Data_Type.numeric)
-            self.valorExpresion = round(res)
+            self.valorExpresion = round(res)               
 
-            if self.valorExpresion < res :
-                    self.valorExpresion = self.valorExpresion + 1
+            if self.valorExpresion > res :
+                    self.valorExpresion = self.valorExpresion - 1
 
             return self.valorExpresion
 

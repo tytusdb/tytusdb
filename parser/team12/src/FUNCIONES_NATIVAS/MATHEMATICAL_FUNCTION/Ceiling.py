@@ -23,6 +23,10 @@ class Function_Ceiling(Expresion):
 
             self.tipo = Type_Expresion(Data_Type.numeric)
             self.valorExpresion = round(res)               
+
+            if self.valorExpresion < res :
+                    self.valorExpresion = self.valorExpresion + 1
+
             return self.valorExpresion
 
         else :

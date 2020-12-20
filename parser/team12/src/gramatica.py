@@ -17,6 +17,21 @@ from DML.IDENTIFICADOR.IdentificadorDML import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Abs import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Cbrt import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Ceil import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Ceiling import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Degrees import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Div import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Exp import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Factorial import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Floor import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Gcd import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Ln import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Log import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Mod import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Pi import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Power import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Radians import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Round import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Sign import *
 
 
 #Definicion de listado de errores
@@ -493,79 +508,83 @@ def p_select_funciones_3(t):
 
 def p_select_funciones_4(t):
     'FUNCIONES : CEILING PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("FUNCION_CEILING",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Ceiling("FUNCION_CEILING",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_5(t):
     'FUNCIONES : DEGREES PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("FUNCION_DEGREES",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Degrees("FUNCION_DEGREES",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_6(t):
-    'FUNCIONES : DIV PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_DIV",t.lineno(1),t.lexpos(1)+1,None)
+    'FUNCIONES : DIV PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Div("SENTENCIA_DIV",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
 
 def p_select_funciones_7(t):
     'FUNCIONES : EXP PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_EXP",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Exp("SENTENCIA_EXP",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_8(t):
     'FUNCIONES : FACTORIAL PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_FACTORIAL",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Factorial("SENTENCIA_FACTORIAL",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_9(t):
     'FUNCIONES : FLOOR PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_FLOOR",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Floor("SENTENCIA_FLOOR",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_10(t):
-    'FUNCIONES : GCD PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_GSD",t.lineno(1),t.lexpos(1)+1,None)
+    'FUNCIONES : GCD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Gsd("SENTENCIA_GSD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
 
 def p_select_funciones_11(t):
     'FUNCIONES : LN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_LN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Ln("SENTENCIA_LN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funcion_12(t):
     'FUNCIONES : LOG PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_LOG",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Log("SENTENCIA_LOG",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funcion_13(t):
-    'FUNCIONES : MOD PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_MOD",t.lineno(1),t.lexpos(1)+1,None)
+    'FUNCIONES : MOD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Mod("SENTENCIA_MOD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
 
 def p_select_funcion_14(t):
     'FUNCIONES : PI PARENTESISIZQ  PARENTESISDER'
-    t[0] = Start("SENTENCIA_PI",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Pi("SENTENCIA_PI",t.lineno(1),t.lexpos(1)+1,None)
 
 def p_select_funcion_15(t):
     'FUNCIONES : POWER PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_POWER",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Power("SENTENCIA_POWER",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_16(t):
     'FUNCIONES : RADIANS PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_RADIANS",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Radians("SENTENCIA_RADIANS",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_17(t):
-    'FUNCIONES : ROUND PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ROUND",t.lineno(1),t.lexpos(1)+1,None)
+    'FUNCIONES : ROUND PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Round("SENTENCIA_ROUND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
 
 def p_select_funciones_18(t):
     'FUNCIONES : SIGN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SIGN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0] = Function_Sign("SENTENCIA_SIGN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
-
+    
 def p_select_funciones_19(t):
     'FUNCIONES : SQRT PARENTESISIZQ Exp PARENTESISDER'
     t[0] = Start("SENTENCIA_SQRT",t.lineno(1),t.lexpos(1)+1,None)
