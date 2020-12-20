@@ -6,6 +6,7 @@ import enum
 # por eso para el lexico y sintactico uso el 33 y para cuando el sintactico
 # no se puede recuperar uso el 1
 
+
 class ErrorType(enum.Enum):
     warning = 1
     no_data = 2
@@ -42,12 +43,15 @@ class ErrorType(enum.Enum):
     syntax_error = 33
     internal_error = 34
     invalid_catalog_name = 35
+    invalid_table_definition = 36
 
 # Este metodo rebice el numero de error, es decir de clase enum que esta arriba
 # asi como warning es el 1, entonces para retornar su descripcion y id del error
 # el metodo debe recibir como parametro el 1
 # Observa la clase lex.py y syntactic.py como uso este metodo para que me hagarres
 # la onda
+
+
 def get_type_error(option):
     description = ''
     id_error = ''
@@ -190,4 +194,8 @@ def get_type_error(option):
     elif ErrorType.invalid_catalog_name.value == option:
         description = 'invalid_catalog_name'
         id_error = '3D000'
+        return id_error, description
+    elif ErrorType.invalid_table_definition.value == option:
+        description = 'invalid_table_definition'
+        id_error = '42P16'
         return id_error, description

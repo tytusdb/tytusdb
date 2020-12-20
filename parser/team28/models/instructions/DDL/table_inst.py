@@ -2,11 +2,13 @@ from models.instructions.shared import Instruction
 from controllers.type_checker import TypeChecker
 from controllers.error_controller import ErrorController
 from controllers.symbol_table import SymbolTable
+from models.instructions.Expression.type_enum import *
 from models.instructions.DDL.column_inst import *
 from models.database import Database
 from models.column import Column
 from models.table import Table
 import json
+import datetime
 
 class CreateTB(Instruction):
 
@@ -19,18 +21,27 @@ class CreateTB(Instruction):
         return str(vars(self))
 
     def process(self,instruction):
-        #print(str(self._table_name))
-        #print('================================================================')
         typeChecker = TypeChecker()
         nombreTabla = self._table_name.value
         noCols = self.numberOfColumns(self._column_list)
-        typeChecker.createTable(nombreTabla,noCols,0,0) #TODO add name of Database, line and column
+        typeChecker.createTable(nombreTabla,noCols,0,0) #TODO add line and column
+        # Agrega las propiedades que agrupan a varias columnas
+        self.generetaExtraProp()
+        # Genera las tablas ya con todas sus propiedades
+        self.generateColumns(nombreTabla,typeChecker)
 
+
+    def numberOfColumns(self, arrayColumns):
+        count = 0
+        for columna in arrayColumns:
+            if isinstance(columna,CreateCol):
+                count += 1
+        return count
+
+    def generetaExtraProp(self):
         #Agrega las propiedades extras a las columnas especificadas
         for columna in self._column_list:
-            #print(str(columna))
-            #print('()()()()()()()()()()()()()()()')
-            #print('================================================================')
+
             if isinstance(columna,Unique):
                 print('Add Unique in Table')
                 self.addUnique(columna._column_list)
@@ -51,34 +62,30 @@ class CreateTB(Instruction):
                 print('Add Constraint in Table')
                 self.addConstraint(columna._column_name,columna._column_condition)
 
-        # Genera las tablas ya con todas sus propiedades
-        self.generateColumns(nombreTabla,typeChecker)
-
     def generateColumns(self,nombreTabla,typeChecker):
         for columna in self._column_list:
             if isinstance(columna,CreateCol):
-                #print('El nombre de la columna es: ' + str(columna._column_name))
-                #print('El tipo de la columna es: ' + str(columna._type_column._tipoColumna))
-                print('===================================================================')
-                columnaFinal = Column(columna._column_name,columna._type_column)
+                #columna._paramOne
+                #columna._paraTwos
+                #columna._tipoColumna
+                tipoFinal = {
+                    '_tipoColumna' : str(columna._type_column._tipoColumna),
+                    '_paramOne' : columna._type_column._paramOne,
+                    '_paramTwo' : columna._type_column._paramTwo
+                }
+                columnaFinal = Column(columna._column_name,tipoFinal)
                 if columna._properties != None:
-                    print('-------------------------------------------------------------------->')
                     for prop in columna._properties:
                         columnaFinal = self.addPropertyes(prop,columnaFinal)
-                typeChecker.createColumnTable(Table(nombreTabla),columnaFinal,0,0) #TODO add name of Database, line and column
-                print((columnaFinal).__dict__)
 
-    def numberOfColumns(self, arrayColumns):
-        count = 0
-        for columna in arrayColumns:
-            if isinstance(columna,CreateCol):
-                count += 1
-        return count
+                tableToInsert = typeChecker.searchTable(SymbolTable().useDatabase, nombreTabla)
+                typeChecker.createColumnTable(tableToInsert,columnaFinal,0,0) #TODO add name of Database, line and column 
+                #print((columnaFinal).__dict__)
 
     def addPropertyes(self, prop,columnaFinal):
         if prop['default_value'] != None:
-            print('El valor por defecto será: ' + str(prop['default_value'].value))
-            columnaFinal._default = prop['default_value'].value
+            self.validateType(columnaFinal._dataType,prop['default_value'])
+            #columnaFinal._default = prop['default_value'].value
 
         if prop['is_null'] != None:
             if prop['is_null'] == True:
@@ -95,10 +102,12 @@ class CreateTB(Instruction):
             columnaFinal._unique = True
 
         if prop['constraint_check_condition'] != None:
-            columnaFinal._check = prop['constraint_check_condition']  #TODO este es un check que tiene condicional
+            columnaFinal._check = True
+            #prop['constraint_check_condition']  #TODO este es un check que tiene condicional
 
         if prop['check_condition'] != None:
-            columnaFinal._check = prop['check_condition']  #TODO este es un check que tiene condicional
+            columnaFinal._check = True
+            #prop['check_condition']  #TODO este es un check que tiene condicional
 
         if prop['pk_option'] != None:
             columnaFinal._primaryKey = True
@@ -111,13 +120,21 @@ class CreateTB(Instruction):
 
     #Agrego un True al atributo unique de la lista de columnas especificadas
     def addUnique(self,listaCols):
+        bandera = False
         for col in listaCols:
             for columna in self._column_list:
                 if isinstance(columna,CreateCol):
                     if(columna._column_name == col):
-                        print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
                         if columna._properties != None:
+                            bandera = True
                             columna._properties[0]['unique'] = True
+                            break
+            if not bandera:
+                print(' ')
+                print('!!!ERROR!!!, Columna desconocida en el Unique') #TODO add Error
+                print(' ')
+                return
+            bandera = False
 
     def addCheck(self,conditionColumn):
         pass
@@ -129,15 +146,188 @@ class CreateTB(Instruction):
                     if(columna._column_name == col):
                         if columna._properties != None:
                             columna._properties[0]['pk_option']  = True
-                            return
-        pass
+                            break
+
 
     def addForeignKey(self,listaCols,nombreTabla,listaTablasCols):
-        pass
+        for x in range(0,len(listaCols)):
+            for columna in self._column_list:
+                if isinstance(columna,CreateCol):
+                    if(columna._column_name == listaCols[x]):
+                        if columna._properties != None:
+                            columna._properties[0]['fk_references_to'] = listaTablasCols[x]
+                            #TODO ver si le envio solo la tabla o la columna{'refTable':None,'refColumn':None}
 
     def addConstraint(self,nombreColumna,condicionColumna):
         pass
 
+    def validateType(self,columnInfo,defaulValue):
+
+        columnType = columnInfo['_tipoColumna']
+        paramOne = columnInfo['_paramOne']
+        paramTwo = columnInfo['_paramTwo']
+
+        valorDef = defaulValue.process(0)
+
+        if valorDef != None:
+            valorDef = valorDef.value
+        else:
+            valorDef = defaulValue.reference_column.value
+
+        #-->
+        if columnType == 'ColumnsTypes.BIGINT':
+            try:
+                valorDef = int(valorDef)
+                if valorDef < 9223372036854775807 and valorDef > -9223372036854775808:
+                    pass
+                else:
+                    print('!!!ERROR!!!, El tamanio del default es muy grande para el bigint')
+            except:
+                print('!!!ERROR!!!, La columna de tipo bigint no puede aceptar ese valor default')
+
+        #-->
+        elif columnType == 'ColumnsTypes.BOOLEAN':
+            if valorDef == 'True' or valorDef == 'False':
+                pass
+            else:
+                print('!!!ERROR!!!, La columna de tipo boolean no puede aceptar ese valor default')
+
+
+        #-->
+        elif columnType == 'ColumnsTypes.CHAR':
+            valorDef = str(valorDef)
+            if paramOne != None:
+                if len(valorDef) > paramOne:
+                    print('!!!ERROR!!!, El tamanio default del char sobrepasa el tamanio permitido')
+            else:
+                if len(valorDef) > 1:
+                    print('!!!ERROR!!!, El tamanio default del char sobrepasa el tamanio permitido')
+
+        #-->
+        elif columnType == 'ColumnsTypes.CHARACTER':
+            valorDef = str(valorDef)
+            if paramOne != None:
+                if len(valorDef) > paramOne:
+                    print('!!!ERROR!!!, El tamanio default del character sobrepasa el tamanio permitido')
+            else:
+                if len(valorDef) > 1:
+                    print('!!!ERROR!!!, El tamanio default del character sobrepasa el tamanio permitido')
+
+        #-->
+        elif columnType == 'ColumnsTypes.CHARACTER_VARYING':
+            valorDef = str(valorDef)
+            if paramOne != None:
+                if len(valorDef) > paramOne:
+                    print('!!!ERROR!!!, El tamanio default del character varying sobrepasa el tamanio permitido')
+            else:
+                pass
+
+        #-->
+        elif columnType == 'ColumnsTypes.DATE':
+            valorDef = str(valorDef)
+            try:
+                datetime.datetime.strptime(valorDef,'%Y-%m-%d')
+            except:
+                print('!!!ERROR!!!, El formato de fecha es invalido, debe ser yyyy-mm-dd')
+
+        #-->
+        elif columnType == 'ColumnsTypes.DECIMAL' or columnType == 'ColumnsTypes.NUMERIC':
+            try:
+                valorDef = float(valorDef)
+                if paramOne != None and paramTwo != None:
+                    strValorDef = str(valorDef)
+                    if strValorDef.find('.') != -1:
+                        division = strValorDef.split('.')
+                        parteEntera = int(division[0])
+                        parteDecimal = int(division[1])
+                        conteo = 0
+                        if parteEntera != 0:
+                            conteo += len(str(parteEntera))
+                        conteo += paramTwo
+                        if conteo > paramOne:
+                            print('!!!ERROR!!!, El dato por default en decimal no corresponde por overflow')
+                else:
+                    strValorDef = str(valorDef)
+                    if strValorDef.find('.') != -1:
+                        division = strValorDef.split('.')
+                        parteEntera = int(division[0])
+                        if len(str(parteEntera)) > paramOne and parteEntera != 0:
+                            print('!!!ERROR!!!, El dato por default en decimal no corresponde por overflow')
+
+            except Exception as e:
+                print('!!!ERROR!!!, El dato por default en decimal no corresponde')
+                print(e)
+
+        elif columnType == ColumnsTypes.DOUBLE_PRECISION or columnType == ColumnsTypes.REAL:
+            try:
+                float(valorDef)
+            except:
+                print('!!!ERROR!!!, La columna de tipo double precision or real no puede aceptar ese valor default')
+
+        #-->
+        elif columnType == 'ColumnsTypes.INTEGER':
+            try:
+                valorDef = int(valorDef)
+                if valorDef < 2147483647 and valorDef > -2147483648:
+                    pass
+                else:
+                    print('!!!ERROR!!!, El tamanio del default es muy grande para el integer')
+            except:
+                print('!!!ERROR!!!, La columna de tipo integer no puede aceptar ese valor default')
+
+
+        #-->
+        elif columnType == 'ColumnsTypes.INTERVAL':
+            pass
+
+        #-->
+        elif columnType == 'ColumnsTypes.MONEY':
+            try:
+                float(valorDef)
+            except:
+                print('!!!ERROR!!!, La columna de tipo money no puede aceptar ese valor default')
+
+        #-->
+        elif columnType == 'ColumnsTypes.SMALLINT':
+            try:
+                valorDef = int(valorDef)
+                if valorDef < 32727 and valorDef > -37767:
+                    pass
+                else:
+                    print('!!!ERROR!!!, El tamanio del default es muy grande para el smallint')
+            except:
+                print('!!!ERROR!!!, La columna de tipo smallint no puede aceptar ese valor default')
+        
+        #-->
+        elif columnType == 'ColumnsTypes.TEXT':
+            try:
+                valorDef = str(valorDef)
+            except:
+                print('!!!ERROR!!!, El tamanio default del character varying sobrepasa el tamanio permitido')
+        
+        #-->
+        elif columnType == 'ColumnsTypes.TIMESTAMP':
+            valorDef = str(valorDef)
+            try:
+                datetime.datetime.strptime(valorDef,'%Y-%m-%d %H:%M:%S')
+            except:
+                print('!!!ERROR!!!, El formato de timestamp es invalido, debe ser yyyy-mm-dd h:m:s')
+        
+        #-->
+        elif columnType == 'ColumnsTypes.TIME':
+            valorDef = str(valorDef)
+            try:
+                datetime.datetime.strptime(valorDef,'%H:%M:%S')
+            except:
+                print('!!!ERROR!!!, El formato de time es invalido, debe ser h:m:s')
+
+        elif columnType == 'ColumnsTypes.VARCHAR':
+            valorDef = str(valorDef)
+            if paramOne != None:
+                if len(valorDef) > paramOne:
+                    print('!!!ERROR!!!, El tamanio default del varchar sobrepasa el tamanio permitido')
+            else:
+                pass
 
 class DropTB(Instruction):
 
