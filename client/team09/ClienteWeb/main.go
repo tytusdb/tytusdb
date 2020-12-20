@@ -9,6 +9,7 @@ import (
 func main() {
 	//archivos estaticos
 	http.Handle("/layout/", http.StripPrefix("/layout/", http.FileServer(http.Dir("layout/"))))
+	http.Handle("/codemirror/", http.StripPrefix("/codemirror/", http.FileServer(http.Dir("codemirror/"))))
 
 	//pagina principal
 	http.HandleFunc("/", inicio)

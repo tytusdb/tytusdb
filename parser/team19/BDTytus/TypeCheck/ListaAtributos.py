@@ -1,4 +1,4 @@
-import Atributo as Atributo
+import TypeCheck.Atributo as Atributo
 class ListaAtributos:
     def __init__(self):
         self.columnNumber = 0

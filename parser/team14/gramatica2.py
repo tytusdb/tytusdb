@@ -247,7 +247,7 @@ from Instrucciones.CreateTable import *
 from Instrucciones.Select import Select
 from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
-from Instrucciones.Insert import Insert
+from Instrucciones.Insert import *
 from Instrucciones.Drop import *
 
 # Asociación de operadores y precedencia
@@ -340,6 +340,8 @@ def p_INSERT(t):
 
 def p_INSERT2(t):
     'INSERT : insert into id para LEXP parc values para LEXP parc'
+    t[0] = InsertWhitColum(t[3], t[5],t[9])
+
 
 def p_DROPALL(t):
     '''DROP : drop all para parc '''
