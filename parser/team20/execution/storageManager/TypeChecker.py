@@ -14,7 +14,7 @@ def TCcreateDatabase(database: str,Mode:str) -> int:
         if database in data:
             return 2
         else: 
-            new = {database:{"Mode":Mode}}
+            new = {database:{"Mode":Mode,"Types":{}}}
             data.update(new)
             data["USE"]=database
             dump = True
@@ -122,7 +122,36 @@ def TCcreateTable(database: str, table: str, Columns:None) -> int:
     else:
         return 1
 
+###############
+# Tables TYPES #
+###############
 
+# CREATE a type
+def TCcreateType(database: str, typeEnum: str, Values:None) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not database in data:
+            return 2
+        else:
+            if typeEnum in data[database]['Types']:
+                return 3
+            else:
+                print(Values)
+                new = {typeEnum:{}}
+                data[database]['Types'].update(new)
+                data[database]['Types'][typeEnum].update(Values)
+                dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        """dataTable = {}
+        with open('data/json/'+database+'-'+table, 'w') as file:
+            json.dump(dataTable, file)
+        return 0"""
+    else:
+        return 1
 
 
 # Check the existence of data and json folder and databases file

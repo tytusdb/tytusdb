@@ -1,7 +1,9 @@
 from .storageManager import jsonMode
-from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCcreateTable
-from .executeExpression import *
+from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCcreateTable,TCcreateType
+from .executeExpression import executeExpression
 from .AST.sentence import *
+from .AST.error import * 
+
 import os 
 import json
 
@@ -162,6 +164,18 @@ def executeCreateTable(self, table):
     #{"Type":,type,"Name":,"MaxLength":,"DefaultFlag":,"PrimaryKeyFlag":,"NullFlag":,"Constrains":[]}
     #
         
-
-
+def executeCreateType(self, typeEnum):
+    data=TCgetDatabase()
+    array={}
+    if(typeEnum.expressions!=None):
+        i = 0
+        for node in typeEnum.expressions:
+            res=executeExpression(self,node)
+            if(res.type == 5):
+                res.value = res.value.replace("'","")
+                new={str(i):res.value}
+                array.update(new)
+                i=i+1
+        #print(array)
+    return TCcreateType(data,typeEnum.name,array) 
     

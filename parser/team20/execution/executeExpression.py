@@ -1,10 +1,15 @@
 from .AST.expression import *
 from .AST.symbol import *
 from .AST.error import * 
+from .executeValue import executeValue
+
+import math
+import random
+
 def executeExpression(self, expression):
             s = Symbol('', 1, 1, 0, 0)
             if isinstance(expression, Value):
-                return self.executeValue(expression)
+                return executeValue(self,expression)
             # EXPRESIONES ARITMETICAS
             if isinstance(expression, Arithmetic):
                 e1 = self.executeExpression(expression.value1)
@@ -340,7 +345,7 @@ def executeExpression(self, expression):
                     except Exception as e:
                         return Error('Semantico', 'Error : ' + str(e), 0, 0)
             # FUNCIONES MATEMATICAS
-            elif isinstance(expression, MathFunctions):
+            elif isinstance(expression, MathFunction):
                 e = self.executeExpression(expression.value)
                 if isinstance(e, Error):
                     return e
@@ -489,7 +494,7 @@ def executeExpression(self, expression):
                         return Error('Semantico', 'Error : ' + str(e), 0, 0)
                     #Faltan funciones matematicas DIV, GCD, MOD, POWER, ROUND. WITH_BUCKET, TRUNC
             # FUNCIONES TRIGONOMETRICAS
-            elif isinstance(expression, TrigonometricFunctions):
+            elif isinstance(expression, TrigonometricFunction):
                 e = self.executeExpression(expression.value)
                 if isinstance(e, Error):
                     return e
