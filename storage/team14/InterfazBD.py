@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter import simpledialog
+import json
 import Table
 from tkinter import filedialog
 import StorageManager as Storage
@@ -46,7 +47,6 @@ class PantallaBD():
 
 #cambiar nombre de la base de datos
     def EditarBase(self):
-        print('Editar la base de datos')
         if len(self.listboxBases.curselection()) != 0:
             elemento=self.listboxBases.get(self.listboxBases.curselection()[0])
             self.ventana.destroy()
@@ -152,42 +152,58 @@ class PantallaTablas:
         for i in range(0, len(Storage.showTables(self.nombreBD))):
             self.listboxTablas.insert(i, Storage.showTables(self.nombreBD)[i])
     def crear(self):
-        nombretabla=simpledialog.askstring('Crear Tabla Datos','ingrese el nombre de la tabla')
-        cantcolumnas=simpledialog.askinteger('Crear Tabla Datos', 'ingrese el numero de columnas que desea')
-        print(Storage.createTable(self.nombreBD,nombretabla,cantcolumnas))
-        self.listboxTablas.delete(0, END)
-        self.Cargartablas()
+        try:
+            nombretabla=simpledialog.askstring('Crear Tabla Datos','ingrese el nombre de la tabla')
+            cantcolumnas=simpledialog.askinteger('Crear Tabla Datos', 'ingrese el numero de columnas que desea')
+            print(Storage.createTable(self.nombreBD,nombretabla,cantcolumnas))
+            self.listboxTablas.delete(0, END)
+            self.Cargartablas()
+        except:
+            ""
 
     def borrar(self):
-        if len(self.listboxTablas.curselection()) != 0:
-            elemento = self.listboxTablas.get(self.listboxTablas.curselection()[0])
-            a = messagebox.askquestion("Eliminar", "Quieres eliminar La tabla \n\t" + elemento)
-            if a == "yes":
-                print(Storage.dropTable(self.nombreBD, elemento))
-                self.listboxTablas.delete(0, END)
-                self.Cargartablas()
+        try:
+            if len(self.listboxTablas.curselection()) != 0:
+                elemento = self.listboxTablas.get(self.listboxTablas.curselection()[0])
+                a = messagebox.askquestion("Eliminar", "Quieres eliminar La tabla \n\t" + elemento)
+                if a == "yes":
+                    print(Storage.dropTable(self.nombreBD, elemento))
+                    self.listboxTablas.delete(0, END)
+                    self.Cargartablas()
+        except:
+            ""
     def renombrar(self):
-        if len(self.listboxTablas.curselection()) != 0:
-            nombreviejo = self.listboxTablas.get(self.listboxTablas.curselection()[0])
-            nombrenuevo=simpledialog.askstring('Editar Tabla','ingrese el nombre nuevo de la tabla')
-            a = messagebox.askquestion("Editar", "Quieres Cambiar el nombre La tabla " + nombreviejo+"\npor "+nombrenuevo)
-            if a == "yes":
-                print(Storage.alterTable(self.nombreBD,nombreviejo,nombrenuevo))
-                self.listboxTablas.delete(0, END)
-                self.Cargartablas()
+        try:
+            if len(self.listboxTablas.curselection()) != 0:
+                nombreviejo = self.listboxTablas.get(self.listboxTablas.curselection()[0])
+                nombrenuevo=simpledialog.askstring('Editar Tabla','ingrese el nombre nuevo de la tabla')
+                a = messagebox.askquestion("Editar", "Quieres Cambiar el nombre La tabla " + nombreviejo+"\npor "+nombrenuevo)
+                if a == "yes":
+                    print(Storage.alterTable(self.nombreBD,nombreviejo,nombrenuevo))
+                    self.listboxTablas.delete(0, END)
+                    self.Cargartablas()
+        except:
+            ""
+
     def agregarC(self):
-        if len(self.listboxTablas.curselection()) != 0:
-            nombretabla = self.listboxTablas.get(self.listboxTablas.curselection()[0])
-            valor = simpledialog.askstring('Agregar Columna', 'ingrese el valor por default')
-            print(self.nombreBD)
-            print(nombretabla)
-            print(Storage.alterAddColumn(self.nombreBD,nombretabla,valor))
+        try:
+            if len(self.listboxTablas.curselection()) != 0:
+                nombretabla = self.listboxTablas.get(self.listboxTablas.curselection()[0])
+                valor = simpledialog.askstring('Agregar Columna', 'ingrese el valor por default')
+                #print(self.nombreBD)
+                #print(nombretabla)
+                print(Storage.alterAddColumn(self.nombreBD,nombretabla,valor))
+        except:
+            ""
 
     def borrarC(self):
-        if len(self.listboxTablas.curselection()) != 0:
-            nombretabla = self.listboxTablas.get(self.listboxTablas.curselection()[0])
-            columna = simpledialog.askinteger('Borrar Columna', 'ingrese el numero de columna')
-            print(Storage.alterDropColumn(self.nombreBD,nombretabla,columna))
+        try:
+            if len(self.listboxTablas.curselection()) != 0:
+                nombretabla = self.listboxTablas.get(self.listboxTablas.curselection()[0])
+                columna = simpledialog.askinteger('Borrar Columna', 'ingrese el numero de columna')
+                print(Storage.alterDropColumn(self.nombreBD,nombretabla,columna))
+        except:
+            ""
 
     def extraerTabla(self):
         if len(self.listboxTablas.curselection()) != 0:
@@ -196,11 +212,17 @@ class PantallaTablas:
             PantallaTuplas(self.nombreBD,nombretabla,Storage.extractTable(self.nombreBD, nombretabla))
 
     def agregarPK(self):
-        if len(self.listboxTablas.curselection()) != 0:
-            nombretabla = self.listboxTablas.get(self.listboxTablas.curselection()[0])
-            entrada = simpledialog.askstring('Listado de # de columnas', 'ingrese el listado separado por , sin espacios')
-            lista=entrada.split(",")
-            print(Storage.alterAddPK(self.nombreBD,nombretabla,lista))
+        try:
+            if len(self.listboxTablas.curselection()) != 0:
+                nombretabla = self.listboxTablas.get(self.listboxTablas.curselection()[0])
+                entrada = simpledialog.askstring('Listado de # de columnas', 'ingrese el listado separado por , sin espacios')
+                lista=entrada.split(",")
+                listafinal = []
+                for i in lista:
+                    listafinal.append(int(i))
+                print(Storage.alterAddPK(self.nombreBD,nombretabla,listafinal))
+        except:
+            ""
 
     def eliminarPK(self):
         if len(self.listboxTablas.curselection()) != 0:
@@ -244,5 +266,54 @@ class PantallaGrafico:
         self.ventana.destroy()
         PantallaTablas(self.nombreBD)
 
+
+
+
+
+
+
+
+
+
+#----------------------------------------------------tuplas extract-------------------------------------------------------------------
+class PantallaTuplas:
+    def __init__(self, nombreBD, nombreTabla, listaTuplas):
+        self.ventana = Tk()
+        self.nombreBD = nombreBD
+        self.nombreTabla=nombreTabla
+        self.listaTuplas=listaTuplas
+        self.ventana.title("Opciones de las Tuplas")
+        self.contenedor = Frame(self.ventana, width=500, height=380)
+        self.contenedor.pack(fill="both", expand=True)
+        self.titulo = Label(self.contenedor, text="Tuplas de la tabla: " + self.nombreTabla, font=("Comic Sans MS", 18)).place(x=110, y=10)
+        self.titulo = Label(self.contenedor, text="Posee "+str(Storage.rollback('tables/' + self.nombreBD + self.nombreTabla).numberColumns)+" Columnas",font=("Comic Sans MS", 14)).place(x=150, y=40)
+
+
+
+        # boton crear tabla
+        Button(self.contenedor, text="Extraer Tabla Completa", command=self.extraertabla, width=20).place(x=300, y=80)
+        Button(self.contenedor, text="Extraer Por Rangos", command=self.extraerrango, width=20).place(x=300, y=110)
+        Button(self.contenedor, text="Extraer Row (tupla)", command=self.extraertupla, width=20).place(x=300, y=140)
+
+        Button(self.contenedor, text="Insertar Registro", command=self.insertar, width=20).place(x=300, y=170)
+
+        Button(self.contenedor, text="Actualizar Registro", command=self.actualizar, width=20).place(x=300, y=200)
+
+        Button(self.contenedor, text="Eliminar Registro", command=self.eliminar, width=20).place(x=300, y=230)
+        Button(self.contenedor, text="Eliminar Todo", command=self.eliminartodo, width=20).place(x=300, y=260)
+        Button(self.contenedor, text="Cargar CSV", command=self.cargarCSV, width=20).place(x=300, y=290)
+
+        Button(self.contenedor, text="Regresar", command=self.salir, width=20).place(x=300, y=320)
+
+        self.listboxTuplas = Listbox(self.contenedor, width=40, height=16)
+        self.Cargartuplas()
+        self.listboxTuplas.place(x=35, y=80)
+
+        self.ventana.mainloop()
+
+
+    def Cargartuplas(self):
+        for i in range(0, len(self.listaTuplas)):
+            self.listboxTuplas.insert(i, self.listaTuplas[i])
 
 
