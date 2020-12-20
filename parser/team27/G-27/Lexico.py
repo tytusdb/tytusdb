@@ -213,7 +213,8 @@ def p_instruccion_create(t):
 
 def p_tipo_create(t):
     '''tipo_create : ins_replace DATABASE if_exists ID create_opciones PUNTO_COMA
-                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA'''
+                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA
+                   | TYPE ID AS ENUM PARABRE list_vls PARCIERRE PUNTO_COMA'''
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
@@ -284,13 +285,15 @@ def p_constraint(t):
                     |  '''
 
 def p_restriccion_columna(t):
-    '''restriccion_columna : NOT NULL
-                           | SET NOT NULL
-                           | NULL
-                           | PRIMARY KEY
+    '''restriccion_columna : NOT NULL 
+                           | SET NOT NULL 
+                           | PRIMARY KEY 
+                           | UNIQUE 
+                           | NULL 
                            | NOT NULL PRIMARY KEY 
-                           | UNIQUE
-                           | CHECK PARABRE exp PARCIERRE''' #cambio del condicion columna
+                           | CHECK PARABRE exp PARCIERRE 
+                           | 
+                           ''' #cambio del condicion columna
 
 def p_references(t):
     '''ins_references : ON DELETE accion ins_references
