@@ -6,7 +6,8 @@ path.append(dir(path[0]))
 from analizer import grammar
 
 s = """ 
-SELECT "5.1" < "5";
+    USE db1;
+    --SELECT id as pito, name as alv, 3+3 as "su madre" FROM demo1 WHERE id > 0;
 """
 
 

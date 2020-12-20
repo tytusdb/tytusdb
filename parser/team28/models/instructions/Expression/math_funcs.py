@@ -8,9 +8,11 @@ class Abs(Expression):
     '''
         Valor absoluto de una columna tipo entero o de un valor.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
-
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -29,8 +31,11 @@ class Cbrt(Expression):
     '''
         Raiz Cubica de un numero o una columna tipo entero.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     
     def __repr__(self):
         return str(vars(self))
@@ -51,8 +56,11 @@ class Ceil(Expression):
         Redondear cualquier valor decimal positivo o negativo como
         mayor que el argumento.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     
     def __repr__(self):
         return str(vars(self))
@@ -73,8 +81,11 @@ class Ceiling(Expression):
         Redondear cualquier valor decimal positivo o
         negativo como mayor que el argumento.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     
     def __repr__(self):
         return str(vars(self))
@@ -95,9 +106,12 @@ class Degrees(Expression):
         Se usa para devolver los valores en grados de radianes 
         como se especifica en el argumento.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
+        
     def __repr__(self):
         return str(vars(self))
     
@@ -117,10 +131,12 @@ class Div(Expression):
         Se utiliza para devolver el cociente entero de
         una división como se especifica en el argumento.
     '''
-    def __init__(self,  dividendo, divisor) :
+    def __init__(self,  dividendo, divisor, type_fm,line, column) :
         self.dividendo = dividendo
         self.divisor = divisor
-    
+        self.alias = f'{type_fm}({self.dividendo.alias},{self.divisor.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
     
@@ -141,9 +157,11 @@ class Exp(Expression):
         La función se usa para devolver la exponenciación de
         un número como se especifica en el argumento.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -162,9 +180,11 @@ class Factorial(Expression):
     '''
         Se puede utilizar la libreria Math de Python **
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -185,9 +205,11 @@ class Floor(Expression):
         cualquier valor decimal positivo o negativo 
         como más pequeño que el argumento.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line 
+        self.column = column
     def __repr__(self):
         return str(vars(self))
     
@@ -207,10 +229,12 @@ class Gcd(Expression):
         Se puede utilizar la libreria Math de Python. 
         Maximo Comun Divisor *
     '''
-    def __init__(self,  value1, value2) :
+    def __init__(self,  value1, value2,type_fm,line, column) :
         self.value1 = value1
         self.value2 = value2
-
+        self.alias = f'{type_fm}({self.value1.alias},{self.value2.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -230,9 +254,11 @@ class Ln(Expression):
     '''
         Logaritmo natural de un numero ***
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -251,9 +277,11 @@ class Log(Expression):
     '''
         Logaritmo base 10 de un número.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -274,10 +302,12 @@ class Mod(Expression):
         división de dos números, como se especifica 
         en el argumento
     '''
-    def __init__(self,  value1, value2) :
+    def __init__(self,  value1, value2,type_fm,line, column) :
         self.value1 = value1
         self.value2 = value2
-
+        self.alias = f'{type_fm}({self.value1.alias},{self.value2.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -299,8 +329,10 @@ class Pi(Expression):
         Retorna el valor de la constant PI
         ***** TODO: SIN ARGUMENTOS *****
     '''
-    def __init__(self) :
-        pass
+    def __init__(self,type_fm,line, column) :
+        self.alias = f'{type_fm}()'
+        self.line = line
+        self.column = column
 
     def __repr__(self):
         return str(vars(self))
@@ -314,10 +346,12 @@ class Power(Expression):
         número elevado a la potencia de otro número, 
         proporcionado en el argumento.
     '''
-    def __init__(self, base, exp) :
+    def __init__(self, base, exp,type_fm,line, column) :
         self.base = base
         self.exp = exp
-    
+        self.alias = f'{type_fm}({self.base.alias},{self.exp.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -338,9 +372,11 @@ class Radians(Expression):
         La función se usa para devolver el valor en radianes 
         a partir de grados, proporcionado en el argumento.
     '''
-    def __init__(self,  value) :
+    def __init__(self,  value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -361,10 +397,12 @@ class Round(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self,  value, n_digits = 0) :
+    def __init__(self,  value, n_digits,type_fm,line, column) :
         self.value = value
         self.n_digits = n_digits
-    
+        self.alias = f'{type_fm}({self.value.alias},{self.n_digits.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -389,9 +427,11 @@ class Sign(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value) :
+    def __init__(self, value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -415,9 +455,11 @@ class Sqrt(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value) :
+    def __init__(self, value,type_fm,line, column) :
         self.value = value
-    
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
@@ -438,12 +480,15 @@ class WithBucket(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self,  expre, min_value, max_value, index) :
+    def __init__(self,  expre, min_value, max_value, index,type_fm,line, column) :
         self.expre = expre
         self.min_value = min_value
         self.max_value = max_value
         self.index = index
-    
+        self.alias = f'{type_fm}({self.expre.alias},{self.min_value.alias},{self.max_value.alias},{self.index.alias})'
+        self.line = line
+        self.column = column
+        
     def __repr__(self):
         return str(vars(self))
 
@@ -467,8 +512,11 @@ class Trunc(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, value) :
+    def __init__(self, value,type_fm,line, column) :
         self.value = value
+        self.alias = f'{type_fm}({self.value.alias})'
+        self.line = line
+        self.column = column
     
     def __repr__(self):
         return str(vars(self))
@@ -490,8 +538,10 @@ class Random(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self) :
-        pass
+    def __init__(self,type_fm,line, column) :
+        self.alias = f'{type_fm}()'
+        self.line = line
+        self.column = column
     
     def __repr__(self):
         return str(vars(self))
@@ -512,9 +562,12 @@ class Greatest(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, val_array) :
+    def __init__(self, val_array,type_fm,line, column) :
         self.val_array = val_array
-    
+        self.alias = f'{type_fm}({obtain_string(self.val_array)})'
+        self.line = line
+        self.column = column
+        
     def __repr__(self):
         return str(vars(self))
 
@@ -536,9 +589,11 @@ class Least(Expression):
         redondear un número hasta un decimal específico, 
         proporcionado en el argumento.
     '''
-    def __init__(self, val_array) :
+    def __init__(self, val_array,type_fm,line, column) :
         self.val_array = val_array
-    
+        self.alias = f'{type_fm}({obtain_string(self.val_array)})'
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 

@@ -11,7 +11,7 @@ class Nodo:
         self.factor = 1
 
 
-class Avl:
+class AVL_DB:
 
     def __init__(self):
         self.raiz = None
@@ -233,3 +233,8 @@ class Avl:
         bases += str(self.__recorrido(nodo.der))
 
         return bases
+    
+       
+    # Metodo para el DropDatabase
+    def eliminarDB(self, nodoDB):
+        self.eliminar(nodoDB)
