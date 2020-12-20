@@ -63,9 +63,9 @@ class WhereClause(Instruction):
         super().__init__(row, column)
         self.series = series
 
-    def execute(self, environment, labels):
+    def execute(self, environment):
         filt = self.series.execute(environment)
-        return environment.dataFrame.loc[filt.value, labels]
+        return environment.dataFrame.loc[filt.value]
 
 
 class Select(Instruction):
@@ -79,13 +79,16 @@ class Select(Instruction):
         newEnv = Environment(environment, dbtemp)
         self.fromcl.execute(newEnv)
         value = [p.execute(newEnv).value for p in self.params]
-
         labels = [p.temp for p in self.params]
 
         for i in range(len(labels)):
             newEnv.dataFrame[labels[i]] = value[i]
-        # return newEnv.dataFrame
-        return self.wherecl.execute(newEnv, labels)
+
+        if self.wherecl == None:
+            return newEnv.dataFrame.filter(labels)
+        wh = self.wherecl.execute(newEnv)
+        w2 = wh.filter(labels)
+        return w2
 
 
 class Drop(Instruction):
@@ -417,14 +420,22 @@ class FromClause(Instruction):
         return new_df
 
     def execute(self, environment):
-        lst = []
+        tempDf = None
+
         for i in range(len(self.tables)):
             data = self.tables[i].execute(environment)
+            
+            print("---------------------------------------")
+            print(self.aliases[i])
             if isinstance(self.tables[i], Select):
                 newNames = {}
                 subqAlias = self.aliases[i]
-                for (columnName, columnData) in data.iteritems():
-                    newNames[columnName] = subqAlias + "." + columnName.split(".")[1]
+                for columnName in data.iteritems():
+                    colSplit = columnName.split(".")
+                    if len(colSplit) >= 2:
+                        newNames[columnName] = subqAlias + "." + colSplit[1]
+                    else:
+                        newNames[columnName] = subqAlias + "." + colSplit[0]
                 data.rename(columns=newNames, inplace=True)
                 environment.addVar(subqAlias, subqAlias, "TABLE", self.row, self.column)
             else:
@@ -437,9 +448,11 @@ class FromClause(Instruction):
                 environment.addSymbol(self.tables[i].name, sym)
                 if self.aliases[i]:
                     environment.addSymbol(self.aliases[i], sym)
-            lst.append(data)
-        mergedData = self.crossJoin(lst)
-        environment.dataFrame = mergedData
+            if i == 0:
+                tempDf = data
+            else:
+                tempDf = self.crossJoin([tempDf,data])
+            environment.dataFrame = tempDf
         return
 
 
