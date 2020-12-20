@@ -145,4 +145,6 @@ cuerpo
 
 ## Diagrama de Gantt
 
+![diagrama-gantt](img/diagrama-gantt.jpg "Diagrama de Gantt")
+
 cuerpo

@@ -91,9 +91,9 @@ class Identifiers(Expression):
             if not table:  # Si existe ambiguedad
                 return
             col = table + "." + self.name
+            self.value = environment.dataFrame[col]
         else:
-            col = self.table + "." + self.name
-        self.value = environment.dataFrame[col]
+            self.value = environment.getColumn(self.table, self.name)
         return self
 
     def dot(self):
@@ -697,7 +697,7 @@ class FunctionCall(Expression):
             elif self.function == "decode":
                 value = strf.decode(*valores)
             # Se toma en cuenta que la funcion now produce tipo DATE
-            if self.function == "now":
+            elif self.function == "now":
                 type_ = TYPE.DATETIME
                 value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             else:
