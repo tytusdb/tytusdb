@@ -11,6 +11,14 @@ class Simbolo:
         self.tabla = ""
     
     def toString(self):
+        cadena:str = ""
         if self.nombre != None:
-            print(self.tipo, ";", self.nombre, ";", self.valor, ";", self.baseDatos, ";", self.tabla)
+            cadena += "<TR>"
+            if self.tipo == TipoSimbolo.TABLA:
+                cadena += "<TD>" + self.nombre + "</TD><TD>TABLA</TD><TD>" + self.baseDatos + "</TD><TD>" + self.tabla + "</TD>"
+                #for col in self.valor:
+                    #cadena += "<TD>" +  + "</TD>"
+
+            cadena += "</TR>"
+        return cadena
         

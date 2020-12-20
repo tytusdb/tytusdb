@@ -11,7 +11,7 @@ class AST:
     def __init__(self):
         self.count = 0
 
-    def makeAst(self,root):
+    def makeAst(self, root):
         self.defineTreeNodes(root)
         self.joinTreeNodes(root)
         self.drawGraph()
@@ -31,7 +31,3 @@ class AST:
     def drawGraph(self):
         dot.render("test-output/round-table.gv", view=True)  # doctest: +SKIP
         "test-output/round-table.gv.jpg"
-
-
-
-

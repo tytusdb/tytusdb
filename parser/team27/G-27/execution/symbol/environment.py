@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
 from database import *
-from symbol import *
+from symbol_ import *
 
 class Environment:
     def __init__(self, father):
@@ -78,11 +78,13 @@ class Environment:
         env.simbolos = []
 
     
-     def buscarVariable(self, name):
+    def buscarVariable(self, name):
         env = self
         while env.father != None:
             for i in range(0,len(env.simbolos)):
                 if env.simbolos[i].name == name:
-                    return {'value': env.simbolos[i].value , 'tipo':env.simbolos[i].tipo}
+                    return {'value': env.simbolos[i].value , 'tipo':env.simbolos[i].tipo,'name':env.simbolos[i].name}
             env = env.father
         return None     
+
+Symbol('nombre','d','d')
