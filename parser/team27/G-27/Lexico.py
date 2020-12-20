@@ -341,9 +341,11 @@ def p_alteracion_tabla(t):
                         | alterar_tabla'''
 
 def p_alterar_tabla(t): 
-    '''alterar_tabla : ADD COLUMN columna
-                     | ADD CONSTRAINT ID columna
-                     | ALTER COLUMN columna
+    #alter column viene como una lista
+    '''alterar_tabla : ADD COLUMN ID tipo_dato
+                     | ADD CONSTRAINT ins_constraint
+                     | ALTER COLUMN ID TYPE tipo_dato
+                     | ALTER COLUMN ID SET NOT NULL
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
 
@@ -680,8 +682,8 @@ def p_ins_update(t):
     '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
 
 def p_ins_asign_list(t):
-    '''asign_list  : asign_list COMA ID SIGNO_IGUAL val_value 
-                   | ID SIGNO_IGUAL val_value'''
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL exp 
+                   | ID SIGNO_IGUAL exp'''
 
 def p_ins_delete(t):
     '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''

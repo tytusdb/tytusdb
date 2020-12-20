@@ -5,6 +5,9 @@ import random as r
 def acos(n):
     return m.acos(n)
 
+def acosd(n):
+    return m.degrees(acos(n))
+
 def asin(n):
     return m.asin(n)
 

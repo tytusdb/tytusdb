@@ -1,4 +1,9 @@
 from models.instructions.shared import Instruction
+from controllers.type_checker import TypeChecker
+from controllers.symbol_table import SymbolTable
+from controllers.error_controller import ErrorController
+from controllers.data_controller import DataController
+from storageManager import jsonMode as j
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
 '''
@@ -16,10 +21,39 @@ class Insert(Instruction):
 
     def __repr__(self):
         return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-    
+
+    def process(self, instruction):
+        #Jalando Base de Datos
+        print("EJECUTANDO INSERT")
+        database_id = SymbolTable().useDatabase
+        
+        if not database_id:
+            desc = f": Database not selected"
+            ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
+            return None
+        #Base de datos existe --> Obtener tabla
+        table_tp = TypeChecker().searchTable(database_id, self.table.value)
+        if not table_tp:
+            desc = f": Table does not exists"
+            ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
+            return None
+        # Obtenida la tabla ---> TODO: VALIDAR TIPOS
+        # for column in table_tp.columns:
+        #     if column.
+        if self.arr_columns == None:
+        #Solo nos dieron los valores, tienen que venir todos ---> Espino ya valida longitud?
+            vals_insert = []
+            for column in self.arr_values:
+                val = column.process(instruction)
+                vals_insert.append(val.value)
+            print(vals_insert)
+            DataController().insert(self.table.value, vals_insert,0,1)
+        else:
+            if len(self.arr_columns) == len(self.arr_values):
+                pass
+            else:
+                print("Error Datos incompletos")
+        
 
 class Update(Instruction):
     '''
@@ -38,7 +72,7 @@ class Update(Instruction):
     
     def process(self, instrucction):
         pass
-
+        
 class ColumnVal(Instruction):
     '''
         ColumnVal recibe dos parametros: 

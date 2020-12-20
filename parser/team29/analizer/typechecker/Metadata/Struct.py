@@ -12,6 +12,7 @@ def load():
     Databases = File.importFile("Databases")
     Types = File.importFile("Types")
 
+
 def createDatabase(name, mode, owner):
     database = {}
     database["name"] = name
@@ -19,7 +20,7 @@ def createDatabase(name, mode, owner):
     database["owner"] = owner
     database["tables"] = []
     Databases.append(database)
-    File.exportFile(Databases,"Databases")
+    File.exportFile(Databases, "Databases")
 
 
 def alterDatabaseRename(databaseOld, databaseNew):
@@ -27,7 +28,7 @@ def alterDatabaseRename(databaseOld, databaseNew):
     for data in Databases:
         if data["name"] == databaseOld:
             data["name"] = databaseNew
-            File.exportFile(Databases,"Databases")
+            File.exportFile(Databases, "Databases")
             return
     return
 
@@ -40,14 +41,14 @@ def alterDatabaseOwner(database, ownerNew):
     for data in Databases:
         if data["name"] == database:
             data["owner"] = ownerNew
-            File.exportFile(Databases,"Databases")
+            File.exportFile(Databases, "Databases")
             return 0
     return 1
 
 
 def dropDatabase(name):
     element = {}
-    
+
     for data in Databases:
         if data["name"] == name:
             element = data
@@ -55,9 +56,9 @@ def dropDatabase(name):
 
     if element != {}:
         Databases.remove(element)
-        File.exportFile(Databases,"Databases")
+        File.exportFile(Databases, "Databases")
         return "Drop database"
-        
+
     return "Database not found"
 
 
@@ -89,30 +90,30 @@ def createTable(dbName, tableName, inherits):
     table["name"] = tableName
     table["inherits"] = inherits
     table["columns"] = []
-    
+
     for db in Databases:
         if db["name"] == dbName:
             db["tables"].append(table)
             break
-    File.exportFile(Databases,"Databases")
+
+    File.exportFile(Databases, "Databases")
 
 
 def alterTable(dbName, tableOld, tableNew):
-    
+
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
                 if table["name"] == tableOld:
                     table["name"] = tableNew
-                    File.exportFile(Databases,"Databases")
+                    File.exportFile(Databases, "Databases")
                     break
             break
 
 
-
 def dropTable(dbName, tableName):
     tbl = {}
-    
+
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -120,22 +121,72 @@ def dropTable(dbName, tableName):
                     tbl = table
             if tbl != {}:
                 db["tables"].remove(tbl)
-                File.exportFile(Databases,"Databases")
+                File.exportFile(Databases, "Databases")
         break
 
 
 def extractTable(dbName, tableName):
-    
+
     for db in Databases:
-        if db['name'] == dbName:
-            for table in db['tables']:
-                if table['name']==tableName:  
+        if db["name"] == dbName:
+            for table in db["tables"]:
+                if table["name"] == tableName:
                     return table
             return 1
     return 0
 
 
 # --------------------------------------Columns-----------------------------------------------
+def extractColumns(database, table):
+    List = []
+    for db in Databases:
+        if db["name"] == database:
+            for tbl in db["tables"]:
+                if tbl["name"] == table:
+                    for column in tbl["columns"]:
+                        type_ = TYPE.Type.get(column["type"])
+                        newColumn = TYPE.Column(
+                            column["name"], type_, column["type"]
+                        ).get()
+                        List.append(newColumn)
+                    return List
+            return None
+    return None
+
+
+def getValue(nameTemp, colNames, values, dafault):
+
+    if len(colNames) == 0:
+        return [dafault, colNames, values]
+
+    try:
+        index = colNames.index(nameTemp)
+        value = values[index]
+        colNames.remove(nameTemp)
+        values.remove(value)
+        return [value, colNames, values]
+    except:
+        return [dafault, colNames, values]
+
+
+def getValues(table, colNames, params):
+    List = []
+
+    if colNames == None:
+        return params
+
+    for column in table["columns"]:
+        values = getValue(column["name"], colNames, params, column["Default"])
+        value = values[0]
+        colNames = values[1]
+        params = values[2]
+        List.append(value)
+
+    if len(colNames) == 0:
+        return List
+    return None
+
+
 def createCol(name, type_, pk, fk, nn, inc, size, cnt, un):
     col = {}
     col["name"] = name
@@ -152,7 +203,7 @@ def createCol(name, type_, pk, fk, nn, inc, size, cnt, un):
 
 
 def insertColumns(dbName, tName, columns):
-    
+
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -163,22 +214,22 @@ def insertColumns(dbName, tName, columns):
                         else:
                             table["columns"].append(getCol(column))
                     break
-    File.exportFile(Databases,"Databases")
+    File.exportFile(Databases, "Databases")
 
 
 Error = []
 
 
 def constraint(table, column, dbName):
-    print(column)
+
     type_ = column[1][0]
     colList = column[1][1]
     if type_ == "CHECK":
-        print(column)
+
         for colTem in table["columns"]:
             for col in colList:
                 if col == colTem["name"]:
-                    colTem["Constraint"] = [column[1][1],column[1][2]]
+                    colTem["Constraint"] = [column[1][1], column[1][2]]
 
     elif type_ == "UNIQUE":
 
@@ -186,7 +237,6 @@ def constraint(table, column, dbName):
             for col in colList:
                 if col == colTem["name"]:
                     colTem["Unique"] = True
-                                    
 
     elif type_ == "PRIMARY":
 
@@ -194,7 +244,6 @@ def constraint(table, column, dbName):
             for col in colList:
                 if col == colTem["name"]:
                     colTem["PK"] = True
-                    
 
     elif type_ == "FOREIGN":
 
@@ -234,12 +283,11 @@ def validateColunm(col, dbName, tableReference, colReference):
 def getCol(col):
     name = col[1]
     type_ = col[2][0]
-    #Validacion del type type
-    
-    if TYPE.Type.get(type_) == None and Types.get(type_)==None:
-        Error.append("Type "+ type_ + " no es reconocido")
-        return {}
+    # Validacion del type type
 
+    if TYPE.Type.get(type_) == None and Types.get(type_) == None:
+        Error.append("Type " + type_ + " no es reconocido")
+        return {}
 
     # name,category,type_,pk,fk,nn,df,size,un
     pk = False
@@ -252,7 +300,7 @@ def getCol(col):
         size = col[2][1]
     else:
         size = col[2][1][0]
-    
+
     campos = col[3]
     if campos != None:
         for campo in campos:
@@ -267,15 +315,15 @@ def getCol(col):
             elif campo[0] == "UNIQUE":
                 un = True
             elif campo[0] == "CHECK":
-                print(campo)
-                cnt = [campo[1],campo[2]]
+
+                cnt = [campo[1], campo[2]]
     col = createCol(name, type_, pk, fk, nn, df, size, cnt, un)
     return col
 
 
 def alterDrop(dbName, tableName, colName):
     clm = {}
-    
+
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -285,12 +333,12 @@ def alterDrop(dbName, tableName, colName):
                             clm = col
                     if clm != {}:
                         table["columns"].remove(clm)
-                        File.exportFile(Databases,"Databases")
+                        File.exportFile(Databases, "Databases")
                     return
 
 
 def extractColmn(dbName, tableName, colName):
-     
+
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -302,37 +350,36 @@ def extractColmn(dbName, tableName, colName):
 
 
 def getIndex(dbName, tableName, colName):
-    
+
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
                 if table["name"] == tableName:
-                    n = len(table['columns'])
+                    n = len(table["columns"])
                     for i in range(n):
-                        col = table['columns'][i]
+                        col = table["columns"][i]
                         if col["name"] == colName:
                             return i
                     return None
 
-#---------------------------------------------------Type--------------------------------------------------
+
+# ---------------------------------------------------Type--------------------------------------------------
 
 
-def createType(exist,name,list_):
+def createType(exist, name, list_):
     if existType(name):
         if exist:
             return "Type no insertado"
         else:
-            return "Error: ya existe un type con el nombre "+ name
-    
-    Types[name]=list_
-    File.exportFile(Types,"Types")
+            return "Error: ya existe un type con el nombre " + name
+
+    Types[name] = list_
+    File.exportFile(Types, "Types")
     return None
 
 
 def existType(name):
     exists = Types.get(name)
-    if exists !=None:
+    if exists != None:
         return True
     return False
-
-

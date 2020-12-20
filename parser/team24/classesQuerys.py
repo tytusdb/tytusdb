@@ -1,11 +1,13 @@
 #
 import hashlib
 from datetime import date
-from main import ts 
+from main import ts
 import storage as s
 from enum import Enum
 from main import default_db
 import mathtrig as mt
+import main
+import condition
 #
 
 #
@@ -40,14 +42,14 @@ class select(query):
         tables = {}
         for tabla in self.table_expression:
             tables[tabla.id]  = tabla.alias
-
+        print(tables)
 
         results = []
         for col in self.select_list:
             res = col.ejecutar(tables)
             results.append(res)
             
-        return results
+        
             
 
 
@@ -96,7 +98,7 @@ class exp_id(exp_query):
             #Verificamos que exista 
             if self.table not in tables or self.table not in tables.values():
                 #Error semántico
-                pass
+                return None
             # Existe, ahora obtenemos el nombre de la tabla
              
             if self.table not in tables.values():
@@ -116,11 +118,11 @@ class exp_id(exp_query):
 
             else:
                 #Obtenemos el nombre basado en el alias
-                table = getKeyFromValue(self.table,tables)      
+                table = getKeyFromValue(self.table,tables)     
                 #Obtenemos la tabla
                 registros = s.extractTable(default_db,table)
                 #Obtenemos el indice de esa tabla
-                indice = ts.getIndice(default_db,table,self.val)
+                indice = main.ts.getIndice(default_db,table,self.val)
                 #Obtenemos la columan que queremos
                 col = []
                 for reg in registros:
@@ -1404,7 +1406,7 @@ class trig_asin(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -2243,7 +2245,7 @@ class fun_avg(column_function):
         else:
             return None
  
-class fun_greatest(column_function):
+class fun_max(column_function):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
@@ -2544,7 +2546,7 @@ class fun_substr(column_function):
             return sub
             
  
-class fun_max(column_function):
+class fun_greatest(column_function):
     def __init__ (self,lexps,alias):
         self.lexps = lexps
         self.alias = alias
@@ -2553,7 +2555,7 @@ class fun_max(column_function):
         if len(self.lexps) == 0 : return None
         try:
             val = self.lexps[0].ejecutar(tables)
-            if val['valores'] == None or len(val['valores']) == 0: return None
+            #if val['valores'] == None or len(val['valores']) == 0: return None
             #Viene solo un id, es columna
             if len(self.lexps) == 1 and isinstance(val,dict):                    
                 maximo = val['valores'][0]

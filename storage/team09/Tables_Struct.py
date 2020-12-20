@@ -1,21 +1,24 @@
+from ISAM import *
 class TabsStruct:
-    def __init__(self, db, name, cols, tuplas):
+    def __init__(self, db, name, cols, tuplas,ruta):
         # numero de columnas
         self.countCol = cols
-        # tuplas con estructura de ISAM
-        self.tuplas = tuplas
         # nombre de la tabla
         self.name = name
         # nombre de la db
         self.db = db
+        #llaves primarias
+        self.pks=[0]
+        # tuplas con estructura de ISAM
+        self.tuplas = Indice(self.pks,ruta)
 
 
 class Tables:
     def __init__(self):
         self.Tabs = {}
 
-    def createTable(self, database, table, numberColumns):
-        tab = TabsStruct(database, table, numberColumns, [])
+    def createTable(self, database, table, numberColumns,ruta):
+        tab = TabsStruct(database, table, numberColumns, ruta)
         # self.Tabs[table]=[database,table,numberColumns]
         self.Tabs[table] = tab
 
@@ -38,10 +41,11 @@ class Tables:
         pass
 
     def alterAddPK(self,database, table, columns):
-        pass
+        self.Tabs[table].pks=columns
+        self.Tabs[table].tuplas.pkey=columns
 
     def alterDropPK(self,database, table):
-        pass
+        self.Tabs[table].pks=[]
 
     def alterTable(self,database, tableOld, tableNew):
         temp = self.Tabs[tableOld]
@@ -51,7 +55,12 @@ class Tables:
         return 0
 
     def alterAddColumn(self,database, table, default):
-        pass
+        self.Tabs[table].countCol=self.Tabs[table].countCol+1
 
     def alterDropColumn(self,database, table, columnNumber):
-        pass
+        if self.Tabs[table].countCol > 0:
+            self.Tabs[table].countCol=self.Tabs[table].countCol-1
+            
+    def truncate(self,table,ruta):
+        pk=self.Tabs[table].tuplas.pkey
+        self.Tabs[table].tuplas=Indice(pk,ruta)
