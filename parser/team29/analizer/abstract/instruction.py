@@ -8,7 +8,11 @@ from analizer.typechecker import Checker
 import pandas as pd
 from analizer.symbol.symbol import Symbol
 from analizer.symbol.environment import Environment
+from reports import Nodo
+from reports import AST
 
+ast = AST.AST()
+root = None
 
 class SELECT_MODE(Enum):
     ALL = 1
@@ -222,6 +226,16 @@ class Drop(Instruction):
                 return "Instruccion ejecutada con exito DROP DATABASE"
         return "Fatal Error: DropTable"
 
+    def dot(self):
+        new = Nodo.Nodo("DROP")
+        t = Nodo.Nodo(self.structure)
+        n = Nodo.Nodo(self.name)
+        new.addNode(t)
+        new.addNode(n)
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class AlterDataBase(Instruction):
     def __init__(self, option, name, newname):
@@ -249,6 +263,20 @@ class AlterDataBase(Instruction):
             return "Error ALTER DATABASE OWNER"
         return "Fatal Error ALTER DATABASE"
 
+    def dot(self):
+        new = Nodo.Nodo("ALTER_DATABASE")
+        iddb = Nodo.Nodo(self.name)
+        new.addNode(iddb)
+
+        optionNode = Nodo.Nodo(self.option)
+        new.addNode(optionNode)
+        valOption = Nodo.Nodo(self.newname)
+        optionNode.addNode(valOption)
+
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class Truncate(Instruction):
     def __init__(self, name):
@@ -265,6 +293,14 @@ class Truncate(Instruction):
         if valor == 0:
             return "Instruccion ejecutada con exito"
 
+    def dot(self):
+        new = Nodo.Nodo("TRUNCATE")
+        n = Nodo.Nodo(self.name)
+        new.addNode(n)
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class InsertInto(Instruction):
     def __init__(self, tabla, columns, parametros):
@@ -303,6 +339,21 @@ class InsertInto(Instruction):
         else:
             return result[0]
 
+   def dot(self):
+        new = Nodo.Nodo("INSERT_INTO")
+        t = Nodo.Nodo(self.tabla)
+        par = Nodo.Nodo("PARAMS")
+
+        for p in self.parametros:
+             par.addNode(p.dot())
+
+        new.addNode(t)
+        new.addNode(par)
+        global root
+        root = new 
+
+        #ast.makeAst(root)
+        return new
 
 class useDataBase(Instruction):
     def __init__(self, db):
@@ -313,6 +364,14 @@ class useDataBase(Instruction):
         # environment.database = self.db
         dbtemp = self.db
 
+    def dot(self):
+        new = Nodo.Nodo("USE_DATABASE")
+        n = Nodo.Nodo(self.db)
+        new.addNode(n)
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class showDataBases(Instruction):
     def __init__(self, like):
@@ -334,6 +393,18 @@ class showDataBases(Instruction):
         else:
             return lista
 
+    def dot(self):
+        new = Nodo.Nodo("SHOW_DATABASES")
+        if self.like != None:
+            l = Nodo.Nodo("LIKE")
+            ls = Nodo.Nodo(self.like)
+            new.addNode(l)
+            l.addNode(ls)
+
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class CreateDatabase(Instruction):
     """
@@ -372,6 +443,29 @@ class CreateDatabase(Instruction):
         else:
             report = "Error: La base de datos ya existe"
         return report
+
+    def dot(self):
+        new = Nodo.Nodo("CREATE_DATABASE")
+        if self.exists:
+            ex = Nodo.Nodo("EXISTS")
+            new.addNode(ex)
+
+        n = Nodo.Nodo(self.name)
+        new.addNode(n)
+        if self.owner != None:
+            ow = Nodo.Nodo("OWNER")
+            own = Nodo.Nodo(self.owner)
+            ow.addNode(own)
+            new.addNode(ow)
+        if self.mode != None:
+            mod = Nodo.Nodo("MODE")
+            mod2 = Nodo.Nodo(self.mode)
+            mod.addNode(mod2)
+            new.addNode(mod)
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 
 class CreateTable(Instruction):
@@ -416,7 +510,110 @@ class CreateTable(Instruction):
                 n += 1
         return n
 
+    def dot(self):
+        new = Nodo.Nodo("CREATE_TABLE")
+        
+        if self.exists:
+            ex = Nodo.Nodo("EXISTS")
+            new.addNode(ex)
 
+        n = Nodo.Nodo(self.name)
+        new.addNode(n)
+
+        c = Nodo.Nodo("COLUMNS")
+        new.addNode(c)
+        
+        for cl in self.columns:
+            print(cl)
+            if not cl[0]:
+                id = Nodo.Nodo(cl[1])
+                c.addNode(id)
+                typ = Nodo.Nodo("TYPE")
+                c.addNode(typ)
+                typ1 = Nodo.Nodo(cl[2][0])
+                typ.addNode(typ1)
+                par = cl[2][1]
+                if par[0] != None: 
+                    params = Nodo.Nodo("PARAMS")
+                    typ.addNode(params)
+                    for parl in par:
+                        print(parl)
+                        parl1 = Nodo.Nodo(str(parl))
+                        params.addNode(parl1)
+
+                print(cl[3])
+                colOpts = cl[3]
+                if colOpts != None:
+                    coNode = Nodo.Nodo("OPTIONS")
+                    c.addNode(coNode)
+                    for co in colOpts:
+                        if co[0] == "NULL":
+                            if co[1]:
+                                notNullNode = Nodo.Nodo("NOT_NULL")
+                            else:
+                                notNullNode = Nodo.Nodo("NULL")
+                            coNode.addNode(notNullNode)
+                        elif co[0] =="DEFAULT":
+                            defaultNode = Nodo.Nodo("DEFAULT")
+                            coNode.addNode(defaultNode)
+                            litDefaultNode = Nodo.Nodo(str(co[1]))
+                            defaultNode.addNode(litDefaultNode)
+
+                        elif co[0] =="PRIMARY":
+                            primaryNode = Nodo.Nodo("PRIMARY_KEY")
+                            coNode.addNode(primaryNode)
+
+                        elif co[0] =="REFERENCES":
+                            referencesNode = Nodo.Nodo("REFERENCES")
+                            coNode.addNode(referencesNode)
+                            idReferences = Nodo.Nodo(str(co[1]))
+                            referencesNode.addNode(idReferences)
+                        else: 
+                            constNode = Nodo.Nodo("CONSTRAINT")
+                            coNode.addNode(constNode)
+            else:
+                if cl[1][0] == "UNIQUE":
+                    uniqueNode = Nodo.Nodo("UNIQUE")
+                    c.addNode(uniqueNode)
+                    idlist = cl[1][1]
+
+                    for il in idlist:
+                        nl = Nodo.Nodo(str(il))
+                        uniqueNode.addNode(nl)
+                    
+                if cl[1][0] == "PRIMARY":
+                    primNode = Nodo.Nodo("PRIMARY_KEY")
+                    c.addNode(primNode)
+                    idlist = cl[1][1]
+
+                    for il in idlist:
+                        nl = Nodo.Nodo(str(il))
+                        primNode.addNode(nl)
+                if cl[1][0] == "FOREIGN":
+                    forNode = Nodo.Nodo("FOREIGN_KEY")
+                    idlist = cl[1][1]
+                    for il in idlist:
+                        nl = Nodo.Nodo(str(il))
+                        forNode.addNode(nl)
+                    refNode = Nodo.Nodo("REFERENCES")
+                    forNode.addNode(refNode)
+                    idNode = Nodo.Nodo(str(cl[1][2]))
+                    refNode.addNode(idNode)
+                    idlist2 = cl[1][3]
+                    for il2 in idlist2:
+                        nl2 = Nodo.Nodo(str(il2))
+                        refNode.addNode(nl2)
+
+        if self.inherits != None:
+            inhNode = Nodo.Nodo("INHERITS")
+            new.addNode(inhNode)
+            inhNode2 = Nodo.Nodo(str(self.inherits))
+            inhNode.addNode(inhNode2)
+        
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 class CreateType(Instruction):
     def __init__(self, exists, name, values=[]):
         self.exists = exists
