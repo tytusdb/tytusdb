@@ -1,7 +1,10 @@
-from os import name
+import os
 import re
-from AVL_DB import Avl as AvlDb
-from AVL_Table import Avl as AvlT
+import pickle
+import shutil
+from AVL_DB import AVL_DB as AvlDb
+from AVL_TABLE import AVL_TABLE as AvlT
+from BPLUS_TUPLE import BPLUS_TUPLE as bPlusT
 
 DataBase = AvlDb()
 
@@ -91,6 +94,35 @@ def showTables(database):
         return dataB
     except:
         return None
+
+def extractTable(database, table):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        BaseDatos = DataBase.buscar(database)
+        if BaseDatos != None:
+            Tabla = BaseDatos.avlTable.buscar(table)
+            if Tabla != None:
+                return Tabla.bPlus.extractReg()
+        else:
+            return None
+    except:
+        return None
+    
+def extractRangeTable(database, table, columnNumber, lower, upper):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        BaseDatos = DataBase.buscar(database)
+        if BaseDatos != None:
+            Tabla = BaseDatos.avlTable.buscar(table)
+            if Tabla != None:
+                return Tabla.bPlus.extractRegRange(columnNumber, lower, upper)
+        else:
+            return None
+    except:
+        return None
+    
     
 def alterAddPK(database, table, columns):
     try:

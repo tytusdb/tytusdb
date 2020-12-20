@@ -11,6 +11,22 @@ from typ import *
 from storageManager import jsonMode as admin
 
 class Alter_Column(Querie):
+    ''' 
+     columnName = espera un nombre de columna debe de ser una cadena
+     row = numero de fila
+     column = numero de columna
+     alterType = puede ser una cadena -> 'SET NOT NULL' o 'TYPE', depende la instruccion
+     columnType =  si el parametro alterType = 'SET NOT NULL' este parametro se le envia un None
+                   si el parametro alterType = 'TYPE :
+                   espera un tipo de dato esto seria un dicionario con la siguiente sintaxis:
+                   {'type':, 'length':, debe ser int, 'default':'' mandamos un valor por defecto del tipo de dato }
+                   valor_type: aqui mandamos un type de la clase Database_Types
+                   valor_length: si el valor_type es igual a Varchar(numero), mandar el numero, osea el tamaño del varchar, si no es varchar mandar un -1
+                   valor_default: mandar un valor por defecto segun el tipo de dato(valor_type), ejemplo -> varchar(10) default -> ''(cadena vacia)
+                   ejemplos diccionario:
+                    {'type':DBType.numeric, 'length': -1, 'default':0 }, {'type':DBType.varchar, 'length': 20, 'default':'' }
+                    
+    '''
     def __init__(self,columnName,alterType,columnType, row, column):
         Querie.__init__(self, row, column)
         self.columnName = columnName
