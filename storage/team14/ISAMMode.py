@@ -86,6 +86,158 @@ def dropDatabase(database: str) -> int:
     except:
         return 1
 
+*----------------------------------tables-------------------------------------------*
+
+# crea una instancia de Tabla y lo almacena en el listado de tablas de la base de datos
+def createTable(database, tableName, numberColumns):
+    checkDirs()
+    try:
+        if not identifierValidation(database):
+            return 1
+        elif not identifierValidation(tableName):
+            return 1
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == tableName.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif tableExists:
+            return 3
+        else:
+            databases = rollback('databases')
+            index = showDatabases().index(database.lower())
+            databases[index].tables.append(tableName.lower())
+            commit(databases, 'databases')
+            table = Table(tableName.lower(), numberColumns)
+            commit(table, 'tables/' + database.lower() + tableName.lower())
+            return 0
+    except:
+        return 1
+
+# devuelve un lista de todas las tablas almacenadas en una base de datos
+def showTables(database) -> list:
+    checkDirs()
+    tableNames = []
+    dbExists = False
+    for i in showDatabases():
+        if i.lower() == database.lower():
+            dbExists = True
+            break
+    if dbExists:
+        databases = rollback('databases')
+        index = showDatabases().index(database.lower())
+        aux_database = databases[index]
+        for i in aux_database.tables:
+            tableNames.append(i)
+    return tableNames
+
+# vincula una nueva PK a la tabla y todos sus registros
+def alterAddPK(database: str, table: str, columns: list) -> int:
+    checkDirs()
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            if len(aux_table.PK) > 0:
+                return 4
+            else:
+                val = False
+                for i in columns:
+                    if i >= aux_table.numberColumns:
+                        val = True
+                        break
+                if val:
+                    return 5
+                else:
+                    for i in columns:
+                        aux_table.PK.append(i)
+                    keys = []
+                    if len(extractTable(database, table)) == 0:
+                        aux_table.PKDefined = True
+                        commit(aux_table, 'tables/' + database.lower() + table.lower())
+                        return 0
+                    else:
+                        vercompleto = False
+                        for i in extractTable(database.lower(), table.lower()):
+                            if len(i) > 0:
+                                key = ''
+                                for j in aux_table.PK:
+                                    if j == columns[len(columns) - 1]:
+                                        key = key + str(i[j])
+                                    else:
+                                        key = key + str(i[j]) + '_'
+                                if key in keys:
+                                    aux_table.PK.clear()
+                                    vercompleto = False
+                                    break
+                                else:
+                                    keys.append(key)
+                                    vercompleto = True
+                        if vercompleto:
+                            aux_table.tuples.newPK(aux_table.PK)
+                            aux_table.PKDefined = True
+                            registros = aux_table.tuples.extractAllObject()
+                            aux_table.tuples.truncate()
+                            for nuevos in registros:
+                                aux_table.insert(nuevos.PK, nuevos.data)
+                            commit(aux_table, 'tables/' + database.lower() + table.lower())
+                            return 0
+                        else:
+                            return 1
+    except:
+        return 1
+
+# elimina el vinculo de la PK 
+def alterDropPK(database: str, table: str) -> int:
+    checkDirs()
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            if len(aux_table.PK) == 0:
+                return 4
+            else:
+                aux_table.PK.clear()
+                aux_table.PKDefined = False
+                aux_table.droppdedPK = True
+                commit(aux_table, 'tables/' + database.lower() + table.lower())
+                return 0
+    except:
+        return 1
+    
 *---------------------------------------others----------------------------------------------*
 
 # guarda un objeto en un archivo binario
