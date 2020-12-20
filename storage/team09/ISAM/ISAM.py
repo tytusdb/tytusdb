@@ -1,5 +1,5 @@
-from Cilindro import Cilindro
-import BinWriter as bin
+from ISAM.Cilindro import Cilindro, Registro
+import ISAM.BinWriter as bin
 import os
 
 class Indice:
@@ -14,11 +14,10 @@ class Indice:
         if os.path.exists(self.ruta+"/indx.b"):
             data = bin.read(self.ruta+"/indx.b")
             i = 0
+            if type(data[-1]) is list: self.pkey = data[-1]
             for d in data:
                 if type(d) is str:
                     self.indx[i] = Cilindro(d, self.pkey, i, self.ruta)
-                elif type(d) is list:
-                    self.pkey = d
                 elif d is None:
                     self.indx[i] = None
                 i+=1

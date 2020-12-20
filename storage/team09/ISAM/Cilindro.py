@@ -1,4 +1,4 @@
-import BinWriter as bi
+import ISAM.BinWriter as bi
 import os
 
 class Cilindro:
