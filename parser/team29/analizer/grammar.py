@@ -609,7 +609,7 @@ def p_params_u(t):
     t[0] = [t[1]]
 
 
-def p_datatype_operadores_binarios(t):
+def p_datatype_operadores_binarios1(t):
     """
     datatype : datatype O_SUMA datatype
     | datatype O_RESTA datatype
@@ -617,9 +617,15 @@ def p_datatype_operadores_binarios(t):
     | datatype O_DIVISION datatype
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
-    | datatype OC_CONCATENAR datatype
     """
     t[0] = expression.BinaryArithmeticOperation(t[1], t[3], t[2], t[1].row, t[1].column)
+
+
+def p_datatype_operadores_binarios2(t):
+    """
+    datatype : datatype OC_CONCATENAR datatype
+    """
+    t[0] = expression.BinaryStringOperation(t[1], t[3], t[2], t[1].row, t[1].column)
 
 
 def p_datatype_operadores_unarios(t):
@@ -854,6 +860,16 @@ def p_columnName_table_id(t):
     t[0] = expression.Identifiers(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
 
 
+# En caso de errores descomentar este metodo
+'''
+def p_columnName_table_idAll(t):
+    """
+    columnName : ID S_PUNTO O_PRODUCTO
+    """
+    t[0] = expression.TableAll(t[1], t.slice[1].lineno, t.slice[1].lexpos)
+'''
+
+
 def p_booleanCheck_1(t):
     """
     booleanCheck : idOrLiteral OL_MENORQUE idOrLiteral
@@ -1023,6 +1039,7 @@ def p_selectStmt_1(t):
     """
 
 
+# TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
 def p_selectStmt_2(t):
     """selectStmt : R_SELECT selectParams fromCl whereCl"""
     t[0] = instruction.Select(
@@ -1042,15 +1059,6 @@ def p_fromClause(t):
     t[0] = instruction.FromClause(tables, aliases, t.slice[1].lineno, t.slice[1].lexpos)
 
 
-# TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
-
-
-# def p_selectstmt_u(t):
-#     """selectStmt : R_SELECT selectParams R_FROM tableExp"""
-#     print("Hare el Select")
-# t[0] = instruction.Select(t[2].params, t[4])
-
-
 def p_selectstmt_only_params(t):
     """selectStmt : R_SELECT selectParams"""
     t[0] = instruction.SelectOnlyParams(
@@ -1066,31 +1074,39 @@ def p_allOpt(t):
 
 def p_selectparams_all(t):
     """selectParams : O_PRODUCTO"""
-    t[0] = instruction.SelectParams(
-        instruction.SELECT_MODE.ALL, [], t.slice[1].lineno, t.slice[1].lexpos
-    )
+    t[0] = instruction.SelectParams([], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_selectparams_params(t):
     """selectParams : selectList"""
-    t[0] = instruction.SelectParams(
-        instruction.SELECT_MODE.PARAMS, t[1], t[1][0].row, t[1][0].column
-    )
+    t[0] = instruction.SelectParams(t[1], t[1][0].row, t[1][0].column)
 
 
+# En caso de errores cambiar selectListParams -> expresion
 def p_selectList_list(t):
-    """selectList : selectList S_COMA expresion optAlias"""
+    """selectList : selectList S_COMA selectListParams optAlias"""
     if t[4] != None:
         t[3].temp = t[4]
     t[1].append(t[3])
     t[0] = t[1]
 
 
+# En caso de errores cambiar selectListParams -> expresion
 def p_selectList_u(t):
-    """selectList : expresion optAlias"""
+    """selectList : selectListParams optAlias"""
     if t[2] != None:
         t[1].temp = t[2]
     t[0] = [t[1]]
+
+
+def p_selectListParams_1(t):
+    """selectListParams : expresion"""
+    t[0] = t[1]
+
+
+def p_selectListParams_2(t):
+    """selectListParams : ID S_PUNTO O_PRODUCTO"""
+    t[0] = expression.TableAll(t[1], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_optalias_as(t):
@@ -1313,7 +1329,8 @@ def p_updateExp(t):
 
 
 def p_deleteStmt(t):
-    """deleteStmt : R_DELETE R_FROM ID optAlias whereCl"""
+    """deleteStmt : R_DELETE fromCl whereCl"""
+    t[0] = instruction.Delete(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_truncateStmt(t):
@@ -1352,6 +1369,7 @@ def p_useStmt(t):
 
 
 listErrors = list()
+PostgreSQL = list()
 
 
 def p_error(t):
@@ -1360,6 +1378,9 @@ def p_error(t):
         print("Error sintáctico en '%s'" % t.value)
         listErrors.insert(
             len(listErrors), ["Error sintáctico en '%s'" % t.value, t.lineno]
+        )
+        PostgreSQL.insert(
+            len(PostgreSQL), "ERROR: 42601: error de sintaxis en '%s'" % t.value
         )
     except AttributeError:
         print("end of file")
@@ -1370,6 +1391,15 @@ parser = yacc.yacc()
 
 def returnSintacticErrors():
     return listErrors
+
+
+def returnPostgreSQLErrors():
+    instruction.sintaxPostgreSQL += PostgreSQL
+    return instruction.sintaxPostgreSQL
+
+
+def returnSemanticErrors():
+    return instruction.semanticErrors
 
 
 def parse(input):
