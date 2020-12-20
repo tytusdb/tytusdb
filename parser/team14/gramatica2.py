@@ -249,6 +249,7 @@ from Instrucciones.CreateDB import *
 from Expresion.FuncionesNativas import FuncionesNativas
 from Instrucciones.Insert import *
 from Instrucciones.Drop import *
+from Instrucciones.Delete import Delete
 
 # Asociación de operadores y precedencia
 precedence = (
@@ -701,9 +702,9 @@ def p_LCAMPOS(t):
 
 def p_DELETE(t):
     '''
-    DELETE : delete   r_from id where LEXP
-            | delete  r_from id
+    DELETE : delete   r_from EXP WHERE
     '''
+    t[0] = Delete(t[3],t[4])
 
 
 def p_EXIST(t):
