@@ -1,4 +1,4 @@
-from tkinter import Tk, Text, BOTH, W, N, E, S, Menu
+from tkinter import Tk, Text, BOTH, W, N, E, S, Menu,ttk
 from tkinter.ttk import Frame, Button, Label, Style
 
 
@@ -8,9 +8,9 @@ class Example(Frame):
 
     def __init__(self):
         super().__init__()
-
+        #self contador numero tab querys
+        self.contadorQuerysTabs=1
         #Creacion de ventana
-
         self.master.title("TytusDB")
         self.pack(fill=BOTH, expand=True)
 
@@ -23,10 +23,20 @@ class Example(Frame):
         self.lbl = Label(self, text="TytusDB")
         self.lbl.grid(sticky=W, pady=4, padx=5)
 
-        #self.tab = self.LabelFrame(
-        #self, text='Aquí se realizará la operación'
-        #)
 
+        self.nb = ttk.Notebook(self)
+        self.fm = Frame(self.nb)
+        self.fm.pack(fill=BOTH, expand=True)
+        self.fm.columnconfigure(1, weight=1)
+        self.fm.columnconfigure(3, pad=7)
+        self.fm.rowconfigure(3, weight=1)
+        self.fm.rowconfigure(5, pad=7)
+        self.nb.add(self.fm, text='Query '+str(self.contadorQuerysTabs))
+        self.nb.grid(row=1, column=0, columnspan=2, rowspan=4,
+                       padx=5, sticky=E + W + S + N)
+        self.area = Text(self.fm)
+        self.area.grid(row=1, column=0, columnspan=2, rowspan=4,
+                       padx=5, sticky=E + W + S + N)
 
         # *************************** BARRA DE MENÚ ***************************
         menubar = Menu(self.master)
@@ -51,7 +61,17 @@ class Example(Frame):
 
     #Metodo agregar QueryTool
     def addQueryTool( self ):
-        self.area = Text(self)
+        self.contadorQuerysTabs = self.contadorQuerysTabs+1
+        self.fm = Frame(self.nb)
+        self.fm.pack(fill=BOTH, expand=True)
+        self.fm.columnconfigure(1, weight=1)
+        self.fm.columnconfigure(3, pad=7)
+        self.fm.rowconfigure(3, weight=1)
+        self.fm.rowconfigure(5, pad=7)
+        self.nb.add(self.fm, text='Query '+str(self.contadorQuerysTabs))
+        self.nb.grid(row=1, column=0, columnspan=2, rowspan=4,
+                     padx=5, sticky=E + W + S + N)
+        self.area = Text(self.fm)
         self.area.grid(row=1, column=0, columnspan=2, rowspan=4,
                        padx=5, sticky=E + W + S + N)
         #self.lbl.configure(text="Cambia")
