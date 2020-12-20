@@ -1355,7 +1355,7 @@ def p_useStmt(t):
 
 
 listErrors = list()
-
+PostgreSQL=list()
 
 def p_error(t):
     try:
@@ -1364,6 +1364,7 @@ def p_error(t):
         listErrors.insert(
             len(listErrors), ["Error sintáctico en '%s'" % t.value, t.lineno]
         )
+        PostgreSQL.insert(len(PostgreSQL),"ERROR: 42601: error de sintaxis en '%s'" % t.value)
     except AttributeError:
         print("end of file")
 
@@ -1373,6 +1374,13 @@ parser = yacc.yacc()
 
 def returnSintacticErrors():
     return listErrors
+
+def returnPostgreSQLErrors():
+    instruction.sintaxPostgreSQL+=PostgreSQL
+    return instruction.sintaxPostgreSQL
+
+def returnSemanticErrors():
+    return instruction.semanticErrors
 
 
 def parse(input):
