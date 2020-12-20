@@ -1,5 +1,6 @@
 #TODO: DISTINCT
 from abc import abstractmethod
+from models.instructions.DML.special_functions import loop_list
 from models.nodo import Node
 class Instruction:
     '''Clase abstracta'''
@@ -33,7 +34,8 @@ class From(Instruction):
         return str(vars(self))
 
     def process(self, instrucction):
-        pass
+        tables = loop_list(self.tables,instrucction)
+        return tables
     
 class Where(Instruction):
     '''
