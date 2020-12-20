@@ -84,6 +84,7 @@ class Environment:
         las tablas de la clausula FROM
         """
         env = self
+        print(table, column)
         while env != None:
             if table in env.variables:
                 symbol = env.variables[table].value

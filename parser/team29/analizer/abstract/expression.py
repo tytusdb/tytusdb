@@ -82,7 +82,7 @@ class Identifiers(Expression):
             self.temp = name
         else:
             self.temp = table + "." + name
-        self.type = None
+        self.type = TYPE.NUMBER
 
     def execute(self, environment):
         if self.table == None:
@@ -93,7 +93,8 @@ class Identifiers(Expression):
             self.value = environment.dataFrame[col]
         else:
             self.value = environment.getColumn(self.table, self.name)
-            r = environment.getType(self.table, self.name)
+            # r = environment.getType(self.table, self.name)
+            # print(r)
         return self
 
     def dot(self):
@@ -115,9 +116,10 @@ class TableAll(Expression):
         lst = []
         while env != None:
             if self.table in env.variables:
+                table = env.variables[self.table].value
                 for p in env.dataFrame:
                     temp = p.split(".")
-                    if temp[0] == self.table:
+                    if temp[0] == table:
                         identifier = Identifiers(
                             self.table, temp[1], self.row, self.column
                         )
