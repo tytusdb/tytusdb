@@ -7,7 +7,10 @@ from campo import Campo
 from arbol import Arbol
 
 import http.client
-
+formularios=[]
+textos=[]
+control=0
+notebook= None
 #Metodo GET para probar peticiones al servidor
 def myGET():
     myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
@@ -55,7 +58,7 @@ def CrearMenu(masterRoot):
     archivo.add_command(label="Abrir un documento",command=abrirDoc)
     archivo.add_command(label="Abrir un modelo")
     archivo.add_separator()
-    archivo.add_command(label="Nueva Query")
+    archivo.add_command(label="Nueva Query",command=añadir)
     archivo.add_command(label="Guardar como...")
     archivo.add_command(label="Guardar")
     archivo.add_separator()
@@ -122,15 +125,29 @@ def CrearVentana():
     consola.pack(side="bottom",fill="both")
     consola.insert(1.0,"Consola de Salida")
     consola.config(state=DISABLED)
-    
-    #Campo de texto
-    Campo(raiz).pack(side="right", fill="both", expand=True)
-    
+
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
+    global notebook
+    notebook=ttk.Notebook(raiz)
+    notebook.pack(side="right", fill="both", expand=True)
+    añadir()
     raiz.mainloop()
+
+def añadir():
+    global control
+    global notebook
+    titulo="Nuevo_" + str(control)
+    formularios.append(Frame(notebook,bg="white"))
+    contador=control
+    notebook.add(formularios[contador], text=titulo)
+    textos.append(Campo(formularios[contador]).pack(side="right", fill="both", expand=True))
+    contador=control+1
+    control=contador
+  #  b= notebook.select() 
+  #  a=notebook.index(b)
+  #  print(a)
 
 def main():
     CrearVentana()
-
 if __name__ == "__main__":
     main()

@@ -2,7 +2,7 @@ import sys
 sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
 sys.path.append('../tytus/storage')
 sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from querie import *
+from querie import Querie
 from storageManager import jsonMode as admin
 from typ import *
 
@@ -15,7 +15,7 @@ class Update(Querie):
     condition: expression si viene where y True si no viene
     '''
     def __init__(self,idTable, assignList, condition, column, row ) -> None:
-        super().__init__(self,column, row)
+        super().__init__(self, row, column)
         self.idTable = idTable
         self.assignList = assignList
         self.condition = condition
@@ -72,4 +72,10 @@ class Update(Querie):
                 if not isinstance(self.condition, bool):
                     where = self.condition.execute(environment)
                 if where == True:
-                    admin.update(dbname, tbname, tuplaModificada, primaryKey)
+                    res = admin.update(dbname, tbname, tuplaModificada, primaryKey)
+                    switcher = {
+                        1:'',
+                        2:'',
+                        3:'',
+                        4:'',
+                    }

@@ -8,11 +8,12 @@ from analizer.typechecker import Checker
 import pandas as pd
 from analizer.symbol.symbol import Symbol
 from analizer.symbol.environment import Environment
-from reports import Nodo
-from reports import AST
+from analizer.reports import Nodo
+from analizer.reports import AST
 
 ast = AST.AST()
 root = None
+
 
 class SELECT_MODE(Enum):
     ALL = 1
@@ -25,8 +26,9 @@ Struct.load()
 # variable encargada de almacenar la base de datos a utilizar
 dbtemp = ""
 # listas encargadas de almacenar los errores semanticos
-sintaxPostgreSQL=list()
-semanticErrors=list()
+sintaxPostgreSQL = list()
+semanticErrors = list()
+
 
 class Instruction:
     """
@@ -90,12 +92,13 @@ class Select(Instruction):
             labels = [p for p in newEnv.dataFrame]
         for i in range(len(labels)):
             newEnv.dataFrame[labels[i]] = value[i]
-
         if self.wherecl == None:
             return newEnv.dataFrame.filter(labels)
-
         wh = self.wherecl.execute(newEnv)
         w2 = wh.filter(labels)
+        # Si la clausula WHERE devuelve un dataframe vacio
+        if w2.empty:
+            return None
         return w2
 
 
@@ -126,7 +129,6 @@ class FromClause(Instruction):
 
     def execute(self, environment):
         tempDf = None
-
         for i in range(len(self.tables)):
             data = self.tables[i].execute(environment)
             if isinstance(self.tables[i], Select):
@@ -172,7 +174,14 @@ class TableID(Expression):
     def execute(self, environment):
         result = jsonMode.extractTable(dbtemp, self.name)
         if result == None:
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: la relacion "+dbtemp+"."+str(self.name)+" no existe")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL),
+                "Error: 42P01: la relacion "
+                + dbtemp
+                + "."
+                + str(self.name)
+                + " no existe",
+            )
             return "FATAL ERROR TABLE ID"
         # Almacena una lista con con el nombre y tipo de cada columna
         lst = Struct.extractColumns(dbtemp, self.name)
@@ -193,6 +202,49 @@ class WhereClause(Instruction):
         return environment.dataFrame.loc[filt.value]
 
 
+class Delete(Instruction):
+    def __init__(self, fromcl, wherecl, row, column):
+        Instruction.__init__(self, row, column)
+        self.wherecl = wherecl
+        self.fromcl = fromcl
+
+    def execute(self, environment):
+        # Verificamos que no pueden venir mas de 1 tabla en el clausula FROM
+        if len(self.fromcl.tables) > 1:
+            return "Error: syntax error at or near ','"
+        newEnv = Environment(environment, dbtemp)
+        self.fromcl.execute(newEnv)
+        value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
+        labels = [p for p in newEnv.dataFrame]
+        for i in range(len(labels)):
+            newEnv.dataFrame[labels[i]] = value[i]
+        if self.wherecl == None:
+            return newEnv.dataFrame.filter(labels)
+        wh = self.wherecl.execute(newEnv)
+        w2 = wh.filter(labels)
+        # Si la clausula WHERE devuelve un dataframe vacio
+        if w2.empty:
+            return "Operacion DELETE completada"
+        # Logica para eliminar
+        table = self.fromcl.tables[0].name
+        pk = Struct.extractPKIndexColumns(dbtemp, table)
+        # Se obtienen las parametros de las llaves primarias para proceder a eliminar
+        rows = []
+        if pk:
+            for row in w2.values:
+                rows.append([row[p] for p in pk])
+        else:
+            rows.append([i for i in w2.index])
+        print(rows)
+        # TODO: La funcion del STORAGE esta bugueada
+        """
+        for row in rows:
+            result = jsonMode.delete(dbtemp, table, row)
+            print(result)
+        """
+        return "Operacion DELETE completada"
+
+
 class Drop(Instruction):
     """
     Clase que representa la instruccion DROP TABLE and DROP DATABASE
@@ -209,13 +261,23 @@ class Drop(Instruction):
             if dbtemp != "":
                 valor = jsonMode.dropTable(dbtemp, self.name)
                 if valor == 2:
-                    sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: La base de datos  "+str(self.name)+" no existe")
+                    sintaxPostgreSQL.insert(
+                        len(sintaxPostgreSQL),
+                        "Error: 42P01: La base de datos  "
+                        + str(self.name)
+                        + " no existe",
+                    )
                     return "La base de datos no existe"
                 if valor == 3:
-                    sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: La tabla  "+str(self.name)+" no existe")
+                    sintaxPostgreSQL.insert(
+                        len(sintaxPostgreSQL),
+                        "Error: 42P01: La tabla  " + str(self.name) + " no existe",
+                    )
                     return "La tabla no existe en la base de datos"
                 if valor == 1:
-                    sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+                    sintaxPostgreSQL.insert(
+                        len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                    )
                     return "Hubo un problema en la ejecucion de la sentencia"
                 if valor == 0:
                     Struct.dropTable(dbtemp, self.name)
@@ -224,16 +286,20 @@ class Drop(Instruction):
         else:
             valor = jsonMode.dropDatabase(self.name)
             if valor == 1:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                )
                 return "Hubo un problema en la ejecucion de la sentencia"
             if valor == 2:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: La base de datos  "+str(self.name)+" no existe")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL),
+                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe",
+                )
                 return "La base de datos no existe"
             if valor == 0:
                 Struct.dropDatabase(self.name)
                 return "Instruccion ejecutada con exito DROP DATABASE"
         return "Fatal Error: DropTable"
-
 
     def dot(self):
         new = Nodo.Nodo("DROP")
@@ -242,9 +308,10 @@ class Drop(Instruction):
         new.addNode(t)
         new.addNode(n)
         global root
-        root = new 
-        #ast.makeAst(root)
+        root = new
+        # ast.makeAst(root)
         return new
+
 
 class AlterDataBase(Instruction):
     def __init__(self, option, name, newname):
@@ -256,13 +323,21 @@ class AlterDataBase(Instruction):
         if self.option == "RENAME":
             valor = jsonMode.alterDatabase(self.name, self.newname)
             if valor == 2:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: La base de datos  "+str(self.name)+" no existe")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL),
+                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe",
+                )
                 return "La base de datos no existe"
             if valor == 3:
-                semanticErrors.insert(len(semanticErrors),"El nuevo nombre para la base da datos ya existe")
+                semanticErrors.insert(
+                    len(semanticErrors),
+                    "El nuevo nombre para la base da datos ya existe",
+                )
                 return "El nuevo nombre para la base de datos existe"
             if valor == 1:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                )
                 return "Hubo un problema en la ejecucion de la sentencia"
             if valor == 0:
                 Struct.alterDatabaseRename(self.name, self.newname)
@@ -272,7 +347,9 @@ class AlterDataBase(Instruction):
             valor = Struct.alterDatabaseOwner(self.name, self.newname)
             if valor == 0:
                 return "Instruccion ejecutada con exito ALTER DATABASE OWNER"
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL), "Error: XX000: Error interno"
+            )
             return "Error ALTER DATABASE OWNER"
         return "Fatal Error ALTER DATABASE"
 
@@ -287,9 +364,10 @@ class AlterDataBase(Instruction):
         optionNode.addNode(valOption)
 
         global root
-        root = new 
-        #ast.makeAst(root)
+        root = new
+        # ast.makeAst(root)
         return new
+
 
 class Truncate(Instruction):
     def __init__(self, name):
@@ -298,13 +376,21 @@ class Truncate(Instruction):
     def execute(self, environment):
         valor = jsonMode.truncate(dbtemp, self.name)
         if valor == 2:
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: La base de datos  "+str(self.name)+" no existe")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL),
+                "Error: 42P01: La base de datos  " + str(self.name) + " no existe",
+            )
             return "La base de datos no existe"
         if valor == 3:
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: La tabla "+str(self.name)+" no existe")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL),
+                "Error: 42P01: La tabla " + str(self.name) + " no existe",
+            )
             return "El nombre de la tabla no existe"
         if valor == 1:
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL), "Error: XX000: Error interno"
+            )
             return "Hubo un problema en la ejecucion de la sentencia"
         if valor == 0:
             return "Instruccion ejecutada con exito"
@@ -314,9 +400,10 @@ class Truncate(Instruction):
         n = Nodo.Nodo(self.name)
         new.addNode(n)
         global root
-        root = new 
-        #ast.makeAst(root)
+        root = new
+        # ast.makeAst(root)
         return new
+
 
 class InsertInto(Instruction):
     def __init__(self, tabla, columns, parametros):
@@ -341,19 +428,33 @@ class InsertInto(Instruction):
                     lista.append(p.value)
             res = jsonMode.insert(dbtemp, tab, lista)
             if res == 2:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: La base de datos  "+str(self.name)+" no existe")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL),
+                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe",
+                )
                 return "La base de datos no existe"
             elif res == 3:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P01: La tabla "+str(tab)+" no existe")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL),
+                    "Error: 42P01: La tabla " + str(tab) + " no existe",
+                )
                 return "No existe la tabla"
             elif res == 5:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42601: INSERT tiene mas o menos registros que columnas ")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL),
+                    "Error: 42601: INSERT tiene mas o menos registros que columnas ",
+                )
                 return "Columnas fuera de los limites"
             elif res == 4:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 23505: el valor de clave duplicada viola la restricción única ")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL),
+                    "Error: 23505: el valor de clave duplicada viola la restricción única ",
+                )
                 return "Llaves primarias duplicadas"
             elif res == 1:
-                sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                )
                 return "Error en la operacion"
             elif res == 0:
                 return "Fila Insertada correctamente"
@@ -366,15 +467,16 @@ class InsertInto(Instruction):
         par = Nodo.Nodo("PARAMS")
 
         for p in self.parametros:
-             par.addNode(p.dot())
+            par.addNode(p.dot())
 
         new.addNode(t)
         new.addNode(par)
         global root
-        root = new 
+        root = new
 
-        #ast.makeAst(root)
+        # ast.makeAst(root)
         return new
+
 
 class useDataBase(Instruction):
     def __init__(self, db):
@@ -390,9 +492,10 @@ class useDataBase(Instruction):
         n = Nodo.Nodo(self.db)
         new.addNode(n)
         global root
-        root = new 
-        #ast.makeAst(root)
+        root = new
+        # ast.makeAst(root)
         return new
+
 
 class showDataBases(Instruction):
     def __init__(self, like):
@@ -423,9 +526,10 @@ class showDataBases(Instruction):
             l.addNode(ls)
 
         global root
-        root = new 
-        #ast.makeAst(root)
+        root = new
+        # ast.makeAst(root)
         return new
+
 
 class CreateDatabase(Instruction):
     """
@@ -455,7 +559,9 @@ class CreateDatabase(Instruction):
             Struct.createDatabase(self.name, self.mode, self.owner)
             report = "Base de datos insertada"
         elif result == 1:
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL), "Error: XX000: Error interno"
+            )
             report = "Error al insertar la base de datos"
         elif result == 2 and self.replace:
             Struct.replaceDatabase(self.name, self.mode, self.owner)
@@ -464,7 +570,9 @@ class CreateDatabase(Instruction):
             report = "Base de datos no insertada, la base de datos ya existe"
         else:
             report = "Error: La base de datos ya existe"
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P04: 	base de datos duplicada")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL), "Error: 42P04: 	base de datos duplicada"
+            )
         return report
 
     def dot(self):
@@ -486,8 +594,8 @@ class CreateDatabase(Instruction):
             mod.addNode(mod2)
             new.addNode(mod)
         global root
-        root = new 
-        #ast.makeAst(root)
+        root = new
+        # ast.makeAst(root)
         return new
 
 
@@ -511,22 +619,33 @@ class CreateTable(Instruction):
         if result == 0:
             insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
             if insert == None:
+                pk = Struct.extractPKIndexColumns(dbtemp, self.name)
+                addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
+                if addPK != 0:
+                    print("Error en llaves primarias del CREATE TABLE")
                 report = "Tabla " + self.name + " creada"
             else:
                 jsonMode.dropTable(dbtemp, self.name)
                 Struct.dropTable(dbtemp, self.name)
                 report = insert
         elif result == 1:
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL), "Error: XX000: Error interno"
+            )
             report = "Error: No se puede crear la tabla: " + self.name
         elif result == 2:
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 3F000: base de datos"+dbtemp+" no existe")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL),
+                "Error: 3F000: base de datos" + dbtemp + " no existe",
+            )
             report = "Error: Base de datos no encontrada: " + dbtemp
         elif result == 3 and self.exists:
             report = "Tabla no creada, ya existe en la base de datos"
         else:
             report = "Error: ya existe la tabla " + self.name
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: 42P07: 	tabla duplicada")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
+            )
         return report
 
     def count(self):
@@ -538,7 +657,7 @@ class CreateTable(Instruction):
 
     def dot(self):
         new = Nodo.Nodo("CREATE_TABLE")
-        
+
         if self.exists:
             ex = Nodo.Nodo("EXISTS")
             new.addNode(ex)
@@ -548,7 +667,7 @@ class CreateTable(Instruction):
 
         c = Nodo.Nodo("COLUMNS")
         new.addNode(c)
-        
+
         for cl in self.columns:
             print(cl)
             if not cl[0]:
@@ -559,7 +678,7 @@ class CreateTable(Instruction):
                 typ1 = Nodo.Nodo(cl[2][0])
                 typ.addNode(typ1)
                 par = cl[2][1]
-                if par[0] != None: 
+                if par[0] != None:
                     params = Nodo.Nodo("PARAMS")
                     typ.addNode(params)
                     for parl in par:
@@ -579,22 +698,22 @@ class CreateTable(Instruction):
                             else:
                                 notNullNode = Nodo.Nodo("NULL")
                             coNode.addNode(notNullNode)
-                        elif co[0] =="DEFAULT":
+                        elif co[0] == "DEFAULT":
                             defaultNode = Nodo.Nodo("DEFAULT")
                             coNode.addNode(defaultNode)
                             litDefaultNode = Nodo.Nodo(str(co[1]))
                             defaultNode.addNode(litDefaultNode)
 
-                        elif co[0] =="PRIMARY":
+                        elif co[0] == "PRIMARY":
                             primaryNode = Nodo.Nodo("PRIMARY_KEY")
                             coNode.addNode(primaryNode)
 
-                        elif co[0] =="REFERENCES":
+                        elif co[0] == "REFERENCES":
                             referencesNode = Nodo.Nodo("REFERENCES")
                             coNode.addNode(referencesNode)
                             idReferences = Nodo.Nodo(str(co[1]))
                             referencesNode.addNode(idReferences)
-                        else: 
+                        else:
                             constNode = Nodo.Nodo("CONSTRAINT")
                             coNode.addNode(constNode)
             else:
@@ -606,7 +725,7 @@ class CreateTable(Instruction):
                     for il in idlist:
                         nl = Nodo.Nodo(str(il))
                         uniqueNode.addNode(nl)
-                    
+
                 if cl[1][0] == "PRIMARY":
                     primNode = Nodo.Nodo("PRIMARY_KEY")
                     c.addNode(primNode)
@@ -635,11 +754,13 @@ class CreateTable(Instruction):
             new.addNode(inhNode)
             inhNode2 = Nodo.Nodo(str(self.inherits))
             inhNode.addNode(inhNode2)
-        
+
         global root
-        root = new 
-        #ast.makeAst(root)
+        root = new
+        # ast.makeAst(root)
         return new
+
+
 class CreateType(Instruction):
     def __init__(self, exists, name, values=[]):
         self.exists = exists
@@ -706,6 +827,7 @@ class CheckOperation(Instruction):
                 )
             return value
         except:
-            sintaxPostgreSQL.insert(len(sintaxPostgreSQL),"Error: XX000: Error interno")
+            sintaxPostgreSQL.insert(
+                len(sintaxPostgreSQL), "Error: XX000: Error interno"
+            )
             print("Error fatal CHECK")
-
