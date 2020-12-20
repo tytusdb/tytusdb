@@ -149,15 +149,15 @@ class TablaHash:
             if columna not in self.pk:
                 respuesta = nodo.modificar(columna,modificacion,posicion_hash[1])
             else: 
-                return 1
+                return 4
             if respuesta == 0:
-                return "dato modificado exitosamente"
+                return 0
             elif respuesta == 4:
-                return "llave no existente"
+                return 4
             else:
-                return "error de indice"
+                return 1
         else:
-            return "Error de llave"
+            return 4
 
     def ElementosEn_tbl(self):
         auxiliar = 0 
