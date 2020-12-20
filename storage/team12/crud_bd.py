@@ -1,10 +1,16 @@
 import binary_file
 import copy
-
+import Proyecto
+class Tabla():
+    def __init__(self,name,numberColumns):
+        self.name = name
+        self.numberColumns = numberColumns
+        self.Tuplas  = None
+        self.PK=[]
 class Nodo():
     def __init__(self, name):
         self.name = name
-        self.tables = None
+        self.tables = []
         self.left = None
         self.right = None
         self.height = 0
@@ -43,7 +49,7 @@ class CRUD_DataBase:
         try:
             if tmp is None:
                 return Nodo(name)
-            elif int(name) > int(tmp.name):
+            elif name > tmp.name:
                 
                 tmp.right = self._createDatabase(name, tmp.right)
 
@@ -83,7 +89,7 @@ class CRUD_DataBase:
     def _searchDatabase(self, name, tmp):
         if tmp is None or name == tmp.name:
             return tmp
-        elif int(name) > int(tmp.name):
+        elif name > tmp.name:
             tmp = self._searchDatabase(name, tmp.right)
         else:
             tmp = self._searchDatabase(name, tmp.left)            
@@ -207,7 +213,7 @@ class CRUD_DataBase:
         try:
             if tmp is None:
                 return nodo_Nuevo
-            elif int(name) > int(tmp.name):
+            elif name > tmp.name:
                 
                 tmp.right = self._assignTables(name, tmp.right, nodo_Nuevo)
 
@@ -292,7 +298,7 @@ class CRUD_DataBase:
 
         try:
             if tmp is not None:
-                if int(name) == int(tmp.name):
+                if name == tmp.name:
                     if tmp.left != None:
                         tmp.name = self.lmr(tmp).name
                         tmp.left = self._dropDatabase(tmp.name, tmp.left)
@@ -304,7 +310,7 @@ class CRUD_DataBase:
                     else:
                         return None
                 #-----------------------------------#
-                elif int(name) > int(tmp.name):
+                elif name > tmp.name:
                     tmp.right = self._dropDatabase(name, tmp.right)
                     tmp = self.giro(tmp)
                     # Se verifica que no haya error en el nodo
@@ -317,3 +323,165 @@ class CRUD_DataBase:
                 return tmp
         except:
             return 1
+
+    def Buscar2(self, Clave, Actual):
+        if Actual != None:
+            Aux = Actual.Valores
+            if Clave < Aux[0][0]:
+                return self.Buscar2(Clave, Actual.Hijos[0])
+            elif Clave == Aux[0][0]:
+                return Aux[0]
+            elif Aux[1][0] != -1 and Clave > Aux[1][0]:
+                return self.Buscar2(Clave, Actual.Hijos[2])
+            elif Aux[1][0] != -1 and Clave == Aux[1][0]:
+                return Aux[1]
+            else:
+                return self.Buscar2(Clave, Actual.Hijos[1])
+        else:
+            return None
+
+    def Buscar(self, Clave):
+        if self.Raiz == None:
+            return None
+        else:
+            return self.Buscar2(Clave, self.Raiz)
+
+    def alterAddPK(self,database,table,keys):
+        Pk = keys
+        Datos = []
+        ## busqueda tabla
+        temp = self.extractTable(database,table)
+        ## asignacion de valores para uso posterior del ordenamiento
+        Datos =  temp.Tomar_Datos()
+
+
+        print(Pk)
+    def extractTable(self,database,table):
+        temp = self.searchDatabase(database)
+        temp_2 = ""
+        try:
+            for n in temp.tables:
+                if n.name == table:
+                    temp_2 = n
+                    print(n)
+                    return n.numberColumns
+        except:
+            return 1
+        return ""
+      ##  for n in temp :
+
+    def createTable(self,database,table, numberColums):
+        self.root = binary_file.rollback("databases")
+        table_temp = Tabla(table,numberColums)
+        self._createTable(database,self.root,table_temp)
+        binary_file.commit(self.root,"databases")
+
+    def _createTable(self,name,tmp,table_temp):
+
+        if tmp is None:
+            pass
+        elif name == tmp.name :
+
+            tmp.tables.append(table_temp)
+
+        elif name > tmp.name:
+            tmp = self._createTable(name,tmp.right,table_temp)
+        else:
+            tmp = self._createTable(name,tmp.left,table_temp)
+        return tmp
+    def shownTables(self,database):
+        try:
+            temp = self.searchDatabase(database)
+            for n in temp.tables:
+                print(n.name)
+            return temp.tables
+        except:
+            return None
+    def dropTable(self,database, table):
+        try:
+            try:
+                temp = self.searchDatabase(database)
+                try:
+                    self.root = binary_file.rollback("databases")
+                    self._dropTable(database,self.root,table)
+                    print("asd")
+                    binary_file.commit(self.root,"databases")
+
+                except:
+                    return 3
+            except:
+                return 2
+
+        except:
+            return 1
+    def _dropTable(self,name,tmp,table_temp):
+        if tmp is None:
+            pass
+        elif name == tmp.name:
+            for n in tmp.tables:
+                if n.name == table_temp:
+                    id =tmp.tables.index(n)
+                    tmp.tables.pop(id)
+                    print("encontrado")
+
+        elif name > tmp.name:
+            tmp = self._dropTable(name, tmp.right, table_temp)
+        else:
+            tmp = self._dropTable(name, tmp.left, table_temp)
+        return tmp
+    def eliminarTabla(self,tmp,table_temp,a):
+        if tmp.tables[a].name ==table_temp:
+            tmp.tables.pop(a)
+            return a
+        else:
+            b = a+1
+            das = self.eliminarTabla(tmp,table_temp,b)
+        return b
+    def extractRangeTable(self,database,table,columnNumber,lower,upper):
+        Valores = []
+        i = lower
+        temp = self.extractTable(database,table)
+        while i <= upper:
+            i += 1
+            Valores.append(temp[i])
+        return Valores
+    def insert(self,database,table,tupla):
+        self.root = binary_file.rollback("databases")
+        self._insert(database,table,tupla)
+        binary_file.commit(self.root,"databases")
+    def _insert(self,database,tmp,table,tupla):
+        if tmp is None:
+            pass
+        elif tmp.name == database:
+            self.subinsert(tmp,table,tupla)
+        elif name > tmp.name:
+            tmp = self._insert(name, tmp.right, table,tupla)
+        else:
+            tmp = self._insert(name, tmp.left, table, tupla )
+        return tmp
+
+    def subinsert(self,tmp,table,tupla):
+        for n in tmp.tables:
+            if n.name == table:
+                id = tmp.tables.index(n)
+                if tmp.tables[id].Tuplas == None:
+                    tmp.tables[id].Tuplas = Proyecto.Arbol()
+                    tmp.tables[id].Tuplas.insertar_(tupla)
+                else:
+                    tmp.tables[id].Tuplas.insertar_(tupla)
+                return tmp
+
+<<<<<<< HEAD
+=======
+prueba = CRUD_DataBase()
+prueba.createDatabase("ASD")
+prueba.createDatabase("OLV")
+prueba.createDatabase("DORIME")
+print(prueba.showDatabases())
+prueba.createTable("ASD","tabla1",15)
+prueba.createTable("ASD","tabla2",15)
+print(prueba.shownTables("ASD"))
+print(prueba.dropTable("ASD","tabla1"))
+print(prueba.shownTables("ASD"))
+print(prueba.showDatabases())
+>>>>>>> parent of c1e7b003... Update crud_bd.py
