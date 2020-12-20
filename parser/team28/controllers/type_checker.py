@@ -322,9 +322,6 @@ class TypeChecker(object):
             desc = f": Table {name} does not exist"
             ErrorController().add(27, 'Execution', desc, line, column)
 
-    # TODO def alterAddFK
-    # TODO def alterAddIndex
-
     # ------------------------- Columns -------------------------
     def searchColumn(self, table: Table, name: str) -> Column:
         """
@@ -340,20 +337,20 @@ class TypeChecker(object):
                     return col
         return None
 
-    def searchColumns(self, table: Table) -> Column:
+    def searchColumnHeadings(self, table: Table):
         """
-        Method to search a column in table
+        Method to find column headings
 
         :param table: Table where to search
-        :return: Returns a columns
+        :return: Returns a list of columns
         """
         lista = []
         if table:
             for col in table.columns:
-                lista.append(col.name)    
+                lista.append(col.name)
             return lista
         return None
-    
+
     def createColumnTable(self, table: Table, column: Column,
                           noLine, noColumn):
         """
@@ -454,6 +451,3 @@ class TypeChecker(object):
             for col in table.columns:
                 col.number = index
                 index += 1
-
-    # TODO def extractTable
-    # TODO def extractRangeTable
