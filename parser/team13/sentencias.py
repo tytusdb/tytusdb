@@ -600,3 +600,19 @@ class SColQuery(Sentencia):
     def __init__(self, id, cols=[]):
         self.id = id
         self.cols = cols
+
+
+#CLASE PARA UNA OPERACIÓN BEETWEN
+class SBetween(Sentencia):
+    def __init__(self, opIzq, columna, opDer):
+        self.opIzq = opIzq
+        self.columna = columna
+        self.opDer = opDer
+
+
+#CLASE PARA UNA OPERACIÓN NOT BEETWEN
+class SNotBetween(Sentencia):
+    def __init__(self, opIzq, columna, opDer):
+        self.opIzq = opIzq
+        self.columna = columna
+        self.opDer = opDer

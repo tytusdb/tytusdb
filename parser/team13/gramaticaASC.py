@@ -602,19 +602,101 @@ def p_EnumType(t):
 
 # PRODUCCIÓN PARA HACER UN UPDATE
 def p_produccion0(t):
-    ''' UpdateBase   : tUpdate id tSet L_ASIGN where E ptComa '''
+    ''' UpdateBase   : tUpdate id tSet L_ASIGN where CondicionBase ptComa '''
     t[0] = SUpdateBase(t[2], t[4], t[6])
 
 
 # PRODUCCIÓN PARA HACER UN DELETE
 def p_produccion0_1(t):
-    ''' DeleteBase  : tDelete from id where E ptComa '''
-    t[0] = SDeleteBase(t[3], t[4])
+    ''' DeleteBase  : tDelete from id where CondicionBase ptComa '''
+    t[0] = SDeleteBase(t[3], t[5])
 
 
 def p_produccion0_2(t):
     ''' DeleteBase : tDelete from id ptComa'''
     t[0] = SDeleteBase(t[3], False)
+
+
+#PRODUCCIÓN PARA LAS CONDICIONES DEL DELETE Y EL UPDATE
+def p_produccion0_3(p):
+    ''' CondicionBase   : CondicionBase Condiciones
+                        | CondicionBase ORAND Condiciones
+                        | ORAND Condiciones 
+                        | Condiciones '''
+
+    if len(p) == 2 :
+        print("Producción:> 'Condiciones'")
+        print(str(p[1])) 
+        if len(p[1] > 1):
+            p[0] = p[1]
+        else:
+            p[0] = [p[1]]
+    elif len(p) == 3:
+        print("Producción:> 'CondicionBase Condiciones || ORAND Condiciones '")
+        print(str(p[1]))
+        p[1].append(p[2])
+        p[0] = [p[1]]
+    elif len(p)==4:
+        print("Producción:> 'CondiciónBase ORAND Condiciones'")
+        print("orand")
+        p[2].append(p[3])
+        p[1].append(p[2])
+        p[0] = [p[1]]
+    
+
+
+                    
+def p_produccion0_4(p):
+    ''' Condiciones : E_FUNC 
+                    | E_FUNC tIs distinct from E_FUNC
+                    | E_FUNC tIs not distinct from E_FUNC
+                    | substring parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E
+                    | E_FUNC tIs tTrue
+                    | E_FUNC tIs not tTrue 
+                    | E_FUNC tIs tFalse
+                    | E_FUNC tIs not tFalse
+                    | E_FUNC tIs unknown
+                    | E_FUNC tIs not unknown
+                    | E_FUNC tIs null 
+                    | E_FUNC tIs not null
+                    | E_FUNC isNull
+                    | E_FUNC notNull 
+                    | substr parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E '''
+
+
+def p_produccion0_5(p):
+    ''' Condiciones : exists parAbre QUERY parCierra
+                | not exists parAbre QUERY parCierra
+                | E_FUNC in parAbre QUERY parCierra 
+                | E_FUNC not in parAbre QUERY parCierra
+                | E_FUNC OPERATOR any parAbre QUERY parCierra
+                | E_FUNC OPERATOR some parAbre QUERY parCierra
+                | E_FUNC OPERATOR all parAbre QUERY parCierra '''
+
+
+def p_produccion0_6(p):
+    ''' Condiciones : E_FUNC tBetween E_FUNC 
+                | E_FUNC not tBetween E_FUNC '''
+
+    if len(p) == 4:
+        result = []
+        if hasattr(p[3].opIzq,'valor'):
+            result.append(SBetween(p[3].opIzq,p[1],p[3].opDer))
+        else:
+            result.append(SBetween(p[3].opIzq.opIzq,p[1],p[3].opIzq.opDer))
+            result.append(p[3].opDer)
+
+        p[0] = result
+
+    elif len(p) == 5:
+        result = []
+        if hasattr(p[3].opIzq,'valor'):
+            result.append(SNotBetween(p[3].opIzq,p[1],p[3].opDer))
+        else:
+            result.append(SNotBetween(p[3].opIzq.opIzq),p[1],p[3].opIzq.opDer)
+            result.append(p[3].opDer)
+
+        p[0] = result
 
 
 # PRODUCCIÓN PARA HACER UN TRUNCATE

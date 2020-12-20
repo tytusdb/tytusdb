@@ -64,9 +64,21 @@ class SimboloTabla:
         #VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
         for col in self.columnas:
             if self.columnas[col].nombre not in listaColumnas:
-                if self.columnas[col].null != True and self.columnas[col].default == None:
+                if self.columnas[col].null != True and self.columnas[col].default == None and self.columnas[col].primary_key==True:
                     return {"cod": 2, "col": self.columnas[col].nombre}
         return {"cod":0}
+
+
+    #MÉTODO PARA OBTENER LOS ÍNDICES DE LAS LLAVES PRIMARIAS
+    def get_pk_index(self):
+
+        i = 0
+        lista = []
+        for k in self.columnas:
+            if self.columnas[k].primary_key:
+                lista.append(i)
+            i += 1
+        return lista
 
 
     def comprobarNulas2(self, listaColumnas):
@@ -77,7 +89,7 @@ class SimboloTabla:
         #VERIFICAMOS SI EN LA LISTA DE COLUMNAS VIENEN COLUMNAS NO NULAS
         for col in self.columnas:
             if self.columnas[col].nombre not in listaColumnas:
-                if self.columnas[col].null != True and self.columnas[col].default == None:
+                if self.columnas[col].null != True and self.columnas[col].default == None and self.columnas[col].primary_key == True:
                     return {"cod": 2, "col": self.columnas[col].nombre}
         return {"cod":0}
 

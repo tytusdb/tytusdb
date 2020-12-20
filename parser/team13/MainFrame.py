@@ -8,6 +8,9 @@ from tkinter import StringVar
 from tkinter.constants import END, INSERT
 import TablaSimbolos as TS
 
+tablaSimbolos = TS.Entorno(None)
+from tkinter import messagebox
+import pickle
 
 #################################### CLASE TextLineNumbers ####################################
 class TextLineNumbers(tk.Canvas):
@@ -166,8 +169,9 @@ if __name__ == "__main__":
 
         g.errores_lexicos.clear()
         g.errores_sintacticos.clear()
+        principal.consola = ""
 
-        tablaSimbolos = TS.Entorno(None)
+        
         entrada = my_editor.text.get('1.0', END)
 
         arbol = g.parse(entrada)
@@ -236,6 +240,24 @@ if __name__ == "__main__":
     def __funcion_AST():
             os.startfile('arbol.jpg') 
  
+
+
+    def __funcion_on_closing():
+        if messagebox.askokcancel("Salir", "¿Realmente desea finalizar el programa?"):
+
+            # try:
+            #     pickle.dump(tablaSimbolos,open("ts.p","wb"))
+            #     pickle.dump(principal.listaConstraint,open("lc.p","wb"))
+            #     pickle.dump(principal.listaFK,open("lf.p","wb"))
+                
+            # except Exception as e:
+            #     print(e)
+
+            root.destroy()
+
+
+        
+
 ######################################## FIN FUNCIONES ########################################
 
 
@@ -325,4 +347,13 @@ if __name__ == "__main__":
     consola = tk.Text(root, bg='black', fg='white', state=tk.DISABLED)
     consola.place(x=30, y=505, width=1330, height=140)
 
+    root.protocol("WM_DELETE_WINDOW", __funcion_on_closing)
+    try:
+        tablaSimbolos = pickle.load(open("ts.p","rb"))
+        principal.listaConstraint = pickle.load(open("lc.p","rb"))
+        principal.listaFK = pickle.load(open("lf.p","rb"))
+        #tablaSimbolos.mostrar()
+    except Exception as e:
+        print(e)
+    
     root.mainloop()

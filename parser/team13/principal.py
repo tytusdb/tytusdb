@@ -16,7 +16,7 @@ listaFK = []
 
 
 def interpretar_sentencias(arbol, tablaSimbolos):
-    jBase.dropAll()
+    #jBase.dropAll()
     global consola
     for nodo in arbol:
         if isinstance(nodo, SCrearBase):
@@ -45,6 +45,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
         elif isinstance(nodo, SUse):
             global useActual
             useActual = nodo.id
+            consola += "La base de datos '" + nodo.id +"' es ahora la seleccionada como activa\n"
         elif isinstance(nodo, SAlterBase):
             print("Alterando Base-----")
             AlterDatabase(nodo, tablaSimbolos)
@@ -84,25 +85,106 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                 print(val.valor)
         elif isinstance(nodo, SUpdateBase):
             print("Update Table-----------")
-            print(nodo.id)
-            for val in nodo.listaSet:
-                print("columna------")
-                print(val.columna)
-                print("------------")
-                if isinstance(val.valor, SOperacion):
-                    val2 = val.valor
-                    print(val2.opIzq.valor)
-                    print(val2.operador)
-                    print(val2.opDer.valor)
-                else:
-                    val2 = val.valor
-                    print(val2.valor)
-            print(nodo.listaWhere)
+            registros = jBase.extractTable(useActual,nodo.id)
+            actualizar = []
+
+            if registros != None:
+                
+                tabla = tablaSimbolos.get(useActual).getTabla(nodo.id)
+                columnas = tabla.columnas
+                tupla = {"nombreC":[],"tipo":[],"valor":[]}
+                nombres = []
+                valores = []
+                tipos = []
+                diccionario = {}
+                primary = []
+                llaves = []
+                                
+                for k in columnas:
+                    tupla["nombreC"].append(columnas[k].nombre)
+                    tupla["tipo"].append(columnas[k].tipo)
+                    nombres.append(columnas[k].nombre)
+                    tipos.append(columnas[k].tipo)
+                    
+
+                for r in registros:
+
+                    for c in r:
+
+                        tupla["valor"].append(c)
+
+                    b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla)
+                    tupla["valor"].clear()
+
+                    if b.valor:
+                        actualizar.append(r)
+
+                #consola += "Las tuplas a cambiar son: \n"
+                bandera1 = False
+                #consola += str(ac) + "\n"
+                primary = tabla.get_pk_index()
+                for x in range(len(actualizar)):
+
+                    for t in range(len(actualizar[x])):
+                        for r in range(len(primary)):
+                            if primary[r] == t:
+                                llaves.append(actualizar[x][t])
+
+                    for z in range(len(nombres)):
+                       
+                        bandera = False
+                        for y in range(len(nodo.listaSet)):
+
+                            if nombres[z] == nodo.listaSet[y].columna:
+
+                                diccionario[tabla.getIndex(nombres[z])] = nodo.listaSet[y].valor.valor
+
+                                valores.append(nodo.listaSet[y].valor)
+                                bandera = True
+                                break
+                        
+                        if not bandera:
+                            valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
+                    print("=============================================================")
+                    print( str(diccionario) )
+                    print( str(llaves) )
+                    print("=============================================================")
+                    validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves)
+                    valores.clear()
+                    diccionario = {}
+                    primary = []
+                    
+                            
+
+
+
+            else:
+
+                listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                        "Error en UPDATE, no se encontró la base de datos [%s] o la tabla [%s] especificada" % (useActual,nodo.id) ))
+
+            # for val in nodo.listaSet:
+            #     print("columna------")
+            #     print(val.columna)
+            #     print("------------")
+            #     if isinstance(val.valor, SOperacion):
+            #         val2 = val.valor
+            #         print(val2.opIzq.valor)
+            #         print(val2.operador)
+            #         print(val2.opDer.valor)
+            #     else:
+            #         val2 = val.valor
+            #         print(val2.valor)
+            # #print(nodo.listaWhere)
+            # for w in nodo.listaWhere:
+
+            #     print(w)
         elif isinstance(nodo, SDeleteBase):
             print("Delete Table-------------")
             print(nodo.id)
             print("Tiene where?")
             print(nodo.listaWhere)
+            deleteBase(nodo,tablaSimbolos)
         elif isinstance(nodo, STruncateBase):
             print("Truncate Table------------")
 
@@ -1263,6 +1345,82 @@ def interpretar_sentencias(arbol, tablaSimbolos):
     return consola
 
 
+def deleteBase(nodo,tablaSimbolos):
+    global consola
+    print("Delete Table-----------")
+    if nodo.listaWhere == False:
+        print("Sin Where")
+    else:
+
+        registros = jBase.extractTable(useActual,nodo.id)
+        actualizar = []
+
+        if registros != None:
+            tabla = tablaSimbolos.get(useActual).getTabla(nodo.id)
+            columnas = tabla.columnas
+            tupla = {"nombreC":[],"tipo":[],"valor":[]}
+            nombres = []
+            valores = []
+            tipos = []
+            primary = []
+            llaves = []
+
+            for k in columnas:
+                tupla["nombreC"].append(columnas[k].nombre)
+                tupla["tipo"].append(columnas[k].tipo)
+                nombres.append(columnas[k].nombre)
+                tipos.append(columnas[k].tipo)
+
+            for r in registros:
+
+                for c in r:
+
+                    tupla["valor"].append(c)
+
+                b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla)
+                tupla["valor"].clear()
+
+                if b.valor:
+                    actualizar.append(r)
+
+            bandera1 = False
+            primary = tabla.get_pk_index()
+
+            for x in range(len(actualizar)):
+
+                    for t in range(len(actualizar[x])):
+                        for r in range(len(primary)):
+                            if primary[r] == t:
+                                llaves.append(actualizar[x][t])
+
+                    rs = jBase.delete(useActual,tabla.nombre,llaves)
+
+                    if rs == 0:
+                        consola += "La columna con PK '%s' ha sido eliminada con éxito" % str(llaves) + "\n"
+
+                    elif rs == 1:
+
+                        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                                "Error al intentar eliminar la columna con PK '%s', Error en la operación" % (str(llaves))))
+                    elif rs == 2:
+                        
+                        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                                "Error al intentar eliminar la columna con PK '%s', La base de datos '%s' no ha sido hallada" % (str(llaves),useActual)))
+
+                    elif rs == 3:
+                        
+                        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                                "Error al intentar eliminar la columna con PK '%s', La tabla '%s' no ha sido hallada" % (str(llaves),tabla.nombre)))
+                    elif rs == 4:
+                        
+                        listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                                "Error al intentar eliminar la columna con PK '%s', Llave primaria no encontrada" % (str(llaves))))
+                    
+                    llaves.clear()
+
+        
+
+
 def crearBase(nodo, tablaSimbolos):
     val = nodo.id.valor
     global consola
@@ -1482,9 +1640,6 @@ def crearTabla(nodo, tablaSimbolos):
                             Error.ErrorS("Error Semantico", "No se encontró la columna " + id.valor))
                     else:
                         primarykeys.append(nueva.getColumna(id.valor).index)
-            else:
-                print("========================================================")
-                print(col)
 
         base = tablaSimbolos.get(useActual)
         base.crearTabla(val, nueva)
@@ -2015,6 +2170,121 @@ def InsertTable(nodo, tablaSimbolos):
             Error.ErrorS("Error Semantico", "la base de datos " + useActual + " no ha sido encontrada"))
 
 
+def validarUpdate(tupla,nombres,tablaSimbolos,tabla,diccionario,pk):
+    result = False
+    flag = False
+    global consola
+    # se comprueba la cantidad de columnas y las que tienen valor null
+    columnas =nombres
+    b = tabla.comprobarNulas2(nombres)
+    
+    if b["cod"]== 0:
+        # se validan tipos
+        for i in range(len(columnas)):
+            col = tabla.getColumna(columnas[i])
+            val = Interpreta_Expresion(tupla[i],tablaSimbolos,tabla)
+            print("=================================\n" + str(tupla[i].tipo) + "\n======================")
+            print("=================================\n" + str(tupla[i].valor) + "\n======================")
+            print("=================================\n" + str(val) + "\n======================")
+            if col.tipo.tipo == TipoDato.NUMERICO:
+                result = validarTiposNumericos(
+                    col.tipo.dato.lower(), val)
+            elif col.tipo.tipo == TipoDato.CHAR:
+                if val.tipo == Expresion.CADENA:
+                    result = validarTiposChar(col.tipo, val)
+                else:
+                    result = False
+                    listaSemanticos.append(Error.ErrorS(
+                        "Error Semantico", "Error de tipos: tipo "+col.tipo.dato+" columna "+col.nombre+" valor a insertar "+ str(val.tipo)))
+            elif col.tipo.tipo == TipoDato.FECHA:
+                result = validarTiposFecha(
+                    col.tipo.dato.lower(), val)
+            elif col.tipo.tipo == TipoDato.BOOLEAN:
+                if val.tipo == Expresion.BOOLEAN:
+                    result = True
+            if not result:
+                listaSemanticos.append(Error.ErrorS("Error Semantico",
+                                                    "Error de tipos: tipo " + col.tipo.dato + " columna " + col.nombre + " valor a insertar " + str(val.tipo)))
+                break
+            else:
+                bas1 = validaCheck(
+                    col, val, columnas, tupla)
+
+                if (bas1 == 0):
+
+                    if True:
+
+                        if True:
+
+                            if validarFK(col, val.valor, tabla,tablaSimbolos) :
+
+                                flag = True
+
+                            else:
+
+                                listaSemanticos.append(Error.ErrorS(
+                                "Error Semantico", "El valor " + str(val.valor) + " no corresponde a ningún valor de llave foránea"))                                                
+
+                        else:
+
+                            listaSemanticos.append(Error.ErrorS(
+                                "Error Semantico", "El valor " + str(val.valor) + " infringe la condición de llave primaria"))
+
+                    else:
+
+                        listaSemanticos.append(Error.ErrorS(
+                            "Error Semantico", "El valor " + val.valor + " infringe la condición de columna única"))
+
+                elif bas1 == 1:
+                    
+                    listaSemanticos.append(Error.ErrorS(
+                        "Error Semantico", "La columna " + col.nombre + " no superó la condición CHECK"))
+                    return False
+                    
+
+                elif bas1 == 2:
+                    flag = False
+                    listaSemanticos.append(Error.ErrorS("Error Semantico", "La columna " + col.nombre +
+                                            " en su condición CHECK contienen un operario inexistente dentro de la tabla actual "))
+                    return False
+                
+        if flag:
+            flag = False
+            tuplas = validarDefault2(columnas,tupla,tabla,tablaSimbolos)
+            print(tuplas)
+            rs = jBase.update(useActual,tabla.nombre,diccionario,pk)
+            #rs = jBase.insert(useActual,tabla.nombre,tuplas)
+
+            if rs == 0:
+                consola += "Se actualizó con éxito la tupla" + str(tupla) + "\n"
+
+            elif rs == 1:
+
+                listaSemanticos.append(Error.ErrorS("Error Semantico", "Fallo al insertar la tupla: " + str(tupla)))
+
+            elif rs == 2:
+
+                listaSemanticos.append(Error.ErrorS("Error Semantico", "Fallo al insertar, la base de datos '%s' no existe " % useActual))
+
+            elif rs == 3:
+
+                listaSemanticos.append(Error.ErrorS("Error Semantico", "Fallo al insertar, la tabla '%s' no existe" % tabla.nombre ))
+
+            elif rs == 4:
+
+                listaSemanticos.append(Error.ErrorS("Error Semantico", "Fallo al insertar, La llave primaria '%s' no existe" %str(pk) ))
+
+
+    elif b["cod"] == 1:
+        listaSemanticos.append(Error.ErrorS(
+            "Error Semantico", "La columna "+b["col"]+"no existe en la tabla"))
+    elif b["cod"] == 2:
+        listaSemanticos.append(Error.ErrorS(
+            "Error Semantico", "La columna "+b["col"]+" no puede ser nula"))
+
+    
+
+
 # MÉTODO PARA RETORNAR LA TUPLA COMPLETA
 def validarDefault(listaC, listaV,tabla,tablaSimbolos):
 
@@ -2128,15 +2398,15 @@ def validarFK(col, val, tabla, tablaSimbolos):
 def validaCheck(col,val,columnas,valores):
 
     if col.check!=None:
-        print("==================================================")
-        print(str(col.check))
+        #print("==================================================")
+        #print(str(col.check))
         tipo=col.check["condicion"].opDer.tipo
         if tipo==Expresion.ID:
             for i in range(len(columnas)):
                 if columnas[i]==col.check["condicion"].opDer.valor:
                     
                     nuevo=SOperacion(val,valores[i],col.check["condicion"].operador)
-                    if Interpreta_Expresion(nuevo,None,None):
+                    if Interpreta_Expresion(nuevo,None,None).valor:
                         return 0
                     else:
                         return 1
@@ -2144,7 +2414,7 @@ def validaCheck(col,val,columnas,valores):
         else:
             nuevo=SOperacion(val,col.check["condicion"].opDer,col.check["condicion"].operador)
             
-            if Interpreta_Expresion(nuevo, None, None):
+            if Interpreta_Expresion(nuevo, None, None).valor:
                 return 0
             else:
                 return 1
@@ -2243,30 +2513,31 @@ def validarTiposFecha(dato,expresion):
 
 
 def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
+    global consola
     if isinstance(expresion, SOperacion):
         # Logicas
         if (expresion.operador == Logicas.AND):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla).valor
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla).valor
             result = (opIzq and opDer)
-            return result
+            return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Logicas.OR):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla).valor
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla).valor
             result = (opIzq or opDer)
-            return result
+            return SExpresion(result, Expresion.BOOLEAN)
 
         # Relacionales
         if (expresion.operador == Relacionales.IGUAL):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla).valor
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla).valor
             result = (opIzq == opDer)
-            return result
+            return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Relacionales.DIFERENTE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla).valor
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla).valor
             result = (opIzq != opDer)
-            return result
+            return SExpresion(result, Expresion.BOOLEAN)
         if (expresion.operador == Relacionales.MENORIGUAL_QUE):
             opIzq = Interpreta_Expresion(expresion.opIzq, tablaSimbolos, tabla)
             opDer = Interpreta_Expresion(expresion.opDer, tablaSimbolos, tabla)
@@ -2657,5 +2928,47 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
         if expresion.tipo == Logicas.NOT:
             result = not expresion.valor
             return result
-        return expresion
 
+        if expresion.tipo == Expresion.ID:
+
+            # print("")
+            # print("==============================================")
+            # print("|            Estamos en el ID                |")
+            # print("==============================================")
+            # print("|              El ID es: '%s'                |" % expresion.valor)
+            # print("==============================================")
+            
+
+            for i in range(len(tabla["nombreC"])):
+
+                if tabla["nombreC"][i] == expresion.valor:
+
+                    tipo = retornarTipo(tabla["tipo"][i].dato)
+                    valor = tabla["valor"][i]
+
+                    return SExpresion(valor,tipo)
+
+    return expresion
+
+def retornarTipo(tipo):
+
+    if tipo == "smallint" or tipo == "integer" or tipo == "bigint":
+        return Expresion.ENTERO
+
+    elif tipo == "decimal" or tipo == "numeric" or tipo == "real" or tipo == "double" or tipo == "money":
+        return Expresion.DECIMAL
+
+    elif tipo == "varying" or tipo == "varchar" or tipo == "character" or tipo == "char" or tipo == "text":
+        return Expresion.CADENA
+
+    elif tipo == "date":
+        return Expresion.FECHA
+
+    elif tipo == "timestamp":
+        return Expresion.FECHA_HORA
+
+    elif tipo == "time":
+        return Expresion.HORA
+
+    elif tipo == "interval":
+        return Expresion.INTERVALO
