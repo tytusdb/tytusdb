@@ -56,7 +56,7 @@ class ISAM:
                     return tmp
             else:
                 for i in tmp.values:
-                    if i.PK == data.PK and self.search(data.PK) is None:
+                    if i.PK == data.PK and len(self.search(data.PK)) == 0:
                         i.data = data.data
                         i.PK = data.PK
                         return tmp
@@ -66,17 +66,21 @@ class ISAM:
                 if level < 2:
                     if level == 1:
                         if tmp.center is None:
-                            tmp.center = self._insert(self.makeIndexLeaf(tmp.values[0]), tmp.center, level + 1, duplicated)
+                            tmp.center = self._insert(self.makeIndexLeaf(tmp.values[0]), tmp.center, level + 1,
+                                                      duplicated)
                             tmp.values[0].data.clear()
                         if tmp.right is None:
-                            tmp.right = self._insert(self.makeIndexLeaf(tmp.values[1]), tmp.right, level + 1, duplicated)
+                            tmp.right = self._insert(self.makeIndexLeaf(tmp.values[1]), tmp.right, level + 1,
+                                                     duplicated)
                             tmp.values[1].data.clear()
                         if tmp.left is None:
                             if self.root.values[0].PK < data.PK < self.root.values[1].PK:
-                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[0]), tmp.left, level + 1, duplicated)
+                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[0]), tmp.left, level + 1,
+                                                        duplicated)
                                 self.root.values[0].data.clear()
                             elif data.PK > self.root.values[1].PK:
-                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[1]), tmp.left, level + 1, duplicated)
+                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[1]), tmp.left, level + 1,
+                                                        duplicated)
                                 self.root.values[1].data.clear()
                     if data.PK < tmp.values[0].PK:
                         tmp.left = self._insert(data, tmp.left, level + 1, duplicated)
