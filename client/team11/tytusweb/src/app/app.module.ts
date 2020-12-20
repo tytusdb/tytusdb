@@ -12,6 +12,7 @@ import { NavbarComponent } from './component/navbar/navbar.component';
 import { TabcontrolComponent } from './component/tabcontrol/tabcontrol.component';
 import { EditorComponent } from './component/editor/editor.component';
 import { AceEditorModule } from 'ng2-ace-editor';
+import { ConsoleComponent } from './component/console/console.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { AceEditorModule } from 'ng2-ace-editor';
     TreeComponent,
     NavbarComponent,
     TabcontrolComponent,
-    EditorComponent
+    EditorComponent,
+    ConsoleComponent
   ],
   imports: [
     BrowserModule,
