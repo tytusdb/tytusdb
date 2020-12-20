@@ -1,13 +1,11 @@
 <div style="width: 100%; height:relative;">
   <div class="btn-group m-1" role="group">
-    <button type="button" class="btn btn-outline-dark" >
-      <fa-icon [icon]="faFolderOpen"></fa-icon>
-    </button>
+    <label for="openScript"  class="btn btn-outline-dark">
+        <a><fa-icon [icon]="faFolderOpen"></fa-icon></a>
+        <input type='file' hidden="true" style="display:none;" id="openScript" name="openScript" (change)="handleFileInput($event)" accept=".txt,.sql" >
+    </label>
     <button type="button" class="btn btn-outline-dark" >
       <fa-icon [icon]="faSave"></fa-icon>
-    </button>
-    <button type="button" class="btn btn-outline-dark" >
-      <fa-icon [icon]="faAngleDown"></fa-icon>
     </button>
   </div>
   <div class="btn-group m-1" role="group">
@@ -21,7 +19,7 @@
   <div class="border border-dark rounded-top m-1" >
     <ngx-codemirror style="font-size: large;" [(ngModel)]="content" [options]="{
       lineNumbers: true,
-      theme: 'duotone-light',
+      theme: 'material',
       mode: 'sql'
     }" name="inputScript"></ngx-codemirror>
   </div>
