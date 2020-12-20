@@ -19,8 +19,8 @@ class Arbol(Frame):
         
         # Crear las imagenes que iran en el treeview, 
         # Folder para Bases y File para tablas
-        self.file_image = tk.PhotoImage(file="resources/file.png")
-        self.folder_image = tk.PhotoImage(file="resources/folder.png")
+        self.file_image = tk.PhotoImage(file="~/Documentos/Universidad/Bases1/ProyectoClase/tytus/client/team04/resources/file.png")
+        self.folder_image = tk.PhotoImage(file="~/Documentos/Universidad/Bases1/ProyectoClase/tytus/client/team04/resources/folder.png")
         self.file_image = self.file_image.subsample(35)
         self.folder_image = self.folder_image.subsample(38)
 
