@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';//se instalo para el modal
 
 @Component({
   selector: 'app-componente-navbar',
@@ -7,9 +8,27 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ComponenteNavbarComponent implements OnInit {
 
-  constructor() { }
+  nuevobd={
+    nombrebd:""
+  }
+
+
+  constructor(private modalService:NgbModal) { }
 
   ngOnInit(): void {
+
   }
+
+
+  ver(modal){
+
+    this.modalService.open(modal);
+  }
+
+  crearBD(){
+    
+  }
+
+
 
 }
