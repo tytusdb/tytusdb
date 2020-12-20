@@ -320,6 +320,18 @@ def loadCSV(fileCSV, db, table,):
         print("Error en la operación")
         return 1
 
+def graphTable(db, table):
+    try:
+        indice = buscarDB(db)
+        if indice != None:
+            indiceTabla = databases[indice].buscarTable(table)
+            if indiceTabla != None:
+                tabla = databases[indice].getTable(indiceTabla)
+                tabla.genGraph(table)
+                
+
+    except:
+        print("error")
 
         
         
