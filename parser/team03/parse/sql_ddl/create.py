@@ -18,12 +18,13 @@ class CreateEnum(ASTNode):
 
 
 class CreateDatabase(ASTNode):
-    def __init__(self, name, owner, mode, replace, line, column):
+    def __init__(self, name, owner, mode, replace, line, column,graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name  # database name
         self.owner = owner  # optional owner
         self.mode = mode  # mode integer
         self.replace = replace  # boolean type
+        self.graph_ref=graph_ref
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
@@ -53,12 +54,13 @@ class CreateDatabase(ASTNode):
             return True
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
-    def __init__(self, name, inherits_from, fields, check_exp, line, column):
+    def __init__(self, name, inherits_from, fields, check_exp, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name  # table name
         self.inherits_from = inherits_from  # optional inheritance
         self.fields = fields  # list of fields
         self.check_exp = check_exp  # Expression to evaluate on insert/update, no need to execute on creation
+        self.graph_ref=graph_ref
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
