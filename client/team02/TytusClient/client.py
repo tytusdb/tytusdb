@@ -20,12 +20,13 @@ class Example(Frame):
         self.rowconfigure(3, weight=1)
         self.rowconfigure(5, pad=7)
 
-        lbl = Label(self, text="TytusDB")
-        lbl.grid(sticky=W, pady=4, padx=5)
+        self.lbl = Label(self, text="TytusDB")
+        self.lbl.grid(sticky=W, pady=4, padx=5)
 
-        area = Text(self)
-        area.grid(row=1, column=0, columnspan=2, rowspan=4,
-                  padx=5, sticky=E + W + S + N)
+        #self.tab = self.LabelFrame(
+        #self, text='Aquí se realizará la operación'
+        #)
+
 
         # *************************** BARRA DE MENÚ ***************************
         menubar = Menu(self.master)
@@ -40,7 +41,7 @@ class Example(Frame):
         self.master.servermenu.add_command(label="Nueva conexión")
         self.master.servermenu.add_command(label="Quitar conexión")
         self.master.herramientasMenu = Menu(menubar, tearoff=0)
-        self.master.herramientasMenu.add_command(label="Query Tool", command="clickedQueryTool")
+        self.master.herramientasMenu.add_command(label="Query Tool", command=self.addQueryTool)
         menubar.add_cascade(label="Archivo", menu=self.master.filemenu)
         menubar.add_cascade(label="Servidor", menu=self.master.servermenu)
         menubar.add_cascade(label="Herramientas", menu=self.master.herramientasMenu)
@@ -48,14 +49,20 @@ class Example(Frame):
         self.master.config(menu=menubar);
         # *********************************************************************
 
-
-
+    #Metodo agregar QueryTool
+    def addQueryTool( self ):
+        self.area = Text(self)
+        self.area.grid(row=1, column=0, columnspan=2, rowspan=4,
+                       padx=5, sticky=E + W + S + N)
+        #self.lbl.configure(text="Cambia")
 
 def main():
     root = Tk()
     app = Example()
     root.geometry("350x300+300+300")
     root.mainloop()
+
+
 
 
 if __name__ == '__main__':
