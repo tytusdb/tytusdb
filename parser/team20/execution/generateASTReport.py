@@ -13,8 +13,8 @@ def graphAST(self):
             archivodot.close()
             cmd = 'dot \"' + 'ast.dot\" -o \"' +  "ast.pdf\" -Tpdf"
             print("Comando DOT : " + cmd)
-            # os.system(cmd)
-            # webbrowser.open_new_tab('ast.pdf')
-            print(dot)
+            os.system(cmd)
+            webbrowser.open_new_tab('ast.pdf')
+            #print(dot)
         except Exception as e:
             self.messagebox('Error reporte', str(e))

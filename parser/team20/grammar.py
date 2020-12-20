@@ -3,6 +3,7 @@ from execution.AST.expression import *
 from execution.AST.sentence import *
 from execution.execute import * 
 from execution.AST.error import *
+import webbrowser
 # -----------------------------------------------------------------------------
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
@@ -1204,8 +1205,48 @@ f = open(Path(__file__).parent / "./testCarlos.txt", "r")
 input = f.read()
 print(input)
 parser.parse(input.upper())
-print(grammarerrors)
-print(grammarreport)
+
+reportheader = '''# Reporte gramatical
+
+## Terminales
+### Palabras reservadas
+'CREATE, DROP, DATABASE, DATABASES, TABLE, SHOW, IF, EXISTS, ALTER, RENAME, OWNER, MODE, TO, COLUMN, CONSTRAINT, UNIQUE, FOREIGN, KEY, REFERENCES, REPLACE, SET, NOT, ADD, NULL, USE, INSERT, INTO, VALUES, TYPE, AS, ENUM, ASC, DESC, HAVING, GROUP, BY, OFFSET, LIMIT, ALL, ORDER, WHERE, SELECT, DISTINCT, FROM, UNION, EXCEPT, INTERSECT, BETWEEN, IN, LIKE, ILIKE, SIMILAR, SMALLINT, INTEGER, BIGINT, DECIMAL, NUMERIC, REAL, DOUBLE, PRECISION, MONEY, CHARACTER, VARYING, VARCHAR, TIMESTAMP, TEXT, CHAR, WITH, TIME, ZONE, WITHOUT, INTERVAL, BOOLEAN, DEFAULT, CHECK, PRIMARY, DATE, INHERITS, UPDATE, DELETE, TRUNCATE, ABS, CBRT, CEIL, CEILING, DEGREES, DIV, EXP, FACTORIAL, FLOOR, GCD, LN, LOG, MOD, PI, POWER, RADIANS, ROUND, AND, OR, COUNT, AVG, SUM, ACOS, ACOSD, ASIN, ASIND, ATAN, ATAND, ATAN2, ATAN2D, COS, COSD, COT, COTD, SIN, SIND, TAN, TAND, SINH, COSH, TANH, ASINH, ACOSH, ATANH'
+
+### Simbolos
+
+; ( ) = + - * / . ^ % < > <= >= <> !=
+
+### ER
+`ID = '[A-Za-z][A-Za-z0-9_]*'`
+`NDECIMAL = '\d+\.\d+'`
+`INT = '\d+'`
+`STRING = '\".*?\"`
+## Precedencia
+```python
+precedence = (
+    ('left','UNION','INTERSECT','EXCEPT'),
+    ('left','OR'),
+    ('left','AND'),
+    ('right','NOT'),
+    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
+    ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
+    ('left','PLUS','MINUS'),
+    ('left','TIMES','DIVIDED','MODULO'),
+    ('left','EXPONENTIATION'),
+    ('right','UMINUS','UPLUS'),
+    ('left','NSEPARATOR'),
+    )
+```
+## Gramatica\n'''
+grammarreport = reportheader + "```bnf\n"+grammarreport+"```\n" + "## Entrada\n" + "```sql\n" +input+"```"
+try:
+    archivodot = open("bnf.md", "w")
+    archivodot.write(grammarreport)
+    archivodot.close()
+    webbrowser.open_new_tab('bnf.md')
+    #print(grammarreport)
+except Exception as e:
+    print('Error reporte gramatical', str(e))
 
 # def analyze(input):
 #     # limpiar variables

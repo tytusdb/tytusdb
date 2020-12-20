@@ -9,7 +9,8 @@ def executeCreateDatabase(self, database):
     # crear en base a la condicion FALTA AGREGAR REPLACE Y OWNERMODE
     mode=1
     if(database.OwnerMode[1]!= None ):
-        mode= database.OwnerMode[1].value
+        #mode= database.OwnerMode[1].value
+        mode = 1
         
     if(database.ifNotExistsFlag and not(database.OrReplace)):
         if mode==1:
@@ -33,7 +34,8 @@ def executeCreateDatabase(self, database):
         if(res==8):
             mode=1
             if(database.OwnerMode[1]!= None ):
-                mode= database.OwnerMode[1].value
+                #mode= database.OwnerMode[1].value
+                mode = 1
             if mode==1:
                 return jsonMode.createDatabase(database.name)
             elif mode==2:
@@ -61,7 +63,8 @@ def executeCreateDatabase(self, database):
             
             mode=1
             if(database.OwnerMode[1]!= None ):
-                mode= database.OwnerMode[1].value
+                #mode= database.OwnerMode[1].value
+                mode = 1
             if mode==1:
                 return jsonMode.createDatabase(database.name)
             elif mode==2:
