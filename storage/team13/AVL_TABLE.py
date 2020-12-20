@@ -3,14 +3,83 @@ import os
 class Nodo:
 
     def __init__(self,valor,name):
+        self.bPlus = bPlus
         self.name = name
-        self.valor = valor
+        self.numberColumns = numberColumns
+        self.listPk = []
+        self.listFK = []
+        
         self.izq = None
         self.der = None
         self.factor = 1
+        
+        
+    def verifyListPk(self):
+        if len(self.listPk) == 0:
+            return True
+        return False
+    
+    
+    def verifyColumns(self, columnsList):
+        columnas = len(columnsList)
+        if (columnas > 0) and (columnas <= self.numberColumns):
+            return True
+        return False
+    
+    
+    def verifyColumnPk(self, columnNumber):
+        if (columnNumber in self.listPk) or (self.numberColumns == 1):
+            return True
+        return False
+    
+    
+    def verifyOutOfRange(self, column):
+        if 0 <= column <= (self.numberColumns - 1):
+            return False
+        return True
+    
+    
+    def updateListPk(self, newListPk):
+        self.listPk = []
+        self.listPk = newListPk
+        
+        
+    def alterAddPk(self, columns):
+        bandera = True
+        dataList = self.bPlus.verify_Nodes()
+        if len(dataList) != 0:
+            for i in columns:
+                listaColumna = []
+                for j in dataList:
+                    listaColumna.append(j.register[i])
+                for j in dataList:
+                    if listaColumna.count(j.register[i]) > 1:
+                        bandera = False
+                        return 1
 
 
-class Avl:
+        if bandera:
+            self.updateListPk(columns)
+            self.bPlus.set_PK(columns)
+
+            # Reestructuracion del arbol
+            if self.bPlus.get_root() is not None:
+                self.bPlus.set_root(None)  # "Eliminando" arbol
+                for i in dataList:
+                    self.bPlus.insert(i.register)
+            # self.bPlus.graphTree()
+            return 0
+
+        
+    def alterDropPk(self):
+        self.listPk = []
+        self.bPlus.set_PK([])
+        self.bPlus.set_hide(True)
+        self.bPlus.set_contador(1)
+        return 0
+    
+
+class AVLL_TABLE:
 
     def __init__(self):
         self.raiz = None
