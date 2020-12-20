@@ -5,30 +5,34 @@ class Entorno:
         self.anterior = anterior
         self.database = "" 
         self.tablaSimbolo = {}
+        self.consola = []
 
     def nuevoSimbolo(self, symbol):
         x = self.tablaSimbolo.get(symbol.nombre)
 
         if x == None:
             self.tablaSimbolo[symbol.nombre] = symbol
-        else:
-            print("el simbolo", symbol.nombre,"no se puede agregar porque ya existe")
+            return "ok"
+        
+        return str("El simbolo " + symbol.nombre + " no se puede agregar porque ya existe")
 
     def editarSimbolo(self, identificador, nuevo):
         x = self.tablaSimbolo.get(identificador)
 
         if x != None:
             self.tablaSimbolo[identificador] = nuevo
-        else:
-            print("el simbolo", identificador, "no se puede modificar porque no existe")
+            return "ok"
+        
+        return str("El simbolo " + identificador + " no se puede modificar porque no existe")
     
     def eliminarSimbolo(self, identificador):
         x = self.tablaSimbolo.get(identificador)
 
         if x != None:
             del self.tablaSimbolo[identificador]
-        else:
-            print("el simbolo", identificador, "no se puede eliminar porque no existe")
+            return "ok"
+        
+        return str("el simbolo " + identificador + " no se puede eliminar porque no existe")
     
     def buscarSimbolo(self, identificador):
         ent = self
@@ -46,7 +50,8 @@ class Entorno:
 
         while ent != None:
             for x in ent.tablaSimbolo.values():
-                print(x.toString())
+                if x != None:
+                    print(x.toString())
                 
             ent = ent.anterior
 

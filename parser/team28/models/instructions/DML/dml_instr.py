@@ -1,4 +1,9 @@
 from models.instructions.shared import Instruction
+from controllers.type_checker import TypeChecker
+from controllers.symbol_table import SymbolTable
+from controllers.error_controller import ErrorController
+from controllers.data_controller import DataController
+from storageManager import jsonMode as j
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
 '''
@@ -16,7 +21,28 @@ class Insert(Instruction):
 
     def __repr__(self):
         return str(vars(self))
-    
+
+    def process(self, instruction):
+        #Jalando Base de Datos
+        print("EJECUTANDO INSERT")
+
+        # Obtenida la tabla ---> TODO: VALIDAR TIPOS
+        # for column in table_tp.columns:
+        #     if column.
+        if self.arr_columns == None:
+        #Solo nos dieron los valores, tienen que venir todos ---> Espino ya valida longitud?
+            vals_insert = []
+            for column in self.arr_values:
+                val = column.process(instruction)
+                vals_insert.append(val.value)
+            print(vals_insert)
+            DataController().insert(self.table.value, vals_insert,0,1) # Enviar numero de fila y columna
+        else:
+            if len(self.arr_columns) == len(self.arr_values):
+                pass
+            else:
+                print("Error Datos incompletos")
+        
 
 class Update(Instruction):
     '''
@@ -32,7 +58,10 @@ class Update(Instruction):
     
     def __repr__(self):
         return str(vars(self))
-
+    
+    def process(self, instrucction):
+        pass
+        
 class ColumnVal(Instruction):
     '''
         ColumnVal recibe dos parametros: 
@@ -46,6 +75,9 @@ class ColumnVal(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
+    
 
 class Opt1(Instruction):
     '''
@@ -58,6 +90,8 @@ class Opt1(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
 
 class Delete(Instruction):
     '''
@@ -73,4 +107,7 @@ class Delete(Instruction):
         self.params = params
     
     def __repr__(self):
-        return str(vars(self))    
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass

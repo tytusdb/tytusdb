@@ -1,6 +1,7 @@
 from utils.decorators import singleton
 from models.error import Error
 from models.type_error import get_type_error
+from views.data_window import DataWindow
 
 
 @singleton
@@ -16,12 +17,12 @@ class ErrorController(object):
         self._idError = 0
         self._errorsList = []
 
-    def add(self, noType, type, desc, line, column):
+    def add(self, noType, errorType, desc, line, column):
         numberError, description = get_type_error(noType)
         self._idError += 1
         description += desc
 
-        self._errorsList.append(Error(self._idError, type, numberError,
+        self._errorsList.append(Error(self._idError, errorType, numberError,
                                       description, line, column))
-
-        print(numberError, description)
+        DataWindow().consoleTable(['Code', 'Description'],
+                                  [[self._idError, description]])

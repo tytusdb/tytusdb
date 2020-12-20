@@ -4,12 +4,14 @@ from utils.decorators import singleton
 from models.database import Database
 from models.table import Table
 from models.column import Column
-
-from storageManager import jsonMode  # TODO Change storage manager
+from controllers.error_controller import ErrorController
+from controllers.symbol_table import SymbolTable
+from controllers import data_mode
+from views.data_window import DataWindow
 
 
 @singleton
-class TypeChecker(object):  # TODO messages
+class TypeChecker(object):
     def __init__(self):
         self._typeCheckerList = []
 
@@ -35,10 +37,14 @@ class TypeChecker(object):  # TODO messages
                     column = Column(col['_name'], col['_dataType'])
                     column.number = col['_number']
                     column.length = col['_length']
+                    column.default = col['_default']
                     column.notNull = col['_notNull']
                     column.unique = col['_unique']
+                    column.constraint = col['_constraint']
+                    column.check = col['_check']
                     column.primaryKey = col['_primaryKey']
-                    # TODO FOREIGN KEY implementation
+                    # column.autoincrement = col['_autoincrement']
+                    # TODO FOREIGN KEY implementation column.foreignKey = col['_foreignKey']
                     table.columns.append(column)
 
     def obj_dict(self, obj):
@@ -69,201 +75,379 @@ class TypeChecker(object):  # TODO messages
             print('Error: File does not appear to exist.')
 
     # ------------------------- Databases -------------------------
-    # Method to search a database in type checker
-    def searchDatabase(self, databaseName: str) -> Database:
+    def searchDatabase(self, name: str) -> Database:
+        """
+        Method to search a database in type checker
+
+        :param name: The name of database
+        :return: Returns a database
+        """
         for db in self._typeCheckerList:
-            if db.name == databaseName:
+            if db.name.lower() == name.lower():
                 return db
         return None
 
-    # Method to create a database in type checker
-    def createDatabase(self, databaseName: str):
-        dbStatement = jsonMode.createDatabase(databaseName)
+    def createDatabase(self, database: Database, line, column):
+        """
+        Method to create a database in type checker
 
-        if dbStatement == 0:
-            self._typeCheckerList.append(Database(databaseName))
-            self.writeFile()
-            print('Database created successfully')
-        elif dbStatement == 1:
-            print(f"Can't create database '{databaseName}'")
-        elif dbStatement == 2:
-            print('Database exists')
-
-    # Method to update the name of a database in type checker
-    def updateDatabase(self, databaseOld: str, databaseNew: str):
-        dbStatement = jsonMode.alterDatabase(databaseOld, databaseNew)
-
-        if dbStatement == 0:
-            database = self.searchDatabase(databaseOld)
-            database.name = databaseNew
-            self.writeFile()
-            print('Database updated successfully')
-        elif dbStatement == 1:
-            print(f"Can't update database '{databaseOld}'")
-        elif dbStatement == 2:
-            print("Database doesn't exist")
-        elif dbStatement == 3:
-            print(f"Database '{databaseNew}' already exists")
-
-    # Method to remove a database in type checker
-    def deleteDatabase(self, databaseName: str):
-        dbStatement = jsonMode.dropDatabase(databaseName)
-
-        if dbStatement == 0:
-            database = self.searchDatabase(databaseName)
-            self._typeCheckerList.remove(database)
-            self.writeFile()
-            print('Database deleted successfully')
-        elif dbStatement == 1:
-            print(f"Can't drop database '{databaseName}'")
-        elif dbStatement == 2:
-            print("Database doesn't exist")
-
-    # TODO def showDatabases
-
-    # ------------------------- Tables -------------------------
-    # Method to search a table in database
-    def searchTable(self, database: Database, tableName: str) -> Table:
-        if database:
-            for tb in database.tables:
-                if tb.name == tableName:
-                    return tb
-            return None
-
-        print('No database selected')
-        return None
-
-    # Method to create a table in database
-    def createTable(self, database: Database, tableName: str, columns: int) -> Table:
-        if not database:
-            print('No database selected')
-            return None
-
-        dbStatement = 0  # j.createTable(database.name, tableName, columns)
-
-        if dbStatement == 0:
-            table = Table(tableName)
-            database.tables.append(table)
-            self.writeFile()
-            print('Table created successfully')
-            return table
-        elif dbStatement == 1:
-            print(f"Can't create table '{tableName}'")
-        elif dbStatement == 2:
-            print("Database doesn't exist")
-        elif dbStatement == 3:
-            print(f"Table '{tableName}' already exists")
-        return None
-
-    # Method to update the name of a table in database
-    def updateTable(self, database: Database, tableOld: str, tableNew: str):
-        if not database:
-            print('No database selected')
+        :param database: Database object
+        :param line: The instruction line
+        :param column: The instruction column
+        :return: Returns nothing
+        """
+        if self.searchDatabase(database.name):
+            desc = f": Database {database.name} already exists"
+            ErrorController().add(30, 'Execution', desc, line, column)
             return
 
-        dbStatement = 0  # j.alterTable(database.name, tableOld, tableNew)
+        dbStatement = data_mode.mode(database.mode).createDatabase(
+            database.name)
+
+        if dbStatement == 0:
+            self._typeCheckerList.append(database)
+            self.writeFile()
+
+            SymbolTable().add(database, 'New Database', 'Database', 'Global',
+                              None, line, column)
+            DataWindow().consoleText('Query returned successfully: Database created')
+
+        elif dbStatement == 1:
+            desc = f": Can't create database {database.name}"
+            ErrorController().add(34, 'Execution', desc, line, column)
+
+        elif dbStatement == 2:
+            desc = f": Database {database.name} already exists"
+            ErrorController().add(30, 'Execution', desc, line, column)
+
+    def updateDatabase(self, databaseOld: str, databaseNew: str, line, column):
+        """
+        Method to update the name of a database in type checker
+
+        :param databaseOld: The old name of the database
+        :param databaseNew: The new name of the database
+        :param line: The instruction line
+        :param column: The instruction column
+        :return: Returns nothing
+        """
+        database = self.searchDatabase(databaseOld)
+        if not database:
+            desc = f": Database {databaseOld} does not exist"
+            ErrorController().add(35, 'Execution', desc, line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterDatabase(databaseOld,
+                                                                  databaseNew)
+
+        if dbStatement == 0:
+            database.name = databaseNew
+            self.writeFile()
+            DataWindow().consoleText('Query returned successfully: Database updated')
+
+        elif dbStatement == 1:
+            desc = f": Can't update database {databaseOld}"
+            ErrorController().add(34, 'Execution', desc, line, column)
+
+        elif dbStatement == 2:
+            desc = f": Database {databaseOld} does not exist"
+            ErrorController().add(35, 'Execution', desc, line, column)
+
+        elif dbStatement == 3:
+            desc = f": Database {databaseNew} already exists"
+            ErrorController().add(30, 'Execution', desc, line, column)
+
+    def deleteDatabase(self, name: str, line, column):
+        """
+        Method to remove a database in type checker
+
+        :param name: The name of the database
+        :param line: The instruction line
+        :param column: The instruction column
+        :return: Returns nothing
+        """
+        database = self.searchDatabase(name)
+        if not database:
+            desc = f": Database {name} does not exist"
+            ErrorController().add(35, 'Execution', desc, line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).dropDatabase(name)
+
+        if dbStatement == 0:
+            self._typeCheckerList.remove(database)
+            self.writeFile()
+
+            SymbolTable().delete(database)
+            DataWindow().consoleText('Query returned successfully: Database deleted')
+
+        elif dbStatement == 1:
+            desc = f": Can't drop database {name}"
+            ErrorController().add(34, 'Execution', desc, line, column)
+
+        elif dbStatement == 2:
+            desc = f": Database {name} does not exist"
+            ErrorController().add(35, 'Execution', desc, line, column)
+
+    # ------------------------- Tables -------------------------
+    def searchTable(self, database: Database, name: str) -> Table:
+        """
+        Method to search a table in database
+
+        :param database: Database where to search
+        :param name: The name of table
+        :return: Returns a table
+        """
+        if database:
+            for tb in database.tables:
+                if tb.name.lower() == name.lower():
+                    return tb
+            return None
+        return None
+
+    def createTable(self, name: str, columns: int, line, column):
+        """
+        Method to create a table in database
+
+        :param name: The name of table
+        :param columns: Number of columns
+        :param line: The instruction line
+        :param column: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).createTable(database.name,
+                                                                name, columns)
+
+        if dbStatement == 0:
+            table = Table(name)
+            database.tables.append(table)
+            self.writeFile()
+            DataWindow().consoleText('Query returned successfully: Table created')
+
+            return table
+        elif dbStatement == 1:
+            desc = f": Can't create table {name}"
+            ErrorController().add(34, 'Execution', desc, line, column)
+
+        elif dbStatement == 2:
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, line, column)
+
+        elif dbStatement == 3:
+            desc = f": Table {name} already exists"
+            ErrorController().add(31, 'Execution', desc, line, column)
+
+    def updateTable(self, tableOld: str, tableNew: str, line, column):
+        """
+        Method to update the name of a table in database
+
+        :param tableOld: The old name of the table
+        :param tableNew: The new name of the table
+        :param line: The instruction line
+        :param column: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  line, column)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterTable(database.name,
+                                                               tableOld, tableNew)
 
         if dbStatement == 0:
             table = self.searchTable(database, tableOld)
             table.name = tableNew
             self.writeFile()
-            print('Table updated successfully')
+            DataWindow().consoleText('Query returned successfully: Table updated')
+
         elif dbStatement == 1:
-            print(f"Can't update Table '{tableOld}'")
+            desc = f": Can't update Table {tableOld}"
+            ErrorController().add(34, 'Execution', desc, line, column)
+
         elif dbStatement == 2:
-            print("Database doesn't exist")
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, line, column)
+
         elif dbStatement == 3:
-            print(f"Table '{tableOld}' doesn't exist")
+            desc = f": Table {tableOld} does not exist"
+            ErrorController().add(27, 'Execution', desc, line, column)
+
         elif dbStatement == 4:
-            print(f"Table '{tableNew}' already exists")
+            desc = f": Table {tableNew} already exists"
+            ErrorController().add(31, 'Execution', desc, line, column)
 
-    # Method to remove a table in database
-    def deleteTable(self, database: Database, tableName: str):
+    def deleteTable(self, name: str, line, column):
+        """
+        Method to remove a table in database
+
+        :param database: Table database
+        :param name: The name of table
+        :param line: The instruction line
+        :param column: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
         if not database:
-            print('No database selected')
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  line, column)
             return
-
-        dbStatement = 0  # j.dropTable(database.name, tableName)
+        dbStatement = data_mode.mode(
+            database.mode).dropTable(database.name, name)
 
         if dbStatement == 0:
-            table = self.searchTable(database, tableName)
+            table = self.searchTable(database, name)
             database.tables.remove(table)
             self.writeFile()
-            print('Table deleted successfully')
-        elif dbStatement == 1:
-            print(f"Can't drop table '{tableName}'")
-        elif dbStatement == 2:
-            print("Database doesn't exist")
-        elif dbStatement == 3:
-            print(f"Unknown table '{tableName}'")
+            DataWindow().consoleText('Query returned successfully: Table deleted')
 
-    # TODO def definePK
-    # TODO def defineFK
-    # TODO def showTables
+        elif dbStatement == 1:
+            desc = f": Can't drop table {name}"
+            ErrorController().add(34, 'Execution', desc, line, column)
+
+        elif dbStatement == 2:
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, line, column)
+
+        elif dbStatement == 3:
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, line, column)
 
     # ------------------------- Columns -------------------------
-    # Method to search a column in table
-    def searchColumn(self, table: Table, columnName: str) -> Column:
+    def searchColumn(self, table: Table, name: str) -> Column:
+        """
+        Method to search a column in table
+
+        :param table: Table where to search
+        :param name: The name of column
+        :return: Returns a column
+        """
         if table:
             for col in table.columns:
-                if col.name == columnName:
+                if col.name.lower() == name.lower():
                     return col
         return None
 
-    # Method to create a column in table
-    def createColumnTable(self, table: Table, column: Column):
-        if not self.searchColumn(table, column.name):
-            table.columns.append(column)
-            return
-        print(f"Duplicate column name '{column.name}'")
+    def searchColumnHeadings(self, table: Table):
+        """
+        Method to find column headings
 
-    # Method to remove a database in type checker
-    def deleteColumn(self, database: Database, tableName: Table, columnName: Column):
+        :param table: Table where to search
+        :return: Returns a list of columns
+        """
+        lista = []
+        if table:
+            for col in table.columns:
+                lista.append(col.name)
+            return lista
+        return None
+
+    def createColumnTable(self, table: Table, column: Column,
+                          noLine, noColumn):
+        """
+        Method to create a column in table
+
+        :param table: The name of table
+        :param column: Number of columns
+        :param noLine: The instruction line
+        :param noColumn: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
         if not database:
-            print('No database selected')
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  noLine, noColumn)
             return
 
-        dbStatement = 0  # TODO j.alterDropColumn(database.name,table.name,clN)
+        if self.searchColumn(table, column.name):
+            desc = f": Column {column.name} already exists"
+            ErrorController().add(29, 'Execution', desc, noLine, noColumn)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterAddColumn(database.name, table.name,
+                                                                   column.default)
 
         if dbStatement == 0:
-            table = self.searchTable(database, tableName)
-            column = self.searchColumn(table, columnName)
+            if len(table.columns) > 0:
+                column.number = table.columns[-1].number + 1
+
+            table.columns.append(column)
+            self.writeFile()
+            DataWindow().consoleText('Query returned successfully: Table updated')
+
+        elif dbStatement == 1:
+            desc = f": Can't update table {table.name}"
+            ErrorController().add(34, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 2:
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 3:
+            desc = f": Table {table.name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+
+    def deleteColumn(self, table: Table, column: Column,
+                     noLine, noColumn):
+        """
+        Method to remove a column in table
+
+        :param table: The name of table
+        :param column: Number of columns
+        :param noLine: The instruction line
+        :param noColumn: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  noLine, noColumn)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterDropColumn(database.name,
+                                                                    table.name, column.number)
+
+        if dbStatement == 0:
             if column:
                 table.remove(column)
+                self.updateColumnIndex(table)
                 self.writeFile()
-                print('Column deleted successfully')
+                DataWindow().consoleText('Query returned successfully: Column deleted')
                 return
-            print(f"Can't DROP COLUMN `{columnName}` Check that it exists")
+
+            desc = f": Column {column.name} does not exist"
+            ErrorController().add(26, 'Execution', desc, noLine, noColumn)
+
         elif dbStatement == 1:
-            print(f"Can't DROP COLUMN `{columnName}`")
+            desc = f": Can't update Table {table.name}"
+            ErrorController().add(34, 'Execution', desc, noLine, noColumn)
+
         elif dbStatement == 2:
-            print("Database doesn't exist")
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, noLine, noColumn)
+
         elif dbStatement == 3:
-            print(f"Unknown table '{tableName}'")
+            desc = f": Table {table.name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+
         elif dbStatement == 4:
-            print('Out of range column')
+            desc = f": Column of relation {column.name} does not exist"
+            ErrorController().add(26, 'Execution', desc, noLine, noColumn)
 
-    # Method to add a column in table
-    def alterAddColumn(self, database: Database, table: Table, column: Column):
-        if not database:
-            print('No database selected')
-            return
-
-        dbStatement = 0  # j.alterAddColumn(database.name, table.name)
-
-        if dbStatement == 0:
-            if not self.searchColumn(table, column.name):
-                table.columns.append(column)
-                self.writeFile()
-                print('Table updated successfully')
-                return
-            print(f"Duplicate column name '{column.name}'")
-        elif dbStatement == 1:
-            print(f"Can't update Table '{table.name}'")
-        elif dbStatement == 2:
-            print("Database doesn't exist")
-        elif dbStatement == 3:
-            print("Table doesn't exist")
-
-    # TODO def extractTable
-    # TODO def extractRangeTable
+    def updateColumnIndex(self, table: Table):
+        if table:
+            index = 0
+            for col in table.columns:
+                col.number = index
+                index += 1

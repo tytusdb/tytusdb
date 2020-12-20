@@ -3,17 +3,15 @@ from os.path import dirname as dir
 
 path.append(dir(path[0]))
 
-# from storage.storageManager import jsonMode as j
 from analizer import grammar
 
 s = """ 
-    --SELECT padres.parent as p, padres.child from parents as padres;
-    --SELECT name, phone, location from company, users;
-    SELECT pi();
+
+    USE db1;
+    SELECT de1.id, caca.name FROM demo1 de1, (SELECT de2.name FROM demo1 de2 WHERE de1.id = de2.id) AS caca;
+    --SELECT d.id FROM demo1 d;
 """
 
+
 result = grammar.parse(s)
-
-# j.hola()
-
 print(result)

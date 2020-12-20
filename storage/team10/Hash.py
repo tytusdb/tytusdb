@@ -1,28 +1,20 @@
 from Node import Node
 
 class TablaHash:
-    def __init__(self, size, db, name, nCols):
-        self.Size = size
-        self.values = list()
-        self.headers = list()
-        self.db = db
+    def __init__(self, size, name, nCols):
+        self.id = 0
+        self.Size = size-1
         self.name = name
         self.nCols = nCols
-        self.genericId = 1
-        self.sign = True
-        self.pk = 0
-        for i in range (0, size):
-            self.values.append(None)
+        self.genericId = -1
+        self.pk = None
+        self.values = [None]*self.Size
 
-    def definePK(self, indices):
-        if len(indices) > 1:
-            self.pk = sum(indices, 0)
-            pass
-        else:
-            self.pk = indices
+    def getName(self):
+        return self.name
 
-    def setHeader(self, header):
-        self.headers.append(header)
+    def setName(self, name):
+        self.name = name
 
     def getSize(self):
         return self.Size
@@ -37,65 +29,128 @@ class TablaHash:
     def setNodo(self, nodo):
         self.values = nodo
 
-    def funcionHash(self, dato):
-        if isinstance(dato, list):
-            lenDato = dato[self.pk[0]]
-        else:
-            lenDato = int(dato)
+    def alterAddPK(self, indices):
+        for i in indices:
+            if i not in range(0, self.nCols):
+                return 5
 
-        return int(lenDato % self.Size)
+        if len(indices) <= self.nCols:
+            if not self.pk:
+                self.pk = indices
+                return 0
+            else:
+                # print("No se puede poner otra PK")
+                return 4
+        else:
+            return 5
+    
+    def toASCII(self, cadena):
+        result = ""
+        for char in cadena:
+            result += str(ord(char))
+        return int(result)
+
+    def funcionHash(self, dato, flag = False):
+        if isinstance(dato, list):
+            lenDato = 0
+            res = ""
+            if flag:
+                for key in self.pk:
+                    res += str(dato[key]) + ","
+            else:
+                for key in dato:
+                    res += str(key) + ","
+            lenDato = self.toASCII(res)
+        else:
+            if str(dato).isalnum():
+                lenDato = self.toASCII(str(dato))
+            else:
+                lenDato = int(dato)
+        return (int(lenDato % self.Size),lenDato) #cambie aqui para poder obtener la posicion en el arreglo (posicion hash, posicion en arreglo)
 
     def sizeTabla(self):
         contadorAux = 0
         for i in self.values:
             if i is not None:
                 contadorAux +=1
-        return contadorAux
+        return contadorAux   
 
-    def insertarDato(self, dato):
-        if len(dato) == self.nCols:
-            if len(self.headers) == 0:
-                self.setHeader(dato)
-                return
-            posicion_hash = int(self.funcionHash(dato))
-            bandera = self.verificarDato(dato, posicion_hash)
-            if self.values[posicion_hash] is not None:
-                if bandera:
-                    nuevo_dato = self.values[posicion_hash]
-                    nuevo_dato.insert(dato)
+    def insertIntoArray(self, dato, posicion_hash, key):
+        bandera = self.verificarDato(key, posicion_hash)
+        if self.values[posicion_hash] is not None:
+            if bandera:
+                nuevo_dato = self.values[posicion_hash]
+                nuevo_dato.insert(dato, key)
+                return 0
             else:
-                nuevo_dato = Node()
-                nuevo_dato.post_in_hash = posicion_hash
-                nuevo_dato.insert(dato)
-                self.values[posicion_hash] = nuevo_dato
-        elif len(dato) < self.nCols:
-            node = self.buscar(self.genericId)
-            if node is None:
-                dato[0:0] = [self.genericId]
-                self.insertarDato(dato)
+                return 4
+        else:
+            nuevo_dato = Node()
+            if self.pk:
+                nuevo_dato.pk = self.pk
             else:
-                self.genericId += 1
-                self.insertarDato(dato)
-        elif len(dato) == (self.nCols + 1):
-            if self.sign:
-                key1 = int(dato[0])
-                key2 = int(dato[1])
-                newKey = int(key1) + int(key2)
-                if self.buscar(newKey) == "El dato no existe":
-                    dato[0:0] = [newKey]
-                    self.insertarDato(dato)
-            else:
-                newKey += 1
-                self.sign = False
-                self.insertarDato(dato)
+                nuevo_dato.pk = self.genericId
+                nuevo_dato.isGeneric = True
+            nuevo_dato.insert(dato,key)
+            nuevo_dato.key = posicion_hash
+            self.values[posicion_hash] = nuevo_dato
+            return 0
 
-    def verificarDato(self, dato, position):
-        aux_bol = False
-        if self.values[position] is not None:
-            if not self.values[position].buscarDato_binary(dato):
-                aux_bol = True
-        return aux_bol
-    
+    def insert(self, table, dato):
+        self.rehashing()
+        if isinstance(dato, list):
+            if len(dato) == self.nCols:
+                if self.pk:
+
+                    # Recorre las anteriores buscando su llave primaria
+                    for node in self.values:
+                        if node is not None and node.isGeneric:
+                            node.isGeneric = False
+                            self.recalculateKey(node)
+                            continue
+
+                    posicion_hash = self.funcionHash(dato, True)
+                    return self.insertIntoArray(dato, posicion_hash[0], posicion_hash[1]) #aqui manda las dos llaves
+                else:
+                    posicion_hash = int(self.genericId % self.Size)
+                    self.genericId += 1
+                    return self.insertIntoArray(dato, posicion_hash, self.genericId)
+            else:
+                return 5
+        else:
+            return 1
+
+    def recalculateKey(self, node):
+        for dato in node.array:
+            posicion_hash = self.funcionHash(dato[1], True)
+            index = node.key
+            self.values[index] = None
+            self.insertIntoArray(dato[1], posicion_hash[0], posicion_hash[1])
+
+    def truncate(self):
+        try:
+            self.values.clear()
+            return 1
+        except:
+            return 0
+
+    def editar(self, columna, modificacion, key):
+        posicion_hash = self.funcionHash(key)
+        nodo = self.values[posicion_hash[0]]
+        if nodo:
+            if columna not in self.pk:
+                respuesta = nodo.modificar(columna,modificacion,posicion_hash[1])
+            else: 
+                return 1
+            if respuesta == 0:
+                return "dato modificado exitosamente"
+            elif respuesta == 4:
+                return "llave no existente"
+            else:
+                return "error de indice"
+        else:
+            return "Error de llave"
+
     def ElementosEn_tbl(self):
         auxiliar = 0 
         for nodo in self.values:
@@ -109,39 +164,97 @@ class TablaHash:
         if actualSize >= factorAgregado:
             #estoy_en_rehashing = True
             self.setSize( int(self.Size*3.75))
-            arrayAuxiliar = []
+            arrayAuxiliar = self.values[:]
             self.values.clear()
+            self.values = [None]*self.Size
+            lista = [tupla for nodo in arrayAuxiliar if nodo is not None for tupla in nodo.array]
             for j in lista:
-                self.insertarDato(j)
+                self.insert(self.name, j[1])
             arrayAuxiliar.clear()
-            print("El rehashing fue realizado con exito")
-    
+            return "El rehashing fue realizado con exito"
+
+    def verificarDato(self, key, position):
+        aux_bol = False
+        if self.values[position] is not None:
+            if not self.values[position].buscarDato_binary(key):
+                aux_bol = True
+        return aux_bol
+
     def eliminarDato(self, dato):
         posicion_hash = self.funcionHash(dato)
-        nodo_hash = self.values[posicion_hash]
-        if nodo_hash is not None:
-            if nodo_hash.eliminar(dato):
-                print("dato eliminado")
-            elif nodo_hash.eliminar(dato) == 0: 
-                print("dato eliminado")
-                self.values[posicion_hash] = None
-            else:
-                print("dato no eliminado")
+        nodo_hash = self.values[posicion_hash[0]]
+        if nodo_hash.eliminar(posicion_hash[1]):
+            return "dato eliminado"
+        elif nodo_hash.eliminar(posicion_hash[1]) == 0: 
+            return "dato eliminado"
+            self.values[posicion_hash] = None
         else:
-            print("el dato no existe")
+            return "dato no eliminado"
 
     def printTbl(self):
-        contador = 0
-        print(f"i | {self.headers}")
-        for i in range(0,self.Size+1):
-            if self.values[i] != None:
-                print(str(self.values[i].post_in_hash) + " | " + str(self.values[i].array))
-            contador +=1
+        if self.values:
+            for i in self.values:
+                if i and (len(i.array) > 0):
+                    print(str(i.key) + " | " + str(i.array) + "\n")
+        else:
+            return "vacio"
 
     def buscar(self, dato):
         posicion_hash = self.funcionHash(dato)
-        nodo = self.values[posicion_hash]
+        nodo = self.values[posicion_hash[0]]
         if nodo is not None:
-            return nodo.busquedaB(dato)
+            return nodo.busquedaB(posicion_hash[1])
         else:
             return None
+
+    def printlistTbl(self):
+        listTbl=[]
+        if self.values:
+            for i in self.values:
+                if i :
+                    new = str(i.pk) + " | " + str(i.array).replace('[','')
+                    new2 = new.replace(']','')
+                    listTbl.append(new2)            
+        else:
+            print("vacio")        
+        return listTbl
+
+    def imp1(self,columnNumber,lower,upper):
+        listCol=[]
+        for nodo in self.values:
+            if nodo is not None:
+                val = nodo.imp_column(columnNumber,lower,upper)
+                if val != None:
+                    listCol.append(val)   
+        return listCol
+
+    # agrega la nueva columna y asigna el valor
+    def alterAddColumn(self, dato):
+        self.nCols += 1
+        for i in self.values:
+                if i :
+                    i.alterAddColumn(dato)
+
+    #19/12/2020
+    def getNumeroColumnas(self):
+        return self.nCols
+
+    def alterDropColumn(self, columnNumber):
+        if columnNumber in range(0, self.nCols):
+            for i in self.values:
+                if i:
+                    for j in i.array:
+                        j[1].pop(columnNumber)
+                pass
+
+        newKeys = []
+        for key in self.pk:
+            if (columnNumber == (key-1)) and (key is not 0):
+                key -= 1
+            newKeys.append(key)
+        self.pk = None
+        self.alterAddPK(newKeys)
+        self.nCols -= 1
+
+    def alterDropPK(self):
+        self.pk = None

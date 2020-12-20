@@ -7,7 +7,14 @@ class where(instruccion):
         super().__init__(line,column)
         self.expresiones=expresiones
         self.nodo = nodo_AST('WHERE',num_nodo)
-        self.nodo.hijos.append(nodo_AST('WHERE',num_nodo+1))
+        print(expresiones)
+        if expresiones != None:
+            print('-- 1')
+            for element in expresiones:
+                print('-- 2')
+                if element != None:
+                    print('-- 3')
+                    self.nodo.hijos.append(element.nodo)
          
         
     def ejecutar(self):
