@@ -1,4 +1,4 @@
-class TreeBPlus:
+class BPLUS_TUPLE:
     
     def __init__(self, grade):
         if grade < 3:
@@ -10,6 +10,21 @@ class TreeBPlus:
     
     def get_root(self):
         return self.__root
+   
+    def set_root(self, root):
+        self.__root = root
+
+    def set_PK(self, pk):
+        self.__PK = pk
+
+    def get_PK(self, pk):
+        return self.__PK
+
+    def set_hide(self, hide):
+        self.hide = hide
+
+    def set_contador(self, contador):
+        self.contador = contador
 
     def add(self, key):
         if self.__root is None:
@@ -66,6 +81,47 @@ class TreeBPlus:
         cadena = ""
         cadena += tmp.rankLeavesKeys(tmp)
         return cadena
+    
+    
+    def verify_Nodes(self):
+        dataList = []
+        if self.__root is not None:
+            self._verify_Nodes(self.__root, dataList)
+        return dataList
+
+
+    def _verify_Nodes(self, tmp, dataList):
+        if len(tmp.get_chlds()) != 0:
+            self._verify_Nodes(tmp.get_chlds()[0], dataList)
+        else:
+            for i in tmp.get_keys():
+                dataList.append(i)
+            if tmp.get_next() is not None:
+                self._verify_Nodes(tmp.get_next(), dataList)
+                
+                
+    def alterDropColumn(self, column, tabla):
+        self._alterDropColumn(self.__root, column)
+        for i in range(len(self.__PK)):
+            if self.__PK[i] > column:
+                self.__PK[i] -= 1
+        self.__size -= 1
+        tabla.numberColumns -= 1
+        tabla.listPk = []
+        for i in self.__PK:
+            tabla.listPk.append(i)
+        return 0
+
+    
+    def _alterDropColumn(self, tmp, column):
+        if len(tmp.get_chlds()) != 0:
+            self._alterDropColumn(tmp.get_chlds()[0], column)
+        else:
+            for i in tmp.get_keys():
+                i.register.pop(column)
+            if tmp.get_next() is not None:
+                self._alterDropColumn(tmp.get_next(), column)
+                
 
 class PageTBPlus:
     
