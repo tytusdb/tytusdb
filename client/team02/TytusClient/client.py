@@ -1,15 +1,17 @@
-from tkinter import Tk, Text, BOTH, W, N, E, S, Menu,ttk
+import tkinter as tk
+from tkinter  import Tk, Text, BOTH, W, N, E, S, Menu,ttk
 from tkinter.ttk import Frame, Button, Label, Style
 
 
 
 
 class Example(Frame):
-
+    contadorQuerysTabs = 1
     def __init__(self):
+
         super().__init__()
         #self contador numero tab querys
-        self.contadorQuerysTabs=1
+
         #Creacion de ventana
         self.master.title("TytusDB")
         self.pack(fill=BOTH, expand=True)
@@ -24,7 +26,7 @@ class Example(Frame):
         self.lbl.grid(sticky=W, pady=4, padx=5)
 
 
-        self.nb = ttk.Notebook(self)
+        self.nb = CustomNotebook(self)
         self.fm = Frame(self.nb)
         self.fm.pack(fill=BOTH, expand=True)
         self.fm.columnconfigure(1, weight=1)
@@ -75,6 +77,95 @@ class Example(Frame):
         self.area.grid(row=1, column=0, columnspan=2, rowspan=4,
                        padx=5, sticky=E + W + S + N)
         #self.lbl.configure(text="Cambia")
+
+
+class CustomNotebook(ttk.Notebook):
+    """A ttk Notebook with close buttons on each tab"""
+
+    __initialized = False
+    def __init__(self, *args, **kwargs):
+        if not self.__initialized:
+            self.__initialize_custom_style()
+            self.__inititialized = True
+
+        kwargs["style"] = "CustomNotebook"
+        ttk.Notebook.__init__(self, *args, **kwargs)
+
+        self._active = None
+
+        self.bind("<ButtonPress-1>", self.on_close_press, True)
+        self.bind("<ButtonRelease-1>", self.on_close_release)
+
+    def on_close_press(self, event):
+        """Called when the button is pressed over the close button"""
+
+        element = self.identify(event.x, event.y)
+        self.master.contadorQuerysTabs=self.master.contadorQuerysTabs-1
+        print(self.master.contadorQuerysTabs)
+        if "close" in element:
+            index = self.index("@%d,%d" % (event.x, event.y))
+            self.state(['pressed'])
+            self._active = index
+
+    def on_close_release(self, event):
+        """Called when the button is released over the close button"""
+        if not self.instate(['pressed']):
+            return
+
+        element =  self.identify(event.x, event.y)
+        index = self.index("@%d,%d" % (event.x, event.y))
+
+        if "close" in element and self._active == index:
+            self.forget(index)
+            self.event_generate("<<NotebookTabClosed>>")
+
+        self.state(["!pressed"])
+        self._active = None
+
+    def __initialize_custom_style(self):
+        style = ttk.Style()
+        self.images = (
+            tk.PhotoImage("img_close", data='''
+                R0lGODlhCAAIAMIBAAAAADs7O4+Pj9nZ2Ts7Ozs7Ozs7Ozs7OyH+EUNyZWF0ZWQg
+                d2l0aCBHSU1QACH5BAEKAAQALAAAAAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU
+                5kEJADs=
+                '''),
+            tk.PhotoImage("img_closeactive", data='''
+                R0lGODlhCAAIAMIEAAAAAP/SAP/bNNnZ2cbGxsbGxsbGxsbGxiH5BAEKAAQALAAA
+                AAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU5kEJADs=
+                '''),
+            tk.PhotoImage("img_closepressed", data='''
+                R0lGODlhCAAIAMIEAAAAAOUqKv9mZtnZ2Ts7Ozs7Ozs7Ozs7OyH+EUNyZWF0ZWQg
+                d2l0aCBHSU1QACH5BAEKAAQALAAAAAAIAAgAAAMVGDBEA0qNJyGw7AmxmuaZhWEU
+                5kEJADs=
+            ''')
+        )
+
+        style.element_create("close", "image", "img_close",
+                            ("active", "pressed", "!disabled", "img_closepressed"),
+                            ("active", "!disabled", "img_closeactive"), border=8, sticky='')
+        style.layout("CustomNotebook", [("CustomNotebook.client", {"sticky": "nswe"})])
+        style.layout("CustomNotebook.Tab", [
+            ("CustomNotebook.tab", {
+                "sticky": "nswe",
+                "children": [
+                    ("CustomNotebook.padding", {
+                        "side": "top",
+                        "sticky": "nswe",
+                        "children": [
+                            ("CustomNotebook.focus", {
+                                "side": "top",
+                                "sticky": "nswe",
+                                "children": [
+                                    ("CustomNotebook.label", {"side": "left", "sticky": ''}),
+                                    ("CustomNotebook.close", {"side": "left", "sticky": ''}),
+                                ]
+                        })
+                    ]
+                })
+            ]
+        })
+    ])
 
 def main():
     root = Tk()
