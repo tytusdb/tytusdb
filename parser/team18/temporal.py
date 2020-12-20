@@ -4,6 +4,7 @@ class temporal:
 class MensajeOut:
     tipo='normal'
     mensaje=''
+    codigo=''
 
 
 class Tabla_run:
