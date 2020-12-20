@@ -1,6 +1,7 @@
 import binary_file
 import copy
-import Proyecto
+import crud_tabla
+
 class Tabla():
     def __init__(self,name,numberColumns):
         self.name = name
@@ -465,23 +466,8 @@ class CRUD_DataBase:
             if n.name == table:
                 id = tmp.tables.index(n)
                 if tmp.tables[id].Tuplas == None:
-                    tmp.tables[id].Tuplas = Proyecto.Arbol()
+                    tmp.tables[id].Tuplas = crud_tabla.Arbol()
                     tmp.tables[id].Tuplas.insertar_(tupla)
                 else:
                     tmp.tables[id].Tuplas.insertar_(tupla)
                 return tmp
-
-<<<<<<< HEAD
-=======
-prueba = CRUD_DataBase()
-prueba.createDatabase("ASD")
-prueba.createDatabase("OLV")
-prueba.createDatabase("DORIME")
-print(prueba.showDatabases())
-prueba.createTable("ASD","tabla1",15)
-prueba.createTable("ASD","tabla2",15)
-print(prueba.shownTables("ASD"))
-print(prueba.dropTable("ASD","tabla1"))
-print(prueba.shownTables("ASD"))
-print(prueba.showDatabases())
->>>>>>> parent of c1e7b003... Update crud_bd.py
