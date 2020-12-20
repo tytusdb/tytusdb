@@ -366,6 +366,7 @@ def p_statements2(t):
 
 
 def p_statement(t):
+#    '''statement    : stm_create    PUNTOCOMA'''
     '''statement    : predicateExpression PUNTOCOMA
                     | stm_show   PUNTOCOMA'''
     t[0] = t[1]
@@ -377,20 +378,26 @@ def p_stm_delete(t):
                     | DELETE FROM ID'''
     token = t.slice[1]
     if len(t) == 5:
-        graph_ref = graph_node(str(t[1]),[t[2],t[3],t[4].graph_ref])
+        childsProduction = addNotNoneChild(t,[4])                
+        graph_ref = graph_node(str("stm_delete"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier [<WHERE_CLAUSE>]")
-        #
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
     else:
-        graph_ref = graph_node(str(t[1]), [ t[2],t[3],t[4].graph_ref ])
+        childsProduction = addNotNoneChild(t,[2,5,6])                
+        graph_ref = graph_node(str("stm_delete"), [t[1],t[2],t[3]]    ,childsProduction)
         addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier ")
-        #
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
 
         
 def p_where_clause(t):
     '''where_clause : WHERE predicateExpression'''
-    graph_ref = graph_node(str(t[1]),[t[2].graph_ref])
+    childsProduction = addNotNoneChild(t,[2])                
+    graph_ref = graph_node(str("where_clause"), [t[1],t[2]]    ,childsProduction)
     addCad("**\<WHERE_CLAUSE>** ::= tWhere \<EXP_PREDICATE>")
-    #
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    ##### 
 
 def p_stm_create(t):
     '''stm_create   : CREATE or_replace_opt DATABASE ID owner_opt mode_opt
@@ -398,51 +405,131 @@ def p_stm_create(t):
                     | CREATE TYPE ID AS ENUM PARA exp_list PARC'''
     
     if len(t) == 7:
-        graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[3],t[4], t[5].graph_ref,t[6].graph_ref] )
+        childsProduction = addNotNoneChild(t,[2,5,6])                
+        graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=  tCreate [\<OR_REPLACE_OPT>] tDatabase tIdentifier  [\<OWNER_OPT>] [\<MODE_OPT>]")
-        #
-    elif len(t) == 8:  
-        pass
-        #
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####       
+
+    elif len(t) == 8: 
+        childsProduction = addNotNoneChild(t,[5,7])                
+        graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]    ,childsProduction)
+        addCad("**\<STM_CREATE>** ::=  tCreate tTable tIdentifier '('\<TAB_CREATE_LST>')'[tInherits '(' tIdentifier ')']")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
 
     elif len(t) == 9:
-        pass       
-        #
+        childsProduction = addNotNoneChild(t,[2,7])                
+        graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6],t[8]]    ,childsProduction)
+        addCad("**\<STM_CREATE>** ::=   tCreate tType tIdentifier tAs tEnum ‘(‘ \<EXP_LIST> ‘)’")     
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
     
 
 
 def p_tab_create_list(t):
     '''tab_create_list  : tab_create_list COMA ID type nullable_opt primary_key_opt
                         | ID type nullable_opt primary_key_opt'''
+    if len(t) == 7:
+        childsProduction = addNotNoneChild(t,[1,4,5,6])                
+        graph_ref = graph_node(str("tab_create_list"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+        addCad("**\<TAB_CREATE_LIST>** ::= <TAB_CREATE_LST> ',' tIdentifier <TYPE> <NULLABLE_OPT> <PRIMARY_KEY_OPT> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####       
+    else:        
+        childsProduction  = addNotNoneChild(t,[2,3,4])
+        graph_ref = graph_node(str("tab_create__list"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
+        addCad("**\<TAB_CREATE_LIST>** ::= tIdentifier <TYPE> <NULLABLE_OPT> <PRIMARY_KEY_OPT> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
+    
 
 def p_primary_key_opt(t):
     '''primary_key_opt  : PRIMARY KEY
                         | empty'''
+    if len(t) == 3:
+        graph_ref = graph_node(str(t[1]+" "+t[2]))
+        addCad("**\<PRIMARY_KEY_OPT>** ::= tPrimary tKey ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####       
+    else:                      
+        t[0] = None 
+
+
 
 def p_nullable(t):
     '''nullable : NULL
                 | NOT NULL'''
+    if len(t) == 2:
+        graph_ref = graph_node(str(t[1]),[],[])
+        addCad("**\<NULLABLE>** ::= tNull ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####         
+    else:                 
+        graph_ref = graph_node(str(t[1]+" "+t[2]))
+        addCad("**\<NULLABLE>** ::= tNot tNull  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
 
 def p_nullable_opt(t):
     '''nullable_opt  : nullable
                     | empty'''
+    token = t.slice[1]
+    if token.type == "nullable":
+        addCad("**\<NULLABLE_OPT>** ::= <NULLABLE> ")
+        t[0] = upNodo("token", 0, 0, t[1].graph_ref)
+        #####        
+    else:                 
+        t[0] = None
 
 
 def p_inherits_opt(t):
     '''inherits_opt : INHERITS PARA ID PARC
                     | empty'''
+    if len(t) == 5:
+        graph_ref = graph_node(str(t[1]+" "+str(t[2])+" "+str(t[3])+" "+str(t[4]) ))
+        addCad("**\<INHERITS_OPT>** ::= tInherits '(' tIdentifier ')'  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####         
+    else:                 
+        t[0] = None
 
 def p_owner_opt(t):
     '''owner_opt    : OWNER IGUAL TEXTO
                     | empty'''
+    if len(t) == 4:
+        graph_ref = graph_node(str(t[1]+" "+t[2]+" "+t[3]))
+        addCad("**\<OWNER_OPT>** ::= tOwner '=' tTexto   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else:                 
+        t[0] = None
+    
 
 def p_mode_opt(t):
     '''mode_opt     : MODE IGUAL ENTERO
                     | empty'''
+    if len(t) == 4:
+        graph_ref = graph_node(str(t[1]+" "+t[2]+" "+str(t[3])))
+        addCad("**\<MODE_OPT>** ::= tMode '=' tEntero ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else:                 
+        t[0] = None
 
 def p_or_replace_opt(t):
     '''or_replace_opt   : OR REPLACE
                         | empty'''
+    if len(t) == 3:
+        graph_ref = graph_node(str(t[1]+" "+t[2]))
+        addCad("**\<OR_REPLACE_OPT>** ::= tOr tReplace ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else:                 
+        t[0] = None
+
+
+
 
 def p_stm_alter(t):
     '''stm_alter    :    ALTER DATABASE ID RENAME TO ID
@@ -475,6 +562,13 @@ def p_predicateExpression(t):
 def p_param_int_opt(t):
     '''param_int_opt  : PARA ENTERO PARC
                 | empty''' 
+    if len(t) == 4:
+        graph_ref = graph_node(str(t[1]+" "+t[2]+" "+t[3] ))
+        addCad("**\<PARAM_INT_OPT>** ::= '(' tEntero ')' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else:                 
+        t[0] = None
 
 
 
@@ -482,14 +576,50 @@ def p_db_owner(t):
     ''' db_owner    : TEXTO
                     | CURRENT_USER
                     | SESSION_USER'''
+    if token.type == "TEXTO":
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<DB_OWNER>** ::= tTexto ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+
+    elif token.type == "CURRENT_USER":
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<DB_OWNER>** ::= tCurrentUser ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####  
+    
+    elif token.type == "SESSION_USER":
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<DB_OWNER>** ::= tSessionUser ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####          
+
 
 def p_stm_drop(t):
     '''stm_drop : DROP DATABASE if_exists_opt ID
                 |    DROP TABLE ID''' 
+    if len(t) == 5:
+        childsProduction  = addNotNoneChild(t,[3])
+        graph_ref = graph_node(str("STM_DROP"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
+        addCad("**\<STM_DROP>** ::=  tDrop tDatabase \<IF_EXISTS_OPT> tIdentifier")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else:                 
+        graph_ref = graph_node(str("STM_DROP"),    [t[1], t[2] ,t[3]]       ,[])
+        addCad("**\<STM_DROP>** ::= tDrop tTable tIdentifier  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####  
 
 def p_if_exist_opt(t):
     '''if_exists_opt    : IF EXISTS
                         | empty'''
+    if len(t) == 3:
+        graph_ref = graph_node(str(str(t[1])+" "+str(t[2])) )
+        addCad("**\<IF_EXISTS_OPT>** ::= tIf tExists ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
 
 #############################
 
@@ -512,6 +642,27 @@ def p_type(t):
                 | TIME
                 | INTERVAL
                 | BOOLEAN'''
+    token = t.slice[1]
+
+    if token.type == "DOUBLE":
+        graph_ref = graph_node(str(str(t[1])+" "+str(t[2])))
+        addCad("**\<TYPE>** ::= DOUBLE PRECISION ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##
+
+    elif token.type == "CARACTER" and  len(t) == 3:
+        graph_ref = graph_node(str(str(t[1])+" "+str(t[2])))
+        addCad("**\<TYPE>** ::= CARACTER VARYING")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##
+
+    else:
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<TYPE>** ::= "+str(token))
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##
+    
+
 
 
 
@@ -519,7 +670,13 @@ def p_type(t):
 def p_not_opt(t):
     '''not_opt       : NOT
                     | empty'''
-
+    if len(t) == 2:
+        graph_ref = graph_node( str(t[1])  )
+        addCad("**\<NOT_OPT>** ::= tNot ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
 
 
 
@@ -528,10 +685,18 @@ def p_stm_show(t):
     '''stm_show : SHOW DATABASES LIKE TEXTO
                 | SHOW DATABASES LIKE PATTERN_LIKE'''
     token = t.slice[1]
-    graph_ref = graph_node("SHOW", [t[4]])
+    graph_ref = graph_node("SHOW", [t[4]],[])
     t[0] = ShowDatabases(t[4],token.lineno, lexpos, graph_ref)
+
+
+
 def p_stm_show0(t):
     '''stm_show : SHOW DATABASES'''
+    if len(t) == 2:
+        graph_ref = graph_node( str(str(t[1])+" "+str(t[2]))  )
+        addCad("**\<STM_SHOW>** ::= tShow tDatabases ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####     
 
 
 def p_exp_list(t):
@@ -539,10 +704,14 @@ def p_exp_list(t):
     t[1].append(t[3])
     t[0] = t[1]
 
+#    graph_ref = graph_node("COMA", [t[1].graph_ref,t[2].graph_ref])
+    
+
 
 def p_exp_list0(t):    
     '''exp_list : expression'''    
-    t[0] = [t[1]]
+    t[0] = t[1]
+
 ########## Definition of opttional productions, who could reduce to 'empty' (epsilon) ################
 # def p_not_opt(t):
 #    '''not_opt : NOT
@@ -561,35 +730,43 @@ def p_relExpression(t):
                         | expression LIKE PATTERN_LIKE'''
     token = t.slice[2]
     if token.type == "MENOR":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_REL>** ::=  \<EXP> '\<' \<EXP> ")
         t[0] = RelationalExpression(t[1], t[3], OpRelational.LESS, 0, 0, graph_ref)
     elif token.type == "MAYOR":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_REL>** ::=  \<EXP> '>' \<EXP> ")
         t[0] = RelationalExpression(t[1], t[3], OpRelational.GREATER, 0, 0, graph_ref)
     elif token.type == "IGUAL":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_REL>** ::=  \<EXP> '=' \<EXP> ")
         t[0] = RelationalExpression(t[1], t[3], OpRelational.EQUALS, 0, 0, graph_ref)
     elif token.type == "MENORQ":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_REL>** ::=  \<EXP> '\<=' \<EXP> ")
         t[0] = RelationalExpression(t[1], t[3], OpRelational.LESS_EQUALS, 0, 0, graph_ref)
     elif token.type == "MAYORQ":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_REL>** ::=  \<EXP> '>=' \<EXP> ")
         t[0] = RelationalExpression(t[1], t[3], OpRelational.GREATER_EQUALS, 0, 0, graph_ref)
     elif token.type == "DIFERENTE":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_REL>** ::=  \<EXP> '!=' \<EXP> ")
         t[0] = RelationalExpression(t[1], t[3], OpRelational.NOT_EQUALS, 0, 0, graph_ref)
     elif token.type == "NOT":
-        graph_ref = graph_node(str(str(t[2] + " " + t[3]), [t[1].graph_ref]))
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_REL>** ::=  \<EXP> tNot [‘%’] tTexto [‘%’] ")
         t[0] = RelationalExpression(t[1], t[4], OpRelational.NOT_LIKE, 0, 0, graph_ref)
     elif token.type == "LIKE":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
         addCad("**\<EXP_REL>** ::=  \<EXP> tLike [‘%’] tTexto [‘%’] ")
         t[0] = RelationalExpression(t[1], t[3], OpRelational.LIKE, 0, 0, graph_ref)
     else:
@@ -605,8 +782,11 @@ def p_relExpReducExp(t):
 ########## Definition of logical expressions ##############
 def p_predicateExpression(t):
     '''predicateExpression  : BETWEEN expression AND expression'''
-    graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[4].graph_ref])
+    childsProduction  = addNotNoneChild(t,[2,4])
+    graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
+    addCad("**\<EXP_PREDICATE>** ::= tBetween \<EXP>  tAnd \<EXP>   ")
     t[0] = PredicateExpression(t[2], t[4], OpPredicate.BETWEEN, token.lineno, token.lexpos,graph_ref)
+    
 def p_predicateExpression0(t):
     '''predicateExpression  : logicExpression'''
     t[0] = t[1]
@@ -614,31 +794,69 @@ def p_predicateExpression0(t):
 def p_predicateExpression1(t):
     '''predicateExpression  : expression IS NULL
                             | expression IS DISTINCT FROM expression
-                            | expression IS BOOLEAN_VALUE
-                            | expression IS UNKNOWN '''
+                            | expression IS BOOLEAN_VALUE expression
+                            | expression IS UNKNOWN  expression '''
     token = t.slice[3]
     #graph_ref = graph_node(str(t[3]), [t[2].graph_ref, t[4].graph_ref])
     if token.type == "NULL":
-        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3]]       ,childsProduction)
+        addCad("**\<EXP_PREDICATE>** ::= tIs tNull  ")
         t[0] = PredicateExpression(t[1], None, OpPredicate.NULL,  token.lineno, token.lexpos,graph_ref)
     elif token.type == "DISTINCT":
-        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref, t[5].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1,5])
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<EXP_PREDICATE>** ::=   \<EXP> tIs tDisctint tFrom \<EXP>  ")
         t[0] = PredicateExpression(t[1], t[5], OpPredicate.DISTINCT,  token.lineno, token.lexpos,graph_ref)
     elif token.type == "BOOLEAN_VALUE":
-        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])        
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
+        addCad("**\<EXP_PREDICATE>** ::=   <EXP> tIs [tTrue|tFalse] \<EXP> ")      
         if bool(t[3]):
             t[0] = PredicateExpression(t[1], None, OpPredicate.TRUE, token.lineno, token.lexpos,graph_ref)
         else:
             t[0] = PredicateExpression(t[1], None, OpPredicate.FALSE, token.lineno, token.lexpos,graph_ref)
     elif token.type == "UNKNOWN":
-        graph_ref = graph_node("IS_"+str(t[3]), [t[1].graph_ref])
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
+        addCad("**\<EXP_PREDICATE>** ::=   \<EXP> tIs  tUnknown  \<EXP>  ")  
         t[0] = PredicateExpression(t[1], None, OpPredicate.UNKNOWN, token.lineno, token.lexpos,graph_ref)
 
 def p_predicateExpression2(t):
     '''predicateExpression  : expression IS NOT NULL
                             | expression IS NOT DISTINCT FROM expression
-                            | expression IS NOT BOOLEAN_VALUE
-                            | expression IS NOT UNKNOWN '''
+                            | expression IS NOT BOOLEAN_VALUE expression
+                            | expression IS NOT UNKNOWN  expression '''
+
+    token = t.slice[4]
+    if token.type == "NULL":
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
+        addCad("**\<EXP_PREDICATE>** ::= tIs tNull  ")
+        #t[0] = PredicateExpression(t[1], None, OpPredicate.NULL,  token.lineno, token.lexpos,graph_ref)
+
+    elif token.type == "DISTINCT":
+        childsProduction  = addNotNoneChild(t,[1,5])
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4],t[5],t[6]]       ,childsProduction)
+        addCad("**\<EXP_PREDICATE>** ::=   \<EXP> tIs tDisctint tFrom \<EXP>  ")
+       # t[0] = PredicateExpression(t[1], t[5], OpPredicate.DISTINCT,  token.lineno, token.lexpos,graph_ref)
+    elif token.type == "BOOLEAN_VALUE":
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<EXP_PREDICATE>** ::=   <EXP> tIs [tTrue|tFalse] \<EXP> ")      
+        if bool(t[3]):
+            pass
+            #t[0] = PredicateExpression(t[1], None, OpPredicate.TRUE, token.lineno, token.lexpos,graph_ref)
+        else:
+            pass
+            #t[0] = PredicateExpression(t[1], None, OpPredicate.FALSE, token.lineno, token.lexpos,graph_ref)
+    elif token.type == "UNKNOWN":
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<EXP_PREDICATE>** ::=   \<EXP> tIs  tUnknown  \<EXP>  ")  
+        #t[0] = PredicateExpression(t[1], None, OpPredicate.UNKNOWN, token.lineno, token.lexpos,graph_ref)
+
+
 
 def p_logicExpression(t):
     '''logicExpression  : relExpression'''
@@ -648,7 +866,8 @@ def p_logicExpression(t):
 def p_logicNotExpression(t):
     '''logicExpression  : NOT logicExpression'''
     token = t.slice[1]
-    graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+    childsProduction = addNotNoneChild(t,[2])                
+    graph_ref = graph_node(str(t[1]), [t[2]]    ,childsProduction)
     addCad("**\<EXP_LOG>** ::= \<EXP_LOG> tNot \<EXP_LOG> ")    
     t[0] = Negation(t[2],token.lineno,token.lexpos,graph_ref)
 
@@ -658,11 +877,13 @@ def p_binLogicExpression(t):
                         '''    
     token = t.slice[2]
     if token.type == "AND":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[1,3])                
+        graph_ref = graph_node(str(t[2]), [t[1],t[3]]    ,childsProduction)
         addCad("**\<EXP_LOG>** ::= \<EXP_LOG> tAnd \<EXP_LOG> ")
         t[0] = BoolExpression(t[1],t[3],OpLogic.AND,token.lineno,token.lexpos,graph_ref)
     elif token.type == "OR":
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[1,3])                
+        graph_ref = graph_node(str(t[2]), [t[1],t[3]]    ,childsProduction)
         addCad("**\<EXP_LOG>** ::= \<EXP_LOG> tOr \<EXP_LOG> ")
         t[0] = BoolExpression(t[1],t[3],OpLogic.OR,token.lineno,token.lexpos,graph_ref)
     else:
@@ -678,27 +899,33 @@ def p_expression(t):
                     | expression EXPONENCIANCION expression                    
                     '''
     if t[2] == '+':
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[1,3])                
+        graph_ref = graph_node(str(t[2]), [t[1],t[3]]    ,childsProduction)
         addCad("**\<EXP>** ::= \<EXP>  '+' \<EXP> ")
         t[0] = BinaryExpression(t[1], t[3], OpArithmetic.PLUS, 0, 0, graph_ref)
     elif t[2] == '-':
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[1,3])                
+        graph_ref = graph_node(str(t[2]), [t[1],t[3]]    ,childsProduction)
         addCad("**\<EXP>** ::= \<EXP>  '-' \<EXP> ")
         t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MINUS, 0, 0, graph_ref)
     elif t[2] == '*':
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[1,3])                
+        graph_ref = graph_node(str(t[2]), [t[1],t[3]]    ,childsProduction)
         addCad("**\<EXP>** ::= \<EXP>  '*' \<EXP> ")
         t[0] = BinaryExpression(t[1], t[3], OpArithmetic.TIMES, 0, 0, graph_ref)
     elif t[2] == '/':
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[1,3])                
+        graph_ref = graph_node(str(t[2]), [t[1],t[3]]    ,childsProduction)
         addCad("**\<EXP>** ::= \<EXP>  '/' \<EXP> ")
         t[0] = BinaryExpression(t[1], t[3], OpArithmetic.DIVIDE, 0, 0, graph_ref)
     elif t[2] == '%':
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[1,3])                
+        graph_ref = graph_node(str(t[2]), [t[1],t[3]]    ,childsProduction)
         addCad("**\<EXP>** ::= \<EXP>  '%' \<EXP> ")
         t[0] = BinaryExpression(t[1], t[3], OpArithmetic.MODULE, 0, 0, graph_ref)
     elif t[2] == '^':
-        graph_ref = graph_node(str(t[2]), [t[1].graph_ref, t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[1,3])                
+        graph_ref = graph_node(str(t[2]), [t[1],t[3]]    ,childsProduction)
         addCad("**\<EXP>** ::= \<EXP>  '^' \<EXP> ")
         t[0] = BinaryExpression(t[1], t[3], OpArithmetic.POWER, 0, 0, graph_ref)
     else:
@@ -709,7 +936,8 @@ def p_expNotExp(t):
     '''expression   : NOT expression'''
     token = t.slice[1]
     addCad("**\<EXP>** ::=  tNot \<EXP>  ")
-    graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+    childsProduction = addNotNoneChild(t,[2])                
+    graph_ref = graph_node(str(t[1]), [t[2]]    ,childsProduction)
     t[0] = Negation(t[1],token.lineno,token.lexpos, graph_ref)
 
 def p_expPerenteLogic(t):
@@ -742,91 +970,113 @@ def p_trigonometric(t):
                     |   ATANH PARA expression PARC'''
 
     if t.slice[1].type == 'ACOS':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAcos '(' \<EXP> ')' ")
         t[0] = Acos(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ACOSD':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAcosd '(' \<EXP> ')' ")
         t[0] = Acosd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ASIN':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAsin '(' \<EXP> ')' ")
         t[0] = Asin(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ASIND':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAsind '(' \<EXP> ')' ")
         t[0] = Asind(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATAN':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAtan '(' \<EXP> ')' ")                 
         t[0] = Atan(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATAND':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAtand '(' \<EXP> ')' ")
         t[0] = Atand(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATAN2':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        childsProduction = addNotNoneChild(t,[3,5])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAtan2 '(' \<EXP> ',' \<EXP> ')' ")
         t[0] = Atan2(t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATAN2D':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        childsProduction = addNotNoneChild(t,[3,5])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAtand2 '(' \<EXP> ',' \<EXP> ')' ")
         t[0] = Atan2d(t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COS':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tCos '(' \<EXP> ')' ")    
         t[0] = Cos(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COSD':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tCosd '(' \<EXP> ')' ")
         t[0] = Cosd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COT':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tCot '(' \<EXP> ')' ")
         t[0] = Cot(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COTD':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tCotd '(' \<EXP> ')' ")
         t[0] = Cotd(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'SIN':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tSin '(' \<EXP> ')' ")
         t[0] = Sin(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'SIND':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tSind '(' \<EXP> ')' ")
         t[0] = Sind(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'TAN':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tTan '(' \<EXP> ')' ")
         t[0] = Tan(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'TAND':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tTand '(' \<EXP> ')' ")
         t[0] = Tand(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'SINH':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tSinh '(' \<EXP> ')' ")
         t[0] = Sinh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'COSH':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tCosh '(' \<EXP> ')' ")
         t[0] = Cosh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'TANH':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tTanh '(' \<EXP> ')' ")
         t[0] = Tanh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ASINH':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAsinh '(' \<EXP> ')' ")
         t[0] = Asinh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ACOSH':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAcosh '(' \<EXP> ')' ")
         t[0] = Acosh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     elif t.slice[1].type == 'ATANH':
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::= tAtanh '(' \<EXP> ')' ")
         t[0] = Atanh(t[3], t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
@@ -863,112 +1113,139 @@ def p_aritmetic(t):
                 '''
     token = t.slice[1]
     if token.type == "ABS":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tAbs '(' \<EXP> ')' ")
         t[0] = Abs(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "CBRT":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tCbrt '(' \<EXP> ')'        ")
         t[0] = Cbrt(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "CEIL" or token.type == "CEILING":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   [tCeil | tCeiling ] '(' \<EXP> ')'        ")
         t[0] = Ceil(t[3], token.lineno, token.lexpos)
     elif token.type == "DEGREES":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=    tDegrees '(' \<EXP> ')'        ")
         t[0] = Degrees(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "DIV":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        childsProduction = addNotNoneChild(t,[3,5])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<EXP>** ::=    tDiv '(' \<EXP> ','\<EXP> ')'     ")
         t[0] = Div(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "EXP":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tExp '(' \<EXP>  ')'      ")
         t[0] = Exp(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "FACTORIAL":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tFactorial '(' \<EXP>  ')'        ")
         t[0] = Factorial(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "FLOOR":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tFloor '(' \<EXP>  ')'      ")
         t[0] = Floor(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "GCD":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        childsProduction = addNotNoneChild(t,[3,5])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tGcd '(' \<EXP> ','\<EXP> ')'      ")
         t[0] = Gcd(t[3], t[5], token.lineno, token.lexpos, graph_ref)
         ###
     elif token.type == "LCM":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        childsProduction = addNotNoneChild(t,[3,5])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tLcm '(' \<EXP> ','\<EXP> ')'       ")
         t[0] = Lcm(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "LN":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=    tLn '(' \<EXP> ')'     ")
         t[0] = Ln(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "LOG":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tLog '(' \<EXP> ')'        ")
         t[0] = Log(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "LOG10":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tLog10 '(' \<EXP> ')'      ")
         t[0] = Log10(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "MIN_SCALE":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tMinscale '(' \<EXP> ')'       ")
         t[0] = MinScale(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "MOD":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        childsProduction = addNotNoneChild(t,[3,5])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tMod '(' \<EXP> ','\<EXP> ')'       ")
         t[0] = Mod(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "PI":
-        graph_ref = graph_node(str(t[1]))
+                     
+        graph_ref = graph_node(str(str(t[1])+" "+str(t[2])+" "+str(t[3])) )
         addCad("**\<EXP>** ::=    tPi '()'     ")
         t[0] = PI(token.lineno, token.lexpos, graph_ref)
     elif token.type == "POWER":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        childsProduction = addNotNoneChild(t,[3,5])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tPower '(' \<EXP> ','\<EXP> ')'      ")
         t[0] = Power(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "RADIANS":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tRadians '(' \<EXP> ')'      ")
         t[0] = Radians(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "ROUND":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tRound '(' \<EXP> ')'      ")
         t[0] = Round(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "SCALE":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tScale '(' \<EXP> ')'      ")
         t[0] = Scale(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "SIGN":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tSign '(' \<EXP> ')'       ")
         t[0] = Sign(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "SQRT":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tSqrt '(' \<EXP> ')'       ")
         t[0] = Sqrt(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "TRIM_SCALE":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tTrimScale '(' \<EXP> ')'       ")
         t[0] = TrimScale(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "WIDTH_BUCKET":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref, t[5].graph_ref])
+        childsProduction = addNotNoneChild(t,[3,5])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tWidthBucket '(' \<EXP> ','\<EXP> ')'       ")
         t[0] = WithBucket(t[3], t[5], token.lineno, token.lexpos, graph_ref)
     elif token.type == "RANDOM":
-        graph_ref = graph_node(str(t[1]))
+                       
+        graph_ref = graph_node(str(str(t[1])+" "+str(t[2])+" "+str(t[3])))
         addCad("**\<EXP>** ::=  tRandom '()'       ")
         t[0] = Random(token.lineno, token.lexpos, graph_ref)
     elif token.type == "SETSEED":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tSetseed '(' \<EXP> ')'       ")
         t[0] = SetSeed(t[3], token.lineno, token.lexpos, graph_ref)        
     elif token.type == "TRUC":
-        graph_ref = graph_node(str(t[1]), [t[3].graph_ref])
+        childsProduction = addNotNoneChild(t,[3])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
         addCad("**\<EXP>** ::=   tTruc '(' \<EXP> ')'      ")
         t[0] = Trunc(t[3], token.lineno, token.lexpos, graph_ref)
 
@@ -976,11 +1253,13 @@ def p_exp_unary(t):
     '''expression : MENOS expression %prec UMENOS
                   | MAS expression %prec UMAS '''
     if t[1] == '+':
-        graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+        childsProduction = addNotNoneChild(t,[2])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2]]    ,childsProduction)
         addCad("**\<EXP>** ::=  [+|-] \<EXP>")
         t[0] = BinaryExpression(Numeric(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
     elif t[1] == '-':
-        graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
+        childsProduction = addNotNoneChild(t,[2])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2]]    ,childsProduction)
         addCad("**\<EXP>** ::=  [+|-] \<EXP>")
         t[0] = BinaryExpression(NumericNegative(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
     else:
@@ -1012,7 +1291,7 @@ def p_exp_val(t):
         addCad("**\<EXP>** ::=  tTexto")
         t[0] = BoolAST(token.value, token.lineno, token.lexpos, graph_ref)
     elif token.type == "NOW":
-        graph_ref = graph_node(str(t[1]))
+        graph_ref = graph_node(str(str(t[1])+" "+str(t[2])+" "+str(t[3])))
         addCad("**\<EXP>** ::=  tNow '(' ')' ")
         t[0] = Now(token.lineno, token.lexpos, graph_ref)
 
@@ -1060,8 +1339,8 @@ def p_col_name(t):
         addCad("**\<COL_NAME>** ::= tIdentificador")
         t[0] = ColumnName(None, t[1], token.lineno, token.lexpos, graph_ref)
     else:
-        graph_ref = graph_node(str(t[1] + t[2] + t[3]))
-        addCad("**\<COL_NAME>** ::= tIdentificador ['.' tIdentificador]")
+        graph_ref = graph_node(str(str(t[1])+" " + str(t[2])+ " " + str(t[3])))
+        addCad("**\<COL_NAME>** ::= tIdentificador '.' tIdentificador")
         t[0] = ColumnName(t[1], t[3], token.lineno, token.lexpos, graph_ref)
 
 
@@ -1077,7 +1356,9 @@ if __name__ == "__main__":
     print("Input: " + input +"\n")
     print("Executing AST root, please wait ...")
     instrucciones = parse.parse(input)
-    #dot.view()
+    createFile()
+    creategrafo()
+
 
     for instruccion in instrucciones:
         try:
