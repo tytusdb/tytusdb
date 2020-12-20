@@ -32,8 +32,8 @@ def showTables(database: str) -> list:
 def extractTable(database: str, table: str) -> list:
     return TBL.extractTable(database, table)
 
-def extractRangeTable(database: str, table: str, lower: any, upper: any) -> list:
-    return TBL.extractRangeTable(database, table, lower, upper)
+def extractRangeTable(database: str, table: str, columnNumber:int, lower: any, upper: any) -> list:
+    return TBL.extractRangeTable(database, table, columnNumber, lower, upper)
 
 def alterAddPK(database: str, table: str, columns: list) -> int:
     return TBL.alterAddPK(database, table, columns)

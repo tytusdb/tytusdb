@@ -1,10 +1,10 @@
-from avltree_structure import AVLTreeStructure
+import avltree_structure as AVLTreeStructure
 
 
 class Controller:
 
     def __init__(self):
-        self.structure = AVLTreeStructure()
+        self.structure = AVLTreeStructure
 
     def execute(self, args, action):
         actions = Enums.actions
@@ -28,7 +28,7 @@ class Controller:
         elif action == actions[7]:
             return self.structure.extractTable(args[0], args[1])
         elif action == actions[8]:
-            return self.structure.extractRangeTable(args[0], args[1], args[2], args[3])
+            return self.structure.extractRangeTable(args[0], args[1], args[2], args[3], args[4])
         elif action == actions[9]:
             return self.structure.alterAddPK(args[0], args[1], args[2].split(','))
         elif action == actions[10]:
