@@ -1,7 +1,3 @@
-# B+ Mode Package
-# Released under MIT License
-# Copyright (c) 2020 TytusDb Team
-
 import os
 
 class Node:
@@ -477,6 +473,8 @@ class BPlusTree:
     def register(self, register):
         if len(register)!=self.columns:
             return 5
+        if self.buscar(register):
+            return 4
         try:
             key = self.GenKey(register)
             if not len(self.PKey):
