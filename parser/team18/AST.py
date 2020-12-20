@@ -645,6 +645,7 @@ def AlterDBF(instr,ts):
         retorno=EDD.alterDatabase(NombreBaseDatos, ValorInstruccion)
 
         if retorno==0:
+            Rename_Database(NombreBaseDatos,ValorInstruccion)
             outputTxt='La base de datos Old_Name: '+NombreBaseDatos +', New_Name: '+ValorInstruccion 
             outputTxt+='\n> se ha renombrado exitosamente '
             agregarMensjae('normal',outputTxt,"")
@@ -687,10 +688,9 @@ def AlterTBF(instr,ts):
     print(instr)
     #TABLA A ANALIZAR
     NombreTabla=instr.Id
-
+    global listaTablas
     #RENAME , ALTER_TABLE_SERIE,   ALTER_TABLE_DROP,   ALTER_TABLE_ADD
     ObjetoAnalisis=instr.cuerpo
-
 
 
     #ANALISIS ALTER RENAME
@@ -702,24 +702,10 @@ def AlterTBF(instr,ts):
         #Operacion Column ,Constraint o nula
         OPERACION=ObjetoAnalisis.operacion
 
-        #determinar si es RENAME COLUMN , RENAME COLUMN , RENAME CONSTRAINT, RENAME TABLE
-        if OPERACION.upper()=="CONSTRAINT":
-            ' '
-        elif OPERACION.upper()=="TO":
-            #Alterara el NOMBRE de una tabla de una db Seleccionada
-            print("BASEACTIVA:",baseActiva)
-            retorno=EDD.alterTable(baseActiva, NombreTabla,ID1)
-            #Verifica Respuesta
-            Msg_Alt_Rename(NombreTabla,ID1,retorno)
-
-
-        elif OPERACION.upper()=="COLUMN" or OPERACION.upper()=="ID" :
-            ' '
-
-           
-
-
-
+        cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION)
+        #FALTA RENAME CONSTRAINT
+        #RENOMBRAR LLAVES FORANEAS Y REFERENCES
+       
     #ANALISIS ALTER DE ALTERS
     elif isinstance(ObjetoAnalisis,ALTERTBO_ALTER_SERIE ):
 
@@ -756,11 +742,8 @@ def AlterTBF(instr,ts):
 
 
             #Modificara una propieda de una columna
-            if INSTRUCCION.upper()=="COLUMN":
-                ' '
+
             
-            elif INSTRUCCION.upper()=="CONSTRAINT":
-                ' '
 
 
     #ANALISIS ALTER DROP
@@ -770,13 +753,10 @@ def AlterTBF(instr,ts):
         #Identificador 
         ID=ObjetoAnalisis.id
         Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID)
-
-            #******
+        #FALTA DROP CONSTRAINT
+        #RENOMBRAR LLAVES FORANEAS Y REFERENCES SI SE ELIMINA O DEJAR ASI
 
         
-
-
-
     #ANALISIS ALTER ADD
     elif isinstance(ObjetoAnalisis,ALTERTBO_ADD ):
         '''alttbadd : ADD ID tipo valortipo
@@ -881,10 +861,14 @@ def Get_Table(nameTable):
     #si encuentra la cabecera tabla , procede a buscar el cuerpo
     if len(TablaC)>0:
         try:
-            contenido=extractTable(baseActiva,nameTable)
+            contenido=EDD.extractTable(baseActiva,nameTable)
+            print(contenido)
             if contenido!=None:
                 #Si no da error , agrega la tabla fisica
                 TablaC=TablaC+[contenido]
+            else:
+                vacio=[]
+                TablaC=TablaC+[vacio]
         except:
             vacio=[]
             TablaC=TablaC+[vacio]
@@ -924,7 +908,16 @@ def Get_Column(name_c,tabla_H_List,tabla_C_List):
     #[Objeto_Columna,posicion,[Registros]]
     return retorna
 
+def Rename_Database(nombreOld,nombreNew):
+    
+    global listaTablas
+    tablas=copy.copy(listaTablas)
 
+    for tab in tablas:
+        if tab.basepadre==nombreOld:
+            tab.basepadre=nombreNew
+    
+    listaTablas=copy.copy(tablas)
 
 
 #Respuestas*********************************
@@ -982,6 +975,93 @@ def Msg_Alt_Rename(NombreTabla,ID1,retorno):
 
 
 #CUERPOS=====================
+
+def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
+    global listaTablas
+
+    #determinar si es RENAME COLUMN , RENAME COLUMN , RENAME CONSTRAINT, RENAME TABLE
+    if OPERACION.upper()=="CONSTRAINT":
+        ' '
+
+
+
+
+    elif OPERACION.upper()=="TO":
+        #Alterara el NOMBRE de una tabla de una db Seleccionada
+        print("BASEACTIVA:",baseActiva)
+        retorno=EDD.alterTable(baseActiva, NombreTabla,ID1)
+
+        #si encuentra la tabla en fisico , procede a buscar header
+        if retorno==0:
+            #hace copia de las tablas 
+            tablab=copy.copy(Get_Table(NombreTabla))
+            #recorre las tablas para modificar el nombre de la tabla
+            conta=0
+            for tab_t in tablab:
+                if tab_t.nombre==NombreTabla:
+                    (listaTablas[conta]).nombre=ID1
+                    break
+                conta+=1
+        #Verifica Respuesta
+        Msg_Alt_Rename(NombreTabla,ID1,retorno)
+
+
+    elif OPERACION.upper()=="COLUMN" or OPERACION.upper()=="ID" :
+            
+        #[Cabecera ,Posicion_Header, Cuerpo ]
+        #def Get_Column(name_c,tabla_H_List,tabla_C_List):
+        tablab=copy.copy(Get_Table(NombreTabla))
+            
+        #si existe la tabla en la base de datos
+        if len(tablab)>0:
+                
+            #Busca la columna para cambiarla
+            print(tablab)
+            columnab=Get_Column(ID1,(tablab[0]).atributos,tablab[2])
+                
+            #Si encuentra la columna procede a verificar que no exista el nombre NUEVO
+            if len(columnab)>0:
+                columnaComprueba=Get_Column(ID2,(tablab[0]).atributos,tablab[2])
+                    
+                #Si el nombre no existe en la tabla procede a cambiarlo
+                if len(columnaComprueba)==0:
+                    head_Tabla_Cols=(tablab[0]).atributos
+                    #Renombra la columna
+                    (head_Tabla_Cols[columnab[1]]).nombre=ID2
+                    #Actualiza la lista de columnas tabla
+                    (tablab[0]).atributos=head_Tabla_Cols
+                    head_Tabla_Cols=(tablab[0]).atributos
+                    print((head_Tabla_Cols[columnab[1]]).nombre)
+                        #Actualiza en la base de datos
+                        
+                    listaTablas[tablab[1]]=tablab[0]
+
+                    outputTxt='La columna:'+ID1+' cambio su nombre por:'+ID2+' exitosamente'
+                    agregarMensjae('normal',outputTxt,"")
+                    #print("el nombre existe col")
+                else:
+                    outputTxt='El nombre:'+ID2+' ya existe en la tabla:'+NombreTabla
+                    agregarMensjae('normal',outputTxt,"")
+                    print("el nombre existe col")
+                    #el nombre Nuevo de la columna ya existe
+            else:
+                outputTxt='La columna:'+ID1+' no existe en la Tabla:'+NombreTabla
+                agregarMensjae('normal',outputTxt,"")
+                print("la col no existe")
+                #la columna a modificar no existe
+        else:
+            outputTxt='La tabla:'+NombreTabla+' no existe en la bd:'+baseActiva
+            agregarMensjae('normal',outputTxt,"")
+            print("la tabla no existe")
+            #la tabla a modificar no existe
+
+
+
+
+
+           
+
+
 
 
 def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
