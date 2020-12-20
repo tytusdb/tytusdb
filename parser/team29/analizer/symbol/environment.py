@@ -59,11 +59,10 @@ class Environment:
         env = self
         env.tables.append(table)
 
-    # TODO: buscar ambiguedad
     def ambiguityBetweenColumns(self, column):
         """
-        Encarga de buscar ambiguedad de una columna entre todas las tablas de
-        la clausula FROM
+        Encargada de buscar ambiguedad de una columna entre todas
+        las tablas de la clausula FROM
         """
         env = self
         i = 0
@@ -78,6 +77,24 @@ class Environment:
             print("Error: Existe ambiguedad entre la culumna:", column)
             return
         return table
+
+    def getType(self, table, column):
+        """
+        Encargada de buscar ambiguedad de una columna entre todas
+        las tablas de la clausula FROM
+        """
+        env = self
+        print(table, column)
+        while env != None:
+            if table in env.variables:
+                symbol = env.variables[table].value
+                lst = Struct.extractColumns(env.database, symbol)
+                for l in lst:
+                    if l.name == column:
+                        return l
+                break
+            env = env.previous
+        return
 
     def getVar(self, id):
         env = self
@@ -96,3 +113,12 @@ class Environment:
         while env != None:
             env = env.previous
         return env
+
+    def getColumn(self, table, column):
+        env = self
+        while env != None:
+            if table in env.variables:
+                symbol = env.variables[table]
+                return env.dataFrame[symbol.value + "." + column]
+            env = env.previous
+        return None

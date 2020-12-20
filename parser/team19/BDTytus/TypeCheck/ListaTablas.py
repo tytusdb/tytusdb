@@ -1,4 +1,4 @@
-import Tabla as Tabla
+import TypeCheck.Tabla as Tabla
 
 class ListaTablas:
     def __init__(self):

@@ -6,15 +6,19 @@
 # 201220165 - Oscar Rolando Bernard Peralta
 
 # IMPORT SECTION
+from proyecto.Instrucciones import UnionAll
 import ply.lex as lex
 import ply.yacc as yacc
 from Expresiones import *
 from Instrucciones import *
+from Retorno import Retorno
+from NodoAST import NodoAST
 import re
 
 # VARIABLES GLOBALES
 counter_lexical_error = 1
 counter_syntactic_error = 1
+reporte_gramatical = []
 
 # LISTADO DE PALABRAS RESERVADAS
 palabras_reservadas = {
@@ -376,8 +380,40 @@ def p_instruccion1(t):
     """
         INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
     """
-    t[0] = SelectCompleto(t[1],t[2])
-
+    reporte_gramatical.append("<INSTRUCCION> ::= <I_SELECT> <COMPLEMENTOSELECT>")
+    if t[2] is None:
+        t[0] = t[1]
+    else:
+        if isinstance(t[2].getInstruccion(), ComplementoSelectUnion):
+            ret = Retorno(Union(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("UNION"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectUnionAll):
+            ret = Retorno(UnionAll(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("UNION ALL"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectIntersect):
+            ret = Retorno(Intersect(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("INTERSECT"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectIntersectALL):
+            ret = Retorno(IntersectAll(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("INTERSECT ALL"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectExcept):
+            ret = Retorno(Except(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("EXCEPT"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectExceptAll):
+            ret = Retorno(ExceptAll(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("EXCEPT ALL"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
 
 def p_instruccion2(t):
     """
@@ -949,31 +985,45 @@ def p_ComplementoL(t):
 
 def p_ComplementoSelectUnion(t):
     'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
-    # INSTRUCCION COMPLEMENTOSELECTUNION
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"UNION\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectUnion(t[2].getInstruccion()), t[2].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectUnionAll(t):
     'COMPLEMENTOSELECT  : UNION ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTALL
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"UNION\" \"ALL\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectUnionAll(t[3].getInstruccion()), t[3].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectIntersect(t):
     'COMPLEMENTOSELECT  : INTERSECT I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTINTERSECT
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"INTERSECT\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectIntersect(t[2].getInstruccion()), t[2].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectIntersectALL(t):
     'COMPLEMENTOSELECT  : INTERSECT ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTINTERSECTALL
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"INTERSECT\" \"ALL\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectIntersectALL(t[3].getInstruccion()), t[3].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectExcept(t):
     'COMPLEMENTOSELECT  : EXCEPT I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTEXCEPT
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"EXCEPT\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectExcept(t[2].getInstruccion()), t[2].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectExceptAll(t):
     'COMPLEMENTOSELECT  : EXCEPT ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTEXCEPTALL
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"EXCEPT\" \"ALL\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectExceptAll(t[3].getInstruccion()), t[3].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectExceptPcoma(t):
     'COMPLEMENTOSELECT  : PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTEXCEPTPCOMA
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \";\"")
+    t[0] = None
 
 def p_Limit(t):
     'PLIMIT  :   LIMIT CONDICION    '

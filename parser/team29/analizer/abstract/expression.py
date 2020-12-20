@@ -17,9 +17,12 @@ class TYPE(Enum):
     NUMBER = 1
     STRING = 2
     BOOLEAN = 3
-    DATETIME = 4
-    TYPE = 5
-    NULL = 6
+    TIMESTAMP = 4
+    DATE = 5
+    TIME = 6
+    DATETIME = 7
+    TYPE = 8
+    NULL = 9
 
 
 class ERROR(Enum):
@@ -69,7 +72,6 @@ class Identifiers(Expression):
     Esta clase representa los nombre de columnas
     """
 
-    value = None
     # TODO: implementar la funcion para obtener el type de la columna
     def __init__(self, table, name, row, column):
         Expression.__init__(self, row, column)
@@ -83,22 +85,48 @@ class Identifiers(Expression):
         self.type = TYPE.NUMBER
 
     def execute(self, environment):
-        """
-        TODO: Se debe hacer la logica para buscar los identificadores en la tabla
-        """
         if self.table == None:
             table = environment.ambiguityBetweenColumns(self.name)
             if not table:  # Si existe ambiguedad
                 return
             col = table + "." + self.name
+            self.value = environment.dataFrame[col]
         else:
-            col = self.table + "." + self.name
-        self.value = environment.dataFrame[col]
+            self.value = environment.getColumn(self.table, self.name)
+            # r = environment.getType(self.table, self.name)
+            # print(r)
         return self
 
     def dot(self):
         nod = Nodo.Nodo(self.name)
         return nod
+
+
+class TableAll(Expression):
+    """
+    Esta clase representa una tabla.*
+    """
+
+    def __init__(self, table, row, column):
+        Expression.__init__(self, row, column)
+        self.table = table
+
+    def execute(self, environment):
+        env = environment
+        lst = []
+        while env != None:
+            if self.table in env.variables:
+                table = env.variables[self.table].value
+                for p in env.dataFrame:
+                    temp = p.split(".")
+                    if temp[0] == table:
+                        identifier = Identifiers(
+                            self.table, temp[1], self.row, self.column
+                        )
+                        lst.append(identifier)
+                break
+            env = env.previous
+        return lst
 
 
 class UnaryArithmeticOperation(Expression):
@@ -172,6 +200,43 @@ class BinaryArithmeticOperation(Expression):
             return ErrorOperatorExpression(operator, self.row, self.column)
         self.dot()
         return Primitive(TYPE.NUMBER, value, self.row, self.column)
+
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        global root
+        root = new
+        return new
+
+
+class BinaryStringOperation(Expression):
+    """
+    Esta clase recibe dos parametros de expresion
+    para realizar operaciones entre ellas
+    """
+
+    def __init__(self, exp1, exp2, operator, row, column):
+        Expression.__init__(self, row, column)
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operator = operator
+        self.temp = exp1.temp + str(operator) + exp2.temp
+
+    def execute(self, environment):
+        exp1 = self.exp1.execute(environment)
+        exp2 = self.exp2.execute(environment)
+        operator = self.operator
+        if exp1.type != TYPE.STRING and exp2.type != TYPE.STRING:
+            return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+        if operator == "||":
+            value = str(exp1.value) + str(exp2.value)
+        else:
+            return ErrorOperatorExpression(operator, self.row, self.column)
+        self.dot()
+        return Primitive(TYPE.STRING, value, self.row, self.column)
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -697,7 +762,7 @@ class FunctionCall(Expression):
             elif self.function == "decode":
                 value = strf.decode(*valores)
             # Se toma en cuenta que la funcion now produce tipo DATE
-            if self.function == "now":
+            elif self.function == "now":
                 type_ = TYPE.DATETIME
                 value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             else:

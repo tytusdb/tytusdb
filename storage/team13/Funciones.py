@@ -1,7 +1,10 @@
-from os import name
+import os
 import re
-from AVL_DB import Avl as AvlDb
-from AVL_Table import Avl as AvlT
+import pickle
+import shutil
+from AVL_DB import AVL_DB as AvlDb
+from AVL_TABLE import AVL_TABLE as AvlT
+from BPLUS_TUPLE import BPLUS_TUPLE as bPlusT
 
 DataBase = AvlDb()
 
@@ -23,18 +26,21 @@ def showDatabases():
     return lista
 
 def alterDatabase(databaseOld, databaseNew):
-    if re.match(r'[_]?[A-Za-z]+[_]?[_0-9]*[_]?', databaseNew):
+    if (re.match(pattern, databaseOld)) and (re.match(pattern, databaseNew)):
         db = DataBase.buscar(str(databaseOld))
         db_new = DataBase.buscar(str(databaseNew))
+
         if db is None:
             return 2
         elif db_new is not None:
             return 3
-        elif db is not None:
-            db.name = databaseNew
-            return 0
         else:
-            return 1
+            if db is not None:
+                if DataBase.actualizar(databaseOld, databaseNew) == 'exito':
+                    Save(DataBase, "BD")
+                    return 0
+                else:
+                    return 1
     else:
         return 1
     
@@ -88,6 +94,35 @@ def showTables(database):
         return dataB
     except:
         return None
+
+def extractTable(database, table):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        BaseDatos = DataBase.buscar(database)
+        if BaseDatos != None:
+            Tabla = BaseDatos.avlTable.buscar(table)
+            if Tabla != None:
+                return Tabla.bPlus.extractReg()
+        else:
+            return None
+    except:
+        return None
+    
+def extractRangeTable(database, table, columnNumber, lower, upper):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        BaseDatos = DataBase.buscar(database)
+        if BaseDatos != None:
+            Tabla = BaseDatos.avlTable.buscar(table)
+            if Tabla != None:
+                return Tabla.bPlus.extractRegRange(columnNumber, lower, upper)
+        else:
+            return None
+    except:
+        return None
+    
     
 def alterAddPK(database, table, columns):
     try:
@@ -122,6 +157,49 @@ def alterDropPK(database, table):
         return valor
     except:
         return 1
+
+def alterTable(database, tableOld, tableNew):
+    try:
+        if re.match(pattern, database):
+            db = DataBase.buscar(database)
+            if db is None:
+                return 2
+            else:
+                table = db.avlTable.buscar(tableOld)
+                table_new = db.avlTable.buscar(tableNew)
+
+                if table is None:
+                    return 3
+                elif table_new is not None:
+                    return 4
+                else:
+                    if table is not None:
+                        if db.avlTable.actualizar(tableOld, tableNew) == 'exito':
+                            Save(DataBase, "BD")
+                            return 0
+        else:
+            return 1
+    except:
+        return 1
+    
+
+def alterAddColumn(database, table, default):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        db = DataBase.buscar(str(database))
+        if db is None:
+            return 2
+        else:
+            tabla = db.avlTable.buscar(table)
+            if tabla is None:
+                return 3
+            else:
+                tabla.bPlus.alterAddColumn(default)
+                Save(DataBase, "BD")
+                return 0
+    except:
+        return 1    
     
 def alterDropColumn(database, table, columnNumber):
     if CheckData():
@@ -143,5 +221,103 @@ def alterDropColumn(database, table, columnNumber):
     except:
         return 1
     
+def insert(database, table, register):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        base = DataBase.buscar(str(database))
+        if base is not None:
+            tabla = base.avlTable.buscar(table)
+            if tabla is not None:
+                valor = tabla.bPlus.insert(register) 
+                Save(DataBase, "BD")
+                return valor
+            return 3
+        return 2
+    except:
+        return 1
+    
+def loadCSV(file, database, table):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        base = DataBase.buscar(str(database))
+        if base is not None:
+            tabla = base.avlTable.buscar(table)
+            if tabla is not None:
+                results = []
+                registers = file.split('\n')
+                for i in registers:
+                    register = i.split(',')
+                    results.append(tabla.bPlus.insert(register))
+                Save(DataBase, "BD")
+                return results
+            return [3]
+        return [2]
+    except:
+        return [1]
+    
+def extractRow(database, table, columns):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        base = DataBase.buscar(str(database))
+        if base is not None:
+            tabla = base.avlTable.buscar(table)
+            if tabla is not None:
+                return tabla.bPlus.extractRow(columns)
+            return []
+        return []
+    except:
+        return []
 
 
+def update(database, table, register, columns):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        base = DataBase.buscar(str(database))
+        if base is not None:
+            tabla = base.avlTable.buscar(table)
+            if tabla is not None:
+                valor = tabla.bPlus.update(register, columns) 
+                Save(DataBase, "BD")
+                return valor
+            return 3
+        return 2
+    except:
+        return 1
+    
+def delete(database, table, columns):
+    print("No hay delete :,(")
+
+def truncate(database, table):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        base = DataBase.buscar(str(database))
+        if base is not None:
+            tabla = base.avlTable.buscar(table)
+            if tabla is not None:
+                valor = tabla.bPlus.truncate()
+                Save(DataBase, "BD")
+                return valor
+            return 3
+        return 2
+    except:
+        return 1
+    
+def Save(objeto, nombre):
+    file = open(nombre + ".bin", "wb")
+    file.write(pickle.dumps(objeto))
+    file.close()
+    if os.path.isfile(os.getcwd() + "\\Data\\" + nombre + ".bin"):
+        os.remove(os.getcwd() + "\\Data\\" + nombre + ".bin")
+    shutil.move(os.getcwd() + "\\" + nombre + ".bin" , os.getcwd() + "\\Data")
+
+
+def Load(nombre):
+    file = open(os.getcwd() + "\\Data\\" + nombre + ".bin", "rb")
+    objeto = file.read()
+    file.close()
+    return pickle.loads(objeto)
