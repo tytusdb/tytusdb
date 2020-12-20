@@ -1,4 +1,5 @@
 from analizer.symbol import symbol as sym
+from analizer.typechecker.Metadata import Struct
 
 
 class Environment:
@@ -7,10 +8,14 @@ class Environment:
     de las diferentes ejecuciones (execute()) de las instrucciones y
     expresiones.
     """
+
     dataFrame = None
-    def __init__(self, previous=None) -> None:
+
+    def __init__(self, previous=None, database="") -> None:
+        self.database = database
         self.previous = previous
         self.variables = {}
+        self.tables = []
 
     def updateVar(self, id, value, type_):
         """
@@ -47,6 +52,33 @@ class Environment:
         env.variables[id] = symbol
         return symbol
 
+    def addTable(self, table):
+        """
+        Inserta una nueva tabla
+        """
+        env = self
+        env.tables.append(table)
+
+    # TODO: buscar ambiguedad
+    def ambiguityBetweenColumns(self, column):
+        """
+        Encarga de buscar ambiguedad de una columna entre todas las tablas de
+        la clausula FROM
+        """
+        env = self
+        i = 0
+        table = ""
+        for t in env.tables:
+            lst = Struct.extractColumns(env.database, t)
+            for l in lst:
+                if l.name == column:
+                    i += 1
+                    table = t
+        if i > 1:
+            print("Error: Existe ambiguedad entre la culumna:", column)
+            return
+        return table
+
     def getVar(self, id):
         env = self
         while env != None:
@@ -64,3 +96,12 @@ class Environment:
         while env != None:
             env = env.previous
         return env
+
+    def getColumn(self, tableId, column):
+        env = self
+        while env != None:
+            if tableId in env.variables:
+                symbol = env.variables[tableId]
+                return env.dataFrame[symbol.value+"."+column]
+            env = env.previous
+        return None

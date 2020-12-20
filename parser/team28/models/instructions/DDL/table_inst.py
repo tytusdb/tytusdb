@@ -8,6 +8,7 @@ from models.database import Database
 from models.column import Column
 from models.table import Table
 import json
+import datetime
 
 class CreateTB(Instruction):
 
@@ -64,7 +65,15 @@ class CreateTB(Instruction):
     def generateColumns(self,nombreTabla,typeChecker):
         for columna in self._column_list:
             if isinstance(columna,CreateCol):
-                columnaFinal = Column(columna._column_name,str(columna._type_column._tipoColumna))
+                #columna._paramOne
+                #columna._paraTwos
+                #columna._tipoColumna
+                tipoFinal = {
+                    '_tipoColumna' : str(columna._type_column._tipoColumna),
+                    '_paramOne' : columna._type_column._paramOne,
+                    '_paramTwo' : columna._type_column._paramTwo
+                }
+                columnaFinal = Column(columna._column_name,tipoFinal)
                 if columna._properties != None:
                     for prop in columna._properties:
                         columnaFinal = self.addPropertyes(prop,columnaFinal)
@@ -152,7 +161,11 @@ class CreateTB(Instruction):
     def addConstraint(self,nombreColumna,condicionColumna):
         pass
 
-    def validateType(self,columnType,defaulValue):
+    def validateType(self,columnInfo,defaulValue):
+
+        columnType = columnInfo['_tipoColumna']
+        paramOne = columnInfo['_paramOne']
+        paramTwo = columnInfo['_paramTwo']
 
         valorDef = defaulValue.process(0)
 
@@ -161,8 +174,121 @@ class CreateTB(Instruction):
         else:
             valorDef = defaulValue.reference_column.value
 
+        #-->
+        if columnType == 'ColumnsTypes.BIGINT':
+            try:
+                valorDef = int(valorDef)
+                if valorDef < 9223372036854775807 and valorDef > -9223372036854775808:
+                    pass
+                else:
+                    print('!!!ERROR!!!, El tamanio del default es muy grande para el bigint')
+            except:
+                print('!!!ERROR!!!, La columna de tipo bigint no puede aceptar ese valor default')
 
-        if columnType == ColumnsTypes.SMALLINT:
+        #-->
+        elif columnType == 'ColumnsTypes.BOOLEAN':
+            if valorDef == 'True' or valorDef == 'False':
+                pass
+            else:
+                print('!!!ERROR!!!, La columna de tipo boolean no puede aceptar ese valor default')
+
+
+        #-->
+        elif columnType == 'ColumnsTypes.CHAR':
+            valorDef = str(valorDef)
+            if paramOne != None:
+                if len(valorDef) > paramOne:
+                    print('!!!ERROR!!!, El tamanio default del char sobrepasa el tamanio permitido')
+            else:
+                if len(valorDef) > 1:
+                    print('!!!ERROR!!!, El tamanio default del char sobrepasa el tamanio permitido')
+
+        #-->
+        elif columnType == 'ColumnsTypes.CHARACTER':
+            valorDef = str(valorDef)
+            if paramOne != None:
+                if len(valorDef) > paramOne:
+                    print('!!!ERROR!!!, El tamanio default del character sobrepasa el tamanio permitido')
+            else:
+                if len(valorDef) > 1:
+                    print('!!!ERROR!!!, El tamanio default del character sobrepasa el tamanio permitido')
+
+        #-->
+        elif columnType == 'ColumnsTypes.CHARACTER_VARYING':
+            valorDef = str(valorDef)
+            if paramOne != None:
+                if len(valorDef) > paramOne:
+                    print('!!!ERROR!!!, El tamanio default del character varying sobrepasa el tamanio permitido')
+            else:
+                pass
+
+        #-->
+        elif columnType == 'ColumnsTypes.DATE':
+            valorDef = str(valorDef)
+            try:
+                datetime.datetime.strptime(valorDef,'%Y-%m-%d')
+            except:
+                print('!!!ERROR!!!, El formato de fecha es invalido, debe ser yyyy-mm-dd')
+
+        #-->
+        elif columnType == 'ColumnsTypes.DECIMAL' or columnType == 'ColumnsTypes.NUMERIC':
+            try:
+                valorDef = float(valorDef)
+                if paramOne != None and paramTwo != None:
+                    strValorDef = str(valorDef)
+                    if strValorDef.find('.') != -1:
+                        division = strValorDef.split('.')
+                        parteEntera = int(division[0])
+                        parteDecimal = int(division[1])
+                        conteo = 0
+                        if parteEntera != 0:
+                            conteo += len(str(parteEntera))
+                        conteo += paramTwo
+                        if conteo > paramOne:
+                            print('!!!ERROR!!!, El dato por default en decimal no corresponde por overflow')
+                else:
+                    strValorDef = str(valorDef)
+                    if strValorDef.find('.') != -1:
+                        division = strValorDef.split('.')
+                        parteEntera = int(division[0])
+                        if len(str(parteEntera)) > paramOne and parteEntera != 0:
+                            print('!!!ERROR!!!, El dato por default en decimal no corresponde por overflow')
+
+            except Exception as e:
+                print('!!!ERROR!!!, El dato por default en decimal no corresponde')
+                print(e)
+
+        elif columnType == ColumnsTypes.DOUBLE_PRECISION or columnType == ColumnsTypes.REAL:
+            try:
+                float(valorDef)
+            except:
+                print('!!!ERROR!!!, La columna de tipo double precision or real no puede aceptar ese valor default')
+
+        #-->
+        elif columnType == 'ColumnsTypes.INTEGER':
+            try:
+                valorDef = int(valorDef)
+                if valorDef < 2147483647 and valorDef > -2147483648:
+                    pass
+                else:
+                    print('!!!ERROR!!!, El tamanio del default es muy grande para el integer')
+            except:
+                print('!!!ERROR!!!, La columna de tipo integer no puede aceptar ese valor default')
+
+
+        #-->
+        elif columnType == 'ColumnsTypes.INTERVAL':
+            pass
+
+        #-->
+        elif columnType == 'ColumnsTypes.MONEY':
+            try:
+                float(valorDef)
+            except:
+                print('!!!ERROR!!!, La columna de tipo money no puede aceptar ese valor default')
+
+        #-->
+        elif columnType == 'ColumnsTypes.SMALLINT':
             try:
                 valorDef = int(valorDef)
                 if valorDef < 32727 and valorDef > -37767:
@@ -170,12 +296,38 @@ class CreateTB(Instruction):
                 else:
                     print('!!!ERROR!!!, El tamanio del default es muy grande para el smallint')
             except:
-                print('!!!ERROR!!!, La columna de tipo small no puede aceptar ese valor default')
+                print('!!!ERROR!!!, La columna de tipo smallint no puede aceptar ese valor default')
         
+        #-->
+        elif columnType == 'ColumnsTypes.TEXT':
+            try:
+                valorDef = str(valorDef)
+            except:
+                print('!!!ERROR!!!, El tamanio default del character varying sobrepasa el tamanio permitido')
         
+        #-->
+        elif columnType == 'ColumnsTypes.TIMESTAMP':
+            valorDef = str(valorDef)
+            try:
+                datetime.datetime.strptime(valorDef,'%Y-%m-%d %H:%M:%S')
+            except:
+                print('!!!ERROR!!!, El formato de timestamp es invalido, debe ser yyyy-mm-dd h:m:s')
+        
+        #-->
+        elif columnType == 'ColumnsTypes.TIME':
+            valorDef = str(valorDef)
+            try:
+                datetime.datetime.strptime(valorDef,'%H:%M:%S')
+            except:
+                print('!!!ERROR!!!, El formato de time es invalido, debe ser h:m:s')
 
-        
-
+        elif columnType == 'ColumnsTypes.VARCHAR':
+            valorDef = str(valorDef)
+            if paramOne != None:
+                if len(valorDef) > paramOne:
+                    print('!!!ERROR!!!, El tamanio default del varchar sobrepasa el tamanio permitido')
+            else:
+                pass
 
 class DropTB(Instruction):
 

@@ -11,6 +11,15 @@ class ErrorHTML:
     def __init__(self):
         ''' GENERAR HTML PARA LOS ERRORES LEXICOS, SINTACTICOS Y SEMANTICOS'''
 
+    def getList(self):
+        global listaErrores
+        return listaErrores
+
+    def clearList(self):
+        
+        global listaErrores
+        listaErrores = []
+
     def crearReporte(self):
               
         f = open("reportes/errores.html", "w")
@@ -72,3 +81,6 @@ class ErrorHTML:
         f.write("")
         f.write("</html>")
         f.close()
+        
+        self.clearList()
+

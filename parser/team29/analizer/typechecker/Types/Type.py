@@ -13,22 +13,23 @@ Type = {
     "MONEY": TYPE.NUMBER,
     "CHARACTER": TYPE.STRING,
     "VARYING": TYPE.STRING,
-    "VARCHAR":TYPE.STRING,
+    "VARCHAR": TYPE.STRING,
     "CHAR": TYPE.STRING,
-    "TEXT":TYPE.STRING,
-    "DATE":TYPE.DATETIME,
+    "TEXT": TYPE.STRING,
+    "DATE": TYPE.DATETIME,
     "TIME": TYPE.DATETIME,
     "BOOLEAN": TYPE.BOOLEAN,
     "TIMESTAMP": TYPE.DATETIME,
 }
 
+
 class Column:
-    def __init__(self,name,type_,value):
+    def __init__(self, name, type_, value):
         self.name = name
         self.type = type_
         self.value = value
         if self.type == None:
             self.type = TYPE.TYPE
-    
+
     def get(self):
         return self

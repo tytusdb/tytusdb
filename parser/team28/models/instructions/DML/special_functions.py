@@ -33,16 +33,16 @@ def select_all(array,linea, column):
     database_id = SymbolTable().useDatabase
     if not database_id:
         desc = f": Database not selected"
-        ErrorController().addExecutionError(4, 'Execution', desc, linea,column)#manejar linea y columna
+        ErrorController().add(4, 'Execution', desc, linea,column)#manejar linea y columna
         return None
         #Base de datos existe --> Obtener tabla
     table_tp = TypeChecker().searchTable(database_id, array[0])
     if not table_tp:
         desc = f": Table does not exists"
-        ErrorController().addExecutionError(4, 'Execution', desc, linea , column)#manejar linea y columna
+        ErrorController().add(4, 'Execution', desc, linea , column)#manejar linea y columna
         return None
     table_cont = DataController().extractTable(array[0],linea,column)
-    headers = TypeChecker().searchColumns(table_tp)
+    headers = TypeChecker().searchColumnHeadings(table_tp)
     tabla_select = pd.DataFrame(table_cont)
     # print(headers)
     tabla_select.columns = headers
