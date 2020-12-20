@@ -12,15 +12,16 @@ response_path = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..'
 sys.path.append(response_path)
 
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\typeChecker\\')
-print(storage)
 sys.path.append(storage)
 
 
 from jsonMode import * 
 
-
+from typeChecker.typeChecker import *
 from Error import Error
 from Response.Response import Response
+
+tc = TypeChecker()
 
 
 class Column():
@@ -229,7 +230,7 @@ class Table():
     def execute(self, parent, enviroment):
         for hijo in parent.hijos:
             if hijo.nombreNodo == "IDENTIFICADOR" :
-                self.name = hijo.nombreNodo
+                self.name = hijo.valor
             elif hijo.nombreNodo == "ATRIBUTO_COLUMNA" :
                 nuevaColumna = Column()
                 self.columnas.append(nuevaColumna)
@@ -266,7 +267,7 @@ class Table():
             print(err_resp.descripcion)
             return resp
         createTable(config['databaseIndex'].upper(),self.name,len(self.columnas))
-        
+        tc.createTable(config['databaseIndex'].upper(),self.name,self.columnas)
         resp = Response("00000","Se creó la tabla")
         return resp
 

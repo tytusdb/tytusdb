@@ -2,9 +2,31 @@ import sys, os.path
 import json
 
 
-table_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\DDL\\Create\\')
-sys.path.append(table_dir)
-from Table import * 
+class Table():
+    def __init__(self):
+        self.name = None
+        self.isNull = None
+        self.columnas = []
+        self.checkers = []
+        self.listaids = []
+
+class Constraints():
+    def __init__(self):
+        self.nombre = None
+        self.listaColumnas = []
+
+class Column():
+    def __init__(self):
+        self.name = None
+        self.type = None
+        self.default = None
+        self.isNull = None
+        self.isUnique = None
+        self.uniqueName = None
+        self.size = None
+        self.isPrimary = None
+        self.referencesTable = None
+        self.isCheck = None
 
 file_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))+ '\\estructura.json')
 
@@ -134,8 +156,6 @@ class TypeChecker():
             tmp_column.isNull = columna["isNull"]
             tmp_column.isUnique = columna["isUnique"]
             tmp_column.uniqueName = columna["uniqueName"]
-            tmp_column.checkExp = columna["checkExp"]
-            tmp_column.checkName = columna["checkName"]
             tmp_column.size = columna["size"]
             tmp_column.isPrimary = columna["isPrimary"]
             tmp_column.referencesTable = columna["referencesTable"]
@@ -193,8 +213,6 @@ class TypeChecker():
                             "isNull" : column.isNull,
                             "isUnique" : column.isUnique,
                             "uniqueName" : column.uniqueName,
-                            "checkExp" : column.checkExp,
-                            "checkName" : column.checkName,
                             "size" : column.size,
                             "isPrimary" : column.isPrimary,
                             "referencesTable" : column.referencesTable

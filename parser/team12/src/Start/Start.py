@@ -51,6 +51,9 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'CREATE_TYPE_ENUM':
                 nuevoEnum = Type()
                 nuevoEnum.execute(hijo)
+            elif hijo.nombreNodo == 'SENTENCIA_SELECT':
+                nuevoSelect = Select()
+                nuevoSelect.execute(hijo,enviroment)
             elif hijo.nombreNodo == 'E':
                 hijo.execute(enviroment)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
