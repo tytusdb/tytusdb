@@ -33,8 +33,6 @@ const ELEMENT_DATA: PeriodicElement[] = [
   {position: 20, name: 'Calcio', weight: 40.078, symbol: 'Ca'},
 ];
 
-
-
 @Component({
   selector: 'app-data',
   templateUrl: './data.component.html',
