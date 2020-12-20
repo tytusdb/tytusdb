@@ -12,6 +12,7 @@ import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ComponenteNavbarComponent } from './components/componente-navbar/componente-navbar.component';
 import { TreeComponent } from './components/tree/tree.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { TreeComponent } from './components/tree/tree.component';
     MatButtonModule,
     FormsModule,
     CodemirrorModule,
-    FontAwesomeModule
+    FontAwesomeModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
