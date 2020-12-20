@@ -6,27 +6,15 @@ path.append(dir(path[0]))
 from analizer import grammar
 
 s = """ 
-    use db1;
-    /*create table tblibrosalario( 
-    idempleado integer not null,
-    aniocalculo integer CONSTRAINT aniosalario CHECK (aniocalculo > 0),
-    mescalculo  integer CONSTRAINT mescalculo CHECK (mescalculo > 0 ),
-    salariobase  money not null,
-    comision decimal,
-    primary key(idempleado)
-    );
-    insert into tblibrosalario values(4,2020,10,2500,6885);
-    insert into tblibrosalario values(5,2020,10,2750,5370);
-    
-    
-    */
-    
-    insert into tblibrosalario (salariobase,idempleado,mescalculo) values(3000,NULL,1);
-    
+    USE db1;
+    SELECT de1.*, caca.name FROM demo2 de1, (SELECT de2.name, de2.hint FROM demo2 de2 WHERE de1.id = de2.id) AS caca;
+    SELECT d.*, 3 FROM demo1 d WHERE d.id > 1;
+    --SELECT * FROM demo3 WHERE id > 1;
+    DELETE FROM demo1 as d WHERE d.id > 10;
+    --DELETE FROM demo3 as d WHERE d.id > 1;
+    --DELETE FROM demo4 as d WHERE d.id > 2;
 """
 
 
 result = grammar.parse(s)
 print(result)
-
-

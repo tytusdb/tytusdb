@@ -775,7 +775,7 @@ def p_lidsSingle(t):
 
 def p_having(t):
     'having : HAVING PARA exp_case PARC '
-    t[0] = t[3]
+    t[0] = condition(t[3],'AND')
 
 def p_havingEmpty(t):
     'having : empty'

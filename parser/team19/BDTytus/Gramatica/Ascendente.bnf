@@ -47,11 +47,14 @@ INSERT_SQL ::= par1 LISTA_ID par2 t_values par1 EXP par2
 DELETE_Cond ::= t_where EXP
                 | empty
 
-SENTENCIAS_DDL ::= t_show t_databases pyc
+SENTENCIAS_DDL ::= t_show t_databases SHOW_DB_LIKE_CHAR pyc
                     | ENUM_TYPE
                     | t_drop DROP pyc
                     | t_alter ALTER pyc 
                     | t_create CREATE pyc
+
+SHOW_DB_LIKE_CHAR ::= t_like char 
+                     | empty
 
 ENUM_TYPE ::= t_create t_type id t_as t_enum par1 LISTA_ENUM par2 pyc
 

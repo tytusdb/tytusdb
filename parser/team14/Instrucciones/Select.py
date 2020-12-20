@@ -27,8 +27,9 @@ class Select(Instruccion):
 
 
     def ejecutar(self,ent:Entorno):
-            tablas = []
+            tablas = [] 
             result = []
+            self.encabezado = []
 
             'Metodo Abstracto para ejecutar la instruccion'
             if self.distinct is None and self.froms is None and self.where is None and self.group is None and self.having is None and self.order is None and self.combinig is None:
@@ -44,12 +45,38 @@ class Select(Instruccion):
                         tipo =exp.tipo;
                         if tipo.tipo=='identificador':
                             nombre=exp.getval(ent)
+                            self.nombreres = nombre
                             tabla=ent.buscarSimbolo(nombre+"_"+ent.getDataBase())
                             if tabla!=None:
                                 tablas.append(tabla)
+                            else:
+                                return ("ERROR >> En la instrucción Select, la tabla: "+nombre+" NO EXISTE")
+                        else:
+                            return ("ERROR >> En la instrucción Select, ingreso un nombre de tabla incorrecto")
+                    else:
+                        return ("Algo paso")
 
                 if len(tablas)>1:
                     'producto cartesiano'
+                    
+                    'Obteniendo encabezados de las tablas'
+                    postab = 1
+                    for tabla in tablas:
+                        cols = tabla.valor
+                        for columna in cols:
+                            nombre = columna.nombre
+                            self.encabezados.append(nombre+"_T"+str(postab))
+                        postab = postab +1
+                        
+                    'producto cartesiano'
+                    real = tablas[0].nombre.replace('_' + ent.getDataBase(), '')
+                    result = DBMS.extractTable(ent.getDataBase(), real)
+                    self.nombreres = real+"(T1)"
+                    for i in range(0, len(tablas)-1):
+                        real2 = tablas[i+1].nombre.replace('_' + ent.getDataBase(), '')
+                        self.nombreres += '_' + real2 + "(T"+str(i+2)+")"
+                        tabla2 = DBMS.extractTable(ent.getDataBase(), real2)
+                        result = self.producto(result, tabla2)
                 else:
                     'llenar resultado desde backend'
                     real=tablas[0].nombre.replace('_'+ent.getDataBase(),'')
@@ -61,13 +88,20 @@ class Select(Instruccion):
                 #filtros
                 if self.where != None:
                     result=self.execwhere(ent,tablas)
+                else:
+                    if (len(self.encabezados)==0):
+                        for tabla in tablas:
+                            cols = tabla.valor
+                            for columna in cols:
+                                nombre = columna.nombre
+                                self.encabezados.append(nombre)
 
 
 
                 #acceder a columnas
                 if len(self.exps) == 1:
                     if self.exps[0].getval(ent) == '*':
-                        self.mostarresult(result, 'prueba xd')
+                        self.mostarresult(result, self.nombreres)
                     elif self.exps[0].tipo.tipo=='identificador':
                         'obtengo  solo columnas pedidas'
                     else:
@@ -77,25 +111,28 @@ class Select(Instruccion):
 
     def mostarresult(self,result,nomresult):
             if not len(result)>0:
-                return
-            data = result[0]
-            cols = len(data)
+                return "Instrucción Select realizada, No hay registros que cumplan la condición especificada"
+            else:
+                variables.consola.insert(INSERT, "Ejecutando select para la tabla: " + nomresult)
+                variables.consola.insert(INSERT, "\n")
+                variables.x.title = nomresult
+                variables.x.field_names = self.encabezados
+                variables.x.add_rows(result)
+                variables.consola.insert(INSERT, variables.x)
+                variables.x.clear()
+                variables.consola.insert(INSERT, "\n")
+                self.encabezados.clear()
+                return ("Instrucción Select realizada con exito")
 
-
-
-            variables.consola.insert(INSERT, "Ejecutando select: " + self.nombreres)
-            variables.consola.insert(INSERT, "\n")
-            variables.x.title = self.nombreres
-            variables.x.field_names = self.encabezado
-            variables.x.add_rows(result)
-            variables.consola.insert(INSERT, variables.x)
-            variables.x.clear()
-            variables.consola.insert(INSERT, "\n")
-
-
-
-    def producto(self, entorno):
+    def producto(self, tablaacum, tabla2):
         'realizacion producto cartesiano de tablas'
+        result = []
+        for i in range(0, len(tablaacum)):
+            for j in range(0, len(tabla2)):
+                result.append(tablaacum[i] + tabla2[j])
+
+        return result
+            
     def getcolumna(self,entorno,tablas):
         '''   datos = DBMS.extractTable(entorno.getDataBase(), nomtabla)
         if datos != None:
@@ -220,7 +257,7 @@ class Select(Instruccion):
                         nocol=i
                         nomtabla=tabla.nombre
                         nomtabla=nomtabla.replace('_'+entorno.getDataBase(),'')
-                        break
+                        continue
                     i=i+1
             if encontrado==1 and nocol>-1:
                 datos=DBMS.extractTable(entorno.getDataBase(),nomtabla)
@@ -261,9 +298,7 @@ class Select(Instruccion):
             'ya veremos dijo el ciego'
 
 
-
-
-    def group(self):
+    '''def group(self):
         'Ejecucucion del group'
 
     def having(self):
@@ -277,3 +312,4 @@ class Select(Instruccion):
 
     def combining(self):
         'Ejecucucion de combining'
+    '''
