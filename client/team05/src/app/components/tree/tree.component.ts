@@ -10,15 +10,15 @@ export class TreeComponent implements OnInit {
 
   cadena_db: String = ""
 
-  constructor() { 
+  constructor() {
   }
-  
+
   ngOnInit(): void {
     this.funcion1()
 
   }
 
-   funcion1() {
+  funcion1() {
     var toggler = document.getElementsByClassName("caret");
     var i;
 
@@ -31,15 +31,15 @@ export class TreeComponent implements OnInit {
   }
 
 
-  
 
-   refrescar() {
+
+  refrescar() {
     alert("def showDatabases()")
 
     let item_db = document.getElementById("db")
-    item_db.innerHTML=""
+    //item_db.innerHTML = ""
 
-    this.cadena_db = "[basedatos1,basedatos2, basedatos3]";
+    this.cadena_db = prompt("recibiendo datos", "[basedatos1,basedatos2, basedatos3]");
 
     // analizando respuesta
     let array = this.analizar(this.cadena_db)
@@ -51,7 +51,17 @@ export class TreeComponent implements OnInit {
 
     for (let i = 0; i < array.length; i++) {
       item_db.innerHTML += '<li><span class="caret">' + array[i] + '</span><ul class="animacion"><li><span class="caret">Tabla []</span><ul class="animacion" id="' + array[i] + '"></ul></li></ul></li>'
+      console.log('<li><span class="caret">' + array[i] + '</span><ul class="animacion"><li><span class="caret">Tabla []</span><ul class="animacion" id="' + array[i] + '"></ul></li></ul></li>')
+      let item = document.getElementById(array[i])
+      this.cadena_db = prompt("recibiendo datos tabla", "[]");
+      let respuesta = this.analizar(this.cadena_db)
+      for (let i = 0; i < respuesta.length; i++) {
+        
+        item.innerHTML += '<li>'+respuesta[i]+'</li>'
+      }
     }
+    
+
     this.funcion1()
 
   }

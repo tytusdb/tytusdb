@@ -1,48 +1,50 @@
-<style>
-    ul,
-    #myTree {
-        list-style-type: none;
-    }
+<head>
+    <style>
+        ul,
+        #myTree {
+            list-style-type: none;
+        }
 
-    #myTree {
-        margin: 0;
-        padding: 0;
-    }
+        #myTree {
+            margin: 0;
+            padding: 0;
+        }
 
-    .caret {
-        cursor: pointer;
-        -webkit-user-select: none;
-        /* Safari 3.1+ */
-        -moz-user-select: none;
-        /* Firefox 2+ */
-        -ms-user-select: none;
-        /* IE 10+ */
-        user-select: none;
-    }
+        .caret {
+            cursor: pointer;
+            -webkit-user-select: none;
+            /* Safari 3.1+ */
+            -moz-user-select: none;
+            /* Firefox 2+ */
+            -ms-user-select: none;
+            /* IE 10+ */
+            user-select: none;
+        }
 
-    .caret::before {
-        content: "\25B6";
-        color: black;
-        display: inline-block;
-        margin-right: 6px;
-    }
+        .caret::before {
+            content: "\25B6";
+            color: black;
+            display: inline-block;
+            margin-right: 6px;
+        }
 
-    .caret-down::before {
-        -ms-transform: rotate(90deg);
-        /* IE 9 */
-        -webkit-transform: rotate(90deg);
-        /* Safari */
-        transform: rotate(90deg);
-    }
+        .caret-down::before {
+            -ms-transform: rotate(90deg);
+            /* IE 9 */
+            -webkit-transform: rotate(90deg);
+            /* Safari */
+            transform: rotate(90deg);
+        }
 
-    .animacion {
-        display: none;
-    }
+        .animacion {
+            display: none;
+        }
 
-    .activada {
-        display: block;
-    }
-</style>
+        .activada {
+            display: block;
+        }
+    </style>
+</head>
 
 <button (click)="refrescar()">Refresh</button>
 <br><br>
@@ -50,19 +52,24 @@
 
 <ul id="myTree">
     <li><span class="caret">Servidores</span>
-      <ul class="animacion activada">
-        <li><span class="caret">PostgresSQL</span>
-          <ul class="animacion activada">
-            <li><span class="caret">Databases [<a id="num_db">0</a>]</span>
-              <ul class="animacion activada" id="db">
+        <ul class="animacion activada">
+            <li><span class="caret">PostgresSQL</span>
+                <ul class="animacion activada">
+                    <li><span class="caret">Databases [<a id="num_db">0</a>]</span>
+                        <ul class="animacion activada" id="db">
 
-              </ul>
+
+
+                            
+
+
+                        </ul>
+                    </li>
+                </ul>
             </li>
-          </ul>
-        </li>
-      </ul>
+        </ul>
     </li>
-  </ul>
+</ul>
 
 
 
@@ -70,5 +77,5 @@
 
 
 <script>
-     funcion1()
-    </script>
+    funcion1()
+</script>
