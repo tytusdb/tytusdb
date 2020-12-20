@@ -324,6 +324,13 @@ def EjecutarBD():
 
 def VBD():
     print("ver base de datos")
+
+
+def Truncate():
+    print("Truncate")
+
+def Delete():
+    print("Delete")
     
 
 
@@ -398,6 +405,13 @@ boton19.config(width=13, height=1)
 boton20 = Button(raiz, text="extractRangeTable", activebackground="#F50743",command=extractRangeTable)
 boton20.place(x=1000,y=250)
 boton20.config(width=13, height=1)
+boton21 = Button(raiz, text="Truncate", activebackground="#F50743",command=Truncate)
+boton21.place(x=900,y=300)
+boton21.config(width=13, height=1)
+boton22 = Button(raiz, text="Delete", activebackground="#F50743",command=Delete)
+boton22.place(x=1000,y=300)
+boton22.config(width=13, height=1)
+
 
 BotonEjecutar = Button(raiz, text="Ejecutar Base de datos", activebackground="#F50743",command=EjecutarBD)
 BotonEjecutar.place(x=600,y=500)
