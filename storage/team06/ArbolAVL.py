@@ -909,34 +909,25 @@ class ArbolAVL:
                 return 3
         else:
             return 2
-        
+
     def loadCSV(self, dirfile, database, table):
         l = []
         raiz = self.buscar(database)
         i = self.buscartabla(database, table)
         if raiz is not None:
             if i is not None:
-
                 with open(dirfile) as f:
                     reader = csv.reader(f)
                     for row in reader:
                         row = [int(i) for i in row]  # Convierte la lista de string a int
                         if i.campos[1] == len(row):
                             con = self.insert(database, table, row)
-                            if con == 4:
-                                l.append(4)
-                            else:
+                            if con != 4:
                                 l.append(row)
-                        else:
-                            return 5
 
-            else:
-                return 3
-        else:
-            return 2
         return l
-        
-        
+
+
 def commit(objeto, nombre):
     file = open(nombre + ".bin", "wb+")
     file.write(pickle.dumps(objeto))
