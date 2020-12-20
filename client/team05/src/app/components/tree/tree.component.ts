@@ -1,5 +1,7 @@
 import { ThrowStmt } from '@angular/compiler';
+import { stringify } from '@angular/compiler/src/util';
 import { Component, OnInit } from '@angular/core';
+import { faDotCircle } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-tree',
@@ -37,7 +39,7 @@ export class TreeComponent implements OnInit {
     alert("def showDatabases()")
 
     let item_db = document.getElementById("db")
-    //item_db.innerHTML = ""
+    item_db.innerHTML = ""
 
     this.cadena_db = prompt("recibiendo datos", "[basedatos1,basedatos2, basedatos3]");
 
@@ -50,17 +52,25 @@ export class TreeComponent implements OnInit {
     numero_db.innerText = String(array.length)
 
     for (let i = 0; i < array.length; i++) {
-      item_db.innerHTML += '<li><span class="caret">' + array[i] + '</span><ul class="animacion"><li><span class="caret">Tabla []</span><ul class="animacion" id="' + array[i] + '"></ul></li></ul></li>'
-      console.log('<li><span class="caret">' + array[i] + '</span><ul class="animacion"><li><span class="caret">Tabla []</span><ul class="animacion" id="' + array[i] + '"></ul></li></ul></li>')
+      item_db.innerHTML += '<li><span class="caret">' +
+        array[i] +
+        '</span><ul class="animacion"><li><span class="caret">Tabla [<a id ="t_'+
+        array[i]+
+        '">0</a>]</span><ul class="animacion" id="' +
+        array[i] +
+        '"></ul></li></ul></li>'
+
       let item = document.getElementById(array[i])
-      this.cadena_db = prompt("recibiendo datos tabla", "[]");
+      alert("def showtablees("+array[i]+")")
+      this.cadena_db = prompt("recibiendo tabla de la base de datos : "+array[i], "[]");
       let respuesta = this.analizar(this.cadena_db)
+      let num= document.getElementById('t_'+array[i])
+      num.innerText= String(respuesta.length) 
       for (let i = 0; i < respuesta.length; i++) {
-        
-        item.innerHTML += '<li>'+respuesta[i]+'</li>'
+        item.innerHTML += '<li>' + respuesta[i] + '</li>'
       }
     }
-    
+
 
     this.funcion1()
 
