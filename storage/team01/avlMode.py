@@ -389,3 +389,108 @@ def truncate(database: str, table: str) -> int:
             return 3 #Tabla no existe en la base de datos
     else:
         return 2 #Base de datos inexistente
+
+#Graba las Bases de Datos y sus resectivas Tablas a Disco
+def grabaBD():
+    serializar("BBDD.pickle", "wb", "")
+    colaBD = []
+    if mBBDD.raiz: colaBD.append(mBBDD.raiz)
+    while len(colaBD) > 0:
+        data = []
+        nodoBD = colaBD.pop(0)
+        data.append(nodoBD.clave)
+        colaTBL = []
+        if nodoBD.datos.raiz: colaTBL.append(nodoBD.datos.raiz)
+        while len(colaTBL) > 0:
+            nodoTBL = colaTBL.pop(0)
+            data.append([nodoTBL.clave, nodoTBL.valor])
+            if nodoTBL.Izq: colaTBL.append(nodoTBL.Izq)
+            if nodoTBL.Der: colaTBL.append(nodoTBL.Der)
+        serializar("BBDD.pickle", "ab", data)
+        print(data)
+        if nodoBD.Izq: colaBD.append(nodoBD.Izq)
+        if nodoBD.Der: colaBD.append(nodoBD.Der)
+
+#Graba los Registros de las Tablas de las Bases de Datos a Disco
+def grabaREG():
+    serializar("REGS.pickle", "wb", "")
+    colaBD = []
+    data = []
+    if mBBDD.raiz: colaBD.append(mBBDD.raiz)
+    while len(colaBD) > 0:
+        nodoBD = colaBD.pop(0)
+        colaTBL = []
+        data = []
+        if nodoBD.datos.raiz: colaTBL.append(nodoBD.datos.raiz)
+        while len(colaTBL) > 0:
+            nodoTBL = colaTBL.pop(0)
+            data = []
+            data.append(nodoBD.clave)
+            data.append(nodoTBL.clave)
+            colaREG = []
+            if nodoTBL.datos.raiz: colaREG.append(nodoTBL.datos.raiz)
+            while len(colaREG) > 0:
+                nodoREG = colaREG.pop(0)
+                data.append([nodoREG.clave, nodoREG.valor])
+                if nodoREG.Izq: colaREG.append(nodoREG.Izq)
+                if nodoREG.Der: colaREG.append(nodoREG.Der)
+            if nodoTBL.Izq: colaTBL.append(nodoTBL.Izq)
+            if nodoTBL.Der: colaTBL.append(nodoTBL.Der)
+        if data != []:
+            serializar("REGS.pickle", "ab", data)
+            print(data)
+        if nodoBD.Izq: colaBD.append(nodoBD.Izq)
+        if nodoBD.Der: colaBD.append(nodoBD.Der)
+
+#Lee las Bases de Datos y sus respectivas Tablas desde Disco
+def leerBD():
+    try:
+        dataBD = deserializar("BBDD.pickle")
+        dataBD.pop(0)
+        bd = ""
+        for item in dataBD:
+            if item != None:
+                #print(item[0], len(item), item[1:])
+                bd = item[0]
+                createDatabase(bd)
+                nodoBD = mBBDD.obtener(bd)
+                for i in range(1, len(item)):
+                    nodoBD.datos.agregar(item[i][0], [item[i][1][0], item[i][1][1], item[i][1][2]])
+    except:
+        return
+
+#Lee los Registros de las Tablas de las Bases de Datos desde disco
+def leerREG():
+    try:
+        dataREG = deserializar("REGS.pickle")
+        dataREG.pop(0)
+        for item in dataREG:
+            if item != None:
+                bd = item[0]
+                tbl = item[1]
+                nodoBD = mBBDD.obtener(bd)
+                nodoTBL = nodoBD.datos.obtener(tbl)
+                for i in range(2, len(item)):
+                    print(item[i])
+                    print(item[i][0])
+                    print(item[i][1])
+                    insert(bd, tbl, item[i][1])
+    except:
+        return
+
+#Guarda pickles a disco
+def serializar(archivo, modo, data):
+    with open(archivo, modo) as f:
+        # Pickle the 'data' dictionary using the highest protocol available.
+        pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+
+#Lee pickles desde disco
+def deserializar(archivo) -> list:
+    data = []
+    with open(archivo, 'rb') as f:
+        try:
+            while True:
+                data.append(pickle.load(f))
+        except EOFError:
+           pass
+        return data
