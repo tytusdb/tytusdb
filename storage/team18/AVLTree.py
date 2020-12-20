@@ -1,3 +1,7 @@
+# B+ Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
 import os
 class TreeNode:
     def __init__(self, val):

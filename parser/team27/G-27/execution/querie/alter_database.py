@@ -11,6 +11,12 @@ from typ import *
 from storageManager import jsonMode as admin
 
 class alter_database(Querie):
+    ''' 
+     row = numero de fila
+     column = numero de columna
+     oldName = nombre de la base de datos (cadena)
+     newName = nombre con el que queremos renombrar la base de datos(cadena)                  
+    '''
     def __init__(self,oldName,newName, column,row):
         Querie.__init__(self,column, row)
         self.oldName= oldName

@@ -17,10 +17,10 @@ if __name__ == '__main__':
     #print(input)
     meterSimbolos()
     root = g.parse(input)
-    #results = []
-    #for query in root:
-    #    results.append(query.ejecutar())
-    #print(results)
+    results = []
+    for query in root:
+        results.append(query.ejecutar())
+    print(results)
     #graphTree(root)
 
 
