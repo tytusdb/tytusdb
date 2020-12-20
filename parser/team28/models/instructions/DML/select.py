@@ -1,3 +1,4 @@
+from views.data_window import DataWindow
 from models.instructions.shared import *
 from models.instructions.Expression.expression import *
 from models.instructions.DML.special_functions import *
@@ -69,6 +70,7 @@ class SelectQ(Instruction):
         list_select = None
         if self.type_select == None and self.from_clause == None and self.where_or_grouphaving == None and self.select_list != None:
             list_select = format_table_list(self.select_list, instrucction)
+            return DataWindow().consoleText(list_select)
         elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
             pass
         elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
@@ -76,8 +78,20 @@ class SelectQ(Instruction):
         elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
             pass 
         elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
-            pass
-        return list_select
+            list_select = loop_list(self.select_list, instrucction)
+            list_from = self.from_clause.process(instrucction)
+            
+            if '*' in list_select and len(list_select) == 1 and len(list_from) == 1:
+                tabla_all = select_all(list_from, self.line, self.column)
+                return DataWindow().consoleText(format_df(tabla_all))
+            
+            elif '*' not in list_select and len(list_from) == 1:
+                table_i = select_all(list_from, self.line, self.column)
+                table_f = select_with_columns(list_select, table_i)
+                return DataWindow().consoleText(format_df(table_f))
+        return None
+            
+        
     
 
 class SelectList(Instruction):

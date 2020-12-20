@@ -1,13 +1,13 @@
 from abc import abstractmethod
 from analizer.abstract.expression import Expression
-
-# from analizer.abstract.table import Table
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
+from analizer.typechecker import Checker
 import pandas as pd
 from analizer.symbol.symbol import Symbol
 from analizer.symbol.environment import Environment
+
 
 class SELECT_MODE(Enum):
     ALL = 1
@@ -76,18 +76,15 @@ class Select(Instruction):
         self.fromcl = fromcl
 
     def execute(self, environment):
-        newEnv = Environment(environment)
+        newEnv = Environment(environment, dbtemp)
         self.fromcl.execute(newEnv)
-        #print(newEnv.dataFrame)
-        
         value = [p.execute(newEnv).value for p in self.params]
 
         labels = [p.temp for p in self.params]
 
         for i in range(len(labels)):
             newEnv.dataFrame[labels[i]] = value[i]
-        
-        #return newEnv.dataFrame
+        # return newEnv.dataFrame
         return self.wherecl.execute(newEnv, labels)
 
 
@@ -172,24 +169,27 @@ class Truncate(Instruction):
 
 
 class InsertInto(Instruction):
-    def __init__(self, tabla, parametros):
+    def __init__(self, tabla, columns, parametros):
         self.tabla = tabla
         self.parametros = parametros
+        self.columns = columns
 
     def execute(self, environment):
+        lista = []
+        params = []
+        tab = self.tabla
 
-        # TODO Falta la validación de tipos
-        result = Checker.checkInsert(dbtemp, self.tabla, self.parametros)
+        for p in self.parametros:
+            params.append(p.execute(environment))
 
-        if result == None:
-            lista = []
-            tab = self.tabla
-
-            for p in self.parametros:
-                lista.append(p.execute(environment).value)
-
+        result = Checker.checkInsert(dbtemp, self.tabla, self.columns, params)
+        if result[0] == None:
+            for p in result[1]:
+                if p == None:
+                    lista.append(p)
+                else:
+                    lista.append(p.value)
             res = jsonMode.insert(dbtemp, tab, lista)
-
             if res == 2:
                 return "No existe la base de datos"
             elif res == 3:
@@ -203,8 +203,7 @@ class InsertInto(Instruction):
             elif res == 0:
                 return "Fila Insertada correctamente"
         else:
-            print(result)
-            return result
+            return result[0]
 
 
 class useDataBase(Instruction):
@@ -213,8 +212,8 @@ class useDataBase(Instruction):
 
     def execute(self, environment):
         global dbtemp
+        # environment.database = self.db
         dbtemp = self.db
-        return dbtemp
 
 
 class showDataBases(Instruction):
@@ -425,16 +424,16 @@ class FromClause(Instruction):
                 newNames = {}
                 subqAlias = self.aliases[i]
                 for (columnName, columnData) in data.iteritems():
-                    newNames[columnName] = subqAlias+"."+columnName.split(".")[1]
-                data.rename(columns = newNames, inplace = True) 
-                environment.addVar(
-                    subqAlias, subqAlias, "TABLE", self.row, self.column
-                )
+                    newNames[columnName] = subqAlias + "." + columnName.split(".")[1]
+                data.rename(columns=newNames, inplace=True)
+                environment.addVar(subqAlias, subqAlias, "TABLE", self.row, self.column)
             else:
                 sym = Symbol(
-                    self.tables[i].name, self.tables[i].type_, 
-                    self.tables[i].row, self.tables[i].column
-                    )
+                    self.tables[i].name,
+                    self.tables[i].type_,
+                    self.tables[i].row,
+                    self.tables[i].column,
+                )
                 environment.addSymbol(self.tables[i].name, sym)
                 if self.aliases[i]:
                     environment.addSymbol(self.aliases[i], sym)
@@ -448,7 +447,9 @@ class TableID(Expression):
     """
     Esta clase representa un objeto abstracto para el manejo de las tablas
     """
+
     type_ = None
+
     def __init__(self, name, row, column):
         Expression.__init__(self, row, column)
         self.name = name
@@ -457,9 +458,10 @@ class TableID(Expression):
         result = jsonMode.extractTable(dbtemp, self.name)
         if result == None:
             return "FATAL ERROR TABLE ID"
-        # TODO: Hay que ir trear los nombres y tipos del archivo de ESTELA 
-        columns = ["id", "firstname", "lastname"]
-        newColumns = [self.name+"."+col for col in columns]
+        # Almacena una lista con con el nombre y tipo de cada columna
+        lst = Struct.extractColumns(dbtemp, self.name)
+        columns = [l.name for l in lst]
+        newColumns = [self.name + "." + col for col in columns]
         df = pd.DataFrame(result, columns=newColumns)
-        #print(df)
+        environment.addTable(self.name)
         return df
