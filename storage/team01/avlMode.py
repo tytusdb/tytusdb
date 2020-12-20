@@ -152,7 +152,20 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
 
 #Agrega una columna al final de cada registro de la tabla y base de datos especificada
 def alterAddColumn(database: str, table: str, default: any) -> int:
-    return -1
+    try:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                nodoTBL.agregaColumna(nodoTBL.datos.raiz, default)
+                nodoTBL.valor[0].append(nodoTBL.valor[0][len(nodoTBL.valor[0])-1] + 1)
+                return 0 #Operacion exitosa
+            else:
+                return 3 #Tabla inexistente en la Base de Datos
+        else:
+            return 2 #Base de Datos inexistente
+    except:
+        return 1 #Error en la operación
 
 #Eliminar una n-ésima columna de cada registro de la tabla excepto si son llaves primarias
 def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
