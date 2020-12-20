@@ -213,7 +213,8 @@ def p_instruccion_create(t):
 
 def p_tipo_create(t):
     '''tipo_create : ins_replace DATABASE if_exists ID create_opciones PUNTO_COMA
-                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA'''
+                   | TABLE ID PARABRE definicion_columna PARCIERRE ins_inherits PUNTO_COMA
+                   | TYPE ID AS ENUM PARABRE list_vls PARCIERRE PUNTO_COMA'''
 
 def p_definicion_columna(t):
     '''definicion_columna : definicion_columna COMA columna 
@@ -284,13 +285,15 @@ def p_constraint(t):
                     |  '''
 
 def p_restriccion_columna(t):
-    '''restriccion_columna : NOT NULL
-                           | SET NOT NULL
-                           | NULL
-                           | PRIMARY KEY
+    '''restriccion_columna : NOT NULL 
+                           | SET NOT NULL 
+                           | PRIMARY KEY 
+                           | UNIQUE 
+                           | NULL 
                            | NOT NULL PRIMARY KEY 
-                           | UNIQUE
-                           | CHECK PARABRE exp PARCIERRE''' #cambio del condicion columna
+                           | CHECK PARABRE exp PARCIERRE 
+                           | 
+                           ''' #cambio del condicion columna
 
 def p_references(t):
     '''ins_references : ON DELETE accion ins_references
@@ -341,9 +344,11 @@ def p_alteracion_tabla(t):
                         | alterar_tabla'''
 
 def p_alterar_tabla(t): 
-    '''alterar_tabla : ADD COLUMN columna
-                     | ADD CONSTRAINT ID columna
-                     | ALTER COLUMN columna
+    #alter column viene como una lista
+    '''alterar_tabla : ADD COLUMN ID tipo_dato
+                     | ADD CONSTRAINT ins_constraint
+                     | ALTER COLUMN ID TYPE tipo_dato
+                     | ALTER COLUMN ID SET NOT NULL
                      | DROP COLUMN ID
                      | DROP CONSTRAINT ID'''
 
@@ -680,8 +685,8 @@ def p_ins_update(t):
     '''ins_update   : UPDATE ID SET asign_list WHERE exp PUNTO_COMA '''
 
 def p_ins_asign_list(t):
-    '''asign_list  : asign_list COMA ID SIGNO_IGUAL val_value 
-                   | ID SIGNO_IGUAL val_value'''
+    '''asign_list  : asign_list COMA ID SIGNO_IGUAL exp 
+                   | ID SIGNO_IGUAL exp'''
 
 def p_ins_delete(t):
     '''ins_delete   : DELETE FROM ID WHERE exp PUNTO_COMA'''

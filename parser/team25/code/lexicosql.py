@@ -192,7 +192,8 @@ palabrasReservadas = {
     'count':'COUNT',
     'end':'END',
     'greatest':'GREATEST',
-    'least':'LEAST'
+    'least':'LEAST',
+    'extract':'EXTRACT'
 }
 tokens = [
     # corchetes no porque dijo el aux que no venia
@@ -228,7 +229,8 @@ tokens = [
     'BITWISE_NOT',
     'CORRIMIENTO_DER',
     'CORRIMIENTO_IZQ',
-    'NOTBETWEEN'
+    'NOTBETWEEN',
+    'CADENA_DATE'
 ] + list(palabrasReservadas.values())
 
 
@@ -309,8 +311,11 @@ def t_REGEX2(t): # primero verifico , si es un regex
     t.type = 'REGEX'
     return t 
 
-
-
+def t_CADENA_DATE(t):
+    r'\'[\d][\d][\d][\d][-][\d][\d][-][\d][\d]\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_DATE"
+    return t
 # comillas simples y dobles ambos se reconocen como token tipo CADENA
 def t_CADENA(t):
     r'\"[^"]*\"'
@@ -337,10 +342,9 @@ def t_error(t):
 import ply.lex as lex
 lexer = lex.lex()
 
-# para debugger los nuevos tokens
+#para debugger los nuevos tokens
 # lexer.input('''
-#     NOT BETWEEN 
-#     BETWEEN NOT 
+
 # ''')
 # while not False:
 #     token = lexer.token()

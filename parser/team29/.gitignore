@@ -4,3 +4,4 @@ parsetab.py
 storage
 data
 **/*.csv
+**/*.sql
