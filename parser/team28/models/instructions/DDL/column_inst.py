@@ -83,7 +83,7 @@ class ColumnTipo(Instruction):
     def __init__(self, tipoColumna, paramOne, paramTwo):
         self._tipoColumna = tipoColumna 
         self._paramOne = paramOne
-        self._paraTwo = paramTwo
+        self._paramTwo = paramTwo
 
     def __repr__(self):
         return str(vars(self))

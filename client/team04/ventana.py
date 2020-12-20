@@ -6,6 +6,40 @@ from tkinter import ttk
 from campo import Campo
 from arbol import Arbol
 
+import http.client
+
+#Metodo GET para probar peticiones al servidor
+def myGET():
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+    headers = {
+        "Content-type": "text/plain"
+    }
+
+    myConnection.request("GET", "/data/database.tytus", "", headers)
+    response = myConnection.getresponse()
+    print("Status: {} and reason: {}".format(response.status, response.reason))
+    myData = response.read()
+    print(myData.decode("utf-8") )
+    myConnection.close()
+
+#Metodo POST para probar peticiones al servidor
+def myPOST():
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+    headers = {
+        "Content-type": "text/plain"
+    }
+
+    postData = "Test http.server from http.client :D"
+
+    myConnection.request("POST", "/", postData, headers)
+    response = myConnection.getresponse()
+    print("Status: {} and reason: {}".format(response.status, response.reason))
+    myData = response.read()
+    print(myData.decode("utf-8") )
+    myConnection.close()   
+
 
 def CrearMenu(masterRoot):
 
@@ -43,6 +77,10 @@ def CrearMenu(masterRoot):
     #se agrega su lista
     tools.add_command(label="Configuración")
     tools.add_command(label="Utilidades")
+    #Temporary tools to test client-server connection
+    tools.add_command(label="SELECT (GET)", command = myGET)
+    tools.add_command(label="CREATE (POST)", command = myPOST)
+    
 
     #se agrega ayuda
     ayuda=Menu(barraDeMenu, tearoff=0)
@@ -65,7 +103,7 @@ def CrearVentana():
     raiz = Tk()
     #Configuracion de ventana
     raiz.title("TytuSQL") #Cambiar el nombre de la ventana
-    raiz.iconbitmap('resources/icon.ico')
+    #raiz.iconbitmap('resources/icon.ico')
     raiz.rowconfigure(0, minsize=800, weight=1)
     raiz.columnconfigure(1, minsize=800, weight=1)
     raiz.config(menu=CrearMenu(raiz), background='silver')

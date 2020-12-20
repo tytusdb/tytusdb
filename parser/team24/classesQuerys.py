@@ -1,11 +1,12 @@
 #
 import hashlib
 from datetime import date
-from main import TS as ts
+from main import ts
 import storage as s
 from enum import Enum
 from main import default_db
 import mathtrig as mt
+import main
 #
 
 #
@@ -34,6 +35,26 @@ class select(query):
         self.orderby = orderby
         self.limit = limit
         self.offset = offset
+        self.condition.append(having)
+
+    def ejecutar(self):
+        #Obtener la lista de tablas
+        tables = {}
+        for tabla in self.table_expression:
+            tables[tabla.id]  = tabla.alias
+
+        results = []
+        for col in self.select_list:
+            res = col.ejecutar(tables)
+            results.append(res)
+        
+
+        conditions = ejecutar_conditions(tables,self.condition)
+        return conditions
+        
+            
+        
+            
 
 
 
@@ -79,9 +100,9 @@ class exp_id(exp_query):
             return dict
         else:
             #Verificamos que exista 
-            if self.table not in tables or self.table not in tables.values():
+            if self.table not in tables and self.table not in tables.values():
                 #Error semántico
-                pass
+                return None
             # Existe, ahora obtenemos el nombre de la tabla
              
             if self.table not in tables.values():
@@ -101,11 +122,11 @@ class exp_id(exp_query):
 
             else:
                 #Obtenemos el nombre basado en el alias
-                table = getKeyFromValue(self.table,tables)      
+                table = getKeyFromValue(self.table,tables)     
                 #Obtenemos la tabla
                 registros = s.extractTable(default_db,table)
                 #Obtenemos el indice de esa tabla
-                indice = ts.getIndice(default_db,table,self.val)
+                indice = main.ts.getIndice(default_db,table,self.val)
                 #Obtenemos la columan que queremos
                 col = []
                 for reg in registros:
@@ -132,7 +153,7 @@ class exp_bool(exp_query):
     def __init__(self, val):
         self.val = val
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.val
 
 
@@ -141,7 +162,7 @@ class exp_text(exp_query):
 
     def __init__(self, val):
         self.val = val
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.val
 
 
@@ -150,7 +171,7 @@ class exp_num(exp_query):
 
     def __init__(self, val):
         self.val = val
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.val
 
 
@@ -166,9 +187,9 @@ class exp_suma(exp_query):
     #Vamos a asumir el tipo 
     # suponemos que es numérico :v
 
-    def ejecutar(self):
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+    def ejecutar(self,tablas):
+        exp1 = self.exp1.ejecutar(tablas)
+        exp2 = self.exp2.ejecutar(tablas)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -181,7 +202,12 @@ class exp_suma(exp_query):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(menor[i]+mayor[i])
+                    try:
+                        me = float(menor[i]) 
+                        ma = float(mayor[i])
+                        result.append(me-ma)
+                    except ValueError: 
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -194,7 +220,11 @@ class exp_suma(exp_query):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(col+val)
+                    try:
+
+                        result.append(float(col)+float(val))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -203,7 +233,11 @@ class exp_suma(exp_query):
 
         #si ninguna es diccionario
         else:
-            return float(exp1) + float(exp2)
+            try:
+                
+                return float(exp1) + float(exp2)
+            except ValueError: 
+                return None
 
 
     
@@ -216,9 +250,9 @@ class exp_resta(exp_query):
         self.exp2 = exp2
         self.type = None
 
-    def ejecutar(self):
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+    def ejecutar(self,tables):
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -231,7 +265,13 @@ class exp_resta(exp_query):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(menor[i]-mayor[i])
+                    try:
+                        me = float(menor[i]) 
+                        ma = float(mayor[i])
+                        result.append(me-ma)
+                    except ValueError: 
+                        return None
+                    
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -244,7 +284,12 @@ class exp_resta(exp_query):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(col-val)
+
+                    try:
+
+                        result.append(float(col)-float(val))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -253,7 +298,12 @@ class exp_resta(exp_query):
 
         #si ninguna es diccionario
         else:
-            return float(exp1) - float(exp2)
+            try:
+                
+                return float(exp1) - float(exp2)
+            except ValueError: 
+                return None
+            
 
 
 class exp_multiplicacion(exp_query):
@@ -263,9 +313,9 @@ class exp_multiplicacion(exp_query):
         self.exp2 = exp2
         self.type = None
 
-    def ejecutar(self):
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+    def ejecutar(self,tables):
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -278,7 +328,12 @@ class exp_multiplicacion(exp_query):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(menor[i]*mayor[i])
+                    try:
+                        me = float(menor[i]) 
+                        ma = float(mayor[i])
+                        result.append(me*ma)
+                    except ValueError: 
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -291,7 +346,12 @@ class exp_multiplicacion(exp_query):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(col*val)
+                    try:
+
+                        result.append(float(col)*float(val))
+                    except ValueError:
+                        return None
+                    
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -300,7 +360,11 @@ class exp_multiplicacion(exp_query):
 
         #si ninguna es diccionario
         else:
-            return float(exp1) * float(exp2)
+            try:
+                
+                return float(exp1) *float(exp2)
+            except ValueError: 
+                return None
 
 
 class exp_division(exp_query):
@@ -310,9 +374,9 @@ class exp_division(exp_query):
         self.exp2 = exp2
         self.type = None
 
-    def ejecutar(self):
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+    def ejecutar(self,tables):
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -325,7 +389,13 @@ class exp_division(exp_query):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(menor[i]/mayor[i])
+                    try:
+                        me = float(menor[i]) 
+                        ma = float(mayor[i])
+                        result.append(me/ma)
+                    except ValueError: 
+                        return None
+                    
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -338,7 +408,11 @@ class exp_division(exp_query):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(col/val)
+                    try:
+
+                        result.append(float(col)/float(val))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -347,7 +421,11 @@ class exp_division(exp_query):
 
         #si ninguna es diccionario
         else:
-            return float(exp1) / float(exp2)
+            try:
+                
+                return float(exp1) - float(exp2)
+            except ValueError: 
+                return None
 
 
 class select_column():
@@ -373,21 +451,28 @@ class math_abs(column_mathtrig):
         self.alias = alias
         self.type = exp_type.numeric
     
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(abs(reg))
+                try:
+                    result.append(abs(reg))
+                except ValueError:
+                    return None
+                
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return abs(exp)
+            try:
+                return abs(exp)
+            except ValueError:
+                return None
         
         
 
@@ -397,21 +482,27 @@ class math_cbrt(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.cbrt(reg))
+                try: 
+                    result.append(mt.cbrt(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.cbrt(exp)
+            try:
+                return mt.cbrt(exp)
+            except ValueError:
+                return None
 
 
 class math_ceil(column_mathtrig):
@@ -419,21 +510,27 @@ class math_ceil(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.ceil(reg))
+                try:
+                    result.append(mt.ceil(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.ceil(exp)
+            try:
+                return mt.ceil(exp)
+            except ValueError:
+                return None
 
 
 class math_degrees(column_mathtrig):
@@ -441,21 +538,27 @@ class math_degrees(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.degrees(reg))
+                try:
+                    result.append(mt.degrees(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.degrees(exp)
+            try:
+                return mt.degrees(exp)
+            except ValueError:
+                return None
 
 
 class math_div(column_mathtrig):
@@ -464,10 +567,10 @@ class math_div(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -480,7 +583,10 @@ class math_div(column_mathtrig):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(mt.div(menor[i],mayor[i]))
+                    try:
+                        result.append(mt.div(menor[i],mayor[i]))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -493,7 +599,10 @@ class math_div(column_mathtrig):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(mt.div(col,val))
+                    try:
+                        result.append(mt.div(col,val))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -502,7 +611,10 @@ class math_div(column_mathtrig):
 
         #si ninguna es diccionario
         else:
-            return mt.div(float(exp1) , float(exp2))
+            try:
+                return mt.div(float(exp1) , float(exp2))
+            except ValueError:
+                return None
         
 
 class math_exp(column_mathtrig):
@@ -510,42 +622,54 @@ class math_exp(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.exp(reg))
+                try:
+                    result.append(mt.exp(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.exp(exp)
+            try:
+                return mt.exp(exp)
+            except ValueError:
+                return None
 
 class math_factorial(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.factorial(reg))
+                try:
+                    result.append(mt.factorial(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.factorial(exp)
+            try:
+                return mt.factorial(exp)
+            except ValueError:
+                return None
 
 
 class math_floor(column_mathtrig):
@@ -553,21 +677,27 @@ class math_floor(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.floor(reg))
+                try:
+                    result.append(mt.floor(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.floor(exp)
+            try:
+                return mt.floor(exp)
+            except ValueError:
+                return None
 
 
 class math_gcd(column_mathtrig):
@@ -576,10 +706,10 @@ class math_gcd(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -592,7 +722,10 @@ class math_gcd(column_mathtrig):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(mt.gcd(menor[i],mayor[i]))
+                    try:
+                        result.append(mt.gcd(menor[i],mayor[i]))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -605,7 +738,10 @@ class math_gcd(column_mathtrig):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(mt.gcd(col,val))
+                    try:
+                        result.append(mt.gcd(col,val))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -614,7 +750,10 @@ class math_gcd(column_mathtrig):
 
         #si ninguna es diccionario
         else:
-            return mt.gcd(float(exp1) , float(exp2))
+            try:
+                return mt.gcd(float(exp1) , float(exp2))
+            except ValueError:
+                return None
 
 class math_lcm(column_mathtrig):
     def __init__(self,exp1,exp2,alias):
@@ -622,10 +761,10 @@ class math_lcm(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias 
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -638,7 +777,10 @@ class math_lcm(column_mathtrig):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(mt.lcm(menor[i],mayor[i]))
+                    try:
+                        result.append(mt.lcm(menor[i],mayor[i]))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -651,7 +793,10 @@ class math_lcm(column_mathtrig):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(mt.lcm(col,val))
+                    try:
+                        result.append(mt.lcm(col,val))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -660,7 +805,10 @@ class math_lcm(column_mathtrig):
 
         #si ninguna es diccionario
         else:
-            return mt.lcm(float(exp1) , float(exp2))
+            try:
+                return mt.lcm(float(exp1) , float(exp2))
+            except ValueError:
+                return None
 
 
 
@@ -669,21 +817,27 @@ class math_ln(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.ln(reg))
+                try:
+                    result.append(mt.ln(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.ln(exp)
+            try:
+                return mt.ln(float(exp))
+            except ValueError:
+                return None
 
 
 class math_log(column_mathtrig):
@@ -692,10 +846,10 @@ class math_log(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -708,7 +862,10 @@ class math_log(column_mathtrig):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(mt.log(menor[i],mayor[i]))
+                    try:
+                        result.append(mt.log(menor[i],mayor[i]))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -730,7 +887,10 @@ class math_log(column_mathtrig):
 
         #si ninguna es diccionario
         else:
-            return mt.log(float(exp1) , float(exp2))
+            try:
+                return mt.log(float(exp1) , float(exp2))
+            except ValueError:
+                return None
 
 
 class math_log10(column_mathtrig):
@@ -738,15 +898,18 @@ class math_log10(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.log10(reg))
+                try:
+                    result.append(mt.log10(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
@@ -759,42 +922,54 @@ class math_min_scale(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.min_scale(reg))
+                try:
+                    result.append(mt.min_scale(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.min_scale(exp)
+            try:
+                return mt.min_scale(float(exp))
+            except ValueError:
+                return None
 
 class math_scale(column_mathtrig):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.scale(str(reg)))
+                try:
+                    result.append(mt.scale(str(reg)))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.scale(str(exp))
+            try:
+                return mt.scale(str(exp))
+            except ValueError:
+                return None
 
 class math_mod(column_mathtrig):
     def __init__(self, exp1,exp2, alias):
@@ -802,10 +977,10 @@ class math_mod(column_mathtrig):
         self.exp2  = exp2
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -818,7 +993,10 @@ class math_mod(column_mathtrig):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(mt.mod(menor[i],mayor[i]))
+                    try:
+                        result.append(mt.mod(menor[i],mayor[i]))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -831,7 +1009,10 @@ class math_mod(column_mathtrig):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(mt.mod(col,val))
+                    try:
+                        result.append(mt.mod(col,val))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -840,7 +1021,10 @@ class math_mod(column_mathtrig):
 
         #si ninguna es diccionario
         else:
-            return mt.mod(float(exp1) , float(exp2))
+            try:
+                return mt.mod(float(exp1) , float(exp2))
+            except ValueError:
+                return None
 
 
 class math_pi(column_mathtrig):
@@ -848,8 +1032,11 @@ class math_pi(column_mathtrig):
         self.val = mt.pi()
         self.alias = alias
 
-    def ejecutar(self):
-        return self.val
+    def ejecutar(self,tables):
+        try:
+            return self.val
+        except ValueError:
+                return None
 
 
 class math_power(column_mathtrig):
@@ -858,10 +1045,10 @@ class math_power(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
     
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp1 = self.exp1.ejecutar()
-        exp2 = self.exp2.ejecutar()
+        exp1 = self.exp1.ejecutar(tables)
+        exp2 = self.exp2.ejecutar(tables)
         # si al menos una es diccionario
         if isinstance(exp1,dict) or isinstance(exp2,dict):
             #Si ambas son diccionario
@@ -874,7 +1061,10 @@ class math_power(column_mathtrig):
                 result = []
                 #iteramos sobre el menor
                 for i in range(len(menor)):
-                    result.append(mt.power(menor[i],mayor[i]))
+                    try:
+                        result.append(mt.power(menor[i],mayor[i]))
+                    except ValueError:
+                        return None
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -887,7 +1077,10 @@ class math_power(column_mathtrig):
                 valores = dic['valores']
                 result = []
                 for col in valores:
-                    result.append(mt.power(col,val))
+                    try:
+                        result.append(mt.power(col,val))
+                    except ValueError:
+                        return None 
                 newdict = {
                     'valores':result,
                     'columna': dic['columna']
@@ -896,7 +1089,10 @@ class math_power(column_mathtrig):
 
         #si ninguna es diccionario
         else:
-            return mt.power(float(exp1) , float(exp2))
+            try:
+                return mt.power(float(exp1) , float(exp2))
+            except ValueError:
+                return None
 
 
 class math_radians(column_mathtrig):
@@ -904,21 +1100,27 @@ class math_radians(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.radians(reg))
+                try:
+                    result.append(mt.radians(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.radians(exp)
+            try:
+                return mt.radians(exp)
+            except ValueError:
+                return None
 
 
 class math_round(column_mathtrig):
@@ -926,21 +1128,27 @@ class math_round(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(round(reg))
+                try:
+                    result.append(round(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return round(exp)
+            try:
+                return round(exp)
+            except ValueError:
+                return None
 
 
 class math_sign(column_mathtrig):
@@ -948,21 +1156,27 @@ class math_sign(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.sign(reg))
+                try:
+                    result.append(mt.sign(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.sign(exp)
+            try:
+                return mt.sign(exp)
+            except ValueError:
+                return None
 
 
 class math_sqrt(column_mathtrig):
@@ -970,42 +1184,55 @@ class math_sqrt(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.sqrt(reg))
+                try:
+                    result.append(mt.sqrt(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.sqrt(exp)
+            try:
+                return mt.sqrt(exp)
+            except ValueError:
+                return None
 
 class math_trim_scale(column_mathtrig):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.trim_scale(reg))
+                try:
+                    result.append(mt.trim_scale(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.trim_scale(exp)
+
+            try:
+                return mt.trim_scale(exp)
+            except ValueError:
+                return None
 
 class math_widthBucket(column_mathtrig):
     def __init__(self, exp1, exp2, exp3, exp4, alias):
@@ -1015,9 +1242,12 @@ class math_widthBucket(column_mathtrig):
         self.exp4 = exp4
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #xd
-        return mt.width_bucket(9,8,7,6)
+        try:
+            return mt.width_bucket(9,8,7,6)
+        except ValueError:
+            return None
 
 
 class math_trunc(column_mathtrig):
@@ -1025,28 +1255,35 @@ class math_trunc(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
         #Verificamos si viene un diccionario o un valor
-        exp = self.exp.ejecutar()
+        exp = self.exp.ejecutar(tables)
         if isinstance(exp,dict):
             #es diccionario
             registros = exp['valores']
             result = []
             for reg in registros:
-                result.append(mt.trunc(reg))
+                try:
+                    result.append(mt.trunc(reg))
+                except ValueError:
+                    return None
             exp['valores']  = result
             return exp
 
         else:
             #no es diccionario
-            return mt.trunc(exp)
+            try:
+                return mt.trunc(exp)
+            except ValueError:
+                return None
 
 
 class math_random(column_mathtrig):
     def __init__(self, alias):
         self.alias = alias
 
-    def ejecutar(self):
+    def ejecutar(self,tables):
+
         return mt.random()
 
 class math_setseed(column_mathtrig):
@@ -1054,8 +1291,11 @@ class math_setseed(column_mathtrig):
         self.exp = exp
         self.alias = alias 
 
-    def ejecutar(self):
-        mt.setseed(self.exp.ejecutar())
+    def ejecutar(self,tables):
+        try:
+            mt.setseed(self.exp.ejecutar(tables))
+        except ValueError:
+                return None
 
 
 class trig_acos(column_mathtrig):
@@ -1063,43 +1303,39 @@ class trig_acos(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.acos(st)
-                    subs.append(trim)
+                trim =  mt.acos(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.acos(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.acos(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.acos(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1109,43 +1345,39 @@ class trig_acosd(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.acosd(st)
-                    subs.append(trim)
+                trim =  mt.acosd(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.acosd(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.acosd(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.acosd(float(temp))
+            
+            return trim
+ 
 
 
 class trig_asin(column_mathtrig):
@@ -1153,44 +1385,39 @@ class trig_asin(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.asin(st)
-                    subs.append(trim)
+                trim =  mt.asin(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.asin(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.asin(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
-
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.asin(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1200,43 +1427,39 @@ class trig_asind(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.asind(st)
-                    subs.append(trim)
+                trim =  mt.asind(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.asind(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.asind(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.asind(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1247,43 +1470,39 @@ class trig_atan(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.atan(st)
-                    subs.append(trim)
+                trim =  mt.atan(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.atan(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.atan(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.atan(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1293,44 +1512,39 @@ class trig_atand(column_mathtrig):
         self.alias = alias
 
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.atand(st)
-                    subs.append(trim)
+                trim =  mt.atand(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.atand(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.atand(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
-
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.atand(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1340,43 +1554,39 @@ class trig_atan2(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.atan2(st)
-                    subs.append(trim)
+                trim =  mt.atan2(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.atan2(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.atan2(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.atan2(float(temp))
+            
+            return trim
+ 
 
 
     
@@ -1389,43 +1599,39 @@ class trig_atan2d(column_mathtrig):
         self.exp2 = exp2
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.atan2d(st)
-                    subs.append(trim)
+                trim =  mt.atan2d(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.atan2d(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.atan2d(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.atan2d(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1435,43 +1641,39 @@ class trig_cos(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.cos(st)
-                    subs.append(trim)
+                trim =  mt.cos(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.cos(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.cos(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.cos(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1482,43 +1684,39 @@ class trig_cosd(column_mathtrig):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.cosd(st)
-                    subs.append(trim)
+                trim =  mt.cosd(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.cosd(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.cosd(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.cosd(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1529,43 +1727,39 @@ class trig_cot(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.cot(st)
-                    subs.append(trim)
+                trim =  mt.cot(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.cot(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.cot(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.cot(float(temp))
+            
+            return trim
+ 
 
 
 class trig_cotd(column_mathtrig):
@@ -1573,43 +1767,39 @@ class trig_cotd(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.cotd(st)
-                    subs.append(trim)
+                trim =  mt.cotd(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.cotd(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.cotd(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.cotd(float(temp))
+            
+            return trim
+ 
 
 
 
@@ -1618,129 +1808,117 @@ class trig_sin(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.sin(st)
-                    subs.append(trim)
+                trim =  mt.sin(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.sin(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.sin(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.sin(float(temp))
+            
+            return trim
+ 
 
 class trig_sind(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.sind(st)
-                    subs.append(trim)
+                trim =  mt.sind(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.sind(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.sind(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.sind(float(temp))
+            
+            return trim
+ 
  
 class trig_tan(column_mathtrig):
     def __init__(self, exp, alias):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.tan(st)
-                    subs.append(trim)
+                trim =  mt.tan(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.tan(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.tan(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.tan(float(temp))
+            
+            return trim
+ 
  
 
 class trig_tand(column_mathtrig):
@@ -1749,43 +1927,38 @@ class trig_tand(column_mathtrig):
         self.alias = alias
     
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.tand(st)
-                    subs.append(trim)
+                trim =  mt.tand(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.tand(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.tand(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.tand(float(temp))
+            
+            return trim
  
  
 class trig_sinh(column_mathtrig):
@@ -1793,43 +1966,38 @@ class trig_sinh(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.sinh(st)
-                    subs.append(trim)
+                trim =  mt.sinh(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.sinh(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.sinh(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.sinh(float(temp))
+            
+            return trim
  
     
 
@@ -1839,44 +2007,36 @@ class trig_cosh(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
-
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.cosh(st)
-                    subs.append(trim)
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
+                    
+                trim =  mt.cosh(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.cosh(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.cosh(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            if not (isinstance(val, int)): return None
+            trim = mt.cosh(float(val))
+            
+            return trim
  
+
 
 
 class trig_tanh(column_mathtrig):
@@ -1884,177 +2044,156 @@ class trig_tanh(column_mathtrig):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.tanh(st)
-                    subs.append(trim)
+                trim =  mt.tanh(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.tanh(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.tanh(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.tanh(float(temp))
+            
+            return trim
  
+ 
+
 
 class trig_asinh(column_mathtrig):
     def __init__ (self,exp,alias):
         self.exp = exp
         self.alias = alias
-    
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.asinh(st)
-                    subs.append(trim)
+                trim =  mt.asinh(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.asinh(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.asinh(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.asinh(float(temp))
+            
+            return trim
  
-
 
 class trig_acosh(column_mathtrig):
     def __init__ (self,exp,alias):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.acosh(st)
-                    subs.append(trim)
+                trim =  mt.acosh(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.acosh(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.acosh(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+                
+            trim = mt.acosh(float(temp))
+            
+            return trim
  
-
 class trig_atanh(column_mathtrig):
     def __init__ (self,exp,alias):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
+            subs = []
+            for st in val['valores']:
+                try:
+                    temp = float(st)
+                except ValueError:
+                    return None
 
-                    if not isinstance(st, int): return None
-
-                    trim =  mt.atanh(st)
-                    subs.append(trim)
+                trim =  mt.atanh(temp)
+                subs.append(trim)
                 
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                if not (isinstance(val['valores'], int)): return None
-                trim =  mt.atanh(val['valores'] )
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            if not (isinstance(val['valores'], int)): return None
-            trim = mt.atanh(val['valores'] )
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            try:
+                temp = float(val)
+            except ValueError:
+                return None
+
+            trim = mt.atanh(float(temp))
+            
+            return trim
  
 
 class column_function(select_column):
@@ -2065,23 +2204,21 @@ class fun_sum(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
-                #recorro valores y saco el substring 
-                total = 0
-                for st in val['valores']:
-                    total = total + st
-                
-                
-                val['valores'] = total
-                return val
-            else:
+            
+            #recorro valores y saco el substring 
+            total = 0
+            for st in val['valores']:
+                total = total + st
+              
                
-                return None
+            val['valores'] = total
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
@@ -2092,23 +2229,21 @@ class fun_avg(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                total = 0
-                for st in val['valores']:
-                    total = total + st
-                
-                prom = total / len(val['valores'])
-                val['valores'] = prom
-                return val
-            else:
-               
-                return None
+            total = 0
+            for st in val['valores']:
+                total = total + st
+              
+            prom = total / len(val['valores'])
+            val['valores'] = prom
+            return val
+           
                 
         #Es solo un valor en especifico
         else:
@@ -2119,8 +2254,8 @@ class fun_max(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2153,13 +2288,13 @@ class fun_max(column_function):
             return None
  
 
-class fun_min(column_function):
+class fun_least(column_function):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
@@ -2200,40 +2335,34 @@ class fun_count(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar(tablas):
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
 
 
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
                 
-                temp = len(val['valores'])                
-                val['valores'] = temp
-                return val
-            else:
-                if val['valores'] == 'All':
-                    if len(tablas) != 1:
-                        return None
-                    else:
-                        t = ts.obtenerTabla(val)
-                        r = s.extractTable(t.db,t.table)
-                        return len(r)
-                else:
-                    return None
+            temp = len(val['valores'])                
+            val['valores']= temp
+            return val
+            
+                
                 
         #Es solo un valor en especifico
         else:
-            #saco el substring y lo devuelvo
-            temp =  str(val['valores'] )
-            trim = len(temp)
-            newdict = {
-                        'valores' : 15,
-                        'columna': []
-                    }
-            return newdict
+            if val == '*':
+                    if len(tables) != 1:
+                        return None
+                    else:
+                        a = tables[0]['values']
+                        t = ts.getTabla(a)
+                        r = s.extractTable(t.db,t.table)
+                        return len(r)
+            else:
+                return None
  
 
 class fun_length(column_function):
@@ -2241,41 +2370,30 @@ class fun_length(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
-                    temp =  str(st )
-                    trim =  len(temp)
-                    subs.append(trim)
-                
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                temp =  str(val['valores'] )
+            subs = []
+            for st in val['valores']:
+                temp =  str(st )
                 trim =  len(temp)
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+                subs.append(trim)
+                
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
             temp =  str(val['valores'] )
             trim = len(temp)
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            
+            return trim
  
 
 
@@ -2284,41 +2402,30 @@ class fun_trim(column_function):
         self.exp = exp
         self.alias = alias    
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
-                    temp =  str(st )
-                    trim =  temp.strip()
-                    subs.append(trim)
-                
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                temp =  str(val['valores'] )
+            subs = []
+            for st in val['valores']:
+                temp =  str(st )
                 trim =  temp.strip()
-                newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-                return newdict
+                subs.append(trim)
+               
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
             temp =  str(val['valores'] )
             trim =  temp.strip()
-            newdict = {
-                        'valores' : trim,
-                        'columna': []
-                    }
-            return newdict
+            
+            return trim
  
 
 
@@ -2329,38 +2436,23 @@ class fun_md5(column_function):
         self.exp = exp
         self.alias = alias
 
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
-                    temp =  str(st )
-                    crypt = hashlib.md5()
-                    crypt.update(temp.encode('utf-8'))
-                    r = crypt.hexdigest()
-                    subs.append(r)
-                
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                temp =  str(val['valores'] )
+            subs = []
+            for st in val['valores']:
+                temp =  str(st )
                 crypt = hashlib.md5()
                 crypt.update(temp.encode('utf-8'))
                 r = crypt.hexdigest()
-                newdict = {
-                        'valores' : r,
-                        'columna': []
-                    }
-                return newdict
+                subs.append(r)
                 
-                
-
-
+            val['valores'] = subs
+            return val
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
@@ -2381,34 +2473,24 @@ class fun_sha256(column_function):
         self.exp = exp
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
+            
                 #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
-                    temp =  str(st )
-                    crypt = hashlib.sha256()
-                    crypt.update(temp.encode('utf-8'))
-                    r = crypt.hexdigest()
-                    subs.append(r)
-                
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                temp =  str(val['valores'] )
+            subs = []
+            for st in val['valores']:
+                temp =  str(st )
                 crypt = hashlib.sha256()
                 crypt.update(temp.encode('utf-8'))
                 r = crypt.hexdigest()
-                newdict = {
-                        'valores' : r,
-                        'columna': []
-                    }
-                return newdict
+                subs.append(r)
+                
+            val['valores'] = subs
+            return val
+            
                 
                 
 
@@ -2420,11 +2502,8 @@ class fun_sha256(column_function):
             crypt = hashlib.sha256()
             crypt.update(temp.encode('utf-8'))
             r = crypt.hexdigest()
-            newdict = {
-                        'valores' : r,
-                        'columna': []
-                    }
-            return newdict
+            
+            return r
  
 
 
@@ -2435,7 +2514,7 @@ class fun_convert(column_function):
         self.type = tipo
         self.alias = alias
     
-    def ejecutar(self):
+    def ejecutar(self,tables):
         return self.exp
 
 class fun_substr(column_function):
@@ -2445,41 +2524,30 @@ class fun_substr(column_function):
         self.max = max
         self.alias = alias
     
-    def ejecutar():
-        val = exp.ejecutar()
+    def ejecutar(self,tables):
+        val = self.exp.ejecutar(tables)
         if isinstance(val,dict):        
             #valores es un arreglo o solo un valor
             #Valores es un arreglo lo recorro y saco substring 
-            if isinstance(val['valores'],list):
-                #recorro valores y saco el substring 
-                subs = []
-                for st in val['valores']:
-                    temp =  str(st )
-                    sub = temp[self.min:self.max]
-                    subs.append(sub)
-                
-                val['valores'] = subs
-                return val
-            else:
-                #saco el substring y lo devuelvo
-                temp =  str(val['valores'] )
+            
+               #recorro valores y saco el substring 
+            subs = []
+            for st in val['valores']:
+                temp =  str(st )
                 sub = temp[self.min:self.max]
-                newdict = {
-                        'valores' : sub,
-                        'columna': []
-                    }
-                return newdict
+                subs.append(sub)
+                
+            val['valores'] = subs
+            return val
+            
                 
         #Es solo un valor en especifico
         else:
             #saco el substring y lo devuelvo
-            temp =  str(val['valores'] )
+            temp =  str(val)
             sub = temp[self.min:self.max]
-            newdict = {
-                        'valores' : sub,
-                        'columna': []
-                    }
-            return newdict
+            
+            return sub
             
  
 class fun_greatest(column_function):
@@ -2487,13 +2555,13 @@ class fun_greatest(column_function):
         self.lexps = lexps
         self.alias = alias
     
-    def ejecutar(self):
-        if len(lexps) == 0 : return None
+    def ejecutar(self,tables):
+        if len(self.lexps) == 0 : return None
         try:
-            val = lexps[0].ejecutar()
-            if val['valores'] == None or len(val['valores']) == 0: return None
+            val = self.lexps[0].ejecutar(tables)
+            #if val['valores'] == None or len(val['valores']) == 0: return None
             #Viene solo un id, es columna
-            if len(lexps) == 1 and isinstance(val,dict):                    
+            if len(self.lexps) == 1 and isinstance(val,dict):                    
                 maximo = val['valores'][0]
                 for valor in val['valores']:
                         
@@ -2505,43 +2573,38 @@ class fun_greatest(column_function):
             #Es una lista de valores puede venir como dict o no
             else:
                 
-                if isinstance(val,dict):
-                    maximo = val['valores']
-                else:
-                    maximo = val
+                maximo = val
                 
-                for dato in lexps:
-                    t = dato.ejecutar()
-                    #obtengo el valor de diferente manera
-                    if isinstance(t,dict):
-                        temp = t['valores']
-                    else:
-                        temp = t
-                    
+                for dato in self.lexps:
+                    temp = dato.ejecutar(tables)
+                                       
                     if maximo < temp:
                         maximo = temp
                 
-                newdict = {
-                       'valores' : maximo,
-                        'columna': []
-                    }   
-                return newdict
+                
+                return maximo
         except:
             #Error
             return None
  
-class fun_least(column_function):
+class fun_min(column_function):
     def __init__ (self,lexps,alias):
         self.lexps = lexps
         self.alias = alias
     
-    def ejecutar(self):
-        if len(lexps) == 0 : return None
+    def ejecutar(self,tables):
+        if len(self.lexps) == 0 : return None
         try:
-            val = lexps[0].ejecutar()
-            if val['valores'] == None or len(val['valores']) == 0: return None
+
+            val = self.lexps[0].ejecutar(tables)
+            if val == None:
+                return None
+            
+            #if isinstance(lexps[0],exp_id) :
+
+            
             #Viene solo un id, es columna
-            if len(lexps) == 1 and isinstance(val,dict):                   
+            if len(self.lexps) == 1 and isinstance(val,dict):                   
                 minimo = val['valores'][0]
                 for valor in val['valores']:
                         
@@ -2553,27 +2616,19 @@ class fun_least(column_function):
             #Es una lista de valores puede venir como dict o no
             else:
                 
-                if isinstance(val,dict):
-                    minimo = val['valores']
-                else:
-                    minimo = val
+               
+                minimo = val
                 
-                for dato in lexps:
-                    t = dato.ejecutar()
+                for dato in self.lexps:
+                    
                     #obtengo el valor de diferente manera
-                    if isinstance(t,dict):
-                        temp = t['valores']
-                    else:
-                        temp = t
+                    temp = dato.ejecutar(tables)
                     
                     if minimo > temp:
                         minimo = temp
                 
-                newdict = {
-                       'valores' : minimo,
-                        'columna': []
-                    }   
-                return newdict
+                  
+                return minimo
         except:
             #Error
             return None
@@ -2589,20 +2644,14 @@ class dato(column_function):
     
 
 class fun_now(column_function):
-    def __init__ (self):
+    def __init__ (self,tables):
         pass
         
-    def ejecutar(self):
+    def ejecutar(self,tables):
         # dd/mm/YY
         today = date.today()
         d1 = today.strftime("%Y-%m-%d %H:%M:%S")
         return d1
-
-
-class condition(exp_query):
-    def __init__(self,exp ,union):
-        self.exp = exp
-        self.union = union
 
 class exp_igual(exp_query):
 
@@ -2610,24 +2659,24 @@ class exp_igual(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
     
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
-                if val == val2.val:
+                if val == val2:
                     posiciones.append(contador)
                 contador = contador +1   
             val1['posiciones'] = posiciones
             return val1
         #dic op dic
-        elif isinstance(val1,dict) and not isinstance(val2,dict) :
+        elif isinstance(val1,dict) and isinstance(val2,dict) :
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
@@ -2676,24 +2725,25 @@ class exp_mayor(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
-                if val > val2.val:
+                if val > val2:
                     posiciones.append(contador)
                 contador = contador +1   
             val1['posiciones'] = posiciones
             return val1
         #dic op dic
-        elif isinstance(val1,dict) and not isinstance(val2,dict) :
+        elif isinstance(val1,dict) and  isinstance(val2,dict) :
+            
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
@@ -2744,24 +2794,24 @@ class exp_menor(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
     
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
-                if val < val2.val:
+                if val < val2:
                     posiciones.append(contador)
                 contador = contador +1   
             val1['posiciones'] = posiciones
             return val1
         #dic op dic
-        elif isinstance(val1,dict) and not isinstance(val2,dict) :
+        elif isinstance(val1,dict) and  isinstance(val2,dict) :
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
@@ -2812,24 +2862,24 @@ class exp_mayor_igual(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
-                if val >= val2.val:
+                if val >= val2:
                     posiciones.append(contador)
                 contador = contador +1   
             val1['posiciones'] = posiciones
             return val1
         #dic op dic
-        elif isinstance(val1,dict) and not isinstance(val2,dict) :
+        elif isinstance(val1,dict) and  isinstance(val2,dict) :
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
@@ -2880,24 +2930,24 @@ class exp_menor_igual(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
-                if val <= val2.val:
+                if val <= val2:
                     posiciones.append(contador)
                 contador = contador +1   
             val1['posiciones'] = posiciones
             return val1
         #dic op dic
-        elif isinstance(val1,dict) and not isinstance(val2,dict) :
+        elif isinstance(val1,dict) and isinstance(val2,dict) :
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
@@ -2947,24 +2997,24 @@ class exp_diferente(exp_query):
         self.exp1 = exp1
         self.exp2 = exp2
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
         #id op val
-        if isinstance(val1,dict) and not isinstance(val2,dict) :
+        if isinstance(val1,exp_id) and not isinstance(val2,dict) :
             posiciones = []
             contador = 0
             for val in val1['valores']:
-                if val != val2.val:
+                if val != val2:
                     posiciones.append(contador)
                 contador = contador +1   
             val1['posiciones'] = posiciones
             return val1
         #dic op dic
-        elif isinstance(val1,dict) and not isinstance(val2,dict) :
+        elif isinstance(val1,dict) and  isinstance(val2,dict) :
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
@@ -3023,15 +3073,15 @@ class exp_between(exp_query):
         self.exp2 = exp2
         self.exp3 = exp3
 
-    def ejecutar():
+    def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
         
-        val1 = exp1.ejecutar()
-        val2 = exp2.ejecutar()
-        val3 = exp2.ejecutar()
+        val1 = self.exp1.ejecutar(tables)
+        val2 = self.exp2.ejecutar(tables)
+        val3 = self.exp3.ejecutar(tables)
         #id op val
-        if isinstance(val1,dict):
+        if isinstance(self.exp1,exp_id) and not isinstance(self.exp2,exp_id) and not isinstance(self.exp3,exp_id):
             if isinstance(val2,dict):
                 exp2 = val2['valores']
             else:
@@ -3086,6 +3136,7 @@ class texp_id(table_expression):
 
 
 
+
 class texp_query(table_expression)        :
     def __init__(self,query,alias):
         self.query = query
@@ -3096,8 +3147,46 @@ class texp_query(table_expression)        :
 #############
 
 def getKeyFromValue(value,d):
-    for table, alias in d:
+    for table, alias in d.items():
         if alias == value:
             return table
 
     return None
+
+############
+#Condiciones
+############
+
+def cond_OR(lst1, lst2): 
+    final_list = list(set(lst1) | set(lst2)) 
+    return final_list 
+
+def cond_AND(lst1, lst2): 
+    final_list = list(set(lst1) & set(lst2)) 
+    return final_list 
+
+class condition(exp_query):
+    def __init__(self,exp ,tipo):
+        self.exp = exp
+        self.tipo = tipo
+
+
+    
+
+def ejecutar_conditions(tables,lcond):
+    condition = lcond
+    if len(condition) == 0:
+        return None
+    elif len(condition) == 1:
+        return condition[0].exp.ejecutar(tables)
+    else:
+        #Obtengo las primeras posiciones y dependiendo 
+        valor = condition[0].exp.ejecutar(tables)
+        res =  valor['posiciones'] 
+        for i in range(1, len(condition)):
+            if condition[i].tipo == 'AND':
+                
+                res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])
+            else:
+                res = cond_OR(res, condition[i].exp.ejecutar(tables)['posiciones'])
+        return res

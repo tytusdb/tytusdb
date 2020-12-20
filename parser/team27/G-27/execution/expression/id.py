@@ -4,14 +4,17 @@ sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
 from environment import *
 from expression import *
 
-class Literal(Expression):
+class Id(Expression):
+    """
+    id: recibe un id que hará referencia a una variable.
+    """
     def __init__(self,id, row, column):
         Expression.__init__(self, row, column)
         self.id = id
     
     def execute(self, environment):
         # ir a buscar el id
-        if not isinstance(self.tableName,str):
+        if not isinstance(self.id,str):
             return {'Error': 'El id no es una cadena.', 'Fila':self.row, 'Columna': self.column }
         variable = environment.buscarVariable(self.id)
         if variable == None:

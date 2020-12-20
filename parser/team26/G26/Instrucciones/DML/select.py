@@ -1,3 +1,4 @@
+from Expresiones.Primitivo import Primitive
 import sys
 sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
@@ -11,6 +12,7 @@ from Primitivo import *
 
 import math
 import random
+import hashlib
 
 class Select(Instruccion):
 
@@ -97,7 +99,7 @@ class Casos(Instruccion):
         self.caso = caso
         self.elsecase = elsecase
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -110,7 +112,7 @@ class FromOpcional(Instruccion):
         self.parametros = parametros
         self.whereopcional = whereogroup
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -122,7 +124,7 @@ class ParametrosFromR(Instruccion):
         self.parametros = parametros
         self.asop = asop
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -138,7 +140,7 @@ class ListaDeSeleccionadosConOperador(Instruccion):
         self.arg1 = arg1
         self.arg2 = arg2
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -165,7 +167,7 @@ class ElseOpcional(Instruccion):
     def __init__(self, elseopcional):
         self.elseopcional = elseopcional
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -179,7 +181,7 @@ class QuerysSelect(Instruccion):
         self.allopcional = allopcional
         self.select2 = select2
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -192,7 +194,7 @@ class ParametrosFrom(Instruccion):
         self.operador = parametro
         self.tipoparametro = tipoparametro
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -204,7 +206,7 @@ class WhereOpcional(Instruccion):
         self.operador = condiciones
         self.groupbyopcional = groupbyopcional
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -216,7 +218,7 @@ class GroupByOpcional(Instruccion):
         self.lista = lista
         self.havingopcional = havingopcional
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -227,7 +229,7 @@ class HavingOpcional(Instruccion):
     def __init__(self, Condiciones):
         self.Condiciones = Condiciones
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -240,7 +242,7 @@ class Allopcional(Instruccion):
     def __init__(self, allopcional):
         self.allopcional = allopcional
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -253,7 +255,7 @@ class Case(Instruccion):
         self.thenCase = thenCase
 
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -293,7 +295,7 @@ class As(Instruccion):
     def __init__(self, argumento):
         self.argumento = argumento
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -304,7 +306,7 @@ class TipoRound(Instruccion):
     def __init__(self, arg1):
         self.arg1 = arg1
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -319,7 +321,38 @@ class FuncionBinaria(Instruccion):
         self.arg2 = arg2
         self.arg3 = arg3
 
-    def execute(self):
+    def execute(self,data):
+        tipo = str(self.tipofuncionTrigonometrica)
+        if tipo == 'length':
+            argumento = self.arg1.execute()
+            if argumento.type == 'string' or argumento.type == 'ID' :
+                return Primitive('integer',len(str(argumento.val)))
+            else:
+                error = Error('Semántico', 'Error de tipos en LENGTH, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val), 0, 0)
+                return error 
+        elif tipo == 'substring' or tipo == 'substr':
+            argumento = self.arg1.execute()
+            argumento1 = self.arg2.execute()
+            argumento2 = self.arg3.execute()
+            if argumento.type == 'string' or argumento.type == 'ID' :
+                return Primitive('integer',str(argumento.val)[argumento1.val:argumento2.val])
+            else:
+                error = Error('Semántico', 'Error de tipos en LENGTH, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
+                return error 
+        elif tipo == 'md5':
+            argumento = self.arg1.execute()
+            if argumento.type == 'string' or argumento.type == 'ID' :
+                return Primitive('string',hashlib.md5(str(argumento.val)).hexdigest())
+            else:
+                error = Error('Semántico', 'Error de tipos en MD5, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
+                return error 
+        elif tipo == 'sha256':
+            argumento = self.arg1.execute()
+            if argumento.type == 'string' or argumento.type == 'ID' :
+                return Primitive('string',hashlib.sha256(str(argumento.val)).hexdigest())
+            else:
+                error = Error('Semántico', 'Error de tipos en MD5, solo se aceptan valores de cadenas, se obtuvo: '+str(argumento.val),0,0)
+                return error  
         return self
 
     def __repr__(self):
@@ -327,12 +360,291 @@ class FuncionBinaria(Instruccion):
 
 class FucionTrigonometrica(Instruccion):
 
-    def __init__(self, tipofuncionTrigonometrica, arg1):
+    def __init__(self, tipofuncionTrigonometrica, arg1,arg2):
         self.tipofuncionTrigonometrica = tipofuncionTrigonometrica
         self.arg1 = arg1
+        self.arg2 = arg2
 
-    def execute(self):
+    def execute(self,data):
+        tipo = str(self.tipofuncionTrigonometrica)
+        if tipo == 'acos' :
+            'devuelve el coseno inverso'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try :
+                    result = Primitive('float',math.acos(argumento.val))
+                    return result
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ACOS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error   
+            else :
+                error = Error('Semántico', 'Error de tipos en ACOS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'acosd' :
+            'devuelve el coseno inverso en grados '
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.degrees(math.acos(argumento.val)))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ACOSD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en ACOSD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'asin' :
+            'devuelve el seno inverso'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.asin(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ASIN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en ASIN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'asind' :
+            'devuelve el seno inverso en grados'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.degrees(math.asin(argumento.val)))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ASIND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en ASIND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'atan' :
+            'devuelve el tangente inverso'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' :
+                try: 
+                    return Primitive('float',math.atan(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ATAN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en ATAN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'atand' :
+            'devuelve el tangente inverso en grados'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.degrees(math.atan(argumento.val)))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ACOS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en ATAND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'atan2' :
+            'devuelve el tangente inverso de una div'
+            argumento =  self.arg1.execute()
+            argumento2 = self.arg2.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                if argumento2.type == 'integer' or argumento2.type == 'float' : 
+                    try:
+                        return Primitive('float',math.atan2(argumento.val,argumento2.val))
+                    except :
+                        error = Error('Semántico', 'Error de DOMINIO en ATAN2, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                        return error 
+                else :
+                    error = Error('Semántico', 'Error de tipos en ATAN2, solo se aceptan valores numéricos, se obtuvo: '+argumento2.val, 0, 0)
+                    return error
+            else :
+                error = Error('Semántico', 'Error de tipos en ATAN2, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'atan2d' :
+            'devuelve el tangente inverso de una div en grados'
+            argumento =  self.arg1.execute()
+            argumento2 = self.arg2.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                if argumento2.type == 'integer' or argumento2.type == 'float' : 
+                    try:
+                        return Primitive('float',math.degrees(math.atan2(argumento.val,argumento2.val)))
+                    except :
+                        error = Error('Semántico', 'Error de DOMINIO en ATAN2D, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                        return error 
+                else :
+                    error = Error('Semántico', 'Error de tipos en ATAN2D, solo se aceptan valores numéricos, se obtuvo: '+argumento2.val, 0, 0)
+                    return error
+            else :
+                error = Error('Semántico', 'Error de tipos en ATAN2D, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'cos' :
+            'devuelve el coseno'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.cos(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en COS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en COS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'cosd' :
+            'devuelve el coseno en grados'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.degrees(math.cos(argumento.val)))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en COSD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en COSD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'cot' :
+            'devuelve el cotangente'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.cos(argumento.val)/math.sin(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en COT, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en COT, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'cotd' :
+            'devuelve el cotangente en grados'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.degrees(math.cos(argumento.val)/math.sin(argumento.val)))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en COTD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en COTD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'sin' :
+            'devuelve el sin'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.sin(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en SIN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en SIN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'sind' :
+            'devuelve el coseno en grados'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.degrees(math.sin(argumento.val)))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en SIND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en SIND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'tan' :
+            'devuelve el tan'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.tan(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en TAN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en TAN, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'tand' :
+            'devuelve el tan en grados'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.degrees(math.tan(argumento.val)))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en TAND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en TAND, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'sinh' :
+            'devuelve el sinh'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.sinh(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en SINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en SINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'cosh' :
+            'devuelve el cosh'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.cosh(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en COSH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en COSH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'tanh' :
+            'devuelve el tanh'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.tanh(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en TANH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en SINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'asinh' :
+            'devuelve el asinh'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.asinh(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ASINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en ASINH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'acosh' :
+            'devuelve el asinh'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.asinh(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ACOSH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en ACOSH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        elif tipo == 'atanh' :
+            'devuelve el atanh'
+            argumento =  self.arg1.execute()
+            if argumento.type == 'integer' or argumento.type == 'float' : 
+                try:
+                    return Primitive('float',math.atanh(argumento.val))
+                except :
+                    error = Error('Semántico', 'Error de DOMINIO en ATANH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                    return error 
+            else :
+                error = Error('Semántico', 'Error de tipos en ATANH, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
+                return error
+        
         return self
+
 
     def __repr__(self):
         return str(self.__dict__)
@@ -351,7 +663,7 @@ class OperadoresSelect(Instruccion):
         self.arg1 = arg1
         self.arg2 = arg2
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -375,7 +687,7 @@ class FuncionMatematica(Instruccion):
             if argumento.type == 'integer' or argumento.type == 'float' :
                 return Primitive('float', math.fabs(argumento.val))
             else :
-                error = Error('Semántico', 'Error de tipos en ABS, solo se aceptan valores numéricos, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en ABS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
         elif tipo == 'cbrt' :
             'raíz cúbica - solo numeros positivos'
@@ -388,10 +700,10 @@ class FuncionMatematica(Instruccion):
 
                     return Primitive('float', reto)
                 else :
-                    error = Error('Semántico', 'Error de tipos en CBRT, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                    error = Error('Semántico', 'Error de tipos en CBRT, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en CBRT, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en CBRT, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -403,10 +715,10 @@ class FuncionMatematica(Instruccion):
                     reto = math.ceil(argumento.val)
                     return Primitive('integer', reto)
                 else :
-                    error = Error('Semántico', 'Error de tipos en CEIL, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                    error = Error('Semántico', 'Error de tipos en CEIL, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en CEIL, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en CEIL, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -418,10 +730,10 @@ class FuncionMatematica(Instruccion):
                     reto = math.ceil(argumento.val)
                     return Primitive('integer', reto)
                 else :
-                    error = Error('Semántico', 'Error de tipos en CEIL, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                    error = Error('Semántico', 'Error de tipos en CEIL, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en CEIL, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en CEIL, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -432,7 +744,7 @@ class FuncionMatematica(Instruccion):
                 reto = math.degrees(argumento.val)
                 return Primitive('float', reto)
             else :
-                error = Error('Semántico', 'Error de tipos en DEGREES, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en DEGREES, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -448,7 +760,7 @@ class FuncionMatematica(Instruccion):
                     error = Error('Semántico', 'Error de tipos en DIV, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento2.val, 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en DIV, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en DIV, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -459,7 +771,7 @@ class FuncionMatematica(Instruccion):
                 reto = math.exp(argumento.val)
                 return Primitive('float', reto)
             else :
-                error = Error('Semántico', 'Error de tipos en EXP, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en EXP, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -471,10 +783,10 @@ class FuncionMatematica(Instruccion):
                     reto = math.factorial(argumento.val)
                     return Primitive('integer', reto)
                 else :
-                    error = Error('Semántico', 'Error de tipos en FACTORIAL, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                    error = Error('Semántico', 'Error de tipos en FACTORIAL, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en FACTORIAL, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en FACTORIAL, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -485,7 +797,7 @@ class FuncionMatematica(Instruccion):
                 reto = math.trunc(argumento.val)
                 return Primitive('integer', reto)
             else :
-                error = Error('Semántico', 'Error de tipos en FLOOR, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en FLOOR, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -505,7 +817,7 @@ class FuncionMatematica(Instruccion):
                     error = Error('Semántico', 'Error de tipos en GCD, solo se aceptan valores numéricos, se obtuvo: '+argumento2.val, 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en GCD, solo se aceptan valores numéricos, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en GCD, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -517,10 +829,10 @@ class FuncionMatematica(Instruccion):
                     reto = math.log(argumento.val)
                     return Primitive('float', reto)
                 else :
-                    error = Error('Semántico', 'Error de tipos en Ln, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                    error = Error('Semántico', 'Error de tipos en Ln, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en Ln, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en Ln, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -532,10 +844,10 @@ class FuncionMatematica(Instruccion):
                     reto = math.log10(argumento.val)
                     return Primitive('integer', reto)
                 else :
-                    error = Error('Semántico', 'Error de tipos en LOG, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                    error = Error('Semántico', 'Error de tipos en LOG, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en LOG, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en LOG, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -551,7 +863,7 @@ class FuncionMatematica(Instruccion):
                     error = Error('Semántico', 'Error de tipos en MOD, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento2.val, 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en MOD, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en MOD, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -577,7 +889,7 @@ class FuncionMatematica(Instruccion):
                     error = Error('Semántico', 'Error de tipos en POWER, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento2.val, 0, 0)
                     return error
             else :
-                error = Error('Semántico', 'Error de tipos en POWER, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en POWER, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -593,7 +905,7 @@ class FuncionMatematica(Instruccion):
                     return error
 
             else :
-                error = Error('Semántico', 'Error de tipos en RADIANS, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en RADIANS, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -620,7 +932,7 @@ class FuncionMatematica(Instruccion):
                         error = Error('Semántico', 'Error de tipos en ROUND, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento2.val, 0, 0)
                         return error
             else :
-                error = Error('Semántico', 'Error de tipos en ROUND, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en ROUND, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -634,7 +946,7 @@ class FuncionMatematica(Instruccion):
                     return Primitive('integer', -1)
 
             else :
-                error = Error('Semántico', 'Error de tipos en SIGN, solo se aceptan valores numéricos positivo, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en SIGN, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -650,7 +962,7 @@ class FuncionMatematica(Instruccion):
                     return error
 
             else :
-                error = Error('Semántico', 'Error de tipos en SQRT, solo se aceptan valores numéricos, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en SQRT, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
@@ -692,7 +1004,7 @@ class FuncionMatematica(Instruccion):
                     return error
 
             else :
-                error = Error('Semántico', 'Error de tipos en trunc, solo se aceptan valores numéricos, se obtuvo: '+argumento.val, 0, 0)
+                error = Error('Semántico', 'Error de tipos en trunc, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
         elif tipo == 'random' :
@@ -740,8 +1052,8 @@ class FuncionFecha(Instruccion):
         self.tipofuncionfehca = tipofuncionfehca
         self.arg1 = arg1
         self.arg2 = arg2
-
-    def execute(self):
+    
+    def execute(self,data):
         return self
 
     def __repr__(self):
@@ -754,7 +1066,7 @@ class FuncionMatematicaSimple(Instruccion):
         self.argumento = argumento
         self.operador = operador
 
-    def execute(self):
+    def execute(self,data):
         return self
 
     def __repr__(self):
