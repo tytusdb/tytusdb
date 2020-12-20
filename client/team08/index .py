@@ -1,83 +1,85 @@
 from tkinter import ttk 
-from tkinter import scrolledtext 
-import tkinter as tk 
+import tkinter as tk
 from tkinter import *
-import socket
-import sys
+from tkinter import scrolledtext
+import tkinter.scrolledtext as tkscrolled
+from tkinter import messagebox
+from tkinter import Button
+# pip install pillow
+from PIL import ImageTk, Image
 class base:
-    
-    try:
-        conexion= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("Conexion exitosamente creada")
-    except socket.error as err:
-        print("La creacion de la conexion fue un fracaso por: %conexion" %(err))
-    port= 80
-
-    try:
-        host_ip= socket.gethostbyname('www.google.com')#conectandome con el servidor
-        #para enviar informacion se necesita la libreria sendall
-    except socket.gaierror:
-        print("Hubo un error en la conexion")
-        sys.exit()
-    conexion.connect((host_ip,port))
-    print("Servidor conectado exitosamente" +str(port))
     #esto es un constructor
     def __init__(self, window):
         self.wind = window #guarda la ventana que tiene como parametro  
         self.wind.title('TytusDB')
-
+        load = Image.open("icondb.png")
+        self.wind.iconphoto(False, ImageTk.PhotoImage(load))
         #creando el contenedor de barra de herramientas superior
         #columnspam para un espaciado dentro de las columnass
         #padding espacio entre cada elemento
 
         #self.toolbar = Frame(root,bg="gray",height=40)
         #self.toolbar.pack(side=TOP, fill=X)
-
-
-        Bases = LabelFrame(self.wind, text= 'BASES DE DATOS EXISTENTES', background='white')
-        Bases.grid(row=0, column=0, columnspan=3, pady=20)
-        text_area = scrolledtext.ScrolledText(self.wind, wrap = tk.WORD, width = 40, height = 10,  
-                                      font = ("Times New Roman", 
-                                              15)) 
-  
-        text_area.grid(row= 0, column = 20, pady = 40, padx = 10) 
+        Bases = LabelFrame(self.wind, text= 'BASES DE DATOS EXISTENTES', background="white")
+        Bases.grid(row=0, column=0, columnspan=3, pady=95)
+        
+        text_area = scrolledtext.ScrolledText(self.wind, wrap = tk.WORD, width = 50, height = 7, font = ("Times New Roman", 15))                 
+        text_area.place(x=290, y=40)
         text_area.focus() 
+        load1 = Image.open("tytus.gif")
+        render1 = ImageTk.PhotoImage(load1)
+        img1 = Label(self.wind, image=render1)
+        img1.image = render1
+        img1.place(x=290, y=215)
+        tk.Label(self.wind, text = "Salida", font = ("Arial", 20), background = '#B5F5E0', foreground = "black").place(x=370, y=215)
+        text_area1 = scrolledtext.ScrolledText(self.wind, wrap = tk.WORD, width = 50, height = 7, font = ("Times New Roman", 15))   
+        text_area1.place(x=290, y=250)         
+        text_area1.focus() 
 
-        #self.datos = Entry(Entrada)
-        #self.datos.grid(row=1, column=1)
-        #haciendo un texto
+        Label(Bases, text='BASES DE DATOS 1').grid(row=1, column=0)
+        Label(Bases, text='BASES DE DATOS 2').grid(row=2, column=0)
+        Label(Bases, text='BASES DE DATOS 3').grid(row=3, column=0)
+        Label(Bases, text='BASES DE DATOS 3.1').grid(row=4, column=1)
+        Label(Bases, text='BASES DE DATOS 3.2').grid(row=5, column=1)
+        Label(Bases, text='BASES DE DATOS 4').grid(row=6, column=0)                
 
-        Label(Bases, text='BASES DE DATOS 1', background='white').grid(row=1, column=0)
-        Label(Bases, text='BASES DE DATOS 2', background='white').grid(row=2, column=0)
-        Label(Bases, text='BASES DE DATOS 3', background='white').grid(row=3, column=0)
-        Label(Bases, text='BASES DE DATOS 3.1', background='white').grid(row=4, column=1)
-        Label(Bases, text='BASES DE DATOS 3.2', background='white').grid(row=5, column=1)
-        Label(Bases, text='BASES DE DATOS 4', background='white').grid(row=6, column=0)
+        def MensajeAcercaDe():
+                messagebox.showinfo(message="ESTE PROGRAMA ES REALIZADO \n POR EL GRUPO 8:\n Cinthya Andrea Palomo Galvez 201700670 \n Karla Julissa Ajtún Velásquez 201700565 \n Version 1.0.0", title="TytusDB")
+        
+        correr = Button(self.wind, text="Sumar", command=MensajeAcercaDe)
+        correr.pack()
 
 
-        #self.name = Entry(frame_prueba)
-        #self.name.grid(row=1, column=1)
-        menubar =Menu(self.wind)
+        menubar =Menu(self.wind,  background="gray")
         self.wind.config(menu=menubar)
         fileMenu = Menu(menubar)
-        prueba= Menu(menubar)
-        prueba.add_command(label="Objetos enviar",command=self.envioDatos)
         fileMenu.add_command(label="Exit", command= self.onExit)
         menubar.add_cascade(label="File", menu=fileMenu)
-        menubar.add_cascade(label="Object", menu=prueba)
-        menubar.add_cascade(label="Tools")
-        menubar.add_cascade(label="Help")
+        menubar.add_cascade(label="Object")
+        menubar.add_cascade(label="Tools")        
+        FileA = Menu(menubar)
+        FileA.add_command(label="Acerca de", command=MensajeAcercaDe)
+        menubar.add_cascade(label="Help", menu=FileA)
 
+
+        #------IMAGE-------
+
+        
+        render = ImageTk.PhotoImage(load)
+        img = Label(self.wind, image=render)
+        img.image = render
+        img.place(x=0, y=0)
+        #------TEXTAREA SALIDA------
+       # Vertical (y) Scroll Bar
+        
     def onExit(self):
-        quit()
 
-    def envioDatos(self):
-        str1= "hola amigos"
+        self.quit()
 
 if __name__ == '__main__':
         window = Tk()
         window.geometry("850x450+100+100")
+
         window.configure(background='white')
         application = base(window)
-        
         window.mainloop()
