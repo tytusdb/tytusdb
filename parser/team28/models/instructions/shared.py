@@ -1,11 +1,12 @@
 #TODO: DISTINCT
 from abc import abstractmethod
+from models.instructions.DML.special_functions import loop_list
 from models.nodo import Node
 class Instruction:
     '''Clase abstracta'''
     @abstractmethod
-    def execute(self):
-        ''' recibe hijos paras el ast grafico '''
+    def process(self):
+        ''' metodo para la ejecucion '''
         pass
 
 class Alias(Instruction):
@@ -18,6 +19,9 @@ class Alias(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class From(Instruction):
     '''
@@ -28,6 +32,10 @@ class From(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+
+    def process(self, instrucction):
+        tables = loop_list(self.tables,instrucction)
+        return tables
     
 class Where(Instruction):
     '''
@@ -38,6 +46,9 @@ class Where(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class GroupBy(Instruction):
     '''
@@ -51,6 +62,9 @@ class GroupBy(Instruction):
     def __repr__(self):
         return str(vars(self))
     
+    def process(self, instrucction):
+        pass
+    
 class Having(Instruction):
     '''
         HAVING recibe una condicion logica
@@ -60,6 +74,9 @@ class Having(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Using(Instruction):
     '''
@@ -67,6 +84,9 @@ class Using(Instruction):
     '''
     def __repr__(self):
         return str(vars(self))
+
+    def process(self, instrucction):
+        pass
 class Returning(Instruction):
     '''
         RETURNING recibe un array con ids o un asterisco
@@ -76,6 +96,9 @@ class Returning(Instruction):
     
     def __repr__(self):
         return str(vars(self))
+
+    def process(self, instrucction):
+        pass
 
 class Between(Instruction):
     '''
@@ -90,198 +113,9 @@ class Between(Instruction):
     
     def __repr__(self):
         return str(vars(self))
-
-'''
-    FUNCIONES MATEMATICAS =======================================================================================================================
-'''
-class Abs(Instruction):
-    '''
-        Valor absoluto de una columna tipo entero o de un valor.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-
-    def __repr__(self):
-        return str(vars(self))
-
-class Cbrt(Instruction):
-    '''
-        Raiz Cubica de un numero o una columna tipo entero.
-    '''
-    def __init__(self,  value) :
-        self.value = value
     
-    def __repr__(self):
-        return str(vars(self))
-
-class Ceil(Instruction):
-    '''
-        Redondear cualquier valor decimal positivo o negativo como
-        mayor que el argumento.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Ceiling(Instruction):
-    '''
-        Redondear cualquier valor decimal positivo o
-        negativo como mayor que el argumento.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Degrees(Instruction):
-    '''
-        Se usa para devolver los valores en grados de radianes 
-        como se especifica en el argumento.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Div(Instruction):
-    '''
-        Se utiliza para devolver el cociente entero de
-        una división como se especifica en el argumento.
-    '''
-    def __init__(self,  dividendo, divisor) :
-        self.dividendo = dividendo
-        self.divisor = divisor
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Exp(Instruction):
-    '''
-        La función se usa para devolver la exponenciación de
-        un número como se especifica en el argumento.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Factorial(Instruction):
-    '''
-        Se puede utilizar la libreria Math de Python **
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Floor(Instruction):
-    '''
-        Se usa para devolver el valor después de redondear 
-        cualquier valor decimal positivo o negativo 
-        como más pequeño que el argumento.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Gcd(Instruction):
-    '''
-        Se puede utilizar la libreria Math de Python. 
-        Maximo Comun Divisor *
-    '''
-    def __init__(self,  value) :
-        self.value = value
-
-    def __repr__(self):
-        return str(vars(self))
-
-class Ln(Instruction):
-    '''
-        Logaritmo natural de un numero ***
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Log(Instruction):
-    '''
-        Logaritmo base 2 (no seria base 10?) de un número.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Mod(Instruction):
-    '''
-        La función se usa para devolver el resto de una
-        división de dos números, como se especifica 
-        en el argumento
-    '''
-    def __init__(self,  value1, value2) :
-        self.value1 = value1
-        self.value2 = value2
-
-    def __repr__(self):
-        return str(vars(self))
-
-class Pi(Instruction):
-    '''
-        Retorna el valor de la constant PI
-        ***** TODO: SIN ARGUMENTOS *****
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Power(Instruction):
-    '''
-        La función se usa para devolver el valor de un 
-        número elevado a la potencia de otro número, 
-        proporcionado en el argumento.
-    '''
-    def __init__(self, base, exp) :
-        self.base = base
-        self.exp = exp
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Radians(Instruction):
-    '''
-        La función se usa para devolver el valor en radianes 
-        a partir de grados, proporcionado en el argumento.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
-
-class Round(Instruction):
-    '''
-        La función se usa para devolver el valor después de 
-        redondear un número hasta un decimal específico, 
-        proporcionado en el argumento.
-    '''
-    def __init__(self,  value) :
-        self.value = value
-    
-    def __repr__(self):
-        return str(vars(self))
+    def process(self, instrucction):
+        pass
 
 class ObjectReference(Instruction):
     '''
@@ -290,11 +124,15 @@ class ObjectReference(Instruction):
     def __init__(self, reference_base, reference_table, reference_column, opt_asterisk):
         self.reference_base = reference_base
         self.reference_table = reference_table
-        self.reference_colunm = reference_column
+        self.reference_column = reference_column
         self.opt_asterisk = opt_asterisk
+        self.alias = reference_column.alias
 
     def __repr__(self):
         return str(vars(self))
+    
+    def process(self, instruction):
+        return self.reference_column.process(instruction)
 
 
 

@@ -26,7 +26,8 @@ def p_statement(t):
                     |    stm_show   PUNTOCOMA
                     |    stm_select UNION all_opt stm_select
                     |    stm_select INTERSECT all_opt stm_select
-                    |    stm_select EXCEPT all_opt stm_select
+                    |    stm_select EXCEPT all_opt 
+                    |    stm_use_db PUNTOCOMA
     '''
 
 def p_all_opt(t):
@@ -121,6 +122,9 @@ def p_group_list(t):
 def p_stm_show(t):
     '''stm_show : SHOW DATABASES LIKE TEXTO
                 | SHOW DATABASES'''
+
+def p_stm_use_db(t):
+    '''stm_use_db   : USE DATBASE ID'''
 
 def p_having_clause(t):
     '''having_clause    : HAVING logicExpression'''

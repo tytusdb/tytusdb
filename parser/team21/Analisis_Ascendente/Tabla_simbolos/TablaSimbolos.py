@@ -22,6 +22,7 @@ class TIPO_DATO(Enum):
     TABLA = 18
     CAMPO = 19
     FUNCIONDEAGREGACION = 20
+    BASEDEDATOS = 21
 
 
 
@@ -33,11 +34,12 @@ class Simbolo():
 
 
 
-    def __init__(self, categoria,id, tipo, valor):
+    def __init__(self, categoria,id, tipo, valor,Entorno):
         self.categoria = categoria
         self.id = id
         self.tipo = tipo
         self.valor = valor
+        self.Entorno = Entorno
 
 
 #Aqui se define la tabla de simbolos , cada tabla define un nuevo entorno
@@ -66,3 +68,11 @@ class TablaDeSimbolos():
             print('Error: el identificador ', id, ' no esta definido.')
         else:
             self.simbolos[simbolo.id] = simbolo
+
+    def eliminar_sim(self, id):
+        if not id in self.simbolos:
+            print('Limpiando base datos, replace..')
+        else:
+            del self.simbolos[id]
+
+
