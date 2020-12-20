@@ -23,18 +23,21 @@ def showDatabases():
     return lista
 
 def alterDatabase(databaseOld, databaseNew):
-    if re.match(r'[_]?[A-Za-z]+[_]?[_0-9]*[_]?', databaseNew):
+    if (re.match(pattern, databaseOld)) and (re.match(pattern, databaseNew)):
         db = DataBase.buscar(str(databaseOld))
         db_new = DataBase.buscar(str(databaseNew))
+
         if db is None:
             return 2
         elif db_new is not None:
             return 3
-        elif db is not None:
-            db.name = databaseNew
-            return 0
         else:
-            return 1
+            if db is not None:
+                if DataBase.actualizar(databaseOld, databaseNew) == 'exito':
+                    Save(DataBase, "BD")
+                    return 0
+                else:
+                    return 1
     else:
         return 1
     
@@ -122,6 +125,49 @@ def alterDropPK(database, table):
         return valor
     except:
         return 1
+
+def alterTable(database, tableOld, tableNew):
+    try:
+        if re.match(pattern, database):
+            db = DataBase.buscar(database)
+            if db is None:
+                return 2
+            else:
+                table = db.avlTable.buscar(tableOld)
+                table_new = db.avlTable.buscar(tableNew)
+
+                if table is None:
+                    return 3
+                elif table_new is not None:
+                    return 4
+                else:
+                    if table is not None:
+                        if db.avlTable.actualizar(tableOld, tableNew) == 'exito':
+                            Save(DataBase, "BD")
+                            return 0
+        else:
+            return 1
+    except:
+        return 1
+    
+
+def alterAddColumn(database, table, default):
+    if CheckData():
+        DataBase = Load("BD")
+    try:
+        db = DataBase.buscar(str(database))
+        if db is None:
+            return 2
+        else:
+            tabla = db.avlTable.buscar(table)
+            if tabla is None:
+                return 3
+            else:
+                tabla.bPlus.alterAddColumn(default)
+                Save(DataBase, "BD")
+                return 0
+    except:
+        return 1    
     
 def alterDropColumn(database, table, columnNumber):
     if CheckData():
