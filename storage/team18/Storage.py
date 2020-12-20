@@ -1,3 +1,7 @@
+# B+ Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
 import AVLTree
 import BplusTree
 import os
@@ -26,6 +30,8 @@ def validateIdentifier(identifier):
 
 
 def createDatabase(database):
+    if type(database) !=str:
+        return 1
     checkData()
     if database and validateIdentifier(database):
         dataBaseTree = serializable.Read('./Data/', 'Databases')
@@ -50,6 +56,8 @@ def showDatabases():
 
 
 def alterDatabase(dataBaseOld, dataBaseNew) -> int:
+    if type(dataBaseOld) !=str or type(dataBaseNew)!=str:
+        return 1
     checkData()
     if validateIdentifier(dataBaseOld) and validateIdentifier(dataBaseNew):
         dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -68,6 +76,8 @@ def alterDatabase(dataBaseOld, dataBaseNew) -> int:
 
 
 def dropDatabase(database):
+    if type(database) !=str:
+        return 1
     checkData()
     if validateIdentifier(database):
         dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -85,6 +95,8 @@ def dropDatabase(database):
 # ----------------Erick--------------------#
 
 def createTable(database, table, numberColumns):
+    if type(database) !=str or type(table)!=str or type(numberColumns)!=int:
+        return 1
     # Validates identifier before searching
     if validateIdentifier(database) and validateIdentifier(table) and numberColumns >= 0:
         checkData()
@@ -111,6 +123,8 @@ def createTable(database, table, numberColumns):
 
 
 def showTables(database):
+    if type(database) !=str:
+        return 1
     checkData()
     dataBaseTree = serializable.Read('./Data/', "Databases")
     if dataBaseTree.search(dataBaseTree.getRoot(), database.upper()):
@@ -122,6 +136,8 @@ def showTables(database):
 
 
 def extractTable(database, table):
+    if type(database) !=str or type(table)!=str:
+        return None
     checkData()
     # Get the databases tree
     dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -140,6 +156,8 @@ def extractTable(database, table):
 
 
 def extractRangeTable(database, table, columnNumber, lower, upper):
+    if type(database) !=str or type(table)!=str or type(columnNumber)!=int:
+        return None
     checkData()
     # Get the databases tree
     dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -183,6 +201,8 @@ def extractRangeTable(database, table, columnNumber, lower, upper):
 
 def alterAddPK(database: str, table: str, columns: list) -> int:
     try:
+        if type(database)!=str or type(table)!=str or type(columns)!=list:
+            return 1
         checkData()
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -217,6 +237,8 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
 
 def alterDropPK(database: str, table: str) -> int:
     try:
+        if type(database)!=str or type(table)!=str:
+            return 1
         checkData()
         dataBaseTree = serializable.Read('./Data/', "Databases")
         root = dataBaseTree.getRoot()
@@ -241,7 +263,8 @@ def alterDropPK(database: str, table: str) -> int:
 
  
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
-    
+    if type(database) !=str or type(tableOld)!=str or type(tableNew)!=str:
+        return 1
     checkData()
     if validateIdentifier(tableOld) and validateIdentifier(tableNew):
         dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -264,6 +287,8 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
     
 def alterAddColumn(database: str, table: str, default: any) -> int:   
     try:
+        if type(database)!=str or type(table)!=str:
+            return 1
         checkData()
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -291,6 +316,8 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
 
 def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
     try:
+        if type(database)!=str or type(table)!=str or type(columnNumber)!=int:
+            return 1
         checkData()
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -319,6 +346,8 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 
 def dropTable(database: str, table: str) -> int:
     try:
+        if type(database)!=str or type(table)!=str:
+            return 1
         checkData()
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -347,6 +376,8 @@ def dropAll():
         shutil.rmtree('./Data')
 
 def insert(database, table, register):
+    if type(database) !=str or type(table)!=str or type(register)!=list:
+        return 1
     checkData()
     dataBaseTree = serializable.Read('./Data/', "Databases")
     root = dataBaseTree.getRoot()
@@ -366,6 +397,8 @@ def insert(database, table, register):
         return 0  # exito
 
 def loadCSV(filepath, database, table):
+    if type(database) !=str or type(table)!=str or type(filepath)!=str:
+        return []
     checkData()
     dataBaseTree = serializable.Read('./Data/', "Databases")
     root = dataBaseTree.getRoot()
@@ -386,6 +419,8 @@ def loadCSV(filepath, database, table):
         return []
 
 def extractRow(database, table, columns):
+    if type(database) !=str or type(table)!=str or type(columns)!=list:
+        return []
     checkData()
     dataBaseTree = serializable.Read('./Data/', "Databases")
     root = dataBaseTree.getRoot()
@@ -399,6 +434,8 @@ def extractRow(database, table, columns):
         return PKsTree.search(columns)  # exito
 
 def update(database, table, register, columns):
+    if type(database) !=str or type(table)!=str or type(register)!=dict or type(columns)!=list:
+        return 1
     checkData()
     dataBaseTree = serializable.Read('./Data/', "Databases")
     root = dataBaseTree.getRoot()
@@ -417,6 +454,8 @@ def update(database, table, register, columns):
             return 1
 
 def delete(database, table, columns):
+    if type(database) !=str or type(table)!=str or type(columns)!=list:
+        return 1
     checkData()
     dataBaseTree = serializable.Read('./Data/', "Databases")
     root = dataBaseTree.getRoot()
@@ -438,6 +477,8 @@ def delete(database, table, columns):
             return 4
 
 def truncate(database, table):
+    if type(database) !=str or type(table)!=str:
+        return 1
     checkData()
     dataBaseTree = serializable.Read('./Data/', "Databases")
     root = dataBaseTree.getRoot()
