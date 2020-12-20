@@ -55,7 +55,6 @@ reservadas = {
     'databases': 't_databases',
     'like': 't_like',
     'alter': 't_alter',
-    'rename': 't_rename',
     'to': 't_to',
     'current_user': 't_current_user',
     'session_user': 't_session_user',
@@ -67,7 +66,6 @@ reservadas = {
     'current': 't_current',
     'of': 't_of',
     'returning': 't_returning',
-    'as': 't_as',
     'inherits': 't_inherits',
     'primary': 't_primary',
     'key': 't_key',
@@ -149,7 +147,19 @@ reservadas = {
     'set_byte' : 't_set_byte',
     'convert' : 't_convert',
     'encode' : 't_encode',
-    'decode' : 't_decode'
+    'decode' : 't_decode',
+    'group':'t_group',
+    'by' :'t_by',
+    'having': 't_having',
+    'order': 't_order',
+    'asc':'t_asc',
+    'desc':'t_desc',
+    'first':'t_first',
+    'last':'t_last',
+    'nulls':'t_nulls',
+    'all':'t_all',
+    'offset':'t_offset',
+    'limit':'t_limit'
 }
 
 tokens = [
@@ -336,6 +346,8 @@ def p_Sentencia_SQL_DDL(p):
 def p_Sentencias_DML(p):
     '''Sentencias_DML : t_select Lista_EXP Select_SQL Condiciones pyc
                     | t_select asterisco Select_SQL Condiciones pyc
+                    1 t_select Lista_EXP Select_SQL ORD pyc
+                    | t_select Lista_EXP Select_SQL ORD LMT pyc
                     | t_insert t_into id Insert_SQL pyc
                     | t_update id t_set Lista_EXP t_where EXP pyc
                     | t_delete t_from id Condiciones pyc
@@ -398,6 +410,7 @@ def p_Insert_SQL2(p):
 
 def p_Condiciones(p):
     '''Condiciones : t_where EXP
+            | t_where EXP GRP
             | empty'''
     if len(p) == 3:
         p[0] = p[2]
@@ -405,6 +418,46 @@ def p_Condiciones(p):
     else:
         p[0] = p[1]
         concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
+
+# ---------------------------- Group, having and order by --------------
+def p_GRP(p):
+    '''GRP : t_group t_by Lista_ID
+           | t_group t_by Lista_ID HV
+           | t_group t_by '''
+
+def p_HV(p):
+    '''HV : t_having EXP'''
+
+
+def p_ORD(p):
+    '''ORD : t_order t_by LSORT
+           | t_order t_by LSORT LMT'''
+
+
+def p_LSORT(p):
+    '''LSORT : LSORT coma SORT
+             | SORT'''
+
+def p_SORT(p):
+    '''SORT : EXP AD NFL
+            | EXP AD
+            | EXP'''
+
+def p_AD(p):
+    '''AD : t_asc
+          | t_desc'''
+
+def p_NFL(p):
+    '''NFL : t_nulls t_first
+           | t_nulls t_last'''
+def p_LMT(p):
+    '''LMT : t_limit NAL t_offset entero
+           | t_limit NAL
+           | t_offset entero '''
+
+def p_NAL(p):
+    '''NAL : entero
+           | t_all '''
 
 # ---------------------------- Sentencias DDL y Enum Type --------------
 def p_Sentencias_DDL(p):
@@ -431,7 +484,7 @@ def p_Sentencias_DDL(p):
     else:
         p[0] = None
 
-def p_Enum_Type(p):#Agregado
+def p_Enum_Type(p):
     'Enum_Type : t_create t_type id t_as t_enum par1 Lista_Enum par2 pyc'
     p[0] = DDL.CreateType(p[3].lower(), p[7], p.slice[1].lineno, find_column(input, p.slice[1]))
     concatenar_gramatica('\n <TR><TD> ENUM_TYPE ::= create type id as enum ( LISTA_ENUM ) ; </TD>  <TD> { enum_type.inst = createType(id,lista_Enum.val) } </TD></TR>')
@@ -916,7 +969,8 @@ def p_Lista_EXP(p):
         p[0] = list_exp
         concatenar_gramatica('\n <TR><TD> LISTA_EXP ::= LISTA_EXP , EXP </TD>  <TD> { lista_exp.val = concatenar (lista_exp.aux , lista_exp.val) }</TD></TR>')
     else:
-        p[0] = p[1]
+        insert_nodo_exp(p[1])
+        p[0] = list_exp
         concatenar_gramatica('\n <TR><TD> LISTA_EXP ::=  EXP </TD>  <TD> { lista_exp.aux = char } </TD></TR>')
 
 def p_Lista_Alias(p):

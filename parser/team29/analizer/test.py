@@ -6,8 +6,10 @@ path.append(dir(path[0]))
 from analizer import grammar
 
 s = """ 
+
     USE db1;
-    --SELECT id as pito, name as alv, 3+3 as "su madre" FROM demo1 WHERE id > 0;
+    SELECT de1.id, caca.name FROM demo1 de1, (SELECT de2.name FROM demo1 de2 WHERE de1.id = de2.id) AS caca;
+    --SELECT d.id FROM demo1 d;
 """
 
 

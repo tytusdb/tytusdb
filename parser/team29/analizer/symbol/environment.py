@@ -96,3 +96,12 @@ class Environment:
         while env != None:
             env = env.previous
         return env
+
+    def getColumn(self, tableId, column):
+        env = self
+        while env != None:
+            if tableId in env.variables:
+                symbol = env.variables[tableId]
+                return env.dataFrame[symbol.value+"."+column]
+            env = env.previous
+        return None
