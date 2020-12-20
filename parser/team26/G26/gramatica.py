@@ -753,7 +753,7 @@ def p_funciones_binarias(t):
                             | SETBYTE PARENIZQ argument DOSPUNTOS DOSPUNTOS BYTEA COMA argument COMA argument PARENDER
                             | CONVERT PARENIZQ argument AS tipo
                             | ENCODE PARENIZQ argument DOSPUNTOS DOSPUNTOS BYTEA COMA CADENA PARENDER
-                            | DECODE PARENIZQ argument COMA argument PARENDER '''
+                            | DECODE PARENIZQ argument COMA CADENA PARENDER '''
     grafo.newnode('F_BIN')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index,t[3]['graph']) 
@@ -866,8 +866,8 @@ def p_funciones_trigonometricas(t):
                                 | ASIND PARENIZQ argument  PARENDER
                                 | ATAN PARENIZQ argument  PARENDER
                                 | ATAND PARENIZQ argument  PARENDER
-                                | ATANDOS PARENIZQ argument  PARENDER
-                                | ATANDOSD PARENIZQ argument  PARENDER
+                                | ATANDOS PARENIZQ argument COMA argument PARENDER
+                                | ATANDOSD PARENIZQ argument COMA argument PARENDER
                                 | COS PARENIZQ argument  PARENDER
                                 | COSD PARENIZQ argument  PARENDER
                                 | COT PARENIZQ argument  PARENDER
@@ -885,7 +885,12 @@ def p_funciones_trigonometricas(t):
     grafo.newnode('F_MATH_SIM')
     grafo.newchildrenE(t[1].upper())
     grafo.newchildrenF(grafo.index,t[3]['graph'])
-    t[0] = {'ast' :select.FucionTrigonometrica(t[1].lower(),t[3]['ast']), 'graph' : grafo.index}
+    if t[1].lower() == 'atan2' or t[1] == 'atan2d' :
+        grafo.newchildrenF(grafo.index,t[5]['graph'])
+        t[0] = {'ast' :select.FucionTrigonometrica(t[1].lower(),t[3]['ast'],t[5]['ast']), 'graph' : grafo.index}
+    else :
+        t[0] = {'ast' :select.FucionTrigonometrica(t[1].lower(),t[3]['ast'],None), 'graph' : grafo.index}
+
 
 def p_funciones_de_fechas(t):
     '''funcionesdefechas    : EXTRACT PARENIZQ  partedelafecha  FROM TIMESTAMP argument PARENDER

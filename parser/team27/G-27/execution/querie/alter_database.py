@@ -1,7 +1,13 @@
 import sys
 sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
+sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
 sys.path.append('../tytus/storage')
 from querie import * 
+from storageManager import jsonMode as admin
+from querie import * 
+from environment import *
+from database import *
+from typ import *
 from storageManager import jsonMode as admin
 
 class alter_database(Querie):
@@ -20,6 +26,9 @@ class alter_database(Querie):
         result = admin.alterDatabase(self.oldName, self.newName)  #<---------------------------
         if result == 0:
             #Se cambio correctamente el nombre a la base de datos.
+            db_name = environment.getActualDataBase()
+            database = environment.readDataBase(db_name)
+            database.setName(self.newName)
             return 'Se cambio el nombre de:' + self.oldName + ' a : '+self.newName 
         elif result == 1:
             #Error al crear

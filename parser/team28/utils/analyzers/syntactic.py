@@ -12,6 +12,7 @@ from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
 from models.instructions.Expression.expression import *
+from models.instructions.Expression.type_enum import *
 from models.instructions.Expression.math_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
@@ -74,8 +75,10 @@ def p_sql_instruction(p):
     p[0] = p[1]
 
 def p_use_statement(p):
-    '''usestatement : USE ID'''
-    p[0] = UseDatabase(p[2])
+    '''usestatement : USE ID SEMICOLON'''
+    noColumn = 0
+    noLine = p.slice[1].lineno
+    p[0] = UseDatabase(p[2],noLine,noColumn)
 
 def p_ddl(p):
     '''ddl : createstatement
@@ -200,10 +203,19 @@ def p_column(p):
         p[0] = CreateCol(p[1], p[2], p[3])
 
     elif len(p) == 3:
-        p[0] = CreateCol(p[1], p[2], None)
+        p[0] = CreateCol(p[1], p[2], [{
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
+        'check_condition' : None,
+        'pk_option' : None,
+        'fk_references_to' : None
+    }])
 
     elif len(p) == 5:
-        if p[1] == 'UNIQUE':
+        if p[1].lower() == 'UNIQUE'.lower():
             p[0] = Unique(p[3])
 
         else:  # CHECK
@@ -813,7 +825,10 @@ def p_selectq(p):
 def p_select_list(p):
     '''SELECTLIST : ASTERISK
                   | LISTITEM'''
-    p[0] = p[1]
+    if (p[1] == "*"):
+        p[0] = [PrimitiveData(DATA_TYPE.STRING, p[1])]
+    else:
+        p[0] = p[1]
 
 
 
@@ -1038,20 +1053,21 @@ def p_sql_relational_expression(p):
     if (len(p) == 3):
         p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        if p[2] == '=':
-            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '!=':
-            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '>=':
-            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '>':
-            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<=':
-            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<':
-            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<>':
-            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3],p.lineno(2), find_column(p.slice[2]))
+        print(p[2])
+        if p[2][1] == '=':
+            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '!=':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '>=':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '>':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<=':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<>':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
     else:
         p[0] = p[1]
 
@@ -1432,7 +1448,7 @@ def p_relop(p):
              | LESS_THAN
              | LESS_EQUAL
              | NOT_EQUAL_LR'''
-    p[0] = p[1]
+    p[0] = [p.slice[1], p[1]]
 
 
 def p_aggregate_types(p):
