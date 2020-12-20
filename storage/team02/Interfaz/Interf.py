@@ -128,11 +128,70 @@ menubar.add_cascade(label = "Mostrar", menu = helpmenu)
 
 
 
+#----------------AGREGAMOS FUNCIONES A LOS MENÚ -------------------------------
+mensaje = StringVar()
+
+ruta = ''
+#archivo = open(ruta, 'r')
+
+def nuevo():
+    global ruta
+    mensaje.set("Nuevo fichero")
+    ruta = ""
+    cargaNasiva.delete(1.0, "end")
+    raiz.title("Mi editor")
+def abrir():
+    global ruta
+    mensaje.set("Abrir fichero")
+    ruta = FileDialog.askopenfilename(
+        initialdir='.', 
+        filetypes=(("Ficheros de texto", "*.txt"),),
+        title="Abrir un fichero de texto")
+
+    if ruta != "":
+        fichero = open(ruta, 'r')
+        contenido = fichero.read()
+        cargaNasiva.delete(1.0,'end')
+        cargaNasiva.insert('insert', contenido)
+        fichero.close()
+        raiz.title(ruta + " - Mi editor")
+
+def guardar():
+    mensaje.set("Guardar fichero")
+    if ruta != "":
+        contenido = cargaNasiva.get(1.0,'end-1c')
+        fichero = open(ruta, 'w+')
+        fichero.write(contenido)
+        fichero.close()
+        mensaje.set("Fichero guardado correctamente")
+    else:
+        guardar_como()
+
+def guardar_como():
+    global ruta
+    mensaje.set("Guardar fichero como")
+
+    fichero = FileDialog.asksaveasfile(title="Guardar fichero", 
+        mode="w", defaultextension=".txt")
+
+    if fichero is not None:
+        ruta = fichero.name
+        contenido = cargaNasiva.get(1.0,'end-1c')
+        fichero = open(ruta, 'w+')
+        fichero.write(contenido)
+        fichero.close()
+        mensaje.set("Fichero guardado correctamente")
+    else:
+        mensaje.set("Guardado cancelado")
+        ruta = ""   
+
 #---------------AÑADIENDO SUBMENUS--------------------- 
-filemenu.add_command(label="Nuevo")
-filemenu.add_command(label="Abrir")
-filemenu.add_command(label="Guardar")
-filemenu.add_command(label="Cerrar")
+filemenu.add_command(label="Nuevo", command = nuevo)
+filemenu.add_command(label="Abrir", command = abrir)
+filemenu.add_command(label="Guardar", command = guardar)
+filemenu.add_command(label="Cerrar", command = raiz.quit)
+
+
 
 
 
