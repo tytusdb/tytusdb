@@ -236,15 +236,24 @@ def insert(database, table, register):
 def extractRow():
     pass
 
-def update(database, table, columns):
+def update(database, table,register, columns):
     try:
-        flagDB = buscarDB(database)
-        if flagDB != None:
-            db = databases[flagDB]
-            # db.update(table, columns)
+        if isinstance(register,dict) and isinstance(columns, list):
+            flagDB = buscarDB(database)
+            if flagDB != None:
+                indiceTabla = databases[flagDB].buscarTable(table)
+                if indiceTabla != None:
+                    tabla = databases[flagDB].getTable(indiceTabla)
+                    for i in register:
+                        tabla.editar(i,register[i],columns)
+                    return 0
+                else:
+                    return 3 
+            else:
+                # print("Base de datos no existente")
+                return 2
         else:
-            # print("Base de datos no existente")
-            return 2
+            return 1
     except:
         # print("Error en operacion")
         return 1
