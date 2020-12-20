@@ -72,7 +72,7 @@ class Update(Instruction):
     
     def process(self, instrucction):
         pass
-
+        
 class ColumnVal(Instruction):
     '''
         ColumnVal recibe dos parametros: 
