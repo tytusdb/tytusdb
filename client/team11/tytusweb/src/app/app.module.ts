@@ -11,6 +11,7 @@ import { TreeComponent } from './component/tree/tree.component';
 import { NavbarComponent } from './component/navbar/navbar.component';
 import { TabcontrolComponent } from './component/tabcontrol/tabcontrol.component';
 import { EditorComponent } from './component/editor/editor.component';
+import { AceEditorModule } from 'ng2-ace-editor';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { EditorComponent } from './component/editor/editor.component';
     MatTreeModule,
     MatIconModule,
     MatButtonModule,
-    MatGridListModule
+    MatGridListModule,
+    AceEditorModule
   ],
   providers: [],
   bootstrap: [AppComponent]
