@@ -59,7 +59,7 @@ class Campo(Frame):
     def __init__(self, *args, **kwargs):
         Frame.__init__(self, *args, **kwargs)
         self.text = CustomText(self)
-        self.vsb = Scrollbar(orient="vertical", command=self.text.yview)
+        self.vsb = Scrollbar(self, orient="vertical", command=self.text.yview)
         self.text.configure(yscrollcommand=self.vsb.set)
         self.linenumbers = TextLineNumbers(self, width=30)
         self.linenumbers.attach(self.text)
