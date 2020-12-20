@@ -37,7 +37,7 @@ class Expression(Node.Nodo):
                 self.val = False
 
         elif len(args) == 3:
-            self.val = None
+            self.val = args[0]
             self.type = None
             self.op_type = 'iden'
             self.id = args[0]
@@ -48,10 +48,11 @@ class Expression(Node.Nodo):
         if self.op_type is None:
             return self
         elif self.op_type == 'iden':
-            if TS.exists(self.id):
-                return self
-            Errores.insertar(Nodo_Error("Semantico", "No existe el campo \'" + self.id + "\'", self.line, self.column))
-            return TIPO_DATOS.ERROR
+            return self
+            #if TS.exists(self.id):
+            #    return self
+            #Errores.insertar(Nodo_Error("Semantico", "No existe el campo \'" + self.id + "\'", self.line, self.column))
+            #return TIPO_DATOS.ERROR
         elif self.op_type == 'Aritmetica':
             val1 = self.exp1.ejecutar(TS, Errores)
             val2 = self.exp2.ejecutar(TS, Errores)

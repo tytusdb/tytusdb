@@ -63,7 +63,7 @@ class create_table(instruccion):
             add_text('Tabla no puedo ser creada con exito - ' + self.id_table + ' -\n')
         elif new_table == 2:
             errores.append(nodo_error(self.line, self.column, 'No existe la base de datos - ' + use_actual_db + ' - ', 'Semántico'))
-            add_text('No existe la base de datos - ' + use_actual_db + ' - ')
+            add_text('No existe la base de datos - ' + use_actual_db + ' - \n')
         elif new_table ==  3:
             errores.append(nodo_error(self.line, self.column, 'Ya existe una tabla con el nombre - ' + self.id_table + ' -', 'Semántico'))
-            add_text('Ya existe una tabla con el nombre - ' + self.id_table + ' -')
+            add_text('Ya existe una tabla con el nombre - ' + self.id_table + ' - \n')

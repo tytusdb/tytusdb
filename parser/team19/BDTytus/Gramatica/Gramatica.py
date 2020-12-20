@@ -299,7 +299,6 @@ from AST.Expresiones import *
 from AST.SentenciasDML import *
 reporteg = ''
 
-
 def p_sql(p):
     'SQL : Sentencias_SQL'
     p[0] = Raiz(ListaErrores, p[1])
@@ -341,11 +340,12 @@ def p_Sentencias_DML(p):
                     | t_update id t_set Lista_EXP t_where EXP pyc
                     | t_delete t_from id Condiciones pyc
                     | t_use id pyc'''
+    vaciar_lista()
     if p[1] == 'select':
         p[0] = Select(p[2], p[3], p[4], p.slice[2].lineno, find_column(input, p.slice[2]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= select' + str(p[2]) + 'SELECT_SQL ; </TD><TD> { sentencias_dml.inst = select(lista_exp.lista, Select_SQL.val,Condiciones.val)}  </TD></TR>')
     elif p[1] == 'insert':
-        p[0] = Insert(p[3], p[4], p.slice[1].lineno, find_column(input, p.slice[1]))
+        p[0] = Insert(p[3], p[4]['col'],p[4]['valores'], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= insert into id INSERT_SQL ; </TD> <TD> {sentencias_dml.inst = insert(id,Insert_SQL.inst)}  </TD></TR>')
     elif p[1] == 'update':
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= update id set LISTA_EXP where EXP ; </TD> <TD> {sentencias_dml.inst = update(id, lista_exp.list, exp.val)} </TD></TR>')
@@ -388,12 +388,12 @@ def p_Subqueries(p):
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> INSERT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_Insert_SQL(p):
     'Insert_SQL : par1 Lista_ID par2 t_values par1 Lista_EXP par2'
-    p[0] = p[6]
-    concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= ( LISTA_ID ) values ( LISTA_EXP ) </TD> <TD> { insert_sql.inst = insert1(lista_id.lista,lista_exp.lista)} </TD></TR>')
+    p[0] = {'col':p[2],'valores':p[6]}
+    concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= ( LISTA_ID ) values ( LISTA_EXP ) </TD> <TD> { insert_sql.inst = insert.lista.add(lista_id.lista,lista_exp.lista)} </TD></TR>')
 
 def p_Insert_SQL2(p):
     'Insert_SQL : t_values par1 Lista_EXP par2'
-    p[0] = p[3]
+    p[0] = {'col':None,'valores':p[3]}
     concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= values ( LISTA_EXP ) </TD>  <TD> { insert_sql.inst = insert1(lista_exp.lista)} </TD></TR>')
 
 def p_Condiciones(p):
@@ -792,12 +792,12 @@ def p_EXP_Valor(p):
 
 def p_EXP_Indices(p):
     '''EXP : id punto id'''
-    p[0] = p[1]
+    p[0] = Expression(p[1], p[3], p.slice[2].lineno, find_column(input, p.slice[2]), 'indice')
     concatenar_gramatica('\n <TR><TD> EXP ::= id . id </TD>  <TD> { exp.val = id1.val . id2.val } </TD></TR>')
 
 def p_EXP_IndicesAS(p):
     '''EXP : EXP t_as EXP'''
-    p[0] = p[1]
+    p[0] = Expression(p[1], p[3], p.slice[2].lineno, find_column(input, p.slice[2]), 'as')
     concatenar_gramatica('\n <TR><TD> EXP ::= EXP as EXP </TD>  <TD> { exp.val = exp1.val as exp2.val } </TD></TR>')
 
 def p_exp_agregacion(p):
@@ -806,6 +806,7 @@ def p_exp_agregacion(p):
             | t_count par1 EXP par2
             | t_max par1 EXP par2
             | t_min par1 EXP par2'''
+    p[0] = Expression(p[1], p[3], p.slice[2].lineno, find_column(input, p.slice[2]), 'aggregate')
     concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + '( EXP ) </TD> <TD> { exp.val = ' + str(p[1]) + ' ( exp1.val ) } </TD></TR>')
 
 def p_funciones_matematicas(p):
@@ -907,7 +908,12 @@ def p_Lista_EXP(p):
     '''Lista_EXP : Lista_EXP coma EXP
                | EXP '''
     if len(p) == 4:
-        p[0] = p[1]+[p[3]]
+        if isinstance(p[1], list):
+            insert_nodo_exp(p[3])
+        else:
+            insert_nodo_exp(p[1])
+            insert_nodo_exp(p[3])
+        p[0] = list_exp
         concatenar_gramatica('\n <TR><TD> LISTA_EXP ::= LISTA_EXP , EXP </TD>  <TD> { lista_exp.val = concatenar (lista_exp.aux , lista_exp.val) }</TD></TR>')
     else:
         p[0] = p[1]
@@ -945,10 +951,22 @@ def concatenar_gramatica(cadena):
     global reporteg
     reporteg = cadena + reporteg
 
+
+def insert_nodo_exp(nodo):
+    global list_exp
+    list_exp.append(nodo)
+
+
+def vaciar_lista():
+    global list_exp
+    list_exp = []
+
 def parse(input1, errores1):
     global input
     global ListaErrores
     global reporteg
+    global list_exp
+    list_exp = []
     ListaErrores = errores1
     reporteg = ''
     input = input1

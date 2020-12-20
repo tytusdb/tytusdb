@@ -6,6 +6,7 @@ import cgi
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import socketserver
 import io
+import os
 
 
 # Setting server port
@@ -39,15 +40,20 @@ class MyRequestHandler(BaseHTTPRequestHandler):
         myData = self.rfile.read(dataSize) #Reading data (form)
         decodedData = myData.decode("utf-8")#Decoding data
         self._set_headers()
-        self.saveFile(bytes(decodedData, 'utf-8'))
+        self.saveFile("database.tytus", bytes(decodedData, 'utf-8'))
         self.wfile.write(bytes(decodedData, 'utf-8'))
         
 
 
     #Method to create file on server
-    def saveFile(self, file):
-        newFile = open("database.tytus", "wb") #Temporary example
-        newFile.write(file)
+    def saveFile(self, filename, content):
+        #Checking if data directory exists and created if not
+        if not os.path.exists('./data'):
+            os.makedirs('./data')
+        #Setting full path
+        myPath = "./data/" + filename
+        newFile = open(myPath, "wb") #Temporary example
+        newFile.write(content)
         newFile.close()
 
 # Setting and starting server
