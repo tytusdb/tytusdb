@@ -1,9 +1,8 @@
 import tkinter as tk
 import gramaticaASC as g
-#import Graficar as graficando
-#from Graficar import*
+import Graficar as graficando
 import principal as principal
-
+import os
 from tkinter import filedialog
 from tkinter import StringVar
 from tkinter.constants import END, INSERT
@@ -113,13 +112,14 @@ if __name__ == "__main__":
 
     ########################################## FUNCIONES ##########################################
     
+
     #FUNCIÓN PARA IMPRIMIR EN CONSOLA
     def imprimir_consola(expresion):
         consola.configure(state=tk.NORMAL)
         consola.delete('1.0',END)
         consola.insert(INSERT, expresion)
         consola.configure(state=tk.DISABLED)
-
+    
 
     #FUNCIÓN PARA ADJUNTAR TEXTO EN LA CONSOLA (SIN LIMPIARLA)
     def append_consola(expresion):
@@ -175,13 +175,13 @@ if __name__ == "__main__":
         if len(g.errores_lexicos) == 0:
 
             if len(g.errores_sintacticos) == 0:
-                
-                # raiz = graficando.analizador(entrada)
-                data=principal.interpretar_sentencias(arbol,tablaSimbolos)
-                #tablaSimbolos.mostrar()
-                imprimir_consola(data)
-                # GraficarAST(raiz)
-            
+                imprimir_consola("") 
+                raiz = graficando.analizador(entrada)
+                #data=principal.interpretar_sentencias(arbol,tablaSimbolos)
+                tablaSimbolos.mostrar()
+                #imprimir_consola(data)
+                graficando.GraficarAST(raiz)
+                graficando.ReporteGramatical()
             else:
 
                 imprimir_consola('Se detectaron algunos errores sintácticos')
@@ -229,8 +229,13 @@ if __name__ == "__main__":
     
         """ entrada = my_editor.text.get('1.0',END)
         gd.parse(entrada) """
-        
-
+    # FUNCIÓN PRIVADA PARA REALIZAR EL REPORTE DE ERRORES SINTÁCTICOS
+    def __funcion_FormatoBnf():
+        os.startfile('gramaticaBNF.txt') 
+   
+    def __funcion_AST():
+            os.startfile('arbol.jpg') 
+ 
 ######################################## FIN FUNCIONES ########################################
 
 
@@ -281,7 +286,9 @@ if __name__ == "__main__":
     menu_reporte = tk.Menu(menubar, tearoff=0)
 
     #SUB MENÚS PARA EL MENÚ ANALIZAR
-    menu_reporte.add_command(label="AST", command=__funcion_analizar)
+    menu_reporte.add_command(label="AST", command=__funcion_AST)
+    menu_reporte.add_command(label="FormatoBNF", command=__funcion_FormatoBnf)
+    
     menu_reporte.add_separator()
     menu_reporte.add_command(label="Errores Léxicos", command=__funcion_errores_lexicos)
     menu_reporte.add_command(label="Errores Sintácticos", command=__funcion_errores_sintacticos)
@@ -298,7 +305,8 @@ if __name__ == "__main__":
     # EDITOR DE TEXTO
     my_editor = Example(frame)
     my_editor.pack(side="top", fill="both", expand=True)
-
+    
+    
     # ETIQUETAS PARA LA FILA Y COLUMNA ACTUAL
 
     fila = StringVar()
