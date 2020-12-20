@@ -27,9 +27,12 @@ class CreateDatabase(ASTNode):
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
+        #result_name = self.name.execute(table, tree)
+        #result_owner = self.owner.execute(table, tree) if self.owner else None  # Owner seems to be stored only to ST
+        #result_mode = self.owner.mode(table, tree) if self.mode else 6  # Change to 1 when default mode from EDD available
         result_name = self.name.execute(table, tree)
-        result_owner = self.owner.execute(table, tree) if self.owner else None  # Owner seems to be stored only to ST
-        result_mode = self.mode(table, tree) if self.mode else 6  # Change to 1 when default mode available
+        result_owner = self.owner
+        result_mode = self.mode
         if self.replace:
             dropDatabase(result_name)
         result = 0
@@ -44,9 +47,10 @@ class CreateDatabase(ASTNode):
             # log error because db already exists
             raise Error(0, 0, ErrorType.RUNTIME, '42P04: duplicate_database')
             return False
-        else:
-            return table.add(DatabaseSymbol(result_name, result_owner, result_mode))
-
+        else:            
+            #return table.add(DatabaseSymbol(result_name, result_owner, result_mode)) #chaged by loadDatabases
+            table.LoadDataBases()
+            return True
 
 class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not added yet
     def __init__(self, name, inherits_from, fields, check_exp, line, column):

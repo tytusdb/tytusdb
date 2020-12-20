@@ -5,10 +5,11 @@ from parse.expressions.expressions_math import *
 from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
 from parse.sql_common.sql_general import *
+from parse.sql_ddl.create import *
 from treeGraph import *
 
 #===========================================================================================
-#======================================== ANALISIS LEXICO ==================================
+#==================================== LEXICAL ANALYSIS ==================================
 #===========================================================================================
 reserved = {
     'smallint' : 'SMALLINT',
@@ -194,7 +195,7 @@ reserved = {
     'first' : 'FIRST',
     'last' : 'LAST',
     'nulls' : 'NULLS',
-
+    'use' : 'USE',
 }
 
 tokens = [
@@ -326,7 +327,7 @@ def t_error(t):
 lexer = lex.lex(debug = False, reflags=re.IGNORECASE) 
 
 #===========================================================================================
-#==================================== ANALISIS SINTACTICO ==================================
+#==================================== SYNTACTIC ANALYSIS ==================================
 #===========================================================================================
 
 start = 'init'
@@ -367,10 +368,23 @@ def p_statements2(t):
 
 def p_statement(t):
     '''statement    : predicateExpression PUNTOCOMA
-                    | stm_show   PUNTOCOMA'''
+                    | stm_show   PUNTOCOMA
+                    | stm_create PUNTOCOMA
+                    | stm_use_db PUNTOCOMA '''
     t[0] = t[1]
 
+def p_statement_error(t):
+    '''statement    : error PUNTOCOMA
+                    '''
+    token = t.slice[1]
+    t[0] = Error(token.lineno, token.lexpos, ErrorType.SYNTAX, 'Ilegal token '+str(token.lineno))
 
+
+def p_stm_use_db(t):
+    '''stm_use_db : USE DATABASE ID'''
+    tokenID = t.slice[3]    
+    IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
+    t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
 ##########   >>>>>>>>>>>>>>>>  STM_DELETE   AND  STM_ALTER  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_delete(t):
     '''stm_delete   : DELETE FROM ID where_clause
@@ -391,26 +405,26 @@ def p_where_clause(t):
     graph_ref = graph_node(str(t[1]),[t[2].graph_ref])
     addCad("**\<WHERE_CLAUSE>** ::= tWhere \<EXP_PREDICATE>")
     #
-
-def p_stm_create(t):
-    '''stm_create   : CREATE or_replace_opt DATABASE ID owner_opt mode_opt
-                    | CREATE TABLE ID PARA tab_create_list PARC inherits_opt
-                    | CREATE TYPE ID AS ENUM PARA exp_list PARC'''
-    
-    if len(t) == 7:
-        graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[3],t[4], t[5].graph_ref,t[6].graph_ref] )
-        addCad("**\<STM_CREATE>** ::=  tCreate [\<OR_REPLACE_OPT>] tDatabase tIdentifier  [\<OWNER_OPT>] [\<MODE_OPT>]")
-        #
-    elif len(t) == 8:  
-        pass
-        #
-
-    elif len(t) == 9:
-        pass       
-        #
-    
+#CREATE STATEMENTS
+def p_stm_create (t):
+    '''stm_create   : CREATE or_replace_opt DATABASE ID owner_opt mode_opt'''
+    #graph_ref = graph_node(str(t[1]), [t[2].graph_ref, t[3],t[4], t[5].graph_ref,t[6].graph_ref] )
+    token = t.slice[1]
+    tokenID = t.slice[4]
+    tvla = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)    
+    addCad("**\<STM_CREATE>** ::=  tCreate [\<OR_REPLACE_OPT>] tDatabase tIdentifier  [\<OWNER_OPT>] [\<MODE_OPT>]")
+    t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1, (True if t[2] else False) , token.lineno, token.lexpos)
 
 
+def p_stm_create0 (t):
+    '''stm_create   : CREATE TABLE ID PARA tab_create_list PARC inherits_opt'''
+    token = t.slice[1]
+    t[0] = CreateTable(t[3], t[7], t[5], None, token.lineno, token.lexpos) #TODO check if param check_exp is neceary and where we obtain that
+
+def p_stm_create1 (t):
+    '''stm_create   : CREATE TYPE ID AS ENUM PARA exp_list PARC'''
+
+#for table columns and contrainst
 def p_tab_create_list(t):
     '''tab_create_list  : tab_create_list COMA ID type nullable_opt primary_key_opt
                         | ID type nullable_opt primary_key_opt'''
@@ -430,19 +444,45 @@ def p_nullable_opt(t):
 
 def p_inherits_opt(t):
     '''inherits_opt : INHERITS PARA ID PARC
-                    | empty'''
+                    | empty'''    
+    if [1] is None:
+        return None
+    else:
+        token = slice[3]
+        return Identifier(token.value,token.lineno, token.lexpos,None)
 
+
+#owner option
 def p_owner_opt(t):
-    '''owner_opt    : OWNER IGUAL TEXTO
-                    | empty'''
-
+    '''owner_opt    : OWNER IGUAL ID'''
+    t[0] = t[3]
+def p_owner_opt0(t):
+    '''owner_opt    : OWNER ID'''
+    t[0] = t[2]
+def p_owner_opt1(t):
+    '''owner_opt    : empty'''
+#mode option
 def p_mode_opt(t):
-    '''mode_opt     : MODE IGUAL ENTERO
-                    | empty'''
+    '''mode_opt     : MODE IGUAL ENTERO'''
+    t[0] = t[3]
+def p_mode_opt1(t):
+    '''mode_opt     : MODE ENTERO'''
+    t[0] = t[2]
+def p_mode_opt2(t):
+    '''mode_opt     : empty'''
 
+
+#Replace OPTION
 def p_or_replace_opt(t):
     '''or_replace_opt   : OR REPLACE
                         | empty'''
+    if t[1] is None :
+        t[0] = None
+    else:
+        t[0] = True
+#def p_or_replace_opt(t):
+#    '''or_replace_opt   : empty'''
+#    t[0] = False
 
 def p_stm_alter(t):
     '''stm_alter    :    ALTER DATABASE ID RENAME TO ID
@@ -456,20 +496,6 @@ def p_stm_alter(t):
                     |    ALTER TABLE ID DROP CONSTRAINT ID
                     |    ALTER TABLE ID RENAME COLUMN ID TO ID
                     |    ALTER TABLE ID ALTER COLUMN TYPE type param_int_opt'''
-
-########################
-
-def p_predicateExpression(t):
-    '''predicateExpression  : BETWEEN expression AND expression
-                            | expression IS NULL
-                            | expression IS NOT NULL
-                            | expression IS not_opt DISTINCT FROM expression
-                            | expression IS not_opt BOOLEAN_VALUE expression
-                            | expression IS not_opt UNKNOWN expression
-                            | logicExpression'''
-
-
-#######################
 
 
 def p_param_int_opt(t):
@@ -524,14 +550,12 @@ def p_not_opt(t):
 
 
 
+
 def p_stm_show(t):
-    '''stm_show : SHOW DATABASES LIKE TEXTO
-                | SHOW DATABASES LIKE PATTERN_LIKE'''
-    token = t.slice[1]
-    graph_ref = graph_node("SHOW", [t[4]])
-    t[0] = ShowDatabases(t[4],token.lineno, lexpos, graph_ref)
-def p_stm_show0(t):
     '''stm_show : SHOW DATABASES'''
+    token = t.slice[1]
+    graph_ref = graph_node("SHOW", [])
+    t[0] = ShowDatabases(None, token.lineno, token.lexpos, graph_ref)
 
 
 def p_exp_list(t):
@@ -972,17 +996,19 @@ def p_aritmetic(t):
         addCad("**\<EXP>** ::=   tTruc '(' \<EXP> ')'      ")
         t[0] = Trunc(t[3], token.lineno, token.lexpos, graph_ref)
 
+
 def p_exp_unary(t):
     '''expression : MENOS expression %prec UMENOS
                   | MAS expression %prec UMAS '''
+    token = t.slice[2].value
     if t[1] == '+':
         graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
-        addCad("**\<EXP>** ::=  [+|-] \<EXP>")
-        t[0] = BinaryExpression(Numeric(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
+        addCad("**\<EXP>** ::=  + \<EXP>")
+        t[0] =  NumericPositive(t[2], token.line, token.column, graph_ref) 
     elif t[1] == '-':
         graph_ref = graph_node(str(t[1]), [t[2].graph_ref])
-        addCad("**\<EXP>** ::=  [+|-] \<EXP>")
-        t[0] = BinaryExpression(NumericNegative(1, 0, 0, 0), t[2], OpArithmetic.TIMES, 0, 0, graph_ref)
+        addCad("**\<EXP>** ::=  - \<EXP>")
+        t[0] = NumericNegative(t[2], token.line, token.column, graph_ref) 
     else:
         print("Missed code from unary expression")
 
@@ -993,9 +1019,9 @@ def p_exp_num(t):
     t[0] = t[1]
     token = t.slice[1]   
     if token.type == "numero":
-       addCad("**\<EXP>** ::= \<NUMERO>")
+        addCad("**\<EXP>** ::= \<NUMERO>")
     elif token.type == "col_name":
-       addCad("**\<EXP>** ::= \<COL_NAME>")
+        addCad("**\<EXP>** ::= \<COL_NAME>")
 
 
 def p_exp_val(t):
@@ -1017,28 +1043,8 @@ def p_exp_val(t):
         t[0] = Now(token.lineno, token.lexpos, graph_ref)
 
 
-#########################
-def p_empty(t):
-    '''empty :'''
-    pass
 
-
-
-
-def p_error(p):
-    if not p:
-        print("End of file!")
-        return
-    # Read ahead looking for a closing ';'
-    while True:
-        tok = parse.token()  # Get the next token
-        if not tok or tok.type == 'PUNTOCOMA':
-            err = Error(p.lineno, p.lexpos, ErrorType.SYNTAX, 'Ilegal token '+str(p.type))
-            errorsList.append(err)
-            break
-    parse.restart()
-
-
+# <NUMERO> ::=
 def p_numero(t):
     ''' numero  : ENTERO
                 | FLOAT'''
@@ -1050,19 +1056,27 @@ def p_numero(t):
     graph_ref = graph_node(str(t[1]))
     t[0] = Numeric(token.value, token.lineno, token.lexpos, graph_ref)
 
-
+# --- <COL_NAME> ::= tIdentificador [‘.’ tIdentificador]
 def p_col_name(t):
-    ''' col_name : ID PUNTO ID
-                 | ID '''
+    ''' col_name : ID PUNTO ID'''
     token = t.slice[1]
-    if len(t) == 2:
-        graph_ref = graph_node(str(t[1]))
-        addCad("**\<COL_NAME>** ::= tIdentificador")
-        t[0] = ColumnName(None, t[1], token.lineno, token.lexpos, graph_ref)
-    else:
-        graph_ref = graph_node(str(t[1] + t[2] + t[3]))
-        addCad("**\<COL_NAME>** ::= tIdentificador ['.' tIdentificador]")
-        t[0] = ColumnName(t[1], t[3], token.lineno, token.lexpos, graph_ref)
+    graph_ref = graph_node(str(t[1] + t[2] + t[3]))
+    addCad("**\<COL_NAME>** ::= tIdentificador '.' tIdentificador")
+    t[0] = ColumnName(t[1], t[3], token.lineno, token.lexpos, graph_ref)
+
+def p_col_name1(t):
+    ''' col_name : ID '''
+    token = t.slice[1]
+    graph_ref = graph_node(str(t[1]))
+    addCad("**\<COL_NAME>** ::= tIdentificador")
+    t[0] = ColumnName(None, t[1], token.lineno, token.lexpos, graph_ref)
+
+# <EMPTY> ::=
+def p_empty(t):
+    '''empty :'''
+    pass
+
+
 
 
 import ply.yacc as yacc
@@ -1071,19 +1085,24 @@ from ply.yacc import token
 parse = yacc.yacc()
 errorsList = []
 
+
+
 if __name__ == "__main__":
     f = open("./entrada.txt", "r")
     input = f.read()
     print("Input: " + input +"\n")
     print("Executing AST root, please wait ...")
+    ST = SymbolTable([])##TODO Check is only one ST.
+    ST.LoadMETADATA()
     instrucciones = parse.parse(input)
     #dot.view()
 
     for instruccion in instrucciones:
         try:
-            val = instruccion.execute(None,None)
+            val = instruccion.execute(ST, None)
             print("AST excute result: ", val)
         except our_error as named_error:
             errorsList.append(named_error)
 
     print(errorsList)
+    
