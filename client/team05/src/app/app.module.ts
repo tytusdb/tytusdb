@@ -13,6 +13,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ComponenteNavbarComponent } from './components/componente-navbar/componente-navbar.component';
 import { TreeComponent } from './components/tree/tree.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,

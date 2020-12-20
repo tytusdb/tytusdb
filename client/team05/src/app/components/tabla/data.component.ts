@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import {MatTableDataSource} from '@angular/material/table';
 import {MatPaginator} from '@angular/material/paginator';
+import {MatPaginatorModule} from '@angular/material/paginator';
 
 
 export interface PeriodicElement {
@@ -41,9 +42,11 @@ const ELEMENT_DATA: PeriodicElement[] = [
 export class DataComponent implements OnInit {
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
   data: PeriodicElement[] = ELEMENT_DATA;
+  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
   columnsToDisplay: string[] = this.displayedColumns.slice();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
+
 
   // tslint:disable-next-line:typedef
   addColumn() {
@@ -62,7 +65,6 @@ export class DataComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-
   }
 
 }

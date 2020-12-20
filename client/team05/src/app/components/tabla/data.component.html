@@ -1,6 +1,8 @@
 <button mat-raised-button (click)="addColumn()"> Add column </button>
 <button mat-raised-button (click)="removeColumn()"> Remove column </button>
 
+<div class="mat-elevation-z8">
+
 <table mat-table [dataSource]="data" class="mat-elevation-z8">
   <ng-container [matColumnDef]="column" *ngFor="let column of displayedColumns">
     <th mat-header-cell *matHeaderCellDef> {{column}} </th>
@@ -10,6 +12,10 @@
   <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
   <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
 </table>
+
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+</div>
 
 
 <!-- Copyright 2020 Google LLC. All Rights Reserved.
