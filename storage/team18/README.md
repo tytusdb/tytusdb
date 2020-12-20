@@ -11,5 +11,5 @@ GRUPO 18
 |201907774|DYLLAN JOSÉ RODRIGO GARCÍA MEJÍA|
 
 ## Documentación
-- [Manual técnico](<docs/techManual_doc.md>)
-- [Manual de usuario](<docs/userManual_doc.md>)
+- [Manual técnico](<doc/techManual_doc.md>)
+- [Manual de usuario](<doc/userManual_doc.md>)

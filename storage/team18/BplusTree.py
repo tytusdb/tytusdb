@@ -514,11 +514,14 @@ class BPlusTree:
             return []
 
     def buscar(self, register):
-        if len(self.PKey):
-            key = self.GenKey(register)
-            return self._buscar(self.root ,key)
-        else:
-            return None
+        try:
+            if len(self.PKey):
+                key = self.GenKey(register)
+                return self._buscar(self.root ,key)
+            else:
+                return None
+        except:
+            return 1
 
     def _buscar(self, temp, key):
         found = False
@@ -538,49 +541,64 @@ class BPlusTree:
         return False
     
     def CreatePK(self, Pk):
-        if len(self.PKey):
-            return 4
-        else:
-            for x in Pk:
-                if type(x) != int:
-                    return 1
-            self.PKey = Pk
-            if not len(self.root.keys):
-                self.Incremet = 1
-                return 0
+        try:
+            if len(self.PKey):
+                return 4
             else:
-                res = self.reorganizar()
-                return res
-                
+                for x in Pk:
+                    if type(x) != int:
+                        return 1
+                self.PKey = Pk
+                if not len(self.root.keys):
+                    self.Incremet = 1
+                    return 0
+                else:
+                    res = self.reorganizar()
+                    return res
+        except:
+            return 1
+        
     def DeletePk(self):
-        if not len(self.PKey):
-            return 4
-        else:
-            self.PKey = []
-            self.dropPK = True
-            return 0
+        try:
+            if not len(self.PKey):
+                return 4
+            else:
+                self.PKey = []
+                self.dropPK = True
+                return 0
+        except:
+            return 1
     
     def addColumn(self, default):
-        self.columns+=1
-        lista = list(self.lista().values())
-        for l in lista:
-            l.append(default)
-        return 0
-    
-    def dropColumn(self, column):
-        if column in self.PKey or self.columns==1:
-            return 4
-        else:
-            self.columns-=1
+        try:
+            self.columns+=1
             lista = list(self.lista().values())
             for l in lista:
-                l.pop(column)
+                l.append(default)
             return 0
+        except:
+            return 1
+    
+    def dropColumn(self, column):
+        try:
+            if column in self.PKey or self.columns==1:
+                return 4
+            else:
+                self.columns-=1
+                lista = list(self.lista().values())
+                for l in lista:
+                    l.pop(column)
+                return 0
+        except:
+            return 1
     
     def lista(self):
-        if len(self.root.keys):
-            return self._lista(self.root,{})
-        else:
+        try:
+            if len(self.root.keys):
+                return self._lista(self.root,{})
+            else:
+                return {}
+        except:
             return {}
     
     def _lista(self, temp,lista):
@@ -611,23 +629,28 @@ class BPlusTree:
         os.system('tupla.png')
 
     def update(self, data, columns):
-        key = "_".join(str(x) for x in columns)
-        delete = False
-        mini = min(data.keys())
-        maxi = max(data.keys())
-        if mini<0 or maxi>= self.columns:
-            return 1
-        for x in data.keys():
-            if x in self.PKey:
-                delete = True
-        return self._update(self.root, data, delete, key, columns)         
+        try:
+            key = "_".join(str(x) for x in columns)
+            delete = False
+            mini = min(data.keys())
+            maxi = max(data.keys())
+            if mini<0 or maxi>= self.columns:
+                return 1
+            for x in data.keys():
+                if x in self.PKey:
+                    delete = True
+            return self._update(self.root, data, delete, key, columns)  
+        except:
+            return 1       
     
     def _update(self, temp, data, delete, key, keys):
         if temp.child:
             for i in range(0, len(temp.keys)):
                 if key < temp.keys[i]:
                     return self._update(temp.child[i], data,delete,key,keys)
-                    
+
+        if temp.child:
+            return self._update(temp.child[len(temp.keys)], data,delete,key,keys)
         else:
             if key in temp.keys:
                 try:
