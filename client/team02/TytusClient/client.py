@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter  import Tk, Text, BOTH, W, N, E, S, Menu,ttk
+from tkinter import Tk, Text, BOTH, W, N, E, S, Menu,ttk,messagebox
+from tkinter import filedialog
 from tkinter.ttk import Frame, Button, Label, Style, Treeview
-
-
+import os
 
 
 class Example(Frame):
@@ -44,7 +44,8 @@ class Example(Frame):
         menubar = Menu(self.master)
         self.master.filemenu = Menu(menubar, tearoff=0)
         self.master.filemenu.add_command(label="Nuevo")
-        self.master.filemenu.add_command(label="Abrir")
+        self.master.filemenu.add_command(label="Abrir",command=self.openFile)
+        self.master.filemenu.add_command(label="Guardar", command=self.saveFile)
         self.master.filemenu.add_command(label="Salir", command=self.master.quit)
         self.master.helpmenu = Menu(menubar, tearoff=0)
         self.master.helpmenu.add_command(label="Documentación")
@@ -54,6 +55,7 @@ class Example(Frame):
         self.master.servermenu.add_command(label="Quitar conexión")
         self.master.herramientasMenu = Menu(menubar, tearoff=0)
         self.master.herramientasMenu.add_command(label="Query Tool", command=self.addQueryTool)
+        self.master.herramientasMenu.add_command(label="run", command=self.run)
         menubar.add_cascade(label="Archivo", menu=self.master.filemenu)
         menubar.add_cascade(label="Servidor", menu=self.master.servermenu)
         menubar.add_cascade(label="Herramientas", menu=self.master.herramientasMenu)
@@ -91,21 +93,58 @@ class Example(Frame):
     #Metodo agregar QueryTool
     def addQueryTool( self ):
         self.contadorQuerysTabs = self.contadorQuerysTabs+1
-        self.fm = Frame(self.nb)
-        self.fm.pack(fill=BOTH, expand=True)
-        self.fm.columnconfigure(1, weight=1)
-        self.fm.columnconfigure(3, pad=7)
-        self.fm.rowconfigure(3, weight=1)
-        self.fm.rowconfigure(5, pad=7)
-        self.nb.add(self.fm, text='Query '+str(self.contadorQuerysTabs))
+        self.nb.fm = Frame(self.nb)
+        self.nb.fm.pack(fill=BOTH, expand=True)
+        self.nb.fm.columnconfigure(1, weight=1)
+        self.nb.fm.columnconfigure(3, pad=7)
+        self.nb.fm.rowconfigure(3, weight=1)
+        self.nb.fm.rowconfigure(5, pad=7)
+        self.nb.add(self.nb.fm, text='Query '+str(self.contadorQuerysTabs))
         self.nb.grid(row=1, column=0, columnspan=2, rowspan=4,
                      padx=5, sticky=E + W + S + N)
-        self.area = Text(self.fm)
-        self.area.grid(row=1, column=0, columnspan=2, rowspan=4,
+        self.nb.fm.area = Text(self.nb.fm)
+        self.nb.fm.area.grid(row=1, column=0, columnspan=2, rowspan=4,
                        padx=5, sticky=E + W + S + N)
         #self.lbl.configure(text="Cambia")
 
+    def run(self):
+        active_object = self.nb.nametowidget(self.nb.select())
+        messagebox.showinfo("Info",active_object.area.get("1.0",'end-1c'))
+        #print(self.nb.index(self.nb.select()))
+        #print(self.nb.tab(self.nb.select(), "text"))
 
+    def saveFile( self ):
+
+        f = filedialog.asksaveasfile(initialdir="/", title="Select file",
+                                     mode='w', defaultextension=".sql")
+        if f is None:  # asksaveasfile return `None` if dialog closed with "cancel".
+            return
+        active_object = self.nb.nametowidget(self.nb.select())
+        text2save = str(active_object.area.get("1.0", 'end-1c'))  # starts from `1.0`, not `0.0`
+        self.nb.tab(self.nb.select(), text=os.path.basename(f.name))
+        f.write(text2save)
+        f.close()
+
+    def openFile( self ):
+        filename = filedialog.askopenfilename(initialdir="/", title="Select a File")
+        with open(filename, "r") as f:
+            self.contadorQuerysTabs = self.contadorQuerysTabs + 1
+            self.nb.fm = Frame(self.nb)
+            self.nb.fm.pack(fill=BOTH, expand=True)
+            self.nb.fm.columnconfigure(1, weight=1)
+            self.nb.fm.columnconfigure(3, pad=7)
+            self.nb.fm.rowconfigure(3, weight=1)
+            self.nb.fm.rowconfigure(5, pad=7)
+            self.nb.add(self.nb.fm, text=os.path.basename(filename))
+            self.nb.grid(row=1, column=0, columnspan=2, rowspan=4,
+                         padx=5, sticky=E + W + S + N)
+            self.nb.fm.area = Text(self.nb.fm)
+            self.nb.fm.area.insert(1.0, f.read())
+            self.nb.fm.area.grid(row=1, column=0, columnspan=2, rowspan=4,
+                                 padx=5, sticky=E + W + S + N)
+
+
+#Metodo para crear Tabs con la x para cerrar
 class CustomNotebook(ttk.Notebook):
     """A ttk Notebook with close buttons on each tab"""
 
@@ -127,12 +166,12 @@ class CustomNotebook(ttk.Notebook):
         """Called when the button is pressed over the close button"""
 
         element = self.identify(event.x, event.y)
-        self.master.contadorQuerysTabs=self.master.contadorQuerysTabs-1
-        print(self.master.contadorQuerysTabs)
+
         if "close" in element:
             index = self.index("@%d,%d" % (event.x, event.y))
             self.state(['pressed'])
             self._active = index
+
 
     def on_close_release(self, event):
         """Called when the button is released over the close button"""
