@@ -437,8 +437,8 @@ class ArbolAVL:
             tab = open("tab.cmd","w")
             tab.write("dot -Tpng tab.dot -o tab.png")
             tab.close()
-            subprocess.call("dot -Tpng tab.dot -o tab.png")
-            os.system('tab.png')
+            #subprocess.call("dot -Tpng tab.dot -o tab.png")
+            #os.system('tab.png')
 
     def _graficar(self, tmp):
         contenido = ""
@@ -909,34 +909,25 @@ class ArbolAVL:
                 return 3
         else:
             return 2
-        
+
     def loadCSV(self, dirfile, database, table):
         l = []
         raiz = self.buscar(database)
         i = self.buscartabla(database, table)
         if raiz is not None:
             if i is not None:
-
                 with open(dirfile) as f:
                     reader = csv.reader(f)
                     for row in reader:
                         row = [int(i) for i in row]  # Convierte la lista de string a int
                         if i.campos[1] == len(row):
                             con = self.insert(database, table, row)
-                            if con == 4:
-                                l.append(4)
-                            else:
+                            if con != 4:
                                 l.append(row)
-                        else:
-                            return 5
 
-            else:
-                return 3
-        else:
-            return 2
         return l
-        
-        
+
+
 def commit(objeto, nombre):
     file = open(nombre + ".bin", "wb+")
     file.write(pickle.dumps(objeto))
@@ -947,63 +938,3 @@ def rollback(nombre):
     b = file.read()
     file.close()
     return pickle.loads(b)
-
-t = ArbolAVL()
-t.createDatabase("base1")
-t.createDatabase("base2")
-t.createDatabase("base3")
-t.createDatabase("base4")
-t.createDatabase("base5")
-t.createDatabase("base6")
-
-t.showDatabases()
-t.enorden()
-t.dropDatabase("base6")
-
-t.preorden()
-t.enorden()
-
-t.createTable("base1", 3, 4)
-t.createTable("base1", 10, 4)
-t.createTable("base1", 13, 4)
-t.createTable("base1", 5, 4)
-t.createTable("base5", 6, 4)
-t.createTable("base5", 15, 4)
-t.createTable("base5", 20, 4)
-t.createTable("base2", "tabla1", 4)
-t.dropTable("base1",5)
-lita = [1,2,3,6]
-lita1 = [8,2,4,5]
-lita2 = [3,2,5,6]
-
-t.insert("base1",3,lita)
-t.insert("base1",3,lita1)
-t.insert("base1",3,lita2)
-print("extraer tabla")
-t.extractTable("base1",3)
-print("extraer rango de tablas")
-t.extractRangeTable("base1",3,10,1,0)
-t.insert("base5",6,lita)
-t.preorden()
-t.showTables("base1")
-t.showTables("base5")
-t.alterAddPK("base1",3,[0,1])
-t.alterDropPK("base1",3)
-t.alterAddPK("base1",3,[0,2,3])
-t.extractRow("base1",3,[1,3,6])
-t.alterDatabase("base1", "base de datos 1")
-t.preorden()
-t.alterTable("base de datos 1",3, "tres")
-t.showTables("base de datos 1")
-t.alterAddPK("base2","tabla1",[0,1])
-print(t.insert("base2","tabla1", lita))
-print(t.insert("base2","tabla1", lita))
-t.createDatabase("edd")
-t.preorden()
-t.createTable("edd","estudiantes",6)
-t.alterAddPK("edd","estudiantes",[0,1])
-t.showTables("edd")
-print(t.insert("edd", "estudiantes",["201700471","lopez","sohany","22","zona6","sistemas"]))
-print(t.insert("edd", "estudiantes",["201700471","salazar","sohany","22","zona6","sistemas"]))
-t.alterDropPK("edd","estudiantes")
-t.alterAddPK("edd","estudiantes",[1,3])

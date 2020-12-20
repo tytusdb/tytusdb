@@ -152,11 +152,47 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
 
 #Agrega una columna al final de cada registro de la tabla y base de datos especificada
 def alterAddColumn(database: str, table: str, default: any) -> int:
-    return -1
+    try:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                nodoTBL.agregaColumna(nodoTBL.datos.raiz, default)
+                nodoTBL.valor[0].append(nodoTBL.valor[0][len(nodoTBL.valor[0])-1] + 1)
+                return 0 #Operacion exitosa
+            else:
+                return 3 #Tabla inexistente en la Base de Datos
+        else:
+            return 2 #Base de Datos inexistente
+    except:
+        return 1 #Error en la operación
 
 #Eliminar una n-ésima columna de cada registro de la tabla excepto si son llaves primarias
 def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
-    return -1
+    try:
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                if columnNumber not in nodoTBL.valor[1]:
+                    if len(nodoTBL.valor[0]) > 1:
+                        pos = nodoTBL.valor[0].index(columnNumber)
+                        nodoTBL.quitaColumna(nodoTBL.datos.raiz, pos)
+                        nodoTBL.valor[0].pop(pos)
+                        nodoTBL.valor[0] = list(range(1, len(nodoTBL.valor[0])+1))
+                        return 0 #Operacion exitosa
+                    else:
+                        return 4 #Tabla no puede quedarse sin columnas
+                else:
+                    return 4 #Columna de Llave no puede eliminarse
+            else:
+                return 3 #Tabla inexistente en la Base de Datos
+        else:
+            return 2 #Base de Datos inexistente
+    except:
+        return 1 #Error en la operación
+      
+    
 
 #Elimina por completo una tabla de una base de datos especificada. (DELETE)
 def dropTable(database: str, table: str) -> int:
@@ -170,7 +206,56 @@ def dropTable(database: str, table: str) -> int:
 
 #Inserta un registro en la estructura de datos asociada a la tabla y la base de datos. (CREATE)
 def insert(database: str, table: str, register: list) -> int:
-    return -1
+    try:
+        if not database.isidentifier() or not table.isidentifier():
+            raise Exception()
+        nodoBD = mBBDD.obtener(database)
+        if nodoBD:
+            nodoTBL = nodoBD.datos.obtener(table)
+            if nodoTBL:
+                if nodoTBL.valor[1] == [-999]:
+                    #Tiene indice por default
+                    if len(register) == len(nodoTBL.valor[0]) - 1:
+                        res = nodoTBL.datos.agregar(nodoTBL.valor[2], register)
+                        if res == 0:
+                            #Incrementa el valor de indice autonumérico
+                            nodoTBL.valor[2] += 1
+                        elif res == 2:
+                            res = 4
+                        return res #0=Operación exitosa, 1=Error en la operación, 4=Llave primaria duplicada
+                    else:
+                        return 5 #Columnas fuera de limites    
+                else:
+                    #Tiene indice definido
+                    if len(register) == len(nodoTBL.valor[0]):
+                        if nodoTBL.valor[1][0] >= 0:
+                            if len(nodoTBL.valor[1]) == 1:
+                                #es clave simple
+                                idx = nodoTBL.valor[1][0]
+                                pos = nodoTBL.valor[0].index(idx)
+                                clave = register[pos]
+                                res = nodoTBL.datos.agregar(clave, register)
+                                if res == 2: res = 4
+                                return res #0=Operación exitosa, 1=Error en la operación, 4=Llave primaria duplicada
+                            else:
+                                #es clave compuesta
+                                clave = []
+                                for i in nodoTBL.valor[1]:
+                                    pos = nodoTBL.valor[0].index(i)
+                                    clave.append(register[pos])
+                                res = nodoTBL.datos.agregar(clave, register)
+                                if res == 2: res = 4
+                                return res #0=Operación exitosa, 1=Error en la operación, 4=Llave primaria duplicada
+                        else:
+                            return 1 #No se insertó, porque los indices han sido eliminados anteriormente
+                    else:
+                        return 5 #Columnas fuera de limites    
+            else:
+                return 3 #Tabla no existe en la base de datos
+        else:
+            return 2 #Base de datos inexistente
+    except:
+        return 1 #Error en la operación
 
 #Carga un archivo CSV de una ruta especificada indicando la base de datos y tabla donde será almacenado
 def loadCSV(file: str, database: str, table: str) -> list:

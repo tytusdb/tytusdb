@@ -7,13 +7,9 @@ from analizer import grammar
 
 s = """ 
     USE db1;
-    
-    SELECT 3+3;
-    SELECT users.id+300 as shute FROM users WHERE users.id < 6;
+    SELECT d.id FROM demo1 d;
 """
 
 
 result = grammar.parse(s)
 print(result)
-
-

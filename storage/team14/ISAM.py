@@ -56,7 +56,7 @@ class ISAM:
                     return tmp
             else:
                 for i in tmp.values:
-                    if i.PK == data.PK and self.search(data.PK) is None:
+                    if i.PK == data.PK and len(self.search(data.PK)) == 0:
                         i.data = data.data
                         i.PK = data.PK
                         return tmp
@@ -66,17 +66,21 @@ class ISAM:
                 if level < 2:
                     if level == 1:
                         if tmp.center is None:
-                            tmp.center = self._insert(self.makeIndexLeaf(tmp.values[0]), tmp.center, level + 1, duplicated)
+                            tmp.center = self._insert(self.makeIndexLeaf(tmp.values[0]), tmp.center, level + 1,
+                                                      duplicated)
                             tmp.values[0].data.clear()
                         if tmp.right is None:
-                            tmp.right = self._insert(self.makeIndexLeaf(tmp.values[1]), tmp.right, level + 1, duplicated)
+                            tmp.right = self._insert(self.makeIndexLeaf(tmp.values[1]), tmp.right, level + 1,
+                                                     duplicated)
                             tmp.values[1].data.clear()
                         if tmp.left is None:
                             if self.root.values[0].PK < data.PK < self.root.values[1].PK:
-                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[0]), tmp.left, level + 1, duplicated)
+                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[0]), tmp.left, level + 1,
+                                                        duplicated)
                                 self.root.values[0].data.clear()
                             elif data.PK > self.root.values[1].PK:
-                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[1]), tmp.left, level + 1, duplicated)
+                                tmp.left = self._insert(self.makeIndexLeaf(self.root.values[1]), tmp.left, level + 1,
+                                                        duplicated)
                                 self.root.values[1].data.clear()
                     if data.PK < tmp.values[0].PK:
                         tmp.left = self._insert(data, tmp.left, level + 1, duplicated)
@@ -370,13 +374,24 @@ class ISAM:
                     else:
                         validando = False
                 if validando:
-                    aux = tmp1
+                    aux = Tuple(tmp1.PK, tmp1.data[:])
+                    aux2 = Tuple(tmp1.PK, tmp1.data[:])
                     x = register.keys()
                     for i in x:
                         aux.data[i] = register[i]
+                    new_PK = ''
+                    if isinstance(PKCols, list):
+                        for i in PKCols:
+                            new_PK += str(aux.data[i]) + '_'
+                        new_PK = new_PK[:-1]
+                    else:
+                        new_PK = str(PKCols)
                     self.delete(tmp1.PK)
-                    self.insert(Tuple(aux.PK, aux.data))
-                    return 0
+                    if len(self.insert(Tuple(new_PK, aux.data))) == 0:
+                        return 0
+                    else:
+                        self.insert(Tuple(aux2.PK, aux2.data))
+                        return 2
                 else:
                     return self.__update(register, auxiliar.next, cols, PKCols)
             else:
@@ -395,16 +410,23 @@ class ISAM:
                         validando = False
                 if validando and len(tmp1.data) > 0:
                     aux = Tuple(tmp1.PK, tmp1.data[:])
+                    aux2 = Tuple(tmp1.PK, tmp1.data[:])
                     x = register.keys()
                     for i in x:
                         aux.data[i] = register[i]
                     new_PK = ''
-                    for i in PKCols:
-                        new_PK += str(aux.data[i]) + '_'
-                    new_PK = new_PK[:-1]
+                    if isinstance(PKCols, list):
+                        for i in PKCols:
+                            new_PK += str(aux.data[i]) + '_'
+                        new_PK = new_PK[:-1]
+                    else:
+                        new_PK = str(PKCols)
                     self.delete(tmp1.PK)
-                    self.insert(Tuple(new_PK, aux.data))
-                    return 0
+                    if len(self.insert(Tuple(new_PK, aux.data))) == 0:
+                        return 0
+                    else:
+                        self.insert(Tuple(aux2.PK, aux2.data))
+                        return 2
                 else:
                     if len(auxiliar.values) > 1:
                         if cols < auxiliar.values[0].PK:
