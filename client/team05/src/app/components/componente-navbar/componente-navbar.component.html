@@ -33,7 +33,7 @@
           <li class="nav-item dropdown">
             <h5 class="nav-link dropdown-toggle text-white" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false" >Tablas</h5>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <li><a class="dropdown-item" href="#">Crear Tabla</a></li>
+                <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#ModalCreaTabla">Crear Tabla</a></li>
                 <li><a class="dropdown-item" href="#">Eliminar Tabla</a></li>
                 <li><a class="dropdown-item" href="#">Agregar Columna a una tabla</a></li>
                 <li><a class="dropdown-item" href="#">Eliminar Columna a una tabla</a></li>
@@ -94,11 +94,12 @@
   </div>
   <div class="modal-body">
 
-    <form class="form-inline" (ngSubmit)="crearBD()" >
+    <form class="form-inline text-center" (ngSubmit)="crearBD()" >
       <div class="form-group mx-sm-3 mb-2">
           <input type="text" [(ngModel)]="nuevobd.nombrebd" name="nombrebd" class="form-control" placeholder="Nombre Base de Datos" required autofocus>
         </div>
-        <button class="btn btn-primary mb-2" >Crear Base de Datos</button>     
+      
+        <button class="btn btn-primary " >Crear Base de Datos</button>     
         
   </form>
 
@@ -106,3 +107,49 @@
 
 
  </ng-template> 
+
+
+ <!-- ------------- Modal para crear una tabla ---------------  -->
+ <div class="modal fade" id="ModalCreaTabla" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Creacion de una Tabla</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="text-center">
+          <div class="mb-3">
+            <label for="recipient-name" class="col-form-label">Nombre</label>
+            <input type="text" name="nombre" class="form-control" placeholder="Nombre de la Tabla" required autofocus>
+          </div>
+          <div class="mb-3">
+            <label for="message-text" class="col-form-label">---------- Columnas ----------</label>
+            <input type="text" name="nombre" class="form-control" placeholder="Nombre de la Columna" required autofocus>
+          </div>
+          
+
+          <div class="form-group mb-3">
+            <select class="form-control" type="text"  name="tipo dato" required autofocus >
+              <option> <input type="text"  name="entero" class="form-control" placeholder="entero" required autofocus>Integer</option>
+              <option> <input type="text"  name="entero" class="form-control" placeholder="entero" required autofocus>Varchar</option>
+              <option> <input type="text"  name="entero" class="form-control" placeholder="entero" required autofocus>Bool</option>
+              <option> <input type="text"  name="entero" class="form-control" placeholder="entero" required autofocus>Date</option>
+              <option> <input type="text"  name="entero" class="form-control" placeholder="entero" required autofocus>Time</option>
+            </select>
+          </div>
+
+  
+          <div class="mb-3">
+            <input type="text" name="nombre" class="form-control" placeholder="Tamaño de la Columna" required autofocus>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary">Crear Tabla</button>
+      </div>
+    </div>
+  </div>
+</div>
