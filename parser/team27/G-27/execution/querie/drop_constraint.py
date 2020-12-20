@@ -11,6 +11,11 @@ from typ import *
 from storageManager import jsonMode as admin
 
 class Drop_Constraint(Querie):
+    '''
+     constName = nombre del constraint que deseamos eliminar(cadena)
+     row = numero de fila(int)
+     column = numero de columna(int)
+    '''
     def __init__(self,constName, row, column):
         Querie.__init__(self, row, column)
         self.constName = constName

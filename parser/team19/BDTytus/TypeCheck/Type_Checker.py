@@ -1,13 +1,13 @@
-import ListaBases as ListaBases
-import Base as Base
-import ListaTablas as ListaTablas
-import Tabla as Tabla
-import ListaAtributos as ListaAtributos
-import Atributo as Atributo
-import ListaEnums as ListaEnums
-import Enum as Enum
-import ListaConstraints as ListaConstraints
-import Constraint as Constraint
+import TypeCheck.ListaBases as ListaBases
+import TypeCheck.Base as Base
+import TypeCheck.ListaTablas as ListaTablas
+import TypeCheck.Tabla as Tabla
+import TypeCheck.ListaAtributos as ListaAtributos
+import TypeCheck.Atributo as Atributo
+import TypeCheck.ListaEnums as ListaEnums
+import TypeCheck.Enum as Enum
+import TypeCheck.ListaConstraints as ListaConstraints
+import TypeCheck.Constraint as Constraint
 import data.jsonMode as JM
 
 
@@ -24,9 +24,8 @@ def createDataBase(basedatos: str, modo: int = 1, owner=None):
     if lista_bases.existeBaseDatos(basedatos):
         return 2
     else:
-        lista_bases.agregarBase(Base.Base(basedatos))
+        lista_bases.agregarBase(Base.Base(basedatos, owner, modo))
         return 0
-    return 1
 
 def showDataBases():
     return JM.showDatabases()
@@ -35,7 +34,7 @@ def alterDataBase(dataBaseOld: str, dataBaseNew: str):
     # 0: exitoso, 1: error en la operación, 2: dataBaseOld no existente, 3: dataBaseNew existente
     respuesta = JM.alterDatabase(dataBaseOld,dataBaseNew)
     if respuesta == 0:
-        lista_bases.modificarNombreBase(dataBaseOld, dataBaseNew)
+        return lista_bases.modificarNombreBase(dataBaseOld, dataBaseNew)
     return respuesta
 
 def alterDataBaseOwner(database:str,owner:str):
@@ -46,7 +45,7 @@ def dropDataBase(database: str):
     # 0:operación exitosa, 1: error en la operación, 2: base de datos no existente
     respuesta = JM.dropDatabase(database)
     if respuesta == 0:
-        lista_bases.eliminarBaseDatos(database)
+        return lista_bases.eliminarBaseDatos(database)
     return respuesta
 
 def obtenerBase(database: str):
@@ -121,10 +120,12 @@ def obtenerTipoColumna(database:str,table:str,nombreColumna:str):
         return None
 
 def registarEnum(nombre:str,tipos:list):
-    #o:operacion existosa, 1:error en la operacion
+    #o:operacion existosa, 1:Enum ya existe
     if not lista_enums.existeEnum(nombre):
         lista_enums.createEnum(nombre,tipos)
-
+        return 0
+    return 1
+    
 def obtenerTiposEnum(nombre:str):
     # Devuelve los tipos o None
     if lista_enums.existeEnum(nombre):
