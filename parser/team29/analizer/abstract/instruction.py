@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from analizer.abstract.expression import Expression
+from analizer.abstract import expression
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
@@ -7,7 +8,11 @@ from analizer.typechecker import Checker
 import pandas as pd
 from analizer.symbol.symbol import Symbol
 from analizer.symbol.environment import Environment
+from reports import Nodo
+from reports import AST
 
+ast = AST.AST()
+root = None
 
 class SELECT_MODE(Enum):
     ALL = 1
@@ -49,23 +54,12 @@ class SelectOnlyParams(Instruction):
 
 
 class SelectParams(Instruction):
-    def __init__(self, mode, params, row, column):
+    def __init__(self, params, row, column):
         Instruction.__init__(self, row, column)
-        self.mode = mode
         self.params = params
 
     def execute(self, environment):
         pass
-
-
-class WhereClause(Instruction):
-    def __init__(self, series, row, column):
-        super().__init__(row, column)
-        self.series = series
-
-    def execute(self, environment):
-        filt = self.series.execute(environment)
-        return environment.dataFrame.loc[filt.value]
 
 
 class Select(Instruction):
@@ -78,17 +72,122 @@ class Select(Instruction):
     def execute(self, environment):
         newEnv = Environment(environment, dbtemp)
         self.fromcl.execute(newEnv)
-        value = [p.execute(newEnv).value for p in self.params]
-        labels = [p.temp for p in self.params]
-
+        if self.params:
+            params = []
+            for p in self.params:
+                if isinstance(p, expression.TableAll):
+                    result = p.execute(newEnv)
+                    for r in result:
+                        params.append(r)
+                else:
+                    params.append(p)
+            value = [p.execute(newEnv).value for p in params]
+            labels = [p.temp for p in params]
+        else:
+            value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
+            labels = [p for p in newEnv.dataFrame]
         for i in range(len(labels)):
             newEnv.dataFrame[labels[i]] = value[i]
 
         if self.wherecl == None:
             return newEnv.dataFrame.filter(labels)
+
         wh = self.wherecl.execute(newEnv)
         w2 = wh.filter(labels)
         return w2
+
+
+class FromClause(Instruction):
+    """
+    Clase encargada de la clausa FROM para la obtencion de datos
+    """
+
+    def __init__(self, tables, aliases, row, column):
+        Instruction.__init__(self, row, column)
+        self.tables = tables
+        self.aliases = aliases
+
+    def crossJoin(self, tables):
+        if len(tables) <= 1:
+            return tables[0]
+        for t in tables:
+            t["____tempCol"] = 1
+
+        new_df = tables[0]
+        i = 1
+        while i < len(tables):
+            new_df = pd.merge(new_df, tables[i], on=["____tempCol"])
+            i += 1
+
+        new_df = new_df.drop("____tempCol", axis=1)
+        return new_df
+
+    def execute(self, environment):
+        tempDf = None
+
+        for i in range(len(self.tables)):
+            data = self.tables[i].execute(environment)
+            if isinstance(self.tables[i], Select):
+                newNames = {}
+                subqAlias = self.aliases[i]
+                for (columnName, columnData) in data.iteritems():
+                    colSplit = columnName.split(".")
+                    if len(colSplit) >= 2:
+                        newNames[columnName] = subqAlias + "." + colSplit[1]
+                    else:
+                        newNames[columnName] = subqAlias + "." + colSplit[0]
+                data.rename(columns=newNames, inplace=True)
+                environment.addVar(subqAlias, subqAlias, "TABLE", self.row, self.column)
+            else:
+                sym = Symbol(
+                    self.tables[i].name,
+                    self.tables[i].type_,
+                    self.tables[i].row,
+                    self.tables[i].column,
+                )
+                environment.addSymbol(self.tables[i].name, sym)
+                if self.aliases[i]:
+                    environment.addSymbol(self.aliases[i], sym)
+            if i == 0:
+                tempDf = data
+            else:
+                tempDf = self.crossJoin([tempDf, data])
+            environment.dataFrame = tempDf
+        return
+
+
+class TableID(Expression):
+    """
+    Esta clase representa un objeto abstracto para el manejo de las tablas
+    """
+
+    type_ = None
+
+    def __init__(self, name, row, column):
+        Expression.__init__(self, row, column)
+        self.name = name
+
+    def execute(self, environment):
+        result = jsonMode.extractTable(dbtemp, self.name)
+        if result == None:
+            return "FATAL ERROR TABLE ID"
+        # Almacena una lista con con el nombre y tipo de cada columna
+        lst = Struct.extractColumns(dbtemp, self.name)
+        columns = [l.name for l in lst]
+        newColumns = [self.name + "." + col for col in columns]
+        df = pd.DataFrame(result, columns=newColumns)
+        environment.addTable(self.name)
+        return df
+
+
+class WhereClause(Instruction):
+    def __init__(self, series, row, column):
+        super().__init__(row, column)
+        self.series = series
+
+    def execute(self, environment):
+        filt = self.series.execute(environment)
+        return environment.dataFrame.loc[filt.value]
 
 
 class Drop(Instruction):
@@ -127,6 +226,16 @@ class Drop(Instruction):
                 return "Instruccion ejecutada con exito DROP DATABASE"
         return "Fatal Error: DropTable"
 
+    def dot(self):
+        new = Nodo.Nodo("DROP")
+        t = Nodo.Nodo(self.structure)
+        n = Nodo.Nodo(self.name)
+        new.addNode(t)
+        new.addNode(n)
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class AlterDataBase(Instruction):
     def __init__(self, option, name, newname):
@@ -154,6 +263,20 @@ class AlterDataBase(Instruction):
             return "Error ALTER DATABASE OWNER"
         return "Fatal Error ALTER DATABASE"
 
+    def dot(self):
+        new = Nodo.Nodo("ALTER_DATABASE")
+        iddb = Nodo.Nodo(self.name)
+        new.addNode(iddb)
+
+        optionNode = Nodo.Nodo(self.option)
+        new.addNode(optionNode)
+        valOption = Nodo.Nodo(self.newname)
+        optionNode.addNode(valOption)
+
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class Truncate(Instruction):
     def __init__(self, name):
@@ -170,6 +293,14 @@ class Truncate(Instruction):
         if valor == 0:
             return "Instruccion ejecutada con exito"
 
+    def dot(self):
+        new = Nodo.Nodo("TRUNCATE")
+        n = Nodo.Nodo(self.name)
+        new.addNode(n)
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class InsertInto(Instruction):
     def __init__(self, tabla, columns, parametros):
@@ -208,6 +339,21 @@ class InsertInto(Instruction):
         else:
             return result[0]
 
+   def dot(self):
+        new = Nodo.Nodo("INSERT_INTO")
+        t = Nodo.Nodo(self.tabla)
+        par = Nodo.Nodo("PARAMS")
+
+        for p in self.parametros:
+             par.addNode(p.dot())
+
+        new.addNode(t)
+        new.addNode(par)
+        global root
+        root = new 
+
+        #ast.makeAst(root)
+        return new
 
 class useDataBase(Instruction):
     def __init__(self, db):
@@ -218,6 +364,14 @@ class useDataBase(Instruction):
         # environment.database = self.db
         dbtemp = self.db
 
+    def dot(self):
+        new = Nodo.Nodo("USE_DATABASE")
+        n = Nodo.Nodo(self.db)
+        new.addNode(n)
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class showDataBases(Instruction):
     def __init__(self, like):
@@ -228,19 +382,29 @@ class showDataBases(Instruction):
 
     def execute(self, environment):
         lista = []
-
         if self.like != None:
             for l in jsonMode.showDatabases():
                 if self.like in l:
                     lista.append(l)
         else:
             lista = jsonMode.showDatabases()
-
         if len(lista) == 0:
             print("No hay bases de datos")
         else:
             return lista
 
+    def dot(self):
+        new = Nodo.Nodo("SHOW_DATABASES")
+        if self.like != None:
+            l = Nodo.Nodo("LIKE")
+            ls = Nodo.Nodo(self.like)
+            new.addNode(l)
+            l.addNode(ls)
+
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 class CreateDatabase(Instruction):
     """
@@ -279,6 +443,29 @@ class CreateDatabase(Instruction):
         else:
             report = "Error: La base de datos ya existe"
         return report
+
+    def dot(self):
+        new = Nodo.Nodo("CREATE_DATABASE")
+        if self.exists:
+            ex = Nodo.Nodo("EXISTS")
+            new.addNode(ex)
+
+        n = Nodo.Nodo(self.name)
+        new.addNode(n)
+        if self.owner != None:
+            ow = Nodo.Nodo("OWNER")
+            own = Nodo.Nodo(self.owner)
+            ow.addNode(own)
+            new.addNode(ow)
+        if self.mode != None:
+            mod = Nodo.Nodo("MODE")
+            mod2 = Nodo.Nodo(self.mode)
+            mod.addNode(mod2)
+            new.addNode(mod)
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 
 
 class CreateTable(Instruction):
@@ -323,7 +510,110 @@ class CreateTable(Instruction):
                 n += 1
         return n
 
+    def dot(self):
+        new = Nodo.Nodo("CREATE_TABLE")
+        
+        if self.exists:
+            ex = Nodo.Nodo("EXISTS")
+            new.addNode(ex)
 
+        n = Nodo.Nodo(self.name)
+        new.addNode(n)
+
+        c = Nodo.Nodo("COLUMNS")
+        new.addNode(c)
+        
+        for cl in self.columns:
+            print(cl)
+            if not cl[0]:
+                id = Nodo.Nodo(cl[1])
+                c.addNode(id)
+                typ = Nodo.Nodo("TYPE")
+                c.addNode(typ)
+                typ1 = Nodo.Nodo(cl[2][0])
+                typ.addNode(typ1)
+                par = cl[2][1]
+                if par[0] != None: 
+                    params = Nodo.Nodo("PARAMS")
+                    typ.addNode(params)
+                    for parl in par:
+                        print(parl)
+                        parl1 = Nodo.Nodo(str(parl))
+                        params.addNode(parl1)
+
+                print(cl[3])
+                colOpts = cl[3]
+                if colOpts != None:
+                    coNode = Nodo.Nodo("OPTIONS")
+                    c.addNode(coNode)
+                    for co in colOpts:
+                        if co[0] == "NULL":
+                            if co[1]:
+                                notNullNode = Nodo.Nodo("NOT_NULL")
+                            else:
+                                notNullNode = Nodo.Nodo("NULL")
+                            coNode.addNode(notNullNode)
+                        elif co[0] =="DEFAULT":
+                            defaultNode = Nodo.Nodo("DEFAULT")
+                            coNode.addNode(defaultNode)
+                            litDefaultNode = Nodo.Nodo(str(co[1]))
+                            defaultNode.addNode(litDefaultNode)
+
+                        elif co[0] =="PRIMARY":
+                            primaryNode = Nodo.Nodo("PRIMARY_KEY")
+                            coNode.addNode(primaryNode)
+
+                        elif co[0] =="REFERENCES":
+                            referencesNode = Nodo.Nodo("REFERENCES")
+                            coNode.addNode(referencesNode)
+                            idReferences = Nodo.Nodo(str(co[1]))
+                            referencesNode.addNode(idReferences)
+                        else: 
+                            constNode = Nodo.Nodo("CONSTRAINT")
+                            coNode.addNode(constNode)
+            else:
+                if cl[1][0] == "UNIQUE":
+                    uniqueNode = Nodo.Nodo("UNIQUE")
+                    c.addNode(uniqueNode)
+                    idlist = cl[1][1]
+
+                    for il in idlist:
+                        nl = Nodo.Nodo(str(il))
+                        uniqueNode.addNode(nl)
+                    
+                if cl[1][0] == "PRIMARY":
+                    primNode = Nodo.Nodo("PRIMARY_KEY")
+                    c.addNode(primNode)
+                    idlist = cl[1][1]
+
+                    for il in idlist:
+                        nl = Nodo.Nodo(str(il))
+                        primNode.addNode(nl)
+                if cl[1][0] == "FOREIGN":
+                    forNode = Nodo.Nodo("FOREIGN_KEY")
+                    idlist = cl[1][1]
+                    for il in idlist:
+                        nl = Nodo.Nodo(str(il))
+                        forNode.addNode(nl)
+                    refNode = Nodo.Nodo("REFERENCES")
+                    forNode.addNode(refNode)
+                    idNode = Nodo.Nodo(str(cl[1][2]))
+                    refNode.addNode(idNode)
+                    idlist2 = cl[1][3]
+                    for il2 in idlist2:
+                        nl2 = Nodo.Nodo(str(il2))
+                        refNode.addNode(nl2)
+
+        if self.inherits != None:
+            inhNode = Nodo.Nodo("INHERITS")
+            new.addNode(inhNode)
+            inhNode2 = Nodo.Nodo(str(self.inherits))
+            inhNode.addNode(inhNode2)
+        
+        global root
+        root = new 
+        #ast.makeAst(root)
+        return new
 class CreateType(Instruction):
     def __init__(self, exists, name, values=[]):
         self.exists = exists
@@ -391,90 +681,3 @@ class CheckOperation(Instruction):
             return value
         except:
             print("Error fatal CHECK")
-
-
-# ---------------------------- FROM ---------------------------------
-class FromClause(Instruction):
-    """
-    Clase encargada de la clausa FROM para la obtencion de datos
-    """
-
-    def __init__(self, tables, aliases, row, column):
-        Instruction.__init__(self, row, column)
-        self.tables = tables
-        self.aliases = aliases
-
-    def crossJoin(self, tables):
-        if len(tables) <= 1:
-            return tables[0]
-        for t in tables:
-            t["____tempCol"] = 1
-
-        new_df = tables[0]
-        i = 1
-        while i < len(tables):
-            new_df = pd.merge(new_df, tables[i], on=["____tempCol"])
-            i += 1
-
-        new_df = new_df.drop("____tempCol", axis=1)
-        return new_df
-
-    def execute(self, environment):
-        tempDf = None
-
-        for i in range(len(self.tables)):
-            data = self.tables[i].execute(environment)
-            
-            print("---------------------------------------")
-            print(self.aliases[i])
-            if isinstance(self.tables[i], Select):
-                newNames = {}
-                subqAlias = self.aliases[i]
-                for columnName in data.iteritems():
-                    colSplit = columnName.split(".")
-                    if len(colSplit) >= 2:
-                        newNames[columnName] = subqAlias + "." + colSplit[1]
-                    else:
-                        newNames[columnName] = subqAlias + "." + colSplit[0]
-                data.rename(columns=newNames, inplace=True)
-                environment.addVar(subqAlias, subqAlias, "TABLE", self.row, self.column)
-            else:
-                sym = Symbol(
-                    self.tables[i].name,
-                    self.tables[i].type_,
-                    self.tables[i].row,
-                    self.tables[i].column,
-                )
-                environment.addSymbol(self.tables[i].name, sym)
-                if self.aliases[i]:
-                    environment.addSymbol(self.aliases[i], sym)
-            if i == 0:
-                tempDf = data
-            else:
-                tempDf = self.crossJoin([tempDf,data])
-            environment.dataFrame = tempDf
-        return
-
-
-class TableID(Expression):
-    """
-    Esta clase representa un objeto abstracto para el manejo de las tablas
-    """
-
-    type_ = None
-
-    def __init__(self, name, row, column):
-        Expression.__init__(self, row, column)
-        self.name = name
-
-    def execute(self, environment):
-        result = jsonMode.extractTable(dbtemp, self.name)
-        if result == None:
-            return "FATAL ERROR TABLE ID"
-        # Almacena una lista con con el nombre y tipo de cada columna
-        lst = Struct.extractColumns(dbtemp, self.name)
-        columns = [l.name for l in lst]
-        newColumns = [self.name + "." + col for col in columns]
-        df = pd.DataFrame(result, columns=newColumns)
-        environment.addTable(self.name)
-        return df
