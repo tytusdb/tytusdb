@@ -11,6 +11,13 @@ from typ import *
 from storageManager import jsonMode as admin
 
 class Insert(Querie):
+    '''
+     row = numero de fila(int)
+     column = numero de columna(int)
+     tableName = nombre de la tabla a la que deseamos insertar datos(cadena)
+     valueList = una lista de objetos tipo Literal
+     idList = una lista de ids, es decir una lista de tipo string, puede ser None, depende de el formato del insert
+    '''
     def __init__(self, tableName,valueList,idList, row, column):
         Querie.__init__(self, row, column)
         self.tableName = tableName

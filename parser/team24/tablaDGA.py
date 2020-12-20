@@ -21,18 +21,34 @@ class TIPO(Enum) :
     TIME = 18
     INTERVAL = 19
     BOOLEAN = 20
+    TUPLA = 21
 
 class Simbolo() :
-    
-    def __init__(self, id, tipo, valor,ambito,contador=0,indice=0,pk=False,fk=False) :
+    #id = identificador numerico unico por simbolo
+    #nombre = nombre principal del simbolo
+    #tipo = tipo de simbolo (tabla, columna, basedatos, etc)
+    #ambito = pertenencia de un simbolo o relacion con otros
+    #coltab = cantidad de columnas que una tabla tiene
+    #tipocol = tipo de dato que la columna almacena
+    #llavecol = tipo de llave (0=Ninguna, 1=Primaria, 2=Foranea)
+    #refcol = referencia de columna
+    #defcol = default de columna
+    #nullcol = columna null(FALSE) o not null(TRUE)
+    #constcol = constraint de columna
+    #numcol = Numero de la columna dentro de la tabla
+    def __init__(self, id, nombre, tipo, ambito, coltab=0, tipocol="", llavecol=0, refcol="", defcol="", nullcol=False, constcol="",numcol=0) :
         self.id = id
+        self.nombre = nombre
         self.tipo = tipo
-        self.valor = valor
-        self.ambito =  ambito
-        self.contador = contador
-        self.indice = indice
-        self.pk = pk
-        self.fk = fk
+        self.ambito = ambito
+        self.coltab = coltab
+        self.tipocol = tipocol
+        self.llavecol = llavecol
+        self.refcol = refcol
+        self.defcol = defcol
+        self.nullcol = nullcol
+        self.constcol = constcol
+        self.numcol = numcol
 
 class Tabla() :
     
@@ -48,12 +64,12 @@ class Tabla() :
 
         return self.simbolos[id]
 
-    def BuscarNombre(self, valor) :
+    def BuscarNombre(self, nombre) :
         for simbolo in self.simbolos:
-            if self.simbolos[simbolo].valor == valor:
+            if self.simbolos[simbolo].nombre == nombre:
                 return self.simbolos[simbolo]
-        if not valor in self.simbolos :
-            print('(BuscarNombre)Error: variable ', valor, ' no definida.')
+        if not nombre in self.simbolos :
+            print('(BuscarNombre)Error: variable ', nombre, ' no definida.')
 
     def BuscarAmbito(self, ambito) :
         for simbolo in self.simbolos:
