@@ -10,12 +10,14 @@ import { EditorComponent } from './editor/editor.component';
 import { FormsModule } from '@angular/forms';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { ComponenteNavbarComponent } from './componente-navbar/componente-navbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DataComponent,
-    EditorComponent
+    EditorComponent,
+    ComponenteNavbarComponent
   ],
   imports: [
     BrowserModule,
