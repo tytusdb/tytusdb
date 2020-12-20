@@ -1,11 +1,12 @@
 class Node:
-
+    
     def __init__(self):
         self.array = []
-        self.key = 0
+        self.key = -1
         self.pk = None
+        self.isGeneric = False
 
-     def insert(self, dato, key):
+    def insert(self, dato, key):
         self.array.append((key,dato)) #ahora recibe el parametro key 
         lista = self.array.copy()
         lista_ordenada= self.quick_sorted(lista)
@@ -13,7 +14,7 @@ class Node:
         for i in lista_ordenada:
             self.array.append(i)
 
-   def buscarDato_binary(self, dato):
+    def buscarDato_binary(self, dato):
         inicio = 0
         final = len(self.array) -1 
         while inicio <= final:
@@ -28,7 +29,7 @@ class Node:
                 inicio = mid +1
         return False
 
-   def busquedaB(self, dato):
+    def busquedaB(self, dato):
         inicio = 0
         final = len(self.array) -1 
         while inicio <= final:
@@ -108,11 +109,11 @@ class Node:
                 inicio = mid +1
         return None
 
-    def obtenerLower(self,valor,lower): ##Cristian 17/12/2020
+    def obtenerLower(self,columna,valor,lower): ##Cristian 17/12/2020
         let=""
         contador = 0
         x= len(lower)-1
-        for i in valor:
+        for i in valor[columna]:
             if contador > x:
                 if lower.upper() == let.upper():
                     return True
@@ -122,11 +123,12 @@ class Node:
                 contador+=1
                 let+=i
 
-    def obtenerUpper(self,valor,upper):
+    def obtenerUpper(self,columna,valor,upper):
         let=""
         contador = 0
         x= len(upper)-1
-        for i in valor[::-1]:
+        valor1 = valor[columna]
+        for i in valor1[::-1]:
             if contador > x:
                 if upper.upper() == let[::-1].upper():
                     return True
@@ -136,21 +138,43 @@ class Node:
                 contador+=1
                 let+=i    
 
-    def imp_column(self,columnNumber,lower,upper): 
-        
+    def Numbervalidation(self,columnNumber,valor,lower,upper):       
+        if int(valor[columnNumber]) <= upper and int(valor[columnNumber]) >= lower :
+                return valor
+        else:
+            return None
+
+    def imp_column(self,subnodo,columnNumber,lower,upper): 
+        if isinstance(lower, int) == True:       
+            return self.Numbervalidation(columnNumber,subnodo,lower,upper)      
+        else:
+            if self.obtenerLower(columnNumber,subnodo,lower) == True and self.obtenerUpper(columnNumber,subnodo,upper) == True: ##
+                return subnodo
+            else:
+                return None
+
+    def imp_column2(self,columnNumber,lower,upper): 
         if isinstance(lower, int) == True:
-            for i in self.array:
-                if int(i[columnNumber]) <= upper and int(i[columnNumber]) >= lower :
-                    return i
-                else:
-                    return None
+            for i in self.array:     
+                return self.Numbervalidation(columnNumber,i[1],lower,upper)      
         else:
             for i in self.array:
-                if self.obtenerLower(str(i[columnNumber]),lower) == True and self.obtenerUpper(str(i[columnNumber]),upper) == True:
-                    return i
+                if self.obtenerLower(columnNumber,i[1],lower) == True and self.obtenerUpper(columnNumber,i[1],upper) == True:
+                    return i[1]
                 else:
-                    return None 
-                
+                    return None               
+    
+                    
+
     #agrega una columna y registra un dato
     def alterAddColumn(self, dato):
-        self.array.append(dato)
+        try:
+            for i in self.array:
+                i[1].append(dato)
+            # print("ya jalo")
+        except Exception as e:
+            print("########")
+            print("en el nodo")
+            print(e)
+            print("########")
+

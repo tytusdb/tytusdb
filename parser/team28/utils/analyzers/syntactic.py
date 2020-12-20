@@ -825,7 +825,10 @@ def p_selectq(p):
 def p_select_list(p):
     '''SELECTLIST : ASTERISK
                   | LISTITEM'''
-    p[0] = p[1]
+    if (p[1] == "*"):
+        p[0] = [PrimitiveData(DATA_TYPE.STRING, p[1])]
+    else:
+        p[0] = p[1]
 
 
 
@@ -1050,20 +1053,21 @@ def p_sql_relational_expression(p):
     if (len(p) == 3):
         p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        if p[2] == '=':
-            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '!=':
-            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '>=':
-            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '>':
-            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<=':
-            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<':
-            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<>':
-            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
+        print(p[2])
+        if p[2][1] == '=':
+            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '!=':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '>=':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '>':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<=':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<>':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
     else:
         p[0] = p[1]
 
@@ -1444,7 +1448,7 @@ def p_relop(p):
              | LESS_THAN
              | LESS_EQUAL
              | NOT_EQUAL_LR'''
-    p[0] = p[1]
+    p[0] = [p.slice[1], p[1]]
 
 
 def p_aggregate_types(p):
