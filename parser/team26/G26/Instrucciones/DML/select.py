@@ -3,7 +3,9 @@ import sys
 sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
 sys.path.append('../G26/Expresiones')
+sys.path.append('../G26/Librerias/storageManager')
 
+from jsonMode import *
 from instruccion import *
 from Error import *
 from Primitivo import *
@@ -14,21 +16,82 @@ import hashlib
 
 class Select(Instruccion):
 
+    global columnasAceptadas
+
     def __init__(self, parametros, fromopcional):
         self.parametros = parametros
         self.fromopcional = fromopcional
 
     def execute(self, data):
-        if self.parametros != None:
-            return self.parametros.execute(data)
-        if self.fromopcional != None:
-            #self.fromopcional.execute(data)
-            ''
+        fromData = self.fromopcional
+        tablas = fromData.execute().execute()
+        where = tablas.whereopcional
+        directorioTablas = {}
+        for tablasSeleccionadas in tablas.parametros:
+            if tablasSeleccionadas.asop == None:
+                directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': ''}
+            else:
+                directorioTablas[tablasSeleccionadas.parametros.operador.upper()] = {'fila' : None, 'alias': tablasSeleccionadas.asop.upper()}
+
+        global columnasAceptadas
+        try:
+            for keys in directorioTablas.keys():
+                data.tablaSimbolos[data.databaseSeleccionada]['tablas'][keys]
+        except:
+            return Error('Semántico', 'Error(42P01): undefined_table.', 0, 0)
+
+        valores = []
+        columnasAceptadas = {}
+        for keys in directorioTablas.keys():
+            valores.append(keys)
+            columnasAceptadas[keys] = []
+        if where == None:
+            val = self.funcionPosibilidades(data, valores, [], [], directorioTablas, True)
+        else:
+            val = self.funcionPosibilidades(data, valores, [], [], directorioTablas, False)
+
+        print(columnasAceptadas)
         return self
 
     def __repr__(self):
         return str(self.__dict__)
 
+
+    def funcionPosibilidades(self, data, nombres, columna, nombreAux, ordenTablas, noWhere):
+        if len(nombres) == 0:
+            if noWhere:
+                val = 0
+                for fila in columna:
+                    columnasAceptadas[nombreAux[val]].append(fila)
+                    val = val + 1
+                ''
+            else:
+                val = 0
+                for fila in columna:
+                    ordenTablas[nombreAux[val]]['fila'] = fila
+                    val = val + 1
+                result = self.fromopcional.whereopcional.operador.execute(data,ordenTablas)
+                if isinstance(result, Error):
+                    return result
+
+                if result:
+                    val = 0
+                    for fila in columna:
+                        columnasAceptadas[nombreAux[val]].append(fila)
+                        val = val + 1
+            return 'fin'
+        nombre = nombres[0]
+        nombres.remove(nombre)
+        filas = extractTable(data.databaseSeleccionada, nombre)
+        for fila in filas:
+            s = fila
+            columna.append(fila)
+            nombreAux.append(nombre)
+            comp = self.funcionPosibilidades(data, nombres, columna, nombreAux, ordenTablas, noWhere)
+            columna.remove(s)
+            nombreAux.remove(nombre)
+        nombres.append(nombre)
+        return 'hola'
 
 class Casos(Instruccion):
 
@@ -45,7 +108,7 @@ class Casos(Instruccion):
 
 class FromOpcional(Instruccion):
 
-    def __init__(self, parametros,whereogroup):
+    def __init__(self,parametros, whereogroup):
         self.parametros = parametros
         self.whereopcional = whereogroup
 
@@ -57,7 +120,7 @@ class FromOpcional(Instruccion):
 
 class ParametrosFromR(Instruccion):
 
-    def __init__(self, parametros,asop):
+    def __init__(self, parametros, asop):
         self.parametros = parametros
         self.asop = asop
 
@@ -122,7 +185,7 @@ class QuerysSelect(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__) 
+        return str(self.__dict__)
 
 class ParametrosFrom(Instruccion):
     #true select
@@ -135,7 +198,7 @@ class ParametrosFrom(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__)       
+        return str(self.__dict__)
 
 class WhereOpcional(Instruccion):
 
@@ -147,7 +210,7 @@ class WhereOpcional(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__)       
+        return str(self.__dict__)
 
 class GroupByOpcional(Instruccion):
 
@@ -159,7 +222,7 @@ class GroupByOpcional(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__)  
+        return str(self.__dict__)
 
 class HavingOpcional(Instruccion):
 
@@ -170,7 +233,7 @@ class HavingOpcional(Instruccion):
         return self
 
     def __repr__(self):
-        return str(self.__dict__)      
+        return str(self.__dict__)
 
 
 
@@ -222,9 +285,6 @@ class ParametrosSelect(Instruccion):
         self.listadeseleccion = listadeseleccion
 
     def execute(self, data):
-        if self.listadeseleccion != None:
-            for selection in self.listadeseleccion:
-                return selection.execute(data)
         return self
 
     def __repr__(self):
@@ -596,7 +656,7 @@ class OperadoresSelect(Instruccion):
         # | or dos args
         # # <- xor
         # ~ not
-        # << sl(bitwise shift left) 
+        # << sl(bitwise shift left)
         # >> sr(bitwise shift right)
     def __init__(self, tipoOperador, arg1,arg2):
         self.tipoOperador = tipoOperador
@@ -621,15 +681,15 @@ class FuncionMatematica(Instruccion):
 
     def execute(self, data):
         tipo = str(self.tipofuncionmatematica)
-        if tipo == 'abs' : 
+        if tipo == 'abs' :
             'valor absoluto - FALTA IDS'
             argumento = self.arg1.execute()
-            if argumento.type == 'integer' or argumento.type == 'float' : 
+            if argumento.type == 'integer' or argumento.type == 'float' :
                 return Primitive('float', math.fabs(argumento.val))
             else :
                 error = Error('Semántico', 'Error de tipos en ABS, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
-        elif tipo == 'cbrt' : 
+        elif tipo == 'cbrt' :
             'raíz cúbica - solo numeros positivos'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -637,7 +697,7 @@ class FuncionMatematica(Instruccion):
                     reto = argumento.val**(1/3)
                     if isinstance(reto, int) :
                         return Primitive('integer', reto)
-                    
+
                     return Primitive('float', reto)
                 else :
                     error = Error('Semántico', 'Error de tipos en CBRT, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
@@ -647,7 +707,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'ceil' : 
+        elif tipo == 'ceil' :
             'redondear - solo numeros positivos'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -662,7 +722,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'ceiling' : 
+        elif tipo == 'ceiling' :
             'redondear - solo numeros positivos'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -677,7 +737,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'degrees' : 
+        elif tipo == 'degrees' :
             'radianes a grados - '
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -688,7 +748,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'div' : 
+        elif tipo == 'div' :
             'cociente - '
             argumento = self.arg1.execute()
             argumento2 = self.arg2.execute()
@@ -704,7 +764,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'exp' : 
+        elif tipo == 'exp' :
             'e^ argumento - '
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -715,7 +775,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'factorial' : 
+        elif tipo == 'factorial' :
             'x! - solo numeros positivos'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' :
@@ -728,9 +788,9 @@ class FuncionMatematica(Instruccion):
             else :
                 error = Error('Semántico', 'Error de tipos en FACTORIAL, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
-        
 
-        elif tipo == 'floor' : 
+
+        elif tipo == 'floor' :
             'redondear al menor -'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -741,7 +801,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'gcd' : 
+        elif tipo == 'gcd' :
             'MCD - '
             argumento = self.arg1.execute()
             argumento2 = self.arg2.execute()
@@ -761,7 +821,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'ln' : 
+        elif tipo == 'ln' :
             'Ln -'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -776,7 +836,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'log' : 
+        elif tipo == 'log' :
             'Log10 -'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -791,7 +851,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'mod' : 
+        elif tipo == 'mod' :
             'modulo - '
             argumento = self.arg1.execute()
             argumento2 = self.arg2.execute()
@@ -807,12 +867,12 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'pi' : 
+        elif tipo == 'pi' :
             'PI'
             return math.pi
 
 
-        elif tipo == 'power' : 
+        elif tipo == 'power' :
             'power - solo positivos'
             argumento = self.arg1.execute()
             argumento2 = self.arg2.execute()
@@ -833,7 +893,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'radians' : 
+        elif tipo == 'radians' :
             'grados a radianes - '
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -843,13 +903,13 @@ class FuncionMatematica(Instruccion):
                 else :
                     error = Error('Semántico', 'Error de tipos en RADIANS, solo se aceptan valores numéricos positivo', 0, 0)
                     return error
-                
+
             else :
                 error = Error('Semántico', 'Error de tipos en RADIANS, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
-        elif tipo == 'round' : 
+        elif tipo == 'round' :
             'round - redondear n decimales'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -876,7 +936,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'sign' : 
+        elif tipo == 'sign' :
             'devuelve signo - 1 o -1'
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -884,13 +944,13 @@ class FuncionMatematica(Instruccion):
                     return Primitive('integer', 1)
                 else :
                     return Primitive('integer', -1)
-                
+
             else :
                 error = Error('Semántico', 'Error de tipos en SIGN, solo se aceptan valores numéricos positivo, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
-        elif tipo == 'sqrt' : 
+        elif tipo == 'sqrt' :
             'grados a radianes - '
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -900,13 +960,13 @@ class FuncionMatematica(Instruccion):
                 else :
                     error = Error('Semántico', 'Error de tipos en SQRT, solo se aceptan valores numéricos positivo', 0, 0)
                     return error
-                
+
             else :
                 error = Error('Semántico', 'Error de tipos en SQRT, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
 
 
-        elif tipo == 'width_bucket' : 
+        elif tipo == 'width_bucket' :
             'histograma - argumento1 puede ser una columna'
             argumento = self.arg1.execute()
             argumento2 = self.arg2.execute()
@@ -932,7 +992,7 @@ class FuncionMatematica(Instruccion):
                 return error
 
 
-        elif tipo == 'trunc' : 
+        elif tipo == 'trunc' :
             'grados a radianes - '
             argumento = self.arg1.execute()
             if argumento.type == 'integer' or argumento.type == 'float' :
@@ -942,7 +1002,7 @@ class FuncionMatematica(Instruccion):
                 else :
                     error = Error('Semántico', 'Error de tipos en trunc, solo se aceptan valores numéricos positivo', 0, 0)
                     return error
-                
+
             else :
                 error = Error('Semántico', 'Error de tipos en trunc, solo se aceptan valores numéricos, se obtuvo: '+str(argumento.val), 0, 0)
                 return error
@@ -952,15 +1012,15 @@ class FuncionMatematica(Instruccion):
             return Primitive('integer', random.randint(0,1))
 
 
-        elif tipo == 'setseed' : 
+        elif tipo == 'setseed' :
             ''
-        elif tipo == 'scale' : 
+        elif tipo == 'scale' :
             ''
 
         return self
 
     def widthbucket(self, nnum, nmin, nmax, nbuckets):
-        if nnum < nmin : 
+        if nnum < nmin :
             return 0
         elif nnum > nmax :
             return nbuckets+1

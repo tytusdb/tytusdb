@@ -1,3 +1,7 @@
+# B+ Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
 import Storage
 import BplusTree
 import tkinter
@@ -796,7 +800,7 @@ def delete_window(grandParent, parent, database, table):
     Label(window, text='List', font='Helvetica 10 bold italic', width=20).place(x=140, y=50)
     columns = Entry(window, width=20)
     columns.place(x=165, y=70)
-    tkinter.Button(window, text='Extract', font='Helvetica 10 bold italic', width=10, command=lambda:
+    tkinter.Button(window, text='Delete', font='Helvetica 10 bold italic', width=10, command=lambda:
     delete(grandParent, parent, window,database, table, columns.get(), columns)).place(x=275, y=65)
 
 def delete(grandParent, parent, window, database, table, columns, entry1):

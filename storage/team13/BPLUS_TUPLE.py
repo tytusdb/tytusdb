@@ -1,3 +1,5 @@
+import os
+
 class BPLUS_TUPLE:
     
     def __init__(self, grade, size):
@@ -171,6 +173,42 @@ class BPLUS_TUPLE:
             if tmp.get_next() is not None:
                 self._verify_Nodes(tmp.get_next(), dataList)
                 
+                
+    def extractReg(self):
+        registros = []
+        if self.__root is not None:
+            self.__extractReg(self.__root,registros)
+        return registros
+    
+    
+    def __extractReg(self,nodo,registros):
+        if len(nodo.get_chlds()) != 0:
+            self.__extractReg(nodo.get_chlds()[0], registros)
+        else:
+            for i in nodo.get_keys():
+                registros.append(i.value)
+                registros.append(i.register)
+            if nodo.get_next() is not None:
+                self.__extractReg(nodo.get_next(),registros)
+                
+    
+    def extractRegRange(self,columnNumber,lower,upper):
+        registros = []
+        if self.__root is not None:
+            self.__extractRegRange(self.__root,registros,columnNumber,lower,upper)
+        return registros
+    
+    
+    def __extractRegRange(self,nodo,registros,columnNumber,lower,upper):
+        if len(nodo.get_chlds()) != 0:
+            self.__extractRegRange(nodo.get_chlds()[0],registros,columnNumber,lower,upper)
+        else:
+            for i in nodo.get_keys():
+                if i.register[columnNumber] >= lower and i.register[columnNumber] <= upper:
+                    registros.append(i.register[columnNumber])
+            if nodo.get_next() is not None:
+                self.__extractRegRange(nodo.get_next(),registros,columnNumber,lower,upper)
+    
                 
     def alterDropColumn(self, column, tabla):
         self._alterDropColumn(self.__root, column)

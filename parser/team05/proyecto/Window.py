@@ -84,6 +84,8 @@ class Main(tk.Tk):
         # Submenu [Analysis]
         self.sm_analyze = Menu(self.menu_bar, tearoff=False)
         self.sm_analyze.add_command(label="Ejecutar", command=lambda: self.tytus_ejecutar())
+        self.sm_analyze.add_command(label="Cerrar pestaña", command=lambda: self.close_output_tab())
+        self.sm_analyze.add_command(label="Cerrar pestañas", command=lambda: self.delete_outputs())
         self.menu_bar.add_cascade(label="Queries", menu=self.sm_analyze)
         # Submenu [Reports]
         self.sm_report = Menu(self.menu_bar, tearoff=False)
@@ -105,8 +107,8 @@ class Main(tk.Tk):
         self.ta_input.pack(fill="both", expand=1)
         # Output Frame & Widget
         self.out_frame = Frame(self)
-        self.out_frame.pack()
-        self.ta_output = tkst.ScrolledText(self.out_frame, bg="black", fg="white", width=150, height=15)
+        self.out_frame.pack(fill="both", pady=5, expand=1)
+        self.ta_output = Notebook(self.out_frame, width=150, height=15)
         self.ta_output.pack(fill="both", expand=1)
         # Menu Configuration
         self.config(menu=self.menu_bar)
@@ -118,6 +120,43 @@ class Main(tk.Tk):
         canvas = self.array_canvas[index]
         canvas.redraw()
         del index, canvas
+
+    # New output tab
+    def new_output(self, output=""):
+        try:
+            # Creando nueva tab
+            tab1 = Frame(self.ta_output)
+            self.ta_output.add(tab1, text="SALIDA")
+            self.ta_output.pack(expand=1, fill="both")
+            # Creando campo de texto
+            text = ln.TextAreaWidget(tab1, bg="black", fg="white", width=150, height=15)
+            text.pack(side="right", fill="both", expand=True)
+            text.insert(END, output)
+            del text
+        except:
+            messagebox.showerror("A OCURRIDO UN ERROR",
+                                 "No se ha podido crear una nueva pestaña. Por favor, intente nuevamente.")
+
+    # Close output tab
+    def close_output_tab(self):
+        try:
+            # Getting selected tab & deleting it
+            index = self.ta_output.index(self.ta_output.select())
+            self.ta_output.forget(index)
+            del index
+        except:
+            pass
+
+    # Delete outputs
+    def delete_outputs(self):
+        try:
+            _list = self.ta_output.winfo_children()
+            for item in _list:
+                if item.winfo_children():
+                    self.ta_output.forget(item)
+            del _list
+        except:
+            pass
 
     # New tab with custom text widget
     def file_new_tab(self):
@@ -221,12 +260,15 @@ class Main(tk.Tk):
 
     # Exit tab
     def file_close_tab(self):
-        # Getting selected tab & deleting it
-        index = self.ta_input.index(self.ta_input.select())
-        self.ta_input.forget(index)
-        del self.array_name[index]
-        del self.array_tabs[index]
-        del index
+        try:
+            # Getting selected tab & deleting it
+            index = self.ta_input.index(self.ta_input.select())
+            self.ta_input.forget(index)
+            del self.array_name[index]
+            del self.array_tabs[index]
+            del index
+        except:
+            pass
 
     # Exiting IDE
     def exit_program(self):
@@ -473,9 +515,6 @@ class Main(tk.Tk):
         if os.path.exists("reports/error_semantic.txt"):
             os.remove("reports/error_semantic.txt")
 
-        # Delete old output
-        self.ta_output.delete('1.0', END)
-
         if ta_input.compare("end-1c", "!=", "1.0"):
             # Gets new input
             tytus = ta_input.get(1.0, END)
@@ -505,8 +544,8 @@ class Main(tk.Tk):
                 self.do_use(inst, p_st)
             elif isinstance(inst, DropDB):
                 self.do_drop_db(inst, p_st)
-            elif isinstance(inst, CreateType):
-                self.do_create_type(inst, p_st)
+            # elif isinstance(inst, CreateType):
+                # self.do_create_type(inst, p_st)
             elif isinstance(inst, SelectCompleto):
                 self.do_select(inst, p_st)
             else:
@@ -560,7 +599,6 @@ class Main(tk.Tk):
     # SELECT
     def do_select(self, p_inst, p_st):
         print('SELECT EN TABLA')
-        print('Tablas: ' + str(p_inst.select.pfrom))
         print()
 
 
