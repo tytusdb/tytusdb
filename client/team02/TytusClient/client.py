@@ -9,13 +9,11 @@ class Example(Frame):
     def __init__(self):
         super().__init__()
 
-        self.initUI()
-
-
-    def initUI(self):
+        #Creacion de ventana
 
         self.master.title("TytusDB")
         self.pack(fill=BOTH, expand=True)
+
 
         self.columnconfigure(1, weight=1)
         self.columnconfigure(3, pad=7)
@@ -27,33 +25,36 @@ class Example(Frame):
 
         area = Text(self)
         area.grid(row=1, column=0, columnspan=2, rowspan=4,
-            padx=5, sticky=E+W+S+N)
+                  padx=5, sticky=E + W + S + N)
+
+        # *************************** BARRA DE MENÚ ***************************
+        menubar = Menu(self.master)
+        self.master.filemenu = Menu(menubar, tearoff=0)
+        self.master.filemenu.add_command(label="Nuevo")
+        self.master.filemenu.add_command(label="Abrir")
+        self.master.filemenu.add_command(label="Salir", command=self.master.quit)
+        self.master.helpmenu = Menu(menubar, tearoff=0)
+        self.master.helpmenu.add_command(label="Documentación")
+        self.master.helpmenu.add_command(label="Acerca de...")
+        self.master.servermenu = Menu(menubar, tearoff=0)
+        self.master.servermenu.add_command(label="Nueva conexión")
+        self.master.servermenu.add_command(label="Quitar conexión")
+        self.master.herramientasMenu = Menu(menubar, tearoff=0)
+        self.master.herramientasMenu.add_command(label="Query Tool", command="clickedQueryTool")
+        menubar.add_cascade(label="Archivo", menu=self.master.filemenu)
+        menubar.add_cascade(label="Servidor", menu=self.master.servermenu)
+        menubar.add_cascade(label="Herramientas", menu=self.master.herramientasMenu)
+        menubar.add_cascade(label="Ayuda", menu=self.master.helpmenu)
+        self.master.config(menu=menubar);
+        # *********************************************************************
+
+
 
 
 def main():
-
     root = Tk()
-    root.geometry("350x300+300+300")
     app = Example()
-
-    # *************************** BARRA DE MENÚ ***************************    
-    menubar = Menu(root)
-    filemenu = Menu(menubar, tearoff=0)
-    filemenu.add_command(label="Nuevo")
-    filemenu.add_command(label="Abrir")
-    filemenu.add_command(label="Salir", command=root.quit)
-    helpmenu = Menu(menubar, tearoff=0)
-    helpmenu.add_command(label="Documentación")
-    helpmenu.add_command(label="Acerca de...")        
-    servermenu = Menu(menubar, tearoff=0)
-    servermenu.add_command(label="Nueva conexión")    
-    servermenu.add_command(label="Quitar conexión")    
-    menubar.add_cascade(label="Archivo", menu=filemenu) 
-    menubar.add_cascade(label="Servidor", menu=servermenu)     
-    menubar.add_cascade(label="Ayuda", menu=helpmenu)       
-    root.config(menu=menubar);
-    # *********************************************************************
-
+    root.geometry("350x300+300+300")
     root.mainloop()
 
 
