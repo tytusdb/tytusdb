@@ -11,6 +11,13 @@ from drop_column import *
 
 
 class Alter_Table(Querie):
+    ''' 
+     row = numero de fila
+     column = numero de columna
+     tableName = nombre de la tabla a la que le haremos el alter (cadena)
+     operacion = puede ser un objeto o lista de objetos. los objetos pueden ser de tipo:
+                 alter_column,alter_constraint,drop_column,drop_constraint y alter_column                 
+    '''
     def __init__(self, tableName,operacion, row, column):
         Querie.__init__(self, row, column)
         self.tableName = tableName
