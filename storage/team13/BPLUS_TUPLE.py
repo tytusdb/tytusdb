@@ -201,13 +201,13 @@ class BPLUS_TUPLE:
     
     def __extractRegRange(self,nodo,registros,columnNumber,lower,upper):
         if len(nodo.get_chlds()) != 0:
-            self.__extractRegRange(nodo.get_chlds()[0],registros)
+            self.__extractRegRange(nodo.get_chlds()[0],registros,columnNumber,lower,upper)
         else:
             for i in nodo.get_keys():
                 if i.register[columnNumber] >= lower and i.register[columnNumber] <= upper:
                     registros.append(i.register[columnNumber])
             if nodo.get_next() is not None:
-                self.__extractRegRange(nodo.get_next(),registros)
+                self.__extractRegRange(nodo.get_next(),registros,columnNumber,lower,upper)
     
                 
     def alterDropColumn(self, column, tabla):
