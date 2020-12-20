@@ -13,7 +13,7 @@ import tkinter.filedialog
 import tkinter.messagebox
 from prettytable import PrettyTable
 from reporte_g import *
-
+import copy
 
 #---------variables globales
 listaInstrucciones = []
@@ -647,40 +647,42 @@ def AlterDBF(instr,ts):
         if retorno==0:
             outputTxt='La base de datos Old_Name: '+NombreBaseDatos +', New_Name: '+ValorInstruccion 
             outputTxt+='\n> se ha renombrado exitosamente '
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
             print ("La base de datos se ha renombrado exitosamente")
         elif retorno==1:
             outputTxt='Hubo un error durante la modificacion de la bd  '
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
             print ("Hubo un error durante la modificacion de la bd")  
         elif retorno==2:
             outputTxt='La base de datos :'+NombreBaseDatos +' ,no existe '
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
             print ("La base de datos no existe")
         elif retorno==3:
             outputTxt='El nombre de la base de datos :'+ValorInstruccion +' ,ya esta en uso '
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
             print ("El nombre de la bd ya esta en uso")
             
     else:
         #reconoce OWNER 
         if ValorInstruccion.upper()=="CURRENT_USER":
             outputTxt='Se ha ejecutado con exito la modificacion DB CURRENT_USER'
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
         elif ValorInstruccion.upper()=="SESSION_USER":
             outputTxt='Se ha ejecutado con exito la modificacion DB SESSION_USER'
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
         else:
             outputTxt='Se ha ejecutado con exito la modificacion DB ID'
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
 
 
 
 
 
-
+#Empieza alter TABLE
 
 def AlterTBF(instr,ts):
+
+    #global outputTxt
     print("nombreT:",instr.Id,"CuerpoT:",instr.cuerpo)
     print(instr)
     #TABLA A ANALIZAR
@@ -708,23 +710,9 @@ def AlterTBF(instr,ts):
             print("BASEACTIVA:",baseActiva)
             retorno=EDD.alterTable(baseActiva, NombreTabla,ID1)
             #Verifica Respuesta
-            if retorno==0:
-                outputTxt='Se Renombro la Tabla exitosamente,'+NombreTabla +' TO '+ID1 
-                agregarMensjae('normal',outputTxt)
-            elif retorno==1:
-                outputTxt='Hubo un error durante la modificacion de la Tabla  '
-                agregarMensjae('normal',outputTxt)
-            elif retorno==2:
-                outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
-                agregarMensjae('normal',outputTxt)
-            elif retorno==3:
-                outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
-                agregarMensjae('normal',outputTxt)
-            elif retorno==4:
-                outputTxt='El nombre de la Tabla :'+ ID1 +' ,ya esta en uso '
-                agregarMensjae('normal',outputTxt)
-            else:
-                print("operacion desconocida 0")
+            Msg_Alt_Rename(NombreTabla,ID1,retorno)
+
+
         elif OPERACION.upper()=="COLUMN" or OPERACION.upper()=="ID" :
             ' '
 
@@ -781,41 +769,13 @@ def AlterTBF(instr,ts):
         INSTRUCCION=ObjetoAnalisis.instruccion
         #Identificador 
         ID=ObjetoAnalisis.id
+        Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID)
 
-        if INSTRUCCION.upper()=="COLUMN" or INSTRUCCION.upper()=="ID":
-            #busco la columna en las cabeceras
-            #retorna No. de columna
-            No_col=0
-            retorno=1
-            try:
-                retorno=EDD.alterDropColumn(baseActiva,NombreTabla,No_col)
-            except:
-                ' '
-            #Verifica Respuesta
-            if retorno==0:
-                outputTxt='Se elimino exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
-                agregarMensjae('normal',outputTxt)
-            elif retorno==1:
-                outputTxt='Hubo un error durante la eliminacion de la columna  '
-                agregarMensjae('normal',outputTxt)
-            elif retorno==2:
-                outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
-                agregarMensjae('normal',outputTxt)
-            elif retorno==3:
-                outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
-                agregarMensjae('normal',outputTxt)
-            elif retorno==4:
-                outputTxt='La Tabla no puede quedar vacia o se trata eliminar Primary Key '
-                agregarMensjae('normal',outputTxt)
-            elif retorno==5:
-                outputTxt='El valor de columna esta fuera de la tabla'
-                agregarMensjae('normal',outputTxt)
-            else:
-                print("operacion desconocida 0")
-        elif INSTRUCCION.upper()=="CONSTRAINT":
-            ' '
-        else:
-            ' '#Error
+            #******
+
+        
+
+
 
     #ANALISIS ALTER ADD
     elif isinstance(ObjetoAnalisis,ALTERTBO_ADD ):
@@ -857,30 +817,219 @@ def AlterTBF(instr,ts):
                 print("Instruccion desconocida")
 
 
+def Table_Reensable_H(tablaB,indice):
+    #tablab es un objeto tipo Tabla
+    #indice posicion de columna a eliminar
+
+    #array de objeto tipo columna
+    columnas_tem=copy.copy(tablaB.atributos)
+
+    print("antes:",columnas_tem,"longi:",len(columnas_tem))
+    nueva_columna=[]
+    contadort=0
+    for c_t in columnas_tem:
+        if contadort!=indice:
+            nueva_columna+=[c_t]
+
+        contadort+=1
+    print("des:",columnas_tem,"longi:",len(columnas_tem))
+
+    copia_tablaB=copy.copy(tablaB)
+    copia_tablaB.atributos=nueva_columna
+
+    return copia_tablaB
+
+
+
+
 
 def Mostrar_TB(operacion,ts):
-
     listaR=EDD.showTables(baseActiva)
     try:
-
         outputTxt="Nombre BD: "+baseActiva
         for val in listaR:
             outputTxt+='\n> Tabla Name: '+val
-        agregarMensjae('normal',outputTxt)
-    
+        agregarMensjae('normal',outputTxt,"")
     except:
         if listaR==None:
             outputTxt='La base de datos no Existe, ShowTables'
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
         else:
             outputTxt='La tabla no existe en la bd, ShowTables'
-            agregarMensjae('normal',outputTxt)
+            agregarMensjae('normal',outputTxt,"")
 
 
+
+
+#19/12/20
+#retorna tabla cabecera mas cuerpo , lista
+def Get_Table(nameTable):
+    global baseActiva
+    global listaTablas
+    TablaC=[]
+    posicionH=0
+    #[Cabecera ,Posicion_Header, Cuerpo ]
+
+    #busca primero cabecera
+    for tablaT in listaTablas:
+        if tablaT.nombre==nameTable and tablaT.basepadre==baseActiva:
+            TablaC+=[tablaT]
+            TablaC+=[posicionH]
+            break
+        posicionH+=1
+
+    #si encuentra la cabecera tabla , procede a buscar el cuerpo
+    if len(TablaC)>0:
+        try:
+            contenido=extractTable(baseActiva,nameTable)
+            if contenido!=None:
+                #Si no da error , agrega la tabla fisica
+                TablaC=TablaC+[contenido]
+        except:
+            vacio=[]
+            TablaC=TablaC+[vacio]
+            
+            #TablaC=[]
+            #print ("error proc busqueda")
+            #error al procesar la busqueda
+
+    return TablaC
+
+
+#recibe parametro lista de Objeto tabla y nombre de la columna
+def Get_Column(name_c,tabla_H_List,tabla_C_List):
+    #tabla_H_List es lista de objetos Columna_run
+    vacio=[]
+    retorna=[]
+    contador=0
+    print(tabla_H_List)
+    for col_temp in tabla_H_List:
+
+        if col_temp.nombre==name_c:
+            #guarda posicion columna y cabecera columna
+            retorna+=[copy.copy(col_temp)]
+            retorna+=[contador]
+            break
+        contador+=1
+
+    #construye columna valores
+    col_Ret=[]
+    if len(retorna)>0:
+        for row_t in tabla_C_List:
+            col_Ret+=row_t[contador]
+        #guarda registros Columna
+        retorna+=[col_Ret]
+    
+    #Estructura Retorno
+    #[Objeto_Columna,posicion,[Registros]]
+    return retorna
+
+
+
+
+#Respuestas*********************************
+def Msg_Alt_Drop(NombreTabla,ID,retorno):
+    outputTxt=""
+    global baseActiva
+    #Verifica Respuesta
+    if retorno==0:
+        outputTxt='Se elimino exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==1:
+        outputTxt='Hubo un error durante la eliminacion de la columna  '
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==2:
+        outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==3:
+        outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==4:
+        outputTxt='La Tabla no puede quedar vacia o se trata eliminar Primary Key '
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==5:
+        outputTxt='El valor de columna esta fuera de la tabla'
+        agregarMensjae('normal',outputTxt,"")
+    else:
+        print("operacion desconocida 0")
+
+
+
+
+def Msg_Alt_Rename(NombreTabla,ID1,retorno):
+    outputTxt=""
+    global baseActiva
+    #Verifica Respuesta
+
+    if retorno==0:
+        outputTxt='Se Renombro la Tabla exitosamente,'+NombreTabla +' TO '+ID1 
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==1:
+        outputTxt='Hubo un error durante la modificacion de la Tabla  '
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==2:
+        outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==3:
+        outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==4:
+        outputTxt='El nombre de la Tabla :'+ ID1 +' ,ya esta en uso '
+        agregarMensjae('normal',outputTxt,"")
+    else:
+        print("operacion desconocida 0")
+
+
+
+#CUERPOS=====================
+
+
+def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
+    if INSTRUCCION.upper()=="COLUMN" or INSTRUCCION.upper()=="ID":
+        #busco la Tabla en las cabeceras
+        tablaB=Get_Table(NombreTabla)
+        #[[cabecera],posicion,[cuerpo]]
+        print (tablaB)
+        if len(tablaB)>0:
+            #busco la columna en las cabeceras
+            ColumnInfo=Get_Column(ID,(tablaB[0]).atributos,(tablaB[2]))
+            #[Objeto_Columna,posicion,[Registros]]
+            #def Get_Column(name_c,tabla_H_List,tabla_C_List):
+            print (ColumnInfo)
+            if len(ColumnInfo)>0 and len(tablaB[0].atributos)>1:
+                    
+                #obtiene No. de columna del objeto ColumnInfo
+                No_col=ColumnInfo[1]
+                table_cambiado=Table_Reensable_H(tablaB[0],No_col)
+                retorno=1
+                try:
+                    #si no da error al eliminar columna Registro,
+                    #Elimina Header
+                    print(baseActiva," ",NombreTabla," ",No_col)
+                    retorno=EDD.alterDropColumn(baseActiva,NombreTabla,No_col)
+                except:
+                    ' '
+                print (retorno)
+                if retorno==0:
+                    ' '
+                    listaTablas[tablaB[1]]
+
+                Msg_Alt_Drop(NombreTabla,ID,retorno)
+
+
+            else:
+                outputTxt='La tabla debe tener al menos 1 columna'
+                agregarMensjae('normal',outputTxt,"")
+        else:
+            outputTxt='La tabla '+NombreTabla +' no existe en la base de datosc'
+            agregarMensjae('normal',outputTxt,"")
+            #la tabla no existe en cabeceras o cuerpo
+    elif INSTRUCCION.upper()=="CONSTRAINT":
+        ' '
+    else:
+        ' '#Error
 
 #FIN MIO --------------------------------------------
-
-
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
         op = resolver_operacion(operacion.op, ts)
