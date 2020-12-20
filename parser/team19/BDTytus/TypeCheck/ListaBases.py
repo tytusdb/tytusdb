@@ -1,4 +1,4 @@
-import Base as Base
+import TypeCheck.Base as Base
 
 class ListaBases:
     def __init__(self):
