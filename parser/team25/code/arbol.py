@@ -8,7 +8,9 @@ class Arbol:
         #es el primer ejecutar que se llama
         ts = [] #por el momento , pero deberia de ser otro tipo de tabla de simbolos
         for instruccion in self.instrucciones:
+            print(instruccion)
             nodoSintetizado = instruccion.ejecutar(ts)
+            print(nodoSintetizado.val)
             if isinstance(nodoSintetizado , ErrorReport):
                 print(nodoSintetizado.description)
             else:

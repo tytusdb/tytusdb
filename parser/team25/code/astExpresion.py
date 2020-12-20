@@ -8,6 +8,7 @@ class TIPO_DE_DATO(Enum):
     CADENA = 3
     TIMESTAMP = 4
     BOOLEANO = 5
+    NULL = 6
 
 class OPERACION_ARITMETICA(Enum):
     MAS = 1
@@ -36,6 +37,8 @@ class OPERACION_UNARIA_IS(Enum):
     IS_FALSE = "is false"
     IS_NOT_FALSE = "is not false"
     IS_NOT_TRUE = "is not true"
+    IS_NULL = "is null"
+    IS_NOT_NULL = "is not null"
 
 class OPERACION_BINARIA_IS(Enum):
     IS_DISTINCT_FROM = "is distinct from"
@@ -278,7 +281,11 @@ class ExpresionComparacion(Expresion):
                 return ExpresionBooleano(izq.val < der.val, self.linea)
             elif self.operador == OPERACION_RELACIONAL.MENORIGUAL:
                 return ExpresionBooleano(izq.val <= der.val, self.linea)
-        #elif isinstance() comparar cadenas  y ids 
+        elif isinstance(izq,ExpresionCadena) and isinstance(izq,ExpresionCadena):
+            if self.operador == OPERACION_RELACIONAL.DESIGUAL:
+                return ExpresionBooleano(izq.val != der.val, self.linea)
+            elif self.operador == OPERACION_RELACIONAL.IGUAL:
+                return ExpresionBooleano(izq.val == der.val, self.linea)      
         else:
             return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)
 
@@ -461,7 +468,10 @@ class ExpresionUnariaIs(Expresion):
             elif self.tipo == OPERACION_UNARIA_IS.IS_NOT_TRUE:
                 return ExpresionBooleano(unario.val == False, self.linea) 
         else:
-            print("Error semántico, Operador de tipo", unario.tipo,"no admitido para operacion unaria", self.tipo)
+            if self.tipo == OPERACION_UNARIA_IS.IS_NULL:
+                return ExpresionBooleano(unario.val == None, self.linea)
+            elif self.tipo == OPERACION_UNARIA_IS.IS_NOT_NULL:
+                return ExpresionBooleano(unario.val != None, self.linea)
 
 class ExpresionBinariaIs(Expresion):
     def __init__(self, exp1, exp2, operador, linea):
@@ -486,11 +496,10 @@ class ExpresionBinariaIs(Expresion):
         der = self.exp2.ejecutar(ts)
     
         # como expresionNumero abarca tanto decimales como enteros 
-        if isinstance(izq,ExpresionNumero) and isinstance(izq,ExpresionNumero):
+        if (isinstance(izq,ExpresionNumero) and isinstance(izq,ExpresionNumero)) or (isinstance(izq,ExpresionCadena) and isinstance(izq,ExpresionCadena)):
             if self.operador == OPERACION_BINARIA_IS.IS_NOT_DISTINCT_FROM:
                 return ExpresionBooleano(izq.val == der.val, self.linea)
             elif self.operador == OPERACION_BINARIA_IS.IS_DISTINCT_FROM:
                 return ExpresionBooleano(izq.val != der.val, self.linea)
-        #elif isinstance() comparar cadenas  y ids 
         else:
             return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)

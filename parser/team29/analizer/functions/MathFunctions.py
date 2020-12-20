@@ -216,7 +216,6 @@ def sqrt(column):
     while i < len(column):
         result.insert(i + 1, math.sqrt(column[i]))
         i += 1
-
     return result
 
 

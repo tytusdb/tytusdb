@@ -1,11 +1,12 @@
 #
 import hashlib
 from datetime import date
-from main import ts 
+from main import ts
 import storage as s
 from enum import Enum
 from main import default_db
 import mathtrig as mt
+import main
 #
 
 #
@@ -34,6 +35,7 @@ class select(query):
         self.orderby = orderby
         self.limit = limit
         self.offset = offset
+        self.condition.append(having)
 
     def ejecutar(self):
         #Obtener la lista de tablas
@@ -41,13 +43,17 @@ class select(query):
         for tabla in self.table_expression:
             tables[tabla.id]  = tabla.alias
 
-
         results = []
         for col in self.select_list:
             res = col.ejecutar(tables)
             results.append(res)
+        
+
+        conditions = ejecutar_conditions(tables,self.condition)
+        return conditions
+        
             
-        return results
+        
             
 
 
@@ -94,9 +100,9 @@ class exp_id(exp_query):
             return dict
         else:
             #Verificamos que exista 
-            if self.table not in tables or self.table not in tables.values():
+            if self.table not in tables and self.table not in tables.values():
                 #Error semántico
-                pass
+                return None
             # Existe, ahora obtenemos el nombre de la tabla
              
             if self.table not in tables.values():
@@ -116,11 +122,11 @@ class exp_id(exp_query):
 
             else:
                 #Obtenemos el nombre basado en el alias
-                table = getKeyFromValue(self.table,tables)      
+                table = getKeyFromValue(self.table,tables)     
                 #Obtenemos la tabla
                 registros = s.extractTable(default_db,table)
                 #Obtenemos el indice de esa tabla
-                indice = ts.getIndice(default_db,table,self.val)
+                indice = main.ts.getIndice(default_db,table,self.val)
                 #Obtenemos la columan que queremos
                 col = []
                 for reg in registros:
@@ -1322,7 +1328,7 @@ class trig_acos(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1364,7 +1370,7 @@ class trig_acosd(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1404,7 +1410,7 @@ class trig_asin(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1446,7 +1452,7 @@ class trig_asind(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1489,7 +1495,7 @@ class trig_atan(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1531,7 +1537,7 @@ class trig_atand(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1573,7 +1579,7 @@ class trig_atan2(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1618,7 +1624,7 @@ class trig_atan2d(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1660,7 +1666,7 @@ class trig_cos(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1703,7 +1709,7 @@ class trig_cosd(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1746,7 +1752,7 @@ class trig_cot(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1786,7 +1792,7 @@ class trig_cotd(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1827,7 +1833,7 @@ class trig_sin(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1866,7 +1872,7 @@ class trig_sind(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1905,7 +1911,7 @@ class trig_tan(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1946,7 +1952,7 @@ class trig_tand(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -1985,7 +1991,7 @@ class trig_sinh(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -2063,7 +2069,7 @@ class trig_tanh(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -2104,7 +2110,7 @@ class trig_asinh(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -2143,7 +2149,7 @@ class trig_acosh(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
                 
@@ -2181,7 +2187,7 @@ class trig_atanh(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             try:
-                temp = float(st)
+                temp = float(val)
             except ValueError:
                 return None
 
@@ -2243,7 +2249,7 @@ class fun_avg(column_function):
         else:
             return None
  
-class fun_greatest(column_function):
+class fun_max(column_function):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
@@ -2544,7 +2550,7 @@ class fun_substr(column_function):
             return sub
             
  
-class fun_max(column_function):
+class fun_greatest(column_function):
     def __init__ (self,lexps,alias):
         self.lexps = lexps
         self.alias = alias
@@ -2553,7 +2559,7 @@ class fun_max(column_function):
         if len(self.lexps) == 0 : return None
         try:
             val = self.lexps[0].ejecutar(tables)
-            if val['valores'] == None or len(val['valores']) == 0: return None
+            #if val['valores'] == None or len(val['valores']) == 0: return None
             #Viene solo un id, es columna
             if len(self.lexps) == 1 and isinstance(val,dict):                    
                 maximo = val['valores'][0]
@@ -2647,12 +2653,6 @@ class fun_now(column_function):
         d1 = today.strftime("%Y-%m-%d %H:%M:%S")
         return d1
 
-
-class condition(exp_query):
-    def __init__(self,exp ,union):
-        self.exp = exp
-        self.union = union
-
 class exp_igual(exp_query):
 
     def __init__(self, exp1, exp2):
@@ -2662,9 +2662,9 @@ class exp_igual(exp_query):
     def ejecutar(self,tables):
         #Vamos a comparar un id con un valor
         # columna > 5
-        
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
+        
         #id op val
         if isinstance(val1,dict) and not isinstance(val2,dict) :
             posiciones = []
@@ -2743,6 +2743,7 @@ class exp_mayor(exp_query):
             return val1
         #dic op dic
         elif isinstance(val1,dict) and  isinstance(val2,dict) :
+            
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
@@ -3080,7 +3081,7 @@ class exp_between(exp_query):
         val2 = self.exp2.ejecutar(tables)
         val3 = self.exp3.ejecutar(tables)
         #id op val
-        if isinstance(exp1,exp_id) and not isinstance(exp2,exp_id) and not isinstance(exp3,exp_id):
+        if isinstance(self.exp1,exp_id) and not isinstance(self.exp2,exp_id) and not isinstance(self.exp3,exp_id):
             if isinstance(val2,dict):
                 exp2 = val2['valores']
             else:
@@ -3151,3 +3152,41 @@ def getKeyFromValue(value,d):
             return table
 
     return None
+
+############
+#Condiciones
+############
+
+def cond_OR(lst1, lst2): 
+    final_list = list(set(lst1) | set(lst2)) 
+    return final_list 
+
+def cond_AND(lst1, lst2): 
+    final_list = list(set(lst1) & set(lst2)) 
+    return final_list 
+
+class condition(exp_query):
+    def __init__(self,exp ,tipo):
+        self.exp = exp
+        self.tipo = tipo
+
+
+    
+
+def ejecutar_conditions(tables,lcond):
+    condition = lcond
+    if len(condition) == 0:
+        return None
+    elif len(condition) == 1:
+        return condition[0].exp.ejecutar(tables)
+    else:
+        #Obtengo las primeras posiciones y dependiendo 
+        valor = condition[0].exp.ejecutar(tables)
+        res =  valor['posiciones'] 
+        for i in range(1, len(condition)):
+            if condition[i].tipo == 'AND':
+                
+                res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])
+            else:
+                res = cond_OR(res, condition[i].exp.ejecutar(tables)['posiciones'])
+        return res
