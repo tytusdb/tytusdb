@@ -191,7 +191,9 @@ filemenu.add_command(label="Abrir", command = abrir)
 filemenu.add_command(label="Guardar", command = guardar)
 filemenu.add_command(label="Cerrar", command = raiz.quit)
 
-
+editmenu.add_command(label = "Base de Datos")
+editmenu.add_command(label = "Tabla")
+editmenu.add_command(label = "Arbol B")
 
 
 
