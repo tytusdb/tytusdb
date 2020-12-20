@@ -46,23 +46,23 @@ class SymbolsUnaryOrOthers(Enum):
 
 
 class ColumnsTypes(Enum):
-    SMALLINT = 1
-    INTEGER = 2
-    BIGINT = 3
-    DECIMAL = 4
-    NUMERIC = 5
-    REAL = 6
-    DOUBLE_PRECISION = 7
-    MONEY = 8
-    CHARACTER = 9
-    CHARACTER_VARYING = 10
-    VARCHAR = 11
-    CHAR = 12
-    TEXT = 13
-    TIMESTAMP = 14
-    DATE = 15
-    TIME = 16
-    INTERVAL = 17
-    BOOLEAN = 18
+    BIGINT = 1
+    BOOLEAN = 2
+    CHAR = 3
+    CHARACTER = 4
+    CHARACTER_VARYING = 5
+    DATE = 6
+    DECIMAL = 7
+    DOUBLE_PRECISION = 8
+    INTEGER = 9
+    INTERVAL = 10
+    MONEY = 11
+    NUMERIC = 12
+    REAL = 13
+    SMALLINT = 14
+    TEXT = 15
+    TIMESTAMP = 16
+    TIME = 17    
+    VARCHAR = 18
 
 

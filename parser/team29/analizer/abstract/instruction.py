@@ -3,12 +3,19 @@ from analizer.abstract.expression import Expression
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
+from analizer.typechecker import Checker
+import pandas as pd
+from analizer.symbol.symbol import Symbol
+from analizer.symbol.environment import Environment
 
 
 class SELECT_MODE(Enum):
     ALL = 1
     PARAMS = 2
 
+
+# carga de datos
+Struct.load()
 
 # variable encargada de almacenar la base de datos a utilizar
 dbtemp = ""
@@ -56,28 +63,32 @@ class WhereClause(Instruction):
         super().__init__(row, column)
         self.series = series
 
-    def execute(self, environment, df, labels):
+    def execute(self, environment):
         filt = self.series.execute(environment)
-        return df.loc[filt.value, labels]
+        return environment.dataFrame.loc[filt.value]
 
 
 class Select(Instruction):
-    def __init__(self, params, wherecl, df, row, column):
+    def __init__(self, params, fromcl, wherecl, row, column):
         Instruction.__init__(self, row, column)
         self.params = params
         self.wherecl = wherecl
-        self.df = df
+        self.fromcl = fromcl
 
     def execute(self, environment):
-
-        value = [p.execute(environment).value for p in self.params]
-
+        newEnv = Environment(environment, dbtemp)
+        self.fromcl.execute(newEnv)
+        value = [p.execute(newEnv).value for p in self.params]
         labels = [p.temp for p in self.params]
 
         for i in range(len(labels)):
-            self.df[labels[i]] = value[i]
+            newEnv.dataFrame[labels[i]] = value[i]
 
-        return self.wherecl.execute(environment, self.df, labels)
+        if self.wherecl == None:
+            return newEnv.dataFrame.filter(labels)
+        wh = self.wherecl.execute(newEnv)
+        w2 = wh.filter(labels)
+        return w2
 
 
 class Drop(Instruction):
@@ -161,29 +172,41 @@ class Truncate(Instruction):
 
 
 class InsertInto(Instruction):
-    def __init__(self, tabla, parametros):
+    def __init__(self, tabla, columns, parametros):
         self.tabla = tabla
         self.parametros = parametros
+        self.columns = columns
 
     def execute(self, environment):
-        # TODO Falta la validación de tipos
         lista = []
+        params = []
         tab = self.tabla
+
         for p in self.parametros:
-            lista.append(p.execute(environment).value)
-        res = jsonMode.insert(dbtemp, tab, lista)
-        if res == 2:
-            return "No existe la base de datos"
-        elif res == 3:
-            return "No existe la tabla"
-        elif res == 5:
-            return "Columnas fuera de los limites"
-        elif res == 4:
-            return "Llaves primarias duplicadas"
-        elif res == 1:
-            return "Error en la operacion"
-        elif res == 0:
-            return "Fila Insertada correctamente"
+            params.append(p.execute(environment))
+
+        result = Checker.checkInsert(dbtemp, self.tabla, self.columns, params)
+        if result[0] == None:
+            for p in result[1]:
+                if p == None:
+                    lista.append(p)
+                else:
+                    lista.append(p.value)
+            res = jsonMode.insert(dbtemp, tab, lista)
+            if res == 2:
+                return "No existe la base de datos"
+            elif res == 3:
+                return "No existe la tabla"
+            elif res == 5:
+                return "Columnas fuera de los limites"
+            elif res == 4:
+                return "Llaves primarias duplicadas"
+            elif res == 1:
+                return "Error en la operacion"
+            elif res == 0:
+                return "Fila Insertada correctamente"
+        else:
+            return result[0]
 
 
 class useDataBase(Instruction):
@@ -192,8 +215,8 @@ class useDataBase(Instruction):
 
     def execute(self, environment):
         global dbtemp
+        # environment.database = self.db
         dbtemp = self.db
-        return dbtemp
 
 
 class showDataBases(Instruction):
@@ -301,6 +324,24 @@ class CreateTable(Instruction):
         return n
 
 
+class CreateType(Instruction):
+    def __init__(self, exists, name, values=[]):
+        self.exists = exists
+        self.name = name
+        self.values = values
+
+    def execute(self, environment):
+        lista = []
+        for value in self.values:
+            lista.append(value.execute(environment).value)
+        result = Struct.createType(self.exists, self.name, lista)
+        if result == None:
+            report = "Type creado"
+        else:
+            report = result
+        return report
+
+
 # TODO: Operacion Check
 class CheckOperation(Instruction):
     """
@@ -350,3 +391,90 @@ class CheckOperation(Instruction):
             return value
         except:
             print("Error fatal CHECK")
+
+
+# ---------------------------- FROM ---------------------------------
+class FromClause(Instruction):
+    """
+    Clase encargada de la clausa FROM para la obtencion de datos
+    """
+
+    def __init__(self, tables, aliases, row, column):
+        Instruction.__init__(self, row, column)
+        self.tables = tables
+        self.aliases = aliases
+
+    def crossJoin(self, tables):
+        if len(tables) <= 1:
+            return tables[0]
+        for t in tables:
+            t["____tempCol"] = 1
+
+        new_df = tables[0]
+        i = 1
+        while i < len(tables):
+            new_df = pd.merge(new_df, tables[i], on=["____tempCol"])
+            i += 1
+
+        new_df = new_df.drop("____tempCol", axis=1)
+        return new_df
+
+    def execute(self, environment):
+        tempDf = None
+
+        for i in range(len(self.tables)):
+            data = self.tables[i].execute(environment)
+            
+            print("---------------------------------------")
+            print(self.aliases[i])
+            if isinstance(self.tables[i], Select):
+                newNames = {}
+                subqAlias = self.aliases[i]
+                for columnName in data.iteritems():
+                    colSplit = columnName.split(".")
+                    if len(colSplit) >= 2:
+                        newNames[columnName] = subqAlias + "." + colSplit[1]
+                    else:
+                        newNames[columnName] = subqAlias + "." + colSplit[0]
+                data.rename(columns=newNames, inplace=True)
+                environment.addVar(subqAlias, subqAlias, "TABLE", self.row, self.column)
+            else:
+                sym = Symbol(
+                    self.tables[i].name,
+                    self.tables[i].type_,
+                    self.tables[i].row,
+                    self.tables[i].column,
+                )
+                environment.addSymbol(self.tables[i].name, sym)
+                if self.aliases[i]:
+                    environment.addSymbol(self.aliases[i], sym)
+            if i == 0:
+                tempDf = data
+            else:
+                tempDf = self.crossJoin([tempDf,data])
+            environment.dataFrame = tempDf
+        return
+
+
+class TableID(Expression):
+    """
+    Esta clase representa un objeto abstracto para el manejo de las tablas
+    """
+
+    type_ = None
+
+    def __init__(self, name, row, column):
+        Expression.__init__(self, row, column)
+        self.name = name
+
+    def execute(self, environment):
+        result = jsonMode.extractTable(dbtemp, self.name)
+        if result == None:
+            return "FATAL ERROR TABLE ID"
+        # Almacena una lista con con el nombre y tipo de cada columna
+        lst = Struct.extractColumns(dbtemp, self.name)
+        columns = [l.name for l in lst]
+        newColumns = [self.name + "." + col for col in columns]
+        df = pd.DataFrame(result, columns=newColumns)
+        environment.addTable(self.name)
+        return df

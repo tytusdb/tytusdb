@@ -1,0 +1,49 @@
+import sys
+sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
+sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
+sys.path.append('../tytus/parser/team27/G-27/execution/querie')
+sys.path.append('../tytus/storage')
+from querie import * 
+from environment import *
+from table import *
+from column import *
+from typ import *
+from storageManager import jsonMode as admin
+
+class Add_Column(Querie):
+    def __init__(self, columnName,columnType, row, column):
+        Querie.__init__(self, row, column)
+        self.columnName = columnName
+        self.columnType = columnType
+
+    # columnType es un diccionario {'type':text, 'length':-1, 'default':''}
+    def execute(self, environment,tableName):
+        if not isinstance(self.columnName,str):
+            return {'Error': 'El nombre indicado de la columna no es una cadena.', 'Fila':self.row, 'Columna': self.column }
+        if not isinstance(tableName,str):
+            return {'Error': 'El nombre indicado de la tabla no es una cadena.', 'Fila':self.row, 'Columna': self.column }
+        
+        # creo una nueva columna, agregar el length
+        newColumn = Column(self.columnName,self.columnType['type'],self.columnType['default'],self.columnType['length'])
+
+        db_name = environment.getActualDataBase()
+        database = environment.readDataBase(db_name)
+        table = database.getTable(tableName)
+
+        if table == None:
+            return {'Error': 'la tabla: '+ tableName +'no existe en la base de datos: '+db_name, 'Fila':self.row, 'Columna': self.column }
+        
+        table.createColumn(newColumn)
+
+        result = admin.alterAddColumn(db_name,tableName,self.columnType['default'])
+
+        if result == 0:
+            return 'se inserto correctamente la columna: '+self.columnName+' en la tabla: '+tableName
+        elif result == 1:
+            return {'Error': 'Error al ejecutar la operacion add column', 'Fila':self.row, 'Columna': self.column }
+        elif result == 2:
+            return {'Error': 'La base de datos a la que hace referencia no existe', 'Fila':self.row, 'Columna': self.column }
+        elif result == 3:
+            return {'Error': 'La tabla: '+tableName+' no existe', 'Fila':self.row, 'Columna': self.column }
+        else:
+            return {'Error': 'Error desconocido en el add column', 'Fila':self.row, 'Columna': self.column }
