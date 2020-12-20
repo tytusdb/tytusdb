@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter  import Tk, Text, BOTH, W, N, E, S, Menu,ttk
-from tkinter.ttk import Frame, Button, Label, Style
+from tkinter.ttk import Frame, Button, Label, Style, Treeview
 
 
 
@@ -34,10 +34,10 @@ class Example(Frame):
         self.fm.rowconfigure(3, weight=1)
         self.fm.rowconfigure(5, pad=7)
         self.nb.add(self.fm, text='Query '+str(self.contadorQuerysTabs))
-        self.nb.grid(row=1, column=0, columnspan=2, rowspan=4,
+        self.nb.grid(row=1, column=1, columnspan=2, rowspan=4,
                        padx=5, sticky=E + W + S + N)
         self.area = Text(self.fm)
-        self.area.grid(row=1, column=0, columnspan=2, rowspan=4,
+        self.area.grid(row=1, column=1, columnspan=2, rowspan=4,
                        padx=5, sticky=E + W + S + N)
 
         # *************************** BARRA DE MENÚ ***************************
@@ -59,6 +59,33 @@ class Example(Frame):
         menubar.add_cascade(label="Herramientas", menu=self.master.herramientasMenu)
         menubar.add_cascade(label="Ayuda", menu=self.master.helpmenu)
         self.master.config(menu=menubar);
+        # *********************************************************************
+        
+        # ******************************* ÁRBOL *******************************
+        self.treeview = Treeview(self)    
+        self.treeview.grid(row=1, column=0, rowspan=4, sticky=E + W + S + N);                       
+        servers = self.treeview.insert("", tk.END, text="Servidores")
+        srvr1 = self.treeview.insert(servers, tk.END, text="server_vd2020")
+        dbs = self.treeview.insert(srvr1, tk.END, text="Databases")
+        dvdrental = self.treeview.insert(dbs, tk.END, text="dvdrental")
+        funcdvdrental = self.treeview.insert(dvdrental, tk.END, text="Functions")
+        tabldvdrental = self.treeview.insert(dvdrental, tk.END, text="Tables")
+        triggersdvdrental = self.treeview.insert(dvdrental, tk.END, text="Trigger Functions")
+        viewsdvdrental = self.treeview.insert(dvdrental, tk.END, text="Views")
+        sports = self.treeview.insert(dbs, tk.END, text="sports")
+        funcsports = self.treeview.insert(sports, tk.END, text="Functions")
+        tablsport = self.treeview.insert(sports, tk.END, text="Tables")
+        triggersport = self.treeview.insert(sports, tk.END, text="Trigger Functions")
+        viewsport = self.treeview.insert(sports, tk.END, text="Views")
+        logingrp = self.treeview.insert(srvr1, tk.END, text="Login/Group Roles")
+        usr1 = self.treeview.insert(logingrp, tk.END, text="user1")
+        usr2 = self.treeview.insert(logingrp, tk.END, text="user2")
+        usr3 = self.treeview.insert(logingrp, tk.END, text="user3")
+        usr4 = self.treeview.insert(logingrp, tk.END, text="user4")
+        # *********************************************************************
+
+
+
         # *********************************************************************
 
     #Metodo agregar QueryTool
@@ -174,7 +201,7 @@ def main():
     root.mainloop()
 
     # *************************** BARRA DE MENÚ ***************************    
-    menubar = Menu(root)
+    '''menubar = Menu(root)
     filemenu = Menu(menubar, tearoff=0)
     filemenu.add_command(label="Nuevo")
     filemenu.add_command(label="Abrir")
@@ -188,7 +215,7 @@ def main():
     menubar.add_cascade(label="Archivo", menu=filemenu)
     menubar.add_cascade(label="Servidor", menu=servermenu)
     menubar.add_cascade(label="Ayuda", menu=helpmenu)
-    root.config(menu=menubar)
+    root.config(menu=menubar)'''
     # *********************************************************************
 
 
