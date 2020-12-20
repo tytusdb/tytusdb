@@ -374,13 +374,24 @@ class ISAM:
                     else:
                         validando = False
                 if validando:
-                    aux = tmp1
+                    aux = Tuple(tmp1.PK, tmp1.data[:])
+                    aux2 = Tuple(tmp1.PK, tmp1.data[:])
                     x = register.keys()
                     for i in x:
                         aux.data[i] = register[i]
+                    new_PK = ''
+                    if isinstance(PKCols, list):
+                        for i in PKCols:
+                            new_PK += str(aux.data[i]) + '_'
+                        new_PK = new_PK[:-1]
+                    else:
+                        new_PK = str(PKCols)
                     self.delete(tmp1.PK)
-                    self.insert(Tuple(aux.PK, aux.data))
-                    return 0
+                    if len(self.insert(Tuple(new_PK, aux.data))) == 0:
+                        return 0
+                    else:
+                        self.insert(Tuple(aux2.PK, aux2.data))
+                        return 2
                 else:
                     return self.__update(register, auxiliar.next, cols, PKCols)
             else:
@@ -399,16 +410,23 @@ class ISAM:
                         validando = False
                 if validando and len(tmp1.data) > 0:
                     aux = Tuple(tmp1.PK, tmp1.data[:])
+                    aux2 = Tuple(tmp1.PK, tmp1.data[:])
                     x = register.keys()
                     for i in x:
                         aux.data[i] = register[i]
                     new_PK = ''
-                    for i in PKCols:
-                        new_PK += str(aux.data[i]) + '_'
-                    new_PK = new_PK[:-1]
+                    if isinstance(PKCols, list):
+                        for i in PKCols:
+                            new_PK += str(aux.data[i]) + '_'
+                        new_PK = new_PK[:-1]
+                    else:
+                        new_PK = str(PKCols)
                     self.delete(tmp1.PK)
-                    self.insert(Tuple(new_PK, aux.data))
-                    return 0
+                    if len(self.insert(Tuple(new_PK, aux.data))) == 0:
+                        return 0
+                    else:
+                        self.insert(Tuple(aux2.PK, aux2.data))
+                        return 2
                 else:
                     if len(auxiliar.values) > 1:
                         if cols < auxiliar.values[0].PK:
