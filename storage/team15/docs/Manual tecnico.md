@@ -167,5 +167,3 @@ Ventana al igual que las otras permite el gestionamiento de los registros almace
 ## Diagrama de Gantt
 
 ![diagrama-gantt](img/diagrama-gantt.jpg "Diagrama de Gantt")
-
-cuerpo
