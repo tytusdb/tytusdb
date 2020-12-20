@@ -16,7 +16,7 @@ lexer = lex.lex()
 tabla_simbolos = TablaDeSimbolos()
 consola = []
 salida = []
-type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
+# type_checker = TypeChecker(tabla_simbolos, tabla_errores, consola, salida)
 
 i = 0
 temp_tabla = -1
@@ -338,7 +338,7 @@ def p_instruccion_Use_BD(t) :
     type_checker.useDatabase(t[1].upper(), line = t.lexer.lineno)
 
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
 
     dot.node(str(id), t[1])
 
@@ -742,30 +742,41 @@ def p_date_functions1(t):
 
     elif t[1].upper() == 'NOW':
         dot.node(str(id), 'NOW')
-        for element in t[3]:
-            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), str(t[3]['id'])) 
+        # for element in t[3]:
+        #     dot.edge(str(id), str(element['id']))
 
 def p_date_functions(t):
     '''date_functions   : date_part PARIZQ opcion_date_functions
                         | opcion_date_functions'''
     print("fecha")
-    id = inc()
-    t[0] = [{'id': id}]
 
-    dot.node(str(id), 'FUNCION FECHA')
-    if len(t) == 2:
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
+    
+    if str(t[1]['valor']) != 'cadenas':
+        id = inc()
+        t[0] = {'id': id, 'valor': 'date'}
+        dot.node(str(id), 'FUNCION FECHA')
+        
+        if len(t) == 2:
+            dot.edge(str(id), str(t[1]['id'])) 
+            # for element in t[1]:
+            #     dot.edge(str(id), str(element['id']))
+        else:
+            for element in t[1]:
+                dot.edge(str(id), str(element['id']))
+            for element in t[3]:
+                dot.edge(str(id), str(element['id']))
     else:
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
-        for element in t[3]:
-            dot.edge(str(id), str(element['id']))
+        t[0] = t[1]
+        # t[0] = {'id': id, 'valor': 'cadenas'}
+        # dot.node(str(id), 'CADENAS')
+    
+    
 
 def p_validate_date(t):
     'lista_date_functions : def_fields FROM TIMESTAMP CADENA PARDER'
     id = inc()
-    t[0] = [{'id': id}]
+    t[0] = {'id': id}
     dot.node(str(id), 'FROM TIMESTAMP')
 
     for element in t[1]:
@@ -783,41 +794,70 @@ def p_validate_date(t):
     except Exception:
         pass
 
+
 def p_opcion_lista_date_fuctions(t):
     '''opcion_date_functions    : opcion_date_functions lista_date_functions
-                                | lista_date_functions'''
+                                | lista_date_functions
+                                '''
     id = inc()
-    t[0] = [{'id': id}]
 
     if len(t) == 2:
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
+        
+        if str(t[1]['valor']) != 'cadenas':
+            t[0] = {'id': id, 'valor' : 'date'}
+            dot.node(str(id), 'FUNCION DATE')
+            dot.edge(str(id), str(t[1]['id'])) 
+        else:
+            t[0] = {'id': id, 'valor' : 'cadenas'}
+            dot.node(str(id), 'CADENAS')
+            dot.edge(str(id), str(t[1]['id'])) 
 
     else:
-        for element in t[1]:
-            dot.edge(str(id), str(element['id']))
-        for element in t[2]:
-            dot.edge(str(id), str(element['id']))
+        
+        if str(t[2]['valor']) != 'cadenas':
+            t[0] = {'id': id, 'valor' : 'date'}
+            dot.node(str(id), 'FUNCIONES DATE')
+            dot.edge(str(id), str(t[1]['id'])) 
+            dot.edge(str(id), str(t[2]['id'])) 
+        else:
+            dot.node(str(id), 'CADENAS')
+            t[0] = {'id': id, 'valor' : 'cadenas'}
+            dot.edge(str(id), str(t[1]['id'])) 
+            dot.edge(str(id), str(t[2]['id'])) 
+
+        
+
 
 def p_lista_date_functions(t):
-    '''lista_date_functions : CADENA COMA INTERVAL CADENA
-                            | TIMESTAMP CADENA
+    '''lista_date_functions : TIMESTAMP CADENA
                             | CURRENT_DATE
                             | CURRENT_TIME
                             | PARDER'''
-    id = inc()
-    t[0] = [{'id': id}]
-
     if len(t) == 2:
-        dot.node(str(id), 'FUNCION DATE')
         if t[1].upper() != 'PARDER':
+            id = inc()
+            t[0] = {'id': id, 'valor': 'date'}
+            dot.node(str(id), 'FUNCION DATE')
             dot.edge(str(id), t[1])
+        else:
+            t[0] = t[1]
 
     elif len(t) == 3:
+        id = inc()
+        t[0] = {'id': id, 'valor': 'date'}
         dot.node(str(id), 'TIMESTAMP')
         dot.edge(str(id), t[2])
 
+    elif len(t) == 4:
+        id = inc()
+        t[0] = {'id': id, 'valor': 'cadenas'}
+        dot.node(str(id), 'CADENAS')
+        dot.edge(str(id), t[1])
+        dot.edge(str(id), str(t[3]['id']))  
+
     else: 
+        id = inc()
+        t[0] = {'id': id, 'valor': 'date'}
         dot.node(str(id), 'INTERVAL')
         dot.edge(str(id), t[1])
         dot.edge(str(id), t[4])
@@ -883,6 +923,7 @@ def p_instruccion_insert(t) :
     id_val = inc()
     dot.node(str(id_val), 'VALORES A INSERTAR')
     dot.edge(str(id), str(id_val))
+    
     for element in t[5]:
         dot.edge(str(id_val), str(element['id']))
 
@@ -1384,17 +1425,23 @@ def p_instrucciones_lista_id(t) :
     # dot.edge(str(id), t[1])
 
 def p_instrucciones_lista_objetos(t) :
-    'lista_objetos  : lista_objetos COMA objeto'
+    '''lista_objetos  : lista_objetos COMA objeto
+                      | CADENA COMA INTERVAL CADENA'''
     # t[1].append(t[3])
     # t[0] = t[1]
     id = inc()
     t[0] = {'id': id}
-    dot.node(str(id), 'Lista de Objetos')
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    if len(t) == 4:
+        dot.node(str(id), 'Lista de Objetos')
+        for element in t[1]:
+            dot.edge(str(id), str(element['id']))
+        dot.edge(str(id), t[3])
 
-    dot.edge(str(id), t[3])
+    else:
+        dot.node(str(id), 'INTERVAL')
+        dot.edge(str(id), t[1])
+        dot.edge(str(id), t[4])
 
 def p_instrucciones_lista_objeto(t) :
     'lista_objetos  : objeto'
@@ -1402,8 +1449,9 @@ def p_instrucciones_lista_objeto(t) :
     id = inc()
     t[0] = {'id': id}
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+    dot.edge(str(id), str(t[1]['id'])) 
+    # for element in t[1]:
+    #     dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_objeto(t) :
     'objeto       : CADENA'
@@ -1413,15 +1461,19 @@ def p_instrucciones_objeto(t) :
     dot.node(str(id), t[1])
 
 def p_instrucciones_objeto2(t) :
-    'objeto       : valor'
+    '''objeto       : valor
+                    '''
     id = inc()
     t[0] = {'id': id}
+
     dot.node(str(id), 'OBJETO')
     dot.edge(str(id), str(t[1]['id'])) 
 
 
+
 def p_instrucciones_lista_insercion_objeto(t) :
-    'lista_insercion  : lista_insercion COMA objeto'
+    '''lista_insercion  : lista_insercion COMA objeto
+                         '''
     t[1].append(t[3])
     t[0] = t[1]
     #para objetos simples
@@ -1448,7 +1500,8 @@ def p_instrucciones_lista_insercion_select(t) :
         dot.edge(str(id), str(element['id']))
 
 def p_instrucciones_insercion_objeto(t) :
-    '''lista_insercion  : objeto'''
+    '''lista_insercion  : objeto
+                        '''
     t[0] = [t[1]]
     #para un objeto simple
     # id = inc()
@@ -1958,14 +2011,28 @@ def p_valor(t) :
 def p_valor2(t) :
     '''valor        : lista_funciones_where
                     | fun_binario_where
-                    | date_functions
-                    | state_subquery'''
+                    | state_subquery
+                    | fun_binario_insert
+                    '''
     id = inc()
     t[0] = {'id': id}
     dot.node(str(id), 'Funciones')
+    dot.edge(str(id), str(t[1]['id'])) 
 
-    for element in t[1]:
-        dot.edge(str(id), str(element['id']))
+
+def p_valor3(t) :
+    '''valor        : date_functions
+                    '''
+    id = inc()
+
+    # if str(t[1]['valor']) != 'cadenas':
+    #     t[0] = {'id': id, 'valor': 'date'}
+    #     dot.node(str(id), 'Funciones')
+    # else:
+    t[0] = {'id': id, 'valor': 'cadenas'}
+    dot.node(str(id), 'CADENAS')
+
+    dot.edge(str(id), str(t[1]['id'])) 
 
 
 def p_instruccion_update_where(t) :
