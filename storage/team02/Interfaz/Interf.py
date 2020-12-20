@@ -1,6 +1,10 @@
 #Esta es la creación de la ventana principal , la raíz es en donde va la ventana 
 #con .config logramos personalizar cada elemento de la ventana 
 from tkinter import* 
+import sys
+from tkinter import filedialog as FileDialog
+from io import open
+
 raiz = Tk()
 VentanaPrincipal = Frame(raiz, width = 1200, height=600)
 VentanaPrincipal.config(background = "#f9e0ae")
@@ -8,7 +12,7 @@ raiz.config(background = "#f9e0ae")
 VentanaPrincipal.pack()
 
 
-#......................Creaci[on de Campos para Bases de DATOS
+#......................Creación de Campos para Bases de DATOS
 
 nomBaseDatos2 = Entry(VentanaPrincipal)
 nomBaseDatos2.place(x = 810 , y = 170)
@@ -80,6 +84,20 @@ numeroDeColumna.config(relief = "sunken", borderwidth = 4)
 numeroDeColumnaLabel = Label(VentanaPrincipal, text="No. Columna:" )
 numeroDeColumnaLabel.place (x =460 , y = 240)
 numeroDeColumnaLabel.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
+
+numeroDeColumna2 = Entry(VentanaPrincipal)
+numeroDeColumna2.place (x = 560 ,  y = 270)
+numeroDeColumna2.config(relief = "sunken", borderwidth = 4)
+numeroDeColumna2Label = Label(VentanaPrincipal, text="No. Columna2:" )
+numeroDeColumna2Label.place (x =460 , y = 270)
+numeroDeColumna2Label.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
+
+renombrar = Entry(VentanaPrincipal)
+renombrar.place (x = 560 ,  y = 300)
+renombrar.config(relief = "sunken", borderwidth = 4)
+renombrar = Label(VentanaPrincipal, text="Renombrar:" )
+renombrar.place (x =460 , y = 300)
+renombrar.config(background = "#f9e0ae" , foreground = "#682c0e", font = ("Helvetica", 9, "bold") )
 
 #------------ENTRADA DE TEXTO PARA CARGA MASIVA --------------------- 
 
