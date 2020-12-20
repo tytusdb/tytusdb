@@ -15,30 +15,6 @@ La interfaz gráfica se compone de un editor de texto con resaltado de sintaxis 
 ## Arbol de Directorios
 También se cuenta con un navegador en la barra lateral izquierda para poder visualizar las diferentes bases de datos a las que tenemos acceso
 
-## Tkinter
-Es un binding de la biblioteca gráfica Tcl/Tk para el lenguaje de programación Python. Se considera un estándar para la interfaz gráfica de usuario (GUI) para Python, para lo que se instaló:
-**versión utilizada para Python 3.8.5**
-```python
-sudo apt-get install python3-tk
-```
-y se importó las librerías:
-```python
-import tkinter
-```
-
-Para la instalación de las imágenes se utilizó la librería PIL
-
-```python
-from PIL import ImageTk, Image
-```
-para instalarlo para Python 3:
-
-```python
-python3 -m pip install Pillow
-pip install Pillow
-```
-
-
 # Manual Técnico 
 ## Conexión con el servidor
 se importa las clases necesarias para el funcionamiento del socket
@@ -68,24 +44,26 @@ Aca se puede observar la conexion, con la funcion **gethostbyname** se especific
     conexion.connect((host_ip,port))
     print("Servidor conectado exitosamente" +str(port))
 ```
-## Tkinter
+## Librerias
+### Tkinter
 Es un binding de la biblioteca gráfica Tcl/Tk para el lenguaje de programación Python. Se considera un estándar para la interfaz gráfica de usuario (GUI) para Python, para lo que se instaló:
-*versión utilizada para Python 3.8.5*
-python
+**versión utilizada para Python 3.8.5**
+```python
 sudo apt-get install python3-tk
-
+```
 y se importó las librerías:
-python
+```python
 import tkinter
-
-
+```
+### PIL
 Para la instalación de las imágenes se utilizó la librería PIL
 
-python
+```python
 from PIL import ImageTk, Image
-
+```
 para instalarlo para Python 3:
 
-python
+```python
 python3 -m pip install Pillow
 pip install Pillow
+```
