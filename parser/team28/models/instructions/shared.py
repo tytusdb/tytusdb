@@ -1,5 +1,6 @@
 #TODO: DISTINCT
 from abc import abstractmethod
+from models.instructions.DML.special_functions import loop_list
 from models.nodo import Node
 class Instruction:
     '''Clase abstracta'''
@@ -33,7 +34,8 @@ class From(Instruction):
         return str(vars(self))
 
     def process(self, instrucction):
-        pass
+        tables = loop_list(self.tables,instrucction)
+        return tables
     
 class Where(Instruction):
     '''
@@ -124,13 +126,13 @@ class ObjectReference(Instruction):
         self.reference_table = reference_table
         self.reference_column = reference_column
         self.opt_asterisk = opt_asterisk
-        self.alias = str(reference_column)
+        self.alias = reference_column.alias
 
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, instrucction):
-        pass
+    def process(self, instruction):
+        return self.reference_column.process(instruction)
 
 
 
