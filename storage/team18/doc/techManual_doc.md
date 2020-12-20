@@ -175,7 +175,7 @@ Este archivo contiene el conjunto de funciones utilizadas por el administrador d
 <div id="clases"/>
 
 ## Diagrama de clases
-![](https://github.com/tytusdb/tytus/tree/main/storage/team18/doc/img/DiagramaDeClases.png)
+![](https://github.com/tytusdb/tytus/blob/main/storage/team18/doc/img/DiagramaDeClases.png)
 
 <div id="egrafia"/>
 
