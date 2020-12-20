@@ -42,7 +42,7 @@ const ELEMENT_DATA: PeriodicElement[] = [
 })
 export class DataComponent implements OnInit {
   displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
+  data: PeriodicElement[] = ELEMENT_DATA;
   columnsToDisplay: string[] = this.displayedColumns.slice();
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -64,7 +64,7 @@ export class DataComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.dataSource.paginator = this.paginator;
+
   }
 
 }
