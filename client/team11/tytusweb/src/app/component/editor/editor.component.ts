@@ -11,7 +11,7 @@ export class EditorComponent implements OnInit {
   constructor( ){ 
    };
    text:string = "";
-   options:any = {maxLines: 30,minLines:30,printMargin: false};
+   options:any = {maxLines: 20,minLines:20,printMargin: false};
   ngOnInit(): void {
   }
 
