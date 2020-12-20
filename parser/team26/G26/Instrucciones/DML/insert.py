@@ -175,14 +175,14 @@ class Insert(Instruccion):
                     try:
                         fecha = valoresTabla[posColumna]
                         fechaN = fecha.replace('/', '-')
-                        fechaVal = datetime.strptime(fechaN, '%d-%m-%Y')
-                        valoresTabla[posColumna] = fechaVal.strftime('%d-%m-%Y %H:%M:%S')
+                        fechaVal = datetime.strptime(fechaN, '%Y-%m-%d')
+                        valoresTabla[posColumna] = fechaVal.strftime('%Y-%m-%d %H:%M:%S')
                     except:
                         try:
                             fecha = valoresTabla[posColumna]
                             fechaN = fecha.replace('/', '-')
-                            fechaVal = datetime.strptime(fechaN, '%d-%m-%Y %H:%M:%S')
-                            valoresTabla[posColumna] = fechaVal.strftime('%d-%m-%Y %H:%M:%S')
+                            fechaVal = datetime.strptime(fechaN, '%Y-%m-%d %H:%M:%S')
+                            valoresTabla[posColumna] = fechaVal.strftime('%Y-%m-%d %H:%M:%S')
                         except:
                             if tamanioInferior:
                                 comprobarNull = True
