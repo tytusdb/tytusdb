@@ -170,9 +170,3 @@ class Arbol:
         temp = datos
         Prueba.Insertar(temp)
 
-Prueba = Arbol()
-Prueba.insertar_(["asd","dasd"])
-Prueba.insertar_(["tytus","doolphin"])
-Prueba.Tomar_Datos()
-
-
