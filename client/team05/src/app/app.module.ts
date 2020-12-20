@@ -11,13 +11,15 @@ import { FormsModule } from '@angular/forms';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ComponenteNavbarComponent } from './componente-navbar/componente-navbar.component';
+import { TreeComponent } from './components/tree/tree.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DataComponent,
     EditorComponent,
-    ComponenteNavbarComponent
+    ComponenteNavbarComponent,
+    TreeComponent
   ],
   imports: [
     BrowserModule,
