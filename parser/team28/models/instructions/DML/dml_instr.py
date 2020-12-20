@@ -25,18 +25,7 @@ class Insert(Instruction):
     def process(self, instruction):
         #Jalando Base de Datos
         print("EJECUTANDO INSERT")
-        database_id = SymbolTable().useDatabase
-        
-        if not database_id:
-            desc = f": Database not selected"
-            ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
-            return None
-        #Base de datos existe --> Obtener tabla
-        table_tp = TypeChecker().searchTable(database_id, self.table.value)
-        if not table_tp:
-            desc = f": Table does not exists"
-            ErrorController().addExecutionError(4, 'Execution', desc, 0, 1)#manejar linea y columna
-            return None
+
         # Obtenida la tabla ---> TODO: VALIDAR TIPOS
         # for column in table_tp.columns:
         #     if column.
@@ -47,7 +36,7 @@ class Insert(Instruction):
                 val = column.process(instruction)
                 vals_insert.append(val.value)
             print(vals_insert)
-            DataController().insert(self.table.value, vals_insert,0,1)
+            DataController().insert(self.table.value, vals_insert,0,1) # Enviar numero de fila y columna
         else:
             if len(self.arr_columns) == len(self.arr_values):
                 pass

@@ -65,6 +65,7 @@ class DataController(object):
         if not TypeChecker().searchTable(database, name):
             desc = f": Table {name} does not exist"
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+            return None
 
         data = data_mode.mode(database.mode).extractTable(database.name, name)
         if data == None:
@@ -143,9 +144,50 @@ class DataController(object):
             desc = f": Column of relation {name} does not exist"
             ErrorController().add(26, 'Execution', desc, noLine, noColumn)
 
-    def alterDropPK(self, database: str, table: str) -> int:
-        # TODO TERMINAR
-        pass
+    def alterDropPK(self, name: str, noLine, noColumn):
+        """
+        Method to remove primary key
+
+        :param name: The name of table
+        :param noLine: The instruction line
+        :param noColumn: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  noLine, noColumn)
+            return
+
+        if not TypeChecker().searchTable(database, name):
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+            return
+
+        dbStatement = data_mode.mode(database.mode).alterDropPK(database.name,
+                                                                name)
+
+        if dbStatement == 0:
+            DataWindow().consoleText('Query returned successfully: Alter Table drop PK')
+
+        elif dbStatement == 1:
+            ErrorController().add(34, 'Execution', '', noLine, noColumn)
+
+        elif dbStatement == 2:
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 3:
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 4:
+            desc = f": Column of relation {name} does not exist"
+            ErrorController().add(26, 'Execution', desc, noLine, noColumn)
+
+    # TODO alterAddFK
+    # TODO alterAddIndex
 
     def insert(self, name: str, data: list, noLine, noColumn):
         """
@@ -188,3 +230,159 @@ class DataController(object):
         elif dbStatement == 5:
             desc = f": Column of relation {name} does not exist"
             ErrorController().add(26, 'Execution', desc, noLine, noColumn)
+
+    # TODO loadCSV
+
+    def extractRow(self, name: str, columns: list, noLine, noColumn) -> list:
+        """
+        Method to extract a record from a table
+
+        :param name: The name of table
+        :param columns: List with number of columns of primary keys
+        :param noLine: The instruction line
+        :param noColumn: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  noLine, noColumn)
+            return None
+
+        if not TypeChecker().searchTable(database, name):
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+            return None
+
+        data = data_mode.mode(database.mode).extractRow(database.name, name,
+                                                        columns)
+        if data == None:
+            ErrorController().add(34, 'Execution', '', noLine, noColumn)
+            return None
+        return data
+
+    def update(self, name: str, register: dict, columns: list, noLine, noColumn):
+        """
+        Method to update a record from a table
+
+        :param name: The name of table
+        :param register: Dictionary where the key is the column number and the value the data
+        :param columns: List with number of columns of primary keys
+        :param noLine: The instruction line
+        :param noColumn: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  noLine, noColumn)
+            return None
+
+        if not TypeChecker().searchTable(database, name):
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+            return None
+
+        dbStatement = data_mode.mode(database.mode).update(database.name, name, register,
+                                                           columns)
+
+        if dbStatement == 0:
+            DataWindow().consoleText('Query returned successfully: UPDATE')
+
+        elif dbStatement == 1:
+            ErrorController().add(34, 'Execution', '', noLine, noColumn)
+
+        elif dbStatement == 2:
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 3:
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 4:
+            desc = f": Primary key does not exist"
+            ErrorController().add(34, 'Execution', desc, noLine, noColumn)
+
+    def delete(self, name: str, columns: list, noLine, noColumn):
+        """
+        Method to delete a record from a table
+
+        :param name: The name of table
+        :param columns: List with number of columns of primary keys
+        :param noLine: The instruction line
+        :param noColumn: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  noLine, noColumn)
+            return None
+
+        if not TypeChecker().searchTable(database, name):
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+            return None
+
+        dbStatement = data_mode.mode(database.mode).delete(database.name, name,
+                                                           columns)
+
+        if dbStatement == 0:
+            DataWindow().consoleText('Query returned successfully: DELETE')
+
+        elif dbStatement == 1:
+            ErrorController().add(34, 'Execution', '', noLine, noColumn)
+
+        elif dbStatement == 2:
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 3:
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 4:
+            desc = f": Primary key does not exist"
+            ErrorController().add(34, 'Execution', desc, noLine, noColumn)
+
+    def truncate(self, name: str, noLine, noColumn):
+        """
+        Method to delete a record from a table
+
+        :param name: The name of table
+        :param noLine: The instruction line
+        :param noColumn: The instruction column
+        :return: Returns nothing
+        """
+        database = SymbolTable().useDatabase
+        if not database:
+            desc = f": Database not selected"
+            ErrorController().add(4, 'Execution', desc,
+                                  noLine, noColumn)
+            return None
+
+        if not TypeChecker().searchTable(database, name):
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
+            return None
+
+        dbStatement = data_mode.mode(database.mode).truncate(database.name,
+                                                             name)
+
+        if dbStatement == 0:
+            DataWindow().consoleText('Query returned successfully: TRUNCATE')
+
+        elif dbStatement == 1:
+            ErrorController().add(34, 'Execution', '', noLine, noColumn)
+
+        elif dbStatement == 2:
+            desc = f": Database {database.name} does not exist"
+            ErrorController().add(35, 'Execution', desc, noLine, noColumn)
+
+        elif dbStatement == 3:
+            desc = f": Table {name} does not exist"
+            ErrorController().add(27, 'Execution', desc, noLine, noColumn)
