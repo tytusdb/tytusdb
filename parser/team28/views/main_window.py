@@ -158,7 +158,7 @@ class MainWindow(object):
 
             # ---------- TEST ---------
             for inst in result:
-                print(inst.process(0))
+                inst.process(0)
             # ---------- TEST ---------
 
     # Para mostrar el editor

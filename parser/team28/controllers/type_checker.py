@@ -340,6 +340,20 @@ class TypeChecker(object):
                     return col
         return None
 
+    def searchColumns(self, table: Table) -> Column:
+        """
+        Method to search a column in table
+
+        :param table: Table where to search
+        :return: Returns a columns
+        """
+        lista = []
+        if table:
+            for col in table.columns:
+                lista.append(col.name)    
+            return lista
+        return None
+    
     def createColumnTable(self, table: Table, column: Column,
                           noLine, noColumn):
         """
