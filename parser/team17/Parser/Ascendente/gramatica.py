@@ -1345,23 +1345,29 @@ def p_table_create(t):
     '''
     if len(t)==9:
         # CREATE TABLE ID PARIZQ lista_table COMA listadolprimary inherits
-        t[0] = CreateTable(t[3], t[5], t[7], t[8])
+        t[0] = CreateTable(t.lineno, 0, t[3], t[5], t[7], t[8])
     if len(t)==7:
         # CREATE TABLE ID PARIZQ lista_table inherits
-        t[0] = CreateTable(t[3], t[5], None, t[6])
+        t[0] = CreateTable(t.lineno, 0, t[3], t[5], None, t[6])
     if len(t)==12:
-        t[0] = CreateTable(t[6], t[8], t[10], t[11])
+        t[0] = CreateTable(t.lineno, 0, t[6], t[8], t[10], t[11])
     if len(t)==10:
         #CREATE TABLE IF NOT EXISTS ID PARIZQ lista_table inherits
-        t[0] = CreateTable(t[6], t[8], None, t[9])
+        t[0] = CreateTable(t.lineno, 0, t[6], t[8], None, t[9])
 
 
 #todo:no se que hacer con PARDER FALTA ? O SOLO ASI ES ?
 def p_inherits(t):
     '''
         inherits : PARDER INHERITS PARIZQ ID PARDER
-                 | PARDER
     '''
+    t[0] = clases_auxiliares.Inherits(t[4])
+
+def p_inherits_parder(t):
+    '''
+        inherits : PARDER
+    '''
+    t[0] = None
 
 
 def p_lista_table(t):
@@ -1436,7 +1442,7 @@ def p_listaespecificaciones(t):
 
 def p_especificaciones(t):
     '''
-        especificaciones : DEFAULT ID
+        especificaciones : DEFAULT exp
                          | PRIMARY KEY
                          | REFERENCES ID
                          | CONSTRAINT ID UNIQUE
