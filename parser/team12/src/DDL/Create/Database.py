@@ -8,8 +8,6 @@ sys.path.append(storage)
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\typeChecker')
 sys.path.append(storage)
 
-
-
 from jsonMode import *
 from typeChecker.typeChecker import *
 tc = TypeChecker()
@@ -70,7 +68,6 @@ class Database():
                 self.responseMessage="Se creo la base de datos."
                 tc.createDatabase(self.name, self.owner, self.mode)
         else:
-            index = showDatabases().index(self.name) 
             if not (self.ifNotExists) and self.replaced :
                 if createDatabase(self.name) == 2:
                     self.responseCode="0000"

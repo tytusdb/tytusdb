@@ -56,5 +56,3 @@ class Start(Nodo):
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
                 print("Expresion valor: "+str(hijo.valorExpresion))
                 
-        nuevoSelect = Select()
-        nuevoSelect.execute()

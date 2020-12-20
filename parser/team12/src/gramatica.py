@@ -839,19 +839,19 @@ def p_tipo_declaracion_1(t):
                 | DATE
                 | BOOLEAN'''
     nuevo = Start("TIPO_DECLARACION")
-    nuevo.createChild(t[1])
+    nuevo.createChild(t[1], t.lineno(1))
     t[0] = nuevo
 def p_tipo_declaracion_2(t):
     '''tipo_declaracion : DOUBLE PRECISION'''
     nuevo = Start("TIPO_DECLARACION",-1,-1,None)
-    nuevo.createChild(t[1])
-    nuevo.createChild(t[2])
+    nuevo.createChild(t[1],t.lineno(1))
+    nuevo.createChild(t[2],t.lineno(2))
     t[0] = nuevo 
 def p_tipo_declaracion_3(t):
     '''tipo_declaracion : CHARACTER VARYNG PARENTESISIZQ ENTERO PARENTESISDER'''
     nuevo = Start("TIPO_DECLARACION")
-    nuevo.createChild(t[1])
-    nuevo.createChild(t[2])
+    nuevo.createChild(t[1],t.lineno(1))
+    nuevo.createChild(t[2],t.lineno(2))
     nuevo.createTerminal(t.slice[4])
     t[0] = nuevo
 def p_tipo_declaracion_4(t):
@@ -859,7 +859,7 @@ def p_tipo_declaracion_4(t):
                 | CHARACTER PARENTESISIZQ ENTERO PARENTESISDER
                 | CHAR PARENTESISIZQ ENTERO PARENTESISDER'''
     nuevo = Start("TIPO_DECLARACION")
-    nuevo.createChild(t[1])
+    nuevo.createChild(t[1],t.lineno(1))
     nuevo.createTerminal(t.slice[3])
     t[0] = nuevo
 def p_tipo_declaracion_5(t):
@@ -867,7 +867,7 @@ def p_tipo_declaracion_5(t):
                 | TIME time_opcionales
                 | INTERVAL interval_opcionales'''
     nuevo = Start("TIPO_DECLARACION")
-    nuevo.createChild(t[1])
+    nuevo.createChild(t[1],t.lineno(1))
     if t[2] != None:
         nuevo.addChild(t[2])
     t[0] = nuevo
@@ -892,7 +892,7 @@ def p_time_opcionales_p(t):
                                 | '''
     if len(t)==3:
         nuevo = Start("TIME_ZONE")
-        nuevo.createChild(t[1])
+        nuevo.createChild(t[1],t.lineno(1))
         t[0] = nuevo
 
 def p_interval_opcionales(t):
@@ -974,8 +974,8 @@ def p_cuerpo_crear_tabla_p_1(t):
     t[0] = nuevo
 
 def p_cuerpo_crear_tabla_p_2(t):
-    '''cuerpo_creartabla_p : opcional_constraint  CHECK PARENTESISIZQ Exp PARENTESISDER'''
-    t[0] = Start("ATRIBUTO_CHECK")
+    '''cuerpo_creartabla_p : opcional_constraint  CHECK PARENTESISIZQ lista_exp PARENTESISDER'''
+    t[0] = Start("OPCIONALES_ATRIBUTO_CHECK")
     if t[1] != None : 
         t[0].addChild(t[1])
     t[0].addChild(t[4])
@@ -1002,11 +1002,12 @@ def p_cuerpo_crear_tabla_p_5(t):
 
 # Falta DEFAULT EXPRESION
 # Falta las comparaciones del CHECK
+
 def p_opcional_creartabla_columna_1(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna NOT NULL'''
     nuevo =Start("OPCIONALES_NOT_NULL")
-    nuevo.createChild(t[2])
-    nuevo.createChild(t[3])
+    nuevo.createChild(t[2],t.lineno(2))
+    nuevo.createChild(t[3],t.lineno(3))
     temporal = Start("Temp")
     if t[1] != None:
         for hijo in t[1].hijos:
@@ -1016,7 +1017,7 @@ def p_opcional_creartabla_columna_1(t):
 def p_opcional_creartabla_columna_2(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna NULL'''
     nuevo =Start("OPCIONALES_ATRIBUTO_NULL")
-    nuevo.createChild(t[2])
+    nuevo.createChild(t[2],t.lineno(2))
     temporal = Start("Temp")
     if t[1] != None:
         for hijo in t[1].hijos:
@@ -1028,7 +1029,7 @@ def p_opcional_creartabla_columna_3(t):
     nuevo = Start("OPCIONALES_ATRIBUTO_UNIQUE")
     if t[2] != None:
         nuevo.addChild(t[2])
-    nuevo.createChild(t[3])
+    nuevo.createChild(t[3],t.lineno(3))
     temporal = Start("Temp")
     if t[1] != None:
         for hijo in t[1].hijos:
@@ -1037,6 +1038,7 @@ def p_opcional_creartabla_columna_3(t):
     t[0] = temporal
 def p_opcional_creartabla_columna_4(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint CHECK PARENTESISIZQ Exp PARENTESISDER'''
+    print("Entra opcional crear tabla columna")
     nuevo = Start("OPCIONALES_ATRIBUTO_CHECK")
     if t[2] != None:
         nuevo.addChild(t[2])
@@ -1050,8 +1052,8 @@ def p_opcional_creartabla_columna_4(t):
 def p_opcional_creartabla_columna_5(t):
     '''opcional_creartabla_columna : NOT NULL'''
     nuevo = Start("OPCIONALES_ATRIBUTO_NOT_NULL")
-    nuevo.createChild(t[1])
-    nuevo.createChild(t[2])
+    nuevo.createChild(t[1],t.lineno(1))
+    nuevo.createChild(t[2],t.lineno(2))
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0] = temporal
@@ -1068,15 +1070,15 @@ def p_opcional_creartabla_columna_7(t):
     nuevo = Start("OPCIONALES_ATRIBUTO_UNIQUE")
     if t[1] != None:
         nuevo.addChild(t[1])
-    nuevo.createChild(t[2])
+    nuevo.createChild(t[2],t.lineno(2))
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0] = temporal
 def p_opcional_creartabla_columna_8(t):
     '''opcional_creartabla_columna : PRIMARY KEY'''
     nuevo = Start("OPCIONALES_ATRIBUTO_PRIMARY")
-    nuevo.createChild(t[1])
-    nuevo.createChild(t[2])
+    nuevo.createChild(t[1],t.lineno(1))
+    nuevo.createChild(t[2],t.lineno(2))
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0] = temporal
@@ -1105,7 +1107,7 @@ def p_opcional_creartabla_columna_9(t):
 def p_opcional_creartabla_columna_10(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna DEFAULT Exp'''
     nuevo = Start("OPCIONALES_ATRIBUTO_DEFAULT")
-    nuevo.createChild(t[2])
+    nuevo.createChild(t[2],t.lineno(2))
     nuevo.addChild(t[3])
     temporal = Start("Temp")
     if t[1] != None:
@@ -1123,7 +1125,7 @@ def p_opcional_creartabla_columna_11(t):
 def p_opcional_creartabla_columna_12(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna REFERENCES IDENTIFICADOR'''
     nuevo = Start("OPCIONALES_ATRIBUTO_REFERENCES")
-    nuevo.createChild(t[3])
+    nuevo.createChild(t[3],t.lineno(3))
     temporal = Start("Temp")
     if t[1] != None:
         for hijo in t[1].hijos:
@@ -1184,8 +1186,8 @@ def p_opcionales_crear_database_1(t):
     nuevo = Start("OPCIONALES_CREAR_DATABASE")
     for hijo in t[1].hijos:
         nuevo.addChild(hijo)
-    nuevo.createChild(t[2])
-    nuevo.createChild(t[4])
+    nuevo.createChild(t[2],t.lineno(2))
+    nuevo.createChild(t[4],t.lineno(4))
     t[0] = nuevo
 def p_opcionales_crear_database_2(t):
     '''opcionales_crear_database    : OWNER opcional_comparar IDENTIFICADOR
@@ -1193,8 +1195,8 @@ def p_opcionales_crear_database_2(t):
                                     | '''
     if len(t)>1 :
         nuevo = Start("OPCIONALES_CREAR_DATABASE")
-        nuevo.createChild(t[1])
-        nuevo.createChild(t[3])
+        nuevo.createChild(t[1],t.lineno(1))
+        nuevo.createChild(t[3],t.lineno(3))
         t[0] = nuevo
 
 def p_opcional_comparar(t):

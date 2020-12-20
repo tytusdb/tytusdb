@@ -13,8 +13,10 @@ class mainWindow:
 
         # Area de Edición
         self.textArea = Text(master)
+        self.textArea.configure(bg='#CFCFCF')
         self.textArea.grid(column = 0, row = 0, padx = 15, pady = 15, columnspan=3)
         self.textArea2 = Text(master, state = 'disabled')
+        self.textArea2.configure(bg='#B1B1B1')
         self.textArea2.grid(column = 8, row = 0, padx = 15, pady = 15, columnspan=4)
         # Consola
         self.consoleArea = ttk.Treeview(master)
@@ -66,6 +68,7 @@ class mainWindow:
         print(textOutput)
         self.textArea2.insert("end-1c", textOutput)
         self.textArea2.configure(state = 'disabled')
+        #print(arbol.generar_dot(resp))
 
 
 #Borrar las variables de configuración
@@ -81,7 +84,7 @@ with open('src/Config/Config.json',"w") as file:
 
 
 # Entrada por el archivo SQL Test File
-"""
+
 pathEntrada = str(pathlib.Path().absolute())+ r"\src\SQL Test File.sql"
 openFile = open(pathEntrada, "r", encoding="utf-8")
 entrada = openFile.read()
@@ -92,18 +95,19 @@ resp.execute(None)
 print(resp.listaSemanticos)
 
 arbol = Arbol()
-#print(arbol.generar_dot(resp))
-"""
+print(arbol.generar_dot(resp))
+
 
 
 
 
 
 # Entrada por interfaz gráfica
-root = Tk()
+"""root = Tk()
 mainWin = mainWindow(root)
+root.configure(bg = '#515151')
 root.mainloop() 
-
+"""
 
 
 
