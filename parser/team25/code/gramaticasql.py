@@ -5,6 +5,7 @@ from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano
 from astFunciones import FuncionNumerica , FuncionCadena
+from astDDL import ALTER_TABLE_ADD, ALTER_TABLE_DROP, AlterDatabase, AlterField, AlterTable, AlterTableAdd, AlterTableDrop, CONSTRAINT_FIELD, CheckField, CheckMultipleFields, ConstraintField, ConstraintMultipleFields, CreateDatabase, CreateField, CreateTable, CreateType, DefaultField, DropDatabase, DropTable, ForeignKeyField, ForeignKeyMultipleFields, ShowDatabase, TYPE_COLUMN
 from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
@@ -100,97 +101,143 @@ def p_use(p):
 def p_definicion_1(p):
     'definicion : CREATE TYPE ID  AS ENUM PABRE lista_enum PCIERRA'
     bnf.addProduccion('\<definicion> ::= "CREATE" "TYPE" "AS" "ENUM" "(" \<lista_enum> ")"') 
+    p[0] = CreateType(p[3], p[7])
 
 
 def p_definicion_2(p):
     'definicion : create_or_replace DATABASE combinaciones1'
     bnf.addProduccion('\<definicion> ::= \<create_or_replace> "DATABASE"  \<combinaciones1>')
+    tempNombre = None
+    tempExistencia = False
+    tempDuenio = None
+    tempModo = 0
+
+    if isinstance(p[3], tuple):
+        if len(p[3]) == 2:
+            if isinstance(p[3][0], bool):
+                tempExistencia = True
+                tempNombre = p[3][1]
+            else:
+                tempExistencia = p[3][0]
+
+                if isinstance(p[3][1], tuple):
+                    tempDuenio = p[3][1][0]
+                    tempModo = p[3][1][1]
+                elif isinstance(p[3][1], int):
+                    tempModo = p[3][1]
+                else:
+                    tempDuenio = p[3][1]
+        else:
+            tempExistencia = True
+            tempNombre = p[3][1]
+
+            if isinstance(p[3][2], tuple):
+                tempDuenio = p[3][2][0]
+                tempModo = p[3][2][1]
+            elif isinstance(p[3][2], int):
+                tempModo = p[3][2]
+            else:
+                tempDuenio = p[3][2]
+    else:
+        tempNombre = p[3]
+    p[0] = CreateDatabase(tempNombre,reemplazo=p[1], existencia=tempExistencia, duenio=tempDuenio, modo=tempModo)
 
 def p_definicion_3(p):
     'definicion : SHOW DATABASES LIKE REGEX'
     bnf.addProduccion('\<definicion> ::= "SHOW" "DATABASE" "LIKE" "REGEX"') 
-
+    p[0] = ShowDatabase()
 
 def p_definicion_4(p):
     'definicion : SHOW DATABASES'
     bnf.addProduccion('\<definicion> ::= "SHOW" "DATABASES"')
     print("databases")
+    p[0] = ShowDatabase()
 
 
 def p_definicion_5(p):
     'definicion : ALTER DATABASE ID  alter'
-    bnf.addProduccion('\<definicion> ::= "ALTER" "DATABASE" "ID" \<alter>') 
-
+    bnf.addProduccion('\<definicion> ::= "ALTER" "DATABASE" "ID" \<alter>')
+    p[0] = AlterDatabase(p[3],p[4])
 
 def p_definicion_6(p):
     'definicion : DROP DATABASE IF EXISTS ID'
-    bnf.addProduccion('\<definicion> ::= "DROP" "DATABASE" "IF" "EXISTS" "ID"') 
+    bnf.addProduccion('\<definicion> ::= "DROP" "DATABASE" "IF" "EXISTS" "ID"')
+    p[0] = DropDatabase(p[5], True)
 
 
 def p_definicion_7(p):
     'definicion : DROP DATABASE ID'
-    bnf.addProduccion('\<definicion> ::= "DROP" "DATABASE" "ID"') 
+    bnf.addProduccion('\<definicion> ::= "DROP" "DATABASE" "ID"')
+    p[0] = DropDatabase(p[3])
 
 
 def p_definicion_8(p):
     'definicion : DROP TABLE ID'
     bnf.addProduccion('\<definicion> ::= "DROP" "TABLE" "ID"') 
-
+    p[0] = DropTable(p[3])
 
 def p_definicion_9(p):
     'definicion : CREATE TABLE ID PABRE columnas PCIERRA inherits'
-    bnf.addProduccion('\<definicion> ::= "CREATE" "TABLE" "ID" "(" \<columnas> ")" \<inherits>') 
+    bnf.addProduccion('\<definicion> ::= "CREATE" "TABLE" "ID" "(" \<columnas> ")" \<inherits>')
+    p[0] = CreateTable(p[3], p[5], p[7])
 
 
 def p_definicion_10(p):
     'definicion : CREATE TABLE ID PABRE columnas PCIERRA'
-    bnf.addProduccion('\<definicion> ::= "CREATE" "TABLE" "ID" "(" \<columnas> ")"') 
+    bnf.addProduccion('\<definicion> ::= "CREATE" "TABLE" "ID" "(" \<columnas> ")"')
+    p[0] = CreateTable(p[3], p[5]) 
 
 def p_alter_table(p):
     '''alter_table : ALTER TABLE ID alter_options'''
-    bnf.addProduccion('\<alter_table> ::= "ALTER" "TABLE" "ID"  \<alter_varchar_lista> ') 
+    bnf.addProduccion('\<alter_table> ::= "ALTER" "TABLE" "ID"  \<alter_varchar_lista> ')
+    p[0] = AlterTable(p[3],p[4])
     
 def p_alter_table2(p):
     'alter_table :  ALTER TABLE ID alter_varchar_lista'
     bnf.addProduccion('\<alter_table> ::= "ALTER" "TABLE" "ID"  \<alter_varchar_lista> ')
-
+    p[0] = AlterTable(p[3],p[4])
         
 def p_alter_options(p):
     'alter_options : ADD COLUMN ID tipo '
     bnf.addProduccion('\<alter_options> ::= "ADD" "COLUMN" "ID" \<tipo>')
+    p[0] = AlterTableAdd(p[3], ALTER_TABLE_ADD.COLUMN, p[4])
 
 def p_alter_options2(p):
     'alter_options : DROP COLUMN ID '
     bnf.addProduccion('\<alter_options> ::= "DROP" "COLUMN" "ID" ')
+    p[0] = AlterTableDrop(p[3], ALTER_TABLE_DROP.COLUMN)
 
 def p_alter_options3(p):
     'alter_options : ADD CHECK PABRE ID DIFERENTE CADENA PCIERRA '
     bnf.addProduccion('\<alter_options> ::= "ADD" "CHECK" "(" "<>" "CADENA" ")" ')
+    p[0] = AlterTableAdd(p[4], ALTER_TABLE_ADD.CHECKS, p[6])
 
 def p_alter_options4(p):
     'alter_options : ADD CONSTRAINT ID UNIQUE PABRE ID PCIERRA '
     bnf.addProduccion('\<alter_options> ::= "ADD" "CONSTRAINT" "ID" "UNIQUE" "(" "ID" ")"')
+    p[0] = AlterTableAdd(p[6], ALTER_TABLE_ADD.UNIQUE, p[3])
 
+#______________________________________________________________________________________________________________________________ NUEVA;
+#Cambio por agregado unico y multiple
 def p_alter_options5(p):
-    'alter_options : ADD CONSTRAINT ID add_foreing'
+    'alter_options : ADD CONSTRAINT ID FOREIGN KEY PABRE ID PCIERRA REFERENCES ID PABRE ID PCIERRA'
     bnf.addProduccion('\<alter_options> ::= "ADD" "CONSTRAINT" "ID" \<add_foreing>')
+    p[0] = AlterTableAdd(p[7], ALTER_TABLE_ADD.FOREIGN_KEY, (p[10],p[12],p[3]))
 
 def p_alter_options6(p):
-    'alter_options : ADD add_foreing ' 
-    bnf.addProduccion('\<alter_options> ::= "ADD" \<add_foreing>')       
-#______________________________________________________________________________________________________________________________ NUEVA
-def p_add_foreing(p):
-    'add_foreing : FOREIGN KEY PABRE lista_ids PCIERRA REFERENCES ID PABRE lista_ids PCIERRA ' 
-    bnf.addProduccion('\<add_foreing> ::=  "FOREIGN" "KEY" "(" \<lista_ids> ")" "REFERENCES" "ID" "("\<lista_ids> ")"')   
-
+    'alter_options : ADD FOREIGN KEY PABRE lista_ids PCIERRA REFERENCES ID PABRE lista_ids PCIERRA ' 
+    bnf.addProduccion('\<alter_options> ::= "ADD" \<add_foreing>')
+    p[0] = AlterTableAdd(p[5], ALTER_TABLE_ADD.MULTI_FOREIGN_KEY, (p[8], p[10]))       
 
 def p_alter_options7(p):
     'alter_options : ALTER COLUMN ID SET NOT NULL '
-    bnf.addProduccion('\<alter_options> ::= "ALTER" "COLUMN" "ID" "SET" "NOT"  "NULL"')      
+    bnf.addProduccion('\<alter_options> ::= "ALTER" "COLUMN" "ID" "SET" "NOT"  "NULL"')
+    p[0] = AlterField(p[3])
     
 def p_alter_options8(p):
     'alter_options : DROP CONSTRAINT ID '
-    bnf.addProduccion('\<alter_options> ::= "DROP" "CONSTRAINT" "ID"')                
+    bnf.addProduccion('\<alter_options> ::= "DROP" "CONSTRAINT" "ID"')
+    p[0] = AlterTableDrop(p[3], ALTER_TABLE_DROP.CONSTRAINT)           
 
 
 def p_alter_varchar_lista(p):
@@ -202,8 +249,8 @@ def p_alter_varchar_lista(p):
         bnf.addProduccion('\<alter_varchar_lista> ::= \<alter_varchar> "," \<alter_varchar>')
 
 def p_alter_varchar(p):
-    '''alter_varchar : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA '''
-    bnf.addProduccion('\<alter_varchar> ::= "ALTER" "COLUMN" "ID" "TYPE" "VARCHAR" "(" NUMERO ")"')
+    '''alter_varchar : ALTER COLUMN ID VARCHAR PABRE NUMERO PCIERRA '''
+    bnf.addProduccion('\<alter_varchar> ::= "ALTER" "COLUMN" "ID" "VARCHAR" "(" NUMERO ")"')
 
 # <TABLA> ::=  'id' 
 #          |   'id' 'as' 'id'
@@ -888,7 +935,7 @@ def p_lista_enum_2(p):
 
 def p_item(p):
     'item : CADENA'
-    p[0] = ExpresionCadena(p[1], TIPO_DE_DATO.CADENA, p.slice[1].lineno)
+    p[0] = p[1]
     bnf.addProduccion(f'\<item> ::= "{p[1].upper()}"')
 # __________________________________________ create_or_replace
 # <CREATE_OR_REPLACE> ::= 'create'
@@ -897,14 +944,14 @@ def p_item(p):
 
 def p_create_or_replace_1(p):
     'create_or_replace : CREATE '
-    p[0] = p[1]
+    p[0] = False
     bnf.addProduccion(f'\<create_or_replace> ::= "{p[1].upper()}"')
 
 
 def p_create_or_replace_2(p):
     'create_or_replace : CREATE OR REPLACE'
-    
     bnf.addProduccion(f'\<create_or_replace> ::= "{p[1].upper()}" "OR" "REPLACE"')
+    p[0]= True
 
 # __________________________________________ combinaciones1
 # <COMBINACIONES1> ::= 'if' 'not' 'exists' id <COMBINACIONES2>
@@ -913,20 +960,22 @@ def p_create_or_replace_2(p):
 def p_combinaciones1_0(p):
     'combinaciones1 : IF NOT EXISTS ID'
     bnf.addProduccion(f'\<combinaciones1> ::= "{p[1].upper()}" "NOT" "EXISTS" "ID"')
+    p[0] = (True, p[4])
 
 def p_combinaciones1_1(p):
     'combinaciones1 : IF NOT EXISTS ID combinaciones2'
     bnf.addProduccion(f'\<combinaciones1> ::= "{p[1].upper()}" "NOT" "EXISTS" "ID" \<combinaciones2>')
+    p[0] = (True,p[4],p[5])
 
 def p_combinaciones1_2(p):
     'combinaciones1 : ID combinaciones2'
     bnf.addProduccion(f'\<combinaciones1> ::= "{p[1].upper()}" \<combinaciones2>')
-
+    p[0] = (p[1],p[2])
 
 def p_combinaciones1_3(p):
     'combinaciones1 : ID'
     bnf.addProduccion(f'\<combinaciones1> ::= "{p[1].upper()}"')
-    p[0] = ExpresionID(p[1], p.slice[1].lineno)
+    p[0] = p[1]
 # ________________________________________ combinaciones2
 # <COMBINACIONES2> ::= <OWNER>
 #                   |<MODE>
@@ -948,13 +997,16 @@ def p_combinaciones2_2(p):
 def p_combinaciones2_3(p):
     'combinaciones2 : owner mode'
     bnf.addProduccion('\<combinaciones2> ::= \<owner> \<mode>')
+    p[0] = (p[1],p[2])
 
 def p_owner_1(p):
     'owner : OWNER alias'
+    p[0] = p[2]
     bnf.addProduccion('\<owner> ::= "OWNER" \<alias>')
 
 def p_owner_2(p):
     'owner : OWNER IGUAL alias'
+    p[0] = p[3]
     bnf.addProduccion('\<owner> ::= "OWNER" "=" \<alias>')
 
 # ________________________________________ <MODE>
@@ -965,11 +1017,13 @@ def p_owner_2(p):
 def p_mode_1(p):
     'mode : MODE NUMERO'
     bnf.addProduccion('\<mode> ::= "MODE" "NUMERO"')
+    p[0] = p[2]
 
 
 def p_mode_2(p):
     'mode : MODE IGUAL NUMERO'
     bnf.addProduccion('\<mode> ::= "MODE" "=" "NUMERO"')
+    p[0] = p[3]
 
 
 # _________________________________________ <alter>
@@ -1015,6 +1069,7 @@ def p_new_owner_3(p):
 def p_inherits(p):
     'inherits : INHERITS PABRE ID PCIERRA'
     bnf.addProduccion('\<inherits> ::= "INHERITS" "(" "ID" ")"')
+    p[0] = p[3]
 
 # _________________________________________ columnas
 # <COLUMNAS> ::= <COLUMNA>
@@ -1058,36 +1113,38 @@ def p_columnas_2(p):
 def p_columna_1(p):
     'columna : ID tipo'
     bnf.addProduccion('\<columna> ::= "ID"  \<tipo>')
+    p[0] = CreateField(p[1],p[2])
 
 
 def p_columna_2(p):
     'columna : ID tipo listaOpciones'
     bnf.addProduccion('\<columna> ::= "ID"  \<tipo> \<listaOpciones>')
+    p[0] = CreateField(p[1],p[2],p[3])
 
 
 def p_columna_3(p):
-    'columna : CONSTRAINT  ID CHECK PABRE lista_exp PCIERRA '
-    bnf.addProduccion('\<columna> ::= "CONSTRAINT" "ID" "CHECK" "(" \<lista_exp> ")"')
+    'columna : CONSTRAINT  ID CHECK PABRE expresion PCIERRA '
+    bnf.addProduccion('\<columna> ::= "CONSTRAINT" "ID" "CHECK" "(" \<expresion> ")"')
+    p[0] = CheckMultipleFields(p[2],p[5])
 
 
 def p_columna_4(p):
     'columna : UNIQUE PABRE lista_ids PCIERRA'
-    bnf.addProduccion('\<columna> ::= "UNIQUE" "(" \<lista_exp> ")"')
+    bnf.addProduccion('\<columna> ::= "UNIQUE" "(" \<lista_ids> ")"')
+    p[0] = ConstraintMultipleFields(CONSTRAINT_FIELD.UNIQUE, p[3])
 
 
 def p_columna_5(p):
     'columna :  PRIMARY KEY PABRE lista_ids PCIERRA'
-    bnf.addProduccion('\<columna> ::= "PRIMARY" "KEY" "(" \<lista_exp> ")"')
-
+    bnf.addProduccion('\<columna> ::= "PRIMARY" "KEY" "(" \<lista_ids> ")"')
+    print('Entra')
+    p[0] = ConstraintMultipleFields(CONSTRAINT_FIELD.PRIMARY_KEY, p[4])
 
 def p_columna_6(p):
     'columna : FOREIGN KEY PABRE lista_ids PCIERRA REFERENCES ID PABRE lista_ids PCIERRA'
-    bnf.addProduccion('\<columna> ::= "FOREIGN" "KEY" "(" \<lista_exp> ")" "REFERENCES" "ID" "(" \<lista_ids> ")"')
-
-
-def p_columna_7(p):
-    'columna : CHECK PABRE lista_exp PCIERRA'
-    bnf.addProduccion('\<columna> ::= "CHECK"  "(" \<lista_exp> ")"')
+    bnf.addProduccion('\<columna> ::= "FOREIGN" "KEY" "(" \<lista_ids> ")" "REFERENCES" "ID" "(" \<lista_ids> ")"')
+    p[0] = ForeignKeyMultipleFields(p[4],p[7],p[9])
+    
 
 
 def p_listaOpciones_List(p):
@@ -1125,11 +1182,13 @@ def p_opCol_3(p):
 def p_opCol_4(p):
     'opCol :  PRIMARY KEY'
     bnf.addProduccion('\<opCol> ::= "PRIMARY" "KEY"')
+    p[0]= ConstraintField(CONSTRAINT_FIELD.PRIMARY_KEY)
 
 
 def p_opCol_5(p):
-    'opCol : REFERENCES ID'
-    bnf.addProduccion('\<opCol> ::= "REFERENCES" "ID"')
+    'opCol : REFERENCES ID PABRE ID PCIERRA'
+    bnf.addProduccion('\<opCol> ::= "REFERENCES" "ID" "(" "ID" ")"')
+    p[0] = ForeignKeyField(p[2],p[4])
 
 
 def p_opCol_6(p):
@@ -1163,68 +1222,72 @@ def p_opCol_6(p):
 def p_tipo_1(p):
     'tipo : SMALLINT'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]    
+    p[0] = TYPE_COLUMN.SMALLINT  
 
 
 def p_tipo_2(p):
     'tipo : INTEGER'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.INTEGER
 
 
 def p_tipo_3(p):
     'tipo : BIGINT'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.BIGINT
 
 def p_tipo_4(p):
     'tipo : DECIMAL'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.DECIMAL
 
 def p_tipo_5(p):
     'tipo : NUMERIC'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.NUMERIC
 
 def p_tipo_6(p):
     'tipo : REAL'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.REAL
 
 def p_tipo_7(p):
     'tipo : DOUBLE PRECISION'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}" "{p[2].upper()}"')
+    p[0] = TYPE_COLUMN.DOUBLE_PRECISION
     
 
 def p_tipo_8(p):
     'tipo : MONEY'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.MONEY
 
 
 def p_tipo_9(p):
     'tipo : CHARACTER VARYING PABRE NUMERO PCIERRA'
     bnf.addProduccion(f'\<tipo> ::="{p[1].upper()}" "VARYING" "(" "NUMERO" ")"')
+    p[0] = ( TYPE_COLUMN.VARCHAR, p[4] )
 
 def p_tipo_10(p):
     'tipo : VARCHAR PABRE NUMERO PCIERRA'
     bnf.addProduccion(f'\<tipo> ::="{p[1].upper()}" "(" "NUMERO" ")"')
+    p[0] = ( TYPE_COLUMN.VARCHAR, p[3] )
 
 def p_tipo_11(p):
     'tipo : CHARACTER PABRE NUMERO PCIERRA'
     bnf.addProduccion(f'\<tipo> ::="{p[1].upper()}" "(" "NUMERO" ")"')
-
+    p[0] = ( TYPE_COLUMN.CHAR, p[3] )
 
 def p_tipo_12(p):
     'tipo : CHAR PABRE NUMERO PCIERRA'
     bnf.addProduccion(f'\<tipo> ::="{p[1].upper()}" "(" "NUMERO" ")"')
+    p[0] = ( TYPE_COLUMN.CHAR, p[3] )
 
 
 def p_tipo_13(p):
     'tipo : TEXT '
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.TEXT
 
 def p_tipo_14(p):
     'tipo : timestamp'
@@ -1235,7 +1298,7 @@ def p_tipo_14(p):
 def p_tipo_15(p):
     'tipo : DATE'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.DATE
 
 
 def p_tipo_16(p):
@@ -1253,12 +1316,12 @@ def p_tipo_17(p):
 def p_tipo_18(p):
     'tipo : BOOLEAN'
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.BOOLEAN
 
 def p_tipo_19(p):# produccion para los enum
     'tipo : ID'
     bnf.addProduccion('\<opCol> ::= "ID"')
-    p[0] = p[1]
+    p[0] = p[1].upper()
 # __________________________________________ <INTERVAL>
 # <INTERVAL> ::= 'interval' <FIELDS> ('numero')
 #             |  'interval' <FIELDS>
@@ -1269,22 +1332,24 @@ def p_tipo_19(p):# produccion para los enum
 def p_interval_1(p):
     'interval : INTERVAL fields PABRE NUMERO PCIERRA'
     bnf.addProduccion('\<interval> ::= "INTERVAL" \<fields> "(" "NUMERO" ")"')
+    p[0] = TYPE_COLUMN.INTERVAL
 
 
 def p_interval_2(p):
     'interval : INTERVAL fields'
     bnf.addProduccion('\<interval> ::= "INTERVAL" \<fields>')
+    p[0] = TYPE_COLUMN.INTERVAL
 
 
 def p_interval_3(p):
     'interval : INTERVAL PABRE NUMERO PCIERRA'
     bnf.addProduccion('\<interval> ::= "INTERVAL" "(" "NUMERO" ")"')
-
+    p[0] = TYPE_COLUMN.INTERVAL
 
 def p_interval_4(p):
     'interval : INTERVAL '
     bnf.addProduccion('\<interval> ::= "INTERVAL"')
-    p[0] = p[1]
+    p[0] = TYPE_COLUMN.INTERVAL
 
 # _________________________________________ <fields>
 # <FIELDS> ::= 'year'
@@ -1315,50 +1380,56 @@ def p_fields(p):
 def p_time_1(p):
     'time : TIME PABRE NUMERO PCIERRA CADENA'
     bnf.addProduccion(f'\<time> ::= "{p[1].upper()}" "(" "NUMERO" ")" "CADENA"')
+    p[0] = TYPE_COLUMN.TIME
 
 
 def p_time_2(p):
     'time : TIME CADENA'
     bnf.addProduccion(f'\<time> ::= "{p[1].upper()}" "CADENA"')
+    p[0] = TYPE_COLUMN.TIME
 
 
 def p_time_3(p):
     'time : TIME PABRE NUMERO PCIERRA'
     bnf.addProduccion(f'\<time> ::= "{p[1].upper()}" "(" "NUMERO" ")"')
-
+    p[0] = TYPE_COLUMN.TIME
 
 def p_time_4(p):
     'time : TIME'
     bnf.addProduccion(f'\<time> ::= "{p[1].upper()}"')
-    p[0] =p[1]
+    p[0] = TYPE_COLUMN.TIME
 
 # __________________________________________ <timestamp>
 # <TIMESTAMP>
 def p_timestamp_1(p):
     'timestamp : TIMESTAMP PABRE NUMERO PCIERRA CADENA_DATE '
     bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "(" "NUMERO" ")" "CADENA"')
+    p[0] = TYPE_COLUMN.TIMESTAMP
 
 def p_timestamp_2(p):
     'timestamp : TIMESTAMP  CADENA_DATE'
     bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "CADENA"')
-
+    p[0] = TYPE_COLUMN.TIMESTAMP
 
 def p_timestamp_3(p):
     'timestamp : TIMESTAMP PABRE NUMERO PCIERRA '
     bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "(" "NUMERO" ")"')
+    p[0] = TYPE_COLUMN.TIMESTAMP
 
 def p_timestamp_4(p):
     'timestamp : TIMESTAMP'
     bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}"')
-    p[0] =p[1]
+    p[0] = TYPE_COLUMN.TIMESTAMP
 
 def p_timestamp_5(p):
     'timestamp : TIMESTAMP NOW PABRE PCIERRA'
     bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "(" ")"')
+    p[0] = TYPE_COLUMN.TIMESTAMP
 
 def p_timestamp_6(p):
     'timestamp : TIMESTAMP CADENA_NOW'
     bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "CADENA_NOW"')
+    p[0] = TYPE_COLUMN.TIMESTAMP
 # __________________________________________ <DEFAULT>
 # <DEFAULT> ::= 'default' <VALOR>
 
@@ -1366,6 +1437,7 @@ def p_timestamp_6(p):
 def p_default(p):
     'default : DEFAULT expresion'
     bnf.addProduccion(f'\<default> ::= "{p[1].upper()}" \<expresion>')
+    p[0] = DefaultField(p[2])
 
 # _________________________________________ <VALOR>
 # falta la produccion valor , le deje expresion :v
@@ -1378,11 +1450,12 @@ def p_default(p):
 def p_nullable_1(p):
     'nullable : NOT NULL'
     bnf.addProduccion(f'\<nullable> ::= "{p[1].upper()}" "NULL"')
+    p[0] = ConstraintField(CONSTRAINT_FIELD.NULL, False)
 
 def p_nullable_2(p):
     'nullable : NULL'
     bnf.addProduccion(f'\<nullable> ::= "{p[1].upper()}" ')
-    p[0] = p[1]
+    p[0] = ConstraintField(CONSTRAINT_FIELD.NULL, True)
 # __________________________________________ <CONSTRAINTS>
 # <CONSTRAINTS> ::= 'constraint' id 'unique'
 #                 | 'unique'
@@ -1391,12 +1464,13 @@ def p_nullable_2(p):
 def p_constraints_1(p):
     'constraints : CONSTRAINT ID UNIQUE'
     bnf.addProduccion(f'\<constraints> ::= "{p[1].upper()}" "ID" "UNIQUE"')
+    p[0] = ConstraintField(CONSTRAINT_FIELD.UNIQUE, p[2])
 
 
 def p_constraints_2(p):
     'constraints : UNIQUE'
     bnf.addProduccion(f'\<constraints> ::= "{p[1].upper()}" ')
-    p[0] = p[1]
+    p[0] = ConstraintField(CONSTRAINT_FIELD.UNIQUE)
 
 
 #_________________________________________ <CHECKS>
@@ -1406,10 +1480,12 @@ def p_constraints_2(p):
 def p_checks_1(p):
     'checks : CONSTRAINT ID CHECK PABRE expresion PCIERRA '
     bnf.addProduccion(f'\<checks> ::= "{p[1].upper()}" "ID" "CHECK" "(" \<expresion> ")" ')
+    p[0] = CheckField(p[5], p[2])
 
 def p_checks_2(p):
     'checks : CHECK PABRE expresion PCIERRA'
     bnf.addProduccion(f'\<checks> ::= "{p[1].upper()}" "(" \<expresion> ")" ')  
+    p[0] = CheckField(p[5])
 
 
 
@@ -2008,10 +2084,35 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada(''' 
-select *
-from tbcolaborador 
-where substring(nombre,1,4) = 'suje' ;
+CREATE DATABASE IF NOT EXISTS test
+    OWNER = 'root'
+    MODE = 1;
+
+USE test;
+
+CREATE TABLE tbusuario (
+    idusuario integer NOT NULL primary key,
+	nombre varchar(50),
+	apellido varchar(50),
+	usuario varchar(15)  UNIQUE NOT NULL,
+	password varchar(15) NOT NULL,
+	fechacreacion date 
+);
+
+create table tblibrosalario
+( idempleado integer not null,
+  salariobase  money not null,
+  comision     decimal,
+  primary key ( idempleado )
+ );
+
+Create table tblibrosalariohis
+( idhistorico integer not null primary key
+) INHERITS (tblibrosalario);
+
 ''')
+
+arbolParser.ejecutar()
 # print(arbolParser)
-# arbolParser.dibujar()#viendo el resultado: 
+#arbolParser.dibujar()#viendo el resultado: 
 

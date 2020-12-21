@@ -73,10 +73,11 @@ class ListaBaseDatos:
 
                 try:
                     temp_old.Name = databaseNew
-                    temp_old.Name = databaseNew
-
-                    temp_path_old = main_path+"\\"+databaseOld
+                    
                     temp_path_new = main_path+"\\"+databaseNew
+                    temp_path_old = main_path+"\\"+databaseOld
+
+                    temp_old.main_path = temp_path_new
 
                     os.rename(temp_path_old, temp_path_new)
 

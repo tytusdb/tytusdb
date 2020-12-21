@@ -50,11 +50,12 @@ class Select2(Instruccion):
 class Select3(Instruccion):
     """ Instrucción SELECT """
 
-    def __init__(self, valores, pfrom, where, complementos):
+    def __init__(self, valores, pfrom, where, complementos, distinct):
         self.valores = valores
         self.pfrom = pfrom
         self.where = where
         self.complementos = complementos
+        self.distinct = distinct
 
 
 # INSTRUCCION SELECT SOLO VALORES
@@ -232,19 +233,20 @@ class DropDB(Instruccion):
 
 
         # INSTRUCCION DROPTB
-class DropTB(Instruccion):
+class DropT(Instruccion):
     """ Instrucción DROPTB """
 
-    def __init__(self, i_id):
-        self.i_id = i_id
+    def __init__(self, nombre):
+        self.nombre = nombre
         
 
 # INSTRUCCION IFEXIST1
 class IfExist1(Instruccion):
     """ Instrucción IF EXIST """
 
-    def __init__(self, nombre):
+    def __init__(self, nombre,exist):  # exist true o false
         self.nombre = nombre
+        self.exist = exist
 
         
 # INSTRUCCION IFEXIST2
@@ -441,3 +443,144 @@ class Owner_Mode(Instruccion):
         self.owner = owner
         self.mode = mode
 # ----------FIN DE CREATE DATABASE------------
+
+# CREATE TYPE
+
+class CreateType(Instruccion):
+    def __init__(self,idtype,valores):
+        self.idtype = idtype
+        self.valores = valores
+
+# DELETE
+
+class DeleteFrom(Instruccion):
+
+    def __init__(self, valor,pwhere ):
+        self.valor = valor
+        self.pwhere = pwhere
+
+#SUBCONSULTA
+
+class Subconsulta(Instruccion):
+    def __init__(self, subconsulta, alias):
+        self.subconsulta = subconsulta
+        self.alias = alias
+
+#FUNCIONES DE AGREGACION
+#COUNT AVG SUM MIN MAX
+class FuncionAgregacion(Instruccion):
+    
+    def __init__(self,nombre,parametro,alias):
+        self.nombre = nombre
+        self.parametro = parametro
+        self.alias = alias 
+
+#FUNCION QUE GUARDARA EL VALOR DE CONDICION Y SU ALIAS
+#VIENE DE PRODUCCION VALOR -> CONDICION ALIAS Y VALOR -> CONDICION
+class Valores(Instruccion):
+    
+    def __init__(self, valor, alias):
+        self.valor = valor
+        self.alias = alias
+
+#FUNCIONES TRIGONOMETRICAS
+#ACOS ACOSD ASIN ASIND ATAN ATAND ATAN2 ATAN2D COS COSD COT COTD SIN SIND TAN TAND SINH COSH TANH ASINH ACOSH ATANH
+class FuncionesTrigonometricas(Instruccion):
+    
+    def __init__(self,nombre,parametro,alias):
+        self.nombre = nombre
+        self.parametro = parametro
+        self.alias = alias
+
+#FUNCION GREATEST
+class FuncionGreatest(Instruccion):
+    
+    def __init__(self, parametros, alias):
+        self.parametros = parametros
+        self.alias = alias
+
+#FUNCION LEAST
+class FuncionLeast(Instruccion):
+    def __init__(self, parametros, alias):
+        self.parametros = parametros
+        self.alias = alias
+
+#FUNCION RANDOM
+class FuncionRandom(Instruccion):
+    def __init__(self, alias):
+        self.alias = alias
+
+#FUNCION PI
+class FuncionPi(Instruccion):
+    def __init__(self, alias):
+        self.alias = alias
+
+#FUNCION DECODE
+class Decode(Instruccion):
+    
+    def __init__(self,cadena,base, alias):
+        self.cadena = cadena
+        self.base = base
+        self.alias = alias
+
+#FUNCION ENCODE
+class Encode(Instruccion):
+    
+    def __init__(self,cadena,base, alias):
+        self.cadena = cadena
+        self.base = base
+        self.alias = alias
+
+#FUNCION CONVERT
+class Convert(Instruccion):
+    
+    def __init__(self,cadena, tipo, alias):
+        self.cadena = cadena
+        self.tipo = tipo
+        self.alias = alias
+
+#FUNCION SHA 256
+class Sha256(Instruccion):
+    def __init__(self,cadena, alias):
+        self.cadena = cadena
+        self.alias = alias
+
+#FUNCION GETBYTE
+class GetByte(Instruccion):
+    
+    def __init__(self,cadena,base, alias):
+        self.cadena = cadena
+        self.base = base
+        self.alias = alias
+
+#FUNCION SETBYTE
+class SetByte(Instruccion):
+    
+    def __init__(self,cadena, offset, cambio, alias):
+        self.cadena = cadena
+        self.offset = offset
+        self.cambio = cambio
+        self.alias = alias
+
+#CLASES PARA EL CASE
+class InstruccionCase(Instruccion):
+    def __init__(self, lwhen, alias):
+        self.lwhen = lwhen
+        self.alias = alias
+
+class InstruccionWhen(Instruccion):
+    def __init__(self, condicion, valor):
+        self.codicion = condicion
+        self.valor = valor
+
+class InstruccionElse(Instruccion):
+    def __init__(self, valor):
+        self.valor = valor
+
+#FUNCIONES MATEMATICAS
+class FuncionesMatematicas(Instruccion):
+    
+    def __init__(self,nombre,parametro,alias = ''):
+        self.nombre = nombre
+        self.parametro = parametro
+        self.alias = alias

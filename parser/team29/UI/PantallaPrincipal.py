@@ -17,6 +17,7 @@ class Pantalla:
         self.lexicalErrors = list()
         self.sintacticErrors = list()
         self.semanticErrors = list()
+        self.postgreSQL = list()
         self.inicializarScreen()
 
     def inicializarScreen(self):
@@ -74,7 +75,8 @@ class Pantalla:
         self.tabControl.pack()
 
     def analize(self):
-        entrada = self.txtEntrada.get("1.0", END)  # variable de almacenamiento de la entrada
+        self.refresh()
+        entrada = self.txt_entrada.get("1.0", END)  # variable de almacenamiento de la entrada
         result = grammar.parse(entrada)
         self.lexicalErrors = grammar.returnLexicalErrors()
         self.sintacticErrors = grammar.returnSintacticErrors()
@@ -82,7 +84,21 @@ class Pantalla:
         self.postgreSQL = grammar.returnPostgreSQLErrors()
         if len(self.lexicalErrors) + len(self.sintacticErrors) + len(self.semanticErrors) > 0:
             tkinter.messagebox.showerror( title="Error", message="El archivo contiene errores" )
-        
+        if len(self.postgreSQL)>0:
+            frame = Frame(self.tabControl,height=20,width=150,bg="#d3d3d3")
+            text = tk.Text(frame,height=20,width=150)
+            text.insert(INSERT,self.postgreSQL[0])
+            text.pack(fill=BOTH)
+            frame.pack(fill=BOTH)
+            self.tabControl.pack()
+            print(self.postgreSQL)
+
+    def refresh(self):
+        self.tabControl.pack_forget()
+        self.semanticErrors.clear()
+        self.sintacticErrors.clear()
+        self.lexicalErrors.clear()
+        self.postgreSQL.clear()
         
     def fill_table(
         self, columns, rows,tabla

@@ -1,0 +1,1041 @@
+graph "" {	node [style=filled];	node [shape = box];	node [fillcolor="cyan4"];	node [color="#EE0000"];	edge [color="#31CEF0"];
+
+n004 [label="SELECT"] ;
+n005 [label="LISTA_CAMPOS"] ;
+n006 [label="FROM"] ;
+n007 [label="NOMBRE_TABLAS"] ;
+n008 [label="UNIONS"] ;
+n005 -- n001;
+n007 -- n002;
+n008 -- n003;
+n009 [label="COMANDO"] ;
+n009 -- n004;
+n009 -- n005;
+n009 -- n006;
+n009 -- n007;
+n009 -- n008;
+n0011 [label="INSTRUCCION"] ;
+n0011 -- n009;
+n0013 [label="INICIO"] ;
+n0014 [label="INSTRUCCIONES"] ;
+n0014 -- n0013;
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<<<<<<< Updated upstream
+
+
+
+
+
+
+
+
+
+
+
+
+<<<<<<< HEAD
+=======
+=======
+>>>>>>> Stashed changes
+>>>>>>> 1980812dab9e00aa846beec3997efa37882953aa
+
+
+
+
+
+
+
+	46 [label=4]
+	Node26 -> 27
+	Node48 [label=INSERT]
+	Node0 -> Node48
+	Node49 [label="ID TABLA"]
+	Node48 -> Node49
+	Node50 [label=products]
+	Node49 -> Node50
+	Node51 [label=producto2]
+	Node49 -> Node51
+	Node52 [label="VALORES TABLA"]
+	Node48 -> Node52
+	Node53 [label="VALOR NUEVO"]
+	Node52 -> Node53
+	54 [label=ExpresionAritmetica]
+	55 [label=exp1]
+	54 -> 55
+	55 -> 56
+	56 [label=ExpresionValor]
+	56 -> 57
+	57 [label=5]
+	58 [label="+"]
+	54 -> 58
+	59 [label=exp2]
+	54 -> 59
+	59 -> 60
+	60 [label=ExpresionAritmetica]
+	61 [label=exp1]
+	60 -> 61
+	61 -> 62
+	62 [label=ExpresionValor]
+	62 -> 63
+	63 [label=<expresiones.ExpresionAritmetica object at 0x000001631D858FA0>]
+	64 [label="*"]
+	60 -> 64
+	65 [label=exp2]
+	60 -> 65
+	65 -> 66
+	66 [label=ExpresionValor]
+	66 -> 67
+	67 [label=9]
+	Node53 -> 54
+	Node69 [label="VALOR NUEVO"]
+	Node52 -> Node69
+	70 [label=ExpresionValor]
+	70 -> 71
+	71 [label=4]
+	Node69 -> 70
+	Node73 [label="VALOR NUEVO"]
+	Node52 -> Node73
+	74 [label=ExpresionValor]
+	74 -> 75
+	75 [label=hola]
+	Node73 -> 74
+	Node77 [label="CREATE TABLE"]
+	Node0 -> Node77
+	Node78 [label="Id: Profesion"]
+	Node77 -> Node78
+	Node79 [label=CAMPO]
+	Node77 -> Node79
+	Node80 [label="Id: mi"]
+	Node79 -> Node80
+	Node81 [label="Tipo: text"]
+	Node79 -> Node81
+	Node82 [label="CREATE TABLE"]
+	Node0 -> Node82
+	Node83 [label="Id: Estudiantes"]
+	Node82 -> Node83
+	Node84 [label=CAMPO]
+	Node82 -> Node84
+	Node85 [label="Id: mi"]
+	Node84 -> Node85
+	Node86 [label="Tipo: text"]
+	Node84 -> Node86
+	Node87 [label=INHERITS]
+	Node82 -> Node87
+	Node88 [label="Id: Uni"]
+	Node87 -> Node88
+	Node89 [label="DROP TABLE"]
+	Node0 -> Node89
+	Node90 [label=Mitabla]
+	Node89 -> Node90
+	Node91 [label=INSERT]
+	Node0 -> Node91
+	Node92 [label="ID TABLA"]
+	Node91 -> Node92
+	Node93 [label=products]
+	Node92 -> Node93
+	Node94 [label=producto2]
+	Node92 -> Node94
+	Node95 [label="VALORES TABLA"]
+	Node91 -> Node95
+	Node96 [label="VALOR NUEVO"]
+	Node95 -> Node96
+	97 [label=ExpresionAritmetica]
+	98 [label=exp1]
+	97 -> 98
+	98 -> 99
+	99 [label=ExpresionValor]
+	99 -> 100
+	100 [label=5]
+	101 [label="+"]
+	97 -> 101
+	102 [label=exp2]
+	97 -> 102
+	102 -> 103
+	103 [label=ExpresionAritmetica]
+	104 [label=exp1]
+	103 -> 104
+	104 -> 105
+	105 [label=ExpresionValor]
+	105 -> 106
+	106 [label=5]
+	107 [label="*"]
+	103 -> 107
+	108 [label=exp2]
+	103 -> 108
+	108 -> 109
+	109 [label=ExpresionValor]
+	109 -> 110
+	110 [label=9]
+	Node96 -> 97
+	Node112 [label="VALOR NUEVO"]
+	Node95 -> Node112
+	113 [label=ExpresionValor]
+	113 -> 114
+	114 [label=4]
+	Node112 -> 113
+	Node116 [label="VALOR NUEVO"]
+	Node95 -> Node116
+	117 [label=ExpresionValor]
+	117 -> 118
+	118 [label=hola]
+	Node116 -> 117
+	Node120 [label=INSTRUCCION_SELECT]
+	Node0 -> Node120
+	Node121 [label=SELECT]
+	Node120 -> Node121
+	Node122 [label=LISTA_CAMPOS]
+	Node120 -> Node122
+	Node123 [label=ACCESO_CAMPO]
+	Node122 -> Node123
+	Node124 [label="nombre.id"]
+	Node123 -> Node124
+	Node125 [label=Lista_Alias]
+	Node123 -> Node125
+	Node126 [label=Alias_Produccion]
+	Node125 -> Node126
+	Node127 [label=As]
+	Node126 -> Node127
+	Node128 [label=j]
+	Node126 -> Node128
+	Node129 [label=Lista_Sentencias]
+	Node126 -> Node129
+	Node130 [label=ACCESO_CAMPO]
+	Node129 -> Node130
+	Node131 [label="nombre.id"]
+	Node130 -> Node131
+	Node132 [label=FROM]
+	Node120 -> Node132
+	Node133 [label=LISTA_TABLAS]
+	Node120 -> Node133
+	Node134 [label=Nombre_Tabla]
+	Node133 -> Node134
+	Node135 [label=tabla1]
+	Node134 -> Node135
+	Node136 [label=Lista_Alias]
+	Node134 -> Node136
+	Node137 [label=Alias_Produccion]
+	Node136 -> Node137
+	Node138 [label=","]
+	Node137 -> Node138
+	Node139 [label=Tabla]
+	Node137 -> Node139
+	Node140 [label=Nombre_Tabla]
+	Node139 -> Node140
+	Node141 [label=tabla]
+	Node140 -> Node141
+	Node142 [label=Lista_Alias]
+	Node140 -> Node142
+	Node143 [label=Alias_Produccion]
+	Node142 -> Node143
+	Node144 [label=As]
+	Node143 -> Node144
+	Node145 [label=j]
+	Node143 -> Node145
+	Node146
+	Node120 -> Node146
+	Node147 [label=INSERT]
+	Node0 -> Node147
+	Node148 [label="ID TABLA"]
+	Node147 -> Node148
+	Node149 [label=products]
+	Node148 -> Node149
+	Node150 [label=producto2]
+	Node148 -> Node150
+	Node151 [label="VALORES TABLA"]
+	Node147 -> Node151
+	Node152 [label="VALOR NUEVO"]
+	Node151 -> Node152
+	153 [label=ExpresionRelacional]
+	154 [label=exp1]
+	153 -> 154
+	154 -> 155
+	155 [label=ExpresionValor]
+	155 -> 156
+	156 [label=size]
+	157 [label="=="]
+	153 -> 157
+	158 [label=exp2]
+	153 -> 158
+	158 -> 159
+	159 [label=ExpresionValor]
+	159 -> 160
+	160 [label=20]
+	Node152 -> 153
+	Node162 [label="VALOR NUEVO"]
+	Node151 -> Node162
+	163 [label=ExpresionValor]
+	163 -> 164
+	164 [label=4]
+	Node162 -> 163
+	Node166 [label="VALOR NUEVO"]
+	Node151 -> Node166
+	167 [label=ExpresionValor]
+	167 -> 168
+	168 [label=hola]
+	Node166 -> 167
+	Node170 [label=DELETE]
+	Node0 -> Node170
+	Node171 [label="ID TABLA"]
+	Node170 -> Node171
+	Node172 [label=products]
+	Node171 -> Node172
+	Node173 [label=WHERE]
+	Node170 -> Node173
+	Node174 [label="VALOR CONDICION"]
+	Node173 -> Node174
+	Node174 -> 175
+	Node176 [label=INSTRUCCION_SELECT]
+	Node0 -> Node176
+	Node177 [label=SELECT]
+	Node176 -> Node177
+	Node178 [label=LISTA_CAMPOS]
+	Node176 -> Node178
+	Node179 [label=ACCESO_CAMPO]
+	Node178 -> Node179
+	Node180 [label="*"]
+	Node179 -> Node180
+	Node181 [label=FROM]
+	Node176 -> Node181
+	Node182 [label=LISTA_TABLAS]
+	Node176 -> Node182
+	Node183 [label=Nombre_Tabla]
+	Node182 -> Node183
+	Node184 [label=tbsujeto]
+	Node183 -> Node184
+	Node185 [label=CUERPO]
+	Node176 -> Node185
+	Node186 [label=Cuerpo]
+	Node185 -> Node186
+	Node187 [label=Where]
+	Node186 -> Node187
+	Node188 [label=CONDICION]
+	Node186 -> Node188
+	Node188 -> 189
+	Node190
+	Node176 -> Node190
+	Node191 [label=INSTRUCCION_SELECT]
+	Node0 -> Node191
+	Node192 [label=SELECT]
+	Node191 -> Node192
+	Node193 [label=LISTA_CAMPOS]
+	Node191 -> Node193
+	Node194 [label=ACCESO_CAMPO]
+	Node193 -> Node194
+	Node195 [label="*"]
+	Node194 -> Node195
+	Node196 [label=FROM]
+	Node191 -> Node196
+	Node197 [label=LISTA_TABLAS]
+	Node191 -> Node197
+	Node198 [label=Nombre_Tabla]
+	Node197 -> Node198
+	Node199 [label=tbsujeto]
+	Node198 -> Node199
+	Node200 [label=CUERPO]
+	Node191 -> Node200
+	Node201 [label=Cuerpo]
+	Node200 -> Node201
+	Node202 [label=Where]
+	Node201 -> Node202
+	Node203 [label=CONDICION]
+	Node201 -> Node203
+	Node203 -> 204
+	Node205
+	Node191 -> Node205
+	Node206 [label=INSTRUCCION_SELECT]
+	Node0 -> Node206
+	Node207 [label=SELECT]
+	Node206 -> Node207
+	Node208 [label=LISTA_CAMPOS]
+	Node206 -> Node208
+	Node209 [label=ACCESO_CAMPO]
+	Node208 -> Node209
+	Node210 [label="*"]
+	Node209 -> Node210
+	Node211 [label=FROM]
+	Node206 -> Node211
+	Node212 [label=LISTA_TABLAS]
+	Node206 -> Node212
+	Node213 [label=Nombre_Tabla]
+	Node212 -> Node213
+	Node214 [label=tbcolaborador]
+	Node213 -> Node214
+	Node215 [label=CUERPO]
+	Node206 -> Node215
+	Node216 [label=Cuerpo]
+	Node215 -> Node216
+	Node217 [label=Where]
+	Node216 -> Node217
+	Node218 [label=CONDICION]
+	Node216 -> Node218
+	Node218 -> 219
+	Node220
+	Node206 -> Node220
+	Node221 [label=INSTRUCCION_SELECT]
+	Node0 -> Node221
+	Node222 [label=SELECT]
+	Node221 -> Node222
+	Node223 [label=LISTA_CAMPOS]
+	Node221 -> Node223
+	Node224 [label=ACCESO_CAMPO]
+	Node223 -> Node224
+	Node225 [label="*"]
+	Node224 -> Node225
+	Node226 [label=FROM]
+	Node221 -> Node226
+	Node227 [label=LISTA_TABLAS]
+	Node221 -> Node227
+	Node228 [label=Nombre_Tabla]
+	Node227 -> Node228
+	Node229 [label=tbcolaborador]
+	Node228 -> Node229
+	Node230 [label=CUERPO]
+	Node221 -> Node230
+	Node231 [label=Cuerpo]
+	Node230 -> Node231
+	Node232 [label=Where]
+	Node231 -> Node232
+	Node233 [label=CONDICION]
+	Node231 -> Node233
+	234 [label=ExpresionRelacional]
+	235 [label=exp1]
+	234 -> 235
+	235 -> 236
+	236 [label=ExpresionValor]
+	236 -> 237
+	237 [label=nombre]
+	238 [label="=="]
+	234 -> 238
+	239 [label=exp2]
+	234 -> 239
+	239 -> 240
+	240 [label=ExpresionValor]
+	240 -> 241
+	241 [label=true]
+	Node233 -> 234
+	Node243
+	Node221 -> Node243
+	Node244 [label=INSTRUCCION_SELECT]
+	Node0 -> Node244
+	Node245 [label=SELECT]
+	Node244 -> Node245
+	Node246 [label=LISTA_CAMPOS]
+	Node244 -> Node246
+	Node247 [label=ACCESO_CAMPO]
+	Node246 -> Node247
+	Node248 [label="*"]
+	Node247 -> Node248
+	Node249 [label=FROM]
+	Node244 -> Node249
+	Node250 [label=LISTA_TABLAS]
+	Node244 -> Node250
+	Node251 [label=Nombre_Tabla]
+	Node250 -> Node251
+	Node252 [label=tbcolaborador]
+	Node251 -> Node252
+	Node253 [label=CUERPO]
+	Node244 -> Node253
+	Node254 [label=Cuerpo]
+	Node253 -> Node254
+	Node255 [label=Where]
+	Node254 -> Node255
+	Node256 [label=CONDICION]
+	Node254 -> Node256
+	Node256 -> 257
+	Node258
+	Node244 -> Node258
+	Node259 [label=INSTRUCCION_SELECT]
+	Node0 -> Node259
+	Node260 [label=SELECT]
+	Node259 -> Node260
+	Node261 [label=LISTA_CAMPOS]
+	Node259 -> Node261
+	Node262 [label=ACCESO_CAMPO]
+	Node261 -> Node262
+	Node263 [label="*"]
+	Node262 -> Node263
+	Node264 [label=FROM]
+	Node259 -> Node264
+	Node265 [label=LISTA_TABLAS]
+	Node259 -> Node265
+	Node266 [label=Nombre_Tabla]
+	Node265 -> Node266
+	Node267 [label=tbcolaborador]
+	Node266 -> Node267
+	Node268 [label=CUERPO]
+	Node259 -> Node268
+	Node269 [label=Cuerpo]
+	Node268 -> Node269
+	Node270 [label=Where]
+	Node269 -> Node270
+	Node271 [label=CONDICION]
+	Node269 -> Node271
+	Node271 -> 272
+	Node273
+	Node259 -> Node273
+	Node274 [label=INSERT]
+	Node0 -> Node274
+	Node275 [label="ID TABLA"]
+	Node274 -> Node275
+	Node276 [label=products]
+	Node275 -> Node276
+	Node277 [label=producto2]
+	Node275 -> Node277
+	Node278 [label="VALORES TABLA"]
+	Node274 -> Node278
+	Node279 [label="VALOR NUEVO"]
+	Node278 -> Node279
+	280 [label=ExpresionRelacional]
+	281 [label=exp1]
+	280 -> 281
+	281 -> 282
+	282 [label=ExpresionValor]
+	282 -> 283
+	283 [label=size]
+	284 [label="=="]
+	280 -> 284
+	285 [label=exp2]
+	280 -> 285
+	285 -> 286
+	286 [label=ExpresionValor]
+	286 -> 287
+	287 [label=20]
+	Node279 -> 280
+	Node289 [label="VALOR NUEVO"]
+	Node278 -> Node289
+	290 [label=ExpresionValor]
+	290 -> 291
+	291 [label=4]
+	Node289 -> 290
+	Node293 [label="VALOR NUEVO"]
+	Node278 -> Node293
+	294 [label=ExpresionValor]
+	294 -> 295
+	295 [label=hola]
+	Node293 -> 294
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> master
+
+
+
+
+
+
+
+
+<<<<<<< HEAD
+
+
+
+
+
+
+=======
+>>>>>>> master
+
+
+
+=======
+>>>>>>> master
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<<<<<<< HEAD
+=======
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+>>>>>>> 7298c31e352064ad0312737a851cd953b5cc99a1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

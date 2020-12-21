@@ -1405,7 +1405,8 @@ def returnSintacticErrors():
 
 
 def returnPostgreSQLErrors():
-    instruction.sintaxPostgreSQL += PostgreSQL
+    expression.list_errors += PostgreSQL
+    instruction.sintaxPostgreSQL += expression.list_errors
     return instruction.sintaxPostgreSQL
 
 
