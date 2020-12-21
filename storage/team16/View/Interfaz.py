@@ -1,10 +1,8 @@
-from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, Scrollbar, \
-    Listbox, \
-    Grid, Entry, filedialog, messagebox, Toplevel
+from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, ALL, Scrollbar, \
+    Listbox, Grid, Entry, filedialog, messagebox, Toplevel, Canvas
 from tkinter.ttk import Combobox
 from PIL import Image, ImageTk
 from controller import Controller, Enums
-
 
 class GUI(Frame):
 
@@ -27,7 +25,7 @@ class GUI(Frame):
         elif self.val == 2:
             self.funciones()
         elif self.val == 3:
-            self.reportes(self.controller)
+            self.reportes()
 
     def centrar(self):
         if self.val == 1:
@@ -57,7 +55,7 @@ class GUI(Frame):
         app2.mainloop()
 
     def ventanaReporte(self):
-        v3 = Tk()
+        v3 = Toplevel()
         self.master.iconify()
         v3['bg'] = "#0f1319"
         v3.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(v3, self.master))
@@ -81,7 +79,7 @@ class GUI(Frame):
         btnR.pack(side=TOP, pady=(0, 25))
 
         btnS = Button(text="SALIR", bg="#bf4040", bd=0, activebackground="#924040",
-                      font="Arial 18", pady=0, width=14, command=exit)
+                      font="Arial 18", pady=0, width=14, command=lambda: exit())
         btnS.pack(side=TOP, pady=(0, 25))
 
     # endregion
@@ -125,6 +123,13 @@ class GUI(Frame):
                            borderwidth=0.5, pady=6, width=16,
                            command=lambda: self.simpleDialog(["database"], self.actions[4]))
         btnDropDB.grid(row=5, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
+
+        btnFormat = Button(self.master,
+                           text=self.actions[23],
+                           bg="#abb2b9", font=("Courier New", 14),
+                           borderwidth=0.5, pady=6, width=16,
+                           command=lambda: self.controller.execute(None, self.actions[23]))
+        btnFormat.grid(row=6, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
         # endregion
 
         # region Tablas
@@ -246,41 +251,116 @@ class GUI(Frame):
                                borderwidth=0.5, pady=6, width=12,
                                command=lambda: self.simpleDialog(["database", "tableName"], self.actions[22]))
         btnTruncateTp.grid(row=7, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
-
         # endregion
-
     # endregion
 
     # region Ventana de reporte
-    def reportes(self, controller):
-        self.controller = controller
-
-        self.titulo3 = Label(self.master, text="Árbol AVL", bg="#0f1319", fg="#45c2c5",
+    def reportes(self):
+        self.titulo3 = Label(self.master, text="Reporte bases de datos", bg="#0f1319", fg="#45c2c5",
                              font=("Century Gothic", 42), pady=12)
         self.titulo3.pack(fill=X)
 
-        self.scrollbar = Scrollbar(self.master)
-        self.scrollbar.pack(side=RIGHT, fill=Y)
-        self.listbox = Listbox(self.master, yscrollcommand=self.scrollbar.set, height=21, width=20,
+        self.scrollbarY = Scrollbar(self.master)
+        self.scrollbarY.pack(side=RIGHT, fill=Y)
+
+        self.scrollbarX = Scrollbar(self.master, orient='horizontal')
+        self.scrollbarX.pack(side=BOTTOM, fill=X)
+
+        self.listbox = Listbox(self.master, height=21, width=20,
                                bg="#0f1319", bd=0, fg='#ffffff', font=("Century Gothic", 12))
-        self.listbox.pack(side=LEFT, padx=(60, 0))
-        self.scrollbar.config(command=self.listbox.yview)
+        self.listbox.place(x=65, y=122)
 
-        self.panel = Label(self.master, bg="#ffffff", height=25, width=110)
-        self.panel.pack(side=TOP, pady=(100, 0))
+        self.listbox.bind("<<ListboxSelect>>", self.displayDBData)
 
-        self.desplegarDB(controller)
-        self.listbox.bind("<<ListboxSelect>>", self.displayData)
-
-        self.tableList = Combobox(self.master, state="readonly")
-        self.tableList.place(x=450, y=130)
+        self.tableList = Combobox(self.master, state="readonly", width=30, font=("Century Gothic", 12))
+        self.tableList.place(x=360, y=120)
+        self.tableList.set('Tablas')
         self.tableList.bind("<<ComboboxSelected>>", self.displayTableData)
 
-        self.tuplelist = Combobox(self.master, state="readonly")
-        self.tuplelist.place(x=850, y=130)
-        self.tuplelist.bind("<<ComboboxSelected>>", self.tupleMode)
+        self.tuplelist = Combobox(self.master, state="readonly", width=30, font=("Century Gothic", 12))
+        self.tuplelist.place(x=750, y=120)
+        self.tuplelist.set('Tuplas')
+        self.tuplelist.bind("<<ComboboxSelected>>", self.displayTupleData)
 
-        self.opcion = 0
+        self.canvas = Canvas(self.master, width=740, height=415, bg="#778899", highlightthickness=0)
+        self.canvas.place(x=320, y=170)
+        # self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+
+        self.scrollbarY.config(command=self.canvas.yview)
+        self.scrollbarX.config(command=self.canvas.xview)
+        
+        self.desplegarDB()
+    
+    #Mostrar lista de base de datos
+    def desplegarDB(self):
+        try:
+            dblist = self.controller.execute(None, self.actions[2])
+            for db in dblist:
+                self.listbox.insert(END, str(db))
+            png = self.controller.reportDB()
+            bg_DB = ImageTk.PhotoImage(Image.open(png))
+            self.image_on_canvas = self.canvas.create_image(370, 207, anchor=CENTER, image=bg_DB)
+            # self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+            # self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+            self.master.mainloop()
+        except:
+            None
+        
+    #Mostrar lista de tablas
+    def displayDBData(self, event):
+        try:
+            selection = event.widget.curselection()
+            data = ""
+            tmp = []
+            if selection:
+                self.tableList.set('Tablas')
+                self.tuplelist.set('Tuplas')
+                index = selection[0]
+                data = event.widget.get(index)
+                self.titulo3.configure(text=data)
+                tmp.append(data)
+                dbList = self.controller.execute(tmp, self.actions[6])
+                self.tableList["values"] = dbList
+                png = self.controller.reportTBL(data)
+                bg_TBL = ImageTk.PhotoImage(Image.open(png))
+                self.canvas.itemconfig(self.image_on_canvas, image=bg_TBL)
+                self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+                self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+                self.master.mainloop()
+        except:
+            None
+             
+    #Mostrar AVL de tabla
+    def displayTableData(self, event):
+        try:
+            self.tuplelist.set('Tuplas')
+            db = str(self.titulo3["text"])
+            tb =  str(self.tableList.get())
+            tp = self.controller.getIndexes(db,tb)
+            self.tuplelist["values"] = tp
+            png = self.controller.reportAVL(db, tb)
+            bg_AVL = ImageTk.PhotoImage(Image.open(png))
+            self.canvas.itemconfig(self.image_on_canvas, image=bg_AVL)
+            self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+            self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+            self.master.mainloop()
+        except:
+            None
+
+    #Mostrar tupla
+    def displayTupleData(self, event):
+        try:
+            db = str(self.titulo3["text"])
+            tb =  str(self.tableList.get())
+            tp = str(self.tuplelist.get())
+            png = self.controller.reportTPL(db, tb, tp) #le envío el índice del árbol (tp)
+            bg_TPL = ImageTk.PhotoImage(Image.open(png))
+            self.canvas.itemconfig(self.image_on_canvas, image=bg_TPL)
+            self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+            self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+            self.master.mainloop()
+        except:
+            None
 
     # endregion
 
@@ -318,7 +398,6 @@ class GUI(Frame):
                         command=lambda: self.ejecutar(dialog, tmp, action))
         submit.grid(row=dim + 1, columnspan=2, pady=(8, 10))
         dialog.mainloop()
-
     # endregion
 
     def cargarArchivo(self, btn):
@@ -337,38 +416,7 @@ class GUI(Frame):
         if response in range(1, 7):
             return messagebox.showerror("Error número: " + str(response),
                                         "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
-        messagebox.showinfo("Siuu", "Proceso realizado con éxito")
         dialog.destroy()
-
-    def desplegarDB(self, controller):
-        dbList = controller.execute(None, "Show DB")
-        for i in dbList:
-            self.listbox.insert(END, str(i))
-
-    def displayData(self, event):
-        selection = event.widget.curselection()
-        data = ""
-        if selection:
-            index = selection[0]
-            data = event.widget.get(index)
-            self.titulo3.configure(text=data)
-        dbList = self.controller.execute(None, "Show DB")
-        for db in dbList:
-            if db == str(data):
-                self.tableList["values"] = self.controller.execute([db], "Show Tables")
-                if len(self.tableList["values"]) > 0:
-                    self.tableList.current(0)
-                break
-
-    def displayTableData(self, event):
-        db =str(self.titulo3["text"])
-        tb =  str(self.tableList.get())
-        tp = self.controller.execute([db, tb], "Extract Table")
-        self.tuplelist["values"] = tp
-        # graficar tabla
-
-    def tupleMode(self, event):
-            # graficar la tupla
 
 
 def run():
@@ -379,6 +427,3 @@ def run():
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
     app = GUI(master=v1, val=1)
     app.mainloop()
-
-
-#run()
