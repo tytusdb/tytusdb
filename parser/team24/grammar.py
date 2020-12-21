@@ -779,7 +779,7 @@ def p_having(t):
 
 def p_havingEmpty(t):
     'having : empty'
-    t[0] = []
+    t[0] = None
 
 def p_orderby(t):
     'order : ORDER BY ID columnp ascdsc'
@@ -787,7 +787,7 @@ def p_orderby(t):
 
 def p_orderbyEmpty(t):
     'order : empty'
-    t[0] = []
+    t[0] = None
 
 def p_ascdsc(t):
     '''ascdsc : ASC
