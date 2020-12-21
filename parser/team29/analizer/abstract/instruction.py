@@ -99,7 +99,7 @@ class Select(Instruction):
         # Si la clausula WHERE devuelve un dataframe vacio
         if w2.empty:
             return None
-        
+
         return [w2, environment.types]
 
 
@@ -252,6 +252,63 @@ class Delete(Instruction):
             print(result)
         """
         return "Operacion DELETE completada"
+
+
+class Update(Instruction):
+    def __init__(self, fromcl, values, wherecl, row, column):
+        Instruction.__init__(self, row, column)
+        self.wherecl = wherecl
+        self.fromcl = fromcl
+        self.values = values
+
+    def execute(self, environment):
+        # Verificamos que no pueden venir mas de 1 tabla en el clausula FROM
+        if len(self.fromcl.tables) > 1:
+            return "Error: syntax error at or near ','"
+        newEnv = Environment(environment, dbtemp)
+        self.fromcl.execute(newEnv)
+        value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
+        labels = [p for p in newEnv.dataFrame]
+        for i in range(len(labels)):
+            newEnv.dataFrame[labels[i]] = value[i]
+        if self.wherecl == None:
+            w2 = newEnv.dataFrame.filter(labels)
+        else:
+            wh = self.wherecl.execute(newEnv)
+            w2 = wh.filter(labels)
+        # Si la clausula WHERE devuelve un dataframe vacio
+        if w2.empty:
+            return "Operacion UPDATE completada"
+        # Logica para realizar el update
+        table = self.fromcl.tables[0].name
+        pk = Struct.extractPKIndexColumns(dbtemp, table)
+        # Se obtienen las parametros de las llaves primarias para proceder a eliminar
+        rows = []
+        if pk:
+            for row in w2.values:
+                rows.append([row[p] for p in pk])
+        else:
+            rows.append([i for i in w2.index])
+        print(rows)
+        # Obtenemos las variables a cambiar su valor
+        ids = [p.id for p in self.values]
+        values = [p.execute(newEnv).value for p in self.values]
+        print(ids, values)
+        # TODO: La funcion del STORAGE esta bugueada
+
+        return "Operacion UPDATE completada"
+
+
+class Assignment(Instruction):
+    def __init__(self, id, value, row, column):
+        Instruction.__init__(self, row, column)
+        self.id = id
+        self.value = value
+
+    def execute(self, environment):
+        if self.value != "DEFAULT":
+            self.value = self.value.execute(environment).value
+        return self
 
 
 class Drop(Instruction):
@@ -629,9 +686,11 @@ class CreateTable(Instruction):
             insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
             if insert == None:
                 pk = Struct.extractPKIndexColumns(dbtemp, self.name)
-                addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
+                addPK = 0
+                if pk:
+                    addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
                 if addPK != 0:
-                    print("Error en llaves primarias del CREATE TABLE")
+                    print("Error en llaves primarias del CREATE TABLE:", self.name)
                 report = "Tabla " + self.name + " creada"
             else:
                 jsonMode.dropTable(dbtemp, self.name)
