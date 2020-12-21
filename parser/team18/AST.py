@@ -68,6 +68,35 @@ def buscarTabla(baseAc,nombre):
                 pos=pos+1
     return None
 
+def validarTipo(T,valCOL):
+    if(valCOL==None):
+        ''
+    #acepta int
+    elif(T=="smallint" or T=="integer" or T=="bigint"):
+        try:
+            valCOL=int(float(valCOL))
+        except:
+            valCOL=None
+    #acepta float
+    elif(T=="decimal" or T=="numeric" or T=="real" or T=="double precision" or T=="money"):
+        try:
+            valCOL=float(valCOL)
+        except:
+            valCOL=None
+    #acepta str        
+    elif(T=="character varying" or T=="varchar" or T=="text" or T=="character" or T=="char"):
+        try:
+            valCOL=str(valCOL)
+        except:
+            valCOL=None
+    #acepta date
+    elif(T=="date" or T=="timestamp" or T=="time" or T=="interval" or T=="boolean"):
+        print("falta validar las fechas")
+    #acepta Type
+    else:
+        print("falta validar los Type")
+    return valCOL
+
 def use_db(nombre):
     global baseActiva
     baseActiva = nombre
@@ -236,7 +265,6 @@ def seleccion_db(instr,ts):
 def crear_Tabla(instr,ts):
     #Pendiente
     # -foraneas
-    # -default igual al tipo de la columna
     # -tipo columna TYPE
     # -zonahoraria
     # -check
@@ -365,7 +393,18 @@ def crear_Tabla(instr,ts):
                         if isinstance(atributoC, atributoColumna):
                             if(atributoC.default!=None):
                                 if(colAux.default==None):
-                                    colAux.default=resolver_operacion(atributoC.default,ts)#guardar default
+                                    T=resolver_operacion(atributoC.default,ts)#valor default
+                                    T=validarTipo(colAux.tipo,T)
+                                    if isinstance(atributoC.default,Operando_ID):
+                                        crearOK=False
+                                        msg='42804:no se puede asignar como default un ID col:'+colAux.nombre
+                                        agregarMensjae('error',msg,'42804')
+                                    elif(T==None or isinstance(atributoC.default,Operando_ID)):
+                                        T=''
+                                        crearOK=False
+                                        msg='42804:valor default != '+colAux.tipo+ ' en col:'+colAux.nombre
+                                        agregarMensjae('error',msg,'42804')
+                                    colAux.default=T#guardar default
                                 else:
                                     crearOK=False
                                     msg='42P16:atributo default repetido en Col:'+colAux.nombre
@@ -424,6 +463,16 @@ def crear_Tabla(instr,ts):
                 insertartabla(listaColumnas,nombreT)
                 msg='Todo OK'
                 agregarMensjae('exito',msg,'')
+                #agregar las llaves primarias
+                x=0
+                lis=[]
+                for col in listaColumnas:
+                    if(col.primary==True):
+                        lis.append(x)
+                    x=x+1
+                if(len(lis)>0):
+                    EDD.alterAddPK(baseActiva,nombreT,lis)
+
         else:
             msg='no existe la base de datos activa:'+baseActiva
             agregarMensjae('error',msg,'')
@@ -484,18 +533,13 @@ def crear_Type(instr,ts):
         msg='No hay una base de datos activa'
         agregarMensjae('alert',msg,'')
 
-
 def insertar_en_tabla(instr,ts):
     #pendiente
     # -Datos de tipo fecha
     # -Datos TYPE
     # -size and precision
-    #
-    #-si columas!=false----> #columnas[] =#valores[]
-    #   -verificar si las columas existen en esa tabla
-    #   -verificar si Tipocolum=Tipovalores
-    #-sino   
-    #-llaves primaras y foraneas deben estar en los valores
+    # -check
+    # -constraint
     insertOK=True
     ValInsert=[] #lista de valores a insertar
     nombreT=resolver_operacion(instr.nombre,ts).lower()
@@ -515,8 +559,7 @@ def insertar_en_tabla(instr,ts):
     else:
         insertOK=False
         msg='no existe la base de datos activa:'+baseActiva
-        agregarMensjae('error',msg,'')
-        
+        agregarMensjae('error',msg,'')   
     #tabla no guardada en temporal
     if(tablaInsert == None):
         insertOK=False
@@ -524,83 +567,174 @@ def insertar_en_tabla(instr,ts):
         agregarMensjae('error',msg,'')
     #-entrada solo con valores
     elif(instr.columnas==False):
+        #crear la lista de columnas con NOne para EDD
+        x=len(tablaInsert.atributos)
+        while x>0:
+            ValInsert.append(None)
+            x=x-1
         #no exeder numero de columnas
         if(len(tablaInsert.atributos)>=len(instr.valores)):
             pos=0
             for col in instr.valores:
                 #error al colocar un id
-                if isinstance(col,Operando_ID):
+                valCOL=resolver_operacion(col,ts)#valor de la columna
+                x=''
+                try:
+                    x=col.lower()
+                except:
+                    ''
+                if(x=='null'):
+                    valCOL=Operando_Booleano
+                elif isinstance(col,Operando_ID):
+                    #valores null
                     insertOK=False
                     msg='42804:no se pueden insertar valores de tipo ID:'+resolver_operacion(col,ts)
                     agregarMensjae('error',msg,'42804')
                 else:
-                    #Tipocolum[n]=Tipovalores[n]
+                    #validar el tipo de dato
                     valCOL=resolver_operacion(col,ts)#valor de la columna
-                    T=tablaInsert.atributos[pos].tipo
-                    #acepta int
+                    T=tablaInsert.atributos[pos].tipo#Tipo de la columna
+                    valCOL=(validarTipo(T,valCOL))
                     if(valCOL==None):
-                        insertOK=False;
-                        msg='42804:El tipo de dato no es correcto:'
+                        insertOK=False
+                        msg='42804:La columna '+tablaInsert.atributos[pos].nombre+' es de tipo '+tablaInsert.atributos[pos].tipo
                         agregarMensjae('error',msg,'42804')
-                    elif(T=="smallint" or T=="integer" or T=="bigint"):
-                        try:
-                            valCOL=int(valCOL)
-                            ValInsert.append(valCOL)
-                        except ValueError:
-                            insertOK=False;
-                            msg='42804:El tipo de dato no es correcto:'+valCOL
-                            agregarMensjae('error',msg,'42804')
-                    #acepta float
-                    elif(T=="decimal" or T=="numeric" or T=="real" or T=="double precision" or T=="money"):
-                        try:
-                            valCOL=float(valCOL)
-                            ValInsert.append(valCOL)
-                        except ValueError:
-                            insertOK=False;
-                            msg='42804:El tipo de dato no es correcto:'+valCOL
-                            agregarMensjae('error',msg,'42804')
-                    #acepta str        
-                    elif(T=="character varying" or T=="varchar" or T=="text" or T=="character" or T=="char"):
-                        try:
-                            valCOL=str(valCOL)
-                            #validar size para 
-                            ValInsert.append(valCOL)
-                        except ValueError:
-                            insertOK=False;
-                            msg='42804:El tipo de dato no es correcto:'+valCOL
-                            agregarMensjae('error',msg,'42804')
-                    #acepta date
-                    elif(T=="date" or T=="timestamp" or T=="time" or T=="interval" or T=="boolean"):
-                        print("falta validar las fechas")
-                        ValInsert.append(valCOL)
-                    else:
-                        print("falta validar los Type")
-                        ValInsert.append(valCOL)
+
+                ValInsert[pos]=valCOL
                 pos=pos+1
         else:
             insertOK=False
             msg='42601:la tabla solo posee '+str(len(tablaInsert.atributos))+' columas'
-            agregarMensjae('error',msg,'42601')
-                
+            agregarMensjae('error',msg,'42601')            
+    #-entrada con columnas y valores
     else:
-        if(len(instr.columnas)!=len(instr.valores)):
+        #crear la lista de columnas con NOne para EDD
+        x=len(tablaInsert.atributos)
+        while x>0:
+            ValInsert.append(None)
+            x=x-1
+        #no exeder numero de columnas
+        if(len(instr.columnas)==len(instr.valores)):
+            #recorrer las columnas a insertar
+            posVal=0
+            for colList in instr.columnas:
+                posEDD=0
+                valCOL=None
+                colEx=False
+                #recorrer las columnas en la tabla
+                for colTab in tablaInsert.atributos:
+                    if(colTab.nombre==colList.lower()):
+                        colEx=True
+                        valCOL=resolver_operacion(instr.valores[posVal],ts)#valor de la columna
+                        x=''
+                        try:
+                            x=instr.valores[posVal].lower()
+                        except:
+                            ''
+                        if(x=='null'):
+                            valCOL=Operando_Booleano
+                        elif isinstance(instr.valores[posVal],Operando_ID):
+                            #valores null
+                            insertOK=False
+                            msg='42804:no se pueden insertar valores de tipo ID:'+resolver_operacion(instr.valores[posVal],ts)
+                            agregarMensjae('error',msg,'42804')
+                        else:
+                            #validar el tipo de dato
+                            valCOL=resolver_operacion(instr.valores[posVal],ts)#valor de la columna
+                            T=colTab.tipo#Tipo de la columna
+                            valCOL=(validarTipo(T,valCOL))
+                            if(valCOL==None):
+                                insertOK=False
+                                msg='42804:La columna '+colTab.nombre+' es de tipo '+colTab.tipo
+                                agregarMensjae('error',msg,'42804')
+                        #agregar a la lista de EDD
+                        ValInsert[posEDD]=valCOL
+                        break
+                    #cambiar en la posicion lista EDD
+                    posEDD=posEDD+1
+                #error si no existe    
+                if (colEx==False):
+                    insertOK=False
+                    msg='42703:la columna no existe:'+colList
+                    agregarMensjae('error',msg,'42703')
+                #cambiar de valor
+                posVal=posVal+1
+
+
+        #error columnas!=valores
+        else:
             insertOK=False
             msg='#columas no es igual a #valores, '+str(len(instr.columnas))+'!='+str(len(instr.valores))
             agregarMensjae('error',msg,'')
-        else:
-            #-entrada con valores y columas
-            #   -verificar si las columas existen en esa tabla
-            #   -verificar si Tipocolum=Tipovalores
-            ''
-    #-llaves primaras y foraneas deben estar en los valores
+            
 
+    #validaciones parametros de columna
+    if(insertOK):
+        #-pendiente
+        # llaves foranes !=none
+        # check
+        pos=0
+        for col in tablaInsert.atributos:
+            if(ValInsert[pos]==None):
+                #verificar not null sin default
+                if(col.anulable==False and col.default==None):
+                    insertOK=False
+                    msg='23502:columna no puede ser null:'+col.nombre
+                    agregarMensjae('error',msg,'23502')
+                #agregar valores default
+                elif(col.default!=None):
+                    ValInsert[pos]=col.default
 
+                if(col.primary):
+                    insertOK=False
+                    msg='23502:llave primaria no puede ser null:'+col.nombre
+                    agregarMensjae('error',msg,'23502')
+            #insertaron null desde consola
+            elif(ValInsert[pos]==Operando_Booleano):
+                #cambiamos a none
+                ValInsert[pos]=None
+                if(col.anulable==False):
+                    insertOK=False
+                    msg='23502:columna no puede ser null:'+col.nombre
+                    agregarMensjae('error',msg,'23502')
+                if(col.primary):
+                    insertOK=False
+                    msg='23502:llave primaria no puede ser null:'+col.nombre
+                    agregarMensjae('error',msg,'23502')
 
-
+            pos=pos+1
+    #validar size, presicion
+    if(True): ''
+    #realizar insert con EDD
     if(insertOK):
         #llamar metodo insertar EDD
-        msg='valores insertados:'+str(ValInsert)
-        agregarMensjae('exito',msg,'')
+        # 0 operación exitosa, 
+        # 1 error en la operación, 
+        # 2 database no existente, 
+        # 3 table no existente, 
+        # 4 llave primaria duplicada, 
+        # 5 columnas fuera de límites
+        result=EDD.insert(baseActiva,nombreT,ValInsert)
+        if(result==0):
+            msg='valores insertados:'+str(ValInsert)
+            agregarMensjae('exito',msg,'')
+        elif (result==1):
+            msg='Error en EDD:'
+            agregarMensjae('error',msg,'')
+        elif (result==2):
+            msg='no existe DB:'+baseActiva
+            agregarMensjae('error',msg,'')
+        elif (result==3):
+            msg='42P01:tabla no existe:'+nombreT
+            agregarMensjae('error',msg,'42P01')
+        elif (result==4):
+            msg='23505:llave primaria duplicada:'
+            agregarMensjae('error',msg,'23505')
+        elif (result==5):
+            msg='columnas faltantes para EDD'
+            agregarMensjae('error',msg,'')
+
+
 
 
 def actualizar_en_tabla(instr,ts):
