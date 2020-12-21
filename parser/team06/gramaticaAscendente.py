@@ -225,7 +225,8 @@ reservadas = {
     'trailing':'TRAILING',
     'both':'BOTH',
     'for':'FOR',
-    'symmetric':'SYMMETRIC'
+    'symmetric':'SYMMETRIC',
+    'use' : 'USE'
 
 
 # revisar funciones de tiempo y fechas
@@ -425,6 +426,7 @@ def p_query(t):
                     | crearBD
                     | alterBD
                     | dropBD
+                    | useBD
                     | operacion
                     | insertinBD
                     | updateinBD
@@ -509,6 +511,13 @@ def p_mostrarBD(t):
     h.reporteGramatical1 +="mostrarBD    ::=        SHOW DATABASES PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0]=ShowDatabases(1)\n"
     t[0]=ShowDatabases(1)
+
+def p_usarBaseDatos(t):
+    'useBD    : USE ID PUNTOYCOMA'
+    h.reporteGramatical1 +="useBD    ::=        USE ID PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0]=UseDatabases(t[2])\n"
+    t[0]=UseDatabases(t[2])
+    print("t[0]:",t[0])
 #-----------------------------------------------------ALTER BD--------------------------------------------------------------------
 def p_alterBD_1(t):
     'alterBD    : ALTER DATABASE ID RENAME TO ID PUNTOYCOMA'
@@ -672,8 +681,8 @@ def p_dropBD_1(t):
 def p_dropBD_2(t):
     'dropBD    : DROP DATABASE IF EXISTS ID PUNTOYCOMA'
     h.reporteGramatical1 +="dropBD    ::=        DROP DATABASE IF EXISTS  "+str(t[5])+" PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0]= DropDBIF(t[5])\n"
-    t[0]= DropDBIF(t[5])
+    h.reporteGramatical2 +="t[0]= DropDBIF(t[3],t[5])\n"
+    t[0]= DropDBIF(t[3],t[5])
 #-----------------------------------------------------OPERACIONES Y EXPRESIONES--------------------------------------------------------------------
 def p_operacion(t):
     '''operacion          : operacion MAS operacion

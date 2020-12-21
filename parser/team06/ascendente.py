@@ -16,6 +16,8 @@ import reportes as h
 from expresiones import * 
 import numpy as geek
 import datetime
+import tkinter
+from tkinter import messagebox
 
 # ---------------------------------------------------------------------------------------------------------------------
 #                                QUERY SHOW DATABASE
@@ -27,6 +29,9 @@ import datetime
 def procesar_showdb(query,ts):
     h.textosalida+="TYTUS>> "+str(store.showDatabases())+"\n"
     #llamo al metodo de EDD
+
+def procesar_useBD(query,ts):
+    h.bd_enuso = query.bd_id
 # ---------------------------------------------------------------------------------------------------------------- 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -66,13 +71,15 @@ def procesar_select_Tipo2(query,ts):
     print(query)
             
 def procesar_createdb(query,ts):
-    h.textosalida+="TYTUS>> Bases de datos existentes\n"
-    if store.createDatabase(query.variable) == 0: 
-        print("SE CREO LA BASE DE DATOS "+str(query.variable)+" ")
-    elif store.createDatabase(query.variable) == 2:
-        print("LA BASE DE DATOS "+str(query.variable)+" YA EXISTE")
-    elif store.createDatabase(query.variable) == 1:
-        print("ERROR :(")
+    if ts.verificacionCrearBD(query.variable)==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        store.createDatabase(query.variable)
+        ts.printBD()
+        return "se creo una nueva bd: "+str(query.variable)
+    elif ts.verificacionCrearBD(query.variable)==1:
+        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
+        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"
         
     #llamo al metodo de EDD
 # ---------------------------------------------------------------------------------------------------------------- 
@@ -90,17 +97,15 @@ def procesar_createwithparametersdb(query,ts):
             print("TIPO INCORRECTO DE QUERY:",query)
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_alterdb(query,ts):
-    if store.alterDatabase(query.id_original,query.id_alter) == 0: 
-        print("LA BASE DE DATOS "+str(query.id_original)+" HA SIDO ALTERADA")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.alterDatabase(query.id_original,query.id_alter)  == 3:
-        print("LA BASE DE DATOS "+str(query.id_alter)+" YA EXISTE")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.alterDatabase(query.id_original,query.id_alter)  == 2:
-        print("LA BASE DE DATOS "+str(query.id_original)+" NO EXISTE")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.alterDatabase(query.id_original,query.id_alter)  == 1:
-        print("ERROR :(")
+    if ts.verificacionAlterBD(query.id_original)==1:
+        ts.actualizarAlterBD(query.id_original,query.id_alter)
+        #store.alterDatabase(query.id_original, id_alter)
+        ts.printBD()
+        print("se creo actualizo la bd")
+        return "se creo actualizo la bd: "+str(query.id_original) + "por" +str(query.id_alter)
+    elif ts.verificacionAlterBD(query.id_original)==0:
+        print(str(query.id_original),"No se encontro ninguna base de datos con ese nombre")
+        return "No se encontro ninguna base de datos con ese nombre"
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_alterwithparametersdb(query,ts):
     print(query.id_original)
@@ -108,14 +113,21 @@ def procesar_alterwithparametersdb(query,ts):
     print(query.id_alter)
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_dropdb(query,ts):
-    if store.dropDatabase(query.id) == 0: 
-        print("LA BASE DE DATOS "+str(query.id)+" HA SIDO ELIMINADA")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.dropDatabase(query.id)  == 2:
-        print("LA BASE DE DATOS "+str(query.id)+" NO EXISTE")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.dropDatabase(query.id)  == 1:
-        print("ERROR :(")
+    if ts.destruirBD(query.id)==1:
+        #store.dropDatabase(query.id)
+        return "ELIMINADA BD:"+str(query.id)
+    elif ts.destruirBD(query.id)==0:
+        print(str(query.id),"No se encontro ninguna base de datos con ese nombre")
+        return "No se encontro ninguna base de datos con ese nombre"
+
+def procesar_dropifdb(query,ts):
+    if ts.destruirBD(query.id)==1:
+        #store.dropDatabase(query.id)
+        ts.printBD()
+        return "ELIMINADA BD:"+str(query.id)
+    elif ts.destruirBD(query.id)==0:
+        print(str(query.id),"No se encontro ninguna base de datos con ese nombre")
+        return "No se encontro ninguna base de datos con ese nombre"
 # ---------------------------------------------------------------------------------------------------------------- 
 #                                             QUERIES
 # ----------------------------------------------------------------------------------------------------------------
@@ -1017,7 +1029,7 @@ def procesar_queries(queries, ts) :
         elif isinstance(query, DropDB) :
             procesar_dropdb(query, ts)
         elif isinstance(query, DropDBIF) :
-            procesar_dropdb(query, ts)
+            procesar_dropifdb(query, ts)
         elif isinstance(query, ExpresionAritmetica) : 
             resolver_expresion_aritmetica(query, ts)
         elif isinstance(query, ExpresionNegativo) : 
@@ -1045,6 +1057,7 @@ def procesar_queries(queries, ts) :
         #elif isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query,DropTable): drop_table(query,ts)
         elif isinstance(query,AlterTable): alter_table(query,ts)
+        elif isinstance(query,UseDatabases): procesar_useBD(query,ts)
         else : 
             print('Error: instrucción no válida')
             h.errores+=  "<tr><td>"+str(query)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La consulta no es valida.</td></tr>\n"  
@@ -1096,8 +1109,12 @@ def generarReporteSimbolos(ruta):
     h.reporteSimbolos(ruta,val)
 
 def generarASTReport():
-    print(gt.gramaticaAscendenteTree.tree.root)            
-    astMethod.astFile("ast", gt.gramaticaAscendenteTree.tree.root)
+    if gt.gramaticaAscendenteTree.tree.root == None:
+        box_tilte ="AST Error"
+        box_msg = "No hay entrada que analizar o hay un error en la misma"
+        messagebox.showerror(box_tilte,box_msg)
+    else:
+        astMethod.astFile("ast", gt.gramaticaAscendenteTree.tree.root)
 # ---------------------------------------------------------------------------------------------------------------------
 #                                 REPORTE GRAMATICAL
 # ---------------------------------------------------------------------------------------------------------------------

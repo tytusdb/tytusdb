@@ -194,3 +194,46 @@ class TablaDeSimbolos() :
             print(self.simbolos[simb].valor)
             tm=tm+1
         return 0
+# --------------------CREAR, ALTER Y DROP BD---------------------------------------------------------------------
+    def agregarCrearBD(self, simbolo) :
+        self.simbolos[simbolo.nombre] = simbolo
+
+    
+    def verificacionCrearBD(self, nombre) :
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                print('Error1: base de datos ', nombre, ' ya definida.')
+                return 1
+        return 0 
+
+    def verificacionAlterBD(self, nombre) :
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                return 1
+        return 0
+
+    def actualizarAlterBD(self, old, alter) :
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre == old and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                print("SIMB",self.simbolos[simb])
+                self.simbolos[alter] = self.simbolos.pop(simb)
+                self.simbolos[alter].nombre = alter
+                return 2
+        return 1
+
+    def destruirBD(self,nombre):
+        for simb in self.simbolos:
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                print('Se elimino ', nombre)
+                self.simbolos.pop(simb)
+                return 1
+        return 0
+
+    def printBD(self):
+        tm = 0
+        for simb in self.simbolos:
+            print("----------BASE DE DATOS ",tm,"----------")
+           # print(self.simbolos[simb].id)
+            print(self.simbolos[simb].nombre)
+            tm=tm+1
+        return 0
