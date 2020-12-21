@@ -1,6 +1,8 @@
 import binary_file
 import copy
 import crud_tabla
+import os
+from PIL import Image
 
 class Tabla():
     def __init__(self, name, numberColumns):
@@ -328,6 +330,42 @@ class CRUD_DataBase:
         except:
             return 1
 
+    def showGraphviz(self):
+        try:
+            tmp = self.getRoot()
+            encabezado = "digraph D { \n"
+            cuerpo = self._showGraphviz(tmp)[1]
+            pie = "}"
+            consolidado = encabezado + cuerpo + pie
+            objFichero = open("imagenproyecto.txt",'w')
+            objFichero.write(consolidado)
+            objFichero.close()
+            os.system("dot -Tpng imagenproyecto.txt -o imagenproyecto.png")
+            os.remove("imagenproyecto.txt")
+            f = Image.open("imagenproyecto.png")
+            f.show()
+        except FileNotFoundError:
+            pass
+
+    def _showGraphviz(self, tmp):
+        if tmp:
+            dibujo = ""
+            
+            lado_derecho = tmp.name
+            lado_izquierdo = tmp.name
+            
+            izquierda = self._showGraphviz(tmp.left)
+            derecha = self._showGraphviz(tmp.right)
+            
+            
+            if izquierda is None and derecha is None: 
+                return [lado_derecho, '']
+            if izquierda:
+                dibujo += izquierda[1]+lado_izquierdo+"->"+izquierda[0]+"\n"
+            if derecha:
+                dibujo += derecha[1]+lado_derecho+"->"+derecha[0]+"\n"
+            return [lado_derecho, dibujo]
+
 ###################################################################################
 ###################################################################################
     
@@ -530,3 +568,4 @@ class CRUD_DataBase:
 
 ###################################################################################
 ###################################################################################
+#t.showGraphviz()

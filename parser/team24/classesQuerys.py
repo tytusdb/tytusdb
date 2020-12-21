@@ -8,6 +8,7 @@ from enum import Enum
 from main import default_db
 import mathtrig as mt
 import main
+import prettytable as pt
 #
 
 #
@@ -40,7 +41,7 @@ class select(query):
             self.condition.append(having)
 
     def ejecutar(self):
-        gro = False
+        gro = self.group
         #Obtener la lista de tablas
         tables = {}
         for tabla in self.table_expression:
@@ -64,17 +65,17 @@ class select(query):
         if self.group :
             
             grouped = ejecutar_groupBy(results,self.select_list)
-            print(grouped)
 
-        return results
-        
+        #Mostrar resultados
         for column in results:
 
-            if isinstance(column,dict) and isinstance(column['valores'],list):
+            if isinstance(column,dict) and isinstance(column['valores'],list) and isinstance(conditions,dict):
                 
+                column['valores'] = filtrar(column['valores'],conditions['posiciones'])
+            elif isinstance(column,dict) and isinstance(conditions,list):
                 column['valores'] = filtrar(column['valores'],conditions)
-        
         #return results
+        
             
         consulta = []
         fila = []
@@ -82,13 +83,18 @@ class select(query):
             fila.append(col.alias)
         
         contador = 0
+        nombres = []
         for column in results:
             
             if fila[contador] == None:
                 if isinstance(column,dict):
-                    fila[contador]=column['columna'][0]['nombre']
+                    nombre = str(contador+1)+'. ' +column['columna'][0]['nombre']
+                    fila[contador]= nombre
+                    nombres.append(nombre)
                 else:
-                    fila[contador]="Funcion"
+                    nombre = str(contador+1)+'. '+'Funcion'
+                    fila[contador]= nombre
+                    nombres.append(nombre)
                 
                 
             
@@ -96,7 +102,7 @@ class select(query):
 
         consulta.append(fila)
         if gro:
-            pass
+            consulta.extend(grouped)
         else:
             cantidad = 0
             for column in results:
@@ -120,8 +126,71 @@ class select(query):
                 
                 consulta.append(fila)
             
-            print(consulta)
+            
+        #Distinct
+        if self.distinct:
+            cabeceras = consulta[0]
+            rest = []
+            for i in range(1,len(consulta)):
+                rest.append(tuple(consulta[i]))
+            #remove duplicates
+            rest = list(set(rest))
+            result = [cabeceras]
+            for val in rest:
+                converted = list(val)
+                result.append(converted)
+            consulta = result
+            
+
+        salida = []
+        if self.limit != 0:
+            #self.limit = self.limit + 1
+            contador = 0
+            for fila in consulta:
+                salida.append(fila)
+                if contador == self.limit:
+                    break
+                
+                contador = contador + 1
+            consulta = salida
+
+        salida = []
+        if self.offset != 0:
+            #self.offset = self.offset + 1
+            contador = 0
+            for fila in consulta:
+                
+                if contador != self.offset:
+                    salida.append(fila)
+                
+                contador = contador + 1
+            consulta = salida
+
+             
+        print(consulta)
         return consulta
+
+        #
+        #Order by
+        sortby =''
+        if self.orderby is not None:
+            for nombre in nombres:
+                if self.orderby[1]  in nombre :
+                    sortby = nombre
+        #
+
+
+        ptable = pt.PrettyTable()
+        ptable.field_names = consulta[0]
+        for i in range(1,len(consulta)):
+            ptable.add_row(consulta[i])
+        if sortby != '':
+            ptable.sortby = sortby
+            if self.orderby[2].lower() =='desc':
+                ptable.reversesort = True
+        return ptable
+
+        
 
         
         
@@ -3397,13 +3466,15 @@ def ejecutar_conditions(tables,lcond):
     else:
         #Obtengo las primeras posiciones y dependiendo 
         valor = condition[0].exp.ejecutar(tables)
-        res =  valor['posiciones'] 
-        for i in range(1, len(condition)):
-            if condition[i].tipo == 'AND':
-                
-                res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])
-            else:
-                res = cond_OR(res, condition[i].exp.ejecutar(tables)['posiciones'])
+        res =  valor['posiciones']
+        if len(condition) > 1 :
+            for i in range(1, len(condition)):
+                print(condition[i].tipo)
+                if condition[i].tipo.upper() == 'AND':
+                    
+                    res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])
+                else:
+                    res = cond_OR(res, condition[i].exp.ejecutar(tables)['posiciones'])
         return res
 
 def filtrar(lista,posiciones):
@@ -3413,7 +3484,9 @@ def filtrar(lista,posiciones):
             
             delete.append(a)
     
+    
     for index in sorted(delete, reverse=True):
         
         del lista[index]
+    
     return lista
