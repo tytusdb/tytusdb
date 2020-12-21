@@ -4,3 +4,4 @@ CREATE TABLE Usuarios (
     ID Integer PRIMARY KEY,
     edad SAMALLINT
 );
+

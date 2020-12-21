@@ -4,6 +4,20 @@ from io import open
 from tkinter import scrolledtext
 import tkinter as tk
 
+from grammar import analyze
+from grammar_result import *
+from execution.execute import *
+from execution.execute_result import *
+
+from execution.AST.error import *
+
+from Tytus_GUI_console import print_error, print_grammar_report, print_error_table, print_messages, print_querys
+import Tytus_GUI_console
+
+from graphviz import Source
+
+import os
+
 
 class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
     def __init__(self, *args, **kwargs):
@@ -15,8 +29,11 @@ class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
         self.tk.createcommand(self._w, self._proxy)
 
     def _proxy(self, *args):
-        cmd = (self._orig,) + args
-        result = self.tk.call(cmd)
+        cmd = (self._orig,) + args        
+        try:
+            result = self.tk.call(cmd)
+        except Exception:
+            return None
 
         # generate an event if something was added or deleted,
         # or the cursor position changed
@@ -85,13 +102,97 @@ def save_as():
         route = ""
 
 def compile():
+    #clear console
     console.configure(state="normal")
     console.delete(1.0, "end")
     console.configure(state="disabled")
-    Input_text = text.get(1.0,'end-1c')
-    console.configure(state="normal")
-    console.insert(1.0, Input_text)
-    console.configure(state="disabled")
+    Tytus_GUI_console.prints = []
+    #get input text
+    Input_text = text.get(1.0,'end-1c')    
+    #analyze text
+    result_analyze = analyze(Input_text)
+    #run analysis results
+    exec = Execute(result_analyze.noderoot)
+    result_execute = exec.execute()
+    #process results and display reports
+    process_results_and_display_reports(result_analyze, result_execute)
+
+def process_results_and_display_reports(result_analyze, result_execute):
+    generate_ast_tree(result_execute.dotAST, result_execute.errors)
+    print_grammar_report_(result_analyze.grammarreport)
+    print_error_table_(result_analyze.grammarerrors, result_execute.errors)
+    print_messages_(result_execute.messages)
+    print_querys_(result_execute.querys)
+
+def generate_ast_tree(dot: str, errors):
+    file_used_by_another = True
+    i = 0
+    error_file_used_by_another_part_one = "Command '['dot', '-Tpdf', '-O', 'AST_Report_" + str(i) + "']' "
+    error_file_used_by_another_part_two = "returned non-zero exit status 1. "
+    error_file_used_by_another_part_three = "[stderr: b'Error: Could not open \"AST_Report_" + str(i) + ".pdf\" for writing : Permission denied\\r\\n']"
+    error_file_used_by_another = error_file_used_by_another_part_one + error_file_used_by_another_part_two + error_file_used_by_another_part_three
+    
+    while file_used_by_another==True:
+        error_file_used_by_another_part_one = "Command '['dot', '-Tpdf', '-O', 'AST_Report_" + str(i) + "']' "
+        error_file_used_by_another_part_three = "[stderr: b'Error: Could not open \"AST_Report_" + str(i) + ".pdf\" for writing : Permission denied\\r\\n']"
+        error_file_used_by_another = error_file_used_by_another_part_one + error_file_used_by_another_part_two + error_file_used_by_another_part_three
+        try:
+            src = Source(dot)
+            src.render('AST_Report_' + str(i), view=True)
+            file_used_by_another = False
+        except Exception as e:
+            if str(e) == error_file_used_by_another:
+                file_used_by_another = True
+                i += 1
+            else:
+                file_used_by_another = False
+                errors.append( Error("Unknown", "AST graphic not generated", 0, 0) )
+                print_error("Unknown Error", "AST graphic not generated")
+                #print(e)
+
+def print_grammar_report_(grammarreport: str):
+    print_ = "GRAMMAR REPORT"
+    if grammarreport!="":
+        print_ += "\n"
+    print_ += grammarreport
+    print_grammar_report("Grammar Report", print_)
+
+def print_error_table_(grammarerrors,executionerrors):
+    errors_ = grammarerrors + executionerrors
+    print_ = "ERROR TABLE"
+    if len(errors_)>0:
+        print_ += "\n"
+    i = 0
+    while i<len(errors_):
+        if(i!=0):
+            print_ += "\n"
+        print_ += errors_[i].toString()
+        i += 1
+    print_error_table("Error Table", print_)
+
+def print_messages_(messages):
+    print_ = "MESSAGES"
+    if len(messages)>0:
+        print_ += "\n"
+    i = 0
+    while i<len(messages):
+        if(i!=0):
+            print_ += "\n"
+        print_ += messages[i].toString()
+        i += 1
+    print_messages("Message", print_)
+
+def print_querys_(querys):
+    print_ = "QUERYS"
+    if len(querys)>0:
+        print_ += "\n"
+    i = 0
+    while i<len(querys):
+        if(i!=0):
+            print_ += "\n"
+        print_ += querys[i].toString()
+        i += 1
+    print_querys("Query", print_)
 
 
 # Root configuration
@@ -135,4 +236,4 @@ monitor.pack(side="left")
 
 root.config(menu=menubar)
 # App loop
-root.mainloop()
+#root.mainloop()

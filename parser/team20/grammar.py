@@ -3,23 +3,26 @@ from execution.AST.expression import *
 from execution.AST.sentence import *
 from execution.execute import * 
 from execution.AST.error import *
+import webbrowser
+
+from grammar_result import *
+from console import print_error
 # -----------------------------------------------------------------------------
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
-# 
+# 201612154 André Mendoza Torres
 # 
 # 
 # DIC 2020
 #
 # 
 # -----------------------------------------------------------------------------
-def __init__(self):
-    self.grammarerrors = []
-    self.grammarreport = ""
 
 # Global variables
 grammarerrors = []
 grammarreport = ""
+noderoot = None
+input = ""
 
 #LEXER
 
@@ -245,8 +248,9 @@ def t_multi_line_comment(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
+    print_error("Lexical Error", "Illegal character in " + str(t.value[0]) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
     grammarerrors.append(
-        Error("Léxico","Carácter ilegal en '%s'" % (t.value[0]),t.lineno,find_column(input,t)))
+        Error("Lexical","Ilegal character in '%s'." % (t.value[0]),t.lineno,find_column(input,t)))
     print("Carácter ilegal en '%s' Linea: %d Columna: %d" % (t.value[0],t.lineno,find_column(input,t)))
     t.lexer.skip(1)
 
@@ -268,7 +272,7 @@ precedence = (
     ('left','OR'),
     ('left','AND'),
     ('right','NOT'),
-    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
+    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL','EQUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
     ('left','PLUS','MINUS'),
     ('left','TIMES','DIVIDED','MODULO'),
@@ -282,6 +286,8 @@ def p_start(t):
     '''start : sentences'''
     global grammarreport
     grammarreport = "<start> ::= <sentences> { start.val = sentences.val }\n" + grammarreport
+    global noderoot
+    noderoot = t[1]    
     exec = Execute(t[1]) # Esto se correra desde la GUI
     exec.execute()
     t[0] = t[1]
@@ -1186,8 +1192,9 @@ def p_expression_all(t):
 
 #ERROR
 def p_error(t):
+    print_error("Syntactic Error", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
     grammarerrors.append(
-        Error("Sintáctico","Error sintáctico en '%s'" % (t.value),t.lineno,find_column(input,t)))
+        Error("Syntactic","Syntactic Error in '%s'." % (t.value),t.lineno,find_column(input,t)))
     print("Error sintáctico en '%s' Fila: %d Columna: %d" % (t.value, t.lineno,find_column(input,t)))
     # if not t: #recuperación errores
     #     return
@@ -1204,13 +1211,65 @@ f = open(Path(__file__).parent / "./testCarlos.txt", "r")
 input = f.read()
 print(input)
 parser.parse(input.upper())
-print(grammarerrors)
-print(grammarreport)
 
-# def analyze(input):
-#     # limpiar variables
-#     global grammarerrors
-#     grammarerrors = []
-#     lexer = lex.lex()
-#     parser = yacc.yacc()
-#     return parser.parse(input,tracking=True)
+reportheader = '''# Reporte gramatical
+
+## Terminales
+### Palabras reservadas
+'CREATE, DROP, DATABASE, DATABASES, TABLE, SHOW, IF, EXISTS, ALTER, RENAME, OWNER, MODE, TO, COLUMN, CONSTRAINT, UNIQUE, FOREIGN, KEY, REFERENCES, REPLACE, SET, NOT, ADD, NULL, USE, INSERT, INTO, VALUES, TYPE, AS, ENUM, ASC, DESC, HAVING, GROUP, BY, OFFSET, LIMIT, ALL, ORDER, WHERE, SELECT, DISTINCT, FROM, UNION, EXCEPT, INTERSECT, BETWEEN, IN, LIKE, ILIKE, SIMILAR, SMALLINT, INTEGER, BIGINT, DECIMAL, NUMERIC, REAL, DOUBLE, PRECISION, MONEY, CHARACTER, VARYING, VARCHAR, TIMESTAMP, TEXT, CHAR, WITH, TIME, ZONE, WITHOUT, INTERVAL, BOOLEAN, DEFAULT, CHECK, PRIMARY, DATE, INHERITS, UPDATE, DELETE, TRUNCATE, ABS, CBRT, CEIL, CEILING, DEGREES, DIV, EXP, FACTORIAL, FLOOR, GCD, LN, LOG, MOD, PI, POWER, RADIANS, ROUND, AND, OR, COUNT, AVG, SUM, ACOS, ACOSD, ASIN, ASIND, ATAN, ATAND, ATAN2, ATAN2D, COS, COSD, COT, COTD, SIN, SIND, TAN, TAND, SINH, COSH, TANH, ASINH, ACOSH, ATANH'
+
+### Simbolos
+
+; ( ) = + - * / . ^ % < > <= >= <> !=
+
+### ER
+`ID = '[A-Za-z][A-Za-z0-9_]*'`
+`NDECIMAL = '\d+\.\d+'`
+`INT = '\d+'`
+`STRING = '\".*?\"`
+## Precedencia
+```python
+precedence = (
+    ('left','UNION','INTERSECT','EXCEPT'),
+    ('left','OR'),
+    ('left','AND'),
+    ('right','NOT'),
+    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
+    ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
+    ('left','PLUS','MINUS'),
+    ('left','TIMES','DIVIDED','MODULO'),
+    ('left','EXPONENTIATION'),
+    ('right','UMINUS','UPLUS'),
+    ('left','NSEPARATOR'),
+    )
+```
+## Gramatica\n'''
+grammarreport = reportheader + "```bnf\n"+grammarreport+"```\n" + "## Entrada\n" + "```sql\n" +input+"```"
+try:
+    archivodot = open("bnf.md", "w")
+    archivodot.write(grammarreport)
+    archivodot.close()
+    webbrowser.open_new_tab('bnf.md')
+    #print(grammarreport)
+except Exception as e:
+    print('Error reporte gramatical', str(e))
+
+def analyze(input_text: str):
+    #clear analyzer data
+    global grammarerrors
+    grammarerrors = []
+    global grammarreport
+    gammarreport = ""
+    global noderoot
+    noderoot = None
+    global input
+    input = ""
+    #declare parser
+    parser = yacc.yacc()
+    lexer = lex.lex()
+    input = input_text
+    #parse
+    parser.parse(input.upper())
+    #return result
+    result = grammar_result(grammarerrors, grammarreport, noderoot)
+    return result
