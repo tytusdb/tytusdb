@@ -90,6 +90,13 @@ setDir("new_path")
 
 ## Uso del reportador gráfico
 
+Para acceder al reporte grafico desde un main, se importa de la siguiente manera.
+```sh
+import ReporteGrafico as r
+
+r.Mostrar()
+```
+
 Las siguientes son las funciones del reportador gráfico, que es capaz de manipular bases de datos, tablas y registros mediante una interfaz.
 
 #### Ventana Base de Datos
