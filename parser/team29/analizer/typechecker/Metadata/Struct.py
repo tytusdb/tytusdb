@@ -311,6 +311,7 @@ def getCol(col):
         for campo in campos:
             if campo[0] == "PRIMARY":
                 pk = campo[1]
+                nn = True
             elif campo[0] == "FOREIGN":
                 fk = campo[1]
             elif campo[0] == "NULL":

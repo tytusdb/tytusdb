@@ -198,7 +198,8 @@ palabrasReservadas = {
     'least':'LEAST',
     'extract':'EXTRACT',
     'date_part':'DATE_PART',
-    'current_date':'CURRENT_DATE'
+    'current_date':'CURRENT_DATE',
+    'current_timestamp':'CURRENT_TIMESTAMP'
 }
 tokens = [
     # corchetes no porque dijo el aux que no venia
@@ -325,17 +326,17 @@ def t_CADENA_NOW(t):
     t.type = "CADENA_NOW"
     return t 
 def t_CADENA_INTERVAL(t):
-    r'\'([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes)([ ]+([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes))?([ ]([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes))?\''
+    r'\'[ ]*([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes)([ ]+([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes))?([ ]([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes))?[ ]*\''
     t.value =  t.value[1:-1]
     t.type = "CADENA_INTERVAL"
     return t
 def t_CADENA_DATE2(t):
-    r'\'[\d][\d][\d][\d][-][\d][\d]?[-][\d][\d]?[ ][\d][\d]?[:][\d][\d]?[:][\d][\d]?\''
+    r'\'[ ]*[\d][\d][\d][\d][-][\d][\d]?[-][\d][\d]?[ ]+[\d][\d]?[:][\d][\d]?[:][\d][\d]?[ ]*\''
     t.value =  t.value[1:-1]
     t.type = "CADENA_DATE"
     return t
 def t_CADENA_DATE(t):
-    r'\'[\d][\d][\d][\d][-][\d][\d]?[-][\d][\d]?\''
+    r'\'[ ]*[\d][\d][\d][\d][-][\d][\d]?[-][\d][\d]?[ ]*\''
     t.value =  t.value[1:-1]
     t.type = "CADENA_DATE"
     return t

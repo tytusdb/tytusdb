@@ -53,6 +53,162 @@
             "size": null,
             "PK": true,
             "FK": null,
+            "NN": true,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "username",
+            "type": "VARCHAR",
+            "size": 10,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "name",
+            "type": "TEXT",
+            "size": null,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          }
+        ]
+      },
+      {
+        "name": "demo3",
+        "inherits": null,
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "size": null,
+            "PK": true,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "username",
+            "type": "VARCHAR",
+            "size": 10,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "name",
+            "type": "TEXT",
+            "size": null,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          }
+        ]
+      },
+      {
+        "name": "demo4",
+        "inherits": null,
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "size": null,
+            "PK": true,
+            "FK": null,
+            "NN": true,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "username",
+            "type": "VARCHAR",
+            "size": 10,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "name",
+            "type": "TEXT",
+            "size": null,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          }
+        ]
+      },
+      {
+        "name": "demo5",
+        "inherits": null,
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "size": null,
+            "PK": true,
+            "FK": null,
+            "NN": true,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "name",
+            "type": "VARCHAR",
+            "size": 20,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": null,
+            "Unique": false,
+            "Constraint": null
+          },
+          {
+            "name": "hint",
+            "type": "TEXT",
+            "size": null,
+            "PK": false,
+            "FK": null,
+            "NN": false,
+            "Default": "Su puta madre",
+            "Unique": false,
+            "Constraint": null
+          }
+        ]
+      },
+      {
+        "name": "demo6",
+        "inherits": null,
+        "columns": [
+          {
+            "name": "id",
+            "type": "INTEGER",
+            "size": null,
+            "PK": false,
+            "FK": null,
             "NN": false,
             "Default": null,
             "Unique": false,
@@ -83,46 +239,7 @@
         ]
       },
       {
-        "name": "demo3",
-        "inherits": null,
-        "columns": [
-          {
-            "name": "id",
-            "type": "INTEGER",
-            "size": null,
-            "PK": true,
-            "FK": null,
-            "NN": false,
-            "Default": null,
-            "Unique": false,
-            "Constraint": null
-          },
-          {
-            "name": "name",
-            "type": "VARCHAR",
-            "size": 20,
-            "PK": false,
-            "FK": null,
-            "NN": false,
-            "Default": null,
-            "Unique": false,
-            "Constraint": null
-          },
-          {
-            "name": "email",
-            "type": "TEXT",
-            "size": null,
-            "PK": true,
-            "FK": null,
-            "NN": false,
-            "Default": null,
-            "Unique": false,
-            "Constraint": null
-          }
-        ]
-      },
-      {
-        "name": "demo4",
+        "name": "demo7",
         "inherits": null,
         "columns": [
           {
