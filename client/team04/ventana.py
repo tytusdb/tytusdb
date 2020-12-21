@@ -59,8 +59,9 @@ def CrearMenu(masterRoot):
     archivo.add_command(label="Abrir un modelo")
     archivo.add_separator()
     archivo.add_command(label="Nueva Query",command=lambda: añadir('Nuevo'))
-    archivo.add_command(label="Guardar como...")
-    archivo.add_command(label="Guardar")
+    archivo.add_command(label="Guardar como...",command=guardarComo)
+    archivo.add_command(label="Guardar",command=guardarArchivo)
+    archivo.add_command(label="Cerrar pestaña actual",command=cerrarPestaña)
     archivo.add_separator()
     archivo.add_command(label="Salir")
 
@@ -113,7 +114,29 @@ def abrir():
         textos[control-1].text.insert(tk.INSERT, content)
         entrada.close()
         notebook.select(control-1)
+def guardarArchivo():
+    global archivo
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+    if archivo == "":
+        guardarComo()
+    else:
+        guardarc = open(archivo, "w", encoding="utf-8")
+        guardarc.write(textos[idx].text.get(1.0, END))
+        guardarc.close()
 
+def guardarComo():
+    global archivo
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+    guardar = filedialog.asksaveasfilename(title = "Guardar Archivo")
+    if guardar != '':
+        fguardar = open(guardar, "w+", encoding="utf-8")
+        fguardar.write(textos[idx].text.get(1.0, END))
+        fguardar.close()
+        archivo = guardar
 
 def CrearVentana():
     raiz = Tk()
@@ -160,6 +183,12 @@ def añadir(titulo):
     contador=control+1
     control=contador
 
+def cerrarPestaña():
+    global notebook
+    global control
+    b=notebook.select()
+    a=notebook.index(b)
+    notebook.forget(a)
 
 def main():
     CrearVentana()
