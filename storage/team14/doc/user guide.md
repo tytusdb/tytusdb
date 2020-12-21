@@ -37,7 +37,7 @@ Este Programa consiste en una interfaz gráfica que permite la interacción del 
 
 ## Opciones de Bases de Datos
 
-<p align="center"><img src="img/bases de datos.png" width="800" alt="Opciones de bases de Datos"></p>
+<p align="center"><img src="img/bases_de_datos.png" width="800" alt="Opciones de bases de Datos"></p>
 
 1. Lista de Bases de Datos disponibles: al iniciar el programa, las bases de datos que ya se encuentren creadas se desplegarán en este panel. Así mismo si se crean o se eliminan bases de datos, estás se irán agregando o desapareciendo del panel.
 
