@@ -53,7 +53,7 @@ Como estructura interna de un DBMS, además de la eficiencia y eficacia de las c
 - Se deben enviar los argumentos que se solicitan para evitar errores.
 - Para crear una base de datos debe enviar un nombre, el cual no debe existir ya almacenado.
 - Para crear una tabla debe enviar el nombre de la base de datos, nombre de la tabla y número de columnas, dicho nombre no debe existir ya almacenado.
-- Para activar la interfaz gráfica debe iniciarlo desde *Hash Mode*.
+- La interfaz gráfica es un componente que aprovecha la librería, para su uso se deberá llamar de forma independiente a HashMode.
 - Cualquier acción que quiera realizar se hará por medio de *Hash Mode*, donde tendrá una mejor orientación para enviar los datos.
 - Debe tener [graphviz](https://graphviz.org/download/) para poder observar la estructura de cada almacenamiento de forma grafica por medio de la interfaz gráfica.
 
@@ -101,6 +101,8 @@ La librería hace uso de una instancia de la clase ListaBaseDatos, que no requie
 
 Para crear una base de datos, se añade una instancia de la clase BaseDatos mediante el método *append()* de las listas, para eliminar una base de datos se hace uso del método *remove()* de las listas, y para modificar el nombre de una base de datos, se busca en la lista y se cambia su atributo *nombre*.
 
+### Información sobre funciones de la clase ListaBaseDatos.py
+![Funciones Clase ListaBaseDatos](img/FuncionesClaseListaBaseDatos.png "Funciones Clase ListaBaseDatos")
 
 ## Estructura de tablas
 
@@ -124,7 +126,7 @@ La lista de tablas se trata de un atributo de la clase BaseDatos, donde cada ele
 
 #### Nodo
 
-Los nodos de la lista (Tabla) se explican de manera amplia en la sección [Estructura de registros](#Estructura-de-registros).
+Los nodos de la lista (Tabla) se explican de manera amplia en la sección [Estructura de registros](#estructura-de-registros).
 
 #### Lista de tablas
 

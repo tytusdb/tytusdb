@@ -19,7 +19,7 @@ def cbrt(column):
     column = convert_num_col(column)
     result = list()
     while i < len(column):
-        valor = column[i] ** (1.0   / 3.0)
+        valor = column[i] ** (1.0 / 3.0)
         result.insert(i + 1, valor)
         i += 1
 

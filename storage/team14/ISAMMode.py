@@ -138,6 +138,48 @@ def showTables(database) -> list:
             tableNames.append(i)
     return tableNames
 
+#extrae y devuelve todos los registros de una tabla
+def extractTable(database: str, table: str):
+    registers = []
+    if not identifierValidation(database):
+        return 1
+    elif not identifierValidation(table):
+        return 1
+    dbExists = False
+    for i in showDatabases():
+        if i.lower() == database.lower():
+            dbExists = True
+            break
+    tableExists = False
+    for i in showTables(database):
+        if i.lower() == table.lower():
+            tableExists = True
+    if dbExists:
+        if tableExists:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            registers = aux_table.extractTable()
+            return registers
+
+# extrae y devuelve una lista de registros dentro de un rango especificado
+def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if dbExists:
+            if tableExists:
+                table = rollback('tables/' + database.lower() + table.lower())
+                return table.extractRangeTable(lower, upper, columnNumber)
+    except:
+        return []
+
 # vincula una nueva PK a la tabla y todos sus registros
 def alterAddPK(database: str, table: str, columns: list) -> int:
     checkDirs()
@@ -238,6 +280,187 @@ def alterDropPK(database: str, table: str) -> int:
     except:
         return 1
     
+# cambia el nombre de una tabla    
+def alterTable(database, tableOld, tableNew):
+    checkDirs()
+    databases = rollback('databases')
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableOldExists = False
+        tableNewExists = False
+        for i in showTables(database):
+            if i.lower() == tableOld.lower():
+                tableOldExists = True
+            if i.lower() == tableNew.lower():
+                tableNewExists = True
+            if tableNewExists and tableOldExists:
+                break
+        if not dbExists:
+            return 2
+        elif not tableOldExists:
+            return 3
+        elif tableNewExists:
+            return 4
+        else:
+            table = rollback('tables/' + database.lower() + tableOld.lower())
+            table.name = tableNew.lower()
+            commit(table, 'tables/' + database.lower() + tableOld.lower())
+            os.rename('data/tables/' + database.lower() + tableOld.lower() + '.bin', 'data/tables/' + database.lower() + tableNew.lower() + '.bin')
+            index = showDatabases().index(database.lower())
+            table_index = databases[index].tables.index(tableOld.lower())
+            databases[index].tables[table_index] = tableNew.lower()
+            commit(databases, 'databases')
+            return 0
+    except:
+        return 1   
+    
+#Agrega una columna a una tabla  
+def alterAddColumn(database: str, table: str, default: any) -> int:
+    checkDirs()
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database.lower()):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table.tuples.addAtEnd(default)
+            aux_table.numberColumns += 1
+            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            return 0
+    except:
+        return 1
+    
+# eliminacion de una columna
+def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
+    checkDirs()
+    aux_table = None
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+        if aux_table.numberColumns == 1 or columnNumber in aux_table.PK:
+            return 4
+        elif columnNumber > aux_table.numberColumns - 1:
+            return 5
+        else:
+            aux_table.tuples.deleteColumn(columnNumber)
+            aux_table.numberColumns -= 1
+            for i in aux_table.PK:
+                if i > columnNumber:
+                    i -= 1
+            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            return 0
+    except:
+        return 1
+
+# eliminacion de la tabla
+def dropTable(database, tableName):
+    checkDirs()
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database.lower()):
+            if i.lower() == tableName.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            databases = rollback('databases')
+            os.remove('data/tables/' + database.lower() + tableName.lower() + '.bin')
+            index = showDatabases().index(database.lower())
+            table_index = databases[index].tables.index(tableName.lower())
+            databases[index].tables.pop(table_index)
+            commit(databases, 'databases')
+            return 0
+    except:
+        return 1
+
+# insercion de los registros
+def insert(database: str, table: str, register: list):
+    checkDirs()
+    aux_table = None
+    if True:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            if len(register) > aux_table.numberColumns or aux_table.numberColumns > len(register):
+                return 5
+            else:
+                PK = ''
+                if aux_table.PKDefined:
+                    for i in aux_table.PK:
+                        PK += str(register[i]) + '_'
+                    PK = PK[:-1]
+                else:
+                    PK = str(aux_table.hiddenPK)
+                    aux_table.hiddenPK += 1
+                if len(aux_table.insert(PK, register)) == 0:
+                    commit(aux_table, 'tables/' + database.lower() + table.lower())
+                    return 0
+                else:
+                    return 4
+    else:
+        return 1
+
+# carga masiva de archivos hacia las tablas
+def loadCSV(file: str, database: str, table: str) -> list:
+    try:
+        res = []
+        import csv
+        with open(file, 'r') as f:
+            reader = csv.reader(f, delimiter=',')
+            for row in reader:
+                res.append(insert(database.lower(), table.lower(), row))
+        return res
+    except:
+        return []
+    
 *---------------------------------------others----------------------------------------------*
 
 # guarda un objeto en un archivo binario
@@ -303,4 +526,30 @@ def identifierValidation(name):
     elif name.upper() in reserved_words:
         return False
     elif name[0].isalpha() or name[0] in accepted:
-        return True
+        return True 
+#Metodo para graficar arboles isam
+def chart(database, table):
+    tab = rollback('tables/' + database + table)
+    tab.chart()
+    
+#Metodo para graficar las tablas de las bases de datos
+def chartList(list):
+    file = open('list.dot', 'w')
+    file.write('digraph list {\n')
+    file.write('rankdir=TD;\n')
+    file.write('node[shape=plaintext]\n')
+    if len(list) > 0:
+        file.write('arset [label=<')
+        file.write('<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">')
+        for i in list:
+            file.write('<TR><TD>' + str(i) + '</TD></TR>')
+        file.write('</TABLE>')
+        file.write('>, ];')
+    file.close()
+    file = open('list.dot', "a")
+    file.write('}')
+    file.close()
+    os.system("dot -Tpng list.dot -o list.png")
+
+    
+    

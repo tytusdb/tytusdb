@@ -235,7 +235,8 @@ reservadas = {
     'trailing':'TRAILING',
     'both':'BOTH',
     'for':'FOR',
-    'symmetric':'SYMMETRIC'
+    'symmetric':'SYMMETRIC',
+    'use' : 'USE'
 
 
 # revisar funciones de tiempo y fechas
@@ -450,6 +451,7 @@ def p_query(t):
                     | crearBD
                     | alterBD
                     | dropBD
+                    | useBD
                     | operacion
                     | insertinBD
                     | updateinBD
@@ -651,6 +653,23 @@ def p_parametroCrearBD(t):
         nodeFather.son.append(nodeSon3)
     
         t[0] = nodeFather
+#-----------------------------------------------------SHOW DB--------------------------------------------------------------------
+def p_usarBaseDatos(t):
+    'useBD    : USE ID PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'USEBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'USE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+    
+    t[0] = nodeFather
 #-----------------------------------------------------SHOW DB--------------------------------------------------------------------
 def p_mostrarBD(t):
     'mostrarBD  : SHOW DATABASES PUNTOYCOMA'
@@ -2284,7 +2303,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "NOT":
+    elif t[1].upper() == "NOT":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
@@ -2300,7 +2319,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "UNIQUE":
+    elif t[1].upper() == "UNIQUE":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
@@ -2311,7 +2330,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "PRIMARY":
+    elif t[1].upper() == "PRIMARY":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
