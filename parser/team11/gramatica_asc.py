@@ -373,6 +373,32 @@ def p_funciones_matematicas2(t):
 def p_wbucket_exp(t):
     'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
     
+# ------------------------------- FUNCIONES TRIGONOMETRICAS ----------------------------------
+
+def p_funciones_trigonometricas(t):
+    '''funcion_trigonometrica  : ACOS PARIZQ expresionaritmetica PARDER
+                               | ACOSD PARIZQ expresionaritmetica PARDER
+                               | ASIN PARIZQ expresionaritmetica PARDER
+                               | ASIND PARIZQ expresionaritmetica PARDER
+                               | ATAN PARIZQ expresionaritmetica PARDER
+                               | ATAND PARIZQ expresionaritmetica PARDER
+                               | ATAN2 PARIZQ expresionaritmetica PARDER
+                               | ATAN2D PARIZQ expresionaritmetica PARDER
+                               | COS PARIZQ expresionaritmetica PARDER
+                               | COSD PARIZQ expresionaritmetica PARDER
+                               | COT PARIZQ expresionaritmetica PARDER
+                               | COTD PARIZQ expresionaritmetica PARDER
+                               | SIN PARIZQ expresionaritmetica PARDER
+                               | SIND PARIZQ expresionaritmetica PARDER
+                               | TAN PARIZQ expresionaritmetica PARDER
+                               | TAND PARIZQ expresionaritmetica PARDER
+                               | SINH PARIZQ expresionaritmetica PARDER
+                               | COSH PARIZQ expresionaritmetica PARDER
+                               | TANH PARIZQ expresionaritmetica PARDER
+                               | ASINH PARIZQ expresionaritmetica PARDER
+                               | ACOSH PARIZQ expresionaritmetica PARDER
+                               | ATANH PARIZQ expresionaritmetica PARDER'''
+    
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
 
 def p_inst_alter(t):
