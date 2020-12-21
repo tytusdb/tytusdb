@@ -105,3 +105,23 @@ class Decimal(Expresion):
 class Cadena(Expresion):
     def __init__(self, valor):
         self.valor = valor
+
+class Booleano(Expresion):
+    def __init__(self, valor):
+        self.valor = valor
+
+class Date(Expresion):
+    def __init__(self, valor):
+        self.valor = valor
+
+class Null(Expresion):
+    def __init__(self):
+        """ 
+        CLASE PARA GUARDAR VALOR NULL
+        """
+
+class Unknow(Expresion):
+    def __init__(self):
+        """
+        CLASE PARA GUARDAR EL VALOR UNKNOW
+        """

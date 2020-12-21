@@ -4,6 +4,9 @@ from graphviz import Digraph
 from expresiones import *
 from instrucciones import *
 import tablasimbolos as TS
+import AST as arbol
+
+from storageManager import jsonMode as EDD
 
 contador = 0
 lista_instrucciones = []
@@ -33,6 +36,21 @@ class DOTAST:
                 self.getTextDotEliminarBD("node2",instruccion)
             elif isinstance(instruccion,CrearType):
                 self.getTextDotCrearType("node2",instruccion)
+            elif isinstance(instruccion,EliminarTabla):
+                self.getTextDotEliminarTabla("node2",instruccion)
+            elif isinstance(instruccion,Insertar):
+                self.getTextDotInsertar("node2",instruccion)
+            elif isinstance(instruccion,Actualizar):
+                self.getTextDotActualizarTabla("node2",instruccion)
+            elif isinstance(instruccion,DBElegida):
+                self.getTextDotUseDB("node2",instruccion)
+            elif isinstance(instruccion,MostrarDB):
+                self.getTextDotShowDB("node2",instruccion)
+            else:
+                for val in instruccion:
+                    if(isinstance (val,SELECT)):
+                        self.getTextDotSelect("node2",val)
+
             tam = tam +1
             print(TextDot)
         TextDot.view('reporte_AST', cleanup=True)
@@ -132,25 +150,224 @@ class DOTAST:
     def getTextDotEliminarBD(self,padre,instr):
         global contador,TextDot
         contador = contador+1
-        TextDot.node("node"+str(contador),"DROP_BD")
+        TextDot.node("node"+str(contador),"DROP_DATABASE")
         TextDot.edge(padre, "node"+str(contador))
         aux = "node"+str(contador)
         self.getTextDotExpresion(aux,instr.nombre)
 
+    def getTextDotEliminarTabla(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"DROP_TABLE")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotInsertar(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"INSERT")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotNombreTabla(aux,instr)
+        self.getTextDotValores(aux,instr)
+
+    def getTextDotValores(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"VALUES")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        if(instr.valores != []):
+            for ins in instr.valores:
+                self.getTextDotExpresion(aux,ins)
+
+
+
+    def getTextDotActualizarTabla(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"ACTUALIZAR TABLA")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        #Nombre tabla
+        self.getTextDotNombreTabla(aux,instr)
+        #condicion del where
+        self.getCondicionActualizar(aux,instr)
+        #Valores a cambiar
+        self.getTextDotValoresActualizar(aux,instr)
+
+    def getCondicionActualizar(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"CONDICION_WHERE")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        if(isinstance (instr.condicion,Operacion_Relacional)):
+            self.getOperador(aux,instr)
+
+    def getOperador(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        print(instr.condicion.operador)
+        TextDot.node("node"+str(contador),str(instr.condicion.operador))
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.condicion.op1)
+        self.getTextDotExpresion(aux,instr.condicion.op2)
+    
+    #Valores a actualizar
+    def getTextDotValoresActualizar(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"VALUES")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        if(instr.valores != []):
+            for ins in instr.valores:
+                if(isinstance (ins,columna_actualizar)):
+                    print("estamos aqui")
+                    self.getNombreColumnaActualizar(aux,ins)
+                else:
+                    print("No se esta logrando")
+
+    def getNombreColumnaActualizar(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),str(instr.nombre.id))
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.valor)
+
+    def getTextDotUseDB(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"USE DATABASE")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getTextDotExpresion(aux,instr.nombre)
+
+    def getTextDotShowDB(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"SHOW DATABASES")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+
+        listado = EDD.showDatabases()
+        if not listado:
+            print("No hay base de datos")
+        else:
+            for val in listado:
+                self.getTextDotListaBD(aux,val)
+                print("Si hay bd")
+
+    def getTextDotListaBD(self,padre,instr):
+        global contador,TextDot
+        contador = contador +1
+        TextDot.node("node"+str(contador),str(instr))
+        TextDot.edge(padre,"node"+str(contador))
+        
+
+
+    #Implementando
+    def getTextDotSelect(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"SELECT")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        for val in instr.funcion_alias:
+            if(isinstance (val,Funcion_Alias)):
+                self.getTextDotSelectMathFunc(aux,val)
+
+
+    def getTextDotSelectMathFunc(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"FUNCION")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getNombreFuncion(aux,instr)
+        self.getAlias(aux,instr)
+
+    def getNombreFuncion(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),str(instr.nombre.operador))
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+
+        if isinstance(instr.nombre, Operacion_Math_Unaria):
+            valor = arbol.resolver_operacion(instr.nombre.op,"")
+            self.getTextDotExpresion(aux,valor)
+        elif isinstance(instr.nombre, Operacion_Math_Binaria):
+            op1 = arbol.resolver_operacion(instr.nombre.op1,"")
+            op2 = arbol.resolver_operacion(instr.nombre.op2,"")
+            self.getTextDotExpresion(aux,op1)
+            self.getTextDotExpresion(aux,op2)
+        elif isinstance(instr.nombre,Operacion__Cubos):
+            op1 = arbol.resolver_operacion(instr.nombre.op1,"")
+            op2 = arbol.resolver_operacion(instr.nombre.op2,"")
+            op3 = arbol.resolver_operacion(instr.nombre.op3,"")
+            op4 = arbol.resolver_operacion(instr.nombre.op4,"")
+            self.getTextDotExpresion(aux,op1)
+            self.getTextDotExpresion(aux,op2)
+            self.getTextDotExpresion(aux,op3)
+            self.getTextDotExpresion(aux,op4)
+        elif isinstance(instr.nombre, Operacion_Definida):
+            #if instr.nombre.operador == OPERACION_MATH.PI: self.getTextDotExpresion(aux,"Pi()")
+            #elif instr.nombre.operador == OPERACION_MATH.RANDOM: self.getTextDotExpresion(aux,"Random()")
+            print("funciones definidas")
+        elif isinstance(operacion, Operacion_Strings):
+            op = arbol.resolver_operacion(instr.nombre.cadena,"")
+            self.getTextDotExpresion(aux,op)
+        elif isinstance(operacion,Operacion_String_Binaria):
+            op1 = arbol.resolver_operacion(instr.nombre.op1,ts)
+            op2 = arbol.resolver_operacion(instr.nombre.op2,ts)
+            self.getTextDotExpresion(aux,op1)
+            self.getTextDotExpresion(aux,op2)
+        elif isinstance(operacion,Operacion_String_Compuesta):
+            op1 = arbol.resolver_operacion(instr.nombre.op1,"")
+            op2 = arbol.resolver_operacion(instr.nombre.op2,"")
+            op3 = arbol.resolver_operacion(instr.nombre.op3,"")
+            self.getTextDotExpresion(aux,op1)
+            self.getTextDotExpresion(aux,op2)
+            self.getTextDotExpresion(aux,op3)
+        
+
+    def getAlias(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        TextDot.node("node"+str(contador),"ALIAS")
+        TextDot.edge(padre, "node"+str(contador))
+        aux = "node"+str(contador)
+        self.getNombreAlias(aux,instr)
+
+    def getNombreAlias(self,padre,instr):
+        global contador,TextDot
+        contador = contador+1
+        if isinstance (instr.alias,Operando_ID):
+            TextDot.node("node"+str(contador),str(instr.alias.id))
+            TextDot.edge(padre, "node"+str(contador))
+        elif isinstance (instr.alias,Operando_Cadena):
+            TextDot.node("node"+str(contador),str(instr.alias.valor))
+            TextDot.edge(padre, "node"+str(contador))
+
     #Expresiones resultantes 
     def getTextDotExpresion(self, padre, expresion):
         global contador, TextDot
-        if isinstance(expresion, ExpresionIdentificador):
+        if isinstance(expresion, Operando_ID):
             contador = contador + 1
             TextDot.node("node" + str(contador), str(expresion.id))
             TextDot.edge(padre, "node" + str(contador))
-        elif isinstance(expresion, ExpresionNumero):
+        elif isinstance(expresion, Operando_Numerico):
             contador = contador + 1 
-            TextDot.node("node" + str(contador), str(expresion.val))
+            TextDot.node("node" + str(contador), str(expresion.valor))
             TextDot.edge(padre, "node" + str(contador))
-        elif isinstance(expresion, ExpresionDobleComilla):
+        elif isinstance(expresion, Operando_Cadena):
             contador = contador + 1
-            TextDot.node("node"+str(contador),str(expresion.val))
+            TextDot.node("node"+str(contador),str(expresion.valor))
             TextDot.edge(padre,"node"+str(contador))
         else:
             contador = contador + 1

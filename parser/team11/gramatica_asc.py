@@ -80,7 +80,9 @@ reservadas = {
     'is' : 'IS',
     'sign': 'SIGN',                 'sqrt': 'SQRT',
     'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
-    'random': 'RANDOM',             'use' : 'USE'
+    'random': 'RANDOM',             'true': 'TRUE',
+    'false': 'FALSE',               'use' : 'USE',
+    'decimal': 'RDECIMAL'
 }
 
 tokens  = [
@@ -337,29 +339,127 @@ def p_use_instr(t):
     'use_instr      : USE DATABASE ID PTCOMA'
 ##########################################################################################
 
+# --------------------------------- FUNCIONES MÁTEMÁTICAS ------------------------------------
+
+# Select | Where
+def p_funciones_matematicas1(t):
+    '''funcion_matematica_ws    : ABS PARIZQ expresionaritmetica PARDER
+                                | CBRT PARIZQ expresionaritmetica PARDER
+                                | CEIL PARIZQ expresionaritmetica PARDER
+                                | CEILING PARIZQ expresionaritmetica PARDER'''
+
+# Select
+def p_funciones_matematicas2(t):
+    '''funcion_matematica_s     : DEGREES PARIZQ expresionaritmetica PARDER
+                                | DIV PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | EXP PARIZQ expresionaritmetica PARDER
+                                | FACTORIAL PARIZQ expresionaritmetica PARDER
+                                | FLOOR PARIZQ expresionaritmetica PARDER
+                                | GCD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | LN PARIZQ expresionaritmetica PARDER
+                                | LOG PARIZQ expresionaritmetica PARDER
+                                | MOD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | PI PARIZQ PARDER
+                                | POWER PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | RADIANS PARIZQ expresionaritmetica PARDER
+                                | ROUND PARIZQ expresionaritmetica PARDER
+                                | SIGN PARIZQ expresionaritmetica PARDER
+                                | SQRT PARIZQ expresionaritmetica PARDER
+                                | WBUCKET PARIZQ explist PARDER
+                                | TRUNC PARIZQ expresionaritmetica PARDER
+                                | RANDOM PARIZQ expresionaritmetica PARDER'''
+    
+# Lista de expresiones para la función Width Bucket
+def p_wbucket_exp(t):
+    'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
+    
+# ------------------------------- FUNCIONES TRIGONOMETRICAS ----------------------------------
+
+def p_funciones_trigonometricas(t):
+    '''funcion_trigonometrica  : ACOS PARIZQ expresionaritmetica PARDER
+                               | ACOSD PARIZQ expresionaritmetica PARDER
+                               | ASIN PARIZQ expresionaritmetica PARDER
+                               | ASIND PARIZQ expresionaritmetica PARDER
+                               | ATAN PARIZQ expresionaritmetica PARDER
+                               | ATAND PARIZQ expresionaritmetica PARDER
+                               | ATAN2 PARIZQ expresionaritmetica PARDER
+                               | ATAN2D PARIZQ expresionaritmetica PARDER
+                               | COS PARIZQ expresionaritmetica PARDER
+                               | COSD PARIZQ expresionaritmetica PARDER
+                               | COT PARIZQ expresionaritmetica PARDER
+                               | COTD PARIZQ expresionaritmetica PARDER
+                               | SIN PARIZQ expresionaritmetica PARDER
+                               | SIND PARIZQ expresionaritmetica PARDER
+                               | TAN PARIZQ expresionaritmetica PARDER
+                               | TAND PARIZQ expresionaritmetica PARDER
+                               | SINH PARIZQ expresionaritmetica PARDER
+                               | COSH PARIZQ expresionaritmetica PARDER
+                               | TANH PARIZQ expresionaritmetica PARDER
+                               | ASINH PARIZQ expresionaritmetica PARDER
+                               | ACOSH PARIZQ expresionaritmetica PARDER
+                               | ATANH PARIZQ expresionaritmetica PARDER'''
+    
+# ---------------------------- FUNCIONES BINARIAS SOBRE CADENAS ------------------------------
+
+# Select | Where
+def p_fbinarias_cadenas_1(t):
+    'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
+    
+# Select | Insert | Update | Where
+def p_fbinarias_cadenas_2(t):
+    '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
+                            | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
+                            | TRIM PARIZQ cadena PARDER'''
+    
+# Insert | Update                            
+def p_fbinarias_cadenas_3(t):
+    'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
+
+# Select
+def p_fbinarias_cadenas_4(t):
+    '''func_bin_strings_4   : GET_BYTE PARIZQ cadena COMA ENTERO PARDER
+                            | SET_BYTE PARIZQ cadena COMA ENTERO COMA ENTERO PARDER
+                            | ENCODE PARIZQ cadena COMA cadena PARDER
+                            | DECODE PARIZQ cadena COMA cadena PARDER
+                            | SHA256 PARIZQ cadena PARDER
+                            | CONVERT PARIZQ alias PARDER'''
+
+def p_cadena(t):
+    '''cadena   : cualquiercadena
+                | cualquieridentificador'''
+    
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
 
-def p_inst_alter(t) :
-    '''alter_instr    : ALTER TABLE ID ADD COLUMN ID type_column
-                      | ALTER TABLE ID ADD CHECK PARIZQ condicion PARDER
-                      | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
-                      | ALTER TABLE ID ADD FOREIGN KEY PARIZQ ID PARDER REFERENCES ID
-                      | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
-                      | ALTER TABLE ID DROP CONSTRAINT ID
-                      | ALTER TABLE ID DROP COLUMN ID
-                      | ALTER TABLE ID RENAME COLUMN ID TO ID
-                      | ALTER TABLE ID list_alter_column'''
+def p_inst_alter(t):
+    '''alter_instr      : ALTER TABLE ID ADD COLUMN list_columns
+                        | ALTER TABLE ID ADD CHECK PARIZQ condicion PARDER
+                        | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
+                        | ALTER TABLE ID ADD FOREIGN KEY PARIZQ ID PARDER REFERENCES ID
+                        | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
+                        | ALTER TABLE ID DROP CONSTRAINT ID
+                        | ALTER TABLE ID RENAME COLUMN ID TO ID
+                        | ALTER TABLE ID DROP COLUMN listtablas
+                        | ALTER TABLE ID list_alter_column'''
     
-def p_list_alter_column(t) :
-    '''list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column
-                         | ALTER COLUMN ID TYPE type_column'''
+def p_list_alter_column_r(t):
+    'list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column'
+    
+def p_list_alter_column(t):
+    'list_alter_column : ALTER COLUMN ID TYPE type_column'
+    
+def p_list_columns_r(t):
+    'list_columns       : list_columns COMA ID type_column'
+
+def p_list_columns_(t):
+    'list_columns       : ID type_column'
 
 # Tipos de datos para columnas/campos
-def p_type_column(t) :
+def p_type_column(t):
     '''type_column    : SMALLINT
                       | INTEGER
                       | BIGINT
-                      | DECIMAL
+                      | RDECIMAL
+                      | RDECIMAL PARIZQ ENTERO COMA ENTERO PARDER
                       | NUMERIC
                       | REAL
                       | FLOAT
@@ -375,6 +475,8 @@ def p_type_column(t) :
                       | TIMESTAMP PARIZQ ENTERO PARDER
                       | DATE
                       | TIME
+                      | BOOLEAN
+                      | ID
                       | TIME PARIZQ ENTERO PARDER
                       | INTERVAL field'''
  
@@ -388,6 +490,7 @@ def p_field(t) :
                       | SECOND'''
 
 # ----------------------------------------------------------------------------------------
+
 def p_create(t):
     '''
         create_instr    : CREATE lista_crear create_final
@@ -531,15 +634,43 @@ def p_listaselect_salida(t):
     'listaselect      : valselect'
 
 def p_valselect_1(t):
-    '''valselect      : ID alias
-                      | ID PUNTO ID alias
-                      | funcion_matematica_ws alias
-                      | funcion_matematica_s alias
-                      | funcion_trigonometrica
-                      | PARIZQ select_instr1 PARDER alias
-                      | agregacion PARIZQ cualquieridentificador PARDER alias
-                      | COUNT PARIZQ ASTERISCO PARDER alias
-                      | COUNT PARIZQ cualquieridentificador PARDER alias'''
+    'valselect      : ID alias'
+
+def p_valselect_11(t):
+    'valselect      : ID PUNTO ASTERISCO'
+
+def p_valselect_2(t):
+    'valselect      : ID PUNTO ID alias'
+
+def p_valselect_3(t):
+    'valselect      : funcion_matematica_ws alias'
+
+def p_valselect_4(t):
+    'valselect      : funcion_matematica_s alias'
+
+def p_valselect_5(t):
+    'valselect      : funcion_trigonometrica alias'
+
+def p_valselect_6(t):
+    'valselect      : PARIZQ select_instr1 PARDER alias'
+
+def p_valselect_7(t):
+    'valselect      : agregacion PARIZQ cualquieridentificador PARDER alias'
+
+def p_valselect_8(t):
+    'valselect      : COUNT PARIZQ ASTERISCO PARDER alias'
+
+def p_valselect_9(t):
+    'valselect      : COUNT PARIZQ cualquieridentificador PARDER alias'
+
+def p_valselect_10(t) :
+    'valselect      : func_bin_strings_1 alias'
+
+def p_valselect_12(t) :
+    'valselect      : func_bin_strings_2 alias'
+
+def p_valselect_13(t):
+    'valselect      : func_bin_strings_4 alias'
     
 def p_funcionagregacion(t):
     '''agregacion      : SUM
@@ -681,6 +812,49 @@ def p_expresionhaving(t):
 
 def p_condicionhavingagregacion(t):
     'condicionhavingagregacion  : agregacion PARIZQ cualquieridentificador PARDER'
+
+# ------- Producciones para el manejo del Order by, incluyendo ASC y DESC  ----------------------
+def p_orderby(t):
+    'orderby          : ORDER BY listaorderby'
+
+def p_orderby_1(t):
+    'orderby          : ORDER BY listaorderby instrlimit'
+
+def p_orderby_2(t):
+    'orderby          : empty'
+
+def p_listaorderby(t):
+    'listaorderby     : listaorderby COMA valororderby'
+
+def p_salidaorderby(t):
+    'listaorderby     : valororderby'
+
+def p_valororderby(t):
+    '''valororderby     : cualquieridentificador ascdesc anular
+                        | cualquiernumero ascdesc anular'''
+
+def p_ascdesc(t):
+    '''ascdesc        : DESC
+                      | ASC
+                      | empty'''
+
+def p_anular(t):
+    '''anular        : NULLS LAST
+                     | NULLS FIRST'''
+
+def p_anular_1(t):
+    'anular          : empty'
+
+def p_instrlimit(t):
+    '''instrlimit    : LIMIT ENTERO instroffset
+                     | LIMIT ALL instroffset'''
+
+def p_instroffset(t):
+    'instroffset     : OFFSET ENTERO'
+
+def p_instroffset_2(t):
+    'instroffset     : empty'
+
 
 ## -------------------------------- EXPRESIONES ------------------------------------------    
 
