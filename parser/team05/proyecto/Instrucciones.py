@@ -441,3 +441,18 @@ class Owner_Mode(Instruccion):
         self.owner = owner
         self.mode = mode
 # ----------FIN DE CREATE DATABASE------------
+
+# CREATE TYPE
+
+class CreateType(Instruccion):
+    def __init__(self,idtype,valores):
+        self.idtype = idtype
+        self.valores = valores
+
+# DELETE
+
+class DeleteFrom(Instruccion):
+
+    def __init__(self, valor,pwhere ):
+        self.valor = valor
+        self.pwhere = pwhere
