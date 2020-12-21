@@ -1260,7 +1260,8 @@ def analyze(input_text: str):
     lexer = lex.lex()
     input = input_text
     #parse
-    parser.parse(input.upper())
+    if(input_text!=""):
+        parser.parse(input.upper())
     #return result
     result = grammar_result(grammarerrors, grammarreport, noderoot)
     return result
