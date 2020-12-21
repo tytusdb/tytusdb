@@ -1,7 +1,8 @@
 from flask import Blueprint, Response, jsonify, request
+from flask_cors import CORS
 
 tables = Blueprint('tables', __name__)
-
+CORS(tables)
 @tables.route('/create/<db>/<name>', methods=['GET'])
 def create(db, name):
     return {"msg": f'table {name} created'}, 200

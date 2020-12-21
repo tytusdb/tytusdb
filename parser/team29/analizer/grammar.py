@@ -85,6 +85,7 @@ def p_id_string(t):
     """
     idOrString : ID
     | STRING
+    | CHARACTER
     """
     t[0] = t[1]
 
@@ -499,12 +500,21 @@ def p_funcCall_3(t):
     """
 
 
-def p_extract(t):
+def p_extract_1(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
     """
     t[0] = expression.ExtractDate(
         t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+    )
+
+
+def p_extract_2(t):
+    """
+    extract : R_EXTRACT S_PARIZQ optsExtract R_FROM columnName S_PARDER
+    """
+    t[0] = expression.ExtractColumnDate(
+        t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos
     )
 
 
@@ -1111,16 +1121,14 @@ def p_selectListParams_2(t):
 
 def p_optalias_as(t):
     """
-    optAlias : R_AS ID
-    | R_AS STRING
+    optAlias : R_AS idOrString
     """
     t[0] = t[2]
 
 
 def p_optalias_id(t):
     """
-    optAlias : ID
-    | STRING
+    optAlias : idOrString
     """
     t[0] = t[1]
 
@@ -1294,31 +1302,34 @@ def p_paramsColumn_none(t):
 
 
 def p_updateStmt(t):
-    """updateStmt : R_UPDATE ID optAlias R_SET updateCols S_IGUAL updateVals whereCl"""
+    """updateStmt : R_UPDATE fromBody R_SET updateCols whereCl"""
+    fc = instruction.FromClause(
+        [t[2][0]], [t[2][1]], t.slice[1].lineno, t.slice[1].lexpos
+    )
+    t[0] = instruction.Update(fc, t[4], t[5], t.slice[1].lineno, t.slice[1].lexpos)
 
 
-def p_updateCols(t):
-    """updateCols : ID
-    | S_PARIZQ idList S_PARDER
-    """
+def p_updateCols_list(t):
+    """updateCols : updateCols S_COMA updateVals"""
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_updateCols_u(t):
+    """updateCols : updateVals """
+    t[0] = [t[1]]
 
 
 def p_updateVals(t):
-    """updateVals : updateExp
-    | S_PARIZQ updateExp S_COMA updateList S_PARDER
-    """
-
-
-def p_updateList(t):
-    """updateList : updateList S_COMA updateExp
-    | updateExp
-    """
+    """updateVals : ID S_IGUAL updateExp"""
+    t[0] = instruction.Assignment(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_updateExp(t):
     """updateExp : datatype
     | R_DEFAULT
     """
+    t[0] = t[1]
 
 
 # endregion

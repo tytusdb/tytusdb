@@ -1,6 +1,7 @@
 #
 import hashlib
 from datetime import date
+from os.path import split
 from main import ts
 import storage as s
 from enum import Enum
@@ -35,7 +36,8 @@ class select(query):
         self.orderby = orderby
         self.limit = limit
         self.offset = offset
-        self.condition.append(having)
+        if having is not None and condition is not None:
+            self.condition.append(having)
 
     def ejecutar(self):
         gro = False
@@ -52,9 +54,19 @@ class select(query):
             res = col.ejecutar(tables)
             
             results.append(res)
-        #return results
+        
+        conditions = []
+        if self.condition is not None:
+            conditions = ejecutar_conditions(tables,self.condition)
 
-        conditions = ejecutar_conditions(tables,self.condition)
+        grouped = []
+        
+        if self.group :
+            
+            grouped = ejecutar_groupBy(results,self.select_list)
+            print(grouped)
+
+        return results
         
         for column in results:
 
@@ -2348,7 +2360,7 @@ class fun_max(column_function):
             return None
  
 
-class fun_least(column_function):
+class fun_min(column_function):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
@@ -2647,7 +2659,7 @@ class fun_greatest(column_function):
             #Error
             return None
  
-class fun_min(column_function):
+class fun_least(column_function):
     def __init__ (self,lexps,alias):
         self.lexps = lexps
         self.alias = alias
@@ -2668,7 +2680,7 @@ class fun_min(column_function):
                 minimo = val['valores'][0]
                 for valor in val['valores']:
                         
-                    if  minimo > valor :
+                    if  minimo < valor :
                         minimo = valor
                 #retornar min
                 val['valores'] = minimo
@@ -3212,6 +3224,149 @@ def getKeyFromValue(value,d):
             return table
 
     return None
+
+def getInstance(col):
+    if isinstance(col,fun_count):
+        return 'count'
+    elif isinstance(col,fun_sum):
+        return 'sum'
+    elif isinstance(col,fun_avg):
+        return 'avg'
+    elif isinstance(col,fun_min):
+        return 'min'
+    else:
+        return 'max'
+
+
+def ejecutar_groupBy(valores,select_list):
+    #Tenemos que encontrar cual es la funcion de agrupacion
+    #En específico que columna es.
+    contador = 0
+    instance = ''
+    for col in select_list:
+        if isinstance(col,fun_count) or isinstance(col,fun_sum) or isinstance(col,fun_avg) or isinstance(col,fun_min) or isinstance(col,fun_max):
+            instance = getInstance(col)
+            break
+        else:
+            contador = contador +1
+    
+    #Una vez tenemos el indice obtenemos el valor devuelto por esa funcion
+
+    agg = valores[contador]
+    #obtenemos cual es el resultado
+    res = agg['valores']
+    #obtenemos las columnas por las que tenemos que agrupar
+    newlist = []
+    newcont = 0
+    #Esto nos devuelve todo menos la columna de agregacion
+    for val in valores:
+        if newcont != contador:
+            newlist.append(val)
+        newcont = newcont +1
+
+    dictionary = {}
+    values = []
+    index = 0
+    firstpass = True
+    for val in newlist:
+        if isinstance(val,dict):
+            val_vals = val['valores']
+            index = 0
+            for key in val_vals:
+                if firstpass :
+                    values.append(key)
+                else:
+                    values[index] = values[index] + '~' + key
+                    index += 1
+            firstpass = False
+
+    #Obtenemos una lista basada en campos con las columnas iguales
+
+    #Obtenemos el dato agrupado como columna sin agrupar
+    #name_column = agg['columna'][0]['nombre']
+    name_table = agg['columna'][0]['tabla']
+    index_col = agg['columna'][0]['indice']
+
+    t = s.extractTable(default_db,name_table)
+    data = []
+    for reg in t:
+        data.append(reg[index_col])
+
+
+
+    #Ahora generamos un diccionario con valores para cada serie de datos
+    if instance == 'sum':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = data[contdata]
+            else:
+                dictionary[val] += data[contdata] 
+            contdata+=1
+    elif instance == 'count':
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = 1
+            else:
+                dictionary[val] += 1
+    elif instance=='avg':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = data[contdata]
+            else:
+                dictionary[val] += data[contdata]
+            contdata+=1
+        #We make a new dictionary 
+        #but with number of repeated rows
+        new_dict = {}
+        for val in values:
+            if val not in new_dict:
+                new_dict[val] = 1
+            else:
+                new_dict[val] += 1
+        for val in dictionary:
+            dictionary[val] /= new_dict[val]
+    elif instance=='max':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = data[contdata]
+            else:
+                if dictionary[val] < data[contdata] :
+                    dictionary[val] = data[contdata]
+            contdata+=1
+    else:
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = data[contdata]
+            else:
+                if dictionary[val] > data[contdata] :
+                    dictionary[val] = data[contdata]
+            contdata+=1
+    
+
+    # Con el diccionario generado devolvemos
+    # una lista para ser tratada en la
+    # presentacion de la informacion
+
+    results = []
+    for llave in dictionary:
+        fila = llave.split('~')
+        fila.append(dictionary[llave])
+        results.append(fila)
+
+    return results
+
+
+
+
+
+
+
+    
+
 
 ############
 #Condiciones

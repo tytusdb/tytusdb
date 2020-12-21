@@ -12,7 +12,6 @@ import copy
 
 class Select(Instruccion):
     'This is an abstract class'
-    encabezado = []
     nombreres=''
     def __init__(self,distinct=None,exps=None,froms=None,where=None,group=None,having=None,combinging=None,order=None,limit=None):
         self.distinct=distinct
@@ -24,6 +23,7 @@ class Select(Instruccion):
         self.order=order
         self.limit=limit
         self.combinig=combinging
+        self.encabezados = []
 
 
     def ejecutar(self,ent:Entorno):

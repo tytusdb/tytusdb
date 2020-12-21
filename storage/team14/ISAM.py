@@ -172,7 +172,7 @@ class ISAM:
                         break
                     else:
                         validando = False
-                if validando and (tmp.left is None and tmp.center is None and tmp.right is None):
+                if validando and len(tmp1.data) > 0:
                     tmp1.data.clear()
                     return 0
                 else:
@@ -198,7 +198,6 @@ class ISAM:
         file.write('}')
         file.close()
         os.system("dot -Tpng isam.dot -o isam.png")
-        os.system("isam.png")
 
     def _chart(self, tmp, level):
         if tmp:
