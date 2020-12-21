@@ -10,6 +10,7 @@ def abrir_btn():
     print('open file')
     try:
         read_file = filedialog.askopenfile(mode="r")
+        editor_box.delete('1.0', END)
         editor_box.insert(INSERT, read_file.read())
 
         read_file.close()
@@ -23,6 +24,8 @@ def analizar_btn():
     print('analizando')
     txt_entrada = editor_box.get(1.0, END+"-1c")
     parse_result = lex.parse(str(txt_entrada))
+    console_box.delete('1.0', END)
+    console_box.insert(INSERT, parse_result[1])
 
 
 def btnejecutar_click():
