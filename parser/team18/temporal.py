@@ -16,7 +16,7 @@ class Tabla_run:
 class Columna_run:
     nombre = ''
     tipo = ''
-    size = ''
+    size = None
     precision = None
     unique = None   #CONSTRAINT UNIQUE
     anulable = None #CONSTRAINT NOT NULL

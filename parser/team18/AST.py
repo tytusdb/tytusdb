@@ -74,7 +74,7 @@ def validarTipo(T,valCOL):
     #acepta int
     elif(T=="smallint" or T=="integer" or T=="bigint"):
         try:
-            valCOL=int(float(valCOL))
+            valCOL=int(round(float(valCOL)))
         except:
             valCOL=None
     #acepta float
@@ -94,8 +94,39 @@ def validarTipo(T,valCOL):
         print("falta validar las fechas")
     #acepta Type
     else:
-        print("falta validar los Type")
+        tablaType=EDD.extractTable(baseActiva,T)#Extraer valores de la tabla
+        if(tablaType==None):
+            valCOL=None
+        else:
+            if valCOL not in tablaType[0]:
+                valCOL=None
+            
     return valCOL
+
+def validarSizePres(tipo,val,size,presicion):
+    result=True
+    #revisar el valor
+    if(val!=None):
+        if(size!=None):
+            #tipos con (n)
+            if(presicion==None):
+                if(tipo=="character varying" or tipo=="varchar" 
+                or tipo=="text" or tipo=="character" or tipo=="char"):
+                    if(len(val)>size):
+                        result=False
+            #tipos con (n,m)
+            else:
+                ''
+        #tamanio por defecto    
+        else:
+            if(tipo=='char' or tipo=='character'):
+                #size por defecto = 1
+                if(len(val)>1):
+                    result=False
+    #no hay valor
+    else:
+        result=True
+    return result
 
 def use_db(nombre):
     global baseActiva
@@ -315,7 +346,6 @@ def seleccion_db(instr,ts):
 def crear_Tabla(instr,ts):
     #Pendiente
     # -foraneas
-    # -tipo columna TYPE
     # -zonahoraria
     # -check
     # -herencia
@@ -378,14 +408,15 @@ def crear_Tabla(instr,ts):
             if(colOK):
                 if isinstance(colum.tipo,Operando_ID):
                     colAux.tipo=resolver_operacion(colum.tipo,ts).lower()#guardar tipo col
-                    #revisar la lista de Types
-                    crearOK=False
-                    msg='42704:No existe el Type '+colAux.tipo+' en la columna '+colAux.nombre
-                    agregarMensjae('error',msg,'42704')
+                    tablaType=buscarTabla(baseActiva,colAux.tipo)#revisar la lista de Types
+                    if(tablaType==None):
+                        crearOK=False
+                        msg='42704:No existe el Type '+colAux.tipo+' en la columna '+colAux.nombre
+                        agregarMensjae('error',msg,'42704')
                 else:
                     colAux.tipo=colum.tipo.lower() #guardar tipo col
                 if(colum.valor!=False):
-                    if(colAux.tipo=='character varying' or colAux.tipo=='varchar' or colAux.tipo=='text' or colAux.tipo=='character' or colAux.tipo=='char'):
+                    if(colAux.tipo=='character varying' or colAux.tipo=='varchar' or colAux.tipo=='character' or colAux.tipo=='char' or colAux.tipo=='interval'):
                         if(len(colum.valor)==1):
                             errT=True;#variable error en p varchar(p)
                             if isinstance(colum.valor[0],Operando_Numerico):
@@ -401,7 +432,7 @@ def crear_Tabla(instr,ts):
                             crearOK=False
                             msg='42601:el tipo '+colAux.tipo+' solo acepta 1 parametro: '+colAux.nombre
                             agregarMensjae('error',msg,'42601')
-                    elif(colAux.tipo=='decimal' or colAux.tipo=='numeric' or colAux.tipo=='double precision'):
+                    elif(colAux.tipo=='decimal' or colAux.tipo=='numeric'):
                         if(len(colum.valor)==1):
                             errT=True;#variable error en p varchar(p)
                             if isinstance(colum.valor[0],Operando_Numerico):
@@ -587,7 +618,7 @@ def insertar_en_tabla(instr,ts):
     #pendiente
     # -Datos de tipo fecha
     # -Datos TYPE
-    # -size and precision
+    # -size and precision para numeric
     # -check
     # -constraint
     insertOK=True
@@ -754,7 +785,15 @@ def insertar_en_tabla(instr,ts):
 
             pos=pos+1
     #validar size, presicion
-    if(True): ''
+    if(insertOK):
+        pos=0
+        for col in tablaInsert.atributos:
+            val=validarSizePres(col.tipo,ValInsert[pos],col.size,col.precision)
+            if(val==False):
+                insertOK=False
+                msg='22001:valor muy grande para la columna:'+col.nombre
+                agregarMensjae('error',msg,'22001')
+            pos=pos+1
     #realizar insert con EDD
     if(insertOK):
         #llamar metodo insertar EDD
