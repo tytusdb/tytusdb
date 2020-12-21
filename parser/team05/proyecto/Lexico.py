@@ -1136,10 +1136,6 @@ def p_delete(t):
 def p_ISelect(t):
     'I_SELECT  :   SELECT VALORES PFROM LCOMPLEMENTOS'
     #CLASE SELECT MINIMO
-
-def p_ISelect1(t):
-    'I_SELECT  :   SELECT VALORES PFROM'
-    #CLASE SELECT MINIMO
     
 def p_ISelect2(t):
     'I_SELECT  :   SELECT VALORES PFROM PWHERE LCOMPLEMENTOS'
@@ -1153,10 +1149,6 @@ def p_ISelect4(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM LCOMPLEMENTOS'
      # INSTRUCCION SELECT DISTINCT 
 
-def p_ISelect5(t):
-    'I_SELECT  :   SELECT DISTINCT VALORES PFROM'
-     # INSTRUCCION SELECT DISTINCT    
-
 def p_ISelect6(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE LCOMPLEMENTOS'
     # INSTRUCCION SELECT DISTINCT WITH WHERE
@@ -1164,6 +1156,36 @@ def p_ISelect6(t):
 def p_ISelect7(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE'
     # INSTRUCCION SELECT DISTINCT WITH WHERE
+
+def p_ISelect5(t):
+    'I_SELECT  :   SELECT DISTINCT VALORES PFROM'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"DISTINCT\" <VALORES> <PFROM>")
+    if isinstance(t[3], str):
+        ret = Retorno(Select(t[3],t[4].getInstruccion(),None,None,True),NodoAST("SELECT"))
+        ret.getNodo().setHijo(NodoAST(t[3]))
+        ret.getNodo().setHijo(t[4].getNodo())
+        t[0] = ret
+    else:
+        ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), None, None, None), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[3].getNodo())
+        ret.getNodo().setHijo(t[4].getNodo())
+        t[0] = ret
+
+def p_ISelect1(t):
+    'I_SELECT  :   SELECT VALORES PFROM'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" <VALORES> <PFROM>")
+    if isinstance(t[2], str):
+        ret = Retorno(Select3(t[2],t[3].getInstruccion(),None,None,False),NodoAST("SELECT"))
+        ret.getNodo().setHijo(NodoAST(t[2]))
+        ret.getNodo().setHijo(t[3].getNodo())
+        t[0] = ret
+    else:
+        ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), None, None, False), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[2].getNodo())
+        ret.getNodo().setHijo(t[3].getNodo())
+        t[0] = ret    
 
 def p_ISelect8(t):
     'I_SELECT   :   SELECT VALORES'
@@ -2154,33 +2176,93 @@ def p_funcionMax(t):
 
 def p_Alias(t):
     'ALIAS  :   AS ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<ALIAS> ::= \"AS\" \"ID\"")
+    val_id = Id(t[2], None)
+    ret = Retorno(val_id, NodoAST('Alias'))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
 def p_AliasS(t):
     'ALIAS  :   ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<ALIAS> ::= \"ID\"")
+    val_id = Id(t[1], None)
+    ret = Retorno(val_id, NodoAST('Alias'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_AliasC(t):
     'ALIAS  :   AS IDALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<ALIAS> ::= \"AS\" \"IDALIAS\"")
+    val_id = Id(t[2], None)
+    ret = Retorno(val_id, NodoAST('Alias'))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
 def p_AliasCS(t):
     'ALIAS  :   IDALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<ALIAS> ::= \"IDALIAS\"")
+    val_id = Id(t[1], None)
+    ret = Retorno(val_id, NodoAST('Alias'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_PFROM(t):
     'PFROM  :   FROM LVALORESFROM '
+    global reporte_gramatical
+    reporte_gramatical.append("<PFROM> ::= \"FROM\" <LVALORESFROM>")
+    ret = Retorno(t[2].getInstruccion(), NodoAST('FROM'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_LValoresFrom(t):
     'LVALORESFROM   :   LVALORESFROM  COMA VALORFROM '
+    global reporte_gramatical
+    reporte_gramatical.append("<LVALORESFROM> ::= <LVALORESFROM> \",\" <VALORFROM>")
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val, NodoAST('Valor'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_LValoresFrom1(t):
     'LVALORESFROM   :   VALORFROM '
+    global reporte_gramatical
+    reporte_gramatical.append("<LVALORESFROM> ::= <VALORFROM>")
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST('Valor'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_ValoresFromIdAlias(t):
     'VALORFROM  :   ID ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALORFROM> ::= \"ID\" <ALIAS>")
+    val_id = Id(t[1], t[2].getInstruccion())
+    ret = Retorno(val_id, NodoAST(t[1]))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_ValoresFromId(t):
     'VALORFROM  :   ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALORFROM> ::= \"ID\"")
+    val_id = Id(t[1], None)
+    ret = Retorno(val_id, NodoAST(t[1]))
+    t[0] = ret
 
 def p_ValoresFromSub(t):
     'VALORFROM  :   PABRE SUBCONSULTA PCIERRA ALIAS    '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALORFROM> ::= \"(\" <SUBCONSULTA> \")\" <ALIAS>")
+    ret = Retorno(Subconsulta(t[2].getInstruccion(), t[4].getInstruccion()), NodoAST('AS'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_SubconsultaFrom(t):
     'SUBCONSULTA    :   SELECT VALORES PFROM COMPLEMENTO '
