@@ -138,6 +138,48 @@ def showTables(database) -> list:
             tableNames.append(i)
     return tableNames
 
+#extrae y devuelve todos los registros de una tabla
+def extractTable(database: str, table: str):
+    registers = []
+    if not identifierValidation(database):
+        return 1
+    elif not identifierValidation(table):
+        return 1
+    dbExists = False
+    for i in showDatabases():
+        if i.lower() == database.lower():
+            dbExists = True
+            break
+    tableExists = False
+    for i in showTables(database):
+        if i.lower() == table.lower():
+            tableExists = True
+    if dbExists:
+        if tableExists:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            registers = aux_table.extractTable()
+            return registers
+
+# extrae y devuelve una lista de registros dentro de un rango especificado
+def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if dbExists:
+            if tableExists:
+                table = rollback('tables/' + database.lower() + table.lower())
+                return table.extractRangeTable(lower, upper, columnNumber)
+    except:
+        return []
+
 # vincula una nueva PK a la tabla y todos sus registros
 def alterAddPK(database: str, table: str, columns: list) -> int:
     checkDirs()
@@ -238,6 +280,43 @@ def alterDropPK(database: str, table: str) -> int:
     except:
         return 1
     
+# cambia el nombre de una tabla    
+def alterTable(database, tableOld, tableNew):
+    checkDirs()
+    databases = rollback('databases')
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableOldExists = False
+        tableNewExists = False
+        for i in showTables(database):
+            if i.lower() == tableOld.lower():
+                tableOldExists = True
+            if i.lower() == tableNew.lower():
+                tableNewExists = True
+            if tableNewExists and tableOldExists:
+                break
+        if not dbExists:
+            return 2
+        elif not tableOldExists:
+            return 3
+        elif tableNewExists:
+            return 4
+        else:
+            table = rollback('tables/' + database.lower() + tableOld.lower())
+            table.name = tableNew.lower()
+            commit(table, 'tables/' + database.lower() + tableOld.lower())
+            os.rename('data/tables/' + database.lower() + tableOld.lower() + '.bin', 'data/tables/' + database.lower() + tableNew.lower() + '.bin')
+            index = showDatabases().index(database.lower())
+            table_index = databases[index].tables.index(tableOld.lower())
+            databases[index].tables[table_index] = tableNew.lower()
+            commit(databases, 'databases')
+            return 0
+    except:
+        return 1    
 *---------------------------------------others----------------------------------------------*
 
 # guarda un objeto en un archivo binario
