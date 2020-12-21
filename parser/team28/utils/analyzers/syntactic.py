@@ -76,7 +76,7 @@ def p_sql_instruction(p):
 
 def p_use_statement(p):
     '''usestatement : USE ID SEMICOLON'''
-    noColumn = 0
+    noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     p[0] = UseDatabase(p[2],noLine,noColumn)
 
@@ -101,7 +101,7 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
-    noColumn = 0
+    noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
 
     if len(p) == 8:
@@ -169,8 +169,8 @@ def p_list_permits(p):
 
 
 def p_permits(p):
-    '''permits : OWNER EQUALS ID
-               | OWNER ID
+    '''permits : OWNER EQUALS SQLNAME
+               | OWNER SQLNAME
                | MODE EQUALS INT_NUMBER
                | MODE INT_NUMBER 
     '''
@@ -434,7 +434,6 @@ def p_show_statement(p):
 def p_alter_statement(p):
     '''alterstatement : ALTER optionsalter SEMICOLON
     '''
-    print ('estamos en el alter')
     p[0] = p[2]
 
 
@@ -450,10 +449,12 @@ def p_alter_database(p):
     '''alterdatabase : ID RENAME TO ID
                      | ID OWNER TO typeowner
     '''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
     if p[2].lower() == 'RENAME'.lower():   #Renombra la base de datos
-        p[0] = AlterDatabase(1,p[1],p[4])
+        p[0] = AlterDatabase(1,p[1],p[4],noLine,noColumn)
     else:                                  #Le cambia el duenio a la base de datos
-        p[0] = AlterDatabase(2,p[1],p[4])
+        p[0] = AlterDatabase(2,p[1],p[4],noLine,noColumn)
 
 
 def p_type_owner(p):
@@ -548,7 +549,7 @@ def p_drop_database(p):
     '''dropdatabase : IF EXISTS ID
                     | ID
     '''
-    noColumn = 0
+    noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if len(p) == 4:
         p[0] = DropDB(True, p[3], noLine, noColumn)
@@ -559,7 +560,7 @@ def p_drop_database(p):
 def p_drop_table(p):
     '''droptable : ID
     '''
-    noColumn = 0
+    noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     p[0] = DropTB(p[1], noLine, noColumn)
 
