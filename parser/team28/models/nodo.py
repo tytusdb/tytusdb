@@ -8,6 +8,7 @@ class Node:
         self.__id = 0
         self.__value = value
         self.__childrens = SingleLinkedList()
+        self.__production = ''
 
     def get_id(self):
         return self.__id
@@ -29,3 +30,11 @@ class Node:
 
     def add_childrens(self, children):
         self.__childrens.insert_end(children)
+
+    @property
+    def production(self):
+        return self.__production
+
+    @production.setter
+    def production(self, production):
+        self.__production = production

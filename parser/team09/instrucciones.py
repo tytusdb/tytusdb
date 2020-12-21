@@ -1,3 +1,5 @@
+import tabla_simbolos as TS
+
 class Instruccion():
     def __init__(self, tipo, instruccion):
         self.tipo = tipo 
@@ -60,22 +62,18 @@ class Drop():
         print('id : ' + self.id)
 
 class CreateTable():
-    def __init__(self, id, cols, inh):
-        self.id = id
+    def __init__(self, id, base, cols, inh):
+        self.id = id,
+        self.base = base
         self.cols = cols
         self.inh = inh
         
-    def execute(self):
+    def execute(self,ts):
         print('Ejecutando Creare Table')
         print('id : ' + str(self.id))
-        aux = True
         for col in self.cols :
-            if aux:
-                print('col id : ' + str(col))
-            else: 
-                print('col type : ' + str(col))
-
-            aux = not aux
+            print('col id : ' + str(col.id))
+            print('col type : ' + str(col.tipo))
 
 
         if self.inh != None :

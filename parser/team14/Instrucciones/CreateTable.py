@@ -8,10 +8,11 @@ from Expresion.variablesestaticas import variables
 from tkinter import *
 
 class CreateTable(Instruccion):
-    def __init__(self, id:str, listaDef,herencia = None):
+    def __init__(self, id:str, listaDef):
         self.id = id
         self.listaDef = listaDef
-        self.herencia = herencia
+        self.herencia = None
+        self.listPK = []
 
     def ejecutar(self, ent:Entorno):
         dbActual = ent.getDataBase()
@@ -25,7 +26,6 @@ class CreateTable(Instruccion):
             primariaAdd:Primaria = None
             foraneaAdd:Foranea = None
             inicioHerencia = 0
-            listPK = []
 
 
             if self.herencia != None:
@@ -36,9 +36,9 @@ class CreateTable(Instruccion):
                         if colPadre.atributos.get('primary') != None:
                             coPrimary:Simbolo = ent.buscarSimbolo(colPadre.atributos.get('primary'))
                             if coPrimary != None:
-                                listPK = coPrimary.valor
+                                self.listPK = coPrimary.valor
                     
-                    inicioHerencia = len(r.valor) - 1
+                    inicioHerencia = len(r.valor)
 
                 else: return "La tabla padre '" + self.herencia + "' no existe"
 
@@ -66,6 +66,7 @@ class CreateTable(Instruccion):
                                     #formato: U_database_tabla_nombreColumna
                                     nuevoSym.nombre = str("U_" + dbActual + "_" + self.id + "_" + tt.identificador)
                                     nuevaColumna.atributos.update({'unique':str("U_" + dbActual + "_" + self.id + "_" + tt.identificador)})
+                                nuevoSym.valor = tt.identificador
                             elif atrColumna.tipo == AtributosColumna.CHECK:
                                 hayAtr = True
                                 nuevoSym.tipo = TipoSimbolo.CONSTRAINT_CHECK
@@ -151,15 +152,17 @@ class CreateTable(Instruccion):
                                     col.atributos.update({'unique':str("U_" + dbActual + "_" + self.id + "_" + col.nombre + "_" + tt.id)})
                                     sym = Simbolo(TipoSimbolo.CONSTRAINT_UNIQUE,str("U_" + dbActual + "_" + self.id + "_" + col.nombre + "_" + tt.id))
                                     ent.nuevoSimbolo(sym)
-                    '''elif tt.contenido.tipo == AtributosColumna.CHECK:
-                        #formato: C_database_tabla_nombreColumna_idConstraint
-                        col.atributos.update({'unique':str("C_" + dbActual + "_" + self.id + "_" + col.nombre + "_" + tt.id)})
-                        sym = Simbolo(TipoSimbolo.CONSTRAINT_UNIQUE,str("C_" + dbActual + "_" + self.id + "_" + col.nombre + "_" + tt.id))
-                        ent.nuevoSimbolo(sym)'''
-                  
+                    elif tt.contenido.tipo == AtributosColumna.CHECK:
+                        #formato: C_database_tabla_idConstraint
+                        sym = Simbolo(TipoSimbolo.CONSTRAINT_CHECK,str("C_" + dbActual + "_" + self.id + "_" + tt.id))
+                        sym.tabla = self.id
+                        sym.baseDatos = dbActual
+                        sym.valor = tt.contenido.condiciones
+                        listaAtrCol.append(sym)
+                        
             nuevaTabla.valor = listaColumnas
             estado = DBMS.createTable(dbActual,self.id, len(listaColumnas))
-            if estado == 0: 
+            if estado == 0:
                 nuevaTabla.baseDatos = dbActual
                 r = ent.nuevoSimbolo(nuevaTabla)
                 if r == "ok":
@@ -171,15 +174,17 @@ class CreateTable(Instruccion):
                         if not alreadyPrimary:
                             pk = listaColumnas[x].atributos.get('primary')
                             if pk != None: 
-                                listPK.append(x)
-                                rrr = DBMS.alterAddPK(dbActual,self.id,listPK)
+                                self.listPK.append(x)
+                                rrr = DBMS.alterAddPK(dbActual,self.id,self.listPK)
                                 if rrr != 0: 
                                     variables.consola.insert(INSERT,"No se ha podido agregar PK en tabla \'" + self.id + "\'\n")
                                 else: 
                                     alreadyPrimary = True
-                                    sym = Simbolo(TipoSimbolo.CONSTRAINT_PRIMARY,str("PK_" + dbActual + "_" + self.id))
-                                    sym.valor = listPK
-                                    ent.nuevoSimbolo(sym)
+                                    sym1 = Simbolo(TipoSimbolo.CONSTRAINT_PRIMARY,str("PK_" + dbActual + "_" + self.id))
+                                    sym1.valor = self.listPK
+                                    sym1.tabla = self.id
+                                    sym1.baseDatos = dbActual
+                                    ent.nuevoSimbolo(sym1)
                     
 
                     if not alreadyPrimary:
@@ -190,17 +195,18 @@ class CreateTable(Instruccion):
                                 for p in listaPrim:
                                     for col in range(len(tablaB.valor)):
                                         if p.valor == tablaB.valor[col].nombre:
-                                            listPK.append(col)
+                                            self.listPK.append(col)
                                         #print(p.valor)
                                         #print(col.nombre)
                                 
-                                if len(listPK) > 0:
-                                    n = DBMS.alterAddPK(dbActual,self.id,listPK)
+                                if len(self.listPK) > 0:
+                                    n = DBMS.alterAddPK(dbActual,self.id,self.listPK)
                                     if n != 0:
                                         variables.consola.insert(INSERT,"No se ha podido agregar PK en tabla \'" + self.id + "\'\n")
                                     else: 
                                         idPk = ""
                                         alreadyPrimary = True
+                                        sym:Simbolo = None
                                         if primariaAdd.idConstraint != "":
                                             idPk = str("PK_" + dbActual + "_" + self.id + "_" + primariaAdd.idConstraint)
                                             sym = Simbolo(TipoSimbolo.CONSTRAINT_PRIMARY,idPk)    
@@ -208,10 +214,12 @@ class CreateTable(Instruccion):
                                             idPk = str("PK_" + dbActual + "_" + self.id)
                                             sym = Simbolo(TipoSimbolo.CONSTRAINT_PRIMARY,idPk)
 
-                                        for y in listPK:
+                                        for y in self.listPK:
                                             tablaB.valor[y].atributos.update({'primary':idPk})
                                             
-                                        sym.valor = listPK
+                                        sym.valor = self.listPK
+                                        sym.tabla = self.id
+                                        sym.baseDatos = dbActual
                                         ent.nuevoSimbolo(sym)
 
                     DBMS.showCollection()
@@ -220,6 +228,20 @@ class CreateTable(Instruccion):
                 return r
             #elif estado == 1: 
 
+class CreateType(Instruccion):
+    def __init__(self,iden,lexp):
+        self.id = iden
+        self.contenido = lexp
+
+    def ejecutar(self,ent:Entorno):
+        #formato para el enum: ENUM_database_identificador
+        nuevoType:Simbolo = Simbolo(TipoSimbolo.TYPE_ENUM,("ENUM_" + ent.getDataBase() + "_" + self.id),self.contenido)
+        nuevoType.baseDatos = ent.getDataBase()
+        r = ent.nuevoSimbolo(nuevoType)
+        if r == "ok":
+            return "Nuevo tipo '" + self.id + "' creado"
+
+        return "El tipo '" + self.id + "' ya existe declarado"
 
 
 class Check(CreateTable):
