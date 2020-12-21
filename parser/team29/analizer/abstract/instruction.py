@@ -56,6 +56,19 @@ class SelectOnlyParams(Instruction):
         labels = [p.temp for p in self.params]
         return labels, value
 
+    def dot(self):
+        new = Nodo.Nodo("SELECT")
+        paramNode = Nodo.Nodo("PARAMS")
+        new.addNode(paramNode)
+        if len(self.params) == 0:
+            asterisco = Nodo.Nodo("*")
+            paramNode.addNode(asterisco)
+        else:
+            for p in self.params:
+                paramNode.addNode(p.dot())
+        global root
+        root = new 
+        return new
 
 class SelectParams(Instruction):
     def __init__(self, params, row, column):
@@ -102,7 +115,21 @@ class Select(Instruction):
 
         return [w2, environment.types]
 
-
+    def dot(self):
+        new = Nodo.Nodo("SELECT")
+        paramNode = Nodo.Nodo("PARAMS")
+        new.addNode(paramNode)
+        if len(self.params) == 0:
+            asterisco = Nodo.Nodo("*")
+            paramNode.addNode(asterisco)
+        else:
+            for p in self.params:
+                paramNode.addNode(p.dot())
+        new.addNode(self.fromcl.dot())
+        new.addNode(self.wherecl.dot())
+        global root
+        root = new 
+        return new
 class FromClause(Instruction):
     """
     Clase encargada de la clausa FROM para la obtencion de datos
@@ -164,7 +191,18 @@ class FromClause(Instruction):
             environment.dataFrame = tempDf
             environment.types.update(types)
         return
+    def dot(self):
+        new = Nodo.Nodo("FROM")
 
+        for t in self.tables:
+            t1 = Nodo.Nodo(t.name)
+            new.addNode(t1)
+        for a in self.aliases:
+            a1 = Nodo.Nodo(a)
+            new.addNode(a1)
+        global root
+        root = new 
+        return new
 
 class TableID(Expression):
     """
@@ -210,6 +248,12 @@ class WhereClause(Instruction):
         filt = self.series.execute(environment)
         return environment.dataFrame.loc[filt.value]
 
+    def dot(self):
+        new = Nodo.Nodo("WHERE")
+        new.addNode(self.series.dot())
+        global root
+        root = new 
+        return new
 
 class Delete(Instruction):
     def __init__(self, fromcl, wherecl, row, column):
@@ -846,7 +890,21 @@ class CreateType(Instruction):
             report = result
         return report
 
+    def dot(self):
+        new = Nodo.Nodo("CREATE_TYPE")
+        if self.exists:
+            exNode = Nodo.Nodo("IF_NOT_EXISTS")
+            new.addNode(exNode)
+        idNode = Nodo.Nodo(self.name)
+        new.addNode(idNode)
+        paramsNode = Nodo.Nodo("PARAMS")
+        new.addNode(paramsNode)
+        for v in self.values:
+            paramsNode.addNode(v.dot())
 
+        global root
+        root = new 
+        return new
 # TODO: Operacion Check
 class CheckOperation(Instruction):
     """
