@@ -152,11 +152,3 @@ class InsertWhitColum(Instruccion):
 
         else:
             return str('Error Tabla '+self.nombre+' No Existe en la BD actual')
-
-
-
-
-
-
-
-
