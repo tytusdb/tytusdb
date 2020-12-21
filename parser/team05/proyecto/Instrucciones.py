@@ -259,22 +259,14 @@ class IfExist2(Instruccion):
 
 
 # ----------INICIO DE INSERT--------------------
-# INSTRUCCION INSERTTB
-class InsertTB(Instruccion):
-    """ Instrucción INSERTTB """
+# INSTRUCCION INSERT
+class Insert(Instruccion):
+    def __init__(self,tabla,columnas,valores):
+        self.tabla = tabla
+        self.columnas = columnas
+        self.valores = valores
 
-    def __init__(self, i_id,  lvalt):
-        self.i_id = i_id
-        self.lvalt = lvalt
 
-# INSTRUCCION INSERTTB1
-class InsertTB(Instruccion):
-    """ Instrucción INSERTTB """
-
-    def __init__(self, i_id, lvalt, lvalt2):
-        self.i_id = i_id
-        self.lvalt = lvalt
-        self.lvalt2 = lvalt2
 
 
 # INSTRUCCION VALTAB
@@ -358,12 +350,11 @@ class Alter(Instruccion):
 
 # INSTRUCCION ALTERDB
 class AlterDB(Instruccion):
-    """ Instrucción ALTERDB """
+    """ Instrucción ALTER """
 
-    def __init__(self, i_id, operacion, val):
-        self.i_id = i_id
+    def __init__(self, nombreDB,operacion ):
+        self.nombreDB = nombreDB
         self.operacion = operacion
-        self.val = val
 # ----------FIN DE ALTER--------------------
 
 
@@ -422,9 +413,17 @@ class UseDatabase(Instruccion):
 class CreateDatabase(Instruccion):
     """ Instrucción CREATE DATABASE """
 
-    def __init__(self, replace, datos):
-        self.replace = replace
+    def __init__(self, idData, datos,IfNot,Replace):
+        self.idData = idData
         self.datos = datos
+        self.IfNot = IfNot
+        self.Replace = Replace
+
+# OWNER Y MODE
+class OwnerMode(Instruccion):
+    def __init__(self,numeroOwner,numeroMode):
+        self.numeroOwner = numeroOwner
+        self.numeroMode = numeroMode
 
 
 class DatabaseInfo(Instruccion):
@@ -639,3 +638,19 @@ class Like(Instruccion):
     def __init__(self, valor, expresion, islike):
         self.valor = valor
         self.expresion = expresion
+
+# ALTER DATABASE
+class AlterDBMode(Instruccion):
+
+    def __init__(self, numero ):
+        self.numero = numero
+
+class AlterDBOwner(Instruccion):
+
+    def __init__(self, tipo ):
+        self.tipo = tipo
+
+class AlterDBRename(Instruccion):
+
+    def __init__(self, cadena ):
+        self.cadena = cadena
