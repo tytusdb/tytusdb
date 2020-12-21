@@ -58,6 +58,8 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
             index = showDatabases().index(databaseOld.lower())
             databases[index].name = databaseNew.lower()
             commit(databases, 'databases')
+            for i in showTables(databaseNew):
+                os.rename('data/tables/' + databaseOld.lower() + i.lower() + '.bin', 'data/tables/' + databaseNew.lower() + i.lower() + '.bin')
             return 0
     except:
         return 1
@@ -412,7 +414,7 @@ def dropTable(database, tableName):
 def insert(database: str, table: str, register: list):
     checkDirs()
     aux_table = None
-    if True:
+    try:
         dbExists = False
         for i in showDatabases():
             if i.lower() == database.lower():
@@ -445,7 +447,7 @@ def insert(database: str, table: str, register: list):
                     return 0
                 else:
                     return 4
-    else:
+    except:
         return 1
 
 # carga masiva de archivos hacia las tablas
@@ -470,7 +472,11 @@ def extractRow(database, table, columns):
         for i in columns:
             PK += str(i) + '_'
         PK = PK[:-1]
-        return aux_tabla.search(PK)
+        row = aux_tabla.search(PK)
+        if row is None:
+            return []
+        else:
+            return row
     except:
         return []
 
