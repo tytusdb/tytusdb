@@ -71,6 +71,7 @@ class Identifiers(Expression):
     """
     Esta clase representa los nombre de columnas
     """
+
     type = None
     # TODO: implementar la funcion para obtener el type de la columna
     def __init__(self, table, name, row, column):
@@ -233,8 +234,16 @@ class BinaryStringOperation(Expression):
         operator = self.operator
         if exp1.type != TYPE.STRING and exp2.type != TYPE.STRING:
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+        if isinstance(exp1.value, pd.core.series.Series):
+            exp1.value = exp1.value.apply(str)
+        else:
+            exp1.value = str(exp1.value)
+        if isinstance(exp2.value, pd.core.series.Series):
+            exp2.value = exp2.value.apply(str)
+        else:
+            exp2.value = str(exp2.value)
         if operator == "||":
-            value = str(exp1.value) + str(exp2.value)
+            value = exp1.value + exp2.value
         else:
             return ErrorOperatorExpression(operator, self.row, self.column)
         self.dot()
@@ -403,9 +412,11 @@ class TernaryRelationalOperation(Expression):
         exp3 = self.exp3.execute(environment)
         operator = self.operator
         try:
-            if isinstance(exp1.value, pd.core.series.Series) or isinstance(
-            exp2.value, pd.core.series.Series
-            ) or isinstance(exp3.value, pd.core.series.Series):
+            if (
+                isinstance(exp1.value, pd.core.series.Series)
+                or isinstance(exp2.value, pd.core.series.Series)
+                or isinstance(exp3.value, pd.core.series.Series)
+            ):
                 if operator == "BETWEEN":
                     value = (exp1.value > exp2.value) & (exp1.value < exp3.value)
                 elif operator == "NOTBETWEEN":
@@ -760,26 +771,34 @@ class FunctionCall(Expression):
             elif self.function == "length":
                 value = strf.length(*valores)
             elif self.function == "substring":
+                type_ = TYPE.STRING
                 value = strf.substring(*valores)
             elif self.function == "trim":
+                type_ = TYPE.STRING
                 value = strf.trim_(*valores)
             elif self.function == "get_byte":
                 value = strf.get_byte(*valores)
             elif self.function == "md5":
+                type_ = TYPE.STRING
                 value = strf.md5(*valores)
             elif self.function == "set_byte":
+                type_ = TYPE.STRING
                 value = strf.set_byte(*valores)
             elif self.function == "sha256":
+                type_ = TYPE.STRING
                 value = strf.sha256(*valores)
             elif self.function == "substr":
+                type_ = TYPE.STRING
                 value = strf.substring(*valores)
             elif self.function == "convert_date":
                 value = strf.convert_date(*valores)
             elif self.function == "convert_int":
                 value = strf.convert_int(*valores)
             elif self.function == "encode":
+                type_ = TYPE.STRING
                 value = strf.encode(*valores)
             elif self.function == "decode":
+                type_ = TYPE.STRING
                 value = strf.decode(*valores)
             # Se toma en cuenta que la funcion now produce tipo DATE
             elif self.function == "now":
@@ -811,6 +830,7 @@ class FunctionCall(Expression):
         global root
         root = new
         return new
+
 
 # TODO: Agregar a la gramatica DATE, TIME y Columnas (datatype)
 class ExtractDate(Expression):
@@ -909,6 +929,7 @@ class ExtractDate(Expression):
         root = new
         return new
 
+
 class ExtractColumnDate(Expression):
     def __init__(self, opt, colData, row, column):
         Expression.__init__(self, row, column)
@@ -923,7 +944,7 @@ class ExtractColumnDate(Expression):
             if isinstance(valores.value, pd.core.series.Series):
                 lst = valores.value.tolist()
                 lst = [v.split() for v in lst]
-            else :
+            else:
                 lst = [valores.split()]
             if valores.type == TYPE.TIMESTAMP or valores.type == TYPE.DATETIME:
                 if self.opt == "YEAR":
