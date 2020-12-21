@@ -339,6 +339,40 @@ def p_use_instr(t):
     'use_instr      : USE DATABASE ID PTCOMA'
 ##########################################################################################
 
+# --------------------------------- FUNCIONES MÁTEMÁTICAS ------------------------------------
+
+# Select | Where
+def p_funciones_matematicas1(t):
+    '''funcion_matematica_ws    : ABS PARIZQ expresionaritmetica PARDER
+                                | CBRT PARIZQ expresionaritmetica PARDER
+                                | CEIL PARIZQ expresionaritmetica PARDER
+                                | CEILING PARIZQ expresionaritmetica PARDER'''
+
+# Select
+def p_funciones_matematicas2(t):
+    '''funcion_matematica_s     : DEGREES PARIZQ expresionaritmetica PARDER
+                                | DIV PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | EXP PARIZQ expresionaritmetica PARDER
+                                | FACTORIAL PARIZQ expresionaritmetica PARDER
+                                | FLOOR PARIZQ expresionaritmetica PARDER
+                                | GCD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | LN PARIZQ expresionaritmetica PARDER
+                                | LOG PARIZQ expresionaritmetica PARDER
+                                | MOD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | PI PARIZQ PARDER
+                                | POWER PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | RADIANS PARIZQ expresionaritmetica PARDER
+                                | ROUND PARIZQ expresionaritmetica PARDER
+                                | SIGN PARIZQ expresionaritmetica PARDER
+                                | SQRT PARIZQ expresionaritmetica PARDER
+                                | WBUCKET PARIZQ explist PARDER
+                                | TRUNC PARIZQ expresionaritmetica PARDER
+                                | RANDOM PARIZQ expresionaritmetica PARDER'''
+    
+# Lista de expresiones para la función Width Bucket
+def p_wbucket_exp(t):
+    'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
+    
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
 
 def p_inst_alter(t):
@@ -401,6 +435,7 @@ def p_field(t) :
                       | SECOND'''
 
 # ----------------------------------------------------------------------------------------
+
 def p_create(t):
     '''
         create_instr    : CREATE lista_crear create_final
