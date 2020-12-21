@@ -747,8 +747,8 @@ def p_insert_statement(p):
         p[0] = Insert(p[3],None,p[6])
 
 def p_list_params_insert(p):
-    '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA ID
-                        | ID'''
+    '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
+                        | SQLNAME'''
     if(len(p) == 4):
         p[1].append(p[3])
         p[0] = p[1]
@@ -769,6 +769,8 @@ def p_select_statement(p):
         p[0] = Select(p[1], p[2], p[3])
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
+            p[2].pop(0)
+            p[2] = p[2][0]
             p[0] = Select(p[1], p[2], None)
         elif ('LIMIT' in p[2]):
             p[0] = Select(p[1], None, p[2])
@@ -825,7 +827,10 @@ def p_selectq(p):
 def p_select_list(p):
     '''SELECTLIST : ASTERISK
                   | LISTITEM'''
-    p[0] = p[1]
+    if (p[1] == "*"):
+        p[0] = [PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))]
+    else:
+        p[0] = p[1]
 
 
 
@@ -917,29 +922,18 @@ def p_table_reference(p):
 
 
 def p_order_by_clause(p):
-    '''ORDERBYCLAUSE : ORDER BY ORDERBYCLAUSELIST'''
-    p[0] = p[3]
+    '''ORDERBYCLAUSE : ORDER BY ORDERBYEXPRESSION'''
+    p[0] = [p.slice[1].type,p[3]]
 
 def p_order_by_clause_list(p):
-    '''ORDERBYCLAUSELIST : ORDERBYCLAUSELIST COMMA ORDERBYEXPRESSION
-                         | ORDERBYEXPRESSION'''
-    if (len(p) == 4):
-        p[1].append(p[3])
-        p[0] = p[1]
-    elif (len(p) == 2):
-        p[0] = [p[1]]
-   
-
-
-def p_order_by_expression(p):
-    '''ORDERBYEXPRESSION : SQLSIMPLEEXPRESSION ASC
-                         | SQLSIMPLEEXPRESSION DESC
-                         | SQLSIMPLEEXPRESSION'''
+    '''ORDERBYEXPRESSION : LISTPARAMSINSERT ASC
+                         | LISTPARAMSINSERT DESC
+                         | LISTPARAMSINSERT'''
     if (len(p) == 3):
         p[0] = OrderClause(p[1], p[2], p.lineno(2), find_column(p.slice[2]))
     elif (len(p) == 2):
         p[0] = OrderClause(p[1], None, None, None)
-
+   
 def p_limit_clause(p):
     '''LIMITCLAUSE : LIMIT LIMITOPTIONS'''
     p[0] = [p[1], p[2]]
@@ -1050,20 +1044,21 @@ def p_sql_relational_expression(p):
     if (len(p) == 3):
         p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        if p[2] == '=':
-            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '!=':
-            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '>=':
-            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '>':
-            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<=':
-            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<':
-            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
-        elif p[2] == '<>':
-            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3], p[2],p.lineno(2), find_column(p.slice[2]))
+        print(p[2])
+        if p[2][1] == '=':
+            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '!=':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '>=':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '>':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<=':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<>':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
     else:
         p[0] = p[1]
 
@@ -1196,7 +1191,7 @@ def p_sql_simple_expression(p):
             p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.BITWISE_NOT, p[2],p.lineno(1), find_column(p.slice[1]),p[1])
     else:
         if  p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
-            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1])
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1], p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = p[1]
 
@@ -1406,19 +1401,12 @@ def p_cont_of_aggregate(p):
         p[0] = p[1]
 
 def p_sql_object_reference(p):
-    '''OBJECTREFERENCE : SQLNAME DOT SQLNAME DOT SQLNAME
-                       | SQLNAME DOT SQLNAME
-                       | SQLNAME DOT ASTERISK
+    '''OBJECTREFERENCE : SQLNAME DOT ASTERISK
                        | SQLNAME'''
     if (len(p) == 2):
-        p[0] = ObjectReference(None, None, p[1], None)
+        p[0] = ObjectReference(p[1], None)
     elif (len(p) == 4):
-        if (p[3] == '*'):
-            p[0] = ObjectReference(None, None, p[1], p[3])
-        else:
-            p[0] = ObjectReference(None, p[1], p[3], None)
-    else:
-        p[0] = ObjectReference(p[1], p[3], p[5], None)
+        p[0] = ObjectReference(p[1], p[3])
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
@@ -1444,7 +1432,7 @@ def p_relop(p):
              | LESS_THAN
              | LESS_EQUAL
              | NOT_EQUAL_LR'''
-    p[0] = p[1]
+    p[0] = [p.slice[1], p[1]]
 
 
 def p_aggregate_types(p):
@@ -1463,20 +1451,22 @@ def p_date_types(p):
                  | HOUR
                  | MINUTE
                  | SECOND'''
-    p[0] = PrimitiveData(DATA_TYPE.STRING, p[1])
+    p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
 
 def p_sql_integer(p):
     '''SQLINTEGER : INT_NUMBER
                   | FLOAT_NUMBER'''
-    p[0] = PrimitiveData(DATA_TYPE.NUMBER, p[1])
+    p[0] = PrimitiveData(DATA_TYPE.NUMBER, p[1], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-               
-    p[0] = PrimitiveData(DATA_TYPE.STRING, p[1])
+    if p.slice[1].type == "STRINGCONT" and p.slice[1].type == "CHARCONT":
+        p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
+    else:
+        p[0] = ExpressionColumnsId(p[1], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_type_select(p):

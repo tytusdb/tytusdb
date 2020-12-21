@@ -1,32 +1,24 @@
 from sys import path
 from os.path import dirname as dir
+from shutil import rmtree
 
 path.append(dir(path[0]))
 
 from analizer import grammar
 
+dropAll = 1
+if dropAll:
+    print("Eliminando registros")
+    rmtree("data")
+
+
 s = """ 
-    use db1;
-    /*create table tblibrosalario( 
-    idempleado integer not null,
-    aniocalculo integer CONSTRAINT aniosalario CHECK (aniocalculo > 0),
-    mescalculo  integer CONSTRAINT mescalculo CHECK (mescalculo > 0 ),
-    salariobase  money not null,
-    comision decimal,
-    primary key(idempleado)
-    );
-    insert into tblibrosalario values(4,2020,10,2500,6885);
-    insert into tblibrosalario values(5,2020,10,2750,5370);
-    
-    
-    */
-    
-    insert into tblibrosalario (salariobase,idempleado,mescalculo) values(3000,NULL,1);
-    
+CREATE DATABASE IF NOT EXISTS test OWNER = 'root' MODE = 1;
+USE test;
+CREATE TABLE tbrolxusuario (
+  idrol integer NOT NULL,
+  idusuario integer NOT NULL
+);
 """
-
-
 result = grammar.parse(s)
 print(result)
-
-

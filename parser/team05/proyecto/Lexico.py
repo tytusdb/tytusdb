@@ -10,11 +10,14 @@ import ply.lex as lex
 import ply.yacc as yacc
 from Expresiones import *
 from Instrucciones import *
+from Retorno import Retorno
+from NodoAST import NodoAST
 import re
 
 # VARIABLES GLOBALES
 counter_lexical_error = 1
 counter_syntactic_error = 1
+reporte_gramatical = []
 
 # LISTADO DE PALABRAS RESERVADAS
 palabras_reservadas = {
@@ -184,7 +187,9 @@ palabras_reservadas = {
     'column'        : 'COLUMN',
     'use'           : 'USE',
     'md5'           : 'MD5',
-    'decimal'       : 'DECIMAL'
+    'decimal'       : 'DECIMAL',
+    'current_user'  : 'CURRENT_USER',
+    'session_user'  : 'SESSION_USER'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -287,10 +292,6 @@ def t_CADENA(t):
     t.value = t.value[1:-1] 
     return t 
 
-def t_CADENASI(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -376,74 +377,107 @@ def p_instruccion1(t):
     """
         INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
     """
-    t[0] = SelectCompleto(t[1],t[2])
-
+    reporte_gramatical.append("<INSTRUCCION> ::= <I_SELECT> <COMPLEMENTOSELECT>")
+    if t[2] is None:
+        t[0] = t[1]
+    else:
+        if isinstance(t[2].getInstruccion(), ComplementoSelectUnion):
+            ret = Retorno(Union(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("UNION"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectUnionAll):
+            ret = Retorno(UnionAll(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("UNION ALL"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectIntersect):
+            ret = Retorno(Intersect(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("INTERSECT"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectIntersectALL):
+            ret = Retorno(IntersectAll(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("INTERSECT ALL"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectExcept):
+            ret = Retorno(Except(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("EXCEPT"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
+        elif isinstance(t[2].getInstruccion(), ComplementoSelectExceptAll):
+            ret = Retorno(ExceptAll(t[1].getInstruccion(), t[2].getInstruccion().select), NodoAST("EXCEPT ALL"))
+            ret.getNodo().setHijo(t[1].getNodo())
+            ret.getNodo().setHijo(t[2].getNodo())
+            t[0] = ret
 
 def p_instruccion2(t):
     """
-        INSTRUCCION     :   I_CREATE
+        INSTRUCCION     :   I_REPLACE
+                        |   I_CTABLE
+                        |   I_CTYPE
                         |   I_DROP
                         |   I_INSERT
-                        |   I_ALTER
+                        |   I_ALTERDB
                         |   I_UPDATE
                         |   I_SHOW
                         |   I_DELETE
                         |   I_USE
+                        |   I_ALTERTB
     """
     t[0] = t[1]
 
 
 def p_use(t):
-    """
-        I_USE           :   USE ID PCOMA
-    """
-    t[0] = UseDatabase(t[2])
+    'I_USE           :   USE ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_USE> ::= "USE" "ID" ";"')
+    ret = Retorno(UseDatabase(t[2]),NodoAST("USE"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
     
-def p_create(t):
-    """
-        I_CREATE        :   CREATE I_TCREATE
-    """
-    t[0] = t[2]
-
-
-def p_tcreate(t):
-    """
-        I_TCREATE       :   I_REPLACE
-                        |   I_CTABLE
-                        |   I_CTYPE
-    """
-    t[0] = t[1]
-    
-    
-    
-
+# CREATE TYPE
 
 def p_ctype(t):
-    """
-        I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA PCOMA
-    """
-    #INSTRUCCION CTYPE
-
+    'I_CTYPE       : CREATE TYPE ID AS ENUM PABRE I_LVALUES PCIERRA PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_CTYPE> ::= "CREATE" "TYPE" "ID" "AS" "ENUM" "(" <I_LVALUES> ")" ";"')
+    ret = Retorno(CreateType(t[3],t[7].getInstruccion()),NodoAST("CREATE TYPE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
 
 def p_lcad1(t):
-    """
-        I_LCAD          :   I_LCAD COMA LCAD
-    """
-    # Instruccion
+    'I_LVALUES          :   I_LVALUES COMA CONDI'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LVALUES> ::= <I_LVALUES> "," <CONDI>')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
 
 
 def p_lcad2(t):
-    """
-        I_LCAD          :   LCAD
-    """
-    # Instruccion
+    'I_LVALUES          :   CONDI'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LVALUES> ::= <CONDI>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+    
 
 def p_Ilcad2(t):
-    """
-        LCAD          :   CADENA
-    """
+    'CONDI          :   CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<CONDI> ::= <CONDICION>')
+    t[0] = t[1]
 
+# TERMINO CREATE TYPE
 
 
 def p_ctable(t):
@@ -648,8 +682,6 @@ def p_replace2(t):
     #t[0] = CreateDatabase(False, t[2])
 
 
-def p_alter(t):
-    'I_ALTER     : ALTER I_TALTER'
 
 def p_alterTB(t):
     'I_ALTERTB   : TABLE ID I_OPALTER '
@@ -872,22 +904,40 @@ def p_FTUP(t):
 def p_FTUP1(t):
     'FTRIGONOMETRICASUP   : ASIN'
 
-def p_show(t):
-    'I_SHOW       : SHOW DATABASES PCOMA'
-
-def p_delete(t):
-    'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
-
 def p_valTab(t):
     'I_VALTAB      : CONDICION'
     # INSTRUCCION VALTAB
-
-
     
 def p_valTabMd5(t):
     'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
     # INSTRUCCION VALTAB
 
+# SHOW
+
+def p_show(t):
+    'I_SHOW       : SHOW DATABASES PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_SHOW> ::= "SHOW" "DATABASE" ";" ')
+    ret = Retorno(Show(t[2]),NodoAST("SHOW"))
+    #ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
+
+# TERMINA SHOW
+
+# DELETE
+
+def p_delete(t):
+    'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_DELETE> ::= "DELETE" "FROM" "ID" <PWHERE> ";" ')
+    ret = Retorno(DeleteFrom(t[3],t[4].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+# TERMINA DELETE
+
+#--------------------------------------------------------------------------------
 
 def p_ISelect(t):
     'I_SELECT  :   SELECT VALORES PFROM LCOMPLEMENTOS'
@@ -949,31 +999,45 @@ def p_ComplementoL(t):
 
 def p_ComplementoSelectUnion(t):
     'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
-    # INSTRUCCION COMPLEMENTOSELECTUNION
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"UNION\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectUnion(t[2].getInstruccion()), t[2].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectUnionAll(t):
     'COMPLEMENTOSELECT  : UNION ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTALL
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"UNION\" \"ALL\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectUnionAll(t[3].getInstruccion()), t[3].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectIntersect(t):
     'COMPLEMENTOSELECT  : INTERSECT I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTINTERSECT
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"INTERSECT\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectIntersect(t[2].getInstruccion()), t[2].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectIntersectALL(t):
     'COMPLEMENTOSELECT  : INTERSECT ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTINTERSECTALL
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"INTERSECT\" \"ALL\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectIntersectALL(t[3].getInstruccion()), t[3].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectExcept(t):
     'COMPLEMENTOSELECT  : EXCEPT I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTEXCEPT
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"EXCEPT\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectExcept(t[2].getInstruccion()), t[2].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectExceptAll(t):
     'COMPLEMENTOSELECT  : EXCEPT ALL I_SELECT PCOMA '
-    # INSTRUCCION COMPLEMENTOSELECTEXCEPTALL
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"EXCEPT\" \"ALL\" <I_SELECT> \";\"")
+    ret = Retorno(ComplementoSelectExceptAll(t[3].getInstruccion()), t[3].getNodo())
+    t[0] = ret
 
 def p_ComplementoSelectExceptPcoma(t):
     'COMPLEMENTOSELECT  : PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTEXCEPTPCOMA
+    reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \";\"")
+    t[0] = None
 
 def p_Limit(t):
     'PLIMIT  :   LIMIT CONDICION    '
