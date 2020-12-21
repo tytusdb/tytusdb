@@ -1104,6 +1104,10 @@ class Ast2:
                 print("Es un Campo Accedido Por la Cuerpo ")
                 self.GrafoGroupBy(i.Lista_Campos, i.Condiciones, padre)
 
+            elif isinstance(i,OrderBy):
+                print("Es un Campo Accedido  Order by ")
+                self.GrafoOrderBy(i.Lista_Campos, i.Condiciones, padre)
+
             elif isinstance(i, AccesoLimit):
                 print("Es un Campo Accedido Limit ")
                 self.GrafoLimit(i.Reservada, i.Expresion_Numerica, padre)
@@ -1129,6 +1133,11 @@ class Ast2:
 
 
     # ------------------------------------ FIN DEL ACCESO A LOS CAMPOS DE CADA CUESTION
+
+
+
+
+
 
 
 
@@ -1486,6 +1495,53 @@ class Ast2:
 
 
 
+# grafo Order by
+    def GrafoOrderBy(self, Lista_Campos, Condiciones, padre):
+        global dot
+       #Group by ListaCampos Having Condiciones
+        if ((Lista_Campos!=False) and  (Condiciones!=False)):
+
+            self.inc();
+            nuevoPadre = self.i
+            dot.node('Node' + str(self.i), "INSTRUCCION ORDER BY ")
+            dot.edge(padre, 'Node' + str(self.i))
+
+
+            self.inc();
+            dot.node('Node' + str(self.i), "ORDER BY")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc();
+            dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+            self.RecorrerListaCamposGroupBy(Lista_Campos,'Node' + str(self.i))
+
+            self.inc();
+            dot.node('Node' + str(self.i), "HAVING")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+
+            self.inc();
+            dot.node('Node' + str(self.i), "CONDICIONES")
+            dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+            self.Recorrer_Condiciones(Condiciones, 'Node' + str(self.i))
+
+       #Group by ListaCampos
+        elif ((Lista_Campos != False) and (Condiciones == False)):
+
+           self.inc();
+           nuevoPadre = self.i
+           dot.node('Node' + str(self.i), "INSTRUCCION ORDER BY ")
+           dot.edge(padre, 'Node' + str(self.i))
+
+           self.inc();
+           dot.node('Node' + str(self.i), "ORDER BY")
+           dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+           self.inc();
+           dot.node('Node' + str(self.i), "LISTA_CAMPOS")
+           dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+           self.RecorrerListaCamposGroupBy(Lista_Campos,'Node' + str(self.i))
+
+
 
 
 
@@ -1658,6 +1714,14 @@ class Ast2:
             self.inc()
             padreID=self.i
             dot.node(str(padreID),str(expresiones.tablaid)+"."+str(expresiones.campoid))
+        elif isinstance(expresiones, Variable):
+            self.inc()
+            padreID = self.i
+            dot.node(str(padreID), 'Variable')
+            dot.edge(str(padreID), str(padreID + 1))
+            self.inc()
+            padreID = self.i
+            dot.node(str(padreID), str(expresiones.id))
 
     def graficar_arit_log_rel_bb(self,expresion,tipo_exp="") :
         global  dot,tag,i
@@ -1709,6 +1773,7 @@ class Ast2:
         padreID=self.i
         dot.node(str(padreID),'Expresion'+tipo_exp)
         dot.edge(str(padreID),str(padreID+1))
+        print(expresion)
         if isinstance(expresion,UnitariaNegAritmetica):
             self.graficar_expresion(expresion.exp)
         else:
@@ -1764,7 +1829,7 @@ class Ast2:
             return 'IS_DISTINCT'
         elif padreID==OPERACION_LOGICA.EXISTS:
             return 'EXISTS'
-        elif padreID==OPERACION_LOGICA.NOT_EXIST:
+        elif padreID==OPERACION_LOGICA.NOT_EXISTS:
             return 'NOT_EXISTS'
         elif padreID==OPERACION_LOGICA.IN:
             return 'IN'
@@ -1890,6 +1955,10 @@ class Ast2:
             return '|'
         elif padreID==OPERACION_ARITMETICA.POTENCIA:
             return '^'
+        elif padreID == FUNCION_NATIVA.EXTRACT:
+            return 'EXTRACT'
+        elif padreID == FUNCION_NATIVA.DATE_PART:
+            return 'DATE_PART'
         else:
             return 'op'
 
@@ -2661,3 +2730,23 @@ class Ast2:
         self.graficar_expresion(expresion.exp1)
 
 
+    def grafoUse(self, id, padre):
+        global dot, i
+
+        self.inc()
+        nuevoPadre = self.i
+        dot.node('Node' + str(self.i), "USE DATABASE")
+        dot.edge(padre, 'Node' + str(self.i))
+
+        self.inc()
+        dot.node('Node' + str(self.i), 'Id: '+id)
+        dot.edge('Node' + str(nuevoPadre), 'Node' + str(self.i))
+#crearBASEDATOS(objeto)
+
+# retun = llamarfunicion(Objeto.nombre)
+#if return = 0
+#  agreagarts()
+#elif return = 1
+    #"ERRPR"
+# elif retunr = 2
+    #"ERRPR"
