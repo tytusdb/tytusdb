@@ -4,49 +4,35 @@
 
 from storageManager import jsonMode as j
 
-# create db1 and db2, return two 0's and show return list
-print(j.createDatabase("db1"))
-print(j.createDatabase("db2"))
-print(j.showDatabases())
+# drop all databases if exists
+j.dropAll()
 
-# try create db1 and db2, return error value 2 and show return list
-print(j.createDatabase("db1"))
-print(j.createDatabase("db2"))
-print(j.showDatabases())
+# create database
+j.createDatabase('world')
 
-# rename db1 to db3, return 0 and show return list
-print(j.alterDatabase("db1","db3"))
-print(j.showDatabases())
+# create tables
+j.createTable('world', 'countries', 4)
+j.createTable('world', 'cities',    4)
+j.createTable('world', 'languages', 4)
 
-# rename db2 to db1, return 0 and show return list
-print(j.alterDatabase("db2","db1"))
-print(j.showDatabases())
+# create simple primary keys
+j.alterAddPK('world', 'countries', [0])
+j.alterAddPK('world', 'cities',    [0])
+j.alterAddPK('world', 'languages', [0, 1])
 
-# drop db3 and db1, return two 0's
-print(j.dropDatabase("db3"))
-print(j.dropDatabase("db1"))
+# insert data in countries
+j.insert('world', 'countries', ['GTM', 'Guatemala',  'Central America', 108889])
+j.insert('world', 'countries', ['SLV', 'El Salvado', 'Central America',  21041])  
 
-# show empty-list of databases
-print(j.showDatabases())
+# insert data in cities
+j.insert('world', 'cities', [1, 'Guatemala',    'Guatemala',    'GTM'])
+j.insert('world', 'cities', [2, 'Cuilapa',      'Santa Rosa',   'GTM'])
+j.insert('world', 'cities', [3, 'San Salvador', 'San Salvador', 'SLV'])
+j.insert('world', 'cities', [4, 'San Miguel',   'San Miguel',   'SLV'])
+         
+# inser data in languages
+j.insert('world', 'languages', ['GTM', 'Spanish', 'official',  64.7])
+j.insert('world', 'languages', ['SLV', 'Spanish', 'official', 100.0])
 
-# again create db1 and db2, return two 0's and show return list of databases
-print(j.createDatabase("db1"))
-print(j.createDatabase("db2"))
-print(j.showDatabases())
-
-# create two table in db1 and show return tables list of db1 database
-print(j.createTable("db1", "table1", 5))
-print(j.createTable("db1", "table2", 8))
-print(j.showTables("db1"))
-
-# rename table1 to table 3 and show return tables list of db1 database
-print(j.alterTable("db1", "table1","table3"))
-print(j.showTables("db1"))
-
-# drop table3 of db1 and show return tables list of db1 database
-print(j.dropTable("db1", "table3"))
-print(j.showTables("db1"))
-
-# drop db1 with tables, first return 0 and second return None
-print(j.dropDatabase("db1"))
-print(j.showTables("db1"))
+# show all data
+j.showCollection()

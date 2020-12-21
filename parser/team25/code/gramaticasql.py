@@ -4,11 +4,12 @@ from astDML import UpdateTable
 from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, BETWEEN,ExpresionPositiva, ExpresionBetween, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano
-from astFunciones import FuncionNumerica , FuncionCadena
+from astFunciones import FuncionCadena, FuncionNumerica, FuncionTime , BitwaseBinaria , BitwaseUnaria
 from astDDL import ALTER_TABLE_ADD, ALTER_TABLE_DROP, AlterDatabase, AlterField, AlterTable, AlterTableAdd, AlterTableDrop, CONSTRAINT_FIELD, CheckField, CheckMultipleFields, ConstraintField, ConstraintMultipleFields, CreateDatabase, CreateField, CreateTable, CreateType, DefaultField, DropDatabase, DropTable, ForeignKeyField, ForeignKeyMultipleFields, ShowDatabase, TYPE_COLUMN
 from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
+from reporteErrores.errorReport import ErrorReport
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -16,13 +17,13 @@ from reporteBnf.reporteBnf import bnf
 #---------------- MANEJO DE LA PRECEDENCIA
 precedence = (
     ('left','IS','ISNULL','NOTNULL','FROM' , 'SYMMETRIC','NOTBETWEEN'),
-    ('left', 'NOT'),
-    ('left','AND','OR'),
+    ('left', 'NOT'),# me da duda que sea a la izquierda :v 
+    ('left','AND','OR','AMPERSAND' ,'NUMERAL' ,'PIPE','CORRIMIENTO_DER','CORRIMIENTO_IZQ','DOBLE_PIPE'), # le deje esta precedencia porque postgress asi trabaja estos simbolos << >>  & | ||  
     ('left','IGUAL','DIFERENTE','DIFERENTE2','MENOR','MAYOR','MENORIGUAL','MAYORIGUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
     ('left','MAS','MENOS'),
     ('left','ASTERISCO','DIVISION','MODULO'),
-    ('right','UMENOS','UMAS'),
+    ('right','UMENOS','UMAS','BITWISE_NOT' , 'UNOT' ),
     ('left', 'EXPONENT')
 )
 
@@ -79,10 +80,6 @@ def p_instruccion7(p):
     p[0] = p[1]
     bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
 
-def p_instruccion8(p):
-    'instruccion : select PTCOMA '
-    p[0] = p[1]
-    bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
     
 def p_use(p):
     'use : USE ID'
@@ -366,9 +363,6 @@ def p_combine_querys7(p):
     'combine_querys : select'
     bnf.addProduccion('\<combine_querys> ::= \<select> ')
 #_____________________________________________________________ SELECT
-def p_select0(p): #_____________ en esta fase NO por el join 
-    'select : SELECT expresion'
-    p[0] = p[2]
 
 def p_select1(p): #_____________ en esta fase NO por el join 
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -465,6 +459,13 @@ def p_select28(p):
 def p_select30(p):
     'select : SELECT select_list'
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list>')
+    #______________________________________________________________ PARA IR PROBANDO EL SELECT
+    # valor = p[2][0].ejecutar(0)
+    # if valor:
+    #     if not isinstance(valor,ErrorReport):
+    #         print(valor.val)
+    #     else:
+    #         print(valor.description)
     
 def p_select31(p):
     'select : SELECT DISTINCT select_list'
@@ -788,40 +789,43 @@ def p_funciones58(p):#ya
     p[0] = FuncionNumerica(funcion='RANDOM', linea= p.slice[2].lineno)
     bnf.addProduccion(f'\<funciones> ::= "{p[1].upper()}" "(" \<exp_aux> ")"')
 
-def p_funciones61(p):
-    'funciones : DOBLE_PIPE tipo_numero'
-    bnf.addProduccion('\<funciones> ::= "||" \<tipo_numero> ')
+#_______________________________________________________________________ UNARIAS BITWASE
+def p_funcionesBitwase1(p):
+    'exp_aux : DOBLE_PIPE exp_aux '
+    bnf.addProduccion('\<funciones> ::= "||" \<exp_aux> ')
+    p[0] = BitwaseUnaria(operador = "||" , exp=p[2] , linea=p.slice[1].lineno)
+def p_funcionesBitwase2(p):
+    'exp_aux : PIPE exp_aux '
+    bnf.addProduccion('\<funciones> ::= "|" \<exp_aux>')
+    p[0] = BitwaseUnaria(operador = "|" , exp=p[2] , linea=p.slice[1].lineno)
+def p_funcionesBitwase3(p):
+    'exp_aux : BITWISE_NOT exp_aux'
+    bnf.addProduccion('\<funciones> ::= "~" \<exp_aux>')
+    p[0] = BitwaseUnaria(operador = "~" , exp=p[2] , linea=p.slice[1].lineno)
 
-def p_funciones65(p):
-    'funciones : PIPE tipo_numero'
-    bnf.addProduccion('\<funciones> ::= "~" \<tipo_numero>')
+#________________________________________________________________________ BINARIA BITWASE
+def p_funcionesBitwase4(p):# AND
+    'exp_aux : exp_aux AMPERSAND exp_aux'
+    bnf.addProduccion('\<funciones> ::= \<exp_aux> "&" \<exp_aux> ')
+    p[0] =  BitwaseBinaria(exp1=p[1] , exp2= p[3] , operador="&",linea=p.slice[2].lineno)
+def p_funcionesBitwase5(p):# OR
+    'exp_aux : exp_aux PIPE exp_aux'
+    bnf.addProduccion('\<funciones> ::= \<exp_aux> "|" \<exp_aux> ')
+    p[0] =  BitwaseBinaria(exp1=p[1] , exp2= p[3] , operador="|",linea=p.slice[2].lineno)
+def p_funcionesBitwase6(p):# XOR
+    'exp_aux : exp_aux NUMERAL exp_aux'
+    bnf.addProduccion('\<funciones> ::= \<exp_aux> "#" \<exp_aux> ')
+    p[0] =  BitwaseBinaria(exp1=p[1] , exp2= p[3] , operador="#",linea=p.slice[2].lineno)
     
-def p_funciones65(p):
-    'funciones : BITWISE_NOT tipo_numero'
-    bnf.addProduccion('\<funciones> ::= "~" \<tipo_numero>')
-
-
-def p_funciones62(p):
-    'funciones : tipo_numero AMPERSAND tipo_numero'
-    bnf.addProduccion('\<funciones> ::= \<tipo_numero> "&" \<tipo_numero> ')
-
-def p_funciones63(p):
-    'funciones : tipo_numero PIPE tipo_numero'
-    bnf.addProduccion('\<funciones> ::= \<tipo_numero> "|" \<tipo_numero> ')
-
-def p_funciones64(p):
-    'funciones : tipo_numero NUMERAL tipo_numero'
-    bnf.addProduccion('\<funciones> ::= \<tipo_numero> "#" \<tipo_numero> ')
-
-
-
-def p_funciones66(p):
-    'funciones : tipo_numero CORRIMIENTO_IZQ tipo_numero'
-    bnf.addProduccion('\<funciones> ::= \<tipo_numero> "<<" \<tipo_numero> ')
-
-def p_funciones67(p):
-    'funciones : tipo_numero CORRIMIENTO_DER tipo_numero'
-    bnf.addProduccion('\<funciones> ::= \<tipo_numero> ">>" \<tipo_numero> ')
+def p_funcionesBitwase7(p):
+    'exp_aux : exp_aux CORRIMIENTO_IZQ exp_aux'
+    bnf.addProduccion('\<funciones> ::= \<exp_aux> "<<" \<exp_aux> ')
+    p[0] =  BitwaseBinaria(exp1=p[1] , exp2= p[3] , operador="<<",linea=p.slice[2].lineno)
+def p_funcionesBitwase8(p):
+    'exp_aux : exp_aux CORRIMIENTO_DER exp_aux'
+    bnf.addProduccion('\<funciones> ::= \<exp_aux> ">>" \<exp_aux> ')
+    p[0] =  BitwaseBinaria(exp1=p[1] , exp2= p[3] , operador=">>",linea=p.slice[2].lineno)
+#____________________________________________________________________________________________________________________________ FUNCIONES DE TIEMPO     
     
 def p_funciones_time1(p):
     'funciones : NOW PABRE PCIERRA'
@@ -858,19 +862,6 @@ def p_opcionesTime(p):
                  | SECOND
     '''
     p[0] = p[1]
-
-#___________________________________ <TIPO_NUMERO>                    
-#    <TIPO_NUMERO> ::= 'numero'
-#                  |   'decimal'
-def p_tipo_numero1(p):
-    'tipo_numero : NUMERO'
-    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.ENTERO, p.slice[1].lineno)
-    bnf.addProduccion(f'\<tipo_numero> ::= "NUMERO"')
-
-def p_tipo_numero2(p):
-    'tipo_numero : DECIMAL_LITERAL'
-    p[0] = ExpresionNumero(p[1], TIPO_DE_DATO.DECIMAL, p.slice[1].lineno)
-    bnf.addProduccion(f'\<tipo_numero> ::= "DECIMAL_LITERAL"')
     
 
 def p_lista_tablas(p):
@@ -915,10 +906,12 @@ def p_select_list2(p):
         p[0] = p[1]
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> ')
     elif len(p) == 5:
-        p[0] = [p[1]] # considerar que este ya tendria un alias
+        p[1].append(p[3])
+        p[0] = p[1] # falta considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> "ID"')
     elif len(p) == 6:
-        p[0] = [p[1]] # considerar que este ya tendria un alias
+        p[1].append(p[3])
+        p[0] = p[1] # falta considerar que este ya tendria un alias
         bnf.addProduccion('\<select_list> ::= \<select_list> "," \<select_item> "AS" \<alias>')
 
 # __________________________________________ lista_enum
@@ -1589,19 +1582,19 @@ def p_expresionBooleanaFalse(p):
 def p_exp_auxBooleanaTrue(p):
     '''exp_aux : TRUE '''
     p[0] = ExpresionBooleano(True, p.slice[1].lineno)
-    bnf.addProduccion('\<expresion> ::= "TRUE"')
+    bnf.addProduccion('\<exp_aux> ::= "TRUE"')
 
 def p_exp_auxBooleanaFalse(p):
     '''exp_aux : FALSE '''
     p[0] = ExpresionBooleano(False, p.slice[1].lineno)
-    bnf.addProduccion('\<expresion> ::= "FALSE"')  
+    bnf.addProduccion('\<exp_aux> ::= "FALSE"')   
 
 
 
 def p_expresiones_unarias(p):
     ''' expresion : MENOS expresion %prec UMENOS 
                   | MAS expresion %prec UMAS
-                  | NOT expresion'''
+                  | NOT expresion %prec UNOT '''
     if p[1] == '+':
         p[0] = ExpresionPositiva(p[2], p.slice[1].lineno)
         bnf.addProduccion('\<expresion> ::= "-" \<expresion>')
@@ -1736,6 +1729,11 @@ def p_expresion_tabla_campo(p):
     bnf.addProduccion('\<exp_aux> ::= "ID" "." "ID"')
         
 
+def p_expresion_cadenasDate(p):
+    'expresion : CADENA_DATE'
+    p[0] = ExpresionCadena(p[1], TIPO_DE_DATO.CADENA, p.slice[1].lineno)
+    bnf.addProduccion(f'\<expresion> ::= "CADENA_DATE"')
+    
 def p_expresion_con_dos_nodos(p):
     '''expresion : expresion MAS expresion 
                  | expresion MENOS expresion
@@ -1822,7 +1820,7 @@ def p_exp_auxp(p):
                  | exp_aux EXPONENT exp_aux
                  | exp_aux MODULO exp_aux
     '''
-    bnf.addProduccion(f'\<expresion> ::= \<expresion> "{p.slice[2].value}" \<expresion>')
+    bnf.addProduccion(f'\<exp_aux> ::= \<exp_aux> "{p.slice[2].value}" \<exp_aux>')
     if p[2] == '+':
         p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MAS, p.slice[2].lineno)
     elif p[2] == '-':
@@ -1948,6 +1946,8 @@ def p_first_last1(p):
         p[0] =p[1]
 def p_select_item1(p):
     'select_item : exp_aux'
+    bnf.addProduccion('\<select_item> ::= \<exp_aux>')
+    p[0] = p[1]
 # ESTAS 3 POSIBILIDADES YA ESTAN CONSIDERADAS EN EXP_AUX
 #    <SELECT_ITEM>::=  'id'
 #                  | 'id' '.' 'id'
@@ -2102,11 +2102,11 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada(''' 
-select 5*5+850 not between symmetric 8 and 90;
+select  -2 * ~ 20;
 
 ''')
 
-arbolParser.ejecutar()
+# arbolParser.ejecutar()
 # print(arbolParser)
 #arbolParser.dibujar()#viendo el resultado: 
 
