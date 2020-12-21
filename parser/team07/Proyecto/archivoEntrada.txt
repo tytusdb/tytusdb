@@ -1,7 +1,7 @@
 create type hola as enum(ola);
     create type hola as enum(ola);
 create type hola as enum(ola);
-insert into hola values (1,'2',2),
+insert into hola values (7*3+1,'2',2),
 (1,2,'sss');
 insert into hola(col1,col2,col3) values 
 (1,'si',2),

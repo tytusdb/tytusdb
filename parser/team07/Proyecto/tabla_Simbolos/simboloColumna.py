@@ -1,23 +1,24 @@
 from enum import Enum
 
 class TiposDatos(Enum):
-    smallInt = 1
-    integer = 2
-    bigInit = 3
-    decimal = 4
-    numeric = 5
-    real = 6
-    double_precision= 7
-    money = 8
+    smallInt = 0
+    integer = 1
+    bigInit = 2
+    decimal = 3
+    numeric = 4
+    real = 5
+    double_precision= 6
+    money = 7
+    varchar = 8
     character = 9
-    varchar = 10
-    text = 11
-    timestamp = 12
-    date = 13
-    time = 14
-    interval = 15
-    boolean = 16
-    columna = 17
+    text = 10    
+    date = 11
+    time_No_zone = 12
+    time_si_zone = 13
+    boolean = 14
+    columna = 15
+    interval = 16    
+    timestamp = 17
 
 
 

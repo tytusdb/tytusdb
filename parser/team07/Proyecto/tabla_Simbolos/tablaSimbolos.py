@@ -1,8 +1,28 @@
+import numpy as np
+from comprobadorTipos import nodoPosicion
+
 class tablaDeSimbolos():
 
     def __init__(self):
         self.useDataBase = None     #Guarda simboloDabaseDatos de la base de datos que se esta utilizando
         self.basesDatos = []        #Todas las base de datos
+        self.comprobadorTipos = np.empty([15,15],nodoPosicion.NodoPosicion)
+
+        for x in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]:
+
+            for y in [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]:
+                nodoGuardar = nodoPosicion.NodoPosicion(x,y)
+                self.comprobadorTipos[x,y] = nodoGuardar
+
+
+    #Metodo para obtener el tipo de dato resultante de acuerdo a dos tipos de datos dados
+    #por la fila y la columna, estos valores únicamente pueden ser entre 0 y 14 tanto para fila como columna
+    #los valores de fila y columna corresponden a los tipos de datos de la clase:
+    # simboloColumna.TiposDatos
+    def obtenerTipoDato(self, fila, columna):
+        return self.comprobadorTipos[fila,columna]
+
+
 
 
     #Metodo para guardar una base de datos
@@ -96,3 +116,4 @@ class tablaDeSimbolos():
                     return 1
                         
             return 0
+    

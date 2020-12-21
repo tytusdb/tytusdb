@@ -13,19 +13,18 @@ class InsertTable(InstruccionAbstracta):
 
     def ejecutar(self, tabalSimbolos, listaErrores):
 
+        print("Ejecutando InsertTable")             
+        
+        for tupla in self.listaExpresiones:
+            listaExp = tupla.hijos[0]
 
-        
-         
-        listaValores = []
-        for exp in self.listaExpresiones:
-            simb = exp.ejecutar(tabalSimbolos,listaErrores)
-            if simb != None:
-                return
-            else:
-                # guardar el valor como 
-                listaValores.append(simb.valorRetorno)
-                pass
-        
+            for expresion in listaExp.hijos:
+                simb = expresion.ejecutar(tabalSimbolos,listaErrores)
+                if simb != None:
+                    print(simb.valorRetorno)
+                else:
+                    # guardar el valor como 
+                    print("Nada")
 
 
 

@@ -564,13 +564,13 @@ def p_tupla(t):
 
 
 def p_lista_expresiones(t):
-    'lista_expresiones  :   lista_expresiones COMA expresion'
+    'lista_expresiones  :   lista_expresiones COMA exp_operacion'
     nodoLista = t[1]
     nodoLista.hijos.append(t[3])
     t[0] = nodoLista
 
 def p_lista_expresiones_expresion(t):
-    'lista_expresiones  :   expresion'
+    'lista_expresiones  :   exp_operacion'
     nodoLista = crear_nodo_general("lista_expresiones","",str(t.lexer.lineno),columna)
     nodoLista.hijos.append(t[1])
     t[0] = nodoLista
@@ -630,7 +630,7 @@ def p_instr_condicion_where(t):
     'exp_operacion  :  exp_logica'
     nodoExp = crear_nodo_general("Exp_OPERACION","",str(t.lexer.lineno),columna)
     nodoExp.hijos.append(t[1])
-    t[0] = nodoExp
+    t[0] = t[1]
 
 def p_exp_logica(t):
     '''exp_logica     :   exp_logica OR exp_logica
@@ -2035,7 +2035,7 @@ def p_funcion_trig(t):
         nodoFuncion = funcion.funcion()
         nodoFuncion.setearValores(linea,columna,"FUNCION_TRIGONOMETRICA",nNodo,"")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
-        nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3], t[5])
+        #nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3], t[5])
         nodoFuncion.hijos.append(tipoFuncion)
         nodoFuncion.hijos.append(t[3])
         nodoFuncion.hijos.append(t[5])

@@ -5,3 +5,4 @@ class ErrorReportar():
         self.colomna = columna
         self.tipoError = tipoError
         self.descripcion = descripcion
+        print(descripcion)
