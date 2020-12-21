@@ -608,38 +608,48 @@ def p_contAdd(t):
     '''
     contAdd     :   COLUMN ID tipo 
                 |   CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA
-                |   FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID
+                |   FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID 
                 |   PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA
+                |   CONSTRAINT ID FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA ID PARENTESISDERECHA
                 |   CONSTRAINT ID PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA
-                |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA
+                |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA ID PARENTESISDERECHA
     '''
     if t[1].upper()=="COLUMN":
         h.reporteGramatical1 +="contAdd    ::=         COLUMN ID tipo\n"
-        h.reporteGramatical2 +="t[0]=contAdd(t[1],t[3],t[2],None,None)"
-        t[0]=contAdd(t[1],t[3],t[2],None,None)
+        h.reporteGramatical2 +="t[0]=contAdd(t[1],t[3],t[2],None,None,None,None)"
+        t[0]=contAdd(t[1],t[3],t[2],None,None,None,None)
     elif t[1].upper()=="CHECK":
         h.reporteGramatical1 +="contAdd    ::=         CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-        h.reporteGramatical2 +="t[0]=contAdd(t[1],None,None,None,t[3])"
-        t[0]=contAdd(t[1],None,None,None,t[3])
+        h.reporteGramatical2 +="t[0]=contAdd(t[1],None,None,None,None,None,t[3])"
+        t[0]=contAdd(t[1],None,None,None,None,None,t[3])
     elif t[1].upper()=="FOREIGN":
         h.reporteGramatical1 +="contAdd    ::=        FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID\n"
-        h.reporteGramatical2 +="t[0]=contAdd(t[1],None,t[4],t[7],None)"
-        t[0]=contAdd(t[1],None,t[4],t[7],None)
+        h.reporteGramatical2 +="t[0]=contAdd(t[1],None,t[4],t[7],None,None,None)"
+        t[0]=contAdd(t[1],None,t[4],t[7],None,None,None)
+    elif t[1].upper()=="PRIMARY":
+        h.reporteGramatical1 +="contAdd    ::=        PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA\n"
+        h.reporteGramatical2 +="t[0]=contAdd(t[1],None,t[4],None,None,None,None)"
+        t[0]=contAdd(t[1],None,t[4],None,None,None,None)
     elif t[1].upper()=="CONSTRAINT":
         if t[3].upper()=="PRIMARY":
             h.reporteGramatical1 +="contAdd     ::= CONSTRAINT ID PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA\n"
-            h.reporteGramatical2 +="t[0]=contAdd(t[1],t[3],t[2],t[6],None)"
-            t[0]=contAdd(t[1],t[3],t[2],t[6],None)
+            h.reporteGramatical2 +="t[0]=contAdd(t[1],t[3],t[2],t[6],None,None,None)"
+            t[0]=contAdd(t[1],t[3],t[2],t[6],None,None,None)
+        elif t[3].upper()=="FOREIGN":
+            h.reporteGramatical1 +="contAdd     ::= CONSTRAINT ID FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA ID PARENTESISDERECHA\n"
+            h.reporteGramatical2 +="t[0]=contAdd(t[1],t[3],t[2],t[6],t[9],t[11],None)"
+            t[0]=contAdd(t[1],t[3],t[2],t[6],t[9],t[11],None)
         else:
-            h.reporteGramatical1 +="contAdd    ::=         CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA listaid PARENTESISDERECHA\n"
-            h.reporteGramatical2 +="t[0]=contAdd(t[1],None,t[2],None,t[5])"
-            t[0]=contAdd(t[1],None,t[2],None,t[5])
+            h.reporteGramatical1 +="contAdd    ::=         CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA ID PARENTESISDERECHA\n"
+            h.reporteGramatical2 +="t[0]=contAdd(t[1],None,t[2],None,None,None,t[5])"
+            t[0]=contAdd(t[1],t[3],t[2],None,None,None,t[5])
 
 
 def p_contDrop(t):
     '''
     contDrop    : COLUMN ID 
                 | CONSTRAINT ID
+                | PRIMARY KEY
     '''
     if t[1].upper()=="COLUMN":
         h.reporteGramatical1 +="contDrop    ::=         COLUMN ID \n"
@@ -649,7 +659,10 @@ def p_contDrop(t):
         h.reporteGramatical1 +="contDrop    ::=         CONSTRAINT ID\n"
         h.reporteGramatical2 +="t[0]=contDrop(t[1],t[2])"
         t[0]=contDrop(t[1],t[2])
-
+    elif t[1].upper()=="PRIMARY":
+        h.reporteGramatical1 +="contDrop    ::=         PRIMARY KEY\n"
+        h.reporteGramatical2 +="t[0]=contDrop(t[1],None)"
+        t[0]=contDrop(t[1],None)
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
     '''

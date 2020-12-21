@@ -18,6 +18,7 @@ import numpy as geek
 import datetime
 import tkinter
 from tkinter import messagebox
+baseActual = ""
 
 # ---------------------------------------------------------------------------------------------------------------------
 #                                QUERY SHOW DATABASE
@@ -987,21 +988,45 @@ def alter_table(query,ts):
     print("voy a imprimir los valores del alter :v")
     print("aqui viene el id de la tabla a cambiar:",query.id)
     h.textosalida+="TYTUS>> Alteraré la tabla"+query.id
-    temp = query.querys.tipo
+    temp = query.querys.tipo #TIPO DE OBJETO
     if(temp.upper()=="ADD"):
-        print("VIENE UN ADD, POR TANTO SE AGREGA ALGO A LA TABLA")
-        print("SE AGREGARÁ UNA: ", query.querys.contenido.tipo)
-        print("DE NOMBRE: ",query.querys.contenido.id1)
-        print("DE TIPO: ", query.querys.contenido.tipo2)
+        contenido = query.querys.contenido #AQUI ESTA EL CONTENIDO DEL ADD - contAdd
+        if contenido.tipo.upper()=="COLUMN":
+            print("SE AGREGARA UNA COLUMNA")
+            #METODO PARA ALTERAR LA COLUMNA
+            #alterAddColumn(baseActual,contenido.id1,anyxd)
+        elif contenido.tipo.upper()=="CHECK":
+            print("SE AGREGARA UN CHECK")
+        elif contenido.tipo.upper()=="FOREIGN":
+            print("SE AGREGARA UNA LLAVE FORANEA")
+        elif contenido.tipo.upper()=="PRIMARY":
+            print("SE AGREGARA UNA LLAVE PRIMARIA")
+        elif contenido.tipo.upper()=="CONSTRAINT":
+            print("SE VIENE UN CONSTRAINT")
+            if contenido.tipo2.upper()=="FOREIGN":
+                print("Y DENTRO VIENE UNA LLAVE FORANEA")
+            elif contenido.tipo2.upper()=="PRIMARY":
+                print("Y DENTRO VIENE UNA LLAVE PRIMARIA")
+            elif contenido.tipo2.upper()=="UNIQUE":
+                print("Y DENTRO VIENE UN UNIQUE")
+        #print("VIENE UN ADD, POR TANTO SE AGREGA ALGO A LA TABLA")
+        #print("SE AGREGARÁ UNA: ", query.querys.contenido.tipo)
+        #print("DE NOMBRE: ",query.querys.contenido.id1)
+        #print("DE TIPO: ", query.querys.contenido.tipo2)
     elif(temp.upper()=="DROP"):
         print("VIENE UN DROP, ALGO DE LA TABLA VA A EXPLOTAR, F")
-        print("LO QUE EXPLOTARA SERA: ", query.querys.contenido.tipo)
-        print("CON EL ID: ", query.querys.contenido.id)
+        contenido = query.querys.contenido #AQUI ESTA EL CONTENIDO DEL DROP - contDrop
+        if contenido.tipo.upper() == "COLUMN":
+            print("DROPEARÉ UNA COLUMNA: ",contenido.id)
+        else:
+            print("DROPEARÉ UNA CONSTRAINT: ",contenido.id)
+        #print("LO QUE EXPLOTARA SERA: ", query.querys.contenido.tipo)
+        #print("CON EL ID: ", query.querys.contenido.id)
     elif(temp.upper()=="ALTER"):
         print("VIENE UN ALTER DENTRO DE OTRO ALTER")
-        print("DE TIPO: ", query.querys.contenido.tipo)
-        print("CON EL ID: ", query.querys.contenido.id)
-        print("PARA ASIGNAR: ", query.querys.contenido.tipoAsignar)
+        #print("DE TIPO: ", query.querys.contenido.tipo)
+        #print("CON EL ID: ", query.querys.contenido.id)
+        #print("PARA ASIGNAR: ", query.querys.contenido.tipoAsignar)
 
 
         
