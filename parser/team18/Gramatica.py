@@ -890,12 +890,12 @@ def p_funcion_math(t):
                      | EXP PAR_A exp PAR_C
                      | factorial PAR_A exp PAR_C
                      | FLOOR PAR_A exp PAR_C
-                     | GCD PAR_A lista_exp PAR_C
+                     | GCD PAR_A exp COMA exp PAR_C
                      | LN PAR_A exp PAR_C
                      | LOG PAR_A exp PAR_C
-                     | MOD PAR_A lista_exp PAR_C
+                     | MOD PAR_A exp COMA exp PAR_C
                      | PI PAR_A PAR_C
-                     | POWER PAR_A lista_exp PAR_C
+                     | POWER PAR_A exp COMA exp PAR_C
                      | RADIANS PAR_A exp PAR_C
                      | ROUND PAR_A exp COMA exp PAR_C
                      | sign PAR_A exp PAR_C
@@ -908,8 +908,8 @@ def p_funcion_math(t):
                      | ASIND PAR_A exp PAR_C
                      | ATAN PAR_A exp PAR_C
                      | ATAND PAR_A exp PAR_C
-                     | ATAN2 PAR_A lista_exp PAR_C
-                     | ATAN2D PAR_A lista_exp PAR_C
+                     | ATAN2 PAR_A exp COMA exp PAR_C
+                     | ATAN2D PAR_A exp COMA exp PAR_C
                      | COS PAR_A exp PAR_C
                      | COSD PAR_A exp PAR_C
                      | COT PAR_A exp PAR_C

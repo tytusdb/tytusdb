@@ -1390,6 +1390,16 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
         ' '#Error
 
 #FIN MIO --------------------------------------------
+
+#--Select
+
+def ejecutar_select(instr,ts):
+    print("Ejecutando select")
+    for val in instr.funcion_alias:
+        if(isinstance (val,Funcion_Alias)):print("Sigo mas tarde")
+
+
+#-------------
 def resolver_operacion(operacion,ts):
     if isinstance(operacion, Operacion_Logica_Unaria):
         op = resolver_operacion(operacion.op, ts)
@@ -1607,7 +1617,10 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, ALTERDBO) : AlterDBF(instr,ts)
             elif isinstance(instr, ALTERTBO) : AlterTBF(instr,ts)
             elif isinstance(instr, MostrarTB) : Mostrar_TB(instr,ts)
-            else : print('Error: instrucción no válida')
+            else: 
+                for val in instr:
+                    if(isinstance (val,SELECT)): ejecutar_select(val,ts)
+                    else : print('Error: instrucción no válida')
     else:
         agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')
 
