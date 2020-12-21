@@ -18,12 +18,21 @@ class Columna_run:
     tipo = ''
     size = ''
     precision = None
-    unique = None
-    anulable = None
-    default = None
-    primary = None
-    foreign = None
-    refence = None
-    check = None
+    unique = None   #CONSTRAINT UNIQUE
+    anulable = None #CONSTRAINT NOT NULL
+    default = None  #CONSTRIANT DEFAULT
+    primary = None  #CONSTRAINT PRIMARY
+    foreign = None  #CONSTRAINT FOREING
+    refence = None  #REFERENCES
+    check = None    #CONSTRAINT CHECK
     constraint = None
+
+class constraint_name:
+
+    unique = None   #CONSTRAINT UNIQUE
+    anulable = None #CONSTRAINT NOT NULL
+    default = None  #CONSTRIANT DEFAULT
+    primary = None  #CONSTRAINT PRIMARY
+    foreign = None  #CONSTRAINT FOREING
+    check = None    #CONSTRAINT CHECK
 

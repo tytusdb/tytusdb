@@ -843,43 +843,13 @@ def AlterTBF(instr,ts):
     #ANALISIS ALTER DE ALTERS
     elif isinstance(ObjetoAnalisis,ALTERTBO_ALTER_SERIE ):
 
+        
         #Lista de Alter's
         Lista_Alter = ObjetoAnalisis.listaval
-
-        #Recorre Lista Alters 
-        for alter_list_temp in Lista_Alter:
-
-
-            #Instruccion a procesar COLUMN extra
-            INSTRUCCION=alter_list_temp.instruccion
-
-            #ID en columna o constraint
-            ID=alter_list_temp.id
-
-            #Analisis continuacion Column Alter , no Constraint
-            Obj_Ext=alter_list_temp.extra
-            '''alttbalter1  : SET     NOT       NULL
-                            | DROP    NOT       NULL
-                            | SET     DATA      TYPE tipo valortipo
-                            | TYPE    tipo      valortipo
-                            | SET     DEFAULT   exp
-                            | DROP    DEFAULT  '''
-
-
-            OPE1=Obj_Ext.prop1 #set  ,drop ,type        
-            OPE2=Obj_Ext.prop2 #not  ,data ,tipo        ,default
-            OPE3=Obj_Ext.prop3 #null ,type ,valortipo   , exp
-            #si es exp ni idea
-
-            OPEE1=Obj_Ext.prop4 #tipo
-            OPEE2=Obj_Ext.prop5 # valor tipo
-
-
-            #Modificara una propieda de una columna
-
-            
-
-
+        
+        Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts)
+        #CASTEAR INFO DE LA TABLA SI ES QUE SE DEBE CASTEAR
+        
     #ANALISIS ALTER DROP
     elif isinstance(ObjetoAnalisis,ALTERTBO_DROP ):
         #Definicion de Instruccion  COLUMN , CONSTRAINT o nula
@@ -894,9 +864,9 @@ def AlterTBF(instr,ts):
     #ANALISIS ALTER ADD
     elif isinstance(ObjetoAnalisis,ALTERTBO_ADD ):
         '''alttbadd : ADD ID tipo valortipo
-                  | ADD COLUMN ID tipo valortipo
-                  | ADD CONSTRAINT ID alttbadd2
-                  | ADD alttbadd2  '''
+                    | ADD COLUMN ID tipo valortipo
+                    | ADD CONSTRAINT ID alttbadd2
+                    | ADD alttbadd2  '''
 
         #Identificador
         ID=ObjetoAnalisis.id
@@ -1032,9 +1002,13 @@ def Get_Column(name_c,tabla_H_List,tabla_C_List):
 
     #construye columna valores
     col_Ret=[]
+    print(contador)
+    
     if len(retorna)>0:
         for row_t in tabla_C_List:
-            col_Ret+=row_t[contador]
+            print(row_t)
+            print(contador)
+            col_Ret+=[row_t[contador]]
         #guarda registros Columna
         retorna+=[col_Ret]
     
@@ -1109,6 +1083,178 @@ def Msg_Alt_Rename(NombreTabla,ID1,retorno):
 
 
 #CUERPOS=====================
+
+
+def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
+    NombreTabla=instr.Id
+    global listaTablas
+
+    if 1==1:
+        #Busca la tabla 
+        tablab=copy.copy(Get_Table(NombreTabla))
+        if len(tablab)>0:
+            #Recorre Lista Alters 
+            for alter_list_temp in Lista_Alter:
+                #Instruccion a procesar COLUMN extra
+                INSTRUCCION=alter_list_temp.instruccion
+                #ID en columna 
+                ID=alter_list_temp.id
+
+                #Busca columna
+                columnab=copy.copy(Get_Column(ID,(tablab[0]).atributos,tablab[2]))
+                cop_tablab=copy.copy(tablab)
+
+                if len(columnab)>0:
+
+
+                    #Analisis continuacion Column Alter , no Constraint
+                    Obj_Ext=alter_list_temp.extra
+                    '''alttbalter1  : SET     NOT       NULL
+                                    | DROP    NOT       NULL
+                                    | SET     DATA      TYPE tipo valortipo
+                                    | TYPE    tipo      valortipo
+                                    | SET     DEFAULT   exp
+                                    | DROP    DEFAULT  '''
+
+                    OPE1=(Obj_Ext.prop1) #set  ,drop ,type        
+                    OPE2=(Obj_Ext.prop2) #not  ,data ,tipo        ,default
+                    OPE3=(Obj_Ext.prop3) #null ,type ,valortipo   , exp
+                    
+                    if OPE1.upper()=="TYPE":
+                        #si es exp ni idea
+                        OPEE1=OPE2 #tipo
+                        OPEE2=OPE3 #valor tipo
+                    else:
+                        #si es exp ni idea
+                        OPEE1=(Obj_Ext.prop4) #tipo
+                        OPEE2=(Obj_Ext.prop5) #valor tipo
+
+
+                    #Modificara una propieda de una columna
+                    if OPE1.upper()=="SET" and OPE2.upper()=="NOT":
+                        #columna SET NOT NULL
+                        
+                        algun_Null=0
+                        for row in columnab[2]:
+                            if row==None:
+                                algun_Null=1
+                                break
+                        
+                        if algun_Null==0:
+                            (columnab[0]).anulable="False"
+                            #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
+                            (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]])=columnab[0]
+                            msg='Se agrego exitosamente NOT NULL a:'+ID
+                            agregarMensjae('normal',msg,'')
+                        else:
+                            ' '
+                            #hay registros con contenido nulo
+                            msg='Hay registros Nulos en la columna:'+ID
+                            agregarMensjae('normal',msg,'')
+                            print("hay registros nulos")
+                        
+                        
+                    elif (OPE1.upper()=="SET" and OPE2.upper()=="DATA") or OPE1.upper()=="TYPE" :
+                        
+                        #NOTA SI TIPO VIENE MALO LOQUEA 
+                        #en numero puede venir es exp
+
+                        algun_No_Cast=0
+                        #compara tipo  nuevo con valores
+                        #para detectar incopatibilidad
+                        for row in columnab[2]:
+                            if row!=None:
+                                resuBool=(validarTipo(OPEE1,row))
+                                if resuBool==None:
+                                    #el valor es incompatible
+                                    algun_No_Cast=1
+                                    break
+                                print("resulbool:",resuBool)
+                        print("algun_No_Cast:",algun_No_Cast)
+                            
+                        print("1:",OPE1,"22:",OPE2,"3:",OPE3,"4:",OPEE1,"5:",OPEE2)
+                        if algun_No_Cast==0 and (OPEE1!="" or OPEE1!=None or OPEE1!=''):
+                            (columnab[0]).tipo=OPEE1
+                            if OPEE2!=0:
+                                OP=OPEE2[0]
+                                (columnab[0]).size=resolver_operacion(OP,ts)
+                                print("sale:",resolver_operacion(OP,ts))
+                            else:
+                                (columnab[0]).size=""
+                            #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
+                            (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]])=columnab[0]
+                            msg='Se cambio exitosamente el tipo de la columna:'+ID
+                            agregarMensjae('normal',msg,'')
+                        else:
+                            ' '
+                            #hay registros con contenido nulo
+                            print("un registro no puede ser casteado")
+                            msg='El nuevo tipo de dato es incompatible'
+                            agregarMensjae('normal',msg,'')
+
+
+
+
+
+                    elif OPE1.upper()=="SET" and OPE2.upper()=="DEFAULT":
+                        #columna SET DEFAULT EXP
+                        valCOL=resolver_operacion(OPE3,ts)#valor de la columna
+                        T=(columnab[0]).tipo#Tipo de la columna
+                        resuBool=None
+                        try:
+                            resuBool=(validarTipo(T,valCOL))
+                            print("resulbool:",resuBool)
+                        except:
+                            ' '
+                        if(resuBool==None):
+                            msg='42804:La columna '+ID+' es de tipo '+T
+                            agregarMensjae('error',msg,'42804')
+                        else:
+                            print(T," ",valCOL)
+                            #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
+                            (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]]).default=valCOL
+                            msg='Se agrego exitosamente DEFAULT a la columna:'+ID
+                            agregarMensjae('normal',msg,'')
+                    elif OPE1.upper()=="DROP" and OPE2.upper()=="NOT":
+                        #columna DROP NOT NULL
+                        (columnab[0]).anulable=None
+                        #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
+                        (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]])=columnab[0]
+                        msg='Se Elimino exitosamente NOT NULL de la columna:'+ID
+                        agregarMensjae('normal',msg,'')
+                    elif OPE1.upper()=="DROP" and OPE2.upper()=="DEFAULT":
+                        #columna DROP DEFAULT
+                        (columnab[0]).default=None
+                        #((selecciona Tabla con index).get ListCol)[selec col tab]=set columna header
+                        (((listaTablas[cop_tablab[1]]).atributos)[columnab[1]])=columnab[0]
+                        msg='Se elimino exitosamente DEFAULT de la columna:'+ID
+                        agregarMensjae('normal',msg,'')
+                    else:
+                        ' '
+                        #operacionn desconocida
+                        print("op desconocida")
+
+
+                else: 
+                    ' '
+                    #la columna no existe
+                    print("columna no existe")
+                    msg='La columna:'+ID+' no existe '
+                    agregarMensjae('normal',msg,'')
+
+                
+        else:
+            ' '
+            #La tabla no existe
+            print("tabla no existe")
+            msg='La tabla:'+NombreTabla+' no existe '
+            agregarMensjae('normal',msg,'')
+
+
+
+
+
+
 
 def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
     global listaTablas
