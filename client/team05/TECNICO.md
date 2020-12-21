@@ -6,7 +6,7 @@
 ## Alcance
 Este manual está dirigido a cualquier persona que tengan conocimientos en aplicaciones web y desea probar la comunicación entre un servidor y cliente de forma local.
 
-## Diagrama de componentes 
+## Funcionamiento
 Este diagrama explica los componentes que componen la aplicación web
 
 - El cliente realiza una petición (request) POST, GET, UPDATE o DELETE al servidor
@@ -14,6 +14,8 @@ Este diagrama explica los componentes que componen la aplicación web
 - El cliente recibe la respuesta (response) y actualiza la vista con lso datos recibidos
 
 ![Alt text](capturas/8.png?raw=true "")
+
+## Funciones
 
 ## Requisitos técnicos
 - Windows 10
