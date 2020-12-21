@@ -11,15 +11,16 @@ dataPath = path + 'typeRef'
 ##################
 
 # CREATE a database checking their existence
-def createDatabase(database: str) -> int:
+def createDatabase(database: str, mode: int) -> int:
     try:
-        if not database.isidentifier():
+        if not database.isidentifier() \
+        or not isinstance(mode, int):
             raise Exception()
         initCheck()
         data = read(dataPath)
         if database in data:
             return 2
-        new = {database:{}}
+        new = {database:{'Mode': mode, 'Tables': {}}}
         data.update(new)
         write(dataPath, data)
         return 0
@@ -77,7 +78,7 @@ def dropDatabase(database: str) -> int:
 ###############
 
 # CREATE a table checking their existence
-def createTable(database: str, table: str, columns: dict) -> int:
+def createTable(database: str, table: str, columns: dict, inherits = None) -> int:
     try:
         if not database.isidentifier() \
         or not table.isidentifier() \
@@ -87,12 +88,11 @@ def createTable(database: str, table: str, columns: dict) -> int:
         data = read(dataPath)
         if not database in data:
             return 2        
-        if table in data[database]:
+        if table in data[database]['Tables']:
             return 3
-        new = {table:{"columns":columns}}
-        data[database].update(new)
+        new = {table:{"Inherits": inherits,'Columns':columns}}
+        data[database]['Tables'].update(new)
         write(dataPath, data)
-        dataTable = {}
         return 0
     except:
         return 1
@@ -123,13 +123,13 @@ def alterAddPK(database: str, table: str, constraint: str, column: str) -> int:
         data = read(dataPath)
         if not database in data:
             return 2
-        if not table in data[database]:
+        if not table in data[database]['Tables']:
             return 3
         # Modificacion propia
-        if not column in data[database][table]['columns']:
+        if not column in data[database]['Tables'][table]['Columns']:
             return 4
-        data[database][table]['columns'][column]['PK'] = True
-        data[database][table]['columns'][column]['PKConst'] = constraint
+        data[database]['Tables'][table]['Columns'][column]['PK'] = True
+        data[database]['Tables'][table]['Columns'][column]['PKConst'] = constraint
         write(dataPath, data)
         return 0
     except:
@@ -146,11 +146,11 @@ def alterDropPK(database: str, table: str, column: str) -> int:
         else:
             if not table in data[database]:
                 return 3
-            if column not in data[database][table]['columns']:
+            if column not in data[database]['Tables'][table]['Columns']:
                 return 4            
             else:
-                data[database][table]['columns'][column]['PK'] = False
-                data[database][table]['columns'][column]['PKConst'] = None
+                data[database]['Tables'][table]['Columns'][column]['PK'] = False
+                data[database]['Tables'][table]['Columns'][column]['PKConst'] = None
                 dump = True
     if dump:
         with open('data/type/typeRef', 'w') as file:
@@ -172,13 +172,13 @@ def alterAddFK(database: str, table: str, column: str, constraint: str, referenc
         data = read(dataPath)
         if not database in data:
             return 2
-        if not table in data[database]:
+        if not table in data[database]['Tables']:
             return 3
-        if not column in data[database][table]['columns']:
+        if not column in data[database]['Tables'][table]['Columns']:
             return 4
-        data[database][table]['columns'][column]['FK'] = True
-        data[database][table]['columns'][column]['FKConst'] = constraint
-        data[database][table]['columns'][column]['References'] = references
+        data[database]['Tables'][table]['Columns'][column]['FK'] = True
+        data[database]['Tables'][table]['Columns'][column]['FKConst'] = constraint
+        data[database]['Tables'][table]['Columns'][column]['References'] = references
         write(dataPath, data)
         return 0
     except:
@@ -193,14 +193,14 @@ def alterDropFK(database: str, table: str, column: str) -> int:
         if not database in data:
             return 2
         else:
-            if not table in data[database]:
+            if not table in data[database]['Tables']:
                 return 3
-            if column not in data[database][table]['columns']:
+            if column not in data[database]['Tables'][table]['Columns']:
                 return 4            
             else:
-                data[database][table]['columns'][column]['FK'] = False
-                data[database][table]['columns'][column]['FKConst'] = None
-                data[database][table]['columns'][column]['References'] = None
+                data[database]['Tables'][table]['Columns'][column]['FK'] = False
+                data[database]['Tables'][table]['Columns'][column]['FKConst'] = None
+                data[database]['Tables'][table]['Columns'][column]['References'] = None
                 dump = True
     if dump:
         with open('data/type/typeRef', 'w') as file:
@@ -242,10 +242,10 @@ def alterAddColumn(database: str, table: str, column: str, atributes: dict) -> i
         else:
             if not table in data[database]:
                 return 3
-            if column in data[database][table]['columns']:
+            if column in data[database]['Tables'][table]['Columns']:
                 return 4
             newCol = {column:atributes}
-            data[database][table]['columns'].update(newCol)
+            data[database]['Tables'][table]['Columns'].update(newCol)
             dump = True
     if dump:
         with open('data/type/typeRef', 'w') as file:
@@ -266,12 +266,12 @@ def alterDropColumn(database: str, table: str, column: str) -> int:
         else:
             if not table in data[database]:
                 return 3
-            if not column in data[database][table]['columns']:
+            if not column in data[database]['Tables'][table]['Columns']:
                 return 5
-            if data[database][table]['columns'][column]['FK']:
+            if data[database]['Tables'][table]['Columns'][column]['FK']:
                 return 4
 
-            data[database][table]['columns'].pop(column)
+            data[database]['Tables'][table]['Columns'].pop(column)
             dump = True
     if dump:
         with open('data/type/typeRef', 'w') as file:
@@ -310,7 +310,7 @@ def getColumns(database: str, table: str) -> list:
             return None
         if not table in data[database]:
             return None
-        return data[database][table]['columns']
+        return data[database][table]['Columns']
     except:
         return None
 
@@ -323,7 +323,7 @@ def columnExist(database: str, table: str, column: str) -> bool:
             raise Exception()             
         initCheck()
 
-        cols = columnsTable(database,table)
+        cols = getColumns(database,table)
 
         if cols:
             if column in cols:
@@ -344,6 +344,18 @@ def tableExist(database: str, table: str) -> bool:
         if not database in data:
             return False
         if not table in data[database]:
+            return False
+        return True
+    except:
+        return False
+
+def databaseExist(database: str):
+    try:
+        if not database.isidentifier():
+            raise Exception()             
+        initCheck()
+        data = read(dataPath)
+        if not database in data:
             return False
         return True
     except:
