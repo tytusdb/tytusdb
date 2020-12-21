@@ -4,7 +4,7 @@ from analizador_lexico import tokens
 from analizador_lexico import analizador
 from Nodo import *
 from datetime import datetime
-# import storageManager
+#import storageManager
 from storageManager import jsonMode as manager
 from expresiones import *
 from instrucciones import *
@@ -15,7 +15,6 @@ from graphviz import *
 #     ('left', 'OPSUM', 'OPMENOS'),
 #     ('left', 'MULT', 'OPDIV'),
 # )
-
 
 nombres = {}
 resultado_gramatica = []
@@ -591,100 +590,96 @@ def p_insert_statement(t) :
     temp = list()
     temp.append(t[3])
     temp.append(t[4])
-    t[0] = Nodo("insert_statement", temp, 'N', None)
+    t[0] = Nodo("insert_statement", temp,'N',None)
 
 
-def p_table_name(t):
+def p_table_name(t) :
     'table_name : ID '
-    t[0] = Nodo("table_name", [t[1]], 'S', str(t[1]))
+    t[0] = Nodo("table_name", [t[1]],'S',str(t[1]))
 
 
-# *************************************************
-# **********************         insert_columns_and_source      ***********
-# *************************************************
+#*************************************************
+#**********************         insert_columns_and_source      ***********
+#*************************************************    
 
-def p_insert_columns_and_source(t):
+def p_insert_columns_and_source(t) :
     '''insert_columns_and_source : PARIZQ insert_column_list PARDER VALUES query_expression_insert
                                     | VALUES query_expression_insert
                                     | insert_default_values
     '''
     if (len(t) == 6):
-        # t[0] =InsertColumnsValues(t[2],t[5])
+        #t[0] =InsertColumnsValues(t[2],t[5])
         temp = list()
         temp.append(t[2])
         temp.append(t[5])
-        t[0] = Nodo("insert_columns_and_source", temp, 'N', None)
-    elif (len(t) == 3):
-        # t[0] =InsertValues(t[1],t[2])
-        t[0] = Nodo("insert_columns_and_source", [t[2]], 'N', None)
+        t[0] = Nodo("insert_columns_and_source", temp,'N',None)
+    elif (len(t)==3):
+        #t[0] =InsertValues(t[1],t[2])
+        t[0] = Nodo("insert_columns_and_source", [t[2]],'N',None)
 
-    elif (len(t) == 2):
-        # t[0] =InsertValues(t[1],t[2])
-        t[0] = Nodo("insert_columns_and_source", [t[1]], 'N', None)
+    elif (len(t)==2):
+        #t[0] =InsertValues(t[1],t[2])
+        t[0] = Nodo("insert_columns_and_source", [t[1]],'N',None)
 
 
-def p_insert_defaul_values(t):
+def p_insert_defaul_values(t) :
     'insert_default_values    : DEFAULT VALUES'
-    t[0] = Nodo("column_name", [t[1]], 'S', str(t[1]))
+    t[0] = Nodo("column_name", [t[1]],'S',str(t[1]))
 
-# *************************************************
-# **********************         insert_column_list      ***********
-# *************************************************
+#*************************************************
+#**********************         insert_column_list      ***********
+#*************************************************   
 
-
-def p_insert_column_list(t):
+def p_insert_column_list(t) :
     'insert_column_list    : insert_column_list  COMA column_name'
     temp = list()
     temp.append(t[1])
     temp.append(t[3])
-    t[0] = Nodo("insert_column_list1", temp, 'N', None)
+    t[0] = Nodo("insert_column_list1", temp,'N', None)
 
-
-def p_insert_column_name(t):
+def p_insert_column_name(t) :
     'insert_column_list    : column_name'
-    # t[0] = [t[1]]
-    t[0] = Nodo("insert_column_list2", [t[1]], 'N', None)
+    #t[0] = [t[1]]
+    t[0] = Nodo("insert_column_list2", [t[1]],'N',None)
 
 
-def p_column_name(t):
+def p_column_name(t) :
     'column_name    : ID '
-    t[0] = Nodo("column_name", [t[1]], 'S', str(t[1]))
+    t[0] = Nodo("column_name", [t[1]],'S',str(t[1]))
 
 
-# *************************************************
-# **********************         query_expression_insert      ***********
-# *************************************************
+#*************************************************
+#**********************         query_expression_insert      ***********
+#*************************************************
 
 def p_query_expression_insert(t):
     '''query_expression_insert :    insert_list
                         '''
-    t[0] = Nodo("query_expression_insert", [t[1]], 'N', None)
+    t[0] = Nodo("query_expression_insert", [t[1]],'N',None)
 
-
-def p_insert_list(t):
+def p_insert_list(t) :
     '''insert_list    :  insert_list COMA insert_value_list  '''
     temp = list()
     temp.append(t[1])
     temp.append(t[3])
-    t[0] = Nodo("insert_list2", temp, 'N', None)
+    t[0] = Nodo("insert_list2", temp,'N',None)
 
 
-def p_insert_item(t):
+def p_insert_item(t) :
     '''insert_list    :  insert_value_list  '''
-    t[0] = Nodo("insert_list1", [t[1]], 'N', None)
+    t[0] = Nodo("insert_list1", [t[1]],'N',None)
 
-
-def p_insert_value_list(t):
+def p_insert_value_list(t) :
     '''insert_value_list    : PARIZQ value_list PARDER '''
-    t[0] = Nodo("insert_value_list", [t[2]], 'N', None)
+    t[0] = Nodo("insert_value_list", [t[2]],'N',None)
 
 
-def p_value_list(t):
+def p_value_list(t) :
     '''value_list    : value_list  COMA insert_value'''
     temp = list()
     temp.append(t[1])
     temp.append(t[3])
-    t[0] = Nodo("value_list1", temp, 'N', None)
+    t[0] = Nodo("value_list1", temp,'N',None)
 
 
 def p_insert_value(t) :
@@ -713,13 +708,11 @@ def p_valorasign(t):
 
 #endregion
 
-# *************************************************
-# **********************         update_statement      ***********
-# *************************************************
-# region UPDATE
-
-
-def p_update_statement(t):
+#*************************************************
+#**********************         update_statement      ***********
+#*************************************************   
+#region UPDATE
+def p_update_statement(t) :
     '''update_statement : UPDATE table_name SET set_clause_list WHERE search_condition PTCOMA
                         | UPDATE table_name SET set_clause_list PTCOMA
     '''
@@ -728,39 +721,40 @@ def p_update_statement(t):
         temp.append(t[2])
         temp.append(t[4])
         temp.append(t[6])
-        t[0] = Nodo("update_statement", temp, 'N', None)
-    elif (len(t) == 6):
+        t[0] = Nodo("update_statement", temp,'N',None)        
+    elif (len(t)==6):
         temp = list()
         temp.append(t[2])
         temp.append(t[4])
-        t[0] = Nodo("update_statement", temp, 'N', None)
+        t[0] = Nodo("update_statement", temp,'N',None)
 
 
-def p_set_clause_list(t):
+
+def p_set_clause_list(t) :
     '''set_clause_list    : set_clause_list  COMA set_clause'''
     temp = list()
     temp.append(t[1])
     temp.append(t[3])
-    t[0] = Nodo("set_clause_list", temp, 'N', None)
+    t[0] = Nodo("set_clause_list", temp,'N',None)
 
 
-def p_p_set_clause_item(t):
+def p_p_set_clause_item(t) :
     '''set_clause_list    : set_clause'''
-    t[0] = Nodo("set_clause_list", [t[1]], 'N', None)
+    t[0] = Nodo("set_clause_list", [t[1]],'N',None)
 
 
-def p_set_clause(t):
+def p_set_clause(t) :
     'set_clause : column_name  IGUAL update_source'
     temp = list()
     temp.append(t[1])
     temp.append(t[3])
-    t[0] = Nodo("set_clause", temp, 'N', None)
+    t[0] = Nodo("set_clause", temp,'N',None)
 
 def p_update_source(t) :
     '''update_source : value_expression  
                 | NULL 
     '''
-    t[0] = Nodo("update_source", [t[1]], 'N', None)
+    t[0] = Nodo("update_source", [t[1]],'N',None)
 
 
 # *************************************************
@@ -956,6 +950,61 @@ def p_column_select(t):
 def p_select_function(t) :
     '''select_function  : SUM  
                         | COUNT 
+                        | ABS
+                        | CBRT
+                        | CEIL
+                        | CEILING
+                        | DEGREES
+                        | DIV
+                        | EXP
+                        | FACTORIAL
+                        | FLOOR
+                        | GCD
+                        | LN
+                        | LOG
+                        | MOD
+                        | PI
+                        | POWER
+                        | RADIANS
+                        | ROUND
+                        | SIGN
+                        | SQRT
+                        | TRUNC
+                        | RANDOM
+                        | ACOS
+                        | ACOSD
+                        | ASIN
+                        | ASIND
+                        | ATAN
+                        | ATAND
+                        | ATAN2
+                        | ATAN2D
+                        | COS
+                        | COSD
+                        | COT
+                        | COTD
+                        | SIN
+                        | SIND
+                        | TAN
+                        | TAND
+                        | SINH
+                        | COSH
+                        | TANH
+                        | ASINH
+                        | ACOSH
+                        | ATANH
+                        | LENGTH
+                        | SUBSTRING
+                        | MD5
+                        | SHA256
+                        | SUBSTR
+                        | GET_BYTE
+                        | SET_BYTE
+                        | TRIM
+                        | CONVERT
+                        | ENCODE
+                        | DECODE
+                        | RAIZQ
                         | NOW
                         | CURRENT_DATE 
                         | CURRENT_TIME 
@@ -963,21 +1012,50 @@ def p_select_function(t) :
                         | EXTRACT                          
                         | DATE_PART 
                         | MULT 
-                        | ID 
+                        | ENTERO
+                        | DECIMALV
+                        | CADENACOMSIMPLE
+                        | DEFAULT
+                        | ID
+                        | select_function_element column_select_punto
                                              
     '''
-    t[0] = Nodo("column_name", [t[1]],'S', str(t[1]) )
+    if (len(t) == 2):
+        t[0] = Nodo("column_name", [t[1]],'S', str(t[1]) )
+    if (len(t) == 3):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[2])
+        t[0] = Nodo("column_name", temp, 'N', None)
+
+
+def p_column_select_punto(t) :
+    '''column_select_punto  : PUNTO select_function_element                        
+    '''
+    #t[0] = Nodo("column_select_punto", [t[2]],'S', str(t[1]) )
+    t[0] = Nodo("column_select_punto", [t[2]], 'N', None)
+   
 
 
 def p_select_function_element(t) :
     '''select_function_element  : ID
+                                | MULT
+                                | ENTERO
+                                | ENTERO COMA ENTERO
+                                | DECIMALV COMA ENTERO
+                                | DECIMALV COMA DECIMALV
+                                | ENTERO COMA DECIMALV                               
+                                | DECIMALV
+                                | CADENACOMSIMPLE
                                 | NULL
                                 
     '''
     if (len(t) == 2):
         t[0] = Nodo("select_function_element", [t[1]], 'S', str(t[1]))
+    if (len(t) == 4):
+        t[0] = Nodo("select_function_element", [t[1]], 'S', str(t[1])+","+str(t[3]))
     else :
-        t[0] = Nodo("select_function_element", [t[1]], 'S', 'vacio')
+        t[0] = Nodo("select_function_element", [t[1]], 'S', str(t[1]))
 
 
 def p_column_functionext_select(t):
@@ -987,13 +1065,67 @@ def p_column_functionext_select(t):
     t[0] = Nodo("column_funtionext_select", [t[1]], 'N', None)
 
 def p_column_datefunction_select(t) :
-    '''column_datefuntion_select    : column_dateExtractfunc_select FROM TIMESTAMP  value_expression                  
+    '''column_datefuntion_select    : column_dateExtractfunc_select FROM TIMESTAMP  column_datefuntion_select_date column_datefuntion_select_hour COMSIM                 
     '''
     temp = list()
     temp.append(t[1])
     temp.append(t[4])
-    t[0] = Nodo("column_datefuntion_select", temp, 'N', None)
+    temp.append(t[5])
     
+    t[0] = Nodo("column_datefuntion_select", temp, 'N', None)
+
+
+def p_column_datefunction_select_date(t) :
+    '''column_datefuntion_select_date    : column_date_year column_date_month  column_date_day               
+    '''
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[2])
+    temp.append(t[3])
+    t[0] = Nodo("column_datefuntion_select_date", temp, 'N', None)
+
+def p_column_datefunction_select_hour(t) :
+    '''column_datefuntion_select_hour    : column_date_hour column_date_min  column_date_seg               
+    '''
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[2])
+    temp.append(t[3])
+    t[0] = Nodo("column_datefuntion_select_hour", temp, 'N', None)
+
+
+
+
+def p_column_date_year(t) :
+    '''column_date_year   : COMSIM  ENTERO                                  
+    '''
+    t[0] = Nodo("column_date_year", [t[2]],'S', str(t[2]) )
+   
+def p_column_date_month(t) :
+    '''column_date_month   : OPMENOS ENTERO                                   
+    '''
+    t[0] = Nodo("column_date_month", [t[2]],'S', str(t[2]) )
+   
+def p_column_date_DAY(t) :
+    '''column_date_day   : OPMENOS ENTERO                                   
+    '''
+    t[0] = Nodo("column_date_day", [t[2]],'S', str(t[2]) )
+   
+
+def p_column_date_hour(t) :
+    '''column_date_hour   : ENTERO                                  
+    '''
+    t[0] = Nodo("column_date_hour", [t[1]],'S', str(t[1]) )
+   
+def p_column_date_min(t) :
+    '''column_date_min   : DOSPUNTOS ENTERO                                   
+    '''
+    t[0] = Nodo("column_date_min", [t[2]],'S', str(t[2]) )
+   
+def p_column_date_seg(t) :
+    '''column_date_seg   : DOSPUNTOS ENTERO                                   
+    '''
+    t[0] = Nodo("column_date_seg", [t[2]],'S', str(t[2]) )
 
 
 def p_column_dateExtractfunc_select(t) :
@@ -1034,6 +1166,45 @@ def p_column_datepartfuncDATE_select(t) :
     t[0] = Nodo("column_dateExtractfunc_select", [t[1]],'S', str(t[1]) )
 
 
+def p_groupby_statement(t) :
+    '''groupby_statement   : GROUP BY groupby_column_list    
+    '''
+    t[0] = Nodo("groupby_statement", [t[3]], 'N', None)
+   
+
+
+def p_groupby_column_list(t):
+    'groupby_column_list    : groupby_column_list  COMA column_name_groupby'
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[3])
+    t[0] = Nodo("groupby_column_list1", temp, 'N', None)
+
+
+def p_groupby_column_list_name(t):
+    'groupby_column_list : column_name_groupby'     
+    t[0] = Nodo("groupby_column_list2", [t[1]], 'N', None)
+
+
+# def p_column_name_select(t):
+#     'column_name_select   : column_funtion_select'
+#     # t[0] = Nodo("column_name_select", [t[1]], 'S', str(t[1]))
+#     t[0] = Nodo("column_name_select", [t[1]], 'N', None)
+
+
+def p_column_name_groupby(t):
+    '''column_name_groupby    : groupby_column_item 
+    '''
+
+    t[0] = Nodo("column_name_select", [t[1]], 'N', None)    
+
+
+def p_groupby_column_item(t) :
+    '''groupby_column_item  : ID 
+                                             
+    '''
+    t[0] = Nodo("column_name", [t[1]],'S', str(t[1]) )
+
 
 
 # def p_value_expression_datetime(t):
@@ -1058,6 +1229,8 @@ def p_search_condition(t) :
     '''
     temp = list()
     temp.append(t[1])
+    tempNode2 = Nodo("opOR", [t[2]],'S',str(t[2]))
+    temp.append(tempNode2)        
     temp.append(t[3])
     t[0] = Nodo("search_condition", temp,'N',None)
 
@@ -1073,6 +1246,8 @@ def p_boolean_term(t) :
     '''
     temp = list()
     temp.append(t[1])
+    tempNode2 = Nodo("opAnd", [t[2]],'S',str(t[2]))
+    temp.append(tempNode2)    
     temp.append(t[3])
     t[0] = Nodo("boolean_term", temp,'N',None)
 
@@ -1108,17 +1283,20 @@ def p_boolean_primary(t) :
 
 def p_predicate(t) :
     '''predicate : comparison_predicate
+                | between_predicate
+                | in_predicate
+                | like_percent_predicate
+                | null_predicate
+                | distinct_predicate
+                | substring_predicate
+                | extract_predicate
     '''
-    #  | <between predicate>
-    #  | <in predicate>
-    #  | <like predicate>
-    #  | <null predicate>
-    #  | <quantified comparison predicate>
-    #  | <exists predicate>
-    #  | <match predicate>
-    #  | <overlaps predicate>
     t[0] = Nodo("predicate", [t[1]],'N',None)  
 
+
+#*************************************************
+#**********************         comparasion           ***********
+#*************************************************  
 
 def p_comparison_predicate(t) :
     '''comparison_predicate : row_value_constructor comp_op row_value_constructor
@@ -1173,16 +1351,595 @@ def p_row_value_constructor_element(t) :
     '''
     t[0] = Nodo("row_value_constructor_element", [t[1]],'N',None) 
 
+# def p_value_expression(t):
+#     '''value_expression : ENTERO
+#                         | DECIMALV
+#                         | CADENACOMSIMPLE
+#                         | DEFAULT
+#                         | ID
+#                         | NOW PARIZQ PARDER
+#     '''
+#     t[0] = Nodo("value_expression", [t[1]],'S',str(t[1])) 
+
+#endregion
+
+#*************************************************
+#**********************         BETWEEN PREDICATE           ***********
+#*************************************************  
+
+def p_between_predicate(t) :
+    '''between_predicate : row_value_constructor NOTH BETWEEN row_value_constructor AND row_value_constructor
+                            | row_value_constructor BETWEEN row_value_constructor AND row_value_constructor
+    '''
+    if (len(t) == 7):
+        temp = list()
+        temp.append(t[1])
+        tempNode1 = Nodo("between_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode1)
+        tempNode3 = Nodo("between_predicate", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        temp.append(t[4])
+        tempNode5 = Nodo("between_predicate", [t[5]],'S',str(t[5]))
+        temp.append(tempNode5)
+        temp.append(t[6])
+        t[0] = Nodo("between_predicate", temp,'N',None)        
+
+    elif (len(t)==6):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("between_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3])
+        tempNode4 = Nodo("between_predicate", [t[4]],'S',str(t[4]))
+        temp.append(tempNode4)
+        temp.append(t[5])
+        t[0] = Nodo("between_predicate", temp,'N',None) 
+
+#*************************************************
+#**********************         IN PREDICATE           ***********
+#*************************************************  
+
+def p_in_predicate(t) :
+    '''in_predicate : row_value_constructor NOT IN in_predicate_value
+                            | row_value_constructor IN in_predicate_value
+    '''
+    if (len(t) == 5):
+        temp = list()
+        temp.append(t[1])
+        tempNode1 = Nodo("in_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode1)
+        tempNode3 = Nodo("in_predicate", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        temp.append(t[4])
+        t[0] = Nodo("in_predicate", temp,'N',None)        
+
+    elif (len(t)==4):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("in_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3])
+        t[0] = Nodo("in_predicate", temp,'N',None) 
+
+
+def p_in_predicate_value(t) :
+    '''in_predicate_value : PARIZQ in_value_list PARDER
+    '''
+    t[0] = Nodo("in_predicate_value", [t[2]],'N',None)
+
+
+def p_in_value_list(t) :
+    '''in_value_list    : in_value_list  COMA value_expression'''
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[3])
+    t[0] = Nodo("in_value_list", temp,'N',None)
+
+
+def p_in_value_item(t) :
+    '''in_value_list    : value_expression'''
+    t[0] = Nodo("in_value_list", [t[1]],'N',None)
+
+
+#*************************************************
+#**********************         LIKE PREDICATE         ***********
+#*************************************************  
+
+def p_like_percent_predicate(t) :
+    '''like_percent_predicate : ID NOT LIKE CADENACOMSIMPLE
+                        | ID LIKE CADENACOMSIMPLE
+    '''
+    if (len(t) == 5):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[2])
+        temp.append(t[3])
+        temp.append(t[4])
+        t[0] = Nodo("like_percent_predicate", temp,'S',None)        
+    elif (len(t)==4):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[2])
+        temp.append(t[3])
+        t[0] = Nodo("like_percent_predicate", temp,'S',None)
+
+
+
+#*************************************************
+#**********************         NULL PREDICATE           ***********
+#*************************************************  
+
+def p_null_predicate(t) :
+    '''null_predicate : row_value_constructor IS NOTH NULL
+                        | row_value_constructor IS NULL
+                        | row_value_constructor ISNULL
+    '''
+                        #| row_value_constructor NOTNULL
+    if (len(t) == 5):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("null_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        tempNode3 = Nodo("null_predicate", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        tempNode4 = Nodo("null_predicate", [t[4]],'S',str(t[4]))
+        temp.append(tempNode4)
+        t[0] = Nodo("null_predicate", temp,'N',None)        
+    elif (len(t)==4):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("null_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        tempNode3 = Nodo("null_predicate", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        t[0] = Nodo("null_predicate", temp,'N',None)   
+    elif (len(t)==3):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("null_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        t[0] = Nodo("null_predicate", temp,'N',None)   
+
+
+#*************************************************
+#**********************         DISTINCT PREDICATE         ***********
+#*************************************************  
+
+def p_distinct_predicate(t) :
+    '''distinct_predicate : row_value_constructor IS DISTINCT FROM row_value_constructor
+                            | row_value_constructor IS NOT DISTINCT FROM row_value_constructor
+    '''
+    if (len(t)==6):
+        temp = list()
+        temp.append(t[1])
+        tempNode1 = Nodo("distinct_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode1)
+        tempNode3 = Nodo("distinct_predicate", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        tempNode4 = Nodo("distinct_predicate", [t[4]],'S',str(t[4]))
+        temp.append(tempNode4)
+        temp.append(t[5])
+        t[0] = Nodo("distinct_predicate", temp,'N',None) 
+    elif (len(t) == 7):
+        temp = list()
+        temp.append(t[1])
+        tempNode1 = Nodo("distinct_predicate", [t[2]],'S',str(t[2]))
+        temp.append(tempNode1)
+        tempNode3 = Nodo("distinct_predicate", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        tempNode4 = Nodo("distinct_predicate", [t[4]],'S',str(t[4]))
+        temp.append(tempNode4)
+        tempNode5 = Nodo("distinct_predicate", [t[5]],'S',str(t[5]))
+        temp.append(tempNode5)        
+        temp.append(t[6])
+        t[0] = Nodo("distinct_predicate", temp,'N',None)        
+
+
+#*************************************************
+#**********************         SUBSTRING PREDICATE         ***********
+#*************************************************  
+
+def p_substring_predicate(t) :
+    '''substring_predicate : SUBSTRING PARIZQ  column_reference COMA select_function_element PARDER IGUAL CADENACOMSIMPLE
+    '''
+    temp = list()
+    temp.append(t[3])
+    temp.append(t[5])    
+    tempNode7 = Nodo("substring_predicate", [t[7]],'S',str(t[7]))
+    temp.append(tempNode7)
+    tempNode8 = Nodo("substring_predicate", [t[8]],'S',str(t[8]))
+    temp.append(tempNode8)
+    t[0] = Nodo("substring_predicate", temp,'N',None) 
+
+
+
+def p_extract_predicate(t) :
+    '''extract_predicate :  ID EXTRACT  PARIZQ extract_field FROM extract_source PARDER IGUAL ENTERO IS TRUE
+                            | ID EXTRACT  PARIZQ extract_field FROM extract_source PARDER IGUAL ENTERO IS FALSE
+                            | EXTRACT  PARIZQ extract_field FROM extract_source PARDER IGUAL ENTERO IS TRUE
+                            | EXTRACT  PARIZQ extract_field FROM extract_source PARDER IGUAL ENTERO IS FALSE
+    '''
+    if (len(t)==12):
+        temp = list()
+        tempNode1 = Nodo("extract_predicate", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)
+        temp.append(t[4])    
+        temp.append(t[6])
+        tempNode8 = Nodo("extract_predicate", [t[8]],'S',str(t[8]))
+        temp.append(tempNode8)    
+        tempNode9 = Nodo("extract_predicate", [t[9]],'S',str(t[9]))
+        temp.append(tempNode9)    
+        tempNode10 = Nodo("extract_predicate", [t[10]],'S',str(t[10]))
+        temp.append(tempNode10)    
+        tempNode11 = Nodo("extract_predicate", [t[11]],'S',str(t[11]))
+        temp.append(tempNode11)        
+        t[0] = Nodo("extract_predicate", temp,'N',None) 
+    elif (len(t) == 11):
+        temp = list()
+        temp.append(t[3])    
+        temp.append(t[5])
+        tempNode8 = Nodo("extract_predicate", [t[7]],'S',str(t[7]))
+        temp.append(tempNode8)    
+        tempNode9 = Nodo("extract_predicate", [t[8]],'S',str(t[8]))
+        temp.append(tempNode9)    
+        tempNode10 = Nodo("extract_predicate", [t[9]],'S',str(t[9]))
+        temp.append(tempNode10)    
+        tempNode11 = Nodo("extract_predicate", [t[10]],'S',str(t[10]))
+        temp.append(tempNode11)        
+        t[0] = Nodo("extract_predicate", temp,'N',None) 
+
+#*************************************************
+#**********************         expresion factor         ***********
+#*************************************************  
 def p_value_expression(t):
     '''value_expression : ENTERO
-                        | DECIMAL
+                        | DECIMALV
                         | CADENACOMSIMPLE
                         | DEFAULT
                         | ID
+                        | NOW PARIZQ PARDER
+                        | EXTRACT  PARIZQ extract_field FROM extract_source PARDER
     '''
-    t[0] = Nodo("value_expression", [t[1]],'S',str(t[1])) 
+                        # | numeric_value_expression
+                        # | string_value_expression
+                        # | datetime_value_expression
+                        # | interval_value_expression
+    if (len(t)==7):
+        temp = list()
+        temp.append(t[3])
+        temp.append(t[5])
+        t[0] = Nodo("value_expression", temp,'N',None) 
+    elif (len(t)==4):
+        t[0] = Nodo("value_expression", [t[1]],'S',str(t[1]))       
+    elif (len(t) == 2):
+         t[0] = Nodo("value_expression", [t[1]],'S',str(t[1]))       
 
-# endregion
+# def p_value_expression(t):
+#     '''value_expression_expand : numeric_value_expression
+#                         | string_value_expression
+#                         | datetime_value_expression
+#                         | interval_value_expression
+
+
+
+
+
+def p_datetime_value_expression(t) :
+    '''datetime_value_expression : value_expression_primary
+                                | interval_value_expression OPSUM value_expression_primary
+                                | datetime_value_expression OPSUM interval_term
+                                | datetime_value_expression OPMENOS interval_term
+    '''
+    if (len(t)==2):
+        temp = list()
+        temp.append(t[1])
+        t[0] = Nodo("datetime_value_expression", temp,'N',None)         
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])        
+        tempNode2 = Nodo("datetime_value_expression", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3]) 
+        t[0] = Nodo("datetime_value_expression", temp,'N',None)        
+
+
+def p_interval_value_expression(t) :
+    '''interval_value_expression : interval_term
+                                | interval_value_expression_1 OPSUM interval_term_1
+                                | interval_value_expression_1 OPMENOS interval_term_1
+                                | PARIZQ datetime_value_expression OPMENOS value_expression_primary PARDER interval_qualifier
+    '''
+    if (len(t)==2):
+        temp = list()
+        temp.append(t[1])
+        t[0] = Nodo("interval_value_expression", temp,'N',None)         
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])        
+        tempNode2 = Nodo("interval_value_expression", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3]) 
+        t[0] = Nodo("interval_value_expression", temp,'N',None)        
+    elif (len(t) == 7):
+        temp = list()
+        tempNode1 = Nodo("interval_value_expression", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)
+        temp.append(t[2])     
+        tempNode3 = Nodo("interval_value_expression", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        temp.append(t[4])     
+        tempNode5 = Nodo("interval_value_expression", [t[5]],'S',str(t[5]))
+        temp.append(tempNode5)
+        temp.append(t[6])     
+        t[0] = Nodo("interval_value_expression", temp,'N',None)
+
+
+def p_interval_value_expression_1(t) :
+    '''interval_value_expression_1 : interval_value_expression
+    '''
+    t[0] = Nodo("interval_value_expression_1", [t[1]],'N',None)        
+
+
+
+def p_interval_term(t) :
+    '''interval_term : interval_factor
+                    | interval_term_2 MULT factor
+                    | interval_term_2 OPDIV factor
+                    | term MULT interval_factor
+    '''
+    if (len(t)==2):
+        temp = list()
+        temp.append(t[1])
+        t[0] = Nodo("interval_term", temp,'N',None)         
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])        
+        tempNode2 = Nodo("interval_term", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3]) 
+        t[0] = Nodo("interval_term", temp,'N',None)        
+
+
+def p_interval_term_1(t) :
+    '''interval_term_1 : interval_term
+    '''
+    t[0] = Nodo("interval_term_1", [t[1]],'N',None)   
+
+
+
+def p_interval_term_2(t) :
+    '''interval_term_2 : interval_term
+    '''
+    t[0] = Nodo("interval_term_2", [t[1]],'N',None)      
+
+def p_interval_factor(t) :
+    '''interval_factor : OPSUM interval_primary
+                        | OPMENOS interval_primary
+                        | interval_primary
+    '''
+    if (len(t)==2):
+        temp = list()
+        temp.append(t[1])
+        t[0] = Nodo("interval_factor", temp,'N',None)         
+    elif (len(t) == 3):
+        temp = list()     
+        tempNode1 = Nodo("interval_factor", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)
+        temp.append(t[2]) 
+        t[0] = Nodo("interval_factor", temp,'N',None)  
+
+
+def p_interval_primary(t) :
+    '''interval_primary : value_expression_primary
+                        | value_expression_primary interval_qualifier
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("interval_primary", [t[1]], 'N', None)
+    elif (len(t) == 3):
+        temp = list()     
+        temp.append(t[1]) 
+        temp.append(t[2]) 
+        t[0] = Nodo("interval_primary", temp,'N',None)  
+
+
+
+def p_interval_qualifier(t) :
+    '''interval_qualifier : start_field TO end_field
+                    | single_datetime_field
+    '''
+    if (len(t)==2):
+        temp = list()
+        temp.append(t[1])
+        t[0] = Nodo("interval_qualifier", temp,'N',None)         
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])        
+        tempNode2 = Nodo("interval_qualifier", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3]) 
+        t[0] = Nodo("interval_qualifier", temp,'N',None)  
+
+
+
+
+def p_start_field(t) :
+    '''start_field : non_second_datetime_field PARIZQ ENTERO PARDER
+                    | non_second_datetime_field
+    '''
+    if (len(t)==2):
+        temp = list()
+        temp.append(t[1])
+        t[0] = Nodo("start_field", temp,'N',None)         
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])        
+        temp.append(t[3]) 
+        t[0] = Nodo("start_field", temp,'N',None)  
+
+
+
+def p_end_field(t) :
+    '''end_field : SECOND PARIZQ ENTERO PARDER
+                    | non_second_datetime_field
+                    | SECOND
+    '''
+    if (len(t)==2):
+        temp = list()
+        temp.append(t[1])
+        t[0] = Nodo("end_field", temp,'N',None)         
+    elif (len(t) == 5):
+        temp = list()
+        tempNode1 = Nodo("end_field", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)        
+        temp.append(t[3])
+        t[0] = Nodo("end_field", temp,'N',None)  
+
+
+def p_single_datetime_field(t) :
+    '''single_datetime_field :    non_second_datetime_field PARIZQ ENTERO PARDER
+                                | non_second_datetime_field
+                                | second_comp
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("single_datetime_field", [t[1]],'N',str(t[1])) 
+    elif (len(t) == 5):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[3])
+        t[0] = Nodo("single_datetime_field", temp,'N',None)  
+
+
+
+def p_second_comp(t) :
+    '''second_comp :    SECOND PARIZQ ENTERO COMA PARIZQ ENTERO PARDER
+                        | SECOND PARIZQ ENTERO PARDER
+                        | SECOND
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("second_comp", [t[1]],'S',str(t[1])) 
+    elif (len(t) == 5):
+        temp = list()
+        tempNode1 = Nodo("second_comp", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)        
+        temp.append(t[3])
+        t[0] = Nodo("second_comp", temp,'N',None)  
+    elif (len(t) == 8):
+        temp = list()
+        tempNode1 = Nodo("second_comp", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)        
+        temp.append(t[3])
+        temp.append(t[6])        
+        t[0] = Nodo("second_comp", temp,'N',None)  
+
+
+def p_non_second_datetime_field(t) :
+    '''non_second_datetime_field    : HOUR  
+                                        | MINUTE 
+                                        | YEAR 
+                                        | MONTH 
+                                        | DAY                          
+    '''
+    t[0] = Nodo("non_second_datetime_field", [t[1]],'S', str(t[1]))
+
+
+def p_string_value_expression(t) :
+    '''string_value_expression : character_value_expression
+    '''
+    t[0] = Nodo("string_value_expression", [t[1]],'N',None)
+
+def p_numeric_value_expression(t) :
+    '''numeric_value_expression : term 
+                            | numeric_value_expression OPSUM term
+                            | numeric_value_expression OPMENOS term
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("numeric_value_expression", [t[1]],'N',None)
+
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("numeric_value_expression", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3])
+        t[0] = Nodo("numeric_value_expression", temp,'N',None)  
+
+
+def p_term(t) :
+    '''term : factor 
+            | term MULT factor
+            | term  OPDIV factor
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("term", [t[1]],'N',None)
+
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("term", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3])
+        t[0] = Nodo("term", temp,'N',None)  
+
+
+def p_factor(t) :
+    '''factor : numeric_primary 
+            | OPSUM numeric_primary
+            | OPMENOS numeric_primary
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("factor", [t[1]],'N',None)
+
+    elif (len(t) == 3):
+        temp = list()
+        tempNode1 = Nodo("factor", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)
+        temp.append(t[2])
+        t[0] = Nodo("factor", temp,'N',None)  
+
+def p_numeric_primary(t) :
+    '''numeric_primary : numeric_value_function
+    '''
+    t[0] = Nodo("numeric_primary", [t[1]],'N',None)  
+
+def p_numeric_value_function(t) :
+    '''numeric_value_function : extract_expression 
+    '''
+    t[0] = Nodo("numeric_value_function", [t[1]],'N',None)  
+
+def p_extract_expression(t) :
+    '''extract_expression : EXTRACT  PARIZQ extract_field FROM extract_source PARDER
+    '''
+    temp = list()
+    temp.append(t[3])
+    temp.append(t[5])
+    t[0] = Nodo("extract_expression", temp,'N',None) 
+
+def p_extract_field(t) :
+    '''extract_field : datetime_field
+    '''
+    t[0] = Nodo("extract_field", [t[1]],'N',None) 
+
+
+def p_datetime_field(t) :
+    '''datetime_field : SECOND
+            | YEAR
+            | MONTH
+            | DAY
+            | HOUR
+            | MINUTE
+    '''
+    t[0] = Nodo("datetime_field", [t[1]],'S',str(t[1]))         
+
+def p_extract_source(t) :
+    '''extract_source : datetime_value_expression 
+                        | interval_value_expression
+    '''
+    t[0] = Nodo("extract_source", [t[1]],'N',None) 
+
+def p_trim_function(t) :
+    '''trim_function : TRIM  PARIZQ trim_operands PARDER
+    '''
+    t[3] = Nodo("trim_function", [t[3]],'N',None) 
 
 
 def p_trim_operands(t) :
@@ -1408,14 +2165,17 @@ def p_set_quantifier(t) :
 #<correlation_name>    ::=   <identifier>
 
 #<table_name>    ::=   <qualified_name> | <qualified_local_table_name>
-# *************************************************
-# **********************         Error           ***********
-# *************************************************  
+
+#*************************************************
+#**********************         Error           ***********
+#*************************************************  
 
 def p_error(t):
     global resultado_gramatica
     if t:
-        resultado = "Error sintactico de tipo {} en el valor {} ".format( str(t.type),str(t.value))
+        #line_start = input.rfind('\n', 0, token.lexpos) + 1
+        #return (token.lexpos - line_start) + 1        
+        resultado = "Error sintactico de tipo {}, linea {}, posicion {}, en el valor {} ".format( str(t.type),str(t.lineno),str(t.lexpos),str(t.value[0]))
         print(resultado)
     else:
         resultado = "Error sintactico {}".format(t)
@@ -1423,9 +2183,9 @@ def p_error(t):
     resultado_gramatica.append(resultado)
  
 
-# *************************************************
-# **********************               ***********
-# *************************************************   
+#*************************************************
+#**********************               ***********
+#*************************************************   
 
 # Build the parser
 parser = yacc.yacc()
