@@ -273,3 +273,36 @@ function destroyClickedElement(event) {
   // remove the link from the DOM
   document.body.removeChild(event.target);
 }
+
+function limpiar(elemID) {
+  var elem = document.getElementById(elemID);
+  elem.innerHTML = "";
+}
+
+function ejecutarScript() {
+  var texto = eel.PYejecutarScript().value;
+  alert("Ejecuntando...");
+  console.log(texto);
+}
+
+function guardarArchivo() {
+  //este solo sobreescribia el archivo, asi que no retnorna nada
+  var texto = eel.PYguardarArchivo(x, y);
+  alert("Guardado");
+  //console.log(texto);
+}
+
+function crearBD() {
+  var texto = eel.PYcrearBD().value;
+  alert("Se ha creado la base de datos");
+  console.log(texto);
+}
+function crearTabla() {
+  var texto = eel.PYcrearTabla().value;
+  alert("Se ha creado la tabla");
+  console.log(texto);
+}
+
+function cerrar() {
+  window.close();
+}
