@@ -173,5 +173,103 @@ $(document).ready(function () {
     var selectedTabId = e.target.href;
     console.log(selectedTabId);
   });
+  
+  $("#save").click(function () {
+    saveTextAsFile();
+  });
+  let input = document.querySelector("input[name='abrir']");
+  
+  input.addEventListener("change", (event) => {
+    let files = input.files;
+
+    var filename = input.files[0].name;
+
+    tabID++;
+    $("#tab-list").append(
+      $(
+        '<li class="active nav-item"><a href="#query' +
+          tabID +
+          '"  class="nav-link" role="tab" data-toggle="tab">' +
+          filename +
+          '   <button class="close" type="button" title="Remove this page">×</button></a></li>'
+      )
+    );
+    $("#tab-content").append(
+      $(
+        '<div class="tab-pane fade" id="query' +
+          tabID +
+          '"><textarea rows="15"  name="query' +
+          tabID +
+          '" class="form-control" aria-label="With textarea"></textarea></div>'
+      )
+    );
+
+    let textarea = document.querySelector(
+      "textarea[name='query" + tabID + "']"
+    );
+
+    if (files.length == 0) return;
+
+    const file = files[0];
+
+    let reader = new FileReader();
+
+    reader.onload = (e) => {
+      const file = e.target.result;
+
+      // This is a regular expression to identify carriage
+      // Returns and line breaks
+      const lines = file.split(/\r\n|\n/);
+      textarea.value = lines.join("\n");
+    };
+
+    reader.onerror = (e) => alert(e.target.error.name);
+
+    reader.readAsText(file);
+  });
+  $("#tab-list").on("click", ".close", function () {
+    var tabID = $(this).parents("a").attr("href");
+    $(this).parents("li").remove();
+    $(tabID).remove();
+
+    //display first tab
+    var tabFirst = $("#tab-list a:first");
+    //resetTab();
+    tabFirst.tab("show");
+  });
+  
+  var list = document.getElementById("tab-list");
 
 });
+
+function input2(elemID, text) {
+  var elem = document.getElementById(elemID);
+  elem.innerHTML += text + "\n";
+}
+
+function saveTextAsFile() {
+  var textToWrite = document.getElementById("entrada").value;
+  var textFileAsBlob = new Blob([textToWrite], { type: "text/plain" });
+  var fileNameToSaveAs = "query.sql";
+
+  var downloadLink = document.createElement("a");
+  downloadLink.download = fileNameToSaveAs;
+  downloadLink.innerHTML = "Download File";
+  if (window.webkitURL != null) {
+    // Chrome allows the link to be clicked without actually adding it to the DOM.
+    downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+  } else {
+    // Firefox requires the link to be added to the DOM before it can be clicked.
+    downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = "none";
+    document.body.appendChild(downloadLink);
+  }
+
+  downloadLink.click();
+}
+
+function destroyClickedElement(event) {
+  // remove the link from the DOM
+  document.body.removeChild(event.target);
+}
