@@ -1,4 +1,4 @@
-# Manual De Usuario
+# Manual de Usuario
 
 HashMode es una librería escrita en Python 3 que provee almacenamiento para un administrador de bases de datos (DBMS). HashMode almacena datos localmente utilizando tablas de dispersión (tablas hash).
 
@@ -71,7 +71,7 @@ Para ejecutar la librería es necesario tener instalado Python 3 para [Windows](
 HashMode se puede incorporar en un proyecto con la siguiente línea de código:
 
 ```sh
-import HashMode
+from storage import HashMode
 ```
 
 Se puede acceder al repertorio de funciones posteriormente descritas de la siguiente manera:
