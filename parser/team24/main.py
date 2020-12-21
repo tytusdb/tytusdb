@@ -1,6 +1,6 @@
 import grammar as g
 import tabla as TabladeSimbolos
-from graphQueries import graphTree
+#from graphQueries import graphTree
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
 
@@ -20,7 +20,8 @@ if __name__ == '__main__':
     results = []
     for query in root:
         results.append(query.ejecutar())
-    print(results)
+
+    
     #graphTree(root)
 
 
