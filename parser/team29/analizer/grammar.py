@@ -85,6 +85,7 @@ def p_id_string(t):
     """
     idOrString : ID
     | STRING
+    | CHARACTER
     """
     t[0] = t[1]
 
@@ -499,12 +500,20 @@ def p_funcCall_3(t):
     """
 
 
-def p_extract(t):
+def p_extract_1(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
     """
     t[0] = expression.ExtractDate(
         t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+    )
+
+def p_extract_2(t):
+    """
+    extract : R_EXTRACT S_PARIZQ optsExtract R_FROM columnName S_PARDER
+    """
+    t[0] = expression.ExtractColumnDate(
+        t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos
     )
 
 
@@ -1111,16 +1120,14 @@ def p_selectListParams_2(t):
 
 def p_optalias_as(t):
     """
-    optAlias : R_AS ID
-    | R_AS STRING
+    optAlias : R_AS idOrString
     """
     t[0] = t[2]
 
 
 def p_optalias_id(t):
     """
-    optAlias : ID
-    | STRING
+    optAlias : idOrString
     """
     t[0] = t[1]
 
