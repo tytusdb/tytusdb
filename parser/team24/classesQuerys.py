@@ -64,9 +64,9 @@ class select(query):
         if self.group :
             
             grouped = ejecutar_groupBy(results,self.select_list)
-            print(grouped)
+            #print(grouped)
 
-        return results
+        #return results
         
         for column in results:
 
@@ -96,7 +96,7 @@ class select(query):
 
         consulta.append(fila)
         if gro:
-            pass
+            consulta.extend(grouped)
         else:
             cantidad = 0
             for column in results:
@@ -120,7 +120,34 @@ class select(query):
                 
                 consulta.append(fila)
             
-            print(consulta)
+            
+
+        salida = []
+        if self.limit != 0:
+            #self.limit = self.limit + 1
+            contador = 0
+            for fila in consulta:
+                salida.append(fila)
+                if contador == self.limit:
+                    break
+                
+                contador = contador + 1
+            consulta = salida
+
+        salida = []
+        if self.offset != 0:
+            #self.offset = self.offset + 1
+            contador = 0
+            for fila in consulta:
+                
+                if contador != self.offset:
+                    salida.append(fila)
+                
+                contador = contador + 1
+            consulta = salida
+
+             
+        print(consulta)
         return consulta
 
         
