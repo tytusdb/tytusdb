@@ -35,7 +35,7 @@ El programa **_`Tytus 2020`_** cuenta con una vista gráfica la cual facilita la
 
 - Ventana Inicial: La _Ventana Inicial_ cuenta con tres opciones: *Reportes*, *Funciones* y *_Acerca De_*.
 
-![](https://github.com/tytusdb/tytus/tree/main/storage/team17/docs/img/Init.png)
+![](https://github.com/tytusdb/tytus/blob/main/storage/team17/docs/img/Init.png)
 
    | **Opción** | **Funcionalidad** |
    | ---------- | ----------------- |
@@ -45,11 +45,11 @@ El programa **_`Tytus 2020`_** cuenta con una vista gráfica la cual facilita la
      
 - Ventana Reportes: En esta ventana el usuario deberá de seleccionar una base de datos y seguidamente seleccionar una tabla, también podrá seleccionar una llave primaria de la tabla para visualizar un elemento en específico según lo desee.
   
-![](https://github.com/tytusdb/tytus/tree/main/storage/team17/docs/img/Rep.png)
+![](https://github.com/tytusdb/tytus/blob/main/storage/team17/docs/img/Rep.png)
 
 - Ventana Funciones: En esta pestaña se mostrarán todas las funcionalidades del sistema.
 
-![](https://github.com/tytusdb/tytus/tree/main/storage/team17/docs/img/Func.png)
+![](https://github.com/tytusdb/tytus/blob/main/storage/team17/docs/img/Func.png)
 
    | **Opción**                         | **Funcionalidad** |
    | ----------------------             | ----------------- |
@@ -76,7 +76,7 @@ El programa **_`Tytus 2020`_** cuenta con una vista gráfica la cual facilita la
 - Ventana Acerca De: Se mostrarán datos del centro de estudios así como de los programadores del sistema **_`Tytus 2020`_**
 
 
-![](https://github.com/tytusdb/tytus/tree/main/storage/team17/docs/img/A_D.png) 
+![](https://github.com/tytusdb/tytus/blob/main/storage/team17/docs/img/A_D.png) 
 
 <div id='glosario'/>
 
