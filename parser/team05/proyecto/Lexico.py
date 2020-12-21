@@ -835,112 +835,152 @@ def p_fields4(t):
     t[0] = t[1]
 
 
-def p_replace1(t):
-    """
-        I_REPLACE       :   OR REPLACE DATABASE I_EXIST
-    """
-    #INSTRUCCION REPLACE1
-    #t[0] = CreateDatabase(True, t[4])
+# CREATE DATABASE
+
+def p_Replace(t):
+    'I_REPLACE     : CREATE OR REPLACE DATABASE IF NOT EXISTS ID COMPLEMENTO_CREATE_DATABASE PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "IF" "NOT" "EXISTS" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    ret = Retorno(CreateDatabase(t[8],t[9].getInstruccion(),True,True),NodoAST("CREATE DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[8]))
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
+
+def p_Replace_1(t):
+    'I_REPLACE     : CREATE OR REPLACE DATABASE ID COMPLEMENTO_CREATE_DATABASE PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "OR" "REPLACE" "DATABASE" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    ret = Retorno(CreateDatabase(t[5],t[6].getInstruccion(),False,True),NodoAST("CREATE DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[6].getNodo())
+    t[0] = ret
+    
+
+def p_Replace1(t):
+    'I_REPLACE     : CREATE DATABASE IF NOT EXISTS ID COMPLEMENTO_CREATE_DATABASE PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "DATABASE" "IF" "NOT" "EXISTS" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    ret = Retorno(CreateDatabase(t[6],t[7].getInstruccion(),True,False),NodoAST("CREATE DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
+
+def p_Replace2(t):
+    'I_REPLACE     : CREATE DATABASE ID COMPLEMENTO_CREATE_DATABASE PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_REPLACE> ::= "CREATE" "DATABASE" "ID" <COMPLEMENTO_CREATE_DATABASE> ";"')
+    ret = Retorno(CreateDatabase(t[3],t[4].getInstruccion(),False,False),NodoAST("CREATE DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 
-def p_replace2(t):
-    """
-        I_REPLACE       :   DATABASE I_EXIST
-    """
-    #INSTRUCCION REPLACE2
-    #t[0] = CreateDatabase(False, t[2])
+def p_Owmod(t):
+    'COMPLEMENTO_CREATE_DATABASE        : OWNER IGUAL CADENA MODE IGUAL NUMERO'
+    global reporte_gramatical
+    reporte_gramatical.append('<COMPLEMENTO_CREATE_DATABASE> ::= "OWNER" "=" "CADENA" "MODE" "=" "NUMERO"')
+    ret = Retorno(OwnerMode(t[3],t[6]),NodoAST("VALORES"))
+    ret.getNodo().setHijo(NodoAST("OWNER"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST("MODE"))
+    ret.getNodo().setHijo(NodoAST(str(t[6])))
+    t[0] = ret
+
+def p_ModOwn(t):
+    'COMPLEMENTO_CREATE_DATABASE        : MODE IGUAL NUMERO OWNER IGUAL CADENA '
+    global reporte_gramatical
+    reporte_gramatical.append('<COMPLEMENTO_CREATE_DATABASE> ::= "MODE" "=" "NUMERO" "OWNER" "=" "CADENA" ')
+    ret = Retorno(OwnerMode(t[6],t[3]),NodoAST("VALORES"))
+    ret.getNodo().setHijo(NodoAST("MODE"))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    ret.getNodo().setHijo(NodoAST("OWNER"))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    t[0] = ret
+
+def p_Owmod1(t):
+    'COMPLEMENTO_CREATE_DATABASE       : OWNER IGUAL CADENA'
+    global reporte_gramatical
+    reporte_gramatical.append('<COMPLEMENTO_CREATE_DATABASE> ::= "OWNER" "=" "CADENA" ')
+    ret = Retorno(OwnerMode(t[3],None),NodoAST("VALORES"))
+    ret.getNodo().setHijo(NodoAST("OWNER"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 
+def p_OwmodN2(t):
+    'COMPLEMENTO_CREATE_DATABASE       : MODE IGUAL NUMERO'
+    global reporte_gramatical
+    reporte_gramatical.append('<COMPLEMENTO_CREATE_DATABASE> ::= "MODE" "=" "NUMERO" ')
+    ret = Retorno(OwnerMode(None,t[3]),NodoAST("VALORES"))
+    ret.getNodo().setHijo(NodoAST("MODE"))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
-def p_alterTB(t):
-    'I_ALTERTB   : TABLE ID I_OPALTER '
 
-def p_opAlterTB(t):
-    'I_OPALTER   : I_LADDC PCOMA'
+# TERMINA CREATE DATABASE
 
-def p_opAlterTB1(t):
-    'I_OPALTER   : I_LDROPC PCOMA'
 
-def p_opAlterTB2(t):
-    'I_OPALTER   : ADD I_TALTER PCOMA'
-
-def p_opAlterTB3(t):
-    'I_OPALTER   : ALTER COLUMN ID SET NOT NULL PCOMA'
-
-def p_opAlterTB4(t):
-    'I_OPALTER   : DROP CONSTRAINT ID PCOMA'
-
-def p_opAlterTB5(t):
-    'I_OPALTER   : I_LCOL PCOMA'
-
-def p_lCol(t):
-    'I_LCOL      : I_LCOL COMA I_PCOL'
-
-def p_lCol2(t):
-    'I_LCOL      : I_PCOL'
-
-def p_pCol3(t):
-    'I_PCOL      : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA'
-
-def p_tipAlterC(t): 
-    'I_TALTER    : CHECK CONDICION '
-    #INSTRUCCION TIPALTERC
-
-def p_tipAlterU(t): 
-    'I_TALTER    : UNIQUE PABRE I_LIDS  PCIERRA'
-    #INSTRUCCION TIPALTERU
-
-def p_tipAlterFK(t): 
-    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
-    #INSTRUCCION TIPALTERFK
-
-def p_tipAlterFK1(t): 
-    'I_TALTER    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID '
-    #INSTRUCCION TIPALTERFK1
-
-def p_tipAlterCo(t): 
-    'I_TALTER    : CONSTRAINT ID I_TCONST '
-    #INSTRUCCION TIPALTERCO
+# ALTER DATABASE
 
 def p_tAlter(t):
-    'I_TALTER    : I_ALTERDB'
-    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
-    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
-    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
-    #TODO: AQUI ME QUEDE CON LAS CLASES ALTER
+    'I_ALTERDB    : ALTER DATABASE ID P_OPERACION_ALTERDB PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_ALTERDB> ::= "ALTER" "DATABASE" "ID" <P_OPERACION_ALTERDB> ";" ')
+    ret = Retorno(AlterDB(t[3],t[4].getInstruccion()),NodoAST("ALTER DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
-def p_tAlter1(t):
-    'I_TALTER    : I_ALTERTB'
+def p_tAlterOpDB(t):
+    'P_OPERACION_ALTERDB    : OWNER TO P_TIPOS_OWNER'
+    global reporte_gramatical
+    reporte_gramatical.append('<P_OPERACION_ALTERDB> ::= "OWNER" "TO" "ID" <P_TIPOS_OWNER>')
+    ret = Retorno(AlterDBOwner(t[3]),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+    
+def p_tAlterOpDB1(t):
+    'P_OPERACION_ALTERDB    : MODE TO NUMERO'
+    global reporte_gramatical
+    reporte_gramatical.append('<P_OPERACION_ALTERDB> ::= "MODE" "TO" "NUMERO"')
+    ret = Retorno(AlterDBMode(t[3]),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
-def p_tipoConstraintC(t):
-    'I_TCONST    : CHECK CONDICION '
-    #INSTRUCCION TIPOCONSTRAINTC
+def p_tAlterOpDB2(t):
+    'P_OPERACION_ALTERDB    : RENAME TO CADENA'
+    global reporte_gramatical
+    reporte_gramatical.append('<P_OPERACION_ALTERDB> ::= "RENAME" "TO" "CADENA"')
+    ret = Retorno(AlterDBRename(t[3]),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
-def p_tipoConstraintU(t):
-    'I_TCONST    : UNIQUE PABRE I_LIDS PCIERRA'
-    #INSTRUCCION TIPOCONSTRAINTU
+def p_TipoOwner(t):
+    'P_TIPOS_OWNER    : CADENA'
+    global reporte_gramatical
+    reporte_gramatical.append('<P_TIPOS_OWNER> ::= "CADENA"')
+    t[0] = t[1]
 
-def p_tipoConstraintFK(t):
-    'I_TCONST    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA  '
-    #INSTRUCCION TIPOCONSTRAINTFK
+def p_TipoOwner1(t):
+    'P_TIPOS_OWNER    : CURRENT_USER'
+    global reporte_gramatical
+    reporte_gramatical.append('<P_TIPOS_OWNER> ::= "CURRENT_USER"')
+    t[0] = t[1]
 
-def p_lCDrop(t):
-    'I_LDROPC    : I_LDROPC COMA I_DROPC'
+def p_TipoOwner2(t):
+    'P_TIPOS_OWNER    : SESSION_USER'
+    global reporte_gramatical
+    reporte_gramatical.append('<P_TIPOS_OWNER> ::= "SESSION_USER"')
+    t[0] = t[1]
 
-def p_lCDrop1(t):
-    'I_LDROPC    : I_DROPC'
+def p_TipoOwner3(t):
+    'P_TIPOS_OWNER    : ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<P_TIPOS_OWNER> ::= "ID"')
+    t[0] = t[1]
 
-def p_cDrop(t):
-    'I_DROPC     : DROP COLUMN ID'
 
-def p_lCAdd(t):
-    'I_LADDC     : I_LADDC COMA I_ADDC'
-
-def p_lCAdd2(t):
-    'I_LADDC     : I_ADDC'
-
-def p_cAdd(t):
-    'I_ADDC      : ADD COLUMN ID I_TIPO'
+# TERMINA ALTER DATABASE
 
 
 
@@ -979,69 +1019,6 @@ def p_DropDBid(t):
 
 # TERMINA DROP DATABASE
 
-def p_Exist(t):
-    """
-        I_EXIST         :   IF NOT EXISTS ID I_OWMOD
-    """
-    t[0] = DatabaseInfo(True, t[4], t[5])
-
-
-def p_Exist1(t):
-    """
-        I_EXIST         :   ID I_OWMOD
-    """
-    t[0] = DatabaseInfo(False, t[1], t[2])
-
-
-def p_owmod1(t):
-    """
-        I_OWMOD         :   OWNER IGUAL ID I_MODE
-                        |   OWNER IGUAL CADENA I_MODE
-    """
-    t[0] = Owner_Mode(t[3], t[4])
-
-
-def p_owmod2(t):
-    """
-        I_OWMOD         :   MODE IGUAL NUMERO I_OWNER
-    """
-    t[0] = Owner_Mode(t[4], t[3])
-
-
-def p_owmod3(t):
-    """
-        I_OWMOD         :   PCOMA
-    """
-    t[0] = Owner_Mode(None, None)
-
-
-def p_mode1(t):
-    """
-        I_MODE          :   MODE IGUAL NUMERO I_OWNER
-    """
-    t[0] = t[3]
-
-
-def p_mode2(t):
-    """
-        I_MODE          :   PCOMA
-    """
-    t[0] = None
-
-
-def p_owner1(t):
-    """
-        I_OWNER         :   OWNER IGUAL ID PCOMA
-                        |   OWNER IGUAL CADENA PCOMA
-    """
-    t[0] = t[3]
-
-
-def p_owner2(t):
-    """
-        I_OWNER         :   PCOMA
-    """
-    t[0] = None
 
 
 def p_AlterDB(t):
@@ -1060,21 +1037,62 @@ def p_valAlterDb1(t):
     'I_VALALTDB    : CADENA'
 
 
+
+# INSERT
 def p_insertTB(t):
     'I_INSERT      : INSERT INTO ID VALUES PABRE I_LVALT PCIERRA PCOMA'
-    # INSTRUCCION INSERTTB
+    global reporte_gramatical
+    reporte_gramatical.append('<I_INSERT> ::= "INSERT" "INTO" "ID" "VALUES" "(" <I_LVALT> ")" ";" ')
+    ret = Retorno(Insert(t[3],None,t[6].getInstruccion()),NodoAST("INSERT"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[6].getNodo())
+    t[0] = ret
 
 def p_insertTB1(t):
     'I_INSERT      : INSERT INTO ID PABRE I_LVALT PCIERRA VALUES PABRE I_LVALT PCIERRA PCOMA'
-    # INSTRUCCION INSERTTB1
+    global reporte_gramatical
+    reporte_gramatical.append('<I_INSERT> ::= "INSERT" "INTO" "ID" "(" <I_LVALT> ")" "VALUES "(" <I_LVARLT> ")" ";" ')
+    ret = Retorno(Insert(t[3],t[5].getInstruccion(),t[9].getInstruccion()),NodoAST("INSERT"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
 
 def p_lValt(t):
     'I_LVALT       : I_LVALT COMA I_VALTAB'
-    # INSTRUCCION REALIZADA
+    global reporte_gramatical
+    reporte_gramatical.append('<L_LVALT> ::= <I_LVALT> "," <I_VALTAB>')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
 
 def p_lValt1(t):
     'I_LVALT       : I_VALTAB'
-    # INSTRUCCION REALIZADA
+    global reporte_gramatical
+    reporte_gramatical.append('<L_LVALT> ::= <I_VALTAB>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+
+def p_valTab(t):
+    'I_VALTAB      : CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_VALTAB> ::= <CONDICION>')
+    t[0] = t[1]
+
+def p_valTabMd51(t):
+    'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_VALTAB> ::= "MD5" "(" "CADENA" ")"')
+    ret = Retorno(Md5(t[3]),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+# TERMINA INSERT
 
 
 def p_update(t):
@@ -1089,22 +1107,8 @@ def p_lUpdate1(t):
 def p_valUpdate(t):
     'I_VALUPDATE   : CONDICION'
 
-def p_valUpdateT(t):
-    'I_VALUPDATE   : CONDICION IGUAL FTRIGONOMETRICASUP PABRE LNUM PCIERRA'
 
-def p_FTUP(t):
-    'FTRIGONOMETRICASUP   : ACOSD'
 
-def p_FTUP1(t):
-    'FTRIGONOMETRICASUP   : ASIN'
-
-def p_valTab(t):
-    'I_VALTAB      : CONDICION'
-    # INSTRUCCION VALTAB
-    
-def p_valTabMd5(t):
-    'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
-    # INSTRUCCION VALTAB
 
 # SHOW
 
