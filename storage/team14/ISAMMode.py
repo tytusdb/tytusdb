@@ -4,7 +4,7 @@ import os
 import pickle
 
 
-*----------------------------------databases CRUD-------------------------------------------*
+#*----------------------------------databases CRUD-------------------------------------------*
 
 # crea una instancia de base de datos y la guarda en la lista 
 def createDatabase(database: str) -> int:
@@ -86,7 +86,7 @@ def dropDatabase(database: str) -> int:
     except:
         return 1
 
-*----------------------------------tables-------------------------------------------*
+#*----------------------------------tables-------------------------------------------*
 
 # crea una instancia de Tabla y lo almacena en el listado de tablas de la base de datos
 def createTable(database, tableName, numberColumns):
@@ -563,7 +563,7 @@ def truncate(database, table):
     except:
         return 1    
     
-*---------------------------------------others----------------------------------------------*
+#*---------------------------------------others----------------------------------------------*
 
 # guarda un objeto en un archivo binario
 def commit(objeto, fileName):
