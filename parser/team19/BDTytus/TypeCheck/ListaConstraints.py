@@ -1,4 +1,4 @@
-import Constraint as Constraint
+import TypeCheck.Constraint as Constraint
 class ListaConstraints:
     def __init__(self):
         self.primero=None

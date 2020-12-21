@@ -210,7 +210,7 @@ Recopila las tablas que contiene la base de datos consultada y devuelve los nomb
 
 | Valor de retorno | Definición |
 | ------ | ------ |
-| <Lista> | Operación exitosa |
+| Lista de tablas | Operación exitosa |
 | <Lista vacía> | La base de datos no contiene tablas |
 | None | Base de datos inexistente |
 
@@ -219,7 +219,7 @@ Extrae los registros que contiene una tabla. Recibe dos parámetros: la base de 
 
 | Valor de retorno | Definición |
 | ------ | ------ |
-| <Lista> | Operación exitosa |
+| Lista de Registros | Operación exitosa |
 | <Lista vacía> | La tabla no contiene registros |
 | None | Error en la operación |
 
@@ -228,7 +228,7 @@ Extrae los registros correspondientes a un rango solicitado, para devolverlos en
 
 | Valor de retorno | Definición |
 | ------ | ------ |
-| <Lista> | Operación exitosa |
+| Lista de registros | Operación exitosa |
 | <Lista vacía> | La tabla no contiene registros |
 | None | Error en la operación |
 

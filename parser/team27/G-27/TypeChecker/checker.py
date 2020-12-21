@@ -1,11 +1,11 @@
 import sys
 sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
 sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from DBType import *
-from typ import *
+from Database_Types import DBType
+from typ import Type
 import math
 
-def check( tipoDato:DBType, primitivo: Type, dato, lenght):
+def check( tipoDato:DBType , primitivo: Type, dato, lenght):
     if primitivo == Type.INT or primitivo  == Type.DECIMAL:
         if not isinstance(dato, int):
             return 'El tipo de la columna es numérico y el dato ingresado no coincide.'
@@ -79,3 +79,28 @@ def rangoNumerico(tipo, valor, inferior, superior):
         return 'El tipo de dato ' + tipo + ' solo acepta valores en el rango ['+str(inferior)+','+ str(superior) +'].' 
     else:
         return True
+
+def getPrimitivo(tipo:DBType):
+    switcher ={
+        DBType.smallint:Type.INT,
+        DBType.integer:Type.INT,
+        DBType.bigint: Type.INT,
+        DBType.decimal: Type.DECIMAL,
+        DBType.numeric: Type.DECIMAL,
+        DBType.real: Type.DECIMAL,
+        DBType.double_precision: Type.DECIMAL,
+        DBType.money: Type.DECIMAL,
+        DBType.ch_varying: Type.STRING,
+        DBType.varchar: Type.STRING,
+        DBType.character: Type.STRING,
+        DBType.char: Type.STRING,
+        DBType.text: Type.STRING,
+        DBType.timestamp_wtz: Type.DATE,
+        DBType.timestamp_tz: Type.DATE,
+        DBType.date: Type.DATE,
+        DBType.time_wtz: Type.TIME,
+        DBType.time_tz: Type.TIME,
+        DBType.interval: Type.DATE,
+        DBType.boolean: Type.BOOLEAN
+    }
+    return switcher.get(tipo,'El tipo de dato no coincide con ningun tipo primitivo.')

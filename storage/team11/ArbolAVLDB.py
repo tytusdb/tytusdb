@@ -111,6 +111,7 @@ class ArbolAVLT:
 
         self.cadena += "}\n"
         print(self.cadena)
+        return self.cadena
 
     def get_root(self):
         return self.root
@@ -208,7 +209,7 @@ class ArbolAVLT:
 
     def __update_table_pk_r(self, root: NodoAVL, table_name, columns):
         if root is None: return None
-        if root.get_element().get_table_name() == table_name:            
+        if root.get_element().get_table_name() == table_name:
             return root.get_element().define_pk(columns)
         if root.get_element().get_table_name() > table_name:
             return self.__update_table_pk_r(root.get_left(), table_name, columns)
@@ -246,7 +247,6 @@ class ArbolAVLT:
 
     def extract_row(self, table_name, columns):
         return self.__extract_row(self.root, table_name, columns)
-
 
     def __extract_row(self, root: NodoAVL, table_name, columns):
         if root is None: return None
@@ -333,7 +333,6 @@ class ArbolAVLT:
 
         return self.__alter_drop_pk(root.get_right(), table_name)
 
-
     def alterAddColumn(self, table_name, default):
         return self.__alterAddColumn(self.root, table_name, default)
 
@@ -346,7 +345,7 @@ class ArbolAVLT:
             return self.__alterAddColumn(root.get_left(), table_name, default)
 
         return self.__alterAddColumn(root.get_right(), table_name, default)
-    
+
     def alterDropColumn(self, table_name, columnNumber):
         return self.__alterDropColumn(self.root, table_name, columnNumber)
 
@@ -359,4 +358,3 @@ class ArbolAVLT:
             return self.__alterDropColumn(root.get_left(), table_name, columnNumber)
 
         return self.__alterDropColumn(root.get_right(), table_name, columnNumber)
-        

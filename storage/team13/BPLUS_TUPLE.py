@@ -1,3 +1,5 @@
+import os
+
 class BPLUS_TUPLE:
     
     def __init__(self, grade, size):
@@ -41,7 +43,7 @@ class BPLUS_TUPLE:
                     pk = '-'.join(pk)
                 else:
                     self.hide = True
-                    pk = self.contador
+                    pk = str(self.contador)
                     self.contador += 1
                 self.__root = self.__root.add_key(NodeTBPlus(pk, register))
                 return 0
@@ -54,21 +56,13 @@ class BPLUS_TUPLE:
                         pk.append(str(register[i]))
                     pk = '-'.join(pk)
                 elif self.hide:
-                    pk = self.contador
+                    pk = str(self.contador)
                     self.contador += 1
                 if self.Search(pk):
                     return 4
                 self.__root = self.__root.add_key(NodeTBPlus(pk,register))
                 return 0
             return 5
-    
-    def loadCSV(self, file: str) -> list:
-        results = []
-        registers = file.split('\n')
-        for i in registers:
-            register = i.split(',')
-            results.append(self.insert(register))
-        return results
     
     def extractRow(self, columns: list) -> list:
        if self.__root is not None:
@@ -86,7 +80,7 @@ class BPLUS_TUPLE:
             for column in register:
                 if int(column) in self.__PK:
                     return 1
-            if len(register) > len(self.__PK):
+            if len(register) > self.__size:
                 return 1
             pk = []
             for i in columns:
@@ -150,6 +144,18 @@ class BPLUS_TUPLE:
         cadena += tmp.rankLeavesKeys(tmp)
         return cadena
     
+    def alterAddColumn(self, new_column):
+        self._alterAddColumn(self.__root, new_column)
+        self.__size += 1
+        print('NUEVO TAMAÑO DE LA TABLA: ', self.__size)
+
+    def _alterAddColumn(self, temp, new_column):
+        temp.add_new_column(temp, new_column)
+
+    def lista_tuplas(self):
+        lista = []
+        lista_tuplas = self.__root.lista__tuplas(self.__root, lista)
+        return lista_tuplas
     
     def verify_Nodes(self):
         dataList = []
@@ -167,6 +173,42 @@ class BPLUS_TUPLE:
             if tmp.get_next() is not None:
                 self._verify_Nodes(tmp.get_next(), dataList)
                 
+                
+    def extractReg(self):
+        registros = []
+        if self.__root is not None:
+            self.__extractReg(self.__root,registros)
+        return registros
+    
+    
+    def __extractReg(self,nodo,registros):
+        if len(nodo.get_chlds()) != 0:
+            self.__extractReg(nodo.get_chlds()[0], registros)
+        else:
+            for i in nodo.get_keys():
+                registros.append(i.value)
+                registros.append(i.register)
+            if nodo.get_next() is not None:
+                self.__extractReg(nodo.get_next(),registros)
+                
+    
+    def extractRegRange(self,columnNumber,lower,upper):
+        registros = []
+        if self.__root is not None:
+            self.__extractRegRange(self.__root,registros,columnNumber,lower,upper)
+        return registros
+    
+    
+    def __extractRegRange(self,nodo,registros,columnNumber,lower,upper):
+        if len(nodo.get_chlds()) != 0:
+            self.__extractRegRange(nodo.get_chlds()[0],registros,columnNumber,lower,upper)
+        else:
+            for i in nodo.get_keys():
+                if i.register[columnNumber] >= lower and i.register[columnNumber] <= upper:
+                    registros.append(i.register[columnNumber])
+            if nodo.get_next() is not None:
+                self.__extractRegRange(nodo.get_next(),registros,columnNumber,lower,upper)
+    
                 
     def alterDropColumn(self, column, tabla):
         self._alterDropColumn(self.__root, column)
@@ -191,6 +233,11 @@ class BPLUS_TUPLE:
                 self._alterDropColumn(tmp.get_next(), column)
                 
 
+    def lista_nodos(self):
+        lista = []
+        lista_nodos = self.__root.lista__nodos(self.__root, lista)
+        return lista_nodos                
+                
 class PageTBPlus:
     
     def __init__(self, grade):
@@ -503,6 +550,43 @@ class PageTBPlus:
                 cadena += self.rankLeavesKeys(tmp.get_next())
         return cadena    
 
+
+    # Metodo para agregar nueva columna a la tabla
+    def add_new_column(self, temp, new_column):
+        if len(temp.get_chlds()) != 0:
+            self.add_new_column(temp.get_chlds()[0], new_column)
+        else:
+            for i in temp.get_keys():
+                i.register.append(new_column)
+
+            if temp.get_next() is not None:
+                self.add_new_column(temp.get_next(), new_column)
+
+    def lista__tuplas(self, temp, lista):
+        if len(temp.get_chlds()) != 0:
+            self.lista__tuplas(temp.get_chlds()[0], lista)
+        else:
+            for i in temp.get_keys():
+                lista.append(i.value)
+
+            if temp.get_next() is not None:
+                self.lista__tuplas(temp.get_next(), lista)
+
+        return lista
+
+    def lista__nodos(self, temp, lista):
+        if len(temp.get_chlds()) != 0:
+            self.lista__nodos(temp.get_chlds()[0], lista)
+        else:
+            for i in temp.get_keys():
+                lista.append(i.register)
+
+            if temp.get_next() is not None:
+                self.lista__nodos(temp.get_next(), lista)
+
+        return lista
+    
+    
 class NodeTBPlus:
 
     def __init__(self, PK, register):

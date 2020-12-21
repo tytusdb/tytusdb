@@ -337,6 +337,20 @@ class TypeChecker(object):
                     return col
         return None
 
+    def searchColPrimaryKey(self, table: Table) -> Column:
+        """
+        Method to search a column in table
+
+        :param table: Table where to search
+        :param name: The name of column
+        :return: Returns the primary column
+        """
+        if table:
+            for col in table.columns:
+                if col.primaryKey == True:
+                    return col
+        return None
+
     def searchColumnHeadings(self, table: Table):
         """
         Method to find column headings

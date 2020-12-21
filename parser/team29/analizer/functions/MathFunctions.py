@@ -19,8 +19,8 @@ def cbrt(column):
     column = convert_num_col(column)
     result = list()
     while i < len(column):
-        valor = column[i] ** (1 / 3.0)
-        result.insert(i + 1, round(valor))
+        valor = column[i] ** (1.0   / 3.0)
+        result.insert(i + 1, valor)
         i += 1
 
     return result
@@ -168,7 +168,8 @@ def pi():
 
 def pow(column1, column2):
     i = 0
-    column = convert_num_col(column)
+    column1 = convert_num_col(column1)
+    column2 = convert_num_col(column2)
     result = list()
     if len(column1) == len(column2):
         while i < len(column1):
@@ -216,18 +217,19 @@ def sqrt(column):
     while i < len(column):
         result.insert(i + 1, math.sqrt(column[i]))
         i += 1
-
     return result
 
 
 def with_bucket(expresion, rango_izq, rango_der, number_buckets):
     if rango_izq != rango_der:
-        if rango_izq == expresion:
+        if rango_izq > expresion:
             return 0
+        if rango_izq == expresion:
+            return 1
         if rango_der == expresion:
             return number_buckets + 1
         incremento = (rango_der - rango_izq) / number_buckets
-        valor = ((expresion - rango_izq) / incremento) + 1
+        valor = int((expresion - rango_izq) / incremento) + 1
         if valor > number_buckets:
             return number_buckets + 1
         elif valor < 0:
