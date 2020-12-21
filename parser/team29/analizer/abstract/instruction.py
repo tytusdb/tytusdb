@@ -1,16 +1,19 @@
 from abc import abstractmethod
 from analizer.abstract.expression import Expression
+
+# from analizer.abstract.table import Table
 from enum import Enum
 from storage.storageManager import jsonMode
 from analizer.typechecker.Metadata import Struct
-from analizer.typechecker import Checker
+import pandas as pd
 
 
 class SELECT_MODE(Enum):
     ALL = 1
     PARAMS = 2
 
-# carga de datos 
+
+# carga de datos
 Struct.load()
 
 # variable encargada de almacenar la base de datos a utilizar
@@ -169,10 +172,10 @@ class InsertInto(Instruction):
         self.parametros = parametros
 
     def execute(self, environment):
-        
+
         # TODO Falta la validación de tipos
-        result = Checker.checkInsert(dbtemp,self.tabla,self.parametros)
-        
+        result = Checker.checkInsert(dbtemp, self.tabla, self.parametros)
+
         if result == None:
             lista = []
             tab = self.tabla
@@ -197,7 +200,6 @@ class InsertInto(Instruction):
         else:
             print(result)
             return result
-
 
 
 class useDataBase(Instruction):
@@ -316,18 +318,16 @@ class CreateTable(Instruction):
 
 
 class CreateType(Instruction):
-
-    def __init__(self,exists,name,values=[]):
+    def __init__(self, exists, name, values=[]):
         self.exists = exists
         self.name = name
         self.values = values
 
-
-    def execute(self,environment):
+    def execute(self, environment):
         lista = []
         for value in self.values:
             lista.append(value.execute(environment).value)
-        result = Struct.createType(self.exists,self.name,lista)
+        result = Struct.createType(self.exists, self.name, lista)
         if result == None:
             report = "Type creado"
         else:
@@ -384,3 +384,52 @@ class CheckOperation(Instruction):
             return value
         except:
             print("Error fatal CHECK")
+
+
+# ---------------------------- FROM ---------------------------------
+class FromClause(Instruction):
+    """
+    Clase encargada de la clausa FROM para la obtencion de datos
+    """
+
+    def __init__(self, tables, aliases, row, column):
+        Instruction.__init__(self, row, column)
+        self.tables = tables
+        self.aliases = aliases
+
+    def execute(self, environment):
+        lst = []
+        for i in range(len(self.tables)):
+            temp = self.tables[i].execute(environment)
+            if isinstance(self.tables[i], Select):
+                environment.addVar(
+                    self.aliases[i], self.aliases[i], "TABLE", self.row, self.column
+                )
+            else:
+                environment.addVar(
+                    self.aliases[i], self.tables[i].name, "TABLE", self.row, self.column
+                )
+                environment.addVar(
+                    self.aliases[i], self.tables[i].name, "TABLE", self.row, self.column
+                )
+            lst.append(temp)
+        return lst
+
+
+class TableID(Expression):
+    """
+    Esta clase representa un objeto abstracto para el manejo de las tablas
+    """
+
+    def __init__(self, name, row, column):
+        Expression.__init__(self, row, column)
+        self.name = name
+
+    def execute(self, environment):
+        result = jsonMode.extractTable(dbtemp, self.name)
+        if result == None:
+            return "FATAL ERROR TABLE ID"
+        # TODO: Hay que ir trearlo del archivo de ESTELA
+        columns = ["id", "firtstname", "lastname"]
+        df = pd.DataFrame(result, columns=columns)
+        return df
