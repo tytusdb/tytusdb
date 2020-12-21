@@ -2,6 +2,7 @@ digraph AST {
 	edge [arrowhead=none]
 	node [color="#31CEF0" shape=box]
 	Node0 [label="\"AST\""]
+<<<<<<< Updated upstream
 	Node1 [label="Select Expresion"]
 	Node0 -> Node1
 	Node2 [label=SELECT]
@@ -18,4 +19,432 @@ digraph AST {
 	7 [label=ExpresionValor]
 	7 -> 8
 	8 [label=Hola]
+=======
+	Node1 [label="CREATE DATABASE"]
+	Node0 -> Node1
+	Node2 [label="Id: test"]
+	Node1 -> Node2
+	Node3 [label="If Not Exists"]
+	Node1 -> Node3
+	Node4 [label="Owner: root"]
+	Node1 -> Node4
+	Node5 [label="Mode: 1"]
+	Node1 -> Node5
+	Node6 [label="CREATE TABLE"]
+	Node0 -> Node6
+	Node7 [label="Id: tbusuario"]
+	Node6 -> Node7
+	Node8 [label=CAMPO]
+	Node6 -> Node8
+	Node9 [label="Id: idusuario"]
+	Node8 -> Node9
+	Node10 [label="Tipo: integer"]
+	Node8 -> Node10
+	Node11 [label=VALIDACION]
+	Node8 -> Node11
+	Node12 [label="NOT NULL"]
+	Node11 -> Node12
+	Node13 [label=VALIDACION]
+	Node8 -> Node13
+	Node14 [label="primary key"]
+	Node13 -> Node14
+	Node15 [label=CAMPO]
+	Node6 -> Node15
+	Node16 [label="Id: nombre"]
+	Node15 -> Node16
+	Node17 [label="Tipo: varchar"]
+	Node15 -> Node17
+	Node18 [label=EXPRESION]
+	Node17 -> Node18
+	19 [label=ExpresionValor]
+	19 -> 20
+	20 [label=50]
+	Node18 -> 19
+	Node21 [label=CAMPO]
+	Node6 -> Node21
+	Node22 [label="Id: apellido"]
+	Node21 -> Node22
+	Node23 [label="Tipo: varchar"]
+	Node21 -> Node23
+	Node24 [label=EXPRESION]
+	Node23 -> Node24
+	25 [label=ExpresionValor]
+	25 -> 26
+	26 [label=50]
+	Node24 -> 25
+	Node27 [label=CAMPO]
+	Node6 -> Node27
+	Node28 [label="Id: usuario"]
+	Node27 -> Node28
+	Node29 [label="Tipo: varchar"]
+	Node27 -> Node29
+	Node30 [label=EXPRESION]
+	Node29 -> Node30
+	31 [label=ExpresionValor]
+	31 -> 32
+	32 [label=15]
+	Node30 -> 31
+	Node33 [label=VALIDACION]
+	Node27 -> Node33
+	Node34 [label=UNIQUE]
+	Node33 -> Node34
+	Node35 [label=VALIDACION]
+	Node27 -> Node35
+	Node36 [label="NOT NULL"]
+	Node35 -> Node36
+	Node37 [label=CAMPO]
+	Node6 -> Node37
+	Node38 [label="Id: password"]
+	Node37 -> Node38
+	Node39 [label="Tipo: varchar"]
+	Node37 -> Node39
+	Node40 [label=EXPRESION]
+	Node39 -> Node40
+	41 [label=ExpresionValor]
+	41 -> 42
+	42 [label=15]
+	Node40 -> 41
+	Node43 [label=VALIDACION]
+	Node37 -> Node43
+	Node44 [label="NOT NULL"]
+	Node43 -> Node44
+	Node45 [label=CAMPO]
+	Node6 -> Node45
+	Node46 [label="Id: fechacreacion"]
+	Node45 -> Node46
+	Node47 [label="Tipo: date"]
+	Node45 -> Node47
+	Node48 [label="CREATE TABLE"]
+	Node0 -> Node48
+	Node49 [label="Id: tbrol"]
+	Node48 -> Node49
+	Node50 [label=CAMPO]
+	Node48 -> Node50
+	Node51 [label="Id: idrol"]
+	Node50 -> Node51
+	Node52 [label="Tipo: integer"]
+	Node50 -> Node52
+	Node53 [label=VALIDACION]
+	Node50 -> Node53
+	Node54 [label="NOT NULL"]
+	Node53 -> Node54
+	Node55 [label=VALIDACION]
+	Node50 -> Node55
+	Node56 [label="primary key"]
+	Node55 -> Node56
+	Node57 [label=CAMPO]
+	Node48 -> Node57
+	Node58 [label="Id: rol"]
+	Node57 -> Node58
+	Node59 [label="Tipo: varchar"]
+	Node57 -> Node59
+	Node60 [label=EXPRESION]
+	Node59 -> Node60
+	61 [label=ExpresionValor]
+	61 -> 62
+	62 [label=15]
+	Node60 -> 61
+	Node63 [label=INSERT]
+	Node0 -> Node63
+	Node64 [label="ID TABLA"]
+	Node63 -> Node64
+	Node65 [label=tbrol]
+	Node64 -> Node65
+	Node66 [label="VALORES TABLA"]
+	Node63 -> Node66
+	Node67 [label="VALOR NUEVO"]
+	Node66 -> Node67
+	68 [label=ExpresionValor]
+	68 -> 69
+	69 [label=4]
+	Node67 -> 68
+	Node71 [label="VALOR NUEVO"]
+	Node66 -> Node71
+	72 [label=ExpresionValor]
+	72 -> 73
+	73 [label=Administrador]
+	Node71 -> 72
+	Node75 [label=INSERT]
+	Node0 -> Node75
+	Node76 [label="ID TABLA"]
+	Node75 -> Node76
+	Node77 [label=tbrol]
+	Node76 -> Node77
+	Node78 [label="VALORES TABLA"]
+	Node75 -> Node78
+	Node79 [label="VALOR NUEVO"]
+	Node78 -> Node79
+	80 [label=ExpresionValor]
+	80 -> 81
+	81 [label=2]
+	Node79 -> 80
+	Node83 [label="VALOR NUEVO"]
+	Node78 -> Node83
+	84 [label=ExpresionValor]
+	84 -> 85
+	85 [label=Admin]
+	Node83 -> 84
+	Node87 [label=INSERT]
+	Node0 -> Node87
+	Node88 [label="ID TABLA"]
+	Node87 -> Node88
+	Node89 [label=tbrol]
+	Node88 -> Node89
+	Node90 [label="VALORES TABLA"]
+	Node87 -> Node90
+	Node91 [label="VALOR NUEVO"]
+	Node90 -> Node91
+	92 [label=ExpresionValor]
+	92 -> 93
+	93 [label=3]
+	Node91 -> 92
+	Node95 [label="VALOR NUEVO"]
+	Node90 -> Node95
+	96 [label=ExpresionValor]
+	96 -> 97
+	97 [label=Ventas]
+	Node95 -> 96
+	Node99 [label=INSERT]
+	Node0 -> Node99
+	Node100 [label="ID TABLA"]
+	Node99 -> Node100
+	Node101 [label=tbusuario]
+	Node100 -> Node101
+	Node102 [label="VALORES TABLA"]
+	Node99 -> Node102
+	Node103 [label="VALOR NUEVO"]
+	Node102 -> Node103
+	104 [label=ExpresionValor]
+	104 -> 105
+	105 [label=4]
+	Node103 -> 104
+	Node107 [label="VALOR NUEVO"]
+	Node102 -> Node107
+	108 [label=ExpresionValor]
+	108 -> 109
+	109 [label="Luis Fernando1"]
+	Node107 -> 108
+	Node111 [label="VALOR NUEVO"]
+	Node102 -> Node111
+	112 [label=ExpresionValor]
+	112 -> 113
+	113 [label="Salazar Rodriguez"]
+	Node111 -> 112
+	Node115 [label="VALOR NUEVO"]
+	Node102 -> Node115
+	116 [label=ExpresionValor]
+	116 -> 117
+	117 [label=lsalazar]
+	Node115 -> 116
+	Node119 [label="VALOR NUEVO"]
+	Node102 -> Node119
+	120 [label="ExpresionFUNCION NATIVA"]
+	121 [label=MD5]
+	120 -> 121
+	122 [label=exp1]
+	120 -> 122
+	122 -> 123
+	123 [label=ExpresionValor]
+	123 -> 124
+	124 [label=paswword]
+	Node119 -> 120
+	Node126 [label="VALOR NUEVO"]
+	Node102 -> Node126
+	127 [label=ExpresionValor]
+	127 -> 128
+	128 [label="10-11-42"]
+	Node126 -> 127
+	Node130 [label=INSERT]
+	Node0 -> Node130
+	Node131 [label="ID TABLA"]
+	Node130 -> Node131
+	Node132 [label=tbusuario]
+	Node131 -> Node132
+	Node133 [label="VALORES TABLA"]
+	Node130 -> Node133
+	Node134 [label="VALOR NUEVO"]
+	Node133 -> Node134
+	135 [label=ExpresionValor]
+	135 -> 136
+	136 [label=1]
+	Node134 -> 135
+	Node138 [label="VALOR NUEVO"]
+	Node133 -> Node138
+	139 [label=ExpresionValor]
+	139 -> 140
+	140 [label="David Fernando2"]
+	Node138 -> 139
+	Node142 [label="VALOR NUEVO"]
+	Node133 -> Node142
+	143 [label=ExpresionValor]
+	143 -> 144
+	144 [label="Salazar Rodriguez"]
+	Node142 -> 143
+	Node146 [label="VALOR NUEVO"]
+	Node133 -> Node146
+	147 [label=ExpresionValor]
+	147 -> 148
+	148 [label=lFer]
+	Node146 -> 147
+	Node150 [label="VALOR NUEVO"]
+	Node133 -> Node150
+	151 [label="ExpresionFUNCION NATIVA"]
+	152 [label=MD5]
+	151 -> 152
+	153 [label=exp1]
+	151 -> 153
+	153 -> 154
+	154 [label=ExpresionValor]
+	154 -> 155
+	155 [label=paswword]
+	Node150 -> 151
+	Node157 [label="VALOR NUEVO"]
+	Node133 -> Node157
+	158 [label=ExpresionValor]
+	158 -> 159
+	159 [label="10-11-42"]
+	Node157 -> 158
+	Node161 [label=INSERT]
+	Node0 -> Node161
+	Node162 [label="ID TABLA"]
+	Node161 -> Node162
+	Node163 [label=tbusuario]
+	Node162 -> Node163
+	Node164 [label="VALORES TABLA"]
+	Node161 -> Node164
+	Node165 [label="VALOR NUEVO"]
+	Node164 -> Node165
+	166 [label=ExpresionValor]
+	166 -> 167
+	167 [label=3]
+	Node165 -> 166
+	Node169 [label="VALOR NUEVO"]
+	Node164 -> Node169
+	170 [label=ExpresionValor]
+	170 -> 171
+	171 [label="Juan Fernando3"]
+	Node169 -> 170
+	Node173 [label="VALOR NUEVO"]
+	Node164 -> Node173
+	174 [label=ExpresionValor]
+	174 -> 175
+	175 [label="Salazar Rodriguez"]
+	Node173 -> 174
+	Node177 [label="VALOR NUEVO"]
+	Node164 -> Node177
+	178 [label=ExpresionValor]
+	178 -> 179
+	179 [label=DavidFer]
+	Node177 -> 178
+	Node181 [label="VALOR NUEVO"]
+	Node164 -> Node181
+	182 [label="ExpresionFUNCION NATIVA"]
+	183 [label=MD5]
+	182 -> 183
+	184 [label=exp1]
+	182 -> 184
+	184 -> 185
+	185 [label=ExpresionValor]
+	185 -> 186
+	186 [label=paswword]
+	Node181 -> 182
+	Node188 [label="VALOR NUEVO"]
+	Node164 -> Node188
+	189 [label=ExpresionValor]
+	189 -> 190
+	190 [label="10-11-42"]
+	Node188 -> 189
+	Node192 [label=INSTRUCCION_SELECT]
+	Node0 -> Node192
+	Node193 [label=SELECT]
+	Node192 -> Node193
+	Node194 [label=LISTA_CAMPOS]
+	Node192 -> Node194
+	Node195 [label=ACCESO_CAMPO]
+	Node194 -> Node195
+	Node196 [label=idusuario]
+	Node195 -> Node196
+	Node197 [label=ACCESO_CAMPO]
+	Node194 -> Node197
+	Node198 [label=rol]
+	Node197 -> Node198
+	Node199 [label=FROM]
+	Node192 -> Node199
+	Node200 [label=LISTA_TABLAS]
+	Node192 -> Node200
+	Node201 [label=Nombre_Tabla]
+	Node200 -> Node201
+	Node202 [label=tbrol]
+	Node201 -> Node202
+	Node203 [label=Nombre_Tabla]
+	Node200 -> Node203
+	Node204 [label=tbusuario]
+	Node203 -> Node204
+	Node205 [label=CUERPO]
+	Node192 -> Node205
+	Node206 [label="INSTRUCCION ORDER BY "]
+	Node205 -> Node206
+	Node207 [label="ORDER BY"]
+	Node206 -> Node207
+	Node208 [label=LISTA_CAMPOS]
+	Node206 -> Node208
+	Node209 [label=ACCESO_CAMPO]
+	Node208 -> Node209
+	Node210 [label=rol]
+	Node209 -> Node210
+	Node211 [label=Uniones]
+	Node192 -> Node211
+	Node212 [label=Acceso_UNION]
+	Node211 -> Node212
+	Node213 [label=CONSULTA]
+	Node212 -> Node213
+	Node214 [label=INSTRUCCION_SELECT]
+	Node213 -> Node214
+	Node215 [label=SELECT]
+	Node214 -> Node215
+	Node216 [label=LISTA_CAMPOS]
+	Node214 -> Node216
+	Node217 [label=ACCESO_CAMPO]
+	Node216 -> Node217
+	Node218 [label=apellido]
+	Node217 -> Node218
+	Node219 [label=FROM]
+	Node214 -> Node219
+	Node220 [label=LISTA_TABLAS]
+	Node214 -> Node220
+	Node221 [label=Nombre_Tabla]
+	Node220 -> Node221
+	Node222 [label=tbusuario]
+	Node221 -> Node222
+	Node223 [label=Uniones]
+	Node214 -> Node223
+	Node224 [label=Acceso_UNION]
+	Node223 -> Node224
+	Node225 [label=CONSULTA]
+	Node224 -> Node225
+	Node226 [label=INSTRUCCION_SELECT]
+	Node225 -> Node226
+	Node227 [label=SELECT]
+	Node226 -> Node227
+	Node228 [label=LISTA_CAMPOS]
+	Node226 -> Node228
+	Node229 [label=ACCESO_CAMPO]
+	Node228 -> Node229
+	Node230 [label=usuario]
+	Node229 -> Node230
+	Node231 [label=FROM]
+	Node226 -> Node231
+	Node232 [label=LISTA_TABLAS]
+	Node226 -> Node232
+	Node233 [label=Nombre_Tabla]
+	Node232 -> Node233
+	Node234 [label=tbusuario]
+	Node233 -> Node234
+	Node235 [label=Uniones]
+	Node226 -> Node235
+	Node236 [label=Final_Instruccion]
+	Node235 -> Node236
+	Node237 [label=";"]
+	Node236 -> Node237
+>>>>>>> Stashed changes
 }
