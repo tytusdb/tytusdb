@@ -4,7 +4,7 @@ from tkinter import filedialog as FiledDialog
 from tkinter import ttk
 import Instruccion as INST
 from io import open
-
+import Gramatica as Gram
 #Parte de Importaciones para el analisis etc
 import interprete as Inter
 import Ast2 as ast
@@ -99,6 +99,19 @@ class Aplicacion:
                 return
 
 
+    def reporte_gramatical_(self):     
+            try:
+               Gram.reporte_gramatical()
+            except:
+                print("error en el reporte gramatical :(")
+                
+    def reporte_AST_(self):     
+            try:
+               Gram.reporte_AST_GLOB()
+            except:
+                print("error en el reporte gramatical :(")
+
+
     def graficaTabla(self):
         INST.tabla_simbolos()
 
@@ -128,12 +141,12 @@ class Aplicacion:
         self.menuAnalizar = Menu(self.barraMenu, tearoff=0)
         #self.menuAnalizar.add_command(label="Run", command=self.enviarDatos)
         self.menuAnalizar.add_command(label="Ejecucion", command=self.Seleccionar)
-        self.menuAnalizar.add_command(label="Graficar Arbol", command=self.Graficar)
+        self.menuAnalizar.add_command(label="Graficar Arbol", command=self.reporte_AST_)
 
         self.menuReportes = Menu(self.barraMenu, tearoff=0)
         self.menuReportes.add_command(label="Reporte Errores", command=self.Errores)
         self.menuReportes.add_command(label="Tabla de simbolos", command=self.graficaTabla)
-        self.menuReportes.add_command(label="Reporte gramatical", command=self.guardarComo)
+        self.menuReportes.add_command(label="Reporte gramatical", command=self.reporte_gramatical_)
 
 
         self.barraMenu.add_cascade(menu=self.menuArchivo, label="Archivo")

@@ -13,6 +13,7 @@ from random import random
 from datetime import datetime
 import re
 import IntervalParser
+import hashlib
 ##------------------------------------------
 # TABLA DE SIMBOLOS GLOBAL
 ts_global = TS.TablaDeSimbolos()
@@ -84,6 +85,8 @@ def procesar_expresion(expresiones, ts):
         return procesar_funcion(expresiones, ts)
     elif isinstance(expresiones, ExpresionTiempo):
         return procesar_unidad_tiempo(expresiones, ts)
+    elif isinstance(expresiones, ExpresionConstante):
+        return procesar_constante(expresiones, ts)
     elif isinstance(expresiones, Absoluto):
         try:
             return procesar_expresion(expresiones.variable, ts)
@@ -99,72 +102,54 @@ def procesar_expresion(expresiones, ts):
 
 
 def procesar_aritmetica(expresion, ts):
+    global LisErr
     val = procesar_expresion(expresion.exp1, ts)
     val2 = procesar_expresion(expresion.exp2, ts)
+
     if expresion.operador == OPERACION_ARITMETICA.MAS:
-        if isinstance(val, string_types) and isinstance(val2, string_types):
-            return val + val2
-        elif ((isinstance(val, int) or isinstance(val, float))
+        if ((isinstance(val, int) or isinstance(val, float))
               and ((isinstance(val2, int) or isinstance(val2, float)))):
             return val + val2
         else:
-            # consola.insert('end','>>Error: tipos no pueden sumarse \n>>')
-            # newErr=ErrorRep('Semantico','Tipos no puden sumarse ',indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, val2, "+", "numerico", 0,0)
             return None
     elif expresion.operador == OPERACION_ARITMETICA.MENOS:
         if ((isinstance(val, int) or isinstance(val, float))
                 and ((isinstance(val2, int) or isinstance(val2, float)))):
             return val - val2
         else:
-            # consola.insert('end','>>Error: tipos no pueden restarse \n>>')
-            # newErr=ErrorRep('Semantico','Tipos no puden restarse ',indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, val2, "-", "numerico", 0,0)
             return None
     elif expresion.operador == OPERACION_ARITMETICA.MULTI:
         if ((isinstance(val, int) or isinstance(val, float))
                 and ((isinstance(val2, int) or isinstance(val2, float)))):
             return val * val2
         else:
-            # consola.insert('end','>>Error: tipos no pueden multiplicarse \n>>')
-            # newErr=ErrorRep('Semantico','Tipos no puden multiplicarse ',indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, val2, "*", "numerico", 0,0)
             return None
     elif expresion.operador == OPERACION_ARITMETICA.DIVIDIDO:
         if val2 == 0:
-            print('Error: No se puede dividir entre 0')
-            # consola.insert('end','>>Error: No se puede dividir entre cero'+str(val)+' '+str(val2)+'\n>>')
-            # newErr=ErrorRep('Semantico','No se puede dividir entre cero '+str(val)+' '+str(val2),indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, val2, "/", "numerico diferente de 0 en el segundo parametro", 0, 0)
             return None
         if ((isinstance(val, int) or isinstance(val, float))
                 and ((isinstance(val2, int) or isinstance(val2, float)))):
             return val / val2
         else:
-            print('Error: Tipos no pueden dividirse')
-            # consola.insert('end','>>Error: tipos no pueden dividires \n>>')
-            # newErr=ErrorRep('Semantico','Tipos no puden dividirse ',indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, val2, "/", "numerico", 0,0)
             return None
     elif expresion.operador == OPERACION_ARITMETICA.RESIDUO:
         if ((isinstance(val, int) or isinstance(val, float))
                 and ((isinstance(val2, int) or isinstance(val2, float)))):
             return val % val2
         else:
-            print('Error: Tipos no pueden operarse %')
-            # consola.insert('end','>>Error: tipos no pueden operarse por residuo \n>>')
-            # newErr=ErrorRep('Semantico','Tipos no puden operarse por residuo ',indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, val2, "/", "numerico", 0,0)
             return None
     elif expresion.operador == OPERACION_ARITMETICA.POTENCIA:
         if ((isinstance(val, int) or isinstance(val, float))
                 and ((isinstance(val2, int) or isinstance(val2, float)))):
             return pow(val, val2)
         else:
-            print('Error: Tipos no pueden operarse %')
-            # consola.insert('end','>>Error: tipos no pueden operarse por residuo \n>>')
-            # newErr=ErrorRep('Semantico','Tipos no puden operarse por residuo ',indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, val2, "%", "numerico", 0,0)
             return None
 
 
@@ -248,50 +233,49 @@ def procesar_relacional(expresion, ts):
                 if int(Vd.valor) < val2:
                     listaV.append(Vd)
             return listaV
-        '''
-    elif isinstance(val, int) and isinstance(val2[0], DatoInsert):
+    elif isinstance(val[0], DatoInsert) and isinstance(val2, string_types):
         if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
             listaV = []
-            for v in val2:
+            for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) == val2:
+                if str(Vd.valor) == val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
             listaV = []
-            for v in val2:
+            for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) != val2:
+                if str(Vd.valor) != val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if  val >= int(Vd.valor):
+                if str(Vd.valor) >= val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) <= val2:
+                if str(Vd.valor) <= val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) > val2:
+                if str(Vd.valor) > val2:
                     listaV.append(Vd)
             return listaV
         elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
             listaV = []
             for v in val:
                 Vd:DatoInsert = v
-                if int(Vd.valor) < val2:
+                if str(Vd.valor) < val2:
                     listaV.append(Vd)
-            return listaV'''
+            return listaV
     else:
         print('Error: Expresion relacional con tipos incompatibls')
         # consola.insert('end','>>Error: Expresion relacional con tipos incompatibles'+str(expresion.operador)+'\n>>')
@@ -325,7 +309,6 @@ def procesar_logica(expresion, ts):
             for v2 in val2:
                 vv2: DatoInsert = v2
                 listaP.append(vv2)
-
             return listaP
 
         elif expresion.operador == OPERACION_LOGICA.AND:
@@ -495,37 +478,34 @@ def procesar_variable(tV, ts):
 def procesar_unitaria_aritmetica(expresion, ts):
     val = procesar_expresion(expresion.exp1, ts)
     if expresion.operador == OPERACION_ARITMETICA.CUADRATICA:
-        if isinstance(val, string_types):
-            if(val.isdecimal()):
-                return float(val) * float(val)
-            elif(val.isnumeric()):
-                return int(val) * int(val)
-            else:
-                return None
+        # if isinstance(val, string_types):
+        #     if(val.isdecimal()):
+        #         return float(val) * float(val)
+        #     elif(val.isnumeric()):
+        #         return int(val) * int(val)
+        #     else:
+        #         return None
 
-        elif isinstance(val, int) or isinstance(val, float):
+        if isinstance(val, int) or isinstance(val, float):
             return val * val
         else:
-            # consola.insert('end','>>Error: tipo no pueden elevarse al cuadrado \n>>')
-            # newErr=ErrorRep('Semantico','Tipo no pude elevarse al cuadrado ',indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, "", "|", "numerico", 0,0)
             return None
     elif expresion.operador == OPERACION_ARITMETICA.CUBICA:
-        if isinstance(val, string_types):
-            if (val.isdecimal()):
-                return pow(float(val), 3)
-            elif (val.isnumeric()):
-                return pow(int(val), 3)
-            else:
-                return None
+        # if isinstance(val, string_types):
+        #     if (val.isdecimal()):
+        #         return pow(float(val), 3)
+        #     elif (val.isnumeric()):
+        #         return pow(int(val), 3)
+        #     else:
+        #         return None
 
-        elif isinstance(val, int) or isinstance(val, float):
-            return val * val
+        if isinstance(val, int) or isinstance(val, float):
+            return val * val * val
         else:
-            # consola.insert('end','>>Error: tipo no pueden elevarse al cuadrado \n>>')
-            # newErr=ErrorRep('Semantico','Tipo no pude elevarse al cuadrado ',indice)
-            # LisErr.agregar(newErr)
+            agregarErrorDatosOperacion(val, "", "||", "numerico", 0, 0)
             return None
+
 
 def procesar_funcion(expresion, ts):
 
@@ -1026,8 +1006,7 @@ def procesar_funcion(expresion, ts):
             else:
                 agregarErrorFuncion(val1, None, None, None, "TANH", "numerico", 0, 0)
                 return None
-
-       elif expresion.id_funcion == FUNCION_NATIVA.ASINH:
+        elif expresion.id_funcion == FUNCION_NATIVA.ASINH:
             # if isinstance(val1, string_types):
             #     if val1.isdecimal():
             #         return math.tanh(float(val1))
@@ -1504,6 +1483,7 @@ def procesar_constante(expresion, ts):
         fecha = datetime.now()
         fechaString = '{:%Y-%m-%d}'.format(fecha)
         return fechaString
+
 
 
 # -------------------------------------------------------------------------------------------------
