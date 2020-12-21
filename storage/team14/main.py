@@ -1,5 +1,5 @@
-import IntrefazBD
+import InterfazBD
 import ISAMMode as Storage
 
 vectorBases=Storage.showDatabases()
-IntrefazBD.PantallaBD(vectorBases)
+InterfazBD.PantallaBD(vectorBases)
