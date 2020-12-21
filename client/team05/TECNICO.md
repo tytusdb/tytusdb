@@ -7,7 +7,7 @@
 Este manual está dirigido a cualquier persona que tengan conocimientos en aplicaciones web y desea probar la comunicación entre un servidor y cliente de forma local.
 
 ## Funcionamiento
-Este diagrama explica los componentes que componen la aplicación web
+Este diagrama explica el flujo de ejecución de las peticiones HTTP
 
 - El cliente realiza una petición (request) POST, GET, UPDATE o DELETE al servidor
 - El servidor recibe la petición recupera la información y responde al cliente
