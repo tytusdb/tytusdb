@@ -3,6 +3,9 @@ import ply.lex as lex
 
 
 reservadas = {
+    'md5'       : 'MD5',
+    'notnull'    : 'NOTNULL',    
+    'isnull'    : 'ISNULL',    
     'default'   : 'DEFAULT',
     'insert'    : 'INSERT',
     'into'      : 'INTO',
@@ -54,7 +57,29 @@ reservadas = {
     'month'     : 'MONTH',
     'day'       : 'DAY',
     'date_part' : 'DATE_PART',    
-	'interval'  : 'INTERVAL'
+	'interval'  : 'INTERVAL',	
+    'between'   : 'BETWEEN',
+    'in'        : 'IN',
+    'like'      : 'LIKE',
+    'is'        : 'IS',
+    'now'       : 'NOW',
+    'enum'      : 'ENUM',
+    'type'      : 'TYPE',
+    'table'     : 'TABLE',
+    'inherits'  : 'INHERITS',
+    'int'       : 'INT' ,
+    'add'       : 'ADD',
+    'column'    : 'COLUMN',
+    'check'     : 'CHECK',
+    'unique'    : 'UNIQUE',
+	'as'  		: 'AS',
+    'group'  	: 'GROUP',
+    'by'  		: 'BY',
+    'type'      : 'TYPE' ,
+    'abs'  		: 'ABS',
+    'cbrt'  	: 'CBRT',
+    'ceil'  	: 'CEIL',
+    'ceiling'  	: 'CEILING',
 }
 
 tokens  = [
@@ -141,6 +166,26 @@ def t_CADENACOMSIMPLE(t):
     t.value = t.value[1:-1] # remuevo las comillas
     t.type = reservadas.get(t.value.lower(),'CADENACOMSIMPLE') 
     return t 
+def t_COMSIM(t):
+    r'\''
+    if t.value in reservadas:
+        t.type = reservadas[ t.value ]
+    return t
+
+
+
+def t_COMILLASMPLI(t):
+    r'\'.*?\:'
+    t.value = t.value[1:-1] # remuevo las comillas
+    t.type = reservadas.get(t.value.lower(),'COMILLASMPLI') 
+    return t 
+
+def t_COMILLASMPLF(t):
+    r'[0-9]\:.*?\''
+    t.value = t.value[1:-1] # remuevo las comillas
+    t.type = reservadas.get(t.value.lower(),'COMILLASMPLF') 
+    return t 
+
 
 
 # Comentario de múltiples líneas /* .. */
