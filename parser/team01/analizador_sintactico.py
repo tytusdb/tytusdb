@@ -11,12 +11,10 @@ from instrucciones import *
 from graphviz import *
 
 
-# Asociación de operadores y precedencia
 # precedence = (
-#     ('left','MAS'),
-#     ('left','DIVIDIDO'),
-#     ('right'),
-#     )
+#     ('left', 'OPSUM', 'OPMENOS'),
+#     ('left', 'MULT', 'OPDIV'),
+# )
 
 
 nombres = {}
@@ -224,20 +222,31 @@ def p_value_list(t):
     t[0] = Nodo("value_list1", temp, 'N', None)
 
 
-def p_insert_value(t):
-    '''value_list    : insert_value'''
-    t[0] = Nodo("value_list1", [t[1]], 'N', None)
-
+def p_insert_value(t) :
+    '''value_list    : insert_value
+    '''
+    t[0] = Nodo("value_list1", [t[1]],'N',None)        
 
 def p_valorasign(t):
     '''insert_value : ENTERO
-                    | DECIMAL
+                    | DECIMALV
                     | CADENACOMSIMPLE
                     | DEFAULT
+                    | NOW PARIZQ PARDER
+                    | MD5 PARIZQ CADENACOMSIMPLE PARDER                    
     '''
-    t[0] = Nodo("insert_value", [t[1]], 'S', str(t[1]))
+    #t[0] = Nodo("insert_value", [t[1]],'S',str(t[1]))
+    if (len(t) < 5):
+        t[0] = Nodo("insert_value", [t[1]],'S',str(t[1]))
+    elif (len(t)==5):
+        temp = list()
+        tempNode1 = Nodo("value_list", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)
+        tempNode3 = Nodo("value_list", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        t[0] = Nodo("value_list", temp,'N',None)       
 
-# endregion
+#endregion
 
 # *************************************************
 # **********************         update_statement      ***********
@@ -282,10 +291,9 @@ def p_set_clause(t):
     temp.append(t[3])
     t[0] = Nodo("set_clause", temp, 'N', None)
 
-
-def p_update_source(t):
-    '''update_source : value_expression
-                | NULL
+def p_update_source(t) :
+    '''update_source : value_expression  
+                | NULL 
     '''
     t[0] = Nodo("update_source", [t[1]], 'N', None)
 
@@ -322,50 +330,96 @@ def p_table_name_d(t):
 # *************************************************
 
 def p_select_statement(t):
-    '''select_statement : SELECT select_column_list FROM table_name_s PTCOMA
-                        | SELECT select_column_list FROM table_name_s WHERE search_condition PTCOMA
-                        | SELECT DISTINCT select_column_list FROM table_name_s PTCOMA
-                        | SELECT DISTINCT select_column_list FROM table_name_s WHERE search_condition PTCOMA
+    '''select_statement : select_col_statement PTCOMA
+                        | select_col_statement select_where_statement PTCOMA
+                        | select_col_statement  groupby_statement PTCOMA
+                        | select_col_statement  select_where_statement groupby_statement PTCOMA
     '''
-    if (len(t) == 6):
+    if (len(t) == 3):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        t[0] = Nodo("select_statement", [t[1]], 'N', None)
+    elif (len(t) == 4):
         # t[0] =InsertColumnsValues(t[2],t[5])
         temp = list()
+        temp.append(t[1])
         temp.append(t[2])
-        temp.append(t[4])
         t[0] = Nodo("select_statement", temp, 'N', None)
-    elif (len(t) == 8):
+    elif (len(t) == 5):
         # t[0] =InsertColumnsValues(t[2],t[5])
         temp = list()
+        temp.append(t[1])
         temp.append(t[2])
-        temp.append(t[4])
-        temp.append(t[6])
-        t[0] = Nodo("select_statement", temp, 'N', None)
-    elif (len(t) == 7):
-        # t[0] =InsertColumnsValues(t[2],t[5])
-        temp = list()
-        temp.append(t[3])
-        temp.append(t[5])
-        t[0] = Nodo("select_statement", temp, 'N', None)
-    elif (len(t) == 9):
-        # t[0] =InsertColumnsValues(t[2],t[5])
-        temp = list()
-        temp.append(t[3])
-        temp.append(t[5])
-        temp.append(t[7])
-        t[0] = Nodo("select_statement", temp, 'N', None)
+        temp.append(t[3])       
+        t[0] = Nodo("select_statement", temp, 'N', None)   
 
+def p_select_col_statement(t):
+    '''select_col_statement : SELECT select_column_list FROM table_name_s                     
+    '''
+    if (len(t) == 5):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[2])
+        temp.append(t[4])       
+        t[0] = Nodo("select_col_statement", temp, 'N', None)
+    
+
+def p_table_name_list(t):
+    'table_name_list    : table_name_list COMA table_name_l'
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[3])
+    t[0] = Nodo("table_name_list", temp, 'N', None)
+
+
+def p_table_name_list_name(t):
+    'table_name_list : table_name_l'     
+    t[0] = Nodo("table_name_list1", [t[1]], 'N', None)
+
+
+    
+def p_table_name_l(t):
+    '''table_name_l     : table_name_s
+                        | table_name_s table_name_as
+    '''
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[2])
+    t[0] = Nodo("select_table_name_l", temp, 'N', None)
+
+
+# def p_table_name_l_name(t):
+#     'table_name_l : table_name_s'     
+#     t[0] = Nodo("select_table_name", [t[1]], 'N', None)
 
 def p_table_name_s(t):
-    'table_name_s : ID '
+    '''table_name_s : ID                 
+    '''
     t[0] = Nodo("table_name_s", [t[1]], 'S', str(t[1]))
+    
 
+def p_table_name_as(t):
+    '''table_name_as : ID                 
+    '''
+    t[0] = Nodo("table_name_as", [t[1]], 'S', str(t[1]))
+
+
+def p_table_name_s_alias(t):
+    '''table_name_s_alias : ID 
+    '''
+    if (len(t) == 2):
+        t[0] = Nodo("table_name_alias_name", [t[1]], 'S', str(t[1]))
+
+
+def p_select_where_list(t):
+    'select_where_statement    :  WHERE search_condition  '
+    t[0] = Nodo("select_where_statement", [t[2]], 'N', None)
 
 # *************************************************
 # **********************         select_column_list      ***********
 # *************************************************
 
 def p_select_column_list(t):
-    'select_column_list    : select_column_list  COMA column_name_select'
+    'select_column_list    : select_column_list COMA column_select_statement'
     temp = list()
     temp.append(t[1])
     temp.append(t[3])
@@ -373,42 +427,65 @@ def p_select_column_list(t):
 
 
 def p_select_column_name(t):
-    'select_column_list : column_name_select'     
+    'select_column_list : column_select_statement'     
     t[0] = Nodo("select_column_list2", [t[1]], 'N', None)
 
 
-# def p_column_name_select(t):
-#     'column_name_select   : column_funtion_select'
-#     # t[0] = Nodo("column_name_select", [t[1]], 'S', str(t[1]))
-#     t[0] = Nodo("column_name_select", [t[1]], 'N', None)
+
+def p_column_select_st(t):
+    '''column_select_statement  : column_name_select
+                                | column_name_select AS value_expression 
+                                | DISTINCT column_name_select 
+                                | DISTINCT column_name_select AS value_expression 
+    '''
+    if (len(t) == 4):
+        # t[0] =InsertColumnsValues(t[2],t[5])
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[3])
+        t[0] = Nodo("column_select_as_statement", temp, 'N', None)
+    elif (len(t) == 2):
+        # t[0] =InsertColumnsValues(t[2],t[5])        
+        t[0] = Nodo("column_select_statement", [t[1]], 'N', None)
+    elif (len(t) == 3):
+        # t[0] =InsertColumnsValues(t[2],t[5])        
+        t[0] = Nodo("column_select_statement", [t[2]], 'N', None)
+    elif (len(t) == 5):
+        # t[0] =InsertColumnsValues(t[2],t[5])        
+        temp = list()
+        temp.append(t[2])
+        temp.append(t[4])
+        t[0] = Nodo("column_select_as__statement", temp, 'N', None)
+
+
 
 
 def p_column_select(t):
-    '''column_name_select    : select_function 
-                                | select_function PARIZQ select_function_element PARDER
-                                | select_function value_expression
-                                | select_function PARIZQ PARDER
-                                | select_function PARIZQ column_funtionext_select PARDER
+    '''column_name_select   : select_function 
+                            | select_function PARIZQ select_function_element PARDER
+                            | select_function value_expression
+                            | select_function PARIZQ PARDER
+                            | select_function PARIZQ column_funtionext_select PARDER
     '''
-
+    # value_expression
     if (len(t) == 5):
         # t[0] =InsertColumnsValues(t[2],t[5])
         temp = list()
         temp.append(t[1])
         temp.append(t[3])
-        t[0] = Nodo("column_name_select", temp, 'N', None)
+        t[0] = Nodo("column_func_name_select", temp, 'N', None)
     elif (len(t) == 2):
         # t[0] =InsertColumnsValues(t[2],t[5])        
         t[0] = Nodo("column_name_select", [t[1]], 'N', None)
     elif (len(t) == 4):
         # t[0] =InsertColumnsValues(t[2],t[5])        
-        t[0] = Nodo("column_name_select", [t[1]], 'N', None)
+        t[0] = Nodo("column_func_name_select", [t[1]], 'N', None)
     elif (len(t) == 3):
         # t[0] =InsertColumnsValues(t[2],t[5])
         temp = list()
         temp.append(t[1])
         temp.append(t[2])
-        t[0] = Nodo("column_name_select", temp, 'N', None)
+        t[0] = Nodo("column_func_name_select", temp, 'N', None)
 
 
 def p_select_function(t) :
@@ -642,6 +719,230 @@ def p_value_expression(t):
 
 # endregion
 
+
+def p_trim_operands(t) :
+    '''trim_operands : trim_specification trim_character FROM trim_source
+                            | trim_specification FROM trim_source
+                            |  trim_character FROM trim_source
+                            |   FROM trim_source
+                            |  trim_source
+    '''
+    if (len(t) == 5):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[2])
+        tempNode3 = Nodo("trim_operands", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)
+        temp.append(t[4])
+        t[0] = Nodo("trim_operands", temp,'N',None)      
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("trim_operands", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3])
+        t[0] = Nodo("trim_operands", temp,'N',None)  
+    elif (len(t) == 3):
+        temp = list()
+        tempNode1 = Nodo("trim_operands", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)
+        temp.append(t[2])
+        t[0] = Nodo("trim_operands", temp,'N',None)  
+    elif (len(t)==2):
+        t[0] = Nodo("trim_operands", [t[1]],'N',None)
+
+def p_trim_specification(t) :
+    '''trim_specification : LEADING
+            | TRAILING
+            | BOTH
+    '''
+    t[0] = Nodo("trim_specification", [t[1]],'S',str(t[1]))  
+
+
+def p_trim_character(t) :
+    '''trim_character : character_value_expression 
+    '''
+    t[0] = Nodo("trim_character", [t[1]],'N',None)  
+
+def p_trim_source(t) :
+    '''trim_source : character_value_expression 
+    '''
+    t[0] = Nodo("trim_source", [t[1]],'N',None)  
+
+
+def p_character_value_expression(t) :
+    '''character_value_expression : concatenation 
+                        | character_factor
+    '''
+    t[0] = Nodo("character_value_expression", [t[1]],'N',None) 
+
+
+def p_concatenation(t) :
+    '''concatenation : character_value_expression ORCOMP character_factor
+    '''
+    temp = list()
+    temp.append(t[1])
+    tempNode2 = Nodo("concatenation", [t[2]],'S',str(t[2]))
+    temp.append(tempNode2)
+    temp.append(t[3])
+    t[0] = Nodo("concatenation", temp,'N',None)  
+
+
+def p_character_factor(t) :
+    '''character_factor : character_primary
+    '''
+    t[0] = Nodo("character_factor", [t[1]],'N',None)
+
+
+def p_character_primary(t):
+    '''character_primary : value_expression_primary 
+                                | string_value_function 
+    '''
+    t[0] = Nodo("character_primary", [t[1]], 'N', None)
+
+def p_string_value_function(t):
+    '''string_value_function : trim_function 
+    '''
+    t[0] = Nodo("string_value_function", [t[1]], 'N', None)
+
+
+def p_value_expression_primary(t):
+    '''value_expression_primary : unsigned_value_specification 
+                                | column_reference 
+                                | function_specification
+                                |  PARIZQ value_expression PARDER
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("value_expression_primary", [t[1]],'N',None)
+
+    elif (len(t) == 4):
+        t[0] = Nodo("value_expression_primary", [t[2]],'N',None)
+
+
+
+def p_unsigned_value_specification(t):
+    '''unsigned_value_specification : unsigned_literal
+    '''
+    t[0] = Nodo("unsigned_value_specification", [t[1]], 'N', None)
+
+def p_unsigned_literal(t):
+    '''unsigned_literal : unsigned_numeric_literal 
+    '''
+    t[0] = Nodo("unsigned_literal", [t[1]], 'N', None)
+
+
+# <general_literal>    ::=
+#          <character_string_literal>
+#      |     <national_character_string_literal>
+#      |     <bit_string_literal>
+#      |     <hex_string_literal>
+#      |     <datetime_literal>
+#      |     <interval_literal>
+
+
+def p_unsigned_numeric_literal(t):
+    '''unsigned_numeric_literal : exact_numeric_literal 
+    '''
+    t[0] = Nodo("unsigned_numeric_literal", [t[1]], 'N', None)
+
+
+
+def p_exact_numeric_literal(t) :
+    '''exact_numeric_literal : ENTERO PUNTO ENTERO
+                        | ENTERO PUNTO 
+                        |  PUNTO ENTERO
+    '''
+    if (len(t) == 4):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[2])
+        temp.append(t[3])
+        t[0] = Nodo("exact_numeric_literal", temp,'S',None)        
+    elif (len(t)==3):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[2])
+        t[0] = Nodo("exact_numeric_literal", temp,'S',None)
+
+
+
+
+def p_column_reference(t) :
+    '''column_reference : column_name 
+                            | table_name PUNTO column_name
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("column_reference", [t[1]],'N',None)
+
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])
+        tempNode2 = Nodo("column_reference", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)
+        temp.append(t[3])
+        t[0] = Nodo("column_reference", temp,'N',None)  
+
+
+def p_function_specification(t) :
+    '''function_specification :  general_set_function
+                                | COUNT PARIZQ MULT PARDER
+    '''
+    if (len(t)==2):
+        t[0] = Nodo("function_specification", [t[1]],'N',None)
+
+    elif (len(t) == 5):
+        temp = list()
+        tempNode1 = Nodo("function_specification", [t[1]],'S',str(t[1]))
+        temp.append(tempNode1)        
+        tempNode2 = Nodo("function_specification", [t[2]],'S',str(t[2]))
+        temp.append(tempNode2)        
+        tempNode3 = Nodo("function_specification", [t[3]],'S',str(t[3]))
+        temp.append(tempNode3)        
+        tempNode4 = Nodo("function_specification", [t[4]],'S',str(t[4]))
+        temp.append(tempNode4)
+        t[0] = Nodo("function_specification", temp,'N',None)  
+
+def p_general_set_function(t) :
+    '''general_set_function : set_function_type PARIZQ value_expression PARDER
+                            | set_function_type PARIZQ set_quantifier value_expression PARDER
+    '''
+    if (len(t)==5):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[3])
+        t[0] = Nodo("general_set_function", temp,'N',None) 
+
+    elif (len(t) == 4):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[3])
+        temp.append(t[4])        
+        t[0] = Nodo("general_set_function", temp,'N',None) 
+
+
+def p_set_function_type(t) :
+    '''set_function_type : AVG
+            | MAX
+            | MIN
+            | SUM
+            | COUNT
+    '''
+    t[0] = Nodo("datetime_field", [t[1]],'S',str(t[1]))   
+
+def p_set_quantifier(t) :
+    '''set_quantifier : DISTINCT
+            | ALL
+    '''
+    t[0] = Nodo("set_quantifier", [t[1]],'S',str(t[1]))   
+
+#<general_set_function>    ::=
+#         <set_function_type> <left_paren> [ <set_quantifier> ] <value_expression> <right_paren>
+
+#<qualifier>    ::=   <table_name> 
+
+#<correlation_name>    ::=   <identifier>
+
+#<table_name>    ::=   <qualified_name> | <qualified_local_table_name>
 # *************************************************
 # **********************         Error           ***********
 # *************************************************  
