@@ -9,18 +9,18 @@ class TIPO_DE_DATO(Enum) :
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'
 
-    def __init__(self, id, nombre,tipo,tamanoCadena,BD,tabla,obligatorio,pk,FK,ReferenciaTablaFK,ReferenciaCampoFK,unique,idUnique,check,condicionCheck,idCheck,valor,default) :
+    def __init__(self, id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default) :
         self.id = id
         self.nombre = nombre
-        self.tipo = tipo    
+        self.tipo = tipo
         self.tamanoCadena = tamanoCadena
         self.BD = BD
         self.tabla = tabla
         self.obligatorio = obligatorio
         self.pk = pk
         self.FK = FK
-        self.referenciaTablaFK = ReferenciaTablaFK
-        self.referenciaCampoFK = ReferenciaCampoFK
+        self.referenciaTablaFK = referenciaTablaFK
+        self.referenciaCampoFK = referenciaCampoFK
         self.unique = unique
         self.idUnique = idUnique
         self.check = check
