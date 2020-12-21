@@ -11,6 +11,8 @@
 ```python
 import tkinter as tk
 from tkinter import *
+import http.client
+import json
 ```
 
 **Variables Globales**
@@ -78,3 +80,27 @@ Un editor que tiene numero de linea, opcion para multiples pestañas y un scroll
 ## Vista de Bases
 El panel izquiero del cliente se utiliza para tener una mejor visualizacion de las bases de datos conectadas. Es un vista de arbol que se expande hasta llegar a las tablas.
 
+
+
+# Conexion cliente-servidor
+
+```python
+myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+```
+
+> Se crea la conexion con el servidor.
+
+```python
+headers = {
+    "Content-type": "application/json"
+    }
+```
+
+> Se establecen los headers para cada tipo de peticion
+
+```python
+myConnection.request("GET", "/getUsers", "", headers)
+response = myConnection.getresponse()
+```
+
+> Se envia una peticion y "responde" obtiene la respuesta del servidor.
