@@ -102,7 +102,6 @@ class TypeChecker():
             else:
                 return None
         if dataFinal is not None:
-            print("alv")
             file = open(file_dir,'w')
             file.write(dataFinal)
             file.close()
@@ -156,6 +155,8 @@ class TypeChecker():
             tmp_column.isNull = columna["isNull"]
             tmp_column.isUnique = columna["isUnique"]
             tmp_column.uniqueName = columna["uniqueName"]
+            tmp_column.checkExp = columna["checkExp"]
+            tmp_column.checkName = columna["checkName"]
             tmp_column.size = columna["size"]
             tmp_column.isPrimary = columna["isPrimary"]
             tmp_column.referencesTable = columna["referencesTable"]
@@ -201,7 +202,7 @@ class TypeChecker():
                     existe = self.column_exists(database,table, column.name)
                     if existe is False and existe is not None:
                         lista_columnas = baseActual[table]["columnas"]
-                        indice = 0
+                        indice = -1
                         if len(lista_columnas) > 0:
                             ultima = lista_columnas[-1]
                             indice = ultima["index"]
@@ -213,6 +214,8 @@ class TypeChecker():
                             "isNull" : column.isNull,
                             "isUnique" : column.isUnique,
                             "uniqueName" : column.uniqueName,
+                            "checkExp" : column.checkExp,
+                            "checkName" : column.checkName,
                             "size" : column.size,
                             "isPrimary" : column.isPrimary,
                             "referencesTable" : column.referencesTable
@@ -245,7 +248,63 @@ class TypeChecker():
             else:
                 return None
         if dataFinal is not None:
-            print("alv")
             file = open(file_dir,'w')
             file.write(dataFinal)
             file.close()
+
+    #######################################################Alter database (rename)
+    def rename_database(self,old_db_name : str, new_db_name : str):
+        if self.existeDB(new_db_name) or not self.existeDB(old_db_name):
+            return False
+        with open(file_dir) as file:
+            data = json.load(file)
+            data[new_db_name] = data[old_db_name]
+            data.pop(old_db_name)
+            file = open(file_dir,'w')
+            file.write(json.dumps(data))
+            return True   
+
+    ########################################################Alter table (rename)         
+    def rename_table(self):
+        pass
+
+    ########################################################Get column index
+    def get_column_index(self,database : str, table : str, column : str):
+        lista = self.return_columnsJSON(database,table)
+        for columna in lista:
+            if column == columna["name"]:
+                return columna["index"]
+        return None
+    ########################################################################
+    def update_indexes(self, database : str, table : str):
+        lista = self.return_columnsJSON(database,table)
+        i = 0
+        for columna in lista:
+            columna["index"] = i
+            i = i + 1
+        return lista       
+
+    ##########################################################Delete a column
+    def delete_column(self,database : str, table : str,column : str):
+        if self.column_exists(database,table,column):
+            lista = []
+            dicc = self.return_columnsJSON(database,table)
+            for columna in dicc:
+                if columna["name"] != column:
+                    lista.append(columna)
+            #Deletes the column
+            with open(file_dir) as file:
+                data = json.load(file)
+                data[database]["tables"][table]["columnas"] = lista
+                file = open(file_dir,'w')
+                file.write(json.dumps(data))
+            with open(file_dir) as file:
+                data = json.load(file)
+                data[database]["tables"][table]["columnas"] = self.update_indexes(database,table)
+                file = open(file_dir,'w')
+                file.write(json.dumps(data))
+            return True                
+            #Updates indexes     
+                    
+        else:
+            return False
