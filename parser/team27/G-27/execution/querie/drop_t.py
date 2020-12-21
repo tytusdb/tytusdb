@@ -10,6 +10,11 @@ from table import *
 from storageManager import jsonMode as admin
 
 class Drop_Table(Querie):
+    '''
+     tableName = nombre de la tabla que deseamos eliminar(cadena)
+     row = numero de fila(int)
+     column = numero de columna(int)
+    '''
     def __init__(self,tableName, row, column):
         Querie.__init__(self, row, column)
         self.tableName = tableName
@@ -24,8 +29,8 @@ class Drop_Table(Querie):
             database = environment.readDataBase(name)
           
             table = database.getTable(self.tableName)
-                if table == None:
-                    return {'Error':'Ocurrió un error en la metadata, la tabla' + self.tableName + ' no pudo ser Eliminada.', 'Fila':self.row, 'Columna':self.column}
+            if table == None:
+                return {'Error':'Ocurrió un error en la metadata, la tabla' + self.tableName + ' no pudo ser Eliminada.', 'Fila':self.row, 'Columna':self.column}
             database.deleteTable(self.tableName)
             #metodo para verificar si existe la tabla en la base de datos
             # si existe la tabla, metodo para verificar que la tabla no sea llave foranea de otra tabla

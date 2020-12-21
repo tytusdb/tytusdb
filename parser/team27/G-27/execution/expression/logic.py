@@ -7,7 +7,15 @@ from typ import *
 from literal import *
 
 class Logic(Expression):
+    
     # si es el oprando not mandar un None como operador right
+    """
+    left: Expression izquierda(puede ser objeto que herede de expression, todos ubicados en la carpeta expression )
+    right: Expression derecha(puede ser objeto que herede de expression, todos ubicados en la carpeta expression )    
+    operator: Es un string con el operador: and, or, not
+    row: int con la fila en donde es creado
+    column: int con la fila en donde es creado
+    """
     def __init__(self, left, right, logicOperator, row, column):
         Expression.__init__(self, row, column)
         self.left  = left

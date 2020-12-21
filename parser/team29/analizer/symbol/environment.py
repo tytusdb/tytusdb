@@ -16,6 +16,7 @@ class Environment:
         self.previous = previous
         self.variables = {}
         self.tables = []
+        self.types = {}
 
     def updateVar(self, id, value, type_):
         """
@@ -78,22 +79,21 @@ class Environment:
             return
         return table
 
+
     def getType(self, table, column):
         """
         Encargada de buscar ambiguedad de una columna entre todas
         las tablas de la clausula FROM
         """
         env = self
+        type = None
         while env != None:
             if table in env.variables:
                 symbol = env.variables[table].value
-                lst = Struct.extractColumns(env.database, symbol)
-                for l in lst:
-                    if l.name == column:
-                        return l
+                type = env.types[symbol+"."+column]
                 break
             env = env.previous
-        return
+        return type
 
     def getVar(self, id):
         env = self
