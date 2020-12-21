@@ -140,3 +140,20 @@ class TablaDeSimbolos():
             pass
         else :
             self.Datos[dato] = DatoN
+
+# ---------------------------- TIPOS ----------------------------
+    def agregarTipo(self, miTipo):
+        self.Tipos[miTipo.valor] = miTipo
+
+    def obtenerTipo(self, miTipo):
+        if not miTipo in self.Tipos:
+            pass
+            return None
+        return self.Tipos[miTipo]
+
+    def EliminarTipo(self, miTipo):
+        if not miTipo in self.Tipos:
+            print(" No se elimino")
+        else :
+            del self.Tipos[miTipo]
+            print(" Se elimino")
