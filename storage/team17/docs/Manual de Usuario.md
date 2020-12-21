@@ -78,7 +78,6 @@ El programa **_`Tytus 2020`_** cuenta con una vista gráfica la cual facilita la
 
 ![](https://github.com/DiiAns23/tytus/tree/main/storage/team17/docs/img/A_D.png) 
 
-
 <div id='glosario'/>
 
 ## Glosario
