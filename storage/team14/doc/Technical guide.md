@@ -28,8 +28,88 @@
 
 - [Requerimientos del Sistema](#Requerimientos-del-Sistema)
 
----------Marcos----------
+## Objetivos
 
+### General
+Proporcionar métodos para un almacenamiento seguro y eficaz de bases de datos para el servidor, utilizando una estructura específica([ISAM](#ISAM)).
+
+### Específicos
+- Almacenar de forma segura las bases de datos enviadas por el servidor mediante archivo .bin
+- Almacenar las tablas ubicadas dentro de las bases de datos en diferentes archivos .bin
+- Almacenar las tuplas de cada tabla en la estructura [ISAM](#ISAM)
+
+## Alcances del proyecto
+
+### Crear bases de datos
+Cuando el servidor solicite la creación de una nueva bases de datos, se llamará al método [createDatabase](#createDatabase) ingresando el nombre que se desea para la base de datos, se verificará que la base de datos no exista aún, porque de existir se negará la solicitud y no se permitirá la creación hasta que se ingresé un nombre que todavía no exista en los registros.
+
+### Visualizar las bases de datos
+Cuando el servidor solicite la visualización de todas las bases de datos, se llamará al método [showDatabases](#showDatabases) el cual regresará el listado de todas las bases de datos que se encuentran almacenadas.
+
+### Renombrar la base de datos
+Cuando el servidor solicite renombrar una base de datos, se llamará al método [alterDatabase](#alterDatabase) mediante el cual se solicitará el nombre que se desea cambiar para verificar si existe la base de datos y poder colocar el nuevo nombre.
+
+### Eliminar base de datos
+Cuando el servidor solicite eliminar una base de datos, se llamará al método [dropDatabase](#dropDatabase) mediante el cual se solicitará el nombre de la base de datos que se desea eliminar, si la base existe se eliminará sin ningún problema.
+
+### Crear tabla
+Cuando el servidor solicite crear una tabla, se llamará al método [createTable](#createTable) mediante el cual se solicitará el nombre de la base de datos donde se desea crear la nueva tabla, al igual que el nombre que llevará la nueva tabla, verificando que la tabla todavía no exista dentro de los registros.
+
+### Visualizar tablas
+Cuando el servidor solicite visualizar las tablas almacenadas dentro de una base de datos, se llamará al método [showTables](#showTables) mediante el cual se buscará la base de datos deseada, al encontrarla se mostrará el listado de las tablas.
+
+### Extraer registros
+Cuando el servidor solicite mostrar los registros almacenados dentro de una tabla, se llamará al método [extractTable](#extractTable) mediante el cual se verificará la existencia tanto de la tabla como de la base de datos, al verificar que ambas existen se retornará la lista de registros almacenados en la tabla.
+
+### Extraer registros dentro de un rango
+Cuando el servidor solicite visualizar ciertos registros, se llamará al método [extractRangeTable](#extractRangeTable) mediante el cual se extraerá solamente los registros que se encuentren dentro del rango establecido.
+
+### Definir primary key
+Cuando el servidor solicite vincular una primary key a tabla, se llamará al método [alterAddPK](#alterAddPK) mediante el cual se verificará que la bases de datos y tabla existan, de ser así, se verificará que la tabla todavía no posea una primary key vinculada, al no poseer primary key vinculada pero si registros, se verificará que con la nueva primary key en ningún registro exista dos veces el mismo identificador, de ser así no se vinculará la primary key, pero en caso contrario si se vinculará.
+
+### Eliminar primary key
+Cuando el servidor solicite eliminar la primary key vinculada a una tabla, se llamará al método [alterDropPK](#alterDropPK) mediante el cual se verificará que la tabla posea una primary key vinculada, de ser así, se eliminará el vínculo manteniendo los identificadores hasta que se vinculé una nueva.
+
+### Renombrar tabla
+Cuando el servidor solicite renombrar una tabla se llamará al método [alterTable](#alterTable) mediante el cual se verificará si la tabla a la que se le desea cambiar el nombre existe, de ser así se modificará el nombre.
+
+### Agregar una columna
+Cuando el servidor solicite agregar una nueva columna a todos los registros existentes en una tabla, se llamará al método [alterAddColumn](#alterAddColumn) mediante el cual se agregará una nueva columna con el valor "default" a cada uno de los registros que existen dentro de la tabla deseada.
+
+### Eliminar una columna
+Cuando el servidor solicite eliminar una columna de los registros almacenados en una tabla, se llamará al método [alterDropColumn](#alterDropColumn) mediante el cual se verificará que la columna no pertenezca a una primary key vinculada, de no formar parte de la primary key se procedé a eliminar la columna de cada uno de los registros.
+
+### Eliminar tabla
+Cuando el servidor solicite eliminar una tabla de una base de datos, se llamará al método [dropTable](#dropTable) mediante el cual se verificará que la tabla exista para poder eliminarla con todos sus registros.
+
+### Añadir registros
+Cuando el servidor solicite ingresar un nuevo registro en una tabla, se llamará al método [insert](#insert) mediante el cual se verificará que la tabla exista, y si aún no existe un registro con una primary key igual, de cumplir entonces se almacenará utilizando la estructura ISAM.
+
+### Carga masiva de registros
+Cuando el servidor solicite cargar mediante un archivo CSV varios registros, se llamará al método [loadCSV](#loadCSV) mediante el cual se utilizará el método [insert](#insert) recorriendo todo el archivo.
+
+### Extraer un registro
+Cuando el servidor solicite buscar un registro almacenado en una tabla, se llamará al método [extractRow](#extractRow) mediante el cual se buscará dentro de la estructura si el registro ya fue creado mediante su primary key, de existir entonces se retornará el listado de registros que se encuentran almacenados.
+
+### Actualizar registro
+Cuando el servidor solicite actualizar los registros de una tabla, se llamará al método [update](#update) mediante el cual se buscará en la estructura el registro que se desea actualizar, al encontrarlo se procederá a actualizar los registros por los nuevos ingresados.
+
+### Eliminar registro
+Cuando el servidor solicite eliminar un registro almacenado en una tabla, se llamará al método [delete](#delete) mediante el cual se buscará en la estructura el registro que se desea eliminar, al encontrarlo se procederá a eliminarlo de la estructura.
+
+### Eliminar todos los registros
+Cuando el servidor solicite eliminar todos los registros de una tabla, se llamará al método [truncate](#truncate) mediante el cual se buscará la raiz de la estructura para poder eliminar todos los registros ingresados.
+
+## Requerimientos del Sistema
+- Tener instalado la versión más reciente de python
+- Tener instalado Graphviz
+
+1. [ISAMMode](#ISAMMode)
+   - [Servidor](#Servidor)
+   - [Bases de Datos](#Bases-de-Datos)
+   - [Tablas](#Tablas)
+   - [Otros](#Otros)
+   
 ______
 ## ISAMMode
 Controlador de todas las funciones del DBMS para el servidor, bases de datos y tablas. Este controlador se encuentra en el archivo [ISAMMode.py](storage/team14/ISAMMode.py)
@@ -346,4 +426,129 @@ def commit(objeto: any, fileName: str)
 
 Método que crea o actualiza el archivo con nombre `fileName` con el objeto `objeto`. El flujo de este método es, abrir un archivo binario en la dirección del directorio de la información del servidor añadiéndole el nombre del directorio a `fileName` y agregándole la extensión .bin, almacena el objeto `objeto` en el archivo de forma binaria y cierra el archivo para su uso posterior.
 
--------Isam---------
+### ISAM
+Cada una de las tuplas que se encuentran almacenadas dentro de las tablas de cada base de datos, se almacenan mediante la estructura de datos conocida como [ISAM](#ISAM), de esta manera se busca obtener una mayor eficiencia al momento de hacer uso de las funciones CRUD de las tuplas; cada una de las tuplas posee un identificador único, mejor conocido como, Primary Key(PK), mediante el identificador se logra acceder a los registros.
+
+ISAM proviene de Indexed Sequential Access Method, es una estructura estática de índices, es eficiente cuando no existen muchas inserciones o actualizaciones, de lo contrario se va perdiendo dicha eficiencia volviendo la estructura obsoleta; su estructura se basa en un árbol B+, debido que todas las entradas de datos se encuentran almacenados dentro de los nodos hojas, posee una variante respecto al árbol B+ y es que al momento que los nodos hojas se encuentran totalmente llenos, se agregan otros nodos conocidos como, páginas overflow, dentro de estos nodos se va almacenando más información sin tener que alterar la estructura base del árbol B+.
+
+Para este módulo se utiliza el archivo [ISAM.py](storage/team14/ISAM.py) dentro del cual se encuentra el manejo de toda la estructura, posee las clases LeafNode, IndexNode, Tuple e ISAM, con dichas clases se establece un manejo óptimo y eficaz de la estructura, se estableció un árbol de grado 3 con 3 niveles de altura.
+
+Dentro del archivo [ISAM.py](storage/team14/ISAM.py) se encuentran los siguientes métodos:
+
+- [Inserción de nodos "insert"](#insert)
+- [Crear página hoja "makeIndexLeaf"](#makeIndexLeaf)
+- [Eliminar un nodo "delete"](#delete)
+- [Eliminar todos los nodos "truncate"](#truncate)
+- [Ordenar arreglo "sort"](#sort)
+- [Mostrar en pantalla "print"](#print)
+- [Graficar la estructura "chart"](#chart)
+- [Buscar un nodo "search"](#search)
+- [Extraer todos los registros "extractAll"](#extractAll)
+- [Extraer todos los nodos "extractAllObject](#extractAllObject)
+- [Nueva Primary Key "newPK"](#newPK)
+- [Extraer un rango de nodos "extractRange"](#extractRange)
+- [Añadir al final "addAtEnd"](#addAtEnd)
+- [Eliminar una columna "deleteColumn"](#deleteColumn)
+- [Actualizar un nodo "update"](#update)
+
+### insert
+```python
+def insert(self, data):
+```
+
+Método utilizado para ingresar un nuevo nodo a la estructura, se solicita el identificador y registros que se desean almacenar, se valida si el nodo auxiliar ya se encuentra lleno, si no se encuentra lleno, se inserta el nuevo registro y se ordena mediante el metodo [sort()](#sort), si el nodo ya se encuentra lleno, entonces se procede a verificar si el nuevo registro es menor, mayor o un valor intermedio dentro de los valores ya almacenados, si es menor, se inserta hacia la izquierda; si es intermedio, se inserta en el centro y si es mayor, se inserta en la derecha, se repite el proceso mediante recursividad hasta encontrar un nodo disponile para almacenar el nuevo registro. Si el registro se almacena en un nodo de tipo IndexNode, entonces se procede a realizar una copia de tipo LeafNode, y se elimina el registro del tipo IndexNode, de esta manera se cumple el tipo de estructura, almacenando solamente en nodos hojas o páginas overflow. Si se alcanza el nivel 2, se procede a llenar las páginas overflow, utilizando el mismo criterio que sean de grado 3, y solamente almacenará hacia nodos siguientes.
+
+### makeIndexLeaf
+```python
+def makeIndexLeaf(self, register):
+```
+
+Método utilizado para realizar la copia de un nodo Index hacia un nodo Hoja, retornando la Tupla que será almacenada en el nuevo nodo Hoja.
+
+### delete
+```python
+def delete(self, valor):
+```
+
+Método que se encarga de eliminar un registro solicitado, se recorre toda la estructura, verificando si en los nodos Index se encuentra el nodo a eliminar también se verifica si existen registros en él, de no ser así se procede a buscar el nodo Hoja con todos los registros, al encontrarlo se elimina su registro, y si el nodo queda totalmente vacio se elimin, de no quedar vacio el nodo, solamente se eliminará el registro solicitado.
+
+### truncate
+```python
+def truncate(self):
+```
+
+Método utilizado para eliminar todos los nodos ya existentes, se llama al nodo raiz y se le asigna un valor None, de esta manera se elimina cualquier tipo de registro hacia los demas nodos.
+
+### sort
+```python
+def sort(self, array):
+```
+Método utilizado para ordenar los registros ubicados dentro de los nodos, se solicita la lista que se desea ordenar y mediante el ordenamiento burbuja se retorna la nueva lista ya ordenada.
+
+### print
+```python
+def print(self):
+```
+Método utilizado para mostrar en consola todos los registros que posee la estructura, se recorre desde el nodo raiz y hasta que se encuentra un nodo None pasaría a verificar el siguiente nodo.
+
+### chart
+```python
+def chart(self):
+```
+Método utilizado para graficar le estrucutra, se utiliza Graphviz como auxiliar y poder graficar todas las estructuras posibles, se crea un archivo .dot posteriormente se convierte en .png, se recorre cada uno de lo nodos, desde la raiz hasta los None, al terminar con un nodo, pasaría al siguiente utilizando recursividad, hasta terminar todos los nodos, creando el nuevo archivo con la estructura graficada.
+
+### search
+```python
+def search(self, value):
+```
+
+Método que retorna un nodo deseado, se solicita el valor que se esta buscando, recorriendo toda la estructura y verificando en cada uno de los nodos existentes, si el nodo se encuentra entonces se retornan todos los registros almacenados, en caso contrario solamente se retornará una lista vacia.
+
+### extractAll
+```python
+def extractAll(self):
+```
+
+Método que retorna una lista con todos los registros que se encuentran disponibles, se realiza un recorrrido desde la raiz hasta las páginas overflow, si estas existen, en caso contrario solamente hasta los nodos hoja y nodos index que posean registros, si existen registros en el nodo valuado, entonces se comenzará a llenar una lista para posteriormente retornarla.
+
+### extractAllObject
+```python
+def extractAllObject(self):
+```
+
+Método que retorna una lista con todos los objetos que se encuentran disponibles, incluyendo su identificador, se realiza un recorrrido desde la raiz hasta las páginas overflow, si estas existen, en caso contrario solamente los nodos hoja y nodos index, si existen registros en el nodo valuado, entonces se comenzará a llenar una lista para posteriormente retornarla.
+
+### newPK
+```python
+def newPK(self, PKs):
+```
+
+Método que registra una nueva Primary Key para todos los nodos, al momento de definir una nueva primary key, se llamará al método para recorrer toda la estructura e ir creando el nuevo identificador y reemplazando el antiguo por el nuevo.
+
+### extractRange
+```python
+def extractRange(self, lower, upper, column):
+```
+
+Método que retorna una lista de registros que se encuentran dentro de un rango específico, se realiza un recorrido de todos los nodos junto con una validación si los registros almacenados cumplen con las restricciones, de ser así se almacenarán en una lista que posteriormente se retornará para visualizar dichos registros.
+
+### addAtEnd
+```python
+def addAtEnd(self, default):
+```
+
+Método que agrega una columna al final de cada registro, estableciendo un valor por default que llevará dicha columna, se realiza un recorrido de la estructura y en cada registros se añade dicha columna, sin importar si es nodo index, hoja o página overflow.
+
+### deleteColumn
+```python
+def deleteColumn(self, n):
+```
+
+Método que elimina una columna de todos los registros, siempre y cuando la columna no se encuentre como primary key, porque de ser así se rechaza la petición. Se recorre toda la estructura eliminando la columna especificada en cada registro.
+
+### update
+```python
+def update(self, register, cols, PKCols):
+```
+
+Método que reemplaza los valores solicitados, se busca mediante la primary key el nodo que se desea actualizar, se recorre toda la estructura, si encuentra el nodo, procede a reemplazar los valores deseados y eliminar el registro anterior para poder actualizarlo con los nuevos registros
