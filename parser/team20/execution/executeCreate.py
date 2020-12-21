@@ -1,15 +1,21 @@
 from .storageManager import jsonMode
-from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCcreateTable
-from .executeExpression import *
+from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCcreateTable,TCcreateType
+from .executeExpression import executeExpression
 from .AST.sentence import *
+from .AST.error import * 
+
 import os 
 import json
 
 def executeCreateDatabase(self, database):
     # crear en base a la condicion FALTA AGREGAR REPLACE Y OWNERMODE
     mode=1
-    if(database.OwnerMode[1]!= None ):
-        mode= database.OwnerMode[1].value
+    if(database.OwnerMode[1]!= None):
+        res = executeExpression(self,database.OwnerMode[1])
+        if(isinstance(res,Error)): 
+            print(res.toString())
+            self.errors.append(res)
+        else: mode = res.value
         
     if(database.ifNotExistsFlag and not(database.OrReplace)):
         if mode==1:
@@ -33,7 +39,11 @@ def executeCreateDatabase(self, database):
         if(res==8):
             mode=1
             if(database.OwnerMode[1]!= None ):
-                mode= database.OwnerMode[1].value
+                res = executeExpression(self,database.OwnerMode[1])
+                if(isinstance(res,Error)): 
+                    print(res.toString())
+                    self.errors.append(res)
+                else: mode = res.value
             if mode==1:
                 return jsonMode.createDatabase(database.name)
             elif mode==2:
@@ -61,7 +71,11 @@ def executeCreateDatabase(self, database):
             
             mode=1
             if(database.OwnerMode[1]!= None ):
-                mode= database.OwnerMode[1].value
+                res = executeExpression(self,database.OwnerMode[1])
+                if(isinstance(res,Error)): 
+                    print(res.toString())
+                    self.errors.append(res)
+                else: mode = res.value
             if mode==1:
                 return jsonMode.createDatabase(database.name)
             elif mode==2:
@@ -137,12 +151,9 @@ def executeCreateTable(self, table):
     array={}
     if(table.columns!=None):
         for node in table.columns:
-            print(node.options)
-            print(node.type[0])
             
             if(node.options!=None):
                 new={'type':node.type[0]}
-                print(new)
                 node.options.update(new)
                 new={node.name:node.options}
             else:
@@ -150,7 +161,6 @@ def executeCreateTable(self, table):
             array.update(new)
             
             #
-    print(array)
     return TCcreateTable(data,table.name,array)
             
             
@@ -158,6 +168,21 @@ def executeCreateTable(self, table):
     
     #{"Type":,type,"Name":,"MaxLength":,"DefaultFlag":,"PrimaryKeyFlag":,"NullFlag":,"Constrains":[]}
     #
+        
+def executeCreateType(self, typeEnum):
+    data=TCgetDatabase()
+    array={}
+    if(typeEnum.expressions!=None):
+        i = 0
+        for node in typeEnum.expressions:
+            res=executeExpression(self,node)
+            if(res.type == 5):
+                res.value = res.value.replace("'","")
+                new={str(i):res.value}
+                array.update(new)
+                i=i+1
+        #print(array)
+    return TCcreateType(data,typeEnum.name,array) 
         
 
 

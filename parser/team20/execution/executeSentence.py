@@ -1,5 +1,5 @@
 from .AST.sentence import *
-from .executeCreate import executeCreateDatabase,executeCreateTable
+from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType
 from .executeShow import executeShowDatabases
 from .executeDrop import executeDropDatabase
 from .executeUse import executeUse
@@ -54,8 +54,19 @@ def executeSentence(self, sentence):
         else:
             print("ERROR: error in the operation")
     elif isinstance(sentence,ColumnId):
-        print(ColumnId.name)
-        
-    #Resto de sentencias posibles
-    
+        #print(ColumnId.name)
+        print('Hola')
+    elif isinstance(sentence, CreateType):
+        result= executeCreateType(self,sentence)
+        ##if(result==0):
+            ##print("Type "+sentence.name+" has been created")
+        ##elif(result==1):
+            ##return Error('xx0000', 'internal_error' , 0, 0)
+        ##elif(result==2):
+            ##return Error('3D00', 'invalid_catalog_name' , 0, 0)
+        ##elif(result==3):
+            ##return Error('42710', 'duplicate_object' , 0, 0)
+        ##else:
+           ##return Error('xx0000', 'internal_error' , 0, 0)
+    #Resto de sentencias posibles    
     

@@ -105,8 +105,6 @@ def TCcreateTable(database: str, table: str, Columns:None) -> int:
             else:
                 #new ={"Type":,type,"Name":,"MaxLength":,"DefaultFlag":,"PrimaryKeyFlag":,"NullFlag":,"Constrains":[]}
                 #print(Columns)
-                print('a ver')
-                print(Columns)
                 new = {table:{}}
                 data[database].update(new)
                 data[database][table].update(Columns)
@@ -115,15 +113,39 @@ def TCcreateTable(database: str, table: str, Columns:None) -> int:
     if dump:
         with open('data/json/TypeChecker', 'w') as file:
             json.dump(data, file)
-        """dataTable = {}
-        with open('data/json/'+database+'-'+table, 'w') as file:
-            json.dump(dataTable, file)
-        return 0"""
+        return 0 
     else:
         return 1
 
 
+'''def TCgetPrimarys(database:str,table:str)->str:
+    initCheck()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if database in data:
+            if table in data[database][table]:
+                for d in data[database][table]
+                    print(data[database][table][d])
+            else:
+                return 1
+        else:
+            return 2
 
+def TCValidateReference(database:str,table:str,column:str)->int:
+    initCheck()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if database in data:
+            if table in data[database][table]:
+                if column in data[database][table][column]:
+                    return 0
+                else:
+                    return 1 #noexists column in table
+            else:
+                return 2 #noexists table in database
+
+        else:
+            return 3 #noexists database'''
 
 # Check the existence of data and json folder and databases file
 # Create databases files if not exists
