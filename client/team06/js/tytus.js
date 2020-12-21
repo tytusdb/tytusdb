@@ -1,2 +1,0 @@
-//commentario
-var a;
