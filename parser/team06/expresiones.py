@@ -702,3 +702,146 @@ class ExpresionMode(ExpresionQueries) :
 # ---------------------------------------------------------------------------------------------------------------- 
 #                                             CLASE Y CONSTRUCTORES DE LAS DIFERENTES EXPRESIONES
 # ----------------------------------------------------------------------------------------------------------------
+
+class ExpresionGREATEST(ExpresionNumerica):
+    '''
+        Esta clase representa la expresión para castear datos.
+        Esta clase recibe un tipo a convertir y el dato
+    '''
+    def __init__(self, exp) :
+        self.exp = exp
+
+class ExpresionLEAST(ExpresionNumerica):
+    '''
+        Esta clase representa la expresión para castear datos.
+        Esta clase recibe un tipo a convertir y el dato
+    '''
+    def __init__(self, exp) :
+        self.exp = exp
+
+class ExpresionNOW(ExpresionNumerica):
+    '''
+        Esta clase representa la expresión para castear datos.
+        Esta clase recibe un tipo a convertir y el dato
+    '''
+    def __init__(self, exp) :
+        self.exp = exp
+
+# mis expresiones para el where
+class ExpresionCondicionAND(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
+class ExpresionCondicionOR(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
+class ExpresionBetween(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+    
+class ExpresionNotBetween(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
+class ExpresionBetweenSymmetric(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
+class ExpresionNotBetweenSymmetric(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
+class ExpresionIsDistinct(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
+class ExpresionIsNotDistinct(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
+
+
+
+#---------- expresiones complementarias del where--------------
+class ExpresionLimit(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1):
+        self.valor1 = valor1
+
+class ExpresionLimitOffset(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor1 = valor1
+
+class ExpresionGroup(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1):
+        self.valor1 = valor1
+
+class ExpresionHaving(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1):
+        self.valor1 = valor1
+
+class ExpresionOrder(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2

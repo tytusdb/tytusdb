@@ -339,29 +339,72 @@ def p_use_instr(t):
     'use_instr      : USE DATABASE ID PTCOMA'
 ##########################################################################################
 
+# --------------------------------- FUNCIONES MÁTEMÁTICAS ------------------------------------
+
+# Select | Where
+def p_funciones_matematicas1(t):
+    '''funcion_matematica_ws    : ABS PARIZQ expresionaritmetica PARDER
+                                | CBRT PARIZQ expresionaritmetica PARDER
+                                | CEIL PARIZQ expresionaritmetica PARDER
+                                | CEILING PARIZQ expresionaritmetica PARDER'''
+
+# Select
+def p_funciones_matematicas2(t):
+    '''funcion_matematica_s     : DEGREES PARIZQ expresionaritmetica PARDER
+                                | DIV PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | EXP PARIZQ expresionaritmetica PARDER
+                                | FACTORIAL PARIZQ expresionaritmetica PARDER
+                                | FLOOR PARIZQ expresionaritmetica PARDER
+                                | GCD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | LN PARIZQ expresionaritmetica PARDER
+                                | LOG PARIZQ expresionaritmetica PARDER
+                                | MOD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | PI PARIZQ PARDER
+                                | POWER PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | RADIANS PARIZQ expresionaritmetica PARDER
+                                | ROUND PARIZQ expresionaritmetica PARDER
+                                | SIGN PARIZQ expresionaritmetica PARDER
+                                | SQRT PARIZQ expresionaritmetica PARDER
+                                | WBUCKET PARIZQ explist PARDER
+                                | TRUNC PARIZQ expresionaritmetica PARDER
+                                | RANDOM PARIZQ expresionaritmetica PARDER'''
+    
+# Lista de expresiones para la función Width Bucket
+def p_wbucket_exp(t):
+    'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
+    
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
 
-def p_inst_alter(t) :
-    '''alter_instr    : ALTER TABLE ID ADD COLUMN ID type_column
-                      | ALTER TABLE ID ADD CHECK PARIZQ condicion PARDER
-                      | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
-                      | ALTER TABLE ID ADD FOREIGN KEY PARIZQ ID PARDER REFERENCES ID
-                      | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
-                      | ALTER TABLE ID DROP CONSTRAINT ID
-                      | ALTER TABLE ID DROP COLUMN ID
-                      | ALTER TABLE ID RENAME COLUMN ID TO ID
-                      | ALTER TABLE ID list_alter_column'''
+def p_inst_alter(t):
+    '''alter_instr      : ALTER TABLE ID ADD COLUMN list_columns
+                        | ALTER TABLE ID ADD CHECK PARIZQ condicion PARDER
+                        | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
+                        | ALTER TABLE ID ADD FOREIGN KEY PARIZQ ID PARDER REFERENCES ID
+                        | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
+                        | ALTER TABLE ID DROP CONSTRAINT ID
+                        | ALTER TABLE ID RENAME COLUMN ID TO ID
+                        | ALTER TABLE ID DROP COLUMN listtablas
+                        | ALTER TABLE ID list_alter_column'''
     
-def p_list_alter_column(t) :
-    '''list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column
-                         | ALTER COLUMN ID TYPE type_column'''
+def p_list_alter_column_r(t):
+    'list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column'
+    
+def p_list_alter_column(t):
+    'list_alter_column : ALTER COLUMN ID TYPE type_column'
+    
+def p_list_columns_r(t):
+    'list_columns       : list_columns COMA ID type_column'
+
+def p_list_columns_(t):
+    'list_columns       : ID type_column'
 
 # Tipos de datos para columnas/campos
-def p_type_column(t) :
+def p_type_column(t):
     '''type_column    : SMALLINT
                       | INTEGER
                       | BIGINT
-                      | DECIMAL
+                      | RDECIMAL
+                      | RDECIMAL PARIZQ ENTERO COMA ENTERO PARDER
                       | NUMERIC
                       | REAL
                       | FLOAT
@@ -377,6 +420,8 @@ def p_type_column(t) :
                       | TIMESTAMP PARIZQ ENTERO PARDER
                       | DATE
                       | TIME
+                      | BOOLEAN
+                      | ID
                       | TIME PARIZQ ENTERO PARDER
                       | INTERVAL field'''
  
@@ -390,6 +435,7 @@ def p_field(t) :
                       | SECOND'''
 
 # ----------------------------------------------------------------------------------------
+
 def p_create(t):
     '''
         create_instr    : CREATE lista_crear create_final

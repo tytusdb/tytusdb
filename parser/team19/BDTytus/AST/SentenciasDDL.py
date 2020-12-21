@@ -4,6 +4,7 @@ import data.jsonMode as JM
 import Errores.Nodo_Error as err
 from prettytable import PrettyTable
 import TypeCheck.Type_Checker as TypeChecker
+import os
 
 
 class CreateDatabase(Nodo):
@@ -182,8 +183,8 @@ class CreateType(Nodo):
         respuesta = TypeChecker.registarEnum(self.nombre_type, self.lista_enum)
         if respuesta != 0:
             Errores.insertar(err.Nodo_Error('42710', 'duplicate_object, ya existe un tipo <<%s>>' % self.nombre_type, self.fila, self.columna))
-            return '42710: duplicate_object, ya existe un tipo <<%s>>' % self.nombre_type
-        return 'Type <<%s>> creado satisfactoriamente' % self.nombre_type
+            return '42710: duplicate_object, ya existe un tipo <<%s>>\n' % self.nombre_type
+        return 'Type <<%s>> creado satisfactoriamente\n' % self.nombre_type
 
     def getC3D(self, TS):
         pass
@@ -202,8 +203,9 @@ class CreateType(Nodo):
             grafica.edge(id_lista, enum_id)
 
 class CreateTable(Nodo):
-    def __init__(self, fila, columna):
+    def __init__(self, fila, columna, inherits):
         super().__init__(fila, columna)
+        self.inherits = inherits
 
     def ejecutar(self, TS, Errores):
         pass
@@ -213,3 +215,36 @@ class CreateTable(Nodo):
 
     def graficarasc(self, padre, grafica):
         super().graficarasc(padre, grafica)
+
+class DropTable(Nodo):
+    def __init__(self, fila, columna, nombre_tabla):
+        super().__init__(fila, columna)
+        self.nombre_tabla = nombre_tabla
+    
+    def ejecutar(self, TS, Errores):
+        nombre_DB = os.environ['DB']
+        if nombre_DB is None:
+            Errores.insertar(err.Nodo_Error('P0002', 'no data found, no hay una base de datos seleccionada', self.fila, self.columna))
+            return 'P0002: no data found, no hay una base de datos seleccionada\n'
+        respuesta = TypeChecker.dropTable(nombre_DB, self.nombre_tabla)
+        if respuesta != 0:
+            if respuesta == 1:
+                Errores.insertar(err.Nodo_Error('XX000', 'internal_error', self.fila, self.columna))
+                return 'XX000: internal_error\n'
+            elif respuesta == 2:
+                Errores.insertar(err.Nodo_Error('3D000', 'No existe base de datos <<%s>>' % nombre_DB, self.fila, self.columna))
+                return '3D000: No existe base de datos <<%s>>\n' % nombre_DB
+            else:
+                Errores.insertar(err.Nodo_Error('42P01', 'No existe la tabla <<%s>>' % self.nombre_tabla, self.fila, self.columna))
+                return '42P01: No existe la tabla <<%s>>\n' % self.nombre_tabla
+        return 'Tabla <<%s>> eliminada\n' % self.nombre_tabla
+
+
+    def getC3D(self, TS):
+        pass
+
+    def graficarasc(self, padre, grafica):
+        super().graficarasc(padre, grafica)
+        grafica.node('createTable_%s' % self.mi_id, 'nombre: %s' % self.nombre_tabla)
+        grafica.edge(self.mi_id, 'createTable_%s' % self.mi_id)
+    

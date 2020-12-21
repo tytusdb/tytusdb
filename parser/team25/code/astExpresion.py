@@ -184,7 +184,14 @@ class ExpresionNegativa(Expresion):
         return nodo
     def ejecutar(self, ts):
         unario = self.exp.ejecutar(ts)
-        return ExpresionNumero(-unario.val, unario.tipo, self.linea)
+        if isinstance(unario , ErrorReport):
+            return unario # si ya viene un error solo lo retorna
+        if not (isinstance(unario , ExpresionNumero)):
+            return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "-"' ,self.linea)
+        try:
+            return ExpresionNumero(-unario.val, unario.tipo, self.linea)          
+        except:
+            return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "-"' ,self.linea)  
 
 
 class ExpresionPositiva(Expresion):
@@ -204,7 +211,14 @@ class ExpresionPositiva(Expresion):
 
     def ejecutar(self, ts):
         unario = self.exp.ejecutar(ts)
-        return ExpresionNumero(unario.val, unario.tipo, self.linea)
+        if isinstance(unario , ErrorReport):
+            return unario # si ya viene un error solo lo retorna
+        if not (isinstance(unario , ExpresionNumero)):
+            return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "+"' ,self.linea)
+        try:
+            return ExpresionNumero(unario.val, unario.tipo, self.linea)                       
+        except:
+            return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "+"' ,self.linea)
 
 # Clase de expresión numero
 

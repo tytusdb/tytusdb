@@ -253,6 +253,7 @@ def p_entrada(p):
 
 def p_s_use(p):
     '''s_use : USE ID PTCOMA'''
+    global lst_instrucciones
     cons = ins.UseDB(p[2])
     lst_instrucciones.append(cons)
 
@@ -446,44 +447,54 @@ def p_data_type_3(p):
     #p[0] = str(p[1]) + str(p[2]) + str(p[3]) + str(p[4])
 
 def p_create_db(p):
-    '''create_db : CREATE DATABASE c_db db_owner db_mode PTCOMA'''
-    cons = ins.CreateDB(p[3], p[4], p[5])
+    '''create_db : CREATE DATABASE db_exist ID db_owner db_mode PTCOMA'''
+    global lst_instrucciones
+    cons = ins.CreateDB(False, p[3], p[4], p[5], p[6])
     lst_instrucciones.append(cons)
 
 
 def p_create_db_2(p):
-    '''create_db : CREATE OR REPLACE DATABASE c_db db_owner db_mode PTCOMA'''
-    ins.CreateDB(p[5], p[6], p[7])
+    '''create_db : CREATE OR REPLACE DATABASE db_exist ID db_owner db_mode PTCOMA'''
+    global lst_instrucciones
+    cons = ins.CreateDB(True, p[5], p[6], p[7], p[8])
     lst_instrucciones.append(cons)
-
-def p_c_db(p):
-    '''c_db : db_exist c_db1'''
-
-    p[0] = p[2]
 
 def p_c_dc_exist(p):
     '''db_exist : IF NOT EXISTS
                 | '''
-
-def p_c_db1(p):
-    '''c_db1 : ID '''
-
-    p[0] = p[1]
-
+    try:
+        if p[2]:
+            p[0] = True
+    except:
+        p[0] = False
 
 def p_db_owner(p):
     '''db_owner : OWNER IGUAL ID 
+                | OWNER ID 
                 |'''
-    p[0] = p[3]
+    try:
+        if p[2] == '=':
+            p[0] = p[3]
+        else:
+            p[0] = p[2]
+    except:
+        p[0] = None
 
 def p_db_mode(p):
-    '''db_mode : MODE IGUAL ENTERO
+    '''db_mode :  MODE IGUAL ENTERO
+                | MODE ENTERO
                 |'''
-    p[0] = p[3]
-
+    try:
+        if p[2] == '=':
+            p[0] = p[3]
+        else:
+            p[0] = p[2]
+    except:
+        p[0] = None
 
 def p_show_db(p):
     '''show_db : SHOW DATABASES PTCOMA'''
+    global lst_instrucciones
     cons = ins.ShowDB()
     lst_instrucciones.append(cons)
 
@@ -923,7 +934,7 @@ def lex_error(lex, linea, columna):
 
 
 def ejecutar(entrada):
-    global parser
+    global parser, ts_global, lst_instrucciones
     parse_result = parser.parse(entrada)
 
     for cons in lst_instrucciones :
