@@ -316,7 +316,34 @@ def alterTable(database, tableOld, tableNew):
             commit(databases, 'databases')
             return 0
     except:
-        return 1    
+        return 1   
+    
+#Agrega una columna a una tabla  
+def alterAddColumn(database: str, table: str, default: any) -> int:
+    checkDirs()
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database.lower()):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table.tuples.addAtEnd(default)
+            aux_table.numberColumns += 1
+            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            return 0
+    except:
+        return 1
 *---------------------------------------others----------------------------------------------*
 
 # guarda un objeto en un archivo binario
@@ -382,4 +409,30 @@ def identifierValidation(name):
     elif name.upper() in reserved_words:
         return False
     elif name[0].isalpha() or name[0] in accepted:
-        return True
+        return True 
+#Metodo para graficar arboles isam
+def chart(database, table):
+    tab = rollback('tables/' + database + table)
+    tab.chart()
+    
+#Metodo para graficar las tablas de las bases de datos
+def chartList(list):
+    file = open('list.dot', 'w')
+    file.write('digraph list {\n')
+    file.write('rankdir=TD;\n')
+    file.write('node[shape=plaintext]\n')
+    if len(list) > 0:
+        file.write('arset [label=<')
+        file.write('<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">')
+        for i in list:
+            file.write('<TR><TD>' + str(i) + '</TD></TR>')
+        file.write('</TABLE>')
+        file.write('>, ];')
+    file.close()
+    file = open('list.dot', "a")
+    file.write('}')
+    file.close()
+    os.system("dot -Tpng list.dot -o list.png")
+
+    
+    
