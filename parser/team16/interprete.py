@@ -1026,3 +1026,481 @@ def procesar_funcion(expresion, ts):
             else:
                 agregarErrorFuncion(val1, None, None, None, "TANH", "numerico", 0, 0)
                 return None
+
+       elif expresion.id_funcion == FUNCION_NATIVA.ASINH:
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         return math.tanh(float(val1))
+            #     elif val1.isnumeric():
+            #         return math.tanh(int(val1))
+            #     else:
+            #         return None
+
+            if isinstance(val1, int) or isinstance(val1, float):
+                return math.tanh(val1)
+            else:
+                agregarErrorFuncion(val1, None, None, None, "ASINH", "numerico", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.ACOSH:
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         if float(val1) >= 1:
+            #             return math.acosh(float(val1))
+            #         else:
+            #             return None
+            #     elif val1.isnumeric():
+            #         if int(val1) >= 1:
+            #             return math.acosh(int(val1))
+            #         else:
+            #             return None
+            #     else:
+            #         return None
+
+            if isinstance(val1, int) or isinstance(val1, float):
+                if val1 >= 1:
+                    return math.acosh(val1)
+                else:
+                    agregarErrorFuncion(val1, None, None, None, "ACOSH", "numerico >= 1", 0, 0)
+                    return None
+            else:
+                agregarErrorFuncion(val1, None, None, None, "ACOSH", "numerico", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.ATANH:
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         if -1 < float(val1) < 1:
+            #             return math.atanh(float(val1))
+            #         else:
+            #             return None
+            #     elif val1.isnumeric():
+            #         if -1 < int(val1) < 1:
+            #             return math.atanh(int(val1))
+            #         else:
+            #             return None
+            #     else:
+            #         return None
+
+            if isinstance(val1, int) or isinstance(val1, float):
+                if -1 < val1 < 1:
+                    return math.atanh(val1)
+                else:
+                    agregarErrorFuncion(val1, None, None, None, "ATANH", "numerico entre -1 y 1", 0, 0)
+                    return None
+            else:
+                agregarErrorFuncion(val1, None, None, None, "ATANH", "numerico", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.ROUND:
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         return round(float(val1) ** (1 / 3))
+            #     elif val1.isnumeric():
+            #         return round(int(val1) ** (1 / 3))
+            #     else:
+            #         return None
+
+            if isinstance(val1, int) or isinstance(val1, float):
+                return round(val1)
+            else:
+                agregarErrorFuncion(val1, None, None, None, "ROUND", "numerico", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.LENGTH:
+            if isinstance(val1, string_types):
+                return len(val1)
+            else:
+                agregarErrorFuncion(val1, None, None, None, "LENGTH", "string", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.MD5:
+            if isinstance(val1, string_types):
+                return str(hashlib.md5(val1.encode()).hexdigest())
+            else:
+                agregarErrorFuncion(val1, None, None, None, "MD5", "string", 0, 0)
+                return None
+        elif expresion.id_funcion == FUNCION_NATIVA.SHA256:
+            if isinstance(val1, string_types):
+                return str(hashlib.sha256(val1.encode()).hexdigest())
+            else:
+                agregarErrorFuncion(val1, None, None, None, "MD5", "string", 0, 0)
+                return None
+
+    if expresion.exp2 is not None:
+        val1 = procesar_expresion(expresion.exp1, ts)
+        val2 = procesar_expresion(expresion.exp2, ts)
+
+        if expresion.id_funcion == FUNCION_NATIVA.DIV:
+            parametro1 = None
+            parametro2 = None
+
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         parametro1 = float(val1)
+            #     elif val1.isnumeric():
+            #         parametro1 = int(val1)
+            if isinstance(val1, int) or isinstance(val1, float):
+                parametro1 = val1
+
+            # if isinstance(val2, string_types):
+            #     if val2.isdecimal():
+            #         parametro2 = float(val2)
+            #     elif val2.isnumeric():
+            #         parametro2 = int(val2)
+            if isinstance(val2, int) or isinstance(val2, float):
+                parametro2 = val2
+
+            if parametro1 is not None and parametro2 is not None:
+                if parametro2 != 0:
+                    return parametro1 / parametro2
+                else:
+                    agregarErrorFuncion(val2, None, None, None, "DIV", "numerico diferentes de 0 en el dividendo", 0, 0)
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "DIV", "numerico", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "DIV", "numerico", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.GCD:
+            parametro1 = None
+            parametro2 = None
+
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         parametro1 = float(val1)
+            #     elif val1.isnumeric():
+            #         parametro1 = int(val1)
+            if isinstance(val1, int) or isinstance(val1, float):
+                parametro1 = val1
+
+            # if isinstance(val2, string_types):
+            #     if val2.isdecimal():
+            #         parametro2 = float(val2)
+            #     elif val2.isnumeric():
+            #         parametro2 = int(val2)
+            if isinstance(val2, int) or isinstance(val2, float):
+                parametro2 = val2
+
+            if parametro1 is not None and parametro2 is not None:
+                return math.gcd(parametro1, parametro2)
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "GCD", "numerico", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "GCD", "numerico", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.MOD:
+            parametro1 = None
+            parametro2 = None
+
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         parametro1 = float(val1)
+            #     elif val1.isnumeric():
+            #         parametro1 = int(val1)
+            if isinstance(val1, int) or isinstance(val1, float):
+                parametro1 = val1
+
+            # if isinstance(val2, string_types):
+            #     if val2.isdecimal():
+            #         parametro2 = float(val2)
+            #     elif val2.isnumeric():
+            #         parametro2 = int(val2)
+            if isinstance(val2, int) or isinstance(val2, float):
+                parametro2 = val2
+
+            if parametro1 is not None and parametro2 is not None:
+                return parametro1 % parametro2
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "MOD", "numerico", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "MOD", "numerico", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.POWER:
+            parametro1 = None
+            parametro2 = None
+
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         parametro1 = float(val1)
+            #     elif val1.isnumeric():
+            #         parametro1 = int(val1)
+            if isinstance(val1, int) or isinstance(val1, float):
+                parametro1 = val1
+
+            # if isinstance(val2, string_types):
+            #     if val2.isdecimal():
+            #         parametro2 = float(val2)
+            #     elif val2.isnumeric():
+            #         parametro2 = int(val2)
+            if isinstance(val2, int) or isinstance(val2, float):
+                parametro2 = val2
+
+            if parametro1 is not None and parametro2 is not None:
+                return parametro1 ** parametro2
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "POWER", "numerico", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "POWER", "numerico", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.TRUNC:
+            parametro1 = None
+            parametro2 = None
+
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         parametro1 = float(val1)
+            #     elif val1.isnumeric():
+            #         parametro1 = int(val1)
+            if isinstance(val1, int) or isinstance(val1, float):
+                parametro1 = val1
+
+            # if isinstance(val2, string_types):
+            #     if val2.isdecimal():
+            #         # Agregar error semantico
+            #         print('Error se espera un entero no un decimal')
+            #     elif val2.isnumeric():
+            #         parametro2 = int(val2)
+            if isinstance(val2, int):
+                parametro2 = val2
+            elif  isinstance(val2, float):
+                # Agregar error semantico
+                agregarErrorFuncion(val2, None, None, None, "TRUNC", "numerico entero como segundo parametro", 0, 0)
+
+            if parametro1 is not None and parametro2 is not None:
+                return round(parametro1, parametro2)
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "TRUNC", "numerico", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "TRUNC", "numerico", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.ATAN2:
+            parametro1 = None
+            parametro2 = None
+
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         parametro1 = float(val1)
+            #     elif val1.isnumeric():
+            #         parametro1 = int(val1)
+            if isinstance(val1, int) or isinstance(val1, float):
+                parametro1 = val1
+
+            # if isinstance(val2, string_types):
+            #     if val2.isdecimal():
+            #         parametro2 = float(val2)
+            #     elif val2.isnumeric():
+            #         parametro2 = int(val2)
+            if isinstance(val2, int) or isinstance(val2, float):
+                parametro2 = val2
+
+            if parametro1 is not None and parametro2 is not None:
+                return math.atan2(parametro1, parametro2)
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "ATAN2", "numerico", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "ATAN2", "numerico", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.ATAN2D:
+            parametro1 = None
+            parametro2 = None
+
+            # if isinstance(val1, string_types):
+            #     if val1.isdecimal():
+            #         parametro1 = float(val1)
+            #     elif val1.isnumeric():
+            #         parametro1 = int(val1)
+            if isinstance(val1, int) or isinstance(val1, float):
+                parametro1 = val1
+
+            # if isinstance(val2, string_types):
+            #     if val2.isdecimal():
+            #         parametro2 = float(val2)
+            #     elif val2.isnumeric():
+            #         parametro2 = int(val2)
+            if isinstance(val2, int) or isinstance(val2, float):
+                parametro2 = val2
+
+            if parametro1 is not None and parametro2 is not None:
+                return math.degrees(math.atan2(parametro1, parametro2))
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "ATAN2D", "numerico", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "ATAN2D", "numerico", 0, 0)
+
+            return None
+        elif expresion.id_funcion == FUNCION_NATIVA.EXTRACT:
+            parametro1 = None
+            parametro2 = None
+
+            if isinstance(val1, string_types):
+                parametro1 = val1
+
+            if isinstance(val2, string_types):
+                try:
+                    if re.compile("^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])$").match(val2):
+                        print('Es una fecha sin hora')
+                        print(val2 + " 00:00:00")
+                        parametro2 = datetime.strptime(val2 + " 00:00:00", '%Y-%m-%d %H:%M:%S')
+                    elif re.compile("^\d\d\d\d-(0?[1-9]|1[0-2])-(0?[1-9]|[12][0-9]|3[01])[ ]+(00|[0-9]|1[0-9]|2[0-3]):([0-9]|[0-5][0-9]):([0-9]|[0-5][0-9])$").match(val2):
+                        parametro2 = datetime.strptime(val2, '%Y-%m-%d %H:%M:%S')
+
+                except ValueError:
+                    # raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+                    agregarErrorFuncion(val2, None, None, None, "EXTRACT", "string con formato de fecha", 0, 0)
+
+            if parametro1 is not None and parametro2 is not None:
+                if parametro1 == 'YEAR':
+                    return parametro2.year
+                elif parametro1 == 'MONTH':
+                    return parametro2.month
+                elif parametro1 == 'DAY':
+                    return parametro2.day
+                elif parametro1 == 'HOUR':
+                    return parametro2.hour
+                elif parametro1 == 'MINUTE':
+                    return parametro2.minute
+                elif parametro1 == 'SECOND':
+                    return parametro2.second
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "EXTRACT", "unidad de tiempo", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "EXTRACT", "string", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.DATE_PART:
+            parametro1 = None
+            parametro2 = None
+
+            if isinstance(val1, string_types):
+                parametro1 = val1
+
+            if isinstance(val2, string_types):
+                try:
+                    parametro2 = IntervalParser.parse(val2)
+
+                except ValueError:
+                    # raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+                    agregarErrorFuncion(val2, None, None, None, "DATE_PART", "string con sintaxys de intervalo de tiempo", 0, 0)
+                    print('ERROR AL CONVERTIR CADENA EN OBJETO DATETIME')
+
+            if parametro1 is not None and parametro2 is not None:
+                if parametro1 == 'year' or parametro1 == 'years':
+                    return parametro2.years
+                elif parametro1 == 'month' or parametro1 == 'months':
+                    return parametro2.months
+                elif parametro1 == 'day' or parametro1 == 'days':
+                    return parametro2.days
+                elif parametro1 == 'hour' or parametro1 == 'hours':
+                    return parametro2.hours
+                elif parametro1 == 'minute' or parametro1 == 'minutes':
+                    return parametro2.minutes
+                elif parametro1 == 'second' or parametro1 == 'seconds':
+                    return parametro2.seconds
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "DATE_PART", "string de unidad de tiempo", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "DATE_PART", "string con sintaxys de intervalo de tiempo", 0, 0)
+
+            return None
+
+        elif expresion.id_funcion == FUNCION_NATIVA.TRIM:
+            parametro1 = None
+            parametro2 = None
+
+            if isinstance(val1, string_types):
+                parametro1 = val1
+
+            if isinstance(val2, string_types):
+                parametro2 = val2
+
+            if parametro1 is not None and parametro2 is not None:
+                if parametro1 != "":
+                    return parametro2.strip(parametro1)
+                else:
+                    agregarErrorFuncion(val1, None, None, None, "TRIM", "string con una longitud mayor a 0", 0, 0)
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "TRIM", "string", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "TRIM", "string", 0, 0)
+
+            return None
+
+
+    if expresion.exp3 is not None:
+        val1 = procesar_expresion(expresion.exp1, ts)
+        val2 = procesar_expresion(expresion.exp2, ts)
+        val3 = procesar_expresion(expresion.exp3, ts)
+
+        if expresion.id_funcion == FUNCION_NATIVA.SUBSTRING or expresion.id_funcion == FUNCION_NATIVA.SUBSTR:
+            parametro1 = None
+            parametro2 = None
+            parametro3 = None
+
+            if isinstance(val1, string_types):
+                parametro1 = val1
+
+            # if isinstance(val2, string_types):
+            #     if val2.isnumeric():
+            #         parametro2 = int(val2)
+
+            if isinstance(val2, int):
+                parametro2 = val2
+
+            # if isinstance(val3, string_types):
+            #     if val3.isnumeric():
+            #         parametro3 = int(val3)
+            if isinstance(val3, int):
+                parametro3 = val3
+
+            if parametro1 is not None and parametro2 is not None and parametro3 is not None:
+                if parametro2 <= len(parametro1) and parametro3 <= len(parametro1):
+                    if parametro2 <= parametro3:
+                        return parametro1[parametro2:parametro3]
+                    else:
+                        agregarErrorFuncion(val2, None, None, None, "SUBSTRING", "entero menor o igual tercer parametro", 0, 0)
+                else:
+                    agregarErrorFuncion(val1, val2, None, None, "SUBSTRING", "entero dentro de la longitud de la cadena", 0, 0)
+
+            if parametro1 is None:
+                agregarErrorFuncion(val1, None, None, None, "SUBSTRING", "string", 0, 0)
+            if parametro2 is None:
+                agregarErrorFuncion(val2, None, None, None, "SUBSTRING", "entero como segundo parametro", 0, 0)
+            if parametro3 is None:
+                agregarErrorFuncion(val3, None, None, None, "SUBSTRING", "entero como tercer parametro", 0, 0)
+
+            return None
+
+    return None
+
+
+def procesar_unidad_tiempo(expresion, ts):
+    return expresion.nombre
+
+
+def procesar_constante(expresion, ts):
+    if expresion.id_constate == CONSTANTES.CURRENT_TIME:
+        fecha = datetime.now().time()
+        fechaString = '{:%H:%M:%S}'.format(fecha)
+        return fechaString
+    if expresion.id_constate == CONSTANTES.CURRENT_DATE:
+        fecha = datetime.now()
+        fechaString = '{:%Y-%m-%d}'.format(fecha)
+        return fechaString
