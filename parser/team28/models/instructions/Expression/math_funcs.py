@@ -18,8 +18,11 @@ class Abs(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.fabs(value.value))
+            value = 0
+            print(type(self.value))
+            if isinstance(self.value, UnaryOrSquareExpressions):
+                value = self.value.process(environment)
+            return PrimitiveData(DATA_TYPE.NUMBER, math.fabs(value.value),self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -43,7 +46,7 @@ class Cbrt(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value.value, 1/3))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value.value, 1/3), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -68,7 +71,7 @@ class Ceil(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -93,7 +96,7 @@ class Ceiling(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -118,7 +121,7 @@ class Degrees(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.degrees(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.degrees(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -144,7 +147,7 @@ class Div(Expression):
         try:
             value1 = self.dividendo.process(environment)
             value2 = self.divisor.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, value1.value // value2.value)
+            return PrimitiveData(DATA_TYPE.NUMBER, value1.value // value2.value, self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -168,7 +171,7 @@ class Exp(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.exp(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.exp(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -191,7 +194,7 @@ class Factorial(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.factorial(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.factorial(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -216,7 +219,7 @@ class Floor(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.floor(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.floor(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -242,7 +245,7 @@ class Gcd(Expression):
         try:
             value1 = self.value1.process(environment)
             value2 = self.value2.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.gcd(value1.value, value2.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.gcd(value1.value, value2.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -265,7 +268,7 @@ class Ln(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, round(math.log(value.value),3)) #With one argument, return the natural logarithm of x (to base e).
+            return PrimitiveData(DATA_TYPE.NUMBER, round(math.log(value.value),3), self.line, self.column) #With one argument, return the natural logarithm of x (to base e).
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -288,7 +291,7 @@ class Log(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, round(math.log10(value.value),3))
+            return PrimitiveData(DATA_TYPE.NUMBER, round(math.log10(value.value),3), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -316,7 +319,7 @@ class Mod(Expression):
             value1 = self.value1.process(environment)
             value2 = self.value2.process(environment)
 
-            return PrimitiveData(DATA_TYPE.NUMBER, value1.value%value2.value)
+            return PrimitiveData(DATA_TYPE.NUMBER, value1.value%value2.value, self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -338,7 +341,7 @@ class Pi(Expression):
         return str(vars(self))
     
     def process(self, environment):
-        return PrimitiveData(DATA_TYPE.NUMBER,round(math.pi,6))
+        return PrimitiveData(DATA_TYPE.NUMBER,round(math.pi,6), self.line, self.column)
 
 class Power(Expression):
     '''
@@ -359,7 +362,7 @@ class Power(Expression):
         try:
             value1 = self.base.process(environment)
             value2 = self.exp.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value1.value, value2.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value1.value, value2.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -383,7 +386,7 @@ class Radians(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.radians(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.radians(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -411,9 +414,9 @@ class Round(Expression):
                 value = self.value.process(environment)
                 digits = self.n_digits.process(environment)
                 if self.n_digits == 0:
-                    return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value))
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value), self.line, self.column)
                 else:
-                    return PrimitiveData(DATA_TYPE.NUMBER, round(value.value, digits.value))
+                    return PrimitiveData(DATA_TYPE.NUMBER, round(value.value, digits.value), self.line, self.column)
             except TypeError:
                 print("Error de tipo")
                 print(self)
@@ -439,9 +442,9 @@ class Sign(Expression):
             try:
                 value = self.value.process(environment)
                 if value.value >= 0:
-                    return PrimitiveData(DATA_TYPE.NUMBER, 1)
+                    return PrimitiveData(DATA_TYPE.NUMBER, 1, self.line, self.column)
                 else:
-                    return PrimitiveData(DATA_TYPE.NUMBER, -1)
+                    return PrimitiveData(DATA_TYPE.NUMBER, -1, self.line, self.column)
             except TypeError:
                 print("Error de tipo")
                 print(self)
@@ -466,7 +469,7 @@ class Sqrt(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.sqrt(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.sqrt(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -498,7 +501,7 @@ class WithBucket(Expression):
             min_value = self.min_value.process(environment)
             max_value = self.max_value.process(environment)
             index = self.index.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, width_bucket_func(expr1.value, min_value.value, max_value.value, index.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, width_bucket_func(expr1.value, min_value.value, max_value.value, index.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -524,7 +527,7 @@ class Trunc(Expression):
     def process(self, environment):
         try:
             value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -548,7 +551,7 @@ class Random(Expression):
 
     def process(self, environment):
         try:
-            return PrimitiveData(DATA_TYPE.NUMBER, randint(0,1))
+            return PrimitiveData(DATA_TYPE.NUMBER, randint(0,1), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -574,7 +577,7 @@ class Greatest(Expression):
     def process(self, environment):
         try:
             array = operating_list_number(self.val_array, environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, max(array))
+            return PrimitiveData(DATA_TYPE.NUMBER, max(array), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -600,7 +603,7 @@ class Least(Expression):
     def process(self, environment):
         try:
             array = operating_list_number(self.val_array, environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, min(array))
+            return PrimitiveData(DATA_TYPE.NUMBER, min(array), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
