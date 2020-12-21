@@ -712,3 +712,26 @@ class References(Instruccion):
     def __init__(self,idRef,valoresRef):
         self.idRef = idRef
         self.valoresRef = valoresRef
+
+class GroupBy(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class Having(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class OrderBy(Instruccion):
+    def __init__(self,valores,orden):
+        self.valores = valores
+        self.orden = orden 
+
+class AuxiliarOrderBy(Instruccion):
+    def __init__(self, valor, tipoorder):
+        self.valor = valor
+        self.tipoorder = tipoorder
+
+class Limit(Instruccion):
+    def __init__(self,condicionD,condicionIz): #puse las dos por el offset
+        self.condicionD = condicionD
+        self.condicionIz = condicionIz
