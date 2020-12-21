@@ -80,7 +80,9 @@ reservadas = {
     'is' : 'IS',
     'sign': 'SIGN',                 'sqrt': 'SQRT',
     'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
-    'random': 'RANDOM',             'use' : 'USE'
+    'random': 'RANDOM',             'true': 'TRUE',
+    'false': 'FALSE',               'use' : 'USE',
+    'decimal': 'RDECIMAL'
 }
 
 tokens  = [
@@ -531,15 +533,43 @@ def p_listaselect_salida(t):
     'listaselect      : valselect'
 
 def p_valselect_1(t):
-    '''valselect      : ID alias
-                      | ID PUNTO ID alias
-                      | funcion_matematica_ws alias
-                      | funcion_matematica_s alias
-                      | funcion_trigonometrica
-                      | PARIZQ select_instr1 PARDER alias
-                      | agregacion PARIZQ cualquieridentificador PARDER alias
-                      | COUNT PARIZQ ASTERISCO PARDER alias
-                      | COUNT PARIZQ cualquieridentificador PARDER alias'''
+    'valselect      : ID alias'
+
+def p_valselect_11(t):
+    'valselect      : ID PUNTO ASTERISCO'
+
+def p_valselect_2(t):
+    'valselect      : ID PUNTO ID alias'
+
+def p_valselect_3(t):
+    'valselect      : funcion_matematica_ws alias'
+
+def p_valselect_4(t):
+    'valselect      : funcion_matematica_s alias'
+
+def p_valselect_5(t):
+    'valselect      : funcion_trigonometrica alias'
+
+def p_valselect_6(t):
+    'valselect      : PARIZQ select_instr1 PARDER alias'
+
+def p_valselect_7(t):
+    'valselect      : agregacion PARIZQ cualquieridentificador PARDER alias'
+
+def p_valselect_8(t):
+    'valselect      : COUNT PARIZQ ASTERISCO PARDER alias'
+
+def p_valselect_9(t):
+    'valselect      : COUNT PARIZQ cualquieridentificador PARDER alias'
+
+def p_valselect_10(t) :
+    'valselect      : func_bin_strings_1 alias'
+
+def p_valselect_12(t) :
+    'valselect      : func_bin_strings_2 alias'
+
+def p_valselect_13(t):
+    'valselect      : func_bin_strings_4 alias'
     
 def p_funcionagregacion(t):
     '''agregacion      : SUM
@@ -681,6 +711,49 @@ def p_expresionhaving(t):
 
 def p_condicionhavingagregacion(t):
     'condicionhavingagregacion  : agregacion PARIZQ cualquieridentificador PARDER'
+
+# ------- Producciones para el manejo del Order by, incluyendo ASC y DESC  ----------------------
+def p_orderby(t):
+    'orderby          : ORDER BY listaorderby'
+
+def p_orderby_1(t):
+    'orderby          : ORDER BY listaorderby instrlimit'
+
+def p_orderby_2(t):
+    'orderby          : empty'
+
+def p_listaorderby(t):
+    'listaorderby     : listaorderby COMA valororderby'
+
+def p_salidaorderby(t):
+    'listaorderby     : valororderby'
+
+def p_valororderby(t):
+    '''valororderby     : cualquieridentificador ascdesc anular
+                        | cualquiernumero ascdesc anular'''
+
+def p_ascdesc(t):
+    '''ascdesc        : DESC
+                      | ASC
+                      | empty'''
+
+def p_anular(t):
+    '''anular        : NULLS LAST
+                     | NULLS FIRST'''
+
+def p_anular_1(t):
+    'anular          : empty'
+
+def p_instrlimit(t):
+    '''instrlimit    : LIMIT ENTERO instroffset
+                     | LIMIT ALL instroffset'''
+
+def p_instroffset(t):
+    'instroffset     : OFFSET ENTERO'
+
+def p_instroffset_2(t):
+    'instroffset     : empty'
+
 
 ## -------------------------------- EXPRESIONES ------------------------------------------    
 

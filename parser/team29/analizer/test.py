@@ -6,19 +6,23 @@ path.append(dir(path[0]))
 
 from analizer import grammar
 
-dropAll = 1
+dropAll = 0
 if dropAll:
     print("Eliminando registros")
     rmtree("data")
 
 
 s = """ 
-CREATE DATABASE IF NOT EXISTS test OWNER = 'root' MODE = 1;
-USE test;
-CREATE TABLE tbrolxusuario (
-  idrol integer NOT NULL,
-  idusuario integer NOT NULL
+USE db1;
+/*
+CREATE TABLE demo7 (
+  id INTEGER,
+  name VARCHAR(20),
+  username VARCHAR(20)
 );
+*/
+--SELECT de1.id, caca.name FROM demo5 de1, (SELECT de2.name FROM demo5 de2 WHERE de1.id = de2.id) AS caca;
+--SELECT d.* FROM demo5 d WHERE d.id > 1;
 """
 result = grammar.parse(s)
 print(result)

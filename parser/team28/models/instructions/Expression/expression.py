@@ -1,4 +1,4 @@
-from models.instructions.DML.special_functions import search_symbol
+# from models.instructions.DML.special_functions import search_symbol
 from controllers.symbol_table import SymbolTable
 import math
 from abc import abstractmethod
@@ -120,7 +120,8 @@ class ExpressionColumnsId(Expression):
         return str(vars(self))
     
     def process(self, expression):
-        symbol = search_symbol(self.id)
+        # symbol = search_symbol(self.id)
+        symbol = None
         if symbol == None:
             return PrimitiveData(DATA_TYPE.STRING,self.id, self.line, self.column)
         else:

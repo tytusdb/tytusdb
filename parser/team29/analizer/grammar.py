@@ -76,7 +76,10 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
-    t[0] = t[1].execute(0)
+    try:
+        t[0] = t[1].execute(None)
+    except:
+        return
 
 
 # Statement para el CREATE
@@ -1041,7 +1044,7 @@ def p_ifExists(t):
 
 
 def p_selectStmt_1(t):
-    """selectStmt : R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl
+    """selectStmt : R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl limitCl
     | selectStmt R_UNION allOpt selectStmt
     | selectStmt R_INTERSECT allOpt selectStmt
     | selectStmt R_EXCEPT allOpt selectStmt
@@ -1405,7 +1408,8 @@ def returnSintacticErrors():
 
 
 def returnPostgreSQLErrors():
-    instruction.sintaxPostgreSQL += PostgreSQL
+    expression.list_errors += PostgreSQL
+    instruction.sintaxPostgreSQL += expression.list_errors
     return instruction.sintaxPostgreSQL
 
 
