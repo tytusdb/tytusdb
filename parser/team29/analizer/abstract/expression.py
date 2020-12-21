@@ -14,6 +14,7 @@ root = None
 
 list_errors = list()
 
+
 class TYPE(Enum):
     NUMBER = 1
     STRING = 2
@@ -150,7 +151,13 @@ class UnaryArithmeticOperation(Expression):
         operator = self.operator
 
         if exp.type != TYPE.NUMBER:
-            list_errors.insert(len(list_errors),"Error: 44883: el operador no existe: "+str(operator)+" "+str(exp.type))
+            list_errors.insert(
+                len(list_errors),
+                "Error: 44883: el operador no existe: "
+                + str(operator)
+                + " "
+                + str(exp.type),
+            )
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
         if operator == "+":
@@ -184,28 +191,40 @@ class BinaryArithmeticOperation(Expression):
         self.temp = exp1.temp + str(operator) + exp2.temp
 
     def execute(self, environment):
-        exp1 = self.exp1.execute(environment)
-        exp2 = self.exp2.execute(environment)
-        operator = self.operator
-        if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
-            list_errors.insert(len(list_errors),"Error: 44883: el operador no existe: "+str(exp1.type)+" "+str(operator)+" "+str(exp2.type))
-            return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
-        if operator == "+":
-            value = exp1.value + exp2.value
-        elif operator == "-":
-            value = exp1.value - exp2.value
-        elif operator == "*":
-            value = exp1.value * exp2.value
-        elif operator == "/":
-            value = exp1.value / exp2.value
-        elif operator == "^":
-            value = exp1.value ** exp2.value
-        elif operator == "%":
-            value = exp1.value % exp2.value
-        else:
-            return ErrorOperatorExpression(operator, self.row, self.column)
-        self.dot()
-        return Primitive(TYPE.NUMBER, value, self.row, self.column)
+        try:
+            exp1 = self.exp1.execute(environment)
+            exp2 = self.exp2.execute(environment)
+            operator = self.operator
+            if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                list_errors.insert(
+                    len(list_errors),
+                    "Error: 44883: el operador no existe: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type),
+                )
+                ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+                raise Exception("Error: ErrorBinaryOperation")
+            if operator == "+":
+                value = exp1.value + exp2.value
+            elif operator == "-":
+                value = exp1.value - exp2.value
+            elif operator == "*":
+                value = exp1.value * exp2.value
+            elif operator == "/":
+                value = exp1.value / exp2.value
+            elif operator == "^":
+                value = exp1.value ** exp2.value
+            elif operator == "%":
+                value = exp1.value % exp2.value
+            else:
+                return ErrorOperatorExpression(operator, self.row, self.column)
+            self.dot()
+            return Primitive(TYPE.NUMBER, value, self.row, self.column)
+        except:
+            raise
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -236,7 +255,15 @@ class BinaryStringOperation(Expression):
         exp2 = self.exp2.execute(environment)
         operator = self.operator
         if exp1.type != TYPE.STRING and exp2.type != TYPE.STRING:
-            list_errors.nsert(len(list_errors),"Error: 44883:list_errors el operador no existe: "+str(exp1.type)+" "+str(operator)+" "+str(exp2.type))
+            list_errors.nsert(
+                len(list_errors),
+                "Error: 44883:list_errors el operador no existe: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type),
+            )
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         if isinstance(exp1.value, pd.core.series.Series):
             exp1.value = exp1.value.apply(str)
