@@ -5,7 +5,10 @@ from analizer.typechecker.Types import Type as TYPE
 
 Types = {}
 Databases = []
-# --------------------------------------Database-----------------------------------------------
+
+# ----------------------Database-----------------------------
+
+
 def load():
     global Databases
     global Types
@@ -24,7 +27,6 @@ def createDatabase(name, mode, owner):
 
 
 def alterDatabaseRename(databaseOld, databaseNew):
-
     for data in Databases:
         if data["name"] == databaseOld:
             data["name"] = databaseNew
@@ -35,9 +37,9 @@ def alterDatabaseRename(databaseOld, databaseNew):
 
 # TODO: Establecer los parametros CURRENT_USER and SESSION_USER
 def alterDatabaseOwner(database, ownerNew):
-
     if ownerNew == "CURRENT_USER" or ownerNew == "SESSION_USER":
         ownerNew = "root"
+
     for data in Databases:
         if data["name"] == database:
             data["owner"] = ownerNew
@@ -48,7 +50,6 @@ def alterDatabaseOwner(database, ownerNew):
 
 def dropDatabase(name):
     element = {}
-
     for data in Databases:
         if data["name"] == name:
             element = data
@@ -69,7 +70,7 @@ def replaceDatabase(name, mode, owner):
     jsonMode.createDatabase(name)
 
 
-# --------------------------------------Tables-----------------------------------------------
+# ------------------------------Tables------------------------------------
 
 
 def insertTable(dbName, tableName, columns, inherits):
@@ -95,12 +96,10 @@ def createTable(dbName, tableName, inherits):
         if db["name"] == dbName:
             db["tables"].append(table)
             break
-
     File.exportFile(Databases, "Databases")
 
 
 def alterTable(dbName, tableOld, tableNew):
-
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -113,7 +112,6 @@ def alterTable(dbName, tableOld, tableNew):
 
 def dropTable(dbName, tableName):
     tbl = {}
-
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -126,7 +124,6 @@ def dropTable(dbName, tableName):
 
 
 def extractTable(dbName, tableName):
-
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -136,7 +133,7 @@ def extractTable(dbName, tableName):
     return 0
 
 
-# --------------------------------------Columns-----------------------------------------------
+# ---------------------------Columns------------------------------
 def extractColumns(database, table):
     List = []
     for db in Databases:
@@ -154,8 +151,23 @@ def extractColumns(database, table):
     return None
 
 
-def getValue(nameTemp, colNames, values, dafault):
+def extractPKIndexColumns(database, table):
+    lst = []
+    for db in Databases:
+        if db["name"] == database:
+            for tbl in db["tables"]:
+                if tbl["name"] == table:
+                    i = 0
+                    for col in tbl["columns"]:
+                        if col["PK"]:
+                            lst.append(i)
+                        i += 1
+                    break
+            break
+    return lst
 
+
+def getValue(nameTemp, colNames, values, dafault):
     if len(colNames) == 0:
         return [dafault, colNames, values]
 
@@ -203,7 +215,6 @@ def createCol(name, type_, pk, fk, nn, inc, size, cnt, un):
 
 
 def insertColumns(dbName, tName, columns):
-
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -221,25 +232,21 @@ Error = []
 
 
 def constraint(table, column, dbName):
-
     type_ = column[1][0]
     colList = column[1][1]
     if type_ == "CHECK":
-
         for colTem in table["columns"]:
             for col in colList:
                 if col == colTem["name"]:
                     colTem["Constraint"] = [column[1][1], column[1][2]]
 
     elif type_ == "UNIQUE":
-
         for colTem in table["columns"]:
             for col in colList:
                 if col == colTem["name"]:
                     colTem["Unique"] = True
 
     elif type_ == "PRIMARY":
-
         for colTem in table["columns"]:
             for col in colList:
                 if col == colTem["name"]:
@@ -258,7 +265,6 @@ def constraint(table, column, dbName):
                     )
                     if colValidate:
                         colTem["FK"] = [tableReference, colReference[i]]
-
     return table
 
 
@@ -271,7 +277,6 @@ def validateColunm(col, dbName, tableReference, colReference):
                     " La columna " + colReference + " no es una llave primaria"
                 )
                 return False
-
             return True
         else:
             Error.append(col["name"] + " y " + colReference + " no son del mismo tipo")
@@ -306,6 +311,7 @@ def getCol(col):
         for campo in campos:
             if campo[0] == "PRIMARY":
                 pk = campo[1]
+                nn = True
             elif campo[0] == "FOREIGN":
                 fk = campo[1]
             elif campo[0] == "NULL":
@@ -315,7 +321,6 @@ def getCol(col):
             elif campo[0] == "UNIQUE":
                 un = True
             elif campo[0] == "CHECK":
-
                 cnt = [campo[1], campo[2]]
     col = createCol(name, type_, pk, fk, nn, df, size, cnt, un)
     return col
@@ -323,7 +328,6 @@ def getCol(col):
 
 def alterDrop(dbName, tableName, colName):
     clm = {}
-
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -338,7 +342,6 @@ def alterDrop(dbName, tableName, colName):
 
 
 def extractColmn(dbName, tableName, colName):
-
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -350,7 +353,6 @@ def extractColmn(dbName, tableName, colName):
 
 
 def getIndex(dbName, tableName, colName):
-
     for db in Databases:
         if db["name"] == dbName:
             for table in db["tables"]:
@@ -363,7 +365,7 @@ def getIndex(dbName, tableName, colName):
                     return None
 
 
-# ---------------------------------------------------Type--------------------------------------------------
+# ---------------------------Type-----------------------------------
 
 
 def createType(exist, name, list_):

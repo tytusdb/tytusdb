@@ -10,6 +10,7 @@ class Arbol:
         ts = [] #por el momento , pero deberia de ser otro tipo de tabla de simbolos
         for instruccion in self.instrucciones:
             nodoSintetizado = instruccion.ejecutar(ts)
+            print(nodoSintetizado.val)
             if isinstance(nodoSintetizado , ErrorReport):
                 listaErrores.addError(nodoSintetizado)
                 print(nodoSintetizado.description)
@@ -17,13 +18,14 @@ class Arbol:
                 print("instruccion OK")
     
     def dibujar(self):# no se como se inicia a graficar :v 
-        g = "diagraph g {" +'\n'
+        g = "digraph g {" +'\n'
         identificador = str(hash(self))
         g+=identificador + "[ label = \"Init\"];"
         
         for instruccion in self.instrucciones:
             print(instruccion)
-            #g+= identificador + "->" + instruccion.dibujar()
+            g+= '\n' + identificador + "->" + str(hash(instruccion))
+            g+= instruccion.dibujar()
 
         
         
