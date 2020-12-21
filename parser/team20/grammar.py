@@ -4,23 +4,25 @@ from execution.AST.sentence import *
 from execution.execute import * 
 from execution.AST.error import *
 import webbrowser
+
+from grammar_result import *
+from console import print_error
 # -----------------------------------------------------------------------------
 # TytusDB Parser Grupo 20
 # 201612141 Diego Estuardo Gómez Fernández
-# 
+# 201612154 André Mendoza Torres
 # 
 # 
 # DIC 2020
 #
 # 
 # -----------------------------------------------------------------------------
-def __init__(self):
-    self.grammarerrors = []
-    self.grammarreport = ""
 
 # Global variables
 grammarerrors = []
 grammarreport = ""
+noderoot = None
+input = ""
 
 #LEXER
 
@@ -246,8 +248,9 @@ def t_multi_line_comment(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
+    print_error("Lexical Error", "Illegal character in " + str(t.value[0]) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
     grammarerrors.append(
-        Error("Léxico","Carácter ilegal en '%s'" % (t.value[0]),t.lineno,find_column(input,t)))
+        Error("Lexical","Ilegal character in '%s'." % (t.value[0]),t.lineno,find_column(input,t)))
     print("Carácter ilegal en '%s' Linea: %d Columna: %d" % (t.value[0],t.lineno,find_column(input,t)))
     t.lexer.skip(1)
 
@@ -283,6 +286,8 @@ def p_start(t):
     '''start : sentences'''
     global grammarreport
     grammarreport = "<start> ::= <sentences> { start.val = sentences.val }\n" + grammarreport
+    global noderoot
+    noderoot = t[1]    
     exec = Execute(t[1]) # Esto se correra desde la GUI
     exec.execute()
     t[0] = t[1]
@@ -1187,8 +1192,9 @@ def p_expression_all(t):
 
 #ERROR
 def p_error(t):
+    print_error("Syntactic Error", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
     grammarerrors.append(
-        Error("Sintáctico","Error sintáctico en '%s'" % (t.value),t.lineno,find_column(input,t)))
+        Error("Syntactic","Syntactic Error in '%s'." % (t.value),t.lineno,find_column(input,t)))
     print("Error sintáctico en '%s' Fila: %d Columna: %d" % (t.value, t.lineno,find_column(input,t)))
     # if not t: #recuperación errores
     #     return
@@ -1248,10 +1254,22 @@ try:
 except Exception as e:
     print('Error reporte gramatical', str(e))
 
-# def analyze(input):
-#     # limpiar variables
-#     global grammarerrors
-#     grammarerrors = []
-#     lexer = lex.lex()
-#     parser = yacc.yacc()
-#     return parser.parse(input,tracking=True)
+def analyze(input_text: str):
+    #clear analyzer data
+    global grammarerrors
+    grammarerrors = []
+    global grammarreport
+    gammarreport = ""
+    global noderoot
+    noderoot = None
+    global input
+    input = ""
+    #declare parser
+    parser = yacc.yacc()
+    lexer = lex.lex()
+    input = input_text
+    #parse
+    parser.parse(input.upper())
+    #return result
+    result = grammar_result(grammarerrors, grammarreport, noderoot)
+    return result

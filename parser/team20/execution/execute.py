@@ -2,6 +2,7 @@
 #Se utilizan archivos separados para minimizar los conflictos
 from .executeSentence import executeSentence
 from .generateASTReport import graphAST
+from .execute_result import *
 class Execute():
     nodes = []
     errors = []
@@ -28,7 +29,9 @@ class Execute():
         if(self.nodes is not None):
            for node in self.nodes:
                executeSentence(self,node)
-        graphAST(self)
+        dotAST = graphAST(self)
+        result = execute_result(dotAST, self.errors, self.messages, self.querys)
+        return result
 
 
 
