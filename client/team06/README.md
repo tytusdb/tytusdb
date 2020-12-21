@@ -1,6 +1,6 @@
 # -BD1-\_Diciembre_2020_Project1_TytusDB
 ## Grupo 6
-#### 201603198 Christina Estuardo Herrera Poncio
+#### 201603198 Cristian Estuardo Herrera Poncio
 #### 201612120 Jackelin Sofia Montenegro Chamale
 #### 201612185 Byron Antonio Alvarez Morales
 #### 201612190 Marcos Sebastian Velasquez Cabrera
@@ -8,7 +8,7 @@
 
 # Interfaz Grafica
 TytusDB tiene la siguiente interfaz grafica, cuyos apartados se describen a continuación:
-[Interfaz_TytusDB](https://github.com/tytusdb/tytus/tree/main/client/team06/img/TytusDB_01.jpg?raw=true "Title") 
+¡[Interfaz_TytusDB](https://github.com/tytusdb/tytus/tree/main/client/team06/img/TytusDB_01.jpg?raw=true "Title") 
 
 
 ### 1. Barra de tareas
