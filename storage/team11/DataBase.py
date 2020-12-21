@@ -13,6 +13,9 @@ class DataBase:
     def get_database(self):
         return self.__database
 
+    def set_arbol(self, arbol):
+        self.__tree__table = arbol
+
     # Setea el nuevo nombre de la base de datos
     def set_database(self, database):
         self.__database = database
@@ -27,6 +30,7 @@ class DataBase:
             if self.__tree__table.search_value(table) is None:
                 new_table = Table(table, number_columns)
                 self.__tree__table.add(new_table)
+
                 return 0
             else:
                 return 3
@@ -38,11 +42,14 @@ class DataBase:
         table = self.__tree__table.search_value(table_name)
         if table:
             table = table.get_element()
-            if verify_columns(table.get_nums_columns(), columns):
-                self.__tree__table.update_table_pk_r(table_name, columns)
-                return 0
-            else:
-                return 4
+            bandera = verify_columns(table.get_nums_columns(), columns)
+            if bandera and isinstance(bandera, bool):
+                return self.__tree__table.update_table_pk_r(table_name, columns)
+            elif not bandera and isinstance(bandera, bool):
+                return 5
+            elif isinstance(bandera, int):
+                return bandera
+
         else:
             return 3
 
@@ -56,7 +63,10 @@ class DataBase:
 
     # Muestra todas las tablas que pertenencen a una base de datos especifica  -> Retorna una list
     def show_tables(self):
-        return self.__tree__table.get_tables()
+        if self.__tree__table.get_root():
+            return self.__tree__table.get_tables()
+        else:
+            return []
 
     # Metodo que funciona para modificar el nombre de la tabla
     def alter_table(self, table_old, table_new):
@@ -90,12 +100,22 @@ class DataBase:
             return 1
 
     # Agrega una columna al final de cada columna de la tabla
-    def alter_add_column(self, table):
-        pass
+    def alter_add_column(self, table_name, default):
+        table = self.__tree__table.search_value(table_name)
+        if table:
+            status = self.__tree__table.alterAddColumn(table_name, default)
+            return status
+        else:
+            return 3
 
     # Elimina una n-esima columna de cada registro de la tabla
-    def alter_drop_column(self, table: str, column_number: int):
-        pass
+    def alter_drop_column(self, table_name: str, column_number: int):
+        table = self.__tree__table.search_value(table_name)
+        if table:
+            status = self.__tree__table.alterDropColumn(table_name, column_number)
+            return status
+        else:
+            return 3
 
     # Extrae y devuelve una lista con elementos que corresponde a cada registro
     def extract_table(self, table_name):
@@ -161,3 +181,10 @@ class DataBase:
             return 0
         else:
             return 3
+
+    def graficar(self, table_name):
+        status = self.__tree__table.search_value(table_name)
+        return status.get_element().graficar()
+
+    def graficar_tables(self):
+        return self.__tree__table.grafica()

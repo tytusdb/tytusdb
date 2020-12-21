@@ -1,13 +1,16 @@
 import tkinter as tk
 from tkinter import Menu, Tk, Text, DISABLED, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
 from tkinter import messagebox as MessageBox
-from tkinter import ttk
-
+from tkinter import ttk,filedialog, INSERT
+import os
+import pathlib
 from campo import Campo
 from arbol import Arbol
-
 import http.client
-
+formularios=[]
+textos=[]
+control=0
+notebook= None
 #Metodo GET para probar peticiones al servidor
 def myGET():
     myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
@@ -52,12 +55,13 @@ def CrearMenu(masterRoot):
     #Se elimino el comando de crear Ventana por problemas con las imagenes
 
     archivo.add_command(label="Nueva ventana")
-    archivo.add_command(label="Abrir un documento",command=abrirDoc)
+    archivo.add_command(label="Abrir query",command=abrir)
     archivo.add_command(label="Abrir un modelo")
     archivo.add_separator()
-    archivo.add_command(label="Nueva Query")
-    archivo.add_command(label="Guardar como...")
-    archivo.add_command(label="Guardar")
+    archivo.add_command(label="Nueva Query",command=lambda: añadir('Nuevo'))
+    archivo.add_command(label="Guardar como...",command=guardarComo)
+    archivo.add_command(label="Guardar",command=guardarArchivo)
+    archivo.add_command(label="Cerrar pestaña actual",command=cerrarPestaña)
     archivo.add_separator()
     archivo.add_command(label="Salir")
 
@@ -96,8 +100,43 @@ def CrearMenu(masterRoot):
     #Se indica que la barra de menú debe estar en la ventana
     return barraDeMenu
 
-def abrirDoc():
-    MessageBox.showinfo(title="Aviso",message="Hizo clic en abrir documento")
+def abrir():
+    global archivo
+    global notebook
+    global control
+    archivo = filedialog.askopenfilename(title = "Abrir Archivo")
+    if archivo != '':
+        name = os.path.basename(archivo)
+        añadir(name)
+        lenguaje = pathlib.Path(archivo).suffix
+        entrada = open(archivo, encoding="utf-8")
+        content = entrada.read()
+        textos[control-1].text.insert(tk.INSERT, content)
+        entrada.close()
+        notebook.select(control-1)
+def guardarArchivo():
+    global archivo
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+    if archivo == "":
+        guardarComo()
+    else:
+        guardarc = open(archivo, "w", encoding="utf-8")
+        guardarc.write(textos[idx].text.get(1.0, END))
+        guardarc.close()
+
+def guardarComo():
+    global archivo
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+    guardar = filedialog.asksaveasfilename(title = "Guardar Archivo")
+    if guardar != '':
+        fguardar = open(guardar, "w+", encoding="utf-8")
+        fguardar.write(textos[idx].text.get(1.0, END))
+        fguardar.close()
+        archivo = guardar
 
 def CrearVentana():
     raiz = Tk()
@@ -116,21 +155,42 @@ def CrearVentana():
 
     #Boton para realizar consulta
     Button(raiz, text="Enviar Consulta").pack(side="top",fill="both")
-
     #Consola de Salida
-    consola = Text(raiz)
+    consola =  Text(raiz)
     consola.pack(side="bottom",fill="both")
     consola.insert(1.0,"Consola de Salida")
     consola.config(state=DISABLED)
-    
-    #Campo de texto
-    Campo(raiz).pack(side="right", fill="both", expand=True)
-    
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
+    global notebook
+    global control
+    notebook=ttk.Notebook(raiz)
+    notebook.pack(side="right", fill="both", expand=True)
+    añadir('Nuevo')
     raiz.mainloop()
+
+def añadir(titulo):
+    global control
+    global notebook
+    formularios.append(Frame(notebook,bg="white"))
+    contador=control
+    notebook.add(formularios[contador], text=titulo)
+    valor=Campo(formularios[contador])
+    valor.pack(side="left", fill="both",expand=True)
+    vsb=Scrollbar(formularios[contador],orient="vertical",command=valor.text.yview)
+    valor.text.configure(yscrollcommand=vsb.set)
+    vsb.pack(side="right",fill="y")
+    textos.append(valor)
+    contador=control+1
+    control=contador
+
+def cerrarPestaña():
+    global notebook
+    global control
+    b=notebook.select()
+    a=notebook.index(b)
+    notebook.forget(a)
 
 def main():
     CrearVentana()
-
 if __name__ == "__main__":
     main()

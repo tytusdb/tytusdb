@@ -1,46 +1,47 @@
 class NodoArbol:
     
-    def __init__(self, ValorI = -1, AnteriorI = None):
+    def __init__(self, ValorI = [-1, ""], AnteriorI = None):
         self.Valores = []
         self.Hijos = []
         self.Anterior = None
-        if ValorI==-1 and AnteriorI == None:
+        if ValorI[0]==-1 and AnteriorI == None:
             for i in range(4):
                 if i!=3:
-                    self.Valores.append(-1)
+                    self.Valores.append([-1, ""])
                 self.Hijos.append(None)
             self.Anterior = None
         elif ValorI!=-1 and AnteriorI == None:
             for i in range(4):
                 if i!=3:
-                    self.Valores.append(-1)
+                    self.Valores.append([-1, ""])
                 self.Hijos.append(None)
             self.Valores[0] = ValorI
             self.Anterior = None
         elif ValorI!=-1 and AnteriorI != None:
             for i in range(4):
                 if i!=3:
-                    self.Valores.append(-1)
+                    self.Valores.append([-1, ""])
                 self.Hijos.append(None)
             self.Valores[0] = ValorI
             self.Anterior = AnteriorI
 
 class Arbol:
 
-    Raiz = None
-
     def __init__(self):
         self.Raiz = None
+        self.PK = []
+        self.Flag = False
+        self.Valores_Temp = []
     
     def Mostrar2(self, Actual):
         print("[",end="")
         for i in range(3):
             if Actual.Hijos[i] != None:
                 self.Mostrar2(Actual.Hijos[i])
-            if Actual.Valores[i] != -1:
+            if Actual.Valores[i][0] != -1:
                 if i!=0:
                     print(",",end="")
-                print(Actual.Valores[i],end="")
+                print(Actual.Valores[i][0],end="")
         if Actual.Hijos[3] != None:
             self.Mostrar2(Actual.Hijos[2])
         print("]",end="")
@@ -48,7 +49,6 @@ class Arbol:
     def Mostrar(self):
         self.Mostrar2(self.Raiz)
         print("\n")
-
     def InsertarArriba(self, Actual):
         Anterior = Actual.Anterior
         if Anterior == None:
@@ -100,25 +100,25 @@ class Arbol:
                 Hijo1.Hijos[1].Anterior = Hijo1
             Anterior.Hijos[i] = Hijo0
             Anterior.Hijos[i+1] = Hijo1
-            if(Aux[2] != -1):
+            if(Aux[2][0] != -1):
                 self.InsertarArriba(Anterior)
 
     def InsertarEnNodo(self, Actual, Nuevo):
         Aux = Actual.Valores
-        if Aux[0] == -1:
+        if Aux[0][0] == -1:
             Aux[0] = Nuevo
-        elif Aux[1] == -1:
-            if Nuevo < Aux[0]:
+        elif Aux[1][0] == -1:
+            if Nuevo[0] < Aux[0][0]:
                 Aux[1] = Aux[0]
                 Aux[0] = Nuevo
             else:
                 Aux[1] = Nuevo
         else:
-            if Nuevo < Aux[0]:
+            if Nuevo[0] < Aux[0][0]:
                 Aux[2] = Aux[1]
                 Aux[1] = Aux[0]
                 Aux[0] = Nuevo
-            elif Nuevo < Aux[1]:
+            elif Nuevo[0] < Aux[1][0]:
                 Aux[2] = Aux[1]
                 Aux[1] = Nuevo
             else:
@@ -131,9 +131,9 @@ class Arbol:
             self.InsertarEnNodo(Actual, Nuevo)
         else:
             Aux = Actual.Valores
-            if Nuevo < Aux[0]:
+            if Nuevo[0] < Aux[0][0]:
                 self.BuscarInsercion(Auxiliar[0], Nuevo)
-            elif Aux[1] != -1 and Aux[1] < Nuevo:
+            elif Aux[1][0] != -1 and Aux[1][0] < Nuevo[0]:
                 self.BuscarInsercion(Auxiliar[2], Nuevo)
             else:
                 self.BuscarInsercion(Auxiliar[1], Nuevo)
@@ -145,19 +145,28 @@ class Arbol:
             self.BuscarInsercion(self.Raiz, Nuevo)
         self.Mostrar()
 
-Prueba = Arbol()
-Prueba.Insertar(5)
-Prueba.Insertar(10)
-Prueba.Insertar(15)
-Prueba.Insertar(20)
-Prueba.Insertar(21)
-Prueba.Insertar(22)
-Prueba.Insertar(23)
-Prueba.Insertar(24)
-Prueba.Insertar(25)
-Prueba.Insertar(26)
-Prueba.Insertar(27)
-Prueba.Insertar(4)
-Prueba.Insertar(3)
-Prueba.Insertar(2)
-Prueba.Insertar(1)
+    def Tomar_Datos_BETA(self, Actual):
+        Valores = []
+        for i in range(3):
+            if Actual.Hijos[i] != None:
+                self.Tomar_Datos_BETA(Actual.Hijos[i])
+            if Actual.Valores[i][0] != -1:
+                Valores.append(Actual.Valores[i])
+        if Actual.Hijos[3] != None:
+            self.Tomar_Datos_BETA(Actual.Hijos[2])
+        self.Valores_Temp.append(Valores)
+
+    def Tomar_Datos(self):
+        Valores_temp = []
+
+        Valores_temp.append(self.Tomar_Datos_BETA(self.Raiz))
+        for n in self.Valores_Temp:
+            if n != "None":
+                 Valores_temp.append(n[0])
+
+        Valores_temp.pop(0)
+        return Valores_temp
+    def insertar_(self,datos):
+        temp = datos
+        Prueba.Insertar(temp)
+
