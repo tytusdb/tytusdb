@@ -381,7 +381,7 @@ class Drop(Instruction):
                 if valor == 3:
                     sintaxPostgreSQL.insert(
                         len(sintaxPostgreSQL),
-                        "Error: 42P01: La tabla  " + str(self.name) + " no existe",
+                        "Error: 42P01: La tabla  " + str(self.name) + " no existe"
                     )
                     return "La tabla no existe en la base de datos"
                 if valor == 1:
@@ -403,12 +403,15 @@ class Drop(Instruction):
             if valor == 2:
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL),
-                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe",
+                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe"
                 )
                 return "La base de datos no existe"
             if valor == 0:
                 Struct.dropDatabase(self.name)
                 return "Instruccion ejecutada con exito DROP DATABASE"
+        sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                )
         return "Fatal Error: DropTable"
 
     def dot(self):
@@ -435,14 +438,10 @@ class AlterDataBase(Instruction):
             if valor == 2:
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL),
-                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe",
+                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe"
                 )
                 return "La base de datos no existe"
-            if valor == 3:
-                semanticErrors.insert(
-                    len(semanticErrors),
-                    "El nuevo nombre para la base da datos ya existe",
-                )
+            if valor ==3:
                 return "El nuevo nombre para la base de datos existe"
             if valor == 1:
                 sintaxPostgreSQL.insert(
@@ -461,6 +460,9 @@ class AlterDataBase(Instruction):
                 len(sintaxPostgreSQL), "Error: XX000: Error interno"
             )
             return "Error ALTER DATABASE OWNER"
+        sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                )
         return "Fatal Error ALTER DATABASE"
 
     def dot(self):
@@ -488,13 +490,13 @@ class Truncate(Instruction):
         if valor == 2:
             sintaxPostgreSQL.insert(
                 len(sintaxPostgreSQL),
-                "Error: 42P01: La base de datos  " + str(self.name) + " no existe",
+                "Error: 42P01: La base de datos  " + str(self.name) + " no existe"
             )
             return "La base de datos no existe"
         if valor == 3:
             sintaxPostgreSQL.insert(
                 len(sintaxPostgreSQL),
-                "Error: 42P01: La tabla " + str(self.name) + " no existe",
+                "Error: 42P01: La tabla " + str(self.name) + " no existe"
             )
             return "El nombre de la tabla no existe"
         if valor == 1:
@@ -540,25 +542,25 @@ class InsertInto(Instruction):
             if res == 2:
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL),
-                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe",
+                    "Error: 42P01: La base de datos  " + str(self.name) + " no existe"
                 )
                 return "La base de datos no existe"
             elif res == 3:
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL),
-                    "Error: 42P01: La tabla " + str(tab) + " no existe",
+                    "Error: 42P01: La tabla " + str(tab) + " no existe"
                 )
                 return "No existe la tabla"
             elif res == 5:
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL),
-                    "Error: 42601: INSERT tiene mas o menos registros que columnas ",
+                    "Error: 42601: INSERT tiene mas o menos registros que columnas "
                 )
                 return "Columnas fuera de los limites"
             elif res == 4:
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL),
-                    "Error: 23505: el valor de clave duplicada viola la restricción única ",
+                    "Error: 23505: el valor de clave duplicada viola la restricción única "
                 )
                 return "Llaves primarias duplicadas"
             elif res == 1:
@@ -748,7 +750,7 @@ class CreateTable(Instruction):
         elif result == 2:
             sintaxPostgreSQL.insert(
                 len(sintaxPostgreSQL),
-                "Error: 3F000: base de datos" + dbtemp + " no existe",
+                "Error: 3F000: base de datos" + dbtemp + " no existe"
             )
             report = "Error: Base de datos no encontrada: " + dbtemp
         elif result == 3 and self.exists:
