@@ -105,8 +105,6 @@ def TCcreateTable(database: str, table: str, Columns:None) -> int:
             else:
                 #new ={"Type":,type,"Name":,"MaxLength":,"DefaultFlag":,"PrimaryKeyFlag":,"NullFlag":,"Constrains":[]}
                 #print(Columns)
-                print('a ver')
-                print(Columns)
                 new = {table:{}}
                 data[database].update(new)
                 data[database][table].update(Columns)

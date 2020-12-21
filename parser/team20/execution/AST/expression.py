@@ -53,8 +53,11 @@ class Logical(Expression):
     def graphAST(self, dot, parent):
         dot += str(parent) + '->' + str(hash(self)) + '\n'
         dot += str(hash(self)) + '[label=\"' + str(self.type) + '\"]\n'
-        dot += self.value1.graphAST('',hash(self))
-        dot += self.value2.graphAST('',hash(self))
+        try:
+            dot += self.value1.graphAST('',hash(self))
+            dot += self.value2.graphAST('',hash(self))
+        except Exception as e:
+            print(e)
         return dot
 
 class Relational(Expression):

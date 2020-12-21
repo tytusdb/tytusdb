@@ -25,10 +25,9 @@ class Execute():
     #Aqui va metodo principal ejecutar, al que se le enviara la raiz del AST 
     #y se encargaran de llamar el resto de metodos
     def execute(self):
-        # if(self.nodes is not None):
-        #    for node in self.nodes:
-        #        print(node)
-        #        executeSentence(self,node)
+        if(self.nodes is not None):
+           for node in self.nodes:
+               executeSentence(self,node)
         graphAST(self)
 
 

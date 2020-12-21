@@ -12,8 +12,8 @@ def executeExpression(self, expression):
                 return executeValue(self,expression)
             # EXPRESIONES ARITMETICAS
             if isinstance(expression, Arithmetic):
-                e1 = self.executeExpression(expression.value1)
-                e2 = self.executeExpression(expression.value2)
+                e1 = executeExpression(self,expression.value1)
+                e2 = executeExpression(self,expression.value2)
                 if isinstance(e1, Error):
                     return e1
                 elif isinstance(e2, Error):
@@ -115,15 +115,15 @@ def executeExpression(self, expression):
 
             # EXPRESIONES LOGICAS
             elif isinstance(expression, Logical):
-                e1 = self.executeExpression(expression.value1)
-                e2 = self.executeExpression(expression.value2)
+                e1 = executeExpression(self,expression.value1)
+                e2 = executeExpression(self,expression.value2)
                 if isinstance(e1, Error):
                     return e1
                 elif isinstance(e2, Error):
                     return e2
                 else:
                     try:
-                        if(expression.type == '&&'):
+                        if(expression.type == 'AND'):
                             # AND
                             if(e1.type == 1 and e2.type == 1):
                                 if((e1.value == 1 or e1.value == 0) and (e2.value == 1 or e2.value == 0)):
@@ -135,7 +135,7 @@ def executeExpression(self, expression):
                             else:
                                 return Error('Semantico', 'No se puede hacer un AND LOGICO entre los types ' + self.types[e1.type] + ' y ' + self.types[e2.type], 0, 0)
 
-                        elif(expression.type == '||'):
+                        elif(expression.type == 'OR'):
                             # OR
                             if(e1.type == 1 and e2.type == 1):
                                 if((e1.value == 1 or e1.value == 0) and (e2.value == 1 or e2.value == 0)):
@@ -150,8 +150,8 @@ def executeExpression(self, expression):
                         return Error('Semantico', 'Error : ' + str(e), 0, 0)
             # EXPRESIONES RELACIONALES
             elif isinstance(expression, Relational):
-                e1 = self.executeExpression(expression.value1)
-                e2 = self.executeExpression(expression.value2)
+                e1 = executeExpression(self,expression.value1)
+                e2 = executeExpression(self,expression.value2)
                 if isinstance(e1, Error):
                     return e1
                 elif isinstance(e2, Error):
@@ -299,7 +299,7 @@ def executeExpression(self, expression):
             
             # EXPRESIONES UNARIAS
             elif isinstance(expression, Unary):
-                e = self.executeExpression(expression.value)
+                e = executeExpression(self,expression.value)
                 if isinstance(e, Error):
                     return e
                 else:
@@ -346,12 +346,13 @@ def executeExpression(self, expression):
                         return Error('Semantico', 'Error : ' + str(e), 0, 0)
             # FUNCIONES MATEMATICAS
             elif isinstance(expression, MathFunction):
-                e = self.executeExpression(expression.value)
+                e = 0
+                if(expression.function != 'PI'): e = executeExpression(self,expression.expression)
                 if isinstance(e, Error):
                     return e
                 else:
                     try:
-                        if(expression.type == 'ABS'):
+                        if(expression.function == 'ABS'):
                             # ABSOLUTO
                             if(e.type == 1):
                                 s.value = abs(int(e.value))
@@ -363,11 +364,11 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar el absoluto del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'CBRT'):
+                        elif(expression.function == 'CBRT'):
                             # RAIZ CUBICA
                             if(e.type == 1):
-                                s.value = int(e.value**(1/3))
-                                s.type = 1
+                                s.value = float(e.value**(1/3))
+                                s.type = 2
                                 return s
                             elif(e.type == 2):
                                 s.value = float(e.value**(1/3))
@@ -375,7 +376,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar la raiz cubica del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'CEIL'):
+                        elif(expression.function == 'CEIL'):
                             # REDONDEAR 
                             if(e.type == 1 or e.type == 2):
                                 s.value = int(math.ceil(e.value))
@@ -383,7 +384,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede redondear del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'CEILING'):
+                        elif(expression.function == 'CEILING'):
                             # REDONDEAR
                             if(e.type == 1 or e.type == 2):
                                 s.value = int(math.ceil(e.value))
@@ -391,7 +392,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede redondear del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'DEGREES'):
+                        elif(expression.function == 'DEGREES'):
                             # DE RADIANES A GRADOS
                             if(e.type == 1 or e.type == 2):
                                 s.value = float(math.degrees(e.value))
@@ -399,7 +400,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede convertir a grados del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'EXP'):
+                        elif(expression.function == 'EXP'):
                             # EXPONENCIACION
                             if(e.type == 1 or e.type == 2):
                                 s.value = float(math.exp(e.value))
@@ -407,7 +408,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar la exponenciacion del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'FACTORIAL'):
+                        elif(expression.function == 'FACTORIAL'):
                             # FACTORIAL
                             if(e.type == 1):
                                 s.value = int(math.factorial(e.value))
@@ -415,15 +416,15 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar el factorial del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'FLOOR'):
+                        elif(expression.function == 'FLOOR'):
                             # REDONDEAR
                             if(e.type == 1 or e.type == 2):
-                                s.value = int(math.floor(e.value))
+                                s.value =int(math.floor(e.value))
                                 s.type = 1
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede redondear del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'LN'):
+                        elif(expression.function == 'LN'):
                             # LOGARITMO NATURAL
                             if(e.type == 1 or e.type == 2):
                                 s.value = float(math.log(e.value))
@@ -434,7 +435,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar el logaritmo natural del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'LOG'):
+                        elif(expression.function == 'LOG'):
                             # LOGARITMO BASE 10
                             if(e.type == 1 or e.type == 2):
                                 s.value = float(math.log10(e.value))
@@ -445,7 +446,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar el logaritmo base 10 del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'PI'):
+                        elif(expression.function == 'PI'):
                             # VALOR DE PI
                             s.value = float(math.pi)
                             if((s.value - int(s.value)) == 0):
@@ -453,7 +454,7 @@ def executeExpression(self, expression):
                             else:
                                 s.type = 2
                             return s
-                        elif(expression.type == 'RADIANS'):
+                        elif(expression.function == 'RADIANS'):
                             # DE GRADOS A RADIANES
                             if(e.type == 1 or e.type == 2):
                                 s.value = float(math.radians(e.value))
@@ -461,7 +462,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede convertir a radianes del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'SIGN'):
+                        elif(expression.function == 'SIGN'):
                             # DEVOLVER EL SIGNO
                             value = float(e.value)
                             if(e.type == 1 or e.type == 2):
@@ -473,7 +474,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar el signo del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'SQRT'):
+                        elif(expression.function == 'SQRT'):
                             # RAIZ CUBICA
                             if(e.type == 1):
                                 s.value = int(e.value**(1/2))
@@ -485,7 +486,7 @@ def executeExpression(self, expression):
                                 return s
                             else:
                                 return Error('Semantico', 'No se puede sacar la raiz cuadrada del type ' + self.types[e.type], 0, 0)
-                        elif(expression.type == 'RANDOM'):
+                        elif(expression.function == 'RANDOM'):
                             # DEVOLVER NUMERO ENTRE 0 Y 1
                             s.value = float(random.randrange(0, 1))
                             s.type = 2
@@ -495,12 +496,12 @@ def executeExpression(self, expression):
                     #Faltan funciones matematicas DIV, GCD, MOD, POWER, ROUND. WITH_BUCKET, TRUNC
             # FUNCIONES TRIGONOMETRICAS
             elif isinstance(expression, TrigonometricFunction):
-                e = self.executeExpression(expression.value)
+                e = executeExpression(self,expression.expression)
                 if isinstance(e, Error):
                     return e
                 else:
                     try:
-                        if(expression.type == 'ACOS'):
+                        if(expression.function == 'ACOS'):
                             # COSENO INVERSO
                             if(e.type == 1 or e.type == 2):
                                 s.value = float(math.acos(e.value))

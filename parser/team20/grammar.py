@@ -269,7 +269,7 @@ precedence = (
     ('left','OR'),
     ('left','AND'),
     ('right','NOT'),
-    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL'),
+    ('left','LESSTHAN','GREATERTHAN','LESSTHANEQUAL','GREATERTHANEQUAL','NOTEQUAL','EQUAL'),
     ('left','BETWEEN','IN','LIKE','ILIKE','SIMILAR'),
     ('left','PLUS','MINUS'),
     ('left','TIMES','DIVIDED','MODULO'),

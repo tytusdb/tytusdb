@@ -3,6 +3,7 @@ from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreat
 from .executeShow import executeShowDatabases
 from .executeDrop import executeDropDatabase
 from .executeUse import executeUse
+from .executeExpression import executeExpression
 from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase
 from .AST.error import * 
 
@@ -12,7 +13,11 @@ def executeSentence(self, sentence):
         if(result==0):
             mode=1
             if(sentence.OwnerMode[1]!= None ):
-                mode= sentence.OwnerMode[1].value
+                res = executeExpression(self,sentence.OwnerMode[1])
+                if(isinstance(res,Error)): 
+                    print(res.toString())
+                    self.errors.append(res)
+                else: mode = res.value
             TCcreateDatabase(sentence.name,mode)
             print("Database "+sentence.name+" has been created Query returned successfully")
         elif(result==2 and sentence.ifNotExistsFlag):

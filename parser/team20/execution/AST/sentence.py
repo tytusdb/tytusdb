@@ -69,7 +69,17 @@ class CreateDatabase(Sentence):
 class ShowDatabases(Sentence):
     ''''''
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"ShowDatabases\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("SHOW") + hash(self)) + '\n'
+        dot += str(hash("SHOW") + hash(self)) + \
+            '[label=\"' + "SHOW" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DATABASES") + hash(self)) + '\n'
+        dot += str(hash("DATABASES") + hash(self)) + \
+            '[label=\"' + "DATABASES" + '\"]\n'
+        return dot
 
 class DropDatabase(Sentence):
     def __init__(self, name, ifExistsFlag):
@@ -88,7 +98,17 @@ class Use(Sentence):
     def __init__(self, name):
         self.name = name
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"Use\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("USE") + hash(self)) + '\n'
+        dot += str(hash("USE") + hash(self)) + \
+            '[label=\"' + "USE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
+        return dot
 
 class AlterDatabaseRename(Sentence):
     def __init__(self, oldname,newname):
@@ -209,7 +229,25 @@ class CreateTable(Sentence):
         #Types:
         #column -> {ColumnId,ColumnCheck,ColumnConstraint,ColumnUnique,ColumnPrimaryKey,ColumnForeignKey}
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"CreateTable\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("CREATE") + hash(self)) + '\n'
+        dot += str(hash("CREATE") + hash(self)) + \
+            '[label=\"' + "CREATE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("columns") + hash(self)) + '\n'
+        dot += str(hash("columns") + hash(self)) + \
+            '[label=\"' + "columns" + '\"]\n'
+        return dot
 
 class Select(Sentence):
     def __init__(self, columns, distinct, tables, options):
