@@ -352,23 +352,25 @@
     COLUMNA ::= id TIPO COND_CREATETB 
                     | CONSTRAINT
 
-    COND_CREATETB ::= t_default id COND_CREATETB 
-                            | t_not t_null COND_CREATETB 
-                            | t_null COND_CREATETB 
-                            | t_constraint id OPC_CONSTRAINT COND_CREATETB 
-                            | t_primary t_key COND_CREATETB 
-                            | t_references id COND_CREATETB 
-                            | empty
+    COND_CREATETB ::= CONSTRAINT_CREATETB t_default id COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_not t_null COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_null COND_CREATETB 
+                        | CONSTRAINT_CREATETB OPC_CONSTRAINT COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_primary t_key COND_CREATETB 
+                        | CONSTRAINT_CREATETB t_references id COND_CREATETB 
+                        | empty
 
     OPC_CONSTRAINT ::= t_unique
                         | t_check par1 EXP par2 
 
-    CONSTRAINT ::= t_unique par1 LISTA_ID par2
-                        | t_constraint id t_check par1 EXP par2
-                        | t_check par1 EXP par2
-                        | t_primary t_key par1 LISTA_ID par2
-                        | t_foreign t_key par1 LISTA_ID par2 t_references id par1 LISTA_ID par2
-                        | empty 
+    CONSTRAINT_CREATETB ::= t_constraint id
+                     | EMPTY
+
+    CONSTRAINT ::= CONSTRAINT_CREATETB t_unique par1 LISTA_ID par2
+                    | CONSTRAINT_CREATETB t_check par1 EXP par2
+                    | CONSTRAINT_CREATETB t_primary t_key par1 LISTA_ID par2
+                    | CONSTRAINT_CREATETB t_foreign t_key par1 LISTA_ID par2 t_references id par1 LISTA_ID par2
+                    | empty 
 
     TIPO ::= t_smallint
                 | t_integer 
