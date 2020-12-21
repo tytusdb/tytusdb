@@ -461,6 +461,108 @@ def loadCSV(file: str, database: str, table: str) -> list:
     except:
         return []
     
+#Metodo que muestra la informacion de un registro    
+def extractRow(database, table, columns):
+    checkDirs()
+    try:
+        PK = ''
+        aux_tabla = rollback('tables/' + database.lower() + table.lower())
+        for i in columns:
+            PK += str(i) + '_'
+        PK = PK[:-1]
+        return aux_tabla.search(PK)
+    except:
+        return []
+
+#Metodo que modifica los valores de un registro
+def update(database: str, table: str, register: dict, columns: list) -> int:
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            updated = aux_table.update(register, columns)
+            if updated == 0:
+                commit(aux_table, 'tables/' + database.lower() + table.lower())
+                return 0
+            elif updated == 1:
+                return 4
+            else:
+                return 1
+    except:
+        return 1
+
+    
+#Metodo que elimina un registro
+def delete(database, table, columns):
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            PK = ''
+            for i in columns:
+                PK += str(i) + '_'
+            PK = PK[:-1]
+            deleted = aux_table.delete(PK)
+            if deleted == 0:
+                commit(aux_table, 'tables/' + database.lower() + table.lower())
+                return 0
+            elif deleted == 1:
+                return 4
+    except:
+        return 1
+
+    
+#Metodo que elimina todos los registros de una tabla
+def truncate(database, table):
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table.tuples.truncate()
+            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            return 0
+    except:
+        return 1    
+    
 *---------------------------------------others----------------------------------------------*
 
 # guarda un objeto en un archivo binario
