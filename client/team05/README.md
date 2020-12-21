@@ -18,5 +18,5 @@ $ ng serve
 La aplicación debería estar corriendo en [localhost:4200](http://localhost:4200)
 
 ## Referencias
-[Manual de usuario](USUARIO.md)
-[Manual de tecnico](TECNICO.md)
+* [Manual de usuario](USUARIO.md)
+* [Manual de tecnico](TECNICO.md)
