@@ -1,6 +1,6 @@
 from parse.ast_node import ASTNode
 from jsonMode import insert
-from parse.symbol_table import SymbolTable, FieldSymbol, SymbolType
+from parse.symbol_table import SymbolTable, SymbolType
 from parse.errors import Error, ErrorType
 
 
@@ -34,8 +34,17 @@ class InsertInto(ASTNode):
                     raise Error(0, 0, ErrorType.SEMANTIC, f'Field {field_symbol.field_name} must be an integer type')
             to_insert.append(match)
         # TODO ADD HERE CHECK VALIDATION
-        insert(table.get_current_db().name, result_table_name, to_insert)
-        return True
+        result = insert(table.get_current_db().name, result_table_name, to_insert)
+        if result == 1:
+            raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
+        elif result == 2:
+            raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
+        elif result == 3:
+            raise Error(0, 0, ErrorType.RUNTIME, '42P07: table_does_not_exists')
+        elif result == 4:
+            raise Error(0, 0, ErrorType.RUNTIME, '42P10: duplicated_primary_key')
+        else:
+            return True
 
 
 # This class probably is not going to be needed, depends on how the contents are gonna be handled
