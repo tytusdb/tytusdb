@@ -8,6 +8,8 @@ import accionesIDE as accionesVarias
 # -----------------------------------------------------------------------------
 global textosalida
 textosalida=""
+global bd_enuso
+bd_enuso=""
 global reporteGramatical1
 global reporteGramatical2
 reporteGramatical1=" "
@@ -52,6 +54,7 @@ global errores
 errores=""
 def reporteErrores(ruta):
     var3="""<h1 style="text-align:center;">REPORTE DE ERRORES<h1>
+    
     <table border="1" style="margin-left: auto; margin-right: auto">
     <tr>
     <td>ERROR</td>
@@ -63,6 +66,8 @@ def reporteErrores(ruta):
     with open(ruta, "w") as f:
         f.write(var3)
         f.closed
+
+
 
 
 

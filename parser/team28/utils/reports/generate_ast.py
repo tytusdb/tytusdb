@@ -6,8 +6,8 @@ class GraficarAST:
         self.cadena = []
     
     def generate_string(self, raiz):
-        self.cadena.append('digraph D{\n\tnode[shape=ellipse fillcolor=yellow1 style=filled];\n\t')
-        self.cadena.append('graph[bgcolor = grey77, label=\"AST SQL\"];\n\t')
+        self.cadena.append('digraph D{\n\tnode[style=filled color="#324960" fillcolor="#324960", fontcolor="#F8F8F2"];\n\t')
+        self.cadena.append('graph[label="AST SQL"];\n\t')
         self.get_nodos(raiz, self.cadena)
         self.set_rotation(raiz, self.cadena)
         self.cadena.append('\r}')
