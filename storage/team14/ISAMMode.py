@@ -344,6 +344,123 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
             return 0
     except:
         return 1
+    
+# eliminacion de una columna
+def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
+    checkDirs()
+    aux_table = None
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+        if aux_table.numberColumns == 1 or columnNumber in aux_table.PK:
+            return 4
+        elif columnNumber > aux_table.numberColumns - 1:
+            return 5
+        else:
+            aux_table.tuples.deleteColumn(columnNumber)
+            aux_table.numberColumns -= 1
+            for i in aux_table.PK:
+                if i > columnNumber:
+                    i -= 1
+            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            return 0
+    except:
+        return 1
+
+# eliminacion de la tabla
+def dropTable(database, tableName):
+    checkDirs()
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database.lower()):
+            if i.lower() == tableName.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            databases = rollback('databases')
+            os.remove('data/tables/' + database.lower() + tableName.lower() + '.bin')
+            index = showDatabases().index(database.lower())
+            table_index = databases[index].tables.index(tableName.lower())
+            databases[index].tables.pop(table_index)
+            commit(databases, 'databases')
+            return 0
+    except:
+        return 1
+
+# insercion de los registros
+def insert(database: str, table: str, register: list):
+    checkDirs()
+    aux_table = None
+    if True:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            if len(register) > aux_table.numberColumns or aux_table.numberColumns > len(register):
+                return 5
+            else:
+                PK = ''
+                if aux_table.PKDefined:
+                    for i in aux_table.PK:
+                        PK += str(register[i]) + '_'
+                    PK = PK[:-1]
+                else:
+                    PK = str(aux_table.hiddenPK)
+                    aux_table.hiddenPK += 1
+                if len(aux_table.insert(PK, register)) == 0:
+                    commit(aux_table, 'tables/' + database.lower() + table.lower())
+                    return 0
+                else:
+                    return 4
+    else:
+        return 1
+
+# carga masiva de archivos hacia las tablas
+def loadCSV(file: str, database: str, table: str) -> list:
+    try:
+        res = []
+        import csv
+        with open(file, 'r') as f:
+            reader = csv.reader(f, delimiter=',')
+            for row in reader:
+                res.append(insert(database.lower(), table.lower(), row))
+        return res
+    except:
+        return []
+    
 *---------------------------------------others----------------------------------------------*
 
 # guarda un objeto en un archivo binario
