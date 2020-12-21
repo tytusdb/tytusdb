@@ -885,8 +885,9 @@ def p_update_list(t):
 ################################
 
 def p_stm_use_db(t):
-    '''stm_use_db : USE DATABASE ID'''
-    tokenID = t.slice[3]    
+    '''stm_use_db   : USE DATABASE ID
+                    | USE ID'''
+    tokenID = t.slice[len(t)-1]    
     IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
     t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
 ##########   >>>>>>>>>>>>>>>>  STM_DELETE   AND  STM_ALTER  <<<<<<<<<<<<<<<<<<<<<<
@@ -920,9 +921,8 @@ def p_stm_create(t):
     '''stm_create   : CREATE or_replace_opt DATABASE ID owner_opt mode_opt
                     | CREATE TABLE ID PARA tab_create_list PARC inherits_opt
                     | CREATE TYPE ID AS ENUM PARA exp_list PARC'''
-    
-    if len(t) == 7:
-        token = t.slice[1]
+    token = t.slice[1]
+    if len(t) == 7:        
         tokenID = t.slice[4]
         childsProduction = addNotNoneChild(t,[2,5,6])                
         graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
@@ -931,36 +931,40 @@ def p_stm_create(t):
         t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1, (True if t[2] else False) , token.lineno, token.lexpos, graph_ref)       
 
     elif len(t) == 8: 
-        childsProduction = addNotNoneChild(t,[5,7])                
+        #childsProduction = addNotNoneChild(t,[5,7])
+        childsProduction = addNotNoneChild(t,[7])
         graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=  tCreate tTable tIdentifier '(' \<TAB_CREATE_LST> ')' \<INHERITS_OPT>")
-        token = t.slice[1]
         t[0] = CreateTable(t[3], t[7], t[5], None, token.lineno, token.lexpos, graph_ref) #TODO check if param check_exp is neceary and where we obtain that
 
     elif len(t) == 9:
         childsProduction = addNotNoneChild(t,[2,7])                
         graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6],t[8]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=   tCreate tType tIdentifier tAs tEnum ‘(‘ \<EXP_LIST> ‘)’")     
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = CreateEnum(t[3], token.lineno, token.lexpos, graph_ref)
         ##### 
  
 
 #for table columns and contrainst
 def p_tab_create_list(t):
-    '''tab_create_list  : tab_create_list COMA ID type nullable_opt primary_key_opt
+    '''tab_create_list  : tab_create_list COMA ID type nullable_opt primary_key_opt 
                         | ID type nullable_opt primary_key_opt'''
     if len(t) == 7:
-        childsProduction = addNotNoneChild(t,[1,4,5,6])                
-        graph_ref = graph_node(str("tab_create_list"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
-        addCad("**\<TAB_CREATE_LIST>** ::= <TAB_CREATE_LST> ',' tIdentifier <TYPE> <NULLABLE_OPT> <PRIMARY_KEY_OPT> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####       
+        #TODO: plese @SergioUnix check the graph and report generation fom list of AST nodes at t[1]
+        #childsProduction = addNotNoneChild(t,[1,4,5,6])                
+        #graph_ref = graph_node(str("tab_create_list"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+        graph_ref = None
+        #addCad("**\<TAB_CREATE_LIST>** ::= <TAB_CREATE_LST> ',' tIdentifier <TYPE> <NULLABLE_OPT> <PRIMARY_KEY_OPT> ")
+        TF = TableField(t.slice[3].value, t[4].val, t[4].max_size, t[5], (t[6] is not None) ,t.slice[3].lineno, t.slice[3].lexpos, graph_ref )
+        t[1].append(TF)
+        t[0] = t[1]
     else:        
-        childsProduction  = addNotNoneChild(t,[2,3,4])
-        graph_ref = graph_node(str("tab_create__list"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
-        addCad("**\<TAB_CREATE_LIST>** ::= tIdentifier <TYPE> <NULLABLE_OPT> <PRIMARY_KEY_OPT> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
+        #childsProduction  = addNotNoneChild(t,[2,3,4])
+        #graph_ref = graph_node(str("tab_create__list"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
+        #addCad("**\<TAB_CREATE_LIST>** ::= tIdentifier <TYPE> <NULLABLE_OPT> <PRIMARY_KEY_OPT> ")
+        graph_ref = None
+        t[0] = [ TableField(t.slice[1].value, t[2].val, t[2].max_size, t[3], (t[4] is not None) ,t.slice[1].lineno, t.slice[1].lexpos, graph_ref )]
+        
     
 
 def p_primary_key_opt(t):
@@ -978,17 +982,15 @@ def p_primary_key_opt(t):
 
 def p_nullable(t):
     '''nullable : NULL
-                | NOT NULL'''
+                | NOT NULL'''    
     if len(t) == 2:
         graph_ref = graph_node(str(t[1]),[],[])
         addCad("**\<NULLABLE>** ::= tNull ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####         
+        t[0] = Nullable(True, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)        
     else:                 
         graph_ref = graph_node(str(t[1]+" "+t[2]))
-        addCad("**\<NULLABLE>** ::= tNot tNull  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
+        addCad("**\<NULLABLE>** ::= tNot tNull  ")        
+        t[0] = Nullable(False, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 def p_nullable_opt(t):
     '''nullable_opt  : nullable
@@ -996,7 +998,7 @@ def p_nullable_opt(t):
     token = t.slice[1]
     if token.type == "nullable":
         addCad("**\<NULLABLE_OPT>** ::= <NULLABLE> ")
-        t[0] = upNodo("token", 0, 0, t[1].graph_ref)
+        t[0] = t[1]
         #####        
     else:                 
         t[0] = None
@@ -1015,14 +1017,16 @@ def p_inherits_opt(t):
 
 #owner option
 def p_owner_opt(t):
-    '''owner_opt    : OWNER IGUAL ID'''
+    '''owner_opt    : OWNER IGUAL ID
+                    | OWNER IGUAL TEXTO'''
     graph_ref = graph_node(str(t[1]+" "+t[2]+" "+t[3]))
     addCad("**\<OWNER_OPT>** ::= tOwner '=' tTexto   ")
     tokenID = t.slice[3]
     t[0]= Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,graph_ref) 
 
 def p_owner_opt0(t):
-    '''owner_opt    : OWNER ID'''
+    '''owner_opt    : OWNER ID
+                    | OWNER TEXTO'''
     tokenID = t.slice[2]
     t[0]= Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,graph_ref) 
     
@@ -1238,9 +1242,9 @@ def p_type(t):
                 | DOUBLE PRECISION
                 | MONEY
                 | CARACTER VARYING
-                | VARCHAR
+                | VARCHAR PARA ENTERO PARC
                 | CHARACTER
-                | CHAR
+                | CHAR PARA ENTERO PARC
                 | TEXT
                 | TIMESTAMP
                 | DATE
@@ -1252,20 +1256,17 @@ def p_type(t):
     if token.type == "DOUBLE":
         graph_ref = graph_node(str(str(t[1])+" "+str(t[2])))
         addCad("**\<TYPE>** ::= DOUBLE PRECISION ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##
+        t[0] = TypeDef(token.type, None, None, token.lineno, token.lexpos)        
 
-    elif token.type == "CARACTER" and  len(t) == 3:
+    elif (token.type == "CARACTER" or token.type == "CHAR")and  len(t) == 3:
         graph_ref = graph_node(str(str(t[1])+" "+str(t[2])))
         addCad("**\<TYPE>** ::= CARACTER VARYING")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##
+        t[0] = TypeDef(token.type, 0, t[3], token.lineno, token.lexpos, graph_ref)
 
     else:
         graph_ref = graph_node(str(t[1]))
         addCad("**\<TYPE>** ::= "+str(token.type))
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##
+        t[0] = TypeDef(token.type, None, None, token.lineno, token.lexpos, graph_ref)
     
 ######################
 
@@ -1280,7 +1281,6 @@ def p_time(t):
     addCad("**\<TIME>** ::= "+str(token.type))
     t[0] = upNodo("token", 0, 0, graph_ref)
     ##
-
 
 ##############################
 def p_not_opt(t):
@@ -1313,13 +1313,18 @@ def p_percentopt(t):
 
 
 def p_stm_show0(t):
-    '''stm_show : SHOW DATABASES'''
-    if len(t) == 2:
+    '''stm_show     : SHOW DATABASES
+                    | SHOW DATABASES LIKE TEXTO
+                    | SHOW DATABASES LIKE PATTERN_LIKE'''
+    token = t.slice[1]
+    if len(t) == 3:
         graph_ref = graph_node( str(str(t[1])+" "+str(t[2]))  )
-        addCad("**\<STM_SHOW>** ::= tShow tDatabases ")
-        token = t.slice[1]
+        addCad("**\<STM_SHOW>** ::= tShow tDatabases ")        
         t[0] = ShowDatabases(None, token.lineno, token.lexpos, graph_ref)
-             
+    else:
+        graph_ref = graph_node( str(str(t[1])+" "+str(t[2]) +" "+str(t[3])+" "+str(t[4]))  )
+        addCad("**\<STM_SHOW>** ::= tShow tDatabases ")        
+        t[0] = ShowDatabases(None, token.lineno, token.lexpos, graph_ref)
 
 def p_exp_list(t):
     '''exp_list : exp_list COMA expression'''
@@ -1993,5 +1998,6 @@ if __name__ == "__main__":
         except our_error as named_error:
             errorsList.append(named_error)
 
-    print(errorsList)
+    for e in errorsList:
+        print(e,"\n")
     

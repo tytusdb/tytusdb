@@ -1,7 +1,7 @@
 from parse.ast_node import ASTNode
 from jsonMode import alterDatabase, alterAddColumn, alterDropColumn
 from parse.errors import Error, ErrorType
-from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol, SymbolType
+from parse.symbol_table import SymbolTable, FieldSymbol, SymbolType
 
 
 class AlterDatabaseRename(ASTNode):
