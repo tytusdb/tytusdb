@@ -257,3 +257,47 @@ class contAlter(query):
         self.tipo = tipo
         self.tipoAsignar = tipoAsignar
 
+class QueryWhere(query):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, condiciones):
+        self.condiciones = condiciones
+
+class Select3(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+
+    def __init__(self, operacion1,operacion2) :
+        self.operacion1 = operacion1
+        self.operacion2 = operacion2
+
+class Select4(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, operacion1,operacion2,operacion3) :
+        self.operacion1 = operacion1
+        self.operacion2 = operacion2
+        self.operacion3 = operacion3
+
+class Select5(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, operacion1,operacion2,operacion3,operacion4) :
+        self.operacion1 = operacion1
+        self.operacion2 = operacion2
+        self.operacion3 = operacion3
+        self.operacion4 = operacion4
