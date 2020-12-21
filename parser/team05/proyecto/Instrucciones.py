@@ -654,3 +654,61 @@ class AlterDBRename(Instruccion):
 
     def __init__(self, cadena ):
         self.cadena = cadena
+
+# CREATE TABLE
+
+class CreateTable(Instruccion):
+    def __init__(self,nombreTabla,atributos,idInherits):
+        self.nombreTabla = nombreTabla
+        self.atributos = atributos
+        self.idInherits = idInherits
+
+class CreateFK(Instruccion):
+     
+    def __init__(self, idConstraint, idkey,tablaRef, columnasRef):
+        self.idConstraint = idConstraint
+        self.idkey = idkey
+        self.tablaRef = tablaRef
+        self.columnasRef = columnasRef
+
+class CreateUnique(Instruccion):
+     
+    def __init__(self, idConstraint, idUnique):
+        self.idConstraint = idConstraint
+        self.idUnique = idUnique
+
+class CreateCheck(Instruccion):
+     
+    def __init__(self, idConstraint, condicion):
+        self.idConstraint = idConstraint
+        self.condicion = condicion
+
+
+class NotNull(Instruccion):
+    def __init__(self,valor):
+        self.valor = valor
+
+
+class Constraint(Instruccion):
+    def __init__(self,nombre,valconstraint):
+        self.nombre = nombre
+        self.valconstraint = valconstraint
+
+class Campo(Instruccion):
+    def __init__(self,idC,tipo,llave):
+        self.idC = idC
+        self.tipo = tipo
+        self.llave = llave
+
+class PK(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class Default(Instruccion):
+    def __init__(self,condicion):
+        self.condicion = condicion
+
+class References(Instruccion):
+    def __init__(self,idRef,valoresRef):
+        self.idRef = idRef
+        self.valoresRef = valoresRef
