@@ -1504,3 +1504,614 @@ def procesar_constante(expresion, ts):
         fecha = datetime.now()
         fechaString = '{:%Y-%m-%d}'.format(fecha)
         return fechaString
+
+
+# -------------------------------------------------------------------------------------------------
+# --------------------------------- EJECUCION -----------------------------------------------------
+
+from Instruccion import *
+from expresiones import *
+
+
+class interprete2:
+
+    def __init__(self, sentencias):
+        self.i = 0
+        self.sentencias = sentencias
+
+    def inc(self):
+        global i
+        self.i += 1
+
+    def ejecucion(self):
+        self.recorrerInstrucciones(self.sentencias)
+
+    def recorrerInstrucciones(self, sente):
+        global ts_global
+        for i in sente:
+            if isinstance(i, CreateDataBase):
+                i.Ejecutar()
+            elif isinstance(i, ShowDatabases):
+                i.Ejecutar()
+            elif isinstance(i, AlterDataBase):
+                i.Ejecutar()
+            elif isinstance(i, DropDataBase):
+                i.Ejecutar()
+            elif isinstance(i, CreateTable):
+                i.Ejecutar()
+            elif isinstance(i, Insert_Datos):
+                i.Ejecutar()
+            elif isinstance(i, DropTable):
+                i.Ejecutar()
+            elif isinstance(i,Alter_Table_AddColumn):
+                i.Ejecutar()
+            elif isinstance(i,Alter_Table_Drop_Column):
+                i.Ejecutar()
+            elif isinstance(i,Alter_Table_Rename_Column):
+                i.Ejecutar()
+            elif isinstance(i,Alter_Table_Drop_Constraint):
+                i.Ejecutar()
+            elif isinstance(i,Alter_table_Add_Foreign_Key):
+                i.Ejecutar()
+            elif isinstance(i,Alter_Table_Add_Constraint):
+                i.Ejecutar()
+            elif isinstance(i, Delete_Datos):
+                i.Ejecutar()
+            elif isinstance(i, Update_Datos):
+                i.Ejecutar()
+            elif isinstance(i,Alter_COLUMN):
+                i.Ejecutar()
+            elif isinstance(i,Select):
+                i.Ejecutar()
+            elif isinstance(i,Select2):
+                i.Ejecutar()
+            elif isinstance(i,Select3):
+                i.Ejecutar()
+            elif isinstance(i, SelectExpresion):
+                i.Ejecutar()
+            elif isinstance(i,CreacionEnum):
+                i.Ejecutar()
+            elif isinstance(i,Select4):
+                i.Ejecutar()
+            elif isinstance(i,SubSelect):
+                i.Ejecutar()
+            elif isinstance(i,SubSelect2):
+                i.Ejecutar()
+            elif isinstance(i,SubSelect3):
+                i.Ejecutar()
+            elif isinstance(i,SubSelect4):
+                i.Ejecutar()
+            else:
+                print("NO ejecuta")
+
+'''
+    def i_CreateDataBase(self, DataBase: CreateDataBase):
+        global ts_global
+        r = ts_global.obtenerCreateDateBase(DataBase.idBase)
+        if r == None:
+            print("No encontre la base de datos.")
+            rM = Master.createDatabase(str(DataBase.idBase))
+            if rM == 0:
+                print("> Base de datos creada con exito!")
+            elif rM == 1 or rM == 2:
+                print("> Base de datos con conflicto.")
+        else:
+            print("Si encontre la base de datos.")
+            for i in ts_global.createDataBase:
+                x:CreateDataBase = ts_global.obtenerCreateDateBase(i)
+                print(x.Modo)'''
+
+
+#REPORTE DE ERRORES..................
+def reporte_errores():
+    print("ejecutando errores...........")
+    Rep = Graph('g', filename='berrores.gv', format='png',node_attr={'shape': 'plaintext', 'height': '.1'})
+    cadena=''
+    i=1
+    for item in LisErr.errores:
+        cadena+='<TR><TD>'+str(i)+'</TD><TD>'+str(item.tipo)+'</TD>'+'<TD>'+str(item.descripcion)+'</TD>'+'<TD>'+str(item.linea)+'</TD></TR>'
+        i+=1
+    Rep.node('structs','''<<TABLE> <TR> <TD>Numero</TD><TD>Tipo-Clase Error</TD><TD>Descripcion Error</TD><TD>Linea</TD></TR>'''+cadena+'</TABLE>>')
+    Rep.render('g', format='png', view=True)
+    print('Hecho')
+
+def agregarErrorDatosOperacion(val1, val2, op, tipoEsperado, linea, columna):
+    global LisErr
+    er = ErrorRep('Semantico',
+                  'Los datos ingresados: "' + str(val1) + '", "' + str(val2)
+                  + '"; No se pueden operar con "' + str(op) + '", se esperaban datos de tipo ' + str(tipoEsperado), linea)
+    LisErr.agregar(er)
+
+def agregarErrorFuncion(val1, val2, val3, val4,funcion, tipoEsperado, linea, columna):
+    global LisErr
+    datos = ""
+    if val1 is not None:
+        datos = '"' + str(val1) + '"'
+    if val2 is not None:
+        datos = datos + ", " + '"' + str(val2) + '"'
+    if val3 is not None:
+        datos = datos + ", " + '"' + str(val3) + '"'
+    if val4 is not None:
+        datos = datos + ", " + '"' + str(val4) + '"'
+
+    er = ErrorRep('Semantico',
+                  'Los datos ingresados: ' + datos + '; No se pueden usar en la funcion "'
+                  + str(funcion) + '", se esperaban datos de tipo '+ str(tipoEsperado), linea)
+    LisErr.agregar(er)
+
+## PROCESAR SELECT -----------------------------------------------------------------------------------------------------
+
+# ========================================================================
+# ========================================================================
+
+# EJECUTANDO EXPRESIONES============================
+# VERIFICANDO QUE TIPO DE EXPRESION ES
+def procesar_expresion_select(expresiones, ts):
+    print("---------------------------------------"+str(expresiones))
+    if isinstance(expresiones, ExpresionAritmetica):
+        return procesar_aritmetica_select(expresiones, ts)
+    elif isinstance(expresiones, ExpresionRelacional):
+        return procesar_relacional_select(expresiones, ts)
+    elif isinstance(expresiones, ExpresionLogica):
+        return procesar_logica_select(expresiones, ts)
+    elif isinstance(expresiones, UnitariaNegAritmetica):
+        return procesar_negAritmetica_select(expresiones, ts)
+    elif isinstance(expresiones, UnitariaLogicaNOT):
+        return procesar_logicaNOT_select(expresiones, ts)
+    elif isinstance(expresiones, UnitariaNotBB):
+        return procesar_NotBB_select(expresiones, ts)
+    elif isinstance(expresiones, ExpresionValor):
+        return expresiones.val
+    elif isinstance(expresiones, CAMPO_TABLA_ID_PUNTO_ID):   #  WHERE Profesional.Id = Trabajo.Codigo
+        return procesar_variable_select(expresiones, ts)
+    elif isinstance(expresiones, Variable):
+        return procesar_variable_select(expresiones, ts)
+    elif isinstance(expresiones, UnitariaAritmetica):
+        return procesar_unitaria_aritmetica_select(expresiones, ts)
+    elif isinstance(expresiones, Absoluto):
+        try:
+            return procesar_expresion_select(expresiones.variable, ts)
+        except:
+            print('Error no se puede aplicar abs() por el tipo de dato')
+            return None
+    else:
+        print('Error:Expresion no reconocida')
+
+
+def procesar_aritmetica_select(expresion, ts):
+    val = procesar_expresion_select(expresion.exp1, ts)
+    val2 = procesar_expresion_select(expresion.exp2, ts)
+    if expresion.operador == OPERACION_ARITMETICA.MAS:
+        if ((isinstance(val, int) or isinstance(val, float))
+              and ((isinstance(val2, int) or isinstance(val2, float)))):
+            return val + val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "+", "numerico", 0,0)
+            return None
+    elif expresion.operador == OPERACION_ARITMETICA.MENOS:
+        if ((isinstance(val, int) or isinstance(val, float))
+                and ((isinstance(val2, int) or isinstance(val2, float)))):
+            return val - val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "-", "numerico", 0,0)
+            return None
+    elif expresion.operador == OPERACION_ARITMETICA.MULTI:
+        if ((isinstance(val, int) or isinstance(val, float))
+                and ((isinstance(val2, int) or isinstance(val2, float)))):
+            return val * val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "*", "numerico", 0,0)
+            return None
+    elif expresion.operador == OPERACION_ARITMETICA.DIVIDIDO:
+        if val2 == 0:
+            agregarErrorDatosOperacion(val, val2, "/", "numerico diferente de 0 en el segundo operador", 0, 0)
+            return None
+        if ((isinstance(val, int) or isinstance(val, float))
+                and ((isinstance(val2, int) or isinstance(val2, float)))):
+            return val / val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "/", "numerico", 0, 0)
+            return None
+    elif expresion.operador == OPERACION_ARITMETICA.RESIDUO:
+        if ((isinstance(val, int) or isinstance(val, float))
+                and ((isinstance(val2, int) or isinstance(val2, float)))):
+            return val % val2
+        else:
+            agregarErrorDatosOperacion(val, val2, "%", "numerico", 0, 0)
+            return None
+    elif expresion.operador == OPERACION_ARITMETICA.POTENCIA:
+        if ((isinstance(val, int) or isinstance(val, float))
+                and ((isinstance(val2, int) or isinstance(val2, float)))):
+            return pow(val, val2)
+        else:
+            agregarErrorDatosOperacion(val, val2, "*", "numerico", 0, 0)
+            return None
+
+
+def procesar_relacional_select(expresion, ts):
+    val = procesar_expresion_select(expresion.exp1, ts)
+    val2 = procesar_expresion_select(expresion.exp2, ts)
+
+    if (isinstance(val, int) and isinstance(val2, float)
+            or isinstance(val, float) and isinstance(val2, int)
+            or isinstance(val, float) and isinstance(val2, float)
+            or isinstance(val, int) and isinstance(val2, int)):
+        if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
+            return 1 if (val == val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
+            return 1 if (val != val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+            return 1 if (val >= val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
+            return 1 if (val <= val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
+            return 1 if (val > val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
+            return 1 if (val < val2) else 0
+
+    elif isinstance(val, string_types) and isinstance(val2, string_types):
+        if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
+            return 1 if (val == val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
+            return 1 if (val != val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+            return 1 if (val >= val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
+            return 1 if (val <= val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
+            return 1 if (val > val2) else 0
+        elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
+            return 1 if (val < val2) else 0
+    elif (isinstance(val[0], DatoInsert) and isinstance(val2, int)
+          or isinstance(val[0], DatoInsert) and isinstance(val2, int)
+          or isinstance(val[0], DatoInsert) and isinstance(val2, float)
+          or isinstance(val[0], DatoInsert) and isinstance(val2, int) ):
+
+        if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                if int(Vd.valor) == val2:
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                if int(Vd.valor) != val2:
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                if int(Vd.valor) >= val2:
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                if int(Vd.valor) <= val2:
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                if int(Vd.valor) > val2:
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                if int(Vd.valor) < val2:
+                    listaV.append(Vd)
+            return listaV
+
+    elif isinstance(val[0], DatoInsert) and isinstance(val2[0], DatoInsert):
+        if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                for v2 in val2:
+                    Vd2:DatoInsert = v2
+                    if str(Vd.valor) == str(Vd2.valor):
+                        listaV.append(Vd)
+                        listaV.append(Vd2)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                for v2 in val:
+                    Vd2:DatoInsert = v2
+                    if str(Vd.valor) != str(Vd2.valor):
+                        listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                for v2 in val:
+                    Vd2:DatoInsert = v2
+                    if int(Vd.valor) >= int(Vd2.valor):
+                        listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                for v2 in val:
+                    Vd2:DatoInsert = v2
+                    if int(Vd.valor) <= int(Vd2.valor):
+                        listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                for v2 in val:
+                    Vd2:DatoInsert = v2
+                    if int(Vd.valor) > int(Vd2.valor):
+                        listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                for v2 in val:
+                    Vd2:DatoInsert = v2
+                    if int(Vd.valor) < int(Vd2.valor):
+                        listaV.append(Vd)
+            return listaV
+    elif isinstance(val[0], DatoInsert) and isinstance(val2, string_types):
+        if expresion.operador == OPERACION_RELACIONAL.IGUALQUE:
+            listaV = []
+            for v in val:
+                Vd:DatoInsert = v
+                if str(Vd.valor) == str(val2):
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.DISTINTO:
+            listaV = []
+            for v in val:
+                Vd: DatoInsert = v
+                if str(Vd.valor) != str(val2):
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORIGUAL:
+            # error semantico
+            listaV = []
+            for v in val:
+                Vd: DatoInsert = v
+                if str(Vd.valor) >= str(val2):
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MENORIGUAL:
+            listaV = []
+            for v in val:
+                Vd: DatoInsert = v
+                if str(Vd.valor) <= str(val2):
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MAYORQUE:
+            listaV = []
+            for v in val:
+                Vd: DatoInsert = v
+                if str(Vd.valor) > str(val2):
+                    listaV.append(Vd)
+            return listaV
+        elif expresion.operador == OPERACION_RELACIONAL.MENORQUE:
+            listaV = []
+            for v in val:
+                Vd: DatoInsert = v
+                if str(Vd.valor) < str(val2):
+                    listaV.append(Vd)
+            return listaV
+    else:
+        print('Error: Expresion relacional con tipos incompatibls')
+        # consola.insert('end','>>Error: Expresion relacional con tipos incompatibles'+str(expresion.operador)+'\n>>')
+        # newErr=ErrorRep('Semantico','Expresion relacional con tipos incompatibles '+str(expresion.operador),indice)
+        # LisErr.agregar(newErr)
+        return None
+
+
+def procesar_logica_select(expresion, ts):
+    print("Logica en LOGICA")
+    val = procesar_expresion_select(expresion.exp1, ts)
+    val2 = procesar_expresion_select(expresion.exp2, ts)
+
+    if ((isinstance(val, int) or isinstance(val, float))
+            and ((isinstance(val2, int) or isinstance(val2, float)))):
+        if expresion.operador == OPERACION_LOGICA.AND:
+            return 1 if (val and val2) else 0
+        elif expresion.operador == OPERACION_LOGICA.OR:
+            return 1 if (val or val2) else 0
+    elif (isinstance(val[0], DatoInsert) and isinstance(val2[0], DatoInsert)):
+        if expresion.operador == OPERACION_LOGICA.OR:
+            listaP = []
+            for v in val:
+                vv: DatoInsert = v
+                listaP.append(vv)
+            for v2 in val2:
+                vv2: DatoInsert = v2
+                listaP.append(vv2)
+
+            return listaP
+        elif expresion.operador == OPERACION_LOGICA.AND:
+            listaP = []
+            for v in val2:
+                vv: DatoInsert = v
+                for v2 in val:
+                    vv2: DatoInsert = v2
+                    if str(vv2.fila) == str(vv.fila):
+                        listaP.append(vv2)
+            return listaP
+        elif expresion.operador == OPERACION_LOGICA.IS_DISTINCT:
+            listaP = []
+            for v in val:
+                vv: DatoInsert = v
+                for v2 in val2:
+                    vv2: DatoInsert = v2
+                    if vv2.fila != vv.fila:
+                        listaP.append(vv2)
+            return listaP
+
+        elif expresion.operador == OPERACION_LOGICA.IS_NOT_DISTINCT:
+            listaP = []
+            for v in val:
+                vv: DatoInsert = v
+                for v2 in val2:
+                    vv2: DatoInsert = v2
+                    if vv2.fila == vv.fila:
+                        listaP.append(vv2)
+            return listaP
+    elif ((val == None) and isinstance(val2[0], DatoInsert)):
+        if expresion.operador == OPERACION_LOGICA.OR:
+            print( "Logica en OR")
+            listaP = []
+            for v2 in val2:
+                vv2: DatoInsert = v2
+                listaP.append(vv2)
+
+            return listaP
+
+        elif expresion.operador == OPERACION_LOGICA.AND:
+            listaP = []
+            for v2 in val2:
+                vv2: DatoInsert = v2
+                listaP.append(vv2)
+
+            return listaP
+        elif expresion.operador ==OPERACION_LOGICA.IS_DISTINCT:
+
+            return val2
+
+        elif expresion.operador ==OPERACION_LOGICA.IS_NOT_DISTINCT:
+
+            return val2
+
+    elif (isinstance(val[0], DatoInsert) and val2 == None):
+        if expresion.operador == OPERACION_LOGICA.OR:
+            print( "Logica en OR")
+            listaP = []
+            for v in val:
+                vv: DatoInsert = v
+                listaP.append(vv)
+
+            return listaP
+
+        elif expresion.operador == OPERACION_LOGICA.AND:
+            listaP = []
+            for v in val:
+                vv: DatoInsert = v
+                listaP.append(vv)
+            return listaP
+
+        elif expresion.operador ==OPERACION_LOGICA.IS_DISTINCT:
+
+            return val
+
+        elif expresion.operador ==OPERACION_LOGICA.IS_NOT_DISTINCT:
+
+            return val
+    else:
+        print('Error: No se puede realizar la op. logica')
+        agregarErrorDatosOperacion(val, val2, 'Operadores Logicos', "", 0, 0)
+        return None
+
+def procesar_negAritmetica_select(expresion, ts):
+    try:
+        return -1 * procesar_expresion_select(expresion.exp, ts)
+    except:
+        print('Error:tipo de dato no se puede multiplicar por -1')
+        # consola.insert('end','>>Error: No se pudo realizar la neg aritmetica\n>>')
+        # newErr=ErrorRep('Semantico','No se pudo realizar la neg aritmetica ',indice)
+        # LisErr.agregar(newErr)
+        return None
+
+
+def procesar_logicaNOT_select(instr, ts):
+    try:
+        val = procesar_expresion_select(instr.expresion, ts)
+        return 0 if (val == 1) else 1
+    except:
+        print('Error no se puede aplicar Neg Logica')
+        # consola.insert('end','>>Error: No se puede aplicar Neg Logica\n>>')
+        # newErr=ErrorRep('Semantico','No se puede aplicar Neg Logica ',indice)
+        # LisErr.agregar(newErr)
+        return None
+
+
+def procesar_NotBB_select(instr, ts):
+    try:
+        val = procesar_expresion_select(instr.expresion, ts)
+        if isinstance(val, int):
+            binario = ~int(val)
+            return int(binario)
+        else:
+            print('Error: no compatible para aplicar neg binario')
+            # consola.insert('end','>>Error: No compatible para aplicar neg binario\n>>')
+            # newErr=ErrorRep('Semantico','No compatible para aplicar neg binario ',indice)
+        # LisErr.agregar(newErr)
+        return None
+    except:
+        print('Error no compatible para aplicar neg binario')
+        # consola.insert('end','>>Error: No compatible para aplicar neg binario\n>>')
+        # newErr=ErrorRep('Semantico','No compatible para aplicar neg binario ',indice)
+        # LisErr.agregar(newErr)
+        return None
+
+
+def procesar_variable_select(tV, ts):
+    global ListaTablasG
+    variable: CAMPO_TABLA_ID_PUNTO_ID = tV
+    listaRes = []
+    for item in ts.Datos:
+        v:DatoInsert = ts.obtenerDato(item)
+        # Se obtienen los datos de la columna.
+        if str(v.columna) == str(variable.campoid) and str(v.bd) == str(baseN[0]) and str(v.tabla) == str(variable.tablaid):
+            print(" <> En listar: " + str(v.valor))
+            listaRes.append(v)
+    print(" <><>")
+    if listaRes.__len__() == 0:
+        print(" >>> No hay datos para esta validación.")
+        return None
+    else:
+        return listaRes
+
+
+
+def procesar_unitaria_aritmetica_select(expresion, ts):
+    val = procesar_expresion_select(expresion.exp1, ts)
+    if expresion.operador == OPERACION_ARITMETICA.CUADRATICA:
+        # if isinstance(val, string_types):
+        #     if(val.isdecimal()):
+        #         return float(val) * float(val)
+        #     elif(val.isnumeric()):
+        #         return int(val) * int(val)
+        #     else:
+        #         return None
+
+        if isinstance(val, int) or isinstance(val, float):
+            return val * val
+        else:
+            agregarErrorDatosOperacion(val, "", "|", "numerico", 0,0)
+            return None
+    elif expresion.operador == OPERACION_ARITMETICA.CUBICA:
+        # if isinstance(val, string_types):
+        #     if (val.isdecimal()):
+        #         return pow(float(val), 3)
+        #     elif (val.isnumeric()):
+        #         return pow(int(val), 3)
+        #     else:
+        #         return None
+
+        if isinstance(val, int) or isinstance(val, float):
+            return val * val * val
+        else:
+            agregarErrorDatosOperacion(val, "", "||", "numerico", 0,0)
+            return None
+
