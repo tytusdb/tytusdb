@@ -492,99 +492,266 @@ def p_Ilcad2(t):
 # TERMINO CREATE TYPE
 
 
+# CREATE TABLE
+
 def p_ctable(t):
-    """
-        I_CTABLE        :   TABLE ID PABRE I_LTATRIBUTOS PCIERRA I_INHERITS
-    """
-    #INSTRUCCION CTABLE
+   'I_CTABLE        :   CREATE TABLE ID PABRE I_LTATRIBUTOS PCIERRA INHERITS PABRE ID PCIERRA PCOMA'
+   global reporte_gramatical
+   reporte_gramatical.append('<I_CTABLE> ::= "CREATE" "TABLE" "ID" "(" <I_LTATRIBUTOS> ")" <INHERITS> "(" "ID" ")" ";"')
+   ret = Retorno(CreateTable(t[3],t[5].getInstruccion(),t[9]),NodoAST("CREATE TABLE"))
+   ret.getNodo().setHijo(NodoAST(t[3]))
+   ret.getNodo().setHijo(t[5].getNodo())
+   ret.getNodo().setHijo(NodoAST("INHERITS"))
+   ret.getNodo().setHijo(NodoAST(t[9]))
+   t[0] = ret
 
-
-def p_inherits(t):
-    'I_INHERITS    : INHERITS PABRE ID PCIERRA PCOMA'
-
-def p_inherits1(t):
-    'I_INHERITS    : PCOMA'
+def p_ctable1(t):
+   'I_CTABLE        :   CREATE TABLE ID PABRE I_LTATRIBUTOS PCIERRA PCOMA'
+   global reporte_gramatical
+   reporte_gramatical.append('<I_CTABLE> ::= "CREATE" "TABLE" "ID" "(" <I_LTATRIBUTOS> ")" ";"')
+   ret = Retorno(CreateTable(t[3],t[5].getInstruccion(),None),NodoAST("CREATE TABLE"))
+   ret.getNodo().setHijo(NodoAST(t[3]))
+   ret.getNodo().setHijo(t[5].getNodo())
+   t[0] = ret
 
 def p_tAtributos(t):
     'I_LTATRIBUTOS    : I_LTATRIBUTOS COMA I_TATRIBUTOS'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LTATRIBUTOS> ::= <I_LTATRIBUTOS> "," <I_TATRIBUTOS>')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("ATRIBUTOS"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
 
 def p_tAtributos1(t):
     'I_LTATRIBUTOS    : I_TATRIBUTOS'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LTATRIBUTOS> ::= <I_TATRIBUTOS>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("ATRIBUTOS"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_atributosT(t):
     'I_TATRIBUTOS     : ID I_TIPO LI_LLAVES'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TATRIBUTOS> ::= "ID" <I_TIPO> <LI_LLAVES>')
+    ret = Retorno(Campo(t[1],t[2].getInstruccion(),t[3].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_atributosTipo(t):
     'I_TATRIBUTOS     : ID I_TIPO'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TATRIBUTOS> ::= "ID" <I_TIPO>')
+    ret = Retorno(Campo(t[1],t[2].getInstruccion(),None),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_atributosT1(t):
     'I_TATRIBUTOS     : PCONSTRAINT'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TATRIBUTOS> ::= <PCONSTRAINT>')
+    t[0] = t[1]
+    
 
 def p_PConstraint(t):
     'PCONSTRAINT     : CONSTRAINT ID TIPO_CONSTRAINT'
+    global reporte_gramatical
+    reporte_gramatical.append('<PCONSTRAINT> ::= <CONSTRAINT> "," <TIPO_CONSTRAINT>')
+    ret = Retorno(Constraint(t[2],t[3].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
 def p_PConstrainTipo(t):
     'PCONSTRAINT     :  TIPO_CONSTRAINT'
+    global reporte_gramatical
+    reporte_gramatical.append('<PCONSTRAINT> ::= <TIPO_CONSTRAINT>')
+    ret = Retorno(Constraint(None,t[1].getInstruccion()),NodoAST("CONSTRAINT"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+
 
 def p_TipoConstraintUnique(t):
     'TIPO_CONSTRAINT     :  UNIQUE PABRE I_LIDS PCIERRA' 
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPO_CONSTRAINT> ::= "UNIQUE" "(" <I_LIDS> ")"')
+    ret = Retorno(CreateUnique(None,t[3].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_TipoConstraintPrimaryKey(t):
     'TIPO_CONSTRAINT     :  PRIMARY KEY PABRE I_LIDS PCIERRA' 
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPO_CONSTRAINT> ::= "PRIMARY" "KEY" "(" <I_LIDS> ")"')
+    ret = Retorno(PK(t[4].getInstruccion()),NodoAST("PRIMARY KEY"))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_ipoConstraintCheck(t):
     'TIPO_CONSTRAINT        : CHECK CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPO_CONSTRAINT> ::= "CHECK" <CONDICION>')
+    ret = Retorno(CreateCheck(None,t[2].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_ipoConstraintForeignKey(t):
     'TIPO_CONSTRAINT        : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA'
-    
-def p_Lllave(t):
-    'LI_LLAVES         : LI_LLAVES I_LLAVES'
-
-def p_Lllave1(t):
-    'LI_LLAVES         : I_LLAVES'
-
-def p_cRef(t):
-    'I_CREFERENCE     : I_CREFERENCE COMA ID'
-
-def p_cRef2(t):
-    'I_CREFERENCE     : ID'
-
-def p_llave(t):
-    'I_LLAVES         : PRIMARY KEY'
-
-def p_llave2(t):
-    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA' 
-
-def p_llave3(t):
-    'I_LLAVES         : DEFAULT ID'
-
-def p_llave4(t):
-    'I_LLAVES         : NULL'
-
-def p_llave5(t):
-    'I_LLAVES         : NOT NULL'
-
-def p_llave6(t):
-    'I_LLAVES         : CONSTRAINT ID'
-
-def p_llave7(t):
-    'I_LLAVES         : UNIQUE PABRE I_LIDS PCIERRA'
-
-def p_llave9(t):
-    'I_LLAVES         : UNIQUE'
-
-def p_llave10(t):
-    'I_LLAVES         : CHECK PABRE I_LIDS PCIERRA'
-
-def p_llave11(t): 
-    'I_LLAVES    : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPO_CONSTRAINT> ::= "FOREIGN" "KEY" "(" <I_LIDS> ")" "REFERENCES" "ID" "(" <I_LIDS> ")"')
+    ret = Retorno(CreateFK(None,t[4].getInstruccion(),t[7],t[9].getInstruccion()),NodoAST("FOREIGN KEY"))
+    ret.getNodo().setHijo(t[4].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[7]))
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
 
 def p_lIds(t):
     'I_LIDS           : I_LIDS COMA CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LIDS> ::= <I_LIDS> "," <CONDICION>')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
 
 def p_lIds1(t):
     'I_LIDS           : CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LIDS> ::= <CONDICION>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+
+def p_Lllave(t):
+    'LI_LLAVES         : LI_LLAVES I_LLAVES'
+    global reporte_gramatical
+    reporte_gramatical.append('<LI_LLAVES> ::= <LI_LLAVES> <I_LLAVES>')
+    val = t[1].getInstruccion()
+    val.append(t[2].getInstruccion())
+    ret = Retorno(val,NodoAST("CONDICION"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[2].getNodo())  
+    t[0] = ret
+
+def p_Lllave1(t):
+    'LI_LLAVES         : I_LLAVES'
+    global reporte_gramatical
+    reporte_gramatical.append('<LI_LLAVES> ::= <I_LLAVES>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("CONDICION"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+
+
+def p_llave(t):
+    'I_LLAVES         : PRIMARY KEY'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "PRIMARY" "KEY" ')
+    ret = Retorno(PK(None),NodoAST("PRIMARY KEY"))
+    t[0] = ret
+
+def p_llave2(t):
+    'I_LLAVES         : REFERENCES ID PABRE I_CREFERENCE PCIERRA' 
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "REFERENCES" "ID" "(" <I_CREFERENCE> ")"')
+    ret = Retorno(References(t[2],t[4].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+def p_llave3(t):
+    'I_LLAVES         : DEFAULT CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "DEFAULT" <CONDICION>')
+    ret = Retorno(Default(t[2].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
+
+def p_llave4(t):
+    'I_LLAVES         : NULL'
+    global reporte_gramatical
+    reporte_gramatical.append('<LI_LLAVES> ::= "NULL"')
+    ret = Retorno(NotNull(False),NodoAST("NULL"))
+    t[0] = ret
+
+def p_llave5(t):
+    'I_LLAVES         : NOT NULL'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "NOT" "NULL"')
+    ret = Retorno(NotNull(True),NodoAST("NOT NULL"))
+    t[0] = ret
+
+def p_llave6(t):
+    'I_LLAVES         : CONSTRAINT ID UNIQUE'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "CONSTRAINT" "ID" "UNIQUE"')
+    ret = Retorno(CreateUnique(None,t[2]),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+
+def p_llave9(t):
+    'I_LLAVES         : UNIQUE'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "UNIQUE"')
+    ret = Retorno(CreateUnique(None,None),NodoAST(t[1]))
+    t[0] = ret
+    
+
+def p_llave10(t):
+    'I_LLAVES         : CHECK CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "CHECK" <CONDICION>')
+    ret = Retorno(CreateCheck(None,t[2].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
+
+def p_llave11(t): 
+    'I_LLAVES         : FOREIGN KEY PABRE I_LIDS PCIERRA REFERENCES ID PABRE I_LIDS PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "FOREIGN" "KEY" "(" <I_LIDS> ")" "REFERENCES" "ID" "(" <I_LIDS> ")"')
+    ret = Retorno(CreateFK(None,t[4].getInstruccion(),t[7],t[9].getInstruccion()),NodoAST("FOREIGN KEY"))
+    ret.getNodo().setHijo(t[4].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[7]))
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
+
+def p_llave12(t):
+    'I_LLAVES         : CONSTRAINT ID CHECK CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LLAVES> ::= "CONSTRAINT" "ID" "CHECK" <CONDICION>')
+    ret = Retorno(CreateCheck(t[2],t[4].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+def p_cRef(t):
+    'I_CREFERENCE     : I_CREFERENCE COMA ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_CREFERENCE> ::= <I_CREFERENCE> "," "ID"')
+    val = t[1].getInstruccion()
+    val.append(t[3])
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+def p_cRef2(t):
+    'I_CREFERENCE     : ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_CREFERENCE> ::= "ID"')
+    val = [t[1]]
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
+# TERMINA CREATE TABLE
 
 # TIPOS DE DATOS
 
@@ -1019,22 +1186,6 @@ def p_DropDBid(t):
 
 # TERMINA DROP DATABASE
 
-
-
-def p_AlterDB(t):
-    'I_ALTERDB     : DATABASE ID I_OPALTERDB I_VALALTDB PCOMA'
-
-def p_opAlterDB(t):
-    'I_OPALTERDB   : RENAME TO'
-
-def p_opAlterDB2(t):
-    'I_OPALTERDB   : OWNER TO'
-
-def p_valAlterDb(t):
-    'I_VALALTDB    : ID'
-
-def p_valAlterDb1(t):
-    'I_VALALTDB    : CADENA'
 
 
 
