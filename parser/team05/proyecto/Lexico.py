@@ -586,96 +586,253 @@ def p_lIds(t):
 def p_lIds1(t):
     'I_LIDS           : CONDICION'
 
+# TIPOS DE DATOS
+
 def p_tipo(t):
     'I_TIPO           : SMALLINT'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "SMALLINT" ') 
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo2(t):
     'I_TIPO           : INTEGER'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "INTEGER" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo3(t):
     'I_TIPO           : BIGINT'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "BIGINT" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
+    
 
 def p_tipo4(t):
     'I_TIPO           : DECIMAL PABRE NUMERO COMA NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "DECIMAL" "(" "NUMERO" "," "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],t[5],t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(str(t[1])))
+    t[0] = ret
 
 def p_tipo4_1(t):
     'I_TIPO           : DECIMAL'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "DECIMAL" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo5(t):
     'I_TIPO           : NUMERIC'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "NUMERIC" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo5_1(t):
     'I_TIPO           : NUMERIC PABRE NUMERO COMA NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "NUMERIC" "(" "NUMERO" "," "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],t[5],t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
 def p_tipo5_2(t):
     'I_TIPO           : NUMERIC PABRE NUMERO PCIERRA'
-
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "NUMERIC" "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
 def p_tipo6(t):
     'I_TIPO           : REAL'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "REAL" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo7(t):
-    'I_TIPO           : DOUBLE I_PREC'
+    'I_TIPO           : DOUBLE PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "DOUBLE" "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
 def p_tipo8(t):
     'I_TIPO           : MONEY'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "MONEY" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo9(t):
-    'I_TIPO           : CHARACTER I_TCHAR'
+    'I_TIPO           : CHARACTER VARYING PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "CHARACTER" "VARYING" "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[4],None,"CHARACTER VARYING"),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST("CHARACTER VARYING"))
+    ret.getNodo().setHijo(NodoAST(str(t[4])))
+    t[0] = ret
+
+def p_tipo9_1(t):
+    'I_TIPO           : CHARACTER PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "CHARACTER" "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
 def p_tipo11(t):
     'I_TIPO           : VARCHAR PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "VARCHAR" "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
 def p_tipo22(t):
     'I_TIPO           : CHAR PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "CHAR" "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
 def p_tipo33(t):
     'I_TIPO           : TEXT'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "TEXT"')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo44(t):
-    'I_TIPO           : TIMESTAMP I_PREC'
+    'I_TIPO           : TIMESTAMP'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "TIMESTAMP"')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
+
+def p_tipo44_1(t):
+    'I_TIPO           : TIMESTAMP PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "TIMESTAMP" "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
 def p_tipo55(t):
-    'I_TIPO           : TIME I_PREC'
+    'I_TIPO           : TIME'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "TIME"')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
+
+def p_tipo55_1(t):
+    'I_TIPO           : TIME PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "TIME" "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[3],None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    t[0] = ret
 
 def p_tipo66(t):
     'I_TIPO           : DATE'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "DATE"')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo77(t):
-    'I_TIPO           : INTERVAL I_FIELDS I_PREC'
+    'I_TIPO           : INTERVAL I_FIELDS'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "INTERVAL" <I_FIELDS> ')
+    ret = Retorno(TipoDato(None,None,t[2]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
+
+def p_tipo77_1(t):
+    'I_TIPO           : INTERVAL I_FIELDS PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "INTERVAL" <I_FIELDS> "(" "NUMERO" ")" ')
+    ret = Retorno(TipoDato(t[4],None,t[2]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(NodoAST(str(t[4])))
+    t[0] = ret
 
 def p_tipo88(t):
     'I_TIPO           : BOOLEAN'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "BOOLEAN" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
 
 def p_tipo99(t):
     'I_TIPO           : ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_TIPO> ::= "ID" ')
+    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
+# TERMINA TIPO DE DATOS
 
-def p_tchar(t):
-    'I_TCHAR          : VARYING PABRE NUMERO PCIERRA'
 
-def p_tchar1(t):
-    'I_TCHAR          : PABRE NUMERO PCIERRA'
-
-def p_prec(t):
-    'I_PREC           : PABRE NUMERO PCIERRA'
-
-def p_prec1(t):
-    'I_PREC           : '
 
 def p_fields(t):
     'I_FIELDS         : MONTH'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_FIELDS> ::= "MONTH" ')
+    t[0] = t[1]
 
 def p_fields1(t):
     'I_FIELDS         : HOUR'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_FIELDS> ::= "HOUR" ')
+    t[0] = t[1]
 
 def p_fields2(t):
     'I_FIELDS         : MINUTE'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_FIELDS> ::= "MINUTE" ')
+    t[0] = t[1]
 
 def p_fields3(t):
     'I_FIELDS         : SECOND'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_FIELDS> ::= "SECOND" ')
+    t[0] = t[1]
 
 def p_fields4(t):
     'I_FIELDS         : YEAR'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_FIELDS> ::= "YEAR" ')
+    t[0] = t[1]
 
 
 def p_replace1(t):
@@ -787,15 +944,40 @@ def p_cAdd(t):
 
 
 
+# DROP TABLE
+
 def p_dropTB(t):
     'I_DROP      : DROP TABLE ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_DROP> ::= "DROP" "TABLE" "ID" ";" ')
+    ret = Retorno(DropT(t[3]),NodoAST("DROP"))
+    ret.getNodo().setHijo(NodoAST("TABLE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
+# TERMINA DROP TABLE
+
+# DROP DATABASE
 def p_dropDB(t):
     'I_DROP    : DROP DATABASE IF EXISTS ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_DROP> ::= "DROP" "DATABASE" "IF" "EXISTS" "ID" ";" ')
+    ret = Retorno(IfExist1(t[5],True),NodoAST("DROP"))
+    ret.getNodo().setHijo(NodoAST("DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
 
 def p_DropDBid(t):
     'I_DROP     : DROP DATABASE ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_DROP> ::= "DROP" "DATABASE" "ID" ";" ')
+    ret = Retorno(IfExist1(t[3],False),NodoAST("DROP"))
+    ret.getNodo().setHijo(NodoAST("DATABASE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
+# TERMINA DROP DATABASE
 
 def p_Exist(t):
     """
