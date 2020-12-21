@@ -107,3 +107,57 @@ Función |  Definición
 `searchRepeat` | Verifica si en el arreglo indicado existen datos repetidos.
 `updateTree` |  Actualiza el arbol B de datos cuando se realizan cambios.
 `verifyPk` | Crea y verifica si las llaves primarias estan repetidas.
+
+### Funciones de serializacion ###
+
+Función |  Definición 
+------------ | -------------
+`commit` | Genera el archivo binario.
+`initCheck` | Verifica si esta creada la carpeta que almacena archivos binarios.
+`rollback` | Decodifica el archivo binario.
+
+### Funciones del nodo ###
+
+Función |  Definición 
+------------ | -------------
+`buscar_llave` | Verifica la existencia de una llave dentro de un nodo.
+`comparar` | Compara las llaves dentro de los nodos.
+`insertar` | Guarda la tupla dentro del nodo.
+`ordenar_llave` | Ordena las llaves dentro del nodo, ascendentemente.
+`posicionNodo` | Obtiene la posicion del nodo dentro del arbol
+`toASCII` | Obtiene la sumatoria del codigo asi de los caracteres de una cadena.
+
+### Funciones del arbol B ###
+
+Función |  Definición 
+------------ | -------------
+`agregarValor` | Agrega un dato en la ultima posicion de cada registro.
+`buscar` | Encuentra y devuelve el nodo al que pertenece una llave.
+`del` | Elimina un registro de la estructura.
+`eliminarValor` | Eliminar un dato en especifico de cada registro.
+`estructurar` | Ordena el arbol luego de una inserción.
+`graficar` | Genera el archivo del arbol en forma visual.
+`insertar` | Ingresa una llave en el nodo correcto.
+`Keys` | Obtiene todas las llaves primarias de los registros almacenados.
+`posicion` | Obtiene la posición de la llave a eliminar.
+`registros` | Obtiene todos los registros almacenados en cada nodo del arbol B.
+`rotar` | Determina la posición en la que se insertará una llave.
+`separar_nodo` | Rompe una página del árbol.
+`unir` | Une dos páginas separadas y forma una sola.
+`valor_buscar` | Obtiene la posición de un valor dado en los nodos.
+
+Diagramas de flujo
+-----------------------
+
+![](https://github.com/tytusdb/tytus/blob/main/storage/team17/docs/img/clases.png)
+
+Diagramas de flujo
+-----------------------
+
+### Función Insertar ###
+
+![](https://github.com/tytusdb/tytus/blob/main/storage/team17/docs/img/Insertar.png)
+
+### Función Eliminar ###
+
+![](https://github.com/tytusdb/tytus/blob/main/storage/team17/docs/img/Eliminar.png)
