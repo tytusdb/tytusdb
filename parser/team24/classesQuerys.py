@@ -140,6 +140,35 @@ class select(query):
                 converted = list(val)
                 result.append(converted)
             consulta = result
+            
+
+        salida = []
+        if self.limit != 0:
+            #self.limit = self.limit + 1
+            contador = 0
+            for fila in consulta:
+                salida.append(fila)
+                if contador == self.limit:
+                    break
+                
+                contador = contador + 1
+            consulta = salida
+
+        salida = []
+        if self.offset != 0:
+            #self.offset = self.offset + 1
+            contador = 0
+            for fila in consulta:
+                
+                if contador != self.offset:
+                    salida.append(fila)
+                
+                contador = contador + 1
+            consulta = salida
+
+             
+        print(consulta)
+        return consulta
 
         #
         #Order by
