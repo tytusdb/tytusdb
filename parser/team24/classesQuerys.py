@@ -1,12 +1,14 @@
 #
 import hashlib
 from datetime import date
+from os.path import split
 from main import ts
 import storage as s
 from enum import Enum
 from main import default_db
 import mathtrig as mt
 import main
+import prettytable as pt
 #
 
 #
@@ -35,24 +37,162 @@ class select(query):
         self.orderby = orderby
         self.limit = limit
         self.offset = offset
-        self.condition.append(having)
+        if having is not None and condition is not None:
+            self.condition.append(having)
 
     def ejecutar(self):
+        gro = self.group
         #Obtener la lista de tablas
         tables = {}
         for tabla in self.table_expression:
             tables[tabla.id]  = tabla.alias
-
+        
         results = []
         for col in self.select_list:
+            
+            
+            
             res = col.ejecutar(tables)
+            
             results.append(res)
         
+        conditions = []
+        if self.condition is not None:
+            conditions = ejecutar_conditions(tables,self.condition)
 
-        conditions = ejecutar_conditions(tables,self.condition)
-        return conditions
+        grouped = []
+        
+        if self.group :
+            
+            grouped = ejecutar_groupBy(results,self.select_list)
+
+        #Mostrar resultados
+        for column in results:
+
+            if isinstance(column,dict) and isinstance(column['valores'],list) and isinstance(conditions,dict):
+                
+                column['valores'] = filtrar(column['valores'],conditions['posiciones'])
+            elif isinstance(column,dict) and isinstance(conditions,list):
+                column['valores'] = filtrar(column['valores'],conditions)
+        #return results
         
             
+        consulta = []
+        fila = []
+        for col in self.select_list:
+            fila.append(col.alias)
+        
+        contador = 0
+        nombres = []
+        for column in results:
+            
+            if fila[contador] == None:
+                if isinstance(column,dict):
+                    nombre = str(contador+1)+'. ' +column['columna'][0]['nombre']
+                    fila[contador]= nombre
+                    nombres.append(nombre)
+                else:
+                    nombre = str(contador+1)+'. '+'Funcion'
+                    fila[contador]= nombre
+                    nombres.append(nombre)
+                
+                
+            
+            contador = contador +1 
+
+        consulta.append(fila)
+        if gro:
+            consulta.extend(grouped)
+        else:
+            cantidad = 0
+            for column in results:
+                if isinstance(column,dict):
+                    cantidad = len(column['valores'])
+                    break
+            
+            for i in range(0,cantidad):
+                fila = []
+                
+                for column in results:
+                    if isinstance(column,dict):
+                        if isinstance(column['valores'],list):
+                            
+                            fila.append(column['valores'][i])
+                        else:
+                            fila.append(column['valores'])
+                    else:
+
+                        fila.append(column)
+                
+                consulta.append(fila)
+            
+            
+        #Distinct
+        if self.distinct:
+            cabeceras = consulta[0]
+            rest = []
+            for i in range(1,len(consulta)):
+                rest.append(tuple(consulta[i]))
+            #remove duplicates
+            rest = list(set(rest))
+            result = [cabeceras]
+            for val in rest:
+                converted = list(val)
+                result.append(converted)
+            consulta = result
+            
+
+        salida = []
+        if self.limit != 0:
+            #self.limit = self.limit + 1
+            contador = 0
+            for fila in consulta:
+                salida.append(fila)
+                if contador == self.limit:
+                    break
+                
+                contador = contador + 1
+            consulta = salida
+
+        salida = []
+        if self.offset != 0:
+            #self.offset = self.offset + 1
+            contador = 0
+            for fila in consulta:
+                
+                if contador != self.offset:
+                    salida.append(fila)
+                
+                contador = contador + 1
+            consulta = salida
+
+             
+        print(consulta)
+        return consulta
+
+        #
+        #Order by
+        sortby =''
+        if self.orderby is not None:
+            for nombre in nombres:
+                if self.orderby[1]  in nombre :
+                    sortby = nombre
+        #
+
+
+        ptable = pt.PrettyTable()
+        ptable.field_names = consulta[0]
+        for i in range(1,len(consulta)):
+            ptable.add_row(consulta[i])
+        if sortby != '':
+            ptable.sortby = sortby
+            if self.orderby[2].lower() =='desc':
+                ptable.reversesort = True
+        return ptable
+
+        
+
+        
         
             
 
@@ -1321,6 +1461,7 @@ class trig_acos(column_mathtrig):
                 subs.append(trim)
                 
             val['valores'] = subs
+            
             return val
             
                 
@@ -2288,7 +2429,7 @@ class fun_max(column_function):
             return None
  
 
-class fun_least(column_function):
+class fun_min(column_function):
     def __init__(self,exp,alias):
         self.exp = exp
         self.alias = alias
@@ -2587,7 +2728,7 @@ class fun_greatest(column_function):
             #Error
             return None
  
-class fun_min(column_function):
+class fun_least(column_function):
     def __init__ (self,lexps,alias):
         self.lexps = lexps
         self.alias = alias
@@ -2608,7 +2749,7 @@ class fun_min(column_function):
                 minimo = val['valores'][0]
                 for valor in val['valores']:
                         
-                    if  minimo > valor :
+                    if  minimo < valor :
                         minimo = valor
                 #retornar min
                 val['valores'] = minimo
@@ -3153,6 +3294,149 @@ def getKeyFromValue(value,d):
 
     return None
 
+def getInstance(col):
+    if isinstance(col,fun_count):
+        return 'count'
+    elif isinstance(col,fun_sum):
+        return 'sum'
+    elif isinstance(col,fun_avg):
+        return 'avg'
+    elif isinstance(col,fun_min):
+        return 'min'
+    else:
+        return 'max'
+
+
+def ejecutar_groupBy(valores,select_list):
+    #Tenemos que encontrar cual es la funcion de agrupacion
+    #En específico que columna es.
+    contador = 0
+    instance = ''
+    for col in select_list:
+        if isinstance(col,fun_count) or isinstance(col,fun_sum) or isinstance(col,fun_avg) or isinstance(col,fun_min) or isinstance(col,fun_max):
+            instance = getInstance(col)
+            break
+        else:
+            contador = contador +1
+    
+    #Una vez tenemos el indice obtenemos el valor devuelto por esa funcion
+
+    agg = valores[contador]
+    #obtenemos cual es el resultado
+    res = agg['valores']
+    #obtenemos las columnas por las que tenemos que agrupar
+    newlist = []
+    newcont = 0
+    #Esto nos devuelve todo menos la columna de agregacion
+    for val in valores:
+        if newcont != contador:
+            newlist.append(val)
+        newcont = newcont +1
+
+    dictionary = {}
+    values = []
+    index = 0
+    firstpass = True
+    for val in newlist:
+        if isinstance(val,dict):
+            val_vals = val['valores']
+            index = 0
+            for key in val_vals:
+                if firstpass :
+                    values.append(key)
+                else:
+                    values[index] = values[index] + '~' + key
+                    index += 1
+            firstpass = False
+
+    #Obtenemos una lista basada en campos con las columnas iguales
+
+    #Obtenemos el dato agrupado como columna sin agrupar
+    #name_column = agg['columna'][0]['nombre']
+    name_table = agg['columna'][0]['tabla']
+    index_col = agg['columna'][0]['indice']
+
+    t = s.extractTable(default_db,name_table)
+    data = []
+    for reg in t:
+        data.append(reg[index_col])
+
+
+
+    #Ahora generamos un diccionario con valores para cada serie de datos
+    if instance == 'sum':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = data[contdata]
+            else:
+                dictionary[val] += data[contdata] 
+            contdata+=1
+    elif instance == 'count':
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = 1
+            else:
+                dictionary[val] += 1
+    elif instance=='avg':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = data[contdata]
+            else:
+                dictionary[val] += data[contdata]
+            contdata+=1
+        #We make a new dictionary 
+        #but with number of repeated rows
+        new_dict = {}
+        for val in values:
+            if val not in new_dict:
+                new_dict[val] = 1
+            else:
+                new_dict[val] += 1
+        for val in dictionary:
+            dictionary[val] /= new_dict[val]
+    elif instance=='max':
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = data[contdata]
+            else:
+                if dictionary[val] < data[contdata] :
+                    dictionary[val] = data[contdata]
+            contdata+=1
+    else:
+        contdata = 0
+        for val in values:
+            if val not in dictionary:
+                dictionary[val] = data[contdata]
+            else:
+                if dictionary[val] > data[contdata] :
+                    dictionary[val] = data[contdata]
+            contdata+=1
+    
+
+    # Con el diccionario generado devolvemos
+    # una lista para ser tratada en la
+    # presentacion de la informacion
+
+    results = []
+    for llave in dictionary:
+        fila = llave.split('~')
+        fila.append(dictionary[llave])
+        results.append(fila)
+
+    return results
+
+
+
+
+
+
+
+    
+
+
 ############
 #Condiciones
 ############
@@ -3182,11 +3466,27 @@ def ejecutar_conditions(tables,lcond):
     else:
         #Obtengo las primeras posiciones y dependiendo 
         valor = condition[0].exp.ejecutar(tables)
-        res =  valor['posiciones'] 
-        for i in range(1, len(condition)):
-            if condition[i].tipo == 'AND':
-                
-                res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])
-            else:
-                res = cond_OR(res, condition[i].exp.ejecutar(tables)['posiciones'])
+        res =  valor['posiciones']
+        if len(condition) > 1 :
+            for i in range(1, len(condition)):
+                print(condition[i].tipo)
+                if condition[i].tipo.upper() == 'AND':
+                    
+                    res = cond_AND(res, condition[i].exp.ejecutar(tables)['posiciones'])
+                else:
+                    res = cond_OR(res, condition[i].exp.ejecutar(tables)['posiciones'])
         return res
+
+def filtrar(lista,posiciones):
+    delete = []
+    for a in range(0,len(lista)):
+        if a not in posiciones:
+            
+            delete.append(a)
+    
+    
+    for index in sorted(delete, reverse=True):
+        
+        del lista[index]
+    
+    return lista

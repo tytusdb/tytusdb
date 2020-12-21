@@ -1,4 +1,4 @@
-import Base as Base
+import TypeCheck.Base as Base
 
 class ListaBases:
     def __init__(self):
@@ -61,16 +61,19 @@ class ListaBases:
             return 2
         else: 
             actual = self.primero
-            atras = None
             while(actual!=None):
                 if actual.nombreBase == nombre:
-                    if actual == self.primero:
+                    if self.primero == self.ultimo:
+                        self.primero = self.ultimo = None
+                    elif actual == self.primero:
                         self.primero = self.primero.siguiente
                         self.primero.anterior = None
+                    elif actual == self.ultimo:
+                        self.ultimo = self.ultimo.anterior
+                        self.ultimo.siguiente = None
                     else:
-                        atras.siguiente = actual.siguiente
                         actual.siguiente.anterior = actual.anterior
+                        actual.anterior.siguiente = actual.siguiente
                     return 0
-                atras = actual
                 actual = actual.siguiente
             return 1

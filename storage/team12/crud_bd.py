@@ -1,10 +1,20 @@
 import binary_file
 import copy
+import crud_tabla
+import os
+from PIL import Image
+
+class Tabla():
+    def __init__(self, name, numberColumns):
+        self.name = name
+        self.numberColumns = numberColumns
+        self.tuples = None
+        self.PK=[]
 
 class Nodo():
     def __init__(self, name):
         self.name = name
-        self.tables = None
+        self.tables = []
         self.left = None
         self.right = None
         self.height = 0
@@ -43,7 +53,7 @@ class CRUD_DataBase:
         try:
             if tmp is None:
                 return Nodo(name)
-            elif int(name) > int(tmp.name):
+            elif name > tmp.name:
                 
                 tmp.right = self._createDatabase(name, tmp.right)
 
@@ -83,7 +93,7 @@ class CRUD_DataBase:
     def _searchDatabase(self, name, tmp):
         if tmp is None or name == tmp.name:
             return tmp
-        elif int(name) > int(tmp.name):
+        elif name > tmp.name:
             tmp = self._searchDatabase(name, tmp.right)
         else:
             tmp = self._searchDatabase(name, tmp.left)            
@@ -142,8 +152,11 @@ class CRUD_DataBase:
             self._showDatabases(tmp.right, r_list)
             r_list.append(tmp.name)
     
-    def r_Root(self):
+    def getRoot(self):
         return binary_file.rollback("databases")
+
+    def saveRoot(self, root):
+        binary_file.commit(root, "databases")
 
     # Left more Right
     def lmr (self, tmp):
@@ -207,7 +220,7 @@ class CRUD_DataBase:
         try:
             if tmp is None:
                 return nodo_Nuevo
-            elif int(name) > int(tmp.name):
+            elif name > tmp.name:
                 
                 tmp.right = self._assignTables(name, tmp.right, nodo_Nuevo)
 
@@ -266,7 +279,6 @@ class CRUD_DataBase:
                     return 2
                 else:
                     return 1
-                    # Creamos un Nuevo Nodo
                     
     def dropDatabase(self, database):
         r_value = 0
@@ -292,7 +304,7 @@ class CRUD_DataBase:
 
         try:
             if tmp is not None:
-                if int(name) == int(tmp.name):
+                if name == tmp.name:
                     if tmp.left != None:
                         tmp.name = self.lmr(tmp).name
                         tmp.left = self._dropDatabase(tmp.name, tmp.left)
@@ -304,7 +316,7 @@ class CRUD_DataBase:
                     else:
                         return None
                 #-----------------------------------#
-                elif int(name) > int(tmp.name):
+                elif name > tmp.name:
                     tmp.right = self._dropDatabase(name, tmp.right)
                     tmp = self.giro(tmp)
                     # Se verifica que no haya error en el nodo
@@ -317,3 +329,243 @@ class CRUD_DataBase:
                 return tmp
         except:
             return 1
+
+    def showGraphviz(self):
+        try:
+            tmp = self.getRoot()
+            encabezado = "digraph D { \n"
+            cuerpo = self._showGraphviz(tmp)[1]
+            pie = "}"
+            consolidado = encabezado + cuerpo + pie
+            objFichero = open("imagenproyecto.txt",'w')
+            objFichero.write(consolidado)
+            objFichero.close()
+            os.system("dot -Tpng imagenproyecto.txt -o imagenproyecto.png")
+            os.remove("imagenproyecto.txt")
+            f = Image.open("imagenproyecto.png")
+            f.show()
+        except FileNotFoundError:
+            pass
+
+    def _showGraphviz(self, tmp):
+        if tmp:
+            dibujo = ""
+            
+            lado_derecho = tmp.name
+            lado_izquierdo = tmp.name
+            
+            izquierda = self._showGraphviz(tmp.left)
+            derecha = self._showGraphviz(tmp.right)
+            
+            
+            if izquierda is None and derecha is None: 
+                return [lado_derecho, '']
+            if izquierda:
+                dibujo += izquierda[1]+lado_izquierdo+"->"+izquierda[0]+"\n"
+            if derecha:
+                dibujo += derecha[1]+lado_derecho+"->"+derecha[0]+"\n"
+            return [lado_derecho, dibujo]
+
+###################################################################################
+###################################################################################
+    
+    """def Buscar2(self, Clave, Actual):
+        if Actual != None:
+            Aux = Actual.Valores
+            if Clave < Aux[0][0]:
+                return self.Buscar2(Clave, Actual.Hijos[0])
+            elif Clave == Aux[0][0]:
+                return Aux[0]
+            elif Aux[1][0] != -1 and Clave > Aux[1][0]:
+                return self.Buscar2(Clave, Actual.Hijos[2])
+            elif Aux[1][0] != -1 and Clave == Aux[1][0]:
+                return Aux[1]
+            else:
+                return self.Buscar2(Clave, Actual.Hijos[1])
+        else:
+            return None
+
+    def Buscar(self, Clave):
+        if self.Raiz == None:
+            return None
+        else:
+            return self.Buscar2(Clave, self.Raiz)"""
+
+    def alterAddPK(self,database,table,keys):
+        Pk = keys
+        datos = []
+        ## busqueda tabla
+        temp = self.extractTable(database,table)
+        ## asignacion de valores para uso posterior del ordenamiento
+        datos =  temp.Tomar_Datos()
+        print(Pk)
+
+    def extractTable(self, database, table):
+        temp = self.searchDatabase(database)
+        try:
+            tablas = temp.tables
+            for i in tablas:
+                if i.name == table:
+                    return i
+        except:
+            return None
+
+    def createTable(self, database, table, numberColumns):
+        
+        r_basededatos = self.searchDatabase(database)
+        if r_basededatos:
+            r_tabla = self.extractTable(database, table)
+            if r_tabla is None:
+                tmp = self.getRoot()
+                table_temp = Tabla(table, numberColumns)
+                r_value = self._createTable(database, tmp, table_temp)
+                if r_value:
+                    self.saveRoot(tmp)
+                    return 0
+                else:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2  
+
+    def _createTable(self, name, tmp, table_temp):
+        try:
+            if tmp is None:
+                pass
+            elif name == tmp.name :
+                tmp.tables.append(table_temp)
+            elif name > tmp.name:
+                tmp = self._createTable(name, tmp.right, table_temp)
+            else:
+                tmp = self._createTable(name, tmp.left, table_temp)
+            return tmp
+        except:
+            return 1   
+
+    def shownTables(self, database):
+        try:
+            temp = self.searchDatabase(database)
+            lista_retorno = []
+            for item in temp.tables:
+                lista_retorno.append(item.name)
+            return lista_retorno
+        except:
+            return None
+
+    def dropTable(self, database, table):
+        try:
+            temp = self.searchDatabase(database)
+            if temp:
+                tmp = self.getRoot()
+                existencia_tabla = self.extractTable(database, table)
+                if existencia_tabla:
+                    self._dropTable(database, tmp, table)
+                    self.saveRoot(tmp)
+                    return 0
+                else:
+                    return 3 
+            else:
+                return 2
+        except:
+            return 1
+
+    def _dropTable(self, name, tmp, table):
+        if tmp is None:
+            pass
+        elif name == tmp.name:
+            id = 0
+            for n in tmp.tables:
+                if n.name == table:
+                    id = tmp.tables.index(n)
+                    break
+            tmp.tables.pop(id)
+        elif name > tmp.name:
+            tmp = self._dropTable(name, tmp.right, table)
+        else:
+            tmp = self._dropTable(name, tmp.left, table)
+        return tmp
+
+    def alterTable(self, database, tableOld, tableNew):
+        
+        existe_database = self.searchDatabase(database)
+        if existe_database:
+            existe_tableOld = copy.deepcopy(self.extractTable(database, tableOld))
+            if existe_tableOld:
+                existe_tableNew = self.extractTable(database, tableNew)
+                if existe_tableNew is None:
+                    
+                    existe_tableOld.name = tableNew
+                    val_drop = self.dropTable(database, tableOld)
+
+                    if val_drop == 0:
+                        val_assign = self.createTable_Object(database, tableNew, existe_tableOld)
+                        return val_assign
+                    elif val_drop == 2:
+                        return 2
+                    else:
+                        return 1
+                else:
+                    return 4
+            else:
+                return 3
+        else:
+            return 2
+            
+    def createTable_Object(self, database, table, object_table):
+        
+        r_basededatos = self.searchDatabase(database)
+        if r_basededatos:
+            r_tabla = self.extractTable(database, table)
+            if r_tabla is None:
+                tmp = self.getRoot()
+                r_value = self._createTable(database, tmp, object_table)
+                if r_value:
+                    self.saveRoot(tmp)
+                    return 0
+                else:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2  
+           
+    def extractRangeTable(self,database,table,columnNumber,lower,upper):
+        valores = []
+        i = lower
+        temp = self.extractTable(database,table)
+        while i <= upper:
+            i += 1
+            valores.append(temp[i])
+        return valores
+
+    def insert(self,database,table,tupla):
+        self.root = binary_file.rollback("databases")
+        self._insert(database, self.root, table,tupla)
+        binary_file.commit(self.root,"databases")
+
+    def _insert(self,database,tmp,table,tupla):
+        if tmp is None:
+            pass
+        elif tmp.name == database:
+            self.subinsert(tmp,table,tupla)
+        elif database > tmp.name:
+            tmp = self._insert(database, tmp.right, table,tupla)
+        else:
+            tmp = self._insert(database, tmp.left, table, tupla )
+        return tmp
+
+    def subinsert(self,tmp,table,tupla):
+        for n in tmp.tables:
+            if n.name == table:
+                id = tmp.tables.index(n)
+                if tmp.tables[id].Tuplas == None:
+                    tmp.tables[id].Tuplas = crud_tabla.Arbol()
+                    tmp.tables[id].Tuplas.insertar_(tupla)
+                else:
+                    tmp.tables[id].Tuplas.insertar_(tupla)
+                return tmp
+
+###################################################################################
+###################################################################################
+#t.showGraphviz()

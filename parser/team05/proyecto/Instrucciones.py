@@ -50,11 +50,12 @@ class Select2(Instruccion):
 class Select3(Instruccion):
     """ Instrucción SELECT """
 
-    def __init__(self, valores, pfrom, where, complementos):
+    def __init__(self, valores, pfrom, where, complementos, distinct):
         self.valores = valores
         self.pfrom = pfrom
         self.where = where
         self.complementos = complementos
+        self.distinct = distinct
 
 
 # INSTRUCCION SELECT SOLO VALORES
@@ -77,6 +78,36 @@ class ComplementoSelectUnionAll(Instruccion):
 
     def __init__(self, select):
         self.select = select
+
+class Union(Instruccion):
+    def __init__(self, sel1, sel2):
+        self.sel1 = sel1
+        self.sel2 = sel2
+
+class UnionAll(Instruccion):
+    def __init__(self, sel1, sel2):
+        self.sel1 = sel1
+        self.sel2 = sel2
+
+class Intersect(Instruccion):
+    def __init__(self, sel1, sel2):
+        self.sel1 = sel1
+        self.sel2 = sel2
+
+class IntersectAll(Instruccion):
+    def __init__(self, sel1, sel2):
+        self.sel1 = sel1
+        self.sel2 = sel2
+
+class Except(Instruccion):
+    def __init__(self, sel1, sel2):
+        self.sel1 = sel1
+        self.sel2 = sel2
+
+class ExceptAll(Instruccion):
+    def __init__(self, sel1, sel2):
+        self.sel1 = sel1
+        self.sel2 = sel2
 
 # INSTRUCCION COMPLEMENTOSELECTINTERSECT
 class ComplementoSelectIntersect(Instruccion):
@@ -202,19 +233,20 @@ class DropDB(Instruccion):
 
 
         # INSTRUCCION DROPTB
-class DropTB(Instruccion):
+class DropT(Instruccion):
     """ Instrucción DROPTB """
 
-    def __init__(self, i_id):
-        self.i_id = i_id
+    def __init__(self, nombre):
+        self.nombre = nombre
         
 
 # INSTRUCCION IFEXIST1
 class IfExist1(Instruccion):
     """ Instrucción IF EXIST """
 
-    def __init__(self, nombre):
+    def __init__(self, nombre,exist):  # exist true o false
         self.nombre = nombre
+        self.exist = exist
 
         
 # INSTRUCCION IFEXIST2
@@ -227,22 +259,14 @@ class IfExist2(Instruccion):
 
 
 # ----------INICIO DE INSERT--------------------
-# INSTRUCCION INSERTTB
-class InsertTB(Instruccion):
-    """ Instrucción INSERTTB """
+# INSTRUCCION INSERT
+class Insert(Instruccion):
+    def __init__(self,tabla,columnas,valores):
+        self.tabla = tabla
+        self.columnas = columnas
+        self.valores = valores
 
-    def __init__(self, i_id,  lvalt):
-        self.i_id = i_id
-        self.lvalt = lvalt
 
-# INSTRUCCION INSERTTB1
-class InsertTB(Instruccion):
-    """ Instrucción INSERTTB """
-
-    def __init__(self, i_id, lvalt, lvalt2):
-        self.i_id = i_id
-        self.lvalt = lvalt
-        self.lvalt2 = lvalt2
 
 
 # INSTRUCCION VALTAB
@@ -326,12 +350,11 @@ class Alter(Instruccion):
 
 # INSTRUCCION ALTERDB
 class AlterDB(Instruccion):
-    """ Instrucción ALTERDB """
+    """ Instrucción ALTER """
 
-    def __init__(self, i_id, operacion, val):
-        self.i_id = i_id
+    def __init__(self, nombreDB,operacion ):
+        self.nombreDB = nombreDB
         self.operacion = operacion
-        self.val = val
 # ----------FIN DE ALTER--------------------
 
 
@@ -390,9 +413,17 @@ class UseDatabase(Instruccion):
 class CreateDatabase(Instruccion):
     """ Instrucción CREATE DATABASE """
 
-    def __init__(self, replace, datos):
-        self.replace = replace
+    def __init__(self, idData, datos,IfNot,Replace):
+        self.idData = idData
         self.datos = datos
+        self.IfNot = IfNot
+        self.Replace = Replace
+
+# OWNER Y MODE
+class OwnerMode(Instruccion):
+    def __init__(self,numeroOwner,numeroMode):
+        self.numeroOwner = numeroOwner
+        self.numeroMode = numeroMode
 
 
 class DatabaseInfo(Instruccion):
@@ -411,3 +442,273 @@ class Owner_Mode(Instruccion):
         self.owner = owner
         self.mode = mode
 # ----------FIN DE CREATE DATABASE------------
+
+# CREATE TYPE
+
+class CreateType(Instruccion):
+    def __init__(self,idtype,valores):
+        self.idtype = idtype
+        self.valores = valores
+
+# DELETE
+
+class DeleteFrom(Instruccion):
+
+    def __init__(self, valor,pwhere ):
+        self.valor = valor
+        self.pwhere = pwhere
+
+#SUBCONSULTA
+
+class Subconsulta(Instruccion):
+    def __init__(self, subconsulta, alias):
+        self.subconsulta = subconsulta
+        self.alias = alias
+
+#FUNCIONES DE AGREGACION
+#COUNT AVG SUM MIN MAX
+class FuncionAgregacion(Instruccion):
+    
+    def __init__(self,nombre,parametro,alias):
+        self.nombre = nombre
+        self.parametro = parametro
+        self.alias = alias 
+
+#FUNCION QUE GUARDARA EL VALOR DE CONDICION Y SU ALIAS
+#VIENE DE PRODUCCION VALOR -> CONDICION ALIAS Y VALOR -> CONDICION
+class Valores(Instruccion):
+    
+    def __init__(self, valor, alias):
+        self.valor = valor
+        self.alias = alias
+
+#FUNCIONES TRIGONOMETRICAS
+#ACOS ACOSD ASIN ASIND ATAN ATAND ATAN2 ATAN2D COS COSD COT COTD SIN SIND TAN TAND SINH COSH TANH ASINH ACOSH ATANH
+class FuncionesTrigonometricas(Instruccion):
+    
+    def __init__(self,nombre,parametro,alias):
+        self.nombre = nombre
+        self.parametro = parametro
+        self.alias = alias
+
+#FUNCION GREATEST
+class FuncionGreatest(Instruccion):
+    
+    def __init__(self, parametros, alias):
+        self.parametros = parametros
+        self.alias = alias
+
+#FUNCION LEAST
+class FuncionLeast(Instruccion):
+    def __init__(self, parametros, alias):
+        self.parametros = parametros
+        self.alias = alias
+
+#FUNCION RANDOM
+class FuncionRandom(Instruccion):
+    def __init__(self, alias):
+        self.alias = alias
+
+#FUNCION PI
+class FuncionPi(Instruccion):
+    def __init__(self, alias):
+        self.alias = alias
+
+#FUNCION DECODE
+class Decode(Instruccion):
+    
+    def __init__(self,cadena,base, alias):
+        self.cadena = cadena
+        self.base = base
+        self.alias = alias
+
+#FUNCION ENCODE
+class Encode(Instruccion):
+    
+    def __init__(self,cadena,base, alias):
+        self.cadena = cadena
+        self.base = base
+        self.alias = alias
+
+#FUNCION CONVERT
+class Convert(Instruccion):
+    
+    def __init__(self,cadena, tipo, alias):
+        self.cadena = cadena
+        self.tipo = tipo
+        self.alias = alias
+
+#FUNCION SHA 256
+class Sha256(Instruccion):
+    def __init__(self,cadena, alias):
+        self.cadena = cadena
+        self.alias = alias
+
+#FUNCION GETBYTE
+class GetByte(Instruccion):
+    
+    def __init__(self,cadena,base, alias):
+        self.cadena = cadena
+        self.base = base
+        self.alias = alias
+
+#FUNCION SETBYTE
+class SetByte(Instruccion):
+    
+    def __init__(self,cadena, offset, cambio, alias):
+        self.cadena = cadena
+        self.offset = offset
+        self.cambio = cambio
+        self.alias = alias
+
+#CLASES PARA EL CASE
+class InstruccionCase(Instruccion):
+    def __init__(self, lwhen, alias):
+        self.lwhen = lwhen
+        self.alias = alias
+
+class InstruccionWhen(Instruccion):
+    def __init__(self, condicion, valor):
+        self.codicion = condicion
+        self.valor = valor
+
+class InstruccionElse(Instruccion):
+    def __init__(self, valor):
+        self.valor = valor
+
+#FUNCIONES MATEMATICAS
+class FuncionesMatematicas(Instruccion):
+    
+    def __init__(self,nombre,parametro,alias = ''):
+        self.nombre = nombre
+        self.parametro = parametro
+        self.alias = alias
+
+#FUNCION CURRENT DATE
+class CurrentDate(Instruccion):
+    
+    def __init__(self):
+        """
+        Clase sin parametros
+        """
+
+#FUNCION CURRENT TIME
+class CurrentTime(Instruccion):
+    
+    def __init__(self):
+        """
+            Clase sin parametros
+        """
+
+#FUNCION TIMESTAMP
+class Timestamp(Instruccion):
+    
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+#FUNCION NOW
+class Now(Instruccion):
+    def __init__(self):
+        """
+        CLASE PARA EL METODO NOW
+        """
+
+class Exists(Instruccion):
+    
+    def __init__(self, subconsulta):
+        self.subconsulta = subconsulta
+
+class In(Instruccion):
+    
+    def __init__(self, valor, subconsulta, isin): #is in recibe un boolean para ver si se usa solo in o not in
+        self.valor = valor
+        self.subconsulta= subconsulta
+        self.isin = isin
+
+class Any_op(Instruccion):
+
+    def __init__(self, valor, operador, tipo, subconsulta):
+        self.valor = valor
+        self.operador = operador
+        self.tipo = tipo
+        self.subconsulta = subconsulta
+
+class Like(Instruccion):
+
+    def __init__(self, valor, expresion, islike):
+        self.valor = valor
+        self.expresion = expresion
+
+# ALTER DATABASE
+class AlterDBMode(Instruccion):
+
+    def __init__(self, numero ):
+        self.numero = numero
+
+class AlterDBOwner(Instruccion):
+
+    def __init__(self, tipo ):
+        self.tipo = tipo
+
+class AlterDBRename(Instruccion):
+
+    def __init__(self, cadena ):
+        self.cadena = cadena
+
+# CREATE TABLE
+
+class CreateTable(Instruccion):
+    def __init__(self,nombreTabla,atributos,idInherits):
+        self.nombreTabla = nombreTabla
+        self.atributos = atributos
+        self.idInherits = idInherits
+
+class CreateFK(Instruccion):
+     
+    def __init__(self, idConstraint, idkey,tablaRef, columnasRef):
+        self.idConstraint = idConstraint
+        self.idkey = idkey
+        self.tablaRef = tablaRef
+        self.columnasRef = columnasRef
+
+class CreateUnique(Instruccion):
+     
+    def __init__(self, idConstraint, idUnique):
+        self.idConstraint = idConstraint
+        self.idUnique = idUnique
+
+class CreateCheck(Instruccion):
+     
+    def __init__(self, idConstraint, condicion):
+        self.idConstraint = idConstraint
+        self.condicion = condicion
+
+
+class NotNull(Instruccion):
+    def __init__(self,valor):
+        self.valor = valor
+
+
+class Constraint(Instruccion):
+    def __init__(self,nombre,valconstraint):
+        self.nombre = nombre
+        self.valconstraint = valconstraint
+
+class Campo(Instruccion):
+    def __init__(self,idC,tipo,llave):
+        self.idC = idC
+        self.tipo = tipo
+        self.llave = llave
+
+class PK(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class Default(Instruccion):
+    def __init__(self,condicion):
+        self.condicion = condicion
+
+class References(Instruccion):
+    def __init__(self,idRef,valoresRef):
+        self.idRef = idRef
+        self.valoresRef = valoresRef
