@@ -2,7 +2,16 @@ from tkinter import *
 from tkinter import scrolledtext
 from tkinter import filedialog as FiledDialog
 from tkinter import ttk
+import Instruccion as INST
 from io import open
+
+#Parte de Importaciones para el analisis etc
+import interprete as Inter
+import Ast2 as ast
+from Instruccion import *
+
+
+
 
 # ------------------------------------------- VENTANA PRINCIPAL ------------------------------------------------------ #
 class Aplicacion:
@@ -15,6 +24,8 @@ class Aplicacion:
         ruta = ""
         # Borra desde el primer caracter hasta el final del texto.
         self.entrada.delete(1.0, "end")
+        self.consola.delete(1.0, "end")
+        Lista.clear()
         self.miVentana.title("TytusDB G16")
 
     def abrir(self):
@@ -52,9 +63,50 @@ class Aplicacion:
         else:
             ruta = ""
 
+
     def enviarDatos(self):
         contenido = self.entrada.get(1.0, "end-1c")
         self.consola.insert('insert', contenido)
+        Inter.inicializarEjecucionAscendente(contenido)
+
+
+    def Seleccionar(self):
+        cadena=""
+        cadena2=""
+        self.consola.delete(1.0, "end")
+        self.miVentana.title("TytusDB G16")
+        Lista.clear()
+        listaGeneral.clear()
+
+        try:
+            cadena = self.entrada.get(SEL_FIRST, SEL_LAST)
+            nueva = str(cadena).upper()
+            print(nueva)
+            Inter.inicializarEjecucionAscendente(cadena)
+            if len(Lista) >0:
+                self.consola.insert('insert', Lista[0])
+            else:
+                return
+        except:
+            cadena2 = self.entrada.get(1.0, "end-1c")
+            nuevaV = str(cadena2).upper()
+            print(nuevaV)
+            Inter.inicializarEjecucionAscendente(cadena2)
+
+            if len(Lista) >0:
+                self.consola.insert('insert', Lista[0])
+            else:
+                return
+
+
+    def graficaTabla(self):
+        INST.tabla_simbolos()
+
+    def Errores(self):
+        Inter.reporte_errores()
+
+    def Graficar(self):
+        print("graficando arbol")
 
     def __init__(self):
         self.miVentana = Tk()
@@ -74,11 +126,19 @@ class Aplicacion:
         self.menuArchivo.add_command(label="Salir de TytusDB", command=self.miVentana.quit())
 
         self.menuAnalizar = Menu(self.barraMenu, tearoff=0)
-        self.menuAnalizar.add_command(label="Run", command=self.enviarDatos)
-        self.menuAnalizar.add_command(label="Graficar Arbol")
+        #self.menuAnalizar.add_command(label="Run", command=self.enviarDatos)
+        self.menuAnalizar.add_command(label="Ejecucion", command=self.Seleccionar)
+        self.menuAnalizar.add_command(label="Graficar Arbol", command=self.Graficar)
+
+        self.menuReportes = Menu(self.barraMenu, tearoff=0)
+        self.menuReportes.add_command(label="Reporte Errores", command=self.Errores)
+        self.menuReportes.add_command(label="Tabla de simbolos", command=self.graficaTabla)
+        self.menuReportes.add_command(label="Reporte gramatical", command=self.guardarComo)
+
 
         self.barraMenu.add_cascade(menu=self.menuArchivo, label="Archivo")
         self.barraMenu.add_cascade(menu=self.menuAnalizar, label="Run")
+        self.barraMenu.add_cascade(menu=self.menuReportes, label="Reportes")
 
         # Area de texto
         self.entrada = scrolledtext.ScrolledText(self.miVentana)
