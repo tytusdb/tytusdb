@@ -8,7 +8,7 @@
 
 # Interfaz Grafica
 TytusDB tiene la siguiente interfaz grafica, cuyos apartados se describen a continuación:
-¡[Interfaz_TytusDB](https://github.com/tytusdb/tytus/tree/main/client/team06/img/TytusDB_01.jpg?raw=true "Title") 
+![Interfaz_TytusDB](https://github.com/tytusdb/tytus/tree/main/client/team06/img/TytusDB_01.jpg?raw=true "Title") 
 
 
 ### 1. Barra de tareas
