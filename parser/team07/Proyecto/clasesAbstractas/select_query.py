@@ -11,6 +11,10 @@ class select_query(InstruccionAbstracta):
         self.tipoUnion = tipoUnion
 
 
-    def ejecutar(self, tabalSimbolos, listaErrores):        
+    def ejecutar(self, tabalSimbolos, listaErrores):    
+        if self.query2 is None:
+            self.query1.ejecutar(tabalSimbolos, listaErrores)
+        else:
+            print("Vienen 2 querys")
         pass 
 
