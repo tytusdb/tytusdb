@@ -17,13 +17,14 @@ class Arbol:
                 print("instruccion OK")
     
     def dibujar(self):# no se como se inicia a graficar :v 
-        g = "diagraph g {" +'\n'
+        g = "digraph g {" +'\n'
         identificador = str(hash(self))
         g+=identificador + "[ label = \"Init\"];"
         
         for instruccion in self.instrucciones:
             print(instruccion)
-            #g+= identificador + "->" + instruccion.dibujar()
+            g+= '\n' + identificador + "->" + str(hash(instruccion))
+            g+= instruccion.dibujar()
 
         
         
