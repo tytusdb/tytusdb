@@ -1,6 +1,6 @@
 import grammar as g
 import tabla as TabladeSimbolos
-from graphQueries import graphTree
+#from graphQueries import graphTree
 default_db = 'DB1'
 ts = TabladeSimbolos.Tabla()
 
