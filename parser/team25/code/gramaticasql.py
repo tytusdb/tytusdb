@@ -2,7 +2,7 @@ import ply.yacc as yacc
 
 from astDML import UpdateTable
 from lexicosql import tokens
-from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
+from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS, ExpresionBetween, BETWEEN
 from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano
 from astFunciones import FuncionNumerica , FuncionCadena
 from astUse import Use
@@ -42,6 +42,9 @@ def p_instrucciones_instruccion(p):
     p[0] = [p[1]]
     bnf.addProduccion('\<instrucciones> ::= \<instruccion>')
 
+def p_instruccion0(p):
+    '''instruccion :  select   PTCOMA '''
+    p[0] = p[1]
 
 def p_instruccion1(p):
     '''instruccion :  sentenciaUpdate   PTCOMA '''
@@ -314,6 +317,10 @@ def p_combine_querys7(p):
     'combine_querys : select'
     bnf.addProduccion('\<combine_querys> ::= \<select> ')
 #_____________________________________________________________ SELECT
+
+def p_select0(p): #_____________ en esta fase NO por el join 
+    'select : SELECT expresion'
+    p[0] = p[2]
 
 def p_select1(p): #_____________ en esta fase NO por el join 
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -1586,12 +1593,13 @@ def p_expresiones_is_complemento6(p):
     bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "DISTINCT" "FROM" \<expresion> ') 
 
 
-
+#    def __init__(self, evaluado, limiteInferior, limiteSuperior, tipo, linea, invertido=False, simetria=False):
 def p_expresion_ternaria(p): 
     '''expresion : expresion BETWEEN  exp_aux AND exp_aux
                  | expresion BETWEEN SYMMETRIC exp_aux AND exp_aux '''
     if len(p) == 6:
         bnf.addProduccion('\<expresion> ::= \<expresion> "BETWEEN" \<exp_aux> "AND" \<exp_aux>')
+        p[0] = ExpresionBetween(p[1], p[3], p[5], BETWEEN.BETWEEN,p.slice[4].lineno)
     else:
         bnf.addProduccion('\<expresion> ::= \<expresion> "BETWEEN" "SYMMETRIC" \<exp_aux> "AND" \<exp_aux>')
         
@@ -1600,6 +1608,7 @@ def p_expresion_ternaria2(p):
                  | expresion NOTBETWEEN SYMMETRIC exp_aux AND exp_aux'''
     if len(p) == 6:
         bnf.addProduccion('\<expresion> ::= \<expresion> "NOTBETWEEN" \<exp_aux> "AND" \<exp_aux>')
+        p[0] = ExpresionBetween(p[1], p[3], p[5], BETWEEN.NOT_BETWEEN,p.slice[4].lineno)
     else:
         bnf.addProduccion('\<expresion> ::= \<expresion> "NOTBETWEEN" "SYMMETRIC" \<exp_aux> "AND" \<exp_aux>')
         
@@ -2007,11 +2016,8 @@ parser = yacc.yacc()
 def analizarEntrada(entrada):
     return parser.parse(entrada)
 
-arbolParser = analizarEntrada(''' 
-select *
-from tbcolaborador 
-where substring(nombre,1,4) = 'suje' ;
-''')
+arbolParser = analizarEntrada(''' ''')
+arbolParser.ejecutar()
 # print(arbolParser)
 # arbolParser.dibujar()#viendo el resultado: 
 

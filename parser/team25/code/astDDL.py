@@ -1,7 +1,7 @@
 from enum import Enum
 from entorno import Entorno
 import storageManager.jsonMode as DBMS
-import typeChecker.typeChecker as TypeCheck
+#import typeChecker.typeChecker as TypeCheck
 
 class IS(Enum):
     TRUE = 1
@@ -111,7 +111,7 @@ class CreateTable(Instruccion):
 
         return nodo
 
-    def ejecutar(self, ts):
+    #def ejecutar(self, ts):
         
         
 
