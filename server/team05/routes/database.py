@@ -1,6 +1,9 @@
 from flask import Blueprint, Response, jsonify, request
+from flask_cors import CORS
 
 dbs = Blueprint('dbs', __name__)
+
+CORS(dbs)
 
 @dbs.route('/create/<name>', methods=['GET'])
 def create(name):

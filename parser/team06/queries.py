@@ -10,6 +10,15 @@ class ShowDatabases(query) :
     def __init__(self, variable) :
         self.variable = variable
 
+class UseDatabases(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, bd_id) :
+        self.bd_id = bd_id
+
 class Select(query) :
     '''
         Esta clase representa una accion que elimina la variable
@@ -87,7 +96,8 @@ class DropDBIF(query) :
         Recibe como parámetro la variable como tal
     '''
 
-    def __init__(self, id) :
+    def __init__(self, iff,id) :        
+        self.iff = iff
         self.id = id
 
 
@@ -218,11 +228,13 @@ class contAdd(query):
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
         Recibe como parametro el contenido de expresiones extras de la variante de ADD
     '''
-    def __init__(self, tipo, tipo2, id1, id2, operacion):
+    def __init__(self, tipo, tipo2, id1, id2, id3, id4, operacion):
         self.tipo = tipo
         self.tipo2 = tipo2
         self.id1 = id1
         self.id2 = id2
+        self.id3 = id3
+        self.id4 = id4
         self.operacion = operacion
 
 
@@ -244,3 +256,4 @@ class contAlter(query):
         self.id = id
         self.tipo = tipo
         self.tipoAsignar = tipoAsignar
+
