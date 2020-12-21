@@ -1,205 +1,231 @@
-import sys
-import os
-sys.path.append(os.path.abspath('.'))
 from DataAccessLayer.handler import Handler
 from Models.avl_tree import AVLTree
+
 
 class TableModule:
     def __init__(self):
         self.handler = Handler()
+        self.dbs = None
 
     def createTable(self, database: str, table: str, numberColumns: int) -> int:
         try:
-            if not self.handler.siExiste(database, table):
-                databases = self.handler.leerArchivoDB()
-                for i in databases:
-                    if database == i.name:
-                        i.tablesName.append(str(table))
-                        self.handler.actualizarArchivoDB(databases)
-                        self.handler.actualizarArchivoTB(AVLTree(database,table,numberColumns,[]), database, table)
+            if not isinstance(database, str) or not isinstance(table, str) or (
+                    not isinstance(numberColumns, int) or numberColumns < 0):
+                raise
+            self.dbs = self.handler.rootinstance()
+            if not self.handler.exists(database, table):
+                for i in self.dbs:
+                    if database.upper() == i.name.upper():
+                        if self.handler.invalid(table):
+                            raise
+                        i.tablesName.append(table)
+                        self.handler.rootupdate(self.dbs)
+                        self.handler.tableupdate(AVLTree(database, table, numberColumns))
                         return 0
                 return 2
-            return 3 
+            return 3
         except:
             return 1
-    
+
     def showTables(self, database: str) -> list:
         try:
-            databases = self.handler.leerArchivoDB()
-            for i in databases:
-                if database == i.name:
+            if not isinstance(database, str):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for i in self.dbs:
+                if database.upper() == i.name.upper():
                     return i.tablesName
             return None
         except:
             return None
-    
-    def extractTable(self ,database: str, table: str) -> list:
+
+    def extractTable(self, database: str, table: str) -> list:
         try:
-            if self.handler.siExiste(database,table):
-                tmp = []
-                avl = self.handler.leerArchivoTB(database,table)
-                if avl.root != None:
-                    tmp = avl.toList()
-                return tmp
+            if not isinstance(database, str) or not isinstance(table, str):
+                raise
+            if self.handler.exists(database, table):
+                avl = self.handler.tableinstance(database, table)
+                return avl.tolist()
             else:
                 return None
         except:
             return None
-    
+
     def extractRangeTable(self, database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
         try:
-            if self.handler.siExiste(database,table):
-                tmp = []
-                avl = self.handler.leerArchivoTB(database,table)
-                if avl.root:
-                    for i in avl.toList():
-                        if type(i[columnNumber]) == type(3):
-                            if int(i[columnNumber]) >= int(lower) and int(i[columnNumber]) <= int(upper):
-                                tmp.append(i)
-                        elif type(i[columnNumber]) == type("string"):
-                            if str(i[columnNumber]) >= str(lower) and str(i[columnNumber]) <= str(upper):
-                                tmp.append(i)
-                        elif type(i[columnNumber]) == type(3.1):
-                            if float(i[columnNumber]) >= float(lower) and float(i[columnNumber]) <= float(upper):
-                                tmp.append(i)
-                        elif type(i[columnNumber]) == type(True):
-                            if bool(i[columnNumber]) >= bool(lower) and bool(i[columnNumber]) <= bool(upper):
-                                tmp.append(i)
-                return tmp
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columnNumber, int):
+                raise
+            if self.handler.exists(database, table):
+                avl = self.handler.tableinstance(database, table)
+                return avl.range(columnNumber, lower, upper)
             else:
                 return None
         except:
             return None
-    
+
     def alterAddPK(self, database: str, table: str, columns: list) -> int:
         try:
-            databases = self.handler.leerArchivoDB()
-            for i in databases:
-                if database == i.name:
-                    if self.handler.siExiste(database,table):
-                        avl = self.handler.leerArchivoTB(database,table)
-                        if avl.pklist == []:
-                            for j in columns:
-                                if j < 0 or j >= avl.numberColumns:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columns, list) or \
+                    len(columns) == 0:
+                raise
+            self.dbs = self.handler.rootinstance()
+            for db in self.dbs:
+                if database.upper() == db.name.upper():
+                    if self.handler.exists(database, table):
+                        avl = self.handler.tableinstance(database, table)
+                        if len(avl.pklist) == 0:
+                            for i in columns:
+                                if not isinstance(i, int):
+                                    raise
+                                if i not in range(avl.numberColumns):
                                     return 5
-                            if avl.root == None:
+                            if avl.root is None:
                                 avl.pklist = columns
-                                return 0
                             else:
-                                temporal = []
-                                for tupla in avl.toList():
-                                    tmp2 = ""
-                                    for key in columns:
-                                        tmp2 += "-" + str(tupla[key])
-                                    tmp2.pop(0)
-                                    if tmp2 in temporal:
+                                used = []
+                                nodes = avl.tolist()
+                                for tpl in nodes:
+                                    pk = ""
+                                    for col in columns:
+                                        pk += "-" + str(tpl[col])
+                                    pk = pk[1:]
+                                    if pk in used:
                                         return 1
-                                    temporal.append(tmp2)
-                                newAvl = AVLTree(database, table, avl.numberColumns, columns)
-                                for tupla in avl.toList():
-                                    newAvl.add(tupla)
-                                self.handler.actualizarArchivoTB(newAvl, database, table)
-                                return 0
-                        else:
-                            return 4
-                    else:
-                        return 3
-            return 2
-        except:
-            return 1
-    
-    def alterDropPK(self, database: str, table: str) -> int:
-        try:
-            databases = self.handler.leerArchivoDB()
-            for i in databases:
-                if database == i.name:
-                    if self.handler.siExiste(database, table):
-                        avl = self.handler.leerArchivoTB(database,table)
-                        if avl.pklist != []:
-                            avl.pklist = []
-                        else:
-                            return 4
-                    else:
-                        return 3
-            return 2
-        except:
-            return 1
-    
-    def alterAddFK(self, database: str, table: str, references: dict) -> int: #para fase 2
-        pass
-
-    def alterAddIndex(self, database: str, table: str, references: dict) -> int: #para fase 2
-        pass
-    
-    def alterTable(self, database: str, tableOld: str, tableNew: str) -> int:
-        try:
-            databases = self.handler.leerArchivoDB()
-            for i in databases:
-                if database == i.name:
-                    if not self.handler.siExiste(database, tableNew):
-                        if self.handler.siExiste(database, tableOld):
-                            for j in range(len(i.tablesName)):
-                                if i.tablesName[j] == tableOld:
-                                    i.tablesName[j] = tableNew
-                            self.handler.actualizarArchivoDB(databases)
-                            avl = self.handler.leerArchivoTB(database,tableOld)
-                            avl.name = tableNew
-                            self.handler.renombrarArchivo(str(tableOld)+'-'+str(database)+'.tbl',str(tableNew)+'-'+str(database)+'.tbl')
+                                    used.append(pk)
+                                newavl = AVLTree(database, table, avl.numberColumns, columns)
+                                c = 0
+                                for tpl in nodes:
+                                    newavl.add(used[c], tpl)
+                                    c += 1
+                                avl = newavl
+                            self.handler.tableupdate(avl)
                             return 0
                         else:
-                            return 3
+                            return 4
                     else:
-                        return 4
+                        return 3
             return 2
         except:
             return 1
-    
+
+    def alterDropPK(self, database: str, table: str) -> int:
+        try:
+            if not isinstance(database, str) or not isinstance(table, str):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for i in self.dbs:
+                if database.upper() == i.name.upper():
+                    if self.handler.exists(database, table):
+                        avl = self.handler.tableinstance(database, table)
+                        if len(avl.pklist) != 0:
+                            avl.pklist = []
+                            self.handler.tableupdate(avl)
+                            return 0
+                        else:
+                            return 4
+                    else:
+                        return 3
+            return 2
+        except:
+            return 1
+
+    # region Phase 2
+    def alterAddFK(self, database: str, table: str, references: dict) -> int:  # para fase 2
+        pass
+
+    def alterAddIndex(self, database: str, table: str, references: dict) -> int:  # para fase 2
+        pass
+
+    # endregion
+
+    def alterTable(self, database: str, tableOld: str, tableNew: str) -> int:
+        try:
+            if not isinstance(database, str) or not isinstance(tableOld, str) or not isinstance(tableNew, str) or \
+                    self.handler.invalid(tableNew):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for db in self.dbs:
+                if database.upper() == db.name.upper():
+                    if self.handler.exists(database, tableOld):
+                        if not self.handler.exists(database, tableNew):
+                            for j in range(len(db.tablesName)):
+                                if db.tablesName[j].upper() == tableOld.upper():
+                                    db.tablesName[j] = tableNew
+                            self.handler.rootupdate(self.dbs)
+                            avl = self.handler.tableinstance(database, tableOld)
+                            avl.name = tableNew
+                            self.handler.rename(database + '_' + tableOld + '.tbl',
+                                                database + '_' + tableNew + '.tbl')
+                            self.handler.tableupdate(avl)
+                            return 0
+                        else:
+                            return 4
+                    else:
+                        return 3
+            return 2
+        except:
+            return 1
+
     def alterAddColumn(self, database: str, table: str, default: any) -> int:
         try:
-            databases = self.handler.leerArchivoDB()
-            for i in databases:
-                if database == i.name:
-                    if self.handler.siExiste(database, table):
-                        avl = self.handler.leerArchivoTB(database,table)
+            if not isinstance(database, str) or not isinstance(table, str):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for db in self.dbs:
+                if database.upper() == db.name.upper():
+                    if self.handler.exists(database, table):
+                        avl = self.handler.tableinstance(database, table)
                         avl.numberColumns += 1
-                        avl.addColumn(default)
+                        avl.massiveupdate("add", default)
+                        self.handler.tableupdate(avl)
                         return 0
                     else:
                         return 3
             return 2
         except:
             return 1
-    
-    def alterDropColumn(self, database: str, table: str, columnNumber: int) -> int: #no se puede eliminar una columna que sea llave primaria (validar)
+
+    def alterDropColumn(self, database: str, table: str, columnNumber: int) -> int:
         try:
-            databases = self.handler.leerArchivoDB()
-            for i in databases:
-                if database == i.name:
-                    if self.handler.siExiste(database, table):
-                        avl = self.handler.leerArchivoTB(database,table)
-                        if columnNumber > avl.numberColumns or columnNumber < 0:
+            if not isinstance(database, str) or not isinstance(table, str) or not isinstance(columnNumber, int):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for db in self.dbs:
+                if database.upper() == db.name.upper():
+                    if self.handler.exists(database, table):
+                        avl = self.handler.tableinstance(database, table)
+                        if columnNumber not in range(avl.numberColumns):
                             return 5
-                        elif columnNumber == avl.numberColumns or columnNumber in avl.pklist:
+                        elif avl.numberColumns == 1 or columnNumber in avl.pklist:
                             return 4
                         else:
                             avl.numberColumns -= 1
-                            avl.dropColumn(columnNumber)
+                            avl.massiveupdate("drop", int(columnNumber))
+                            c = 0
+                            for key in avl.pklist:
+                                if key > columnNumber:
+                                    key -= 1
+                                    avl.pklist[c] = key
+                                c += 1
+                            self.handler.tableupdate(avl)
                             return 0
                     else:
                         return 3
             return 2
         except:
             return 1
-    
-    def dropTable(self, database: str, table: str) -> int: 
+
+    def dropTable(self, database: str, table: str) -> int:
         try:
-            databases = self.handler.leerArchivoDB()
-            for i in databases:
-                if database == i.name:
-                    if self.handler.siExiste(database, table):
+            if not isinstance(database, str) or not isinstance(table, str):
+                raise
+            self.dbs = self.handler.rootinstance()
+            for i in self.dbs:
+                if database.upper() == i.name.upper():
+                    if self.handler.exists(database, table):
                         i.tablesName.remove(table)
-                        self.handler.actualizarArchivoDB(databases)
-                        self.handler.borrarArchivo(str(table)+'-'+str(database)+'.tbl')
+                        self.handler.rootupdate(self.dbs)
+                        self.handler.delete(database + '_' + table + '.tbl')
                         return 0
                     else:
                         return 3

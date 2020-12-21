@@ -1,4 +1,5 @@
 from enum import Enum
+from analizer.abstract import expression
 import analizer.typechecker.Metadata.Struct as S
 from analizer.abstract.expression import Expression
 from analizer.typechecker.Types.Type import Type
@@ -92,7 +93,6 @@ def types(col, value):
             return True
         else:
             e = "El valor " + str(value) + " no pertenece a " + col["type"]
-
     else:
         e = " Type " + col["type"] + " no encontrado"
 
@@ -130,42 +130,40 @@ def checkInsert(dbName, tableName, columns, values):
 
     if columns != None:
         if len(columns) != len(values):
-            return "Columnas fuera de los limites 1"
+            return ["Columnas fuera de los limites 1"]
 
     table = S.extractTable(dbName, tableName)
     values = S.getValues(table, columns, values)
 
     if table == 0:
-        return "No existe la base de datos"
+        return ["No existe la base de datos"]
     elif table == 1:
-        return "No existe la tabla"
+        return ["No existe la tabla"]
     elif len(table["columns"]) != len(values):
-        return "Columnas fuera de los limites 2"
+        return ["Columnas fuera de los limites 2"]
     else:
         pass
 
     indexCol = 0
     for value in values:
         column = table["columns"][indexCol]
+        x = Type.get(column["type"])
+        if not isinstance(value, expression.Primitive):
+            value = expression.Primitive(x, value, 0, 0)
+            values[indexCol] = value
         if value != None and value.type != TYPE.NULL:
-
             if column["Unique"] or column["PK"]:
                 validateUnique(dbName, tableName, value.value, indexCol)
-
             if column["FK"] != None:
                 validateForeign(dbName, column["FK"], value.value)
-
             if column["Constraint"] != None:
                 validateConstraint(
                     column["Constraint"], values, dbName, tableName, column["type"]
                 )
-
             select(column, value)
         else:
             validateNotNull(column["NN"], column["name"])
-
         indexCol += 1
-
     return [listError(), values]
 
 

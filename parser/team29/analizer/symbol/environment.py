@@ -79,7 +79,6 @@ class Environment:
             return
         return table
 
-
     def getType(self, table, column):
         """
         Encargada de buscar ambiguedad de una columna entre todas
@@ -90,7 +89,7 @@ class Environment:
         while env != None:
             if table in env.variables:
                 symbol = env.variables[table].value
-                type = env.types[symbol+"."+column]
+                type = env.types[symbol + "." + column]
                 break
             env = env.previous
         return type
