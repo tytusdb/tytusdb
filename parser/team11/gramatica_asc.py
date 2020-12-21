@@ -399,6 +399,35 @@ def p_funciones_trigonometricas(t):
                                | ACOSH PARIZQ expresionaritmetica PARDER
                                | ATANH PARIZQ expresionaritmetica PARDER'''
     
+# ---------------------------- FUNCIONES BINARIAS SOBRE CADENAS ------------------------------
+
+# Select | Where
+def p_fbinarias_cadenas_1(t):
+    'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
+    
+# Select | Insert | Update | Where
+def p_fbinarias_cadenas_2(t):
+    '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
+                            | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
+                            | TRIM PARIZQ cadena PARDER'''
+    
+# Insert | Update                            
+def p_fbinarias_cadenas_3(t):
+    'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
+
+# Select
+def p_fbinarias_cadenas_4(t):
+    '''func_bin_strings_4   : GET_BYTE PARIZQ cadena COMA ENTERO PARDER
+                            | SET_BYTE PARIZQ cadena COMA ENTERO COMA ENTERO PARDER
+                            | ENCODE PARIZQ cadena COMA cadena PARDER
+                            | DECODE PARIZQ cadena COMA cadena PARDER
+                            | SHA256 PARIZQ cadena PARDER
+                            | CONVERT PARIZQ alias PARDER'''
+
+def p_cadena(t):
+    '''cadena   : cualquiercadena
+                | cualquieridentificador'''
+    
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
 
 def p_inst_alter(t):
