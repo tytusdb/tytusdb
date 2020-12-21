@@ -58,11 +58,46 @@ def p_statement_list_statement(t):
 def p_statement(t):
     '''statement : insert_statement
                  | definitiondb_statement
+                 | definitiontable_statement
                  | update_statement
                  | delete_statement
                  | select_statement
+                 | enumtype
     '''
     t[0] = Nodo("statement", [t[1]], 'N', None)
+
+    #*************************************************
+    #**********************        type enum Modificado 14  de diciembre  Henry    Todas las posibles opcciones   ***********
+
+    #*************************************************     
+
+def p_enumtype(t):
+    'enumtype : CREATE TYPE id_enum AS ENUM PARIZQ list_enum PARDER PTCOMA' 
+    temp = list() 
+    temp.append(t[3]) 
+    temp.append(t[7])    
+    t[0] = Nodo("enumtype", temp,'N',None)
+
+
+def p_list_enum(t):
+    'list_enum : list_enum  COMA  otro_id '
+    temp = list()
+    temp.append(t[1]) 
+    temp.append(t[3])   
+    t[0] = Nodo("list_enum", temp,'N',None) 
+
+def p_otro_id(t) :
+    'list_enum : otro_id'
+    t[0] = Nodo("list_enum", [t[1]],'N',None)
+
+
+def p_list1_enum(t):
+    'otro_id :  CADENACOMSIMPLE ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))
+    
+def p_id_enum(t):
+    'id_enum :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))    
 
     # *************************************************
     # **********************         createdb_statement Modificado 11  de diciembre  Henry      ***********
@@ -70,38 +105,169 @@ def p_statement(t):
 
 
 def p_definitiondb_statement(t):
-    '''definitiondb_statement : create_db
-                              | alter_db
-                              | show_db
-                              | drop_db
-    '''
+    '''definitiondb_statement : create_db 
+                              | alter_db  
+                              | show_db   
+                              | drop_db 
+                              | use_db
+                              
+    '''       
     t[0] = Nodo("definitiondb_statement", [t[1]], 'N', None)
 
+ #...............USE DEB........................................................................................................................
+def p_use_db(t):
+    'use_db : USE id_dbx PTCOMA'
+    temp = list()
+    temp.append(t[2])   
+    t[0] = Nodo("use_db", temp,'N',None)
+    
+def p_id_dbx(t):
+    'id_dbx :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))   
+ 
+ 
+#................................CREATE DATABASE................................................................................................    
+def p_create0_db(t):
+    'create_db : CREATE ORH REPLACE DATABASE IF NOTH EXISTS id_create00 PTCOMA'
+    temp = list()
+    temp.append(t[8])   
+    t[0] = Nodo("create_db", temp,'N',None)
+    
+def p_id_create00(t):
+    'id_create00 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))     
 
+def p_create1_db(t):
+    'create_db : CREATE ORH REPLACE DATABASE IF NOTH EXISTS id_create0 createdb_option PTCOMA'
+    temp = list()
+    temp.append(t[8])   
+    temp.append(t[9])    
+    t[0] = Nodo("create_db", temp,'N',None)    
+    
+def p_id_create0(t):
+    'id_create0 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))     
+     
 def p_create2_db(t):
-    'create_db : CREATE DATABASE ID PTCOMA'
-    t[0] = Nodo("create_db", [t[3]], 'S', str(t[3]))
+    'create_db : CREATE ORH REPLACE DATABASE id_create22 PTCOMA'
+    temp = list()
+    temp.append(t[5])   
+    t[0] = Nodo("create_db", temp,'N',None)    
+   
+def p_id_create22(t):
+    'id_create22 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))     
+    
 
+def p_create3_db(t):
+    'create_db : CREATE ORH REPLACE DATABASE id_create1 createdb_option PTCOMA'
+    temp = list()
+    temp.append(t[5])  
+    temp.append(t[6]) 
+    t[0] = Nodo("create_db", temp,'N',None)  
+    
+    
+def p_id_create1(t):
+    'id_create1 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))  
+ 
+    
+def p_create4_db(t):
+    'create_db : CREATE DATABASE IF NOTH EXISTS id_create44 PTCOMA'
+    temp = list()
+    temp.append(t[6])   
+    t[0] = Nodo("create_db", temp,'N',None) 
 
-def p_show_db(t):
-    'show_db : SHOW DATABASES PTCOMA'
-    t[0] = Nodo("show_db", [t[2]], 'S', str(t[2]))
+def p_id_create44(t):
+    'id_create44 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))     
 
+def p_create5_db(t):
+    'create_db : CREATE DATABASE IF NOTH EXISTS id_create2 createdb_option PTCOMA'
+    temp = list()
+    temp.append(t[6]) 
+    temp.append(t[7])    
+    t[0] = Nodo("create_db", temp,'N',None)     
 
-def p_alter0_db(t):
-    'alter_db : ALTER DATABASE ID OWNER TO ID PTCOMA'
+def p_id_create2(t):
+    'id_create2 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1])) 
+def p_create6_db(t):
+    'create_db : CREATE DATABASE id_create66 PTCOMA'
+    temp = list()
+    temp.append(t[3])   
+    t[0] = Nodo("create_db", temp,'N',None)   
+
+def p_id_create66(t):
+    'id_create66 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))
+
+def p_create7_db(t):
+    'create_db : CREATE DATABASE id_create3 createdb_option PTCOMA'
     temp = list()
     temp.append(t[3])
     temp.append(t[4])
+    t[0] = Nodo("create_db", temp,'N',None)
+ 
+def p_id_create3(t):
+    'id_create3 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1])) 
+    
+def p_createdb_option(t): 
+    """createdb_option : op_owner_mode
+               | op_owner
+               | op_mode
+    """
+    t[0] = Nodo("createdb_option", [t[1]],'N',None)  
+   
+
+def p_owner_mode(t): 
+    'op_owner_mode : op_owner op_mode ' 
+    temp = list()
+    temp.append(t[1])
+    temp.append(t[2])
+    t[0] = Nodo("op_owner_mode", temp,'N',None)    
+    
+    
+def p_p0_owner(t): 
+    'op_owner : OWNER IGUAL CADENACOMSIMPLE ' 
+    t[0] = Nodo("op_owner", [t[3]],'S',str(t[3]))       
+
+def p_p1_owner(t): 
+    'op_owner : OWNER CADENACOMSIMPLE ' 
+    t[0] = Nodo("op_owner", [t[2]],'S',str(t[2]))   
+    
+def p_p0_mode(t): 
+    'op_mode : MODE IGUAL ENTERO' 
+    t[0] = Nodo("op_mode", [t[3]],'S',str(t[3]))   
+    
+def p_p1_mode(t): 
+    'op_mode : MODE ENTERO ' 
+    t[0] = Nodo("op_mode", [t[2]],'S',str(t[2]))  
+
+def p_show_db(t):
+    'show_db : SHOW DATABASES PTCOMA'
+    t[0] = Nodo("show_db", [t[2]],'S',str(t[2]))
+
+def p_alter0_db(t):
+    'alter_db : ALTER DATABASE a_id OWNER TO a_cad PTCOMA'
+    temp = list()
+    temp.append(t[3])
     temp.append(t[6])
-    t[0] = Nodo("alter_db", temp, 'S', None)
-
-
+    t[0] = Nodo("alter_db", temp,'N',None)  
+    
+def p_a_id(t):
+    'a_id :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1])) 
+    
+def p_a_cad(t):
+    'a_cad :  CADENACOMSIMPLE' 
+    t[0] = Nodo("owner", [t[1]],'S',str(t[1]))    
+    
 def p_alter1_db(t):
     'alter_db : ALTER DATABASE ID RENAME TO ID PTCOMA'
     temp = list()
     temp.append(t[3])
-    temp.append(t[4])
     temp.append(t[6])
     t[0] = Nodo("alter_db", temp, 'S', None)
 
@@ -116,11 +282,310 @@ def p_drop1_db(t):
     t[0] = Nodo("drop_db", [t[3]], 'S', str(t[3]))
 
 
-# *************************************************
-# **********************         insert_statement      ***********
-# *************************************************
-# region INSERT
-def p_insert_statement(t):
+    # *************************************************
+    # **********************        statement create_table Modificado 14  de diciembre  Henry      ***********
+    # *************************************************    
+ 
+def p_definitiontb_statement(t):
+    '''definitiontable_statement : create_table 
+                              | alter_table 
+                              | drop_table 
+    '''       
+    t[0] = Nodo("definitiontb_statement", [t[1]],'N',None)   
+
+#...........................................................DROP TABLE....................................................................       
+def p_drop_table(t):
+    'drop_table : DROP TABLE id_dt0 PTCOMA'
+    temp = list() 
+    temp.append(t[3]) 
+    t[0] = Nodo("drop_table", temp,'N',None) 
+    
+def p_id_dt0(t):
+    'id_dt0 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))    
+ 
+#................................ALTER TABLE-------------------------------------------------------------------------------------------------
+def p_alter_table(t):
+    'alter_table : ALTER TABLE id_at0 alter_option PTCOMA' 
+    temp = list() 
+    temp.append(t[3]) 
+    temp.append(t[4]) 
+    t[0] = Nodo("alter_table", temp,'N',None)     
+    
+def p_id_at0(t):
+    'id_at0 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))     
+    
+def p_alter_option(t): 
+    'alter_option : ADD COLUMN id_at1 un_tipo'
+    temp = list() 
+    temp.append(t[3]) 
+    temp.append(t[4]) 
+    t[0] = Nodo("alter_option", temp,'N',None)  
+
+def p_id_at1(t):
+    'id_at1 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))
+    
+def p_alter_option0(t): 
+    'alter_option : DROP COLUMN id_at2'
+    temp = list() 
+    temp.append(t[3]) 
+    t[0] = Nodo("alter_option", temp,'N',None) 
+
+
+def p_id_at2(t):
+    'id_at2 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))
+
+def p_alter_option1(t): 
+    'alter_option : ADD CHECK PARIZQ condicion_check  PARDER'
+    temp = list() 
+    temp.append(t[4]) 
+    t[0] = Nodo("alter_option", temp,'N',None)  
+    
+#...............check.......................................................................................................
+def p_condition_check(t):  
+    'condicion_check : id_check0 operador_check expresion_check'
+    temp = list()
+    temp.append(t[1]) 
+    temp.append(t[2]) 
+    temp.append(t[3])
+    t[0] = Nodo("condicion_check", temp,'N',None)
+    
+def p_id_check(t):  
+    'id_check0 :  ID' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))      
+    
+def p_operador_check(t):   
+    """operador_check :  DIFERENTEH IGUAL   
+                      | IGUAL 
+                      | MENQUE
+                      | MAYQUE
+                      | MENORIGU 
+                      | MAYORIGU
+                      | DIFERENTEH
+                     
+    """
+    if (len(t) == 3):
+        temp = list()
+        temp.append(t[1])
+        temp.append(t[2])
+        t[0] = Nodo("operador_check", temp,'S',None)
+     
+    else:
+        t[0] = Nodo("operador_check", [t[1]],'S',str(t[1])) 
+
+
+def p_expresion_check0(t):  
+    """expresion_check :   un_entero
+                          | una_cadena
+                          | un_DECIMALV
+                          | un_idd
+                                        
+    """
+    t[0] = Nodo("expresion_check", [t[1]],'N',None)
+
+
+def p_expresion_check1(t):  
+    'un_entero :  ENTERO' 
+    t[0] = Nodo("entero", [t[1]],'S',str(t[1]))
+    
+def p_expresion_check2(t):  
+    'una_cadena :  CADENACOMSIMPLE' 
+    t[0] = Nodo("cadena", [t[1]],'S',str(t[1]))  
+    
+def p_expresion_check3(t):  
+    'un_DECIMALV :  DECIMALV' 
+    t[0] = Nodo("DECIMALV", [t[1]],'S',str(t[1]))  
+    
+def p_expresion_check4(t):  
+    'un_idd :  ID' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))  
+    
+def p_alter_option2(t): 
+    'alter_option : ALTER COLUMN id_nulo SET NOTH NULL'
+    temp = list() 
+    temp.append(t[3]) 
+    t[0] = Nodo("alter_option", temp,'N',None)    
+
+def p_id_nulo(t):  
+    'id_nulo :  ID' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1])) 
+    
+def p_alter_option3(t): 
+    'alter_option : DROP CONSTRAINT id_ct'
+    temp = list() 
+    temp.append(t[3]) 
+    t[0] = Nodo("alter_option", temp,'N',None)    
+
+def p_id_ct(t):  
+    'id_ct :  ID' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))       
+    
+#---------------------UNIQUE-------------------------------------------------------------------------------------------------
+def p_alter_option4(t):
+    'alter_option : ADD CONSTRAINT id2_at2 UNIQUE PARIZQ p_column PARDER'
+    temp = list()
+    temp.append(t[3]) 
+    temp.append(t[6]) 
+    t[0] = Nodo("alter_option", temp,'N',None)
+    
+def p_id2_at2(t):  
+    'id2_at2 :  ID' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))    
+
+def p_p_column(t):  
+    'p_column :  ID' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))      
+
+
+
+#.....................FOREIGN -----------------------------------------------------------------------------------------------
+def p_alter_option5(t):
+    'alter_option : ADD FOREIGN KEY PARIZQ column_group1 PARDER  REFERENCES PARIZQ column_group1 PARDER'
+    temp = list()
+    temp.append(t[5]) 
+    temp.append(t[9]) 
+    t[0] = Nodo("alter_option", temp,'N',None)
+
+#---Para grupo de columna    
+def p_column_group1(t):
+    'column_group1 : column_group1  COMA  column_g'
+    temp = list()
+    temp.append(t[1]) 
+    temp.append(t[3])   
+    t[0] = Nodo("column_group", temp,'N',None) 
+    
+def p_columng(t) :
+    'column_group1 : column_g'
+    t[0] = Nodo("column_group", [t[1]],'N',None)
+
+def p_columng1(t):
+    'column_g :  ID' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))
+
+
+#.........................................CAMBIO DE TIPOS PARA STRINGS...........................................................
+def p_alter_option6(t):
+    'alter_option : lista_columnas'
+    temp = list()
+    temp.append(t[1]) 
+    t[0] = Nodo("alter_option", temp,'N',None)
+
+def p_lista_columnas(t):
+    'lista_columnas : lista_columnas COMA lista_col'
+    temp = list()
+    temp.append(t[1])  
+    temp.append(t[3]) 
+    t[0] = Nodo("lista_columnas", temp,'N',None)
+
+def p_lista_col(t):
+    'lista_columnas : lista_col'
+    temp = list()
+    temp.append(t[1])  
+    t[0] = Nodo("lista_columnas", [t[1]],'N',None)
+    
+def p_lista_col0(t):
+    'lista_col : ALTER COLUMN p1  TYPE p2 PARIZQ p3 PARDER '
+    temp = list()
+    temp.append(t[3])  
+    temp.append(t[5])
+    temp.append(t[7]) 
+    t[0] = Nodo("lista_col", temp,'N',None)
+
+def p_p1(t):
+    'p1 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))
+
+def p_p2(t):
+    '''p2 :  VARCHAR
+            | CHAR
+            | CHARACTER
+            ''' 
+    t[0] = Nodo("tipo", [t[1]],'S',str(t[1]))
+
+def p_p3(t):
+    'p3 : ENTERO ' 
+    t[0] = Nodo("valor", [t[1]],'S',str(t[1]))
+    
+
+   
+#...........................................CREATE TABLE.......................................................................  
+def p_create_table(t):
+    'create_table : CREATE TABLE id_ct1 PARIZQ list_rowsh PARDER PTCOMA' 
+    temp = list() 
+    temp.append(t[3]) 
+    temp.append(t[5]) 
+    t[0] = Nodo("create_table", temp,'N',None) 
+    
+    
+def p_create_table0(t):
+    'create_table : CREATE TABLE id_ct1  PARIZQ list_rowsh PARDER inherits_table' 
+    temp = list() 
+    temp.append(t[3]) 
+    temp.append(t[5]) 
+    temp.append(t[7]) 
+    t[0] = Nodo("create_table", temp,'N',None)        
+    
+def p_id_ct1(t):
+    'id_ct1 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))
+    
+
+def p_end_create_table(t):
+    'inherits_table : INHERITS PARIZQ  id_inh0 PARDER PTCOMA'  
+    temp = list() 
+    temp.append(t[3]) 
+    t[0] = Nodo("inherits_table", temp,'N',None)  
+    
+def p_id_inh0(t):
+    'id_inh0 :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))
+    
+def p_list_rowsh(t):
+    'list_rowsh : list_rowsh COMA rowsh'
+    temp = list()
+    temp.append(t[1]) 
+    temp.append(t[3])   
+    t[0] = Nodo("list_rowsh", temp,'N',None)    
+    
+def p_list_rowsh0(t) :
+    'list_rowsh : rowsh'
+    t[0] = Nodo("list_rowsh", [t[1]],'N',None)
+
+def p_list_rowsh1(t) :
+    'rowsh : id_row un_tipo'
+    temp = list()
+    temp.append(t[1]) 
+    temp.append(t[2])   
+    t[0] = Nodo("columna", temp,'N',None) 
+    
+           
+def p_id_row(t):
+    'id_row  :  ID ' 
+    t[0] = Nodo("id", [t[1]],'S',str(t[1]))     
+    
+#ver todos los tipoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooos    
+def p_un_tipo(t):  
+    """un_tipo :  FLOAT
+                | TEXT
+                | INT
+                | MONEY
+                | BIGINT
+                | SMALLINT
+                
+                                               
+    """
+    t[0] = Nodo("tipo", [t[1]],'S',str(t[1])) 
+    
+    
+
+#*************************************************
+#**********************         insert_statement      ***********
+#*************************************************   
+#region INSERT
+def p_insert_statement(t) :
     '''insert_statement : INSERT INTO table_name insert_columns_and_source PTCOMA
     '''
     temp = list()
