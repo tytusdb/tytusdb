@@ -1,0 +1,21 @@
+# Manual técnico
+## Objetivos
+* Explicar la comunicación entre los componenetes de la aplicación
+* Explicar aspectos técnicos de la aplicación
+
+## Alcance
+Este manual está dirigido a cualquier persona que tengan conocimientos en aplicaciones web y desea probar la comunicación entre un servidor y cliente de forma local.
+
+## Diagrama de componentes 
+Este diagrama explica los componentes que componen la aplicación web
+
+- El cliente realiza una petición (request) POST, GET, UPDATE o DELETE al servidor
+- El servidor recibe la petición recupera la información y responde al cliente
+- El cliente recibe la respuesta (response) y actualiza la vista con lso datos recibidos
+
+## Requisitos técnicos
+- Windows 10
+- 1 GB de espacio libre en el disco
+- 8 GB de RAM
+- Python 3.8.5
+- Angular
