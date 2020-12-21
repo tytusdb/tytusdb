@@ -2276,297 +2276,789 @@ def p_Where(t):
 
 def p_CondicionIgual(t):
     'CONDICION  :   CONDICION IGUAL CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"=\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.IGUAL),NodoAST("="))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionDif(t):
     'CONDICION  :   CONDICION DIF CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"<>\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.DIF),NodoAST("\\<\\>"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionDif1(t):
     'CONDICION  :   CONDICION DIF1 CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"!=\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.DIF),NodoAST("!="))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionMenor(t):
     'CONDICION  :   CONDICION MENOR CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"<\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.MENOR),NodoAST("\\<"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionMenorI(t):
     'CONDICION  :   CONDICION MENORIGUAL CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"<=\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.MENORIGUAL),NodoAST("\\<="))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionMayor(t):
     'CONDICION  :   CONDICION MAYOR CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \">\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.MAYOR),NodoAST("\\>"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionMayorI(t):
     'CONDICION  :   CONDICION MAYORIGUAL CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \">=\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.MAYORIGUAL),NodoAST("\\>="))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionAnd(t):
     'CONDICION  :   CONDICION AND CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"AND\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.AND),NodoAST("AND"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionOr(t):
     'CONDICION  :   CONDICION OR CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"OR\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACION_LOGICA.OR),NodoAST("OR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionNot(t):
     'CONDICION  :   NOT CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"NOT\" <CONDICION>")
+    ret = Retorno(ExpresionUnaria(t[2].getInstruccion(), OPERACION_LOGICA.NOT), NodoAST("NOT"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_CondicionParentesis(t):
     'CONDICION  :   PABRE CONDICION PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"(\" <CONDICION> \")\"")
+    t[0] = t[2]
 
 def p_CondicionMas(t):
     'CONDICION  :   CONDICION MAS CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"+\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.MAS),NodoAST("+"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionMenos(t):
     'CONDICION  :   CONDICION MENOS CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"-\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.MENOS),NodoAST("-"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionPor(t):
     'CONDICION  :   CONDICION POR CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"*\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.POR),NodoAST("*"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionDiv(t):
     'CONDICION  :   CONDICION DIVIDIDO CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"/\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.DIVIDIDO),NodoAST("/"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionMod(t):
     'CONDICION  :   CONDICION MODULO CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"%\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.MODULO),NodoAST("%"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionExp(t):
     'CONDICION  :   CONDICION EXP CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"^\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.EXP),NodoAST("^"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionIs(t):
     'CONDICION  :   CONDICION IS CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"IS\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.IS),NodoAST("IS"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionIsN(t):
     'CONDICION  :   CONDICION IS NULL CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"IS\" \"NULL\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.ISNULL),NodoAST("IS NULL"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionNotN(t):
     'CONDICION  :   CONDICION NOT NULL CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"NOT\" \"NULL\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(),t[3].getInstruccion(),OPERACIONES.NOTNULL),NodoAST("NOT NULL"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionM(t):
     'CONDICION  :   MENOS CONDICION %prec UMENOS'
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"-\" <CONDICION>")
+    ret = Retorno(ExpresionUnaria(t[2].getInstruccion(), OPERACIONES.MENOS), NodoAST('-'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_CondicionP(t):
     'CONDICION  :   MAS CONDICION %prec UMAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"+\" <CONDICION>")
+    ret = Retorno(ExpresionUnaria(t[2].getInstruccion(), OPERACIONES.MAS), NodoAST('+'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_CondicionExtract(t):
     'CONDICION  :   EXTRACT PABRE DATETIME FROM PTIMESTAMP PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"EXTRACT\" \"(\" <DATETIME> \"FROM\" <PTIMESTAMP> \")\"")
+    ret = Retorno(Extract(t[5].getInstruccion(), t[3]), NodoAST('EXTRACT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_CondicionFuncionWhere(t):
     'CONDICION  :   FUNCIONES_WHERE '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <FUNCIONES_WHERE>")
+    t[0] = t[1]
 
 def p_CondicionNum(t):
     'CONDICION  :   NUMERO '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"NUMERO\"")
+    ret = Retorno(Numero(t[1]),NodoAST(str(t[1])))
+    t[0] = ret 
 
 def p_CondicionDec(t):
     'CONDICION  :   DECIMALN'
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"DECIMALN\"")
+    ret = Retorno(Decimal(t[1]),NodoAST(str(t[1])))
+    t[0] = ret
 
 def p_CondicionCad(t):
     'CONDICION  :   CADENA '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"CADENA\"")
+    ret = Retorno(Cadena(t[1]),NodoAST(t[1]))
+    t[0] = ret 
 
 def p_CondicionTrue(t):
     'CONDICION  :   TRUE '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"TRUE\"")
+    ret = Retorno(Booleano(t[1]),NodoAST(t[1]))
+    t[0] = ret
 
 def p_CondicionFalse(t):
     'CONDICION  :   FALSE '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"FALSE\"")
+    ret = Retorno(Booleano(t[1]),NodoAST(t[1]))
+    t[0] = ret
 
 def p_CondicionId(t):
     'CONDICION  :   ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"ID\"")
+    ret = Retorno(Id(t[1],None),NodoAST(t[1]))
+    t[0] = ret
 
 def p_CondicionIdP(t):
     'CONDICION  :   ID PUNTO ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"ID\" \".\" \"ID\"")
+    val = Id(t[3], t[1])
+    ret = Retorno(val, NodoAST('.'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_CondicionIdPor(t):
     'CONDICION  :   ID PUNTO POR '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"ID\" \".\" \"*\"")
+    val = Id('*', t[1])
+    ret = Retorno(val, NodoAST('.'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_CondicionFuncionSistema(t):
     'CONDICION  :   FUNCIONES_SISTEMA '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <FUNCIONES_SISTEMA>")
+    t[0] = t[1]
 
 def p_CondicionDatePart(t):
     'CONDICION  :   DATE_PART PABRE CADENA COMA INTERVAL CADENA PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"DATE_PART\" \"(\" \"CADENA\" \",\" \"INTERVAL\" \"CADENA\" \")\"")
+    ret = Retorno(DatePart(t[3], t[6]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('DATE_PART'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    t[0] = ret
 
 def p_CondicionCurrentDate(t):
     'CONDICION  :   CURRENT_DATE '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"CURRENT_DATE\"")
+    ret = Retorno(CurrentDate(), NodoAST('CURRENT_DATE'))
+    t[0] = ret
 
 def p_CondicionCurrentTime(t):
     'CONDICION  :   CURRENT_TIME '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"CURRENT_TIME\"")
+    ret = Retorno(CurrentTime(), NodoAST('CURRENT_TIME'))
+    t[0] = ret
 
 def p_CondicionTimeStamp(t):
     'CONDICION  :   TIMESTAMP CADENA '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"TIMESTAMP\" \"CADENA\"")
+    ret = Retorno(Timestamp(t[2]), NodoAST('TIMESTAMP'))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
 def p_CondicionBetween(t):
     'CONDICION  :   CONDICION BETWEEN CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"BETWEEN\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(), t[3].getInstruccion(), OPERACION_LOGICA.BETWEEN), NodoAST('BETWEEN'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_CondicionNotBetween(t):
     'CONDICION  :   CONDICION NOT BETWEEN CONDICION %prec NOTB'
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"NOT\" \"BETWEEN\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(), t[4].getInstruccion(), OPERACION_LOGICA.NOTBETWEEN), NodoAST('NOT BETWEEN'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_CondicionBetweenSimetric(t):
     'CONDICION  :   CONDICION BETWEEN SIMMETRIC CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"BETWEEN\" \"SIMMETRIC\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(), t[4].getInstruccion(), OPERACION_LOGICA.BETWEENSIMMETRIC), NodoAST('BETWEEN SIMMETRIC'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_CondicionBetweenNotSimetric(t):
     'CONDICION  :   CONDICION NOT BETWEEN SIMMETRIC CONDICION  %prec NOTB'
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"NOT\" \"BETWEEN\" \"SIMMETRIC\" <CONDICION>")
+    ret = Retono(ExpresionBinaria(t[1].getInstruccion(), t[5].getInstruccion(), OPERACION_LOGICA.NOTBETWEENSIMMETRIC), NodoAST('NOT BETWEEN SIMMETRIC'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_CondicionIsDistinct(t):
     'CONDICION  :   CONDICION IS DISTINCT FROM CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"IS\" \"DISTINCT\" \"FROM\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(), t[5].getInstruccion(), OPERACION_LOGICA.ISDISTINCT), NodoAST('IS DISTINCT'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_CondicionIsNotDistinct(t):
     'CONDICION  :   CONDICION IS NOT DISTINCT FROM CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <CONDICION> \"IS\" \"NOT\" \"DISTINCT\" \"FROM\" <CONDICION>")
+    ret = Retorno(ExpresionBinaria(t[1].getInstruccion(), t[6].getInstruccion(), OPERACION_LOGICA.ISNOTDISTINCT), NodoAST('IS NOT DISTINCT'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[6].getNodo())
+    t[0] = ret
 
 def p_CondicionNull(t):
     'CONDICION  :   NULL '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"NULL\"")
+    ret = Retorno(Null(), NodoAST('NULL'))
+    t[0] = ret
 
 def p_CondicionUnknown(t):
     'CONDICION  :   UNKNOWN '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"UNKNOWN\"")
+    ret = Retorno(Unknow(), NodoAST('UNKNOW'))
+    t[0] = ret
 
 def p_CondicionSubConsulta(t):
     'CONDICION  :   PABRE SUBCONSULTA PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"(\" <SUBCONSULTA> \")\"")
+    t[0] = t[2]
 
 def p_CondicionFunciones(t):
     'CONDICION  :   FUNCION PABRE ID PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" \"ID\" \")\"")
+    val_id = Id(t[3], None)
+    ret = Retorno(FuncionAgregacion(t[1], val_id, None), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_CondicionFunciones1(t):
     'CONDICION  :   FUNCION PABRE ID PUNTO ID PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= <FUNCION> \"(\" \"ID\" \".\" \"ID\" \")\"")
+    val_id = Id(t[5], t[3])
+    ret = Retorno(FuncionAgregacion(t[1], val_id, None), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_CondicionNow(t):
     'CONDICION  :   NOW PABRE PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<CONDICION> ::= \"NOW\" \"(\" \")\"")
+    ret = Retorno(Now(), NodoAST('NOW'))
+    t[0] = ret
 
 def p_FuncionesSistemaAlias(t):
     'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_SISTEMA> ::= <ID_FUNCION> \"(\" <LCONDICION_FUNCION> \")\" <ALIAS>")
+    ret = Retorno(FuncionesMatematicas(t[1], t[3].getInstruccion(), t[5].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_FuncionesSistema(t):
     'FUNCIONES_SISTEMA  :   ID_FUNCION PABRE LCONDICION_FUNCION PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_SISTEMA> ::= <ID_FUNCION> \"(\" <LCONDICION_FUNCION> \")\" \";\"")
+    ret = Retorno(FuncionesMatematicas(t[1], t[3].getInstruccion(), t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_FuncionesSistemaString(t):
     'FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_SISTEMA> ::= <ID_FUNCION_S> \"(\" <LCONDICION_FUNCION_S> \")\" <ALIAS>")
+    ret = Retorno(FuncionesSistema(t[1], t[3].getInstruccion(), t[5].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getHijo())
+    ret.getNodo().setHijo(t[5].getHijo())
+    t[0] = ret
 
 def p_FuncionesSistemaString1(t):
     'FUNCIONES_SISTEMA  :   ID_FUNCION_S PABRE LCONDICION_FUNCION_S PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_SISTEMA> ::= <ID_FUNCION> \"(\" <LCONDICION_FUNCION_S> \")\"")
+    ret = Retorno(FuncionesSistema(t[1], t[3].getInstruccion(), None), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_FuncionesSistemaTrimA(t):
     'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_SISTEMA> ::= \"TRIM\" \"(\" <LBOTH> \"CADENA\" \"FROM\" \"CADENA\" \")\" <ALIAS>")
+    ret = Retorno(FuncionTrim(t[3], t[4], t[6], t[8].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('TRIM'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[4]))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    ret.getNodo().setHijo(t[8].getNodo())
+    t[0] = ret
 
 def p_FuncionesSistemaTrim(t):
     'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH CADENA FROM CADENA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_SISTEMA> ::= \"TRIM\" \"(\" <LBOTH> \"CADENA\" \"FROM\" \"CADENA\" \")\"")
+    ret = Retorno(FuncionTrim(t[3], t[4], t[6], None), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('TRIM'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[4]))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    t[0] = ret
 
 def p_FuncionesSistemaTrimA1(t):
     'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("\"TRIM\" \"(\" <LBOTH> \"FROM\" \"CADENA\" \",\" \"CADENA\" \")\" <ALIAS>")
+    ret = Retorno(FuncionTrim(t[3], t[5], t[7], t[9].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('TRIM'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(NodoAST(t[7]))
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
 
 def p_FuncionesSistemaTrim1(t):
     'FUNCIONES_SISTEMA  :   TRIM PABRE LBOTH FROM CADENA COMA CADENA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("\"TRIM\" \"(\" <LBOTH> \"FROM\" \"CADENA\" \",\" \"CADENA\" \")\"")
+    ret = Retorno(FuncionTrim(t[3], t[5], t[7], None), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('TRIM'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(NodoAST(t[7]))
+    t[0] = ret
 
 def p_Id_FuncionSubstring(t):
     'ID_FUNCION_S  :   SUBSTRING   '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_FUNCION_S> ::= \"SUBSTRING\"")
+    t[0] = 'SUBSTRING'
 
 def p_Id_FuncionLength(t):
     'ID_FUNCION_S  :   LENGTH   '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_FUNCION_S> ::= \"LENGTH\"")
+    t[0] = 'LENGTH'
 
 def p_Id_FuncionSubstr(t):
     'ID_FUNCION_S  :   SUBSTR   '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_FUNCION_S> ::= \"SUBSTR\"")
+    t[0] = 'SUBSTR'
 
 def p_LBOTHLeading(t):
     'LBOTH  :   LEADING   '
+    global reporte_gramatical
+    reporte_gramatical.append("<LBOTH> ::= \"LEADING\"")
+    t[0] = 'LEADING'
 
 def p_LBOTHTrailing(t):
     'LBOTH  :   TRAILING   '
+    global reporte_gramatical
+    reporte_gramatical.append("<LBOTH> ::= \"TRAILING\"")
+    t[0] = 'TRAILING'
 
 def p_LBOTHBoth(t):
     'LBOTH  :   BOTH   '
+    global reporte_gramatical
+    reporte_gramatical.append("<LBOTH> ::= \"BOTH\"")
+    t[0] = 'BOTH'
 
 def p_LCondicionFuncion_Condicion(t):
     'LCONDICION_FUNCION_S  :   CONDICION   '
+    global reporte_gramatical
+    reporte_gramatical.append("<LCONDICION_FUNCION_S> ::= <CONDICION>")
+    t[0] = t[1]
 
 def p_LCondicionFuncion_S(t):
     'LCONDICION_FUNCION_S  :   CONDICION COMA NUMERO COMA NUMERO   '
+    global reporte_gramatical
+    reporte_gramatical.append("<LCONDICION_FUNCION_S> ::= <CONDICION> \",\" \"NUMERO\" \",\" \"NUMERO\"")
+    val = [t[1].getInstruccion(), Numero(t[3]), Numero(t[5])]
+    ret = Retorno(val, NodoAST('PARAMETROS'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST(str(t[3])))
+    ret.getNodo().setHijo(NodoAST(str(t[5])))
+    t[0] = ret
 
 def p_IdFuncionAbs(t):
     'ID_FUNCION  :   ABS  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_FUNCION> ::= \"ABS\"")
+    t[0] = 'ABS'
 
 def p_IdFuncionCBRT(t):
     'ID_FUNCION  :   CBRT  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_FUNCION> ::= \"CBRT\"")
+    t[0] = 'CBRT'
 
 def p_IdFuncionCeil(t):
     'ID_FUNCION  :   CEIL  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_FUNCION> ::= \"CEIL\"")
+    t[0] = 'CEIL'
 
 def p_IdFuncionCeiling(t):
     'ID_FUNCION  :   CEILING  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_FUNCION> ::= \"CEILING\"")
+    t[0] = 'CEILING'
 
 def p_LCondicionFuncion1(t):
     'LCONDICION_FUNCION  :   CONDICION  '
+    global reporte_gramatical
+    reporte_gramatical.append("<LCONDICION_FUNCION> ::= <CONDICION>")
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST('VALOR'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_LCondicionFuncion(t):
     'LCONDICION_FUNCION  :   LCONDICION_FUNCION COMA CONDICION  '
+    global reporte_gramatical
+    reporte_gramatical.append("<LCONDICION_FUNCION> ::= <LCONDICION_FUNCION> \",\" <CONDICION>")
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val, NodoAST('VALOR'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_DateTimeYear(t):
     'DATETIME  :   YEAR '
+    global reporte_gramatical
+    reporte_gramatical.append("<DATETIME> ::= \"YEAR\"")
+    t[0] = 'YEAR'
 
 def p_DateTimeHour(t):
     'DATETIME  :   HOUR '
+    global reporte_gramatical
+    reporte_gramatical.append("<DATETIME> ::= \"HOUR\"")
+    t[0] = 'HOUR'
 
 def p_DateTimeMinute(t):
     'DATETIME  :   MINUTE '
+    global reporte_gramatical
+    reporte_gramatical.append("<DATETIME> ::= \"MINUTE\"")
+    t[0] = 'MINUTE'
 
 def p_DateTimeSecond(t):
     'DATETIME  :   SECOND '
+    global reporte_gramatical
+    reporte_gramatical.append("<DATETIME> ::= \"SECOND\"")
+    t[0] = 'SECOND'
 
 def p_DateTimeMonth(t):
     'DATETIME  :   MONTH '
+    global reporte_gramatical
+    reporte_gramatical.append("<DATETIME> ::= \"MONTH\"")
+    t[0] = 'MONTH'
     
 def p_DateTimeDay(t):
     'DATETIME  :   DAY '
+    global reporte_gramatical
+    reporte_gramatical.append("<DATETIME> ::= \"DAY\"")
+    t[0] = 'DAY'
 
 def p_FuncionesWhereExist(t):
     'FUNCIONES_WHERE  :   EXISTS PABRE SUBCONSULTA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_WHERE> ::= \"EXISTS\" \"(\" <SUBCONSULTA> \")\"")
+    ret = Retorno(Exists(t[3].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('EXISTS'))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_FuncionesWhereIn(t):
     'FUNCIONES_WHERE  :   CONDICION IN PABRE SUBCONSULTA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_WHERE> ::= <CONDICION> \"IN\" \"(\" <SUBCONSULTA> \")\"")
+    ret = Retorno(In(t[1].getInstruccion(), t[4].getInstruccion(), True), NodoAST('IN'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_FuncionesWhereNotIn(t):
     'FUNCIONES_WHERE  :   CONDICION NOT IN PABRE SUBCONSULTA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_WHERE> ::= <CONDICION> \"NOT\" \"IN\" \"(\" <SUBCONSULTA> \")\"")
+    ret = Retorno(In(t[1].getInstruccion(), t[5].getInstruccion(), False), NodoAST('NOT IN'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_FuncionesWhereAny(t):
     'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW ANY PABRE SUBCONSULTA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_WHERE> ::= <CONDICION> <OPERATOR_FW> \"ANY\" \"(\" <SUBCONSULTA> \")\"")
+    ret = Retorno(Any_op(t[1].getInstruccion(), t[2], 'ANY', t[5].getInstruccion()), NodoAST(t[2]))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST('ANY'))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_FuncionesWhereAll(t):
     'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW ALL PABRE SUBCONSULTA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_WHERE> ::= <CONDICION> <OPERATOR_FW> \"ALL\" \"(\" <SUBCONSULTA> \")\"")
+    ret = Retorno(Any_op(t[1].getInstruccion(), t[2], 'ALL', t[5].getInstruccion()), NodoAST(t[2]))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST('ALL'))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_FuncionesWhereSome(t):
     'FUNCIONES_WHERE  :   CONDICION OPERATOR_FW SOME PABRE SUBCONSULTA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_WHERE> ::= <CONDICION> <OPERATOR_FW> \"SOME\" \"(\" <SUBCONSULTA> \")\"")
+    ret = Retorno(Any_op(t[1].getInstruccion(), t[2], 'SOME', t[5].getInstruccion()), NodoAST(t[2]))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST('SOME'))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_FuncionesWhereLike(t):
     'FUNCIONES_WHERE  :   CONDICION LIKE CADENA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_WHERE> ::= <CONDICION> \"LIKE\" \"CADENA\"")
+    ret = Retorno(Like(t[1].getInstruccion(), t[3], True), NodoAST('LIKE'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_FuncionesWhereNotLike(t):
     'FUNCIONES_WHERE  :   CONDICION NOT LIKE CADENA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCIONES_WHERE> ::= <CONDICION> \"NOT\" \"LIKE\" \"CADENA\"")
+    ret = Retorno(Like(t[1].getInstruccion(), t[3], False), NodoAST('NOT LIKE'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[4]))
+    t[0] = ret
 
 def p_OperatorFwMenor(t):
     'OPERATOR_FW  :   MENOR   '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERATOR_FW> ::= \"" + str(t[1]) + "\"")
+    t[0] = t[1]
 
 def p_OperatorFwMayor(t):
     'OPERATOR_FW  :   MAYOR   '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERATOR_FW> ::= \"" + str(t[1]) + "\"")
+    t[0] = t[1]
 
 def p_OperatorFwMenorIgual(t):
     'OPERATOR_FW  :   MENORIGUAL   '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERATOR_FW> ::= \"" + str(t[1]) + "\"")
+    t[0] = t[1]
 
 def p_OperatorFwMayorIgual(t):
     'OPERATOR_FW  :   MAYORIGUAL   '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERATOR_FW> ::= \"" + str(t[1]) + "\"")
+    t[0] = t[1]
 
 def p_OperatorFwIgual(t):
     'OPERATOR_FW  :   IGUAL   '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERATOR_FW> ::= \"" + str(t[1]) + "\"")
+    t[0] = t[1]
 
 def p_OperatorFwDif(t):
     'OPERATOR_FW  :   DIF   '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERATOR_FW> ::= \"" + str(t[1]) + "\"")
+    t[0] = t[1]
 
 def p_OperatorFwDif1(t):
     'OPERATOR_FW  :   DIF1   '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERATOR_FW> ::= \"" + str(t[1]) + "\"")
+    t[0] = t[1]
 
 def p_PTimestamC(t):
     'PTIMESTAMP  :   TIMESTAMP CADENA '
+    global reporte_gramatical
+    reporte_gramatical.append("<PTIMESTAMP> ::= \"TIMESTAMP\" \"CADENA\"")
+    ret = Retorno(Cadena(t[2]), NodoAST(t[2]))
+    t[0] = ret
 
 def p_PTimestamId(t):
     'PTIMESTAMP  :   TIMESTAMP ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<PTIMESTAMP> ::= \"TIMESTAMP\" \"ID\"")
+    ret = Retorno(Id(t[2], None), NodoAST(t[2]))
+    t[0] = ret
 
 def p_PTimestamIdPId(t):
     'PTIMESTAMP  :   TIMESTAMP ID PUNTO ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<PTIMESTAMP> ::= \"TIMESTAMP\" \"ID\" \".\" \"ID\"")
+    ret = Retorno(Id(t[4], t[2]), NodoAST('.'))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(NodoAST(t[4]))
 
 def p_PTimestamCadena(t):
     'PTIMESTAMP  :   CADENA '
+    global reporte_gramatical
+    reporte_gramatical.append("<PTIMESTAMP> ::= \"CADENA\"")
+    ret = Retorno(Cadena(t[1]), NodoAST(t[1]))
+    t[0] = ret
 
 def p_PTimestamId1(t):
     'PTIMESTAMP  :   ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<PTIMESTAMP> ::= \"ID\"")
+    ret = Retorno(Id(t[1], None), NodoAST(t[1]))
+    t[0] = ret
 
 def p_PTimestamIdP(t):
     'PTIMESTAMP  :   ID PUNTO ID '
+    global reporte_gramatical
+    reporte_gramatical.append("<PTIMESTAMP> ::= \"ID\" \".\" \"ID\"")
+    ret = Retorno(Id(t[3], t[1]), NodoAST('.'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
 
 def p_empty(t):
     'EMPTY :'
