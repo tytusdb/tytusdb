@@ -621,6 +621,12 @@ class BPlusTree:
                 lista = list(self.lista().values())
                 for l in lista:
                     l.pop(column)
+                if len(self.PKey):
+                    for x in self.PKey:
+                        if x>column:
+                            index = self.PKey.index(x)
+                            x-=1
+                            self.PKey[index]=x
                 return 0
         except:
             return 1
