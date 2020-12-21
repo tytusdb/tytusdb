@@ -6,7 +6,6 @@
 # 201220165 - Oscar Rolando Bernard Peralta
 
 # IMPORT SECTION
-from proyecto.Instrucciones import UnionAll
 import ply.lex as lex
 import ply.yacc as yacc
 from Expresiones import *
@@ -188,7 +187,9 @@ palabras_reservadas = {
     'column'        : 'COLUMN',
     'use'           : 'USE',
     'md5'           : 'MD5',
-    'decimal'       : 'DECIMAL'
+    'decimal'       : 'DECIMAL',
+    'current_user'  : 'CURRENT_USER',
+    'session_user'  : 'SESSION_USER'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -291,10 +292,6 @@ def t_CADENA(t):
     t.value = t.value[1:-1] 
     return t 
 
-def t_CADENASI(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -417,69 +414,70 @@ def p_instruccion1(t):
 
 def p_instruccion2(t):
     """
-        INSTRUCCION     :   I_CREATE
+        INSTRUCCION     :   I_REPLACE
+                        |   I_CTABLE
+                        |   I_CTYPE
                         |   I_DROP
                         |   I_INSERT
-                        |   I_ALTER
+                        |   I_ALTERDB
                         |   I_UPDATE
                         |   I_SHOW
                         |   I_DELETE
                         |   I_USE
+                        |   I_ALTERTB
     """
     t[0] = t[1]
 
 
 def p_use(t):
-    """
-        I_USE           :   USE ID PCOMA
-    """
-    t[0] = UseDatabase(t[2])
+    'I_USE           :   USE ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_USE> ::= "USE" "ID" ";"')
+    ret = Retorno(UseDatabase(t[2]),NodoAST("USE"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
     
-def p_create(t):
-    """
-        I_CREATE        :   CREATE I_TCREATE
-    """
-    t[0] = t[2]
-
-
-def p_tcreate(t):
-    """
-        I_TCREATE       :   I_REPLACE
-                        |   I_CTABLE
-                        |   I_CTYPE
-    """
-    t[0] = t[1]
-    
-    
-    
-
+# CREATE TYPE
 
 def p_ctype(t):
-    """
-        I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA PCOMA
-    """
-    #INSTRUCCION CTYPE
-
+    'I_CTYPE       : CREATE TYPE ID AS ENUM PABRE I_LVALUES PCIERRA PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_CTYPE> ::= "CREATE" "TYPE" "ID" "AS" "ENUM" "(" <I_LVALUES> ")" ";"')
+    ret = Retorno(CreateType(t[3],t[7].getInstruccion()),NodoAST("CREATE TYPE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
 
 def p_lcad1(t):
-    """
-        I_LCAD          :   I_LCAD COMA LCAD
-    """
-    # Instruccion
+    'I_LVALUES          :   I_LVALUES COMA CONDI'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LVALUES> ::= <I_LVALUES> "," <CONDI>')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
 
 
 def p_lcad2(t):
-    """
-        I_LCAD          :   LCAD
-    """
-    # Instruccion
+    'I_LVALUES          :   CONDI'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LVALUES> ::= <CONDI>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+    
 
 def p_Ilcad2(t):
-    """
-        LCAD          :   CADENA
-    """
+    'CONDI          :   CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<CONDI> ::= <CONDICION>')
+    t[0] = t[1]
 
+# TERMINO CREATE TYPE
 
 
 def p_ctable(t):
@@ -684,8 +682,6 @@ def p_replace2(t):
     #t[0] = CreateDatabase(False, t[2])
 
 
-def p_alter(t):
-    'I_ALTER     : ALTER I_TALTER'
 
 def p_alterTB(t):
     'I_ALTERTB   : TABLE ID I_OPALTER '
@@ -908,22 +904,40 @@ def p_FTUP(t):
 def p_FTUP1(t):
     'FTRIGONOMETRICASUP   : ASIN'
 
-def p_show(t):
-    'I_SHOW       : SHOW DATABASES PCOMA'
-
-def p_delete(t):
-    'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
-
 def p_valTab(t):
     'I_VALTAB      : CONDICION'
     # INSTRUCCION VALTAB
-
-
     
 def p_valTabMd5(t):
     'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
     # INSTRUCCION VALTAB
 
+# SHOW
+
+def p_show(t):
+    'I_SHOW       : SHOW DATABASES PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_SHOW> ::= "SHOW" "DATABASE" ";" ')
+    ret = Retorno(Show(t[2]),NodoAST("SHOW"))
+    #ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
+
+# TERMINA SHOW
+
+# DELETE
+
+def p_delete(t):
+    'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_DELETE> ::= "DELETE" "FROM" "ID" <PWHERE> ";" ')
+    ret = Retorno(DeleteFrom(t[3],t[4].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+# TERMINA DELETE
+
+#--------------------------------------------------------------------------------
 
 def p_ISelect(t):
     'I_SELECT  :   SELECT VALORES PFROM LCOMPLEMENTOS'
