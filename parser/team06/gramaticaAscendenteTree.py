@@ -2284,7 +2284,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "NOT":
+    elif t[1].upper() == "NOT":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
@@ -2300,7 +2300,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "UNIQUE":
+    elif t[1].upper() == "UNIQUE":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
@@ -2311,7 +2311,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "PRIMARY":
+    elif t[1].upper() == "PRIMARY":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
