@@ -2,7 +2,7 @@ import os
 import webbrowser
 import graphviz
 
-from AST.error import * 
+from .AST.error import * 
 
 import sys
 sys.path.append("../")
@@ -24,6 +24,8 @@ def graphAST(self):
         # os.system(cmd)
         # webbrowser.open_new_tab('ast.pdf')
     except Exception as e:
+        print_error("AST Error",e)
+        print(e)
         self.errors.append( Error("Unknown", "Wrong generated AST", 0, 0) )
         print_error("Unknown Error", "Wrong generated AST")
         #print(e)

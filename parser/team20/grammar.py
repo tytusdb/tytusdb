@@ -179,7 +179,6 @@ tokens = reservedwords + symbols + (
     'INT',
     'NDECIMAL',
     'STRING',
-    'REGEX',
 )
 
 # Tokens
@@ -200,7 +199,6 @@ t_GREATERTHAN      = r'>'
 t_LESSTHANEQUAL    = r'<='
 t_GREATERTHANEQUAL = r'>='
 t_NOTEQUAL         = r'<>|!='
-t_REGEX            = r'\'%?.*?%?\''
 
 def t_ID(t):
     r'[A-Za-z][A-Za-z0-9_]*'
@@ -227,7 +225,7 @@ def t_INT(t):
     return t
 
 def t_STRING(t):
-    r'\".*?\"'
+    r'\".*?\"|\'.*?\''
     t.value = t.value[1:-1]
     return t
 
@@ -251,7 +249,6 @@ def t_error(t):
     print_error("Lexical Error", "Illegal character in " + str(t.value[0]) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
     grammarerrors.append(
         Error("Lexical","Ilegal character in '%s'." % (t.value[0]),t.lineno,find_column(input,t)))
-    print("Carácter ilegal en '%s' Linea: %d Columna: %d" % (t.value[0],t.lineno,find_column(input,t)))
     t.lexer.skip(1)
 
 # Compute column.
@@ -485,7 +482,7 @@ def p_instruction_create_table_column(t):
               | CONSTRAINT ID CHECK BRACKET_OPEN expression BRACKET_CLOSE
               | UNIQUE BRACKET_OPEN idList BRACKET_CLOSE
               | PRIMARY KEY BRACKET_OPEN idList BRACKET_CLOSE 
-              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES BRACKET_OPEN idList BRACKET_CLOSE '''
+              | FOREIGN KEY BRACKET_OPEN idList BRACKET_CLOSE REFERENCES ID BRACKET_OPEN idList BRACKET_CLOSE '''
     global grammarreport
     if(t[1]=='CHECK'):
         t[0]=ColumnCheck(t[3])
@@ -500,8 +497,8 @@ def p_instruction_create_table_column(t):
         t[0]=ColumnPrimaryKey(t[4])
         grammarreport = "<column> ::= PRIMARY KEY '(' <idList> ')' { column.val = ColumnPrimaryKey(idList.val) }\n" + grammarreport
     elif(t[1]=='FOREIGN'):
-        t[0]=ColumnForeignKey(t[4],t[8])
-        grammarreport = "<column> ::= FOREIGN KEY '(' <idList> ')' REFERENCES '(' <idList> ')' { column.val = ColumnForeignKey(idList1.val, idList2.val) }\n" + grammarreport
+        t[0]=ColumnForeignKey(t[4],t[7],t[9])
+        grammarreport = "<column> ::= FOREIGN KEY '(' <idList> ')' REFERENCES ID '(' <idList> ')' { ID.val='"+t[7]+"'; column.val = ColumnForeignKey(idList1.val, idList2.val, ID.val) }\n" + grammarreport
     else:
         try:
             t[0]=ColumnId(t[1],t[2],t[3])
@@ -1180,11 +1177,6 @@ def p_expression_id(t):
     t[0] = Value(4, t[1])
     global grammarreport
     grammarreport = "<expression> ::= ID { ID.val='"+t[1]+"'; expression.val = ID.val  }\n" + grammarreport
-def p_expression_regex(t):
-    '''expression : REGEX'''
-    t[0] = Value(5, t[1])
-    global grammarreport
-    grammarreport = "<expression> ::= REGEX { REGEX.val=val("+t[1]+"); expression.val = REGEX.val  }\n" + grammarreport
 def p_expression_all(t):
     '''expression : TIMES'''
     t[0] = Value(6, t[1])
@@ -1193,17 +1185,15 @@ def p_expression_all(t):
 
 #ERROR
 def p_error(t):
-    print_error("Syntactic Error", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
-    grammarerrors.append(
-        Error("Syntactic","Syntactic Error in '%s'." % (t.value),t.lineno,find_column(input,t)))
-    print("Error sintáctico en '%s' Fila: %d Columna: %d" % (t.value, t.lineno,find_column(input,t)))
-    # if not t: #recuperación errores
-    #     return
-    # while True:
-    #     tok = yacc.token()
-    #     if not tok or tok.value == ';': #, ) 
-    #         break
-    #     yacc.restart()
+    if t:
+        print_error("Syntactic Error", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
+        grammarerrors.append(
+            Error("Syntactic","Syntactic Error in '%s'." % (t.value),t.lineno,find_column(input,t)))
+        parser.errok()
+    else:
+        print_error("Syntactic Error","Syntax error at EOF")
+        grammarerrors.append(
+            Error("Syntactic","Syntax error at EOF",0,0))
 import ply.yacc as yacc
 parser = yacc.yacc()
 

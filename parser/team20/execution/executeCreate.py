@@ -147,21 +147,7 @@ def executeCreateDatabase(self, database):
 
 def executeCreateTable(self, table):
     
-    data=TCgetDatabase()
-    array={}
-    if(table.columns!=None):
-        for node in table.columns:
-            
-            if(node.options!=None):
-                new={'type':node.type[0]}
-                node.options.update(new)
-                new={node.name:node.options}
-            else:
-                new={node.name:{'type':node.type[0]}}
-            array.update(new)
-            
-            #
-    return TCcreateTable(data,table.name,array)
+    return 1
             
             
           

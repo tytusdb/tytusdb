@@ -1,7 +1,14 @@
 CREATE DATABASE IF NOT EXISTS BASE1 MODE 1;
 USE BASE1;
 CREATE TABLE Usuarios (
-    ID Integer PRIMARY KEY,
-    edad SAMALLINT
+    ID Integer PRIMARY KEY NOT NULL,
+    edad SMALLINT DEFAULT 1,
+    CHECK(ID>=10),
+    CONSTRAINT mayorque CHECK(ID>=10),
+    UNIQUE(ID,edad),
+    PRIMARY KEY (ID,edad),
+    FOREIGN KEY (ID,edad) REFERENCES Tabla2(ID,edad)
 );
+CREATE TYPE PAISES AS ENUM ("Guatemala",'Nicaragua');
+
 
