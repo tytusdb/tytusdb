@@ -996,9 +996,9 @@ def p_funcion_math(t):
      elif(t[1].lower() == 'atand'):
           t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATAND)
      elif(t[1].lower() == 'atan2'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATAN2)
+          t[0] =  Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.ATAN2)
      elif(t[1].lower() == 'atan2d'):
-          t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.ATAN2D)
+          t[0] =  Operacion_Math_Binaria(t[3],t[5],OPERACION_MATH.ATAN2D)
      elif(t[1].lower() == 'cos'):
           t[0] =  Operacion_Math_Unaria(t[3],OPERACION_MATH.COS)
      elif(t[1].lower() == 'cosd'):

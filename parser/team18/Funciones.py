@@ -55,6 +55,16 @@ def func_cot(exp):
     else: 
         return "No definido"
 
+def func_atan2(exp1,exp2):
+    print("atand")
+    op = exp1/exp2
+    return math.atan2(op)
+
+def func_atan2d(exp1,exp2):
+    print("atan2d")
+    op = exp1/exp2
+    return math.atan2(math.degrees(op))
+
 #Binary Strings Functions
 
 def func_length(exp):

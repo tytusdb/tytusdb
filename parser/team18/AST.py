@@ -1560,7 +1560,18 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
 def ejecutar_select(instr,ts):
     print("Ejecutando select")
     for val in instr.funcion_alias:
-        if(isinstance (val,Funcion_Alias)):print("Sigo mas tarde")
+        if(isinstance (val,Funcion_Alias)):
+            result = resolver_operacion(val.nombre,ts)
+            alias = ''
+            print("SALIDA",result)
+            if isinstance (val.alias,Operando_ID):
+                alias = str(val.alias.id)
+            elif isinstance (val.alias,Operando_Cadena):
+                alias = str(val.alias.valor)
+            print("CABECERA",alias,"RESULTADO",result)
+            
+
+        
 
 
 #-------------
@@ -1670,8 +1681,6 @@ def resolver_operacion(operacion,ts):
             elif operacion.operador == OPERACION_MATH.ASIND: return math.asin(math.radians(op))
             elif operacion.operador == OPERACION_MATH.ATAN: return math.atan(op)
             elif operacion.operador == OPERACION_MATH.ATAND: return math.atan(math.radians(op))
-            elif operacion.operador == OPERACION_MATH.ATAN2: return math.atan2(op)
-            elif operacion.operador == OPERACION_MATH.ATAN2D: return math.atan2(math.radians(op))
             elif operacion.operador == OPERACION_MATH.COS: return math.cos(op)
             elif operacion.operador == OPERACION_MATH.COSD: return math.cos(math.radians(op))
             elif operacion.operador == OPERACION_MATH.COT: return f.func_cot(op)
@@ -1696,6 +1705,8 @@ def resolver_operacion(operacion,ts):
             elif operacion.operador == OPERACION_MATH.GCD: return math.gcd(op1,op2)
             elif operacion.operador == OPERACION_MATH.POWER: return math.pow(op1,op2)
             elif operacion.operador == OPERACION_MATH.ROUND: return f.func_round(op1,op2)
+            elif operacion.operador == OPERACION_MATH.ATAN2: return f.func_atan2(op1,op2)
+            elif operacion.operador == OPERACION_MATH.ATAN2D: return f.func_atan2d(op1,op2)
 
     elif isinstance(operacion,Operacion__Cubos):
         op1 = resolver_operacion(operacion.op1,ts)
