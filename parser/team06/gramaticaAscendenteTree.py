@@ -235,7 +235,8 @@ reservadas = {
     'trailing':'TRAILING',
     'both':'BOTH',
     'for':'FOR',
-    'symmetric':'SYMMETRIC'
+    'symmetric':'SYMMETRIC',
+    'use' : 'USE'
 
 
 # revisar funciones de tiempo y fechas
@@ -450,6 +451,7 @@ def p_query(t):
                     | crearBD
                     | alterBD
                     | dropBD
+                    | useBD
                     | operacion
                     | insertinBD
                     | updateinBD
@@ -651,6 +653,23 @@ def p_parametroCrearBD(t):
         nodeFather.son.append(nodeSon3)
     
         t[0] = nodeFather
+#-----------------------------------------------------SHOW DB--------------------------------------------------------------------
+def p_usarBaseDatos(t):
+    'useBD    : USE ID PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'USEBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'USE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'ID'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+    
+    t[0] = nodeFather
 #-----------------------------------------------------SHOW DB--------------------------------------------------------------------
 def p_mostrarBD(t):
     'mostrarBD  : SHOW DATABASES PUNTOYCOMA'
@@ -882,6 +901,7 @@ def p_contAdd(t):
                 |   CHECK PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                 |   FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID
                 |   PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA
+                |   CONSTRAINT ID FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA ID PARENTESISDERECHA
                 |   CONSTRAINT ID PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA
                 |   CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA ID PARENTESISDERECHA
     '''
@@ -917,7 +937,7 @@ def p_contAdd(t):
         nodeFather.son.append(nodeSon4)
         t[0]=nodeFather
 
-    elif t[1].upper()=="FOREIGN KEY":
+    elif t[1].upper()=="FOREIGN":
         nodeSon2 = nodeAst()
         nodeSon2.token = 'FOREIGN KEY'
         nodeFather.son.append(nodeSon2)
@@ -940,7 +960,26 @@ def p_contAdd(t):
         nodeSon5.lexeme = t[6]
         nodeFather.son.append(nodeSon5)
         t[0]=nodeFather
+    elif t[1].upper()=="PRIMARY":
+        nodeSon2 = nodeAst()
+        nodeSon2.token = 'PRIMARY KEY'
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = '('
+        nodeFather.son.append(nodeSon3)
+    
+        nodeSon1 = nodeAst()
+        nodeSon1.token = "ID"
+        nodeSon1.lexeme = t[4]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon4 = nodeAst()
+        nodeSon4.token = ')'
+        nodeFather.son.append(nodeSon4)
+        t[0]=nodeFather
     elif t[1].upper()=="CONSTRAINT":
+        #CONSTRAINT ID FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA ID PARENTESISDERECHA
         #CONSTRAINT ID PRIMARY KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA
         #CONSTRAINT ID UNIQUE PARENTESISIZQUIERDA ID PARENTESISDERECHA
         
@@ -970,6 +1009,40 @@ def p_contAdd(t):
             nodeSon4 = nodeAst()
             nodeSon4.token = ')'
             nodeFather.son.append(nodeSon4)
+            t[0]=nodeFather
+        elif t[3].upper()=="FOREIGN":
+            #CONSTRAINT ID FOREIGN KEY PARENTESISIZQUIERDA ID PARENTESISDERECHA REFERENCES ID PARENTESISIZQUIERDA ID PARENTESISDERECHA
+            nodeSon2 = nodeAst()
+            nodeSon2.token = 'FOREIGN KEY'
+            nodeFather.son.append(nodeSon2)
+
+            nodeSon7 = nodeAst()
+            nodeSon7.token = 'ID'
+            nodeSon7.lexeme = t[2]
+            nodeFather.son.append(nodeSon7)
+
+            nodeSon3 = nodeAst()
+            nodeSon3.token = '('
+            nodeFather.son.append(nodeSon3)
+    
+            nodeSon1 = nodeAst()
+            nodeSon1.token = "ID"
+            nodeSon1.lexeme = t[6]
+            nodeFather.son.append(nodeSon1)
+
+            nodeSon4 = nodeAst()
+            nodeSon4.token = ')'
+            nodeFather.son.append(nodeSon4)
+
+            nodeSon12 = nodeAst()
+            nodeSon12.token = "REFERENCES ID"
+            nodeSon12.lexeme = t[9]
+            nodeFather.son.append(nodeSon12)
+
+            nodeSon13 = nodeAst()
+            nodeSon13.token = "REFERENCES"
+            nodeSon13.lexeme = t[11]
+            nodeFather.son.append(nodeSon13)
             t[0]=nodeFather
         else:
             nodeSon2 = nodeAst()
@@ -1001,6 +1074,7 @@ def p_contDrop(t):
     '''
     contDrop    : COLUMN ID 
                 | CONSTRAINT ID
+                | PRIMARY KEY
     '''
     if t[1].upper()=="COLUMN":
 
@@ -1029,7 +1103,14 @@ def p_contDrop(t):
         nodeSon2.lexeme = t[2]
         nodeFather.son.append(nodeSon2)
         t[0]=nodeFather
-
+    elif t[1].upper()=="PRIMARY":
+        nodeFather = nodeAst()
+        nodeFather.token = 'contDROP'
+        
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PRIMARY KEY'
+        nodeFather.son.append(nodeSon1)
+        t[0]=nodeFather
 
 # SE SEPARO LA LISTA PARA PODER MANIPULAR DATOS
 def p_listaID(t):
@@ -2284,7 +2365,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "NOT":
+    elif t[1].upper() == "NOT":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
@@ -2300,7 +2381,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "UNIQUE":
+    elif t[1].upper() == "UNIQUE":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
@@ -2311,7 +2392,7 @@ def p_paramopc_1(t):
 
         t[0] = nodeFather
 
-    elif t[1] == "PRIMARY":
+    elif t[1].upper() == "PRIMARY":
         nodeFather = nodeAst()
         nodeFather.token = 'paramopc'
 
