@@ -1,15 +1,15 @@
-from jsonMode import createDatabase, createTable, dropDatabase
+from jsonMode import createDatabase, createTable, dropDatabase, alterAddPK
 from parse.ast_node import ASTNode
 from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol
 from parse.errors import Error, ErrorType
 
 
 class CreateEnum(ASTNode):
-    def __init__(self, name, value_list, line, column):
+    def __init__(self, name, value_list, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name  # type name
         self.value_list = value_list  # list of possible values
-
+        self.graph_ref = graph_ref
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_values = self.value_list.execute(table, tree)
@@ -34,11 +34,12 @@ class CreateDatabase(ASTNode):
         result_name = self.name.execute(table, tree)
         result_owner = self.owner
         result_mode = self.mode
+        result = 0
         if self.replace:
             dropDatabase(result_name)
-        result = 0
-        if result_mode == 6:  # add more ifs when modes from EDD available
-            result = createDatabase(result_name)
+        
+        #if result_mode == 6:  # add more ifs when modes from EDD available
+        result = createDatabase(result_name)
 
         if result == 1:
             # log error on operation
@@ -64,14 +65,17 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
 
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
-        result_name = self.name.execute(table, tree)
+        #result_name = self.name.execute(table, tree)
+        result_name = self.name
         result_inherits_from = self.inherits_from.execute(table, tree) if self.inherits_from else None
-        result_fields = []
+        result_fields = self.fields
         if result_inherits_from:
             # get inheritance table, if doesn't exists throws semantic error, else append result
             result_fields.append(table.get_fields_from_table(result_inherits_from))
 
-        result = createTable(table.get_current_db().name, result_name, len(result_fields))
+
+        result = createTable(table.get_current_db().name, result_name, len(result_fields))    
+
         if result == 1:
             raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
             return False
@@ -82,27 +86,38 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
             raise Error(0, 0, ErrorType.RUNTIME, '42P07: duplicate_table')
             return False
         else:
+            #add primary keys, jsonMode needs the number of the column to set it to primarykey            
+            keys = list( 
+                map(
+                    lambda x: result_fields.index(x),
+                    filter(lambda key: key.is_pk == True, result_fields)                           
+                    )  
+            )
+            if(len(keys)>0):
+                result = alterAddPK(table.get_current_db().name, result_name, keys)
+
             table.add(TableSymbol(table.get_current_db().id, result_name, self.check_exp))
 
-        result_fields = self.fields.execute(table, tree)  # A list of TableField assumed
+        ##result_fields = self.fields.execute(table, tree)  # A list of TableField assumed
+
         field_index = 0
         for field in result_fields:
             field.table_name = result_name
             field.field_index = field_index
             field_index += 1
             table.add(field)
-        return
+        return "Table: " +str(result_name) +" created."
 
 
 class TableField(ASTNode):  # returns an item, grammar has to add it to a list and synthesize value to table
-    def __init__(self, name, field_type, length, allows_null, is_pk, line, column):
+    def __init__(self, name, field_type, length, allows_null, is_pk, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name  # field name
         self.field_type = field_type  # type of field
         self.length = length
         self.allows_null = allows_null  # if true then NULL or default, if false the means is NOT NULL
         self.is_pk = is_pk  # field is primary key
-
+        self.graph_ref = graph_ref
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_name = self.name.execute(table, tree)
