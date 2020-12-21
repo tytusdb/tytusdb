@@ -6,7 +6,6 @@
 # 201220165 - Oscar Rolando Bernard Peralta
 
 # IMPORT SECTION
-from proyecto.Instrucciones import UnionAll
 import ply.lex as lex
 import ply.yacc as yacc
 from Expresiones import *
@@ -188,7 +187,9 @@ palabras_reservadas = {
     'column'        : 'COLUMN',
     'use'           : 'USE',
     'md5'           : 'MD5',
-    'decimal'       : 'DECIMAL'
+    'decimal'       : 'DECIMAL',
+    'current_user'  : 'CURRENT_USER',
+    'session_user'  : 'SESSION_USER'
 }
 
 # LISTADO DE SIMBOLOS Y TOKENS
@@ -291,10 +292,6 @@ def t_CADENA(t):
     t.value = t.value[1:-1] 
     return t 
 
-def t_CADENASI(t):
-    r'\'.*?\''
-    t.value = t.value[1:-1] 
-    return t 
 
 def t_COMENTARIO_MULTILINEA(t):
     r'/\*(.|\n)*?\*/'
@@ -365,21 +362,33 @@ def p_instrucciones1(t):
     """
         INSTRUCCIONES   :   INSTRUCCIONES INSTRUCCION
     """
-    t[1].append(t[2])
-    t[0] = t[1]
+    global reporte_gramatical
+    reporte_gramatical.append("<INSTRUCCIONES> ::= <INSTRUCCIONES> <INSTRUCCION>")
+    val = t[1].getInstruccion()
+    val.append(t[2].getInstruccion())
+    ret = Retorno(val, NodoAST("INST"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 
 def p_instrucciones2(t):
     """
         INSTRUCCIONES   :   INSTRUCCION
     """
-    t[0] = [t[1]]
+    global reporte_gramatical
+    reporte_gramatical.append("<INSTRUCCIONES> ::= <INSTRUCCION>")
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST("INST"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 
 def p_instruccion1(t):
     """
         INSTRUCCION     :   I_SELECT COMPLEMENTOSELECT
     """
+    global reporte_gramatical
     reporte_gramatical.append("<INSTRUCCION> ::= <I_SELECT> <COMPLEMENTOSELECT>")
     if t[2] is None:
         t[0] = t[1]
@@ -417,69 +426,70 @@ def p_instruccion1(t):
 
 def p_instruccion2(t):
     """
-        INSTRUCCION     :   I_CREATE
+        INSTRUCCION     :   I_REPLACE
+                        |   I_CTABLE
+                        |   I_CTYPE
                         |   I_DROP
                         |   I_INSERT
-                        |   I_ALTER
+                        |   I_ALTERDB
                         |   I_UPDATE
                         |   I_SHOW
                         |   I_DELETE
                         |   I_USE
+                        |   I_ALTERTB
     """
     t[0] = t[1]
 
 
 def p_use(t):
-    """
-        I_USE           :   USE ID PCOMA
-    """
-    t[0] = UseDatabase(t[2])
+    'I_USE           :   USE ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_USE> ::= "USE" "ID" ";"')
+    ret = Retorno(UseDatabase(t[2]),NodoAST("USE"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
 
     
-def p_create(t):
-    """
-        I_CREATE        :   CREATE I_TCREATE
-    """
-    t[0] = t[2]
-
-
-def p_tcreate(t):
-    """
-        I_TCREATE       :   I_REPLACE
-                        |   I_CTABLE
-                        |   I_CTYPE
-    """
-    t[0] = t[1]
-    
-    
-    
-
+# CREATE TYPE
 
 def p_ctype(t):
-    """
-        I_CTYPE       : TYPE ID AS ENUM PABRE I_LCAD PCIERRA PCOMA
-    """
-    #INSTRUCCION CTYPE
-
+    'I_CTYPE       : CREATE TYPE ID AS ENUM PABRE I_LVALUES PCIERRA PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_CTYPE> ::= "CREATE" "TYPE" "ID" "AS" "ENUM" "(" <I_LVALUES> ")" ";"')
+    ret = Retorno(CreateType(t[3],t[7].getInstruccion()),NodoAST("CREATE TYPE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
 
 def p_lcad1(t):
-    """
-        I_LCAD          :   I_LCAD COMA LCAD
-    """
-    # Instruccion
+    'I_LVALUES          :   I_LVALUES COMA CONDI'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LVALUES> ::= <I_LVALUES> "," <CONDI>')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
 
 
 def p_lcad2(t):
-    """
-        I_LCAD          :   LCAD
-    """
-    # Instruccion
+    'I_LVALUES          :   CONDI'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LVALUES> ::= <CONDI>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+    
 
 def p_Ilcad2(t):
-    """
-        LCAD          :   CADENA
-    """
+    'CONDI          :   CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<CONDI> ::= <CONDICION>')
+    t[0] = t[1]
 
+# TERMINO CREATE TYPE
 
 
 def p_ctable(t):
@@ -684,8 +694,6 @@ def p_replace2(t):
     #t[0] = CreateDatabase(False, t[2])
 
 
-def p_alter(t):
-    'I_ALTER     : ALTER I_TALTER'
 
 def p_alterTB(t):
     'I_ALTERTB   : TABLE ID I_OPALTER '
@@ -908,22 +916,40 @@ def p_FTUP(t):
 def p_FTUP1(t):
     'FTRIGONOMETRICASUP   : ASIN'
 
-def p_show(t):
-    'I_SHOW       : SHOW DATABASES PCOMA'
-
-def p_delete(t):
-    'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
-
 def p_valTab(t):
     'I_VALTAB      : CONDICION'
     # INSTRUCCION VALTAB
-
-
     
 def p_valTabMd5(t):
     'I_VALTAB      : MD5 PABRE CADENA PCIERRA'
     # INSTRUCCION VALTAB
 
+# SHOW
+
+def p_show(t):
+    'I_SHOW       : SHOW DATABASES PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_SHOW> ::= "SHOW" "DATABASE" ";" ')
+    ret = Retorno(Show(t[2]),NodoAST("SHOW"))
+    #ret.getNodo().setHijo(NodoAST(t[2]))
+    t[0] = ret
+
+# TERMINA SHOW
+
+# DELETE
+
+def p_delete(t):
+    'I_DELETE     : DELETE FROM ID PWHERE PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_DELETE> ::= "DELETE" "FROM" "ID" <PWHERE> ";" ')
+    ret = Retorno(DeleteFrom(t[3],t[4].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+# TERMINA DELETE
+
+#--------------------------------------------------------------------------------
 
 def p_ISelect(t):
     'I_SELECT  :   SELECT VALORES PFROM LCOMPLEMENTOS'
@@ -959,11 +985,30 @@ def p_ISelect7(t):
 
 def p_ISelect8(t):
     'I_SELECT   :   SELECT VALORES'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" <VALORES>")
+    if isinstance(t[2], str):
+        ret = Retorno(Select3(t[2],None,None,None,False),NodoAST("SELECT"))
+        ret.getNodo().setHijo(NodoAST(t[2]))
+        t[0] = ret
+    else:
+        ret = Retorno(Select3(t[2].getInstruccion(), None, None, None, False), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[2].getNodo())
+        t[0] = ret
 
 
 def p_ISelect9(t):
     'I_SELECT   :   SELECT DISTINCT VALORES '
-    #INSTRUCCION SELECT SOLO VALORES   
+    global reporte_gramatical
+    reporte_gramatical.append("<I_SELECT> ::= \"SELECT\" \"DISTINCT\" <VALORES>")
+    if isinstance(t[2], str):
+        ret = Retorno(Select3(t[2], None, None, None, True), NodoAST("SELECT"))
+        ret.getNodo().setHijo(NodoAST(t[2]))
+        t[0] = ret
+    else:
+        ret = Retorno(Select3(t[2].getInstruccion(), None, None, None, True), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[2].getNodo())
+        t[0] = ret
 
 def p_LComplementoS(t):
     'LCOMPLEMENTOS  :   LCOMPLEMENTOS COMPLEMENTO  '
@@ -985,18 +1030,21 @@ def p_ComplementoL(t):
 
 def p_ComplementoSelectUnion(t):
     'COMPLEMENTOSELECT  : UNION I_SELECT PCOMA  '
+    global reporte_gramatical
     reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"UNION\" <I_SELECT> \";\"")
     ret = Retorno(ComplementoSelectUnion(t[2].getInstruccion()), t[2].getNodo())
     t[0] = ret
 
 def p_ComplementoSelectUnionAll(t):
     'COMPLEMENTOSELECT  : UNION ALL I_SELECT PCOMA '
+    global reporte_gramatical
     reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"UNION\" \"ALL\" <I_SELECT> \";\"")
     ret = Retorno(ComplementoSelectUnionAll(t[3].getInstruccion()), t[3].getNodo())
     t[0] = ret
 
 def p_ComplementoSelectIntersect(t):
     'COMPLEMENTOSELECT  : INTERSECT I_SELECT PCOMA '
+    global reporte_gramatical
     reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"INTERSECT\" <I_SELECT> \";\"")
     ret = Retorno(ComplementoSelectIntersect(t[2].getInstruccion()), t[2].getNodo())
     t[0] = ret
@@ -1009,12 +1057,14 @@ def p_ComplementoSelectIntersectALL(t):
 
 def p_ComplementoSelectExcept(t):
     'COMPLEMENTOSELECT  : EXCEPT I_SELECT PCOMA '
+    global reporte_gramatical
     reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"EXCEPT\" <I_SELECT> \";\"")
     ret = Retorno(ComplementoSelectExcept(t[2].getInstruccion()), t[2].getNodo())
     t[0] = ret
 
 def p_ComplementoSelectExceptAll(t):
     'COMPLEMENTOSELECT  : EXCEPT ALL I_SELECT PCOMA '
+    global reporte_gramatical
     reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \"EXCEPT\" \"ALL\" <I_SELECT> \";\"")
     ret = Retorno(ComplementoSelectExceptAll(t[3].getInstruccion()), t[3].getNodo())
     t[0] = ret
@@ -1022,6 +1072,7 @@ def p_ComplementoSelectExceptAll(t):
 def p_ComplementoSelectExceptPcoma(t):
     'COMPLEMENTOSELECT  : PCOMA '
     # INSTRUCCION COMPLEMENTOSELECTEXCEPTPCOMA
+    global reporte_gramatical
     reporte_gramatical.append("<COMPLEMENTOSELECT> ::= \";\"")
     t[0] = None
 
@@ -1087,312 +1138,825 @@ def p_ComplementoGroupC(t):
 
 def p_Valores(t):
     'VALORES  :   POR '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALORES> ::= *")
+    t[0] = t[1]
 
 def p_ValoresLista(t):
     'VALORES  :   LISTAVALORES '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALORES> ::= <LISTAVALORES>")
+    t[0] = t[1]
 
 def p_ListaValores(t):
     'LISTAVALORES  :   LISTAVALORES COMA VALOR '
+    global reporte_gramatical
+    reporte_gramatical.append("<LISTAVALORES> ::= <LISTAVALORES> \",\" <VALOR>")
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val, NodoAST('VALOR'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_ListaValoresS(t):
     'LISTAVALORES  :   VALOR '
+    global reporte_gramatical
+    reporte_gramatical.append("<LISTAVALORES> ::= <VALOR>")
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST('VALOR'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 
 def p_ValorSub(t):
     'VALOR  :   PABRE SUBCONSULTA PCIERRA ALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"(\" <SUBCONSULTA> \")\" <ALIAS>")
+    ret = Retorno(Subconsulta(t[2].getInstruccion(), t[4].getInstruccion()), NodoAST("AS"))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_ValorCountAa(t):
     'VALOR  :   COUNT PABRE POR PCIERRA ALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"COUNT\" \"(\" \"*\" \")\" <ALIAS>")
+    ret = Retorno(FuncionAgregacion('COUNT', None, t[5].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('COUNT'))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_ValorCounta(t):
     'VALOR  :   COUNT PABRE ID PCIERRA ALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"COUNT\" \"(\" \"ID\" \")\" <ALIAS>")
+    val_id = Id(t[3], None)
+    ret = Retorno(FuncionAgregacion('COUNT', val_id, t[5].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('COUNT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_ValorCountA(t):
     'VALOR  :   COUNT PABRE POR PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"COUNT\" \"(\" \"*\" \")\"")
+    ret = Retorno(FuncionAgregacion('COUNT', None, t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('COUNT'))
+    t[0] = ret
 
 def p_ValorCount(t):
     'VALOR  :   COUNT PABRE ID PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"COUNT\" \"(\" \"ID\" \")\"")
+    val_id = Id(t[3], None)
+    ret = Retorno(FuncionAgregacion('COUNT', val_id, t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('COUNT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
 
 def p_ValorCountAliasId(t):
     'VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA ALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"COUNT\" \"(\" \"ID\" \".\" \"ID\" \")\" <ALIAS>")
+    val_id = Id(t[5], t[3])
+    ret = Retorno(FuncionAgregacion('COUNT', val_id, t[7].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('COUNT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(NodoAST(t[7].getNodo()))
+    t[0] = ret
 
 def p_ValorCountIdP(t):
     'VALOR  :   COUNT PABRE ID PUNTO ID PCIERRA'
-
-
-def p_ValorFuncionesA(t):
-    'VALOR  :   FUNCION PABRE ID PUNTO ID PCIERRA ALIAS'
-
-def p_ValorFunciones1A(t):
-    'VALOR  :   FUNCION PABRE ID  PCIERRA ALIAS'
-
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"COUNT\" \"(\" \"ID\" \".\" \"ID\" \")\"")
+    val_id = Id(t[3], None)
+    ret = Retorno(FuncionAgregacion('COUNT', val_id, t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('COUNT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
    
 def p_ValorCondicionAlias(t):
     'VALOR  :   CONDICION ALIAS '
-
-def p_ValorFTrigonometricas(t):
-    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA '
-
-def p_ValorFTrigonometricasAlias(t):
-    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA ALIAS '
-
-def p_ValorGreatest(t):
-    'VALOR  :   GREATEST PABRE LNUM PCIERRA '
-
-def p_ValorLeast(t):
-    'VALOR  :   LEAST PABRE LNUM PCIERRA '
-
-def p_ValorGreatestAlias(t):
-    'VALOR  :   GREATEST PABRE LNUM PCIERRA ALIAS'
-
-def p_ValorLeastAlias(t):
-    'VALOR  :   LEAST PABRE LNUM PCIERRA ALIAS'
-
-def p_ValorRandomA(t):
-    'VALOR  :   RANDOM PABRE PCIERRA ALIAS'
-
-def p_ValorRandom(t):
-    'VALOR  :   RANDOM PABRE PCIERRA '
-
-def p_ValorPiAlias(t):
-    'VALOR  :   PI PABRE PCIERRA   ALIAS '
-    
-def p_ValorPi(t):
-    'VALOR  :   PI PABRE PCIERRA '
-
-def p_ValorFuncionesDecodeA(t):
-    'VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA ALIAS   '
-
-def p_ValorFuncionesDecode(t):
-    'VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA   '
-
-def p_ValorFuncionesEncodeA(t):
-    'VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA ALIAS   '
-
-def p_ValorFuncionesEncode(t):
-    'VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA   '
-
-def p_ValorFuncionesConvertDate(t):
-    'VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA   '
-
-def p_ValorFuncionesConvertInt(t):
-    'VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA   '
-
-def p_ValorFuncionesConvertDateA(t):
-    'VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA ALIAS   '
-
-def p_ValorFuncionesConvertIntA(t):
-    'VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA ALIAS   '
-
-def p_ValorFuncionesSha(t):
-    'VALOR  :   SHA256 PABRE CADENA PCIERRA   '
-
-def p_ValorFuncionesShaA(t):
-    'VALOR  :   SHA256 PABRE CADENA PCIERRA ALIAS   '
-
-def p_ValorOperadorMatAlias(t):
-    'VALOR  :   NUM OPERADOR NUM ALIAS '
-
-def p_ValorOperadorMat(t):
-    'VALOR  :   NUM OPERADOR NUM '
-
-def p_ValorOperadorNotA(t):
-    'VALOR  :   BNot NUM ALIAS '
-
-def p_ValorOperadorNot(t):
-    'VALOR  :   BNot NUM '
-
-def p_ValorRaizCuadradaA(t):
-    'VALOR  :   raizCuadrada NUM ALIAS '
-
-def p_ValorRaizCuadrada(t):
-    'VALOR  :   raizCuadrada NUM '
-
-def p_ValorRaizCubicaA(t):
-    'VALOR  :   raizCubica NUM ALIAS '
-
-def p_ValorRaizCubica(t):
-    'VALOR  :   raizCubica NUM '
-
-def p_ValorFuncionesGetByte(t):
-    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA '
-
-def p_ValorFuncionesGetByteA(t):
-    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA ALIAS '
-
-def p_ValorFuncionesSetByte(t):
-    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA '
-
-def p_ValorFuncionesSetByteA(t):
-    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA ALIAS '
-
-def p_ValorCase(t):
-    'VALOR  :   CASE LWHEN END '
-
-def p_ValorCaseAlias(t):
-    'VALOR  :   CASE LWHEN END ALIAS'
-
-def p_ValorFunAlias(t):
-    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
-
-def p_ValorFun(t):
-    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= <CONDICION> <ALIAS>")
+    ret = Retorno(Valores(t[1].getInstruccion(), t[2].getInstruccion()), NodoAST('AS'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_ValorCondicion(t):
     'VALOR  :   CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= <CONDICION>")
+    ret = Retorno(Valores(t[1].getInstruccion(), None), t[1].getNodo())
+    t[0] = ret
+
+def p_ValorFTrigonometricas(t):
+    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= <FTRIGONOMETRICAS> \"(\" <LNUM> \")\"")
+    ret = Retorno(FuncionesTrigonometricas(t[1], t[3].getInstruccion(), t[1]), NodoAST('TRIGONOMETRICA'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+def p_ValorFTrigonometricasAlias(t):
+    'VALOR  :   FTRIGONOMETRICAS PABRE LNUM PCIERRA ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= <FTRIGONOMETRICAS> \"(\" <LNUM> \")\" <ALIAS>")
+    ret = Retorno(FuncionesTrigonometricas(t[1], t[3].getInstruccion(), t[5].getInstruccion()), NodoAST('TRIGONOMETRICA'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
+
+def p_ValorGreatest(t):
+    'VALOR  :   GREATEST PABRE LNUM PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"GREATEST\" \"(\" <LNUM> \")\"")
+    ret = Retorno(FuncionGreatest(t[3].getInstruccion(), t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('GREATEST'))
+    ret.getNodo().setHijo(t[3].getNodo())   
+    t[0] = ret
+
+def p_ValorLeast(t):
+    'VALOR  :   LEAST PABRE LNUM PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"LEAST\" \"(\" <LNUM> \")\"")
+    ret = Retorno(FuncionLeast(t[3].getInstruccion(), t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('LEAST'))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+def p_ValorGreatestAlias(t):
+    'VALOR  :   GREATEST PABRE LNUM PCIERRA ALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"GREATEST\" \"(\" <LNUM> \")\" <ALIAS>")
+    ret = Retorno(FuncionGreatest(t[3].getInstruccion(), t[5].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('GREATEST'))
+    ret.getNodo().setHijo(t[3].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
+
+def p_ValorLeastAlias(t):
+    'VALOR  :   LEAST PABRE LNUM PCIERRA ALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"LEAST\" \"(\" <LNUM> \")\" <ALIAS>")
+    ret = Retorno(FuncionLeast(t[3].getInstruccion(), t[5].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('LEAST'))
+    ret.getNodo().setHijo(t[3].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0]= ret
+
+def p_ValorRandomA(t):
+    'VALOR  :   RANDOM PABRE PCIERRA ALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"RANDOM\" \"(\" \")\" <ALIAS>")
+    ret = Retorno(FuncionRandom(t[4].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('RANDOM'))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+def p_ValorRandom(t):
+    'VALOR  :   RANDOM PABRE PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"RANDOM\" \"(\" \")\"")
+    ret = Retorno(FuncionRandom(t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('RANDOM'))
+    t[0] = ret
+
+def p_ValorPiAlias(t):
+    'VALOR  :   PI PABRE PCIERRA   ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"PI\" \"(\" \")\" <ALIAS>")
+    ret = Retorno(FuncionPi(t[4].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('PI'))
+    t[0] = ret
+    
+def p_ValorPi(t):
+    'VALOR  :   PI PABRE PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"PI\" \"(\" \")\"")
+    ret = Retorno(FuncionPi(t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('PI'))
+    t[0] = ret
+
+def p_ValorFuncionesDecodeA(t):
+    'VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"DECODE\" \"(\" \"CADENA\" \",\" \"CADENA\" \")\" <ALIAS>")
+    ret = Retorno(Decode(t[3], t[5], t[7].getInstruccion), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('DECODE'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
+
+def p_ValorFuncionesDecode(t):
+    'VALOR  :   DECODE PABRE CADENA COMA CADENA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"DECODE\" \"(\" \"CADENA\" \",\" \"CADENA\" \")\"")
+    ret = Retorno(Decode(t[3], t[5], t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('DECODE'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
+def p_ValorFuncionesEncodeA(t):
+    'VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"ENCODE\" \"(\" \"CADENA\" \",\" \"CADENA\" \")\" <ALIAS>")
+    ret = Retorno(Encode(t[3], t[5], t[7].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('ENCODE'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
+
+def p_ValorFuncionesEncode(t):
+    'VALOR  :   ENCODE PABRE CADENA COMA CADENA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"ENCODE\" \"(\" \"CADENA\" \",\" \"CADENA\" \")\"")
+    ret = Retorno(Encode(t[3], t[5], t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('ENCODE'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
+def p_ValorFuncionesConvertDate(t):
+    'VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"CONVERT\" \"(\" \"CADENA\" \"AS\" \"DATE\" \")\"")
+    ret = Retorno(Convert(t[3], t[5], t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('CONVERT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
+def p_ValorFuncionesConvertInt(t):
+    'VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"CONVERT\" \"(\" \"CADENA\" \"AS\" \"INTEGER\" \")\"")
+    ret = Retorno(Convert(t[3], t[5], t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('CONVERT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
+def p_ValorFuncionesConvertDateA(t):
+    'VALOR  :   CONVERT PABRE CADENA AS DATE PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"CONVERT\" \"(\" \"CADENA\" \"AS\" \"DATE\" \")\" <ALIAS>")
+    ret = Retorno(Convert(t[3], t[5], t[7].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('CONVERT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
+def p_ValorFuncionesConvertIntA(t):
+    'VALOR  :   CONVERT PABRE CADENA AS INTEGER PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"CONVERT\" \"(\" \"CADENA\" \"AS\" \"INTEGER\" \")\" <ALIAS>")
+    ret = Retorno(Convert(t[3], t[5], t[7].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('CONVERT'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
+
+def p_ValorFuncionesSha(t):
+    'VALOR  :   SHA256 PABRE CADENA PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"SHA256\" \"(\" \"CADENA\" \")\"")
+    ret = Retorno(Sha256(t[3], None), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('SHA256'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+def p_ValorFuncionesShaA(t):
+    'VALOR  :   SHA256 PABRE CADENA PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"SHA256\" \"(\" \"CADENA\" \")\" <ALIAS>")
+    ret = Retorno(Sha256(t[3], t[5].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('SHA256'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
+
+def p_ValorOperadorMatAlias(t):
+    'VALOR  :   NUM OPERADOR NUM ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= <NUM> <OPERADOR> <NUM> <ALIAS>")
+    val = OperacionBinariaS(t[1], t[3], t[2], t[4].getInstruccion())
+    nodo = None
+    if t[2] == OPERACION_STRING.BAND:
+        nodo = NodoAST('&')
+    elif t[2] == OPERACION_STRING.BOR:
+        nodo = NodoAST('\\|')
+    elif t[2] == OPERACION_STRING.BXOR:
+        nodo = NodoAST('#')
+    elif t[2] == OPERACION_STRING.DESPLAZAI:
+        nodo = NodoAST('\\<\\<')
+    elif t[2] == OPERACION_STRING.DESPLAZAD:
+        nodo = NodoAST('\\>\\>')
+    ret = Retorno(val, nodo)
+    ret.getNodo().setHijo(NodoAST(str(t[1].valor)))
+    ret.getNodo().setHijo(NodoAST(str(t[3].valor)))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+def p_ValorOperadorMat(t):
+    'VALOR  :   NUM OPERADOR NUM '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= <NUM> <OPERADOR> <NUM>")
+    val = OperacionBinariaS(t[1], t[3], t[2], None)
+    nodo = None
+    if t[2] == OPERACION_STRING.BAND:
+        nodo = NodoAST('&')
+    elif t[2] == OPERACION_STRING.BOR:
+        nodo = NodoAST('\\|')
+    elif t[2] == OPERACION_STRING.BOR:
+        nodo = NodoAST('#')
+    elif t[2] == OPERACION_STRING.DESPLAZAI:
+        nodo = NodoAST('\\<\\<')
+    elif t[2] == OPERACION_STRING.DESPLAZAD:
+        nodo = NodoAST('\\>\\>')
+    ret = Retorno(val, nodo)
+    ret.getNodo().setHijo(NodoAST(str(t[1].valor)))
+    ret.getNodo().setHijo(NodoAST(str(t[3].valor)))
+    t[0] = ret
+
+def p_ValorOperadorNotA(t):
+    'VALOR  :   BNot NUM ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"" + str(t[1]) + "\" <NUM> <ALIAS>")
+    ret = Retorno(OperacionUnariaS(t[2], OPERACION_STRING.BNOT, t[3].getInstruccion()), NodoAST('~'))
+    ret.getNodo().setHijo(NodoAST(str(t[2].valor)))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+def p_ValorOperadorNot(t):
+    'VALOR  :   BNot NUM '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"" + str(t[1]) + "\" <NUM>")
+    ret = Retorno(OperacionUnariaS(t[2], OPERACION_STRING.BNOT, None), NodoAST('~'))
+    ret.getNodo().setHijo(NodoAST(str(t[2].valor)))
+    t[0] = ret
+
+def p_ValorRaizCuadradaA(t):
+    'VALOR  :   raizCuadrada NUM ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"" + str(t[1]) + "\" <NUM> <ALIAS>")
+    ret = Retorno(OperacionUnariaS(t[2], OPERACION_STRING.RAIZCUADRADA, t[3].getInstruccion()), NodoAST('\\|/'))
+    ret.getNodo().setHijo(NodoAST(str(t[2].valor)))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+def p_ValorRaizCuadrada(t):
+    'VALOR  :   raizCuadrada NUM '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"" + str(t[1]) + "\" <NUM>")
+    ret = Retorno(OperacionUnariaS(t[2], OPERACION_STRING.RAIZCUADRADA, None), NodoAST('\\|/'))
+    ret.getNodo().setHijo(NodoAST(str(t[2].valor)))
+    t[0] = ret
+
+def p_ValorRaizCubicaA(t):
+    'VALOR  :   raizCubica NUM ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"" + str(t[1]) + "\" <NUM> <ALIAS>")
+    ret = Retorno(OperacionUnariaS(t[2], OPERACION_STRING.RAIZCUBICA, t[3].getInstruccion()), NodoAST('\\|\\|/'))
+    ret.getNodo().setHijo(NodoAST(str(t[2].valor)))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+def p_ValorRaizCubica(t):
+    'VALOR  :   raizCubica NUM '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"" + str(t[1]) + "\" <NUM>")
+    ret = Retorno(OperacionUnariaS(t[2], OPERACION_STRING.RAIZCUBICA, None), NodoAST('\\|\\|/'))
+    ret.getNodo().setHijo(NodoAST(str(t[2].valor)))
+    t[0] = ret
+
+def p_ValorFuncionesGetByte(t):
+    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"GET_BYTE\" \"(\" \"CADENA\" \",\" \"NUMERO\" \")\"")
+    ret = Retorno(GetByte(t[3], t[5], None), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('GET_BYTE'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    t[0] = ret
+
+def p_ValorFuncionesGetByteA(t):
+    'VALOR  :   GETBYTE PABRE CADENA COMA NUMERO PCIERRA ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"GET_BYTE\" \"(\" \"CADENA\" \",\" \"NUMERO\" \")\" <ALIAS>")
+    ret = Retorno(GetByte(t[3], t[5], t[7].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('GET_BYTE'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(t[7].getNodo())
+    t[0] = ret
+
+def p_ValorFuncionesSetByte(t):
+    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"SET_BYTE\" \"(\" \"CADENA\" \",\" \"NUMERO\" \",\" \"NUMERO\" \")\"")
+    ret = Retorno(SetByte(t[3], t[5], t[7], None), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('SET_BYTE'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(NodoAST(t[7]))
+    t[0] = ret
+
+def p_ValorFuncionesSetByteA(t):
+    'VALOR  :   SETBYTE PABRE CADENA COMA NUMERO COMA NUMERO PCIERRA ALIAS '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"SET_BYTE\" \"(\" \"CADENA\" \",\" \"NUMERO\" \",\" \"NUMERO\" \")\" <ALIAS>")
+    ret = Retorno(SetByte(t[3], t[5], t[7], t[9].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST('SET_BYTE'))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[5]))
+    ret.getNodo().setHijo(NodoAST(t[7]))
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
+
+def p_ValorCase(t):
+    'VALOR  :   CASE LWHEN END '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"CASE\" <LWHEN> \"END\"")
+    ret = Retorno(InstruccionCase(t[2].getInstruccion(), None), NodoAST('CASE'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
+
+def p_ValorCaseAlias(t):
+    'VALOR  :   CASE LWHEN END ALIAS'
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= \"CASE\" <LWHEN> \"END\" <ALIAS>")
+    ret = Retorno(InstruccionCase(t[2].getInstruccion(), t[4].getInstruccion()), NodoAST('CASE'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+def p_ValorFunAlias(t):
+    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA ALIAS   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= <ID_VALOR> \"(\" <LCONDICION_FUNCION> \")\" <ALIAS>")
+    ret = Retorno(FuncionesMatematicas(t[1], t[3].getInstruccion(), t[5].getInstruccion()), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
+
+def p_ValorFun(t):
+    'VALOR  :   ID_VALOR PABRE LCONDICION_FUNCION PCIERRA   '
+    global reporte_gramatical
+    reporte_gramatical.append("<VALOR> ::= <ID_VALOR> \"(\" <LCONDICION_FUNCION> \")\"")
+    ret = Retorno(FuncionesMatematicas(t[1], t[3].getInstruccion(), t[1]), NodoAST('FUNCION'))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
 
 def p_LWHEN(t):
-    'LWHEN  :   WHEN CONDICION THEN CONDICION LWHEN '
+    'LWHEN  :   LWHEN PWHEN '
+    global reporte_gramatical
+    reporte_gramatical.append("<LWHEN> ::= <LWHEN> <PWHEN>")
+    val = t[1].getInstruccion()
+    val.append(t[2].getInstruccion())
+    ret = Retorno(val, NodoAST('WHEN'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
+
+def p_WHENWHEN(t):
+    'LWHEN  :   PWHEN'
+    global reporte_gramatical
+    reporte_gramatical.append("<LWHEN> ::= <PWHEN>")
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val, NodoAST('WHEN'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_LWHENSimple(t):
-    'LWHEN  :   WHEN CONDICION THEN CONDICION '
+    'PWHEN  :   WHEN CONDICION THEN CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<PWHEN> ::= \"WHEN\" <CONDICION> \"THEN\" <CONDICION>")
+    val = InstruccionWhen(t[2].getInstruccion(), t[4].getInstruccion())
+    auxval = [val]
+    ret = Retorno(auxval, NodoAST('VALOR'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
 
 def p_LWHENElse(t):
-    'LWHEN  :   ELSE CONDICION '
+    'PWHEN  :   ELSE CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<PWHEN> ::= \"ELSE\" <CONDICION>")
+    val = InstruccionElse(t[2].getInstruccion())
+    auxval = [val]
+    ret = Retorno(auxval, NodoAST('ELSE'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_IdFuncionDegrees(t):
     'ID_VALOR  :   DEGREES  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"DEGREES\"")
+    t[0] = 'DEGREES'
 
 def p_IdFuncionDiv(t):
     'ID_VALOR  :   DIV  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"DIV\"")
+    t[0] = 'DIV'
 
 def p_IdFuncionExp(t):
     'ID_VALOR  :   FEXP  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"EXP\"")
+    t[0] = 'EXP'
 
 def p_IdFuncionFactorial(t):
     'ID_VALOR  :   FACTORIAL  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"FACTORIAL\"")
+    t[0] = 'FACTORIAL'
 
 def p_IdFuncionFloor(t):
     'ID_VALOR  :   FLOOR  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"FLOOR\"")
+    t[0] = 'FLOOR'
 
 def p_IdFuncionGcd(t):
     'ID_VALOR  :   GCD  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"GCD\"")
+    t[0] = 'GCD'
 
 def p_IdFuncionLn(t):
     'ID_VALOR  :   LN  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"LN\"")
+    t[0] = 'LN'
 
 def p_IdFuncionLog(t):
     'ID_VALOR  :   LOG  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"LOG\"")
+    t[0] = 'LOG'
 
 def p_IdFuncionMod(t):
     'ID_VALOR  :   MOD  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"MOD\"")
+    t[0] = 'MOD'
 
 def p_IdFuncionPower(t):
     'ID_VALOR  :   POWER  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"POWER\"")
+    t[0] = 'POWER'
 
 def p_IdFuncionRadians(t):
     'ID_VALOR  :   RADIANS  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"RADIANS\"")
+    t[0] = 'RADIANS'
 
 def p_IdFuncionRound(t):
     'ID_VALOR  :   ROUND  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"ROUND\"")
+    t[0] = 'ROUND'
 
 def p_IdFuncionSign(t):
     'ID_VALOR  :   SIGN  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"SIGN\"")
+    t[0] = 'SIGN'
 
 def p_IdFuncionSqrt(t):
     'ID_VALOR  :   SQRT  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"SQRT\"")
+    t[0] = 'SQRT'
 
 def p_IdFuncionWidth_bucket(t):
     'ID_VALOR  :   WIDTH_BUCKET  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"WIDTH_BUCKET\"")
+    t[0] = 'WIDTH_BUCKET'
 
 def p_IdFuncionTrunc(t):
     'ID_VALOR  :   TRUNC  '
+    global reporte_gramatical
+    reporte_gramatical.append("<ID_VALOR> ::= \"TRUNC\"")
+    t[0] = 'TRUNC'
 
 def p_OPERADORAnd(t):
     'OPERADOR  :   BAnd '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERADOR> ::= \"" + str(t[1]) + "\"")
+    t[0] = OPERACION_STRING.BAND
 
 def p_OPERADOROr(t):
     'OPERADOR  :   BOr '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERADOR> ::= \"" + str(t[1]) + "\"")
+    t[0] = OPERACION_STRING.BOR
 
 def p_OPERADORXor(t):
     'OPERADOR  :   BXor '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERADOR> ::= \"" + str(t[1]) + "\"")
+    t[0] = OPERACION_STRING.BXOR
 
 def p_OPERADORDIz(t):
     'OPERADOR  :   DesplazaI '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERADOR> ::= \"" + str(t[1]) + "\"")
+    t[0] = OPERACION_STRING.DESPLAZAI
 
 def p_OPERADORDDe(t):
     'OPERADOR  :   DesplazaD '
+    global reporte_gramatical
+    reporte_gramatical.append("<OPERADOR> ::= \"" + str(t[1]) + "\"")
+    t[0] = OPERACION_STRING.DESPLAZAD
 
 def p_LNumNumLNum(t):
     'LNUM  : LNUM COMA NUM'
+    global reporte_gramatical
+    reporte_gramatical.append("<LNUM> ::= <LNUM> \",\" <NUM>")
+    val = t[1].getInstruccion()
+    val.append(t[3])
+    ret = Retorno(val, NodoAST('VALOR'))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST(str(t[3].valor)))
+    t[0] = ret
 
 def p_LNumNum(t):
     'LNUM   : NUM'
+    global reporte_gramatical
+    reporte_gramatical.append("<LNUM> ::= <NUM>")
+    val = [t[1]]
+    ret = Retorno(val, NodoAST('VALOR'))
+    ret.getNodo().setHijo(NodoAST(str(t[1].valor)))
+    t[0] = ret
 
 def p_NumNumero(t):  
     'NUM    : NUMERO '
+    global reporte_gramatical
+    reporte_gramatical.append("<NUM> ::= \"NUMERO\"")
+    t[0] = Numero(t[1])
 
 def p_NumDecimal(t):
     'NUM  :   DECIMALN '
+    global reporte_gramatical
+    reporte_gramatical.append("<NUM> ::= \"DECIMALN\"")
+    t[0] = Decimal(t[1])
 
 def p_NumCadena(t):
     'NUM  :   CADENA '
+    global reporte_gramatical
+    reporte_gramatical.append("<NUM> ::= \"CADENA\"")
+    t[0] = Cadena(t[1])
 
 def p_FTrigonometricasAcos(t):
     'FTRIGONOMETRICAS  :   ACOS '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ACOS\"")
+    t[0] = 'ACOS'
 
 def p_FTrigonometricasAcosd(t):
     'FTRIGONOMETRICAS  :   ACOSD '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ACOSD\"")
+    t[0] = 'ACOSD'
 
 def p_FTrigonometricasAsin(t):
     'FTRIGONOMETRICAS  :   ASIN '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ASIN\"")
+    t[0] = 'ASIN'
 
 def p_FTrigonometricasAsind(t):
     'FTRIGONOMETRICAS  :   ASIND '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ASIND\"")
+    t[0] = 'ASIND'
 
 def p_FTrigonometricasAtan(t):
     'FTRIGONOMETRICAS  :   ATAN '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ATAN\"")
+    t[0] = 'ATAN'
 
 def p_FTrigonometricasAtand(t):
     'FTRIGONOMETRICAS  :   ATAND '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ATAND\"")
+    t[0] = 'ATAND'
 
 def p_FTrigonometricasAtan2(t):
     'FTRIGONOMETRICAS  :   ATAN2 '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ATAN2\"")
+    t[0] = 'ATAN2'
 
 def p_FTrigonometricasAtan2d(t):
     'FTRIGONOMETRICAS  :   ATAN2D '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ATAN2D\"")
+    t[0] = 'ATAN2D'
 
 def p_FTrigonometricasCos(t):
     'FTRIGONOMETRICAS  :   COS '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"COS\"")
+    t[0] = 'COS'
 
 def p_FTrigonometricasCosd(t):
     'FTRIGONOMETRICAS  :   COSD '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"COSD\"")
+    t[0] = 'COSD'
 
 def p_FTrigonometricasCot(t):
     'FTRIGONOMETRICAS  :   COT '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"COT\"")
+    t[0] = 'COT'
 
 def p_FTrigonometricasCotd(t):
     'FTRIGONOMETRICAS  :   COTD '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"COTD\"")
+    t[0] = 'COTD'
 
 def p_FTrigonometricasSin(t):
     'FTRIGONOMETRICAS  :   SIN '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"SIN\"")
+    t[0] = 'SIN'
 
 def p_FTrigonometricasSind(t):
     'FTRIGONOMETRICAS  :   SIND '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"SIND\"")
+    t[0] = 'SIND'
 
 def p_FTrigonometricasTan(t):
     'FTRIGONOMETRICAS  :   TAN '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"TAN\"")
+    t[0] = 'TAN'
 
 def p_FTrigonometricasTand(t):
     'FTRIGONOMETRICAS  :   TAND '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"TAND\"")
+    t[0] = 'TAND'
 
 def p_FTrigonometricasSinh(t):
     'FTRIGONOMETRICAS  :   SINH '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"SINH\"")
+    t[0] = 'SINH'
 
 def p_FTrigonometricasCosh(t):
     'FTRIGONOMETRICAS  :   COSH '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"COSH\"")
+    t[0] = 'COSH'
 
 def p_FTrigonometricasTanh(t):
     'FTRIGONOMETRICAS  :   TANH '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"TANH\"")
+    t[0] = 'TANH'
 
 def p_FTrigonometricasAsinh(t):
     'FTRIGONOMETRICAS  :   ASINH '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ASINH\"")
+    t[0] = 'ASINH'
 
 def p_FTrigonometricasAcosh(t):
     'FTRIGONOMETRICAS  :   ACOSH '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ACOSH\"")
+    t[0] = 'ACOSH'
 
 def p_FTrigonometricasAtanh(t):
     'FTRIGONOMETRICAS  :   ATANH '
+    global reporte_gramatical
+    reporte_gramatical.append("<FTRIGONOMETRICAS> ::= \"ATANH\"")
+    t[0] = 'ATANH'
 
 def p_funcionAvg(t):
     'FUNCION    :   AVG'
