@@ -1367,9 +1367,9 @@ def generarGASC():
     r_asc.grammarASC(listaInstrucciones)
 
 def generarGDSC():
-    global listaInstrucciones
+    '''global listaInstrucciones
     r_asc = Reporte_Gramaticas()
-    r_asc.grammarDSC(listaInstrucciones)
+    r_asc.grammarDSC(listaInstrucciones)'''
 
 #metodo para mostrar las tablas temporales
 def mostrarTablasTemp():

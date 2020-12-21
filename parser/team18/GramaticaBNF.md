@@ -1,4 +1,4 @@
-# Gramatica Recursiva Por La Izquierda
+# Gramatica Ascendente
 ```sh
 <init> ::= <l_sentencias>
 
@@ -479,4 +479,30 @@ cuerpo_where ::= <condicion_boleana>
                   | ""
 
 ```
+# Gramatica Descendente 
 
+```sh
+
+<init> ::= <l_sentencias>
+
+<l_sentencias> ::= <l_sentencias sentencias>
+    | <sentencias>
+
+<sentencias> ::= <sentencia> ";"
+
+<sentencia> ::= <sentencia_ddl>
+    | <sentencia_dml>
+
+<sentencia_ddl> ::= <crear>
+    | <liberar>
+
+<sentencia_dml> ::= <insertar>
+    | <actualizar>
+    | <eliminar>
+    | <seleccionH>
+    | <mostrar>
+    | <altert>
+
+
+
+```
