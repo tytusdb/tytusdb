@@ -11,12 +11,11 @@ from execution.execute_result import *
 
 from execution.AST.error import *
 
-from Tytus_GUI_console import print_error, print_grammar_report, print_error_table, print_messages, print_querys
+from Tytus_GUI_console import print_error, print_error_table, print_messages, print_querys
 import Tytus_GUI_console
 
 from graphviz import Source
-
-import os
+import webbrowser
 
 
 class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
@@ -119,7 +118,7 @@ def compile():
 
 def process_results_and_display_reports(result_analyze, result_execute):
     generate_ast_tree(result_execute.dotAST, result_execute.errors)
-    print_grammar_report_(result_analyze.grammarreport)
+    generate_grammar_report(result_analyze.grammarreport)
     print_error_table_(result_analyze.grammarerrors, result_execute.errors)
     print_messages_(result_execute.messages)
     print_querys_(result_execute.querys)
@@ -150,12 +149,39 @@ def generate_ast_tree(dot: str, errors):
                 print_error("Unknown Error", "AST graphic not generated")
                 #print(e)
 
-def print_grammar_report_(grammarreport: str):
-    print_ = "GRAMMAR REPORT"
-    if grammarreport!="":
-        print_ += "\n"
-    print_ += grammarreport
-    print_grammar_report("Grammar Report", print_)
+def generate_grammar_report(markdown: str):
+    try:
+        file_markdown = open("bnf.md", "w")
+        file_markdown.write(markdown)
+        file_markdown.close()
+        generate_grammar_report_view(markdown)
+    except Exception as e:
+        print_error("Unknown Error", "Markdown file not generated")
+        #print(e)
+
+def generate_grammar_report_view(markdown: str):
+    try:    
+        markdown_html = "<!DOCTYPE html>\n"
+        markdown_html += "<html lang=\"es-ES\">\n"
+        markdown_html += "   <head>\n"
+        markdown_html += "       <meta charset=\"utf-8\">"
+        markdown_html += "       <title>bnf.md</title>\n"
+        markdown_html += "   </head>\n"
+        markdown_html += "   <body>\n"
+        markdown_split = markdown.split("\n")
+        i = 0
+        while i < len(markdown_split):
+            markdown_html += "       <p>" + markdown_split[i] + "</p>"
+            i += 1
+        markdown_html += "   </body>"
+        markdown_html += "</html>"
+        file_markdown_html = open("bnf.md.html", "w")
+        file_markdown_html.write(markdown_html)
+        file_markdown_html.close()
+        webbrowser.open("bnf.md.html", new=2, autoraise=True)
+    except Exception as e:
+        print_error("Unknown Error", "Markdown view not generated")
+        #print(e)
 
 def print_error_table_(grammarerrors,executionerrors):
     errors_ = grammarerrors + executionerrors

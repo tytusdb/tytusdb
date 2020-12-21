@@ -286,10 +286,11 @@ def p_start(t):
     '''start : sentences'''
     global grammarreport
     grammarreport = "<start> ::= <sentences> { start.val = sentences.val }\n" + grammarreport
+    grammarreport = reportheader + "```bnf\n" + grammarreport + "```\n" + "## Entrada\n" + "```sql\n" + input + "```"
     global noderoot
     noderoot = t[1]    
-    exec = Execute(t[1]) # Esto se correra desde la GUI
-    exec.execute()
+    #exec = Execute(t[1]) # Esto se correra desde la GUI
+    #exec.execute()
     t[0] = t[1]
 
 def p_instructions_list_list(t):
@@ -1207,11 +1208,6 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 
-f = open(Path(__file__).parent / "./testCarlos.txt", "r")
-input = f.read()
-print(input)
-parser.parse(input.upper())
-
 reportheader = '''# Reporte gramatical
 
 ## Terminales
@@ -1244,22 +1240,27 @@ precedence = (
     )
 ```
 ## Gramatica\n'''
-grammarreport = reportheader + "```bnf\n"+grammarreport+"```\n" + "## Entrada\n" + "```sql\n" +input+"```"
-try:
-    archivodot = open("bnf.md", "w")
-    archivodot.write(grammarreport)
-    archivodot.close()
-    webbrowser.open_new_tab('bnf.md')
-    #print(grammarreport)
-except Exception as e:
-    print('Error reporte gramatical', str(e))
+
+# f = open(Path(__file__).parent / "./testCarlos.txt", "r")
+# input = f.read()
+# print(input)
+# parser.parse(input.upper())
+
+# try:
+#     archivobnf = open("bnf.md", "w")
+#     archivobnf.write(grammarreport)
+#     archivobnf.close()
+#     webbrowser.open_new_tab('bnf.md')
+#     #print(grammarreport)
+# except Exception as e:
+#     print('Error reporte gramatical', str(e))
 
 def analyze(input_text: str):
     #clear analyzer data
     global grammarerrors
     grammarerrors = []
     global grammarreport
-    gammarreport = ""
+    grammarreport = ""
     global noderoot
     noderoot = None
     global input
