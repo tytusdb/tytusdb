@@ -136,3 +136,42 @@ function CierraPopup(namePop) {
   $("body").removeClass("modal-open"); //eliminamos la clase del body para poder hacer scroll
   $(".modal-backdrop").remove(); //eliminamos el backdrop del modal
 }
+
+
+var button =
+  '<button class="close" type="button" title="Remove this page">×</button>';
+var tabID = 1;
+function resetTab() {
+  var tabs = $("#tab-list li:not(:first)");
+  var len = 1;
+
+}
+
+$(document).ready(function () {
+  $("#btn-add-tab").click(function () {
+    tabID++;
+    $("#tab-list").append(
+      $(
+        '<li class="active nav-item"><a href="#query' +
+          tabID +
+          '"  class="nav-link" role="tab" data-toggle="tab">   Query ' +
+          tabID +
+          '   <button class="close" type="button" title="Remove this page">×</button></a></li>'
+      )
+    );
+    $("#tab-content").append(
+      $(
+        '<div class="tab-pane fade" id="query' +
+          tabID +
+          '"><textarea rows="15"  class="form-control" aria-label="With textarea"></textarea></div>'
+      )
+    );
+  });
+
+  $('a[data-toggle="tab"]').on("shown.bs.tab", function (e) {
+    // here is the new selected tab id
+    var selectedTabId = e.target.href;
+    console.log(selectedTabId);
+  });
+
+});
