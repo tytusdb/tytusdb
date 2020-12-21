@@ -1145,10 +1145,6 @@ def p_ISelect2(t):
     'I_SELECT  :   SELECT VALORES PFROM PWHERE LCOMPLEMENTOS'
     # INSTRUCCION SELECT WITH WHERE 
 
-def p_ISelect3(t):
-    'I_SELECT  :   SELECT VALORES PFROM PWHERE'
-    # INSTRUCCION SELECT WITH WHERE 
-
 def p_ISelect4(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM LCOMPLEMENTOS'
      # INSTRUCCION SELECT DISTINCT 
@@ -1157,9 +1153,40 @@ def p_ISelect6(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE LCOMPLEMENTOS'
     # INSTRUCCION SELECT DISTINCT WITH WHERE
 
+def p_ISelect3(t):
+    'I_SELECT  :   SELECT VALORES PFROM PWHERE'
+    global reporte_gramatical
+    reporte_gramatical.append("<I_sELECT> ::= \"SELECT\" \DISTINCT\" <VALORES> <PFROM> <PWHERE>")
+    if isinstance(t[2], str):
+        ret = Retorno(Select(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
+        ret.getNodo().setHijo(NodoAST(t[2]))
+        ret.getNodo().setHijo(t[3].getNodo())
+        ret.getNodo().setHijo(t[4].getNodo())
+        t[0] = ret
+    else:
+        ret = Retorno(Select(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[2].getNodo())
+        ret.getNodo().setHijo(t[3].getNodo())
+        ret.getNodo().setHijo(t[4].getNodo())
+        t[0] = ret
+
+
 def p_ISelect7(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM PWHERE'
-    # INSTRUCCION SELECT DISTINCT WITH WHERE
+    global reporte_gramatical
+    reporte_gramatical.append("<I_sELECT> ::= \"SELECT\" \DISTINCT\" <VALORES> <PFROM> <PWHERE>")
+    if isinstance(t[3], str):
+        ret = Retorno(Select3(t[3], t[4].getInstruccion(), t[5].getInstruccion(), None, True), NodoAST("SELECT"))
+        ret.getNodo().setHijo(NodoAST(t[3]))
+        ret.getNodo().setHijo(t[4].getNodo())
+        ret.getNodo().setHijo(t[5].getNodo())
+        t[0] = ret
+    else:
+        ret = Retorno(Select3(t[3].getInstruccion(), t[4].getInstruccion(), t[5].getInstruccion(), None, True), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[3].getNodo())
+        ret.getNodo().setHijo(t[4].getNodo())
+        ret.getNodo().setHijo(t[5].getNodo())
+        t[0] = ret
 
 def p_ISelect5(t):
     'I_SELECT  :   SELECT DISTINCT VALORES PFROM'
@@ -2168,15 +2195,26 @@ def p_FTrigonometricasAtanh(t):
 
 def p_funcionAvg(t):
     'FUNCION    :   AVG'
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCION> ::= \"AVG\"")
+    t[0] = 'AVG'
 
 def p_funcionSum(t):
     'FUNCION    :   SUM'
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCION> ::= \"SUM\"")
+    t[0] = 'SUM'
 
 def p_funcionMin(t):
     'FUNCION    :   MIN'
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCION> ::= \"MIN\"")
+    t[0] = "MIN"
 
 def p_funcionMax(t):
     'FUNCION    :   MAX'
+    global reporte_gramatical
+    reporte_gramatical.append("<FUNCION> ::= \"MAX\"")
 
 def p_Alias(t):
     'ALIAS  :   AS ID '
@@ -2274,9 +2312,46 @@ def p_SubconsultaFrom(t):
 def p_SubconsultaFromW(t):
     'SUBCONSULTA    :   SELECT VALORES PFROM PWHERE COMPLEMENTO '
 
+def p_SubconsultaFrom1(t):
+    'SUBCONSULTA    :   SELECT VALORES PFROM'
+    global reporte_gramatical
+    reporte_gramatical.append("<SUBCONSULTA> ::= \"SELECT\" <VALORES> <PFROM>")
+    if isinstance(t[2], str):
+        ret = Retorno(Select3(t[2], t[3].getInstruccion(), None, None, False), NodoAST("SELECT"))
+        ret.getNodo().setHijo(NodoAST(t[2]))
+        ret.getNodo().setHijo(t[3].getNodo())
+        t[0] = ret
+    else:
+        ret = Retorno(Select3(t[2].getInstruccion(), t[3].getInstruccion(), None, None, False), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[2].getNodo())
+        ret.getNodo().setHijo(t[3].getNodo())
+        t[0] = ret
+
+def p_SubconsultaFromW1(t):
+    'SUBCONSULTA    :   SELECT VALORES PFROM PWHERE'
+    global reporte_gramatical
+    reporte_gramatical.append("<SUBCONSULTA> ::= \"SELECT\" <VALORES> <PFROM> <PWHERE>")
+    if isinstance(t[2], str):
+        ret = Retorno(Select(t[2], t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
+        ret.getNodo().setHijo(NodoAST(t[2]))
+        ret.getNodo().setHijo(t[3].getNodo())
+        ret.getNodo().setHijo(t[4].getNodo())
+        t[0] = ret
+    else:
+        ret = Retorno(Select(t[2].getInstruccion(), t[3].getInstruccion(), t[4].getInstruccion(), None, False), NodoAST("SELECT"))
+        ret.getNodo().setHijo(t[2].getNodo())
+        ret.getNodo().setHijo(t[3].getNodo())
+        ret.getNodo().setHijo(t[4].getNodo())
+        t[0] = ret
+
 
 def p_Where(t):
     'PWHERE  :   WHERE CONDICION '
+    global reporte_gramatical
+    reporte_gramatical.append("<PWHERE> ::= \"WHERE\" <CONDICION>")
+    ret = Retorno(t[2].getInstruccion(), NodoAST('WHERE'))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
 
 def p_CondicionIgual(t):
     'CONDICION  :   CONDICION IGUAL CONDICION '
