@@ -359,3 +359,6 @@ class sql_error_internal_error(Enum):
     internal_error = 'XX000'
     data_corrupted = 'XX001'
     index_corrupted = 'XX002'
+
+def sqlErrorToString(err):
+    return 'ERROR ' + err.value + ' - ' + err.name
