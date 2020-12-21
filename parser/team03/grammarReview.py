@@ -371,7 +371,22 @@ def p_statement(t):
     '''statement    : predicateExpression PUNTOCOMA
                     | stm_show   PUNTOCOMA
                     | stm_create PUNTOCOMA
-                    | stm_use_db PUNTOCOMA '''
+                    | stm_use_db PUNTOCOMA 
+                    |    stm_select PUNTOCOMA
+                    
+                    '''
+#                    |    stm_select PUNTOCOMA 
+#                    |    stm_insert PUNTOCOMA
+#                    |    stm_update PUNTOCOMA
+#                    |    stm_delete PUNTOCOMA
+#                    |    stm_create PUNTOCOMA
+#                    |    stm_alter  PUNTOCOMA
+#                    |    stm_drop   PUNTOCOMA
+#                    |    stm_show   PUNTOCOMA
+#                    |    stm_select UNION all_opt stm_select
+#                    |    stm_select INTERSECT all_opt stm_select
+#                    |    stm_select EXCEPT all_opt 
+#                    |    stm_use_db PUNTOCOMA
     t[0] = t[1]
 
 def p_statement_error(t):
@@ -380,6 +395,494 @@ def p_statement_error(t):
     token = t.slice[1]
     t[0] = Error(token.lineno, token.lexpos, ErrorType.SYNTAX, 'Ilegal token '+str(token.lineno))
 
+
+#################
+
+
+def p_all_opt(t):
+    '''all_opt  : ALL
+                | empty'''
+
+    if len(t) == 2:
+        graph_ref = graph_node(str(t[1]) )
+        addCad("**\<ALL_OPT>** ::= tAll ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+def p_stm_select(t):
+    '''stm_select : SELECT distinct_opt list_names FROM table_list  where_clause_opt group_clause_opt having_clause_opt order_by_opt limit_opt offset_opt '''
+    childsProduction  = addNotNoneChild(t,[2,3,5,6,7,8,9,10,11])
+    graph_ref = graph_node(str("stm_select"),    [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]]       ,childsProduction)
+    addCad("**\<DISTINCT_OPT>** ::= tSelect \<DISTINC_OPT> \<LIST_NAMES> tFrom \<TABLE_LIST>   \<WHERE_CLAUSE> \<GROUP_CLAUSE>\<HAVING_CLAUSE_OPT> \<ORDER_BY_OPT> <LIMIT_OPT>  ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    #####       
+
+
+def p_distinct_opt(t):
+    '''distinct_opt : not_opt DISTINCT
+                    | empty'''
+
+    if len(t) == 3:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("distinct_opt"),    [t[1], t[2]]       ,childsProduction)
+        addCad("**\<DISTINCT_OPT>** ::= \<NOT_OPT> tDistinct ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+def p_where_clause_opt(t):
+    '''where_clause_opt : where_clause
+                        | empty'''
+    if len(t) == 2:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("where_clause_opt"),    [t[1]]       ,childsProduction)
+        addCad("**\<WHERE_CLAUSE_OPT>** ::= \<WHERE_CLAUSE_OPT> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+
+def p_group_clause_opt(t):
+    '''group_clause_opt : group_clause
+                        | empty'''
+    if len(t) == 2:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("group_clause_opt"),    [t[1]]       ,childsProduction)
+        addCad("**\<GROUP_CLAUSE_OPT>** ::=  \<GROUP_CLAUSE>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+def p_having_clause_opt(t):
+    '''having_clause_opt    : having_clause
+                    | empty'''
+    if len(t) == 2:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("having_clause_opt"),    [t[1]]       ,childsProduction)
+        addCad("**\<HAVING_CLAUSE_OPT>** ::=  \<HAVING_CLAUSE>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+
+def p_order_by_opt(t):
+    '''order_by_opt : ORDER BY col_name
+                    | empty'''
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[3])
+        graph_ref = graph_node(str("order_by_opt"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<ORDER_BY_OPT>** ::= tOrder tBy \<COL_NAME>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+def p_limit_opt(t):
+    '''limit_opt    : LIMIT ENTERO
+                    | empty'''
+    if len(t) == 3:
+        graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])  ))
+        addCad("**\<LIMIT_OPT>** ::=  tLimit tEntero  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+def p_offset_opt(t):
+    '''offset_opt   : OFFSET ENTERO
+                    | empty'''
+    if len(t) == 3:
+        graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])  ))
+        addCad("**\<OFFSET_OPT>** ::=  tOffset  tEntero  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+
+def p_table(t):
+    '''table    : ID 
+                | ID AS TEXTO
+                '''
+
+    if len(t) == 2:
+        graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])  ))
+        addCad("**\<OFFSET_OPT>** ::=  tIdentificador  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])+" "+ str(t[3])  ))
+        addCad("**\<OFFSET_OPT>** ::=  tIdentificador tAs tTexto  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
+
+
+def p_table0(t):
+    '''table    :  PARA stm_select PARC
+                |  PARA stm_select PARC AS TEXTO
+                '''
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("table"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<TABLE>** ::=  '(' \<STM_SELECT> ')' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    else: 
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("table"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<TABLE>** ::=  '(' \<STM_SELECT> ')' tAs  tTexto ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+    
+
+
+def p_stm_insert(t):
+    '''stm_insert   : INSERT INTO ID insert_ops'''
+    childsProduction  = addNotNoneChild(t,[4])
+    graph_ref = graph_node(str("stm_insert"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+    addCad("**\<STM_INSERT>** ::=  tInsert tInto tIdentifier \<INSERT_OPS>  ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+
+
+def p_insert_ops(t):
+    '''insert_ops   : column_list_param_opt VALUES PARA exp_list PARC
+                    |   column_list_param_opt stm_select'''
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[1,4])
+        graph_ref = graph_node(str("insert_ops"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<INSERT_OPS>** ::=  \<COLUMN_LIST>  tValues  '(' \<EXP_LIST> ')' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    else: 
+        childsProduction  = addNotNoneChild(t,[1,2])
+        graph_ref = graph_node(str("insert_ops"),    [t[1],t[2]]       ,childsProduction)
+        addCad("**\<INSERT_OPS>** ::=  \<COLUMN_LIST>  \<STM_SELECT>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####   
+
+
+def p_table_list(t):
+    '''table_list   : table_list COMA table_ref 
+                    | table_ref'''
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[1,4])
+        graph_ref = graph_node(str("table_list"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<TABLE_LIST>** ::=  \<TABLE_LIST>  ',' \<TABLE_REF> ')' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    else: 
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("table_list"),    [t[1]]       ,childsProduction)
+        addCad("**\<TABLE_LIST>** ::=  \<TABLE_REF> ')' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####  
+
+
+def p_table_ref(t):
+    '''table_ref    : table NATURAL join_type JOIN table
+                    | table join_type JOIN table
+                    | table'''
+
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[1,3,5])
+        graph_ref = graph_node(str("table_ref"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<TABLE_REF>** ::=  \<TABLE> tNatural  \<JOIN_TYPE>  tJoin \<TABLE>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    elif len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[1,2,4])
+        graph_ref = graph_node(str("table_ref"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        addCad("**\<TABLE_REF>** ::=  \<TABLE>  \<JOIN_TYPE>  tJoin \<TABLE>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####  
+    elif len(t) == 2:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("table_ref"),    [t[1]]       ,childsProduction)
+        addCad("**\<TABLE_REF>** ::=  \<TABLE>    ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
+
+
+
+
+def p_join_type(t):
+    '''join_type    :  outer_join_type                 
+                    |  outer_join_type OUTER
+    '''
+
+    if len(t) == 2:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("join_type"),    [t[1]]       ,childsProduction)
+        addCad("**\<JOIN_TYPE>** ::=  \<OUTER_JOIN_TYPE>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    elif len(t) == 3:
+        childsProduction  = addNotNoneChild(t,[1,2,4])
+        graph_ref = graph_node(str("join_type"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        addCad("**\<JOIN_TYPE>** ::=  \<OUTER_JOIN_TYPE>  tOuter ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ####   
+    
+def p_join_type0(t):
+    '''join_type    : INNER
+                      '''
+    graph_ref = graph_node(str(t[1]))
+    addCad("**\<JOIN_TYPE>** ::=  tInner   ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+
+
+    
+def p_outer_join_type(t):
+    '''outer_join_type  : LEFT
+                        | RIGHT
+                        | FULL'''
+    token = t.slice[1]
+    graph_ref = graph_node(str(t[1]))
+    addCad("**\<OUTER_JOIN_TYPE>** ::=   "+str(token.type))
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    ##
+
+
+def p_list_names(t):
+    '''list_names   : list_names COMA names AS TEXTO
+                    | list_names COMA names
+                    '''
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("list_names"),    [t[1]]       ,childsProduction)
+        addCad("**\<LIST_NAMES>** ::=  \<LIST_NAMES>  ',' tNames tAs tTexto  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    elif len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[1,2,4])
+        graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        addCad("**\<LIST_NAMES>** ::=   \<LIST_NAMES>  ',' tNames ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ####   
+
+
+
+def p_list_names0(t):
+    '''list_names   : names AS TEXTO
+                    | names'''
+
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<LIST_NAMES>** ::=  \<NAMES> tAs tTexto  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    elif len(t) == 2:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("list_names"),    [t[1]]       ,childsProduction)
+        addCad("**\<LIST_NAMES>** ::=  \<NAMES> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #### 
+
+
+def p_names(t):
+    '''names    : POR
+                       '''
+    graph_ref = graph_node(str(t[1]) )
+    addCad("**\<NAMES>** ::=  '*'  ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    ##### 
+
+
+def p_names(t):
+    '''names    :  expression
+                |  time_ops
+                |  case_clause
+                       '''
+    token = t.slice[1]
+    cadena = str(token.type)
+    childsProduction  = addNotNoneChild(t,[1])
+    graph_ref = graph_node(str("names"),    [t[1]]       ,childsProduction)
+    addCad("**\<NAMES>** ::=  \<"+ cadena.upper() +" >"     )
+    t[0] = upNodo("token", 0, 0, graph_ref)
+
+
+
+def p_names1(t):
+    '''names    :  GREATEST PARA exp_list PARC
+                |  LEAST PARA exp_list PARC
+                       '''
+    token = t.slice[1]
+    cadena = str(token.type)
+    childsProduction  = addNotNoneChild(t,[3])
+    graph_ref = graph_node(str("names"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+    addCad("**\<NAMES>** ::= "+ cadena +" '(' \<EXP_LIST> ')'  ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    #####                
+
+
+
+def p_group_clause(t):
+    '''group_clause : GROUP BY PARA group_list PARC
+    '''
+    childsProduction  = addNotNoneChild(t,[4])
+    graph_ref = graph_node(str("group_clause"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+    addCad("**\<GROUP_CLAUSE>** ::=  tGroup tBy '(' \<GROUP_LIST> ')'  ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    #####
+
+def p_group_list(t):
+    '''group_list   : group_list COMA col_name
+                    | col_name'''
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("group_list"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<GROUP_LIST>** ::=  \<GROUP_LIST> ','  \<COL_NAME>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    elif len(t) == 2:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("group_list"),    [t[1]]       ,childsProduction)
+        addCad("**\<GROUP_LIST>** ::=  \<COL_NAME> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #### 
+
+
+
+def p_having_clause(t):
+    '''having_clause    : HAVING logicExpression'''
+    childsProduction  = addNotNoneChild(t,[2])
+    graph_ref = graph_node(str("having_clause"),    [t[1],t[2]]       ,childsProduction)
+    addCad("**\<HAVING_CLAUSE>** ::= tHaving  \<LOGICEXPRESSION> ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    #### 
+
+def p_case_clause(t):
+    '''case_clause  : CASE case_inner ELSE expression
+                    | CASE case_inner'''
+    if len(t) == 5:
+        childsProduction  = addNotNoneChild(t,[2,4])
+        graph_ref = graph_node(str("case_clause"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        addCad("**\<CASE_CLAUSE>** ::=  tCase \<CASE_INNER> tElse \<EXP>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    elif len(t) == 3:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("case_clause"),    [t[1],t[2]]       ,childsProduction)
+        addCad("**\<CASE_CLAUSE>** ::=  tCase \<CASE_INNER>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ####
+
+def p_case_inner(t):
+    '''case_inner   : case_inner WHEN logicExpression THEN expression
+                    | WHEN logicExpression THEN expression'''
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[1,3,5])
+        graph_ref = graph_node(str("case_inner"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<CASE_INNER>** ::=  \<CASE_INNER> tWhen \<LOGICEXPRESSION> tThen \<EXP>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    elif len(t) == 5:
+        childsProduction  = addNotNoneChild(t,[2,4])
+        graph_ref = graph_node(str("case_inner"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        addCad("**\<CASE_INNER>** ::=   tWhen \<LOGICEXPRESSION> tThen \<EXP>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ####
+
+
+def p_time_ops(t):
+    '''time_ops :    EXTRACT PARA ops_from_ts COMA TEXTO PARC
+                |    DATE_PART PARA TEXTO COMA INTERVAL TEXTO PARC'''
+    if len(t) == 7:
+        childsProduction  = addNotNoneChild(t,[3])
+        graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5],t[6]]       ,childsProduction)
+        addCad("**\<TIME_OPS>** ::=  tExtract '(' \<OPS_FROM_TS> ',' tTexto ')'  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####                
+    elif len(t) == 5:
+        graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]       ,[])
+        addCad("**\<TIMES_OPS>** ::=   tDate_part '(' tText ',' tINTERVAL tText ')'   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ####
+
+
+def p_ops_from_ts(t):
+    '''ops_from_ts  : YEAR FROM TIMESTAMP
+                |    HOUR FROM TIMESTAMP
+                |    MINUTE FROM TIMESTAMP
+                |    SECOND FROM TIMESTAMP
+                |    MONTH FROM TIMESTAMP
+                |    DAY FROM TIMESTAMP
+    '''
+    token = t.slice[1]
+    cadena = str(token.type)
+    graph_ref = graph_node(str("ops_from_ts"),    [t[1],t[2],t[3]]       ,[])
+    addCad("**\<OPS_FROM_TS>** ::= "+ cadena +" tFrom tTimestamp  ")
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    #####  
+
+def p_column_list_param_opt(t):
+    '''column_list_param_opt  : PARA column_list PARC
+                                | empty'''    
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("colum_list_param_opt"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<COLUMN_LIST_PARAM_OPT>** ::= '(' \<COLUMN_LIST>    ')' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
+def p_column_list(t):
+    '''column_list  : column_list COMA ID
+                    | ID'''
+    if len(t) == 4:
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("colum_list"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<COLUMN_LIST>** ::= \<COLUMN_LIST> ',' tIdentifier ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        graph_ref = graph_node(str(t[1]))
+        addCad("**\<COLUMN_LIST>** ::=  tIdentifier ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####   
+
+def p_stm_update(t):
+    '''stm_update : UPDATE ID SET update_list where_clause
+                    | UPDATE ID SET update_list'''
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[4,5])
+        graph_ref = graph_node(str("stm_update"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<STM_UPDATE>** ::= tUpdate tIdentifier tSet \<UPDATE_LIST> \<WHERE_CLAUSE> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        childsProduction  = addNotNoneChild(t,[4])
+        graph_ref = graph_node(str("stm_update"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        addCad("**\<STM_UPDATE>** ::= tUpdate tIdentifier tSet \<UPDATE_LIST>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####    
+
+def p_update_list(t):
+    '''update_list  : update_list COMA ID IGUAL logicExpression
+                    | ID IGUAL logicExpression'''
+
+    if len(t) == 6:
+        childsProduction  = addNotNoneChild(t,[1,5])
+        graph_ref = graph_node(str("update_list"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<UPDATE_LIST>** ::= \<UPDATE_LIST> ',' tIdentifier '=' \<EXP_LOG> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        childsProduction  = addNotNoneChild(t,[3])
+        graph_ref = graph_node(str("update_list"),    [t[1],t[2],t[3]]       ,childsProduction)
+        addCad("**\<UPDATE_LIST>** ::= tIdentifier '=' \<EXP_LOG> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####     
+
+
+################################
 
 def p_stm_use_db(t):
     '''stm_use_db : USE DATABASE ID'''
@@ -423,14 +926,14 @@ def p_stm_create(t):
         tokenID = t.slice[4]
         childsProduction = addNotNoneChild(t,[2,5,6])                
         graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
-        addCad("**\<STM_CREATE>** ::=  tCreate [\<OR_REPLACE_OPT>] tDatabase tIdentifier  [\<OWNER_OPT>] [\<MODE_OPT>]")
+        addCad("**\<STM_CREATE>** ::=  tCreate \<OR_REPLACE_OPT> tDatabase tIdentifier  \<OWNER_OPT> \<MODE_OPT>")
         tvla = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)         
         t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1, (True if t[2] else False) , token.lineno, token.lexpos, graph_ref)       
 
     elif len(t) == 8: 
         childsProduction = addNotNoneChild(t,[5,7])                
         graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]    ,childsProduction)
-        addCad("**\<STM_CREATE>** ::=  tCreate tTable tIdentifier '('\<TAB_CREATE_LST>')'[tInherits '(' tIdentifier ')']")
+        addCad("**\<STM_CREATE>** ::=  tCreate tTable tIdentifier '(' \<TAB_CREATE_LST> ')' \<INHERITS_OPT>")
         token = t.slice[1]
         t[0] = CreateTable(t[3], t[7], t[5], None, token.lineno, token.lexpos, graph_ref) #TODO check if param check_exp is neceary and where we obtain that
 
@@ -564,17 +1067,101 @@ def p_or_replace_opt(t):
 
 
 def p_stm_alter(t):
-    '''stm_alter    :    ALTER DATABASE ID RENAME TO ID
+    '''stm_alter    :    ALTER DATABASE ID RENAME TO ID    
                     |    ALTER DATABASE ID OWNER TO db_owner
-                    |    ALTER TABLE ID ADD COLUMN ID type param_int_opt
-                    |    ALTER TABLE ID ADD CHECK PARA logicExpression PARC
+'''
+    token = t.slice[4]
+    if token.type == "RENAME":                
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,[])
+        addCad("**\<STM_ALTER>** ::=  tAlter tDatabase tIdentifier tRename tTo tIdentifier        ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####    
+    if token.type == "OWNER":                 
+        childsProduction = addNotNoneChild(t,[6])                
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+        addCad("**\<STM_ALTER>** ::=  tAlter tDatabase tIdentifier tOwner tTo \<DB_OWNER>        ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####  
+
+def p_stm_alter0(t):
+    '''stm_alter    :    ALTER TABLE ID DROP CONSTRAINT ID
                     |    ALTER TABLE ID DROP COLUMN ID
+'''
+    token = t.slice[5]
+    if token.type == "CONSTRAINT":                
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,[])
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tDrop tIdentifier        ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####    
+    if token.type == "COLUMN":                 
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,[])
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tDrop  tColumn tIdentifier   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####  
+
+
+
+def p_stm_alter1(t):
+    '''stm_alter    :    ALTER TABLE ID ADD COLUMN ID type param_int_opt
+                    |    ALTER TABLE ID ADD CHECK PARA logicExpression PARC
+                    |    ALTER TABLE ID ALTER COLUMN TYPE type param_int_opt
+'''
+    token = t.slice[6]
+    if token.type == "ID":                
+        childsProduction = addNotNoneChild(t,[7,8])                
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tColumn  tIdentifier \<TYPE> \<PARAM_INT_OPT>        ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####    
+    if token.type == "PARA":                 
+        childsProduction = addNotNoneChild(t,[7])                
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tCheck '('  \<EXP_LOG> ')'   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####  
+    if token.type == "TYPE":                 
+        childsProduction = addNotNoneChild(t,[7,8])                
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    ,childsProduction)
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tType \<TYPE> \<PARAM_INT_OPT>   ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####  
+
+
+def p_stm_alter2(t):
+    '''stm_alter    :    ALTER TABLE ID RENAME COLUMN ID TO ID
+                    |    ALTER TABLE ID ALTER COLUMN ID SET NOT NULL 
                     |    ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARA ID PARC
                     |    ALTER TABLE ID ADD FOREIGN KEY PARA ID PARC REFERENCES ID 
-                    |    ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
-                    |    ALTER TABLE ID DROP CONSTRAINT ID
-                    |    ALTER TABLE ID RENAME COLUMN ID TO ID
-                    |    ALTER TABLE ID ALTER COLUMN TYPE type param_int_opt'''
+'''
+
+    if len(t) == 9:                
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8]]    , [])
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tRename tColumn tIdentifier tTo tIdentifier     ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
+    elif len(t) == 10:         
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9]]    , [])
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAlter tColumn tIdentifier tSet tNot tNull     ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
+        
+    elif len(t) == 11:
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10]]    , [])
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd tConstraint tIdentifier tUnique '(' tIdentifier ')'    ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        ##### 
+        
+    elif len(t) == 12:
+        graph_ref = graph_node(str("stm_alter"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10],t[11]]    , [])
+        addCad("**\<STM_ALTER>** ::=  tAlter tTable tIdentifier tAdd  tForeign  tKey '(' tIdentifier ')' tReference tIdentifier ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####         
+
+
+
+
+
+
 
 
 def p_param_int_opt(t):
@@ -676,12 +1263,23 @@ def p_type(t):
 
     else:
         graph_ref = graph_node(str(t[1]))
-        addCad("**\<TYPE>** ::= "+str(token))
+        addCad("**\<TYPE>** ::= "+str(token.type))
         t[0] = upNodo("token", 0, 0, graph_ref)
         ##
     
+######################
 
-
+def p_time(t):
+    ''' time    : YEAR
+                | MONTH
+                | DAY
+                | HOUR
+                | MINUTE
+                | SECOND'''
+    graph_ref = graph_node(str(t[1]))
+    addCad("**\<TIME>** ::= "+str(token.type))
+    t[0] = upNodo("token", 0, 0, graph_ref)
+    ##
 
 
 ##############################
@@ -697,6 +1295,19 @@ def p_not_opt(t):
         t[0]=None 
 
 
+##################
+
+def p_percentopt(t):
+    '''percentopt   : PORCENTAJE
+                    | empty'''
+
+    if len(t) == 2:
+        graph_ref = graph_node( str(t[1])  )
+        addCad("**\<PERCENTOPT>** ::=  '%' ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
 
 
 
@@ -712,8 +1323,12 @@ def p_stm_show0(t):
 
 def p_exp_list(t):
     '''exp_list : exp_list COMA expression'''
-    t[1].append(t[3])
-    t[0] = t[1]
+#    t[1].append(t[3])
+#    t[0] = t[1]
+    childsProduction = addNotNoneChild(t,[1,3])                
+    graph_ref = graph_node(str("exp_list"), [t[1],t[2],t[3]]    ,childsProduction)
+    addCad("**\<EXP_LIST>** ::= <EXP_LIST> ',' <EXP>")
+    t[0] = upNodo("token", 0, 0, graph_ref)
 
 #    graph_ref = graph_node("COMA", [t[1].graph_ref,t[2].graph_ref])
     

@@ -1,4 +1,5 @@
 from graphviz import Digraph
+import subprocess
 
 
 s="\n"
@@ -61,6 +62,18 @@ def creategrafo():
     archivo = open('grap.txt', 'w')
     archivo.write(s)
     archivo.close()
+
+    comando = "dot -Tpng "+ "grap" +".txt -o "+ "grap" +".png"
+    resultado = subprocess.Popen(comando,shell=True,stdout=subprocess.PIPE)   #manda a consola la instruccion
+    for salida in resultado.stdout:
+        print(salida.decode(sys.getdefaultencoding()).rstrip())            #imprime algun posible error que pueda suceder
+
+    comando2 = "start "+ "grap" +".png"
+    resultado2 = subprocess.Popen(comando2,shell=True,stdout=subprocess.PIPE)
+    for salida2 in resultado2.stdout:
+        print(salida2.decode(sys.getdefaultencoding()).rstrip())
+
+
 
 def addCad(cadena):
     global gram
