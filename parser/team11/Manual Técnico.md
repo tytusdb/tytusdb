@@ -475,6 +475,171 @@ El programa se ha desarrollado en el IDE Visual Studio Code:
         ('left', 'EXPONENTE'),
         ('right', 'UMENOS')
       )
+### Analisis Sintáctico
+
+#### *Definición de la gramática*
+##### Bloque instrucciones principales, estado inicial.
+    init : instrucciones
+
+    instrucciones : instrucciones instruccion
+                    | instruccion
+
+    instruccion   : createDB_instr
+                    | replaceDB_instr
+                    | alterDB_instr
+                    | dropDB_instr
+                    | showDB_instr
+                    | insert_instr
+                    | update_instr
+                    | alter_instr PTCOMA
+                    | delete_instr
+                    | truncate_instr
+                    | create_instr
+                    | select_instr
+                    | use_instr
+##### DATABASE
+###### CREATE AND REPLACE DATABASE
+    createDB_instr    : CREATE DATABASE existencia
+                        | CREATE DATABASE ID state_owner
+
+    replaceDB_instr   : REPLACE DATABASE existencia
+                        | REPLACE DATABASE ID state_owner
+    
+    existencia        : IF NOT EXISTS ID state_owner
+
+    state_owner       : OWNER IGUAL ID state_mode
+                        | OWNER IGUAL CADENASIMPLE state_mode
+                        | OWNER ID state_mode
+                        | OWNER CADENASIMPLE state_mode
+                        | state_mode
+    
+    state_mode        : MODE IGUAL ENTERO PTCOMA
+                        | MODE ENTERO PTCOMA
+                        | PTCOMA
+
+###### ALTER DATABASE
+
+    alterDB_instr     : ALTER DATABASE ID RENAME TO ID PTCOMA
+                        | ALTER DATABASE ID OWNER TO owner_users PTCOMA
+
+    owner_users       : ID
+                        | CURRENT_USER
+                        | SESSION_USER
+###### DROP DATABASE
+    dropDB_instr      : DROP DATABASE ID PTCOMA
+                        | DROP DATABASE IF EXISTS ID PTCOMA
+###### SHOW DATABASES
+    showDB_instr      : SHOW DATABASES PTCOMA
+                        | SHOW DATABASES LIKE regexpr PTCOMA
+
+    regexpr           :  MODULO ID
+                        | MODULO ID MODULO
+                        | MODULO ENTERO
+                        | MODULO ENTERO MODULO
+                        | ID MODULO
+                        | ENTERO MODULO
+###### USE DATABASE
+    use_instr         :  USE DATABASE ID PTCOMA
+
+
+##### INSERT INTO
+    insert_instr      : INSERT INTO ID VALUES PARIZQ parametros PARDER PTCOMA
+                        | INSERT INTO ID PARIZQ columnas PARDER VALUES PARIZQ parametros PARDER PTCOMA
+
+    parametros        :  parametros COMA parametroinsert
+                        | parametroinsert
+
+    parametroinsert   : DEFAULT
+                        | expresion
+
+    columnas          : columnas COMA ID
+                        | ID
+##### UPDATE
+    update_instr      : UPDATE ID SET asignaciones PTCOMA
+                        | UPDATE ID SET asignaciones WHERE condiciones PTCOMA
+
+    asignaciones      : asignaciones COMA asignacion
+                        | asignacion
+
+    asignacion        : ID IGUAL expresion
+
+##### DELETE, TRUNCATE
+    delete_instr      : DELETE FROM ID PTCOMA
+                        | DELETE FROM ID WHERE condiciones PTCOMA
+
+    truncate_instr    : TRUNCATE listtablas PTCOMA
+                        | TRUNCATE listtablas CASCADE PTCOMA
+                        | TRUNCATE TABLE listtablas PTCOMA  
+                        | TRUNCATE TABLE listtablas CASCADE PTCOMA
+
+    listtablas        : listtablas COMA ID
+                        | ID
+
+##### ALTER TABLE
+    alter_instr       : ALTER TABLE ID ADD COLUMN list_columns
+                        | ALTER TABLE ID ADD CHECK PARIZQ condicion PARDER
+                        | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
+                        | ALTER TABLE ID ADD FOREIGN KEY PARIZQ ID PARDER REFERENCES ID
+                        | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
+                        | ALTER TABLE ID DROP CONSTRAINT ID
+                        | ALTER TABLE ID RENAME COLUMN ID TO ID
+                        | ALTER TABLE ID DROP COLUMN listtablas
+                        | ALTER TABLE ID list_alter_column
+
+    list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column
+                        | ALTER COLUMN ID TYPE type_column
+
+    list_columns      : list_columns COMA ID type_column
+                        | ID type_column
+
+    type_column       : SMALLINT
+                        | INTEGER
+                        | BIGINT
+                        | decimal
+                        | NUMERIC
+                        | REAL
+                        | FLOAT
+                        | INT
+                        | DOUBLE
+                        | MONEY
+                        | VARCHAR PARIZQ ENTERO PARDER
+                        | CHARACTER VARYING PARIZQ ENTERO PARDER
+                        | CHARACTER PARIZQ ENTERO PARDER
+                        | CHAR PARIZQ ENTERO PARDER
+                        | TEXT
+                        | TIMESTAMP 
+                        | TIMESTAMP PARIZQ ENTERO PARDER
+                        | DATE
+                        | TIME
+                        | TIME PARIZQ ENTERO PARDER
+                        | INTERVAL field
+
+    field             : YEAR
+                        | MONTH
+                        | DAY
+                        | HOUR
+                        | MINUTE
+                        | SECOND
+##### CREATE TABLE
+    create_instr      : CREATE lista_crear create_final
+
+    create_final      : PTCOMA
+                        | INHERITS PARIZQ ID PARDER PTCOMA
+
+    lista_crear       : DATABASE lista_owner
+                        | OR REPLACE DATABASE lista_owner
+                        | TABLE ID PARIZQ lista_campos PARDER 
+
+    lista_campos      : lista_campos COMA campo
+                        | campo
+                    
+    campo             :  ID type_column
+                        | ID type_column PRIMARY KEY
+                        | PRIMARY KEY PARIZQ columnas PARDER 
+                        | FOREIGN KEY PARIZQ columnas PARDER REFERENCES ID PARIZQ columnas PARDER
+
+    lista_owner       : IF NOT EXISTS ID
+                        | ID
 
 
 
