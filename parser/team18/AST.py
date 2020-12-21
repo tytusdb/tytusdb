@@ -101,9 +101,59 @@ def use_db(nombre):
     global baseActiva
     baseActiva = nombre
 
-'''def elim_use():
-    global baseActiva
-    baseActiva = ""'''
+def indiceColum(baseAc,ntable,nombre):
+    pos=0
+    posC=0
+    while pos< len(listaTablas):
+            posC=0
+            if(listaTablas[pos].nombre==ntable and listaTablas[pos].basepadre==baseAc): 
+                while posC < len(listaTablas[pos].atributos):
+                    if listaTablas[pos].atributos[posC].nombre == nombre:
+                        return posC
+                    else:
+                        posC=posC+1
+            else:
+                pos=pos+1
+    return None
+
+def obtenerPKexp(expresion,nombres,ts):
+    if isinstance(expresion, Operacion_Relacional):
+        if expresion.operador == OPERACION_RELACIONAL.IGUAL: 
+            col = resolver_operacion(expresion.op1,ts)
+            if col in nombres:
+                return resolver_operacion(expresion.op2,ts)
+    elif isinstance(expresion, Operacion_Logica_Binaria):
+        op1 = obtenerPKexp(expresion.op1,nombres,ts)
+        op2 = obtenerPKexp(expresion.op2,nombres,ts)
+        if op1 is not None:
+            return op1
+        if op2 is not None:
+            return op2
+    return None
+
+def getpks(baseAc,nombret):
+    tabla=buscarTabla(baseAc,nombret)
+    llaves=[]
+    for colum in tabla.atributos:
+        if colum.primary==True:
+            llaves.append(colum.nombre)
+    return llaves
+
+def llaves_tabla(exp,llaves,ts):
+    keys=[]
+    for key in llaves:
+        ky=obtenerPKexp(exp,key,ts)
+        if key is not None:
+            keys.append(ky)
+    return keys
+
+def indice_llaves(llaves,baseAc,ntabla):
+    lindices=[]
+    cont=0
+    while cont < len(llaves):
+        lindices.append(indiceColum(baseActiva,ntabla,llaves[cont]))
+        cont=cont+1
+    return lindices
 
 #---------Ejecucion Funciones EDD-------------
 def crear_BaseDatos(instr,ts):
@@ -734,30 +784,144 @@ def insertar_en_tabla(instr,ts):
             msg='columnas faltantes para EDD'
             agregarMensjae('error',msg,'')
 
-
-
+def update_register(exp,llaves,ts,baseAc,tablenm,nameC,valor):
+    pk_value = llaves_tabla(exp,llaves,ts)
+    pk_index = indice_llaves(llaves,baseAc,tablenm)
+    pk_value = list(filter(None, pk_value))
+    if pk_value is not None:
+        col = {}
+        registros=EDD.extractTable(baseAc,tablenm) 
+        for registro in registros:
+            atributosact=[]
+            if len(pk_value) != len(pk_index):
+                if any(item in registro for item in pk_value):
+                    for i in pk_index:
+                        atributosact.append(registro[i])
+                    if len(atributosact) > 0:
+                        col[indiceColum(baseAc,tablenm,nameC)]=valor
+                        respuesta=EDD.update(baseAc,tablenm,col,atributosact)
+                        if respuesta==0:
+                            agregarMensjae('exito','Registro actualizado.','')
+                        elif respuesta==1:
+                            agregarMensjae('error','Error en actualizar registro','')
+                        elif respuesta==2:
+                            agregarMensjae('error','Base de datos no existe','')
+                        elif respuesta==3:
+                            agregarMensjae('error','42P01:Tabla '+tablenm+' no registrada','42P01')
+            else:
+                if all(item in registro for item in pk_value):
+                    for i in pk_index:
+                        atributosact.append(registro[i])
+                    if len(atributosact) > 0:
+                        col[indiceColum(baseAc,tablenm,nameC)]=valor
+                        respuesta=EDD.update(baseAc,tablenm,col,atributosact)
+                        if respuesta==0:
+                            agregarMensjae('exito','Registro actualizado.','')
+                        elif respuesta==1:
+                            agregarMensjae('error','Error en actualizar registro','')
+                        elif respuesta==2:
+                            agregarMensjae('error','Base de datos no existe','')
+                        elif respuesta==3:
+                            agregarMensjae('error','42P01:Tabla '+tablenm+' no registrada','42P01')
+    else:
+        agregarMensjae('error','No se encontro la llave primaria','')
 
 def actualizar_en_tabla(instr,ts):
-    print('nombre:',instr.nombre,'condicion:',instr.condicion,'valores:',instr.valores)
-    nombreT=''
+    # pendiente completar condicion where 
+    # una key en where ok o keys en where ok pero otras condiciones aun no
+    tipostring=['character varying','character','char','varchar','text','date','timestamp','time','interval']
+    tiponum=['smallint','integer','bigint','decimal','numeric','real','double precision','money','boolean']
     nombreT=resolver_operacion(instr.nombre,ts)
-    values=''
-
-    for val in instr.valores:
-        values+=resolver_operacion(val.nombre,ts)+'='+str(resolver_operacion(val.valor,ts))+' '
-
-    global outputTxt
-    outputTxt+='\n> Actualizado en Tabla: '+nombreT
-    outputTxt+='\n> Valores: '+values
-    outputTxt+='\n> '+str(len(instr.valores))+' Filas afectadas'
+    primarias=getpks(baseActiva,nombreT)
+    agregarMensjae('normal','Actualizar tabla '+nombreT,'')
+    if baseActiva != "": # base seleccionada
+        resultdb=EDD.showTables(baseActiva)
+        if nombreT in resultdb: # tabla encontrada
+            cabeceras = buscarTabla(baseActiva,nombreT)
+            if cabeceras is not None:
+                for colum in cabeceras.atributos:
+                    if colum is not None:
+                        for valor in instr.valores:
+                            name=resolver_operacion(valor.nombre,ts)
+                            value=resolver_operacion(valor.valor,ts)
+                            if colum.nombre == name: # columna encontrada
+                                if isinstance(value, str): # string
+                                    if colum.tipo in tipostring: # update normal
+                                        if colum.size != "":
+                                            if len(value)<int(colum.size):
+                                                 update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,value)
+                                            else:
+                                                agregarMensjae('error','22001:Valor muy grande para tipo '+colum.tipo+'('+str(colum.size)+')','22001')
+                                        else: 
+                                            update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,value)
+                                    elif colum.tipo in tiponum: # error update
+                                        agregarMensjae('error','42804:datatype_mismatch (no coincide el tipo de datos)','42804')
+                                else: # numero
+                                    if colum.tipo in tipostring: # casteo y update
+                                        if colum.size != "":
+                                            if len(str(value)) < int(colum.size):
+                                                update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,str(value))
+                                            else:
+                                                agregarMensjae('error','22001:Valor muy grande para tipo '+colum.tipo+'('+str(colum.size)+')','22001')
+                                        else:
+                                            update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,value)
+                                    elif colum.tipo in tiponum: # update normal
+                                        update_register(instr.condicion,primarias,ts,baseActiva,nombreT,name,value)
+        else:
+            agregarMensjae('error','42P01:Tabla '+nombreT+' no registrada','42P01')
+    else:
+        agregarMensjae('alert','No hay una base de datos activa','')
 
 def eliminar_de_tabla(instr,ts):
-    print('nombre:',instr.nombre,'condicion:',instr.condicion)
-    nombreT=''
+    #pendiente completar condicion where
     nombreT=resolver_operacion(instr.nombre,ts)
-
-    global outputTxt
-    outputTxt+='\n> Eliminacion de Tabla: '+nombreT
+    primarias=getpks(baseActiva,nombreT)
+    agregarMensjae('normal','Eliminar tabla '+nombreT,'')
+    if baseActiva != "": # base seleccionada
+        resultdb=EDD.showTables(baseActiva)
+        if nombreT in resultdb: # tabla encontrada
+            pk_value = llaves_tabla(instr.condicion,primarias,ts)
+            pk_index = indice_llaves(primarias,baseActiva,nombreT)
+            pk_value = list(filter(None, pk_value))
+            if pk_value is not None:
+                print('valores ',pk_value,'index ',pk_index)
+                registros=EDD.extractTable(baseActiva,nombreT) 
+                for registro in registros:
+                    atributodel=[]
+                    if len(pk_value) != len(pk_index):
+                        if any(item in registro for item in pk_value):
+                            for i in pk_index:
+                                atributodel.append(registro[i])
+                        if len(atributodel) > 0:       
+                            respuesta=EDD.delete(baseActiva,nombreT,atributodel)
+                            if respuesta==0:
+                                agregarMensjae('exito','Registro eliminado.','')
+                            elif respuesta==1:
+                                agregarMensjae('error','Error en eliminar registro','')
+                            elif respuesta==2:
+                                agregarMensjae('error','Base de datos no existe','')
+                            elif respuesta==3:
+                                agregarMensjae('error','42P01:Tabla '+nombreT+' no registrada','42P01')
+                    else:
+                        if all(item in registro for item in pk_value):
+                            for i in pk_index:
+                                atributodel.append(registro[i])
+                        if len(atributodel) > 0:       
+                            respuesta=EDD.delete(baseActiva,nombreT,atributodel)
+                            if respuesta==0:
+                                agregarMensjae('exito','Registro eliminado.','')
+                            elif respuesta==1:
+                                agregarMensjae('error','Error en eliminar registro','')
+                            elif respuesta==2:
+                                agregarMensjae('error','Base de datos no existe','')
+                            elif respuesta==3:
+                                agregarMensjae('error','42P01:Tabla '+nombreT+' no registrada','42P01')
+            else:
+                agregarMensjae('error','no se encontro pk','')          
+        else:
+            agregarMensjae('error','42P01:Tabla '+nombreT+' no registrada','42P01')
+    else:
+        agregarMensjae('alert','No hay una base de datos activa','')
 
 #EMPIEZA MIO --------------------------------------------
 

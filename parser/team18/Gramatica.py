@@ -1364,6 +1364,14 @@ def p_columna(t):
      else:
           t[0]=columnaTabla(Operando_ID(t[1]), t[2], t[3],t[4], t[5])
 
+def p_columna_const(t):
+     '''columna : constrop UNIQUE PAR_A lista_exp PAR_C
+                | constrop CHECK PAR_A lista_exp PAR_C'''
+
+def p_columna_constraint_op(t):
+     '''constrop : CONSTRAINT ID
+                 | empty'''
+
 def p_tipo(t):
      '''tipo : smallint
              | integer
