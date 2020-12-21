@@ -693,7 +693,7 @@ def p_produccion0_6(p):
         if hasattr(p[3].opIzq,'valor'):
             result.append(SNotBetween(p[3].opIzq,p[1],p[3].opDer))
         else:
-            result.append(SNotBetween(p[3].opIzq.opIzq),p[1],p[3].opIzq.opDer)
+            result.append(SNotBetween(p[3].opIzq.opIzq,p[1],p[3].opIzq.opDer))
             result.append(p[3].opDer)
 
         p[0] = result

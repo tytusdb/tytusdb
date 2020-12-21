@@ -183,8 +183,23 @@ class SimboloTabla:
         return 3
 
     def getColumna(self, idcolumna):
-        return self.columnas[idcolumna]
+        if idcolumna in self.columnas:
+            return self.columnas[idcolumna]
+        else:
+            return None
 
+class colsConsulta: 
+    def __init__(self,nombre,alias,tipo,param,tabla):
+        self.nombre = nombre
+        self.alias = alias
+        self.tipo = tipo
+        self.param = param
+        self.tabla = tabla
+
+class colsTabla: 
+    def __init__(self,nombre,alias):
+        self.nombre = nombre
+        self.alias = alias
 
 class SimboloColumna:
     ''' Clase Para Almacenar Información Sobre Las Columnas de Una Tabla '''

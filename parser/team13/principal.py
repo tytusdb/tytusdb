@@ -265,9 +265,9 @@ def interpretar_sentencias(arbol, tablaSimbolos):
 
         # FRANCISCO
         elif isinstance(nodo, Squeries):
-            print("Entró a Query")
+            #print("Entró a Query")
             if nodo.ope == False:
-                print("Query Simple")
+                #print("Query Simple")
                 if isinstance(nodo.query1, SQuery):
                     Qselect = nodo.query1.select
                     Qffrom = nodo.query1.ffrom
@@ -276,423 +276,8 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     Qhaving = nodo.query1.having
                     Qorderby = nodo.query1.orderby
                     Qlimit = nodo.query1.limit
-
-                    # VARIABLES
-                    tablaConsulta = ""
-                    aliasTablaConsulta = ""
-                    distinct = False
-                    todasCols = False
-                    Ssid = ""
-                    Ssalida = ""
-                    ncolumna=""
-
-                    if Qffrom == False and Qffrom == False and Qwhere == False and Qgroupby == False and Qhaving == False and Qorderby == False and Qlimit == False:
-                        print("Forma -> Select")
-                    elif Qffrom != False and Qffrom == False and Qwhere == False and Qgroupby == False and Qhaving == False and Qorderby == False and Qlimit == False:
-                        print("Forma -> Select From")
-                    elif Qffrom != False and Qffrom != False and Qwhere != False and Qgroupby != False and Qhaving != False and Qorderby != False and Qlimit != False:
-                        print("Forma -> Select From Where GroupBy Having Orderby Limit")
-                    else:
-                        print("no")
-
-                    # SELECT
-                    if isinstance(Qselect, SSelectCols):
-                        print("Entro a Select")
-                        # Distinct
-                        if Qselect.distinct != False:
-                            print("Distinct True")
-                            distinct=True
-
-                        # Cantidad de columnas
-                        if Qselect.cols == "*":
-                            print("Todas las Columnas")
-                            todasCols=True
-
-                        else:
-                            print("Columnas Específicas")
-                            for col in Qselect.cols:
-                                # LISTAS
-                                if isinstance(col.cols, SExpresion):
-                                    print("Expre")
-                                    print(col.cols.valor)
-                                    ncolumna=col.cols.valor
-                                    # print("Tipo")
-                                    # print(col.cols.tipo)
-                                elif isinstance(col.cols, SOperacion):
-                                    print("Operación")
-                                    if isinstance(col.cols.opIzq, SExpresion):
-                                        print(col.cols.opIzq.valor)
-                                        print(col.cols.operador)
-                                        print(col.cols.opDer.valor)
-
-                                # FUNCIONES DE AGREGACION
-                                elif isinstance(col.cols, SFuncAgregacion):
-                                    print("Funcion Agregación:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("val")
-                                        print(col.cols.param.valor)
-                                    else:
-                                        print("val")
-                                        print(col.cols.param)
-
-                                        # FUNCIONES MATH
-                                elif isinstance(col.cols, SFuncMath):
-                                    print("Funcion Math:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("param")
-                                        print(col.cols.param.valor)
-                                    else:
-                                        print("param")
-                                        print(col.cols.param)
-
-                                elif isinstance(col.cols, SFuncMath2):
-                                    print("Funcion Math2:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("params")
-                                        print(col.cols.param.valor)
-                                        print(col.cols.param2.valor)
-                                    else:
-                                        print("params")
-                                        print(col.cols.param)
-                                        print(col.cols.param2)
-
-                                elif isinstance(col.cols, SFuncMathSimple):
-                                    print("Funcion MathSimple:")
-                                    print(col.cols.funcion)
-
-                                    # FUNCIONES TRIG
-                                elif isinstance(col.cols, SFuncTrig):
-                                    print("Funcion Trig1:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("param")
-                                        print(col.cols.param.valor)
-                                    else:
-                                        print("param")
-                                        print(col.cols.param)
-
-                                elif isinstance(col.cols, SFuncTrig2):
-                                    print("Funcion Trig2:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("params")
-                                        print(col.cols.param.valor)
-                                        print(col.cols.param2.valor)
-                                    else:
-                                        print("params")
-                                        print(col.cols.param)
-                                        print(col.cols.param2)
-
-                                # FUNCIONES BINARIAS
-                                elif isinstance(col.cols, SFuncBinary):
-                                    print("Funcion Binaria1:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("param")
-                                        print(col.cols.param.valor)
-                                    else:
-                                        print("param")
-                                        print(col.cols.param)
-
-                                elif isinstance(col.cols, SFuncBinary2):
-                                    print("Funcion Binaria2:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("params")
-                                        print(col.cols.param.valor)
-                                        print(col.cols.param2.valor)
-                                    else:
-                                        print("params")
-                                        print(col.cols.param)
-                                        print(col.cols.param2)
-
-                                elif isinstance(col.cols, SFuncBinary3):
-                                    print("Funcion Binaria3:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("params")
-                                        print(col.cols.param.valor)
-                                        print(col.cols.param.det)
-                                        print(col.cols.param2.valor)
-                                    else:
-                                        print("params")
-                                        print(col.cols.param)
-                                        print(col.cols.det)
-                                        print(col.cols.param2)
-
-                                elif isinstance(col.cols, SFuncBinary4):
-                                    print("Funcion Binaria4:")
-                                    print(col.cols.funcion)
-                                    if isinstance(col.cols.param, SExpresion):
-                                        print("params")
-                                        print(col.cols.param.valor)
-                                        print(col.cols.param2.valor)
-                                        print(col.cols.param3.valor)
-                                    else:
-                                        print("params")
-                                        print(col.cols.param)
-                                        print(col.cols.param2)
-                                        print(col.cols.param3)
-
-                                # EXTRACT
-                                elif isinstance(col.cols, SExtract):
-                                    print("Funcion Extract:")
-                                    if isinstance(col.cols.field, STipoDato):
-                                        print(col.cols.field.dato)
-                                        print(col.cols.field.tipo)
-                                        print(col.cols.field.cantidad)
-                                    print(col.cols.timestampstr)
-
-                                elif isinstance(col.cols, SExtract2):
-                                    print("Funcion Extract2:")
-                                    if isinstance(col.cols.field, STipoDato):
-                                        print(col.cols.field)
-                                        print(col.cols.dtype)
-                                    if isinstance(col.cols.timestampstr, SExpresion):
-                                        print("param")
-                                        print(col.cols.timestampstr.valor)
-
-                                        # FUNCIONES DE FECHA
-                                elif isinstance(col.cols, SSelectFunc):
-                                    print("Funcion getFecha:")
-                                    Ssid = col.cols.id
-                                    Ssalida = getFechaFunc(col.cols.id)
-
-                                elif isinstance(col.cols, SFechaFunc):
-                                    print("Funcion Fecha:")
-                                    if isinstance(col.cols.param, STipoDato):
-                                        Ssid = col.cols.param2.valor
-                                        Ssalida = getFechaFunc2(col.cols.param.dato, col.cols.param2.valor)
-                                    else:
-                                        print(col.cols.param)
-                                        print(col.cols.param2)
-
-                                elif isinstance(col.cols, SFechaFunc2):
-                                    print("Funcion Fecha2:")
-                                    print(col.cols.id)
-                                    print(col.cols.param)
-                                    print(col.cols.tipo)
-                                    print(col.cols.param2)
-
-                                # CASE
-                                elif isinstance(col.cols, SCase):
-                                    print("Funcion Case:")
-                                    if isinstance(col.cols.casos, SCaseList):
-                                        print(col.cols.casos.param)
-                                        print(col.cols.casos.param2)
-                                        print(col.cols.casos.clist)
-
-                                elif isinstance(col.cols, SCaseElse):
-                                    print("Funcion CaseElse:")
-                                    if isinstance(col.cols.casos, SCaseList):
-                                        print(col.cols.casos.param)
-                                        print(col.cols.casos.param2)
-                                        print(col.cols.casos.clist)
-                                    print(col.cols.casoelse)
-
-                                # OTRAS FUNCIONES
-                                elif isinstance(col, SColumnasSubstr):
-                                    print("Funcion Substr:")
-                                    print(col.cols)
-                                    print(col.cols2)
-                                    print(col.cols3)
-
-                                elif isinstance(col, SColumnasGreatest):
-                                    print("Funcion Greatest:")
-                                    print(col.cols)
-
-                                elif isinstance(col.cols, SColumnasLeast):
-                                    print("Funcion Least:")
-                                    print(col.cols)
-
-                                else:
-                                    print("Otro")
-                                    print(col.id)
-                                    print(col.cols)
-
-                                # ALIAS
-                                if col.id != False:
-                                    if isinstance(col.id, SExpresion):
-                                        print("Alias")
-                                        print(col.id.valor)
-
-                                        # FROM
-                    if isinstance(Qffrom, SFrom):
-                        print("entro al From")
-                        for col in Qffrom.clist:
-                            if isinstance(col, SAlias):
-                                if col.alias == False:
-                                    print("id")
-                                    print(col.id)
-                                    tablaConsulta=col.id
-                                else:
-                                    print("id/alias")
-                                    print(col.id)
-                                    tablaConsulta=col.id
-                                    print(col.alias)
-
-                    elif isinstance(Qffrom, SFrom2):
-                        print("entro al From2")
-                        # Subquerie
-                        print(Qffrom.clist)
-                        print(Qffrom.id)
-
-                    else:
-                        print("Otro From")
-
-                    # WHERE
-                    if isinstance(Qwhere, SWhere):
-                        print("entro al Where")
-                        for col in Qwhere.clist:
-                            if isinstance(col, SWhereCond1):
-                                print("Es where1")
-                                print(col.conds)
-                                # print(col.conds.param.opIzq.valor)
-                                # print(col.conds.param.operador)
-                                # print(col.conds.param.opDer.valor)
-
-                            elif isinstance(col, SWhereCond2):
-                                print("Es where2")
-                                print(col.conds)
-                                print(col.isnotNull)
-
-                            elif isinstance(col, SWhereCond3):
-                                print("Es where3")
-                                print(col.conds)
-                                print(col.directiva)
-
-                            elif isinstance(col, SWhereCond4):
-                                print("Es where4")
-                                print(col.conds)
-                                print(col.ffrom)
-
-                            elif isinstance(col, SWhereCond5):
-                                print("Es where5")
-                                print(col.c1)
-                                print(col.c2)
-                                print(col.c3)
-
-                            elif isinstance(col, SWhereCond6):
-                                print("Es where6")
-                                print(col.cols)
-
-                            elif isinstance(col, SWhereCond7):
-                                print("Es where7")
-                                print(col.efunc)
-                                print(col.qcols)
-                                print(col.anyallsome)
-                                print(col.operador)
-
-                            elif isinstance(col, SWhereCond8):
-                                print("Es where8")
-                                print(col.qcols)
-                                print(col.efunc)
-
-                            elif isinstance(col, SWhereCond9):
-                                print("Es where9")
-                                print(col.between)
-                                print(col.efunc)
-                                print(col.efunc2)
-                            else:
-                                print("Otro Where")
-                    # GROUP BY
-                    if isinstance(Qgroupby, SGroupBy):
-                        print("entro al Group By")
-                        for col in Qgroupby.slist:
-                            if isinstance(col, SExpresion):
-                                print("Agrupado por")
-                                print(col.valor)
-                            else:
-                                print("Agrupado por")
-                                print(col)
-                    # HAVING
-                    if isinstance(Qhaving, SHaving):
-                        print("entro al Having")
-                        print(Qhaving.efunc)
-
-                    # ORDER BY
-                    if isinstance(Qorderby, sOrderBy):
-                        print("entro al Order By")
-                        for col in Qorderby.slist:
-                            if isinstance(col, SListOrderBy):
-                                if col.ascdesc == False and col.firstlast == False:
-                                    print("OrderBy1")
-                                    print(col.listorder)
-                                elif col.ascdesc == False and col.firstlast != False:
-                                    print("OrderBy2")
-                                    print(col.listorder)
-                                    print(col.firstlast)
-                                elif col.ascdesc != False and col.firstlast == False:
-                                    print("OrderBy3")
-                                    print(col.listorder)
-                                    print(col.ascdesc)
-                                elif col.ascdesc != False and col.firstlast != False:
-                                    print("OrderBy4")
-                                    print(col.listorder)
-                                    print(col.ascdesc)
-                                    print(col.firstlast)
-
-                    # LIMIT
-                    if isinstance(Qlimit, SLimit):
-                        print("Entro a Limit")
-                        if isinstance(Qlimit.limit, SExpresion):
-                            print(Qlimit.limit.valor)
-                        else:
-                            print(Qlimit.limit)
-
-                        if isinstance(Qlimit.offset, SExpresion):
-                            print(Qlimit.offset.valor)
-                        else:
-                            print(Qlimit.offset)
-
-                    # TODOS LOS DATOS
-                    if tablaConsulta != "":
-                        bConsulta = jBase.extractTable(useActual, tablaConsulta)
-                        base=tablaSimbolos.get(useActual)
-                        tabla=base.getTabla(tablaConsulta)
-                        indice=tabla.getColumna(ncolumna).index
-                        arr=[]
-                        if distinct:
-                            for i in range(len(bConsulta)):
-                                if bConsulta[i][indice] not in arr:
-                                    arr.append(bConsulta[i][indice])
-                            x = PrettyTable()
-                            x.field_names=[ncolumna]
-                            print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
-                            print(arr)
-                            for datam in arr:
-                                x.add_row([datam])
-                            consola+=str(x)+"\n"
-
-                        else:
-                            x = PrettyTable()
-                            t2 = base.getTabla(tablaConsulta)
-                            nombreCols = []
-                            for e in t2.columnas.keys():
-                                nombreCols.append(e)
-                            x.field_names = nombreCols
-                            print(tablaConsulta)
-                            print(useActual)
-                            bConsulta = jBase.extractTable(useActual, tablaConsulta)
-                            for e in bConsulta:
-                                x.add_row(e)
-                            consola += str(x)+"\n"
-
-                    # NOW TODAY
-                    elif Ssid != "":
-
-                        nombreCols = []
-                        nombreCols.append(Ssid)
-                        x = PrettyTable()
-                        x.field_names = nombreCols
-                        x.add_row([Ssalida])
-                        consola += str(x) + "\n"
-
-                    else:
-                        print("error")
+                    base = tablaSimbolos.get(useActual)
+                    hacerConsulta(Qselect,Qffrom,Qwhere,Qgroupby,Qhaving,Qorderby,Qlimit,base)
 
             else:
                 print("Query no 1")
@@ -1484,8 +1069,6 @@ def deleteBase(nodo,tablaSimbolos):
                     llaves.clear()
 
         
-
-
 def crearBase(nodo, tablaSimbolos):
     val = nodo.id.valor
     global consola
@@ -2350,8 +1933,6 @@ def validarUpdate(tupla,nombres,tablaSimbolos,tabla,diccionario,pk):
         listaSemanticos.append(Error.ErrorS(
             "Error Semantico", "La columna "+b["col"]+" no puede ser nula"))
 
-    
-
 
 # MÉTODO PARA RETORNAR LA TUPLA COMPLETA
 def validarDefault(listaC, listaV,tabla,tablaSimbolos):
@@ -2388,7 +1969,6 @@ def validarDefault(listaC, listaV,tabla,tablaSimbolos):
 
                 return tupla
 
-
 # MÉTODO PARA RETORNAR LA TUPLA COMPLETA
 def validarDefault2(listaC, listaV,tabla,tablaSimbolos):
 
@@ -2424,18 +2004,6 @@ def validarDefault2(listaC, listaV,tabla,tablaSimbolos):
 
                 return tupla
 
-
-
-
-
-
-
-    
-
-
-
-
-
 # MÉTODO PARA VALIDAR LAS LLAVES FORÁNEAS
 def validarFK(col, val, tabla, tablaSimbolos):
 
@@ -2458,9 +2026,6 @@ def validarFK(col, val, tabla, tablaSimbolos):
             return False
     
     return True
-
-    
-
 
 # MÉTODO PARA VALIDAR LOS CHECKS
 def validaCheck(col,val,columnas,valores):
@@ -2525,9 +2090,13 @@ def validarPK(col, val,tabla):
 
 def validarTiposNumericos(dato, expresion):
     if dato == "smallint":
-        if expresion.tipo == Expresion.ENTERO:
-            if expresion.valor >= -32768 and expresion.valor <= 32767:
-                return True
+        if expresion.tipo == Expresion.ENTERO or expresion.tipo == Expresion.NEGATIVO:
+            if expresion.tipo == Expresion.NEGATIVO:
+                if expresion.valor.valor >= -32768 and expresion.valor.valor <= 32767:
+                    return True
+            else:
+                if expresion.valor >= -32768 and expresion.valor <= 32767:
+                    return True
     elif dato=="integer":
         if expresion.tipo == Expresion.ENTERO:
             if expresion.valor >= -2147483648 and expresion.valor <= 2147483647:
@@ -2800,10 +2369,6 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "asind":
             param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
-            val = math.asin(param.valor)
-            return SExpresion(val, Expresion.DECIMAL)
-        elif expresion.funcion.lower() == "asind":
-            param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
             val1 = math.asin(param.valor)
             val = math.degrees(val1)
             return SExpresion(val, Expresion.DECIMAL)
@@ -2836,7 +2401,7 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "sin":
             param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
-            val= 1 / math.sin(param.valor)
+            val= math.sin(param.valor)
             return SExpresion(val, Expresion.DECIMAL)
         elif expresion.funcion.lower() == "sind":
             param = Interpreta_Expresion(expresion.param,tablaSimbolos, tabla)
@@ -3074,3 +2639,696 @@ def getFechaFunc2(funcion, param):
         now = datetime.now()
         val = now.strftime("%H:%M:%S")
         return val
+
+
+#METODOS QUERIES
+
+def hacerConsulta(Qselect,Qffrom,Qwhere,Qgroupby,Qhaving,Qorderby,Qlimit,base):
+    global consola
+    global useActual
+    print("------------------ EMPIEZA CONSULTA ---------------------")
+    # VARIABLES
+    tablaConsulta = ""
+    aliasTablaConsulta = ""
+    distinct = False
+    todasCols = False
+    Ssid = ""
+    Ssalida = ""
+    ncolumna=""
+    arrCols = []
+    tablasColumna = []
+    aliasCols = []
+    arrSalida = []
+    tipoAgregacion = False
+    tipoMath = False
+    tipoTrig = False
+    nombreFuncionAgg = ""
+    paramFuncionAgg = ""
+
+    #SELECT
+    if Qselect.distinct != False:
+        distinct=True
+
+     # Cantidad de columnas
+    if Qselect.cols == "*":
+        todasCols=True
+
+    # Columnas específicas
+    else: 
+        for col in Qselect.cols:
+            vNombre = ""
+            vAlias = ""
+            vTipo = ""
+            vParam= ""
+            vTabla= ""
+            if isinstance(col.cols, SExpresion):
+                vNombre = col.cols.valor
+                vTipo = 0
+                #arrCols.append(col.cols.valor)
+                vTabla = False
+
+            elif isinstance(col.cols, SOperacion): 
+                print("entra aqui xd -> ")
+                vNombre = col.cols.opDer.valor
+                print(vNombre)
+                vTipo = 0
+                vTabla = col.cols.opIzq.valor
+                print(vTabla)
+
+            # FUNCIONES DE AGREGACION
+            elif isinstance(col.cols, SFuncAgregacion):
+                tipoAgregacion = True
+                vNombre = col.cols.funcion
+                vTipo = 1
+                if isinstance(col.cols.param, SExpresion):
+                    vParam = col.cols.param.valor
+                    vTabla = False
+                elif isinstance(col.cols.param, SOperacion): 
+                    vNombre = col.cols.param.opDer.valor
+                    vTabla = col.cols.param.opIzq.valor
+                else:
+                    print("err")
+            
+            # FUNCIONES DE FECHA
+            elif isinstance(col.cols, SSelectFunc):
+                Ssid = col.cols.id
+                Ssalida = getFechaFunc(col.cols.id)
+
+            elif isinstance(col.cols, SFechaFunc):
+                if isinstance(col.cols.param, STipoDato):
+                    Ssid = col.cols.param2.valor
+                    Ssalida = getFechaFunc2(col.cols.param.dato, col.cols.param2.valor)
+                else:
+                    print("else")
+                    #print(col.cols.param)
+                    #print(col.cols.param2)
+
+            # FUNCIONES MATH
+            elif isinstance(col.cols, SFuncMath):
+                tipoMath = True
+                vNombre = col.cols.funcion
+                vTipo = 2
+                if isinstance(col.cols.param, SExpresion):
+                    vParam= col.cols.param.valor
+                    vTabla = False
+                else:
+                    vNombre = col.cols.param.opDer.valor
+                    vTabla = col.cols.param.opIzq.valor
+
+            elif isinstance(col.cols, SFuncMath2):
+                print("Funcion Math2:")
+                print(col.cols.funcion)
+                if isinstance(col.cols.param, SExpresion):
+                    print("params")
+                    print(col.cols.param.valor)
+                    print(col.cols.param2.valor)
+                else:
+                    print("params")
+                    print(col.cols.param)
+                    print(col.cols.param2)
+
+            elif isinstance(col.cols, SFuncMathSimple):
+                print("Funcion MathSimple:")
+                print(col.cols.funcion)
+            
+            elif isinstance(col.cols, SFuncTrig):
+                tipoTrig = True
+                vNombre = col.cols.funcion
+                vTipo = 3
+                if isinstance(col.cols.param, SExpresion):
+                    vParam= col.cols.param.valor
+                    vTabla = False
+                else:
+                    vNombre = col.cols.param.opDer.valor
+                    vTabla = col.cols.param.opIzq.valor
+
+            # ALIAS
+            if col.id != False:
+                vAlias= col.id.valor
+            else:
+                if isinstance(col.cols, SExpresion):
+                    vAlias= col.cols.valor
+                elif isinstance(col.cols, SOperacion):         
+                    vAlias= col.cols.opDer.valor
+                elif isinstance(col.cols, SFuncAgregacion):
+                    vAlias= col.cols.funcion
+                elif isinstance(col.cols, SFuncMath):
+                    vAlias= col.cols.funcion
+
+            auxCols = TS.colsConsulta(vNombre,vAlias,vTipo,vParam,vTabla)
+            arrCols.append(auxCols)
+            
+    #FROM
+    if isinstance(Qffrom, SFrom):
+        print(Qffrom.clist)
+        for col in Qffrom.clist:
+            if col.alias == False:
+                tablaConsulta=col.id
+                aliasTablaConsulta = col.id
+                tablasC = TS.colsTabla(tablaConsulta,aliasTablaConsulta)
+                if tablasC not in tablasColumna:
+                    tablasColumna.append(tablasC)
+                
+                #print("badddd")
+                #print(tablaConsulta)
+                #print(aliasTablaConsulta)
+            else:
+                tablaConsulta = col.id
+                aliasTablaConsulta = col.alias
+                tablasC = TS.colsTabla(tablaConsulta,aliasTablaConsulta)
+                if tablasC not in tablasColumna:
+                    tablasColumna.append(tablasC)
+                #print("badddd2")
+                #print(tablaConsulta)
+                #print(aliasTablaConsulta)
+            
+            
+
+    elif isinstance(Qffrom, SFrom2):
+        print("entro al From2")
+        # Subquerie
+        #print(Qffrom.clist)
+        #print(Qffrom.id)
+        
+
+    
+    ########################## EJECUTANDO
+    bConsulta = jBase.extractTable(useActual, tablaConsulta)
+    tabla=base.getTabla(tablaConsulta)
+    arr=[]
+    arrPosCols=[]
+    # Consulta a columna
+    if tablaConsulta != "":
+        if distinct:
+            # DISTINCT SIN WHERE
+            bConsulta = jBase.extractTable(useActual, tablaConsulta)
+            tabla=base.getTabla(tablaConsulta)
+            print("DISTINCT")
+            arrIndices = []    
+            arrGlobal = [] 
+            for e in arrCols:
+                indice=tabla.getColumna(e.nombre).index
+                arrIndices.append(indice)
+
+            for i in range(len(bConsulta)):
+                arr1 = []
+                for index in arrIndices:
+                    dato = bConsulta[i][index]
+                    arr1.append(dato)
+                arrGlobal.append(arr1)
+
+            arrFinal = []
+            for g in arrGlobal:
+                if g not in arrFinal:
+                    arrFinal.append(g)
+            x = PrettyTable()
+            nombreCols = []
+            for e in arrCols:
+                nombreCols.append(e.alias)
+            x.field_names = nombreCols
+            for e in arrFinal:
+                x.add_row(e)
+            consola += str(x)+"\n"
+                   
+        else:
+            # TODAS LAS COLS SIN WHERE 
+            if todasCols:
+                x = PrettyTable()
+                t2 = base.getTabla(tablaConsulta)
+                nombreCols = []
+                for e in t2.columnas.keys():
+                    nombreCols.append(e)
+                x.field_names = nombreCols
+                print(nombreCols)
+                for e in bConsulta:
+                    x.add_row(e)
+                print(bConsulta)
+                consola += str(x)+"\n"
+            else:
+                # COLUMNAS ESPECIFICAS SIN WHERE
+                print("ESPECIFICAS")
+                if tipoMath:
+                    MathUnoSinWhere(tabla,arrCols,bConsulta,base,tablasColumna)
+                elif tipoAgregacion:
+                    agregacionSinWhere(tabla,arrCols,bConsulta,base,tablasColumna)
+                elif tipoTrig:
+                    trigSinWhere(tabla,arrCols,bConsulta,base,tablasColumna)
+                else:
+                    columnaEspecificaSinWhere(tabla,arrCols,bConsulta,base,tablasColumna)
+                
+                
+        
+    # Consulta simple
+    elif Ssid != "":
+        nombreCols = []
+        nombreCols.append(Ssid)
+        x = PrettyTable()
+        x.field_names = nombreCols
+        x.add_row([Ssalida])
+        consola += str(x) + "\n"
+
+    else:
+        print("error")
+
+    print("------------------ TERMINA CONSULTA ---------------------")
+
+
+def columnaEspecificaSinWhere(tabla,arrCols,bConsulta,base,tablasColumna):
+    global consola
+    arrIndices = []    
+    arrGlobal = []
+    for e in arrCols:
+        tabla = ""
+        bandd = False
+        indice = None
+        if e.tabla == False:
+            for c in tablasColumna:
+                print("aqui ando")
+                tabla = base.getTabla(c.nombre)
+                indice=tabla.getColumna(e.nombre)
+                auxCons= jBase.extractTable(useActual, tabla.nombre)
+                if indice != None :
+                    arr1=[]
+                    for i in range(len(auxCons)):
+                        dato = auxCons[i][indice.index]
+                        print(dato)
+                        arr1.append(str(dato))
+                    arrGlobal.append(arr1)
+                    bandd = True 
+                    break
+        else: 
+            #print("Entra al else porque tengo alias ")
+            for a in tablasColumna:
+                print("aqui ando2")
+                if a.alias == e.tabla:
+                    tabla = base.getTabla(a.nombre)
+                    indice=tabla.getColumna(e.nombre)
+                    auxCons= jBase.extractTable(useActual, tabla.nombre)
+                    if indice != None :
+                        arr1=[]
+                        for i in range(len(auxCons)):
+                            dato = auxCons[i][indice.index]
+                            arr1.append(str(dato))
+                        arrGlobal.append(arr1)
+                        bandd = True 
+                        break
+        if indice == None:
+            listaSemanticos.append(Error.ErrorS("Error Semántico","No se encontró la columna"+e.nombre))
+
+    x = PrettyTable()
+    n=0
+    for xd in arrGlobal:
+        x.add_column(arrCols[n].alias, xd)
+        n+=1
+    consola += str(x)+"\n"
+
+def MathUnoSinWhere(tabla,arrCols,bConsulta,base,tablasColumna):
+    global consola
+    arrIndices = []    
+    arrGlobal = []
+    for e in arrCols:
+        tabla = ""
+        bandd = False
+        indice = None
+        auxCons = ""
+        if e.tabla == False:
+            for c in tablasColumna:
+                tabla = base.getTabla(c.nombre)
+                indice=tabla.getColumna(e.param)
+                auxCons= jBase.extractTable(useActual, tabla.nombre)
+                if indice != None :
+                        bandd = True 
+                        break
+        else: 
+            #print("Entra al else porque tengo alias ")
+            for a in tablasColumna:
+                if a.alias == e.tabla:
+                    tabla = base.getTabla(a.nombre)
+                    indice=tabla.getColumna(e.param)
+                    auxCons= jBase.extractTable(useActual, tabla.nombre)
+                    if indice != None :
+                        bandd = True 
+                        break
+        if indice == None:
+            listaSemanticos.append(Error.ErrorS("Error Semántico","No se encontró la columna"+e.param))
+
+
+        if e.nombre.lower() == "abs":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(abs(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "cbrt":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append((dato)**(1/3))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "ceil":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.ceil(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "ceiling":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.ceil(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "degrees":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.degrees(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "exp":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.exp(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "factorial":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.factorial(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "floor":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.floor(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "ln":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.log(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "log":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.log10(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "radians":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.radians(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "round":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(round(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "sign":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                if dato >= 0:
+                    arr1.append(1)
+                else:
+                    arr1.append(-1)
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "sqrt":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.sqrt(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "trunc":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.trunc(dato))
+            arrGlobal.append(arr1)
+        
+        x = PrettyTable()
+        n=0
+        print(arrGlobal)
+        print(arrCols)
+        for xd in arrGlobal:
+            x.add_column(arrCols[n].alias+"("+arrCols[n].param+")", xd)
+            n+=1
+        #x.field_names = nombreCols
+        #x.add_rows([arrGlobal])
+        consola += str(x)+"\n"
+
+def trigSinWhere(tabla,arrCols,bConsulta,base,tablasColumna):
+    global consola
+    arrIndices = []    
+    arrGlobal = []
+    for e in arrCols:
+        tabla = ""
+        bandd = False
+        indice = None
+        auxCons = ""
+        if e.tabla == False:
+            for c in tablasColumna:
+                tabla = base.getTabla(c.nombre)
+                indice=tabla.getColumna(e.param)
+                auxCons= jBase.extractTable(useActual, tabla.nombre)
+                if indice != None :
+                        bandd = True 
+                        break
+        else: 
+            #print("Entra al else porque tengo alias ")
+            for a in tablasColumna:
+                if a.alias == e.tabla:
+                    tabla = base.getTabla(a.nombre)
+                    indice=tabla.getColumna(e.param)
+                    auxCons= jBase.extractTable(useActual, tabla.nombre)
+                    if indice != None :
+                        bandd = True 
+                        break
+        if indice == None:
+            listaSemanticos.append(Error.ErrorS("Error Semántico","No se encontró la columna"+e.param))
+
+
+        if e.nombre.lower() == "acos":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.acos(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "acosd":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                val = math.acos(dato)
+                arr1.append(math.degrees(val))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "asin":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.asin(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "asind":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                val = math.asin(dato)
+                arr1.append(math.degrees(val))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "atan":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.atan(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "atand":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                val = math.atan(dato)
+                arr1.append(math.degrees(val))
+            arrGlobal.append(arr1)   
+        elif e.nombre.lower() == "cos":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.cos(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "cosd":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                val = math.cos(dato)
+                arr1.append(math.degrees(val))
+            arrGlobal.append(arr1) 
+        elif e.nombre.lower() == "cot":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(1/ math.tan(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "cotd":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                val = 1 / math.tan(dato)
+                arr1.append(math.degrees(val))
+            arrGlobal.append(arr1) 
+        elif e.nombre.lower() == "sin":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.sin(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "sind":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                val =  math.sin(dato)
+                arr1.append(math.degrees(val))
+            arrGlobal.append(arr1) 
+        elif e.nombre.lower() == "tan":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.tan(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "tand":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                val =  math.tan(dato)
+                arr1.append(math.degrees(val))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "sinh":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.sinh(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "cosh":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.cosh(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "tan":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.tan(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "atanh":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.atanh(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "asinh":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.asinh(dato))
+            arrGlobal.append(arr1)
+        elif e.nombre.lower() == "acosh":
+            arr1=[]
+            for i in range(len(auxCons)):
+                dato = auxCons[i][indice.index]
+                arr1.append(math.acosh(dato))
+            arrGlobal.append(arr1)
+            
+        x = PrettyTable()
+        n=0
+        print(arrGlobal)
+        print(arrCols)
+        for xd in arrGlobal:
+            x.add_column(arrCols[n].alias+"("+arrCols[n].param+")", xd)
+            n+=1
+        #x.field_names = nombreCols
+        #x.add_rows([arrGlobal])
+        consola += str(x)+"\n"
+          
+
+def agregacionSinWhere(tabla,arrCols,bConsulta,base,tablasColumna):
+    global consola
+    band = False
+    for e in arrCols:
+        if e.tipo == 0:
+            band = True
+            break
+
+    arrGlobal = []
+
+    if not band:
+        for e in arrCols:
+            tabla = ""
+            bandd = False
+            indice = None
+            auxCons = ""
+            if e.tabla == False:
+                for c in tablasColumna:
+                    print("aqui ando")
+                    tabla = base.getTabla(c.nombre)
+                    indice=tabla.getColumna(e.param)
+                    auxCons= jBase.extractTable(useActual, tabla.nombre)
+                    if indice != None :
+                            bandd = True 
+                            break
+            else: 
+                #print("Entra al else porque tengo alias ")
+                for a in tablasColumna:
+                    print("aqui ando2")
+                    if a.alias == e.tabla:
+                        tabla = base.getTabla(a.nombre)
+                        indice=tabla.getColumna(e.param)
+                        auxCons= jBase.extractTable(useActual, tabla.nombre)
+                        if indice != None :
+                            bandd = True 
+                            break
+            if indice == None:
+                listaSemanticos.append(Error.ErrorS("Error Semántico","No se encontró la columna"+e.nombre))
+
+
+            if e.nombre.lower() =="sum":
+                suma=0
+                for i in range(len(auxCons)):
+                    dato = auxCons[i][indice.index]
+                    suma += int(dato)
+                arrGlobal.append([str(suma)])
+            elif e.nombre.lower() =="count":
+                cont = 0
+                for e in auxCons :
+                    cont+=1
+                arrGlobal.append([str(cont)])
+            elif e.nombre.lower() =="avg":
+                suma=0
+                for i in range(len(auxCons)):
+                    dato = auxCons[i][indice.index]
+                    suma += int(dato)
+                arrGlobal.append([str(suma/len(auxCons))])
+            elif e.nombre.lower() =="min":
+                arrMin = []
+                for i in range(len(auxCons)):
+                    dato = auxCons[i][indice.index]
+                    arrMin.append(int(dato))
+                arrGlobal.append([str(min(arrMin))])
+
+            elif e.nombre.lower() =="max":
+                arrMax = []
+                for i in range(len(auxCons)):
+                    dato = auxCons[i][indice.index]
+                    arrMax.append(int(dato))
+                arrGlobal.append([str(max(arrMax))])
+
+        x = PrettyTable()
+        n=0
+        print(arrGlobal)
+        print(arrCols)
+        for xd in arrGlobal:
+            x.add_column(arrCols[n].alias+"("+arrCols[n].param+")", xd)
+            n+=1
+        #x.field_names = nombreCols
+        #x.add_rows([arrGlobal])
+        consola += str(x)+"\n"
+                
+
