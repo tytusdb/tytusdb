@@ -149,10 +149,9 @@ class TipoDatoColumna(DataType):
         el tipo de dato en una columna, que es creada en la 
         tabla
     '''
-    def __init__(self,id,limInferior,limSuperior):
+    def __init__(self,id,longitud):
         self.id=id
-        self.limInferior=limInferior
-        self.limSuperior=limSuperior
+        self.longitud=longitud
 
 
 # ---------------------------------------------------------------------------------------------------------------- 

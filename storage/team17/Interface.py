@@ -1,10 +1,16 @@
+# File:     Interface
+# License:  Released under MIT License
+# Notice:   Copyright (c) 2020 TytusDB Team
+
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-import BMode as B
+from team17 import BMode as B
+
 class PP:
-    
+#------------------------------ PANTALLA INICIAL----------------------------------#
+
     def __init__(self):
         self.PP = Tk()
         self.PP.resizable(True,False)
@@ -30,16 +36,19 @@ class PP:
         self.FrameInicial = Frame(height=500, width=800)
         self.FrameInicial.config(bg="#37474f")
         self.FrameInicial.pack(padx=25, pady=25)
-        self.image = PhotoImage(file='usac.png')
+        self.image = PhotoImage(file='team17/docs/img/usac.png')
         Label(self.FrameInicial,image=self.image, bg="#37474f").place(x=230,y=70)
         
         Label(self.FrameInicial,text="Tytus 2020",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=250,y=10)
-        Button(self.FrameInicial, text="Reportes", command=self.Reportes,font=("Times New Roman",15),fg="#102027", bg="#ff6f00",width=10).place(x=330,y=125)
-        Button(self.FrameInicial, text="Funciones", command=self.AccederPestanaFunciones,font=("Times New Roman",15),fg="#102027",bg="#ff6f00",width=10).place(x=330,y=200)
-        Button(self.FrameInicial, text="Acerca De", command=self.AcercaDe,font=("Times New Roman",15),fg="#102027",bg="#ff6f00",width=10).place(x=330,y=275)
-        Label(self.FrameInicial,text="USAC",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=315,y=365)
+        Button(self.FrameInicial, text="Reportes", command=self.Reportes,font=("Times New Roman",15),fg="#000000", bg="#ff6f00",width=10).place(x=330,y=125)
+        Button(self.FrameInicial, text="Funciones", command=self.AccederPestanaFunciones,font=("Times New Roman",15),fg="#000000",bg="#ff6f00",width=10).place(x=330,y=200)
+        Button(self.FrameInicial, text="Acerca De", command=self.AcercaDe,font=("Times New Roman",15),fg="#000000",bg="#ff6f00",width=10).place(x=330,y=275)
+        Button(self.FrameInicial, text="Salir", command=self.Salir,font=("Times New Roman",15),fg="#ffffff",bg="#ff3d00",width=5).place(x=10,y=400)
+        Label(self.FrameInicial,text="USAC",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=315,y=375)
         self.FrameInicial.mainloop()
 
+#---------------------------- REPORTES ---------------------------------------------#
+    
     def Reportes(self):
         if self.isPantFunciones ==0:
             self.FrameInicial.destroy()
@@ -47,7 +56,7 @@ class PP:
         self.isPantalla1 = 2
         self.Funciones = Frame(height=500, width=800)
         self.Funciones.config(bg="#37474f")
-        self.Funciones.pack(padx=15, pady=15)
+        self.Funciones.pack(padx=25, pady=25)
         Label(self.Funciones,text="Tytus 2020",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=250,y=10)
         Label(self.Funciones,text="Reportes",font=("Times New Roman",10),fg="#ffffff", bg="#37474f").place(x=250,y=70)
 
@@ -110,7 +119,7 @@ class PP:
                 for i in c:
                     z += str(i) + ", "
                 z = z[:-2]
-                Label(self.Funciones,text= z ,font=("Times New Roman",20),fg="black", bg="white",width=30).place(x=125,y=350)
+                Label(self.Funciones,text= z ,font=("Times New Roman",20),fg="black", bg="white",width=50).place(x=25,y=350)
             else:
                 messagebox.showinfo(message="Ha ocurrido un error\n",
                             title="Error")
@@ -170,7 +179,8 @@ class PP:
         
         #REGRESAR A PANTALLA INICIAL
         Button(self.Funciones, text="Atras", command=self.pantalla1,font=("Times New Roman",15),fg="#102027",bg="red",width=10).place(x=350,y=425)
- #-------------FUNCIONES DE BASES DE DATOS -----------------------#
+
+#------------------------FUNCIONES DE BASES DE DATOS -----------------------#
     def NewDB(self):
         self.isPantFunciones = 1
         self.Funciones.destroy()
@@ -335,7 +345,8 @@ class PP:
             messagebox.showinfo(message="Por favor ingrese los campos\n",
                                 title="Datos Incompletos")
             self.com.current(0)
-#-------------FUNCIONES DE TABLAS --------------------------------#
+
+#-------------------------FUNCIONES DE TABLAS --------------------------------#
     def NewTable(self):
         self.isPantFunciones = 1
         self.Funciones.destroy()
@@ -489,12 +500,12 @@ class PP:
                 self.tabla.heading("#0",text="No.",anchor=SW)
                 self.tabla.heading("#1",text="Datos",anchor=CENTER)
                 cont = len(self.z)
-                
                 for i in self.z:
                     tmp = ""
                     for j in i:
-                        tmp += j + ","
+                        tmp += str(j) + ","
                     tmp = tmp[:-1]
+                    tmp = tmp.replace(" ","_")
                     self.tabla.insert('',0,text=cont,values=tmp)
                     cont -= 1
 
@@ -585,6 +596,7 @@ class PP:
                     for j in i:
                         tmp += j + ","
                     tmp = tmp[:-1]
+                    tmp = tmp.replace(" ", "_")
                     self.tabla.insert('',0,text=cont,values=tmp)
                     cont -= 1
 
@@ -951,6 +963,7 @@ class PP:
         else:
             messagebox.showinfo(message="Algo anda mal\n",
                             title="Error")
+
 #--------------------------FUNCIONES DE TUPLAS ------------------------#
     def insertTP(self):
         self.isPantFunciones = 1
@@ -959,7 +972,7 @@ class PP:
         self.ndb.config(bg="#37474f")
         self.ndb.pack(padx=15, pady=15)
         Label(self.ndb,text="Tytus 2020",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=250,y=10)
-        Label(self.ndb,text="Eliminar una columna una Tabla",font=("Times New Roman",10),fg="#ffffff", bg="#37474f").place(x=250,y=70)
+        Label(self.ndb,text="Insertar una tupla",font=("Times New Roman",10),fg="#ffffff", bg="#37474f").place(x=250,y=70)
         
         Label(self.ndb,text="Bases de Datos: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=50,y=150)
         Button(self.ndb, text="Atras", command=self.AccederPestanaFunciones,font=("Times New Roman",15),fg="#102027",bg="red",width=10).place(x=650,y=150)
@@ -1105,10 +1118,7 @@ class PP:
         if self.com.get() != "Seleccionar":
             self.colums = StringVar()
             Label(self.ndb,text="Tabla: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=50,y=200)
-            Label(self.ndb,text="Columnas: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=50,y=250)
-            Button(self.ndb, text="Aceptar", command=self.__ExtRow,font=("Times New Roman",15),fg="#102027",bg="#ff6f00",width=10).place(x=500,y=225)
-            Entry(self.ndb,font=("Times New Roman",15),fg="black", bg="white",width=20,textvariable = self.colums).place(x=250,y=250)
-            
+            Button(self.ndb, text="Aceptar", command=self.ExR,font=("Times New Roman",15),fg="#102027",bg="#ff6f00",width=10).place(x=500,y=200)
             self.con = ttk.Combobox(self.ndb,state="readonly",font=("Times New Roman",15))
             self.con.place(x=240,y=200)
             aux = ["Seleccionar"]
@@ -1117,19 +1127,33 @@ class PP:
             self.con["values"] = aux
             self.con.current(0)
 
+    def ExR(self):
+        if self.com.get() != "Seleccionar" and self.con.get() != "Selecionar":
+            Label(self.ndb,text="Llaves: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=50,y=250)
+            self.nodos = ttk.Combobox(self.ndb,state="readonly",font=("Times New Roman",15))
+            self.nodos.place(x=240,y=250)
+            aux = ["Seleccionar"]
+            self.o = B.serializar.rollback(str(self.com.get())+"-"+str(self.con.get())+"-B").Keys()
+            for i in self.o:
+                aux.append(i)
+            self.nodos["values"] = aux
+            self.nodos.current(0)
+            Button(self.ndb, text="Aceptar", command=self.__ExtRow,font=("Times New Roman",15),fg="#102027",bg="#ff6f00",width=10).place(x=500,y=250)
+
     def __ExtRow(self):
-        if self.com.get() != "Seleccionar" and self.con.get() != "Selecionar" and self.colums.get() != "":
-            a = self.colums.get().split(",")
-            c = B.extractRow(str(self.com.get()),str(self.con.get()),a)
+        if self.com.get() != "Seleccionar" and self.con.get() != "Selecionar" and self.nodos.get() != "":
+            a = str(self.nodos.get())
+            k = a.split("_")
+            c = B.extractRow(str(self.com.get()),str(self.con.get()),k)
             if c != []:
                 z = ""
                 for i in c:
                     z += str(i) + ", "
                 z = z[:-2]
-                Label(self.ndb,text= z ,font=("Times New Roman",20),fg="black", bg="white",width=30).place(x=125,y=300)
+                Label(self.ndb,text= z ,font=("Times New Roman",20),fg="black", bg="white",width=50).place(x=25,y=310)
             else:
-                messagebox.showinfo(message="Algo anda mal\n",
-                            title="Something's wrong")
+                messagebox.showinfo(message="Fila vacia\n",
+                            title="Empty Row")
         else:
             messagebox.showinfo(message="Algo anda mal\n",
                             title="Something's wrong")
@@ -1157,17 +1181,8 @@ class PP:
 
     def _Up(self):
         if self.com.get() != "Seleccionar":
-            self.register = StringVar()
-            self.colums = StringVar()
-
-            Label(self.ndb,text="Tabla: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=50,y=200)
-            Label(self.ndb,text="Registro: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=50,y=250)
-            Label(self.ndb,text="Columnas: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=50,y=300)
-
-            Entry(self.ndb,font=("Times New Roman",15),fg="black", bg="white",width=20,textvariable = self.register).place(x=250,y=250)
-            Entry(self.ndb,font=("Times New Roman",15),fg="black", bg="white",width=20,textvariable = self.colums).place(x=250,y=300)
-            
-            Button(self.ndb, text="Aceptar",font=("Times New Roman",15),command = self.__Up,fg="#102027",bg="#ff6f00",width=10).place(x=500,y=225)
+            Label(self.ndb,text="Tabla: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=150,y=200)
+            Button(self.ndb, text="Aceptar",font=("Times New Roman",15),command = self.__Up,fg="#102027",bg="#ff6f00",width=10).place(x=500,y=200)
             
             self.con = ttk.Combobox(self.ndb,state="readonly",font=("Times New Roman",15))
             self.con.place(x=240,y=200)
@@ -1178,7 +1193,24 @@ class PP:
             self.con.current(0)
     
     def __Up(self):
-        if self.com.get() != "Seleccionar" and self.con.get() != "Selecionar" and self.colums.get() != "" and self.register.get()!="":
+        if self.com.get() != "Seleccionar" and self.con.get() != "Selecionar":
+            
+            self.register = StringVar()
+            self.nodos = ttk.Combobox(self.ndb,state="readonly",font=("Times New Roman",15))
+            self.nodos.place(x=240,y=250)
+            aux = ["Seleccionar"]
+            self.o = B.serializar.rollback(str(self.com.get())+"-"+str(self.con.get())+"-B").Keys()
+            for i in self.o:
+                aux.append(i)
+            self.nodos["values"] = aux
+            self.nodos.current(0)
+            Label(self.ndb,text="Llaves: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=150,y=250)
+            Label(self.ndb,text="Registro: ",font=("Times New Roman",20),fg="#ffffff", bg="#37474f").place(x=140,y=300)
+            Entry(self.ndb,font=("Times New Roman",15),fg="black", bg="white",width=20,textvariable = self.register).place(x=250,y=305)
+            Button(self.ndb, text="Aceptar", command=self.Upp,font=("Times New Roman",15),fg="#102027",bg="#ff6f00",width=10).place(x=500,y=275)
+            
+    def Upp(self):
+        if self.com.get() != "Seleccionar" and self.con.get() != "Selecionar" and self.nodos!="Seleccionar" and self.register!="":
             a = self.register.get()
             b = a.split(",")
             c = []
@@ -1187,7 +1219,7 @@ class PP:
                 c.append(i.split(":"))
             for i in c:
                 dic[int(i[0])] = str(i[1])
-            d = str(self.colums.get()) # Se hace casteo porque daba error hacer el split directo
+            d = str(self.nodos.get()) # Se hace casteo porque daba error hacer el split directo
             e = d.split(",")
             z = B.update(str(self.com.get()),str(self.con.get()),dic,e)
             if z == 0:
@@ -1247,7 +1279,6 @@ class PP:
 
     def __DeleteTP(self):
         if self.com.get() != "Seleccionar" and self.con.get() != "Seleccionar":
-            B.serializar.rollback(str(self.com.get())+"-"+str(self.con.get())+"-B").graficar()
             self.nodos = ttk.Combobox(self.ndb,state="readonly",font=("Times New Roman",15))
             self.nodos.place(x=240,y=250)
             aux = ["Seleccionar"]
@@ -1358,7 +1389,7 @@ class PP:
         self.Acerca = Frame(height=500, width=800)
         self.Acerca.config(bg="#37474f")
         self.Acerca.pack(padx=15, pady=15)
-        self.t3 = PhotoImage(file="t3.png")
+        self.t3 = PhotoImage(file="team17/docs/img/t3.png")
         Label(self.Acerca, image = self.t3, bg="#37474f").place(x=575,y=300)
         Label(self.Acerca,text="Tytus 2020",font=("Times New Roman",40),fg="#ffffff", bg="#37474f").place(x=250,y=10)
         Label(self.Acerca,text="Acerca De",font=("Times New Roman",10),fg="#ffffff", bg="#37474f").place(x=250,y=70)
@@ -1376,4 +1407,7 @@ class PP:
         Label(self.Acerca,text="German José Paz Cordón",font=("Times New Roman",15),fg="#ffffff", bg="#37474f").place(x=300,y=350)
         Button(self.Acerca,text="Atras",font=("Times New Roman",15),fg="black",bg="white",command=self.pantalla1, width=10).place(x=325,y=400)
 
-PP()
+#--------------------------------SALIR----------------------------------------#
+    def Salir(self):
+        messagebox.showinfo(message="Hasta la proximaaaa\n",title="Exit")
+        self.PP.destroy()

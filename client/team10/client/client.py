@@ -19,6 +19,7 @@ serv.connect(serv_add)
 class cliente():
 
     def __init__(self, img_carpeta, iconos):
+        self.consoleMode = False
         # Prueba de conexion a base de datos
         message = 'data from client'
         print(message)
@@ -67,17 +68,18 @@ class cliente():
         self.BD_ICON = PhotoImage(file = self.iconos[11])
         self.TB_ICON = PhotoImage(file = self.iconos[12])
         self.COL_ICON = PhotoImage(file = self.iconos[13])
+        self.CONSOLE_ICON = PhotoImage(file = self.iconos[14])
 
 
-        self.TBASE_ICON = PhotoImage(file=self.iconos[14])
-        self.TCARPETA_ICON = PhotoImage(file=self.iconos[15])
-        self.TGUARDAR_ICON = PhotoImage(file=self.iconos[16])
-        self.TBUSCAR_ICON = PhotoImage(file=self.iconos[17])
-        self.TVACIAR_ICON = PhotoImage(file=self.iconos[18])
-        self.TCOMPILAR_ICON = PhotoImage(file=self.iconos[19])
-        self.TEXPLICAR_ICON = PhotoImage(file=self.iconos[20])
-        self.TDESCARGAR_ICON = PhotoImage(file=self.iconos[21])
-        self.TCERRAR_ICON = PhotoImage(file=self.iconos[22])
+        self.TBASE_ICON = PhotoImage(file=self.iconos[15])
+        self.TCARPETA_ICON = PhotoImage(file=self.iconos[16])
+        self.TGUARDAR_ICON = PhotoImage(file=self.iconos[17])
+        self.TBUSCAR_ICON = PhotoImage(file=self.iconos[18])
+        self.TVACIAR_ICON = PhotoImage(file=self.iconos[19])
+        self.TCOMPILAR_ICON = PhotoImage(file=self.iconos[20])
+        self.TEXPLICAR_ICON = PhotoImage(file=self.iconos[21])
+        self.TDESCARGAR_ICON = PhotoImage(file=self.iconos[22])
+        self.TCERRAR_ICON = PhotoImage(file=self.iconos[23])
 
         # Preconfiguracion de la ventana
 
@@ -142,6 +144,10 @@ class cliente():
                       command=self.f_conectar)
         bot1.pack(side=RIGHT, padx=2, pady=2)
 
+        # Programacion de consola de PRUEBA, es unicamente para probar el switch de la consola
+        botconsole = Button(barraherr, image = self.CONSOLE_ICON, command = self.f_switch_console_mode)
+        botconsole.pack(side=RIGHT, padx=2, pady=2)
+
         # Barra Inferior
         now = datetime.now()
         format = now.strftime(
@@ -158,7 +164,7 @@ class cliente():
 
         # Definicion del Cuerpo de la Aplicacion
         # Cuerpo Principal
-        cuerpo = Frame(self.raiz, relief=RAISED, bd=2, bg="blue")
+        cuerpo = Frame(self.raiz, relief=RAISED, bd=2, bg = 'white')
         cuerpo.pack(side=BOTTOM, fill=BOTH, expand=True)
 
         # Cuerpo del Treeview
@@ -181,18 +187,18 @@ class cliente():
         self.treeview.pack(fill=BOTH, expand=True)
 
         # SubCuerpo
-        SubCuerpo = LabelFrame(cuerpo, text='SubCuerpo')
-        SubCuerpo.config(bg='yellow')
+        SubCuerpo = Frame(cuerpo)
+        SubCuerpo.config(bg='white')
         SubCuerpo.pack(side=LEFT, fill=BOTH, expand=True)
 
         # QueryTool
-        self.QueryTool = LabelFrame(SubCuerpo, text = 'Not QueryTool')
-        self.QueryTool.config(bg = 'gray', height = "400")
+        self.QueryTool = Frame(SubCuerpo)
+        self.QueryTool.config(bg = 'white', height = "400")
         self.QueryTool.pack(side = TOP, fill = X)
 
 
         # QueryTool Edit Text
-        self.QueryTool2 = LabelFrame(SubCuerpo)
+        self.QueryTool2 = Frame(SubCuerpo)
         self.QueryTool2.config(bg = 'green', height = "400")
         self.QueryTool2.pack(side = TOP, fill = X)
 
@@ -203,31 +209,40 @@ class cliente():
         toolbar3.pack(side=TOP, fill = X)
 
         btnBase = Button(toolbar3, image=self.TBASE_ICON)
-        btnBase.grid(row=0,column=1, padx=8)
+        # btnBase.grid(row=0,column=1, padx=8)
+        btnBase.pack(side = LEFT, padx=2, pady=2)
 
         btnCarpeta = Button(toolbar3, image=self.TCARPETA_ICON)
-        btnCarpeta.grid(row=0,column=2, padx=8)
+        # btnCarpeta.grid(row=0,column=2, padx=8)
+        btnCarpeta.pack(side = LEFT, padx=2, pady=2)
 
         btnGuardar = Button(toolbar3, image=self.TGUARDAR_ICON)
-        btnGuardar.grid(row=0,column=3, padx=8)
+        # btnGuardar.grid(row=0,column=3, padx=8)
+        btnGuardar.pack(side = LEFT, padx=2, pady=2)
 
         btnBuscar = Button(toolbar3, image=self.TBUSCAR_ICON)
-        btnBuscar.grid(row=0,column=4, padx=8)
+        # btnBuscar.grid(row=0,column=4, padx=8)
+        btnBuscar.pack(side = LEFT, padx=2, pady=2)
 
         btnVaciar = Button(toolbar3, image=self.TVACIAR_ICON)
-        btnVaciar.grid(row=0,column=5, padx=8)
+        # btnVaciar.grid(row=0,column=5, padx=8)
+        btnVaciar.pack(side = LEFT, padx=2, pady=2)
 
         btnCompilar = Button(toolbar3, image=self.TCOMPILAR_ICON)
-        btnCompilar.grid(row=0,column=6, padx=8)
+        # btnCompilar.grid(row=0,column=6, padx=8)
+        btnCompilar.pack(side = LEFT, padx=2, pady=2)
 
         btnExplicar = Button(toolbar3, image=self.TEXPLICAR_ICON)
-        btnExplicar.grid(row=0,column=7, padx=8)
+        # btnExplicar.grid(row=0,column=7, padx=8)
+        btnExplicar.pack(side = LEFT, padx=2, pady=2)
 
         btnDescargar = Button(toolbar3, image=self.TDESCARGAR_ICON)
-        btnDescargar.grid(row=0,column=8, padx=8)
+        # btnDescargar.grid(row=0,column=8, padx=8)
+        btnDescargar.pack(side = LEFT, padx=2, pady=2)
 
         btnCerrar = Button(toolbar3, image=self.TCERRAR_ICON, command=self.f_cerrar_query_tool)
-        btnCerrar.grid(row=0,column=9, padx=20)
+        # btnCerrar.grid(row=0,column=9, padx=20)
+        btnCerrar.pack(side = LEFT, padx=2, pady=2)
 
 
         #subtitulo
@@ -244,20 +259,61 @@ class cliente():
 
         #text
         scroll = Scrollbar(self.QueryTool2)
-        scroll.pack(side=RIGHT, fill =Y)
+        scroll.pack(side=RIGHT, fill = Y)
         texto = Text(self.QueryTool2)
-        texto.pack(fill="both", expand=1)
+        texto.pack(fill = BOTH, expand = True)
         texto.config(bd=0, padx=6, pady=4, bg="Beige", font=("Consolas", 12), yscrollcommand=scroll.set)
         scroll.config(command=texto.yview)
 
 
         # Consola
-        ConsoleTool = LabelFrame(SubCuerpo, text='Consola')
-        ConsoleTool.config(bg='white')
-        ConsoleTool.pack(side=BOTTOM, fill=BOTH, expand=True)
+        self.ConsoleTool = LabelFrame(SubCuerpo, text='Consola')
+        self.ConsoleTool.config(bg='white')
+        self.ConsoleTool.pack(side=BOTTOM, fill=BOTH, expand = True)
+        
+        # Primera Configuracion de TextBox
+        self.output = Text(self.ConsoleTool, pady = 1, padx = 1, state = 'normal', height = 12)
+        self.output.pack(side=BOTTOM, fill=BOTH, expand = True)
+        self.output.insert(INSERT, '''Error: Ha ocurrido un error
+        > Este mensaje se mostrara cuando ocurra un error o cuando se deba mostrar el log
+        > de alguna funcion de la base de datos o de la aplicacion     
+        ''')
+        self.output.tag_add('error', '1.0', '1.6')
+        self.output.tag_config('error', foreground="red")
+        self.output.config(state = 'disabled')
+        
+        
+       
 
         # Ejecucion de la ventana
         self.raiz.mainloop()
+
+    def f_switch_console_mode(self):
+        self.consoleMode = not self.consoleMode
+
+        if self.consoleMode:
+            # De ser el valor True se mostrara la tabla con datos del query
+            self.output.pack_forget()
+            self.output = ttk.Treeview(self.ConsoleTool, columns = ('#1', '#2', '#3', '#4'))
+            self.output.pack(side=BOTTOM, fill=BOTH, expand = True)
+            self.output.heading('#1', text = 'Column1', anchor = CENTER)
+            self.output.heading('#2', text = 'Column2', anchor = CENTER)
+            self.output.heading('#3', text = 'Column3', anchor = CENTER)
+            self.output.heading('#4', text = 'Column4', anchor = CENTER)
+            self.output.insert('', 'end', text='index 1', values=("data 1", "data 2", "data 3", "data 4"))
+        else:
+            # de ser el valor False se mostrara un caja de texto con un mensaje
+            self.output.pack_forget()
+            self.output = Text(self.ConsoleTool, pady = 1, padx = 1, state = 'normal', height = 10)
+            self.output.pack(side=BOTTOM, fill=BOTH, expand = True)
+            self.output.insert(INSERT, '''Error: Ha ocurrido un error
+            > Este mensaje se mostrara cuando ocurra un error o cuando se deba mostrar el log
+            > de alguna funcion de la base de datos o de la aplicacion     
+            ''')
+            self.output.tag_add('error', '1.0', '1.6')
+            self.output.tag_config('error', foreground="red")
+            self.output.config(state = 'disabled')
+        
 
 
     #abrir query tool
@@ -346,7 +402,7 @@ def main():
               ruta_r + "bd.png",
               ruta_r + "tb.png",
               ruta_r + "col.png",
-
+              ruta_r + "console.png",
               ruta_r + "Tbasedatos.png",
               ruta_r + "Tcarpeta.png",
               ruta_r + "Tguardar.png",
