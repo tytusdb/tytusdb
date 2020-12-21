@@ -233,19 +233,20 @@ class DropDB(Instruccion):
 
 
         # INSTRUCCION DROPTB
-class DropTB(Instruccion):
+class DropT(Instruccion):
     """ Instrucción DROPTB """
 
-    def __init__(self, i_id):
-        self.i_id = i_id
+    def __init__(self, nombre):
+        self.nombre = nombre
         
 
 # INSTRUCCION IFEXIST1
 class IfExist1(Instruccion):
     """ Instrucción IF EXIST """
 
-    def __init__(self, nombre):
+    def __init__(self, nombre,exist):  # exist true o false
         self.nombre = nombre
+        self.exist = exist
 
         
 # INSTRUCCION IFEXIST2
