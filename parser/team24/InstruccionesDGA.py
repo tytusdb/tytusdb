@@ -38,6 +38,11 @@ class wherecond1(instruccion):
         self.iden = iden
         self.tipo = tipo
 
+class reservadatipo(instruccion):
+    def __init__(self,restipo,cantn):
+        self.restipo = restipo
+        self.cantn = cantn
+
 """MANIPULACION DE BASES DE DATOS"""
 #CREATEDB----------------------------
 class createdb(instruccion):
@@ -77,7 +82,7 @@ class createdb(instruccion):
                 resultadotxt += "Error al crear base de datos: " + self.iden + "\n"
         except:
             """ERROR SEMANTICO"""
-    
+
 #SHOWDB----------------------------------
 class showdb(instruccion):
     def __init__(self,nombre):
@@ -170,6 +175,8 @@ class dropdb(instruccion):
                 for element in eliminar:
                     tabla.simbolos.pop(element.id)
                 tabla.simbolos.pop(BaseDatos.id)
+                if self.iden == NombreDB:
+                    NombreDB = ""
                 resultadotxt += "Se elimino la base de datos " + self.iden + "\n"
         except:
             """ERROR SEMANTICO"""
@@ -277,7 +284,7 @@ class droptb(instruccion):
                 buscar = tabla.BuscarNombre(self.iden)
                 eliminar = []
                 for simbolo in tabla.simbolos:
-                    if tabla.simbolos[simbolo].ambito == buscar.id:
+                    if tabla.simbolos[simbolo].ambito == buscar.id and not tabla.simbolos[simbolo].tipo == TS.TIPO.DATABASE and not tabla.simbolos[simbolo].tipo == TS.TIPO.TABLE:
                         eliminar.append(tabla.simbolos[simbolo])
                 for element in eliminar:
                     tabla.simbolos.pop(element.id)
@@ -297,80 +304,69 @@ class altertb(instruccion):
         global cont
         global tabla
         global NombreDB
-        if self.altertb2.text.lower() == "add column":
-            try:
-                resultado = func.alterAddColumn(NombreDB,self.iden,self.altertb2.iden)
-                if resultado == 2:
-                    resultadotxt += "No existe la base de datos " + NombreDB + "\n"
-                elif resultado == 3:
-                    resultadotxt += "No existe la tabla " + self.iden + "\n"
-                else:
-                    buscar = tabla.BuscarNombre(self.iden)
-                    columna = self.altertb2
-                    buscar.coltab+=1
-                    tabla.actualizar(buscar)
-                    NuevaColumna = TS.Simbolo(cont,columna.iden,TS.TIPO.COLUMN,buscar.id,0,columna.tipo,0,"","",False,"",(buscar.coltab-1))
-                    cont+=1
-                    tabla.agregar(NuevaColumna)
-                    resultadotxt += "Se agrego la columna " + self.altertb2.iden + " a la tabla " + self.iden + "\n"
-            except:
-                """ERROR SEMANTICO"""
-        elif self.altertb2.text.lower() == "drop column":
-            try:
-                delcolumna = tabla.BuscarNombre(self.altertb2.iden)
-                resultado = func.alterDropColumn(NombreDB,self.iden,delcolumna.numcol)
-                if resultado == 2:
-                    resultadotxt += "La base de datos " + NombreDB + " No existe \n"
-                elif resultado == 3:
-                    resultadotxt += "No se encontro la tabla " + self.iden + " en la base de datos " + NombreDB + "\n"
-                elif resultado == 4:
-                    resultadotxt += "La columna " + self.altertb2.iden + " Es llave primaria" + "\n"
-                elif resultado == 5:
-                    resultadotxt += "La columna " + self.altertb2.iden + " No existe" + "\n"
-                else:
-                    tabla.simbolos.pop(delcolumna.id)
-                    resultadotxt += "Se elimino la columna " + self.altertb2.iden + " de la tabla " + self.iden + "\n"
-            except:
-                """ERROR SEMANTICO"""
+        for alteracion in self.altertb2:
+            if alteracion.texto and alteracion.texto.lower() == "add":
+                if alteracion.addprop.texto and alteracion.addprop.texto.lower() == "column":
+                        NuevaColumna = alteracion.addprop.lista
+                        try:
+                            resultado = func.alterAddColumn(NombreDB,self.iden,NuevaColumna.iden)
+                            if resultado == 2:
+                                resultadotxt += "No existe la base de datos " + NombreDB + "\n"
+                            elif resultado == 3:
+                                resultadotxt += "No existe la tabla " + self.iden + "\n"
+                            else:
+                                BuscarTabla = tabla.BuscarNombre(self.iden)
+                                BuscarTabla.coltab+=1
+                                tabla.actualizar(BuscarTabla)
+                                NuevoSimboloColumna = TS.Simbolo(cont,NuevaColumna.iden,TS.TIPO.COLUMN,BuscarTabla.id,0,NuevaColumna.tipo,0,"","",False,"",(BuscarTabla.coltab-1))
+                                cont+=1
+                                tabla.agregar(NuevoSimboloColumna)
+                                resultadotxt += "Se agrego la columna " + NuevoSimboloColumna.nombre + " a la tabla " + self.iden + "\n"
+                        except:
+                            """ERROR SEMANTICO"""
+            if alteracion.texto and alteracion.texto.lower() == "drop column":
+                try:
+                    ColumnaABorrar = tabla.BuscarNombre(alteracion.iden)
+                    resultado = func.alterDropColumn(NombreDB,self.iden,ColumnaABorrar.numcol)
+                    if resultado == 2:
+                        resultadotxt += "La base de datos " + NombreDB + " No existe \n"
+                    elif resultado == 3:
+                        resultadotxt += "No se encontro la tabla " + self.iden + " en la base de datos " + NombreDB + "\n"
+                    elif resultado == 4:
+                        resultadotxt += "La columna " + ColumnaABorrar.nombre + " Es llave primaria" + "\n"
+                    elif resultado == 5:
+                        resultadotxt += "La columna " + ColumnaABorrar.nombre + " No existe" + "\n"
+                    else:
+                        tabla.simbolos.pop(ColumnaABorrar.id)
+                        resultadotxt += "Se elimino la columna " + ColumnaABorrar.nombre + " de la tabla " + self.iden + "\n"
+                except:
+                    """ERROR SEMANTICO"""
 
-class altertb2(instruccion):
-    def __init__(self,text,iden, tipo):
-        self.text = text
-        self.iden = iden
-        self.tipo = tipo
-
-class altertb21(instruccion):
-    def __init__(self,text,iden):
-        self.text = text
+class alteracion1(instruccion):
+    def __init__(self,texto, iden):
+        self.texto = texto
         self.iden = iden
 
-class altertb211(instruccion):
-    def __init__(self,addprop):
+class alteracion11(instruccion):
+    def __init__(self,texto, addprop):
+        self.texto = texto
         self.addprop = addprop
 
 class addprop(instruccion):
-    def __init__(self,cond):
-        self.cond = cond
-
-class addprop1(instruccion):
-    def __init__(self,iden, iden2):
-        self.iden = iden
-        self.iden2 = iden2
-
-class addprop11(instruccion):
-    def __init__(self,colkey, colkey2):
-        self.colkey = colkey
-        self.colkey2 = colkey2
-
-class altcol(instruccion):
-    def __init__(self,altcol, alter):
-        self.altcol = altcol
-        self.alter = alter
+    def __init__(self,texto, lista):
+        self.texto = texto
+        self.lista = lista
 
 class alter(instruccion):
     def __init__(self,iden, propaltcol):
         self.iden = iden
         self.propaltcol = propaltcol
+
+class alteracion11111(instruccion):
+    def __init__(self,texto, iden, colkey):
+        self.iden = iden
+        self.texto = texto
+        self.colkey = colkey
 
 #MANIPULACION DE DATOS
 #INSERT-------------------------------------
@@ -404,10 +400,7 @@ class insert(instruccion):
             elif resultado == 5:
                 resultadotxt += "La cantidad de valores no coincide con la cantidad de columnas\n"
             else:
-                nombre = ""
-                for element in colcorrecta:
-                    nombre += str(element) + " "
-                NuevoRegistro = TS.Simbolo(cont,nombre,TS.TIPO.TUPLA,tablas.id)
+                NuevoRegistro = TS.Simbolo(cont,str(colcorrecta[0]),TS.TIPO.TUPLA,tablas.id,0,"",0,"","",False,"",0,colcorrecta)
                 tabla.agregar(NuevoRegistro)
                 resultadotxt += "El registro  " + self.valores[0] + " fue agregado a la tabla " + self.iden + "\n"
         except:
@@ -429,10 +422,23 @@ class update(instruccion):
         global cont
         global tabla
         global NombreDB
+        try:
+            """PENDIENTE"""
+        except:
+            """ERROR"""
         
-
 #DELETE-------------------------------------------
 class delete(instruccion):
     def __init__(self,iden, wherecond):
         self.iden = iden
         self.wherecond = wherecond
+
+    def ejecutar(self):
+        global resultadotxt
+        global cont
+        global tabla
+        global NombreDB
+        try:
+            """PENDIENTE"""
+        except:
+            """ERROR"""
