@@ -13,6 +13,8 @@ Este diagrama explica los componentes que componen la aplicación web
 - El servidor recibe la petición recupera la información y responde al cliente
 - El cliente recibe la respuesta (response) y actualiza la vista con lso datos recibidos
 
+![Alt text](capturas/8.png?raw=true "")
+
 ## Requisitos técnicos
 - Windows 10
 - 1 GB de espacio libre en el disco
