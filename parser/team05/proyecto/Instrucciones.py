@@ -584,3 +584,58 @@ class FuncionesMatematicas(Instruccion):
         self.nombre = nombre
         self.parametro = parametro
         self.alias = alias
+
+#FUNCION CURRENT DATE
+class CurrentDate(Instruccion):
+    
+    def __init__(self):
+        """
+        Clase sin parametros
+        """
+
+#FUNCION CURRENT TIME
+class CurrentTime(Instruccion):
+    
+    def __init__(self):
+        """
+            Clase sin parametros
+        """
+
+#FUNCION TIMESTAMP
+class Timestamp(Instruccion):
+    
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+#FUNCION NOW
+class Now(Instruccion):
+    def __init__(self):
+        """
+        CLASE PARA EL METODO NOW
+        """
+
+class Exists(Instruccion):
+    
+    def __init__(self, subconsulta):
+        self.subconsulta = subconsulta
+
+class In(Instruccion):
+    
+    def __init__(self, valor, subconsulta, isin): #is in recibe un boolean para ver si se usa solo in o not in
+        self.valor = valor
+        self.subconsulta= subconsulta
+        self.isin = isin
+
+class Any_op(Instruccion):
+
+    def __init__(self, valor, operador, tipo, subconsulta):
+        self.valor = valor
+        self.operador = operador
+        self.tipo = tipo
+        self.subconsulta = subconsulta
+
+class Like(Instruccion):
+
+    def __init__(self, valor, expresion, islike):
+        self.valor = valor
+        self.expresion = expresion
