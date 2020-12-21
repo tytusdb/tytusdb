@@ -553,8 +553,13 @@ def p_insert_ops(t):
     '''insert_ops   : column_list_param_opt VALUES PARA exp_list PARC
                     |   column_list_param_opt stm_select'''
     if len(t) == 6:
-        childsProduction  = addNotNoneChild(t,[1,4])
-        graph_ref = graph_node(str("insert_ops"),    [t[1],t[2],t[3]]       ,childsProduction)
+        lista=None
+        childsProduction  = addNotNoneChild(t,[1])
+        if t[4] != None:
+            lista=t[4][0]
+            childsProduction.append(lista.graph_ref)   
+  
+        graph_ref = graph_node(str("insert_ops"),    [t[1],t[2],t[3],lista,t[5]]       ,childsProduction)
         addCad("**\<INSERT_OPS>** ::=  \<COLUMN_LIST>  tValues  '(' \<EXP_LIST> ')' ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####                
@@ -714,8 +719,12 @@ def p_names1(t):
                        '''
     token = t.slice[1]
     cadena = str(token.type)
-    childsProduction  = addNotNoneChild(t,[3])
-    graph_ref = graph_node(str("names"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+    lista=None
+    childsProduction  = []
+    if t[3] != None:
+        lista=t[3][0]
+        childsProduction.append(lista.graph_ref) 
+    graph_ref = graph_node(str("names"),    [t[1],t[2],lista,t[4]]       ,childsProduction)
     addCad("**\<NAMES>** ::= "+ cadena +" '(' \<EXP_LIST> ')'  ")
     t[0] = upNodo("token", 0, 0, graph_ref)
     #####                
@@ -887,9 +896,20 @@ def p_update_list(t):
 def p_stm_use_db(t):
     '''stm_use_db   : USE DATABASE ID
                     | USE ID'''
-    tokenID = t.slice[len(t)-1]    
-    IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
-    t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
+    if len(t) == 4:
+        tokenID = t.slice[len(t)-1] 
+        graph_ref = graph_node(str("stm_use_db"),    [t[1],t[2],t[3]]       ,[])
+        addCad("**\<STM_USE_DB>** ::= tUse tDatabase tIdentifier ")
+
+        IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
+        t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
+    else: 
+        tokenID = t.slice[len(t)-1]    
+        graph_ref = graph_node(str("stm_use_db"),    [t[1],t[2]]       ,[])
+        addCad("**\<STM_USE_DB>** ::= tUse tIdentifier  ")
+        IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
+        t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
+
 ##########   >>>>>>>>>>>>>>>>  STM_DELETE   AND  STM_ALTER  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_delete(t):
     '''stm_delete   : DELETE FROM ID where_clause
@@ -898,7 +918,7 @@ def p_stm_delete(t):
     if len(t) == 5:
         childsProduction = addNotNoneChild(t,[4])                
         graph_ref = graph_node(str("stm_delete"), [t[1],t[2],t[3],t[4]]    ,childsProduction)
-        addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier [<WHERE_CLAUSE>]")
+        addCad("**\<STM_DELETE>** ::= tDelete tFrom tIdentifier \<WHERE_CLAUSE>")
         t[0] = upNodo("token", 0, 0, graph_ref)
         ##### 
     else:
@@ -925,22 +945,30 @@ def p_stm_create(t):
     if len(t) == 7:        
         tokenID = t.slice[4]
         childsProduction = addNotNoneChild(t,[2,5,6])                
-        graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+        graph_ref = graph_node(str("stm_create"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=  tCreate \<OR_REPLACE_OPT> tDatabase tIdentifier  \<OWNER_OPT> \<MODE_OPT>")
         tvla = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)         
         t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1, (True if t[2] else False) , token.lineno, token.lexpos, graph_ref)       
 
     elif len(t) == 8: 
-        #childsProduction = addNotNoneChild(t,[5,7])
-        childsProduction = addNotNoneChild(t,[7])
-        graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]    ,childsProduction)
+        lista=None
+        childsProduction = addNotNoneChild(t,[7]) 
+        if t[5] != None:
+            lista=t[5][0]
+            childsProduction.append(lista.graph_ref)
+
+        graph_ref = graph_node(str("stm_create"), [t[1],t[2],t[3],t[4],lista,t[6],t[7]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=  tCreate tTable tIdentifier '(' \<TAB_CREATE_LST> ')' \<INHERITS_OPT>")
         t[0] = CreateTable(t[3], t[7], t[5], None, token.lineno, token.lexpos, graph_ref) #TODO check if param check_exp is neceary and where we obtain that
 
     elif len(t) == 9:
-        childsProduction = addNotNoneChild(t,[2,7])                
-        graph_ref = graph_node(str("instruccion"), [t[1],t[2],t[3],t[4],t[5],t[6],t[8]]    ,childsProduction)
-        addCad("**\<STM_CREATE>** ::=   tCreate tType tIdentifier tAs tEnum ‘(‘ \<EXP_LIST> ‘)’")     
+        lista=None
+        childsProduction=[]
+        if t[7] != None:
+            lista=t[7][0]
+            childsProduction.append(lista.graph_ref)               
+        graph_ref = graph_node(str("stm_create"), [t[1],t[2],t[3],t[4],t[5],t[6],lista,t[8]]    ,childsProduction)
+        addCad("**\<STM_CREATE>** ::=   tCreate tType tIdentifier tAs tEnum '(' \<EXP_LIST> ')' ")     
         t[0] = CreateEnum(t[3], token.lineno, token.lexpos, graph_ref)
         ##### 
  
@@ -950,19 +978,21 @@ def p_tab_create_list(t):
     '''tab_create_list  : tab_create_list COMA ID type nullable_opt primary_key_opt 
                         | ID type nullable_opt primary_key_opt'''
     if len(t) == 7:
-        #TODO: plese @SergioUnix check the graph and report generation fom list of AST nodes at t[1]
-        #childsProduction = addNotNoneChild(t,[1,4,5,6])                
-        #graph_ref = graph_node(str("tab_create_list"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
-        graph_ref = None
-        #addCad("**\<TAB_CREATE_LIST>** ::= <TAB_CREATE_LST> ',' tIdentifier <TYPE> <NULLABLE_OPT> <PRIMARY_KEY_OPT> ")
+        lista=None
+        childsProduction = addNotNoneChild(t,[4,5,6]) 
+        if t[1] != None:
+            lista=t[1][0]
+            childsProduction.append(lista.graph_ref)
+        graph_ref = graph_node(str("tab_create_list"), [lista,t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+        addCad("**\<TAB_CREATE_LIST>** ::= \<TAB_CREATE_LST> ',' tIdentifier \<TYPE> \<NULLABLE_OPT> \<PRIMARY_KEY_OPT> ")
         TF = TableField(t.slice[3].value, t[4].val, t[4].max_size, t[5], (t[6] is not None) ,t.slice[3].lineno, t.slice[3].lexpos, graph_ref )
+        t[1][0].graph_ref = graph_ref
         t[1].append(TF)
         t[0] = t[1]
     else:        
-        #childsProduction  = addNotNoneChild(t,[2,3,4])
-        #graph_ref = graph_node(str("tab_create__list"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
-        #addCad("**\<TAB_CREATE_LIST>** ::= tIdentifier <TYPE> <NULLABLE_OPT> <PRIMARY_KEY_OPT> ")
-        graph_ref = None
+        childsProduction  = addNotNoneChild(t,[2,3,4])
+        graph_ref = graph_node(str("tab_create__list"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
+        addCad("**\<TAB_CREATE_LIST>** ::= tIdentifier \<TYPE> \<NULLABLE_OPT> \<PRIMARY_KEY_OPT> ")
         t[0] = [ TableField(t.slice[1].value, t[2].val, t[2].max_size, t[3], (t[4] is not None) ,t.slice[1].lineno, t.slice[1].lexpos, graph_ref )]
         
     
@@ -1317,31 +1347,29 @@ def p_stm_show0(t):
                     | SHOW DATABASES LIKE TEXTO
                     | SHOW DATABASES LIKE PATTERN_LIKE'''
     token = t.slice[1]
-    if len(t) == 3:
-        graph_ref = graph_node( str(str(t[1])+" "+str(t[2]))  )
+    if len(t) == 3:                
+        graph_ref = graph_node(str("stm_show"), [t[1],t[2]]    ,[])
         addCad("**\<STM_SHOW>** ::= tShow tDatabases ")        
         t[0] = ShowDatabases(None, token.lineno, token.lexpos, graph_ref)
-    else:
-        graph_ref = graph_node( str(str(t[1])+" "+str(t[2]) +" "+str(t[3])+" "+str(t[4]))  )
+    else:                
+        graph_ref = graph_node(str("stm_show"), [t[1],t[2],t[3],t[4]]    ,[])
         addCad("**\<STM_SHOW>** ::= tShow tDatabases ")        
         t[0] = ShowDatabases(None, token.lineno, token.lexpos, graph_ref)
 
 def p_exp_list(t):
     '''exp_list : exp_list COMA expression'''
-#    t[1].append(t[3])
-#    t[0] = t[1]
-    childsProduction = addNotNoneChild(t,[1,3])                
+    lista=None
+    childsProduction = addNotNoneChild(t,[1,3]) 
     graph_ref = graph_node(str("exp_list"), [t[1],t[2],t[3]]    ,childsProduction)
-    addCad("**\<EXP_LIST>** ::= <EXP_LIST> ',' <EXP>")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-
-#    graph_ref = graph_node("COMA", [t[1].graph_ref,t[2].graph_ref])
-    
+    addCad("**\<EXP_LIST>** ::= <EXP_LIST> ',' \<EXP_LIST>  ")
+    t[1][0].graph_ref = graph_ref
+    t[1].append(t[3])
+    t[0] = t[1]
 
 
 def p_exp_list0(t):    
     '''exp_list : expression'''    
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 ########## Definition of opttional productions, who could reduce to 'empty' (epsilon) ################
 # def p_not_opt(t):
@@ -1867,8 +1895,8 @@ def p_aritmetic(t):
         addCad("**\<EXP>** ::=  tTrimScale '(' \<EXP> ')'       ")
         t[0] = TrimScale(t[3], token.lineno, token.lexpos, graph_ref)
     elif token.type == "WIDTH_BUCKET":
-        childsProduction = addNotNoneChild(t,[3,5])                
-        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+        childsProduction = addNotNoneChild(t,[3,5,7,9])                
+        graph_ref = graph_node(str("exp"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7],t[8],t[9],t[10]]    ,childsProduction)
         addCad("**\<EXP>** ::=  tWidthBucket '(' \<EXP> ',' \<EXP> ',' \<EXP> ',' \<EXP> ')' ") 
         t[0] = WidthBucket(t[3], t[5], t[7], t[9], token.lineno, token.lexpos, graph_ref)
     elif token.type == "RANDOM":
