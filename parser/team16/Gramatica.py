@@ -282,7 +282,6 @@ t_POTENCIA = r'\^'
 
 # importamos el Generador  AST
 
-import Generador as g
 import os
 import sys
 

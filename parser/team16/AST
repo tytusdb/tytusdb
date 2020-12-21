@@ -1,0 +1,5 @@
+digraph AST {
+	edge [arrowhead=none]
+	node [color="#31CEF0" shape=box]
+	Node0 [label="\"AST\""]
+}
