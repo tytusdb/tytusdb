@@ -1,8 +1,13 @@
-CREATE DATABASE COMPI1;
-CREATE DATABASE COMPI2;
-CREATE DATABASE COMPI3;
-CREATE DATABASE COMPI4;
-CREATE DATABASE COMPI5;
-CREATE DATABASE COMPI6;
-CREATE DATABASE COMPI7;
-CREATE DATABASE COMPI8;
+CREATE DATABASE compiladores2;
+
+USE compiladores2;
+
+CREATE TABLE tbUSUARIO(
+	id_ususario		INTEGER,
+	usuario		    INTEGER ,
+	password		bigint,
+    telefono        VARCHAR(50),
+    direccion       VARCHAR(50),
+    edad            numeric(10,10),
+    PRIMARY KEY (id_ususario,usuario)
+);

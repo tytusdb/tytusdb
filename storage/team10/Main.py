@@ -1,15 +1,36 @@
-from Hash import TablaHash
+from Tytus import Tytus
 
-t = TablaHash(10, "db1", "table1", 3)
+tytus = Tytus()
 
-t.insertarDato(["1", "Carlos", "25"])
-t.insertarDato(["23", "Mario", "33"])
-t.insertarDato(["34", "Daniel", "49"])
-t.insertarDato(["45", "David", "20"])
-t.insertarDato(["58", "Luis", "48"])
-t.insertarDato(["67", "Rodrigo", "25"])
-t.insertarDato(["70", "Alberto", "35"])
+tytus.createDatabase("db1")
+tytus.createDatabase("db2")
+tytus.createDatabase("db3")
 
-t.printTbl()
+tytus.createTable("db1", "profesores", 3)
+tytus.createTable("db1", "estudiantes", 2)
+tytus.createTable("db2", "cursos", 3)
 
-print(f"Valor encontrado: {t.buscar('45')}")
+tytus.alterAddPK("db1", "profesores", [0])
+
+print(tytus.showDatabases())
+print(tytus.showTables("db1"))
+print(tytus.showTables("db2"))
+print(tytus.showTables("db4"))
+
+print("============Datos de Extract Table==============================")
+try:
+    for i in tytus.extractTable("db1","profesores"):
+        print(i)
+except:
+    print("None")
+
+print("============Datos de Extract Range Table==============================")
+try:
+    c=0
+    for i in tytus.extractRangeTable("db1","profesores",1,"Ta","o"):
+        print(i)
+        c+=1
+    if c == 0:
+        print("[ ]")    
+except:
+    print("None")

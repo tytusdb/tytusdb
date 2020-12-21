@@ -8,6 +8,8 @@ import accionesIDE as accionesVarias
 # -----------------------------------------------------------------------------
 global textosalida
 textosalida=""
+global bd_enuso
+bd_enuso=""
 global reporteGramatical1
 global reporteGramatical2
 reporteGramatical1=" "
@@ -27,7 +29,7 @@ def invertir_cadena_manual(cadena):
 def reporteGramatical(ruta):
     var1= invertir_cadena_manual(reporteGramatical1)
     var2= invertir_cadena_manual(reporteGramatical2)
-    var3="""<h1 style="text-align:center;">REPORTE GRAMAICAL<h1>
+    var3="""<h1 style="text-align:center;">REPORTE GRAMATICAL<h1>
     <table  border="1" style="margin-left: auto; margin-right: auto">
   <tr>
     <td>Producciones</td>
@@ -52,6 +54,7 @@ global errores
 errores=""
 def reporteErrores(ruta):
     var3="""<h1 style="text-align:center;">REPORTE DE ERRORES<h1>
+    
     <table border="1" style="margin-left: auto; margin-right: auto">
     <tr>
     <td>ERROR</td>
@@ -63,6 +66,8 @@ def reporteErrores(ruta):
     with open(ruta, "w") as f:
         f.write(var3)
         f.closed
+
+
 
 
 
@@ -83,15 +88,14 @@ def insertarSimbolos(var):
 
 
 def reporteSimbolos(ruta,cadena):
-    print(q)
+    #print(q)
     print(cadena)
     print(ruta)
-    ar3="""<h1>REPORTE TABLA DE SIMBOLOS<h1>
+    ar3="""<h1 >REPORTE TABLA DE SIMBOLOS<h1>
     <table>
     <tr>
     <td>IDENTIFICADOR</td>
     <td>VALOR</td>
-    <td>TIPO</td>
     </tr>"""+cadena+"""</table> """
     print("forma bien la cadena")
     with open(ruta, "w") as f:

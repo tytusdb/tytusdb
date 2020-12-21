@@ -1,3 +1,4 @@
+import storageManager
 from tkinter import *
 
 from os import path
@@ -15,19 +16,50 @@ import reportes.reportesimbolos as rs
 from Instrucciones.TablaSimbolos.Tabla import Tabla
 from Instrucciones.TablaSimbolos.Arbol import Arbol
 from Instrucciones.Excepcion import Excepcion
+from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
+
+from storageManager.jsonMode import *
 
 import sintactico
+'''
+instruccion = CreateDatabase("bd1",None,"TRUE",None,None,None,None, 1,2)
+instruccion.ejecutar(None,None)
 
+# ---------------------------- PRUEBA DE UNA SUMA  ----------------------------
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Instrucciones.Expresiones import Primitivo, Logica
+
+p1 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
+p2 = Primitivo.Primitivo(True,Tipo(Tipo_Dato.BOOLEAN),1,1)
+a = Arbol([])
+op = Logica.Logica(p1,p2,'AND',1,2)
+print('Resultado logica: ' + str(suma.ejecutar(None,a)))
+
+# ---------------------------- PRUEBA DE UNA SUMA CON ERROR DE TIPO ----------------------------
+from Instrucciones.TablaSimbolos.Tipo import Tipo_Dato, Tipo
+from Instrucciones.Expresiones import Primitivo, Aritmetica
+
+p1 = Primitivo.Primitivo(1,Tipo(Tipo_Dato.BOOLEAN),1,1)
+p2 = Primitivo.Primitivo(2,Tipo(Tipo_Dato.INTEGER),1,1)
+a = Arbol([])
+suma = Aritmetica.Aritmetica(p1,p2,'+',1,2)
+suma.ejecutar(None,a)
+reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(a.excepciones)
+'''
 
 class interfaz():
     def __init__(self):
         ##############################################VENTANA PRINCIPAL####################################
         self.window=Tk()
         #self.window.configure(background="#04DE5E")
+        img = PhotoImage(file='img/icons/postgesql2.png')
+        self.window.tk.call('wm', 'iconphoto', self.window._w, img)
+        #img = PhotoImage(file='img/icons/Postgresql.ico')
+        #self.window.tk.call('wm', 'iconphoto', self.window._w, img)
         self.window.configure(background="#6a8d92")
         self.window.title("Query Tool - Grupo 8")
         #w, h = self.window.winfo_screenwidth()/2, self.window.winfo_screenheight()/2
-        w, h = 970,600
+        w, h = 970,670
         self.window.geometry("%dx%d+0+0" % (w, h))
         
         ##############################################MENU####################################
@@ -47,11 +79,14 @@ class interfaz():
         self.window.config(menu=menu)
 
         ##############################################BOTONES####################################
-        btnanalizar = Button(self.window,text="Analizar",height=2, width=8,command=self.btnanalizar_click)
-        btnanalizar.place(x=20,y=5)
+        
+        img2 = PhotoImage(file='img/icons/AnalyzeMP.png')
+        btnanalizar = Button(self.window,image=img2 , bg="#6a8d92",height=35, width=40, command=self.btnanalizar_click)
+        btnanalizar.place(x=20,y=4)
 
-        btnejecutar = Button(self.window,text="Ejecutar",height=2, width=8,command=self.btnejecutar_click)
-        btnejecutar.place(x=88,y=5)
+        img3 = PhotoImage(file='img/icons/play32.png')
+        btnejecutar = Button(self.window,image = img3 , bg="#6a8d92",height=35, width=40,command=self.btnejecutar_click)
+        btnejecutar.place(x=115,y=5)
 
         ##############################################PESTAÑAS####################################
         self.tab = ttk.Notebook(self.window)
@@ -80,7 +115,8 @@ class interfaz():
         print("Estoy ejecutando el main")
         f = open("./entrada.txt", "r")
         input = f.read()
-        
+        #lista = "" : ""
+        #insert(database: "world", table: "countries", register: lista) 
         #print(input)
         #parser.parse(input)
         #Inserta "Archivo Analizado" en txtsalida
@@ -136,6 +172,7 @@ class interfaz():
 
     ##############################################EVENTOS DE LOS BOTONES DEL FRAME####################################
     def btnanalizar_click(self):
+        dropAll()
         os.system ("cls")
         #Elimina el Contenido de txtsalida
         self.txtsalida[self.tab.index("current")].delete(1.0,END)
@@ -147,6 +184,10 @@ class interfaz():
         tablaGlobal = Tabla(None)
         inst = sintactico.ejecutar_analisis(input)
         arbol = Arbol(inst)
+
+        if len(sintactico.lista_lexicos)>0:
+            messagebox.showerror('Tabla de Errores','La Entrada Contiene Errores!')
+            reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(sintactico.lista_lexicos)
         # Ciclo que recorrerá todas las instrucciones almacenadas por la gramática.
         for i in arbol.instrucciones:
             # La variable resultado nos permitirá saber si viene un return, break o continue fuera de sus entornos.
@@ -155,9 +196,11 @@ class interfaz():
         if len(arbol.excepciones) != 0:
             reportes.RealizarReportes.RealizarReportes.generar_reporte_lexicos(arbol.excepciones)
         # Ciclo que imprimirá todos los mensajes guardados en la variable consola.
+        mensaje = ''
         for m in arbol.consola:
-            print(m)
-        self.txtsalida[self.tab.index("current")].insert(INSERT,"Archivo Analizado")
+            mensaje += m + '\n'
+        self.txtsalida[self.tab.index("current")].insert(INSERT,mensaje)
+
 
     def btnejecutar_click(self):
         print("se va ejecutar el archivo")
@@ -168,12 +211,12 @@ class interfaz():
         self.tab_frame[-1].pack(fill='both', expand=1)
         self.tab_frame[-1].config(bd=5)
         self.tab.add(self.tab_frame[-1],text=nombre)
-        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=112,height=14))
+        self.txtentrada.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=112,height=15))
         self.txtentrada[-1].place(x=0,y=25)
         self.txtentrada[-1].insert(INSERT,entrada+"")
         #self.txtentrada[-1].bind("<MouseWheel>", self.OnMouseWheel)
 
-        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=112,height=12,background="#070707",foreground="#FEFDFD"))
+        self.txtsalida.append(scrolledtext.ScrolledText(self.tab_frame[-1],width=112,height=15,background="#070707",foreground="#FEFDFD"))
         self.txtsalida[-1].place(x=0,y=298)
         #nombre del archivo
         #print(self.tab.tab(self.tab.select(),"text"))

@@ -3,4 +3,7 @@
 /.idea/
 /proyecto/.idea/
 /proyecto/__pycache__/
-/proyecto/ply/__pycache__/
+**/parser.out
+**/parsetab.py
+**/__pycache__/**
+**/reports/**

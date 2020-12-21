@@ -31,16 +31,16 @@ Diciembre 2020
 
 - Se formarán equipos de 4 estudiantes con carné continuos por curso. 
 - El catedrático compartirá con cada curso una hoja de cálculo con los integrantes de cada equipo y asignarles el tema de implementación. 
-- Además deben decidir quién será el coordinador de cada equipo a más tardar el día lunes antes de las 11:59 para agregar al coordinador como colaborador del repositorio para aceptar los commits. 
+- Además deben decidir quién será el coordinador de cada equipo a más tardar el lunes antes de las 11:59 para agregar al coordinador como colaborador del repositorio para aceptar los commits. 
 - También cada estudiante debe agregar su Username de GitHub a la hoja de cálculo y modificar su Name para que aparezca su nombre completo para lograr identificar a cada estudiante.
 
 ### Lenguaje de programación
 
-El lenguaje seleccionado es Python, y no deben utilizarse biliotecas adicionales si no hacen falta, por ejemplo, para compiladores 2 si deben utilizar PLY. Cualquier otra biblioteca debe ser autorizada por el catedrático.
+El lenguaje seleccionado es Python, y no deben utilizarse bibliotecas adicionales si no hacen falta, por ejemplo, para compiladores 2 si deben utilizar PLY. Cualquier otra biblioteca debe ser autorizada por el catedrático.
 
 ### Licencias y convenio
 
-El proyecto está diseñado por el catedrático bajo una licencia Open Source, específicamente MIT. Por convenio, los estudiantes aparecerán como contribuidores junto con el copyright. Además cualquier biblioteca autorizada también se debe colocar la licencia y el copyright en el archivo LICENSE.md en su carpeta respectiva.
+El proyecto está diseñado por el catedrático bajo una licencia Open Source, específicamente MIT. Por convenio, los estudiantes aparecerán como contribuidores junto con el copyright. Además, cualquier biblioteca autorizada también se debe colocar la licencia y el copyright en el archivo LICENSE.md en su carpeta respectiva.
 
 ### Manejo de versiones
 
@@ -71,7 +71,7 @@ TytusDB tendrá cinco modos de almacenamiento, cada uno corresponde a un motor d
 #### Registros de almacenamiento
 
 Cada registro que corresponde a una tupla de una tabla será almacenado en cada nodo o cada elemento de una página de las estructuras anteriores, según el modo de almacenamiento.
-Cada atributo será debilmente tipado, a efectos de no verificar tipo en este punto, ya que lo hará el parser de SQL.
+Cada atributo será débilmente tipado, a efectos de no verificar tipo en este punto, ya que lo hará el parser de SQL.
 
 #### Bases de datos
 
@@ -83,135 +83,207 @@ Cada atributo será debilmente tipado, a efectos de no verificar tipo en este pu
 
 - Se sugiere manejar los archivos de manera binaria para no exponer la información. 
 
-
 #### Funciones
 
-A continuación se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas.
+A continuación, se muestran las funciones que deben estar disponibles para que el componente SQL Parser pueda hacer uso de estas. 
 
-##### Respecto de las funciones de las bases de datos están: 
+- Queda a discreción del equipo manejar o hacer conversiones de tipos de datos. 
+- El nombre de las bases de datos y de las tablas deben cumplir el formato de un identificador.
+
+##### Respecto de las funciones CRUD de las bases de datos están: 
 
 ```
 def createDatabase(database: str) -> int:
 ```
-Crea una base de datos.  
+Crea una base de datos.  (CREATE)  
 Parámetro database: es el nombre de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos existente  
 
 ```
 def showDatabases() -> list:
 ```
-Devuelve una lista de los nombres de las bases de datos  
-Valor de retorno: lista de strings, si no hay bases de datos devuelve una lista vacía [].  
+Devuelve una lista de los nombres de las bases de datos. (READ)  
+Valor de retorno: lista de strings con los nombres de las bases de datos, si ocurrió un error o no hay bases de datos devuelve una lista vacía [].  
 
 ```
 def alterDatabase(databaseOld, databaseNew) -> int:
 ```
-Renombra la base de datos databaseOld por databaseNew.  
+Renombra la base de datos databaseOld por databaseNew.  (UPDATE)  
 Parámetro databaseOld: es el nombre actual de la base de datos, debe cumplir con las reglas de identificadores de SQL.  
 Parámetro databaseNew: es el nuevo nombre que tendrá de la base de datos databaseOld, debe cumplir con las reglas de identificadores de SQL.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 databaseOld no existente, 3 databaseNew existente.  
 
 ```
-def dropDatabase(database: str) -> int:
+def dropDatabase(database: str) -> int: 
 ```
-Elimina por completo la base de datos indicada en database.  
+Elimina por completo la base de datos indicada en database.  (DELETE)  
 Parámetro database: es el nombre de la base de datos que se desea eliminar, debe cumplir con las reglas de identificadores de SQL.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos no existente.  
 
-##### Respecto de las funciones de las tablas están:
+
+##### Respecto de las funciones CRUD de las tablas están:
 
 ```
-def createTable(database: str, table: str, numberColumns) -> int:
+def createTable(database: str, table: str, numberColumns: int) -> int:
 ```
-Crea una tabla en una base de datos especificada recibiendo una lista de índices referentes a la llave primaria y llave foránea.  
+Crea una tabla en una base de datos especificada recibiendo una lista de índices referentes a la llave primaria y llave foránea.  (CREATE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla que se desea crear.  
-Parámetro numberColumns: es el número de columnas que tendrá cada registro de la tabla.
+Parámetro numberColumns: es el número de columnas que tendrá cada registro de la tabla.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 base de datos inexistente, 3 tabla existente.  
-
-```
-def definePK(database: str, table str, columns: list) -> int:
-```
-Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas, esto para anticipar el índice de la estructura de la tabla cuando se inserten registros.
-Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro table: es el nombre de la tabla a utilizar.  
-Parámetro columns: es el listado de números de columnas que formarán parte de la llave primaria. Si ya existía una definición previa entonces la define de nuevo. Si ya existían registros se calcula de nuevo la estructura de índices.
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columnas fuera de limites.  
-Si no se define al menos una llave primaria, cuando ocurre el primer insert se debe utilizar una llave primaria escondida (numérica).
-
-```
-def defineFK(database: str, table str, references: dict) -> int:
-```
-Asocia la integridad referencial entre llaves foráneas y llaves primarias, para efectos de la fase 1 se ignora esta petición. Debido a que será parte de la fase 2 en la construcción de índices secundarios.  
 
 ```
 def showTables(database: str) -> list:
 ```
-Devuelve una lista de los nombres de las tablas de una bases de datos.  
+Devuelve una lista de los nombres de las tablas de una base de datos.  (READ)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
-Valor de retorno: si existen la base de datos y las tablas devuelve una lista de nombres de tablas, si existe la base de datos pero no existen tablas devuelve una lista vacía, y si no existe la base de datos devuelve None.  
+Valor de retorno: si existen la base de datos y las tablas devuelve una lista de nombres de tablas; si existe la base de datos, pero no existen tablas devuelve una lista vacía; y si no existe la base de datos devuelve None.  
+
+```
+def extractTable(database: str, table: str) -> list:
+```
+Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla.  (READ)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno: si existe la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si ocurre un error o si no existe la base de datos o la tabla devuelve None.  
+
+```
+def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any) -> list:
+```
+Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabla.  (READ)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro columnNumber: es el número de índice de columna a restringir o verificar con los valores upper y lower.
+Parámetro lower: es el límite inferior (inclusive) del rango a extraer de la columna indicada de la tabla.  
+Parámetro upper: es el límite superior (inclusive) del rango a extraer de la columna indicada de la tabla.  
+Valor de retorno: si existe la base de datos, la tabla y los registros devuelve una lista con los registros(lista), si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla o cualquier error devuelve None.  
+Consideraciones:
+- Para la comparación de lower y upper se puede hacer cast a str cuando las llaves sean compuestas o en general para reducir complejidad.
+- Ver el submódulo Any del paquete typing.  
+
+```
+def alterAddPK(database: str, table: str, columns: list) -> int:
+```
+Asocia a la tabla una llave primaria simple o compuesta mediante la lista de número de columnas, esto para anticipar el índice de la estructura de la tabla cuando se inserten registros. (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro columns: es el listado de números de columnas que formarán parte de la llave primaria. 
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria existente, 5 columnas fuera de límites.  
+
+Considerar:
+- Si no se define al menos una llave primaria, cuando ocurre el primer insert se debe utilizar una llave primaria escondida (numérica).  
+- Si ya existían datos sin llave primaria explícita se recalcula el índice de la estructura de índices con la actual llave primaria.  
+- Si la llave primaria es compuesta, se sugiere concatenar en cualquier estilo las columnas, para mantenerlas intactas (sería como llave primaria escondida).
+- El error 42P16 de PostgreSQL invalid_table_definition, entre algunas causas no permite definir múltiples llaves primarias (nótese de la diferencia de una llave primaria compuesta). Si ya existe una llave primaria y se desea agregar otro campo, entonces se debe eliminar la llave actual recalculado el índice cuando sea modificado, si no hay modificación se queda con la llave anterior.
+- El error 23505 de PostgreSQL unique_violation, cuando se ejecuta esta función se debe recalcular el índice, si hay un valor duplicado en una parte de la llave primaria debe dar error y dejar el índice como estaba.
+
+```
+def alterDropPK(database: str, table: str) -> int:
+```
+Elimina la llave primaria actual en la información de la tabla, manteniendo el índice actual de la estructura del árbol hasta que se invoque de nuevo el alterAddPK().  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 pk no existente.  
+
+```
+def alterAddFK(database: str, table: str, references: dict) -> int:
+```
+Asocia la integridad referencial entre llaves foráneas y llaves primarias, para efectos de la fase 1 se ignora esta petición. Debido a que será parte de la fase 2 en la construcción de índices secundarios.  (UPDATE PENDIENTE)  
+
+```
+def alterAddIndex(database: str, table: str, references: dict) -> int:
+```
+Asocia un índice, para efectos de la fase 1 se ignora esta petición. Debido a que será parte de la fase 2 en la construcción de índices secundarios.  (UPDATE PENDIENTE)  
 
 ```
 def alterTable(database: str, tableOld: str, tableNew: str) -> int:
 ```
-Renombra el nombre de la tabla de una base de datos especificada.  
+Renombra el nombre de la tabla de una base de datos especificada.  (UPDATE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro tableOld: es el nombre de la tabla a renombrar.  
-Parámetro tableNew: es el nuevo nombre con que renombrará la tableOld.
+Parámetro tableNew: es el nuevo nombre con que renombrará la tableOld.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 tableOld no existente, 4 tableNew existente.  
 
 ```
-def dropTable(database: str, table str) -> int:
+def alterAddColumn(database: str, table: str, default: any) -> int:
 ```
-Elimina por completo una tabla de una base de datos especificada.  
-Parámetro database: es el nombre de la base de datos a utilizar.
-Parámetro table: es el nombre de la tabla a eliminar
+Agrega una columna al final de cada registro de la tabla y base de datos especificada.  (UPDATE) 
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a modificar.  
+Parámetro default: es el valor que se establecerá en a la nueva columna para los registros existentes.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
 
 ```
-def alterAddColumn(database: str, table str) -> int:
+def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
 ```
-Agrega una columna al final de cada registro de la tabla y base de datos especificada.  
+Eliminar una n-ésima columna de cada registro de la tabla excepto si son llaves primarias.  (DELETE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a modificar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave no puede eliminarse o tabla quedarse sin columnas, 5 columna fuera de límites.  
+
+```
+def dropTable(database: str, table: str) -> int: 
+```
+Elimina por completo una tabla de una base de datos especificada.  (DELETE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a eliminar.  
 Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
 
-```
-def alterDropColumn(database: str, table str, columnNumber: int) -> int:
-```
-Eliminar una n-ésima columna de cada registro de la tabla.
-Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro table: es el nombre de la tabla a modificar.  
-Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columna fuera de limites.  
+
+##### Respecto de las funciones CRUD de las tuplas están:
 
 ```
-def extractTable(database: str, table str) -> list:
+def insert(database: str, table: str, register: list) -> int:
 ```
-Extrae y devuelve una lista con elementos que corresponden a cada registro de la tabla.
+Inserta un registro en la estructura de datos asociada a la tabla y la base de datos.  (CREATE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
 Parámetro table: es el nombre de la tabla a utilizar.  
-Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
+Parámetro register: es una lista de elementos que representan un registro.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria duplicada, 5 columnas fuera de límites.  
 
 ```
-def extractRangeTable(database: str, table str, lower: Any, upper: Any) -> list:
+def loadCSV(file: str, database: str, table: str) -> list:
 ```
-Extrae y devuelve una lista con los elementos que corresponden a un rango de registros de la tabala.  
+Carga un archivo CSV de una ruta especificada indicando la base de datos y tabla donde será almacenado. La base de datos y la tabla deben existir, y coincidir con el número de columnas. Si hay llaves primarias duplicadas se ignoran. No se utilizan títulos de columnas y la separación es por comas.  (CREATE)  
 Parámetro database: es el nombre de la base de datos a utilizar.  
-Parámetro table: es el nombre de la tabla a utilizar.
-Parámetro lower: es el limite inferior (inclusive) del rango a extraer de la tabla.  
-Parámetro upper: es el limite superior (inclusive) del rango a extraer de la tabla.  
-Valor de retorno: si existen la base de datos, la tabla y los registros devuelve una lista con los registros, si existen las base de datos, la tablas pero no registros devuelve una lista vacía, y si no existe la base de datos o la tabla devuelve None.  
-Ver el submódulo Any del paquete typing.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno: lista con los valores enteros que devuelve el insert por cada fila del CSV, si ocurrió un error o el archivo CSV no tiene filas devuelve una lista vacía [].  
 
-Respecto de las funciones de las tuplas están:
-- insert(database, table, columns): inserta un registro en la estructura de datos persistente, database es el nombre de la base de datos, table es el nombre de la tabla y columns es una lista de campos a insertar. Devuelve un True si no hubo problema, y un False si no se logró insertar.
-- update(database, table, id, columnNumber, value): actualiza el valor de una columna x en un registro id de una tabla de una base de datos. Devuelve True si se actualizó correctamente y False si no se logró actualizar.
-- deleteTable(database, tableName, id): elimina un nodo o elemento de página indicado de una tabla y base de datos especificada.
-- truncate(database, tableName): vacía la tabla de todos los registros.
-- extractRow(database, table, id): extrae y devuelve una tupla especificada 
+```
+def extractRow(database: str, table: str, columns: list) -> list:
+```
+Extrae y devuelve un registro especificado por su llave primaria.  (READ)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámeto columns: es la llave primaria, si es simple [llave], si es compuesta [llaveatr1, llaveatr2...].  (si no hay pk se debe enviar la hiddenPK)  
+Valor de retorno: lista con los valores del registro, si ocurrió un error o no hay registro que mostrar devuelve una lista vacía [].  
 
-Respecto de la función de carga desde un archivo CSV:
-- loadCSV(filecsv, database, table, [modo]): carga un archivo csv de un ruta especificada indicando la ruta de la base de datos y en qué tabla será guardada. Si la tabla existe verifica la cantidad de columnas, si no corresponde da error. Si la tabla no existe, la crea. Si la base de datos no existe, la crea con el modo especificado.
+```
+def update(database: str, table: str, register: dict, columns: list) -> int:
+``` 
+Inserta un registro en la estructura de datos asociada a la tabla y la base de datos.  (UPDATE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro register: es una lista de elementos llave:valor que representa los elementos a actualizar del registro. La llave el número de coluna y el valor el contenido del campo.  
+Parámetro columns: es la llave primaria, si es simple [llave], si es compuesta [llaveatr1, llaveatr2...].  (si no hay pk se debe enviar la hiddenPK)
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria no existe.
+
+```
+def delete(database: str, table: str, columns: list) -> int:
+```
+Elimina un registro de una tabla y base de datos especificados por la llave primaria.  (DELETE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Parámetro columns: es la llave primaria, si es simple [llave], si es compuesta [llaveatr1, llaveatr2...].  (si no hay pk se debe enviar la hiddenPK)  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 llave primaria no existe.  
+
+```
+def truncate(database: str, table: str) -> int:
+```
+Elimina todos los registros de una tabla y base de datos.  (DELETE)  
+Parámetro database: es el nombre de la base de datos a utilizar.  
+Parámetro table: es el nombre de la tabla a utilizar.  
+Valor de retorno: 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente.  
 
 ## Administrador de la base de datos
 
@@ -219,27 +291,33 @@ El administrador de la base de datos se compone de dos componentes:
 
 - Servidor: es un servidor http. Se debe seleccionar un puerto adecuado que no tenga conflictos con otros servidores. En la carpeta de instalación de la base de datos se debe crear una carpeta llamada /data donde se almacenarán las bases de datos. Se debe crear un usuario admin y su contraseña. Además de crear n usuarios configurando el acceso a las bases de datos.
 
-- Cliente: es un cliente que para algunos equipos será web y para otros será una aplicación de escritorio. Este cliente se conectará al servidor y podrá hacer la mayoría de operaciones que hace pgadmin de PostgreSQL. Dentro del cliente, cuando se navegue dentro de las diferentes bases de datos que existen se puede invocar un editor de queries, el cual invocará la función parser() del SQL Parser para desplegar el resultado. Este editor debe tener la característica de resaltado de sintaxis.
+- Cliente: es un cliente que para algunos equipos será web y para otros será una aplicación de escritorio. Este cliente se conectará al servidor y podrá hacer la mayoría de las operaciones que hace pgadmin de PostgreSQL. Dentro del cliente, cuando se navegue dentro de las diferentes bases de datos que existen se puede invocar un editor de queries, el cual invocará la función parser() del SQL Parser para desplegar el resultado. Este editor debe tener la característica de resaltado de sintaxis.
 
-Debe crearse el mecanismo para instalar tanto el servidor como el cliente en los sitemas operativos de Windows y Linux, dependiendo de la asignación del equipo.
+Debe crearse el mecanismo para instalar tanto el servidor como el cliente en los sistemas operativos de Windows y Linux, dependiendo de la asignación del equipo.
 
 Un ejemplo del cliente puede ser basado en el pgadmin de PostgreSQL:
 <p align="center">
   <img src="img/tytusdb_pgadmin.jpg" width="600" alt="pgadmin">
 </p>
 
-Además, si alguna opción no es cubierta por las funciones del administrador de almacenamiento el administrador puede invocar consultas mediantes el SQL Parser para obtener funciones adicionales y cubrir opciones extras del administrador de bases de datos. Considerar la documentación del parser para cumplir con requisitos de tipos de datos y sintaxis en general.
+Además, si alguna opción no es cubierta por las funciones del administrador de almacenamiento el administrador puede invocar consultas mediante el SQL Parser para obtener funciones adicionales y cubrir opciones extras del administrador de bases de datos. Considerar la documentación del parser para cumplir con requisitos de tipos de datos y sintaxis en general.
 
 ## SQL Parser
 
+### Descripción
+
 Este componente proporciona al servidor una función encargada de interpretar sentencias del subconjunto del lenguaje SQL especificado en la siguiente [documentación](https://github.com/tytusdb/tytus/tree/main/docs/sql_syntax). 
 
+### Componentes
+
 Está compuesto por tres sub componentes:
-- SQL Parser: es el intérprete de sentencias de SQL, que tendra proporcionará una función para invocar al parser, al recibir una consulta el parser luego del proceso interno y de la planificación de la consulta debe invocar las diferentes funciones proporcionadas por el componente de administrador de almacenamiento.
+- SQL Parser: es el intérprete de sentencias de SQL, que proporcionará una función para invocar al parser, al recibir una consulta el parser luego del proceso interno y de la planificación de la consulta debe invocar las diferentes funciones proporcionadas por el componente de administrador de almacenamiento.
 
 - Type Checker: es un sub componente que ayudará al parser a la comprobación de tipos. Al crear un objeto cualquiera se debe crear una estructura que almacenará los tipos de datos y cualquier información necesaria para este fin.
 
 - Query Tool: es un sub componente que consiste en una ventana gráfica similar al Query Tool de pgadmin de PostgreSQL, para ingresar consultas y mostrar los resultados, incluyendo el resalto de la sintaxis. La ejecución se realizará de todo el contenido del área de texto. 
+
+### Consideraciones
 
 En general, el intérprete debe ser capaz de:
 
@@ -249,14 +327,20 @@ En general, el intérprete debe ser capaz de:
 
 - Proporcionar la función parser(database, queries): esta función ejecuta y devuelve el resultado de la(s) consulta(s) sobre una base de datos, debe retornar una lista de listas con el resultado de la consulta. Si hay más de una consulta considerar la ejecución de consultas en PostgreSQL.
 
-- Devolver a detalle información de la consulta al servidor, por ejemplo, si la consultas fue ejecutada correctamente o no, si hubo un error de tipos, o cualquier error que normalmente devuelve cualquier parser de SQL.
+- Devolver a detalle información de la consulta al servidor, por ejemplo, si la consulta fue ejecutada correctamente o no, si hubo un error de tipos, o cualquier error que normalmente devuelve cualquier parser de SQL.
+
+### Análisis de gramáticas
 
 Cada equipo debe escribir dos gramáticas: una para un analizador ascendente; y otra, para un analizador descendente. Sin llegar a la definición dirigida por la sintaxis. Debe hacerse un análisis para saber qué gramática es más eficiente (tiempo de respuesta y otros factores) en cuanto a la lectura de los querys (sin interpretar nada). Luego concluir y seleccionar la gramática más adecuada para continuar con la definición dirigida por la sintaxis.
+
+### Códigos de error
+
+Cuando se utilice el paquete del parser de SQL y para mantener una sola manera de retornar errores cuando estos ocurran, se determinó utilizar los [Códigos de error de PostgreSQL](https://www.postgresql.org/docs/13/errcodes-appendix.html).
 
 ## Reportes y entrega
 
 ### Reportes para estructuras de datos
-Los reportes de las estructuras utilizadas se deben mostrar mediante una aplicación de interfaz gráfica utilizando cualquier herramienta gráfica (que cumpla compatabilidades de licencia). 
+Los reportes de las estructuras utilizadas se deben mostrar mediante una aplicación de interfaz gráfica utilizando cualquier herramienta gráfica (que cumpla compatibilidades de licencia). 
 
 La aplicación debe mostrar de manera gráfica y navegable las siguientes estructuras:
 - bases de datos
@@ -265,7 +349,7 @@ La aplicación debe mostrar de manera gráfica y navegable las siguientes estruc
 - tupla
 
 ### Reportes para compiladores 2
-Los reportes a entregar son los siguientes (mostrar el resultado en una ventana cuando sea ejecutada la funciones que invoquen a los reportes):
+Los reportes por entregar son los siguientes (mostrar el resultado en una ventana cuando sea ejecutada la funciones que invoquen a los reportes):
 - Reportes de errores léxico, sintácticos y semánticos. Debe mostrar como mínimo el tipo, la descripción y el número de línea.
 - Reporte de tabla de símbolos. Debe mostrar las variables, funciones y procedimientos con mínimo los siguientes datos: identificador, tipo, dimensión, declarada en, y referencias.
 - Reporte de AST. Cuando se requiera, debe mostrar el árbol de sintaxis abstracta utilizando Graphviz en una nueva ventana que muestre solo la imagen o documento.
@@ -274,12 +358,12 @@ Los reportes a entregar son los siguientes (mostrar el resultado en una ventana 
 ### Reportes para bases de datos
 Respecto del componente de este curso no se tendrán reportes, ya que mediante el cliente se podrán ejecutar las funciones solicitadas e incluso el resultado de consultas de SQL.
 
-### Manual ténico y de usuario
+### Manual técnico y de usuario
 En la carpeta del equipo se debe crear con Markdown un archivo de manual técnico y otro de manual de usuario. Se puede utilizar cualquier referencia bibliográfica para elaborar los manuales, se sugiere ver este [enlace](https://web.mit.edu/course/21/21.guide/docution.htm) del MIT.
 
 ### Consideraciones
 - La entrega se realizará mediante commits a este repositorio, para cada equipo se le indicará su carpeta específica.
-- La calificación se realizará de manera virtual (ya sea en meet o zoom) con las camaras activadas, cada calificación será almacenada.
+- La calificación se realizará de manera virtual (ya sea en meet o zoom) con las cámaras activadas, cada calificación será almacenada.
 - No se recibe ningún proyecto después de finalizada la entrega.
 - Copias de proyectos obtendrán una nota 0, por lo que pierde automáticamente el laboratorio, se utilizará la herramienta JPlag https://jplag.ipd.kit.edu/
 - Durante la calificación se verificará la autoría mediante preguntas, si no la responde se procederá a anular su nota del proyecto.
@@ -291,9 +375,9 @@ En la carpeta del equipo se debe crear con Markdown un archivo de manual técnic
 ### Calificación
 - Un porcentaje será evaluado mediante una hoja de calificación (nota grupal).
 - Un porcentaje será evaluado mediante Stack Ranking de equipos con características similares (el mejor obtiene la mejor nota). El proyecto del equipo ganador será utilizado como base de TytusDB y también para la segunda fase (nota grupal). 
-- Un porcentaje será evaluado mediante el total de commits aceptados y la calidad de los mismos mediante Stack Ranking por equipo (nota individual).
+- Un porcentaje será evaluado mediante el total de commits aceptados y la calidad de estos mediante Stack Ranking por equipo (nota individual).
 - Un porcentaje será por calificación interna del equipo también por Stack Ranking por equipo (nota individual).
 - Un porcentaje será evaluado mediante una pregunta o en su defecto modificación de código (nota individual).
 
 ### Fecha de entrega
-La fecha de entrega es el día domingo 20 de diciembre hasta las 11:59pm, se tomará hasta el último commit aceptado.
+La fecha de entrega es el domingo 20 de diciembre hasta las 11:59pm, se tomará hasta el último commit aceptado.

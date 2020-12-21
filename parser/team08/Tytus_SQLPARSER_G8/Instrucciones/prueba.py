@@ -1,6 +1,8 @@
 #-------------------------------
 print("FUNCTION BINARYSTRING")
 #import FunctionBinaryString.Convert
+from Instrucciones.FunctionBinaryString.Decode import *
+'''
 import FunctionBinaryString.Decode
 import FunctionBinaryString.Encode
 import FunctionBinaryString.GetByte
@@ -57,3 +59,4 @@ import FunctionTrigonometric.Sinh
 import FunctionTrigonometric.Tan
 import FunctionTrigonometric.Tanh
 print("hola")
+'''

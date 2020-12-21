@@ -1,0 +1,56 @@
+<ul class="{{class_body}}" id="accordionSidebar">
+
+  <!-- Sidebar - Brand -->
+  <a class="sidebar-brand d-flex align-items-center justify-content-center" routerLink ="./dashboard">
+    <div class="sidebar-brand-icon rotate-n-">
+      <i></i>
+    </div>
+    <div class="sidebar-brand-text mx-1">PostgreSQL<sup></sup></div>
+  </a>
+
+  <!-- Divider -->
+  <hr class="sidebar-divider my-0">
+
+
+  <!-- Divider -->
+  <hr class="sidebar-divider">
+
+  <!-- Heading -->
+  <div class="sidebar-heading">
+    
+  </div>
+
+  <!-- Nav Item - Pages Collapse Menu -->
+  <li class="nav-item">
+    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
+      <i class="fas fa-fw fa-folder"></i>
+      <span>File</span>
+    </a>
+    <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+      <div class="bg-white py-2 collapse-inner rounded">
+        
+        <a class="collapse-item" routerLink ="newdatabase" >New database</a>
+        <a class="collapse-item" routerLink ="deletedatabase" >Delete database</a>
+        <a class="collapse-item" routerLink="renamedatabase" >Rename database</a>
+        <div class="collapse-divider"></div>
+       
+        <a class="collapse-item" routerLink ="renametable">Rename table</a>
+        <a class="collapse-item" routerLink ="deletetable">Delete table</a>
+      <!--  <!  <a class="collapse-item" routerLink="Catalogo">Catalogo</a> -->
+      </div>
+    </div>
+  </li>
+
+  
+
+  <!-- Nav Item - Tables -->
+
+    <!-- Divider -->
+    <hr class="sidebar-divider d-none d-md-block">
+
+  <!-- Sidebar Toggler (Sidebar) -->
+  <div class="text-center d-none d-md-inline">
+    <button class="rounded-circle border-0" id="sidebarToggle" (click)="cambiarestado()"></button>
+  </div>
+
+</ul>

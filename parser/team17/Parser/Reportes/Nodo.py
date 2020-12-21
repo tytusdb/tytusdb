@@ -1,10 +1,10 @@
 
 class Nodo:
 
-	def __init__(self,valor:str,tipo:str):
+	def __init__(self,valor,tipo):
 			self.id =0
-			self.valor=valor
-			self.tipo=tipo
+			self.valor=str(valor)
+			self.tipo=str(tipo)
 			self.hijos=[]
 
 	def getValor(self):

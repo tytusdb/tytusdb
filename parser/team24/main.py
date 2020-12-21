@@ -1,17 +1,28 @@
-# This is a sample Python script.
-from descendente import *
-# Press Mayús+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import grammar as g
+import tabla as TabladeSimbolos
+#from graphQueries import graphTree
+default_db = 'DB1'
+ts = TabladeSimbolos.Tabla()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
+def meterSimbolos():
+    ts.agregar(TabladeSimbolos.Simbolo(0,TabladeSimbolos.TIPO.DATABASE,'DB1',None,None))
+    ts.agregar(TabladeSimbolos.Simbolo(1,TabladeSimbolos.TIPO.TABLE,'tbempleado',0,None))
+    ts.agregar(TabladeSimbolos.Simbolo(2,TabladeSimbolos.TIPO.COLUMN,'id',1,0))
+    ts.agregar(TabladeSimbolos.Simbolo(3,TabladeSimbolos.TIPO.COLUMN,'nombre',1,1))
+    ts.agregar(TabladeSimbolos.Simbolo(4,TabladeSimbolos.TIPO.COLUMN,'apellido',1,2))
     
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
 
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-    print("Holi")
+    f = open("./entrada.txt", "r")
+    input = f.read()
+    #print(input)
+    meterSimbolos()
+    root = g.parse(input)
+    results = []
+    for query in root:
+        results.append(query.ejecutar())
+    #print(results)
+    #graphTree(root)
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+

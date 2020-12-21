@@ -45,7 +45,44 @@ reservadas = {
     'order'     : 'ORDER',             'having'    : 'HAVING',
     'asc'       : 'ASC',               'desc'      : 'DESC',
     'nulls'     : 'NULLS',             'first'     : 'FIRST',
-    'last'      : 'LAST'
+    'last'      : 'LAST',              'limit'     : 'LIMIT',
+    'all'       : 'ALL',               'offset'    : 'OFFSET',
+    'abs'       : 'ABS',                'cbrt'     : 'CBRT',
+    'ceil'      : 'CEIL',               'ceiling'  : 'CEILING',
+    'degrees'   : 'DEGREES',            'div'      : 'DIV',
+    'exp'       : 'EXP',                'factorial': 'FACTORIAL',
+    'floor'     : 'FLOOR',              'gcd'      : 'GCD',
+    'ln'        : 'LN',                 'log'      : 'LOG',
+    'mod'       : 'MOD',                'pi'       : 'PI',
+    'power'     : 'POWER',              'radians'  : 'RADIANS',
+    'round': 'ROUND',
+    'acos': 'ACOS',               'acosd': 'ACOSD',
+    'asin': 'ASIN',               'asind': 'ASIND',
+    'atan': 'ATAN',               'atand': 'ATAND',
+    'atan2': 'ATAN2',              'atan2d': 'ATAN2D',
+    'cos': 'COS',                'cosd': 'COSD',
+    'cot': 'COT',                'cotd': 'COTD',
+    'sin': 'SIN',                'sind': 'SIND',
+    'tan': 'TAN',                'tand': 'TAND',
+    'sinh': 'SINH',               'cosh': 'COSH',
+    'tanh': 'TANH',               'asinh': 'ASINH',
+    'acosh': 'ACOSH',              'atanh': 'ATANH',
+    'length': 'LENGTH',             'substring': 'SUBSTRING',
+    'trim': 'TRIM',               'get_byte': 'GET_BYTE',
+    'md5': 'MD5',                'set_byte': 'SET_BYTE',
+    'sha256': 'SHA256',             'substr': 'SUBSTR',
+    'convert': 'CONVERT',            'encode': 'ENCODE',
+    'decode': 'DECODE',             'for': 'FOR',
+    'between': 'BETWEEN',           'isnull' : 'ISNULL',
+    'notnull' : 'NOTNULL',          'case' : 'CASE',
+    'end' : 'END',                  'when' : 'WHEN',
+    'then' : 'THEN'   ,              'else' : 'ELSE',
+    'is' : 'IS',
+    'sign': 'SIGN',                 'sqrt': 'SQRT',
+    'width_bucket': 'WBUCKET',      'trunc': 'TRUNC',
+    'random': 'RANDOM',             'true': 'TRUE',
+    'false': 'FALSE',               'use' : 'USE',
+    'decimal': 'RDECIMAL'
 }
 
 tokens  = [
@@ -58,7 +95,9 @@ tokens  = [
     'NIGUALQUE',   'DIFERENTE', 'MODULO',
     'DECIMAL',     'ENTERO',    'CADENADOBLE',
     'CADENASIMPLE','ID',        'MENIGUAL',
-    'MAYIGUAL',    'PUNTO'
+    'MAYIGUAL',    'PUNTO', 'CADENALIKE',
+    'CONCAT', 'BITWAND', 'BITWOR', 'BITWXOR',
+    'BITWNOT', 'BITWSHIFTL', 'BITWSHIFTR', 'CSIMPLE'
 ] + list(reservadas.values())
 
 # Tokens
@@ -84,6 +123,14 @@ t_MENIGUAL  = r'<='
 t_MAYIGUAL  = r'>='
 t_DIFERENTE = r'<>'
 t_MODULO    = r'%'
+t_BITWOR = r'\|'
+t_CONCAT = r'\|\|'
+t_BITWAND = r'&'
+t_BITWXOR = r'\#'
+t_BITWNOT = r'~'
+t_BITWSHIFTL = r'<<'
+t_BITWSHIFTR = r'>>'
+t_CSIMPLE = r'\''
 
 
 def t_DECIMAL(t):
@@ -147,7 +194,22 @@ import ply.lex as lex
 lexer = lex.lex()
 
 # Asociación de operadores y precedencia
+precedence = (
 
+    ('left', 'CONCAT'),
+    ('left', 'BITWOR'),
+    ('left', 'BITWXOR'),
+    ('left', 'BITWAND'),
+    ('left', 'BITWSHIFTL', 'BITWSHIFTR'),
+    ('left', 'BITWNOT'),
+    ('left', 'OR'),
+    ('left', 'AND'),
+    ('left', 'MENQUE', 'MAYQUE', 'MENIGUAL', 'MAYIGUAL', 'IGUAL', 'DIFERENTE'),
+    ('left', 'MAS', 'MENOS'),
+    ('left', 'ASTERISCO', 'DIVIDIDO', 'MODULO'),
+    ('left', 'EXPONENTE'),
+    ('right', 'UMENOS')
+)
 
 
 ###################################### Definición de la gramática #######################################
@@ -168,7 +230,12 @@ def p_instruccion(t) :
                       | showDB_instr
                       | create_instr
                       | alter_instr PTCOMA
-                      | insert_instr'''
+                      | insert_instr
+                      | update_instr
+                      | use_instr
+                      | delete_instr
+                      | truncate_instr
+                      | select_instr'''
 
 ##CREATE DATABASE
 def p_create_db(t):
@@ -268,31 +335,76 @@ def p_showDB_regexp(t):
                     | MODULO ENTERO MODULO
                     | ENTERO MODULO'''
 
+def p_use_instr(t):
+    'use_instr      : USE DATABASE ID PTCOMA'
 ##########################################################################################
 
+# --------------------------------- FUNCIONES MÁTEMÁTICAS ------------------------------------
+
+# Select | Where
+def p_funciones_matematicas1(t):
+    '''funcion_matematica_ws    : ABS PARIZQ expresionaritmetica PARDER
+                                | CBRT PARIZQ expresionaritmetica PARDER
+                                | CEIL PARIZQ expresionaritmetica PARDER
+                                | CEILING PARIZQ expresionaritmetica PARDER'''
+
+# Select
+def p_funciones_matematicas2(t):
+    '''funcion_matematica_s     : DEGREES PARIZQ expresionaritmetica PARDER
+                                | DIV PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | EXP PARIZQ expresionaritmetica PARDER
+                                | FACTORIAL PARIZQ expresionaritmetica PARDER
+                                | FLOOR PARIZQ expresionaritmetica PARDER
+                                | GCD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | LN PARIZQ expresionaritmetica PARDER
+                                | LOG PARIZQ expresionaritmetica PARDER
+                                | MOD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | PI PARIZQ PARDER
+                                | POWER PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                                | RADIANS PARIZQ expresionaritmetica PARDER
+                                | ROUND PARIZQ expresionaritmetica PARDER
+                                | SIGN PARIZQ expresionaritmetica PARDER
+                                | SQRT PARIZQ expresionaritmetica PARDER
+                                | WBUCKET PARIZQ explist PARDER
+                                | TRUNC PARIZQ expresionaritmetica PARDER
+                                | RANDOM PARIZQ expresionaritmetica PARDER'''
+    
+# Lista de expresiones para la función Width Bucket
+def p_wbucket_exp(t):
+    'explist  : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica'
+    
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
 
-def p_inst_alter(t) :
-    '''alter_instr    : ALTER TABLE ID ADD COLUMN ID type_column
-                      | ALTER TABLE ID ADD CHECK PARIZQ condicion PARDER
-                      | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
-                      | ALTER TABLE ID ADD FOREIGN KEY PARIZQ ID PARDER REFERENCES ID
-                      | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
-                      | ALTER TABLE ID DROP CONSTRAINT ID
-                      | ALTER TABLE ID DROP COLUMN ID
-                      | ALTER TABLE ID RENAME COLUMN ID TO ID
-                      | ALTER TABLE ID list_alter_column'''
+def p_inst_alter(t):
+    '''alter_instr      : ALTER TABLE ID ADD COLUMN list_columns
+                        | ALTER TABLE ID ADD CHECK PARIZQ condicion PARDER
+                        | ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ ID PARDER
+                        | ALTER TABLE ID ADD FOREIGN KEY PARIZQ ID PARDER REFERENCES ID
+                        | ALTER TABLE ID ALTER COLUMN ID SET NOT NULL
+                        | ALTER TABLE ID DROP CONSTRAINT ID
+                        | ALTER TABLE ID RENAME COLUMN ID TO ID
+                        | ALTER TABLE ID DROP COLUMN listtablas
+                        | ALTER TABLE ID list_alter_column'''
     
-def p_list_alter_column(t) :
-    '''list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column
-                         | ALTER COLUMN ID TYPE type_column'''
+def p_list_alter_column_r(t):
+    'list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column'
+    
+def p_list_alter_column(t):
+    'list_alter_column : ALTER COLUMN ID TYPE type_column'
+    
+def p_list_columns_r(t):
+    'list_columns       : list_columns COMA ID type_column'
+
+def p_list_columns_(t):
+    'list_columns       : ID type_column'
 
 # Tipos de datos para columnas/campos
-def p_type_column(t) :
+def p_type_column(t):
     '''type_column    : SMALLINT
                       | INTEGER
                       | BIGINT
-                      | DECIMAL
+                      | RDECIMAL
+                      | RDECIMAL PARIZQ ENTERO COMA ENTERO PARDER
                       | NUMERIC
                       | REAL
                       | FLOAT
@@ -308,11 +420,13 @@ def p_type_column(t) :
                       | TIMESTAMP PARIZQ ENTERO PARDER
                       | DATE
                       | TIME
+                      | BOOLEAN
+                      | ID
                       | TIME PARIZQ ENTERO PARDER
                       | INTERVAL field'''
  
 # Campos para intervalos de tiempo   
- def p_field(t) :
+def p_field(t) :
     '''field          : YEAR
                       | MONTH
                       | DAY
@@ -321,6 +435,7 @@ def p_type_column(t) :
                       | SECOND'''
 
 # ----------------------------------------------------------------------------------------
+
 def p_create(t):
     '''
         create_instr    : CREATE lista_crear create_final
@@ -365,7 +480,7 @@ def p_lista_owner(t):
                         | ID
     '''
 
-#############################################################################################
+#####################################################################################################
 
 ## INSERT 
 def p_insert_sinorden(t) :
@@ -381,22 +496,430 @@ def p_lista_columnas_salida(t) :
     'columnas       : ID'
     
 def p_lista_parametros(t) :
-    'parametros     : parametros COMA expresion'
+    'parametros       : parametros COMA parametroinsert'
 
 def p_lista_parametros_salida(t) :
-    'parametros     : expresion'
+    'parametros       : parametroinsert'
 
+def p_parametro (t) :
+    '''parametroinsert  : DEFAULT
+                        | expresion'''
+    
+## UPDATE
+def p_update_sinwhere(t) : 
+    'update_instr     : UPDATE ID SET asignaciones PTCOMA'
+
+def p_update_conwhere(t) : 
+    'update_instr     : UPDATE ID SET asignaciones WHERE condiciones PTCOMA'  
+    
+def p_lista_asignaciones(t): 
+    'asignaciones     : asignaciones COMA asignacion'
+
+def p_lista_asignacion_salida(t) :
+    'asignaciones     : asignacion'
+
+def p_asignacion(t) :
+    'asignacion       : ID IGUAL expresion'
+    
+## DELETE
+def p_delete_sinwhere(t):
+    'delete_instr     : DELETE FROM ID PTCOMA'
+
+def p_delete_conwhere(t):
+    'delete_instr     : DELETE FROM ID WHERE condiciones PTCOMA'
+    
+## TRUNCATE
+def p_truncate_simple(t):
+    'truncate_instr   : TRUNCATE listtablas PTCOMA'
+
+def p_truncate_simple_cascade(t):
+    'truncate_instr   : TRUNCATE listtablas CASCADE PTCOMA'
+
+def p_truncate_table(t) :
+    'truncate_instr   : TRUNCATE TABLE listtablas PTCOMA'
+
+def p_truncate_table_cascade(t) :
+    'truncate_instr   : TRUNCATE TABLE listtablas CASCADE PTCOMA'
+
+def p_listatablas(t) : 
+    'listtablas       : listtablas COMA ID'
+
+def p_listatablas_salida(t) :
+    'listtablas       : ID'
+
+## ################################# GRAMATICA DE QUERYS ########################################
+
+def p_select(t):
+    'select_instr     :  select_instr1 PTCOMA'
+    t[0] = t[1]
+
+def p_select_simple(t):
+    'select_instr1    : SELECT termdistinct selectlist selectfrom'
+
+def p_fromselect(t) :
+    'selectfrom       : FROM listatablasselect whereselect groupby orderby'
+
+def p_fromselect2(t) :
+    'selectfrom       : empty'  
+
+# ---------------------- Producciones para el manejo del Select -------------------------
+
+def p_termdistinct(t):
+    '''termdistinct   : DISTINCT
+                      | empty'''
+
+def p_selectlist(t):
+    '''selectlist     : ASTERISCO
+                      | listaselect'''
+
+def p_listaselect(t):
+    'listaselect      : listaselect COMA valselect'
+
+def p_listaselect_salida(t):
+    'listaselect      : valselect'
+
+def p_valselect_1(t):
+    'valselect      : ID alias'
+
+def p_valselect_11(t):
+    'valselect      : ID PUNTO ASTERISCO'
+
+def p_valselect_2(t):
+    'valselect      : ID PUNTO ID alias'
+
+def p_valselect_3(t):
+    'valselect      : funcion_matematica_ws alias'
+
+def p_valselect_4(t):
+    'valselect      : funcion_matematica_s alias'
+
+def p_valselect_5(t):
+    'valselect      : funcion_trigonometrica alias'
+
+def p_valselect_6(t):
+    'valselect      : PARIZQ select_instr1 PARDER alias'
+
+def p_valselect_7(t):
+    'valselect      : agregacion PARIZQ cualquieridentificador PARDER alias'
+
+def p_valselect_8(t):
+    'valselect      : COUNT PARIZQ ASTERISCO PARDER alias'
+
+def p_valselect_9(t):
+    'valselect      : COUNT PARIZQ cualquieridentificador PARDER alias'
+
+def p_valselect_10(t) :
+    'valselect      : func_bin_strings_1 alias'
+
+def p_valselect_12(t) :
+    'valselect      : func_bin_strings_2 alias'
+
+def p_valselect_13(t):
+    'valselect      : func_bin_strings_4 alias'
+    
+def p_funcionagregacion(t):
+    '''agregacion      : SUM
+                       | AVG
+                       | MAX
+                       | MIN'''
+
+## ------------------------- tablas que se piden en el from  ----------------------------------
+
+def p_listatablasselect(t):
+    'listatablasselect : listatablasselect COMA tablaselect'
+
+def p_listatablasselect_salida(t):
+    'listatablasselect : tablaselect'
+
+def p_tablasselect_1(t):
+    'tablaselect       : ID alias'
+
+def p_tablasselect_2(t):
+    'tablaselect       : PARIZQ select_instr1 PARDER alias'
+
+def p_asignar_alias(t):
+    '''alias             : ID
+                         | CADENASIMPLE
+                         | CADENADOBLE
+                         | AS ID
+                         | AS CADENASIMPLE
+                         | AS CADENADOBLE
+                         | empty'''
+
+
+
+# -------------------- Producciones para el manejo del where, incluyendo subquerys --------------------
+
+def p_whereselect_1(t):
+    'whereselect       : WHERE condicioneswhere'
+
+
+def p_whereselect_5(t):
+    'whereselect       : empty'
+
+
+def p_lista_condicionwhere(t):
+    '''condicioneswhere    : condicioneswhere OR  condicionwhere
+                           | condicioneswhere AND condicionwhere'''
+
+
+def p_lista_condicionwhere_salida(t):
+    'condicioneswhere      : condicionwhere'
+
+
+def p_condicionwhere(t):
+    '''condicionwhere      : whereexists
+                           | notwhereexists
+                           | wherenotin
+                           | wherein
+                           | wherenotlike
+                           | wherelike
+                           | wheresubstring
+                           | between_state
+                           | not_between_state
+                           | predicates_state
+                           | is_distinct_state
+                           | condicion'''                     
+
+def p_existwhere(t):
+    'whereexists       : EXISTS PARIZQ select_instr1 PARDER'
+
+def p_notexistwhere(t):
+    'notwhereexists    : NOT EXISTS PARIZQ select_instr1 PARDER'
+
+def p_inwhere(t):
+    '''wherein         : cualquiernumero IN PARIZQ select_instr1 PARDER
+                       | cadenastodas IN PARIZQ select_instr1 PARDER'''
+
+
+def p_notinwhere(t):
+    '''wherenotin      : cualquiernumero NOT IN PARIZQ select_instr1 PARDER
+                       | cadenastodas NOT IN PARIZQ select_instr1 PARDER'''
+
+
+def p_notlikewhere(t):
+    'wherenotlike      : cadenastodas NOT LIKE CADENALIKE'
+
+
+def p_likewhere(t):
+    'wherelike         : cadenastodas LIKE CADENALIKE'
+
+
+def p_substringwhere(t):
+    'wheresubstring    : SUBSTRING PARIZQ cadenastodas COMA ENTERO COMA ENTERO PARDER IGUAL CADENASIMPLE'
+
+
+def p_cadenas(t):
+    '''cadenastodas    : cualquiercadena
+                       | cualquieridentificador'''
+
+
+# -------- Producciones para el manejo del group by, incluyendo Having ----------------------
+def p_gruopby(t):
+    'groupby          : GROUP BY listagroupby' 
+
+def p_groupby(t):
+    'groupby          : GROUP BY listagroupby HAVING condicioneshaving'
+
+def p_gruopby_2(t):
+    'groupby          : empty'
+
+def p_listagroupby(t):
+    'listagroupby     : listagroupby COMA valgroupby'
+
+def p_salidagroupby(t):
+    'listagroupby     : valgroupby'
+
+def p_valgroupby(t):
+    '''valgroupby     : cualquieridentificador
+                      | cualquiernumero'''
+
+def p_lista_condicionhaving(t):
+    '''condicioneshaving  : condicioneshaving OR  condicionhaving
+                          | condicioneshaving AND condicionhaving'''
+
+def p_listacondicionhaving_salida(t):
+    'condicioneshaving    :  condicionhaving'''
+
+def p_condicionhaving(t):
+    '''condicionhaving  : expresionhaving MENQUE expresionhaving
+                        | expresionhaving MAYQUE expresionhaving
+                        | expresionhaving MENIGUAL expresionhaving
+                        | expresionhaving MAYIGUAL expresionhaving
+                        | expresionhaving IGUAL expresionhaving 
+                        | expresionhaving DIFERENTE expresionhaving'''
+
+def p_expresionhaving(t):
+    '''expresionhaving     : cualquiercadena
+                           | expresionaritmetica
+                           | condicionhavingagregacion
+                           | funcion_matematica_ws'''
+
+def p_condicionhavingagregacion(t):
+    'condicionhavingagregacion  : agregacion PARIZQ cualquieridentificador PARDER'
+
+# ------- Producciones para el manejo del Order by, incluyendo ASC y DESC  ----------------------
+def p_orderby(t):
+    'orderby          : ORDER BY listaorderby'
+
+def p_orderby_1(t):
+    'orderby          : ORDER BY listaorderby instrlimit'
+
+def p_orderby_2(t):
+    'orderby          : empty'
+
+def p_listaorderby(t):
+    'listaorderby     : listaorderby COMA valororderby'
+
+def p_salidaorderby(t):
+    'listaorderby     : valororderby'
+
+def p_valororderby(t):
+    '''valororderby     : cualquieridentificador ascdesc anular
+                        | cualquiernumero ascdesc anular'''
+
+def p_ascdesc(t):
+    '''ascdesc        : DESC
+                      | ASC
+                      | empty'''
+
+def p_anular(t):
+    '''anular        : NULLS LAST
+                     | NULLS FIRST'''
+
+def p_anular_1(t):
+    'anular          : empty'
+
+def p_instrlimit(t):
+    '''instrlimit    : LIMIT ENTERO instroffset
+                     | LIMIT ALL instroffset'''
+
+def p_instroffset(t):
+    'instroffset     : OFFSET ENTERO'
+
+def p_instroffset_2(t):
+    'instroffset     : empty'
+
+
+## -------------------------------- EXPRESIONES ------------------------------------------    
+
+## expresiones logicas (condiciones)
+def p_lista_condicion(t): 
+    '''condiciones    : condiciones AND condicion
+                      | condiciones OR  condicion'''
+
+def p_lista_condicion_salida(t) :
+    'condiciones      : condicion'
+    
+## expresiones relacionales
+def p_condicion (t):
+    '''condicion      : expresion MENQUE expresion
+                      | expresion MAYQUE expresion
+                      | expresion MENIGUAL expresion
+                      | expresion MAYIGUAL expresion
+                      | expresion IGUAL expresion 
+                      | expresion DIFERENTE expresion'''
+    
 def p_expresion(t) : 
-'''expresion      : CADENADOBLE
-                  | CADENASIMPLE
-                  | DEFAULT
-                  | expresionaritmetica'''
+    '''expresion          : cualquiercadena
+                      | expresionaritmetica'''
+
+## expresiones aritmeticas
+def p_expresion_aritmetica (t):
+    '''expresionaritmetica  : expresionaritmetica MAS expresionaritmetica 
+                            | expresionaritmetica MENOS expresionaritmetica 
+                            | expresionaritmetica ASTERISCO expresionaritmetica 
+                            | expresionaritmetica DIVIDIDO expresionaritmetica 
+                            | expresionaritmetica MODULO expresionaritmetica 
+                            | expresionaritmetica EXPONENTE expresionaritmetica'''
+    
+def p_expresion_aritmetica_2(t) : 
+    'expresionaritmetica    : MENOS expresionaritmetica %prec UMENOS'
 
 def p_expresion_aritmetica_3(t) : 
-    '''expresionaritmetica  : ENTERO
-                            | DECIMAL
-                            | ID'''
+    '''expresionaritmetica  : cualquiernumero
+                            | cualquieridentificador'''
+
+def p_expresion_aritmetica_4(t) : 
+    'expresionaritmetica    : PARIZQ expresionaritmetica PARDER'
+
+def p_cualquiernumero(t) : 
+    '''cualquiernumero      : ENTERO
+                            | DECIMAL'''
+
+def p_culquiercadena (t):
+    '''cualquiercadena      : CADENASIMPLE
+                            | CADENADOBLE'''
+
+def p_culquieridentificador (t):
+    '''cualquieridentificador    : ID
+                                 | ID PUNTO ID'''
+
+######################################################
+#-----------------------------case--------------------
+def p_estadocase(t):
+    '''case_state   : case_state casestate2 END
+                    | casestate2 END
+                    | empty'''
+#################################################################################################################################################
+def p_estadorelacional(t):
+    '''estadorelacional : expresionaritmetica MENQUE expresionaritmetica
+                        | expresionaritmetica MAYQUE expresionaritmetica
+                        | expresionaritmetica IGUAL IGUAL expresionaritmetica
+                        | expresionaritmetica MENIGUAL expresionaritmetica
+                        | expresionaritmetica MAYIGUAL expresionaritmetica
+                        | expresionaritmetica DIFERENTE expresionaritmetica
+                        | estadorelacional AND estadorelacional
+                        | estadorelacional OR estadorelacional '''
     
+def p_estadorelacional2(t):
+    '''estadorelacional : expresionaritmetica
+                        | between_state
+                        | predicates_state
+                        | is_distinct_state '''
+    t[0] = t[1]
+
+def p_casestate2(t):
+    'casestate2   : WHEN estadorelacional THEN CADENASIMPLE'
+
+def p_casestate22(t):
+    'casestate2    : ELSE CSIMPLE ID CSIMPLE'
+
+def p_casestate22_(t):
+    'casestate2    : empty'
+
+######################################################################################################
+# --------------Between------------------------------------------------------------------------
+def p_between_state(t):
+    '''between_state    : valores BETWEEN valores AND valores
+                        | valores NOT BETWEEN valores AND valores'''
+
+# --------------PREDICATES NULLS---------------------------------------------------------------
+def p_predicates_state(t):
+    '''predicates_state : valores IS NULL
+                        | valores IS NOT NULL
+                        | valores ISNULL
+                        | valores NOTNULL'''
+    #t[0] = Nodo('COMPARISON PREDICATES','', [t[1]], t.lexer.lineno)
+#---------------IS DISTINCT ----------------------------------------------------------------
+def p_is_distinct_state(t):
+    'is_distinct_state : valores IS DISTINCT FROM valores'
+    #t[0] = Nodo('DISTINCT', str(t[1]), [t[5]], t.lexer.lineno)
+
+def p_is_distinct_state2(t):
+    'is_distinct_state : valores IS NOT DISTINCT FROM valores'
+    #t[0] = Nodo('NOT DISTINCT', str(t[1]), [t[6]], t.lexer.lineno)
+
+def p_is_distinct_state(t):
+    'is_distinct_state : empty'
+    
+
+def p_valores(t):
+    '''valores  : cualquiernumero
+                | cualquiercadena
+                | cualquieridentificador'''
+   # t[0] = t[1]
+
 ##Epsilon 
 def p_empty(t) :
     'empty            : '
@@ -406,3 +929,8 @@ def p_error(t):
     print(t)
     print("Error sintáctico en '%s'" % t.value)
 #------------------------------------------------------------------------------
+
+#Analizador sintactico
+import ply.yacc as yacc
+parser = yacc.yacc()
+

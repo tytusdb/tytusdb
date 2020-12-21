@@ -44,7 +44,7 @@ class TipoNull(Enum):
 
 class Columna():
     'Esta clase representa las columnas de las tablas'
-    def __init__(self, tipo: {}, default = '', references: str = '', constraints: [str] = [], is_null = TipoNull.NULL, is_primary = 0, is_unique = 0):
+    def __init__(self, tipo: {}, default = None, references: str = None, constraints: [str] = [], is_null = TipoNull.NULL, is_primary = 0, is_unique = 0):
         # tipo = {'tipo': TipoColumna, 'n': int, 'p': int, 'field': {'origen': TipoFields, 'destino': TipoFields}}
         self.tipo = tipo
         self.default = default
@@ -56,6 +56,25 @@ class Columna():
         self.is_unique = is_unique
         # constraints = ['nombre_constraint',...]
         self.constraints = constraints
+
+    def json(self):
+        return {
+            'tipo': {
+                'tipo': self.tipo['tipo'].name,
+                'n': self.tipo['n'] if 'n' in self.tipo else None,
+                'p': self.tipo['p'] if 'p' in self.tipo else None,
+                'field': {
+                    'origen': self.tipo['tipo']['field']['origen'].name if 'origen' in self.tipo else None,
+                    'destino': self.tipo['tipo']['field']['destino'].name
+                } if 'field' in self.tipo else None
+            },
+            'default': self.default,
+            'is_null': self.is_null.name,
+            'is_primary': self.is_primary,
+            'references': self.references,
+            'is_unique': self.is_unique,
+            'constraints': self.constraints
+        }
     
     def printCol(self):
         print('Tipo: ', self.tipo)
@@ -68,7 +87,7 @@ class Columna():
 
 class Constraint():
     'Esta clase representa los constraint de las columnas'
-    def __init__(self, name: str, tipo: TipoConstraint, condicion):
+    def __init__(self, tipo: TipoConstraint, condicion, name: str = ''):
         self.name = str
         self.tipo = tipo
         self.condicion = condicion
