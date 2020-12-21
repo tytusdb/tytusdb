@@ -2,7 +2,7 @@ import ply.yacc as yacc
 
 from astDML import UpdateTable
 from lexicosql import tokens
-from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, ExpresionPositiva, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
+from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, BETWEEN,ExpresionPositiva, ExpresionBetween, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano
 from astFunciones import FuncionNumerica , FuncionCadena
 from astDDL import ALTER_TABLE_ADD, ALTER_TABLE_DROP, AlterDatabase, AlterField, AlterTable, AlterTableAdd, AlterTableDrop, CONSTRAINT_FIELD, CheckField, CheckMultipleFields, ConstraintField, ConstraintMultipleFields, CreateDatabase, CreateField, CreateTable, CreateType, DefaultField, DropDatabase, DropTable, ForeignKeyField, ForeignKeyMultipleFields, ShowDatabase, TYPE_COLUMN
@@ -76,6 +76,11 @@ def p_instruccion6(p):
 
 def p_instruccion7(p):
     'instruccion : use PTCOMA '
+    p[0] = p[1]
+    bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
+
+def p_instruccion8(p):
+    'instruccion : select PTCOMA '
     p[0] = p[1]
     bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
     
@@ -361,6 +366,9 @@ def p_combine_querys7(p):
     'combine_querys : select'
     bnf.addProduccion('\<combine_querys> ::= \<select> ')
 #_____________________________________________________________ SELECT
+def p_select0(p): #_____________ en esta fase NO por el join 
+    'select : SELECT expresion'
+    p[0] = p[2]
 
 def p_select1(p): #_____________ en esta fase NO por el join 
     'select : SELECT select_list FROM lista_tablas filtro join'
@@ -1629,14 +1637,17 @@ def p_expresiones_is_complemento4(p):
     p[0] = ExpresionBinariaIs(p[1], p[6], OPERACION_BINARIA_IS.IS_NOT_DISTINCT_FROM, p.slice[2].lineno)
     bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "NOT ""DISTINCT" "FROM" \<expresion>')
     
+#def __init__(self, exp, linea, tipo):
 def p_expresiones_is_complemento_nulleable(p):
     '''
     expresion    : expresion IS NULL    
                  | expresion IS NOT NULL '''
     if len(p) == 4:
         bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "NULL"')
+        p[0] = ExpresionUnariaIs(p[1],p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NULL)
     else:
         bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "NOT "NULL"')
+        p[0] = ExpresionUnariaIs(p[1],p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NOT_NULL)
 
         
 def p_expresiones_is_complemento2(p):
@@ -1645,8 +1656,10 @@ def p_expresiones_is_complemento2(p):
                | expresion NOTNULL'''
     if p[2].upper() == 'ISNULL':
         bnf.addProduccion('\<expresion> ::= \<expresion> "ISNULL"')
+        p[0] = ExpresionUnariaIs(p[1],p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NULL)
     else:
         bnf.addProduccion('\<expresion> ::= \<expresion> "NOTNULL"')
+        p[0] = ExpresionUnariaIs(p[1],p.slice[2].lineno, OPERACION_UNARIA_IS.IS_NOT_NULL)
         
 def p_expresiones_is_complemento5(p):               
     ''' expresion   : expresion IS UNKNOWN
@@ -1660,6 +1673,7 @@ def p_expresiones_is_complemento5(p):
 def p_expresiones_is_complemento6(p):     
     ''' expresion   : expresion IS DISTINCT FROM expresion '''
     bnf.addProduccion('\<expresion> ::= \<expresion> "IS" "DISTINCT" "FROM" \<expresion> ') 
+    p[0] = ExpresionBinariaIs(p[1], p[5], OPERACION_BINARIA_IS.IS_DISTINCT_FROM, p.slice[2].lineno)
 
 
 
@@ -1668,16 +1682,20 @@ def p_expresion_ternaria(p):
                  | expresion BETWEEN SYMMETRIC exp_aux AND exp_aux '''
     if len(p) == 6:
         bnf.addProduccion('\<expresion> ::= \<expresion> "BETWEEN" \<exp_aux> "AND" \<exp_aux>')
+        p[0] = ExpresionBetween(p[1], p[3], p[5], BETWEEN.BETWEEN,p.slice[4].lineno)
     else:
         bnf.addProduccion('\<expresion> ::= \<expresion> "BETWEEN" "SYMMETRIC" \<exp_aux> "AND" \<exp_aux>')
+        p[0] = ExpresionBetween(p[1], p[4], p[6], BETWEEN.BETWEEN_SYMMETRIC,p.slice[5].lineno)
         
 def p_expresion_ternaria2(p):
     '''expresion : expresion NOTBETWEEN exp_aux AND exp_aux
                  | expresion NOTBETWEEN SYMMETRIC exp_aux AND exp_aux'''
     if len(p) == 6:
         bnf.addProduccion('\<expresion> ::= \<expresion> "NOTBETWEEN" \<exp_aux> "AND" \<exp_aux>')
+        p[0] = ExpresionBetween(p[1], p[3], p[5], BETWEEN.NOT_BETWEEN,p.slice[4].lineno)
     else:
         bnf.addProduccion('\<expresion> ::= \<expresion> "NOTBETWEEN" "SYMMETRIC" \<exp_aux> "AND" \<exp_aux>')
+        p[0] = ExpresionBetween(p[1], p[4], p[6], BETWEEN.NOT_BETWEEN_SYMMETRIC,p.slice[5].lineno)
         
         
 
@@ -2084,31 +2102,7 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada(''' 
-CREATE DATABASE IF NOT EXISTS test
-    OWNER = 'root'
-    MODE = 1;
-
-USE test;
-
-CREATE TABLE tbusuario (
-    idusuario integer NOT NULL primary key,
-	nombre varchar(50),
-	apellido varchar(50),
-	usuario varchar(15)  UNIQUE NOT NULL,
-	password varchar(15) NOT NULL,
-	fechacreacion date 
-);
-
-create table tblibrosalario
-( idempleado integer not null,
-  salariobase  money not null,
-  comision     decimal,
-  primary key ( idempleado )
- );
-
-Create table tblibrosalariohis
-( idhistorico integer not null primary key
-) INHERITS (tblibrosalario);
+select 5*5+850 not between symmetric 8 and 90;
 
 ''')
 
