@@ -80,6 +80,25 @@ reservadas = {
     'cbrt'  	: 'CBRT',
     'ceil'  	: 'CEIL',
     'ceiling'  	: 'CEILING',
+    'use'       : 'USE',
+    'constraint' :'CONSTRAINT',
+    'key'       : 'KEY',
+    'foreign'   : 'FOREIGN',
+    'primary'   : 'PRIMARY',
+    'references': 'REFERENCES',
+    'true'      : 'TRUE',
+    'false'     : 'FALSE',
+    'boolean':'BOOLEAN',
+    'numeric' : 'NUMERIC',
+    'real' :'REAL',
+    'integer' : 'INTEGER',
+    'decimal' :'DECIMAL',
+    'timestamp' : 'TIMESTAMP',
+    'date' : 'DATE',
+    'time' :'TIME',
+    'double' : 'DOUBLE',
+    'precision' : 'PRECISION',
+	'constraint' :'CONSTRAINT'	
 }
 
 tokens  = [
@@ -116,6 +135,12 @@ t_MAYQUE    = r'>'
 t_MAYORIGU  = r'>='
 t_MENORIGU  = r'<='
 t_MULT      = r'\*'
+t_OPSUM     = r'\+' 					        
+t_OPDIV     = r'/' 					        
+t_OPMENOS   = r'\-' 
+t_ORCOMP    = r'\|\|' 							
+t_RAIZQ     = r'\|'
+t_DOSPUNTOS = r'\:'
 
 #Modificado 11  de diciembre por Henry  esta palabra me creaba conflictos se agrego al principio, se definio nuevo token
 def t_EXISTS(t):
@@ -136,11 +161,16 @@ def t_ORH(t):
     if t.value in reservadas:
         t.type = reservadas[ t.value ]
     return t
-def t_DECIMAL(t):
+def t_DIFERENTEH(t):
+    r"""<>"""
+    if t.value in reservadas:
+        t.type = reservadas[ t.value ]
+    return t
+def t_DECIMALV(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
-        t.type = reservadas.get(float(t.value),'DECIMAL') 
+        t.type = reservadas.get(float(t.value),'DECIMALV') 
     except ValueError:
         print("double value too large %d", t.value)
         t.value = 0
@@ -161,11 +191,25 @@ def t_ID(t):
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
 
+
+def t_FECHA(t):
+    r'[0-9][-0-9]*'
+    t.type = reservadas.get(t.value.lower(),'FECHA')    # CHECK FOR RESERVED WORDS
+    return t
+
+def t_HORA(t):
+    r'[0-9][:0-9]*'
+    t.type = reservadas.get(t.value.lower(),'HORA')    # CHECK FOR RESERVED WORDS
+    return t
+
+
 def t_CADENACOMSIMPLE(t):
-    r'\'.*?\''
+    r'\'[a-zA-Z_].*\''
     t.value = t.value[1:-1] # remuevo las comillas
     t.type = reservadas.get(t.value.lower(),'CADENACOMSIMPLE') 
     return t 
+
+
 def t_COMSIM(t):
     r'\''
     if t.value in reservadas:
