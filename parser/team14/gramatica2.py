@@ -181,7 +181,7 @@ def t_int(t):
     return t
 
 def t_PUNTOPUNTO(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*\.[a-zA-Z_][a-zA-Z_0-9]*'
+    r'[a-zA-Z_][a-zA-Z_0-9]*\.([a-zA-Z_][a-zA-Z_0-9]*|\*)'
     t.type = reservadas.get(t.value.lower(), 'idPunto')
     return t
 
@@ -341,8 +341,7 @@ def p_INSERT(t):
 
 def p_INSERT2(t):
     'INSERT : insert into id para LEXP parc values para LEXP parc'
-    t[0] = InsertWhitColum(t[3], t[5],t[9])
-
+    t[0] = InsertWhitColum(t[3],t[5],t[9])
 
 def p_DROPALL(t):
     '''DROP : drop all para parc '''
@@ -353,7 +352,7 @@ def p_DROP(t):
              | drop databases if exist id
              | drop databases id '''
     if len(t) == 4:
-        if (t[2] == 'table'):
+        if (t[2].lower() == 'table'):
             t[0] = DropTable(t[3])
 
         else:
@@ -486,7 +485,9 @@ def p_CREATETABLE1(t):
 
 def p_CREATETABLE2(t):
     '''CREATETABLE : create table id para LDEF parc HERENCIA ptcoma'''
-    t[0] = CreateTable(str(t[3]), t[5], t[7])
+    tabla:CreateTable = CreateTable(str(t[3]), t[5])
+    tabla.herencia = t[7]
+    t[0] = tabla
 
 
 def p_LDEF1(t):
@@ -517,14 +518,6 @@ def p_COLDEF3(t):
         t[0] = Columna(str(t[1]), t[2])
     else:
         t[0] = Columna(str(t[1]), t[2], t[3])
-
-def p_COLDEF23(t):
-    '''COLDEF : id id
-            | id id LOPCOLUMN'''
-    if len(t) == 3:
-        t[0] = Columna(str(t[1]), str(t[2]))
-    else:
-        t[0] = Columna(str(t[1]), str(t[2]), t[3])
 
 
 def p_LOPCOLUMN1(t):
@@ -622,6 +615,7 @@ def p_HERENCIA(t):
 
 def p_CREATETYPE(t):
     'CREATETYPE : create type id as enum para LEXP parc'
+    t[0] = CreateType(str(t[3]),t[7])
 
 
 def p_SELECT(t):
@@ -833,6 +827,10 @@ def p_TIPO22(t):
             | time without time zone
             | time with time zone'''
 
+def p_TIPOTYPE(t):
+    'TIPO : id'
+    t[0] = Tipo(str(t[1]),str(t[1]))
+
 
 def p_FIELDS(t):
     '''FIELDS : year
@@ -914,8 +912,8 @@ def p_EXP1(t):
         t[0] = Unaria(t[2], '+')
     elif t[1] == '-':
         t[0] = Unaria(t[2], '-')
-    elif t[2] == 'not':
-        t[0] = Unaria(t[2], '*')
+    elif t[1] == 'not':
+        t[0] = Unaria(t[2], 'not')
 
 
 def p_EXPV(t):
@@ -962,7 +960,7 @@ def p_EXP_FuncNativas2(t):
         tipo = Tipo('double', t[1], len(t[1]), -1)
 
 
-    t[0] = Terminal(tipo, t[1])
+    t[0] = Terminal(tipo, t[1].lower())
 
 
 def p_EXP(t):

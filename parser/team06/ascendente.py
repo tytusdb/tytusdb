@@ -15,6 +15,9 @@ import storageManager.jsonMode as store
 import reportes as h
 from expresiones import * 
 import numpy as geek
+import datetime
+import tkinter
+from tkinter import messagebox
 
 # ---------------------------------------------------------------------------------------------------------------------
 #                                QUERY SHOW DATABASE
@@ -26,6 +29,9 @@ import numpy as geek
 def procesar_showdb(query,ts):
     h.textosalida+="TYTUS>> "+str(store.showDatabases())+"\n"
     #llamo al metodo de EDD
+
+def procesar_useBD(query,ts):
+    h.bd_enuso = query.bd_id
 # ---------------------------------------------------------------------------------------------------------------- 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -65,13 +71,15 @@ def procesar_select_Tipo2(query,ts):
     print(query)
             
 def procesar_createdb(query,ts):
-    h.textosalida+="TYTUS>> Bases de datos existentes\n"
-    if store.createDatabase(query.variable) == 0: 
-        print("SE CREO LA BASE DE DATOS "+str(query.variable)+" ")
-    elif store.createDatabase(query.variable) == 2:
-        print("LA BASE DE DATOS "+str(query.variable)+" YA EXISTE")
-    elif store.createDatabase(query.variable) == 1:
-        print("ERROR :(")
+    if ts.verificacionCrearBD(query.variable)==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        store.createDatabase(query.variable)
+        ts.printBD()
+        return "se creo una nueva bd: "+str(query.variable)
+    elif ts.verificacionCrearBD(query.variable)==1:
+        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
+        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"
         
     #llamo al metodo de EDD
 # ---------------------------------------------------------------------------------------------------------------- 
@@ -89,17 +97,15 @@ def procesar_createwithparametersdb(query,ts):
             print("TIPO INCORRECTO DE QUERY:",query)
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_alterdb(query,ts):
-    if store.alterDatabase(query.id_original,query.id_alter) == 0: 
-        print("LA BASE DE DATOS "+str(query.id_original)+" HA SIDO ALTERADA")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.alterDatabase(query.id_original,query.id_alter)  == 3:
-        print("LA BASE DE DATOS "+str(query.id_alter)+" YA EXISTE")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.alterDatabase(query.id_original,query.id_alter)  == 2:
-        print("LA BASE DE DATOS "+str(query.id_original)+" NO EXISTE")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.alterDatabase(query.id_original,query.id_alter)  == 1:
-        print("ERROR :(")
+    if ts.verificacionAlterBD(query.id_original)==1:
+        ts.actualizarAlterBD(query.id_original,query.id_alter)
+        #store.alterDatabase(query.id_original, id_alter)
+        ts.printBD()
+        print("se creo actualizo la bd")
+        return "se creo actualizo la bd: "+str(query.id_original) + "por" +str(query.id_alter)
+    elif ts.verificacionAlterBD(query.id_original)==0:
+        print(str(query.id_original),"No se encontro ninguna base de datos con ese nombre")
+        return "No se encontro ninguna base de datos con ese nombre"
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_alterwithparametersdb(query,ts):
     print(query.id_original)
@@ -107,14 +113,21 @@ def procesar_alterwithparametersdb(query,ts):
     print(query.id_alter)
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_dropdb(query,ts):
-    if store.dropDatabase(query.id) == 0: 
-        print("LA BASE DE DATOS "+str(query.id)+" HA SIDO ELIMINADA")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.dropDatabase(query.id)  == 2:
-        print("LA BASE DE DATOS "+str(query.id)+" NO EXISTE")
-# ---------------------------------------------------------------------------------------------------------------- 
-    elif store.dropDatabase(query.id)  == 1:
-        print("ERROR :(")
+    if ts.destruirBD(query.id)==1:
+        #store.dropDatabase(query.id)
+        return "ELIMINADA BD:"+str(query.id)
+    elif ts.destruirBD(query.id)==0:
+        print(str(query.id),"No se encontro ninguna base de datos con ese nombre")
+        return "No se encontro ninguna base de datos con ese nombre"
+
+def procesar_dropifdb(query,ts):
+    if ts.destruirBD(query.id)==1:
+        #store.dropDatabase(query.id)
+        ts.printBD()
+        return "ELIMINADA BD:"+str(query.id)
+    elif ts.destruirBD(query.id)==0:
+        print(str(query.id),"No se encontro ninguna base de datos con ese nombre")
+        return "No se encontro ninguna base de datos con ese nombre"
 # ---------------------------------------------------------------------------------------------------------------- 
 #                                             QUERIES
 # ----------------------------------------------------------------------------------------------------------------
@@ -553,6 +566,7 @@ def procesar_insertBD(query,ts):
     for i in query.listRegistros:
         print("dato: ",i.id)
 
+
 def procesar_updateinBD(query,ts):
     print("entro a update")
     print("entro al print con: ",query.idTable,query.asignaciones,query.listcond)
@@ -752,7 +766,18 @@ def procesar_deleteinBD(query,ts):
 def procesar_createTale(query,ts):
     print("entra a Create table")
     print("entra al print con: ",query.idTable)
+    idtab = query.idTable
     h.textosalida+="TYTUS>>Creando tabla"
+    cantcol = 0
+
+    if ts.validarTabla(query.idTable,'BD1') == 0:
+        simbolo = TS.Simbolo(None,query.idTable,None,None,'BD1',None,None,None,None,None,None,None,None,None,None,None,None,None)
+        ts.agregarnuevTablaBD(simbolo)
+        print("--> Se creo nueva tabla con id: "+query.idTable)
+        #return "Se creo Tabla con id: "+str(query.idTable)
+    else:
+        print("--> Ya existe una tabla con el mismo nombre en BD")
+        return "Ya existe una Tabla con id: "+str(query.idTable)
 
     for i in query.listColumn:
         print("---------------------------")
@@ -760,77 +785,182 @@ def procesar_createTale(query,ts):
         if i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNASINRESTRICCION:
             print("Crea Columna: ",i.objAtributo.idColumna)
             print("Tipo de dato: ",i.objAtributo.TipoColumna.id)
-
+            idcol=i.objAtributo.idColumna
+            idtipo=i.objAtributo.TipoColumna.id
+            cantcol=cantcol+1
+           
+            if idtipo=="CHARACTER" or idtipo=="VARING" or idtipo=="VARCHAR" or idtipo=="CHAR":
+                idtamcad = i.objAtributo.TipoColumna.longitud 
+                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,'BD1',idtab,1,0,0,None,None,0,None,0,None,None,None,None)
+                    ts.agregarnuevaColumna(simbolo)
+                    print("Se creo nueva columna :",idcol," a tabla: ",idtab)
+                else:
+                    print("columna: ",idcol," ya existe en tabla: ",idtab)
+                   
+            else:
+                idtamcad = i.objAtributo.TipoColumna.longitud
+                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,'BD1',idtab,1,0,0,None,None,0,None,0,None,None,None,None)
+                    ts.agregarnuevaColumna(simbolo)
+                    print("Se creo nueva columna :",idcol," a tabla: ",idtab)
+                else:
+                    print("columna: ",idcol," ya existe en tabla: ",idtab)
+            ts.printcontsimbolos()
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.COLUMNACONRESTRICCION:
             print("Crea Columna: ",i.objAtributo.idColumna)
             print("Tipo de dato: ",i.objAtributo.TipoColumna.id)
+            idcol=i.objAtributo.idColumna
+            idtipo = i.objAtributo.TipoColumna.id
+            
+            #varibales temporales
+            pk = 0
+            df = None
+            obl = 1
+            idconsuniq = None
+            unq = 0
+            idconscheck = None
+            chk = 0
+            condchk = None
+
+            cantcol=cantcol+1
             for res in i.objAtributo.RestriccionesCol:
                 if res.typeR == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
                     print("Restriccion: PRIMARY KEY")
+                    pk = 1
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.DEFAULT:
                     print("REstriccion: DEFAULT ")
                     print("Dato Default: ",res.objrestriccion.valor)
+                    df = res.objrestriccion.valor
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NULL:
                     print("Restriccion: NULL")
+                    obl = 1
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.NOT_NULL:
                     print("Restriccion: NOT NULL")
+                    obl = 0
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_CONSTAINT:
                     print("Restriccion: CONSTRAINT UNIQUE")
                     print("Id contraint: ",res.objrestriccion.idUnique)
+                    unq = 1
+                    idconsuniq = res.objrestriccion.idUnique
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.UNIQUE_COLUMNA:
                     print("Restriccion: UNIQUE")
+                    unq = 1
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
                     print("Restriccion: CHECK")
-                    print("Valor de check: ",res.objrestriccion.condChek.exp1.id,res.objrestriccion.condChek.operador,res.objrestriccion.condChek.exp2.id)
+                    print("Valor de check: ",res.objrestriccion.condCheck.exp1.id,res.objrestriccion.condCheck.operador,res.objrestriccion.condCheck.exp2.id)
+                    chk = 1
 
                 elif res.typeR == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
                     print("Restriccion: CONSTRAINT CHECK")
                     print("Id contraint: ",res.objrestriccion.idConstraint)
                     print("Valor de check: ",res.objrestriccion.condCheck.exp1.id,res.objrestriccion.condCheck.operador,res.objrestriccion.condCheck.exp2.id)
+                    chk = 1
+                    idconscheck = res.objrestriccion.idConstraint
+                    condchk = res.objrestriccion.condCheck
+
                 else:
                     print("No se encontro ninguna restriccion")
         
+
+            if idtipo=="CHARACTER" or idtipo=="VARING" or idtipo=="VARCHAR" or idtipo=="CHAR":
+                idtamcad = i.objAtributo.TipoColumna.longitud 
+                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,idtamcad,'BD1',idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df)
+                    ts.agregarnuevaColumna(simbolo)
+                    print("Se creo nueva columna :",idcol," a tabla: ",idtab)
+                else:
+                    print("columna: ",idcol," ya existe en tabla: ",idtab)
+                   
+            else:
+                idtamcad = i.objAtributo.TipoColumna.longitud
+                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
+                    simbolo = TS.Simbolo(cantcol,idcol,idtipo,None,'BD1',idtab,obl,pk,0,None,None,unq,idconsuniq,chk,condchk,idconscheck,None,df)
+                    ts.agregarnuevaColumna(simbolo)
+                    print("Se creo nueva columna :",idcol," a tabla: ",idtab)
+                else:
+                    print("columna: ",idcol," ya existe en tabla: ",idtab)
+            ts.printcontsimbolos()
+
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.UNIQUE_ATRIBUTO:
             print("Declaracion de varias columnas UNIQUE")
             print("Lista de columnas: ")
+            
             for lc in i.objAtributo.listColumn:
                 print("id: ",lc.id)
+                if ts.verificarcolumnaBD(idcol,'BD1',idtab) == 0:
+                    print("La columna especificada no existe, no se creo restriccion unique")
+                    return
+                else:
+                    ts.actualizauniqueColumna(lc.id,'BD1',idtab)
+            ts.printcontsimbolos()
+
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_CONSTRAINT:
             print("Declaracion de constraint check")
             print("Id constraint: ", i.objAtributo.idConstraint)
             print("Condicion check: ",i.objAtributo.condCheck.exp1.id, i.objAtributo.condCheck.operador, i.objAtributo.condCheck.exp2.id)
+            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,'BD1',idtab) == 1:
+                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,'BD1',idtab,i.objAtributo.idConstraint,i.objAtributo.condCheck)
+            else:
+                print("La columna especificada no existe")
+            ts.printcontsimbolos()
+
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.CHECK_SIMPLE:
             print("Delaracion de check")
             print("Condicion check: ",i.objAtributo.condCheck.exp1.id, i.objAtributo.condCheck.operador, i.objAtributo.condCheck.exp2.id)
+            if ts.verificarcolumnaBD(i.objAtributo.condCheck.exp1.id,'BD1',idtab) == 1:
+                ts.actualizarcheckColumna(i.objAtributo.condCheck.exp1.id,'BD1',idtab,None,i.objAtributo.condCheck)
+            else:
+                print("La columna especificada no existe")
+            ts.printcontsimbolos()
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.PRIMARY_KEY:
             print("Declaracion de una o varias PRIMARY KEY")
             print("Lista de columnas: ")
             for lc in i.objAtributo.listColumn:
                 print("id: ",lc.id)
+                if ts.verificarcolumnaBD(lc.id,'BD1',idtab) == 1:
+                    ts.actualizapkcolumna(lc.id,'BD1',idtab)
+                    print("se actualizo llave primaria en: ",lc.id)
+                else:
+                    print("La columna especificada no existe, no se creo llave primaria")
+            ts.printcontsimbolos()
+
     # -------------------------------------------------------------------------------------------------------------- 
         elif i.TypeAtrib == OPERACION_RESTRICCION_COLUMNA.FOREIGN_KEY:
             print("Declaracion de FOREIGN KEY")
             print("Lista de ID FOREING KEY")
-            for lc in i.objAtributo.idForanea:
-                print("id: ",lc.id)
-            print("Columna reference: ",i.objAtributo.idTable)
-            print("Lista de ID REFERENCES: ")
-            for lc in i.objAtributo.idLlaveF:
-                print("id: ",lc.id)
+            contidfor = len(i.objAtributo.idForanea)
+            contidref = len(i.objAtributo.idLlaveF)
+            conttemp = 0
+            while conttemp < contidfor:
+                if ts.verificarcolumnaBD(i.objAtributo.idLlaveF[conttemp].id,'BD1',i.objAtributo.idTable) == 1:
+                    if ts.verificarcolumnaBD(i.objAtributo.idForanea[conttemp].id,'BD1',idtab)==1:
+                        ts.actualizafkcolumna(i.objAtributo.idForanea[conttemp].id,'BD1',idtab,i.objAtributo.idLlaveF[conttemp],i.objAtributo.idTable)
+                    else:
+                        print("la columna especificada no existe para crear llave foranea")
+                else:
+                    print("la columna referenciada en la tabla no existe")
+                conttemp = conttemp+1
+            ts.printcontsimbolos()
     # -------------------------------------------------------------------------------------------------------------- 
         else:
             print("No se encontraron columnas a crear")
+
+    #print("Cantidad de columnas ------> ",cantcol)
+    #Llamada a metodo crear Tabla
+    #store.createTable("bd1",query.idTable,cantcol)
+
 
 
 def procesar_inheritsBD(query, ts):
@@ -899,7 +1029,7 @@ def procesar_queries(queries, ts) :
         elif isinstance(query, DropDB) :
             procesar_dropdb(query, ts)
         elif isinstance(query, DropDBIF) :
-            procesar_dropdb(query, ts)
+            procesar_dropifdb(query, ts)
         elif isinstance(query, ExpresionAritmetica) : 
             resolver_expresion_aritmetica(query, ts)
         elif isinstance(query, ExpresionNegativo) : 
@@ -927,6 +1057,7 @@ def procesar_queries(queries, ts) :
         #elif isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query,DropTable): drop_table(query,ts)
         elif isinstance(query,AlterTable): alter_table(query,ts)
+        elif isinstance(query,UseDatabases): procesar_useBD(query,ts)
         else : 
             print('Error: instrucción no válida')
             h.errores+=  "<tr><td>"+str(query)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>La consulta no es valida.</td></tr>\n"  
@@ -978,14 +1109,18 @@ def generarReporteSimbolos(ruta):
     h.reporteSimbolos(ruta,val)
 
 def generarASTReport():
-    print(gt.gramaticaAscendenteTree.tree.root)            
-    astMethod.astFile("ast", gt.gramaticaAscendenteTree.tree.root)
+    if gt.gramaticaAscendenteTree.tree.root == None:
+        box_tilte ="AST Error"
+        box_msg = "No hay entrada que analizar o hay un error en la misma"
+        messagebox.showerror(box_tilte,box_msg)
+    else:
+        astMethod.astFile("ast", gt.gramaticaAscendenteTree.tree.root)
 # ---------------------------------------------------------------------------------------------------------------------
 #                                 REPORTE GRAMATICAL
 # ---------------------------------------------------------------------------------------------------------------------
 
 
-def validaTipoDato(tipo, valor):
+def validaTipoDato(tipo, valor, tam):
     if tipo == 'INTEGER':
         if -2147483648 < valor and valor > 2147483648:
             return True
@@ -1005,4 +1140,111 @@ def validaTipoDato(tipo, valor):
             print("El valor ingresado supera la longitud permitida para BIGING")
             return False
     elif tipo == "DECIMAL":
-        print("a")
+        temp = str(valor)
+        num = temp.split(".")
+        entero = len(num[0])
+        decimal = len(num[1])
+        if(131072 < entero and 16383 < decimal):
+            return True
+        else:
+            print("El valor ingresado no cumple como Decimal")
+            return False
+    elif tipo == "NUMERIC":
+        temp = str(valor)
+        num = temp.split(".")
+        entero = len(num[0])
+        decimal = len(num[1])
+        if(131072 < entero and 16383 < decimal):
+            return True
+        else:
+            print("El valor ingresado no cumple como NUMERIC")
+            return False
+    elif tipo == "REAL":
+        temp = str(valor)
+        num = temp.split(".")
+        decimal = len(num[1])
+        if(6 <= decimal):
+            return True
+        else:
+            print("El valor ingresado tiene mas de 6 decimales")
+            return False
+    elif tipo == "DOUBLE":
+        temp = str(valor)
+        num = temp.split(".")
+        decimal = len(num[1])
+        if(15 <= decimal):
+            return True
+        else:
+            print("El valor ingresado tiene mas de 15 decimales")
+            return False
+    elif tipo == "MONEY":
+        if -92233720368547758.08 < valor and valor > +92233720368547758.07:
+            return True
+        else:
+            print("El valor ingresado supera la longitud permitida para BIGING")
+            return False
+    elif tipo == "VARING":
+        if type(valor) is str :
+            tamcad = len(valor)
+            if tamcad > 0 and tamcad <= tam:
+                return True
+            else:
+                print("La cadena ingresada supera el limite del CHARETECTER VARING definido")
+                return False
+        else:
+            print("El valor ingresado no es una cadena")
+            return False
+    elif tipo == "VARCHAR":
+        if type(valor) is str :
+            tamcad = len(valor)
+            if tamcad > 0 and tamcad <= tam:
+                return True
+            else:
+                print("La cadena ingresada supera el limite del VARCHAR definido")
+                return False
+        else:
+            print("El valor ingresado no es una cadena")
+    elif tipo == "CHARACTER":
+        if type(valor) is str :
+            tamcad = len(valor)
+            if tamcad > 0 and tamcad <= tam:
+                return True
+            else:
+                print("La cadena ingresada supera el limite del CHARETECTER definido")
+                return False
+        else:
+            print("El valor ingresado no es una cadena")
+    elif tipo == "CHAR":
+        if type(valor) is str :
+            tamcad = len(valor)
+            if tamcad > 0 and tamcad <= tam:
+                return True
+            else:
+                print("La cadena ingresada supera el limite del CHAR definido")
+                return False
+        else:
+            print("El valor ingresado no es una cadena")
+    elif tipo == "TIMESTAMP":
+        date_format = '%Y-%m-%d %H:%M:%S'
+        try:
+            if datetime.datetime.strptime(valor,date_format):
+                return True
+        except:
+            print("La fecha y hora ingresada es invalida")
+            return False
+    elif tipo == "TIME":
+        date_format = '%H:%M:%S'
+        try:
+            if datetime.datetime.strptime(valor,date_format):
+                return True
+        except:
+            print("La hora ingresada es invalida")
+            return False
+    elif tipo == "DATE":
+        date_format = '%Y-%m-%d'
+        try:
+            if datetime.datetime.strptime(valor,date_format):
+                return True
+        except:
+            print("La fecha ingresada es invalida")
+            return False

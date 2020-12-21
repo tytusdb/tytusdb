@@ -7,7 +7,7 @@ class tipo_simbolo(Enum):
     INTEGER = 3,
     TEXT = 4,
     SMALLINT = 5,
-    BEGINT = 6,
+    BIGINT = 6,
     DECIMAL = 7,
     REAL = 8,
     D_PRECISION = 9,
@@ -19,14 +19,18 @@ class tipo_simbolo(Enum):
     TIMESTAMP = 15,
     DATA = 16,
     TIME = 17,
-    INTERVAL = 18
+    INTERVAL = 18,
+    NUMERIC = 19,
+    DB_ACTUAL = 20
 
 class t_constraint(Enum):
     NOT_NULL    = 1,
     NULL        = 2,
     UNIQUE      = 3,
     DEFOULT     = 4,
-    CHECK       = 5
+    CHECK       = 5,
+    PRIMARY     = 6,
+    FOREIGN     = 7
 
 class Simbolo(): 
 
@@ -54,6 +58,22 @@ class tabla_simbolos():
         self.lis_simbolos = list_simbolos
     
     #agregar simbolos: bases, tablas, columnas y constraints
+
+    def set_dbActual(self,id):
+        db = self.get_simbol(id)
+        if( isinstance(db,E.Errores)):
+            return db
+        
+        #buscar si hay alguna activa 
+        for simbolo in self.lis_simbolos:
+            if simbolo.tipo == tipo_simbolo.DB_ACTUAL:
+                simbolo.id = id #si encuentra una activa la reemplaza
+                return simbolo
+        
+        #si no crea el simbolo tipo db_actual y lo retorna
+        simb = Simbolo(id,tipo_simbolo.DB_ACTUAL,None,None,None,None,None,None)
+        self.lis_simbolos.append(simb)
+        
 
     def agregar_simbolo(self, new_simbolo):  #agrega tablas y bases de datoos
         self.lis_simbolos.append(new_simbolo)
@@ -152,6 +172,18 @@ class tabla_simbolos():
                 databases.append(simbolo)
         return databases
     
+    def get_dbActual(self):
+        encontrada = False
+        for simbol in self.lis_simbolos:
+            if simbol.tipo == tipo_simbolo.DB_ACTUAL:
+                encontrada = True
+                return simbol
+
+        if encontrada == false:
+            error = E.Errores('Error','no existe ninguna base de datos activa')
+        
+        return error
+
     #funciones para borrar simbolos
     def drop_db(self,db):
         #verificar que exista la db
@@ -176,12 +208,14 @@ class tabla_simbolos():
 
 class const():
     #esta clase servira para almacenar los constraints de las columnas de las tablas
-    def __init__(self,id,valor,condicion,tipo):
+
+    def __init__(self,id,valor,condicion,tipo,columna):
         self.id = id
         self.tipo = tipo #el tipo sera un valor en el enum
         self.valor = valor
         self.condicion = condicion # <,>,>=,<=,=,<>, 
-    
+        self.columna = columna
+
     def get_condicion(self):
         return self.condicion
 
