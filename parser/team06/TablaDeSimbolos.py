@@ -170,6 +170,12 @@ class TablaDeSimbolos() :
     #-----------------------------------------------------------------------------------------------------------------------
     #Inicia Insert en Tabla
 
+    def obtenerColumna(self,nombre,BD,id):
+        for simb in self.simbolos:
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == BD and self.simbolos[simb].id == id:
+                return self.simbolos[simb]
+        return 0
+
 
     def printcontsimbolos(self):
         tm = 0
