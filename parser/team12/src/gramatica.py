@@ -1,10 +1,20 @@
 from Start.Start import * 
+from EXPRESION.OPERADOR.Node_Operator import *
 from EXPRESION.EXPRESION.Expresion import *
 from EXPRESION.EXPRESIONES_TERMINALES.NUMERIC.NODE_NUMERIC.Node_Numeric import *
-from EXPRESION.OPERADOR.Node_Operator import *
 from EXPRESION.EXPRESIONES_TERMINALES.BOOLEAN.NODO_BOOLEAN.Node_Boolean import *
 from EXPRESION.EXPRESIONES_TERMINALES.CHAR.NODE_CHAR.Node_Char import *
 from EXPRESION.EXPRESIONES_TERMINALES.IDENTIFICADOR.NODE_IDENTIFICADOR.Node_Identificador import *
+from EXPRESION.EXPRESIONES_TERMINALES.SELECT.NODE_SELECT.Nodo_Select import *
+from EXPRESION.EXPRESIONES_TERMINALES.SELECT.NODE_SELECT.Node_Select_Distinct import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Extract import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Date_Part import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Now import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Current_Time import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Current_Date import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Timestamp import *
+from EXPRESION.EXPRESIONES_TERMINALES.ACCESO.NODE_ACCESO.Node_Access import *
+from EXPRESION.EXPRESIONES_TERMINALES.ALIAS.NODE_ALIAS.Node_Alias import *
 from DDL.DROP.Drop import *
 from DDL.SHOW.Show import *
 from ERROR.Error import *
@@ -32,7 +42,8 @@ from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Power import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Radians import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Round import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Sign import *
-
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Sqrt import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Width_Bucket import *
 
 #Definicion de listado de errores
 errores = []
@@ -384,445 +395,100 @@ def p_instruccion(t):
                     | sent_alter
                     | sentencia_show
                     | sentencia_drop
-                    | sentencia_select_fecha
                     | sentencia_select
                     | Exp'''
     t[0] = t[1]
 
 #------------------------------ Produccion Select ------------------------------------------
-#---------------- S E L E C T   F E C H A S ----------------------
-def p_instruccion_select_data_time(t):
-    'sentencia_select_fecha : SELECT EXTRACT PARENTESISIZQ time FROM TIMESTAMP CADENA PARENTESISDER'
-    t[0] = Start('SENTENCIA_SELECT_EXTRACT',t.lineno(1),t.lexpos(1)+1,None)
-    nodoCad = Char_Expresion('Cadena',t.lineno(7), t.lexpos(7)+1,t[7])
-    t[0].hijos.append(t[4])
-    t[0].hijos.append(nodoCad)
+def p_sentencia_select(t):
+    'sentencia_select :  SELECT lista_exp'
+    t[0] = Select_Expresion("SENTENCIA_SELECT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
 
-def p_instruccion_select_time(t):
-    '''time : YEAR
-            | MONTH
-            | DAY
-            | HOUR 
-            | MINUTE
-            | SECOND'''
-    t[0] = Start(t[1],t.lineno(1),t.lexpos(1)+1,None)
-
-def p_instruccion_select_data_time_2(t):
-    'sentencia_select_fecha : SELECT DATE_PART PARENTESISIZQ CADENA COMA INTERVAL CADENA PARENTESISDER'
-    t[0] = Start('SENTENCIA_SELECT_EXTRACT',t.lineno(1),t.lexpos(1)+1,None)
-    time = Char_Expresion("Tiempo",t.lineno(4),t.lexpos(4)+1,t[4])
-    interval = Char_Expresion("Interval",t.lineno(7),t.lexpos(7),t[7])
-    t[0].hijos.append(time)
-    t[0].hijos.append(interval)
-
-def p_instruccion_select_data_time_3(t):
-    'sentencia_select_fecha : SELECT NOW PARENTESISIZQ PARENTESISDER'
-    t[0] = Start("SENTENCIA_SELECT_NOW",t.lineno(1),t.lexpos(1)+1,None)
-
-def p_instruccion_select_data_time_4(t):
-    'sentencia_select_fecha : SELECT CURRENT_DATE'
-    t[0] = Start("SENTENCIA_SELECT_CURRENT_DATE",t.lineno(1),t.lexpos(1)+1,None)
-
-def p_instruccion_select_data_time_5(t):
-    'sentencia_select_fecha :  SELECT CURRENT_TIME'
-    t[0] = Start("SENTENCIA_SELECT_CURRENT_TIME",t.lineno(1),t.lexpos(1)+1,None)
-
-def p_instruccion_select_data_time_6(t):
-    'sentencia_select_fecha : SELECT TIMESTAMP CADENA'
-    t[0] = Start("SENTENCIA_SELECT_TIMESTAMP",t.lineno(1),t.lexpos(1)+1,None)
-    now = Start("now",t.lineno(3),t.lexpos(3),None)
-    t[0].hijos.append(now)
-
-#---------------- S E N T E N C I A   S E L E C T ----------------
-def p_instruccion_select_1(t):
-    '''sentencia_select : SELECT campos FROM tables_expresion '''
-    t[0] = Start("SENTENCIA_SELECT",t.lineno(1),t.lexpos(1)+1,None)
+def p_sentencia_select_2(t):
+    'sentencia_select : SELECT campos FROM tables_expresion'
+    t[0] = Select_Expresion("SENTENCIA_SELECT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[2])
     t[0].hijos.append(t[4])
 
-def p_instruccion_select_2(t):
-    '''sentencia_select : SELECT DISTINCT campos FROM tables_expresion '''
-    t[0] = Start("SENTENCIA_SELECT_DISTINCT",t.lineno(1),t.lexpos(1)+1,None)
+def p_sentencia_select_3(t):
+    'sentencia_select : SELECT campos FROM tables_expresion sentencia_where'
+    t[0] = Select_Expresion("SENTENCIA_SELECT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[4])
+    t[0].hijos.append(t[5])
+
+def p_sentencia_select_4(t):
+    'sentencia_select :  SELECT DISTINCT lista_exp'
+    t[0] = Select_Expresion("SENTENCIA_SELECT_DISTINCT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_sentencia_select_5(t):
+    'sentencia_select : SELECT DISTINCT campos FROM tables_expresion'
+    t[0] = Select_Expresion("SENTENCIA_SELECT_DISTINCT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
-def p_instruccion_select_campos(t):
+def p_sentencia_select_6(t):
+    'sentencia_select : SELECT DISTINCT campos FROM tables_expresion sentencia_where'
+    t[0] = Select_Expresion("SENTENCIA_SELECT_DISTINCT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+    t[0].hijos.append(t[6])
+#-------------------------------------------------------------------------------------------
+#---------------------------------- Produccion Where ---------------------------------------
+def p_sentencia_where(t):
+    'sentencia_where : WHERE Exp'
+    t[0] = Start("SENTENCIA_WHERE",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
+#-------------------------------------------------------------------------------------------
+#------------------------------------ Campos -----------------------------------------------
+def p_campos(t):
+    '''campos : lista_exp'''
+    t[0] = t[1]
+
+def p_campos_2(t):
     'campos : ASTERISCO'
-    t[0] = Start("COLUMNS",-1,-1,None)
-    col = Start("*",-1,-1,None)
-    t[0].hijos.append(col)
-
-def p_instruccion_select_campos_1(t):
-    'campos : lista_id'
-    t[0] = t[1]
-
-def p_select_lista_id(t):
-    '''lista_id : lista_id COMA elemento'''
-    t[0] = t[1]
-    t[0].hijos.append(t[3])
-
-def p_select_lista_id_1(t):
-    'lista_id : elemento'
-    t[0] = Start("COLUMNS",-1,-1,None)
-    t[0].hijos.append(t[1])
-
-def p_select_lista_elemento(t):
-    'elemento : IDENTIFICADOR'
-    t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-
-def p_select_lista_elemento_1(t):
-    'elemento : IDENTIFICADOR PUNTO elemento2'
-    t[0] = Start("ACCESO",-1,-1,None)
-    id1 = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-    t[0].hijos.append(id1)
-    t[0].hijos.append(t[3])
-
-def p_select_lista_elemento_2(t):
-    'elemento : ALIAS'
-    t[0] = t[1]
-
-def p_select_lista_elemento_2_funciones(t):
-    'elemento : FUNCIONES'
-    t[0] = t[1]
-
-def p_select_lista_elemento_2_alias(t):
-    'ALIAS : elemento4 AS elemento3'
-    t[0] = Start("ALIAS",t.lineno(2),t.lexpos(2)+1,None)
-    t[0].hijos.append(t[1])
-    t[0].hijos.append(t[3])
-
-def p_select_funciones(t):
-    'FUNCIONES : ABS PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Abs("FUNCION_ABS",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_2(t):
-    'FUNCIONES : CBRT PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Cbrt("FUNCION_CBRT",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_3(t):
-    'FUNCIONES : CEIL PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Ceil("FUNCION_CEIL",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_4(t):
-    'FUNCIONES : CEILING PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Ceiling("FUNCION_CEILING",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_5(t):
-    'FUNCIONES : DEGREES PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Degrees("FUNCION_DEGREES",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_6(t):
-    'FUNCIONES : DIV PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Div("SENTENCIA_DIV",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funciones_7(t):
-    'FUNCIONES : EXP PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Exp("SENTENCIA_EXP",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_8(t):
-    'FUNCIONES : FACTORIAL PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Factorial("SENTENCIA_FACTORIAL",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_9(t):
-    'FUNCIONES : FLOOR PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Floor("SENTENCIA_FLOOR",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_10(t):
-    'FUNCIONES : GCD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Gsd("SENTENCIA_GSD",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funciones_11(t):
-    'FUNCIONES : LN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Ln("SENTENCIA_LN",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funcion_12(t):
-    'FUNCIONES : LOG PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Log("SENTENCIA_LOG",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funcion_13(t):
-    'FUNCIONES : MOD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Mod("SENTENCIA_MOD",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funcion_14(t):
-    'FUNCIONES : PI PARENTESISIZQ  PARENTESISDER'
-    t[0] = Function_Pi("SENTENCIA_PI",t.lineno(1),t.lexpos(1)+1,None)
-
-def p_select_funcion_15(t):
-    'FUNCIONES : POWER PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Power("SENTENCIA_POWER",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funciones_16(t):
-    'FUNCIONES : RADIANS PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Radians("SENTENCIA_RADIANS",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_17(t):
-    'FUNCIONES : ROUND PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Round("SENTENCIA_ROUND",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funciones_18(t):
-    'FUNCIONES : SIGN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Sign("SENTENCIA_SIGN",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    
-def p_select_funciones_19(t):
-    'FUNCIONES : SQRT PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SQRT",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_20(t):
-    'FUNCIONES : WIDTH_BUCKET PARENTESISIZQ lista_exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_BUCKET",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_21(t):
-    'FUNCIONES : TRUNC PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_TRUNC",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_22(t):
-    'FUNCIONES : RANDOM PARENTESISIZQ PARENTESISDER'
-    t[0] = Start("SENTENCIA_RANDOM",t.lineno(1),t.lexpos(1)+1,None)
-
-def p_select_funciones_23(t):
-    'FUNCIONES : ACOS PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ACOS",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_24(t):
-    'FUNCIONES : ACOSD PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ACOSD",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_25(t):
-    'FUNCIONES : ASIN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ASIN",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_26(t):
-    'FUNCIONES : ASIND PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ASIND",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_27(t):
-    'FUNCIONES : ATAN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ATAN",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_28(t):
-    'FUNCIONES : ATAND PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ATAND",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_29(t):
-    'FUNCIONES : ATAN2 PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ATAN2",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funciones_30(t):
-    'FUNCIONES : ATAN2D PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ATAN2D",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funciones_31(t):
-    'FUNCIONES : COS PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_COS",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_32(t):
-    'FUNCIONES : COSD PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_COSD",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_33(t):
-    'FUNCIONES : COT PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_COT",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_34(t):
-    'FUNCIONES : COTD PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_COTD",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])    
-
-def p_select_funciones_35(t):
-    'FUNCIONES : SIN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SIN",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_36(t):
-    'FUNCIONES : SIND PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SIND",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_37(t):
-    'FUNCIONES : TAN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_TAN",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_38(t):
-    'FUNCIONES : TAND PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_TAND",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_39(t):
-    'FUNCIONES : SINH PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SINH",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_40(t):
-    'FUNCIONES : COSH PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_COSH",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_41(t):
-    'FUNCIONES : TANH PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_TANH",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_42(t):
-    'FUNCIONES : ASINH PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ASINH",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_43(t):
-    'FUNCIONES : ACOSH PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ACOSH",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_44(t):
-    'FUNCIONES : ATANH PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ATANH",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_45(t):
-    'FUNCIONES : LENGTH PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_LENTGH",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_46(t):
-    'FUNCIONES : SUBSTRING PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SUBSTRING",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-    t[0].hijos.append(t[7])
-
-def p_select_funciones_47(t):
-    'FUNCIONES : TRIM PARENTESISIZQ Exp FROM Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_TRIM",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funciones_48(t):
-    'FUNCIONES : MD5 PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_MD5",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_49(t):
-    'FUNCIONES : SHA256 PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SHA256",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-
-def p_select_funciones_50(t):
-    'FUNCIONES : SUBSTR PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SUBSTR",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-    t[0].hijos.append(t[7])
-
-def p_select_funciones_51(t):
-    'FUNCIONES : GET_BYTE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_GET_BYTE",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[7])
-
-def p_select_funciones_52(t):
-    'FUNCIONES : SET_BYTE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SET_BYTE",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[7])
-    t[0].hijos.append(t[9])
-
-def p_select_funciones_53(t):
-    'FUNCIONES : CONVERT PARENTESISIZQ Exp AS tipo_declaracion PARENTESISDER'
-    t[0] = Start("SENTENCIA_CONVERT",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_select_funciones_54(t):
-    'FUNCIONES : ENCODE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_ENCODE",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[7])
-
-def p_select_funciones_55(t):
-    'FUNCIONES : DECODE PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_DECODE",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
+    t[0] = Start("*",t.lineno(1),t.lexpos(1)+1,None)
+#-------------------------------------------------------------------------------------------
+#------------------------------- Lista Expresiones -----------------------------------------
 def p_lista_exp(t):
     'lista_exp : lista_exp COMA Exp'    
     t[0] = t[1]
     t[0].hijos.append(t[3])
 
 def p_lista_exp_2(t):
+    'lista_exp : lista_exp COMA Alias'
+    t[0] = t[1]
+    t[0].hijos.append(t[3])
+
+def p_lista_exp_3(t):
     'lista_exp : Exp'
     t[0] = Start("LISTA_EXP",-1,-1,None)
     t[0].hijos.append(t[1])
 
-def p_select_lista_elemento_4(t):
-    'elemento4 : IDENTIFICADOR PUNTO elemento2'
-    t[0] = Start("ACCESO",-1,-1,None)
-    id1 = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-    t[0].hijos.append(id1)
+def p_lista_exp_4(t):
+    'lista_exp : Alias'
+    t[0] = Start("LISTA_EXP",-1,-1,None)
+    t[0].hijos.append(t[1])
+#-------------------------------------------------------------------------------------------
+#---------------------------------------- Alias --------------------------------------------
+def p_option_exp_alias(t):
+    'Alias : Exp AS part2'
+    t[0] = Alias_Expresion("ALIAS",t.lineno(2),t.lineno(2)+1,None)
+    t[0].hijos.append(t[1])
     t[0].hijos.append(t[3])
-
-def p_select_lista_elemento_5(t):
-    'elemento4 : IDENTIFICADOR'
+#-------------------------------------------------------------------------------------------
+#---------------------------------------- Part2 --------------------------------------------
+def p_option_alias_part2(t):
+    'part2 : IDENTIFICADOR'
     t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
 
-def p_select_lista_elemento_6(t):
-    'elemento4 : FUNCIONES'
-    t[0] = t[1]
-
-def p_select_lista_elemento_2_alias_2(t):
-    'elemento3 : IDENTIFICADOR'
-    t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-
-def p_select_lista_elemento_2_alias_3(t):
-    'elemento3 : CADENA'
-    t[0] = Char_Expresion("Cadena",t.lineno(1),t.lexpos(1),t[1])
-
-def p_select_lista_elemento2(t):
-    'elemento2 : IDENTIFICADOR'
-    t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-
-def p_select_lista_elemento2_2(t):
-    'elemento2 : ASTERISCO'
-    t[0] = Start("*",t.lineno(1),t.lexpos(1),None)
-
+def p_option_alias_part2_2(t):
+    'part2 : CADENA'
+    t[0] = Char_Expresion("Cadena",t.lineno(1),t.lexpos(1)+1,t[1])
+#-------------------------------------------------------------------------------------------
+#---------------------------------------- Tabla select -------------------------------------
 def p_select_tables(t):
     'tables_expresion : tables_expresion COMA elements'
     t[0] = t[1]
@@ -845,6 +511,386 @@ def p_select_tables_elements_2(t):
     t[0].hijos.append(tabla)
     t[0].hijos.append(id)
 
+def p_select_tables_elements_3(t):
+    'elements : PARENTESISIZQ sentencia_select PARENTESISDER'
+    t[0] = t[2]
+#-------------------------------------------------------------------------------------------
+#------------------------------ Funciones Fechas -------------------------------------------
+def p_funciones_fechas(t):
+    'funcion_fechas : EXTRACT PARENTESISIZQ time FROM TIMESTAMP CADENA PARENTESISDER'
+    t[0] = Extract_Expresion("FUNCION_EXTRACT",t.lineno(1),t.lexpos(1)+1,None)
+    nodoCad = Char_Expresion('Cadena',t.lineno(6), t.lexpos(6)+1,t[6])
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(nodoCad)    
+
+def p_funciones_fechas_1(t):
+    'funcion_fechas : DATE_PART PARENTESISIZQ CADENA COMA INTERVAL CADENA PARENTESISDER'
+    t[0] = Date_Expresion("FUNCION_DATE",t.lineno(1),t.lexpos(1)+1,None)
+    cad1 = Char_Expresion("Cadena",t.lineno(3),t.lexpos(3)+1,t[3])
+    cad2 = Char_Expresion("Cadena",t.lineno(6),t.lexpos(6)+1,t[6])
+    t[0].hijos.append(cad1)
+    t[0].hijos.append(cad2)
+
+def p_funciones_fechas_2(t):
+    'funcion_fechas : NOW PARENTESISIZQ PARENTESISDER'
+    t[0] = Now_Expresion("FUNCION_NOW",t.lineno(1),t.lexpos(1)+1,None)
+    
+def p_funciones_fechas_3(t):
+    'funcion_fechas : CURRENT_DATE'
+    t[0] = Current_Date_Expresion("FUNCION_CURRENT_DATE",t.lineno(1),t.lexpos(1)+1,None)
+
+def p_funciones_fechas_4(t):
+    'funcion_fechas : CURRENT_TIME'
+    t[0] = Current_Time_Expresion("FUNCION_CURRENT_TIME",t.lineno(1),t.lexpos(1)+1,None)
+
+def p_funciones_fechas_5(t):
+    'funcion_fechas : TIMESTAMP CADENA'
+    t[0] = Timestamp_Expresion("FUNCION_TIMESTAMP",t.lineno(1),t.lexpos(1)+1,None)
+    charExp = Char_Expresion("Cadena",t.lineno(2),t.lexpos(2)+1,t[2])
+    t[0].hijos.append(charExp)
+
+def p_instruccion_select_time(t):
+    '''time : YEAR
+            | MONTH
+            | DAY
+            | HOUR 
+            | MINUTE
+            | SECOND'''
+    t[0] = Start(t[1],t.lineno(1),t.lexpos(1)+1,None)
+#-------------------------------------------------------------------------------------------
+#------------------------------ Funciones Matematicas --------------------------------------
+def p_select_funciones(t):
+    'funcion_matematica : ABS PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Abs("FUNCION_ABS",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_2(t):
+    'funcion_matematica : CBRT PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Cbrt("FUNCION_CBRT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_3(t):
+    'funcion_matematica : CEIL PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Ceil("FUNCION_CEIL",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_4(t):
+    'funcion_matematica : CEILING PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Ceiling("FUNCION_CEILING",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_5(t):
+    'funcion_matematica : DEGREES PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Degrees("FUNCION_DEGREES",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_6(t):
+    'funcion_matematica : DIV PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Div("FUNCION_DIV",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_7(t):
+    'funcion_matematica : EXP PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Exp("FUNCION_EXP",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_8(t):
+    'funcion_matematica : FACTORIAL PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Factorial("FUNCION_FACTORIAL",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_9(t):
+    'funcion_matematica : FLOOR PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Floor("FUNCION_FLOOR",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_10(t):
+    'funcion_matematica : GCD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Gsd("FUNCION_GSD",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_11(t):
+    'funcion_matematica : LN PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Ln("FUNCION_LN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_12(t):
+    'funcion_matematica : LOG PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Log("FUNCION_LOG",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_13(t):
+    'funcion_matematica : MOD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Mod("FUNCION_MOD",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_14(t):
+    'funcion_matematica : PI PARENTESISIZQ  PARENTESISDER'
+    t[0] = Function_Pi("FUNCION_PI",t.lineno(1),t.lexpos(1)+1,None)
+
+def p_select_funciones_15(t):
+    'funcion_matematica : POWER PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Power("FUNCION_POWER",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_16(t):
+    'funcion_matematica : RADIANS PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Radians("FUNCION_RADIANS",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_17(t):
+    'funcion_matematica : ROUND PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Round("FUNCION_ROUND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_18(t):
+    'funcion_matematica : SIGN PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Sign("FUNCION_SIGN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    
+def p_select_funciones_19(t):
+    'funcion_matematica : SQRT PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Function_Sqrt("FUNCION_SQRT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_20(t):
+    'funcion_matematica : WIDTH_BUCKET PARENTESISIZQ Exp COMA Exp COMA Exp COMA Exp PARENTESISDER'
+    t[0] = Function_Width_Bucket("FUNCION_BUCKET",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+    t[0].hijos.append(t[7])
+    t[0].hijos.append(t[9])
+
+def p_select_funciones_21(t):
+    'funcion_matematica : TRUNC PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("FUNCION_TRUNC",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_22(t):
+    'funcion_matematica : RANDOM PARENTESISIZQ PARENTESISDER'
+    t[0] = Start("FUNCION_RANDOM",t.lineno(1),t.lexpos(1)+1,None)
+#-------------------------------------------------------------------------------------------
+#---------------------------- Funciones Trigonometricas ------------------------------------
+def p_select_funciones_23(t):
+    'funcion_trigonometrica : ACOS PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ACOS",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_24(t):
+    'funcion_trigonometrica : ACOSD PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ACOSD",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_25(t):
+    'funcion_trigonometrica : ASIN PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ASIN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_26(t):
+    'funcion_trigonometrica : ASIND PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ASIND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_27(t):
+    'funcion_trigonometrica : ATAN PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ATAN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_28(t):
+    'funcion_trigonometrica : ATAND PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ATAND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_29(t):
+    'funcion_trigonometrica : ATAN2 PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ATAN2",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_30(t):
+    'funcion_trigonometrica : ATAN2D PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ATAN2D",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_31(t):
+    'funcion_trigonometrica : COS PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_COS",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_32(t):
+    'funcion_trigonometrica : COSD PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_COSD",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_33(t):
+    'funcion_trigonometrica : COT PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_COT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_34(t):
+    'funcion_trigonometrica : COTD PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_COTD",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])    
+
+def p_select_funciones_35(t):
+    'funcion_trigonometrica : SIN PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_SIN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_36(t):
+    'funcion_trigonometrica : SIND PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_SIND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_37(t):
+    'funcion_trigonometrica : TAN PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_TAN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_38(t):
+    'funcion_trigonometrica : TAND PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_TAND",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_39(t):
+    'funcion_trigonometrica : SINH PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_SINH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_40(t):
+    'funcion_trigonometrica : COSH PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_COSH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_41(t):
+    'funcion_trigonometrica : TANH PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_TANH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_42(t):
+    'funcion_trigonometrica : ASINH PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ASINH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_43(t):
+    'funcion_trigonometrica : ACOSH PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ACOSH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_44(t):
+    'funcion_trigonometrica : ATANH PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ATANH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+#-------------------------------------------------------------------------------------------
+#------------------------------- Funciones String ------------------------------------------
+def p_select_funciones_45(t):
+    'funcion_string : LENGTH PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_LENTGH",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_46(t):
+    'funcion_string : SUBSTRING PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_SUBSTRING",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+    t[0].hijos.append(t[7])
+
+def p_select_funciones_47(t):
+    'funcion_string : TRIM PARENTESISIZQ Exp FROM Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_TRIM",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_48(t):
+    'funcion_string : MD5 PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_MD5",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_49(t):
+    'funcion_string : SHA256 PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_SHA256",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_50(t):
+    'funcion_string : SUBSTR PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_SUBSTR",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+    t[0].hijos.append(t[7])
+
+def p_select_funciones_51(t):
+    'funcion_string : GET_BYTE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_GET_BYTE",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[7])
+
+def p_select_funciones_52(t):
+    'funcion_string : SET_BYTE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp COMA Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_SET_BYTE",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[7])
+    t[0].hijos.append(t[9])
+
+def p_select_funciones_53(t):
+    'funcion_string : CONVERT PARENTESISIZQ Exp AS tipo_declaracion PARENTESISDER'
+    t[0] = Start("SENTENCIA_CONVERT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_select_funciones_54(t):
+    'funcion_string : ENCODE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_ENCODE",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[7])
+
+def p_select_funciones_55(t):
+    'funcion_string : DECODE PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    t[0] = Start("SENTENCIA_DECODE",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+#-------------------------------------------------------------------------------------------
+#------------------------------ Funciones Agregadas ----------------------------------------
+def p_select_funciones_56(t):
+    'funcion_agregada : AVG PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("FUNCION_AVG",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_57(t):
+    'funcion_agregada : COUNT PARENTESISIZQ list_count PARENTESISDER'
+    t[0] = Start("FUNCION_COUNT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_58(t):
+    'funcion_agregada : MAX PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("FUNCION_MAX",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_59(t):
+    'funcion_agregada : MIN PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("FUNCION_MIN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_select_funciones_60(t):
+    'funcion_agregada : SUM PARENTESISIZQ Exp PARENTESISDER'
+    t[0] = Start("FUNCION_SUM",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+#-------------------------------------------------------------------------------------------
+#----------------------------------- List Count --------------------------------------------
+def p_select_funciones_57_list_count(t):
+    'list_count : Exp'
+    t[0] = t[1]
+
+def p_select_funciones_57_list_count_2(t):
+    'list_count : ASTERISCO'
+    t[0] = Start("*",t.lineno(1),t.lexpos(1)+1,None)
+#-------------------------------------------------------------------------------------------
 #------------------------------ Producciones útiles ----------------------------------------
 def p_tipo_declaracion_1(t):
     '''tipo_declaracion : SMALLINT
@@ -1706,12 +1752,38 @@ def p_exp_identificado(t):
     idExp = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
     t[0].hijos.append(idExp)
 
+def p_exp_acceso(t):
+    'Exp : Acceso'
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+
 def p_exp_funcion(t):
-    'Exp : FUNCIONES'
+    '''Exp : funcion_fechas
+            | funcion_matematica
+            | funcion_trigonometrica
+            | funcion_string
+            | funcion_agregada'''
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
 
 # *********************************************************************************
+# ----------------------------------  Access --------------------------------------
+def p_option_exp_access(t):
+    'Acceso : IDENTIFICADOR PUNTO option_access'
+    t[0] = Access_Expresion("ACCESO",t.lineno(2),t.lexpos(2)+1,None)
+    tabla = Char_Expresion("Name Table",t.lineno(1),t.lexpos(1),t[1])
+    t[0].hijos.append(tabla)
+    t[0].hijos.append(t[3])
+# ---------------------------------------------------------------------------------
+# ------------------------------- Option Access -----------------------------------
+def p_option_access(t):
+    'option_access : IDENTIFICADOR'
+    t[0] = Identificator_Expresion("Id Table",t.lineno(1),t.lexpos(1)+1,t[1])
+
+def p_option_access_2(t):
+    'option_access : ASTERISCO'
+    t[0] = Start("*",t.lineno(1),t.lexpos(1)+1,None)
+# ---------------------------------------------------------------------------------
 
 import ply.yacc as yacc
 def run_method(entrada):

@@ -1,5 +1,1 @@
-CREATE OR REPLACE DATABASE pruebas;
-use pruebas;
-CREATE TABLE a(
-    column1 INTEGER PRIMARY KEY
-);
+select power(2,2);

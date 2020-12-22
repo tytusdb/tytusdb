@@ -8,8 +8,9 @@ sys.path.append(nodo_ast)
 
 from Expresion import Expresion
 from Tipo import Data_Type
+from Tipo_Expresion import Type_Expresion
 
-class Identificator_Expresion(Expresion):
+class Current_Time_Expresion(Expresion):
     
     def __init__(self, nombreNodo, fila, columna, valor):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)
