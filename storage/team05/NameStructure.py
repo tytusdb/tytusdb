@@ -106,14 +106,23 @@ class NombreEstructuras:
             return 1
 
     #Elimina la base de datos
-    def dropDatabase(self, database):
-        if self.ComprobarNombre(database) == True:
-            if self.searchDatabase(database) == True:
-                del self.database[database]
-                return 0
+    def dropDatabase(self, database: str):
+        try:
+            if self.ComprobarNombre(database) == True: #Comprobamos el nombre
+                if self.searchDatabase(database) == True: #Buscamos la db
+                    del self.database[database]
+                    ne.serialize("data/database",self.database)
+                    directorio='data/tables/'
+                    with os.scandir(directorio) as ficheros:
+                        for f in ficheros:
+                            if f.name.startswith(str(database)):
+                                os.remove(f.path)
+                    return 0
+                else:
+                    return 2
             else:
-                return 2
-        else:
+                return 1
+        except:
             return 1
         
     #Método para buscar una tabla en el diccionario
