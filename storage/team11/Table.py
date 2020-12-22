@@ -1,4 +1,4 @@
-from storageAVL11.ArbolAVLR import ArbolAVLR
+from ArbolAVLR import ArbolAVLR
 import csv
 import copy
 import os.path as path
@@ -107,7 +107,7 @@ class Table:
     # Metodo para graficar
 
     def graficar(self):
-        self.__TableTree.grafica()
+        return self.__TableTree.grafica()
 
     # Cargar CSV
     def loadCSV(self, pathX):
