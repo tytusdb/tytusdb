@@ -85,31 +85,6 @@ def añadir(titulo):
 ```
 > En este método se crean las pestañas, para ello se creó un arreglo donde se guardará cada pestaña que se cree, se utilzó el método appened para añadir más páginas al notebook, y también sus cajas de texto.
 
-## Iniciar la interfaz
-
-Se utiliza:
-```
-python ventana.py
-```
-
-## Menu
-Se crearon los menus Archivo, Editar, Herramientas y Ayuda. En la primera fase solo el menu ayuda y archivo tienen opciones utilizables.
-
-
-## Campo de Texto
-Un editor que tiene numero de linea, opcion para multiples pestañas y un scroll para su mejor manejo.
-
-## Vista de Bases
-El panel izquiero del cliente se utiliza para tener una mejor visualizacion de las bases de datos conectadas. Es un vista de arbol que se expande hasta llegar a las tablas.
-
-## Manual de usuario
-<p align="center">
-  <img src="https://ibb.co/G0GqbsQ" width="600" alt="TytuSQL">
-</p>
-=======
-
-
-
 # Conexion cliente-servidor
 
 ```python
@@ -133,3 +108,24 @@ response = myConnection.getresponse()
 
 > Se envia una peticion y "responde" obtiene la respuesta del servidor.
 
+## Manual de usuario
+<p align="center">
+  <img src="resources/Ventan.PNG" width="600" alt="TytuSQL">
+</p>
+
+## Iniciar la interfaz
+
+Se utiliza:
+```
+python ventana.py
+```
+
+## Menu
+Se crearon los menus Archivo, Editar, Herramientas y Ayuda. En la primera fase solo el menu ayuda y archivo tienen opciones utilizables.
+
+
+## Campo de Texto
+Un editor que tiene numero de linea, opcion para multiples pestañas y un scroll para su mejor manejo.
+
+## Vista de Bases
+El panel izquiero del cliente se utiliza para tener una mejor visualizacion de las bases de datos conectadas. Es un vista de arbol que se expande hasta llegar a las tablas.
