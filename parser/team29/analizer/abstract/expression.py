@@ -1212,5 +1212,35 @@ class CheckValue(Expression):
         return self
 
 
+class AggregateFunction(Expression):
+    """
+    Esta clase representa las funciones de agregacion utilizadas en el Group By
+    """
+    def __init__(self, func, colData, row, column) -> None:
+        super().__init__(row, column)
+        self.func = func.lower()
+        self.colData = colData
+        self.temp = func + "(" + colData.temp + ")"
+
+    def execute(self, environment):
+        countGr = environment.groupCols
+        # Obtiene las ultimas columnas metidas (Las del group by)
+        df = environment.dataFrame.iloc[:, -countGr:]
+        df = pd.concat([df, self.colData.execute(environment).value], axis=1)
+        cols = list(df.columns)[:-1]
+        if self.func == "sum":
+            newDf = df.groupby(cols).sum().reset_index()
+        elif self.func == "count":
+            newDf = df.groupby(cols).count().reset_index()
+        elif self.func == "prom":
+            newDf = df.groupby(cols).mean().reset_index()
+        else:
+            newDf = None
+            print("error")
+        
+        value = newDf.iloc[:, -1:]
+        return Primitive(TYPE.NUMBER, value, self.row, self.column)
+
+
 def makeAst():
     ast.makeAst(root)
