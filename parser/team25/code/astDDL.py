@@ -1,5 +1,5 @@
-from enum import Enum, unique
-from entorno import Entorno
+from enum import Enum
+import entorno as env
 import storageManager.jsonMode as DBMS
 import typeChecker.typeReference as TRef
 import typeChecker.typeEnum as TEnum
@@ -56,7 +56,7 @@ class Instruccion:
         pass
 
     def dibujar(self):
-        pass
+        return 'Sin implementar'
 
 class CreateType(Instruccion):
     def __init__(self, nombre, lista):
@@ -66,11 +66,10 @@ class CreateType(Instruccion):
     def ejecutar(self, ts):
         lista = list()
         for item in self.lista:
-            if not item.val in lista:
-                lista.append(item.val)
-
+            if not item in lista:
+                lista.append(item)
         if not TEnum.insertEnum(self.nombre, lista):
-            return ErrorReport('Semantico', 'Invalid Enum Declaration', self.lista[0].linea)
+            return ErrorReport('Semantico', 'Invalid Enum Declaration', 0)
         return 'Enum \'' + self.nombre + '\' succesful created'
 
 
@@ -180,6 +179,9 @@ class CreateTable(Instruccion):
         auxUnique = list()
         auxCheck = list()
 
+        #Aux check field
+        auxCheckF = list()
+
         # Proceso de las distintas columnas recibidas en la consulta
         for col in self.columnas:
             if isinstance(col, CreateField): #Columna nueva
@@ -190,7 +192,12 @@ class CreateTable(Instruccion):
                     colSint = col.ejecutar(ts)
                     if isinstance(colSint, ErrorReport):
                         return colSint
-                    columns[col.nombre] = colSint
+
+                    if isinstance(colSint, tuple):
+                        columns[col.nombre] = colSint[0]
+                        auxCheckF.append(colSint[1])
+                    else:
+                        columns[col.nombre] = colSint
             elif isinstance(col, ConstraintMultipleFields): #Multiples Constraints
                 if col.tipo == CONSTRAINT_FIELD.UNIQUE:
                     auxUnique.extend(col.ejecutar(ts))
@@ -205,6 +212,16 @@ class CreateTable(Instruccion):
                 auxCheck.extend(col.ejecutar(ts))
             else:
                 return col
+
+        if len(auxCheckF) != 0:
+            tsLocal = env.Entorno()
+            tsLocal = env.toEnviroment(columns, tsLocal)
+            
+            for chequeoS in auxCheckF:
+                if chequeoS[0].evaluacionCheck(tsLocal) != 0:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.integrity_constraint_violation), 0)
+                columns[chequeoS[2]]['Check'] = chequeoS[0].getExpresionToString()
+                columns[chequeoS[2]]['CheckConst'] = chequeoS[1]
         
         #Modificamos los valores dependiendo de las columnas multiples
         # Primary Key
@@ -222,13 +239,18 @@ class CreateTable(Instruccion):
             columns[fk[0]]['FK'] = True
             columns[fk[0]]['References'] = {'Table':fk[1],'Field':fk[0]}
 
-        for chequeo in auxCheck:
-            # Se verifica que cada constraint haga referencia a un campo, de lo contrario será invalido
-            if not chequeo[0] in columns:
-                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.invalid_column_reference), 0)
-            #TODO Mejorar implementacion de checks
-            columns[chequeo[0]]['Check'] = chequeo[1]
+        #Check
+        if len(auxCheck) != 0:
+            tsLocal = env.Entorno()
+            tsLocal = env.toEnviroment(columns, tsLocal)
 
+            for chequeo in auxCheck:
+                # Se verifica que cada constraint haga referencia a un campo, de lo contrario será invalido
+                if not chequeo[0] in columns:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.invalid_column_reference), 0)
+                if chequeo[1].evaluacionCheck(tsLocal) != 0:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.integrity_constraint_violation), 0)
+                columns[chequeo[0]]['Check'] = chequeo[1].getExpresionToString()
         # Unique
         for unico in auxUnique:
             # Se verifica que cada constraint haga referencia a un campo, de lo contrario será invalido
@@ -249,10 +271,19 @@ class CreateTable(Instruccion):
                 # De no existir columnas duplicadas, se agregan las columnas a la tabla
                 columns.update(colsPadre)
 
+        auxIndexPK = list()
+        contador = 0
+        for col in columns:
+            if columns[col]['PK']:
+                auxIndexPK.append(contador)
+            contador += 1
+
         # Ahora procedemos a crear
         result = DBMS.createTable(DB_ACTUAL.getName(), self.nombre, len(columns))
 
         if result == 0:
+            if len(auxIndexPK) > 0:
+                DBMS.alterAddPK(DB_ACTUAL.getName(),self.nombre, auxIndexPK)
             TRef.createTable(DB_ACTUAL.getName(), self.nombre, columns, self.herencia)
             return result
 
@@ -288,10 +319,17 @@ class CreateField(Instruccion):
 
         if isinstance(self.tipo, tuple):
             tipo = self.tipo[0].value
+            if self.tipo[1] < 1:
+                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_data_exception.numeric_value_out_of_range), 0)
             largo = self.tipo[1]
+        elif isinstance(self.tipo, str):
+            #Comprobamos que el type a elegir exista
+            if not TEnum.enumExist(self.tipo):
+                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.indeterminate_datatype), 0)
+            tipo = self.tipo
         else:
             tipo = self.tipo.value
-
+            
         #Bajo la logica de que puede venir parametros repetidos, tomaremos el ultimo en venir como valido
         atributos = dict(
             {
@@ -311,6 +349,7 @@ class CreateField(Instruccion):
             }
             )
 
+        checks = None
         if self.atributos:
             for atr in self.atributos:
                 if isinstance(atr, ConstraintField):
@@ -336,12 +375,13 @@ class CreateField(Instruccion):
                 elif isinstance(atr, DefaultField):
                     atributos['Default'] = atr.ejecutar(ts)
                 elif isinstance(atr,CheckField):
-                    #TODO Mejorar implementacion de checks
                     cheq = atr.ejecutar(ts)
-                    atributos['Check'] = cheq[1]
-                    atributos['CheckConst'] = cheq[0]
+                    checks = (cheq[1],cheq[0],self.nombre)
                 else:
                     return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.invalid_table_definition), 0)
+
+        if isinstance(checks, tuple):
+            return (atributos, checks)
 
         return atributos
 
@@ -516,7 +556,7 @@ class CheckMultipleFields(Instruccion):
         return nodo
 
     def ejecutar(self, ts):
-        return (self.campo, self.condiciones.simular())
+        return (self.campo, self.condiciones)
 
 # Alter Database
 class AlterDatabase(Instruccion):
@@ -592,24 +632,23 @@ class AlterTable(Instruccion):
                 #Si es un error, solo se retorna
                 if isinstance(sint, ErrorReport):
                     return sint
-        elif isinstance(self.accion, AlterField):
-            #Comprobamos la existencia del campo
-            if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla,self.accion.campo):
-                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_column), 0)
-            
-            if self.accion.cantidad:
-                sint = self.accion.ejecutar(ts)
-                if isinstance(sint, int):
-                    print(TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.campo, 'Type', TYPE_COLUMN.VARCHAR.value))
-                    print(TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.campo, 'Lenght', sint))
-                elif isinstance(sint, tuple):
-                    print(TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.campo, 'Type', sint[0].value))
-                    print(TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.campo, 'Lenght', sint[1]))
+
+                if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla, subaccion.campo):
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_column), 0)
+                
+                if subaccion.cantidad:
+                    sint = subaccion.ejecutar(ts)
+                    if isinstance(sint, int):
+                        TRef.alterField(DB_ACTUAL.getName(), self.tabla, subaccion.campo, 'Type', TYPE_COLUMN.VARCHAR.value)
+                        TRef.alterField(DB_ACTUAL.getName(), self.tabla, subaccion.campo, 'Lenght', sint)
+                    elif isinstance(sint, tuple):
+                        TRef.alterField(DB_ACTUAL.getName(), self.tabla, subaccion.campo, 'Type', sint[0].value)
+                        TRef.alterField(DB_ACTUAL.getName(), self.tabla, subaccion.campo, 'Lenght', sint[1])
+                    else:
+                        TRef.alterField(DB_ACTUAL.getName(), self.tabla, subaccion.campo, 'Type', sint)
+                        TRef.alterField(DB_ACTUAL.getName(), self.tabla, subaccion.campo, 'Lenght', None)
                 else:
-                    print(TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.campo, 'Type', sint))
-                    print(TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.campo, 'Lenght', None))
-            else:
-                print(TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.campo, 'Null', False))
+                    TRef.alterField(DB_ACTUAL.getName(), self.tabla, subaccion.campo, 'Null', False)
         elif isinstance(self.accion, AlterTableDrop):
             if self.accion.tipo == ALTER_TABLE_DROP.COLUMN:
                 sint = self.accion.ejecutar(ts)
@@ -624,20 +663,96 @@ class AlterTable(Instruccion):
                 elif dropField == 6:
                     return ErrorReport('Semantico', 'Error: A table cannot be empty', 0)
             else:
-                if not TRef.constraintExist(self.accion.nombre):
+                if not TRef.constraintExist(DB_ACTUAL.getName(),self.accion.nombre):
                     return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.integrity_constraint_violation), 0)
                 colPres = TRef.getConstraint(DB_ACTUAL.getName(),self.tabla, self.accion.nombre)
                 if not isinstance(colPres, tuple):
                     return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_data_exception.data_exception), 0)
+
                 TRef.alterField(DB_ACTUAL.getName(), self.tabla, colPres[0], colPres[1], None)
+                if colPres[1] == 'PKConst':
+                    TRef.alterField(DB_ACTUAL.getName(), self.tabla, colPres[0], 'PK', False)
+                    DBMS.alterDropPK(DB_ACTUAL.getName(), self.tabla)
+                    DBMS.alterAddPK(DB_ACTUAL.getName(), self.tabla, TRef.getIndexPK(DB_ACTUAL.getName(), self.tabla))
+                elif colPres[1] == 'PKConst':
+                    TRef.alterField(DB_ACTUAL.getName(), self.tabla, colPres[0], 'FK', False)
+                    TRef.alterField(DB_ACTUAL.getName(), self.tabla, colPres[0], 'References', None)
+                elif colPres[1] == 'UniqueConst':
+                    TRef.alterField(DB_ACTUAL.getName(), self.tabla, colPres[0], 'Unique', False)
+                else:
+                    TRef.alterField(DB_ACTUAL.getName(), self.tabla, colPres[0], 'Check', None)
+        elif isinstance(self.accion, AlterTableAdd):
+            colSint = self.accion.ejecutar(ts)
+            if isinstance(colSint, ErrorReport):
+                return colSint
 
+            if self.accion.tipo == ALTER_TABLE_ADD.COLUMN:
+                if TRef.columnExist(DB_ACTUAL.getName(), self.tabla, self.accion.nombre):
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.duplicate_column), 0)
+                tipo = None
+                largo = None
 
-        return 'Alter table complete'
+                if isinstance(self.accion.accion, tuple):
+                    tipo = self.accion.accion[0].value
+                    largo = self.accion.accion[1]
+                elif isinstance(self.accion.accion, str):
+                    tipo = self.accion.accion
+                else:
+                    tipo = self.accion.accion.value
+
+                atributos = dict(
+                    {
+                        "Type": tipo,
+                        "Lenght": largo,
+                        "Default": None,
+                        "Null": True,
+                        "PK": False,
+                        "PKConst": None,
+                        "FK": False,
+                        "References": None,
+                        "FKConst": None,
+                        "Unique": False,
+                        "UniqueConst": None,
+                        "Check": None,
+                        "CheckConst": None
+                    }
+                    )
+
+                TRef.alterAddColumn(DB_ACTUAL.getName(), self.tabla, self.accion.nombre, atributos)
+                DBMS.alterAddColumn(DB_ACTUAL.getName(), self.tabla, None)
+            elif self.accion.tipo == ALTER_TABLE_ADD.FOREIGN_KEY:
                 
-                    
-                    
-                
 
+                if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla,colSint[0]):
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.invalid_column_reference),0)
+                elif TRef.getColumns(DB_ACTUAL.getName(),self.tabla)[colSint[0]]['Type'] != TRef.getColumns(DB_ACTUAL.getName(),colSint[1])[colSint[2]]['Type']:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_fdw_error.fdw_invalid_data_type), 0)
+                TRef.alterAddFK(DB_ACTUAL.getName(),self.tabla,colSint[0],{'Table':colSint[1],'Field':colSint[2]})
+                TRef.alterField(DB_ACTUAL.getName(),self.tabla,colSint[0],'FKConst',colSint[3])
+            elif self.accion.tipo == ALTER_TABLE_ADD.MULTI_FOREIGN_KEY:
+                # Procesamos por columna
+                for i in range(len(colSint)):
+                    if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla,colSint[i][0]):
+                        return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.invalid_column_reference),0)
+                    elif TRef.getColumns(DB_ACTUAL.getName(),self.tabla)[colSint[i][0]]['Type'] != TRef.getColumns(DB_ACTUAL.getName(),colSint[i][1])[colSint[i][2]]['Type']:
+                        return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_fdw_error.fdw_invalid_data_type), 0)
+                    TRef.alterAddFK(DB_ACTUAL.getName(),self.tabla,colSint[i][0],{'Table':colSint[i][1],'Field':colSint[i][2]})
+            elif self.accion.tipo == ALTER_TABLE_ADD.CHECKS:
+                auxCols = TRef.getColumns(DB_ACTUAL.getName(),self.tabla)
+                if not colSint[0] in auxCols:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.invalid_column_reference), 0)
+                auxCols[colSint[0]]['Check'] = colSint[0] + ' != ' + colSint[1]
+            else:
+                if not TRef.columnExist(DB_ACTUAL.getName(),self.tabla,self.accion.nombre):
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.invalid_column_reference), 0)
+                elif TRef.constraintExist(DB_ACTUAL.getName(),self.accion.accion):
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.integrity_constraint_violation), 0)
+                elif TRef.getAttribute(DB_ACTUAL.getName(),self.tabla,self.accion.nombre, 'UniqueConst') != None:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.integrity_constraint_violation), 0)
+                TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.nombre, 'UniqueConst', self.accion.accion)
+                TRef.alterField(DB_ACTUAL.getName(), self.tabla, self.accion.nombre, 'Unique', True)
+
+        return 'Alter table complete'          
 
 # Alter Field: Cambia al tipo varchar o cambia ser nulo
 class AlterField(Instruccion):
@@ -672,8 +787,11 @@ class AlterField(Instruccion):
                 return self.cantidad
             elif isinstance(self.cantidad, tuple):
                 return self.cantidad
+            elif isinstance(self.cantidad, str):
+                return self.cantidad
             else:
                 return self.cantidad.value
+                
         else:
             return False
 
@@ -719,7 +837,7 @@ class AlterTableAdd(Instruccion):
             nodo += "\n" + identificador + " -> NAME" + identificador + ";"
             nodo += "\nID" + identificador + "[ label = \"" + self.accion + "\" ];"
             nodo += "\n" + identificador + " -> ID" + identificador + ";\n"
-        elif self.tipo == ALTER_TABLE_ADD.FOREIGN_KEY:
+        elif self.tipo == ALTER_TABLE_ADD.MULTI_FOREIGN_KEY:
             nodo += "[ label = \"ADD FOREIGN KEY\" ];"
             for local in self.nombre:
                 nodo += "\n" + str(hash(local)) + "[ label =\"" + local + "\" ];"
@@ -745,11 +863,13 @@ class AlterTableAdd(Instruccion):
 
     def ejecutar(self, ts):
         if self.tipo == ALTER_TABLE_ADD.FOREIGN_KEY:
+            if TRef.constraintExist(DB_ACTUAL.getName(),self.accion[2]):
+                return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_integrity_constraint_violation.integrity_constraint_violation), 0) 
             if not TRef.tableExist(DB_ACTUAL.getName(),self.accion[0]):
                 return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_fdw_error.fdw_table_not_found), 0) 
             if not TRef.columnExist(DB_ACTUAL.getName(), self.accion[0], self.accion[1]):
                     return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_fdw_error.fdw_invalid_column_number), 0)
-            return (self.nombre,self.accion)
+            return (self.nombre,self.accion[0],self.accion[1],self.accion[2])
         elif self.tipo == ALTER_TABLE_ADD.MULTI_FOREIGN_KEY:
             if not TRef.tableExist(DB_ACTUAL.getName(),self.accion[0]):
                 return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_fdw_error.fdw_table_not_found), 0) 
@@ -767,7 +887,14 @@ class AlterTableAdd(Instruccion):
                 listaSin.append( (self.nombre[i], self.accion[0], self.accion[1][i]) )
 
             return listaSin
-
+        elif self.tipo == ALTER_TABLE_ADD.COLUMN:
+            if isinstance(self.accion, tuple):
+                if self.accion[1] < 1:
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_data_exception.numeric_value_out_of_range), 0)
+            elif isinstance(self.accion, str):
+                #Comprobamos que el type a elegir exista
+                if not TEnum.enumExist(self.accion):
+                    return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.indeterminate_datatype), 0)
         return (self.nombre, self.accion)
 # Show Database
 class ShowDatabase(Instruccion):
@@ -832,12 +959,9 @@ class DropTable(Instruccion):
             return ErrorReport('Semantico', 'Not defined database to used', 0)
         elif not TRef.databaseExist(DB_ACTUAL.getName()):
             return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_invalid_schema_name.invalid_schema_name), 0)
-        elif TRef.tableExist(DB_ACTUAL.getName(), self.tabla):
+        elif not TRef.tableExist(DB_ACTUAL.getName(), self.tabla):
             return ErrorReport('Semantico', sqlErrors.sqlErrorToString(sqlErrors.sql_error_syntax_error_or_access_rule_violation.undefined_table), 0)
 
         DBMS.dropTable(DB_ACTUAL.getName(), self.tabla)
         TRef.dropTable(DB_ACTUAL.getName(), self.tabla)
         return 'Successful table dropped'        
-
-def __comprobarTipo(ts,exp):
-    pass

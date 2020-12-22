@@ -7,11 +7,17 @@ from subprocess import check_call
 from Entorno.Entorno import Entorno
 from storageManager import jsonMode
 from Expresion.variablesestaticas import variables
+from graphviz import Digraph
 
 #variables.ventana = Tk()
 variables.ventana.geometry("1000x600")
 variables.ventana.resizable(False, False)
 variables.ventana.config(background="gray25")
+
+global tablaSym
+tablaSym = Digraph("TablaSym",node_attr={'shape':'record'})
+
+contenidoSym:str = ""
 
 
 def reporte_lex_sin():
@@ -62,21 +68,27 @@ def send_data():
     variables.consola.configure(state='disabled')
     #variables.consola.configure()
 
-    tSym = Principal.mostrarSimbolos()
-    with open('ts.dot', 'w', encoding='utf8') as ts:
-            ts.write(tSym)
-            
-    check_call(['dot', '-Tpdf', 'ts.dot', '-o', 'ts.pdf'])
+    setContenido(Principal.mostrarSimbolos())
 
     reporte_lex_sin()
 
+def setContenido(cont:str):
+    global contenidoSym
+    contenidoSym += cont
+    
 
 def arbol_ast():
     contenido = Tentrada.get(1.0, 'end')
     a.generarArbol(contenido)
 
 def verSimbolos():
-    os.system('start ts.pdf')
+    tablaSym.node("TS",contenidoSym)
+    tablaSym.render('ts', view=True)  # doctest: +SKIP
+    'ts.pdf'
+
+def gramatica():
+    contenido = Tentrada.get(1.0,'end')
+    g.generaReporteBNF(contenido)
 
 
 entrada = StringVar()
@@ -109,6 +121,6 @@ menu_bar.add_cascade(label="Reportes", menu=reps_menu)
 reps_menu.add_command(label="Errores Lexicos y Sintacticos", command=mostrarimagenre)
 reps_menu.add_command(label="Tabla de Simbolos", command=verSimbolos)
 reps_menu.add_command(label="AST", command=arbol_ast)
-reps_menu.add_command(label="Gramatica", command=send_data)
+reps_menu.add_command(label="Gramatica", command=gramatica)
 
 variables.ventana.mainloop()
