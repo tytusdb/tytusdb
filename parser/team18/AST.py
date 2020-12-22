@@ -574,7 +574,42 @@ def crear_Tabla(instr,ts):
                                 for exp in atributoC.check:
                                     print('resultado: ',resolver_operacion(exp,ts))
                 listaColumnas.append(colAux)
- 
+    
+    #validar foranea compuesta
+    if(crearOK):
+        listFK=[]
+        #recorrer la tabla nueva para obtener las referencias
+        for col in listaColumnas:
+            if(col.foreign):
+                if col.refence[0] not in listFK:
+                    listFK.append(col.refence[0])
+        lenFK=[]
+        lenPK=[]
+        
+        #obtener longitud de foranea
+        for tab in listFK:
+            lenPK.append(0)
+            lenFK.append(len(getpks(baseActiva,tab)))
+        #obtener la longitud de foranea en tabla actual
+        for col in listaColumnas:
+            if(col.foreign):
+                contFK=0
+                for tab in listFK:
+                    if(col.refence[0]==tab):
+                        lenPK[contFK]+=1
+                        break
+                    contFK=contFK+1
+        #validar #foraneas==#primarias en referencia
+        pos=0
+        while pos<len(listFK):
+            if(lenFK[pos]!=lenPK[pos]):
+                crearOK=False
+                msg='42830:llave foranea debe ser compuesta ref:'+listFK[pos]
+                agregarMensjae('error',msg,'42830')
+            pos+=1
+        #print('lista de Referencias:',listFK)
+        #print('count pk en la  refe:',lenFK)
+        #print('count fk tabla nueva:',lenPK)
     #crear la tabla
     if(crearOK):
         result=EDD.showTables(baseActiva)
@@ -798,7 +833,6 @@ def insertar_en_tabla(instr,ts):
     #validaciones parametros de columna
     if(insertOK):
         #-pendiente
-        # llaves foranes !=none
         # check
         pos=0
         for col in tablaInsert.atributos:
@@ -841,7 +875,9 @@ def insertar_en_tabla(instr,ts):
             pos=pos+1
     #validaciones llaves foraneas
     if(insertOK):
-        ''
+        pos=0
+        for col in tablaInsert.atributos:
+            ''
     #validar size, presicion
     if(insertOK):
         pos=0
@@ -1944,11 +1980,11 @@ def mostrarTablasTemp():
     for tab in listaTablas:
         texTab=PrettyTable()
         texTab.title='DB:'+tab.basepadre+'\tTABLA:'+tab.nombre
-        texTab.field_names = ["nombre","tipo","size","precision","unique","anulable","default","primary","foreign","refence","check","constraint"]
+        texTab.field_names = ["nombre","tipo","size","precision","unique","anulable","default","primary","foreign","refence","check"]
         #recorrer las columans
         if tab.atributos!=None:
             for col in tab.atributos:
-                texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check,col.constraint])
+                texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check])
         misTablas.append(texTab)
 
     return misTablas
