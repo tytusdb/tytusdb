@@ -58,9 +58,9 @@ class Insert(Instruccion):
                         operador=check.valor.simbolo
                         l=0
                         for columna in columnas:
-                            tipo=columna.tipo
+                            #tipo=columna.tipo
                             if(check.valor.exp1.getval(ent)==columna.nombre):
-                                condicion1=Terminal(tipo,self.valores[l].getval(ent))     
+                                condicion1=Terminal(columna.tipo,self.valores[l].getval(ent))     
                             l=l+1
                         
                         n=0
@@ -179,12 +179,12 @@ class InsertWhitColum(Instruccion):
                     operador=check.valor.simbolo
                     l=0
                     for columna in columnas:
-                        tipo=columna.tipo
+                        #tipo=columna.tipo
                         if(check.valor.exp1.getval(ent)==columna.nombre):
                             k=0
                             for actual in self.namecolums:
                                 if(check.valor.exp1.getval(ent)==actual.getval(ent)):
-                                    condicion1=Terminal(tipo,self.valores[k].getval(ent))
+                                    condicion1=Terminal(columna.tipo,self.valores[k].getval(ent))
                                 k=k+1
                         l=l+1
                     

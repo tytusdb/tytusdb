@@ -240,7 +240,7 @@ def getOpRelacional(t):
     gramatica = '<condicion> ::= <expresion> \"' +t[2]+'\" <expresion>'
     return Nodo('OPREL', '\\'+str(t[2]), [t[1], t[3]], t.lexer.lineno, 0, gramatica)
 
-ef getGroupby(t):
+def getGroupby(t):
     if len(t) == 4:
         gramatica = '<groupby> ::= \"GROUP\" \"BY\" <listagroupby>' 
         childs = Nodo('LISTA', '', t[3], t.lexer.lineno)
@@ -301,3 +301,45 @@ def getValorNumerico(t):
     else:
         gramatica = '<cualquiernumero> ::= \"'+str(t[1])+'\"'
         return Nodo('ENTERO', str(t[1]), [], t.lexer.lineno, 0, gramatica)
+
+def getFuncionMatematica(t):
+    if len(t) == 4:
+        gramatica = '<funcion_matematica_s> ::= \"'+str(t[1])+'\" \"PARIZQ\" \"PARDER\"'
+        return Nodo('PI', '', [], t.lexer.lineno, 0, gramatica)
+    elif len(t) == 5:
+        gramatica = '<funcion_matematica_s> ::= \"'+str(t[1])+'\" \"PARIZQ\" <expresionaritmetica> \"PARDER\"'
+        return Nodo('Matematica', t[1], [t[3]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<funcion_matematica_s> ::= \"'+str(t[1])+'\" \"PARIZQ\" <expresionaritmetica> \"COMA\" <expresionaritmetica>\"PARDER\"'
+        return Nodo('Matematica', t[1], [t[3], t[5]], t.lexer.lineno, 0, gramatica)
+
+def getBetween(t):
+    if len(t) == 6:
+        gramatica = '<condicionwhere> ::= <between_state>\n'
+        gramatica += '<between_state> ::= <cualquiernumero> \"BETWEEN\" <valores> \"AND\" <valores>'
+        return Nodo('BETWEEN', '', [t[1], t[3], t[5]], t.lexer.lineno, 0, gramatica)
+    else: 
+        gramatica = '<condicionwhere> ::= <not_between_state>\n'
+        gramatica += '<between_state> ::= <cualquiernumero> \"NOT\" \"BETWEEN\" <valores> \"AND\" <valores>'
+        return Nodo('NOT BETWEEN', '', [t[1], t[4], t[6]], t.lexer.lineno, 0, gramatica)
+
+def getPredicates(t):
+    gramatica = '<condicionwhere> ::= <predicates_state>\n' 
+    if len(t) == 3:
+        gramatica += '<predicates_state> ::= <valores> \"' + t[2]+'\"'
+        return Nodo(t[2], '', [t[1]], t.lexer.lineno, 0, gramatica)
+    elif len(t) == 4:
+        gramatica += '<predicates_state> ::= <valores> \"IS\" \"NULL\"'
+        return Nodo('IS NULL', '', [t[1]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica += '<predicates_state> ::= <valores> \"IS\" \"NOT\" \"NULL\"'
+        return Nodo('IS NOT NULL', '', [t[1]], t.lexer.lineno, 0, gramatica)
+
+def getDistinctFrom(t) :
+    gramatica = '<condicionwhere> ::= <is_distinct_state>\n' 
+    if len(t) == 6: 
+        gramatica += '<is_distinct_state> ::= <valores> \"IS\" \"DISTINCT\" \"FROM\" <valores>'
+        return Nodo('IS DISTINCT', '', [t[1], t[5]], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica += '<is_distinct_state> ::= <valores> \"IS\" \"NOT\" \"DISTINCT\" \"FROM\" <valores>'
+        return Nodo('IS NOT DISTINCT', '', [t[1], t[6]], t.lexer.lineno, 0, gramatica)

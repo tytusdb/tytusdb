@@ -71,8 +71,8 @@ class Tipo():
             elif tipocolumn.tipo == 'smallint':
                 if tipovalor.tipo == 'smallint':
                     return True
-            elif tipocolumn.tipo in ('varchar','char','character varyng','text'):
-                if tipovalor.tipo in  ('varchar','char','character varyng','text'):
+            elif tipocolumn.tipo in ('varchar','char','character varyng','text','character'):
+                if tipovalor.tipo in  ('varchar','char','character varyng','text','character'):
                     return True
             elif tipocolumn.tipo == 'timestamp without time zone':
                 if tipovalor.tipo in  ('date','timestamp without time zone'):
@@ -82,4 +82,7 @@ class Tipo():
                     return True
             elif tipocolumn.tipo == 'time without time zone':
                 if tipovalor.tipo in  ('time','timestamp without time zone'):
+                    return True
+            elif tipocolumn.tipo == 'boolean':
+                if tipovalor.tipo == 'boolean':
                     return True

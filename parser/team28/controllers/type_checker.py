@@ -228,8 +228,8 @@ class TypeChecker(object):
             database.tables.append(table)
             self.writeFile()
             DataWindow().consoleText('Query returned successfully: Table created')
-
             return table
+
         elif dbStatement == 1:
             desc = f": Can't create table {name}"
             ErrorController().add(34, 'Execution', desc, line, column)
@@ -397,6 +397,7 @@ class TypeChecker(object):
             table.columns.append(column)
             self.writeFile()
             DataWindow().consoleText('Query returned successfully: Table updated')
+            return True
 
         elif dbStatement == 1:
             desc = f": Can't update table {table.name}"

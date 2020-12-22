@@ -166,9 +166,9 @@ class ExpresionAritmetica(Expresion):
                 
                 return 0
             
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
-        izq = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
-        der = self.exp2.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        izq = self.exp1.evaluacionCheck(ts)
+        der = self.exp2.evaluacionCheck(ts)
         if (izq != 1) or (der != 1):
             return 5
         return 1  # no importa que operacion realice va regresar un numero
@@ -219,8 +219,8 @@ class ExpresionNegativa(Expresion):
         except:
             return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "-"' ,self.linea)  
         
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
-        value = self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        value = self.exp.evaluacionCheck(ts)
         if value != 1 and value != 2:
             return 5
         return value
@@ -254,8 +254,8 @@ class ExpresionPositiva(Expresion):
         except:
             return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "+"' ,self.linea)
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int:
-        value = self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts) -> int:
+        value = self.exp.evaluacionCheck(ts)
         if value != 1 and value != 2: # o si ya fuera error lo sube
             return 5
         return value
@@ -281,7 +281,7 @@ class ExpresionNumero(Expresion):
     def ejecutar(self, ts):
         return self
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = numero , 2 = cadena , 3 = cadenaDate , 4 = id , 5 = Error  , 6 = error Por formato de fecha
+    def evaluacionCheck(self ,ts) -> int: # 0 = booleano , 1 = numero , 2 = cadena , 3 = cadenaDate , 4 = id , 5 = Error  , 6 = error Por formato de fecha
         return 1
     def getExpresionToString(self) -> str:
         return str(self.val)
@@ -303,13 +303,35 @@ class ExpresionID(Expresion):
         return self
     
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int:
-        if self.val.lower() == idCol.lower():
-            return tipoColumna
-        return 5 # sino NO ES EL ID DE LA COLUMNA QUE MANDE Y MARCA ERROR
+    def evaluacionCheck(self ,ts)-> int:
+        try:
+            symbol = ts.buscarSimbolo(self.val)
+            return self.__comprobarTipo(symbol.tipo)
+        except:
+            return 5
+
     def getExpresionToString(self) -> str:
         return str(self.val)
 
+    def __comprobarTipo(self,tipo: str) -> int:
+        if tipo == 'SMALLINT' \
+        or tipo == 'BIGINT' \
+        or tipo == 'INTEGER'\
+        or tipo == 'DECIMAL' \
+        or tipo == 'NUMERIC' \
+        or tipo == 'REAL' \
+        or tipo == 'DOUBLE_PRECISION' \
+        or tipo == 'MONEY':
+            return 1
+        elif tipo == 'CHAR' \
+        or tipo == 'VARCHAR' \
+        or tipo == 'TEXT':
+            return 2
+        elif tipo == 'BOOLEAN':
+            return 0
+        elif tipo == 'DATE':
+            return 3
+        return 5
 
 
 
@@ -364,9 +386,9 @@ class ExpresionComparacion(Expresion):
         else:
             return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
-        izq  = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
-        der  = self.exp2.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts)-> int: 
+        izq  = self.exp1.evaluacionCheck(ts)
+        der  = self.exp2.evaluacionCheck(ts)
 
         if izq == 3 and der == 3: # SI AMBOS SON CADENAS DE TIPO FECHA ES VALIDA SU COMPARACION Y RETORNA UN BOOL 
             return 0
@@ -433,9 +455,9 @@ class ExpresionLogica(Expresion):
         else:
             return ErrorReport('semantico', 'Error , se esta operando con valores No booleanos' ,self.linea)
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
-        izq  = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
-        der  = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts)-> int: 
+        izq  = self.exp1.evaluacionCheck(ts)
+        der  = self.exp1.evaluacionCheck(ts)
         if izq != 0 or der != 0:
             return 5
         return 0
@@ -466,8 +488,8 @@ class ExpresionNegada(Expresion):
         else:
             print('Error semántico, operador no admitido para not', self.exp.tipo)
 
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
-        sintetizado = self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts)-> int: 
+        sintetizado = self.exp.evaluacionCheck(ts)
         if sintetizado != 0:
             return 5
         return 0
@@ -491,7 +513,7 @@ class ExpresionBooleano(Expresion):
     def ejecutar(self, ts):
         return self
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
+    def evaluacionCheck(self ,ts)-> int: 
         return 0
     def getExpresionToString(self) -> str:
         return str(self.val)
@@ -592,7 +614,7 @@ class ExpresionCadena(Expresion):
     def ejecutar(self,ts):
         return self
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
+    def evaluacionCheck(self ,ts)-> int: 
         if self.isFecha == True:
             return 3
         return 2
@@ -672,8 +694,8 @@ class ExpresionAgrupacion(Expresion):
     def ejecutar(self, ts):
         return self.exp.ejecutar(ts)
     
-    def evaluacionCheck(self ,tipoColumna, idCol, ts = None)-> int: 
-        return self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+    def evaluacionCheck(self ,ts)-> int: 
+        return self.exp.evaluacionCheck(ts)
     
     def getExpresionToString(self) -> str:
         sint = self.exp.getExpresionToString()
