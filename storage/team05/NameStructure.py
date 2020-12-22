@@ -288,3 +288,39 @@ class NombreEstructuras:
                     return None
         except:
             return None
+        
+    #Busca una primary key devuelve true o false
+    def BuscarPrimaryKey(self, baseDatos: str, tabla: str, pk):
+        listaTemporal = self.listaPrimaryKeyTabla(baseDatos, tabla)
+        encontrado = False
+        if listaTemporal != None:
+            for e in listaTemporal:
+                if pk == e:
+                    encontrado = True
+
+        return encontrado
+    
+    #Eliminar primary key    
+    def alterDropPK(self, database: str, table: str):
+        try:
+            if self.searchDatabase(database) == True:
+                dicTemp = self.database[database]
+                
+                if self.buscarTabla(table, dicTemp) == True:
+                    lenPrimaryKey = len(dicTemp[table][1]) #tamaño de la tabla creada
+
+                    if lenPrimaryKey != 0:
+                        dicTemp[table][1] = [] #limpiamos su valor
+                        self.database[database] = dicTemp #Actualizamos el diccionario de base de datos
+                        ne.serialize("data/database",self.database)
+                        ne.serialize("data/database"+str(database)+"-"+str(table),self.database[database])
+                        return 0
+                    
+                    else:
+                        return 4
+                else:
+                    return 3 
+            else:
+                return 2
+        except:
+            return 1
