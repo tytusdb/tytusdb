@@ -74,7 +74,7 @@ def validarTipo(T,valCOL):
     #acepta int
     elif(T=="smallint" or T=="integer" or T=="bigint"):
         try:
-            valCOL=int(float(valCOL))
+            valCOL=int(round(float(valCOL)))
         except:
             valCOL=None
     #acepta float
@@ -94,8 +94,39 @@ def validarTipo(T,valCOL):
         print("falta validar las fechas")
     #acepta Type
     else:
-        print("falta validar los Type")
+        tablaType=EDD.extractTable(baseActiva,T)#Extraer valores de la tabla
+        if(tablaType==None):
+            valCOL=None
+        else:
+            if valCOL not in tablaType[0]:
+                valCOL=None
+            
     return valCOL
+
+def validarSizePres(tipo,val,size,presicion):
+    result=True
+    #revisar el valor
+    if(val!=None):
+        if(size!=None):
+            #tipos con (n)
+            if(presicion==None):
+                if(tipo=="character varying" or tipo=="varchar" 
+                or tipo=="text" or tipo=="character" or tipo=="char"):
+                    if(len(val)>size):
+                        result=False
+            #tipos con (n,m)
+            else:
+                ''
+        #tamanio por defecto    
+        else:
+            if(tipo=='char' or tipo=='character'):
+                #size por defecto = 1
+                if(len(val)>1):
+                    result=False
+    #no hay valor
+    else:
+        result=True
+    return result
 
 def use_db(nombre):
     global baseActiva
@@ -314,8 +345,6 @@ def seleccion_db(instr,ts):
 #---------pendientes-----------------------
 def crear_Tabla(instr,ts):
     #Pendiente
-    # -foraneas
-    # -tipo columna TYPE
     # -zonahoraria
     # -check
     # -herencia
@@ -332,7 +361,9 @@ def crear_Tabla(instr,ts):
     #recorrer las columnas
     for colum in instr.columnas :
         colAux=Columna_run()#columna temporal para almacenar
+        #bloque de llaves primarias o foraneas
         if isinstance(colum, llaveTabla) :
+            #bloque de primarias
             if(colum.tipo==True):
                 if(pkCompuesta==False):
                     pkCompuesta=True#primer bloque pk(list)
@@ -356,9 +387,58 @@ def crear_Tabla(instr,ts):
                     crearOK=False
                     msg='42P16:Solo puede existir un bloque de PK(list)'
                     agregarMensjae('error',msg,'42P16')
+            #bloque de foraneas
             else:
-                #bloque de foraneas
-                print('llaves Primaria:',colum.tipo,'lista:',colum.columnas,'tablaref',colum.referencia,'listaref',colum.columnasRef)
+                
+                refe=colum.referencia.lower()
+                tablaRef=buscarTabla(baseActiva,refe)
+                #no existe la tabla de referencia
+                if(tablaRef==None):
+                    crearOK=False
+                    msg='42P01:no existe la referencia a la Tabla '+refe
+                    agregarMensjae('error',msg,'42P01')
+                else:
+                    #validar #columnas==#refcolums
+                    if(len(colum.columnas)==len(colum.columnasRef)):
+                        #verificar si existen dentro de la tabla a crear
+                        pos=0#contador para referencias
+                        for fkC in colum.columnas:
+                            exCol=False
+                            for lcol in listaColumnas:
+                                if(lcol.nombre==fkC.lower()):
+                                    exCol=True
+                                    if(lcol.foreign==None):
+                                        #validar si existe en la tabla de referencia
+                                        exPK=False
+                                        for pkC in tablaRef.atributos:
+                                            #validar nombre y Primary
+                                            if(pkC.nombre==colum.columnasRef[pos].lower() and pkC.primary==True):
+                                                exPK=True
+                                                lcol.foreign=True #asignar como foranea
+                                                lcol.refence=[refe,pkC.nombre] #guardar la tabla referencia y la columna
+                                                if(pkC.tipo!=lcol.tipo):
+                                                    crearOK=False
+                                                    msg='42804:no coicide el tipo de dato:'+colum.columnasRef[pos]
+                                                    agregarMensjae('error',msg,'42804')
+                                                break                                  
+                                        if(exPK==False):
+                                            crearOK=False
+                                            msg='42703:no existe la referencia pk:'+colum.columnasRef[pos]
+                                            agregarMensjae('error',msg,'42703')
+                                    else:
+                                        crearOK=False
+                                        msg='foreign key repetida:'+fkC.lower()
+                                        agregarMensjae('error',msg,'42P16')   
+                            if(exCol==False):
+                                crearOK=False
+                                msg='42P16:No se puede asignar como foranea:'+fkC.lower()
+                                agregarMensjae('error',msg,'42P16')
+                            pos=pos+1
+                    else:
+                        crearOK=False
+                        msg='42P16: la cantidad de referencias es distinta: '+str(len(colum.columnas))+'!='+str(len(colum.columnasRef))
+                        agregarMensjae('error',msg,'42P16')
+        #columna
         elif isinstance(colum, columnaTabla) :
             contC=contC+1
             colAux.nombre=resolver_operacion(colum.id,ts).lower()#guardar nombre col
@@ -378,14 +458,15 @@ def crear_Tabla(instr,ts):
             if(colOK):
                 if isinstance(colum.tipo,Operando_ID):
                     colAux.tipo=resolver_operacion(colum.tipo,ts).lower()#guardar tipo col
-                    #revisar la lista de Types
-                    crearOK=False
-                    msg='42704:No existe el Type '+colAux.tipo+' en la columna '+colAux.nombre
-                    agregarMensjae('error',msg,'42704')
+                    tablaType=buscarTabla(baseActiva,colAux.tipo)#revisar la lista de Types
+                    if(tablaType==None):
+                        crearOK=False
+                        msg='42704:No existe el Type '+colAux.tipo+' en la columna '+colAux.nombre
+                        agregarMensjae('error',msg,'42704')
                 else:
                     colAux.tipo=colum.tipo.lower() #guardar tipo col
                 if(colum.valor!=False):
-                    if(colAux.tipo=='character varying' or colAux.tipo=='varchar' or colAux.tipo=='text' or colAux.tipo=='character' or colAux.tipo=='char'):
+                    if(colAux.tipo=='character varying' or colAux.tipo=='varchar' or colAux.tipo=='character' or colAux.tipo=='char' or colAux.tipo=='interval'):
                         if(len(colum.valor)==1):
                             errT=True;#variable error en p varchar(p)
                             if isinstance(colum.valor[0],Operando_Numerico):
@@ -401,7 +482,7 @@ def crear_Tabla(instr,ts):
                             crearOK=False
                             msg='42601:el tipo '+colAux.tipo+' solo acepta 1 parametro: '+colAux.nombre
                             agregarMensjae('error',msg,'42601')
-                    elif(colAux.tipo=='decimal' or colAux.tipo=='numeric' or colAux.tipo=='double precision'):
+                    elif(colAux.tipo=='decimal' or colAux.tipo=='numeric'):
                         if(len(colum.valor)==1):
                             errT=True;#variable error en p varchar(p)
                             if isinstance(colum.valor[0],Operando_Numerico):
@@ -493,12 +574,43 @@ def crear_Tabla(instr,ts):
                                 for exp in atributoC.check:
                                     print('resultado: ',resolver_operacion(exp,ts))
                 listaColumnas.append(colAux)
- 
-                
-            
-
-    #analisas si las columnas estan bien
-    #buscar las tablas de una base de datos retorna una lista de tablas
+    
+    #validar foranea compuesta
+    if(crearOK):
+        listFK=[]
+        #recorrer la tabla nueva para obtener las referencias
+        for col in listaColumnas:
+            if(col.foreign):
+                if col.refence[0] not in listFK:
+                    listFK.append(col.refence[0])
+        lenFK=[]
+        lenPK=[]
+        
+        #obtener longitud de foranea
+        for tab in listFK:
+            lenPK.append(0)
+            lenFK.append(len(getpks(baseActiva,tab)))
+        #obtener la longitud de foranea en tabla actual
+        for col in listaColumnas:
+            if(col.foreign):
+                contFK=0
+                for tab in listFK:
+                    if(col.refence[0]==tab):
+                        lenPK[contFK]+=1
+                        break
+                    contFK=contFK+1
+        #validar #foraneas==#primarias en referencia
+        pos=0
+        while pos<len(listFK):
+            if(lenFK[pos]!=lenPK[pos]):
+                crearOK=False
+                msg='42830:llave foranea debe ser compuesta ref:'+listFK[pos]
+                agregarMensjae('error',msg,'42830')
+            pos+=1
+        #print('lista de Referencias:',listFK)
+        #print('count pk en la  refe:',lenFK)
+        #print('count fk tabla nueva:',lenPK)
+    #crear la tabla
     if(crearOK):
         result=EDD.showTables(baseActiva)
         if(result!=None):
@@ -586,10 +698,10 @@ def crear_Type(instr,ts):
 def insertar_en_tabla(instr,ts):
     #pendiente
     # -Datos de tipo fecha
-    # -Datos TYPE
-    # -size and precision
+    # -size and precision para numeric
     # -check
     # -constraint
+    # -foraneas
     insertOK=True
     ValInsert=[] #lista de valores a insertar
     nombreT=resolver_operacion(instr.nombre,ts).lower()
@@ -721,7 +833,6 @@ def insertar_en_tabla(instr,ts):
     #validaciones parametros de columna
     if(insertOK):
         #-pendiente
-        # llaves foranes !=none
         # check
         pos=0
         for col in tablaInsert.atributos:
@@ -734,10 +845,15 @@ def insertar_en_tabla(instr,ts):
                 #agregar valores default
                 elif(col.default!=None):
                     ValInsert[pos]=col.default
-
+                #llaves primaria != null
                 if(col.primary):
                     insertOK=False
                     msg='23502:llave primaria no puede ser null:'+col.nombre
+                    agregarMensjae('error',msg,'23502')
+                #llaves foranea != null
+                if(col.foreign):
+                    insertOK=False
+                    msg='23502:llave foranea no puede ser null:'+col.nombre
                     agregarMensjae('error',msg,'23502')
             #insertaron null desde consola
             elif(ValInsert[pos]==Operando_Booleano):
@@ -751,10 +867,27 @@ def insertar_en_tabla(instr,ts):
                     insertOK=False
                     msg='23502:llave primaria no puede ser null:'+col.nombre
                     agregarMensjae('error',msg,'23502')
-
+                #llaves foranea != null
+                if(col.foreign):
+                    insertOK=False
+                    msg='23502:llave foranea no puede ser null:'+col.nombre
+                    agregarMensjae('error',msg,'23502')
             pos=pos+1
+    #validaciones llaves foraneas
+    if(insertOK):
+        pos=0
+        for col in tablaInsert.atributos:
+            ''
     #validar size, presicion
-    if(True): ''
+    if(insertOK):
+        pos=0
+        for col in tablaInsert.atributos:
+            val=validarSizePres(col.tipo,ValInsert[pos],col.size,col.precision)
+            if(val==False):
+                insertOK=False
+                msg='22001:valor muy grande para la columna:'+col.nombre
+                agregarMensjae('error',msg,'22001')
+            pos=pos+1
     #realizar insert con EDD
     if(insertOK):
         #llamar metodo insertar EDD
@@ -1861,11 +1994,11 @@ def mostrarTablasTemp():
     for tab in listaTablas:
         texTab=PrettyTable()
         texTab.title='DB:'+tab.basepadre+'\tTABLA:'+tab.nombre
-        texTab.field_names = ["nombre","tipo","size","precision","unique","anulable","default","primary","foreign","refence","check","constraint"]
+        texTab.field_names = ["nombre","tipo","size","precision","unique","anulable","default","primary","foreign","refence","check"]
         #recorrer las columans
         if tab.atributos!=None:
             for col in tab.atributos:
-                texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check,col.constraint])
+                texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check])
         misTablas.append(texTab)
 
     return misTablas
