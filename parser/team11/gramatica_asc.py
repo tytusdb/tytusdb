@@ -228,7 +228,7 @@ def p_instruccion(t) :
                       | alterDB_instr
                       | dropDB_instr
                       | showDB_instr
-                      | create_instr
+                      | create_table
                       | alter_instr PTCOMA
                       | insert_instr
                       | update_instr
@@ -489,51 +489,57 @@ def p_field(t) :
                       | MINUTE
                       | SECOND'''
 
-# ----------------------------------------------------------------------------------------
+# ------------------------------- PRODUCCIONES PARA CREATE TABLE ------------------------------------
 
-def p_create(t):
-    '''
-        create_instr    : CREATE lista_crear create_final
-    '''
-def p_create_final(t):
-    '''
-        create_final    : PTCOMA
-                        | INHERITS PARIZQ ID PARDER PTCOMA
-    '''
+def p_create_table(t):
+    'create_table : CREATE TABLE ID PARIZQ list_columns_x PARDER end_create_table'
+    
+def p_end_create_table(t):
+    '''end_create_table : PTCOMA
+                      | INHERITS PARIZQ ID PARDER PTCOMA'''
+    
+def p_list_columns_x(t):
+    'list_columns_x : list_columns_x COMA key_column'
+    
+def p_list_columns(t):
+    'list_columns_x : key_column'
 
-def p_lista_crear(t):
-    '''
-        lista_crear     : DATABASE lista_owner
-                        | OR REPLACE DATABASE lista_owner
-                        | TABLE ID PARIZQ lista_campos PARDER 
-                        | TYPE ID AS ENUM PARIZQ lista_type  PARDER
-    '''
+def p_key_column(t):
+    '''key_column : PRIMARY KEY PARIZQ listtablas PARDER
+                   | ID type_column attributes'''
 
-def p_lista_type(t):
-    '''
-        lista_type      : lista_type COMA CADENASIMPLE
-                        | CADENASIMPLE
-    '''
+def p_attributes(t):
+    'attributes   : default_value null_field constraint_field null_field primary_key'
+    
+def p_default_value(t):
+    '''default_value  : DEFAULT x_value
+                      | empty '''
 
-def p_lista_campos(t):
-    '''
-        lista_campos    : lista_campos COMA campo
-                        | campo
-    '''
+def p_x_value(t):
+    ''' x_value : cualquiercadena
+                | cualquiernumero'''
 
-def p_campo(t):
-    '''
-        campo           : ID type_column
-                        | ID type_column PRIMARY KEY
-                        | PRIMARY KEY PARIZQ columnas PARDER 
-                        | FOREIGN KEY PARIZQ columnas PARDER REFERENCES ID PARIZQ columnas PARDER
-    '''
+def p_primary_key(t):
+    '''primary_key : PRIMARY KEY
+                   | empty'''
+    
+def p_null_field(t):
+    '''null_field     : NULL
+                      | NOT NULL
+                      | empty '''
+    
+def p_constraint_field(t):
+    '''constraint_field : UNIQUE
+                        | CONSTRAINT ID check_unique 
+                        | CHECK PARIZQ condiciones PARDER
+                        | empty'''
+    
+def p_check_unique(t):
+    '''check_unique : UNIQUE 
+                    | CHECK PARIZQ condiciones PARDER
+                    | empty'''
 
-def p_lista_owner(t):
-    '''
-        lista_owner     : IF NOT EXISTS ID
-                        | ID
-    '''
+#----------------------------------------------------------------------------------------------------
 
 #####################################################################################################
 
