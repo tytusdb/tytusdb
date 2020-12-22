@@ -161,3 +161,46 @@ class NombreEstructuras:
                 return 1
         except:
             return 1
+        
+    #Mustra las tablas en una base de datos
+    def showTables(self, database: str):
+        try:
+            if self.ComprobarNombre(database) == True:
+                if self.searchDatabase(database) == True:
+                    aux = self.database[database] #Contiene el diccionario de tablas
+                    arrtmp = [] #arreglo para retornar el nombre de las tablas
+                    for key in aux:
+                        arrtmp.append(str(key))
+                    return arrtmp
+
+                else:
+                    return None
+            else:
+                return None
+        except:
+            None
+    #Cambia el nombre de una tabla
+    def alterTable(self, database: str, tableOld: str, tableNew: str):
+        try:
+            if self.ComprobarNombre(database) == True and self.ComprobarNombre(tableOld) == True and self.ComprobarNombre(tableNew) == True: #Comprueba los nombres
+                if  self.searchDatabase(database) == True: #Busca base de datos
+                    aux = self.database[database] #Obtenemos el diccionario de tablas
+                    if self.buscarTabla(tableOld, aux) == True: # busca tabla vieja
+                        if self.buscarTabla(tableNew, aux) == False: #busca la tabla neuva
+                            aux[tableNew] = aux[tableOld] #se inserrta
+                            ne.serialize("data/tables/"+str(database)+"-"+str(tableNew),aux[tableNew])
+                            del aux[tableOld]
+                            os.remove("data/tables/"+str(database)+"-"+str(tableOld))
+                            ne.serialize("data/database",self.database)
+                            return 0
+                        else:
+                            return 4
+                    else:
+                        return 3
+                else:
+                    return 2
+
+            else:
+                return 1
+        except:
+            return 1   
