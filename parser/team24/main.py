@@ -1,4 +1,4 @@
-import grammar as g
+import grammar2 as g
 import tabla as TabladeSimbolos
 #from graphQueries import graphTree
 default_db = 'DB1'
@@ -18,11 +18,8 @@ if __name__ == '__main__':
     #print(input)
     meterSimbolos()
     root = g.parse(input)
-    results = []
-    for query in root:
-        results.append(query.ejecutar())
-    for res in results:
-        print(res)
+    for val in root:
+        print(val.ejecutar())
     #graphTree(root)
 
 
