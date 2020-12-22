@@ -18,12 +18,13 @@ class CreateEnum(ASTNode):
 
 
 class CreateDatabase(ASTNode):
-    def __init__(self, name, owner, mode, replace, line, column,graph_ref):
+    def __init__(self, name, owner, mode, replace, exists, line, column, graph_ref):
         ASTNode.__init__(self, line, column)
         self.name = name  # database name
         self.owner = owner  # optional owner
         self.mode = mode  # mode integer
         self.replace = replace  # boolean type
+        self.exists = exists
         self.graph_ref=graph_ref
 
     def execute(self, table: SymbolTable, tree):
@@ -45,7 +46,7 @@ class CreateDatabase(ASTNode):
             # log error on operation
             raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
             return False
-        elif result == 2:
+        elif result == 2 and self.exists == False:
             # log error because db already exists
             raise Error(0, 0, ErrorType.RUNTIME, '42P04: duplicate_database')
             return False

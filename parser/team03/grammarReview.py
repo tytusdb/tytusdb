@@ -367,19 +367,17 @@ def p_statements2(t):
 
 
 def p_statement(t):
-#    '''statement    : stm_create    PUNTOCOMA'''
     '''statement    : predicateExpression PUNTOCOMA
                     | stm_show   PUNTOCOMA
                     | stm_create PUNTOCOMA
                     | stm_use_db PUNTOCOMA 
-                    |    stm_select PUNTOCOMA
+                    | stm_select PUNTOCOMA
                     
                     '''
 #                    |    stm_select PUNTOCOMA 
 #                    |    stm_insert PUNTOCOMA
 #                    |    stm_update PUNTOCOMA
 #                    |    stm_delete PUNTOCOMA
-#                    |    stm_create PUNTOCOMA
 #                    |    stm_alter  PUNTOCOMA
 #                    |    stm_drop   PUNTOCOMA
 #                    |    stm_show   PUNTOCOMA
@@ -937,18 +935,20 @@ def p_where_clause(t):
     t[0] = upNodo("token", 0, 0, graph_ref)
     ##### 
 
+#TODO  add parameter for if_not_exists_opt of the first production
 def p_stm_create(t):
-    '''stm_create   : CREATE or_replace_opt DATABASE ID owner_opt mode_opt
+    '''stm_create   : CREATE or_replace_opt DATABASE if_not_exists_opt ID owner_opt mode_opt
                     | CREATE TABLE ID PARA tab_create_list PARC inherits_opt
                     | CREATE TYPE ID AS ENUM PARA exp_list PARC'''
     token = t.slice[1]
-    if len(t) == 7:        
-        tokenID = t.slice[4]
-        childsProduction = addNotNoneChild(t,[2,5,6])                
-        graph_ref = graph_node(str("stm_create"), [t[1],t[2],t[3],t[4],t[5],t[6]]    ,childsProduction)
+    tok = t.slice[3]
+    if len(t) == 8 and tok.type == "DATABASE" :        
+        tokenID = t.slice[5]
+        childsProduction = addNotNoneChild(t,[2,4,6,7])                
+        graph_ref = graph_node(str("stm_create"), [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]    ,childsProduction)
         addCad("**\<STM_CREATE>** ::=  tCreate \<OR_REPLACE_OPT> tDatabase tIdentifier  \<OWNER_OPT> \<MODE_OPT>")
         tvla = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)         
-        t[0] = CreateDatabase(tvla , None, t[6] if t[6] else 1, (True if t[2] else False) , token.lineno, token.lexpos, graph_ref)       
+        t[0] = CreateDatabase(tvla , None, t[7] if t[7] else 1, (True if t[2] else False) , (True if t[4] else False ), token.lineno, token.lexpos, graph_ref)       
 
     elif len(t) == 8: 
         lista=None
@@ -971,7 +971,19 @@ def p_stm_create(t):
         addCad("**\<STM_CREATE>** ::=   tCreate tType tIdentifier tAs tEnum '(' \<EXP_LIST> ')' ")     
         t[0] = CreateEnum(t[3], token.lineno, token.lexpos, graph_ref)
         ##### 
- 
+
+
+def p_if__not_exist_opt(t):
+    '''if_not_exists_opt    : IF NOT EXISTS
+                            | empty'''
+    if len(t) == 4:
+        graph_ref = graph_node(str(str(t[1])+" "+str(t[2])+" "+str(t[3])) ) 
+        addCad("**\<IF_EXISTS_OPT>** ::= tIf tNot tExists ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####        
+    else: 
+        t[0]=None 
+
 
 #for table columns and contrainst
 def p_tab_create_list(t):
