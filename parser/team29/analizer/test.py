@@ -17,9 +17,7 @@ s = """
 
 USE db1;
 
-insert into tbempleado (idempleado,primernombre,primerapellido,fechadenacimiento,fechacontratacion,idestado) 
-values(8,'Maria','Lopez','1990-12-01','2016-09-21',1);
-
+select  caca.name, count(mierda.name) from mierda, (select name from mierda where id<5) as caca group by 2;
 
 """
 result = grammar.parse(s)
