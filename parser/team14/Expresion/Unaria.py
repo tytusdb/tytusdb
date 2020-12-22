@@ -12,12 +12,18 @@ class Unaria(Expresion) :
         self.operador = operador
 
     def getval(self,entorno):
+        if (self.exp1.tipo.tipo == 'identificador'):
+            return self
+
         valexp=self.exp1.getval(entorno)
         if self.operador == '+':
-            self.valor= valexp
+            self.tipo=self.exp1.tipo
+            self.tipo= valexp
         elif self.operador == '-':
+            self.tipo=self.exp1.tipo
             self.valor = valexp*-1
         elif self.operador == 'not':
+            self.tipo='boolean'
             self.valor =  not valexp
 
         print(self.valor)

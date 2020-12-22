@@ -4,7 +4,7 @@ from tkinter import messagebox as MessageBox
 from tkinter import ttk,filedialog, INSERT
 import os
 import pathlib
-from campo import Campo
+from campo import Campo, MyDialog
 from arbol import Arbol
 import http.client
 import json
@@ -14,6 +14,8 @@ textos=[]
 control=0
 notebook= None
 consola = None
+raiz = None
+
 
 #Variables para simular credenciales
 username = "admin"
@@ -36,7 +38,12 @@ def myGET():
         consola.config(state=NORMAL)
         consola.insert(INSERT,"\n" + data.decode("utf-8"))
         consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
     myConnection.close()
+
 
 #Metodo POST para probar peticiones al servidor
 def myPOST():
@@ -63,7 +70,51 @@ def myPOST():
         else:
             consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
         consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
     myConnection.close()
+
+
+#Metodo POST para crear usuarios
+def crearUsuario():
+    global raiz
+    d = MyDialog(raiz)
+    if d.accept is True:
+        newUsername = d.result[0]
+        newPassword = d.result[1]
+
+        if not "".__eq__(newUsername) and not "".__eq__(newPassword):
+            #Data en formato json
+            jsonData = { "username": newUsername, "password": newPassword }
+            myJson = json.dumps(jsonData)
+
+            myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+            headers = {
+                "Content-type": "application/json"
+            }
+
+            myConnection.request("POST", "/createUser", myJson, headers)
+            response = myConnection.getresponse()
+            print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+            if response.status == 200:       
+                data = response.read()
+                result = data.decode("utf-8")
+                consola.config(state=NORMAL)
+                if result == "false":
+                    consola.insert(INSERT,"\nUsuario creado correctamente.")
+                else:
+                    consola.insert(INSERT,"\nUsuario ya existe actualmente, intente con otro username.")
+                consola.config(state=DISABLED)
+            else:
+                consola.config(state=NORMAL)
+                consola.insert(INSERT,"\nHa ocurrido un error.")
+                consola.config(state=DISABLED)
+            myConnection.close()
+        else:
+            MessageBox.showerror("Error", "Uno de los campos está vacío")
 
 
 def CrearMenu(masterRoot):
@@ -105,8 +156,8 @@ def CrearMenu(masterRoot):
     tools.add_command(label="Utilidades")
     #Temporary tools to test client-server connection
     tools.add_command(label="GET", command = myGET)
-    tools.add_command(label="POS", command = myPOST)
-    
+    tools.add_command(label="POST", command = myPOST)
+    tools.add_command(label="CREATE USER", command = crearUsuario)
 
     #se agrega ayuda
     ayuda=Menu(barraDeMenu, tearoff=0)
@@ -161,6 +212,7 @@ def guardarComo():
         archivo = guardar
 
 def CrearVentana():
+    global raiz
     raiz = Tk()
     #Configuracion de ventana
     raiz.title("TytuSQL") #Cambiar el nombre de la ventana
