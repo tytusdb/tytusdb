@@ -1660,8 +1660,6 @@ def p_tipo(t):
         h.reporteGramatical1 +="tipo    ::=      "+str(t[1])+"\n"
         h.reporteGramatical2 +="t[0]=TipoDatoColumna(t[1],None)\n"
 
-    
-    
 #--------------------------------------------------- SENTENCIA SELECT --------------------------------------------------------------
 def p_select(t):
     '''selectData       : SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
@@ -1669,8 +1667,21 @@ def p_select(t):
     '''
     if t[2]=='*':
         h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
+        print("/////////////////// SELECT CON ASTERISCO ////////////////////////")
+        print("Columnas: ",t[2])
+        print("Tablas: ",t[4])
+        print("Where: ",QueryWhere(t[6]))
+        print("Extras: ",t[7])
+        t[0]=Select5(t[2],t[4],QueryWhere(t[6]),t[7])
     else:
         h.reporteGramatical1 +="selectData    ::=      SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
+        print("/////////////////// SELECT SIN ASTERISCO ////////////////////////")
+        print("Columnas: ",t[2])
+        print("Tablas: ",t[4])
+        print("Where: ",QueryWhere(t[6]))
+        print("Extras: ",t[7])
+        t[0]=Select5(t[2],t[4],QueryWhere(t[6]),t[7])
+     
 
 
 def p_select_1(t):
@@ -1679,45 +1690,65 @@ def p_select_1(t):
     '''
     if t[2]=='*':
         h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA\n"
+        h.reporteGramatical2 +="t[0]=Select3(t[4],QueryWhere(t[6]))\n"
+        print("entra al select con where y asterisco/////////////////")
+        t[0]=Select3(t[4],QueryWhere(t[6]))
+        print("el objeto que sube")
+        print(t[0])
     else:
         h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA\n"
+        h.reporteGramatical2 +=" t[0]=Select4(t[2],t[4],QueryWhere(t[6]))\n"
+        print("entra al select con where y campos /////////////////")
+        print(t[2])
+        print(t[4])
+        print(t[6])
+        t[0]=Select4(t[2],t[4],QueryWhere(t[6]))
+        print(t[0])
 
+
+
+# esta full
 def p_select_2(t):
     '''selectData       : SELECT select_list FROM select_list  PUNTOYCOMA
                         | SELECT POR FROM select_list  PUNTOYCOMA
-    '''
-    #el primero ya funciona 
+    ''' 
     if t[2]=='*':
         h.reporteGramatical1 +="selectData    ::=      SELECT POR FROM select_list  PUNTOYCOMA\n"
+        h.reporteGramatical2 +=" t[0]=Select(1,t[4])\n"
         print("entra a select_2 A")
-        print(t[4])
         t[0]=Select(1,t[4])
-    # este esta en proceso, solo falta devolver ambos valores
+    
     else:
+        # select tipo 4
         h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list  PUNTOYCOMA\n"
+        h.reporteGramatical2 +=" t[0]=Select2(2,t[2],t[4])\n"
         print("entra a select_2  B")
         t[0]=Select2(2,t[2],t[4])
-        print(t[2])
-        print(t[4])
-       
 
-
-#full
+# esta full
 def p_select_3(t):
     '''selectData       : SELECT select_list   PUNTOYCOMA
     '''
     h.reporteGramatical1 +="selectData    ::=      SELECT select_list   PUNTOYCOMA\n"
+    h.reporteGramatical2 +=" t[0]=Select(1,t[2])\n"
     t[0]=Select(1,t[2])
+
+
 
 def p_opcionesSelect_1(t):
     '''opcionesSelect   : opcionesSelect opcionSelect
     '''
     h.reporteGramatical1 +="opcionesSelect    ::=      opcionesSelect opcionSelect\n"
+    print(t[1])
+    t[1].append(t[2])
+    t[0]=t[1]
 
 def p_opcionesSelect_2(t):
     '''opcionesSelect   : opcionSelect
     '''
     h.reporteGramatical1 +="opcionesSelect    ::=      opcionSelect\n"
+    print(t[1])
+    t[0]=[t[1]]
 
 
 def p_opcionesSelect_3(t):
@@ -1726,23 +1757,36 @@ def p_opcionesSelect_3(t):
                         | HAVING select_list
                         | ORDER BY select_list 
     '''
-    if t[1]=="LIMIT":
+    if t[1].upper()=="LIMIT":
         h.reporteGramatical1 +="opcionSelect    ::=      LIMIT operacion\n"
-    elif t[1]=="GROUP":
+        h.reporteGramatical2 +="t[0]=ExpresionLimit(t[2])\n"
+        t[0]=ExpresionLimit(t[2])
+    elif t[1].upper()=="GROUP":
         h.reporteGramatical1 +="opcionSelect    ::=      GROUP BY select_list\n"
-    elif t[1]=="HAVING":
+        h.reporteGramatical2 +="t[0]=ExpresionGroup(t[3])\n"
+        t[0]=ExpresionGroup(t[3])
+    elif t[1].upper()=="HAVING":
         h.reporteGramatical1 +="opcionSelect    ::=      HAVING select_list\n"
-    elif t[1]=="ORDER":
+        h.reporteGramatical2 +="t[0]=ExpresionHaving(t[2])\n"
+        t[0]=ExpresionHaving(t[2])
+    elif t[1].upper()=="ORDER":
         h.reporteGramatical1 +="opcionSelect    ::=      ORDER BY select_list\n"
+        h.reporteGramatical2 +="t[0]=ExpresionOrder(t[3],'ASC')\n"
+        t[0]=ExpresionOrder(t[3],'ASC')
+
 
 def p_opcionesSelect_4(t):
     '''opcionSelect     : LIMIT operacion OFFSET operacion
                         | ORDER BY select_list ordenamiento                     
     '''
-    if t[1]=="LIMIT":
+    if t[1].upper()=="LIMIT":
         h.reporteGramatical1 +="opcionSelect    ::=      LIMIT operacion OFFSET operacion\n"
-    elif t[1]=="ORDER":
+        h.reporteGramatical2 +="t[0]=ExpresionLimitOffset(t[2],t[4])\n"
+        t[0]=ExpresionLimitOffset(t[2],t[4])
+    elif t[1].upper()=="ORDER":
         h.reporteGramatical1 +="opcionSelect    ::=      ORDER BY select_list ordenamiento\n"
+        h.reporteGramatical2 +="t[0]=ExpresionOrder(t[3],t[4])\n"
+        t[0]=ExpresionOrder(t[3],t[4])
 
 
 
@@ -1750,30 +1794,42 @@ def p_ordenamiento(t):
     '''ordenamiento     : ASC
                         | DESC '''
     h.reporteGramatical1 +="ordenamiento    ::=      "+str(t[1])+"\n"
+    h.reporteGramatical2 +=" t[0]=str(t[1])\n"
+    t[0]=str(t[1])
 
-def p_search_condition_1(t):
-    '''search_condition   : search_condition AND search_condition
-                          | search_condition OR search_condition                         
-    '''
-    h.reporteGramatical1 +="search_condition    ::=     search_condition     "+str(t[2])+"    search_condition\n"
+
 
 def p_search_condition_2(t):
     'search_condition   : NOT search_condition'
-    h.reporteGramatical1 +="search_condition    ::=      condicion_select   operacion\n"
+    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
+    print("esta condicion es del not con operacion******************")
+    print(t[2])
 
-
+# PARA ABAJO YA ESTA
 def p_search_condition_3(t):
     'search_condition   : operacion'
     h.reporteGramatical1 +="search_condition    ::=       operacion\n"
+    h.reporteGramatical2 +=" t[0]=t[1]\n"
+    print("entra a la operacion del seach_condition++++++++++++++++++++++++++++++++++++++++")
+    print(t[1])
+    t[0]=t[1]
 
 def p_search_condition_4(t):
     'search_condition   : PARENTESISIZQUIERDA search_condition PARENTESISDERECHA'
     h.reporteGramatical1 +="search_condition    ::=     PARENTESISIZQUIERDA search_condition PARENTESISDERECHA\n"
+    h.reporteGramatical2 +=" t[0]=t[2]\n"
+    print("entra a la condicion con el parentesis")
+    print(t[2])
+    t[0]=t[2]
+
+
+
 
 
 def p_select_list_1(t):
     ' select_list   : select_list COMA operacion'
     h.reporteGramatical1 +="select_list    ::=      select_list COMA operacion\n"
+    h.reporteGramatical2 +=" t[1].append(t[3])\nt[0]=t[1]\n"
     print("Entra a select list COMA operacion****************************************")
     t[1].append(t[3])
     print(t[1])
@@ -1784,75 +1840,52 @@ def p_select_list_1(t):
 def p_select_list_6(t):
     ' select_list   : select_list COMA asignacion'
     h.reporteGramatical1 +="select_list    ::=      select_list COMA asignacion\n"
+    h.reporteGramatical2 +=" t[0]=Asignacion(t[1],t[3])\n"
     print(" entra al select_list COMA operacion-------------")
-    t[0]=Asignacion(t[1],t[3])
+    t[1].append(t[3])
+    t[0]=t[1]
     print(t[0])
  
 def p_select_list_7(t):
     ' select_list   :  asignacion'
     h.reporteGramatical1 +="select_list    ::=      asignacion\n"
+    h.reporteGramatical2 +=" t[0]=t[1]\n"
     print(" entra al select_list: asignacion-------------")
     print(t[1])
     t[0]=t[1]
 
- 
 
 def p_select_list_2(t):
     'select_list    : operacion'
     h.reporteGramatical1 +="select_list    ::=      operacion\n"
+    h.reporteGramatical2 +=" t[0]=[ExpresionFuncionBasica(t[1])]\n"
     print("select_list+++++++++++++++++++++++++")
     print(t[1])
     t[0]=[ExpresionFuncionBasica(t[1])]
 
-def p_select_list_3(t):
-    ' select_list   : select_list condicion_select operacion COMA operacion' 
-    h.reporteGramatical1 +="select_list    ::=      select_list condicion_select operacion COMA operacion\n"
-
-def p_select_list_4(t):
-    ' select_list   : condicion_select   operacion' 
-    h.reporteGramatical1 +="select_list    ::=      condicion_select   operacion\n"
-
-
-def p_asignacion_(t):
+def p_asignacion_1(t):
     ' asignacion   : operacion AS  operacion' 
     h.reporteGramatical1 +="select_list    ::=      select_list AS  operacion\n"
+    h.reporteGramatical2 +=" t[0]=[Asignacion(t[1],t[3])]\n"
     print("entra a asignacion: operacion AS operacion")
-    t[0]=Asignacion(t[1],t[3])
+    t[0]=[Asignacion(t[1],t[3])]
 
-
-
-def p_condicion_select(t):
-    '''condicion_select : DISTINCT FROM                 
-    '''
-    h.reporteGramatical1 +="condicion_select    ::=      DISTINCT FROM\n"
-
-def p_condicion_select_2(t):
-    '''condicion_select : IS DISTINCT FROM                             
-    '''
-    h.reporteGramatical1 +="condicion_select    ::=      IS DISTINCT FROM\n"
-
-
-def p_condicion_select_3(t):
-    '''condicion_select : IS NOT DISTINCT  FROM'''
-    h.reporteGramatical1 +="condicion_select    ::=     IS NOT DISTINCT  FROM\n"
-
-def p_condicion_select_4(t):
-    '''condicion_select : DISTINCT '''
-    h.reporteGramatical1 +="condicion_select    ::=      DISTINCT \n"
-
-def p_condicion_select_5(t):
-    '''condicion_select :  IS DISTINCT                 
-    '''
-    h.reporteGramatical1 +="condicion_select    ::=      IS DISTINCT\n"
-
-def p_condicion_select_6(t):
-    '''condicion_select : IS NOT DISTINCT                 
-    '''
-    h.reporteGramatical1 +="condicion_select    ::=     IS NOT DISTINCT\n"
+def p_asignacion_2(t):
+    ' asignacion   : final final'
+    h.reporteGramatical1 +="select_list    ::=      final final\n"
+    h.reporteGramatical2 +=" t[0]=[Asignacion(t[1],t[2])]\n"
+    print(" entra al select_list de 2 finales-------------")
+    t[0]=[Asignacion(t[1],t[2])]
+    print(t[0])
 
 def p_funcion_basica_4(t):
-    'funcionBasica   : operacion BETWEEN operacion AND operacion'
+    'funcionBasica   : operacion BETWEEN operacion '
     h.reporteGramatical1 +="funcionBasica    ::=      operacion BETWEEN operacion AND operacion\n"
+    h.reporteGramatical2 +="t[0]=ExpresionBetween(t[1],t[3])\n"
+    print("entra al between con sus operaciones")
+    print(t[1])
+    print(t[3])
+    t[0]=ExpresionBetween(t[1],t[3])
 
 def p_funcion_basica_5(t):
     'funcionBasica   :  operacion LIKE CADENA'
@@ -1862,22 +1895,46 @@ def p_funcion_basica_6(t):
     'funcionBasica   : operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA '
     h.reporteGramatical1 +="funcionBasica    ::=      operacion  IN PARENTESISIZQUIERDA select_list PARENTESISDERECHA\n"
 
+
 def p_funcion_basica_7(t):
-    'funcionBasica   : operacion NOT BETWEEN operacion AND operacion '
+    'funcionBasica   : operacion NOT BETWEEN operacion'
     h.reporteGramatical1 +="funcionBasica    ::=      operacion NOT BETWEEN operacion AND operacion\n"
+    h.reporteGramatical2 +="t[0]=ExpresionNotBetween(t[1],t[4])\n"
+    print("entra al NOT between con sus operaciones")
+    print(t[1])
+    print(t[3])
+    t[0]=ExpresionNotBetween(t[1],t[4])
+
 
 def p_funcion_basica_8(t):
-    'funcionBasica   : operacion  BETWEEN SYMMETRIC operacion AND operacion'
+    'funcionBasica   : operacion  BETWEEN SYMMETRIC operacion '
     h.reporteGramatical1 +="funcionBasica    ::=      operacion  BETWEEN SYMMETRIC operacion AND operacion\n"
+    h.reporteGramatical2 +="t[0]=ExpresionBetweenSymmetric(t[1],t[4])\n"
+    t[0]=ExpresionBetweenSymmetric(t[1],t[4])
 
 def p_funcion_basica_9(t):
-    'funcionBasica   : operacion NOT BETWEEN SYMMETRIC operacion AND operacion'
+    'funcionBasica   : operacion NOT BETWEEN SYMMETRIC operacion '
     h.reporteGramatical1 +="funcionBasica    ::=      operacion NOT BETWEEN SYMMETRIC operacion AND operacion\n"
+    h.reporteGramatical2 +="t[0]=ExpresionNotBetweenSymmetric(t[1],t[5])\n"
+    t[0]=ExpresionNotBetweenSymmetric(t[1],t[5])
 
 
 def p_funcion_basica_10(t):
-    'funcionBasica   : operacion condicion_select operacion'
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion condicion_select operacion\n"
+    '''funcionBasica : operacion IS DISTINCT FROM operacion                            
+    '''
+    h.reporteGramatical1 +="funcionBasica    ::=      operacion IS DISTINCT FROM operacion\n"
+    h.reporteGramatical2 +="t[0]=ExpresionIsDistinct(t[1],t[5])\n"
+    print("entra al IS DISTINCT ++++++++++++++++++")
+    t[0]=ExpresionIsDistinct(t[1],t[5])
+
+def p_funcion_basica_11(t):
+    '''funcionBasica : operacion IS NOT DISTINCT  FROM operacion'''
+    h.reporteGramatical1 +="funcionBasica    ::=     operacion IS NOT DISTINCT  FROM operacion\n"
+    h.reporteGramatical2 +="t[0]=ExpresionIsNotDistinct(t[1],t[6])\n"
+    print("entra al IS NOT DISTINCT ++++++++++++++++++")
+    t[0]=ExpresionIsNotDistinct(t[1],t[6])
+
+
 
 #para manejar los errores sintacticos
 #def p_error(t): #en modo panico :v
