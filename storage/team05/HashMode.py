@@ -24,7 +24,7 @@ def dropDatabase(database: str):
 def createTable(database: str, table: str, numberColumns: int):
     return d.createTable(database, table, numberColumns)
 
- def showTables(database: str):
+def showTables(database: str):
     return d.showTables(database)
 
 def extractTable(database: str, table: str):
@@ -41,3 +41,23 @@ def alterAddPK(database: str, table: str, columns: list):
 
 def alterDropPK(database: str, table: str):
     return d.alterAddPK(database, table)
+  
+def alterTable(database: str, tableOld: str, tableNew: str):
+    return d.alterTable(database, tableOld, tableNew)
+
+def alterAddColumn(database: str, table: str, default: any):
+    return d.alterAddColumn(database, table, default)
+
+def alterDropColumn(database: str, table: str, columnNumber: int):
+    return d.alterDropColumn(database, table, columnNumber)
+
+def dropTable(database: str, table: str):
+    return d.dropTable(database, table)
+
+def insert(database: str, table: str, register: list):
+    try:
+        return h.insert(database, table, register)
+    except:
+        return 1        
+
+  
