@@ -345,7 +345,6 @@ def seleccion_db(instr,ts):
 #---------pendientes-----------------------
 def crear_Tabla(instr,ts):
     #Pendiente
-    # -foraneas
     # -zonahoraria
     # -check
     # -herencia
@@ -362,7 +361,9 @@ def crear_Tabla(instr,ts):
     #recorrer las columnas
     for colum in instr.columnas :
         colAux=Columna_run()#columna temporal para almacenar
+        #bloque de llaves primarias o foraneas
         if isinstance(colum, llaveTabla) :
+            #bloque de primarias
             if(colum.tipo==True):
                 if(pkCompuesta==False):
                     pkCompuesta=True#primer bloque pk(list)
@@ -386,9 +387,58 @@ def crear_Tabla(instr,ts):
                     crearOK=False
                     msg='42P16:Solo puede existir un bloque de PK(list)'
                     agregarMensjae('error',msg,'42P16')
+            #bloque de foraneas
             else:
-                #bloque de foraneas
-                print('llaves Primaria:',colum.tipo,'lista:',colum.columnas,'tablaref',colum.referencia,'listaref',colum.columnasRef)
+                
+                refe=colum.referencia.lower()
+                tablaRef=buscarTabla(baseActiva,refe)
+                #no existe la tabla de referencia
+                if(tablaRef==None):
+                    crearOK=False
+                    msg='42P01:no existe la referencia a la Tabla '+refe
+                    agregarMensjae('error',msg,'42P01')
+                else:
+                    #validar #columnas==#refcolums
+                    if(len(colum.columnas)==len(colum.columnasRef)):
+                        #verificar si existen dentro de la tabla a crear
+                        pos=0#contador para referencias
+                        for fkC in colum.columnas:
+                            exCol=False
+                            for lcol in listaColumnas:
+                                if(lcol.nombre==fkC.lower()):
+                                    exCol=True
+                                    if(lcol.foreign==None):
+                                        #validar si existe en la tabla de referencia
+                                        exPK=False
+                                        for pkC in tablaRef.atributos:
+                                            #validar nombre y Primary
+                                            if(pkC.nombre==colum.columnasRef[pos].lower() and pkC.primary==True):
+                                                exPK=True
+                                                lcol.foreign=True #asignar como foranea
+                                                lcol.refence=[refe,pkC.nombre] #guardar la tabla referencia y la columna
+                                                if(pkC.tipo!=lcol.tipo):
+                                                    crearOK=False
+                                                    msg='42804:no coicide el tipo de dato:'+colum.columnasRef[pos]
+                                                    agregarMensjae('error',msg,'42804')
+                                                break                                  
+                                        if(exPK==False):
+                                            crearOK=False
+                                            msg='42703:no existe la referencia pk:'+colum.columnasRef[pos]
+                                            agregarMensjae('error',msg,'42703')
+                                    else:
+                                        crearOK=False
+                                        msg='foreign key repetida:'+fkC.lower()
+                                        agregarMensjae('error',msg,'42P16')   
+                            if(exCol==False):
+                                crearOK=False
+                                msg='42P16:No se puede asignar como foranea:'+fkC.lower()
+                                agregarMensjae('error',msg,'42P16')
+                            pos=pos+1
+                    else:
+                        crearOK=False
+                        msg='42P16: la cantidad de referencias es distinta: '+str(len(colum.columnas))+'!='+str(len(colum.columnasRef))
+                        agregarMensjae('error',msg,'42P16')
+        #columna
         elif isinstance(colum, columnaTabla) :
             contC=contC+1
             colAux.nombre=resolver_operacion(colum.id,ts).lower()#guardar nombre col
@@ -525,11 +575,7 @@ def crear_Tabla(instr,ts):
                                     print('resultado: ',resolver_operacion(exp,ts))
                 listaColumnas.append(colAux)
  
-                
-            
-
-    #analisas si las columnas estan bien
-    #buscar las tablas de una base de datos retorna una lista de tablas
+    #crear la tabla
     if(crearOK):
         result=EDD.showTables(baseActiva)
         if(result!=None):
@@ -617,10 +663,10 @@ def crear_Type(instr,ts):
 def insertar_en_tabla(instr,ts):
     #pendiente
     # -Datos de tipo fecha
-    # -Datos TYPE
     # -size and precision para numeric
     # -check
     # -constraint
+    # -foraneas
     insertOK=True
     ValInsert=[] #lista de valores a insertar
     nombreT=resolver_operacion(instr.nombre,ts).lower()
@@ -765,10 +811,15 @@ def insertar_en_tabla(instr,ts):
                 #agregar valores default
                 elif(col.default!=None):
                     ValInsert[pos]=col.default
-
+                #llaves primaria != null
                 if(col.primary):
                     insertOK=False
                     msg='23502:llave primaria no puede ser null:'+col.nombre
+                    agregarMensjae('error',msg,'23502')
+                #llaves foranea != null
+                if(col.foreign):
+                    insertOK=False
+                    msg='23502:llave foranea no puede ser null:'+col.nombre
                     agregarMensjae('error',msg,'23502')
             #insertaron null desde consola
             elif(ValInsert[pos]==Operando_Booleano):
@@ -782,8 +833,15 @@ def insertar_en_tabla(instr,ts):
                     insertOK=False
                     msg='23502:llave primaria no puede ser null:'+col.nombre
                     agregarMensjae('error',msg,'23502')
-
+                #llaves foranea != null
+                if(col.foreign):
+                    insertOK=False
+                    msg='23502:llave foranea no puede ser null:'+col.nombre
+                    agregarMensjae('error',msg,'23502')
             pos=pos+1
+    #validaciones llaves foraneas
+    if(insertOK):
+        ''
     #validar size, presicion
     if(insertOK):
         pos=0
