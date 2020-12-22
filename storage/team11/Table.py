@@ -238,7 +238,7 @@ class Table:
             return 5
 
     def alterDropPK(self):
-
+        self.__isAutoincrement = False
         if len(self.__list_pk) != 0:
 
             self.__list_pk = list()
