@@ -374,3 +374,33 @@ class NombreEstructuras:
                 return 2
         except:
             return 1
+
+        #Devuelve el número de columnas de una tabla especifica, sino la encuentra devuelve None
+    def numeroDeColumnas(self, database: str, table: str):
+        try:
+            dicTemporal = self.database[database]
+            numeroColumna = dicTemporal[table][0]
+            return numeroColumna
+        except:
+            return None
+    
+    ##serializacion
+    def serialize(self, filename, data):
+        objetos=data
+        nombre_archivo=filename
+        
+        #creacion del archivo
+        archivo_dat=open(nombre_archivo,'wb')
+        pickle.dump(objetos,archivo_dat)
+        archivo_dat.close()
+        del archivo_dat
+    
+    def deserialize(self, filename):
+        archivo_dat=open(filename,'rb')
+        recover_data={}
+        recover_data=pickle.load(archivo_dat)
+        archivo_dat.close()
+        
+        #print("recover data:",recover_data)
+        return recover_data
+    ##fin serializacion
