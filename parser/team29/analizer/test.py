@@ -1,28 +1,28 @@
 from sys import path
 from os.path import dirname as dir
+from shutil import rmtree
 
 path.append(dir(path[0]))
 
 from analizer import grammar
 
+dropAll = 0
+if dropAll:
+    print("Eliminando registros")
+    rmtree("data")
+
+
 s = """ 
-    /*
-    USE DATABASE db1;
-    CREATE TYPE if not exists mood AS ENUM ('sad', 'ok', 'happy');
-    CREATE TABLE IF NOT EXISTS Persona2( 
-        Dpi bigint not null primary key,
-        Nombre varchar(20),
-        fecha Date,
-        estado mood not null primary key,
-        Dpi2 bigint,
-        Foreign key (Dpi2) references Persona (Dpi)
-    );
-    
-    INSERT INTO Persona VALUES (22, "Estela Pérez", "2000-03-29 10:28:30", "xd",0);
-    */
-    SELECT 3+3;
+USE db1;
+/*
+CREATE TABLE demo7 (
+  id INTEGER,
+  name VARCHAR(20),
+  username VARCHAR(20)
+);
+*/
+--SELECT de1.id, caca.name FROM demo5 de1, (SELECT de2.name FROM demo5 de2 WHERE de1.id = de2.id) AS caca;
+--SELECT d.* FROM demo5 d WHERE d.id > 1;
 """
-
-
 result = grammar.parse(s)
 print(result)

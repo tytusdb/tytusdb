@@ -55,7 +55,6 @@ reservadas = {
     'databases': 't_databases',
     'like': 't_like',
     'alter': 't_alter',
-    'rename': 't_rename',
     'to': 't_to',
     'current_user': 't_current_user',
     'session_user': 't_session_user',
@@ -67,7 +66,6 @@ reservadas = {
     'current': 't_current',
     'of': 't_of',
     'returning': 't_returning',
-    'as': 't_as',
     'inherits': 't_inherits',
     'primary': 't_primary',
     'key': 't_key',
@@ -149,7 +147,19 @@ reservadas = {
     'set_byte' : 't_set_byte',
     'convert' : 't_convert',
     'encode' : 't_encode',
-    'decode' : 't_decode'
+    'decode' : 't_decode',
+    'group':'t_group',
+    'by' :'t_by',
+    'having': 't_having',
+    'order': 't_order',
+    'asc':'t_asc',
+    'desc':'t_desc',
+    'first':'t_first',
+    'last':'t_last',
+    'nulls':'t_nulls',
+    'all':'t_all',
+    'offset':'t_offset',
+    'limit':'t_limit'
 }
 
 tokens = [
@@ -211,6 +221,8 @@ def t_decimal(t):
         t.value = float(t.value)
     except ValueError:
         print("El valor es muy grande %d", t.value)
+        ListaErrores.insertar(err.Nodo_Error("Lexico", "El valor es muy grande '%s'" % str(t.value),
+                                      t.lineno, find_column(input, t)))
         t.value = 0
     return t
 
@@ -221,6 +233,8 @@ def t_entero(t):
         t.value = int(t.value)
     except ValueError:
         print("El valor de integer es muy grande %d", t.value)
+        ListaErrores.insertar(err.Nodo_Error("Lexico", "El valor de integer es muy grande '%s'" % str(t.value),
+                                      t.lineno, find_column(input, t)))
         t.value = 0
     return t
 
@@ -336,6 +350,8 @@ def p_Sentencia_SQL_DDL(p):
 def p_Sentencias_DML(p):
     '''Sentencias_DML : t_select Lista_EXP Select_SQL Condiciones pyc
                     | t_select asterisco Select_SQL Condiciones pyc
+                    1 t_select Lista_EXP Select_SQL ORD pyc
+                    | t_select Lista_EXP Select_SQL ORD LMT pyc
                     | t_insert t_into id Insert_SQL pyc
                     | t_update id t_set Lista_EXP t_where EXP pyc
                     | t_delete t_from id Condiciones pyc
@@ -345,7 +361,7 @@ def p_Sentencias_DML(p):
         p[0] = Select(p[2], p[3], p[4], p.slice[2].lineno, find_column(input, p.slice[2]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= select' + str(p[2]) + 'SELECT_SQL ; </TD><TD> { sentencias_dml.inst = select(lista_exp.lista, Select_SQL.val,Condiciones.val)}  </TD></TR>')
     elif p[1] == 'insert':
-        p[0] = Insert(p[3], p[4], p.slice[1].lineno, find_column(input, p.slice[1]))
+        p[0] = Insert(p[3], p[4]['col'],p[4]['valores'], p.slice[1].lineno, find_column(input, p.slice[1]))
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= insert into id INSERT_SQL ; </TD> <TD> {sentencias_dml.inst = insert(id,Insert_SQL.inst)}  </TD></TR>')
     elif p[1] == 'update':
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DML ::= update id set LISTA_EXP where EXP ; </TD> <TD> {sentencias_dml.inst = update(id, lista_exp.list, exp.val)} </TD></TR>')
@@ -388,16 +404,17 @@ def p_Subqueries(p):
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> INSERT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 def p_Insert_SQL(p):
     'Insert_SQL : par1 Lista_ID par2 t_values par1 Lista_EXP par2'
-    p[0] = p[6]
-    concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= ( LISTA_ID ) values ( LISTA_EXP ) </TD> <TD> { insert_sql.inst = insert1(lista_id.lista,lista_exp.lista)} </TD></TR>')
+    p[0] = {'col':p[2],'valores':p[6]}
+    concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= ( LISTA_ID ) values ( LISTA_EXP ) </TD> <TD> { insert_sql.inst = insert.lista.add(lista_id.lista,lista_exp.lista)} </TD></TR>')
 
 def p_Insert_SQL2(p):
     'Insert_SQL : t_values par1 Lista_EXP par2'
-    p[0] = p[3]
+    p[0] = {'col':None,'valores':p[3]}
     concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= values ( LISTA_EXP ) </TD>  <TD> { insert_sql.inst = insert1(lista_exp.lista)} </TD></TR>')
 
 def p_Condiciones(p):
     '''Condiciones : t_where EXP
+            | t_where EXP GRP
             | empty'''
     if len(p) == 3:
         p[0] = p[2]
@@ -406,9 +423,49 @@ def p_Condiciones(p):
         p[0] = p[1]
         concatenar_gramatica('\n <TR><TD> INSERT_SQL ::= EMPTY </TD> <TD> { insert_sql.val = empty.val }</TD></TR>')
 
+# ---------------------------- Group, having and order by --------------
+def p_GRP(p):
+    '''GRP : t_group t_by Lista_ID
+           | t_group t_by Lista_ID HV
+           | t_group t_by '''
+
+def p_HV(p):
+    '''HV : t_having EXP'''
+
+
+def p_ORD(p):
+    '''ORD : t_order t_by LSORT
+           | t_order t_by LSORT LMT'''
+
+
+def p_LSORT(p):
+    '''LSORT : LSORT coma SORT
+             | SORT'''
+
+def p_SORT(p):
+    '''SORT : EXP AD NFL
+            | EXP AD
+            | EXP'''
+
+def p_AD(p):
+    '''AD : t_asc
+          | t_desc'''
+
+def p_NFL(p):
+    '''NFL : t_nulls t_first
+           | t_nulls t_last'''
+def p_LMT(p):
+    '''LMT : t_limit NAL t_offset entero
+           | t_limit NAL
+           | t_offset entero '''
+
+def p_NAL(p):
+    '''NAL : entero
+           | t_all '''
+
 # ---------------------------- Sentencias DDL y Enum Type --------------
 def p_Sentencias_DDL(p):
-    '''Sentencias_DDL : t_show t_databases pyc
+    '''Sentencias_DDL : t_show t_databases Show_DB_Like_Char pyc
                     | Enum_Type
                     | t_drop Drop pyc
                     | t_alter Alter pyc
@@ -417,67 +474,85 @@ def p_Sentencias_DDL(p):
         p[0] = p[1]
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DDL ::= ENUM_TYPE </TD>  <TD> { sentencias_ddl.inst = enum_type.inst } </TD></TR>')
     elif p[1].upper() == 'SHOW':
-        p[0] = DDL.ShowDatabases(p.slice[1].lineno, find_column(input, p.slice[1]))
-        concatenar_gramatica('\n <TR><TD> SENTENCIAS_DDL ::= show databases ; </TD>  <TD> { sentencias_ddl.inst = show() } </TD></TR>')
+        p[0] = DDL.ShowDatabases(p.slice[1].lineno, find_column(input, p.slice[1]), p[3])
+        concatenar_gramatica('\n <TR><TD> SENTENCIAS_DDL ::= show databases SHOW_DB_LIKE_CHAR ; </TD>  <TD> { sentencias_ddl.inst = show() } </TD></TR>')
     elif p[1].upper() == 'CREATE':
         p[0] = p[2]
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DDL ::= create CREATE ; </TD>  <TD> { sentencias_ddl.inst = create.inst} </TD></TR>')
     elif p[1].upper() == 'DROP':
-        p[0] = None
+        p[0] = p[2]
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DDL ::= drop Drop ; </TD> <TD> { sentencias_ddl.inst = drop.inst } </TD></TR>')
     elif p[1].upper() == 'ALTER':
-        p[0] = None
+        p[0] = p[2]
         concatenar_gramatica('\n <TR><TD> SENTENCIAS_DDL ::= alter ALTER ; </TD>  <TD> { sentencias_ddl.inst = alter.inst }</TD></TR>')
     else:
         p[0] = None
 
+def p_show_db_like_regex(p):
+    '''Show_DB_Like_Char : t_like char 
+                        | empty '''
+    if len(p) == 3:
+        p[0] = p[2]
+        concatenar_gramatica('\n <TR><TD> SHOW_DB_LIKE_CHAR ::= like char </TD>  <TD> { show_db_like_char.inst = char }</TD></TR>')
+    else:
+        p[0] = None
+        concatenar_gramatica('\n <TR><TD> SHOW_DB_LIKE_CHAR ::= EMPTY </TD>  <TD> { show_db_like_char.inst = None }</TD></TR>')
+
 def p_Enum_Type(p):#Agregado
     'Enum_Type : t_create t_type id t_as t_enum par1 Lista_Enum par2 pyc'
-    p[0] = DDL.CreateType(p[3].lower(), p[7], p.slice[1].lineno, find_column(input, p.slice[1]))
+    p[0] = DDL.CreateType(p.slice[1].lineno, find_column(input, p.slice[1]), p[3].lower(), p[7])
     concatenar_gramatica('\n <TR><TD> ENUM_TYPE ::= create type id as enum ( LISTA_ENUM ) ; </TD>  <TD> { enum_type.inst = createType(id,lista_Enum.val) } </TD></TR>')
 
 def p_Drop(p):
     '''Drop : t_database DropDB id
             | t_table  id '''
-    if p[1] == 'database':
+    if p[1].lower() == 'database':
+        p[0] = DDL.DropDatabase(p.slice[1].lineno, find_column(input, p.slice[1]), p[3], p[2])
         concatenar_gramatica('\n <TR><TD> DROP ::= database DROPDB id  </TD> <TD> { drop.inst = dropBD( id) } </TD></TR>')
-    else: 
+    else:
+        p[0] = None 
         concatenar_gramatica('\n <TR><TD> DROP ::= table  id  </TD>  <TD> {drop.inst = dropTb( id )} </TD></TR>')
    
-def p_DropDB(p):
+def p_DropDB(p): #Agregado
     '''DropDB : t_if t_exists
             | empty'''
-    if p[1] == 'if':
-        concatenar_gramatica('\n <TR><TD> DROPDB ::= if exists </TD>  <TD> { dropdb.val = if exists} </TD></TR>')
-    else: 
-        concatenar_gramatica('\n <TR><TD> DROPDB ::= EMPTY </TD> <TD> { dropdb.val = empty.val } </TD></TR>')
+    if p[1].lower() == 'if':
+        p[0] = True
+        concatenar_gramatica('\n <TR><TD> DROPDB ::= if exists </TD>  <TD> { dropdb.val = True} </TD></TR>')
+    else:
+        p[0] = False
+        concatenar_gramatica('\n <TR><TD> DROPDB ::= EMPTY </TD> <TD> { dropdb.val = False } </TD></TR>')
 
 def p_Alter(p):
     '''Alter : t_database id AlterDB
             | t_table id AlterTB '''
     if p[1] == 'database':
+        p[0] = DDL.AlterDatabase(p.slice[1].lineno, find_column(input, p.slice[1]), p[2], p[3]['nuevo_nombre_DB'], p[3]['owner'])
         concatenar_gramatica('\n <TR><TD> ALTER ::= database id ALTERDB </TD> <TD> alter.inst = alterDB( id,alterdb.inst ) </TD></TR>')
     else: 
         concatenar_gramatica('\n <TR><TD> ALTER ::= table id ALTERTB </TD> <TD>  alter.inst = altertb(id, altertb.inst)  </TD></TR>')
 
-def p_AlterDB(p):
+def p_AlterDB(p): #Agregado
     ''' AlterDB : t_rename t_to id
                 | t_owner t_to SesionDB '''
     if p[1] == 'rename':
+        p[0] = {'nuevo_nombre_DB':p[3], 'owner': None}
         concatenar_gramatica('\n <TR><TD> ALTERDB ::= rename to id </TD> <TD> { alterdb.val = rename id } </TD></TR>')
-    else: 
+    else:
+        p[0] = {'nuevo_nombre_DB': None, 'owner':p[3]} 
         concatenar_gramatica('\n <TR><TD> ALTERDB ::= owner to SESIONDB </TD> <TD> { alterdb.val = owner sessiondb.val} </TD> </TR>')
 
-def p_SesionDB(p):
+def p_SesionDB(p): #Agregado
     ''' SesionDB : id
                 | t_current_user
                 | t_session_user '''
-    if p[1] == 'current_user':
+    if p[1].lower() == 'current_user':
         concatenar_gramatica('\n <TR><TD> SESSIONDB ::= current_user </TD>  <TD> { sessiondb.val = current_user } </TD></TR>')
-    elif p[1] == 'session_user': 
+    elif p[1].lower() == 'session_user': 
         concatenar_gramatica('\n <TR><TD> SESSIONDB ::= session_user </TD> <TD> { sessiondb.val = session_user } </TD></TR>')
     else: 
         concatenar_gramatica('\n <TR><TD> SESSIONDB ::= id </TD> <TD> { sessiondb.val = id } </TD></TR>')
+    p[0]=p[1]
 
 def p_AlterTB(p):
     ''' AlterTB : t_add Add_Opc
@@ -810,7 +885,7 @@ def p_exp_agregacion(p):
     concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + '( EXP ) </TD> <TD> { exp.val = ' + str(p[1]) + ' ( exp1.val ) } </TD></TR>')
 
 def p_funciones_matematicas(p):
-    ''' EXP : t_abs par1 EXP par2
+    '''EXP : t_abs par1 EXP par2
             | t_cbrt par1 EXP par2
             | t_ceil par1 EXP par2
             | t_ceiling par1 EXP par2
@@ -818,6 +893,7 @@ def p_funciones_matematicas(p):
             | t_exp par1 EXP par2
             | t_factorial par1 EXP par2
             | t_floor par1 EXP par2
+            | t_gcd par1 Lista_EXP par2
             | t_ln par1 EXP par2
             | t_log par1 EXP par2
             | t_pi par1  par2
@@ -832,13 +908,14 @@ def p_funciones_matematicas(p):
             | t_width_bucket par1 Lista_EXP par2
             | t_random par1 par2
             | t_setseed par1 EXP par2'''
+    p[0] = Expression(p[1], p[3], p.slice[1].lineno, find_column(input, p.slice[1]), 'math')
     concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + '( EXP ) </TD> <TD> { exp.val = ' + str(p[1]) + ' ( exp1.val )  } </TD></TR>')
 
-def p_funciones_matematicas(p):
+def p_funciones_matematicas2(p):
     ''' EXP : t_div par1 EXP coma EXP par2
-            | t_gcd par1 EXP coma EXP par2
             | t_mod par1 EXP coma EXP par2
             | t_power par1 EXP coma EXP par2'''
+    p[0] = Expression(p[1], p[3], p[5],  p.slice[1].lineno, find_column(input, p.slice[1]), 'math2')
     concatenar_gramatica('\n <TR><TD> EXP ::= ' + str(p[1]) + '( EXP , EXP) </TD> <TD> { exp.val = ' + str(p[1]) + ' ( exp1.val , exp2.val) } </TD></TR>')
 
 def p_funciones_Trigonometricas(p):
@@ -896,7 +973,6 @@ def p_Lista_ID(p):
 def p_Lista_Enum(p):#Agregado
     '''Lista_Enum : Lista_Enum coma char
                | char '''
-    print(len(p))
     if len(p) == 4:
         p[0] = p[1]+[p[3]]
         concatenar_gramatica('\n <TR><TD> LISTA_ENUM ::= LISTA_ENUM , char </TD>  <TD> { lista_enum.lista = lista_enum.lista.add(lista_enum.aux) } </TD></TR>')
@@ -916,7 +992,8 @@ def p_Lista_EXP(p):
         p[0] = list_exp
         concatenar_gramatica('\n <TR><TD> LISTA_EXP ::= LISTA_EXP , EXP </TD>  <TD> { lista_exp.val = concatenar (lista_exp.aux , lista_exp.val) }</TD></TR>')
     else:
-        p[0] = p[1]
+        insert_nodo_exp(p[1])
+        p[0] = list_exp
         concatenar_gramatica('\n <TR><TD> LISTA_EXP ::=  EXP </TD>  <TD> { lista_exp.aux = char } </TD></TR>')
 
 def p_Lista_Alias(p):

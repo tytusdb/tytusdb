@@ -37,10 +37,25 @@ class OPERACION_LOGICA(Enum):
     MENORIGUAL = 5
     MAYOR = 6
     MAYORIGUAL = 7
-    AND = 1
-    OR = 2
-    NOT = 3
+    AND = 8
+    OR = 9
+    NOT = 10
+    BETWEEN = 11
+    NOTBETWEEN = 12
+    BETWEENSIMMETRIC = 13
+    NOTBETWEENSIMMETRIC = 14
+    ISDISTINCT = 15
+    ISNOTDISTINCT = 16
 
+class OPERACION_STRING(Enum):
+    BAND = 1
+    BOR = 2
+    BXOR = 3
+    DESPLAZAI = 4
+    DESPLAZAD = 5
+    BNOT = 6
+    RAIZCUADRADA = 7
+    RAIZCUBICA = 8
 
 # CLASE DE EXPRESION NUMERICA
 class Expresion:
@@ -72,3 +87,21 @@ class ExpresionDeValor(Expresion):
 
     def __init__(self, p_valor):
         self.valor = p_valor
+
+#Clase para guardar id y el alias del mismo 
+class Id(Expresion):
+    def __init__(self, valor, alias):
+        self.alias = alias
+        self.valor = valor
+
+class Numero(Expresion):
+    def __init__(self, valor):
+        self.valor = valor
+
+class Decimal(Expresion):
+    def __init__(self, valor):
+        self.valor = valor
+
+class Cadena(Expresion):
+    def __init__(self, valor):
+        self.valor = valor

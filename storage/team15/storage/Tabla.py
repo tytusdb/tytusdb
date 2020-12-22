@@ -459,7 +459,6 @@ class Tabla(object):
         file.write(' }' + os.linesep)
         file.close()
         subprocess.call('dot -Tpng hash.dot -o hash.png')
-        os.system('hash.png')
 
     def alterAddColumn(self, default):
         try:

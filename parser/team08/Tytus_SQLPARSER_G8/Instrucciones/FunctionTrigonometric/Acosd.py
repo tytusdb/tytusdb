@@ -19,6 +19,9 @@ class Acosd(Instruccion):
             arbol.consola.append(error.toString())
             return error
         try:
+            if resultado == 1: return 0
+            if resultado == 0: return 90
+            if resultado == -1: return 180
             return math.degrees(math.acos(resultado))
         except ValueError as c:
             error = Excepcion('22003',"Semántico","La entrada está fuera de rango",self.linea,self.columna)

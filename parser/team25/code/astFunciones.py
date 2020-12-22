@@ -516,4 +516,31 @@ class FuncionAgregacion:
     def ejecucion(self, ts):#los que pueden venir en el select 
         pass
         # -SUM es como acumulativa
-        
+
+
+class FuncionBinaria(Expresion):
+    def __init__(self, funcion, parametro1=None, parametro2=None, linea = 0):
+        self.parametro1 = parametro1
+        self.parametro2 = parametro2
+        self.funcion = funcion
+        self.linea = linea
+
+    def dibujar(self):
+        pass
+
+    def ejecucion(self, ts):#los que pueden venir en el select 
+        pass
+    
+
+class FuncionTime(Expresion):
+    def __init__(self, funcion, parametro1=None, parametro2=None, linea = 0):
+        self.parametro1 = parametro1
+        self.parametro2 = parametro2
+        self.funcion = funcion
+        self.linea = linea
+
+    def dibujar(self):
+        pass
+
+    def ejecucion(self, ts):#los que pueden venir en el select 
+        pass

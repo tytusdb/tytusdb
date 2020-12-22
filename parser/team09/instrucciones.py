@@ -1,28 +1,130 @@
 import tabla_simbolos as TS
-import Errores as E
 
+class Instruccion():
+    def __init__(self, tipo, instruccion):
+        self.tipo = tipo 
+        self.instruccion = instruccion
+
+class Select():
+    def __init__(self, dist, selcol, fromcol, joins, order, conditions):
+        self.dist = dist
+        self.selcol = selcol
+        self.fromcol = fromcol
+        self.joins = joins
+        self.order = order
+        self.conditions = conditions
+
+    def execute():
+        #Llamar metodo que realizara el select
+        print('ejecutando select')
+
+class AlterTable():
+    def __init__(self, id, cols, constrain, fkey, ref):
+        self.id = id
+        self.cols = cols
+        self.constrain = constrain
+        self.fkey = fkey
+        self.ref = ref
+
+    def execute(self):
+        print('ejecutando alter table')
+        print('id : ' + str(self.id))
+        print('cols : ' + str(self.cols))
+        print('constrain : ' + str(self.constrain))
+        print('foreing keys :' + str(self.fkey))
+        print('references : ' + str(self.ref))
+
+class CreateDB():
+    def __init__(self, id, owner, mode):
+        self.id = id
+        self.owner = owner
+        self.mode = mode
+
+    def execute(self):
+        print('Ejecutando Create DB')
+        print('db id : ' + str(self.id))
+        print('owner : ' + str(self.owner))
+        print('mode : ' + str(self.mode))
+
+class ShowDB():
+    def __init__(self):
+        print('show')
+
+    def execute(self):
+        print('Ejecutando ShowDB')
+
+class Drop():
+    def __init__(self, id):
+        self.id = id
+
+    def execute(self):
+        print('Ejecutando Drop')
+        print('id : ' + self.id)
+
+class CreateTable():
+    def __init__(self, id, base, cols, inh):
+        self.id = id,
+        self.base = base
+        self.cols = cols
+        self.inh = inh
+        
+    def execute(self,ts):
+        print('Ejecutando Creare Table')
+        print('id : ' + str(self.id))
+        for col in self.cols :
+            print('col id : ' + str(col.id))
+            print('col type : ' + str(col.tipo))
+
+
+        if self.inh != None :
+            print('Inherit : ' + self.inh)
+
+
+class Insert():
+    def __init__(self, id, vals):
+        print('init')
+        self.id = id
+        self.vals = vals
+
+    def execute(self):
+        print('Ejecutando Insert')
+        print('id : ' + str(self.id))
+        for val in self.vals:
+            print('value : ' + str(val))
+
+class UseDB():
+    def __init__(self, id):
+        self.id = id
+
+    def execute(self):
+        print('Ejecutando Use DB')
+        print('id : ' + self.id)
+
+class Delete():
+    def __init__(self, id, cond):
+        self.id = id
+        self.cond = cond
+
+    def execute(self):
+        print('Ejecutando Delete')
+        print('id : ' + str(self.id))
+
+class Update():
+    def __init__(self, id, vals):
+        self.id = id
+        self.vals = vals
+
+    def execute(self):
+        print('Ejecutando Update')
+        print('id : ' + str(id))
+
+'''
+import tabla_simbolos as TS
+import Errores as E
 #Creación de la tabla de simbolos
 ts_global = TS.tabla_simbolos()
 #Creación de lista de errores
 ls_error = []
-
-'''
-def drop_db(nombre, x, ts): # x es variable para saber si viene 'if exists' x = 0 -> no viene x = 1 -> si viene
-    if x == 0:                              
-        db = ts_global.get_simbol(nombre)                   #Va a buscar si la base de datos existe
-        if isinstance(db, ):            					#Revisa si el tipo de db es igual a DATABASE
-            ts_global.dropdb(nombre)                        #Si es igual DATABASE llama al método para eliminarla de la tabla de simbolos
-        else:
-            print('La base de datos no existe')             #
-            break
-    else:
-        db = ts_global.get_simbol(nombre)                   #Va a buscar si la base de datos existe
-        if db.tipo == 'DATABASE' :
-            ts.dropdb()
-        else:
-            print('La base de datos no existe')
-'''
-
 def create_table(db, nombre, columnas, ts):
     nueva_tabla = TS.Simbolo(nombre, TS.tipo_simbolo.TABLE, None, db, None, None, None, None)
     x = columnas.split(",")
@@ -32,11 +134,9 @@ def create_table(db, nombre, columnas, ts):
         #create_column(db, nombre, c[0], c[1], ts)
     ts.agregar_simbolo(nueva_tabla)
     return ts
-
 def create_column(db, tabla, columna, tipo, ts):
     nueva_columna = TS.Simbolo(columna,TS.tipo_simbolo.INTEGER,None,db,0,True,False,None)
     agregar = ts.agregar_columna(tabla, db, nueva_columna)
-
 class CreateDB():
     def __init__ (self, replace, ifnot, iden, owner, mode): # boolean, boolean, string, string, integer
         self.replace = replace                              # si existe, la reemplaza/modifica
@@ -73,11 +173,9 @@ class CreateDB():
             else:
                 if not existe:                              # si existe la base de datos, no se crea, si no
                     ts_global.agregar_simbolo(nueva_base)          # se agrega el nuevo símbolo
-
 class UseDB():
     def __init__(self, iden):                               # string
         self.iden = iden                                    # nombre de la base de datos
-
     def ejecutar(self):
         bases = ts_global.get_databases()                   # obtiene todas las bases de datos
         for base in bases:
@@ -87,7 +185,6 @@ class UseDB():
         #ls_error.append(new_error)
         print(new_error.error)
         return None
-
 class ShowDB():
     def ejecutar(self):
         bases = ts_global.get_databases()                   # obtiene todas las bases de datos
@@ -95,14 +192,12 @@ class ShowDB():
         for base in bases:
             respuesta = respuesta + '\t' + base.id + '\n'   # concatena los nombres y los retorna
         return respuesta + '\n'
-
 class InsertT():
     def __init__(self, tabla, base, campos, valores):       # string, string, [string], [string]
         self.tabla = tabla
         self.base = base
         self.campos = campos
         self.valores = valores
-
     def ejecutar(self):
         if self.base == None:
             nuevo_error = E.Errores('Semántico.', 'No se ha seleccionado una base de datos.')
@@ -145,3 +240,4 @@ class InsertT():
             print(new_error.error)
         else:
             print('inserción')
+'''

@@ -76,7 +76,10 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
-    t[0] = t[1].execute(0)
+    try:
+        t[0] = t[1].execute(None)
+    except:
+        return
 
 
 # Statement para el CREATE
@@ -85,6 +88,7 @@ def p_id_string(t):
     """
     idOrString : ID
     | STRING
+    | CHARACTER
     """
     t[0] = t[1]
 
@@ -131,7 +135,8 @@ def p_createopts_type(t):
     """
     createOpts : R_TYPE ifNotExists ID R_AS R_ENUM S_PARIZQ paramsList S_PARDER
     """
-    t[0]=instruction.CreateType(t[2],t[3],t[7])
+    t[0] = instruction.CreateType(t[2], t[3], t[7])
+
 
 def p_ifnotexists_true(t):
     """
@@ -251,6 +256,7 @@ def p_createConstraint(t):
     """createConstraint : constrName R_CHECK S_PARIZQ booleanCheck S_PARDER"""
     t[0] = [t[2], t[1], t[4]]
 
+
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
     t[0] = [t[1], t[3]]
@@ -304,7 +310,7 @@ def p_types(t):
     """
     types :  ID
     """
-    t[0]=[t[1],[None]]
+    t[0] = [t[1], [None]]
 
 
 def p_types_simple(t):
@@ -383,7 +389,6 @@ def p_colOptions_list(t):
     """colOptionsList : colOptionsList colOptions"""
     t[1].append(t[2])
     t[0] = t[1]
-   
 
 
 def p_colOptions_u(t):
@@ -498,12 +503,21 @@ def p_funcCall_3(t):
     """
 
 
-def p_extract(t):
+def p_extract_1(t):
     """
     extract : R_EXTRACT S_PARIZQ optsExtract R_FROM timeStamp S_PARDER
     """
     t[0] = expression.ExtractDate(
         t[3], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+    )
+
+
+def p_extract_2(t):
+    """
+    extract : R_EXTRACT S_PARIZQ optsExtract R_FROM columnName S_PARDER
+    """
+    t[0] = expression.ExtractColumnDate(
+        t[3], t[5], t.slice[1].lineno, t.slice[1].lexpos
     )
 
 
@@ -581,12 +595,15 @@ def p_literal(t):
     | CHARACTER
     | R_TRUE
     | R_FALSE
+    | R_NULL
     """
     if t.slice[1].type == "CHARACTER" or t.slice[1].type == "STRING":
         tipo = expression.TYPE.STRING
     elif t.slice[1].type == "R_TRUE" or t.slice[1].type == "R_FALSE":
         t.slice[1].value = t.slice[1].value == "TRUE"
         tipo = expression.TYPE.BOOLEAN
+    elif t.slice[1].type == "R_NULL":
+        tipo = expression.TYPE.NULL
     else:
         tipo = expression.TYPE.NUMBER
     t[0] = expression.Primitive(
@@ -605,7 +622,7 @@ def p_params_u(t):
     t[0] = [t[1]]
 
 
-def p_datatype_operadores_binarios(t):
+def p_datatype_operadores_binarios1(t):
     """
     datatype : datatype O_SUMA datatype
     | datatype O_RESTA datatype
@@ -613,9 +630,15 @@ def p_datatype_operadores_binarios(t):
     | datatype O_DIVISION datatype
     | datatype O_EXPONENTE datatype
     | datatype O_MODULAR datatype
-    | datatype OC_CONCATENAR datatype
     """
     t[0] = expression.BinaryArithmeticOperation(t[1], t[3], t[2], t[1].row, t[1].column)
+
+
+def p_datatype_operadores_binarios2(t):
+    """
+    datatype : datatype OC_CONCATENAR datatype
+    """
+    t[0] = expression.BinaryStringOperation(t[1], t[3], t[2], t[1].row, t[1].column)
 
 
 def p_datatype_operadores_unarios(t):
@@ -840,18 +863,24 @@ def p_columnName_id(t):
     """
     columnName : ID
     """
-    t[0] = expression.Identifiers(
-        None, t[1], df.dataTable, t.slice[1].lineno, t.slice[1].lexpos
-    )
+    t[0] = expression.Identifiers(None, t[1], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_columnName_table_id(t):
     """
     columnName : ID S_PUNTO ID
     """
-    t[0] = expression.Identifiers(
-        t[1], t[3], df.dataTable, t.slice[1].lineno, t.slice[1].lexpos
-    )
+    t[0] = expression.Identifiers(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
+
+
+# En caso de errores descomentar este metodo
+'''
+def p_columnName_table_idAll(t):
+    """
+    columnName : ID S_PUNTO O_PRODUCTO
+    """
+    t[0] = expression.TableAll(t[1], t.slice[1].lineno, t.slice[1].lexpos)
+'''
 
 
 def p_booleanCheck_1(t):
@@ -863,15 +892,16 @@ def p_booleanCheck_1(t):
     | idOrLiteral S_IGUAL idOrLiteral
     | idOrLiteral OL_DISTINTODE idOrLiteral
     """
-    
-    #t[0] = instruction.CheckOperation(t[1], t[3], t[2], t[1].row, t[1].column)
+
+    # t[0] = instruction.CheckOperation(t[1], t[3], t[2], t[1].row, t[1].column)
     t[0] = [t[1].value, t[3].value, t[2], t[1].type, t[3].type]
+
 
 def p_booleanCheck_2(t):
     """
     booleanCheck : idOrLiteral R_IS R_DISTINCT R_FROM idOrLiteral
     """
-    
+
     t[0] = instruction.CheckOperation(
         t[1], t[5], t[2] + t[3] + t[4], t[1].row, t[1].column
     )
@@ -882,7 +912,7 @@ def p_booleanCheck_3(t):
     """
     booleanCheck : idOrLiteral R_IS R_NOT R_DISTINCT R_FROM idOrLiteral
     """
-    
+
     t[0] = expression.CheckOperation(
         t[1], t[6], t[2] + t[3] + t[4] + t[5], t[1].row, t[1].column
     )
@@ -898,7 +928,7 @@ def p_idOrLiteral(t):
     | R_TRUE
     | R_FALSE
     """
-    
+
     if t.slice[1].type == "CHARACTER" or t.slice[1].type == "STRING":
         tipo = "STRING"
     elif t.slice[1].type == "R_TRUE" or t.slice[1].type == "R_FALSE":
@@ -908,11 +938,11 @@ def p_idOrLiteral(t):
         tipo = "NUMBER"
     else:
         tipo = "ID"
-    
+
     t[0] = expression.CheckValue(
         t.slice[1].value, tipo, t.slice[1].lineno, t.slice[1].lexpos
     )
-    
+
     t[0].execute(0)
 
 
@@ -1014,7 +1044,7 @@ def p_ifExists(t):
 
 
 def p_selectStmt_1(t):
-    """selectStmt : R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl
+    """selectStmt : R_SELECT R_DISTINCT selectParams R_FROM tableExp whereCl groupByCl limitCl
     | selectStmt R_UNION allOpt selectStmt
     | selectStmt R_INTERSECT allOpt selectStmt
     | selectStmt R_EXCEPT allOpt selectStmt
@@ -1022,25 +1052,24 @@ def p_selectStmt_1(t):
     """
 
 
-def p_selectStmt_2(t):
-    """selectStmt : R_SELECT selectParams whereCl"""
-    if t[3] == None:
-        t[0] = instruction.SelectOnlyParams(
-            t[2].params, t[2].params[0].row, t[2].params[0].row
-        )
-    else:
-        t[0] = instruction.Select(
-            t[2].params, t[3], df.dataTable, t[2].row, t[2].column
-        )
-
-
 # TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
+def p_selectStmt_2(t):
+    """selectStmt : R_SELECT selectParams fromCl whereCl"""
+    t[0] = instruction.Select(
+        t[2].params, t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos
+    )
 
 
-def p_selectstmt_u(t):
-    """selectStmt : R_SELECT selectParams R_FROM tableExp"""
-    print("Hare el Select")
-    # t[0] = instruction.Select(t[2].params, t[4])
+def p_fromClause(t):
+    """
+    fromCl : R_FROM tableExp
+    """
+    tables = []
+    aliases = []
+    for i in range(len(t[2])):
+        tables.append(t[2][i][0])
+        aliases.append(t[2][i][1])
+    t[0] = instruction.FromClause(tables, aliases, t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_selectstmt_only_params(t):
@@ -1058,45 +1087,51 @@ def p_allOpt(t):
 
 def p_selectparams_all(t):
     """selectParams : O_PRODUCTO"""
-    t[0] = instruction.SelectParams(
-        instruction.SELECT_MODE.ALL, [], t.slice[1].lineno, t.slice[1].lexpos
-    )
+    t[0] = instruction.SelectParams([], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_selectparams_params(t):
     """selectParams : selectList"""
-    t[0] = instruction.SelectParams(
-        instruction.SELECT_MODE.PARAMS, t[1], t[1][0].row, t[1][0].column
-    )
+    t[0] = instruction.SelectParams(t[1], t[1][0].row, t[1][0].column)
 
 
+# En caso de errores cambiar selectListParams -> expresion
 def p_selectList_list(t):
-    """selectList : selectList S_COMA expresion optAlias"""
+    """selectList : selectList S_COMA selectListParams optAlias"""
     if t[4] != None:
         t[3].temp = t[4]
     t[1].append(t[3])
     t[0] = t[1]
 
 
+# En caso de errores cambiar selectListParams -> expresion
 def p_selectList_u(t):
-    """selectList : expresion optAlias"""
+    """selectList : selectListParams optAlias"""
     if t[2] != None:
         t[1].temp = t[2]
     t[0] = [t[1]]
 
 
+def p_selectListParams_1(t):
+    """selectListParams : expresion"""
+    t[0] = t[1]
+
+
+def p_selectListParams_2(t):
+    """selectListParams : ID S_PUNTO O_PRODUCTO"""
+    t[0] = expression.TableAll(t[1], t.slice[1].lineno, t.slice[1].lexpos)
+
+
 def p_optalias_as(t):
     """
-    optAlias : R_AS ID
-    | R_AS STRING
+    optAlias : R_AS idOrString
     """
     t[0] = t[2]
 
 
 def p_optalias_id(t):
     """
-    optAlias : ID
-    | STRING
+    optAlias : idOrString
     """
     t[0] = t[1]
 
@@ -1107,28 +1142,27 @@ def p_optalias_none(t):
 
 
 def p_tableexp_list(t):
-    """tableExp : tableExp S_COMA fromBody optAlias"""
-    if t[4] != None:
-        t[3].temp = t[4]
+    """tableExp : tableExp S_COMA fromBody """
     t[1].append(t[3])
     t[0] = t[1]
 
 
 def p_tableexp_u(t):
-    """tableExp : fromBody optAlias"""
-    if t[2] != None:
-        t[1].temp = t[2]
+    """tableExp : fromBody """
     t[0] = [t[1]]
 
 
-def p_frombody_id(t):
-    """fromBody : columnName"""
-    t[0] = t[1]
+def p_fromBody(t):
+    """fromBody : ID optAlias"""
+    if t[2] != None:
+        t[0] = [instruction.TableID(t[1], t.slice[1].lineno, t.slice[1].lexpos), t[2]]
+    else:
+        t[0] = [instruction.TableID(t[1], t.slice[1].lineno, t.slice[1].lexpos), ""]
 
 
-def p_frombody_select(t):
-    """fromBody : S_PARIZQ selectStmt S_PARDER"""
-    t[0] = t[2]
+def p_tableexp_subq(t):
+    """fromBody : S_PARIZQ selectStmt S_PARDER R_AS idOrString"""
+    t[0] = [t[2], t[5]]
 
 
 def p_joinList(t):
@@ -1172,6 +1206,11 @@ def p_whereCl(t):
         t[0] = instruction.WhereClause(t[2], t.slice[1].lineno, t.slice[1].lexpos)
     else:
         t[0] = None
+
+
+def p_whereCl_none(t):
+    """whereCl : """
+    t[0] = None
 
 
 def p_groupByCl(t):
@@ -1243,9 +1282,19 @@ def p_offsetLimit(t):
 
 
 def p_insertStmt(t):
-    """insertStmt : R_INSERT R_INTO ID R_VALUES S_PARIZQ paramsList S_PARDER"""
+    """insertStmt : R_INSERT R_INTO ID paramsColumn R_VALUES S_PARIZQ paramsList S_PARDER"""
 
-    t[0] = instruction.InsertInto(t[3], t[6])
+    t[0] = instruction.InsertInto(t[3], t[4], t[7])
+
+
+def p_paramsColumn(t):
+    """paramsColumn : S_PARIZQ idList S_PARDER"""
+    t[0] = t[2]
+
+
+def p_paramsColumn_none(t):
+    """paramsColumn :"""
+    t[0] = None
 
 
 # endregion
@@ -1256,31 +1305,34 @@ def p_insertStmt(t):
 
 
 def p_updateStmt(t):
-    """updateStmt : R_UPDATE ID optAlias R_SET updateCols S_IGUAL updateVals whereCl"""
+    """updateStmt : R_UPDATE fromBody R_SET updateCols whereCl"""
+    fc = instruction.FromClause(
+        [t[2][0]], [t[2][1]], t.slice[1].lineno, t.slice[1].lexpos
+    )
+    t[0] = instruction.Update(fc, t[4], t[5], t.slice[1].lineno, t.slice[1].lexpos)
 
 
-def p_updateCols(t):
-    """updateCols : ID
-    | S_PARIZQ idList S_PARDER
-    """
+def p_updateCols_list(t):
+    """updateCols : updateCols S_COMA updateVals"""
+    t[1].append(t[3])
+    t[0] = t[1]
+
+
+def p_updateCols_u(t):
+    """updateCols : updateVals """
+    t[0] = [t[1]]
 
 
 def p_updateVals(t):
-    """updateVals : updateExp
-    | S_PARIZQ updateExp S_COMA updateList S_PARDER
-    """
-
-
-def p_updateList(t):
-    """updateList : updateList S_COMA updateExp
-    | updateExp
-    """
+    """updateVals : ID S_IGUAL updateExp"""
+    t[0] = instruction.Assignment(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_updateExp(t):
     """updateExp : datatype
     | R_DEFAULT
     """
+    t[0] = t[1]
 
 
 # endregion
@@ -1291,7 +1343,8 @@ def p_updateExp(t):
 
 
 def p_deleteStmt(t):
-    """deleteStmt : R_DELETE R_FROM ID optAlias whereCl"""
+    """deleteStmt : R_DELETE fromCl whereCl"""
+    t[0] = instruction.Delete(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
 
 
 def p_truncateStmt(t):
@@ -1322,15 +1375,15 @@ def p_likeOpt(t):
 
 
 def p_useStmt(t):
-    """useStmt : R_USE R_DATABASE ID"""
-    t[0] = instruction.useDataBase(t[3])
-
+    """useStmt : R_USE ID"""
+    t[0] = instruction.useDataBase(t[2])
 
 
 # endregion
 
 
 listErrors = list()
+PostgreSQL = list()
 
 
 def p_error(t):
@@ -1339,6 +1392,9 @@ def p_error(t):
         print("Error sintáctico en '%s'" % t.value)
         listErrors.insert(
             len(listErrors), ["Error sintáctico en '%s'" % t.value, t.lineno]
+        )
+        PostgreSQL.insert(
+            len(PostgreSQL), "ERROR: 42601: error de sintaxis en '%s'" % t.value
         )
     except AttributeError:
         print("end of file")
@@ -1349,6 +1405,16 @@ parser = yacc.yacc()
 
 def returnSintacticErrors():
     return listErrors
+
+
+def returnPostgreSQLErrors():
+    expression.list_errors += PostgreSQL
+    instruction.sintaxPostgreSQL += expression.list_errors
+    return instruction.sintaxPostgreSQL
+
+
+def returnSemanticErrors():
+    return instruction.semanticErrors
 
 
 def parse(input):

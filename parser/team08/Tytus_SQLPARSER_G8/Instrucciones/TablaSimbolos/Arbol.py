@@ -7,6 +7,12 @@ class Arbol():
         self.consola = []
         self.bdUsar = None
         self.listaBd = []
+        self.where = False
+        self.update = False
+        self.relaciones = False
+        self.nombreTabla = None
+        self.tablaActual = []
+        self.columnasActual = []
 
     def setListaBd(self, nueva):
         self.listaBd.append(nueva)
@@ -61,11 +67,26 @@ class Arbol():
         self.devolverBaseDeDatos()
         self.agregarTablaABd(tablas)
 
-    def devolverTabla(self, nombre):
-        for x in range(0,len(self.listaBd)):
-            if(self.listaBd[x].nombreTabla == nombre):
-                return self.listaBd[x]
-        return 0
+    def devolviendoTablaDeBase(self, nombreTabla):
+        nombreBd = self.getBaseDatos()
+        if(self.existeBd(nombreBd) == 1):
+            base = self.devolverBaseDeDatos()
+            tabla = base.devolverTabla(nombreTabla)
+            if( tabla == 0):
+                print("No se encontro la tabla")
+                return 0
+            else:
+                return tabla
+
+    def devolverColumnasTabla(self,nombreTabla):
+        print(nombreTabla)
+        tabla = self.devolviendoTablaDeBase(nombreTabla)
+        if(tabla == 0):    
+            print("No se encontro la tabla")
+            return 0
+        else:
+            return tabla.devolverTodasLasColumnas()
+
 
     def devolverOrdenDeColumna(self, nombreTabla, nombreColumna):
         nombreBd = self.getBaseDatos()
@@ -79,7 +100,94 @@ class Arbol():
                 if(res==-1):
                     print("No se encontro el ide")
                     return -1
-            return res
+                return res
         else:
             print("No existe bd en uso")
             return -1
+
+    def devolverTipoColumna(self, nombreTabla, nombreColumna):
+        nombreBd = self.getBaseDatos()
+        if(self.existeBd(nombreBd) == 1):
+            base = self.devolverBaseDeDatos()
+            tabla = base.devolverTabla(nombreTabla)
+            if( tabla == 0):
+                print("No se encontro la tabla")
+            else:
+                res = tabla.devolverTipo(nombreColumna)
+                if(res==-1):
+                    print("No se encontro el ide")
+                    return -1
+                return res
+        else:
+            print("No existe bd en uso")
+            return -1
+
+    def getMensajeTabla(self, columnas, tuplas):
+        lf = []
+        for i in range(0,len(columnas)):
+            temporal = []
+            temporal.append(len(columnas[i]))
+            for l in tuplas:
+                temporal.append(len(str(l[i])))
+            lf.append(max(temporal))
+
+        # Encabezado
+        cad = ''
+        for s in range(0,len(lf)):
+            cad += '+---'+'-'*lf[s]
+        cad += '+\n'    
+        for s in range(0,len(lf)):
+            cad += '| ' +str(columnas[s]) + ' ' *((lf[s]+4)-(2+len(str(columnas[s]))))
+        cad += '|\n'
+        cad += '|'
+        for s in range(0,len(lf)):
+            cad += '---'+'-'*lf[s]+ '+'
+        size = len(cad)
+        cad = cad[:size - 1] + "|\n"
+
+        # Valores
+        for i in tuplas:
+            for j in range(0,len(lf)):
+                cad += '| ' + str(i[j]) + ' ' *((lf[j]+4)-(2+len(str(i[j]))))
+            cad += "|\n"
+        # Línea final
+        for s in range(0,len(columnas)):
+            cad += '+---'+'-'*lf[s]
+        cad += '+\n'
+        self.consola.append(cad)
+
+    def setColumnasActual(self, valor):
+        self.columnasActual = valor
+
+    def getColumnasActual(self):
+        return self.columnasActual
+    
+    def setWhere(self, valor):
+        self.where = valor
+
+    def getWhere(self):
+        return self.where
+    
+    def setTablaActual(self, valor):
+        self.tablaActual = valor 
+    
+    def getTablaActual(self):
+        return self.tablaActual
+
+    def setRelaciones(self, valor):
+        self.relaciones = valor
+
+    def getRelaciones(self):
+        return self.relaciones
+
+    def setUpdate(self):
+        self.update = not self.update
+
+    def getUpdate(self):
+        return self.update
+
+    def getNombreTabla(self):
+        return self.nombreTabla
+
+    def setNombreTabla(self, valor):
+        self.nombreTabla = valor

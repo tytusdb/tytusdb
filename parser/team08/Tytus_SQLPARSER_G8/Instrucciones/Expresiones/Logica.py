@@ -28,6 +28,7 @@ class Logica(Instruccion):
                 else:
                     error = Excepcion('42804',"Semántico","El argumento de OR debe ser de tipo boolean",self.linea,self.columna)
                     arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
                     return error
             elif self.operador == 'AND':
                 if self.opIzq.tipo.tipo == Tipo_Dato.BOOLEAN and self.opDer.tipo.tipo == Tipo_Dato.BOOLEAN:
@@ -35,10 +36,12 @@ class Logica(Instruccion):
                 else:
                     error = Excepcion('42804',"Semántico","El argumento de AND debe ser de tipo boolean",self.linea,self.columna)
                     arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
                     return error
             else:
                 error = Excepcion('42804',"Semántico","Operador desconocido.",self.linea,self.columna)
                 arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
                 return error
         # Operación unaria
         else:
@@ -52,8 +55,10 @@ class Logica(Instruccion):
                 else:
                     error = Excepcion('42804',"Semántico","Tipo de datos incorrectos en la operación lógica not",self.linea,self.columna)
                     arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
                     return error
             else:
                 error = Excepcion('42804',"Semántico","Operador desconocido.",self.linea,self.columna)
                 arbol.excepciones.append(error)
+                arbol.consola.append(error.toString())
                 return error

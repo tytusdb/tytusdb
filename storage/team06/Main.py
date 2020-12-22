@@ -43,8 +43,6 @@ def Abrir(): #abrir archivo
     caja1.delete(1.0,END)
     caja1.insert("insert",muchoTexto)
     fichero.close()
-    
-    
 
 def nuevoA(): #Nuevo archivo
     caja1.delete(1.0,END)
@@ -66,10 +64,6 @@ def Datos(): #analiza
     Dato5 = Label(mWindow, text="Diego", font=("Impact",10))
     Dato5.place(x=10,y=130)
     print("Datos del grupo")
-        
-        
-    
-
 
 def guardarU():
     global nombreArchivo
@@ -80,9 +74,6 @@ def guardarU():
     abrirHtml.write(textt)
     abrirHtml.close()
     print("guardar")
-
-
-    
 
 def Guardarcomo():
     global teeexto
@@ -96,97 +87,250 @@ def Guardarcomo():
     print("guardar como")
 
 
+#Aqui empiezan las funciones del db
+
+#"FINALIZADO"
 def CreateDB():
-    print("funcion1")
+    nombre = caja2.get("1.0",END)
+    nombre = nombre[0:len(nombre)-1]
+    respuesta = str(t.createDatabase(nombre))
+    caja2.delete("1.0",END)
+    caja1.insert(END,respuesta)
+    commit(t,"ult")
 
+#"FINALIZADO"
 def CreateTable():
-    print("crear tabla")
+    nombre = caja2.get("1.0", END)
+    nombre = nombre[0:len(nombre) - 1]
+    separacion = nombre.split(",")
+    db = separacion[0]
+    dbNueva = separacion[1]
+    numColumnas = separacion[2]
+    respuesta = str(t.createTable(db, dbNueva, numColumnas))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
-
-
+#"FINALIZADO"
 def AlterDataBase():
-    print("crear base")
+    nombre = caja2.get("1.0", END)
+    nombre = nombre[0:len(nombre) - 1]
+    separacion =nombre.split(",")
+    dbAntigua = separacion[0]
+    dbNueva = separacion[1]
+    respuesta = str(t.alterDatabase(dbAntigua,dbNueva))
+    caja2.delete("1.0", END)
+    caja1.insert(END,respuesta)
+    commit(t, "ult")
 
-
+#PREGUNTAR EN GRUPO
 def ShowDataBase():
-    print("mostrar data")
-    #prueba para mostrar el arbol 
-    VBase= Toplevel()
-    VBase.geometry('600x600')
-    VBase.config(bg="black")
-    VBase.title('Arbol')
-    #se agrega la imagen
-    imagenL=PhotoImage(file="grafo.png")
-    grafico=Label(VBase,image=imagenL)
-    grafico.place(x=0,y=0)
-    VBase.wait_window()
+    resultado = t.showDatabases()
+    caja1.insert(END,resultado)
+    try:
+        print("mostrar data")
+        #prueba para mostrar el arbol
+        VBase= Toplevel()
+        VBase.geometry('600x600')
+        VBase.config(bg="black")
+        VBase.title('Arbol')
+        #se agrega la imagen
+        imagenL=PhotoImage(file="grafo.png")
+        grafico=Label(VBase,image=imagenL)
+        grafico.place(x=0,y=0)
+        VBase.wait_window()
+    except:
+        print("No se encontró la imagen")
 
+#"FINALIZADO"
 def DropDatabase():
-    print("dropear base")
+    nombre = caja2.get("1.0", END)
+    nombre = nombre[0:len(nombre) - 1]
+    respuesta = str(t.dropDatabase(nombre))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
+
 
 def AlterTable():
     print("alter table")
 
+#PREGUNTAR EN GRUPO
 def showTables():
     print("show tables")
 
+#"FINALIZADO"
 def extractTable():
-    print("extract")
+    nombre = caja2.get("1.0", END)
+    nombre = nombre[0:len(nombre) - 1]
+    separacion = nombre.split(",")
+    db = separacion[0]
+    table = separacion[1]
+    respuesta = str(t.extractTable(db, table))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
+#"FINALIZADO"
 def extractRangeTable():
-    print("extract")
+    nombre = caja2.get("1.0", END)
+    nombre = nombre[0:len(nombre) - 1]
+    separacion = nombre.split(",")
+    db = separacion[0]
+    table = separacion[1]
+    columnNumber = separacion[2]
+    lower = separacion[3]
+    upper = separacion[4]
+    respuesta = str(t.extractRangeTable(db, table,columnNumber, lower, upper))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
+#FINALIZADO
 def alterAddPK():
-    print("alterAdd")
+    ingresado = caja2.get("1.0", END)
+    ingresado = ingresado[0:len(ingresado) - 1]
+    division1 = ingresado.split("[")
+    primeraP = division1[0]
+    llaves = division1[1]
+    llaves = llaves[0:len(llaves)-1]
+    donde = primeraP.split(",")
+    columns = llaves.split(",")
+    db = donde[0]
+    table = donde[1]
+    respuesta = str(t.alterAddPK(db, table, columns))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
-
+#FINALIZADO
 def alterDropPK():
-    print("droppk")
+    nombre = caja2.get("1.0", END)
+    nombre = nombre[0:len(nombre) - 1]
+    separacion = nombre.split(",")
+    db = separacion[0]
+    table = separacion[1]
+    respuesta = str(t.alterDropPK(db, table))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
+#PARA LA FASE 2
 def alterAddFK():
     print("AlterAddFK")
 
+#PARA LA FASE 2
 def alterAddIndex():
     print("alterAddIndex")    
 
-
+#"FINALIZADO"
 def alterTable():
-    print("alterTable")
+    ingresado = caja2.get("1.0", END)
+    ingresado = ingresado[0:len(ingresado) - 1]
+    separacion = ingresado.split(",")
+    db = separacion[0]
+    tableOld = separacion[1]
+    tableNew = separacion[2]
+    respuesta = str(t.alterTable(db, tableOld,tableNew))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
-
+#"FINALIZADO"
 def alterAddColumn():
-    print("alterAddColumn")
+    ingresado = caja2.get("1.0", END)
+    ingresado = ingresado[0:len(ingresado) - 1]
+    separacion = ingresado.split(",")
+    db = separacion[0]
+    table = separacion[1]
+    default = separacion[2]
+    respuesta = str(t.alterAddColumn(db, table, default))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
-
+#"FINALIZADO"
 def alterDropColumn():
-    print("alterDropColumn")
+    ingresado = caja2.get("1.0", END)
+    ingresado = ingresado[0:len(ingresado) - 1]
+    separacion = ingresado.split(",")
+    db = separacion[0]
+    table = separacion[1]
+    columnNumber = separacion[2]
+    respuesta = str(t.alterDropColumn(db, table, columnNumber))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
-
+#"FINALIZADO"
 def dropTable():
-    print("dropTable")
+    ingresado = caja2.get("1.0", END)
+    ingresado = ingresado[0:len(ingresado) - 1]
+    separacion = ingresado.split(",")
+    db = separacion[0]
+    table = separacion[1]
+    respuesta = str(t.dropTable(db, table))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
-
+#"FINALIZADO"
 def insert():
-    print("insert")
+    ingresado = caja2.get("1.0", END)
+    ingresado = ingresado[0:len(ingresado) - 1]
+    division1 = ingresado.split("[")
+    primeraP = division1[0]
+    campos = division1[1]
+    campos = campos[0:len(campos)]
+    donde = primeraP.split(",")
+    register = campos.split(",")
+    db = donde[0]
+    table = donde[1]
+    respuesta = str(t.insert(db, table, register))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
+#HABLAR CON JORGE
 def loadCSV():
-    print("loadCSV")
+    listaNom = t.loadCSV()
+    contenido = ""
+    for i in listaNom:
+        contenido += contenido+"\n"
 
-
+#"FINALIZADO"
 def extractRow():
-    print("extractRow")
+    ingresado = caja2.get("1.0", END)
+    ingresado = ingresado[0:len(ingresado) - 1]
+    division1 = ingresado.split("[")
+    primeraP = division1[0]
+    campos = division1[1]
+    campos = campos[0:len(campos)]
+    donde = primeraP.split(",")
+    columns = campos.split(",")
+    db = donde[0]
+    table = donde[1]
+    respuesta = str(t.extractRow(db, table, columns))
+    caja2.delete("1.0", END)
+    caja1.insert(END, respuesta)
+    commit(t, "ult")
 
-
+#
 def update():
     print("update")
-
 
 def EjecutarBD():
     print("ejecutando Base de datos")
 
-
 def VBD():
     print("ver base de datos")
+
+
+def Truncate():
+    print("Truncate")
+
+def Delete():
+    print("Delete")
     
 
 
@@ -261,6 +405,13 @@ boton19.config(width=13, height=1)
 boton20 = Button(raiz, text="extractRangeTable", activebackground="#F50743",command=extractRangeTable)
 boton20.place(x=1000,y=250)
 boton20.config(width=13, height=1)
+boton21 = Button(raiz, text="Truncate", activebackground="#F50743",command=Truncate)
+boton21.place(x=900,y=300)
+boton21.config(width=13, height=1)
+boton22 = Button(raiz, text="Delete", activebackground="#F50743",command=Delete)
+boton22.place(x=1000,y=300)
+boton22.config(width=13, height=1)
+
 
 BotonEjecutar = Button(raiz, text="Ejecutar Base de datos", activebackground="#F50743",command=EjecutarBD)
 BotonEjecutar.place(x=600,y=500)
@@ -278,7 +429,13 @@ menubar.add_command(label = "Saber mas", command=Datos)
 menubar.add_command(label = "Salir", command = raiz.quit)
 
 #bucle de la aplicacion
+t = ArbolAVL()
+try:
+    t = rollback("ult")
+except:
+    print("no se encontró")
 raiz.mainloop()
+commit(t, "ult")
 
 
 

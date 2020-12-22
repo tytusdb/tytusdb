@@ -12,11 +12,19 @@ from analizer.reports import AST
 ast = AST.AST()
 root = None
 
+list_errors = list()
+
 
 class TYPE(Enum):
     NUMBER = 1
     STRING = 2
     BOOLEAN = 3
+    TIMESTAMP = 4
+    DATE = 5
+    TIME = 6
+    DATETIME = 7
+    TYPE = 8
+    NULL = 9
 
 
 class ERROR(Enum):
@@ -66,34 +74,64 @@ class Identifiers(Expression):
     Esta clase representa los nombre de columnas
     """
 
-    value = None
+    type = None
     # TODO: implementar la funcion para obtener el type de la columna
-    def __init__(self, table, name, df, row, column):
+    def __init__(self, table, name, row, column):
         Expression.__init__(self, row, column)
         self.table = table
         self.name = name
-        self.df = df
+
         if table == None:
             self.temp = name
         else:
             self.temp = table + "." + name
-        self.type = TYPE.NUMBER
+        self.type = None
 
     def execute(self, environment):
-        """
-        TODO:Se debe hacer la logica para buscar los identificadores en la tabla
-        """
-        col = ""
+        ta = None
         if self.table == None:
-            col = self.name
+            ta = environment.ambiguityBetweenColumns(self.name)
+            if not ta:  # Si existe ambiguedad
+                return
+            col = ta + "." + self.name
+            self.value = environment.dataFrame[col]
         else:
-            col = self.table + "." + self.name
-        self.value = self.df[col]
+            self.value = environment.getColumn(self.table, self.name)
+            ta = self.table
+        r = environment.getType(ta, self.name)
+        self.type = r
         return self
 
     def dot(self):
         nod = Nodo.Nodo(self.name)
         return nod
+
+
+class TableAll(Expression):
+    """
+    Esta clase representa una tabla.*
+    """
+
+    def __init__(self, table, row, column):
+        Expression.__init__(self, row, column)
+        self.table = table
+
+    def execute(self, environment):
+        env = environment
+        lst = []
+        while env != None:
+            if self.table in env.variables:
+                table = env.variables[self.table].value
+                for p in env.dataFrame:
+                    temp = p.split(".")
+                    if temp[0] == table:
+                        identifier = Identifiers(
+                            self.table, temp[1], self.row, self.column
+                        )
+                        lst.append(identifier)
+                break
+            env = env.previous
+        return lst
 
 
 class UnaryArithmeticOperation(Expression):
@@ -113,6 +151,13 @@ class UnaryArithmeticOperation(Expression):
         operator = self.operator
 
         if exp.type != TYPE.NUMBER:
+            list_errors.insert(
+                len(list_errors),
+                "Error: 44883: el operador no existe: "
+                + str(operator)
+                + " "
+                + str(exp.type),
+            )
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
         if operator == "+":
@@ -146,27 +191,94 @@ class BinaryArithmeticOperation(Expression):
         self.temp = exp1.temp + str(operator) + exp2.temp
 
     def execute(self, environment):
+        try:
+            exp1 = self.exp1.execute(environment)
+            exp2 = self.exp2.execute(environment)
+            operator = self.operator
+            if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                list_errors.insert(
+                    len(list_errors),
+                    "Error: 44883: el operador no existe: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type),
+                )
+                ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+                raise Exception("Error: ErrorBinaryOperation")
+            if operator == "+":
+                value = exp1.value + exp2.value
+            elif operator == "-":
+                value = exp1.value - exp2.value
+            elif operator == "*":
+                value = exp1.value * exp2.value
+            elif operator == "/":
+                value = exp1.value / exp2.value
+            elif operator == "^":
+                value = exp1.value ** exp2.value
+            elif operator == "%":
+                value = exp1.value % exp2.value
+            else:
+                return ErrorOperatorExpression(operator, self.row, self.column)
+            self.dot()
+            return Primitive(TYPE.NUMBER, value, self.row, self.column)
+        except:
+            raise
+
+    def dot(self):
+        n1 = self.exp1.dot()
+        n2 = self.exp2.dot()
+        new = Nodo.Nodo(self.operator)
+        new.addNode(n1)
+        new.addNode(n2)
+        global root
+        root = new
+        return new
+
+
+class BinaryStringOperation(Expression):
+    """
+    Esta clase recibe dos parametros de expresion
+    para realizar operaciones entre ellas
+    """
+
+    def __init__(self, exp1, exp2, operator, row, column):
+        Expression.__init__(self, row, column)
+        self.exp1 = exp1
+        self.exp2 = exp2
+        self.operator = operator
+        self.temp = exp1.temp + str(operator) + exp2.temp
+
+    def execute(self, environment):
         exp1 = self.exp1.execute(environment)
         exp2 = self.exp2.execute(environment)
         operator = self.operator
-        if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+        if exp1.type != TYPE.STRING and exp2.type != TYPE.STRING:
+            list_errors.nsert(
+                len(list_errors),
+                "Error: 44883:list_errors el operador no existe: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type),
+            )
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
-        if operator == "+":
+        if isinstance(exp1.value, pd.core.series.Series):
+            exp1.value = exp1.value.apply(str)
+        else:
+            exp1.value = str(exp1.value)
+        if isinstance(exp2.value, pd.core.series.Series):
+            exp2.value = exp2.value.apply(str)
+        else:
+            exp2.value = str(exp2.value)
+        if operator == "||":
             value = exp1.value + exp2.value
-        elif operator == "-":
-            value = exp1.value - exp2.value
-        elif operator == "*":
-            value = exp1.value * exp2.value
-        elif operator == "/":
-            value = exp1.value / exp2.value
-        elif operator == "^":
-            value = exp1.value ** exp2.value
-        elif operator == "%":
-            value = exp1.value % exp2.value
         else:
             return ErrorOperatorExpression(operator, self.row, self.column)
         self.dot()
-        return Primitive(TYPE.NUMBER, value, self.row, self.column)
+        return Primitive(TYPE.STRING, value, self.row, self.column)
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -331,16 +443,32 @@ class TernaryRelationalOperation(Expression):
         exp3 = self.exp3.execute(environment)
         operator = self.operator
         try:
-            if operator == "BETWEEN":
-                value = exp1.value > exp2.value and exp1.value < exp3.value
-            elif operator == "NOTBETWEEN":
-                value = not (exp1.value > exp2.value and exp1.value < exp3.value)
-            elif operator == "BETWEENSYMMETRIC":
-                t1 = exp1.value > exp2.value and exp1.value < exp3.value
-                t2 = exp1.value < exp2.value and exp1.value > exp3.value
-                value = t1 or t2
+            if (
+                isinstance(exp1.value, pd.core.series.Series)
+                or isinstance(exp2.value, pd.core.series.Series)
+                or isinstance(exp3.value, pd.core.series.Series)
+            ):
+                if operator == "BETWEEN":
+                    value = (exp1.value > exp2.value) & (exp1.value < exp3.value)
+                elif operator == "NOTBETWEEN":
+                    value = not ((exp1.value > exp2.value) & (exp1.value < exp3.value))
+                elif operator == "BETWEENSYMMETRIC":
+                    t1 = (exp1.value > exp2.value) & (exp1.value < exp3.value)
+                    t2 = (exp1.value < exp2.value) & (exp1.value > exp3.value)
+                    value = t1 | t2
+                else:
+                    return ErrorOperatorExpression(operator, self.row, self.column)
             else:
-                return ErrorOperatorExpression(operator, self.row, self.column)
+                if operator == "BETWEEN":
+                    value = exp1.value > exp2.value and exp1.value < exp3.value
+                elif operator == "NOTBETWEEN":
+                    value = not (exp1.value > exp2.value and exp1.value < exp3.value)
+                elif operator == "BETWEENSYMMETRIC":
+                    t1 = exp1.value > exp2.value and exp1.value < exp3.value
+                    t2 = exp1.value < exp2.value and exp1.value > exp3.value
+                    value = t1 or t2
+                else:
+                    return ErrorOperatorExpression(operator, self.row, self.column)
             return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
         except TypeError:
             return ErrorTernaryOperation(
@@ -567,11 +695,18 @@ class FunctionCall(Expression):
     def execute(self, environment):
         try:
             valores = []
+            types = []
             for p in self.params:
-                val = p.execute(environment).value
+                obj = p.execute(environment)
+                val = obj.value
+                t = obj.type
                 if isinstance(val, pd.core.series.Series):
                     val = val.tolist()
                 valores.append(val)
+                types.append(t)
+            # Se toma en cuenta que las funcines matematicas
+            # y trigonometricas producen un tipo NUMBER
+            type_ = TYPE.NUMBER
             if self.function == "abs":
                 value = mf.absolute(*valores)
             elif self.function == "cbrt":
@@ -667,28 +802,38 @@ class FunctionCall(Expression):
             elif self.function == "length":
                 value = strf.length(*valores)
             elif self.function == "substring":
+                type_ = TYPE.STRING
                 value = strf.substring(*valores)
             elif self.function == "trim":
+                type_ = TYPE.STRING
                 value = strf.trim_(*valores)
             elif self.function == "get_byte":
                 value = strf.get_byte(*valores)
             elif self.function == "md5":
+                type_ = TYPE.STRING
                 value = strf.md5(*valores)
             elif self.function == "set_byte":
+                type_ = TYPE.STRING
                 value = strf.set_byte(*valores)
             elif self.function == "sha256":
+                type_ = TYPE.STRING
                 value = strf.sha256(*valores)
             elif self.function == "substr":
+                type_ = TYPE.STRING
                 value = strf.substring(*valores)
             elif self.function == "convert_date":
                 value = strf.convert_date(*valores)
             elif self.function == "convert_int":
                 value = strf.convert_int(*valores)
             elif self.function == "encode":
+                type_ = TYPE.STRING
                 value = strf.encode(*valores)
             elif self.function == "decode":
+                type_ = TYPE.STRING
                 value = strf.decode(*valores)
+            # Se toma en cuenta que la funcion now produce tipo DATE
             elif self.function == "now":
+                type_ = TYPE.DATETIME
                 value = datetime.now().strftime("%Y/%m/%d %H:%M:%S")
             else:
                 # TODO: Agregar un error de funcion desconocida
@@ -699,7 +844,7 @@ class FunctionCall(Expression):
                 else:
                     value = pd.Series(value)
             self.dot()
-            return Primitive(TYPE.NUMBER, value, self.row, self.column)
+            return Primitive(type_, value, self.row, self.column)
         except TypeError:
             print("Error de tipos en llamada a funciones")
         except:
@@ -718,6 +863,7 @@ class FunctionCall(Expression):
         return new
 
 
+# TODO: Agregar a la gramatica DATE, TIME y Columnas (datatype)
 class ExtractDate(Expression):
     def __init__(self, opt, type, str, row, column):
         Expression.__init__(self, row, column)
@@ -743,6 +889,26 @@ class ExtractDate(Expression):
                     val = self.str[1][3:5]
                 elif self.opt == "SECOND":
                     val = self.str[1][6:8]
+                else:
+                    # ERROR
+                    val = self.str
+            elif self.type == "DATE":
+                if self.opt == "YEAR":
+                    val = self.str[0][:4]
+                elif self.opt == "MONTH":
+                    val = self.str[0][5:7]
+                elif self.opt == "DAY":
+                    val = self.str[0][8:10]
+                else:
+                    # ERROR
+                    val = self.str
+            elif self.type == "TIME":
+                if self.opt == "HOUR":
+                    val = self.str[0][:2]
+                elif self.opt == "MINUTE":
+                    val = self.str[0][3:5]
+                elif self.opt == "SECOND":
+                    val = self.str[0][6:8]
                 else:
                     # ERROR
                     val = self.str
@@ -789,6 +955,88 @@ class ExtractDate(Expression):
         nopt = Nodo.Nodo(str(self.opt))
         p.addNode(nopt)
         p.addNode(ntype)
+        p.addNode(nstr)
+        global root
+        root = new
+        return new
+
+
+class ExtractColumnDate(Expression):
+    def __init__(self, opt, colData, row, column):
+        Expression.__init__(self, row, column)
+        self.opt = opt
+        self.colData = colData
+        self.temp = "EXTRACT( " + opt + " FROM " + colData.temp + " )"
+
+    def execute(self, environment):
+        try:
+            valores = self.colData.execute(environment)
+
+            if isinstance(valores.value, pd.core.series.Series):
+                lst = valores.value.tolist()
+                lst = [v.split() for v in lst]
+            else:
+                lst = [valores.split()]
+            if valores.type == TYPE.TIMESTAMP or valores.type == TYPE.DATETIME:
+                if self.opt == "YEAR":
+                    val = [date[0][:4] for date in lst]
+                elif self.opt == "MONTH":
+                    val = [date[0][5:7] for date in lst]
+                elif self.opt == "DAY":
+                    val = [date[0][8:10] for date in lst]
+                elif self.opt == "HOUR":
+                    val = [date[1][:2] for date in lst]
+                elif self.opt == "MINUTE":
+                    val = [date[1][3:5] for date in lst]
+                elif self.opt == "SECOND":
+                    val = [date[1][6:8] for date in lst]
+                else:
+                    # ERROR
+                    val = self.str
+            elif valores.type == TYPE.DATE:
+                if self.opt == "YEAR":
+                    val = [date[0][:4] for date in lst]
+                elif self.opt == "MONTH":
+                    val = [date[0][5:7] for date in lst]
+                elif self.opt == "DAY":
+                    val = [date[0][8:10] for date in lst]
+                else:
+                    # ERROR
+                    val = self.str
+            elif valores.type == TYPE.TIME:
+                if self.opt == "HOUR":
+                    val = [date[0][:2] for date in lst]
+                elif self.opt == "MINUTE":
+                    val = [date[0][3:5] for date in lst]
+                elif self.opt == "SECOND":
+                    val = [date[0][6:8] for date in lst]
+                else:
+                    # ERROR
+                    val = self.str
+            else:
+                val = self.str
+                # ERROR
+            if isinstance(val, list):
+                if len(val) <= 1:
+                    val = val[0]
+                else:
+                    val = pd.Series(val)
+            self.dot()
+            return Primitive(TYPE.NUMBER, val, self.row, self.column)
+        except TypeError:
+            pass
+        except ValueError:  # cuando no tiene el valor INTERVAL
+            pass
+
+    def dot(self):
+        f = Nodo.Nodo("EXTRACT")
+        p = Nodo.Nodo("PARAMS")
+        new = Nodo.Nodo("CALL")
+        new.addNode(f)
+        new.addNode(p)
+        nstr = Nodo.Nodo(str(self.colData.temp))
+        nopt = Nodo.Nodo(str(self.opt))
+        p.addNode(nopt)
         p.addNode(nstr)
         global root
         root = new
