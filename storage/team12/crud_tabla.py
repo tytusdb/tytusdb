@@ -1,172 +1,207 @@
-class NodoArbol:
-    
-    def __init__(self, ValorI = [-1, ""], AnteriorI = None):
-        self.Valores = []
-        self.Hijos = []
-        self.Anterior = None
-        if ValorI[0]==-1 and AnteriorI == None:
-            for i in range(4):
-                if i!=3:
-                    self.Valores.append([-1, ""])
-                self.Hijos.append(None)
-            self.Anterior = None
-        elif ValorI!=-1 and AnteriorI == None:
-            for i in range(4):
-                if i!=3:
-                    self.Valores.append([-1, ""])
-                self.Hijos.append(None)
-            self.Valores[0] = ValorI
-            self.Anterior = None
-        elif ValorI!=-1 and AnteriorI != None:
-            for i in range(4):
-                if i!=3:
-                    self.Valores.append([-1, ""])
-                self.Hijos.append(None)
-            self.Valores[0] = ValorI
-            self.Anterior = AnteriorI
+from crud_bd import CRUD_DataBase
+import copy
 
-class Arbol:
+class Tabla():
+    def __init__(self, name, numberColumns):
+        self.name = name
+        self.numberColumns = numberColumns
+        self.tuples = None
+        self.PK=[]
 
-    def __init__(self):
-        self.Raiz = None
-        self.PK = []
-        self.Flag = False
-        self.Valores_Temp = []
-    
-    def Mostrar2(self, Actual):
-        print("[",end="")
-        for i in range(3):
-            if Actual.Hijos[i] != None:
-                self.Mostrar2(Actual.Hijos[i])
-            if Actual.Valores[i][0] != -1:
-                if i!=0:
-                    print(",",end="")
-                print(Actual.Valores[i][0],end="")
-        if Actual.Hijos[3] != None:
-            self.Mostrar2(Actual.Hijos[2])
-        print("]",end="")
-
-    def Mostrar(self):
-        self.Mostrar2(self.Raiz)
-        print("\n")
-    def InsertarArriba(self, Actual):
-        Anterior = Actual.Anterior
-        if Anterior == None:
-            Anterior = NodoArbol(Actual.Valores[1])
-            Hijo0 = NodoArbol(Actual.Valores[0], Anterior)
-            Hijo0.Hijos[0] = Actual.Hijos[0]
-            Hijo0.Hijos[1] = Actual.Hijos[1]
-            if Hijo0.Hijos[0] != None:
-                Hijo0.Hijos[0].Anterior = Hijo0
-            if Hijo0.Hijos[1] != None:
-                Hijo0.Hijos[1].Anterior = Hijo0
-            Hijo1 = NodoArbol(Actual.Valores[2], Anterior)
-            Hijo1.Hijos[0] = Actual.Hijos[2]
-            Hijo1.Hijos[1] = Actual.Hijos[3]
-            if Hijo1.Hijos[0] != None:
-                Hijo1.Hijos[0].Anterior = Hijo1
-            if Hijo1.Hijos[1] != None:
-                Hijo1.Hijos[1].Anterior = Hijo1
-            Anterior.Hijos[0] = Hijo0
-            Anterior.Hijos[1] = Hijo1
-            self.Raiz = Anterior
-        else:
-            Auxiliar = Anterior.Hijos
-            Aux = Anterior.Valores
-            i = 0
-            while Auxiliar[i] != Actual:
-                i=i+1
-            j = 3
-            while (j>i):
-                if j!=3:
-                    Aux[j] = Aux[j-1]
-                Auxiliar[j] = Auxiliar[j-1]
-                j = j - 1
-                
-            Aux[i] = Actual.Valores[1]
-            Hijo0 = NodoArbol(Actual.Valores[0], Anterior)
-            Hijo0.Hijos[0] = Actual.Hijos[0]
-            Hijo0.Hijos[1] = Actual.Hijos[1]
-            if Hijo0.Hijos[0] != None:
-                Hijo0.Hijos[0].Anterior = Hijo0
-            if Hijo0.Hijos[1] != None:
-                Hijo0.Hijos[1].Anterior = Hijo0
-            Hijo1 = NodoArbol(Actual.Valores[2], Anterior)
-            Hijo1.Hijos[0] = Actual.Hijos[2]
-            Hijo1.Hijos[1] = Actual.Hijos[3]
-            if Hijo1.Hijos[0] != None:
-                Hijo1.Hijos[0].Anterior = Hijo1
-            if Hijo1.Hijos[1] != None:
-                Hijo1.Hijos[1].Anterior = Hijo1
-            Anterior.Hijos[i] = Hijo0
-            Anterior.Hijos[i+1] = Hijo1
-            if(Aux[2][0] != -1):
-                self.InsertarArriba(Anterior)
-
-    def InsertarEnNodo(self, Actual, Nuevo):
-        Aux = Actual.Valores
-        if Aux[0][0] == -1:
-            Aux[0] = Nuevo
-        elif Aux[1][0] == -1:
-            if Nuevo[0] < Aux[0][0]:
-                Aux[1] = Aux[0]
-                Aux[0] = Nuevo
-            else:
-                Aux[1] = Nuevo
-        else:
-            if Nuevo[0] < Aux[0][0]:
-                Aux[2] = Aux[1]
-                Aux[1] = Aux[0]
-                Aux[0] = Nuevo
-            elif Nuevo[0] < Aux[1][0]:
-                Aux[2] = Aux[1]
-                Aux[1] = Nuevo
-            else:
-                Aux[2] = Nuevo
-            self.InsertarArriba(Actual)
-
-    def BuscarInsercion(self, Actual, Nuevo):
-        Auxiliar = Actual.Hijos
-        if Auxiliar[0] == None:
-            self.InsertarEnNodo(Actual, Nuevo)
-        else:
+class CRUD_Tabla():
+    """def Buscar2(self, Clave, Actual):
+        if Actual != None:
             Aux = Actual.Valores
-            if Nuevo[0] < Aux[0][0]:
-                self.BuscarInsercion(Auxiliar[0], Nuevo)
-            elif Aux[1][0] != -1 and Aux[1][0] < Nuevo[0]:
-                self.BuscarInsercion(Auxiliar[2], Nuevo)
+            if Clave < Aux[0][0]:
+                return self.Buscar2(Clave, Actual.Hijos[0])
+            elif Clave == Aux[0][0]:
+                return Aux[0]
+            elif Aux[1][0] != -1 and Clave > Aux[1][0]:
+                return self.Buscar2(Clave, Actual.Hijos[2])
+            elif Aux[1][0] != -1 and Clave == Aux[1][0]:
+                return Aux[1]
             else:
-                self.BuscarInsercion(Auxiliar[1], Nuevo)
-
-    def Insertar(self, Nuevo):
-        if self.Raiz == None :
-            self.Raiz = NodoArbol(Nuevo)
+                return self.Buscar2(Clave, Actual.Hijos[1])
         else:
-            self.BuscarInsercion(self.Raiz, Nuevo)
-        self.Mostrar()
+            return None
 
-    def Tomar_Datos_BETA(self, Actual):
-        Valores = []
-        for i in range(3):
-            if Actual.Hijos[i] != None:
-                self.Tomar_Datos_BETA(Actual.Hijos[i])
-            if Actual.Valores[i][0] != -1:
-                Valores.append(Actual.Valores[i])
-        if Actual.Hijos[3] != None:
-            self.Tomar_Datos_BETA(Actual.Hijos[2])
-        self.Valores_Temp.append(Valores)
+    def Buscar(self, Clave):
+        if self.Raiz == None:
+            return None
+        else:
+            return self.Buscar2(Clave, self.Raiz)"""
 
-    def Tomar_Datos(self):
-        Valores_temp = []
+    def alterAddPK(self,database,table,keys):
+        Pk = keys
+        datos = []
+        ## busqueda tabla
+        temp = self.extractTable(database,table)
+        ## asignacion de valores para uso posterior del ordenamiento
+        datos =  temp.Tomar_Datos()
+        print(Pk)
 
-        Valores_temp.append(self.Tomar_Datos_BETA(self.Raiz))
-        for n in self.Valores_Temp:
-            if n != "None":
-                 Valores_temp.append(n[0])
+    def extractTable(self, database, table):
+        temp = CRUD_DataBase().searchDatabase(database)
+        try:
+            tablas = temp.tables
+            for i in tablas:
+                if i.name == table:
+                    return i
+        except:
+            return None
 
-        Valores_temp.pop(0)
-        return Valores_temp
-    def insertar_(self,datos):
-        temp = datos
-        Prueba.Insertar(temp)
+    def createTable(self, database, table, numberColumns):
+        
+        r_basededatos = CRUD_DataBase().searchDatabase(database)
+        if r_basededatos:
+            r_tabla = self.extractTable(database, table)
+            if r_tabla is None:
+                tmp = CRUD_DataBase().getRoot()
+                table_temp = Tabla(table, numberColumns)
+                r_value = self._createTable(database, tmp, table_temp)
+                if r_value:
+                    CRUD_DataBase().saveRoot(tmp)
+                    return 0
+                else:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2  
 
+    def _createTable(self, name, tmp, table_temp):
+        try:
+            if tmp is None:
+                pass
+            elif name == tmp.name :
+                tmp.tables.append(table_temp)
+            elif name > tmp.name:
+                tmp = self._createTable(name, tmp.right, table_temp)
+            else:
+                tmp = self._createTable(name, tmp.left, table_temp)
+            return tmp
+        except:
+            return 1   
+
+    def shownTables(self, database):
+        try:
+            temp = CRUD_DataBase().searchDatabase(database)
+            lista_retorno = []
+            for item in temp.tables:
+                lista_retorno.append(item.name)
+            return lista_retorno
+        except:
+            return None
+
+    def dropTable(self, database, table):
+        try:
+            temp = CRUD_DataBase().searchDatabase(database)
+            if temp:
+                tmp = CRUD_DataBase().getRoot()
+                existencia_tabla = self.extractTable(database, table)
+                if existencia_tabla:
+                    self._dropTable(database, tmp, table)
+                    CRUD_DataBase().saveRoot(tmp)
+                    return 0
+                else:
+                    return 3 
+            else:
+                return 2
+        except:
+            return 1
+
+    def _dropTable(self, name, tmp, table):
+        if tmp is None:
+            pass
+        elif name == tmp.name:
+            id = 0
+            for n in tmp.tables:
+                if n.name == table:
+                    id = tmp.tables.index(n)
+                    break
+            tmp.tables.pop(id)
+        elif name > tmp.name:
+            tmp = self._dropTable(name, tmp.right, table)
+        else:
+            tmp = self._dropTable(name, tmp.left, table)
+        return tmp
+
+    def alterTable(self, database, tableOld, tableNew):
+        
+        existe_database = CRUD_DataBase().searchDatabase(database)
+        if existe_database:
+            existe_tableOld = copy.deepcopy(self.extractTable(database, tableOld))
+            if existe_tableOld:
+                existe_tableNew = self.extractTable(database, tableNew)
+                if existe_tableNew is None:
+                    
+                    existe_tableOld.name = tableNew
+                    val_drop = self.dropTable(database, tableOld)
+
+                    if val_drop == 0:
+                        val_assign = self.createTable_Object(database, tableNew, existe_tableOld)
+                        return val_assign
+                    elif val_drop == 2:
+                        return 2
+                    else:
+                        return 1
+                else:
+                    return 4
+            else:
+                return 3
+        else:
+            return 2
+            
+    def createTable_Object(self, database, table, object_table):
+        
+        r_basededatos = CRUD_DataBase().searchDatabase(database)
+        if r_basededatos:
+            r_tabla = self.extractTable(database, table)
+            if r_tabla is None:
+                tmp = CRUD_DataBase().getRoot()
+                r_value = self._createTable(database, tmp, object_table)
+                if r_value:
+                    CRUD_DataBase().saveRoot(tmp)
+                    return 0
+                else:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2  
+           
+    def extractRangeTable(self,database,table,columnNumber,lower,upper):
+        valores = []
+        i = lower
+        temp = self.extractTable(database,table)
+        while i <= upper:
+            i += 1
+            valores.append(temp[i])
+        return valores
+
+    def insert(self,database,table,tupla):
+        self.root = CRUD_DataBase().getRoot()
+        self._insert(database, self.root, table,tupla)
+        CRUD_DataBase().saveRoot(self.root)
+
+    def _insert(self,database,tmp,table,tupla):
+        if tmp is None:
+            pass
+        elif tmp.name == database:
+            self.subinsert(tmp,table,tupla)
+        elif database > tmp.name:
+            tmp = self._insert(database, tmp.right, table,tupla)
+        else:
+            tmp = self._insert(database, tmp.left, table, tupla )
+        return tmp
+
+    def subinsert(self,tmp,table,tupla):
+        for n in tmp.tables:
+            if n.name == table:
+                id = tmp.tables.index(n)
+                if tmp.tables[id].Tuplas == None:
+                    tmp.tables[id].Tuplas = []
+                    tmp.tables[id].Tuplas.insertar_(tupla)
+                else:
+                    tmp.tables[id].Tuplas.insertar_(tupla)
+                return tmp

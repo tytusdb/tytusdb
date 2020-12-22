@@ -72,7 +72,7 @@ class Create(Instruccion):
                             for columnasCreadas in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns']:
                                 if columnasCreadas.name.upper() == columnsPK.column.upper() :
                                     ListaColumnasPK.append(valCont)
-                                    columnasCreadas.pk = ConstraintData('PK_' + self.name.upper() + '_' + columnsPK.column.upper(), True)
+                                    columnasCreadas.pk = ConstraintData('PK_' + self.name.upper() + '_' + columnsPK.column.upper(), True, 'pk')
                                     break
                                 valCont = valCont + 1
                         resPK = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
@@ -84,7 +84,7 @@ class Create(Instruccion):
                     elif column.type == 'foreign':
                         print('Se agrega hasta la fase 2')
                     elif column.type == 'constraint':
-                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['constraint'].append(ConstraintData(column.id, column.list))
+                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['constraint'].append(ConstraintData(column.id, column.list, 'check'))
                     else:
                         banderaDef = True
 
@@ -130,7 +130,7 @@ class Create(Instruccion):
                         print('----------Columnas fin----------')'''
 
                         if primary != None:
-                            primaryData = ConstraintData('PK_' + self.name.upper() + '_' + column.type.upper(), True)
+                            primaryData = ConstraintData('PK_' + self.name.upper() + '_' + column.type.upper(), True, 'pk')
                             ListaColumnasPK.clear()
                             ListaColumnasPK.append(contadorColumnas)
                             resPK = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
@@ -141,28 +141,28 @@ class Create(Instruccion):
                             elif resPK == 5: print('Error(42P10): invalid_column_reference.')
                         else: primaryData = None
 
-                        if references != None: foreignData = ConstraintData('FK_' + self.name.upper() + '_' + column.type.upper(), references.list)
+                        if references != None: foreignData = ConstraintData('FK_' + self.name.upper() + '_' + column.type.upper(), references.list, 'fk')
                         else: foreignData = None
 
-                        if default.extra : defaultData = ConstraintData('DFT_' + self.name.upper() + '_' + column.type.upper(), default.id)
+                        if default.extra : defaultData = ConstraintData('DFT_' + self.name.upper() + '_' + column.type.upper(), default.id, 'dft')
                         else : defaultData = None
 
-                        if null.id : nullData = ConstraintData('NULL_' + self.name.upper() + '_' + column.type.upper(), False)
+                        if null.id : nullData = False
                         else :
-                            if null.extra: nullData = ConstraintData('NULL_' + self.name.upper() + '_' + column.type.upper(), True)
-                            else : nullData = None
+                            if null.extra: nullData = True
+                            else : nullData = True
 
                         if unique.extra :
-                            if unique.id == None: uniqueData = ConstraintData('UNQ_' + self.name.upper() + '_' + column.type.upper(), True)
-                            else: uniqueData = ConstraintData(unique.id, True)
+                            if unique.id == None: uniqueData = ConstraintData('UNQ_' + self.name.upper() + '_' + column.type.upper(), True, 'null')
+                            else: uniqueData = ConstraintData(unique.id, True, 'unique')
                         else : uniqueData = None
 
                         if check == None : checkData = None
                         else :
-                            if check.id == None : checkData = ConstraintData('CHK_' + self.name.upper() + '_' + column.type.upper(), check.list)
-                            else : checkData = ConstraintData(check.id, check.list)
+                            if check.id == None : checkData = ConstraintData('CHK_' + self.name.upper() + '_' + column.type.upper(), check.list, 'check')
+                            else : checkData = ConstraintData(check.id, check.list, 'check')
 
-                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns'].append(TableData(column.type.upper(), type.type, type.length, primaryData, foreignData, defaultData, nullData, uniqueData, checkData))
+                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns'].append(TableData(column.type.upper(), type.type, type.length, primaryData, [foreignData], defaultData, nullData, uniqueData, [checkData]))
                         contadorColumnas = contadorColumnas + 1
                 return 'Se ha creado la tabla ' + self.name.upper() + ' correctamente.'
         elif self.type == 'replace' :

@@ -4,6 +4,7 @@ import re
 
 import instrucciones as ins 
 import tabla_simbolos as TS
+import Errores as E
 
 ts_global = TS.tabla_simbolos()
 
@@ -253,6 +254,7 @@ def p_entrada(p):
 
 def p_s_use(p):
     '''s_use : USE ID PTCOMA'''
+    global lst_instrucciones
     cons = ins.UseDB(p[2])
     lst_instrucciones.append(cons)
 
@@ -446,44 +448,54 @@ def p_data_type_3(p):
     #p[0] = str(p[1]) + str(p[2]) + str(p[3]) + str(p[4])
 
 def p_create_db(p):
-    '''create_db : CREATE DATABASE c_db db_owner db_mode PTCOMA'''
-    cons = ins.CreateDB(p[3], p[4], p[5])
+    '''create_db : CREATE DATABASE db_exist ID db_owner db_mode PTCOMA'''
+    global lst_instrucciones
+    cons = ins.CreateDB(False, p[3], p[4], p[5], p[6])
     lst_instrucciones.append(cons)
 
 
 def p_create_db_2(p):
-    '''create_db : CREATE OR REPLACE DATABASE c_db db_owner db_mode PTCOMA'''
-    ins.CreateDB(p[5], p[6], p[7])
+    '''create_db : CREATE OR REPLACE DATABASE db_exist ID db_owner db_mode PTCOMA'''
+    global lst_instrucciones
+    cons = ins.CreateDB(True, p[5], p[6], p[7], p[8])
     lst_instrucciones.append(cons)
-
-def p_c_db(p):
-    '''c_db : db_exist c_db1'''
-
-    p[0] = p[2]
 
 def p_c_dc_exist(p):
     '''db_exist : IF NOT EXISTS
                 | '''
-
-def p_c_db1(p):
-    '''c_db1 : ID '''
-
-    p[0] = p[1]
-
+    try:
+        if p[2]:
+            p[0] = True
+    except:
+        p[0] = False
 
 def p_db_owner(p):
     '''db_owner : OWNER IGUAL ID 
+                | OWNER ID 
                 |'''
-    p[0] = p[3]
+    try:
+        if p[2] == '=':
+            p[0] = p[3]
+        else:
+            p[0] = p[2]
+    except:
+        p[0] = None
 
 def p_db_mode(p):
-    '''db_mode : MODE IGUAL ENTERO
+    '''db_mode :  MODE IGUAL ENTERO
+                | MODE ENTERO
                 |'''
-    p[0] = p[3]
-
+    try:
+        if p[2] == '=':
+            p[0] = p[3]
+        else:
+            p[0] = p[2]
+    except:
+        p[0] = None
 
 def p_show_db(p):
     '''show_db : SHOW DATABASES PTCOMA'''
+    global lst_instrucciones
     cons = ins.ShowDB()
     lst_instrucciones.append(cons)
 
@@ -506,28 +518,27 @@ def p_owner_db(p):
 
 def p_drop_db(p):
     '''drop_db  : DROP DATABASE ID PTCOMA'''
-    Drop(p[3])
+    ins.Drop(str(p[3]), False)
 
 def p_drop_db_2(p):
     '''drop_db  : DROP DATABASE IF EXISTS ID PTCOMA'''
-    Drop(p[5])
+    ins.Drop(str(p[5]), True)
 
 def p_create_table(p): 
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER PTCOMA'''
     arr = p[5]
-    for col in arr:
-        print('*')
-        
-    cons = ins.CreateTable(p[3], 'base_prueba', arr[0], None) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
+    cons = ins.CreateTable(str(p[3]), None, arr[0], None,arr[1]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
     lst_instrucciones.append(cons)
 
 def p_create_table_2(p):
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
-    cons = ins.CreateTable(p[3], None, p[5], p[9]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
+    arr = p[5]
+    cons = ins.CreateTable(str(p[3]), None, arr[0], p[9],arr[1]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
     lst_instrucciones.append(cons)
 
 def p_columnas(p):
     '''columnas  : colum_list'''
+
     lis = []
     arr = []
     arr.append(p[1])
@@ -536,7 +547,6 @@ def p_columnas(p):
 
 def p_columnas_2(p):
     '''columnas  : colum_list const_keys'''
-
     arr = []
     arr.append(p[1])
     arr.append(p[2])
@@ -545,16 +555,16 @@ def p_columnas_2(p):
 def p_id_data(p):
     '''id_data   : ID data_type const'''
 
-    arr = []
     #Verificar si el data type viene con longitud o no
     x = p[2].split(',')
     tipo = tipo_data(x[0])
-
-    if len(x) == 2:
-        nueva_columna = TS.Simbolo(p[1], tipo,p[3], 'base', x[1], False, False, None) 
+    if len(x) == 2: 
+        nueva_columna = TS.Simbolo(p[1], tipo,p[3], None, x[1], False, False, None) 
+        nueva_columna.valor = p[3]
     else:
-        nueva_columna = TS.Simbolo(p[1],tipo, p[3], 'base', None, False, False, None)
-
+        nueva_columna = TS.Simbolo(p[1],tipo, p[3], None, None, False, False, None)
+        nueva_columna.valor = p[3]
+        
     p[0] = nueva_columna
 
 def p_id_data_2(p):
@@ -563,11 +573,10 @@ def p_id_data_2(p):
     #Verificar si el data type viene con longitud o no
     x = p[2].split(',')
     tipo = tipo_data(x[0])
-    arr = []
     if len(x) == 2:
-        nueva_columna = TS.Simbolo(p[1], tipo,arr , 'base', x[1], False,False, None) 
+        nueva_columna = TS.Simbolo(p[1], tipo,None , None, x[1], False,False, None) 
     else:
-        nueva_columna = TS.Simbolo(p[1], tipo, arr, 'base', None, False, False, None)
+        nueva_columna = TS.Simbolo(p[1], tipo, None, None, None, False, False, None)
 
     p[0] = nueva_columna
 
@@ -923,12 +932,13 @@ def lex_error(lex, linea, columna):
 
 
 def ejecutar(entrada):
-    global parser
+    global parser, ts_global, lst_instrucciones
     parse_result = parser.parse(entrada)
 
     for cons in lst_instrucciones :
         cons.execute(ts_global)
 
+    ts_global.graficar()
     return parse_result
 
 def tipo_data(tipo):

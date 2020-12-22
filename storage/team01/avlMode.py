@@ -1,4 +1,5 @@
 import avl
+from graphviz import Digraph, nohtml
 import pickle
 from typing import Any
 
@@ -746,7 +747,7 @@ def deserializar(archivo) -> list:
 #Grafica la estructura que contiene las Bases de Datos
 def graficaBD() -> int:
     if mBBDD.raiz:
-        mBBDD.armararbol(mBBDD.raiz, "Bases de Datos", "BBDD.jpg")
+        mBBDD.armararbol(mBBDD.raiz, "Bases de Datos", "BBDD")
         return 0 #Operación exitosa
     else:
         return 1 #Error en la operación
@@ -755,18 +756,20 @@ def graficaBD() -> int:
 def graficaTBL(database: str) -> int:
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
-        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Base de Datos: " + nodoBD.clave, nodoBD.clave+'.jpg')
+        nodoBD.datos.armararbol(nodoBD.datos.raiz, "Tablas: " + nodoBD.clave, "Tablas")
         return 0 #Operación exitosa
     else:
         return 1 #Error en la operación
     
 #Grafica la estructura que contiene los Registros que pertenecen a una Tabla dentro de una Base de Datos
-def graficaREG(database: str, table: str) -> int:
+def graficaREG(database: str, table: str) -> int:    
     nodoBD = mBBDD.obtener(database)
     if nodoBD:
         nodoTBL = nodoBD.datos.obtener(table)
         if nodoTBL:
-            nodoTBL.datos.armararbol(nodoTBL.datos.raiz, "Tabla: " + nodoTBL.clave, nodoTBL.clave+'.jpg')
+            lista = []  
+            nodoTBL.extraer(nodoTBL.datos.raiz,lista)                          
+            nodoTBL.datos.armararbol(lista[0], "Tabla: " + nodoTBL.clave, "Registros",tipo="registro")
             return 0 #Operación exitosa
         else:
             return 1 #Error en la operación

@@ -3,6 +3,7 @@ from analizer.abstract import expression
 import analizer.typechecker.Metadata.Struct as S
 from analizer.abstract.expression import Expression
 from analizer.typechecker.Types.Type import Type
+from analizer.typechecker.Types.Type import TypeNumber
 from analizer.typechecker.Types.Validations import Number as N
 from analizer.typechecker.Types.Validations import Character as C
 from analizer.typechecker.Types.Validations import Time as T
@@ -12,7 +13,7 @@ from datetime import datetime
 
 lstErr = []
 dbActual = ""
-
+S.load()
 
 def addError(error):
     if error != None:
@@ -51,7 +52,7 @@ def character(col, val):
     x = col["type"]
     e = None
     try:
-        if x == "VARCHAR":
+        if x == "VARCHAR" :
             e = C.validateVarchar(col["size"], val)
         elif x == "VARYING":
             e = C.validateVarchar(col["size"], val)
@@ -71,7 +72,7 @@ def time(col, val):
     if x == "TIMESTAMP":
         e = T.validateTimeStamp(val)
     elif x == "DATE":
-        e = T.validateTimeStamp(val)
+        e = T.validateDate(val)
     elif x == "TIME":
         e = T.validateTime(val)
     elif x == "INTERVAL":
@@ -119,14 +120,26 @@ def select(col, val):
         addError(str(val.value) + " no es del tipo : " + col["type"])
 
 
-def check(dbName, tableName, colName, val):
-    col = S.extractColmn(dbName, tableName, colName)
-    select(col, val)
+def checkValue(dbName, tableName):
+    lstErr.clear()
+    table = S.extractTable(dbName,tableName)
+    if table ==0 and table == 1: return
+    for col in table['columns']:
+        if col['Default'] !=None:
+            if col['Default'][1] != 9:
+                value = expression.Primitive(TypeNumber.get(col['Default'][1]), col['Default'][0], 0, 0)
+                select(col,value)
+            else:
+                col['Default'] =None
+    
+    return listError()
+
+    
 
 
 def checkInsert(dbName, tableName, columns, values):
     lstErr.clear()
-    S.load()
+    
 
     if columns != None:
         if len(columns) != len(values):
@@ -170,7 +183,7 @@ def checkInsert(dbName, tableName, columns, values):
 def listError():
     if len(lstErr) == 0:
         return None
-    return lstErr
+    return lstErr.copy()
 
 
 def validateUnique(database, table, value, index):

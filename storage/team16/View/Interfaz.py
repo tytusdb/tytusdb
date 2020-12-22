@@ -1,15 +1,14 @@
-# region Code
-import sys
-import os
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
 
-sys.path.append(os.path.abspath('.'))
-# endregion
 
-from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, Scrollbar, \
-    Listbox, \
-    Grid, Entry, filedialog, messagebox, Toplevel
+from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, ALL, \
+    Scrollbar, Listbox, Grid, Entry, filedialog, messagebox, Toplevel, Canvas
+from tkinter.ttk import Combobox
 from PIL import Image, ImageTk
-from controller import Controller, Enums
+from View.controller import Controller, Enums
 
 
 class GUI(Frame):
@@ -25,7 +24,7 @@ class GUI(Frame):
 
     def initComp(self):
         self.master.title("EDD - TytusDB")
-        self.master.iconbitmap('img/logo.ico')
+        self.master.iconbitmap('View/img/logo.ico')
         self.master.deiconify()
         self.centrar()
         if self.val == 1:
@@ -54,7 +53,7 @@ class GUI(Frame):
     def ventanaFunciones(self):
         v2 = Toplevel()
         self.master.iconify()
-        image = Image.open('img/function.png')
+        image = Image.open('View/img/function.png')
         background_image = ImageTk.PhotoImage(image.resize((1060, 680)))
         background_label = Label(v2, image=background_image)
         background_label.place(x=0, y=0, relwidth=1, relheight=1)
@@ -63,7 +62,7 @@ class GUI(Frame):
         app2.mainloop()
 
     def ventanaReporte(self):
-        v3 = Tk()
+        v3 = Toplevel()
         self.master.iconify()
         v3['bg'] = "#0f1319"
         v3.protocol("WM_DELETE_WINDOW", lambda: self.on_closing(v3, self.master))
@@ -76,6 +75,12 @@ class GUI(Frame):
             win.destroy()
             root.deiconify()
 
+    def _on_mousewheel(self, event):
+        try:
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        except:
+            pass
+
     # region Menú principal
     def main(self):
         btnF = Button(text="FUNCIONES", bg="#33868a", bd=0, activebackground="#225b5e",
@@ -87,7 +92,7 @@ class GUI(Frame):
         btnR.pack(side=TOP, pady=(0, 25))
 
         btnS = Button(text="SALIR", bg="#bf4040", bd=0, activebackground="#924040",
-                      font="Arial 18", pady=0, width=14, command=exit)
+                      font="Arial 18", pady=0, width=14, command=lambda: exit())
         btnS.pack(side=TOP, pady=(0, 25))
 
     # endregion
@@ -131,6 +136,13 @@ class GUI(Frame):
                            borderwidth=0.5, pady=6, width=16,
                            command=lambda: self.simpleDialog(["database"], self.actions[4]))
         btnDropDB.grid(row=5, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
+
+        btnFormat = Button(self.master,
+                           text=self.actions[23],
+                           bg="#abb2b9", font=("Courier New", 14),
+                           borderwidth=0.5, pady=6, width=16,
+                           command=lambda: self.controller.execute(None, self.actions[23]))
+        btnFormat.grid(row=6, column=0, sticky=W, padx=(70, 0), pady=(0, 25))
         # endregion
 
         # region Tablas
@@ -204,7 +216,7 @@ class GUI(Frame):
                                    text=self.actions[8],
                                    bg="#abb2b9", font=("Courier New", 14),
                                    borderwidth=0.5, pady=6, width=15,
-                                   command=lambda: self.simpleDialog(["database", "table", "lower", "upper"],
+                                   command=lambda: self.simpleDialog(["database", "table", "column", "lower", "upper"],
                                                                      self.actions[8]))
         btnExtractRangeTb.grid(row=6, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
         # endregion
@@ -252,29 +264,118 @@ class GUI(Frame):
                                borderwidth=0.5, pady=6, width=12,
                                command=lambda: self.simpleDialog(["database", "tableName"], self.actions[22]))
         btnTruncateTp.grid(row=7, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
-
         # endregion
 
     # endregion
 
     # region Ventana de reporte
     def reportes(self):
-        self.titulo3 = Label(self.master, text="Árbol AVL", bg="#0f1319", fg="#45c2c5",
+        self.titulo3 = Label(self.master, text="Reporte bases de datos", bg="#0f1319", fg="#45c2c5",
                              font=("Century Gothic", 42), pady=12)
         self.titulo3.pack(fill=X)
 
-        self.scrollbar = Scrollbar(self.master)
-        self.scrollbar.pack(side=RIGHT, fill=Y)
-        self.listbox = Listbox(self.master, yscrollcommand=self.scrollbar.set, height=21, width=20,
-                               bg="#0f1319", bd=0, fg='#ffffff', font=("Century Gothic", 12))
-        self.listbox.pack(side=LEFT, padx=(60, 0))
-        self.scrollbar.config(command=self.listbox.yview)
+        self.scrollbarY = Scrollbar(self.master)
+        self.scrollbarY.pack(side=RIGHT, fill=Y)
 
-        self.panel = Label(self.master, bg="#0f1319", height=31, width=110)
-        self.panel.pack(side=TOP, pady=(40, 0))
+        self.scrollbarX = Scrollbar(self.master, orient='horizontal')
+        self.scrollbarX.pack(side=BOTTOM, fill=X)
+
+        self.listbox = Listbox(self.master, height=21, width=20,
+                               bg="#0f1319", bd=0, fg='#ffffff', font=("Century Gothic", 12))
+        self.listbox.place(x=65, y=122)
+
+        self.listbox.bind("<<ListboxSelect>>", self.displayDBData)
+
+        self.tableList = Combobox(self.master, state="readonly", width=30, font=("Century Gothic", 12))
+        self.tableList.place(x=360, y=120)
+        self.tableList.set('Seleccione tabla...')
+        self.tableList.bind("<<ComboboxSelected>>", self.displayTableData)
+
+        self.tuplelist = Combobox(self.master, state="readonly", width=30, font=("Century Gothic", 12))
+        self.tuplelist.place(x=750, y=120)
+        self.tuplelist.set('Seleccione tupla...')
+        self.tuplelist.bind("<<ComboboxSelected>>", self.displayTupleData)
+
+        self.canvas = Canvas(self.master, width=740, height=415, bg="#0f1319", highlightthickness=0)
+        self.canvas.place(x=320, y=170)
+        # self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+        self.scrollbarY.config(command=self.canvas.yview)
+        self.scrollbarX.config(command=self.canvas.xview)
 
         self.desplegarDB()
-        self.listbox.bind("<<ListboxSelect>>", self.displayData)
+
+    # Mostrar lista de base de datos
+    def desplegarDB(self):
+        try:
+            dblist = self.controller.execute(None, self.actions[2])
+            for db in dblist:
+                self.listbox.insert(END, str(db))
+            png = self.controller.reportDB()
+            bg_DB = ImageTk.PhotoImage(Image.open(png))
+            self.image_on_canvas = self.canvas.create_image(370, 207, anchor=CENTER, image=bg_DB)
+            # self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+            # self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+            self.master.mainloop()
+        except:
+            None
+
+    # Mostrar lista de tablas
+    def displayDBData(self, event):
+        try:
+            selection = event.widget.curselection()
+            data = ""
+            tmp = []
+            if selection:
+                self.tableList.set('Seleccione tabla...')
+                self.tuplelist.set('Seleccione tupla...')
+                index = selection[0]
+                data = event.widget.get(index)
+                self.titulo3.configure(text=data)
+                tmp.append(data)
+                dbList = self.controller.execute(tmp, self.actions[6])
+                self.tableList["values"] = dbList
+                png = self.controller.reportTBL(data)
+                bg_TBL = ImageTk.PhotoImage(Image.open(png))
+                self.canvas.itemconfig(self.image_on_canvas, image=bg_TBL)
+                self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+                self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+                self.master.mainloop()
+        except:
+            None
+
+    # Mostrar AVL de tabla
+    def displayTableData(self, event):
+        try:
+            self.tuplelist.set('Seleccione tupla...')
+            db = str(self.titulo3["text"])
+            tb = str(self.tableList.get())
+            tp = self.controller.getIndexes(db, tb)
+            self.tuplelist["values"] = tp
+            png = self.controller.reportAVL(db, tb)
+            bg_AVL = ImageTk.PhotoImage(Image.open(png))
+            self.canvas.itemconfig(self.image_on_canvas, image=bg_AVL)
+            self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+            self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+            self.master.mainloop()
+        except:
+            None
+
+    # Mostrar tupla
+    def displayTupleData(self, event):
+        try:
+            db = str(self.titulo3["text"])
+            tb = str(self.tableList.get())
+            tp = str(self.tuplelist.get())
+            png = self.controller.reportTPL(db, tb, tp)  # le envío el índice del árbol (tp)
+            bg_TPL = ImageTk.PhotoImage(Image.open(png))
+            self.canvas.itemconfig(self.image_on_canvas, image=bg_TPL)
+            self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+            self.canvas.config(scrollregion=self.canvas.bbox(ALL))
+            self.master.mainloop()
+        except:
+            None
 
     # endregion
 
@@ -328,32 +429,18 @@ class GUI(Frame):
             else:
                 return messagebox.showerror("Oops", "Existen campos vacíos")
         response = self.controller.execute(self.parametros, action)
-        if response in range(1, 7):
+        if response in range(1, 8):
+            self.parametros.clear()
             return messagebox.showerror("Error número: " + str(response),
                                         "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
-        messagebox.showinfo("Siuu", "Proceso realizado con éxito")
         dialog.destroy()
-
-    def desplegarDB(self):
-        for i in range(1, 26, 1):
-            self.listbox.insert(END, "Base de datos " + str(i))
-
-    def displayData(self, event):
-        selection = event.widget.curselection()
-        if selection:
-            index = selection[0]
-            data = event.widget.get(index)
-            self.titulo3.configure(text=data)
 
 
 def run():
     v1 = Tk()
-    image = Image.open('img/main.png')
+    image = Image.open('View/img/main.png')
     background_image = ImageTk.PhotoImage(image.resize((500, 500)))
     background_label = Label(v1, image=background_image)
     background_label.place(x=0, y=0, relwidth=1, relheight=1)
     app = GUI(master=v1, val=1)
     app.mainloop()
-
-
-run()
