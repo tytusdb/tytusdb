@@ -615,3 +615,50 @@ class HashTable:
         self.__vector = [None] * 20
         self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
         return 0
+    
+        def addColumn(self, data_default, database, table):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tup = r.get(k)
+                    tup.append(data_default)
+                    r[k] = tup
+        
+        self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+        return 0
+         
+    #Elimina la columna de la tupla
+    def dropColumn(self, numberColum: int, database, table):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tup = r.get(k)
+                    tup.pop(numberColum)
+                    r[k] = tup
+
+        self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+        return 0
+    
+    #Complemento del método alterAddPK
+    def pk_redefinition(self, database: str, table: str):
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        tuplas = []
+        #Obtiene todos los registros que están en la tabla
+        for r in self.__vector:
+            if r is not None:
+                aux_keys = r.keys()
+                for k in aux_keys:
+                    tuplas.append(r.get(k))
+        #Vacía el vector
+        self.__vector = [None] * 20
+        del self.DiccionarioTabla[database+"_"+table] #
+        #Reingresa los valores
+        for t in tuplas:
+            self.insert(database, table, t)
+        
+        self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+
