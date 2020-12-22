@@ -5,7 +5,6 @@ class tabla_simbolos:
         self.simbolos = simbolos
 
     #ADD SIMBOLOS
-
     def add_db(self, simbolo_db):
         self.simbolos[simbolo_db.id_] = {}
 
@@ -16,7 +15,6 @@ class tabla_simbolos:
         self.simbolos[db_id][tb_id][simbolo_col.id_] = simbolo_col
 
     #GET SIMBOLOS
-
     def get_db(self, id_db):
         return self.simbolos[id_db]
 
@@ -27,7 +25,6 @@ class tabla_simbolos:
         return self.simbolos[id_db][id_tb][id_col]
 
     #DELETE SIMBOLOS
-
     def delete_db(self, id_db):
         del self.simbolos[id_db]        
 
@@ -38,7 +35,6 @@ class tabla_simbolos:
         del self.simbolos[id_db][id_tb][id_col]
 
     #UPDATE SIMBOLOS
-
     def update_db(self, id_db, new_db):
         del self.simbolos[id_db]
         self.simbolos[new_db.id_] = {}
@@ -50,6 +46,101 @@ class tabla_simbolos:
     def update_col(self, id_db, id_tb, id_col, new_col):
         del self.simbolos[id_db][id_tb][id_col]
         self.simbolos[id_db][id_tb][new_col.id_] = new_col
+
+    #FUNCIONES EXTRA
+    def get_col_by_pos(self, id_db, id_tb, pos):
+        for database_ in self.simbolos:
+            database_val = self.simbolos[database_]
+            
+            if database_ == id_db:
+                for table_ in database_val:
+                    table_val = database_val[table_]
+                        
+                    if table_ == id_tb:
+                        count_cols = 0
+                        for col in table_val.values():
+                            if count_cols == pos:
+                                return col
+                            count_cols += 1
+        
+        return None
+
+    def count_columns(self, id_db, id_tb):
+        count_cols = 0
+        for database_ in self.simbolos:
+            database_val = self.simbolos[database_]
+            
+            if database_ == id_db:
+                for table_ in database_val:
+                    table_val = database_val[table_]
+                        
+                    if table_ == id_tb:
+                        for col in table_val.values():
+                            count_cols += 1
+                        break
+        
+        return count_cols
+
+    def field_names(self, id_db, id_tb):
+        for database_ in self.simbolos:
+            database_val = self.simbolos[database_]
+            
+            if database_ == id_db:
+                for table_ in database_val:
+                    table_val = database_val[table_]
+                        
+                    if table_ == id_tb:
+                        fields = []
+                        for col in table_val.values():
+                            fields.append(col.id_)
+                        return fields
+
+        return []
+
+    def get_pos_col(self, id_db, id_tb, id_col):
+        count_cols = 0
+        for database_ in self.simbolos:
+            database_val = self.simbolos[database_]
+            
+            if database_ == id_db:
+                for table_ in database_val:
+                    table_val = database_val[table_]
+                        
+                    if table_ == id_tb:
+                        for col in table_val.values():
+                            if col.id_ == id_col:
+                                return count_cols
+                            count_cols += 1
+        
+        return -1
+
+    def existe_col(self, id_db, id_tb, id_col):
+        for database_ in self.simbolos:
+            database_val = self.simbolos[database_]
+            
+            if database_ == id_db:
+                for table_ in database_val:
+                    table_val = database_val[table_]
+                        
+                    if table_ == id_tb:
+                        for col in table_val.values():
+                            if col.id_ == id_col:
+                                return True
+        
+        return False
+
+    def get_cols(self, id_db, id_tb):
+        for database_ in self.simbolos:
+            database_val = self.simbolos[database_]
+            
+            if database_ == id_db:
+                for table_ in database_val:
+                    table_val = database_val[table_]
+                        
+                    if table_ == id_tb:
+                        return table_val.values()
+                            
+        return None
 
     def reiniciar_ts(self):
         self.simbolos = {}

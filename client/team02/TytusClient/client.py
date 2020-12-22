@@ -1,8 +1,10 @@
 import tkinter as tk
 from tkinter import Tk, Text, BOTH, W, N, E, S, Menu,ttk,messagebox
 from tkinter import filedialog
+from tkinter import simpledialog
 from tkinter.ttk import Frame, Button, Label, Style, Treeview
 import os
+import requests
 
 
 class Example(Frame):
@@ -85,8 +87,6 @@ class Example(Frame):
         usr3 = self.treeview.insert(logingrp, tk.END, text="user3")
         usr4 = self.treeview.insert(logingrp, tk.END, text="user4")
         # *********************************************************************
-
-
 
         # *********************************************************************
 
@@ -233,8 +233,22 @@ class CustomNotebook(ttk.Notebook):
         })
     ])
 
+# Metodo para iniciar sesion
+def iniciarSesion():
+    usuario = simpledialog.askstring(title="Usuario", prompt="Nombre de usuario:")
+    password = simpledialog.askstring(title="Password", prompt="Password:", show="*")
+    payload = {'user' : usuario, 'password': password}
+    url = "localhost:10000/conexionBD"
+    response = requests.post(url, json = payload)
+    if response.status_code == 200:
+        response_json = response.json()
+        print(response_json['mensaje'])
+
+
+
 def main():
     root = Tk()
+    iniciarSesion()
     app = Example()
     root.geometry("350x300+300+300")
     root.mainloop()

@@ -51,31 +51,40 @@ class Update(Querie):
             return {'Error':'La tabla no contiene registros a actualizar.','Fila':self.row,'Columna':self.column} 
         if tuplas == None:
             return {'Error':'La tabla no ha podido encontrarse, error en el Storage.','Fila':self.row,'Columna':self.column}
-        for tindex in range(len(tuplas)):
+        #POR CADA TUPLA QUE HAYA
+        for tindex in range(len(tuplas)): 
+            #POR CADA CAMPO EN LA TUPLA CREO EN LA TABLA DE SIMBOLOS LA VARIABLE DE CADA CAMPO
             for index in range(len(tuplas[tindex])):
+                #TIPOS, PROBABLEMENTE SE DEBA CAMBIAR
                 tipo = Type.STRING
                 if isinstance(tuplas[tindex][index],int):
                     tipo = Type.DECIMAL
-                environment.guardarVariable(table.columns[index].name,tipo.STRING,tuplas[tindex][index])
-                #REGISTRO MODIFICADO XD
-                tuplaModificada = {}
-                for asign in self.assignList:
-                    clave = indColumnas[asign['id']]
-                    valor = asign['value'].execute(environment)['value']
-                    tuplaModificada[clave] = valor
-                
-                primaryKey = []
-                for val in pkIndexes:
-                    primaryKey.append(tuplas[tindex][val])
-                
-                where = True
-                if not isinstance(self.condition, bool):
-                    where = self.condition.execute(environment)
-                if where == True:
-                    res = admin.update(dbname, tbname, tuplaModificada, primaryKey)
-                    switcher = {
-                        1:'',
-                        2:'',
-                        3:'',
-                        4:'',
-                    }
+                #GUARDAR EN EL ENTORNO UNA VARIALBE CON EL NOMBRE DE LA COLUMNA               
+                environment.guardarVariable(table.columns[index].name, tipo, tuplas[tindex][index])
+
+            #CREO EL DICCIONARIO CON LOS VALORES A MODIFICAR
+            tuplaModificada = {}
+            for asign in self.assignList:
+                clave = indColumnas[asign['id']]
+                valor = asign['value'].execute(environment)['value']
+                tuplaModificada[clave] = valor
+            
+            #CREO UN ARREGLO CON LA LLAVE PRIMARIA DE ESE REGISTRO
+            primaryKey = []
+            for val in pkIndexes:
+                primaryKey.append(tuplas[tindex][val])
+            
+            #VERIFICO LA CONDICIÓN DEL WHERE
+            where = True
+            if not isinstance(self.condition, bool):
+                where = self.condition.execute(environment)['value']
+            if where == True:
+                res = admin.update(dbname, tbname, tuplaModificada, primaryKey)
+                switcher = {
+                    0: 'Se ha realizado el update en el registro con la FK: ' + str(primaryKey),
+                    1:{'Error:': 'Error en la operación update.','Fila':self.row,'Columna':self.column},
+                    2:{'Error:': 'La base de datos buscada no existe.','Fila':self.row,'Columna':self.column},
+                    3:{'Error:': 'La tabla ' + self.idTable + ' no existe.','Fila':self.row,'Columna':self.column},
+                    4:{'Error:': 'No existe el registro buscado: ' + str(primaryKey),'Fila':self.row,'Columna':self.column},
+                }
+                return switcher.get(res,'Error en la respuesta del update en el StorageManager.')

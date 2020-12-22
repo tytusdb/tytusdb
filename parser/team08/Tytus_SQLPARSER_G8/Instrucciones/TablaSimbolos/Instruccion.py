@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+#from graphviz import Digraph
+
 
 class Instruccion(ABC):
         
@@ -11,6 +13,14 @@ class Instruccion(ABC):
         self.tipo = tipo
         self.linea = linea
         self.columna = columna
+        self.nodoPadre = None
+        self.nodosLista = []
+
+    #@abstractmethod
+    #def nodoGraphviz(self, nodoPadre, nodosLista):
+    #    self.nodoPadre = nodoPadre
+    #    self.nodosLista = nodosLista
+
         
 '''   
 class Prueba(Instruccion):

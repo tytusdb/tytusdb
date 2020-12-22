@@ -1,3 +1,7 @@
+# B+ Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
 import os
 
 class Node:
@@ -248,29 +252,29 @@ class BPlusTree:
             izquierda = 0
             if index == len(temp.parent.child)-1:
                 izquierda = len(temp.parent.child[index-1].keys)
-                if izquierda+actual == self.degree-1 and actual+1 != izquierda and actual<izquierda:
+                if izquierda+actual >= self.degree-1 and actual+1 != izquierda and actual<izquierda:
                     temp = self.MoverIzquierda(temp,index)
                 elif izquierda+actual < self.degree-1 and actual<izquierda:
                     temp = self.UnirIzquierda(temp,index)
             elif not index:
                 derecha = len(temp.parent.child[index+1].keys)
-                if derecha+actual == self.degree-1 and actual+1 != derecha and derecha>actual:
+                if derecha+actual >= self.degree-1 and actual+1 != derecha and derecha>actual:
                     temp = self.MoverDerecha(temp,index)
                 elif derecha+actual < self.degree-1 and actual<derecha:
                     temp = self.UnirDerecha(temp,index)
             else:
                 izquierda = len(temp.parent.child[index-1].keys)
                 derecha = len(temp.parent.child[index+1].keys)
-                if izquierda+actual == self.degree-1 and actual+1 != izquierda and izquierda>actual:
+                if izquierda+actual >= self.degree-1 and actual+1 != izquierda and izquierda>actual:
                     temp = self.MoverIzquierda(temp,index)
-                elif derecha+actual == self.degree-1 and actual+1 != derecha and actual<derecha:
+                elif derecha+actual >= self.degree-1 and actual+1 != derecha and actual<derecha and derecha>izquierda:
                     temp = self.MoverDerecha(temp,index)
                 elif izquierda+actual < self.degree-1 and actual< izquierda:
                     if len(temp.parent.child[index-1].child) == self.degree:
                         temp = self.CambioRaizI(temp, index)
                     else:
                         temp = self.UnirIzquierda(temp,index)
-                elif derecha+actual < self.degree-1 and actual<derecha:
+                elif derecha+actual < self.degree-1 and actual<derecha and derecha>izquierda:
                     if len(temp.parent.child[index+1].child) == self.degree:
                         print("Caso especial")
                     else:
@@ -341,11 +345,15 @@ class BPlusTree:
             temp.parent.child[index-1].child.append(x)
         temp.parent.child[index-1].next = temp.next
         temp.parent.child.remove(temp)
+        if len(temp.child):
+            temp.parent.child[index-1].insert(temp.parent.keys.pop(index-1), None)
+        else:
+            temp.parent.keys.pop(index-1)
         if len(temp.child)==1:
             if temp.child[0].keys[0] in temp.parent.keys:
                 temp.parent.keys.remove(temp.child[0].keys[0])
                 temp.parent.child[index-1].insert(temp.child[0].keys[0], None)
-        else:
+        if not len(temp.child):
             temp = self.ReorganizarKeys(temp)
         return temp
     
@@ -357,43 +365,66 @@ class BPlusTree:
         for x in temp.parent.child[index+1].child:
             x.parent = temp
             temp.child.append(x)
+        if len(temp.child):
+            temp.insert(temp.parent.keys.pop(index), None)
+        else:
+            temp.parent.keys.pop(index)
         temp.next = temp.parent.child[index+1].next
         temp.parent.child.remove(temp.parent.child[index+1])
-        temp = self.ReorganizarKeys(temp)
+        if not len(temp.child):
+            temp = self.ReorganizarKeys(temp)
         return temp
     
     def MoverDerecha(self, temp, index):
-        val = temp.parent.child[index+1].keys[0]
-        temp.insert(val, temp.parent.child[index+1].values.get(val))
-        if temp.parent.child[index+1].values.get(val):
-            del temp.parent.child[index+1].values[val]
-        temp.parent.child[index+1].keys.remove(val)
-        if temp.child and self.degree<5:
+        if not len(temp.child):
+            val = temp.parent.child[index+1].keys[0]
+            temp.insert(val, temp.parent.child[index+1].values.get(val))
+            if temp.parent.child[index+1].values.get(val):
+                del temp.parent.child[index+1].values[val]
+            temp.parent.child[index+1].keys.remove(val)
+        else:
+            val = temp.parent.keys.pop(index)
+            temp.insert(val, None)
+            temp.parent.insert(temp.parent.child[index+1].keys.pop(0), None)
+        if temp.child and self.degree<5  or len(temp.child)==len(temp.keys):
             hijo = temp.parent.child[index+1].child[0]
             temp.child.append(hijo)
             temp.parent.child[index+1].child.remove(hijo)
             hijo.parent = temp
-        temp = self.ReorganizarKeys(temp)
+        if not len(temp.child):
+            temp = self.ReorganizarKeys(temp)
         return temp
 
     def MoverIzquierda(self, temp, index):
-        val = temp.parent.child[index-1].keys[len(temp.parent.child[index-1].keys)-1]
-        temp.insert(val, temp.parent.child[index-1].values.get(val))
-        if temp.parent.child[index-1].values.get(val):
-            del temp.parent.child[index-1].values[val]
-        temp.parent.child[index-1].keys.remove(val)
-        if temp.child and self.degree<5:
+        if not len(temp.child):
+            val = temp.parent.child[index-1].keys[len(temp.parent.child[index-1].keys)-1]
+            temp.insert(val, temp.parent.child[index-1].values.get(val))
+            if temp.parent.child[index-1].values.get(val):
+                del temp.parent.child[index-1].values[val]
+            temp.parent.child[index-1].keys.remove(val)
+        else:
+            val = temp.parent.keys.pop(index-1)
+            temp.insert(val, None)
+            temp.parent.insert(temp.parent.child[index-1].keys.pop(-1), None)
+        if temp.child and self.degree<5  or len(temp.child)==len(temp.keys):
             hijo = temp.parent.child[index-1].child[len(temp.parent.child[index-1].child)-1]
             temp.child.insert(0,hijo)
             temp.parent.child[index-1].child.remove(hijo)
             hijo.parent = temp
-        temp = self.ReorganizarKeys(temp)
+        if not len(temp.child):
+            temp = self.ReorganizarKeys(temp)
         return temp
 
     def ReorganizarKeys(self, temp):
         temp.parent.keys = []
         for g in range(1,len(temp.parent.child)):
             temp.parent.insert(temp.parent.child[g].keys[0], None)
+        return temp
+    
+    def ReorganizarKeysHijo(self, temp):
+        temp.keys = []
+        for g in range(1,len(temp.child)):
+            temp.insert(temp.child[g].keys[0], None)
         return temp
     #---------Graficar-----------------#
     def graficar(self, database, table):
@@ -412,7 +443,7 @@ class BPlusTree:
         f.write('}')
         f.close()
         os.system(f'dot -Tpng Data/{database}/{table}/{table}.dot -o ./Data/{database}/{table}/{table}.png')
-   
+    
     def _graficar(self, f, temp, nombre):
         if temp:
             if nombre == '':
@@ -590,6 +621,12 @@ class BPlusTree:
                 lista = list(self.lista().values())
                 for l in lista:
                     l.pop(column)
+                if len(self.PKey):
+                    for x in self.PKey:
+                        if x>column:
+                            index = self.PKey.index(x)
+                            x-=1
+                            self.PKey[index]=x
                 return 0
         except:
             return 1

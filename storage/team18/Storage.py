@@ -1,3 +1,7 @@
+# B+ Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
 import AVLTree
 import BplusTree
 import os
@@ -94,7 +98,7 @@ def createTable(database, table, numberColumns):
     if type(database) !=str or type(table)!=str or type(numberColumns)!=int:
         return 1
     # Validates identifier before searching
-    if validateIdentifier(database) and validateIdentifier(table) and numberColumns >= 0:
+    if validateIdentifier(database) and validateIdentifier(table) and numberColumns > 0:
         checkData()
         # Get the databases tree
         dataBaseTree = serializable.Read('./Data/', "Databases")
@@ -431,10 +435,12 @@ def loadCSV(filepath, database, table):
         try:
             res = []
             import csv
+            PKsTree = serializable.Read(f'./Data/{database}/{table}/', table)
             with open(filepath, 'r') as file:
                 reader = csv.reader(file, delimiter=',')
                 for row in reader:
-                    res.append(insert(database, table, row))
+                    res.append(PKsTree.register(row))
+            serializable.update(f'./Data/{database}/{table}/', table, PKsTree)
             return res
         except:
             return []

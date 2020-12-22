@@ -36,7 +36,7 @@ class Simbolo() :
     #nullcol = columna null(FALSE) o not null(TRUE)
     #constcol = constraint de columna
     #numcol = Numero de la columna dentro de la tabla
-    def __init__(self, id, nombre, tipo, ambito, coltab=0, tipocol="", llavecol=0, refcol="", defcol="", nullcol=False, constcol="",numcol=0) :
+    def __init__(self, id, nombre, tipo, ambito, coltab=0, tipocol="", llavecol=0, refcol="", defcol="", nullcol=False, constcol="",numcol=0,registro=[]) :
         self.id = id
         self.nombre = nombre
         self.tipo = tipo
@@ -49,6 +49,7 @@ class Simbolo() :
         self.nullcol = nullcol
         self.constcol = constcol
         self.numcol = numcol
+        self.registro = registro
 
 class Tabla() :
     

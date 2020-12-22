@@ -26,4 +26,4 @@ $ python app.py
 3. "Abre" una consola para el entorno virutal recién creado
 4. Dentro de esa consola, se ejecuta la aplicación
 
-La aplicación deberìa estar corriendo en [localhost:3000](http://localhost:3000)
+La aplicación deberìa estar corriendo en [localhost:5000](http://localhost:5000)
