@@ -4,6 +4,7 @@ from gramatica import run_method
 from ARBOL_AST.Arbol import *
 import pathlib
 import json
+from Reports.reports import *
 
 # Se crea una clase para la interfaz gráfica
 class mainWindow:
@@ -91,12 +92,13 @@ entrada = openFile.read()
 openFile.close()
 resp = run_method(entrada)
 #print("respuesta")
-#resp.execute(None)
+resp.execute(None)
 #print(resp.listaSemanticos)
 
 arbol = Arbol()
-print(arbol.generar_dot(resp))
-
+dotArbol = arbol.generar_dot(resp)
+#print(dotArbol)
+generar_img(str(dotArbol))
 
 
 

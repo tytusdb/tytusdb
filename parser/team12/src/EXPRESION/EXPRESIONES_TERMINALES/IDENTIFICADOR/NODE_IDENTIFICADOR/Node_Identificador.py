@@ -16,4 +16,5 @@ class Identificator_Expresion(Expresion):
         self.tipo = Data_Type.non
     
     def execute(self, eviroment):
-        print("")
+        nombreId = self.valor
+        print("Nodo identificador")

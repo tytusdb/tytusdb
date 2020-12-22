@@ -14,7 +14,26 @@ class Alias_Expresion(Expresion):
     
     def __init__(self, nombreNodo, fila, columna, valor):
         Expresion.__init__(self, nombreNodo, fila, columna, valor)
-        self.tipo = Data_Type.numeric
+        self.tipo = Type_Expresion(Data_Type.non)
+        self.alias = '?column?'
 
     def execute(self, enviroment):
-        self.tipo = Type_Expresion(Data_Type.numeric)
+
+        exp = self.hijos[0]
+        id = self.hijos[1]
+
+        expValue = exp.execute(enviroment)
+
+        if exp.tipo.data_type == Data_Type.error :
+
+            self.tipo = Type_Expresion(Data_Type.error)
+            self.valorExpresion = expValue
+            return self.valorExpresion
+        
+        else :
+
+            self.alias = id.valor
+            self.tipo = exp.tipo
+            self.valorExpresion = expValue
+            return self.valorExpresion
+

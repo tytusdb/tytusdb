@@ -316,7 +316,7 @@ def t_NUMDECIMAL(t):
 def t_IDENTIFICADOR(t):
      r'[a-zA-Z_][a-zA-Z_0-9]*'
      t.type = keywords.get(t.value.upper(),'IDENTIFICADOR') 
-     print(t.type)   # Check for reserved words
+     #print(t.type)   # Check for reserved words
      return t    
 
 def t_CADENA(t):
@@ -1778,7 +1778,7 @@ def p_option_exp_access(t):
 # ------------------------------- Option Access -----------------------------------
 def p_option_access(t):
     'option_access : IDENTIFICADOR'
-    t[0] = Identificator_Expresion("Id Table",t.lineno(1),t.lexpos(1)+1,t[1])
+    t[0] = Identificator_Expresion("Id Column",t.lineno(1),t.lexpos(1)+1,t[1])
 
 def p_option_access_2(t):
     'option_access : ASTERISCO'
