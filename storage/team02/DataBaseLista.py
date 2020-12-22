@@ -106,3 +106,34 @@ class ListaDOBLE:
                         return 2
         except:
             return 1
+
+    #Método Modificar MÉTODO FUNCIONAL PARA ENVIAR
+    def modificarNodo(self, nombreActual, nuevoNombre):
+        try:
+            if self.buscarModificar(nuevoNombre) == 2:
+                return 3
+            else:
+                actual = self.primero
+                encontrado = False
+                if self.primero != None:
+                    while actual != None and encontrado != True:
+                        if actual.nombreBase == nombreActual:
+                            encontrado = True
+                            actual.nombreBase = nuevoNombre
+                            return 0
+                        actual = actual.siguiente
+                    if not encontrado:
+                        return 2
+                else:
+                    return 1
+        except:
+            return 1
+        
+    #Método imprimir MÉTODO FUNCIONAL PARA ENVIAR
+    def imprimir(self):
+        lista = []
+        tmp = self.primero
+        while tmp != None:
+            lista.append(tmp.nombreBase)
+            tmp = tmp.siguiente
+        return lista
