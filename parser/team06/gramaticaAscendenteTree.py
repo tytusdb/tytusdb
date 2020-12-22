@@ -4599,6 +4599,7 @@ def find_column(input, token):
     print((token.lexpos - line_start) +1 )
     return (token.lexpos - line_start) 
     
+
 def p_error(t):
      print("token: '%s'" %t)
      print("Error sintáctico en '%s' " % t.value)

@@ -161,23 +161,31 @@ def procesar_select_Tipo3(query,ts):
     if isinstance(query.operacion1, list) and len(query.operacion1)==1:
         print("viene solo 1 tabla")
         print("+++++++++++TABLA+++++++++++")
-        print("LAS TABLAS SERAN: ",procesar_operacion_basica(query.operacion1[0],ts))
-        print("EL OBJETO WHERE: ",query.operacion2)
-        procesar_where(query.operacion2,ts,1,procesar_operacion_basica(query.operacion1[0],ts))
+        a=procesar_operacion_basica(query.operacion1[0],ts)
+        b=procesar_where(query.operacion2,ts,1,procesar_operacion_basica(query.operacion1[0],ts))
+        print("LAS TABLAS SERAN: ",a)
+        print("EL OBJETO WHERE: ",b)
     else:
         if isinstance(query.operacion1,Asignacion):
             print("vienen mas tablas*******************************2")
-            print([query.operacion1])
-            print("LAS TABLAS SERAN: ",procesar_select2_obtenerTablas([query.operacion1],ts))
-            print("LAS COLUMNAS SERAN: todas")
+            print(query.operacion1)
             print(query.operacion2)
-            procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas([query.operacion1],ts))
+            print([query.operacion1])
+            a=procesar_select2_obtenerTablas([query.operacion1],ts)
+            b=procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas([query.operacion1],ts))
+            print("LAS TABLAS SERAN: ",a)
+            print("LAS COLUMNAS SERAN: todas")
+            print("EL WHERE SERA: ",b)
         else:
             print("vienen mas tablas*******************************")
-            print("LAS TABLAS SERAN: ",procesar_select2_obtenerTablas(query.operacion1,ts))
-            print("LAS COLUMNAS SERAN: todas")
+            print(query.operacion1)
             print(query.operacion2)
-            procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas(query.operacion1,ts))
+            a=procesar_select2_obtenerTablas(query.operacion1,ts)
+            b=procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas(query.operacion1,ts))
+            print("LAS TABLAS SERAN: ",a)
+            print("LAS COLUMNAS SERAN: todas")
+            print("EL WHERE SERA: ",b)
+            
             
 
 
@@ -813,10 +821,13 @@ def resolver_expresion_aritmetica(expNum, ts) :
         elif isinstance(expNum, ExpresionNumero) :
             return expNum.id
         elif isinstance(expNum, ExpresionIdentificador) :
-            if ts.obtener(expNum.nombre)=="no definida":
-                return None
+            print("llega al identificador++++")
+            if ts.obtener(expNum.id)=="no definida":
+                print("no esta definida")
+                return "no se encontro la variable: "+str(expNum.id)
             else:
-                return ts.obtener(expNum.nombre).valor
+                print("esta definida")
+                return ts.obtener(expNum.id).valor
         elif isinstance(expNum,ExpresionCadenas):
             return expNum.id
         elif isinstance(expNum, ExpresionNegativo) :
@@ -1147,7 +1158,7 @@ def guardar_asignacion(valor, variable,ts):
             ts.agregar(simbolo)
             print("se creo una nueva variable")
             print(variable)
-            return str(variable)
+            return variable
     else:
         if isinstance(valor, str) and valor.find("error")>0:
             return valor
@@ -1524,13 +1535,30 @@ def generarReporteSimbolos(ruta):
     print("++++++++++++++++")
     print(ruta)
     ts_global=TS.TablaDeSimbolos()
-    for x in ts_global.simbolos:
-        print(x)
-        print(ts_global.obtener(x).id)
-        print(ts_global.obtener(x).valor)
-        val+="<tr><td>"+str(ts_global.obtener(x).id)+"</td><td>"+str(ts_global.obtener(x).valor)+"</td></tr>\n"
+    for simbolo in  ts_global.simbolos:
+        val+="<tr><td>"+str(ts_global.simbolos[simbolo].id)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].nombre)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].tipo)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].tamanoCadena)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].BD)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].tabla)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].obligatorio)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].pk)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].FK)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].referenciaTablaFK)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].referenciaCampoFK)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].unique)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].idUnique)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].check)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].condicionCheck)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].idCheck)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].valor)+"</td>"
+        val+="<td>"+str(ts_global.simbolos[simbolo].default)+"</td>"    
+        val+="</tr>\n"
     #construyo el archivo html
     print("manda los datos")
+    print("///////////////////////////////////////////////////////////////////////////////////")
+    ts_global.printcontsimbolos()
     h.reporteSimbolos(ruta,val)
 
 def generarASTReport():
