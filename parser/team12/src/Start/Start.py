@@ -59,4 +59,8 @@ class Start(Nodo):
                 hijo.execute(enviroment)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
                 print("Expresion valor: "+str(hijo.valorExpresion))
+            elif hijo.nombreNodo == "SENTENCIA_SHOW":
+                self.listaSemanticos.append(hijo.execute(None))
+            elif hijo.nombreNodo == "SENTENCIA_DROP":
+                self.listaSemanticos.append(hijo.execute(None))
                 

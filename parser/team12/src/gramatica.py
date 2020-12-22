@@ -981,7 +981,7 @@ def p_interval_opcionales_p(t):
 def p_if_exists(t):
     ''' if_exists : IF EXISTS
                     |  '''
-    if len(t) == 4:
+    if len(t) == 3:
         nuevo = Start("IF_EXISTS")
         nuevo.createTerminal(t.slice[1])
         nuevo.createTerminal(t.slice[2])
@@ -1542,7 +1542,6 @@ def p_show(t):
     nuevo.hijos.append(Start('DATABASES',t.lineno(1),t.lexpos(1)+1))
     if(t[3] != None):
         nuevo.hijos.append(t[3])
-    nuevo.execute()
     t[0] = nuevo
         
 def p_like_option(t):

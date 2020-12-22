@@ -65,7 +65,10 @@ class mainWindow:
         self.textArea2.delete('1.0',END)
         textOutput = ""
         for x in resp.listaSemanticos:
-            textOutput += x['Code'] + "\t" + x['Message'] +"\n"
+            try:
+                textOutput += x['Code'] + "\t" + x['Message'] +"\n" + x['Data'] + "\n"
+            except:
+                textOutput += x['Code'] + "\t" + x['Message'] +"\n"                               
         print(textOutput)
         self.textArea2.insert("end-1c", textOutput)
         self.textArea2.configure(state = 'disabled')
