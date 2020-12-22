@@ -4,8 +4,12 @@ from graphviz import Digraph
 
 list_error = []
 
+linea = 0
+columna = 0
+descripcion = ''
+
 class CError:
-    def __int__(self, linea, columna, descripcion):
+    def __init__(self, linea, columna, descripcion):
         self.linea = linea
         self.columna = columna
         self.descripcion = descripcion
@@ -16,7 +20,7 @@ def insert_error(error : CError):
 
 def report_errors():
     global list_error
-    s = Digraph('structs', filename='reporteTabla.gv', node_attr={'shape': 'plaintext'})
+    s = Digraph('structs', filename='reporteErrores.gv', node_attr={'shape': 'plaintext'})
     c = 'lista [label =  <<TABLE> \n <TR><TD>Linea</TD><TD>Columna</TD><TD>Descripcion</TD></TR> '
     if len(list_error)>0:
         for t in list_error:
