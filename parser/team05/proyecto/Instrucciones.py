@@ -345,8 +345,9 @@ class TipoConstraintFK(Instruccion):
 class Alter(Instruccion):
     """ Instrucción ALTER """
 
-    def __init__(self, valores ):
-        self.valores = valores
+    def __init__(self, nombreTabla,columnas ):
+        self.nombreTabla = nombreTabla
+        self.columnas = columnas
 
 # INSTRUCCION ALTERDB
 class AlterDB(Instruccion):
@@ -359,21 +360,24 @@ class AlterDB(Instruccion):
 
 
 # ----------INICIO DE UPDATE--------------------
-# INSTRUCCION UPDATE
+# UPDATE
 class Update(Instruccion):
-    """ Instrucción UPDATE """
+    def __init__(self,idUp,valUp,valWhere):
+        self.idUp = idUp
+        self.valUp = valUp
+        self.valWhere = valWhere
 
-    def __init__(self, i_id, lvalor ):
-        self.i_id = i_id
-        self.lvalor = lvalor
+class UpdateTrigo(Instruccion):
+    def __init__(self,condicion,trigonometrica,valor):
+        self.condicion = condicion
+        self.trigonometrica = trigonometrica
+        self.valor = valor
 
-# INSTRUCCION UPDATE
-class Update(Instruccion):
-    """ Instrucción UPDATE """
+class Md5(Instruccion):
+    def __init__(self,cadena):
+        self.cadena = cadena
 
-    def __init__(self, i_id, lvalor ):
-        self.i_id = i_id
-        self.lvalor = lvalor
+
 # ----------FIN DE UPDATE--------------------
 
 
@@ -712,3 +716,116 @@ class References(Instruccion):
     def __init__(self,idRef,valoresRef):
         self.idRef = idRef
         self.valoresRef = valoresRef
+
+class GroupBy(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class Having(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class OrderBy(Instruccion):
+    def __init__(self,valores,orden):
+        self.valores = valores
+        self.orden = orden 
+
+class AuxiliarOrderBy(Instruccion):
+    def __init__(self, valor, tipoorder):
+        self.valor = valor
+        self.tipoorder = tipoorder
+
+class Limit(Instruccion):
+    def __init__(self,condicionD,condicionIz): #puse las dos por el offset
+        self.condicionD = condicionD
+        self.condicionIz = condicionIz
+
+class AlterAddC(Instruccion):
+    """ Instrucción ALTER """
+
+    def __init__(self, nombreTabla,columnas ):
+        self.nombreTabla = nombreTabla
+        self.columnas = columnas
+
+class AlterD(Instruccion):
+    """ Instrucción ALTER """
+
+    def __init__(self, nombreTabla,columnas ):
+        self.nombreTabla = nombreTabla
+        self.columnas = columnas
+
+class AlterTBAdd(Instruccion):
+     
+    def __init__(self, idTable, tipo):
+        self.idTable = idTable
+        self.tipo = tipo
+
+class AlterNotNull(Instruccion):
+
+    def __init__(self,idTabla,idColumna ):
+        self.idTabla = idTabla
+        self.id_Columna = idColumna
+
+class AlterDConstraint(Instruccion):
+
+    def __init__(self,idTabla,idConstraint ):
+        self.idTabla = idTabla
+        self.id_Constraint = idConstraint
+
+class AlterType(Instruccion):
+
+    def __init__(self,idcolumna,numero):
+        self.idcolumna = idcolumna
+        self.numero = numero
+
+class AlterCheck(Instruccion):
+     
+    def __init__(self, idConstraint, condicion):
+        self.idConstraint = idConstraint
+        self.condicion = condicion
+
+class AlterUnique(Instruccion):
+     
+    def __init__(self, idConstraint, idUnique):
+        self.idConstraint = idConstraint
+        self.idUnique = idUnique
+
+class AlterFK(Instruccion):
+     
+    def __init__(self, idConstraint, idkey,tablaRef, columnasRef):
+        self.idConstraint = idConstraint
+        self.idkey = idkey
+        self.tablaRef = tablaRef
+        self.columnasRef = columnasRef
+
+class AlterDrop(Instruccion):
+
+    def __init__(self,idcolumna):
+        self.idcolumna = idcolumna
+
+#ALTER ADD
+class AlterADD(Instruccion):
+    
+    def __init__(self, columnas,tipo ):
+        self.columnas = columnas
+        self.tipo = tipo
+
+# TIPO DE DATO
+class TipoDato(Instruccion):
+    
+    def __init__(self, val1,val2,tipoDato):
+        self.val1 = val1
+        self.val2 = val2
+        self.tipoDato = tipoDato
+
+class Extract(Instruccion):
+
+    def __init__(self, valor, tipo_extract):
+        self.valor = valor
+        self.tipo_extract = tipo_extract
+
+class DatePart(Instruccion):
+
+    def __init__(self, val1, val2):
+        self.val1 = val1
+        self.val2 = val2

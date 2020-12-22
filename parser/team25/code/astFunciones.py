@@ -597,11 +597,24 @@ class BitwaseBinaria(Expresion):
                 return  ErrorReport('semantico', 'Error de tipo con el operando derecho en OPERADOR #' , self.linea )
         else:
             return  ErrorReport('semantico', 'Error Operador desconocido' , self.linea )
+    
+    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        izq = self.exp1.evaluacionCheck(tipoColumna , idCol , ts)
+        der = self.exp2.evaluacionCheck(tipoColumna , idCol , ts)
+        print(f'izq {izq} --- der {der}  {self.exp2.ejecutar(0).val}')
+        if (izq != 1) or (der != 1):
+            return 5
+        return 1  # no importa que operacion realice va regresar un numero
+    def getExpresionToString(self) -> str:
+        izq  = self.exp1.getExpresionToString()
+        der  = self.exp2.getExpresionToString()
+        op = self.operador
+        return str(izq + f' { op } '+der)
 
 
 class FuncionTime(Expresion):# 0 , 1 y 2 
     def __init__(self, funcion, parametro1=None, parametro2=None, linea = 0):
-        self.parametro1 = parametro1.upper()
+        self.parametro1 = parametro1
         self.parametro2 = parametro2
         self.funcion = funcion.upper()
         self.linea = linea
@@ -688,7 +701,7 @@ class FuncionTime(Expresion):# 0 , 1 y 2
                     else:
                         return ExpresionNumero(int(valor), TIPO_DE_DATO.ENTERO,self.linea)
                     
-                elif self.parametro1 == "MINUTE" or self.parametro1 == "MINUTE":
+                elif self.parametro1 == "MINUTE" or self.parametro1 == "MINUTES":
                     
                     valor = valores.get('minutes','NO_ESTA')
                     if valor == 'NO_ESTA':
@@ -703,6 +716,8 @@ class FuncionTime(Expresion):# 0 , 1 y 2
                         return ErrorReport('semantico', 'solicitud de segundos en Interaval y no fue especificado en la cadena' ,self.linea) 
                     else:                   
                         return ExpresionNumero(int(valor), TIPO_DE_DATO.ENTERO,self.linea)
+                else: 
+                    return ErrorReport('semantico', 'la cadena debe solicitar hours,minutes or seconds' ,self.linea)
             else:
                 print("funcion desconocida")
         elif self.parametro1 != None:
@@ -766,6 +781,15 @@ class BitwaseUnaria(Expresion):
         except:
             return ErrorReport('semantico', f'Error: Tipe Invalido UNARIO {self.operador}' ,self.linea)  
 
+    def evaluacionCheck(self ,tipoColumna, idCol, ts = None) -> int: # 0 = booleano , 1 = entero , 2  = decimal , 3 = cadena , 4 = cadenaDate , 5 = id , 6 = Error  
+        value = self.exp.evaluacionCheck(tipoColumna , idCol , ts)
+        if value != 1 and value != 2:
+            return 5
+        return value
+    
+    def getExpresionToString(self) -> str:
+        sint = self.exp.getExpresionToString()
+        return str(f'{self.operador}' + sint)
 
 # funcion global para ver si es decimal o entero
 def GET_TIPO(valorNumerico):

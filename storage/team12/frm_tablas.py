@@ -1,16 +1,12 @@
 from tkinter import *
 from tkinter import ttk
 import tkinter.font as tkFont
-from crud_bd import CRUD_DataBase
+from tkinter import messagebox
+from crud_tabla import CRUD_Tabla
 
-def mostrarTablas(text):
-    crud = CRUD_DataBase()
-    objeto = crud.searchDatabase(text)
-    # print("objeto: {}".format(objeto.name))
-    window = Tk()
-    # Centrado de la Ventana
-    ancho_ventana = 700
-    alto_ventana = 450
+nombre_BaseDatos = ""
+
+def edicionPantalla(window, titulo, color, ancho_ventana, alto_ventana):
     x_ventana = window.winfo_screenwidth() // 2 - ancho_ventana // 2
     y_ventana = window.winfo_screenheight() // 2 - alto_ventana // 2
     posicion = str(ancho_ventana) + "x" + str(alto_ventana) + "+" + str(x_ventana) + "+" + str(y_ventana)
@@ -18,19 +14,49 @@ def mostrarTablas(text):
 
     # Edicion de la Ventana
     window.resizable(0,0)
-    window.title("Tablas")
-    window.geometry('700x450')    
+    window.title(titulo)
+    dimension = str(ancho_ventana)+'x'+str(alto_ventana)
+    window.geometry(dimension)
+    window.configure(bg=str(color))
 
-    window.mainloop()
+def view_createTable():
+    
+    def guardar():
+        name_table = txtNombre.get()
+        column_table = txtColumnas.get()
+        if name_table:
+            txtNombre.delete(0, END)
+            txtColumnas.delete(0, END)
+            value = CRUD_Tabla().createTable(nombre_BaseDatos, name_table, column_table)
+            if value == 0:
+                messagebox.showinfo('', 'Operacion Exitosa')
+            elif value == 2:
+                messagebox.showinfo('', 'Base de Datos Inexistente')
+            elif value == 3:
+                messagebox.showinfo('', 'Tabla Existente')
+            else:
+                messagebox.showinfo('', 'Error en la Operacion')
 
-def iniciar():
-    crud = CRUD_DataBase()
-    list_words = crud.showDatabases()
+    window = Tk()
+    edicionPantalla(window,  "Create Table","#FCFCFB", 500, 350)
+    lblNombre = Label(window, text= 'Ingrese el Nombre de la Tabla', bg="#FCFCFB")
+    lblNombre.place(x = 125, y = 75)
+    txtNombre = Entry(window, width = 35)
+    txtNombre.place(x = 100, y = 115)
+
+    lblColumnas = Label(window, text= 'Ingrese la Cantidad de Columnas', bg="#FCFCFB")
+    lblColumnas.place(x = 125, y = 150)
+    txtColumnas = Entry(window, width = 35)
+    txtColumnas.place(x = 100, y = 190)
+    btn = Button(window, text='Guardar', command=guardar)
+    btn.place(x = 350, y = 230)
+
+def view_showTable():
+    list_words = CRUD_Tabla().shownTables(nombre_BaseDatos)
     var = 0
-
     # Esta es la ventana principal
     ventana_principal = Tk()
-    ventana_principal.title('show Databases')
+    ventana_principal.title('show Table')
     ventana_principal.geometry("550x500")
 
     #---------------------------------------------------------------------------------
@@ -81,3 +107,165 @@ def iniciar():
         var += 1
 
     ventana_principal.mainloop()
+
+def view_alterTable():
+
+    def modificar():
+        nombre_anterior = txtAnterior.get()
+        nombre_nuevo= txtNueva.get()
+        if nombre_anterior and nombre_nuevo:
+            txtAnterior.delete(0, END)
+            txtNueva.delete(0, END)
+            value = CRUD_Tabla().alterTable(nombre_BaseDatos, nombre_anterior, nombre_nuevo)
+            if value == 0:
+                messagebox.showinfo('', 'Operacion Exitosa')
+            elif value == 2:
+                messagebox.showinfo('', 'Base de Datos No Existente')
+            elif value == 3:
+                messagebox.showinfo('', 'Nombre de Tabla Anterior No Existente')
+            elif value == 4:
+                messagebox.showinfo('', 'Nombre de Tabla Nueva Existente')
+            else:
+                messagebox.showinfo('', 'Error en la Operacion')
+
+    window = Tk()
+    edicionPantalla(window,  "Alter Table","#FCFCFB", 500, 350)
+    lblAnterior = Label(window, text= 'Nombre de la Tabla Anterior', bg="#FCFCFB")
+    lblAnterior.place(x = 125, y = 75)
+    txtAnterior = Entry(window, width = 35)
+    txtAnterior.place(x = 100, y = 115)
+    lblNueva = Label(window, text= 'Nombre de la Tabla Nueva', bg="#FCFCFB")
+    lblNueva.place(x = 125, y = 150)
+    txtNueva = Entry(window, width = 35)
+    txtNueva.place(x = 100, y = 190)
+    btnModificar = Button(window, text='Modificar', command = modificar)
+    btnModificar.place(x = 345, y = 240)
+
+def view_dropTable():
+
+    def eliminar():
+        name_database = txt.get()
+        if name_database:
+            txt.delete(0, END)
+            value = CRUD_Tabla().dropTable(nombre_BaseDatos, name_database)
+            if value == 0:
+                messagebox.showinfo('', 'Operacion Exitosa')
+            elif value == 2:
+                messagebox.showinfo('', 'Base de Datos No Existente')
+            elif value == 3:
+                messagebox.showinfo('', 'Tabla No Existente')
+            else:
+                messagebox.showinfo('', 'Error en la Operacion')
+
+    window = Tk()
+    edicionPantalla(window,  "Drop Table","#FCFCFB", 500, 350)
+    lbl = Label(window, text= 'Ingrese el Nombre de la Base de Datos', bg="#FCFCFB")
+    lbl.place(x = 125, y = 125)
+    txt = Entry(window, width = 35)
+    txt.place(x = 100, y = 160)
+    btn = Button(window, text='Eliminar', command=eliminar)
+    btn.place(x = 350, y = 200)
+
+def view_extractTable():
+    
+    def ejecutar():
+        name_table = txtNombre.get()
+        if name_table:
+            txtNombre.delete(0, END)
+            value = CRUD_Tabla().extractTable(nombre_BaseDatos, name_table)
+            if value:
+                messagebox.showinfo('', 'Operacion Exitosa')
+            else:
+                messagebox.showinfo('', 'No hay Registros')
+
+    window = Tk()
+    edicionPantalla(window,  "Extract Table","#FCFCFB", 500, 350)
+    lblNombre = Label(window, text= 'Ingrese el Nombre de la Tabla', bg="#FCFCFB")
+    lblNombre.place(x = 125, y = 75)
+    txtNombre = Entry(window, width = 35)
+    txtNombre.place(x = 100, y = 115)
+
+    btn = Button(window, text='Guardar', command=ejecutar)
+    btn.place(x = 350, y = 190)
+
+def view_extractRangeTable():
+    print("funciona")
+
+def view_alterAddPk():
+    print("funciona")
+
+def view_alterDropPk():
+    print("funciona")
+
+def view_alterAddColumn():
+    print("funciona")
+
+def view_alterDropColumn():
+    print("funciona")
+
+def mostrarTablas(nombre_BD):    
+    window = Tk()
+    ancho_ventana = 1000
+    alto_ventana = 800
+    edicionPantalla(window,"Tablas","white",  1000, 800)
+
+    x_ventana = window.winfo_screenwidth() // 2 - ancho_ventana // 2
+    y_ventana = 0
+    posicion = str(ancho_ventana) + "x" + str(alto_ventana) + "+" + str(x_ventana) + "+" + str(y_ventana)
+    window.geometry(posicion)
+
+    var_width = 23
+    separacion = 3
+    var_height = int(var_width//2.5)
+    var_font = tkFont.Font(size=12, weight="bold", family="Arial")
+
+    encabezado = Label(window, text="", bg="white",width=25)
+    encabezado.grid(padx=separacion, pady=separacion, row=0, column=0, columnspan=4)
+
+    izquierda = Label(window, text="", bg="white",width=16)
+    izquierda.grid(padx=separacion, pady=separacion, row=1, column=0, rowspan=5)
+
+    ###############################################################################
+    ###############################################################################
+
+    btncreateTable = Button(window, text="CREATE TABLE", bg='#4484BC', fg='white', font=var_font, height= var_height, width=var_width, command=view_createTable)
+    btncreateTable.grid(padx=separacion, pady=separacion, row=1, column=1)
+
+    btnshowTable = Button(window, text="SHOW TABLES", bg='#4484BC', fg='white', font=var_font, height= var_height, width=var_width, command=view_showTable)
+    btnshowTable.grid(padx=separacion, pady=separacion, row=1, column=2)    
+
+    ###############################################################################
+    ###############################################################################
+
+    btndropTable = Button(window, text="DROP TABLE", bg='#4484BC', fg='white', font=var_font, height= var_height, width=var_width, command=view_dropTable)
+    btndropTable.grid(padx=separacion, pady=separacion, row=2, column=1)
+
+    btnExtractTable = Button(window, text="EXTRACT TABLE", bg='#4484BC', fg='white', font=var_font, height= var_height, width=var_width, command=view_extractTable)
+    btnExtractTable.grid(padx=separacion, pady=separacion, row=2, column=2)
+    
+    btnalterTable = Button(window, text="ALTER TABLE", bg='#FCE433', fg='black', font=var_font, height= var_height, width=var_width, command=view_alterTable)
+    btnalterTable.grid(padx=separacion, pady=separacion, row=2, column=3)
+
+    ###############################################################################
+    ###############################################################################
+    
+    btnalterAddPk = Button(window, text="ALTER ADD PK", bg='#4484BC', fg='white', font=var_font, height= var_height, width=var_width, command=view_alterAddPk)
+    btnalterAddPk.grid(padx=separacion, pady=separacion, row=3, column=1)
+
+    btnAlterDropPk = Button(window, text="ALTER DROP PK", bg='#FCE433', fg='black', font=var_font, height= var_height, width=var_width, command=view_alterDropPk)
+    btnAlterDropPk.grid(padx=separacion, pady=separacion, row=3, column=2)
+
+    btnExtractRangeTable = Button(window, text="EXTRACT RANGE TABLE", bg='#FCE433', fg='black', font=var_font, height= var_height, width=var_width, command=view_extractRangeTable)
+    btnExtractRangeTable.grid(padx=separacion, pady=separacion, row=3, column=3)
+
+    ###############################################################################
+    ###############################################################################
+
+    btnAlterAddColumn = Button(window, text="ALTER ADD COLUMN", bg='#FCE433', fg='black', font=var_font, height= var_height, width=var_width, command=view_alterAddColumn)
+    btnAlterAddColumn.grid(padx=separacion, pady=separacion, row=4, column=3)
+
+    btnAlterDropColumn = Button(window, text="ALTER DROP COLUMN", bg='#FCE433', fg='black', font=var_font, height= var_height, width=var_width, command=view_alterDropColumn)
+    btnAlterDropColumn.grid(padx=separacion, pady=separacion, row=4, column=2)
+    global nombre_BaseDatos
+    nombre_BaseDatos = nombre_BD
+    window.mainloop()

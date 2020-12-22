@@ -103,10 +103,9 @@ class Update(Instruction):
                 break
             else:
                 d[ headers.index(t[0]) ] = t[1].value
-
         print("DICTIONARY")
         print(d)
-        return None
+
 
         if self.params == None: #CAMBIAR TODOS LOS REGISTROS DE LA TABLA
             pk_col_name = TypeChecker().searchColPrimaryKey(table_tp).name
@@ -114,13 +113,14 @@ class Update(Instruction):
             print(pk_list)
 
             for pk in pk_list:
-                DataController().update(self.table.value, d, pk, 0 , 0)
+                print(self.table, d, pk)
+                DataController().update(self.table, d, pk, 0 , 0)
         else:
             for option in self.params:
                 if isinstance(option, Where):
                     table_update.query(option.condition.alias)
                     break
-        
+        return None
 class ColumnVal(Instruction):
     '''
         ColumnVal recibe dos parametros: 
@@ -195,7 +195,7 @@ class Delete(Instruction):
                     break
         return None
     
-def ordenarDatos(headers, array_nombres:[], array_valores:[]):
+def ordenarDatos(headers, array_nombres:list, array_valores:list):
     #TODO: REVISAR CUAL VALOR HAY QUE MANDAR POR DEFECTO
     #Ordenar valores
     for index, nombre_col in enumerate(headers):

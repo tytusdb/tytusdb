@@ -642,4 +642,287 @@ El programa se ha desarrollado en el IDE Visual Studio Code:
                         | ID
 
 
+#### QUERIES
+##### SELECT
+    select_instr      : select_instr1 PTCOMA
+
+    select_instr1     : SELECT termdistinct selectlist selectfrom
+
+    selectfrom        : FROM listatablasselect whereselect groupby orderby
+                        | empty
+
+    termdistinct      : DISTINCT
+                        | empty
+
+    selectlist        : ASTERISCO
+                        | listaselect
+
+    listaselect       : listaselect COMA valselect
+                        | valselect
+
+    valselect         : ID alias
+                        | ID PUNTO ASTERISCO
+                        | ID PUNTO ID alias
+                        | funcion_matematica_ws alias
+                        | funcion_matematica_s alias
+                        | funcion_trigonometrica alias
+                        | PARIZQ select_instr1 PARDER alias
+                        | agregacion PARIZQ cualquieridentificador PARDER alias
+                        | COUNT PARIZQ ASTERISCO PARDER alias
+                        | COUNT PARIZQ cualquieridentificador PARDER alias
+                        | func_bin_strings_1 alias
+                        | func_bin_strings_2 alias
+                        | func_bin_strings_4 alias
+
+    agregacion        : SUM
+                        | AVG
+                        | MAX
+                        | MIN
+
+    listatablasselect : listatablasselect COMA tablaselect
+                        | tablaselect
+    
+    tablaselect       : ID alias
+                        | PARIZQ select_instr1 PARDER alias
+
+    alias             : ID
+                        | CADENASIMPLE
+                        | CADENADOBLE
+                        | AS ID
+                        | AS CADENASIMPLE
+                        | AS CADENADOBLE
+                        | empty
+##### WHERE
+    whereselect       : WHERE condicioneswhere
+                        | empty
+
+    condicioneswhere  : condicioneswhere OR  condicionwhere
+                        | condicioneswhere AND condicionwhere
+                        | condicionwhere
+    
+    condicionwhere    : whereexists
+                        | notwhereexists
+                        | wherenotin
+                        | wherein
+                        | wherenotlike
+                        | wherelike
+                        | wheresubstring
+                        | between_state
+                        | not_between_state
+                        | predicates_state
+                        | is_distinct_state
+                        | condicion
+
+    whereexists       : EXISTS PARIZQ select_instr1 PARDER
+
+    notwhereexists    : NOT EXISTS PARIZQ select_instr1 PARDER
+
+    wherein           : cualquiernumero IN PARIZQ select_instr1 PARDER
+                        | cadenastodas IN PARIZQ select_instr1 PARDER
+    
+    wherenotin        : cualquiernumero NOT IN PARIZQ select_instr1 PARDER
+                        | cadenastodas NOT IN PARIZQ select_instr1 PARDER
+
+    wherenotlike      : cadenastodas NOT LIKE CADENALIKE
+
+    wherelike         : cadenastodas LIKE CADENALIKE
+
+    wheresubstring    : SUBSTRING PARIZQ cadenastodas COMA ENTERO COMA ENTERO PARDER IGUAL CADENASIMPLE
+
+    cadenastodas      : cualquiercadena
+                        | cualquieridentificador
+
+##### GROUP BY, HAVING, ORDER BY . . .
+    groupby           : GROUP BY listagroupby
+                        | GROUP BY listagroupby HAVING condicioneshaving
+                        | empty
+
+    listagroupby      : listagroupby COMA valgroupby
+                        | valgroupby
+
+    valgroupby        : cualquieridentificador
+                        | cualquiernumero
+    
+    condicioneshaving : condicioneshaving OR condicionhaving
+                        | condicioneshaving AND condicionhaving
+                        | condicionhaving
+
+    condicionhaving   : expresionhaving MENQUE expresionhaving
+                        | expresionhaving MAYQUE expresionhaving
+                        | expresionhaving MENIGUAL expresionhaving
+                        | expresionhaving MAYIGUAL expresionhaving
+                        | expresionhaving IGUAL expresionhaving
+                        | expresionhaving DIFERENTE expresionhaving
+
+    expresionhaving   : cualquiercadena
+                        | expresionaritmetica
+                        | condicionhavingagregacion
+                        | funcion_matematica_ws
+
+    condicionhavingagregacion     : agregacion PARIZQ cualquieridentificador PARDER
+
+    orderby           : ORDER BY listarorderby
+                        | ORDER BY listarorderby instrlimit
+                        | empty
+
+    listarorderby     : listarorderby COMA valororderby
+                        | valororderby
+
+    valororderby      : cualquieridentificador ascdesc anular
+                        | cualquiernumero ascdesc anular
+
+    ascdesc           : DESC
+                        | ASC
+                        | empty
+
+    anular            : NULLS LAST
+                        | NULLS FIRST
+                        | empty
+
+    instrlimit        : LIMIT ENTERO instroffset
+                        | LIMIT ALL instroffset
+
+    instroffset       : OFFSET ENTERO
+                        | empty
+
+    condiciones       : condiciones AND condicion
+                        | condiciones OR condicion
+                        | condicion
+    
+    condicion         : expresion MENQUE expresion
+                        | expresion MAYQUE expresion
+                        | expresion MENIGUAL expresion
+                        | expresion MAYIGUAL expresion
+                        | expresion IGUAL expresion 
+                        | expresion DIFERENTE expresion
+
+    expresion         : cualquiercadena
+                        | funcion_matematica_ws
+                        | expresionaritmetica
+                        | func_bin_strings_1
+                        | func_bin_strings_2
+                        | vallogico
+                        | PARIZQ select_instr1 PARDER
+
+    expresionaritmetica   : expresionaritmetica MAS expresionaritmetica 
+                            | expresionaritmetica MENOS expresionaritmetica 
+                            | expresionaritmetica ASTERISCO expresionaritmetica
+                            | expresionaritmetica DIVIDIDO expresionaritmetica 
+                            | expresionaritmetica MODULO expresionaritmetica 
+                            | expresionaritmetica EXPONENTE expresionaritmetica
+                            | MENOS expresionaritmetica %prec UMENOS
+                            | cualquiernumero
+                            | cualquieridentificador
+                            | PARIZQ expresionaritmetica PARDER
+
+    cualquiernumero   : ENTERO
+                        | DECIMAL
+
+    cualquiercadena   : CADENASIMPLE
+                        | CADENADOBLE
+
+    cualquieridentificador : ID
+                             | ID PUNTO ID
+    
+    vallogico         : FALSE
+                        | TRUE
+
+##### FUNCIONES MATEMATICAS, TRIGONOMETRICAS, BINARIAS
+    funcion_matematica_ws : ABS PARIZQ expresionaritmetica PARDER
+                            | CBRT PARIZQ expresionaritmetica PARDER
+                            | CEIL PARIZQ expresionaritmetica PARDER
+                            | CEILING PARIZQ expresionaritmetica PARDER
+
+    funcion_matematica_s  : DEGREES PARIZQ expresionaritmetica PARDER
+                            | DIV PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                            | EXP PARIZQ expresionaritmetica PARDER
+                            | FACTORIAL PARIZQ expresionaritmetica PARDER
+                            | FLOOR PARIZQ expresionaritmetica PARDER
+                            | GCD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                            | LN PARIZQ expresionaritmetica PARDER
+                            | LOG PARIZQ expresionaritmetica PARDER
+                            | MOD PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                            | PI PARIZQ PARDER
+                            | POWER PARIZQ expresionaritmetica COMA expresionaritmetica PARDER
+                            | RADIANS PARIZQ expresionaritmetica PARDER
+                            | ROUND PARIZQ expresionaritmetica PARDER
+                            | SIGN PARIZQ expresionaritmetica PARDER
+                            | SQRT PARIZQ expresionaritmetica PARDER
+                            | WBUCKET PARIZQ explist PARDER
+                            | TRUNC PARIZQ expresionaritmetica PARDER
+                            | RANDOM PARIZQ expresionaritmetica PARDER
+
+    explist           : expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica COMA expresionaritmetica
+
+    funcion_trigonometrica    : ACOS PARIZQ expresionaritmetica PARDER
+                                | ACOSD PARIZQ expresionaritmetica PARDER
+                                | ASIN PARIZQ expresionaritmetica PARDER
+                                | ASIND PARIZQ expresionaritmetica PARDER
+                                | ATAN PARIZQ expresionaritmetica PARDER
+                                | ATAND PARIZQ expresionaritmetica PARDER
+                                | ATAN2 PARIZQ expresionaritmetica PARDER
+                                | ATAN2D PARIZQ expresionaritmetica PARDER
+                                | COS PARIZQ expresionaritmetica PARDER
+                                | COSD PARIZQ expresionaritmetica PARDER
+                                | COT PARIZQ expresionaritmetica PARDER
+                                | COTD PARIZQ expresionaritmetica PARDER
+                                | SIN PARIZQ expresionaritmetica PARDER
+                                | SIND PARIZQ expresionaritmetica PARDER
+                                | TAN PARIZQ expresionaritmetica PARDER
+                                | TAND PARIZQ expresionaritmetica PARDER
+                                | SINH PARIZQ expresionaritmetica PARDER
+                                | COSH PARIZQ expresionaritmetica PARDER
+                                | TANH PARIZQ expresionaritmetica PARDER
+                                | ASINH PARIZQ expresionaritmetica PARDER
+                                | ACOSH PARIZQ expresionaritmetica PARDER
+                                | ATANH PARIZQ expresionaritmetica PARDER
+
+    func_bin_strings_1    :  LENGTH PARIZQ cadena PARDER
+
+    func_bin_strings_2    : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
+                            | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
+                            | TRIM PARIZQ cadena PARDER
+
+    func_bin_strings_3    : MD5 PARIZQ cadena PARDER
+
+    func_bin_strings_4    :  GET_BYTE PARIZQ cadena COMA ENTERO PARDER
+                            | SET_BYTE PARIZQ cadena COMA ENTERO COMA ENTERO PARDER
+                            | SHA256 PARIZQ cadena PARDER
+                            | CONVERT PARIZQ alias PARDER
+                            | ENCODE PARIZQ cadena COMA cadena PARDER
+                            | DECODE PARIZQ cadena COMA cadena PARDER
+
+    op_bin_strings        : op_bin_strings CONCAT op_bin_strings
+                            | op_bin_strings BITWAND op_bin_strings
+                            | op_bin_strings BITWOR op_bin_strings
+                            | op_bin_strings BITWXOR op_bin_strings
+                            | op_bin_strings BITWNOT op_bin_strings
+                            | op_bin_strings BITWSHIFTL op_bin_strings
+                            | op_bin_strings BITWSHIFTR op_bin_strings 
+                            | cadena
+
+    cadena                : cualquiercadena
+                            | cualquieridentificador
+
+##### BETWEEN, PREDICATES, DISTINCT . . .
+    between_state         : cualquiernumero BETWEEN valores AND valores
+                            | cadenastodas BETWEEN valores AND valores
+
+    not_between_state     : cualquiernumero NOT BETWEEN valores AND valores
+                            | cadenastodas NOT BETWEEN valores AND valores
+
+    predicates_state      : valores IS NULL
+                            | valores IS NOT NULL
+                            | valores ISNULL
+                            | valores NOTNULL
+
+    is_distinct_state     :  valores IS DISTINCT FROM valores
+                            | valores IS NOT DISTINCT FROM valores
+
+    valores               : cualquiernumero
+                            | cualquiercadena
+                            | cualquieridentificador
+
+    empty                 : 
+
 
