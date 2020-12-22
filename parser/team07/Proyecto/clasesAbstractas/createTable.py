@@ -1,4 +1,7 @@
 from .instruccionAbstracta import InstruccionAbstracta
+from Errores import errorReportar
+from tabla_Simbolos import tablaSimbolos,simboloTabla,simboloBaseDatos,simboloColumna
+import jsonMode
 
 class createTable(InstruccionAbstracta):
     '''
