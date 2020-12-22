@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import Menu, Tk, Text, DISABLED, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
+from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
 from tkinter import messagebox as MessageBox
 from tkinter import ttk,filedialog, INSERT
 import os
@@ -13,6 +13,7 @@ formularios=[]
 textos=[]
 control=0
 notebook= None
+consola = None
 
 #Variables para simular credenciales
 username = "admin"
@@ -28,10 +29,13 @@ def myGET():
 
     myConnection.request("GET", "/getUsers", "", headers)
     response = myConnection.getresponse()
+    global consola
     print("GET: Status: {} and reason: {}".format(response.status, response.reason))
     if response.status == 200:       
         data = response.read()   
-        print(data.decode("utf-8"))
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\n" + data.decode("utf-8"))
+        consola.config(state=DISABLED)
     myConnection.close()
 
 #Metodo POST para probar peticiones al servidor
@@ -48,14 +52,17 @@ def myPOST():
 
     myConnection.request("POST", "/checkLogin", myJson, headers)
     response = myConnection.getresponse()
+    global consola
     print("POST: Status: {} and reason: {}".format(response.status, response.reason))
     if response.status == 200:       
         data = response.read()
         result = data.decode("utf-8")
+        consola.config(state=NORMAL)
         if result == "true":
-            print("Usuario loggeado correctamente.")
+            consola.insert(INSERT,"\nUsuario loggeado correctamente.")
         else:
-            print("Datos invalidos o usuario inexistente.")
+            consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
+        consola.config(state=DISABLED)
     myConnection.close()
 
 
@@ -123,7 +130,7 @@ def abrir():
     if archivo != '':
         name = os.path.basename(archivo)
         añadir(name)
-        lenguaje = pathlib.Path(archivo).suffix
+        pathlib.Path(archivo).suffix
         entrada = open(archivo, encoding="utf-8")
         content = entrada.read()
         textos[control-1].text.insert(tk.INSERT, content)
@@ -171,9 +178,11 @@ def CrearVentana():
     #Boton para realizar consulta
     Button(raiz, text="Enviar Consulta").pack(side="top",fill="both")
     #Consola de Salida
-    consola =  Text(raiz)
+    global consola
+    consola = Text(raiz)
     consola.pack(side="bottom",fill="both")
-    consola.insert(1.0,"Consola de Salida")
+    consola.insert(1.0,"Consola de Salida:")
+    consola.config(wrap=WORD)
     consola.config(state=DISABLED)
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
     global notebook
@@ -184,8 +193,12 @@ def CrearVentana():
     raiz.mainloop()
 
 def añadir(titulo):
+    global consola
     global control
     global notebook
+    consola.config(state=NORMAL)
+    consola.insert(INSERT,"\nSe creo una nueva Pestaña")
+    consola.config(state=DISABLED)
     formularios.append(Frame(notebook,bg="white"))
     contador=control
     notebook.add(formularios[contador], text=titulo)

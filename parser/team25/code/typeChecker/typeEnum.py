@@ -9,6 +9,7 @@ def insertEnum(name: str, enum: list) -> bool:
     try:
         if enumExist(name):
             raise Exception
+        initCheck()
         data = read(dataPath)
         data[name] = enum
         write(dataPath, data)
@@ -20,6 +21,7 @@ def getEnum(name: str) -> list:
     try:
         if not name.isidentifier():
             raise Exception()
+        initCheck()
         data = read(dataPath)
         if not name in data:
             raise Exception()
@@ -31,11 +33,12 @@ def enumExist(name: str) -> bool:
     try:
         if not name.isidentifier():
             raise Exception()
-        if name in read(dataPath):
+        initCheck()
+        if not name in read(dataPath):
             raise Exception()
-        return False
-    except:
         return True
+    except:
+        return False
 
 # Utilities
 def initCheck():
@@ -43,9 +46,9 @@ def initCheck():
         os.makedirs('data')
     if not os.path.exists('data/type'):
         os.makedirs('data/type')
-    if not os.path.exists('data/type/typeEnum'):
+    if not os.path.exists('data/type/typeEnum.json'):
         data = {}
-        with open('data/type/typeEnum', 'w') as file:
+        with open('data/type/typeEnum.json', 'w') as file:
             json.dump(data, file)
 
 # Read a JSON file

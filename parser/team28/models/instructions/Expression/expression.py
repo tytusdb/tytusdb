@@ -88,22 +88,55 @@ class Relop(Expression):
         operator = self.operator
         try:
             value = 0
-            if operator == SymbolsRelop.LESS_THAN:
-                value = value1.value < value2.value
-            elif operator == SymbolsRelop.GREATE_THAN:
-                value = value1.value > value2.value
-            elif operator == SymbolsRelop.GREATE_EQUAL:
-                value = value1.value >= value2.value
-            elif operator == SymbolsRelop.LESS_EQUAL:
-                value = value1.value <= value2.value
-            elif operator == SymbolsRelop.EQUALS:
-                value = value1.value == value2.value
-            elif operator == SymbolsRelop.NOT_EQUAL or operator == SymbolsRelop.NOT_EQUAL_LR:
-                value = value1.value != value2.value
+            if isinstance(value1,PrimitiveData) and isinstance(value2, PrimitiveData):
+                if operator == SymbolsRelop.LESS_THAN:
+                    value = value1.value < value2.value
+                elif operator == SymbolsRelop.GREATE_THAN:
+                    value = value1.value > value2.value
+                elif operator == SymbolsRelop.GREATE_EQUAL:
+                    value = value1.value >= value2.value
+                elif operator == SymbolsRelop.LESS_EQUAL:
+                    value = value1.value <= value2.value
+                elif operator == SymbolsRelop.EQUALS:
+                    value = value1.value == value2.value
+                elif operator == SymbolsRelop.NOT_EQUAL or operator == SymbolsRelop.NOT_EQUAL_LR:
+                    value = value1.value != value2.value
+                else:
+                    print("Operador no valido: " + operator)
+                    return
+                return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
             else:
-                print("Operador no valido: " + operator)
-                return
-            return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
+                data = ""
+                if isinstance(value1, list):
+                    if isinstance(value2.value, int):
+                        if self.op == "=":
+                            data = f'{value1[1]} {self.op}= {str(value2.value)}'
+                            return data
+                        else:
+                            data = f'{value1[1]} {self.op} {str(value2.value)}'
+                            return data
+                    else:
+                        if self.op == "=":
+                            data = f'{value1[1]} {self.op}= "{str(value2.value)}"'
+                            return data
+                        else:
+                            data = f'{value1[1]} {self.op} {str(value2.value)}'
+                            return data
+                elif isinstance(value2, list):
+                    if isinstance(value1.value, int):
+                        if self.op == "=":
+                            data = f'{value2[1]} {self.op}= {str(value1.value)}'
+                            return data
+                        else:
+                            data = f'{value2[1]} {self.op} {str(value1.value)}'
+                            return data
+                    else:
+                        if self.op == "=":
+                            data = f'{value2[1]} {self.op}= "{str(value1.value)}"'
+                            return data
+                        else:
+                            data = f'{value2[1]} {self.op} {str(value1.value)}'
+                            return data
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -345,14 +378,26 @@ class LogicalOperators(Expression):
         operator = self.operator
         try:
             value = 0
-            if operator.lower() == "AND".lower():
-                value = value1.value and value2.value
-            elif operator.lower() == "OR".lower():
-                value = value1.value or value2.value
+            if isinstance(value1, PrimitiveData) and isinstance(value2, PrimitiveData):
+                if operator.lower() == "and":
+                    value = value1.value and value2.value
+                elif operator.lower() == "or":
+                    value = value1.value or value2.value
+                else:
+                    print("Operador no valido: " + operator)
+                    return
+                return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
             else:
-                print("Operador no valido: " + operator)
-                return
-            return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
+                data = ""
+                if operator.lower() == 'and':
+                    data = f'({value1}) and ({value2})'
+                    return data
+                elif operator.lower() == 'or':
+                    data = f'({value1})  or ({value2})'
+                    return data
+                else:
+                    print("Operador no valido: " + operator)
+                    return
         except TypeError:
             print("Error de tipo")
             print(self)

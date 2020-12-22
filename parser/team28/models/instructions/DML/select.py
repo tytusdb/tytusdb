@@ -1,3 +1,5 @@
+from numpy.core.records import array
+from numpy.lib.arraysetops import isin
 from views.data_window import DataWindow
 from models.instructions.shared import *
 from models.instructions.Expression.expression import *
@@ -49,7 +51,7 @@ class Select(Instruction):
         elif isinstance(instr, list):
             return DataWindow().consoleText(format_table_list(instr))
         return None 
-
+    
 class TypeQuerySelect(Instruction):
     '''
     TypeQuerySelect recibe si va a ser 
@@ -90,6 +92,7 @@ class SelectQ(Instruction):
     
     def process(self, instrucction):
         list_select = None
+        print(type(self.where_or_grouphaving))
         if self.type_select == None and self.from_clause == None and self.where_or_grouphaving == None and self.select_list != None:
             list_select = list_expressions(self.select_list, instrucction)
             return list_select
@@ -98,7 +101,16 @@ class SelectQ(Instruction):
         elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
             pass
         elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
-            pass 
+            list_from = self.from_clause.process(instrucction)
+            if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1 and len(list_from) == 1:
+                list_select = loop_list(self.select_list, instrucction)
+                tabla_all = select_all(list_from, self.line, self.column)
+                where_table = self.where_or_grouphaving.process(instrucction, tabla_all)
+                return where_table
+            else:
+                table_i = select_all(list_from, self.line, self.column)
+                list_select = loop_list_with_columns(self.select_list, list_from[0], instrucction)
+                return list_select 
         elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
             list_from = self.from_clause.process(instrucction)
             
@@ -222,49 +234,7 @@ class NotOption(Instruction):
     
     def process(self, instrucction):
         pass
-
-class InClause(Instruction):
-    '''
-    InClause
-    '''
-    def __init__(self, arr_lista,line, column):
-        self.arr_lista = arr_lista
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
     
-    def process(self, instrucction):
-        pass
-
-class LikeClause(Instruction):
-    '''
-        LikeClause
-    '''
-    def __init__(self, arr_list,line, column):
-        self.arr_list = arr_list
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
-class isClause(Instruction):
-    '''
-        IsClause
-    '''
-    def __init__(self, arr_list,line, column):
-        self.arr_list = arr_list
-        self.line = line
-        self.column = column
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
 class AgreggateFunctions(Instruction):
     '''
         AgreggateFunctions

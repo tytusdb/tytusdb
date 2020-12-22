@@ -70,3 +70,39 @@ class Entorno:
             ent = ent.anterior
         
         return None
+
+    def eliminarDataBase(self,basedatos):
+        ent = self
+
+        while ent != None:
+            x = 0
+            for x in ent.tablaSimbolo.copy():
+                db:str = ent.tablaSimbolo[x].baseDatos
+                if db == basedatos:
+                    ent.tablaSimbolo.pop(x)
+
+            ent = ent.anterior
+        
+        return None
+
+    def eliminarSymTabla(self,tabla):
+        ent = self
+
+        while ent != None:
+            for x in ent.tablaSimbolo.copy():
+                table:str = ent.tablaSimbolo[x].tabla
+                if table == tabla:
+                    ent.tablaSimbolo.pop(x)
+
+            ent = ent.anterior
+        
+        return None
+
+    def eliminarTodo(self):
+        ent = self
+        while ent != None:
+            del ent.tablaSimbolo
+
+            ent = ent.anterior
+        
+        return None
