@@ -28,7 +28,13 @@ def createDataBase(basedatos: str, modo: int = 1, owner=None):
         return 0
 
 def showDataBases():
-    return JM.showDatabases()
+    lista = []
+    temporal = lista_bases.primero
+    while(temporal is not None):
+        lista.append(temporal.nombreBase)
+        temporal = temporal.siguiente
+    print(JM.showDatabases())
+    return lista
 
 def alterDataBase(dataBaseOld: str, dataBaseNew: str):
     # 0: exitoso, 1: error en la operación, 2: dataBaseOld no existente, 3: dataBaseNew existente
@@ -192,12 +198,20 @@ def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
     respuesta = JM.alterDropColumn(database,table,columnNumber)
     if respuesta == 0:
         baseActual = obtenerBase(database)
-        if (baseActual != None):
+        if (baseActual is not None):
             actualTabla = baseActual.listaTablas.obtenerTabla(table)
             if (actualTabla != None):
                 actualTabla.listaAtributos.eliminiarNAtributo(columnNumber)
     return respuesta
 
+def dropTable(database: str, table:str) -> int:
+    respuesta = JM.dropTable(database, table)
+    if respuesta == 0:
+        baseActual = obtenerBase(database)
+        if baseActual is not None:
+            return baseActual.ListaTablas.eliminarTabla(table)
+        return 2
+    return respuesta
 
 
 

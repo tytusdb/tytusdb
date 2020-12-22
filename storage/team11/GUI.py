@@ -111,12 +111,12 @@ class GUI:
         self.pestaña5 = tk.Frame(self.pestañas_notebook,background="#BED6D2")
         self.pestaña6 = tk.Frame(self.pestañas_notebook,background="#BED6D2")
 
-        self.Grupos = tk.PhotoImage(file="Grupo11.png")
-        self.imgDB = tk.PhotoImage(file="db.png")
-        self.Team = tk.PhotoImage(file="Equipo.png")
-        self.Table = tk.PhotoImage(file="Tablas.png")
-        self.Tuple = tk.PhotoImage(file="Tupla.png")
-        self.Integrantes = tk.PhotoImage(file="Integrantes.png")
+        self.Grupos = tk.PhotoImage(file="image/Grupo11.png")
+        self.imgDB = tk.PhotoImage(file="image/db.png")
+        self.Team = tk.PhotoImage(file="image/Equipo.png")
+        self.Table = tk.PhotoImage(file="image/Tablas.png")
+        self.Tuple = tk.PhotoImage(file="image/Tupla.png")
+        self.Integrantes = tk.PhotoImage(file="image/Integrantes.png")
         
         # Añadirlas al panel con su respectivo texto.
         self.pestañas_notebook.add(self.pestaña1, text="    GRUPO 11    ",image=self.Team,underline=4,compound=tk.LEFT, padding=20)
@@ -607,7 +607,9 @@ class GUI:
         cadena = self.datos.get().split(",")
         self.lis = ttk.Combobox(self.labelframeInt,width=35)
         self.lis.grid(column=1, row=0, padx=10, pady=4)
-        self.lis['values'] = self.control.extractRangeTable(str(cadena[0]),str(cadena[1]),int(cadena[2]),ast.literal_eval(cadena[3]),ast.literal_eval(cadena[4]))
+        extract = cadena[3]
+        range = cadena[4]
+        self.lis['values'] = self.control.extractRangeTable(str(cadena[0]),str(cadena[1]),int(cadena[2]),ast.literal_eval(f'{extract}'),ast.literal_eval(f'{range}'))
         
 
     def dialogo_alterAddPk(self):
@@ -631,7 +633,8 @@ class GUI:
 
     def alterAddPk(self):
         cadena = self.datos.get().split(",",2)
-        s= self.control.alterAddPK(str(cadena[0]),str(cadena[1]),ast.literal_eval(cadena[2]))
+        alter = cadena[2]
+        s= self.control.alterAddPK(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{alter}'))
         self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
         self.labelInt.grid(column=1, row=0, padx=8, pady=8)
     
@@ -681,7 +684,8 @@ class GUI:
 
     def alterAddFk(self): # pendiente
         cadena = self.datos.get().split(",",2)
-        s=self.control.alterAddPK(str(cadena[0]),str(cadena[1]),ast.literal_eval(cadena[2]))
+        alterA = cadena[2]
+        s=self.control.alterAddPK(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{alterA}'))
         self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
         self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
@@ -757,8 +761,8 @@ class GUI:
 
     def alterAddColumn(self):
         cadena = self.datos.get().split(",",2)
-        parametro = ast.literal_eval(cadena[2])
-        s = self.control.alterAddColumn(str(cadena[0]),str(cadena[1]),parametro)
+        parametro = cadena[2]
+        s = self.control.alterAddColumn(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{parametro}'))
         self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
         self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
@@ -835,7 +839,8 @@ class GUI:
 
     def insert(self):
         cadena = self.datos.get().split(",",2)
-        s= self.control.insert(str(cadena[0]),str(cadena[1]),ast.literal_eval(cadena[2]))
+        insert = cadena[2]
+        s= self.control.insert(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{insert}'))
         self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
         self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
@@ -887,7 +892,8 @@ class GUI:
         cadena = self.datos.get().split(",",2)
         self.lis = ttk.Combobox(self.labelframeInt,width=35)
         self.lis.grid(column=1, row=0, padx=10, pady=4)
-        self.lis['values'] = self.control.extractRow(str(cadena[0]),str(cadena[1]),ast.literal_eval(cadena[2]))
+        extract = cadena[2]
+        self.lis['values'] = self.control.extractRow(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{extract}'))
 
     def dialogo_update(self):
         self.dialogo=tk.Toplevel(self.window)
@@ -911,7 +917,9 @@ class GUI:
     def update(self):
         cadena = self.datos.get().split(",",2)
         cadena2 = cadena[2].split("},")
-        s= self.control.update(str(cadena[0]),str(cadena[1]),ast.literal_eval(cadena2[0]+"}"),ast.literal_eval(cadena2[1]))
+        update = cadena2[0]+"}"
+        update2 = cadena2[1]
+        s= self.control.update(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{update}'),ast.literal_eval(f'{update2}'))
         self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
         self.labelInt.grid(column=1, row=0, padx=8, pady=8)
 
@@ -936,7 +944,8 @@ class GUI:
 
     def delete(self):
         cadena = self.datos.get().split(",",2)
-        s= self.control.delete(str(cadena[0]),str(cadena[1]),ast.literal_eval(cadena[2]))
+        delete = cadena[2]
+        s= self.control.delete(str(cadena[0]),str(cadena[1]),ast.literal_eval(f'{delete}'))
         self.labelInt=ttk.Label(self.labelframeInt,text=f" retorna: {s}",width=35)
         self.labelInt.grid(column=1, row=0, padx=8, pady=8)
         

@@ -21,7 +21,8 @@ if __name__ == '__main__':
     results = []
     for query in root:
         results.append(query.ejecutar())
-    #print(results)
+    for res in results:
+        print(res)
     #graphTree(root)
 
 

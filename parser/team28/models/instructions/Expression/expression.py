@@ -1,4 +1,7 @@
-# from models.instructions.DML.special_functions import search_symbol
+from models.objects.columns_select import ColumnsSelect
+from models.objects.id import Id
+from models.objects.table_select import TablaSelect
+from models.instructions.DML.special_functions import search_duplicate_symbol, search_symbol
 from controllers.symbol_table import SymbolTable
 import math
 from abc import abstractmethod
@@ -109,23 +112,31 @@ class Relop(Expression):
             print("FATAL ERROR, ni idea porque murio, F --- Relop")
 
 
-class ExpressionColumnsId(Expression):
-    def __init__(self, id, line, column):
-        self.id = id
+class Identifiers(Expression):
+    def __init__(self, value, line, column):
+        self.value = value
         self.line = line
         self.column = column
-        self.alias = f'{self.id}'
-
+        self.alias = f'{self.value}'
+        
     def __repr__(self):
         return str(vars(self))
     
     def process(self, expression):
-        # symbol = search_symbol(self.id)
-        symbol = None
+        symbol = search_symbol(self.value)
         if symbol == None:
-            return PrimitiveData(DATA_TYPE.STRING,self.id, self.line, self.column)
+            if search_duplicate_symbol(self.value, None):
+                return PrimitiveData(DATA_TYPE.STRING,self.value, self.line, self.column)
+            else:
+                SymbolTable().add(Id(self.value), self.value,'ID', None, None, self.line, self.column)
+                return PrimitiveData(DATA_TYPE.STRING,self.value, self.line, self.column)
         else:
-            pass
+            if isinstance(symbol.name, TablaSelect):
+                return PrimitiveData(DATA_TYPE.STRING, self.value, self.line, self.column)
+            elif isinstance(symbol.name, ColumnsSelect):
+                return [symbol.name.values, symbol.value]
+        return None
+    
 class ExpressionsTime(Expression):
     '''
         ExpressionsTime

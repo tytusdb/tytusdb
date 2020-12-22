@@ -753,8 +753,12 @@ class CreateTable(Instruction):
         self.inherits = inherits
 
     def execute(self, environment):
-        nCol = self.count()
-        result = jsonMode.createTable(dbtemp, self.name, nCol)
+
+        # insert = [posiblesErrores,noColumnas]
+        insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
+        error = insert[0]
+        nCol = insert[1]
+        insert = Checker.checkValue(dbtemp,self.name)
         """
         Result
         0: insert
@@ -762,46 +766,49 @@ class CreateTable(Instruction):
         2: not found database
         3: exists table
         """
-        if result == 0:
-            insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
-            if insert == None:
-                pk = Struct.extractPKIndexColumns(dbtemp, self.name)
-                addPK = 0
-                if pk:
-                    addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
-                if addPK != 0:
-                    print("Error en llaves primarias del CREATE TABLE:", self.name)
-                report = "Tabla " + self.name + " creada"
-            else:
-                jsonMode.dropTable(dbtemp, self.name)
-                Struct.dropTable(dbtemp, self.name)
-                report = insert
-        elif result == 1:
-            sintaxPostgreSQL.insert(
-                len(sintaxPostgreSQL), "Error: XX000: Error interno"
-            )
-            report = "Error: No se puede crear la tabla: " + self.name
-        elif result == 2:
-            sintaxPostgreSQL.insert(
-                len(sintaxPostgreSQL),
-                "Error: 3F000: base de datos" + dbtemp + " no existe",
-            )
-            report = "Error: Base de datos no encontrada: " + dbtemp
-        elif result == 3 and self.exists:
-            report = "Tabla no creada, ya existe en la base de datos"
-        else:
-            report = "Error: ya existe la tabla " + self.name
-            sintaxPostgreSQL.insert(
-                len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
-            )
-        return report
+        if error == None and insert == None:
 
-    def count(self):
-        n = 0
-        for column in self.columns:
-            if not column[0]:
-                n += 1
-        return n
+
+            result = jsonMode.createTable(dbtemp, self.name, nCol)
+            if result == 0:
+                pass
+            elif result == 1:
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                )
+                return "Error: No se puede crear la tabla: " + self.name
+            elif result == 2:
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL),
+                    "Error: 3F000: base de datos" + dbtemp + " no existe",
+                )
+                return "Error: Base de datos no encontrada: " + dbtemp
+            elif result == 3 and self.exists:
+                return "La tabla ya existe en la base de datos"
+            else:
+               
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
+                )
+                return "Error: ya existe la tabla " + self.name
+        
+            pk = Struct.extractPKIndexColumns(dbtemp, self.name)
+            addPK = 0
+            if pk:
+                addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
+            if addPK != 0:
+                print("Error en llaves primarias del CREATE TABLE:", self.name)
+            return "Tabla " + self.name + " creada"
+        else:
+         #   for i in insert:
+          #      error.append(i)
+            Struct.dropTable(dbtemp,self.name)
+            return error
+
+
+
+
+    
 
     def dot(self):
         new = Nodo.Nodo("CREATE_TABLE")
