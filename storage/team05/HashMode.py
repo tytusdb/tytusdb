@@ -58,6 +58,33 @@ def insert(database: str, table: str, register: list):
     try:
         return h.insert(database, table, register)
     except:
-        return 1        
+        return 1     
+      
+def loadCSV(file: str, database: str, table: str):
+    return ar.leerCSV(file, database, table)
+
+def extractRow(database: str, table: str, columns: list):
+    try:
+        return h.extractRow(database, table, columns)
+    except:
+        return []
+
+def update(database: str, table: str, register: dict, columns: list):
+    try:
+        return h.update(database, table, register, columns)
+    except:
+        return 1
+
+def delete(database: str, table: str, columns: list):
+    try:
+        return h.delete(database, table, columns)
+    except:
+        return 1
+
+def truncate(database: str, table: str):
+    try: 
+        return h.truncate(database, table)
+    except:
+        return 1
 
   
