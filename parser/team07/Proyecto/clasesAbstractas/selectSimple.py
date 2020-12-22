@@ -15,8 +15,14 @@ class selectSimple(InstruccionAbstracta):
 
     def ejecutar(self, tabalSimbolos, listaErrores):  
 
-        if self.selectTablas is None: #Select sin tablas en el FROM
-            print("No viene FROM")
+        if self.selectTablas is None: #Select sin tablas en el FROM y se asume que viene una funcion matematica
+            
+            
+            for elemento in self.selectColumnas.hijos:
+                Res = elemento.hijos[0].ejecutar(tabalSimbolos, listaErrores)
+                print(Res.valorRetorno)   
+            
+
         else: #Se tinene tablas e el FROM
 
             ListaTablasFrom = {"Tabla":[],"ID": []}

@@ -24,6 +24,7 @@ import ply.lex as lex
 import re
 from ply import *
 
+
 reservadas = {
     'smallint': 'SMALLINT',
     'integer': 'INTEGER',
@@ -414,7 +415,7 @@ precedence = (
 def p_init(t):
     'init   :   instrucciones'
     t[0] = t[1]
-
+    
 
 def p_lista_instrucciones(t):
     'instrucciones  :   instrucciones instruccion'
@@ -2025,22 +2026,19 @@ def p_elemento_select_funcion(t):
         nodoID = crear_nodo_general("ID", t[3], linea, columna)
         hijos.append(t[1])
         hijos.append(nodoID)
-        nodoElemento.setearValores(
-            linea, columna, "elemento_select", "", hijos)
+        nodoElemento.hijos = hijos
         t[0] = nodoElemento
 
     elif len(t) == 3:
         nodoID = crear_nodo_general("ID", t[2], linea, columna)
         hijos.append(t[1])
         hijos.append(nodoID)
-        nodoElemento.setearValores(
-            linea, columna, "elemento_select", "", hijos)
+        nodoElemento.hijos = hijos
         t[0] = nodoElemento
 
     elif len(t) == 2:
         hijos.append(t[1])
-        nodoElemento.setearValores(
-            linea, columna, "elemento_select", "", hijos)
+        nodoElemento.hijos = hijos
         t[0] = nodoElemento
 
 
@@ -2198,31 +2196,24 @@ def p_funcion_mate(t):
                     |   SQRT PARIZQUIERDO exp_operacion PARDERECHO
                     |   WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO
                     |   TRUNC PARIZQUIERDO exp_operacion PARDERECHO
-                    |   RANDOM PARIZQUIERDO exp_operacion PARDERECHO'''
+                    |   RANDOM PARIZQUIERDO PARDERECHO'''
     linea = str(t.lexer.lineno)
     nNodo = incNodo(numNodo)
+    nodoFuncion = funcion.funcion()
+    nodoFuncion.setearValores(linea, columna, "FUNCION_MATEMATICA", nNodo, "", [])
 
     if len(t) == 4:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_MATEMATICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionMateUnitaria(tipoFuncion, None)
         nodoFuncion.hijos.append(tipoFuncion)
         t[0] = nodoFuncion
     elif len(t) == 5:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_MATEMATICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionMateUnitaria(tipoFuncion, t[3])
         nodoFuncion.hijos.append(tipoFuncion)
         nodoFuncion.hijos.append(t[3])
         t[0] = nodoFuncion
     elif len(t) == 7:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_MATEMATICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionMateBinaria(tipoFuncion, t[3], t[5])
         nodoFuncion.hijos.append(tipoFuncion)
@@ -2230,9 +2221,6 @@ def p_funcion_mate(t):
         nodoFuncion.hijos.append(t[5])
         t[0] = nodoFuncion
     elif len(t) == 11:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_MATEMATICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionMateWidthBucket(tipoFuncion, t[3], t[5], t[7], t[9])
         nodoFuncion.hijos.append(tipoFuncion)
@@ -2266,20 +2254,16 @@ def p_funcion_trig(t):
                     |   ATANH PARIZQUIERDO exp_operacion PARDERECHO'''
     linea = str(t.lexer.lineno)
     nNodo = incNodo(numNodo)
+    nodoFuncion = funcion.funcion()
+    nodoFuncion.setearValores(linea, columna, "FUNCION_TRIGONOMETRICA", nNodo, "", [])
 
     if len(t) == 5:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_TRIGONOMETRICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3])
         nodoFuncion.hijos.append(tipoFuncion)
         nodoFuncion.hijos.append(t[3])
         t[0] = nodoFuncion
     elif len(t) == 7:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_TRIGONOMETRICA", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         #nodoFuncion.funcionTrigonometricaUnitaria(tipoFuncion, t[3], t[5])
         nodoFuncion.hijos.append(tipoFuncion)
@@ -2302,11 +2286,11 @@ def p_funcion_binstr(t):
                         |   DECODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO'''
     linea = str(t.lexer.lineno)
     nNodo = incNodo(numNodo)
+    
+    nodoFuncion = funcion.funcion()
+    nodoFuncion.setearValores(linea, columna, "FUNCION_BINARIASTR", nNodo, "", [])
 
     if len(t) == 5:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_BINARIASTR", nNodo, "")
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoFuncion.funcionBinariaStrUnitaria(tipoFuncion, t[3])
         nodoFuncion.hijos.append(tipoFuncion)
@@ -2314,9 +2298,6 @@ def p_funcion_binstr(t):
         t[0] = nodoFuncion
     elif len(t) == 7:
         if t[1] == 'get_byte':
-            nodoFuncion = funcion.funcion()
-            nodoFuncion.setearValores(
-                linea, columna, "FUNCION_BINARIASTR", nNodo, "")
             tipoFuncion = crear_nodo_general(
                 "TIPO_FUNCION", t[1], linea, columna)
             nodoP2 = crear_nodo_general("ENTERO", t[5], linea, columna)
@@ -2326,9 +2307,6 @@ def p_funcion_binstr(t):
             nodoFuncion.hijos.append(nodoP2)
             t[0] = nodoFuncion
         else:
-            nodoFuncion = funcion.funcion()
-            nodoFuncion.setearValores(
-                linea, columna, "FUNCION_BINARIASTR", nNodo, "")
             tipoFuncion = crear_nodo_general(
                 "TIPO_FUNCION", t[1], linea, columna)
             nodoFuncion.funcionTrigonometricaBinaria(tipoFuncion, t[3], t[5])
@@ -2338,9 +2316,6 @@ def p_funcion_binstr(t):
             t[0] = nodoFuncion
 
     elif len(t) == 9:
-        nodoFuncion = funcion.funcion()
-        nodoFuncion.setearValores(
-            linea, columna, "FUNCION_BINARIASTR", nNodo, "")
 
         tipoFuncion = crear_nodo_general("TIPO_FUNCION", t[1], linea, columna)
         nodoP2 = crear_nodo_general("ENTERO", t[5], linea, columna)
