@@ -372,11 +372,12 @@ def p_statement(t):
                     | stm_create PUNTOCOMA
                     | stm_use_db PUNTOCOMA 
                     | stm_select PUNTOCOMA
-                    
+                    | stm_insert PUNTOCOMA
+                    | stm_update PUNTOCOMA          
                     '''
 #                    |    stm_select PUNTOCOMA 
-#                    |    stm_insert PUNTOCOMA
-#                    |    stm_update PUNTOCOMA
+#
+#
 #                    |    stm_delete PUNTOCOMA
 #                    |    stm_alter  PUNTOCOMA
 #                    |    stm_drop   PUNTOCOMA
@@ -510,13 +511,13 @@ def p_table(t):
                 '''
 
     if len(t) == 2:
-        graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])  ))
-        addCad("**\<OFFSET_OPT>** ::=  tIdentificador  ")
+        graph_ref = graph_node(str(str(t[1])))
+        addCad("**\<TABLE>** ::=  tIdentificador  ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####        
     else: 
         graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])+" "+ str(t[3])  ))
-        addCad("**\<OFFSET_OPT>** ::=  tIdentificador tAs tTexto  ")
+        addCad("**\<TABLE>** ::=  tIdentificador tAs tTexto  ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         ##### 
 
@@ -958,7 +959,7 @@ def p_stm_create(t):
             childsProduction.append(lista.graph_ref)
 
         graph_ref = graph_node(str("stm_create"), [t[1],t[2],t[3],t[4],lista,t[6],t[7]]    ,childsProduction)
-        addCad("**\<STM_CREATE>** ::=  tCreate tTable tIdentifier '(' \<TAB_CREATE_LST> ')' \<INHERITS_OPT>")
+        addCad("<br><br>\n\n**\<STM_CREATE>** ::=  tCreate tTable tIdentifier '(' \<TAB_CREATE_LST> ')' \<INHERITS_OPT>")
         t[0] = CreateTable(t[3], t[7], t[5], None, token.lineno, token.lexpos, graph_ref) #TODO check if param check_exp is neceary and where we obtain that
 
     elif len(t) == 9:
@@ -1062,7 +1063,7 @@ def p_owner_opt(t):
     '''owner_opt    : OWNER IGUAL ID
                     | OWNER IGUAL TEXTO'''
     graph_ref = graph_node(str(t[1]+" "+t[2]+" "+t[3]))
-    addCad("**\<OWNER_OPT>** ::= tOwner '=' tTexto   ")
+    addCad("**\<OWNER_OPT>** ::= tOwner '=' [tTexto | tIdentifier ]  ")
     tokenID = t.slice[3]
     t[0]= Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,graph_ref) 
 
@@ -1070,6 +1071,8 @@ def p_owner_opt0(t):
     '''owner_opt    : OWNER ID
                     | OWNER TEXTO'''
     tokenID = t.slice[2]
+    graph_ref = graph_node(str(t[1]+" "+t[2]))
+    addCad("**\<OWNER_OPT>** ::= tOwner [tTexto | tIdentifier ]  ")
     t[0]= Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,graph_ref) 
     
     
@@ -1371,8 +1374,11 @@ def p_stm_show0(t):
 def p_exp_list(t):
     '''exp_list : exp_list COMA expression'''
     lista=None
-    childsProduction = addNotNoneChild(t,[1,3]) 
-    graph_ref = graph_node(str("exp_list"), [t[1],t[2],t[3]]    ,childsProduction)
+    childsProduction = addNotNoneChild(t,[3]) 
+    if t[1] != None:
+        lista=t[1][0]
+        childsProduction.append(lista.graph_ref)
+    graph_ref = graph_node(str("exp_list"), [lista,t[2],t[3]]    ,childsProduction)
     addCad("**\<EXP_LIST>** ::= <EXP_LIST> ',' \<EXP_LIST>  ")
     t[1][0].graph_ref = graph_ref
     t[1].append(t[3])
@@ -1453,11 +1459,12 @@ def p_relExpReducExp(t):
 ########## Definition of logical expressions ##############
 def p_predicateExpression(t):
     '''predicateExpression  : BETWEEN expression AND expression'''
+    token = t.slice[1]
     childsProduction  = addNotNoneChild(t,[2,4])
     graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3], t[4]]       ,childsProduction)
     addCad("**\<EXP_PREDICATE>** ::= tBetween \<EXP>  tAnd \<EXP>   ")
     t[0] = PredicateExpression(t[2], t[4], OpPredicate.BETWEEN, token.lineno, token.lexpos,graph_ref)
-    
+   
 def p_predicateExpression0(t):
     '''predicateExpression  : logicExpression'''
     t[0] = t[1]
@@ -1468,7 +1475,6 @@ def p_predicateExpression1(t):
                             | expression IS BOOLEAN_VALUE 
                             | expression IS UNKNOWN   '''
     token = t.slice[3]
-    #graph_ref = graph_node(str(t[3]), [t[2].graph_ref, t[4].graph_ref])
     if token.type == "NULL":
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3]]       ,childsProduction)

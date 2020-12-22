@@ -39,9 +39,13 @@ def graph_node(value, arreglo=[], child_indices=[]):
                 listahijos=listahijos +"A"+ str(idhijo) + ","
                 hijo= "A"+str(idhijo)+'[label = "'+str(child)+'" width = 1.5 style = filled, fillcolor = lightskyblue];\n'
                 allhijos = allhijos + hijo
-    temp = len(listahijos)        
-    listahijos = listahijos[:temp - 1]
-    listahijos = listahijos +"}\n"
+    temp = len(listahijos)       
+    if listahijos[temp-1] == ",": 
+        listahijos = listahijos[:temp - 1]
+        listahijos = listahijos +"}\n"
+    elif listahijos[temp-1] == "{":
+        listahijos = listahijos +"}\n" 
+
     if len(arreglo) ==0:
         s = padre +s
         return "A"+str(graph_id)
@@ -58,7 +62,7 @@ def createFile():
 
 def creategrafo():
     global s
-    s="digraph Matrix { node [shape=box] e0[ shape = point, width = 0 ];\n"+s+"}"
+    s="digraph Matrix { graph [dpi=300]; \n node [shape=box] e0[ shape = point, width = 0 ];\n"+s+"}"
     archivo = open('grap.txt', 'w')
     archivo.write(s)
     archivo.close()
