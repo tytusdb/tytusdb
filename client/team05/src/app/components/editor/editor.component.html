@@ -9,11 +9,11 @@
     </label>
   </div>
   <div class="btn-group mt-1 ml-1" role="group">
-    <label class="btn btn-outline-dark">
-      <fa-icon [icon]="faStop"></fa-icon>
+    <label for="stopScript" class="btn btn-outline-dark">
+      <a id="stopScript" (click)="stopScript()"><fa-icon [icon]="faStop"></fa-icon></a>
     </label>
-    <label class="btn btn-outline-dark">
-      <fa-icon [icon]="faPlay"></fa-icon>
+    <label for="runScript" class="btn btn-outline-dark">
+      <a id="runScript" (click)="runScript()"><fa-icon [icon]="faPlay"></fa-icon></a>
     </label>
   </div>
   <div class="border border-dark rounded-top mt-1" >
