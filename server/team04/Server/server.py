@@ -18,6 +18,7 @@ class MyRequestHandler(BaseHTTPRequestHandler):
 
 
     def do_GET(self):
+        #Definiendo rutas para peticiones get
         if self.path == '/getUsers':           
             self.do_getUsers()
         else:
@@ -25,33 +26,72 @@ class MyRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(bytes("",'utf-8'))
  
     def do_POST(self):
+        #Definiendo rutas para peticiones post
         if self.path == "/":
             self.do_root()
         elif self.path == "/checkLogin":
             self.do_Check()
+        elif self.path == "/createUser":
+            self.do_createUser()
         else:
             self.send_response(400) 
             self.wfile.write(bytes("",'utf-8'))
+
+    def do_createUser(self):
+        try:
+            dataSize = int(self.headers['Content-Length'])
+            reqBody = self.rfile.read(dataSize)
+            reqData = json.loads(reqBody.decode("utf-8"))
+            username = reqData["username"]
+            password = reqData["password"]
+            print("Data received: " + str(reqData))
+            url = "./data/tytus.json"
+            myFile = open(url).read()
+            jsonResponse = json.loads(myFile)
+            existe = False
+            for user in jsonResponse:
+                if user["username"] == username:
+                    existe = True
+            if existe is False:
+                jsonResponse.append({ "username": username, "password": password })
+                jsonFormatted = json.dumps(jsonResponse, indent=2)
+                self.saveFile("tytus.json", bytes(jsonFormatted, 'utf-8'))       
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(bytes(json.dumps(existe),'utf-8'))
+        except:
+            myFile = "error"
+            self.send_response(404)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(bytes(myFile, 'utf-8'))
     
     def do_Check(self):
-        dataSize = int(self.headers['Content-Length'])
-        reqBody = self.rfile.read(dataSize)
-        reqData = json.loads(reqBody.decode("utf-8"))
-        username = reqData["username"]
-        password = reqData["password"]
-        print("Data received: " + str(reqData))
-        url = "./data/tytus.json"
-        myFile = open(url).read()
-        jsonResponse = json.loads(myFile)
-        join = False
-        for user in jsonResponse:
-            if user["username"] == username and user["password"] == password:
-                join = True
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        self.wfile.write(bytes(json.dumps(join),'utf-8'))
-
+        try:
+            dataSize = int(self.headers['Content-Length'])
+            reqBody = self.rfile.read(dataSize)
+            reqData = json.loads(reqBody.decode("utf-8"))
+            username = reqData["username"]
+            password = reqData["password"]
+            print("Data received: " + str(reqData))
+            url = "./data/tytus.json"
+            myFile = open(url).read()
+            jsonResponse = json.loads(myFile)
+            join = False
+            for user in jsonResponse:
+                if user["username"] == username and user["password"] == password:
+                    join = True               
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(bytes(json.dumps(join),'utf-8'))
+        except:
+            myFile = "error"
+            self.send_response(404)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(bytes(myFile, 'utf-8'))
 
     def do_getUsers(self):
         url = "./data/tytus.json"

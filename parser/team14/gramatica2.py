@@ -1326,6 +1326,9 @@ parser = yacc.yacc()
 
 
 def parse(input):
+    return parser.parse(input)
+
+def generaReporteBNF(input):
     r = parser.parse(input)
     reporteBNF = Digraph("ReporteBNF", node_attr={'shape':'record'}, graph_attr={'label':'REPORTE GRAMÁTICA BNF (Grupo 14)'})
     entr:str = "<<TABLE BORDER=\"0\" COLOR=\"WHITE\" CELLBORDER=\"1\" CELLSPACING=\"0\">"
@@ -1337,6 +1340,6 @@ def parse(input):
     entr += "</TABLE>>"
 
     reporteBNF.node('bnf',entr)
-    reporteBNF.render('bnf', view=False)  # doctest: +SKIP
+    reporteBNF.render('bnf', view=True)  # doctest: +SKIP
     'bnf.pdf'
     return r
