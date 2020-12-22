@@ -301,15 +301,175 @@ def ventana_delTable():
     b_dropTable=Tk.Button(ventanaDropTable,text="Eliminar Tabla",command=lambda:[dropTable(cb_showdb.get(),cb_showtable.get()),ventanaDropTable.destroy()])
     b_dropTable.place(x=400,y=100)
     
-
 def ventana_alterAddColumn():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+    def alterAddCol(db,table,any_one):
+        retorno=newData.alterAddColumn(db,table,any_one)
+        if retorno==0:
+            messagebox.showinfo("Exito","Se ha agregado columna \'"+str(any_one)+"\' en tabla "+str(table)+" de DB: "+str(db))
+            #saveDatabaseFile()
+            reloadTablas()
+        else:
+            mostrarError(retorno)
+    
+    ventanaAlterAddCol=Tk.Tk()
+    ventanaAlterAddCol.geometry("600x200")
+    ventanaAlterAddCol.title("Alter Add Column")
+    ventanaAlterAddCol.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaAlterAddCol,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaAlterAddCol,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaAlterAddCol,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaAlterAddCol,text="Tabla a Modificar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaAlterAddCol,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    label_column=Tk.Label(ventanaAlterAddCol,text="Default Columna",font=("Arial",14))
+    label_column.place(x=50,y=150)
+
+    entry_col=Tk.Entry(ventanaAlterAddCol)
+    entry_col.place(x=225,y=150)
+
+    b_addcol=Tk.Button(ventanaAlterAddCol,text="Agregar Columna",command=lambda:[alterAddCol(cb_showdb.get(),cb_showtable.get(),entry_col.get()),ventanaAlterAddCol.destroy()])
+    b_addcol.place(x=400,y=150)
+
 
 def ventana_AlterDropColumn():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+        if value==4:
+            messagebox.showerror("Error: "+str(value),"Llave no puede eliminarse o tabla quedarse sin columnas")
+        if value==5:
+            messagebox.showerror("Error: "+str(value),"Columna fuera de limites")
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def alterDropCol(db,table,col):
+        retorno=newData.alterDropColumn(db,table,col)
+        if retorno==0:
+            messagebox.showinfo("Exito","Se ha Eliminado la columna: \'"+str(col)+"\' de tabla "+str(table)+" en DB: "+str(db))
+            #saveDatabaseFile()
+            reloadTablas()
+        else:
+            mostrarError(retorno)
+    ventanaAlterDropCol=Tk.Tk()
+    ventanaAlterDropCol.geometry("600x200")
+    ventanaAlterDropCol.title("Alter Drop Column")
+    ventanaAlterDropCol.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaAlterDropCol,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaAlterDropCol,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaAlterDropCol,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaAlterDropCol,text="Tabla a Modificar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaAlterDropCol,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    label_col=Tk.Label(ventanaAlterDropCol,text="# Columna",font=("Arial",14))
+    label_col.place(x=50,y=150)
+
+    entry_col=Tk.Entry(ventanaAlterDropCol)
+    entry_col.place(x=225,y=150)
+
+    b_dropcol=Tk.Button(ventanaAlterDropCol,text="Eliminar Columna",command=lambda:[alterDropCol(cb_showdb.get(),cb_showtable.get(),entry_col.get()),ventanaAlterDropCol.destroy()])
+    b_dropcol.place(x=400,y=150)
 
 def ventana_AlterAddPK():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+        if value==4:
+            messagebox.showerror("Error: "+str(value),"Llave primaria existente")
+        if value==5:
+            messagebox.showerror("Error: "+str(value),"Columna fuera de limites")
+        else:
+            messagebox.showerror("Error:", "Error desconocido")
+
+    def showColNumber(db,table):
+        messagebox.showinfo("Cantidad de Columnas","La tabla contiene: "+str(newData.numeroDeColumnas(db,table))+" columnas")
+
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def addPk(db,table,colist):
+        colList=colist.split(",")
+        retorno=newData.alterAddPK(db,table,colList)
+        print("RetornoPK",retorno)
+        if retorno==0:
+            messagebox.showinfo("Exito","Operacion Exitosa")
+        else:
+            mostrarError(retorno)
+
+    ventanaAlterAddPk=Tk.Tk()
+    ventanaAlterAddPk.geometry("600x200")
+    ventanaAlterAddPk.title("Alter Add Primary Key")
+    ventanaAlterAddPk.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaAlterAddPk,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaAlterAddPk,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaAlterAddPk,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaAlterAddPk,text="Tabla a Modificar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaAlterAddPk,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    b_showcolnum=Tk.Button(ventanaAlterAddPk,text="Mostrar Cantidad de Columnas",command=lambda : [showColNumber(cb_showdb.get(),cb_showtable.get())])
+    b_showcolnum.place(x=400,y=100)
+
+
+    label_columnas=Tk.Label(ventanaAlterAddPk,text="Columnas \nEj: 0,1,2",font=("Arial",14))
+    label_columnas.place(x=50,y=135)
+
+    entry_columnas=Tk.Entry(ventanaAlterAddPk)
+    entry_columnas.place_configure(x=225,y=150)
+
+    b_AddPk=Tk.Button(ventanaAlterAddPk,text="Agregar PK",command=lambda:[addPk(cb_showdb.get(),cb_showtable.get(),entry_columnas.get()),ventanaAlterAddPk.destroy()])
+    b_AddPk.place(x=400,y=150)
 
 def ventana_AlterDropPK():
 	pass
