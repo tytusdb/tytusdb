@@ -259,22 +259,14 @@ class IfExist2(Instruccion):
 
 
 # ----------INICIO DE INSERT--------------------
-# INSTRUCCION INSERTTB
-class InsertTB(Instruccion):
-    """ Instrucción INSERTTB """
+# INSTRUCCION INSERT
+class Insert(Instruccion):
+    def __init__(self,tabla,columnas,valores):
+        self.tabla = tabla
+        self.columnas = columnas
+        self.valores = valores
 
-    def __init__(self, i_id,  lvalt):
-        self.i_id = i_id
-        self.lvalt = lvalt
 
-# INSTRUCCION INSERTTB1
-class InsertTB(Instruccion):
-    """ Instrucción INSERTTB """
-
-    def __init__(self, i_id, lvalt, lvalt2):
-        self.i_id = i_id
-        self.lvalt = lvalt
-        self.lvalt2 = lvalt2
 
 
 # INSTRUCCION VALTAB
@@ -358,12 +350,11 @@ class Alter(Instruccion):
 
 # INSTRUCCION ALTERDB
 class AlterDB(Instruccion):
-    """ Instrucción ALTERDB """
+    """ Instrucción ALTER """
 
-    def __init__(self, i_id, operacion, val):
-        self.i_id = i_id
+    def __init__(self, nombreDB,operacion ):
+        self.nombreDB = nombreDB
         self.operacion = operacion
-        self.val = val
 # ----------FIN DE ALTER--------------------
 
 
@@ -422,9 +413,17 @@ class UseDatabase(Instruccion):
 class CreateDatabase(Instruccion):
     """ Instrucción CREATE DATABASE """
 
-    def __init__(self, replace, datos):
-        self.replace = replace
+    def __init__(self, idData, datos,IfNot,Replace):
+        self.idData = idData
         self.datos = datos
+        self.IfNot = IfNot
+        self.Replace = Replace
+
+# OWNER Y MODE
+class OwnerMode(Instruccion):
+    def __init__(self,numeroOwner,numeroMode):
+        self.numeroOwner = numeroOwner
+        self.numeroMode = numeroMode
 
 
 class DatabaseInfo(Instruccion):
@@ -584,3 +583,155 @@ class FuncionesMatematicas(Instruccion):
         self.nombre = nombre
         self.parametro = parametro
         self.alias = alias
+
+#FUNCION CURRENT DATE
+class CurrentDate(Instruccion):
+    
+    def __init__(self):
+        """
+        Clase sin parametros
+        """
+
+#FUNCION CURRENT TIME
+class CurrentTime(Instruccion):
+    
+    def __init__(self):
+        """
+            Clase sin parametros
+        """
+
+#FUNCION TIMESTAMP
+class Timestamp(Instruccion):
+    
+    def __init__(self, cadena):
+        self.cadena = cadena
+
+#FUNCION NOW
+class Now(Instruccion):
+    def __init__(self):
+        """
+        CLASE PARA EL METODO NOW
+        """
+
+class Exists(Instruccion):
+    
+    def __init__(self, subconsulta):
+        self.subconsulta = subconsulta
+
+class In(Instruccion):
+    
+    def __init__(self, valor, subconsulta, isin): #is in recibe un boolean para ver si se usa solo in o not in
+        self.valor = valor
+        self.subconsulta= subconsulta
+        self.isin = isin
+
+class Any_op(Instruccion):
+
+    def __init__(self, valor, operador, tipo, subconsulta):
+        self.valor = valor
+        self.operador = operador
+        self.tipo = tipo
+        self.subconsulta = subconsulta
+
+class Like(Instruccion):
+
+    def __init__(self, valor, expresion, islike):
+        self.valor = valor
+        self.expresion = expresion
+
+# ALTER DATABASE
+class AlterDBMode(Instruccion):
+
+    def __init__(self, numero ):
+        self.numero = numero
+
+class AlterDBOwner(Instruccion):
+
+    def __init__(self, tipo ):
+        self.tipo = tipo
+
+class AlterDBRename(Instruccion):
+
+    def __init__(self, cadena ):
+        self.cadena = cadena
+
+# CREATE TABLE
+
+class CreateTable(Instruccion):
+    def __init__(self,nombreTabla,atributos,idInherits):
+        self.nombreTabla = nombreTabla
+        self.atributos = atributos
+        self.idInherits = idInherits
+
+class CreateFK(Instruccion):
+     
+    def __init__(self, idConstraint, idkey,tablaRef, columnasRef):
+        self.idConstraint = idConstraint
+        self.idkey = idkey
+        self.tablaRef = tablaRef
+        self.columnasRef = columnasRef
+
+class CreateUnique(Instruccion):
+     
+    def __init__(self, idConstraint, idUnique):
+        self.idConstraint = idConstraint
+        self.idUnique = idUnique
+
+class CreateCheck(Instruccion):
+     
+    def __init__(self, idConstraint, condicion):
+        self.idConstraint = idConstraint
+        self.condicion = condicion
+
+
+class NotNull(Instruccion):
+    def __init__(self,valor):
+        self.valor = valor
+
+
+class Constraint(Instruccion):
+    def __init__(self,nombre,valconstraint):
+        self.nombre = nombre
+        self.valconstraint = valconstraint
+
+class Campo(Instruccion):
+    def __init__(self,idC,tipo,llave):
+        self.idC = idC
+        self.tipo = tipo
+        self.llave = llave
+
+class PK(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class Default(Instruccion):
+    def __init__(self,condicion):
+        self.condicion = condicion
+
+class References(Instruccion):
+    def __init__(self,idRef,valoresRef):
+        self.idRef = idRef
+        self.valoresRef = valoresRef
+
+class GroupBy(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class Having(Instruccion):
+    def __init__(self,valores):
+        self.valores = valores
+
+class OrderBy(Instruccion):
+    def __init__(self,valores,orden):
+        self.valores = valores
+        self.orden = orden 
+
+class AuxiliarOrderBy(Instruccion):
+    def __init__(self, valor, tipoorder):
+        self.valor = valor
+        self.tipoorder = tipoorder
+
+class Limit(Instruccion):
+    def __init__(self,condicionD,condicionIz): #puse las dos por el offset
+        self.condicionD = condicionD
+        self.condicionIz = condicionIz
