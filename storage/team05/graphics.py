@@ -57,20 +57,110 @@ def showContenido(db,tabla):
 #metodos
 #ventanas de DATABASE
 def ventana_createDatabase():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+    def newDataCrearDB(nombre):
+        print("nombre nuevo: ",nombre)
+        retorno=newData.createDatabase(nombre)
+        if retorno ==0:
+            messagebox.showinfo("Exito","Base Creada con exito")
+            #saveDatabaseFile()
+            cb_databases.set("")
+            cb_databases['values']=newData.showDatabases() #actualiza bases de datos en el sistema
+        else:
+            mostrarError(retorno)
+    
+    ventanaCreateDB=Tk.Tk()
+    ventanaCreateDB.geometry("400x200")
+    ventanaCreateDB.title("Create Database")
+    ventanaCreateDB.iconbitmap('images/icon.ico')
+    
+    label_nombre=Tk.Label(ventanaCreateDB,text="Nombre",font=("Arial",14))
+    label_nombre.place(x=50,y=50)
+
+    entry_nombre=Tk.Entry(ventanaCreateDB)
+    entry_nombre.place(x=50,y=100)
+    
+    b_crear=Tk.Button(ventanaCreateDB,text="Crear Base de Datos",command=lambda: [newDataCrearDB(entry_nombre.get()),ventanaCreateDB.destroy()])
+    b_crear.place(x=225,y=100)
 
 def ventana_alterDatabase():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database OLD no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Database NEW existente")
+    def newDataAlterDB(old,new):
+        retorno=newData.alterDatabase(old,new)
+        if retorno==0:
+            messagebox.showinfo("Exito","Base de Datos Actualizada \n"+str(old)+"->"+str(new))
+            #saveDatabaseFile()
+            cb_databases['values']=newData.showDatabases()
+        else:
+            mostrarError(retorno)
+    ventanaAlterDB=Tk.Tk()
+    ventanaAlterDB.geometry("400x200")
+    ventanaAlterDB.title("Alter Database")
+    ventanaAlterDB.iconbitmap('images/icon.ico')
+
+    label_nombreOld=Tk.Label(ventanaAlterDB,text="Nombre Actual",font=("Arial",14))
+    label_nombreOld.place(x=50,y=50)
+    label_nombreNew=Tk.Label(ventanaAlterDB,text="Nombre Nuevo",font=("Arial",14))
+    label_nombreNew.place(x=225,y=50)
+
+    cb_nombreOld=Ttk.Combobox(ventanaAlterDB,state="readonly")
+    cb_nombreOld['values']=newData.showDatabases()
+    cb_nombreOld.place(x=50, y=100)
+    entry_nombreNew=Tk.Entry(ventanaAlterDB)
+    entry_nombreNew.place(x=225,y=100)
+    b_alter=Tk.Button(ventanaAlterDB,text="Modificar Base de Datos",command=lambda :[newDataAlterDB(cb_nombreOld.get(),entry_nombreNew.get()),ventanaAlterDB.destroy()])
+    b_alter.place(x=125,y=150)
 
 def ventana_dropDatabase():
-	pass
+   def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+    def newDataDropDB(nombre):
+        retorno=newData.dropDatabase(nombre)
+        if retorno==0:
+            messagebox.showinfo("Exito","Base de Datos Eliminada con exito")
+            #saveDatabaseFile()
+            cb_databases.set("")
+            cb_databases['values']=newData.showDatabases()
+            reloadTablas()
+        else:
+            mostrarError(retorno)
+
+    ventanaDropDB=Tk.Tk()
+    ventanaDropDB.geometry("400x200")
+    ventanaDropDB.title("Drop Database")
+    ventanaDropDB.iconbitmap('images/icon.ico')
+
+    label_nombre=Tk.Label(ventanaDropDB,text="Nombre",font=("Arial",14))
+    label_nombre.place(x=50,y=50)
+
+    cb_dropDatabase=Ttk.Combobox(ventanaDropDB,state="readonly")
+    cb_dropDatabase['values']=newData.showDatabases()
+    cb_dropDatabase.place(x=50,y=100)
+
+    
+    b_drop=Tk.Button(ventanaDropDB,text="Eliminar Base de Datos",command=lambda: [newDataDropDB(cb_dropDatabase.get()),ventanaDropDB.destroy()])
+    b_drop.place(x=225,y=100)
 
 #ventanas de TABLAS
 def ventana_createTable():
-	pass
-
+   	 pass
 def ventana_alterTable():
-	pass
+    	pass
 
 def ventana_delTable():
 	pass
