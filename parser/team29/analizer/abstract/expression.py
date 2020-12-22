@@ -12,6 +12,8 @@ from analizer.reports import AST
 ast = AST.AST()
 root = None
 
+list_errors = list()
+
 
 class TYPE(Enum):
     NUMBER = 1
@@ -52,11 +54,11 @@ class Primitive(Expression):
     de datos como STRING, NUMBER, BOOLEAN
     """
 
-    def __init__(self, type_, value, row, column):
+    def __init__(self, type_, value, temp, row, column):
         Expression.__init__(self, row, column)
         self.type = type_
         self.value = value
-        self.temp = str(value)
+        self.temp = str(temp)
 
     def execute(self, environment):
         self.dot()
@@ -149,6 +151,13 @@ class UnaryArithmeticOperation(Expression):
         operator = self.operator
 
         if exp.type != TYPE.NUMBER:
+            list_errors.insert(
+                len(list_errors),
+                "Error: 44883: el operador no existe: "
+                + str(operator)
+                + " "
+                + str(exp.type),
+            )
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
         if operator == "+":
@@ -157,7 +166,7 @@ class UnaryArithmeticOperation(Expression):
             value = exp.value * -1
         else:
             return ErrorOperatorExpression(operator, self.row, self.column)
-        return Primitive(TYPE.NUMBER, value, self.row, self.column)
+        return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
 
     def dot(self):
         n1 = self.exp.dot()
@@ -182,27 +191,40 @@ class BinaryArithmeticOperation(Expression):
         self.temp = exp1.temp + str(operator) + exp2.temp
 
     def execute(self, environment):
-        exp1 = self.exp1.execute(environment)
-        exp2 = self.exp2.execute(environment)
-        operator = self.operator
-        if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
-            return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
-        if operator == "+":
-            value = exp1.value + exp2.value
-        elif operator == "-":
-            value = exp1.value - exp2.value
-        elif operator == "*":
-            value = exp1.value * exp2.value
-        elif operator == "/":
-            value = exp1.value / exp2.value
-        elif operator == "^":
-            value = exp1.value ** exp2.value
-        elif operator == "%":
-            value = exp1.value % exp2.value
-        else:
-            return ErrorOperatorExpression(operator, self.row, self.column)
-        self.dot()
-        return Primitive(TYPE.NUMBER, value, self.row, self.column)
+        try:
+            exp1 = self.exp1.execute(environment)
+            exp2 = self.exp2.execute(environment)
+            operator = self.operator
+            if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                list_errors.insert(
+                    len(list_errors),
+                    "Error: 44883: el operador no existe: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type),
+                )
+                ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+                raise Exception("Error: ErrorBinaryOperation")
+            if operator == "+":
+                value = exp1.value + exp2.value
+            elif operator == "-":
+                value = exp1.value - exp2.value
+            elif operator == "*":
+                value = exp1.value * exp2.value
+            elif operator == "/":
+                value = exp1.value / exp2.value
+            elif operator == "^":
+                value = exp1.value ** exp2.value
+            elif operator == "%":
+                value = exp1.value % exp2.value
+            else:
+                return ErrorOperatorExpression(operator, self.row, self.column)
+            self.dot()
+            return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
+        except:
+            raise
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -233,6 +255,15 @@ class BinaryStringOperation(Expression):
         exp2 = self.exp2.execute(environment)
         operator = self.operator
         if exp1.type != TYPE.STRING and exp2.type != TYPE.STRING:
+            list_errors.nsert(
+                len(list_errors),
+                "Error: 44883:list_errors el operador no existe: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type),
+            )
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         if isinstance(exp1.value, pd.core.series.Series):
             exp1.value = exp1.value.apply(str)
@@ -247,7 +278,7 @@ class BinaryStringOperation(Expression):
         else:
             return ErrorOperatorExpression(operator, self.row, self.column)
         self.dot()
-        return Primitive(TYPE.STRING, value, self.row, self.column)
+        return Primitive(TYPE.STRING, value, self.temp, self.row, self.column)
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -299,7 +330,7 @@ class BinaryRelationalOperation(Expression):
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
             self.dot()
-            return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
+            return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except TypeError:
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
         except:
@@ -369,7 +400,7 @@ class UnaryRelationalOperation(Expression):
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
             self.dot()
-            return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
+            return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except TypeError:
             return ErrorUnaryOperation(exp.value, self.row, self.column)
         except:
@@ -438,7 +469,7 @@ class TernaryRelationalOperation(Expression):
                     value = t1 or t2
                 else:
                     return ErrorOperatorExpression(operator, self.row, self.column)
-            return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
+            return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
         except TypeError:
             return ErrorTernaryOperation(
                 exp1.value, exp2.value, exp3.value, self.row, self.column
@@ -495,7 +526,7 @@ class BinaryLogicalOperation(Expression):
                 value = exp1.value or exp2.value
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
+        return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -563,7 +594,7 @@ class UnaryLogicalOperation(Expression):
                 value = exp.value != None
             else:
                 return ErrorOperatorExpression(operator, self.row, self.column)
-        return Primitive(TYPE.BOOLEAN, value, self.row, self.column)
+        return Primitive(TYPE.BOOLEAN, value, self.temp, self.row, self.column)
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -655,9 +686,13 @@ class FunctionCall(Expression):
         Expression.__init__(self, row, column)
         self.function = function.lower()
         self.params = params
+        i = 0
         self.temp = str(function) + "("
         for t in params:
+            if i > 0:
+                self.temp += ", "
             self.temp += t.temp
+            i += 1
         self.temp += ")"
 
     # TODO: Agregar un error de parametros incorrectos
@@ -769,7 +804,7 @@ class FunctionCall(Expression):
             elif self.function == "atanh":
                 value = trf.atanh(*valores)
             elif self.function == "length":
-                value = strf.length(*valores)
+                value = strf.lenght(*valores)
             elif self.function == "substring":
                 type_ = TYPE.STRING
                 value = strf.substring(*valores)
@@ -791,6 +826,7 @@ class FunctionCall(Expression):
                 type_ = TYPE.STRING
                 value = strf.substring(*valores)
             elif self.function == "convert_date":
+                type_ = TYPE.DATETIME
                 value = strf.convert_date(*valores)
             elif self.function == "convert_int":
                 value = strf.convert_int(*valores)
@@ -813,7 +849,7 @@ class FunctionCall(Expression):
                 else:
                     value = pd.Series(value)
             self.dot()
-            return Primitive(type_, value, self.row, self.column)
+            return Primitive(type_, value, self.temp, self.row, self.column)
         except TypeError:
             print("Error de tipos en llamada a funciones")
         except:
@@ -907,7 +943,7 @@ class ExtractDate(Expression):
                 val = self.str
                 # ERROR
             self.dot()
-            return Primitive(TYPE.NUMBER, int(val), self.row, self.column)
+            return Primitive(TYPE.NUMBER, int(val),  self.temp, self.row, self.column)
         except TypeError:
             pass
         except ValueError:  # cuando no tiene el valor INTERVAL
@@ -991,7 +1027,7 @@ class ExtractColumnDate(Expression):
                 else:
                     val = pd.Series(val)
             self.dot()
-            return Primitive(TYPE.NUMBER, val, self.row, self.column)
+            return Primitive(TYPE.NUMBER, val, self.temp, self.row, self.column)
         except TypeError:
             pass
         except ValueError:  # cuando no tiene el valor INTERVAL
@@ -1102,7 +1138,7 @@ class DatePart(Expression):
             else:
                 val = self.str
                 # ERROR
-            return Primitive(TYPE.NUMBER, int(val), self.row, self.column)
+            return Primitive(TYPE.NUMBER, int(val), self.temp, self.row, self.column)
         except TypeError:
             pass
         except ValueError:  # cuando no tiene el valor INTERVAL
@@ -1149,7 +1185,7 @@ class Current(Expression):
             else:
                 # ERROR
                 value = self.val
-            return Primitive(TYPE.STRING, value, self.row, self.column)
+            return Primitive(TYPE.STRING, value, self.temp, self.row, self.column)
         except:
             pass
 
@@ -1174,6 +1210,84 @@ class CheckValue(Expression):
 
     def execute(self, environment):
         return self
+
+
+class AggregateFunction(Expression):
+    """
+    Esta clase representa las funciones de agregacion utilizadas en el Group By
+    """
+    def __init__(self, func, colData, row, column) -> None:
+        super().__init__(row, column)
+        self.func = func.lower()
+        self.colData = colData
+        if colData == '*':
+            self.temp = func + "(*)"
+        else:
+            self.temp = func + "(" + colData.temp + ")"
+
+    def execute(self, environment):
+        countGr = environment.groupCols
+        if countGr == 0:
+            if self.colData != '*':
+                c = self.colData.execute(environment).value
+                if self.func == "sum":
+                    newDf = c.sum()
+                elif self.func == "count":
+                    newDf = c.count()
+                elif self.func == "prom":
+                    newDf = c.mean()
+                else:
+                    newDf = None
+                    print("error")
+            else:
+                c = environment.dataFrame.iloc[:, -1:]
+                if self.func == "count":
+                    newDf = len(c)
+                else:
+                    newDf = None
+                    print("error")
+            return Primitive(TYPE.NUMBER, newDf, self.temp, self.row, self.column)
+        if self.colData != '*':
+            # Obtiene las ultimas columnas metidas (Las del group by)
+            df = environment.dataFrame.iloc[:, -countGr:]
+            c = self.colData.execute(environment)
+            x = c.value
+            x = pd.DataFrame(x)
+            x.rename(columns={ x.columns[0]: c.temp }, inplace = True)
+            if len(list(x.columns)) > 1:
+                df = pd.concat([df, x.iloc[:, :1]], axis=1)
+            else:
+                df = pd.concat([df, x], axis=1)
+            cols = list(df.columns)[:-1]
+            if self.func == "sum":
+                newDf = df.groupby(cols).sum().reset_index()
+            elif self.func == "count":
+                newDf = df.groupby(cols).count().reset_index()
+            elif self.func == "prom":
+                newDf = df.groupby(cols).mean().reset_index()
+            else:
+                newDf = None
+                print("error")
+            
+            value = newDf.iloc[:, -1:]
+        else:
+            # Obtiene las ultimas columnas metidas (Las del group by)
+            df = environment.dataFrame.iloc[:, -countGr:]
+
+            x = df.iloc[:, -1:]
+            x = pd.DataFrame(x)
+            x.rename(columns={ x.columns[0]: 'count(*)' }, inplace = True)
+            df = pd.concat([df, x], axis=1)
+            cols = list(df.columns)[:-1]
+            if self.func == "count":
+                
+                newDf = df.groupby(cols).count().reset_index()
+            else:
+                newDf = None
+                print("error")
+            value = newDf.iloc[:, -1:]
+
+        return Primitive(TYPE.NUMBER, value, self.temp, self.row, self.column)
 
 
 def makeAst():

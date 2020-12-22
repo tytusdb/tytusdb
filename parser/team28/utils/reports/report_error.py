@@ -5,7 +5,7 @@ class ReportError:
     def __init__(self):
         pass
 
-    def get_report(self, errorList):
+    def get_report(self):
         file_content = ''
         file_content += "digraph D{\n\t"
         file_content += 'graph [pad="0.8", nodesep="0.8", ranksep="1", bgcolor = grey77, label=\"Report Of Errors\"];\n'
@@ -17,7 +17,7 @@ class ReportError:
         file_content += "<tr>\n\t <td bgcolor=\"paleturquoise1\"> ID </td>\n <td  bgcolor=\"paleturquoise1\"> Type of Error </td>\n <td bgcolor=\"paleturquoise1\"> ID Error </td>\n"
         file_content += '<td bgcolor=\"paleturquoise1\"> Description </td>\n  <td bgcolor=\"paleturquoise1\"> Row </td>\n <td bgcolor=\"paleturquoise1\"> Column </td> </tr>\n\r'
 
-        for data in errorList:
+        for data in ErrorController().getList():
             file_content += '<tr>\n\t'
             if data.get_id() % 2 == 0:
                 file_content += "<td bgcolor=\"LightSalmon1\">" + \

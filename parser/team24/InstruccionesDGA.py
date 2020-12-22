@@ -1,4 +1,4 @@
-import jsonMode as func
+import storage as func
 import tablaDGA as TS
 
 #VARIABLES GLOBALES
@@ -401,14 +401,25 @@ class insert(instruccion):
                 resultadotxt += "La cantidad de valores no coincide con la cantidad de columnas\n"
             else:
                 NuevoRegistro = TS.Simbolo(cont,str(colcorrecta[0]),TS.TIPO.TUPLA,tablas.id,0,"",0,"","",False,"",0,colcorrecta)
+                cont+=1
                 tabla.agregar(NuevoRegistro)
                 resultadotxt += "El registro  " + self.valores[0] + " fue agregado a la tabla " + self.iden + "\n"
         except:
             """ERRORES SEMANTICOS"""
 
-"""PENDIENDTE"""
 def VerificarTipo(TipoColumna,ValorColumna):
+    """if TipoColumna.lower() == "smallint" or TipoColumna.lower() == "integer" or TipoColumna.lower() == "bigint" or TipoColumna.lower() == "integer" or TipoColumna.lower() == "numeric" or TipoColumna.lower() == "real":
+        if int(ValorColumna):
+            return True
+    elif TipoColumna.lower() == "decimal":
+        if float(ValorColumna):
+            return True
+    elif TipoColumna.lower() == "boolean":
+        if ValorColumna.lower() == "true" or ValorColumna.lower() == "false":
+            return True
+    else:"""
     return True
+    
 
 #UPDATE-----------------------------------------
 class update(instruccion):
@@ -423,7 +434,53 @@ class update(instruccion):
         global tabla
         global NombreDB
         try:
-            """PENDIENTE"""
+            TuplasTabla = []
+            ColumnasTabla = []
+            TablaActual = tabla.BuscarNombre(self.iden)
+            #OBTENER LAS TUPLAS DE LA TABLA
+            for simbolo in tabla.simbolos:
+                if tabla.simbolos[simbolo].ambito == TablaActual.id and tabla.simbolos[simbolo].tipo == TS.TIPO.TUPLA:
+                    TuplasTabla.append(tabla.simbolos[simbolo])
+                if tabla.simbolos[simbolo].ambito == TablaActual.id and tabla.simbolos[simbolo].tipo == TS.TIPO.COLUMN:
+                    ColumnasTabla.append(tabla.simbolos[simbolo])
+            #OBTENER CAMPO DE CONDICION
+            Condicion = self.wherecond.tipo
+            NombreColumna = self.cond.iden
+            try:
+                cond2 = self.wherecond.tipo2
+                TuplasMod = []
+                for columna in ColumnasTabla:
+                    if columna.nombre == NombreColumna:
+                        ColumnaModificar = columna
+                        break
+                for tupla in TuplasTabla:
+                    if Condicion <= tupla.registro[ColumnaModificar.numcol] and tupla.registro[ColumnaModificar.numcol] <= cond2:
+                        TuplasMod.append(tupla)
+                for registro in TuplasMod:
+                    registro.registro[ColumnaModificar.numcol] = self.cond.tipo
+                    registro.nombre = self.cond.tipo
+                    tabla.actualizar(registro)
+                resultadotxt += "Los registros fueron actualizados\n"
+            except:
+                for tupla in TuplasTabla:
+                    for registro in tupla.registro:
+                        if Condicion == registro:
+                            TuplaModificar = tupla
+                            break
+                for columna in ColumnasTabla:
+                    if columna.nombre == NombreColumna:
+                        ColumnaModificar = columna
+                        break
+                TuplaModificar.registro[ColumnaModificar.numcol] = self.cond.tipo
+                TuplaModificar.nombre = self.cond.tipo
+                tabla.actualizar(TuplaModificar)
+                #SE ACTUALIZA EL ARCHIVO JSON
+                TuplasTabla = []
+                for simbolo in tabla.simbolos:
+                    if tabla.simbolos[simbolo].ambito == TablaActual.id and tabla.simbolos[simbolo].tipo == TS.TIPO.TUPLA:
+                        TuplasTabla.append(tabla.simbolos[simbolo])
+                func.update(NombreDB,self.iden,TuplasTabla,ColumnasTabla)
+                resultadotxt += "Los registros fueron actualizados\n"
         except:
             """ERROR"""
         

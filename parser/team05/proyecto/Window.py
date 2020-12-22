@@ -22,6 +22,7 @@ import re
 from Instrucciones import *
 from Expresiones import *
 import webbrowser
+from Graficar import Graficar
 
 
 # MAIN CLASS
@@ -46,6 +47,7 @@ class Main(tk.Tk):
         self.KEYWORDS_REGEX = re.compile("(?=\(*)(?<![a-z])(None|True|False)(?=\)*\,*)")
         self.SELF_REGEX = re.compile("(?=\(*)(?<![a-z])(self)(?=\)*\,*)")
         self.FUNCTIONS_REGEX = re.compile("(?=\(*)(?<![a-z])(print|list|dict|set|int|str)(?=\()")
+        self.raiz_ast = None
 
         self.REGEX_TO_TAG = {
             self.STRING_REGEX_SINGLE: "string",
@@ -423,7 +425,8 @@ class Main(tk.Tk):
 
     # AST report
     def ast_report(self):
-        pass
+        g = Graficar()
+        g.graficar_arbol(self.raiz_ast)
 
     # About it section
     def help_about_it(self):
@@ -526,7 +529,8 @@ class Main(tk.Tk):
             if not ins:
                 messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
             else:
-                self.do_body(ins, st_global)
+                self.do_body(ins.getInstruccion(), st_global)
+                self.raiz_ast = ins.getNodo()
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 

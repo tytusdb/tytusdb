@@ -5,20 +5,22 @@ from shutil import rmtree
 path.append(dir(path[0]))
 
 from analizer import grammar
+from analizer.reports import BnfGrammar
 
-dropAll = 1
+dropAll = 0
 if dropAll:
     print("Eliminando registros")
     rmtree("data")
 
 
 s = """ 
-CREATE DATABASE IF NOT EXISTS test OWNER = 'root' MODE = 1;
-USE test;
-CREATE TABLE tbrolxusuario (
-  idrol integer NOT NULL,
-  idusuario integer NOT NULL
-);
+
+USE db1;
+
+select  caca.name, count(mierda.name) from mierda, (select name from mierda where id<5) as caca group by 2;
+
 """
 result = grammar.parse(s)
 print(result)
+
+BnfGrammar.grammarReport()

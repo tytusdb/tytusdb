@@ -4,7 +4,7 @@ import os
 import pickle
 
 
-*----------------------------------databases CRUD-------------------------------------------*
+#*----------------------------------databases CRUD-------------------------------------------*
 
 # crea una instancia de base de datos y la guarda en la lista 
 def createDatabase(database: str) -> int:
@@ -58,6 +58,8 @@ def alterDatabase(databaseOld: str, databaseNew: str) -> int:
             index = showDatabases().index(databaseOld.lower())
             databases[index].name = databaseNew.lower()
             commit(databases, 'databases')
+            for i in showTables(databaseNew):
+                os.rename('data/tables/' + databaseOld.lower() + i.lower() + '.bin', 'data/tables/' + databaseNew.lower() + i.lower() + '.bin')
             return 0
     except:
         return 1
@@ -86,7 +88,7 @@ def dropDatabase(database: str) -> int:
     except:
         return 1
 
-*----------------------------------tables-------------------------------------------*
+#*----------------------------------tables-------------------------------------------*
 
 # crea una instancia de Tabla y lo almacena en el listado de tablas de la base de datos
 def createTable(database, tableName, numberColumns):
@@ -344,7 +346,230 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
             return 0
     except:
         return 1
-*---------------------------------------others----------------------------------------------*
+    
+# eliminacion de una columna
+def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
+    checkDirs()
+    aux_table = None
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+        if aux_table.numberColumns == 1 or columnNumber in aux_table.PK:
+            return 4
+        elif columnNumber > aux_table.numberColumns - 1:
+            return 5
+        else:
+            aux_table.tuples.deleteColumn(columnNumber)
+            aux_table.numberColumns -= 1
+            for i in aux_table.PK:
+                if i > columnNumber:
+                    i -= 1
+            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            return 0
+    except:
+        return 1
+
+# eliminacion de la tabla
+def dropTable(database, tableName):
+    checkDirs()
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database.lower()):
+            if i.lower() == tableName.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            databases = rollback('databases')
+            os.remove('data/tables/' + database.lower() + tableName.lower() + '.bin')
+            index = showDatabases().index(database.lower())
+            table_index = databases[index].tables.index(tableName.lower())
+            databases[index].tables.pop(table_index)
+            commit(databases, 'databases')
+            return 0
+    except:
+        return 1
+
+# insercion de los registros
+def insert(database: str, table: str, register: list):
+    checkDirs()
+    aux_table = None
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            if len(register) > aux_table.numberColumns or aux_table.numberColumns > len(register):
+                return 5
+            else:
+                PK = ''
+                if aux_table.PKDefined:
+                    for i in aux_table.PK:
+                        PK += str(register[i]) + '_'
+                    PK = PK[:-1]
+                else:
+                    PK = str(aux_table.hiddenPK)
+                    aux_table.hiddenPK += 1
+                if len(aux_table.insert(PK, register)) == 0:
+                    commit(aux_table, 'tables/' + database.lower() + table.lower())
+                    return 0
+                else:
+                    return 4
+    except:
+        return 1
+
+# carga masiva de archivos hacia las tablas
+def loadCSV(file: str, database: str, table: str) -> list:
+    try:
+        res = []
+        import csv
+        with open(file, 'r') as f:
+            reader = csv.reader(f, delimiter=',')
+            for row in reader:
+                res.append(insert(database.lower(), table.lower(), row))
+        return res
+    except:
+        return []
+    
+#Metodo que muestra la informacion de un registro    
+def extractRow(database, table, columns):
+    checkDirs()
+    try:
+        PK = ''
+        aux_tabla = rollback('tables/' + database.lower() + table.lower())
+        for i in columns:
+            PK += str(i) + '_'
+        PK = PK[:-1]
+        row = aux_tabla.search(PK)
+        if row is None:
+            return []
+        else:
+            return row
+    except:
+        return []
+
+#Metodo que modifica los valores de un registro
+def update(database: str, table: str, register: dict, columns: list) -> int:
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            updated = aux_table.update(register, columns)
+            if updated == 0:
+                commit(aux_table, 'tables/' + database.lower() + table.lower())
+                return 0
+            elif updated == 1:
+                return 4
+            else:
+                return 1
+    except:
+        return 1
+
+    
+#Metodo que elimina un registro
+def delete(database, table, columns):
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            PK = ''
+            for i in columns:
+                PK += str(i) + '_'
+            PK = PK[:-1]
+            deleted = aux_table.delete(PK)
+            if deleted == 0:
+                commit(aux_table, 'tables/' + database.lower() + table.lower())
+                return 0
+            elif deleted == 1:
+                return 4
+    except:
+        return 1
+
+    
+#Metodo que elimina todos los registros de una tabla
+def truncate(database, table):
+    try:
+        dbExists = False
+        for i in showDatabases():
+            if i.lower() == database.lower():
+                dbExists = True
+                break
+        tableExists = False
+        for i in showTables(database):
+            if i.lower() == table.lower():
+                tableExists = True
+                break
+        if not dbExists:
+            return 2
+        elif not tableExists:
+            return 3
+        else:
+            aux_table = rollback('tables/' + database.lower() + table.lower())
+            aux_table.tuples.truncate()
+            commit(aux_table, 'tables/' + database.lower() + table.lower())
+            return 0
+    except:
+        return 1    
+    
+#*---------------------------------------others----------------------------------------------*
 
 # guarda un objeto en un archivo binario
 def commit(objeto, fileName):

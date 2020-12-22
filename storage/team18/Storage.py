@@ -2,11 +2,11 @@
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
-import AVLTree
-import BplusTree
+from team18 import AVLTree
+from team18 import BplusTree
 import os
 import pickle
-import Serializable as serializable
+from team18 import Serializable as serializable
 import re
 import shutil
 
@@ -435,10 +435,12 @@ def loadCSV(filepath, database, table):
         try:
             res = []
             import csv
+            PKsTree = serializable.Read(f'./Data/{database}/{table}/', table)
             with open(filepath, 'r') as file:
                 reader = csv.reader(file, delimiter=',')
                 for row in reader:
-                    res.append(insert(database, table, row))
+                    res.append(PKsTree.register(row))
+            serializable.update(f'./Data/{database}/{table}/', table, PKsTree)
             return res
         except:
             return []

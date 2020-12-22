@@ -49,11 +49,11 @@ class Insert(Querie):
             for index in range(len(self.valueList)):
                 nombreVariable = table.columns[index].name
                 valorVariable = self.valueList[index].execute(environment)
-                environment.guardarVariable(nombreVariable,valorVariable['typ'],valorVariable['value'])
+                environment.guardarVariable(nombreVariable,valorVariable['typ'],valorVariable['value'], None)
             
             for item in table.constraint:
                 if item['type'] == 'primary':
-                    var = environment.buscarVariable(item['value'])
+                    var = environment.buscarVariable(item['value'], None)
                     if var == None:
                         return{'Error':'Variable no encontrada', 'Fila':self.row, 'Columna': self.column }
                     if var['tipo'] == Type.NULL:
@@ -64,7 +64,7 @@ class Insert(Querie):
                     print('foreign')
 
                 elif item['type'] == 'not null':
-                    var = environment.buscarVariable(item['value'])
+                    var = environment.buscarVariable(item['value'],None)
                     if var == None:
                         return{'Error':'Variable no encontrada', 'Fila':self.row, 'Columna': self.column }
                     if var['tipo']== Type.NULL:
@@ -93,7 +93,7 @@ class Insert(Querie):
                         if aux == -1:
                                 return{'Error':'No se encontro la columna: '+item['value'], 'Fila':self.row, 'Columna': self.column}
                         
-                        searched = environment.buscarVariable(item['value'])
+                        searched = environment.buscarVariable(item['value'],None)
                         for tupla in val:
                             if tupla[aux] == searched['value']:
                                 if isinstance(searched['value'],int):
@@ -159,25 +159,25 @@ class Insert(Querie):
             for index in range(len(self.valueList)):
                 nombreVariable = self.idList[index]
                 valorVariable = self.valueList[index].execute(environment)
-                environment.guardarVariable(nombreVariable,valorVariable['typ'],valorVariable['value'])
+                environment.guardarVariable(nombreVariable,valorVariable['typ'],valorVariable['value'], None)
 
             for item in table.columns:
-                var = environment.buscarVariable(item.name)
+                var = environment.buscarVariable(item.name, None)
                 if var == None:
                     if item.default == None:
                         nombreVariable = item.name
                         valorVariable = 'null'
                         tipoVariable = Type.NULL
-                        environment.guardarVariable(nombreVariable,tipoVariable,valorVariable)
+                        environment.guardarVariable(nombreVariable,tipoVariable,valorVariable, None)
                     else:
                         nombreVariable = item.name
                         valorVariable = item.default
                         tipoVariable = item.tipo
-                        environment.guardarVariable(nombreVariable,tipoVariable,valorVariable)
+                        environment.guardarVariable(nombreVariable,tipoVariable,valorVariable, None)
           
             for item in table.constraint:
                 if item['type'] == 'primary':
-                    var = environment.buscarVariable(item['value'])
+                    var = environment.buscarVariable(item['value'], None)
                     if var == None:
                         return{'Error':'Variable no encontrada', 'Fila':self.row, 'Columna': self.column }
                     if var['tipo'] == Type.NULL:
@@ -188,7 +188,7 @@ class Insert(Querie):
                     print('foreign')
 
                 elif item['type'] == 'not null':
-                    var = environment.buscarVariable(item['value'])
+                    var = environment.buscarVariable(item['value'],None)
                     if var == None:
                         return{'Error':'Variable no encontrada', 'Fila':self.row, 'Columna': self.column }
                     if var['tipo']== Type.NULL:
@@ -217,7 +217,7 @@ class Insert(Querie):
                         if aux == -1:
                                 return{'Error':'No se encontro la columna: '+item['value'], 'Fila':self.row, 'Columna': self.column}
                         
-                        searched = environment.buscarVariable(item['value'])
+                        searched = environment.buscarVariable(item['value'], None)
                         for tupla in val:
                             if tupla[aux] == searched['value']:
                                 if isinstance(searched['value'],int):
@@ -231,7 +231,7 @@ class Insert(Querie):
             #guardando en el storage
             valOrden =[]
             for item in table.columns:
-                var = environment.buscarVariable(item.name)
+                var = environment.buscarVariable(item.name, None)
                 if var == None:
                     return{'Error':'Error desconocido al insertar 2.', 'Fila':self.row, 'Columna': self.column }
                 valOrden.append(var['value'])

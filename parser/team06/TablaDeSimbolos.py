@@ -9,18 +9,18 @@ class TIPO_DE_DATO(Enum) :
 class Simbolo() :
     'Esta clase representa un simbolo dentro de nuestra tabla de simbolos'
 
-    def __init__(self, id, nombre,tipo,tamanoCadena,BD,tabla,obligatorio,pk,FK,ReferenciaTablaFK,ReferenciaCampoFK,unique,idUnique,check,condicionCheck,idCheck,valor,default) :
+    def __init__(self, id, nombre, tipo, tamanoCadena, BD, tabla, obligatorio, pk, FK, referenciaTablaFK, referenciaCampoFK, unique, idUnique, check, condicionCheck, idCheck,valor,default) :
         self.id = id
         self.nombre = nombre
-        self.tipo = tipo    
+        self.tipo = tipo
         self.tamanoCadena = tamanoCadena
         self.BD = BD
         self.tabla = tabla
         self.obligatorio = obligatorio
         self.pk = pk
         self.FK = FK
-        self.referenciaTablaFK = ReferenciaTablaFK
-        self.referenciaCampoFK = ReferenciaCampoFK
+        self.referenciaTablaFK = referenciaTablaFK
+        self.referenciaCampoFK = referenciaCampoFK
         self.unique = unique
         self.idUnique = idUnique
         self.check = check
@@ -38,7 +38,7 @@ class TablaDeSimbolos() :
         self.simbolos = simbolos
 
     def agregar(self, simbolo) :
-        self.simbolos[simbolo.id] = simbolo
+        self.simbolos[simbolo.nombre] = simbolo
     
     def obtener(self, id) :
         print("a este entra")
@@ -47,18 +47,18 @@ class TablaDeSimbolos() :
             return("no definida")
         return self.simbolos[id]
     
-    def obtener2(self, id) :
+    def obtener2(self, nombre) :
         print("a este entra")
-        if not id in self.simbolos :
-            print('Error1: variable ', id, ' no definida.')
+        if not nombre in self.simbolos :
+            print('Error1: variable ', nombre, ' no definida.')
             return 0
-        return self.simbolos[id]
+        return self.simbolos[nombre]
 
     def actualizar(self, simbolo) :
-        if not simbolo.id in self.simbolos :
-            print('Error2: variable ', simbolo.id, ' no definida.')
+        if not simbolo.nombre in self.simbolos :
+            print('Error2: variable ', simbolo.nombre, ' no definida.')
         else :
-            self.simbolos[simbolo.id] = simbolo
+            self.simbolos[simbolo.nombre] = simbolo
 
     def mostrar(self,var):
         print(str(var))
@@ -170,6 +170,12 @@ class TablaDeSimbolos() :
     #-----------------------------------------------------------------------------------------------------------------------
     #Inicia Insert en Tabla
 
+    def obtenerColumna(self,nombre,BD,id):
+        for simb in self.simbolos:
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == BD and self.simbolos[simb].id == id:
+                return self.simbolos[simb]
+        return 0
+
 
     def printcontsimbolos(self):
         tm = 0
@@ -192,5 +198,48 @@ class TablaDeSimbolos() :
             print(self.simbolos[simb].condicionCheck)
             print(self.simbolos[simb].idCheck)
             print(self.simbolos[simb].valor)
+            tm=tm+1
+        return 0
+# --------------------CREAR, ALTER Y DROP BD---------------------------------------------------------------------
+    def agregarCrearBD(self, simbolo) :
+        self.simbolos[simbolo.nombre] = simbolo
+
+    
+    def verificacionCrearBD(self, nombre) :
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                print('Error1: base de datos ', nombre, ' ya definida.')
+                return 1
+        return 0 
+
+    def verificacionAlterBD(self, nombre) :
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                return 1
+        return 0
+
+    def actualizarAlterBD(self, old, alter) :
+        for simb in self.simbolos:            
+            if self.simbolos[simb].nombre == old and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                print("SIMB",self.simbolos[simb])
+                self.simbolos[alter] = self.simbolos.pop(simb)
+                self.simbolos[alter].nombre = alter
+                return 2
+        return 1
+
+    def destruirBD(self,nombre):
+        for simb in self.simbolos:
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == None and self.simbolos[simb].tabla == None:
+                print('Se elimino ', nombre)
+                self.simbolos.pop(simb)
+                return 1
+        return 0
+
+    def printBD(self):
+        tm = 0
+        for simb in self.simbolos:
+            print("----------BASE DE DATOS ",tm,"----------")
+           # print(self.simbolos[simb].id)
+            print(self.simbolos[simb].nombre)
             tm=tm+1
         return 0
