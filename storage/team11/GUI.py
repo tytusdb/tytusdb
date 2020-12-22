@@ -1,5 +1,5 @@
 import ast
-from storageAVL11.Manager import Manager
+from Manager import Manager
 import tkinter as Tkinter
 import webbrowser
 from tkinter import *
@@ -111,12 +111,12 @@ class GUI:
         self.pestaña5 = tk.Frame(self.pestañas_notebook,background="#BED6D2")
         self.pestaña6 = tk.Frame(self.pestañas_notebook,background="#BED6D2")
 
-        self.Grupos = tk.PhotoImage(file="image/Grupo11.png")
-        self.imgDB = tk.PhotoImage(file="image/db.png")
-        self.Team = tk.PhotoImage(file="image/Equipo.png")
-        self.Table = tk.PhotoImage(file="image/Tablas.png")
-        self.Tuple = tk.PhotoImage(file="image/Tupla.png")
-        self.Integrantes = tk.PhotoImage(file="image/Integrantes.png")
+        self.Grupos = tk.PhotoImage(file="./image/Grupo11.png")
+        self.imgDB = tk.PhotoImage(file="./image/db.png")
+        self.Team = tk.PhotoImage(file="./image/Equipo.png")
+        self.Table = tk.PhotoImage(file="./image/Tablas.png")
+        self.Tuple = tk.PhotoImage(file="./image/Tupla.png")
+        self.Integrantes = tk.PhotoImage(file="./image/Integrantes.png")
         
         # Añadirlas al panel con su respectivo texto.
         self.pestañas_notebook.add(self.pestaña1, text="    GRUPO 11    ",image=self.Team,underline=4,compound=tk.LEFT, padding=20)
@@ -252,7 +252,7 @@ class GUI:
         self.boton5= ttk.Button(self.pestaña4, text="Agregar por CSV",width=30,command=self.abrirFile)
         self.boton5.grid(column=1, row=4, padx=4, pady=4)
 
-
+     # SE ACTUALIZAN LOS VALORES DE LAS LISTAS
     def actualizardbs(self):
         self.lista1b['values']=self.control.showDatabases()
 
@@ -318,8 +318,6 @@ class GUI:
         self.canvas2_tabla.create_image(5, 5,image=self.archi2,anchor="nw")
 
     def generar_arbol_tp(self):
-        print(self.datobd2d.get())
-        print(self.datotablad.get())
         nombre = 'arboltpl'
         file = open(nombre+".dot", "w",encoding="utf-8")
         file. write(str(self.control.graficarRegistros(str(self.datobd2d.get()),str(self.datotablad.get()))))
@@ -398,12 +396,13 @@ class GUI:
         self.canva.create_image(0,0,anchor='nw',image=pimg)     
         #self.canva.mainloop()
 
-
+        #CULMINA LA VENTANA DIALOGO
     def salir(self):
         value = messagebox.askokcancel("Salir", "Está seguro que desea salir?")
         if value:
             self.window.destroy()
-
+            
+        # RECUPERA UNA RUTA PARA CSV
     def abrirFile(self):
         global contenidoCSV
         nameFile = filedialog.askopenfilename(title="Seleccionar archivo", filetypes=[(
@@ -978,7 +977,7 @@ class GUI:
     def cerrar(self):
         self.dialogo.destroy()
 
-
+# CREA LA VENTANA  CON LAS TABLAS  
 class vdialogo:    
     def __init__(self, ventanaprincipal,modo,nombredb,nombretabla):
         self.mostrar = Manager()

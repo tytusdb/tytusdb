@@ -1,7 +1,13 @@
-import DataAccessLayer.reports as Reports
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
+import DataAccessLayer.reports as reports
 import avlMode as AVLTreeStructure
 from DataAccessLayer.handler import Handler
-from Models.avl_tree import AVLTree
+
 
 class Controller:
 
@@ -16,7 +22,10 @@ class Controller:
             if action == actions[1]:
                 return self.structure.createDatabase(args[0])
             elif action == actions[2]:
-                return self.structure.showDatabases()
+                tmp = self.structure.showDatabases()
+                print("Databases:")
+                print(tmp)
+                return tmp
             elif action == actions[3]:
                 return self.structure.alterDatabase(args[0], args[1])
             elif action == actions[4]:
@@ -27,13 +36,22 @@ class Controller:
             elif action == actions[5]:
                 return self.structure.createTable(args[0], args[1], int(args[2]))
             elif action == actions[6]:
-                return self.structure.showTables(args[0])
+                tmp = self.structure.showTables(args[0])
+                print("Tables from " + args[0] + ":")
+                print(tmp)
+                return tmp
             elif action == actions[7]:
-                return self.structure.extractTable(args[0], args[1])
+                tmp = self.structure.extractTable(args[0], args[1])
+                print("Data from " + args[0] + "\\" + args[1] + ":")
+                print(tmp)
+                return tmp
             elif action == actions[8]:
-                return self.structure.extractRangeTable(args[0], args[1], int(args[2]), args[3], args[4])
+                tmp = self.structure.extractRangeTable(args[0], args[1], int(args[2]), args[3], args[4])
+                print("Data from " + args[0] + "\\" + args[1] + " with range " + args[3] + " - " + args[4])
+                print(tmp)
+                return tmp
             elif action == actions[9]:
-                return self.structure.alterAddPK(args[0], args[1], list(map(int,args[2].split(','))))
+                return self.structure.alterAddPK(args[0], args[1], list(map(int, args[2].split(','))))
             elif action == actions[10]:
                 return self.structure.alterDropPK(args[0], args[1])
             elif action == actions[13]:
@@ -50,13 +68,19 @@ class Controller:
             elif action == actions[17]:
                 return self.structure.insert(args[0], args[1], args[2].split(','))
             elif action == actions[18]:
-                return self.structure.loadCSV(args[0], args[1], args[2])
+                tmp = self.structure.loadCSV(args[0], args[1], args[2])
+                print("csv:")
+                print(tmp)
+                return tmp
             elif action == actions[19]:
-                return self.structure.extractRow(args[0], args[1], list(map(int,args[2].split(','))))
+                tmp = self.structure.extractRow(args[0], args[1], list(map(int, args[2].split(','))))
+                print("Tuple from " + args[0] + "\\" + args[1] + ":")
+                print(tmp)
+                return tmp
             elif action == actions[20]:
-                return self.structure.update(args[0], args[1], args[2], list(map(int,args[3].split(','))))
+                return self.structure.update(args[0], args[1], args[2], list(map(int, args[3].split(','))))
             elif action == actions[21]:
-                return self.structure.delete(args[0], args[1], list(map(int,args[2].split(','))))
+                return self.structure.delete(args[0], args[1], list(map(int, args[2].split(','))))
             elif action == actions[22]:
                 return self.structure.truncate(args[0], args[1])
             elif action == actions[23]:
@@ -66,26 +90,30 @@ class Controller:
                 return 6
         except:
             return 7
-    
-    def reportDB(self):
-        return Reports.graphicDatabases()
-    
-    def reportTBL(self, database: str):
-        return Reports.graphicTables(database)
-    
-    def reportAVL(self, database: str, table: str):
-        return Reports.graphAVL(database, table)
-    
-    def reportTPL(self, database: str, table: str, llave):
-        return Reports.graphTuple(database, table, llave)
-    
-    def getIndexes(self, database: str, table:str):
+
+    @staticmethod
+    def reportDB():
+        return reports.graphicDatabases()
+
+    @staticmethod
+    def reportTBL(database: str):
+        return reports.graphicTables(database)
+
+    @staticmethod
+    def reportAVL(database: str, table: str):
+        return reports.graphAVL(database, table)
+
+    @staticmethod
+    def reportTPL(database: str, table: str, llave):
+        return reports.graphTuple(database, table, llave)
+
+    @staticmethod
+    def getIndexes(database: str, table: str):
         avl_temp = Handler.tableinstance(database, table)
         return avl_temp.indexes()
 
 
 class Enums:
-    
     actions = {
         1: "Create database",
         2: "Show databases",
