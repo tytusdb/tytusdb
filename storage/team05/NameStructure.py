@@ -204,3 +204,25 @@ class NombreEstructuras:
                 return 1
         except:
             return 1   
+        
+        #Elimina una tabla
+    def dropTable(self, database, tableName):
+        try:
+            if self.ComprobarNombre(database) == True and self.ComprobarNombre(tableName) == True: #Comprobamos nombre
+                if self.searchDatabase(database) == True:  #Verificamos que exista la bd
+                    aux = self.database[database] #Asignamos a una variable temporal el diccionario de tablas de la bd
+                    
+                    if self.buscarTabla(tableName, aux) == True:
+                        del aux[tableName]
+                        self.database[database] = aux
+                        os.remove("data/tables/"+str(database)+"-"+str(tableName))
+                        ne.serialize("data/database",self.database)
+                        return 0
+                    else:
+                        return 3
+                else:
+                    return 2
+            else:
+                return 1
+        except:
+            return 1
