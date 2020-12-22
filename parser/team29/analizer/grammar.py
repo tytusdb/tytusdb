@@ -558,15 +558,13 @@ def p_funcCall_2(t):
 
 def p_funcCall_3(t):
     """
-    funcCall : R_COUNT S_PARIZQ paramsList S_PARDER
+    funcCall : R_COUNT S_PARIZQ datatype S_PARDER
             | R_COUNT S_PARIZQ O_PRODUCTO S_PARDER
-            | R_SUM S_PARIZQ paramsList S_PARDER
-            | R_SUM S_PARIZQ O_PRODUCTO S_PARDER
-            | R_PROM S_PARIZQ paramsList S_PARDER
-            | R_PROM S_PARIZQ O_PRODUCTO S_PARDER
+            | R_SUM S_PARIZQ datatype S_PARDER
+            | R_PROM S_PARIZQ datatype S_PARDER
     """
     repGrammar.append(t.slice)
-
+    t[0] = expression.AggregateFunction(t[1], t[3], t.slice[1].lineno, t.slice[1].lexpos)
 
 def p_extract_1(t):
     """
@@ -1182,10 +1180,11 @@ def p_selectStmt_1(t):
 
 
 # TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
+# TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
 def p_selectStmt_2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl"""
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl"""
     t[0] = instruction.Select(
-        t[2].params, t[3], t[4], t.slice[1].lineno, t.slice[1].lexpos
+        t[2].params, t[3], t[4], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
     )
     repGrammar.append(t.slice)
 
@@ -1377,25 +1376,50 @@ def p_whereCl_none(t):
     repGrammar.append(t.slice)
 
 
-def p_groupByCl(t):
-    """groupByCl : R_GROUP R_BY groupList havingCl
-    |
+
+def p_groupByCl_1(t):
     """
+    groupByCl : R_GROUP R_BY groupList havingCl
+    """
+    t[0] = [t[3], t[4]]
     repGrammar.append(t.slice)
 
-
-def p_groupList(t):
-    """groupList :  groupList S_COMA columnName
-    | columnName
+def p_groupByCl_2(t):
     """
+    groupByCl : 
+    """
+    t[0] = [None, None]
+    
+
+def p_groupList_1(t):
+    """
+    groupList :  groupList S_COMA columnName
+            | groupList S_COMA INTEGER
+    """
+    t[1].append(t[3])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+def p_groupList_2(t):
+    """
+    groupList :  columnName
+            | INTEGER
+    """
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
 def p_havingCl(t):
     """havingCl : R_HAVING expBool
-    |
     """
+    t[0] = t[2]
     repGrammar.append(t.slice)
+
+def p_havingCl(t):
+    """havingCl :
+    """
+    t[0] = None
+    
 
 
 def p_orderByCl(t):

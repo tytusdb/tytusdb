@@ -1,3 +1,9 @@
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
 from DataAccessLayer.handler import Handler
 
 
@@ -57,6 +63,7 @@ class DatabaseModule:
                     avl_temp.database = databaseNew
                     self.handler.rename(databaseOld + '_' + j + '.tbl',
                                         databaseNew + '_' + j + '.tbl')
+                    self.handler.tableupdate(avl_temp)
                 self.databases[index].name = databaseNew
                 self.handler.rootupdate(self.databases)
                 return 0

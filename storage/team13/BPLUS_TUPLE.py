@@ -204,6 +204,29 @@ class BPLUS_TUPLE:
                     registros.append(i.register)
             if nodo.get_next() is not None:
                 self.__extractRegRange(nodo.get_next(),registros,columnNumber,lower,upper)
+                
+    # AlterAddPK Methods            
+    def alterColumnsData(self, columnas, listaObjetos):
+        dataColumn = []
+        self._alterColumnsData(self.__root, dataColumn, columnas, listaObjetos)
+        return dataColumn
+
+    def _alterColumnsData(self, tmp, dataColumn, columnas, listaObjetos):
+        if len(tmp.get_chlds()) != 0:
+            self._alterColumnsData(tmp.get_chlds()[0], dataColumn, columnas, listaObjetos)
+        else:
+            for i in tmp.get_keys():
+                listaObjetos.append(i)
+                llaveUnida = ""
+                for j in range(len(columnas)):
+                    if j != (len(columnas)-1):
+                        llaveUnida += f"{i.register[columnas[j]]}-"
+                    else:
+                        llaveUnida += f"{i.register[columnas[j]]}"
+                dataColumn.append(llaveUnida)
+
+            if tmp.get_next() is not None:
+                self._alterColumnsData(tmp.get_next(), dataColumn, columnas, listaObjetos)
 
     def alterDropColumn(self, column, tabla):
         self._alterDropColumn(self.__root, column)
