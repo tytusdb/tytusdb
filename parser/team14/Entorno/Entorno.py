@@ -48,12 +48,17 @@ class Entorno:
     def mostrarSimbolos(self):
         ent = self
 
+        #nombre,tipoSym,baseDatos,tabla,valor
+        salida = "digraph G {shortName [shape=record label=<<TABLE><TR><TD>NOMBRE</TD><TD>TIPO</TD><TD>BASE DE DATOS</TD><TD>TABLA</TD><TD>VALOR</TD></TR>"
         while ent != None:
             for x in ent.tablaSimbolo.values():
                 if x != None:
-                    print(x.toString())
+                    salida += x.toString()
                 
             ent = ent.anterior
+        
+        salida += "</TABLE>>]}"
+        return salida
 
     def getDataBase(self):
         ent = self

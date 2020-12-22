@@ -50,13 +50,13 @@ class Insert(Instruccion):
                 dentroRango = False
                 comprobarNull = True
                 valExtra = True
-                print('ERROR INDEX')
+                #print('ERROR INDEX')
 
             if dentroRango:
                 if columna.type == 'smallint':
                     if isinstance(valoresTabla[posColumna], int):
                         if valoresTabla[posColumna] >= -32768 and valoresTabla[posColumna] <= 32767:
-                            print('correcto.')
+                            ''
                         else:
                             mensajeError = 'Error(???): El tamaño del dato insertado en ' + columna.name + ' es incorrecto.'
                             comprobarNull = True
@@ -66,12 +66,9 @@ class Insert(Instruccion):
                         else:
                             return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
                 elif columna.type == 'integer' or columna.type == 'numeric':
-                    print(columna.type)
-                    print(valoresTabla[posColumna])
-                    print(isinstance(valoresTabla[posColumna], int))
                     if isinstance(valoresTabla[posColumna], int):
                         if valoresTabla[posColumna] >= -2147483648 and valoresTabla[posColumna] <= 2147483647:
-                            print('correcto.')
+                            ''
                         else:
                             mensajeError = 'Error(???): El tamaño del dato insertado en ' + columna.name + ' es incorrecto.'
                             comprobarNull = True
@@ -84,7 +81,7 @@ class Insert(Instruccion):
                 elif columna.type == 'bigint':
                     if isinstance(valoresTabla[posColumna], int):
                         if valoresTabla[posColumna] >= -9223372036854775808 and valoresTabla[posColumna] <= 9223372036854775807:
-                            print('correcto.')
+                            ''
                         else:
                             mensajeError = 'Error(???): El tamaño del dato insertado en ' + columna.name + ' es incorrecto.'
                             comprobarNull = True
@@ -98,7 +95,7 @@ class Insert(Instruccion):
                     if isinstance(valoresTabla[posColumna], int): valoresTabla[posColumna] = float(valoresTabla[posColumna])
                     if isinstance(valoresTabla[posColumna], float):
                         if valoresTabla[posColumna] >= -9223372036854775808 and valoresTabla[posColumna] <= 9223372036854775807:
-                            print('correcto.')
+                            ''
                         else:
                             mensajeError = 'Error(???): El tamaño del dato insertado en ' + columna.name + ' es incorrecto.'
                             comprobarNull = True
@@ -110,7 +107,7 @@ class Insert(Instruccion):
                 elif columna.type == 'real':
                     if isinstance(valoresTabla[posColumna], int) or isinstance(valoresTabla[posColumna], float):
                         round(valoresTabla[posColumna], 6)
-                        print('correcto')
+                        ''
                     else:
                         if tamanioInferior:
                             comprobarNull = True
@@ -119,7 +116,7 @@ class Insert(Instruccion):
                 elif columna.type == 'double':
                     if isinstance(valoresTabla[posColumna], int) or isinstance(valoresTabla[posColumna], float):
                         round(valoresTabla[posColumna], 15)
-                        print('correcto')
+                        ''
                     else:
                         if tamanioInferior:
                             comprobarNull = True
@@ -129,7 +126,7 @@ class Insert(Instruccion):
                     if isinstance(valoresTabla[posColumna], str):
                         if isinstance(valoresTabla[posColumna][0] == '$'):
                             if isinstance(valoresTabla[posColumna][1], int):
-                                print('correcto')
+                                ''
                             else:
                                 if tamanioInferior:
                                     comprobarNull = True
@@ -138,7 +135,7 @@ class Insert(Instruccion):
                     else:
                         if valoresTabla[posColumna] >= -92233720368547758.08 and valoresTabla[posColumna] <= 92233720368547758.07:
                             valoresTabla[posColumna] = '$' + str(valoresTabla[posColumna])
-                            print('correcto')
+                            ''
                         else :
                             if tamanioInferior:
                                 comprobarNull = True
@@ -146,10 +143,8 @@ class Insert(Instruccion):
                                 return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
                 elif columna.type == 'character' or columna.type == 'varchar' or columna.type == 'char': #-------------FALTA EL CHAR
                     if isinstance(valoresTabla[posColumna], str):
-                        print(columna.size)
-                        print(len(valoresTabla[posColumna]))
                         if columna.size >= len(valoresTabla[posColumna]):
-                            print('correct')
+                            ''
                         else:
                             if tamanioInferior:
                                 comprobarNull = True
@@ -160,7 +155,7 @@ class Insert(Instruccion):
                         comprobarNull = True
                 elif columna.type == 'text':
                     if isinstance(valoresTabla[posColumna], str):
-                        print('correct')
+                        ''
                     else:
                         if tamanioInferior:
                             comprobarNull = True
@@ -171,7 +166,7 @@ class Insert(Instruccion):
                         hora = valoresTabla[posColumna]
                         horaVal = datetime.strptime(hora, '%H:%M:%S')
                         valoresTabla[posColumna] = horaVal.strftime('%H:%M:%S')
-                    except ValueError:
+                    except:
                         if tamanioInferior:
                             comprobarNull = True
                         else:
@@ -179,27 +174,34 @@ class Insert(Instruccion):
                 elif columna.type == 'date':
                     try:
                         fecha = valoresTabla[posColumna]
-                        fechaVal = datetime.strptime(fecha, '%d-%m-%Y')
-                        valoresTabla[posColumna] = fechaVal.strftime('%d-%m-%Y %H:%M:%S')
-                    except ValueError:
-                        if tamanioInferior:
-                            comprobarNull = True
-                        else:
-                            return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
+                        fechaN = fecha.replace('/', '-')
+                        fechaVal = datetime.strptime(fechaN, '%Y-%m-%d')
+                        valoresTabla[posColumna] = fechaVal.strftime('%Y-%m-%d %H:%M:%S')
+                    except:
+                        try:
+                            fecha = valoresTabla[posColumna]
+                            fechaN = fecha.replace('/', '-')
+                            fechaVal = datetime.strptime(fechaN, '%Y-%m-%d %H:%M:%S')
+                            valoresTabla[posColumna] = fechaVal.strftime('%Y-%m-%d %H:%M:%S')
+                        except:
+                            if tamanioInferior:
+                                comprobarNull = True
+                            else:
+                                return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
                 elif columna.type == 'boleano':
                     if isinstance(valoresTabla[posColumna], str):
                         if valoresTabla[posColumna].lower() == 'true' or valoresTabla[posColumna].lower() == 'yes' or valoresTabla[posColumna].lower() == 'on' or valoresTabla[posColumna].lower() == 'false' or valoresTabla[posColumna].lower() == 'no' or valoresTabla[posColumna].lower() == 'off':
-                            print('correcto')
+                            ''
                         else:
                             if tamanioInferior:
                                 comprobarNull = True
                             else:
                                 return 'Error(???): El tipo de la columna ' + columna.name + ' es incorrecto.'
                     elif bool(valoresTabla[posColumna]):
-                        print('correct')
+                        ''
                     else:
                         if valoresTabla[posColumna] == 1 or valoresTabla[posColumna] == 0:
-                            print('correcto')
+                            ''
                         else:
                             if tamanioInferior:
                                 comprobarNull = True
@@ -209,7 +211,7 @@ class Insert(Instruccion):
                     saltarValor = True
                     for valoresEnum in data.tablaSimbolos[data.databaseSeleccionada]['enum'][columna.type]:
                         if valoresTabla[posColumna] == valoresEnum.val:
-                            print('correcto')
+                            ''
                             saltarValor = False
                     if saltarValor :
                         if tamanioInferior:
@@ -227,11 +229,14 @@ class Insert(Instruccion):
             nullInsertado = False
             if columna.null != None and comprobarNull and tamanioInferior:
                 compDefault = True
-                if columna.null.val:
+                if columna.null:
                     valoresTabla = self.insertarValor(valoresTabla, 'null', posColumna, valExtra)
                     nullInsertado = True
 
             defaultInsertado = False
+            comprobarNull = False
+            tamanioInferior = False
+
             if columna.default != None and compDefault:
                 if nullInsertado:
                     valoresTabla[posColumna] = columna.default.val.val
@@ -240,11 +245,15 @@ class Insert(Instruccion):
                 defaultInsertado = True
 
             if columna.check != None:
-                print(columna.check)
-                if columna.check.val.executeInsert(data, listaColumnas, valoresTabla, posColumna):
-                    ''
-                else:
-                    return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
+                diccionarioTabla = {}
+                diccionarioTabla[self.tableid.upper()] = {'fila': valoresTabla, 'alias': None}
+                for chk in columna.check :
+                    if chk == None:
+                        continue
+                    if chk.val.executeInsert(data, diccionarioTabla) :
+                        ''
+                    else:
+                        return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
 
             posColumna += 1
 
@@ -285,5 +294,4 @@ class Insert(Instruccion):
                     nuevoArreglo.append(data[contadorPos])
                 contador += 1
                 contadorPos += 1
-            print(nuevoArreglo)
             return nuevoArreglo

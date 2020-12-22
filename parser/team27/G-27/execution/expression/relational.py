@@ -7,6 +7,13 @@ from typ import *
 from literal import *
 
 class Relational(Expression):
+    """
+    left: Expression izquierda(puede ser objeto que herede de expression, todos ubicados en la carpeta expression )
+    right: Expression derecha(puede ser objeto que herede de expression, todos ubicados en la carpeta expression )    
+    operator: Es un string con el operador: >,<, >=, <=, <>, !=, =
+    row: int con la fila en donde es creado
+    column: int con la fila en donde es creado
+    """
     def __init__(self, left, right, operator, row, column):
         Expression.__init__(self,row,column)
         self.left = left

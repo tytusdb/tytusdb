@@ -1,7 +1,9 @@
 from enum import Enum
+from analizer.abstract import expression
 import analizer.typechecker.Metadata.Struct as S
 from analizer.abstract.expression import Expression
 from analizer.typechecker.Types.Type import Type
+from analizer.typechecker.Types.Type import TypeNumber
 from analizer.typechecker.Types.Validations import Number as N
 from analizer.typechecker.Types.Validations import Character as C
 from analizer.typechecker.Types.Validations import Time as T
@@ -11,7 +13,7 @@ from datetime import datetime
 
 lstErr = []
 dbActual = ""
-
+S.load()
 
 def addError(error):
     if error != None:
@@ -50,7 +52,7 @@ def character(col, val):
     x = col["type"]
     e = None
     try:
-        if x == "VARCHAR":
+        if x == "VARCHAR" :
             e = C.validateVarchar(col["size"], val)
         elif x == "VARYING":
             e = C.validateVarchar(col["size"], val)
@@ -70,7 +72,7 @@ def time(col, val):
     if x == "TIMESTAMP":
         e = T.validateTimeStamp(val)
     elif x == "DATE":
-        e = T.validateTimeStamp(val)
+        e = T.validateDate(val)
     elif x == "TIME":
         e = T.validateTime(val)
     elif x == "INTERVAL":
@@ -92,7 +94,6 @@ def types(col, value):
             return True
         else:
             e = "El valor " + str(value) + " no pertenece a " + col["type"]
-
     else:
         e = " Type " + col["type"] + " no encontrado"
 
@@ -119,60 +120,70 @@ def select(col, val):
         addError(str(val.value) + " no es del tipo : " + col["type"])
 
 
-def check(dbName, tableName, colName, val):
-    col = S.extractColmn(dbName, tableName, colName)
-    select(col, val)
+def checkValue(dbName, tableName):
+    lstErr.clear()
+    table = S.extractTable(dbName,tableName)
+    if table ==0 and table == 1: return
+    for col in table['columns']:
+        if col['Default'] !=None:
+            if col['Default'][1] != 9:
+                value = expression.Primitive(TypeNumber.get(col['Default'][1]), col['Default'][0], 0, 0)
+                select(col,value)
+            else:
+                col['Default'] =None
+    
+    return listError()
+
+    
 
 
 def checkInsert(dbName, tableName, columns, values):
     lstErr.clear()
-    S.load()
+    
 
     if columns != None:
         if len(columns) != len(values):
-            return "Columnas fuera de los limites 1"
+            return ["Columnas fuera de los limites 1"]
 
     table = S.extractTable(dbName, tableName)
     values = S.getValues(table, columns, values)
 
     if table == 0:
-        return "No existe la base de datos"
+        return ["No existe la base de datos"]
     elif table == 1:
-        return "No existe la tabla"
+        return ["No existe la tabla"]
     elif len(table["columns"]) != len(values):
-        return "Columnas fuera de los limites 2"
+        return ["Columnas fuera de los limites 2"]
     else:
         pass
 
     indexCol = 0
     for value in values:
         column = table["columns"][indexCol]
+        x = Type.get(column["type"])
+        if not isinstance(value, expression.Primitive):
+            value = expression.Primitive(x, value, 0, 0)
+            values[indexCol] = value
         if value != None and value.type != TYPE.NULL:
-
             if column["Unique"] or column["PK"]:
                 validateUnique(dbName, tableName, value.value, indexCol)
-
             if column["FK"] != None:
                 validateForeign(dbName, column["FK"], value.value)
-
             if column["Constraint"] != None:
                 validateConstraint(
                     column["Constraint"], values, dbName, tableName, column["type"]
                 )
-
             select(column, value)
         else:
             validateNotNull(column["NN"], column["name"])
-
         indexCol += 1
-
     return [listError(), values]
 
 
 def listError():
     if len(lstErr) == 0:
         return None
-    return lstErr
+    return lstErr.copy()
 
 
 def validateUnique(database, table, value, index):

@@ -102,7 +102,7 @@ class TypeChecker(object):
             return
 
         dbStatement = data_mode.mode(database.mode).createDatabase(
-            database.name)
+            database.name.lower())
 
         if dbStatement == 0:
             self._typeCheckerList.append(database)
@@ -136,8 +136,8 @@ class TypeChecker(object):
             ErrorController().add(35, 'Execution', desc, line, column)
             return
 
-        dbStatement = data_mode.mode(database.mode).alterDatabase(databaseOld,
-                                                                  databaseNew)
+        dbStatement = data_mode.mode(database.mode).alterDatabase(databaseOld.lower(),
+                                                                  databaseNew.lower())
 
         if dbStatement == 0:
             database.name = databaseNew
@@ -171,7 +171,7 @@ class TypeChecker(object):
             ErrorController().add(35, 'Execution', desc, line, column)
             return
 
-        dbStatement = data_mode.mode(database.mode).dropDatabase(name)
+        dbStatement = data_mode.mode(database.mode).dropDatabase(name.lower())
 
         if dbStatement == 0:
             self._typeCheckerList.remove(database)
@@ -221,16 +221,15 @@ class TypeChecker(object):
                                   line, column)
             return
 
-        dbStatement = data_mode.mode(database.mode).createTable(database.name,
-                                                                name, columns)
-
+        dbStatement = data_mode.mode(database.mode).createTable(database.name.lower(),
+                                                                name.lower(), 0)
         if dbStatement == 0:
             table = Table(name)
             database.tables.append(table)
             self.writeFile()
             DataWindow().consoleText('Query returned successfully: Table created')
-
             return table
+
         elif dbStatement == 1:
             desc = f": Can't create table {name}"
             ErrorController().add(34, 'Execution', desc, line, column)
@@ -260,8 +259,8 @@ class TypeChecker(object):
                                   line, column)
             return
 
-        dbStatement = data_mode.mode(database.mode).alterTable(database.name,
-                                                               tableOld, tableNew)
+        dbStatement = data_mode.mode(database.mode).alterTable(database.name.lower(),
+                                                               tableOld.lower(), tableNew.lower())
 
         if dbStatement == 0:
             table = self.searchTable(database, tableOld)
@@ -302,7 +301,7 @@ class TypeChecker(object):
                                   line, column)
             return
         dbStatement = data_mode.mode(
-            database.mode).dropTable(database.name, name)
+            database.mode).dropTable(database.name.lower(), name.lower())
 
         if dbStatement == 0:
             table = self.searchTable(database, name)
@@ -322,9 +321,6 @@ class TypeChecker(object):
             desc = f": Table {name} does not exist"
             ErrorController().add(27, 'Execution', desc, line, column)
 
-    # TODO def alterAddFK
-    # TODO def alterAddIndex
-
     # ------------------------- Columns -------------------------
     def searchColumn(self, table: Table, name: str) -> Column:
         """
@@ -340,20 +336,34 @@ class TypeChecker(object):
                     return col
         return None
 
-    def searchColumns(self, table: Table) -> Column:
+    def searchColPrimaryKey(self, table: Table) -> Column:
         """
         Method to search a column in table
 
         :param table: Table where to search
-        :return: Returns a columns
+        :param name: The name of column
+        :return: Returns the primary column
+        """
+        if table:
+            for col in table.columns:
+                if col.primaryKey == True:
+                    return col
+        return None
+
+    def searchColumnHeadings(self, table: Table):
+        """
+        Method to find column headings
+
+        :param table: Table where to search
+        :return: Returns a list of columns
         """
         lista = []
         if table:
             for col in table.columns:
-                lista.append(col.name)    
+                lista.append(col.name)
             return lista
         return None
-    
+
     def createColumnTable(self, table: Table, column: Column,
                           noLine, noColumn):
         """
@@ -377,7 +387,7 @@ class TypeChecker(object):
             ErrorController().add(29, 'Execution', desc, noLine, noColumn)
             return
 
-        dbStatement = data_mode.mode(database.mode).alterAddColumn(database.name, table.name,
+        dbStatement = data_mode.mode(database.mode).alterAddColumn(database.name.lower(), table.name.lower(),
                                                                    column.default)
 
         if dbStatement == 0:
@@ -387,6 +397,7 @@ class TypeChecker(object):
             table.columns.append(column)
             self.writeFile()
             DataWindow().consoleText('Query returned successfully: Table updated')
+            return True
 
         elif dbStatement == 1:
             desc = f": Can't update table {table.name}"
@@ -418,8 +429,8 @@ class TypeChecker(object):
                                   noLine, noColumn)
             return
 
-        dbStatement = data_mode.mode(database.mode).alterDropColumn(database.name,
-                                                                    table.name, column.number)
+        dbStatement = data_mode.mode(database.mode).alterDropColumn(database.name.lower(),
+                                                                    table.name.lower(), column.number)
 
         if dbStatement == 0:
             if column:
@@ -454,6 +465,3 @@ class TypeChecker(object):
             for col in table.columns:
                 col.number = index
                 index += 1
-
-    # TODO def extractTable
-    # TODO def extractRangeTable

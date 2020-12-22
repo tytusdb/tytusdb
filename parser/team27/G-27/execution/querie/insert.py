@@ -3,14 +3,23 @@ sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
 sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
 sys.path.append('../tytus/parser/team27/G-27/execution/querie')
 sys.path.append('../tytus/storage')
+sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
 from querie import * 
 from environment import *
 from table import *
 from column import *
 from typ import *
 from storageManager import jsonMode as admin
+from checker import check
 
 class Insert(Querie):
+    '''
+     row = numero de fila(int)
+     column = numero de columna(int)
+     tableName = nombre de la tabla a la que deseamos insertar datos(cadena)
+     valueList = una lista de objetos tipo Literal
+     idList = una lista de ids, es decir una lista de tipo string, puede ser None, depende de el formato del insert
+    '''
     def __init__(self, tableName,valueList,idList, row, column):
         Querie.__init__(self, row, column)
         self.tableName = tableName
@@ -30,7 +39,12 @@ class Insert(Querie):
             if len(table.columns) != len(self.valueList):
                 return {'Error': 'El numero de valores a insertar es diferente que el numero de columnas de la tabla: '+self.tableName, 'Fila':self.row, 'Columna': self.column }
             
-            #TODO verificar tipos
+            for i in range(len(self.valueList)):
+                columna = table.columns[i]
+                valor = self.valueList[i].execute(environment)
+                res = check(columna.tipo,valor['typ'], valor['value'],columna.lenght)
+                if not isinstance(res,bool):
+                    return {'Error':res, 'Fila':self.row, 'Columna': self.column}
 
             for index in range(len(self.valueList)):
                 nombreVariable = table.columns[index].name
@@ -124,6 +138,14 @@ class Insert(Querie):
                 return {'Error': 'El numero de registros a insertar difiere del numero de columnas indicadas: '+self.tableName, 'Fila':self.row, 'Columna': self.column }
             
             #TODO verificar tipos
+            for i in range(len(self.valueList)):
+                columna = table.readColumn(self.idList[i])
+                valor = self.valueList[i].execute(environment)
+                res = check(columna.tipo,valor['typ'], valor['value'],columna.lenght)
+                if not isinstance(res,bool):
+                    return {'Error':res, 'Fila':self.row, 'Columna': self.column}
+
+
             # verificar que el id list coincida con los nombres de las columnas
             for item in self.idList:
                 exist = False

@@ -1,4 +1,6 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.Excepcion import Excepcion
+import numpy as np 
 
 class Count(Instruccion):
     def __init__(self, valor, tipo, linea, columna):
@@ -7,9 +9,8 @@ class Count(Instruccion):
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
-'''
-instruccion = Count("hola mundo",None, 1,2)
-
-instruccion.ejecutar(None,None)
-'''
+        resultado = self.valor.ejecutar(tabla, arbol)
+        if isinstance(resultado, Excepcion):
+            return resultado
+        resultado = len(resultado)
+        return np.array([[resultado]])

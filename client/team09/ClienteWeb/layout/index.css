@@ -6,3 +6,33 @@
     display: inline-block;
     position: absolute;
 }
+
+.contenedorQuery{
+    margin-left: 15%;
+    float: left;
+    min-width: 85%;
+}
+
+.textoQuery{
+    min-width: 100%;
+}
+
+.contenedorSalida{
+    margin-left: 15%;
+    height: 100%;
+    resize: vertical;
+    background-color: grey;
+}
+
+.textoSalida{
+    min-width: 100%;
+    min-height: 100%;
+    resize: vertical;
+    background-color: grey;
+}
+
+.CodeMirror{
+    min-width: 100%;
+    font-size: 25PX;
+    min-height: 100%;
+}
