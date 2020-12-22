@@ -26,3 +26,12 @@ def Commit():
     y = json.loads(res.text)       
     print("Mensaje del servidor: "+y['resultado'])
     return render_template('index.html')
+
+@app.route('/Rollback', methods=["POST"])
+def Rollback():
+    print('Ejecucion del rollback')
+    msj = {'rollback':'si'}
+    res = requests.post('http://127.0.0.1:5000/Rollback', json=msj)
+    x = json.loads(res.text)
+    print("Mensaje del servidor: "+x['aviso'])
+    return render_template('index.html')
