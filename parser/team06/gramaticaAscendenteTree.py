@@ -1881,66 +1881,413 @@ def p_funcion_basica(t):
     '''
 #BYRON    
     if t[1].upper()=="ABS":
-        h.reporteGramatical1 +="funcionBasica    ::=      ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-        t[0]=ExpresionABS(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      ABS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'ABS'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather 
+        #t[0]=ExpresionABS(t[3])
     elif t[1].upper()=="CBRT":
-        h.reporteGramatical1 +="funcionBasica    ::=      CBRT PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-        t[0]=ExpresionCBRT(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      CBRT PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionCBRT(t[3])
+        nodeFather = nodeAst()
+        nodeFather.token = 'CBRT'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather 
     elif t[1].upper()=="CEIL":
-        h.reporteGramatical1 +="funcionBasica    ::=      CEIL PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-        t[0]=ExpresionCEIL(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      CEIL PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionCEIL(t[3])
+        nodeFather = nodeAst()
+        nodeFather.token = 'CEIL'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather 
     elif t[1].upper()=="CEILING":
-        h.reporteGramatical1 +="funcionBasica    ::=      CEILING PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-        t[0]=ExpresionCEILING(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      CEILING PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionCEILING(t[3])
+        nodeFather = nodeAst()
+        nodeFather.token = 'CEILING'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather 
     elif t[1].upper()=="DEGREES":
-        t[0]=ExpresionDEGREES(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      DEGREES PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionDEGREES(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      DEGREES PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'DEGREES'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'COMA'
+        nodeSon11.lexeme = ','
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon22 = t[5]
+        nodeFather.son.append(nodeSon22)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather 
     elif t[1].upper()=="DIV":
-        print("entra a DIV++++++++++++")
-        t[0]=ExpresionDIV(t[3],t[5])
-        h.reporteGramatical1 +="funcionBasica    ::=      DIV PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #print("entra a DIV++++++++++++")
+        #t[0]=ExpresionDIV(t[3],t[5])
+        #h.reporteGramatical1 +="funcionBasica    ::=      DIV PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'DIV'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
     elif t[1].upper()=="EXP":
-        t[0]=ExpresionEXP(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      EXP PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionEXP(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      EXP PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'EXP'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
     elif t[1].upper()=="FACTORIAL":
-        t[0]=ExpresionFACTORIAL(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      FACTORIAL PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionFACTORIAL(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      FACTORIAL PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'FACTORIAL'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
     elif t[1].upper()=="FLOOR":
-        t[0]=ExpresionFLOOR(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      FLOOR PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionFLOOR(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      FLOOR PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'FLOOR'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
     elif t[1].upper()=="GCD":
-        t[0]=ExpresionGCD(t[3],t[5])
-        h.reporteGramatical1 +="funcionBasica    ::=      GCD PARENTESISIZQUIERDA operacion COMA operacion  PARENTESISDERECHA\n"
+        #t[0]=ExpresionGCD(t[3],t[5])
+        #h.reporteGramatical1 +="funcionBasica    ::=      GCD PARENTESISIZQUIERDA operacion COMA operacion  PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'GCD'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'COMA'
+        nodeSon11.lexeme = ','
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon22 = t[5]
+        nodeFather.son.append(nodeSon22)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
     elif t[1].upper()=="LN":
-        t[0]=ExpresionLN(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      LN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionLN(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      LN PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'LN'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
     elif t[1].upper()=="LOG":
-        t[0]=ExpresionLOG(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      LOG PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'LOG'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
+        #t[0]=ExpresionLOG(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      LOG PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
     elif t[1].upper()=="MOD":
-        t[0]=ExpresionMOD(t[3],t[5])
-        h.reporteGramatical1 +="funcionBasica    ::=      MOD PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"   
+        #t[0]=ExpresionMOD(t[3],t[5])
+        #h.reporteGramatical1 +="funcionBasica    ::=      MOD PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"
+        # nodeFather = nodeAst()
+        nodeFather.token = 'MOD'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'COMA'
+        nodeSon11.lexeme = ','
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon22 = t[5]
+        nodeFather.son.append(nodeSon22)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather   
     elif t[1].upper()=="PI":
-        t[0]=ExpresionPI(1)
-        h.reporteGramatical1 +="funcionBasica    ::=      PI PARENTESISIZQUIERDA   PARENTESISDERECHA\n"   
+        nodeFather = nodeAst()
+        nodeFather.token = 'PI'
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
+        #t[0]=ExpresionPI(1)
+        #h.reporteGramatical1 +="funcionBasica    ::=      PI PARENTESISIZQUIERDA   PARENTESISDERECHA\n"   
     elif t[1].upper()=="POWER":
-        t[0]=ExpresionPOWER(t[3],t[5])
-        h.reporteGramatical1 +="funcionBasica    ::=      POWER PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n" 
+        nodeFather = nodeAst()
+        nodeFather.token = 'POWER'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'COMA'
+        nodeSon11.lexeme = ','
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon22 = t[5]
+        nodeFather.son.append(nodeSon22)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
+        #t[0]=ExpresionPOWER(t[3],t[5])
+        #h.reporteGramatical1 +="funcionBasica    ::=      POWER PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n" 
     elif t[1].upper()=="RADIANS":
-        t[0]=ExpresionRADIANS(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      RADIANS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"    
+        #t[0]=ExpresionRADIANS(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      RADIANS PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        # nodeFather = nodeAst()
+        nodeFather.token = 'RADIANS'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather    
     elif t[1].upper()=="ROUND":
-        t[0]=ExpresionROUND(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionROUND(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      ROUND PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'ROUND'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
     elif t[1].upper()=="SIGN":
-        t[0]=ExpresionSIGN(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      SIGN  PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"    
+        #t[0]=ExpresionSIGN(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      SIGN  PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        # nodeFather = nodeAst()
+        nodeFather.token = 'SIGN'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather    
     elif t[1].upper()=="SQRT":
-        t[0]=ExpresionSQRT(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      SQRT  PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionSQRT(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      SQRT  PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'SQRT'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
     elif t[1].upper()=="TRUNC":
-        t[0]=ExpresionTRUNC(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      TRUNC  PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        #t[0]=ExpresionTRUNC(t[3])
+        #h.reporteGramatical1 +="funcionBasica    ::=      TRUNC  PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'TRUNC'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'PARENTESIS IZQUIERDA'
+        nodeSon1.lexeme = '('
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon2 = t[3]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon3 = nodeAst()
+        nodeSon3.token = 'PARENTESIS DERECHO'
+        nodeSon3.lexeme = ')'
+        nodeFather.son.append(nodeSon3)
+        t[0] = nodeFather
 #HAYRTON
     elif t[1].upper()=="WIDTH_BUCKET":
         t[0]=ExpresionWIDTHBUCKET(t[3],t[5],t[7],t[9])
@@ -3339,22 +3686,77 @@ def p_select(t):
                         | SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA
     '''
     if t[2]=='*':
-        h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
-        print("/////////////////// SELECT CON ASTERISCO ////////////////////////")
-        print("Columnas: ",t[2])
-        print("Tablas: ",t[4])
-        print("Where: ",QueryWhere(t[6]))
-        print("Extras: ",t[7])
-        t[0]=Select5(t[2],t[4],QueryWhere(t[6]),t[7])
+        #h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
+
+        nodeFather = nodeAst()
+        nodeFather.token = 'SELECT'
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'FROM'
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon2 = t[4]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon111 = nodeAst()
+        nodeSon111.token = 'WHERE'
+        nodeFather.son.append(nodeSon111)
+
+        nodeSon22 = t[6]
+        nodeFather.son.append(nodeSon22)
+
+        nodeSon222 = t[7]
+        nodeFather.son.append(nodeSon222)
+
+        nodeSon2222 = t[8]
+        nodeFather.son.append(nodeSon2222)
+
+        nodeSon1111 = nodeAst()
+        nodeSon1111.token = 'PUNTOYCOMA'
+        nodeSon1111.lexeme = ';'
+        nodeFather.son.append(nodeSon1111)
+
+        t[0] = nodeFather
+
+
     else:
-        h.reporteGramatical1 +="selectData    ::=      SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
-        print("/////////////////// SELECT SIN ASTERISCO ////////////////////////")
-        print("Columnas: ",t[2])
-        print("Tablas: ",t[4])
-        print("Where: ",QueryWhere(t[6]))
-        print("Extras: ",t[7])
-        t[0]=Select5(t[2],t[4],QueryWhere(t[6]),t[7])
-     
+        #h.reporteGramatical1 +="selectData    ::=      SELECT select_list FROM select_list WHERE search_condition opcionesSelect PUNTOYCOMA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'SELECT'
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'FROM'
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon2 = t[4]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon111 = nodeAst()
+        nodeSon111.token = 'WHERE'
+        nodeFather.son.append(nodeSon111)
+
+        nodeSon22 = t[6]
+        nodeFather.son.append(nodeSon22)
+
+        nodeSon222 = t[7]
+        nodeFather.son.append(nodeSon222)
+
+        nodeSon2222 = t[8]
+        nodeFather.son.append(nodeSon2222)
+
+        nodeSon1111 = nodeAst()
+        nodeSon1111.token = 'PUNTOYCOMA'
+        nodeSon1111.lexeme = ';'
+        nodeFather.son.append(nodeSon1111)
+
+        t[0] = nodeFather
+
 
 
 def p_select_1(t):
@@ -3362,21 +3764,62 @@ def p_select_1(t):
                         | SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA
     '''
     if t[2]=='*':
-        h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA\n"
-        h.reporteGramatical2 +="t[0]=Select3(t[4],QueryWhere(t[6]))\n"
-        print("entra al select con where y asterisco/////////////////")
-        t[0]=Select3(t[4],QueryWhere(t[6]))
-        print("el objeto que sube")
-        print(t[0])
+        #h.reporteGramatical1 +="selectData    ::=     SELECT POR FROM select_list WHERE search_condition  PUNTOYCOMA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'SELECT'
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'FROM'
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon2 = t[4]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon111 = nodeAst()
+        nodeSon111.token = 'WHERE'
+        nodeFather.son.append(nodeSon111)
+
+        nodeSon22 = t[6]
+        nodeFather.son.append(nodeSon22)
+
+        nodeSon1111 = nodeAst()
+        nodeSon1111.token = 'PUNTOYCOMA'
+        nodeSon1111.lexeme = ';'
+        nodeFather.son.append(nodeSon1111)
+
+        t[0] = nodeFather
+        
     else:
-        h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA\n"
-        h.reporteGramatical2 +=" t[0]=Select4(t[2],t[4],QueryWhere(t[6]))\n"
-        print("entra al select con where y campos /////////////////")
-        print(t[2])
-        print(t[4])
-        print(t[6])
-        t[0]=Select4(t[2],t[4],QueryWhere(t[6]))
-        print(t[0])
+        #h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list WHERE search_condition  PUNTOYCOMA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'SELECT'
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'FROM'
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon2 = t[4]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon111 = nodeAst()
+        nodeSon111.token = 'WHERE'
+        nodeFather.son.append(nodeSon111)
+
+        nodeSon22 = t[6]
+        nodeFather.son.append(nodeSon22)
+
+        nodeSon1111 = nodeAst()
+        nodeSon1111.token = 'PUNTOYCOMA'
+        nodeSon1111.lexeme = ';'
+        nodeFather.son.append(nodeSon1111)
+
+        t[0] = nodeFather
 
 
 
@@ -3386,42 +3829,96 @@ def p_select_2(t):
                         | SELECT POR FROM select_list  PUNTOYCOMA
     ''' 
     if t[2]=='*':
-        h.reporteGramatical1 +="selectData    ::=      SELECT POR FROM select_list  PUNTOYCOMA\n"
-        h.reporteGramatical2 +=" t[0]=Select(1,t[4])\n"
-        print("entra a select_2 A")
-        t[0]=Select(1,t[4])
+        #h.reporteGramatical1 +="selectData    ::=      SELECT POR FROM select_list  PUNTOYCOMA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'SELECT'
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'FROM'
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon2 = t[4]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon1111 = nodeAst()
+        nodeSon1111.token = 'PUNTOYCOMA'
+        nodeSon1111.lexeme = ';'
+        nodeFather.son.append(nodeSon1111)
+
+        t[0] = nodeFather
+        
     
     else:
         # select tipo 4
-        h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list  PUNTOYCOMA\n"
-        h.reporteGramatical2 +=" t[0]=Select2(2,t[2],t[4])\n"
-        print("entra a select_2  B")
-        t[0]=Select2(2,t[2],t[4])
+        #h.reporteGramatical1 +="selectData    ::=     SELECT select_list FROM select_list  PUNTOYCOMA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'SELECT'
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon11 = nodeAst()
+        nodeSon11.token = 'FROM'
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon2 = t[4]
+        nodeFather.son.append(nodeSon2)
+
+        nodeSon1111 = nodeAst()
+        nodeSon1111.token = 'PUNTOYCOMA'
+        nodeSon1111.lexeme = ';'
+        nodeFather.son.append(nodeSon1111)
+
+        t[0] = nodeFather
+        
 
 # esta full
 def p_select_3(t):
     '''selectData       : SELECT select_list   PUNTOYCOMA
     '''
-    h.reporteGramatical1 +="selectData    ::=      SELECT select_list   PUNTOYCOMA\n"
-    h.reporteGramatical2 +=" t[0]=Select(1,t[2])\n"
-    t[0]=Select(1,t[2])
+    nodeFather = nodeAst()
+    nodeFather.token = 'SELECT'
+
+    nodeSon1 = t[2]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon1111 = nodeAst()
+    nodeSon1111.token = 'PUNTOYCOMA'
+    nodeSon1111.lexeme = ';'
+    nodeFather.son.append(nodeSon1111)
+
+    t[0] = nodeFather
 
 
 
 def p_opcionesSelect_1(t):
     '''opcionesSelect   : opcionesSelect opcionSelect
     '''
-    h.reporteGramatical1 +="opcionesSelect    ::=      opcionesSelect opcionSelect\n"
-    print(t[1])
-    t[1].append(t[2])
-    t[0]=t[1]
+        nodeFather = nodeAst()
+        nodeFather.token = 'OPCIONES_SELECT'
+
+        nodeSon11 = t[1]
+        nodeFather.son.append(nodeSon11)
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
 
 def p_opcionesSelect_2(t):
     '''opcionesSelect   : opcionSelect
     '''
-    h.reporteGramatical1 +="opcionesSelect    ::=      opcionSelect\n"
-    print(t[1])
-    t[0]=[t[1]]
+    #h.reporteGramatical1 +="opcionesSelect    ::=      opcionSelect\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'OPCION_SELECT'
+
+    nodeSon11 = t[1]
+    nodeFather.son.append(nodeSon11)
+
+    t[0] = nodeFather
 
 
 def p_opcionesSelect_3(t):
@@ -3431,21 +3928,57 @@ def p_opcionesSelect_3(t):
                         | ORDER BY select_list 
     '''
     if t[1].upper()=="LIMIT":
-        h.reporteGramatical1 +="opcionSelect    ::=      LIMIT operacion\n"
-        h.reporteGramatical2 +="t[0]=ExpresionLimit(t[2])\n"
-        t[0]=ExpresionLimit(t[2])
+        #h.reporteGramatical1 +="opcionSelect    ::=      LIMIT operacion\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'OPCION_SELECT'
+
+        nodeSon11112 = nodeAst()
+        nodeSon11112.token = 'LIMIT'
+        nodeFather.son.append(nodeSon11112)
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
     elif t[1].upper()=="GROUP":
-        h.reporteGramatical1 +="opcionSelect    ::=      GROUP BY select_list\n"
-        h.reporteGramatical2 +="t[0]=ExpresionGroup(t[3])\n"
-        t[0]=ExpresionGroup(t[3])
+        #h.reporteGramatical1 +="opcionSelect    ::=      GROUP BY select_list\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'OPCION_SELECT'
+
+        nodeSon11112 = nodeAst()
+        nodeSon11112.token = 'GROUP BY'
+        nodeFather.son.append(nodeSon11112)
+
+        nodeSon1 = t[3]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
     elif t[1].upper()=="HAVING":
         h.reporteGramatical1 +="opcionSelect    ::=      HAVING select_list\n"
-        h.reporteGramatical2 +="t[0]=ExpresionHaving(t[2])\n"
-        t[0]=ExpresionHaving(t[2])
+        nodeFather = nodeAst()
+        nodeFather.token = 'OPCION_SELECT'
+
+        nodeSon11112 = nodeAst()
+        nodeSon11112.token = 'HAVING'
+        nodeFather.son.append(nodeSon11112)
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
     elif t[1].upper()=="ORDER":
         h.reporteGramatical1 +="opcionSelect    ::=      ORDER BY select_list\n"
-        h.reporteGramatical2 +="t[0]=ExpresionOrder(t[3],'ASC')\n"
-        t[0]=ExpresionOrder(t[3],'ASC')
+        nodeFather = nodeAst()
+        nodeFather.token = 'OPCION_SELECT'
+
+        nodeSon11112 = nodeAst()
+        nodeSon11112.token = 'ORDER BY'
+        nodeFather.son.append(nodeSon11112)
+
+        nodeSon1 = t[3]
+        nodeFather.son.append(nodeSon1)
+
+        t[0] = nodeFather
 
 
 def p_opcionesSelect_4(t):
@@ -3453,47 +3986,114 @@ def p_opcionesSelect_4(t):
                         | ORDER BY select_list ordenamiento                     
     '''
     if t[1].upper()=="LIMIT":
-        h.reporteGramatical1 +="opcionSelect    ::=      LIMIT operacion OFFSET operacion\n"
-        h.reporteGramatical2 +="t[0]=ExpresionLimitOffset(t[2],t[4])\n"
-        t[0]=ExpresionLimitOffset(t[2],t[4])
+        #h.reporteGramatical1 +="opcionSelect    ::=      LIMIT operacion OFFSET operacion\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'OPCION_SELECT'
+
+        nodeSon11112 = nodeAst()
+        nodeSon11112.token = 'LIMIT'
+        nodeFather.son.append(nodeSon11112)
+
+        nodeSon1 = t[2]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon7 = nodeAst()
+        nodeSon7.token = 'OFFSET'
+        nodeFather.son.append(nodeSon7)
+
+        nodeSon11 = t[4]
+        nodeFather.son.append(nodeSon11)
+        t[0] = nodeFather
     elif t[1].upper()=="ORDER":
-        h.reporteGramatical1 +="opcionSelect    ::=      ORDER BY select_list ordenamiento\n"
-        h.reporteGramatical2 +="t[0]=ExpresionOrder(t[3],t[4])\n"
-        t[0]=ExpresionOrder(t[3],t[4])
+        #h.reporteGramatical1 +="opcionSelect    ::=      ORDER BY select_list ordenamiento\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'OPCION_SELECT'
+
+        nodeSon11112 = nodeAst()
+        nodeSon11112.token = 'ORDER BY'
+        nodeFather.son.append(nodeSon11112)
+
+        nodeSon1 = t[3]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon11 = t[4]
+        nodeFather.son.append(nodeSon11)
+        t[0] = nodeFather
+        
 
 
 
 def p_ordenamiento(t):
     '''ordenamiento     : ASC
                         | DESC '''
-    h.reporteGramatical1 +="ordenamiento    ::=      "+str(t[1])+"\n"
-    h.reporteGramatical2 +=" t[0]=str(t[1])\n"
-    t[0]=str(t[1])
+    #h.reporteGramatical1 +="ordenamiento    ::=      "+str(t[1])+"\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'OPCION_SELECT'
+
+    nodeSon11112 = nodeAst()
+    nodeSon11112.token = 'ORDENAMIENTO'
+    nodeFather.son.append(nodeSon11112)
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
+    
 
 
 
 def p_search_condition_2(t):
     'search_condition   : NOT search_condition'
-    h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
-    print("esta condicion es del not con operacion******************")
-    print(t[2])
+    #h.reporteGramatical1 +="search_condition    ::=       NOT search_condition\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'SEARCH_CONDITION'
+
+    nodeSon11112 = nodeAst()
+    nodeSon11112.token = 'NOT'
+    nodeFather.son.append(nodeSon11112)
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = t[2]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 # PARA ABAJO YA ESTA
 def p_search_condition_3(t):
     'search_condition   : operacion'
-    h.reporteGramatical1 +="search_condition    ::=       operacion\n"
-    h.reporteGramatical2 +=" t[0]=t[1]\n"
-    print("entra a la operacion del seach_condition++++++++++++++++++++++++++++++++++++++++")
-    print(t[1])
-    t[0]=t[1]
+    #h.reporteGramatical1 +="search_condition    ::=       operacion\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'SEARCH_CONDITION'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    t[0] = nodeFather
 
 def p_search_condition_4(t):
     'search_condition   : PARENTESISIZQUIERDA search_condition PARENTESISDERECHA'
-    h.reporteGramatical1 +="search_condition    ::=     PARENTESISIZQUIERDA search_condition PARENTESISDERECHA\n"
-    h.reporteGramatical2 +=" t[0]=t[2]\n"
-    print("entra a la condicion con el parentesis")
-    print(t[2])
-    t[0]=t[2]
+    #h.reporteGramatical1 +="search_condition    ::=     PARENTESISIZQUIERDA search_condition PARENTESISDERECHA\n"
+    nodeFather = nodeAst()
+    nodeFather.token = 'SEARCH_CONDITION'
+
+    nodeSon11112 = nodeAst()
+    nodeSon11112.token = 'PARENTESIS IZQUIERDA'
+    nodeSon11112.lexem = '('
+    nodeFather.son.append(nodeSon11112)
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'PARENTESIS DERECHA'
+    nodeSon5.lexem = ')'
+    nodeFather.son.append(nodeSon5)
+
+    t[0] = nodeFather
+    
 #HAYRTON
 
 
