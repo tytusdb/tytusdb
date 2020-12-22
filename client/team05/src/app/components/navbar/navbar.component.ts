@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';//se instalo para el modal
 import { DatabaseService } from 'src/app/service/database/database.service';
 import { TableService } from 'src/app/service/table/table.service';
 
@@ -29,7 +28,7 @@ export class NavbarComponent implements OnInit {
   }
 
 
-  constructor(private modalService: NgbModal, private dbServs: DatabaseService, private tbServs : TableService) { }
+  constructor(private dbServs: DatabaseService, private tbServs : TableService) { }
 
   ngOnInit(): void {
 
