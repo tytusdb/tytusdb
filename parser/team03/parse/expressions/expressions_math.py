@@ -445,7 +445,10 @@ class WidthBucket(ASTNode):
         exp4 = self.exp4.execute(table, tree)
 
         try:
-            return exp1+exp2+exp3+exp4
+            if exp3 == exp2: 
+                return 0
+            else:
+                return math.ceil( (exp4 * exp1) / (exp3 - exp2) ) 
         except ValueError:
             raise(Error(self.line, self.column, ErrorType.SEMANTIC, 'ValueError: only accepts integral positive values'))
         except:
