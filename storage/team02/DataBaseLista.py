@@ -137,3 +137,22 @@ class ListaDOBLE:
             lista.append(tmp.nombreBase)
             tmp = tmp.siguiente
         return lista
+
+    #MÉTODO GRAFICAR SIN LIBRERIAS DE GRAPHVIZ
+    def GraficarConArchivo(self):
+        f = open("listaDoble.dot", "w")
+        f.write("digraph g {\n")
+        f.write("node [shape = rect, width=1, height=0.4];\n")     
+        f.write("rankdir=LR;\n")
+
+        tmp = self.primero
+        while tmp.siguiente != None:
+            f.write("\""+str(tmp.nombreBase)+"\"->"+"\""+str(tmp.siguiente.nombreBase)+"\";\n")
+            tmp = tmp.siguiente
+        aux = self.ultimo
+        while aux.anterior != None:
+            f.write("\""+str(aux.nombreBase)+"\"->"+"\""+str(aux.anterior.nombreBase)+"\";\n")
+            aux = aux.anterior
+        f.write("}")
+        f.close()
+        os.system("dot -Tjpg listaDoble.dot -o listaDoble.png")
