@@ -6,6 +6,12 @@ CREATE TABLE Usuarios (
     PRIMARY KEY (id),
     CHECK ( us1>10 )
 );
+CREATE TYPE PAISES AS ENUM ("Guatemala",'Nicaragua');
+UPDATE Usuarios
+SET
+edad = 1,
+ID = 1*2+2
+WHERE ID>1;
 
 CREATE TABLE Terreno(
     m VARCHAR(10)

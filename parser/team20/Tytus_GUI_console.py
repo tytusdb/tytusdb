@@ -69,9 +69,6 @@ def print_data_(hexadecimal_color_foreground: str, type_print: str, data_type: s
     Tytus_GUI.console.tag_add(type_print, str(positions[0]) + "." + str(positions[1]), str(positions[2]) + "." + str(positions[3]))
 
 
-def print_grammar_report(data_type: str, print_: str):
-    print_report("#FFFFFF", "#0000FF", "grammar_report", data_type, print_)
-
 def print_error_table(data_type: str, print_: str):
     print_report("#FFFFFF", "#FF0000", "error_table", data_type, print_)
 

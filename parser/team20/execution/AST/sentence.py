@@ -86,13 +86,50 @@ class DropDatabase(Sentence):
         self.name = name
         self.ifExistsFlag = ifExistsFlag
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"DropDatabase\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DROP") + hash(self)) + '\n'
+        dot += str(hash("DROP") + hash(self)) + \
+            '[label=\"' + "DROP" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DATABASE") + hash(self)) + '\n'
+        dot += str(hash("DATABASE") + hash(self)) + \
+            '[label=\"' + "DATABASE" + '\"]\n'
+        if(self.ifExistsFlag):
+            dot += str(hash(self)) + '->' + \
+            str(hash("IF") + hash(self)) + '\n'
+            dot += str(hash("IF") + hash(self)) + \
+                '[label=\"' + "IF" + '\"]\n'
+            dot += str(hash(self)) + '->' + \
+            str(hash("EXISTS") + hash(self)) + '\n'
+            dot += str(hash("EXISTS") + hash(self)) + \
+                '[label=\"' + "EXISTS" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
+        return dot
 
 class DropTable(Sentence):
     def __init__(self, name):
         self.name = name
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"DropTable\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DROP") + hash(self)) + '\n'
+        dot += str(hash("DROP") + hash(self)) + \
+            '[label=\"' + "DROP" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
+        return dot
 
 class Use(Sentence):
     def __init__(self, name):
@@ -115,21 +152,99 @@ class AlterDatabaseRename(Sentence):
         self.oldname = oldname
         self.newname = newname
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterDatabaseRename\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DATABASE") + hash(self)) + '\n'
+        dot += str(hash("DATABASE") + hash(self)) + \
+            '[label=\"' + "DATABASE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.oldname) + hash(self)) + '\n'
+        dot += str(hash(self.oldname) + hash(self)) + \
+            '[label=\"' + self.oldname + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("RENAME") + hash(self)) + '\n'
+        dot += str(hash("RENAME") + hash(self)) + \
+            '[label=\"' + "RENAME" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TO") + hash(self)) + '\n'
+        dot += str(hash("TO") + hash(self)) + \
+            '[label=\"' + "TO" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.newname) + hash(self)) + '\n'
+        dot += str(hash(self.newname) + hash(self)) + \
+            '[label=\"' + self.newname + '\"]\n'
+        return dot
 
 class AlterDatabaseOwner(Sentence):
     def __init__(self, name, newowner):
         self.name = name
         self.newowner = newowner
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterDatabaseOwner\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DATABASE") + hash(self)) + '\n'
+        dot += str(hash("DATABASE") + hash(self)) + \
+            '[label=\"' + "DATABASE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("OWNER") + hash(self)) + '\n'
+        dot += str(hash("OWNER") + hash(self)) + \
+            '[label=\"' + "OWNER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TO") + hash(self)) + '\n'
+        dot += str(hash("TO") + hash(self)) + \
+            '[label=\"' + "TO" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.newowner) + hash(self)) + '\n'
+        dot += str(hash(self.newowner) + hash(self)) + \
+            '[label=\"' + self.newowner + '\"]\n'
+        return dot
 
 class AlterTableDropColumn(Sentence):
     def __init__(self, table, column):
         self.table = table
         self.column = column
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterTableDropColumn\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.table) + hash(self)) + '\n'
+        dot += str(hash(self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DROP") + hash(self)) + '\n'
+        dot += str(hash("DROP") + hash(self)) + \
+            '[label=\"' + "DROP" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("COLUMN") + hash(self)) + '\n'
+        dot += str(hash("COLUMN") + hash(self)) + \
+            '[label=\"' + "COLUMN" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("C"+self.column) + hash(self)) + '\n'
+        dot += str(hash("C"+self.column) + hash(self)) + \
+            '[label=\"' + self.column + '\"]\n'
+        return dot
 
 class AlterTableAddConstraintUnique(Sentence):
     def __init__(self, table, constraint, column):
@@ -137,7 +252,41 @@ class AlterTableAddConstraintUnique(Sentence):
         self.constraint = constraint
         self.column = column
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterTableAddConstraintUnique\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.table) + hash(self)) + '\n'
+        dot += str(hash(self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ADD") + hash(self)) + '\n'
+        dot += str(hash("ADD") + hash(self)) + \
+            '[label=\"' + "ADD" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("CONSTRAINT") + hash(self)) + '\n'
+        dot += str(hash("CONSTRAINT") + hash(self)) + \
+            '[label=\"' + "CONSTRAINT" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.constraint) + hash(self)) + '\n'
+        dot += str(hash(self.constraint) + hash(self)) + \
+            '[label=\"' + self.constraint + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("UNIQUE") + hash(self)) + '\n'
+        dot += str(hash("UNIQUE") + hash(self)) + \
+            '[label=\"' + "UNIQUE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.column) + hash(self)) + '\n'
+        dot += str(hash(self.column) + hash(self)) + \
+            '[label=\"' + self.column + '\"]\n'
+        return dot
 
 class AlterTableAddForeignKey(Sentence):
     def __init__(self, table, column, rel_table, rel_column):
@@ -146,7 +295,49 @@ class AlterTableAddForeignKey(Sentence):
         self.rel_table = rel_table
         self.rel_column = rel_column
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterTableAddForeignKey\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("T"+self.table) + hash(self)) + '\n'
+        dot += str(hash("T"+self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ADD") + hash(self)) + '\n'
+        dot += str(hash("ADD") + hash(self)) + \
+            '[label=\"' + "ADD" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("FOREIGN") + hash(self)) + '\n'
+        dot += str(hash("FOREIGN") + hash(self)) + \
+            '[label=\"' + "FOREIGN" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("KEY") + hash(self)) + '\n'
+        dot += str(hash("KEY") + hash(self)) + \
+            '[label=\"' + "KEY" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("C"+self.column) + hash(self)) + '\n'
+        dot += str(hash("C"+self.column) + hash(self)) + \
+            '[label=\"' + self.column + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("REFERENCES") + hash(self)) + '\n'
+        dot += str(hash("REFERENCES") + hash(self)) + \
+            '[label=\"' + "REFERENCES" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.rel_table) + hash(self)) + '\n'
+        dot += str(hash(self.rel_table) + hash(self)) + \
+            '[label=\"' + self.rel_table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("RC"+self.rel_column) + hash(self)) + '\n'
+        dot += str(hash("RC"+self.rel_column) + hash(self)) + \
+            '[label=\"' + self.rel_column + '\"]\n'
+        return dot
         
 class AlterTableAlterColumnSetNull(Sentence):
     def __init__(self, table, column, null):
@@ -154,7 +345,45 @@ class AlterTableAlterColumnSetNull(Sentence):
         self.column = column
         self.null = null
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterTableAlterColumnSetNull\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("T"+self.table) + hash(self)) + '\n'
+        dot += str(hash("T"+self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTERC") + hash(self)) + '\n'
+        dot += str(hash("ALTERC") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("COLUMN") + hash(self)) + '\n'
+        dot += str(hash("COLUMN") + hash(self)) + \
+            '[label=\"' + "COLUMN" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.column) + hash(self)) + '\n'
+        dot += str(hash(self.column) + hash(self)) + \
+            '[label=\"' + self.column + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("SET") + hash(self)) + '\n'
+        dot += str(hash("SET") + hash(self)) + \
+            '[label=\"' + "SET" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("null") + hash(self)) + '\n'
+        dot += str(hash("null") + hash(self)) + \
+            '[label=\"' + "null" + '\"]\n'
+        dot += str(hash("null") +hash(self)) + '->' + \
+        str(hash("null") + hash(str(self.null)) + hash(self)) + '\n'
+        dot += str(hash("null") + hash(str(self.null)) + hash(self)) + \
+            '[label=\"' + str(self.null) + '\"]\n'
+        return dot
 
 class AlterTableAlterColumnType(Sentence):
     def __init__(self, table, column, newtype):
@@ -162,21 +391,111 @@ class AlterTableAlterColumnType(Sentence):
         self.column = column
         self.newtype = newtype # type [type,length] or type = [type]
     def graphAST(self, dot, parent):
-      return "" 
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterTableAlterColumnType\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("T"+self.table) + hash(self)) + '\n'
+        dot += str(hash("T"+self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTERC") + hash(self)) + '\n'
+        dot += str(hash("ALTERC") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("COLUMN") + hash(self)) + '\n'
+        dot += str(hash("COLUMN") + hash(self)) + \
+            '[label=\"' + "COLUMN" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("C"+self.column) + hash(self)) + '\n'
+        dot += str(hash("C"+self.column) + hash(self)) + \
+            '[label=\"' + self.column + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TYPE") + hash(self)) + '\n'
+        dot += str(hash("TYPE") + hash(self)) + \
+            '[label=\"' + "TYPE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.newtype[0]) + hash(self)) + '\n'
+        dot += str(hash(self.newtype[0]) + hash(self)) + \
+            '[label=\"' + self.newtype[0] + '\"]\n'
+        return dot 
 class AlterTableAddColumn(Sentence):
-    def __init__(self, table, column, newtype):
+    def __init__(self, table, column, type):
         self.table = table
         self.column = column
         self.type = type # type [type,length] or type = [type]
     def graphAST(self, dot, parent):
-      return "" 
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterTableAddColumn\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("T"+self.table) + hash(self)) + '\n'
+        dot += str(hash("T"+self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ADD") + hash(self)) + '\n'
+        dot += str(hash("ADD") + hash(self)) + \
+            '[label=\"' + "ADD" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("COLUMN") + hash(self)) + '\n'
+        dot += str(hash("COLUMN") + hash(self)) + \
+            '[label=\"' + "COLUMN" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("C"+self.column) + hash(self)) + '\n'
+        dot += str(hash("C"+self.column) + hash(self)) + \
+            '[label=\"' + self.column + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.type[0]) + hash(self)) + '\n'
+        dot += str(hash(self.type[0]) + hash(self)) + \
+            '[label=\"' + self.type[0] + '\"]\n'
+        return dot 
 
 class AlterTableDropConstraint(Sentence):
     def __init__(self, table, constraint):
         self.table = table
         self.constraint = constraint
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"AlterTableDropConstraint\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ALTER") + hash(self)) + '\n'
+        dot += str(hash("ALTER") + hash(self)) + \
+            '[label=\"' + "ALTER" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TABLE") + hash(self)) + '\n'
+        dot += str(hash("TABLE") + hash(self)) + \
+            '[label=\"' + "TABLE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("T"+self.table) + hash(self)) + '\n'
+        dot += str(hash("T"+self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DROP") + hash(self)) + '\n'
+        dot += str(hash("DROP") + hash(self)) + \
+            '[label=\"' + "DROP" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("CONSTRAINT") + hash(self)) + '\n'
+        dot += str(hash("CONSTRAINT") + hash(self)) + \
+            '[label=\"' + "CONSTRAINT" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("C"+self.constraint) + hash(self)) + '\n'
+        dot += str(hash("C"+self.constraint) + hash(self)) + \
+            '[label=\"' + self.constraint + '\"]\n'
+        return dot
 
 class Insert(Sentence):
     def __init__(self, table, columns, values):
@@ -184,27 +503,103 @@ class Insert(Sentence):
         self.columns = columns
         self.values = values
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"Insert\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("INSERT") + hash(self)) + '\n'
+        dot += str(hash("INSERT") + hash(self)) + \
+            '[label=\"' + "INSERT" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("INTO") + hash(self)) + '\n'
+        dot += str(hash("INTO") + hash(self)) + \
+            '[label=\"' + "INTO" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.table) + hash(self)) + '\n'
+        dot += str(hash(self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("Columns") + hash(self)) + '\n'
+        dot += str(hash("Columns") + hash(self)) + \
+            '[label=\"' + "Columns" + '\"]\n'
+        for column in self.columns:
+            dot += str(hash("Columns") + hash(self)) + '->' + \
+            str(hash("Columns") + hash(self) + hash(column)) + '\n'
+            dot += str(hash("Columns") + hash(self)+hash(column)) + \
+                '[label=\"' + column + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("VALUES") + hash(self)) + '\n'
+        dot += str(hash("VALUES") + hash(self)) + \
+            '[label=\"' + "VALUES" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("Values") + hash(self)) + '\n'
+        dot += str(hash("Values") + hash(self)) + \
+            '[label=\"' + "Values" + '\"]\n'
+        for value in self.values:
+            dot+= value.graphAST('',str(hash("Values") + hash(self)))
+        return dot
 
 class InsertAll(Sentence):
     def __init__(self, table, values):
         self.table = table
         self.values = values
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"InsertAll\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("INSERT") + hash(self)) + '\n'
+        dot += str(hash("INSERT") + hash(self)) + \
+            '[label=\"' + "INSERT" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("INTO") + hash(self)) + '\n'
+        dot += str(hash("INTO") + hash(self)) + \
+            '[label=\"' + "INTO" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.table) + hash(self)) + '\n'
+        dot += str(hash(self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("VALUES") + hash(self)) + '\n'
+        dot += str(hash("VALUES") + hash(self)) + \
+            '[label=\"' + "VALUES" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("Values") + hash(self)) + '\n'
+        dot += str(hash("Values") + hash(self)) + \
+            '[label=\"' + "Values" + '\"]\n'
+        for value in self.values:
+            dot+= value.graphAST('',str(hash("Values") + hash(self)))
+        return dot
 
 class Delete(Sentence):
     def __init__(self, table, expression):
         self.table = table
         self.expression = expression
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"Delete\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("DELETE") + hash(self)) + '\n'
+        dot += str(hash("DELETE") + hash(self)) + \
+            '[label=\"' + "DELETE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("FROM") + hash(self)) + '\n'
+        dot += str(hash("FROM") + hash(self)) + \
+            '[label=\"' + "FROM" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.table) + hash(self)) + '\n'
+        dot += str(hash(self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("WHERE") + hash(self)) + '\n'
+        dot += str(hash("WHERE") + hash(self)) + \
+            '[label=\"' + "WHERE" + '\"]\n'
+        dot += self.expression.graphAST('',str(hash("WHERE") + hash(self)))
+        return dot   
 
 class Truncate(Sentence):
     def __init__(self, tables):
         self.tables = tables
     def graphAST(self, dot, parent):
-      return ""
+        return dot
 
 class Update(Sentence):
     def __init__(self, table, values, expression):
@@ -212,14 +607,71 @@ class Update(Sentence):
         self.values = values #values = [value1,value2,...,valuen] -> value = [id,expression]  
         self.expression = expression
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"Update\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("UPDATE") + hash(self)) + '\n'
+        dot += str(hash("UPDATE") + hash(self)) + \
+            '[label=\"' + "UPDATE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.table) + hash(self)) + '\n'
+        dot += str(hash(self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("SET") + hash(self)) + '\n'
+        dot += str(hash("SET") + hash(self)) + \
+            '[label=\"' + "SET" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("Values") + hash(self)) + '\n'
+        dot += str(hash("Values") + hash(self)) + \
+            '[label=\"' + "Values" + '\"]\n'
+        for value in self.values:
+            dot += str(hash("Values") + hash(self)) + '->' + \
+            str(hash("Values") + hash(self) + hash(value[0])) + '\n'
+            dot += str(hash("Values") + hash(self) + hash(value[0])) + \
+                '[label=\"' + value[0] + '\"]\n'
+            dot+= value[1].graphAST('',str(hash("Values") + hash(self)))
+        dot += str(hash(self)) + '->' + \
+        str(hash("WHERE") + hash(self)) + '\n'
+        dot += str(hash("WHERE") + hash(self)) + \
+            '[label=\"' + "WHERE" + '\"]\n'
+        dot += self.expression.graphAST('',str(hash("WHERE") + hash(self)))        
+        return dot
 
 class CreateType(Sentence):
     def __init__(self, name, expressions):
         self.name = name
         self.expressions = expressions #expressions = [expression1,expression2,...,expressionn]
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"CreateType\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("CREATE") + hash(self)) + '\n'
+        dot += str(hash("CREATE") + hash(self)) + \
+            '[label=\"' + "CREATE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("TYPE") + hash(self)) + '\n'
+        dot += str(hash("TYPE") + hash(self)) + \
+            '[label=\"' + "TYPE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("AS") + hash(self)) + '\n'
+        dot += str(hash("AS") + hash(self)) + \
+            '[label=\"' + "AS" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("ENUM") + hash(self)) + '\n'
+        dot += str(hash("ENUM") + hash(self)) + \
+            '[label=\"' + "ENUM" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("expressions") + hash(self)) + '\n'
+        dot += str(hash("expressions") + hash(self)) + \
+            '[label=\"' + "expressions" + '\"]\n'
+        for expression in self.expressions:
+            dot+= expression.graphAST('',str(hash("expressions") + hash(self)))
+        return dot
 
 class CreateTable(Sentence):
     def __init__(self, name, columns, inherits):
@@ -247,6 +699,8 @@ class CreateTable(Sentence):
         str(hash("columns") + hash(self)) + '\n'
         dot += str(hash("columns") + hash(self)) + \
             '[label=\"' + "columns" + '\"]\n'
+        for column in self.columns:
+            dot+= column.graphAST('',str(hash("columns") + hash(self)))
         return dot
 
 class Select(Sentence):
@@ -265,21 +719,21 @@ class Select(Sentence):
         # groupby -> ExpressionList
         # having -> Expression
     def graphAST(self, dot, parent):
-      return ""
+        return dot
 class SelectMultiple(Sentence):
     def __init__(self, select1, operator, select2):
         self.select1 = select1
         self.operator = operator
         self.select2 = select2
     def graphAST(self, dot, parent):
-      return ""
+        return dot
 
 class CreateTableOpt:
     ''' '''
 class ColumnId(CreateTableOpt):
-    def __init__(self, name, typo, options):
+    def __init__(self, name, type, options):
         self.name = name
-        self.type = typo
+        self.type = type
         self.options = options #options = {'default','null','primary','reference','unique','constraint','check'}
         # options se puede acceder a los items de la forma options['nombrepropiedad'] si no existe devuelve 'nombrepropiedad'
         # default -> Expression
@@ -291,36 +745,235 @@ class ColumnId(CreateTableOpt):
         # check -> Expression
         # constraintcheck -> ID,Expression
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"ColumnId\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.type[0]) + hash(self)) + '\n'
+        dot += str(hash(self.type[0]) + hash(self)) + \
+            '[label=\"' + self.type[0] + '\"]\n'
+        if(bool(self.options)):
+            dot += str(hash(self)) + '->' + \
+            str(hash("Options") + hash(self)) + '\n'
+            dot += str(hash("Options") + hash(self)) + \
+                '[label=\"' + "Options" + '\"]\n'
+            try:
+                self.options['default']
+                dot += str(hash("Options") + hash(self)) + '->' + \
+                str(hash("Options") + hash(self) + hash("default")) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("default")) + \
+                    '[label=\"' + "default" + '\"]\n'
+                dot += self.options['default'].graphAST('',str(hash("Options") + hash(self)+ hash("default")))
+            except:
+                pass
+            try:
+                self.options['null']
+                dot += str(hash("Options") + hash(self)) + '->' + \
+                str(hash("Options") + hash(self) + hash("null")) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("null")) + \
+                    '[label=\"' + "null" + '\"]\n'
+                dot += str(hash("Options") + hash(self)+ hash("null")) + '->' + \
+                str(hash("Options") + hash(self) + hash("null")+ hash(str(self.options['null']))) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("null") + hash(str(self.options['null']))) + \
+                    '[label=\"' + str(self.options['null']) + '\"]\n'
+            except:
+                pass
+            try:
+                self.options['primary']
+                dot += str(hash("Options") + hash(self)) + '->' + \
+                str(hash("Options") + hash(self) + hash("primarykey")) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("primarykey")) + \
+                    '[label=\"' + "primarykey" + '\"]\n'
+                dot += str(hash("Options") + hash(self)+ hash("primarykey")) + '->' + \
+                str(hash("Options") + hash(self) + hash("primarykey")+ hash(str(self.options['primary']))) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("primarykey") + hash(str(self.options['primary']))) + \
+                    '[label=\"' + str(self.options['primary']) + '\"]\n'
+            except:
+                pass
+            try:
+                self.options['reference']
+                dot += str(hash("Options") + hash(self)) + '->' + \
+                str(hash("Options") + hash(self) + hash("reference")) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("reference")) + \
+                    '[label=\"' + "reference" + '\"]\n'
+                dot += str(hash("Options") + hash(self)+ hash("reference")) + '->' + \
+                str(hash("Options") + hash(self) + hash("reference")+ hash(str(self.options['reference']))) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("reference") + hash(str(self.options['reference']))) + \
+                    '[label=\"' + str(self.options['reference']) + '\"]\n'
+            except:
+                pass
+            try:
+                self.options['unique']
+                dot += str(hash("Options") + hash(self)) + '->' + \
+                str(hash("Options") + hash(self) + hash("unique")) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("unique")) + \
+                    '[label=\"' + "unique" + '\"]\n'
+                dot += str(hash("Options") + hash(self)+ hash("unique")) + '->' + \
+                str(hash("Options") + hash(self) + hash("unique")+ hash(str(self.options['unique']))) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("unique") + hash(str(self.options['unique']))) + \
+                    '[label=\"' + str(self.options['unique']) + '\"]\n'
+            except:
+                pass
+            try:
+                self.options['constraintunique']
+                dot += str(hash("Options") + hash(self)) + '->' + \
+                str(hash("Options") + hash(self) + hash("constraintunique")) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("constraintunique")) + \
+                    '[label=\"' + "constraintunique" + '\"]\n'
+                dot += str(hash("Options") + hash(self)+ hash("constraintunique")) + '->' + \
+                str(hash("Options") + hash(self) + hash("constraintunique")+ hash(str(self.options['constraintunique']))) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("constraintunique") + hash(str(self.options['constraintunique']))) + \
+                    '[label=\"' + str(self.options['constraintunique']) + '\"]\n'
+            except:
+                pass
+            try:
+                self.options['check']
+                dot += str(hash("Options") + hash(self)) + '->' + \
+                str(hash("Options") + hash(self) + hash("check")) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("check")) + \
+                    '[label=\"' + "check" + '\"]\n'
+                dot += self.options['check'].graphAST('',str(hash("Options") + hash(self)+ hash("check")))
+            except:
+                pass
+            try:
+                self.options['constraintcheck']
+                dot += str(hash("Options") + hash(self)) + '->' + \
+                str(hash("Options") + hash(self) + hash("constraintcheck")) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("constraintcheck")) + \
+                    '[label=\"' + "constraintcheck" + '\"]\n'
+                dot += str(hash("Options") + hash(self)+ hash("constraintcheck")) + '->' + \
+                str(hash("Options") + hash(self) + hash("constraintcheck")+ hash(str(self.options['constraintcheck'][0]))) + '\n'
+                dot += str(hash("Options") + hash(self)+ hash("constraintcheck") + hash(str(self.options['constraintcheck'][0]))) + \
+                    '[label=\"' + str(self.options['constraintunique'][0]) + '\"]\n'
+                dot += self.options['constraintcheck'][1].graphAST('',str(hash("Options") + hash(self)+ hash("constraintcheck")))
+            except:
+                pass
+        return dot
 
 class ColumnCheck(CreateTableOpt):
     def __init__(self, expression):
         self.expression = expression
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"ColumnCheck\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("CHECK") + hash(self)) + '\n'
+        dot += str(hash("CHECK") + hash(self)) + \
+            '[label=\"' + "CHECK" + '\"]\n'
+        dot +=  self.expression.graphAST('',str(hash(self)))
+        return dot
 
 class ColumnConstraint(CreateTableOpt):
     def __init__(self, name,expression):
         self.name = name
         self.expression = expression
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"ColumnConstraint\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("CONSTRAINT") + hash(self)) + '\n'
+        dot += str(hash("CONSTRAINT") + hash(self)) + \
+            '[label=\"' + "CONSTRAINT" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.name) + hash(self)) + '\n'
+        dot += str(hash(self.name) + hash(self)) + \
+            '[label=\"' + self.name + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("CHECK") + hash(self)) + '\n'
+        dot += str(hash("CHECK") + hash(self)) + \
+            '[label=\"' + "CHECK" + '\"]\n'
+        dot +=  self.expression.graphAST('',str(hash(self)))
+        return dot
 
 class ColumnUnique(CreateTableOpt):
     def __init__(self, columnslist):
         self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"ColumnUnique\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("UNIQUE") + hash(self)) + '\n'
+        dot += str(hash("UNIQUE") + hash(self)) + \
+            '[label=\"' + "UNIQUE" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("idList") + hash(self)) + '\n'
+        dot += str(hash("idList") + hash(self)) + \
+            '[label=\"' + "idList" + '\"]\n'
+        for column in self.columnslist:
+            dot += str(hash("idList") + hash(self)) + '->' + \
+            str(hash("idList") + hash(self) + hash(column)) + '\n'
+            dot += str(hash("idList") + hash(self) + hash(column)) + \
+                '[label=\"' + column + '\"]\n'
+        return dot
 
 class ColumnPrimaryKey(CreateTableOpt):
     def __init__(self, columnslist):
         self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"ColumnPrimaryKey\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("PRIMARY") + hash(self)) + '\n'
+        dot += str(hash("PRIMARY") + hash(self)) + \
+            '[label=\"' + "PRIMARY" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("KEY") + hash(self)) + '\n'
+        dot += str(hash("KEY") + hash(self)) + \
+            '[label=\"' + "KEY" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("idList") + hash(self)) + '\n'
+        dot += str(hash("idList") + hash(self)) + \
+            '[label=\"' + "idList" + '\"]\n'
+        for column in self.columnslist:
+            dot += str(hash("idList") + hash(self)) + '->' + \
+            str(hash("idList") + hash(self) + hash(column)) + '\n'
+            dot += str(hash("idList") + hash(self) + hash(column)) + \
+                '[label=\"' + column + '\"]\n'
+        return dot
 
 class ColumnForeignKey(CreateTableOpt):
-    def __init__(self, columnslist, columnslist_ref):
+    def __init__(self, columnslist, table, columnslist_ref):
         self.columnslist = columnslist # is and idList [columnname1,columnname2,...,columnnamen]
+        self.table = table
         self.columnslist_ref = columnslist_ref # is and idList [refcolumnname1,refcolumnname2,...,refcolumnname
     def graphAST(self, dot, parent):
-      return ""
+        dot += parent + '->' + str(hash(self)) + '\n'
+        dot += str(hash(self)) + '[label=\"ColumnForeignKey\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("FOREIGN") + hash(self)) + '\n'
+        dot += str(hash("FOREIGN") + hash(self)) + \
+            '[label=\"' + "FOREIGN" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("KEY") + hash(self)) + '\n'
+        dot += str(hash("KEY") + hash(self)) + \
+            '[label=\"' + "KEY" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("idList") + hash(self)) + '\n'
+        dot += str(hash("idList") + hash(self)) + \
+            '[label=\"' + "idList" + '\"]\n'
+        for column in self.columnslist:
+            dot += str(hash("idList") + hash(self)) + '->' + \
+            str(hash("idList") + hash(self) + hash(column)) + '\n'
+            dot += str(hash("idList") + hash(self) + hash(column)) + \
+                '[label=\"' + column + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("REFERENCES") + hash(self)) + '\n'
+        dot += str(hash("REFERENCES") + hash(self)) + \
+            '[label=\"' + "REFERENCES" + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash(self.table) + hash(self)) + '\n'
+        dot += str(hash(self.table) + hash(self)) + \
+            '[label=\"' + self.table + '\"]\n'
+        dot += str(hash(self)) + '->' + \
+        str(hash("idRefList") + hash(self)) + '\n'
+        dot += str(hash("idRefList") + hash(self)) + \
+            '[label=\"' + "idList" + '\"]\n'
+        for column in self.columnslist_ref:
+            dot += str(hash("idRefList") + hash(self)) + '->' + \
+            str(hash("idRefList") + hash(self) + hash(column)) + '\n'
+            dot += str(hash("idRefList") + hash(self) + hash(column)) + \
+                '[label=\"' + column + '\"]\n'
+        return dot

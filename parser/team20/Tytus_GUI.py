@@ -11,12 +11,11 @@ from execution.execute_result import *
 
 from execution.AST.error import *
 
-from Tytus_GUI_console import print_error, print_grammar_report, print_error_table, print_messages, print_querys
+from Tytus_GUI_console import print_error, print_error_table, print_messages, print_querys
 import Tytus_GUI_console
 
 from graphviz import Source
-
-import os
+import webbrowser
 
 
 class CustomText_follow_line_and_column_in_text(tk.scrolledtext.ScrolledText):
@@ -49,6 +48,10 @@ def _on_change(event):
 
 
 route = "" # will store the file path
+dotAST = ""
+dotAST += "digraph ASTTytus{ \n rankdir = TD\n node[shape = \"box\"]\n"
+dotAST += "\n }"
+content_grammar_report = ""
 
 def new():
     global route
@@ -118,11 +121,24 @@ def compile():
     process_results_and_display_reports(result_analyze, result_execute)
 
 def process_results_and_display_reports(result_analyze, result_execute):
-    generate_ast_tree(result_execute.dotAST, result_execute.errors)
-    print_grammar_report_(result_analyze.grammarreport)
+    #generate_ast_tree(result_execute.dotAST, result_execute.errors)
+    global dotAST
+    dotAST = result_execute.dotAST
+    #generate_grammar_report(result_analyze.grammarreport)
+    global content_grammar_report
+    content_grammar_report = result_analyze.grammarreport
     print_error_table_(result_analyze.grammarerrors, result_execute.errors)
     print_messages_(result_execute.messages)
     print_querys_(result_execute.querys)
+
+def generate_report(report_number: int):
+    if report_number == 0:
+        errors_ = []
+        global dotAST
+        generate_ast_tree(dotAST, errors_)
+    elif report_number == 1:
+        global content_grammar_report
+        generate_grammar_report(content_grammar_report)
 
 def generate_ast_tree(dot: str, errors):
     file_used_by_another = True
@@ -150,12 +166,39 @@ def generate_ast_tree(dot: str, errors):
                 print_error("Unknown Error", "AST graphic not generated")
                 #print(e)
 
-def print_grammar_report_(grammarreport: str):
-    print_ = "GRAMMAR REPORT"
-    if grammarreport!="":
-        print_ += "\n"
-    print_ += grammarreport
-    print_grammar_report("Grammar Report", print_)
+def generate_grammar_report(content_grammar_report_: str):
+    try:
+        file_grammar_report = open("bnf.md", "w")
+        file_grammar_report.write(content_grammar_report_)
+        file_grammar_report.close()
+        generate_grammar_report_view(content_grammar_report_)
+    except Exception as e:
+        print_error("Unknown Error", "Grammar report file not generated")
+        #print(e)
+
+def generate_grammar_report_view(content_grammar_report_: str):
+    try:    
+        grammar_report_html = "<!DOCTYPE html>\n"
+        grammar_report_html += "<html lang=\"es-ES\">\n"
+        grammar_report_html += "   <head>\n"
+        grammar_report_html += "       <meta charset=\"utf-8\">"
+        grammar_report_html += "       <title>bnf.md</title>\n"
+        grammar_report_html += "   </head>\n"
+        grammar_report_html += "   <body>\n"
+        grammar_report_split = content_grammar_report_.split("\n")
+        i = 0
+        while i < len(grammar_report_split):
+            grammar_report_html += "       <p>" + grammar_report_split[i] + "</p>"
+            i += 1
+        grammar_report_html += "   </body>"
+        grammar_report_html += "</html>"
+        file_grammar_report_html = open("bnf.md.html", "w")
+        file_grammar_report_html.write(grammar_report_html)
+        file_grammar_report_html.close()
+        webbrowser.open("bnf.md.html", new=2, autoraise=True)
+    except Exception as e:
+        print_error("Unknown Error", "Grammar report view not generated")
+        #print(e)
 
 def print_error_table_(grammarerrors,executionerrors):
     errors_ = grammarerrors + executionerrors
@@ -213,6 +256,11 @@ menubar.add_cascade(menu=filemenu, label="File")
 filemenu = Menu(menubar, tearoff=0)
 filemenu.add_command(label="Compile", command=compile)
 menubar.add_cascade(menu=filemenu, label="Analysis")
+
+filemenu = Menu(menubar, tearoff=0)
+filemenu.add_command(label="Generate AST Report", command=lambda:generate_report(0))
+filemenu.add_command(label="Generate Grammar Report", command=lambda:generate_report(1))
+menubar.add_cascade(menu=filemenu, label="Reports")
 
 # Text
 text = CustomText_follow_line_and_column_in_text()
