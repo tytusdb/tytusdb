@@ -230,6 +230,8 @@ def p_instruccion(t) :
                       | showDB_instr
                       | create_table
                       | alter_instr PTCOMA
+                      | drop_table
+                      | create_enum
                       | insert_instr
                       | update_instr
                       | use_instr
@@ -538,6 +540,22 @@ def p_check_unique(t):
     '''check_unique : UNIQUE 
                     | CHECK PARIZQ condiciones PARDER
                     | empty'''
+
+# ------------------------------- PRODUCCIONES PARA CREATE ENUMS ------------------------------------
+
+def p_create_enum(t):
+    'create_enum : CREATE TYPE ID AS ENUM PARIZQ list_string PARDER PTCOMA'
+    
+def p_list_strings_r(t):
+    'list_string : list_string COMA cualquiercadena'
+    
+def p_list_strings(t):
+    'list_string : cualquiercadena'
+    
+# ------------------------------- PRODUCCION PARA DROP TABLE ----------------------------------------
+
+def p_drop_table(t):
+    'drop_table : DROP TABLE ID PTCOMA'
 
 #----------------------------------------------------------------------------------------------------
 
