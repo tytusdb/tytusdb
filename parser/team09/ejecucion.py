@@ -253,6 +253,7 @@ def p_entrada(p):
 
 def p_s_use(p):
     '''s_use : USE ID PTCOMA'''
+    global lst_instrucciones
     cons = ins.UseDB(p[2])
     lst_instrucciones.append(cons)
 
@@ -446,44 +447,54 @@ def p_data_type_3(p):
     #p[0] = str(p[1]) + str(p[2]) + str(p[3]) + str(p[4])
 
 def p_create_db(p):
-    '''create_db : CREATE DATABASE c_db db_owner db_mode PTCOMA'''
-    cons = ins.CreateDB(p[3], p[4], p[5])
+    '''create_db : CREATE DATABASE db_exist ID db_owner db_mode PTCOMA'''
+    global lst_instrucciones
+    cons = ins.CreateDB(False, p[3], p[4], p[5], p[6])
     lst_instrucciones.append(cons)
 
 
 def p_create_db_2(p):
-    '''create_db : CREATE OR REPLACE DATABASE c_db db_owner db_mode PTCOMA'''
-    ins.CreateDB(p[5], p[6], p[7])
+    '''create_db : CREATE OR REPLACE DATABASE db_exist ID db_owner db_mode PTCOMA'''
+    global lst_instrucciones
+    cons = ins.CreateDB(True, p[5], p[6], p[7], p[8])
     lst_instrucciones.append(cons)
-
-def p_c_db(p):
-    '''c_db : db_exist c_db1'''
-
-    p[0] = p[2]
 
 def p_c_dc_exist(p):
     '''db_exist : IF NOT EXISTS
                 | '''
-
-def p_c_db1(p):
-    '''c_db1 : ID '''
-
-    p[0] = p[1]
-
+    try:
+        if p[2]:
+            p[0] = True
+    except:
+        p[0] = False
 
 def p_db_owner(p):
     '''db_owner : OWNER IGUAL ID 
+                | OWNER ID 
                 |'''
-    p[0] = p[3]
+    try:
+        if p[2] == '=':
+            p[0] = p[3]
+        else:
+            p[0] = p[2]
+    except:
+        p[0] = None
 
 def p_db_mode(p):
-    '''db_mode : MODE IGUAL ENTERO
+    '''db_mode :  MODE IGUAL ENTERO
+                | MODE ENTERO
                 |'''
-    p[0] = p[3]
-
+    try:
+        if p[2] == '=':
+            p[0] = p[3]
+        else:
+            p[0] = p[2]
+    except:
+        p[0] = None
 
 def p_show_db(p):
     '''show_db : SHOW DATABASES PTCOMA'''
+    global lst_instrucciones
     cons = ins.ShowDB()
     lst_instrucciones.append(cons)
 
@@ -514,7 +525,11 @@ def p_drop_db_2(p):
 
 def p_create_table(p): 
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER PTCOMA'''
-    cons = ins.CreateTable(p[3], 'base_prueba', p[5], None) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
+    arr = p[5]
+    for col in arr:
+        print('*')
+        
+    cons = ins.CreateTable(p[3], 'base_prueba', arr[0], None) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
     lst_instrucciones.append(cons)
 
 def p_create_table_2(p):
@@ -524,14 +539,19 @@ def p_create_table_2(p):
 
 def p_columnas(p):
     '''columnas  : colum_list'''
-
-    p[0] = p[1]
+    lis = []
+    arr = []
+    arr.append(p[1])
+    arr.append(lis)
+    p[0] = arr
 
 def p_columnas_2(p):
     '''columnas  : colum_list const_keys'''
 
-    p[1].append(p[2])
-    p[0] = p[1]
+    arr = []
+    arr.append(p[1])
+    arr.append(p[2])
+    p[0] = arr
 
 def p_id_data(p):
     '''id_data   : ID data_type const'''
@@ -542,10 +562,9 @@ def p_id_data(p):
     tipo = tipo_data(x[0])
 
     if len(x) == 2:
-        nueva_columna = TS.Simbolo(p[1], tipo, p[3], 'base', x[1], None, None, None) 
+        nueva_columna = TS.Simbolo(p[1], tipo,p[3], 'base', x[1], False, False, None) 
     else:
-        nueva_columna = TS.Simbolo(p[1],tipo, p[3], 'base', None, None, None, None)
-    
+        nueva_columna = TS.Simbolo(p[1],tipo, p[3], 'base', None, False, False, None)
 
     p[0] = nueva_columna
 
@@ -555,11 +574,11 @@ def p_id_data_2(p):
     #Verificar si el data type viene con longitud o no
     x = p[2].split(',')
     tipo = tipo_data(x[0])
-
+    arr = []
     if len(x) == 2:
-        nueva_columna = TS.Simbolo(p[1], tipo,None, 'base', x[1], None, None, None) 
+        nueva_columna = TS.Simbolo(p[1], tipo,arr , 'base', x[1], False,False, None) 
     else:
-        nueva_columna = TS.Simbolo(p[1], tipo, None, 'base', None, None, None, None)
+        nueva_columna = TS.Simbolo(p[1], tipo, arr, 'base', None, False, False, None)
 
     p[0] = nueva_columna
 
@@ -613,20 +632,20 @@ def p_const(p):
 
     if str(p[2]).upper() == 'DEFAULT':
         const = TS.const(None, p[2], None, TS.t_constraint.DEFOULT,None)
-    elif str(p[2]) == 'NOT':
+    elif str(p[2]).upper() == 'NOT':
         const = TS.const(None, None, None, TS.t_constraint.NOT_NULL,None)
-    elif str(p[2]) == 'NULL':
+    elif str(p[2]).upper() == 'NULL':
         const = TS.const(None, None, None, TS.t_constraint.NULL,None)
-    elif str(p[2]) == 'UNIQUE':
+    elif str(p[2]).upper() == 'UNIQUE':
         const = TS.const(None, None, None, TS.t_constraint.UNIQUE,None)
-    elif str(p[2]) == 'PRIMARY':
+    elif str(p[2]).upper() == 'PRIMARY':
         const = TS.const(None, None, None, TS.t_constraint.PRIMARY,None)
-    elif str(p[2]) == 'REFERENCES':
+    elif str(p[2]).upper() == 'REFERENCES':
         const = TS.const(p[2], p[4], None, TS.t_constraint.FOREIGN,None) #ID va a ser igual al ID de la tabla y valor = columna de referencia
-    elif str(p[2]) == 'CHECK':
+    elif str(p[2]).upper() == 'CHECK':
         x = str(p[4]).split(',')
         const = TS.const(None, x[2], x[1], TS.t_constraint.CHECK,None)
-    elif str(p[2]) == 'CONSTRAINT':
+    elif str(p[2]).upper() == 'CONSTRAINT':
         if str(p[4]).upper() == 'UNIQUE':
             
             try: 
@@ -648,7 +667,8 @@ def p_const(p):
         p[1].append(const)
 
     p[0] = p[1] 
-        
+
+    
 
 def p_const_2(p):
     '''const    : DEFAULT valores
@@ -666,23 +686,22 @@ def p_const_2(p):
     arr = []
     const = ''
     creado = False
-
     if str(p[1]).upper() == 'DEFAULT':
         const = TS.const(None, p[2], None, TS.t_constraint.DEFOULT,None)
-    elif str(p[1]) == 'NOT':
+    elif str(p[1]).upper() == 'NOT':
         const = TS.const(None, None, None, TS.t_constraint.NOT_NULL,None)
-    elif str(p[1]) == 'NULL':
+    elif str(p[1]).upper() == 'NULL':
         const = TS.const(None, None, None, TS.t_constraint.NULL,None)
-    elif str(p[1]) == 'UNIQUE':
+    elif str(p[1]).upper() == 'UNIQUE':
         const = TS.const(None, None, None, TS.t_constraint.UNIQUE,None)
-    elif str(p[1]) == 'PRIMARY':
+    elif str(p[1]).upper() == 'PRIMARY':
         const = TS.const(None, None, None, TS.t_constraint.PRIMARY,None)
-    elif str(p[1]) == 'REFERENCES':
+    elif str(p[1]).upper() == 'REFERENCES':
         const = TS.const(p[2], p[4], None, TS.t_constraint.FOREIGN,None) #ID va a ser igual al ID de la tabla y valor = columna de referencia
-    elif str(p[1]) == 'CHECK':
+    elif str(p[1]).upper() == 'CHECK':
         x = str(p[3]).split(',')
         const = TS.const(None, x[2], x[1], TS.t_constraint.CHECK,None)
-    elif str(p[1]) == 'CONSTRAINT':
+    elif str(p[1]).upper() == 'CONSTRAINT':
         if str(p[3]).upper() == 'UNIQUE':
             
             try: 
@@ -707,14 +726,16 @@ def p_const_2(p):
         
 def p_lista_id(p):
     '''lista_id : lista_id COMA ID'''
-    arr = []
-    arr.append(p[3])
-    arr.append(p[1])
-    p[0] = arr
+    
+    p[1].append(p[3])
+    p[0] = p[1]
 
 def p_lista_id_2(p):
     '''lista_id : ID'''
-    p[0] = p[1]
+    arr = []
+    arr.append(p[1])
+
+    p[0] = arr
 
 def p_drop_table(p):
     '''drop_table : DROP TABLE ID PTCOMA'''
@@ -913,7 +934,7 @@ def lex_error(lex, linea, columna):
 
 
 def ejecutar(entrada):
-    global parser
+    global parser, ts_global, lst_instrucciones
     parse_result = parser.parse(entrada)
 
     for cons in lst_instrucciones :

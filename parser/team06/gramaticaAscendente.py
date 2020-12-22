@@ -460,25 +460,47 @@ def p_crearBaseDatos_1(t):
     h.reporteGramatical2 +="t[0] = CreateDatabases(t[3])\n"
     t[0] = CreateDatabases(t[3])
 
-
 def p_crearBaseDatos_2(t):
+    'crearBD    : CREATE DATABASE IF NOT EXISTS ID PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE DATABASE IF NOT EXISTS ID PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = Create_IF_Databases(t[3],t[6])\n"
+    t[0] = Create_IF_Databases(t[3],t[6])
+
+def p_crear_replace_BaseDatos_1(t):
     'crearBD    : CREATE OR REPLACE DATABASE ID PUNTOYCOMA'
     h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0] = CreateDatabases(t[5])\n"
-    t[0] = CreateDatabases(t[5])
+    t[0] = Create_Replace_Databases(t[3],t[5])
 
-def p_crearBaseDatos_3(t):
-    'crearBD    : CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA'
-    h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
-    h.reporteGramatical2 +="t[0] = CreateDatabaseswithParameters(t[5],t[6])\n"
-    t[0] = CreateDatabaseswithParameters(t[5],t[6])
+def p_crear_replace_BaseDatos_2(t):
+    'crearBD    : CREATE OR REPLACE DATABASE IF NOT EXISTS ID PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabases(t[5])\n"
+    t[0] = Create_Replace_IF_Databases(t[3],t[5],t[8])
 
-def p_crearBaseDatos_4(t):
+def p_crear_param_BaseDatos_1(t):
     'crearBD    : CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA'
     h.reporteGramatical1 +="crearBD    ::=        CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
     h.reporteGramatical2 +="t[0] = CreateDatabaseswithParameters(t[3],t[4])\n"
     t[0] = CreateDatabaseswithParameters(t[3],t[4])
 
+def p_crear_param_BaseDatos_2(t):
+    'crearBD    : CREATE  DATABASE IF NOT EXISTS ID parametrosCrearBD PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabaseswithParameters(t[3],t[4])\n"
+    t[0] = Create_Databases_IFwithParameters(t[3],t[6],t[7])
+
+def p_crear_replace_param_BaseDatos_1(t):
+    'crearBD    : CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabaseswithParameters(t[5],t[6])\n"
+    t[0] = Create_Replace_DatabaseswithParameters(t[3],t[5],t[6])
+
+def p_crear_replace_param_BaseDatos_2(t):
+    'crearBD    : CREATE OR REPLACE DATABASE IF NOT EXISTS ID parametrosCrearBD PUNTOYCOMA'
+    h.reporteGramatical1 +="crearBD    ::=        CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA\n"
+    h.reporteGramatical2 +="t[0] = CreateDatabaseswithParameters(t[5],t[6])\n"
+    t[0] = Create_Replace_Databases_IFwithParameters(t[3],t[5],t[8],t[9])
 
 def p_parametrosCrearBD_1(t):
     'parametrosCrearBD : parametrosCrearBD parametroCrearBD'

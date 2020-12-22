@@ -38,7 +38,6 @@ def procesar_useBD(query,ts):
 # ---------------------------------------------------------------------------------------------------------------------
 #                                QUERY SELECT
 # ---------------------------------------------------------------------------------------------------------------------
-
 def procesar_select(query,ts):
     print("entra select")
     if query.tipo==1:
@@ -48,15 +47,17 @@ def procesar_select(query,ts):
             if len(query.operacion)==1:
                 print("entra al if de tamaño 1")
                 if isinstance(query.operacion[0], ExpresionFuncionBasica): 
-                    print(procesar_operacion_basica(query.operacion[0], ts))
-                    h.textosalida+="TYTUS>>"  + str(procesar_operacion_basica(query.operacion[0],ts)) +"\n"
+                    if procesar_operacion_basica(query.operacion[0],ts)==None:
+                        h.textosalida+="TYTUS>> La tabla consultada no existe\n"
+                    else:
+                        h.textosalida+="TYTUS>>"  + str(procesar_operacion_basica(query.operacion[0],ts)) +"\n"
                 elif isinstance(query.operacion[0],Asignacion):
                     print("entra al select de asignaciones")
                     h.textosalida+="TYTUS>>"  + str(procesar_asignacion(query.operacion[0], ts))  +"\n"
             else:
                 print("--------SELECT TIPO 2-------------")
                 print("en este select se obtienen todos los campos de la lista de tablas")
-                print("obtener tablas: ",procesar_select2_obtenerTablas(query,ts))
+                print("obtener tablas: ",procesar_select2_obtenerTablas(query.operacion,ts))
         else:
             print("no es array")
             print("entra al if de tamaño 1")
@@ -69,8 +70,275 @@ def procesar_select(query,ts):
     
 def procesar_select_Tipo2(query,ts):
     print("************************ENTRO AL 2DO SELECT*********************")
+    print(query.operacion1)
+    print(query.operacion2)
+    if isinstance(query.operacion2, list) and len(query.operacion2)==1:
+        print("viene solo 1 tabla")
+        print("+++++++++++TABLA+++++++++++")
+        print(query.operacion2[0])
+        if isinstance(query.operacion2[0],Asignacion):
+            print(procesar_asignacion(query.operacion2[0],ts))
+            print("LAS TABLAS SERAN: ",str(procesar_asignacion(query.operacion2[0],ts)))
+            print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+        else:
+            if procesar_operacion_basica(query.operacion2[0],ts)==None:
+                h.textosalida+="TYTUS>> La tabla consultada no existe\n"
+            else:
+                print("LAS TABLAS SERAN: ",str(procesar_operacion_basica(query.operacion2[0],ts)))
+                print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+       
+    else:
+        print("vienen mas tablas*******************************")
+        print("LAS TABLAS SERAN: ",procesar_select2_obtenerTablas(query.operacion2,ts))
+        print("LAS COLUMNAS SERAN: ",procesar_select2_obtenerColumnas(query.operacion1,ts))
+    
+    
+
+
+def procesar_select2_obtenerColumnas(query,ts):
+    print("Entra a OBTENER COLUMNAS")
     print(query)
+    columnas=[]
+    if isinstance(query,list):
+        for x in range(len(query)) :
+            if isinstance(query[x], ExpresionFuncionBasica): 
+                #print("entra a la opcion funcionBasica del else")
+                columnas.append(query[x].id.id)
+            elif isinstance(query[x],Asignacion):
+                print("entra a la opcion de la lista//////////////////////////////////////////")
+                columnas.append(procesar_asignacion(query[x],ts))
+            elif isinstance(query[x],ExpresionIdentificador):
+                #print("entra a la opcion de identificador del lse")
+                columnas.append(query[x].id)
+            if x==len(query)-1:
+                #print(columnas)
+                return columnas 
+    else:
+        if isinstance(query, ExpresionFuncionBasica): 
+            print("entra a la opcion funcionBasica del else2//////////////////////////////////////////")
+            columnas.append(query.id.id)
+        elif isinstance(query,Asignacion):
+            print("entra a la opcion solitaria//////////////////////////////////////////")
+            print(query)
+            print(procesar_asignacion(query,ts))
+            columnas.append(procesar_asignacion(query,ts))
+            print("aca ya retorno el valor del return ", procesar_asignacion(query,ts) )
+            print("aca ya retorno el valor del return ", columnas )
+        elif isinstance(query,ExpresionIdentificador):
+            print("entra a la opcion de identificador del lse2//////////////////////////////////////////")
+            print(query.id)
+            columnas.append(query.id)
+        print("asfasfasfasdf++++++++++++++++ ",columnas)
+        return columnas 
+
+               
+
+
+def procesar_retorno_lista_valores(query,ts):
+    valores=[]
+    for x in range(len(query)) :
+        if isinstance(query[x], ExpresionFuncionBasica): 
+            #print("entra a la opcion funcionBasica del else")
+            valores.append(query[x].id.id)
+        elif isinstance(query[x],ExpresionIdentificador):
+            #print("entra a la opcion de identificador del lse")
+            valores.append(query[x].id)
+        elif isinstance(query[x],ExpresionNumero):
+            #print("entra a la opcion de identificador del lse")
+            valores.append(query[x].id)
+        elif isinstance(query[x],ExpresionCadenas):
+            #print("entra a la opcion de identificador del lse")
+            valores.append(query[x].id)
+        if x==len(query)-1:
+            #print(columnas)
+            return valores 
+
+def procesar_select_Tipo3(query,ts):
+    print("si llega al metodo de select 3")
+    print(query.operacion1)
+    print(query.operacion2)
+    if isinstance(query.operacion1, list) and len(query.operacion1)==1:
+        print("viene solo 1 tabla")
+        print("+++++++++++TABLA+++++++++++")
+        print("LAS TABLAS SERAN: ",procesar_operacion_basica(query.operacion1[0],ts))
+        print("EL OBJETO WHERE: ",query.operacion2)
+        procesar_where(query.operacion2,ts,1,procesar_operacion_basica(query.operacion1[0],ts))
+    else:
+        if isinstance(query.operacion1,Asignacion):
+            print("vienen mas tablas*******************************2")
+            print([query.operacion1])
+            print("LAS TABLAS SERAN: ",procesar_select2_obtenerTablas([query.operacion1],ts))
+            print("LAS COLUMNAS SERAN: todas")
+            print(query.operacion2)
+            procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas([query.operacion1],ts))
+        else:
+            print("vienen mas tablas*******************************")
+            print("LAS TABLAS SERAN: ",procesar_select2_obtenerTablas(query.operacion1,ts))
+            print("LAS COLUMNAS SERAN: todas")
+            print(query.operacion2)
+            procesar_where(query.operacion2,ts,1,procesar_select2_obtenerTablas(query.operacion1,ts))
             
+
+
+def procesar_select_Tipo4(query,ts):
+    print("ya entro al select TIPO 4")
+    print(query.operacion1)
+    print(query.operacion2)
+    print(query.operacion3)
+    a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas
+    b=procesar_select2_obtenerColumnas(query.operacion1,ts) #columnas
+    c=procesar_where(query.operacion3,ts,b,a)
+    print("-------------RESULTADO SELECT 4------------------")
+    print("LAS TABLAS SERAN: ",a)
+    print("Las columnas seran: ",b)
+    print("La sentencia Where sera ",c)
+    
+
+
+
+def procesar_select_Tipo5(query,ts):
+    print("llega al select 5")
+    if query.operacion1=='*':
+        print("trae asterisco saca todas las columnas")
+        a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas    
+        c=procesar_where(query.operacion3,ts,"todo",a)
+        d=procesar_extras(query.operacion4,ts,c)
+        print("-------------RESULTADO SELECT 5 * ------------------")
+        print("LAS TABLAS SERAN: ",a)
+        print("las columas seran: Todas")
+        print("La sentencia Where sera ",c)
+    else:
+        print("trae una lista de columnas")
+        a=procesar_select2_obtenerTablas(query.operacion2,ts) #tablas
+        b=procesar_select2_obtenerColumnas(query.operacion1,ts) #columnas
+        c=procesar_where(query.operacion3,ts,b,a)
+        d=procesar_extras(query.operacion4,ts,c)
+        print("-------------RESULTADO SELECT 5------------------")
+        print("LAS TABLAS SERAN: ",a)
+        print("EL OBJETO WHERE: ",b)
+        print("La sentencia Where sera ",c)
+        
+
+def procesar_extras(query,ts,donde):
+    print("entro a procesar los extras")
+    print(query)
+    print(donde)
+    for x in range(0,len(query)):
+        if isinstance(query[x],ExpresionLimit):
+            print("trae una limitante")
+        elif isinstance(query[x],ExpresionLimitOffset):
+            print("trae una limitante con offset")
+        elif isinstance(query[x],ExpresionGroup):
+            print("trae para agrupar")
+        elif isinstance(query[x],ExpresionHaving):
+            print("trae condicion adicional")
+        elif isinstance(query[x],ExpresionOrder):
+            print("trae expresion de ordenamiento")
+    
+    return 1
+
+
+
+def procesar_where(query,ts,campos,tablas):
+    print("entra a procesar el where con lo que traiga")
+    print("campos: ", campos)
+    print("tablas: ",tablas)
+    print(query.condiciones)
+    return operar_where(query.condiciones,ts)
+
+
+def operar_where(query,ts):
+    print("entra a operar where")
+    if isinstance(query,ExpresionRelacional):
+        print("trae relacional")
+        print(query.exp1)
+        print(query.operador)
+        print(query.exp2)
+        a=operar_where(query.exp1,ts)
+        b=operar_where(query.exp2,ts)
+        if query.operador == OPERACION_RELACIONAL.IGUAL_IGUAL:
+            print("compara si ",a," == ",b)
+            return "compara si ",a," == ",b
+        elif query.operador == OPERACION_RELACIONAL.NO_IGUAL:
+            print("compara si ",a," != ",b)
+            return "compara si ",a," != ",b
+        elif query.operador == OPERACION_RELACIONAL.MAYOR_IGUAL:
+            print("compara si ",a," >= ",b)
+            return "compara si ",a," >= ",b
+        elif query.operador == OPERACION_RELACIONAL.MENOR_IGUAL:
+            print("compara si ",a," <= ",b)
+            return "compara si ",a," <= ",b
+        elif query.operador == OPERACION_RELACIONAL.MAYOR:
+            print("compara si ",a," > ",b)
+            return "compara si ",a," > ",b
+        elif query.operador == OPERACION_RELACIONAL.MENOR:
+            print("compara si ",a," < ",b)
+            return "compara si ",a," < ",b
+        elif query.operador == OPERACION_RELACIONAL.DIFERENTE:
+            print("compara si ",a," != ",b)
+            return "compara si ",a," != ",b
+    elif isinstance(query,ExpresionLogica):
+        print("trae logica")
+        print(query.exp1)
+        print(query.operador)
+        print(query.exp2)
+        operar_where(query.exp2,ts)
+        a=operar_where(query.exp1,ts)
+        b=operar_where(query.exp2,ts)
+        if query.operador == OPERACION_LOGICA.AND:
+            print("compara si ",a," AND ",b)
+            return "compara si ",a," AND ",b
+        elif query.operador == OPERACION_LOGICA.OR:
+            print("compara si ",a," OR ",b)
+            return "compara si ",a," OR ",b
+    elif isinstance(query, ExpresionBetween) :
+        print("trae una expresion de  between")
+        print(query.valor1) 
+        a=operar_where(query.valor1,ts)
+        b=operar_where(query.valor2,ts)
+        print("compara datos que esten entre ",a,"  y  ",b)
+    elif isinstance(query, ExpresionNotBetween) :
+        print("trae una expresion de not between")
+        a=operar_where(query.valor1,ts)
+        b=operar_where(query.valor2,ts)
+        print("compara datos que NO esten entre ",a,"  y  ",b)
+    elif isinstance(query, ExpresionBetweenSymmetric) :
+        print("trae una expresion de between symmetric")
+        a=operar_where(query.valor1,ts)
+        b=operar_where(query.valor2,ts)
+        print("compara datos que esten entre algo symmetric ",a,"  y  ",b)
+    elif isinstance(query, ExpresionNotBetweenSymmetric) :
+        print("trae una expresion de not between symmetric")
+        a=operar_where(query.valor1,ts)
+        b=operar_where(query.valor2,ts)
+        print("compara datos que NO esten entre algo symmetric ",a,"  y  ",b)
+    elif isinstance(query, ExpresionIsDistinct) :
+        print("trae una expresion de is distinct")
+        a=operar_where(query.valor1,ts)
+        b=operar_where(query.valor2,ts)
+        print("compara datos sean distintos de ",a,"  y  ",b)
+    elif isinstance(query, ExpresionIsNotDistinct) :
+        print("trae una expresion de is not distinct")
+        a=operar_where(query.valor1,ts)
+        b=operar_where(query.valor2,ts)
+        print("compara datos NO sean distintos de ",a,"  y  ",b)
+    elif isinstance(query, ExpresionNumero) :
+        print("retorna el NUMERO: ",query.id)
+        return query.id
+    elif isinstance(query, ExpresionIdentificador) :
+        if ts.obtener(query.id)=="no definida":
+            return None
+        else:
+            print("retorna el ID: ",ts.obtener(query.id).valor)
+            return ts.obtener(query.id).valor
+    elif isinstance(query,ExpresionCadenas):
+        print("retorna la CADENA: ",query.id)
+        return query.id
+    elif isinstance(query, ExpresionNegativo) :
+        print("NEGATIVO")
+        print("EXP_NUM:",query.id)
+        return query.id * -1
+
 def procesar_createdb(query,ts):
     if ts.verificacionCrearBD(query.variable)==0:
         base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
@@ -81,17 +349,98 @@ def procesar_createdb(query,ts):
     elif ts.verificacionCrearBD(query.variable)==1:
         print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
         return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"
-        
+
+def procesar_create_if_db(query,ts):
+    if ts.verificacionCrearBD(query.variable)==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        store.createDatabase(query.variable)
+        ts.printBD()
+        return "se creo una nueva bd: "+str(query.variable)
+    elif ts.verificacionCrearBD(query.variable)==1:
+        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
+        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
+    #llamo al metodo de EDD
+
+def procesar_create_replace_db(query,ts):
+    if ts.verificacionCrearBD(query.variable)==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        store.createDatabase(query.variable)
+        ts.printBD()
+        return "se creo una nueva bd: "+str(query.variable)
+    elif ts.verificacionCrearBD(query.variable)==1:
+        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
+        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
+    #llamo al metodo de EDD
+
+def procesar_create_replace_if_db(query,ts):
+    if ts.verificacionCrearBD(query.variable)==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        store.createDatabase(query.variable)
+        ts.printBD()
+        return "se creo una nueva bd: "+str(query.variable)
+    elif ts.verificacionCrearBD(query.variable)==1:
+        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
+        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
     #llamo al metodo de EDD
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_createwithparametersdb(query,ts):
     for q in query.parametros:   
         if isinstance(q, ExpresionOwner) :
-            print(query.variable)
+            print("ID:",query.variable)
             print("OWNER:",q.owner)
             print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
         elif isinstance(q, ExpresionMode) :
-            print(query.variable)
+            print("ID:",query.variable)
+            print("MODE:",q.mode)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        else:
+            print("TIPO INCORRECTO DE QUERY:",query)
+
+def procesar_createwithparameters_if_db(query,ts):
+    for q in query.parametros:   
+        if isinstance(q, ExpresionOwner) :
+            print("IF:",query.iff)
+            print("ID:",query.variable)
+            print("OWNER:",q.owner)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        elif isinstance(q, ExpresionMode) :
+            print("IF:",query.iff)
+            print("ID:",query.variable)
+            print("MODE:",q.mode)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        else:
+            print("TIPO INCORRECTO DE QUERY:",query)
+
+def procesar_createwithparameters_replace_db(query,ts):
+    for q in query.parametros:   
+        if isinstance(q, ExpresionOwner) :
+            print("REPLACE:",query.replacee)
+            print("ID:",query.variable)
+            print("OWNER:",q.owner)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        elif isinstance(q, ExpresionMode) :
+            print("REPLACE:",query.replacee)
+            print("ID:",query.variable)
+            print("MODE:",q.mode)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        else:
+            print("TIPO INCORRECTO DE QUERY:",query)
+
+def procesar_createwithparameters_replace_if_db(query,ts):
+    for q in query.parametros:   
+        if isinstance(q, ExpresionOwner) :
+            print("REPLACE:",query.replacee)
+            print("IF:",query.iff)
+            print("ID:",query.variable)
+            print("OWNER:",q.owner)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        elif isinstance(q, ExpresionMode) :
+            print("REPLACE:",query.replacee)
+            print("IF:",query.iff)
+            print("ID:",query.variable)
             print("MODE:",q.mode)
             print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
         else:
@@ -463,12 +812,29 @@ def resolver_expresion_aritmetica(expNum, ts) :
         elif isinstance(expNum, ExpresionNumero) :
             return expNum.id
         elif isinstance(expNum, ExpresionIdentificador) :
-            return ts.obtener(expNum.id).valor
+            if ts.obtener(expNum.nombre)=="no definida":
+                return None
+            else:
+                return ts.obtener(expNum.nombre).valor
         elif isinstance(expNum,ExpresionCadenas):
             return expNum.id
         elif isinstance(expNum, ExpresionNegativo) :
             print("EXP_NUM:",expNum.id)
             return expNum.id * -1
+        elif isinstance(expNum,ExpresionGREATEST):
+            print("entro al greatest +++++++++++++++")
+            print(expNum.exp)
+            exp= procesar_retorno_lista_valores(expNum.exp, ts)
+            print(exp)
+            return max(exp)
+        elif isinstance(expNum,ExpresionLEAST):
+            print("entro al least +++++++++++++++")
+            print(expNum.exp)
+            exp= procesar_retorno_lista_valores(expNum.exp, ts)
+            return min(exp)
+        elif isinstance(expNum,ExpresionNOW):
+            today=today()
+            return today.strftime("%Y-%m-%d")
         else:
             print("error de operacion aritmetica")
             #h.errores+=  "<tr><td>"+str(exp1)+"|"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>error de operacion</td></tr>\n"
@@ -563,7 +929,7 @@ def resolver_expresion_relacional(expRel, ts) :
 def procesar_insertBD(query,ts):
     print("entra a insert")
     print("entra al print con: ",query.idTable)
-    h.textosalida+="TYTUS>> Insertando registro de una tabla"
+    h.textosalida+="TYTUS>> Insertando registro de una tabla\n"
     for i in query.listRegistros:
         print("dato: ",i.id)
 
@@ -571,7 +937,7 @@ def procesar_insertBD(query,ts):
 def procesar_updateinBD(query,ts):
     print("entro a update")
     print("entro al print con: ",query.idTable,query.asignaciones,query.listcond)
-    h.textosalida+="TYTUS>> Actualizando datos en la tabla"
+    h.textosalida+="TYTUS>> Actualizando datos en la tabla\n"
     print("Valores que se asignaran")
     for i in query.asignaciones:
         print("id: ",i.id," valor: ",i.expNumerica.id)
@@ -583,18 +949,21 @@ def procesar_updateinBD(query,ts):
 
 def procesar_select2_obtenerTablas(query,ts):
     print("Entra al else del select")
-    tablas=""
-    for x in range(len(query.operacion)) :
-        if isinstance(query.operacion[x], ExpresionFuncionBasica): 
-            print("entra a la opcion funcionBasica del else")
-            tablas+=query.operacion[x].id.id+" ; "
-        elif isinstance(query.operacion[x],Asignacion):
+    #print(query)
+    tablas=[]
+    for x in range(len(query)) :
+        if isinstance(query[x], ExpresionFuncionBasica): 
+            #print("entra a la opcion funcionBasica del else")
+            tablas.append(query[x].id.id)
+        elif isinstance(query[x],Asignacion):
             print("entra a la opcion select del else")
-
-        elif isinstance(query.operacion[x],ExpresionIdentificador):
-            print("entra a la opcion de identificador del lse")
-            tablas+=query.operacion[x].id+" ; "
-        if x==len(query.operacion)-1:
+            print(procesar_asignacion(query[x],ts))
+            tablas.append(procesar_asignacion(query[x].campo,ts))
+            tablas.append(procesar_asignacion(query[x].alias,ts))
+        elif isinstance(query[x],ExpresionIdentificador):
+            #print("entra a la opcion de identificador del lse")
+            tablas.append(query[x].id)
+        if x==len(query)-1:
             print(tablas)
             return tablas
 
@@ -650,7 +1019,14 @@ def procesar_operacion_basica(query,ts):
     elif isinstance(query.id,ExpresionASINH): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionACOSH): return resolver_expresion_aritmetica(query.id,ts)
     elif isinstance(query.id,ExpresionATANH): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionGREATEST): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionLEAST): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionNOW): return resolver_expresion_aritmetica(query.id,ts)
+
     elif isinstance(query.id,ExpresionIdentificador): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionCadenas): return resolver_expresion_aritmetica(query.id,ts)
+    elif isinstance(query.id,ExpresionAritmetica): return resolver_expresion_aritmetica(query.id,ts)
+    
     else:
         print("error en operaciones basicas")
 
@@ -721,6 +1097,8 @@ def procesar_asignacion(query, ts) :
         return ts.obtener(query.id).valor
     elif isinstance(query,ExpresionCadenas):
         print(query.id)
+    elif isinstance(query.campo,ExpresionAritmetica):
+        return guardar_asignacion(resolver_expresion_aritmetica(query.campo,ts),query.alias.id,ts)
     else :
         print("-------------estos datos se asignan con operacion--------------")
         print(query.campo.exp)
@@ -739,16 +1117,32 @@ def procesar_asignacion(query, ts) :
    
     
 def guardar_asignacion(valor, variable,ts):  
+    print("entro a guardar la variable")
+    print(variable)
+    print(valor)
     if ts.obtener2(variable)==0:
-        simbolo = TS.Simbolo(variable, 1, valor)      # inicializamos con 0 como valor por defecto
-        ts.agregar(simbolo)
-        print("se creo una nueva variable")
-        return "se creo una nueva variable: "+str(variable)
+        print("no se ha creado la variable")
+        print(variable)
+        print(valor)
+        if (isinstance(valor, str) and valor.find("error")>0):
+            print("entra al if con error")
+            return valor
+        else:
+            print("se agregara la variable")
+            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None)      # inicializamos con 0 como valor por defecto
+            ts.agregar(simbolo)
+            print("se creo una nueva variable")
+            print(variable)
+            return str(variable)
     else:
-        simbolo = TS.Simbolo(variable, 1, valor)
-        ts.actualizar(simbolo)
-        print("la variable ya existia, se actualizo")
-        return "se actualizo variable: "+str(variable)
+        if isinstance(valor, str) and valor.find("error")>0:
+            return valor
+        else:
+            simbolo = TS.Simbolo(None,variable,None,None,None,None,None,None,None,None,None,None,None,None,None,None, valor,None)
+            ts.actualizar(simbolo)
+            print("la variable ya existia, se actualizo")
+            print(variable)
+            return variable
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -759,7 +1153,7 @@ def guardar_asignacion(valor, variable,ts):
 def procesar_deleteinBD(query,ts):
     print("entra a delete from")
     print("entra al print con: ",query.idTable)
-    h.textosalida+="TYTUS>> Eliminando registro de una tabla"
+    h.textosalida+="TYTUS>> Eliminando registro de una tabla\n"
     for i in query.condColumna:
         print("id: ",i.id," valor: ",i.expNumerica.id)
     #llamada de funcion
@@ -768,7 +1162,7 @@ def procesar_createTale(query,ts):
     print("entra a Create table")
     print("entra al print con: ",query.idTable)
     idtab = query.idTable
-    h.textosalida+="TYTUS>>Creando tabla"
+    h.textosalida+="TYTUS>>Creando tabla\n"
     cantcol = 0
 
     if ts.validarTabla(query.idTable,'BD1') == 0:
@@ -968,7 +1362,7 @@ def procesar_inheritsBD(query, ts):
     print("entra a Inherits")
     print("Crea tabla con id: ",query.idTable)
     print("Hereda atributos de tabla: ",query.idtableHereda)
-    h.textosalida+="TYTUS>>Creando tabla Inherits"
+    h.textosalida+="TYTUS>>Creando tabla Inherits\n"
 
     for i in query.listColumn:
         print("---------------------------")
@@ -982,12 +1376,12 @@ def procesar_inheritsBD(query, ts):
 def drop_table(query,ts):
     print("voy a imprimir los valores del drop :v")
     print("aqui viene el id de la tabla a dropear:",query.id)
-    h.textosalida+="TYTUS>> Eliminaré la tabla"+query.id
+    h.textosalida+="TYTUS>> Eliminaré la tabla"+query.id+"\n"
 
 def alter_table(query,ts):
     print("voy a imprimir los valores del alter :v")
     print("aqui viene el id de la tabla a cambiar:",query.id)
-    h.textosalida+="TYTUS>> Alteraré la tabla"+query.id
+    h.textosalida+="TYTUS>> Alteraré la tabla"+query.id+"\n"
     temp = query.querys.tipo #TIPO DE OBJETO
     if(temp.upper()=="ADD"):
         contenido = query.querys.contenido #AQUI ESTA EL CONTENIDO DEL ADD - contAdd
@@ -1043,43 +1437,35 @@ def procesar_queries(queries, ts) :
         if isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query, Select) : procesar_select(query, ts)
         elif isinstance(query, Select2) : procesar_select_Tipo2(query, ts)
-        elif isinstance(query, CreateDatabases) : 
-            procesar_createdb(query, ts)
-        elif isinstance(query, CreateDatabaseswithParameters) :
-            procesar_createwithparametersdb(query, ts)
-        elif isinstance(query, AlterDB) :
-            procesar_alterdb(query, ts)
-        elif isinstance(query, AlterOwner) :
-            procesar_alterwithparametersdb(query, ts)
-        elif isinstance(query, DropDB) :
-            procesar_dropdb(query, ts)
-        elif isinstance(query, DropDBIF) :
-            procesar_dropifdb(query, ts)
-        elif isinstance(query, ExpresionAritmetica) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionNegativo) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionInvocacion) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionNumero) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionIdentificador) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionCadenas) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionNOT) : 
-            resolver_expresion_logica(query, ts)
-        elif isinstance(query, ExpresionBIT) : 
-            resolver_expresion_bit(query, ts)
-        elif isinstance(query, ExpresionRelacional) : 
-            resolver_expresion_relacional(query, ts)
+        elif isinstance(query, Select3) : procesar_select_Tipo3(query, ts)
+        elif isinstance(query, Select4) : procesar_select_Tipo4(query, ts)
+        elif isinstance(query, Select5) : procesar_select_Tipo5(query, ts)
+        elif isinstance(query, CreateDatabases) : procesar_createdb(query, ts)
+        elif isinstance(query, Create_IF_Databases) : procesar_create_if_db(query, ts)
+        elif isinstance(query, Create_Replace_Databases) : procesar_create_replace_db(query, ts)
+        elif isinstance(query, Create_Replace_IF_Databases) : procesar_create_replace_if_db(query, ts)
+        elif isinstance(query, CreateDatabaseswithParameters) : procesar_createwithparametersdb(query, ts)
+        elif isinstance(query, Create_Databases_IFwithParameters) : procesar_createwithparameters_if_db(query, ts)
+        elif isinstance(query, Create_Replace_DatabaseswithParameters) : procesar_createwithparameters_replace_db(query, ts)
+        elif isinstance(query, Create_Replace_IF_Databases) : procesar_createwithparameters_replace_if_db(query, ts)
+        elif isinstance(query, AlterDB) : procesar_alterdb(query, ts)
+        elif isinstance(query, AlterOwner) : procesar_alterwithparametersdb(query, ts)
+        elif isinstance(query, DropDB) : procesar_dropdb(query, ts)
+        elif isinstance(query, DropDBIF) : procesar_dropifdb(query, ts)
+        elif isinstance(query, ExpresionAritmetica) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNegativo) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionInvocacion) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNumero) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionIdentificador) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionCadenas) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNOT) : resolver_expresion_logica(query, ts)
+        elif isinstance(query, ExpresionBIT) : resolver_expresion_bit(query, ts)
+        elif isinstance(query, ExpresionRelacional) : resolver_expresion_relacional(query, ts)
         elif isinstance(query, InsertinDataBases) : procesar_insertBD(query,ts)
         elif isinstance(query, UpdateinDataBase) : procesar_updateinBD(query,ts)
         elif isinstance(query, DeleteinDataBases) : procesar_deleteinBD(query, ts)
         elif isinstance(query, CreateTable) : procesar_createTale(query,ts)
         elif isinstance(query, InheritsBD) : procesar_inheritsBD(query,ts)
-        #elif
-        #elif isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query,DropTable): drop_table(query,ts)
         elif isinstance(query,AlterTable): alter_table(query,ts)
         elif isinstance(query,UseDatabases): procesar_useBD(query,ts)

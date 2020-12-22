@@ -1,8 +1,11 @@
-import re, pickle
+import re, pickle,os
 
 class NombreEstructuras:
     def __init__(self):
-        #self.database = {}
+        #creacion de ficheros si no existen
+        data_dir="data"
+        images_dir="images"
+        tables_dir="data/tables"
 
         #serializacion
         try:
@@ -13,7 +16,18 @@ class NombreEstructuras:
             self.database={}
         else:
             pass
-        
+        try:
+            os.mkdir(data_dir)
+        except:
+            pass
+        try:
+            os.mkdir(images_dir)
+        except:
+            pass
+        try:
+            os.mkdir(tables_dir)
+        except:
+            pass
 
     #Función para comprobar el nombre del identicador
     def ComprobarNombre(self, nombre: str):
@@ -31,6 +45,7 @@ class NombreEstructuras:
             return False
         else:
             return True
+
     
     #Agregar al diccionario la base de datos
     def createDatabase(self, database: str):
@@ -40,6 +55,7 @@ class NombreEstructuras:
                 if self.searchDatabase(database) == False: #Si la base no existe se crea
                     tablas = {} #inicializamos una estructura tipo diccionario para los nombres de tablas
                     self.database.setdefault(database, tablas)
+                    ne.serialize("data/database",self.database)
                     return 0
                 else:
                     return 2
