@@ -686,9 +686,13 @@ class FunctionCall(Expression):
         Expression.__init__(self, row, column)
         self.function = function.lower()
         self.params = params
+        i = 0
         self.temp = str(function) + "("
         for t in params:
+            if i > 0:
+                self.temp += ", "
             self.temp += t.temp
+            i += 1
         self.temp += ")"
 
     # TODO: Agregar un error de parametros incorrectos
@@ -800,7 +804,7 @@ class FunctionCall(Expression):
             elif self.function == "atanh":
                 value = trf.atanh(*valores)
             elif self.function == "length":
-                value = strf.length(*valores)
+                value = strf.lenght(*valores)
             elif self.function == "substring":
                 type_ = TYPE.STRING
                 value = strf.substring(*valores)
@@ -822,6 +826,7 @@ class FunctionCall(Expression):
                 type_ = TYPE.STRING
                 value = strf.substring(*valores)
             elif self.function == "convert_date":
+                type_ = TYPE.DATETIME
                 value = strf.convert_date(*valores)
             elif self.function == "convert_int":
                 value = strf.convert_int(*valores)
@@ -1205,6 +1210,36 @@ class CheckValue(Expression):
 
     def execute(self, environment):
         return self
+
+
+class AggregateFunction(Expression):
+    """
+    Esta clase representa las funciones de agregacion utilizadas en el Group By
+    """
+    def __init__(self, func, colData, row, column) -> None:
+        super().__init__(row, column)
+        self.func = func.lower()
+        self.colData = colData
+        self.temp = func + "(" + colData.temp + ")"
+
+    def execute(self, environment):
+        countGr = environment.groupCols
+        # Obtiene las ultimas columnas metidas (Las del group by)
+        df = environment.dataFrame.iloc[:, -countGr:]
+        df = pd.concat([df, self.colData.execute(environment).value], axis=1)
+        cols = list(df.columns)[:-1]
+        if self.func == "sum":
+            newDf = df.groupby(cols).sum().reset_index()
+        elif self.func == "count":
+            newDf = df.groupby(cols).count().reset_index()
+        elif self.func == "prom":
+            newDf = df.groupby(cols).mean().reset_index()
+        else:
+            newDf = None
+            print("error")
+        
+        value = newDf.iloc[:, -1:]
+        return Primitive(TYPE.NUMBER, value, self.row, self.column)
 
 
 def makeAst():

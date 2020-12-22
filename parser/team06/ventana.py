@@ -183,7 +183,10 @@ class Interfaz(tk.Frame):
         self.terminal.delete(1.0, tk.END)
         print(x)
         try:
+            x=x.replace("and","AND")
+            x=x.replace("or","OR")
             salida=analizador.ejecucionAscendente(x)
+            self.terminal.insert(tk.END,salida) 
         except:
             salida="TYTTUS>Se genero un error de análisis"
             self.terminal.insert(tk.END,salida)        

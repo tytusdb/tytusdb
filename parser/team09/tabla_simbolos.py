@@ -40,10 +40,10 @@ class Simbolo():
     def __init__(self,id, tipo, valor, base,longitud,pk,fk,referencia): 
         self.id = id
         self.tipo = tipo
-        if tipo == tipo_simbolo.TABLE or tipo != tipo_simbolo.DATABASE: # si es uno inicializa la lista que contrndra los valores 
+        if tipo != tipo_simbolo.DATABASE : # si es uno inicializa la lista que contrndra los valores 
             self.valor = []
         else:
-            self.valor = None
+            self.valor = valor
             
         self.base = base
         self.longitud = longitud
@@ -77,7 +77,15 @@ class tabla_simbolos():
 
     def agregar_simbolo(self, new_simbolo):  #agrega tablas y bases de datoos
         self.lis_simbolos.append(new_simbolo)
+        
+    def agregar_tabla(self,db,tabla):
+        verficar_db = self.get_simbol(db)
+        if(isinstance(verficar_db,E.Errores)):
+            return verficar_db #la base de datos no existe en la ts, database ya trae el error
+        else:
+            self.agregar_simbolo(tabla)
 
+        return tabla
 
     def agregar_columna(self,table, db,columna): 
         # agrega un simbolo columna a un simbolo tabla en la lista de valores de la misma
@@ -89,26 +97,22 @@ class tabla_simbolos():
             return tabla #la tabla no existe en la ts, table ya trae el error
         else:
             #validar que no exista una columna con el mismo nombre
-            for columna  in tabla.valor:
-                if columna.id == columna:
+            for col in tabla.valor:
+                if col.id == columna.id:
                     msj_error = 'La columna -'+columna+' ya existe en la tabla -'+tabla+'-.'
                     error = E.Errores('EROOR', msj_error)
                     return error
+                    
             tabla.valor.append(columna)
             return columna
 
     def add_const(self,db,tabla,colum, ob_const):
+    
         validar_columna = self.get_column(db,tabla,colum)
-        if(isinstance(validar_columna),E.Errores):
-            return validar_columna # el error lo trae el metodo 
+        if(isinstance(validar_columna,E.Errores)):
+            return validar_columna
         else:
-            #validar que el nombre del constrint 
-            for const in validar_columna.valor:
-                if const.id == ob_const.id:
-                    msj_error = 'El constraint -'+ob_const.id+' ya existe en la columna -'+colum+'-.'
-                    error = E.Errores('EROOR', msj_error)
-                    return error
-            #se agrega el constraint a la lista de la columna 
+            print('columna en metodo -->> ' +validar_columna.id)
             validar_columna.valor.append(ob_const)
             return ob_const
 
@@ -179,7 +183,7 @@ class tabla_simbolos():
                 encontrada = True
                 return simbol
 
-        if encontrada == false:
+        if encontrada == False:
             error = E.Errores('Error','no existe ninguna base de datos activa')
         
         return error
@@ -193,17 +197,54 @@ class tabla_simbolos():
         
         #si existe eliminamos el simbolo base de datos
         self.lis_simbolos.remove(database)
-        return True
-
         #eliminar todas las tablas que perteneces a esa base de datos
         for Sim in self.lis_simbolos:
-            if Sim.tipo == tipo_simbolo.TABLE and Sim.base == db :
+            print('simbolo ->  ' +Sim.id)
+            if Sim.base == db :
                 self.lis_simbolos.remove(Sim)
 
+        #eliminar base acutial
+        db_actual = self.get_dbActual()
+        try:
+            if(db_actual.id == db):
+                self.lis_simbolos.remove(db_actual)
+        except:
+            return True
+
+        return True
 
     def graficar(self):
-        for simbolos in self.lis_simbolos:
-            print(simbolos.id)
+        cont = 0
+        
+        f = open('Tabla_simbolos.html', 'w')
+        f.write("<html>")
+        f.write("<BODY style= \"background: -webkit-linear-gradient(45deg,  #ffffff, #b4b4b4);\" >")
+        f.write("<div class=\"articulo\"><H3>Universidad de San Carlos de Guatemala<BR>Facultad de Ingenieria<BR>Escuela de Ciencias y Sistemas<BR>Grupo 09<BR>COMPI2<BR>TABLA DE SIMBOLOS</H3>")
+        f.write("<CENTER><H2>PROYECTO 1 <BR>TABLA DE SIMBOLOS</H2></CENTER></div>")
+        f.write("<table border=""1"" style=""width:100%""><tr><th>No.</th><th>ID</th><th>Tipo Simbolo</th><th>TIPO DATO</th><th>LONGITUD</th><th>VALOR</th><th>BASE</th><th>TABLA</th><th>PK</th><th>FK</th><th>REFERENCIA</th></tr>")
+        for sim in self.lis_simbolos:
+            cont = cont+1
+            if sim.tipo == tipo_simbolo.DATABASE:
+                f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + sim.id + "<th>BASE DE DATOS</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
+            elif sim.tipo == tipo_simbolo.TABLE:
+                f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + str(sim.id) + "<th>TABLA</th><th>---</th><th>---</th><th>---</th><th>"+str(sim.base)+"</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
+                #imprimir columnas de la tabla
+                cont = cont+1
+                for col in sim.valor:
+                    cont = cont+1
+                    f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + col.id + "<th>COLUMNA</th><th>"+str(col.tipo)+"</th><th>"+str(col.longitud)+"</th><th>constraints</th><th>"+col.base+"</th><th>"+sim.id+"</th><th>"+str(col.pk)+"</th><th>"+str(col.fk)+"</th><th>"+str(col.referencia)+"</th></tr>" + '\n')
+                    #imprimir constrints de la columna
+                    cont2 =1 
+                    for constr in col.valor:
+                        f.write("<tr><td align=""center""><font color=""black"">" + str(cont)+"."+str(cont2) + "<td align=""center""><font color=""black"">" + str(constr.id)+ "<th>"+str(constr.tipo)+"</th><th>"+str(constr.condicion)+"</th><th>----</th><th>"+str(constr.valor)+"</th><th>"+col.base+"</th><th>"+sim.id+"</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
+            
+            elif sim.tipo == tipo_simbolo.DB_ACTUAL:
+                f.write("<tr><td align=""center"" bgcolor = ""yellow""><font color=""red"">" + str(cont) + "<td align=""center"" bgcolor = ""yellow""><font color=""black"">" + sim.id + "<th>BASE DE DATOS ACTIVA</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
+            
+        f.write("</table>")
+        f.write("</body>")
+        f.write("</html>")
+        f.close()
 
 
 class const():

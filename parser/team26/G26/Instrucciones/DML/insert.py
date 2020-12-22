@@ -229,7 +229,7 @@ class Insert(Instruccion):
             nullInsertado = False
             if columna.null != None and comprobarNull and tamanioInferior:
                 compDefault = True
-                if columna.null.val:
+                if columna.null:
                     valoresTabla = self.insertarValor(valoresTabla, 'null', posColumna, valExtra)
                     nullInsertado = True
 
@@ -247,10 +247,13 @@ class Insert(Instruccion):
             if columna.check != None:
                 diccionarioTabla = {}
                 diccionarioTabla[self.tableid.upper()] = {'fila': valoresTabla, 'alias': None}
-                if columna.check.val.executeInsert(data, diccionarioTabla):
-                    ''
-                else:
-                    return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
+                for chk in columna.check :
+                    if chk == None:
+                        continue
+                    if chk.val.executeInsert(data, diccionarioTabla) :
+                        ''
+                    else:
+                        return 'Error(???): El valor no cumple con el check de la columna' + columna.name + '.'
 
             posColumna += 1
 
