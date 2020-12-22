@@ -10,5 +10,10 @@ CREATE TABLE Usuarios (
     FOREIGN KEY (ID,edad) REFERENCES Tabla2(ID,edad)
 );
 CREATE TYPE PAISES AS ENUM ("Guatemala",'Nicaragua');
+UPDATE Usuarios
+SET
+edad = 1,
+ID = 1*2+2
+WHERE ID>1;
 
 
