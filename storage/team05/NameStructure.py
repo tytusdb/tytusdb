@@ -71,19 +71,33 @@ class NombreEstructuras:
             arreglotmp.append(str(x))
         
         return arreglotmp
-    
+   
     #Cambia el nombre de la base de datos
-    def alterDataBase(self, databaseOld, databaseNew):
+    def alterDatabase(self, databaseOld, databaseNew):
         try:
             #Si el nombre cumple con la nomenclatura de identificador la buscamos e insertamos
             if self.ComprobarNombre(databaseOld) == True and self.ComprobarNombre(databaseNew) == True:
-                if self.searchDatabase(databaseOld) == True: #Si existe la base de datos cambiamos su nombre
-                   if self.searchDatabase(databaseNew) == False: #No tiene que existir el nombre para cambiarlo
-                       self.dataBase[databaseNew] = self.database[databaseOld]
-                       del self.dataBase[dataBaseOld]
-                       return 0
-                   else:
-                       return 3
+                if self.searchDatabase(databaseOld) == True: #Si existe la base datos cambiamos su nombre
+                    if self.searchDatabase(databaseNew) == False: #No tiene que existir el nombre para cambiarlo
+                        self.database[databaseNew] = self.database[databaseOld]
+                        del self.database[databaseOld]
+                 
+                        #recorrer archivos que correspondan con base anterior y colocar el nuevo nombre
+                        directorio='data/tables/'
+                        with os.scandir(directorio) as ficheros:
+                            for f in ficheros:
+                                if f.name.startswith(str(databaseOld)):
+                                    print(str(f.path))
+                                    get_path=f.path.split("/")
+                                    tmp_name=get_path[2].split("-")
+                                    new_name=str(databaseNew)+"-"+tmp_name[1]
+                                    final_string="data/tables/"+str(new_name)
+                                    os.rename(f.path,final_string)
+                        ne.serialize("data/database",self.database)            
+                        return 0
+                    else:
+                        return 3
+                    
                 else:
                     return 2
             else:
@@ -92,14 +106,23 @@ class NombreEstructuras:
             return 1
 
     #Elimina la base de datos
-    def dropDatabase(self, database):
-        if self.ComprobarNombre(database) == True:
-            if self.searchDatabase(database) == True:
-                del self.database[database]
-                return 0
+    def dropDatabase(self, database: str):
+        try:
+            if self.ComprobarNombre(database) == True: #Comprobamos el nombre
+                if self.searchDatabase(database) == True: #Buscamos la db
+                    del self.database[database]
+                    ne.serialize("data/database",self.database)
+                    directorio='data/tables/'
+                    with os.scandir(directorio) as ficheros:
+                        for f in ficheros:
+                            if f.name.startswith(str(database)):
+                                os.remove(f.path)
+                    return 0
+                else:
+                    return 2
             else:
-                return 2
-        else:
+                return 1
+        except:
             return 1
         
     #Método para buscar una tabla en el diccionario
