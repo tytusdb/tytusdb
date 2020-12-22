@@ -78,22 +78,7 @@ class createTable(InstruccionAbstracta):
                                     encontro = False  
                                         
                         elif columna.hijos[0].nombreNodo == "FOREIGN":
-                            print("setear llave foranea si existen las columnas")
-                            encontro = False
-                            for nodoId in columna.hijos[1].hijos:
-                                for columnaEvaluar in tablaGuardar.columnas:
-                                    if nodoId.valor.lower() == columnaEvaluar.nombre.lower():
-                                        encontro = True
-
-                                        columnaEvaluar.crearLlavePrimaria()
-                                        print("setear llave primaria si existen las columnas: " + nodoId.valor.lower())
-                                if encontro == False:
-                                    #Id de columna llamado en llave no existe Error 42703
-                                    errorEnviar = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion","Error 42703")
-                                    listaErrores.append(errorEnviar)
-                                    print("Id de columna llamado en llave no existe: " + nodoId.valor.lower())
-                                elif encontro == True:
-                                    encontro = False  
+                            print("setear llave foranea si existen las columnas") 
                         elif columna.hijos[0].nombreNodo == "UNIQUE":
                             print("setear llave foranea si existen las columnas")
                     except:
