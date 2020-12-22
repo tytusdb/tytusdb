@@ -3,10 +3,10 @@
 <root> ::= <instructionlist>
        
 <instructionlist> ::= <instructionlist> <sqlinstruction>
-			        | <sqlinstruction>
+                    | <sqlinstruction>
 
 <sqlinstruction> ::= <DDL>
-				   | <DML>
+                   | <DML>
                    | <usestatement>
                    | MULTI_LINE_COMMENT
                    | SINGLE_LINE_COMMENT
@@ -81,5 +81,93 @@
             | BOOLEAN               
 
 <optionscollist> ::= <optionscollist> <optioncol>
-                   | <optioncol>                     
+                   | <optioncol>
+
+<optioncol> ::= DEFAULT <SQLSIMPLEEXPRESSION>                
+              | NOT NULL
+              | NULL
+              | CONSTRAINT ID UNIQUE
+              | UNIQUE
+              | CONSTRAINT ID CHECK LEFT_PARENTHESIS <conditionColumn> RIGHT_PARENTHESIS
+              | CHECK LEFT_PARENTHESIS <conditionColumn> RIGHT_PARENTHESIS
+              | PRIMARY KEY
+              | REFERENCES ID
+
+<conditionColumn> ::= <conditioncheck>
+
+<conditioncheck> ::= <SQLRELATIONALEXPRESSION>
+
+<showstatement> ::= SHOW DATABASES SEMICOLON
+                  | SHOW DATABASES LIKE <SQLNAME> SEMICOLON
+
+<alterstatement> ::= ALTER <optionsalter> SEMICOLON
+
+<optionsalter> ::= DATABASE <alterdatabase>
+				 | TABLE <altertable>
+
+<alterdatabase> ::= ID RENAME TO ID
+				  | ID OWNER TO <typeowner>
+
+<typeowner> ::= ID
+              | CURRENT_USER
+              | SESSION_USER
+
+<altertable> ::= ID <alterlist>
+
+<alterlist> ::= <alterlist> COMMA <typealter>
+			  | <typealter>
+
+<typealter> ::= ADD <addalter>
+              | ALTER <alteralter>
+              | DROP <dropalter>
+              | RENAME  <renamealter>
+
+<addalter> ::= COLUMN ID <typecol>
+              | CHECK LEFT_PARENTHESIS <conditionColumn> RIGHT_PARENTHESIS
+              | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
+              | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+
+<alteralter> ::= COLUMN ID SET NOT NULL
+               | COLUMN ID TYPE <typecol>
+
+<dropalter> ::= COLUMN ID
+              | CONSTRAINT ID
+
+<renamealter> ::= COLUMN ID TO ID
+
+<dropstatement> ::= DROP <optionsdrop> SEMICOLON
+
+<optionsdrop> ::= DATABASE <dropdatabase>
+                | TABLE <droptable>
+
+<dropdatabase> ::= IF EXISTS ID
+                 | ID
+
+<droptable> ::= ID
+
+<DML> ::= <QUERYSTATEMENT>
+        | <INSERTSTATEMENT>
+        | <DELETESTATEMENT>
+        | <UPDATESTATEMENT>
+
+<UPDATESTATEMENT> ::= UPDATE ID <OPTIONS1> SET <SETLIST> <OPTIONSLIST2> SEMICOLON
+                       | UPDATE ID SET <SETLIST> <OPTIONSLIST2> SEMICOLON
+                       | UPDATE ID SET <SETLIST>  SEMICOLON 
+
+<SETLIST> ::= <SETLIST> COMMA <COLUMNVALUES>
+            | <COLUMNVALUES>
+
+<COLUMNVALUES> ::= <OBJECTREFERENCE> EQUALS <SQLEXPRESSION2>
+
+<SQLEXPRESSION2> ::= <SQLEXPRESSION2> PLUS <SQLEXPRESSION2> 
+                   | <SQLEXPRESSION2> REST <SQLEXPRESSION2> 
+                   | <SQLEXPRESSION2> DIVISION <SQLEXPRESSION2> 
+                   | <SQLEXPRESSION2> ASTERISK <SQLEXPRESSION2> 
+                   | <SQLEXPRESSION2> MODULAR <SQLEXPRESSION2>
+                   | <SQLEXPRESSION2> EXPONENT <SQLEXPRESSION2> 
+                   | REST <SQLEXPRESSION2> %prec UREST
+                   | PLUS <SQLEXPRESSION2> %prec UPLUS
+                   | LEFT_PARENTHESIS <SQLEXPRESSION2> RIGHT_PARENTHESIS
+                   | <SQLNAME>
+                   | <SQLINTEGER>     
 ```

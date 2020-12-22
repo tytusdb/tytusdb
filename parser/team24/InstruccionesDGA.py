@@ -1,4 +1,4 @@
-import jsonMode as func
+import storage as func
 import tablaDGA as TS
 
 #VARIABLES GLOBALES
