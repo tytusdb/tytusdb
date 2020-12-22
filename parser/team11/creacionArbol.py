@@ -86,6 +86,15 @@ def getSelect(t):
     gramatica += '\"PTCOMA\" '
     return Nodo('SELECT', '', childs, t.lexer.lineno, 0, gramatica)
 
+def getSelectSimple(t):
+    childs = Nodo('Rows', '', t[2], t.lexer.lineno)     # pendiente 
+    return Nodo('SELECT', '', [childs], t.lexer.lineno)
+
+def getDistinct(t) : 
+    if t[1] != None:                                    # pendiente
+        t[0] = Nodo('DISTINC', '', [], t.lexer.lineno, 0, '<termdistinct> ::= \"DISTINCT\" ')
+    return t[0]
+
 def getSelectList(t):
     if t[1] == '*':
         gramatica = '<selectlist> ::= \"ASTERISCO\"'
@@ -188,3 +197,45 @@ def getValSelect(t, etiqueta) :
         else :
             gramatica = '<valselect> ::=  \"COUNT\" \"PARIZQ\" <cualquieridentificador> \"PARDER\"'
             return Nodo('Agregacion', t[1], [t[3]], t.lexer.lineno, 0, gramatica) 
+
+
+def getTablaSelect(t) :
+    if len(t) == 3:
+        if t[2] != None:
+            return Nodo('Tabla', t[1], [t[2]], t.lexer.lineno, 0, '<tablaselect> ::= \"'+str(t[1])+'\" <alias>')
+        else :
+            return Nodo('Tabla', t[1], [], t.lexer.lineno, 0, '<tablaselect> ::= \"'+str(t[1])+'\"')
+    else:
+        if t[4] != None :
+            gramatica = '<tablaselect> ::= \"PARIZQ\" <select_instr1> \"PARDER\" <alias>'
+            return Nodo('Subquery', '', [t[2], t[4]], t.lexer.lineno, 0, gramatica)
+        else :
+            gramatica = '<tablaselect> ::= \"PARIZQ\" <select_instr1> \"PARDER\"'
+            return Nodo('Subquery', '', [t[2]], t.lexer.lineno, 0, gramatica)  
+
+def getAlias(t):
+    if t[1] == None:
+        return t[1]
+    elif t[1].lower() == 'as':
+        gramatica = '<alias> ::= \"AS\" \"' + str(t[2]) + '\"'
+        return Nodo('Alias', t[2], [], t.lexer.lineno, 0, gramatica)
+    else :
+        gramatica = '<alias> ::= \"'+ str(t[1]) + '\"'
+        return Nodo('Alias', t[1], [], t.lexer.lineno, 0, gramatica)
+
+def getSubstring(t):
+    childs = [t[3]]
+    gramatica = '<condicionwhere> ::= <wheresubstring>\n'
+    gramatica += '<wheresubstring> ::= \"SUBSTRING\" \"PARIZQ\" <cadenastodas> \"COMA\" \"ENTERO\" \"COMA\" \"ENTERO\" \"PARDER\" \"IGUAL\" \"CADENASIMPLE\"'
+    childs.append(Nodo('DE', str(t[5]), [], t.lexer.lineno))
+    childs.append(Nodo('HASTA', str(t[7]), [], t.lexer.lineno))
+    childs.append(Nodo('IGUAL', t[9], [], t.lexer.lineno))
+    childs.append(Nodo('CADENA', t[10], [], t.lexer.lineno))
+    return Nodo("SUBSTRING", '', childs, t.lexer.lineno, 0, gramatica)
+
+def getOpRelacional(t):
+    if t[2] == '<>':
+        gramatica = '<condicion> ::= <expresion> \"DIFERENTE\" <expresion>'
+        return Nodo('OPREL', '\\<\\>', [t[1], t[3]], t.lexer.lineno, 0, gramatica)
+    gramatica = '<condicion> ::= <expresion> \"' +t[2]+'\" <expresion>'
+    return Nodo('OPREL', '\\'+str(t[2]), [t[1], t[3]], t.lexer.lineno, 0, gramatica)
