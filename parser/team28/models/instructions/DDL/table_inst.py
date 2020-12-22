@@ -4,6 +4,7 @@ from controllers.error_controller import ErrorController
 from controllers.symbol_table import SymbolTable
 from models.instructions.Expression.type_enum import *
 from models.instructions.DDL.column_inst import *
+from controllers.data_controller import *
 from models.database import Database
 from models.column import Column
 from models.table import Table
@@ -40,9 +41,21 @@ class CreateTB(Instruction):
         # Genera las tablas ya con todas sus propiedades
         self.generateColumns(nombreTabla,typeChecker)
 
+        # Si tiene inherits la manoseamos
+        if self._inherits_from != None:
+            self.addInherits(nombreTabla,self._inherits_from)
+
         # Si ocurrio algun error en todo el proceso mato la tabla
         if self._can_create_flag == False:
             typeChecker.deleteTable(nombreTabla,0,0)
+            return
+
+        # Verifico si tiene llave primaria la tabla o si le meto una escondida
+        if self.existsPK(nombreTabla) == 0:
+            self.generateHiddenPK(nombreTabla)
+
+        # Agrego llaves primarias a la base de datos si no hubo clavo con la tabla
+        self.addPKToDB(nombreTabla)
 
 
     def numberOfColumns(self, arrayColumns):
@@ -95,8 +108,6 @@ class CreateTB(Instruction):
                     self._can_create_flag = False
                     return
                 
-    
-
     def addPropertyes(self, prop,columnaFinal):
         if prop['default_value'] != None:
             validation = self.validateType(columnaFinal._dataType,prop['default_value'], True)
@@ -238,10 +249,7 @@ class CreateTB(Instruction):
                     if(columna._column_name == whatColumnIs):
                         if columna._properties != None:
                             bandera = True
-                            columna._properties[0]['constraint_check_condition'] = {
-                                                                                '_constraint_alias' : nombreColumna,
-                                                                                '_condition_check' : condicionColumna.alias
-                                                                                }
+                            columna._properties[0]['constraint_check_condition'] = condicionColumna
                             break
             if not bandera:
                 desc = f": Undefined column in constraint check ()"
@@ -268,10 +276,7 @@ class CreateTB(Instruction):
                     if(columna._column_name == whatColumnIs):
                         if columna._properties != None:
                             bandera = True
-                            columna._properties[0]['check_condition'] = {
-                                                                                '_constraint_alias' : None,
-                                                                                '_condition_check' : conditionColumn.alias
-                                                                                }
+                            columna._properties[0]['check_condition'] = conditionColumn
                             break
             if not bandera:
                 desc = f": Undefined column in check ()"
@@ -503,6 +508,62 @@ class CreateTB(Instruction):
                 pass
         return True
 
+
+    def addInherits(self,nameChildTable,nameParentTable):
+        typeChecker = TypeChecker()
+        tablaPadre = typeChecker.searchTable(SymbolTable().useDatabase, nameParentTable)
+        tablaHija = typeChecker.searchTable(SymbolTable().useDatabase, nameChildTable)
+        
+        #La tabla de la que hereda no existe
+        if tablaPadre == None:
+            desc = f": parent table dont exists"
+            ErrorController().add(27, 'Execution', desc, 0, 0)
+            self._can_create_flag = False
+            return
+
+        for colPar in tablaPadre._colums:
+            #Vamos a insertar en la hija
+            validarCol = typeChecker.createColumnTable(tablaHija,colPar,0,0)
+            #Si es una columna repetida entonces no puede crear la tabla
+            if validarCol == None:
+                self._can_create_flag = False
+                return
+
+    def addPKToDB(self,tableCreated):
+        indicesPrimarios = []
+        typeChecker = TypeChecker()
+        tablaToExtract = typeChecker.searchTable(SymbolTable().useDatabase, tableCreated)    
+
+        for colExt in tablaToExtract._colums:
+            if colExt._primaryKey == True:
+                indicesPrimarios.append(colExt._number)
+            
+        
+        DataController().alterAddPK(tableCreated,indicesPrimarios,0,0)
+
+    def existsPK(self,tableCreated):
+        indicesPrimarios = 0
+        typeChecker = TypeChecker()
+        tablaToExtract = typeChecker.searchTable(SymbolTable().useDatabase, tableCreated)    
+
+        for colExt in tablaToExtract._colums:
+            if colExt._primaryKey == True:
+                indicesPrimarios += 1
+
+        return indicesPrimarios
+
+    def generateHiddenPK(self,nombreTabla):
+        typeChecker = TypeChecker()
+        tipoEscondido = {
+            '_tipoColumna' : 'HIDDEN',
+            '_paramOne' : None,
+            '_paramTwo' : None
+        }
+        columnaEscondida = Column('HIDDEN',tipoEscondido)
+        columnaEscondida._primaryKey = True
+        tableToInsert = typeChecker.searchTable(SymbolTable().useDatabase, nombreTabla)
+        typeChecker.createColumnTable(tableToInsert,columnaEscondida,0,0)
+        print('### SE HA GENERADO UNA LLAVE PRIMARIA ESCONDIDA')
 
 class DropTB(Instruction):
 

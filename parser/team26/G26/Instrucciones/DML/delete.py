@@ -17,9 +17,6 @@ class Delete(Instruccion):
 
     def execute(self, data):
 
-        # Send to delete function
-        rowlist = []
-
         tables = showTables(str(data.databaseSeleccionada))
         if not self.tableid.table.upper() in tables :
             error = Error('Semántico', 'Error(???): La tabla no existe.', 0, 0)
@@ -44,17 +41,68 @@ class Delete(Instruccion):
                     pks.append(contp)
             contp += 1
 
+        if pks == [] :
+            error = Error('Semántico', 'Error(???): La tabla ' + self.tableid.table.upper()+' no tiene primary key definida.', 0, 0)
+            return error
         #print(pks)
 
         if self.condiciones == None :
             'Se cambian todas los campos que vienen en el set'
             for fila in filas :
+                rowlistp = []
                 for pk in pks :
-                    rowlist.append(fila[pk])
+                    rowlistp.append(fila[pk])
+
+                print(rowlistp)
+
+            
+            for fila in filas :
+                rowlistp = []
+                for pk in pks :
+                    rowlistp.append(fila[pk])
+                
+
+                if rowlistp == [] :
+                    print('Operación exitosa')
+
+                reto = delete(data.databaseSeleccionada, self.tableid.table.upper(), rowlistp)
+
+                if reto == 0:
+                    ''
+                    print('Operación exitosa')
+                elif reto == 1:
+                    error = Error('Storage', 'Error(1): Error en la operación', 0, 0)
+                    return error
+                elif reto == 2:
+                    error = Error('Storage', 'Error(2): Database no existente', 0, 0)
+                    return error
+                elif reto == 3:
+                    error = Error('Storage', 'Error(3): Table no existente', 0, 0)
+                    return error
+                elif reto == 4:
+                    error = Error('Storage', 'Error(4): Llave primaria inexistente', 0, 0)
+                    return error
+
         
         else : 
             #diccionario para mandar a condiciones:
             #dicciPrueba = {'NombreTabla1': {'fila': [1, 3, "f"], 'alias': 'nombre'}, 'NombreTabla2': {'fila': [], 'alias': None}}
+            for fila in filas :
+                condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
+                #print(condObj)
+                
+                toadd = self.condiciones.execute(data, condObj)
+                if isinstance(toadd, Error):
+                    return toadd
+
+                rowlistp = []
+                if toadd :
+                    for pk in pks :
+                        rowlistp.append(fila[pk])
+
+                    print(rowlistp)
+
+
             for fila in filas :
                 condObj = {self.tableid.table.upper() : {'fila' : fila, 'alias':''}}
                 print(condObj)
@@ -62,32 +110,33 @@ class Delete(Instruccion):
                 toadd = self.condiciones.execute(data, condObj)
                 if isinstance(toadd, Error):
                     return toadd
-                
+
+                # Send to delete function
+                rowlistp = []
                 if toadd :
                     for pk in pks :
-                        rowlist.append(fila[pk])
+                        rowlistp.append(fila[pk])
 
-        print(rowlist)
+                    if rowlistp == [] :
+                        print('Operación exitosa')
 
-        if rowlist == [] :
-            return 'Operación exitosa'
+                    reto = delete(data.databaseSeleccionada, self.tableid.table.upper(), rowlistp)
 
-        reto = delete(data.databaseSeleccionada, self.tableid.table.upper(), rowlist)
-
-        if reto == 0:
-            return 'Operación exitosa'
-        elif reto == 1:
-            error = Error('Storage', 'Error(1): Error en la operación', 0, 0)
-            return error
-        elif reto == 2:
-            error = Error('Storage', 'Error(2): Database no existente', 0, 0)
-            return error
-        elif reto == 3:
-            error = Error('Storage', 'Error(3): Table no existente', 0, 0)
-            return error
-        elif reto == 4:
-            error = Error('Storage', 'Error(4): Llave primaria inexistente', 0, 0)
-            return error
+                    if reto == 0:
+                        ''
+                        print('Operación exitosa')
+                    elif reto == 1:
+                        error = Error('Storage', 'Error(1): Error en la operación', 0, 0)
+                        return error
+                    elif reto == 2:
+                        error = Error('Storage', 'Error(2): Database no existente', 0, 0)
+                        return error
+                    elif reto == 3:
+                        error = Error('Storage', 'Error(3): Table no existente', 0, 0)
+                        return error
+                    elif reto == 4:
+                        error = Error('Storage', 'Error(4): Llave primaria inexistente', 0, 0)
+                        return error
 
         return self.tableid
 
