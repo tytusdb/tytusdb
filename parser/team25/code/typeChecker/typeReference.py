@@ -4,7 +4,7 @@ import os
 import json
 
 path = 'data/type/'
-dataPath = path + 'typeRef'
+dataPath = path + 'typeRef.json'
     
 ##################
 # Databases CRUD #
@@ -139,7 +139,7 @@ def alterAddPK(database: str, table: str, constraint: str, column: str) -> int:
 def alterDropPK(database: str, table: str, column: str) -> int:
     initCheck()
     dump = False
-    with open('data/type/typeRef') as file:
+    with open('data/type/typeRef.json') as file:
         data = json.load(file)
         if not database in data:
             return 2
@@ -153,18 +153,17 @@ def alterDropPK(database: str, table: str, column: str) -> int:
                 data[database]['Tables'][table]['Columns'][column]['PKConst'] = None
                 dump = True
     if dump:
-        with open('data/type/typeRef', 'w') as file:
+        with open('data/type/typeRef.json', 'w') as file:
             json.dump(data, file)
         return 0
     else:
         return 1  
 
 # Add a FK list to specific table and database
-def alterAddFK(database: str, table: str, column: str, constraint: str, references: dict) -> int:
+def alterAddFK(database: str, table: str, column: str, references: dict) -> int:
     try:
         if not database.isidentifier() \
         or not table.isidentifier() \
-        or not constraint.isidentifier() \
         or not column.isidentifier() \
         or not isinstance(references, dict):
             raise Exception()
@@ -177,7 +176,6 @@ def alterAddFK(database: str, table: str, column: str, constraint: str, referenc
         if not column in data[database]['Tables'][table]['Columns']:
             return 4
         data[database]['Tables'][table]['Columns'][column]['FK'] = True
-        data[database]['Tables'][table]['Columns'][column]['FKConst'] = constraint
         data[database]['Tables'][table]['Columns'][column]['References'] = references
         write(dataPath, data)
         return 0
@@ -188,7 +186,7 @@ def alterAddFK(database: str, table: str, column: str, constraint: str, referenc
 def alterDropFK(database: str, table: str, column: str) -> int:
     initCheck()
     dump = False
-    with open('data/type/typeRef') as file:
+    with open('data/type/typeRef.json') as file:
         data = json.load(file)
         if not database in data:
             return 2
@@ -203,7 +201,7 @@ def alterDropFK(database: str, table: str, column: str) -> int:
                 data[database]['Tables'][table]['Columns'][column]['References'] = None
                 dump = True
     if dump:
-        with open('data/type/typeRef', 'w') as file:
+        with open('data/type/typeRef.json', 'w') as file:
             json.dump(data, file)
         return 0
     else:
@@ -253,7 +251,7 @@ def alterField(database: str, table: str, column: str, atribute: str, value) -> 
 def alterAddColumn(database: str, table: str, column: str, atributes: dict) -> int:
     initCheck()
     dump = False
-    with open('data/type/typeRef') as file:
+    with open('data/type/typeRef.json') as file:
         data = json.load(file)
         if not database in data:
             return 2
@@ -266,7 +264,7 @@ def alterAddColumn(database: str, table: str, column: str, atributes: dict) -> i
             data[database]['Tables'][table]['Columns'].update(newCol)
             dump = True
     if dump:
-        with open('data/type/typeRef', 'w') as file:
+        with open('data/type/typeRef.json', 'w') as file:
             json.dump(data, file)
 
         return 0
@@ -277,7 +275,7 @@ def alterAddColumn(database: str, table: str, column: str, atributes: dict) -> i
 def alterDropColumn(database: str, table: str, column: str) -> int:
     initCheck()
     dump = False
-    with open('data/type/typeRef') as file:
+    with open('data/type/typeRef.json') as file:
         data = json.load(file)
         if not database in data:
             return 2
@@ -294,7 +292,7 @@ def alterDropColumn(database: str, table: str, column: str) -> int:
             data[database]['Tables'][table]['Columns'].pop(column)
             dump = True
     if dump:
-        with open('data/type/typeRef', 'w') as file:
+        with open('data/type/typeRef.json', 'w') as file:
             json.dump(data, file)
         return 0
     else:
@@ -312,7 +310,7 @@ def dropTable(database: str, table: str) -> int:
             return 2
         if not table in data[database]['Tables']:
             return 3
-        data[database].pop(table)
+        data[database]['Tables'].pop(table)
         write(dataPath,data)
         return 0
     except:
@@ -334,27 +332,62 @@ def getColumns(database: str, table: str) -> dict:
     except:
         return None
 
-def __getAllConstaints() -> list:
+def getAttribute(database: str, table: str, column: str, attribute: str):
     try:
-        consts = list()
-
+        if not database.isidentifier() \
+        or not table.isidentifier() \
+        or not column.isidentifier() \
+        or not attribute.isidentifier():
+            raise Exception()             
+        initCheck()
         data = read(dataPath)
+        return data[database]['Tables'][table]['Columns'][column][attribute]
+    except:
+        return None
 
-        for db in data:
-            for table in data[db]['Tables']:
-                for col in data[db]['Tables'][table]['Columns']:
-                    if data[db]['Tables'][table]['Columns'][col]['PKConst'] != None:
-                        consts.append(data[db]['Tables'][table]['Columns'][col]['PKConst'])
-                    if data[db]['Tables'][table]['Columns'][col]['FKConst'] != None:
-                        consts.append(data[db]['Tables'][table]['Columns'][col]['FKConst'])
-                    if data[db]['Tables'][table]['Columns'][col]['UniqueConst'] != None:
-                        consts.append(data[db]['Tables'][table]['Columns'][col]['UniqueConst'])
-                    if data[db]['Tables'][table]['Columns'][col]['CheckConst'] != None:
-                        consts.append(data[db]['Tables'][table]['Columns'][col]['CheckConst'])
+def __getAllConstaints(database: str) -> list:
+    try:
+        if not database.isidentifier():
+            raise Exception()
+
+        consts = list()
+        data = read(dataPath)
+        
+        for table in data[database]['Tables']:
+            for col in data[database]['Tables'][table]['Columns']:
+                if data[database]['Tables'][table]['Columns'][col]['PKConst'] != None:
+                    consts.append(data[database]['Tables'][table]['Columns'][col]['PKConst'])
+                if data[database]['Tables'][table]['Columns'][col]['FKConst'] != None:
+                    consts.append(data[database]['Tables'][table]['Columns'][col]['FKConst'])
+                if data[database]['Tables'][table]['Columns'][col]['UniqueConst'] != None:
+                    consts.append(data[database]['Tables'][table]['Columns'][col]['UniqueConst'])
+                if data[database]['Tables'][table]['Columns'][col]['CheckConst'] != None:
+                    consts.append(data[database]['Tables'][table]['Columns'][col]['CheckConst'])
 
         return consts
     except:
         return []
+
+def getIndexPK(database: str, table: str) -> list:
+    try:
+        if not database.isidentifier() \
+        or not table.isidentifier():
+            raise Exception()             
+        initCheck()
+
+        data = read(dataPath)
+        cols = data[database]['Tables'][table]['Columns']
+        contador = 0
+        pkIndex = []
+        
+        for col in cols:
+            if data[database]['Tables'][table]['Columns'][col]['PK']:
+                pkIndex.append(contador)
+            contador += 1
+
+        return pkIndex
+    except:
+        return None
 
 def getConstraint(database: str, table: str, constraint: str) -> tuple:
     try:
@@ -400,13 +433,14 @@ def columnExist(database: str, table: str, column: str) -> bool:
         return False
 
 #Return state of existence of a constraint
-def constraintExist(constraint: str) -> bool:
+def constraintExist(database: str,constraint: str) -> bool:
     try:
-        if not constraint.isidentifier():
+        if not database.isidentifier() \
+        or not constraint.isidentifier():
             raise Exception
         initCheck()
 
-        consts = __getAllConstaints()
+        consts = __getAllConstaints(database)
         if constraint in consts:
             return True
         
@@ -453,9 +487,9 @@ def initCheck():
         os.makedirs('data')
     if not os.path.exists('data/type'):
         os.makedirs('data/type')
-    if not os.path.exists('data/type/typeRef'):
+    if not os.path.exists('data/type/typeRef.json'):
         data = {}
-        with open('data/type/typeRef', 'w') as file:
+        with open('data/type/typeRef.json', 'w') as file:
             json.dump(data, file)
 
 # Read a JSON file
@@ -479,7 +513,7 @@ def showJSON(fileName: str):
 def dropAll():
     initCheck()
     data = {}
-    with open('data/type/typeRef', 'w') as file:
+    with open('data/type/typeRef.json', 'w') as file:
         json.dump(data, file)
 
 def getType(db:str,table:str,column:str):
