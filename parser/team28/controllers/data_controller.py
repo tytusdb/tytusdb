@@ -68,8 +68,8 @@ class DataController(object):
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return None
         # TODO Revisar Esto didier, que con lower me da problema al buscar tablas y base de datos
-        data = data_mode.mode(database.mode).extractTable(database.name,
-                                                          name)
+        data = data_mode.mode(database.mode).extractTable(database.name.lower(),
+                                                          name.lower())
         if data == None:
             ErrorController().add(34, 'Execution', '', noLine, noColumn)
             return None

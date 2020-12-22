@@ -10,6 +10,7 @@ class Environment:
     """
 
     dataFrame = None
+    groupCols = 0
 
     def __init__(self, previous=None, database="") -> None:
         self.database = database

@@ -481,3 +481,18 @@ def dropAll():
     data = {}
     with open('data/type/typeRef', 'w') as file:
         json.dump(data, file)
+
+def getType(db:str,table:str,column:str):
+    return getColumns(db,table)[column]["Type"]
+
+def getLenght(db:str,table:str,column:str):
+    return getColumns(db,table)[column]["Lenght"]
+
+def getDefault(db:str,table:str,column:str):
+    return getColumns(db,table)[column]["Default"]
+
+def getPK(db:str,table:str,column:str):
+    return getColumns(db,table)[column]["PK"]
+
+def getNull(db:str,table:str,column:str):
+    return getColumns(db,table)[column]["Null"]

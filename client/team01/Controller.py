@@ -1,70 +1,28 @@
-import web,requests
-from web import form
-import json
+from flask import Flask, render_template, jsonify, request
+import requests,json
 
-myobj = {'entrada': 'somevalue'}
+app = Flask(__name__)
 
-url = 'http://localhost:5000/ejecutar'
-urls = (
-    '/', 'Home', 'Boton'
-)
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-renderHome = web.template.render("Views/Templates", base="MainLayout")
-render = web.template.render("Views/Templates")
-app = web.application(urls, globals())
+@app.route('/SomeFunction/',  methods=['POST'])
+def SomeFunction():
+    print('Envio de la entrada') 
+    entr = request.form['content']
+    print(entr)
+    dictToSend = {'entrada':entr}
+    res = requests.post('http://127.0.0.1:5000/ejecutar', json=dictToSend)
+    y = json.loads(res.text)       
+    print("Mensaje del servidor: "+y['resultado'])
+    return render_template('index.html')
 
-boton = form.Form(
-    
-    form.Button("Ejecutar", type="button", description="ejecutar"),
-
-)
-
-consola = form.Form(
-    form.Textarea("consolatxt")
-)
-
-
-
-# Clases/Routes
-
-class Home:
-
-    def GET(self):
-        f = boton()
-        c = consola()
-        return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
-
-
-    def POST(self):
-        dictToSend = {'entrada':'what is the answer?'}
-        res = requests.post('http://127.0.0.1:5000/ejecutar', json=dictToSend)
-        # print ('response from server:',res.text)
-        # dictFromServer = res.json()
-        f = boton()
-
-       
-
-        c2 = res.json()
-        c3 = c2[0]['resultado']
-
-
-
-        return renderHome.Home(render.Header(),render.Content(c3), render.Footer(), render.SideBar(), render.Boton(f))
-
-
-        # f = boton()
-        # c = consola()
-        # if not f.validates():
-        #     return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
-        # else:          
-                
-        #         #extraer el textarea
-        #         x = requests.post(url, json = {'entrada':'Ejemplo'})
-        #         y = json.loads(x.text)
-                
-        #         print(y['resultado'])
-        #         return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
-
-
-if __name__ == "__main__":
-    app.run()
+@app.route('/Commit/', methods=["POST"])
+def Commit():
+    print('Ejecucion del commit')
+    entr = {'commit':'si'}
+    res = requests.post('http://127.0.0.1:5000/commit', json=entr)
+    y = json.loads(res.text)       
+    print("Mensaje del servidor: "+y['resultado'])
+    return render_template('index.html')

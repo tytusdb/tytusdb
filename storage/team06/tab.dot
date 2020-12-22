@@ -1,0 +1,63 @@
+digraph grafica{
+    rankdir=TB;
+    node [shape = record, style=filled, fillcolor=lightcyan2];
+    nodo17 [ label ="<AI>|17|<AD>"];
+    nodo14 [ label ="<AI>|14|<AD>"];
+    nodo11 [ label ="<AI>|11|<AD>"];
+    nodo10 [ label ="<AI>|10|<AD>"];
+    nodo1 [ label ="1"];
+    nodo10:AI->nodo1
+    nodo11:AI->nodo10
+    nodo13 [ label ="<AI>|13|<AD>"];
+    nodo12 [ label ="12"];
+    nodo13:AI->nodo12
+    nodo11:AD->nodo13
+    nodo14:AI->nodo11
+    nodo16 [ label ="<AI>|16|<AD>"];
+    nodo15 [ label ="15"];
+    nodo16:AI->nodo15
+    nodo14:AD->nodo16
+    nodo17:AI->nodo14
+    nodo27 [ label ="<AI>|27|<AD>"];
+    nodo23 [ label ="<AI>|23|<AD>"];
+    nodo2 [ label ="<AI>|2|<AD>"];
+    nodo18 [ label ="<AI>|18|<AD>"];
+    nodo19 [ label ="19"];
+    nodo18:AD->nodo19
+    nodo2:AI->nodo18
+    nodo21 [ label ="<AI>|21|<AD>"];
+    nodo20 [ label ="20"];
+    nodo21:AI->nodo20
+    nodo22 [ label ="22"];
+    nodo21:AD->nodo22
+    nodo2:AD->nodo21
+    nodo23:AI->nodo2
+    nodo25 [ label ="<AI>|25|<AD>"];
+    nodo24 [ label ="24"];
+    nodo25:AI->nodo24
+    nodo26 [ label ="26"];
+    nodo25:AD->nodo26
+    nodo23:AD->nodo25
+    nodo27:AI->nodo23
+    nodo4 [ label ="<AI>|4|<AD>"];
+    nodo29 [ label ="<AI>|29|<AD>"];
+    nodo28 [ label ="28"];
+    nodo29:AI->nodo28
+    nodo3 [ label ="<AI>|3|<AD>"];
+    nodo30 [ label ="30"];
+    nodo3:AD->nodo30
+    nodo29:AD->nodo3
+    nodo4:AI->nodo29
+    nodo6 [ label ="<AI>|6|<AD>"];
+    nodo5 [ label ="5"];
+    nodo6:AI->nodo5
+    nodo8 [ label ="<AI>|8|<AD>"];
+    nodo7 [ label ="7"];
+    nodo8:AI->nodo7
+    nodo9 [ label ="9"];
+    nodo8:AD->nodo9
+    nodo6:AD->nodo8
+    nodo4:AD->nodo6
+    nodo27:AD->nodo4
+    nodo17:AD->nodo27
+    }

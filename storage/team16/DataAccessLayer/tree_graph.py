@@ -1,7 +1,14 @@
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
 import os
 
+
 class TreeGraph:
-    
+
     def __init__(self, tree):
         self.content = ""
         self.tree = tree
@@ -33,11 +40,13 @@ class TreeGraph:
 
     def export(self):
         fname = 'DataAccessLayer/imaging/grafo-avl'
-        archivo = open(fname +'.dot', 'w')
-        archivo.write('digraph D{\ngraph[bgcolor="#778899"]\n')
-        archivo.write('node [shape= circle, style= filled, fontname="Century Gothic", color="#006400", fillcolor="#90EE90"]; \n')
+        archivo = open(fname + '.dot', 'w')
+        archivo.write('digraph D{\ngraph[bgcolor="#0f1319"]\n')
+        archivo.write(
+            'node [shape= circle, style= filled, fontname="Century Gothic", color="#006400", fillcolor="#90EE90"]; \n')
         archivo.write('edge[color="#145A32"]')
-        archivo.write("label= \" AVL de '" + self.title + "' \" fontname=\"Century Gothic\" \n")
+        archivo.write(
+            "label= <<font color=\"white\">\"  AVL de '" + self.title + "' \" </font>> fontname=\"Century Gothic\" \n")
 
         self.__prepare()
 
@@ -45,5 +54,5 @@ class TreeGraph:
         archivo.write('\n}')
         archivo.close()
 
-        os.system('dot '+ fname +'.dot'+' -Tpng -o '+ fname +'.png')
+        os.system('dot ' + fname + '.dot' + ' -Tpng -o ' + fname + '.png')
         os.remove(fname + '.dot')
