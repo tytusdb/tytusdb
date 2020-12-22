@@ -195,7 +195,7 @@ class Delete(Instruction):
                     break
         return None
     
-def ordenarDatos(headers, array_nombres:[], array_valores:[]):
+def ordenarDatos(headers, array_nombres:list, array_valores:list):
     #TODO: REVISAR CUAL VALOR HAY QUE MANDAR POR DEFECTO
     #Ordenar valores
     for index, nombre_col in enumerate(headers):
