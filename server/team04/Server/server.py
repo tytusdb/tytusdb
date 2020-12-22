@@ -7,6 +7,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import socketserver
 import io
 import os
+import json
 
 
 # Setting server port
@@ -15,34 +16,65 @@ PORT = 8000
 #Def. requests handler.
 class MyRequestHandler(BaseHTTPRequestHandler):
 
-    def _set_headers(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/plain") #Setting headers 
-        self.end_headers()
-
 
     def do_GET(self):
-        if self.path == '/':           
-            pass
+        if self.path == '/getUsers':           
+            self.do_getUsers()
+        else:
+            self.send_response(400)
+            self.wfile.write(bytes("",'utf-8'))
+ 
+    def do_POST(self):
+        if self.path == "/":
+            self.do_root()
+        elif self.path == "/checkLogin":
+            self.do_Check()
+        else:
+            self.send_response(400) 
+            self.wfile.write(bytes("",'utf-8'))
+    
+    def do_Check(self):
+        dataSize = int(self.headers['Content-Length'])
+        reqBody = self.rfile.read(dataSize)
+        reqData = json.loads(reqBody.decode("utf-8"))
+        username = reqData["username"]
+        password = reqData["password"]
+        print("Data received: " + str(reqData))
+        url = "./data/tytus.json"
+        myFile = open(url).read()
+        jsonResponse = json.loads(myFile)
+        join = False
+        for user in jsonResponse:
+            if user["username"] == username and user["password"] == password:
+                join = True
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(bytes(json.dumps(join),'utf-8'))
+
+
+    def do_getUsers(self):
+        url = "./data/tytus.json"
         try:
-            myFile = open(self.path[1:]).read()
+            myFile = open(url).read()
             self.send_response(200)
         except:
             myFile = "File not found"
             self.send_response(404)
+        self.send_header('Content-type', 'application/json')
         self.end_headers()
         self.wfile.write(bytes(myFile, 'utf-8'))
-    
-    
 
-    def do_POST(self):
+
+    def do_root(self):
         dataSize = int(self.headers['Content-Length']) #Getting size of data
         myData = self.rfile.read(dataSize) #Reading data (form)
         decodedData = myData.decode("utf-8")#Decoding data
-        self._set_headers()
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain") #Setting headers 
+        self.end_headers()
         self.saveFile("database.tytus", bytes(decodedData, 'utf-8'))
         self.wfile.write(bytes(decodedData, 'utf-8'))
-        
 
 
     #Method to create file on server

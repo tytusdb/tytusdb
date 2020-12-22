@@ -1,5 +1,4 @@
 from Instrucciones.Excepcion import Excepcion
-from lexico import columas
 from tkinter.constants import FALSE
 from Instrucciones.Sql_create.ShowDatabases import ShowDatabases
 from Instrucciones.TablaSimbolos.Instruccion import *

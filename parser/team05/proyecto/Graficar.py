@@ -1,6 +1,6 @@
 from graphviz import Digraph
 
-class graficar:
+class Graficar:
     def __init__(self):
         self.dot = Digraph(name="AST")
         self.dot.node_attr['shape']='record'

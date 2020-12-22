@@ -1,5 +1,5 @@
-from ISAMTree import ISAM
-from ISAMTree import Tuple
+from ISAM import ISAM
+from ISAM import Tuple
 
 
 class Table:

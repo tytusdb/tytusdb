@@ -96,6 +96,59 @@
  
       </div>
         
+        
+                 <!-- Modal database-->
+    <div class="modal fade" id="ModalDB" tabindex="-1" role="dialog" aria-labelledby="ModalDBLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="tytusdb">TytusDB</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <h4>Welcome to TytusDB</h4>
+              <div class="form-group">
+                <label for="namebase">database name</label>
+                <input type="text" class="form-control" name="namedb22" placeholder="Escribe el nombre...">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              <button type="button" name="submitSave" onclick="Guarda()" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal table -->
+    <div class="modal fade" id="Modaltable" tabindex="-1" role="dialog" aria-labelledby="ModaltableLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="tytusdb">TytusDB</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <h4>Welcome to TytusDB</h4>
+              <div class="form-group">
+                <label for="nametable">table name</label>
+                <input type="text" class="form-control" name="nametb2" placeholder="Escribe el nombre...">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+              <button type="button" name="submitSave" onclick="Guardatb()" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </div>
+      </div>
+    </div>  
+        
      
         
       <div class="col-sm-10">
@@ -103,6 +156,45 @@
         <nav class="navbar navbar-light bg-white">
          <div class="container-fluid">
            <a class="navbar-brand" href="#">SQL</a>
+         </div>
+       </nav>
+ 
+                 <nav class="navbar navbar-expand-lg navbar-light bg-light">
+ 
+         <div class="collapse navbar-collapse" id="navbarNav">
+           <ul class="navbar-nav">
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                
+                 <img id="btn-add-tab" type="button"  onclick="input2('salida', 'Crear nuevo Query');" src="img/mysql.png" width="30" height="30" alt="">
+                 <span class="sr-only">(current)</span></a>
+             </li>
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                <div class="image-upload">
+                <label for="abrir">
+                  <img src="img/open.png"  width="30" height="30" alt=""/>
+                </label>
+                 <input type="file" id="abrir" name="abrir" onclick="input2('salida', 'Abrir Query');">
+                </div>
+                 <span class="sr-only"></span></a>
+             </li>
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                   <img type="button" id="save" onclick="input2('salida', 'Guardar Query');" src="img/save.png" width="30" height="30" alt="">
+                  <span class="sr-only">(current)</span></a>
+             </li>
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                 <img type="button"  onclick="input2('salida', 'Borrar Contenido');" src="img/eraser.png" width="30" height="30" alt="">
+                  <span class="sr-only">(current)</span></a>
+             </li>
+             <li class="nav-item active">
+               <a class="nav-link" href="#">
+                 <img type="button"  onclick="ejecutarScript();" src="img/run.png" width="30" height="30" alt="">
+                 <span class="sr-only">(current)</span></a>
+             </li>
+           </ul>
          </div>
        </nav>
  

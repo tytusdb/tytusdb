@@ -3,6 +3,9 @@ import ply.lex as lex
 
 
 reservadas = {
+    'md5'       : 'MD5',
+    'notnull'    : 'NOTNULL',    
+    'isnull'    : 'ISNULL',    
     'default'   : 'DEFAULT',
     'insert'    : 'INSERT',
     'into'      : 'INTO',
@@ -54,10 +57,119 @@ reservadas = {
     'month'     : 'MONTH',
     'day'       : 'DAY',
     'date_part' : 'DATE_PART',    
-	'interval'  : 'INTERVAL'
+	'interval'  : 'INTERVAL',	
+    'between'   : 'BETWEEN',
+    'in'        : 'IN',
+    'like'      : 'LIKE',
+    'is'        : 'IS',
+    'now'       : 'NOW',
+    'enum'      : 'ENUM',
+    'type'      : 'TYPE',
+    'table'     : 'TABLE',
+    'inherits'  : 'INHERITS',
+    'int'       : 'INT' ,
+    'add'       : 'ADD',
+    'column'    : 'COLUMN',
+    'check'     : 'CHECK',
+    'unique'    : 'UNIQUE',
+	'as'  		: 'AS',
+    'group'  	: 'GROUP',
+    'by'  		: 'BY',
+    'type'      : 'TYPE' ,
+    'abs'  		: 'ABS',
+    'cbrt'  	: 'CBRT',
+    'ceil'  	: 'CEIL',
+    'ceiling'  	: 'CEILING',
+    'use'       : 'USE',
+    'constraint' :'CONSTRAINT',
+    'key'       : 'KEY',
+    'foreign'   : 'FOREIGN',
+    'primary'   : 'PRIMARY',
+    'references': 'REFERENCES',
+    'float'     :'FLOAT', 
+    'text'      :'TEXT' ,
+    'varchar'   : 'VARCHAR',
+	'character' : 'CHARACTER',
+	'varying'   : 'VARYING',
+    'char'      : 'CHAR',
+    'bigint'    : 'BIGINT',
+    'smallint'  : 'SMALLINT',
+    'money'     : 'MONEY',
+    'degrees'  	: 'DEGREES',
+    'div'  		: 'DIV',
+    'exp'  		: 'EXP',
+    'factorial' : 'FACTORIAL',
+    'floor'  	: 'FLOOR',
+    'gcd'  		: 'GCD',
+    'ln'        : 'LN',
+    'log'       : 'LOG',
+    'mod'       : 'MOD',
+    'pi'        : 'PI',
+    'power'     : 'POWER',
+    'radians'   : 'RADIANS',
+    'round'     : 'ROUND',
+    'sign'      : 'SIGN',
+    'sqrt'      : 'SQRT',
+    'trunc'     : 'TRUNC',
+    'random'    : 'RANDOM',
+    'acos'      : 'ACOS',
+    'acosd'     : 'ACOSD',
+    'asin'      : 'ASIN',
+    'asind'     : 'ASIND',
+    'atan'      : 'ATAN',
+    'atand'     : 'ATAND',
+    'atan2'     : 'ATAN2',
+    'atan2d'    : 'ATAN2D',
+    'cos'       : 'COS',
+    'cosd'      : 'COSD',
+    'cot'       : 'COT',
+    'cotd'      : 'COTD',
+    'sin'       : 'SIN',
+    'sind'      : 'SIND',
+    'tan'       : 'TAN',
+    'tand'      : 'TAND',
+    'sinh'      : 'SINH',
+    'cosh'      : 'COSH',
+    'tanh'      : 'TANH',
+    'asinh'     : 'ASINH',
+    'acosh'     : 'ACOSH',
+    'atanh'     : 'ATANH',
+    'length'    : 'LENGTH',
+    'substring' : 'SUBSTRING',
+    'sha256'    : 'SHA256',
+    'substr'    : 'SUBSTR',
+    'get_byte'  : 'GET_BYTE',
+    'set_byte'  : 'SET_BYTE',
+    'trim'      : 'TRIM',
+    'convert'   : 'CONVERT',
+    'encode'    : 'ENCODE',
+    'decode'    : 'DECODE',
+	'LEADING'   : 'LEADING',
+    'TRAILING'  : 'TRAILING',
+    'BOTH'      : 'BOTH',
+    'avg'       : 'AVG',
+    'max'       : 'MAX',
+    'min'       : 'MIN',
+    'trim'      : 'TRIM',
+    'all'       : 'ALL',  
+    'substring' : 'SUBSTRING',  
+    'true'      : 'TRUE',
+    'false'     : 'FALSE',
+    'boolean':'BOOLEAN',
+    'numeric' : 'NUMERIC',
+    'real' :'REAL',
+    'integer' : 'INTEGER',
+    'decimal' :'DECIMAL',
+    'timestamp' : 'TIMESTAMP',
+    'date' : 'DATE',
+    'time' :'TIME',
+    'double' : 'DOUBLE',
+    'precision' : 'PRECISION',
+	'constraint' :'CONSTRAINT'	
 }
 
 tokens  = [
+    'COMSIM',    
     'PARIZQ',    
     'PARDER',    
     'PUNTO',    
@@ -69,17 +181,30 @@ tokens  = [
     'MAYORIGU',
     'MENORIGU',
     'MULT',
-    'DECIMAL',
+    'RAIZQ',
+	'DOSPUNTOS',
+	'COMILLASMPLI',
+	'COMILLASMPLF',
+	'OPSUM',
+    'OPDIV',
+    'OPMENOS',
+    'ORCOMP',
+    'DECIMALV',
     'ENTERO',
     'ID',
     'CADENACOMSIMPLE', 
+    'FECHA', 
+    'HORA', 
     'EXISTS',
     'NOTH',
-    'ORH'
+    'ORH',
+    'DIFERENTEH',
+    'CONSTRAINTH'
 ] + list(reservadas.values())
 resultado_lexema = []
 
 # Tokens
+
 t_PARIZQ    = r'\('
 t_PARDER    = r'\)'
 t_PUNTO     = r'\.'
@@ -91,6 +216,12 @@ t_MAYQUE    = r'>'
 t_MAYORIGU  = r'>='
 t_MENORIGU  = r'<='
 t_MULT      = r'\*'
+t_OPSUM     = r'\+' 					        
+t_OPDIV     = r'/' 					        
+t_OPMENOS   = r'\-' 
+t_ORCOMP    = r'\|\|' 							
+t_RAIZQ     = r'\|'
+t_DOSPUNTOS = r'\:'
 
 #Modificado 11  de diciembre por Henry  esta palabra me creaba conflictos se agrego al principio, se definio nuevo token
 def t_EXISTS(t):
@@ -111,11 +242,16 @@ def t_ORH(t):
     if t.value in reservadas:
         t.type = reservadas[ t.value ]
     return t
-def t_DECIMAL(t):
+def t_DIFERENTEH(t):
+    r"""<>"""
+    if t.value in reservadas:
+        t.type = reservadas[ t.value ]
+    return t
+def t_DECIMALV(t):
     r'\d+\.\d+'
     try:
         t.value = float(t.value)
-        t.type = reservadas.get(float(t.value),'DECIMAL') 
+        t.type = reservadas.get(float(t.value),'DECIMALV') 
     except ValueError:
         print("double value too large %d", t.value)
         t.value = 0
@@ -136,11 +272,45 @@ def t_ID(t):
      t.type = reservadas.get(t.value.lower(),'ID')    # Check for reserved words
      return t
 
+
+def t_FECHA(t):
+    r'[0-9][-0-9]*'
+    t.type = reservadas.get(t.value.lower(),'FECHA')    # CHECK FOR RESERVED WORDS
+    return t
+
+def t_HORA(t):
+    r'[0-9][:0-9]*'
+    t.type = reservadas.get(t.value.lower(),'HORA')    # CHECK FOR RESERVED WORDS
+    return t
+
+
 def t_CADENACOMSIMPLE(t):
-    r'\'.*?\''
+    r'\'[a-zA-Z_].*\''
     t.value = t.value[1:-1] # remuevo las comillas
     t.type = reservadas.get(t.value.lower(),'CADENACOMSIMPLE') 
     return t 
+
+
+def t_COMSIM(t):
+    r'\''
+    if t.value in reservadas:
+        t.type = reservadas[ t.value ]
+    return t
+
+
+
+def t_COMILLASMPLI(t):
+    r'\'.*?\:'
+    t.value = t.value[1:-1] # remuevo las comillas
+    t.type = reservadas.get(t.value.lower(),'COMILLASMPLI') 
+    return t 
+
+def t_COMILLASMPLF(t):
+    r'[0-9]\:.*?\''
+    t.value = t.value[1:-1] # remuevo las comillas
+    t.type = reservadas.get(t.value.lower(),'COMILLASMPLF') 
+    return t 
+
 
 
 # Comentario de múltiples líneas /* .. */

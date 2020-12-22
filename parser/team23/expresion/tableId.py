@@ -1,6 +1,8 @@
 from abstract.expresion import * 
 from tools.tabla_tipos import *
 from abstract.retorno import *
+from storage import jsonMode as funciones
+from tools.console_text import *
 
 class tableId(expresion):
     def __init__(self, valor, line, column, tipo, num_nodo):
@@ -16,4 +18,6 @@ class tableId(expresion):
         self.grammar_ = '<TR><TD> ID ::= ' + str(valor) +' </TD><TD> ID = new ID(' + str(valor) + '); </TD></TR>'
 
     def ejecutar(self):
-        return retorno(self.valor, self.tipo)
+        actualDB = get_actual_use()
+        getdata=funciones.extractTable(actualDB,self.valor)
+        return retorno(getdata, self.tipo)

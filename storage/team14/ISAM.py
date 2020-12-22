@@ -354,7 +354,8 @@ class ISAM:
     def update(self, register, cols, PKCols):
         lists = ''
         for ip in cols:
-            lists += str(ip)
+            lists += str(ip) + '_'
+        lists = lists[:-1]
         return self.__update(register, self.root, lists, PKCols)
 
     def __update(self, register, auxiliar, cols, PKCols):
@@ -474,3 +475,7 @@ class ISAM:
                     if len(i.data) > 0:
                         i.data.pop(n)
                 self._deleteColumn(tmp.next, level + 1, n)
+                
+    # elimina todos los nodos de la estrucutura ISAM
+    def truncate(self):
+        self.root = None

@@ -12,6 +12,8 @@ from analizer.reports import AST
 ast = AST.AST()
 root = None
 
+list_errors = list()
+
 
 class TYPE(Enum):
     NUMBER = 1
@@ -71,6 +73,7 @@ class Identifiers(Expression):
     """
     Esta clase representa los nombre de columnas
     """
+
     type = None
     # TODO: implementar la funcion para obtener el type de la columna
     def __init__(self, table, name, row, column):
@@ -148,6 +151,13 @@ class UnaryArithmeticOperation(Expression):
         operator = self.operator
 
         if exp.type != TYPE.NUMBER:
+            list_errors.insert(
+                len(list_errors),
+                "Error: 44883: el operador no existe: "
+                + str(operator)
+                + " "
+                + str(exp.type),
+            )
             return ErrorUnaryOperation(exp.value, self.row, self.column)
 
         if operator == "+":
@@ -181,27 +191,40 @@ class BinaryArithmeticOperation(Expression):
         self.temp = exp1.temp + str(operator) + exp2.temp
 
     def execute(self, environment):
-        exp1 = self.exp1.execute(environment)
-        exp2 = self.exp2.execute(environment)
-        operator = self.operator
-        if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
-            return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
-        if operator == "+":
-            value = exp1.value + exp2.value
-        elif operator == "-":
-            value = exp1.value - exp2.value
-        elif operator == "*":
-            value = exp1.value * exp2.value
-        elif operator == "/":
-            value = exp1.value / exp2.value
-        elif operator == "^":
-            value = exp1.value ** exp2.value
-        elif operator == "%":
-            value = exp1.value % exp2.value
-        else:
-            return ErrorOperatorExpression(operator, self.row, self.column)
-        self.dot()
-        return Primitive(TYPE.NUMBER, value, self.row, self.column)
+        try:
+            exp1 = self.exp1.execute(environment)
+            exp2 = self.exp2.execute(environment)
+            operator = self.operator
+            if exp1.type != TYPE.NUMBER or exp2.type != TYPE.NUMBER:
+                list_errors.insert(
+                    len(list_errors),
+                    "Error: 44883: el operador no existe: "
+                    + str(exp1.type)
+                    + " "
+                    + str(operator)
+                    + " "
+                    + str(exp2.type),
+                )
+                ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+                raise Exception("Error: ErrorBinaryOperation")
+            if operator == "+":
+                value = exp1.value + exp2.value
+            elif operator == "-":
+                value = exp1.value - exp2.value
+            elif operator == "*":
+                value = exp1.value * exp2.value
+            elif operator == "/":
+                value = exp1.value / exp2.value
+            elif operator == "^":
+                value = exp1.value ** exp2.value
+            elif operator == "%":
+                value = exp1.value % exp2.value
+            else:
+                return ErrorOperatorExpression(operator, self.row, self.column)
+            self.dot()
+            return Primitive(TYPE.NUMBER, value, self.row, self.column)
+        except:
+            raise
 
     def dot(self):
         n1 = self.exp1.dot()
@@ -232,9 +255,26 @@ class BinaryStringOperation(Expression):
         exp2 = self.exp2.execute(environment)
         operator = self.operator
         if exp1.type != TYPE.STRING and exp2.type != TYPE.STRING:
+            list_errors.nsert(
+                len(list_errors),
+                "Error: 44883:list_errors el operador no existe: "
+                + str(exp1.type)
+                + " "
+                + str(operator)
+                + " "
+                + str(exp2.type),
+            )
             return ErrorBinaryOperation(exp1.value, exp2.value, self.row, self.column)
+        if isinstance(exp1.value, pd.core.series.Series):
+            exp1.value = exp1.value.apply(str)
+        else:
+            exp1.value = str(exp1.value)
+        if isinstance(exp2.value, pd.core.series.Series):
+            exp2.value = exp2.value.apply(str)
+        else:
+            exp2.value = str(exp2.value)
         if operator == "||":
-            value = str(exp1.value) + str(exp2.value)
+            value = exp1.value + exp2.value
         else:
             return ErrorOperatorExpression(operator, self.row, self.column)
         self.dot()
@@ -403,9 +443,11 @@ class TernaryRelationalOperation(Expression):
         exp3 = self.exp3.execute(environment)
         operator = self.operator
         try:
-            if isinstance(exp1.value, pd.core.series.Series) or isinstance(
-            exp2.value, pd.core.series.Series
-            ) or isinstance(exp3.value, pd.core.series.Series):
+            if (
+                isinstance(exp1.value, pd.core.series.Series)
+                or isinstance(exp2.value, pd.core.series.Series)
+                or isinstance(exp3.value, pd.core.series.Series)
+            ):
                 if operator == "BETWEEN":
                     value = (exp1.value > exp2.value) & (exp1.value < exp3.value)
                 elif operator == "NOTBETWEEN":
@@ -644,9 +686,13 @@ class FunctionCall(Expression):
         Expression.__init__(self, row, column)
         self.function = function.lower()
         self.params = params
+        i = 0
         self.temp = str(function) + "("
         for t in params:
+            if i > 0:
+                self.temp += ", "
             self.temp += t.temp
+            i += 1
         self.temp += ")"
 
     # TODO: Agregar un error de parametros incorrectos
@@ -758,28 +804,37 @@ class FunctionCall(Expression):
             elif self.function == "atanh":
                 value = trf.atanh(*valores)
             elif self.function == "length":
-                value = strf.length(*valores)
+                value = strf.lenght(*valores)
             elif self.function == "substring":
+                type_ = TYPE.STRING
                 value = strf.substring(*valores)
             elif self.function == "trim":
+                type_ = TYPE.STRING
                 value = strf.trim_(*valores)
             elif self.function == "get_byte":
                 value = strf.get_byte(*valores)
             elif self.function == "md5":
+                type_ = TYPE.STRING
                 value = strf.md5(*valores)
             elif self.function == "set_byte":
+                type_ = TYPE.STRING
                 value = strf.set_byte(*valores)
             elif self.function == "sha256":
+                type_ = TYPE.STRING
                 value = strf.sha256(*valores)
             elif self.function == "substr":
+                type_ = TYPE.STRING
                 value = strf.substring(*valores)
             elif self.function == "convert_date":
+                type_ = TYPE.DATETIME
                 value = strf.convert_date(*valores)
             elif self.function == "convert_int":
                 value = strf.convert_int(*valores)
             elif self.function == "encode":
+                type_ = TYPE.STRING
                 value = strf.encode(*valores)
             elif self.function == "decode":
+                type_ = TYPE.STRING
                 value = strf.decode(*valores)
             # Se toma en cuenta que la funcion now produce tipo DATE
             elif self.function == "now":
@@ -811,6 +866,7 @@ class FunctionCall(Expression):
         global root
         root = new
         return new
+
 
 # TODO: Agregar a la gramatica DATE, TIME y Columnas (datatype)
 class ExtractDate(Expression):
@@ -909,6 +965,7 @@ class ExtractDate(Expression):
         root = new
         return new
 
+
 class ExtractColumnDate(Expression):
     def __init__(self, opt, colData, row, column):
         Expression.__init__(self, row, column)
@@ -923,7 +980,7 @@ class ExtractColumnDate(Expression):
             if isinstance(valores.value, pd.core.series.Series):
                 lst = valores.value.tolist()
                 lst = [v.split() for v in lst]
-            else :
+            else:
                 lst = [valores.split()]
             if valores.type == TYPE.TIMESTAMP or valores.type == TYPE.DATETIME:
                 if self.opt == "YEAR":
@@ -1153,6 +1210,36 @@ class CheckValue(Expression):
 
     def execute(self, environment):
         return self
+
+
+class AggregateFunction(Expression):
+    """
+    Esta clase representa las funciones de agregacion utilizadas en el Group By
+    """
+    def __init__(self, func, colData, row, column) -> None:
+        super().__init__(row, column)
+        self.func = func.lower()
+        self.colData = colData
+        self.temp = func + "(" + colData.temp + ")"
+
+    def execute(self, environment):
+        countGr = environment.groupCols
+        # Obtiene las ultimas columnas metidas (Las del group by)
+        df = environment.dataFrame.iloc[:, -countGr:]
+        df = pd.concat([df, self.colData.execute(environment).value], axis=1)
+        cols = list(df.columns)[:-1]
+        if self.func == "sum":
+            newDf = df.groupby(cols).sum().reset_index()
+        elif self.func == "count":
+            newDf = df.groupby(cols).count().reset_index()
+        elif self.func == "prom":
+            newDf = df.groupby(cols).mean().reset_index()
+        else:
+            newDf = None
+            print("error")
+        
+        value = newDf.iloc[:, -1:]
+        return Primitive(TYPE.NUMBER, value, self.row, self.column)
 
 
 def makeAst():
