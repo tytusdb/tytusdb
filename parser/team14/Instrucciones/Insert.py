@@ -16,7 +16,7 @@ class Insert(Instruccion):
         self.valores=valores
 
     def ejecutar(self, ent:Entorno):
-        completo=self.nombre+'_'+ent.getDataBase()
+        completo=str(self.nombre+'_'+ent.getDataBase())
         tabla:Simbolo = ent.buscarSimbolo(completo)
         if tabla != None:
             columnas=tabla.valor
@@ -27,11 +27,8 @@ class Insert(Instruccion):
                 i=0
                 correcto=True
                 for columna in columnas:
-                    verificarnull=tabla.valor[i].atributos.get('not null')
-                    verificarprimary=tabla.valor[i].atributos.get('primary')
                     verificarunique=tabla.valor[i].atributos.get('unique')
                     verificarcheck=tabla.valor[i].atributos.get('check')
-                     
                     nombre=columna.nombre
                     tipo=columna.tipo
 
@@ -47,8 +44,8 @@ class Insert(Instruccion):
                             v=self.validarunique(ent,tabla,colunique,self.valores[i].getval(ent))
                             #print("-----",v)
                             if v:
-                                print('Error Violacion de Constraint Unique en:',colunique,' : ',self.valores[i].getval(ent))
-                                return 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+self.valores[i].getval(ent)
+                                #print('Error Violacion de Constraint Unique en:',colunique,' : ',self.valores[i].getval(ent))
+                                return 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[i].getval(ent))
 
                     if(verificarcheck!=None):
                         check=ent.buscarSimbolo(verificarcheck)
@@ -86,16 +83,38 @@ class Insert(Instruccion):
                             else:
                                 return('Registro no cumple con condicion Check')
                                     
-                    util=Tipo(None,None,-1,-1)
-                    if isinstance (self.valores[i],FuncionesNativas):
-                        self.valores[i]=self.valores[i].getval(ent)
+                    
+                    buscado=str('ENUM_'+ent.getDataBase()+'_'+tipo.getTipo())
+                    types:Simbolo= ent.buscarSimbolo(buscado)
+                    
+                    tipocorrecto = False 
+                    
+                    if types!=None:
+                        tiposenum=types.valor
+                        print("Comparando Enum")
+                        for valenum in tiposenum:
+                             if str(valenum.getval(ent)).lower() == str(self.valores[i].getval(ent)).lower():
+                                  tipocorrecto=True
+                        if not tipocorrecto:
+                            return str('Error Tipo enum no correcto en valor: '+self.valores[i].getval(ent))
+                       
 
-                    if util.comparetipo(tipo,self.valores[i].tipo):
-                        'todo correcto'
-                        
-                    else:
-                        correcto=False
-                        return 'Error los tipos de los valores no coinciden con la definicion de la tabla'
+                    if not tipocorrecto:
+                        print("comparando tipos")
+                       
+                        util=Tipo(None,None,-1,-1)
+                        #tabla:Simbolo = ent.buscarSimbolo(completo)
+        
+                        if isinstance (self.valores[i],FuncionesNativas):
+                            self.valores[i]=self.valores[i].getval(ent)
+
+                        if util.comparetipo(tipo,self.valores[i].tipo):
+                            'todo correcto'
+                            
+                        else:
+                            correcto=False
+                            return 'Error los tipos de los valores no coinciden con la definicion de la tabla'
+                    
                     i=i+1
                 terminales = []
                 for val in self.valores:
@@ -150,7 +169,7 @@ class InsertWhitColum(Instruccion):
         self.namecolums=namecolums
 
     def ejecutar(self, ent:Entorno):
-        completo=self.nombre+'_'+ent.getDataBase()
+        completo=str(self.nombre+'_'+ ent.getDataBase())
         tabla:Simbolo = ent.buscarSimbolo(completo)
         if tabla != None:
             columnas=tabla.valor
@@ -242,16 +261,34 @@ class InsertWhitColum(Instruccion):
                                 #print("-----",v)
                                 if v:
                                     print('Error Violacion de Constraint Unique en:',colunique,' : ',self.valores[j].getval(ent))
-                                    return 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+self.valores[j].getval(ent)
+                                    return 'Error Violacion de Constraint Unique en columna:'+colunique +' : '+str(self.valores[j].getval(ent))
                     
                         if isinstance (self.valores[j],FuncionesNativas):
                             self.valores[j]=self.valores[j].getval(ent)
+                        
+                        buscado=str('ENUM_'+ent.getDataBase()+'_'+tipo.getTipo())
+                        types:Simbolo= ent.buscarSimbolo(buscado)
+                    
+                        tipocorrecto = False 
+                    
+                        if types!=None:
+                            tiposenum=types.valor
+                            print("Comparando Enum")
+                            for valenum in tiposenum:
+                                if str(valenum.getval(ent)).lower() == str(self.valores[j].getval(ent)).lower():
+                                    tipocorrecto=True
+                            if not tipocorrecto:
+                                return str('Error Tipo enum no correcto en valor: '+self.valores[j].getval(ent))
+                     
 
-                        if util.comparetipo(tipo,self.valores[j].tipo):
-                            'todo correcto'
-                        else:
-                            correcto=False
-                            return 'Error los tipos de los valores no coinciden con la definicion de la tabla'
+
+
+                        if not tipocorrecto:
+                            if util.comparetipo(tipo,self.valores[j].tipo):
+                                'todo correcto'
+                            else:
+                                correcto=False
+                                return 'Error los tipos de los valores no coinciden con la definicion de la tabla'
                         terminales.append(self.valores[j].getval(ent))
                         j=j+1
                     else: 
@@ -317,5 +354,8 @@ class InsertWhitColum(Instruccion):
                             
           
             
+           
+                      
+
            
                       
