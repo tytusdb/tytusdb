@@ -10,6 +10,7 @@ from astUse import Use
 from arbol import Arbol
 from reporteBnf.reporteBnf import bnf 
 from reporteErrores.errorReport import ErrorReport
+from astSelect import SelectFrom
 #_______________________________________________________________________________________________________________________________
 #                                                          PARSER
 #_______________________________________________________________________________________________________________________________
@@ -80,6 +81,10 @@ def p_instruccion7(p):
     p[0] = p[1]
     bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
 
+def p_instruccion8(p):
+    'instruccion : select PTCOMA '
+    p[0] = p[1]
+    bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
     
 def p_use(p):
     'use : USE ID'
@@ -267,7 +272,7 @@ def p_tablas(p):
             |  ID alias
             |  ID AS alias '''
     if len(p) == 2:
-        print("TABLA ID ")
+        p[0] = p[1]
         bnf.addProduccion('\<tabla> ::= "ID"')
     elif len(p) == 3:
         print("TABLA CON ID")
@@ -380,6 +385,7 @@ def p_select20(p):
 
 def p_select24(p):
     'select : SELECT select_list FROM lista_tablas'
+    p[0] = SelectFrom(p[4], p[2])
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list> "FROM"  \<lista_tablas>')
 
 
@@ -1828,7 +1834,7 @@ def p_exp_aux_tabla(p):
 #          | 'id'
 def p_exp_aux_id(p):
     'exp_aux :  ID'
-    p[0] = ExpresionID(p[1], p.slice[1].lineno)
+    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno , tabla = p[1])
     bnf.addProduccion('\<exp_aux> ::= "ID"')
 #          | <FUNCIONES>
 def p_exp_aux_funciones(p):
@@ -2072,13 +2078,8 @@ parser = yacc.yacc()
 def analizarEntrada(entrada):
     return parser.parse(entrada)
 
-arbolParser = analizarEntrada(''' 
-select *
-from tbrol R
-where idrol not in (select idrol from tbrolxusuario);
-
-select *
-from tbrol R
-where not exists (select idrol from tbrolxusuario RU where RU.idrol = R.idrol);
-
+arbolParser = analizarEntrada('''
+use test; 
+select * from tbrol;
 ''')
+arbolParser.ejecutar()
