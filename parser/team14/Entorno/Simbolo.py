@@ -36,6 +36,8 @@ class Simbolo:
                     cond = cond.replace("<=","&#60;&#61;")
                 if cond in ">=":
                     cond = cond.replace(">=","&#62;&#61;")
+                if cond in "<>":
+                    cond = cond.replace(">=","&#60;&#62;")
 
                 cadena += "<TR><TD>" + self.nombre + "</TD><TD>CONSTRAINT CHECK</TD><TD>" + self.baseDatos + "</TD><TD>"
                 cadena += self.tabla + "</TD><TD>" + str(self.valor.exp1.valor) + " " + cond + " " + str(self.valor.exp2.valor) + "</TD></TR>\\n"
