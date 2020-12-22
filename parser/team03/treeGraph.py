@@ -4,7 +4,7 @@ import subprocess
 
 s="\n"
 i = 0
-gram="# REPORTE DE GRAMATICA EN EJECUCION \n\n"
+gram=""
 
 def inc():
     global i
@@ -56,6 +56,8 @@ def graph_node(value, arreglo=[], child_indices=[]):
 
 
 def createFile():
+    global gram
+    gram="# REPORTE DE GRAMATICA EN EJECUCION \n\n" +gram
     archivo = open('reportGrammar.md', 'w')
     archivo.write(gram)
     archivo.close()
@@ -81,7 +83,7 @@ def creategrafo():
 
 def addCad(cadena):
     global gram
-    gram = gram + cadena + "\n"+"<br>"+"\n\n" 
+    gram =  cadena + "\n"+"<br>"+"\n\n" + gram
 
 
 #recibo un arreglo y devuelve solamento los indices que quiero

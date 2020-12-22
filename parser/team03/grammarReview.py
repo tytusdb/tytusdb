@@ -411,12 +411,20 @@ def p_all_opt(t):
         t[0]=None 
 
 def p_stm_select(t):
-    '''stm_select : SELECT distinct_opt list_names FROM table_list  where_clause_opt group_clause_opt having_clause_opt order_by_opt limit_opt offset_opt '''
-    childsProduction  = addNotNoneChild(t,[2,3,5,6,7,8,9,10,11])
-    graph_ref = graph_node(str("stm_select"),    [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]]       ,childsProduction)
-    addCad("**\<DISTINCT_OPT>** ::= tSelect \<DISTINC_OPT> \<LIST_NAMES> tFrom \<TABLE_LIST>   \<WHERE_CLAUSE> \<GROUP_CLAUSE>\<HAVING_CLAUSE_OPT> \<ORDER_BY_OPT> <LIMIT_OPT>  ")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    #####       
+    '''stm_select : SELECT distinct_opt list_names FROM table_list where_clause_opt group_clause_opt having_clause_opt order_by_opt limit_opt offset_opt
+                  | SELECT list_names  '''
+    
+    if len(t) == 3:
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("stm_select"),    [t[1], t[2]]       ,childsProduction)
+        addCad("**\<DISTINCT_OPT>** ::= tSelect \<LIST_NAMES> ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+    else:    
+        childsProduction  = addNotNoneChild(t,[2,3,5,6,7,8,9,10,11])
+        graph_ref = graph_node(str("stm_select"),    [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]]       ,childsProduction)
+        addCad("**\<DISTINCT_OPT>** ::= tSelect \<DISTINC_OPT> \<LIST_NAMES> tFrom \<TABLE_LIST>   \<WHERE_CLAUSE> \<GROUP_CLAUSE>\<HAVING_CLAUSE_OPT> \<ORDER_BY_OPT> <LIMIT_OPT>  ")
+        t[0] = upNodo("token", 0, 0, graph_ref)
+        #####       
 
 
 def p_distinct_opt(t):
@@ -799,15 +807,15 @@ def p_case_inner(t):
 
 
 def p_time_ops(t):
-    '''time_ops :    EXTRACT PARA ops_from_ts COMA TEXTO PARC
+    '''time_ops :    EXTRACT PARA ops_from_ts  FECHA_HORA PARC
                 |    DATE_PART PARA TEXTO COMA INTERVAL TEXTO PARC'''
-    if len(t) == 7:
+    if len(t) == 6:
         childsProduction  = addNotNoneChild(t,[3])
-        graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5],t[6]]       ,childsProduction)
-        addCad("**\<TIME_OPS>** ::=  tExtract '(' \<OPS_FROM_TS> ',' tTexto ')'  ")
+        graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
+        addCad("**\<TIME_OPS>** ::=  tExtract '(' \<OPS_FROM_TS>  tFechaHora ')'  ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####                
-    elif len(t) == 5:
+    elif len(t) == 8:
         graph_ref = graph_node(str("time_ops"),    [t[1],t[2],t[3],t[4],t[5],t[6],t[7]]       ,[])
         addCad("**\<TIMES_OPS>** ::=   tDate_part '(' tText ',' tINTERVAL tText ')'   ")
         t[0] = upNodo("token", 0, 0, graph_ref)
@@ -815,7 +823,7 @@ def p_time_ops(t):
 
 
 def p_ops_from_ts(t):
-    '''ops_from_ts  : YEAR FROM TIMESTAMP
+    '''ops_from_ts  : YEAR FROM TIMESTAMP 
                 |    HOUR FROM TIMESTAMP
                 |    MINUTE FROM TIMESTAMP
                 |    SECOND FROM TIMESTAMP
@@ -1053,7 +1061,7 @@ def p_inherits_opt(t):
     if len(t) == 5:
         graph_ref = graph_node(str(t[1]+" "+str(t[2])+" "+str(t[3])+" "+str(t[4]) ))
         addCad("**\<INHERITS_OPT>** ::= tInherits '(' tIdentifier ')'  ")
-        token = slice[3]
+        token = t.slice[3]
         t[0]= Identifier(token.value,token.lineno, token.lexpos,None)
     else:                 
         t[0] = None
@@ -1439,12 +1447,12 @@ def p_relExpression(t):
     elif token.type == "NOT":
         childsProduction  = addNotNoneChild(t,[1,3])
         graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
-        addCad("**\<EXP_REL>** ::=  \<EXP> tNot [‘%’] tTexto [‘%’] ")
+        addCad("**\<EXP_REL>** ::=  \<EXP> tNot tLike [tTexto|False|True] ")
         t[0] = RelationalExpression(t[1], t[4], OpRelational.NOT_LIKE, 0, 0, graph_ref)
     elif token.type == "LIKE":
         childsProduction  = addNotNoneChild(t,[1,3])
         graph_ref = graph_node(str("EXP_REL"),    [t[1], t[2] ,t[3]]       ,childsProduction)
-        addCad("**\<EXP_REL>** ::=  \<EXP> tLike [‘%’] tTexto [‘%’] ")
+        addCad("**\<EXP_REL>** ::=  \<EXP> tLike [tTexto|False|True] ")
         t[0] = RelationalExpression(t[1], t[3], OpRelational.LIKE, 0, 0, graph_ref)
     else:
         print("Missing code from: ", t.slice)
@@ -1468,6 +1476,16 @@ def p_predicateExpression(t):
 def p_predicateExpression0(t):
     '''predicateExpression  : logicExpression'''
     t[0] = t[1]
+
+def p_predicateExpression3(t):
+    '''predicateExpression  : logicExpression BETWEEN expression AND expression'''
+    token = t.slice[2]
+    childsProduction  = addNotNoneChild(t,[1,3,5])
+    graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3], t[4],t[5]]       ,childsProduction)
+    addCad("**\<EXP_PREDICATE>** ::=  \<EXP_LOG> tBetween \<EXP>  tAnd \<EXP>   ")
+    t[0] = PredicateExpression(t[3], t[5], OpPredicate.BETWEEN, token.lineno, token.lexpos,graph_ref)
+    
+
 
 def p_predicateExpression1(t):
     '''predicateExpression  : expression IS NULL
@@ -1510,28 +1528,29 @@ def p_predicateExpression2(t):
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
         addCad("**\<EXP_PREDICATE>** ::= tIs tNull  ")
-        #t[0] = PredicateExpression(t[1], None, OpPredicate.NULL,  token.lineno, token.lexpos,graph_ref)
+        t[0] = PredicateExpression(t[1], None, OpPredicate.NOT_NULL,  token.lineno, token.lexpos,graph_ref)
 
     elif token.type == "DISTINCT":
-        childsProduction  = addNotNoneChild(t,[1,5])
+        childsProduction  = addNotNoneChild(t,[1,6])
         graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4],t[5],t[6]]       ,childsProduction)
         addCad("**\<EXP_PREDICATE>** ::=   \<EXP> tIs tDisctint tFrom \<EXP>  ")
-       # t[0] = PredicateExpression(t[1], t[5], OpPredicate.DISTINCT,  token.lineno, token.lexpos,graph_ref)
+        t[0] = PredicateExpression(t[1], t[6], OpPredicate.NOT_DISTINCT,  token.lineno, token.lexpos,graph_ref)
+        
     elif token.type == "BOOLEAN_VALUE":
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
         addCad("**\<EXP_PREDICATE>** ::=   <EXP> tIs [tTrue|tFalse] \<EXP> ")      
-        if bool(t[3]):
+        if bool(t[4]):
             pass
-            #t[0] = PredicateExpression(t[1], None, OpPredicate.TRUE, token.lineno, token.lexpos,graph_ref)
+            t[0] = PredicateExpression(t[1], None, OpPredicate.NOT_TRUE, token.lineno, token.lexpos,graph_ref)
         else:
             pass
-            #t[0] = PredicateExpression(t[1], None, OpPredicate.FALSE, token.lineno, token.lexpos,graph_ref)
+            t[0] = PredicateExpression(t[1], None, OpPredicate.NOT_FALSE, token.lineno, token.lexpos,graph_ref)
     elif token.type == "UNKNOWN":
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("EXP_PREDICATE"),    [t[1], t[2] ,t[3],t[4]]       ,childsProduction)
         addCad("**\<EXP_PREDICATE>** ::=   \<EXP> tIs  tUnknown  \<EXP>  ")  
-        #t[0] = PredicateExpression(t[1], None, OpPredicate.UNKNOWN, token.lineno, token.lexpos,graph_ref)
+        t[0] = PredicateExpression(t[1], None, OpPredicate.NOT_UNKNOWN, token.lineno, token.lexpos,graph_ref)
 
 
 
