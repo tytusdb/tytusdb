@@ -1026,7 +1026,16 @@ def p_sql_relational_expression(p):
                                | SQLSIMPLEEXPRESSION SQLISCLAUSE
                                | SQLSIMPLEEXPRESSION'''
     if (len(p) == 3):
-        p[0] = [p[1], p[2]]
+        if p[2][1] == "LIKE":
+            p[0] = LikeClause(p[2][0], p[1], p[2][2],p[2][3],p[2][4])
+        elif p[2][0] == "BETWEEN":
+            p[0] = Between(p[1], p[2][1], p[2][2], p[2][3], p[2][4], p[2][5],p[2][6])
+        elif p[2][0] == "IS":
+            p[0] = isClause(p[1], p[2][1], p[2][2], p[2][3])
+        elif p[2][0] == "IN":
+            p[0] = InClause(p[1], p[2][1], p[2][2], p[2][3])
+        else:
+            p[0] = [p[1], p[2]]
     elif (len(p) == 4):
         print(p[2])
         if p[2][1] == '=':
@@ -1055,8 +1064,8 @@ def p_sql_in_clause(p):
     if (len(p) == 6):
         p[0] = InClause(NotOption(p[4],p.lineno(1),p.slice[1]),p.lineno(2),find_column(p.slice[2]))
     else:
-        p[0] = InClause(p[3],p.lineno(1), find_column(p.slice[1]))
-
+        p[0] = [p.slice[1].type, p[3], p.lineno(1), find_column(p.slice[1])]
+        
 def p_lista_in(p):
     '''listain : listain COMMA SQLSIMPLEEXPRESSION
                | SQLSIMPLEEXPRESSION 
@@ -1073,22 +1082,21 @@ def p_sql_between_clause(p):
                         | BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION 
                         | BETWEEN SYMMETRIC SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION '''
     if (len(p) == 6):
-        if (p[3] == 'SYMMETRIC'):
-            p[0] = Between(None, True, p[3], p[5])
-        else:
-            p[0] = Between(True, None, p[3], p[5])
+        if (p.slice[2].type == 'SYMMETRIC'):
+            p[0] = [p.slice[1].type, None, True, p[3], p[5],p.lineno(1), find_column(p.slice[1])]
+        else: 
+            p[0] = [p.slice[2].type, True, None, p[3], p[5],p.lineno(2), find_column(p.slice[2])]
     elif (len(p) == 5):
-        p[0] = Between(None, True, p[3], p[5])
-    else:
-        p[0] = Between(True, True, p[4], p[6])
-
+        p[0] = [p.slice[1].type, None, None, p[2], p[4], p.lineno(1), find_column(p.slice[1])]
+    else: # len 7
+        p[0] = [p.slice[2].type, True, True, p[4], p[6], p.lineno(2), find_column(p.slice[2])]
 def p_sql_like_clause(p):
     '''SQLLIKECLAUSE  : NOT LIKE SQLSIMPLEEXPRESSION
                       | LIKE SQLSIMPLEEXPRESSION'''
     if (len(p) == 4):
-        p[0] = LikeClause(NotOption(p[3], p.lineno(1),find_column(p.slice[1])),p.lineno(2),find_column(p.slice[2]))
+        p[0] = [True, p.slice[1].type, p[3], p.lineno(1), find_column(p.slice[1])]
     else:
-        p[0] = LikeClause(p[2],p.lineno(1),find_column(p.slice[1]))
+        p[0] = [False,  p.slice[1].type, p[2], p.lineno(1), find_column(p.slice[1])]
 
 # TODO A qui no se como se guardaria esto xd
 def p_sql_is_clause(p):
@@ -1104,7 +1112,16 @@ def p_sql_is_clause(p):
                    | IS NOT UNKNOWN
                    | IS NOT DISTINCT FROM SQLNAME
                    | IS DISTINCT FROM SQLNAME'''
-    
+    if len(p) == 3:
+        p[0] = [p.slice[1].type,[p[2]], p.lineno(1), find_column(p.slice[1])]
+    elif len(p) == 4:
+        p[0] = [p.slice[1].type,[p[2], p[3]], p.lineno(1), find_column(p.slice[1])]
+    elif len(p) == 2:
+        p[0] = ["IS", [p[1]], p.lineno(1), find_column(p.slice[1])]
+    elif len(p) == 6:
+        p[0] = [p.slice[1].type, [p[2], p[3], p[4], p[5]], p.lineno(1), find_column(p.slice[1])]
+    else: #len 5
+        p[0] = [p.slice[1].type, [p[2], p[3], p[4]], p.lineno(1), find_column(p.slice[1])]
 
 def p_sql_simple_expression(p):
     '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION PLUS SQLSIMPLEEXPRESSION
@@ -1462,7 +1479,7 @@ def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-    if p.slice[1].type == "STRINGCONT" and p.slice[1].type == "CHARCONT":
+    if p.slice[1].type == "STRINGCONT" or p.slice[1].type == "CHARCONT":
         p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
     else:
         p[0] = Identifiers(p[1], p.lineno(1), find_column(p.slice[1]))

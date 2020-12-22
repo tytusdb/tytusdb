@@ -1,3 +1,9 @@
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
 from DataAccessLayer.handler import Handler
 from Models.avl_tree import AVLTree
 
@@ -23,16 +29,15 @@ class TupleModule:
                         return 3
             if filtro:
                 avl = self.handler.tableinstance(database, table)
-                if len(register) != avl.numberColumns:  # más o menos parametros de los esperado en register
+                if len(register) != avl.numberColumns:
                     return 5
-                # lista que almacena las columnas que son PK en el parametro
                 if not len(avl.pklist) == 0:
                     auxPk = ""
                     for key in avl.pklist:
                         auxPk += "-" + str(register[key])
                     auxPk = auxPk[1:]
                     if avl.search(auxPk):
-                        return 4  # si no es nulo ya existe un dato con la misma pk
+                        return 4
                     else:
                         avl.add(auxPk, register)
                 else:
