@@ -895,7 +895,7 @@ def p_option_col_DEFAULT_SIMP(p):
     nodo.add_childrens(p[2])
     nodo.production = f"<optioncol> ::= DEFAULT <SQLSIMPLEEXPRESSION>\n"
     nodo.production += f"{Node(p[1]).production}"
-    nodo.production += f"{p[1].production}"
+    nodo.production += f"{p[2].production}"
     p[0] = nodo
 
 
@@ -1034,7 +1034,7 @@ def p_column_list(p):
     else:
         nodo.add_childrens(Node(p[1]))
         nodo.production = f"<columnlist> ::= ID>\n"
-        nodo.production += f"{p[1].production}"
+        nodo.production += f"{Node(p[1]).production}"
         p[0] = nodo
 
 

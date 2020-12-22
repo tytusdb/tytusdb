@@ -682,7 +682,7 @@ def p_literal(t):
     else:
         tipo = expression.TYPE.NUMBER
     t[0] = expression.Primitive(
-        tipo, t.slice[1].value, t.slice[1].lineno, t.slice[1].lexpos
+        tipo, t.slice[1].value, t.slice[1].value, t.slice[1].lineno, t.slice[1].lexpos
     )
 
     repGrammar.append(t.slice)
