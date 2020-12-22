@@ -158,12 +158,149 @@ def ventana_dropDatabase():
 
 #ventanas de TABLAS
 def ventana_createTable():
-   	 pass
+       def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table existe")
+    def newDataCreateT(db,nombre,columna):
+        print("db: "+str(db),"nombre: "+str(nombre),"col: "+str(columna))
+        retorno=newData.createTable(db,nombre,columna)
+
+        if retorno==0:
+            messagebox.showinfo("Exito","Tabla "+str(nombre)+"\ncreada con exito en: "+str(db)+"\nColumna: "+str(columna))
+            #saveDatabaseFile()
+            reloadTablas()
+        else:
+            mostrarError(retorno)
+
+    ventanaCreateTable=Tk.Tk()
+    ventanaCreateTable.geometry("400x300")
+    ventanaCreateTable.title("Create Table")
+    ventanaCreateTable.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaCreateTable,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_createTable=Ttk.Combobox(ventanaCreateTable,state="readonly")
+    cb_createTable['values']=newData.showDatabases()
+    cb_createTable.place(x=225,y=50)
+
+    label_nombre=Tk.Label(ventanaCreateTable,text="Nombre de Tabla",font=("Arial",14))
+    label_nombre.place(x=50,y=100)
+
+    entry_nombre=Tk.Entry(ventanaCreateTable)
+    entry_nombre.place(x=225,y=100)
+
+    label_columna=Tk.Label(ventanaCreateTable,text="# Columna",font=("Arial",14))
+    label_columna.place(x=50,y=150)
+
+    entry_columna=Tk.Entry(ventanaCreateTable)
+    entry_columna.place(x=225,y=150)
+
+    b_createTable=Tk.Button(ventanaCreateTable,text="Crear Tabla",command=lambda : [newDataCreateT(cb_createTable.get(),entry_nombre.get(),entry_columna.get()),ventanaCreateTable.destroy()])
+    b_createTable.place(x=50,y=200)   
+    pass
+
 def ventana_alterTable():
-    	pass
+   def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table OLD no existe")
+        if value==4:
+            messagebox.showerror("Error: "+str(value),"Tabla NEW existente")
+    def updateAlterCB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def alterTable(db,old,new):
+        retorno=newData.alterTable(db,old,new)
+        if retorno==0:
+            print(db,old,new)
+            messagebox.showinfo("Exito","Se ha renombrado la tabla:\n"+str(old)+"->"+str(new))
+            #saveDatabaseFile()
+            reloadTablas()
+        else:
+            mostrarError(retorno)
+    ventanaAlterTable=Tk.Tk()
+    ventanaAlterTable.geometry("600x300")
+    ventanaAlterTable.title("Alter Table")
+    ventanaAlterTable.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaAlterTable,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaAlterTable,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaAlterTable,text="Mostrar Tablas",command=lambda:[updateAlterCB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaAlterTable,text="Tabla a Modificar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaAlterTable,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+    
+    label_table=Tk.Label(ventanaAlterTable,text="Nuevo Nombre",font=("Arial",14))
+    label_table.place(x=50,y=150)
+
+    entry_newName=Tk.Entry(ventanaAlterTable)
+    entry_newName.place(x=225,y=150)
+
+    b_alter=Tk.Button(ventanaAlterTable,text="Modificar Tabla",command=lambda:[alterTable(cb_showdb.get(),cb_showtable.get(),entry_newName.get()),ventanaAlterTable.destroy()])
+    b_alter.place(x=400,y=150)
 
 def ventana_delTable():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table existe")
+    def updateDropDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+    def dropTable(db,name):
+        retorno=newData.dropTable(db,name)
+        if retorno==0:
+            messagebox.showinfo("Exito","Se ha eliminado la tabla \'"+str(name)+"\' de "+str(db))
+            #saveDatabaseFile()
+            reloadTablas()
+        else:
+            mostrarError(retorno)
+    
+    ventanaDropTable=Tk.Tk()
+    ventanaDropTable.geometry("600x200")
+    ventanaDropTable.title("Drop Table")
+    ventanaDropTable.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaDropTable,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaDropTable,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaDropTable,text="Mostrar Tablas",command=lambda:[updateDropDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaDropTable,text="Tabla a Eliminar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaDropTable,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+    
+    b_dropTable=Tk.Button(ventanaDropTable,text="Eliminar Tabla",command=lambda:[dropTable(cb_showdb.get(),cb_showtable.get()),ventanaDropTable.destroy()])
+    b_dropTable.place(x=400,y=100)
+    
 
 def ventana_alterAddColumn():
 	pass
