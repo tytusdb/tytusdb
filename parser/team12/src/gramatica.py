@@ -231,7 +231,7 @@ keywords = {
 'USING' : 'USING',
 'VALUES' : 'VALUES',
 'VARCHAR' : 'VARCHAR',
-'VARYNG' : 'VARYNG',
+'VARYING' : 'VARYING',
 'WHEN' : 'WHEN',
 'WHERE' : 'WHERE',
 'WIDTH_BUCKET' : 'WIDTH_BUCKET',
@@ -867,7 +867,7 @@ def p_tipo_declaracion_2(t):
     nuevo.createChild(t[2],t.lineno(2))
     t[0] = nuevo 
 def p_tipo_declaracion_3(t):
-    '''tipo_declaracion : CHARACTER VARYNG PARENTESISIZQ ENTERO PARENTESISDER'''
+    '''tipo_declaracion : CHARACTER VARYING PARENTESISIZQ ENTERO PARENTESISDER'''
     nuevo = Start("TIPO_DECLARACION")
     nuevo.createChild(t[1],t.lineno(1))
     nuevo.createChild(t[2],t.lineno(2))
@@ -898,20 +898,20 @@ def p_time_opcionales(t):
         nuevo = Start("TIME_OPCIONALES")
         nuevo.createTerminal(t.slice[2])
         if t[4] != None:
-            nuevo.addChild(t[4])
+            nuevo.addChild(t[4].hijos[0])
         t[0] = nuevo
     elif t[1] != None:
         nuevo = Start("TIME_OPCIONALES")
-        nuevo.addChild(t[1])
+        nuevo.addChild(t[1].hijos[0])
         t[0] = nuevo
 
 def p_time_opcionales_p(t):
     '''time_opcionales_p : WITHOUT TIME ZONE
                                 | WITH TIME ZONE
                                 | '''
-    if len(t)==3:
+    if len(t)==4:
         nuevo = Start("TIME_ZONE")
-        nuevo.createChild(t[1],t.lineno(1))
+        nuevo.createChild(t[1] + " TIME ZONE",t.lineno(1))
         t[0] = nuevo
 
 def p_interval_opcionales(t):
@@ -1012,11 +1012,19 @@ def p_cuerpo_crear_tabla_p_4(t):
         t[0].addChild(hijo)
 
 def p_cuerpo_crear_tabla_p_5(t):
-    '''cuerpo_creartabla_p : FOREIGN KEY PARENTESISIZQ lista_ids PARENTESISDER REFERENCES IDENTIFICADOR PARENTESISIZQ lista_ids PARENTESISDER'''
-    t[0] = Start("ATRIBUTO_FOREIGN_KEY")
-    t[0].addChild(t[4])
-    t[0].createTerminal(t.slice[7])
-    t[0].addChild(t[9])
+    '''cuerpo_creartabla_p : fk_references_p REFERENCES IDENTIFICADOR PARENTESISIZQ lista_ids PARENTESISDER'''
+    t[0] = Start("ATRIBUTO_REFERENCES")
+    if t[1]!= None:
+        t[0].addChild(t[1])
+    t[0].createTerminal(t.slice[3])
+    t[0].addChild(t[5])
+
+def p_cuerpo_crear_tabla_p_6(t):
+    '''fk_references_p : FOREIGN KEY PARENTESISIZQ lista_ids PARENTESISDER
+                        |'''
+    if len(t) == 6:
+        t[0] = Start("ATRIBUTO_FOREIGN_KEY")
+        t[0].addChild(t[4])
     
 
 # Falta DEFAULT EXPRESION
@@ -1241,7 +1249,36 @@ def p_sentencia_use(t):
 
 #---------------------------------CASE-----------------------------------
 def p_sentencia_case(t):
-    '''sentencia_case :  CASE WHEN THEN END'''
+    '''sentencia_case :  CASE listaExpCase caseElse END'''
+    t[0] = Start("SENTENCIA_CASE", t.lineno(1))
+    for hijo in t[2].hijos:
+        t[0].addChild(hijo)
+
+def p_listaExpCase(t):
+    '''listaExpCase : listaExpCase WHEN Exp THEN Exp
+                    | WHEN Exp THEN Exp'''
+    t[0] = Start("LISTA_EXP_CASE", t.lineno(2))
+    if len(t) == 6:
+        for hijo in t[1].hijos:
+            t[0].addChild(hijo)
+        hijoTemp = Start("WHEN_THEN")
+        hijoTemp.addChild(t[3])
+        hijoTemp.addChild(t[5])
+        t[0].addChild(hijoTemp)
+    else:
+        hijoTemp = Start("WHEN_THEN")
+        hijoTemp.addChild(t[2])
+        hijoTemp.addChild(t[4])
+        t[0].addChild(hijoTemp)
+
+
+def p_caseElse(t):
+    '''caseElse : ELSE Exp
+                | '''
+    if len(t) == 3:
+        t[0]=Start("CASE_ELSE")
+        t[0].addChild(t[2])
+
 
 #---------------Termina las sentencias con la palabra reservada SELECT.---------------------
 
