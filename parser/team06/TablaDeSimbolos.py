@@ -38,7 +38,7 @@ class TablaDeSimbolos() :
         self.simbolos = simbolos
 
     def agregar(self, simbolo) :
-        self.simbolos[simbolo.id] = simbolo
+        self.simbolos[simbolo.nombre] = simbolo
     
     def obtener(self, id) :
         print("a este entra")
@@ -47,18 +47,18 @@ class TablaDeSimbolos() :
             return("no definida")
         return self.simbolos[id]
     
-    def obtener2(self, id) :
+    def obtener2(self, nombre) :
         print("a este entra")
-        if not id in self.simbolos :
-            print('Error1: variable ', id, ' no definida.')
+        if not nombre in self.simbolos :
+            print('Error1: variable ', nombre, ' no definida.')
             return 0
-        return self.simbolos[id]
+        return self.simbolos[nombre]
 
     def actualizar(self, simbolo) :
-        if not simbolo.id in self.simbolos :
-            print('Error2: variable ', simbolo.id, ' no definida.')
+        if not simbolo.nombre in self.simbolos :
+            print('Error2: variable ', simbolo.nombre, ' no definida.')
         else :
-            self.simbolos[simbolo.id] = simbolo
+            self.simbolos[simbolo.nombre] = simbolo
 
     def mostrar(self,var):
         print(str(var))
@@ -169,6 +169,12 @@ class TablaDeSimbolos() :
     
     #-----------------------------------------------------------------------------------------------------------------------
     #Inicia Insert en Tabla
+
+    def obtenerColumna(self,nombre,BD,id):
+        for simb in self.simbolos:
+            if self.simbolos[simb].nombre == nombre and self.simbolos[simb].BD == BD and self.simbolos[simb].id == id:
+                return self.simbolos[simb]
+        return 0
 
 
     def printcontsimbolos(self):

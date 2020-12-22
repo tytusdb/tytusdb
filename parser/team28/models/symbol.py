@@ -8,6 +8,9 @@ class Symbol(object):
         self._references = references
         self._row = row
         self._column = column
+    
+    def __repr__(self):
+        return str(vars(self))
 
     @property
     def idSymbol(self):

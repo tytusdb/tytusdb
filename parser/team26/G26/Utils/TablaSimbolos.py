@@ -44,9 +44,10 @@ class EnumData(TablaSimbolos):
             return str(self.__dict__)
 
 class ConstraintData(TablaSimbolos):
-        def __init__(self, name, val):
+        def __init__(self, name, val, tipo):
             self.name = name
             self.val = val
+            self.tipo = tipo
 
         def execute(self):
             return self

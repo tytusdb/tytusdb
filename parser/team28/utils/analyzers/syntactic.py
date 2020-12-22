@@ -14,6 +14,7 @@ from models.instructions.DML.select import *
 from models.instructions.Expression.expression import *
 from models.instructions.Expression.type_enum import *
 from models.instructions.Expression.math_funcs import *
+from models.instructions.Expression.string_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
@@ -767,17 +768,20 @@ def p_select_statement(p):
                        | SELECTWITHOUTORDER LIMITCLAUSE 
                        | SELECTWITHOUTORDER'''
     if (len(p) == 4):
+        p[2] = p[2][1]
+        [3].pop(0)
+        p[3] = p[3][0]
         p[0] = Select(p[1], p[2], p[3])
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
-            p[2].pop(0)
-            p[2] = p[2][0]
+            p[2] = p[2][1]
             p[0] = Select(p[1], p[2], None)
         elif ('LIMIT' in p[2]):
+            [2].pop(0)
+            p[2] = p[2][0]
             p[0] = Select(p[1], None, p[2])
     elif (len(p) == 2):
         p[0] = Select(p[1], None, None)
-
 
 def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
@@ -936,40 +940,19 @@ def p_order_by_clause_list(p):
         p[0] = OrderClause(p[1], None, None, None)
    
 def p_limit_clause(p):
-    '''LIMITCLAUSE : LIMIT LIMITOPTIONS'''
-    p[0] = [p[1], p[2]]
+    '''LIMITCLAUSE : LIMIT LIMITTYPES OFFSET INT_NUMBER
+                   | LIMIT LIMITTYPES'''
+    if (len(p) == 5):
+        p[0] = [LimitClause(p[2], p[4], p.lineno(3), find_column(p.slice[3])), p.slice[1].type]
+    elif (len(p) == 3):
+        p[0] = [LimitClause(p[2], None, p.lineno(1), find_column(p.slice[1])), p.slice[1].type]
 
-def p_limit_options(p):
-    '''LIMITOPTIONS : LIMITTYPES OFFSETOPTION
-                    | LIMITTYPES'''
-    
-    if (len(p) == 3):
-        p[0] = LimitClause(p[1], p[2], p.lineno(2), find_column(p.slice[2]))
-    else:
-        p[0] = LimitClause(p[1], None, p.lineno(1), find_column(p.slice[1]))
-    
 
 def p_limit_types(p):
-    '''LIMITTYPES : LISTLIMITNUMBER
+    '''LIMITTYPES : INT_NUMBER
                   | ALL'''
-    
-    p[0] = p[1]
-   
+    p[0] = p[1] 
 
-def p_list_limit_number(p):
-    '''LISTLIMITNUMBER : LISTLIMITNUMBER COMMA INT_NUMBER
-                       | INT_NUMBER'''
-    
-    if (len(p) == 2):
-        p[0] = [p[1]]
-    else:
-        p[1].append(p[3])
-        p[0] = p[1]
-
-
-def p_offset_option(p):
-    '''OFFSETOPTION : OFFSET INT_NUMBER'''
-    p[0] = p[2]
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
@@ -1278,7 +1261,7 @@ def p_mathematical_functions(p):
 
 def p_binary_string_functions(p):
     '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                               | SUBSTRING LEFT_PARENTHESIS  SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
                                | TRIM LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
                                | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
                                | SHA256 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
@@ -1286,8 +1269,23 @@ def p_binary_string_functions(p):
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
                                | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
+    if p.slice[1].type == "LENGTH":
+        p[0] = Length(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SUBSTRING":
+        p[0] = Substring(p[3], p[5], p[7], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "TRIM":
+        p[0] = Trim(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "MD5":
+        p[0] = MD5(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SHA256":
+        p[0] = SHA256(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SUBSTR":
+        p[0] = Substring(p[3], p[5], p[7], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "CONVERT":
+        p[0] = Convert(p[3], p[5], p.lineno(1), find_column(p.slice[1])) 
+    else: #p.slice[1].type == "DECODE"
+        p[0] = Decode(p[3], p[1],p.lineno(1), find_column(p.slice[1]))  
 
-#TODO: MANEJAMOS ARRAYS CORRECTAMENTE???? ---> PROBAR
 def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
                        | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
@@ -1467,7 +1465,7 @@ def p_sql_name(p):
     if p.slice[1].type == "STRINGCONT" and p.slice[1].type == "CHARCONT":
         p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = ExpressionColumnsId(p[1], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Identifiers(p[1], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_type_select(p):
