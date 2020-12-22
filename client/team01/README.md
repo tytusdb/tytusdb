@@ -11,7 +11,8 @@ TytusDB, Grupo01, Diciembre 2020
 
 # Manual De Usuario📚🖉
 
-![Philadelphia's Magic Gardens. This place was so cool!]()
+
+<img src="docs/Grupo01_Imagen01.png" width="48" height="50">
 
 # Manual Técnico📚🖉
 
