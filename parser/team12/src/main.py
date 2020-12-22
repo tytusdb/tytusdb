@@ -80,7 +80,7 @@ with open('src/Config/Config.json',"w") as file:
     json.dump(config,file)
 
 
-#Descomentar lo que sea necesario
+# Descomentar lo que sea necesario
 
 
 

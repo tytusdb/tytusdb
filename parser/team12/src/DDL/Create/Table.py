@@ -121,7 +121,7 @@ class Column():
         nuevoCheck = Check()
         for hijo in parent.hijos:
             if hijo.nombreNodo == "OPCIONAL_CONSTRAINT":
-                nuevoCheck.name = hijo.hijos[0].valor
+                nuevoCheck.name = hijo.hijos[0].valor.upper()
             elif hijo.nombreNodo == "E":
                 nuevoCheck.checkExp = self.construirExpresionJSON(hijo, listaids)
         listaChecker.append(nuevoCheck)
@@ -145,7 +145,7 @@ class Column():
         # que tenga el mismo tipo de dato
         if self.buscarColumnaValida(self.name, self.specificType, parent.hijos[0].nombreNodo):
             self.referencesTable = parent.hijos[0].nombreNodo
-            self.referenceColumn = self.name
+            self.referenceColumn = self.name.upper()
             responseMessage = Response("00000", "Se agrego la referencia correctamente")
             return responseMessage
         respError = Error(3,"No existe una columna o tabla relacionada para la referencia "+self.name+" en " +parent.hijos[0].nombreNodo ,-1)
@@ -161,7 +161,7 @@ class Column():
         self.isUnique = True
         for hijo in parent.hijos:
             if hijo.nombreNodo == "OPCIONAL_CONSTRAINT":
-                self.uniqueName = hijo.valor
+                self.uniqueName = hijo.valor.upper()
         responseMessage = Response("00000", "Se agrego unique correctamente")
         return responseMessage
 
@@ -177,7 +177,7 @@ class Column():
         # 1.6 El nodo que tenga como nombre OPCIONALES_ATRIBUTO_CHECK, será el que indique que es una check.
 
         # Ejecuta 1.1
-        self.name = parent.hijos[0].valor
+        self.name = parent.hijos[0].valor.upper()
         # Ejecuta 1.2
         self.tipo_declaracion(parent.hijos[1])
         # Ejecuta 1.3 -> 1.6
@@ -336,7 +336,7 @@ class Constraint():
             elif hijo.nombreNodo == "LISTA_EXP":
                 for exp in hijo.hijos:
                     nuevaConstraint = Check()
-                    nuevaConstraint.name = nombreCheck
+                    nuevaConstraint.name = nombreCheck.upper()
                     nuevaConstraint.checkExp = self.construirExpresionJSON(exp, listaids)
                     checkers.append(nuevaConstraint)
         for ident in listaids:
@@ -422,7 +422,7 @@ class Table():
         # 4. Verificar que no exista la tabla en la base de datos seleccionada
         for hijo in parent.hijos:
             if hijo.nombreNodo == "IDENTIFICADOR" :
-                self.name = hijo.valor
+                self.name = hijo.valor.upper()
             elif hijo.nombreNodo == "ATRIBUTO_COLUMNA" :
                 nuevaColumna = Column()
                 resp = nuevaColumna.crearColumna(hijo,self.checkers,self.listaids)
