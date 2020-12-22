@@ -5,6 +5,7 @@ from shutil import rmtree
 path.append(dir(path[0]))
 
 from analizer import grammar
+from analizer.reports import BnfGrammar
 
 dropAll = 0
 if dropAll:
@@ -13,15 +14,15 @@ if dropAll:
 
 
 s = """ 
-CREATE OR REPLACE DATABASE db1;
-USE db1;
-CREATE TABLE cities (
- name text,
- fecha date
-);
 
-insert into cities values ('Estela','2020-12-21');
+USE db1;
+
+insert into tbempleado (idempleado,primernombre,primerapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(8,'Maria','Lopez','1990-12-01','2016-09-21',1);
+
 
 """
 result = grammar.parse(s)
 print(result)
+
+BnfGrammar.grammarReport()

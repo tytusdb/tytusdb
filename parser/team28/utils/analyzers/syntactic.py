@@ -768,17 +768,20 @@ def p_select_statement(p):
                        | SELECTWITHOUTORDER LIMITCLAUSE 
                        | SELECTWITHOUTORDER'''
     if (len(p) == 4):
+        p[2] = p[2][1]
+        [3].pop(0)
+        p[3] = p[3][0]
         p[0] = Select(p[1], p[2], p[3])
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
-            p[2].pop(0)
-            p[2] = p[2][0]
+            p[2] = p[2][1]
             p[0] = Select(p[1], p[2], None)
         elif ('LIMIT' in p[2]):
+            [2].pop(0)
+            p[2] = p[2][0]
             p[0] = Select(p[1], None, p[2])
     elif (len(p) == 2):
         p[0] = Select(p[1], None, None)
-
 
 def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
@@ -937,40 +940,19 @@ def p_order_by_clause_list(p):
         p[0] = OrderClause(p[1], None, None, None)
    
 def p_limit_clause(p):
-    '''LIMITCLAUSE : LIMIT LIMITOPTIONS'''
-    p[0] = [p[1], p[2]]
+    '''LIMITCLAUSE : LIMIT LIMITTYPES OFFSET INT_NUMBER
+                   | LIMIT LIMITTYPES'''
+    if (len(p) == 5):
+        p[0] = [LimitClause(p[2], p[4], p.lineno(3), find_column(p.slice[3])), p.slice[1].type]
+    elif (len(p) == 3):
+        p[0] = [LimitClause(p[2], None, p.lineno(1), find_column(p.slice[1])), p.slice[1].type]
 
-def p_limit_options(p):
-    '''LIMITOPTIONS : LIMITTYPES OFFSETOPTION
-                    | LIMITTYPES'''
-    
-    if (len(p) == 3):
-        p[0] = LimitClause(p[1], p[2], p.lineno(2), find_column(p.slice[2]))
-    else:
-        p[0] = LimitClause(p[1], None, p.lineno(1), find_column(p.slice[1]))
-    
 
 def p_limit_types(p):
-    '''LIMITTYPES : LISTLIMITNUMBER
+    '''LIMITTYPES : INT_NUMBER
                   | ALL'''
-    
-    p[0] = p[1]
-   
+    p[0] = p[1] 
 
-def p_list_limit_number(p):
-    '''LISTLIMITNUMBER : LISTLIMITNUMBER COMMA INT_NUMBER
-                       | INT_NUMBER'''
-    
-    if (len(p) == 2):
-        p[0] = [p[1]]
-    else:
-        p[1].append(p[3])
-        p[0] = p[1]
-
-
-def p_offset_option(p):
-    '''OFFSETOPTION : OFFSET INT_NUMBER'''
-    p[0] = p[2]
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
@@ -1483,7 +1465,7 @@ def p_sql_name(p):
     if p.slice[1].type == "STRINGCONT" and p.slice[1].type == "CHARCONT":
         p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = ExpressionColumnsId(p[1], p.lineno(1), find_column(p.slice[1]))
+        p[0] = Identifiers(p[1], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_type_select(p):

@@ -1,9 +1,9 @@
 import ply.yacc as yacc
 
-from astDML import UpdateTable
+from astDML import UpdateTable,InsertTable
 from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, BETWEEN,ExpresionPositiva, ExpresionBetween, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
-from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano
+from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano , ExpresionAgrupacion
 from astFunciones import FuncionCadena, FuncionNumerica, FuncionTime , BitwaseBinaria , BitwaseUnaria
 from astDDL import ALTER_TABLE_ADD, ALTER_TABLE_DROP, AlterDatabase, AlterField, AlterTable, AlterTableAdd, AlterTableDrop, CONSTRAINT_FIELD, CheckField, CheckMultipleFields, ConstraintField, ConstraintMultipleFields, CreateDatabase, CreateField, CreateTable, CreateType, DefaultField, DropDatabase, DropTable, ForeignKeyField, ForeignKeyMultipleFields, ShowDatabase, TYPE_COLUMN
 from astUse import Use
@@ -460,13 +460,22 @@ def p_select30(p):
     'select : SELECT select_list'
     bnf.addProduccion('\<select> ::= "SELECT" \<select_list>')
     #______________________________________________________________ PARA IR PROBANDO EL SELECT
-    # valor = p[2][0].ejecutar(0)
-    # if valor:
-    #     if not isinstance(valor,ErrorReport):
-    #         print(valor.val)
-    #     else:
-    #         print(valor.description)
-    
+    # valor = p[2][0].evaluacionCheck(tipoColumna=1 , idCol = "colDate" , ts = None ) 
+    # # tipoColumna pueder ser un Entero  0- boleano , 1-entero o decimal ,2-cadena ,3-cadenas con formato de fecha , 5-Errores
+    # # idCol es un string case-insensitive porque adentro le doy un toLower()
+    # if valor == 0:
+    #     print("booleano")
+    # elif valor == 1:
+    #     print("numero")
+    # elif valor ==2:
+    #     print("cadena")
+    # elif valor ==3:
+    #     print("cadena de fecha")
+    # elif valor == 5:
+    #     print("Error de tipo o por ID desconocido")
+    # # con el metodo getExpresionToString  te da la cadena que evalues en el check para almacenarla  
+    # print(F'expresion evaluada: {p[2][0].getExpresionToString()}')
+
 def p_select31(p):
     'select : SELECT DISTINCT select_list'
     bnf.addProduccion('\<select> ::= "SELECT" "DISTINCT" \<select_list>')
@@ -830,27 +839,38 @@ def p_funcionesBitwase8(p):
 def p_funciones_time1(p):
     'funciones : NOW PABRE PCIERRA'
     bnf.addProduccion(f'\<funciones> ::= "{p[1].upper()}" "(" ")"')
-    
+    p[0] = FuncionTime(funcion="NOW" , linea=p.slice[1].lineno)
 def p_funciones_time2(p):
     'funciones : TIMESTAMP CADENA_NOW'
     bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "CADENA_NOW"')
+    p[0] = FuncionTime(funcion="TIMESTAMP" , parametro1=p[2],linea=p.slice[1].lineno)
 
 def p_funciones_time3(p):
     'funciones : EXTRACT PABRE opcionesTime FROM TIMESTAMP CADENA_DATE PCIERRA'
     bnf.addProduccion('\<funciones> ::= "EXTRACT" "(" \<opcionesTime> "FROM" "TIMESTAMP" "CADENA_DATE" ")"')
+    p[0] = FuncionTime(funcion="EXTRACT" , parametro1=p[3], parametro2=p[6],linea=p.slice[1].lineno)
     
 def p_funciones_time4(p):# esta cadena fijo tiene que ser minutes secods o hours
     'funciones : DATE_PART PABRE CADENA COMA INTERVAL CADENA_INTERVAL PCIERRA'
     bnf.addProduccion('\<funciones> ::= "DATE_PART" "(" "CADENA" "," "INTERVAL" "CADENA_INTERVAL" ")"')
-
+    p[0] = FuncionTime(funcion="DATE_PART" , parametro1=p[3].upper(), parametro2=p[6],linea=p.slice[1].lineno)
 def p_funciones_time5(p):
     'funciones : CURRENT_DATE'
     bnf.addProduccion('\<funciones> ::= "CURRENT_DATE"')
+    p[0] = FuncionTime(funcion="CURRENT_DATE" , linea=p.slice[1].lineno)
     
 def p_funciones_time6(p):
     'funciones : CURRENT_TIME'
     bnf.addProduccion('\<funciones> ::= "CURRENT_TIME"')
+    p[0] = FuncionTime(funcion="CURRENT_TIME" , linea=p.slice[1].lineno)
 
+def p_funciones_time7(p):
+    'funciones : CURRENT_TIMESTAMP'
+    p[0] = FuncionTime(funcion="CURRENT_TIMESTAMP" , linea=p.slice[1].lineno)
+    
+def p_funcionesAgrecacion(p):#ya
+    'funciones : aggregate_f'
+    bnf.addProduccion(f'\<funciones> ::= "(" \<aggregate_f> ")"')
       
 def p_opcionesTime(p):
     '''
@@ -1290,10 +1310,10 @@ def p_tipo_13(p):
     bnf.addProduccion(f'\<opCol> ::="{p[1].upper()}"')
     p[0] = TYPE_COLUMN.TEXT
 
-def p_tipo_14(p):
-    'tipo : timestamp'
-    bnf.addProduccion('\<opCol> ::= \<timestamp>')
-    p[0] = p[1]
+# def p_tipo_14(p):
+#     'tipo : timestamp'
+#     bnf.addProduccion('\<opCol> ::= \<timestamp>')
+#     p[0] = p[1]
 
 
 def p_tipo_15(p):
@@ -1379,14 +1399,14 @@ def p_fields(p):
 
 
 def p_time_1(p):
-    'time : TIME PABRE NUMERO PCIERRA CADENA'
-    bnf.addProduccion(f'\<time> ::= "{p[1].upper()}" "(" "NUMERO" ")" "CADENA"')
+    'time : TIME PABRE NUMERO PCIERRA CADENA_DATE'
+    bnf.addProduccion(f'\<time> ::= "{p[1].upper()}" "(" "NUMERO" ")" "CADENA_DATE"')
     p[0] = TYPE_COLUMN.TIME
 
 
 def p_time_2(p):
-    'time : TIME CADENA'
-    bnf.addProduccion(f'\<time> ::= "{p[1].upper()}" "CADENA"')
+    'time : TIME CADENA_DATE'
+    bnf.addProduccion(f'\<time> ::= "{p[1].upper()}" "CADENA_DATE"')
     p[0] = TYPE_COLUMN.TIME
 
 
@@ -1400,37 +1420,6 @@ def p_time_4(p):
     bnf.addProduccion(f'\<time> ::= "{p[1].upper()}"')
     p[0] = TYPE_COLUMN.TIME
 
-# __________________________________________ <timestamp>
-# <TIMESTAMP>
-def p_timestamp_1(p):
-    'timestamp : TIMESTAMP PABRE NUMERO PCIERRA CADENA_DATE '
-    bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "(" "NUMERO" ")" "CADENA"')
-    p[0] = TYPE_COLUMN.TIMESTAMP
-
-def p_timestamp_2(p):
-    'timestamp : TIMESTAMP  CADENA_DATE'
-    bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "CADENA"')
-    p[0] = TYPE_COLUMN.TIMESTAMP
-
-def p_timestamp_3(p):
-    'timestamp : TIMESTAMP PABRE NUMERO PCIERRA '
-    bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "(" "NUMERO" ")"')
-    p[0] = TYPE_COLUMN.TIMESTAMP
-
-def p_timestamp_4(p):
-    'timestamp : TIMESTAMP'
-    bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}"')
-    p[0] = TYPE_COLUMN.TIMESTAMP
-
-def p_timestamp_5(p):
-    'timestamp : TIMESTAMP NOW PABRE PCIERRA'
-    bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "(" ")"')
-    p[0] = TYPE_COLUMN.TIMESTAMP
-
-def p_timestamp_6(p):
-    'timestamp : TIMESTAMP CADENA_NOW'
-    bnf.addProduccion(f'\<timestamp> ::= "{p[1].upper()}" "CADENA_NOW"')
-    p[0] = TYPE_COLUMN.TIMESTAMP
 # __________________________________________ <DEFAULT>
 # <DEFAULT> ::= 'default' <VALOR>
 
@@ -1509,10 +1498,12 @@ def p_update(p):
 
 def p_sentenciaInsert(p):
     ''' insert : INSERT INTO ID VALUES PABRE lista_exp PCIERRA'''
+    p[0] = InsertTable(p[3],p[6])
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" "VALUES"  "( "\<lista_exp> ")"')
     
 def p_sentenciaInsert2(p):
     ''' insert : INSERT INTO ID parametros VALUES PABRE lista_exp PCIERRA'''
+    p[0] = InsertTable(p[3],p[7],p[4])
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" \<parametros> "VALUES"  "( "\<lista_exp> ")"') 
 # ___________________________________________PARAMETROS
 
@@ -1579,6 +1570,7 @@ def p_expresionBooleanaFalse(p):
     '''expresion : FALSE '''
     p[0] = ExpresionBooleano(False, p.slice[1].lineno)
     bnf.addProduccion('\<expresion> ::= "FALSE"')
+    
 def p_exp_auxBooleanaTrue(p):
     '''exp_aux : TRUE '''
     p[0] = ExpresionBooleano(True, p.slice[1].lineno)
@@ -1700,7 +1692,7 @@ def p_expreion_funciones(p):
 def p_expreion_entre_parentesis(p):
     'expresion : PABRE expresion  PCIERRA'
     bnf.addProduccion('\<expresion> ::= "(" \<expresion> ")"')
-    p[0] = p[2]
+    p[0] = ExpresionAgrupacion(p[2]) 
 
 def p_expresion_primitivo(p):
     'expresion : CADENA'
@@ -1731,7 +1723,7 @@ def p_expresion_tabla_campo(p):
 
 def p_expresion_cadenasDate(p):
     'expresion : CADENA_DATE'
-    p[0] = ExpresionCadena(p[1], TIPO_DE_DATO.CADENA, p.slice[1].lineno)
+    p[0] = ExpresionCadena(p[1], TIPO_DE_DATO.CADENA, p.slice[1].lineno , isFecha = True)
     bnf.addProduccion(f'\<expresion> ::= "CADENA_DATE"')
     
 def p_expresion_con_dos_nodos(p):
@@ -1812,13 +1804,21 @@ def p_exp_aux_unarias(p):
 
 
         
-def p_exp_auxp(p):
+def p_exp_auxp(p):#TIENE LO MISMO QUE EXPRESION MENOS EL AND PORQUE DABA PROBLEMA DE SHIFT reduce por eso se creo esta mini expresion
     '''exp_aux : exp_aux MAS exp_aux 
                  | exp_aux MENOS exp_aux
                  | exp_aux ASTERISCO exp_aux
                  | exp_aux DIVISION exp_aux 
+                 | exp_aux MAYOR exp_aux 
+                 | exp_aux MENOR exp_aux
+                 | exp_aux MAYORIGUAL exp_aux
+                 | exp_aux MENORIGUAL exp_aux
+                 | exp_aux DIFERENTE exp_aux
+                 | exp_aux DIFERENTE2 exp_aux
+                 | exp_aux IGUAL exp_aux
                  | exp_aux EXPONENT exp_aux
                  | exp_aux MODULO exp_aux
+                 | exp_aux OR exp_aux
     '''
     bnf.addProduccion(f'\<exp_aux> ::= \<exp_aux> "{p.slice[2].value}" \<exp_aux>')
     if p[2] == '+':
@@ -1833,11 +1833,34 @@ def p_exp_auxp(p):
         p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.MODULO, p.slice[2].lineno)
     elif p[2] == '^':
         p[0] = ExpresionAritmetica(p[1], p[3], OPERACION_ARITMETICA.EXPONENTE, p.slice[2].lineno)
-#          | '(' <EXP_AUX> ')'
+    elif p[2] == '<':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MENOR, p.slice[2].lineno)
+    elif p[2] == '>':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MAYOR, p.slice[2].lineno)
+    elif p[2] == '<=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MENORIGUAL, p.slice[2].lineno)
+    elif p[2] == '>=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.MAYORIGUAL, p.slice[2].lineno)
+    elif p[2] == '=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.IGUAL, p.slice[2].lineno)
+    elif p[2] == '<>':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.DESIGUAL, p.slice[2].lineno)
+    elif p[2] == '!=':
+        p[0] = ExpresionComparacion(p[1], p[3], OPERACION_RELACIONAL.DESIGUAL, p.slice[2].lineno)
+    elif p[2] == 'or':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.OR, p.slice[2].lineno)
+    elif p[2] == 'OR':
+        p[0] = ExpresionLogica(p[1], p[3], OPERACION_LOGICA.OR, p.slice[2].lineno)
+
+def p_expr_aux_cadenasDate(p):
+    'exp_aux : CADENA_DATE'
+    p[0] = ExpresionCadena(p[1], TIPO_DE_DATO.CADENA, p.slice[1].lineno , isFecha = True)
+    bnf.addProduccion(f'\<exp_aux> ::= "CADENA_DATE"')
+            
 def p_exp_aux_entre_parentesis(p):
     'exp_aux : PABRE exp_aux  PCIERRA'
     bnf.addProduccion('\<exp_aux> ::= "(" \<exp_aux> ")"')
-    p[0] = p[2]
+    p[0] = ExpresionAgrupacion(p[2]) 
 #          | 'cadena'
 def p_exp_aux_cadena(p):
     'exp_aux :  CADENA'
@@ -1958,10 +1981,10 @@ def p_select_item2(p):
         bnf.addProduccion('\<select_item> ::= \<count>')
         p[0] = p[1]
 #                  | <AGGREGATE_F>
-def p_select_item3(p):
-        'select_item : aggregate_f'
-        bnf.addProduccion('\<select_item> ::= \<aggregate_f>')
-        p[0] = p[1]
+# def p_select_item3(p):# AHORA ESTAS ESTARAN EN LA PROCUCCION >FUNCIONES>
+#         'select_item : aggregate_f'
+#         bnf.addProduccion('\<select_item> ::= \<aggregate_f>')
+#         p[0] = p[1]
 #                  | <SUBQUERY>
 def p_select_item4(p):
         'select_item : subquery'
@@ -2008,20 +2031,20 @@ def p_count2(p):
 
 #    <AGGREGATE_F> ::= 'sum' '(' 'id' ')'
 def p_aggregate_f(p):
-        'aggregate_f : SUM PABRE ID PCIERRA'
-        bnf.addProduccion('\<aggregate_f> ::= "SUM" "(" "ID" ")"')
+        'aggregate_f : SUM PABRE exp_aux PCIERRA'
+        bnf.addProduccion('\<aggregate_f> ::= "SUM" "(" \<exp_aux> ")"')
 #                |     'avg' '(' 'id' ')'
 def p_aggregate_f1(p):
-        'aggregate_f : AVG PABRE ID PCIERRA'
-        bnf.addProduccion('\<aggregate_f> ::= "AVG" "(" "ID" ")"')
+        'aggregate_f : AVG PABRE exp_aux PCIERRA'
+        bnf.addProduccion('\<aggregate_f> ::= "AVG" "(" \<exp_aux> ")"')
 #                |     'max' '(' 'id' ')'
 def p_aggregate_f2(p):
-        'aggregate_f : MAX PABRE ID PCIERRA'
-        bnf.addProduccion('\<aggregate_f> ::= "MAX" "(" "ID" ")"')
+        'aggregate_f : MAX PABRE exp_aux PCIERRA'
+        bnf.addProduccion('\<aggregate_f> ::= "MAX" "(" \<exp_aux> ")"')
 #                |     'min' '(' 'id' ')'
 def p_aggregate_f3(p):
-        'aggregate_f : MIN PABRE ID PCIERRA'
-        bnf.addProduccion('\<aggregate_f> ::= "MIN" "(" "ID" ")"')
+        'aggregate_f : MIN PABRE exp_aux PCIERRA'
+        bnf.addProduccion('\<aggregate_f> ::= "MIN" "(" \<exp_aux> ")"')
 
 #    <CASE> ::= 'case' <SUBCASE> <ELSE_CASE> 'end'
 def p_case(p):
@@ -2090,7 +2113,11 @@ def p_alias2(p):
 
 def p_error(p):
     print(p)
-    print("Error sintáctico en '%s'" % p.value)
+    try:
+        print("Error sintáctico en '%s'" % p.value)
+    except:
+        print("no se recupero del error porque no encontro punto y coma")
+
 
 
 
@@ -2102,11 +2129,12 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada(''' 
-select  -2 * ~ 20;
-
+INSERT INTO TbTest (Col1,Coltres,ColCuatro) VALUES (103,'Prueba',123);
 ''')
 
-# arbolParser.ejecutar()
+
+
+arbolParser.ejecutar()
 # print(arbolParser)
 #arbolParser.dibujar()#viendo el resultado: 
 

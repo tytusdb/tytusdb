@@ -113,7 +113,7 @@ class ArbolAVLR:
             self.__graficar(self.root, self.get_root().get_right(), False)
 
         self.cadena += "}\n"
-        print(self.cadena)
+        
         return self.cadena
 
     def get_root(self):
