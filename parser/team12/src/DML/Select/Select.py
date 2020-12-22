@@ -31,6 +31,7 @@ class Select():
     def insertaDatos(self):
         truncate(self.dbUse,'EMPLEADO')
         truncate(self.dbUse,'PUESTO')
+        truncate(self.dbUse,'EMPLEADO_PUESTO')
         db="EMPLEADO"
         insert(self.dbUse,db,[1,"Juan Perez"])
         insert(self.dbUse,db,[2,"Daniel Perez"])
@@ -47,6 +48,13 @@ class Select():
         insert(self.dbUse,db,[3,"Jefe"])
         insert(self.dbUse,db,[4,"Sistemas"])
         insert(self.dbUse,db,[5,"Otro Jefe"])
+
+        db = "EMPLEADO_PUESTO"
+        insert(self.dbUse,db,[1,1])
+        insert(self.dbUse,db,[2,2])
+        insert(self.dbUse,db,[3,1])
+        insert(self.dbUse,db,[4,2])
+        insert(self.dbUse,db,[5,1])
 
     def verificarDBActiva(self):
         with open('src/Config/Config.json') as file:
@@ -133,7 +141,12 @@ class Select():
                 self.llenarEstructura(hijo)
                 self.llenarListaTablaDatos()
                 matrizResultado = self.cartesiano(self.listaTablasDatos)
-        self.mostrarResultado(matrizResultado)
+        #self.mostrarResultado(matrizResultado)
+
+        list_exp = parent.hijos[0]
+
+        for exp in list_exp.hijos:
+            exp.execute(self.listaTablas)
 
 
 
