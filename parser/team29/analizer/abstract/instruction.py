@@ -84,16 +84,24 @@ class SelectParams(Instruction):
 
 
 class Select(Instruction):
-    def __init__(self, params, fromcl, wherecl, row, column):
+    def __init__(self, params, fromcl, wherecl, groupbyCl, havingCl, row, column):
         Instruction.__init__(self, row, column)
         self.params = params
         self.wherecl = wherecl
         self.fromcl = fromcl
+        self.groupbyCl = groupbyCl
+        self.havingCl = havingCl
 
     def execute(self, environment):
         try:
             newEnv = Environment(environment, dbtemp)
             self.fromcl.execute(newEnv)
+            if self.wherecl != None:
+                self.wherecl.execute(newEnv)
+            if self.groupbyCl != None:
+                newEnv.groupCols = len(self.groupbyCl)
+            groupDf = None
+            groupEmpty = True
             if self.params:
                 params = []
                 for p in self.params:
@@ -104,20 +112,53 @@ class Select(Instruction):
                     else:
                         params.append(p)
                 labels = [p.temp for p in params]
-                value = [p.execute(newEnv).value for p in params]
+                if self.groupbyCl != None:
+                    value = []
+                    for i in range(len(params)):
+                        ex = params[i].execute(newEnv)
+                        val = ex.value
+                        newEnv.types[labels[i]] = ex.type
+                        # Si no es columna de agrupacion
+                        if(i < len(self.groupbyCl)):
+                            newEnv.dataFrame = pd.concat([newEnv.dataFrame, val], axis=1)
+                        else:
+                            if groupEmpty:
+                                countGr = newEnv.groupCols
+                                # Obtiene las ultimas columnas metidas (Las del group by)
+                                df = newEnv.dataFrame.iloc[:, -countGr:]
+                                cols = list(df.columns)[:]
+                                groupDf = df.groupby(cols).sum().reset_index()
+                                groupDf = pd.concat([groupDf, val], axis=1)
+                                groupEmpty = False
+                            else:
+                                groupDf = pd.concat([groupDf, val], axis=1)                                         
+                else:
+                    value = [p.execute(newEnv).value for p in params]
+
             else:
                 value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
                 labels = [p for p in newEnv.dataFrame]
-            for i in range(len(labels)):
-                newEnv.dataFrame[labels[i]] = value[i]
-            if self.wherecl == None:
-                return newEnv.dataFrame.filter(labels)
-            wh = self.wherecl.execute(newEnv)
-            w2 = wh.filter(labels)
-            # Si la clausula WHERE devuelve un dataframe vacio
-            if w2.empty:
-                return None
-            return [w2, newEnv.types]
+
+            if value != []:
+                for j in range(len(labels)):
+                    newEnv.types[labels[j]] = value[j].type
+                for i in range(len(labels)):
+                    newEnv.dataFrame[labels[i]] = value[i] 
+                if self.wherecl == None:
+                    return [newEnv.dataFrame.filter(labels), newEnv.types]
+                w2 = newEnv.dataFrame.filter(labels)
+                # Si la clausula WHERE devuelve un dataframe vacio
+                if w2.empty:
+                    return None
+                return [w2, newEnv.types]
+            else:
+                newNames = {}
+                i = 0
+                for (columnName, columnData) in groupDf.iteritems():
+                        newNames[columnName] = labels[i]
+                        i += 1
+                groupDf.rename(columns=newNames, inplace=True)
+                return [groupDf, newEnv.types]
         except:
             raise
 
@@ -256,7 +297,9 @@ class WhereClause(Instruction):
 
     def execute(self, environment):
         filt = self.series.execute(environment)
-        return environment.dataFrame.loc[filt.value]
+        df = environment.dataFrame.loc[filt.value]
+        environment.dataFrame = df.reset_index()
+        return df
 
     def dot(self):
         new = Nodo.Nodo("WHERE")
@@ -1002,3 +1045,9 @@ class CheckOperation(Instruction):
                 len(sintaxPostgreSQL), "Error: XX000: Error interno"
             )
             print("Error fatal CHECK")
+
+
+class limitClause(Instruction):
+    def __init__(self, row, column) -> None:
+        super().__init__(row, column)
+        

@@ -1,4 +1,7 @@
 import tabla_simbolos as TS
+import Errores as E
+
+base_actual = None
 
 class Instruccion():
     def __init__(self, tipo, instruccion):
@@ -35,23 +38,69 @@ class AlterTable():
         print('references : ' + str(self.ref))
 
 class CreateDB():
-    def __init__(self, id, owner, mode):
-        self.id = id
-        self.owner = owner
-        self.mode = mode
+    def __init__(self, replace, ifnot, id, owner, mode):    # boolean, boolean, string, string, integer
+        self.replace = replace                              # si existe, la reemplaza/modifica
+        self.ifnot = ifnot                                  # si existe, no la crea
+        self.id = id                                        # nombre de la base de datos
+        self.owner = owner                                  # nombre/id del creador
+        self.mode = mode                                    # modo de almacenamiento
 
-    def execute(self):
-        print('Ejecutando Create DB')
-        print('db id : ' + str(self.id))
-        print('owner : ' + str(self.owner))
-        print('mode : ' + str(self.mode))
+    def execute(self, ts_global):
+        print('----> EJECUTAR CREATE DATABASE')
+        nueva_base = TS.Simbolo(self.id, TS.tipo_simbolo.DATABASE, None, None, None, None, None, None)
+        existe = False                                      # bandera para comprobar si existe
+        bases = ts_global.get_databases()                   # obtiene todas las bases de datos
+        for base in bases:                                  # recorro la lista de bases de datos
+            if base.id == self.id:                          # y verifico si existe
+                existe = True                               # si existe, cambio el valor de la bandera
+                break                                       # y salgo de la comprobación
+        if not self.ifnot:                                  # si no viene "IF NOT EXISTS", se crea/reemplaza
+            if self.replace:                                # si viene "OR REPLACE"
+                if existe:                                  # si existe la base de datos
+                    ts_global.drop_db(self.id)              # se elimina, luego
+                ts_global.agregar_simbolo(nueva_base)       # se agrega el nuevo símbolo
+            else:                                           # si no viene "OR REPLACE"
+                if existe:                                  # si existe, es un error
+                    nuevo_error = E.Errores('Semántico.', 'Ya existe una base de datos con el nombre \'' + self.id + '\'.')
+                    #ls_error.append(nuevo_error)            #se agrega el error a la lista
+                else:                                       # si no existe
+                    ts_global.agregar_simbolo(nueva_base)   # se agrega el nuevo símbolo
+        else:                                               # si sí viene "IF NOT EXISTS"
+            if self.replace:                                # si viene "OR REPLACE", es error
+                nuevo_error = E.Errores('Semántico.', 'No pueden venir conjuntamente las cláusulas \'OR REPLACE\' e \'IF NOT EXISTS\'.')
+                #ls_error.append(nuevo_error)                #se agrega el error a la lista
+            else:                                           # si no viene "OR REPLACE"
+                if not existe:                              # si no existe la base de datos
+                    ts_global.agregar_simbolo(nueva_base)   # se agrega el nuevo símbolo, de lo contrario no se hace nada
+
+class UseDB():
+    def __init__(self, id):                                 # string
+        self.id = id                                        # nombre de la base de datos
+
+    def execute(self, ts_global):
+        print('----> EJECUTAR USE')
+        bases = ts_global.get_databases()                   # obtiene todas las bases de datos
+        for base in bases:                                  # verifico si existe:
+            if base.id == self.id:                          # si sí existe, retorno el id
+                ts_global.agregar_simbolo((TS.Simbolo(base.id,TS.tipo_simbolo.DB_ACTUAL,None,None,None,None,None,None))) #se agrega el simbolo db_actual
+                return self.id                              # si no, es error
+        new_error = E.Errores('Semántico.', 'La base de datos \'' + self.id + '\' no existe.')
+        print('******************************')
+        #ls_error.append(new_error)                          #se agrega el error a la lista
+        return None                                         # y retorno None
 
 class ShowDB():
     def __init__(self):
         print('show')
 
-    def execute(self):
-        print('Ejecutando ShowDB')
+    def execute(self, ts_global):
+        bases = ts_global.get_databases()                   # obtiene todas las bases de datos
+        if len(bases) == 0:                                 # si no hay bases de datos
+            return '\n\tNo hay bases de datos creadas.\n'   # se retorna un mensaje
+        respuesta = '\n'                                    # de lo contrario,
+        for base in bases:                                  # recorre la lista,
+            respuesta = respuesta + '\t' + base.id + '\n'   # se concatenan los nombres
+        return respuesta + '\n'                             # y los retorna
 
 class Drop():
     def __init__(self, id):
@@ -62,22 +111,45 @@ class Drop():
         print('id : ' + self.id)
 
 class CreateTable():
-    def __init__(self, id, base, cols, inh):
-        self.id = id,
+    def __init__(self, id, base, cols, inh,cont_key):
+        self.id = id
         self.base = base
         self.cols = cols
         self.inh = inh
+        self.cont_key = cont_key
         
     def execute(self,ts):
-        print('Ejecutando Creare Table')
-        print('id : ' + str(self.id))
-        for col in self.cols :
-            print('col id : ' + str(col.id))
-            print('col type : ' + str(col.tipo))
+        print('----> EJECUTAR CREATE TABLE * '+str(self.id))
+        self.base = ts.get_dbActual().id
+        if(isinstance(self.base,E.Errores)):
+            #no hay base Activa
+            print('***************************error - no hay base activa********************')
+            return
+        #creamos la tabla
+        new_tabla = TS.Simbolo(self.id,TS.tipo_simbolo.TABLE,None,self.base,None,None,None,None)
+        #insertamos la tabla a la ts
+        verificar_tabla=ts.agregar_tabla(str(self.base), new_tabla)
+        if(isinstance(verificar_tabla,E.Errores)):
+            print('***************************error********************')
+        else:
+            print('se agrego')
+        #agregamos las columnas a la tabla
+        for columna in self.cols:
+            columna.base = self.base
+            print(columna.id +' - '+ str(columna.tipo))
+            for const in columna.valor:
+                if(const.tipo == TS.t_constraint.PRIMARY):
+                    columna.pk = True
+                    columna.valor.remove(const)
+                elif (const.tipo == TS.t_constraint.FOREIGN):
+                    columna.fk = True
+                    columna.referencia = str(const.id)+','+str(const.valor)
+                    columna.valor.remove(const)
 
-
-        if self.inh != None :
-            print('Inherit : ' + self.inh)
+                if columna.longitud == None:
+                    columna.longitud =0
+            
+            ts.agregar_columna(self.id,self.base,columna)
 
 
 class Insert():
@@ -91,14 +163,6 @@ class Insert():
         print('id : ' + str(self.id))
         for val in self.vals:
             print('value : ' + str(val))
-
-class UseDB():
-    def __init__(self, id):
-        self.id = id
-
-    def execute(self):
-        print('Ejecutando Use DB')
-        print('id : ' + self.id)
 
 class Delete():
     def __init__(self, id, cond):
@@ -137,107 +201,4 @@ def create_table(db, nombre, columnas, ts):
 def create_column(db, tabla, columna, tipo, ts):
     nueva_columna = TS.Simbolo(columna,TS.tipo_simbolo.INTEGER,None,db,0,True,False,None)
     agregar = ts.agregar_columna(tabla, db, nueva_columna)
-class CreateDB():
-    def __init__ (self, replace, ifnot, iden, owner, mode): # boolean, boolean, string, string, integer
-        self.replace = replace                              # si existe, la reemplaza/modifica
-        self.ifnot = ifnot                                  # si existe, no la crea
-        self.iden = iden                                    # nombre de la base de datos
-        self.owner = owner                                  # nombre/id del creador
-        self.mode = mode                                    # modo de almacenamiento
-    
-    def ejecutar(self):
-        nueva_base = TS.Simbolo(self.iden, TS.tipo_simbolo.DATABASE, None, None, None, None, None, None)
-        existe = False
-        bases = ts_global.get_databases()                   # obtiene todas las bases de datos
-        for base in bases:
-            if base.id == self.iden:                        # verifico si existe
-                existe = True
-                break
-        if not self.ifnot:                                  # si no viene "IF NOT EXISTS", se crea
-            if self.replace:                                # si viene "OR REPLACE"
-                if existe:                                  # si existe la base de datos, se elimina
-                    ts_global.drop_db(self.iden)
-                ts_global.agregar_simbolo(nueva_base)              # se agrega el nuevo símbolo
-            else:                                           # si no viene "OR REPLACE"
-                if existe:                                  # si existe, es un error
-                    nuevo_error = E.Errores('Semántico.', 'Ya existe una base de datos con el nombre \'' + self.iden + '\'.')
-                    #ls_error.append(nuevo_error)
-                    print(nuevo_error.error)
-                else:                                       # si no existe
-                    ts_global.agregar_simbolo(nueva_base)          # se agrega el nuevo símbolo
-        else:                                               # si viene "IF NOT EXISTS"
-            if self.replace:                                # si viene "OR REPLACE", es error
-                nuevo_error = E.Errores('Semántico.', 'No pueden venir conjuntamente las cláusulas \'OR REPLACE\' e \'IF NOT EXISTS\'.')
-                #ls_error.append(nuevo_error)
-                print(nuevo_error.error)
-            else:
-                if not existe:                              # si existe la base de datos, no se crea, si no
-                    ts_global.agregar_simbolo(nueva_base)          # se agrega el nuevo símbolo
-class UseDB():
-    def __init__(self, iden):                               # string
-        self.iden = iden                                    # nombre de la base de datos
-    def ejecutar(self):
-        bases = ts_global.get_databases()                   # obtiene todas las bases de datos
-        for base in bases:
-            if base.id == self.iden:                        # verifico si existe
-                return self.iden
-        new_error = E.Errores('Semántico.', 'La base de datos \'' + self.iden + '\' no existe.')
-        #ls_error.append(new_error)
-        print(new_error.error)
-        return None
-class ShowDB():
-    def ejecutar(self):
-        bases = ts_global.get_databases()                   # obtiene todas las bases de datos
-        respuesta = '\n'
-        for base in bases:
-            respuesta = respuesta + '\t' + base.id + '\n'   # concatena los nombres y los retorna
-        return respuesta + '\n'
-class InsertT():
-    def __init__(self, tabla, base, campos, valores):       # string, string, [string], [string]
-        self.tabla = tabla
-        self.base = base
-        self.campos = campos
-        self.valores = valores
-    def ejecutar(self):
-        if self.base == None:
-            nuevo_error = E.Errores('Semántico.', 'No se ha seleccionado una base de datos.')
-            #ls_error.append(nuevo_Error)
-            return
-        tabla = ts_global.get_table(self.base, self.tabla)
-        if tabla == None:
-            nuevo_error = E.Errores('Semántico.', 'No se ha encontrado la tabla solicitada.')
-            ls_error.append(nuevo_Error)
-            return
-        c_campos = -1
-        if self.campos != None:
-            columna = None
-            errores = False
-            c_campos = 0
-            for campo in self.campos:
-                columna = ts_global.get_column(self.base, self.tabla, campo)
-                c_campos = c_campos + 1
-                if columna == None:
-                    new_error = E.Errores('Semántico.', 'No existe el campo \'' + columna.id + '\' en la tabla \'' + self.tabla + '\'.')
-                    #ls_error.append(nuevo_Error)
-                    print(new_error.error)
-                    errores = True
-                elif columna.error != None:
-                    #ls_error.append(nuevo_Error)
-                    print(columna.error)
-                    errores = True
-            if errores:
-                return
-        c_valores = 0
-        for valor in self.valores:
-            c_valores = c_valores + 1
-        if c_campos == -1:
-            print('no trae campos, verifica cantidad de campos e inserta en todos')
-        elif c_campos == 0:
-            print('error al obtener los campos')
-        elif c_campos != c_valores:
-            new_error = E.Errores('Semántico.', 'La cantidad de campos a ingresar no coincide con la cantidad de valores.')
-            #ls_error.append(nuevo_Error)
-            print(new_error.error)
-        else:
-            print('inserción')
 '''
