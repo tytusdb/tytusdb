@@ -7,23 +7,31 @@ import pathlib
 from campo import Campo
 from arbol import Arbol
 import http.client
+import json
+
 formularios=[]
 textos=[]
 control=0
 notebook= None
+
+#Variables para simular credenciales
+username = "admin"
+password = "admin"
+
 #Metodo GET para probar peticiones al servidor
 def myGET():
     myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
     headers = {
-        "Content-type": "text/plain"
+        "Content-type": "application/json"
     }
 
-    myConnection.request("GET", "/data/database.tytus", "", headers)
+    myConnection.request("GET", "/getUsers", "", headers)
     response = myConnection.getresponse()
-    print("Status: {} and reason: {}".format(response.status, response.reason))
-    myData = response.read()
-    print(myData.decode("utf-8") )
+    print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()   
+        print(data.decode("utf-8"))
     myConnection.close()
 
 #Metodo POST para probar peticiones al servidor
@@ -31,17 +39,24 @@ def myPOST():
     myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
     headers = {
-        "Content-type": "text/plain"
+        "Content-type": "application/json"
     }
 
-    postData = "Test http.server from http.client :D"
+    #Data en formato json
+    jsonData = { "username": username, "password": password }
+    myJson = json.dumps(jsonData)
 
-    myConnection.request("POST", "/", postData, headers)
+    myConnection.request("POST", "/checkLogin", myJson, headers)
     response = myConnection.getresponse()
-    print("Status: {} and reason: {}".format(response.status, response.reason))
-    myData = response.read()
-    print(myData.decode("utf-8") )
-    myConnection.close()   
+    print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()
+        result = data.decode("utf-8")
+        if result == "true":
+            print("Usuario loggeado correctamente.")
+        else:
+            print("Datos invalidos o usuario inexistente.")
+    myConnection.close()
 
 
 def CrearMenu(masterRoot):
@@ -82,8 +97,8 @@ def CrearMenu(masterRoot):
     tools.add_command(label="Configuración")
     tools.add_command(label="Utilidades")
     #Temporary tools to test client-server connection
-    tools.add_command(label="SELECT (GET)", command = myGET)
-    tools.add_command(label="CREATE (POST)", command = myPOST)
+    tools.add_command(label="GET", command = myGET)
+    tools.add_command(label="POS", command = myPOST)
     
 
     #se agrega ayuda
