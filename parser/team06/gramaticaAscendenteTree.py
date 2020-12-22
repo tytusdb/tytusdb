@@ -508,6 +508,43 @@ def p_crearBaseDatos_1(t):
     t[0] = nodeFather
 
 def p_crearBaseDatos_2(t):
+    'crearBD    : CREATE DATABASE IF NOT EXISTS ID PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CREARBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CREATE'
+    print(t[1])
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'DATABASE'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'IF'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'NOT'
+    nodeSon4.lexeme = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'EXISTS'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = nodeAst()
+    nodeSon6.token = 'ID'
+    nodeSon6.lexeme = t[6]
+    nodeFather.son.append(nodeSon6)
+
+    t[0] = nodeFather   
+def p_crear_replace_BaseDatos_1(t):
     'crearBD    : CREATE OR REPLACE DATABASE ID PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREARBD'
@@ -540,14 +577,126 @@ def p_crearBaseDatos_2(t):
 
     t[0] = nodeFather
 
-def p_crearBaseDatos_3(t):
-    'crearBD    : CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA'
+def p_crear_replace_BaseDatos_2(t):
+    'crearBD    : CREATE OR REPLACE DATABASE IF NOT EXISTS ID PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREARBD'
 
     nodeSon1 = nodeAst()
     nodeSon1.token = 'CREATE'
     print(t[1])
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'OR'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'REPLACE'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'DATABASE'
+    nodeSon4.lexeme = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'IF'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = nodeAst()
+    nodeSon6.token = 'NOT'
+    nodeSon6.lexeme = t[6]
+    nodeFather.son.append(nodeSon6)
+
+    nodeSon7 = nodeAst()
+    nodeSon7.token = 'EXISTS'
+    nodeSon7.lexeme = t[7]
+    nodeFather.son.append(nodeSon7)
+
+    nodeSon8 = nodeAst()
+    nodeSon8.token = 'ID'
+    nodeSon8.lexeme = t[8]
+    nodeFather.son.append(nodeSon8)
+
+    t[0] = nodeFather
+
+def p_crear_param_BaseDatos_1(t):
+    'crearBD    : CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CREARBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CREATE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'DATABASE'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'ID'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
+
+def p_crear_param_BaseDatos_2(t):
+    'crearBD    : CREATE  DATABASE IF NOT EXISTS ID parametrosCrearBD PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CREARBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CREATE'
+    nodeSon1.lexeme = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'DATABASE'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'IF'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'NOT'
+    nodeSon4.lexeme = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'EXISTS'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = nodeAst()
+    nodeSon6.token = 'ID'
+    nodeSon6.lexeme = t[6]
+    nodeFather.son.append(nodeSon6)
+
+    nodeSon7 = t[7]
+    nodeFather.son.append(nodeSon7)
+
+    t[0] = nodeFather
+
+def p_crear_replace_param_BaseDatos_1(t):
+    'crearBD    : CREATE OR REPLACE DATABASE ID parametrosCrearBD PUNTOYCOMA'
+    nodeFather = nodeAst()
+    nodeFather.token = 'CREARBD'
+
+    nodeSon1 = nodeAst()
+    nodeSon1.token = 'CREATE'
     nodeSon1.lexeme = t[1]
     nodeFather.son.append(nodeSon1)
 
@@ -576,8 +725,8 @@ def p_crearBaseDatos_3(t):
 
     t[0] = nodeFather
 
-def p_crearBaseDatos_4(t):
-    'crearBD    : CREATE  DATABASE ID parametrosCrearBD PUNTOYCOMA'
+def p_crear_replace_param_BaseDatos_2(t):
+    'crearBD    : CREATE OR REPLACE DATABASE IF NOT EXISTS ID parametrosCrearBD PUNTOYCOMA'
     nodeFather = nodeAst()
     nodeFather.token = 'CREARBD'
 
@@ -587,21 +736,45 @@ def p_crearBaseDatos_4(t):
     nodeFather.son.append(nodeSon1)
 
     nodeSon2 = nodeAst()
-    nodeSon2.token = 'DATABASE'
+    nodeSon2.token = 'OR'
     nodeSon2.lexeme = t[2]
     nodeFather.son.append(nodeSon2)
 
     nodeSon3 = nodeAst()
-    nodeSon3.token = 'ID'
+    nodeSon3.token = 'REPLACE'
     nodeSon3.lexeme = t[3]
     nodeFather.son.append(nodeSon3)
 
-    nodeSon4 = t[4]
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'DATABASE'
+    nodeSon4.lexeme = t[4]
     nodeFather.son.append(nodeSon4)
 
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'IF'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = nodeAst()
+    nodeSon6.token = 'NOT'
+    nodeSon6.lexeme = t[6]
+    nodeFather.son.append(nodeSon6)
+
+    nodeSon7 = nodeAst()
+    nodeSon7.token = 'EXISTS'
+    nodeSon7.lexeme = t[7]
+    nodeFather.son.append(nodeSon7)
+
+    nodeSon8 = nodeAst()
+    nodeSon8.token = 'ID'
+    nodeSon8.lexeme = t[8]
+    nodeFather.son.append(nodeSon8)
+
+
+    nodeSon9 = t[9]
+    nodeFather.son.append(nodeSon9)
+
     t[0] = nodeFather
-
-
 def p_parametrosCrearBD_1(t):
     'parametrosCrearBD : parametrosCrearBD parametroCrearBD'
     nodeFather = nodeAst()
@@ -1834,56 +2007,307 @@ def p_funcion_basica(t):
         h.reporteGramatical1 +="funcionBasica    ::=      COSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
 #JPI    
     elif t[1].upper()=="TANH":
-        t[0]=ExpresionTANH(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      TANH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'TANH'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
+
     elif t[1].upper()=="ASINH":
-        t[0]=ExpresionASINH(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ASINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'ASINH'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
+
     elif t[1].upper()=="ACOSH":
-        t[0]=ExpresionACOSH(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ACOSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'ACOSH'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
+
     elif t[1].upper()=="ATANH":
-        t[0]=ExpresionATANH(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      ATANH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-   
-   
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
 
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'ATANH'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
 
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
+   
     elif t[1].upper()=="LENGTH":
-        h.reporteGramatical1 +="funcionBasica    ::=      LENGTH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'LENGTH'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
+
     elif t[1].upper()=="TRIM":
-        h.reporteGramatical1 +="funcionBasica    ::=      TRIM PARENTESISIZQUIERDA opcionTrim operacion FROM operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'TRIM'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon4 = t[4]
+        nodeFather.son.append(nodeSon4)
+
+        nodeSon5 = nodeAst()
+        nodeSon5.token = 'FROM'
+        nodeSon5.lexeme = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        nodeSon6 = t[6]
+        nodeFather.son.append(nodeSon6)
+
+        t[0] = nodeFather
+   
+    elif t[1].upper()=="LENGTH":
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'LENGTH'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
     elif t[1]=="GET_BYTE":
-        h.reporteGramatical1 +="funcionBasica    ::=      GET_BYTE PARENTESISIZQUIERDA operacion COMA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'GET_BYTE'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon5 = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        t[0] = nodeFather
+
     elif t[1].upper()=="MD5":
-        h.reporteGramatical1 +="funcionBasica    ::=      MD5 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'MD5'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
     elif t[1].upper()=="SET_BYTE":
-        h.reporteGramatical1 +="funcionBasica    ::=      SET_BYTE PARENTESISIZQUIERDA operacion COMA operacion COMA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'SET_BYTE'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon5 = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        nodeSon7 = t[7]
+        nodeFather.son.append(nodeSon7)
+
+        t[0] = nodeFather
     elif t[1].upper()=="SHA256":
-        h.reporteGramatical1 +="funcionBasica    ::=      SHA256 PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'SHA256'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
     elif t[1].upper()=="SUBSTR":
-        h.reporteGramatical1 +="funcionBasica    ::=      SUBSTR PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'SUBSTR'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon5 = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        nodeSon7 = t[7]
+        nodeFather.son.append(nodeSon7)
+
+        t[0] = nodeFather
     elif t[1].upper()=="CONVERT":
-        h.reporteGramatical1 +="funcionBasica    ::=      CONVERT PARENTESISIZQUIERDA operacion  COMA operacion COMA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'CONVERT'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon5 = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        nodeSon7 = t[7]
+        nodeFather.son.append(nodeSon7)
+
+        t[0] = nodeFather
     elif t[1].upper()=="ENCODE":
-        h.reporteGramatical1 +="funcionBasica    ::=      ENCODE  PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'ENCODE'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon5 = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        t[0] = nodeFather
     elif t[1].upper()=="DECODE":
-        h.reporteGramatical1 +="funcionBasica    ::=      DECODE  PARENTESISIZQUIERDA operacion  COMA operacion  PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'DECODE'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        nodeSon5 = t[5]
+        nodeFather.son.append(nodeSon5)
+
+        t[0] = nodeFather
     elif t[1].upper()=="AVG":
-        h.reporteGramatical1 +="funcionBasica    ::=      AVG PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'AVG'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
+
     elif t[1].upper()=="SUM":
-        h.reporteGramatical1 +="funcionBasica    ::=      SUM PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'SUM'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
 
     elif t[1].upper()=="GREATEST":
-        t[0]=ExpresionGREATEST(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      GREATEST PARENTESISIZQUIERDA select_list PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'GREATEST'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
     elif t[1].upper()=="LEAST":
-        t[0]=ExpresionLEAST(t[3])
-        h.reporteGramatical1 +="funcionBasica    ::=      LEAST PARENTESISIZQUIERDA select_list PARENTESISDERECHA\n"
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'LEAST'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)
+
+        nodeSon3 = t[3]
+        nodeFather.son.append(nodeSon3)
+
+        t[0] = nodeFather
     elif t[1].upper()=="NOW":
-        t[0]=ExpresionNOW(1)
-        h.reporteGramatical1 +="funcionBasica    ::=      NOW PARENTESISIZQUIERDA  PARENTESISDERECHA\n"
-   
+        nodeFather = nodeAst()
+        nodeFather.token = 'funcionBasica'
+
+        nodeSon1 = nodeAst()
+        nodeSon1.token = 'NOW'
+        nodeSon1.lexeme = t[1]
+        nodeFather.son.append(nodeSon1)   
     else:
         print("no entra a ninguna en funcionBasica")
 #JPI
@@ -3147,44 +3571,146 @@ def p_funcion_basica_6(t):
 #JPI
 def p_funcion_basica_7(t):
     'funcionBasica   : operacion NOT BETWEEN operacion'
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion NOT BETWEEN operacion AND operacion\n"
-    h.reporteGramatical2 +="t[0]=ExpresionNotBetween(t[1],t[4])\n"
-    print("entra al NOT between con sus operaciones")
-    print(t[1])
-    print(t[3])
-    t[0]=ExpresionNotBetween(t[1],t[4])
+    nodeFather = nodeAst()
+    nodeFather.token = 'funcionBasica'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NOT'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'BETWEEN'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
 
 
 def p_funcion_basica_8(t):
     'funcionBasica   : operacion  BETWEEN SYMMETRIC operacion '
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion  BETWEEN SYMMETRIC operacion AND operacion\n"
-    h.reporteGramatical2 +="t[0]=ExpresionBetweenSymmetric(t[1],t[4])\n"
-    t[0]=ExpresionBetweenSymmetric(t[1],t[4])
+    nodeFather = nodeAst()
+    nodeFather.token = 'funcionBasica'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'BETWEEN'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'SYMMETRIC'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    t[0] = nodeFather
 
 def p_funcion_basica_9(t):
     'funcionBasica   : operacion NOT BETWEEN SYMMETRIC operacion '
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion NOT BETWEEN SYMMETRIC operacion AND operacion\n"
-    h.reporteGramatical2 +="t[0]=ExpresionNotBetweenSymmetric(t[1],t[5])\n"
-    t[0]=ExpresionNotBetweenSymmetric(t[1],t[5])
+    nodeFather = nodeAst()
+    nodeFather.token = 'funcionBasica'
 
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'NOT'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'BETWEEN'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'SYMMETRIC'
+    nodeSon4.lexeme = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    t[0] = nodeFather
 
 def p_funcion_basica_10(t):
-    '''funcionBasica : operacion IS DISTINCT FROM operacion                            
-    '''
-    h.reporteGramatical1 +="funcionBasica    ::=      operacion IS DISTINCT FROM operacion\n"
-    h.reporteGramatical2 +="t[0]=ExpresionIsDistinct(t[1],t[5])\n"
-    print("entra al IS DISTINCT ++++++++++++++++++")
-    t[0]=ExpresionIsDistinct(t[1],t[5])
+    '''funcionBasica : operacion IS DISTINCT FROM operacion '''
+    nodeFather = nodeAst()
+    nodeFather.token = 'funcionBasica'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'IS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'DISTINCT'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'FROM'
+    nodeSon4.lexeme = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    t[0] = nodeFather
 
 def p_funcion_basica_11(t):
     '''funcionBasica : operacion IS NOT DISTINCT  FROM operacion'''
-    h.reporteGramatical1 +="funcionBasica    ::=     operacion IS NOT DISTINCT  FROM operacion\n"
-    h.reporteGramatical2 +="t[0]=ExpresionIsNotDistinct(t[1],t[6])\n"
-    print("entra al IS NOT DISTINCT ++++++++++++++++++")
-    t[0]=ExpresionIsNotDistinct(t[1],t[6])
+    nodeFather = nodeAst()
+    nodeFather.token = 'funcionBasica'
+
+    nodeSon1 = t[1]
+    nodeFather.son.append(nodeSon1)
+
+    nodeSon2 = nodeAst()
+    nodeSon2.token = 'IS'
+    nodeSon2.lexeme = t[2]
+    nodeFather.son.append(nodeSon2)
+
+    nodeSon3 = nodeAst()
+    nodeSon3.token = 'NOT'
+    nodeSon3.lexeme = t[3]
+    nodeFather.son.append(nodeSon3)
+
+    nodeSon4 = nodeAst()
+    nodeSon4.token = 'DISTINCT'
+    nodeSon4.lexeme = t[4]
+    nodeFather.son.append(nodeSon4)
+
+    nodeSon5 = nodeAst()
+    nodeSon5.token = 'FROM'
+    nodeSon5.lexeme = t[5]
+    nodeFather.son.append(nodeSon5)
+
+    nodeSon6 = t[6]
+    nodeFather.son.append(nodeSon6)
+
+    t[0] = nodeFather
 #JPI 
 
-
+def find_column(input, token):
+    line_start = input.rfind('\n', 0, token.lexpos) + 1
+    print((token.lexpos - line_start) +1 )
+    return (token.lexpos - line_start) 
+    
 def p_error(t):
      print("token: '%s'" %t)
      print("Error sintáctico en '%s' " % t.value)
