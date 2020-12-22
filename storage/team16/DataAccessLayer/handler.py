@@ -1,4 +1,15 @@
-import pickle, os, re, shutil, csv
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
+import csv
+import os
+import pickle
+import re
+import shutil
+
 
 class Handler:
 
@@ -84,7 +95,8 @@ class Handler:
         os.makedirs('data')
         f = open('data/root.dat', 'wb')
         f.close()
-        shutil.rmtree("DataAccessLayer/imaging")
+        if os.path.exists("DataAccessLayer/imaging"):
+            shutil.rmtree("DataAccessLayer/imaging")
 
     # Reports
     @staticmethod

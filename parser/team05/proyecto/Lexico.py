@@ -960,13 +960,7 @@ def p_tipo88(t):
     ret.getNodo().setHijo(NodoAST(t[1]))
     t[0] = ret
 
-def p_tipo99(t):
-    'I_TIPO           : ID'
-    global reporte_gramatical
-    reporte_gramatical.append('<I_TIPO> ::= "ID" ')
-    ret = Retorno(TipoDato(None,None,t[1]),NodoAST("TIPO DATO"))
-    ret.getNodo().setHijo(NodoAST(t[1]))
-    t[0] = ret
+
 # TERMINA TIPO DE DATOS
 
 
@@ -1149,7 +1143,231 @@ def p_TipoOwner3(t):
 
 # TERMINA ALTER DATABASE
 
+# ALTER TABLE 
 
+def p_AlterTB(t):
+    'I_ALTERTB    : ALTER TABLE ID L_ADD_COLUMNS PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_ALTERTB> ::= "ALTER" "TABLE" "ID" <L_ADD_COLUMNS> ";"')
+    ret = Retorno(AlterAddC(t[3],t[4].getInstruccion()),NodoAST("ALTER TABLE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())  
+    t[0] = ret
+
+def p_AlterTB2(t):
+    'I_ALTERTB    : ALTER TABLE ID L_DROP_COLUMNS PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_ALTERTB> ::= "ALTER" "TABLE" "ID" <L_DROP_COLUMNS> ";"')
+    ret = Retorno(AlterD(t[3],t[4].getInstruccion()),NodoAST("ALTER TABLE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())  
+    t[0] = ret
+
+def p_AlterTB3(t):
+    'I_ALTERTB    : ALTER TABLE ID ADD TIPOS_ALTER PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_ALTERTB> ::= "ALTER" "TABLE" "ID" "ADD" <TIPO_ALTER> ";"')
+    ret = Retorno(AlterTBAdd(t[3],t[5].getInstruccion()),NodoAST("ALTER TABLE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
+
+def p_AlterTB4(t):
+    'I_ALTERTB    : ALTER TABLE ID ALTER COLUMN ID SET NOT NULL PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_ALTERTB> ::= "ALTER" "TABLE" "ID" "ALTER" "COLUMN" "ID" "SET" "NOT" "NULL" ";"')
+    ret = Retorno(AlterNotNull(t[3],t[6]),NodoAST("ALTER TABLE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    ret.getNodo().setHijo(NodoAST("NOT NULL"))
+    t[0] = ret
+
+def p_AlterTB5(t):
+    'I_ALTERTB    : ALTER TABLE ID DROP CONSTRAINT ID PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_ALTERTB> ::= "ALTER" "TABLE" "ID" "DROP" "CONTRAINT" "ID" ";"')
+    ret = Retorno(AlterDConstraint(t[3],t[6]),NodoAST("ALTER TABLE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST("DROP CONSTRAINT"))
+    ret.getNodo().setHijo(NodoAST(t[6]))
+    t[0] = ret
+
+def p_AlterTB6(t):
+    'I_ALTERTB    : ALTER TABLE ID L_COLUMN PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_ALTERTB> ::= "ALTER" "TABLE" "ID" <L_COLUMN> ";"')
+    ret = Retorno(Alter(t[3],t[4].getInstruccion()),NodoAST("ALTER TABLE"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())  
+    t[0] = ret
+
+def p_LColumn(t):
+    'L_COLUMN    : L_COLUMN COMA P_COLUMN'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_COLUMN> ::= <L_COLUMN> "," <P_COLUMN>')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("COLUMNA"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
+
+def p_LColumn1(t):
+    'L_COLUMN    : P_COLUMN'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_COLUMN> ::= <P_COLUMN>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("COLUMNA"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+
+def p_PColumn(t):
+    'P_COLUMN    : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<P_COLUMN> ::= "ALTER" "COLUMN" "ID" "TYPE" "VARCHAR" "(" "NUMERO" ")"')
+    ret = Retorno(AlterType(t[3],t[7]),NodoAST("ALTER"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(str(t[7])))
+    t[0] = ret
+
+def p_TiposAlter(t):
+    'TIPOS_ALTER    : CHECK CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPOS_ALTER> ::= "CHECK" <CONDICION>')
+    ret = Retorno(AlterCheck(None,t[2].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[2].getNodo())
+    t[0] = ret
+
+def p_TiposAlter1(t):
+    'TIPOS_ALTER    : UNIQUE PABRE L_ID PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPOS_ALTER> ::= "UNIQUE" "(" <L_ID> ")" ')
+    ret = Retorno(AlterUnique(None,t[3].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(t[3].getNodo())
+    t[0] = ret
+
+
+def p_TiposAlter2(t):
+    'TIPOS_ALTER    : FOREIGN KEY PABRE L_ID PCIERRA REFERENCES ID PABRE L_ID PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPOS_ALTER> ::= "FOREIGN" "KEY" "("<L_ID>")" "REFERENCES" "ID" "(" <L_ID> ")"')
+    ret = Retorno(AlterFK(None,t[4].getInstruccion(),t[7],t[9].getInstruccion()),NodoAST("FOREIGN KEY"))
+    ret.getNodo().setHijo(t[4].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[7]))
+    ret.getNodo().setHijo(t[9].getNodo())
+    t[0] = ret
+
+
+
+def p_TiposAlter3(t):
+    'TIPOS_ALTER    : CONSTRAINT ID CHECK CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPOS_ALTER> ::= "CONSTRAINT" "ID" "CHECK" <CONDICION>')
+    ret = Retorno(AlterCheck(t[2],t[4].getInstruccion()),NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+def p_TiposAlter4(t):
+    'TIPOS_ALTER    : CONSTRAINT ID UNIQUE PABRE L_ID PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPOS_ALTER> ::= "CONSTRAINT" "ID" "UNIQUE" "(" <L_ID> ")"')
+    ret = Retorno(AlterUnique(t[2],t[5].getInstruccion()),NodoAST(t[3]))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
+
+def p_TiposAlter5(t):
+    'TIPOS_ALTER    : CONSTRAINT ID FOREIGN KEY PABRE L_ID PCIERRA REFERENCES ID PABRE L_ID PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<TIPOS_ALTER> ::= "CONSTRAINT" "ID" "FOREIGN" "KEY" "(" <L_ID> ")" "REFERENCES" "ID" "(" <L_ID ")"') 
+    ret = Retorno(AlterFK(t[2],t[6].getInstruccion(),t[9],t[11].getInstruccion()),NodoAST("FOREIGN KEY"))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(t[6].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[9]))
+    ret.getNodo().setHijo(t[11].getNodo())
+    t[0] = ret
+
+def p_LID(t):
+    'L_ID    : L_ID COMA ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<L_ID> ::= <L_ID> "," "ID" ')
+    val = t[1].getInstruccion()
+    val.append(t[3])
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+def p_LID1(t):
+    'L_ID    : ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<L_ID> ::= "ID" ')
+    val = [t[1]]
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(NodoAST(t[1]))
+    t[0] = ret
+
+
+
+def p_L_DropColumns(t):
+    'L_DROP_COLUMNS    : L_DROP_COLUMNS COMA DROP_COLUMN'
+    global reporte_gramatical
+    reporte_gramatical.append('<L_DROP_COLUMNS> ::= <L_DROP_COLUMNS> "," <DROP_COLUMN> ')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("DROP"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
+
+def p_L_DropColumns1(t):
+    'L_DROP_COLUMNS    : DROP_COLUMN'
+    global reporte_gramatical
+    reporte_gramatical.append('<L_DROP_COLUMNS> ::= <DROP_COLUMN>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("DROP"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+
+def p_L_DropColumn(t):
+    'DROP_COLUMN    : DROP COLUMN ID'
+    global reporte_gramatical
+    reporte_gramatical.append('<DROP_COLUMN> ::= "DROP" "COLUMN" "ID" ')
+    ret = Retorno(AlterDrop(t[3]),NodoAST("COLUMNA"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+def p_L_AddColumns(t):
+    'L_ADD_COLUMNS    : L_ADD_COLUMNS COMA ADD_COLUMN'
+    global reporte_gramatical
+    reporte_gramatical.append('<L_ADD_COLUMNS> ::= <L_ADD_COLUMNS> "," <ADD_COLUMN> ')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("ADD"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
+
+def p_L_AddColumns1(t):
+    'L_ADD_COLUMNS    : ADD_COLUMN'
+    global reporte_gramatical
+    reporte_gramatical.append('<L_ADD_COLUMNS> ::= <ADD_COLUMN> ')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("ADD"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
+
+def p_AddColumn(t):
+    'ADD_COLUMN    : ADD COLUMN ID I_TIPO'
+    global reporte_gramatical
+    reporte_gramatical.append('<ADD_COLUMN> ::= "ADD" "COLUMN" "ID" <I_TIPO> ')
+    ret = Retorno(AlterADD(t[3],t[4].getInstruccion()),NodoAST("COLUMNA"))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    t[0] = ret
+
+# TERMINA ALTER TABLE
 
 # DROP TABLE
 
@@ -1246,17 +1464,77 @@ def p_valTabMd51(t):
 # TERMINA INSERT
 
 
+# UPDATE  
+
 def p_update(t):
     'I_UPDATE      : UPDATE ID SET I_LUPDATE PWHERE PCOMA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_UPDATE> ::= "UPDATE" "ID" "SET" <I_LUPDATE> <PWHERE> ";"')
+    ret = Retorno(Update(t[2],t[4].getInstruccion(),t[5].getInstruccion()),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[2]))
+    ret.getNodo().setHijo(t[4].getNodo())
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
 
 def p_lUpdate(t):
     'I_LUPDATE     : I_LUPDATE COMA I_VALUPDATE'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LUPDATE> ::= <I_LUPDATE> "," <I_VALUPDATE>')
+    val = t[1].getInstruccion()
+    val.append(t[3].getInstruccion())
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(t[3].getNodo())  
+    t[0] = ret
 
 def p_lUpdate1(t):
     'I_LUPDATE     : I_VALUPDATE'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_LUPDATE> ::= <I_VALUPDATE>')
+    val = [t[1].getInstruccion()]
+    ret = Retorno(val,NodoAST("VALOR"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    t[0] = ret
 
 def p_valUpdate(t):
     'I_VALUPDATE   : CONDICION'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_VALUPDATE> ::= <CONDICION>')
+    t[0] = t[1]
+
+
+def p_valUpdateT(t):
+    'I_VALUPDATE   : CONDICION IGUAL FTRIGONOMETRICASUP PABRE LNUM PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_VALUPDATE> ::= <CONDICION> "=" <FTRIGONOMETRICASUP> "(" <LNUM> ")"')
+    ret = Retorno(UpdateTrigo(t[1].getInstruccion(),t[3],t[5].getInstruccion()),NodoAST("UPDATE"))
+    ret.getNodo().setHijo(t[1].getNodo())
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    ret.getNodo().setHijo(t[5].getNodo())
+    t[0] = ret
+
+    
+def p_valTabMd5(t):
+    'I_VALUPDATE      : MD5 PABRE CADENA PCIERRA'
+    global reporte_gramatical
+    reporte_gramatical.append('<I_VALUPDATE> ::= "MD5" "(" "CADENA" ")"')
+    ret = Retorno(Md5(t[3]),NodoAST(t[1]))
+    ret.getNodo().setHijo(NodoAST(t[3]))
+    t[0] = ret
+
+def p_FTUP(t):
+    'FTRIGONOMETRICASUP   : ACOSD'
+    global reporte_gramatical
+    reporte_gramatical.append('<FTRIGONOMETRICASUP> ::= "ACOSD" ')
+    t[0] = 'ACOSD'
+
+def p_FTUP1(t):
+    'FTRIGONOMETRICASUP   : ASIN'
+    global reporte_gramatical
+    reporte_gramatical.append('<FTRIGONOMETRICASUP> ::= "ASIN" ')
+    t[0] = 'ASIN'
+
+# TERMINA UPDATE
 
 
 

@@ -46,25 +46,21 @@ class Nodo:
             if self.verifyOutOfRange(int(i)):
                 return 5
         bandera = True
-        dataList = self.bPlus.verify_Nodes()
+        listaObjetos = []
+        dataList = self.bPlus.alterColumnsData(columns, listaObjetos)
         if len(dataList) != 0:
-            for i in columns:
-                listaColumna = []
-                for j in dataList:
-                    listaColumna.append(j.register[i])
-                for j in dataList:
-                    if listaColumna.count(j.register[i]) > 1:
-                        bandera = False
-                        return 1
-
+            for j in dataList:
+                if dataList.count(j) > 1:
+                    bandera = False
+                    return 1
 
         if bandera:
             self.updateListPk(columns)
             self.bPlus.set_PK(columns)
 
             if self.bPlus.get_root() is not None:
-                self.bPlus.set_root(None)
-                for i in dataList:
+                self.bPlus.set_root(None) 
+                for i in listaObjetos:
                     self.bPlus.insert(i.register)
             return 0
 
