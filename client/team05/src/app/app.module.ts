@@ -10,9 +10,10 @@ import { EditorComponent } from './components/editor/editor.component';
 import { FormsModule } from '@angular/forms';
 import { CodemirrorModule } from '@ctrl/ngx-codemirror';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { ComponenteNavbarComponent } from './components/componente-navbar/componente-navbar.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
 import { TreeComponent } from './components/tree/tree.component';
 import { HttpClientModule } from '@angular/common/http';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -20,7 +21,7 @@ import { HttpClientModule } from '@angular/common/http';
     AppComponent,
     DataComponent,
     EditorComponent,
-    ComponenteNavbarComponent,
+    NavbarComponent,
     TreeComponent
   ],
   imports: [
@@ -31,7 +32,8 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     CodemirrorModule,
     FontAwesomeModule,
-    HttpClientModule
+    HttpClientModule,
+    NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]

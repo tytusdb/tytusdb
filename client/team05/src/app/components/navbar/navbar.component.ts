@@ -4,19 +4,28 @@ import { DatabaseService } from 'src/app/service/database/database.service';
 import { TableService } from 'src/app/service/table/table.service';
 
 @Component({
-  selector: 'app-componente-navbar',
-  templateUrl: './componente-navbar.component.html',
-  styleUrls: ['./componente-navbar.component.css']
+  selector: 'app-navbar',
+  templateUrl: './navbar.component.html',
+  styleUrls: ['./navbar.component.css']
 })
-export class ComponenteNavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit {
 
-  nuevobd = {
-    nombrebd: ""
+  database = {
+    name: ""
   }
 
-  nuevaTabla = {
-    nombre: "",
-    bd: "database"
+  table = {
+    name: "",
+    bd: "database"/*,
+    cols: 
+      [
+        {
+          name: "",
+          datatype: "",
+          size: 0,
+          precision: 0
+        }
+      ]*/
   }
 
 
@@ -26,17 +35,12 @@ export class ComponenteNavbarComponent implements OnInit {
 
   }
 
-
-  ver(modal) {
-
-    this.modalService.open(modal);
-  }
-
   createBD() {
-    if (this.nuevobd.nombrebd.trim().length === 0) {
+    let dbName = this.database.name.trim()
+    if (dbName.length === 0) {
       alert('Especifique nombre para la base de datos');
     } else {
-      this.dbServs.create(this.nuevobd.nombrebd).subscribe((response)=> {
+      this.dbServs.create(dbName).subscribe((response)=> {
         const body = response.body;
         const msg = body.msg;
         alert('El servidor dice: ' + msg);
@@ -45,10 +49,12 @@ export class ComponenteNavbarComponent implements OnInit {
   }
 
   createTable() {
-    if (this.nuevaTabla.nombre.trim().length === 0) {
+    let tableName = this.table.name.trim()
+    let dbName = this.table.bd.trim()
+    if (tableName.length === 0) {
       alert('Especifique nombre para la tabla');
     } else {
-      this.tbServs.create(this.nuevaTabla.nombre, this.nuevaTabla.bd).subscribe((response) => {
+      this.tbServs.create(tableName, dbName).subscribe((response) => {
         const body = response.body;
         const msg = body.msg;
         alert('El servidor dice: ' + msg);
