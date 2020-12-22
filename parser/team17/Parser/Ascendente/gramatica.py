@@ -11,7 +11,9 @@ from Interprete.Primitivos.CADENAS import CADENAS
 from Interprete.Primitivos.BOOLEANO import BOOLEANO
 from Interprete.Insert.insert import Insert
 from Interprete.USE_DATABASE.use_database import UseDatabase
+from Interprete.ALTER_DATABASE.alter_database import AlterDatabase
 from Interprete.CREATE_TABLE import clases_auxiliares
+from Interprete.OperacionesConExpresiones.OperadoresCondicionales import OperadoresCondicionales
 
 reservadas = {
 
@@ -106,6 +108,8 @@ reservadas = {
     'to' : 'TO',
     'current_date' : 'CURRENT_DATE',
     'current_time' : 'CURRENT_TIME',
+    'current_user': 'CURRENT_USER',
+    'session_user': 'SESSION_USER',
     'date_part' : 'DATE_PART',
     'month' : 'MONTH',
 
@@ -497,7 +501,7 @@ def p_ddl_alter_database(t):
     '''
         ddl  : alter_database
     '''
-    pass
+    t[0] = t[1]
 
 def p_ddl_drop_database(t):
     '''
@@ -1166,19 +1170,20 @@ def p_exp(t):
             pass
         elif t[2]=='=':
             # exp IGUAL exp
+            t[0] = OperadoresCondicionales(t[1], t[3], "=")
             pass
         elif t[2]=='>':
             # exp MAYORQUE exp
-            pass
+            t[0] = OperadoresCondicionales(t[1], t[3], ">")
         elif t[2]=='<':
             # exp MENORQUE exp
-            pass
+            t[0] = OperadoresCondicionales(t[1], t[3], "<")
         elif t[2]=='>=':
             # exp MAYORIG exp
-            pass
+            t[0] = OperadoresCondicionales(t[1], t[3], ">=")
         elif t[2]=='<=':
-            # exp MENORIG exp
-            pass
+            # exp MENO
+            t[0] = OperadoresCondicionales(t[1], t[3], "<=")
         elif t[2].lower()=='is':
             # exp IS exp
             pass
@@ -1843,11 +1848,11 @@ def p_create_type(t):
 def p_alter_database(t):
     '''
         alter_database : ALTER DATABASE ID RENAME TO ID
-                       | ALTER DATABASE ID OWNER TO ID
+                       | ALTER DATABASE ID OWNER TO CURRENT_USER
+                       | ALTER DATABASE ID OWNER TO SESSION_USER
     '''
     if t[4].lower()=='rename':
-        #ALTER DATABASE ID RENAME TO ID
-        pass
+        t[0] = AlterDatabase(t[3], t[6])
     elif t[4].lower()=='owner':
         #ALTER DATABASE ID OWNER TO ID <- aqui no hay progra xd
         pass

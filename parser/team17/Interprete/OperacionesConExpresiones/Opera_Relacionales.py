@@ -24,3 +24,5 @@ class Opera_Relacionales(NodoArbol):
                 retorno = Valor(3, False);
                 return retorno;
 
+        elif self.tipoOperaRelacional == "u:=":
+            return {izquierdo.data: self.der}

@@ -4,7 +4,7 @@ from Interprete.Arbol import Arbol
 from Interprete.Valor.Valor import Valor
 from StoreManager import jsonMode as dbms
 from Interprete.CREATE_TABLE import clases_auxiliares
-from Interprete.Insert.HeadTYpes import HEAD
+from Interprete.Meta import HEAD
 
 ##################################
 # Patrón intérprete: CREATE TABLE#
@@ -61,7 +61,7 @@ class CreateTable(NodoArbol):
                 pks = self.obtenerindice(primarykeys)
                 if len(pks) != 0:
                     dbms.alterAddPK(bdactual, nuevatabla, pks)  # Se crean las llaves primarias
-            self.crear_encabezados(bdactual)  # Se crean los encabezados de las columnas
+            self.crear_encabezados(bdactual, entorno, arbol)  # Se crean los encabezados de las columnas
         elif retorno == 1:  # Error en la operacion
             '''
                                         			  ______ _____  _____   ____  _____  
@@ -99,25 +99,25 @@ class CreateTable(NodoArbol):
                                         			'''
             print("Nel ya existe la tabla")
 
-    def crear_encabezados(self, bdactual):
+    def crear_encabezados(self, bdactual, entorno, arbol):
         encabezados = []
         if self.ifinh is True:
             for item in self.inh:
                 encabezados.append(item)
         for columna in self.columnas:
-            encabezados.append(self.setear_atributos(columna))
+            encabezados.append(self.setear_atributos(columna, entorno, arbol))
         dbms.insert(bdactual, self.id, encabezados)
 
-    def setear_atributos(self, columna):
+    def setear_atributos(self, columna, entorno, arbol):
         cadena = columna.nombre + ',' + columna.tipo + ','
         if columna.atributos is not None:
-            cadena += self.isDefault(columna)
+            cadena += self.isDefault(columna, entorno, arbol)
             cadena += self.isNotNull(columna)
             cadena += self.isNull(columna)
             cadena += self.isUnique(columna)
             cadena += self.isForeignKey(columna)
             cadena += self.isPrimaryKey(columna)
-            cadena += self.isCheck(columna)
+            cadena += self.isCheck(columna, entorno, arbol)
         elif self.especificaciones is not None:
             cadena += ',0,0,'
             cadena += self.isUniqueEspec(columna)
@@ -128,10 +128,11 @@ class CreateTable(NodoArbol):
             cadena += ',0,0,,,0,,'
         return cadena
 
-    def isDefault(self, columna):
+    def isDefault(self, columna, entorno, arbol):
         for atributo in columna.atributos:
             if isinstance(atributo, clases_auxiliares.Default):
-                return str(atributo.valor) + ','
+                nuevovalor = atributo.valor.execute(entorno, arbol)
+                return str(nuevovalor.data) + ','
         return ','
 
     def isNotNull(self, columna):
@@ -201,13 +202,18 @@ class CreateTable(NodoArbol):
         return '0,'
 
     # TODO: Falta resolver las expresiones, por ahora solo recibe numeros y no resuelve si Check viene sin constraint.
-    def isCheck(self, columna):
+    def isCheck(self, columna, entorno, arbol):
         for atributo in columna.atributos:
             if isinstance(atributo, clases_auxiliares.Check):
+                opizq = str(atributo.exp.getIzq().origen)
+                operador = str(atributo.exp.getTipoOperaRelacional())
+                opder = str(atributo.exp.getDer().execute(entorno, arbol).data)
+                condicion = opizq + ',' + operador + ',' + opder
                 if atributo.constraint is not None:
-                    return str(atributo.constraint.nombre) + ':' + str(atributo.exp) + ','
+                    nombre = str(atributo.constraint.nombre)
+                    return nombre + ',' + condicion + ','
                 else:
-                    return str(self.bd_actual) + '_' + str(self.id) + '_' + str(columna.nombre) + '_check:' + str(atributo.exp) + ','
+                    return str(self.bd_actual) + '_' + str(self.id) + '_' + str(columna.nombre) + '_check,' + str(condicion) + ','
         return ','
 
     def crear_pks(self):
