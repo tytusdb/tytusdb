@@ -55,6 +55,7 @@ class NombreEstructuras:
                 if self.searchDatabase(database) == False: #Si la base no existe se crea
                     tablas = {} #inicializamos una estructura tipo diccionario para los nombres de tablas
                     self.database.setdefault(database, tablas)
+                    ne.serialize("data/database",self.database)
                     return 0
                 else:
                     return 2
