@@ -256,10 +256,10 @@ class AlterTableAddUnique(Instruccion):
             return error  
 
         for col in colindex:
-            checkData = ConstraintData(self.id1, True, 'unique')
+            checkData = ConstraintData(self.id1.upper(), True, 'unique')
             data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns'][col].unique = checkData
 
-        checkData = ConstraintData(self.id1, colname, 'unique')
+        checkData = ConstraintData(self.id1.upper(), colname, 'unique')
         data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'].append(checkData)
 
         print(data)
@@ -601,7 +601,7 @@ class AlterTableDropCol(Instruccion):
         #print(data)
 
         #La Espino-Función
-        retor = alterDropColumn(data.databaseSeleccionada, tbname, colindex)
+        retor = alterDropColumn(data.databaseSeleccionada, tbname, colindex) #al parcer da problemas
 
         if retor == 0 :
             print('Éxito')
@@ -635,25 +635,78 @@ class AlterTableDropCons(Instruccion):
             return error
 
         found = False
+        consttipo = ''
+        constindex = 0
+        idpks = []
         for const in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'] :
             if const.name == self.id.upper() :
                 found = True
+                consttipo = const.tipo
+                idpks = const.val
+                break
+            constindex += 1
 
         if not found :
             error = Error('Semántico', 'Error(???): No existe el constraint ' + self.id.upper()+' en la tabla.', 0, 0)
             return error
 
-        
-        '''for id in self.ids :
-            for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas'] : 
-                for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][table]['columns'] :
-                    for fk in col.fk:
-                        if fk == None : 
-                            continue
-                        if fk.tipo == 'fk' :
-                            if fk.val.column == id.column.upper() :
-                                error = Error('Semántico', 'Error(???): La llave es FK en la tabla ' + table, 0, 0)
-                                return error'''
+        print(consttipo)
+        if consttipo == 'pk' :
+            for id in idpks :
+                for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas'] : 
+                    for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][table]['columns'] :
+                        for fk in col.fk:
+                            if fk == None : 
+                                continue
+                            if fk.tipo == 'fk' :
+                                if fk.val.column == id.upper() :
+                                    error = Error('Semántico', 'Error(???): La llave es FK en la tabla ' + table, 0, 0)
+                                    return error
+
+        for col in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['columns'] :
+            if consttipo == 'check' :
+                i = 0
+                foundc = False
+                for chk in col.check:
+                    if chk == None :
+                        ''
+                    elif chk.name == self.id.upper() :
+                        foundc = True
+                        break
+                    i+=1
+                if foundc:
+                    print(str(i))
+                    del col.check[i]
+
+            elif consttipo == 'fk':
+                i = 0
+                foundc = False
+                for fk in col.fk:
+                    if fk == None :
+                        ''
+                    elif fk.name == self.id.upper() :
+                        foundc = True
+                        break
+                    i+=1
+                if foundc:
+                    print(str(i))
+                    del col.fk[i]
+
+
+            elif consttipo == 'pk' :
+                if col.pk == None :
+                    ''
+                elif col.pk.name == self.id.upper() :
+                    col.pk = None
+            elif consttipo == 'unique':
+                if col.unique == None :
+                    ''
+                elif col.unique.name == self.id.upper() :
+                    col.unique = None
+
+        del data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tbname]['constraint'][constindex]
+            
+        print(data)
 
 
         return self.id
@@ -700,7 +753,7 @@ class AlterTableDropPK(Instruccion):
                             continue
                         if fk.tipo == 'fk' :
                             if fk.val.column == id.column.upper() :
-                                error = Error('Semántico', 'Error(???): La llave es FK en la tabla ' + table, 0, 0)
+                                error = Error('Semántico', 'Error(???): La PK es FK en la tabla ' + table, 0, 0)
                                 return error
         
         for index in colindex :
