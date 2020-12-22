@@ -120,30 +120,32 @@ class Select(Instruction):
                         newEnv.types[labels[i]] = ex.type
                         # Si no es columna de agrupacion
                         if(i < len(self.groupbyCl)):
+                            if not (isinstance(val, pd.core.series.Series) or isinstance(val, pd.DataFrame)):
+                                nval = {val : [val for i in range(len(newEnv.dataFrame.index)) ]}
+                                nval = pd.DataFrame(nval)
+                                val = nval
                             newEnv.dataFrame = pd.concat([newEnv.dataFrame, val], axis=1)
                         else:
                             if groupEmpty:
                                 countGr = newEnv.groupCols
                                 # Obtiene las ultimas columnas metidas (Las del group by)
                                 df = newEnv.dataFrame.iloc[:, -countGr:]
-                                cols = list(df.columns)[:]
+                                cols = list(df.columns)
                                 groupDf = df.groupby(cols).sum().reset_index()
                                 groupDf = pd.concat([groupDf, val], axis=1)
                                 groupEmpty = False
                             else:
                                 groupDf = pd.concat([groupDf, val], axis=1)                                         
                 else:
-                    value = [p.execute(newEnv).value for p in params]
-
+                    value = [p.execute(newEnv) for p in params]
+                    for j in range(len(labels)):
+                        newEnv.types[labels[j]] = value[j].type
+                        newEnv.dataFrame[labels[j]] = value[j].value
             else:
                 value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
                 labels = [p for p in newEnv.dataFrame]
 
             if value != []:
-                for j in range(len(labels)):
-                    newEnv.types[labels[j]] = value[j].type
-                for i in range(len(labels)):
-                    newEnv.dataFrame[labels[i]] = value[i] 
                 if self.wherecl == None:
                     return [newEnv.dataFrame.filter(labels), newEnv.types]
                 w2 = newEnv.dataFrame.filter(labels)
@@ -298,7 +300,7 @@ class WhereClause(Instruction):
     def execute(self, environment):
         filt = self.series.execute(environment)
         df = environment.dataFrame.loc[filt.value]
-        environment.dataFrame = df.reset_index()
+        environment.dataFrame = df.reset_index(drop=True)
         return df
 
     def dot(self):
