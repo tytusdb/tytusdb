@@ -127,13 +127,22 @@ class TablaHash:
         lista = self.values.copy()
         self.values.clear()
         self.values = [None]*self.Size
-
+        listCol = []
         data = []
+        ids = []
         for node in lista:
             if node is not None:
                 for n in node.array:
-                    data = n[1]
-                    self.insert("table1", data)
+                    ids = n[1][0]
+                    d = n[1]
+                    data.append(d)
+                    listCol.append(ids)
+                if listCol.count(ids) > 1:
+                    return 1
+                else:
+                    continue
+        for d in data:
+            self.insert(d)
 
     def truncate(self):
         try:
