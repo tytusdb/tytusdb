@@ -9,16 +9,23 @@ class Table():
         self.columnas = []
         self.checkers = []
         self.listaids = []
+        self.listaReferences = []
 
 class Constraints():
     def __init__(self):
         self.nombre = None
         self.listaColumnas = []
 
+class Check():
+    def __init__(self):
+        self.name = None
+        self.checkExp = None
+
 class Column():
     def __init__(self):
         self.name = None
         self.type = None
+        self.specificType = None
         self.default = None
         self.isNull = None
         self.isUnique = None
@@ -27,6 +34,7 @@ class Column():
         self.isPrimary = None
         self.referencesTable = None
         self.isCheck = None
+        self.referenceColumn = None
 
 file_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '.'))+ '\\estructura.json')
 
@@ -88,14 +96,19 @@ class TypeChecker():
 
 
     #.####################################Creates a table in the database
-    def createTable(self,database: str, table: str,columns):
+    def createTable(self,database: str, table: str,columns : list = [],
+                    checkers : list = [], listaReferences : list = []):
         dataFinal = None
         with open(file_dir) as file:
             data = json.load(file)
             if database in data:
                 tablas = data[database]["tables"]
                 if table not in tablas:
-                    tablas[table] = {"columnas" : []}
+                    tablas[table] = {
+                        "columnas" : [],
+                        "checkers" : [],
+                        "listaReferences" : []               
+                        }
                     dataFinal = json.dumps(data)
                 else:
                     return None
@@ -106,8 +119,14 @@ class TypeChecker():
             file.write(dataFinal)
             file.close()
             for columna in columns:
+                #Agrega las columnas, checks y references
                 self.CreateColumn(database,table,columna)
-
+            for chck in checkers:
+                pass
+                self.CreateCheck(database,table,chck)
+            for ref in listaReferences:
+                pass
+                self.CreateConstraint(database,table,ref)
 
     #.###############################################Shows the tables name list
     def tablename_list(self,database : str):
@@ -139,10 +158,13 @@ class TypeChecker():
 
     #.##################################Returns the columns from a table
     def return_columnsJSON(self,database : str, table : str):
-        tablas = self.return_tablesJSON(database)
-        if table in tablas:
-            return tablas[table]["columnas"]
-        return {}
+        try:
+            tablas = self.return_tablesJSON(database)
+            if table in tablas:
+                return tablas[table]["columnas"]
+            return []
+        except:
+            return []
 
     def return_columnsObject(self,database : str, table : str):
         retorno = []
@@ -151,16 +173,56 @@ class TypeChecker():
             tmp_column = Column()
             tmp_column.name = columna["name"]
             tmp_column.type = columna["type"]
+            tmp_column.specificType = columna["specificType"]
             tmp_column.default = columna["default"]
-            tmp_column.isNull = columna["isNull"]
+            tmp_column.isNull  = columna["isNull"]
             tmp_column.isUnique = columna["isUnique"]
             tmp_column.uniqueName = columna["uniqueName"]
-            tmp_column.checkExp = columna["checkExp"]
-            tmp_column.checkName = columna["checkName"]
             tmp_column.size = columna["size"]
             tmp_column.isPrimary = columna["isPrimary"]
             tmp_column.referencesTable = columna["referencesTable"]
+            tmp_column.isCheck = columna["isCheck"]
+            tmp_column.referenceColumn = columna["referenceColumn"]
             retorno.append(tmp_column)
+        return retorno
+    ####################################Return checkers
+    def return_checksJSON(self,database : str, table : str):
+        try:
+            tablas = self.return_tablesJSON(database)
+            if table in tablas:
+                return tablas[table]["checkers"]
+            return []
+        except:
+            return []
+
+    def return_checksObject(self,database : str, table : str):
+        retorno = []
+        lista_checkers = self.return_checksJSON(database,table)
+        for chck in lista_checkers:
+            tmp_check = Check()
+            tmp_check.name = chck["name"]
+            tmp_check.checkExp = chck["checkExp"]
+            retorno.append(tmp_check)
+        return retorno
+
+    ####################################Return constraints
+    def return_constraintsJSON(self,database : str, table : str):
+        try:
+            tablas = self.return_tablesJSON(database)
+            if table in tablas:
+                return tablas[table]["listaReferences"]
+            return []
+        except:
+            return []
+
+    def return_constraintsObject(self,database : str, table : str):
+        retorno = []
+        lista_constr = self.return_constraintsJSON(database,table)
+        for constraint in lista_constr:
+            tmp_constr = Constraints()
+            tmp_constr.nombre = constraint["nombre"]
+            tmp_constr.listaColumnas = constraint["listaColumnas"]
+            retorno.append(tmp_constr)
         return retorno
 
     #.##################################Shows the column list
@@ -171,7 +233,7 @@ class TypeChecker():
             retorno.append(column["name"])
         return retorno
 
-    #.########################################
+    #.######################################## Exists
     def column_exists(self,database : str, table : str, column_name : str):
         with open(file_dir) as file:
             data = json.load(file)
@@ -180,10 +242,39 @@ class TypeChecker():
                 baseActual = data[database]["tables"]
                 #busca la tabla
                 if table in baseActual:
-                    #Crea la tabla
                     lista_columnas = baseActual[table]["columnas"]
                     for columna in lista_columnas:
                         if columna["name"] == column_name:
+                            return True
+                    return False
+        return None
+
+    def check_exists(self, database : str, table : str, checkName : str):
+        with open(file_dir) as file:
+            data = json.load(file)
+            #Busca la base de datos
+            if database in data:
+                baseActual = data[database]["tables"]
+                #busca la tabla
+                if table in baseActual:
+                    lista_checkers = baseActual[table]["checkers"]
+                    for chck in lista_checkers:
+                        if chck["name"] == checkName:
+                            return True
+                    return False
+        return None
+
+    def constraint_exists(self, database : str, table : str, constraintName : str):
+        with open(file_dir) as file:
+            data = json.load(file)
+            #Busca la base de datos
+            if database in data:
+                baseActual = data[database]["tables"]
+                #busca la tabla
+                if table in baseActual:
+                    lista_constr = baseActual[table]["listaReferences"]
+                    for chck in lista_constr:
+                        if chck["nombre"] == constraintName:
                             return True
                     return False
         return None
@@ -207,18 +298,19 @@ class TypeChecker():
                             ultima = lista_columnas[-1]
                             indice = ultima["index"]
                         lista_columnas.append({
-                            "name" : column.name,
                             "index" : indice + 1,
-                            "type"  : column.type,
+                            "name" : column.name,
+                            "type" : column.type,
+                            "specificType" : column.specificType,
                             "default" : column.default,
                             "isNull" : column.isNull,
                             "isUnique" : column.isUnique,
                             "uniqueName" : column.uniqueName,
-                            "checkExp" : column.checkExp,
-                            "checkName" : column.checkName,
                             "size" : column.size,
                             "isPrimary" : column.isPrimary,
-                            "referencesTable" : column.referencesTable
+                            "referencesTable" : column.referencesTable,
+                            "isCheck" : column.isCheck,
+                            "referenceColumn" : column.referenceColumn                            
                         })
                         baseActual[table]["columnas"] = lista_columnas
                         dataFinal = json.dumps(data)
@@ -233,6 +325,71 @@ class TypeChecker():
             file.write(dataFinal)
             return table
     
+
+    def CreateCheck(self, database : str, table : str, check : Check):
+        dataFinal = None
+        with open(file_dir) as file:
+            data = json.load(file)
+            #Busca la base de datos
+            if database in data:
+                baseActual = data[database]["tables"]
+                #busca la tabla
+                if table in baseActual:
+                    existe = self.check_exists(database,table, check.name)
+                    if existe is False and existe is not None:
+                        lista_checks = baseActual[table]["checkers"]
+                        lista_checks.append(
+                            {
+                                "name" : check.name,
+                                "checkExp" : check.checkExp
+                            }
+                        )
+                        baseActual[table]["checkers"] = lista_checks
+                        dataFinal = json.dumps(data)
+                    else:
+                        return None
+                else:
+                    return None
+            else:
+                return None
+        if dataFinal is not None:
+            file = open(file_dir,'w')
+            file.write(dataFinal)
+            return table
+
+    def CreateConstraint(self, database : str, table : str, constraint : Constraints):
+        dataFinal = None
+        with open(file_dir) as file:
+            data = json.load(file)
+            #Busca la base de datos
+            if database in data:
+                baseActual = data[database]["tables"]
+                #busca la tabla
+                if table in baseActual:
+                    existe = self.constraint_exists(database,table,constraint.nombre)
+                    if existe is False and existe is not None:
+                        lista_constraints = baseActual[table]["listaReferences"]
+                        lista_constraints.append(
+                            {
+                                "nombre" : constraint.nombre,
+                                "listaColumnas" : constraint.listaColumnas
+                            }
+                        )
+                        baseActual[table]["listaReferences"] = lista_constraints
+                        dataFinal = json.dumps(data)
+                    else:
+                        return None
+                else:
+                    return None
+            else:
+                return None
+        if dataFinal is not None:
+            file = open(file_dir,'w')
+            file.write(dataFinal)
+            return table
+
+                    
+
     ###################################################### Drop table
     def drop_table(self, database : str, table_name : str):
         dataFinal = None
@@ -304,7 +461,5 @@ class TypeChecker():
                 file = open(file_dir,'w')
                 file.write(json.dumps(data))
             return True                
-            #Updates indexes     
-                    
         else:
             return False
