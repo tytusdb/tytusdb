@@ -3,6 +3,7 @@ from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
 from Funciones import *
+from PIL import Image
 
 
 def centrar_ventana(app, ancho, alto):
@@ -32,6 +33,9 @@ def ventana_imagen(imagen):
         label.image = img
         label.grid(row=0, column=0)
         label.pack(side="bottom", fill="both", expand="yes")
+        
+        abrir_img = Image.open('../team13/' + imagen + '')
+        abrir_img.show()
     except:
         print('Imagen no existe')
 
@@ -1145,17 +1149,16 @@ def ventana_loadCSV():
     nombre_tabla = Entry(app, font=("Georgia", 10))
     nombre_tabla.place(x=215, y=230, width=245)
 
-    def guardar(database, table):
-        nombre_archivo = filedialog.askopenfilename(title='Seleccione archivo')
-        if nombre_archivo != '':
-            archivo = open(nombre_archivo, 'r', encoding='utf-8')
-            contenido = archivo.read()
-            archivo.close()
-            print(contenido)
+    Label(app, text='Ruta:', bg="#F0FFFF", font=("Georgia", 10)).place(x=70, y=260)
+    ruta = Entry(app, font=("Georgia", 10))
+    ruta.place(x=215, y=260, width=245)
 
-            loadCSV(contenido, database, table)
+    def guardar(ruta_, database, table):
+        valor_retorno = loadCSV(ruta_, database, table)
+        print('loadCSV: ', valor_retorno)
+        messagebox.showinfo('', 'ARCHIVO PROCESADO')
 
-    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98',command=lambda:guardar(nombre_db.get(), nombre_tabla.get()))
+    bt = Button(app, text="Confirmar", font='Georgia 10', bg='#98FB98',command=lambda:guardar(ruta.get(), nombre_db.get(), nombre_tabla.get()))
     bt.place(x=215, y=300)
 
 

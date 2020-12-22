@@ -2,7 +2,7 @@ import gramatica as g
 import Utils.TablaSimbolos as table
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
-from fila import fila
+#from fila import fila
 
 #datos = l.Lista([], '')
 storage.dropAll()
@@ -109,3 +109,8 @@ def reporteTabla():
     f.close()
 
 #reporteTabla()
+
+{'tablaSimbolos': {'PRUEBA': {'tablas': {'CONTACTS': {'columns': [{'name': 'CONTACT_ID', 'type': 'integer', 'size': 0, 'pk': {'name': 'PK_CONTACTS_CONTACT_ID', 'val': True, 'tipo': 'pk'}, 'fk': [None], 'default': None, 'null': True, 'check': [None], 'unique': None}, {'name': 'CUSTOMER_ID', 'type': 'integer', 'size': 0, 'pk': None, 'fk': [None], 'default': None, 'null': True, 'check': [None], 'unique': None}, {'name': 'CONTACT_NAME', 'type': 'varchar', 'size': 255, 'pk': None, 'fk': [None], 'default': None, 'null': False, 'check': [None], 'unique': None}, {'name': 'PHONE', 'type': 'varchar', 'size': 15, 'pk': None, 'fk': [None], 'default': None, 'null': True, 'check': [None], 'unique': None}, {'name': 'EMAIL', 'type': 'varchar', 'size': 100, 'pk': None, 'fk': [None], 'default': None, 'null': True, 'check': [None], 'unique': None}], 'constraint': [{'name': 'hola', 'val': {'leftOperator': {'type': 'integer', 'val': 10}, 'rightOperator': {'type': 'integer', 'val': 5}, 'sign': '>', 'extra': None}, 'tipo': 
+'check'}]}, 'TEST': {'columns': [{'name': 'CONTACT_ID', 'type': 'integer', 'size': 0, 'pk': {'name': 'PK_TEST_CONTACT_ID', 'val': True, 'tipo': 'pk'}, 'fk': [None], 'default': None, 'null': True, 'check': [None], 'unique': None}, {'name': 'CUSTOMER_ID', 
+'type': 'integer', 'size': 0, 'pk': None, 'fk': [None], 'default': None, 'null': True, 'check': [None], 'unique': None}, {'name': 'CONTACT_NAME', 'type': 'varchar', 'size': 255, 'pk': None, 'fk': [None], 'default': None, 'null': False, 'check': [None], 'unique': None}, {'name': 'PHONE', 'type': 'varchar', 'size': 15, 'pk': None, 'fk': [None], 'default': None, 'null': True, 'check': [None], 'unique': None}, {'name': 'EMAIL', 'type': 'varchar', 'size': 100, 'pk': None, 'fk': [None], 'default': None, 'null': True, 'check': [None], 'unique': None}], 'constraint': [{'name': 'hola', 'val': {'leftOperator': {'type': 'integer', 'val': 
+10}, 'rightOperator': {'type': 'integer', 'val': 5}, 'sign': '>', 'extra': None}, 'tipo': 'check'}]}}, 'enum': {}, 'owner': 'CURRENT_USER', 'mode': '1'}}, 'databaseSeleccionada': 'PRUEBA'}

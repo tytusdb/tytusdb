@@ -2,8 +2,8 @@
 # Released under MIT License
 # Copyright (c) 2020 TytusDb Team
 
-import Storage
-import BplusTree
+from team18 import Storage
+from team18 import BplusTree
 import tkinter
 from tkinter import *
 from tkinter import messagebox

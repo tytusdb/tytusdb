@@ -84,16 +84,24 @@ class SelectParams(Instruction):
 
 
 class Select(Instruction):
-    def __init__(self, params, fromcl, wherecl, row, column):
+    def __init__(self, params, fromcl, wherecl, groupbyCl, havingCl, row, column):
         Instruction.__init__(self, row, column)
         self.params = params
         self.wherecl = wherecl
         self.fromcl = fromcl
+        self.groupbyCl = groupbyCl
+        self.havingCl = havingCl
 
     def execute(self, environment):
         try:
             newEnv = Environment(environment, dbtemp)
             self.fromcl.execute(newEnv)
+            if self.wherecl != None:
+                self.wherecl.execute(newEnv)
+            if self.groupbyCl != None:
+                newEnv.groupCols = len(self.groupbyCl)
+            groupDf = None
+            groupEmpty = True
             if self.params:
                 params = []
                 for p in self.params:
@@ -104,20 +112,55 @@ class Select(Instruction):
                     else:
                         params.append(p)
                 labels = [p.temp for p in params]
-                value = [p.execute(newEnv).value for p in params]
+                if self.groupbyCl != None:
+                    value = []
+                    for i in range(len(params)):
+                        ex = params[i].execute(newEnv)
+                        val = ex.value
+                        newEnv.types[labels[i]] = ex.type
+                        # Si no es columna de agrupacion
+                        if(i < len(self.groupbyCl)):
+                            if not (isinstance(val, pd.core.series.Series) or isinstance(val, pd.DataFrame)):
+                                nval = {val : [val for i in range(len(newEnv.dataFrame.index)) ]}
+                                nval = pd.DataFrame(nval)
+                                val = nval
+                            newEnv.dataFrame = pd.concat([newEnv.dataFrame, val], axis=1)
+                        else:
+                            if groupEmpty:
+                                countGr = newEnv.groupCols
+                                # Obtiene las ultimas columnas metidas (Las del group by)
+                                df = newEnv.dataFrame.iloc[:, -countGr:]
+                                cols = list(df.columns)
+                                groupDf = df.groupby(cols).sum().reset_index()
+                                groupDf = pd.concat([groupDf, val], axis=1)
+                                groupEmpty = False
+                            else:
+                                groupDf = pd.concat([groupDf, val], axis=1)                                         
+                else:
+                    value = [p.execute(newEnv) for p in params]
+                    for j in range(len(labels)):
+                        newEnv.types[labels[j]] = value[j].type
+                        newEnv.dataFrame[labels[j]] = value[j].value
             else:
                 value = [newEnv.dataFrame[p] for p in newEnv.dataFrame]
                 labels = [p for p in newEnv.dataFrame]
-            for i in range(len(labels)):
-                newEnv.dataFrame[labels[i]] = value[i]
-            if self.wherecl == None:
-                return newEnv.dataFrame.filter(labels)
-            wh = self.wherecl.execute(newEnv)
-            w2 = wh.filter(labels)
-            # Si la clausula WHERE devuelve un dataframe vacio
-            if w2.empty:
-                return None
-            return [w2, newEnv.types]
+
+            if value != []:
+                if self.wherecl == None:
+                    return [newEnv.dataFrame.filter(labels), newEnv.types]
+                w2 = newEnv.dataFrame.filter(labels)
+                # Si la clausula WHERE devuelve un dataframe vacio
+                if w2.empty:
+                    return None
+                return [w2, newEnv.types]
+            else:
+                newNames = {}
+                i = 0
+                for (columnName, columnData) in groupDf.iteritems():
+                        newNames[columnName] = labels[i]
+                        i += 1
+                groupDf.rename(columns=newNames, inplace=True)
+                return [groupDf, newEnv.types]
         except:
             raise
 
@@ -256,7 +299,9 @@ class WhereClause(Instruction):
 
     def execute(self, environment):
         filt = self.series.execute(environment)
-        return environment.dataFrame.loc[filt.value]
+        df = environment.dataFrame.loc[filt.value]
+        environment.dataFrame = df.reset_index(drop=True)
+        return df
 
     def dot(self):
         new = Nodo.Nodo("WHERE")
@@ -753,8 +798,12 @@ class CreateTable(Instruction):
         self.inherits = inherits
 
     def execute(self, environment):
-        nCol = self.count()
-        result = jsonMode.createTable(dbtemp, self.name, nCol)
+
+        # insert = [posiblesErrores,noColumnas]
+        insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
+        error = insert[0]
+        nCol = insert[1]
+        insert = Checker.checkValue(dbtemp,self.name)
         """
         Result
         0: insert
@@ -762,46 +811,49 @@ class CreateTable(Instruction):
         2: not found database
         3: exists table
         """
-        if result == 0:
-            insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
-            if insert == None:
-                pk = Struct.extractPKIndexColumns(dbtemp, self.name)
-                addPK = 0
-                if pk:
-                    addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
-                if addPK != 0:
-                    print("Error en llaves primarias del CREATE TABLE:", self.name)
-                report = "Tabla " + self.name + " creada"
-            else:
-                jsonMode.dropTable(dbtemp, self.name)
-                Struct.dropTable(dbtemp, self.name)
-                report = insert
-        elif result == 1:
-            sintaxPostgreSQL.insert(
-                len(sintaxPostgreSQL), "Error: XX000: Error interno"
-            )
-            report = "Error: No se puede crear la tabla: " + self.name
-        elif result == 2:
-            sintaxPostgreSQL.insert(
-                len(sintaxPostgreSQL),
-                "Error: 3F000: base de datos" + dbtemp + " no existe",
-            )
-            report = "Error: Base de datos no encontrada: " + dbtemp
-        elif result == 3 and self.exists:
-            report = "Tabla no creada, ya existe en la base de datos"
-        else:
-            report = "Error: ya existe la tabla " + self.name
-            sintaxPostgreSQL.insert(
-                len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
-            )
-        return report
+        if error == None and insert == None:
 
-    def count(self):
-        n = 0
-        for column in self.columns:
-            if not column[0]:
-                n += 1
-        return n
+
+            result = jsonMode.createTable(dbtemp, self.name, nCol)
+            if result == 0:
+                pass
+            elif result == 1:
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: XX000: Error interno"
+                )
+                return "Error: No se puede crear la tabla: " + self.name
+            elif result == 2:
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL),
+                    "Error: 3F000: base de datos" + dbtemp + " no existe",
+                )
+                return "Error: Base de datos no encontrada: " + dbtemp
+            elif result == 3 and self.exists:
+                return "La tabla ya existe en la base de datos"
+            else:
+               
+                sintaxPostgreSQL.insert(
+                    len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
+                )
+                return "Error: ya existe la tabla " + self.name
+        
+            pk = Struct.extractPKIndexColumns(dbtemp, self.name)
+            addPK = 0
+            if pk:
+                addPK = jsonMode.alterAddPK(dbtemp, self.name, pk)
+            if addPK != 0:
+                print("Error en llaves primarias del CREATE TABLE:", self.name)
+            return "Tabla " + self.name + " creada"
+        else:
+         #   for i in insert:
+          #      error.append(i)
+            Struct.dropTable(dbtemp,self.name)
+            return error
+
+
+
+
+    
 
     def dot(self):
         new = Nodo.Nodo("CREATE_TABLE")
@@ -995,3 +1047,9 @@ class CheckOperation(Instruction):
                 len(sintaxPostgreSQL), "Error: XX000: Error interno"
             )
             print("Error fatal CHECK")
+
+
+class limitClause(Instruction):
+    def __init__(self, row, column) -> None:
+        super().__init__(row, column)
+        
