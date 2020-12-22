@@ -131,3 +131,33 @@ class NombreEstructuras:
             return False
         else:
             return True
+        
+     #Método para buscar una tabla en una base de datos, devuelve True si la encuentra, sino, Falso
+    def buscarTablaDatabase(self, database: str, tabla: str):
+        encontrar = False
+        if self.searchDatabase(database) == True:
+            dictmp = self.database[database]
+            encontrar = self.buscarTabla(tabla,dictmp)
+
+        return encontrar
+    #Método para crear tabla
+    def createTable(self, basedato: str, tabla: str, columna: int):
+        try:
+            if self.ComprobarNombre(basedato) == True and self.ComprobarNombre(tabla) == True:
+                if self.searchDatabase(basedato) == True:
+                    aux = self.database[basedato]
+                    if self.buscarTabla(tabla,aux) == False: # Si no encuentra la tabla la inserta
+                        tmp = [columna, []] #variable tmp para agregar el número de columna en la pos[0] y en la pos[1] la lista de primary keys
+                        aux.setdefault(tabla, tmp)
+                        self.database[basedato] = aux
+                        ne.serialize("data/tables/"+str(basedato)+"-"+str(tabla),self.database[basedato])
+                        ne.serialize("data/database",self.database)
+                        return 0
+                    else:
+                        return 3
+                else:
+                    2
+            else:
+                return 1
+        except:
+            return 1
