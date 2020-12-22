@@ -226,3 +226,65 @@ class NombreEstructuras:
                 return 1
         except:
             return 1
+
+    #Funciones a editar despues que se tenga la tabla hash
+    
+    #Agregar primary key
+    def alterAddPK(self, database: str, table: str, columns: list):
+        try:
+            if self.searchDatabase(database) == True:
+                dicTemp = self.database[database]
+                
+                if self.buscarTabla(table, dicTemp) == True:
+                    lenColumns = len(columns) #tamaño del atributo columns
+                    lenPrimaryKey = len(dicTemp[table][1]) #tamaño de la tabla creada
+                    columnasTabla = int(dicTep[table][0]) - 1
+
+                    if  (columnasTabla + 1) >= lenColumns: #Comparamos tamaño de columnas
+                        if lenPrimaryKey == 0:
+
+                            okPrimaryKey = True #Variable para ver que todos los indices existan en la tabla
+
+                            for e in columns: #for para recorrer los indices de PK y que existan dichos indices en la columna
+                                if int(e) >= columnasTabla:
+                                    okPrimaryKey = False
+                            
+                            if okPrimaryKey == True:
+                                dicTemp[table][1] = columns #Agregamos la lista de primary keys
+                                self.database[database] = dicTemp #Actualizamos el diccionario de base de datos
+                                ht.pk_redefinition(database, table) #Redefine las primary key
+                                ne.serialize("data/database",self.database)
+                                ne.serialize("data/tables/"+str(database)+"-"+str(table),self.database[database])
+                                return 0
+                            
+                            elif okPrimaryKey == False:
+                                return 1
+                        else:
+                            return 4
+                    else:
+                        return 5
+
+                else:
+                    return 3
+            else: 
+                return 2
+        except:
+            return 1
+    
+    #Función que devuelve una lista de primary key, es nulo si no hay creadas 
+    def listaPrimaryKeyTabla(self, baseDatos: str, tabla: str):
+        try:
+            listaTemporal = []
+            if self.searchDatabase(baseDatos) == True:
+                dictTemporal = self.database[baseDatos]
+
+                if self.buscarTabla(tabla, dictTemporal) == True:
+                    listaTemporal = dictTemporal[tabla][1]
+                    if len(listaTemporal) != 0:
+                        return listaTemporal
+                    else:
+                        None
+                else:
+                    return None
+        except:
+            return None
