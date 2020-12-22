@@ -97,6 +97,7 @@ def set_byte(string, index, byte_):
     for s in strings:
         if index > len(s):
             # Aqui deberia estar un error de lenght
+            # TODO: Aprender ingles :v
             col.append(None)
         else:
             s = s[:index] + chr(byte_) + s[index + 1 :]

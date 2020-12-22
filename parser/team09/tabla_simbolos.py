@@ -77,7 +77,15 @@ class tabla_simbolos():
 
     def agregar_simbolo(self, new_simbolo):  #agrega tablas y bases de datoos
         self.lis_simbolos.append(new_simbolo)
+        
+    def agregar_tabla(self,db,tabla):
+        verficar_db = self.get_simbol(db)
+        if(isinstance(verficar_db,E.Errores)):
+            return verficar_db #la base de datos no existe en la ts, database ya trae el error
+        else:
+            self.agregar_simbolo(tabla)
 
+        return tabla
 
     def agregar_columna(self,table, db,columna): 
         # agrega un simbolo columna a un simbolo tabla en la lista de valores de la misma
@@ -189,13 +197,21 @@ class tabla_simbolos():
         
         #si existe eliminamos el simbolo base de datos
         self.lis_simbolos.remove(database)
-        return True
-
         #eliminar todas las tablas que perteneces a esa base de datos
         for Sim in self.lis_simbolos:
-            if Sim.tipo == tipo_simbolo.TABLE and Sim.base == db :
+            print('simbolo ->  ' +Sim.id)
+            if Sim.base == db :
                 self.lis_simbolos.remove(Sim)
 
+        #eliminar base acutial
+        db_actual = self.get_dbActual()
+        try:
+            if(db_actual.id == db):
+                self.lis_simbolos.remove(db_actual)
+        except:
+            return True
+
+        return True
 
     def graficar(self):
         cont = 0
@@ -211,7 +227,7 @@ class tabla_simbolos():
             if sim.tipo == tipo_simbolo.DATABASE:
                 f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + sim.id + "<th>BASE DE DATOS</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
             elif sim.tipo == tipo_simbolo.TABLE:
-                f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + sim.id + "<th>TABLA</th><th>---</th><th>---</th><th>---</th><th>"+sim.base+"</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
+                f.write("<tr><td align=""center""><font color=""black"">" + str(cont) + "<td align=""center""><font color=""black"">" + str(sim.id) + "<th>TABLA</th><th>---</th><th>---</th><th>---</th><th>"+str(sim.base)+"</th><th>---</th><th>---</th><th>---</th><th>---</th></tr>" + '\n')
                 #imprimir columnas de la tabla
                 cont = cont+1
                 for col in sim.valor:

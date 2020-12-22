@@ -46,6 +46,7 @@ class CreateDB():
         self.mode = mode                                    # modo de almacenamiento
 
     def execute(self, ts_global):
+        print('----> EJECUTAR CREATE DATABASE')
         nueva_base = TS.Simbolo(self.id, TS.tipo_simbolo.DATABASE, None, None, None, None, None, None)
         existe = False                                      # bandera para comprobar si existe
         bases = ts_global.get_databases()                   # obtiene todas las bases de datos
@@ -77,11 +78,14 @@ class UseDB():
         self.id = id                                        # nombre de la base de datos
 
     def execute(self, ts_global):
+        print('----> EJECUTAR USE')
         bases = ts_global.get_databases()                   # obtiene todas las bases de datos
         for base in bases:                                  # verifico si existe:
             if base.id == self.id:                          # si sí existe, retorno el id
+                ts_global.agregar_simbolo((TS.Simbolo(base.id,TS.tipo_simbolo.DB_ACTUAL,None,None,None,None,None,None))) #se agrega el simbolo db_actual
                 return self.id                              # si no, es error
         new_error = E.Errores('Semántico.', 'La base de datos \'' + self.id + '\' no existe.')
+        print('******************************')
         #ls_error.append(new_error)                          #se agrega el error a la lista
         return None                                         # y retorno None
 
@@ -107,22 +111,46 @@ class Drop():
         print('id : ' + self.id)
 
 class CreateTable():
-    def __init__(self, id, base, cols, inh):
-        self.id = id,
+    def __init__(self, id, base, cols, inh,cont_key):
+        self.id = id
         self.base = base
         self.cols = cols
         self.inh = inh
+        self.cont_key = cont_key
         
     def execute(self,ts):
-        print('Ejecutando Creare Table')
-        print('id : ' + str(self.id))
-        for col in self.cols :
-            print('col id : ' + str(col.id))
-            print('col type : ' + str(col.tipo))
+        print('----> EJECUTAR CREATE TABLE * '+str(self.id))
+        self.base = ts.get_dbActual().id
+        if(isinstance(self.base,E.Errores)):
+            #no hay base Activa
+            print('***************************error - no hay base activa********************')
+            return
+        #creamos la tabla
+        new_tabla = TS.Simbolo(self.id,TS.tipo_simbolo.TABLE,None,self.base,None,None,None,None)
+        #insertamos la tabla a la ts
+        verificar_tabla=ts.agregar_tabla(str(self.base), new_tabla)
+        if(isinstance(verificar_tabla,E.Errores)):
+            print('***************************error********************')
+        else:
+            print('se agrego')
+        #agregamos las columnas a la tabla
+        for columna in self.cols:
+            columna.base = self.base
+            print(columna.id +' - '+ str(columna.tipo))
+            for const in columna.valor:
+                if(const.tipo == TS.t_constraint.PRIMARY):
+                    columna.pk = True
+                    columna.valor.remove(const)
+                elif (const.tipo == TS.t_constraint.FOREIGN):
+                    columna.fk = True
+                    columna.referencia = str(const.id)+','+str(const.valor)
+                    columna.valor.remove(const)
 
+                if columna.longitud == None:
+                    columna.longitud =0
+            
+            ts.agregar_columna(self.id,self.base,columna)
 
-        if self.inh != None :
-            print('Inherit : ' + self.inh)
 
 class Insert():
     def __init__(self, id, vals):

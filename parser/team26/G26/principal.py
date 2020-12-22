@@ -29,8 +29,8 @@ print(instrucciones)
 for instr in instrucciones :
     print(instr.execute(datos))
 
-print('\n\nTABLA DE SIMBOLOS')
-print (datos)
+#print('\n\nTABLA DE SIMBOLOS')
+#print (datos)
 
 #g.grafo.showtree()
 

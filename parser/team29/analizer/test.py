@@ -14,12 +14,13 @@ if dropAll:
 
 
 s = """ 
+
 USE db1;
-SELECT Set_byte(d.name, 0, 97) FROM demo5 d WHERE d.id > 1;
---SELECT md5(name) FROM demo5 WHERE id < 4;
---SELECT Trim("both", "er", "eeeeeerancisco al chileeeeeee");
---SELECT Set_byte("Name", 0, 97);
-SELECT convert_int('5');
+
+insert into tbempleado (idempleado,primernombre,primerapellido,fechadenacimiento,fechacontratacion,idestado) 
+values(8,'Maria','Lopez','1990-12-01','2016-09-21',1);
+
+
 """
 result = grammar.parse(s)
 print(result)

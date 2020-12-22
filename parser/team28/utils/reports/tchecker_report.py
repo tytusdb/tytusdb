@@ -7,19 +7,13 @@ class TypeCheckerReport(object):
     def __init__(self):
         self._typeChecker = TypeChecker()
         self._data = ''
-        self.generateReport()
-
-        report = open('typeChecker.dot', 'w')
-        report.write(self._data)
-        report.close()
-        os.system('dot -Tpdf typeChecker.dot -o typeChecker.pdf')
-        # os.startfile('typeChecker.pdf')
 
     def generateReport(self):
         self._data = 'digraph {\n\ttbl [\n\tshape=plaintext\n\tlabel=<'
         self._data += '\n\t\t<table border=\'0\' cellborder=\'1\' color=\'#324960\' cellspacing=\'0\'>'
         self.generateDatabases()
         self._data += '\n\t\t</table>\n\t>];\n}'
+        return self._data
 
     def generateDatabases(self):
         databases = self._typeChecker.getList()
