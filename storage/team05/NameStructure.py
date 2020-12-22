@@ -404,3 +404,94 @@ class NombreEstructuras:
         #print("recover data:",recover_data)
         return recover_data
     ##fin serializacion
+    
+class HashTable:
+
+    #Define el tamanio del vector al ser creada la tabla
+    def __init__(self):
+        self.DiccionarioTabla = {} #este es cambio hecho por mí
+        self.__vector = [None] * 20
+        self.__order_keys = []
+
+        try:
+            self.DiccionarioTabla=ne.deserialize("data/tables/table")
+        except:
+            print("Tablas vacias")
+            self.DiccionarioTabla={}
+        else:
+            pass
+
+    #Forma en la que se definirá la llave del dato
+    def __hash(self, valor):
+        llave = 0
+        for i in range(0, len(valor)):
+            llave += ord(valor[i]) * i
+        return llave % 20
+
+    def IniciarHashTable(self, database: str, table: str):
+        nombreKeyDiccionario = database + "_" + table
+        #Para comprobar que si existe la llave
+        if self.DiccionarioTabla.get(nombreKeyDiccionario) != None:
+            self.__vector = self.DiccionarioTabla[nombreKeyDiccionario][0]
+            self.__order_keys = self.DiccionarioTabla[nombreKeyDiccionario][1]
+        else:
+            self.__vector = [None] * 20
+            self.__order_keys = []
+        
+
+    def RestaurarHashTable(self, database, table, lista: list): #[__vector, __orderkeys]
+        nombreKeyDiccionario = database + "_" + table
+        self.DiccionarioTabla[nombreKeyDiccionario] = lista
+        ne.serialize("data/tables/table", self.DiccionarioTabla)
+
+    #Inserta los datos de una tupla en la tabla 
+    def insert(self, database: str, table: str, data: list):
+        
+        self.IniciarHashTable(database, table) #Iniciamos las variables de la tabla hash
+        
+        #Verifica si existe la base de datos especificada
+        if ne.searchDatabase(database) is False:
+            return 2
+
+        #Verifica si existe la tabla especificada en la base de datos
+        if ne.buscarTablaDatabase(database, table) is False:
+            return 3
+
+        #Verifica si la cantidad de datos de tupla coincide con el número de columnas
+        if int(ne.numeroDeColumnas(database, table)) != len(data):
+            return 5
+
+        #Verifica si la tabla tiene llave primaria
+        concat_llaves = ""
+        lista_llaves = ne.listaPrimaryKeyTabla(database, table)
+        if lista_llaves != None:
+            
+            #Concatena los datos de la columna
+            for l in lista_llaves:
+                concat_llaves += str(data[int(l)]) + "_"
+        else:
+            for d in data:
+                if d is not None:
+                    concat_llaves += d + "_"
+        
+        #Obtiene la llave que se utilizará para la tabla hash
+        llave = self.__hash(concat_llaves)
+        #Condiciones para verificar si la llave ya está ocupada
+        if self.__vector[llave] is None:
+            dic_datos = {}
+            dic_datos[concat_llaves] = data
+            self.__vector[llave] = dic_datos
+            self.__order_keys.append(concat_llaves)
+
+            self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+            return 0
+        else:
+            dic_datos = self.__vector[llave]
+            if dic_datos.get(concat_llaves) is None:
+                dic_datos[concat_llaves] = data
+                self.__vector[llave] = dic_datos
+                self.__order_keys.append(concat_llaves)
+                self.RestaurarHashTable(database, table, [self.__vector, self.__order_keys]) #Restauramos el diccionario
+                return 0
+            return 4
+        return 1
