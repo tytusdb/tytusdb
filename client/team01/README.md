@@ -7,3 +7,20 @@ TytusDB, Grupo01, Diciembre 2020
 > Integrantes
 > - 201403793	KEVIN NICOLAS GARCÍA MARTÍNEZ,	2324015000101@ingenieria.usac.edu.gt
 > - 201404218	OSMEL DAVID TÓRTOLA TISTOJ,	davidtortola_@hotmail.com
+
+
+# Manual De Usuario📚🖉
+
+![Philadelphia's Magic Gardens. This place was so cool!]()
+
+# Manual Técnico📚🖉
+
+**Librerías utilizadas**
+
+# **[Flask, web framework](https://flask.palletsprojects.com/en/1.1.x/).**
+
+
+
+---
+
+...and after a horizontal rule.
