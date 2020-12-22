@@ -23,3 +23,21 @@ def dropDatabase(database: str):
 
 def createTable(database: str, table: str, numberColumns: int):
     return d.createTable(database, table, numberColumns)
+
+ def showTables(database: str):
+    return d.showTables(database)
+
+def extractTable(database: str, table: str):
+    return h.extractTable(database, table)
+
+def extractRangeTable(database: str, table: str, columnNumber: int, lower: any, upper: any):
+    try:
+        return h.extractRangeTable(database, table, columnNumber, lower, upper)
+    except:
+        return None
+
+def alterAddPK(database: str, table: str, columns: list):
+    return d.alterAddPK(database, table, columns)
+
+def alterDropPK(database: str, table: str):
+    return d.alterAddPK(database, table)
