@@ -49,6 +49,7 @@ cuadroTxtSalida.tag_configure("error",  foreground="red")
 cuadroTxtSalida.tag_configure("exito",  foreground="green")
 cuadroTxtSalida.tag_configure("normal", foreground="black")
 cuadroTxtSalida.tag_configure("alert", foreground="orange")
+cuadroTxtSalida.tag_configure("table", foreground="blue")
 
 def agregarSalida(listaMensajes):
     txt=''

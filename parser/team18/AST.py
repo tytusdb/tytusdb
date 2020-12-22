@@ -14,6 +14,7 @@ import tkinter.messagebox
 from prettytable import PrettyTable
 from reporte_g import *
 import copy
+import itertools
 
 #---------variables globales
 listaInstrucciones = []
@@ -91,7 +92,8 @@ def validarTipo(T,valCOL):
             valCOL=None
     #acepta date
     elif(T=="date" or T=="timestamp" or T=="time" or T=="interval" or T=="boolean"):
-        print("falta validar las fechas")
+         print("falta validar las fechas")
+         valCOL=None
     #acepta Type
     else:
         tablaType=EDD.extractTable(baseActiva,T)#Extraer valores de la tabla
@@ -165,9 +167,10 @@ def obtenerPKexp(expresion,nombres,ts):
 def getpks(baseAc,nombret):
     tabla=buscarTabla(baseAc,nombret)
     llaves=[]
-    for colum in tabla.atributos:
-        if colum.primary==True:
-            llaves.append(colum.nombre)
+    if tabla is not None:
+        for colum in tabla.atributos:
+            if colum.primary==True:
+                llaves.append(colum.nombre)
     return llaves
 
 def llaves_tabla(exp,llaves,ts):
@@ -1087,7 +1090,6 @@ def eliminar_de_tabla(instr,ts):
             pk_index = indice_llaves(primarias,baseActiva,nombreT)
             pk_value = list(filter(None, pk_value))
             if pk_value is not None:
-                print('valores ',pk_value,'index ',pk_index)
                 registros=EDD.extractTable(baseActiva,nombreT) 
                 for registro in registros:
                     atributodel=[]
@@ -2083,6 +2085,49 @@ def ejecutar_select(instr,ts):
             outputTxt.append(tablaresult)
 
 
+def select_table(instr,ts):
+    print('cantidad ',instr.cantida,' parametros ',instr.parametros,' cuerpo ',instr.cuerpo,' funcion_alias',instr.funcion_alias)
+    agregarMensjae('normal','Select\n','')
+    if instr.cantida==True: # Distinct
+        ' '
+    else: # No Distinct
+        if instr.parametros=="*": # All
+            cuerpo_select(instr.cuerpo,ts)
+        else: # Algunas
+            ' '
+
+def cuerpo_select(cuerpo,ts):
+    ltablas=[] # tablas seleccionadas
+    lalias=[] # alias de tablas seleccionadas
+    lcabeceras=[] # cabeceras tablas
+    lregistros=[] # registros tablas
+    tablastmp = EDD.showTables(baseActiva)
+    # FROM ---------------------------------------------------------
+    for tabla in cuerpo.b_from:
+        splited=tabla.nombre.split()
+        name=splited[0]
+        alias=splited[1]
+        if name in tablastmp: # tabla registrada
+            ltablas.append(name)
+            lalias.append(alias)
+            tb = buscarTabla(baseActiva,name).atributos
+            for col in tb:
+                lcabeceras.append(col.nombre)
+        lregistros.append(EDD.extractTable(baseActiva,name))
+    # JOINS --------------------------------------------------------
+    # WHERE --------------------------------------------------------
+    if cuerpo.b_where == False: # sin where
+        result = PrettyTable()
+        result.field_names = lcabeceras
+        for registro in itertools.product(*lregistros): #producto cartesiano
+            fila=[]
+            for i in registro:
+                for j in i:
+                    fila.append(j)
+            result.add_row(fila)
+        agregarMensjae('table',result,'')
+    else: # con where
+        ' '
 
 #-------------
 def resolver_operacion(operacion,ts):
@@ -2305,8 +2350,12 @@ def procesar_instrucciones(instrucciones, ts) :
             elif isinstance(instr, MostrarTB) : Mostrar_TB(instr,ts)
             else: 
                 for val in instr:
-                    if(isinstance (val,SELECT)): ejecutar_select(val,ts)
-                    else : print('Error: instrucción no válida')
+                    if(isinstance (val,SELECT)): 
+                        if val.funcion_alias is not None:
+                            ejecutar_select(val,ts)
+                        else:
+                            select_table(val,ts)
+                    else : print('Error: instrucción no válida')             
     else:
         agregarMensjae('error','El arbol no se genero debido a un error en la entrada','')
 
