@@ -472,13 +472,183 @@ def ventana_AlterAddPK():
     b_AddPk.place(x=400,y=150)
 
 def ventana_AlterDropPK():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+        if value==4:
+            messagebox.showerror("Error: "+str(value),"Llave primaria no existente")
+        else:
+            messagebox.showerror("Error:", "Error desconocido")
+
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def dropPK(db,tabla):
+        retorno=newData.alterDropPK(str(db),str(tabla))
+        if retorno==0:
+            messagebox.showinfo("Exito","Operacion Exitosa")
+        else:
+            mostrarError(retorno)
+
+    ventanaAlterDropPk=Tk.Tk()
+    ventanaAlterDropPk.geometry("600x200")
+    ventanaAlterDropPk.title("Alter Drop Primary Key")
+    ventanaAlterDropPk.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaAlterDropPk,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaAlterDropPk,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaAlterDropPk,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaAlterDropPk,text="Tabla a Modificar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaAlterDropPk,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    b_dropPK=Tk.Button(ventanaAlterDropPk,text="Drop Primary Key",command=lambda:[dropPK(cb_showdb.get(),cb_showtable.get()),ventanaAlterDropPk.destroy()])
+    b_dropPK.place(x=400,y=100)
 
 def ventana_ExtractTable():
-	pass
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def loadTable(db,tabla):
+        retorno=newHash.extractTable(db,tabla)
+        lb_tabla.delete('0',Tk.END)
+        if retorno==None:
+            messagebox.showerror("Error","Ha ocurrido un error")
+        elif retorno is not None:
+            if len(retorno)!=0:
+                for r in retorno:
+                    contador=1
+                    lb_tabla.insert(contador,str(r))
+                    contador=contador+1
+            else:
+                messagebox.showerror("Error","Lista Vacia")
+
+    ventanaExtractTable=Tk.Tk()
+    ventanaExtractTable.geometry("600x400")
+    ventanaExtractTable.title("Extract Table")
+    ventanaExtractTable.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaExtractTable,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaExtractTable,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaExtractTable,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaExtractTable,text="Tabla a Extraer",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaExtractTable,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    b_extract=Tk.Button(ventanaExtractTable,text="Extract Table",command=lambda:[loadTable(cb_showdb.get(),cb_showtable.get())])
+    b_extract.place(x=400,y=100)
+
+    sb=Tk.Scrollbar(ventanaExtractTable)
+    sb.pack(side=Tk.RIGHT,fill=Tk.Y)
+
+    lb_tabla=Tk.Listbox(ventanaExtractTable,width=82,yscrollcommand=sb.set)
+    lb_tabla.place(x=50,y=150)
+    sb.config(command=lb_tabla.yview)
 
 def ventana_ExtractRT():
-	pass
+    def showColNumber(db,table):
+        cantidad=newData.numeroDeColumnas(db,table)
+        messagebox.showinfo("Cantidad de Columnas","La tabla contiene: "+str(cantidad)+" columnas")
+        valores=[]
+        contador=0
+        while contador<int(cantidad):
+            valores.append(contador)
+            contador=contador+1
+        sb_colnumber['values']=valores
+        sb_colnumber.update()
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def extractRT(db,tabla,colnum,low,up):
+        retorno=newHash.extractRangeTable(db,tabla,colnum,low,up)
+        lb_tabla.delete('0',Tk.END)
+        if retorno==None:
+            messagebox.showerror("Error","Ha ocurrido un error")
+        elif retorno is not None:
+            if len(retorno)!=0:
+                for r in retorno:
+                    contador=1
+                    lb_tabla.insert(contador,str(r))
+                    contador=contador+1
+            else:
+                messagebox.showerror("Error","Lista Vacia")
+    
+    ventanaExtractRTable=Tk.Tk()
+    ventanaExtractRTable.geometry("600x800")
+    ventanaExtractRTable.title("Extract Range Table")
+    ventanaExtractRTable.iconbitmap("images/icon.ico")
+    
+    label_db=Tk.Label(ventanaExtractRTable,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaExtractRTable,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaExtractRTable,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaExtractRTable,text="Tabla a Modificar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaExtractRTable,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    b_showcolnum=Tk.Button(ventanaExtractRTable,text="Mostrar Cantidad de Columnas",command=lambda : [showColNumber(cb_showdb.get(),cb_showtable.get())])
+    b_showcolnum.place(x=400,y=100)
+
+    label_colNum=Tk.Label(ventanaExtractRTable,text="Columna #: ",font=("Arial",14))
+    label_colNum.place(x=50,y=150)
+    
+    sb_colnumber=Tk.Spinbox(ventanaExtractRTable)
+    sb_colnumber.place(x=225,y=150)
+    
+    label_lower=Tk.Label(ventanaExtractRTable,text="Lower",font=("Arial",14))
+    label_lower.place(x=50,y=200)
+
+    entry_lower=Tk.Entry(ventanaExtractRTable)
+    entry_lower.place(x=225,y=200)
+
+    label_upper=Tk.Label(ventanaExtractRTable,text="Upper",font=("Arial",14))
+    label_upper.place(x=50,y=250)
+
+    entry_upper=Tk.Entry(ventanaExtractRTable)
+    entry_upper.place(x=225,y=250)
+
+    b_extract=Tk.Button(ventanaExtractRTable,text="Extract Range Table",command=lambda:[extractRT(cb_showdb.get(),cb_showtable.get(),sb_colnumber.get(),entry_lower.get(),entry_upper.get())])
+    b_extract.place(x=400,y=250)
+
+    sb=Tk.Scrollbar(ventanaExtractRTable)
+    sb.pack(side=Tk.RIGHT,fill=Tk.Y)
+
+    lb_tabla=Tk.Listbox(ventanaExtractRTable,width=82,yscrollcommand=sb.set)
+    lb_tabla.place(x=50,y=300)
+    sb.config(command=lb_tabla.yview)
 
 
 #Ventana Tuples
