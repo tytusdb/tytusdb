@@ -55,7 +55,7 @@ class select(query):
             
             res = col.ejecutar(tables)
             if isinstance(res,errores.CError):
-                e = errores.CError(0,0,"Error obteniendo informacion de alguna columna.") 
+                e = errores.CError(0,0,"Error obteniendo informacion de alguna columna.",'Semantico') 
                 errores.insert_error(e)
                 return e
             
@@ -65,7 +65,7 @@ class select(query):
         if self.condition is not None:
             conditions = ejecutar_conditions(tables,self.condition)
             if isinstance(conditions,errores.CError):
-                e = errores.CError(0,0,"Error realizando las condiciones.")
+                e = errores.CError(0,0,"Error realizando las condiciones.",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -75,7 +75,7 @@ class select(query):
             
             grouped = ejecutar_groupBy(results,self.select_list)
             if isinstance(grouped,errores.CError):
-                e = errores.CError(0,0,"Error agrupando los elementos.")
+                e = errores.CError(0,0,"Error agrupando los elementos.",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -249,7 +249,7 @@ class exp_id(exp_query):
         else:
             #Verificamos que exista 
             if self.table not in tables and self.table not in tables.values():
-                e = errores.CError(0,0,"La tabla buscada no está en el from")
+                e = errores.CError(0,0,"La tabla buscada no está en el from",'Semantico')
                 errores.insert_error(e)
                 return e
             # Existe, ahora obtenemos el nombre de la tabla
@@ -356,7 +356,7 @@ class exp_suma(exp_query):
                         ma = float(mayor[i])
                         result.append(me-ma)
                     except ValueError: 
-                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.")
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -388,7 +388,7 @@ class exp_suma(exp_query):
                 
                 return float(exp1) + float(exp2)
             except ValueError: 
-                e = errores.CError(0,0,"Imposible convertir a numeric en la suma.")
+                e = errores.CError(0,0,"Imposible convertir a numeric en la suma.",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -423,7 +423,7 @@ class exp_resta(exp_query):
                         ma = float(mayor[i])
                         result.append(me-ma)
                     except ValueError: 
-                        e = errores.CError(0,0,"Imposible convertir a numeric en la resta.")
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la resta.",'Semantico')
                         errores.insert_error(e)
                         return e
                     
@@ -457,7 +457,7 @@ class exp_resta(exp_query):
                 
                 return float(exp1) - float(exp2)
             except ValueError: 
-                e = errores.CError(0,0,"Imposible convertir a numeric en la resta.")
+                e = errores.CError(0,0,"Imposible convertir a numeric en la resta.",'Semantico')
                 errores.insert_error(e)
                 return e
             
@@ -490,7 +490,7 @@ class exp_multiplicacion(exp_query):
                         ma = float(mayor[i])
                         result.append(me*ma)
                     except ValueError: 
-                        e = errores.CError(0,0,"Imposible convertir a numeric en la multiplicacion.")
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la multiplicacion.",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -523,7 +523,7 @@ class exp_multiplicacion(exp_query):
                 
                 return float(exp1) *float(exp2)
             except ValueError: 
-                e = errores.CError(0,0,"Imposible convertir a numeric en la multiplicacion.")
+                e = errores.CError(0,0,"Imposible convertir a numeric en la multiplicacion.",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -555,7 +555,7 @@ class exp_division(exp_query):
                         ma = float(mayor[i])
                         result.append(me/ma)
                     except ValueError: 
-                        e = errores.CError(0,0,"Imposible convertir a numeric en la division.")
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la division.",'Semantico')
                         errores.insert_error(e)
                         return e
                     
@@ -588,7 +588,7 @@ class exp_division(exp_query):
                 
                 return float(exp1) - float(exp2)
             except ValueError: 
-                e = errores.CError(0,0,"Imposible convertir a numeric en la division.")
+                e = errores.CError(0,0,"Imposible convertir a numeric en la division.",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -620,7 +620,7 @@ class math_abs(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -631,7 +631,7 @@ class math_abs(column_mathtrig):
                 try:
                     result.append(abs(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
                 
@@ -643,7 +643,7 @@ class math_abs(column_mathtrig):
             try:
                 return abs(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
         
@@ -659,7 +659,7 @@ class math_cbrt(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -670,7 +670,7 @@ class math_cbrt(column_mathtrig):
                 try: 
                     result.append(mt.cbrt(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -681,7 +681,7 @@ class math_cbrt(column_mathtrig):
             try:
                 return mt.cbrt(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -695,7 +695,7 @@ class math_ceil(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -706,7 +706,7 @@ class math_ceil(column_mathtrig):
                 try:
                     result.append(mt.ceil(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -717,7 +717,7 @@ class math_ceil(column_mathtrig):
             try:
                 return mt.ceil(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -731,7 +731,7 @@ class math_degrees(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -742,7 +742,7 @@ class math_degrees(column_mathtrig):
                 try:
                     result.append(mt.degrees(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -753,7 +753,7 @@ class math_degrees(column_mathtrig):
             try:
                 return mt.degrees(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -769,7 +769,7 @@ class math_div(column_mathtrig):
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
         if isinstance(exp1,CError) or isinstance(exp2,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         # si al menos una es diccionario
@@ -787,7 +787,7 @@ class math_div(column_mathtrig):
                     try:
                         result.append(mt.div(menor[i],mayor[i]))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -805,7 +805,7 @@ class math_div(column_mathtrig):
                     try:
                         result.append(mt.div(col,val))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -819,7 +819,7 @@ class math_div(column_mathtrig):
             try:
                 return mt.div(float(exp1) , float(exp2))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
         
@@ -833,7 +833,7 @@ class math_exp(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -844,7 +844,7 @@ class math_exp(column_mathtrig):
                 try:
                     result.append(mt.exp(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -855,7 +855,7 @@ class math_exp(column_mathtrig):
             try:
                 return mt.exp(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -868,7 +868,7 @@ class math_factorial(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -879,7 +879,7 @@ class math_factorial(column_mathtrig):
                 try:
                     result.append(mt.factorial(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -890,7 +890,7 @@ class math_factorial(column_mathtrig):
             try:
                 return mt.factorial(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -904,7 +904,7 @@ class math_floor(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -915,7 +915,7 @@ class math_floor(column_mathtrig):
                 try:
                     result.append(mt.floor(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -926,7 +926,7 @@ class math_floor(column_mathtrig):
             try:
                 return mt.floor(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico','Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -942,7 +942,7 @@ class math_gcd(column_mathtrig):
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
         if isinstance(exp1,CError) or isinstance(exp2,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         # si al menos una es diccionario
@@ -960,7 +960,7 @@ class math_gcd(column_mathtrig):
                     try:
                         result.append(mt.gcd(menor[i],mayor[i]))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -978,7 +978,7 @@ class math_gcd(column_mathtrig):
                     try:
                         result.append(mt.gcd(col,val))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -992,7 +992,7 @@ class math_gcd(column_mathtrig):
             try:
                 return mt.gcd(float(exp1) , float(exp2))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1007,7 +1007,7 @@ class math_lcm(column_mathtrig):
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
         if isinstance(exp1,CError) or isinstance(exp2,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         # si al menos una es diccionario
@@ -1025,7 +1025,7 @@ class math_lcm(column_mathtrig):
                     try:
                         result.append(mt.lcm(menor[i],mayor[i]))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -1043,7 +1043,7 @@ class math_lcm(column_mathtrig):
                     try:
                         result.append(mt.lcm(col,val))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -1057,7 +1057,7 @@ class math_lcm(column_mathtrig):
             try:
                 return mt.lcm(float(exp1) , float(exp2))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1072,7 +1072,7 @@ class math_ln(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1083,7 +1083,7 @@ class math_ln(column_mathtrig):
                 try:
                     result.append(mt.ln(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1094,7 +1094,7 @@ class math_ln(column_mathtrig):
             try:
                 return mt.ln(float(exp))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1110,7 +1110,7 @@ class math_log(column_mathtrig):
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
         if isinstance(exp1,CError) or isinstance(exp2,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         # si al menos una es diccionario
@@ -1128,7 +1128,7 @@ class math_log(column_mathtrig):
                     try:
                         result.append(mt.log(menor[i],mayor[i]))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -1155,7 +1155,7 @@ class math_log(column_mathtrig):
             try:
                 return mt.log(float(exp1) , float(exp2))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1169,7 +1169,7 @@ class math_log10(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1180,7 +1180,7 @@ class math_log10(column_mathtrig):
                 try:
                     result.append(mt.log10(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1199,7 +1199,7 @@ class math_min_scale(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1210,7 +1210,7 @@ class math_min_scale(column_mathtrig):
                 try:
                     result.append(mt.min_scale(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1221,7 +1221,7 @@ class math_min_scale(column_mathtrig):
             try:
                 return mt.min_scale(float(exp))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1234,7 +1234,7 @@ class math_scale(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1245,7 +1245,7 @@ class math_scale(column_mathtrig):
                 try:
                     result.append(mt.scale(str(reg)))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1256,7 +1256,7 @@ class math_scale(column_mathtrig):
             try:
                 return mt.scale(str(exp))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1271,7 +1271,7 @@ class math_mod(column_mathtrig):
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
         if isinstance(exp1,CError) or isinstance(exp2,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         # si al menos una es diccionario
@@ -1289,7 +1289,7 @@ class math_mod(column_mathtrig):
                     try:
                         result.append(mt.mod(menor[i],mayor[i]))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -1307,7 +1307,7 @@ class math_mod(column_mathtrig):
                     try:
                         result.append(mt.mod(col,val))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -1321,7 +1321,7 @@ class math_mod(column_mathtrig):
             try:
                 return mt.mod(float(exp1) , float(exp2))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1335,7 +1335,7 @@ class math_pi(column_mathtrig):
         try:
             return self.val
         except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1351,7 +1351,7 @@ class math_power(column_mathtrig):
         exp1 = self.exp1.ejecutar(tables)
         exp2 = self.exp2.ejecutar(tables)
         if isinstance(exp1,CError) or isinstance(exp2,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         # si al menos una es diccionario
@@ -1369,7 +1369,7 @@ class math_power(column_mathtrig):
                     try:
                         result.append(mt.power(menor[i],mayor[i]))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -1387,7 +1387,7 @@ class math_power(column_mathtrig):
                     try:
                         result.append(mt.power(col,val))
                     except ValueError:
-                        e = CError(0,0,"Error en funcion matematica")
+                        e = CError(0,0,"Error en funcion matematica",'Semantico')
                         errores.insert_error(e)
                         return e
                 newdict = {
@@ -1401,7 +1401,7 @@ class math_power(column_mathtrig):
             try:
                 return mt.power(float(exp1) , float(exp2))
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1415,7 +1415,7 @@ class math_radians(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1426,7 +1426,7 @@ class math_radians(column_mathtrig):
                 try:
                     result.append(mt.radians(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1437,7 +1437,7 @@ class math_radians(column_mathtrig):
             try:
                 return mt.radians(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1451,7 +1451,7 @@ class math_round(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1462,7 +1462,7 @@ class math_round(column_mathtrig):
                 try:
                     result.append(round(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1473,7 +1473,7 @@ class math_round(column_mathtrig):
             try:
                 return round(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1487,7 +1487,7 @@ class math_sign(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1498,7 +1498,7 @@ class math_sign(column_mathtrig):
                 try:
                     result.append(mt.sign(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1509,7 +1509,7 @@ class math_sign(column_mathtrig):
             try:
                 return mt.sign(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1523,7 +1523,7 @@ class math_sqrt(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1534,7 +1534,7 @@ class math_sqrt(column_mathtrig):
                 try:
                     result.append(mt.sqrt(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1545,7 +1545,7 @@ class math_sqrt(column_mathtrig):
             try:
                 return mt.sqrt(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1558,7 +1558,7 @@ class math_trim_scale(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1569,7 +1569,7 @@ class math_trim_scale(column_mathtrig):
                 try:
                     result.append(mt.trim_scale(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1581,7 +1581,7 @@ class math_trim_scale(column_mathtrig):
             try:
                 return mt.trim_scale(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1598,7 +1598,7 @@ class math_widthBucket(column_mathtrig):
         try:
             return mt.width_bucket(9,8,7,6)
         except ValueError:
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -1612,7 +1612,7 @@ class math_trunc(column_mathtrig):
         #Verificamos si viene un diccionario o un valor
         exp = self.exp.ejecutar(tables)
         if isinstance(exp,CError):
-            e = CError(0,0,"Error en funcion matematica")
+            e = CError(0,0,"Error en funcion matematica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(exp,dict):
@@ -1623,7 +1623,7 @@ class math_trunc(column_mathtrig):
                 try:
                     result.append(mt.trunc(reg))
                 except ValueError:
-                    e = CError(0,0,"Error en funcion matematica")
+                    e = CError(0,0,"Error en funcion matematica",'Semantico')
                     errores.insert_error(e)
                     return e
             exp['valores']  = result
@@ -1634,7 +1634,7 @@ class math_trunc(column_mathtrig):
             try:
                 return mt.trunc(exp)
             except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1656,7 +1656,7 @@ class math_setseed(column_mathtrig):
         try:
             mt.setseed(self.exp.ejecutar(tables))
         except ValueError:
-                e = CError(0,0,"Error en funcion matematica")
+                e = CError(0,0,"Error en funcion matematica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -1670,7 +1670,7 @@ class trig_acos(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -1683,7 +1683,7 @@ class trig_acos(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -1701,7 +1701,7 @@ class trig_acos(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -1721,7 +1721,7 @@ class trig_acosd(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -1734,7 +1734,7 @@ class trig_acosd(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -1751,7 +1751,7 @@ class trig_acosd(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -1769,7 +1769,7 @@ class trig_asin(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -1782,7 +1782,7 @@ class trig_asin(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -1799,7 +1799,7 @@ class trig_asin(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -1819,7 +1819,7 @@ class trig_asind(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -1832,7 +1832,7 @@ class trig_asind(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -1849,7 +1849,7 @@ class trig_asind(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -1870,7 +1870,7 @@ class trig_atan(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -1883,7 +1883,7 @@ class trig_atan(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -1900,7 +1900,7 @@ class trig_atan(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -1920,7 +1920,7 @@ class trig_atand(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -1933,7 +1933,7 @@ class trig_atand(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -1950,7 +1950,7 @@ class trig_atand(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -1970,7 +1970,7 @@ class trig_atan2(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico','Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -1983,7 +1983,7 @@ class trig_atan2(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2000,7 +2000,7 @@ class trig_atan2(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2023,7 +2023,7 @@ class trig_atan2d(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2036,7 +2036,7 @@ class trig_atan2d(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2053,7 +2053,7 @@ class trig_atan2d(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2073,7 +2073,7 @@ class trig_cos(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2086,7 +2086,7 @@ class trig_cos(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2103,7 +2103,7 @@ class trig_cos(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2124,7 +2124,7 @@ class trig_cosd(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2137,7 +2137,7 @@ class trig_cosd(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2154,7 +2154,7 @@ class trig_cosd(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2175,7 +2175,7 @@ class trig_cot(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2188,7 +2188,7 @@ class trig_cot(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2205,7 +2205,7 @@ class trig_cot(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2223,7 +2223,7 @@ class trig_cotd(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2236,7 +2236,7 @@ class trig_cotd(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e    
 
@@ -2253,7 +2253,7 @@ class trig_cotd(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2272,7 +2272,7 @@ class trig_sin(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2285,7 +2285,7 @@ class trig_sin(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2302,7 +2302,7 @@ class trig_sin(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2319,7 +2319,7 @@ class trig_sind(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2332,7 +2332,7 @@ class trig_sind(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2349,7 +2349,7 @@ class trig_sind(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2366,7 +2366,7 @@ class trig_tan(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2379,7 +2379,7 @@ class trig_tan(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2396,7 +2396,7 @@ class trig_tan(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2415,7 +2415,7 @@ class trig_tand(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2428,7 +2428,7 @@ class trig_tand(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion tri")
+                    e = CError(0,0,"Error en funcion tri",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2445,7 +2445,7 @@ class trig_tand(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2462,7 +2462,7 @@ class trig_sinh(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2475,7 +2475,7 @@ class trig_sinh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2492,7 +2492,7 @@ class trig_sinh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2511,7 +2511,7 @@ class trig_cosh(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2524,7 +2524,7 @@ class trig_cosh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
                     
@@ -2539,7 +2539,7 @@ class trig_cosh(column_mathtrig):
         else:
             #saco el substring y lo devuelvo
             if not (isinstance(val, int)): 
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
             trim = mt.cosh(float(val))
@@ -2557,7 +2557,7 @@ class trig_tanh(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2570,7 +2570,7 @@ class trig_tanh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2587,7 +2587,7 @@ class trig_tanh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2606,7 +2606,7 @@ class trig_asinh(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2619,7 +2619,7 @@ class trig_asinh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2636,7 +2636,7 @@ class trig_asinh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2653,7 +2653,7 @@ class trig_acosh(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2666,7 +2666,7 @@ class trig_acosh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2683,7 +2683,7 @@ class trig_acosh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
                 
@@ -2699,7 +2699,7 @@ class trig_atanh(column_mathtrig):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion trigonometrica")
+            e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2712,7 +2712,7 @@ class trig_atanh(column_mathtrig):
                 try:
                     temp = float(st)
                 except ValueError:
-                    e = CError(0,0,"Error en funcion trigonometrica")
+                    e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2729,7 +2729,7 @@ class trig_atanh(column_mathtrig):
             try:
                 temp = float(val)
             except ValueError:
-                e = CError(0,0,"Error en funcion trigonometrica")
+                e = CError(0,0,"Error en funcion trigonometrica",'Semantico')
                 errores.insert_error(e)
                 return e
 
@@ -2749,7 +2749,7 @@ class fun_sum(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion sum")
+            e = CError(0,0,"Error en funcion sum",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2768,7 +2768,7 @@ class fun_sum(column_function):
                 
         #Es solo un valor en especifico
         else:
-            e = CError(0,0,"Error en funcion sum")
+            e = CError(0,0,"Error en funcion sum",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -2780,7 +2780,7 @@ class fun_avg(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion avg")
+            e = CError(0,0,"Error en funcion avg",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2799,7 +2799,7 @@ class fun_avg(column_function):
                 
         #Es solo un valor en especifico
         else:
-            e = CError(0,0,"Error en funcion avg")
+            e = CError(0,0,"Error en funcion avg",'Semantico')
             errores.insert_error(e)
             return e
  
@@ -2811,7 +2811,7 @@ class fun_max(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion max")
+            e = CError(0,0,"Error en funcion max",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2820,7 +2820,7 @@ class fun_max(column_function):
             if isinstance(val['valores'],list):
                 #recorro valores y saco el substring 
                 if len(val['valores']) == 0:
-                    e = CError(0,0,"Error en funcion max")
+                    e = CError(0,0,"Error en funcion max",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2841,7 +2841,7 @@ class fun_max(column_function):
                 val['posiciones'] = posiciones
                 return val
             else:
-                e = CError(0,0,"Error en funcion max")
+                e = CError(0,0,"Error en funcion max",'Semantico')
                 errores.insert_error(e)
                 return e
                
@@ -2849,7 +2849,7 @@ class fun_max(column_function):
                 
         #Es solo un valor en especifico
         else:
-            e = CError(0,0,"Error en funcion max")
+            e = CError(0,0,"Error en funcion max",'Semantico')
             errores.insert_error(e)
             return e
  
@@ -2862,7 +2862,7 @@ class fun_min(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en funcion min")
+            e = CError(0,0,"Error en funcion min",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2871,7 +2871,7 @@ class fun_min(column_function):
             if isinstance(val['valores'],list):
                 #recorro valores y saco el substring 
                 if len(val['valores']) == 0: 
-                    e = CError(0,0,"Error en funcion min")
+                    e = CError(0,0,"Error en funcion min",'Semantico')
                     errores.insert_error(e)
                     return e
 
@@ -2892,14 +2892,14 @@ class fun_min(column_function):
                 val['posiciones'] = posiciones
                 return val
             else:
-                e = CError(0,0,"Error en funcion min")
+                e = CError(0,0,"Error en funcion min",'Semantico')
                 errores.insert_error(e)
                 return e
                 
                 
         #Es solo un valor en especifico
         else:
-            e = CError(0,0,"Error en funcion min")
+            e = CError(0,0,"Error en funcion min",'Semantico')
             errores.insert_error(e)
             return e
  
@@ -2915,7 +2915,7 @@ class fun_count(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en parametros de count")
+            e = CError(0,0,"Error en parametros de count",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2936,7 +2936,7 @@ class fun_count(column_function):
         else:
             if val == '*':
                     if len(tables) != 1:
-                        e = CError(0,0,"Error en funcion count")
+                        e = CError(0,0,"Error en funcion count",'Semantico')
                         errores.insert_error(e)
                         return e
                     else:
@@ -2946,7 +2946,7 @@ class fun_count(column_function):
                         return len(r)
             else:
                 
-                e = CError(0,0,"Error en funcion count")
+                e = CError(0,0,"Error en funcion count",'Semantico')
                 errores.insert_error(e)
                 return e
  
@@ -2959,7 +2959,7 @@ class fun_length(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en parametros de lenght")
+            e = CError(0,0,"Error en parametros de lenght",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -2995,7 +2995,7 @@ class fun_trim(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en parametros de trim")
+            e = CError(0,0,"Error en parametros de trim",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -3033,7 +3033,7 @@ class fun_md5(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en parametros md5")
+            e = CError(0,0,"Error en parametros md5",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -3074,7 +3074,7 @@ class fun_sha256(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en parametros sha2556")
+            e = CError(0,0,"Error en parametros sha2556",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -3129,7 +3129,7 @@ class fun_substr(column_function):
     def ejecutar(self,tables):
         val = self.exp.ejecutar(tables)
         if isinstance(val,CError):
-            e = CError(0,0,"Error en parametros substring")
+            e = CError(0,0,"Error en parametros substring",'Semantico')
             errores.insert_error(e)
             return e
         if isinstance(val,dict):        
@@ -3165,13 +3165,13 @@ class fun_greatest(column_function):
         
         try:
             if len(self.lexps) == 0 : 
-                e = CError(0,0,"Funcion greatest necesita una lista")
+                e = CError(0,0,"Funcion greatest necesita una lista",'Semantico')
                 errores.insert_error(e)
                 return e
 
             val = self.lexps[0].ejecutar(tables)
             if isinstance(val,CError):
-                e = CError(0,0,"Error en parametros diferente")
+                e = CError(0,0,"Error en parametros diferente",'Semantico')
                 errores.insert_error(e)
                 return e
             #if val['valores'] == None or len(val['valores']) == 0: return None
@@ -3200,7 +3200,7 @@ class fun_greatest(column_function):
                 return maximo
         except:
             #Error
-            e = CError(0,0,"Error en parametros de funcion greatest")
+            e = CError(0,0,"Error en parametros de funcion greatest",'Semantico')
             errores.insert_error(e)
             return e
  
@@ -3211,7 +3211,7 @@ class fun_least(column_function):
     
     def ejecutar(self,tables):
         if len(self.lexps) == 0 : 
-            e = CError(0,0,"Funcion least necesita una lista")
+            e = CError(0,0,"Funcion least necesita una lista",'Semantico')
             errores.insert_error(e)
             return e
         try:
@@ -3219,11 +3219,11 @@ class fun_least(column_function):
             val = self.lexps[0].ejecutar(tables)
             
             if isinstance(val,CError):
-                e = CError(0,0,"Error en parametros de menor o igual")
+                e = CError(0,0,"Error en parametros de menor o igual",'Semantico')
                 errores.insert_error(e)
                 return e
             if val == None:
-                e = CError(0,0,"Error en parametros de menor o igual")
+                e = CError(0,0,"Error en parametros de menor o igual",'Semantico')
                 errores.insert_error(e)
                 return e
             
@@ -3258,7 +3258,7 @@ class fun_least(column_function):
                 return minimo
         except:
             #Error
-            e = CError(0,0,"Error en funcion least")
+            e = CError(0,0,"Error en funcion least",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3294,7 +3294,7 @@ class exp_igual(exp_query):
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
         if isinstance(val1,CError) or  isinstance(val2,CError):
-            e = CError(0,0,"Error en parametros de igual")
+            e = CError(0,0,"Error en parametros de igual",'Semantico')
             errores.insert_error(e)
             return e
         #id op val
@@ -3312,7 +3312,7 @@ class exp_igual(exp_query):
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de igual")
+                    e = CError(0,0,"Error en parametros de igual",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3332,7 +3332,7 @@ class exp_igual(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de igual")
+                    e = CError(0,0,"Error en parametros de igual",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3352,7 +3352,7 @@ class exp_igual(exp_query):
                     return newdict
         #Error
         else: 
-            e = CError(0,0,"Error en parametros de igual")
+            e = CError(0,0,"Error en parametros de igual",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3370,7 +3370,7 @@ class exp_mayor(exp_query):
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
         if isinstance(val1,CError) or  isinstance(val2,CError):
-            e = CError(0,0,"Error en parametros de mayor")
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
             errores.insert_error(e)
             return e
         #id op val
@@ -3389,7 +3389,7 @@ class exp_mayor(exp_query):
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de mayor")
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
                     errores.insert_error(e)
                     return e    
                 else: 
@@ -3409,7 +3409,7 @@ class exp_mayor(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de mayor")
+                    e = CError(0,0,"Error en parametros de mayor",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3429,7 +3429,7 @@ class exp_mayor(exp_query):
                     return newdict
         #Error
         else: 
-            e = CError(0,0,"Error en parametros de mayor")
+            e = CError(0,0,"Error en parametros de mayor",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3449,7 +3449,7 @@ class exp_menor(exp_query):
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
         if isinstance(val1,CError) or  isinstance(val2,CError):
-            e = CError(0,0,"Error en parametros de menor")
+            e = CError(0,0,"Error en parametros de menor",'Semantico')
             errores.insert_error(e)
             return e
         #id op val
@@ -3467,7 +3467,7 @@ class exp_menor(exp_query):
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de menor")
+                    e = CError(0,0,"Error en parametros de menor",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3487,7 +3487,7 @@ class exp_menor(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de menor")
+                    e = CError(0,0,"Error en parametros de menor",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3507,7 +3507,7 @@ class exp_menor(exp_query):
                     return newdict
         #Error
         else: 
-            e = CError(0,0,"Error en parametros de menor")
+            e = CError(0,0,"Error en parametros de menor",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3527,7 +3527,7 @@ class exp_mayor_igual(exp_query):
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
         if isinstance(val1,CError) or  isinstance(val2,CError):
-            e = CError(0,0,"Error en parametros de mayor o igual")
+            e = CError(0,0,"Error en parametros de mayor o igual",'Semantico')
             errores.insert_error(e)
             return e
         #id op val
@@ -3545,7 +3545,7 @@ class exp_mayor_igual(exp_query):
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de mayor o igual")
+                    e = CError(0,0,"Error en parametros de mayor o igual",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3565,7 +3565,7 @@ class exp_mayor_igual(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de mayor o igual")
+                    e = CError(0,0,"Error en parametros de mayor o igual",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3585,7 +3585,7 @@ class exp_mayor_igual(exp_query):
                     return newdict
         #Error
         else: 
-            e = CError(0,0,"Error en parametros de mayor o igual")
+            e = CError(0,0,"Error en parametros de mayor o igual",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3605,7 +3605,7 @@ class exp_menor_igual(exp_query):
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
         if isinstance(val1,CError) or  isinstance(val2,CError):
-            e = CError(0,0,"Error en parametros de menor o igual")
+            e = CError(0,0,"Error en parametros de menor o igual",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3624,7 +3624,7 @@ class exp_menor_igual(exp_query):
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de menor o igual")
+                    e = CError(0,0,"Error en parametros de menor o igual",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3644,7 +3644,7 @@ class exp_menor_igual(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    e = CError(0,0,"Error en parametros de menor o igual")
+                    e = CError(0,0,"Error en parametros de menor o igual",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3664,7 +3664,7 @@ class exp_menor_igual(exp_query):
                     return newdict
         #Error
         else: 
-            e = CError(0,0,"Error en parametros de menor o igual")
+            e = CError(0,0,"Error en parametros de menor o igual",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3683,7 +3683,7 @@ class exp_diferente(exp_query):
         val1 = self.exp1.ejecutar(tables)
         val2 = self.exp2.ejecutar(tables)
         if isinstance(val1,CError) or  isinstance(val2,CError):
-            e = CError(0,0,"Error en parametros diferente")
+            e = CError(0,0,"Error en parametros diferente",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3702,7 +3702,7 @@ class exp_diferente(exp_query):
             if len(val1['valores']) < len(val2['valores']):
 
                 if len(val1['valores']) == 0:
-                    e = CError(0,0,"Error en parametros diferente")
+                    e = CError(0,0,"Error en parametros diferente",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3722,7 +3722,7 @@ class exp_diferente(exp_query):
                     return newdict
             else:
                 if len(val2['valores']) == 0:
-                    e = CError(0,0,"Error en parametros diferente")
+                    e = CError(0,0,"Error en parametros diferente",'Semantico')
                     errores.insert_error(e)
                     return e
                 else: 
@@ -3742,7 +3742,7 @@ class exp_diferente(exp_query):
                     return newdict
         #Error
         else: 
-            e = CError(0,0,"Error en parametros diferente")
+            e = CError(0,0,"Error en parametros diferente",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3771,7 +3771,7 @@ class exp_between(exp_query):
         val2 = self.exp2.ejecutar(tables)
         val3 = self.exp3.ejecutar(tables)
         if isinstance(val1,CError) or  isinstance(val2,CError) or isinstance(val3,CError):
-            e = CError(0,0,"Error en parametros between")
+            e = CError(0,0,"Error en parametros between",'Semantico')
             errores.insert_error(e)
             return e
 
@@ -3799,7 +3799,7 @@ class exp_between(exp_query):
             return val1
         #error
         else: 
-            e = CError(0,0,"Error en parametros between")
+            e = CError(0,0,"Error en parametros between",'Semantico')
             errores.insert_error(e)
             return e
 
