@@ -357,7 +357,7 @@ def insert(database: str, table: str, register: list) -> int:
             if nodoTBL:
                 if nodoTBL.valor[1] == [-999]:
                     #Tiene indice por default
-                    if len(register) == len(nodoTBL.valor[0]) - 1:
+                    if len(register) == len(nodoTBL.valor[0]):
                         res = nodoTBL.datos.agregar(nodoTBL.valor[2], register)
                         if res == 0:
                             #Incrementa el valor de indice autonumérico
