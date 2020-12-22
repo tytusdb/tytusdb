@@ -27,22 +27,26 @@ caja2.place(x=600,y=300)
 
 #Metodos para la interfaz
 def Abrir(): #abrir archivo
-    caja1.delete(1.0,END)
-    global ficheroactual
-    file = filedialog.askopenfilename(filetypes =[('Archivo HTML', '*.html'),('Archivo CSV', '*.csV')])
-    fichero = open(file)
-    ficheroactual=file
-    global cadena
-    global teeexto
-    global nombreArchivo
-    nombreArchivo = file.split("/")[-1]
+    try:
+        caja1.delete(1.0,END)
+        global ficheroactual
+        file = filedialog.askopenfilename(filetypes =[('Archivo CSV', '*.csV')])
+        caja2.insert(END,file)
+        fichero = open(file)
+        ficheroactual=file
+        global cadena
+        global teeexto
+        global nombreArchivo
+        nombreArchivo = file.split("/")[-1]
 
-    muchoTexto = fichero.read()
-    cadena=muchoTexto
-    teeexto=muchoTexto
-    caja1.delete(1.0,END)
-    caja1.insert("insert",muchoTexto)
-    fichero.close()
+        muchoTexto = fichero.read()
+        cadena=muchoTexto
+        teeexto=muchoTexto
+        caja1.delete(1.0,END)
+        caja1.insert("insert",muchoTexto)
+        fichero.close()
+    except:
+        print("Ruta no encontrada")
 
 def nuevoA(): #Nuevo archivo
     caja1.delete(1.0,END)
@@ -126,7 +130,7 @@ def AlterDataBase():
         caja1.insert(END,respuesta)
         commit(t, "ult")
 
-#PREGUNTAR EN GRUPO
+#FINALIZADO
 def ShowDataBase():
     resultado = t.showDatabases()
     t.graficar()
@@ -156,12 +160,14 @@ def DropDatabase():
         caja1.insert(END, respuesta)
         commit(t, "ult")
 
-#PREGUNTAR EN GRUPO
+#FINALIZADO
 def showTables():
     if caja2.get("1.0", END) != "\n":
         db = caja2.get("1.0", END)
         db = db[0:len(db) - 1]
-        respuesta = str(t.createTable(db))
+        arbolito = t.buscar(db)
+        arbolito.lista.graficar()
+        respuesta = str(t.showTables(db))
         caja2.delete("1.0", END)
         caja1.insert(END, respuesta)
         try:
@@ -188,9 +194,29 @@ def extractTable():
         separacion = nombre.split(",")
         db = separacion[0]
         table = separacion[1]
-        respuesta = str(t.extractTable(db, table))
-        caja2.delete("1.0", END)
-        caja1.insert(END, respuesta)
+        arbolito = t.buscartabla(db,table)
+        arbolito.lista.preorden()
+        try:
+            arbolito.lista.graficar()
+            respuesta = str(t.extractTable(db, table))
+            caja2.delete("1.0", END)
+            caja1.insert(END, respuesta)
+            try:
+                print("mostrar data")
+                #prueba para mostrar el arbol
+                VBase= Toplevel()
+                VBase.geometry('600x600')
+                VBase.config(bg="black")
+                VBase.title('Arbol')
+                #se agrega la imagen
+                imagenL=PhotoImage(file="tab.png")
+                grafico=Label(VBase,image=imagenL)
+                grafico.place(x=0,y=0)
+                VBase.wait_window()
+            except:
+                print("No se encontró la imagen")
+        except:
+            print("No se encontraron datos en la tabla seleccionada")
         commit(t, "ult")
 
 #"FINALIZADO"
@@ -321,12 +347,18 @@ def insert():
         caja1.insert(END, respuesta)
         commit(t, "ult")
 
-#HABLAR CON JORGE
+#FINALIZADO
 def loadCSV():
-    listaNom = t.loadCSV()
+    parametros = caja2.get("1.0",END)
+    parametros = parametros[0:len(parametros)-1]
+    division = parametros.split(",")
+    path = division[0]
+    db = division[1]
+    table = division[2]
+    listaNom = t.loadCSV(path,db,table)
     contenido = ""
-    for i in listaNom:
-        contenido += contenido+"\n"
+    #for i in listaNom:
+    #    contenido += contenido+"\n"
 
 #"FINALIZADO"
 def extractRow():
@@ -489,8 +521,8 @@ boton22.config(width=13, height=1)
 BotonEjecutar = Button(raiz, text="Ejecutar Base de datos", activebackground="#F50743",command=EjecutarBD)
 BotonEjecutar.place(x=600,y=500)
 
-BotonVer = Button(raiz, text="Ver Base de datos", activebackground="#F50743",command=VBD)
-BotonVer.place(x=750,y=500)
+#BotonVer = Button(raiz, text="Ver Base de datos", activebackground="#F50743",command=VBD)
+#BotonVer.place(x=750,y=500)
 
 
 #Menu de acciones
