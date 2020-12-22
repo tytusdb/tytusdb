@@ -343,6 +343,7 @@ def p_instruccion(t):
 def p_aux_instruccion(t):
     '''instruccion      : SHOW DATABASES PUNTOCOMA
                         | INSERT INTO ID VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
+                        | INSERT INTO ID PAR_ABRE list_id PAR_CIERRA VALUES PAR_ABRE list_val PAR_CIERRA PUNTOCOMA
                         | UPDATE ID SET ID IGUAL expression where PUNTOCOMA
                         | DELETE FROM ID WHERE ID IGUAL expression PUNTOCOMA
                         | USE DATABASE ID PUNTOCOMA'''
@@ -351,8 +352,12 @@ def p_aux_instruccion(t):
         t[0] = show_db(t.lineno(1), t.lexpos(1), num_nodo)
         num_nodo += 2
     elif t[1].lower() == 'insert':
-        t[0] = insert_into(t[3],t[6],t.lineno(1),t.lexpos(1),num_nodo)
-        num_nodo += 7
+        if t[4].lower() == 'values':
+            t[0] = insert_into(t[3],t[6], None, t.lineno(1),t.lexpos(1),num_nodo)
+            num_nodo += 7
+        else:
+            t[0] = insert_into(t[3],t[9], t[5], t.lineno(1),t.lexpos(1),num_nodo)
+            num_nodo += 10 + len(t[5])
     elif t[1].lower() == 'update':
         t[0]= update_st(t[2],t[4],t[6],t[7],t.lineno(1),t.lexpos(1),num_nodo)
         num_nodo += 8
@@ -423,7 +428,6 @@ def p_alter_db(t):
 
 def p_alter_tbl(t):
     '''alter_statement : ALTER TABLE ID alter_op'''   
-
     global num_nodo
     t[0] = alter_tb(t[3], t[4], t.lineno, t.lexpos, num_nodo)
     num_nodo += 5
@@ -553,70 +557,80 @@ def p_aux_condition_column_row(t):
     t[0] = [t[1]]
 
 def p_condition_column(t):
-    '''condition_column :  constraint UNIQUE op_unique
-                         | constraint CHECK PAR_ABRE expression PAR_CIERRA
-                         | key_table'''
-    global num_nodo
+    '''condition_column : constraint UNIQUE PAR_ABRE list_id PAR_CIERRA
+                        | constraint CHECK PAR_ABRE expression PAR_CIERRA
+                        | key_table_row
+                        | key_table
+                        | constraint key_table'''
     try:
-        if t[2].lower()=='unique':
-            t[0] = unique_simple(t[1],t[3],t.lineno,t.lexpos,num_nodo)
-            num_nodo += 4
-        elif t[2].lower()=='check':
-            t[0] = check_simple(t[1], None, t.lineno, t.lexpos, num_nodo)
+        global num_nodo
+        if t[2].lower() == 'unique':
+            t[0] = unique_simple(t[1],t[4],t.lineno,t.lexpos,num_nodo)
+            num_nodo += 4 + len(t[4])
+        elif t[2].lower() == 'check':
+            t[0] = check_simple(t[1], t[4], t.lineno, t.lexpos, num_nodo)
             num_nodo += 6
-
+        elif isinstance(t[2], P_Key) or isinstance(t[2], F_Key):
+            t[2].constraint = t[1]
+            t[0] = t[2]
     except:
-
-        t[0]=t[1]
+        t[0] = t[1]
 
 def p_aux_condition_column(t):
     '''condition_column : DEFAULT expression
-                         | NULL
-                         | NOT NULL
-	                     | REFERENCE ID
-		                 | CONSTRAINT ID key_table
- 		                 | '''
+                        | NOT NULL
+                        | UNIQUE PAR_ABRE list_id PAR_CIERRA
+                        | CHECK PAR_ABRE expression PAR_CIERRA          
+ 		                | '''
     global num_nodo
     try:
         if t[1].lower() == 'default':
-            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
-            num_nodo += 3
-        elif t[1].lower() == 'null':
-            t[0] = condicion_simple(t[1], None, None, t.lineno(1), t.lexpos(1), num_nodo)
+            t[0] = condicion_simple(t[1], t[2], t.lineno(1), t.lexpos(1), num_nodo)
             num_nodo += 3
         elif t[1].lower() == 'not':
-            t[0] = condicion_simple(t[1], None, None, t.lineno(1), t.lexpos(1), num_nodo)
+            t[0] = condicion_simple(t[1], None, t.lineno(1), t.lexpos(1), num_nodo)
             num_nodo += 3
-        elif t[1].lower() == 'reference':
-            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
-            num_nodo += 3
-        elif t[1].lower() == 'constraint':
-            t[0] = condicion_simple(t[1], t[2], None, t.lineno(1), t.lexpos(1), num_nodo)
-            num_nodo += 3
+        elif t[1].lower() == 'unique':            
+            t[0] = unique_simple(None, t[3],t.lineno,t.lexpos,num_nodo)
+            num_nodo += 4 + len(t[3])
+        elif t[1].lower() == 'check':
+            t[0] = check_simple(None, t[3], t.lineno, t.lexpos, num_nodo)
+            num_nodo += 6
     except:
         t[0] = None
+
+def p_condition_unique(t):
+    '''condition_column : constraint UNIQUE
+                        | UNIQUE'''
+    global num_nodo
+    try:
+        t[0] = unique_simple(t[1], [],t.lineno,t.lexpos,num_nodo)
+        num_nodo += 5
+    except:
+        t[0] = unique_simple(None, [],t.lineno,t.lexpos,num_nodo)
+        num_nodo += 5
+
+def p_key_table_row(t):
+    '''key_table_row : PRIMARY KEY
+                     | FOREIGN KEY REFERENCES ID PAR_ABRE ID PAR_CIERRA'''
+    global num_nodo
+    if t[1].lower() == 'primary':   
+        t[0] = P_Key([], None, t.lineno, t.lexpos, num_nodo)
+        num_nodo += 4
+    elif t[1].lower() == 'foreign':
+        lista_referencias = []
+        lista_referencias.append(t[6])
+        t[0] = F_key([],t[4],lista_referencias, None, t.lineno,t.lexpos,num_nodo)
+        num_nodo += 11
+    
 
 def p_constraint(t):
     '''constraint : CONSTRAINT ID
                  | '''
-
     global num_nodo
     try:
         t[0]=caux(t[2],t.lineno,t.lexpos,num_nodo)
         num_nodo  += 3
-    except:
-        t[0] = None
-
-def p_op_unique(t):
-    '''op_unique : PAR_ABRE list_id PAR_CIERRA
-                 | constraint CHECK PAR_ABRE  expression PAR_CIERRA
-                 | '''
-    try:
-        if t[1] == '(':
-            t[0] = t[2]
-        else:
-            t[0] = check_simple(t[1], None, t.lineno, t.lexpos, num_nodo)
-            num_nodo += 6
     except:
         t[0] = None
 
@@ -631,23 +645,18 @@ def p_aux_list_id(t):
 
 def p_alias(t):
     '''alias : ID'''
-    global num_nodo
-    t[0] = None #listas_IDS(t[1],t.lineno,t.lexpos,num_nodo)
-    num_nodo += 2
+    t[0] = t[1]
 
 def p_key_table(t):
     '''key_table : PRIMARY KEY list_key
-	            | FOREIGN KEY PAR_ABRE list_id PAR_CIERRA REFERENCES ID PAR_ABRE list_id PAR_CIERRA'''
-
+	             | FOREIGN KEY list_key REFERENCES ID list_key'''
     global num_nodo
     if t[1].lower() == 'primary':
-
-        t[0] = P_Key(t[3], t.lineno, t.lexpos, num_nodo)
-        num_nodo += 4
-
+        t[0] = P_Key(t[3], None, t.lineno, t.lexpos, num_nodo)
+        num_nodo += 4 + len(t[3])
     elif t[1].lower() == 'foreign':
-        t[0] = F_key(t[4],t[7],t[9],t.lineno,t.lexpos,num_nodo)
-        num_nodo += 10
+        t[0] = F_key(t[3],t[5],t[6], None, t.lineno,t.lexpos,num_nodo)
+        num_nodo += 10 + len(t[3]) + len(t[6])
 
 def p_list_key(t):
     '''list_key : PAR_ABRE list_id PAR_CIERRA
@@ -655,7 +664,7 @@ def p_list_key(t):
     try:
         t[0] = t[2]
     except:
-        t[0] = None
+        t[0] = []
 
 def p_alter_op(t):
     '''alter_op : ADD op_add
@@ -676,13 +685,13 @@ def p_alter_op(t):
 
 def p_aux_alter_op(t):
     '''alter_drop : CONSTRAINT
-	            | COLUMN '''
+	              | COLUMN '''
     t[0] = t[1]
 
 def p_op_add(t):
     '''op_add : CHECK PAR_ABRE ID DIFERENTE CADENA PAR_CIERRA
-             | CONSTRAINT ID UNIQUE PAR_ABRE ID PAR_CIERRA
-             | key_table REFERENCES PAR_ABRE list_id PAR_CIERRA'''
+              | CONSTRAINT ID UNIQUE PAR_ABRE ID PAR_CIERRA
+              | key_table REFERENCES PAR_ABRE list_id PAR_CIERRA'''
     global num_nodo
     if t[1].lower() == 'check':
         t[0] = op_add(t[1], t[3], t[5], t.lineno, t.lexpos, num_nodo)
@@ -739,7 +748,6 @@ def p_seleccionar(t):
     '''seleccionar  : SELECT distinto select_list FROM table_expression list_fin_select'''
     global num_nodo
     try:
-        print('Si jala select normal')
         t[0] = select_normal(t[2],t[3],t[5],t[6],t.lineno,t.lexpos,num_nodo)
         num_nodo+=6
     except:
@@ -1126,6 +1134,12 @@ def p_expression_cadena(t):
         t[0] = primitivo(t.lineno, t.lexpos , t[1], tipo_primitivo.DATE, num_nodo)
     else:
         t[0] = primitivo(t.lineno, t.lexpos , t[1], tipo_primitivo.CHAR, num_nodo)
+    num_nodo += 2
+
+def p_expression_nulo(t):
+    '''expression : NULL'''
+    global num_nodo
+    t[0] = primitivo(t.lineno, t.lexpos, t[1], tipo_primitivo.NULL, num_nodo)
     num_nodo += 2
 
 def p_error(t):
