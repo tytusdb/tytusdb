@@ -371,7 +371,179 @@ class Isam:
 
     # Inserta un nuevo nodo con información en la estructura
     def insert(self, new_node):
-    	pass
+        if self.root == None:  # Si la raiz es igual a nula
+            #POR CREAR
+        else: # La Raíz No Es Nula
+
+            # Verificar Si Página actual Esta Llena
+             #La pagina esta llena
+            if new_raiz.full:
+                full_page = new_raiz.full
+                insert_return = new_raiz.insert(new_node,full_page)
+
+                if inset_return == 0: #Se inserto correctamente
+                    pass
+                elif insert_return == 1: #Ocurrio Un Problema
+                    pass
+                elif insert_return == 2: #Ya Existe un Nodo con el # IDEA:
+                    pass
+                elif insert_return == 3: #La Pagina esta llena pero la estructura arborea no (es posible un Corrimiento)
+                    
+                    if new_raiz.leaf: # es hoja //FALTA HACER ESTA PARTE
+                        code = self.full_level(new_raiz.level) #verifico si el nivel esta lleno
+                        if code == 0: #no lleno
+                            #Se va por la izquierda
+                            if new_node.node_id < new_raiz.node_izq.node_id:
+                                self.insert(new_node,new_raiz.left)
+                            #Se va por el medio
+                            elif new_node.node_id > new_raiz.node_izq.node_id and new_node.node_id < new_raiz.node_der.node_id:
+                                self.insert(new_node,new_raiz.mid)
+                            #Se va por la Derecha
+                            elif new_node.node_id > new_raiz.node_der.node_id:
+                                self.insert(new_node, new_raiz.der)
+
+                        elif code == 1: #corrimiento especial , si el nivel esta lleno
+                         # rotaciones de hojas
+
+                    else: #la raiz no es una hoja
+
+                       lleno_nivel = self.full_level(new_raiz.level) #verifico nivel
+                        if lleno_nivel == 0: #nivel no lleno
+
+
+                        elif lleno_nivel = 1:#nivel lleno
+
+                            #Se es menor al de la izquierda
+                            if new_node.node_id < new_raiz.node_izq.node_id:
+                                if new_node.node_id < new_raiz.left.node_izq.node_id:#nodo menor al menor hijo izq
+                                    aux = new_node.node_id
+                                    new_node.node_id = new_raiz.left.node_izq.node_id#el entrante sera el menor del hijo izq
+                                    new_raiz.left.node_izq.node_id = aux #el menor del hijo izq sera el que iba a entrar antes
+                                    corrio = left_shift_sp(new_raiz.left.node_izq.node_id) # corro y mando la pagina con el menor del hijo izq
+                                    if corrio  == 0:#corrio nodos a la izq
+                                        self.insert(new_node,new_raiz.left)
+                                        self.update_level(new_raiz.level) #update mando la raiz
+                                    elif corrio == 1:#no corrio a la izq
+                                        if new_node.node_id < new_raiz.node_izq.node_id: #manda a correr hijo izq
+                                            corro = right_shift_sp(new_raiz.left.node_izq.node_id) # corro y mando la pagina con el menor del hijo izq
+                                            if corro == 0:
+                                                self.insert(new_node,new_raiz.left)
+                                                self.update_level(new_raiz.level) #update mando la raiz
+
+                                            elif corro == 1:
+                                                #rotacion ramas
+
+                                        elif new_node.node_id > new_raiz.node_izq.node_id: #manda correr hijo medio
+                                            corro = right_shift_sp(new_raiz.mid.node_izq.node_id) # corro y mando la pagina con el menor del hijo medio
+                                            if corro == 0:
+                                                self.insert(new_node,new_raiz.mid)
+                                                self.update_level(new_raiz.level) #update mando la raiz
+
+                                            elif corro == 1:
+                                                #rotacion ramas
+
+                                elif new_node.node_id > new_raiz.left.node_izq.node_id:
+                                    corrio = left_shift_sp(new_raiz.left.node_izq.node_id) # corro y mando la pagina con el menor del hijo izq
+                                    self.insert(new_node,new_raiz.left)       
+                                    #FALTA CODIGO
+
+                            #Se va por el medio
+                            elif new_node.node_id > new_raiz.node_izq.node_id and new_node.node_id < new_raiz.node_der.node_id:
+                                corrio = left_shift_sp(new_raiz.mid.node_izq.node_id) # corro y mando la pagina con el menor del hijo medio
+                                    if corrio  == 0:#corrio nodos a la izq
+                                        self.insert(new_node,new_raiz.mid)
+                                        self.update_level(new_raiz.level) #update mando la raiz
+                                    elif corrio == 1:#no corrio a la izq
+                                        corro = right_shift_sp(new_raiz.right.node_izq.node_id) # corro y mando la pagina con el menor del hijo izq
+                                            if corro == 0:
+                                                self.insert(new_node,new_raiz.right)
+                                                self.update_level(new_raiz.level) #update mando la raiz
+                                            elif corro == 1:
+                                                #rotacion ramas
+
+                            #Si es mayor al derecho
+                            elif new_node.node_id > new_raiz.node_der.node_id:
+                                corrio = left_shift_sp(new_raiz.right.node_izq.node_id) # corro y mando la pagina con el menor del hijo medio
+                                    if corrio  == 0:#corrio nodos a la izq
+                                        self.insert(new_node,new_raiz.right)
+                                        self.update_level(new_raiz.level) #update mando la raiz
+                                    elif corrio == 1:#no corrio a la izq
+                                        corro = right_shift_sp(new_raiz.right.right_sister.node_izq.node_id) # corro y mando la pagina con el menor del hijo izq
+                                            if corro == 0:
+                                                self.insert(new_node,new_raiz.right.right_sister)
+                                                self.update_level(new_raiz.level) #update mando la raiz
+                                            elif corro == 1:
+                                                #rotacion ramas    
+                      
+                elif insert_return == 4: #si hay posibilidad crear nuevos hijos
+                    #print("insert_return = 4")
+                    self.root.procreate() #baja los nodos tambien
+
+                    # Busca En Que Página Insetar (Izq o Der)
+                    if new_node.node_id < new_raiz.left_node.node_id:
+                        # Se Va Por La izquierda
+                        self.insert(new_node, new_raiz.left)
+                    elif new_node.node_id > new_raiz.left_node.node_id:
+                        # Se Va Por La Derecha
+                        self.insert(new_node, new_raiz.right)
+
+                    # Despues De Recursividad Regresa Al Padre Y Actualiza
+                    self.update_level(new_raiz.level)
+            # La Página No Está Llena TRABAJANDO ACTUALMENTE
+            else: 
+                if new_raiz.left_node.node_id != None:
+                    if new_raiz.leaf: # es una hoja
+                                
+                    else: #no es una hoja
+                        if full_level(new_raiz.level): # nivel esta lleno, deberia ser si nivel lleno excepto la raiz_actual
+                            #supuesto error
+                        else:  # el nivel no esta lleno
+                                    
+                                #si es menor 
+                            if new_node.node_id < new_raiz.node_izq.node_id:
+
+                                #Si nodo menor al menor hijo izq
+                                if new_node.node_id < new_raiz.left.node_izq.node_id:
+                                    aux = new_node.node_id
+                                    new_node.node_id = new_raiz.left.node_izq.node_id#el entrante sera el menor del hijo izq
+                                    new_raiz.left.node_izq.node_id = aux #el menor del hijo izq sera el que iba a entrar antes
+                                    corrio = left_shift_sp(new_raiz.left.node_izq.node_id) # corro y mando la pagina con el menor del hijo izq
+                                    if corrio  == 0:#corrio nodos a la izq
+                                        self.insert(new_node,new_raiz.left)
+                                        self.update_level(new_raiz.level) #update mando la raiz
+                                    elif corrio == 1:#no corrio a la izq
+                                        #vuelvo nodos como estaban antes , el menor sera el nuevo y el de la izq el valor tenia al principio
+                                        aux2 = new_node.node_id
+                                        new_node.node_id = new_raiz.left.node_izq.node_id
+                                        new_raiz.left.node_izq.node_id = aux2 #el menor del hijo izq sera el que iba a entrar antes
+                                        corro = right_shift_sp(new_raiz.left.node_izq.node_id) # corro y mando la pagina con el menor del hijo izq
+                                        if corro == 0:#inserta 
+                                            self.insert(new_node,new_raiz.left)
+                                            self.update_level(new_raiz.level) #update mando la raiz
+
+                                        elif corro == 1:
+                                            #error
+                                            
+                                elif new_node.node_id > new_raiz.left.node_izq.node_id:
+                                    
+
+
+                                #si es mayor
+                                #si es mayor
+                            elif new_node.node_id > new_raiz.node_der.node_id:
+                                #llamo correr izq, mando rama media
+                                correr = left_shift_sp(new_raiz.mid.node_izq.node_id)
+                                if correr == 0:
+                                    self.insert(new_node,new.raiz.mid)
+                                    self.update_level(new_raiz.level)
+                                elif correr == 1:
+                                    corro = right_shift_sp(new_raiz.right.node_izq.node_id)
+                                    if corro == 0:
+                                        self.insert(new_node,new_raiz.right)
+                                        self.update_level(new_raiz.level)
+                                    elif corro == 1:
+                                        #error
+
 
     # Retorna el nodo con el id especificado
     def search(self, node_id):
