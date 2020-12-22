@@ -321,17 +321,149 @@ def ventana_ExtractRT():
 	pass
 
 #ventanas Tuples
+#Ventana Tuples
 def ventana_Insert():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+        if value==4:
+            messagebox.showerror("Error: "+str(value),"Llave primaria duplicada")
+        if value==5:
+            messagebox.showerror("Error: "+str(value),"Columna fuera de limites")
+        else:
+            messagebox.showerror("Error:", "Error desconocido")
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def insertRegister(db,tabla,registro):
+        print("db"+str(db),"table:"+str(tabla),"reg: "+str(registro))
+        retorno=newHash.insert(db,tabla,registro.split(","))
+        if retorno==0:
+            messagebox.showinfo("Exito","Se ha ingresado el registro a la tabla")
+        else:
+            mostrarError(retorno)
+    ventanaInsert=Tk.Tk()
+    ventanaInsert.geometry("600x400")
+    ventanaInsert.title("Insert")
+    ventanaInsert.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaInsert,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaInsert,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaInsert,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaInsert,text="Tabla a Insertar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaInsert,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    l_registro=Tk.Label(ventanaInsert,text="Registro",font=("Arial",14))
+    l_registro.place(x=50,y=150)
+
+    entry_registro=Tk.Entry(ventanaInsert,width=50)
+    entry_registro.place(x=225,y=150)
+
+    b_cargar=Tk.Button(ventanaInsert,text="Insert",command=lambda: [insertRegister(cb_showdb.get(),cb_showtable.get(),entry_registro.get()),ventanaInsert.destroy()])
+    b_cargar.place(x=50,y=200)
 
 def ventana_ExtraerRow():
-	pass
+
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def extractRow(db,table,columns):
+        retorno=newHash.extractRow(db,table,columns.split(","))
+        lb_tabla.delete('0',Tk.END)
+        if retorno==None:
+            messagebox.showerror("Error","Ha ocurrido un error")
+        elif retorno is not None:
+            if len(retorno)!=0:
+                for r in retorno:
+                    contador=1
+                    lb_tabla.insert(contador,str(r))
+                    contador=contador+1
+            else:
+                messagebox.showerror("Error","Lista Vacia")
+
+
+    ventanaExtractRow=Tk.Tk()
+    ventanaExtractRow.geometry("600x500")
+    ventanaExtractRow.title("Extract Row")
+    ventanaExtractRow.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaExtractRow,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaExtractRow,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaExtractRow,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaExtractRow,text="Tabla a Extraer",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaExtractRow,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+    
+    label_columns=Tk.Label(ventanaExtractRow,text="Columnas",font=("Arial",14))
+    label_columns.place(x=50,y=150)
+
+    entry_columns=Tk.Entry(ventanaExtractRow,width=50)
+    entry_columns.place(x=225,y=150)
+
+    b_extract=Tk.Button(ventanaExtractRow,text="Extract Row",command=lambda:[extractRow(cb_showdb.get(),cb_showtable.get(),entry_columns.get())])
+    b_extract.place(x=50,y=200)
+
+    sb=Tk.Scrollbar(ventanaExtractRow)
+    sb.pack(side=Tk.RIGHT,fill=Tk.Y)
+
+    lb_tabla=Tk.Listbox(ventanaExtractRow,width=82,yscrollcommand=sb.set)
+    lb_tabla.place(x=50,y=250)
+    sb.config(command=lb_tabla.yview)
 
 def ventana_Update():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+        if value==4:
+            messagebox.showerror("Error: "+str(value),"Llave primaria no existe")
+        else:
+            messagebox.showerror("Error:", "Error desconocido")
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
 
-def ventana_Delete():
-	pass
+    def updateRegister(db,table,register,col):
+        #diccionario=dict(zip(range(len(register)),register))
+        diccionario={}
+        one_step=register.replace("\"","").split(",")
+        for c in one_step:
+            reg_temp=c.split(":")
+            diccionario[reg_temp[0]]=reg_temp[1]
+
+        retorno=newHash.update(db,table,diccionario,col.split(","))
+        if retorno==0:
+            messagebox.showinfo("Exito","Se ha realizado un Update a la tabla")
+        else:
+            mostrarError(retorno)
+
 
 def ventana_Truncate():
 	pass
