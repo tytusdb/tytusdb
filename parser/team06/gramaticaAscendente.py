@@ -226,7 +226,8 @@ reservadas = {
     'both':'BOTH',
     'for':'FOR',
     'symmetric':'SYMMETRIC',
-    'use' : 'USE'
+    'use' : 'USE',
+    'now' : 'NOW'
 
 
 # revisar funciones de tiempo y fechas
@@ -927,7 +928,9 @@ def p_funcion_basica(t):
                         | TAN PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | TAND  PARENTESISIZQUIERDA operacion PARENTESISDERECHA
                         | SINH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
-
+                        | GREATEST PARENTESISIZQUIERDA select_list PARENTESISDERECHA
+                        | LEAST PARENTESISIZQUIERDA select_list PARENTESISDERECHA
+                        | NOW PARENTESISIZQUIERDA  PARENTESISDERECHA
 
 
                         | COSH PARENTESISIZQUIERDA operacion PARENTESISDERECHA
@@ -1085,7 +1088,15 @@ def p_funcion_basica(t):
     elif t[1].upper()=="ATANH":
         t[0]=ExpresionATANH(t[3])
         h.reporteGramatical1 +="funcionBasica    ::=      ATANH PARENTESISIZQUIERDA operacion PARENTESISDERECHA\n"
-   
+    elif t[1].upper()=="GREATEST":
+        t[0]=ExpresionGREATEST(t[3])
+        h.reporteGramatical1 +="funcionBasica    ::=      GREATEST PARENTESISIZQUIERDA select_list PARENTESISDERECHA\n"
+    elif t[1].upper()=="LEAST":
+        t[0]=ExpresionLEAST(t[3])
+        h.reporteGramatical1 +="funcionBasica    ::=      LEAST PARENTESISIZQUIERDA select_list PARENTESISDERECHA\n"
+    elif t[1].upper()=="NOW":
+        t[0]=ExpresionNOW(1)
+        h.reporteGramatical1 +="funcionBasica    ::=      NOW PARENTESISIZQUIERDA  PARENTESISDERECHA\n"
    
 
 
@@ -1172,29 +1183,33 @@ def p_final_cadena(t):
 def p_insertBD_1(t):
     'insertinBD           : INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
     #print(t[3],t[6])
-    t[0] = InsertinDataBases(t[3],t[6])
+    t[0] = InsertinDataBases(t[3],None,t[6])
     h.reporteGramatical1 +="insertinBD    ::=      INSERT INTO ID VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
     h.reporteGramatical2 += "InsertinDabaBases(t[3],t[6])\n"
 
 def p_insertBD_2(t):
     'insertinBD           : INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA'
+    print(t[9])
+    #t[0] = InsertinDataBases(t[3],t[5],t[9])
     h.reporteGramatical1 +="insertinBD    ::=     INSERT INTO ID PARENTESISIZQUIERDA listaParam PARENTESISDERECHA VALUES PARENTESISIZQUIERDA listaParam PARENTESISDERECHA PUNTOYCOMA\n"
+    h.reporteGramatical2 += "t[0] = InsertinDataBases(t[3],t[5],t[9])\n"
 
 # SE SEPARO LA LISTA EN 2 METODOS PARA MANEJAR DATOS
 def p_listaParam(t):
-    '''listaParam         : listaParam COMA final
+    '''listaParam         : listaParam COMA operacion
     '''
     t[1].append(t[3])
     t[0] = t[1]
-    h.reporteGramatical1 +="insertinBD    ::=      listaParam COMA final\n"
+    h.reporteGramatical1 +="insertinBD    ::=      listaParam COMA operacion\n"
     h.reporteGramatical2 +="t[0]=t[1]\n"
 
 def p_listaParam_2(t):
-    '''listaParam         : final
+    '''listaParam           : operacion
     '''
     t[0] = [t[1]]
-    h.reporteGramatical1 +="insertinBD    ::=      final\n"
+    h.reporteGramatical1 +="listaParam    ::=      operacion\n"
     h.reporteGramatical2 +="t[0]=[t[1]]\n"
+
 
 #-----------------------------------------------------UPDATE BD--------------------------------------------------------------------
 def p_updateBD(t):

@@ -724,8 +724,8 @@ class ExpresionNOW(ExpresionNumerica):
         Esta clase representa la expresión para castear datos.
         Esta clase recibe un tipo a convertir y el dato
     '''
-    def __init__(self, exp) :
-        self.exp = exp
+    def __init__(self, id) :
+        self.id = id
 
 # mis expresiones para el where
 class ExpresionCondicionAND(ExpresionNumerica):

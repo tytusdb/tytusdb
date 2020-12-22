@@ -16,6 +16,7 @@ import reportes as h
 from expresiones import * 
 import numpy as geek
 import datetime
+from datetime import date
 import tkinter
 from tkinter import messagebox
 baseActual = ""
@@ -833,8 +834,8 @@ def resolver_expresion_aritmetica(expNum, ts) :
             exp= procesar_retorno_lista_valores(expNum.exp, ts)
             return min(exp)
         elif isinstance(expNum,ExpresionNOW):
-            today=today()
-            return today.strftime("%Y-%m-%d")
+            today=date.today()
+            return str(today.strftime("%Y-%m-%d"))
         else:
             print("error de operacion aritmetica")
             #h.errores+=  "<tr><td>"+str(exp1)+"|"+str(exp2)+ "</td><td>N/A</td><td>N/A</td><td>SEMANTICO</td><td>error de operacion</td></tr>\n"
@@ -930,8 +931,21 @@ def procesar_insertBD(query,ts):
     print("entra a insert")
     print("entra al print con: ",query.idTable)
     h.textosalida+="TYTUS>> Insertando registro de una tabla\n"
-    for i in query.listRegistros:
-        print("dato: ",i.id)
+    if query.listidCol == None: 
+        for i in query.listRegistros:
+            if isinstance(i,ExpresionNOW):
+                print("dato: ", str(date.today().strftime("%Y-%m-%d")))
+            else:
+                print("dato: ",i.id)
+            
+    elif query.listidCol != None:
+        tamlistid = len(query.listidCol)
+        tamlistreg = len(query.listRegistros)
+        contcol = 0 
+        while contcol < tamlistid:
+            col = ts.obtenerColumna(query.idTable,'BD1',)
+            print("nombre columna: ",col.nombre)
+            contcol=contcol+1
 
 
 def procesar_updateinBD(query,ts):
