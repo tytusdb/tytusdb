@@ -78,4 +78,31 @@ class ListaDOBLE:
         else:    
             return 1   
 
-
+    #Método Eliminar MÉTODO FUNCIONAL PARA ENVIAR
+    def eliminarNodo(self, dato):
+        aux = self.primero
+        tmp = None
+        encontrado = False
+        try:
+            if self.listaVacia() is True:
+                return 1
+            else:
+                if self.primero != None:
+                    while aux != None and encontrado != True:
+                        if aux.nombreBase == dato:
+                            if aux == self.primero:
+                                self.primero = self.primero.siguiente
+                            elif aux == self.ultimo:
+                                tmp.siguiente = None
+                                self.ultimo = tmp
+                            else:
+                                tmp.siguiente = aux.siguiente
+                                aux.siguiente.anterior = tmp
+                            encontrado = True
+                            return 0
+                        tmp = aux
+                        aux = aux.siguiente
+                    if not encontrado:
+                        return 2
+        except:
+            return 1
