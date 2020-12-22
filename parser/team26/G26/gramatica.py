@@ -328,7 +328,9 @@ precedence = (
 
 def p_init(t) :
     'init            : instrucciones'
-    t[0] = t[1]['ast']
+    reporte = '<init> ::= <instrucciones>\n' +  t[1]['reporte']
+    t[0] =  {'ast': t[1]['ast'], 'reporte' : reporte } 
+
 
 def p_instrucciones_lista(t) :
     'instrucciones : instrucciones instruccion'
@@ -336,13 +338,16 @@ def p_instrucciones_lista(t) :
     grafo.newchildrenF(grafo.index, t[1]['graph'])
     grafo.newchildrenF(grafo.index, t[2]['graph'])
     t[1]['ast'].append(t[2]['ast'])
-    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
+    reporte = '<instrucciones> ::= <instrucciones> <instruccion>\n' + t[1]['reporte'] + t[2]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruciones(t):
     'instrucciones : instruccion'''
     grafo.newnode('INSTRUCCIONES')
     grafo.newchildrenF(grafo.index, t[1]['graph'])
-    t[0] = {'ast' : [t[1]['ast']], 'graph' : grafo.index}
+    reporte = '<instrucciones> ::= <instruccion>\n' + t[1]['reporte']
+    t[0] = {'ast' : [t[1]['ast']], 'graph' : grafo.index, 'reporte': reporte}
+
 
 
 def p_instruccion(t) :
@@ -355,31 +360,51 @@ def p_instruccion(t) :
                         | UPDATE update'''
     grafo.newnode('INSTRUCCION')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index}
+    reporte = '<instruccion> ::= '
+    if t[1].lower() == 'create':
+        reporte += 'CREATE <create>\n' + t[2]['reporte'] #falta
+    elif t[1].lower() == 'use':
+        reporte += 'USE <use>\n'  #falta
+    elif t[1].lower() == 'show':
+        reporte += 'SHOW <show>\n'  #falta
+    elif t[1].lower() == 'drop':
+        reporte += 'DROP <drop>\n'  #falta
+    elif t[1].lower() == 'delete':
+        reporte += 'DELETE <delete>\n'  #falta
+    elif t[1].lower() == 'insert':
+        reporte += 'INSERT <insert>\n'  #falta
+    elif t[1].lower() == 'update':
+        reporte += 'UPDATE <update>\n'  #falta
+    t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionAlter(t):
-    '''instruccion  :  ALTER alter'''
+    '''instruccion  :  ALTER alter''' #falta
+    reporte = "<instruccion> ::= ALTER <alter>"
     grafo.newnode('INSTRUCCION')
     grafo.newchildrenF(grafo.index, t[2]['graph'])
-    t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index}
+    t[0] = {'ast' : t[2]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionSelect(t):
     'instruccion  : select PTCOMA'
-    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
+    reporte = "<instruccion> ::= <select> PTCOMA\n"
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionQuerys(t):
     'instruccion  : querys'
-    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index}
+    reporte = "<instruccion> ::= <querys>\n" +t[1]['reporte']
+    t[0] = {'ast' : t[1]['ast'], 'graph' : grafo.index, 'reporte': reporte}
 
 def p_instruccionError(t):
     'instruccion  : error PTCOMA'
+    reporte ="<instruccion> ::= <error> PTCOMA\n"
     t[0] = {'ast' : None, 'graph' : grafo.index}
 
 def p_problem(t):
     '''problem  :  error PTCOMA'''
-    t[0] = {'ast' : "error", 'graph' : grafo.index}
+    reporte = "<problem> ::= <error> PTCOMA\n"
+    t[0] = {'ast' : "error", 'graph' : grafo.index, 'reporte': reporte}
 
-#----------------------------------------------------------------SELECT----------------------------------------------------------------
+#----------------------------------------------------------------SELECT---------------------------------
 def p_querys(t):
     '''querys : select UNION allopcional select
               | select INTERSECT  allopcional select
@@ -390,25 +415,29 @@ def p_querys(t):
     grafo.newchildrenF(grafo.index, t[3]['graph'])
     grafo.newchildrenF(grafo.index, t[4]['graph'])
     if t[2].lower() == 'union' : 
-        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<querys> ::= <select> UNION <allopcional> <select>"
+        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[2].lower() == 'intersect' :
-        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<querys> ::= <select> INTERSECT <allopcional> <select>"
+        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[2].lower() == 'except' : 
-        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<querys> ::= <select> EXCEPT <allopcional> <select>"
+        t[0] = {'ast': select.QuerysSelect(t[2].lower(),t[1]['ast'],t[3]['ast'],t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
 
 def p_all_opcional(t):
     'allopcional  : ALL'
     grafo.newnode('ALL')
     grafo.newchildrenE(t[1].upper())
-    t[0]= {'ast' : select.Allopcional(t[1]['ast']), 'graph': grafo.index}
+    reporte =  "<allopcional> ::= ALL\n"
+    t[0]= {'ast' : select.Allopcional(t[1]['ast']), 'graph': grafo.index, 'reporte': reporte}
 
 def p_all_opcional_null(t):
     'allopcional : '
     grafo.newnode('ALL')
-    t[0] = {'ast': None, 'graph' : grafo.index}
+    reporte = "<allopcional> ::= ε\n"
+    t[0] = {'ast': None, 'graph' : grafo.index, 'reporte': reporte}
 
-
-
+#aqui
 def p_select(t):
     'select : SELECT parametrosselect fromopcional'
     grafo.newnode('SELECT')
@@ -997,19 +1026,27 @@ def p_create_instruccion(t) :
     if t[1].lower() == 'type' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : create.Create('type', t[2]['ast']['id'], t[2]['ast']['list']), 'graph' : grafo.index}
+        reporte = "<create> ::= TYPE <createenum>\n" #falta
+        t[0] = {'ast' : create.Create('type', t[2]['ast']['id'], t[2]['ast']['list']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'table' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : create.Create('table', t[2]['ast']['id'], t[2]['ast']), 'graph' : grafo.index}
+        reporte = "<create> ::= TABLE <createtable>\n" #falta
+        t[0] = {'ast' : create.Create('table', t[2]['ast']['id'], t[2]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'or' :
         grafo.newchildrenE('OR REPLACE DB')
         grafo.newchildrenF(grafo.index, t[4]['graph'])
-        t[0] = {'ast' : create.Create('replace', None, t[4]['ast']), 'graph' : grafo.index}
+        reporte = "<create> ::= OR REPLACE DATABASE <createdatabase>\n" #falta
+        t[0] = {'ast' : create.Create('replace', None, t[4]['ast']), 'graph' : grafo.index, 'reporte': reporte}
     elif t[1].lower() == 'database' :
         grafo.newchildrenE(t[1].upper())
         grafo.newchildrenF(grafo.index, t[2]['graph'])
-        t[0] = {'ast' : create.Create('database', None, t[2]['ast']), 'graph' : grafo.index}
+        reporte = "<create> ::= DATABASE <createdatabase>\n" #falta
+        t[0] = {'ast' : create.Create('database', None, t[2]['ast']), 'graph' : grafo.index, 'reporte' : reporte}
+    else:
+        #manejo errores aqui
+        reporte = "<create> ::= <problem>\n" #falta
+        t[0] = { 'reporte': reporte}
 
 def p_createenum(t):
     'createenum : ID AS ENUM PARENIZQ listacadenas PARENDER PTCOMA'

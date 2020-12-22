@@ -11,7 +11,7 @@ archivo = None
 
 # Configuración de Ventana
 ventana = Tk()
-ventana.geometry('950x700')
+ventana.geometry('800x600')
 ventana.title("TytusDB_18")
 
 
@@ -25,7 +25,10 @@ def abrirAST():
     webbrowser.open_new_tab('AST.pdf')
 
 def abrirGramaticalASC():
-    webbrowser.open_new_tab('reporte_Asc.html')
+    webbrowser.open_new_tab('gramatica_ASC.md')
+
+def abrirGramaticalDSC():
+    webbrowser.open_new_tab('gramatica_DSC.md')
 
 def abrirErrores():
     webbrowser.open_new_tab('Reporte_Errores.html')
@@ -199,6 +202,12 @@ def analizar():
 def abrirAST():
     AST.generarAST()
 
+def abrirGramaticalASC():
+    AST.generarGASC()
+
+def abrirGramaticalDSC():
+    AST.generarGDSC()
+
 
 menu_bar = Menu(ventana)
 archivo = Menu(menu_bar, tearoff=0)
@@ -225,7 +234,7 @@ menu_bar.add_cascade(label='Compilar', menu=compil)
 
 report = Menu(menu_bar, tearoff=0)
 report.add_command(label="Gramatical Ascendente", compound="left", command=abrirGramaticalASC)
-report.add_command(label="Gramatical Descendente", compound="left", command=compilar)
+report.add_command(label="Gramatical Descendente", compound="left", command=abrirGramaticalDSC)
 report.add_command(label="AST", compound="left", command=abrirAST)
 report.add_command(label="Tabla de Simbolos", compound="left", command=abrirSimbolos)
 report.add_command(label="Errores", compound="left", command=abrirErrores)

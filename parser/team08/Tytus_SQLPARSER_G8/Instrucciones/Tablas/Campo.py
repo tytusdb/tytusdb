@@ -9,4 +9,7 @@ class Campo():
         self.tipo = tipo
         self.pk = pk
         self.orden = orden
-        self.constraint = constraint
+        self.constraint = constraint  #LISTA DE CONSTRAINT
+    
+    def obtenerNombre(self):
+        return self.nombre

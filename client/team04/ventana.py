@@ -1,44 +1,120 @@
 import tkinter as tk
-from tkinter import Menu, Tk, Text, DISABLED, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
+from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
 from tkinter import messagebox as MessageBox
-from tkinter import ttk
-
-from campo import Campo
+from tkinter import ttk,filedialog, INSERT
+import os
+import pathlib
+from campo import Campo, MyDialog
 from arbol import Arbol
-
 import http.client
+import json
+
+formularios=[]
+textos=[]
+control=0
+notebook= None
+consola = None
+raiz = None
+
+
+#Variables para simular credenciales
+username = "admin"
+password = "admin"
 
 #Metodo GET para probar peticiones al servidor
 def myGET():
     myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
     headers = {
-        "Content-type": "text/plain"
+        "Content-type": "application/json"
     }
 
-    myConnection.request("GET", "/data/database.tytus", "", headers)
+    myConnection.request("GET", "/getUsers", "", headers)
     response = myConnection.getresponse()
-    print("Status: {} and reason: {}".format(response.status, response.reason))
-    myData = response.read()
-    print(myData.decode("utf-8") )
+    global consola
+    print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()   
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\n" + data.decode("utf-8"))
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
     myConnection.close()
+
 
 #Metodo POST para probar peticiones al servidor
 def myPOST():
     myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
     headers = {
-        "Content-type": "text/plain"
+        "Content-type": "application/json"
     }
 
-    postData = "Test http.server from http.client :D"
+    #Data en formato json
+    jsonData = { "username": username, "password": password }
+    myJson = json.dumps(jsonData)
 
-    myConnection.request("POST", "/", postData, headers)
+    myConnection.request("POST", "/checkLogin", myJson, headers)
     response = myConnection.getresponse()
-    print("Status: {} and reason: {}".format(response.status, response.reason))
-    myData = response.read()
-    print(myData.decode("utf-8") )
-    myConnection.close()   
+    global consola
+    print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()
+        result = data.decode("utf-8")
+        consola.config(state=NORMAL)
+        if result == "true":
+            consola.insert(INSERT,"\nUsuario loggeado correctamente.")
+        else:
+            consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
+    myConnection.close()
+
+
+#Metodo POST para crear usuarios
+def crearUsuario():
+    global raiz
+    d = MyDialog(raiz)
+    if d.accept is True:
+        newUsername = d.result[0]
+        newPassword = d.result[1]
+
+        if not "".__eq__(newUsername) and not "".__eq__(newPassword):
+            #Data en formato json
+            jsonData = { "username": newUsername, "password": newPassword }
+            myJson = json.dumps(jsonData)
+
+            myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
+
+            headers = {
+                "Content-type": "application/json"
+            }
+
+            myConnection.request("POST", "/createUser", myJson, headers)
+            response = myConnection.getresponse()
+            print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+            if response.status == 200:       
+                data = response.read()
+                result = data.decode("utf-8")
+                consola.config(state=NORMAL)
+                if result == "false":
+                    consola.insert(INSERT,"\nUsuario creado correctamente.")
+                else:
+                    consola.insert(INSERT,"\nUsuario ya existe actualmente, intente con otro username.")
+                consola.config(state=DISABLED)
+            else:
+                consola.config(state=NORMAL)
+                consola.insert(INSERT,"\nHa ocurrido un error.")
+                consola.config(state=DISABLED)
+            myConnection.close()
+        else:
+            MessageBox.showerror("Error", "Uno de los campos está vacío")
 
 
 def CrearMenu(masterRoot):
@@ -52,12 +128,13 @@ def CrearMenu(masterRoot):
     #Se elimino el comando de crear Ventana por problemas con las imagenes
 
     archivo.add_command(label="Nueva ventana")
-    archivo.add_command(label="Abrir un documento",command=abrirDoc)
+    archivo.add_command(label="Abrir query",command=abrir)
     archivo.add_command(label="Abrir un modelo")
     archivo.add_separator()
-    archivo.add_command(label="Nueva Query")
-    archivo.add_command(label="Guardar como...")
-    archivo.add_command(label="Guardar")
+    archivo.add_command(label="Nueva Query",command=lambda: añadir('Nuevo'))
+    archivo.add_command(label="Guardar como...",command=guardarComo)
+    archivo.add_command(label="Guardar",command=guardarArchivo)
+    archivo.add_command(label="Cerrar pestaña actual",command=cerrarPestaña)
     archivo.add_separator()
     archivo.add_command(label="Salir")
 
@@ -78,9 +155,9 @@ def CrearMenu(masterRoot):
     tools.add_command(label="Configuración")
     tools.add_command(label="Utilidades")
     #Temporary tools to test client-server connection
-    tools.add_command(label="SELECT (GET)", command = myGET)
-    tools.add_command(label="CREATE (POST)", command = myPOST)
-    
+    tools.add_command(label="GET", command = myGET)
+    tools.add_command(label="POST", command = myPOST)
+    tools.add_command(label="CREATE USER", command = crearUsuario)
 
     #se agrega ayuda
     ayuda=Menu(barraDeMenu, tearoff=0)
@@ -96,10 +173,46 @@ def CrearMenu(masterRoot):
     #Se indica que la barra de menú debe estar en la ventana
     return barraDeMenu
 
-def abrirDoc():
-    MessageBox.showinfo(title="Aviso",message="Hizo clic en abrir documento")
+def abrir():
+    global archivo
+    global notebook
+    global control
+    archivo = filedialog.askopenfilename(title = "Abrir Archivo")
+    if archivo != '':
+        name = os.path.basename(archivo)
+        añadir(name)
+        pathlib.Path(archivo).suffix
+        entrada = open(archivo, encoding="utf-8")
+        content = entrada.read()
+        textos[control-1].text.insert(tk.INSERT, content)
+        entrada.close()
+        notebook.select(control-1)
+def guardarArchivo():
+    global archivo
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+    if archivo == "":
+        guardarComo()
+    else:
+        guardarc = open(archivo, "w", encoding="utf-8")
+        guardarc.write(textos[idx].text.get(1.0, END))
+        guardarc.close()
+
+def guardarComo():
+    global archivo
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+    guardar = filedialog.asksaveasfilename(title = "Guardar Archivo")
+    if guardar != '':
+        fguardar = open(guardar, "w+", encoding="utf-8")
+        fguardar.write(textos[idx].text.get(1.0, END))
+        fguardar.close()
+        archivo = guardar
 
 def CrearVentana():
+    global raiz
     raiz = Tk()
     #Configuracion de ventana
     raiz.title("TytuSQL") #Cambiar el nombre de la ventana
@@ -116,21 +229,48 @@ def CrearVentana():
 
     #Boton para realizar consulta
     Button(raiz, text="Enviar Consulta").pack(side="top",fill="both")
-
     #Consola de Salida
+    global consola
     consola = Text(raiz)
     consola.pack(side="bottom",fill="both")
-    consola.insert(1.0,"Consola de Salida")
+    consola.insert(1.0,"Consola de Salida:")
+    consola.config(wrap=WORD)
     consola.config(state=DISABLED)
-    
-    #Campo de texto
-    Campo(raiz).pack(side="right", fill="both", expand=True)
-    
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
+    global notebook
+    global control
+    notebook=ttk.Notebook(raiz)
+    notebook.pack(side="right", fill="both", expand=True)
+    añadir('Nuevo')
     raiz.mainloop()
+
+def añadir(titulo):
+    global consola
+    global control
+    global notebook
+    consola.config(state=NORMAL)
+    consola.insert(INSERT,"\nSe creo una nueva Pestaña")
+    consola.config(state=DISABLED)
+    formularios.append(Frame(notebook,bg="white"))
+    contador=control
+    notebook.add(formularios[contador], text=titulo)
+    valor=Campo(formularios[contador])
+    valor.pack(side="left", fill="both",expand=True)
+    vsb=Scrollbar(formularios[contador],orient="vertical",command=valor.text.yview)
+    valor.text.configure(yscrollcommand=vsb.set)
+    vsb.pack(side="right",fill="y")
+    textos.append(valor)
+    contador=control+1
+    control=contador
+
+def cerrarPestaña():
+    global notebook
+    global control
+    b=notebook.select()
+    a=notebook.index(b)
+    notebook.forget(a)
 
 def main():
     CrearVentana()
-
 if __name__ == "__main__":
     main()

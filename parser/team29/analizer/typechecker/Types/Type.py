@@ -22,6 +22,12 @@ Type = {
     "TIMESTAMP": TYPE.DATETIME,
 }
 
+TypeNumber ={
+    1: TYPE.NUMBER,
+    2: TYPE.STRING,
+    3: TYPE.BOOLEAN,
+}
+
 
 class Column:
     def __init__(self, name, type_, value):
