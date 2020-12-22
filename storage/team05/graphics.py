@@ -320,7 +320,7 @@ def ventana_ExtractTable():
 def ventana_ExtractRT():
 	pass
 
-#ventanas Tuples
+
 #Ventana Tuples
 def ventana_Insert():
     def mostrarError(value):
@@ -465,11 +465,144 @@ def ventana_Update():
             mostrarError(retorno)
 
 
-def ventana_Truncate():
-	pass
+    ventanaUpdate=Tk.Tk()
+    ventanaUpdate.geometry("600x400")
+    ventanaUpdate.title("Update")
+    ventanaUpdate.iconbitmap("images/icon.ico")
+    
+    label_db=Tk.Label(ventanaUpdate,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaUpdate,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaUpdate,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaUpdate,text="Tabla a Actualizar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaUpdate,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    l_register=Tk.Label(ventanaUpdate,text="Registro",font=("Arial",14))
+    l_register.place(x=50,y=150)
+
+    entry_register=Tk.Entry(ventanaUpdate,width=50)
+    entry_register.place(x=225,y=150)
+
+    l_columns=Tk.Label(ventanaUpdate,text="Columns",font=("Arial",14))
+    l_columns.place(x=50,y=200)
+
+    entry_columns=Tk.Entry(ventanaUpdate,width=50)
+    entry_columns.place(x=225,y=200)
+
+    b_update=Tk.Button(ventanaUpdate,text="Update",command=lambda:[updateRegister(cb_showdb.get(),cb_showtable.get(),entry_register.get(),entry_columns.get())])
+    b_update.place(x=50,y=250)
+
+def ventana_Delete():
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+        if value==4:
+            messagebox.showerror("Error: "+str(value),"Llave primaria no existe")
+        else:
+            messagebox.showerror("Error:", "Error desconocido")
+
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def deleteEntry(db,table,columns):
+        retorno=newHash.delete(db,table,columns.split(","))
+        if retorno==0:
+            messagebox.showinfo("Exito","Se ha eliminado el registro de la tabla")
+        else:
+            mostrarError(retorno)
+    ventanaDelete=Tk.Tk()
+    ventanaDelete.geometry("600x400")
+    ventanaDelete.title("Delete")
+    ventanaDelete.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaDelete,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaDelete,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaDelete,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaDelete,text="Tabla a Modificar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaDelete,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    l_columns=Tk.Label(ventanaDelete,text="Columns",font=("Arial",14))
+    l_columns.place(x=50,y=150)
+
+    entry_columns=Tk.Entry(ventanaDelete,width=50)
+    entry_columns.place(x=225,y=150)
+
+    b_delete=Tk.Button(ventanaDelete,text="Delete",command=lambda:[deleteEntry(cb_showdb.get(),cb_showtable.get(),entry_columns.get()),ventanaDelete.destroy()])
+    b_delete.place(x=50,y=200)
 
 def ventana_Truncate():
-	pass
+    def mostrarError(value):
+        if value==1:
+            messagebox.showerror("Error: "+str(value),"Error en la operacion")
+        if value==2:
+            messagebox.showerror("Error: "+str(value),"Database no existe")
+        if value==3:
+            messagebox.showerror("Error: "+str(value),"Table no existe")
+        if value==4:
+            messagebox.showerror("Error: "+str(value),"Llave primaria no existe")
+        else:
+            messagebox.showerror("Error:", "Error desconocido")
+    def updateAlColDB(nombre):
+        cb_showtable['values']=newData.showTables(nombre)
+
+    def truncateDB(db,table):
+        retorno=newHash.truncate(db,table)
+        if retorno==0:
+            messagebox.showinfo("Exito","Registros de tabla han sido eliminados")
+        else:
+            mostrarError(retorno)
+
+
+
+    ventanaTruncate=Tk.Tk()
+    ventanaTruncate.geometry("600x200")
+    ventanaTruncate.title("Truncate")
+    ventanaTruncate.iconbitmap("images/icon.ico")
+
+    label_db=Tk.Label(ventanaTruncate,text="Base de Datos",font=("Arial",14))
+    label_db.place(x=50,y=50)
+
+    cb_showdb=Ttk.Combobox(ventanaTruncate,state="readonly")
+    cb_showdb['values']=newData.showDatabases()
+    cb_showdb.place(x=225,y=50)
+
+    b_showTable=Tk.Button(ventanaTruncate,text="Mostrar Tablas",command=lambda:[updateAlColDB(cb_showdb.get())])
+    b_showTable.place(x=400,y=50)
+
+    label_table=Tk.Label(ventanaTruncate,text="Tabla a Truncar",font=("Arial",14))
+    label_table.place(x=50,y=100)
+
+    cb_showtable=Ttk.Combobox(ventanaTruncate,state="readonly")
+    cb_showtable['values']=newData.showTables(cb_showdb.get())
+    cb_showtable.place(x=225,y=100)
+
+    b_truncate=Tk.Button(ventanaTruncate,text="Truncate",command=lambda:[truncateDB(cb_showdb.get(),cb_showtable.get()),ventanaTruncate.destroy()])
+    b_truncate.place(x=400,y=100)
 
 def ventana_abrirCSV():
     def loadData(file_path,db,table):
