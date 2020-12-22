@@ -19,6 +19,7 @@ from tabla_Simbolos import tipoSimbolo
 from clasesAbstractas import nodoGeneral
 from clasesAbstractas import insertTable
 from clasesAbstractas import createType
+from clasesAbstractas import useDataBase
 import ply.lex as lex
 import re
 from ply import *
@@ -227,7 +228,8 @@ reservadas = {
     'nulls':   'NULLS',
     'first':   'FIRST',
     'last':   'LAST',
-    'char':   'CHAR'
+    'char':   'CHAR',
+    'use':    'USE'
 }
 
 tokens = [
@@ -431,7 +433,8 @@ def p_instrucciones_instruccion(t):
 def p_instruccion(t):
     '''instruccion  :   insert_table
                     |   delete_table
-                    |   update_table'''
+                    |   update_table
+                    |   use_dabatabase'''
     t[0] = t[1]
 
 
@@ -501,6 +504,19 @@ def p_instr_crear_enum(t):
     print("Columna: ", instru.columna)
     print("numNodo: ", nNodo)
     print("Valor 1: '%s'" % t)
+
+def p_inst_use_database(t):
+    'use_dabatabase : USE ID PTCOMA'
+
+    linea = str(t.lexer.lineno)
+    nodoId = crear_nodo_general("ID", t[2], str(linea), columna)
+    nNodo = incNodo(numNodo)
+    nodoUse = useDataBase.UseDataBase(t[2])
+    hijos = []
+    hijos.append(nodoId)
+    nodoUse.setearValores(linea,columna,"Use_DataBase",nNodo,"",hijos)
+    t[0] = nodoUse
+
 
 
 def p_instr_insert(t):
