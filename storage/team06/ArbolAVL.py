@@ -437,8 +437,10 @@ class ArbolAVL:
             tab = open("tab.cmd","w")
             tab.write("dot -Tpng tab.dot -o tab.png")
             tab.close()
-            #subprocess.call("dot -Tpng tab.dot -o tab.png")
-            #os.system('tab.png')
+            try:
+                os.system('tab.cmd')
+            except:
+                print("")
 
     def _graficar(self, tmp):
         contenido = ""

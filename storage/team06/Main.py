@@ -91,41 +91,45 @@ def Guardarcomo():
 
 #"FINALIZADO"
 def CreateDB():
-    nombre = caja2.get("1.0",END)
-    nombre = nombre[0:len(nombre)-1]
-    respuesta = str(t.createDatabase(nombre))
-    caja2.delete("1.0",END)
-    caja1.insert(END,respuesta)
-    commit(t,"ult")
+    if caja2.get("1.0",END) != "\n":
+        nombre = caja2.get("1.0",END)
+        nombre = nombre[0:len(nombre)-1]
+        respuesta = str(t.createDatabase(nombre))
+        caja2.delete("1.0",END)
+        caja1.insert(END,respuesta)
+        commit(t,"ult")
 
 #"FINALIZADO"
 def CreateTable():
-    nombre = caja2.get("1.0", END)
-    nombre = nombre[0:len(nombre) - 1]
-    separacion = nombre.split(",")
-    db = separacion[0]
-    dbNueva = separacion[1]
-    numColumnas = separacion[2]
-    respuesta = str(t.createTable(db, dbNueva, numColumnas))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0",END) != "\n":
+        nombre = caja2.get("1.0", END)
+        nombre = nombre[0:len(nombre) - 1]
+        separacion = nombre.split(",")
+        db = separacion[0]
+        dbNueva = separacion[1]
+        numColumnas = separacion[2]
+        respuesta = str(t.createTable(db, dbNueva, numColumnas))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #"FINALIZADO"
 def AlterDataBase():
-    nombre = caja2.get("1.0", END)
-    nombre = nombre[0:len(nombre) - 1]
-    separacion =nombre.split(",")
-    dbAntigua = separacion[0]
-    dbNueva = separacion[1]
-    respuesta = str(t.alterDatabase(dbAntigua,dbNueva))
-    caja2.delete("1.0", END)
-    caja1.insert(END,respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0",END) != "\n":
+        nombre = caja2.get("1.0", END)
+        nombre = nombre[0:len(nombre) - 1]
+        separacion =nombre.split(",")
+        dbAntigua = separacion[0]
+        dbNueva = separacion[1]
+        respuesta = str(t.alterDatabase(dbAntigua,dbNueva))
+        caja2.delete("1.0", END)
+        caja1.insert(END,respuesta)
+        commit(t, "ult")
 
 #PREGUNTAR EN GRUPO
 def ShowDataBase():
     resultado = t.showDatabases()
+    t.graficar()
     caja1.insert(END,resultado)
     try:
         print("mostrar data")
@@ -135,7 +139,7 @@ def ShowDataBase():
         VBase.config(bg="black")
         VBase.title('Arbol')
         #se agrega la imagen
-        imagenL=PhotoImage(file="grafo.png")
+        imagenL=PhotoImage(file="tab.png")
         grafico=Label(VBase,image=imagenL)
         grafico.place(x=0,y=0)
         VBase.wait_window()
@@ -144,76 +148,97 @@ def ShowDataBase():
 
 #"FINALIZADO"
 def DropDatabase():
-    nombre = caja2.get("1.0", END)
-    nombre = nombre[0:len(nombre) - 1]
-    respuesta = str(t.dropDatabase(nombre))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
-
-
-def AlterTable():
-    print("alter table")
+    if caja2.get("1.0", END) != "\n":
+        nombre = caja2.get("1.0", END)
+        nombre = nombre[0:len(nombre) - 1]
+        respuesta = str(t.dropDatabase(nombre))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #PREGUNTAR EN GRUPO
 def showTables():
-    print("show tables")
+    if caja2.get("1.0", END) != "\n":
+        db = caja2.get("1.0", END)
+        db = db[0:len(db) - 1]
+        respuesta = str(t.createTable(db))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        try:
+            print("mostrar data")
+            #prueba para mostrar el arbol
+            VBase= Toplevel()
+            VBase.geometry('600x600')
+            VBase.config(bg="black")
+            VBase.title('Arbol')
+            #se agrega la imagen
+            imagenL=PhotoImage(file="tab.png")
+            grafico=Label(VBase,image=imagenL)
+            grafico.place(x=0,y=0)
+            VBase.wait_window()
+        except:
+            print("No se encontró la imagen")
+        commit(t, "ult")
 
 #"FINALIZADO"
 def extractTable():
-    nombre = caja2.get("1.0", END)
-    nombre = nombre[0:len(nombre) - 1]
-    separacion = nombre.split(",")
-    db = separacion[0]
-    table = separacion[1]
-    respuesta = str(t.extractTable(db, table))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        nombre = caja2.get("1.0", END)
+        nombre = nombre[0:len(nombre) - 1]
+        separacion = nombre.split(",")
+        db = separacion[0]
+        table = separacion[1]
+        respuesta = str(t.extractTable(db, table))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #"FINALIZADO"
 def extractRangeTable():
-    nombre = caja2.get("1.0", END)
-    nombre = nombre[0:len(nombre) - 1]
-    separacion = nombre.split(",")
-    db = separacion[0]
-    table = separacion[1]
-    columnNumber = separacion[2]
-    lower = separacion[3]
-    upper = separacion[4]
-    respuesta = str(t.extractRangeTable(db, table,columnNumber, lower, upper))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        nombre = caja2.get("1.0", END)
+        nombre = nombre[0:len(nombre) - 1]
+        separacion = nombre.split(",")
+        db = separacion[0]
+        table = separacion[1]
+        columnNumber = separacion[2]
+        lower = separacion[3]
+        upper = separacion[4]
+        respuesta = str(t.extractRangeTable(db, table,columnNumber, lower, upper))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #FINALIZADO
 def alterAddPK():
-    ingresado = caja2.get("1.0", END)
-    ingresado = ingresado[0:len(ingresado) - 1]
-    division1 = ingresado.split("[")
-    primeraP = division1[0]
-    llaves = division1[1]
-    llaves = llaves[0:len(llaves)-1]
-    donde = primeraP.split(",")
-    columns = llaves.split(",")
-    db = donde[0]
-    table = donde[1]
-    respuesta = str(t.alterAddPK(db, table, columns))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        division1 = ingresado.split("[")
+        primeraP = division1[0]
+        llaves = division1[1]
+        llaves = llaves[0:len(llaves)-1]
+        donde = primeraP.split(",")
+        columns = llaves.split(",")
+        db = donde[0]
+        table = donde[1]
+        respuesta = str(t.alterAddPK(db, table, columns))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #FINALIZADO
 def alterDropPK():
-    nombre = caja2.get("1.0", END)
-    nombre = nombre[0:len(nombre) - 1]
-    separacion = nombre.split(",")
-    db = separacion[0]
-    table = separacion[1]
-    respuesta = str(t.alterDropPK(db, table))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        nombre = caja2.get("1.0", END)
+        nombre = nombre[0:len(nombre) - 1]
+        separacion = nombre.split(",")
+        db = separacion[0]
+        table = separacion[1]
+        respuesta = str(t.alterDropPK(db, table))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #PARA LA FASE 2
 def alterAddFK():
@@ -225,71 +250,76 @@ def alterAddIndex():
 
 #"FINALIZADO"
 def alterTable():
-    ingresado = caja2.get("1.0", END)
-    ingresado = ingresado[0:len(ingresado) - 1]
-    separacion = ingresado.split(",")
-    db = separacion[0]
-    tableOld = separacion[1]
-    tableNew = separacion[2]
-    respuesta = str(t.alterTable(db, tableOld,tableNew))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        separacion = ingresado.split(",")
+        db = separacion[0]
+        tableOld = separacion[1]
+        tableNew = separacion[2]
+        respuesta = str(t.alterTable(db, tableOld,tableNew))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #"FINALIZADO"
 def alterAddColumn():
-    ingresado = caja2.get("1.0", END)
-    ingresado = ingresado[0:len(ingresado) - 1]
-    separacion = ingresado.split(",")
-    db = separacion[0]
-    table = separacion[1]
-    default = separacion[2]
-    respuesta = str(t.alterAddColumn(db, table, default))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        separacion = ingresado.split(",")
+        db = separacion[0]
+        table = separacion[1]
+        default = separacion[2]
+        respuesta = str(t.alterAddColumn(db, table, default))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #"FINALIZADO"
 def alterDropColumn():
-    ingresado = caja2.get("1.0", END)
-    ingresado = ingresado[0:len(ingresado) - 1]
-    separacion = ingresado.split(",")
-    db = separacion[0]
-    table = separacion[1]
-    columnNumber = separacion[2]
-    respuesta = str(t.alterDropColumn(db, table, columnNumber))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        separacion = ingresado.split(",")
+        db = separacion[0]
+        table = separacion[1]
+        columnNumber = separacion[2]
+        respuesta = str(t.alterDropColumn(db, table, columnNumber))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #"FINALIZADO"
 def dropTable():
-    ingresado = caja2.get("1.0", END)
-    ingresado = ingresado[0:len(ingresado) - 1]
-    separacion = ingresado.split(",")
-    db = separacion[0]
-    table = separacion[1]
-    respuesta = str(t.dropTable(db, table))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        separacion = ingresado.split(",")
+        db = separacion[0]
+        table = separacion[1]
+        respuesta = str(t.dropTable(db, table))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #"FINALIZADO"
 def insert():
-    ingresado = caja2.get("1.0", END)
-    ingresado = ingresado[0:len(ingresado) - 1]
-    division1 = ingresado.split("[")
-    primeraP = division1[0]
-    campos = division1[1]
-    campos = campos[0:len(campos)]
-    donde = primeraP.split(",")
-    register = campos.split(",")
-    db = donde[0]
-    table = donde[1]
-    respuesta = str(t.insert(db, table, register))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        division1 = ingresado.split("[")
+        primeraP = division1[0]
+        campos = division1[1]
+        campos = campos[0:len(campos)]
+        donde = primeraP.split(",")
+        register = campos.split(",")
+        db = donde[0]
+        table = donde[1]
+        respuesta = str(t.insert(db, table, register))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 #HABLAR CON JORGE
 def loadCSV():
@@ -300,24 +330,43 @@ def loadCSV():
 
 #"FINALIZADO"
 def extractRow():
-    ingresado = caja2.get("1.0", END)
-    ingresado = ingresado[0:len(ingresado) - 1]
-    division1 = ingresado.split("[")
-    primeraP = division1[0]
-    campos = division1[1]
-    campos = campos[0:len(campos)]
-    donde = primeraP.split(",")
-    columns = campos.split(",")
-    db = donde[0]
-    table = donde[1]
-    respuesta = str(t.extractRow(db, table, columns))
-    caja2.delete("1.0", END)
-    caja1.insert(END, respuesta)
-    commit(t, "ult")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        division1 = ingresado.split("[")
+        primeraP = division1[0]
+        campos = division1[1]
+        campos = campos[0:len(campos)]
+        donde = primeraP.split(",")
+        columns = campos.split(",")
+        db = donde[0]
+        table = donde[1]
+        respuesta = str(t.extractRow(db, table, columns))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
-#
+#"FINALIZADO"
 def update():
-    print("update")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        val = ingresado.split("{")
+        val1 = val[1].split("}")
+        val2 = val[0].split(",")
+        db = val2[0]
+        table = val2[1]
+        dict = val1[0].split(",")
+        register = {}
+        for i in dict:
+            f = i.split(":")
+            register[f[0]] = f[1]
+        cadena = val1[1][2:len(val1[1]) - 1]
+        columns = cadena.split(",")
+        respuesta = t.update(db, table,register,columns)
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
 def EjecutarBD():
     print("ejecutando Base de datos")
@@ -325,12 +374,36 @@ def EjecutarBD():
 def VBD():
     print("ver base de datos")
 
-
+#"FINALIZADO"
 def Truncate():
-    print("Truncate")
+    if caja2.get("1.0", END) != "\n":
+        nombre = caja2.get("1.0", END)
+        nombre = nombre[0:len(nombre) - 1]
+        separacion = nombre.split(",")
+        db = separacion[0]
+        dbNueva = separacion[1]
+        respuesta = str(t.truncate(db, dbNueva))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
 
+#"FINALIZADO"
 def Delete():
-    print("Delete")
+    if caja2.get("1.0", END) != "\n":
+        ingresado = caja2.get("1.0", END)
+        ingresado = ingresado[0:len(ingresado) - 1]
+        division1 = ingresado.split("[")
+        primeraP = division1[0]
+        llaves = division1[1]
+        llaves = llaves[0:len(llaves)-1]
+        donde = primeraP.split(",")
+        columns = llaves.split(",")
+        db = donde[0]
+        table = donde[1]
+        respuesta = str(t.deletet(db, table, columns))
+        caja2.delete("1.0", END)
+        caja1.insert(END, respuesta)
+        commit(t, "ult")
     
 
 
