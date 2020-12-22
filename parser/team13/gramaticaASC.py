@@ -77,11 +77,11 @@ reservadas = {
     'rename': 'rename',
     'isNull': 'isNull',
     'in': 'tIn',
-    'iLike': 'tILike',
+    'ilike': 'tILike',
     'similar': 'tSimilar',
 
     'is': 'tIs',
-    'notNull': 'notNull',
+    'notnull': 'notNull',
     'and': 'And',
     'current_user': 'currentuser',
     'session_user': 'sessionuser',
@@ -626,11 +626,7 @@ def p_produccion0_3(p):
 
     if len(p) == 2 :
         print("Producción:> 'Condiciones'")
-        print(str(p[1])) 
-        if len(p[1] > 1):
-            p[0] = p[1]
-        else:
-            p[0] = [p[1]]
+        p[0] = p[1]
     elif len(p) == 3:
         print("Producción:> 'CondicionBase Condiciones || ORAND Condiciones '")
         print(str(p[1]))
@@ -638,14 +634,12 @@ def p_produccion0_3(p):
         p[0] = [p[1]]
     elif len(p)==4:
         print("Producción:> 'CondiciónBase ORAND Condiciones'")
-        print("orand")
-        p[2].append(p[3])
-        p[1].append(p[2])
-        p[0] = [p[1]]
-    
 
+        if p[2][0].lower() == 'and':
+            p[0] = SOperacion(p[1],p[3],Logicas.AND)
+        else:
+            p[0] = SOperacion(p[1],p[3],Logicas.OR)
 
-                    
 def p_produccion0_4(p):
     ''' Condiciones : E_FUNC 
                     | E_FUNC tIs distinct from E_FUNC
@@ -660,8 +654,58 @@ def p_produccion0_4(p):
                     | E_FUNC tIs null 
                     | E_FUNC tIs not null
                     | E_FUNC isNull
-                    | E_FUNC notNull 
+                    | E_FUNC notNull
+                    | E_FUNC tILike cadenaLike
+                    | E_FUNC like cadenaLike
+                    | E_FUNC tSimilar tTo E_FUNC
                     | substr parAbre E_FUNC coma E_FUNC coma E_FUNC parCierra igual E '''
+
+
+    if len(p) == 2:
+        p[0] = p[1]
+
+    elif len(p) == 3:
+
+        if p[2].lower() == 'isnull':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.IGUAL)
+        elif p[2].lower() == 'notnull':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.DIFERENTE)
+
+    elif len(p) == 4:
+
+        if p[2].lower() == 'like':
+            p[0] = SLike(p[1],p[3])
+        elif p[2].lower() == 'ilike':
+            p[0] = SILike(p[1],p[3])
+        elif p[3].lower() == 'true':
+            p[0] = SOperacion(p[1],SExpresion(True,Expresion.BOOLEAN),Relacionales.IGUAL)
+        elif p[3].lower() == 'false':
+            p[0] = SOperacion(p[1],SExpresion(False,Expresion.BOOLEAN),Relacionales.IGUAL)
+        elif p[3].lower() == 'unknown' or p[3].lower() == 'null':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.IGUAL)
+
+    elif len(p) == 5:
+
+        if p[2].lower() == 'similar':
+            p[0] = SSimilar(p[1],p[4])
+        elif p[4].lower() == 'true':
+            p[0] = SOperacion(p[1],SExpresion(True,Expresion.BOOLEAN),Relacionales.DIFERENTE)
+        elif p[4].lower() == 'false':
+            p[0] = SOperacion(p[1],SExpresion(False,Expresion.BOOLEAN),Relacionales.DIFERENTE)
+        elif p[4].lower() == 'unknown' or p[4].lower() == 'null':
+            p[0] = SOperacion(p[1],SExpresion(None,Expresion.NULL),Relacionales.DIFERENTE)
+
+    elif len(p) == 6:
+        
+        if p[3].lower() == 'distinct':
+            p[0] = SOperacion(p[1],p[5],Relacionales.DIFERENTE)
+    elif len(p) == 7:
+        if p[4].lower() == 'distinct':
+            p[0] = SOperacion(p[1],p[6],Relacionales.IGUAL)
+    elif len(p) == 11:
+        if p[1].lower() == 'substring' or p[1].lower() == 'substr':
+            p[0] = SSubstring(p[3],p[5],p[7],p[10])
+
 
 
 def p_produccion0_5(p):
@@ -676,27 +720,35 @@ def p_produccion0_5(p):
 
 def p_produccion0_6(p):
     ''' Condiciones : E_FUNC tBetween E_FUNC 
-                | E_FUNC not tBetween E_FUNC '''
+                    | E_FUNC not tBetween E_FUNC '''
 
+    print(len(p))
     if len(p) == 4:
-        result = []
-        if hasattr(p[3].opIzq,'valor'):
-            result.append(SBetween(p[3].opIzq,p[1],p[3].opDer))
-        else:
-            result.append(SBetween(p[3].opIzq.opIzq,p[1],p[3].opIzq.opDer))
-            result.append(p[3].opDer)
 
-        p[0] = result
+        if hasattr(p[3].opIzq,'valor') and hasattr(p[3].opDer,'valor') :
+            p[0] = SBetween(p[3].opIzq,p[1],p[3].opDer)
+        elif hasattr(p[3].opIzq,'valor'):
+
+            p[0] = SOperacion(SBetween(p[3].opIzq,p[1],p[3].opDer.opIzq),p[3].opDer.opDer,Logicas.OR)
+        
+        else:
+
+            p[0] = SOperacion(SBetween(p[3].opIzq.opIzq,p[1],p[3].opIzq.opDer),p[3].opDer,Logicas.AND)
 
     elif len(p) == 5:
-        result = []
-        if hasattr(p[3].opIzq,'valor'):
-            result.append(SNotBetween(p[3].opIzq,p[1],p[3].opDer))
-        else:
-            result.append(SNotBetween(p[3].opIzq.opIzq,p[1],p[3].opIzq.opDer))
-            result.append(p[3].opDer)
 
-        p[0] = result
+        if hasattr(p[4].opIzq,'valor') and hasattr(p[4].opDer,'valor') :
+
+            p[0] = SNotBetween(p[4].opIzq,p[1],p[4].opDer)
+
+        elif hasattr(p[4].opIzq,'valor'):
+
+            p[0] = SOperacion(SNotBetween(p[4].opIzq,p[1],p[4].opDer.opIzq),p[4].opDer.opDer,Logicas.OR)
+        
+        else:
+
+            p[0] = SOperacion(SNotBetween(p[4].opIzq.opIzq,p[1],p[4].opIzq.opDer),p[4].opDer,Logicas.AND)
+
 
 
 # PRODUCCIÓN PARA HACER UN TRUNCATE

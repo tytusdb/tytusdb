@@ -37,6 +37,7 @@ class Expresion(Enum):
     HORA=9
     FECHA_HORA=10
     INTERVALO=11
+    NULL=12
 
 
 class TipoDato(Enum):
@@ -112,12 +113,20 @@ class SExpresion(Sentencia):
         self.valor = valor
         self.tipo = tipo
 
+    def __str__(self):
+        return "{ SExpresion || 'valor': %s, 'tipo': %s }" % (
+            str(self.valor), str(self.tipo))
+
 
 class SOperacion(Sentencia):
     def __init__(self, opIzq, opDer, operador):
         self.opIzq = opIzq
         self.opDer = opDer
         self.operador = operador
+
+    def __str__(self):
+        return "{ SOperacion || 'opIzq': %s, 'operador': %s, 'opDer': %s }" % (
+            str(self.opIzq), str(self.operador),str(self.opDer))
 
 
 class SUpdateBase(Sentencia):
@@ -609,6 +618,10 @@ class SBetween(Sentencia):
         self.columna = columna
         self.opDer = opDer
 
+    def __str__(self):
+        return "{ SBetween || 'opIzq': %s, 'columna': %s, 'opDer': %s }" % (
+            str(self.opIzq), str(self.columna),str(self.opDer))
+
 
 #CLASE PARA UNA OPERACIÓN NOT BEETWEN
 class SNotBetween(Sentencia):
@@ -616,3 +629,54 @@ class SNotBetween(Sentencia):
         self.opIzq = opIzq
         self.columna = columna
         self.opDer = opDer
+
+
+#CLASE PARA UNA OPERACIÓN LIKE
+class SLike(Sentencia):
+
+    def __init__(self, columna, cadena):
+        self.columna = columna
+        self.cadena = cadena
+
+    def __str__(self):
+        return "{ SLike || 'columna': %s, 'cadena': %s }" % (
+            str(self.columna), str(self.cadena))
+
+
+#CLASE PARA UNA OPERACIÓN iLIKE
+class SILike(Sentencia):
+
+    def __init__(self, columna, cadena):
+        self.columna = columna
+        self.cadena = cadena
+
+    def __str__(self):
+        return "{ SILike || 'columna': %s, 'cadena': %s }" % (
+            str(self.columna), str(self.cadena))
+
+
+#CLASE PARA UNA OPERACIÓN SIMILAR TO
+class SSimilar(Sentencia):
+
+    def __init__(self,columna,patron):
+        self.columna = columna
+        self.patron = patron
+
+    def __str__(self):
+        return "{ SSimilar || 'columna': %s, 'patron': %s }" % (
+            str(self.columna), str(self.patron))
+
+
+#PARA UNA COMPARACIÓN  ENTRE SUBSTRINGS
+class SSubstring(Sentencia):
+
+    def __init__(self,cadena,inicio,tamanio,comparar):
+        self.cadena = cadena
+        self.inicio = inicio
+        self.tamanio = tamanio
+        self.comparar = comparar
+
+
+    def __str__(self):
+        return "{ SSubstring || 'cadena': %s, 'inicio': %s, 'tamanio': %s, 'comparar': %s }" % (
+            str(self.cadena), str(self.inicio), str(self.tamanio), str(self.comparar) )

@@ -182,7 +182,7 @@ if __name__ == "__main__":
                 imprimir_consola("") 
                 #raiz = graficando.analizador(entrada)
                 data=principal.interpretar_sentencias(arbol,tablaSimbolos)
-                tablaSimbolos.mostrar()
+                #tablaSimbolos.mostrar()
                 imprimir_consola(data)
                 #graficando.GraficarAST(raiz)
                 #graficando.ReporteGramatical()

@@ -109,7 +109,7 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                     nombres.append(columnas[k].nombre)
                     tipos.append(columnas[k].tipo)
                     
-
+                i = 1
                 for r in registros:
 
                     for c in r:
@@ -117,22 +117,27 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         tupla["valor"].append(c)
 
                     b = Interpreta_Expresion(nodo.listaWhere,tablaSimbolos,tupla)
+                    # print("")
+                    # print("============== AQUÍ B ==============")
+                    # print(r)
+                    # print(b)
+                    # print("====================================")
+                    # print("")
                     tupla["valor"].clear()
 
                     if b.valor:
                         actualizar.append(r)
+                        llaves.append([str(i) + "|"])
+                    i += 1
+                        
 
                 #consola += "Las tuplas a cambiar son: \n"
                 bandera1 = False
                 #consola += str(ac) + "\n"
                 primary = tabla.get_pk_index()
+
                 for x in range(len(actualizar)):
-
-                    for t in range(len(actualizar[x])):
-                        for r in range(len(primary)):
-                            if primary[r] == t:
-                                llaves.append(actualizar[x][t])
-
+                                
                     for z in range(len(nombres)):
                        
                         bandera = False
@@ -148,19 +153,11 @@ def interpretar_sentencias(arbol, tablaSimbolos):
                         
                         if not bandera:
                             valores.append(SExpresion(actualizar[x][z],retornarTipo(tipos[z].dato)))
-                    print("=============================================================")
-                    print( str(diccionario) )
-                    print( str(llaves) )
-                    print("=============================================================")
-                    validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves)
+
+                    validarUpdate(valores,nombres,tablaSimbolos,tabla,diccionario,llaves[x])
                     valores.clear()
                     diccionario = {}
-                    primary = []
-                    
-                            
-
-
-
+                                 
             else:
 
                 listaSemanticos.append(Error.ErrorS("Error Semantico",
@@ -1834,9 +1831,6 @@ def validarUpdate(tupla,nombres,tablaSimbolos,tabla,diccionario,pk):
         for i in range(len(columnas)):
             col = tabla.getColumna(columnas[i])
             val = Interpreta_Expresion(tupla[i],tablaSimbolos,tabla)
-            print("=================================\n" + str(tupla[i].tipo) + "\n======================")
-            print("=================================\n" + str(tupla[i].valor) + "\n======================")
-            print("=================================\n" + str(val) + "\n======================")
             if col.tipo.tipo == TipoDato.NUMERICO:
                 result = validarTiposNumericos(
                     col.tipo.dato.lower(), val)
@@ -1902,7 +1896,7 @@ def validarUpdate(tupla,nombres,tablaSimbolos,tabla,diccionario,pk):
         if flag:
             flag = False
             tuplas = validarDefault2(columnas,tupla,tabla,tablaSimbolos)
-            print(tuplas)
+            #print(tuplas)
             rs = jBase.update(useActual,tabla.nombre,diccionario,pk)
             #rs = jBase.insert(useActual,tabla.nombre,tuplas)
 
@@ -2580,6 +2574,88 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
                     valor = tabla["valor"][i]
 
                     return SExpresion(valor,tipo)
+
+    elif isinstance(expresion,SBetween):
+
+        # print("")
+        # print("============= ENTRÓ A BETWEEN =============")
+
+        op1 = Interpreta_Expresion(expresion.opIzq,tablaSimbolos, tabla)
+        # print("OP1: " + str(op1))
+        col = Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        #print("COL: " + str(col))
+        op2 = Interpreta_Expresion(expresion.opDer,tablaSimbolos, tabla)
+        #print("OP2: " + str(op2))
+
+        res = col.valor >= op1.valor and col.valor <= op2.valor
+        #print("res: " + str(res))
+        #print("===========================================")
+        #print("")
+        return SExpresion(res,Expresion.BOOLEAN)
+
+
+    elif isinstance(expresion,SNotBetween):
+
+        #print("")
+        #print("============= ENTRÓ A NOT BETWEEN =============")
+
+        op1 = Interpreta_Expresion(expresion.opIzq,tablaSimbolos, tabla)
+        #print("OP1: " + str(op1))
+        col = Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        #print("COL: " + str(col))
+        op2 = Interpreta_Expresion(expresion.opDer,tablaSimbolos, tabla)
+        #print("OP2: " + str(op2))
+
+        res = col.valor < op1.valor or col.valor > op2.valor
+        #print("res: " + str(res))
+        #print("===============================================")
+        #print("")
+        return SExpresion(res,Expresion.BOOLEAN)
+
+
+    elif isinstance(expresion,SLike):
+
+        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        cadena = expresion.cadena
+
+        r = re.compile(".*" + cadena + ".*")
+        res = r.search(col.valor)
+
+        return SExpresion(res,Expresion.BOOLEAN)
+
+
+    elif isinstance(expresion,SLike):
+
+        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        cadena = expresion.cadena
+
+        r = re.compile(".*" + cadena + ".*")
+        res = not r.search(col.valor)
+
+        return SExpresion(res,Expresion.BOOLEAN)
+
+
+    elif isinstance(expresion,SSimilar):
+
+        col =  Interpreta_Expresion(expresion.columna,tablaSimbolos, tabla)
+        patron = expresion.patron
+
+        r = re.compile(patron)
+        res = not r.search(col.valor)
+
+        return SExpresion(res,Expresion.BOOLEAN)
+
+
+    elif isinstance(expresion,SSubstring):
+
+        cadena = Interpreta_Expresion(expresion.cadena,tablaSimbolos,tabla)
+        inicio = Interpreta_Expresion(expresion.inicio,tablaSimbolos,tabla)
+        tamanio = Interpreta_Expresion(expresion.tamanio,tablaSimbolos,tabla)
+        comparar = Interpreta_Expresion(expresion.comparar,tablaSimbolos,tabla)
+
+        res = cadena.valor[inicio.valor:inicio.valor+tamanio.valor]==comparar.valor
+
+        return SExpresion(res,Expresion.BOOLEAN)
 
     return expresion
 
