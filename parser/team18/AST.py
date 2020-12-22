@@ -701,7 +701,6 @@ def insertar_en_tabla(instr,ts):
     # -size and precision para numeric
     # -check
     # -constraint
-    # -foraneas
     insertOK=True
     ValInsert=[] #lista de valores a insertar
     nombreT=resolver_operacion(instr.nombre,ts).lower()
@@ -875,9 +874,80 @@ def insertar_en_tabla(instr,ts):
             pos=pos+1
     #validaciones llaves foraneas
     if(insertOK):
-        pos=0
+        
+        #obtener las tablas referenciadas
+        listTabRef=[]#guarda las tablas referenciadas 
+        listColFK=[]#guarda las columnas primarias de cada tabla referenciada
+        listValFK=[]#guarda los valores a insertar en esas columnas
+        listPosFk=[]#guarda la pos[x] de la tabla referenciada para los valores
         for col in tablaInsert.atributos:
-            ''
+            if (col.foreign and col.refence[0] not in listTabRef):
+                listTabRef.append(col.refence[0])
+        #obtener los valores para cada ref
+        for x in listTabRef:
+            colAux=[]
+            valAux=[]
+            posAux=[]
+            pos=0
+            for col in tablaInsert.atributos:
+                if(col.foreign and col.refence[0]==x):
+                    colAux.append(col.refence[1])
+                    valAux.append(ValInsert[pos])
+                pos+=1
+            listColFK.append(colAux)
+            listValFK.append(valAux)
+            #obtener la posicion segun la tabla original
+            result=buscarTabla(baseActiva,x)
+            if(result==None):
+                insertOK=False
+                msg='la tabla de referencia no existe:'+x
+                agregarMensjae('error',msg,'')
+            else:
+                
+                for i in colAux:
+                    pos=0
+                    for val in result.atributos:
+                        if(val.nombre==i):
+                            posAux.append(pos)
+                            break
+                        pos+=1
+            listPosFk.append(posAux)
+        #validar si existen los valores
+        contx=0
+        for x in listTabRef:
+            result=EDD.extractTable(baseActiva,x)
+            if(result==None):
+                insertOK=False
+                msg='la tabla de referencia no existe:'+x
+                agregarMensjae('error',msg,'')
+            else:
+                #recorrer tabla fila por fila
+                pkExiste=False
+                for y in result:
+                    pos=0
+                    contEx=0
+                    #verificar si cumple toda la llave compuesta
+                    for d in listValFK[contx]:
+                        if(y[listPosFk[contx][pos]]==d):
+                            contEx+=1
+                        pos+=1
+                    if(contEx==len(listValFK[contx])):
+                        pkExiste=True
+                        break
+
+                if(pkExiste==False):
+                    insertOK=False
+                    msg='23503:no existe la llave foranea'+str(listValFK[contx])+' en '+x 
+                    agregarMensjae('error',msg,'23503')
+            contx+=1
+
+        #print(' Tablas Referenciadas  :',listTabRef)
+        #print(' Columnas de Referencia:',listColFK)
+        #print('     valores a insertar:',listValFK)
+        #print('posicion tabla original:',listPosFk)
+        
+
+
     #validar size, presicion
     if(insertOK):
         pos=0
