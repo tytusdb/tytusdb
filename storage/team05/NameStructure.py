@@ -324,3 +324,53 @@ class NombreEstructuras:
                 return 2
         except:
             return 1
+        
+    #Función para agregar columna
+    def alterAddColumn(self, database: str, table: str, default: any):
+        try:
+            if self.searchDatabase(database) == True:
+                dicTemp = self.database[database]
+                
+                if self.buscarTabla(table, dicTemp) == True:
+                    dicTemp[table][0] = dicTemp[table][0] + 1 #Columna agregada
+                    self.database[database] = dicTemp #Actualizamos el diccionario de base de datos
+                    ht.addColumn(default, database, table) ##agrega una columna en hash table
+                    ne.serialize("data/tables/"+str(database)+"-"+str(table),self.database[database])
+                    ne.serialize("data/database",self.database)
+                    return 0
+
+                else:
+                    return 3 
+            else:
+                return 2
+        except:
+            return 1
+
+    
+    def alterDropColumn(self, database: str, table: str, columnNumber: int):
+        try:
+            if self.searchDatabase(database) == True:
+                dicTemp = self.database[database]
+                
+                if self.buscarTabla(table, dicTemp) == True:
+                    totalColumnaFinal = dicTemp[table][0] - 1 #Columna agregada
+
+                    if totalColumnaFinal >= columnNumber:
+                        
+                        if totalColumnaFinal != 0 or self.BuscarPrimaryKey(database, table, columnNumber) == False: #para saber si todavía nos quedamos con columnas y si no es una llave primaria
+                            dicTemp[table][0] = dicTemp[table][0] - 1 #Columna Eliminada
+                            self.database[database] = dicTemp #Actualizamos el diccionario de base de datos
+                            ht.dropColumn(columnNumber,database, table) #Elimina un indice (columna) en la tabla hash
+                            ne.serialize("data/tables/"+str(database)+"-"+str(table),self.database[database])
+                            ne.serialize("data/database",self.database)
+                            return 0
+                        else:
+                            return 4
+                    else: 
+                        return 5
+                else:
+                    return 3 
+            else:
+                return 2
+        except:
+            return 1
