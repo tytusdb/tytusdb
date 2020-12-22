@@ -411,8 +411,10 @@ class AVL:
             self.crearnodos(arbol.Der, f, 1)
 
     #Crea un gráfico del árbol
-    def armararbol(self, arbol):
-        f = Digraph('arbol', filename='D:\\Usac\\2020 Vacaciones Diciembre\\Laboratorio\\Temporal.jpg',
+    def armararbol(self, arbol, titulo, nombreArchivo):
+        f = Digraph('arbol', filename=nombreArchivo,
                 format="jpg", node_attr={'shape': 'record', 'height': '.1'})
         self.crearnodos(arbol, f, 0)
+        f.attr(label=r'\n\n'+titulo)
+        f.attr(fontsize='20')
         f.render()

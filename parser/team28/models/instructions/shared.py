@@ -121,9 +121,7 @@ class ObjectReference(Instruction):
     '''
         ObjectReference
     '''
-    def __init__(self, reference_base, reference_table, reference_column, opt_asterisk):
-        self.reference_base = reference_base
-        self.reference_table = reference_table
+    def __init__(self, reference_column, opt_asterisk):
         self.reference_column = reference_column
         self.opt_asterisk = opt_asterisk
         self.alias = reference_column.alias
