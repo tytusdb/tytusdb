@@ -113,5 +113,6 @@ class Indice:
         for x in self.indx:
             if x != None:
                 x.indx = bin.read(self.ruta +"/"+ x.nombre + ".b")
+		        x.pkeys = self.pkey
         self.writeI()
 
