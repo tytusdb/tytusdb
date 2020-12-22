@@ -1,7 +1,7 @@
 from pathlib import Path
 from execution.AST.expression import *
 from execution.AST.sentence import *
-from execution.execute import * 
+from execution.execute import *  
 from execution.AST.error import *
 import webbrowser
 
@@ -152,6 +152,8 @@ reservedwords = (
     'ASINH',
     'ACOSH',
     'ATANH',
+    'TRUE',
+    'FALSE',
 )
 
 symbols = (
@@ -1162,6 +1164,16 @@ def p_expression_int(t):
     global grammarreport
     grammarreport = "<expression> ::= INT { INT.val=int("+str(t[1])+"); expression.val = INT.val  }\n" + grammarreport
     t[0] = Value(1, t[1])
+def p_expression_true(t):
+    '''expression : TRUE'''
+    global grammarreport
+    grammarreport = "<expression> ::= TRUE { TRUE.val=int("+str(1)+"); expression.val = TRUE.val  }\n" + grammarreport
+    t[0] = Value(1, 1)
+def p_expression_false(t):
+    '''expression : FALSE'''
+    global grammarreport
+    grammarreport = "<expression> ::= FALSE { FALSE.val=int("+str(0)+"); expression.val = FALSE.val  }\n" + grammarreport
+    t[0] = Value(1, 0)
 def p_expression_decimal(t):
     '''expression : NDECIMAL'''
     global grammarreport
