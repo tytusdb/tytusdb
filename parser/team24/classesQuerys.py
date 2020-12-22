@@ -54,24 +54,35 @@ class select(query):
             
             
             res = col.ejecutar(tables)
+            if isinstance(res,errores.CError):
+                e = errores.CError(0,0,"Error obteniendo informacion de alguna columna.") 
+                errores.insert_error(e)
+                return e
             
             results.append(res)
         
         conditions = []
         if self.condition is not None:
             conditions = ejecutar_conditions(tables,self.condition)
+            if isinstance(conditions,errores.CError):
+                e = errores.CError(0,0,"Error realizando las condiciones.")
+                errores.insert_error(e)
+                return e
 
         grouped = []
         
         if self.group :
             
             grouped = ejecutar_groupBy(results,self.select_list)
+            if isinstance(grouped,errores.CError):
+                e = errores.CError(0,0,"Error agrupando los elementos.")
+                errores.insert_error(e)
+                return e
 
         #Mostrar resultados
         for column in results:
 
             if isinstance(column,dict) and isinstance(column['valores'],list) and isinstance(conditions,dict):
-                
                 column['valores'] = filtrar(column['valores'],conditions['posiciones'])
             elif isinstance(column,dict) and isinstance(conditions,list):
                 column['valores'] = filtrar(column['valores'],conditions)
@@ -167,10 +178,6 @@ class select(query):
                 contador = contador + 1
             consulta = salida
 
-             
-        print(consulta)
-        return consulta
-
         #
         #Order by
         sortby =''
@@ -242,8 +249,9 @@ class exp_id(exp_query):
         else:
             #Verificamos que exista 
             if self.table not in tables and self.table not in tables.values():
-                #Error semántico
-                return None
+                e = errores.CError(0,0,"La tabla buscada no está en el from")
+                errores.insert_error(e)
+                return e
             # Existe, ahora obtenemos el nombre de la tabla
              
             if self.table not in tables.values():
@@ -348,7 +356,9 @@ class exp_suma(exp_query):
                         ma = float(mayor[i])
                         result.append(me-ma)
                     except ValueError: 
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la suma.")
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -378,7 +388,9 @@ class exp_suma(exp_query):
                 
                 return float(exp1) + float(exp2)
             except ValueError: 
-                return None
+                e = errores.CError(0,0,"Imposible convertir a numeric en la suma.")
+                errores.insert_error(e)
+                return e
 
 
     
@@ -411,7 +423,9 @@ class exp_resta(exp_query):
                         ma = float(mayor[i])
                         result.append(me-ma)
                     except ValueError: 
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la resta.")
+                        errores.insert_error(e)
+                        return e
                     
                 newdict = {
                     'valores':result,
@@ -443,7 +457,9 @@ class exp_resta(exp_query):
                 
                 return float(exp1) - float(exp2)
             except ValueError: 
-                return None
+                e = errores.CError(0,0,"Imposible convertir a numeric en la resta.")
+                errores.insert_error(e)
+                return e
             
 
 
@@ -474,7 +490,9 @@ class exp_multiplicacion(exp_query):
                         ma = float(mayor[i])
                         result.append(me*ma)
                     except ValueError: 
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la multiplicacion.")
+                        errores.insert_error(e)
+                        return e
                 newdict = {
                     'valores':result,
                     'columna': exp1['columna'].append(exp2['columna'][0])
@@ -505,7 +523,9 @@ class exp_multiplicacion(exp_query):
                 
                 return float(exp1) *float(exp2)
             except ValueError: 
-                return None
+                e = errores.CError(0,0,"Imposible convertir a numeric en la multiplicacion.")
+                errores.insert_error(e)
+                return e
 
 
 class exp_division(exp_query):
@@ -535,7 +555,9 @@ class exp_division(exp_query):
                         ma = float(mayor[i])
                         result.append(me/ma)
                     except ValueError: 
-                        return None
+                        e = errores.CError(0,0,"Imposible convertir a numeric en la division.")
+                        errores.insert_error(e)
+                        return e
                     
                 newdict = {
                     'valores':result,
@@ -566,7 +588,9 @@ class exp_division(exp_query):
                 
                 return float(exp1) - float(exp2)
             except ValueError: 
-                return None
+                e = errores.CError(0,0,"Imposible convertir a numeric en la division.")
+                errores.insert_error(e)
+                return e
 
 
 class select_column():

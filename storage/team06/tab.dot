@@ -1,0 +1,13 @@
+digraph grafica{
+    rankdir=TB;
+    node [shape = record, style=filled, fillcolor=lightcyan2];
+    nodobases2 [ label ="<AI>|bases2|<AD>"];
+    nodobas1 [ label ="<AI>|bas1|<AD>"];
+    nodoas [ label ="as"];
+    nodobas1:AI->nodoas
+    nodobase2 [ label ="base2"];
+    nodobas1:AD->nodobase2
+    nodobases2:AI->nodobas1
+    nodopoy [ label ="poy"];
+    nodobases2:AD->nodopoy
+    }

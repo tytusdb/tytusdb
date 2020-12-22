@@ -67,9 +67,9 @@ class DataController(object):
             desc = f": Table {name} does not exist"
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return None
-
-        data = data_mode.mode(database.mode).extractTable(database.name.lower(),
-                                                          name.lower())
+        # TODO Revisar Esto didier, que con lower me da problema al buscar tablas y base de datos
+        data = data_mode.mode(database.mode).extractTable(database.name,
+                                                          name)
         if data == None:
             ErrorController().add(34, 'Execution', '', noLine, noColumn)
             return None

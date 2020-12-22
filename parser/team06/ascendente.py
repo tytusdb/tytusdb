@@ -339,9 +339,6 @@ def operar_where(query,ts):
         print("EXP_NUM:",query.id)
         return query.id * -1
 
-    
-
-
 def procesar_createdb(query,ts):
     if ts.verificacionCrearBD(query.variable)==0:
         base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
@@ -352,17 +349,98 @@ def procesar_createdb(query,ts):
     elif ts.verificacionCrearBD(query.variable)==1:
         print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
         return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"
-        
+
+def procesar_create_if_db(query,ts):
+    if ts.verificacionCrearBD(query.variable)==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        store.createDatabase(query.variable)
+        ts.printBD()
+        return "se creo una nueva bd: "+str(query.variable)
+    elif ts.verificacionCrearBD(query.variable)==1:
+        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
+        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
+    #llamo al metodo de EDD
+
+def procesar_create_replace_db(query,ts):
+    if ts.verificacionCrearBD(query.variable)==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        store.createDatabase(query.variable)
+        ts.printBD()
+        return "se creo una nueva bd: "+str(query.variable)
+    elif ts.verificacionCrearBD(query.variable)==1:
+        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
+        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
+    #llamo al metodo de EDD
+
+def procesar_create_replace_if_db(query,ts):
+    if ts.verificacionCrearBD(query.variable)==0:
+        base_datos = TS.Simbolo(None,query.variable,None,None, None, None, 0,0,0,None,None,0,None,0,None,None,None,None)      # inicializamos con 0 como valor por defecto
+        ts.agregarCrearBD(base_datos)
+        store.createDatabase(query.variable)
+        ts.printBD()
+        return "se creo una nueva bd: "+str(query.variable)
+    elif ts.verificacionCrearBD(query.variable)==1:
+        print(str(query.variable),"es el nombre de una BD puede ser que quiera crear una tabla o columna")
+        return str(query.variable)+"es el nombre de una BD puede ser que quiera crear una tabla o columna"      
     #llamo al metodo de EDD
 # ---------------------------------------------------------------------------------------------------------------- 
 def procesar_createwithparametersdb(query,ts):
     for q in query.parametros:   
         if isinstance(q, ExpresionOwner) :
-            print(query.variable)
+            print("ID:",query.variable)
             print("OWNER:",q.owner)
             print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
         elif isinstance(q, ExpresionMode) :
-            print(query.variable)
+            print("ID:",query.variable)
+            print("MODE:",q.mode)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        else:
+            print("TIPO INCORRECTO DE QUERY:",query)
+
+def procesar_createwithparameters_if_db(query,ts):
+    for q in query.parametros:   
+        if isinstance(q, ExpresionOwner) :
+            print("IF:",query.iff)
+            print("ID:",query.variable)
+            print("OWNER:",q.owner)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        elif isinstance(q, ExpresionMode) :
+            print("IF:",query.iff)
+            print("ID:",query.variable)
+            print("MODE:",q.mode)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        else:
+            print("TIPO INCORRECTO DE QUERY:",query)
+
+def procesar_createwithparameters_replace_db(query,ts):
+    for q in query.parametros:   
+        if isinstance(q, ExpresionOwner) :
+            print("REPLACE:",query.replacee)
+            print("ID:",query.variable)
+            print("OWNER:",q.owner)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        elif isinstance(q, ExpresionMode) :
+            print("REPLACE:",query.replacee)
+            print("ID:",query.variable)
+            print("MODE:",q.mode)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        else:
+            print("TIPO INCORRECTO DE QUERY:",query)
+
+def procesar_createwithparameters_replace_if_db(query,ts):
+    for q in query.parametros:   
+        if isinstance(q, ExpresionOwner) :
+            print("REPLACE:",query.replacee)
+            print("IF:",query.iff)
+            print("ID:",query.variable)
+            print("OWNER:",q.owner)
+            print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
+        elif isinstance(q, ExpresionMode) :
+            print("REPLACE:",query.replacee)
+            print("IF:",query.iff)
+            print("ID:",query.variable)
             print("MODE:",q.mode)
             print("FINAL:",resolver_expresion_aritmetica(q.final,ts))
         else:
@@ -1362,43 +1440,32 @@ def procesar_queries(queries, ts) :
         elif isinstance(query, Select3) : procesar_select_Tipo3(query, ts)
         elif isinstance(query, Select4) : procesar_select_Tipo4(query, ts)
         elif isinstance(query, Select5) : procesar_select_Tipo5(query, ts)
-        elif isinstance(query, CreateDatabases) : 
-            procesar_createdb(query, ts)
-        elif isinstance(query, CreateDatabaseswithParameters) :
-            procesar_createwithparametersdb(query, ts)
-        elif isinstance(query, AlterDB) :
-            procesar_alterdb(query, ts)
-        elif isinstance(query, AlterOwner) :
-            procesar_alterwithparametersdb(query, ts)
-        elif isinstance(query, DropDB) :
-            procesar_dropdb(query, ts)
-        elif isinstance(query, DropDBIF) :
-            procesar_dropifdb(query, ts)
-        elif isinstance(query, ExpresionAritmetica) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionNegativo) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionInvocacion) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionNumero) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionIdentificador) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionCadenas) : 
-            resolver_expresion_aritmetica(query, ts)
-        elif isinstance(query, ExpresionNOT) : 
-            resolver_expresion_logica(query, ts)
-        elif isinstance(query, ExpresionBIT) : 
-            resolver_expresion_bit(query, ts)
-        elif isinstance(query, ExpresionRelacional) : 
-            resolver_expresion_relacional(query, ts)
+        elif isinstance(query, CreateDatabases) : procesar_createdb(query, ts)
+        elif isinstance(query, Create_IF_Databases) : procesar_create_if_db(query, ts)
+        elif isinstance(query, Create_Replace_Databases) : procesar_create_replace_db(query, ts)
+        elif isinstance(query, Create_Replace_IF_Databases) : procesar_create_replace_if_db(query, ts)
+        elif isinstance(query, CreateDatabaseswithParameters) : procesar_createwithparametersdb(query, ts)
+        elif isinstance(query, Create_Databases_IFwithParameters) : procesar_createwithparameters_if_db(query, ts)
+        elif isinstance(query, Create_Replace_DatabaseswithParameters) : procesar_createwithparameters_replace_db(query, ts)
+        elif isinstance(query, Create_Replace_IF_Databases) : procesar_createwithparameters_replace_if_db(query, ts)
+        elif isinstance(query, AlterDB) : procesar_alterdb(query, ts)
+        elif isinstance(query, AlterOwner) : procesar_alterwithparametersdb(query, ts)
+        elif isinstance(query, DropDB) : procesar_dropdb(query, ts)
+        elif isinstance(query, DropDBIF) : procesar_dropifdb(query, ts)
+        elif isinstance(query, ExpresionAritmetica) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNegativo) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionInvocacion) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNumero) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionIdentificador) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionCadenas) : resolver_expresion_aritmetica(query, ts)
+        elif isinstance(query, ExpresionNOT) : resolver_expresion_logica(query, ts)
+        elif isinstance(query, ExpresionBIT) : resolver_expresion_bit(query, ts)
+        elif isinstance(query, ExpresionRelacional) : resolver_expresion_relacional(query, ts)
         elif isinstance(query, InsertinDataBases) : procesar_insertBD(query,ts)
         elif isinstance(query, UpdateinDataBase) : procesar_updateinBD(query,ts)
         elif isinstance(query, DeleteinDataBases) : procesar_deleteinBD(query, ts)
         elif isinstance(query, CreateTable) : procesar_createTale(query,ts)
         elif isinstance(query, InheritsBD) : procesar_inheritsBD(query,ts)
-        #elif
-        #elif isinstance(query, ShowDatabases) : procesar_showdb(query, ts)
         elif isinstance(query,DropTable): drop_table(query,ts)
         elif isinstance(query,AlterTable): alter_table(query,ts)
         elif isinstance(query,UseDatabases): procesar_useBD(query,ts)
