@@ -1193,6 +1193,7 @@ def AlterTBF(instr,ts):
     #RENAME , ALTER_TABLE_SERIE,   ALTER_TABLE_DROP,   ALTER_TABLE_ADD
     ObjetoAnalisis=instr.cuerpo
 
+    global baseActiva
 
     #ANALISIS ALTER RENAME
     if isinstance(ObjetoAnalisis,ALTERTBO_RENAME ):
@@ -1216,7 +1217,7 @@ def AlterTBF(instr,ts):
         
         Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts)
         #CASTEAR INFO DE LA TABLA SI ES QUE SE DEBE CASTEAR
-        
+
     #ANALISIS ALTER DROP
     elif isinstance(ObjetoAnalisis,ALTERTBO_DROP ):
         #Definicion de Instruccion  COLUMN , CONSTRAINT o nula
@@ -1246,26 +1247,85 @@ def AlterTBF(instr,ts):
         INSTRUCCION=ObjetoAnalisis.instruccion
 
         #Recupera posible multiple constraint
-        Obj_Extras=list(ObjetoAnalisis.extra)
-        
-        #clasificacion constraints 
-        Check_Obj = []
-        Unique_Obj = []
-        Primary_Obj = []
-        Foreign_Obj = []
+        Obj_Extras=ObjetoAnalisis.extra
 
-        for val in Obj_Extras:
-            Uptemp=(val.instruccion).upper()
-            if  Uptemp=="CHECK":
-                Check_Obj = (Check_Obj+[val])
-            elif Uptemp =="UNIQUE":
-                Unique_Obj = (Unique_Obj+[val])
-            elif Uptemp =="PRIMARY":
-                Primary_Obj = (Primary_Obj+[val])
-            elif Uptemp =="FOREIGN":
-                Foreign_Obj = (Foreign_Obj+[val])
+        #Para reposicionar valores
+        #if INSTRUCCION.upper()=="C" or INSTRUCCION.upper()=="CONSTRAINT":
+        #elif INSTRUCCION.upper()=="ID" or INSTRUCCION.upper()=="COLUMN":
+        #else:
+
+
+        if INSTRUCCION.upper()=="C" or INSTRUCCION.upper()=="CONSTRAINT":
+            ' '
+            #si trae id agrgar nombre
+            #sino es 0
+            #viene lista de constraints
+            tablab= copy.deepcopy(Get_Table(NombreTabla))
+
+            if len(tablab)>0:
+                #encontro la tabla
+                #comprueba que el nombre columna exista en la tabla
+                Constraint_Resuelve(Obj_Extras,tablab,ID)
             else:
-                print("Instruccion desconocida")
+                print("la tabla no existe en la base de datos")
+
+
+
+
+        elif INSTRUCCION.upper()=="ID" or INSTRUCCION.upper()=="COLUMN":
+            tablab= copy.copy(Get_Table(NombreTabla))
+
+            if len(tablab)>0:
+                #encontro la tabla
+                #comprueba que el nombre columna no exista en la tabla
+                columnab=copy.copy(Get_Column(ID,(tablab[0]).atributos,tablab[2]))
+                if len(columnab)==0:
+                    #no existe la columna en tabla , la creara
+                    retor=1
+                    try:
+                        #VERFICAR SI DEFAULT ALGUN VALOR XXXXX
+                        retor=EDD.alterAddColumn(baseActiva,NombreTabla,None)
+                    except:
+                        ' '
+                        print("ERROR EN edd")
+                    if retor==0:
+                        #Si se agrego' la columna a la tabla, crea el header COLUMNA
+                        col_new= Columna_run()
+
+                        col_new.nombre=ID
+                        col_new.tipo=TIPO
+                        col_new.constraint=constraint_name()
+
+                        valor= resolver_operacion(VALORTIPO[0],ts)
+                        if valor!=None:
+                            col_new.size=valor
+                        else:
+                            col_new.size=""
+                        # ((indexo la tabla ).listacolumnas)
+                        cambio=((listaTablas[tablab[1]]).atributos)
+                        cambio+=[col_new]
+                    else:
+                        ' '
+                    #ciclo mensajes
+                    Msg_Alt_Add_Column(NombreTabla,ID,retor)
+                else:
+                    ' '
+                    #existe la columna no la crea
+                    print("la columna YA existe")
+                    outputTxt='La columna:'+ID+" ya Existe en la tabla:"+NombreTabla
+                    agregarMensjae('normal',outputTxt,"")
+            else:
+                ' '
+                #la tabla no existe
+                print("la tabla no existe")
+                outputTxt='La tabla:'+NombreTabla+" no Existe"
+                agregarMensjae('normal',outputTxt,"")
+        else:
+            ' '
+            print("Operacion desconocida")
+            
+
+
 
 
 def Table_Reensable_H(tablaB,indice):
@@ -1393,9 +1453,244 @@ def Rename_Database(nombreOld,nombreNew):
             tab.basepadre=nombreNew
     
     listaTablas=copy.copy(tablas)
+#Objeto analiza constraint individual
+
+def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
+
+    #obtiene instrucion: check unique primary foranea
+    Uptemp=Obj_Add_Const.instruccion
+    #obtiene contenido,lista de columnas
+    contenido=Obj_Add_Const.contenido
+    #obtiene ID tabla Referencias
+    TabIDRef=Obj_Add_Const.id
+    #obtiene Contenido Referencias ,lista de columnas
+    contenido2=Obj_Add_Const.contenido2
+
+    #servira para escribir los cambios temporalmente
+    tab_Temp=copy.deepcopy(tablab)
+
+
+
+    #Revisa que No exista el nombre constraint si se fuera a poner
+    reviConsName=True
+    if ID!=0 and ID!=None and ID!="":
+        reviConsName=Ver_Exist_Name_Const(ID,(tab_Temp[0]).atributos)
+    else:
+        reviConsName=False
+
+    #NOTA SI SE ELIMINA alguno INDIVIDUAL Nose 
+
+    #Construye el id si no tiene ID
+    new_id=""
+    for con in contenido:
+        if new_id=="":
+            new_id=new_id+con
+        else:
+            new_id=new_id+"_"+con
+
+
+    #INCIA LA VERIFICACION DE TIPO CONSTRAINT
+    if  Uptemp=="CHECK" and not(reviConsName):
+        ' '
+    elif Uptemp =="UNIQUE" and  not(reviConsName):
+
+        existenCols=0
+        #Busca cada columna del query , en las columnas de la Tabla
+        for col_rev in contenido:
+            subCont=0
+            existeC=0
+            for COL_T in ((tablab[0]).atributos):
+                if col_rev == COL_T.nombre:
+                    #((busca e indexa tabla).get columns List)[indexa col].unique=asigna
+                    #(((listaTablas[tablab[1]]).atributos)[subCont]).unique='True'
+                    
+                    
+                    #Obtiene info de la columna para verificar que Registro sean unicos
+                    columnab=copy.copy(Get_Column(col_rev,((tablab[0]).atributos),tablab[2]))
+
+                    #Busca Regisros Repetidos en la columna 
+                    DatoRepetido=B_Repetidos(columnab[2])
+                    #obitiene Nombre UNIQUE de esa columna
+                    #para ver que sea vacio , sino NO MODIFICA
+                    pre_con=((((tablab[0]).atributos)[subCont]).constraint).unique
+                    print("BOOL ASDF:",(pre_con==None))
+                    print(pre_con)
+
+                    if (ID!=0 and ID!=None and ID!="") and (pre_con==None) and not(DatoRepetido):
+                        print("INGRESO ID TIENE:")
+                        #SI UNIQUE NO HA SIDO ASIGNADO, y SI  le puso ID , y si NO REGISTROS REPETIDOS
+                        ((((tab_Temp[0]).atributos)[subCont]).constraint).unique=ID
+                        #usara el objeto tempral tablab=tab_Temp ,
+                        #Asigna el valor Verdadero
+                        (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                    elif (ID==0 or ID==None or ID=="") and pre_con==None and not(DatoRepetido):
+                        print("INGRESO NO ID TIENE:")
+                        #SI UNIQUE NO HA SIDO ASIGNADO, y NO se le puso ID , y si NO REGISTROS REPETIDOS
+                        #ID= concatena columnas col_col2_col3_etc
+                        ((((tab_Temp[0]).atributos)[subCont]).constraint).unique=new_id
+                        #Asigna el valor Verdadero
+                        (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                    else:
+                        print("Unique Error")
+                        existenCols=0
+                        break
+
+                    #AREA DE MENSAJES de validaciones
+                    Msg_Alt_Add_CONSTRAINT(pre_con,DatoRepetido,columnab)
+
+                    existeC=1
+                    existenCols=copy.deepcopy(existeC)
+                    break
+                subCont+=1
+            else:
+                #Transfiere el valor, para no guardar informacion, o si guardarla 
+                #existenCols=copy.deepcopy(existeC)
+                if existeC==0:
+                    print("La columna:",col_rev," no existe en la tabla")
+                    break
+                
+                
+
+        print("existecols:",existenCols)
+        #((((tab_Temp[0]).atributos)[0]).constraint).unique='23'
+        print(((((tab_Temp[0]).atributos)[0]).constraint).unique)
+        if existenCols==1:
+            #procede a actualizar la tabla
+            pre_con=((((tab_Temp[0]).atributos)[0]).constraint).unique
+            pre_con1=((((tablab[0]).atributos)[1]).constraint).unique
+            pre_con2=((((tablab[0]).atributos)[2]).constraint).unique
+            pre_con3=((((tab_Temp[0]).atributos)[3]).constraint).unique
+            pre_con4=((((tablab[0]).atributos)[4]).constraint).unique
+            print("pre_con:",pre_con,"-")
+            print("pre_con1:",pre_con1)
+            print("pre_con2:",pre_con2)
+            print("pre_con3:",pre_con3)
+            print("pre_con4:",pre_con4)
+            listaTablas[tablab[1]]=copy.deepcopy(tab_Temp[0])
+            
+            ' '
+        else:
+            print("Error no se puede guardar la tabla constraint")
+
+
+    elif Uptemp =="PRIMARY" and not(reviConsName):
+        ' '
+    elif Uptemp =="FOREIGN" and not(reviConsName):
+        ' '
+    else:
+        if reviConsName:
+            print("Nombre constraint Repetido")
+        else:
+            print("Instruccion desconocida")
+
+
+#Verifica que si se va a asignar un UNIQUE la informacion de ella cumpla previamente
+def B_Repetidos(ColumnaInfo_Col):
+    
+    con=0
+    retorna=False
+
+    for ver  in ColumnaInfo_Col:
+        con2=0
+        for ver2 in ColumnaInfo_Col:
+            if (con!=con2) and (ver==ver2):
+                retorna=True
+                break
+            con2+=1
+        con+=1
+    return retorna
+
+def Ver_Exist_Name_Const(nameConst,T_head_cols):
+
+    retornaExiste=True
+
+    for c_t in T_head_cols:
+        if (c_t.constraint).unique!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).anulable!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).default!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).primary!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).foreign!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+        if (c_t.constraint).check!=nameConst:
+            retornaExiste=False
+        else:
+            retornaExiste=True
+            break
+
+    return retornaExiste
+            
 
 
 #Respuestas*********************************
+
+
+def Msg_Alt_Add_CONSTRAINT(pre_con,DatoRepetido,columnab):
+    outputTxt=""
+    global baseActiva
+    #Verifica Respuesta
+    #if retorno==0:
+        #outputTxt='Se agrego exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
+        #agregarMensjae('normal',outputTxt,"")
+    #elif retorno==1:
+        
+    #elif retorno==2:
+        
+    #elif retorno==3:
+        
+    #else:
+    
+    print("Ingreso Mensajes CONSTRIN")
+
+
+
+
+
+def Msg_Alt_Add_Column(NombreTabla,ID,retorno):
+    outputTxt=""
+    global baseActiva
+    #Verifica Respuesta
+    if retorno==0:
+        outputTxt='Se agrego exitosamente la columna:'+ ID+' de Tabla:'+NombreTabla 
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==1:
+        outputTxt='Hubo un error durante la eliminacion de la columna  '
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==2:
+        outputTxt='La Base de datos :'+ baseActiva +' ,no existe '
+        agregarMensjae('normal',outputTxt,"")
+    elif retorno==3:
+        outputTxt='La Tabla :'+NombreTabla +' ,no existe en la bd'
+        agregarMensjae('normal',outputTxt,"")
+    else:
+        print("operacion desconocida 0")
+
+
+
+
 def Msg_Alt_Drop(NombreTabla,ID,retorno):
     outputTxt=""
     global baseActiva

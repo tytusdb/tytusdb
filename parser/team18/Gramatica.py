@@ -390,13 +390,13 @@ def p_alttbadd(t):
                   | ADD alttbadd2  '''
      
      if len(t)==3:
-          t[0]=ALTERTBO_ADD(0,0,0,0,t[2])
+          t[0]=ALTERTBO_ADD(0,0,0,"C",t[2])
      else:
           temp=t[2]
           temp=temp.upper()
 
           if (temp!="COLUMN" and temp!="CONSTRAINT"):
-               t[0]=ALTERTBO_ADD(t[2],t[3],t[4],0,[])
+               t[0]=ALTERTBO_ADD(t[2],t[3],t[4],"ID",[])
           elif temp=="COLUMN":
                t[0]=ALTERTBO_ADD(t[3],t[4],t[5],t[2],[])
           elif temp=="CONSTRAINT":
@@ -405,13 +405,8 @@ def p_alttbadd(t):
           
 
 def p_alttbadd2(t):
-     '''alttbadd2 : alttbadd2 COMA alttbadd3
-                  | alttbadd3  '''
-     if len(t)==4:
-          t[0]=t[1]+[t[3]]
-     else:
-          t[0]=[t[1]]
-
+     '''alttbadd2 : alttbadd3  '''
+     t[0]=t[1]
 def p_alttbadd3(t):
      '''alttbadd3 : CHECK PAR_A exp PAR_C
                   | UNIQUE PAR_A alttbadd4 PAR_C
