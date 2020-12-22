@@ -1,8 +1,15 @@
-from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, ALL, Scrollbar, \
-    Listbox, Grid, Entry, filedialog, messagebox, Toplevel, Canvas
+# AVL Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+# Developers: SG#16
+
+
+from tkinter import Label, Frame, Button, Tk, TOP, BOTTOM, RIGHT, LEFT, END, BOTH, CENTER, X, Y, W, SW, ALL, \
+    Scrollbar, Listbox, Grid, Entry, filedialog, messagebox, Toplevel, Canvas
 from tkinter.ttk import Combobox
 from PIL import Image, ImageTk
-from controller import Controller, Enums
+from View.controller import Controller, Enums
+
 
 class GUI(Frame):
 
@@ -67,6 +74,12 @@ class GUI(Frame):
         if messagebox.askokcancel("Salir", "¿Seguro que quieres salir?"):
             win.destroy()
             root.deiconify()
+
+    def _on_mousewheel(self, event):
+        try:
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        except:
+            pass
 
     # region Menú principal
     def main(self):
@@ -203,7 +216,7 @@ class GUI(Frame):
                                    text=self.actions[8],
                                    bg="#abb2b9", font=("Courier New", 14),
                                    borderwidth=0.5, pady=6, width=15,
-                                   command=lambda: self.simpleDialog(["database", "table", "lower", "upper"],
+                                   command=lambda: self.simpleDialog(["database", "table", "column", "lower", "upper"],
                                                                      self.actions[8]))
         btnExtractRangeTb.grid(row=6, column=2, sticky=W, padx=(5, 0), pady=(0, 25))
         # endregion
@@ -252,6 +265,7 @@ class GUI(Frame):
                                command=lambda: self.simpleDialog(["database", "tableName"], self.actions[22]))
         btnTruncateTp.grid(row=7, column=3, sticky=W, padx=(110, 0), pady=(0, 25))
         # endregion
+
     # endregion
 
     # region Ventana de reporte
@@ -274,24 +288,25 @@ class GUI(Frame):
 
         self.tableList = Combobox(self.master, state="readonly", width=30, font=("Century Gothic", 12))
         self.tableList.place(x=360, y=120)
-        self.tableList.set('Tablas')
+        self.tableList.set('Seleccione tabla...')
         self.tableList.bind("<<ComboboxSelected>>", self.displayTableData)
 
         self.tuplelist = Combobox(self.master, state="readonly", width=30, font=("Century Gothic", 12))
         self.tuplelist.place(x=750, y=120)
-        self.tuplelist.set('Tuplas')
+        self.tuplelist.set('Seleccione tupla...')
         self.tuplelist.bind("<<ComboboxSelected>>", self.displayTupleData)
 
-        self.canvas = Canvas(self.master, width=740, height=415, bg="#778899", highlightthickness=0)
+        self.canvas = Canvas(self.master, width=740, height=415, bg="#0f1319", highlightthickness=0)
         self.canvas.place(x=320, y=170)
         # self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
 
         self.scrollbarY.config(command=self.canvas.yview)
         self.scrollbarX.config(command=self.canvas.xview)
-        
+
         self.desplegarDB()
-    
-    #Mostrar lista de base de datos
+
+    # Mostrar lista de base de datos
     def desplegarDB(self):
         try:
             dblist = self.controller.execute(None, self.actions[2])
@@ -305,16 +320,16 @@ class GUI(Frame):
             self.master.mainloop()
         except:
             None
-        
-    #Mostrar lista de tablas
+
+    # Mostrar lista de tablas
     def displayDBData(self, event):
         try:
             selection = event.widget.curselection()
             data = ""
             tmp = []
             if selection:
-                self.tableList.set('Tablas')
-                self.tuplelist.set('Tuplas')
+                self.tableList.set('Seleccione tabla...')
+                self.tuplelist.set('Seleccione tupla...')
                 index = selection[0]
                 data = event.widget.get(index)
                 self.titulo3.configure(text=data)
@@ -329,14 +344,14 @@ class GUI(Frame):
                 self.master.mainloop()
         except:
             None
-             
-    #Mostrar AVL de tabla
+
+    # Mostrar AVL de tabla
     def displayTableData(self, event):
         try:
-            self.tuplelist.set('Tuplas')
+            self.tuplelist.set('Seleccione tupla...')
             db = str(self.titulo3["text"])
-            tb =  str(self.tableList.get())
-            tp = self.controller.getIndexes(db,tb)
+            tb = str(self.tableList.get())
+            tp = self.controller.getIndexes(db, tb)
             self.tuplelist["values"] = tp
             png = self.controller.reportAVL(db, tb)
             bg_AVL = ImageTk.PhotoImage(Image.open(png))
@@ -347,13 +362,13 @@ class GUI(Frame):
         except:
             None
 
-    #Mostrar tupla
+    # Mostrar tupla
     def displayTupleData(self, event):
         try:
             db = str(self.titulo3["text"])
-            tb =  str(self.tableList.get())
+            tb = str(self.tableList.get())
             tp = str(self.tuplelist.get())
-            png = self.controller.reportTPL(db, tb, tp) #le envío el índice del árbol (tp)
+            png = self.controller.reportTPL(db, tb, tp)  # le envío el índice del árbol (tp)
             bg_TPL = ImageTk.PhotoImage(Image.open(png))
             self.canvas.itemconfig(self.image_on_canvas, image=bg_TPL)
             self.canvas.config(xscrollcommand=self.scrollbarX.set, yscrollcommand=self.scrollbarY.set)
@@ -398,6 +413,7 @@ class GUI(Frame):
                         command=lambda: self.ejecutar(dialog, tmp, action))
         submit.grid(row=dim + 1, columnspan=2, pady=(8, 10))
         dialog.mainloop()
+
     # endregion
 
     def cargarArchivo(self, btn):
@@ -413,7 +429,8 @@ class GUI(Frame):
             else:
                 return messagebox.showerror("Oops", "Existen campos vacíos")
         response = self.controller.execute(self.parametros, action)
-        if response in range(1, 7):
+        if response in range(1, 8):
+            self.parametros.clear()
             return messagebox.showerror("Error número: " + str(response),
                                         "Ocurrió un error en la operación.\nAsegúrese de introducir datos correctos")
         dialog.destroy()
