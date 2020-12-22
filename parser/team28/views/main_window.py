@@ -117,7 +117,7 @@ class MainWindow(object):
 
     def nuevo(self):
         self.entrada.delete(1.0, END)
-        self.salida.delete(1.0, END)
+        DataWindow().clearConsole()
         self.archivo = ''
 
     # Guarda el archivo
@@ -154,6 +154,7 @@ class MainWindow(object):
         else:
             result2 = parse2(texto)
             report_ast = result2
+            print(result2.production)
             messagebox.showinfo('EXITO', 'SE FINALIZO EL ANALISIS CON EXITO')
 
             # ---------- TEST ---------

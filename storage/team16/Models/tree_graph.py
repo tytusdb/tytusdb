@@ -1,11 +1,11 @@
 import os
 
-
 class TreeGraph:
+    
     def __init__(self, tree):
         self.content = ""
         self.tree = tree
-        self.title = 'Arbol AVL'
+        self.title = tree.name
 
     def __prepare(self):
         self.__graph(self.tree.root)
@@ -32,23 +32,18 @@ class TreeGraph:
                 return
 
     def export(self):
-        archivo = open('treeGraph.dot', 'w')
-        archivo.write('digraph D{\n')
-        archivo.write("node [shape= circle, style= filled]; \n")
-        archivo.write("label= \" Grafico del " + self.title + " \" \n")
+        fname = 'DataAccessLayer/imaging/grafo-avl'
+        archivo = open(fname +'.dot', 'w')
+        archivo.write('digraph D{\ngraph[bgcolor="#778899"]\n')
+        archivo.write('node [shape= circle, style= filled, fontname="Century Gothic", color="#006400", fillcolor="#90EE90"]; \n')
+        archivo.write('edge[color="#145A32"]')
+        archivo.write("label= \" AVL de '" + self.title + "' \" fontname=\"Century Gothic\" \n")
 
-        # llenamos el content alv
         self.__prepare()
 
-        # se agrega el content al dot
         archivo.write(self.content)
-
-        # cerramos el archivo . dot y el de python
         archivo.write('\n}')
         archivo.close()
 
-        # exportamos
-        os.system('dot treeGraph.dot -Tpng -o treeGraph.png')
-        os.remove('treeGraph.dot')
-        os.system('treeGraph.png')
-        print('Generado con exito')
+        os.system('dot '+ fname +'.dot'+' -Tpng -o '+ fname +'.png')
+        os.remove(fname + '.dot')

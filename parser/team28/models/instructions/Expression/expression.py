@@ -1,3 +1,5 @@
+# from models.instructions.DML.special_functions import search_symbol
+from controllers.symbol_table import SymbolTable
 import math
 from abc import abstractmethod
 from datetime import datetime, time
@@ -55,8 +57,10 @@ class ArithmeticBinaryOperation(Expression):
             value = round(value1.value | value2.value)
         elif operador == SymbolsAritmeticos.BITWISE_XOR:
             value = round(value1.value ^ value2.value)
-        return PrimitiveData(DATA_TYPE.NUMBER, value)
+        
+        return PrimitiveData(DATA_TYPE.NUMBER, value, self.line, self.column)
 
+    
 class Relop(Expression):
     '''
     Relop contiene los operadores logicos
@@ -96,7 +100,7 @@ class Relop(Expression):
             else:
                 print("Operador no valido: " + operator)
                 return
-            return PrimitiveData(DATA_TYPE.BOOLEANO, value)
+            return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -104,6 +108,24 @@ class Relop(Expression):
         except:
             print("FATAL ERROR, ni idea porque murio, F --- Relop")
 
+
+class ExpressionColumnsId(Expression):
+    def __init__(self, id, line, column):
+        self.id = id
+        self.line = line
+        self.column = column
+        self.alias = f'{self.id}'
+
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, expression):
+        # symbol = search_symbol(self.id)
+        symbol = None
+        if symbol == None:
+            return PrimitiveData(DATA_TYPE.STRING,self.id, self.line, self.column)
+        else:
+            pass
 class ExpressionsTime(Expression):
     '''
         ExpressionsTime
@@ -166,7 +188,7 @@ class ExpressionsTime(Expression):
             else:
                 time_data = self.method_for_timestamp(name_opt.value)
                 current_time = str(datetime(time_data[0], time_data[1], time_data[2], time_data[3], time_data[4], time_data[5]))
-        return PrimitiveData(DATA_TYPE.STRING, current_time)
+        return PrimitiveData(DATA_TYPE.STRING, current_time, self.line, self.column)
         
     def method_for_timestamp(self, fecha):
         data_time = ""
@@ -256,7 +278,7 @@ class ExpressionsTrigonometric(Expression):
             result = round(asinh(float(exp1.value)),4)
         elif type_trigo.lower() == 'atanh':
             result = round(atanh(float(exp1.value)),4)
-        return PrimitiveData(DATA_TYPE.NUMBER, result)
+        return PrimitiveData(DATA_TYPE.NUMBER, result, self.line, self.column)
 
 
 class UnaryOrSquareExpressions(Expression):
@@ -288,7 +310,7 @@ class UnaryOrSquareExpressions(Expression):
             result = round(math.sqrt(expression1.value), 2)
         elif type_unary_or_other == SymbolsUnaryOrOthers.CUBE_ROOT:
             result = round(expression1.value**(1/3), 2)
-        return PrimitiveData(DATA_TYPE.NUMBER, result)
+        return PrimitiveData(DATA_TYPE.NUMBER, result, self.line, self.column)
 
 
 class LogicalOperators(Expression):
@@ -319,7 +341,7 @@ class LogicalOperators(Expression):
             else:
                 print("Operador no valido: " + operator)
                 return
-            return PrimitiveData(DATA_TYPE.BOOLEANO, value)
+            return PrimitiveData(DATA_TYPE.BOOLEANO, value, self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -334,10 +356,12 @@ class PrimitiveData(Expression):
     de datos como STRING, NUMBER, BOOLEAN
     """
 
-    def __init__(self, data_type, value):
+    def __init__(self, data_type, value, line, column):
         self.data_type = data_type
         self.value = value
         self.alias = str(self.value)
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
 
