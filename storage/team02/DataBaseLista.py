@@ -48,6 +48,34 @@ class ListaDOBLE:
             return 1
 
 
+	#Método Buscar para lista de tablas
+    def buscarNodo(self, dato):
+        actual = self.primero
+        encontrado = False
+        if self.primero != None:
+            while actual != None and encontrado != True:
+                if actual.nombreBase == dato:
+                    encontrado = True
+                    return actual
+                actual = actual.siguiente
+            if not encontrado:
+                return 0
+        else:    
+            return 1  
 
+    #buscar para agregar y modificar
+    def buscarModificar(self, dato):
+        actual = self.primero
+        encontrado = False
+        if self.primero != None:
+            while actual != None and encontrado != True:
+                if actual.nombreBase == dato:
+                    encontrado = True
+                    return 2
+                actual = actual.siguiente
+            if not encontrado:
+                return 0
+        else:    
+            return 1   
 
 
