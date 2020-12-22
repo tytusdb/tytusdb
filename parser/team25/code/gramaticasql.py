@@ -211,7 +211,7 @@ def p_alter_options2(p):
 
 def p_alter_options3(p):
     'alter_options : ADD CHECK PABRE ID DIFERENTE CADENA PCIERRA '
-    bnf.addProduccion('\<alter_options> ::= "ADD" "CHECK" "(" "<>" "CADENA" ")" ')
+    bnf.addProduccion('\<alter_options> ::= "ADD" "CHECK" "(" "ID" "<>" "CADENA" ")" ')
     p[0] = AlterTableAdd(p[4], ALTER_TABLE_ADD.CHECKS, p[6])
 
 def p_alter_options4(p):
@@ -247,12 +247,16 @@ def p_alter_varchar_lista(p):
                            |  alter_varchar_lista COMA alter_varchar'''
     if len(p) == 2:
         bnf.addProduccion('\<alter_varchar_lista> ::= \<alter_varchar>')
+        p[0] = [p[1]]
     else:
         bnf.addProduccion('\<alter_varchar_lista> ::= \<alter_varchar> "," \<alter_varchar>')
+        p[1].append(p[3])
+        p[0] = p[1]
 
 def p_alter_varchar(p):
-    '''alter_varchar : ALTER COLUMN ID VARCHAR PABRE NUMERO PCIERRA '''
-    bnf.addProduccion('\<alter_varchar> ::= "ALTER" "COLUMN" "ID" "VARCHAR" "(" NUMERO ")"')
+    '''alter_varchar : ALTER COLUMN ID TYPE VARCHAR PABRE NUMERO PCIERRA '''
+    bnf.addProduccion('\<alter_varchar> ::= "ALTER" "COLUMN" "ID" "TYPE" "VARCHAR" "(" NUMERO ")"')
+    p[0] = AlterField(p[3],p[6])
 
 # <TABLA> ::=  'id' 
 #          |   'id' 'as' 'id'
@@ -1158,7 +1162,6 @@ def p_columna_4(p):
 def p_columna_5(p):
     'columna :  PRIMARY KEY PABRE lista_ids PCIERRA'
     bnf.addProduccion('\<columna> ::= "PRIMARY" "KEY" "(" \<lista_ids> ")"')
-    print('Entra')
     p[0] = ConstraintMultipleFields(CONSTRAINT_FIELD.PRIMARY_KEY, p[4])
 
 def p_columna_6(p):
@@ -1342,7 +1345,7 @@ def p_tipo_18(p):
 def p_tipo_19(p):# produccion para los enum
     'tipo : ID'
     bnf.addProduccion('\<opCol> ::= "ID"')
-    p[0] = p[1].upper()
+    p[0] = p[1]
 # __________________________________________ <INTERVAL>
 # <INTERVAL> ::= 'interval' <FIELDS> ('numero')
 #             |  'interval' <FIELDS>
@@ -1475,7 +1478,7 @@ def p_checks_1(p):
 def p_checks_2(p):
     'checks : CHECK PABRE expresion PCIERRA'
     bnf.addProduccion(f'\<checks> ::= "{p[1].upper()}" "(" \<expresion> ")" ')  
-    p[0] = CheckField(p[5])
+    p[0] = CheckField(p[3])
 
 
 
@@ -1712,7 +1715,6 @@ def p_expresion_primitivo2(p):
 def p_expresion_id(p):
     'expresion : ID'
     p[0] = ExpresionID(p[1], p.slice[1].lineno)
-    p[0] = p[1]
     bnf.addProduccion(f'\<expresion> ::= "ID"')
     
 def p_expresion_tabla_campo(p):
@@ -2129,7 +2131,35 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada(''' 
-INSERT INTO TbTest (Col1,Coltres,ColCuatro) VALUES (103,'Prueba',123);
+CREATE DATABASE IF NOT EXISTS test
+    OWNER = 'root'
+    MODE = 1;
+
+USE test;
+
+create table tblibrosalario
+( idempleado integer not null,
+  aniocalculo integer not null CONSTRAINT aniosalario CHECK (aniocalculo > 0),
+  mescalculo  integer not null CONSTRAINT mescalculo CHECK (mescalculo > 0 and mescalculo < 12),
+  salariobase  money not null,
+  comision     decimal,
+  primary key(idempleado)
+ );
+
+
+create table tblibrosalariohis
+( idhistorico integer not null primary key
+) INHERITS (tblibrosalario);
+
+
+create table tbfuncionesmath
+(
+	idfuncion integer not null primary key,
+	seno decimal,
+	coseno decimal
+);
+
+
 ''')
 
 
