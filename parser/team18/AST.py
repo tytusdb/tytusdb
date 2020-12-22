@@ -20,6 +20,7 @@ import itertools
 listaInstrucciones = []
 listaTablas = [] #guarda las cabeceras de las tablas creadas
 outputTxt = [] #guarda los mensajes a mostrar en consola
+outputTS = [] #guarda el reporte tabla simbolos
 baseActiva = "" #Guarda la base temporalmente activa
 #--------Ejecucion Datos temporales-----------
 def reiniciarVariables():
@@ -27,6 +28,8 @@ def reiniciarVariables():
     outputTxt=[]
     global listaTablas
     listaTablas=[]
+    global outputTS
+    outputTS = []
     EDD.dropAll() #eliminar para ir haciendo pruebas, quitarlo al final
     baseActiva =""#eliminar para ir haciendo pruebas, quitarlo al final
 
@@ -60,6 +63,16 @@ def agregarMensjae(tipo,mensaje,codigo):
     txtOut.codigo=codigo
     outputTxt.append(txtOut)
 
+def agregarTSRepor(instruccion,identificador,tipo,referencia,dimension):
+    global outputTS
+    tsOut=MensajeTs()
+    tsOut.instruccion=instruccion
+    tsOut.identificador=identificador
+    tsOut.tipo=tipo
+    tsOut.referencia=referencia
+    tsOut.dimension=dimension
+    outputTS.append(tsOut)
+
 def buscarTabla(baseAc,nombre):
     pos=0
     while pos< len(listaTablas):
@@ -91,10 +104,29 @@ def validarTipo(T,valCOL):
         except:
             valCOL=None
     #acepta date
-    elif(T=="date" or T=="timestamp" or T=="time" or T=="interval" or T=="boolean"):
-         print("falta validar las fechas")
-         valCOL=None
+    elif(T=="date" or T=="timestamp" or T=="time" or T=="interval"):
+        try:
+            valCOL=str(valCOL)
+        except:
+            valCOL=None
     #acepta Type
+    elif(T=="boolean"):
+        try:
+            valCOL=str(valCOL)
+            if(valCOL=='1'):
+                valCOL=True
+            elif(valCOL=='0'):
+                valCOL=False
+            else:
+                valCOL=valCOL.lower()
+                if(valCOL=='true' or valCOL=='t' or valCOL=='y' or valCOL=='yes' or valCOL=='on'):
+                    valCOL=True
+                elif(valCOL=='false' or valCOL=='f' or valCOL=='n' or valCOL=='no' or valCOL=='off'):
+                    valCOL=False
+                else:
+                    valCOL=None
+        except:
+            valCOL=None
     else:
         tablaType=EDD.extractTable(baseActiva,T)#Extraer valores de la tabla
         if(tablaType==None):
@@ -350,7 +382,6 @@ def crear_Tabla(instr,ts):
     #Pendiente
     # -zonahoraria
     # -check
-    # -herencia
 
     nombreT=resolver_operacion(instr.nombre,ts).lower()
     listaColumnas=[]
@@ -359,8 +390,23 @@ def crear_Tabla(instr,ts):
     msg='Creando Tabla:'+nombreT
     agregarMensjae('normal',msg,'')
     contC=0# variable para contar las columnas a mandar a EDD
-
-    print('padre:',instr.padre)
+    
+    #verificar el padre
+    if(instr.padre!=False):
+        nombPadre=resolver_operacion(instr.padre,ts).lower()
+        herencia=buscarTabla(baseActiva,nombPadre)
+        #error no existe la tabla
+        if(herencia==None):
+            crearOK=False
+            msg='42P01:No existe la tabla para la herencia:'+nombPadre
+            agregarMensjae('error',msg,'42P01')
+        #copiar las columnas
+        else:
+            for col in herencia.atributos:
+                msg='columna herencia:'+col.nombre
+                agregarMensjae('alert',msg,'')
+                listaColumnas.append(col)
+    
     #recorrer las columnas
     for colum in instr.columnas :
         colAux=Columna_run()#columna temporal para almacenar
@@ -974,6 +1020,29 @@ def insertar_en_tabla(instr,ts):
         if(result==0):
             msg='valores insertados:'+str(ValInsert)
             agregarMensjae('exito',msg,'')
+            #agregar mensaje Tabla simbolos
+            agregarTSRepor('INSERT','','','','')
+            #lista de valores
+            if(instr.columnas==False):
+                pos=0
+                #recorrer los valores
+                for val in instr.valores:
+                    tip=tablaInsert.atributos[pos].tipo
+                    ident=tablaInsert.atributos[pos].nombre
+                    agregarTSRepor('',ident,tip,nombreT,'1')
+                    pos+=1
+            #listado de columnas y valores
+            else:
+                #recorrer las columnas a insertar
+                for colList in instr.columnas:
+                    #recorrer las columnas en la tabla
+                    for colTab in tablaInsert.atributos:
+                        if(colTab.nombre==colList.lower()):
+                            tip=colTab.tipo
+                            ident=colTab.nombre
+                            agregarTSRepor('',ident,tip,nombreT,'1')
+                            break;
+            
         elif (result==1):
             msg='Error en EDD:'
             agregarMensjae('error',msg,'')
@@ -2515,9 +2584,19 @@ def mostrarTablasTemp():
             for col in tab.atributos:
                 texTab.add_row([col.nombre,col.tipo,col.size,col.precision,col.unique,col.anulable,col.default,col.primary,col.foreign,col.refence,col.check])
         misTablas.append(texTab)
+    #agregar tabla de simbolos a los reportes
+    misTablas.append(generarTSReporte())
 
     return misTablas
 
+def generarTSReporte():
+    global outputTS
+    textTs=PrettyTable()
+    textTs.title='REPORTE TABLA DE SIMBOLOS'
+    textTs.field_names=['instruccion','identificador','tipo','referencia','dimension']
+    for x in outputTS:
+        textTs.add_row([x.instruccion,x.identificador,x.tipo,x.referencia,x.dimension])
+    return textTs
    
 '''
 #usar las tablas

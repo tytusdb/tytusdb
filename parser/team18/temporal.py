@@ -6,6 +6,12 @@ class MensajeOut:
     mensaje=''
     codigo=''
 
+class MensajeTs:
+    instruccion=''
+    identificador=''
+    tipo=''
+    referencia=''
+    dimension=''
 
 class Tabla_run:
     def __init__(self, basepadre, nombre, atributos=[]): 
