@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 
-from astDML import UpdateTable
+from astDML import UpdateTable,InsertTable
 from lexicosql import tokens
 from astExpresion import ExpresionComparacion, ExpresionLogica, ExpresionNegativa, ExpresionNumero, BETWEEN,ExpresionPositiva, ExpresionBetween, OPERACION_LOGICA, OPERACION_RELACIONAL, TIPO_DE_DATO, ExpresionAritmetica, OPERACION_ARITMETICA,ExpresionNegada,ExpresionUnariaIs,OPERACION_UNARIA_IS, ExpresionBinariaIs, OPERACION_BINARIA_IS
 from astExpresion import ExpresionCadena, ExpresionID ,ExpresionBooleano , ExpresionAgrupacion
@@ -1498,10 +1498,12 @@ def p_update(p):
 
 def p_sentenciaInsert(p):
     ''' insert : INSERT INTO ID VALUES PABRE lista_exp PCIERRA'''
+    p[0] = InsertTable(p[3],p[6])
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" "VALUES"  "( "\<lista_exp> ")"')
     
 def p_sentenciaInsert2(p):
     ''' insert : INSERT INTO ID parametros VALUES PABRE lista_exp PCIERRA'''
+    p[0] = InsertTable(p[3],p[7],p[4])
     bnf.addProduccion(f'\<insert> ::= "{p[1].upper()}" "INTO" "ID" \<parametros> "VALUES"  "( "\<lista_exp> ")"') 
 # ___________________________________________PARAMETROS
 
@@ -2127,13 +2129,12 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada(''' 
-SELECT 7 * 7 = (9*47+7+8/2) or 'x' <> 'x' ;
-SELECT 7 * 7 = (9*47+'k'+8/2)  ;
+INSERT INTO TbTest (Col1,Coltres,ColCuatro) VALUES (103,'Prueba',123);
 ''')
 
 
 
-# arbolParser.ejecutar()
+arbolParser.ejecutar()
 # print(arbolParser)
 #arbolParser.dibujar()#viendo el resultado: 
 
