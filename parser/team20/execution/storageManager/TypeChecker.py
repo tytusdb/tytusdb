@@ -32,6 +32,17 @@ def TCgetDatabase()->str:
         data = json.load(file)
         return data["USE"]
 
+#Get table columns in order
+def TCgetTableColumns(database: str,table:str)->str:
+    initCheck()
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        try:
+            info = data[database][table]
+            return info.keys()
+        except:
+            return table
+
 #Set database select
 def TCsetDatabase(database: str)->int:
     initCheck()
