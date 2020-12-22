@@ -1,6 +1,7 @@
 from .AST.sentence import *
 from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType
 from .executeShow import executeShowDatabases
+from .executeSelect import executeSelect
 from .executeDrop import executeDropDatabase
 from .executeUse import executeUse
 from .executeExpression import executeExpression
@@ -38,7 +39,7 @@ def executeSentence(self, sentence):
             TCdropDatabase(sentence.name)
             print_success("QUERY","DataBase "+sentence.name+" has been dropped")
         elif(result==2 and sentence.ifExistsFlag): 
-            print_success("NOTICE: Database "+sentence.name+" does not exist,skipping Query returned successfully with no result")
+            print_success("NOTICE:", "Database "+sentence.name+" does not exist,skipping Query returned successfully with no result")
         elif(result==2 and not sentence.ifExistsFlag): 
             print_error("ERROR","Semántico: Database "+sentence.name+" does not exist")
         else:
@@ -75,5 +76,7 @@ def executeSentence(self, sentence):
             ##return Error('42710', 'duplicate_object' , 0, 0)
         ##else:
            ##return Error('xx0000', 'internal_error' , 0, 0)
-    #Resto de sentencias posibles    
+    #Resto de sentencias posibles
+    elif isinstance(sentence,Select):
+        executeSelect(self,sentence) 
     

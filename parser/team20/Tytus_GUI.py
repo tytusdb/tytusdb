@@ -221,7 +221,7 @@ def print_messages_(messages):
     while i<len(messages):
         if(i!=0):
             print_ += "\n"
-        print_ += messages[i].toString()
+        print_ += messages[i]
         i += 1
     print_messages("Message", print_)
 
@@ -275,7 +275,6 @@ console.pack(fill="both", expand=1)
 console.configure(bg="#434B4D", fg="#FFFFFF", insertbackground='#FFFFFF')
 console.config(bd=0, padx=6, pady=4, font=("consoles",12))
 console.configure(state="disabled")
-
 # Lower monitor
 message = StringVar()
 message.set("Welcome to Tytus")
