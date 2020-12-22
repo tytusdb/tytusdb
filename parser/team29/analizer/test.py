@@ -13,16 +13,15 @@ if dropAll:
 
 
 s = """ 
+CREATE OR REPLACE DATABASE db1;
 USE db1;
-/*
-CREATE TABLE demo7 (
-  id INTEGER,
-  name VARCHAR(20),
-  username VARCHAR(20)
+CREATE TABLE cities (
+ name text,
+ fecha date
 );
-*/
---SELECT de1.id, caca.name FROM demo5 de1, (SELECT de2.name FROM demo5 de2 WHERE de1.id = de2.id) AS caca;
---SELECT d.* FROM demo5 d WHERE d.id > 1;
+
+insert into cities values ('Estela','2020-12-21');
+
 """
 result = grammar.parse(s)
 print(result)

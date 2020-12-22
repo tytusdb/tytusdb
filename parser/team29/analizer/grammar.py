@@ -410,7 +410,7 @@ def p_colOptions(t):
 # cambiar literal
 def p_defaultVal(t):
     """defaultVal : R_DEFAULT literal"""
-    t[0] = [t[1], t[2].execute(0).value]
+    t[0] = [t[1], t[2].execute(0)]
 
 
 def p_nullOpt_true(t):
