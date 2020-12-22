@@ -845,3 +845,20 @@ class ExpresionOrder(ExpresionNumerica):
     def __init__(self, valor1, valor2):
         self.valor1 = valor1
         self.valor2 = valor2
+
+class ExpresionNotIn(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1,valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
+
+class ExpresionNotExists(ExpresionNumerica):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, valor1):
+        self.valor1 = valor1
