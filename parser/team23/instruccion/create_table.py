@@ -5,6 +5,11 @@ from instruccion.create_column import *
 from storage import jsonMode as funciones
 from error.errores import *
 from tools.tabla_simbolos import *
+from instruccion.P_Key import *
+from instruccion.F_Key import *
+from instruccion.unique_simple import *
+from instruccion.check_simple import *
+from instruccion.condicion_simple import *
 
 class create_table(instruccion):
     def __init__(self, id_table, columnas, inherits_s, line, column, num_nodo):
@@ -56,14 +61,28 @@ class create_table(instruccion):
             for row in self.columnas:
                 if isinstance(row, create_column):
                     row.ejecutar(self.id_table)            
-            
+
+            #Ejecutar condiciones alternas a columnas
+            for row in self.columnas:
+                if isinstance(row, P_Key):
+                    row.ejecutar(self.id_table)
+                elif isinstance(row, F_key):
+                    row.ejecutar(self.id_table)
+                elif isinstance(row, unique_simple):        
+                    row.cargar_unique(self.id_table)
+                elif isinstance(row, check_simple):
+                    row.cargar_check(self.id_table)
+                elif isinstance(row, condicion_simple):
+                    errores.append(nodo_error(self.line, self.column, 'ERROR - La restriccion ' + row.comando + ' debe ir en la definición de una columna', 'Semántico'))
+                    add_text('ERROR - La restriccion ' + row.comando + ' debe ir en la definición de una columna\n')
+
             add_text("Tabla creada con exito - " + self.id_table + ' - en base de datos: ' + use_actual_db + '\n')
         elif new_table == 1:
             errores.append(nodo_error(self.line, self.column, 'Tabla no puedo ser creada con exito - ' + self.id_table + ' -', 'Semántico'))
-            add_text('Tabla no puedo ser creada con exito - ' + self.id_table + ' -\n')
+            add_text('ERROR - Tabla no pudo ser creada con exito - ' + self.id_table + ' -\n')
         elif new_table == 2:
             errores.append(nodo_error(self.line, self.column, 'No existe la base de datos - ' + use_actual_db + ' - ', 'Semántico'))
-            add_text('No existe la base de datos - ' + use_actual_db + ' - \n')
+            add_text('ERROR - No existe la base de datos - ' + use_actual_db + ' - \n')
         elif new_table ==  3:
             errores.append(nodo_error(self.line, self.column, 'Ya existe una tabla con el nombre - ' + self.id_table + ' -', 'Semántico'))
-            add_text('Ya existe una tabla con el nombre - ' + self.id_table + ' - \n')
+            add_text('ERROR - Ya existe una tabla con el nombre - ' + self.id_table + ' - \n')

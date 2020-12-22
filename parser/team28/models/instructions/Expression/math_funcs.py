@@ -1,4 +1,5 @@
 
+from models.instructions.shared import ObjectReference
 from models.instructions.DML.special_functions import *
 from models.instructions.Expression.expression import *
 import math
@@ -18,8 +19,25 @@ class Abs(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.fabs(value.value))
+            value = 0
+            print(type(self.value))
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [fabs(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [fabs(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.fabs(value.value),self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -42,8 +60,25 @@ class Cbrt(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value.value, 1/3))
+            value = 0
+            print(type(self.value))
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [pow(columns, 1/3) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [pow(columns, 1/3) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value.value, 1/3), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -67,8 +102,25 @@ class Ceil(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value))
+            value = 0
+            print(type(self.value))
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [ceil(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [ceil(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -92,8 +144,24 @@ class Ceiling(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value))
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [ceil(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [ceil(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.ceil(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -117,8 +185,24 @@ class Degrees(Expression):
     
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.degrees(value.value))
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [degrees(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [degrees(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.degrees(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -142,9 +226,43 @@ class Div(Expression):
     
     def process(self, environment):
         try:
-            value1 = self.dividendo.process(environment)
-            value2 = self.divisor.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, value1.value // value2.value)
+            value1 = 0
+            value2 = 0
+            print(type(self.dividendo))
+            print(type(self.divisor))
+            if isinstance(self.dividendo, ObjectReference):
+                value1 = self.dividendo.process(environment)
+                value2 = self.divisor.process(environment)
+                lista1 = []
+                result = [columns // value2.value for columns in value1[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            elif isinstance(self.divisor, ObjectReference):
+                value1 = self.dividendo.process(environment)
+                value2 = self.divisor.process(environment)
+                lista1 = []
+                result = [value1.value // columns for columns in value2[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value1 = self.dividendo.process(environment)
+                value2 = self.divisor.process(environment)
+                if isinstance(value1, list):
+                    lista1 = []
+                    result = [columns // value2.value for columns in value1[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                elif isinstance(value2, list):
+                    lista1 = []
+                    result = [value1.value // columns for columns in value2[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, value1.value // value2.value, self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -167,8 +285,24 @@ class Exp(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.exp(value.value))
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [exp(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [exp(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.exp(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -190,8 +324,24 @@ class Factorial(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.factorial(value.value))
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [factorial(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [factorial(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.factorial(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -215,8 +365,25 @@ class Floor(Expression):
     
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.floor(value.value))
+            value = 0
+            print(type(self.value))
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [floor(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [floor(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.floor(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -240,9 +407,43 @@ class Gcd(Expression):
 
     def process(self, environment):
         try:
-            value1 = self.value1.process(environment)
-            value2 = self.value2.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.gcd(value1.value, value2.value))
+            value1 = 0
+            value2 = 0
+            print(type(self.value1))
+            print(type(self.value2))
+            if isinstance(self.value1, ObjectReference):
+                value1 = self.value1.process(environment)
+                value2 = self.value2.process(environment)
+                lista1 = []
+                result = [gcd(columns, value2.value) for columns in value1[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            elif isinstance(self.value2, ObjectReference):
+                value1 = self.value1.process(environment)
+                value2 = self.value2.process(environment)
+                lista1 = []
+                result = [gcd(value1.value,columns) for columns in value2[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value1 = self.value1.process(environment)
+                value2 = self.value2.process(environment)
+                if isinstance(value1, list):
+                    lista1 = []
+                    result = [gcd(columns, value2.value) for columns in value1[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                elif isinstance(value2, list):
+                    lista1 = []
+                    result = [gcd(value1.value,columns) for columns in value2[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.gcd(value1.value, value2.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -264,8 +465,24 @@ class Ln(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, round(math.log(value.value),3)) #With one argument, return the natural logarithm of x (to base e).
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [log(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [log(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, round(math.log(value.value),3), self.line, self.column) #With one argument, return the natural logarithm of x (to base e).
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -287,8 +504,24 @@ class Log(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, round(math.log10(value.value),3))
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [log10(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [log10(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, round(math.log10(value.value),3), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -313,10 +546,41 @@ class Mod(Expression):
 
     def process(self, environment):
         try:
-            value1 = self.value1.process(environment)
-            value2 = self.value2.process(environment)
-
-            return PrimitiveData(DATA_TYPE.NUMBER, value1.value%value2.value)
+            value1 = 0
+            value2 = 0
+            if isinstance(self.value1, ObjectReference):
+                value1 = self.value1.process(environment)
+                value2 = self.value2.process(environment)
+                lista1 = []
+                result = [(columns)%value2.value for columns in value1[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            elif isinstance(self.value2, ObjectReference):
+                value1 = self.value1.process(environment)
+                value2 = self.value2.process(environment)
+                lista1 = []
+                result = [(value1.value)%columns for columns in value2[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value1 = self.value1.process(environment)
+                value2 = self.value2.process(environment)
+                if isinstance(value1, list):
+                    lista1 = []
+                    result = [(columns)%value2.value for columns in value1[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                elif isinstance(value2, list):
+                    lista1 = []
+                    result = [(value1.value)%columns for columns in value2[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, value1.value%value2.value, self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -338,7 +602,7 @@ class Pi(Expression):
         return str(vars(self))
     
     def process(self, environment):
-        return PrimitiveData(DATA_TYPE.NUMBER,round(math.pi,6))
+        return PrimitiveData(DATA_TYPE.NUMBER,round(math.pi,6), self.line, self.column)
 
 class Power(Expression):
     '''
@@ -357,9 +621,41 @@ class Power(Expression):
 
     def process(self, environment):
         try:
-            value1 = self.base.process(environment)
-            value2 = self.exp.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value1.value, value2.value))
+            value1 = 0
+            value2 = 0
+            if isinstance(self.base, ObjectReference):
+                value1 = self.base.process(environment)
+                value2 = self.exp.process(environment)
+                lista1 = []
+                result = [pow(columns,value2.value) for columns in value1[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            elif isinstance(self.exp, ObjectReference):
+                value1 = self.base.process(environment)
+                value2 = self.exp.process(environment)
+                lista1 = []
+                result = [pow(value1.value,columns) for columns in value2[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value1 = self.base.process(environment)
+                value2 = self.exp.process(environment)
+                if isinstance(value1, list):
+                    lista1 = []
+                    result = [pow(columns,value2.value) for columns in value1[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                elif isinstance(value2, list):
+                    lista1 = []
+                    result = [pow(value1.value,columns) for columns in value2[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.pow(value1.value, value2.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -382,8 +678,24 @@ class Radians(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.radians(value.value))
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [radians(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(self.value, list):
+                    lista1 = []
+                    result = [radians(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.radians(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -408,12 +720,42 @@ class Round(Expression):
 
     def process(self, environment):
             try:
-                value = self.value.process(environment)
-                digits = self.n_digits.process(environment)
-                if self.n_digits == 0:
-                    return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value))
+                value = 0
+                digits = 0
+                if isinstance(self.value, ObjectReference):
+                    value = self.value.process(environment)
+                    digits = self.n_digits.process(environment)
+                    lista1 = []
+                    if digits.value == 0:
+                        result = [trunc(columns) for columns in value[0]]
+                        lista1.append(result)
+                        lista1.append(self.alias)
+                        return lista1
+                    else:
+                        result = [round(columns,digits.value) for columns in value[0]]
+                        lista1.append(result)
+                        lista1.append(self.alias)
+                        return lista1
                 else:
-                    return PrimitiveData(DATA_TYPE.NUMBER, round(value.value, digits.value))
+                    value = self.value.process(environment)
+                    digits = self.n_digits.process(environment)
+                    if isinstance(value, list):
+                        lista1 = []
+                        if digits.value == 0:
+                            result = [trunc(columns) for columns in value[0]]
+                            lista1.append(result)
+                            lista1.append(self.alias)
+                            return lista1
+                        else:
+                            result = [round(columns,digits.value) for columns in value[0]]
+                            lista1.append(result)
+                            lista1.append(self.alias)
+                            return lista1
+                    else:
+                        if digits.value == 0:
+                            return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value), self.line, self.column)
+                        else:
+                            return PrimitiveData(DATA_TYPE.NUMBER, round(value.value, digits.value), self.line, self.column)
             except TypeError:
                 print("Error de tipo")
                 print(self)
@@ -437,11 +779,28 @@ class Sign(Expression):
 
     def process(self, environment):
             try:
-                value = self.value.process(environment)
-                if value.value >= 0:
-                    return PrimitiveData(DATA_TYPE.NUMBER, 1)
+                value = 0
+                if isinstance(self.value, ObjectReference):
+                    lista1 = []
+                    value = self.value.process(environment)
+                    result = [1 if columns > 0 else -1 for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
                 else:
-                    return PrimitiveData(DATA_TYPE.NUMBER, -1)
+                    value = self.value.process(environment)
+                    if isinstance(value, list):
+                        lista1 = []
+                        value = self.value.process(environment)
+                        result = [1 if columns > 0 else -1 for columns in value[0]]
+                        lista1.append(result)
+                        lista1.append(self.alias)
+                        return lista1
+                    else:
+                        if value.value >= 0:
+                            return PrimitiveData(DATA_TYPE.NUMBER, 1, self.line, self.column)
+                        else:
+                            return PrimitiveData(DATA_TYPE.NUMBER, -1, self.line, self.column)
             except TypeError:
                 print("Error de tipo")
                 print(self)
@@ -465,8 +824,24 @@ class Sqrt(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.sqrt(value.value))
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [sqrt(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [sqrt(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.sqrt(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -498,7 +873,7 @@ class WithBucket(Expression):
             min_value = self.min_value.process(environment)
             max_value = self.max_value.process(environment)
             index = self.index.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, width_bucket_func(expr1.value, min_value.value, max_value.value, index.value))
+            return PrimitiveData(DATA_TYPE.NUMBER, width_bucket_func(expr1.value, min_value.value, max_value.value, index.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -523,8 +898,24 @@ class Trunc(Expression):
 
     def process(self, environment):
         try:
-            value = self.value.process(environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value))
+            value = 0
+            if isinstance(self.value, ObjectReference):
+                value = self.value.process(environment)
+                lista1 = []
+                result = [trunc(columns) for columns in value[0]]
+                lista1.append(result)
+                lista1.append(self.alias)
+                return lista1
+            else:
+                value = self.value.process(environment)
+                if isinstance(value, list):
+                    lista1 = []
+                    result = [trunc(columns) for columns in value[0]]
+                    lista1.append(result)
+                    lista1.append(self.alias)
+                    return lista1
+                else:
+                    return PrimitiveData(DATA_TYPE.NUMBER, math.trunc(value.value), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -548,7 +939,7 @@ class Random(Expression):
 
     def process(self, environment):
         try:
-            return PrimitiveData(DATA_TYPE.NUMBER, randint(0,1))
+            return PrimitiveData(DATA_TYPE.NUMBER, randint(0,1), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -574,7 +965,7 @@ class Greatest(Expression):
     def process(self, environment):
         try:
             array = operating_list_number(self.val_array, environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, max(array))
+            return PrimitiveData(DATA_TYPE.NUMBER, max(array), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)
@@ -600,7 +991,7 @@ class Least(Expression):
     def process(self, environment):
         try:
             array = operating_list_number(self.val_array, environment)
-            return PrimitiveData(DATA_TYPE.NUMBER, min(array))
+            return PrimitiveData(DATA_TYPE.NUMBER, min(array), self.line, self.column)
         except TypeError:
             print("Error de tipo")
             print(self)

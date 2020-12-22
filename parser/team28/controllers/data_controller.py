@@ -37,7 +37,8 @@ class DataController(object):
                                   noLine, noColumn)
             return None
 
-        tables = data_mode.mode(database.mode).showTables(database.name)
+        tables = data_mode.mode(database.mode).showTables(
+            database.name.lower())
 
         if tables == None:
             desc = f": Database {database.name} does not exist"
@@ -66,8 +67,9 @@ class DataController(object):
             desc = f": Table {name} does not exist"
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return None
-
-        data = data_mode.mode(database.mode).extractTable(database.name, name)
+        # TODO Revisar Esto didier, que con lower me da problema al buscar tablas y base de datos
+        data = data_mode.mode(database.mode).extractTable(database.name,
+                                                          name)
         if data == None:
             ErrorController().add(34, 'Execution', '', noLine, noColumn)
             return None
@@ -114,15 +116,19 @@ class DataController(object):
                                   noLine, noColumn)
             return
 
-        if not TypeChecker().searchTable(database, name):
+        table = TypeChecker().searchTable(database, name)
+        if not table:
             desc = f": Table {name} does not exist"
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return
 
-        dbStatement = data_mode.mode(database.mode).alterAddPK(database.name,
-                                                               name, columns)
+        dbStatement = data_mode.mode(database.mode).alterAddPK(database.name.lower(),
+                                                               name.lower(), columns)
 
         if dbStatement == 0:
+            for col in table.columns:
+                if col.number in columns:
+                    col.primaryKey = True
             DataWindow().consoleText('Query returned successfully: Alter Table add PK')
 
         elif dbStatement == 1:
@@ -165,8 +171,8 @@ class DataController(object):
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return
 
-        dbStatement = data_mode.mode(database.mode).alterDropPK(database.name,
-                                                                name)
+        dbStatement = data_mode.mode(database.mode).alterDropPK(database.name.lower(),
+                                                                name.lower())
 
         if dbStatement == 0:
             DataWindow().consoleText('Query returned successfully: Alter Table drop PK')
@@ -206,8 +212,8 @@ class DataController(object):
                                   noLine, noColumn)
             return None
 
-        dbStatement = data_mode.mode(database.mode).insert(database.name,
-                                                           name, data)
+        dbStatement = data_mode.mode(database.mode).insert(database.name.lower(),
+                                                           name.lower(), data)
 
         if dbStatement == 0:
             DataWindow().consoleText('Query returned successfully: INSERT INTO')
@@ -255,7 +261,7 @@ class DataController(object):
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return None
 
-        data = data_mode.mode(database.mode).extractRow(database.name, name,
+        data = data_mode.mode(database.mode).extractRow(database.name.lower(), name.lower(),
                                                         columns)
         if data == None:
             ErrorController().add(34, 'Execution', '', noLine, noColumn)
@@ -285,8 +291,8 @@ class DataController(object):
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return None
 
-        dbStatement = data_mode.mode(database.mode).update(database.name, name, register,
-                                                           columns)
+        dbStatement = data_mode.mode(database.mode).update(database.name.lower(), name.lower(),
+                                                           register, columns)
 
         if dbStatement == 0:
             DataWindow().consoleText('Query returned successfully: UPDATE')
@@ -328,7 +334,7 @@ class DataController(object):
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return None
 
-        dbStatement = data_mode.mode(database.mode).delete(database.name, name,
+        dbStatement = data_mode.mode(database.mode).delete(database.name.lower(), name.lower(),
                                                            columns)
 
         if dbStatement == 0:
@@ -370,8 +376,8 @@ class DataController(object):
             ErrorController().add(27, 'Execution', desc, noLine, noColumn)
             return None
 
-        dbStatement = data_mode.mode(database.mode).truncate(database.name,
-                                                             name)
+        dbStatement = data_mode.mode(database.mode).truncate(database.name.lower(),
+                                                             name.lower())
 
         if dbStatement == 0:
             DataWindow().consoleText('Query returned successfully: TRUNCATE')

@@ -44,6 +44,12 @@ class OPERACION_BINARIA_IS(Enum):
     IS_DISTINCT_FROM = "is distinct from"
     IS_NOT_DISTINCT_FROM = "is not distinct from"
 
+class BETWEEN(Enum):
+    BETWEEN = "between"
+    NOT_BETWEEN = "not between"
+    BETWEEN_SYMMETRIC = "between symmetric"
+    NOT_BETWEEN_SYMMETRIC = "not between symmetric"
+
 # ------------------------ EXPRESIONES ----------------------------
 # ------EXPRESIONES NUMERICAS
 
@@ -178,7 +184,14 @@ class ExpresionNegativa(Expresion):
         return nodo
     def ejecutar(self, ts):
         unario = self.exp.ejecutar(ts)
-        return ExpresionNumero(-unario.val, unario.tipo, self.linea)
+        if isinstance(unario , ErrorReport):
+            return unario # si ya viene un error solo lo retorna
+        if not (isinstance(unario , ExpresionNumero)):
+            return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "-"' ,self.linea)
+        try:
+            return ExpresionNumero(-unario.val, unario.tipo, self.linea)          
+        except:
+            return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "-"' ,self.linea)  
 
 
 class ExpresionPositiva(Expresion):
@@ -198,7 +211,14 @@ class ExpresionPositiva(Expresion):
 
     def ejecutar(self, ts):
         unario = self.exp.ejecutar(ts)
-        return ExpresionNumero(unario.val, unario.tipo, self.linea)
+        if isinstance(unario , ErrorReport):
+            return unario # si ya viene un error solo lo retorna
+        if not (isinstance(unario , ExpresionNumero)):
+            return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "+"' ,self.linea)
+        try:
+            return ExpresionNumero(unario.val, unario.tipo, self.linea)                       
+        except:
+            return ErrorReport('semantico', 'Error , Tipe Invalido UNARIO "+"' ,self.linea)
 
 # Clase de expresión numero
 
@@ -369,12 +389,14 @@ class ExpresionBooleano(Expresion):
 
 
 class ExpresionBetween(Expresion):
-    def __init__(self, evaluado, limiteInferior, limiteSuperior, invertido=False, simetria=False):
+    def __init__(self, evaluado, limiteInferior, limiteSuperior, tipo, linea, invertido=False, simetria=False):
         self.evaluado = evaluado
         self.limiteInferior = limiteInferior
         self.limiteSuperior = limiteSuperior
         self.invertido = invertido
         self.simetria = simetria
+        self.tipo = tipo
+        self.linea = linea
 
     def dibujar(self):
         identificador = str(hash(self))
@@ -407,6 +429,22 @@ class ExpresionBetween(Expresion):
         nodo += self.limiteSuperior.dibujar()
 
         return nodo
+    def ejecutar(self, ts):
+        ev = self.evaluado.ejecutar(ts)
+        inf = self.limiteInferior.ejecutar(ts)
+        sup = self.limiteSuperior.ejecutar(ts)
+        if isinstance(ev,ExpresionNumero) and isinstance(inf,ExpresionNumero) and isinstance(sup,ExpresionNumero):
+            if self.tipo == BETWEEN.BETWEEN:
+                return ExpresionBooleano(inf.val <= ev.val <= sup.val, self.linea)
+            elif self.tipo == BETWEEN.NOT_BETWEEN:
+                return ExpresionBooleano(not inf.val <= ev.val <= sup.val, self.linea)
+            elif self.tipo == BETWEEN.BETWEEN_SYMMETRIC:
+                return ExpresionBooleano((inf.val <= ev.val <= sup.val) ^ (ev.val <= inf.val or sup.val <= ev.val), self.linea)
+            elif self.tipo == BETWEEN.NOT_BETWEEN_SYMMETRIC:
+                return ExpresionBooleano(not ((inf.val <= ev.val <= sup.val) ^ (ev.val <= inf.val or sup.val <= ev.val)), self.linea)
+        else:
+             return ErrorReport('semantico', 'Error de tipos , en Operacion Relacional' ,self.linea)
+
 
 # Expresión is: Contempla todas su variaciones
 class ExpresionIs(Expresion):
