@@ -57,7 +57,7 @@ def getColumnTypeNode(t):
         return Nodo('Error','getColumType',[],t.lexer.lineno)
 
 
-######################################### Funciones AST Querys ###################################
+############################################ Funciones AST Querys ########################################
 
 # Función que crea el Nodo para la producción Select
 def getSelect(t):
@@ -239,3 +239,65 @@ def getOpRelacional(t):
         return Nodo('OPREL', '\\<\\>', [t[1], t[3]], t.lexer.lineno, 0, gramatica)
     gramatica = '<condicion> ::= <expresion> \"' +t[2]+'\" <expresion>'
     return Nodo('OPREL', '\\'+str(t[2]), [t[1], t[3]], t.lexer.lineno, 0, gramatica)
+
+ef getGroupby(t):
+    if len(t) == 4:
+        gramatica = '<groupby> ::= \"GROUP\" \"BY\" <listagroupby>' 
+        childs = Nodo('LISTA', '', t[3], t.lexer.lineno)
+        return Nodo('GROUPBY', '', [childs], t.lexer.lineno, 0, gramatica) 
+    else:
+        gramatica = '<groupby> ::= \"GROUP\" \"BY\" <listagroupby> \"HAVING\" <condicioneshaving>'
+        childs = [Nodo('LISTA', '', t[3], t.lexer.lineno)]
+        childs.append(Nodo('HAVING', '', [t[5]], t.lexer.lineno))
+        return Nodo('GROUPBY', '', childs, t.lexer.lineno, 0, gramatica) 
+
+def getOrderBy(t) :
+    if len(t) == 4:
+        gramatica = '<orderby> ::= \"ORDER\" \"BY\" <listaorderby>'
+        childs = Nodo('LISTA', '', t[3], t.lexer.lineno)
+        return Nodo('ORDERBY', '', [childs], t.lexer.lineno, 0, gramatica)
+    else:
+        gramatica = '<orderby> ::= \"ORDER\" \"BY\" <listaorderby> <instrlimit>'
+        childs = [Nodo('LISTA', '', t[3], t.lexer.lineno)]
+        childs.append(t[4])
+        return Nodo('ORDERBY', '', childs, t.lexer.lineno, 0, gramatica)
+
+def getValOrder(t):
+    if t[3] != None:
+        gramatica = '<valororderby> ::= <cualquieridentificador> <ascdesc> <anular>'
+        return Nodo('COLUMN', '', [t[1], t[2], t[3]], t.lexer.lineno, 0, gramatica)
+    else : 
+        gramatica = '<valororderby> ::= <cualquieridentificador> <ascdesc>'
+        return Nodo('COLUMN', '', [t[1], t[2]], t.lexer.lineno, 0, gramatica)
+
+def getAscDesc(t) :
+    if t[1] != None:
+        gramatica = '<ascdesc> ::= \"' + t[1] +'\"'
+        return Nodo(t[1], '', [], t.lexer.lineno, 0, gramatica)
+    else:
+        return Nodo('ASC', '', [], t.lexer.lineno)
+
+def getLimit(t):
+    if t[3] != None:
+        gramatica = '<instrlimit> ::= \"LIMIT\" \"'+str(t[2])+'\" <instroffset>'
+        return Nodo(t[1], str(t[2]), [t[3]], t.lexer.lineno, 0, gramatica)
+    else:
+        gramatica = '<instrlimit> ::= \"LIMIT\" \"'+t[2]+'\"'
+        return Nodo(t[1], str(t[2]), [], t.lexer.lineno, 0, gramatica)
+
+def getIdentificador(t):
+    if len(t) == 2:
+        gramatica = '<cualquieridentificador> ::= \"'+str(t[1])+'\"'
+        return Nodo('ID', t[1], [], t.lexer.lineno,0, gramatica)
+    else :
+        gramatica = '<cualquieridentificador> ::= \"'+str(t[1])+'\" \"PUNTO\" \"'+str(t[3])+'\"'
+        childs = [Nodo('ID', t[3], [], t.lexer.lineno)]
+        return Nodo('AliasTabla', t[1], childs, t.lexer.lineno, 0, gramatica)
+
+def getValorNumerico(t):
+    if isinstance(t[1], float):
+        gramatica = '<cualquiernumero> ::= \"'+str(t[1])+'\"'
+        return Nodo('DECIMAL', str(t[1]), [], t.lexer.lineno, 0, gramatica)     
+    else:
+        gramatica = '<cualquiernumero> ::= \"'+str(t[1])+'\"'
+        return Nodo('ENTERO', str(t[1]), [], t.lexer.lineno, 0, gramatica)
