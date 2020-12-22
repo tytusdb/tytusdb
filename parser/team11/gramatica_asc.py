@@ -228,8 +228,10 @@ def p_instruccion(t) :
                       | alterDB_instr
                       | dropDB_instr
                       | showDB_instr
-                      | create_instr
+                      | create_table
                       | alter_instr PTCOMA
+                      | drop_table
+                      | create_enum
                       | insert_instr
                       | update_instr
                       | use_instr
@@ -399,6 +401,35 @@ def p_funciones_trigonometricas(t):
                                | ACOSH PARIZQ expresionaritmetica PARDER
                                | ATANH PARIZQ expresionaritmetica PARDER'''
     
+# ---------------------------- FUNCIONES BINARIAS SOBRE CADENAS ------------------------------
+
+# Select | Where
+def p_fbinarias_cadenas_1(t):
+    'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
+    
+# Select | Insert | Update | Where
+def p_fbinarias_cadenas_2(t):
+    '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
+                            | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
+                            | TRIM PARIZQ cadena PARDER'''
+    
+# Insert | Update                            
+def p_fbinarias_cadenas_3(t):
+    'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
+
+# Select
+def p_fbinarias_cadenas_4(t):
+    '''func_bin_strings_4   : GET_BYTE PARIZQ cadena COMA ENTERO PARDER
+                            | SET_BYTE PARIZQ cadena COMA ENTERO COMA ENTERO PARDER
+                            | ENCODE PARIZQ cadena COMA cadena PARDER
+                            | DECODE PARIZQ cadena COMA cadena PARDER
+                            | SHA256 PARIZQ cadena PARDER
+                            | CONVERT PARIZQ alias PARDER'''
+
+def p_cadena(t):
+    '''cadena   : cualquiercadena
+                | cualquieridentificador'''
+    
 # ----------------------------- PRODUCCIONES PARA ALTER TABLE ----------------------------
 
 def p_inst_alter(t):
@@ -460,51 +491,73 @@ def p_field(t) :
                       | MINUTE
                       | SECOND'''
 
-# ----------------------------------------------------------------------------------------
+# ------------------------------- PRODUCCIONES PARA CREATE TABLE ------------------------------------
 
-def p_create(t):
-    '''
-        create_instr    : CREATE lista_crear create_final
-    '''
-def p_create_final(t):
-    '''
-        create_final    : PTCOMA
-                        | INHERITS PARIZQ ID PARDER PTCOMA
-    '''
+def p_create_table(t):
+    'create_table : CREATE TABLE ID PARIZQ list_columns_x PARDER end_create_table'
+    
+def p_end_create_table(t):
+    '''end_create_table : PTCOMA
+                      | INHERITS PARIZQ ID PARDER PTCOMA'''
+    
+def p_list_columns_x(t):
+    'list_columns_x : list_columns_x COMA key_column'
+    
+def p_list_columns(t):
+    'list_columns_x : key_column'
 
-def p_lista_crear(t):
-    '''
-        lista_crear     : DATABASE lista_owner
-                        | OR REPLACE DATABASE lista_owner
-                        | TABLE ID PARIZQ lista_campos PARDER 
-                        | TYPE ID AS ENUM PARIZQ lista_type  PARDER
-    '''
+def p_key_column(t):
+    '''key_column : PRIMARY KEY PARIZQ listtablas PARDER
+                   | ID type_column attributes'''
 
-def p_lista_type(t):
-    '''
-        lista_type      : lista_type COMA CADENASIMPLE
-                        | CADENASIMPLE
-    '''
+def p_attributes(t):
+    'attributes   : default_value null_field constraint_field null_field primary_key'
+    
+def p_default_value(t):
+    '''default_value  : DEFAULT x_value
+                      | empty '''
 
-def p_lista_campos(t):
-    '''
-        lista_campos    : lista_campos COMA campo
-                        | campo
-    '''
+def p_x_value(t):
+    ''' x_value : cualquiercadena
+                | cualquiernumero'''
 
-def p_campo(t):
-    '''
-        campo           : ID type_column
-                        | ID type_column PRIMARY KEY
-                        | PRIMARY KEY PARIZQ columnas PARDER 
-                        | FOREIGN KEY PARIZQ columnas PARDER REFERENCES ID PARIZQ columnas PARDER
-    '''
+def p_primary_key(t):
+    '''primary_key : PRIMARY KEY
+                   | empty'''
+    
+def p_null_field(t):
+    '''null_field     : NULL
+                      | NOT NULL
+                      | empty '''
+    
+def p_constraint_field(t):
+    '''constraint_field : UNIQUE
+                        | CONSTRAINT ID check_unique 
+                        | CHECK PARIZQ condiciones PARDER
+                        | empty'''
+    
+def p_check_unique(t):
+    '''check_unique : UNIQUE 
+                    | CHECK PARIZQ condiciones PARDER
+                    | empty'''
 
-def p_lista_owner(t):
-    '''
-        lista_owner     : IF NOT EXISTS ID
-                        | ID
-    '''
+# ------------------------------- PRODUCCIONES PARA CREATE ENUMS ------------------------------------
+
+def p_create_enum(t):
+    'create_enum : CREATE TYPE ID AS ENUM PARIZQ list_string PARDER PTCOMA'
+    
+def p_list_strings_r(t):
+    'list_string : list_string COMA cualquiercadena'
+    
+def p_list_strings(t):
+    'list_string : cualquiercadena'
+    
+# ------------------------------- PRODUCCION PARA DROP TABLE ----------------------------------------
+
+def p_drop_table(t):
+    'drop_table : DROP TABLE ID PTCOMA'
+
+#----------------------------------------------------------------------------------------------------
 
 #####################################################################################################
 

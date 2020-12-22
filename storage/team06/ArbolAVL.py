@@ -330,10 +330,7 @@ class ArbolAVL:
                     cadena = cadena[0:len(cadena) - 1]
                 else:
                     cadena = raiz.lista.contador
-                print(cadena)
                 raiz.lista.agregar(cadena, valor)
-                print("base: ",db,"Tabla:" , raiz.valor)
-                raiz.lista.preorden()
             else:
                 cadena = ""
 
@@ -347,8 +344,6 @@ class ArbolAVL:
                 tmp = self.buscarreistro(db, tabla, cadena)
                 if tmp is None:
                     raiz.lista.agregar(cadena, valor)
-                    print("base: ",db,"Tabla:" , raiz.valor)
-                    raiz.lista.preorden()
                 else:
                     print("ya existe el valor en la tabla")
                     return 4
@@ -437,8 +432,10 @@ class ArbolAVL:
             tab = open("tab.cmd","w")
             tab.write("dot -Tpng tab.dot -o tab.png")
             tab.close()
-            #subprocess.call("dot -Tpng tab.dot -o tab.png")
-            #os.system('tab.png')
+            try:
+                os.system('tab.cmd')
+            except:
+                print("")
 
     def _graficar(self, tmp):
         contenido = ""
@@ -500,7 +497,7 @@ class ArbolAVL:
 
             if cadena == valor:
                 contador += 1
-        if tmp.izq != None:
+        if tmp.izq != None and tmp.der == None:
             contador += self._buscarRep(valor, tmp.izq,columnas)
             cadena = ""
             for i in columnas:
@@ -508,8 +505,17 @@ class ArbolAVL:
             cadena = cadena[0:len(cadena) - 1]
             if cadena == valor:
                 contador += 1
-        if tmp.der != None:
+        if tmp.der != None and tmp.izq == None:
             contador += self._buscarRep(valor, tmp.der,columnas)
+            cadena = ""
+            for i in columnas:
+                cadena += str(tmp.campos[i]) + ","
+            cadena = cadena[0:len(cadena) - 1]
+            if cadena == valor:
+                contador += 1
+        if tmp.izq != None and tmp.der != None:
+            contador += self._buscarRep(valor, tmp.der,columnas)
+            contador += self._buscarRep(valor, tmp.izq, columnas)
             cadena = ""
             for i in columnas:
                 cadena += str(tmp.campos[i]) + ","
@@ -919,8 +925,8 @@ class ArbolAVL:
                 with open(dirfile) as f:
                     reader = csv.reader(f)
                     for row in reader:
-                        row = [int(i) for i in row]  # Convierte la lista de string a int
-                        if i.campos[1] == len(row):
+                        #row = [int(i) for i in row]   Convierte la lista de string a int
+                        if int(i.campos[1]) == len(row):
                             con = self.insert(database, table, row)
                             if con != 4:
                                 l.append(row)
