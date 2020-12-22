@@ -1576,9 +1576,109 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
 
 
     elif Uptemp =="PRIMARY" and not(reviConsName):
-        ' '
+        existenCols=0
+        #Busca cada columna del query , en las columnas de la Tabla
+        for col_rev in contenido:
+            subCont=0
+            existeC=0
+            for COL_T in ((tablab[0]).atributos):
+                if col_rev == COL_T.nombre:
+                    #((busca e indexa tabla).get columns List)[indexa col].unique=asigna
+                    #(((listaTablas[tablab[1]]).atributos)[subCont]).unique='True'
+                    
+                    
+                    #Obtiene info de la columna para verificar que Registro sean unicos
+                    columnab=copy.copy(Get_Column(col_rev,((tablab[0]).atributos),tablab[2]))
+
+                    #Busca Regisros Repetidos en la columna 
+                    DatoRepetido=B_Repetidos(columnab[2])
+                    #obitiene Nombre UNIQUE de esa columna
+
+                    #para No debe haber otra primary key 
+                    pre_con=True
+                    for cb in ((tablab[0]).atributos):
+                        if ((cb.primary))!=None:
+                            pre_con=False
+                            break
+
+                    #pre_con=((((tablab[0]).atributos)[subCont]).constraint).primary
+                    print("BOOL ASDF:",(pre_con==None))
+                    print(pre_con)
+
+                    if (ID!=0 and ID!=None and ID!="") and (pre_con) and not(DatoRepetido):
+                        print("INGRESO ID TIENE:")
+                        #SI UNIQUE NO HA SIDO ASIGNADO, y SI  le puso ID , y si NO REGISTROS REPETIDOS
+                        ((((tab_Temp[0]).atributos)[subCont]).constraint).primary=ID
+                        #usara el objeto tempral tablab=tab_Temp ,
+                        #Asigna el valor Verdadero
+                        (((tab_Temp[0]).atributos)[subCont]).primary='True'
+                        (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                        (((tab_Temp[0]).atributos)[subCont]).anulable='False'
+
+                    elif (ID==0 or ID==None or ID=="") and (pre_con) and not(DatoRepetido):
+                        print("INGRESO NO ID TIENE:")
+                        #SI UNIQUE NO HA SIDO ASIGNADO, y NO se le puso ID , y si NO REGISTROS REPETIDOS
+                        #ID= concatena columnas col_col2_col3_etc
+                        ((((tab_Temp[0]).atributos)[subCont]).constraint).primary=new_id
+                        #Asigna el valor Verdadero
+                        (((tab_Temp[0]).atributos)[subCont]).primary='True'
+                        (((tab_Temp[0]).atributos)[subCont]).unique='True'
+                        (((tab_Temp[0]).atributos)[subCont]).anulable='False'
+                    else:
+                        print("Unique Error")
+                        existenCols=0
+                        break
+
+                    #AREA DE MENSAJES de validaciones
+                    Msg_Alt_Add_CONSTRAINT(pre_con,DatoRepetido,columnab)
+
+                    existeC=1
+                    existenCols=copy.deepcopy(existeC)
+                    break
+                subCont+=1
+            else:
+                #Transfiere el valor, para no guardar informacion, o si guardarla 
+                #existenCols=copy.deepcopy(existeC)
+                if existeC==0:
+                    print("La columna:",col_rev," no existe en la tabla")
+                    break
+                
+                
+
+        print("existecols:",existenCols)
+        #((((tab_Temp[0]).atributos)[0]).constraint).unique='23'
+        print(((((tab_Temp[0]).atributos)[0]).constraint).primary)
+        if existenCols==1:
+            #procede a actualizar la tabla
+            pre_con=((((tab_Temp[0]).atributos)[0]).constraint).primary
+            pre_con1=((((tablab[0]).atributos)[1]).constraint).primary
+            pre_con2=((((tablab[0]).atributos)[2]).constraint).primary
+            pre_con3=((((tab_Temp[0]).atributos)[3]).constraint).primary
+            pre_con4=((((tablab[0]).atributos)[4]).constraint).primary
+            print("pre_con:",pre_con,"-")
+            print("pre_con1:",pre_con1)
+            print("pre_con2:",pre_con2)
+            print("pre_con3:",pre_con3)
+            print("pre_con4:",pre_con4)
+            listaTablas[tablab[1]]=copy.deepcopy(tab_Temp[0])
+            
+            ' '
+        else:
+            print("Error no se puede guardar la tabla constraint")
+
+
+
     elif Uptemp =="FOREIGN" and not(reviConsName):
         ' '
+        #debe cumplir:
+        #ser del mismo tipo
+        #ser primary key
+        #si hay informacion en la tabla que queremos asignarle la llave foranea
+        #debemos ver si la informacion coincide con las llaves foraneas declaradas
+        #si no tiene ninguna foranea no se puede
+        #y si algun registro Padre no coincide con las foraneas tampoco
+        #NOSE si vincula multiples primary keys
+
     else:
         if reviConsName:
             print("Nombre constraint Repetido")
@@ -2054,6 +2154,7 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
         ' '#Error
 
 #FIN MIO --------------------------------------------
+
 
 #--Select
 
