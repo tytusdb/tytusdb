@@ -42,6 +42,22 @@ class Page:
         else:
             return True
 
+    # Devuelve la página hijo más a la derecha de una página
+    # si la página no tiene hijos, devuelve la página misma
+    def rightmost(self):
+        if self.right != None:
+            return self.right.rightmost()
+        else:
+            return self
+
+    # Devuelve la página hijo más a la izquierda de una página
+    # si la página no tiene hijos, devuelve la página misma
+    def leftmost(self):
+        if self.left != None:
+            return self.left.leftmost()
+        else:
+            return self
+
     # Inserta un nodo en la página
     def insert(self, new_node, full_tree):
         same_left_node = self.left_node != None and self.left_node.node_id == new_node.node_id
@@ -228,6 +244,49 @@ class Page:
     def modify(self, edited_node):
         pass
 
+    # Procrea un nuevo nivel de páginas hijo
+    def procreate(self):
+        code = 1
+        if self.leaf and self.left == self.mid == self.right == None:
+            self.leaf = False
+            self.left = Page()
+            self.mid = Page()
+            self.right = Page()
+            self.left.leaf = True
+            self.mid.leaf = True
+            self.right.leaf = True
+            self.left.level = self.level + 1
+            self.mid.level = self.level + 1
+            self.right.level = self.level + 1
+            self.left.left_node = self.left_node
+            self.mid.left_node = self.right_node
+            self.left_node = self.right_node
+            self.right_node = None
+            self.left.next_page = self.mid
+            self.mid.next_page = self.right
+            self.next_page = None
+            self.left.right_sister = self.mid
+            self.mid.right_sister = self.right
+            self.right.left_sister = self.mid
+            self.mid.left_sister = self.left
+            code = 0
+        else:
+            self.left.procreate()
+            self.mid.procreate()
+            self.right.procreate()
+            lft_rightmost = self.left.rightmost()
+            mid_rightmost = self.mid.rightmost()
+            rgt_leftmost = self.right.leftmost()
+            mid_leftmost = self.mid.leftmost()
+            lft_rightmost.next_page = mid_leftmost
+            mid_rightmost.next_page = rgt_leftmost
+            lft_rightmost.right_sister = mid_leftmost
+            mid_rightmost.right_sister = rgt_leftmost
+            rgt_leftmost.left_sister = mid_rightmost
+            mid_leftmost.left_sister =  lft_rightmost
+            code = 0
+        return code
+
 # Clase que contiene la definicón de la estructura de datos ISAM
 class Isam:
     def __init__(self):
@@ -242,6 +301,73 @@ class Isam:
         children = self.root.count_children()
         expected_children = (3**self.height)*2
         return True if children == expected_children else False
+
+    def __full_level(self, level, page):
+        if page.level == level:
+            result = page.full
+            aux = page
+            while aux != None:
+                result = result and aux.full
+                aux = aux.right_sister
+            return int(result)
+        else:
+            if page.left != None:
+                return self.__full_level(level, page.left)
+            else:
+                return 2
+
+    # Indica si un nivel determinado de la estructura arborea está lleno
+    def full_level(self, level):
+        return self.__full_level(level, self.root)
+
+    def __update_level(self, level, page):
+        if page.level == level:
+            aux = page
+            while aux != None:
+                if aux.mid != None and aux.right != None:
+                    aux.left_node = aux.mid.leftmost().left_node
+                    aux.right_node = aux.right.leftmost().left_node
+                aux = aux.right_sister
+            return 0
+        else:
+            if page.left != None:
+                return self.__update_level(level, page.left)
+            else:
+                return 1
+
+    # Crea un nuevo nivel de páginas hijo para todas las páginas
+    # en el último nivel. Aplica sólo cuando el árbol tiene menos de
+    # 3 niveles.
+    def procreate(self):
+        if self.full and self.height < 2:
+            if self.root.procreate() == 0:
+                self.height += 1
+                self.leftmost = self.root.leftmost()
+                return 0
+            else:
+                return 1
+
+    # Actualiza los nodos en todas las páginas del nivel
+    def update_level(self, level):
+        return self.__update_level(level, self.root)
+
+    # Mueve una posición a la derecha a la página que contenga el nodo
+    # con el node_id indicado
+    def right_shift_sp(self, node_id):
+        pass
+
+    # Mueve una posición a la izquierda a la página que contenga el nodo
+    # con el node_id indicado
+    def left_shift_sp(self, node_id):
+        pass
+
+    # Mueve una posición a la derecha al nodo con el node_id indicado
+    def right_shift(self, node_id):
+        pass
+
+    # Mueve una posición a la izquierda al nodo con el node_id indicado
+    def left_shift(self, node_id):
+        pass
 
     # Inserta un nuevo nodo con información en la estructura
     def insert(self, new_node):
