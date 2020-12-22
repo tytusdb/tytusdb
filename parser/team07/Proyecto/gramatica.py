@@ -1405,19 +1405,38 @@ def p_condicion_check(t):
                         | ID MAYOR_IGUAL expresion
                         | ID DISTINTO expresion
                         | ID IGUAL expresion '''
+    tipoC = t[2]
     linea = str(t.lexer.lineno)
+    nNodo = incNodo(numNodo)
     nodoId = crear_nodo_general("ID",t[1],linea,columna)
     nodoId.hijos = []
-    nodoComp = crear_nodo_general("comparacion",t[2],linea,columna)
-    nodoComp.hijos = []
     nodoPrimitivo = t[3]
     nodoPrimitivo.hijos = []
-    nodoCondicion = crear_nodo_general("condicion_check","",linea,columna)
-    nodoCondicion.hijos = []
+    nodoCondicion = expresion.Expresion()
+    nodoCondicion.setearValores(linea, columna, "EXPRESION_RELACIONAL", nNodo, "", [])
+    if tipoC == "<":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MENOR_QUE)
+        nodoComp = crear_nodo_general("MENOR_QUE", "<", linea, columna)
+    elif tipoC == "<=":
+        nodoCondicion.operacionBinaria( t[1], t[3], tipoSimbolo.TipoSimbolo.MENOR_IGUAL)
+        nodoComp = crear_nodo_general("MENOR_IGUAL", "<=", linea, columna)
+    elif tipoC == ">":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MAYOR_QUE)
+        nodoComp = crear_nodo_general("MAYOR_QUE", ">", linea, columna)
+    elif tipoC == ">=":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.MAYOR_IGUAL)
+        nodoComp = crear_nodo_general("MAYOR_IGUAL", ">=", linea, columna)
+    elif tipoC == "<>" or tipoC == "!=":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.DISTINTO)
+        nodoComp = crear_nodo_general("DISTINTO", t[2], linea, columna)
+    elif tipoC == "=":
+        nodoCondicion.operacionBinaria(t[1], t[3], tipoSimbolo.TipoSimbolo.IGUALACION)
+        nodoComp = crear_nodo_general("IGUALACION", "=", linea, columna)
+    nodoComp.hijos = []
     nodoCondicion.hijos.append(nodoId)
     nodoCondicion.hijos.append(nodoComp)
     nodoCondicion.hijos.append(nodoPrimitivo)
-    t[0] = nodoCondicion
+    t[0] = nodoCondicion 
 
 
 def p_op_unique_empty(t):
