@@ -1558,6 +1558,7 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
 #--Select
 
 def ejecutar_select(instr,ts):
+    global outputTxt
     print("Ejecutando select")
     for val in instr.funcion_alias:
         if(isinstance (val,Funcion_Alias)):
@@ -1569,9 +1570,20 @@ def ejecutar_select(instr,ts):
             elif isinstance (val.alias,Operando_Cadena):
                 alias = str(val.alias.valor)
             print("CABECERA",alias,"RESULTADO",result)
-            
 
-        
+            print(val.nombre)
+
+            tablaresult = PrettyTable()
+            #tablaresult.title = 'Resultado'
+            if (alias != None):
+                tablaresult.field_names = [ str(alias) ]
+
+            elif isinstance (val, Operacion_Math_Unaria):
+                tablaresult.field_names = [ str(val.nombre.operador) ]
+
+            tablaresult.add_row([ str(result) ])
+            outputTxt.append(tablaresult)
+
 
 
 #-------------
@@ -1710,7 +1722,7 @@ def resolver_operacion(operacion,ts):
 
     elif isinstance(operacion,Operacion__Cubos):
         op1 = resolver_operacion(operacion.op1,ts)
-        op2 = resolver_operacion(operacion.op12,ts)
+        op2 = resolver_operacion(operacion.op2,ts)
         op3 = resolver_operacion(operacion.op3,ts)
         op4 = resolver_operacion(operacion.op4,ts)
         if isinstance(op1,(int,float)) and isinstance(op2,(int,float)) and isinstance(op3,(int,float)) and isinstance(op4,(int,float)) :
@@ -1732,6 +1744,7 @@ def resolver_operacion(operacion,ts):
         op1 = resolver_operacion(operacion.op1,ts)
         op2 = resolver_operacion(operacion.op2,ts)
         if isinstance(op1,(str)) and isinstance(op2,(int)):
+            print(op1+ "-->" +str(op2))
             if(operacion.operador == OPERACION_BINARY_STRING.GET_BYTE): return f.func_get_byte(op1,op2)
         elif isinstance(op1,(str)) and isinstance(op2,(str)):
             if (operacion.operador == OPERACION_BINARY_STRING.ENCODE) : return f.func_encode(op1,op2)
@@ -1813,12 +1826,13 @@ def Analisar(input):
     procesar_instrucciones(instrucciones,ts_global)
 
     #crea la consola y muestra el resultado
-    '''consola = tkinter.Tk() # Create the object
+    global outputTxt
+    consola = tkinter.Tk() # Create the object
     consola.geometry('950x200')
     text = tkinter.Text(consola,height=200, width=1280)
     consola.title("Consola")
     text.pack()
-    text.insert(END,outputTxt)'''
+    text.insert(END,outputTxt)
     return outputTxt
 
 #Metodos para graficar el ast 
