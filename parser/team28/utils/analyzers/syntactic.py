@@ -14,6 +14,7 @@ from models.instructions.DML.select import *
 from models.instructions.Expression.expression import *
 from models.instructions.Expression.type_enum import *
 from models.instructions.Expression.math_funcs import *
+from models.instructions.Expression.string_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
@@ -76,7 +77,7 @@ def p_sql_instruction(p):
 
 def p_use_statement(p):
     '''usestatement : USE ID SEMICOLON'''
-    noColumn = 0
+    noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     p[0] = UseDatabase(p[2],noLine,noColumn)
 
@@ -101,7 +102,7 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
-    noColumn = 0
+    noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
 
     if len(p) == 8:
@@ -169,8 +170,8 @@ def p_list_permits(p):
 
 
 def p_permits(p):
-    '''permits : OWNER EQUALS ID
-               | OWNER ID
+    '''permits : OWNER EQUALS SQLNAME
+               | OWNER SQLNAME
                | MODE EQUALS INT_NUMBER
                | MODE INT_NUMBER 
     '''
@@ -434,7 +435,6 @@ def p_show_statement(p):
 def p_alter_statement(p):
     '''alterstatement : ALTER optionsalter SEMICOLON
     '''
-    print ('estamos en el alter')
     p[0] = p[2]
 
 
@@ -450,10 +450,12 @@ def p_alter_database(p):
     '''alterdatabase : ID RENAME TO ID
                      | ID OWNER TO typeowner
     '''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
     if p[2].lower() == 'RENAME'.lower():   #Renombra la base de datos
-        p[0] = AlterDatabase(1,p[1],p[4])
+        p[0] = AlterDatabase(1,p[1],p[4],noLine,noColumn)
     else:                                  #Le cambia el duenio a la base de datos
-        p[0] = AlterDatabase(2,p[1],p[4])
+        p[0] = AlterDatabase(2,p[1],p[4],noLine,noColumn)
 
 
 def p_type_owner(p):
@@ -548,7 +550,7 @@ def p_drop_database(p):
     '''dropdatabase : IF EXISTS ID
                     | ID
     '''
-    noColumn = 0
+    noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     if len(p) == 4:
         p[0] = DropDB(True, p[3], noLine, noColumn)
@@ -559,7 +561,7 @@ def p_drop_database(p):
 def p_drop_table(p):
     '''droptable : ID
     '''
-    noColumn = 0
+    noColumn = find_column(p.slice[1])
     noLine = p.slice[1].lineno
     p[0] = DropTB(p[1], noLine, noColumn)
 
@@ -1277,7 +1279,7 @@ def p_mathematical_functions(p):
 
 def p_binary_string_functions(p):
     '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                               | SUBSTRING LEFT_PARENTHESIS  SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
                                | TRIM LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
                                | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
                                | SHA256 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
@@ -1285,8 +1287,23 @@ def p_binary_string_functions(p):
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
                                | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
+    if p.slice[1].type == "LENGTH":
+        p[0] = Length(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SUBSTRING":
+        p[0] = Substring(p[3], p[5], p[7], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "TRIM":
+        p[0] = Trim(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "MD5":
+        p[0] = MD5(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SHA256":
+        p[0] = SHA256(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SUBSTR":
+        p[0] = Substring(p[3], p[5], p[7], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "CONVERT":
+        p[0] = Convert(p[3], p[5], p.lineno(1), find_column(p.slice[1])) 
+    else: #p.slice[1].type == "DECODE"
+        p[0] = Decode(p[3], p[1],p.lineno(1), find_column(p.slice[1]))  
 
-#TODO: MANEJAMOS ARRAYS CORRECTAMENTE???? ---> PROBAR
 def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
                        | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''

@@ -42,12 +42,15 @@ class Tipo():
 
     def comparetipo(self,tipocolumn,tipovalor):
         'comparo los tipos de la columna con el del valor'
+        if tipocolumn.tipo=='int':
+            tipocolumn.tipo='integer'
+
         if tipovalor.tipo in ('decimal','numeric','double','real','money'):
             tipovalor.size=tipovalor.size-1
 
         if tipocolumn.size >= tipovalor.size or tipocolumn.size==-1:
             if tipocolumn.tipo == 'decimal' or tipocolumn.tipo == 'numeric':
-                if tipovalor.tipo == 'decimal' or tipovalor.tipo == 'numeric' or tipovalor.tipo == 'bigint' or tipovalor.tipo == 'smallint' or tipovalor.tipo == 'integer' or tipovalor.tipo == 'money' or tipovalor.tipo == 'double' or tipovalor.tipo == 'real':
+                if tipovalor.tipo == 'decimal' or tipovalor.tipo == 'numeric' or tipovalor.tipo == 'bigint' or tipovalor.tipo == 'smallint' or tipovalor.tipo == 'integer' or tipovalor.tipo == 'money' or tipovalor.tipo == 'double' or tipovalor.tipo == 'real' :
                     return True
             elif tipocolumn.tipo == 'double':
                 if tipovalor.tipo == 'double' or tipovalor.tipo == 'bigint' or tipovalor.tipo == 'smallint' or tipovalor.tipo == 'integer' or tipovalor.tipo == 'money' or tipovalor.tipo == 'real':
@@ -71,4 +74,12 @@ class Tipo():
             elif tipocolumn.tipo in ('varchar','char','character varyng','text'):
                 if tipovalor.tipo in  ('varchar','char','character varyng','text'):
                     return True
-
+            elif tipocolumn.tipo == 'timestamp without time zone':
+                if tipovalor.tipo in  ('date','timestamp without time zone'):
+                    return True
+            elif tipocolumn.tipo == 'date':
+                if tipovalor.tipo in  ('date','timestamp without time zone'):
+                    return True
+            elif tipocolumn.tipo == 'time without time zone':
+                if tipovalor.tipo in  ('time','timestamp without time zone'):
+                    return True

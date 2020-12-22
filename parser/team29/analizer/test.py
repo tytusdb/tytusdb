@@ -6,19 +6,22 @@ path.append(dir(path[0]))
 
 from analizer import grammar
 
-dropAll = 1
+dropAll = 0
 if dropAll:
     print("Eliminando registros")
     rmtree("data")
 
 
 s = """ 
-CREATE DATABASE IF NOT EXISTS test OWNER = 'root' MODE = 1;
-USE test;
-CREATE TABLE tbrolxusuario (
-  idrol integer NOT NULL,
-  idusuario integer NOT NULL
+CREATE OR REPLACE DATABASE db1;
+USE db1;
+CREATE TABLE cities (
+ name text,
+ fecha date
 );
+
+insert into cities values ('Estela','2020-12-21');
+
 """
 result = grammar.parse(s)
 print(result)

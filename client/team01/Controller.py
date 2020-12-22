@@ -36,18 +36,34 @@ class Home:
 
 
     def POST(self):
+        dictToSend = {'entrada':'what is the answer?'}
+        res = requests.post('http://127.0.0.1:5000/ejecutar', json=dictToSend)
+        # print ('response from server:',res.text)
+        # dictFromServer = res.json()
         f = boton()
-        c = consola()
-        if not f.validates():
-            return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
-        else:          
+
+       
+
+        c2 = res.json()
+        c3 = c2[0]['resultado']
+
+
+
+        return renderHome.Home(render.Header(),render.Content(c3), render.Footer(), render.SideBar(), render.Boton(f))
+
+
+        # f = boton()
+        # c = consola()
+        # if not f.validates():
+        #     return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
+        # else:          
                 
-                #extraer el textarea
-                x = requests.post(url, json = {'entrada':'Ejemplo'})
-                y = json.loads(x.text)
+        #         #extraer el textarea
+        #         x = requests.post(url, json = {'entrada':'Ejemplo'})
+        #         y = json.loads(x.text)
                 
-                print(y['resultado'])
-                return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
+        #         print(y['resultado'])
+        #         return renderHome.Home(render.Header(),render.Content(c), render.Footer(), render.SideBar(), render.Boton(f))
 
 
 if __name__ == "__main__":

@@ -24,7 +24,7 @@ class Insert(Instruction):
 
     def __repr__(self):
         return str(vars(self))
-
+        
     def process(self, instruction):
         # Obtenida la tabla ---> TODO: VALIDAR TIPOS
         # for column in table_tp.columns:
@@ -39,9 +39,33 @@ class Insert(Instruction):
             DataController().insert(self.table.value, vals_insert,0,1) # Enviar numero de fila y columna
         else:
             if len(self.arr_columns) == len(self.arr_values):
-                pass
+                columns_insert = []
+                vals_insert = []
+
+                for column in self.arr_columns:
+                    id_col = column.alias
+                    columns_insert.append(id_col)
+                    
+                for column in self.arr_values:
+                    val = column.process(instruction)
+                    print("val")
+                    print(val)
+                    vals_insert.append(val.value)
+                #Pidiendo tabla
+                database_id = SymbolTable().useDatabase
+                table_tp = TypeChecker().searchTable(database_id, self.table.id)
+                table_cont = DataController().extractTable(self.table.id,0,0)#TODO: MANEJAR BIEN COLUMNA Y FILA
+                headers = TypeChecker().searchColumnHeadings(table_tp)
+                table_delete = pd.DataFrame(table_cont)
+                table_delete.columns = headers
+                #Ordenar
+                ordered_vals = ordenarDatos(headers, columns_insert, vals_insert)
+                #Insertar
+                print(ordered_vals)
+                # DataController().insert(self.table.value, ordered_vals,0,1) # Enviar numero de fila y columna
             else:
                 print("Error Datos incompletos")
+        return None
         
 
 class Update(Instruction):
@@ -59,7 +83,7 @@ class Update(Instruction):
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, instrucction):
+    def process(self, instruction):
         #Obteniendo tabla de la cual voy a hacer el update
         database_id = SymbolTable().useDatabase
         table_tp = TypeChecker().searchTable(database_id, self.table)
@@ -68,15 +92,35 @@ class Update(Instruction):
         table_update = pd.DataFrame(table_cont)
         table_update.columns = headers
 
-        if self.params == None: #BORRAR TODOS LOS REGISTROS DE LA TABLA
-            DataController().delete(self.table, table_update, 0,0)
+        tuplas = [] #t[0] = nombre columna, t[1] = valor a cambiar
+
+        for column in self.arr_columns_vals:
+            tuplas.append(column.process(instruction))
+        d = {}
+        for t in tuplas:
+            if not t[0] in headers:
+                print("Columna no existe --- ERROR")
+                break
+            else:
+                d[ headers.index(t[0]) ] = t[1].value
+        print("DICTIONARY")
+        print(d)
+
+
+        if self.params == None: #CAMBIAR TODOS LOS REGISTROS DE LA TABLA
+            pk_col_name = TypeChecker().searchColPrimaryKey(table_tp).name
+            pk_list = table_update[[pk_col_name]].to_numpy()
+            print(pk_list)
+
+            for pk in pk_list:
+                print(self.table, d, pk)
+                DataController().update(self.table, d, pk, 0 , 0)
         else:
             for option in self.params:
                 if isinstance(option, Where):
                     table_update.query(option.condition.alias)
                     break
         return None
-        
 class ColumnVal(Instruction):
     '''
         ColumnVal recibe dos parametros: 
@@ -90,8 +134,12 @@ class ColumnVal(Instruction):
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, instrucction):
-        pass
+    def process(self, instruction):
+
+        id_col = self.column.alias
+        val = self.value.process(instruction)
+
+        return [id_col, val]
     
 
 class Opt1(Instruction):
@@ -146,3 +194,24 @@ class Delete(Instruction):
                     table_delete.query(option.condition.alias)
                     break
         return None
+    
+def ordenarDatos(headers, array_nombres:[], array_valores:[]):
+    #TODO: REVISAR CUAL VALOR HAY QUE MANDAR POR DEFECTO
+    #Ordenar valores
+    for index, nombre_col in enumerate(headers):
+        if not nombre_col in array_nombres:
+            array_nombres.insert(index, nombre_col)
+            array_valores.insert(index, None)
+        elif nombre_col != array_nombres[index]: #buscar y ordenar
+            temp = array_nombres[index]
+            temp_val = array_valores[index]
+
+            i = array_nombres.index(nombre_col)
+            #switch valores
+            array_valores[index] = array_valores[i]
+            array_valores[i] = temp_val
+            #switch nombres
+            array_nombres[index] = nombre_col
+            array_nombres[i] = temp
+    return array_valores
+
