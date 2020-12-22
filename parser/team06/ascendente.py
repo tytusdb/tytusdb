@@ -243,7 +243,6 @@ def procesar_extras(query,ts,donde):
             print("trae condicion adicional")
         elif isinstance(query[x],ExpresionOrder):
             print("trae expresion de ordenamiento")
-    
     return 1
 
 

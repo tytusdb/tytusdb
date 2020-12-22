@@ -2877,6 +2877,8 @@ def p_funcion_basica(t):
         nodeSon1.token = 'NOW'
         nodeSon1.lexeme = t[1]
         nodeFather.son.append(nodeSon1)   
+
+        t[0]=nodeFather
     else:
         print("no entra a ninguna en funcionBasica")
 #JPI
