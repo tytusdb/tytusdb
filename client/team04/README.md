@@ -143,7 +143,7 @@ def crearUsuario():
 ```
 > Por medio de un Dialog, generado por la clase MyDialog, se obtiene dos valores (usuario y contraseña), estos son casteados a formato JSON y enviados al servidor con un metodo POST con la peticion "/createUser", del lado del servidor los valores se agregaran al registro de usuarios.
 
-# Conexion cliente-servidor
+***Conexion cliente-servidor***
 
 ```python
 myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
