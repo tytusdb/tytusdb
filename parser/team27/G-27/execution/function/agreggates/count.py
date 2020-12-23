@@ -1,10 +1,7 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
-from environment import *
-from checker import *
-from Database_Types import *
-from column import * 
+from execution.symbol.environment import *
+from TypeChecker.checker import *
+from TypeChecker.Database_Types import *
+from execution.symbol.column import * 
 
 class Count(object):
     def __init__(self, id):
