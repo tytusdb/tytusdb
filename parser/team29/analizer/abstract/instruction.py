@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from hashlib import new
 from analizer.abstract.expression import Expression
 from analizer.abstract import expression
 from enum import Enum
@@ -46,34 +47,6 @@ class Instruction:
         """
 
 
-class SelectOnlyParams(Instruction):
-    def __init__(self, params, row, column):
-        Instruction.__init__(self, row, column)
-        self.params = params
-
-    def execute(self, environment):
-        try:
-            value = [p.execute(environment).value for p in self.params]
-            labels = [p.temp for p in self.params]
-            return labels, value
-        except:
-            raise
-
-    def dot(self):
-        new = Nodo.Nodo("SELECT")
-        paramNode = Nodo.Nodo("PARAMS")
-        new.addNode(paramNode)
-        if len(self.params) == 0:
-            asterisco = Nodo.Nodo("*")
-            paramNode.addNode(asterisco)
-        else:
-            for p in self.params:
-                paramNode.addNode(p.dot())
-        global root
-        root = new
-        return new
-
-
 class SelectParams(Instruction):
     def __init__(self, params, row, column):
         Instruction.__init__(self, row, column)
@@ -119,12 +92,21 @@ class Select(Instruction):
                         val = ex.value
                         newEnv.types[labels[i]] = ex.type
                         # Si no es columna de agrupacion
-                        if(i < len(self.groupbyCl)):
-                            if not (isinstance(val, pd.core.series.Series) or isinstance(val, pd.DataFrame)):
-                                nval = {val : [val for i in range(len(newEnv.dataFrame.index)) ]}
+                        if i < len(self.groupbyCl):
+                            if not (
+                                isinstance(val, pd.core.series.Series)
+                                or isinstance(val, pd.DataFrame)
+                            ):
+                                nval = {
+                                    val: [
+                                        val for i in range(len(newEnv.dataFrame.index))
+                                    ]
+                                }
                                 nval = pd.DataFrame(nval)
                                 val = nval
-                            newEnv.dataFrame = pd.concat([newEnv.dataFrame, val], axis=1)
+                            newEnv.dataFrame = pd.concat(
+                                [newEnv.dataFrame, val], axis=1
+                            )
                         else:
                             if groupEmpty:
                                 countGr = newEnv.groupCols
@@ -135,7 +117,7 @@ class Select(Instruction):
                                 groupDf = pd.concat([groupDf, val], axis=1)
                                 groupEmpty = False
                             else:
-                                groupDf = pd.concat([groupDf, val], axis=1)                                         
+                                groupDf = pd.concat([groupDf, val], axis=1)
                 else:
                     value = [p.execute(newEnv) for p in params]
                     for j in range(len(labels)):
@@ -157,8 +139,8 @@ class Select(Instruction):
                 newNames = {}
                 i = 0
                 for (columnName, columnData) in groupDf.iteritems():
-                        newNames[columnName] = labels[i]
-                        i += 1
+                    newNames[columnName] = labels[i]
+                    i += 1
                 groupDf.rename(columns=newNames, inplace=True)
                 return [groupDf, newEnv.types]
         except:
@@ -245,7 +227,6 @@ class FromClause(Instruction):
 
     def dot(self):
         new = Nodo.Nodo("FROM")
-
         for t in self.tables:
             t1 = Nodo.Nodo(t.name)
             new.addNode(t1)
@@ -306,6 +287,41 @@ class WhereClause(Instruction):
     def dot(self):
         new = Nodo.Nodo("WHERE")
         new.addNode(self.series.dot())
+        global root
+        root = new
+        return new
+
+
+class SelectOnlyParams(Select):
+    def __init__(self, params, row, column):
+        Instruction.__init__(self, row, column)
+        self.params = params
+
+    def execute(self, environment):
+        try:
+            newEnv = Environment(environment, dbtemp)
+            labels = []
+            values = {}
+            for i in range(len(self.params)):
+                v = self.params[i].execute(environment)
+                values[self.params[i].temp] = [v.value]
+                labels.append(self.params[i].temp)
+                newEnv.types[labels[i]] = v.type
+            newEnv.dataFrame = pd.DataFrame(values)
+            return [newEnv.dataFrame, newEnv.types]
+        except:
+            raise
+
+    def dot(self):
+        new = Nodo.Nodo("SELECT")
+        paramNode = Nodo.Nodo("PARAMS")
+        new.addNode(paramNode)
+        if len(self.params) == 0:
+            asterisco = Nodo.Nodo("*")
+            paramNode.addNode(asterisco)
+        else:
+            for p in self.params:
+                paramNode.addNode(p.dot())
         global root
         root = new
         return new
@@ -803,7 +819,7 @@ class CreateTable(Instruction):
         insert = Struct.insertTable(dbtemp, self.name, self.columns, self.inherits)
         error = insert[0]
         nCol = insert[1]
-        insert = Checker.checkValue(dbtemp,self.name)
+        insert = Checker.checkValue(dbtemp, self.name)
         """
         Result
         0: insert
@@ -812,7 +828,6 @@ class CreateTable(Instruction):
         3: exists table
         """
         if error == None and insert == None:
-
 
             result = jsonMode.createTable(dbtemp, self.name, nCol)
             if result == 0:
@@ -831,12 +846,12 @@ class CreateTable(Instruction):
             elif result == 3 and self.exists:
                 return "La tabla ya existe en la base de datos"
             else:
-               
+
                 sintaxPostgreSQL.insert(
                     len(sintaxPostgreSQL), "Error: 42P07: tabla duplicada"
                 )
                 return "Error: ya existe la tabla " + self.name
-        
+
             pk = Struct.extractPKIndexColumns(dbtemp, self.name)
             addPK = 0
             if pk:
@@ -845,15 +860,11 @@ class CreateTable(Instruction):
                 print("Error en llaves primarias del CREATE TABLE:", self.name)
             return "Tabla " + self.name + " creada"
         else:
-         #   for i in insert:
-          #      error.append(i)
-            Struct.dropTable(dbtemp,self.name)
+            if error == None:
+                error = insert
+
+            Struct.dropTable(dbtemp, self.name)
             return error
-
-
-
-
-    
 
     def dot(self):
         new = Nodo.Nodo("CREATE_TABLE")
@@ -869,7 +880,6 @@ class CreateTable(Instruction):
         new.addNode(c)
 
         for cl in self.columns:
-            print(cl)
             if not cl[0]:
                 id = Nodo.Nodo(cl[1])
                 c.addNode(id)
@@ -882,11 +892,8 @@ class CreateTable(Instruction):
                     params = Nodo.Nodo("PARAMS")
                     typ.addNode(params)
                     for parl in par:
-                        print(parl)
                         parl1 = Nodo.Nodo(str(parl))
                         params.addNode(parl1)
-
-                print(cl[3])
                 colOpts = cl[3]
                 if colOpts != None:
                     coNode = Nodo.Nodo("OPTIONS")
@@ -995,7 +1002,6 @@ class CreateType(Instruction):
         return new
 
 
-# TODO: Operacion Check
 class CheckOperation(Instruction):
     """
     Clase encargada de la instruccion CHECK que almacena la condicion
@@ -1049,7 +1055,112 @@ class CheckOperation(Instruction):
             print("Error fatal CHECK")
 
 
+class AlterTable(Instruction):
+
+
+    def __init__(self, table,params = []):
+        self.table = table
+        self.params = params
+
+    def execute(self, environment):
+        alter = Struct.alterColumnsTable(dbtemp,self.table,self.params)
+        if alter == None:
+            alter = Checker.checkValue(dbtemp,self.table)
+            Struct.save()
+
+        if alter == None:
+            alter = "Tabla alterada"
+
+        return alter
+
+
 class limitClause(Instruction):
     def __init__(self, row, column) -> None:
         super().__init__(row, column)
-        
+
+
+class Union(Instruction):
+    """
+    Clase encargada de la instruccion CHECK que almacena la condicion
+    a desarrollar en el CHECK
+    """
+
+    def __init__(self, s1, s2, row, column):
+        Instruction.__init__(self, row, column)
+        self.s1 = s1
+        self.s2 = s2
+
+    def execute(self, environment):
+        newEnv = Environment(environment, dbtemp)
+        s1 = self.s1.execute(newEnv)
+        s2 = self.s2.execute(newEnv)
+        df1 = s1[0]
+        df2 = s2[0]
+        types1 = list(s1[1].values())
+        types2 = list(s2[1].values())
+        if len(df1.columns) != len(df2.columns):
+            return "Error: El numero de columnas no coinciden"
+        for i in range(len(types1)):
+            if types1[i] != types2[i]:
+                return "Error: Los tipos de columnas no coinciden"
+        df = pd.concat([df1, df2], ignore_index=True)
+        return df
+
+
+class Intersect(Instruction):
+    """
+    Clase encargada de la instruccion CHECK que almacena la condicion
+    a desarrollar en el CHECK
+    """
+
+    def __init__(self, s1, s2, row, column):
+        Instruction.__init__(self, row, column)
+        self.s1 = s1
+        self.s2 = s2
+
+    def execute(self, environment):
+        newEnv = Environment(environment, dbtemp)
+        s1 = self.s1.execute(newEnv)
+        s2 = self.s2.execute(newEnv)
+        df1 = s1[0]
+        df2 = s2[0]
+        types1 = list(s1[1].values())
+        types2 = list(s2[1].values())
+        if len(df1.columns) != len(df2.columns):
+            return "Error: El numero de columnas no coinciden"
+        for i in range(len(types1)):
+            if types1[i] != types2[i]:
+                return "Error: Los tipos de columnas no coinciden"
+        df = df1.merge(df2).drop_duplicates(ignore_index=True)
+        return df
+
+
+class Except_(Instruction):
+    """
+    Clase encargada de la instruccion CHECK que almacena la condicion
+    a desarrollar en el CHECK
+    """
+
+    def __init__(self, s1, s2, row, column):
+        Instruction.__init__(self, row, column)
+        self.s1 = s1
+        self.s2 = s2
+
+    def execute(self, environment):
+        newEnv = Environment(environment, dbtemp)
+        s1 = self.s1.execute(newEnv)
+        s2 = self.s2.execute(newEnv)
+        df1 = s1[0]
+        df2 = s2[0]
+        types1 = list(s1[1].values())
+        types2 = list(s2[1].values())
+        if len(df1.columns) != len(df2.columns):
+            return "Error: El numero de columnas no coinciden"
+        for i in range(len(types1)):
+            if types1[i] != types2[i]:
+                return "Error: Los tipos de columnas no coinciden"
+        df = df1.merge(df2, how="outer", indicator=True).loc[
+            lambda x: x["_merge"] == "left_only"
+        ]
+        del df["_merge"]
+        return df

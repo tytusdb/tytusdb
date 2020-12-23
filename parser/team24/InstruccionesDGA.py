@@ -530,7 +530,7 @@ def definir_tipo(entrada):
         elif g == 3 and dp == 0:
             return "date"
         else:
-            return "varchar""""
+            return "varchar"""
     
 
 #UPDATE-----------------------------------------
