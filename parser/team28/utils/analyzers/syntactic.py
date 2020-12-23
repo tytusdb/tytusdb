@@ -118,7 +118,7 @@ def p_option_create(p):
         p[0] = CreateTB(p[2], p[4], None)
 
     elif len(p) == 10:
-        p[0] = CreateTB(p[2], p[4], p[6]) 
+        p[0] = CreateTB(p[2], p[4], p[8]) 
 
 
 def p_type_list(p):
@@ -573,7 +573,7 @@ def p_drop_table(p):
 def p_dml(p):
     '''DML : QUERYSTATEMENT
            | INSERTSTATEMENT
-           | STATEMENT
+           | DELETESTATEMENT
            | UPDATESTATEMENT'''
     p[0] = p[1]
 
@@ -583,11 +583,11 @@ def p_update_statement(p):
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
     if(len(p) == 8):
-        p[0] = Update(p[2],p[5],p[6], p.lineno(1), find_column(p.slice[1]), p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2],p[5],p[6], p.lineno(1), find_column(p.slice[1]))
     elif(len(p) == 7):
-        p[0] = Update(p[2],p[4],p[5], p.lineno(1), find_column(p.slice[1]), p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2],p[4],p[5], p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Update(p[2],p[4],None, p.lineno(1), find_column(p.slice[1]), p.lineno(1), find_column(p.slice[1]))
+        p[0] = Update(p[2],p[4],None, p.lineno(1), find_column(p.slice[1]))
 
 def p_set_list(p):
     '''SETLIST : SETLIST COMMA COLUMNVALUES
@@ -657,9 +657,9 @@ def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
     if (len(p) == 6):
-        p[0] = Delete(p[3],p[4])
+        p[0] = Delete(p[3],p[4],p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Delete(p[3],None)
+        p[0] = Delete(p[3],None,p.lineno(1), find_column(p.slice[1]))
 
 def p_options_list(p):
     '''OPTIONSLIST : OPTIONS1 OPTIONS2 WHERECLAUSE OPTIONS4
