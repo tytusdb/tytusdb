@@ -77,6 +77,9 @@ class Aplicacion:
         self.miVentana.title("TytusDB G16")
         Lista.clear()
         listaGeneral.clear()
+        Modificaciones.clear()
+        listaGeneralSubQuery.clear()
+        Ejecucion=""
 
         try:
             cadena = self.entrada.get(SEL_FIRST, SEL_LAST)
