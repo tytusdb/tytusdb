@@ -37,9 +37,12 @@ def TCgetTableColumns(database: str,table:str)->str:
     initCheck()
     with open('data/json/TypeChecker') as file:
         data = json.load(file)
+        keys = []
         try:
             info = data[database][table]
-            return info.keys()
+            for key in info.keys():
+                keys.append(key)
+            return keys
         except:
             return table
 
