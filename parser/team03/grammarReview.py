@@ -913,13 +913,13 @@ def p_stm_use_db(t):
         addCad("**\<STM_USE_DB>** ::= tUse tDatabase tIdentifier ")
 
         IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
-        t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
+        t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     else: 
         tokenID = t.slice[len(t)-1]    
         graph_ref = graph_node(str("stm_use_db"),    [t[1],t[2]]       ,[])
         addCad("**\<STM_USE_DB>** ::= tUse tIdentifier  ")
         IDAST = Identifier(tokenID.value, tokenID.lineno, tokenID.lexpos,None)
-        t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, None)
+        t[0] = UseDatabase(IDAST, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
 
 ##########   >>>>>>>>>>>>>>>>  STM_DELETE   AND  STM_ALTER  <<<<<<<<<<<<<<<<<<<<<<
 def p_stm_delete(t):
@@ -1066,7 +1066,7 @@ def p_inherits_opt(t):
         graph_ref = graph_node(str(t[1]+" "+str(t[2])+" "+str(t[3])+" "+str(t[4]) ))
         addCad("**\<INHERITS_OPT>** ::= tInherits '(' tIdentifier ')'  ")
         token = t.slice[3]
-        t[0]= Identifier(token.value,token.lineno, token.lexpos,None)
+        t[0]= Identifier(token.value,token.lineno, token.lexpos,graph_ref)
     else:                 
         t[0] = None
 
