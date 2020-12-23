@@ -2718,6 +2718,34 @@ def Interpreta_Expresion(expresion, tablaSimbolos, tabla):
                     valor = tabla["valor"][i]
 
                     return SExpresion(valor, tipo)
+    
+    elif isinstance(expresion,SIn):
+
+        qr = expresion.consulta
+        base = tablaSimbolos.get(useActual)
+        pT = PrettyTable()
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+
+        for r in resultado_sub:
+            if str(r[0]) == str(columna.valor):
+                return SExpresion(True,Expresion.BOOLEAN)
+        return SExpresion(False,Expresion.BOOLEAN)
+
+    elif isinstance(expresion,SNotIn):
+       
+        qr = expresion.consulta
+        base = tablaSimbolos.get(useActual)
+        pT = PrettyTable()
+        resultado_sub = hacerConsulta(qr.select,qr.ffrom,qr.where,qr.groupby,qr.having,qr.orderby,qr.limit,base,pT,False,tablaSimbolos)
+        columna = Interpreta_Expresion(expresion.columna,tablaSimbolos,tabla)
+
+        for r in resultado_sub:
+
+            if str(r[0]) == str(columna.valor):
+
+                return SExpresion(False,Expresion.BOOLEAN)
+        return SExpresion(True,Expresion.BOOLEAN)
 
     elif isinstance(expresion,SBetween):
 
@@ -2870,6 +2898,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
     x = PrettyTable()
     encabezados = []
     indices = []
+    oficial = []
     
     print("------------------ EMPIEZA CONSULTA ---------------------")
     if Qwhere == False:
@@ -3229,7 +3258,13 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
                     if tipoAgregacion:
                         agregacionSinWhere(arrCols, base, tablasColumna, pT, subConsulta,groupBy)
                     else:
-                        multcolumns(arrCols, base, tablasColumna, pT, subConsulta,groupBy)
+                        un_temporal = multcolumns(arrCols, base, tablasColumna, pT, subConsulta,groupBy)
+
+                        for r in un_temporal:
+                            for r2 in r:
+                                for r3 in r2:
+                                    oficial.append([r3])
+                        
                 '''    elif tipoTrig:
                         trigSinWhere(tabla, arrCols, base, tablasColumna, pT, subConsulta)
                     elif tipoMathS:
@@ -3289,6 +3324,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 
                 tupla["valor"].append(c)
 
+
             b = Interpreta_Expresion(Qwhere.clist,tablaSimbolos,tupla)
             tupla["valor"].clear()
 
@@ -3297,7 +3333,7 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 
         #AGREGAR LAS VALIDACIONES NECESARIAS PARA CUANDO HAY QUE FILTRAR COLUMNAS
         if Qselect.cols != '*':
-
+            tab_temporal = []
             for ind in range(len(columnas)) :
 
                 for q_cols in Qselect.cols:
@@ -3324,44 +3360,45 @@ def hacerConsulta(Qselect, Qffrom, Qwhere, Qgroupby, Qhaving, Qorderby, Qlimit, 
 
                 x.add_column(encabezados[i_t],columnas_2)
                 i_t +=1
+            
 
+            for row in x:
+                tab_temporal.append(row._rows[0])
+
+            oficial = tab_temporal
             consola += str(x) + "\n"
 
         else:
+            tab_temporal = []
 
             for in2 in range(len(columnas)):
 
                 columnas_2 = []
+                
 
                 for r3 in resultado_2:
                     columnas_2.append(r3[in2])
 
                 x.add_column(columnas[in2],columnas_2)
             
-            consola += str(x) + "\n"
 
-        
+            for row in x:
+                tab_temporal.append(row._rows[0])
+            
+            oficial = tab_temporal
+            consola += str(x) + "\n"      
 
         #AGREGAR LAS VALIDACIONES NECESARIAS PARA HACER UN DISTINCT
         if Qselect.distinct != False:
-            print("Tiene Distinct")
-                
-                
-
-        
-
-        
-
-
-
-
-            
+            print("Tiene Distinct") 
 
     print("------------------ TERMINA CONSULTA ---------------------")
+    return oficial
 
 
 def multcolumns(arrCols, base, tablasColumna, pT, subConsulta,groupBy):
     global consola
+    retorno = []
     if not subConsulta:
         for e in arrCols:
             tabla = ""
@@ -3369,21 +3406,23 @@ def multcolumns(arrCols, base, tablasColumna, pT, subConsulta,groupBy):
             indice = None
             auxCons = ""
             if e.tipo == 0:
-                columnaEspecificaSinWhere([e], base, tablasColumna, pT, False)
+                retorno.append(columnaEspecificaSinWhere([e], base, tablasColumna, pT, False))
             elif e.tipo == 2:
-                MathUnoSinWhere([e], base, tablasColumna, pT, False)
+                retorno.append(MathUnoSinWhere([e], base, tablasColumna, pT, False))
             elif e.tipo == 3:
-                trigSinWhere([e], base, tablasColumna, pT, False)
+                retorno.append(trigSinWhere([e], base, tablasColumna, pT, False))
             elif e.tipo == 4:
-                consultaSimple([e], pT, False)
+                retorno.append(consultaSimple([e], pT, False))
             elif e.tipo == 5:
-                MathDosSinWhere([e], base, tablasColumna, pT, False)
+                retorno.append(MathDosSinWhere([e], base, tablasColumna, pT, False))
             elif e.tipo==6:
-                TrigDosSinWhere(arrCols,base,tablasColumna,pT,False)
+                retorno.append(TrigDosSinWhere(arrCols,base,tablasColumna,pT,False))
             elif e.tipo==8:
-                BinStringSinWhere(arrCols,base,tablasColumna,pT,False)
+                retorno.append(BinStringSinWhere(arrCols,base,tablasColumna,pT,False))
             elif e.tipo==7:
-                BinDosStringSinWhere(arrCols,base,tablasColumna,pT,False)
+                retorno.append(BinDosStringSinWhere(arrCols,base,tablasColumna,pT,False))
+
+    return retorno
 
 
 
@@ -3436,6 +3475,7 @@ def columnaEspecificaSinWhere(arrCols, base, tablasColumna, pT,groupby):
         for xd in arrGlobal:
             pT.add_column(arrCols[n].alias, xd)
             n += 1
+        return arrGlobal
     else:
         return aReturn
 
@@ -3513,6 +3553,8 @@ def consultaSimple(arrCols, pT,groupby):
     # x.field_names = nombreCols
     # x.add_rows([arrGlobal])
     # consola += str(pT) + "\n"
+
+    return arrGlobal
 
 
 def MathUnoSinWhere(arrCols, base, tablasColumna, pT,groupby):
@@ -3652,10 +3694,11 @@ def MathUnoSinWhere(arrCols, base, tablasColumna, pT,groupby):
                 pT.add_column(arrCols[n].alias + "(" + arrCols[n].param + ")", xd)
                 n += 1
         else:
-            return {"indices": arrIndices, "valore": arrGlobal}
+            pass
         # x.field_names = nombreCols
         # x.add_rows([arrGlobal])
         # consola += str(x)+"\n"
+    return arrGlobal
 
 
 def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
@@ -3766,6 +3809,7 @@ def MathDosSinWhere(arrCols, base, tablasColumna, pT,groupby):
     # x.field_names = nombreCols
     # x.add_rows([arrGlobal])
     # consola += str(x) + "\n"
+    return arrGlobal
 
 
 def FechaSimple(arrCols, base, tablasColumna, pT,groupby):
@@ -3958,6 +4002,8 @@ def trigSinWhere(arrCols, base, tablasColumna, pT,groupby):
         # x.add_rows([arrGlobal])
         # consola += str(x)+"\n"
 
+    return arrGlobal
+
 
 def TrigDosSinWhere(arrCols, base, tablasColumna, pT, groupby):
     global consola
@@ -4043,6 +4089,7 @@ def TrigDosSinWhere(arrCols, base, tablasColumna, pT, groupby):
     # x.field_names = nombreCols
     # x.add_rows([arrGlobal])
     # consola += str(x) + "\n"
+    return arrGlobal
 
 def BinStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
     global consola
@@ -4131,6 +4178,7 @@ def BinStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
             # x.field_names = nombreCols
             # x.add_rows([arrGlobal])
             # consola += str(x)+"\n"
+    return arrGlobal
 
 def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
     global consola
@@ -4259,6 +4307,7 @@ def BinDosStringSinWhere(arrCols, base, tablasColumna, pT, groupby):
     # x.field_names = nombreCols
     # x.add_rows([arrGlobal])
     # consola += str(x) + "\n"
+    return arrGlobal
 
 def agregacionSinWhere(arrCols, base, tablasColumna, pT,subconsulta,groupBy):
     global consola

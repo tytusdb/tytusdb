@@ -1828,10 +1828,12 @@ def p_COND2(p):
         if p[2].lower() == "exists":
             p[0] = SWhereCond6(p[1], p[2], p[4])
         else:
-            p[0] = SWhereCond8(False, p[2], p[1], p[4])
+            print("------------------------- Entró en el IN -------------------------")
+            p[0] = SIn(p[1],p[4])
     elif len(p) == 7:
-        if p[3].lower == "in":
-            p[0] = SWhereCond8(p[2], p[3], p[1], p[5])
+        if p[3].lower() == "in":
+            print("------------------------- Entró en el NOT IN -------------------------")
+            p[0] = SNotIn(p[1],p[5])
         else:
             p[0] = SWhereCond7(False, p[2], p[1], p[4])
 

@@ -318,6 +318,14 @@ class SQuery(Sentencia):
         self.limit = limit
 
 
+    def __str__(self):
+
+        return "{ SQuery | select: '%s', ffrom: '%s', where: '%s', groupby: '%s', having: '%s', orderby: '%s', limit: '%s' }" % (
+            str(self.select), str(self.ffrom), str(self.where), str(self.groupby),str(self.having),str(self.orderby),str(self.limit)) 
+
+
+
+
 class SSelectCols(Sentencia):
     def __init__(self, distinct, cols=[]):
         self.distinct = distinct
@@ -693,3 +701,25 @@ class SSubstring(Sentencia):
     def __str__(self):
         return "{ SSubstring || 'cadena': %s, 'inicio': %s, 'tamanio': %s, 'comparar': %s }" % (
             str(self.cadena), str(self.inicio), str(self.tamanio), str(self.comparar) )
+
+
+#CLASE PARA UN "IN"
+class SIn(Sentencia):
+
+    def __init__(self,columna,consulta):
+        self.columna = columna
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SIn | columna: '%s', consulta: '%s' }" %( self.columna, self.consulta )
+
+
+#CLASE PARA UN "NOT IN"
+class SNotIn(Sentencia):
+
+    def __init__(self,columna,consulta):
+        self.columna = columna
+        self.consulta = consulta
+
+    def __str__(self):
+        return "{ SNotIn | columna: '%s', consulta: '%s' }" %( self.columna, self.consulta )
