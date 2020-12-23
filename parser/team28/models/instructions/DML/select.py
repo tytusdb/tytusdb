@@ -82,7 +82,10 @@ class SelectQ(Instruction):
         self.select_list = select_list
         self.from_clause = from_clause
         self.where_or_grouphaving = where_or_grouphaving
-        self.alias = f'{from_clause.alias}'
+        if from_clause is None:
+            self.alias = ''
+        else:
+            self.alias = f'{from_clause.alias}'
         self.line = line
         self.column = column
 
@@ -93,6 +96,7 @@ class SelectQ(Instruction):
         list_select = None
         print(self.alias)
         if self.type_select == None and self.from_clause == None and self.where_or_grouphaving == None and self.select_list != None:
+            print( self.select_list )
             list_select = list_expressions(self.select_list, instrucction)
             return list_select
         elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
