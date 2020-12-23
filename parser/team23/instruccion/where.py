@@ -9,12 +9,12 @@ class where(instruccion):
         self.expresiones=expresiones
         self.nodo = nodo_AST('WHERE',num_nodo)
         print(expresiones)
-        if expresiones != None:
-            for element in expresiones:
-                if element != None:
-                    self.nodo.hijos.append(element.nodo)
+       # if expresiones != None:
+        #    for element in expresiones:
+         #       if element != None:
+          #          self.nodo.hijos.append(element.nodo)
          
         self.grammar_=''
         
-    def ejecutar(self):
-        return retorno(self.expresiones,'WHERE') 
+    def ejecutar(self, lista_id):
+        return self.expresiones.ejecutar(lista_id)

@@ -29,5 +29,6 @@ class Max(object):
 
             #AGREGANDO A LA METADATA
             columna = Column( 'MAX('+self.id.id+')', DBType.numeric, 0, -1)
-            metadata.columns.append(columna)
+            if not any(columna.name == x.name for x in metadata.columns):
+                metadata.columns.append(columna)
             return {'tabla': metadata, 'data': tabla}
