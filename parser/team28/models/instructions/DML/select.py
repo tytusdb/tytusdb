@@ -58,16 +58,54 @@ class TypeQuerySelect(Instruction):
     EXCEPT
     Y si va a ir con la opcion ALL 
     '''
-    def __init__(self, typeQuery, optionAll,line, column):
-        self.typeQuery = typeQuery
-        self.optionAll = optionAll
+    def __init__(self, arr_select, line, column):
+        self.arr_select = arr_select
         self.line = line
         self.column = column
+        self.alias = f'{arr_select[0].alias}'
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
-        pass
+        select1 = None
+        select2 = None
+        table_result = None
+        ## ALL OPTION
+        try:
+            if len(self.arr_select) == 4:
+                type_query = self.arr_select[1]
+                select1 = self.arr_select[0]
+                select2 = self.arr_select[3]
+                if isinstance(select1, Select):
+                        select1 = select1.process(instrucction)
+                if isinstance(select2, Select):
+                        select2 = select2.process(instrucction)
+                if type_query.lower() == "union":
+                    table_result = pd.concat([select1, select2])
+                elif type_query.lower() == 'intersect':
+                    table_result = pd.merge(select1, select2, how='inner')
+                elif type_query.lower() == 'except':
+                    table_result = select1.merge(select2, how='outer', indicator = True).query("_merge == 'left_only'").drop('_merge', 1)
+        ## SIN ALL OPTION 
+            else:
+                type_query = self.arr_select[1]
+                select1 = self.arr_select[0]
+                select2 = self.arr_select[2]
+                if isinstance(select1, Select):
+                    select1 = select1.process(instrucction)
+                if isinstance(select2, Select):
+                    select2 = select2.process(instrucction)
+                    
+                if type_query.lower() == "union":
+                    table_result = pd.concat([select1, select2]).drop_duplicates()
+                elif type_query.lower() == 'intersect':
+                    table_result = pd.merge(select1, select2, how='inner')
+                elif type_query.lower() == 'except':
+                    table_result = select1.merge(select2, how='outer', indicator = True).query("_merge == 'left_only'").drop('_merge', 1)
+            return table_result
+        except:
+            print('error en la clase TypeQuerySelect')
+            
 class Table:
     def __init__(self, headers, values):
         self.headers = headers
@@ -82,7 +120,10 @@ class SelectQ(Instruction):
         self.select_list = select_list
         self.from_clause = from_clause
         self.where_or_grouphaving = where_or_grouphaving
-        self.alias = f'{from_clause.alias}'
+        if self.from_clause == None:
+            self.alias = None
+        else:
+            self.alias = f'{from_clause.alias}'
         self.line = line
         self.column = column
 
@@ -289,15 +330,15 @@ class AgreggateFunctions(Instruction):
             return [result[0], result[1], data]
         else:
             if self.type_agg.lower() == "avg":
-                data = {str(self.alias): 'mean'}
+                data = {str(self.alias.lower()): 'mean'}
             elif self.type_agg.lower() == 'sum':
-                data = {str(self.alias): 'sum'}
+                data = {str(self.alias.lower()): 'sum'}
             elif self.type_agg.lower() == 'count':
-                data = {str(self.alias): 'size'}
+                data = {str(self.alias.lower()): 'size'}
             elif self.type_agg.lower() == 'max':
-                data = {str(self.alias): 'max'}
+                data = {str(self.alias.lower()): 'max'}
             elif self.type_agg.lower() == 'min':
-                data = {str(self.alias): 'min'}
+                data = {str(self.alias.lower()): 'min'}
             return [data, result.value, self.type_agg]
 
 class Case(Instruction):
