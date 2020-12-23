@@ -6,6 +6,8 @@
 - Grupo 4
 - Diciembre 2020
 
+## Manual Tecnico
+
 **Librerias necesarias**
 
 ```python
@@ -15,33 +17,66 @@ import http.client
 import json
 ```
 
-**Variables Globales**
-Con ellas se controlan las pestañas
+**Arbol.py**
 
-```python
-control = 0
-notebook = None
-```
-
-**Clase Arbol**
+Donde se controla la treeview de las bases de datos y sus tablas.
 
 ```python
 class Arbol(Frame):
     ...
 ```
 
-> La clase Arbol ultiliza el treeview de Tkinter para crear el panel izquierdo del cliente, hace referencia a las imagenes de la carpeta "resources" para mostrar los iconos en el arbol.
+> La clase Arbol ultiliza el treeview de Tkinter para crear el panel izquierdo del cliente, hace referencia a las imagenes de la carpeta "resources" para mostrar los iconos en el arbol. La clase es un tipo Frame que almacena toda la treeview.
 
-**Clase Campo**
+**Campo.py**
+
+Se crea el campo de texto enumerado que se utiliza en tytusDB.
+
+```python
+class TextLineNumbers(Canvas):
+    ...
+```
+
+> La clase crea un canvas que muestra la cantidad de lineas de un Text, se autogenera a la hora de crear una nueva linea en el Text y decrese cuando se borra una linea.
+
+```python
+class CustomText(Text):
+    ...
+```
+
+> Un Text manejado por completamente en esta clase, se utilizara en la segunda fase para mejorar la forma de manejar Querys en la interfaz, un ejemplo seria resaltando palabras identificadoras.
 
 ```python
 class Campo(Frame):
     ...
 ```
 
-> Aqui se maneja el campo de texto, utiliza dos clases mas para poder mostrar el numero de lineas. TextLineNumbers crea un widget que genera las lineas dependiendo del area de Texto, CustomText crea el area de texto con la que se conectara el TextLineNumbers.
+> Aqui se maneja el campo de texto, utiliza dos clases mas para poder mostrar el numero de lineas. TextLineNumbers crea un widget que genera las lineas dependiendo del area de Texto, CustomText crea el area de texto con la que se conectara el TextLineNumbers. Todo entre en el frame de creado por la clase Campo.
 
-**ventana.py**
+```python
+class MyDialog(tkinter.simpledialog.Dialog):
+    ...
+```
+
+> Crea un widget Dialog para manejar dos campos, usuario y contraseña, los que se utilizan para enviar parametros al servidor.
+
+**Ventana.py**
+
+El centro de todo el cliente, aqui se manejan todas las clases para crear la interfaz y la conexion con el servidor.
+
+***Variables Globales***
+Con ellas se controlan las pestañas
+
+```python
+control = 0
+notebook = None
+consola = None
+```
+> Se utiliza control para saber en que pestaña se ubica el usuario.
+> Se utiliza notebook para el control de las pestañas en todo momento y de su contenido.
+> Consola se usa para darle los valores necesarios determinados por las acciones del usuario.
+
+***Metodos***
 
 ```python
 def CrearMenu(masterRoot):
@@ -83,7 +118,31 @@ def CrearVentana():
 def añadir(titulo):
     ...
 ```
-> En este método se crean las pestañas, para ello se creó un arreglo donde se guardará cada pestaña que se cree, se utilzó el método appened para añadir más páginas al notebook, y también sus cajas de texto.
+> En este método se crean las pestañas, para ello se creó un arreglo donde se guardará cada pestaña que se cree, se utilizó el método appened para añadir más páginas al notebook, y también sus cajas de texto.
+
+```python
+def LogIn():
+    ...
+```
+> Crea el Dialog donde se colocaran las credenciales de usuario y contraseña, luego se vera en el servidor si son correctas.
+
+```python
+def myGET():
+    ...
+```
+> Metodo de conexion al servidor por medio de un una peticion GET, se conecta al servidor y pide los usuarios que este contenga por medio de la peticion "/getUsers". La respuesta que regrese el servidor sera colocada en la consola de salida.
+
+```python
+def myPOST():
+    ...
+```
+> Metodo de conexion al servidor por medio de un una peticion POST, se toman los valores obtenidos del metodo LogIn, estos se convierten a JSON para enviar la informacion con la peticion "/checkLogin". Luego de la peticion se espera la respuesta y se colocae en la consola de salida.
+
+```python
+def crearUsuario():
+    ...
+```
+> Por medio de un Dialog, generado por la clase MyDialog, se obtiene dos valores (usuario y contraseña), estos son casteados a formato JSON y enviados al servidor con un metodo POST con la peticion "/createUser", del lado del servidor los valores se agregaran al registro de usuarios.
 
 # Conexion cliente-servidor
 
@@ -166,13 +225,3 @@ Se utiliza:
 ```
 python ventana.py
 ```
-
-## Menu
-Se crearon los menus Archivo, Editar, Herramientas y Ayuda. En la primera fase solo el menu ayuda y archivo tienen opciones utilizables.
-
-
-## Campo de Texto
-Un editor que tiene numero de linea, opcion para multiples pestañas y un scroll para su mejor manejo.
-
-## Vista de Bases
-El panel izquiero del cliente se utiliza para tener una mejor visualizacion de las bases de datos conectadas. Es un vista de arbol que se expande hasta llegar a las tablas.
