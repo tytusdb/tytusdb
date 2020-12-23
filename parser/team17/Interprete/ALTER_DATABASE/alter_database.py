@@ -6,7 +6,8 @@ from StoreManager import jsonMode as dbms
 
 class AlterDatabase(NodoArbol):
 
-    def __init__(self, database_name_, new_name_):
+    def __init__(self, line, column,  database_name_, new_name_):
+        super().__init__(line, column)
         self.database_name = database_name_
         self.new_name = new_name_
 
@@ -19,7 +20,8 @@ class AlterDatabase(NodoArbol):
             if entorno.BDisNull() is False and entorno.getBD() == self.database_name:
                 # Se actualiza el nombre de la base de datos actual
                 entorno.setBD(self.new_name)
-            print('tytus> Base de datos \'' + self.database_name + '\' fue renombrada como: \'' + self.new_name + '\'')
+            cadena = 'tytus> Base de datos \'' + self.database_name + '\' fue renombrada como: \'' + self.new_name + '\''
+            arbol.console.append(cadena)
             return
         # Si hubo un error en la operacion
         elif result == 1:

@@ -60,15 +60,32 @@ class Update(NodoArbol):
         # Se verifica que existan las columnas y que no se repitan
         if Meta.existColumn(self.table_name, columns, header):  # Si existen
             # Se verifica que los tipos de valores de las columnas coincidan con los tipos de valores dados
-            if self.TypesCompare(header, values, entorno, arbol):  # Si todos los tipos coinciden
+            Meta.databaseName = entorno.getBD()
+            Meta.tableName = self.table_name
+            if self.TypesCompare(self.setheaders(columns), values, entorno, arbol):  # Si todos los tipos coinciden
                 # Se verifican que los valores dados cumplan las especificaciones de las columnas
-                if self.verifyespecs() is True:  # TODO: 1) En este punto hay que ver que cumplan las especificaciones
-                    # TODO: 2) En este punto se haria el where y creo, se obtendrian las pks
-                    # Si se cumplio cada una de las condiciones, se obtienen los registros y llaves primarias
-                    registers = self.createregisters(Meta.getListNumberColumns(columns, header), values, entorno, arbol)
-                    pks = []
-                    # Se ejecuta el metodo del dbms para actualizar los valores de una tabla
-                    dbms.update(entorno.getBD(), self.table_name, registers, pks)
+                if self.verifyespecs(columns, values, header) is True:  # TODO: 1) Hay que ver que se cumplan todas
+                    # Se selecciona la tabla de la que se extraeran los registros en la tabla de simbolos
+                    entorno.settable(dbms.extractTable(entorno.getBD(), self.table_name))
+                    # Se resuelven los where y se obtiene un posible resultado
+                    pks = self.where.execute(entorno, arbol)  # TODO: 2) Validar todos los operacionales para el where
+                    # Si no hubieron coincidencias en la busqueda del where
+                    if not pks:
+                        print("tytus> No hubieron coincidencias en la búsqueda")
+                    # Si hubo un error en la busqueda del where
+                    elif pks is None:
+                        return
+                    # Si hubieron coincidencias en la busqueda del where
+                    else:
+                        # Si se cumplio cada una de las condiciones, se obtienen los registros y llaves primarias
+                        registers = self.createregisters(Meta.getListNumberColumns(columns, header), values, entorno,
+                                                         arbol)
+                        for pk in pks:
+                            # Se ejecuta el metodo del dbms para actualizar los valores de una tabla
+                            dbms.update(entorno.getBD(), self.table_name, registers, pk)
+                        message = "tytus> Se modificaron las columnas exitosamente"
+                        arbol.console.append(message)
+                        print("tytus> Se modificaron las columnas exitosamente")
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -111,8 +128,20 @@ class Update(NodoArbol):
 # ----------------------------------------------------------------------------------------------------------------------
 
     def verifyespecs(self, columns, values, header):
-        # Se verificara cada una de las
-        pass
+        # Se recorren todas las columnas a evaluar
+        for column in range(len(columns)):
+            # Si la columna posee restricción not null
+            if Meta.isNotNullByName(columns[column]) is True:
+                # Si la tabla no cumple con el not null
+                if Meta.checkNotNull(self.table_name, [columns[column]], [values[column]], header) is False:
+                    return False
+            # Si la columna posee restricción unique
+            if Meta.isUniqueByName(columns[column]) is True:
+                # Si la tabla no cumple con el unique
+                if Meta.checkUnique([columns[column]], [values[column]], Meta.getHeadByName(columns[column])) is False:
+                    return False
+            # Si se cumple con todas las especificaciones
+        return True
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -123,4 +152,11 @@ class Update(NodoArbol):
             registers[columns[index]] = val.data
         return registers
 
+# ----------------------------------------------------------------------------------------------------------------------
 
+    def setheaders(self, columns):
+        heads = []
+        for column in columns:
+            head = Meta.getHeadByName(column)
+            heads.append(head)
+        return heads

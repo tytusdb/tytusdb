@@ -56,7 +56,9 @@ class CreateTable(NodoArbol):
             if len(primarykeys) != 0:
                 pks = self.obtenerindice(primarykeys)
                 dbms.alterAddPK(bdactual, nuevatabla, pks)  # Se crean las llaves primarias
+                cadena = "tytus> La tabla '" + self.id + "' fue creada exitosamente"
                 print("tytus> La tabla '" + self.id + "' fue creada exitosamente")
+                arbol.console.append(cadena)
             else:
                 pks = self.obtenerindice(primarykeys)
                 if len(pks) != 0:
@@ -214,7 +216,7 @@ class CreateTable(NodoArbol):
                     return nombre + ',' + condicion + ','
                 else:
                     return str(self.bd_actual) + '_' + str(self.id) + '_' + str(columna.nombre) + '_check,' + str(condicion) + ','
-        return ','
+        return ',,,'
 
     def crear_pks(self):
         pks = []

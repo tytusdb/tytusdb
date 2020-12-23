@@ -1,7 +1,6 @@
 from Interprete.NodoAST import NodoArbol
 from Interprete.Tabla_de_simbolos import Tabla_de_simbolos
 from Interprete.Arbol import Arbol
-from Interprete.Valor.Valor import Valor
 from StoreManager import jsonMode as dbms
 
 #####################################
@@ -13,7 +12,8 @@ from StoreManager import jsonMode as dbms
 
 class CreateDatabase(NodoArbol):
 
-    def __init__(self, id_, replace_, ifnotexists_):
+    def __init__(self, line, column, id_, replace_, ifnotexists_):
+        super().__init__(line, column)
         self.id = id_
         self.replace = replace_
         self.ifnotexists = ifnotexists_

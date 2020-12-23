@@ -12,7 +12,8 @@ from StoreManager import jsonMode as j
 
 class UseDatabase(NodoArbol):
 
-    def __init__(self, id_):
+    def __init__(self, line, column, id_):
+        super().__init__(line, column)
         self.id = id_
 
     def execute(self, entorno: Tabla_de_simbolos, arbol: Arbol):

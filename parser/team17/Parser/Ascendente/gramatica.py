@@ -1,5 +1,7 @@
 from Interprete.CREATE_DATABASE.create_database import CreateDatabase
 from Interprete.CREATE_TABLE.create_table import CreateTable
+from Interprete.DROP_DATABASE.drop_database import DropDatabase
+from Interprete.DROP_TABLE.drop_table import DropTable
 from Interprete.OperacionesConExpresiones.Opera_Relacionales import Opera_Relacionales
 from Interprete.Condicionantes.Condicion import Condicion
 from Interprete.SELECT.select import select
@@ -10,6 +12,7 @@ from Interprete.Primitivos.DECIMAL import DECIMAL
 from Interprete.Primitivos.CADENAS import CADENAS
 from Interprete.Primitivos.BOOLEANO import BOOLEANO
 from Interprete.Insert.insert import Insert
+from Interprete.SHOW_DATABASES.show_databases import ShowDatabases
 from Interprete.USE_DATABASE.use_database import UseDatabase
 from Interprete.ALTER_DATABASE.alter_database import AlterDatabase
 from Interprete.CREATE_TABLE import clases_auxiliares
@@ -19,7 +22,10 @@ from Interprete.OperacionesConExpresiones.OperacionesLogicas import OperacionesL
 from Interprete.SELECT.Select_simples import Select_simples
 from Interprete.TYPE.type import type
 from Interprete.SELECT.Select_simple_simple import select_simple_simple
+from Interprete.Insert.AccesoType import AccesoType
 from Interprete.SELECT.Select_Trig import Select_Trig
+from Interprete.SELECT.select_simples_binarias import Select_simples_binarias
+
 
 reservadas = {
 
@@ -84,6 +90,7 @@ reservadas = {
     'default' : 'DEFAULT',
     'null' : 'NULL',
     'now' : 'NOW',
+    'bytea' : 'BYTEA',
 
     # TIPOS NUMERICOS
     'smallint' : 'SMALLINT',
@@ -454,11 +461,17 @@ def p_ddl_use(t):
     '''
     t[0] = t[1]
 
+def p_ddl_show_databases(t):
+    '''
+        ddl  : SHOW DATABASES
+    '''
+    t[0] = ShowDatabases(t.lineno, 0)
+
 def p_use_database(t):
     '''
         use_database : USE ID
     '''
-    t[0] = UseDatabase(t[2])
+    t[0] = UseDatabase(t.lineno, 0, t[2])
 
 def p_ddl_table_create(t):
     '''
@@ -484,6 +497,12 @@ def p_ddl_deletetable(t):
         ddl  : deletetable
     '''
     pass
+
+def p_ddl_droptable(t):
+    '''
+        ddl  : drop_table
+    '''
+    t[0] = t[1]
 
 def p_ddl_create_db(t):
     '''
@@ -999,74 +1018,74 @@ def p_exp_length(t):
     '''
         exp   : LENGTH PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "LENGTH", 1, 1)
 
 def p_exp_substring(t):
     '''
         exp   : SUBSTRING PARIZQ exp COMA exp COMA exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "SUBSTRING", 1, 1, t[5], t[7])
 
 
 def p_exp_trim(t):
     '''
         exp   : TRIM PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "TRIM", 1, 1)
 
 
 def p_exp_md5(t):
     '''
         exp   : MD5 PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "MD5", 1, 1)
 
 
 def p_exp_sha256(t):
     '''
         exp   : SHA256 PARIZQ exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "SHA256", 1, 1)
 
 
 def p_exp_substr(t):
     '''
         exp   : SUBSTR PARIZQ exp COMA exp COMA exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "SUBSTR", 1, 1, t[5], t[7])
 
 def p_exp_getbyte(t):
     '''
         exp   : GET_BYTE PARIZQ exp COMA exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "GET_BYTE", 1, 1, t[5])
 
 
 def p_exp_setbyte(t):
     '''
         exp   : SET_BYTE PARIZQ exp COMA exp COMA exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "SET_BYTE", 1, 1, t[5], t[7])
 
 
 def p_exp_convert(t):
     '''
         exp   : CONVERT PARIZQ exp AS tipo PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "CONVERT", 1, 1, t[5])
 
 
 def p_exp_encode(t):
     '''
         exp   : ENCODE PARIZQ exp COMA exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "ENCODE", 1, 1, t[5])
 
 def p_exp_decode(t):
     '''
         exp   : DECODE PARIZQ exp COMA exp PARDER
     '''
-    pass
+    t[0] = Select_simples_binarias(t[3], "DECODE", 1, 1, t[5])
 
 
 def p_exp_opunary(t):
@@ -1264,9 +1283,10 @@ def p_expSimples(t):
 
 def p_expSimples_ACCESO_TYPE(t):
     '''
-        expSimple : ID PARIZQ exp PARDER
+        expSimple : ID CORIZQ exp CORDER
     '''
-    t[0] = indexador_auxiliar(t[1], t[3], 7)
+    #t[0] = indexador_auxiliar(t[1], t[3], 7)
+    t[0] = AccesoType(t[1], t[3], 1, 1)
 
 def p_expSimples_ALIAS_MULTI(t):
     '''
@@ -1785,16 +1805,16 @@ def p_create_db(t):
 
     if len(t)==9:
         #CREATE OR REPLACE DATABASE IF NOT EXISTS createdb_extra
-        t[0] = CreateDatabase(t[8], True, True)
+        t[0] = CreateDatabase(t.lineno, 0, t[8], True, True)
     elif len(t)==6:
         #CREATE OR REPLACE DATABASE createdb_extra
-        t[0] = CreateDatabase(t[5], True, False)
+        t[0] = CreateDatabase(t.lineno, 0, t[5], True, False)
     elif len(t)==7:
         #CREATE DATABASE IF NOT EXISTS createdb_extra
-        t[0] = CreateDatabase(t[6], False, True)
+        t[0] = CreateDatabase(t.lineno, 0, t[6], False, True)
     elif len(t)==4:
         #CREATE DATABASE createdb_extra
-        t[0] = CreateDatabase(t[3], False, False)
+        t[0] = CreateDatabase(t.lineno, 0, t[3], False, False)
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------CREATEDB EXTRA--------------------------------------
@@ -1824,10 +1844,10 @@ def p_drop_table(t):
     '''
     if len(t)==6:
         #DROP TABLE IF EXISTS ID
-        pass
-    elif len(t)==3:
+        t[0] = DropTable(t.lineno, 0, t[5])
+    elif len(t)==4:
         #DROP TABLE ID
-        pass
+        t[0] = DropTable(t.lineno, 0, t[3])
 
 # -------------------------------------------------------------------------------------
 # ---------------------------------ALTER TABLE--------------------------------------
@@ -1905,7 +1925,7 @@ def p_alter_database(t):
                        | ALTER DATABASE ID OWNER TO SESSION_USER
     '''
     if t[4].lower()=='rename':
-        t[0] = AlterDatabase(t[3], t[6])
+        t[0] = AlterDatabase(t.lineno, 0, t[3], t[6])
     elif t[4].lower()=='owner':
         #ALTER DATABASE ID OWNER TO ID <- aqui no hay progra xd
         pass
@@ -1920,10 +1940,10 @@ def p_drop_database(t):
     '''
     if len(t)==6:
         #DROP DATABASE IF EXISTS ID
-        pass
+        t[0] = DropDatabase(t.lineno, 0, t[5])
     elif len(t) == 4:
         #DROP DATABASE ID
-        pass
+        t[0] = DropDatabase(t.lineno, 0, t[3])
 
 
 #---------------ERROR SINTACTICO---------------
