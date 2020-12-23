@@ -3,10 +3,13 @@ sys.path.append('../G26/Instrucciones')
 sys.path.append('../G26/Utils')
 sys.path.append('../G26/Librerias/storageManager')
 
+
+
 from jsonMode import *
 from instruccion import *
 from Lista import *
 from TablaSimbolos import *
+from Error import *
 
 class Create(Instruccion):
 
@@ -72,7 +75,7 @@ class Create(Instruccion):
                             for columnasCreadas in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns']:
                                 if columnasCreadas.name.upper() == columnsPK.column.upper() :
                                     ListaColumnasPK.append(valCont)
-                                    columnasCreadas.pk = ConstraintData('PK_' + self.name.upper() + '_' + columnsPK.column.upper(), True)
+                                    columnasCreadas.pk = ConstraintData('PK_' + self.name.upper() + '_' + columnsPK.column.upper(), True, 'pk')
                                     break
                                 valCont = valCont + 1
                         resPK = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
@@ -82,12 +85,13 @@ class Create(Instruccion):
                         elif resPK == 4: print('Error(???): Llave primaria existente.')
                         elif resPK == 5: print('Error(42P10): invalid_column_reference.')
                     elif column.type == 'foreign':
-                        print('Se agrega hasta la fase 2')
+                       foreign = column.execute(data)
+                       if isinstance(foreign, Error):
+                           return foreign
                     elif column.type == 'constraint':
-                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['constraint'].append(ConstraintData(column.id, column.list))
+                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['constraint'].append(ConstraintData(column.id, column.list, 'check'))
                     else:
                         banderaDef = True
-
                         if column.list.type == 'primary':
                             banderaDef = False
                             primary = column.list.execute()
@@ -99,12 +103,10 @@ class Create(Instruccion):
                             references = column.list.execute()
                             if column.extra == None : default = references.list.execute()
                             else : default = references.extra.execute()
-
                         if banderaDef :
-                            default = column.list.execute()
+                            default = column.list.execute(data)
                             primary = None
                             references = None
-
                         type = column.id.execute()
                         if type.type == 'id':
                             if type.length.upper() in data.tablaSimbolos[data.databaseSeleccionada]['enum']:
@@ -114,8 +116,8 @@ class Create(Instruccion):
                                 dropTable(data.databaseSeleccionada, self.name.upper())
                                 return 'Error(???): El tipo ' + type.length.upper() + ' no se encuentra declarado en los ENUMS.'
 
-                        null = default.list.execute()
-                        unique = null.list.execute()
+                        null = default.list.execute(data)
+                        unique = null.list.execute(data)
                         if unique.list == None : check = None
                         else : check = unique.list.execute()
 
@@ -130,7 +132,7 @@ class Create(Instruccion):
                         print('----------Columnas fin----------')'''
 
                         if primary != None:
-                            primaryData = ConstraintData('PK_' + self.name.upper() + '_' + column.type.upper(), True)
+                            primaryData = ConstraintData('PK_' + self.name.upper() + '_' + column.type.upper(), True, 'pk')
                             ListaColumnasPK.clear()
                             ListaColumnasPK.append(contadorColumnas)
                             resPK = alterAddPK(data.databaseSeleccionada, self.name.upper(), ListaColumnasPK)
@@ -141,28 +143,28 @@ class Create(Instruccion):
                             elif resPK == 5: print('Error(42P10): invalid_column_reference.')
                         else: primaryData = None
 
-                        if references != None: foreignData = ConstraintData('FK_' + self.name.upper() + '_' + column.type.upper(), references.list)
+                        if references != None: foreignData = ConstraintData('FK_' + self.name.upper() + '_' + column.type.upper(), references.list, 'fk')
                         else: foreignData = None
 
-                        if default.extra : defaultData = ConstraintData('DFT_' + self.name.upper() + '_' + column.type.upper(), default.id)
+                        if default.extra : defaultData = ConstraintData('DFT_' + self.name.upper() + '_' + column.type.upper(), default.id, 'dft')
                         else : defaultData = None
 
-                        if null.id : nullData = ConstraintData('NULL_' + self.name.upper() + '_' + column.type.upper(), False)
+                        if null.id : nullData = False
                         else :
-                            if null.extra: nullData = ConstraintData('NULL_' + self.name.upper() + '_' + column.type.upper(), True)
-                            else : nullData = None
+                            if null.extra: nullData = True
+                            else : nullData = True
 
                         if unique.extra :
-                            if unique.id == None: uniqueData = ConstraintData('UNQ_' + self.name.upper() + '_' + column.type.upper(), True)
-                            else: uniqueData = ConstraintData(unique.id, True)
+                            if unique.id == None: uniqueData = ConstraintData('UNQ_' + self.name.upper() + '_' + column.type.upper(), True, 'null')
+                            else: uniqueData = ConstraintData(unique.id, True, 'unique')
                         else : uniqueData = None
 
                         if check == None : checkData = None
                         else :
-                            if check.id == None : checkData = ConstraintData('CHK_' + self.name.upper() + '_' + column.type.upper(), check.list)
-                            else : checkData = ConstraintData(check.id, check.list)
+                            if check.id == None : checkData = ConstraintData('CHK_' + self.name.upper() + '_' + column.type.upper(), check.list, 'check')
+                            else : checkData = ConstraintData(check.id, check.list, 'check')
 
-                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns'].append(TableData(column.type.upper(), type.type, type.length, primaryData, foreignData, defaultData, nullData, uniqueData, checkData))
+                        data.tablaSimbolos[data.databaseSeleccionada]['tablas'][self.name.upper()]['columns'].append(TableData(column.type.upper(), type.type, type.length, primaryData, [foreignData], defaultData, nullData, uniqueData, [checkData]))
                         contadorColumnas = contadorColumnas + 1
                 return 'Se ha creado la tabla ' + self.name.upper() + ' correctamente.'
         elif self.type == 'replace' :
@@ -221,8 +223,31 @@ class TableDescription(Instruccion):
         self.list = list
         self.extra = extra
 
-    def execute(self):
+    def execute(self, data):
+        if self.type == 'foreign':
+            if self.tableExists(data):
+                if self.columnExists(data):
+                    print("FK_EXITOSA...")
+                else:
+                    error = Error('Semántico', 'Error(FK): La columna: ' +  self.extra[0].column +' no existe.', 0, 0)
+                    return error
+                    
+            else:
+                error = Error('Semántico', 'Error(FK): La tabla: ' + self.id +' no existe.', 0, 0)
+                return error
         return self
+
+
+    def tableExists(self, data):
+        for table in data.tablaSimbolos[data.databaseSeleccionada]['tablas']:
+            if self.id.lower() == table.lower():
+                return True
+
+    def columnExists(self, data):
+        tabla = self.id.upper()
+        for column in data.tablaSimbolos[data.databaseSeleccionada]['tablas'][tabla]['columns']:
+            if self.extra[0].column.lower() == column.name.lower():
+                return True
 
     def __repr__(self):
         return str(self.__dict__)

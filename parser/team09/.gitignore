@@ -1,0 +1,4 @@
+*.pyc
+__*
+parser.out
+parsetab.py
