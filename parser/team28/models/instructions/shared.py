@@ -34,7 +34,10 @@ class From(Instruction):
     '''
     def __init__(self,  tables) :
         self.tables = tables
-        self.alias = f'{self.tables[0].alias}'
+        if self.tables is None:
+            self.alias = None
+        else:
+            self.alias = f'{self.tables[0].alias}'  
     
     def __repr__(self):
         return str(vars(self))
