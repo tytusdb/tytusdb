@@ -7,7 +7,7 @@ from useDB.instanciaDB import DB_ACTUAL
 from storageManager.jsonMode import extractTable
 from typeChecker.typeReference import getColumns
 from prettytable import PrettyTable
-from astExpresion import ExpresionID, Expresion
+from astExpresion import ExpresionID, Expresion , TuplaCompleta
 
 class COMBINE_QUERYS(Enum):
     UNION = 1
@@ -171,16 +171,18 @@ class SelectFrom(Instruccion):
                 nodo += "\n" + identificador + " -> " + str(hash(self.fuente)) + ";"
                 nodo += self.fuente.dibujar()
         return nodo
-    def ejecutar(self, ts):
-        columnas = []
-        for col in self.campos:
-            if isinstance (col, ExpresionID):
-                columnas.append(col.val)
-            elif isinstance(col, str):
-                columnas.append(col)
-            elif isinstance(col, Expresion):
-                print(col.ejecutar(ts).val)
+    def ejecutar(self, ts):        
         if len(self.fuentes)>1:
+            columnas = []
+            for col in self.campos:
+                if isinstance (col, ExpresionID):
+                    columnas.append(col.val)
+                elif isinstance(col, str):
+                    columnas.append(col)
+                elif isinstance(col, Expresion):
+                    # ACA RECIBO POR MEDIO DE TS UNA TABLA DE SIMBOLOS  ---> tipo MATRIX  que tiene TODAS LAS COLUMNAS DE TODAS LAS TABLAS ESPECIFICADAS EN EL FORM
+                    #print(ts.columnas)                    
+                    print(col.ejecutar(ts).val)
             encabezados = []
             lista = []
             for tabla in self.fuentes:
@@ -192,8 +194,10 @@ class SelectFrom(Instruccion):
             tabla_fuente = productoCruz(lista)
             resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", self.fuentes)
             ts.append(resultado)
+            print(ts)
             salida = None
             seleccion_columnas = []
+            
             for actual in columnas:
                 if actual.count('.') == 1:
                     seleccion_columnas.append(actual)
@@ -212,6 +216,7 @@ class SelectFrom(Instruccion):
             else:
                 print("Algo salió mal")
         else:
+            # SOLO UNA FUENTE 
             encabezados = []
             tb = extractTable(DB_ACTUAL.name,self.fuentes[0])
             clm = getColumns(DB_ACTUAL.name,self.fuentes[0])
@@ -219,6 +224,34 @@ class SelectFrom(Instruccion):
                 encabezados.append(self.fuentes[0]+"."+encabezado)
             resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0], self.fuentes)
             ts.append(resultado)
+#----------------------------------------------------------------------------------------------------- ACA IRIA LO DE EL LISTADO EN LAS COLUMNAS   porque ya ttengo la matrix para validar cosas     
+            columnas = []
+            for col in self.campos:
+                if isinstance (col, ExpresionID):
+                    columnas.append(col.val)
+                elif isinstance(col, str):
+                    columnas.append(col)
+#_________________________________________________________________________________________________ EJECUCION DE EXPRESIONES    , ASI SE PODRIA HACER EL WHERE EXPRESION TAMBIEN :V
+                elif isinstance(col, Expresion):
+                    # ACA RECIBO POR MEDIO DE TS UNA TABLA DE SIMBOLOS  ---> tipo MATRIX  que tiene TODAS LAS COLUMNAS DE TODAS LAS TABLAS ESPECIFICADAS EN EL FORM
+                    MinitablaSimbolos = []
+                    filas = resultado.filas
+                    columnas = resultado.columnas
+                    i = 0 
+                    while(i < len(filas)):
+                        indiceColumna = 0
+                        while(indiceColumna < len(columnas)): # PARA  MANDAR UNA LISTA [ {id :    tipo:    valor:  } , {id :    tipo:    valor:  } , {id :    tipo:    valor:  }  ]
+                            MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':'none'})
+                            indiceColumna+=1
+                        #print(MinitablaSimbolos)
+                        tupla = TuplaCompleta(MinitablaSimbolos) # ESTO SOLO LO HICE PARA PODER HACER UN IF EN EL EJECUTAREXPRESIONID y no matar lo que puso cante :v 
+                        columnaResultante = col.ejecutar(tupla) 
+                        
+                        print(columnaResultante.val)
+                        MinitablaSimbolos.clear()
+                        i+=1
+                        
+            # falta agregar las columnas de expresion a la hora de mostrar 
             salida = resultado.obtenerColumnas(columnas)
             if salida != None:
                 salida.imprimirMatriz()
@@ -226,6 +259,8 @@ class SelectFrom(Instruccion):
             else:
                 print("Algo salió mal")
 
+
+    
 # Select filter
 class SelectFilter(Instruccion):
     def __init__(self, where, groupby = None, having = None):
