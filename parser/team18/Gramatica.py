@@ -422,7 +422,7 @@ def p_alttbadd3(t):
      elif temp=="PRIMARY":
           t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[4],0,0)
      elif temp=="FOREIGN" :
-          t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[4],t[6],t[9])
+          t[0]=ALTERTBO_ADD_EXTRAS(t[1],t[4],t[7],t[9])
 
 
 def p_alttbadd4(t):

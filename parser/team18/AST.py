@@ -1439,11 +1439,15 @@ def AlterTBF(instr,ts):
                         col_new.tipo=TIPO
                         col_new.constraint=constraint_name()
 
-                        valor= resolver_operacion(VALORTIPO[0],ts)
-                        if valor!=None:
-                            col_new.size=valor
+                        if (VALORTIPO!="") and (VALORTIPO!=None) and (VALORTIPO!=0):
+                            valor= resolver_operacion(VALORTIPO[0],ts)
+                            if valor!=None:
+                                col_new.size=valor
+                            else:
+                                col_new.size=None
                         else:
-                            col_new.size=""
+                             col_new.size=None
+
                         # ((indexo la tabla ).listacolumnas)
                         cambio=((listaTablas[tablab[1]]).atributos)
                         cambio+=[col_new]
@@ -1596,12 +1600,15 @@ def Rename_Database(nombreOld,nombreNew):
             tab.basepadre=nombreNew
     
     listaTablas=copy.copy(tablas)
-#Objeto analiza constraint individual
 
+
+
+
+#Objeto analiza constraint individual
 def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
 
     #obtiene instrucion: check unique primary foranea
-    Uptemp=Obj_Add_Const.instruccion
+    Uptemp=(Obj_Add_Const.instruccion).upper()
     #obtiene contenido,lista de columnas
     contenido=Obj_Add_Const.contenido
     #obtiene ID tabla Referencias
@@ -1651,6 +1658,10 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                     #Obtiene info de la columna para verificar que Registro sean unicos
                     columnab=copy.copy(Get_Column(col_rev,((tablab[0]).atributos),tablab[2]))
 
+
+                    #Busca columnas Repetidos en el query 
+                    DatoRepetidoQuery=B_Repetidos(contenido)
+
                     #Busca Regisros Repetidos en la columna 
                     DatoRepetido=B_Repetidos(columnab[2])
                     #obitiene Nombre UNIQUE de esa columna
@@ -1659,14 +1670,14 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                     print("BOOL ASDF:",(pre_con==None))
                     print(pre_con)
 
-                    if (ID!=0 and ID!=None and ID!="") and (pre_con==None) and not(DatoRepetido):
+                    if (ID!=0 and ID!=None and ID!="") and (pre_con==None) and not(DatoRepetido) and not(DatoRepetidoQuery):
                         print("INGRESO ID TIENE:")
                         #SI UNIQUE NO HA SIDO ASIGNADO, y SI  le puso ID , y si NO REGISTROS REPETIDOS
                         ((((tab_Temp[0]).atributos)[subCont]).constraint).unique=ID
                         #usara el objeto tempral tablab=tab_Temp ,
                         #Asigna el valor Verdadero
                         (((tab_Temp[0]).atributos)[subCont]).unique='True'
-                    elif (ID==0 or ID==None or ID=="") and pre_con==None and not(DatoRepetido):
+                    elif (ID==0 or ID==None or ID=="") and pre_con==None and not(DatoRepetido) and not(DatoRepetidoQuery):
                         print("INGRESO NO ID TIENE:")
                         #SI UNIQUE NO HA SIDO ASIGNADO, y NO se le puso ID , y si NO REGISTROS REPETIDOS
                         #ID= concatena columnas col_col2_col3_etc
@@ -1731,6 +1742,12 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                     #Obtiene info de la columna para verificar que Registro sean unicos
                     columnab=copy.copy(Get_Column(col_rev,((tablab[0]).atributos),tablab[2]))
 
+                    #Busca columnas Repetidos en el query 
+                    DatoRepetidoQuery=B_Repetidos(contenido)
+
+                    #Busca nulos en Registros
+                    nulosR=B_Nulos(columnab[2])
+
                     #Busca Regisros Repetidos en la columna 
                     DatoRepetido=B_Repetidos(columnab[2])
                     #obitiene Nombre UNIQUE de esa columna
@@ -1746,7 +1763,7 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                     print("BOOL ASDF:",(pre_con==None))
                     print(pre_con)
 
-                    if (ID!=0 and ID!=None and ID!="") and (pre_con) and not(DatoRepetido):
+                    if (ID!=0 and ID!=None and ID!="") and (pre_con) and not(DatoRepetido) and not(DatoRepetidoQuery) and not(nulosR):
                         print("INGRESO ID TIENE:")
                         #SI UNIQUE NO HA SIDO ASIGNADO, y SI  le puso ID , y si NO REGISTROS REPETIDOS
                         ((((tab_Temp[0]).atributos)[subCont]).constraint).primary=ID
@@ -1756,7 +1773,7 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                         (((tab_Temp[0]).atributos)[subCont]).unique='True'
                         (((tab_Temp[0]).atributos)[subCont]).anulable='False'
 
-                    elif (ID==0 or ID==None or ID=="") and (pre_con) and not(DatoRepetido):
+                    elif (ID==0 or ID==None or ID=="") and (pre_con) and not(DatoRepetido) and not(DatoRepetidoQuery) and not(nulosR):
                         print("INGRESO NO ID TIENE:")
                         #SI UNIQUE NO HA SIDO ASIGNADO, y NO se le puso ID , y si NO REGISTROS REPETIDOS
                         #ID= concatena columnas col_col2_col3_etc
@@ -1820,11 +1837,183 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
         #y si algun registro Padre no coincide con las foraneas tampoco
         #NOSE si vincula multiples primary keys
 
+        #TabIDRef=Obj_Add_Const.id
+        #obtiene Contenido Referencias ,lista de columnas
+        #contenido2=Obj_Add_Const.contenido2
+
+        #Construye el id si no tiene ID
+        new_id=""
+        for con in contenido:
+            if new_id=="":
+                new_id=new_id+con
+            else:
+                new_id=new_id+"_"+con
+
+
+
+
+        #Longitud columnas Padre
+        longi1=len(contenido)
+        #Longitud columnas Reference Foranea
+        longi2=len(contenido2)
+        #Comparacion Longitudes
+        lonI=(longi1==longi2)
+
+
+        #valores tabla padre
+        tablaP=copy.deepcopy(tablab)
+        #valores tabla foranea, verifica que exista a traves de esta parte
+        tablaF=copy.deepcopy(Get_Table(TabIDRef))
+        print(TabIDRef)
+        #Comparacion Existen las 2 tablas
+        ExiT=(len(tablaP)>0) and (len(tablaF)>0)
+
+
+        #Tabla en donde Guardaremos la info terporalmente
+        tabla_Temp=copy.deepcopy(tablab[0])
+
+
+        #verifica columnas Repetidas
+        DatRepQuery1=B_Repetidos(contenido)
+        #verifica columnas Repetidas
+        DatRepQuery2=B_Repetidos(contenido2)
+        #compara que no Repetidos en ambas filas columnas
+        RepQuery=(not(DatRepQuery1)) and (not(DatRepQuery2))
+
+        #compara que nombre de tablas Diferentes
+        NomTabDif=False
+        if len(tablaF)>0:
+            NomTabDif=(((tablaF[0]).nombre)!=((tablaP[0]).nombre))
+
+        GuardaF=False
+
+        veriConstName=False
+        if (ID!=0 and ID!=None and ID!=""):
+            veriConstName=Ver_Exist_Name_Const(ID,(tablab[0]).atributos)
+
+        #Verifica que exista las dos tablas y que ademas tenga misma cantidad de columnas 
+        #que no hallan columnas Repetidas en querys
+        #que no se autoreferencie
+        #que no exista el name constraint
+        if (lonI)and(ExiT)and(RepQuery)and(NomTabDif)and not(veriConstName):
+            #Procede a Buscar cada Columna y hacer sus validaciones Individual y dual
+            conta=0
+            for colT in (contenido):   
+                #Busca Columna Tabla Padre
+                Colum_P=copy.deepcopy(Get_Column(colT ,((tablaP[0]).atributos) ,tablaP[2]))
+                #Busca Columna Tabla Foranea, a travez de conta
+                Colum_F=copy.deepcopy(Get_Column(contenido2[conta] ,((tablaF[0]).atributos) ,tablaF[2]))
+                
+                #Longitud columnas Padre
+                longiC1=len(Colum_P)
+                #Longitud columnas Reference Foranea
+                longiC2=len(Colum_F)
+
+                #Ambas columnas deben existir
+                LonC=(longiC1>0)and (longiC2>0)
+
+
+                #Si ambas columnas a comparar existen
+                if LonC:
+                    #Extrae el tipo para comparar
+                    TipCompC1=(Colum_P[0]).tipo
+                    TipCompC2=(Colum_F[0]).tipo
+                    #Compara los tipos de las 2 columnas
+                    ComTipC=(TipCompC1==TipCompC2)
+
+                    #veficar que primary key ,foranea
+                    #verificar si foranea tiene llaves , 
+                    #si tiene llaves , y TabPadre tiene ver que se puedan asociar
+                    #y llave foranea destino diferente de primary key
+
+                    #Verifica Columna Tabla Padre, no llave primaria
+                    #DifPriKey=((Colum_P[0]).primary)!="True"
+                    DifPriKey=True
+                    
+                    #Verifica Columna Tabla Padre, no llave foranea
+                    DifForeKey=((Colum_P[0]).foreign)!="True"
+
+                    #Verifica Columna Tabla Foranea SI llave primaria
+                    SiPriKeyFora=((Colum_F[0]).primary)!=None
+
+                    #Asocia llaves de padre a foraneas , deben existir
+                    #false error, True bien
+                    AsociaKeys=B_AsociarForanea((Colum_P[2]),(Colum_F[2]))
+
+                    #compara Desti no primary , Fora si primary , mismo tipo dato, asocia llaves
+                    if(ComTipC) and (DifPriKey)and (SiPriKeyFora)and(AsociaKeys) and (DifForeKey):
+                        print("Si se puede guardar")    
+                        #crea la llave foranea y desvincula objetos
+                        New_Foranea=[copy.deepcopy((tablaF[0]).nombre),copy.deepcopy((Colum_F[0]).nombre)]
+                        (tabla_Temp.atributos)[(Colum_P[1])].refence=(New_Foranea)
+                        (tabla_Temp.atributos)[(Colum_P[1])].foreign="True"
+                        #asigna el nombre de la foranea
+                        if (ID!=0 and ID!=None and ID!=""):
+                            ((tabla_Temp.atributos)[(Colum_P[1])].constraint).foreign=ID
+                            GuardaF=True
+                        elif (ID==0 or ID==None or ID==""):
+                            ((tabla_Temp.atributos)[(Colum_P[1])].constraint).foreign=new_id
+                            GuardaF=True
+                        else:
+                            ' '
+                            GuardaF=False
+                    else:
+                        ' '
+                        GuardaF=False
+                        print("NO   se puede guardar3")
+                        #compara Desti no primary , Fora si primary , mismo tipo dato
+                        break
+                else:
+                    ' '
+                    print("NO   se puede guardar2")
+                    GuardaF=False
+                    break
+                    #Comparacion Lon columnas
+
+
+                #para Get colForanea
+                conta+=1
+            
+
+        else:
+            ' ' 
+            print("NO   se puede guardar1")
+            GuardaF=False
+            #multiple comparaciones for
+
+        if GuardaF:
+            listaTablas[tablab[1]]=copy.deepcopy(tabla_Temp)
+
     else:
         if reviConsName:
             print("Nombre constraint Repetido")
         else:
             print("Instruccion desconocida")
+
+
+#Verifica pueda asociar llava foranea a Registros Prealmacenados Tabla padre
+def B_AsociarForanea(DP,DF):
+    
+    retorna=False
+
+    sumaComp=True
+    for ver  in DP:
+        bolT=False
+        if ver!=None:
+            for ver2 in DF:
+                if (ver==ver2):
+                    bolT=True
+                    break
+                if ver2==None:
+                    #la tabla foranea no puede tener null en primar key
+                    sumaComp=False
+                    break
+            sumaComp=(sumaComp and bolT)
+        
+    retorna=copy.copy(sumaComp)
+
+    return retorna
+
 
 
 #Verifica que si se va a asignar un UNIQUE la informacion de ella cumpla previamente
@@ -1836,12 +2025,29 @@ def B_Repetidos(ColumnaInfo_Col):
     for ver  in ColumnaInfo_Col:
         con2=0
         for ver2 in ColumnaInfo_Col:
-            if (con!=con2) and (ver==ver2):
+            if (con!=con2) and (ver==ver2) and (ver!=None) and (ver2!=None):
                 retorna=True
                 break
             con2+=1
         con+=1
     return retorna
+
+
+
+#Verifica que si se va a asignar un UNIQUE la informacion de ella cumpla previamente
+def B_Nulos(ColumnaInfo_Col):
+    
+    retorna=False
+
+    for ver in ColumnaInfo_Col:
+        if (ver==None) :
+            retorna=True
+            break
+        
+    return retorna
+
+
+
 
 def Ver_Exist_Name_Const(nameConst,T_head_cols):
 
@@ -2164,11 +2370,12 @@ def Cuerpo_ALTER_ALTER(Lista_Alter,NombreTabla,instr,ts):
 def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
     global listaTablas
 
+    print(NombreTabla," ------")
     #determinar si es RENAME COLUMN , RENAME COLUMN , RENAME CONSTRAINT, RENAME TABLE
     if OPERACION.upper()=="CONSTRAINT":
         ' '
 
-
+        RenomForanConstraint(NombreTabla,ID1,ID2)
 
 
     elif OPERACION.upper()=="TO":
@@ -2179,12 +2386,17 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
         #si encuentra la tabla en fisico , procede a buscar header
         if retorno==0:
             #hace copia de las tablas 
-            tablab=copy.copy(Get_Table(NombreTabla))
+            #tablab=copy.copy(Get_Table(copy.deepcopy(NombreTabla)))
             #recorre las tablas para modificar el nombre de la tabla
             conta=0
-            for tab_t in tablab:
-                if tab_t.nombre==NombreTabla:
-                    (listaTablas[conta]).nombre=ID1
+            for tab_t in listaTablas:
+                if (tab_t.nombre)==NombreTabla:
+
+                    #Renombra las Tablas Foraneas
+                    RenomForanTab(NombreTabla,ID1)
+                    #Renombra la tabla
+                    ((listaTablas[conta]).nombre)=ID1
+                    
                     break
                 conta+=1
         #Verifica Respuesta
@@ -2210,6 +2422,7 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
                     
                 #Si el nombre no existe en la tabla procede a cambiarlo
                 if len(columnaComprueba)==0:
+                    RenomForanCol(NombreTabla,ID1,ID2)
                     head_Tabla_Cols=(tablab[0]).atributos
                     #Renombra la columna
                     (head_Tabla_Cols[columnab[1]]).nombre=ID2
@@ -2243,10 +2456,189 @@ def cuerpo_ALTER_RENAME(NombreTabla,ObjetoAnalisis,ID1,ID2,OPERACION):
 
 
 
+#Renombra llaves foraneas vinculadas a la tabla, oldName, newname
+def RenomForanTab(NombreTabla,ID1):
+    global baseActiva
+    global listaTablas
 
-           
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #extra las columnas
+            listaCols=tabT.atributos
+            cont=0
+            #recorre las columnas
+            for colT in listaCols:
+                #si columna tiene alguna foranea guardada puede ser None
+                if (colT.refence)!=None:
+                    f_t=(colT.refence)
+                    if f_t[0]==NombreTabla:
+                        #Renombra la tabla foranea
+                        f_t[0]=ID1
+
+                cont+=1
 
 
+#Renombra llaves foraneas vinculadas a la tabla, columna, old columna , new columna
+def RenomForanCol(NombreTabla,ID1,ID2):
+    global baseActiva
+    global listaTablas
+
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #Verifica que tenga la tabla
+
+            #extra las columnas
+            listaCols=tabT.atributos
+            cont=0
+            #recorre las columnas
+            for colT in listaCols:
+                #si columna tiene alguna foranea guardada puede ser None
+                if (colT.refence)!=None:
+                    f_t=(colT.refence)
+                    if (f_t[0]==NombreTabla) and (f_t[1]==ID1):
+                        #Renombra la tabla foranea
+                        f_t[1]=ID2
+                cont+=1
+
+
+#Renombra llaves foraneas vinculadas a la tabla, columna, old columna , new columna
+def RenomForanConstraint(NombreTabla,ID1,ID2):
+    global baseActiva
+    global listaTablas
+
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #Verifica que tenga la tabla
+            if tabT.nombre==NombreTabla:
+                #extra las columnas
+                listaCols=tabT.atributos
+                cont=0
+                #recorre las columnas
+                for colT in listaCols:
+                    #si columna tiene algun constraint puede ser nulo
+                    print("busca:",ID1," cambia por:",ID2)
+                    val1=((colT.constraint).unique)
+                    val2=((colT.constraint).anulable)
+                    val3=((colT.constraint).default)
+                    val4=((colT.constraint).primary)
+                    val5=((colT.constraint).foreign)
+                    val6=((colT.constraint).check)
+                    
+                    if val1==ID1:
+                        ((colT.constraint).unique)=ID2
+                        #Renombra constraint
+                    elif val2==ID1:
+                        ((colT.constraint).anulable)=ID2
+                        #Renombra constraint
+                    elif val3==ID1:
+                        ((colT.constraint).default)=ID2
+                        #Renombra constraint
+                        
+                    elif val4==ID1:
+                        ((colT.constraint).primary)=ID2
+                        #Renombra constraint
+                        
+                    elif val5==ID1:
+                        ((colT.constraint).foreign)=ID2
+                        print("MODIFICA FORRANEAA")
+                        #Renombra constraint
+                    elif val6==ID1:
+                        ((colT.constraint).check)=ID2
+                        #Renombra constraint
+
+                    cont+=1
+
+
+
+#Renombra llaves foraneas vinculadas a la tabla, columna, old columna , new columna
+def DropForanConstraint(NombreTabla,ID1):
+    global baseActiva
+    global listaTablas
+
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #Verifica que tenga la tabla
+            if tabT.nombre==NombreTabla:
+                #extra las columnas
+                listaCols=tabT.atributos
+                cont=0
+                #recorre las columnas
+                for colT in listaCols:
+                    #si columna tiene algun constraint puede ser nulo
+                    print("busca:",ID1," cambia por:",None)
+                    val1=((colT.constraint).unique)
+                    val2=((colT.constraint).anulable)
+                    val3=((colT.constraint).default)
+                    val4=((colT.constraint).primary)
+                    val5=((colT.constraint).foreign)
+                    val6=((colT.constraint).check)
+                    
+                    if val1==ID1:
+                        ((colT.constraint).unique)=None
+                        ((colT).unique)=None
+
+                        #Renombra constraint
+                    elif val2==ID1:
+                        ((colT.constraint).anulable)=None
+                        ((colT).anulable)=None
+
+                        #Renombra constraint
+                    elif val3==ID1:
+                        ((colT.constraint).default)=None
+                        ((colT).default)=None
+                        #Renombra constraint
+                        
+                    elif val4==ID1:
+                        ((colT.constraint).primary)=None
+                        ((colT).primary)=None
+                        #Renombra constraint
+                        
+                    elif val5==ID1:
+                        ((colT.constraint).foreign)=None
+                        ((colT).foreign)=None
+                        ((colT).refence)=None
+
+                        print("MODIFICA FORRANEAA")
+                        #Renombra constraint
+                    elif val6==ID1:
+                        ((colT.constraint).check)=None
+                        ((colT).check)=None
+                        #Renombra constraint
+
+                    cont+=1
+
+
+
+
+#Renombra llaves foraneas vinculadas a la tabla, columna, old columna , new columna
+def BuscForanCol(NombreTabla,ID1):
+    global baseActiva
+    global listaTablas
+
+    retorno=False
+    for tabT in listaTablas:
+        #extrae una tabla
+        if tabT.basepadre==baseActiva:
+            #Verifica que tenga la tabla
+
+            #extra las columnas
+            listaCols=tabT.atributos
+            cont=0
+            #recorre las columnas
+            for colT in listaCols:
+                #si columna tiene alguna foranea guardada puede ser None
+                if (colT.refence)!=None:
+                    f_t=(colT.refence)
+                    if (f_t[0]==NombreTabla) and (f_t[1]==ID1):
+                        retorno=True
+                        break
+                cont+=1
+
+    return retorno
 
 
 def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
@@ -2261,7 +2653,9 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
             #[Objeto_Columna,posicion,[Registros]]
             #def Get_Column(name_c,tabla_H_List,tabla_C_List):
             print (ColumnInfo)
-            if len(ColumnInfo)>0 and len(tablaB[0].atributos)>1:
+            busRefFuera=BuscForanCol(NombreTabla,ID)
+            print("salalsdfkj :",not(busRefFuera))
+            if (len(ColumnInfo)>0) and (len(tablaB[0].atributos)>1) and not(busRefFuera):
                     
                 #obtiene No. de columna del objeto ColumnInfo
                 No_col=ColumnInfo[1]
@@ -2273,11 +2667,14 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
                     print(baseActiva," ",NombreTabla," ",No_col)
                     retorno=EDD.alterDropColumn(baseActiva,NombreTabla,No_col)
                 except:
+                    retorno=0
+                    #VER PORQUE ERRO EN EDD
                     ' '
                 print (retorno)
                 if retorno==0:
                     ' '
-                    listaTablas[tablaB[1]]
+                    posicion=ColumnInfo[1]
+                    del ((listaTablas[tablaB[1]]).atributos)[posicion]
 
                 Msg_Alt_Drop(NombreTabla,ID,retorno)
 
@@ -2291,6 +2688,8 @@ def Cuerpo_ALTER_DROP(NombreTabla,ObjetoAnalisis,INSTRUCCION,ID):
             #la tabla no existe en cabeceras o cuerpo
     elif INSTRUCCION.upper()=="CONSTRAINT":
         ' '
+        DropForanConstraint(NombreTabla,ID)
+
     else:
         ' '#Error
 
