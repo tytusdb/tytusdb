@@ -14,7 +14,7 @@ def TCcreateDatabase(database: str,Mode:str) -> int:
         if database in data:
             return 2
         else: 
-            new = {database:{"Mode":Mode,"Types":{}}}
+            new = {database:{"MODE":Mode,"TYPES":{}}}
             data.update(new)
             data["USE"]=database
             dump = True
@@ -68,7 +68,7 @@ def TCSearchDatabase(database:str)->int:
     with open('data/json/TypeChecker') as file:
         data = json.load(file)
         if database in data:
-            return   data[database]["Mode"]  #existe
+            return   data[database]["MODE"]  #existe
         else:
             return 8 #noExiste
 
@@ -232,13 +232,13 @@ def TCcreateType(database: str, typeEnum: str, Values:None) -> int:
         if not database in data:
             return 2
         else:
-            if typeEnum in data[database]['Types']:
+            if typeEnum in data[database]['TYPES']:
                 return 3
             else:
                 print(Values)
                 new = {typeEnum:{}}
-                data[database]['Types'].update(new)
-                data[database]['Types'][typeEnum].update(Values)
+                data[database]['TYPES'].update(new)
+                data[database]['TYPES'][typeEnum].update(Values)
                 dump = True
     if dump:
         with open('data/json/TypeChecker', 'w') as file:
