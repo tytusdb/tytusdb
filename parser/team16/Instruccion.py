@@ -48,6 +48,7 @@ def imprir(string):
 
 def mostrarConsulta(resultado):
     tabla = PrettyTable()
+
     for key, val in resultado.items():
         tabla.add_column(key, val)
 
@@ -1258,7 +1259,7 @@ class Select(Instruccion) :
 
     def Ejecutar(self):
 
-        global ts_global, baseActual
+        global ts_global, baseActual, ListaTablasG
         global LisErr
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
 
@@ -1283,7 +1284,7 @@ class Select(Instruccion) :
                           #si es la tabla validamos que tipo de campo viene
 
 
-
+                            numeroExpresion = 1
                             for ii in self.Lista_Campos:
 
                                 if(isinstance(ii,Campo_AccedidoSinLista)): #nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
@@ -1368,7 +1369,18 @@ class Select(Instruccion) :
 
 
                                         else:
-                                            print("")
+                                            if not isinstance(ii.Columna, string_types):
+                                                print("Se intentara procesar una expresion")
+
+                                                result = Inter.procesar_expresion_columna(ii.Columna, ts_global)
+                                                if isinstance(result, list):
+                                                    listaGeneral["Expresion" + str(numeroExpresion)] = result
+                                                    print('resultado expresion')
+                                                else:
+                                                    listaGeneral["Expresion"+str(numeroExpresion)] = [result]
+                                                numeroExpresion += 1
+                                                break
+
 
                                 elif(isinstance(ii,Campo_Accedido)): # nombre alias ssj      #nombretabla.nombrecampo alias  tss
 
@@ -1455,6 +1467,18 @@ class Select(Instruccion) :
                                                     listaGeneral[str(nuevoNave)] = Lista2
                                         else:
                                             print("")
+                                            if not isinstance(ii.Columna, string_types):
+                                                print("Se intentara procesar una expresion")
+                                                nuevoNave = ii.Lista_Alias.Alias
+
+                                                result = Inter.procesar_expresion_columna(ii.Columna, ts_global)
+                                                if isinstance(result, list):
+                                                    listaGeneral[nuevoNave] = result
+                                                    print('resultado expresion')
+                                                else:
+                                                    listaGeneral[nuevoNave] = [result]
+
+                                                break
                                 elif (isinstance(ii, AccesoSubConsultas)):
                                     listaQ = {}
                                     if (ii.Lista_Alias != False):
@@ -1490,6 +1514,7 @@ class Select(Instruccion) :
                                     print("Otros posibles tipos ")
                        else:
                            print("")
+
 
 
 #============================================================================   Acceso a las tablas con alias
