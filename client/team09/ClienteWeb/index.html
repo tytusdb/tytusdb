@@ -37,9 +37,9 @@
                             File
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#" onclick="peticion()">Preferences</a>
-                            <a class="dropdown-item" href="#">Reset Layout</a>
-                            <a class="dropdown-item" href="#">Look Layout</a>
+                            <a class="dropdown-item" href="#" onclick="createScript()">New Script</a>
+                            <a class="dropdown-item" href="#" onclick="openScript()">Open Script</a>
+                           
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -47,7 +47,9 @@
                             Object
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Create</a>         
+                            <a class="dropdown-item" href="#" onclick="createDatabase()">Create Database</a>         
+                            <a class="dropdown-item" href="#" onclick="deleteDatabase()">Delete Database</a>         
+                            <a class="dropdown-item" href="#" onclick="drop()">Drop</a>         
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -55,7 +57,7 @@
                             Tools
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Create</a>         
+                            <a class="dropdown-item" href="#" onclick="backup()">Create Backup</a>         
                         </div>
                     </li>
                     <li class="nav-item dropdown">
@@ -63,13 +65,20 @@
                             Help
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="#">Create</a>         
+                            <a class="dropdown-item" href="#" onclick="info()">Info</a>         
                         </div>
                     </li>
                 </ul>
             </div>
         </nav>
         <div id = "lateral" class="lateral" style="width: 15%; left: 0px; top: 56px; bottom: 1%; resize: none; overflow: auto;">
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" style="color:black" href="#" onclick="server()" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    SERVER
+                </a>
+             
+            </li>
         <script>
             $(document).ready(function(){
                 var height = $(window).height();
@@ -78,10 +87,24 @@
             });
         </script>
         </div>
+
+
+        <div class="barra">
+            
+            <button style="width: 70px; height: 30px; color: black" onclick="ejecutar()">ejecutar</button>
+        </div>
         <div id = "contenedor" class = "contenedorQuery">
-            <textarea id = "texto" class = "textoQuery" style = "display: none; min-width: 100%;"></textarea>
+            <textarea id = "texto" class = "textoQuery" style = "display: none; min-height: 10%;"></textarea>
             <script type = "text/javascript"> 
+
+
                 var contenedor = document.getElementById("contenedor")
+
+                $(document).ready(function(){
+                    var height = $(window).height();
+                    height = (height-100)*0.80
+                    $('#contenedor').height(height);
+                });
                 var texto = document.getElementById("texto")
                 var editor = CodeMirror(contenedor, {
                         lineNumbers: true,
@@ -95,11 +118,7 @@
                         
                 });
 
-                $(document).ready(function(){
-                    var height = $(window).height();
-                    height = (66*height)/100
-                    $('#contenedor').height(height);
-                });
+               
             </script>
         </div>
         <div id = "contenedorSalida" class = "contenedorSalida">
@@ -108,7 +127,7 @@
             <script>
                 $(document).ready(function(){
                     var height = $(window).height();
-                    height = height - (71.9*height)/100.1
+                    height = (height-100)*0.20
                     $('#contenedorSalida').height(height);
                 });
             </script>
