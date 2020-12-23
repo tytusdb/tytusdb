@@ -19,7 +19,7 @@ class Identificator_Expresion(Expresion):
     
     def execute(self, eviroment):
 
-        print("Nodo identificador")
+        #print("Nodo identificador")
         nombreId = self.valor
         nombreId = nombreId.upper()
 
@@ -41,7 +41,7 @@ class Identificator_Expresion(Expresion):
 
             for tabla in eviroment:
 
-                print("Tabla: "+eviroment[tabla].nameTable)
+                #print("Tabla: "+eviroment[tabla].nameTable)
 
                 for col in eviroment[tabla].lista:
 

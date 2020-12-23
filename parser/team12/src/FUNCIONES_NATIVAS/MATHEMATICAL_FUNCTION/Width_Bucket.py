@@ -50,43 +50,70 @@ class Function_Width_Bucket(Expresion):
                     try:
 
                         enteroValorNum_Buckets = int(valorNum_Buckets)
-                        interval = rango * 1.0 / enteroValorNum_Buckets * 1.0
+                        interval = (rango * 1.0) / (enteroValorNum_Buckets * 1.0)
 
                         variableAuxiliar = valorMinValue
-                        auxiliar = 0
-                        print("Rango: " + str(interval))
+                        valorMax = 0
+                        valorMin = 0
+                        auxiliar = 1
+                        #print("Rango: " + str(rango))
+                        #print("Interval: "+str(interval))
                         
-                        if rango > 0 :
+                        
+
+                        if rango > 0 :                                                            
+
+                            self.tipo = Type_Expresion(Data_Type.numeric)
+
+                            if valorExp < valorMinValue :                            
+                                self.valorExpresion = 0
+                                return self.valorExpresion
 
                             while variableAuxiliar <= valorMaxValue :
 
-                                print("Aux: "+str(auxiliar))                                                           
-                                print("Interval: "+str(variableAuxiliar))
-                                variableAuxiliar = variableAuxiliar + interval
-                                auxiliar = auxiliar + 1                            
+                                #print("Aux: "+str(auxiliar))                                         
+                                #print("Valor Pos: "+str(variableAuxiliar))
 
-                                if variableAuxiliar == 12:
-                                    print("Well")
-                                else :
-                                    print("Not cool")
+                                valorMin = variableAuxiliar
+                                valorMax = variableAuxiliar + interval
+
+                                if valorExp >= valorMin and valorExp < valorMax :
+
+                                    self.valorExpresion = auxiliar
+                                    return self.valorExpresion
+
+                                variableAuxiliar = variableAuxiliar + interval
+                                auxiliar = auxiliar + 1
+
+                            self.valorExpresion = auxiliar
+                            return self.valorExpresion
                         
                         else : 
 
+                            self.tipo = Type_Expresion(Data_Type.numeric)
+
+                            if valorExp > valorMinValue :            
+
+                                self.valorExpresion = 0
+                                return self.valorExpresion
+
                             while variableAuxiliar >= valorMaxValue :
 
-                                print("Aux: "+str(auxiliar))                                                           
-                                print("Interval: "+str(variableAuxiliar))
+                                #print("Aux: "+str(auxiliar))                                                           
+                                #print("Valor Neg: "+str(variableAuxiliar))
+                                valorMin = variableAuxiliar
+                                valorMax = variableAuxiliar + interval
+
+                                if valorExp <= valorMin and valorExp > valorMax :
+
+                                    self.valorExpresion = auxiliar
+                                    return self.valorExpresion
+
                                 variableAuxiliar = variableAuxiliar + interval
                                 auxiliar = auxiliar + 1
-                            
-                                if variableAuxiliar == 12:
-                                    print("Well")
-                                else :
-                                    print("Not cool")
 
-                        self.tipo = Type_Expresion(Data_Type.numeric)
-                        self.valorExpresion = 1
-                        return self.valorExpresion
+                            self.valorExpresion = auxiliar
+                            return self.valorExpresion
 
                     except:
 
