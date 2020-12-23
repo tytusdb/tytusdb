@@ -410,7 +410,7 @@ precedence = (
     ('left', 'MAS', 'MENOS'),
     ('left', 'ASTERISCO', 'DIVISION', 'PORCENTAJE'),
     ('left', 'POTENCIA'),
-    ('right', 'PLECA', 'DOBLEPLECA')
+    ('right', 'PLECA', 'DOBLEPLECA', 'MENOS')
     # ('PARIZQ', 'PARDER')
 )
 
@@ -490,8 +490,8 @@ def p_instruccion_dql_comandos3(t):
 
 # Lista de Campos
 def p_ListaCampos_ListaCamposs(t):
-    'LISTA_CAMPOS       : LISTA_CAMPOS LISTAA'
-    t[1].append(t[2])
+    'LISTA_CAMPOS       : LISTA_CAMPOS COMA LISTAA'
+    t[1].append(t[3])
     t[0] = t[1]
     rep_gramatica('\n <TR><TD> LISTA_CAMPOS →  LISTA_CAMPOS LISTAA     </TD><TD> t[1].append(t[2]) t[0] = t[1] </TD></TR>')
 
@@ -548,11 +548,11 @@ def p_Lista_SubsQuerys(t):
 
 
 
-def p_Lista_COMAs(t):
-    'LISTAA    :   COMA'
-    print("estoy entrando")
-    t[0] = str(t[1])
-    rep_gramatica('\n <TR><TD> LISTAA →  COMA ,   </TD><TD>  t[0] = str(t[1]) </TD></TR>')
+# def p_Lista_COMAs(t):
+#     LISTAA    :   COMA
+#     print("estoy entrando")
+#     t[0] = str(t[1])
+#     rep_gramatica('\n <TR><TD> LISTAA →  COMA ,   </TD><TD>  t[0] = str(t[1]) </TD></TR>')
 
 
 
