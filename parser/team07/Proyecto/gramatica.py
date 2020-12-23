@@ -568,26 +568,25 @@ def p_crear_database(t):
 
 
 def p_instr_crear_enum(t):
-    'crear_instr     :   CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA'
+    'crear_instr     :   CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA'
 
-    instru = createType.createType(t[3], [t[7]])
+    nodoId = crear_nodo_general("ID",t[3],str(t.lexer.lineno),columna)
+    nodoId.hijos = []
+    instru = createType.createType(t[3],t[7])
     nNodo = incNodo(numNodo)
     hijos = []
-    hijos.append(t[3])
+    hijos.append(nodoId)
     hijos.append(t[7])
-    instru.setearValores(str(t.lexer.lineno), columna,
-                         "Crear_Enum", nNodo, "", hijos)
+    instru.setearValores(str(t.lexer.lineno), columna,"Crear_Enum", nNodo, "", hijos)
     t[0] = instru
-    print("Linea: ", instru.fila)
-    print("Columna: ", instru.columna)
-    print("numNodo: ", nNodo)
-    print("Valor 1: '%s'" % t)
 
-    GenerarRepGram.AgregarTexto("crear_instr     :   CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA\n\n\
-    \t instru = createType.createType(t[3], [t[7]])\n\
+    GenerarRepGram.AgregarTexto("crear_instr     :   CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA\n\n\
+    \t nodoId = crear_nodo_general(\"ID\",t[3],str(t.lexer.lineno),columna)\n\
+    \tnodoId.hijos = []\n\
+    \t instru = createType.createType(t[3],t[7])\n\
     \t nNodo = incNodo(numNodo)\n\
     \t hijos = []\n\
-    \t hijos.append(t[3])\n\
+    \t hijos.append(nodoId)\n\
     \t hijos.append(t[7])\n\
     \t instru.setearValores(str(t.lexer.lineno), columna,\"Crear_Enum\", nNodo, "", hijos)\n\
     \t t[0] = instru\n\n")
