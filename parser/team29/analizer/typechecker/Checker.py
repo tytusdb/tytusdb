@@ -171,7 +171,8 @@ def checkInsert(dbName, tableName, columns, values):
             pks.append(indexCol)
         indexCol += 1
     # Validar la llave primaria
-    validatePrimary(dbName, tableName, values, pks)
+    if pks:
+        validatePrimary(dbName, tableName, values, pks)
 
     indexCol = 0
     for value in values:

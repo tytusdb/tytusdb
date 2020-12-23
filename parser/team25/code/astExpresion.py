@@ -305,15 +305,26 @@ class ExpresionID(Expresion):
             if valorYtipo == None:
                 return ErrorReport('Semantico','no se encontro esa columna', self.linea)
             else:
-                # mientras no tengo tipo :v 
-                if isinstance(valorYtipo['val'], str):
-                    return ExpresionCadena(valorYtipo['val'], TIPO_DE_DATO.CADENA, self.linea)
-                elif isinstance(valorYtipo['val'],int):
+                if valorYtipo['tipo'] == 'SMALLINT' \
+                or valorYtipo['tipo'] == 'BIGINT' \
+                or valorYtipo['tipo'] == 'INTEGER':
                     return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.ENTERO, self.linea)
-                elif isinstance(valorYtipo['val'],float):
+                elif valorYtipo['tipo'] == 'DECIMAL' \
+                or valorYtipo['tipo'] == 'NUMERIC' \
+                or valorYtipo['tipo'] == 'REAL' \
+                or valorYtipo['tipo']== 'DOUBLE_PRECISION' \
+                or valorYtipo['tipo'] == 'MONEY':
                     return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea)
-                elif isinstance(valorYtipo['val'],bool):
-                    return ExpresionCadena(valorYtipo['val'], TIPO_DE_DATO.BOOLEANO, self.linea)
+                elif valorYtipo['tipo'] == 'CHAR' \
+                or valorYtipo['tipo'] == 'VARCHAR' \
+                or valorYtipo['tipo'] == 'TEXT' \
+                or valorYtipo['tipo'] == 'ENUM':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea)
+                elif valorYtipo['tipo'] == 'BOOLEAN':
+                    return ExpresionBooleano(valorYtipo['val'], self.linea)
+                elif valorYtipo['tipo'] == 'DATE':
+                    return ExpresionNumero(valorYtipo['val'], TIPO_DE_DATO.DECIMAL, self.linea, isFecha=True)
+                return Exception()
             
         else:# supongo que es para lo del check :v 
             try:
@@ -758,6 +769,8 @@ class TuplaCompleta:
             else:
                 if columna['id'] == id:
                     return columna
+                elif self.quitarRef(columna['id']) == id:
+                    return columna 
         return None
     
     def quitarRef(self,cadena):# le quito la referencia de su tabla 

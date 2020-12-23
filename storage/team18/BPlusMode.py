@@ -67,13 +67,13 @@ def alterDatabase(dataBaseOld, dataBaseNew) -> int:
         if dataBaseTree.search(root, dataBaseNew.upper()):
             return 3
         dataBaseTree.delete(root, dataBaseOld.upper())
+        root = dataBaseTree.getRoot()
         serializable.Rename('./Data/', dataBaseOld, dataBaseNew)
         dataBaseTree.add(root, dataBaseNew.upper())
         serializable.update('./Data/', 'Databases', dataBaseTree)
         return 0
     else:
         return 1
-
 
 def dropDatabase(database):
     if type(database) !=str:
@@ -225,11 +225,6 @@ def alterAddPK(database: str, table: str, columns: list) -> int:
                     return 3  # table no existente
                 else:
                     tuplaTree = serializable.Read(f"./Data/{database}/{table}/", table)
-                    maximun = max(columns)
-                    minimun = min(columns)
-                    numberColumnsA = tuplaTree.columns  # actual amount from column
-                    if not (minimun >= 0 and maximun < numberColumnsA):
-                        return 5
                     try:
                         res = tuplaTree.CreatePK(columns)
                     except:
@@ -261,7 +256,6 @@ def alterDropPK(database: str, table: str) -> int:
                 tablesTree = serializable.Read(f"./Data/{database}/", database)
                 if not tablesTree.search(tablesTree.getRoot(), table.upper()):
                     return 3  # table no existente
-
                 PKsTree = serializable.Read(f'./Data/{database}/{table}/', table)
                 res = PKsTree.DeletePk()
                 if res:
@@ -291,10 +285,9 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
                     return 3 #tableOLD no existente
                 elif tablesTree.search(rootT, tableNew.upper()):
                     return 4 #tableNEW existente
-                
                 tablesTree.delete(rootT, tableOld.upper())
                 serializable.Rename(f'./Data/{database}/', tableOld, tableNew)
-                tablesTree.add(rootT, tableNew.upper())
+                tablesTree.add(tablesTree.getRoot(), tableNew.upper())
                 serializable.update(f"./Data/{database}/", database, tablesTree)
                 return 0
         else:
@@ -319,9 +312,7 @@ def alterAddColumn(database: str, table: str, default: any) -> int:
                     return 3  # table no existente
                 else:
                     tuplaTree = serializable.Read(f"./Data/{database}/{table}/", table)
-                    
                     res = tuplaTree.addColumn(default)
-                    
                     if res:
                         return res
                     else:

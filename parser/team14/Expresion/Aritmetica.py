@@ -21,11 +21,9 @@ class Aritmetica(Binaria):
 
         valizq=self.exp1.getval(entorno);
         valder=self.exp2.getval(entorno);
+        valizq=valizq.valor
+        valder=valder.valor
 
-        if (isinstance(valizq, Terminal)):
-            valizq = valizq.getval(entorno)
-        if (isinstance(valder, Terminal)):
-            valder = valder.getval(entorno)
 
 
         if type(valizq) not in (int, float, complex) or type(valder) not in (int, float, complex) :
@@ -36,18 +34,18 @@ class Aritmetica(Binaria):
                                      "Error los valores de los operandos deben ser numericos")
 
         if self.operador == '+':
-            self.val = valizq+valder;
+            self.valor = valizq+valder;
         elif self.operador == '-':
-            self.val = valizq - valder;
+            self.valor = valizq - valder;
         elif self.operador ==  '*':
-            self.val = valizq * valder;
+            self.valor = valizq * valder;
         elif self.operador == '/':
-            self.val = valizq / valder;
+            self.valor = valizq / valder;
         elif self.operador == '%':
-            self.val = valizq % valder;
+            self.valor = valizq % valder;
         elif self.operador == '^':
-            self.val = valizq ** valder;
+            self.valor = valizq ** valder;
 
-        tipo= Tipo(self.val,'decimal')
+        tipo= Tipo(self.valor,'decimal')
         self.tipo=tipo
-        return self.val
+        return self

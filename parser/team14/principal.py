@@ -29,7 +29,7 @@ def send_data():
     print("==============================================")
     # reporteerrores = []
     contenido = Tentrada.get(1.0, 'end')
-    variables.consola.delete("1.0", "end")
+    variables.consola.delete(1.0, "end")
     variables.consola.configure(state='normal')
 
     # print(contenido)
@@ -70,7 +70,7 @@ def mostrarimagenre():
 
 def setContenido(cont:str):
     global contenidoSym
-    contenidoSym += cont
+    contenidoSym = cont
     
 
 def arbol_ast():
