@@ -15,7 +15,7 @@ from Instrucciones.FunctionBinaryString import Convert, Decode, Encode, GetByte,
 from Instrucciones.Expresiones import Aritmetica, Logica, Primitivo, Relacional
 from Instrucciones.DateTimeTypes import Case , CurrentDate, CurrentTime, DatePart, Extract, Now, Por, TimeStamp
 
-from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType
+from Instrucciones.Sql_alter import AlterDatabase, AlterTable, AlterDBOwner, AlterTableAddColumn, AlterTableAddConstraintFK, Columna, AlterTableDropColumn, AlterTableAddConstraint, AlterTableAddFK, AlterTableAlterColumn, AlterTableDropConstraint, AlterTableAlterColumnType, AlterTableAddCheck
 from Instrucciones.Sql_create import CreateDatabase, CreateFunction, CreateOrReplace, CreateTable, CreateType, Use, ShowDatabases,Set
 from Instrucciones.Sql_declare import Declare
 from Instrucciones.Sql_delete import DeleteTable
@@ -327,13 +327,19 @@ def p_drop_column(t):
 def p_instruccion_alter3(t):
     '''instruccion : ALTER TABLE ID ADD CHECK expre PUNTO_COMA
     '''
-    t[0] = AlterTable.AlterTable(t[3], None, None, t[4], t[6], None, None, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = AlterTableAddCheck.AlterTableAddCheck(t[3],t[6],t.lexer.lineno, t.lexer.lexpos)
 
 # ALTER TABLE 'NOMBRE_TABLA' ADD CONSTRAINT 'NOMBRE' UNIQUE (LISTA_ID);
 def p_instruccion_alter4(t):
     '''instruccion : ALTER TABLE ID ADD CONSTRAINT ID UNIQUE PARIZQ lista_id PARDER PUNTO_COMA
     '''
     t[0] = AlterTableAddConstraint.AlterTableAddConstraint(t[3], t[6], t[9], t.lexer.lineno, t.lexer.lexpos)
+
+
+def p_instruccion_altercfk(t):
+    '''instruccion : ALTER TABLE ID ADD CONSTRAINT ID FOREIGN KEY PARIZQ lista_id PARDER REFERENCES ID PARIZQ lista_id PARDER PUNTO_COMA
+    '''
+    t[0] = AlterTableAddConstraintFK.AlterTableAddConstraintFK(t[3], t[6], t[10], t[13], t[15], t.lexer.lineno, t.lexer.lexpos)
 
 # ALTER TABLE child_table ADD FOREIGN KEY (fk_columns) REFERENCES parent_table (parent_key_columns);
 def p_instruccion_alter5(t):
@@ -547,7 +553,11 @@ def p_dist(t):
 
 def p_instruccion_rows(t):
     '''
-    rows    : ORDER BY lista_order
+    rows    : ORDER BY l_expresiones
+            | ORDER BY l_expresiones DESC
+            | ORDER BY l_expresiones ASC
+            | ORDER BY l_expresiones NULLS FIRST
+            | ORDER BY l_expresiones NULLS LAST 
             | GROUP BY l_expresiones
             | HAVING lcol
             | LIMIT ENTERO
@@ -567,27 +577,6 @@ def P_instruccion_row2(t):
     #LIMIT(LIMITE,FILAS_A_EXCLUIR,fila,columna)
     t[0] = Limit.Limit(t[2], t[4], t.lexer.lineno, t.lexer.lexpos) 
 
-def p_lista_order1(t):
-    '''lista_order : lista_order COMA order_op
-    '''
-    t[1].append(t[3])
-    t[0] = t[1]
-
-def p_lista_order2(t):
-    '''lista_order : order_op
-    '''
-    t[0] = [t[1]]
-
-def p_order_op(t):
-    '''order_op : expre tipo
-            | expre DESC
-            | expre ASC
-            | expre NULLS FIRST
-            | expre NULLS LAST
-    '''
-    t[0] = t[1]
-
-
 
 def p_linner_join(t):
     '''linners : linners inners
@@ -597,15 +586,15 @@ def p_linner_join(t):
 def p_linner_join2(t):
     '''linners : inners
     '''
-    t[0] = t[1]
+    t[0] = [t[1]]
 
 def p_inner_join(t):
     '''
-    inners : INNER JOIN expre ON expre
-            | LEFT JOIN expre ON expre
-            | FULL OUTER JOIN expre ON expre
-            | JOIN expre ON expre
-            | RIGHT JOIN expre ON expre
+    inners : INNER JOIN expre nombre ON expre
+            | LEFT JOIN expre nombre ON expre
+            | FULL OUTER JOIN expre nombre ON expre
+            | JOIN expre nombre ON expre
+            | RIGHT JOIN expre nombre ON expre
     '''
 
 def p_operadores_logicos(t):
@@ -657,8 +646,10 @@ def p_operadores_between(t):
     #t[0] = Between(t[1], t[3], t[5], 'BETWEEN', t.lexer.lineno, t.lexer.lexpos) if t[2] == 'LIKE' else Between(t[1], t[4], t[5], 'NOT_BETWEEN', t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_in(t):
-    '''expre : expre IN PARIZQ lcol PARDER
+    '''expre : expre IN lcol
+            | expre NOT IN lcol
     '''
+
     #t[0] = In(t[1], t[4], t.lexer.lineno, t.lexer.lexpos)
 
 def p_operadores_is(t):
@@ -804,8 +795,8 @@ def p_operadores_matematica(t):
 
 def p_operadores_binarias(t):  
     ''' expre : CONVERT PARIZQ expre AS tipo PARDER
-            | DECODE PARIZQ expre PARDER
-            | ENCODE PARIZQ expre PARDER
+            | DECODE PARIZQ expre COMA expre PARDER
+            | ENCODE PARIZQ expre COMA expre PARDER
             | GET_BYTE PARIZQ expre COMA ENTERO PARDER
             | LENGTH PARIZQ expre PARDER
             | MD5 PARIZQ expre PARDER
@@ -816,12 +807,12 @@ def p_operadores_binarias(t):
             | TRIM PARIZQ expre PARDER
     '''
     if t[1] == 'CONVERT':
-        t[0] = Convert.Convert(t[3], t[5],t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Convert.Convert(t[3], None, t[5], t.lexer.lineno, t.lexer.lexpos)
     elif t[1] == 'DECODE':
-        t[0] = Decode.Decode(t[3],  None,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Decode.Decode(t[3],  None, t[5],t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'ENCODE':
-        t[0] = Encode.Encode(t[3],  None,t.lexer.lineno, t.lexer.lexpos)
+        t[0] = Encode.Encode(t[3],  None, t[5], t.lexer.lineno, t.lexer.lexpos)
         pass
     elif t[1] == 'GET_BYTE':
         t[0] = GetByte.GetByte(t[3], None,t[5],t.lexer.lineno, t.lexer.lexpos)
@@ -1111,14 +1102,14 @@ def p_opcion8(t):
 
 def p_lista_expresiones(t):
     '''
-    l_expresiones : l_expresiones COMA expresion
+    l_expresiones : l_expresiones COMA expre
     '''
     t[1].append(t[3])
     t[0] = t[1]
 
 def p_lista_expresiones1(t):
     '''
-    l_expresiones : expresion
+    l_expresiones : expre
     '''
     t[0] = [t[1]]
 
@@ -1126,7 +1117,7 @@ def p_expresion(t):
     '''
     expresion : CADENA
     '''
-    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.VARCHAR), t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.TEXT), t.lexer.lineno, t.lexer.lexpos)
 
 def p_expresion1(t):
     '''expresion : CARACTER
@@ -1147,7 +1138,7 @@ def p_expresion3(t):
 def p_expresion4(t):
     '''expresion : DOUBLE
     '''
-    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.DOUBLE), t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Primitivo.Primitivo(t[1],Tipo(Tipo_Dato.DOUBLE_PRECISION), t.lexer.lineno, t.lexer.lexpos)
 
 def p_expresion5(t):
     '''expresion : ID
@@ -1155,10 +1146,16 @@ def p_expresion5(t):
     #t[0] = Primitivo.Primitivo(t[1],Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
     t[0] = Identificador(t[1], t.lexer.lineno, t.lexer.lexpos)
 
-def p_expresion6(t):
+def p_expresion61(t):
     '''expresion : ID PUNTO ID
     '''
-    t[0] = Primitivo.Primitivo(t[1],t[2],Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
+    t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
+
+def p_expresion62(t):
+    '''expresion : ID PUNTO POR
+    '''
+    t[0] = Primitivo.Primitivo(f"{t[1]}.{t[3]}",Tipo_Dato.ID, t.lexer.lineno, t.lexer.lexpos)
+
 
 def p_expresion7(t):
     '''expresion : ARROBA ID
@@ -1207,7 +1204,6 @@ def p_lista_columas01(t):
 def p_lista_columas3(t):
     '''lcol : expre
     '''
-    #print("entro aqui 2")
     t[0] = [t[1]]
     
 def p_lista_columas4(t):
@@ -1340,7 +1336,7 @@ def p_tipo_datos_int8(t):
 def p_tipo_datos_date(t):
     '''tipo : TIMESTAMP
     '''
-    t[0]=Tipo(Tipo_Dato.TIMESPACE)
+    t[0]=Tipo(Tipo_Dato.TIMESTAMP)
 
 def p_tipo_datos_date1(t):
     '''tipo : TIME
@@ -1370,7 +1366,7 @@ def p_error(p):
                 print("FIN DEL ARCHIVO")
             else:
                 print("Se recupero con ;")
-            break
+                break
         dato = Excepcion(1,"Error Sintáctico", f"Se esperaba una instrucción y viene {tok.value}", p.lexer.lineno, find_column(lexer.lexdata,tok))
         lista_lexicos.append(dato)
         
