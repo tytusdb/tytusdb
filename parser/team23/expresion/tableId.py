@@ -21,17 +21,19 @@ class tableId(expresion):
 
     def ejecutar(self, list_tb):
         actualDB = get_actual_use()
-        encabezados = ts.field_names(actualDB, self.valor)
 
+        for item in list_tb:
+            extract_col = ts.existe_col(actualDB, item, self.valor)
+
+            if extract_col == True:
+                getdata = funciones.extractTable(actualDB,item)
+                index_col = ts.get_pos_col(actualDB, item, self.valor)
+                encabezados=ts.field_names(actualDB,item)
+                return retorno(getdata, self.tipo, True, index_col,encabezados)
+
+        encabezados=[]
         extract_tb = ts.get_tb(actualDB, self.valor)
-        if extract_tb == None:
-            for item in list_tb:
-                extract_col = ts.existe_col(actualDB, item, self.valor)
 
-                if extract_col == True:
-                    getdata = funciones.extractTable(actualDB,item)
-                    index_col = ts.get_pos_col(actualDB, item, self.valor)
-                    return retorno(getdata, self.tipo, True, index_col)
-
+        encabezados=ts.field_names(actualDB,self.valor)
         getdata = funciones.extractTable(actualDB,self.valor)
-        return retorno(getdata, self.tipo, True)
+        return retorno(getdata, self.tipo, True, encabezados)
