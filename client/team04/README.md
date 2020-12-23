@@ -65,7 +65,6 @@ class MyDialog(tkinter.simpledialog.Dialog):
 El centro de todo el cliente, aqui se manejan todas las clases para crear la interfaz y la conexion con el servidor.
 
 ***Variables Globales***
-Con ellas se controlan las pestañas
 
 ```python
 control = 0
