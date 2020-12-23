@@ -2,7 +2,7 @@ import gramatica as g
 import Utils.TablaSimbolos as table
 import Utils.Lista as l
 import Librerias.storageManager.jsonMode as storage
-from fila import fila
+#from fila import fila
 
 #datos = l.Lista([], '')
 storage.dropAll()
@@ -25,8 +25,9 @@ f = open(ruta, "r")
 input = f.read()
 
 instrucciones = g.parse(input)
-print(instrucciones)
-for instr in instrucciones :
+print(instrucciones['reporte'])
+print("***************************************************")
+for instr in instrucciones['ast'] :
     print(instr.execute(datos))
 
 print('\n\nTABLA DE SIMBOLOS')
@@ -108,4 +109,5 @@ def reporteTabla():
     f.write("</html>\n")
     f.close()
 
-reporteTabla()
+#reporteTabla()
+

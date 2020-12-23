@@ -1,5 +1,6 @@
 import os
 import pickle
+import csv
 
 class Nodo:
     def __init__(self, valor, dic):
@@ -110,7 +111,6 @@ class ArbolAVL:
     def _eliminar(self, tmp):
 
         if tmp == None or self.buscar(tmp.valor) == None:
-            print("No se encuentra el valor")
             return None
 
         def minimValor(tmp):
@@ -279,11 +279,8 @@ class ArbolAVL:
                 else:
                     cam = [None, dic]
                     raiz.lista.agregar(tabla, cam)
-                    print("Base de datos: ", raiz.valor)
-                    raiz.lista.preorden()
                     return 1
             else:
-                print("no existe la base de datos: ", db)
                 return 2
         else:
             return 3
@@ -329,10 +326,7 @@ class ArbolAVL:
                     cadena = cadena[0:len(cadena) - 1]
                 else:
                     cadena = raiz.lista.contador
-                print(cadena)
                 raiz.lista.agregar(cadena, valor)
-                print("base: ",db,"Tabla:" , raiz.valor)
-                raiz.lista.preorden()
             else:
                 cadena = ""
 
@@ -346,10 +340,7 @@ class ArbolAVL:
                 tmp = self.buscarreistro(db, tabla, cadena)
                 if tmp is None:
                     raiz.lista.agregar(cadena, valor)
-                    print("base: ",db,"Tabla:" , raiz.valor)
-                    raiz.lista.preorden()
                 else:
-                    print("ya existe el valor en la tabla")
                     return 4
         else:
             return True
@@ -361,54 +352,48 @@ class ArbolAVL:
             self.generarlista(tmp.der, lista)
             return lista
 
-    def generarregistros(self, tmp, lista, max, min):
-        max = str(max)
-        min = str(min)
-        l = str(0)
-        if max == l and min == l:
-            if tmp:
-                cadena = ""
-                for i in tmp.campos:
-                    cadena = cadena + str(i)
-                lista.append(cadena)
-                self.generarregistros(tmp.izq, lista,0,0)
-                self.generarregistros(tmp.der, lista,0,0)
-                return lista
-        else:
-            if tmp:
-                if int(tmp.valor) > int(min) and int(tmp.valor) < int(max):
+    def generarregistros(self, tmp, lista, max, min, col):
+        if tmp != None:
+            max = str(max)
+            min = str(min)
+            l = str(0)
+            if max == l and min == l:
+                if tmp:
                     cadena = ""
                     for i in tmp.campos:
                         cadena = cadena + str(i)
-                    lista.append(cadena)
-                    self.generarregistros(tmp.izq, lista, max, min)
-                    self.generarregistros(tmp.der, lista, max, min)
+                    lista.append(tmp.campos)
+                    self.generarregistros(tmp.izq, lista,0,0,0)
+                    self.generarregistros(tmp.der, lista,0,0,0)
                     return lista
-                else:
-                    self.generarregistros(tmp.izq, lista, max, min)
-                    self.generarregistros(tmp.der, lista, max, min)
+            else:
+                if tmp:
+                    if col <= len(tmp.campos):
+                        if str(tmp.campos[col]) >= str(min) and str(tmp.campos[col]) <= str(max):
+                            lista.append(tmp.campos)
+                            self.generarregistros(tmp.izq, lista, max, min,col)
+                            self.generarregistros(tmp.der, lista, max, min,col)
+                            return lista
+                        else:
+                            self.generarregistros(tmp.izq, lista, max, min,col)
+                            self.generarregistros(tmp.der, lista, max, min,col)
 
     def agregarcolumna(self, tmp, valor):
         valor = str(valor)
         if tmp:
-            tmp.campos[1].append(valor)
-            self.generarregistros(tmp.izq, valor)
-            self.generarregistros(tmp.der, valor)
+            tmp.campos.append(valor)
+            self.agregarcolumna(tmp.izq, valor)
+            self.agregarcolumna(tmp.der, valor)
 
     def eliminarcolumna(self, raiz, Nocol):
-        if raiz.campos != None:
-            raiz.campos.__delitem__(Nocol)
-            self.eliminarcolumna(raiz.izquierdo, Nocol)
-            self.eliminarcolumna(raiz.derecho, Nocol)
+        if raiz != None:
+            raiz.campos.pop(Nocol)
+            self.eliminarcolumna(raiz.izq, Nocol)
+            self.eliminarcolumna(raiz.der, Nocol)
 
     def extraercolumna(self, raiz, lista, columnas):
         if raiz:
-            lit = []
-            for i in lista:
-                lit.append(raiz.campos[i])
-
-            if lit == columnas:
-                print(raiz.valor, lit)
+            if raiz.valor == columnas:
                 return raiz
 
             else:
@@ -419,6 +404,15 @@ class ArbolAVL:
         else:
            return None
 
+    def cambiardatos(self, tmp, columnas):
+        cadena = ""
+        if tmp != None:
+            for i in columnas:
+                cadena += str(tmp.campos[i])+","
+            cadena = cadena[0:len(cadena)-1]
+            tmp.valor = cadena
+            self.cambiardatos(tmp.izq, columnas)
+            self.cambiardatos(tmp.der, columnas)
 
     def graficar(self):
         contenido = "digraph grafica{\n    rankdir=TB;\n    node [shape = record, style=filled, fillcolor=lightcyan2];\n    "
@@ -432,8 +426,10 @@ class ArbolAVL:
             tab = open("tab.cmd","w")
             tab.write("dot -Tpng tab.dot -o tab.png")
             tab.close()
-            subprocess.call("dot -Tpng tab.dot -o tab.png")
-            os.system('tab.png')
+            try:
+                os.system('tab.cmd')
+            except:
+                print("")
 
     def _graficar(self, tmp):
         contenido = ""
@@ -457,7 +453,6 @@ class ArbolAVL:
 
     def _contadorRp(self, tmp, columnas):
         cadena = ""
-        print(tmp.campos)
         for i in columnas:
             cadena +=str(tmp.campos[i])+","
         cadena = cadena[0:len(cadena)-1]
@@ -495,16 +490,27 @@ class ArbolAVL:
 
             if cadena == valor:
                 contador += 1
-        if tmp.izq != None:
-            contador += self._buscarRep(valor, tmp.izq,columnas)
+        if tmp.izq != None and tmp.der != None:
+            contador += self._buscarRep(valor, tmp.izq, columnas)
+            contador += self._buscarRep(valor, tmp.der, columnas)
             cadena = ""
             for i in columnas:
                 cadena += str(tmp.campos[i]) + ","
             cadena = cadena[0:len(cadena) - 1]
             if cadena == valor:
                 contador += 1
-        if tmp.der != None:
-            contador += self._buscarRep(valor, tmp.der,columnas)
+
+        if tmp.izq != None and tmp.der == None:
+            contador += self._buscarRep(valor, tmp.izq, columnas)
+            cadena = ""
+            for i in columnas:
+                cadena += str(tmp.campos[i]) + ","
+            cadena = cadena[0:len(cadena) - 1]
+            if cadena == valor:
+                contador += 1
+
+        if tmp.izq == None and tmp.der != None:
+            contador += self._buscarRep(valor, tmp.der, columnas)
             cadena = ""
             for i in columnas:
                 cadena += str(tmp.campos[i]) + ","
@@ -513,7 +519,7 @@ class ArbolAVL:
                 contador += 1
         return contador
 
-    def createdatabase(self, valor):
+    def createDatabase(self, valor):
         valor = str(valor)
         nodo = self.buscar(valor)
         if nodo is None:
@@ -526,17 +532,14 @@ class ArbolAVL:
         else:
             return 2
 
-    def showdatabases(self):
+    def showDatabases(self):
         lista = []
         list = self.generarlista(self.raiz, lista)
-        print()
-        print("Lista de elementos en arbol")
-        print(list)
         return list
 
-    def alterdatabase(self, old, nuevo):
+    def alterDatabase(self, old, nuevo):
         old = str(old)
-        nuev0 = str(nuevo)
+        nuevo = str(nuevo)
         vieja = self.buscar(old)
         nueva = self.buscar(nuevo)
         if vieja != None:
@@ -550,7 +553,7 @@ class ArbolAVL:
         else:
             return 2
 
-    def dropdatabase(self, db):
+    def dropDatabase(self, db):
         db = str(db)
         base = self.buscar(db)
         if base is None:
@@ -563,7 +566,7 @@ class ArbolAVL:
             else:
                 return 1
 
-    def createtable(self, db, tabla, dic):
+    def createTable(self, db, tabla, dic):
         db = str(db)
         tabla = str(tabla)
         raiz = self.buscar(db)
@@ -583,30 +586,26 @@ class ArbolAVL:
                     try:
                         lista=[None, dic, raiz.lista.contador]
                         raiz.lista.agregar(tabla, lista)
-                        print("Base de datos: ", raiz.valor)
-                        raiz.lista.preorden()
                         return 1
                     except:
                         return 0
             else:
-                print("no existe la base de datos: ", db)
                 return 2
         else:
             return 3
 
-    def showtables(self, db):
+    def showTables(self, db):
         db = str(db)
         raiz = self.buscar(db)
         if raiz != None:
             lista = []
             if raiz.lista != None:
                 list = raiz.lista.generarlista(raiz.lista.raiz, lista)
-                print(list)
                 return list
         else:
             return None
 
-    def extracttable(self, db, tabla):
+    def extractTable(self, db, tabla):
         db = str(db)
         tabla = str(tabla)
         raiz = self.buscar(db)
@@ -614,14 +613,13 @@ class ArbolAVL:
             i = self.buscartabla(db, tabla)
             if i.lista != None:
                 lista = []
-                li = self.generarregistros(i.lista.raiz ,lista,0,0)
-                print(li)
+                li = self.generarregistros(i.lista.raiz ,lista,0,0,0)
                 return li
         else:
             return None
 
 
-    def extractrangetable(self, db, tabla, max, min):
+    def extractRangeTable(self, db, tabla, col,max, min):
         db = str(db)
         tabla = str(tabla)
         min = str(min)
@@ -631,13 +629,12 @@ class ArbolAVL:
             i = self.buscartabla(db, tabla)
             if i != None:
                 lista = []
-                li = self.generarregistros(i.lista.raiz, lista, max, min)
-                print(li)
-                return li
+                li = self.generarregistros(i.lista.raiz, lista, max, min,col)
+                return lista
         else:
             return None
 
-    def alteraddpk(self, db, tabla, columnas):
+    def alterAddPK(self, db, tabla, columnas):
         db = str(db)
         tabla = str(tabla)
         raiz = self.buscar(db)
@@ -648,14 +645,22 @@ class ArbolAVL:
                     return 4
                 else:
                     try:
-                        t2=i.lista
-                        if t2.contadorRep(columnas):
-                            i.lista = t2
-                            i.campos[0]=columnas
-                            print("funciono")
+                        if i.lista is None:
+                            i.campos[0] = columnas
                         else:
-                            print("llaves repetidas")
-                        print(i.campos)
+                            listanueva = []
+                            if i.campos[0] is None:
+                                listanueva.append(i.campos[2])
+                            else:
+                                listanueva = i.campos[0]
+
+                            t2 = i.lista
+                            if t2.contadorRep(columnas):
+                                i.campos[0] = columnas
+                                i.lista.cambiardatos(i.lista.raiz, columnas)
+                                i.lista.validaEliminacion(i.lista.raiz)
+                            else:
+                                return 1
                         return 0
                     except:
                         return 1
@@ -664,7 +669,7 @@ class ArbolAVL:
         else:
             return 2
 
-    def alterdroppk(self, db, tabla):
+    def alterDropPK(self, db, tabla):
         db = str(db)
         tabla = str(tabla)
         raiz = self.buscar(db)
@@ -684,7 +689,7 @@ class ArbolAVL:
         else:
             return 2
 
-    def altertable(self, db, tabla, tablanueva):
+    def alterTable(self, db, tabla, tablanueva):
         tabla = str(tabla)
         db = str(db)
         tablanueva=str(tablanueva)
@@ -708,7 +713,7 @@ class ArbolAVL:
             return 2
 
 
-    def alteraddcolumn(self, db, tabla, valor):
+    def alterAddColumn(self, db, tabla, valor):
         db = str(db)
         tabla = str(tabla)
         valor = str(valor)
@@ -717,6 +722,7 @@ class ArbolAVL:
             i = self.buscartabla(db, tabla)
             if i != None:
                 try:
+                    i.campos[1]=i.campos[1]+1
                     self.agregarcolumna(i.lista.raiz, valor)
                     return 0
                 except:
@@ -726,7 +732,7 @@ class ArbolAVL:
         else:
             return 2
 
-    def alterdropcolumn(self, db, tabla, Nocol):
+    def alterDropColumn(self, db, tabla, Nocol):
         db = str(db)
         tabla = str(tabla)
         raiz = self.buscar(db)
@@ -749,7 +755,7 @@ class ArbolAVL:
         else:
             return 2
 
-    def droptable(self, db, tabla):
+    def dropTable(self, db, tabla):
         db = str(db)
         tabla = str(tabla)
         raiz = self.buscar(db)
@@ -759,8 +765,6 @@ class ArbolAVL:
             else:
                 try:
                     raiz.lista.eliminar(tabla)
-                    print("Base de datos", raiz.valor)
-                    raiz.lista.preorden()
                     return 0
                 except:
                     return 1
@@ -798,7 +802,7 @@ class ArbolAVL:
         else:
             return 2
 
-    def extractrow(self, db, tabla, columnas):
+    def extractRow(self, db, tabla, columnas):
         db = str(db)
         tabla = str(tabla)
         raiz = self.buscar(db)
@@ -816,6 +820,40 @@ class ArbolAVL:
         else:
             return 2
 
+
+    def update(self, db, tabla, dict, columnas):
+        db = str(db)
+        tabla = str(tabla)
+        raiz = self.buscar(db)
+        if raiz != None:
+            i = self.buscartabla(db, tabla)
+            if i != None:
+                try:
+                    cadena = ""
+                    for j in columnas:
+                        cadena += str(j) + ","
+                    cadena = cadena[0:len(cadena) - 1]
+                    l = self.buscarreistro(db, tabla, cadena)
+                    bandera = False
+                    for key in dict:
+                        for clave in i.campos[0]:
+                            if int(key) == int(clave) or int(key)>int(i.campos[1]):
+                                bandera = True
+
+                    if bandera == False:
+                        for key in dict:
+                            l.campos[int(key)]=dict[key]
+                    else:
+                        return 1
+                    return 0
+                except:
+                    return 1
+            else:
+                return 3
+        else:
+            return 2
+
+
     def deletet(self, db, tabla, columnas):
         db = str(db)
         tabla = str(tabla)
@@ -825,7 +863,18 @@ class ArbolAVL:
             if i != None:
                 lista = i.campos[0]
                 try:
-                    self.extraercolumna(i.lista.raiz, lista, columnas)
+                    if lista is None:
+                        i.lista.eliminar(columnas[0])
+                    else:
+                        cadena = ""
+                        for i in columnas:
+                            cadena += str(i) +","
+                        cadena = cadena[0:len(cadena)-1]
+                        eliminado=self.buscarreistro(db, tabla, cadena)
+                        if eliminado != None:
+                            i.lista.eliminar(eliminado.valor)
+                        else:
+                            return 4
                     return 0
                 except:
                     return 1
@@ -851,6 +900,24 @@ class ArbolAVL:
         else:
             return 2
 
+    def loadCSV(self, dirfile, database, table):
+        l = []
+        raiz = self.buscar(database)
+        i = self.buscartabla(database, table)
+        if raiz is not None:
+            if i is not None:
+                with open(dirfile) as f:
+                    reader = csv.reader(f)
+                    for row in reader:
+                        #row = [int(i) for i in row]   Convierte la lista de string a int
+                        if int(i.campos[1]) == len(row):
+                            con = self.insert(database, table, row)
+                            if con != 4:
+                                l.append(row)
+
+        return l
+
+
 def commit(objeto, nombre):
     file = open(nombre + ".bin", "wb+")
     file.write(pickle.dumps(objeto))
@@ -861,63 +928,3 @@ def rollback(nombre):
     b = file.read()
     file.close()
     return pickle.loads(b)
-
-t = ArbolAVL()
-t.createdatabase("base1")
-t.createdatabase("base2")
-t.createdatabase("base3")
-t.createdatabase("base4")
-t.createdatabase("base5")
-t.createdatabase("base6")
-
-t.showdatabases()
-t.enorden()
-t.dropdatabase("base6")
-
-t.preorden()
-t.enorden()
-
-t.createtable("base1", 3, 4)
-t.createtable("base1", 10, 4)
-t.createtable("base1", 13, 4)
-t.createtable("base1", 5, 4)
-t.createtable("base5", 6, 4)
-t.createtable("base5", 15, 4)
-t.createtable("base5", 20, 4)
-t.createtable("base2", "tabla1", 4)
-t.droptable("base1",5)
-lita = [1,2,3,6]
-lita1 = [8,2,4,5]
-lita2 = [3,2,5,6]
-
-t.insert("base1",3,lita)
-t.insert("base1",3,lita1)
-t.insert("base1",3,lita2)
-print("extraer tabla")
-t.extracttable("base1",3)
-print("extraer rango de tablas")
-t.extractrangetable("base1",3,10,1)
-t.insert("base5",6,lita)
-t.preorden()
-t.showtables("base1")
-t.showtables("base5")
-t.alteraddpk("base1",3,[0,1])
-t.alterdroppk("base1",3)
-t.alteraddpk("base1",3,[0,2,3])
-t.extractrow("base1",3,[1,3,6])
-t.alterdatabase("base1", "base de datos 1")
-t.preorden()
-t.altertable("base de datos 1",3, "tres")
-t.showtables("base de datos 1")
-t.alteraddpk("base2","tabla1",[0,1])
-print(t.insert("base2","tabla1", lita))
-print(t.insert("base2","tabla1", lita))
-t.createdatabase("edd")
-t.preorden()
-t.createtable("edd","estudiantes",6)
-t.alteraddpk("edd","estudiantes",[0,1])
-t.showtables("edd")
-print(t.insert("edd", "estudiantes",["201700471","lopez","sohany","22","zona6","sistemas"]))
-print(t.insert("edd", "estudiantes",["201700471","salazar","sohany","22","zona6","sistemas"]))
-
-t.alteraddpk("edd","estudiantes",[2,3])

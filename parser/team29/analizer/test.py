@@ -1,40 +1,26 @@
 from sys import path
 from os.path import dirname as dir
+from shutil import rmtree
 
 path.append(dir(path[0]))
 
 from analizer import grammar
+from analizer.reports import BnfGrammar
+
+dropAll = 0
+if dropAll:
+    print("Eliminando registros")
+    rmtree("data")
+
 
 s = """ 
-    --SELECT padres.parent as p, padres.child from parents as padres;
-    --SELECT name, phone, location from company, users;
-    --SELECT 9+8!=8+9 or 8*8 != 64;
-    --SELECT 9+8!=8+9 and 8*8 = 64;
-    --SHOW DATABASES;
-    --USE DATABASE db1;
-    --INSERT INTO company VALUES (2, "Pillofon", 3200);
-    --USE DATABASE db5;
-    --INSERT INTO company VALUES (2, "Microsoft", 8080);
-    --CREATE DATABASE db1;
 
-    USE DATABASE db1;
+USE db1;
 
-    CREATE TABLE Usuario2(
-        dpi bigint not null primary key,
-        socio bigint not null,
-        saldo money DEFAULT 1000,
-        nombre varchar(30),
-        fecha date,
-        dias interval day,
-        unique (dpi,saldo,nombre),
-        primary key (dpi,nombre),
-        FOREIGN key (socio) REFERENCES prueba1 (dpi)
-    );
+select  caca.name, count(mierda.name) from mierda, (select name from mierda where id<5) as caca group by 2;
 
-
-
-    --INSERT INTO Usuario VALUES (3216883330506, 100000, "Francisco Suarez", "1999-08-16 10:28:30", 5);
 """
-
 result = grammar.parse(s)
 print(result)
+
+BnfGrammar.grammarReport()

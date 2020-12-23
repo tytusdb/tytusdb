@@ -165,8 +165,8 @@ tokens = [
     "S_IGUAL",
     # Tokens
     "ID",
-    "INTEGER",
     "DECIMAL",
+    "INTEGER",
     "COMMENT",
     "STRING",
     "CHARACTER",
@@ -215,6 +215,19 @@ def t_ID(t):
     t.type = reservadas.get(t.value.upper(), "ID")
     if t.type != "ID":
         t.value = t.value.upper()
+    else:
+        t.value = t.value.lower()
+    return t
+
+
+# Funcion para evaluar si el token reconocido es un DECIMAL
+def t_DECIMAL(t):
+    r"\d+\.\d+(e(-|\+)?\d+)?|\d+(e(-|\+)?\d+)"
+    try:
+        t.value = float(t.value)
+    except ValueError:
+        print("No se pudo convertir %d", t.value)
+        t.value = 0
     return t
 
 
@@ -225,17 +238,6 @@ def t_INTEGER(t):
         t.value = int(t.value)
     except ValueError:
         print("Integer value too large %d", t.value)
-        t.value = 0
-    return t
-
-
-# Funcion para evaluar si el token reconocido es un DECIMAL
-def t_DECIMAL(t):
-    r"\d+\.\d+"
-    try:
-        t.value = float(t.value)
-    except ValueError:
-        print("No se pudo convertir %d", t.value)
         t.value = 0
     return t
 
@@ -267,7 +269,19 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 
+listErrors = list()
+
 # Funcion de error para el lexer
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
+    """ print("Illegal character '%s'" % t.value[0]) """
+    listErrors.insert(
+        len(listErrors), ["Illegal character '%s'" % t.value[0], t.lineno]
+    )
     t.lexer.skip(1)
+
+
+def returnLexicalErrors():
+    global listErrors
+    temp = listErrors
+    listErrors = list()
+    return temp

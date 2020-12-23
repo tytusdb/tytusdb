@@ -10,6 +10,15 @@ class ShowDatabases(query) :
     def __init__(self, variable) :
         self.variable = variable
 
+class UseDatabases(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, bd_id) :
+        self.bd_id = bd_id
+
 class Select(query) :
     '''
         Esta clase representa una accion que elimina la variable
@@ -40,6 +49,37 @@ class CreateDatabases(query) :
     def __init__(self, variable) :
         self.variable = variable
 
+class Create_IF_Databases(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, iff,variable) :
+        self.iff = iff
+        self.variable = variable
+
+class Create_Replace_Databases(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, replacee, variable) :
+        self.replacee = replacee
+        self.variable = variable
+
+class Create_Replace_IF_Databases(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, replacee, iff,variable) :
+        self.replacee = replacee
+        self.iff = iff
+        self.variable = variable
+
 class CreateDatabaseswithParameters(query) :
     '''
         Esta clase representa una accion que elimina la variable
@@ -48,6 +88,41 @@ class CreateDatabaseswithParameters(query) :
 
     def __init__(self, variable,parametros) :
         self.variable = variable
+        self.parametros = parametros
+
+class Create_Databases_IFwithParameters(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, iff,variable,parametros) :
+        self.iff = iff
+        self.variable = variable
+        self.parametros = parametros
+
+class Create_Replace_DatabaseswithParameters(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, replacee,variable,parametros) :
+        self.replacee = replacee
+        self.variable = variable
+        self.parametros = parametros
+
+class Create_Replace_Databases_IFwithParameters(query) :
+    '''
+        Esta clase representa una accion que elimina la variable
+        Recibe como parámetro la variable como tal
+    '''
+
+    def __init__(self, replacee, iff,variable,parametros) :
+        self.replacee = replacee
+        self.iff = iff
+        self.variable = variable
+        self.parametros = parametros
     
 class AlterDB(query) :
     '''
@@ -86,7 +161,8 @@ class DropDBIF(query) :
         Recibe como parámetro la variable como tal
     '''
 
-    def __init__(self, id) :
+    def __init__(self, iff,id) :        
+        self.iff = iff
         self.id = id
 
 
@@ -104,8 +180,9 @@ class InsertinDataBases(query):
         Esta clase representa la accion de insert de uno o varios
         registros en un tabla
     '''
-    def __init__(self,idTable,listRegistros=[]):
+    def __init__(self,idTable,listidCol=[],listRegistros=[]):
         self.idTable = idTable
+        self.listidCol=listidCol
         self.listRegistros = listRegistros
 
 
@@ -174,6 +251,18 @@ class TipoRestriccion(query):
     def __init__(self,objrestriccion,typeR):
         self.objrestriccion = objrestriccion
         self.typeR = typeR
+
+class InheritsBD(query):
+    '''
+        Esta clase represetn la accion de crear una tabla que herede
+        las columnas y/o restricciones de otra tabla
+    '''
+    def __init__(self,idTable,idTableHereda,listColumn=[]):
+        self.idTable=idTable
+        self.idtableHereda=idTableHereda
+        self.listColumn=listColumn
+
+
 class DropTable(query):
     '''
         Esta clase representa la acción de eliminar una tabla
@@ -205,11 +294,13 @@ class contAdd(query):
         Esta clase representa la posible variante de ADD que venta luego del Alter Table
         Recibe como parametro el contenido de expresiones extras de la variante de ADD
     '''
-    def __init__(self, tipo, tipo2, id1, id2, operacion):
+    def __init__(self, tipo, tipo2, id1, id2, id3, id4, operacion):
         self.tipo = tipo
         self.tipo2 = tipo2
         self.id1 = id1
         self.id2 = id2
+        self.id3 = id3
+        self.id4 = id4
         self.operacion = operacion
 
 
@@ -231,3 +322,48 @@ class contAlter(query):
         self.id = id
         self.tipo = tipo
         self.tipoAsignar = tipoAsignar
+
+class QueryWhere(query):
+    '''
+        Esta clase represente la variante de un alter anidado
+        Recibe el ID, tipo de variante y tipo a asignar
+    '''
+    def __init__(self, condiciones):
+        self.condiciones = condiciones
+
+class Select3(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+
+    def __init__(self, operacion1,operacion2) :
+        self.operacion1 = operacion1
+        self.operacion2 = operacion2
+
+class Select4(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, operacion1,operacion2,operacion3) :
+        self.operacion1 = operacion1
+        self.operacion2 = operacion2
+        self.operacion3 = operacion3
+
+class Select5(query) :
+    '''
+        esta clase tomara el tipo 3 del selectt que defini
+        se usara con el asterisco cuando llama todo
+        tomara operacion1 como las tablas a buscar
+        y opcion2 como el where con sus condiciones
+    '''
+    def __init__(self, operacion1,operacion2,operacion3,operacion4) :
+        self.operacion1 = operacion1
+        self.operacion2 = operacion2
+        self.operacion3 = operacion3
+        self.operacion4 = operacion4

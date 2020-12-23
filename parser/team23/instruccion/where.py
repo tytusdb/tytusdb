@@ -1,14 +1,20 @@
 from abstract.instruccion import *
 from tools.tabla_tipos import *
 from tools.console_text import *
+from abstract.retorno import *
 
 class where(instruccion):
     def __init__(self,expresiones, line, column, num_nodo):
         super().__init__(line,column)
         self.expresiones=expresiones
         self.nodo = nodo_AST('WHERE',num_nodo)
-        self.nodo.hijos.append(nodo_AST('WHERE',num_nodo+1))
+        print(expresiones)
+        if expresiones != None:
+            for element in expresiones:
+                if element != None:
+                    self.nodo.hijos.append(element.nodo)
          
+        self.grammar_=''
         
     def ejecutar(self):
-        pass 
+        return retorno(self.expresiones,'WHERE') 

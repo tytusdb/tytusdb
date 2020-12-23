@@ -1,16 +1,23 @@
 import arbol.AST as a
 import gramatica2 as g
+import os
 from tkinter import *
 from reportes import *
 from subprocess import check_call
 from Entorno.Entorno import Entorno
 from storageManager import jsonMode
+from Expresion.variablesestaticas import variables
+from graphviz import Digraph
 
+#variables.ventana = Tk()
+variables.ventana.geometry("1000x600")
+variables.ventana.resizable(False, False)
+variables.ventana.config(background="gray25")
 
-ventana= Tk()
-ventana.geometry("1000x900")
-ventana.resizable(False,False)
-ventana.config(background = "gray25")
+global tablaSym
+tablaSym = Digraph("TablaSym",node_attr={'shape':'record'})
+
+contenidoSym:str = ""
 
 
 def reporte_lex_sin():
@@ -22,87 +29,98 @@ def reporte_lex_sin():
         contenido += "<TD bgcolor=\"#1ED0EC\">Columna</TD>\n<TD bgcolor=\"#1ED0EC\">Descripcion</TD>\n</TR>\n"
 
         for error in reporteerrores:
-            contenido += '<TR> <TD>' + error.tipo + '</TD><TD>' + error.linea +'</TD> <TD>' + error.columna +'</TD><TD>' + error.descripcion +'</TD></TR>'
-        
+            contenido += '<TR> <TD>' + error.tipo + '</TD><TD>' + error.linea + '</TD> <TD>' + error.columna + '</TD><TD>' + error.descripcion + '</TD></TR>'
+
         contenido += '</TABLE>\n>, ];}'
-    
-        with open('reporteerrores.dot','w',encoding='utf8') as reporte:
-             reporte.write(contenido)
-      
+
+        with open('reporteerrores.dot', 'w', encoding='utf8') as reporte:
+            reporte.write(contenido)
+
 
 def mostrarimagenre():
-    check_call(['dot','-Tpng','reporteerrores.dot','-o','imagenerrores.png'])
+    check_call(['dot', '-Tpng', 'reporteerrores.dot', '-o', 'imagenerrores.png'])
+
+
 
 def send_data():
     print("Analizando Entrada:")
     print("==============================================")
     # reporteerrores = []
     contenido = Tentrada.get(1.0, 'end')
-    Tsalida.delete("1.0", "end")
-    Tsalida.configure(state='normal')
+    variables.consola.delete("1.0", "end")
+    variables.consola.configure(state='normal')
 
     # print(contenido)
-    jsonMode.dropAll()
-    jsonMode.createDatabase("DB1")
     Principal = Entorno()
+    jsonMode.dropAll()
 
-    Principal.database = "DB1"
+    # Principal.database = "DB1"
     instrucciones = g.parse(contenido)
-    Tsalida.insert(INSERT, "Salida de consultas\n")
+    variables.consola.insert(INSERT, "Salida de consultas\n")
     for instr in instrucciones:
         if instr != None:
-            
-            res=instr.ejecutar(Principal)
-            if res!= None:
-                res += '\n'
-                Tsalida.insert(INSERT, res)
+
+            res = instr.ejecutar(Principal)
+            if res != None:
+                res = str(res) + '\n'
+                variables.consola.insert(INSERT, res)
                 
-    Tsalida.configure(state='disabled')
-    Principal.mostrarSimbolos()
+    variables.consola.configure(state='disabled')
+    #variables.consola.configure()
+
+    setContenido(Principal.mostrarSimbolos())
 
     reporte_lex_sin()
+
+def setContenido(cont:str):
+    global contenidoSym
+    contenidoSym += cont
+    
 
 def arbol_ast():
     contenido = Tentrada.get(1.0, 'end')
     a.generarArbol(contenido)
 
+def verSimbolos():
+    tablaSym.node("TS",contenidoSym)
+    tablaSym.render('ts', view=True)  # doctest: +SKIP
+    'ts.pdf'
+
+def gramatica():
+    contenido = Tentrada.get(1.0,'end')
+    g.generaReporteBNF(contenido)
 
 
 entrada = StringVar()
-Tentrada = Text(ventana)
-Tentrada.config(width=120, height=35)
+Tentrada = Text(variables.ventana)
+Tentrada.config(width=120, height=20)
 Tentrada.config(background="gray18")
 Tentrada.config(foreground="white")
 Tentrada.config(insertbackground="white")
-Tentrada.place(x = 10, y = 10)
+Tentrada.place(x=10, y=10)
 
-Tsalida = Text(ventana)
-Tsalida.config(width=120, height=19)
-Tsalida.config(background="gray10")
-Tsalida.config(foreground="white")
-Tsalida.config(insertbackground="white")
-Tsalida.place(x = 10, y = 580)
-Tsalida.configure(state='disabled')
-menu_bar = Menu(ventana)
+variables.consola = Text(variables.ventana)
+variables.consola.config(width=120, height=15)
+variables.consola.config(background="gray10")
+variables.consola.config(foreground="white")
+variables.consola.config(insertbackground="white")
+variables.consola.place(x=10, y=350)
+variables.consola.configure(state='disabled')
+menu_bar = Menu(variables.ventana)
 
-ventana.config(menu=menu_bar)
+variables.ventana.config(menu=menu_bar)
 # Menu Ejecutar
 ej_menu = Menu(menu_bar)
-menu_bar.add_cascade(label="Ejecutar",menu=ej_menu)
+menu_bar.add_cascade(label="Ejecutar", menu=ej_menu)
 ej_menu.add_command(label="Analizar Entrada", command=send_data)
 
 # Menu Reportes
 
 reps_menu = Menu(menu_bar)
-menu_bar.add_cascade(label="Reportes",menu=reps_menu)
-reps_menu.add_command(label="Errores Lexicos y SIntacticos", command=mostrarimagenre)
-reps_menu.add_command(label="Tabla de Simbolos", command=send_data)
+menu_bar.add_cascade(label="Reportes", menu=reps_menu)
+reps_menu.add_command(label="Errores Lexicos y Sintacticos", command=mostrarimagenre)
+reps_menu.add_command(label="Tabla de Simbolos", command=verSimbolos)
 reps_menu.add_command(label="AST", command=arbol_ast)
-reps_menu.add_command(label="Gramatica", command=send_data)
+reps_menu.add_command(label="Gramatica", command=gramatica)
 
-
-
-ventana.mainloop()
-
-
-
+variables.ventana.mainloop()

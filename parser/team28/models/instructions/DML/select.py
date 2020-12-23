@@ -1,4 +1,21 @@
-from models.instructions.shared import Instruction
+from numpy.core.records import array
+from numpy.lib.arraysetops import isin
+from views.data_window import DataWindow
+from models.instructions.shared import *
+from models.instructions.Expression.expression import *
+from models.instructions.DML.special_functions import *
+import pandas as pd 
+class Union(Instruction):
+    def __init__(self,  array_instr, type_union,line, column) :
+        self.array_instr = array_instr
+        self.type_union = type_union
+        self.line = line
+        self.column = column
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 class Select(Instruction):
     '''
         SELECT recibe un array con todas los parametros
@@ -7,13 +24,34 @@ class Select(Instruction):
         self.instrs = instrs
         self.order_option = order_option
         self.limit_option = limit_option
-
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
-        pass
-        
+        instr = None
+        order = None
+        limit = None
+        if self.instrs != None and self.order_option != None and self.limit_option != None:
+            instr = self.instrs.process(instrucction)
+            order = self.order_option.process(instrucction, instr)
+            limit = self.limit_option.process(instrucction, order)
+            return DataWindow().consoleText(format_df(limit))
+        elif self.instrs != None and self.order_option != None and self.limit_option == None:
+            instr = self.instrs.process(instrucction)
+            order = self.order_option.process(instrucction,instr)
+            return DataWindow().consoleText(format_df(order))
+        elif self.instrs != None  and self.order_option == None and self.limit_option != None:
+            instr = self.instrs.process(instrucction)
+            limit = self.limit_option.process(instrucction, instr)
+            return DataWindow().consoleText(format_df(limit))
+        elif self.instrs != None and self.order_option == None and self.limit_option == None:
+            instr = self.instrs.process(instrucction)
+        if isinstance(instr, DataFrame):
+            return DataWindow().consoleText(format_df(instr))
+        elif isinstance(instr, list):
+            return DataWindow().consoleText(format_table_list(instr))
+        return None 
+    
 class TypeQuerySelect(Instruction):
     '''
     TypeQuerySelect recibe si va a ser 
@@ -22,46 +60,73 @@ class TypeQuerySelect(Instruction):
     EXCEPT
     Y si va a ir con la opcion ALL 
     '''
-    def __init__(self, typeQuery, optionAll):
+    def __init__(self, typeQuery, optionAll,line, column):
         self.typeQuery = typeQuery
         self.optionAll = optionAll
-    
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
         pass
+class Table:
+    def __init__(self, headers, values):
+        self.headers = headers
+        self.values = values
+    def __repr__(self):
+        return str(vars(self))
 
 class SelectQ(Instruction):
     '''va a recibir la lista de parametros a seleccion y de que traba se esta seleccionando'''
-    def __init__(self, type_select, select_list, from_clause, where_or_grouphaving):
+    def __init__(self, type_select, select_list, from_clause, where_or_grouphaving,line, column):
         self.type_select = type_select
         self.select_list = select_list
         self.from_clause = from_clause
         self.where_or_grouphaving = where_or_grouphaving
+        self.line = line
+        self.column = column
 
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
-        pass
-    
-
-class SelectList(Instruction):
-    ''' 
-    Guarda la Lista de objectos a seleccionar donde 
-    tiene las siguietnes opciones
-    -> *
-    -> Id, Id.....
-    '''
-    def __init__(self, arrparams):
-        self.arrparams = arrparams
-
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
+        list_select = None
+        print(type(self.where_or_grouphaving))
+        if self.type_select == None and self.from_clause == None and self.where_or_grouphaving == None and self.select_list != None:
+            list_select = list_expressions(self.select_list, instrucction)
+            return list_select
+        elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
+            pass
+        elif self.type_select != None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
+            pass
+        elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving != None and self.select_list != None:
+            list_from = self.from_clause.process(instrucction)
+            if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1 and len(list_from) == 1:
+                list_select = loop_list(self.select_list, instrucction)
+                tabla_all = select_all(list_from, self.line, self.column)
+                where_table = self.where_or_grouphaving.process(instrucction, tabla_all)
+                return where_table
+            else:
+                table_i = select_all(list_from, self.line, self.column)
+                list_select = loop_list_with_columns(self.select_list, list_from[0], instrucction)
+                return list_select 
+        elif self.type_select == None and self.from_clause != None and self.where_or_grouphaving == None and self.select_list != None:
+            list_from = self.from_clause.process(instrucction)
+            
+            if isinstance(self.select_list[0], PrimitiveData) and len(self.select_list) == 1 and len(list_from) == 1:
+                list_select = loop_list(self.select_list, instrucction)
+                tabla_all = select_all(list_from, self.line, self.column)
+                return tabla_all
+            else:
+            # elif  len(list_from) == 1:
+                table_i = select_all(list_from, self.line, self.column)
+                list_select = loop_list_with_columns(self.select_list, list_from[0], instrucction)
+            # table_f = select_with_columns(list_select, table_i)
+                return list_select
+        
+        return None
+            
 
 class OrderClause(Instruction):
     '''
@@ -69,15 +134,30 @@ class OrderClause(Instruction):
     son la lista de parametros a ordenar y que tipo de
     order si ASC o DESC
     '''
-    def __init__(self, arrvaluesorder, type_order):
+    def __init__(self, arrvaluesorder, type_order,line, column):
         self.arrvaluesorder = arrvaluesorder
         self.type_order = type_order
+        self.line = line
+        self.column = column
 
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, instrucction):
-        pass
+    def process(self, instrucction, select_clasue: DataFrame):
+        arrvaluesorder = None
+        arrvaluesorder = loop_list_of_order_by(self.arrvaluesorder, instrucction)
+        order_aux = []
+        for x in arrvaluesorder:
+            if self.type_order != None:
+                if self.type_order.lower() == 'desc':
+                    order_aux.append(False)
+                elif self.type_order.lower() == 'asc':
+                    order_aux.append(True)
+            else:
+                order_aux.append(True)
+        select_clasue.sort_values(by=arrvaluesorder,inplace=True,ascending=order_aux)
+        return select_clasue
+        
 
 class LimitClause(Instruction):
     '''
@@ -85,26 +165,39 @@ class LimitClause(Instruction):
     son un rango establecido o bien solo un parametro y 
     la opcion OFFSET 
     '''
-    def __init__(self, limitarr, offset):
+    def __init__(self, limitarr, offset,line, column):
         self.limitarr = limitarr
         self.offset = offset
-
+        self.line = line
+        self.column = column
+        
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, instrucction):
-        pass
+    def process(self, instrucction, table: DataFrame):
+        if self.limitarr != None and self.offset != None:
+            limit = self.limitarr 
+            offset = self.offset
+            table = table.iloc[offset:offset+limit-1]
+        elif self.limitarr != None and self.offset == None:
+            if not isinstance(self.limitarr, int):
+                table.head()
+            else:
+                table = table.head(int(self.limitarr))
+        return table
 
 class JoinClause(Instruction):
     '''
     JoinClause recibe los parametros de 
     Tipo de Join, Tabla y Expression
     '''
-    def __init__(self, type_join, table, arr_expression):
+    def __init__(self, type_join, table, arr_expression,line, column):
         self.type_join = type_join
         self.table = table
         self.arr_expression = arr_expression
-
+        self.line = line
+        self.column = column
+        
     def __repr__(self):
         return str(vars(self))
     
@@ -116,9 +209,11 @@ class ExistsClause(Instruction):
     ExistsClause recibe de parametro
     un subquery 
     '''
-    def __init__(self, subquery):
+    def __init__(self, subquery,line, column):
         self.subquery = subquery
-    
+        self.line = line
+        self.column = column 
+        
     def __repr__(self):
         return str(vars(self))
     
@@ -130,62 +225,26 @@ class NotOption(Instruction):
     NotClause recibe una lista 
     de instrucciones a ser negadas
     '''
-    def __init__(self, arr_not):
+    def __init__(self, arr_not,line, column):
         self.arr_not = arr_not
-
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
     
     def process(self, instrucction):
         pass
-
-class InClause(Instruction):
-    '''
-    InClause
-    '''
-    def __init__(self, arr_lista):
-        self.arr_lista = arr_lista
-
-    def __repr__(self):
-        return str(vars(self))
     
-    def process(self, instrucction):
-        pass
-
-class LikeClause(Instruction):
-    '''
-        LikeClause
-    '''
-    def __init__(self, arr_list):
-        self.arr_list = arr_list
-
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
-class isClause(Instruction):
-    '''
-        IsClause
-    '''
-    def __init__(self, arr_list):
-        self.arr_list = arr_list
-
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
 class AgreggateFunctions(Instruction):
     '''
         AgreggateFunctions
     '''
-    def __init__(self, type_agg, cont_agg, opt_alias):
+    def __init__(self, type_agg, cont_agg, opt_alias,line, column):
         self.type_agg = type_agg
         self.cont_agg = cont_agg
         self.opt_alias = opt_alias
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self))
     
@@ -196,10 +255,12 @@ class Case(Instruction):
     '''
         CASE recibe un array con todas las opciones y un else
     '''
-    def __init__(self, arr_op, c_else): 
+    def __init__(self, arr_op, c_else,line, column): 
         self.arr_op = arr_op
         self.c_else = c_else
-
+        self.line = line
+        self.column = column
+        
     def __repr__(self):
         return str(vars(self))
     
@@ -210,10 +271,11 @@ class CaseOption(Instruction):
     '''
         CASE OPTION
     '''
-    def __init__(self, when_exp, then_exp):
+    def __init__(self, when_exp, then_exp,line, column):
         self.when_exp = when_exp
         self.then_exp = then_exp
-
+        self.line = line
+        self.column = column
     def __repr__(self):
         return str(vars(self)) 
 

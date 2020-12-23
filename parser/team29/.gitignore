@@ -3,3 +3,7 @@ parsetab.py
 **/__pycache__/**
 storage
 data
+**/*.csv
+**/*.sql
+Databases.json
+Types.json

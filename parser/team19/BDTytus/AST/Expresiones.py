@@ -1,4 +1,5 @@
 import AST.Nodo as Node
+import math as m
 from TablaSimbolos.Tipos import *
 from TablaSimbolos.TS import *
 from Errores.Nodo_Error import *
@@ -7,20 +8,60 @@ from Errores.Nodo_Error import *
 class Expression(Node.Nodo):
     def __init__(self, *args):
         if len(args) == 6:
-            self.exp1 = args[0]
-            self.exp2 = args[1]
-            self.op = args[2]
-            self.line = args[3]
-            self.column = args[4]
-            self.op_type = args[5]
-            self.val = None
-            self.type = None
-
+            if args[5] == 'math2':
+                self.val1 = args[1]
+                self.val2 = args[2]
+                self.line = args[3]
+                self.column = args[4]
+                self.function = args[0]
+                self.op_type = args[5]
+            else:
+                self.exp1 = args[0]
+                self.exp2 = args[1]
+                self.op = args[2]
+                self.line = args[3]
+                self.column = args[4]
+                self.op_type = args[5]
+                self.val = None
+                self.type = None
+        elif len(args) == 5:
+            if args[4] == 'unario':
+                self.op_type = args[4]
+                self.type = args[0]
+                self.val = args[1]
+                self.line = args[2]
+                self.column = args[3]
+            elif args[4] == 'as':
+                self.type = None
+                self.val = args[0]
+                self.asid = args[1]
+                self.line = args[2]
+                self.column = args[3]
+                self.op_type = 'as'
+            elif args[4] == 'aggregate':
+                self.val = args[0]
+                self.asid = args[1]
+                self.line = args[2]
+                self.column = args[3]
+                self.op_type = 'agg'
+            elif args[4] == 'indice':
+                self.val = args[0]
+                self.asid = args[1]
+                self.line = args[2]
+                self.column = args[3]
+                self.op_type = 'in'
+            elif args[4] == 'math':
+                self.val = args[1]
+                self.function = args[0]
+                self.line = args[2]
+                self.column = args[3]
+                self.op_type = 'math'
+                self.type = None
         elif len(args) == 4:
             self.line = args[1]
             self.column = args[2]
             self.val = args[0]
-            self.op_type = None
+            self.op_type = 'valor'
             if args[3] == "decimal":
                 self.type = 'FLOAT'
             elif args[3] == "entero":
@@ -37,7 +78,7 @@ class Expression(Node.Nodo):
                 self.val = False
 
         elif len(args) == 3:
-            self.val = None
+            self.val = args[0]
             self.type = None
             self.op_type = 'iden'
             self.id = args[0]
@@ -45,13 +86,56 @@ class Expression(Node.Nodo):
             self.column = args[2]
 
     def ejecutar(self, TS, Errores):
-        if self.op_type is None:
+        if self.op_type == 'valor':
+            return self
+        elif self.op_type == 'unario':
+            self.val.ejecutar(TS, Errores)
+            if self.type == '-':
+                self.val = -self.val.val
+            return self
+        elif self.op_type == 'as' or self.op_type == 'in' or self.op_type == 'agg':
+            self.val.ejecutar(TS, Errores)
+            self.asid.ejecutar(TS, Errores)
+            self.type = self.val.type
+            self.val = self.val.val
+            self.asid = self.asid.val
+            return self
+        elif self.op_type == 'math':
+            if self.function == 'ceil' or self.function == 'ceiling':
+                self.val.ejecutar(TS, Errores)
+                if isinstance(self.val.val, int):
+                    self.val = m.__ceil__(self.val.val)
+                else:
+                    self.val = m.ceil(self.val.val)
+            elif self.function == 'abs':
+                self.val = m.fabs(self.val.val)
+            elif self.function == 'cbrt':
+                self.val = m.ceil(self.val.val**(1/3))
+            elif self.function == 'degrees':
+                self.val = m.degrees(self.val.val)
+            elif self.function == 'div':
+                self.val = m.exp(self.val.val)
+            elif self.function == 'exp':
+                self.val = m.exp(self.val.val)
+            elif self.function == 'factorial':
+                self.val = m.factorial(self.val.val)
+            elif self.function == 'floor':
+                self.val = m.floor(self.val.val)
+            elif self.function == 'gcd':
+                self.val = m.gcd(self.val.val)
+            elif self.function == 'ln':
+                self.val = m.log(self.val.val)
+            elif self.function == 'log':
+                self.val = m.log10(self.val.val)
+            elif self.function == 'pi':
+                self.val = m.pi
             return self
         elif self.op_type == 'iden':
-            if TS.exists(self.id):
-                return self
-            Errores.insertar(Nodo_Error("Semantico", "No existe el campo \'" + self.id + "\'", self.line, self.column))
-            return TIPO_DATOS.ERROR
+            return self
+            #if TS.exists(self.id):
+            #    return self
+            #Errores.insertar(Nodo_Error("Semantico", "No existe el campo \'" + self.id + "\'", self.line, self.column))
+            #return TIPO_DATOS.ERROR
         elif self.op_type == 'Aritmetica':
             val1 = self.exp1.ejecutar(TS, Errores)
             val2 = self.exp2.ejecutar(TS, Errores)

@@ -1,6 +1,24 @@
-FactOrial (
-    TrUC(
-        +5 + 45/5 + 0.0-23432.432324*0 -56+343.43*0 -0.864385
-        )
-    *0 +5
-    )
+create or replace database comp2 mode 6;
+create or replace database compiladores2 mode 6;
+use database comp2;
+false is false;
+show databases like 'compiladores2';
+use database compiladores2;
+width_bucket(3, 1, 12, 3);
+width_bucket(5, 1, 12, 3);
+width_bucket(9, 1, 12, 3);
+
+CREATE DATABASE /*IF NOT EXISTS*/ test
+    OWNER = 'root'
+    MODE = 1;
+
+USE test;
+
+CREATE TABLE tbusuario (
+    idusuario integer NOT NULL primary key,
+	nombre varchar(50),
+	apellido varchar(50),
+	usuario varchar(15)  /*UNIQUE*/ NOT NULL,
+	password varchar(15) NOT NULL,
+	fechacreacion date 
+);

@@ -43,3 +43,26 @@ class SymbolsUnaryOrOthers(Enum):
     BITWISE_NOT = 3
     SQUARE_ROOT = 4
     CUBE_ROOT = 5
+
+
+class ColumnsTypes(Enum):
+    BIGINT = 1
+    BOOLEAN = 2
+    CHAR = 3
+    CHARACTER = 4
+    CHARACTER_VARYING = 5
+    DATE = 6
+    DECIMAL = 7
+    DOUBLE_PRECISION = 8
+    INTEGER = 9
+    INTERVAL = 10
+    MONEY = 11
+    NUMERIC = 12
+    REAL = 13
+    SMALLINT = 14
+    TEXT = 15
+    TIMESTAMP = 16
+    TIME = 17    
+    VARCHAR = 18
+
+

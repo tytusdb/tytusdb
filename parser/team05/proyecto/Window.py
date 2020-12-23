@@ -19,7 +19,10 @@ import Lexico as g
 import TablaSimbolos as st
 import os
 import re
+from Instrucciones import *
+from Expresiones import *
 import webbrowser
+from Graficar import Graficar
 
 
 # MAIN CLASS
@@ -44,6 +47,7 @@ class Main(tk.Tk):
         self.KEYWORDS_REGEX = re.compile("(?=\(*)(?<![a-z])(None|True|False)(?=\)*\,*)")
         self.SELF_REGEX = re.compile("(?=\(*)(?<![a-z])(self)(?=\)*\,*)")
         self.FUNCTIONS_REGEX = re.compile("(?=\(*)(?<![a-z])(print|list|dict|set|int|str)(?=\()")
+        self.raiz_ast = None
 
         self.REGEX_TO_TAG = {
             self.STRING_REGEX_SINGLE: "string",
@@ -82,13 +86,16 @@ class Main(tk.Tk):
         # Submenu [Analysis]
         self.sm_analyze = Menu(self.menu_bar, tearoff=False)
         self.sm_analyze.add_command(label="Ejecutar", command=lambda: self.tytus_ejecutar())
+        self.sm_analyze.add_command(label="Cerrar pestaña", command=lambda: self.close_output_tab())
+        self.sm_analyze.add_command(label="Cerrar pestañas", command=lambda: self.delete_outputs())
         self.menu_bar.add_cascade(label="Queries", menu=self.sm_analyze)
         # Submenu [Reports]
         self.sm_report = Menu(self.menu_bar, tearoff=False)
-        self.sm_report.add_command(label="Reporte Léxico")
-        self.sm_report.add_command(label="Reporte Sintáctico")
-        self.sm_report.add_command(label="Reporte Semántico")
-        self.sm_report.add_command(label="Reporte Tabla de Simbolos")
+        self.sm_report.add_command(label="Reporte Léxico", command=lambda: self.report_lexic())
+        self.sm_report.add_command(label="Reporte Sintáctico", command=lambda: self.report_syntactic())
+        self.sm_report.add_command(label="Reporte Semántico", command=lambda: self.report_semantic())
+        self.sm_report.add_command(label="Reporte Tabla de Simbolos", command=lambda: self.report_st())
+        self.sm_report.add_command(label="Reporte AST", command=lambda: self.ast_report())
         self.menu_bar.add_cascade(label="Reportes", menu=self.sm_report)
         # Submenu [Help]
         self.sm_help = Menu(self.menu_bar, tearoff=False)
@@ -102,8 +109,8 @@ class Main(tk.Tk):
         self.ta_input.pack(fill="both", expand=1)
         # Output Frame & Widget
         self.out_frame = Frame(self)
-        self.out_frame.pack()
-        self.ta_output = tkst.ScrolledText(self.out_frame, bg="black", fg="white", width=150, height=15)
+        self.out_frame.pack(fill="both", pady=5, expand=1)
+        self.ta_output = Notebook(self.out_frame, width=150, height=15)
         self.ta_output.pack(fill="both", expand=1)
         # Menu Configuration
         self.config(menu=self.menu_bar)
@@ -115,6 +122,43 @@ class Main(tk.Tk):
         canvas = self.array_canvas[index]
         canvas.redraw()
         del index, canvas
+
+    # New output tab
+    def new_output(self, output=""):
+        try:
+            # Creando nueva tab
+            tab1 = Frame(self.ta_output)
+            self.ta_output.add(tab1, text="SALIDA")
+            self.ta_output.pack(expand=1, fill="both")
+            # Creando campo de texto
+            text = ln.TextAreaWidget(tab1, bg="black", fg="white", width=150, height=15)
+            text.pack(side="right", fill="both", expand=True)
+            text.insert(END, output)
+            del text
+        except:
+            messagebox.showerror("A OCURRIDO UN ERROR",
+                                 "No se ha podido crear una nueva pestaña. Por favor, intente nuevamente.")
+
+    # Close output tab
+    def close_output_tab(self):
+        try:
+            # Getting selected tab & deleting it
+            index = self.ta_output.index(self.ta_output.select())
+            self.ta_output.forget(index)
+            del index
+        except:
+            pass
+
+    # Delete outputs
+    def delete_outputs(self):
+        try:
+            _list = self.ta_output.winfo_children()
+            for item in _list:
+                if item.winfo_children():
+                    self.ta_output.forget(item)
+            del _list
+        except:
+            pass
 
     # New tab with custom text widget
     def file_new_tab(self):
@@ -218,12 +262,15 @@ class Main(tk.Tk):
 
     # Exit tab
     def file_close_tab(self):
-        # Getting selected tab & deleting it
-        index = self.ta_input.index(self.ta_input.select())
-        self.ta_input.forget(index)
-        del self.array_name[index]
-        del self.array_tabs[index]
-        del index
+        try:
+            # Getting selected tab & deleting it
+            index = self.ta_input.index(self.ta_input.select())
+            self.ta_input.forget(index)
+            del self.array_name[index]
+            del self.array_tabs[index]
+            del index
+        except:
+            pass
 
     # Exiting IDE
     def exit_program(self):
@@ -332,6 +379,55 @@ class Main(tk.Tk):
                 input_widget.tag_remove(SEL, 1.0, "end-1c")
         del word, index, input_widget, input_text, idx, lastidx
 
+    # Lexic report
+    def report_lexic(self):
+        if os.path.exists("reports/reporte_lexico.html"):
+            os.remove("reports/reporte_lexico.html")
+
+        if os.path.exists("reports/error_lexical.txt"):
+            report = open("reports/reporte_lexico.html", "a")
+            file1 = open("reports/inicio_error_lexico.txt", "r")
+            file2 = open("reports/error_lexical.txt", "r")
+            file3 = open("reports/fin_error.txt", "r")
+            report.write(file1.read())
+            report.write(file2.read())
+            report.write(file3.read())
+            report.close()
+            webbrowser.open('file://' + os.path.realpath("reports/reporte_lexico.html"))
+        else:
+            messagebox.showerror("INFO", "No exite un archivo de reporte.")
+
+    # Syntactic report
+    def report_syntactic(self):
+        if os.path.exists("reports/reporte_sintactico.html"):
+            os.remove("reports/reporte_sintactico.html")
+
+        if os.path.exists("reports/error_syntactic.txt"):
+            report = open("reports/reporte_sintactico.html", "a")
+            file1 = open("reports/inicio_error_sintactico.txt", "r")
+            file2 = open("reports/error_syntactic.txt", "r")
+            file3 = open("reports/fin_error.txt", "r")
+            report.write(file1.read())
+            report.write(file2.read())
+            report.write(file3.read())
+            report.close()
+            webbrowser.open('file://' + os.path.realpath("reports/reporte_sintactico.html"))
+        else:
+            messagebox.showerror("INFO", "No exite un archivo de reporte.")
+
+    # Semantic report
+    def report_semantic(self):
+        pass
+
+    # ST report
+    def report_st(self):
+        pass
+
+    # AST report
+    def ast_report(self):
+        g = Graficar()
+        g.graficar_arbol(self.raiz_ast)
+
     # About it section
     def help_about_it(self):
         messagebox.showinfo("Tytus DB",
@@ -422,9 +518,6 @@ class Main(tk.Tk):
         if os.path.exists("reports/error_semantic.txt"):
             os.remove("reports/error_semantic.txt")
 
-        # Delete old output
-        self.ta_output.delete('1.0', END)
-
         if ta_input.compare("end-1c", "!=", "1.0"):
             # Gets new input
             tytus = ta_input.get(1.0, END)
@@ -433,17 +526,84 @@ class Main(tk.Tk):
             ins = g.parse(tytus)
             st_global = st.SymbolTable()
 
-            #            if not ins:
-            #               messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
-            #          else:
-            self.do_body(ins, st_global)
+            if not ins:
+                messagebox.showerror("ERROR", "Ha ocurrido un error. Verificar reportes.")
+            else:
+                self.do_body(ins.getInstruccion(), st_global)
+                self.raiz_ast = ins.getNodo()
         else:
             messagebox.showerror("INFO", "El campo de entrada esta vacío.")
 
     # EJECUCIÓN DE ANÁLISIS - PARSER --------------------------
-    def do_body(self, p_inst, p_st):
-        print(p_inst)
-        print("Analisis terminado")
+    def do_body(self, p_instruccion, p_st):
+        if not p_instruccion:
+            messagebox.showerror("Tytus DB",
+                                 "Ha ocurrido un problema en la ejecución del programa. Revisar los reportes de errores. ")
+            return
+
+        for inst in p_instruccion:
+            if isinstance(inst, CreateDatabase):
+                self.do_create_database(inst, p_st)
+            elif isinstance(inst, UseDatabase):
+                self.do_use(inst, p_st)
+            elif isinstance(inst, DropDB):
+                self.do_drop_db(inst, p_st)
+            # elif isinstance(inst, CreateType):
+                # self.do_create_type(inst, p_st)
+            elif isinstance(inst, SelectCompleto):
+                self.do_select(inst, p_st)
+            else:
+                print(inst)
+
+        print("--- ANÁLISIS TERMINADO ---")
+
+    # USO DE BASE DE DATOS
+    def do_use(self, p_inst, p_st):
+        print('USAR BASE DE DATOS')
+        print('Nombre: ' + p_inst.nombre)
+        print()
+
+    # CREACIÓN DE BASE DE DATOS
+    def do_create_database(self, p_inst, p_st):
+        print('CREAR BASE DE DATOS')
+        print('Nombre: ' + p_inst.datos.nombre)
+
+        if p_inst.replace:
+            print('Reemplazar: SI')
+        else:
+            print('Reemplazar: NO')
+
+        if p_inst.datos.noexiste:
+            print('Comprobar si no existe?: SI')
+        else:
+            print('Comprobar si no existe?: NO')
+
+        if p_inst.datos.datos is not None:
+            if p_inst.datos.datos.owner is not None:
+                print('Owner: ' + p_inst.datos.datos.owner)
+
+            if p_inst.datos.datos.mode is not None:
+                print('Mode: ' + str(p_inst.datos.datos.mode))
+
+        print()
+
+    # ELIMINACIÓN DE BASE DE DATOS
+    def do_drop_db(self, p_inst, p_st):
+        print('ELIMINAR BASE DE DATOS')
+        print('Nombre: ' + p_inst.ifexist.nombre)
+        print()
+
+    # CREACIÓN DE LISTADO DE TIPOS
+    def do_create_type(self, p_inst, p_st):
+        print('CREACIÓN DE LISTADO DE TIPOS')
+        print('Nombre: ' + p_inst.nombre)
+        print('Items: ' + str(p_inst.listado))
+        print()
+
+    # SELECT
+    def do_select(self, p_inst, p_st):
+        print('SELECT EN TABLA')
+        print()
 
 
 if __name__ == "__main__":

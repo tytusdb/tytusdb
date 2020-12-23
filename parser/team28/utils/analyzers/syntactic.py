@@ -12,6 +12,9 @@ from models.instructions.DDL.type_inst import *
 from models.instructions.DML.dml_instr import *
 from models.instructions.DML.select import *
 from models.instructions.Expression.expression import *
+from models.instructions.Expression.type_enum import *
+from models.instructions.Expression.math_funcs import *
+from models.instructions.Expression.string_funcs import *
 from controllers.error_controller import ErrorController
 from utils.analyzers.lex import *
 
@@ -65,12 +68,18 @@ def p_instruction_list(p):
 def p_sql_instruction(p):
     '''sqlinstruction : ddl
                     | DML
+                    | usestatement
                     | MULTI_LINE_COMMENT
                     | SINGLE_LINE_COMMENT
                     | error SEMICOLON
     '''
     p[0] = p[1]
 
+def p_use_statement(p):
+    '''usestatement : USE ID SEMICOLON'''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
+    p[0] = UseDatabase(p[2],noLine,noColumn)
 
 def p_ddl(p):
     '''ddl : createstatement
@@ -93,8 +102,8 @@ def p_option_create(p):
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS
                     | TABLE SQLNAME LEFT_PARENTHESIS columnstable RIGHT_PARENTHESIS INHERITS LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
     '''
-    noColumn = 0
-    noLine = 0
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
 
     if len(p) == 8:
         p[0] = CreateType(p[2],p[6])
@@ -109,7 +118,7 @@ def p_option_create(p):
         p[0] = CreateTB(p[2], p[4], None)
 
     elif len(p) == 10:
-        p[0] = CreateTB(p[2], p[4], p[6])  # TODO INHERITS
+        p[0] = CreateTB(p[2], p[4], p[8]) 
 
 
 def p_type_list(p):
@@ -161,8 +170,8 @@ def p_list_permits(p):
 
 
 def p_permits(p):
-    '''permits : OWNER EQUALS ID
-               | OWNER ID
+    '''permits : OWNER EQUALS SQLNAME
+               | OWNER SQLNAME
                | MODE EQUALS INT_NUMBER
                | MODE INT_NUMBER 
     '''
@@ -195,10 +204,19 @@ def p_column(p):
         p[0] = CreateCol(p[1], p[2], p[3])
 
     elif len(p) == 3:
-        p[0] = CreateCol(p[1], p[2], None)
+        p[0] = CreateCol(p[1], p[2], [{
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
+        'check_condition' : None,
+        'pk_option' : None,
+        'fk_references_to' : None
+    }])
 
     elif len(p) == 5:
-        if p[1] == 'UNIQUE':
+        if p[1].lower() == 'UNIQUE'.lower():
             p[0] = Unique(p[3])
 
         else:  # CHECK
@@ -211,41 +229,120 @@ def p_column(p):
         p[0] = ForeignKey(p[4], p[7], p[9])
 
     elif len(p) == 7:
-        p[0] = Constraint(p[2], p[5])  # TODO revisar si es constraint o check
+        p[0] = Constraint(p[2], p[5])  
 
 
 def p_type_col(p):
-    '''typecol : SMALLINT
-               | INTEGER
-               | BIGINT
+    '''typecol : BIGINT
+               | BOOLEAN
+               | CHAR
+               | CHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHARACTER
+               | CHARACTER LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | CHARACTER VARYING
+               | CHARACTER VARYING LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | DATE
                | DECIMAL LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
                | DECIMAL LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | DOUBLE PRECISION
+               | INTEGER
+               | INTERVAL SQLNAME
+               | MONEY
                | NUMERIC LEFT_PARENTHESIS INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
                | NUMERIC LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
                | REAL
-               | DOUBLE PRECISION
-               | MONEY
-               | CHARACTER VARYING LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
-               | CHARACTER VARYING
-               | VARCHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
-               | VARCHAR
-               | CHARACTER LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
-               | CHARACTER
-               | CHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
-               | CHAR
+               | SMALLINT
                | TEXT
                | TIMESTAMP LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
                | TIMESTAMP
-               | DATE
                | TIME LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
                | TIME
-               | INTERVAL SQLNAME
-               | BOOLEAN
+               | VARCHAR LEFT_PARENTHESIS INT_NUMBER RIGHT_PARENTHESIS
+               | VARCHAR
+
     '''
-    dataType = ''
-    for i in range(1, len(p)):
-        dataType += str(p[i])
-    p[0] = dataType
+
+    if p[1].lower() == 'BIGINT'.lower():  
+        p[0] = ColumnTipo(ColumnsTypes.BIGINT,None,None)
+
+    elif p[1].lower() == 'BOOLEAN'.lower():  
+        p[0] = ColumnTipo(ColumnsTypes.BOOLEAN,None,None)
+    
+    elif p[1].lower() == 'CHAR'.lower():
+        if len(p) == 2:
+            p[0] = ColumnTipo(ColumnsTypes.CHAR, None, None)
+        else:
+            p[0] = ColumnTipo(ColumnsTypes.CHAR,p[3],None)
+
+    elif p[1].lower() == 'CHARACTER'.lower():
+        if len(p) == 6:
+            p[0] = ColumnTipo(ColumnsTypes.CHARACTER_VARYING,p[4],None)
+        elif len(p) == 3:
+            p[0] = ColumnTipo(ColumnsTypes.CHARACTER_VARYING,None,None)
+        elif len(p) == 5:
+            p[0] = ColumnTipo(ColumnsTypes.CHARACTER,p[3],None)
+        else:
+            p[0] = ColumnTipo(ColumnsTypes.CHARACTER,None,None)
+    
+    elif p[1].lower() == 'DATE'.lower():
+        p[0] = ColumnTipo(ColumnsTypes.DATE,None,None)
+    
+    elif p[1].lower() == 'DECIMAL'.lower():
+        if len(p) == 7:
+            p[0] = ColumnTipo(ColumnsTypes.DECIMAL,p[3],p[5])
+        else:
+            p[0] = ColumnTipo(ColumnsTypes.DECIMAL,p[3],None)
+
+    elif p[1].lower() == 'DOUBLE'.lower():
+        p[0] = ColumnTipo(ColumnsTypes.DOUBLE_PRECISION, None, None)
+    
+    elif p[1].lower() == 'INTEGER'.lower():
+        p[0] = ColumnTipo(ColumnsTypes.INTEGER,None,None)
+    
+    elif p[1].lower() == 'INTERVAL'.lower():
+        p[0] = ColumnTipo(ColumnsTypes.INTERVAL,p[2],None)
+    
+    elif p[1].lower() == 'MONEY'.lower():
+        p[0] = ColumnTipo(ColumnsTypes.MONEY, None, None)
+    
+    elif p[1].lower() == 'NUMERIC'.lower():
+        if len(p) == 7:
+            p[0] = ColumnTipo(ColumnsTypes.NUMERIC,p[3],p[5])
+        else:
+            p[0] = ColumnTipo(ColumnsTypes.NUMERIC,p[3],None)
+    
+    elif p[1].lower() == 'REAL'.lower():
+        p[0] = ColumnTipo(ColumnsTypes.REAL,None,None)
+    
+    elif p[1].lower() == 'SMALLINT'.lower():
+        p[0] = ColumnTipo(ColumnsTypes.SMALLINT, None, None) 
+    
+    elif p[1].lower() == 'TEXT'.lower():
+        p[0] = ColumnTipo(ColumnsTypes.TEXT,None,None)
+    
+    elif p[1].lower() == 'TIMESTAMP'.lower():
+        if len(p) == 5:
+            p[0] = ColumnTipo(ColumnsTypes.TIMESTAMP,p[3],None)
+        else:
+            p[0] = ColumnTipo(ColumnsTypes.TIMESTAMP,None,None)
+    
+    elif p[1].lower() == 'TIME'.lower():
+        if len(p) == 5:
+            p[0] = ColumnTipo(ColumnsTypes.TIME,p[3],None)
+        else: 
+            p[0] = ColumnTipo(ColumnsTypes.TIME,None,None)
+    
+    elif p[1].lower() == 'VARCHAR'.lower():
+        if len(p) == 5:
+            p[0] = ColumnTipo(ColumnsTypes.VARCHAR,p[3],None)
+        else:
+            p[0] = ColumnTipo(ColumnsTypes.VARCHAR,None,None)
+    
+
+    #dataType = ''
+    #for i in range(1, len(p)):
+    #    dataType += str(p[i])
+    #p[0] = dataType
 
 
 def p_options_col_list(p):
@@ -271,7 +368,36 @@ def p_option_col(p):  # TODO verificar
                  | PRIMARY KEY 
                  | REFERENCES ID 
     '''
-
+    p[0] = {
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
+        'check_condition' : None,
+        'pk_option' : None,
+        'fk_references_to' : None
+    }
+    if p[1].lower() == 'DEFAULT'.lower():   
+        p[0]['default_value'] = p[2]
+    elif p[1].lower() == 'NOT'.lower():                                  
+        p[0]['is_null'] = False
+    elif p[1].lower() == 'NULL'.lower():                                  
+        p[0]['is_null'] = True
+    elif p[1].lower() == 'CONSTRAINT'.lower() and len(p) == 4:
+        p[0]['constraint_unique'] = p[2]
+    elif p[1].lower() == 'UNIQUE'.lower():
+        p[0]['unique'] = True
+    elif p[1].lower() == 'CONSTRAINT'.lower() and len(p) == 7:
+        p[0]['constraint_check_condition'] = p[5]
+    elif p[1].lower() == 'CHECK'.lower():
+        p[0]['check_condition'] = p[3]
+    elif p[1].lower() == 'PRIMARY'.lower():
+        p[0]['pk_option'] = True
+    elif p[1].lower() == 'REFERENCES'.lower():
+        p[0]['fk_references_to'] = p[2]  
+    
+    
 
 def p_condition_column(p):
     '''conditionColumn : conditioncheck'''
@@ -298,7 +424,7 @@ def p_column_list(p):
 
 def p_show_statement(p):
     '''showstatement : SHOW DATABASES SEMICOLON
-                     | SHOW DATABASES LIKE ID SEMICOLON
+                     | SHOW DATABASES LIKE SQLNAME SEMICOLON
     '''
     if len(p) == 4:
         p[0] = ShowDatabase(None)
@@ -324,10 +450,12 @@ def p_alter_database(p):
     '''alterdatabase : ID RENAME TO ID
                      | ID OWNER TO typeowner
     '''
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
     if p[2].lower() == 'RENAME'.lower():   #Renombra la base de datos
-        p[0] = AlterDatabase(1,p[1],p[4])
+        p[0] = AlterDatabase(1,p[1],p[4],noLine,noColumn)
     else:                                  #Le cambia el duenio a la base de datos
-        p[0] = AlterDatabase(2,p[1],p[4])
+        p[0] = AlterDatabase(2,p[1],p[4],noLine,noColumn)
 
 
 def p_type_owner(p):
@@ -342,7 +470,7 @@ def p_alter_table(p):
     '''altertable : ID alterlist
     '''
     p[0] = AlterTable(p[1],p[2])
-
+    
 
 def p_alter_list(p):
     '''alterlist : alterlist COMMA typealter
@@ -375,9 +503,9 @@ def p_add_alter(p):
     elif len(p) == 5:
         p[0] = AlterTableAdd(Check(p[4]))
     elif len(p) == 7:
-        p[0] = AlterTableAdd(Constraint(p[5],Unique(p[5]))) #TODO revisar esta asignacion
+        p[0] = AlterTableAdd(Constraint(p[2],Unique(p[5]))) #TODO revisar esta asignacion
     else:
-        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   #TODO revisar esta asignacion
+        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   
 
 
 def p_alter_alter(p):
@@ -385,9 +513,9 @@ def p_alter_alter(p):
                   | COLUMN ID TYPE typecol
     '''
     if len(p) == 6:
-        p[0] = AlterTableAlter(None) #TODO agregar un chanceType en column
+        p[0] = AlterTableAlter({'change':'not_null','id_column':p[2],'type':None}) 
     else:
-        p[0] = AlterTableAlter(None) #TODO agregar un chanceType en column
+        p[0] = AlterTableAlter({'change':'type_column','id_column':p[2],'type':p[4]})
 
 
 def p_drop_alter(p):
@@ -395,9 +523,9 @@ def p_drop_alter(p):
                  | CONSTRAINT ID
     '''
     if p[1].lower() == 'COLUMN'.lower():
-        p[0] = AlterTableDrop(None) #TODO agregar un dropColumn en column
+        p[0] = AlterTableDrop({'change':'column','id':p[2]}) 
     else:
-        p[0] = AlterTableDrop(None) #TODO agregar un dropConstrain en column
+        p[0] = AlterTableDrop({'change':'constraint','id':p[2]}) 
 
 
 def p_rename_alter(p):
@@ -422,8 +550,8 @@ def p_drop_database(p):
     '''dropdatabase : IF EXISTS ID
                     | ID
     '''
-    noColumn = 0
-    noLine = 0
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
     if len(p) == 4:
         p[0] = DropDB(True, p[3], noLine, noColumn)
     else:
@@ -433,8 +561,8 @@ def p_drop_database(p):
 def p_drop_table(p):
     '''droptable : ID
     '''
-    noColumn = 0
-    noLine = 0
+    noColumn = find_column(p.slice[1])
+    noLine = p.slice[1].lineno
     p[0] = DropTB(p[1], noLine, noColumn)
 
 
@@ -454,9 +582,9 @@ def p_update_statement(p):
     '''UPDATESTATEMENT : UPDATE ID OPTIONS1 SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
-    if(len(p) == 7):
+    if(len(p) == 8):
         p[0] = Update(p[2],p[5],p[6])
-    elif(len(p) == 6):
+    elif(len(p) == 7):
         p[0] = Update(p[2],p[4],p[5])
     else:
         p[0] = Update(p[2],p[4],None)
@@ -472,7 +600,7 @@ def p_set_list(p):
 
 def p_column_values(p):
     '''COLUMNVALUES : OBJECTREFERENCE EQUALS SQLEXPRESSION2'''
-    p[0] = ColumnVal(p[1],p[2])
+    p[0] = ColumnVal(p[1],p[3])
 
 
 def p_sql_expression2(p):
@@ -485,9 +613,33 @@ def p_sql_expression2(p):
                       | REST SQLEXPRESSION2 %prec UREST
                       | PLUS SQLEXPRESSION2 %prec UPLUS
                       | LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS
+                      | ACOSD LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS
+                      | ASIND LEFT_PARENTHESIS SQLEXPRESSION2 RIGHT_PARENTHESIS
+                      | SUBSTRING LEFT_PARENTHESIS ID COMMA SQLINTEGER COMMA SQLINTEGER RIGHT_PARENTHESIS
                       | SQLNAME
                       | SQLINTEGER'''
-
+    #TODO: CUALES SON LOS UNARIOS QUE ACEPTA ---> REVISAR
+    if len(p) == 4:
+        if p[1] == '(':
+            p[0] = p[2]
+        elif p[2] == '+':
+            p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS, '+',p.lineno(2), find_column(p.slice[2]))
+        elif p[2] == '-':
+            p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS, '-',p.lineno(2), find_column(p.slice[2]))
+        elif p[2] == '*':
+            p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES, '*',p.lineno(2), find_column(p.slice[2]))
+        elif p[2] == '/':
+            p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON, '/',p.lineno(2), find_column(p.slice[2]))
+        elif p[2] == '^':
+            p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT, '^',p.lineno(2), find_column(p.slice[2]))
+        elif p[2] == '%':
+            p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR, '%',p.lineno(2), find_column(p.slice[2]))
+    elif len(p) == 2:
+        p[0] = p[1]
+    elif len(p) == 5:
+        p[0] = ExpressionsTrigonometric(p[1],p[3], None,p.lineno(1), find_column(p.slice[1]))
+        
+            
 
 def p_options_list2(p):
     '''OPTIONSLIST2 : WHERECLAUSE OPTIONS4
@@ -597,8 +749,8 @@ def p_insert_statement(p):
         p[0] = Insert(p[3],None,p[6])
 
 def p_list_params_insert(p):
-    '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA ID
-                        | ID'''
+    '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
+                        | SQLNAME'''
     if(len(p) == 4):
         p[1].append(p[3])
         p[0] = p[1]
@@ -616,29 +768,34 @@ def p_select_statement(p):
                        | SELECTWITHOUTORDER LIMITCLAUSE 
                        | SELECTWITHOUTORDER'''
     if (len(p) == 4):
+        p[2] = p[2][1]
+        [3].pop(0)
+        p[3] = p[3][0]
         p[0] = Select(p[1], p[2], p[3])
     elif (len(p) == 3):
         if ('ORDER' in p[2]):
+            p[2] = p[2][1]
             p[0] = Select(p[1], p[2], None)
         elif ('LIMIT' in p[2]):
+            [2].pop(0)
+            p[2] = p[2][0]
             p[0] = Select(p[1], None, p[2])
     elif (len(p) == 2):
         p[0] = Select(p[1], None, None)
-
 
 def p_select_without_order(p):
     '''SELECTWITHOUTORDER : SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY ALL SELECTSET
                           | SELECTWITHOUTORDER TYPECOMBINEQUERY SELECTSET'''
     if len(p) == 2:
-        p[0] = [p[1]]
+        p[0] = p[1]
     elif len(p) == 5:
-        type_combine_query = TypeQuerySelect(p[2], p[3])
+        type_combine_query = TypeQuerySelect(p[2], p[3],p.lineno(2), find_column(p.slice[2]))
         p[1].append(type_combine_query)
         p[1].append(p[4])
         p[0] = p[1]
     elif len(p) == 4:
-        type_combine_query = TypeQuerySelect(p[2], optionAll=None)
+        type_combine_query = TypeQuerySelect(p[2], None,p.lineno(2), find_column(p.slice[2]))
         p[1].append(type_combine_query)
         p[1].append(p[3])
         p[0] = p[1]
@@ -660,22 +817,25 @@ def p_selectq(p):
                | SELECT TYPESELECT SELECTLIST FROMCLAUSE SELECTWHEREAGGREGATE
                | SELECT SELECTLIST'''
     if len(p) == 4:
-        p[0] = SelectQ(None, p[2], p[3], None)
+        p[0] = SelectQ(None, p[2], p[3], None, p.lineno(1), find_column(p.slice[1]))
     elif len(p) == 5:
         if ("ALL" in p[2] or 'DISTINCT' in p[2] or 'UNIQUE' in p[2]):
-            p[0] = SelectQ(p[2], p[3], p[4], None)
+            p[0] = SelectQ(p[2], p[3], p[4], None,p.lineno(1), find_column(p.slice[1]))
         else:
-            p[0] = SelectQ(None, p[2], p[3], p[4])
+            p[0] = SelectQ(None, p[2], p[3], p[4], p.lineno(1), find_column(p.slice[1]))
     elif len(p) == 6:
-        p[0] = SelectQ(p[2], p[3], p[4], p[5])
+        p[0] = SelectQ(p[2], p[3], p[4], p[5], p.lineno(1), find_column(p.slice[1]))
     elif len(p) == 3:
-        p[0] = SelectQ(None, p[2], None, None)
+        p[0] = SelectQ(None, p[2], None, None, p.lineno(1), find_column(p.slice[1]))
 
 
 def p_select_list(p):
     '''SELECTLIST : ASTERISK
                   | LISTITEM'''
-    p[0] = p[1]
+    if (p[1] == "*"):
+        p[0] = [PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))]
+    else:
+        p[0] = p[1]
 
 
 
@@ -692,11 +852,12 @@ def p_list_item(p):
 
 
 def p_select_item(p):
-    '''SELECTITEM : SQLSIMPLEEXPRESSION SQLALIAS
-                  | SQLSIMPLEEXPRESSION
+    '''SELECTITEM : SQLEXPRESSION SQLALIAS
+                  | SQLEXPRESSION
                   | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
     if (len(p) == 3):
-        p[0] = [p[1], p[2]]
+        p[1].alias = p[2].alias
+        p[0] = p[1]
     elif (len(p) == 4):
         p[0] = p[2]
     elif (len(p) == 2):
@@ -753,10 +914,10 @@ def p_select_group_having(p):
 
 
 def p_table_reference(p):
-    '''TABLEREFERENCE : OBJECTREFERENCE SQLALIAS
-                      | OBJECTREFERENCE SQLALIAS JOINLIST
-                      | OBJECTREFERENCE JOINLIST
-                      | OBJECTREFERENCE'''
+    '''TABLEREFERENCE : SQLNAME SQLALIAS
+                      | SQLNAME SQLALIAS JOINLIST
+                      | SQLNAME JOINLIST
+                      | SQLNAME'''
     if (len(p) == 2):
         p[0] = p[1]
     elif (len(p) == 3):
@@ -766,64 +927,32 @@ def p_table_reference(p):
 
 
 def p_order_by_clause(p):
-    '''ORDERBYCLAUSE : ORDER BY ORDERBYCLAUSELIST'''
-    p[0] = p[3]
+    '''ORDERBYCLAUSE : ORDER BY ORDERBYEXPRESSION'''
+    p[0] = [p.slice[1].type,p[3]]
 
 def p_order_by_clause_list(p):
-    '''ORDERBYCLAUSELIST : ORDERBYCLAUSELIST COMMA ORDERBYEXPRESSION
-                         | ORDERBYEXPRESSION'''
-    if (len(p) == 4):
-        p[1].append(p[3])
-        p[0] = p[1]
+    '''ORDERBYEXPRESSION : LISTPARAMSINSERT ASC
+                         | LISTPARAMSINSERT DESC
+                         | LISTPARAMSINSERT'''
+    if (len(p) == 3):
+        p[0] = OrderClause(p[1], p[2], p.lineno(2), find_column(p.slice[2]))
     elif (len(p) == 2):
-        p[0] = [p[1]]
+        p[0] = OrderClause(p[1], None, None, None)
    
-
-
-def p_order_by_expression(p):
-    '''ORDERBYEXPRESSION : SQLSIMPLEEXPRESSION ASC
-                         | SQLSIMPLEEXPRESSION DESC
-                         | SQLSIMPLEEXPRESSION'''
-    if (len(p) == 3):
-        p[0] = OrderClause(p[1], p[2])
-    elif (len(p) == 2):
-        p[0] = OrderClause(p[1], type_order=None)
-
 def p_limit_clause(p):
-    '''LIMITCLAUSE : LIMIT LIMITOPTIONS'''
-    p[0] = [p[1], p[2]]
+    '''LIMITCLAUSE : LIMIT LIMITTYPES OFFSET INT_NUMBER
+                   | LIMIT LIMITTYPES'''
+    if (len(p) == 5):
+        p[0] = [LimitClause(p[2], p[4], p.lineno(3), find_column(p.slice[3])), p.slice[1].type]
+    elif (len(p) == 3):
+        p[0] = [LimitClause(p[2], None, p.lineno(1), find_column(p.slice[1])), p.slice[1].type]
 
-def p_limit_options(p):
-    '''LIMITOPTIONS : LIMITTYPES OFFSETOPTION
-                    | LIMITTYPES'''
-    
-    if (len(p) == 3):
-        p[0] = LimitClause(p[1], p[2])
-    else:
-        p[0] = LimitClause(p[1], offset=None)
-    
 
 def p_limit_types(p):
-    '''LIMITTYPES : LISTLIMITNUMBER
+    '''LIMITTYPES : INT_NUMBER
                   | ALL'''
-    
-    p[0] = p[1]
-   
+    p[0] = p[1] 
 
-def p_list_limit_number(p):
-    '''LISTLIMITNUMBER : LISTLIMITNUMBER COMMA INT_NUMBER
-                       | INT_NUMBER'''
-    
-    if (len(p) == 2):
-        p[0] = [p[1]]
-    else:
-        p[1].append(p[3])
-        p[0] = p[1]
-
-
-def p_offset_option(p):
-    '''OFFSETOPTION : OFFSET INT_NUMBER'''
-    p[0] = p[2]
 
 def p_where_clause(p):
     '''WHERECLAUSE : WHERE SQLEXPRESSION'''
@@ -852,7 +981,7 @@ def p_join_list(p):
 
 def p_joinp(p):
     '''JOINP : JOINTYPE JOIN TABLEREFERENCE ON SQLEXPRESSION'''
-    p[0] = JoinClause(p[1], p[3], p[5])
+    p[0] = JoinClause(p[1], p[3], p[5],p.lineno(2), find_column(p.slice[2]))
 
 
 def p_join_type(p):
@@ -873,9 +1002,9 @@ def p_sql_expression(p):
                      | NOT EXISTSORSQLRELATIONALCLAUSE
                      | EXISTSORSQLRELATIONALCLAUSE'''
     if len(p) == 4:
-        p[0] = LogicalOperators(p[1], p[2], p[3])
+        p[0] = LogicalOperators(p[1], p[2], p[3],p.lineno(2), find_column(p.slice[2]))
     elif len(p) == 3:
-        p[0] = NotOption(p[2])
+        p[0] = NotOption(p[2],p.lineno(1), find_column(p.slice[1]))
     else:
         p[0] = p[1]
 
@@ -886,7 +1015,7 @@ def p_exits_or_relational_clause(p):
     
 def p_exists_clause(p):
     '''EXISTSCLAUSE : EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
-    p[0] = ExistsClause(p[3])
+    p[0] = ExistsClause(p[3],p.lineno(1), find_column(p.slice[1]))
 
 
 def p_sql_relational_expression(p):
@@ -897,22 +1026,32 @@ def p_sql_relational_expression(p):
                                | SQLSIMPLEEXPRESSION SQLISCLAUSE
                                | SQLSIMPLEEXPRESSION'''
     if (len(p) == 3):
-        p[0] = [p[1], p[2]]
+        if p[2][1] == "LIKE":
+            p[0] = LikeClause(p[2][0], p[1], p[2][2],p[2][3],p[2][4])
+        elif p[2][0] == "BETWEEN":
+            p[0] = Between(p[1], p[2][1], p[2][2], p[2][3], p[2][4], p[2][5],p[2][6])
+        elif p[2][0] == "IS":
+            p[0] = isClause(p[1], p[2][1], p[2][2], p[2][3])
+        elif p[2][0] == "IN":
+            p[0] = InClause(p[1], p[2][1], p[2][2], p[2][3])
+        else:
+            p[0] = [p[1], p[2]]
     elif (len(p) == 4):
-        if p[2] == '=':
-            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3])
-        elif p[2] == '!=':
-            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3])
-        elif p[2] == '>=':
-            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3])
-        elif p[2] == '>':
-            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3])
-        elif p[2] == '<=':
-            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3])
-        elif p[2] == '<':
-            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3])
-        elif p[2] == '<>':
-            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3])
+        print(p[2])
+        if p[2][1] == '=':
+            p[0] = Relop(p[1], SymbolsRelop.EQUALS, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '!=':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '>=':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '>':
+            p[0] = Relop(p[1], SymbolsRelop.GREATE_THAN, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<=':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_EQUAL, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<':
+            p[0] = Relop(p[1], SymbolsRelop.LESS_THAN, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
+        elif p[2][1] == '<>':
+            p[0] = Relop(p[1], SymbolsRelop.NOT_EQUAL_LR, p[3], p[2][1],p[2][0].lineno, find_column(p[2][0]))
     else:
         p[0] = p[1]
 
@@ -923,10 +1062,10 @@ def p_sql_in_clause(p):
                     | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                     | IN LEFT_PARENTHESIS listain RIGHT_PARENTHESIS'''
     if (len(p) == 6):
-        p[0] = InClause(NotOption(p[4]))
+        p[0] = InClause(NotOption(p[4],p.lineno(1),p.slice[1]),p.lineno(2),find_column(p.slice[2]))
     else:
-        p[0] = InClause(p[3])
-
+        p[0] = [p.slice[1].type, p[3], p.lineno(1), find_column(p.slice[1])]
+        
 def p_lista_in(p):
     '''listain : listain COMMA SQLSIMPLEEXPRESSION
                | SQLSIMPLEEXPRESSION 
@@ -943,22 +1082,21 @@ def p_sql_between_clause(p):
                         | BETWEEN SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION 
                         | BETWEEN SYMMETRIC SQLSIMPLEEXPRESSION AND SQLSIMPLEEXPRESSION '''
     if (len(p) == 6):
-        if (p[3] == 'SYMMETRIC'):
-            p[0] = Between(None, True, p[3], p[5])
-        else:
-            p[0] = Between(True, None, p[3], p[5])
+        if (p.slice[2].type == 'SYMMETRIC'):
+            p[0] = [p.slice[1].type, None, True, p[3], p[5],p.lineno(1), find_column(p.slice[1])]
+        else: 
+            p[0] = [p.slice[2].type, True, None, p[3], p[5],p.lineno(2), find_column(p.slice[2])]
     elif (len(p) == 5):
-        p[0] = Between(None, True, p[3], p[5])
-    else:
-        p[0] = Between(True, True, p[4], p[6])
-
+        p[0] = [p.slice[1].type, None, None, p[2], p[4], p.lineno(1), find_column(p.slice[1])]
+    else: # len 7
+        p[0] = [p.slice[2].type, True, True, p[4], p[6], p.lineno(2), find_column(p.slice[2])]
 def p_sql_like_clause(p):
     '''SQLLIKECLAUSE  : NOT LIKE SQLSIMPLEEXPRESSION
                       | LIKE SQLSIMPLEEXPRESSION'''
     if (len(p) == 4):
-        p[0] = LikeClause(NotOption(p[3]))
+        p[0] = [True, p.slice[1].type, p[3], p.lineno(1), find_column(p.slice[1])]
     else:
-        p[0] = LikeClause(p[2])
+        p[0] = [False,  p.slice[1].type, p[2], p.lineno(1), find_column(p.slice[1])]
 
 # TODO A qui no se como se guardaria esto xd
 def p_sql_is_clause(p):
@@ -974,7 +1112,16 @@ def p_sql_is_clause(p):
                    | IS NOT UNKNOWN
                    | IS NOT DISTINCT FROM SQLNAME
                    | IS DISTINCT FROM SQLNAME'''
-    
+    if len(p) == 3:
+        p[0] = [p.slice[1].type,[p[2]], p.lineno(1), find_column(p.slice[1])]
+    elif len(p) == 4:
+        p[0] = [p.slice[1].type,[p[2], p[3]], p.lineno(1), find_column(p.slice[1])]
+    elif len(p) == 2:
+        p[0] = ["IS", [p[1]], p.lineno(1), find_column(p.slice[1])]
+    elif len(p) == 6:
+        p[0] = [p.slice[1].type, [p[2], p[3], p[4], p[5]], p.lineno(1), find_column(p.slice[1])]
+    else: #len 5
+        p[0] = [p.slice[1].type, [p[2], p[3], p[4]], p.lineno(1), find_column(p.slice[1])]
 
 def p_sql_simple_expression(p):
     '''SQLSIMPLEEXPRESSION : SQLSIMPLEEXPRESSION PLUS SQLSIMPLEEXPRESSION
@@ -1011,41 +1158,41 @@ def p_sql_simple_expression(p):
             p[0] = p[2]
         else:
             if p[2] == '+':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.PLUS, '+',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '-':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.MINUS, '-',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '*':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.TIMES, '*',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '/':
-                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON)
+                p[0] = ArithmeticBinaryOperation(p[1],p[3],SymbolsAritmeticos.DIVISON, '/',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '^':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.EXPONENT, '^',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '%':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.MODULAR, '%',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '>>':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_RIGHT, '>>',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '<<':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_SHIFT_LEFT, '<<',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '&':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_AND, '&',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '|':
-                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR)
+                p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_OR, '|',p.lineno(2), find_column(p.slice[2]))
             elif p[2] == '#':
-                 p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR)
+                 p[0] = ArithmeticBinaryOperation(p[1], p[3], SymbolsAritmeticos.BITWISE_XOR, '#',p.lineno(2), find_column(p.slice[2]))
     elif (len(p) == 3):
         if p[1] == '-':
-            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.UMINUS, p[2])
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.UMINUS, p[2],p.lineno(1), find_column(p.slice[1]),p[1])
         elif p[1] == '+':
-            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.UPLUS, p[2])
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.UPLUS, p[2],p.lineno(1), find_column(p.slice[1]),p[1])
         elif p[1] == '||/':
-            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.CUBE_ROOT, p[2])
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.CUBE_ROOT, p[2],p.lineno(1), find_column(p.slice[1]),p[1])
         elif p[1] == '|/':
-            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.SQUARE_ROOT, p[2])
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.SQUARE_ROOT, p[2],p.lineno(1), find_column(p.slice[1]),p[1])
         elif p[1] == '~':
-            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.BITWISE_NOT, p[2])
+            p[0] = UnaryOrSquareExpressions(SymbolsUnaryOrOthers.BITWISE_NOT, p[2],p.lineno(1), find_column(p.slice[1]),p[1])
     else:
         if  p.slice[1].type == "TRUE" or p.slice[1].type == "FALSE":
-            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1])
+            p[0] = PrimitiveData(DATA_TYPE.BOOLEANO, p[1], p.lineno(1), find_column(p.slice[1]))
         else:
             p[0] = p[1]
 
@@ -1060,69 +1207,78 @@ def p_sql_expression_list(p):
         p[0] = [p[1]]
 
 def p_mathematical_functions(p):
-    '''MATHEMATICALFUNCTIONS : ABS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
-                             | ABS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | CBRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+    '''MATHEMATICALFUNCTIONS : ABS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                              | CBRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | CEIL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | CEIL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | CEILING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | CEILING LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | DEGREES LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | DEGREES LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | DIV LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | DIV LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | EXP LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | EXP LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | FACTORIAL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | FACTORIAL LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | FLOOR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | FLOOR LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | GCD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | GCD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | LN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | LN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | LOG LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | LOG LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | MOD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
-                             | MOD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | PI LEFT_PARENTHESIS RIGHT_PARENTHESIS SQLALIAS
+                             | MOD LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                              | PI LEFT_PARENTHESIS RIGHT_PARENTHESIS
-                             | POWER LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | POWER LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | RADIANS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | RADIANS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | ROUND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
-                             | ROUND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | SIGN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
+                             | ROUND LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                              | SIGN LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | SQRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | SQRT LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | WIDTH_BUCKET LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | WIDTH_BUCKET LEFT_PARENTHESIS SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION COMMA SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | TRUNC LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS SQLALIAS
                              | TRUNC LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
-                             | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS SQLALIAS
                              | RANDOM LEFT_PARENTHESIS RIGHT_PARENTHESIS '''
-    if (len(p) == 6):
-        p[0] = MathematicalExpressions(p[1], p[3], p[5])
-    elif (len(p) == 5):
-        if (p[1] == 'PI' or p[1] == 'RANDOM'):
-            p[0] = MathematicalExpressions(p[1], None, p[4])
-        else:
-            p[0] = MathematicalExpressions(p[1], p[3], None)
-    elif (len(p) == 8):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5]], p[7])
-    elif (len(p) == 7):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5]], None)
-    elif (len(p) == 12):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5], p[7], p[9]], p[11])
-    elif (len(p) == 11):
-        p[0] = MathematicalExpressions(p[1], [p[3], p[5], p[7], p[9]], None)
+    
+    #TODO: RANDOM Y MANEJO DE ALIAS
+    if  p.slice[1].type == "ABS":
+          p[0] =   Abs(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "CBRT":
+        p[0] = Cbrt(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "CEIL":
+        p[0] = Ceil(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "CEILING":
+        p[0] = Ceiling(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "DEGREES":
+        p[0] = Degrees(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "DIV":
+        p[0] = Div(p[3], p[5], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "EXP":
+        p[0] = Exp(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "FACTORIAL":
+        p[0] = Factorial(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "FLOOR":
+        p[0] = Floor(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "GCD":
+        p[0] = Gcd(p[3], p[5], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "LN":
+        p[0] = Ln(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "LOG":
+        p[0] = Log(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "MOD":
+        p[0] = Mod(p[3], p[5], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "PI":
+        p[0] = Pi(p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "POWER":
+        p[0] = Power(p[3], p[5], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "RADIANS":
+        p[0] = Radians(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "ROUND":
+        p[0] = Round(p[3],p[5], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "SIGN":
+        p[0] = Sign(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "SQRT":
+        p[0] = Sqrt(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "WIDTH_BUCKET":
+        p[0] = WithBucket(p[3], p[5], p[7], p[9], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "TRUNC":
+        p[0] = Trunc(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    elif  p.slice[1].type == "RANDOM":
+        p[0] = Random(p[1],p.lineno(1), find_column(p.slice[1]))
 
 def p_binary_string_functions(p):
     '''BINARY_STRING_FUNCTIONS : LENGTH LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                               | SUBSTRING LEFT_PARENTHESIS  SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
+                               | SUBSTRING LEFT_PARENTHESIS SQLNAME COMMA INT_NUMBER COMMA INT_NUMBER RIGHT_PARENTHESIS
                                | TRIM LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
                                | MD5 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
                                | SHA256 LEFT_PARENTHESIS STRINGCONT RIGHT_PARENTHESIS
@@ -1130,18 +1286,39 @@ def p_binary_string_functions(p):
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS DATE RIGHT_PARENTHESIS
                                | CONVERT LEFT_PARENTHESIS SQLNAME AS INTEGER RIGHT_PARENTHESIS
                                | DECODE LEFT_PARENTHESIS STRINGCONT COMMA STRINGCONT  RIGHT_PARENTHESIS'''
+    if p.slice[1].type == "LENGTH":
+        p[0] = Length(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SUBSTRING":
+        p[0] = Substring(p[3], p[5], p[7], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "TRIM":
+        p[0] = Trim(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "MD5":
+        p[0] = MD5(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SHA256":
+        p[0] = SHA256(p[3], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "SUBSTR":
+        p[0] = Substring(p[3], p[5], p[7], p.lineno(1), find_column(p.slice[1]))
+    elif p.slice[1].type == "CONVERT":
+        p[0] = Convert(p[3], p[5], p.lineno(1), find_column(p.slice[1])) 
+    else: #p.slice[1].type == "DECODE"
+        p[0] = Decode(p[3], p[1],p.lineno(1), find_column(p.slice[1]))  
+
 def p_greatest_or_least(p):
     '''GREATESTORLEAST : GREATEST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS
                        | LEAST LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS'''
-    p[0] = ExpressionsGreastLeast(p[1], p[3])
+    if  p.slice[1].type == "GREATEST":
+        p[0] = Greatest(p[3], p[1],p.lineno(1), find_column(p.slice[1]))
+    else:
+        p[0] = Least(p[3],p[1],p.lineno(1), find_column(p.slice[1]))
+
 
 def p_case_clause(p):
     '''CASECLAUSE : CASE CASECLAUSELIST END ID
                   | CASE CASECLAUSELIST ELSE SQLSIMPLEEXPRESSION END ID'''
     if(len(p) == 5):
-        p[0] = Case(p[2], None)
+        p[0] = Case(p[2], None,p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Case(p[2], p[4])
+        p[0] = Case(p[2], p[4], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_case_clause_list(p):
@@ -1154,15 +1331,15 @@ def p_case_clause_list(p):
     # WHEN SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION  ELSE SQLSIMPLEEXPRESSION
     # WHEN SQLSIMPLEEXPRESSION RELOP SQLSIMPLEEXPRESSION THEN SQLSIMPLEEXPRESSION ELSE SQLSIMPLEEXPRESSION
     if (len(p) == 8):
-        p[1].append( CaseOption( Relop(p[3],p[5],p[4]), p[7] ) )
+        p[1].append( CaseOption( Relop(p[3],p[5],p[4],p[5],p.lineno(4), find_column(p.slice[4])), p[7],p.lineno(2), find_column(p.slice[2])) )
         p[0] = p[1]
     elif (len(p) == 7):
-        p[0] = [CaseOption( Relop(p[3],p[5],p[4]), p[7] )]
+        p[0] = [CaseOption( Relop(p[3],p[5],p[4],p[5],p.lineno(3), find_column(p.slice[3])), p[7],p.lineno(1), find_column(p.slice[1]))]
     elif (len(p) == 6):
-        p[1].append( CaseOption(p[3], p[5]) )
+        p[1].append( CaseOption(p[3], p[5],p.lineno(2), find_column(p.slice[2])) )
         p[0] = p[1]
     else: #len = 5
-        p[0] = [CaseOption(p[3], p[5])]
+        p[0] = [CaseOption(p[3], p[5],p.lineno(1), find_column(p.slice[1]))]
 
 def p_trigonometric_functions(p):
     '''TRIGONOMETRIC_FUNCTIONS : ACOS LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
@@ -1188,9 +1365,9 @@ def p_trigonometric_functions(p):
                                | ASINH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS
                                | ATANH LEFT_PARENTHESIS SQLSIMPLEEXPRESSION RIGHT_PARENTHESIS'''
     if (len(p) == 5):
-        p[0] = ExpressionsTrigonometric(p[1], p[3], None)
+        p[0] = ExpressionsTrigonometric(p[1], p[3], None,p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = ExpressionsTrigonometric(p[1], p[3], p[5])
+        p[0] = ExpressionsTrigonometric(p[1], p[3], p[5],p.lineno(1), find_column(p.slice[1]))
 #TODO: REVISAR QUE SQLALIAS SEA OPCIONAL, Asi esta bien >:v pinche juan marcos 
 def p_sql_alias(p):
     '''SQLALIAS : AS SQLNAME
@@ -1209,27 +1386,27 @@ def p_expressions_time(p):
                        | CURRENT_TIME
                        | TIMESTAMP SQLNAME'''
     if (len(p) == 8):
-        if p[1] == 'EXTRACT':
-            p[0] = ExpressionsTime(SymbolsTime.EXTRACT, p[3], p[6])
-        elif p[1] == 'DATE_PART':
-            p[0] = ExpressionsTime(SymbolsTime.DATE_PART, p[3], p[6])
+        if p.slice[1].type.upper() == 'EXTRACT':
+            p[0] = ExpressionsTime(SymbolsTime.EXTRACT, p[3], p[6], p[1],p.lineno(1), find_column(p.slice[1]))
+        elif p.slice[1].type.upper()== 'DATE_PART':
+            p[0] = ExpressionsTime(SymbolsTime.DATE_PART, p[3], p[6], p[1],p.lineno(1), find_column(p.slice[1]))
     elif (len(p) == 3):
-        p[0] = ExpressionsTime(SymbolsTime.TIMESTAMP, None, p[2])
+        p[0] = ExpressionsTime(SymbolsTime.TIMESTAMP, None, p[2], p[1],p.lineno(1), find_column(p.slice[1]))
     else:
-        if p[1] == 'CURRENT_DATE':
-            p[0] = ExpressionsTime(SymbolsTime.CURRENT_DATE, None, None)
-        elif p[1] == 'CURRENT_TIME':
-            p[0] = ExpressionsTime(SymbolsTime.CURRENT_TIME, None, None)
-        elif p[1] == 'NOW':
-            p[0] = ExpressionsTime(SymbolsTime.NOW, None, None)
+        if p.slice[1].type.upper() == 'CURRENT_DATE':
+            p[0] = ExpressionsTime(SymbolsTime.CURRENT_DATE, None, None, p[1],p.lineno(1), find_column(p.slice[1]))
+        elif p.slice[1].type.upper() == 'CURRENT_TIME':
+            p[0] = ExpressionsTime(SymbolsTime.CURRENT_TIME, None, None, p[1],p.lineno(1), find_column(p.slice[1]))
+        elif p.slice[1].type.upper() == 'NOW':
+            p[0] = ExpressionsTime(SymbolsTime.NOW, None, None,p[1],p.lineno(1), find_column(p.slice[1]))
 
 def p_aggregate_functions(p):
     '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS
                           | AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS SQLALIAS'''
     if (len(p) == 5):
-        p[0] = AgreggateFunctions(p[1], p[3], None)
+        p[0] = AgreggateFunctions(p[1], p[3], None,p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = AgreggateFunctions(p[1], p[3], p[5])
+        p[0] = AgreggateFunctions(p[1], p[3], p[5],p.lineno(1), find_column(p.slice[1]))
 
 def p_cont_of_aggregate(p):
     '''CONTOFAGGREGATE : ASTERISK
@@ -1240,19 +1417,12 @@ def p_cont_of_aggregate(p):
         p[0] = p[1]
 
 def p_sql_object_reference(p):
-    '''OBJECTREFERENCE : SQLNAME DOT SQLNAME DOT SQLNAME
-                       | SQLNAME DOT SQLNAME
-                       | SQLNAME DOT ASTERISK
+    '''OBJECTREFERENCE : SQLNAME DOT ASTERISK
                        | SQLNAME'''
     if (len(p) == 2):
-        p[0] = ObjectReference(None, None, p[1], None)
+        p[0] = ObjectReference(p[1], None)
     elif (len(p) == 4):
-        if (p[3] == '*'):
-            p[0] = ObjectReference(None, None, p[1], p[3])
-        else:
-            p[0] = ObjectReference(None, p[1], p[3], None)
-    else:
-        p[0] = ObjectReference(p[1], p[3], p[5], None)
+        p[0] = ObjectReference(p[1], p[3])
 
 def p_list_values_insert(p):
     '''LISTVALUESINSERT : LISTVALUESINSERT COMMA SQLSIMPLEEXPRESSION
@@ -1278,7 +1448,7 @@ def p_relop(p):
              | LESS_THAN
              | LESS_EQUAL
              | NOT_EQUAL_LR'''
-    p[0] = p[1]
+    p[0] = [p.slice[1], p[1]]
 
 
 def p_aggregate_types(p):
@@ -1297,20 +1467,22 @@ def p_date_types(p):
                  | HOUR
                  | MINUTE
                  | SECOND'''
-    p[0] = PrimitiveData(DATA_TYPE.STRING, p[1])
+    p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
 
 def p_sql_integer(p):
     '''SQLINTEGER : INT_NUMBER
                   | FLOAT_NUMBER'''
-    p[0] = PrimitiveData(DATA_TYPE.NUMBER, p[1])
+    p[0] = PrimitiveData(DATA_TYPE.NUMBER, p[1], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_sql_name(p):
     '''SQLNAME : STRINGCONT
                | CHARCONT
                | ID'''
-               
-    p[0] = PrimitiveData(DATA_TYPE.STRING, p[1])
+    if p.slice[1].type == "STRINGCONT" or p.slice[1].type == "CHARCONT":
+        p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
+    else:
+        p[0] = Identifiers(p[1], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_type_select(p):
@@ -1342,22 +1514,3 @@ def parse(inpu):
     input = inpu
     get_text(input)
     return parser.parse(inpu, lexer=lexer)
-
-# parser = yacc.yacc()
-# graficadora = GraficarAST()
-# s = '''SELECT EXTRACT(SECOND FROM TIMESTAMP '2001-02-16 20:38:40');
-#        SELECT User.name FROM Users INNER JOIN Ordenes ON Ordenes.id = Users.id GROUP BY ID;
-#        SELECT COUNT(*) AS Name FROM User;
-#        DELETE FROM USERS As User Where User.name = 12;
-#        DELETE FROM products WHERE price = 10;
-#        UPDATE products SET price = 10 WHERE price = 5 RETURNING *;'''
-
-# result = parser.parse(s)
-# s = '''SELECT * FROM USER;'''
-
-# result = parser.parse(s)
-# report = open('test.txt', 'w')
-# report.write(graficadora.generate_string(result))
-# report.close()
-# os.system('dot -Tpdf test.txt -o ast.pdf')
-# os.system('xdg-open ast.pdf')

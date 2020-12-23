@@ -7,27 +7,26 @@ class TypeCheckerReport(object):
     def __init__(self):
         self._typeChecker = TypeChecker()
         self._data = ''
-        self.generateReport()
-
-        report = open('typeChecker.dot', 'w')
-        report.write(self._data)
-        report.close()
-        os.system('dot -Tpdf typeChecker.dot -o typeChecker.pdf')
-        # os.startfile('typeChecker.pdf')
 
     def generateReport(self):
         self._data = 'digraph {\n\ttbl [\n\tshape=plaintext\n\tlabel=<'
         self._data += '\n\t\t<table border=\'0\' cellborder=\'1\' color=\'#324960\' cellspacing=\'0\'>'
         self.generateDatabases()
         self._data += '\n\t\t</table>\n\t>];\n}'
+        return self._data
 
     def generateDatabases(self):
         databases = self._typeChecker.getList()
 
         for db in databases:
-            self._data += '\n\t\t\t<tr>\n\t\t\t\t<td bgcolor="#324960" colspan=\'11\' SIDES=\"TB\">'
+            self._data += '\n\t\t\t<tr>'
+            self._data += '\n\t\t\t\t<td bgcolor="#324960" colspan=\'10\' SIDES=\"TB\">'
             self._data += f"\n\t\t\t\t\t<font color=\"white\">DATABASE: {db.name}</font>"
-            self._data += '\n\t\t\t\t</td>\n\t\t\t</tr>'
+            self._data += '\n\t\t\t\t</td>'
+            self._data += '\n\t\t\t\t<td bgcolor="#324960" colspan=\'1\' SIDES=\"TB\">'
+            self._data += f"\n\t\t\t\t\t<font color=\"white\">MODE: {db.mode}</font>"
+            self._data += '\n\t\t\t\t</td>'
+            self._data += '\n\t\t\t</tr>'
             self.generateTables(db)
             self._data += '\n\t\t\t<tr>\n\t\t\t\t<td colspan=\'11\' SIDES="T"> </td>\n\t\t\t</tr>'
 

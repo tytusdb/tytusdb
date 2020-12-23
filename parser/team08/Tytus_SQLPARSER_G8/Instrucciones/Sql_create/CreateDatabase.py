@@ -1,16 +1,48 @@
-from Instrucciones.TablaSimbolos.Instruccion import Instruccion
-
+from Instrucciones.Excepcion import Excepcion
+from tkinter.constants import FALSE
+from Instrucciones.Sql_create.ShowDatabases import ShowDatabases
+from Instrucciones.TablaSimbolos.Instruccion import *
+from Instrucciones.Tablas.BaseDeDatos import BaseDeDatos
+from storageManager.jsonMode import *
 class CreateDatabase(Instruccion):
-    def __init__(self, id, tipo, opcion, id23, owner, id2, entero , linea, columna):
+    def __init__(self, base, tipo, existe, owner, mode, linea, columna):
         Instruccion.__init__(self,tipo,linea,columna)
-        self.valor = valor
-        self.opcion = opcion
+        self.base=base
+        self.tipo=tipo
+        self.existe = existe
+        self.owner=owner
+        self.mode=mode
 
     def ejecutar(self, tabla, arbol):
         super().ejecutar(tabla,arbol)
-        print(self.valor + " linea: " + str(self.linea) + " columna: " + str(self.columna))
 
-    #t[0] = CreateDatabase(id,tipo, id2, owner, entero, t.lineno, t.lexpos)
+        bandera = False
+        #SE OBTIENE LA LISTA DE BD
+        lb=showDatabases()
+        #SE RECORRE LA BD PARA VERIFICAR QUE NO EXISTA
+        for bd in lb:
+            if bd== self.base:
+                #SI SE ENCUENTRA LA BD SE TERMINA EL RECORRIDO
+                bandera = True
+                break
+        if self.existe=="IF NOT EXISTS" and bandera==True:
+            arbol.consola.append(f"La Base de Datos ya existe: {self.base}.")
+        elif self.existe=="IF NOT EXISTS" and bandera==False:
+            arbol.consola.append(f"Se Creo la base de datos: {self.base} correctamente.")
+            createDatabase(str(self.base))
+            nueva = BaseDeDatos(str(self.base))
+            arbol.setListaBd(nueva)
+        elif self.existe=="NULL" and bandera==True:
+            error = Excepcion("42P04","Semantico",f"La Base de Datos {self.base} ya Existe.",self.linea,self.columna)
+            arbol.excepciones.append(error)
+            arbol.consola.append(error.toString())
+        elif self.existe=="NULL" and bandera==False:
+            #AVISOS
+            arbol.consola.append(f"Se Creo la base de datos: {self.base} correctamente.")
+            createDatabase(str(self.base))
+            nueva = BaseDeDatos(str(self.base))
+            arbol.setListaBd(nueva)
+
 '''
 instruccion = CreateDatabase("hola mundo",None, 1,2)
 
