@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter import Menu, Tk, Text, DISABLED, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
 from tkinter import messagebox as MessageBox
 from tkinter import ttk
-
+import tkinter.simpledialog
+from tkinter import *
 #Metodo para enumerar las lineas
 class TextLineNumbers(Canvas):
     def __init__(self, *args, **kwargs):
@@ -70,3 +71,26 @@ class Campo(Frame):
 
     def _on_change(self, event):
         self.linenumbers.redraw()
+
+
+#Clase para crear usuario
+class MyDialog(tkinter.simpledialog.Dialog):
+
+    def body(self, master):
+
+        Label(master, text="Username:").grid(row=0)
+        Label(master, text="Password:").grid(row=1)
+        self.result = []
+        self.accept = False
+        self.e1 = Entry(master)
+        self.e2 = Entry(master, show="*")
+
+        self.e1.grid(row=0, column=1)
+        self.e2.grid(row=1, column=1)
+        return self.e1 # initial focus
+
+    def apply(self):
+        first = self.e1.get()
+        second = self.e2.get()
+        self.accept = True
+        self.result = [first, second]
