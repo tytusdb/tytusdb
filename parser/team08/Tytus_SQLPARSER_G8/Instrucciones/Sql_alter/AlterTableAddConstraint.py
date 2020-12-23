@@ -1,4 +1,5 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
+from Instrucciones.Sql_create.Tipo_Constraint import Tipo_Constraint, Tipo_Dato_Constraint
 from Instrucciones.Excepcion import Excepcion
 #from storageManager.jsonMode import *
 
@@ -13,21 +14,37 @@ class AlterTableAddConstraint(Instruccion):
         super().ejecutar(tabla,arbol)
         if arbol.bdUsar != None:
             objetoTabla = arbol.devolviendoTablaDeBase(self.tabla)
-            if objetoTabla != None:
+            if objetoTabla != 0:
+                existe = None
+                for columnas in objetoTabla.lista_de_campos:
+                    if columnas.constraint != None:
+                        for const in columnas.constraint:
+                            if const.id == self.id:
+                                existe = True
+                if existe:
+                    error = Excepcion('42P01',"Semántico","la relación «"+self.id+"» ya existe",self.linea,self.columna)
+                    arbol.excepciones.append(error)
+                    arbol.consola.append(error.toString())
+                    return error
                 listaUnique = []
                 listaNombres = []
-                '''
-                for columnas in objetoTabla.lista_de_campos:
-                    listaNombres.append(columnas.nombre)
-                '''
                 for c in self.lista_col:
                     for columnas in objetoTabla.lista_de_campos:
                         if columnas.nombre == c:
                             listaUnique.append(columnas)
                             listaNombres.append(columnas.nombre)
                 if(len(listaUnique)==len(self.lista_col)):
-                    print(len(listaUnique),self.tabla, self.id)
+                    #print(len(listaUnique),self.tabla, self.id)
                     #Insertar llaves Unique
+                    for c in listaUnique:
+                        if c.constraint != None:
+                            c.constraint.append(Tipo_Constraint(self.id, Tipo_Dato_Constraint.UNIQUE, None))
+                            #print("MÁS DE UNA-----------------",c.nombre, c.tipo.toString(),len(c.constraint))
+                        else:
+                            c.constraint = []
+                            c.constraint.append(Tipo_Constraint(self.id, Tipo_Dato_Constraint.UNIQUE, None))
+                            #print("SOLO UNA-------------",c.nombre, c.tipo.toString(),len(c.constraint)) 
+                    arbol.consola.append("Consulta devuelta correctamente.")  
                 else:
                     lista = set(self.lista_col) - set(listaNombres)
                     #print(listaNombres,self.lista_col)

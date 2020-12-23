@@ -13,7 +13,7 @@ class AlterTableAddColumn(Instruccion):
         super().ejecutar(tabla,arbol)
         if arbol.bdUsar != None:
             objetoTabla = arbol.devolviendoTablaDeBase(self.tabla)
-            if objetoTabla != None:
+            if objetoTabla != 0:
                 existeColumna = False
                 for c in self.lista_col:
                     for columnas in objetoTabla.lista_de_campos:
@@ -39,7 +39,7 @@ class AlterTableAddColumn(Instruccion):
                     return
                 # Las columnas se almacenan en memoria.
                 for c in self.lista_col:     
-                    objetoTabla.agregarColumna(c.id, c.tipo.toString(),None, None)
+                    objetoTabla.agregarColumna(c.id, c.tipo,None, None)
                 # Las columnas se almacenan en disco.
                 for columnas in self.lista_col:
                     resultado = alterAddColumn(arbol.getBaseDatos(),self.tabla,columnas.id)
@@ -58,6 +58,7 @@ class AlterTableAddColumn(Instruccion):
                         arbol.excepciones.append(error)
                         arbol.consola.append(error.toString())
                         return error
+                arbol.consola.append("Consulta devuelta correctamente.")
             else:
                 error = Excepcion('42P01',"Semántico","No existe la relación "+self.tabla,self.linea,self.columna)
                 arbol.excepciones.append(error)
