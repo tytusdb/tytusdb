@@ -130,6 +130,7 @@ reservedwords = (
     'SQRT',
     'TRUNC',
     'RANDOM',
+    'MD5',
     'AND',
     'OR',
     'COUNT',
@@ -878,7 +879,8 @@ def p_instruction_select_compound(t):
     global grammarreport
     grammarreport = "<select> ::= <select> "+t[2]+t[3]+" <select> { select.val=SelectMultiple(select.val,'"+t[2]+t[3]+"',select.val) }\n" + grammarreport
 def p_instruction_selectinstruction(t):
-    '''selectInstruction : SELECT expressionList FROM expressionList
+    '''selectInstruction : SELECT expressionList
+                         | SELECT expressionList FROM expressionList
                          | SELECT expressionList FROM expressionList selectOptions
                          | SELECT DISTINCT expressionList FROM expressionList
                          | SELECT DISTINCT expressionList FROM expressionList selectOptions'''
@@ -896,9 +898,14 @@ def p_instruction_selectinstruction(t):
             t[0] = Select(t[2],False,t[4],t[5])
             grammarreport = "<selectInstruction> ::= SELECT <expressionList> FROM <expressionList> <selectOptions> { selectInstruction.val=Select(expressionList.val,False,expressionList.val,selectOptions.val) }\n" + grammarreport
         except Exception as e:
-            print(e)
-            t[0] = Select(t[2],False,t[4],None)
-            grammarreport = "<selectInstruction> ::= SELECT <expressionList> FROM <expressionList> { selectInstruction.val=Select(expressionList.val,False,expressionList.val,None) }\n" + grammarreport
+            try:
+                print(e)
+                t[0] = Select(t[2],False,t[4],None)
+                grammarreport = "<selectInstruction> ::= SELECT <expressionList> FROM <expressionList> { selectInstruction.val=Select(expressionList.val,False,expressionList.val,None) }\n" + grammarreport
+            except:
+                t[0] = Select(t[2],False,None,None)
+                grammarreport = "<selectInstruction> ::= SELECT <expressionList> { selectInstruction.val=Select(expressionList.val,False,None,None) }\n" + grammarreport
+
 
 def p_instruction_selectoptions_single(t):
     '''selectOptions : selectOption'''
@@ -1117,12 +1124,13 @@ def p_expression_mathfunctions(t):
                   | RADIANS BRACKET_OPEN expression BRACKET_CLOSE
                   | SIGN BRACKET_OPEN expression BRACKET_CLOSE
                   | SQRT BRACKET_OPEN expression BRACKET_CLOSE
+                  | MD5 BRACKET_OPEN expression BRACKET_CLOSE
                   | PI BRACKET_OPEN BRACKET_CLOSE 
                   | RANDOM BRACKET_OPEN BRACKET_CLOSE   
                   '''
     global grammarreport
     grammarreport = "<expression> ::= "+t[1]+" '(' <expression> ')' { expression.val = MathFunction('"+t[1]+"',expression.val) }\n" + grammarreport
-    if(t[1]=='PI'): t[0]=MathFunction(t[1],0)
+    if(t[1]=='PI' or t[1]=='RANDOM'): t[0]=MathFunction(t[1],0)
     else: t[0] = MathFunction(t[1],t[3])
 
 #TRIGONOMETRIC FUNCTIONS

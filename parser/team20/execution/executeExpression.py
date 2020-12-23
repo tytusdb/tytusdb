@@ -5,6 +5,7 @@ from .executeValue import executeValue
 
 import math
 import random
+import hashlib
 
 def executeExpression(self, expression):
             s = Symbol('', 1, 1, 0, 0)
@@ -490,6 +491,10 @@ def executeExpression(self, expression):
                             # DEVOLVER NUMERO ENTRE 0 Y 1
                             s.value = float(random.uniform(0,1))
                             s.type = 2
+                            return s
+                        elif(expression.function == 'MD5'):
+                            s.value = hashlib.md5(e.value.encode('utf-8')).hexdigest()
+                            s.type = 3
                             return s
                     except Exception as e:
                         return Error('Semantico', 'Error : ' + str(e), 0, 0)
