@@ -26,7 +26,8 @@ class TiposDatos(Enum):
 
 class SimboloColumna():
 
-    def __init__(self,nombre,tipoDat):
+    def __init__(self,indice,nombre,tipoDat):
+        self.indice = indice
         self.nombre = nombre
         self.tipoDato = tipoDat
         self.defaultValue = None            # DefaultValue = None -->> Columna no tiene un valor por default
@@ -73,6 +74,9 @@ class SimboloColumna():
     
     def setCheck(self,check):
         self.check = check
+        
+    def setIndice(self,indice):
+        self.indice = indice
     
 
 
