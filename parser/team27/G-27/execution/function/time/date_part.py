@@ -24,11 +24,3 @@ class Date_Part(Function):
             -2 : str(self.input) + " no es permitido, valor en fecha/hora no encontrado",
         }
         return [{'Error':"El valor " + error[val], 'linea':self.row,'columna':self.column }]
-
-from literal import *
-from datetime import datetime
-fechatexto = '2016-12-31 13:30:15'
-fecha = datetime.strptime(fechatexto,'%Y-%m-%d %H:%M:%S')
-li = Literal("4 hours 3 minutes 15 seconds",Type.DATE,1,1)
-op = Date_Part("year",li,2,2)
-print(op.execute(""))
