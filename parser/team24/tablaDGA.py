@@ -84,3 +84,70 @@ class Tabla() :
             print('(actualizar)Error: variable ', simbolo.id, ' no definida.')
         else :
             self.simbolos[simbolo.id] = simbolo
+    
+    ##
+    ##Metodos para implementacion de queries 
+    ##
+    def getTabla(self,nombre,skip=0):
+        sk = skip
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre ==nombre:
+                #Verificar si es tabla
+                #results = []
+                if simbolo.tipo == TIPO.COLUMN:
+                    if sk >0:
+                        sk = sk-1
+                        continue
+                    ambito = simbolo.ambito
+                    tablaaa = self.simbolos[ambito]
+                    # El nombre de la tabla es
+                    tabla = tablaaa.nombre
+                    # La base de datos es 
+                    dbambito = tablaaa.ambito
+                    #DB
+                    dbb = self.simbolos[dbambito]
+                    db = dbb.nombre
+                    return tabla , db
+
+        return None
+
+    def getIndice(self,db,table,col):
+
+        #Buscamos el ambito de la DB
+        iddb = -1
+        for simbolo in self.simbolos.values():  
+            
+            if simbolo.nombre == db and simbolo.tipo == TIPO.DATABASE : 
+                iddb = simbolo.id
+        #Buscamos el ambito de la Tabla
+        
+        idtable = -1
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == table and simbolo.tipo == TIPO.TABLE and simbolo.ambito == iddb : 
+                idtable = simbolo.id
+
+        #Buscamos el indice de la columna
+        idcol = -1
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == col and simbolo.tipo == TIPO.COLUMN and simbolo.ambito == idtable : 
+                idcol = simbolo.numcol
+                return idcol
+        return idcol
+
+    def getColumns(self,db,table):
+        #Buscamos el ambito de la DB
+        iddb = -1
+        for simbolo in self.simbolos.values():  
+            
+            if simbolo.nombre == db and simbolo.tipo == TIPO.DATABASE : 
+                iddb = simbolo.id
+        #Buscamos el ambito de la tabla        
+        idtable = -1
+        for simbolo in self.simbolos.values():
+            if simbolo.nombre == table and simbolo.tipo == TIPO.TABLE and simbolo.ambito == iddb : 
+                idtable = simbolo.id
+        columns = []        
+        for simbolo in self.simbolos.values() :
+            if simbolo.tipo == TIPO.COLUMN and simbolo.ambito == idtable:
+                columns.append(simbolo.nombre)
+        return columns 
