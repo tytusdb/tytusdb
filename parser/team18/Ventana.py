@@ -32,6 +32,7 @@ def abrirGramaticalDSC():
 
 def abrirErrores():
     webbrowser.open_new_tab('Reporte_Errores.html')
+    webbrowser.open_new_tab('Reporte_Errores_Sem.html')
 
 def abrirSimbolos():
     webbrowser.open_new_tab('reporte_TS.html')
