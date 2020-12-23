@@ -415,6 +415,8 @@ def procesar_logica(expresion, ts):
         # LisErr.agregar(newErr)
 
 
+
+
 def procesar_negAritmetica(expresion, ts):
     try:
         return -1 * procesar_expresion(expresion.exp, ts)
@@ -1630,24 +1632,39 @@ def procesar_expresion_select(expresiones, ts):
     print("---------------------------------------"+str(expresiones))
     if isinstance(expresiones, ExpresionAritmetica):
         return procesar_aritmetica_select(expresiones, ts)
+
     elif isinstance(expresiones, ExpresionRelacional):
         return procesar_relacional_select(expresiones, ts)
+
     elif isinstance(expresiones, ExpresionLogica):
         return procesar_logica_select(expresiones, ts)
+
     elif isinstance(expresiones, UnitariaNegAritmetica):
         return procesar_negAritmetica_select(expresiones, ts)
+
     elif isinstance(expresiones, UnitariaLogicaNOT):
         return procesar_logicaNOT_select(expresiones, ts)
+
     elif isinstance(expresiones, UnitariaNotBB):
         return procesar_NotBB_select(expresiones, ts)
+
     elif isinstance(expresiones, ExpresionValor):
         return expresiones.val
+
     elif isinstance(expresiones, CAMPO_TABLA_ID_PUNTO_ID):   #  WHERE Profesional.Id = Trabajo.Codigo
         return procesar_variable_select(expresiones, ts)
+
     elif isinstance(expresiones, Variable):
         return procesar_variable_select(expresiones, ts)
+
     elif isinstance(expresiones, UnitariaAritmetica):
         return procesar_unitaria_aritmetica_select(expresiones, ts)
+
+    elif isinstance(expresiones, AccesoSubConsultas):
+        print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< ENtre sub where")
+        return ProcesoSub(expresiones,ts_global)
+
+
     elif isinstance(expresiones, Absoluto):
         try:
             return procesar_expresion_select(expresiones.variable, ts)
@@ -1661,6 +1678,7 @@ def procesar_expresion_select(expresiones, ts):
 def procesar_aritmetica_select(expresion, ts):
     val = procesar_expresion_select(expresion.exp1, ts)
     val2 = procesar_expresion_select(expresion.exp2, ts)
+
     if expresion.operador == OPERACION_ARITMETICA.MAS:
         if ((isinstance(val, int) or isinstance(val, float))
               and ((isinstance(val2, int) or isinstance(val2, float)))):
@@ -1668,6 +1686,7 @@ def procesar_aritmetica_select(expresion, ts):
         else:
             agregarErrorDatosOperacion(val, val2, "+", "numerico", 0,0)
             return None
+
     elif expresion.operador == OPERACION_ARITMETICA.MENOS:
         if ((isinstance(val, int) or isinstance(val, float))
                 and ((isinstance(val2, int) or isinstance(val2, float)))):

@@ -1061,6 +1061,7 @@ def p_Expresion_Atributos(t):
 def p_Query_Query(t):
     'QUERY :   PARIZQ QUE_SUBS PARDER'
     t[0] = AccesoSubConsultas(False, t[2], False)
+
     print("Estoy accediendo a una subconsulta")
     rep_gramatica('\n <TR><TD> QUERY →      PARIZQ QUE_SUBS PARDER  </TD><TD> t[0] = AccesoSubConsultas(False, t[2], False) </TD></TR>')
 
@@ -1069,6 +1070,7 @@ def p_Query_QueryAs(t):
     'QUERY :  PARIZQ QUE_SUBS PARDER AS_NO'
     t[0] = AccesoSubConsultas(False, t[2], t[4])
     rep_gramatica('\n <TR><TD> QUERY →      PARIZQ QUE_SUBS PARDER AS_NO  </TD><TD> t[0] = AccesoSubConsultas(False, t[2], t[4]) </TD></TR>')
+
 
 
 
@@ -1184,16 +1186,51 @@ def p_ExpresionesC_Case(t):
     rep_gramatica('\n <TR><TD> EXPRESIONES_C →  CASE WHEN_LIST  CUERPOO  </TD><TD> t[0] = CaseCuerpo(t[3],t[2]) </TD></TR>')
 
 
+
+
 def p_ExpresionesC_Greatest(t):
-    'EXPRESIONES_C  :  GREATEST PARIZQ expresion PARDER '
+    'EXPRESIONES_C  :  GREATEST PARIZQ LISTAEXP PARDER '
   #  t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
     t[0] = ExpresionesCase(t[1],t[3])
     rep_gramatica('\n <TR><TD> EXPRESIONES_C →  GREATEST PARIZQ expresion PARDER  </TD><TD> t[0] = ExpresionesCase(t[1],t[3])  </TD></TR>')
 
 def p_ExpresionesC_Least(t):
-    'EXPRESIONES_C  :  LEAST PARIZQ expresion PARDER '
+    'EXPRESIONES_C  :  LEAST PARIZQ LISTAEXP PARDER '
     t[0] = ExpresionesCase(t[1],t[3])
     rep_gramatica('\n <TR><TD> EXPRESIONES_C →  LEAST PARIZQ expresion PARDER  </TD><TD> t[0] = ExpresionesCase(t[1],t[3])  </TD></TR>')
+
+
+
+
+#===========================================================================
+def p_Expresiones_Listt(t):
+    'LISTAEXP    :  LISTAEXP LISEXP '
+    t[1].append(t[2])
+    t[0] = t[1]
+    rep_gramatica('\n <TR><TD> LISTAEXP →  LISTAEXP LISEXP  </TD><TD> t[1].append(t[2])  t[0] = t[1]</TD></TR>')
+
+
+def p_Expresiones_Expres(t):
+    'LISTAEXP    :  LISEXP'
+    t[0] = [t[1]]
+    rep_gramatica('\n <TR><TD> LISTAEXP →   LISEXP  </TD><TD> t[0] = [t[1]] </TD></TR>')
+
+
+
+def p_Expresioness(t):
+    'LISEXP    :   expresion'
+    t[0] = t[1]
+    rep_gramatica('\n <TR><TD> LISEXP → expresion </TD><TD> t[0] = t[1] </TD></TR>')
+
+
+def p_ExpresionessComa(t):
+    'LISEXP    :   COMA'
+    t[0] = t[1]
+    rep_gramatica('\n <TR><TD> LISEXP → COMA </TD><TD> t[0] = t[1] </TD></TR>')
+
+#===========================================================================
+
+
 
 
 
@@ -1235,7 +1272,6 @@ def p_whenList_Uni(t):
 
 def p_WhenUni_Then(t):
     'WHEN_UNI  :   WHEN expresion THEN expresion'
-   # t[0] = str(t[1]) + str(t[2]) + str(t[3]) + str(t[4])
     t[0] = TiposWhen(t[1],"", t[3], t[2], False, t[4])
     rep_gramatica('\n <TR><TD> WHEN_UNI →  WHEN expresion THEN expresion </TD><TD> t[0] = TiposWhen(t[1],"", t[3], t[2], False, t[4])  </TD></TR>')
 
@@ -1262,9 +1298,6 @@ def p_Cuerpo_WhenElse(t):
     'WHEN_UNI  :  WHEN expresion  ELSE expresion '
     t[0] =TiposWhen(t[1],t[3],"",t[2],t[4],False)
     rep_gramatica('\n <TR><TD> WHEN_UNI →  WHEN expresion  ELSE expresion </TD><TD> t[0] =TiposWhen(t[1],t[3],"",t[2],t[4],False)  </TD></TR>')
-
-
-
 
 
 
@@ -2294,6 +2327,7 @@ def p_valor_id(t):
     '''expresion_aritmetica : ID'''
     t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL)
     rep_gramatica('\n <TR><TD> expresion_logica → ID    </TD><TD>  t[0] = Variable(t[1], TIPO_VARIABLE.TEMPORAL) </TD></TR>')
+
 
 def p_valor_id_2(t):
     '''expresion_aritmetica : ID PUNTO ID'''
