@@ -29,6 +29,44 @@ def list_expressions(array, enviroment):
     lista3.append(lista1)
     return lista3
 
+def list_expressions_groupby(array, enviroment):
+    lista1 = [] # lista para columnas 
+    lista2 = [] # lista para el dictionario 
+    lista3 = [] # lista para los heders
+    lista4 = [] # lista para los alias generales
+    lista5 = []
+    for _, data in enumerate(array):
+        valores = data.process(enviroment)
+        if isinstance(valores, list):
+            if len(valores) == 3:
+                if valores[1] == "*":
+                    lista2.append(valores[0])
+                    lista4.append(data.alias)
+                else:
+                    lista1.append(valores[0])
+                    lista2.append(valores[2])
+                    lista3.append(valores[1])
+                    lista4.append(data.alias)
+            else:
+                lista1.append(valores[0])
+                lista3.append(valores[1])
+                lista4.append(data.alias)
+            
+    if len(lista1) == len(lista3):
+        dictionary = convert_dictionary(lista3, lista1)
+        table = pd.DataFrame(dictionary)
+        print(table)
+        lista5.append(table)
+        lista5.append(lista2)
+        lista5.append(lista4)
+        lista5.append(lista3)
+        return lista5
+    else:
+        return None
+    # lista3.append(lista2)
+    # lista3.append(lista1) 
+    # return lista3
+
 def loop_list(array, enviroment):
     lista1 = []
     tabla = None
@@ -64,7 +102,7 @@ def loop_list_with_columns(array, name, enviroment):
         valores = data.process(enviroment)
         if isinstance(valores, list):
             lista1.append(valores[0])
-            alias.append(valores[1])
+            alias.append(data.alias)
         else:
             result.append(valores.value)
             alias.append(data.alias)

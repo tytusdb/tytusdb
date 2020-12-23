@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from math_functions import log
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.math_functions import log
 class Log(Function):
     def __init__(self, input, row, column):
         Function.__init__(self,row,column)

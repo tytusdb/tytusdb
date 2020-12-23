@@ -87,6 +87,18 @@ class Entorno:
         
         return None
 
+    def renombrarDatabase(self,viejaDB,nuevaDB):
+        ent = self
+
+        while ent != None:
+            x = 0
+            for x in ent.tablaSimbolo.copy():
+                db:str = ent.tablaSimbolo[x].baseDatos
+                if db == viejaDB:
+                    ent.tablaSimbolo[x].baseDatos = nuevaDB
+
+            ent = ent.anterior
+    
     def eliminarSymTabla(self,tabla):
         ent = self
 
@@ -97,14 +109,10 @@ class Entorno:
                     ent.tablaSimbolo.pop(x)
 
             ent = ent.anterior
-        
-        return None
-
+  
     def eliminarTodo(self):
         ent = self
         while ent != None:
             del ent.tablaSimbolo
 
             ent = ent.anterior
-        
-        return None

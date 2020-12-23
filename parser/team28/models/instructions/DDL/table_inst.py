@@ -8,6 +8,7 @@ from controllers.data_controller import *
 from models.database import Database
 from models.column import Column
 from models.table import Table
+from models.instructions.DDL.column_inst import *
 import json
 import datetime
 import re
@@ -613,8 +614,28 @@ class AlterTable(Instruction):
         self._tablaAModificar = tablaAModificar
         self._listaCambios = listaCambios
 
-    def execute(self):
-        pass
+    def process(self,instruction):
+        typeChecker = TypeChecker()
+
+        print('')
+        print('VAMOS A MODIFICAR LA SIGUIENTE TABLA')
+        print(self._tablaAModificar)
+
+        existTable = typeChecker.searchTable(SymbolTable().useDatabase,self._tablaAModificar)
+
+        #validate if the table to alter exists
+        if existTable == None:
+            desc = f": Undefined table in alter table"
+            ErrorController().add(27, 'Execution', desc, 0, 0)
+            return
+
+        print('y estos son los cambios')
+        #  Cambio puede ser un add    (column,check,constraint_unique,foreign_key)
+        #                   un alter 
+        #                   un drop 
+        #                   un rename
+        for cambio in self._listaCambios:
+            cambio.process(self._tablaAModificar)
 
     def __repr__(self):
         return str(vars(self))
@@ -633,6 +654,104 @@ class AlterTableAdd(AlterTable):
 
     def __repr__(self):
         return str(vars(self))
+
+    def process(self,instruction):
+
+        if isinstance(self._changeContent,CreateCol):
+            print('VAMOS A AGREGAR UNA COLUMNA')
+            self.agregarCol(self._changeContent,instruction)
+            
+            
+        elif isinstance(self._changeContent,Check):
+            print('VAMOS A AGREGAR UN CHECK')
+        
+        elif isinstance(self._changeContent,Constraint):
+            print('VAMOS A AGREGAR UN CONSTRAINT_UNIQUE')
+            self.agregarUnique(self._changeContent._column_condition._column_list, instruction)
+
+        elif isinstance(self._changeContent,ForeignKey):
+            print('VAMOS A AGREGAR UN FOREIGN_KEY')
+            self.agregarFk(self._changeContent._column_list,self._changeContent._table_name,
+                            self._changeContent._table_column_list,instruction)
+
+
+    def agregarCol(self,columna,nombreTabla):
+        typeChecker = TypeChecker()
+        
+        tipoFinal = {
+        '_tipoColumna' : str(columna._type_column._tipoColumna),
+        '_paramOne' : columna._type_column._paramOne,
+        '_paramTwo' : columna._type_column._paramTwo
+        }
+
+        columnaFinal = Column(columna._column_name,tipoFinal)
+        tableToInsert = typeChecker.searchTable(SymbolTable().useDatabase, nombreTabla)
+        validateCol = typeChecker.createColumnTable(tableToInsert,columnaFinal,0,0)
+        # if return None an error ocurrio
+        if validateCol == None:
+            return
+
+    def agregarFk(self,listaCols,nombreTabla,listaTablasCols,tablaAAlter): 
+        
+        typeChecker = TypeChecker()
+
+        # the len of the cols must be de same
+        if len(listaCols) != len(listaTablasCols):
+            desc = f": cant of params in foreign() != "
+            ErrorController().add(36, 'Execution', desc, 0, 0)
+            return
+
+        existForeingTable = typeChecker.searchTable(SymbolTable().useDatabase,nombreTabla)
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaAAlter)
+
+        #validate if the foreign table exists
+        if existForeingTable == None:
+            desc = f": Undefined table in foreign key ()"
+            ErrorController().add(27, 'Execution', desc, 0, 0)
+            return
+
+        #validate if the columns exists in the foreign table
+        for coli in listaTablasCols:
+            if typeChecker.searchColumn(existForeingTable,coli) == None:
+                desc = f": Undefined col in table in foreign key ()"
+                ErrorController().add(26, 'Execution', desc, 0, 0)
+                return
+
+        bandera = False
+        for x in range(0,len(listaCols)):
+            for columna in tableToAlter.columns:
+                if(columna._name == listaCols[x]):
+                    bandera = True
+                    columna._foreignKey = {
+                                            '_refTable' : nombreTabla,
+                                            '_refColumn' : listaTablasCols[x]
+                                        }
+                    break
+            if not bandera:
+                desc = f": Undefined column in foreign key ()"
+                ErrorController().add(26, 'Execution', desc, 0, 0)
+                return
+            bandera = False
+        
+        typeChecker.writeFile()
+
+    def agregarUnique(self,columnaToUnique, tablaAAlter):
+        typeChecker = TypeChecker()
+        bandera = False
+        tableToAlter = typeChecker.searchTable(SymbolTable().useDatabase,tablaAAlter)
+
+        for columna in tableToAlter.columns:            
+            if(columna._name == columnaToUnique):
+                bandera = True
+                columna._unique = True
+                break
+
+        if not bandera:
+            desc = f": Undefined column in Unique ()"
+            ErrorController().add(26, 'Execution', desc, 0, 0)
+            return
+        bandera = False
+        typeChecker.writeFile()
 
 
 class AlterTableAlter(AlterTable):

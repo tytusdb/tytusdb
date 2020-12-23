@@ -1,4 +1,4 @@
-from Interpreter.Expressions.expression import Expression
+from Interpreter.Expression.expression import Expression
 
 
 class Concat(Expression):

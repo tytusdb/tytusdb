@@ -8,7 +8,8 @@ class group_by(instruccion):
         self.expresiones=expresiones
         self.nodo = nodo_AST('GROUP BY',num_nodo)
         self.nodo.hijos.append(nodo_AST('GROUP BY',num_nodo+1))
-         
+        
+        self.grammar_ = ' '
         
     def ejecutar(self):
-        pass 
+        return self.expresiones
