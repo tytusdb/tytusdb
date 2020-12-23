@@ -1,6 +1,6 @@
 from jsonMode import createDatabase, createTable, dropDatabase, alterAddPK
 from parse.ast_node import ASTNode
-from parse.symbol_table import SymbolTable, TableSymbol, FieldSymbol, TypeSymbol, SymbolType
+from parse.symbol_table import SymbolTable, TableSymbol, FieldSymbol, TypeSymbol
 from parse.errors import Error, ErrorType
 
 
@@ -46,11 +46,9 @@ class CreateDatabase(ASTNode):
         if result == 1:
             # log error on operation
             raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
-            return False
-        elif result == 2 and self.exists == False:
+        elif result == 2 and self.exists is False:
             # log error because db already exists
             raise Error(0, 0, ErrorType.RUNTIME, '42P04: duplicate_database')
-            return False
         else:
             # return table.add(DatabaseSymbol(result_name, result_owner, result_mode)) #chaged by loadDatabases
             table.LoadDataBases()
@@ -79,13 +77,10 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
 
         if result == 1:
             raise Error(0, 0, ErrorType.RUNTIME, '5800: system_error')
-            return False
         elif result == 2:
             raise Error(0, 0, ErrorType.RUNTIME, '42P04: database_does_not_exists')
-            return False
         elif result == 3:
             raise Error(0, 0, ErrorType.RUNTIME, '42P07: duplicate_table')
-            return False
         else:
             # add primary keys, jsonMode needs the number of the column to set it to primarykey
             keys = list(
@@ -94,7 +89,7 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
                     filter(lambda key: key.is_pk is True, result_fields)
                 )
             )
-            if (len(keys) > 0):
+            if len(keys) > 0:
                 result = alterAddPK(table.get_current_db().name, result_name, keys)
 
             table.add(TableSymbol(table.get_current_db().id, result_name, self.check_exp))
