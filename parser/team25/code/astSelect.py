@@ -7,7 +7,7 @@ from useDB.instanciaDB import DB_ACTUAL
 from storageManager.jsonMode import extractTable
 from typeChecker.typeReference import getColumns
 from prettytable import PrettyTable
-from astExpresion import ExpresionID, Expresion
+from astExpresion import ExpresionID, Expresion , TuplaCompleta
 
 class COMBINE_QUERYS(Enum):
     UNION = 1
@@ -149,7 +149,7 @@ class SelectJoin(Instruccion):
 class SelectFrom(Instruccion):
     def __init__(self, fuentes, campos, alias=None):
         self.fuentes = fuentes
-        self.campos = campos
+        self.campos = campos # tal vez que lista de campos viniera como    [ ( item , alias)   , ( item , alias)  , ( item , alias)   ] donde item puede ser una expresion , funcion o algo simple
         self.alias = alias
     
     def dibujar(self):
@@ -171,15 +171,15 @@ class SelectFrom(Instruccion):
                 nodo += "\n" + identificador + " -> " + str(hash(self.fuente)) + ";"
                 nodo += self.fuente.dibujar()
         return nodo
-    def ejecutar(self, ts):
+    def ejecutar(self, ts): 
         columnas = []
-        for col in self.campos:
+        for col in self.campos:#['item']
             if isinstance (col, ExpresionID):
                 columnas.append(col.val)
             elif isinstance(col, str):
                 columnas.append(col)
             elif isinstance(col, Expresion):
-                print(col.ejecutar(ts).val)
+                columnas.append(col)           
         if len(self.fuentes)>1:
             encabezados = []
             lista = []
@@ -192,8 +192,10 @@ class SelectFrom(Instruccion):
             tabla_fuente = productoCruz(lista)
             resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", self.fuentes)
             ts.append(resultado)
+            print(ts)
             salida = None
             seleccion_columnas = []
+            
             for actual in columnas:
                 if actual.count('.') == 1:
                     seleccion_columnas.append(actual)
@@ -212,13 +214,17 @@ class SelectFrom(Instruccion):
             else:
                 print("Algo salió mal")
         else:
+            # SOLO UNA FUENTE 
             encabezados = []
             tb = extractTable(DB_ACTUAL.name,self.fuentes[0])
             clm = getColumns(DB_ACTUAL.name,self.fuentes[0])
+          #  print(clm)
             for encabezado in clm:
                 encabezados.append(self.fuentes[0]+"."+encabezado)
-            resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0], self.fuentes)
-            ts.append(resultado)
+            resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0], self.fuentes , clm)
+            ts.append(resultado)   
+
+            # falta agregar las columnas de expresion a la hora de mostrar 
             salida = resultado.obtenerColumnas(columnas)
             if salida != None:
                 salida.imprimirMatriz()
@@ -226,10 +232,13 @@ class SelectFrom(Instruccion):
             else:
                 print("Algo salió mal")
 
+
+
+    
 # Select filter
 class SelectFilter(Instruccion):
     def __init__(self, where, groupby = None, having = None):
-        self.where = where
+        self.where = where # ES UNA EXPRESION
         self.groupby = groupby
         self.having = having
 
@@ -346,12 +355,14 @@ def realizarProducto(operandos:list):
     operandos.append(res)
     return res  
 class matriz():
-    def __init__(self, columnas:list, filas:list, tipo, nombre, fuentes: list):
+    def __init__(self, columnas:list, filas:list, tipo, nombre, fuentes: list , clm ):
         self.columnas = columnas
         self.filas = filas
         self.tipo = tipo
         self.nombre = nombre
         self.fuentes = fuentes
+        self.clm = clm # SOLO PARA SABER LOS TIPOS EN EL DE EXPRESION :v 
+
     def imprimirMatriz(self):
         x = PrettyTable()
         x.field_names = sinRepetidos(self.columnas)
@@ -364,7 +375,43 @@ class matriz():
         flag = True
         columnas_resultantes = []
         for actual in ids:
-            if actual == "*":
+            if isinstance(actual , Expresion):
+                #___________________________________________________- EJECUCION 
+                ColumnaCompleta = []
+                MinitablaSimbolos = []
+                filas = self.filas
+                columnas = self.columnas
+                i = 0 
+                while(i < len(filas)):
+                    indiceColumna = 0
+                    while(indiceColumna < len(columnas)): 
+                        MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':self.clm[quitarRef(columnas[indiceColumna])]['Type']})
+                        indiceColumna+=1
+                    tupla = TuplaCompleta(MinitablaSimbolos) # ESTO SOLO LO HICE PARA PODER HACER UN IF EN EL EJECUTAREXPRESIONID y no matar lo que puso cante :v 
+                    casillaResultante = actual.ejecutar(tupla)
+                    ColumnaCompleta.append(casillaResultante.val) 
+                    MinitablaSimbolos.clear()
+                    i+=1
+
+                #_______________________________________________________- PARA AGREGARLO A PRETTY TABLE 
+                if flag:
+                    # nueva fila
+                    for k in ColumnaCompleta:
+                        nuevaColumna = [] # FILA
+                        nuevaColumna.append(k)
+                        resultante.append(nuevaColumna)
+                    flag = False
+                    columnas_resultantes.append('exp')
+                else:
+                    h = 0 
+                    for j in resultante:
+                        resultante[h].append(ColumnaCompleta[h])
+                        h+=1
+                    flag = False
+                    columnas_resultantes.append('exp')
+                
+                
+            elif actual == "*":
                 j = 0
                 for fila in self.filas:
                     if flag:
@@ -423,7 +470,7 @@ class matriz():
                     error = True
                     break
         if not error:
-            salida = matriz(columnas_resultantes, resultante, TABLA_TIPO.SELECCIONADA, "nueva tabla", self.fuentes)
+            salida = matriz(columnas_resultantes, resultante, TABLA_TIPO.SELECCIONADA, "nueva tabla", self.fuentes , self.clm)
         else: 
             salida = None
         return salida
@@ -462,3 +509,6 @@ def sinRepetidos(lista: list) -> list:
         aux[item] += 1
 
     return nuevaLista
+def quitarRef(cadena):# le quito la referencia de su tabla 
+        cadena = cadena.split('.')
+        return cadena[1]

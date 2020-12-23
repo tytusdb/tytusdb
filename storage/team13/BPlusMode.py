@@ -320,16 +320,17 @@ def loadCSV(file, database, table):
                     file.close() 
                     results = []
                     registers = registers.split('\n')
+                    registers.pop()
                     for i in registers:
                         register = i.split(',')
                         results.append(tabla.bPlus.insert(register))
                     Save(DataBase, "BD")
                     return results
-                return [3]
-            return [2]
-        return [1]
+                return []
+            return []
+        return []
     except:
-        return [1]
+        return []
 
 
 def extractRow(database, table, columns):
