@@ -386,6 +386,10 @@ def p_statement(t):
 #                    |    stm_select INTERSECT all_opt stm_select
 #                    |    stm_select EXCEPT all_opt 
 #                    |    stm_use_db PUNTOCOMA
+    try:
+        punteroinicio(t[1].graph_ref)
+    except:
+        print("falta parametro graph_ref") 
     t[0] = t[1]
 
 def p_statement_error(t):
@@ -417,12 +421,12 @@ def p_stm_select(t):
     if len(t) == 3:
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("stm_select"),    [t[1], t[2]]       ,childsProduction)
-        addCad("**\<DISTINCT_OPT>** ::= tSelect \<LIST_NAMES> ")
+        addCad("**\<STM_SELECT>** ::= tSelect \<LIST_NAMES> ")
         t[0] = upNodo("token", 0, 0, graph_ref)
     else:    
         childsProduction  = addNotNoneChild(t,[2,3,5,6,7,8,9,10,11])
         graph_ref = graph_node(str("stm_select"),    [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]]       ,childsProduction)
-        addCad("**\<DISTINCT_OPT>** ::= tSelect \<DISTINC_OPT> \<LIST_NAMES> tFrom \<TABLE_LIST>   \<WHERE_CLAUSE> \<GROUP_CLAUSE>\<HAVING_CLAUSE_OPT> \<ORDER_BY_OPT> <LIMIT_OPT>  ")
+        addCad("**\<STM_SELECT>** ::= tSelect \<DISTINC_OPT> \<LIST_NAMES> tFrom \<TABLE_LIST>   \<WHERE_CLAUSE> \<GROUP_CLAUSE>\<HAVING_CLAUSE_OPT> \<ORDER_BY_OPT> <LIMIT_OPT>  ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####       
 
@@ -665,14 +669,14 @@ def p_list_names(t):
                     | list_names COMA names
                     '''
     if len(t) == 6:
-        childsProduction  = addNotNoneChild(t,[1])
-        graph_ref = graph_node(str("list_names"),    [t[1]]       ,childsProduction)
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3],t[4],t[5]]       ,childsProduction)
         addCad("**\<LIST_NAMES>** ::=  \<LIST_NAMES>  ',' tNames tAs tTexto  ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####                
     elif len(t) == 4:
-        childsProduction  = addNotNoneChild(t,[1,2,4])
-        graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        childsProduction  = addNotNoneChild(t,[1,3])
+        graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3]]       ,childsProduction)
         addCad("**\<LIST_NAMES>** ::=   \<LIST_NAMES>  ',' tNames ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         ####   
