@@ -21,6 +21,9 @@ from Instrucciones.Sql_create.CreateDatabase import CreateDatabase
 from storageManager.jsonMode import *
 
 import sintactico
+
+global arbol
+arbol = None
 '''
 instruccion = CreateDatabase("bd1",None,"TRUE",None,None,None,None, 1,2)
 instruccion.ejecutar(None,None)
@@ -164,14 +167,15 @@ class interfaz():
 
     def tblsimbolos_click(self):
         # Función que crea el reporte de tabla de símbolos, recibe como parametro una tabla.
-        #rs.crear_tabla(local1)
-        print("tblsimbolos")            
+        global arbol
+        rs.crear_tabla(arbol)           
 
     def ast_click(self):
         print("ast")   
 
     ##############################################EVENTOS DE LOS BOTONES DEL FRAME####################################
     def btnanalizar_click(self):
+        global arbol
         dropAll()
         os.system ("cls")
         #Elimina el Contenido de txtsalida

@@ -172,6 +172,7 @@ class tabla_simbolos:
 
     def get_index_pk(self, id_db, id_tb):
         count_cols = 0
+        list_pk = []
         for database_ in self.simbolos:
             database_val = self.simbolos[database_]
             
@@ -181,15 +182,16 @@ class tabla_simbolos:
                         
                     if table_ == id_tb:
                         for col in table_val.values():
-                            for restr in col.condiciones:
-                                try:
-                                    if restr.pk == 'pk':
-                                        return count_cols
-                                except:
-                                    pass
-                            count_cols += 1
+                            if col.condiciones != None:
+                                for restr in col.condiciones:
+                                    try:
+                                        if restr.pk == 'pk':
+                                            list_pk.append(count_cols)
+                                    except:
+                                        pass
+                                count_cols += 1
         
-        return -1
+        return list_pk
 
     def reiniciar_ts(self):
         self.simbolos = {}

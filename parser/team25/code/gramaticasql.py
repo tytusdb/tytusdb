@@ -81,10 +81,10 @@ def p_instruccion7(p):
     p[0] = p[1]
     bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
 
-def p_instruccion8(p):
-    'instruccion : select PTCOMA '
-    p[0] = p[1]
-    bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
+# def p_instruccion8(p):
+#     'instruccion : select PTCOMA '
+#     p[0] = p[1]
+#     bnf.addProduccion('\<instruccion> ::= \<use> "." ') 
     
 def p_use(p):
     'use : USE ID'
@@ -333,6 +333,7 @@ def p_combine_querys6(p):
 
 def p_combine_querys7(p):
     'combine_querys : select'
+    p[0] = p[1]
     bnf.addProduccion('\<combine_querys> ::= \<select> ')
 #_____________________________________________________________ SELECT
 
@@ -1667,7 +1668,7 @@ def p_expresion_id(p):
     
 def p_expresion_tabla_campo(p):
     'expresion : ID PUNTO ID'
-    p[0] = ExpresionID(p[3], p.slice[1].lineno , tabla = p[1])
+    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno)
     bnf.addProduccion('\<exp_aux> ::= "ID" "." "ID"')
         
 
@@ -1829,12 +1830,12 @@ def p_exp_aux_decimal(p):
 #          | 'id' '.' 'id'
 def p_exp_aux_tabla(p):
     'exp_aux :  ID PUNTO ID'
-    p[0] = ExpresionID(p[3], p.slice[1].lineno , tabla = p[1])
+    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno , tabla = p[1])
     bnf.addProduccion('\<exp_aux> ::= "ID" "." "ID"')
 #          | 'id'
 def p_exp_aux_id(p):
     'exp_aux :  ID'
-    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno , tabla = p[1])
+    p[0] = ExpresionID(p[1], p.slice[1].lineno , tabla = p[1])
     bnf.addProduccion('\<exp_aux> ::= "ID"')
 #          | <FUNCIONES>
 def p_exp_aux_funciones(p):
@@ -2079,7 +2080,7 @@ def analizarEntrada(entrada):
     return parser.parse(entrada)
 
 arbolParser = analizarEntrada('''
-use test; 
-select * from tbrol;
+use test;
+select * from tbrol, tbusuario;
 ''')
 arbolParser.ejecutar()

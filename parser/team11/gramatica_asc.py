@@ -2,6 +2,7 @@ import ply.yacc as yacc
 import ply.lex as lex
 
 from Ast import *
+from creacionArbol import *
 
 from graphviz import render
 
@@ -446,18 +447,29 @@ def p_inst_alter(t):
                         | ALTER TABLE ID RENAME COLUMN ID TO ID
                         | ALTER TABLE ID DROP COLUMN listtablas
                         | ALTER TABLE ID list_alter_column'''
+    t[0] = getAlterTableNode(t)
     
 def p_list_alter_column_r(t):
     'list_alter_column : list_alter_column COMA ALTER COLUMN ID TYPE type_column'
+    g = '<list_alter_column> ::= <list_alter_column> \"COMA\" \"ALTER\" \"COLUMN\" ID \"TYPE\" <type_column>\n'
+    t[1].append( Nodo('Columna',t[5],[t[7]],t.lexer.lineno,0,g) )
+    t[0] = t[1]
     
 def p_list_alter_column(t):
     'list_alter_column : ALTER COLUMN ID TYPE type_column'
+    g = '<list_alter_column> ::= \"ALTER\" \"COLUMN\" ID \"TYPE\" <type_column>\n'
+    t[0] = [ Nodo('Columna',t[3],[t[5]],t.lexer.lineno,0,g) ]
     
 def p_list_columns_r(t):
     'list_columns       : list_columns COMA ID type_column'
+    g = '<list_columns> ::= <list_columns> \"COMA\" ID <type_column>\n'
+    t[1].append( Nodo('Columna','',[Nodo('ID',t[3],[],t.lexer.lineno), t[4]],t.lexer.lineno,0,g) )
+    t[0] = t[1]
 
 def p_list_columns_(t):
     'list_columns       : ID type_column'
+    g = '<list_columns> ::= ID <type_column>'
+    t[0] = [Nodo('Columna','',[Nodo('ID',t[1],[],t.lexer.lineno),t[2]],t.lexer.lineno,0,g)]
 
 # Tipos de datos para columnas/campos
 def p_type_column(t):
@@ -485,6 +497,7 @@ def p_type_column(t):
                       | ID
                       | TIME PARIZQ ENTERO PARDER
                       | INTERVAL field'''
+    t[0] = getColumnTypeNode(t)
  
 # Campos para intervalos de tiempo   
 def p_field(t) :
@@ -494,99 +507,142 @@ def p_field(t) :
                       | HOUR
                       | MINUTE
                       | SECOND'''
+    g = '<field> ::= \"'+str(t[1]).upper()+'\"'
+    t[0] = Nodo('Campo',t[1],[],t.lexer.lineno,0,g)
 
 # --------- PRODUCCIONES PARA CREATE TABLE -------------
 
 def p_create_table(t):
     'create_table : CREATE TABLE ID PARIZQ list_columns_x PARDER end_create_table'
+    t[0] = getCreateTableNode(t)
     
 def p_end_create_table(t):
     '''end_create_table : PTCOMA
-                      | INHERITS PARIZQ ID PARDER PTCOMA'''
+                      | INHERITS PARIZQ ID PARDER PTCOMA'''}
+    if len(t) > 2:
+        g = '<end_create_table> ::= \"INHERITS\" \"PARIZQ\" ID \"PARDER\" \"PTCOMA\"\n'
+        t[0] = Nodo('INHERITS',t[3],[],t.lexer.lineno,0,g)
     
 def p_list_columns_x(t):
     'list_columns_x : list_columns_x COMA key_column'
+    t[1].append(t[3])
+    t[0] = t[1]
     
 def p_list_columns(t):
     'list_columns_x : key_column'
+    t[0] = [t[1]]
 
 def p_key_column(t):
     '''key_column : PRIMARY KEY PARIZQ listtablas PARDER
                    | ID type_column attributes'''
+    t[0] = getKeyOrColumnNode(t)
 
 def p_attributes(t):
     'attributes   : default_value null_field constraint_field null_field primary_key'
+    t[0] = getAttributesNode(t)
     
 def p_default_value(t):
     '''default_value  : DEFAULT x_value
                       | empty '''
+    if t[1] != None:
+        g = '<default_value> ::= \"DEFAULT\" <x_value>\n'
+        t[0] = Nodo('DEFAULT','',[],t.lexer.lineno,0,g)
 
 def p_x_value(t):
     ''' x_value : cualquiercadena
                 | cualquiernumero'''
+    t[0] = t[1]
 
 def p_primary_key(t):
     '''primary_key : PRIMARY KEY
                    | empty'''
+    if t[1] != None:
+        g = '<primary_key> ::= \"PRIMARY\" \"KEY\"\n'
+        t[0] = Nodo('PRIMARY KEY','',[],t.lexer.lineno,0,g)
     
 def p_null_field(t):
     '''null_field     : NULL
                       | NOT NULL
                       | empty '''
+    t[0] = getNullFieldNode(t)
     
 def p_constraint_field(t):
     '''constraint_field : UNIQUE
                         | CONSTRAINT ID check_unique 
                         | CHECK PARIZQ condiciones PARDER
                         | empty'''
+    t[0] = getConstraintFieldNode(t)
     
 def p_check_unique(t):
     '''check_unique : UNIQUE 
                     | CHECK PARIZQ condiciones PARDER
                     | empty'''
-
+    t[0] = getCheckUnique(t)
 
 # -------- PRODUCCIONES PARA CREATE ENUMS ------------
 
 def p_create_enum(t):
     'create_enum : CREATE TYPE ID AS ENUM PARIZQ list_string PARDER PTCOMA'
+    g = '<create_enum> ::= \"CREATE\" \"TYPE\" ID \"AS\" \"ENUM\" \"PARIZQ\" <list_string> \"PARDER\" \"PTCOMA\"'
+    t[0] = Nodo('CREATE ENUM',t[3],t[7],t.lexer.lineno,0,g)
     
 def p_list_strings_r(t):
     'list_string : list_string COMA cualquiercadena'
+    t[3].gramatica = '<list_string> ::= <list_string> \"COMA\" <cualquiercadena>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
     
 def p_list_strings(t):
     'list_string : cualquiercadena'
+    t[1].gramatica = '<list_string> ::= <cualquiercadena>'
+    t[0] = [t[1]]
     
 # ------------ PRODUCCION PARA DROP TABLE ------------
 
 def p_drop_table(t):
     'drop_table : DROP TABLE ID PTCOMA'
-
+    g = '<drop_table> ::= \"DROP\" \"TABLE\" ID \"PTCOMA\"\n'
+    t[0] = Nodo('DROP TABLE',t[3],[],t.lexer.lineno,0,g)
 
 ## ------------------------------------- gramatica para el manejo de tuplas -----------------------------------------
 
 ## INSERT 
 def p_insert_sinorden(t) :
     'insert_instr     : INSERT INTO ID VALUES PARIZQ parametros PARDER PTCOMA'
+    g = '<insert_instr> ::=  \"INSERT\" \"INTO\" ID \"VALUES\" \"PARIZQ\" <parametros> \"PARDER\" \"PTCOMA\"\n'
+    t[0] = Nodo('INSERT INTO',t[3],t[6],t.lexer.lineno,0,g)
 
 def p_insert_conorden(t) :
     'insert_instr     : INSERT INTO ID PARIZQ columnas PARDER VALUES PARIZQ parametros PARDER PTCOMA'
+    g = '<insert_instr> ::= \"INSERT\" \"INTO\" ID \"PARIZQ\" <columnas> \"PARDER\" \"VALUES\" \"PARIZQ\" <parametros> \"PARDER\" \"PTCOMA\"\n'
+    t[0] = Nodo('INSERT INTO',t[3],t[6],t.lexer.lineno,0,g)
 
 def p_lista_columnas(t) :
     'columnas       : columnas COMA ID'
+    g = '<columnas> ::= <columnas> \"COMA\" ID\n'
+    t[1].append( Nodo('Columna',t[3],[],t.lexer.lineno,0,g) )
+    t[0] = t[1]
 
 def p_lista_columnas_salida(t) :
     'columnas       : ID'
+    g = '<columnas> ::= ID\n'
+    t[0] = [ Nodo('Columna',t[1],[],t.lexer.lineno,0,g) ]
     
 def p_lista_parametros(t) :
     'parametros       : parametros COMA parametroinsert'
+    t[3].gramatica = '<parametros> ::= <parametros> \"COMA\" <parametroinsert>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lista_parametros_salida(t) :
     'parametros       : parametroinsert'
+    t[1].gramatica = '<parametros> ::= <parametroinsert>\n'
+    t[0] = [t[1]]
 
 def p_parametro (t) :
     '''parametroinsert  : DEFAULT
                         | expresion'''
+    t[0] = getParamNode(t)
     
 ## UPDATE
 def p_update_sinwhere(t) : 
@@ -1069,7 +1125,7 @@ def p_valores(t):
    # t[0] = t[1]
 
 
-# -------------- FUNCIONES MÁTEMÁTICAS ----------------------
+# -------------- FUNCIONES MATEMÁTICAS ----------------------
 
 # Select | Where
 def p_funciones_matematicas1(t):
@@ -1134,16 +1190,21 @@ def p_funciones_trigonometricas(t):
 # Select | Where
 def p_fbinarias_cadenas_1(t):
     'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
+    g = '<fun_bin_strings_1> ::= \"LENGTH\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+    t[0] = Nodo('FUNCION STR','LENGTH',[],t.lexer.lineno,0,g)
     
 # Select | Insert | Update | Where
 def p_fbinarias_cadenas_2(t):
     '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
                             | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
                             | TRIM PARIZQ cadena PARDER'''
+    t[0] = getStringFunctionNode2(t)
     
 # Insert | Update                            
 def p_fbinarias_cadenas_3(t):
     'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
+    g = '<func_bin_strings_3> ::= \"MD5\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+    t[0] = Nodo('FUNCION STR','MD5',[t[3]],t.lexer.lineno,0,g)
 
 # Select
 def p_fbinarias_cadenas_4(t):
@@ -1153,11 +1214,12 @@ def p_fbinarias_cadenas_4(t):
                             | DECODE PARIZQ cadena COMA cadena PARDER
                             | SHA256 PARIZQ cadena PARDER
                             | CONVERT PARIZQ alias PARDER'''
+    t[0] = getStringFunctionNode4(t)
 
 def p_cadena(t):
     '''cadena   : cualquiercadena
                 | cualquieridentificador'''
-
+    t[0] = t[1]
 
 ############################################## PRODUCCIONES ESPECIALES #################################################
 
