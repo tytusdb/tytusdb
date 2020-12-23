@@ -2362,20 +2362,22 @@ def cuerpo_select(cuerpo,ts):
             for col in tb:
                 lcabeceras.append(col.nombre)
         lregistros.append(EDD.extractTable(baseActiva,name))
-    # JOINS --------------------------------------------------------
+    # crearTabla--------------------------------------------------------
+    result = PrettyTable()
+    result.field_names = lcabeceras
+    for registro in itertools.product(*lregistros): #producto cartesiano
+        fila=[]
+        for i in registro:
+            for j in i:
+                fila.append(j)
+        result.add_row(fila)
+
     # WHERE --------------------------------------------------------
-    if cuerpo.b_where == False: # sin where
-        result = PrettyTable()
-        result.field_names = lcabeceras
-        for registro in itertools.product(*lregistros): #producto cartesiano
-            fila=[]
-            for i in registro:
-                for j in i:
-                    fila.append(j)
-            result.add_row(fila)
-        agregarMensjae('table',result,'')
-    else: # con where
-        ' '
+    if cuerpo.b_where != False:
+        result=filtroWhere(result,cuerpo.b_where,ts)
+    
+    #mostrar el resultado
+    agregarMensjae('table',result,'')
 
 def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
     ltablas=[] # tablas seleccionadas
@@ -2411,7 +2413,16 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
         lalias_colum.append(ali)
     # JOINS --------------------------------------------------------
     # WHERE --------------------------------------------------------
-    if cuerpo.b_where == False: # sin where
+    print(lcolumnas)
+    print(lcabeceras)
+    colEx=True
+    for col in lcolumnas:
+        if(col not in lcabeceras):
+            colEx=False
+            msg='42703: No existe columna en tabla:'+col
+            agregarMensjae('error',msg,'42703')
+             
+    if colEx:
         result = PrettyTable()
         result.field_names = lcabeceras
         for registro in itertools.product(*lregistros): #producto cartesiano
@@ -2419,11 +2430,177 @@ def cuerpo_select_parametros(distinct,parametros,cuerpo,ts):
             for i in registro:
                 for j in i:
                     fila.append(j)
-            result.add_row(fila)
-        result = result.get_string(fields=lcolumnas) 
+            result.add_row(fila) 
+        # WHERE --------------------------------------------------------
+        if cuerpo.b_where != False:
+            result=filtroWhere(result,cuerpo.b_where,ts)
+        
+        #filtro col a mostrar    
+        result = result.get_string(fields=lcolumnas)
         agregarMensjae('table',result,'')
-    else: # con where
-        ' '
+
+def filtroWhere(tabla,filtro,ts):
+    print('--------------------where--------------------')
+    listaEliminar=[]
+    filtroOK=True
+    print(filtro)
+    if isinstance(filtro,Operacion_Relacional):
+        op1=resolver_operacion(filtro.op1,ts)
+        op2=resolver_operacion(filtro.op2,ts)
+        #id operador XXX
+        if isinstance(filtro.op1,Operando_ID):
+            if(op1 in tabla.field_names):
+                #id operador id
+                if isinstance(filtro.op2,Operando_ID):
+                    if(op2 in tabla.field_names):
+                        cont=0
+                        for row in tabla:
+                            row.border = False
+                            row.header = False
+                            col1=row.get_string(fields=[op1]).strip()
+                            col2=row.get_string(fields=[op2]).strip()
+                            if(filtro.operador == OPERACION_RELACIONAL.MAYOR_QUE and col1>col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MAYORIGUALQUE and col1>=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENOR_QUE and col1<col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENORIGUALQUE and col1<=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.IGUAL and col1==col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.DIFERENTE and col1!=col2):''
+                            else:
+                                listaEliminar.append(cont)
+                            cont+=1
+                    else:
+                        filtroOK=False
+                        msg='la columna no existe en la consulta:'+op1
+                        agregarMensjae('error',msg,'42804')
+                #id operador numero,cadena,boleano
+                elif (isinstance(filtro.op2,Operando_Numerico) or 
+                isinstance(filtro.op2,Operacion_Aritmetica) or 
+                isinstance(filtro.op2,Operando_Cadena) or 
+                isinstance(filtro.op2,Operando_Booleano)):
+                    if(op2 != None):
+                        cont=0
+                        for row in tabla:
+                            row.border = False
+                            row.header = False
+                            col1=row.get_string(fields=[op1]).strip()
+                            col2=str(op2)
+                            if(filtro.operador == OPERACION_RELACIONAL.MAYOR_QUE and col1>col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MAYORIGUALQUE and col1>=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENOR_QUE and col1<col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENORIGUALQUE and col1<=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.IGUAL and col1==col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.DIFERENTE and col1!=col2):''
+                            else:
+                                listaEliminar.append(cont)
+                            cont+=1
+                    else:
+                        filtroOK=False
+                        msg='42804:no es posible evaluar el where'
+                        agregarMensjae('error',msg,'42804')
+                else:
+                    filtroOK=False
+                    msg='42804:no es posible evaluar el where'
+                    agregarMensjae('error',msg,'42804')
+            else:
+                filtroOK=False
+                msg='la columna no existe en la consulta:'+op1
+                agregarMensjae('error',msg,'42804')
+        #XXX operador XXX 
+        elif (isinstance(filtro.op1,Operando_Numerico) or 
+                isinstance(filtro.op1,Operacion_Aritmetica) or 
+                isinstance(filtro.op1,Operando_Cadena) or 
+                isinstance(filtro.op1,Operando_Booleano)):
+                if isinstance(filtro.op2,Operando_ID):
+                    if(op2 in tabla.field_names):
+                        cont=0
+                        for row in tabla:
+                            row.border = False
+                            row.header = False
+                            col1=str(op1)
+                            col2=row.get_string(fields=[op2]).strip()
+                            if(filtro.operador == OPERACION_RELACIONAL.MAYOR_QUE and col1>col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MAYORIGUALQUE and col1>=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENOR_QUE and col1<col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENORIGUALQUE and col1<=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.IGUAL and col1==col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.DIFERENTE and col1!=col2):''
+                            else:
+                                listaEliminar.append(cont)
+                            cont+=1
+                    else:
+                        filtroOK=False
+                        msg='la columna no existe en la consulta:'+op1
+                        agregarMensjae('error',msg,'42804')
+                #id operador numero,cadena,boleano
+                elif (isinstance(filtro.op2,Operando_Numerico) or 
+                isinstance(filtro.op2,Operacion_Aritmetica) or 
+                isinstance(filtro.op2,Operando_Cadena) or 
+                isinstance(filtro.op2,Operando_Booleano)):
+                    if(op2 != None):
+                        cont=0
+                        for row in tabla:
+                            row.border = False
+                            row.header = False
+                            col1=str(op1)
+                            col2=str(op2)
+                            if(filtro.operador == OPERACION_RELACIONAL.MAYOR_QUE and col1>col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MAYORIGUALQUE and col1>=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENOR_QUE and col1<col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.MENORIGUALQUE and col1<=col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.IGUAL and col1==col2):''
+                            elif(filtro.operador == OPERACION_RELACIONAL.DIFERENTE and col1!=col2):''
+                            else:
+                                listaEliminar.append(cont)
+                            cont+=1
+                    else:
+                        filtroOK=False
+                        msg='42804:no es posible evaluar el where'
+                        agregarMensjae('error',msg,'42804')
+                else:
+                    filtroOK=False
+                    msg='42804:no es posible evaluar el where'
+                    agregarMensjae('error',msg,'42804')
+
+        else:
+            filtroOK=False
+            msg='42804:no es posible evaluar el where'
+            agregarMensjae('error',msg,'42804')
+    #recursividad        
+    elif isinstance(filtro,Operacion_Logica_Binaria):
+        if(filtro.operador==OPERACION_LOGICA.AND):
+            tabla=filtroWhere(tabla,filtro.op1,ts)
+            tabla=filtroWhere(tabla,filtro.op2,ts)
+        elif(filtro.operador==OPERACION_LOGICA.OR):
+            tabla1=copy.deepcopy(tabla)
+            tabla2=copy.deepcopy(tabla)
+            tabla1=filtroWhere(tabla1,filtro.op1,ts)
+            tabla2=filtroWhere(tabla2,filtro.op2,ts)
+            #unir las tablas
+            for row in tabla2:
+                listInsert=[]
+                row.border = False
+                row.header = False
+                for col in tabla2.field_names:
+                    col1=row.get_string(fields=[col]).strip()
+                    listInsert.append(col1)
+                tabla1.add_row(listInsert)
+
+            tabla=tabla1
+    else:
+        filtroOK=False
+        msg='debe haber una condicion relacional en el where'
+        agregarMensjae('error',msg,'42804')
+
+    #realizar eliminacion
+    if(filtroOK):
+        cont=len(listaEliminar)
+        while cont>0:
+            tabla.del_row(listaEliminar[cont-1])
+            cont=cont-1
+    
+
+    return tabla
+
 
 #-------------
 def resolver_operacion(operacion,ts):
