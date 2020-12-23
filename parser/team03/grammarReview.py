@@ -9,6 +9,7 @@ from parse.sql_ddl.create import *
 from parse.sql_dml.insert import *
 from parse.sql_ddl.drop import *
 from treeGraph import *
+from parse.symbol_table import *
 
 #===========================================================================================
 #==================================== LEXICAL ANALYSIS ==================================
@@ -2074,7 +2075,6 @@ if __name__ == "__main__":
     createFile()
     creategrafo()
 
-
     for instruccion in instrucciones:
         try:
             val = instruccion.execute(ST, None)
@@ -2084,4 +2084,4 @@ if __name__ == "__main__":
 
     for e in errorsList:
         print(e,"\n")
-    
+    ST.report_symbols()
