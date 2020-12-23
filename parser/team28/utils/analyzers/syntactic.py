@@ -496,16 +496,25 @@ def p_add_alter(p):
     '''addalter : COLUMN ID typecol
                 | CHECK LEFT_PARENTHESIS conditionColumn RIGHT_PARENTHESIS
                 | CONSTRAINT ID UNIQUE LEFT_PARENTHESIS ID RIGHT_PARENTHESIS
-                | FOREIGN KEY LEFT_PARENTHESIS ID RIGHT_PARENTHESIS REFERENCES ID
+                | FOREIGN KEY LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS REFERENCES ID LEFT_PARENTHESIS columnlist RIGHT_PARENTHESIS
     '''
     if len(p) == 4:
-        p[0] = AlterTableAdd(CreateCol(p[2],p[3],None))
+        p[0] = AlterTableAdd(CreateCol(p[2],p[3],[{
+        'default_value' : None,
+        'is_null' : None,
+        'constraint_unique' : None,
+        'unique' : None,
+        'constraint_check_condition' : None,
+        'check_condition' : None,
+        'pk_option' : None,
+        'fk_references_to' : None
+    }]))
     elif len(p) == 5:
         p[0] = AlterTableAdd(Check(p[4]))
     elif len(p) == 7:
         p[0] = AlterTableAdd(Constraint(p[2],Unique(p[5]))) #TODO revisar esta asignacion
     else:
-        p[0] = AlterTableAdd(ForeignKey(p[4],None,p[7]))   
+        p[0] = AlterTableAdd(ForeignKey(p[4],p[7],p[9]))   
 
 
 def p_alter_alter(p):
@@ -583,11 +592,11 @@ def p_update_statement(p):
                        | UPDATE ID SET SETLIST OPTIONSLIST2 SEMICOLON
                        | UPDATE ID SET SETLIST  SEMICOLON '''
     if(len(p) == 8):
-        p[0] = Update(p[2],p[5],p[6])
+        p[0] = Update(p[2],p[5],p[6], p.lineno(1), find_column(p.slice[1]))
     elif(len(p) == 7):
-        p[0] = Update(p[2],p[4],p[5])
+        p[0] = Update(p[2],p[4],p[5], p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Update(p[2],p[4],None)
+        p[0] = Update(p[2],p[4],None, p.lineno(1), find_column(p.slice[1]))
 
 def p_set_list(p):
     '''SETLIST : SETLIST COMMA COLUMNVALUES
@@ -657,9 +666,9 @@ def p_delete_statement(p):
     '''DELETESTATEMENT : DELETE FROM ID OPTIONSLIST SEMICOLON
                        | DELETE FROM ID SEMICOLON '''
     if (len(p) == 6):
-        p[0] = Delete(p[3],p[4])
+        p[0] = Delete(p[3],p[4],p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Delete(p[3],None)
+        p[0] = Delete(p[3],None,p.lineno(1), find_column(p.slice[1]))
 
 def p_options_list(p):
     '''OPTIONSLIST : OPTIONS1 OPTIONS2 WHERECLAUSE OPTIONS4
@@ -691,7 +700,7 @@ def p_options_list(p):
         p[1].append(p[2])
 
     p[0] = [p[1]]
-    #TODO: PROBAR SI REALMENTE SIRVE EL ARBOL XD
+    #TODO: PROBAR SI REALMENTE SIRVE EL ARBOL XD PINCHE JUAN MARCOS >:V
 
 def p_options1(p):
     '''OPTIONS1 : ASTERISK SQLALIAS
@@ -744,9 +753,9 @@ def p_insert_statement(p):
     '''INSERTSTATEMENT : INSERT INTO SQLNAME LEFT_PARENTHESIS LISTPARAMSINSERT RIGHT_PARENTHESIS VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON
                        | INSERT INTO SQLNAME VALUES LEFT_PARENTHESIS LISTVALUESINSERT RIGHT_PARENTHESIS SEMICOLON '''
     if(len(p) == 12):
-        p[0] = Insert(p[3],p[5],p[9])
+        p[0] = Insert(p[3],p[5],p[9], p.lineno(1), find_column(p.slice[1]))
     else:
-        p[0] = Insert(p[3],None,p[6])
+        p[0] = Insert(p[3],None,p[6], p.lineno(1), find_column(p.slice[1]))
 
 def p_list_params_insert(p):
     '''LISTPARAMSINSERT : LISTPARAMSINSERT COMMA SQLNAME
@@ -868,16 +877,16 @@ def p_from_clause(p):
     '''FROMCLAUSE : FROM FROMCLAUSELIST'''
     p[0] = From(p[2])
 
+# TODO le faltaba un coma xd 
 def p_from_clause_list(p):
     '''FROMCLAUSELIST : FROMCLAUSELIST COMMA TABLEREFERENCE
-                      | FROMCLAUSELIST LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
-                      | FROMCLAUSELIST LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                      | FROMCLAUSELIST COMMA LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
+                      | FROMCLAUSELIST COMMA LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                       | LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS SQLALIAS
                       | TABLEREFERENCE'''
     if (len(p) == 6):
         p[1].append(p[3])
-        p[1].append(p[5])
         p[0] = p[1]
     elif (len(p) == 5):
         if (p[1] == "("):
@@ -908,9 +917,9 @@ def p_select_group_having(p):
                          | HAVINGCLAUSE GROUPBYCLAUSE
                          | GROUPBYCLAUSE HAVINGCLAUSE'''
     if (len(p) == 2):
-        p[0] = p[1]
+        p[0] = GroupBy(p[1], None)
     elif (len(p) == 3):
-        p[0] = [p[1], p[2]]
+        p[0] = GroupBy(p[1], p[2])
 
 
 def p_table_reference(p):
@@ -919,11 +928,11 @@ def p_table_reference(p):
                       | SQLNAME JOINLIST
                       | SQLNAME'''
     if (len(p) == 2):
-        p[0] = p[1]
+        p[0] = TableReference(p[1], None, p.slice[1].value.line, p.slice[1].value.column)
     elif (len(p) == 3):
-        p[0] = [p[1], p[2]]
+        p[0] = TableReference(p[1], p[2], p.slice[1].value.line, p.slice[1].value.column)
     elif (len(p) == 4):
-        p[0] = [p[1], p[2], p[3]]
+        p[0] = TableReference(p[1], p[2], p.slice[1].value.line, p.slice[1].value.column)
 
 
 def p_order_by_clause(p):
@@ -961,12 +970,12 @@ def p_where_clause(p):
 
 def p_group_by_clause(p):
     '''GROUPBYCLAUSE : GROUP BY SQLEXPRESSIONLIST'''
-    p[0] = GroupBy(p[3])
+    p[0] = p[3]
 
 
 def p_having_clause(p):
     '''HAVINGCLAUSE : HAVING SQLEXPRESSION'''
-    p[0] = Having(p[2])
+    p[0] = p[2]
 
 
 def p_join_list(p):
@@ -1004,7 +1013,7 @@ def p_sql_expression(p):
     if len(p) == 4:
         p[0] = LogicalOperators(p[1], p[2], p[3],p.lineno(2), find_column(p.slice[2]))
     elif len(p) == 3:
-        p[0] = NotOption(p[2],p.lineno(1), find_column(p.slice[1]))
+        p[0] = p[2]
     else:
         p[0] = p[1]
 
@@ -1014,8 +1023,13 @@ def p_exits_or_relational_clause(p):
     p[0] = p[1]
     
 def p_exists_clause(p):
-    '''EXISTSCLAUSE : EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
-    p[0] = ExistsClause(p[3],p.lineno(1), find_column(p.slice[1]))
+    # TODO este tambien tenes que agregar al ast grafico, perdon didier xd 
+    '''EXISTSCLAUSE : EXISTS ID LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                    | EXISTS LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS'''
+    if len(p) == 6:
+        p[0] = ExistsClause(p[2],  False,  p[4], p.lineno(1), find_column(p.slice[1]))
+    else:
+        p[0] = ExistsClause(None,  False,  p[3], p.lineno(1), find_column(p.slice[1]))
 
 
 def p_sql_relational_expression(p):
@@ -1033,7 +1047,7 @@ def p_sql_relational_expression(p):
         elif p[2][0] == "IS":
             p[0] = isClause(p[1], p[2][1], p[2][2], p[2][3])
         elif p[2][0] == "IN":
-            p[0] = InClause(p[1], p[2][1], p[2][2], p[2][3])
+            p[0] = InClause(p[1], p[2][1], p[2][2], p[2][3], p[2][4])
         else:
             p[0] = [p[1], p[2]]
     elif (len(p) == 4):
@@ -1056,15 +1070,16 @@ def p_sql_relational_expression(p):
         p[0] = p[1]
 
 
-
+# TODO agregar este pequeno cambio al arbol grafico 
 def p_sql_in_clause(p):
     '''SQLINCLAUSE  : NOT IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
+                    | NOT IN LEFT_PARENTHESIS listain RIGHT_PARENTHESIS
                     | IN LEFT_PARENTHESIS SUBQUERY RIGHT_PARENTHESIS
                     | IN LEFT_PARENTHESIS listain RIGHT_PARENTHESIS'''
     if (len(p) == 6):
-        p[0] = InClause(NotOption(p[4],p.lineno(1),p.slice[1]),p.lineno(2),find_column(p.slice[2]))
+        p[0] = [p.slice[2].type, True, p[3], p.lineno(2), find_column(p.slice[2])]
     else:
-        p[0] = [p.slice[1].type, p[3], p.lineno(1), find_column(p.slice[1])]
+        p[0] = [p.slice[1].type, False, p[3], p.lineno(1), find_column(p.slice[1])]
         
 def p_lista_in(p):
     '''listain : listain COMMA SQLSIMPLEEXPRESSION
@@ -1404,15 +1419,15 @@ def p_aggregate_functions(p):
     '''AGGREGATEFUNCTIONS : AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS
                           | AGGREGATETYPES LEFT_PARENTHESIS CONTOFAGGREGATE RIGHT_PARENTHESIS SQLALIAS'''
     if (len(p) == 5):
-        p[0] = AgreggateFunctions(p[1], p[3], None,p.lineno(1), find_column(p.slice[1]))
+        p[0] = AgreggateFunctions(p[1], p[3], None,p.lineno(2), find_column(p.slice[2]))
     else:
-        p[0] = AgreggateFunctions(p[1], p[3], p[5],p.lineno(1), find_column(p.slice[1]))
+        p[0] = AgreggateFunctions(p[1], p[3], p[5],p.lineno(2), find_column(p.slice[2]))
 
 def p_cont_of_aggregate(p):
     '''CONTOFAGGREGATE : ASTERISK
                        | SQLSIMPLEEXPRESSION'''
     if (p[1] == '*'):
-        p[0] = p[1]
+        p[0] = PrimitiveData(DATA_TYPE.STRING, p[1], p.lineno(1), find_column(p.slice[1]))
     else:
         p[0] = p[1]
 

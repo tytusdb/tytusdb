@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { PruebaService } from 'src/app/service/prueba.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -8,7 +9,9 @@ import Swal from 'sweetalert2';
 })
 export class NavbarComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private pruebaService: PruebaService
+  ) { }
 
   ngOnInit(): void {
   }
@@ -23,6 +26,21 @@ export class NavbarComponent implements OnInit {
       showCancelButton: true,
       showCloseButton: true
     })
+  }
+
+  public aboutUs(){
+
+    this.pruebaService.aboutUs().subscribe(
+      res=>{
+        console.log();
+        Swal.fire(
+          'GRUPO 5',
+          //@ts-ignore
+          `${res.COORDINADOR} // ${res.INTEGRANTES[0]} // ${res.INTEGRANTES[1]}`        
+        )
+      },
+      err => console.error(err)
+    );
   }
 
   public saveAs() {

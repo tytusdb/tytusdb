@@ -1,9 +1,12 @@
 #TODO: DISTINCT
 from abc import abstractmethod
+
+from numpy.lib.arraysetops import isin
 from models.instructions.Expression.expression import *
 from pandas.core.frame import DataFrame
-from models.instructions.DML.special_functions import loop_list
+from models.instructions.DML.special_functions import *
 from models.nodo import Node
+import pandas as pd 
 class Instruction:
     '''Clase abstracta'''
     @abstractmethod
@@ -31,14 +34,69 @@ class From(Instruction):
     '''
     def __init__(self,  tables) :
         self.tables = tables
+        self.alias = f'{self.tables[0].alias}'
     
     def __repr__(self):
         return str(vars(self))
 
     def process(self, instrucction):
-        tables = loop_list(self.tables,instrucction)
-        return tables
+        try:
+            tables = loop_list(self.tables,instrucction)
+            lista1 = []
+            lista2 = []
+            if isinstance(tables, DataFrame):
+                return [tables]
+            else:
+                if len(tables) > 0:
+                    for data in tables:
+                        data_frame = select_all(data, 0, 0)
+                        lista1.append(data_frame)
+                        lista2.append(data)
+                    if len(lista1) > 1:
+                        cross_join = self.union_tables(lista1)
+                        storage_columns(cross_join.values.tolist(), cross_join.columns.tolist(), 0, 0)
+                        storage_table(cross_join.values.tolist(), cross_join.columns.tolist(), lista2[0], 0, 0)
+                        return [cross_join, lista2[0]]
+                    else:
+                        return [lista1[0], lista2[0]]
+        except:
+            print('murio en el from clause xD')
+            
+    def union_tables(self, right: list):
+        if len(right) < 1:
+            return
+        for index in right:
+            index['key'] = 1
+
+        left = right[0]
+        for index, _ in enumerate(right):
+            if index == len(right)-1:
+                break
+            else:
+                left = pd.merge(left, right[index+1], on=['key'])
+
+        left = left.drop("key", axis=1)
+        return left
     
+
+class TableReference(Instruction):
+    def __init__(self, tabla, option_join, line, column) :
+        self.tabla = tabla
+        self.alias = f'{tabla.alias}'
+        self.option_join = option_join
+        self.line = line
+        self.column = column
+    
+    def __repr__(self):
+        return str(vars(self))
+
+    def process(self, instrucction):
+        try:
+            name_column = self.tabla.process(instrucction)
+            return name_column
+        except:
+            print(f'error en linea {self.line} y columna {self.column}')
+
 class Where(Instruction):
     '''
         WHERE recibe una condicion logica 
@@ -49,27 +107,33 @@ class Where(Instruction):
     def __repr__(self):
         return str(vars(self))
     
-    def process(self, instrucction, table: DataFrame):
-        if isinstance(self.condition, Relop) or isinstance(self.condition, LogicalOperators):
-            value = self.condition.process(instrucction)
-            table = table.query(value)
+    def process(self, instrucction, table: DataFrame, name):
+        try:
+            if isinstance(self.condition, Relop) or isinstance(self.condition, LogicalOperators):
+                value = self.condition.process(instrucction)
+                table = table.query(value)
+            elif isinstance(self.condition, LikeClause):
+                value = self.condition.process(instrucction)
+                table = table.query(value)
+            elif isinstance(self.condition, Between):
+                value = self.condition.process(instrucction)
+                table = table.query(value)
+            elif isinstance(self.condition, isClause):
+                value = self.condition.process(instrucction)
+                table = table.query(value)
+            elif isinstance(self.condition, InClause):
+                value = self.condition.process(instrucction)
+                table = table.query(value)
+            elif isinstance(self.condition, ExistsClause):
+                value = self.condition.process(instrucction)
+                table = table.query(value)
+            # al fin xd 
+            print(table)
+            storage_columns(table.values.tolist(), table.columns.tolist(), 0, 0)
+            storage_table(table.values.tolist(), table.columns.tolist(), name, 0, 0)
             return table
-        elif isinstance(self.condition, LikeClause):
-            value = self.condition.process(instrucction)
-            table = table.query(value)
-            return table
-        elif isinstance(self.condition, Between):
-            value = self.condition.process(instrucction)
-            table = table.query(value)
-            return table
-        elif isinstance(self.condition, isClause):
-            value = self.condition.process(instrucction)
-            table = table.query(value)
-            return table
-        elif isinstance(self.condition, InClause):
-            value = self.condition.process(instrucction)
-            table = table.query(value)
-            return table
+        except:
+            print('error la colunma no existe')
         
 class LikeClause(Instruction):
     '''
@@ -110,28 +174,56 @@ class GroupBy(Instruction):
             that have the same values into summary rows
         * Recibe una lista de nombres de columnas
     '''
-    def __init__(self,  column_names) :
+    def __init__(self,  column_names, having_expression) :
         self.column_names = column_names
+        self.having_expression = having_expression
+        # self.alias = f'{column_names.alias}'
     
     def __repr__(self):
         return str(vars(self))
+    # nota si no hay funciones agregadas F xd 
+    def process(self, instrucction, agg_f: list):
+        try:
+            if self.having_expression == None:
+                table_p = agg_f[0]
+                funcs = self.convert_all_dictionary(agg_f[1])
+                check = self.check_asterisk(funcs)
+                if check:
+                    headers = agg_f[2]
+                    group_by = self.recorrer_lista(self.column_names, instrucction)
+                    table_p = table_p.groupby(group_by).size().reset_index()
+                    table_p.columns = headers 
+                    return table_p
+                else:
+                    headers = agg_f[2]
+                    group_by = self.recorrer_lista(self.column_names, instrucction)
+                    table_p.columns = headers
+                    table_p = table_p.groupby(group_by).agg(funcs).reset_index()
+                    return table_p
+            else:
+                pass
+        except:
+            print('Error en Group By Functions')
+        
+    def convert_all_dictionary(self, lista):
+        dictionary_f = {}
+        for data in lista:
+            dictionary_f.update(data)
+        return dictionary_f
     
-    def process(self, instrucction):
-        pass
+    def recorrer_lista(self, array, enviroment):
+        lista1 = []
+        for data in array:
+            valor = data.process(enviroment)
+            lista1.append(valor[1])
+        return lista1
     
-class Having(Instruction):
-    '''
-        HAVING recibe una condicion logica
-    '''
-    def __init__(self,  condition) :
-        self.condition = condition
-    
-    def __repr__(self):
-        return str(vars(self))
-    
-    def process(self, instrucction):
-        pass
-
+    def check_asterisk(self, dicti):
+        for data in dicti:
+            if 'count(*)' in data:
+                return True
+        return False
+        
 class Using(Instruction):
     '''
         USING recibe un array con ids
@@ -238,8 +330,9 @@ class InClause(Instruction):
     '''
     InClause
     '''
-    def __init__(self,column_name, arr_lista,line, column):
+    def __init__(self,column_name, opt_not, arr_lista,line, column):
         self.column_name = column_name
+        self.opt_not = opt_not
         self.arr_lista = arr_lista
         self.line = line
         self.column = column
@@ -249,21 +342,60 @@ class InClause(Instruction):
     def process(self, instrucction):
         column_name = self.column_name.process(instrucction)
         column_name = column_name[1]
+        # para listas 
         if isinstance(self.arr_lista, list):
-            list_values = loop_list(self.arr_lista, instrucction)
-            list2 = []
             aux_data = ""
-            # for values in list_values:
-            #     if isinstance(values, str):
-            #         aux_data = f'"{values}"'
-            #         list2.append(aux_data)
-            #     else:
-            #         list2.append(values)
-            aux_data = f'{column_name}.isin({list_values})'
+            list_values = loop_list(self.arr_lista, instrucction)
+            if self.opt_not: 
+                aux_data = f'~({column_name}.isin({list_values}))'
+            else: 
+                aux_data = f'{column_name}.isin({list_values})'
             return aux_data
+        # subquerys 
         else:
-            pass
+            print(type(self.arr_lista))
+            aux_data = ""
+            list_values = self.arr_lista.process(0)
+            list_values = list_values.values.tolist()
+            lista_aux = []
+            for data in list_values:
+                lista_aux.append(data[0])
+            if self.opt_not:  
+                aux_data = f'~({column_name}.isin({lista_aux}))'
+            else:
+                aux_data = f'{column_name}.isin({lista_aux})'
+            return aux_data
 
+class ExistsClause(Instruction):
+    '''
+    ExistsClause recibe de parametro
+    un subquery 
+    '''
+    def __init__(self, value, opt_not, subquery,line, column):
+        self.value = value
+        self.opt_not = opt_not
+        self.subquery = subquery
+        self.line = line
+        self.column = column
+        
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        column_name = self.value
+        print(type(self.subquery))
+        aux_data = ""
+        list_values = self.subquery.process(instrucction)
+        list_values = list_values.values.tolist()
+        lista_aux = []
+        for data in list_values:
+            lista_aux.append(data[0])
+        if self.opt_not:  
+            aux_data = f'~({column_name}.isin({lista_aux}))'
+        else:
+            aux_data = f'{column_name}.isin({lista_aux})'
+        return aux_data
+    
 class ObjectReference(Instruction):
     '''
         ObjectReference

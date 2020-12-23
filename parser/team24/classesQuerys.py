@@ -26,6 +26,55 @@ class exp_type(Enum):
 class query():
     ' Clase abstracta query'
 
+class select_func(query):
+    def __init__(self,lista):
+        self.lista = lista
+    
+    def ejecutar(self):
+        
+        if self.lista == None: 
+            e = errores.CError(0,0,"Error funcion",'Semantico') 
+            errores.insert_error(e)
+            return e
+        else: 
+            if not isinstance(self.lista,list):
+                e = errores.CError(0,0,"Error funcion",'Semantico') 
+                errores.insert_error(e)
+                return e
+            else:
+                tables = {}
+                
+                
+                results = []
+                for col in self.lista:
+                    print(col.alias)
+                    res = col.ejecutar(tables)
+                    
+                    if isinstance(res,errores.CError):
+                        e = errores.CError(0,0,"Error funcion",'Semantico') 
+                        errores.insert_error(e)
+                        return e
+                    results.append(res)
+
+                ptable = pt.PrettyTable()
+                enc = []
+                con = 0
+                for col in self.lista:
+                    if col.alias == None:
+                        enc.append(str(con)+' Funcion')
+                    else: 
+                        enc.append(col.alias)
+                    con += 1
+                ptable.field_names = enc
+                ptable.add_row(results)
+                #print(ptable)
+                return ptable
+            
+                
+
+
+
+
 
 class select(query):
 
@@ -247,6 +296,10 @@ class exp_id(exp_query):
                 registros = s.extractTable(default_db,t)
                 #Buscamos los encabezados
                 encabezados = ts.getColumns(default_db,t)
+                if registros ==[] and encabezados == []:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 #Devolvemos todas las columnas
                 cols = []
                 #llenamos vacio
@@ -269,6 +322,10 @@ class exp_id(exp_query):
             c=0
             while True: 
                 tupla = ts.getTabla(self.val,c)
+                if tupla is None:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 if tupla[0] not in tables and tupla[0] not in tables.values():
                     c+=1
                     tupla = ts.getTabla(self.val,c)
@@ -330,6 +387,10 @@ class exp_id(exp_query):
                     return dict
 
                 indice = ts.getIndice(default_db,self.table,self.val)
+                if registros ==[] and indice == -1:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 col = []
                 for reg in registros:
                     col.append(reg[indice])
@@ -343,12 +404,18 @@ class exp_id(exp_query):
 
             else:
                 #Obtenemos el nombre basado en el alias
-                table = getKeyFromValue(self.table,tables)     
+                table = getKeyFromValue(self.table,tables)
+                if isinstance(table,CError):
+                    return table    
                 #Obtenemos la tabla
                 registros = s.extractTable(default_db,table)
 
                 if self.val == '*':
                     encabezados = ts.getColumns(default_db,table)
+                    if registros ==[] and encabezados == []:
+                        e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                        errores.insert_error(e)
+                        return e
                     cols = []
                     #llenamos vacio
                     cont = len(registros[0])
@@ -365,6 +432,10 @@ class exp_id(exp_query):
                     return dict
                 #Obtenemos el indice de esa tabla
                 indice = main.ts.getIndice(default_db,table,self.val)
+                if indice == -1:
+                    e = errores.CError(0,0,"La tabla especificada no existe",'Semantico')
+                    errores.insert_error(e)
+                    return e
                 #Obtenemos la columan que queremos
                 col = []
                 for reg in registros:
