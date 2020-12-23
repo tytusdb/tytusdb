@@ -1,8 +1,5 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/TypeChecker')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from Database_Types import DBType
-from typ import Type
+from TypeChecker.Database_Types import DBType
+from execution.symbol.typ import Type
 import math
 
 def check( tipoDato:DBType , primitivo: Type, dato, lenght):

@@ -1,16 +1,16 @@
-from Interpreter.Expressions.expression import Expression
+from Interpreter.Expression.expression import Expression
 
 
 class Logical(Expression):
-    def __init__(self, value):
-        self.value = value   
+    def __init__(self, left, right=None):
+        self.left = left
+        self.right = right
 
     def getValue(self, env):
         pass
 
-    def isNumeric(self, value):
-        return isinstance(value, int) or isinstance(value, float)
-
+    def isBool(self, value):
+        return isinstance(value, bool)
 
 
 class And_class(Logical):
@@ -20,10 +20,11 @@ class And_class(Logical):
     def getValue(self, env):
         leftValue = self.left.getValue(env)
         rightValue = self.right.getValue(env)
-        areNums = self.isNumeric(leftValue) and self.isNumeric(rightValue)
+        areBools = self.isBool(leftValue) and self.isBool(rightValue)
 
-        if areNums:
+        if areBools:
             return leftValue and rightValue
+
 
 class Or_class(Logical):
     def __init__(self, left, right):
@@ -32,18 +33,19 @@ class Or_class(Logical):
     def getValue(self, env):
         leftValue = self.left.getValue(env)
         rightValue = self.right.getValue(env)
-        areNums = self.isNumeric(leftValue) and self.isNumeric(rightValue)
+        areBools = self.isBool(leftValue) and self.isBool(rightValue)
 
-        if areNums:
+        if areBools:
             return leftValue or rightValue
 
+
 class Not_class(Logical):
-    def __init__(self, right):
-        Logical.__init__(self, right)
+    def __init__(self, left):
+        Logical.__init__(self, left)
 
     def getValue(self, env):
-        rightValue = self.right.getValue(env)
-        areNum = self.isNumeric(rightValue) 
+        leftValue = self.left.getValue(env)
+        isBool = self.isBool(leftValue)
 
-        if areNum:
-            return not(rightValue)
+        if isBool:
+            return not(leftValue)

@@ -564,7 +564,360 @@ class Condicionales(Instruccion):
                 return str(left.val) == str(right.val)
             else:
                 return Error('Semántico', 'Error de tipos en IGUAL, no se puede operar ' + left.type + ' con ' + right.type, 0, 0)
-
+        elif self.sign == 'between' :
+            if left.type == 'integer' or left.type == 'float':
+                if right.type == False:
+                    if (right.val1.type == 'integer' or right.val1.type == 'float') and (right.val2.type == 'integer' or right.val2.type == 'float') :
+                        return (float(left.val) >= float(right.val1.val)) and (float(left.val) <= float(right.val2.val))
+                else:
+                    if (right.val1.type == 'integer' or right.val1.type == 'float') and (right.val2.type == 'integer' or right.val2.type == 'float') :
+                        return not ((float(left.val) >= float(right.val1.val)) and (float(left.val) <= float(right.val2.val)) )
+            elif left.type == 'string' :
+                if right.type == False :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d %H:%M:%S')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d %H:%M:%S')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%Y-%m-%d %H:%M:%S')
+                            return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            try:
+                                horacomparar = left.val
+                                horaValComparar = datetime.strptime(horacomparar, '%H:%M:%S')
+                                horaIzq = right.val1.val
+                                horaValIzq = datetime.strptime(horaIzq, '%H:%M:%S')
+                                horaDer = right.val2.val
+                                horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
+                                return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                            except:
+                                try:
+                                    horacomparar = left.val
+                                    horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
+                                    horaIzq = right.val1.val
+                                    horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d')
+                                    horaDer = right.val2.val
+                                    horaValDer = datetime.strptime(horaDer, '%Y-%m-%d')
+                                    return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                                except:
+                                    try:
+                                        horacomparar = str(left.val)
+                                        horaIzq = str(right.val1.val)
+                                        horaDer = str(right.val2.val)
+                                        return (horacomparar >= horaIzq ) and (horacomparar <= horaDer )
+                                    except:
+                                        return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+                else :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d %H:%M:%S')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d %H:%M:%S')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%Y-%m-%d %H:%M:%S')
+                            return not ((horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer ))
+                        except:
+                            try:
+                                horacomparar = left.val
+                                horaValComparar = datetime.strptime(horacomparar, '%H:%M:%S')
+                                horaIzq = right.val1.val
+                                horaValIzq = datetime.strptime(horaIzq, '%H:%M:%S')
+                                horaDer = right.val2.val
+                                horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
+                                return not ((horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer ))
+                            except:
+                                try:
+                                    horacomparar = left.val
+                                    horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
+                                    horaIzq = right.val1.val
+                                    horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d')
+                                    horaDer = right.val2.val
+                                    horaValDer = datetime.strptime(horaDer, '%Y-%m-%d')
+                                    return not ((horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer ))
+                                except:
+                                    try:
+                                        horacomparar = str(left.val)
+                                        horaIzq = str(right.val1.val)
+                                        horaDer = str(right.val2.val)
+                                        return not (horacomparar >= horaIzq ) and (horacomparar <= horaDer )
+                                    except:
+                                        return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+            elif left.type == 'date' :
+                if right.type == False :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%Y-%m-%d')
+                            return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+                else :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%Y-%m-%d')
+                            return not (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+            elif left.type == 'time' :
+                if right.type == False :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%H:%M:%S')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%H:%M:%S')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
+                            return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+                else :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%H:%M:%S')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%H:%M:%S')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
+                            return not (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+        elif self.sign == 'not between' :
+            if left.type == 'integer' or left.type == 'float':
+                if right.type == False:
+                    if (right.val1.type == 'integer' or right.val1.type == 'float') and (right.val2.type == 'integer' or right.val2.type == 'float') :
+                        return not ((float(left.val) >= float(right.val1.val)) and (float(left.val) <= float(right.val2.val)))
+                else:
+                    if (right.val1.type == 'integer' or right.val1.type == 'float') and (right.val2.type == 'integer' or right.val2.type == 'float') :
+                        return (float(left.val) >= float(right.val1.val)) and (float(left.val) <= float(right.val2.val))
+            elif left.type == 'string' :
+                if right.type == False :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d %H:%M:%S')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d %H:%M:%S')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%Y-%m-%d %H:%M:%S')
+                            return  not ((horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer ))
+                        except:
+                            try:
+                                horacomparar = left.val
+                                horaValComparar = datetime.strptime(horacomparar, '%H:%M:%S')
+                                horaIzq = right.val1.val
+                                horaValIzq = datetime.strptime(horaIzq, '%H:%M:%S')
+                                horaDer = right.val2.val
+                                horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
+                                return  not ((horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer ))
+                            except:
+                                try:
+                                    horacomparar = left.val
+                                    horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
+                                    horaIzq = right.val1.val
+                                    horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d')
+                                    horaDer = right.val2.val
+                                    horaValDer = datetime.strptime(horaDer, '%Y-%m-%d')
+                                    return  not ((horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer ))
+                                except:
+                                    try:
+                                        horacomparar = str(left.val)
+                                        horaIzq = str(right.val1.val)
+                                        horaDer = str(right.val2.val)
+                                        return  not ((horacomparar >= horaIzq ) and (horacomparar <= horaDer ))
+                                    except:
+                                        return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+                else:
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d %H:%M:%S')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d %H:%M:%S')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%Y-%m-%d %H:%M:%S')
+                            return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            try:
+                                horacomparar = left.val
+                                horaValComparar = datetime.strptime(horacomparar, '%H:%M:%S')
+                                horaIzq = right.val1.val
+                                horaValIzq = datetime.strptime(horaIzq, '%H:%M:%S')
+                                horaDer = right.val2.val
+                                horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
+                                return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                            except:
+                                try:
+                                    horacomparar = left.val
+                                    horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
+                                    horaIzq = right.val1.val
+                                    horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d')
+                                    horaDer = right.val2.val
+                                    horaValDer = datetime.strptime(horaDer, '%Y-%m-%d')
+                                    return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                                except:
+                                    try:
+                                        horacomparar = str(left.val)
+                                        horaIzq = str(right.val1.val)
+                                        horaDer = str(right.val2.val)
+                                        return (horacomparar >= horaIzq ) and (horacomparar <= horaDer )
+                                    except:
+                                        return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+            elif left.type == 'date' :
+                if right.type == False :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%Y-%m-%d')
+                            return not (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+                else :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%Y-%m-%d')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%Y-%m-%d')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%Y-%m-%d')
+                            return (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+            elif left.type == 'time' :
+                if right.type == False :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%H:%M:%S')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%H:%M:%S')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
+                            return not (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)
+                else :
+                    if right.val1.type == 'string' and right.val2.type == 'string':
+                        try:
+                            horacomparar = left.val
+                            horaValComparar = datetime.strptime(horacomparar, '%H:%M:%S')
+                            horaIzq = right.val1.val
+                            horaValIzq = datetime.strptime(horaIzq, '%H:%M:%S')
+                            horaDer = right.val2.val
+                            horaValDer = datetime.strptime(horaDer, '%H:%M:%S')
+                            return  (horaValComparar >= horaValIzq ) and (horaValComparar <= horaValDer )
+                        except:
+                            return Error('Semántico', 'Error de tipos con los argumentos proporcionados. Arg1: '+str(left.val)+' Arg2: '+str(right.val1.val)+' Arg3: '+str(right.val2.val), 0, 0)    
+        elif self.sign == 'isnull':
+            if left.val == '' or left.val == 'null':
+                return True
+            else:
+                return False
+        elif self.sign == 'notnull':
+            if left.val != '' or left.val != 'null':
+                return True
+            else:
+                return False
+        elif self.sign == 'is':
+            if self.rightOperator.notv == False:
+                ##IS NULOS
+                if self.rightOperator.val == 'null':
+                    if left.val == '' or left.val == 'null':
+                        return True
+                    else:
+                        return False
+                ##IS TRUE
+                if self.rightOperator.val == True:
+                    if left.type == 'boolean':
+                        if left.val == True: 
+                            return True
+                        else:
+                            return False
+                    else :
+                        error = Error('Semántico', 'Error de tipos en IS TRUE QUE, no se puede operar ' + left.type + ' con ' + right.type, 0, 0)
+                        return error
+                ## IS FALSE
+                if self.rightOperator.val == False:
+                    if left.type == 'boolean':
+                        if left.val == True: ##esta no c aun xd
+                            return False
+                        else:
+                            return True
+                    else :
+                        error = Error('Semántico', 'Error de tipos en IS FALSE, no se puede operar ' + left.type + ' con ' + right.type, 0, 0)
+                        return error
+                ## IS DISTINCT
+                if self.rightOperator.val == 'distinct':
+                    if left.val != self.rightOperator.val : 
+                        return True
+                    else:
+                        return False
+                ## IS UNKNOWN   
+                if self.rightOperator.val == 'unknown':
+                    if left.type == 'booleano': 
+                        if left.val == True :
+                            return True
+                        else :
+                            return False
+            else :
+                ##IS NOT NULL
+                if self.rightOperator.val == 'null':
+                    if left.val == '' or left.val == 'null':
+                        return not True
+                    else:
+                        return not False
+                #IS NOT TRUE
+                if self.rightOperator.val == 'true':
+                    if left.type == 'boolean':
+                        if left.val == True: 
+                            return not True
+                        else:
+                            return not False
+                    else :
+                        error = Error('Semántico', 'Error de tipos en IS NOT TRUE, no se puede operar ' + left.type + ' con ' + right.type, 0, 0)
+                        return error
+                ##IS NOT FALSE
+                if self.rightOperator.val == 'false':
+                    if left.type == 'boolean':
+                        if left.val == True: 
+                            return not False
+                        else:
+                            return not True
+                    else :
+                        error = Error('Semántico', 'Error de tipos en IS NOT FALSE, no se puede operar ' + left.type + ' con ' + right.type, 0, 0)
+                        return error
+                ##IS DISTINCT
+                if self.rightOperator.val == 'distinct':
+                    if left.val != self.rightOperator.val : 
+                        return not True
+                    else:
+                        return not False
+                ##ID DISCTINCT
+                if self.rightOperator.val == 'unknown':
+                    if left.type == 'booleano': 
+                        if left.val == True :
+                            return not True
+                        else :
+                            return not False
+         
 
 class Between(Instruccion):
 

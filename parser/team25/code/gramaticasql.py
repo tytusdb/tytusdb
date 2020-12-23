@@ -1830,7 +1830,7 @@ def p_exp_aux_decimal(p):
 #          | 'id' '.' 'id'
 def p_exp_aux_tabla(p):
     'exp_aux :  ID PUNTO ID'
-    p[0] = ExpresionID(p[1]+"."+p[3], p.slice[1].lineno , tabla = p[1])
+    p[0] = ExpresionID(p[1], p.slice[1].lineno , tabla = p[1]+"."+p[3])
     bnf.addProduccion('\<exp_aux> ::= "ID" "." "ID"')
 #          | 'id'
 def p_exp_aux_id(p):
@@ -2081,6 +2081,28 @@ def analizarEntrada(entrada):
 
 arbolParser = analizarEntrada('''
 use test;
-select * from tbrol, tbusuario;
+
+select numerica , COS(numerica) * 3 from tb1 ;
+
+
+
+-- select tb1.numerica , 7*9 from tb1 ; da error de ambiguedad pero no deberia 
+--select now() from tb1;
 ''')
 arbolParser.ejecutar()
+
+# create table tb1(
+#   numerica integer,
+#   cadena varchar(40)
+# );
+
+
+# create table tb2(
+#   numerica integer,
+#   cadena varchar(40)
+# );
+
+# insert into tb1 values (70,'adios');
+# insert into tb1 values (99,'hola');
+# insert into tb2 values (200,'oracle');
+# insert into tb2 values (44,'nuevo');

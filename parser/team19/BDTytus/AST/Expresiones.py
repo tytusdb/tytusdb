@@ -78,7 +78,7 @@ class Expression(Node.Nodo):
                 self.val = False
 
         elif len(args) == 3:
-            self.val = args[0]
+            self.val = None
             self.type = None
             self.op_type = 'iden'
             self.id = args[0]
@@ -96,9 +96,6 @@ class Expression(Node.Nodo):
         elif self.op_type == 'as' or self.op_type == 'in' or self.op_type == 'agg':
             self.val.ejecutar(TS, Errores)
             self.asid.ejecutar(TS, Errores)
-            self.type = self.val.type
-            self.val = self.val.val
-            self.asid = self.asid.val
             return self
         elif self.op_type == 'math':
             if self.function == 'ceil' or self.function == 'ceiling':
@@ -132,10 +129,6 @@ class Expression(Node.Nodo):
             return self
         elif self.op_type == 'iden':
             return self
-            #if TS.exists(self.id):
-            #    return self
-            #Errores.insertar(Nodo_Error("Semantico", "No existe el campo \'" + self.id + "\'", self.line, self.column))
-            #return TIPO_DATOS.ERROR
         elif self.op_type == 'Aritmetica':
             val1 = self.exp1.ejecutar(TS, Errores)
             val2 = self.exp2.ejecutar(TS, Errores)
@@ -451,6 +444,9 @@ class Expression(Node.Nodo):
                             self.op) + "\' con los tipos de datos \'" + str(val1.type) + "\' y " + "\'" + str(
                             val2.type) + "\' en", self.line, self.column))
                         return TIPO_DATOS.ERROR
+                elif val1.op_type == 'iden':
+                    val1.val = val2.val
+                    return val1
                 else:
                     return TIPO_DATOS.ERROR
             return TIPO_DATOS.ERROR
