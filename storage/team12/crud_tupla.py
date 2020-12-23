@@ -34,6 +34,7 @@ class CRUD_Tuplas:
         #Inicia la raiz vacia
         self.Raiz = None
         self.PK = []
+        self.values = []
     
     def dot2(self, Actual, Cadena):
         #Creacion del Nodo
@@ -600,3 +601,25 @@ class CRUD_Tuplas:
 
     def DefinirLlaves(self, llaves):
         self.PK = llaves
+
+    def takeDates(self):
+        self._takeDates(self.Raiz)
+        print("imprimiendo valores")
+        vals = self.values
+        print(vals)
+        print("valores imprimidos")
+        self.values = []
+        return vals
+    values = []
+    def _takeDates(self, tmp):
+        for i in range(3):
+            if tmp.Hijos[i] != None:
+                self._takeDates(tmp.Hijos[i])
+            if tmp.Valores[i][0] != -1:
+                self.values.append(tmp.Valores[i])
+                print(tmp.Valores)
+        if tmp.Hijos[3] != None:
+            self._takeDates(tmp.Hijos[2])
+
+    def insertar_(self, tupla):
+        self.Insertar(tupla)
