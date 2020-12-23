@@ -6,6 +6,8 @@ from parse.expressions.expressions_base import *
 from parse.expressions.expressions_trig import *
 from parse.sql_common.sql_general import *
 from parse.sql_ddl.create import *
+from parse.sql_dml.insert import *
+from parse.sql_dml.select import *
 from treeGraph import *
 
 #===========================================================================================
@@ -412,19 +414,20 @@ def p_all_opt(t):
 
 def p_stm_select(t):
     '''stm_select : SELECT distinct_opt list_names FROM table_list where_clause_opt group_clause_opt having_clause_opt order_by_opt limit_opt offset_opt
-                  | SELECT list_names  '''
-    
+                  '''
+    #| SELECT list_names  '
     if len(t) == 3:
         childsProduction  = addNotNoneChild(t,[2])
         graph_ref = graph_node(str("stm_select"),    [t[1], t[2]]       ,childsProduction)
         addCad("**\<DISTINCT_OPT>** ::= tSelect \<LIST_NAMES> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = Select(false, t[2], None, None, None, None, None, None, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
     else:    
-        childsProduction  = addNotNoneChild(t,[2,3,5,6,7,8,9,10,11])
-        graph_ref = graph_node(str("stm_select"),    [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]]       ,childsProduction)
+        #childsProduction  = addNotNoneChild(t,[2,3,5,6,7,8,9,10,11])
+        #graph_ref = graph_node(str("stm_select"),    [t[1], t[2], t[3], t[4], t[5], t[6], t[7], t[8], t[9], t[10], t[11]]       ,childsProduction)
+        childsProduction  = addNotNoneChild(t,[2])
+        graph_ref = graph_node(str("stm_select"),    [t[1], t[2]]       ,childsProduction)
         addCad("**\<DISTINCT_OPT>** ::= tSelect \<DISTINC_OPT> \<LIST_NAMES> tFrom \<TABLE_LIST>   \<WHERE_CLAUSE> \<GROUP_CLAUSE>\<HAVING_CLAUSE_OPT> \<ORDER_BY_OPT> <LIMIT_OPT>  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####       
+        t[0] = Select(True if t[2] else False, t[3], t[5], t[6], t[7], t[8], t[9], t[10], t[11], t.slice[1].lineno, t.slice[1].lexpos, graph_node)        
 
 
 def p_distinct_opt(t):
@@ -447,8 +450,8 @@ def p_where_clause_opt(t):
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("where_clause_opt"),    [t[1]]       ,childsProduction)
         addCad("**\<WHERE_CLAUSE_OPT>** ::= \<WHERE_CLAUSE_OPT> ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####        
+        t[0] = t[1]
+        #TODO: Check the graph paint wuith empty       
     else: 
         t[0]=None 
 
@@ -516,17 +519,18 @@ def p_offset_opt(t):
 def p_table(t):
     '''table    : ID 
                 | ID AS TEXTO
+                | ID AS ID
                 '''
 
     if len(t) == 2:
         graph_ref = graph_node(str(str(t[1])))
         addCad("**\<TABLE>** ::=  tIdentificador  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = Table(t.slice[1].value, t.slice[1].value, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         #####        
     else: 
         graph_ref = graph_node(str(str(t[1]) +" "+str(t[2])+" "+ str(t[3])  ))
         addCad("**\<TABLE>** ::=  tIdentificador tAs tTexto  ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
+        t[0] = Table(t.slice[1].value, t.slice[3].value, None, t.slice[1].lineno, t.slice[1].lexpos, graph_ref)
         ##### 
 
 
@@ -582,17 +586,18 @@ def p_table_list(t):
     '''table_list   : table_list COMA table_ref 
                     | table_ref'''
     if len(t) == 4:
-        childsProduction  = addNotNoneChild(t,[1,4])
-        graph_ref = graph_node(str("table_list"),    [t[1],t[2],t[3]]       ,childsProduction)
+        ##childsProduction  = addNotNoneChild(t,[1,4])
+        ##graph_ref = graph_node(str("table_list"),    [t[1],t[2],t[3]]       ,childsProduction)
         addCad("**\<TABLE_LIST>** ::=  \<TABLE_LIST>  ',' \<TABLE_REF> ')' ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####                
+        #TODO: Check graph of the list
+        t[1].append(t[3])
+        t[0] = t[1]
+                  
     else: 
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("table_list"),    [t[1]]       ,childsProduction)
         addCad("**\<TABLE_LIST>** ::=  \<TABLE_REF> ')' ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        #####  
+        t[0] = [t[1]]        
 
 
 def p_table_ref(t):
@@ -616,8 +621,7 @@ def p_table_ref(t):
         childsProduction  = addNotNoneChild(t,[1])
         graph_ref = graph_node(str("table_ref"),    [t[1]]       ,childsProduction)
         addCad("**\<TABLE_REF>** ::=  \<TABLE>    ")
-        t[0] = upNodo("token", 0, 0, graph_ref)
-        ##### 
+        t[0] = t[1]
 
 
 
@@ -671,8 +675,8 @@ def p_list_names(t):
         t[0] = upNodo("token", 0, 0, graph_ref)
         #####                
     elif len(t) == 4:
-        childsProduction  = addNotNoneChild(t,[1,2,4])
-        graph_ref = graph_node(str("list_names"),    [t[1],t[2],t[3],t[4]]       ,childsProduction)
+        childsProduction  = addNotNoneChild(t,[1])
+        graph_ref = graph_node(str("list_names"),    [t[1]]       ,childsProduction)
         addCad("**\<LIST_NAMES>** ::=   \<LIST_NAMES>  ',' tNames ")
         t[0] = upNodo("token", 0, 0, graph_ref)
         ####   
@@ -941,8 +945,7 @@ def p_where_clause(t):
     childsProduction = addNotNoneChild(t,[2])                
     graph_ref = graph_node(str("where_clause"), [t[1],t[2]]    ,childsProduction)
     addCad("**\<WHERE_CLAUSE>** ::= tWhere \<EXP_PREDICATE>")
-    t[0] = upNodo("token", 0, 0, graph_ref)
-    ##### 
+    t[0] = Where(t[2], t.slice[1].lineno, t.slice[1].lexpos, graph_ref) 
 
 #TODO  add parameter for if_not_exists_opt of the first production
 def p_stm_create(t):

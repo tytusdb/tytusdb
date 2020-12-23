@@ -103,10 +103,10 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
 
         field_index = 0
         for field in result_fields:
-            field.table_name = result_name
-            field.field_index = field_index
+            nuevo = FieldSymbol(table.get_current_db().name, result_name, field_index, field.name, field.field_type, field.length, field.allows_null, field.is_pk, None, None)
             field_index += 1
-            table.add(field)
+            table.add(nuevo)
+            
         return "Table: " +str(result_name) +" created."
 
 
