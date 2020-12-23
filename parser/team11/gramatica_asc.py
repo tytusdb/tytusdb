@@ -514,52 +514,70 @@ def p_field(t) :
 
 def p_create_table(t):
     'create_table : CREATE TABLE ID PARIZQ list_columns_x PARDER end_create_table'
+    t[0] = getCreateTableNode(t)
     
 def p_end_create_table(t):
     '''end_create_table : PTCOMA
-                      | INHERITS PARIZQ ID PARDER PTCOMA'''
+                      | INHERITS PARIZQ ID PARDER PTCOMA'''}
+    if len(t) > 2:
+        g = '<end_create_table> ::= \"INHERITS\" \"PARIZQ\" ID \"PARDER\" \"PTCOMA\"\n'
+        t[0] = Nodo('INHERITS',t[3],[],t.lexer.lineno,0,g)
     
 def p_list_columns_x(t):
     'list_columns_x : list_columns_x COMA key_column'
+    t[1].append(t[3])
+    t[0] = t[1]
     
 def p_list_columns(t):
     'list_columns_x : key_column'
+    t[0] = [t[1]]
 
 def p_key_column(t):
     '''key_column : PRIMARY KEY PARIZQ listtablas PARDER
                    | ID type_column attributes'''
+    t[0] = getKeyOrColumnNode(t)
 
 def p_attributes(t):
     'attributes   : default_value null_field constraint_field null_field primary_key'
+    t[0] = getAttributesNode(t)
     
 def p_default_value(t):
     '''default_value  : DEFAULT x_value
                       | empty '''
+    if t[1] != None:
+        g = '<default_value> ::= \"DEFAULT\" <x_value>\n'
+        t[0] = Nodo('DEFAULT','',[],t.lexer.lineno,0,g)
 
 def p_x_value(t):
     ''' x_value : cualquiercadena
                 | cualquiernumero'''
+    t[0] = t[1]
 
 def p_primary_key(t):
     '''primary_key : PRIMARY KEY
                    | empty'''
+    if t[1] != None:
+        g = '<primary_key> ::= \"PRIMARY\" \"KEY\"\n'
+        t[0] = Nodo('PRIMARY KEY','',[],t.lexer.lineno,0,g)
     
 def p_null_field(t):
     '''null_field     : NULL
                       | NOT NULL
                       | empty '''
+    t[0] = getNullFieldNode(t)
     
 def p_constraint_field(t):
     '''constraint_field : UNIQUE
                         | CONSTRAINT ID check_unique 
                         | CHECK PARIZQ condiciones PARDER
                         | empty'''
+    t[0] = getConstraintFieldNode(t)
     
 def p_check_unique(t):
     '''check_unique : UNIQUE 
                     | CHECK PARIZQ condiciones PARDER
                     | empty'''
-
+    t[0] = getCheckUnique(t)
 
 # -------- PRODUCCIONES PARA CREATE ENUMS ------------
 
@@ -591,25 +609,40 @@ def p_drop_table(t):
 ## INSERT 
 def p_insert_sinorden(t) :
     'insert_instr     : INSERT INTO ID VALUES PARIZQ parametros PARDER PTCOMA'
+    g = '<insert_instr> ::=  \"INSERT\" \"INTO\" ID \"VALUES\" \"PARIZQ\" <parametros> \"PARDER\" \"PTCOMA\"\n'
+    t[0] = Nodo('INSERT INTO',t[3],t[6],t.lexer.lineno,0,g)
 
 def p_insert_conorden(t) :
     'insert_instr     : INSERT INTO ID PARIZQ columnas PARDER VALUES PARIZQ parametros PARDER PTCOMA'
+    g = '<insert_instr> ::= \"INSERT\" \"INTO\" ID \"PARIZQ\" <columnas> \"PARDER\" \"VALUES\" \"PARIZQ\" <parametros> \"PARDER\" \"PTCOMA\"\n'
+    t[0] = Nodo('INSERT INTO',t[3],t[6],t.lexer.lineno,0,g)
 
 def p_lista_columnas(t) :
     'columnas       : columnas COMA ID'
+    g = '<columnas> ::= <columnas> \"COMA\" ID\n'
+    t[1].append( Nodo('Columna',t[3],[],t.lexer.lineno,0,g) )
+    t[0] = t[1]
 
 def p_lista_columnas_salida(t) :
     'columnas       : ID'
+    g = '<columnas> ::= ID\n'
+    t[0] = [ Nodo('Columna',t[1],[],t.lexer.lineno,0,g) ]
     
 def p_lista_parametros(t) :
     'parametros       : parametros COMA parametroinsert'
+    t[3].gramatica = '<parametros> ::= <parametros> \"COMA\" <parametroinsert>\n'
+    t[1].append(t[3])
+    t[0] = t[1]
 
 def p_lista_parametros_salida(t) :
     'parametros       : parametroinsert'
+    t[1].gramatica = '<parametros> ::= <parametroinsert>\n'
+    t[0] = [t[1]]
 
 def p_parametro (t) :
     '''parametroinsert  : DEFAULT
                         | expresion'''
+    t[0] = getParamNode(t)
     
 ## UPDATE
 def p_update_sinwhere(t) : 
