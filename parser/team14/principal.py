@@ -2,7 +2,10 @@ import arbol.AST as a
 import gramatica2 as g
 from tkinter import *
 from reportes import *
-from graphviz import Source
+from subprocess import check_call
+from Entorno.Entorno import Entorno
+from storageManager import jsonMode
+
 
 ventana= Tk()
 ventana.geometry("1000x900")
@@ -20,29 +23,43 @@ def reporte_lex_sin():
 
         for error in reporteerrores:
             contenido += '<TR> <TD>' + error.tipo + '</TD><TD>' + error.linea +'</TD> <TD>' + error.columna +'</TD><TD>' + error.descripcion +'</TD></TR>'
+        
         contenido += '</TABLE>\n>, ];}'
-
-    with open('reporteerrores.dot', 'w', encoding='utf8') as rep:
-        rep.write(contenido)
+    
+        with open('reporteerrores.dot','w',encoding='utf8') as reporte:
+             reporte.write(contenido)
+      
 
 def mostrarimagenre():
-    rep = Source.from_file("reporteerrores.dot", format = "png", encoding='utf8')
-    rep.render()
-    Tentrada = popup_reporte_png(ventana, "reporteerrores.dot.png")
+    check_call(['dot','-Tpng','reporteerrores.dot','-o','imagenerrores.png'])
 
 def send_data():
     print("Analizando Entrada:")
     print("==============================================")
-    reporteerrores = []
+    # reporteerrores = []
     contenido = Tentrada.get(1.0, 'end')
     Tsalida.delete("1.0", "end")
     Tsalida.configure(state='normal')
-    Tsalida.insert(INSERT, "Salida de consultas")
-    Tsalida.configure(state='disabled')
-   
-    #print(contenido)
 
-    g.parse(contenido)
+    # print(contenido)
+    jsonMode.dropAll()
+    jsonMode.createDatabase("DB1")
+    Principal = Entorno()
+
+    Principal.database = "DB1"
+    instrucciones = g.parse(contenido)
+    Tsalida.insert(INSERT, "Salida de consultas\n")
+    for instr in instrucciones:
+        if instr != None:
+            
+            res=instr.ejecutar(Principal)
+            if res!= None:
+                res += '\n'
+                Tsalida.insert(INSERT, res)
+                
+    Tsalida.configure(state='disabled')
+    Principal.mostrarSimbolos()
+
     reporte_lex_sin()
 
 def arbol_ast():

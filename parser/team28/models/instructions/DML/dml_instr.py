@@ -1,14 +1,7 @@
-from shared import Instruction
+from models.instructions.shared import Instruction
 '''
     Lenguaje de Manipulación de Datos (DML) =======================================================================================================================
 '''
-class Select(Instruction):
-    '''
-        SELECT recibe un array con todas los parametros
-    '''
-    def __init__(self,  instrs) :
-        self.instrs = instrs
-
 class Insert(Instruction):
     '''
         INSERT recibe tres parametros: 
@@ -21,6 +14,13 @@ class Insert(Instruction):
         self.arr_columns = arr_columns
         self.arr_values = arr_values
 
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+    
+
 class Update(Instruction):
     '''
         UPDATE recibe tres parametros: 
@@ -32,6 +32,12 @@ class Update(Instruction):
         self.table = table
         self.arr_columns_vals = arr_columns_vals
         self.params = params
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class ColumnVal(Instruction):
     '''
@@ -42,6 +48,13 @@ class ColumnVal(Instruction):
     def __init__(self,  column, value) :
         self.column = column
         self.value = value
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
+    
 
 class Opt1(Instruction):
     '''
@@ -50,11 +63,28 @@ class Opt1(Instruction):
     def __init__(self, isAsterisco, alias) :
         self.isAsterisco = isAsterisco
         self.alias = alias
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
 
 class Delete(Instruction):
     '''
         DELETE recibe la tabla donde tiene que borrar y recibe un array con todas los parametros OPCIONALES
+        Las opciones disponibles en un array del DELETE
+        opt1 = ASTERISK SQLALIAS || ASTERISK || SQLALIAS
+        opt2 = USING
+        opt3 = WHERE
+        opt4 = RETURNING
     '''
     def __init__(self,  table, params) :
         self.table = table
         self.params = params
+    
+    def __repr__(self):
+        return str(vars(self))
+    
+    def process(self, instrucction):
+        pass
