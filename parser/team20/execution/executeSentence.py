@@ -1,10 +1,11 @@
 from .AST.sentence import *
 from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreateType
-from .executeShow import executeShowDatabases
-from .executeSelect import executeSelect
+# from .executeShow import executeShowDatabases
+# from .executeSelect import executeSelect
 from .executeDrop import executeDropDatabase
 from .executeUse import executeUse
 from .executeExpression import executeExpression
+from .executeInsert import executeInsertAll
 from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase
 from .AST.error import * 
 import sys
@@ -20,16 +21,16 @@ def executeSentence(self, sentence):
                 res = executeExpression(self,sentence.OwnerMode[1])
                 if(isinstance(res,Error)): 
                     print(res.toString())
-                    print_error('ERROR','Semántico: owner mode out of range')
+                    print_error('SEMANTIC ERROR','owner mode out of range')
                 else: mode = res.value
             TCcreateDatabase(sentence.name,mode)
             print_success('QUERY',"Database "+sentence.name+" has been created Query returned successfully")
         elif(result==2 and sentence.ifNotExistsFlag):
-            print_success("NOTICE",'Database '+sentence.name+' has been created Query returned successfully')
+            print_warning("NOTICE",'Database '+sentence.name+' has been created Query returned successfully')
         elif(result==2 and not sentence.ifNotExistsFlag):
-            print_error('ERROR','Semántico: Database '+sentence.name+' already exists')
+            print_error('SEMANTIC ERROR','Database '+sentence.name+' already exists')
         else:
-            print_error("ERROR",'Semántico: error in the operation')
+            print_error("SEMANTIC ERROR",'error in the operation')
             
     elif isinstance(sentence, ShowDatabases):
         executeShowDatabases(self)
@@ -39,31 +40,31 @@ def executeSentence(self, sentence):
             TCdropDatabase(sentence.name)
             print_success("QUERY","DataBase "+sentence.name+" has been dropped")
         elif(result==2 and sentence.ifExistsFlag): 
-            print_success("NOTICE:", "Database "+sentence.name+" does not exist,skipping Query returned successfully with no result")
+            print_warning("NOTICE:", "Database "+sentence.name+" does not exist, skipping Query returned successfully with no result")
         elif(result==2 and not sentence.ifExistsFlag): 
-            print_error("ERROR","Semántico: Database "+sentence.name+" does not exist")
+            print_error("SEMANTIC ERROR","Database "+sentence.name+" does not exist")
         else:
-            print_error("ERROR",'Semántico: error in the operation')
+            print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence,Use):
         result=executeUse(self,sentence)
         if(result==0):
             print_success("QUERY", "Database "+sentence.name+" has been selected")
         elif(result==1):
-            print_error("ERROR",'Semántico: Database '+sentence.name+' does not exist')
+            print_error("SEMANTIC ERROR",'Database '+sentence.name+' does not exist')
         else:
-            print_error("ERROR",'Semántico: error in the operation')
+            print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence,CreateTable):
         result=executeCreateTable(self,sentence)
         if(result==0):
             print_success("QUERY"," Table "+sentence.name+" has been created")
         elif(result==1):
-            print_error("ERROR","Semántico: error in the operation")
+            print_error("SEMANTIC ERROR","error in the operation")
         elif(result==2):
-            print_error("ERROR","Semántico: DataBase not exists")
+            print_error("SEMANTIC ERROR","DataBase not exists")
         elif(result==3):
-            print_error("ERROR","Semántico: Table "+sentence.name+" already exists")
+            print_error("SEMANTIC ERROR","Table "+sentence.name+" already exists")
         else:
-            print_error("ERROR",'Semántico: error in the operation')
+            print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence, CreateType):
         result= executeCreateType(self,sentence)
         ##if(result==0):
@@ -76,7 +77,9 @@ def executeSentence(self, sentence):
             ##return Error('42710', 'duplicate_object' , 0, 0)
         ##else:
            ##return Error('xx0000', 'internal_error' , 0, 0)
-    #Resto de sentencias posibles
-    elif isinstance(sentence,Select):
-        executeSelect(self,sentence) 
+    elif isinstance(sentence, InsertAll):
+        executeInsertAll(self, sentence)
+    # #Resto de sentencias posibles
+    # elif isinstance(sentence,Select):
+    #     executeSelect(self,sentence) 
     

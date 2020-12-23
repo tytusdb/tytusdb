@@ -248,7 +248,7 @@ def t_multi_line_comment(t):
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
-    print_error("Lexical Error", "Illegal character in " + str(t.value[0]) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
+    print_error("LEXICAL ERROR", "Illegal character in " + str(t.value[0]) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
     grammarerrors.append(
         Error("Lexical","Ilegal character in '%s'." % (t.value[0]),t.lineno,find_column(input,t)))
     t.lexer.skip(1)
@@ -1198,12 +1198,12 @@ def p_expression_all(t):
 #ERROR
 def p_error(t):
     if t:
-        print_error("Syntactic Error", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
+        print_error("SYNTACTIC ERROR", "Syntactic Error in " + str(t.value) + ". Line: " + str(t.lineno) + ", Column: " + str(find_column(input,t)))
         grammarerrors.append(
             Error("Syntactic","Syntactic Error in '%s'." % (t.value),t.lineno,find_column(input,t)))
         parser.errok()
     else:
-        print_error("Syntactic Error","Syntax error at EOF")
+        print_error("SYNTACTIC ERROR","Syntax error at EOF")
         grammarerrors.append(
             Error("Syntactic","Syntax error at EOF",0,0))
 import ply.yacc as yacc
