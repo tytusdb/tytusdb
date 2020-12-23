@@ -53,9 +53,20 @@ class Select_Expresion(Expresion):
                     dataSelect.dataRow.append(value)
                 
         else :
+            #SENTENCIA_SELECT_DISTINCT
             functionSelect = Select()
-            functionSelect.execute(nodoSelect)
+            result = functionSelect.execute(nodoSelect)
+            if self.nombreNodo == "SENTENCIA_SELECT_DISTINCT":
+                resultDistinct = {}
+                for r in result:
+                    resultDistinct[' '.join(map(str, r))] = r
+                result =  []
+                for res in resultDistinct:
+                    result.append(resultDistinct[res])
+            encab = functionSelect.resultEncabezado
             
+            print(encab)
+            print(result)
             
 
         print(dataSelect.encabezados)

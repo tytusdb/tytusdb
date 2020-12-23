@@ -25,12 +25,38 @@ class Where():
     def __init__(self):
         self.listaTablas = {}
         self.dbUse = None
+        self.matEncabezados = []
 
-    #region Ejecución de las expresiones
-    def ejeExp(self,parent, matrizMult, listaTablas, listaColumnas, matriz3DData):
+
+    def ejeExpNone(self,parent, matrizMult, listaTablas, listaColumnas, matriz3DData):
         # Siempre se va a recibir una E
         # Se debe de recorrer la matriz de datos resultado del producto cartesiano
         matrizResult = []
+        matEncabezados = []
+        insertar = True
+        for fila in matrizMult:
+            for i in range(1,len(fila)):
+                for j in range(0,len(listaColumnas[i-1])):
+                    if insertar : 
+                        matEncabezados.append([listaTablas[i-1][0],listaTablas[i-1][1],listaColumnas[i-1][j][0],listaColumnas[i-1][j][1]])
+                    self.listaTablas[listaTablas[i-1][0]].lista[listaColumnas[i-1][j][0]].valueColumn=matriz3DData[i-1][fila[i]][j]
+
+            rowRes = []
+            for i in range(1,len(fila)):
+                rowRes = rowRes + matriz3DData[i-1][fila[i]]
+            matrizResult.append(rowRes)
+            insertar = False
+
+        self.matEncabezados = matEncabezados
+        return matrizResult
+
+    #region Ejecución de las expresiones
+    def ejeExpCols(self,parent, matrizMult, listaTablas, listaColumnas, matriz3DData):
+        # Siempre se va a recibir una E
+        # Se debe de recorrer la matriz de datos resultado del producto cartesiano
+        matrizResult = []
+        matEncabezados = []
+        insertar = True
         for fila in matrizMult:
             for i in range(1,len(fila)):
                 for j in range(0,len(listaColumnas[i-1])):
@@ -40,15 +66,18 @@ class Where():
                     #print("NoColumna:",j)
                     #print("Columna:", listaColumnas[i-1][j][0])
                     #print(matriz3DData[i-1][fila[i]][j],",",end='')
+                    if insertar : 
+                        matEncabezados.append([listaTablas[i-1][0],listaTablas[i-1][1],listaColumnas[i-1][j][0],listaColumnas[i-1][j][1]])
                     self.listaTablas[listaTablas[i-1][0]].lista[listaColumnas[i-1][j][0]].valueColumn=matriz3DData[i-1][fila[i]][j]
             if parent.execute(self.listaTablas):
                 rowRes = []
                 for i in range(1,len(fila)):
-                    rowRes = rowRes+ matriz3DData[i-1][fila[i]]
+                    rowRes = rowRes + matriz3DData[i-1][fila[i]]
                 matrizResult.append(rowRes)
-                    
-                        
-        print(matrizResult)
+            insertar = False
+
+        self.matEncabezados = matEncabezados
+        return matrizResult
                 
 
 
@@ -116,9 +145,11 @@ class Where():
         # 1. Realizar el producto Cartesiano de matriz3DData
         matrizMult = self.cartesiano(matriz3DData)
         self.llenarEstructura(listaTablas,listaColumnas)
-
-        for hijo in parent.hijos:
-            if hijo.nombreNodo == "E":
-                self.ejeExp(hijo, matrizMult, listaTablas, listaColumnas, matriz3DData)
+        if parent != None:
+            for hijo in parent.hijos:
+                if hijo.nombreNodo == "E":
+                    return self.ejeExpCols(hijo, matrizMult, listaTablas, listaColumnas, matriz3DData)
+        else:
+            return self.ejeExpNone(None, matrizMult, listaTablas, listaColumnas, matriz3DData)
         #Tenemos la estructura llena, sin valores.
 
