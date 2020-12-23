@@ -1,10 +1,20 @@
 from Start.Start import * 
+from EXPRESION.OPERADOR.Node_Operator import *
 from EXPRESION.EXPRESION.Expresion import *
 from EXPRESION.EXPRESIONES_TERMINALES.NUMERIC.NODE_NUMERIC.Node_Numeric import *
-from EXPRESION.OPERADOR.Node_Operator import *
 from EXPRESION.EXPRESIONES_TERMINALES.BOOLEAN.NODO_BOOLEAN.Node_Boolean import *
 from EXPRESION.EXPRESIONES_TERMINALES.CHAR.NODE_CHAR.Node_Char import *
 from EXPRESION.EXPRESIONES_TERMINALES.IDENTIFICADOR.NODE_IDENTIFICADOR.Node_Identificador import *
+from EXPRESION.EXPRESIONES_TERMINALES.SELECT.NODE_SELECT.Nodo_Select import *
+from EXPRESION.EXPRESIONES_TERMINALES.SELECT.NODE_SELECT.Node_Select_Distinct import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Extract import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Date_Part import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Now import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Current_Time import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Current_Date import *
+from EXPRESION.EXPRESIONES_TERMINALES.DATA_TIME.NODE_DATA_TIME.Node_Timestamp import *
+from EXPRESION.EXPRESIONES_TERMINALES.ACCESO.NODE_ACCESO.Node_Access import *
+from EXPRESION.EXPRESIONES_TERMINALES.ALIAS.NODE_ALIAS.Node_Alias import *
 from DDL.DROP.Drop import *
 from DDL.SHOW.Show import *
 from ERROR.Error import *
@@ -32,11 +42,13 @@ from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Power import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Radians import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Round import *
 from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Sign import *
-
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Sqrt import *
+from FUNCIONES_NATIVAS.MATHEMATICAL_FUNCTION.Width_Bucket import *
+from Config.BNF import bnf
 
 #Definicion de listado de errores
 errores = []
-
+reportebnf = []
 # N de nodo porque es una clase genérica.
 #Definicion de tokens
 
@@ -231,7 +243,7 @@ keywords = {
 'USING' : 'USING',
 'VALUES' : 'VALUES',
 'VARCHAR' : 'VARCHAR',
-'VARYNG' : 'VARYNG',
+'VARYING' : 'VARYING',
 'WHEN' : 'WHEN',
 'WHERE' : 'WHERE',
 'WIDTH_BUCKET' : 'WIDTH_BUCKET',
@@ -305,7 +317,7 @@ def t_NUMDECIMAL(t):
 def t_IDENTIFICADOR(t):
      r'[a-zA-Z_][a-zA-Z_0-9]*'
      t.type = keywords.get(t.value.upper(),'IDENTIFICADOR') 
-     print(t.type)   # Check for reserved words
+     #print(t.type)   # Check for reserved words
      return t    
 
 def t_CADENA(t):
@@ -341,7 +353,8 @@ def t_newline(t):
 
 #Defincion de los errores lexicos
 def t_error(t):
-    print("Carácter no válido '%s'" % t.value[0])
+    print("Carácter no válido '%s'" % t.value[0],t.lineno)
+    errores.append(Error(Tipo.LEXICO,"[LEXICAL ERROR] Invalid character '%s' " % t.value[0] ,t.lexer.lineno,t.lexpos))
     t.lexer.skip(1)
 
 #Caracteres a ser ignorados por el lenguaje
@@ -366,11 +379,13 @@ lexer = lex.lex()
 #Análisis sintáctico
 def p_instrucciones_lista_l(t):
     '''instrucciones    : instrucciones instruccion PUNTOYCOMA'''
+    reportebnf.append(bnf["p_instrucciones_lista_l"])
     t[1].hijos.append(t[2])
     t[0] = t[1]
 
 def p_instrucciones_lista_2(t):
     'instrucciones : instruccion PUNTOYCOMA '
+    reportebnf.append(bnf["p_instrucciones_lista_2"])
     t[0] = Start("S",-1,-1,None)
     t[0].hijos.append(t[1])
 
@@ -384,19 +399,195 @@ def p_instruccion(t):
                     | sent_alter
                     | sentencia_show
                     | sentencia_drop
-                    | sentencia_select_fecha
                     | sentencia_select
-                    | Exp'''
+                    | Exp
+                    | error'''
+    reportebnf.append(bnf["p_instruccion"])                    
     t[0] = t[1]
 
+def p_error(t):
+    errores.append(Error(Tipo.SINTACTICO,"[Syntax Error] Unexpected token '%s' " % t.value,t.lineno,t.lexpos+1))
+    while 1:
+        tok = yacc.token()
+        if not tok or tok.type == 'PUNTOYCOMA': break
+    yacc.restart()
+
 #------------------------------ Produccion Select ------------------------------------------
-#---------------- S E L E C T   F E C H A S ----------------------
-def p_instruccion_select_data_time(t):
-    'sentencia_select_fecha : SELECT EXTRACT PARENTESISIZQ time FROM TIMESTAMP CADENA PARENTESISDER'
-    t[0] = Start('SENTENCIA_SELECT_EXTRACT',t.lineno(1),t.lexpos(1)+1,None)
-    nodoCad = Char_Expresion('Cadena',t.lineno(7), t.lexpos(7)+1,t[7])
+def p_sentencia_select(t):
+    'sentencia_select :  SELECT lista_exp'
+    reportebnf.append(bnf["p_sentencia_select"])  
+    t[0] = Select_Expresion("SENTENCIA_SELECT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
+
+def p_sentencia_select_2(t):
+    'sentencia_select : SELECT campos FROM tables_expresion'
+    reportebnf.append(bnf["p_sentencia_select_2"])  
+    t[0] = Select_Expresion("SENTENCIA_SELECT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
     t[0].hijos.append(t[4])
-    t[0].hijos.append(nodoCad)
+
+def p_sentencia_select_3(t):
+    'sentencia_select : SELECT campos FROM tables_expresion sentencia_where'
+    reportebnf.append(bnf["p_sentencia_select_3"])  
+    t[0] = Select_Expresion("SENTENCIA_SELECT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
+    t[0].hijos.append(t[4])
+    t[0].hijos.append(t[5])
+
+def p_sentencia_select_4(t):
+    'sentencia_select :  SELECT DISTINCT lista_exp'
+    reportebnf.append(bnf["p_sentencia_select_4"])  
+    t[0] = Select_Expresion("SENTENCIA_SELECT_DISTINCT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+
+def p_sentencia_select_5(t):
+    'sentencia_select : SELECT DISTINCT campos FROM tables_expresion'
+    reportebnf.append(bnf["p_sentencia_select_5"])  
+    t[0] = Select_Expresion("SENTENCIA_SELECT_DISTINCT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+
+def p_sentencia_select_6(t):
+    'sentencia_select : SELECT DISTINCT campos FROM tables_expresion sentencia_where'
+    reportebnf.append(bnf["p_sentencia_select_6"])  
+    t[0] = Select_Expresion("SENTENCIA_SELECT_DISTINCT",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+    t[0].hijos.append(t[6])
+#-------------------------------------------------------------------------------------------
+#---------------------------------- Produccion Where ---------------------------------------
+def p_sentencia_where(t):
+    'sentencia_where : WHERE Exp'
+    reportebnf.append(bnf["p_sentencia_where"])  
+    t[0] = Start("SENTENCIA_WHERE",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[2])
+#-------------------------------------------------------------------------------------------
+#------------------------------------ Campos -----------------------------------------------
+def p_campos(t):
+    '''campos : lista_exp'''
+    reportebnf.append(bnf["p_campos"])  
+    t[0] = t[1]
+
+def p_campos_2(t):
+    'campos : ASTERISCO'
+    reportebnf.append(bnf["p_campos_2"])  
+    t[0] = Start("*",t.lineno(1),t.lexpos(1)+1,None)
+#-------------------------------------------------------------------------------------------
+#------------------------------- Lista Expresiones -----------------------------------------
+def p_lista_exp(t):
+    'lista_exp : lista_exp COMA Exp'    
+    reportebnf.append(bnf["p_lista_exp"])  
+    t[0] = t[1]
+    t[0].hijos.append(t[3])
+
+def p_lista_exp_2(t):
+    'lista_exp : lista_exp COMA Alias'
+    reportebnf.append(bnf["p_lista_exp_2"])  
+    t[0] = t[1]
+    t[0].hijos.append(t[3])
+
+def p_lista_exp_3(t):
+    'lista_exp : Exp'
+    reportebnf.append(bnf["p_lista_exp_3"])  
+    t[0] = Start("LISTA_EXP",-1,-1,None)
+    t[0].hijos.append(t[1])
+
+def p_lista_exp_4(t):
+    'lista_exp : Alias'
+    reportebnf.append(bnf["p_lista_exp_4"])  
+    t[0] = Start("LISTA_EXP",-1,-1,None)
+    t[0].hijos.append(t[1])
+#-------------------------------------------------------------------------------------------
+#---------------------------------------- Alias --------------------------------------------
+def p_option_exp_alias(t):
+    'Alias : Exp AS part2'
+    reportebnf.append(bnf["p_option_exp_alias"])  
+    t[0] = Alias_Expresion("ALIAS",t.lineno(2),t.lineno(2)+1,None)
+    t[0].hijos.append(t[1])
+    t[0].hijos.append(t[3])
+#-------------------------------------------------------------------------------------------
+#---------------------------------------- Part2 --------------------------------------------
+def p_option_alias_part2(t):
+    'part2 : IDENTIFICADOR'
+    reportebnf.append(bnf["p_option_alias_part2"])  
+    t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
+
+def p_option_alias_part2_2(t):
+    'part2 : CADENA'
+    reportebnf.append(bnf["p_option_alias_part2_2"])  
+    t[0] = Char_Expresion("Cadena",t.lineno(1),t.lexpos(1)+1,t[1])
+#-------------------------------------------------------------------------------------------
+#---------------------------------------- Tabla select -------------------------------------
+def p_select_tables(t):
+    'tables_expresion : tables_expresion COMA elements'
+    reportebnf.append(bnf["p_select_tables"])  
+    t[0] = t[1]
+    t[0].hijos.append(t[3])
+
+def p_select_tables_2(t):
+    'tables_expresion :  elements'
+    reportebnf.append(bnf["p_select_tables_2"])  
+    t[0] = Start("TABLE_EXPRESION",-1,-1,None)
+    t[0].hijos.append(t[1])
+
+def p_select_tables_elements(t):
+    'elements : IDENTIFICADOR'
+    reportebnf.append(bnf["p_select_tables_elements"])  
+    t[0] = Start("Identificador",t.lineno(1),t.lexpos(1),t[1])
+
+def p_select_tables_elements_2(t):
+    'elements : IDENTIFICADOR IDENTIFICADOR'
+    reportebnf.append(bnf["p_select_tables_elements_2"])  
+    t[0] = Start("TABLE",-1,-1,None)
+    tabla = Start("Name Table",t.lineno(1),t.lexpos(1),t[1])
+    id = Start("Id Table",t.lineno(2),t.lexpos(2),t[2])
+    t[0].hijos.append(tabla)
+    t[0].hijos.append(id)
+
+def p_select_tables_elements_3(t):
+    'elements : PARENTESISIZQ sentencia_select PARENTESISDER'
+    reportebnf.append(bnf["p_select_tables_elements_3"])  
+    t[0] = t[2]
+#-------------------------------------------------------------------------------------------
+#------------------------------ Funciones Fechas -------------------------------------------
+def p_funciones_fechas(t):
+    'funcion_fechas : EXTRACT PARENTESISIZQ time FROM TIMESTAMP CADENA PARENTESISDER'
+    reportebnf.append(bnf["p_funciones_fechas"])  
+    t[0] = Extract_Expresion("FUNCION_EXTRACT",t.lineno(1),t.lexpos(1)+1,None)
+    nodoCad = Char_Expresion('Cadena',t.lineno(6), t.lexpos(6)+1,t[6])
+    t[0].hijos.append(t[3])
+    t[0].hijos.append(nodoCad)    
+
+def p_funciones_fechas_1(t):
+    'funcion_fechas : DATE_PART PARENTESISIZQ CADENA COMA INTERVAL CADENA PARENTESISDER'
+    reportebnf.append(bnf["p_funciones_fechas_1"])  
+    t[0] = Date_Expresion("FUNCION_DATE",t.lineno(1),t.lexpos(1)+1,None)
+    cad1 = Char_Expresion("Cadena",t.lineno(3),t.lexpos(3)+1,t[3])
+    cad2 = Char_Expresion("Cadena",t.lineno(6),t.lexpos(6)+1,t[6])
+    t[0].hijos.append(cad1)
+    t[0].hijos.append(cad2)
+
+def p_funciones_fechas_2(t):
+    'funcion_fechas : NOW PARENTESISIZQ PARENTESISDER'
+    reportebnf.append(bnf["p_funciones_fechas_2"])  
+    t[0] = Now_Expresion("FUNCION_NOW",t.lineno(1),t.lexpos(1)+1,None)
+    
+def p_funciones_fechas_3(t):
+    'funcion_fechas : CURRENT_DATE'
+    reportebnf.append(bnf["p_funciones_fechas_3"])  
+    t[0] = Current_Date_Expresion("FUNCION_CURRENT_DATE",t.lineno(1),t.lexpos(1)+1,None)
+
+def p_funciones_fechas_4(t):
+    'funcion_fechas : CURRENT_TIME'
+    reportebnf.append(bnf["p_funciones_fechas_4"])  
+    t[0] = Current_Time_Expresion("FUNCION_CURRENT_TIME",t.lineno(1),t.lexpos(1)+1,None)
+
+def p_funciones_fechas_5(t):
+    'funcion_fechas : TIMESTAMP CADENA'
+    reportebnf.append(bnf["p_funciones_fechas_5"])  
+    t[0] = Timestamp_Expresion("FUNCION_TIMESTAMP",t.lineno(1),t.lexpos(1)+1,None)
+    charExp = Char_Expresion("Cadena",t.lineno(2),t.lexpos(2)+1,t[2])
+    t[0].hijos.append(charExp)
 
 def p_instruccion_select_time(t):
     '''time : YEAR
@@ -405,446 +596,404 @@ def p_instruccion_select_time(t):
             | HOUR 
             | MINUTE
             | SECOND'''
+    reportebnf.append(bnf["p_instruccion_select_time"])              
     t[0] = Start(t[1],t.lineno(1),t.lexpos(1)+1,None)
-
-def p_instruccion_select_data_time_2(t):
-    'sentencia_select_fecha : SELECT DATE_PART PARENTESISIZQ CADENA COMA INTERVAL CADENA PARENTESISDER'
-    t[0] = Start('SENTENCIA_SELECT_EXTRACT',t.lineno(1),t.lexpos(1)+1,None)
-    time = Char_Expresion("Tiempo",t.lineno(4),t.lexpos(4)+1,t[4])
-    interval = Char_Expresion("Interval",t.lineno(7),t.lexpos(7),t[7])
-    t[0].hijos.append(time)
-    t[0].hijos.append(interval)
-
-def p_instruccion_select_data_time_3(t):
-    'sentencia_select_fecha : SELECT NOW PARENTESISIZQ PARENTESISDER'
-    t[0] = Start("SENTENCIA_SELECT_NOW",t.lineno(1),t.lexpos(1)+1,None)
-
-def p_instruccion_select_data_time_4(t):
-    'sentencia_select_fecha : SELECT CURRENT_DATE'
-    t[0] = Start("SENTENCIA_SELECT_CURRENT_DATE",t.lineno(1),t.lexpos(1)+1,None)
-
-def p_instruccion_select_data_time_5(t):
-    'sentencia_select_fecha :  SELECT CURRENT_TIME'
-    t[0] = Start("SENTENCIA_SELECT_CURRENT_TIME",t.lineno(1),t.lexpos(1)+1,None)
-
-def p_instruccion_select_data_time_6(t):
-    'sentencia_select_fecha : SELECT TIMESTAMP CADENA'
-    t[0] = Start("SENTENCIA_SELECT_TIMESTAMP",t.lineno(1),t.lexpos(1)+1,None)
-    now = Start("now",t.lineno(3),t.lexpos(3),None)
-    t[0].hijos.append(now)
-
-#---------------- S E N T E N C I A   S E L E C T ----------------
-def p_instruccion_select_1(t):
-    '''sentencia_select : SELECT campos FROM tables_expresion '''
-    t[0] = Start("SENTENCIA_SELECT",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[2])
-    t[0].hijos.append(t[4])
-
-def p_instruccion_select_2(t):
-    '''sentencia_select : SELECT DISTINCT campos FROM tables_expresion '''
-    t[0] = Start("SENTENCIA_SELECT_DISTINCT",t.lineno(1),t.lexpos(1)+1,None)
-    t[0].hijos.append(t[3])
-    t[0].hijos.append(t[5])
-
-def p_instruccion_select_campos(t):
-    'campos : ASTERISCO'
-    t[0] = Start("COLUMNS",-1,-1,None)
-    col = Start("*",-1,-1,None)
-    t[0].hijos.append(col)
-
-def p_instruccion_select_campos_1(t):
-    'campos : lista_id'
-    t[0] = t[1]
-
-def p_select_lista_id(t):
-    '''lista_id : lista_id COMA elemento'''
-    t[0] = t[1]
-    t[0].hijos.append(t[3])
-
-def p_select_lista_id_1(t):
-    'lista_id : elemento'
-    t[0] = Start("COLUMNS",-1,-1,None)
-    t[0].hijos.append(t[1])
-
-def p_select_lista_elemento(t):
-    'elemento : IDENTIFICADOR'
-    t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-
-def p_select_lista_elemento_1(t):
-    'elemento : IDENTIFICADOR PUNTO elemento2'
-    t[0] = Start("ACCESO",-1,-1,None)
-    id1 = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-    t[0].hijos.append(id1)
-    t[0].hijos.append(t[3])
-
-def p_select_lista_elemento_2(t):
-    'elemento : ALIAS'
-    t[0] = t[1]
-
-def p_select_lista_elemento_2_funciones(t):
-    'elemento : FUNCIONES'
-    t[0] = t[1]
-
-def p_select_lista_elemento_2_alias(t):
-    'ALIAS : elemento4 AS elemento3'
-    t[0] = Start("ALIAS",t.lineno(2),t.lexpos(2)+1,None)
-    t[0].hijos.append(t[1])
-    t[0].hijos.append(t[3])
-
+#-------------------------------------------------------------------------------------------
+#------------------------------ Funciones Matematicas --------------------------------------
 def p_select_funciones(t):
-    'FUNCIONES : ABS PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_matematica : ABS PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones"])  
     t[0] = Function_Abs("FUNCION_ABS",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_2(t):
-    'FUNCIONES : CBRT PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_matematica : CBRT PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_2"])  
     t[0] = Function_Cbrt("FUNCION_CBRT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_3(t):
-    'FUNCIONES : CEIL PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_matematica : CEIL PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_3"])  
     t[0] = Function_Ceil("FUNCION_CEIL",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_4(t):
-    'FUNCIONES : CEILING PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_matematica : CEILING PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_4"])  
     t[0] = Function_Ceiling("FUNCION_CEILING",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_5(t):
-    'FUNCIONES : DEGREES PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_matematica : DEGREES PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_5"])  
     t[0] = Function_Degrees("FUNCION_DEGREES",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_6(t):
-    'FUNCIONES : DIV PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Div("SENTENCIA_DIV",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : DIV PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_6"])  
+    t[0] = Function_Div("FUNCION_DIV",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_7(t):
-    'FUNCIONES : EXP PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Exp("SENTENCIA_EXP",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : EXP PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_7"])  
+    t[0] = Function_Exp("FUNCION_EXP",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_8(t):
-    'FUNCIONES : FACTORIAL PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Factorial("SENTENCIA_FACTORIAL",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : FACTORIAL PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_8"])  
+    t[0] = Function_Factorial("FUNCION_FACTORIAL",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_9(t):
-    'FUNCIONES : FLOOR PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Floor("SENTENCIA_FLOOR",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : FLOOR PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_9"])  
+    t[0] = Function_Floor("FUNCION_FLOOR",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_10(t):
-    'FUNCIONES : GCD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Gsd("SENTENCIA_GSD",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : GCD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_10"])  
+    t[0] = Function_Gsd("FUNCION_GSD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_11(t):
-    'FUNCIONES : LN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Ln("SENTENCIA_LN",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : LN PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_11"])  
+    t[0] = Function_Ln("FUNCION_LN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
-def p_select_funcion_12(t):
-    'FUNCIONES : LOG PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Log("SENTENCIA_LOG",t.lineno(1),t.lexpos(1)+1,None)
+def p_select_funciones_12(t):
+    'funcion_matematica : LOG PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_12"])  
+    t[0] = Function_Log("FUNCION_LOG",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
-def p_select_funcion_13(t):
-    'FUNCIONES : MOD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Mod("SENTENCIA_MOD",t.lineno(1),t.lexpos(1)+1,None)
+def p_select_funciones_13(t):
+    'funcion_matematica : MOD PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_13"])  
+    t[0] = Function_Mod("FUNCION_MOD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
-def p_select_funcion_14(t):
-    'FUNCIONES : PI PARENTESISIZQ  PARENTESISDER'
-    t[0] = Function_Pi("SENTENCIA_PI",t.lineno(1),t.lexpos(1)+1,None)
+def p_select_funciones_14(t):
+    'funcion_matematica : PI PARENTESISIZQ  PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_14"])  
+    t[0] = Function_Pi("FUNCION_PI",t.lineno(1),t.lexpos(1)+1,None)
 
-def p_select_funcion_15(t):
-    'FUNCIONES : POWER PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Power("SENTENCIA_POWER",t.lineno(1),t.lexpos(1)+1,None)
+def p_select_funciones_15(t):
+    'funcion_matematica : POWER PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_15"])  
+    t[0] = Function_Power("FUNCION_POWER",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_16(t):
-    'FUNCIONES : RADIANS PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Radians("SENTENCIA_RADIANS",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : RADIANS PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_16"])  
+    t[0] = Function_Radians("FUNCION_RADIANS",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_17(t):
-    'FUNCIONES : ROUND PARENTESISIZQ Exp COMA Exp PARENTESISDER'
-    t[0] = Function_Round("SENTENCIA_ROUND",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : ROUND PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_17"])  
+    t[0] = Function_Round("FUNCION_ROUND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_18(t):
-    'FUNCIONES : SIGN PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Function_Sign("SENTENCIA_SIGN",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : SIGN PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_18"])  
+    t[0] = Function_Sign("FUNCION_SIGN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     
 def p_select_funciones_19(t):
-    'FUNCIONES : SQRT PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_SQRT",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : SQRT PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_19"])  
+    t[0] = Function_Sqrt("FUNCION_SQRT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_20(t):
-    'FUNCIONES : WIDTH_BUCKET PARENTESISIZQ lista_exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_BUCKET",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : WIDTH_BUCKET PARENTESISIZQ Exp COMA Exp COMA Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_20"])  
+    t[0] = Function_Width_Bucket("FUNCION_BUCKET",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
+    t[0].hijos.append(t[5])
+    t[0].hijos.append(t[7])
+    t[0].hijos.append(t[9])
 
 def p_select_funciones_21(t):
-    'FUNCIONES : TRUNC PARENTESISIZQ Exp PARENTESISDER'
-    t[0] = Start("SENTENCIA_TRUNC",t.lineno(1),t.lexpos(1)+1,None)
+    'funcion_matematica : TRUNC PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_21"])  
+    t[0] = Start("FUNCION_TRUNC",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_22(t):
-    'FUNCIONES : RANDOM PARENTESISIZQ PARENTESISDER'
-    t[0] = Start("SENTENCIA_RANDOM",t.lineno(1),t.lexpos(1)+1,None)
-
+    'funcion_matematica : RANDOM PARENTESISIZQ PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_22"])  
+    t[0] = Start("FUNCION_RANDOM",t.lineno(1),t.lexpos(1)+1,None)
+#-------------------------------------------------------------------------------------------
+#---------------------------- Funciones Trigonometricas ------------------------------------
 def p_select_funciones_23(t):
-    'FUNCIONES : ACOS PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ACOS PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_23"])  
     t[0] = Start("SENTENCIA_ACOS",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_24(t):
-    'FUNCIONES : ACOSD PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ACOSD PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_24"])  
     t[0] = Start("SENTENCIA_ACOSD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_25(t):
-    'FUNCIONES : ASIN PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ASIN PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_25"])  
     t[0] = Start("SENTENCIA_ASIN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_26(t):
-    'FUNCIONES : ASIND PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ASIND PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_26"])  
     t[0] = Start("SENTENCIA_ASIND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_27(t):
-    'FUNCIONES : ATAN PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ATAN PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_27"])  
     t[0] = Start("SENTENCIA_ATAN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_28(t):
-    'FUNCIONES : ATAND PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ATAND PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_28"])  
     t[0] = Start("SENTENCIA_ATAND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_29(t):
-    'FUNCIONES : ATAN2 PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    'funcion_trigonometrica : ATAN2 PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_29"])  
     t[0] = Start("SENTENCIA_ATAN2",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_30(t):
-    'FUNCIONES : ATAN2D PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    'funcion_trigonometrica : ATAN2D PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_30"])  
     t[0] = Start("SENTENCIA_ATAN2D",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_31(t):
-    'FUNCIONES : COS PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : COS PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_31"])  
     t[0] = Start("SENTENCIA_COS",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_32(t):
-    'FUNCIONES : COSD PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : COSD PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_32"])  
     t[0] = Start("SENTENCIA_COSD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_33(t):
-    'FUNCIONES : COT PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : COT PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_33"])  
     t[0] = Start("SENTENCIA_COT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_34(t):
-    'FUNCIONES : COTD PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : COTD PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_34"])  
     t[0] = Start("SENTENCIA_COTD",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])    
 
 def p_select_funciones_35(t):
-    'FUNCIONES : SIN PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : SIN PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_35"])  
     t[0] = Start("SENTENCIA_SIN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_36(t):
-    'FUNCIONES : SIND PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : SIND PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_36"])  
     t[0] = Start("SENTENCIA_SIND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_37(t):
-    'FUNCIONES : TAN PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : TAN PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_37"])  
     t[0] = Start("SENTENCIA_TAN",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_38(t):
-    'FUNCIONES : TAND PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : TAND PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_38"])  
     t[0] = Start("SENTENCIA_TAND",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_39(t):
-    'FUNCIONES : SINH PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : SINH PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_39"])  
     t[0] = Start("SENTENCIA_SINH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_40(t):
-    'FUNCIONES : COSH PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : COSH PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_40"])  
     t[0] = Start("SENTENCIA_COSH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_41(t):
-    'FUNCIONES : TANH PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : TANH PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_41"])  
     t[0] = Start("SENTENCIA_TANH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_42(t):
-    'FUNCIONES : ASINH PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ASINH PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_42"])  
     t[0] = Start("SENTENCIA_ASINH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_43(t):
-    'FUNCIONES : ACOSH PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ACOSH PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_43"])  
     t[0] = Start("SENTENCIA_ACOSH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_44(t):
-    'FUNCIONES : ATANH PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_trigonometrica : ATANH PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_44"])  
     t[0] = Start("SENTENCIA_ATANH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
-
+#-------------------------------------------------------------------------------------------
+#------------------------------- Funciones String ------------------------------------------
 def p_select_funciones_45(t):
-    'FUNCIONES : LENGTH PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_string : LENGTH PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_45"])  
     t[0] = Start("SENTENCIA_LENTGH",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_46(t):
-    'FUNCIONES : SUBSTRING PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
+    'funcion_string : SUBSTRING PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_46"])  
     t[0] = Start("SENTENCIA_SUBSTRING",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
     t[0].hijos.append(t[7])
 
 def p_select_funciones_47(t):
-    'FUNCIONES : TRIM PARENTESISIZQ Exp FROM Exp PARENTESISDER'
+    'funcion_string : TRIM PARENTESISIZQ Exp FROM Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_47"])  
     t[0] = Start("SENTENCIA_TRIM",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_48(t):
-    'FUNCIONES : MD5 PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_string : MD5 PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_48"])  
     t[0] = Start("SENTENCIA_MD5",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_49(t):
-    'FUNCIONES : SHA256 PARENTESISIZQ Exp PARENTESISDER'
+    'funcion_string : SHA256 PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_49"])  
     t[0] = Start("SENTENCIA_SHA256",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
 def p_select_funciones_50(t):
-    'FUNCIONES : SUBSTR PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
+    'funcion_string : SUBSTR PARENTESISIZQ Exp COMA Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_50"])  
     t[0] = Start("SENTENCIA_SUBSTR",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
     t[0].hijos.append(t[7])
 
 def p_select_funciones_51(t):
-    'FUNCIONES : GET_BYTE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp PARENTESISDER'
+    'funcion_string : GET_BYTE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_51"])  
     t[0] = Start("SENTENCIA_GET_BYTE",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[7])
 
 def p_select_funciones_52(t):
-    'FUNCIONES : SET_BYTE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp COMA Exp PARENTESISDER'
+    'funcion_string : SET_BYTE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_52"])  
     t[0] = Start("SENTENCIA_SET_BYTE",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[7])
     t[0].hijos.append(t[9])
 
 def p_select_funciones_53(t):
-    'FUNCIONES : CONVERT PARENTESISIZQ Exp AS tipo_declaracion PARENTESISDER'
+    'funcion_string : CONVERT PARENTESISIZQ Exp AS tipo_declaracion PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_53"])  
     t[0] = Start("SENTENCIA_CONVERT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
 def p_select_funciones_54(t):
-    'FUNCIONES : ENCODE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp PARENTESISDER'
+    'funcion_string : ENCODE PARENTESISIZQ Exp DOBLEDOSPUNTOS BYTEA COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_54"])  
     t[0] = Start("SENTENCIA_ENCODE",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[7])
 
 def p_select_funciones_55(t):
-    'FUNCIONES : DECODE PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    'funcion_string : DECODE PARENTESISIZQ Exp COMA Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_55"])  
     t[0] = Start("SENTENCIA_DECODE",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
     t[0].hijos.append(t[5])
 
-def p_lista_exp(t):
-    'lista_exp : lista_exp COMA Exp'    
-    t[0] = t[1]
+#-------------------------------------------------------------------------------------------
+#------------------------------ Funciones Agregadas ----------------------------------------
+def p_select_funciones_56(t):
+    'funcion_agregada : AVG PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_56"])  
+    t[0] = Start("FUNCION_AVG",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
-def p_lista_exp_2(t):
-    'lista_exp : Exp'
-    t[0] = Start("LISTA_EXP",-1,-1,None)
-    t[0].hijos.append(t[1])
-
-def p_select_lista_elemento_4(t):
-    'elemento4 : IDENTIFICADOR PUNTO elemento2'
-    t[0] = Start("ACCESO",-1,-1,None)
-    id1 = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-    t[0].hijos.append(id1)
+def p_select_funciones_57(t):
+    'funcion_agregada : COUNT PARENTESISIZQ list_count PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_57"])  
+    t[0] = Start("FUNCION_COUNT",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
-def p_select_lista_elemento_5(t):
-    'elemento4 : IDENTIFICADOR'
-    t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-
-def p_select_lista_elemento_6(t):
-    'elemento4 : FUNCIONES'
-    t[0] = t[1]
-
-def p_select_lista_elemento_2_alias_2(t):
-    'elemento3 : IDENTIFICADOR'
-    t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-
-def p_select_lista_elemento_2_alias_3(t):
-    'elemento3 : CADENA'
-    t[0] = Char_Expresion("Cadena",t.lineno(1),t.lexpos(1),t[1])
-
-def p_select_lista_elemento2(t):
-    'elemento2 : IDENTIFICADOR'
-    t[0] = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
-
-def p_select_lista_elemento2_2(t):
-    'elemento2 : ASTERISCO'
-    t[0] = Start("*",t.lineno(1),t.lexpos(1),None)
-
-def p_select_tables(t):
-    'tables_expresion : tables_expresion COMA elements'
-    t[0] = t[1]
+def p_select_funciones_58(t):
+    'funcion_agregada : MAX PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_58"])  
+    t[0] = Start("FUNCION_MAX",t.lineno(1),t.lexpos(1)+1,None)
     t[0].hijos.append(t[3])
 
-def p_select_tables_2(t):
-    'tables_expresion :  elements'
-    t[0] = Start("TABLE_EXPRESION",-1,-1,None)
-    t[0].hijos.append(t[1])
+def p_select_funciones_59(t):
+    'funcion_agregada : MIN PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_59"])  
+    t[0] = Start("FUNCION_MIN",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
 
-def p_select_tables_elements(t):
-    'elements : IDENTIFICADOR'
-    t[0] = Start("Identificador",t.lineno(1),t.lexpos(1),t[1])
+def p_select_funciones_60(t):
+    'funcion_agregada : SUM PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_select_funciones_60"])  
+    t[0] = Start("FUNCION_SUM",t.lineno(1),t.lexpos(1)+1,None)
+    t[0].hijos.append(t[3])
+#-------------------------------------------------------------------------------------------
+#----------------------------------- List Count --------------------------------------------
+def p_select_funciones_57_list_count(t):
+    'list_count : Exp'
+    reportebnf.append(bnf["p_select_funciones_57_list_count"])
+    t[0] = t[1]
 
-def p_select_tables_elements_2(t):
-    'elements : IDENTIFICADOR IDENTIFICADOR'
-    t[0] = Start("TABLE",-1,-1,None)
-    tabla = Start("Name Table",t.lineno(1),t.lexpos(1),t[1])
-    id = Start("Id Table",t.lineno(2),t.lexpos(2),t[2])
-    t[0].hijos.append(tabla)
-    t[0].hijos.append(id)
-
+def p_select_funciones_57_list_count_2(t):
+    'list_count : ASTERISCO'
+    reportebnf.append(bnf["p_select_funciones_57_list_count_2"])
+    t[0] = Start("*",t.lineno(1),t.lexpos(1)+1,None)
+#-------------------------------------------------------------------------------------------
 #------------------------------ Producciones útiles ----------------------------------------
 def p_tipo_declaracion_1(t):
     '''tipo_declaracion : SMALLINT
@@ -857,34 +1006,43 @@ def p_tipo_declaracion_1(t):
                 | TEXT
                 | DATE
                 | BOOLEAN'''
+    reportebnf.append(bnf["p_tipo_declaracion_1"])                
     nuevo = Start("TIPO_DECLARACION")
     nuevo.createChild(t[1], t.lineno(1))
     t[0] = nuevo
+
 def p_tipo_declaracion_2(t):
     '''tipo_declaracion : DOUBLE PRECISION'''
+    reportebnf.append(bnf["p_tipo_declaracion_2"])
     nuevo = Start("TIPO_DECLARACION",-1,-1,None)
     nuevo.createChild(t[1],t.lineno(1))
     nuevo.createChild(t[2],t.lineno(2))
     t[0] = nuevo 
+
 def p_tipo_declaracion_3(t):
-    '''tipo_declaracion : CHARACTER VARYNG PARENTESISIZQ ENTERO PARENTESISDER'''
+    '''tipo_declaracion : CHARACTER VARYING PARENTESISIZQ ENTERO PARENTESISDER'''
+    reportebnf.append(bnf["p_tipo_declaracion_3"])
     nuevo = Start("TIPO_DECLARACION")
     nuevo.createChild(t[1],t.lineno(1))
     nuevo.createChild(t[2],t.lineno(2))
     nuevo.createTerminal(t.slice[4])
     t[0] = nuevo
+
 def p_tipo_declaracion_4(t):
     '''tipo_declaracion : VARCHAR PARENTESISIZQ ENTERO PARENTESISDER
                 | CHARACTER PARENTESISIZQ ENTERO PARENTESISDER
                 | CHAR PARENTESISIZQ ENTERO PARENTESISDER'''
+    reportebnf.append(bnf["p_tipo_declaracion_4"])                
     nuevo = Start("TIPO_DECLARACION")
     nuevo.createChild(t[1],t.lineno(1))
     nuevo.createTerminal(t.slice[3])
     t[0] = nuevo
+
 def p_tipo_declaracion_5(t):
     '''tipo_declaracion : TIMESTAMP time_opcionales
                 | TIME time_opcionales
                 | INTERVAL interval_opcionales'''
+    reportebnf.append(bnf["p_tipo_declaracion_5"])                
     nuevo = Start("TIPO_DECLARACION")
     nuevo.createChild(t[1],t.lineno(1))
     if t[2] != None:
@@ -894,29 +1052,32 @@ def p_tipo_declaracion_5(t):
 def p_time_opcionales(t):
     '''time_opcionales : PARENTESISIZQ ENTERO PARENTESISDER time_opcionales_p
                             | time_opcionales_p'''
+    reportebnf.append(bnf["p_time_opcionales"])                                            
     if len(t)>2:
         nuevo = Start("TIME_OPCIONALES")
         nuevo.createTerminal(t.slice[2])
         if t[4] != None:
-            nuevo.addChild(t[4])
+            nuevo.addChild(t[4].hijos[0])
         t[0] = nuevo
     elif t[1] != None:
         nuevo = Start("TIME_OPCIONALES")
-        nuevo.addChild(t[1])
+        nuevo.addChild(t[1].hijos[0])
         t[0] = nuevo
 
 def p_time_opcionales_p(t):
     '''time_opcionales_p : WITHOUT TIME ZONE
                                 | WITH TIME ZONE
                                 | '''
-    if len(t)==3:
+    reportebnf.append(bnf["p_time_opcionales_p"])                    
+    if len(t)==4:
         nuevo = Start("TIME_ZONE")
-        nuevo.createChild(t[1],t.lineno(1))
+        nuevo.createChild(t[1] + " TIME ZONE",t.lineno(1))
         t[0] = nuevo
 
 def p_interval_opcionales(t):
     '''interval_opcionales : CADENA interval_opcionales_p
                             | interval_opcionales_p'''        
+    reportebnf.append(bnf["p_interval_opcionales"])                                            
     if len(t) == 3:
         nuevo = Start("INTERVAL_OPCIONALES")
         nuevo.createTerminal(t.slice[1])
@@ -924,18 +1085,21 @@ def p_interval_opcionales(t):
         t[0] = nuevo
     elif t[1] != None:
         t[0]=t[1]
+
 def p_interval_opcionales_p(t):
     '''interval_opcionales_p : PARENTESISIZQ ENTERO PARENTESISDER
                             |'''
+    reportebnf.append(bnf["p_interval_opcionales_p"])                                            
     if len(t) == 4:
         nuevo = Start("INTERVAL_OPCIONALES")
         nuevo.createTerminal(t.slice[1])
         nuevo.addChild(t[2])
         t[0] = nuevo
+
 def p_if_exists(t):
     ''' if_exists : IF EXISTS
                     |  '''
-    if len(t) == 4:
+    if len(t) == 3:
         nuevo = Start("IF_EXISTS")
         nuevo.createTerminal(t.slice[1])
         nuevo.createTerminal(t.slice[2])
@@ -946,12 +1110,15 @@ def p_if_exists(t):
 #---------------Inician las sentencias con la palabra reservada CREATE.---------------------
 def p_sentencia_crear_1(t):
     '''sentencia_crear : CREATE TYPE IDENTIFICADOR AS ENUM PARENTESISIZQ lista_cadenas PARENTESISDER'''
+    reportebnf.append(bnf["p_sentencia_crear_1"])                    
     nuevo = Start("CREATE_TYPE_ENUM")
     nuevo.createTerminal(t.slice[3])
     nuevo.addChild(t[7])# lista_cadenas
     t[0] = nuevo
+
 def p_sentencia_crear_2(t):
     '''sentencia_crear : CREATE sentencia_orreplace DATABASE sentencia_ifnotexists IDENTIFICADOR opcionales_crear_database'''    
+    reportebnf.append(bnf["p_sentencia_crear_2"])                
     nuevo = Start("CREATE_DATABASE")
     if t[2] != None: # sentencia orreplace
         nuevo.addChild(t[2])
@@ -961,8 +1128,10 @@ def p_sentencia_crear_2(t):
     if t[6] != None: # opcionales crear database
         nuevo.addChild(t[6])
     t[0] = nuevo
+
 def p_sentencia_crear_3(t):
     '''sentencia_crear : CREATE TABLE IDENTIFICADOR PARENTESISIZQ cuerpo_creartabla PARENTESISDER'''
+    reportebnf.append(bnf["p_sentencia_crear_3"])                
     nuevo = Start("CREATE_TABLE")
     nuevo.createTerminal(t.slice[3]) # IDENTIFICADOR
     for hijo in t[5].hijos:
@@ -971,19 +1140,23 @@ def p_sentencia_crear_3(t):
 
 def p_cuerpo_crear_tabla_1(t):
     '''cuerpo_creartabla : cuerpo_creartabla COMA cuerpo_creartabla_p'''
+    reportebnf.append(bnf["p_cuerpo_crear_tabla_1"])                
     nuevo = Start("CUERPO_CREAR_TABLA")
     for hijo in t[1].hijos:
         nuevo.addChild(hijo)
     nuevo.addChild(t[3])
     t[0] = nuevo
+
 def p_cuerpo_crear_tabla_2(t):
     '''cuerpo_creartabla : cuerpo_creartabla_p '''
+    reportebnf.append(bnf["p_cuerpo_crear_tabla_2"])                
     nuevo = Start("CUERPO_CREAR_TABLA")
     nuevo.addChild(t[1])
     t[0]=nuevo
 
 def p_cuerpo_crear_tabla_p_1(t):
     '''cuerpo_creartabla_p : IDENTIFICADOR tipo_declaracion opcional_creartabla_columna'''
+    reportebnf.append(bnf["p_cuerpo_crear_tabla_p_1"])                
     nuevo = Start("ATRIBUTO_COLUMNA")
     nuevo.createTerminal(t.slice[1])
     nuevo.addChild(t[2])
@@ -994,6 +1167,7 @@ def p_cuerpo_crear_tabla_p_1(t):
 
 def p_cuerpo_crear_tabla_p_2(t):
     '''cuerpo_creartabla_p : opcional_constraint  CHECK PARENTESISIZQ lista_exp PARENTESISDER'''
+    reportebnf.append(bnf["p_cuerpo_crear_tabla_p_2"])                
     t[0] = Start("OPCIONALES_ATRIBUTO_CHECK")
     if t[1] != None : 
         t[0].addChild(t[1])
@@ -1001,22 +1175,34 @@ def p_cuerpo_crear_tabla_p_2(t):
     
 def p_cuerpo_crear_tabla_p_3(t):
     '''cuerpo_creartabla_p : UNIQUE PARENTESISIZQ lista_ids  PARENTESISDER'''
+    reportebnf.append(bnf["p_cuerpo_crear_tabla_p_3"])                
     t[0] = Start("ATRIBUTO_UNIQUE")
     for hijo in t[3].hijos:
         t[0].addChild(hijo)
 
 def p_cuerpo_crear_tabla_p_4(t):
     '''cuerpo_creartabla_p : PRIMARY KEY PARENTESISIZQ lista_ids PARENTESISDER'''
+    reportebnf.append(bnf["p_cuerpo_crear_tabla_p_4"])
     t[0] = Start("ATRIBUTO_PRIMARY_KEY")
     for hijo in t[4].hijos:
         t[0].addChild(hijo)
 
 def p_cuerpo_crear_tabla_p_5(t):
-    '''cuerpo_creartabla_p : FOREIGN KEY PARENTESISIZQ lista_ids PARENTESISDER REFERENCES IDENTIFICADOR PARENTESISIZQ lista_ids PARENTESISDER'''
-    t[0] = Start("ATRIBUTO_FOREIGN_KEY")
-    t[0].addChild(t[4])
-    t[0].createTerminal(t.slice[7])
-    t[0].addChild(t[9])
+    '''cuerpo_creartabla_p : fk_references_p REFERENCES IDENTIFICADOR PARENTESISIZQ lista_ids PARENTESISDER'''
+    reportebnf.append(bnf["p_cuerpo_crear_tabla_p_5"])
+    t[0] = Start("ATRIBUTO_REFERENCES")
+    if t[1]!= None:
+        t[0].addChild(t[1])
+    t[0].createTerminal(t.slice[3])
+    t[0].addChild(t[5])
+
+def p_cuerpo_crear_tabla_p_6(t):
+    '''fk_references_p : FOREIGN KEY PARENTESISIZQ lista_ids PARENTESISDER
+                        |'''
+    reportebnf.append(bnf["p_cuerpo_crear_tabla_p_6"])                        
+    if len(t) == 6:
+        t[0] = Start("ATRIBUTO_FOREIGN_KEY")
+        t[0].addChild(t[4])
     
 
 # Falta DEFAULT EXPRESION
@@ -1024,6 +1210,7 @@ def p_cuerpo_crear_tabla_p_5(t):
 
 def p_opcional_creartabla_columna_1(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna NOT NULL'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_1"])
     nuevo =Start("OPCIONALES_NOT_NULL")
     nuevo.createChild(t[2],t.lineno(2))
     nuevo.createChild(t[3],t.lineno(3))
@@ -1033,8 +1220,10 @@ def p_opcional_creartabla_columna_1(t):
             temporal.addChild(hijo)
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_2(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna NULL'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_2"])
     nuevo =Start("OPCIONALES_ATRIBUTO_NULL")
     nuevo.createChild(t[2],t.lineno(2))
     temporal = Start("Temp")
@@ -1043,8 +1232,10 @@ def p_opcional_creartabla_columna_2(t):
             temporal.addChild(hijo)
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_3(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint UNIQUE '''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_3"])
     nuevo = Start("OPCIONALES_ATRIBUTO_UNIQUE")
     if t[2] != None:
         nuevo.addChild(t[2])
@@ -1055,8 +1246,10 @@ def p_opcional_creartabla_columna_3(t):
             temporal.addChild(hijo)
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_4(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna opcional_constraint CHECK PARENTESISIZQ Exp PARENTESISDER'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_4"])
     print("Entra opcional crear tabla columna")
     nuevo = Start("OPCIONALES_ATRIBUTO_CHECK")
     if t[2] != None:
@@ -1068,24 +1261,30 @@ def p_opcional_creartabla_columna_4(t):
             temporal.addChild(hijo)
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_5(t):
     '''opcional_creartabla_columna : NOT NULL'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_5"])
     nuevo = Start("OPCIONALES_ATRIBUTO_NOT_NULL")
     nuevo.createChild(t[1],t.lineno(1))
     nuevo.createChild(t[2],t.lineno(2))
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_6(t):
     '''opcional_creartabla_columna : NULL'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_6"])
     nuevo = Start("OPCIONALES_ATRIBUTO_NULL")
     nuevo.createTerminal(t.slice[1])
     nuevo.createTerminal(t.slice[2])
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_7(t):
     '''opcional_creartabla_columna : opcional_constraint UNIQUE'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_7"])
     nuevo = Start("OPCIONALES_ATRIBUTO_UNIQUE")
     if t[1] != None:
         nuevo.addChild(t[1])
@@ -1093,16 +1292,20 @@ def p_opcional_creartabla_columna_7(t):
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_8(t):
     '''opcional_creartabla_columna : PRIMARY KEY'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_8"])
     nuevo = Start("OPCIONALES_ATRIBUTO_PRIMARY")
     nuevo.createChild(t[1],t.lineno(1))
     nuevo.createChild(t[2],t.lineno(2))
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_8_1(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna PRIMARY KEY'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_8_1"])
     nuevo = Start("OPCIONALES_ATRIBUTO_PRIMARY")
     nuevo.createTerminal(t.slice[2])
     nuevo.createTerminal(t.slice[3])
@@ -1112,9 +1315,11 @@ def p_opcional_creartabla_columna_8_1(t):
             temporal.addChild(hijo)
     temporal.addChild(nuevo)
     t[0] = temporal  
+    
 def p_opcional_creartabla_columna_9(t):
     '''opcional_creartabla_columna : opcional_constraint CHECK PARENTESISIZQ PARENTESISDER
                                     |'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_9"])                                    
     if len(t) > 1:
         nuevo = Start("OPCIONALES_ATRIBUTO_CHECK")
         if t[1] != None:
@@ -1123,8 +1328,10 @@ def p_opcional_creartabla_columna_9(t):
         temporal = Start("Temp")
         temporal.addChild(nuevo)
         t[0] = temporal
+
 def p_opcional_creartabla_columna_10(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna DEFAULT Exp'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_10"])    
     nuevo = Start("OPCIONALES_ATRIBUTO_DEFAULT")
     nuevo.createChild(t[2],t.lineno(2))
     nuevo.addChild(t[3])
@@ -1134,15 +1341,19 @@ def p_opcional_creartabla_columna_10(t):
             temporal.addChild(hijo)
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_creartabla_columna_11(t):
     '''opcional_creartabla_columna : DEFAULT Exp'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_11"])    
     nuevo = Start("OPCIONALES_ATRIBUTO_DEFAULT")
     nuevo.addChild(t[2])
     temporal = Start("Temp")
     temporal.addChild(nuevo)
     t[0]=temporal
+
 def p_opcional_creartabla_columna_12(t):
     '''opcional_creartabla_columna : opcional_creartabla_columna REFERENCES IDENTIFICADOR'''
+    reportebnf.append(bnf["p_opcional_creartabla_columna_12"])
     nuevo = Start("OPCIONALES_ATRIBUTO_REFERENCES")
     nuevo.createChild(t[3],t.lineno(3))
     temporal = Start("Temp")
@@ -1151,9 +1362,11 @@ def p_opcional_creartabla_columna_12(t):
             temporal.addChild(hijo)
     temporal.addChild(nuevo)
     t[0] = temporal
+
 def p_opcional_constraint(t):
     '''opcional_constraint : CONSTRAINT IDENTIFICADOR
                             | '''
+    reportebnf.append(bnf["p_opcional_constraint"])                            
     if len(t) > 1:
         nuevo = Start("OPCIONAL_CONSTRAINT")
         nuevo.createTerminal(t.slice[2])
@@ -1162,6 +1375,7 @@ def p_opcional_constraint(t):
 def p_lista_cadenas(t):
     '''lista_cadenas : lista_cadenas COMA CADENA
                         | CADENA '''
+    reportebnf.append(bnf["p_lista_cadenas"])                        
     nuevo = Start("LISTA_CADENAS")
     if len(t) == 4:
         for hijo in t[1].hijos:
@@ -1174,6 +1388,7 @@ def p_lista_cadenas(t):
 def p_lista_ids(t):
     '''lista_ids : lista_ids COMA IDENTIFICADOR
                         | IDENTIFICADOR '''
+    reportebnf.append(bnf["p_lista_ids"])                        
     nuevo = Start("LISTA_IDS")
     if len(t) == 4:
         if t[1] != None:
@@ -1188,6 +1403,7 @@ def p_lista_ids(t):
 def p_sentencia_orreplace(t):
     '''sentencia_orreplace : OR REPLACE
                             | '''
+    reportebnf.append(bnf["p_sentencia_orreplace"])                            
     if len(t) > 1:
         nuevo = Start("ORREPLACE")
         t[0] = nuevo
@@ -1195,6 +1411,7 @@ def p_sentencia_orreplace(t):
 def p_sentencia_ifnotexists(t):
     '''sentencia_ifnotexists : IF NOT EXISTS
                             | '''
+    reportebnf.append(bnf["p_sentencia_ifnotexists"])                            
     if len(t) > 1:
         nuevo = Start("IF_NOT_EXISTS")
         t[0] = nuevo
@@ -1202,16 +1419,19 @@ def p_sentencia_ifnotexists(t):
 def p_opcionales_crear_database_1(t):
     '''opcionales_crear_database    : opcionales_crear_database OWNER opcional_comparar IDENTIFICADOR 
                                     | opcionales_crear_database MODE opcional_comparar ENTERO '''
+    reportebnf.append(bnf["p_opcionales_crear_database_1"])                                    
     nuevo = Start("OPCIONALES_CREAR_DATABASE")
     for hijo in t[1].hijos:
         nuevo.addChild(hijo)
     nuevo.createChild(t[2],t.lineno(2))
     nuevo.createChild(t[4],t.lineno(4))
     t[0] = nuevo
+
 def p_opcionales_crear_database_2(t):
     '''opcionales_crear_database    : OWNER opcional_comparar IDENTIFICADOR
                                     | MODE opcional_comparar ENTERO
                                     | '''
+    reportebnf.append(bnf["p_opcionales_crear_database_2"])                                    
     if len(t)>1 :
         nuevo = Start("OPCIONALES_CREAR_DATABASE")
         nuevo.createChild(t[1],t.lineno(1))
@@ -1221,6 +1441,7 @@ def p_opcionales_crear_database_2(t):
 def p_opcional_comparar(t):
     '''opcional_comparar : IGUAL
                             | '''
+    reportebnf.append(bnf["p_opcional_comparar"])                            
     if len(t)>1 :
         nuevo = Start("OPCIONAL_COMPARAR")
         nuevo.createTerminal(t.slice[1])
@@ -1232,6 +1453,7 @@ def p_opcional_comparar(t):
 #------------------------------ Inicia sentencia USE ---------------------------------------
 def p_sentencia_use(t):
     '''sentencia_use : USE IDENTIFICADOR'''
+    reportebnf.append(bnf["p_sentencia_use"])    
     temporal = Start("SENTENCIA_USE")
     temporal.createTerminal(t.slice[2])
     t[0] = temporal
@@ -1241,7 +1463,39 @@ def p_sentencia_use(t):
 
 #---------------------------------CASE-----------------------------------
 def p_sentencia_case(t):
-    '''sentencia_case :  CASE WHEN THEN END'''
+    '''sentencia_case :  CASE listaExpCase caseElse END'''
+    reportebnf.append(bnf["p_sentencia_case"])    
+    t[0] = Start("SENTENCIA_CASE", t.lineno(1))
+    for hijo in t[2].hijos:
+        t[0].addChild(hijo)
+
+def p_listaExpCase(t):
+    '''listaExpCase : listaExpCase WHEN Exp THEN Exp
+                    | WHEN Exp THEN Exp'''
+    reportebnf.append(bnf["p_listaExpCase"])                    
+    t[0] = Start("LISTA_EXP_CASE", t.lineno(2))
+    if len(t) == 6:
+        for hijo in t[1].hijos:
+            t[0].addChild(hijo)
+        hijoTemp = Start("WHEN_THEN")
+        hijoTemp.addChild(t[3])
+        hijoTemp.addChild(t[5])
+        t[0].addChild(hijoTemp)
+    else:
+        hijoTemp = Start("WHEN_THEN")
+        hijoTemp.addChild(t[2])
+        hijoTemp.addChild(t[4])
+        t[0].addChild(hijoTemp)
+
+
+def p_caseElse(t):
+    '''caseElse : ELSE Exp
+                | '''
+    reportebnf.append(bnf["p_caseElse"])                
+    if len(t) == 3:
+        t[0]=Start("CASE_ELSE")
+        t[0].addChild(t[2])
+
 
 #---------------Termina las sentencias con la palabra reservada SELECT.---------------------
 
@@ -1249,6 +1503,7 @@ def p_sentencia_case(t):
 # SENTENCIA DE INSERT
 def p_insert(t):
     '''sent_insertar : INSERT INTO IDENTIFICADOR VALUES PARENTESISIZQ l_param_insert PARENTESISDER'''
+    reportebnf.append(bnf["p_insert"])    
     nuevo = Insert('SENTENCIA_INSERT')
     nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(t[6])
@@ -1256,6 +1511,7 @@ def p_insert(t):
     
 def p_insert2(t):
     '''sent_insertar : INSERT INTO IDENTIFICADOR PARENTESISIZQ l_param_column PARENTESISDER VALUES PARENTESISIZQ l_param_insert PARENTESISDER'''
+    reportebnf.append(bnf["p_insert2"])     
     nuevo = Insert('SENTENCIA_INSERT')
     nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(t[5])
@@ -1278,6 +1534,7 @@ def p_list_column1(t):
     
 def p_list_param_insert(t):
     '''l_param_insert : l_param_insert COMA  Exp'''
+    reportebnf.append(bnf["p_list_param_insert"])    
     nuevo = Insert('PARAM_INSERT')
     for hijo in t[1].hijos:
         nuevo.hijos.append(hijo)
@@ -1297,6 +1554,7 @@ def p_list_param_insert1(t):
 # SENTENCIA DE UPDATE //FALTA WHERE
 def p_update(t):
     '''sent_update : UPDATE IDENTIFICADOR SET l_col_update ''' 
+    reportebnf.append(bnf["p_update"])    
     nuevo = Update('SENTENCIA_UPDATE')
     nuevo.hijos.append(Update('UPDATE',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(IdentificadorDML("Tabla",t.lineno(1),t.lexpos(1)+1,t[2]))
@@ -1306,6 +1564,7 @@ def p_update(t):
 
 def p_list_col_update(t):
     '''l_col_update : l_col_update COMA col_update'''
+    reportebnf.append(bnf["p_list_col_update"])    
     nuevo = Update('LISTA_UPDATE')
     nuevo.hijos.append(t[1])
     nuevo.hijos.append(t[3])
@@ -1313,10 +1572,12 @@ def p_list_col_update(t):
 
 def p_list_col_update1(t):
     '''l_col_update : col_update'''
+    reportebnf.append(bnf["p_list_col_update1"])    
     t[0] = t[1]
     
 def p_column_update(t):
     '''col_update : IDENTIFICADOR IGUAL Exp'''
+    reportebnf.append(bnf["p_column_update"])    
     nuevo = UpdateCol('COL_UPDATE',-1,-1,None)
     nuevo.hijos.append(IdentificadorDML("Col",t.lineno(1),t.lexpos(1)+1,t[1]))
     #nuevo.hijos.append(UpdateCol('=',t.lineno(1),t.lexpos(1)+1,None))
@@ -1328,6 +1589,7 @@ def p_column_update(t):
 # SENTENCIAS DELETE //FALTA WH
 def p_delete(t):
     '''sent_delete : DELETE FROM IDENTIFICADOR'''
+    reportebnf.append(bnf["p_delete"])    
     nuevo = Delete('SENTENCIA_DELETE')
     nuevo.hijos.append(Delete('DELETE',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(Delete('FROM',t.lineno(1),t.lexpos(1)+1))
@@ -1339,6 +1601,7 @@ def p_delete(t):
 # SENTENCIA ALTER
 def p_alter(t):
     '''sent_alter : ALTER DATABASE IDENTIFICADOR accion_alter_db'''
+    reportebnf.append(bnf["p_alter"])    
     nuevo = Alter('SENTENCIA_ALTER')
     nuevo.hijos.append(Alter('ALTER',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(IdentificadorDML("DATABASE",t.lineno(1),t.lexpos(1)+1,t[3]))
@@ -1348,6 +1611,7 @@ def p_alter(t):
 def p_alter2(t):
     '''sent_alter : ALTER TABLE IDENTIFICADOR accion_alter_table
     '''
+    reportebnf.append(bnf["p_alter2"])
     nuevo = Alter('SENTENCIA_ALTER')
     nuevo.hijos.append(Alter('ALTER',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(IdentificadorDML("TABLE",t.lineno(1),t.lexpos(1)+1,t[3]))
@@ -1356,6 +1620,7 @@ def p_alter2(t):
     
 def p_alter_db(t):
     '''accion_alter_db  : RENAME TO IDENTIFICADOR'''
+    reportebnf.append(bnf["p_alter_db"])    
     nuevo = Alter('C_ALTER')
     nuevo.hijos.append(Alter('RENAME',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(Alter('TO',t.lineno(1),t.lexpos(1)+1))
@@ -1364,6 +1629,7 @@ def p_alter_db(t):
 
 def p_alter_db1(t):
     '''accion_alter_db  : OWNER TO nuevo_prop'''
+    reportebnf.append(bnf["p_alter_db1"])    
     nuevo = Alter('C_ALTER')
     nuevo.hijos.append(Alter('OWNER',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(Alter('TO',t.lineno(1),t.lexpos(1)+1))
@@ -1374,6 +1640,7 @@ def p_nuevo_prop_db(t):
     ''' nuevo_prop  : CADENA
                     | CURRENT_USER
                     | SESSION_USER'''
+    reportebnf.append(bnf["p_nuevo_prop_db"])                    
     t[0] = IdentificadorDML("OWNER",t.lineno(1),t.lexpos(1)+1,t[1])
 
 def p_alter_table(t):
@@ -1383,7 +1650,8 @@ def p_alter_table(t):
     t[0] = t[1]
                             
 def p_alter_add_col(t):
-    ''' alter_add_col   : ADD COLUMN IDENTIFICADOR tipo_declaracion'''                
+    ''' alter_add_col   : ADD COLUMN IDENTIFICADOR tipo_declaracion'''  
+    reportebnf.append(bnf["p_alter_add_col"])                  
     nuevo = Alter('ADD')
     nuevo.hijos.append(IdentificadorDML("COLUMN",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(t[4])
@@ -1391,6 +1659,7 @@ def p_alter_add_col(t):
     
 def p_alter_add_col1(t):
     ''' alter_add_col   : ADD CHECK PARENTESISIZQ Exp PARENTESISDER'''    
+    reportebnf.append(bnf["p_alter_add_col1"])    
     nuevo = Alter('ADD')
     nuevo.hijos.append(IdentificadorDML("CHECK",t.lineno(1),t.lexpos(1)+1,None))
     nuevo.hijos.append(t[4])
@@ -1398,6 +1667,7 @@ def p_alter_add_col1(t):
                         
 def p_alter_add_col2(t):
     ''' alter_add_col   : ADD CONSTRAINT IDENTIFICADOR FOREIGN KEY IDENTIFICADOR REFERENCES IDENTIFICADOR'''    
+    reportebnf.append(bnf["p_alter_add_col2"])    
     nuevo = Alter('ADD')
     nuevo.hijos.append(IdentificadorDML("CONSTRAINT",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(IdentificadorDML("FOREIGN KEY",t.lineno(1),t.lexpos(1)+1,t[6]))
@@ -1406,6 +1676,7 @@ def p_alter_add_col2(t):
     
 def p_alter_add_col3(t):
     ''' alter_add_col   : ADD CONSTRAINT IDENTIFICADOR UNIQUE IDENTIFICADOR'''    
+    reportebnf.append(bnf["p_alter_add_col3"])    
     nuevo = Alter('ADD')
     nuevo.hijos.append(IdentificadorDML("CONSTRAINT",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(IdentificadorDML("UNIQUE",t.lineno(1),t.lexpos(1)+1,t[5]))
@@ -1415,18 +1686,21 @@ def p_alter_add_col3(t):
                             
 def p_alter_drop_col(t):
     ''' alter_drop_col  : DROP COLUMN IDENTIFICADOR'''
+    reportebnf.append(bnf["p_alter_drop_col"])    
     nuevo = Alter('DROP')
     nuevo.hijos.append(IdentificadorDML("COLUMN",t.lineno(1),t.lexpos(1)+1,t[3]))
     t[0] = nuevo
     
 def p_alter_drop_col1(t):
-    ''' alter_drop_col  : DROP CONSTRAINT IDENTIFICADOR'''
+    '''alter_drop_col  : DROP CONSTRAINT IDENTIFICADOR'''
+    reportebnf.append(bnf["p_alter_drop_col1"])    
     nuevo = Alter('DROP')
     nuevo.hijos.append(IdentificadorDML("CONSTRAINT",t.lineno(1),t.lexpos(1)+1,t[3]))
     t[0] = nuevo
     
 def p_alter_l_column(t):
     ''' l_alter_col : l_alter_col COMA alter_col'''
+    reportebnf.append(bnf["p_alter_l_column"])    
     nuevo = Alter('L_ALTER')
     nuevo.hijos.append(t[1])
     nuevo.hijos.append(t[3])
@@ -1434,10 +1708,12 @@ def p_alter_l_column(t):
     
 def p_alter_l_column1(t):
     ''' l_alter_col : alter_col'''
+    reportebnf.append(bnf["p_alter_l_column1"])    
     t[0] = t[1]
     
 def p_alter_col(t):
     '''alter_col : ALTER COLUMN IDENTIFICADOR SET NOT NULL'''
+    reportebnf.append(bnf["p_alter_col"])    
     nuevo = Alter('ALTER')
     nuevo.hijos.append(IdentificadorDML("Column",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(Alter('SET NOT NULL',t.lineno(1),t.lexpos(1)+1))
@@ -1445,6 +1721,7 @@ def p_alter_col(t):
 
 def p_alter_col1(t):
     '''alter_col : ALTER COLUMN IDENTIFICADOR TYPE tipo_declaracion'''
+    reportebnf.append(bnf["p_alter_col1"])    
     nuevo = Alter('ALTER')
     nuevo.hijos.append(IdentificadorDML("Column",t.lineno(1),t.lexpos(1)+1,t[3]))
     nuevo.hijos.append(Alter('TYPE',t.lineno(1),t.lexpos(1)+1))
@@ -1456,22 +1733,25 @@ def p_alter_col1(t):
 #Produccion para inherits
 def p_herencia(t):
     '''herencia : INHERITS PARENTESISIZQ IDENTIFICADOR PARENTESISDER'''
+    reportebnf.append(bnf["p_herencia"])
 
 
 
 ######################################Produccion para sentencia SHOW
 def p_show(t):
     ''' sentencia_show : SHOW DATABASES like_option'''
+    reportebnf.append(bnf["SENTENCIA_SHOW"])
+    reportebnf.append("\n")
     nuevo = Show('SENTENCIA_SHOW')
     nuevo.hijos.append(Start('SHOW',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(Start('DATABASES',t.lineno(1),t.lexpos(1)+1))
     if(t[3] != None):
         nuevo.hijos.append(t[3])
-    nuevo.execute()
     t[0] = nuevo
         
 def p_like_option(t):
     ''' like_option : LIKE CADENA'''
+    reportebnf.append(bnf["LIKE_OPTIONS"])
     nuevo = Start('like_option')
     nuevo.hijos.append(Start('LIKE',t.lineno(1),t.lexpos(1)+1))
     nuevo.hijos.append(Start('CADENA',t.lineno(2),t.lexpos(2)+1,t[2]))
@@ -1479,12 +1759,15 @@ def p_like_option(t):
 
 def p_like_option_2(t):
     ''' like_option : '''
+    reportebnf.append(bnf["LIKE_OPTIONS2"])
     t[0] = None
 
 
 #########################################################Produccion para Drops
 def p_drop(t):
     ''' sentencia_drop : DROP drop_options'''
+    reportebnf.append(bnf["p_drop"])
+    reportebnf.append("\n")    
     nuevo = Drop('SENTENCIA_DROP')
     nuevo.addChild(Start('DROP',t.lineno(1),t.lexpos(1)+1))
     nuevo.addChild(t[2])
@@ -1493,6 +1776,7 @@ def p_drop(t):
 
 def p_drop_options(t):
     ''' drop_options : TABLE IDENTIFICADOR '''
+    reportebnf.append(bnf["p_drop_options"])
     nuevo = Start('drop_option')
     nuevo.addChild(Start('TABLE',t.lineno(1),t.lexpos(1)+1))
     nuevo.addChild(Start('IDENTIFICADOR',t.lineno(2),t.lexpos(2)+1,t[2]))
@@ -1504,8 +1788,14 @@ def p_drop_options2(t):
     nuevo.addChild(Start('DATABASE',t.lineno(1),t.lexpos(1)+1))
     if(t[2] != None):
         nuevo.addChild(t[2])
+        reportebnf.append(bnf["if_exists1"])
+    else:
+        reportebnf.append(bnf["if_exists2"])
     nuevo.addChild(Start('IDENTIFICADOR',t.lineno(3),t.lexpos(3)+1,t[3]))
+    reportebnf.append(bnf["p_drop_options2"])
     t[0] = nuevo
+
+
 
 
 # ******************************* EXPRESION ***************************************
@@ -1513,6 +1803,7 @@ def p_drop_options2(t):
 # ***** L O G I C A S
 def p_exp_and(t):
     'Exp : Exp AND Exp'
+    reportebnf.append(bnf["p_exp_and"])    
     op = Operator("AND",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1521,6 +1812,7 @@ def p_exp_and(t):
 
 def p_exp_or(t):
     'Exp : Exp OR Exp'
+    reportebnf.append(bnf["p_exp_or"])    
     op = Operator("OR",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1529,6 +1821,7 @@ def p_exp_or(t):
 
 def p_exp_not(t):
     'Exp : NOT Exp'
+    reportebnf.append(bnf["p_exp_not"])    
     op = Operator("NOT",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(op)
@@ -1537,6 +1830,7 @@ def p_exp_not(t):
 # ***** R E L A C I O N A L E S
 def p_exp_igualdad(t):
     'Exp : Exp IGUAL Exp'
+    reportebnf.append(bnf["p_exp_igualdad"])    
     op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1545,6 +1839,7 @@ def p_exp_igualdad(t):
 
 def p_exp_desigualdad(t):
     'Exp : Exp DIFERENTEQUE Exp'
+    reportebnf.append(bnf["p_exp_desigualdad"])    
     op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1553,6 +1848,7 @@ def p_exp_desigualdad(t):
 
 def p_exp_mayor(t):
     'Exp : Exp MAYORQUE Exp'
+    reportebnf.append(bnf["p_exp_mayor"])    
     op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1561,6 +1857,7 @@ def p_exp_mayor(t):
 
 def p_exp_mayorigual(t):
     'Exp :  Exp MAYORIGUAL Exp'
+    reportebnf.append(bnf["p_exp_mayorigual"])    
     op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1569,6 +1866,7 @@ def p_exp_mayorigual(t):
 
 def p_exp_menor(t):
     'Exp : Exp MENORQUE Exp'
+    reportebnf.append(bnf["p_exp_menor"])    
     op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1577,6 +1875,7 @@ def p_exp_menor(t):
 
 def p_exp_menorigual(t):
     'Exp : Exp MENORIGUAL Exp'
+    reportebnf.append(bnf["p_exp_menorigual"])    
     op = Operator(t[2],t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1587,6 +1886,7 @@ def p_exp_menorigual(t):
 
 def p_exp_suma(t):
     'Exp : Exp MAS Exp'
+    reportebnf.append(bnf["p_exp_suma"])    
     op = Operator("+",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1595,6 +1895,7 @@ def p_exp_suma(t):
 
 def p_exp_resta(t):
     'Exp : Exp MENOS Exp'
+    reportebnf.append(bnf["p_exp_resta"])    
     op = Operator("-",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1603,6 +1904,7 @@ def p_exp_resta(t):
 
 def p_exp_mult(t):
     'Exp : Exp ASTERISCO Exp'
+    reportebnf.append(bnf["p_exp_mult"])    
     op = Operator("*",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1611,6 +1913,7 @@ def p_exp_mult(t):
 
 def p_exp_div(t):
     'Exp : Exp SLASH Exp'
+    reportebnf.append(bnf["p_exp_div"])    
     op = Operator("/",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1619,6 +1922,7 @@ def p_exp_div(t):
 
 def p_exp_potencia(t):
     'Exp : Exp POTENCIA Exp'
+    reportebnf.append(bnf["p_exp_potencia"])    
     op = Operator("^",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1627,6 +1931,7 @@ def p_exp_potencia(t):
 
 def p_exp_mod(t):
     'Exp : Exp PORCENTAJE Exp'
+    reportebnf.append(bnf["p_exp_mod"])    
     op = Operator("%",t.lineno(2),t.lexpos(2)+1,None)
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
@@ -1635,6 +1940,7 @@ def p_exp_mod(t):
 
 def p_exp_negativo(t):
     'Exp : MENOS Exp %prec UMINUS'
+    reportebnf.append(bnf["p_exp_negativo"])    
     t[0] = Expresion("E",-1,-1,None)
     op = op = Operator("-",t.lineno(2),t.lexpos(2)+1,None)
     t[0].hijos.append(op)
@@ -1644,22 +1950,26 @@ def p_exp_negativo(t):
 
 def p_exp_exp(t):
     'Exp : PARENTESISIZQ Exp PARENTESISDER'
+    reportebnf.append(bnf["p_exp_exp"])
     t[0] = t[2]
 
 def p_exp_entero(t):
     'Exp : ENTERO'
+    reportebnf.append(bnf["p_exp_entero"])
     t[0] = Expresion("E",-1,-1,None)
     numExp = Numeric_Expresion("Entero",t.lineno(1),t.lexpos(1)+1,t[1])
     t[0].hijos.append(numExp)
 
 def p_exp_decimal(t):
     'Exp : NUMDECIMAL'
+    reportebnf.append(bnf["p_exp_decimal"])
     t[0] = Expresion("E",-1,-1,None)
     numExp = Numeric_Expresion("Decimal",t.lineno(1),t.lexpos(1)+1,t[1])
     t[0].hijos.append(numExp)
 
 def p_exp_cadena(t):
     'Exp : CADENA'    
+    reportebnf.append(bnf["p_exp_cadena"])
     t[0] = Expresion("E",-1,-1,None)
     charExp = Char_Expresion("Cadena",t.lineno(1),t.lexpos(1)+1,t[1])
     t[0].hijos.append(charExp)
@@ -1667,24 +1977,57 @@ def p_exp_cadena(t):
 def p_exp_boolean(t):
     '''Exp  : FALSE
             | TRUE'''
+    reportebnf.append(bnf["p_exp_boolean"])            
     t[0] = Expresion("E",-1,-1,None)
     boolExp = Boolean_Expresion("Boolean",t.lineno(1),t.lexpos(1)+1,t[1])
     t[0].hijos.append(boolExp)
 
 def p_exp_identificado(t):
     'Exp : IDENTIFICADOR'
+    reportebnf.append(bnf["p_exp_identificado"])
     t[0] = Expresion("E",-1,-1,None)
     idExp = Identificator_Expresion("Identificador",t.lineno(1),t.lexpos(1)+1,t[1])
     t[0].hijos.append(idExp)
 
+def p_exp_acceso(t):
+    'Exp : Acceso'
+    reportebnf.append(bnf["p_exp_acceso"])    
+    t[0] = Expresion("E",-1,-1,None)
+    t[0].hijos.append(t[1])
+
 def p_exp_funcion(t):
-    'Exp : FUNCIONES'
+    '''Exp : funcion_fechas
+            | funcion_matematica
+            | funcion_trigonometrica
+            | funcion_string
+            | funcion_agregada'''
+    reportebnf.append(bnf["p_exp_funcion"])            
     t[0] = Expresion("E",-1,-1,None)
     t[0].hijos.append(t[1])
 
 # *********************************************************************************
+# ----------------------------------  Access --------------------------------------
+def p_option_exp_access(t):
+    'Acceso : IDENTIFICADOR PUNTO option_access'
+    reportebnf.append(bnf["p_option_exp_access"])
+    t[0] = Access_Expresion("ACCESO",t.lineno(2),t.lexpos(2)+1,None)
+    tabla = Char_Expresion("Name Table",t.lineno(1),t.lexpos(1),t[1])
+    t[0].hijos.append(tabla)
+    t[0].hijos.append(t[3])
+# ---------------------------------------------------------------------------------
+# ------------------------------- Option Access -----------------------------------
+def p_option_access(t):
+    'option_access : IDENTIFICADOR'
+    reportebnf.append(bnf["p_option_access"])    
+    t[0] = Identificator_Expresion("Id Column",t.lineno(1),t.lexpos(1)+1,t[1])
+
+def p_option_access_2(t):
+    'option_access : ASTERISCO'
+    reportebnf.append(bnf["p_option_access_2"])
+    t[0] = Start("*",t.lineno(1),t.lexpos(1)+1,None)
+# ---------------------------------------------------------------------------------
 
 import ply.yacc as yacc
 def run_method(entrada):
-    parser = yacc.yacc()    
+    parser = yacc.yacc()
     return parser.parse(entrada)

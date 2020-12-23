@@ -2,6 +2,7 @@ import json
 import sys, os.path
 import os
 
+
 storage = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..\..')) + '\\storageManager')
 sys.path.append(storage)
 
@@ -11,6 +12,7 @@ sys.path.append(storage)
 from jsonMode import *
 from typeChecker.typeChecker import *
 tc = TypeChecker()
+
 
 
 class Database():
@@ -62,16 +64,18 @@ class Database():
         if self.mode == None:
             self.mode = 1
         # Se crea si no existe
-        if not (self.name in showDatabases()) : # No existe la base de datos, se crea
-            if createDatabase(self.name) == 0:
+
+        if not (self.name.upper() in showDatabases()) : # No existe la base de datos, se crea
+            print("Se va a crear la base de datos:")
+            if createDatabase(self.name.upper()) == 0:
                 self.responseCode="0000"
                 self.responseMessage="Se creo la base de datos."
-                tc.createDatabase(self.name, self.owner, self.mode)
+                tc.createDatabase(self.name.upper(), self.owner, self.mode)
         else:
             if not (self.ifNotExists) and self.replaced :
-                if createDatabase(self.name) == 2:
+                if createDatabase(self.name.upper()) == 2:
                     self.responseCode="0000"
-                    tc.replaceDatabase(self.name, self.owner, self.mode)
+                    tc.replaceDatabase(self.name.upper(), self.owner, self.mode)
                     self.responseMessage = "La base de datos fue reemplazada exitosamente"
             else:
                 self.responseCode="42P04"

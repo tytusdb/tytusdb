@@ -48,13 +48,14 @@ class Start(Nodo):
                 self.listaSemanticos.append(message)
             elif hijo.nombreNodo == 'CREATE_TABLE':
                 nuevaTabla = Table()
-                nuevaTabla.execute(hijo, enviroment)
+                res = nuevaTabla.execute(hijo, enviroment)
+                if res.code != "00000":
+                    print(res.responseObj.descripcion)
             elif hijo.nombreNodo == 'CREATE_TYPE_ENUM':
                 nuevoEnum = Type()
                 nuevoEnum.execute(hijo)
             elif hijo.nombreNodo == 'SENTENCIA_SELECT':
-                nuevoSelect = Select()
-                nuevoSelect.execute(hijo,enviroment)
+                hijo.execute(enviroment)
             elif hijo.nombreNodo == 'E':
                 hijo.execute(enviroment)
                 print("Tipo Expresion: "+str(hijo.tipo.data_type))
@@ -62,3 +63,8 @@ class Start(Nodo):
             elif hijo.nombreNodo == 'SENTENCIA_INSERT':
                 nuevoInsert = InsertTable()
                 nuevoInsert.execute(hijo,enviroment)
+            elif hijo.nombreNodo == "SENTENCIA_SHOW":
+                self.listaSemanticos.append(hijo.execute(None))
+            elif hijo.nombreNodo == "SENTENCIA_DROP":
+                self.listaSemanticos.append(hijo.execute(None))
+                
