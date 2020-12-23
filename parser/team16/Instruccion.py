@@ -3,8 +3,6 @@ import jsonMode as Master
 import interprete as Inter
 from six import string_types
 from errores import *
-from expresiones import *
-from prettytable import PrettyTable
 from random import *
 from expresiones import *
 
@@ -53,6 +51,7 @@ def imprir(string):
 
 def mostrarConsulta(resultado):
     tabla = PrettyTable()
+
     for key, val in resultado.items():
         tabla.add_column(key, val)
 
@@ -1543,6 +1542,16 @@ def tabla_simbolos():
         fun:DatoTipo = ts.obtenerTipo(fn)
         cadena4 += '<TR><TD>' + str(fun.bd) + '</TD>' + '<TD>' + str(fun.tipo) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + '</TD>' + '<TD>' + '</TD></TR>'
 
+    cadena5 = ''
+    for fn in ts.Validaciones:
+        fun = ts.Validaciones.get(fn)
+        if isinstance(fun, constraintTabla):
+            print("ESTE SI LO IMPRIMEEEeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee")
+            cadena5 += '<TR><TD>' + str(fun.idRef) + '</TD>' + '<TD>' + str(fun.listas_id) + '</TD>' + '<TD>' + str(fun.valor) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD></TR>'
+        else:
+            cadena5 += '<TR><TD>' + str(fun.tabla) + '</TD>' + '<TD>' + str(fun.campo) + '</TD>' + '<TD>' + str(fun.validacion) + '</TD>' + '<TD>' + str(fun.id) + '</TD>' + '<TD>' + '</TD></TR>'
+
+
     cadena = ''
     for fn in ts.Datos:
         fun = ts.obtenerDato(fn)
@@ -1553,12 +1562,15 @@ def tabla_simbolos():
     cadena2=''
     for fn in ts.Tablas:
         fun=ts.obtenerTabla(fn)
-        for cuerpos in fun.cuerpo:
-            if isinstance(cuerpos.tipo,valorTipo):
-                cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo.valor)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
-            else:
-                cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
 
+        for cuerpos in fun.cuerpo:
+            if isinstance(cuerpos, CampoTabla):
+                if isinstance(cuerpos.tipo, valorTipo):
+                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo.valor)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+                else:
+                    cadena2+='<TR><TD>'+str(fun.id)+'</TD>'+'<TD>'+str(cuerpos.id)+'</TD>'+'<TD>'+str(cuerpos.tipo)+'</TD>'+'<TD>'+'</TD>'+'<TD>'+'</TD></TR>'
+            else:
+                print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> UN C")
     cadena3=''
     for fn in ts.BasesDatos:
         fun=ts.obtenerBasesDatos(fn)
@@ -1579,6 +1591,25 @@ def tabla_simbolos():
                             </TR>
                             '''
                             +cadena+
+                            ''' <TR>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                                <TD></TD>
+                            </TR>
+                            <TR>
+                                <TD COLSPAN="5" bgcolor="#FA8258"> <B>VALIDACIONES</B> </TD>
+                            </TR>
+                            <TR bgcolor="#BEF781">
+                                <TD bgcolor="#BEF781">TABLA</TD>
+                                <TD bgcolor="#BEF781">CAMPO</TD>
+                                <TD bgcolor="#BEF781">TIPO</TD>
+                                <TD bgcolor="#BEF781">ID</TD>
+                                <TD bgcolor="#BEF781"> </TD>
+                            </TR>
+                            '''
+                            +cadena5+
                             ''' <TR>
                                 <TD></TD>
                                 <TD></TD>
@@ -1695,7 +1726,7 @@ class Select(Instruccion) :
 
     def Ejecutar(self):
 
-        global ts_global, baseActual
+        global ts_global, baseActual, ListaTablasG
         global LisErr
 
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
@@ -1721,7 +1752,7 @@ class Select(Instruccion) :
                           #si es la tabla validamos que tipo de campo viene
 
 
-
+                            numeroExpresion = 1
                             for ii in self.Lista_Campos:
 
                                 if(isinstance(ii,Campo_AccedidoSinLista)): #nombrecampo   #nombretabla.nombrecampo     # select * from tabla1;    sin alias
@@ -1806,7 +1837,18 @@ class Select(Instruccion) :
 
 
                                         else:
-                                            print("")
+                                            if not isinstance(ii.Columna, string_types):
+                                                print("Se intentara procesar una expresion")
+
+                                                result = Inter.procesar_expresion_columna(ii.Columna, ts_global)
+                                                if isinstance(result, list):
+                                                    listaGeneral["Expresion" + str(numeroExpresion)] = result
+                                                    print('resultado expresion')
+                                                else:
+                                                    listaGeneral["Expresion"+str(numeroExpresion)] = [result]
+                                                numeroExpresion += 1
+                                                break
+
 
                                 elif(isinstance(ii,Campo_Accedido)): # nombre alias ssj      #nombretabla.nombrecampo alias  tss
 
@@ -1893,7 +1935,18 @@ class Select(Instruccion) :
                                                     listaGeneral[str(nuevoNave)] = Lista2
                                         else:
                                             print("")
+                                            if not isinstance(ii.Columna, string_types):
+                                                print("Se intentara procesar una expresion")
+                                                nuevoNave = ii.Lista_Alias.Alias
 
+                                                result = Inter.procesar_expresion_columna(ii.Columna, ts_global)
+                                                if isinstance(result, list):
+                                                    listaGeneral[nuevoNave] = result
+                                                    print('resultado expresion')
+                                                else:
+                                                    listaGeneral[nuevoNave] = [result]
+
+                                                break
                                 elif (isinstance(ii, AccesoSubConsultas)):
                                     listaQ = {}
                                     if (ii.Lista_Alias != False):
@@ -1944,6 +1997,8 @@ class Select(Instruccion) :
                                     LisErr.agregar(er)
                        else:
                            print("")
+
+
 
 #============================================================================   Acceso a las tablas con alias
                elif(isinstance(ee,AccesoTabla)): #viene con un alias
@@ -5254,6 +5309,7 @@ class Insert_Datos(Instruccion):
         self.valores = valores
 
     def Ejecutar(self):
+        print("ENTRA AL INSERT -----------------------------------------------------------------------")
         FilaG = randint(1,500)
         print("Ejecucion")
         global ts_global, baseActual
@@ -5263,25 +5319,24 @@ class Insert_Datos(Instruccion):
         if r is None:
             imprir("INSERT BD:  No existe la BD para insertar.")
         else:
-            imprir("INSERT BD:  Si existe la BD para insertar. " + str(self.id_table[0].val))
-
             r2:CreateTable = ts_global.obtenerTabla(self.id_table[0].val)
             if r2 is None:
                 imprir("INSERT BD:  No existe la Tabla para insertar.")
             else:
-
-                imprir("INSERT BD:  Si existe la Tabla para insertar. ")
-
                 # Obtener tabla actual
                 rT:CreateTable = ts_global.obtenerTabla(self.id_table[0].val)
                 #print(">>>>>>>"+str(rT.id))
 
                 temporal:CampoTabla = rT.cuerpo
+                print("ENTRA AL INSERT 2-----------------------------------------------------------------------")
+                # borre un for incesesario de impresion
 
                 cC = 0
                 for c in rT.cuerpo:
-                    
-                    cC += 1
+                    if isinstance(c, constraintTabla):
+                        pass
+                    else:
+                        cC += 1
 
                 cV = 0
                 for v in self.valores:
@@ -5349,6 +5404,12 @@ class Inherits(Instruccion):
     def __init__(self, id):
         self.id = id
 
+class ObjetoValidacion():
+    def __init__(self, tabla, campo, validacion, id):
+        self.tabla = tabla
+        self.campo = campo
+        self.validacion = validacion
+        self.id = id
 
 class CreateTable(Instruccion):
     def __init__(self, id, cuerpo, inhe):
@@ -5370,12 +5431,38 @@ class CreateTable(Instruccion):
             columnas = 0
 
             for campos in self.cuerpo:
-                columnas += 1
-            print("---------------")
-            print(baseActual)
-            print(columnas)
+                if isinstance(campos, constraintTabla):
+                    pass
+                else:
+                    columnas += 1
 
             rM = Master.createTable(baseActual, self.id, columnas)
+
+            #Insertamos las validaciones que tengan.
+            for v in self.cuerpo:
+                x:CampoTabla = v
+                if isinstance(v, CampoTabla):
+                    print(">>>> ES CAMPO TABLA")
+                    for vali in x.validaciones:
+                            print(" Si es constraint")
+                            if isinstance(vali, CampoValidacion):
+                                val: CampoValidacion = vali
+                                if val is None:
+                                    pass
+                                else:
+                                    print(str(val.id) + str(val.valor))
+
+                            elif isinstance(vali, constraintTabla):
+                                val: constraintTabla = vali
+                                if val is None:
+                                    pass
+                                else:
+                                    print(val.valor+val.id+val.listas_id+val.idRef)
+                else:
+                    print(">>> ES OTRO TIPO DE CAMPO")
+                    vv: constraintTabla = v
+                    Vcion = ObjetoValidacion(self.id, vv.id, vv.valor, vv.id)
+                    ts_global.agregarValidacion(Vcion)
 
             if rM == 0:
                 ts_global.agregarTabla(self)
@@ -6212,17 +6299,18 @@ class Alter_table_Alter_Column_Set(Instruccion):
         self.id_tabla = id_table
         self.id_column = id_column
     def Ejecutar(self):
+        print(">>>>> SI HACE EL COLUMN SET")
         global ts_global, baseActual
         global LisErr
 
         r = ts_global.obtenerBasesDatos(baseActual)  # buscamos en el diccionario de la base de datos
         if r is not None:
 
-            r2:CreateTable = ts_global.obtenerTabla(self.id_table)
+            r2:CreateTable = ts_global.obtenerTabla(self.id_tabla)
 
             if r2 is not None:
-
-                elementoo  = self.id_constraint
+                print("!!! SI EXISTE TABLA ALTER TABLE SET COLUMN")
+                elementoo = self.id_column
 
                 if isinstance(elementoo, ExpresionValor):
 
@@ -6232,7 +6320,7 @@ class Alter_table_Alter_Column_Set(Instruccion):
                             if x.id == self.id_tabla:
                                 for ele in x.cuerpo:
                                     y: CampoTabla = ele
-                                    print(y.id + "<<<<<<<<<<<<<<<<<<<<<<")
+                                    print(y.id + "<<<<COLUMN SETT SI ENTRA....")
                                     if (y.id == elementoo.val):
 
                                         bandera = False
@@ -6246,6 +6334,7 @@ class Alter_table_Alter_Column_Set(Instruccion):
                                         if(bandera==False):
                                             # Se ingreso correctamente el valor
                                             temporal2 = CampoValidacion("NOT", "NULL")
+
                                             y.validaciones.append(temporal2)
                                             imprir("ALTER TABLE: SE SETEO NOT NULL CORRECTAMENTE")
                                     else:
@@ -6281,13 +6370,15 @@ class Alter_table_Alter_Column_Set(Instruccion):
 
 
 class Alter_table_Add_Foreign_Key(Instruccion):
-    def __init__(self, id_table, id_column, id_column_references):
+    def __init__(self, id_table, id_column, id_column_references, idforeign):
         self.id_table = id_table
         self.id_column = id_column
+        self.idforeign = idforeign
         self.id_column_references = id_column_references
 
 
     def Ejecutar(self):
+        print("por que entra aca.")
         #Verificar que existe la base de datos
         #Verificar que existe la tabla
         #Verificar que existe la columna en la tabla
@@ -6316,21 +6407,41 @@ class Alter_table_Add_Foreign_Key(Instruccion):
 
                             if x.id == self.id_table:
                                 for ele in x.cuerpo:
-                                    y: CampoTabla = ele
+                                    if isinstance(ele, constraintTabla):
+                                        pass
+                                    else:
+                                        y: CampoTabla = ele
 
-                                    if y.id != elemento2.val:
-                                        bandera=True
-                                    if y.id == elemento.val:
-                                        bandera2=True
-                                        tipoReferencia=y.tipo
+                                        if y.id != elemento2.val:
+                                            bandera=True
+                                        if y.id == elemento.val:
+                                            bandera2=True
+                                            tipoReferencia=y.tipo
 
 
                                 if (bandera==True) and (bandera2 ==True):
                                         # Se ingreso correctamente el valor
                                         #validar que exista ese esa columna en alguna tabla
-                                        temporal2 = constraintTabla("FOREIGN KEY",elemento.val,None,None, None,elemento2.val)
-                                        temporal = CampoTabla(elemento2.val,tipoReferencia, temporal2)
-                                        r2.cuerpo.append(temporal)
+
+                                        #### PRUEBA CAMBIO A INSERTAR TIPO CONSTRAIN AL CUERPO DE LA TABLA
+                                        temporal2 = constraintTabla("FOREIGN KEY", self.idforeign, None, elemento.val, None, self.id_table)
+                                        ts_global.agregarValidacion(temporal2)
+
+                                        print(ts_global.Validaciones)
+
+                                        #EN LA TABLA PEDIDA QUE ES elemento2.val
+                                        laTabla:CreateTable = ts_global.obtenerTabla(self.id_table)
+
+                                        #por cada campo que tenga hasta que encontremos elemento.val
+                                        for campo in laTabla.cuerpo:
+                                            if isinstance(campo, constraintTabla):
+                                                pass
+                                            else:
+                                                tt: CampoTabla = campo
+                                                if elemento.val == tt.id:
+                                                    tt.validaciones.append(temporal2)
+
+                                        #r2.cuerpo.append(temporal)
                                         imprir("ALTER TABLE: En Hora Buena Se Ingreso la Llave Foranea Correctamente")
                                 else:
                                     imprir("ALTER TABLE: No se Ejecuto la Accion ")
@@ -6396,9 +6507,20 @@ class Alter_Table_Add_Constraint(Instruccion):
                                 if (bandera==True) and (bandera2 ==True):
                                         # Se ingreso correctamente el valor
                                         #validar que exista ese esa columna en alguna tabla
-                                        temporal2 = constraintTabla("UNIQUE",elemento2.val,None,None, None,elemento.val)
-                                        temporal = CampoTabla(elemento.val,tipoReferencia, temporal2)
-                                        r2.cuerpo.append(temporal)
+                                        temporal2 = constraintTabla("UNIQUE",self.id_constraint.val,None, elemento.val, None, self.id_table)
+                                        ts_global.agregarValidacion(temporal2)
+
+                                        # EN LA TABLA PEDIDA QUE ES elemento2.val
+                                        laTabla: CreateTable = ts_global.obtenerTabla(self.id_table)
+
+                                        # por cada campo que tenga hasta que encontremos elemento.val
+                                        for campo in laTabla.cuerpo:
+                                            if isinstance(campo, constraintTabla):
+                                                pass
+                                            else:
+                                                tt: CampoTabla = campo
+                                                if elemento.val == tt.id:
+                                                    tt.validaciones.append(temporal2)
                                         imprir("ALTER TABLE: En Hora Buena Se Ingreso El Constraint UNIQUE")
 
                                 else:
