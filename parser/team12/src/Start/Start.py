@@ -2,7 +2,7 @@ import sys, os.path
 nodo_dir = (os.path.abspath(os.path.join(os.path.dirname(__file__), '..')) + '\\Start\\')
 sys.path.append(nodo_dir)
 
-
+from prettytable import PrettyTable
 from Libraries import Nodo
 from Libraries import Database
 from Libraries import Table
@@ -31,6 +31,13 @@ class Start(Nodo):
         nuevo = Start(lexToken.type, lexToken.lineno, lexToken.lexpos, lexToken.value)
         self.hijos.append(nuevo)
 
+    def tabular_data(self, encabezados : list, data : list) -> str: 
+        x = PrettyTable()
+        x.field_names = encabezados
+        for item in data:
+            if len(item) == len(encabezados):
+                x.add_row(item)
+        return x.get_string()
 
     # recursiva por la izquierda
     def execute(self, enviroment):

@@ -13,6 +13,7 @@ class mainWindow:
 
     # Se recibe como parámetro el root
     def __init__(self, master):
+        self.resp = None
 
         # Area de Edición
         self.textArea = Text(master)
@@ -42,13 +43,30 @@ class mainWindow:
         # Submenú para facilitar el manejo de coordenadas (para no estar haciendo botones)
         self.menu = Menu(master)
         self.subMenuFile = Menu(self.menu)
+        self.subMenuReportes = Menu(self.menu)
         self.menu.add_cascade(label = "Archivo", menu=self.subMenuFile)
         self.subMenuFile.add_command(label="Abrir archivo", command =  self.openDocumentMethod)
         self.subMenuFile.add_command(label="Analizar ", command = self.analyzeMethod)
 
+        self.menu.add_cascade(label = "Reportes", menu=self.subMenuReportes)
+        self.subMenuReportes.add_command(label="AST ", command = self.reportar_ast)
+        self.subMenuReportes.add_command(label="Gramática", command = self.report_bnf)
+        self.subMenuReportes.add_command(label="Tabla de simbolos", command = self.reportar_ts)
         
         master.config(menu=self.menu, width = 1000, height=100)
-        
+
+    def reportar_ast(self):
+        if self.resp is not None:
+            arbol = Arbol()
+            print(arbol.generar_dot(self.resp))
+            generar_img(arbol.generar_dot(self.resp))
+
+    def reportar_ts(self):
+        reporte_ts(self.resp)
+
+    def report_bnf(self):
+        global reportebnf
+        reportebnf = reportar_bnf(reportebnf)        
         
     def openDocumentMethod(self):
         
@@ -63,6 +81,7 @@ class mainWindow:
     def analyzeMethod(self):
         entrada = self.textArea.get("1.0",END)
         resp = run_method(entrada)
+        self.resp = resp  #VARIABLE PARA REPORTES
         resp.execute(None)
         self.textArea2.configure(state = 'normal')
         self.textArea2.delete('1.0',END)
@@ -91,11 +110,7 @@ class mainWindow:
             self.fila_no = self.fila_no + 1
         errores.clear()
 
-    def reportar_bnf(self):
-        global reportebnf
-        for i in reportebnf:
-            print(i)
-        reportebnf.clear()
+
 
 #Borrar las variables de configuración
 with open('src/Config/Config.json') as file:
@@ -110,7 +125,7 @@ with open('src/Config/Config.json',"w") as file:
 
 
 # Entrada por el archivo SQL Test File
-
+"""
 pathEntrada = str(pathlib.Path().absolute())+ r"\src\SQL Test File.sql"
 openFile = open(pathEntrada, "r", encoding="utf-8")
 entrada = openFile.read()
@@ -124,17 +139,16 @@ arbol = Arbol()
 dotArbol = arbol.generar_dot(resp)
 #print(dotArbol)
 generar_img(str(dotArbol))
-
+"""
 
 
 
 
 # Entrada por interfaz gráfica
-"""root = Tk()
+root = Tk()
 mainWin = mainWindow(root)
 root.configure(bg = '#515151')
 root.mainloop() 
-"""
 
 
 
