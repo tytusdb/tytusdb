@@ -70,7 +70,7 @@ Rule 10    instruccion -> drop_instr
 Rule 11    instruccion -> inst_select PTCOMA
 Rule 12    crear_instr -> CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA
 Rule 13    crear_instr -> CREATE opReplace DATABASE opExists ID opDatabase PTCOMA
-Rule 14    crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+Rule 14    crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA
 Rule 15    use_dabatabase -> USE ID PTCOMA
 Rule 16    insert_table -> INSERT INTO ID VALUES lista_valores PTCOMA
 Rule 17    insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA
@@ -465,7 +465,7 @@ GREATEST             : 255
 GROUP                : 274
 HAVING               : 275
 HOUR                 : 189
-ID                   : 12 13 14 14 15 16 17 18 19 20 21 30 31 64 75 76 79 82 84 91 96 97 98 99 100 101 102 105 107 108 115 121 122 123 125 133 136 137 139 139 142 143 144 164 165 167 168 170 170 170 171 171 171 172 172 173 265 266 268 268 269 269 270 291 291
+ID                   : 12 13 14 15 16 17 18 19 20 21 30 31 64 75 76 79 82 84 91 96 97 98 99 100 101 102 105 107 108 115 121 122 123 125 133 136 137 139 139 142 143 144 164 165 167 168 170 170 170 171 171 171 172 172 173 265 266 268 268 269 269 270 291 291
 IF                   : 113 145
 IGUAL                : 42 79 102 117
 ILIKE                : 58 59
@@ -612,7 +612,7 @@ alter_columnas       : 129 131
 alter_instr          : 9
 alter_table_instr    : 122
 asc_desc             : 285 286
-cadenas              : 109
+cadenas              : 14 109
 clausula_case_when   : 259 260
 columna              : 80 81
 columnas             : 12 80
@@ -713,7 +713,7 @@ state 0
     (15) use_dabatabase -> . USE ID PTCOMA
     (12) crear_instr -> . CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA
     (13) crear_instr -> . CREATE opReplace DATABASE opExists ID opDatabase PTCOMA
-    (14) crear_instr -> . CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+    (14) crear_instr -> . CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA
     (121) alter_instr -> . ALTER DATABASE ID opAlterDatabase PTCOMA
     (122) alter_instr -> . ALTER TABLE ID alter_table_instr PTCOMA
     (143) drop_instr -> . DROP DATABASE si_existe ID PTCOMA
@@ -782,7 +782,7 @@ state 2
     (15) use_dabatabase -> . USE ID PTCOMA
     (12) crear_instr -> . CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA
     (13) crear_instr -> . CREATE opReplace DATABASE opExists ID opDatabase PTCOMA
-    (14) crear_instr -> . CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+    (14) crear_instr -> . CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA
     (121) alter_instr -> . ALTER DATABASE ID opAlterDatabase PTCOMA
     (122) alter_instr -> . ALTER TABLE ID alter_table_instr PTCOMA
     (143) drop_instr -> . DROP DATABASE si_existe ID PTCOMA
@@ -985,7 +985,7 @@ state 16
 
     (12) crear_instr -> CREATE . TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA
     (13) crear_instr -> CREATE . opReplace DATABASE opExists ID opDatabase PTCOMA
-    (14) crear_instr -> CREATE . TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+    (14) crear_instr -> CREATE . TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA
     (111) opReplace -> . OR REPLACE
     (112) opReplace -> . empty
     (104) empty -> .
@@ -1295,7 +1295,7 @@ state 28
 
 state 29
 
-    (14) crear_instr -> CREATE TYPE . ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+    (14) crear_instr -> CREATE TYPE . ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA
 
     ID              shift and go to state 128
 
@@ -2666,7 +2666,7 @@ state 127
 
 state 128
 
-    (14) crear_instr -> CREATE TYPE ID . AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+    (14) crear_instr -> CREATE TYPE ID . AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA
 
     AS              shift and go to state 229
 
@@ -16270,7 +16270,7 @@ state 228
 
 state 229
 
-    (14) crear_instr -> CREATE TYPE ID AS . ENUM PARIZQUIERDO ID PARDERECHO PTCOMA
+    (14) crear_instr -> CREATE TYPE ID AS . ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA
 
     ENUM            shift and go to state 369
 
@@ -19774,7 +19774,7 @@ state 368
 
 state 369
 
-    (14) crear_instr -> CREATE TYPE ID AS ENUM . PARIZQUIERDO ID PARDERECHO PTCOMA
+    (14) crear_instr -> CREATE TYPE ID AS ENUM . PARIZQUIERDO cadenas PARDERECHO PTCOMA
 
     PARIZQUIERDO    shift and go to state 527
 
@@ -29736,10 +29736,13 @@ state 526
 
 state 527
 
-    (14) crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO . ID PARDERECHO PTCOMA
+    (14) crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO . cadenas PARDERECHO PTCOMA
+    (109) cadenas -> . cadenas COMA CADENA
+    (110) cadenas -> . CADENA
 
-    ID              shift and go to state 639
+    CADENA          shift and go to state 640
 
+    cadenas                        shift and go to state 639
 
 state 528
 
@@ -29783,10 +29786,10 @@ state 533
     (141) alter_column_instr -> . SET NULL
     (142) alter_column_instr -> . TYPE ID
 
-    SET             shift and go to state 641
-    TYPE            shift and go to state 642
+    SET             shift and go to state 642
+    TYPE            shift and go to state 643
 
-    alter_column_instr             shift and go to state 640
+    alter_column_instr             shift and go to state 641
 
 state 534
 
@@ -29798,15 +29801,15 @@ state 534
     (101) condicion_check -> . ID DISTINTO expresion
     (102) condicion_check -> . ID IGUAL expresion
 
-    ID              shift and go to state 644
+    ID              shift and go to state 645
 
-    condicion_check                shift and go to state 643
+    condicion_check                shift and go to state 644
 
 state 535
 
     (139) add_instr -> CONSTRAINT ID . UNIQUE PARIZQUIERDO ID PARDERECHO
 
-    UNIQUE          shift and go to state 645
+    UNIQUE          shift and go to state 646
 
 
 state 536
@@ -29932,8 +29935,8 @@ state 545
 
     ID              shift and go to state 46
 
-    lista_ids                      shift and go to state 646
-    dec_select_columna             shift and go to state 647
+    lista_ids                      shift and go to state 647
+    dec_select_columna             shift and go to state 648
 
 state 546
 
@@ -30158,9 +30161,9 @@ state 547
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    lista_order_by                 shift and go to state 648
-    elemento_order_by              shift and go to state 649
-    exp_operacion                  shift and go to state 650
+    lista_order_by                 shift and go to state 649
+    elemento_order_by              shift and go to state 650
+    exp_operacion                  shift and go to state 651
     exp_logica                     shift and go to state 269
     exp_relacional                 shift and go to state 271
     exp_aritmetica                 shift and go to state 272
@@ -30179,7 +30182,7 @@ state 548
     (277) condicion_query -> LIMIT condicion_limit . OFFSET exp_operacion
     (278) condicion_query -> LIMIT condicion_limit .
 
-    OFFSET          shift and go to state 651
+    OFFSET          shift and go to state 652
     WHERE           reduce using rule 278 (condicion_query -> LIMIT condicion_limit .)
     GROUP           reduce using rule 278 (condicion_query -> LIMIT condicion_limit .)
     HAVING          reduce using rule 278 (condicion_query -> LIMIT condicion_limit .)
@@ -30282,7 +30285,7 @@ state 554
 
     (181) funcion_time -> EXTRACT PARIZQUIERDO var_time FROM var_timeextract . CADENA PARDERECHO
 
-    CADENA          shift and go to state 652
+    CADENA          shift and go to state 653
 
 
 state 555
@@ -30317,7 +30320,7 @@ state 559
 
     (182) funcion_time -> DATE_PART PARIZQUIERDO CADENA COMA var_timeextract . CADENA PARDERECHO
 
-    CADENA          shift and go to state 653
+    CADENA          shift and go to state 654
 
 
 state 560
@@ -31203,7 +31206,7 @@ state 575
     (61) exp_aritmetica -> exp_aritmetica . IS NULL
     (62) exp_aritmetica -> exp_aritmetica . IS NOT NULL
 
-    AND             shift and go to state 654
+    AND             shift and go to state 655
     MAS             shift and go to state 411
     MENOS           shift and go to state 412
     MULTIPLICACION  shift and go to state 413
@@ -31409,7 +31412,7 @@ state 576
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_aritmetica                 shift and go to state 655
+    exp_aritmetica                 shift and go to state 656
     primitivo                      shift and go to state 276
     funcion                        shift and go to state 284
     funcion_time                   shift and go to state 49
@@ -31426,9 +31429,9 @@ state 577
     (55) exp_aritmetica -> exp_aritmetica NOT IN . subquery
     (293) subquery -> . PARIZQUIERDO select_query PARDERECHO
 
-    PARIZQUIERDO    shift and go to state 656
+    PARIZQUIERDO    shift and go to state 657
 
-    subquery                       shift and go to state 657
+    subquery                       shift and go to state 658
 
 state 578
 
@@ -31620,7 +31623,7 @@ state 578
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_aritmetica                 shift and go to state 658
+    exp_aritmetica                 shift and go to state 659
     primitivo                      shift and go to state 276
     funcion                        shift and go to state 284
     funcion_time                   shift and go to state 49
@@ -31821,7 +31824,7 @@ state 579
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_aritmetica                 shift and go to state 659
+    exp_aritmetica                 shift and go to state 660
     primitivo                      shift and go to state 276
     funcion                        shift and go to state 284
     funcion_time                   shift and go to state 49
@@ -32045,7 +32048,7 @@ state 580
     CASE            shift and go to state 121
 
     exp_aritmetica                 shift and go to state 272
-    lista_expresiones              shift and go to state 660
+    lista_expresiones              shift and go to state 661
     select_query                   shift and go to state 150
     exp_operacion                  shift and go to state 491
     exp_logica                     shift and go to state 269
@@ -32454,7 +32457,7 @@ state 584
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_aritmetica                 shift and go to state 661
+    exp_aritmetica                 shift and go to state 662
     primitivo                      shift and go to state 276
     funcion                        shift and go to state 284
     funcion_time                   shift and go to state 49
@@ -32515,7 +32518,7 @@ state 586
 
     (62) exp_aritmetica -> exp_aritmetica IS NOT . NULL
 
-    NULL            shift and go to state 662
+    NULL            shift and go to state 663
 
 
 state 587
@@ -32568,105 +32571,105 @@ state 588
 
     (201) funcion_mate -> DIV PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 663
+    PARDERECHO      shift and go to state 664
 
 
 state 589
 
     (205) funcion_mate -> GCD PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 664
+    PARDERECHO      shift and go to state 665
 
 
 state 590
 
     (208) funcion_mate -> MOD PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 665
+    PARDERECHO      shift and go to state 666
 
 
 state 591
 
     (210) funcion_mate -> POWER PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 666
+    PARDERECHO      shift and go to state 667
 
 
 state 592
 
     (212) funcion_mate -> ROUND PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 667
+    PARDERECHO      shift and go to state 668
 
 
 state 593
 
     (215) funcion_mate -> WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion . COMA exp_operacion COMA exp_operacion PARDERECHO
 
-    COMA            shift and go to state 668
+    COMA            shift and go to state 669
 
 
 state 594
 
     (224) funcion_trig -> ATAN2 PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 669
+    PARDERECHO      shift and go to state 670
 
 
 state 595
 
     (225) funcion_trig -> ATAN2D PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 670
+    PARDERECHO      shift and go to state 671
 
 
 state 596
 
     (239) funcion_binstr -> SUBSTRING PARIZQUIERDO exp_operacion COMA ENTERO . COMA ENTERO PARDERECHO
 
-    COMA            shift and go to state 671
+    COMA            shift and go to state 672
 
 
 state 597
 
     (243) funcion_binstr -> SUBSTR PARIZQUIERDO exp_operacion COMA ENTERO . COMA ENTERO PARDERECHO
 
-    COMA            shift and go to state 672
+    COMA            shift and go to state 673
 
 
 state 598
 
     (244) funcion_binstr -> GET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO . PARDERECHO
 
-    PARDERECHO      shift and go to state 673
+    PARDERECHO      shift and go to state 674
 
 
 state 599
 
     (245) funcion_binstr -> SET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO . COMA ENTERO PARDERECHO
 
-    COMA            shift and go to state 674
+    COMA            shift and go to state 675
 
 
 state 600
 
     (246) funcion_binstr -> CONVERT PARIZQUIERDO exp_operacion AS tipos . PARDERECHO
 
-    PARDERECHO      shift and go to state 675
+    PARDERECHO      shift and go to state 676
 
 
 state 601
 
     (247) funcion_binstr -> ENCODE PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 676
+    PARDERECHO      shift and go to state 677
 
 
 state 602
 
     (248) funcion_binstr -> DECODE PARIZQUIERDO exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 677
+    PARDERECHO      shift and go to state 678
 
 
 state 603
@@ -32953,7 +32956,7 @@ state 608
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_operacion                  shift and go to state 678
+    exp_operacion                  shift and go to state 679
     exp_logica                     shift and go to state 269
     exp_relacional                 shift and go to state 271
     exp_aritmetica                 shift and go to state 272
@@ -32976,14 +32979,14 @@ state 609
 
     PARIZQUIERDO    shift and go to state 352
 
-    lista_valores                  shift and go to state 679
+    lista_valores                  shift and go to state 680
     tupla                          shift and go to state 351
 
 state 610
 
     (19) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT . VALUES PTCOMA
 
-    VALUES          shift and go to state 680
+    VALUES          shift and go to state 681
 
 
 state 611
@@ -33042,7 +33045,7 @@ state 614
     PARDERECHO      reduce using rule 104 (empty -> .)
     COMA            reduce using rule 104 (empty -> .)
 
-    opcionNull                     shift and go to state 681
+    opcionNull                     shift and go to state 682
     opConstraint                   shift and go to state 617
     opUniqueCheck                  shift and go to state 620
     empty                          shift and go to state 625
@@ -33075,7 +33078,7 @@ state 616
     PARDERECHO      reduce using rule 104 (empty -> .)
     COMA            reduce using rule 104 (empty -> .)
 
-    opConstraint                   shift and go to state 682
+    opConstraint                   shift and go to state 683
     opUniqueCheck                  shift and go to state 620
     empty                          shift and go to state 625
 
@@ -33091,14 +33094,14 @@ state 618
 
     (89) opcionNull -> NOT . NULL opConstraint
 
-    NULL            shift and go to state 683
+    NULL            shift and go to state 684
 
 
 state 619
 
     (91) opConstraint -> CONSTRAINT . ID opUniqueCheck
 
-    ID              shift and go to state 684
+    ID              shift and go to state 685
 
 
 state 620
@@ -33121,21 +33124,21 @@ state 622
 
     (94) opUniqueCheck -> CHECK . PARIZQUIERDO condicion_check PARDERECHO
 
-    PARIZQUIERDO    shift and go to state 685
+    PARIZQUIERDO    shift and go to state 686
 
 
 state 623
 
     (95) opUniqueCheck -> PRIMARY . KEY
 
-    KEY             shift and go to state 686
+    KEY             shift and go to state 687
 
 
 state 624
 
     (96) opUniqueCheck -> REFERENCES . ID
 
-    ID              shift and go to state 687
+    ID              shift and go to state 688
 
 
 state 625
@@ -33150,14 +33153,14 @@ state 626
 
     (12) crear_instr -> CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia . PTCOMA
 
-    PTCOMA          shift and go to state 688
+    PTCOMA          shift and go to state 689
 
 
 state 627
 
     (105) herencia -> INHERITS . PARIZQUIERDO ID PARDERECHO
 
-    PARIZQUIERDO    shift and go to state 689
+    PARIZQUIERDO    shift and go to state 690
 
 
 state 628
@@ -33183,7 +33186,7 @@ state 630
 
     ID              shift and go to state 633
 
-    identificadores                shift and go to state 690
+    identificadores                shift and go to state 691
 
 state 631
 
@@ -33193,15 +33196,15 @@ state 631
 
     ID              shift and go to state 633
 
-    identificadores                shift and go to state 691
+    identificadores                shift and go to state 692
 
 state 632
 
     (85) columna -> UNIQUE PARIZQUIERDO identificadores . PARDERECHO
     (107) identificadores -> identificadores . COMA ID
 
-    PARDERECHO      shift and go to state 692
-    COMA            shift and go to state 693
+    PARDERECHO      shift and go to state 693
+    COMA            shift and go to state 694
 
 
 state 633
@@ -33231,7 +33234,7 @@ state 635
 
     (115) opDatabase -> OWNER opIgual . ID mode
 
-    ID              shift and go to state 694
+    ID              shift and go to state 695
 
 
 state 636
@@ -33254,17 +33257,27 @@ state 638
 
     (119) mode -> MODE opIgual . ENTERO
 
-    ENTERO          shift and go to state 695
+    ENTERO          shift and go to state 696
 
 
 state 639
 
-    (14) crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID . PARDERECHO PTCOMA
+    (14) crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas . PARDERECHO PTCOMA
+    (109) cadenas -> cadenas . COMA CADENA
 
-    PARDERECHO      shift and go to state 696
+    PARDERECHO      shift and go to state 697
+    COMA            shift and go to state 698
 
 
 state 640
+
+    (110) cadenas -> CADENA .
+
+    PARDERECHO      reduce using rule 110 (cadenas -> CADENA .)
+    COMA            reduce using rule 110 (cadenas -> CADENA .)
+
+
+state 641
 
     (133) alter_columna -> ALTER COLUMN ID alter_column_instr .
 
@@ -33272,30 +33285,30 @@ state 640
     PTCOMA          reduce using rule 133 (alter_columna -> ALTER COLUMN ID alter_column_instr .)
 
 
-state 641
+state 642
 
     (140) alter_column_instr -> SET . NOT NULL
     (141) alter_column_instr -> SET . NULL
 
-    NOT             shift and go to state 697
-    NULL            shift and go to state 698
-
-
-state 642
-
-    (142) alter_column_instr -> TYPE . ID
-
-    ID              shift and go to state 699
+    NOT             shift and go to state 699
+    NULL            shift and go to state 700
 
 
 state 643
 
-    (138) add_instr -> CHECK PARIZQUIERDO condicion_check . PARDERECHO
+    (142) alter_column_instr -> TYPE . ID
 
-    PARDERECHO      shift and go to state 700
+    ID              shift and go to state 701
 
 
 state 644
+
+    (138) add_instr -> CHECK PARIZQUIERDO condicion_check . PARDERECHO
+
+    PARDERECHO      shift and go to state 702
+
+
+state 645
 
     (97) condicion_check -> ID . MENOR_QUE expresion
     (98) condicion_check -> ID . MENOR_IGUAL expresion
@@ -33304,22 +33317,22 @@ state 644
     (101) condicion_check -> ID . DISTINTO expresion
     (102) condicion_check -> ID . IGUAL expresion
 
-    MENOR_QUE       shift and go to state 701
-    MENOR_IGUAL     shift and go to state 702
-    MAYOR_QUE       shift and go to state 703
-    MAYOR_IGUAL     shift and go to state 704
-    DISTINTO        shift and go to state 705
-    IGUAL           shift and go to state 706
-
-
-state 645
-
-    (139) add_instr -> CONSTRAINT ID UNIQUE . PARIZQUIERDO ID PARDERECHO
-
-    PARIZQUIERDO    shift and go to state 707
+    MENOR_QUE       shift and go to state 703
+    MENOR_IGUAL     shift and go to state 704
+    MAYOR_QUE       shift and go to state 705
+    MAYOR_IGUAL     shift and go to state 706
+    DISTINTO        shift and go to state 707
+    IGUAL           shift and go to state 708
 
 
 state 646
+
+    (139) add_instr -> CONSTRAINT ID UNIQUE . PARIZQUIERDO ID PARDERECHO
+
+    PARIZQUIERDO    shift and go to state 709
+
+
+state 647
 
     (274) condicion_query -> GROUP BY lista_ids .
     (281) lista_ids -> lista_ids . COMA dec_select_columna
@@ -33334,10 +33347,10 @@ state 646
     EXCEPT          reduce using rule 274 (condicion_query -> GROUP BY lista_ids .)
     PTCOMA          reduce using rule 274 (condicion_query -> GROUP BY lista_ids .)
     PARDERECHO      reduce using rule 274 (condicion_query -> GROUP BY lista_ids .)
-    COMA            shift and go to state 708
+    COMA            shift and go to state 710
 
 
-state 647
+state 648
 
     (282) lista_ids -> dec_select_columna .
 
@@ -33354,7 +33367,7 @@ state 647
     PARDERECHO      reduce using rule 282 (lista_ids -> dec_select_columna .)
 
 
-state 648
+state 649
 
     (276) condicion_query -> ORDER BY lista_order_by .
     (283) lista_order_by -> lista_order_by . COMA elemento_order_by
@@ -33369,10 +33382,10 @@ state 648
     EXCEPT          reduce using rule 276 (condicion_query -> ORDER BY lista_order_by .)
     PTCOMA          reduce using rule 276 (condicion_query -> ORDER BY lista_order_by .)
     PARDERECHO      reduce using rule 276 (condicion_query -> ORDER BY lista_order_by .)
-    COMA            shift and go to state 709
+    COMA            shift and go to state 711
 
 
-state 649
+state 650
 
     (284) lista_order_by -> elemento_order_by .
 
@@ -33389,19 +33402,19 @@ state 649
     PARDERECHO      reduce using rule 284 (lista_order_by -> elemento_order_by .)
 
 
-state 650
+state 651
 
     (285) elemento_order_by -> exp_operacion . asc_desc NULLS condicion_null
     (286) elemento_order_by -> exp_operacion . asc_desc
     (287) asc_desc -> . ASC
     (288) asc_desc -> . DESC
 
-    ASC             shift and go to state 711
-    DESC            shift and go to state 712
+    ASC             shift and go to state 713
+    DESC            shift and go to state 714
 
-    asc_desc                       shift and go to state 710
+    asc_desc                       shift and go to state 712
 
-state 651
+state 652
 
     (277) condicion_query -> LIMIT condicion_limit OFFSET . exp_operacion
     (32) exp_operacion -> . exp_logica
@@ -33604,7 +33617,7 @@ state 651
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_operacion                  shift and go to state 713
+    exp_operacion                  shift and go to state 715
     exp_logica                     shift and go to state 269
     exp_relacional                 shift and go to state 271
     exp_aritmetica                 shift and go to state 272
@@ -33618,21 +33631,21 @@ state 651
     funcion_agregacion             shift and go to state 54
     dec_case                       shift and go to state 55
 
-state 652
+state 653
 
     (181) funcion_time -> EXTRACT PARIZQUIERDO var_time FROM var_timeextract CADENA . PARDERECHO
 
-    PARDERECHO      shift and go to state 714
-
-
-state 653
-
-    (182) funcion_time -> DATE_PART PARIZQUIERDO CADENA COMA var_timeextract CADENA . PARDERECHO
-
-    PARDERECHO      shift and go to state 715
+    PARDERECHO      shift and go to state 716
 
 
 state 654
+
+    (182) funcion_time -> DATE_PART PARIZQUIERDO CADENA COMA var_timeextract CADENA . PARDERECHO
+
+    PARDERECHO      shift and go to state 717
+
+
+state 655
 
     (50) exp_aritmetica -> exp_aritmetica BETWEEN exp_aritmetica AND . exp_aritmetica
     (44) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
@@ -33822,7 +33835,7 @@ state 654
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_aritmetica                 shift and go to state 716
+    exp_aritmetica                 shift and go to state 718
     primitivo                      shift and go to state 276
     funcion                        shift and go to state 284
     funcion_time                   shift and go to state 49
@@ -33833,7 +33846,7 @@ state 654
     funcion_agregacion             shift and go to state 54
     dec_case                       shift and go to state 55
 
-state 655
+state 656
 
     (51) exp_aritmetica -> exp_aritmetica NOT BETWEEN exp_aritmetica . AND exp_aritmetica
     (44) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
@@ -33856,7 +33869,7 @@ state 655
     (61) exp_aritmetica -> exp_aritmetica . IS NULL
     (62) exp_aritmetica -> exp_aritmetica . IS NOT NULL
 
-    AND             shift and go to state 717
+    AND             shift and go to state 719
     MAS             shift and go to state 411
     MENOS           shift and go to state 412
     MULTIPLICACION  shift and go to state 413
@@ -33872,7 +33885,7 @@ state 655
     IS              shift and go to state 423
 
 
-state 656
+state 657
 
     (53) exp_aritmetica -> exp_aritmetica NOT IN PARIZQUIERDO . lista_expresiones PARDERECHO
     (293) subquery -> PARIZQUIERDO . select_query PARDERECHO
@@ -34085,7 +34098,7 @@ state 656
     CASE            shift and go to state 121
 
     exp_aritmetica                 shift and go to state 272
-    lista_expresiones              shift and go to state 718
+    lista_expresiones              shift and go to state 720
     select_query                   shift and go to state 150
     exp_operacion                  shift and go to state 491
     exp_logica                     shift and go to state 269
@@ -34100,7 +34113,7 @@ state 656
     funcion_agregacion             shift and go to state 54
     dec_case                       shift and go to state 55
 
-state 657
+state 658
 
     (55) exp_aritmetica -> exp_aritmetica NOT IN subquery .
 
@@ -34146,7 +34159,7 @@ state 657
     DESC            reduce using rule 55 (exp_aritmetica -> exp_aritmetica NOT IN subquery .)
 
 
-state 658
+state 659
 
     (57) exp_aritmetica -> exp_aritmetica NOT LIKE exp_aritmetica .
     (44) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
@@ -34225,7 +34238,7 @@ state 658
   ! IS              [ shift and go to state 423 ]
 
 
-state 659
+state 660
 
     (59) exp_aritmetica -> exp_aritmetica NOT ILIKE exp_aritmetica .
     (44) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
@@ -34304,16 +34317,16 @@ state 659
   ! IS              [ shift and go to state 423 ]
 
 
-state 660
+state 661
 
     (52) exp_aritmetica -> exp_aritmetica IN PARIZQUIERDO lista_expresiones . PARDERECHO
     (25) lista_expresiones -> lista_expresiones . COMA exp_operacion
 
-    PARDERECHO      shift and go to state 719
+    PARDERECHO      shift and go to state 721
     COMA            shift and go to state 608
 
 
-state 661
+state 662
 
     (60) exp_aritmetica -> exp_aritmetica SIMILAR TO exp_aritmetica .
     (44) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
@@ -34392,7 +34405,7 @@ state 661
   ! IS              [ shift and go to state 423 ]
 
 
-state 662
+state 663
 
     (62) exp_aritmetica -> exp_aritmetica IS NOT NULL .
 
@@ -34438,7 +34451,7 @@ state 662
     DESC            reduce using rule 62 (exp_aritmetica -> exp_aritmetica IS NOT NULL .)
 
 
-state 663
+state 664
 
     (201) funcion_mate -> DIV PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -34486,7 +34499,7 @@ state 663
     DESC            reduce using rule 201 (funcion_mate -> DIV PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 664
+state 665
 
     (205) funcion_mate -> GCD PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -34534,7 +34547,7 @@ state 664
     DESC            reduce using rule 205 (funcion_mate -> GCD PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 665
+state 666
 
     (208) funcion_mate -> MOD PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -34582,7 +34595,7 @@ state 665
     DESC            reduce using rule 208 (funcion_mate -> MOD PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 666
+state 667
 
     (210) funcion_mate -> POWER PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -34630,7 +34643,7 @@ state 666
     DESC            reduce using rule 210 (funcion_mate -> POWER PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 667
+state 668
 
     (212) funcion_mate -> ROUND PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -34678,7 +34691,7 @@ state 667
     DESC            reduce using rule 212 (funcion_mate -> ROUND PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 668
+state 669
 
     (215) funcion_mate -> WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA . exp_operacion COMA exp_operacion PARDERECHO
     (32) exp_operacion -> . exp_logica
@@ -34881,7 +34894,7 @@ state 668
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_operacion                  shift and go to state 720
+    exp_operacion                  shift and go to state 722
     exp_logica                     shift and go to state 269
     exp_relacional                 shift and go to state 271
     exp_aritmetica                 shift and go to state 272
@@ -34895,7 +34908,7 @@ state 668
     funcion_agregacion             shift and go to state 54
     dec_case                       shift and go to state 55
 
-state 669
+state 670
 
     (224) funcion_trig -> ATAN2 PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -34943,7 +34956,7 @@ state 669
     DESC            reduce using rule 224 (funcion_trig -> ATAN2 PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 670
+state 671
 
     (225) funcion_trig -> ATAN2D PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -34991,21 +35004,21 @@ state 670
     DESC            reduce using rule 225 (funcion_trig -> ATAN2D PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 671
+state 672
 
     (239) funcion_binstr -> SUBSTRING PARIZQUIERDO exp_operacion COMA ENTERO COMA . ENTERO PARDERECHO
 
-    ENTERO          shift and go to state 721
-
-
-state 672
-
-    (243) funcion_binstr -> SUBSTR PARIZQUIERDO exp_operacion COMA ENTERO COMA . ENTERO PARDERECHO
-
-    ENTERO          shift and go to state 722
+    ENTERO          shift and go to state 723
 
 
 state 673
+
+    (243) funcion_binstr -> SUBSTR PARIZQUIERDO exp_operacion COMA ENTERO COMA . ENTERO PARDERECHO
+
+    ENTERO          shift and go to state 724
+
+
+state 674
 
     (244) funcion_binstr -> GET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO PARDERECHO .
 
@@ -35053,14 +35066,14 @@ state 673
     DESC            reduce using rule 244 (funcion_binstr -> GET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO PARDERECHO .)
 
 
-state 674
+state 675
 
     (245) funcion_binstr -> SET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO COMA . ENTERO PARDERECHO
 
-    ENTERO          shift and go to state 723
+    ENTERO          shift and go to state 725
 
 
-state 675
+state 676
 
     (246) funcion_binstr -> CONVERT PARIZQUIERDO exp_operacion AS tipos PARDERECHO .
 
@@ -35108,7 +35121,7 @@ state 675
     DESC            reduce using rule 246 (funcion_binstr -> CONVERT PARIZQUIERDO exp_operacion AS tipos PARDERECHO .)
 
 
-state 676
+state 677
 
     (247) funcion_binstr -> ENCODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -35156,7 +35169,7 @@ state 676
     DESC            reduce using rule 247 (funcion_binstr -> ENCODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 677
+state 678
 
     (248) funcion_binstr -> DECODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -35204,7 +35217,7 @@ state 677
     DESC            reduce using rule 248 (funcion_binstr -> DECODE PARIZQUIERDO exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 678
+state 679
 
     (25) lista_expresiones -> lista_expresiones COMA exp_operacion .
 
@@ -35212,23 +35225,23 @@ state 678
     COMA            reduce using rule 25 (lista_expresiones -> lista_expresiones COMA exp_operacion .)
 
 
-state 679
+state 680
 
     (17) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores . PTCOMA
     (22) lista_valores -> lista_valores . COMA tupla
 
-    PTCOMA          shift and go to state 724
+    PTCOMA          shift and go to state 726
     COMA            shift and go to state 489
 
 
-state 680
+state 681
 
     (19) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES . PTCOMA
 
-    PTCOMA          shift and go to state 725
+    PTCOMA          shift and go to state 727
 
 
-state 681
+state 682
 
     (86) opcional -> DEFAULT opcionNull .
 
@@ -35236,7 +35249,7 @@ state 681
     COMA            reduce using rule 86 (opcional -> DEFAULT opcionNull .)
 
 
-state 682
+state 683
 
     (88) opcionNull -> NULL opConstraint .
 
@@ -35244,7 +35257,7 @@ state 682
     COMA            reduce using rule 88 (opcionNull -> NULL opConstraint .)
 
 
-state 683
+state 684
 
     (89) opcionNull -> NOT NULL . opConstraint
     (91) opConstraint -> . CONSTRAINT ID opUniqueCheck
@@ -35264,11 +35277,11 @@ state 683
     PARDERECHO      reduce using rule 104 (empty -> .)
     COMA            reduce using rule 104 (empty -> .)
 
-    opConstraint                   shift and go to state 726
+    opConstraint                   shift and go to state 728
     opUniqueCheck                  shift and go to state 620
     empty                          shift and go to state 625
 
-state 684
+state 685
 
     (91) opConstraint -> CONSTRAINT ID . opUniqueCheck
     (93) opUniqueCheck -> . UNIQUE
@@ -35285,10 +35298,10 @@ state 684
     PARDERECHO      reduce using rule 104 (empty -> .)
     COMA            reduce using rule 104 (empty -> .)
 
-    opUniqueCheck                  shift and go to state 727
+    opUniqueCheck                  shift and go to state 729
     empty                          shift and go to state 625
 
-state 685
+state 686
 
     (94) opUniqueCheck -> CHECK PARIZQUIERDO . condicion_check PARDERECHO
     (97) condicion_check -> . ID MENOR_QUE expresion
@@ -35298,11 +35311,11 @@ state 685
     (101) condicion_check -> . ID DISTINTO expresion
     (102) condicion_check -> . ID IGUAL expresion
 
-    ID              shift and go to state 644
+    ID              shift and go to state 645
 
-    condicion_check                shift and go to state 728
+    condicion_check                shift and go to state 730
 
-state 686
+state 687
 
     (95) opUniqueCheck -> PRIMARY KEY .
 
@@ -35310,7 +35323,7 @@ state 686
     COMA            reduce using rule 95 (opUniqueCheck -> PRIMARY KEY .)
 
 
-state 687
+state 688
 
     (96) opUniqueCheck -> REFERENCES ID .
 
@@ -35318,7 +35331,7 @@ state 687
     COMA            reduce using rule 96 (opUniqueCheck -> REFERENCES ID .)
 
 
-state 688
+state 689
 
     (12) crear_instr -> CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA .
 
@@ -35333,32 +35346,32 @@ state 688
     $end            reduce using rule 12 (crear_instr -> CREATE TABLE ID PARIZQUIERDO columnas PARDERECHO herencia PTCOMA .)
 
 
-state 689
+state 690
 
     (105) herencia -> INHERITS PARIZQUIERDO . ID PARDERECHO
 
-    ID              shift and go to state 729
-
-
-state 690
-
-    (83) columna -> PRIMARY KEY PARIZQUIERDO identificadores . PARDERECHO
-    (107) identificadores -> identificadores . COMA ID
-
-    PARDERECHO      shift and go to state 730
-    COMA            shift and go to state 693
+    ID              shift and go to state 731
 
 
 state 691
 
-    (84) columna -> FOREIGN KEY PARIZQUIERDO identificadores . PARDERECHO REFERENCES ID PARIZQUIERDO identificadores PARDERECHO
+    (83) columna -> PRIMARY KEY PARIZQUIERDO identificadores . PARDERECHO
     (107) identificadores -> identificadores . COMA ID
 
-    PARDERECHO      shift and go to state 731
-    COMA            shift and go to state 693
+    PARDERECHO      shift and go to state 732
+    COMA            shift and go to state 694
 
 
 state 692
+
+    (84) columna -> FOREIGN KEY PARIZQUIERDO identificadores . PARDERECHO REFERENCES ID PARIZQUIERDO identificadores PARDERECHO
+    (107) identificadores -> identificadores . COMA ID
+
+    PARDERECHO      shift and go to state 733
+    COMA            shift and go to state 694
+
+
+state 693
 
     (85) columna -> UNIQUE PARIZQUIERDO identificadores PARDERECHO .
 
@@ -35366,14 +35379,14 @@ state 692
     COMA            reduce using rule 85 (columna -> UNIQUE PARIZQUIERDO identificadores PARDERECHO .)
 
 
-state 693
+state 694
 
     (107) identificadores -> identificadores COMA . ID
 
-    ID              shift and go to state 732
+    ID              shift and go to state 734
 
 
-state 694
+state 695
 
     (115) opDatabase -> OWNER opIgual ID . mode
     (119) mode -> . MODE opIgual ENTERO
@@ -35383,31 +35396,38 @@ state 694
     MODE            shift and go to state 524
     PTCOMA          reduce using rule 104 (empty -> .)
 
-    mode                           shift and go to state 733
+    mode                           shift and go to state 735
     empty                          shift and go to state 525
 
-state 695
+state 696
 
     (119) mode -> MODE opIgual ENTERO .
 
     PTCOMA          reduce using rule 119 (mode -> MODE opIgual ENTERO .)
 
 
-state 696
-
-    (14) crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO . PTCOMA
-
-    PTCOMA          shift and go to state 734
-
-
 state 697
 
-    (140) alter_column_instr -> SET NOT . NULL
+    (14) crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO . PTCOMA
 
-    NULL            shift and go to state 735
+    PTCOMA          shift and go to state 736
 
 
 state 698
+
+    (109) cadenas -> cadenas COMA . CADENA
+
+    CADENA          shift and go to state 737
+
+
+state 699
+
+    (140) alter_column_instr -> SET NOT . NULL
+
+    NULL            shift and go to state 738
+
+
+state 700
 
     (141) alter_column_instr -> SET NULL .
 
@@ -35415,7 +35435,7 @@ state 698
     PTCOMA          reduce using rule 141 (alter_column_instr -> SET NULL .)
 
 
-state 699
+state 701
 
     (142) alter_column_instr -> TYPE ID .
 
@@ -35423,99 +35443,99 @@ state 699
     PTCOMA          reduce using rule 142 (alter_column_instr -> TYPE ID .)
 
 
-state 700
+state 702
 
     (138) add_instr -> CHECK PARIZQUIERDO condicion_check PARDERECHO .
 
     PTCOMA          reduce using rule 138 (add_instr -> CHECK PARIZQUIERDO condicion_check PARDERECHO .)
 
 
-state 701
+state 703
 
     (97) condicion_check -> ID MENOR_QUE . expresion
     (27) expresion -> . CADENA
     (28) expresion -> . ENTERO
     (29) expresion -> . DECIMAL_
 
-    CADENA          shift and go to state 737
-    ENTERO          shift and go to state 738
-    DECIMAL_        shift and go to state 739
+    CADENA          shift and go to state 740
+    ENTERO          shift and go to state 741
+    DECIMAL_        shift and go to state 742
 
-    expresion                      shift and go to state 736
+    expresion                      shift and go to state 739
 
-state 702
+state 704
 
     (98) condicion_check -> ID MENOR_IGUAL . expresion
     (27) expresion -> . CADENA
     (28) expresion -> . ENTERO
     (29) expresion -> . DECIMAL_
 
-    CADENA          shift and go to state 737
-    ENTERO          shift and go to state 738
-    DECIMAL_        shift and go to state 739
+    CADENA          shift and go to state 740
+    ENTERO          shift and go to state 741
+    DECIMAL_        shift and go to state 742
 
-    expresion                      shift and go to state 740
+    expresion                      shift and go to state 743
 
-state 703
+state 705
 
     (99) condicion_check -> ID MAYOR_QUE . expresion
     (27) expresion -> . CADENA
     (28) expresion -> . ENTERO
     (29) expresion -> . DECIMAL_
 
-    CADENA          shift and go to state 737
-    ENTERO          shift and go to state 738
-    DECIMAL_        shift and go to state 739
+    CADENA          shift and go to state 740
+    ENTERO          shift and go to state 741
+    DECIMAL_        shift and go to state 742
 
-    expresion                      shift and go to state 741
+    expresion                      shift and go to state 744
 
-state 704
+state 706
 
     (100) condicion_check -> ID MAYOR_IGUAL . expresion
     (27) expresion -> . CADENA
     (28) expresion -> . ENTERO
     (29) expresion -> . DECIMAL_
 
-    CADENA          shift and go to state 737
-    ENTERO          shift and go to state 738
-    DECIMAL_        shift and go to state 739
+    CADENA          shift and go to state 740
+    ENTERO          shift and go to state 741
+    DECIMAL_        shift and go to state 742
 
-    expresion                      shift and go to state 742
+    expresion                      shift and go to state 745
 
-state 705
+state 707
 
     (101) condicion_check -> ID DISTINTO . expresion
     (27) expresion -> . CADENA
     (28) expresion -> . ENTERO
     (29) expresion -> . DECIMAL_
 
-    CADENA          shift and go to state 737
-    ENTERO          shift and go to state 738
-    DECIMAL_        shift and go to state 739
+    CADENA          shift and go to state 740
+    ENTERO          shift and go to state 741
+    DECIMAL_        shift and go to state 742
 
-    expresion                      shift and go to state 743
+    expresion                      shift and go to state 746
 
-state 706
+state 708
 
     (102) condicion_check -> ID IGUAL . expresion
     (27) expresion -> . CADENA
     (28) expresion -> . ENTERO
     (29) expresion -> . DECIMAL_
 
-    CADENA          shift and go to state 737
-    ENTERO          shift and go to state 738
-    DECIMAL_        shift and go to state 739
+    CADENA          shift and go to state 740
+    ENTERO          shift and go to state 741
+    DECIMAL_        shift and go to state 742
 
-    expresion                      shift and go to state 744
+    expresion                      shift and go to state 747
 
-state 707
+state 709
 
     (139) add_instr -> CONSTRAINT ID UNIQUE PARIZQUIERDO . ID PARDERECHO
 
-    ID              shift and go to state 745
+    ID              shift and go to state 748
 
 
-state 708
+state 710
 
     (281) lista_ids -> lista_ids COMA . dec_select_columna
     (170) dec_select_columna -> . ID PUNTO ID AS ID
@@ -35525,9 +35545,9 @@ state 708
 
     ID              shift and go to state 46
 
-    dec_select_columna             shift and go to state 746
+    dec_select_columna             shift and go to state 749
 
-state 709
+state 711
 
     (283) lista_order_by -> lista_order_by COMA . elemento_order_by
     (285) elemento_order_by -> . exp_operacion asc_desc NULLS condicion_null
@@ -35732,8 +35752,8 @@ state 709
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    elemento_order_by              shift and go to state 747
-    exp_operacion                  shift and go to state 650
+    elemento_order_by              shift and go to state 750
+    exp_operacion                  shift and go to state 651
     exp_logica                     shift and go to state 269
     exp_relacional                 shift and go to state 271
     exp_aritmetica                 shift and go to state 272
@@ -35747,12 +35767,12 @@ state 709
     funcion_agregacion             shift and go to state 54
     dec_case                       shift and go to state 55
 
-state 710
+state 712
 
     (285) elemento_order_by -> exp_operacion asc_desc . NULLS condicion_null
     (286) elemento_order_by -> exp_operacion asc_desc .
 
-    NULLS           shift and go to state 748
+    NULLS           shift and go to state 751
     COMA            reduce using rule 286 (elemento_order_by -> exp_operacion asc_desc .)
     WHERE           reduce using rule 286 (elemento_order_by -> exp_operacion asc_desc .)
     GROUP           reduce using rule 286 (elemento_order_by -> exp_operacion asc_desc .)
@@ -35766,7 +35786,7 @@ state 710
     PARDERECHO      reduce using rule 286 (elemento_order_by -> exp_operacion asc_desc .)
 
 
-state 711
+state 713
 
     (287) asc_desc -> ASC .
 
@@ -35784,7 +35804,7 @@ state 711
     PARDERECHO      reduce using rule 287 (asc_desc -> ASC .)
 
 
-state 712
+state 714
 
     (288) asc_desc -> DESC .
 
@@ -35802,7 +35822,7 @@ state 712
     PARDERECHO      reduce using rule 288 (asc_desc -> DESC .)
 
 
-state 713
+state 715
 
     (277) condicion_query -> LIMIT condicion_limit OFFSET exp_operacion .
 
@@ -35818,7 +35838,7 @@ state 713
     PARDERECHO      reduce using rule 277 (condicion_query -> LIMIT condicion_limit OFFSET exp_operacion .)
 
 
-state 714
+state 716
 
     (181) funcion_time -> EXTRACT PARIZQUIERDO var_time FROM var_timeextract CADENA PARDERECHO .
 
@@ -35866,7 +35886,7 @@ state 714
     DESC            reduce using rule 181 (funcion_time -> EXTRACT PARIZQUIERDO var_time FROM var_timeextract CADENA PARDERECHO .)
 
 
-state 715
+state 717
 
     (182) funcion_time -> DATE_PART PARIZQUIERDO CADENA COMA var_timeextract CADENA PARDERECHO .
 
@@ -35914,7 +35934,7 @@ state 715
     DESC            reduce using rule 182 (funcion_time -> DATE_PART PARIZQUIERDO CADENA COMA var_timeextract CADENA PARDERECHO .)
 
 
-state 716
+state 718
 
     (50) exp_aritmetica -> exp_aritmetica BETWEEN exp_aritmetica AND exp_aritmetica .
     (44) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
@@ -35993,7 +36013,7 @@ state 716
   ! IS              [ reduce using rule 50 (exp_aritmetica -> exp_aritmetica BETWEEN exp_aritmetica AND exp_aritmetica .) ]
 
 
-state 717
+state 719
 
     (51) exp_aritmetica -> exp_aritmetica NOT BETWEEN exp_aritmetica AND . exp_aritmetica
     (44) exp_aritmetica -> . exp_aritmetica MAS exp_aritmetica
@@ -36183,7 +36203,7 @@ state 717
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_aritmetica                 shift and go to state 749
+    exp_aritmetica                 shift and go to state 752
     primitivo                      shift and go to state 276
     funcion                        shift and go to state 284
     funcion_time                   shift and go to state 49
@@ -36194,16 +36214,16 @@ state 717
     funcion_agregacion             shift and go to state 54
     dec_case                       shift and go to state 55
 
-state 718
+state 720
 
     (53) exp_aritmetica -> exp_aritmetica NOT IN PARIZQUIERDO lista_expresiones . PARDERECHO
     (25) lista_expresiones -> lista_expresiones . COMA exp_operacion
 
-    PARDERECHO      shift and go to state 750
+    PARDERECHO      shift and go to state 753
     COMA            shift and go to state 608
 
 
-state 719
+state 721
 
     (52) exp_aritmetica -> exp_aritmetica IN PARIZQUIERDO lista_expresiones PARDERECHO .
 
@@ -36249,35 +36269,35 @@ state 719
     DESC            reduce using rule 52 (exp_aritmetica -> exp_aritmetica IN PARIZQUIERDO lista_expresiones PARDERECHO .)
 
 
-state 720
+state 722
 
     (215) funcion_mate -> WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion . COMA exp_operacion PARDERECHO
 
-    COMA            shift and go to state 751
-
-
-state 721
-
-    (239) funcion_binstr -> SUBSTRING PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO . PARDERECHO
-
-    PARDERECHO      shift and go to state 752
-
-
-state 722
-
-    (243) funcion_binstr -> SUBSTR PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO . PARDERECHO
-
-    PARDERECHO      shift and go to state 753
+    COMA            shift and go to state 754
 
 
 state 723
 
-    (245) funcion_binstr -> SET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO . PARDERECHO
+    (239) funcion_binstr -> SUBSTRING PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO . PARDERECHO
 
-    PARDERECHO      shift and go to state 754
+    PARDERECHO      shift and go to state 755
 
 
 state 724
+
+    (243) funcion_binstr -> SUBSTR PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO . PARDERECHO
+
+    PARDERECHO      shift and go to state 756
+
+
+state 725
+
+    (245) funcion_binstr -> SET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO . PARDERECHO
+
+    PARDERECHO      shift and go to state 757
+
+
+state 726
 
     (17) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA .
 
@@ -36292,7 +36312,7 @@ state 724
     $end            reduce using rule 17 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO VALUES lista_valores PTCOMA .)
 
 
-state 725
+state 727
 
     (19) insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA .
 
@@ -36307,7 +36327,7 @@ state 725
     $end            reduce using rule 19 (insert_table -> INSERT INTO ID PARIZQUIERDO lista_columnas PARDERECHO DEFAULT VALUES PTCOMA .)
 
 
-state 726
+state 728
 
     (89) opcionNull -> NOT NULL opConstraint .
 
@@ -36315,7 +36335,7 @@ state 726
     COMA            reduce using rule 89 (opcionNull -> NOT NULL opConstraint .)
 
 
-state 727
+state 729
 
     (91) opConstraint -> CONSTRAINT ID opUniqueCheck .
 
@@ -36323,21 +36343,21 @@ state 727
     COMA            reduce using rule 91 (opConstraint -> CONSTRAINT ID opUniqueCheck .)
 
 
-state 728
+state 730
 
     (94) opUniqueCheck -> CHECK PARIZQUIERDO condicion_check . PARDERECHO
 
-    PARDERECHO      shift and go to state 755
+    PARDERECHO      shift and go to state 758
 
 
-state 729
+state 731
 
     (105) herencia -> INHERITS PARIZQUIERDO ID . PARDERECHO
 
-    PARDERECHO      shift and go to state 756
+    PARDERECHO      shift and go to state 759
 
 
-state 730
+state 732
 
     (83) columna -> PRIMARY KEY PARIZQUIERDO identificadores PARDERECHO .
 
@@ -36345,14 +36365,14 @@ state 730
     COMA            reduce using rule 83 (columna -> PRIMARY KEY PARIZQUIERDO identificadores PARDERECHO .)
 
 
-state 731
+state 733
 
     (84) columna -> FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO . REFERENCES ID PARIZQUIERDO identificadores PARDERECHO
 
-    REFERENCES      shift and go to state 757
+    REFERENCES      shift and go to state 760
 
 
-state 732
+state 734
 
     (107) identificadores -> identificadores COMA ID .
 
@@ -36360,29 +36380,37 @@ state 732
     COMA            reduce using rule 107 (identificadores -> identificadores COMA ID .)
 
 
-state 733
+state 735
 
     (115) opDatabase -> OWNER opIgual ID mode .
 
     PTCOMA          reduce using rule 115 (opDatabase -> OWNER opIgual ID mode .)
 
 
-state 734
+state 736
 
-    (14) crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .
+    (14) crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .
 
-    INSERT          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
-    DELETE          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
-    UPDATE          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
-    USE             reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
-    CREATE          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
-    ALTER           reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
-    DROP            reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
-    SELECT          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
-    $end            reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO ID PARDERECHO PTCOMA .)
+    INSERT          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
+    DELETE          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
+    UPDATE          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
+    USE             reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
+    CREATE          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
+    ALTER           reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
+    DROP            reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
+    SELECT          reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
+    $end            reduce using rule 14 (crear_instr -> CREATE TYPE ID AS ENUM PARIZQUIERDO cadenas PARDERECHO PTCOMA .)
 
 
-state 735
+state 737
+
+    (109) cadenas -> cadenas COMA CADENA .
+
+    PARDERECHO      reduce using rule 109 (cadenas -> cadenas COMA CADENA .)
+    COMA            reduce using rule 109 (cadenas -> cadenas COMA CADENA .)
+
+
+state 738
 
     (140) alter_column_instr -> SET NOT NULL .
 
@@ -36390,77 +36418,77 @@ state 735
     PTCOMA          reduce using rule 140 (alter_column_instr -> SET NOT NULL .)
 
 
-state 736
+state 739
 
     (97) condicion_check -> ID MENOR_QUE expresion .
 
     PARDERECHO      reduce using rule 97 (condicion_check -> ID MENOR_QUE expresion .)
 
 
-state 737
+state 740
 
     (27) expresion -> CADENA .
 
     PARDERECHO      reduce using rule 27 (expresion -> CADENA .)
 
 
-state 738
+state 741
 
     (28) expresion -> ENTERO .
 
     PARDERECHO      reduce using rule 28 (expresion -> ENTERO .)
 
 
-state 739
+state 742
 
     (29) expresion -> DECIMAL_ .
 
     PARDERECHO      reduce using rule 29 (expresion -> DECIMAL_ .)
 
 
-state 740
+state 743
 
     (98) condicion_check -> ID MENOR_IGUAL expresion .
 
     PARDERECHO      reduce using rule 98 (condicion_check -> ID MENOR_IGUAL expresion .)
 
 
-state 741
+state 744
 
     (99) condicion_check -> ID MAYOR_QUE expresion .
 
     PARDERECHO      reduce using rule 99 (condicion_check -> ID MAYOR_QUE expresion .)
 
 
-state 742
+state 745
 
     (100) condicion_check -> ID MAYOR_IGUAL expresion .
 
     PARDERECHO      reduce using rule 100 (condicion_check -> ID MAYOR_IGUAL expresion .)
 
 
-state 743
+state 746
 
     (101) condicion_check -> ID DISTINTO expresion .
 
     PARDERECHO      reduce using rule 101 (condicion_check -> ID DISTINTO expresion .)
 
 
-state 744
+state 747
 
     (102) condicion_check -> ID IGUAL expresion .
 
     PARDERECHO      reduce using rule 102 (condicion_check -> ID IGUAL expresion .)
 
 
-state 745
+state 748
 
     (139) add_instr -> CONSTRAINT ID UNIQUE PARIZQUIERDO ID . PARDERECHO
 
-    PARDERECHO      shift and go to state 758
+    PARDERECHO      shift and go to state 761
 
 
-state 746
+state 749
 
     (281) lista_ids -> lista_ids COMA dec_select_columna .
 
@@ -36477,7 +36505,7 @@ state 746
     PARDERECHO      reduce using rule 281 (lista_ids -> lista_ids COMA dec_select_columna .)
 
 
-state 747
+state 750
 
     (283) lista_order_by -> lista_order_by COMA elemento_order_by .
 
@@ -36494,18 +36522,18 @@ state 747
     PARDERECHO      reduce using rule 283 (lista_order_by -> lista_order_by COMA elemento_order_by .)
 
 
-state 748
+state 751
 
     (285) elemento_order_by -> exp_operacion asc_desc NULLS . condicion_null
     (289) condicion_null -> . FIRST
     (290) condicion_null -> . LAST
 
-    FIRST           shift and go to state 760
-    LAST            shift and go to state 761
+    FIRST           shift and go to state 763
+    LAST            shift and go to state 764
 
-    condicion_null                 shift and go to state 759
+    condicion_null                 shift and go to state 762
 
-state 749
+state 752
 
     (51) exp_aritmetica -> exp_aritmetica NOT BETWEEN exp_aritmetica AND exp_aritmetica .
     (44) exp_aritmetica -> exp_aritmetica . MAS exp_aritmetica
@@ -36584,7 +36612,7 @@ state 749
   ! IS              [ reduce using rule 51 (exp_aritmetica -> exp_aritmetica NOT BETWEEN exp_aritmetica AND exp_aritmetica .) ]
 
 
-state 750
+state 753
 
     (53) exp_aritmetica -> exp_aritmetica NOT IN PARIZQUIERDO lista_expresiones PARDERECHO .
 
@@ -36630,7 +36658,7 @@ state 750
     DESC            reduce using rule 53 (exp_aritmetica -> exp_aritmetica NOT IN PARIZQUIERDO lista_expresiones PARDERECHO .)
 
 
-state 751
+state 754
 
     (215) funcion_mate -> WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA . exp_operacion PARDERECHO
     (32) exp_operacion -> . exp_logica
@@ -36833,7 +36861,7 @@ state 751
     MIN             shift and go to state 120
     CASE            shift and go to state 121
 
-    exp_operacion                  shift and go to state 762
+    exp_operacion                  shift and go to state 765
     exp_logica                     shift and go to state 269
     exp_relacional                 shift and go to state 271
     exp_aritmetica                 shift and go to state 272
@@ -36847,7 +36875,7 @@ state 751
     funcion_agregacion             shift and go to state 54
     dec_case                       shift and go to state 55
 
-state 752
+state 755
 
     (239) funcion_binstr -> SUBSTRING PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO .
 
@@ -36895,7 +36923,7 @@ state 752
     DESC            reduce using rule 239 (funcion_binstr -> SUBSTRING PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO .)
 
 
-state 753
+state 756
 
     (243) funcion_binstr -> SUBSTR PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO .
 
@@ -36943,7 +36971,7 @@ state 753
     DESC            reduce using rule 243 (funcion_binstr -> SUBSTR PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO .)
 
 
-state 754
+state 757
 
     (245) funcion_binstr -> SET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO .
 
@@ -36991,7 +37019,7 @@ state 754
     DESC            reduce using rule 245 (funcion_binstr -> SET_BYTE PARIZQUIERDO exp_operacion COMA ENTERO COMA ENTERO PARDERECHO .)
 
 
-state 755
+state 758
 
     (94) opUniqueCheck -> CHECK PARIZQUIERDO condicion_check PARDERECHO .
 
@@ -36999,28 +37027,28 @@ state 755
     COMA            reduce using rule 94 (opUniqueCheck -> CHECK PARIZQUIERDO condicion_check PARDERECHO .)
 
 
-state 756
+state 759
 
     (105) herencia -> INHERITS PARIZQUIERDO ID PARDERECHO .
 
     PTCOMA          reduce using rule 105 (herencia -> INHERITS PARIZQUIERDO ID PARDERECHO .)
 
 
-state 757
+state 760
 
     (84) columna -> FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO REFERENCES . ID PARIZQUIERDO identificadores PARDERECHO
 
-    ID              shift and go to state 763
+    ID              shift and go to state 766
 
 
-state 758
+state 761
 
     (139) add_instr -> CONSTRAINT ID UNIQUE PARIZQUIERDO ID PARDERECHO .
 
     PTCOMA          reduce using rule 139 (add_instr -> CONSTRAINT ID UNIQUE PARIZQUIERDO ID PARDERECHO .)
 
 
-state 759
+state 762
 
     (285) elemento_order_by -> exp_operacion asc_desc NULLS condicion_null .
 
@@ -37037,7 +37065,7 @@ state 759
     PARDERECHO      reduce using rule 285 (elemento_order_by -> exp_operacion asc_desc NULLS condicion_null .)
 
 
-state 760
+state 763
 
     (289) condicion_null -> FIRST .
 
@@ -37054,7 +37082,7 @@ state 760
     PARDERECHO      reduce using rule 289 (condicion_null -> FIRST .)
 
 
-state 761
+state 764
 
     (290) condicion_null -> LAST .
 
@@ -37071,21 +37099,21 @@ state 761
     PARDERECHO      reduce using rule 290 (condicion_null -> LAST .)
 
 
-state 762
+state 765
 
     (215) funcion_mate -> WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA exp_operacion . PARDERECHO
 
-    PARDERECHO      shift and go to state 764
+    PARDERECHO      shift and go to state 767
 
 
-state 763
+state 766
 
     (84) columna -> FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO REFERENCES ID . PARIZQUIERDO identificadores PARDERECHO
 
-    PARIZQUIERDO    shift and go to state 765
+    PARIZQUIERDO    shift and go to state 768
 
 
-state 764
+state 767
 
     (215) funcion_mate -> WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO .
 
@@ -37133,7 +37161,7 @@ state 764
     DESC            reduce using rule 215 (funcion_mate -> WIDTH_BUCKET PARIZQUIERDO exp_operacion COMA exp_operacion COMA exp_operacion COMA exp_operacion PARDERECHO .)
 
 
-state 765
+state 768
 
     (84) columna -> FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO REFERENCES ID PARIZQUIERDO . identificadores PARDERECHO
     (107) identificadores -> . identificadores COMA ID
@@ -37141,18 +37169,18 @@ state 765
 
     ID              shift and go to state 633
 
-    identificadores                shift and go to state 766
+    identificadores                shift and go to state 769
 
-state 766
+state 769
 
     (84) columna -> FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO REFERENCES ID PARIZQUIERDO identificadores . PARDERECHO
     (107) identificadores -> identificadores . COMA ID
 
-    PARDERECHO      shift and go to state 767
-    COMA            shift and go to state 693
+    PARDERECHO      shift and go to state 770
+    COMA            shift and go to state 694
 
 
-state 767
+state 770
 
     (84) columna -> FOREIGN KEY PARIZQUIERDO identificadores PARDERECHO REFERENCES ID PARIZQUIERDO identificadores PARDERECHO .
 

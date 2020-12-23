@@ -7,4 +7,7 @@ create table estudiante(
     apellido varchar not null
 );
 
-insert into estudiante values (1,'jorge','Perez');
+insert into estudiante values (1,'jorge','Perez'),
+(2,'Mario','Hernandez'),
+(3,'Juan','Paredes');
+delete from estudiante;

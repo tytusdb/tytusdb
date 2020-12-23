@@ -220,7 +220,7 @@ class InsertTable(InstruccionAbstracta):
                                             if simboloRecibido.descripcionError == None:
                                                 # Falta evalular unique
                                                 # Se guarda el valor como tal
-                                                listaValoresInsertar.append(simboloRecibido.valorRetorno)                                                
+                                                listaValoresInsertar.append(valorInsertar.valorRetorno)                                                
                                             else:
                                                 nodoErr = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion",simboloRecibido.descripcionError)
                                                 nodoRetorno = retornoInstruccion.RetornoInstruccion(retornoInstruccion.TipoRetornoInstruccion.ERROR,None)
@@ -381,7 +381,7 @@ class InsertTable(InstruccionAbstracta):
                                                     if simboloRecibido.descripcionError == None:
                                                         # Falta evalular unique
                                                         # Se guarda el valor como tal
-                                                        listaValoresInsertar.append(simboloRecibido.valorRetorno)                                                
+                                                        listaValoresInsertar.append(valorInsertar.valorRetorno)                                                
                                                     else:
                                                         nodoErr = errorReportar.ErrorReportar(self.fila,self.columna,"Ejecucion",simboloRecibido.descripcionError)
                                                         nodoRetorno = retornoInstruccion.RetornoInstruccion(retornoInstruccion.TipoRetornoInstruccion.ERROR,None)

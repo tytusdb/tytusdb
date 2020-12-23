@@ -21,6 +21,7 @@ class TiposDatos(Enum):
     timestamp = 17
     nulo = 18
     default = 19
+    enum = 20
 
 
 
@@ -55,8 +56,12 @@ class SimboloColumna():
             self.tipoDato = TiposDatos.time_No_zone
         elif tipoDat.lower() == "date":
             self.tipoDato = TiposDatos.date
-        else:
+        elif tipoDat.lower() == "boolean":            
             self.tipoDato = TiposDatos.boolean
+        elif tipoDat.lower() == "interval":
+            self.tipoDato = TiposDatos.interval
+        else:
+            self.tipoDato = TiposDatos.enum
 
         self.indice = indice
         self.nombre = nombre        
@@ -68,6 +73,7 @@ class SimboloColumna():
         self.columnasForanea = []           # columnaFornea --->> Guarda el nombre de la columnas a la que hace referencia la llave foránea
         self.nombreConstraint = None        # nombre del constraint, si tuviera
         self.check = None                   # instancia de clase expresion
+        self.tipoDatoNOprimitivo = None
 
 
     def crearLlavePrimaria(self):
