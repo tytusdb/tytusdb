@@ -5,6 +5,7 @@ import subprocess
 s="\n"
 i = 0
 gram=""
+childslist="inicio -> {"
 
 def inc():
     global i
@@ -64,7 +65,16 @@ def createFile():
 
 def creategrafo():
     global s
-    s="digraph Matrix { graph [dpi=300]; \n node [shape=box] e0[ shape = point, width = 0 ];\n"+s+"}"
+    global childslist
+    temp = len(childslist)       
+    if childslist[temp-1] == ",": 
+        childslist = childslist[:temp - 1]
+        childslist = childslist +"}\n"
+    elif childslist[temp-1] == "{":
+        childslist = childslist +"}\n"
+    s="digraph Matrix { graph [dpi=300]; \n node [shape=box] e0[ shape = point, width = 0 ];\n inicio[label = \"Inicio\" width = 1.5 style = filled, fillcolor = firebrick1];  "+childslist+s+"}"
+
+   
     archivo = open('grap.txt', 'w')
     archivo.write(s)
     archivo.close()
@@ -79,7 +89,9 @@ def creategrafo():
     for salida2 in resultado2.stdout:
         print(salida2.decode(sys.getdefaultencoding()).rstrip())
 
-
+def punteroinicio(nombre):
+    global childslist
+    childslist = childslist + nombre + ","
 
 def addCad(cadena):
     global gram

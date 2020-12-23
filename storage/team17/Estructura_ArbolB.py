@@ -1,5 +1,11 @@
+# File:     B Tree Structure
+# License:  Released under MIT License
+# Notice:   Copyright (c) 2020 TytusDB Team
+
+import os
 
 # ------------- CREACION DE LOS NODOS -------------#
+
 class NodoB:
     def __init__(self, grado): #INICIALIZAR NODO
         self.llaves = []
@@ -9,7 +15,7 @@ class NodoB:
     def insertar(self, valor): 
         if valor not in self.llaves:
             self.llaves.append(valor)
-            self.ordenar_llaves() 
+            self.ordenar_llaves()
         return len(self.llaves)
     
     def comparar(self, valor):
@@ -18,13 +24,31 @@ class NodoB:
         if self.hijos == [] or self.buscar_llave(valor, self.llaves): #Si la lista de hijos esta vacia o el valor ya se encuentra en la lista de llaves
             return -1
         while(i < tamano):
-            if valor < self.llaves[i][0]:
-                return i
-            i += 1
+            if str(valor).isdigit():
+                if str(self.llaves[i][0]).isdigit():
+                    if int(valor) < int(self.llaves[i][0]):
+                        return i
+                    i += 1
+                else:
+                    if int(valor) < self.toASCII(self.llaves[i][0]):
+                        return i
+                    i += 1
+            else:
+                if str(self.llaves[i][0]).isdigit():
+                    if self.toASCII(valor) < int(self.llaves[i][0]):
+                        return i
+                    i += 1
+                else:
+                    if valor < self.llaves[i][0]:
+                        return i
+                    i += 1
         return i #Regresa la posicion
     
     def posicionNodo(self):
-        return self.padre.hijos.index(self)
+        try:
+            return self.padre.hijos.index(self)
+        except:
+            pass
     
     def buscar_llave(self, llave, llaves):
         for i in llaves:
@@ -34,23 +58,50 @@ class NodoB:
     def ordenar_llaves(self):
         for i in range(len(self.llaves)-1):
             for j in range(i+1,len(self.llaves)):
-                if self.llaves[i][0] > self.llaves[j][0]:
-                    tmp = self.llaves[i]
-                    self.llaves[i] = self.llaves[j]
-                    self.llaves[j] = tmp
+                if str(self.llaves[i][0]).isdigit():
+                    if str(self.llaves[j][0]).isdigit():
+                        
+                        if int(self.llaves[i][0]) > int(self.llaves[j][0]):
+                            tmp = self.llaves[i]
+                            self.llaves[i] = self.llaves[j]
+                            self.llaves[j] = tmp
+                    else:
+                        if int(self.llaves[i][0]) > self.toASCII(self.llaves[j][0]):
+                            tmp = self.llaves[i]
+                            self.llaves[i] = self.llaves[j]
+                            self.llaves[j] = tmp
+                else:
+                    if str(self.llaves[j][0]).isdigit():
+                        if self.toASCII(self.llaves[i][0]) > int(self.llaves[j][0]):
+                            tmp = self.llaves[i]
+                            self.llaves[i] = self.llaves[j]
+                            self.llaves[j] = tmp
+                    else:
+                        if self.llaves[i][0] > self.llaves[j][0]:
+                            tmp = self.llaves[i]
+                            self.llaves[i] = self.llaves[j]
+                            self.llaves[j] = tmp
+    
+    def toASCII(self, cadena):
+        result = 0
+        for char in cadena:
+            result += ord(char)
+        return result
 
  # ----------------ARMAR EL ARBOL -----------------#
-class ArbolB:
+
+class arbolB:
     def __init__(self, grado):
         self.root = NodoB(grado)
         self.grado = grado
         self.enmedio = int((self.grado-1)/2)
  
+    
     def buscar(self, valor):
         return self._buscar(valor)
 
     def _buscar(self, valor, tmp = None):
-        if not tmp:
+        if not tmp: 
             tmp2 = self.root
         else:
             tmp2 = tmp
@@ -59,7 +110,7 @@ class ArbolB:
             return tmp2
         else:
             return self._buscar(valor, tmp2.hijos[result])
-    
+
     def separar_nodo(self, tmp):
         n1 = NodoB(self.grado)
         n2 = NodoB(self.grado)
@@ -101,7 +152,6 @@ class ArbolB:
             nodo_d.padre = padre
             self.root = padre
             return 0
-        # Se le asigna el nodo padre a los nuevos nodos #
         nodo_i.padre = padre
         nodo_d.padre = padre
         padre.insertar(center)
@@ -120,9 +170,10 @@ class ArbolB:
         length = tmp.insertar(valor)
         if length == self.grado:
             self.separar_nodo(tmp)
-    
+ 
     # UTILIDADES
     # ME DEVUELVE UNA LISTA CON LA INFORMACION DE TODOS LOS NODOS INGRESADOS
+
     def registros(self):
         global l
         l = list()
@@ -137,6 +188,7 @@ class ArbolB:
         return l
 
     # ME DEVUELVE UNA LISTA CON LA PK DE TODOS LOS NODOS INGRESADOS
+
     def Keys(self):
         global l
         l = list()
@@ -151,6 +203,7 @@ class ArbolB:
         return l
     
     # AGREGA UNA COLUMNA MAS A TODOS LOS NODOS
+
     def agregarValor(self, valor):
         self.root = self._agregarValor(self.root, valor)
     
@@ -162,7 +215,21 @@ class ArbolB:
                 self._agregarValor(j,valor)
         return tmp
 
+    def update(self, valor, llave):
+        self._update(self.root, valor, llave)
+
+    def _update(self, tmp, valor, llave):
+        if tmp:
+            for i in tmp.llaves:
+                if str(i[0]) == str(llave):
+                    i[1] = valor
+                    i[0] = llave
+            for j in tmp.hijos:
+                self._update(j, valor, llave)
+        return tmp
+
     # ELIMINA UNA COLUMNA A TODOS LOS NODOS
+
     def eliminarValor(self, valor):
         self.root = self._eliminarValor(self.root, valor)
     
@@ -173,8 +240,9 @@ class ArbolB:
             for j in tmp.hijos:
                 self._eliminarValor(j,valor)
         return tmp
-    
+
     # ELIMINA UN NODO DEL ARBOL
+
     def _del(self, llave):
         tmp = self.buscar(llave)
         posicion = self.posicion(tmp, llave)
@@ -182,18 +250,21 @@ class ArbolB:
         self.estructurar(tmp, posicion)
 
     # ME RETORNA LA POSICION DE UNA TUPLA EN UN NODO
+
     def posicion(self, nodo, llave):
         for i in range(len(nodo.llaves)):
             if str(nodo.llaves[i][0]) == str(llave):
                 return i
     
     # ME RETORNA EL VALOR EN UNA POSICION
+
     def valor_buscar(self, nodo, llave):
         for i in range(len(nodo.llaves)):
             if str(nodo.llaves[i][0]) == str(llave):
                 return nodo.llaves[i]
 
     # ORDENA EL ARBOL DE NUEVO
+
     def estructurar(self, tmp, posicion):
         if tmp.hijos == []:
             return self.unir(tmp, tmp.posicionNodo())
@@ -202,6 +273,7 @@ class ArbolB:
         return self.estructurar(siguiente, 0)
     
     # UNE LOS HIJOS AL PADRE PARA REGRESAR A LA FORMA IDEAL
+
     def unir(self, tmp, pos):
         if not tmp.padre:
             return 0
@@ -244,5 +316,29 @@ class ArbolB:
         pos = nodo.posicionNodo() #Derecha
         nodo.insertar(padre.llaves.pop(pos-1))
         padre.insertar(tmp.llaves.pop(-1))
-        return 0
+        return 0    
 
+    def graficar(self):
+        f = open('archivo.dot', 'w',encoding='utf-8')
+        f.write("digraph dibujo{\n")
+        f.write('graph [ordering="out"];')
+        f.write('rankdir=TB;\n')
+        global t
+        t = 0
+        f = self._graficar(f,self.root)
+        f.write('}')
+        f.close()
+        os.system('dot -Tpng archivo.dot -o salida.png')
+    
+    def _graficar(self, f, temp):
+        global t
+        if temp:
+            nombre = "Nodo"+str(t)
+            t+=1
+            f.write(nombre+' [ label = "'+", ".join(str(x[0]) for x in temp.llaves)+'",shape = box];\n')
+            for c in temp.hijos:
+                nombre2 = "Nodo"+str(t)
+                f = self._graficar(f, c)
+                f.write(nombre+'->'+ nombre2+';\n')
+                t+=1
+        return f
