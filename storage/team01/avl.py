@@ -419,8 +419,6 @@ class AVL:
                     pass 
     #Crea un gráfico del árbol
     def armararbol(self, arbol, titulo, nombreArchivo,tipo=""):
-        #print(arbol)
-        
         f = Digraph('arbol', filename=ruta+"Imagenes/graficaArboles/"+nombreArchivo,
                 format="png", node_attr={'shape': 'record', 'height': '.1'})
         self.crearnodos(arbol, f, 0,tipo=tipo)

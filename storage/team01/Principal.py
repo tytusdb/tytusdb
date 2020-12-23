@@ -11,7 +11,7 @@ class Application(Frame):
         super().__init__(master)
         master.title("TytusDB")
         self.master = master        
-        self.create_tree() 
+        self.create_tree()        
        
     def create_tree(self):              
         self.treeView = ttk.Treeview(self)
@@ -149,7 +149,7 @@ def  reportes():
             correcto_tablas=crud.graficaTBL(n.get())           
             correcto_registro=crud.graficaREG(n.get(),p.get())          
             if(correcto_registro + correcto_tablas + correcto_bases)==0:
-                messagebox.showinfo(message=" Graficas generadas correctamente ", title="Creditos")
+                messagebox.showinfo(message=" Graficas generadas correctamente ", title="Creditos",parent=newWindowReportes)
         Button(newWindowReportes,text="Generar registros", command=tuplas, width=20).grid(column=2,row=20)
     Button(newWindowReportes,text="Generar tablas", command=comando, width=20).grid(column=2,row=15)
     mi_listBox.current(0)
