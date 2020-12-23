@@ -1096,6 +1096,13 @@ def tabla_simbolos():
     for fn in ts.Tablas:
         fun=ts.obtenerTabla(fn)
 
+        if fun.inhe == None:
+            print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INHE VACIO")
+            cadena2 += '<TR><TD COLSPAN="5" bgcolor="#A9F5E1"> </TD></TR>'
+        else:
+            print("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT INHE SI TIENE")
+            cadena2 += '<TR><TD COLSPAN="5" bgcolor="#A9F5E1"> HERENCIA: '+ fun.inhe.id +'</TD></TR>'
+
         for cuerpos in fun.cuerpo:
             if isinstance(cuerpos, CampoTabla):
                 if isinstance(cuerpos.tipo, valorTipo):
@@ -2363,6 +2370,8 @@ class Select2(Instruccion) :
         else:
             imprir("SELECT : No existe la base de datos acual")
         print(listaGeneral)
+        list = []
+        list = A
         mostrarConsulta(listaGeneral)
 
 
@@ -4562,22 +4571,23 @@ class CreateTable(Instruccion):
             for v in self.cuerpo:
                 x:CampoTabla = v
                 if isinstance(v, CampoTabla):
-                    print(">>>> ES CAMPO TABLA")
                     for vali in x.validaciones:
-                            print(" Si es constraint")
-                            if isinstance(vali, CampoValidacion):
-                                val: CampoValidacion = vali
-                                if val is None:
-                                    pass
-                                else:
-                                    print(str(val.id) + str(val.valor))
+                        if isinstance(vali, CampoValidacion):
+                            val: CampoValidacion = vali
+                            if vali.id is None:
+                                print("nada")
+                                pass
+                            else:
+                                print(str(val.id) + str(val.valor))
+                                temporal2 = constraintTabla(str(val.id), "auto", None, x.id, None, self.id)
+                                ts_global.agregarValidacion(temporal2)
 
-                            elif isinstance(vali, constraintTabla):
-                                val: constraintTabla = vali
-                                if val is None:
-                                    pass
-                                else:
-                                    print(val.valor+val.id+val.listas_id+val.idRef)
+                        elif isinstance(vali, constraintTabla):
+                            val: constraintTabla = vali
+                            if val is None:
+                                pass
+                            else:
+                                print(val.valor+val.id+val.listas_id+val.idRef)
                 else:
                     print(">>> ES OTRO TIPO DE CAMPO")
                     vv: constraintTabla = v
@@ -5472,7 +5482,12 @@ class Alter_table_Alter_Column_Set(Instruccion):
 
                                         if(bandera==False):
                                             # Se ingreso correctamente el valor
-                                            temporal2 = CampoValidacion("NOT", "NULL")
+                                            # validar que exista ese esa columna en alguna tabla
+                                            temporal2 = constraintTabla("NOT NULL", "not_null_n", None, self.id_column.val, None, self.id_tabla)
+                                            ts_global.agregarValidacion(temporal2)
+
+                                            # EN LA TABLA PEDIDA QUE ES elemento2.val
+                                            laTabla: CreateTable = ts_global.obtenerTabla(self.id_tabla)
 
                                             y.validaciones.append(temporal2)
                                             imprir("ALTER TABLE: SE SETEO NOT NULL CORRECTAMENTE")

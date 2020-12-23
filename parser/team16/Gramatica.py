@@ -344,7 +344,7 @@ def t_newline(t):
     t.lexer.lineno += len(t.value)
 
 def t_COMENTARIOMULTI(t):
-    r'/\*(.|\n)*?\*/'
+    r'/\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+/'
     t.lexer.lineno += t.value.count("\n")
     return t
 
@@ -448,8 +448,11 @@ def p_instrucciones_instruccion(t) :
 def p_instruccion(t):
     '''INSTRUCCION  : DQL_COMANDOS
                     | DDL_COMANDOS
-                    | DML_COMANDOS'''
-    t[0] = t[1]
+                    | DML_COMANDOS
+                    | COMENTARIOMULTI
+                    | COMENTARIONORMAL '''
+    if t[1] != 'COMENTARIONORMAL' and t[1] != 'COMENTARIOMULTI':
+        t[0] = t[1]
 
 
 
