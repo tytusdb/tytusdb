@@ -1125,7 +1125,7 @@ def p_valores(t):
    # t[0] = t[1]
 
 
-# -------------- FUNCIONES MÁTEMÁTICAS ----------------------
+# -------------- FUNCIONES MATEMÁTICAS ----------------------
 
 # Select | Where
 def p_funciones_matematicas1(t):
@@ -1190,16 +1190,21 @@ def p_funciones_trigonometricas(t):
 # Select | Where
 def p_fbinarias_cadenas_1(t):
     'func_bin_strings_1    : LENGTH PARIZQ cadena PARDER '
+    g = '<fun_bin_strings_1> ::= \"LENGTH\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+    t[0] = Nodo('FUNCION STR','LENGTH',[],t.lexer.lineno,0,g)
     
 # Select | Insert | Update | Where
 def p_fbinarias_cadenas_2(t):
     '''func_bin_strings_2   : SUBSTRING PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER 
                             | SUBSTR PARIZQ cadena COMA cualquiernumero COMA cualquiernumero PARDER
                             | TRIM PARIZQ cadena PARDER'''
+    t[0] = getStringFunctionNode2(t)
     
 # Insert | Update                            
 def p_fbinarias_cadenas_3(t):
     'func_bin_strings_3   : MD5 PARIZQ cadena PARDER'
+    g = '<func_bin_strings_3> ::= \"MD5\" \"PARIZQ\" <cadena> \"PARDER\"\n'
+    t[0] = Nodo('FUNCION STR','MD5',[t[3]],t.lexer.lineno,0,g)
 
 # Select
 def p_fbinarias_cadenas_4(t):
@@ -1209,11 +1214,12 @@ def p_fbinarias_cadenas_4(t):
                             | DECODE PARIZQ cadena COMA cadena PARDER
                             | SHA256 PARIZQ cadena PARDER
                             | CONVERT PARIZQ alias PARDER'''
+    t[0] = getStringFunctionNode4(t)
 
 def p_cadena(t):
     '''cadena   : cualquiercadena
                 | cualquieridentificador'''
-
+    t[0] = t[1]
 
 ############################################## PRODUCCIONES ESPECIALES #################################################
 
