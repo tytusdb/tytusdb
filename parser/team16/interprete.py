@@ -1561,6 +1561,8 @@ class interprete2:
                 i.Ejecutar()
             elif isinstance(i,SubSelect4):
                 i.Ejecutar()
+            elif isinstance(i, Alter_table_Alter_Column_Set):
+                i.Ejecutar()
             else:
                 print("NO ejecuta")
 

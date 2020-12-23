@@ -1778,7 +1778,7 @@ def p_instruccion_dml_comandos_ALTER_TABLE5(t):
 def p_instruccion_dml_comandos_ALTER_TABLE6(t):
     'DML_COMANDOS       : ALTER TABLE ID  ADD CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER PUNTOCOMA'
     print('\n' + str(t[0]) + '\n')
-    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13]))
+    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13]), t[6])
     rep_gramatica('\n <TR><TD> DML_COMANDOS →    ALTER TABLE ID  ADD CONSTRAINT ID FOREIGN KEY PARIZQ ID PARDER REFERENCES ID PARIZQ ID PARDER PUNTOCOMA  </TD><TD> t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[10]), ExpresionValor(t[13])) </TD></TR>')
 
 
@@ -1786,7 +1786,7 @@ def p_instruccion_dml_comandos_ALTER_TABLE6(t):
 def p_instruccion_dml_comandos_ALTER_TABLEF6(t):
     'DML_COMANDOS       : ALTER TABLE ID  ADD  FOREIGN KEY PARIZQ ID PARDER REFERENCES ID   PUNTOCOMA'
     print('\n' + str(t[0]) + '\n')
-    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11]))
+    t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11]), None)
     rep_gramatica('\n <TR><TD> DML_COMANDOS →    ALTER TABLE ID  ADD  FOREIGN KEY PARIZQ ID PARDER REFERENCES ID   PUNTOCOMA  </TD><TD>t[0] = Alter_table_Add_Foreign_Key(t[3], ExpresionValor(t[8]), ExpresionValor(t[11])) </TD></TR>')
 
 
