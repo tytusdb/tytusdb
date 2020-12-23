@@ -6,6 +6,8 @@ from storageManager import jsonMode as jsonMode
 from tabla_errores import *
 from columna import *
 import math 
+import numpy as np
+from random import random
 
 class TypeChecker():
     'Esta clase representa el type checker para la comprobación de tipos'
@@ -293,3 +295,88 @@ class TypeChecker():
             return math.atan2 (math.radians(val1), math.radians(val2))
         elif funcion == 'ATAN2':          #   <= 2 parametros
             return math.atan2 (val1, val2)
+
+
+    def Funciones_Matematicas_1(self, funcion, valor, line: int):
+        val = float(valor)
+
+        if funcion == 'COUNT':          #   <= FALTA
+            return 1
+        elif funcion == 'SUM':          #   <= FALTA
+            return 1
+        elif funcion == 'AVG':          #   <= FALTA
+            return 1
+        
+        elif funcion == 'ABS':
+            self.consola.append(Codigos().successful_completion('ABS (' + str(val) + ')'))
+            return abs(val)
+        elif funcion == 'CBRT': 
+            self.consola.append(Codigos().successful_completion('CBRT (' + str(val) + ')'))
+            return val ** (1/3)
+        elif funcion == 'CEIL': 
+            self.consola.append(Codigos().successful_completion('CEIL (' + str(val) + ')'))    
+            return round(val)
+        elif funcion == 'CEILING':
+            self.consola.append(Codigos().successful_completion('CEILING (' + str(val) + ')'))          
+            return math.ceil(val)
+        elif funcion == 'DEGREES':  
+            self.consola.append(Codigos().successful_completion('DEGREES (' + str(val) + ')'))        
+            return math.degrees(val)
+        elif funcion == 'EXP': 
+            self.consola.append(Codigos().successful_completion('EXP (' + str(val) + ')'))
+            return math.e ** val
+        elif funcion == 'FACTORIAL': 
+            self.consola.append(Codigos().successful_completion('FACTORIAL (' + str(val) + ')'))         
+            return math.factorial(val)
+        elif funcion == 'FLOOR':  
+            self.consola.append(Codigos().successful_completion('FLOOR (' + str(val) + ')'))        
+            return math.floor(val)
+        elif funcion == 'LN':   
+            self.consola.append(Codigos().successful_completion('LN (' + str(val) + ')'))       
+            return math.log(val)
+        elif funcion == 'LOG': 
+            self.consola.append(Codigos().successful_completion('LOG (' + str(val) + ')'))       
+            return math.log(val)
+        elif funcion == 'PI':  
+            self.consola.append(Codigos().successful_completion('PI ()'))        
+            return math.pi
+        elif funcion == 'RADIANS':     
+            self.consola.append(Codigos().successful_completion('RADIANS (' + str(val) + ')'))     
+            return math.radians(val)
+        elif funcion == 'ROUND':      
+            self.consola.append(Codigos().successful_completion('ROUND (' + str(val) + ')'))    
+            return round(val)
+        elif funcion == 'SIGN':  
+            self.consola.append(Codigos().successful_completion('SIGN (' + str(val) + ')'))        
+            return np.sign(val)
+        elif funcion == 'SQRT': 
+            if val >= 0:         
+                self.consola.append(Codigos().successful_completion('SQRT (' + str(val) + ')'))
+                return val ** (1/2)
+            else:
+                return self.addError(Codigos().trigonometric_function_out_of_range('SQRT', str(val), '0, infinit'), line)
+
+        elif funcion == 'TRUNC':  
+            self.consola.append(Codigos().successful_completion('TRUNC (' + str(val) + ')'))        
+            return math.trunc(val)
+        elif funcion == 'RANDOM':     
+            self.consola.append(Codigos().successful_completion('RANDOM ()'))     
+            return random()
+
+
+    def Funciones_Matematicas_2(self, funcion, valor1, valor2, line: int):
+        val1 = float(valor1)
+        val2 = float(valor2)
+
+        if funcion == 'MOD':
+            self.consola.append(Codigos().successful_completion('MOD ('+ str(val1) +',' + str(val2)+ ')'))     
+            return val1 % val2
+        elif funcion == 'POWER':
+            self.consola.append(Codigos().successful_completion('POWER ('+ str(val1) +',' + str(val2)+ ')')) 
+            return math.pow(val1, val2)
+        elif funcion == 'DIV':
+            self.consola.append(Codigos().successful_completion('DIV ('+ str(val1) +',' + str(val2)+ ')')) 
+            return val1 // val2
+        elif funcion == 'GCD':
+            self.consola.append(Codigos().successful_completion('GCD ('+ str(val1) +',' + str(val2)+ ')')) 
+            return math.gcd(val1, val2)
