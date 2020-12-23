@@ -1,12 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-from function import *
-from typ import *
-from trigonometric_functions import sinh
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.trigonometric_functions import sinh
 
 class Sinh(Function):
     def __init__(self, input, row, column):
@@ -38,4 +32,4 @@ class Sinh(Function):
                     return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [-710,710] soportado por python en la funcion sinh() ", 'linea':self.row,'columna':self.column }
 
 
-            return [{'value':sinh(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':sinh(value['value']), 'typ': Type.DECIMAL}

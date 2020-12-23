@@ -10,6 +10,7 @@ import { DeletetableComponent } from './deletetable/deletetable.component';
 
 
 
+
 const routes: Routes = [
   {
     path : 'newdatabase', component : NewdatabaseComponent

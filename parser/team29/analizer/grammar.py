@@ -4,7 +4,7 @@ from os.path import dirname as dir
 path.append(dir(path[0]))
 import analizer.ply.yacc as yacc
 from analizer.tokens import *
-
+from analizer.reports import Nodo
 # Prueba para dataframe:
 import analizer.abstract.select_data as data
 
@@ -16,7 +16,7 @@ import analizer.ply.lex as lex
 
 lexer = lex.lex()
 # Asociación de operadores y precedencia
-
+listInst = []
 repGrammar = []
 precedence = (
     ("left", "R_UNION", "R_INTERSECT", "R_EXCEPT"),
@@ -83,6 +83,7 @@ def p_stmt(t):
         | useStmt S_PUNTOCOMA
         | selectStmt S_PUNTOCOMA
     """
+    listInst.append(t[1].dot())
     try:
         t[0] = t[1].execute(None)
     except:
@@ -292,7 +293,7 @@ def p_createConstraint(t):
 
 def p_createUnique(t):
     """createUnique : R_UNIQUE S_PARIZQ idList S_PARDER"""
-    t[0] = [t[1], t[3]]
+    t[0] = [t[1], t[3], None]
     repGrammar.append(t.slice)
 
 
@@ -304,17 +305,9 @@ def p_createPrimary(t):
 
 def p_createForeign(t):
     """
-    createForeign : R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
+    createForeign : constrName R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID S_PARIZQ idList S_PARDER
     """
-    t[0] = [t[1], t[4], t[7], t[9]]
-    repGrammar.append(t.slice)
-
-
-def p_createForeign_op2(t):
-    """
-    createForeign : R_FOREIGN R_KEY S_PARIZQ idList S_PARDER R_REFERENCES ID
-    """
-    t[0] = [t[1], t[4], t[7]]
+    t[0] = [t[2], t[5], t[8], t[10], t[1]]
     repGrammar.append(t.slice)
 
 
@@ -490,10 +483,7 @@ def p_constraintOpt_unique(t):
     """
     constraintOpt : constrName R_UNIQUE
     """
-    if t[1] == None:
-        t[0] = [t[2]]
-    else:
-        t[0] = None
+    t[0] = [t[2], t[1]]
     repGrammar.append(t.slice)
 
 
@@ -893,13 +883,26 @@ def p_subqValues(t):
 def p_boolean_1(t):
     """
     boolean : R_EXISTS S_PARIZQ selectStmt S_PARDER
-            | datatype R_IN S_PARIZQ selectStmt S_PARDER
-            | datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
     """
+    t[0] = expression.ExistsRelationalOperation(t[3],  t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
 def p_boolean_2(t):
+    """
+    boolean : datatype R_IN S_PARIZQ selectStmt S_PARDER
+    """
+    repGrammar.append(t.slice)
+
+
+def p_boolean_3(t):
+    """
+    boolean : datatype R_NOT R_IN S_PARIZQ selectStmt S_PARDER
+    """
+    repGrammar.append(t.slice)
+
+
+def p_boolean_4(t):
     """
     boolean : expComp
             | expSubq
@@ -933,13 +936,6 @@ def p_expBool_3(t):
     repGrammar.append(t.slice)
 
 
-def p_expBool_4(t):
-    """
-    expBool : boolean
-    """
-    t[0] = t[1]
-    repGrammar.append(t.slice)
-
 
 def p_expBool_5(t):
     """
@@ -948,6 +944,13 @@ def p_expBool_5(t):
     t[0] = expression.UnaryLogicalOperation(t[1], t[2], t[1].row, t[1].column)
     repGrammar.append(t.slice)
 
+
+def p_expBool_4(t):
+    """
+    expBool : boolean
+    """
+    t[0] = t[1]
+    repGrammar.append(t.slice)
 
 def p_optBoolPredicate_1(t):
     """
@@ -1076,6 +1079,8 @@ def p_alterStmt(t):
     """
     if t[2] == "DATABASE":
         t[0] = instruction.AlterDataBase(t[4][0], t[3], t[4][1])
+    else:
+        t[0] = instruction.AlterTable(t[3], t[4])
     repGrammar.append(t.slice)
 
 
@@ -1101,38 +1106,81 @@ def p_ownerOpts(t):
 def p_alterTableList(t):
     """
     alterTableList : alterTableList S_COMA alterTable
-    | alterTable
     """
+    t[1].append(t[3])
+    t[0] = t[1]
+    repGrammar.append(t.slice)
+
+
+def p_alterTableList_u(t):
+    """
+    alterTableList : alterTable
+    """
+    t[0] = [t[1]]
     repGrammar.append(t.slice)
 
 
 def p_alterTable(t):
     """
-    alterTable : R_ADD alterConstraint
-    | alterCol
-    | R_DROP R_CONSTRAINT ID
-    | R_DROP R_COLUMN ID
-    | R_RENAME R_COLUMN ID R_TO ID
+    alterTable : R_ADD alterAdd
+    | R_ALTER alterAlter
+    | R_DROP alterDrop
+    | R_RENAME alterRename
     """
+    t[0] = [t[1], t[2]]
     repGrammar.append(t.slice)
 
 
-def p_alterConstraint(t):
+def p_alterAdd_column(t):
     """
-    alterConstraint : R_CHECK S_PARIZQ booleanCheck S_PARDER
-    | R_CONSTRAINT ID R_UNIQUE S_PARIZQ ID S_PARDER
+    alterAdd : R_COLUMN ID types
+    """
+    t[0] = [False, t[2], t[3], None]
+    repGrammar.append(t.slice)
+
+
+def p_alterAdd_constraint(t):
+    """
+    alterAdd : createConstraint
+    | createPrimary
     | createForeign
-    | R_COLUMN ID types
     """
+    t[0] = [True, t[1]]
     repGrammar.append(t.slice)
 
 
-def p_alterCol(t):
+def p_alterAdd_unique(t):
     """
-    alterCol : R_ALTER R_COLUMN ID R_SET R_NOT R_NULL
-    | R_ALTER R_COLUMN ID R_SET R_NULL
-    | R_ALTER R_COLUMN ID R_TYPE types
+    alterAdd : constrName R_UNIQUE S_PARIZQ ID S_PARDER
     """
+    t[0] = [True, [t[2], [t[4]], t[1]]]
+    repGrammar.append(t.slice)
+
+
+def p_alterAlter(t):
+    """
+    alterAlter : R_COLUMN ID R_SET nullOpt
+    | R_COLUMN ID R_SET defaultVal
+    | R_COLUMN ID R_TYPE types
+    """
+    t[0] = [t[3], t[2], t[4]]
+    repGrammar.append(t.slice)
+
+
+def p_alterDrop(t):
+    """
+    alterDrop : R_CONSTRAINT ID
+    | R_COLUMN ID
+    """
+    t[0] = [t[1], t[2]]
+    repGrammar.append(t.slice)
+
+
+def p_alterRename(t):
+    """
+    alterRename : R_COLUMN ID R_TO ID
+    """
+    t[0] = [t[2], t[4]]
     repGrammar.append(t.slice)
 
 
@@ -1179,9 +1227,9 @@ def p_selectStmt_1(t):
 
 # TODO: Cambiar gramatica | R_SELECT selectParams R_FROM tableExp joinList whereCl groupByCl orderByCl limitCl
 def p_selectStmt_2(t):
-    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl"""
+    """selectStmt : R_SELECT selectParams fromCl whereCl groupByCl limitCl"""
     t[0] = instruction.Select(
-        t[2].params, t[3], t[4], t[5][0], t[5][1], t.slice[1].lineno, t.slice[1].lexpos
+        t[2].params, t[3], t[4], t[5][0], t[5][1], t[6], t.slice[1].lineno, t.slice[1].lexpos
     )
     repGrammar.append(t.slice)
 
@@ -1480,16 +1528,28 @@ def p_orderNull(t):
 
 def p_limitCl(t):
     """limitCl : R_LIMIT INTEGER offsetLimit
-    | R_LIMIT R_ALL offsetLimit
-    |
-    """
+            | R_LIMIT R_ALL offsetLimit
+    """ 
+    t[0] = instruction.limitClause(t[2], t[3], t.slice[1].lineno, t.slice[1].lexpos)
     repGrammar.append(t.slice)
 
 
+def p_limitCl_n(t):
+    """limitCl :
+    """ 
+    t[0] = None
+    repGrammar.append(t.slice)
+
 def p_offsetLimit(t):
     """offsetLimit : R_OFFSET INTEGER
-    |
     """
+    t[0] = t[2]
+    repGrammar.append(t.slice)
+
+def p_offsetLimit_n(t):
+    """offsetLimit : 
+    """
+    t[0] = None
     repGrammar.append(t.slice)
 
 
@@ -1653,6 +1713,21 @@ def returnPostgreSQLErrors():
 def returnSemanticErrors():
     return instruction.semanticErrors
 
+def InitTree():
+    init = Nodo.Nodo("INSTRUCTION_LIST")
+    Tree(init)
+    makeAst(init)
+
+def Tree(n):
+    if len(listInst)>0:
+        l = listInst.pop()
+        n.addNode(l)
+        inst = Nodo.Nodo("INST")
+        n.addNode(inst)
+        Tree(inst)
+
+def makeAst(root):
+    instruction.makeAst(root)
 
 def getRepGrammar():
     return repGrammar

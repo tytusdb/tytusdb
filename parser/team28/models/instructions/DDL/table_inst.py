@@ -52,8 +52,8 @@ class CreateTB(Instruction):
             return
 
         # Verifico si tiene llave primaria la tabla o si le meto una escondida
-        if self.existsPK(nombreTabla) == 0:
-            self.generateHiddenPK(nombreTabla)
+        # if self.existsPK(nombreTabla) == 0:
+        #     self.generateHiddenPK(nombreTabla)
 
         # Agrego llaves primarias a la base de datos si no hubo clavo con la tabla
         self.addPKToDB(nombreTabla)

@@ -1,11 +1,6 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/expression')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-sys.path.append('../tytus/parser/team27/G-27/libraries')
-from function import *
-from typ import *
-from trigonometric_functions import acos
+from execution.abstract.function import *
+from execution.symbol.typ import *
+from libraries.trigonometric_functions import acos
 
 class Acos(Function):
     def __init__(self, input, row, column):
@@ -37,4 +32,4 @@ class Acos(Function):
             if value['value'] < -1 or value['value'] > 1:
                 return {'Error':"El valor " + str(value['value']) + " no entra en el rango de [-1,1] que son aceptados por la funcion acos()", 'linea':self.row,'columna':self.column }
 
-            return [{'value':acos(value['value']), 'typ': Type.DECIMAL}]
+            return {'value':acos(value['value']), 'typ': Type.DECIMAL}
