@@ -119,7 +119,28 @@ def TCshowDatabases() -> list:
         for d in data:
             databases.append(d)
     return databases
-    
+
+# UPDATE and rename a database name by inserting new_key and deleting old_key
+def TCalterDatabase(databaseOld: str, databaseNew) -> int:
+    initCheck()
+    dump = False
+    with open('data/json/TypeChecker') as file:
+        data = json.load(file)
+        if not databaseOld in data:
+            return 2
+        if databaseNew in data:
+            return 3
+        else:
+            data[databaseNew] = data[databaseOld]
+            data.pop(databaseOld)
+            dump = True
+    if dump:
+        with open('data/json/TypeChecker', 'w') as file:
+            json.dump(data, file)
+        return 0
+    else:
+        return 1
+
 ###############
 # Tables CRUD #
 ###############

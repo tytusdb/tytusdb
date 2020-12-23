@@ -3,10 +3,11 @@ from .executeCreate import executeCreateDatabase,executeCreateTable,executeCreat
 from .executeShow import executeShowDatabases
 from .executeSelect import executeSelect
 from .executeDrop import executeDropDatabase,executeDropTable
-from .executeUse import executeUse
+from .executeUse import executeUse, executeUseAlter
 from .executeExpression import executeExpression
 from .executeInsert import executeInsertAll
-from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable
+from .executeAlter import executeAlterDatabaseRename
+from .storageManager.TypeChecker import TCcreateDatabase,TCSearchDatabase,TCdropDatabase,TCgetDatabase,TCdropTable,TCalterDatabase
 from .AST.error import * 
 import sys
 sys.path.append("../")
@@ -92,6 +93,23 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR","Database "+database+" does not exist")
         elif(result==3):
             print_error("SEMANTIC ERROR","Table "+sentence.name+" does not exist")
+        else:
+            print_error("SEMANTIC ERROR",'error in the operation')
+    elif isinstance(sentence,AlterDatabaseRename):
+        result= executeAlterDatabaseRename(self,sentence)
+        if(result==0):
+            print(TCalterDatabase(sentence.oldname,sentence.newname))
+            #Verificar si es una base de datos que esta en uso
+            database=TCgetDatabase()
+            if(database == sentence.oldname):
+                result=executeUseAlter(self,sentence.newname)
+            print_success("QUERY","Database "+sentence.oldname+" has been renamed")
+        elif(result==1):
+            print_error("SEMANTIC ERROR","error in the operation")
+        elif(result==2):
+            print_error("SEMANTIC ERROR","Database "+sentence.oldname+" does not exist")
+        elif(result==3):
+            print_error("SEMANTIC ERROR","Database "+sentence.newname+" already exist")
         else:
             print_error("SEMANTIC ERROR",'error in the operation')
 

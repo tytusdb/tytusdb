@@ -319,7 +319,7 @@ def executeCreateType(self, typeEnum):
         for node in typeEnum.expressions:
             res=executeExpression(self,node)
             if(isinstance(res,Error)): 
-                print_error("SEMANTIC ERROR",res)
+                print_error("SEMANTIC ERROR",res.toString())
                 return 1
             elif(res.type == 3):
                 new={str(i):res.value}
@@ -333,7 +333,7 @@ def executeCreateType(self, typeEnum):
             else:
                 return 1
                 
-        print(array)
+        #print(array)
         mode=TCSearchDatabase(database)
         if(mode==1):
             return TCcreateType(database,typeEnum.name,array) 
@@ -341,7 +341,9 @@ def executeCreateType(self, typeEnum):
             return TCcreateType(database,typeEnum.name,array) 
         elif(mode==3):
             return TCcreateType(database,typeEnum.name,array) 
-        elif(mode==5):
+        elif(mode==4):
+            return TCcreateType(database,typeEnum.name,array) 
+        elif(mode==8):
             return TCcreateType(database,typeEnum.name,array) 
         else:
             print_error("SEMANTIC ERROR",'Mode between 1-5')
