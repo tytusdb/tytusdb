@@ -48,7 +48,7 @@ class createTable(InstruccionAbstracta):
                 return
             elif respuesta == 0:
                 #modificar el nombre que se envia de base de datos
-                tablaGuardar = simboloTabla.SimboloTablas(tabalSimbolos.useDataBase,self.identificador)
+                tablaGuardar = simboloTabla.SimboloTablas(self.identificador)
                 try:
                     if self.herencia[0].hijos[0].nombreNodo == "ID":
                         comprobar = baseDatos.comprobarNombreTabla(self.herencia[0].hijos[0].valor)
