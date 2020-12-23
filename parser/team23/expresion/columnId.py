@@ -25,5 +25,5 @@ class tableId(expresion):
 
         index_col = ts.get_pos_col(actualDB, self.table, self.column)
         col_item = ts.get_col(actualDB, self.table, self.column)
-
-        return retorno(getdata, col_item.tipo, True, col_item)
+        encabezados=ts.field_names(actualDB,self.table)
+        return retorno(getdata, col_item.tipo, True, col_item,encabezados=encabezados)
