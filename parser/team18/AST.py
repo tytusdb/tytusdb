@@ -429,6 +429,17 @@ def crear_Tabla(instr,ts):
                         for lcol in listaColumnas:
                             if(lcol.nombre==pkC.lower()):
                                 exCol=True
+                                
+                                new_id=""
+                                for con in colum.columnas:
+                                    if new_id=="":
+                                        new_id=new_id+con
+                                    else:
+                                        new_id=new_id+"_"+con
+
+                                print("saca columnas:",new_id)
+                                (lcol.constraint).primary=new_id
+
                                 if(lcol.primary==None):
                                     lcol.primary=True
                                 else:
@@ -478,6 +489,17 @@ def crear_Tabla(instr,ts):
                                                 exPK=True
                                                 lcol.foreign=True #asignar como foranea
                                                 lcol.refence=[refe,pkC.nombre] #guardar la tabla referencia y la columna
+                                                
+                                                
+                                                new_id=""
+                                                for con in colum.columnasRef:
+                                                    if new_id=="":
+                                                        new_id=new_id+con
+                                                    else:
+                                                        new_id=new_id+"_"+con
+                                                print("saca columnas:",new_id)
+                                                (lcol.constraint).foreign=new_id
+
                                                 if(pkC.tipo!=lcol.tipo):
                                                     crearOK=False
                                                     msg='42804:no coicide el tipo de dato:'+colum.columnasRef[pos]
@@ -1936,6 +1958,15 @@ def Constraint_Resuelve(Obj_Add_Const,tablab,ID):
                     #Verifica Columna Tabla Foranea SI llave primaria
                     SiPriKeyFora=((Colum_F[0]).primary)!=None
 
+                    #verifica mismo numero de llaves primarias
+                    objetoK=getpks(baseActiva,(tablaF[0].nombre))
+                    cuentaK=len(objetoK)
+                    print("Numero de Primarias",cuentaK)
+
+                    prim_Igu=(cuentaK==longi1)
+                    print(contenido)
+                    print("son igualescols:",prim_Igu)
+                    
                     #Asocia llaves de padre a foraneas , deben existir
                     #false error, True bien
                     AsociaKeys=B_AsociarForanea((Colum_P[2]),(Colum_F[2]))
