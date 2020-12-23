@@ -142,23 +142,9 @@ def obtenerTiposEnum(nombre:str):
         return lista_enums.obtenerTipos(nombre)
     return None
 
-def alterDropColumn(database: str, table: str, columnNumber: int) -> int:
-    #0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente
-    respuesta = JM.alterDropColumn(database,table,columnNumber)
-    if respuesta == 0:
-        baseActual = obtenerBase(database)
-        if baseActual is not None:
-            actualTabla = baseActual.listaTablas.obtenerTabla(table)
-            if actualTabla is not None:
-                actualTabla.listaAtributos.eliminiarNAtributo(columnNumber)
-                return 0
-            return 3
-        return 2
-    else:
-        return respuesta
 
 def dropColumn(database:str, table:str, columnName:str) -> int:
-    # 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4:Columna inexistente, 5 no se puede eliminar ya que es llave Primary
+    # 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4:Columna inexistente, 5 no se puede eliminar una llave Primary
     baseActual = obtenerBase(database)
     if baseActual is not None:
         actualTabla = baseActual.listaTablas.obtenerTabla(table)
@@ -166,13 +152,25 @@ def dropColumn(database:str, table:str, columnName:str) -> int:
             if actualTabla.listaAtributos.existeAtributo(columnName):
                 if actualTabla.primary is not None:
                     if not actualTabla.primary.esPrimary(columnName):
-                        actualTabla.listaAtributos.eliminarAtributo((columnName))
-                        return 0
+                        numero = actualTabla.listaAtributos.getNumeroColumna(columnName)
+                        respuesta = JM.alterDropColumn(database,table,numero)
+                        if respuesta == 0:
+                            actualTabla.eliminarReferenciasForaneas(baseActual,table,columnName)
+                            actualTabla.listaAtributos.eliminarAtributo(columnName)
+                            return 0
+                        else:
+                            return 1
                     else:
                         return 5
                 else:
-                    actualTabla.listaAtributos.eliminarAtributo(columnName)
-                    return 0
+                    numero = actualTabla.listaAtributos.getNumeroColumna(columnName)
+                    respuesta = JM.alterDropColumn(database, table, numero)
+                    if respuesta == 0:
+                        actualTabla.eliminarReferenciasForaneas(baseActual,table,columnName)
+                        actualTabla.listaAtributos.eliminarAtributo(columnName)
+                        return 0
+                    else:
+                        return 1
             else:
                 return 4
         return 3
@@ -289,13 +287,14 @@ def alterTable(database: str, tableOld: str, tableNew: str) -> int:
 def alterRenameColumn(database:str, table: str, columnOld:str, columnNew:str) -> int:
     # 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columnOld no existente, 5:ColumnNew existente.
     actualBase = obtenerBase(database)
-    if (actualBase != None):
+    if (actualBase is not None):
         if actualBase.listaTablas.existeTabla(table):
             actualTabla = actualBase.listaTablas.obtenerTabla(table)
             if actualTabla.listaAtributos.existeAtributo(columnOld):
                 if not actualTabla.listaAtributos.existeAtributo(columnNew):
                     actualAtributo = actualTabla.listaAtributos.obtenerAtributo(columnOld)
                     actualAtributo.nombre = columnNew
+                    actualTabla.renombrarLlavesForaneas(actualBase,table,columnOld,columnNew)
                     return 0
                 else:
                     return 5
@@ -303,7 +302,8 @@ def alterRenameColumn(database:str, table: str, columnOld:str, columnNew:str) ->
                 return 4
         else:
             return 3
-    return 2
+    else:
+        return 2
 
 def alterTypeColumn(database:str, table:str, column:str, tipo:str) -> int:
     # 0 operación exitosa, 1 error en la operación, 2 database no existente, 3 table no existente, 4 columnOld no existente
@@ -321,15 +321,14 @@ def alterTypeColumn(database:str, table:str, column:str, tipo:str) -> int:
             return 3
     return 2
 
-def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenceTable,referencesColumns:list):
+def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenceTable:str,referencesColumns:list):
     # 0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:llave foranea existente
     baseActual = obtenerBase(database)
     if (baseActual is not None):
         actualTabla = baseActual.listaTablas.obtenerTabla(table)
         if (actualTabla is not None):
-            if actualTabla.foreigns.has_keys(nombreConstraint):
-                actualTabla.foreigns[nombreConstraint] = ConstraintForeign.Foreign(nombreConstraint,columns,referenceTable,referencesColumns)
-                return 0
+            if not actualTabla.existeForanea(nombreConstraint):
+                actualTabla.foreigns.append(ConstraintForeign.Foreign(nombreConstraint, columns, referenceTable, referencesColumns))
             else:
                 return 4
         else:
@@ -338,13 +337,13 @@ def alterAddFK(database:str,table:str,nombreConstraint:str,columns:list,referenc
         return 2
 
 def alterDropFK(database:str,table:str,nombreConstraint:str):
-    # 0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:llave foranea no existente
+    # 0:operación exitosa, 1:error en la operación, 2:database no existente, 3:table no existente, 4:llave foranea no existente o None
     baseActual = obtenerBase(database)
     if (baseActual is not None):
         actualTabla = baseActual.listaTablas.obtenerTabla(table)
         if (actualTabla is not None):
-            if actualTabla.foreigns.has_keys(nombreConstraint):
-                del(actualTabla.foreigns[nombreConstraint])
+            if actualTabla.existeForanea(nombreConstraint):
+                actualTabla.eliminarForanea(nombreConstraint)
                 return 0
             else:
                 return 4
