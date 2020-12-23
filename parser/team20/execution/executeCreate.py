@@ -312,30 +312,40 @@ def executeCreateTable(self, table):
     #
         
 def executeCreateType(self, typeEnum):
-    #data=TCgetDatabase()
-    #array={}
-    #if(typeEnum.expressions!=None):
-        #i = 0
-        #for node in typeEnum.expressions:
-            #res=executeExpression(self,node)
-            #if(res.type == 5):
-                #res.value = res.value.replace("'","")
-                #new={str(i):res.value}
-                #array.update(new)
-                #i=i+1
-        #print(array)
-    #return TCcreateType(data,typeEnum.name,array) 
-
-    data=TCgetDatabase()
+    database=TCgetDatabase()
     array={}
     if(typeEnum.expressions!=None):
         i = 0
         for node in typeEnum.expressions:
             res=executeExpression(self,node)
-            print(res.type)
-            print(res.value)
-    return 0
-   
+            if(isinstance(res,Error)): 
+                print_error("SEMANTIC ERROR",res)
+                return 1
+            elif(res.type == 3):
+                new={str(i):res.value}
+                array.update(new)
+                i=i+1
+            elif(res.type == 5):
+                res.value = res.value.replace("'","")
+                new={str(i):res.value}
+                array.update(new)
+                i=i+1
+            else:
+                return 1
+                
+        print(array)
+        mode=TCSearchDatabase(database)
+        if(mode==1):
+            return TCcreateType(database,typeEnum.name,array) 
+        elif(mode==2):
+            return TCcreateType(database,typeEnum.name,array) 
+        elif(mode==3):
+            return TCcreateType(database,typeEnum.name,array) 
+        elif(mode==5):
+            return TCcreateType(database,typeEnum.name,array) 
+        else:
+            print_error("SEMANTIC ERROR",'Mode between 1-5')
+            return 1
 
 
     

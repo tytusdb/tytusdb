@@ -67,16 +67,16 @@ def executeSentence(self, sentence):
             print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence, CreateType):
         result= executeCreateType(self,sentence)
-        ##if(result==0):
-            ##print("Type "+sentence.name+" has been created")
-        ##elif(result==1):
-            ##return Error('xx0000', 'internal_error' , 0, 0)
-        ##elif(result==2):
-            ##return Error('3D00', 'invalid_catalog_name' , 0, 0)
-        ##elif(result==3):
-            ##return Error('42710', 'duplicate_object' , 0, 0)
-        ##else:
-           ##return Error('xx0000', 'internal_error' , 0, 0)
+        if(result==0):
+            print_success("QUERY"," Type "+sentence.name+" has been created in the database")
+        elif(result==1):
+            print_error("SEMANTIC ERROR","error in the operation")
+        elif(result==2):
+            print_error("SEMANTIC ERROR","DataBase not exists")
+        elif(result==3):
+            print_error("SEMANTIC ERROR","Type "+sentence.name+" already exists in the database")
+        else:
+            print_error("SEMANTIC ERROR",'error in the operation')
     elif isinstance(sentence, InsertAll):
         executeInsertAll(self, sentence)
     # #Resto de sentencias posibles
