@@ -363,8 +363,6 @@ def p_entrada(p):
 
 def p_use(p):
     'use : USE ID PTCOMA'
-    global base_actual
-    base_actual = ins.UseDB(p[2]).ejecutar()
 
 def p_select(p):
     'select : s_select PTCOMA'

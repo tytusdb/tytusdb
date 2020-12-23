@@ -446,7 +446,6 @@ def p_data_type_3(p):
                     | CHARACTER PARIZQ ENTERO PARDER
                     | CHAR PARIZQ ENTERO PARDER'''
 
-    print('entro aqui')
     p[0] = (p[1]) + "," + str(p[3])
     #p[0] = str(p[1]) + str(p[2]) + str(p[3]) + str(p[4])
 
@@ -521,22 +520,24 @@ def p_owner_db(p):
 
 def p_drop_db(p):
     '''drop_db  : DROP DATABASE ID PTCOMA'''
-    ins.Drop(str(p[3]), False)
+    cons = ins.DropDB(str(p[3]), False)
+    lst_instrucciones.append(cons)
 
 def p_drop_db_2(p):
     '''drop_db  : DROP DATABASE IF EXISTS ID PTCOMA'''
-    ins.Drop(str(p[5]), True)
+    cons = ins.DropDB(str(p[5]), True)
+    lst_instrucciones.append(cons)
 
 def p_create_table(p): 
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER PTCOMA'''
     arr = p[5]
-    cons = ins.CreateTable(str(p[3]), arr[0], None, arr[1])
+    cons = ins.CreateTable(str(p[3]), None, arr[0], None,arr[1]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
     lst_instrucciones.append(cons)
 
 def p_create_table_2(p):
     '''create_table   : CREATE TABLE ID PARIZQ columnas PARDER INHERITS PARIZQ ID PARDER PTCOMA'''
     arr = p[5]
-    cons = ins.CreateTable(str(p[3]), arr[0], p[9], arr[1])
+    cons = ins.CreateTable(str(p[3]), None, arr[0], p[9],arr[1]) #Hay que cambiar el 2do parametro porque es el nombre de la base de datos
     lst_instrucciones.append(cons)
 
 def p_columnas(p):
@@ -949,13 +950,16 @@ def lex_error(lex, linea, columna):
 
 def ejecutar(entrada):
     global parser, ts_global, lst_instrucciones
+    consola = ''
     parse_result = parser.parse(entrada)
 
     for cons in lst_instrucciones :
-        cons.execute(ts_global)
+        consola = consola + str(cons.execute(ts_global)) + '\n'
 
     ts_global.graficar()
-    return parse_result
+    
+    result = [parse_result, consola]
+    return result
 
 def tipo_data(tipo):
     data_type = ''
