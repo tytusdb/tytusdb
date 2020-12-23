@@ -1,131 +1,146 @@
 import tkinter as tk
-from tkinter import Menu, Tk, Text, DISABLED, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
+from tkinter import Menu, Tk, Text, WORD, DISABLED, NORMAL, RAISED,Frame, FLAT, Button, Scrollbar, Canvas, END
 from tkinter import messagebox as MessageBox
-from tkinter import ttk
+from tkinter import ttk,filedialog, INSERT
+import os
+import pathlib
+from campo import Campo, MyDialog
+from arbol import Arbol
+import http.client
+import json
 
-class TextLineNumbers(Canvas):
-    def __init__(self, *args, **kwargs):
-        Canvas.__init__(self, *args, **kwargs)
-        self.textwidget = None
+formularios=[]
+textos=[]
+control=0
+notebook= None
+consola = None
+raiz = None
 
-    def attach(self, text_widget):
-        self.textwidget = text_widget
 
-    def redraw(self, *args):
-        '''redraw line numbers'''
-        self.delete("all")
+#Variables para simular credenciales
+username = "admin"
+password = "admin"
 
-        i = self.textwidget.index("@0,0")
-        while True :
-            dline= self.textwidget.dlineinfo(i)
-            if dline is None: break
-            y = dline[1]
-            linenum = str(i).split(".")[0]
-            self.create_text(2,y,anchor="nw", text=linenum)
-            i = self.textwidget.index("%s+1line" % i)
+#Metodo GET para probar peticiones al servidor
+def myGET():
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
-class CustomText(Text):
-    def __init__(self, *args, **kwargs):
-        Text.__init__(self, *args, **kwargs)
+    headers = {
+        "Content-type": "application/json"
+    }
 
-        # create a proxy for the underlying widget
-        self._orig = self._w + "_orig"
-        self.tk.call("rename", self._w, self._orig)
-        self.tk.createcommand(self._w, self._proxy)
+    myConnection.request("GET", "/getUsers", "", headers)
+    response = myConnection.getresponse()
+    global consola
+    print("GET: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()   
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\n" + data.decode("utf-8"))
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
+    myConnection.close()
 
-    def _proxy(self, *args):
-        # let the actual widget perform the requested action
-        cmd = (self._orig,) + args
-        result = self.tk.call(cmd)
 
-        # generate an event if something was added or deleted,
-        # or the cursor position changed
-        if (args[0] in ("insert", "replace", "delete") or 
-            args[0:3] == ("mark", "set", "insert") or
-            args[0:2] == ("xview", "moveto") or
-            args[0:2] == ("xview", "scroll") or
-            args[0:2] == ("yview", "moveto") or
-            args[0:2] == ("yview", "scroll")
-        ):
-            self.event_generate("<<Change>>", when="tail")
+#Metodo POST para probar peticiones al servidor
+def myPOST():
+    myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
-        # return what the actual widget returned
-        return result 
+    headers = {
+        "Content-type": "application/json"
+    }
 
-class Campo(Frame):
-    def __init__(self, *args, **kwargs):
-        Frame.__init__(self, *args, **kwargs)
-        self.text = CustomText(self)
-        self.vsb = Scrollbar(orient="vertical", command=self.text.yview)
-        self.text.configure(yscrollcommand=self.vsb.set)
-        self.linenumbers = TextLineNumbers(self, width=30)
-        self.linenumbers.attach(self.text)
+    #Data en formato json
+    jsonData = { "username": username, "password": password }
+    myJson = json.dumps(jsonData)
 
-        self.linenumbers.pack(side="left", fill="y")
-        self.text.pack(side="right", fill="both", expand=True)
-        self.vsb.pack(side="right", fill="y")
+    myConnection.request("POST", "/checkLogin", myJson, headers)
+    response = myConnection.getresponse()
+    global consola
+    print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+    if response.status == 200:       
+        data = response.read()
+        result = data.decode("utf-8")
+        consola.config(state=NORMAL)
+        if result == "true":
+            consola.insert(INSERT,"\nUsuario loggeado correctamente.")
+        else:
+            consola.insert(INSERT,"\nDatos invalidos o usuario inexistente.")
+        consola.config(state=DISABLED)
+    else:
+        consola.config(state=NORMAL)
+        consola.insert(INSERT,"\nHa ocurrido un error.")
+        consola.config(state=DISABLED)
+    myConnection.close()
 
-        self.text.bind("<<Change>>", self._on_change)
-        self.text.bind("<Configure>", self._on_change)
 
-    def _on_change(self, event):
-        self.linenumbers.redraw()
+#Metodo POST para crear usuarios
+def crearUsuario():
+    global raiz
+    d = MyDialog(raiz)
+    if d.accept is True:
+        newUsername = d.result[0]
+        newPassword = d.result[1]
 
-class Arbol(Frame):
-    
-    def __init__(self, *args, **kwargs):
-        Frame.__init__(self, *args, **kwargs)
+        if not "".__eq__(newUsername) and not "".__eq__(newPassword):
+            #Data en formato json
+            jsonData = { "username": newUsername, "password": newPassword }
+            myJson = json.dumps(jsonData)
 
-        style = ttk.Style()
-        style.theme_use("clam")
-        style.configure("Treeview",
-            background = "silver",
-            foreground = "black",
-            fieldbackground = "silver"
-            )
-        self.file_image = tk.PhotoImage(file="file.png")
-        self.file_image = self.file_image.subsample(35)
-        self.folder_image = tk.PhotoImage(file="folder.png")
-        self.folder_image = self.folder_image.subsample(38)
+            myConnection = http.client.HTTPConnection('localhost', 8000, timeout=10)
 
-        self.treeview = ttk.Treeview(self)
-        self.treeview.heading("#0", text="Navegador")
-        item = self.treeview.insert("", END, text="Bases de datos")
-        subitem = self.treeview.insert(item, END, text="Amazon",image=self.folder_image)
-        self.treeview.insert(subitem, END, text="Empleado",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Cliente",image=self.file_image)
-        self.treeview.insert(subitem, END, text="Producto",image=self.file_image)
-        subitem = self.treeview.insert(item, END, text="Aurora",image=self.folder_image)
-        self.treeview.pack(side="top", fill="both", expand=True)
-        self.pack(side="top", fill="both", expand=True)
+            headers = {
+                "Content-type": "application/json"
+            }
 
-def abrirDoc():
-    MessageBox.showinfo(title="Aviso",message="Hizo clic en abrir documento")
+            myConnection.request("POST", "/createUser", myJson, headers)
+            response = myConnection.getresponse()
+            print("POST: Status: {} and reason: {}".format(response.status, response.reason))
+            if response.status == 200:       
+                data = response.read()
+                result = data.decode("utf-8")
+                consola.config(state=NORMAL)
+                if result == "false":
+                    consola.insert(INSERT,"\nUsuario creado correctamente.")
+                else:
+                    consola.insert(INSERT,"\nUsuario ya existe actualmente, intente con otro username.")
+                consola.config(state=DISABLED)
+            else:
+                consola.config(state=NORMAL)
+                consola.insert(INSERT,"\nHa ocurrido un error.")
+                consola.config(state=DISABLED)
+            myConnection.close()
+        else:
+            MessageBox.showerror("Error", "Uno de los campos está vacío")
 
-def CrearVentana():
-    raiz = Tk()
-    raiz.title("TytuSQL") #Cambiar el nombre de la ventana
-    raiz.iconbitmap('icon.ico')
-    raiz.rowconfigure(0, minsize=800, weight=1)
-    raiz.columnconfigure(1, minsize=800, weight=1)
-    
+
+def CrearMenu(masterRoot):
+
     ########### menu ############
     #Se crea la barra
-    barraDeMenu=Menu(raiz, tearoff=0,relief=FLAT, font=("Verdana", 12),activebackground='red')
+    barraDeMenu=Menu(masterRoot, tearoff=0,relief=FLAT, font=("Verdana", 12),activebackground='gray59')
+    barraDeMenu.config(bg='gray21',fg='white')
     #Se crean los menus que se deseen
-    archivo=Menu(barraDeMenu, tearoff=0)
+    archivo=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #Crear las opciones de la opción del menú
-    archivo.add_command(label="Nueva ventana", command=CrearVentana)
-    archivo.add_command(label="Abrir un documento",command=abrirDoc)
+    #Se elimino el comando de crear Ventana por problemas con las imagenes
+
+    archivo.add_command(label="Nueva ventana")
+    archivo.add_command(label="Abrir query",command=abrir)
     archivo.add_command(label="Abrir un modelo")
     archivo.add_separator()
-    archivo.add_command(label="Nueva Query")
-    archivo.add_command(label="Guardar como...")
-    archivo.add_command(label="Guardar")
+    archivo.add_command(label="Nueva Query",command=lambda: añadir('Nuevo'))
+    archivo.add_command(label="Guardar como...",command=guardarComo)
+    archivo.add_command(label="Guardar",command=guardarArchivo)
+    archivo.add_command(label="Cerrar pestaña actual",command=cerrarPestaña)
     archivo.add_separator()
-    archivo.add_command(label="Salir")
+    archivo.add_command(label="Salir",command=cerrarVentana)
+
     #creando el Editar
-    editar=Menu(barraDeMenu, tearoff=0)
+    editar=Menu(barraDeMenu,tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #agregando su lista
     editar.add_command(label="Cortar")
     editar.add_command(label="Pegar")
@@ -134,42 +149,137 @@ def CrearVentana():
     editar.add_command(label="Seleccionar todo")
     editar.add_command(label="Formato")
     editar.add_command(label="Preferencias")
+
     #se agrega Tools
-    tools=Menu(barraDeMenu, tearoff=0)
+    tools=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #se agrega su lista
     tools.add_command(label="Configuración")
     tools.add_command(label="Utilidades")
+    #Temporary tools to test client-server connection
+    tools.add_command(label="GET", command = myGET)
+    tools.add_command(label="POST", command = myPOST)
+    tools.add_command(label="CREATE USER", command = crearUsuario)
+
     #se agrega ayuda
-    ayuda=Menu(barraDeMenu, tearoff=0)
+    ayuda=Menu(barraDeMenu, tearoff=0,bg='gray21',fg='white',activebackground='gray59')
     #lista de ayuda
     ayuda.add_command(label="Documentación de TytuSQL")
     ayuda.add_command(label="Acerca de TytuSQL")
+
     #Se agrgan los menús a la barra
     barraDeMenu.add_cascade(label="Archivo",menu=archivo)
     barraDeMenu.add_cascade(label="Editar",menu=editar)
     barraDeMenu.add_cascade(label="Herramientas",menu=tools)
     barraDeMenu.add_cascade(label="Ayuda",menu=ayuda)
     #Se indica que la barra de menú debe estar en la ventana
-    raiz.config(menu=barraDeMenu, background='silver')
+    return barraDeMenu
 
-    FrameIzquiero = Frame(raiz, relief=RAISED, bd=2)
+def abrir():
+    global archivo
+    global notebook
+    global control
+    archivo = filedialog.askopenfilename(title = "Abrir Archivo")
+    if archivo != '':
+        name = os.path.basename(archivo)
+        añadir(name)
+        pathlib.Path(archivo).suffix
+        entrada = open(archivo, encoding="utf-8")
+        content = entrada.read()
+        textos[control-1].text.insert(tk.INSERT, content)
+        entrada.close()
+        notebook.select(control-1)
+def guardarArchivo():
+    global archivo
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+    if archivo == "":
+        guardarComo()
+    else:
+        guardarc = open(archivo, "w", encoding="utf-8")
+        guardarc.write(textos[idx].text.get(1.0, END))
+        guardarc.close()
+
+def guardarComo():
+    global archivo
+    idx = 0
+    if notebook.select():
+        idx = notebook.index('current')
+    guardar = filedialog.asksaveasfilename(title = "Guardar Archivo")
+    if guardar != '':
+        fguardar = open(guardar, "w+", encoding="utf-8")
+        fguardar.write(textos[idx].text.get(1.0, END))
+        fguardar.close()
+        archivo = guardar
+
+def CrearVentana():
+    global raiz
+    raiz = Tk()
+    #Configuracion de ventana
+    raiz.title("TytuSQL") #Cambiar el nombre de la ventana
+    #raiz.iconbitmap('resources/icon.ico')
+    raiz.configure(bg='gray21')
+    raiz.rowconfigure(0, minsize=800, weight=1)
+    raiz.columnconfigure(1, minsize=800, weight=1)
+    raiz.config(menu=CrearMenu(raiz), background='silver')
+    #Frame del Arbol
+    FrameIzquiero = Frame(raiz, relief=RAISED, bd=2, bg='gray21')
     FrameIzquiero.pack(side="left", fill="both")
+    #Se llama a la clase Arbol
     Arbol(FrameIzquiero)
-
-    # Posicionarla en la ventana..
-
-    Button(raiz, text="Enviar Consulta").pack(side="top",fill="both")
-    consola = Text(raiz)
+    #Boton para realizar consulta
+    Button(raiz, text="Enviar Consulta",bg='gray',fg='white',activebackground='slate gray').pack(side="top",fill="both")
+    #Consola de Salida
+    global consola
+    consola = Text(raiz,bg='gray7',fg='white',selectbackground="gray21")
+    #inactiveselectbackground="green"
     consola.pack(side="bottom",fill="both")
-    consola.insert(1.0,"Consola de Salida")
+    consola.insert(1.0,"Consola de Salida:")
+    consola.config(wrap=WORD)
     consola.config(state=DISABLED)
-    Campo(raiz).pack(side="right", fill="both", expand=True)
-    
     ###### CREAMOS EL PANEL PARA LAS PESTAÑAS ########
+    global notebook
+    global control
+    style = ttk.Style()
+    style.theme_use("classic")
+    style.configure("TNotebook.Tab", background="gray21", font="helvetica 14",foreground='white')
+    style.map("TNotebook.Tab", background = [("selected", "slate gray")])
+    notebook=ttk.Notebook(raiz)
+    notebook.pack(side="right", fill="both", expand=True)
+    añadir('Nuevo')
     raiz.mainloop()
+
+def añadir(titulo):
+    global consola
+    global control
+    global notebook
+    consola.config(state=NORMAL)
+    consola.insert(INSERT,"\nSe creo una nueva Pestaña")
+    consola.config(state=DISABLED)
+    formularios.append(Frame(notebook,bg="white"))
+    contador=control
+    notebook.add(formularios[contador], text=titulo)
+    valor=Campo(formularios[contador])
+    valor.pack(side="left", fill="both",expand=True)
+    vsb=Scrollbar(formularios[contador],orient="vertical",command=valor.text.yview)
+    valor.text.configure(yscrollcommand=vsb.set,bg='gray21',fg='white',font="helvetica 12")
+    vsb.pack(side="right",fill="y")
+    textos.append(valor)
+    contador=control+1
+    control=contador
+
+def cerrarPestaña():
+    global notebook
+    global control
+    b=notebook.select()
+    a=notebook.index(b)
+    notebook.forget(a)
+
+def cerrarVentana():
+    global raiz
+    raiz.destroy()
 
 def main():
     CrearVentana()
-
 if __name__ == "__main__":
     main()

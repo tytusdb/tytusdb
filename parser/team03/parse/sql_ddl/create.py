@@ -1,6 +1,6 @@
 from jsonMode import createDatabase, createTable, dropDatabase, alterAddPK
 from parse.ast_node import ASTNode
-from parse.symbol_table import SymbolTable, DatabaseSymbol, TableSymbol, FieldSymbol, TypeSymbol
+from parse.symbol_table import SymbolTable, TableSymbol, FieldSymbol, TypeSymbol, SymbolType
 from parse.errors import Error, ErrorType
 
 
@@ -10,6 +10,7 @@ class CreateEnum(ASTNode):
         self.name = name  # type name
         self.value_list = value_list  # list of possible values
         self.graph_ref = graph_ref
+
     def execute(self, table: SymbolTable, tree):
         super().execute(table, tree)
         result_values = self.value_list.execute(table, tree)
@@ -104,7 +105,7 @@ class CreateTable(ASTNode):  # TODO: Check grammar, complex instructions are not
         field_index = 0
         for field in result_fields:
             nuevo = FieldSymbol(table.get_current_db().name, result_name, field_index, field.name, field.field_type, field.length, field.allows_null, field.is_pk, None, None)
-            
+
             field_index += 1
             table.add(nuevo)
         return "Table: " +str(result_name) +" created."

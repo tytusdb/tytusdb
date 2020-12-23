@@ -1,4 +1,7 @@
 # LEXICO 
+import re
+from reporteErrores.errorReport import ErrorReport 
+from reporteErrores.instance import listaErrores
 palabrasReservadas = {
     'insert':'INSERT',
     'varchar':'VARCHAR',
@@ -192,7 +195,12 @@ palabrasReservadas = {
     'count':'COUNT',
     'end':'END',
     'greatest':'GREATEST',
-    'least':'LEAST'
+    'least':'LEAST',
+    'extract':'EXTRACT',
+    'date_part':'DATE_PART',
+    'current_date':'CURRENT_DATE',
+    'current_timestamp':'CURRENT_TIMESTAMP',
+
 }
 tokens = [
     # corchetes no porque dijo el aux que no venia
@@ -228,7 +236,12 @@ tokens = [
     'BITWISE_NOT',
     'CORRIMIENTO_DER',
     'CORRIMIENTO_IZQ',
-    'NOTBETWEEN'
+    'NOTBETWEEN',
+    'CADENA_DATE',
+    'CADENA_NOW',
+    'CADENA_INTERVAL',
+    'DOBLE_PUNTO',
+    'NOT_IN'
 ] + list(palabrasReservadas.values())
 
 
@@ -259,11 +272,16 @@ t_MAYORIGUAL = r'>='
 t_PABRE = r'\('
 t_PCIERRA = r'\)'
 t_COMA = r','
+t_DOBLE_PUNTO= r'[:][:]'
 
 
 def t_NOTBETWEEN(t):
     r'[Nn][Oo][tT][ ]+[Bb][eE][tT][wW][eE][eE][nN]'
     t.type = 'NOTBETWEEN'
+    return t
+def t_NOT_IN(t):
+    r'[Nn][Oo][tT][ ]+[iI][nN]'
+    t.type = 'NOT_IN'
     return t
 # funcion para id, aca tambien se reconocen las palabras reservadas
 def t_ID(t):
@@ -307,10 +325,40 @@ def t_REGEX2(t): # primero verifico , si es un regex
     r'[\"][%].*[%][\"]'
     t.value = t.value[1:-1]
     t.type = 'REGEX'
+    return t
+def t_CADENA_NOW(t):
+    r'\'[Nn][oO][wW]\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_NOW"
     return t 
+def t_CADENA_INTERVAL(t):
+    r'\'[ ]*([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes)([ ]+([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes))?([ ]([\d][\d]?[ ]+hours|[\d][\d]?[ ]+seconds|[\d][\d]?[ ]+minutes))?[ ]*\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_INTERVAL"
+    return t
 
+def t_CADENA_DATE4(t):# HORA Y MINUTOS 
+    r'\'[ ]*[\d][\d]?[:][\d][\d]?[ ]*\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_DATE"
+    return t
 
+def t_CADENA_DATE3(t): # HORA MIN , SEG 
+    r'\'[ ]*[\d][\d]?[:][\d][\d]?[:][\d][\d]?[ ]*\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_DATE"
+    return t
 
+def t_CADENA_DATE2(t):
+    r'\'[ ]*[\d][\d][\d][\d][-][\d][\d]?[-][\d][\d]?[ ]+[\d][\d]?[:][\d][\d]?[:][\d][\d]?[ ]*\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_DATE"
+    return t
+def t_CADENA_DATE(t):
+    r'\'[ ]*[\d][\d][\d][\d][-][\d][\d]?[-][\d][\d]?[ ]*\''
+    t.value =  t.value[1:-1]
+    t.type = "CADENA_DATE"
+    return t
 # comillas simples y dobles ambos se reconocen como token tipo CADENA
 def t_CADENA(t):
     r'\"[^"]*\"'
@@ -327,6 +375,8 @@ t_ignore = ' \t'
 
 def t_error(t):
     print(f'Error lexico: {t.value[0]}')
+    error = ErrorReport('lexico', f'error lexico con {t.value[0]}', t.lineno)
+    listaErrores.addError(error)
     t.lexer.skip(1)
 
 
@@ -335,12 +385,13 @@ def t_error(t):
 
 # construyendo el lexico
 import ply.lex as lex
-lexer = lex.lex()
+lexer = lex.lex(reflags = re.IGNORECASE)
 
-# para debugger los nuevos tokens
+#para debugger los nuevos tokens
 # lexer.input('''
-#     NOT BETWEEN 
-#     BETWEEN NOT 
+# SELECT date_part('minutes', INTERVAL '4 houRs 3 miNutes');
+# SELECT date_part('minutes', INTERVAL '4 hours 3 minutes');
+# SELECT date_part('seconds', INTERVAL '4 hours 3 minutes 15 seconds');
 # ''')
 # while not False:
 #     token = lexer.token()

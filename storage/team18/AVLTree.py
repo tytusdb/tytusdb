@@ -1,3 +1,7 @@
+# B+ Mode Package
+# Released under MIT License
+# Copyright (c) 2020 TytusDb Team
+
 import os
 class TreeNode:
     def __init__(self, val):
@@ -191,9 +195,12 @@ class AVLTree:
     def getRoot(self):
         return self.AVLroot
 
-    def graph(self):
+    def graph(self, database):
         nodes = []
-        f = open('bases.dot', 'w', encoding='utf-8')
+        if database == "Databases":
+            f = open('bases.dot', 'w', encoding='utf-8')
+        else:
+            f = open(f'{database}.dot', 'w', encoding='utf-8')
         f.write("digraph dibujo{\n")
         f.write('graph [ordering="out"];')
         f.write('rankdir=TB;\n')
@@ -203,5 +210,8 @@ class AVLTree:
             f.write(x)
         f.write('}')
         f.close()
-        os.system('dot -Tpng bases.dot -o ./Data/DataBases.png')
+        if database == "Databases":
+            os.system('dot -Tpng bases.dot -o ./Data/DataBases.png')
+        else:
+            os.system(f'dot -Tpng {database}.dot -o ./Data/{database}/{database}.png')
         # os.system('C:/Users/Marcos/Desktop/Data/DataBases.png')

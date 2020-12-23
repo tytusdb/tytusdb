@@ -1,8 +1,13 @@
-CREATE TABLE asignacionCurso1(
-	id_asignacion INTEGER,
-    id_estudiante INTEGER,
-    CONSTRAINT llaveForanea FOREING KEY (id_estudiante) REFERENCES ESTUDIANTE(carnet),
-    CONSTRAINT check1 CHECK(100 >id_asignacion)
+CREATE DATABASE compiladores2;
+
+USE compiladores2;
+
+CREATE TABLE tbUSUARIO(
+	id_ususario		INTEGER,
+	usuario		    INTEGER ,
+	password		bigint,
+    telefono        VARCHAR(50),
+    direccion       VARCHAR(50),
+    edad            numeric(10,10),
+    PRIMARY KEY (id_ususario,usuario)
 );
-
-

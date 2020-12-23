@@ -28,16 +28,16 @@ class drop_tb(instruccion):
 
             if(drop_aux == 0):
                 ts.delete_tb(actual_db, self.id)
-                add_text("Tabla - " + self.id + " - a sido eliminada de la base de datos: " + actual_db + "\n")
+                add_text("M-00000 successful completion: The table with the following ID -> " + self.id + " -> has been removed from the database: " + actual_db + "\n")
             elif (drop_aux == 1):
-                errores.append(nodo_error(self.line, self.column, 'ERROR - No se puede eliminar table ' + self.id, 'Semántico'))
-                add_text('ERROR - No se puede eliminar table ' + self.id +'\n')
+                errores.append(nodo_error(self.line, self.column, 'E-22005 error_in_assignment: Cannot delete the table ' + self.id, 'Semántico'))
+                add_text('E-22005 error_in_assignment: Cannot delete the table ' + self.id +'\n')
             elif (drop_aux == 2):
-                errores.append(nodo_error(self.line, self.column, 'ERROR - No existe la base de datos: ' + actual_db, 'Semántico'))
-                add_text('ERROR - No existe la base de datos: ' + actual_db + '\n')
+                errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: the database with the following ID does not exist -> ' + actual_db, 'Semántico'))
+                add_text('E-22005 error in assignment: the database with the following ID does not exist -> ' + actual_db + '\n')
             elif (drop_aux == 3):
-                errores.append(nodo_error(self.line, self.column, 'ERROR - No existe la tabla: ' + self.id, 'Semántico'))
-                add_text('ERROR - No existe la tabla: ' + self.id + '\n')
+                errores.append(nodo_error(self.line, self.column, 'E-42P01 undefined table: The table with the following ID does not exist ->  ' + self.id, 'Semántico'))
+                add_text('E-42P01 undefined table: The table with the following ID does not exist -> ' + self.id + '\n')
         except:
-            errores.append(nodo_error(self.line, self.column, 'ERROR - No se pudo ejecutar Drop Table', 'Semántico'))
-            add_text('ERROR - No se pudo ejecutar Drop Table ' + self.id + '\n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error_in_assignment: Drop Table could not be launched', 'Semántico'))
+            add_text('E-22005 error_in_assignment: Drop Table could not be launched ' + self.id + '\n')

@@ -1,7 +1,7 @@
 from Instrucciones.TablaSimbolos.Instruccion import Instruccion
 
 class Columna(Instruccion):
-    def __init__(self, nombre, tipo,constraint, linea, columna):
+    def __init__(self, nombre, tipo, constraint, linea, columna):
         Instruccion.__init__(self,None,linea,columna)
         self.nombre = nombre
         self.tipo = tipo
