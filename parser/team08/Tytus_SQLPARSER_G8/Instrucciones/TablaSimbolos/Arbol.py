@@ -13,6 +13,20 @@ class Arbol():
         self.nombreTabla = None
         self.tablaActual = []
         self.columnasActual = []
+        self.lEnum = []
+        self.comprobacionCreate = False
+        self.columnaCheck = None
+
+    def setEnum(self, nuevo):
+        self.lEnum.append(nuevo)
+
+    #devuelve un objeto enum
+    def getEnum(self, nombre):
+        for x in range(0, len(self.lEnum)):
+            if nombre == self.lEnum[x].id:
+                return self.lEnum[x]
+        
+        return None
 
     def setListaBd(self, nueva):
         self.listaBd.append(nueva)

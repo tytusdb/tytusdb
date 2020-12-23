@@ -3,9 +3,11 @@
 from Expresion.Binaria import Binaria
 from Entorno import Entorno
 from Tipo import Tipo
-from Expresion import Expresion
+from Expresion.Terminal import Terminal
 import math
-
+from tkinter import *
+from Expresion.variablesestaticas import *
+from reportes import *
 class Aritmetica(Binaria):
     def __init__(self, exp1, exp2, operador):
         'Se usan los valores de las clases padres'
@@ -20,8 +22,18 @@ class Aritmetica(Binaria):
         valizq=self.exp1.getval(entorno);
         valder=self.exp2.getval(entorno);
 
+        if (isinstance(valizq, Terminal)):
+            valizq = valizq.getval(entorno)
+        if (isinstance(valder, Terminal)):
+            valder = valder.getval(entorno)
+
+
         if type(valizq) not in (int, float, complex) or type(valder) not in (int, float, complex) :
-            return 'Error ambos operandos deben ser numericos'
+            reporteerrores.append(Lerrores("Error Semantico",
+                                           "Error los valores de los operandos deben ser numericos",
+                                           0, 0))
+            variables.consola.insert(INSERT,
+                                     "Error los valores de los operandos deben ser numericos")
 
         if self.operador == '+':
             self.val = valizq+valder;

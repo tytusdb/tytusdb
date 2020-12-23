@@ -1,3 +1,4 @@
+
 from enum import Enum
 
 from ply.yacc import errok
@@ -6,7 +7,7 @@ from useDB.instanciaDB import DB_ACTUAL
 from storageManager.jsonMode import extractTable
 from typeChecker.typeReference import getColumns
 from prettytable import PrettyTable
-from astExpresion import ExpresionID
+from astExpresion import ExpresionID, Expresion , TuplaCompleta
 
 class COMBINE_QUERYS(Enum):
     UNION = 1
@@ -170,29 +171,37 @@ class SelectFrom(Instruccion):
                 nodo += "\n" + identificador + " -> " + str(hash(self.fuente)) + ";"
                 nodo += self.fuente.dibujar()
         return nodo
-    def ejecutar(self, ts):
-        columnas = []
-        for col in self.campos:
-            if isinstance (col, ExpresionID):
-                columnas.append(col.val)
-            elif isinstance(col, str):
-                columnas.append(col)
+    def ejecutar(self, ts):        
         if len(self.fuentes)>1:
+            columnas = []
+            for col in self.campos:
+                if isinstance (col, ExpresionID):
+                    columnas.append(col.val)
+                elif isinstance(col, str):
+                    columnas.append(col)
+                elif isinstance(col, Expresion):
+                    # ACA RECIBO POR MEDIO DE TS UNA TABLA DE SIMBOLOS  ---> tipo MATRIX  que tiene TODAS LAS COLUMNAS DE TODAS LAS TABLAS ESPECIFICADAS EN EL FORM
+                    #print(ts.columnas)                    
+                    print(col.ejecutar(ts).val)
             encabezados = []
             lista = []
             for tabla in self.fuentes:
                 tb = extractTable(DB_ACTUAL.name,tabla)
                 lista.append(tb)
-                print(DB_ACTUAL.name,tabla)
                 clm = getColumns(DB_ACTUAL.name,tabla)
                 for encabezado in clm:
                     encabezados.append(tabla+"."+encabezado)
             tabla_fuente = productoCruz(lista)
-            resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla")
+            resultado = matriz(encabezados, tabla_fuente, TABLA_TIPO.PRODUCTO_CRUZ, "nueva tabla", self.fuentes)
+            ts.append(resultado)
+            print(ts)
             salida = None
             seleccion_columnas = []
+            
             for actual in columnas:
                 if actual.count('.') == 1:
+                    seleccion_columnas.append(actual)
+                elif actual == "*":
                     seleccion_columnas.append(actual)
                 else:
                     if esAmbiguo(actual,encabezados,self.fuentes):
@@ -203,21 +212,55 @@ class SelectFrom(Instruccion):
             salida = resultado.obtenerColumnas(seleccion_columnas)
             if salida != None:
                 salida.imprimirMatriz()
+                pass
             else:
                 print("Algo salió mal")
         else:
+            # SOLO UNA FUENTE 
             encabezados = []
             tb = extractTable(DB_ACTUAL.name,self.fuentes[0])
             clm = getColumns(DB_ACTUAL.name,self.fuentes[0])
             for encabezado in clm:
                 encabezados.append(self.fuentes[0]+"."+encabezado)
-            resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0])
+            resultado = matriz(encabezados,tb, TABLA_TIPO.UNICA, self.fuentes[0], self.fuentes)
+            ts.append(resultado)
+#----------------------------------------------------------------------------------------------------- ACA IRIA LO DE EL LISTADO EN LAS COLUMNAS   porque ya ttengo la matrix para validar cosas     
+            columnas = []
+            for col in self.campos:
+                if isinstance (col, ExpresionID):
+                    columnas.append(col.val)
+                elif isinstance(col, str):
+                    columnas.append(col)
+#_________________________________________________________________________________________________ EJECUCION DE EXPRESIONES    , ASI SE PODRIA HACER EL WHERE EXPRESION TAMBIEN :V
+                elif isinstance(col, Expresion):
+                    # ACA RECIBO POR MEDIO DE TS UNA TABLA DE SIMBOLOS  ---> tipo MATRIX  que tiene TODAS LAS COLUMNAS DE TODAS LAS TABLAS ESPECIFICADAS EN EL FORM
+                    MinitablaSimbolos = []
+                    filas = resultado.filas
+                    columnas = resultado.columnas
+                    i = 0 
+                    while(i < len(filas)):
+                        indiceColumna = 0
+                        while(indiceColumna < len(columnas)): # PARA  MANDAR UNA LISTA [ {id :    tipo:    valor:  } , {id :    tipo:    valor:  } , {id :    tipo:    valor:  }  ]
+                            MinitablaSimbolos.append({'id': columnas[indiceColumna] , 'val': filas[i][indiceColumna] , 'tipo':'none'})
+                            indiceColumna+=1
+                        #print(MinitablaSimbolos)
+                        tupla = TuplaCompleta(MinitablaSimbolos) # ESTO SOLO LO HICE PARA PODER HACER UN IF EN EL EJECUTAREXPRESIONID y no matar lo que puso cante :v 
+                        columnaResultante = col.ejecutar(tupla) 
+                        
+                        print(columnaResultante.val)
+                        MinitablaSimbolos.clear()
+                        i+=1
+                        
+            # falta agregar las columnas de expresion a la hora de mostrar 
             salida = resultado.obtenerColumnas(columnas)
             if salida != None:
                 salida.imprimirMatriz()
+                pass
             else:
                 print("Algo salió mal")
 
+
+    
 # Select filter
 class SelectFilter(Instruccion):
     def __init__(self, where, groupby = None, having = None):
@@ -338,24 +381,15 @@ def realizarProducto(operandos:list):
     operandos.append(res)
     return res  
 class matriz():
-    def __init__(self, columnas:list, filas:list, tipo, nombre):
+    def __init__(self, columnas:list, filas:list, tipo, nombre, fuentes: list):
         self.columnas = columnas
         self.filas = filas
         self.tipo = tipo
         self.nombre = nombre
+        self.fuentes = fuentes
     def imprimirMatriz(self):
-        # rows = []
-        # for clm in self.columnas:
-        #     n = clm
-        #     if rows.__contains__(clm):
-        #         x = 0
-        #         for a in rows:
-        #             if a == clm:
-        #                 x+=1
-        #         n = n+"("+str(x)+")"
-        #     rows.append(n)
         x = PrettyTable()
-        x.field_names = self.columnas
+        x.field_names = sinRepetidos(self.columnas)
         for fila in self.filas:
             x.add_row(fila)
         print(x)
@@ -424,7 +458,7 @@ class matriz():
                     error = True
                     break
         if not error:
-            salida = matriz(columnas_resultantes, resultante, TABLA_TIPO.SELECCIONADA, "nueva tabla")
+            salida = matriz(columnas_resultantes, resultante, TABLA_TIPO.SELECCIONADA, "nueva tabla", self.fuentes)
         else: 
             salida = None
         return salida
@@ -447,3 +481,19 @@ def aclarar(id, columnas, tablas):
             actual = tb+"."+id
             if col == actual:
                 return actual
+
+def sinRepetidos(lista: list) -> list:
+    aux = dict()
+
+    for item in lista:
+        aux[item] = 0
+
+    nuevaLista = list()
+    for item in lista:
+        if aux[item] != 0:
+            nuevaLista.append(item + '(' + str(aux[item]) + ')' )
+        else:
+            nuevaLista.append(item)
+        aux[item] += 1
+
+    return nuevaLista

@@ -1,4 +1,5 @@
 from Expresion.Expresion import Expresion
+from Expresion.Terminal import Terminal
 from Entorno import Entorno
 
 class Unaria(Expresion) :
@@ -16,6 +17,9 @@ class Unaria(Expresion) :
             return self
 
         valexp=self.exp1.getval(entorno)
+        if isinstance(valexp, Terminal):
+            valexp = valexp.getval(entorno)
+
         if self.operador == '+':
             self.tipo=self.exp1.tipo
             self.tipo= valexp

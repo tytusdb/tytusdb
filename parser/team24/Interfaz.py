@@ -3,8 +3,48 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
 from tkinter import scrolledtext
-import re
+import grammar2 as g
+import tablaDGA as TabladeSimbolos
+from reportAST import *
+from reportError import *
+from reportBNF import *
+from reportTable import *
 import os
+
+default_db = 'DB1'
+ts = TabladeSimbolos.Tabla()
+
+def meterSimbolos():
+    
+    
+    ts.agregar(TabladeSimbolos.Simbolo(0,'DB1',TabladeSimbolos.TIPO.DATABASE,None,None, None, None, None, None, None, None,None,None))
+
+    ts.agregar(TabladeSimbolos.Simbolo(1,'tbempleado',TabladeSimbolos.TIPO.TABLE,0,None, None, None, None, None, None, None, None,None))
+    ts.agregar(TabladeSimbolos.Simbolo(2,'id',TabladeSimbolos.TIPO.COLUMN,1, None, None, None, None, None, None, None,0,None))
+    ts.agregar(TabladeSimbolos.Simbolo(3,'nombre',TabladeSimbolos.TIPO.COLUMN,1,None, None, None, None, None, None, None,1,None))
+    ts.agregar(TabladeSimbolos.Simbolo(4,'apellido',TabladeSimbolos.TIPO.COLUMN,1,None, None, None, None, None, None, None,2,None))
+
+    ts.agregar(TabladeSimbolos.Simbolo(5,'tbusuario',TabladeSimbolos.TIPO.TABLE,0,None, None, None, None, None, None, None, None,None))
+    
+    ts.agregar(TabladeSimbolos.Simbolo(6,'id',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,0,None))
+    ts.agregar(TabladeSimbolos.Simbolo(7,'nombre',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,1,None))
+    ts.agregar(TabladeSimbolos.Simbolo(8,'apellido',TabladeSimbolos.TIPO.COLUMN,5,None, None, None, None, None, None, None,2,None))
+
+def analiz(input):
+    meterSimbolos()
+    raiz = g.parse(input)
+    report_errors()
+    #executeGraphTree(raiz)
+    #graphTable(ts)
+    results = []
+    for val in raiz:
+        res = val.ejecutar()
+        if isinstance(res,CError):
+            results.append("Error "+ res.tipo+". Descripcion: " +res.descripcion)
+        else:
+            results.append( res)
+    return results
+
 
 root = Tk()
 
@@ -57,6 +97,14 @@ def LimpiarTexto():
     texto.delete('1.0',END)
 def LimpiarConsola():
     consola.delete('1.0',END)
+def Analizar():
+    results = analiz(texto.get("1.0", "end-1c"))
+    cont = 1
+    for res in results:
+        consola.insert(str(float(cont)), res)
+        cont += (res.get_string().count('\n')+2)
+        consola.insert(str(float(cont)), '\n')
+        
 
 """CREACION DE COMPONENTES GRAFICOS"""
 BarraMenu=Menu(root)
@@ -76,7 +124,7 @@ MenuEditar.add_command(label="Limpiar Texto",command=LimpiarTexto)
 BarraMenu.add_cascade(label="Editar", menu=MenuEditar)
 
 MenuAnalizador= Menu(BarraMenu, tearoff=0)  
-MenuAnalizador.add_command(label="Ejecutar Analisis")
+MenuAnalizador.add_command(label="Ejecutar Analisis",command=Analizar)
 BarraMenu.add_cascade(label="Analizar", menu=MenuAnalizador)
 
 MenuReportes= Menu(BarraMenu, tearoff=0)
