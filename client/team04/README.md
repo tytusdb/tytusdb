@@ -85,31 +85,6 @@ def añadir(titulo):
 ```
 > En este método se crean las pestañas, para ello se creó un arreglo donde se guardará cada pestaña que se cree, se utilzó el método appened para añadir más páginas al notebook, y también sus cajas de texto.
 
-## Iniciar la interfaz
-
-Se utiliza:
-```
-python ventana.py
-```
-
-## Menu
-Se crearon los menus Archivo, Editar, Herramientas y Ayuda. En la primera fase solo el menu ayuda y archivo tienen opciones utilizables.
-
-
-## Campo de Texto
-Un editor que tiene numero de linea, opcion para multiples pestañas y un scroll para su mejor manejo.
-
-## Vista de Bases
-El panel izquiero del cliente se utiliza para tener una mejor visualizacion de las bases de datos conectadas. Es un vista de arbol que se expande hasta llegar a las tablas.
-
-## Manual de usuario
-<p align="center">
-  <img src="https://ibb.co/G0GqbsQ" width="600" alt="TytuSQL">
-</p>
-=======
-
-
-
 # Conexion cliente-servidor
 
 ```python
@@ -133,3 +108,71 @@ response = myConnection.getresponse()
 
 > Se envia una peticion y "responde" obtiene la respuesta del servidor.
 
+## Manual de usuario
+> Al ingresar a TytuSQL se podrá apreciar una interfaz como la imagen que se presenta, la ventana principal está compuesta por una barra de menú que tiene las opciones principales y de más ayuda para el usuario.
+
+![Interfaz inicial](resources/Ventan.PNG?raw=true "Inicio") 
+
+> Como se puede ver, se dispone de un campo de texto enumerada para realizar  consultas, esta aplicación podrá abrir modelos y archivos .sql, en la opción archivo se encuentran las siguientes opciones:
+- Nueva ventana: Abre una nueva ventana de TytuSQL.
+- Abrir Query: Abre un archivo .sql en su respectiva pestaña.
+- Abrir Modelo: Abre un modelo ER.
+- Nueva Query: Abre una nueva pestaña con un campo de texto en blanco.
+- Guardar como: Guarda un archivo que ha sido editado previamente en TytuSQL.
+- Guardar: Sobreescribe un archivo previamente abierto.
+- Cerrar pestaña actual: Cierra la pestaña en la que el usuario está.
+- Salir: Se sale de la aplicación.
+
+![Interfaz inicial](resources/abrir.png?raw=true "Inicio") 
+
+Al darle clic en abrir, se podrá ver el archivo .sql desplegado en una pestaña diferente.
+
+![Interfaz inicial](resources/archivo.png?raw=true "Inicio") 
+
+**Herramientas**
+> Como se puede observar en la imagen de abajo, se tiene una menú llamado opción, que a su vez contiene las siguientes opciones:
+- Configuración
+- Utilidades
+- GET
+- POS
+- CREATE USER
+![Herramientas](resources/herramientas.png?raw=true "Herramientas") 
+
+**GET**
+> Esta opción conecta con el servidor para poder obtener a los usuarios registrados en él
+
+![GET](resources/get.png?raw=true "GET") 
+
+**POS**
+> Conecta con el servidor para loggearse con el usuario.
+
+![POS](resources/pos.png?raw=true "POS") 
+
+**CREATE USER**
+> Al escoger esta opción se puede registrar un usuario a la base de datos.
+
+![Creación de usuariol](resources/crearUser.png?raw=true "Crear usuario") 
+
+> Se debe llenar los campos con usuario y contraseña.
+
+![Interfaz inicial](resources/llenarCampos.png?raw=true "Llenar campos") 
+
+> Al dar clic en la opción GET se puede ver que se registró el usuario exitosamente.
+
+
+## Iniciar la interfaz
+
+Se utiliza:
+```
+python ventana.py
+```
+
+## Menu
+Se crearon los menus Archivo, Editar, Herramientas y Ayuda. En la primera fase solo el menu ayuda y archivo tienen opciones utilizables.
+
+
+## Campo de Texto
+Un editor que tiene numero de linea, opcion para multiples pestañas y un scroll para su mejor manejo.
+
+## Vista de Bases
+El panel izquiero del cliente se utiliza para tener una mejor visualizacion de las bases de datos conectadas. Es un vista de arbol que se expande hasta llegar a las tablas.

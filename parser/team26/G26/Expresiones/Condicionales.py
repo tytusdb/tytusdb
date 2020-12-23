@@ -42,7 +42,7 @@ class Condicionales(Instruccion):
 
         return False
 
-    def execute(self):
+    def execute(self, data, valoresTabla):
         try:
             left = self.leftOperator.execute()
         except:

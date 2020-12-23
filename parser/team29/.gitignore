@@ -7,3 +7,4 @@ data
 **/*.sql
 Databases.json
 Types.json
+ReporteGramatica.bnf

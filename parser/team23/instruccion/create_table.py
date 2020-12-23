@@ -30,14 +30,14 @@ class create_table(instruccion):
             self.nodo.hijos.append(inherits_s.nodo)
 
         #Gramatica
-        self.grammar_ =  '<TR><TD> INSTRUCCION ::= CREATE TABLE ' + id_table + ' ( COLUMNAS ) INHERITS </TD><TD> new create_table(' + id_table + ', COLUMNAS, INHERITS); </TD></TR>\n'
-        self.grammar_ += '<TR><TD> COLUMNAS ::= COLUMNA </TD><TD> COLUMNAS = []; </TD></TR>\n'
+        self.grammar_ =  '<TR><TD> INSTRUCCION ::= CREATE TABLE ' + id_table + ' ( contenido_tabla ) inherits_statement; </TD><TD> new create_table(' + id_table + ', COLUMNAS, INHERITS); </TD></TR>\n'
+        self.grammar_ += '<TR><TD> contenido_tabla ::= contenido_tabla </TD><TD> contenido_tabla = []; </TD></TR>\n'
         for columna in columnas:
             self.grammar_ += columna.grammar_
         if inherits_s != None:
             self.grammar_ += inherits_s.grammar_
         else:
-            self.grammar_ += '<TR><TD> INHERITS ::=  EPSILON </TD><TD> INHERITS = None; </TD></TR>\n'
+            self.grammar_ += '<TR><TD> inherits_statement ::=  EPSILON </TD><TD> inherits_statement = None; </TD></TR>\n'
 
     def ejecutar(self):
         use_actual_db = get_actual_use()        
@@ -57,6 +57,9 @@ class create_table(instruccion):
             new_tb = symbol_tb(self.id_table)
             ts.add_tb(use_actual_db, new_tb)
 
+            if self.inherits_s != None:
+                self.inherits_s.ejecutar(self.id_table, self.columnas)
+
             #Crear columnas
             for row in self.columnas:
                 if isinstance(row, create_column):
@@ -65,6 +68,7 @@ class create_table(instruccion):
             #Ejecutar condiciones alternas a columnas
             for row in self.columnas:
                 if isinstance(row, P_Key):
+                    row.cargar_PK(self.id_table)
                     row.ejecutar(self.id_table)
                 elif isinstance(row, F_key):
                     row.ejecutar(self.id_table)
@@ -78,11 +82,11 @@ class create_table(instruccion):
 
             add_text("Tabla creada con exito - " + self.id_table + ' - en base de datos: ' + use_actual_db + '\n')
         elif new_table == 1:
-            errores.append(nodo_error(self.line, self.column, 'Tabla no puedo ser creada con exito - ' + self.id_table + ' -', 'Semántico'))
-            add_text('ERROR - Tabla no pudo ser creada con exito - ' + self.id_table + ' -\n')
+            errores.append(nodo_error(self.line, self.column, 'E-42P01 undefined table: Table could not be created successfully -> ' + self.id_table + ' -', 'Semántico'))
+            add_text('E-42P01 undefined table: Table could not be created successfully -> ' + self.id_table + ' -\n')
         elif new_table == 2:
-            errores.append(nodo_error(self.line, self.column, 'No existe la base de datos - ' + use_actual_db + ' - ', 'Semántico'))
-            add_text('ERROR - No existe la base de datos - ' + use_actual_db + ' - \n')
+            errores.append(nodo_error(self.line, self.column, 'E-22005 error in assignment: The following database does not exist -> ' + use_actual_db + ' - ', 'Semántico'))
+            add_text('E-22005 error in assignment: The following database does not exist -> ' + use_actual_db + ' - \n')
         elif new_table ==  3:
-            errores.append(nodo_error(self.line, self.column, 'Ya existe una tabla con el nombre - ' + self.id_table + ' -', 'Semántico'))
-            add_text('ERROR - Ya existe una tabla con el nombre - ' + self.id_table + ' - \n')
+            errores.append(nodo_error(self.line, self.column, 'E-42P07 duplicate table: a table with the name already exists ' + self.id_table , 'Semántico'))
+            add_text('E-42P07 duplicate table: a table with the name already exists ' + self.id_table + '\n')

@@ -264,12 +264,21 @@
         </div>
     </div>
     <div class="col-10">
-      <form action="{{ url_for('Commit') }}" method="POST">
-      <input type="submit" class="btn btn-primary" value="Commit" data-toggle="tooltip" data-placement="top" title="Commit">
-    </form>
+      <div class="form-group">
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <form action="{{ url_for('Commit') }}" method="POST">
+            <input type="submit" class="btn btn-primary" value="Commit" data-toggle="tooltip" data-placement="top" title="Commit">
+          </form>
+        </div>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <form action="{{ url_for('Rollback')}}" method="POST">
+            <input type="submit" class="btn btn-primary" value="RollBack" data-toggle="tooltip" data-placement="top" title="RollBack">
+          </form>
+        </div>
+      </div>
       <form action="{{ url_for('SomeFunction') }}" method="POST">
       <div class="form-group">
-        <input  id="traductor" name="file" style="margin-bottom: 10px" accept=".sql" type="file" />
+        <input  id="inputsql" name="file" style="margin-bottom: 10px" accept=".sql" type="file" />
         <div class="btn-group" role="group" aria-label="Basic example">
           <button type="button" id="copyid" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Copiar">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-files" viewBox="0 0 16 16">
@@ -286,22 +295,9 @@
         </div>
         <div class="btn-group" role="group" aria-label="Basic example">
           <input type="submit"  class="btn btn-primary">
-          <button type="button" id="cancelid" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Cancelar query">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-stop-circle" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-              <path fill-rule="evenodd" d="M5 6.5A1.5 1.5 0 0 1 6.5 5h3A1.5 1.5 0 0 1 11 6.5v3A1.5 1.5 0 0 1 9.5 11h-3A1.5 1.5 0 0 1 5 9.5v-3z"/>
-            </svg>
-          </button>
-        </div>
-        <div class="btn-group" role="group" aria-label="Basic example">
          
-           
-          <button type="button" id="rollbackid" class="btn btn-primary" data-toggle="tooltip" data-placement="top" title="Rollback">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-octagon-fill" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146zm-6.106 4.5a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
-            </svg>
-          </button>
         </div>
+       
     </div>
       <div class="form-control">
 

@@ -1,5 +1,5 @@
 import flask
-from flask import request, jsonify
+from flask import request, jsonify, json
 
 mensaje = [{
     'resultado' : 'Okey'
@@ -14,21 +14,23 @@ app = flask.Flask(__name__)
 def ejecutar():
     req_data = request.get_json()
     print("Se recibio: "+req_data['entrada'])
-    return jsonify(mensaje)
+    y = json.dumps(mensaje)
+    return y
 
-
-#GET: Enviar un json con cadena 
-@app.route('/msj' ,methods=['GET'])
-def msj():
-    # req_data = request.get_json()
-    # print("Se recibio: "+req_data['entrada'])
-    return jsonify(mensaje)
-
+#Commit solicitado
 @app.route('/commit', methods=['POST'])
 def commit():
 	req_data = request.get_json()
 	print("El usuario solicito commit")
 	z = json.dumps(mensaje2)
 	return z
+
+#Rollback solicitado
+@app.route('/Rollback', methods=['POST'])
+def rollback():
+	req_data = request.get_json()
+	print("El usuario solicito rollback")
+	x = json.dumps(mensaje3)
+	return x
 
 app.run()

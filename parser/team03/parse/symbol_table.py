@@ -1,5 +1,6 @@
 from enum import Enum
 from parse.errors import ErrorType, Error
+from jsonMode import showDatabases as showDB
 
 index = 0
 
@@ -37,21 +38,23 @@ class DatabaseSymbol(Symbol):
 
 
 class TableSymbol(Symbol):
-    def __init__(self, db_name, table_name):
+    def __init__(self, db_id, table_name, check_exp):
         Symbol.__init__(self, SymbolType.TABLE, table_name)
-        self.db_name = db_name
+        self.db_id = db_id
         self.table_name = table_name
+        self.check_exp = check_exp
 
 
 class FieldSymbol(Symbol):
-    def __init__(self, db_name, table_name, field_name, field_type, length, is_not_null, is_pk, fk_table, fk_field):
+    def __init__(self, db_name, table_name, field_index, field_name, field_type, length, allows_null, is_pk, fk_table, fk_field):
         Symbol.__init__(self, SymbolType.FIELD, field_name)
         self.db_name = db_name
         self.table_name = table_name
+        self.field_index = field_index
         self.field_name = field_name
         self.field_type = field_type
         self.length = length
-        self.is_not_null = is_not_null
+        self.allows_null = allows_null
         self.is_pk = is_pk
         self.fk_table = fk_table
         self.fk_field = fk_field
@@ -100,6 +103,11 @@ class SymbolTable:
         self.symbols[self.symbols.index(result)] = symbol
         return True
 
+    def delete(self, symbol_id):
+        result = self.get(symbol_id)
+        self.symbols.remove(result)
+        return True
+
     def get_current_db(self):
         result = next((sym for sym in self.symbols if sym.type == SymbolType.DATABASE and sym.selected == True), None)
         if result is None:
@@ -107,9 +115,14 @@ class SymbolTable:
         return result
 
     def set_current_db(self, db_name):
-        db_to_select = self.get(db_name, SymbolType.DATABASE)
+        db_to_select = self.get(db_name, SymbolType.DATABASE)        
+        allDB = self.get_all_db(None)#get the other databases and unselect them
+        if (len(allDB)>0):
+            for db in allDB:
+                db.selected = False
         db_to_select.selected = True
-        self.update(db_to_select)
+        #self.update(db_to_select) commet this line for test
+        
         return True
 
     def get_all_db(self, table_name):
@@ -123,7 +136,24 @@ class SymbolTable:
         for x in range(len(self.symbols)):
             print(f'{self.symbols[x].id} - {self.symbols[x].type} - {self.symbols[x].name}')
 
+    def LoadMETADATA(self):
+        self.LoadDataBases()
+    
+    def LoadDataBases(self):
+        db_memory = self.get_all_db(None)
+        db_disk = showDB()
+        for dbd in db_disk:
+            db_memory =  list(filter(lambda sym: sym.type == SymbolType.DATABASE and str(sym.name).lower() == str(dbd).lower(), self.symbols))
+            if len(db_memory) == 0:
+                self.add(DatabaseSymbol(dbd, None, 6))#TODO change the mode for phase II
 
+    def drop_data_base(self, name_db):
+        index = 0;
+        for s in self.symbols:
+            if s.type == SymbolType.DATABASE and str(s.name).lower() == str(name_db).lower():
+                self.symbols.remove(s)
+                break
+            index+=1
 # BLOCK TO TEST SYMBOL TABLE
 # db = DatabaseSymbol('test_db', None, 6)
 # table = TableSymbol(db.name, 'test_table')
