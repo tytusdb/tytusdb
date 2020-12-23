@@ -860,8 +860,9 @@ class CreateTable(Instruction):
                 print("Error en llaves primarias del CREATE TABLE:", self.name)
             return "Tabla " + self.name + " creada"
         else:
-            #   for i in insert:
-            #      error.append(i)
+            if error == None:
+                error = insert
+
             Struct.dropTable(dbtemp, self.name)
             return error
 
@@ -1052,6 +1053,25 @@ class CheckOperation(Instruction):
                 len(sintaxPostgreSQL), "Error: XX000: Error interno"
             )
             print("Error fatal CHECK")
+
+
+class AlterTable(Instruction):
+
+
+    def __init__(self, table,params = []):
+        self.table = table
+        self.params = params
+
+    def execute(self, environment):
+        alter = Struct.alterColumnsTable(dbtemp,self.table,self.params)
+        if alter == None:
+            alter = Checker.checkValue(dbtemp,self.table)
+            Struct.save()
+
+        if alter == None:
+            alter = "Tabla alterada"
+
+        return alter
 
 
 class limitClause(Instruction):

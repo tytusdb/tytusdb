@@ -1,8 +1,5 @@
-import sys
-sys.path.append('../tytus/parser/team27/G-27/execution/abstract')
-sys.path.append('../tytus/parser/team27/G-27/execution/symbol')
-from environment import *
-from expression import *
+from execution.symbol.environment import *
+from execution.abstract.expression import *
 
 class Id(Expression):
     """
